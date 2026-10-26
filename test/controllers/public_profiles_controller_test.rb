@@ -201,7 +201,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror")
 
     assert_response :success
-    assert_select "title", "Horror · Gabe the Brave · gameble"
+    assert_select "title", "Horror · Gabe the Brave · Gameble"
     assert_select "meta[name=robots][content=noindex]"
     assert_select "h1", 1
     assert_select "h1#set-album-heading[tabindex='-1']", "Horror · Gabe the Brave"
@@ -364,7 +364,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_empty statements
     assert_select "meta[name=robots][content=noindex]"
-    assert_select "title", "Collection · Gabe the Brave · gameble"
+    assert_select "title", "Collection · Gabe the Brave · Gameble"
     assert_select "h1", "Collection · Gabe the Brave"
     assert_select ".collection:not(.collection--visitor) .collection__aside"
     assert_select ".collection-slot .card--not-owned", 58
@@ -670,7 +670,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get brother_set_path(locale: :fr, token: @owner.token, kind: "theme", key: "pirates")
     assert_select "h1", "Pirates · Joueur #{code}"
-    assert_select "title", "Pirates · Joueur #{code} · gameble"
+    assert_select "title", "Pirates · Joueur #{code} · Gameble"
     assert_select ".set-album__stamp", "Complet"
 
     get brother_path(locale: :en, token: @owner.token)

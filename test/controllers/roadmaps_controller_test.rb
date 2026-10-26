@@ -25,7 +25,7 @@ class RoadmapsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Fait", "En cours", "À venir" ], css_select(".roadmap-badge").map { it.text.squish }
     stories = css_select(".roadmap-story").map { it.text.squish }
     assert_equal [ "Récit a Fait", "Récit b En cours", "Récit c À venir", "Récit d À venir" ], stories
-    assert_select "title", "Feuille de route · gameble"
+    assert_select "title", "Feuille de route · Gameble"
     assert_select "meta[name=description]"
   end
 

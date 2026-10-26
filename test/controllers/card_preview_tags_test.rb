@@ -81,7 +81,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__end form[action='/auth/steam'] img.steam-sign-in__image"
     assert_select "nav.tab-bar", false
     assert_select "main form[action='/auth/steam']", 1
-    assert_select ".public-card__live-title", /Live\s+·\s+Right now on gameble/
+    assert_select ".public-card__live-title", /Live\s+·\s+Right now on Gameble/
     assert_select "#live-strip .public-card__live-empty", "Nothing here yet."
     assert_select ".public-card__footer a.public-card__legal[href=?]", "/en/legal", "Legal notice"
     assert_select ".library, .profile", false
@@ -114,7 +114,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   test "an older browser's line: in the markup beside the invitation, the stylesheet showing one or the other by :has() support, no script involved" do
     get card_page
 
-    assert_select ".public-card__update", "Your browser is too old to sign in to gameble. Update it to play."
+    assert_select ".public-card__update", "Your browser is too old to sign in to Gameble. Update it to play."
     assert_select ".public-card__pitch"
     assert_select "script", text: /:has|userAgent|navigator/, count: 0
 
@@ -135,11 +135,11 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
     assert_equal "Blue Depths — Rare", og("title")
     assert_select "title", "Blue Depths — Rare"
-    description = "A card of gameble, your Steam games as collectible cards. Sign in through Steam: ten capsules wait for you."
+    description = "A card of Gameble, your Steam games as collectible cards. Sign in through Steam: ten capsules wait for you."
     assert_equal description, og("description")
     assert_equal description, meta("name", "description")
     assert_equal "website", og("type")
-    assert_equal "gameble", og("site_name")
+    assert_equal "Gameble", og("site_name")
     assert_equal season_url, og("url")
     assert_equal season_url, canonical
     assert_equal "en_US", og("locale")
@@ -158,12 +158,12 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select "title", "Profondeurs bleues — Rare"
     assert_equal "fr_FR", og("locale")
     assert_equal season_url(locale: :fr), og("url")
-    assert_equal "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix capsules vous attendent.", og("description")
+    assert_equal "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix capsules vous attendent.", og("description")
     assert_select ".public-card__pitch-title", "Vos jeux Steam, en cartes à collectionner."
     assert_select ".public-card__pitch-text", "Ouvrez des capsules, complétez des sets, échangez avec vos amis."
     assert_select ".public-card__pitch button", "Ouvrir mes premières capsules"
-    assert_select ".public-card__update", "Votre navigateur est trop ancien pour se connecter à gameble. Mettez-le à jour pour jouer."
-    assert_select ".public-card__live-title", /En ce moment sur gameble/
+    assert_select ".public-card__update", "Votre navigateur est trop ancien pour se connecter à Gameble. Mettez-le à jour pour jouer."
+    assert_select ".public-card__live-title", /En ce moment sur Gameble/
     assert_select ".public-card__legal", "Mentions légales"
   end
 

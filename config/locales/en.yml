@@ -3,17 +3,17 @@
 en:
   layouts:
     application:
-      title: "gameble"
-      application_name: "gameble"
+      title: "Gameble"
+      application_name: "Gameble"
   shell:
     live:
       marker: "Live"
     top_bar:
-      brand: "gameble"
+      brand: "Gameble"
       back: "Bridge"
       back_landing: "Home"
-      home: "gameble, command bridge"
-      landing: "gameble, home page"
+      home: "Gameble, command bridge"
+      landing: "Gameble, home page"
       previous: "Back:"
       motion_switch: "Reduced motion"
     screens:
@@ -141,7 +141,7 @@ en:
         title: "Sets in progress"
         see_all: "See all"
       welcome:
-        title: "Welcome to gameble"
+        title: "Welcome to Gameble"
         founders: "Once banished from Earth, video games were saved through the efforts of our illustrious founders."
         legacy: "Today, the Great Brotherhood of Gameblers is honored to grant you access to this legacy through cards randomly distributed in our capsules, ensuring complete fairness among our members."
         collection: "All that remains is for you to build your collection."
@@ -153,7 +153,7 @@ en:
       settings: "Profile and settings"
     credits:
       title: "Credits"
-      intro: "gameble draws on the works below. They are inspirations, never affiliations: none of them has anything to do with gameble or endorses it."
+      intro: "Gameble draws on the works below. They are inspirations, never affiliations: none of them has anything to do with Gameble or endorses it."
       list_label: "Inspirations"
       wikimasters:
         name: "WikiMasters"
@@ -179,27 +179,27 @@ en:
         host: "Host"
       ownership:
         title: "Steam, Valve and the games"
-        affiliation: "gameble is not affiliated with Valve or Steam, and is not endorsed or sponsored by them. Steam and the Steam logo are trademarks of Valve Corporation."
+        affiliation: "Gameble is not affiliated with Valve or Steam, and is not endorsed or sponsored by them. Steam and the Steam logo are trademarks of Valve Corporation."
         artwork: "All artwork belongs to the games' publishers and their artists, whom we respect."
         data: "The games' names, covers and descriptions come from Steam and remain the property of their rights holders. At a rights holder's request, the game concerned is removed without delay."
       terms:
         title: "Terms of use"
         acceptance: "By signing in with Steam, you accept these terms."
-        free: "gameble is a free game, with no ads and no purchases."
+        free: "Gameble is a free game, with no ads and no purchases."
         no_money: "No real money flows through it: nothing is bought, nothing is sold."
-        no_property: "Cards, capsules and card backs are parts of the game: they are not your property and have no value, neither in money nor outside gameble. No card may be sold or exchanged for money, in gameble or outside it."
+        no_property: "Cards, capsules and card backs are parts of the game: they are not your property and have no value, neither in money nor outside Gameble. No card may be sold or exchanged for money, in Gameble or outside it."
         fair_play: "Play fair: no bots, scripts or automation, no multiple accounts, no exploiting bugs."
         moderation_html: "Players can report a profile. Moderators review every report and may suspend an account that breaks these rules. The decision is always made by a person. A suspended player sees the reason for the decision when trying to sign in and can contest it by writing to %{contact}."
-        notice_html: "Even without a gameble account, you can report illegal content or ask for the removal of a game whose rights you hold: write to %{contact} with the page's address and the reason for your request."
+        notice_html: "Even without a Gameble account, you can report illegal content or ask for the removal of a game whose rights you hold: write to %{contact} with the page's address and the reason for your request."
         no_guarantee: "The service is free and provided as is. It may be interrupted for maintenance or changed. Should it close for good, the closure would be announced on the site at least 30 days in advance."
         changes: "These terms may change. A significant change is announced in the game before it applies. The version in force is the one on this page."
         law: "They are governed by French law."
       privacy:
         title: "Privacy"
-        controller_html: "The controller of your data is Thomas Eyermann, publisher of gameble, reachable at %{contact}."
-        controller: "The controller of your data is Thomas Eyermann, publisher of gameble."
+        controller_html: "The controller of your data is Thomas Eyermann, publisher of Gameble, reachable at %{contact}."
+        controller: "The controller of your data is Thomas Eyermann, publisher of Gameble."
         stored:
-          intro: "To run the game, gameble keeps:"
+          intro: "To run the game, Gameble keeps:"
           steam: "your Steam id and your Steam profile name;"
           activity: "your game activity: cards, capsules, trades, friends and invitations, friend code, activity feed entries;"
           moderation: "the reports you make, those aimed at your profile (their author is not disclosed to you) and the moderation decisions that concern you, with their reason;"
@@ -213,8 +213,8 @@ en:
           security: "securing the site and fixing errors (server logs, abuse limiting, error tracking, Cloudflare): legitimate interest in keeping the service secure and working properly (Article 6(1)(f));"
           requests: "answering your messages and your requests about your data: legal obligation (Article 6(1)(c))."
           no_automation: "No decision about you is made by automated means."
-        visibility: "Your profile is public by default: your profile name, your collection and your activity feed entries are visible to everyone, including visitors who are not signed in. You can restrict it to your friends or make it private in the settings. gameble's moderators can view any profile, whatever its setting."
-        cookies: "gameble only uses strictly necessary cookies, exempt from consent: the session cookie, which protects forms and keeps you signed in for 30 days after your last visit, or until you sign out, and the one that remembers your reduced motion choice, for one year. Cloudflare may add a security cookie that filters out bots. Your browser's storage also keeps your trade drafts and the interface's state, on your device only. No advertising or audience measurement trackers."
+        visibility: "Your profile is public by default: your profile name, your collection and your activity feed entries are visible to everyone, including visitors who are not signed in. You can restrict it to your friends or make it private in the settings. Gameble's moderators can view any profile, whatever its setting."
+        cookies: "Gameble only uses strictly necessary cookies, exempt from consent: the session cookie, which protects forms and keeps you signed in for 30 days after your last visit, or until you sign out, and the one that remembers your reduced motion choice, for one year. Cloudflare may add a security cookie that filters out bots. Your browser's storage also keeps your trade drafts and the interface's state, on your device only. No advertising or audience measurement trackers."
         nothing_else: "No analytics, no ads, no real money. Your data is neither sold nor handed over."
         services:
           intro: "A few outside services take part:"
@@ -246,12 +246,12 @@ en:
           authority: "CNIL"
       source:
         title: "Source code"
-        text: "gameble's code is free software under the GNU AGPL v3.0 license. Its pixel art is under the Creative Commons BY-NC-SA 4.0 license: reusable with credit, never for a commercial purpose. The gameble name and logo remain reserved."
+        text: "Gameble's code is free software under the GNU AGPL v3.0 license. Its pixel art is under the Creative Commons BY-NC-SA 4.0 license: reusable with credit, never for a commercial purpose. The Gameble name and logo remain reserved."
         link: "Source code"
       credits_link: "Credits"
       support:
-        title: "Support gameble"
-        text: "gameble is free and will stay free. If you enjoy the game, you can help pay for its hosting. Donations are optional and give no advantage in the game. They go through Buy Me a Coffee, under its own terms. The publisher receives whatever you choose to enter there (name, message)."
+        title: "Support Gameble"
+        text: "Gameble is free and will stay free. If you enjoy the game, you can help pay for its hosting. Donations are optional and give no advantage in the game. They go through Buy Me a Coffee, under its own terms. The publisher receives whatever you choose to enter there (name, message)."
         link: "Support"
     how_it_works:
       title: "How it works"
@@ -790,7 +790,7 @@ en:
         master: "Master"
         complete: "Complete"
     album:
-      title: "%{set} · Collection · gameble"
+      title: "%{set} · Collection · Gameble"
       slots: "Cards in the set"
       search:
         label: "Search a game of this set by name"
@@ -798,7 +798,7 @@ en:
     collection:
       title: "Collection"
     cards:
-      title: "All cards · gameble"
+      title: "All cards · Gameble"
       heading: "All cards"
     status:
       label: "Unique cards:"
@@ -917,10 +917,10 @@ en:
           other: "%{count} sets started"
         full_collection: "See the full collection"
     set:
-      title: "%{set} · %{name} · gameble"
+      title: "%{set} · %{name} · Gameble"
       heading: "%{set} · %{name}"
     collection:
-      title: "Collection · %{name} · gameble"
+      title: "Collection · %{name} · Gameble"
       heading: "Collection · %{name}"
     unavailable:
       title: "Profile not available"
@@ -1545,8 +1545,8 @@ en:
       throttled: "Too many attempts in a minute. Try again in a moment."
   roadmaps:
     show:
-      title: "Roadmap · gameble"
-      description: "What is done, what is moving and what is next in gameble, the free trading card game where every card is a Steam game."
+      title: "Roadmap · Gameble"
+      description: "What is done, what is moving and what is next in Gameble, the free trading card game where every card is a Steam game."
       kicker: "Roadmap"
       heading: "What's coming"
       intro: "What is done, what is moving, what is next. The collection is built with the community, and so is the game."
@@ -1557,7 +1557,7 @@ en:
         to_come: "Upcoming"
   landings:
     show:
-      title: "gameble, a free trading card game of Steam games"
+      title: "Gameble, a free trading card game of Steam games"
       description: "Every card is a Steam game. Open capsules, complete sets, trade with friends and join the Brotherhood in its search for lost games. Free to play."
       structured_data:
         genre: "Trading card game"
@@ -1568,7 +1568,7 @@ en:
         kicker: "Mission in progress"
         marker: "00 · Mission"
         hook: "Games have been lost. The Brotherhood sets out to find them. Join it."
-        line: "gameble is a collectible card game built on the public library of Steam games."
+        line: "Gameble is a collectible card game built on the public library of Steam games."
         embark: "Board the bridge"
         embark_label: "Board the bridge, sign in through Steam"
         lamp:
@@ -1741,12 +1741,12 @@ en:
       free:
         label: "08 · A free game"
         title: "A free game that respects you."
-        open: "gameble is free and open. Everyone plays on equal terms, and anyone can see how it works."
+        open: "Gameble is free and open. Everyone plays on equal terms, and anyone can see how it works."
         respect: "Your data is neither sold nor exploited. No advertising comes between you and your cards."
         support:
-          kicker: "Support gameble"
+          kicker: "Support Gameble"
           line: "To keep running, the project needs support."
-          text: "If you enjoy gameble, you can help it."
+          text: "If you enjoy Gameble, you can help it."
           button: "Support"
           hint: "(donation site, new tab)"
       boarding:
@@ -1761,7 +1761,7 @@ en:
         support: "Support"
         source: "Source code"
         source_hint: "(GitHub, new tab)"
-        notice: "gameble is affiliated with neither Steam nor Valve. The illustrations belong to the games' publishers and their artists."
+        notice: "Gameble is affiliated with neither Steam nor Valve. The illustrations belong to the games' publishers and their artists."
   external_links:
     new_tab: "(new tab)"
   card_details:
@@ -1803,7 +1803,7 @@ en:
     store: "See on Steam"
     preview:
       title: "%{title} — %{rarity}"
-      description: "A card of gameble, your Steam games as collectible cards. Sign in through Steam: ten capsules wait for you."
+      description: "A card of Gameble, your Steam games as collectible cards. Sign in through Steam: ten capsules wait for you."
     share:
       button: "Share"
       title: "Share the card"
@@ -1821,12 +1821,12 @@ en:
       invitation: "Open capsules, complete sets, trade with your friends."
       pitch_title: "Your Steam games, as collectible cards."
       sign_in: "Open my first capsules"
-      update_browser: "Your browser is too old to sign in to gameble. Update it to play."
+      update_browser: "Your browser is too old to sign in to Gameble. Update it to play."
       grid: "Grid"
       booster: "Capsule"
       profile: "Profile"
       live:
-        title: "Right now on gameble"
+        title: "Right now on Gameble"
       legal: "Legal notice"
   catalog:
     rarity:
@@ -1845,7 +1845,7 @@ en:
       phenomenes: "The Phenomena"
   sessions:
     create:
-      welcome: "Welcome to gameble. Your capsules are waiting."
+      welcome: "Welcome to Gameble. Your capsules are waiting."
     banned:
       title: "Account suspended"
       reason_label: "Reason given by the moderator"

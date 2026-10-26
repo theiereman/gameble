@@ -31,7 +31,7 @@ class ErrorPagesTest < ActionDispatch::IntegrationTest
 
       assert_empty html.css("style, [style], script")
       assert_equal locale, html.at_css("html")["lang"]
-      assert_match(/gameble/, html.at_css("title").text)
+      assert_match(/Gameble/, html.at_css("title").text)
       assert_equal [ "/#{locale}" ], html.css("a.error__home").map { it["href"] }
       assert_equal HOME_LABELS[locale], html.at_css("a.error__home").text
       assert_equal [ "/errors.css?v=#{stamp("errors.css")}" ], html.css("link[rel=stylesheet]").map { it["href"] }

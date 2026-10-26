@@ -24,7 +24,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:player))
     get home_path(locale: :fr)
 
-    assert_select "title", "gameble"
+    assert_select "title", "Gameble"
     assert_select "link[rel=icon][type='image/svg+xml'][href*='/favicon-'][href$='.svg']"
     assert_select "link[rel=icon][type='image/png'][sizes='180x180'][href*='/favicon-'][href$='.png']"
     assert_select "link[rel=apple-touch-icon][href*='/favicon-'][href$='.png']"
@@ -54,7 +54,7 @@ class ShellTest < ActionDispatch::IntegrationTest
 
     assert_select "body > header.top-bar:not([data-screen-label])" do
       assert_select ".top-bar__start p.top-bar__brand svg.pixel-icon.top-bar__wordmark"
-      assert_select ".top-bar__start .top-bar__brand .top-bar__name", "gameble"
+      assert_select ".top-bar__start .top-bar__brand .top-bar__name", "Gameble"
       assert_select ".top-bar__start a", false
       assert_select ".top-bar__end form.steam-sign-in[action='/auth/steam'][method=post][data-turbo=false]" do
         assert_select "input[type=hidden][name=origin][value='/fr']"
@@ -77,16 +77,16 @@ class ShellTest < ActionDispatch::IntegrationTest
   test "a visitor's wordmark, phone brand and phone back lead to the landing; a player's to the hub" do
     get library_cards_path(locale: :fr)
 
-    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/fr'][aria-label=?]", "gameble, page d'accueil"
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/fr'][aria-label=?]", "Gameble, page d'accueil"
     assert_select ".top-bar__start > a.button.top-bar__bridge[href='/fr'] .button__label", "Accueil"
     invite = invite_link_path(locale: :en, token: accounts_players(:moderator).token)
     get invite
-    assert_select ".top-bar__start > a.top-bar__home[href='/en'][aria-label=?]", "gameble, home page"
-    assert_select ".top-bar__start > a.top-bar__brand.top-bar__phone-brand[href='/en'][aria-label=?]", "gameble, home page"
+    assert_select ".top-bar__start > a.top-bar__home[href='/en'][aria-label=?]", "Gameble, home page"
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__phone-brand[href='/en'][aria-label=?]", "Gameble, home page"
 
     sign_in(accounts_players(:player))
     get invite
-    assert_select ".top-bar__start > a.top-bar__home[href='/en'][aria-label=?]", "gameble, command bridge"
+    assert_select ".top-bar__start > a.top-bar__home[href='/en'][aria-label=?]", "Gameble, command bridge"
     assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand"
   end
 
@@ -147,9 +147,9 @@ class ShellTest < ActionDispatch::IntegrationTest
     get card_path(locale: :en, slug: "portal")
 
     assert_select "header.top-bar[data-screen-label=Card]"
-    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home:first-child[href='/en'][aria-label=?]", "gameble, command bridge" do
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home:first-child[href='/en'][aria-label=?]", "Gameble, command bridge" do
       assert_select "svg.pixel-icon.top-bar__wordmark[aria-hidden=true]"
-      assert_select ".top-bar__name", "gameble"
+      assert_select ".top-bar__name", "Gameble"
     end
     assert_wordmark_sweeps_on_hover
     assert_select ".top-bar__home + .top-bar__divider[aria-hidden=true]"
@@ -207,11 +207,11 @@ class ShellTest < ActionDispatch::IntegrationTest
 
     get more_path(locale: :en)
 
-    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/en'][aria-label=?]", "gameble, command bridge" do
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/en'][aria-label=?]", "Gameble, command bridge" do
       assert_select "svg.pixel-icon.top-bar__wordmark"
-      assert_select ".top-bar__name", "gameble"
+      assert_select ".top-bar__name", "Gameble"
     end
-    assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand .top-bar__name", "gameble"
+    assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand .top-bar__name", "Gameble"
     assert_wordmark_sweeps_on_hover
     assert_wordmark_sweeps_on_hover ".top-bar__start > p.top-bar__phone-brand"
 
@@ -333,7 +333,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "body.is-back-office"
     assert_select ".top-bar__start > a.button--secondary[href='/fr'] .button__label", "Pont"
-    assert_select ".top-bar__start > a.top-bar__home[href='/fr'][aria-label=?]", "gameble, pont de commandement"
+    assert_select ".top-bar__start > a.top-bar__home[href='/fr'][aria-label=?]", "Gameble, pont de commandement"
     assert_select ".top-bar__previous .visually-hidden", "Retour :"
     assert_select "header.top-bar[data-screen-label=Back-office]"
     assert_select "#atmosphere, .atmosphere", false

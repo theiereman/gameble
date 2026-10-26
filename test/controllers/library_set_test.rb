@@ -62,7 +62,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     get library_set_path(locale: :en, kind: "theme", key: "horror")
 
     assert_response :success
-    assert_select "title", "Horror · Collection · gameble"
+    assert_select "title", "Horror · Collection · Gameble"
     assert_select "h1", 1
     assert_select "h1#set-album-heading.set-album__name[tabindex='-1'][data-set-album-target=heading]", "Horror"
     assert_select "header.set-album__header.panel--brackets"
@@ -113,7 +113,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     get library_set_path(locale: :fr, kind: "franchise", key: "tom-clancy")
 
     assert_response :success
-    assert_select "title", "Tom Clancy · Collection · gameble"
+    assert_select "title", "Tom Clancy · Collection · Gameble"
     assert_select "h1", "Tom Clancy"
     assert_select ".set-album__title .set-album__stamp", "Complet"
     assert_equal [ "set-album__name", "set-album__stamp", "set-album__count" ], title_line
@@ -353,7 +353,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     publish_franchises_and_studios_draft
     get library_set_path(locale: :fr, kind: "studio", key: "capcom")
     assert_select "h1", "CAPCOM"
-    assert_select "title", "CAPCOM · Collection · gameble"
+    assert_select "title", "CAPCOM · Collection · Gameble"
 
     publish_hall_of_fame_draft
     get library_set_path(locale: :en, kind: "hall_of_fame", key: "phenomenes")

@@ -22,7 +22,7 @@ class WelcomesControllerTest < ActionDispatch::IntegrationTest
     assert_nil flash[:notice]
     assert_select "#toasts > .toast", 0
     assert_select "dialog#welcome-panel.modal[aria-labelledby=welcome-title]:not([open])" do
-      assert_select "p#welcome-title", "Bienvenue sur gameble"
+      assert_select "p#welcome-title", "Bienvenue sur Gameble"
       assert_select "p.welcome-dialog__line", 4
       assert_select "p.welcome-dialog__line", "Autrefois bannis de la Terre, les jeux vidéo ont été sauvés grâce aux efforts de nos illustres fondateurs."
       assert_select "p.welcome-dialog__line", "Aujourd'hui, la Grande Confrérie des Gameblers a l'honneur de vous donner accès à cet héritage, " \
@@ -52,7 +52,7 @@ class WelcomesControllerTest < ActionDispatch::IntegrationTest
     sign_up(origin: "/en")
 
     assert_select "#welcome-panel" do
-      assert_select "p#welcome-title", "Welcome to gameble"
+      assert_select "p#welcome-title", "Welcome to Gameble"
       assert_select "p.welcome-dialog__line", "Once banished from Earth, video games were saved through the efforts of our illustrious founders."
       assert_select "p.welcome-dialog__line", "Today, the Great Brotherhood of Gameblers is honored to grant you access to this legacy through cards " \
         "randomly distributed in our capsules, ensuring complete fairness among our members."
@@ -94,7 +94,7 @@ class WelcomesControllerTest < ActionDispatch::IntegrationTest
   test "a player whose welcome is closed signs in to the toast and no panel" do
     sign_in(accounts_players(:player), origin: "/fr")
 
-    assert_equal "Bienvenue sur gameble. Vos capsules vous attendent.", flash[:notice]
+    assert_equal "Bienvenue sur Gameble. Vos capsules vous attendent.", flash[:notice]
     follow_redirect!
     assert_select "#welcome-panel", 0
     assert_empty close_jobs

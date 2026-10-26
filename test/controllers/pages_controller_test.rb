@@ -61,7 +61,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "html[lang=fr]"
-    assert_select "title", "gameble"
+    assert_select "title", "Gameble"
     assert_select "body > header.top-bar + main#main + .ticker"
     assert_select "nav.tab-bar[aria-label=?]", "Navigation principale"
     assert_select "main h1.hub__title[tabindex='-1']", "Pont de commandement"
@@ -715,7 +715,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "html[lang=fr]"
     assert_select "title", "Mentions légales et confidentialité"
     assert_select "main h1#legal-heading", "Mentions légales et confidentialité"
-    assert_equal [ "Éditeur et hébergeur", "Steam, Valve et les jeux", "Conditions d'utilisation", "Confidentialité", "Code source", "Soutenir gameble" ],
+    assert_equal [ "Éditeur et hébergeur", "Steam, Valve et les jeux", "Conditions d'utilisation", "Confidentialité", "Code source", "Soutenir Gameble" ],
       css_select("main section.legal__section h2").map(&:text)
     assert_select ".legal__ownership", OWNERSHIP_NOTICE
     assert_select ".legal__affiliation", /n'est affilié ni à Valve ni à Steam/
@@ -768,7 +768,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "html[lang=en]"
     assert_select "main h1", "Legal notice and privacy"
-    assert_equal [ "Publisher and host", "Steam, Valve and the games", "Terms of use", "Privacy", "Source code", "Support gameble" ],
+    assert_equal [ "Publisher and host", "Steam, Valve and the games", "Terms of use", "Privacy", "Source code", "Support Gameble" ],
       css_select("main section.legal__section h2").map(&:text)
     assert_select ".legal__ownership", "All artwork belongs to the games' publishers and their artists, whom we respect."
     assert_equal "Support (new tab)", css_select("main a.legal__donation").sole.text.squish
@@ -921,13 +921,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_select "#legal-privacy + p.legal__controller",
-      "Le responsable du traitement de vos données est Thomas Eyermann, éditeur de gameble, joignable à contact@example.test."
+      "Le responsable du traitement de vos données est Thomas Eyermann, éditeur de Gameble, joignable à contact@example.test."
     assert_select ".legal__controller a.legal__link[href=?]", "mailto:contact@example.test"
 
     get legal_path(locale: :en)
 
     assert_select "#legal-privacy + p.legal__controller",
-      "The controller of your data is Thomas Eyermann, publisher of gameble, reachable at contact@example.test."
+      "The controller of your data is Thomas Eyermann, publisher of Gameble, reachable at contact@example.test."
   end
 
   test "without a contact, the controller line names the publisher only" do
@@ -935,12 +935,12 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get legal_path(locale: :fr)
 
-    assert_select "#legal-privacy + p.legal__controller", "Le responsable du traitement de vos données est Thomas Eyermann, éditeur de gameble."
+    assert_select "#legal-privacy + p.legal__controller", "Le responsable du traitement de vos données est Thomas Eyermann, éditeur de Gameble."
     assert_select ".legal__controller a", false
 
     get legal_path(locale: :en)
 
-    assert_select "#legal-privacy + p.legal__controller", "The controller of your data is Thomas Eyermann, publisher of gameble."
+    assert_select "#legal-privacy + p.legal__controller", "The controller of your data is Thomas Eyermann, publisher of Gameble."
   end
 
   test "an older browser reads the legal page, which the public card page's footer links to" do

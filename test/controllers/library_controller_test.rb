@@ -94,7 +94,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en, state: %w[all])
 
     assert_response :success
-    assert_select "title", "All cards · gameble"
+    assert_select "title", "All cards · Gameble"
     assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
     assert_select ".top-bar__title", "Collection"
     assert_select ".top-bar__end .collection-status" do
@@ -370,7 +370,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
   test "the page title names all the cards and the game, not the collection, for a visitor and a player in both locales" do
     publish_sets_draft
-    titles = { fr: "Toutes les cartes · gameble", en: "All cards · gameble" }
+    titles = { fr: "Toutes les cartes · Gameble", en: "All cards · Gameble" }
 
     titles.each do |locale, page_title|
       get library_cards_path(locale:)

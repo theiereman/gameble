@@ -71,7 +71,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     sign_in_with_steam
 
-    assert_equal "Welcome to gameble. Your capsules are waiting.", flash[:notice]
+    assert_equal "Welcome to Gameble. Your capsules are waiting.", flash[:notice]
     follow_redirect!
     assert_select ".toasts[role=status] > .toast.toast--notice .toast__message", flash[:notice]
     assert_select "#welcome-panel", 0
@@ -208,7 +208,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     sign_in_with_steam(origin: "/fr")
 
     assert_redirected_to home_path(locale: :fr)
-    assert_equal "Bienvenue sur gameble. Vos capsules vous attendent.", flash[:notice]
+    assert_equal "Bienvenue sur Gameble. Vos capsules vous attendent.", flash[:notice]
   end
 
   test "a malformed claimed id signs nobody in" do

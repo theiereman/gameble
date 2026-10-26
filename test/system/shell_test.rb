@@ -406,7 +406,7 @@ class ShellTest < ApplicationSystemTestCase
     { library: library_path(locale: :en), card: card_path(locale: :en, slug: "portal"),
       pack: pack_path(locale: :en, token: pack.token), back_office: back_office_path(locale: :en) }.each do |name, path|
       visit path
-      assert_selector ".top-bar__start > a.top-bar__home[aria-label='gameble, command bridge']"
+      assert_selector ".top-bar__start > a.top-bar__home[aria-label='Gameble, command bridge']"
       assert_no_selector ".top-bar__start > a.top-bar__bridge"
       assert_equal "rgb(11, 15, 21)", computed("body", "backgroundColor"), name
       assert_no_sideways_scroll
