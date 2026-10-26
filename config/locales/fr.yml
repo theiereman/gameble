@@ -1656,7 +1656,8 @@ fr:
         goal:
           kicker: "Cette semaine"
           title: "Un objectif pour tous"
-          text: "Chaque capsule ouverte et chaque échange conclu font avancer la même jauge. Objectif atteint : tous les participants sont récompensés."
+          text: "Chaque capsule ouverte et chaque échange conclu font avancer la même jauge."
+          reached: "Objectif atteint : tous les participants sont récompensés."
           ends: "Fin %{time}. Le prochain objectif s'ouvre aussitôt."
           local_time: ", heure locale"
           participants:

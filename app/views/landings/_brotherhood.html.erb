@@ -20,6 +20,7 @@
       <p class="landing-kicker"><%= t("landings.show.brotherhood.goal.kicker") %></p>
       <p class="landing-panel-title"><%= t("landings.show.brotherhood.goal.title") %></p>
       <p class="landing-small"><%= t("landings.show.brotherhood.goal.text") %></p>
+      <p class="landing-small"><%= t("landings.show.brotherhood.goal.reached") %></p>
       <% if @goal %>
         <p class="landing-goal__line"><%= t("pages.home.goal.line", target: number_with_delimiter(@goal[:target])) %></p>
         <p class="landing-goal__count landing-figure"><%= number_with_delimiter(@goal[:total]) %> / <%= number_with_delimiter(@goal[:target]) %></p>

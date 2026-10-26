@@ -1611,7 +1611,8 @@ en:
         goal:
           kicker: "This week"
           title: "One goal for all"
-          text: "Every capsule opened and every trade concluded moves the same gauge. Goal reached: every participant is rewarded."
+          text: "Every capsule opened and every trade concluded moves the same gauge."
+          reached: "Goal reached: every participant is rewarded."
           ends: "Ends %{time}. The next goal opens right away."
           local_time: ", local time"
           participants:
