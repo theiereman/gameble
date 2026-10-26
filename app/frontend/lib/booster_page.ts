@@ -1,4 +1,4 @@
-// What the booster island asks of the page around it: an idempotency key
+// What the booster screen asks of the page around it: an idempotency key
 // for the opening, the CSRF token, a visit or a refresh through Turbo (the
 // browser's own when Turbo is absent), the layout the viewport's width
 // asks for, and the addresses that bring an opened pack back: a card's

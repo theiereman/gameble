@@ -1,6 +1,6 @@
-// The one switch for reduced motion, read by Stimulus controllers and
-// islands. CSS reads the same two sources: `html[data-motion]`, which the
-// server renders from the player's "Animations réduites" setting, else its
+// The one switch for reduced motion, read by Stimulus controllers. CSS
+// reads the same two sources: `html[data-motion]`, which the server
+// renders from the player's "Animations réduites" setting, else its
 // cookie (ApplicationController#forced_motion), and, when that attribute is
 // absent, the system preference.
 export const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)"

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { atZero, fetchBank, handPutAway, owedBankDue, phaseForBank } from "./booster_bank"
-import type { BoosterPhase } from "./booster_props"
+import type { BoosterPhase } from "./booster"
 
 const bank = { available: 1, reserveFull: false, nextAvailableAt: "2026-10-06T14:32:00.000Z", serverTime: "2026-10-06T14:22:00.000Z", nextPackSize: 5 }
 

@@ -27,10 +27,7 @@ module PacksHelper
     scheduled = Game::BankSchedule.call(player, now:).map { opening_time(it) }
     {
       pack: { token: pack.token, kind: pack.kind, cardBack: pack.card_back_key, url: pack_path(pack.token) },
-      cards: cards.map do |card|
-        { slug: card.id, season: card.season_number, tier: card.rarity, coverUrl: card.image_url, title: card.title, year: card.year,
-          label: pack_card_label(card), faces: pack_faces(card) }
-      end,
+      cards: cards.map { pack_card_fields(it).merge(faces: pack_faces(it)) },
       bank: { available:, reserveFull: Game::Reserve.full?(available), nextAvailableAt: scheduled.first, scheduledAt: scheduled,
               nextPackSize: Game::NextPackSize.call(player, now:) },
       serverTime: opening_time(now),
@@ -38,6 +35,14 @@ module PacksHelper
       setTiers: pack_set_tiers(pack),
       unlockedCardBacks: []
     }
+  end
+
+  # A card of an opened pack as the booster screen reads it, in the opening
+  # exchange's answer and in the markup of a pack shown again: its slug,
+  # season, tier, cover, title, year and spoken label.
+  def pack_card_fields(card)
+    { slug: card.id, season: card.season_number, tier: card.rarity, coverUrl: card.image_url, title: card.title, year: card.year,
+      label: pack_card_label(card) }
   end
 
   # The set tiers the opening reached, read back by its pack: a replay
@@ -56,10 +61,10 @@ module PacksHelper
   # any detail.
   def pack_card_label(card)
     details = [ card.publisher.presence, card.year, card.genre && SetLabel.genre(card.genre) ].compact.join(", ")
-    details.empty? ? card.title : t("boosters.island.card_label", title: card.title, details:)
+    details.empty? ? card.title : t("booster.card_label", title: card.title, details:)
   end
 
-  # A time as the exchange and the booster's props carry it.
+  # A time as the exchange and the booster screen's root carry it.
   def opening_time(time)
     time.utc.iso8601(3)
   end

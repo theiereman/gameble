@@ -1,8 +1,8 @@
-// The booster island's effects, drawn as plain spans or played on the
+// The booster screen's effects, drawn as plain spans or played on the
 // elements they are given: WAAPI on transform and opacity only. animate,
 // settle, spark and ring are the plain helpers (animate also plays the
 // reduced-motion fades); stageShake, stageFlash, burst, blast and
-// traySparks each stop under reduced motion. No React: the island passes
+// traySparks each stop under reduced motion. The controllers pass
 // the host and target elements.
 import type { Rarity } from "./card_types"
 import { TRAY_SPARKS, burstPixels, scaled, shakeKeyframes, tierIndex } from "./booster_motion"
@@ -11,7 +11,7 @@ import { motionReduced } from "./motion"
 export const animate = (element: Element | null | undefined, keyframes: Keyframe[], options: KeyframeAnimationOptions) =>
   element && typeof element.animate === "function" ? element.animate(keyframes, options) : null
 
-/** Cancels every animation the island left on an element (fills included). */
+/** Cancels every animation the screen left on an element (fills included). */
 export const settle = (element: Element | null | undefined) => element?.getAnimations?.().forEach((animation) => animation.cancel())
 
 /** The stage shaking by `amplitude` px. */

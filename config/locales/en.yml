@@ -533,22 +533,49 @@ en:
           zero: No tag is left to classify.
       update:
         updated: The theme is renamed, officer.
-  boosters:
-    island:
+  booster:
+    back: Back to the bridge
+    canister_hint: Click to open
+    canister_hint_touch: Tap to open
+    canister_season: Season %{number}
+    card_label: "%{title} — %{details}"
+    cards_per_pack: Cards per capsule
+    close: Close
+    hint_swipe: Swipe the card to store it · or tap it
+    hint_tap: Tap the card to reveal it
+    in_reserve: In reserve
+    kicker: Capsule · Season %{number}
+    kicker_plain: Capsule
+    legendary_banner: "%{rarity}!"
+    next_in: "+1 in"
+    open: Open the capsule
+    open_next: Open the next one
+    repost: Repost
+    reserve: Reserve
+    reserve_empty: Reserve empty
+    reserve_full: Reserve full
+    result: Capsule result
+    reveal_all: Reveal all
+    see_card: See the card
+    state: State
+    states:
+      arming: Arming
+      complete: Inventory complete
+      ejecting: Ejection
+      inventory: Inventory
+      legendary_signal: Legendary signal
+      sealed: Sealed
+      waiting: Waiting
+    store: Store
+    strings:
       announce_card: 'Card %{position}: %{card}. %{rarity}.'
-      back: Back to the bridge
       banner_line: "%{title} · %{year}"
       canister_facts:
         one: "%{n} card"
         other: "%{n} cards"
-      canister_hint: Click to open
-      canister_hint_touch: Tap to open
       canister_label: Open the capsule Season %{season}, grand catalogue, %{count}
         cards
       canister_label_plain: Open the capsule, grand catalogue, %{count} cards
-      canister_season: Season %{number}
-      card_label: "%{title} — %{details}"
-      cards_per_pack: Cards per capsule
       celebration:
         announce_complete: 'Set complete: %{set}, %{owned} cards out of %{total}.'
         announce_folded:
@@ -589,7 +616,6 @@ en:
           master: MASTER
           novice: NOVICE
           silver: SILVER
-      close: Close
       empty_next: Next capsule in %{time}
       face_down: Card %{position} of %{total}, face down. Reveal.
       face_up: "%{card}, %{rarity}. See the card."
@@ -602,59 +628,32 @@ en:
       hint_remaining:
         one: Click a card to reveal it · %{n} left
         other: Click a card to reveal it · %{n} left
-      hint_swipe: Swipe the card to store it · or tap it
-      hint_tap: Tap the card to reveal it
-      in_reserve: In reserve
-      island_failed: The capsule could not be shown. Your cards are in your collection.
-      kicker: Capsule · Season %{number}
-      kicker_plain: Capsule
-      legendary_banner: "%{rarity}!"
+      legendary_signal: Legendary signal
       next_at: 'Next capsule: %{time}'
-      next_in: "+1 in"
-      open: Open the capsule
-      open_next: Open the next one
       refused_title: Opening cancelled
-      reload: Reload
-      repost: Repost
       repost_card: Repost %{card}
       repost_failed: The repost did not go through. Check your connection, then try
         again.
       reposted: Card reposted to the feed.
-      reserve: Reserve
       reserve_count:
         one: "%{n} capsule"
         other: "%{n} capsules"
-      reserve_empty: Reserve empty
-      reserve_full: Reserve full
-      result: Capsule result
-      reveal_all: Reveal all
-      revealed_count: 'Cards revealed: %{revealed} / %{total}'
-      see_card: See the card
-      state: State
-      states:
-        arming: Arming
-        complete: Inventory complete
-        ejecting: Ejection
-        inventory: Inventory
-        legendary_signal: Legendary signal
-        sealed: Sealed
-        waiting: Waiting
-      store: Store
-      strip_title: Season %{number} · Grand catalogue
-      strip_title_plain: Grand catalogue
       summary:
         one: "%{n} card revealed: %{tiers}."
         other: "%{n} cards revealed: %{tiers}."
       summary_tier: "%{rarity} × %{n}"
-      title: Grand catalogue
-      tray: Stored cards
       tray_count: "%{n} / %{total}"
-      tray_label: Card
       tray_slot: "%{card}, %{rarity}. Enlarge."
       zoom_line: "%{rarity} · %{year}"
-      zoom_next: Next card
-      zoom_previous: Previous card
-      zoom_tip: Hold the card to tilt it
+    strip_title: Season %{number} · Grand catalogue
+    strip_title_plain: Grand catalogue
+    title: Grand catalogue
+    tray: Stored cards
+    tray_label: Card
+    zoom_next: Next card
+    zoom_previous: Previous card
+    zoom_tip: Hold the card to tilt it
+  boosters:
     show:
       title: Capsule opening
   card_details:

@@ -1,0 +1,8 @@
+<div class="booster__action-set" data-controller="booster-actions">
+  <button type="button" class="button button--primary booster__open" data-booster-actions-target="open" data-action="booster-actions#open"><span class="booster__open-label" data-variant="open"><%= t("booster.open") %></span><span class="booster__open-label" data-variant="next"><%= t("booster.open_next") %></span><span class="booster__open-label" data-variant="empty"><%= t("booster.reserve_empty") %></span></button>
+  <div class="booster__actions-row" data-booster-actions-target="row">
+    <button type="button" class="button button--secondary booster__reveal-all" data-booster-actions-target="revealAll" data-action="booster-actions#revealAll" disabled><%= t("booster.reveal_all") %></button>
+    <a class="button button--secondary booster__back" href="<%= home_path %>" data-booster-actions-target="back" data-action="booster-actions#back"><%= t("booster.back") %></a>
+  </div>
+  <p class="booster__reason" data-booster-actions-target="reason" hidden></p>
+</div>

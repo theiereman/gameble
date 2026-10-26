@@ -1,5 +1,6 @@
-// The islands' words (AD-18): every template comes from the locale files
-// through props, resolved here, never written in code. Pure: no DOM.
+// The screens' words: every template comes from the locale files through
+// a controller's strings value, resolved here, never written in code.
+// Pure: no DOM.
 
 /** A locale string, or a plural one as Rails' I18n stores it. */
 export type Template = string | { zero?: string; one?: string; other: string }

@@ -1,31 +1,31 @@
 /*
- * The booster screen (DESIGN.md: Booster canister, Booster information
- * panel, Face-down card and revealed card, Result banner, Layout & Spacing;
- * EXPERIENCE.md: Motion, Implementation notes): the Booster island, its
- * canister, its dealt cards and their effects. Timings live in
- * app/frontend/lib/booster.ts; the island animates transform and opacity
- * through WAAPI. Here only the steady states and the loops (breath, sweep,
- * rays, sheen), all transform-only and stopped under reduced motion.
+ * The booster screen: the `booster` root controller, its canister, its
+ * dealt cards and their effects. Timings live in app/frontend/lib/booster.ts;
+ * the controllers animate transform and opacity through WAAPI. Here only
+ * the steady states and the loops (breath, sweep, rays, sheen), all
+ * transform-only and stopped under reduced motion.
  *
  * The card stack (.booster-card) keeps every grouping property (opacity
  * under 1, filter, overflow, clip-path, mask, blend, isolation) off
  * __flip and off the layers between __lift and the faces, so the turn stays
  * 3D. Opacity fades go on __travel, __float or __lift.
  *
- * Three layouts (story 8.12), set by the island as .booster[data-layout]
- * from its two media queries (never from media queries here, so the faces
- * it deals and the slots drawn agree): "wide" (the row of card-m faces),
+ * Three layouts, set by the root controller as .booster[data-layout] from
+ * its two media queries (never from media queries here, so the faces it
+ * deals and the slots drawn agree): "wide" (the row of card-m faces),
  * "narrow" (720 to 899px, card-s faces), "phone" (under 720px: the
  * information strip, the pile of card-xl faces, the caption plate, the
- * tray, the actions under the stage, the card zoom).
+ * tray, the actions under the stage, the card zoom). The server renders
+ * every layout's parts; the stylesheet shows the current layout's.
  *
- * This file is the island at its base: layout, panel, stage, canister,
+ * This file is the screen at its base: layout, panel, stage, canister,
  * cards, effects, banner and loops. The narrower panels, the narrow row,
  * the phone, the zoom and reduced motion are in booster-layouts.css,
  * imported right after it.
  */
 
-/* The server's fallback (no JavaScript, or the island not drawn yet). */
+/* The server's fallback, without JavaScript or until the root controller
+   draws the screen (it sets data-layout). */
 .booster__fallback {
   display: flex;
   flex-wrap: wrap;
@@ -37,21 +37,39 @@
   margin: 0;
 }
 
-.booster-island:has(.booster:not(.booster--failed)) + .booster__fallback {
+.booster:not([data-layout]),
+.booster[data-layout] + .booster__fallback {
   display: none;
 }
 
-.booster--failed {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-5);
-  margin-bottom: var(--space-5);
+.booster [hidden] {
+  display: none !important;
+}
+
+/* Wrappers a child controller owns, laid out as their children. */
+.booster__action-set,
+.booster__celebration-host {
+  display: contents;
+}
+
+/* The state word of the current status, among every status's. */
+.booster__state-word > [data-status] {
+  display: none;
+}
+
+.booster[data-status="sealed"] .booster__state-word > [data-status="sealed"],
+.booster[data-status="arming"] .booster__state-word > [data-status="arming"],
+.booster[data-status="ejecting"] .booster__state-word > [data-status="ejecting"],
+.booster[data-status="inventory"] .booster__state-word > [data-status="inventory"],
+.booster[data-status="legendarySignal"] .booster__state-word > [data-status="legendarySignal"],
+.booster[data-status="complete"] .booster__state-word > [data-status="complete"],
+.booster[data-status="waiting"] .booster__state-word > [data-status="waiting"] {
+  display: inline;
 }
 
 /* ---- Layout: info column, stage ---- */
 
-/* Rays, rings and a lifted card may reach past the island's sides: clipped
+/* Rays, rings and a lifted card may reach past the screen's sides: clipped
    there, so the page never scrolls sideways (overflow-x: clip makes no
    scroll container, and sits far above the cards' 3D stack). */
 .booster {
@@ -218,6 +236,17 @@
   width: 100%;
 }
 
+/* The open button's label for its variant, among the three. */
+.booster__open-label {
+  display: none;
+}
+
+.booster__open[data-open="open"] > [data-variant="open"],
+.booster__open[data-open="next"] > [data-variant="next"],
+.booster__open[data-open="empty"] > [data-variant="empty"] {
+  display: inline;
+}
+
 .booster__actions-row {
   display: flex;
   gap: 14px;
@@ -237,13 +266,6 @@
   color: var(--color-alert);
   font: var(--font-body);
   letter-spacing: var(--tracking-body);
-}
-
-.booster__counter {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-body-large);
-  letter-spacing: var(--tracking-body-large);
 }
 
 /* ---- The stage: the canister zone and the deal row in one cell ---- */
@@ -816,6 +838,12 @@
   color: var(--booster-tier);
 }
 
+.booster-card[data-revealed] .booster-card__label-unknown,
+.booster-card:not([data-revealed]) .booster-card__label-icon-box,
+.booster-card:not([data-revealed]) .booster-card__label-name {
+  display: none;
+}
+
 .booster-card__label-icon-box {
   display: inline-flex;
 }
@@ -835,7 +863,7 @@
     drop-shadow(0 2px 0 var(--color-outline)) drop-shadow(0 -2px 0 var(--color-outline));
 }
 
-/* ---- Effects: pixels, rings, sparks, smoke (spans the island adds and removes) ---- */
+/* ---- Effects: pixels, rings, sparks, smoke (spans the controllers add and remove) ---- */
 
 .booster-fx__pixel,
 .booster-fx__spark,

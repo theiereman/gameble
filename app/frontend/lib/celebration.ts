@@ -1,7 +1,7 @@
-// The set celebration after an opening: the results the island shows once
-// the hand is complete, one per set at the highest tier the opening
-// reached, and the one message the live region speaks for them. Pure: no
-// DOM.
+// The set celebration after an opening: the results the booster screen
+// shows once the hand is complete, one per set at the highest tier the
+// opening reached, and the one message the live region speaks for them.
+// Pure: no DOM.
 import { formatNumber, t, type Template } from "./i18n"
 import { SET_TIERS, type OpeningSetTier, type SetThreshold, type SetTierName } from "./opening"
 
@@ -32,9 +32,6 @@ export const RANKS = ["novice", "apprentice", "adept", "expert", "master"] as co
 export type Rank = (typeof RANKS)[number]
 
 export const isRank = (tier: SetTierName): tier is Rank => (RANKS as readonly SetTierName[]).includes(tier)
-
-/** The pixel icons as HTML: the link's arrow, the complete ribbon's check and each rank's mark. */
-export type CelebrationIcons = { next: string; arrow: string; check: string; ranks: Record<Rank, string> }
 
 /** A set's result: its name, the highest tier the opening reached and the cards it asks, the cards held over the set's, and the set's tiers before completion. */
 export type CelebrationResult = {

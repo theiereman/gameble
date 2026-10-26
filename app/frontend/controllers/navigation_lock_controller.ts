@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { onGameble } from "../lib/events"
 
-// Locks the in-app navigation inside its element while the booster island
+// Locks the in-app navigation inside its element while the booster screen
 // opens a booster or reveals a card (EXPERIENCE.md, Opening protocol, step
 // 6; `gameble:navigation-locked`): the top bar's back button, the phone
 // tab bar. Every link and button inside is marked `aria-disabled` (shown at

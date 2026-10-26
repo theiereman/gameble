@@ -1,0 +1,37 @@
+<%# locals: (season:, available:, next_size:) %>
+<div class="booster__stage" data-controller="booster-stage">
+  <div class="booster__shake" data-booster-stage-target="shake">
+    <div class="booster__dim" aria-hidden="true"></div>
+    <div class="booster__fx" aria-hidden="true" data-booster-stage-target="fx"></div>
+    <%= render("boosters/canister", season:, available:, next_size:) %>
+    <div class="booster__result" aria-hidden="true" data-booster-stage-target="result">
+      <span class="booster__result-stripe" aria-hidden="true"></span>
+      <span class="booster__result-title"><%= t("booster.result") %></span>
+      <span class="booster__result-stripe" aria-hidden="true"></span>
+    </div>
+    <div class="booster__deal-area" data-booster-stage-target="dealArea" hidden>
+      <ol class="booster__deal" aria-label="<%= t("booster.result") %>" data-booster-stage-target="deal" data-action="click->booster-stage#activate"></ol>
+      <p class="booster__hint" data-booster-stage-target="hint" hidden></p>
+    </div>
+    <div class="booster__pile-area" data-booster-stage-target="pileArea" hidden>
+      <ol class="booster__pile" aria-label="<%= t("booster.result") %>" data-booster-stage-target="pile"
+          data-action="click->booster-stage#activate pointerdown->booster-stage#press pointermove->booster-stage#drag pointerup->booster-stage#lift pointercancel->booster-stage#cancel"></ol>
+    </div>
+    <%= render "boosters/plate" %>
+    <%= render "boosters/tray" %>
+  </div>
+  <template data-booster-stage-target="banner">
+    <div class="booster__banner" aria-hidden="true">
+      <div class="booster__banner-row">
+        <span class="booster__banner-stripe"></span>
+        <span class="booster__banner-icon"></span>
+        <span class="booster__banner-name"></span>
+        <span class="booster__banner-icon"></span>
+        <span class="booster__banner-stripe"></span>
+      </div>
+      <p class="booster__banner-line"></p>
+    </div>
+  </template>
+  <div class="booster__flash" aria-hidden="true" data-booster-stage-target="flash"></div>
+  <%= render "boosters/card", repost: season.present? %>
+</div>

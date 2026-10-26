@@ -1,5 +1,5 @@
-// The card types the booster island shares with the server (AD-16). Card
-// faces are rendered on the server only (CardComponent); the island
+// The card types the booster screen shares with the server. Card
+// faces are rendered on the server only (CardComponent); the screen
 // receives them as HTML.
 
 /** Catalog::Rarity::TIERS code names, from the most common. */

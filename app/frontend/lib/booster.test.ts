@@ -20,6 +20,7 @@ import {
   cardsDealt,
   celebrate,
   celebrationSpoken,
+  celebrationStepped,
   celebrationToAnnounce,
   controls,
   countdownAtZero,
@@ -55,6 +56,7 @@ import {
   revealStarted,
   revealingOpening,
   shownCelebration,
+  shownResult,
   start,
   storeEnded,
   storeStarted,
@@ -65,11 +67,12 @@ import {
   zoomNeighbour,
   zoomOpened,
   zoomStepped,
+  type BoosterBank,
   type BoosterStart,
   type BoosterState,
+  type BoosterStatus,
   type Layout,
 } from "./booster"
-import type { BoosterBank, BoosterStatus } from "./booster_props"
 import type { Rarity } from "./card_types"
 import type { OpeningAnswer, OpeningCard, OpeningSetTier } from "./opening"
 
@@ -387,6 +390,37 @@ describe("celebrate, shownCelebration, celebrationToAnnounce, celebrationSpoken"
   })
 })
 
+describe("celebrationStepped, shownResult", () => {
+  const PORTAL: OpeningSetTier = { ...VALVE, kind: "genre", key: "shooter", name: "Shooter", tier: "silver", required: 2, total: 9, held: 2 }
+
+  it("steps through the results one at a time, back to the first after the last", () => {
+    const complete = celebrate(revealedAll(dealt(["epic", "common"], {}, [VALVE, PORTAL])))
+    expect(shownResult(complete)).toBe(0)
+    const once = celebrationStepped(complete)
+    expect(once.celebrationSteps).toBe(1)
+    expect(shownResult(once)).toBe(1)
+    expect(shownResult(celebrationStepped(once))).toBe(0)
+  })
+
+  it("does not step a single result or no celebration, and starts again at the first with a new celebration or opening", () => {
+    const single = celebrate(revealedAll(dealt(["epic"], {}, [VALVE])))
+    expect(celebrationStepped(single)).toBe(single)
+    expect(celebrationStepped(dealt())).toEqual(dealt())
+    expect(shownResult(dealt())).toBe(0)
+    const stepped = celebrationStepped(celebrate(revealedAll(dealt(["epic", "common"], {}, [VALVE, PORTAL]))))
+    expect(openingStarted({ ...stepped, status: "complete" }).celebrationSteps).toBe(0)
+  })
+
+  it("starts again at the first result when a new celebration comes and when a layout is applied", () => {
+    const stepped = celebrationStepped(celebrate(revealedAll(dealt(["epic", "common"], {}, [VALVE, PORTAL]))))
+    expect(stepped.celebrationSteps).toBe(1)
+    expect(celebrate({ ...stepped, celebrationPending: [VALVE, PORTAL] }).celebrationSteps).toBe(0)
+    const rebuilt = layoutApplied(layoutAsked(stepped, stepped.layout === "phone" ? "wide" : "phone"), false)
+    expect(rebuilt.layout).not.toBe(stepped.layout)
+    expect(rebuilt.celebrationSteps).toBe(0)
+  })
+})
+
 describe("bankChanged, bankFetched", () => {
   it("replaces the bank and counts the change", () => {
     const state = startWith()
@@ -700,7 +734,7 @@ describe("canStore, storeStarted, cardStored, storeEnded", () => {
 })
 
 describe("layoutAsked, layoutApplied", () => {
-  it("keeps the layout the width asks for until the island is idle", () => {
+  it("keeps the layout the width asks for until the screen is idle", () => {
     const busy = revealStarted(dealt(), 0, false)
     const asked = layoutAsked(busy, "phone")
     expect(asked.pendingLayout).toBe("phone")
@@ -802,7 +836,7 @@ describe("controls", () => {
 
   it("holds the next one until every card is shown, and counts what is left", () => {
     const hand = revealMarked(dealt(), 0, 0)
-    expect(controls(hand)).toMatchObject({ open: "next", openDisabled: true, revealAllDisabled: false, revealedCount: 1, hint: { kind: "remaining", count: 4 } })
+    expect(controls(hand)).toMatchObject({ open: "next", openDisabled: true, revealAllDisabled: false, hint: { kind: "remaining", count: 4 } })
     expect(controls(revealedAll(hand))).toMatchObject({ openDisabled: false, revealAllDisabled: true, hint: { kind: "done", count: 5 } })
   })
 

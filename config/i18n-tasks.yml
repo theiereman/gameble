@@ -30,8 +30,8 @@ ignore_unused:
   - "catalog.hall_of_fame.*"
   # Pagy's dictionary, read by Pagy::I18n, not by the I18n gem.
   - "pagy.*"
-  # The Booster island's words, passed whole to its props (BoostersHelper#booster_props).
-  - "boosters.island.*"
+  # The booster screen's run-time templates, passed whole to its root controller (BoostersHelper#booster_strings).
+  - "booster.strings.*"
   # The trade board's run-time templates, passed whole to its root controller (TradesHelper#trade_board_strings).
   - "trade_board.strings.*"
   # Achievement names, looked up by the key an unlock carries (the player stream's toast).

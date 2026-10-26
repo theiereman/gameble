@@ -1,4 +1,4 @@
-// The booster island's timing and motion. Pure: no DOM, no React. Every
+// The booster screen's timing and motion. Pure: no DOM, no React. Every
 // duration of the opening and the reveal lives here: the opening, reveal
 // and Légendaire ones multiplied by TIME_SCALE; the others, the
 // reduced-motion ones included (RM_*), unscaled.
@@ -101,6 +101,11 @@ export const RM_CARD_FADE = 240
 export const RM_FADE_STAGGER = 40
 export const RM_REVEAL_FADE = 220
 export const RM_LEGENDARY_STILL = 1400
+
+/** How long a banner plays: still under reduced motion, longer for a Légendaire. */
+export function bannerDuration({ reduced, large }: { reduced: boolean; large: boolean }): number {
+  return reduced ? RM_LEGENDARY_STILL : large ? LEGENDARY_BANNER_MS : EPIC_BANNER_MS
+}
 
 /** The longest wait for a card's art before it flips anyway. */
 export const ART_WAIT_MAX = 6000
@@ -217,7 +222,7 @@ export function shakeKeyframes(amplitude: number): Keyframe[] {
   return frames
 }
 
-/** The card backs the island draws; an unknown key shows the standard one. */
+/** The card backs the screen draws; an unknown key shows the standard one. */
 const CARD_BACKS: readonly string[] = ["standard"]
 
 /** The class of a card's back for the answer's `pack.cardBack` key. */

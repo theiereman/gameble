@@ -1,8 +1,19 @@
-import { atZero, handPutAway, owedBankDue, phaseForBank, type IslandMoment } from "./booster_bank"
-import type { BoosterBank, BoosterPhase, BoosterStatus } from "./booster_props"
+import { atZero, handPutAway, owedBankDue, phaseForBank, type ScreenMoment } from "./booster_bank"
 import type { Rarity } from "./card_types"
 import { celebrationResults, restoredCelebration, type CelebrationResult } from "./celebration"
 import type { OpeningAnswer, OpeningResult, OpeningSetTier } from "./opening"
+
+export type BoosterPhase = "sealed" | "empty" | "opening" | "dealt"
+
+export type BoosterStatus = "sealed" | "arming" | "ejecting" | "inventory" | "legendarySignal" | "complete" | "waiting"
+
+export type BoosterBank = {
+  available: number
+  reserveFull: boolean
+  nextAvailableAt: string | null
+  serverTime: string
+  nextPackSize: number | null
+}
 
 export const REVEAL_GUARD = 400
 
@@ -108,6 +119,7 @@ export type BoosterState = Readonly<{
   celebration: readonly CelebrationResult[] | null
   celebrationStill: boolean
   celebrationAnnounced: boolean
+  celebrationSteps: number
   lockDepth: number
   focus: Focus | null
 }>
@@ -157,6 +169,7 @@ export function start({ bank, opened, layout, now, celebrationRemembered, previe
     celebration: null,
     celebrationStill: false,
     celebrationAnnounced: false,
+    celebrationSteps: 0,
     lockDepth: 0,
     focus: preview ? null : sealed ? "open" : "back",
   }
@@ -195,7 +208,7 @@ const allRevealed = (state: BoosterState): boolean => state.revealed.length > 0 
 
 const handDone = (state: BoosterState): boolean => handPutAway(state.layout, state.revealed, state.stored)
 
-const moment = (state: BoosterState): IslandMoment => ({ phase: state.phase, idle: idle(state), handPutAway: handDone(state) })
+const moment = (state: BoosterState): ScreenMoment => ({ phase: state.phase, idle: idle(state), handPutAway: handDone(state) })
 
 export function lock(state: BoosterState): BoosterState {
   return { ...state, lockDepth: state.lockDepth + 1 }
@@ -248,7 +261,7 @@ export function celebrate(state: BoosterState): BoosterState {
   if (reached === null) return state
   const results = celebrationResults(reached)
   if (results.length === 0) return { ...state, celebrationPending: null }
-  return { ...state, celebrationPending: null, celebration: results, celebrationStill: false, celebrationAnnounced: false }
+  return { ...state, celebrationPending: null, celebration: results, celebrationStill: false, celebrationAnnounced: false, celebrationSteps: 0 }
 }
 
 export function shownCelebration(state: BoosterState): readonly CelebrationResult[] | null {
@@ -257,6 +270,15 @@ export function shownCelebration(state: BoosterState): readonly CelebrationResul
 
 export function celebrationToAnnounce(state: BoosterState): readonly CelebrationResult[] | null {
   return state.celebrationAnnounced ? null : shownCelebration(state)
+}
+
+export function celebrationStepped(state: BoosterState): BoosterState {
+  return state.celebration !== null && state.celebration.length > 1 ? { ...state, celebrationSteps: state.celebrationSteps + 1 } : state
+}
+
+export function shownResult(state: BoosterState): number {
+  const count = state.celebration?.length ?? 0
+  return count > 0 ? state.celebrationSteps % count : 0
 }
 
 export function celebrationSpoken(state: BoosterState): BoosterState {
@@ -304,7 +326,7 @@ export function canOpen(state: BoosterState): boolean {
 
 export function openingStarted(state: BoosterState): BoosterState {
   if (!canOpen(state)) return state
-  return { ...state, opening: true, reason: null, celebrationPending: null, celebration: null }
+  return { ...state, opening: true, reason: null, celebrationPending: null, celebration: null, celebrationSteps: 0 }
 }
 
 export function retracting(state: BoosterState): BoosterState {
@@ -484,6 +506,7 @@ export function layoutApplied(state: BoosterState, focusedInside: boolean): Boos
     layout: next,
     stored: storedAfterRebuild(state.revealed, state.stored, next),
     rebuilds: state.rebuilds + 1,
+    celebrationSteps: 0,
     zoom: null,
     banner: null,
     focus: focusedInside ? "card" : state.focus,
@@ -531,7 +554,6 @@ export type Controls = Readonly<{
   revealAllDisabled: boolean
   tone: StatusTone
   hint: Hint | null
-  revealedCount: number
   storedCount: number
   top: number | null
   plate: number | null
@@ -571,7 +593,6 @@ export function controls(state: BoosterState): Controls {
     revealAllDisabled: !handOnTable || everyRevealed || state.revealingAll || state.storing || state.legendary !== null,
     tone: toneOf(state.status),
     hint: handOnTable ? hintOf(state, total, revealedCount, top) : null,
-    revealedCount,
     storedCount: state.stored.filter(Boolean).length,
     top,
     plate: state.layout === "phone" && top !== null && state.revealed[top] ? top : null,

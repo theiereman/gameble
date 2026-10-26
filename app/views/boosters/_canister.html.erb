@@ -1,0 +1,37 @@
+<%# locals: (season:, available:, next_size:) %>
+<div class="booster__zone" data-controller="booster-canister">
+  <p class="booster__empty" data-booster-canister-target="empty"<%= " hidden" if available.positive? %>>
+    <span class="booster__empty-title"><%= t("booster.reserve_empty") %></span>
+    <span class="booster__empty-next" data-booster-canister-target="emptyNext" hidden><span aria-hidden="true" data-booster-canister-target="emptyClock"></span><span class="visually-hidden" data-booster-canister-target="emptySpoken"></span></span>
+  </p>
+  <template data-booster-canister-target="canister">
+    <div class="booster-canister__wrap">
+      <div class="booster-canister__rays" aria-hidden="true"></div>
+      <button type="button" class="booster-canister" aria-label="<%= booster_canister_label(season, next_size) %>" data-action="booster-canister#activate">
+        <span class="booster-canister__idle">
+          <span class="booster-canister__move">
+            <span class="booster-canister__body">
+              <% if season %>
+                <span class="booster-canister__line booster-canister__line--season"><%= t("booster.canister_season", number: season.number) %></span>
+              <% end %>
+              <span class="booster-canister__line booster-canister__line--title"><%= t("booster.title") %></span>
+              <span class="booster-canister__hazard"></span>
+              <span class="booster-canister__led booster-canister__led--1"></span>
+              <span class="booster-canister__led booster-canister__led--2"></span>
+              <span class="booster-canister__led booster-canister__led--3"></span>
+              <span class="booster-canister__sweep">
+                <span class="booster-canister__sweep-band"></span>
+              </span>
+            </span>
+            <span class="booster-canister__cap booster-canister__cap--top">
+              <span class="booster-canister__led booster-canister__led--cap"></span>
+            </span>
+            <span class="booster-canister__cap booster-canister__cap--bottom"></span>
+          </span>
+        </span>
+      </button>
+    </div>
+  </template>
+  <p class="booster__canister-hint" aria-hidden="true" data-booster-canister-target="hint"><span class="booster__canister-hint-click"><%= t("booster.canister_hint") %></span><span class="booster__canister-hint-touch"><%= t("booster.canister_hint_touch") %></span></p>
+  <p class="booster__canister-facts" aria-hidden="true" data-booster-canister-target="facts"><%= booster_canister_facts(next_size) %></p>
+</div>

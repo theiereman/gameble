@@ -1,0 +1,10 @@
+<div class="booster-tray" role="group" aria-label="<%= t("booster.tray") %>" data-controller="booster-tray"
+     data-booster-tray-palette-width-value="<%= CardComponent::PALETTE[:width] %>" data-booster-tray-palette-height-value="<%= CardComponent::PALETTE[:height] %>" hidden>
+  <p class="booster-tray__count">
+    <span class="booster-tray__count-label"><%= t("booster.tray_label") %></span>
+    <span class="booster-tray__count-value" data-booster-tray-target="count"></span>
+  </p>
+  <ol class="booster-tray__slots" data-booster-tray-target="slots" data-action="click->booster-tray#open"></ol>
+  <template data-booster-tray-target="empty"><li class="booster-tray__item"><span class="booster-tray__slot" aria-hidden="true"></span></li></template>
+  <template data-booster-tray-target="filled"><button type="button" class="booster-tray__slot booster-tray__slot--filled"><canvas class="booster-tray__cover" aria-hidden="true"></canvas><span class="booster-tray__icon" aria-hidden="true"></span></button></template>
+</div>

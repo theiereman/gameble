@@ -14,7 +14,7 @@ export type ToastDetail = {
   action?: ToastAction
 }
 
-// The booster island revealed a card of `tier`: the player's copies per
+// The booster screen revealed a card of `tier`: the player's copies per
 // tier now, read by the top bar's rarity counter.
 export type TierRevealedDetail = { tier: Rarity; counts: Record<Rarity, number> }
 
@@ -22,7 +22,7 @@ export type TierRevealedDetail = { tier: Rarity; counts: Record<Rarity, number> 
 // screen's reserve chip. Times are UTC ISO 8601.
 export type BankChangedDetail = { available: number; reserveFull: boolean; nextAvailableAt: string | null; serverTime: string }
 
-// The booster island locks the in-app navigation (top bar back button, tab
+// The booster screen locks the in-app navigation (top bar back button, tab
 // bar) while it opens a booster or reveals a card, and unlocks it after.
 export type NavigationLockedDetail = { locked: boolean }
 

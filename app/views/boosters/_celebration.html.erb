@@ -1,0 +1,21 @@
+<%# locals: (phone:) %>
+<div class="booster__celebration-host" data-controller="booster-celebration" data-booster-celebration-phone-value="<%= phone %>">
+  <% if phone %>
+    <template data-booster-celebration-target="list"><div class="booster-celebration booster-celebration--phone"></div></template>
+    <template data-booster-celebration-target="step"><%= booster_celebration_step %></template>
+  <% else %>
+    <template data-booster-celebration-target="list"><ul class="booster-celebration"></ul></template>
+    <template data-booster-celebration-target="item"><li></li></template>
+  <% end %>
+  <template data-booster-celebration-target="result"><%= booster_celebration_result(phone:) %></template>
+  <template data-booster-celebration-target="folded"><%= booster_celebration_folded(phone:) %></template>
+  <template data-booster-celebration-target="tick"><i class="booster-celebration__tick"></i></template>
+  <template data-booster-celebration-target="mark"><span class="booster-celebration__mark"></span></template>
+  <template data-booster-celebration-target="notches"><span class="booster-celebration__notches"></span></template>
+  <template data-booster-celebration-target="sparks"><span class="booster-celebration__sparks"></span></template>
+  <template data-booster-celebration-target="stamp"><span class="booster-celebration__stamp"></span></template>
+  <template data-booster-celebration-target="check"><%= booster_celebration_icon("check", "booster-celebration__check") %></template>
+  <% Catalog::TierTable::RANKS.each do |rank| %>
+    <template data-booster-celebration-target="rank" data-rank="<%= rank %>"><%= booster_rank_mark(rank) %></template>
+  <% end %>
+</div>

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 import {
   ARM_MS,
+  EPIC_BANNER_MS,
+  LEGENDARY_BANNER_MS,
+  RM_LEGENDARY_STILL,
+  bannerDuration,
   BODY_MS,
   BURST_PIXELS,
   CAPS_MS,
@@ -70,6 +74,14 @@ describe("timings", () => {
     expect(TREMBLE_MS).toEqual([0, 90, 170, 280].map((base) => Math.round(base * 1.18)))
     expect(FLIP_MS).toEqual([300, 340, 380, 420].map((base) => Math.round(base * 1.18)))
     expect(SETTLE_MS).toEqual([380, 440, 500, 560].map((base) => Math.round(base * 1.18)))
+  })
+})
+
+describe("bannerDuration", () => {
+  it("holds a still banner under reduced motion, a Légendaire's longer than an Épique's otherwise", () => {
+    expect(bannerDuration({ reduced: true, large: true })).toBe(RM_LEGENDARY_STILL)
+    expect(bannerDuration({ reduced: false, large: true })).toBe(LEGENDARY_BANNER_MS)
+    expect(bannerDuration({ reduced: false, large: false })).toBe(EPIC_BANNER_MS)
   })
 })
 

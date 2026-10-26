@@ -2,10 +2,10 @@
 // canister's arming, caps, body and dock, the cards' sink, reveal,
 // Légendaire sequence, store, slot pop and spring back, and the banner.
 // Pure: each list from its inputs, no DOM. The durations come from
-// lib/booster_motion.ts and the easings are chosen at the island's call sites,
+// lib/booster_motion.ts and the easings are chosen at the screen's call sites,
 // except that the arming list carries its own easings between frames and
 // the tremble takes its step count from TREMBLE_MS. A reveal's swell (its
-// scale) comes in as a function, so the island damps it on the phone.
+// scale) comes in as a function, so the screen damps it on the phone.
 import { DOCK_PX, SINK_PX, TREMBLE_MS, pose, scaled } from "./booster_motion"
 
 /** A reveal's scale, as the layout draws it. */
@@ -195,4 +195,13 @@ export function bannerKeyframes(reduced: boolean): Keyframe[] {
         { opacity: 1, transform: "translateY(0px) scale(1, 1)", offset: 0.8 },
         { opacity: 0, transform: "translateY(-16px) scale(1, 1)" },
       ]
+}
+
+export function platePopKeyframes(): Keyframe[] {
+  return [
+    { transform: "scale(1.2, 0.2)", opacity: 0 },
+    { transform: "scale(0.96, 1.12)", opacity: 1, offset: 0.45 },
+    { transform: "scale(1.02, 0.98)", opacity: 1, offset: 0.75 },
+    { transform: "scale(1, 1)", opacity: 1 },
+  ]
 }
