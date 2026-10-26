@@ -60,8 +60,7 @@
 }
 
 .feed__entry {
-  display: grid;
-  grid-template-columns: 5.5rem 1fr auto auto;
+  display: flex;
   align-items: center;
   gap: var(--space-4);
   min-height: 68px;
@@ -69,11 +68,26 @@
   background: var(--color-panel);
 }
 
+.feed__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.feed__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 .feed__entry--filler {
   background: var(--color-panel-sunken);
 }
 
 .feed__time {
+  margin-left: auto;
   color: var(--color-muted);
   font: var(--font-body-small);
 }
@@ -83,27 +97,61 @@
   font: var(--font-body);
 }
 
-.feed__sentence strong {
+.feed__sentence strong,
+.feed__name,
+.feed__game {
+  font-weight: 700;
+}
+
+.feed__sentence strong,
+.feed__game {
   color: var(--color-text-max);
-  font-weight: inherit;
+}
+
+.feed__name {
+  color: var(--color-accent);
+}
+
+.feed__name,
+.feed__game {
+  text-decoration: none;
+}
+
+.feed__name:hover,
+.feed__game:hover {
+  text-decoration: underline;
+}
+
+.feed__name:focus-visible,
+.feed__game:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 /* A first discovery's chip: gold is kept for what is rare. */
 .feed__chip {
   display: inline-block;
-  margin-right: var(--space-2);
   padding: 2px var(--space-2);
   background: var(--color-gold);
   color: var(--color-on-gold);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  vertical-align: 2px;
 }
 
+/* card-s halved by transform: the link keeps the halved box. */
 .feed__thumb {
   display: block;
+  flex: none;
+  width: calc(var(--card-s-width) / 2);
+  height: calc(var(--card-s-height) / 2);
   text-decoration: none;
+}
+
+html .feed__thumb > .card.card--s,
+html .feed__thumb > .card.card--s[data-tilt] {
+  transform: scale(0.5);
+  transform-origin: top left;
 }
 
 .feed__tag {
@@ -126,11 +174,11 @@
 
 .feed__thumbs {
   display: flex;
+  flex: none;
   gap: var(--space-3);
 }
 
 .feed__thumb--framed {
-  justify-self: start;
   outline: 2px solid var(--feed-frame);
   outline-offset: 2px;
 }
@@ -140,11 +188,6 @@
 .feed__thumb--rare { --feed-frame: var(--color-rarity-rare); }
 .feed__thumb--epic { --feed-frame: var(--color-rarity-epique); }
 .feed__thumb--legendary { --feed-frame: var(--color-rarity-legendaire); }
-
-/* A set entry has no thumbnail: its tier's tag keeps the last column. */
-.feed__entry--set > .feed__tier {
-  grid-column: -2 / -1;
-}
 
 /* A reached tier: its name in its colour behind its rank's mark, an
    earlier season's one to three rising notches, or, for a completed set,
@@ -222,12 +265,21 @@
     gap: var(--space-touch-gap);
   }
 
-  .feed__entry {
-    grid-template-columns: 1fr auto;
+  .feed__name,
+  .feed__game {
+    position: relative;
   }
 
-  .feed__time,
-  .feed__sentence {
-    grid-column: 1 / -1;
+  .feed__name::after,
+  .feed__game::after {
+    content: "";
+    position: absolute;
+    inset: 50% 0 auto;
+    height: var(--space-touch-min);
+    transform: translateY(-50%);
+  }
+
+  .feed__meta {
+    flex-wrap: wrap;
   }
 }

@@ -46,6 +46,7 @@ class LandingLiveFeedTest < ApplicationSystemTestCase
 
     assert_selector "#feed-entries > li", count: LiveStream::LANDING_SIZE
     assert_equal "Hugo completes the Valve set.", first_entry_sentence
+    assert_selector "#feed-entries > li:first-child .feed__sentence a.feed__name", text: "Hugo"
     assert_no_selector ".landing-live__empty"
     assert_no_selector ".landing-live [aria-live], .landing-live [role=status]"
     assert not_reloaded?

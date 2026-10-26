@@ -35,6 +35,24 @@ class FeedTest < ApplicationSystemTestCase
     assert_one_everything
   end
 
+  test "an entry's player and game link to the profile and the card page" do
+    @player.update!(persona_name: "Hugo")
+    visit feed_path(locale: :en)
+
+    assert_pull_entries 5
+    name = find("a.feed__name", match: :first)
+    game = find("a.feed__game", match: :first)
+    find(".feed__thumb .card", match: :first).hover
+    eventually("the card should be about half of card-s, tilted or not") do
+      box = page.evaluate_script("(() => { const r = document.querySelector('.feed__thumb .card').getBoundingClientRect(); return [r.width, r.height] })()")
+      box.map(&:round) == [ 56, 84 ]
+    end
+    assert_match %r{/en/brothers/}, name[:href]
+    assert_match %r{/en/cards/}, game[:href]
+    game.click
+    assert_current_path %r{/en/cards/}
+  end
+
   test "in French, the tabs and the filters each show their own word for all, once" do
     visit feed_path(locale: :fr)
 

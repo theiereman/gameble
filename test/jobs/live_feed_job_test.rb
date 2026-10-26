@@ -39,6 +39,7 @@ class LiveFeedJobTest < ActiveSupport::TestCase
     ticker = template(english, "prepend", "live-ticker-queue")
     assert_equal 5, ticker.css("li.ticker__item").size
     assert_equal "Hugo pulled Portal", ticker.at_css(".ticker__sentence").text
+    assert_empty ticker.css(".ticker__sentence a")
     assert_equal "Epic", ticker.at_css(".ticker__rarity.ticker__rarity--epic").text
     strip = template(english, "replace", "live-strip")
     assert_equal 3, strip.css("#live-strip li.public-card__live-entry").size

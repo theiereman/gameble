@@ -37,7 +37,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
   end
 
-  def names = css_select(".feed__sentence strong:first-child").map(&:text).uniq.sort
+  def names = css_select(".feed__sentence .feed__name").map(&:text).uniq.sort
 
   test "a stranger reads the pulls of Epic or better" do
     open_epic
@@ -50,7 +50,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__filter[aria-current]", "Everything"
     assert_select ".feed__entry:not(.feed__entry--set)", 5
     assert_select ".feed__entry--filler", 0
-    assert_select ".feed__sentence strong", text: "Hugo"
+    assert_select ".feed__sentence .feed__name", text: "Hugo"
     assert_select ".feed__tag--epic", /Epic/
   end
 
@@ -166,16 +166,26 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     get feed_path(locale: :fr)
     assert_select ".feed__entry", 1
     assert_select ".feed__entry--filler", 0
-    assert_select ".feed__sentence .feed__chip", "Première découverte"
+    assert_select ".feed__meta .feed__chip", "Première découverte"
     assert_select ".feed__sentence", /trouvée par Hugo pour la première fois dans la communauté/
 
     get feed_path(locale: :en, filter: "discoveries")
     assert_select ".feed__filter[aria-current]", "Discoveries"
-    assert_select ".feed__sentence .feed__chip", "First discovery"
+    assert_select ".feed__meta .feed__chip", "First discovery"
     assert_select ".feed__sentence", /found by Hugo for the first time in the community/
 
     get feed_path(locale: :en, filter: "pulls")
     assert_select ".feed__entry", 0
+  end
+
+  test "an entry's player and game are links to the profile and the card page" do
+    open_epic
+
+    get feed_path(locale: :en)
+
+    assert_select ".feed__sentence a.feed__name[href^=?]", "/en/brothers/"
+    assert_select ".feed__sentence a.feed__game[href=?]", card_path(locale: :en, slug: "portal")
+    assert_select "[style]", 0
   end
 
   test "a pull carries no discovery chip" do

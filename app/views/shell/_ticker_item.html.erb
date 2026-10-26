@@ -1,7 +1,7 @@
 <li class="ticker__item">
   <%= pixel_icon("diamond", class: "ticker__separator") %>
   <% if item.entry.kind == "discovery" %><span class="ticker__first"><%= t("feeds.show.first_discovery") %></span><% end %>
-  <span class="ticker__sentence"><%= feed_sentence(item, card, partner_card, set) %></span>
+  <span class="ticker__sentence"><%= feed_sentence(item, card, partner_card, set, links: false) %></span>
   <% if item.entry.kind == "set" %>
     <%= feed_tier_tag(item.entry.tier, surface_class: "ticker__tier") %>
   <% elsif item.entry.kind == "trade" %>

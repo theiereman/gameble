@@ -2,11 +2,7 @@
 <% trade = item.entry.kind == "trade" %>
 <% set_entry = item.entry.kind == "set" %>
 <li class="<%= class_names("feed__entry", "feed__entry--filler": item.filler, "feed__entry--set": set_entry) %>">
-  <%= local_time_tag(item.entry.occurred_at, class: "feed__time") %>
-  <p class="feed__sentence"><% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span> <% end %><%= feed_sentence(item, card, partner_card, set) %></p>
-  <% if set_entry %>
-    <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") %>
-  <% elsif trade %>
+  <% if trade %>
     <span class="feed__thumbs">
       <% [ card, partner_card ].each do |traded| %>
         <%= link_to card_path(slug: traded.id), class: "feed__thumb feed__thumb--framed feed__thumb--#{traded.rarity}",
@@ -15,22 +11,32 @@
         <% end %>
       <% end %>
     </span>
-    <span class="feed__tag feed__tag--trade">
-      <%= pixel_icon("swap", class: "feed__tag-icon") %>
-      <span><%= t("feeds.show.trade_tag") %></span>
-    </span>
-  <% else %>
+  <% elsif !set_entry %>
     <%= link_to card_path(slug: card.id), class: class_names("feed__thumb", "feed__thumb--framed feed__thumb--#{card.rarity}": repost),
           aria: { label: card.title }, data: { turbo_prefetch: false } do %>
       <%= render CardComponent.new(card:, size: :s) %>
     <% end %>
-    <% if repost %>
-      <span class="feed__tag feed__tag--repost"><%= t("feeds.show.repost_tag") %></span>
-    <% else %>
-      <span class="feed__tag feed__tag--<%= card.rarity %>">
-        <%= pixel_icon("rarity-#{Catalog::Rarity::TIERS.key(card.rarity.to_sym)}", class: "feed__tag-icon") %>
-        <span><%= feed_rarity_name(card) %></span>
-      </span>
-    <% end %>
   <% end %>
+  <div class="feed__body">
+    <p class="feed__sentence"><%= feed_sentence(item, card, partner_card, set) %></p>
+    <div class="feed__meta">
+      <% if set_entry %>
+        <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") %>
+      <% elsif trade %>
+        <span class="feed__tag feed__tag--trade">
+          <%= pixel_icon("swap", class: "feed__tag-icon") %>
+          <span><%= t("feeds.show.trade_tag") %></span>
+        </span>
+      <% elsif repost %>
+        <span class="feed__tag feed__tag--repost"><%= t("feeds.show.repost_tag") %></span>
+      <% else %>
+        <span class="feed__tag feed__tag--<%= card.rarity %>">
+          <%= pixel_icon("rarity-#{Catalog::Rarity::TIERS.key(card.rarity.to_sym)}", class: "feed__tag-icon") %>
+          <span><%= feed_rarity_name(card) %></span>
+        </span>
+      <% end %>
+      <% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span><% end %>
+      <%= local_time_tag(item.entry.occurred_at, class: "feed__time") %>
+    </div>
+  </div>
 </li>

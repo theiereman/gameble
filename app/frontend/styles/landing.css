@@ -981,13 +981,29 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
 }
 
 .landing-live__list .feed__entry {
-  grid-template-columns: 4rem minmax(0, 1fr) auto;
   gap: var(--space-3);
   min-height: 0;
   padding: var(--space-2) var(--space-3);
 }
 
+.landing-live__list .feed__body {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.landing-live__list .feed__meta {
+  flex: none;
+  flex-wrap: nowrap;
+}
+
+.landing-live__list :is(.feed__name, .feed__game):focus-visible {
+  outline-offset: -2px;
+}
+
 .landing-live__list .feed__sentence {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   font: var(--font-body-small);
   text-overflow: ellipsis;
@@ -1583,15 +1599,6 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
 
   .landing-live__columns {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .landing-live__list .feed__entry {
-    grid-template-columns: 3.5rem minmax(0, 1fr) auto;
-  }
-
-  .landing-live__list .feed__time,
-  .landing-live__list .feed__sentence {
-    grid-column: auto;
   }
 
   .landing-roles {

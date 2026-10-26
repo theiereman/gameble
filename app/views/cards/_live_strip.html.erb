@@ -3,7 +3,7 @@
     <ul class="public-card__live-list">
       <% items.each do |item, card, partner_card, set| %>
         <li class="<%= class_names("public-card__live-entry", "public-card__live-entry--filler": item.filler) %>">
-          <p class="public-card__live-sentence"><% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span> <% end %><%= feed_sentence(item, card, partner_card, set) %></p>
+          <p class="public-card__live-sentence"><% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span> <% end %><%= feed_sentence(item, card, partner_card, set, links: false) %></p>
           <% if item.entry.kind == "set" %>
             <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") %>
           <% elsif item.entry.kind == "repost" %>
