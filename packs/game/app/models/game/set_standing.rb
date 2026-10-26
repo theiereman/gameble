@@ -1,11 +1,11 @@
 module Game
-  SetStanding = Data.define(:set_id, :held, :total, :tiers, :just, :reached_now, :gained_at) do
+  SetStanding = Data.define(:set_id, :held, :total, :tiers, :just, :reached_now, :gained_at, :completed_at) do
     def self.unstarted(set_id:, total:, tiers:)
-      new(set_id:, held: 0, total:, tiers:, just: false, reached_now: false, gained_at: nil)
+      new(set_id:, held: 0, total:, tiers:, just: false, reached_now: false, gained_at: nil, completed_at: nil)
     end
 
     def self.measured(set_id:, held:, total:, tiers:)
-      new(set_id:, held:, total:, tiers:, just: false, reached_now: false, gained_at: nil)
+      new(set_id:, held:, total:, tiers:, just: false, reached_now: false, gained_at: nil, completed_at: nil)
     end
 
     # The set's tiers as [tier, required] pairs, the fewest cards first;

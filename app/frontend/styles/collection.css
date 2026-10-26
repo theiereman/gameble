@@ -216,7 +216,9 @@
 /* ---- Set progress tiles ---- */
 
 .set-entry > .set-entry__in-progress {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
 }
 
 .set-entry__loading {

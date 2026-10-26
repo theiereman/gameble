@@ -2,8 +2,9 @@ require "test_helper"
 require_relative "../../support/catalog_seeds"
 require_relative "../../support/game_sets"
 
-# Game::SetBoard: a player's sets in progress, closest first; and the hub's
-# four, filled with the sets touched, then popular ones.
+# Game::SetBoard: a player's sets in progress, closest first, and their
+# complete sets, the latest gained in first; and the hub's four, filled with
+# the sets touched, then popular ones.
 class Game::SetBoardTest < ActiveSupport::TestCase
   include CatalogSeeds
   include GameSets
@@ -106,6 +107,45 @@ class Game::SetBoardTest < ActiveSupport::TestCase
     assert_not_includes ids(Game::SetBoard.hub(@player, season: @season)), done
   end
 
+  test "every complete set, the latest completed first, but one still in progress" do
+    older, older_cards = untiered("franchise", "dark-souls", 3)
+    newer, newer_cards = theme("roguelike", 20)
+    fresh, fresh_cards = untiered("franchise", "portal", 2)
+    untimed, untimed_cards = untiered("studio", "supergiant", 2)
+    _started, started_cards = theme("horror", 20)
+    latest = Time.utc(2026, 10, 17, 9)
+    hold_all(@player, older_cards, gained_at: latest - 3.days)
+    hold_all(@player, newer_cards, gained_at: latest - 1.day)
+    hold_all(@player, untimed_cards)
+    hold_all(@player, started_cards.first(5), gained_at: latest - 2.days)
+    hold_all(@player, fresh_cards, gained_at: latest)
+    record_completion(fresh, latest)
+
+    result = board
+    assert_equal [ newer, older, untimed ], ids(result.complete)
+    assert result.complete.all?(&:complete?)
+    assert_equal [ fresh ], ids(result.in_progress) & [ fresh, newer, older, untimed ]
+  end
+
+  test "a duplicate gained in a set completed long ago leaves it behind the set completed since" do
+    long_ago, long_ago_cards = untiered("franchise", "dark-souls", 3)
+    since, since_cards = untiered("franchise", "portal", 2)
+    latest = Time.utc(2026, 10, 17, 9)
+    hold_all(@player, long_ago_cards, gained_at: latest - 30.days)
+    record_completion(long_ago, latest - 30.days)
+    hold_all(@player, since_cards, gained_at: latest - 2.days)
+    record_completion(since, latest - 2.days)
+    Game::Holding.where(player_id: @player.id, card_season_id: long_ago_cards.first).update_all(quantity: 2, last_gained_at: latest - 1.day)
+    _other, other_cards = theme("horror", 20)
+    hold_all(@player, other_cards.first(1), gained_at: latest)
+
+    assert_equal [ since, long_ago ], ids(board.complete)
+  end
+
+  def record_completion(set_id, at)
+    Game::SetTier.insert_all!([ { player_id: @player.id, set_id:, tier: "complete", reached_by: "trade", reached_at: at, created_at: at, updated_at: at } ])
+  end
+
   test "in progress shows every set in progress, while the hub keeps four" do
     12.times { |index| hold_all(@player, theme("theme-#{index}", 10).last.first(2)) }
 
@@ -120,8 +160,10 @@ class Game::SetBoardTest < ActiveSupport::TestCase
     assert_queries_count(1) { three = board }
     assert_equal 3, three.in_progress.size
 
-    hold_all(@player, sets[3, 37].flat_map { it.first(2) })
-    assert_queries_count(1) { board }
+    hold_all(@player, sets[3, 37].flat_map { it.first(2) } + sets[40, 5].flatten)
+    forty = nil
+    assert_queries_count(1) { forty = board }
+    assert_equal [ 40, 5 ], [ forty.in_progress.size, forty.complete.size ]
   end
 
   test "a visitor or no season: nothing and no query" do

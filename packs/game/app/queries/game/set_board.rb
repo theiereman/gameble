@@ -1,13 +1,15 @@
 module Game
   module SetBoard
-    Board = Data.define(:in_progress)
-    EMPTY = Board.new(in_progress: [])
+    Board = Data.define(:in_progress, :complete)
+    EMPTY = Board.new(in_progress: [], complete: [])
     HUB_ROWS = 4
 
     def self.call(player, season:)
       return EMPTY if season.nil?
 
-      Board.new(in_progress: ranked_in_progress(SetsInProgress.call(player, season:).values))
+      standings = SetsInProgress.call(player, season:).values
+      in_progress = ranked_in_progress(standings)
+      Board.new(in_progress:, complete: latest_complete(standings - in_progress))
     end
 
     def self.hub(player, season:)
@@ -31,6 +33,13 @@ module Game
         .sort_by { |standing| [ standing.gained_at ? 0 : 1, -standing.gained_at.to_r, standing.set_id ] }
     end
 
+    def self.latest_complete(standings)
+      standings.select(&:complete?).sort_by do |standing|
+        completed_at = standing.completed_at || standing.gained_at
+        [ completed_at ? 0 : 1, -completed_at.to_r, standing.set_id ]
+      end
+    end
+
     def self.popular(season, count, exclude:)
       ids = Catalog::PopularSets.call(season:, limit: count, exclude:)
       figures = Catalog::SetFigures.call(ids)
@@ -40,6 +49,6 @@ module Game
       end
     end
 
-    private_class_method :ranked_in_progress, :ranked_touched, :popular
+    private_class_method :ranked_in_progress, :ranked_touched, :latest_complete, :popular
   end
 end

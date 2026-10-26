@@ -19,7 +19,11 @@ module Game
                 WHERE recorded.player_id = :player_id AND recorded.set_id = progress.set_id
                   AND recorded.reached_at = latest.gained_at
              ) AS reached_now,
-             progress.gained_at
+             progress.gained_at,
+             (
+               SELECT completion.reached_at FROM game_set_tiers AS completion
+                WHERE completion.player_id = :player_id AND completion.set_id = progress.set_id AND completion.tier = 'complete'
+             ) AS completed_at
         FROM progress CROSS JOIN latest
     SQL
 
@@ -27,8 +31,8 @@ module Game
       return {} if player.nil? || season.nil?
 
       result = Holding.connection.select_all(Holding.sanitize_sql_array([ SQL, { player_id: player.id, season_id: season.id } ]), "Game::SetsInProgress")
-      result.cast_values.to_h do |set_id, held, total, tiers, just, reached_now, gained_at|
-        standing = SetStanding.new(set_id:, held:, total:, tiers: tier_hash(tiers), just:, reached_now:, gained_at:)
+      result.cast_values.to_h do |set_id, held, total, tiers, just, reached_now, gained_at, completed_at|
+        standing = SetStanding.new(set_id:, held:, total:, tiers: tier_hash(tiers), just:, reached_now:, gained_at:, completed_at:)
         [ set_id, standing ]
       end
     end

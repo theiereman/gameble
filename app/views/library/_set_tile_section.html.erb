@@ -1,0 +1,9 @@
+<%# locals: (id:, title:, tiles:) %>
+<section class="set-entry__section" aria-labelledby="<%= id %>">
+  <h2 id="<%= id %>" class="set-entry__title"><%= title %></h2>
+  <ul class="set-tiles">
+    <% tiles.each do |tile| %>
+      <li><%= render "library/set_progress_tile", href: library_set_path(kind: tile.set.kind, key: tile.set.key), tile: %></li>
+    <% end %>
+  </ul>
+</section>

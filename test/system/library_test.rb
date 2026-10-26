@@ -128,6 +128,32 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path library_set_path(locale: :en, kind: "theme", key: "pirates")
   end
 
+  test "COMPLETED follows EN COURS: a complete set's tile turns to its tiers all reached and leads to its album" do
+    (members("pirates") - @theme.first(3)).each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
+    sign_in
+    visit library_path(locale: :en)
+
+    assert_selector "#set-entry-in-progress-title ~ .set-tiles a.set-tile", minimum: 1
+    assert_selector "#set-entry-completed-title", text: /\ACOMPLETED\z/
+    complete = find("#set-entry-completed-title ~ .set-tiles a.set-tile[href='#{library_set_path(locale: :en, kind: "theme", key: "pirates")}']")
+    assert_tile(/\APirates, theme, 8 cards out of 8, complete\z/)
+    take_screenshot
+
+    all("#set-entry-in-progress-title ~ .set-tiles a.set-tile").last.send_keys(:tab)
+    assert_selector "#set-entry-completed-title ~ .set-tiles > li:first-child > a.set-tile:focus"
+    eventually("the focused complete tile should turn to its verso") { turned?(complete) && unturned?(complete) }
+    within(complete) do
+      assert_selector ".set-tile__node--reached", minimum: 1
+      assert_no_selector ".set-tile__node--next, .set-tile__node--later"
+      assert_selector ".set-tile__cta", text: /VIEW THE ALBUM/i
+    end
+    take_screenshot
+
+    complete.click
+    assert_current_path library_set_path(locale: :en, kind: "theme", key: "pirates")
+    assert_selector ".set-album__count", text: "8/8"
+  end
+
   test "a player who unticks the only state chip keeps every slot, as the form without JavaScript" do
     sign_in
     visit library_cards_path(locale: :en)

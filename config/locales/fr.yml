@@ -793,6 +793,7 @@ fr:
   library:
     entry:
       in_progress: "En cours"
+      completed: "Complétés"
       no_progress: "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
       search: "Chercher un set"
       all_cards: "Toutes les cartes"
@@ -830,6 +831,7 @@ fr:
         complete: "Complet"
     set_tile:
       no_tier: "Aucun palier"
+      complete: "Toutes les cartes obtenues"
       next_html:
         zero: "Plus que <b>%{missing}</b> pour %{tier}"
         one: "Plus que <b>%{missing}</b> pour %{tier}"

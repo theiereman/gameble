@@ -88,7 +88,8 @@ module SetRowsHelper
     tag.span(set_tier_name(tier), class: [ "set-chip", "tier-tone--#{tier}", attrs[:class] ])
   end
 
-  def set_next_tier_line(standing)
+  def set_goal_line(standing)
+    return t("library.set_tile.complete") if standing.complete?
     return if standing.missing.nil?
 
     t("library.set_tile.next_html", count: standing.missing, missing: number_with_delimiter(standing.missing), tier: set_tier_chip(standing.next_tier))

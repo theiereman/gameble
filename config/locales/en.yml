@@ -1344,6 +1344,7 @@ en:
       title: Collection
     entry:
       all_cards: All cards
+      completed: Completed
       found:
         one: 1 set found
         other: "%{count} sets found"
@@ -1445,6 +1446,7 @@ en:
         novice: Novice
         silver: Silver
     set_tile:
+      complete: Every card collected
       gained:
         days:
           one: yesterday

@@ -27,8 +27,8 @@
         <progress class="set-row__bar" value="<%= [ standing.held, standing.total ].min %>" max="<%= [ standing.total, 1 ].max %>"></progress>
         <%= set_tier_ticks(standing) %>
       </span>
-      <% if (next_tier = set_next_tier_line(standing)) %>
-        <span class="set-tile__next"><%= next_tier %></span>
+      <% if (goal = set_goal_line(standing)) %>
+        <span class="set-tile__next"><%= goal %></span>
       <% end %>
     </span>
   </span>

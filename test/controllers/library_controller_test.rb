@@ -5,8 +5,8 @@ require_relative "../support/library_requests"
 require_relative "../support/steam_sign_in"
 
 # The collection. Its entry: the search over every set and the way to all
-# the cards, then the sets in progress as tiles, closest first, a frame
-# loaded after the page. Its grid of every card of the
+# the cards, then the sets in progress as tiles, closest first, and the
+# complete sets, the latest completed first, a frame loaded after the page. Its grid of every card of the
 # season: the top bar's unique cards, the RAPPORT, the filters (state,
 # rarity, the set group that picks a kind then finds a set by name, genre)
 # and the search, the grid of every card's face sixty to a page, a
@@ -1162,7 +1162,80 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Halo" ], tiles.select { it.classes.include?("set-tile--closest") }.map { it.at_css(".set-tile__name").text }
   end
 
-  test "EN COURS shows every set in progress, for the same queries with three sets or forty" do
+  def completed_tiles = css_select("turbo-frame#set-entry-in-progress #set-entry-completed-title ~ ul.set-tiles > li > a.set-tile")
+
+  test "COMPLETED follows EN COURS with every complete set, the latest completed first, each a link to its album, none in the gold frame or in both lists" do
+    entry_season
+    player = accounts_players(:player)
+    latest = Time.utc(2026, 10, 17, 9)
+    halo = named("franchise", "Halo", 3)
+    roguelike = theme("roguelike", 62)
+    supergiant = named("studio", "Supergiant", 5)
+    portal = named("franchise", "Portal", 2)
+    horror = theme("horror", 20)
+    fresh = named("franchise", "Fresh", 2)
+    hold_all(player, halo.first(2) + roguelike.first(29) + supergiant.first(3) + fresh, gained_at: latest)
+    Game::SetTier.insert_all!([ { player_id: player.id, set_id: Catalog::Set.find_by!(key: "fresh").id, tier: "complete", reached_by: "trade",
+      reached_at: latest, created_at: latest, updated_at: latest } ])
+    hold_all(player, portal, gained_at: latest - 3.days)
+    hold_all(player, horror, gained_at: latest - 1.day)
+    sign_in(player)
+
+    get_in_progress
+
+    assert_equal [ "In progress", "Completed" ], css_select("turbo-frame#set-entry-in-progress > section.set-entry__section > h2").map(&:text)
+    assert_select "turbo-frame#set-entry-in-progress > section.set-entry__section[aria-labelledby=set-entry-completed-title] > h2#set-entry-completed-title"
+    assert_equal [ "Fresh", "Halo", "Supergiant", "Roguelike" ], tile_rows.map(&:first)
+    assert_equal 1, css_select("a.set-tile[href='/en/library/franchise/fresh']").size
+    assert_equal [ [ "Horror", "/en/library/theme/horror" ], [ "Portal", "/en/library/franchise/portal" ] ],
+      completed_tiles.map { [ it.at_css(".set-tile__name").text, it["href"] ] }
+    assert_equal [ "Halo" ], tiles.select { it.classes.include?("set-tile--closest") }.map { it.at_css(".set-tile__name").text }
+    assert completed_tiles.none? { it.classes.include?("set-tile--closest") }
+    assert_select ".set-entry__empty", false
+    assert_select "[style]", false
+
+    complete = completed_tiles.first
+    assert_select complete, ".set-chip--rank.tier-tone--complete", "Complete"
+    assert_select complete, "progress.set-row__bar[value='20'][max='20']"
+    assert_select complete, ".set-row__tick", false
+    assert_equal "Every card collected", complete.at_css(".set-tile__next").text.squish
+    assert_equal [ [ "bronze", "reached" ], [ "silver", "reached" ], [ "gold", "reached" ], [ "complete", "reached" ] ], path(complete).map { it.first(2) }
+    assert_equal "20/20", complete.at_css(".set-tile__face--verso .set-tile__count").text
+    assert_equal 3, complete.css(".set-tile__card .card.card--s").size
+    assert_equal "+17", complete.at_css(".set-tile__more").text
+    assert_select complete, ".set-tile__last .set-tile__last-card .card.card--s", 1
+    assert_select complete, ".set-tile__face--verso > .set-tile__cta", "View the album"
+    assert_equal "Horror, theme, 20 cards out of 20, complete", complete.at_css("> .visually-hidden").text
+    small = completed_tiles.last
+    assert_equal [ 2, 0 ], [ small.css(".set-tile__card").size, small.css(".set-tile__missing").size ]
+  end
+
+  test "with complete sets alone, EN COURS still says none is in progress, COMPLETED under it; with none complete, no COMPLETED" do
+    entry_season
+    player = accounts_players(:player)
+    portal = named("franchise", "Portal", 2)
+    halo = named("franchise", "Halo", 3)
+    hold_all(player, portal)
+    sign_in(player)
+
+    get_in_progress(locale: :fr)
+
+    assert_select "turbo-frame#set-entry-in-progress > p.set-entry__empty:first-child + section.set-entry__section > h2#set-entry-completed-title", "Complétés"
+    assert_empty tiles
+    assert_equal [ "Portal" ], completed_tiles.map { it.at_css(".set-tile__name").text }
+    assert_select completed_tiles.sole, ".set-chip--rank.tier-tone--complete", "Complet"
+    assert_equal "Toutes les cartes obtenues", completed_tiles.sole.at_css(".set-tile__next").text.squish
+
+    Game::Holding.where(player_id: player.id).delete_all
+    hold_all(player, halo.first(2))
+
+    get_in_progress
+
+    assert_equal [ "Halo" ], tile_rows.map(&:first)
+    assert_select "#set-entry-completed-title, .set-entry__empty", false
+  end
+
+  test "EN COURS and COMPLETED show every set, for the same queries with three sets in progress or forty and five complete" do
     entry_season(540)
     player = accounts_players(:player)
     sets = (1..45).map { theme("theme-#{it}", 12) }
@@ -1172,9 +1245,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     three = count_queries { get_in_progress }
     assert_equal [ "2/12" ] * 3, tile_rows.map(&:last)
 
-    hold_all(player, sets[3, 37].flat_map { it.first(2) })
+    hold_all(player, sets[3, 37].flat_map { it.first(2) } + sets[40, 5].flatten)
     forty = count_queries { get_in_progress }
-    assert_equal 40, tiles.size
+    assert_equal [ 40, 5 ], [ tiles.size, completed_tiles.size ]
     assert_equal three, forty
     # Player lookup, season; the standings, the sets named, their cards and
     # the faces of those shown; the themes' names.

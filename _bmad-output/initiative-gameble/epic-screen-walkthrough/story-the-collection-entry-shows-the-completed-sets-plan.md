@@ -3,13 +3,13 @@ title: 'The collection entry shows the completed sets'
 type: 'feature'
 ticket: '35'
 created: '2026-10-26'
-status: 'in-progress'
+status: 'built'
 baseline_revision: '265918abdc707729df0f203bdd666200204a7aac'
 route: 'full'
 route_source: 'auto'
-review: ''
-review_source: ''
-lenses_ran: []
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: [quick]
 review_loop_iteration: 0
 context:
   - '{project-root}/_bmad-output/initiative-gameble/ux-gameble/mockups/key-collection-in-progress.html'
@@ -44,12 +44,12 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `set_board.rb` + test -- `Board` gains `complete` (every complete standing, latest gained first).
-- [ ] `set_board_loading.rb` -- one `set_tiles` pass over both lists (one `SetShowcases` call), `closest` from EN COURS only; `@complete_tiles`.
-- [ ] `in_progress.html.erb`, tile partial, helper -- the COMPLETED section and the complete tile's line.
-- [ ] locales -- both files.
-- [ ] tests -- frame shows complete sets in order, hidden when none, EN COURS empty message with only complete sets, no gold frame in COMPLETED, query count unchanged with complete sets added; system test: a complete tile turns and links to its album.
-- [ ] DESIGN.md, EXPERIENCE.md -- record the section.
+- [x] `set_board.rb` + test -- `Board` gains `complete` (every complete standing, latest gained first).
+- [x] `set_board_loading.rb` -- one `set_tiles` pass over both lists (one `SetShowcases` call), `closest` from EN COURS only; `@complete_tiles`.
+- [x] `in_progress.html.erb`, tile partial, helper -- the COMPLETED section and the complete tile's line.
+- [x] locales -- both files.
+- [x] tests -- frame shows complete sets in order, hidden when none, EN COURS empty message with only complete sets, no gold frame in COMPLETED, query count unchanged with complete sets added; system test: a complete tile turns and links to its album.
+- [x] DESIGN.md, EXPERIENCE.md -- record the section.
 
 **Acceptance Criteria:**
 - Given a player with 2 complete sets and 3 in progress, when the collection opens, then EN COURS shows 3 tiles and COMPLÉTÉS 2, the most recently completed first, each a link to its album.
@@ -58,9 +58,23 @@ context:
 
 ## Implementation Notes
 
+- `Game::SetBoard::Board` gains `complete`: every complete standing not in `in_progress`, latest completion first. `SetsInProgress` folds the player's `complete` tier `reached_at` into its one query as `SetStanding#completed_at`; the order falls back to `gained_at` when no completion is recorded, then `set_id`, so a duplicate gained later never moves a set.
+- `load_set_tiles` reads the sets of both lists in one `SetsById` call and builds every tile in one `set_tiles` pass (one `SetShowcases` call); `set_tiles` takes `closest_among:` (default: all rows, so the public profile is unchanged) and the entry passes the EN COURS rows only. The frame's query count stays 7 with five complete sets added.
+- A set completed by the latest gain (`reached_now`) is still in progress by `SetStanding#in_progress?`; it stays in EN COURS and out of COMPLÉTÉS until the next gain (author, 2026-10-26: a set never shows twice).
+- `set_next_tier_line` became `set_goal_line`: a complete standing reads `library.set_tile.complete` ("Every card collected" / "Toutes les cartes obtenues"). The key sits under `library.set_tile`, beside `next_html`, since the line belongs to the shared tile; the section title is `library.entry.completed`. The public profile's complete tiles render the same line (approved by the author, 2026-10-26).
+- Both sections render through `library/_set_tile_section`; the frame is a flex column with the entry's section gap.
+
 ## Plan Change Log
 
 ## Review Triage Log
+
+### 2026-10-26 — Review pass (quick)
+- verdicts: 4 findings — high 0, medium 2, low 1, false 1, maybe-false 0
+- findings:
+  - `[false]` `reject` The public profile's complete tiles now show the complete line, against the boundary — the author approved it on 2026-10-26 when asked.
+  - `[medium]` `patch` A set completed by the latest gain showed in EN COURS and COMPLETED — the author decided it stays out of COMPLETED while in EN COURS; the board and the frame test assert it shows once.
+  - `[medium]` `patch` COMPLETED was ordered by the latest copy gained, so a duplicate moved an old set to the top — ordered by the `complete` tier's `reached_at` read in the existing standings query, falling back to the latest gain; a board test covers the duplicate.
+  - `[low]` `patch` The docs credited build-time copy to the author — the copy and the order are marked as chosen at build.
 
 ## Verification
 

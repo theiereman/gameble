@@ -16,17 +16,21 @@ module SetBoardLoading
     end
 
     def load_set_tiles(season, owner:)
-      in_progress = Game::SetBoard.call(owner, season:).in_progress
-      @tiles = set_tiles(set_rows(in_progress, Catalog::SetsById.call(in_progress.map(&:set_id))), owner:, season:)
+      board = Game::SetBoard.call(owner, season:)
+      sets = Catalog::SetsById.call((board.in_progress + board.complete).map(&:set_id))
+      in_progress = set_rows(board.in_progress, sets)
+      tiles = set_tiles(in_progress + set_rows(board.complete, sets), owner:, season:, closest_among: in_progress)
+      @tiles = tiles.first(in_progress.size)
+      @complete_tiles = tiles.drop(in_progress.size)
     end
 
     def set_rows(standings, sets)
       standings.filter_map { |standing| SetRow.new(set: sets[standing.set_id], standing:) if sets.key?(standing.set_id) }
     end
 
-    def set_tiles(rows, owner:, season:)
+    def set_tiles(rows, owner:, season:, closest_among: rows)
       showcases = Game::SetShowcases.call(owner, set_ids: rows.map { it.set.id }, season:, locale: I18n.locale)
-      closest = closest_to_next_tier(rows)
+      closest = closest_to_next_tier(closest_among)
       rows.map do |row|
         SetTile.new(set: row.set, standing: row.standing, showcase: showcases.fetch(row.set.id, NO_SHOWCASE), closest: row.equal?(closest))
       end
