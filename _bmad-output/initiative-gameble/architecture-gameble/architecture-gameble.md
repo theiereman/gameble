@@ -405,18 +405,12 @@ Verified against the RubyGems and npm registries on 2026-10-02, and against the 
 | Vite Rails | 3.11.1 |
 | vite-plugin-ruby | 5.2.5 |
 | Vite | 8.3.4 |
-| React | 19.3.0, until the last port (AD-31) |
 | TypeScript | 7.0.2 |
 | Vitest | 5.0.4 |
 | happy-dom (Vitest environment for the test of the shared server-HTML helper only) | 20.14.5 |
-| Turbo Mount | 0.4.4, until the last port (AD-31) |
 | @hotwired/turbo-rails (npm) | 8.0.23 |
 | @hotwired/stimulus (npm) | 3.2.2 |
-| turbo-mount (npm) | 0.4.4, until the last port (AD-31) |
 | Capybara, selenium-webdriver (system tests) | 3.40.0, 4.51.0 |
-| react-dom | 19.3.0, until the last port (AD-31) |
-| @types/react, @types/react-dom | 19.3.0, until the last port (AD-31) |
-| @vitejs/plugin-react | 6.1.2, until the last port (AD-31) |
 | stimulus-vite-helpers | 3.1.0 |
 | dry-operation | 1.1.0 |
 | Rails Event Store | 3.2.0 |

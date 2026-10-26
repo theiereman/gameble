@@ -1,11 +1,9 @@
 import { defineConfig } from 'vite'
 import RubyPlugin from 'vite-plugin-ruby'
-import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [
     RubyPlugin(),
-    react(),
   ],
   build: {
     // A font is always its own file: inlined as a data: URI it would be

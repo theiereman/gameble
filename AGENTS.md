@@ -3,7 +3,7 @@
 
 ## gameble
 
-A free web trading card game where every card is a Steam game. Rails 8 with domain code in packwerk packs (`packs/accounts`, `catalog`, `game`, `steam`), Hotwire with TypeScript Stimulus controllers, Postgres 18. The booster and trade board are still React islands being ported to Stimulus; they take bug fixes only until both ports land. Planning lives in `_bmad-output/initiative-gameble/`: the spec, the architecture (`architecture-gameble/architecture-gameble.md`, which holds the reasons behind the rules below) and the UX (`ux-gameble/`).
+A free web trading card game where every card is a Steam game. Rails 8 with domain code in packwerk packs (`packs/accounts`, `catalog`, `game`, `steam`), Hotwire with TypeScript Stimulus controllers on every screen, Postgres 18. Planning lives in `_bmad-output/initiative-gameble/`: the spec, the architecture (`architecture-gameble/architecture-gameble.md`, which holds the reasons behind the rules below) and the UX (`ux-gameble/`).
 
 ## Policy
 

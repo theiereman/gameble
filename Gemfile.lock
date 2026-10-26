@@ -540,8 +540,6 @@ GEM
       tty-screen (~> 0.8)
       wisper (~> 2.0)
     tty-screen (0.8.2)
-    turbo-mount (0.4.4)
-      railties (>= 6.0.0)
     turbo-rails (2.0.23)
       actionpack (>= 7.1.0)
       railties (>= 7.1.0)
@@ -633,7 +631,6 @@ DEPENDENCIES
   strong_migrations (~> 2.8.0)
   thruster
   tomlrb (~> 2.0.5)
-  turbo-mount (~> 0.4.4)
   turbo-rails (~> 2.0.23)
   tzinfo-data
   view_component (~> 4.15.0)
@@ -828,7 +825,6 @@ CHECKSUMS
   tty-prompt (0.23.1) sha256=fcdbce905238993f27eecfdf67597a636bc839d92192f6a0eef22b8166449ec8
   tty-reader (0.9.0) sha256=c62972c985c0b1566f0e56743b6a7882f979d3dc32ff491ed490a076f899c2b1
   tty-screen (0.8.2) sha256=c090652115beae764336c28802d633f204fb84da93c6a968aa5d8e319e819b50
-  turbo-mount (0.4.4) sha256=cd5445291b2440e876a885cd2e621b73a3fd03187cc76d150f04e7d7e6b43c9b
   turbo-rails (2.0.23) sha256=ee0d90733aafff056cf51ff11e803d65e43cae258cc55f6492020ec1f9f9315f
   tzinfo (2.0.6) sha256=8daf828cc77bcf7d63b0e3bdb6caa47e2272dcfaf4fbfe46f8c3a9df087a829b
   unicode-display_width (3.3.0) sha256=4b7aa66a4b11db50f6f7e98411215cd0dd10eaecb665d36eec5bcacb3fa0b613

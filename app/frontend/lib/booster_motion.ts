@@ -1,4 +1,4 @@
-// The booster screen's timing and motion. Pure: no DOM, no React. Every
+// The booster screen's timing and motion. Pure: no DOM. Every
 // duration of the opening and the reveal lives here: the opening, reveal
 // and Légendaire ones multiplied by TIME_SCALE; the others, the
 // reduced-motion ones included (RM_*), unscaled.

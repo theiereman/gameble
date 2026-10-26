@@ -6,7 +6,7 @@ require_relative "../support/steam_sign_in"
 # SYSTÈME / OUI / NON, kept on the player and mirrored in a cookie; the
 # server renders OUI as `html[data-motion=reduced]` (and drops the
 # view-transition meta) and NON as `html[data-motion=full]`, which overrides
-# the system's preference. CSS, Stimulus and the islands all read that one
+# the system's preference. CSS and Stimulus both read that one
 # attribute: nothing loops and nothing slides, signed in or out, and the
 # switch is live.
 class SettingsTest < ApplicationSystemTestCase

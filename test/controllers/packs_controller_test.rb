@@ -24,9 +24,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     open_item.at_css(".menu-item__badge").text
   end
 
-  # Any React island on the page (Turbo Mount).
-  ISLAND = "[data-controller^=turbo-mount]".freeze
-
   def end_buttons
     css_select(".pack-end .button").map { |button| button.text.strip }
   end
@@ -48,7 +45,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Your capsule"
     assert_select "ol.pack-result__cards[aria-label=?]", "The cards of your capsule"
     assert_select ".toasts > .toast", 0
-    assert_select ISLAND, 0
     assert_not_equal "no-store", response.headers["Cache-Control"]
     assert_select "meta[name=turbo-cache-control]", 0
 
@@ -140,7 +136,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "h1", "Your daily capsule"
     assert_equal %w[RARE EPIC LEGENDARY], css_select(".pack-result__card .card__rarity").map { it.text.upcase }
-    assert_select ISLAND, 0
   end
 
   test "the flash's notices and alerts still show, and nothing else of it" do
@@ -623,7 +618,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     get body.dig("pack", "url")
 
     assert_response :success
-    assert_select ISLAND, 0
     assert_select ".pack-result__card .card.card--m", 5
   end
 end
