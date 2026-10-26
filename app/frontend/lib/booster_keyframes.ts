@@ -2,11 +2,11 @@
 // canister's arming, caps, body and dock, the cards' sink, reveal,
 // Légendaire sequence, store, slot pop and spring back, and the banner.
 // Pure: each list from its inputs, no DOM. The durations come from
-// lib/booster.ts and the easings are chosen at the island's call sites,
+// lib/booster_motion.ts and the easings are chosen at the island's call sites,
 // except that the arming list carries its own easings between frames and
 // the tremble takes its step count from TREMBLE_MS. A reveal's swell (its
 // scale) comes in as a function, so the island damps it on the phone.
-import { DOCK_PX, SINK_PX, TREMBLE_MS, pose, scaled } from "./booster"
+import { DOCK_PX, SINK_PX, TREMBLE_MS, pose, scaled } from "./booster_motion"
 
 /** A reveal's scale, as the layout draws it. */
 export type Swell = (scale: number) => number

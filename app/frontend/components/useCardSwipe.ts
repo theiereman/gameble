@@ -3,7 +3,7 @@
 // touch, pen or mouse pointer pressed on the card drags it once it has
 // travelled SWIPE_START px (the card's __float layer follows it: translate
 // and a slight rotation, transform only); let go, the island stores the
-// card or springs it back (lib/booster.ts, swipeStores). A finger held
+// card or springs it back (lib/booster_motion.ts, swipeStores). A finger held
 // still long enough tilts the card instead (lib/tilt.ts marks the face
 // `data-tilting`): a gesture during which that mark appears is a tilt,
 // never a swipe (a mouse tilts the face as soon as it hovers it: a mark
@@ -12,7 +12,7 @@
 // handlers live on the card's slot (React's own listeners, gone with it).
 import { useMemo, useRef } from "react"
 import type { CardGestures } from "./BoosterCard"
-import { SWIPE_START } from "../lib/booster"
+import { SWIPE_START } from "../lib/booster_motion"
 
 export type SwipeTarget = {
   /** The card may start a drag now (the revealed top card, nothing running). */

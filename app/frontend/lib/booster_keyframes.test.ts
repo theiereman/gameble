@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { phoneSwell, pose } from "./booster"
+import { phoneSwell, pose } from "./booster_motion"
 import {
   armKeyframes,
   bannerKeyframes,

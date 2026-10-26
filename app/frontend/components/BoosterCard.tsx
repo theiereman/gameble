@@ -27,11 +27,11 @@
 // face's own tilt, and the slot catches the click.
 //
 // On the phone (story 8.12) the cards lie in a pile: each one at its
-// depth's pose (lib/booster.ts, pilePose, read by the stylesheet from
+// depth's pose (lib/booster_motion.ts, pilePose, read by the stylesheet from
 // custom properties), only the top one taking input (the others inert) and
 // running its loops.
 import { memo, useMemo, type CSSProperties, type MouseEvent, type PointerEvent, type Ref } from "react"
-import { cardBackClass, pilePose } from "../lib/booster"
+import { cardBackClass, pilePose } from "../lib/booster_motion"
 import type { Rarity } from "../lib/card_types"
 
 /** The phone's swipe on the revealed top card, handled by the island. */

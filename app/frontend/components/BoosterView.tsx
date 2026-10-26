@@ -1,12 +1,5 @@
-// The booster island's view: everything Booster draws, from the island's
-// state, its props and the countdown, with nothing of its own. The panel
-// (or on the phone the strip) with the three actions, the stage (the
-// canister's zone, the result head, the row of cards or the phone's pile,
-// caption plate and tray, the banner, the flash), the phone's actions, the
-// card zoom and the live region. The island hands it the elements it
-// animates and the handlers its controls call.
 import type { MouseEvent, Ref } from "react"
-import BoosterBanner, { type Banner } from "./BoosterBanner"
+import BoosterBanner from "./BoosterBanner"
 import BoosterCanister, { type CanisterParts } from "./BoosterCanister"
 import BoosterCard, { type CardGestures } from "./BoosterCard"
 import BoosterCelebration from "./BoosterCelebration"
@@ -17,50 +10,19 @@ import BoosterTray from "./BoosterTray"
 import BoosterZoom from "./BoosterZoom"
 import type { Announcement } from "./useLiveRegion"
 import type { Rarity } from "../lib/card_types"
-import type { CelebrationResult } from "../lib/celebration"
 import { formatNumber, t } from "../lib/i18n"
-import type { OpeningAnswer, OpeningCard } from "../lib/opening"
-import { faceSize, formatClock, pileDepth, topOfPile, zoomNeighbour, type Layout } from "../lib/booster"
+import type { OpeningCard } from "../lib/opening"
+import { controls, faceSize, shownCelebration, type BoosterState, type Hint } from "../lib/booster"
+import { formatClock } from "../lib/booster_clock"
+import { pileDepth } from "../lib/booster_motion"
 import { formatLocalTime } from "../lib/local_time"
 import { cardHref } from "../lib/booster_page"
-import type { BoosterBank, BoosterPhase, BoosterProps, BoosterStatus } from "../lib/booster_props"
+import type { BoosterProps, BoosterStrings } from "../lib/booster_props"
 
 const RESERVE_PIPS = 10
 
 const localTime = (iso: string): string => formatLocalTime(iso, "datetime", { locale: document.documentElement.lang }) ?? iso
 
-/** The island's state, as the view draws it. */
-export type BoosterViewState = {
-  phase: BoosterPhase
-  status: BoosterStatus
-  bank: BoosterBank
-  answer: OpeningAnswer | null
-  revealed: boolean[]
-  revealedAt: (number | undefined)[]
-  stored: boolean[]
-  dealt: boolean
-  armed: boolean
-  headShown: boolean
-  canisterAway: boolean
-  /** Bumped by each new canister: it is drawn again, docked. */
-  dock: number
-  reason: string | null
-  legendary: number | null
-  banner: Banner | null
-  revealingAll: boolean
-  storing: boolean
-  locked: boolean
-  layout: Layout
-  /** Bumped by a rebuild: the cards are drawn again, fresh, at rest. */
-  stageKey: number
-  zoom: number | null
-  announcements: Announcement[]
-  /** The set celebration's results once the hand is complete and no banner plays, else null. */
-  celebration: CelebrationResult[] | null
-  celebrationStill: boolean
-}
-
-/** The elements the island animates, measures or focuses. */
 export type BoosterViewElements = {
   section: Ref<HTMLElement>
   canister: Ref<CanisterParts>
@@ -73,7 +35,6 @@ export type BoosterViewElements = {
   traySlotRef: (index: number, element: HTMLElement | null) => void
 }
 
-/** What the view's controls ask of the island. */
 export type BoosterViewHandlers = {
   open: () => Promise<void>
   revealAll: () => Promise<void>
@@ -81,48 +42,53 @@ export type BoosterViewHandlers = {
   storeTop: () => void
   openZoom: (index: number) => void
   closeZoom: () => void
-  /** The zoom's previous (-1) or next (1) filled tray slot. */
   stepZoom: (step: -1 | 1) => void
-  /** "Voir la fiche" in the zoom. */
   seeZoomed: (event: MouseEvent<HTMLAnchorElement>) => void
   repost: (index: number) => Promise<string>
   endBanner: (key: number) => void
-  /** The way back does nothing while the navigation is locked. */
   guardBack: (event: MouseEvent<HTMLAnchorElement>) => void
   leaveForAlbum: (event: MouseEvent<HTMLAnchorElement>) => void
-  /** The swipe on the phone's revealed top card. */
   gestures: CardGestures
 }
 
 export type BoosterViewProps = {
   props: BoosterProps
-  state: BoosterViewState
-  /** Whole seconds to the next booster, or null. */
+  state: BoosterState
+  announcements: Announcement[]
   left: number | null
   elements: BoosterViewElements
   handlers: BoosterViewHandlers
 }
 
-export default function BoosterView({ props, state, left, elements, handlers }: BoosterViewProps) {
+function hintText(hint: Hint, strings: BoosterStrings, number: (value: number) => string): string {
+  switch (hint.kind) {
+    case "remaining":
+      return t(strings.hintRemaining, { count: hint.count, n: number(hint.count) })
+    case "done":
+      return t(strings.hintDone, { count: hint.count, n: number(hint.count) })
+    case "swipe":
+      return strings.hintSwipe
+    case "tap":
+      return strings.hintTap
+  }
+}
+
+export default function BoosterView({ props, state, announcements, left, elements, handlers }: BoosterViewProps) {
   const { hubUrl, cardUrl, repostUrl, delimiter, season, packSize, rarityNames, rarityIcons, artPalette, arrowIcons, inProgressUrl, celebrationIcons, strings } = props
-  const { phase, status, bank, answer, revealed, revealedAt, stored, dealt, armed, headShown, canisterAway, dock, reason, legendary, banner } = state
-  const { revealingAll, storing, locked, layout, stageKey, zoom, announcements, celebration, celebrationStill } = state
+  const { phase, status, bank, answer, revealed, revealedAt, stored, dealt, armed, headShown, canisterAway, docks, reason, legendary, banner } = state
+  const { layout, rebuilds, zoom, celebrationStill } = state
   const { section, canister, shake, flash, fx, openButton, backLink, slotRefs, traySlotRef } = elements
   const { open, revealAll, activateCard, storeTop, openZoom, closeZoom, stepZoom, seeZoomed, repost, endBanner, guardBack, leaveForAlbum, gestures } = handlers
+  const view = controls(state)
+  const { busy, locked, top } = view
+  const celebration = shownCelebration(state)
   const number = (value: number) => formatNumber(value, delimiter)
   const tierLabel = (tier: Rarity) => (tier === "legendary" ? t(strings.legendaryBanner, { rarity: rarityNames[tier] }) : rarityNames[tier])
 
   const cards = answer?.cards ?? []
   const total = cards.length
   const phone = layout === "phone"
-  const revealedCount = revealed.filter(Boolean).length
-  const storedCount = stored.filter(Boolean).length
-  const everyRevealed = total > 0 && revealedCount === total
-  const handOnTable = phase === "dealt" && total > 0
-  const remaining = total - revealedCount
-  const busy = phase === "opening" || revealingAll || locked || storing
   const empty = phase === "empty"
-  // Before the answer, the size of the pack the next opening opens; after it, the answer's.
   const nextSize = bank.nextPackSize ?? packSize
   const shownSize = total || nextSize
   const seasonLine = season === null ? null : t(strings.canisterSeason, { number: season })
@@ -131,37 +97,19 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
       ? t(strings.canisterLabelPlain, { count: nextSize })
       : t(strings.canisterLabel, { season, count: nextSize })
 
-  const openLabel = bank.available <= 0 && phase !== "opening" ? strings.reserveEmpty : phase === "dealt" ? strings.openNext : strings.open
-  const openDisabled = (bank.available <= 0 && phase !== "opening") || (phase === "dealt" && !everyRevealed)
-  const revealAllDisabled = !handOnTable || everyRevealed || revealingAll || storing || legendary !== null
-
-  const statusTone = status === "arming" || status === "ejecting" ? "alert" : status === "legendarySignal" ? "gold" : status === "complete" ? "done" : "rest"
+  const openLabel = view.open === "empty" ? strings.reserveEmpty : view.open === "next" ? strings.openNext : strings.open
   const clock = left === null ? null : formatClock(left)
   const nextLine = !bank.reserveFull && clock !== null && bank.nextAvailableAt ? { clock, spoken: t(strings.nextAt, { time: localTime(bank.nextAvailableAt) }) } : null
 
-  // The phone's pile: the cards not stored, the first on top.
-  const top = handOnTable ? topOfPile(revealed, stored) : null
   const face = faceSize(layout)
   const cardBack = answer?.pack.cardBack ?? "standard"
+  const hint = view.hint && hintText(view.hint, strings, number)
 
-  const hint =
-    handOnTable
-      ? phone
-        ? top === null
-          ? t(strings.hintDone, { count: total, n: number(total) })
-          : revealed[top]
-            ? strings.hintSwipe
-            : strings.hintTap
-        : remaining > 0
-          ? t(strings.hintRemaining, { count: remaining, n: number(remaining) })
-          : t(strings.hintDone, { count: total, n: number(total) })
-      : null
-
-  const topCard = top !== null && revealed[top] ? cards[top] : null
+  const topCard = view.plate === null ? null : cards[view.plate]
   const plate: PlateCard | null =
-    phone && top !== null && topCard
+    view.plate !== null && topCard
       ? {
-          key: `${answer?.pack.token}-${top}`,
+          key: `${answer?.pack.token}-${view.plate}`,
           tier: topCard.tier,
           icon: rarityIcons[topCard.tier],
           tierText: tierLabel(topCard.tier),
@@ -205,8 +153,8 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
       type="button"
       ref={openButton}
       className="button button--primary booster__open"
-      disabled={openDisabled}
-      aria-disabled={!openDisabled && busy ? "true" : undefined}
+      disabled={view.openDisabled}
+      aria-disabled={!view.openDisabled && busy ? "true" : undefined}
       onClick={() => {
         if (!busy) void open()
       }}
@@ -215,7 +163,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
     </button>
   )
   const revealAllButton = (
-    <button type="button" className="button button--secondary booster__reveal-all" disabled={revealAllDisabled} onClick={() => void revealAll()}>
+    <button type="button" className="button button--secondary booster__reveal-all" disabled={view.revealAllDisabled} onClick={() => void revealAll()}>
       {strings.revealAll}
     </button>
   )
@@ -258,7 +206,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
           reserveFull={bank.reserveFull ? strings.reserveFull : null}
           next={nextLine && { label: strings.nextIn, ...nextLine }}
           state={strings.states[status]}
-          tone={statusTone}
+          tone={view.tone}
         />
       ) : (
         <BoosterPanel
@@ -266,7 +214,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
           title={strings.title}
           cardsPerPack={{ label: strings.cardsPerPack, value: number(shownSize) }}
           inReserve={{ label: strings.inReserve, value: t(strings.reserveCount, { count: bank.available, n: number(bank.available) }) }}
-          state={{ label: strings.state, word: strings.states[status], tone: statusTone }}
+          state={{ label: strings.state, word: strings.states[status], tone: view.tone }}
           reserve={strings.reserve}
           reserveFull={bank.reserveFull ? strings.reserveFull : null}
           next={nextLine && { label: strings.nextIn, ...nextLine }}
@@ -282,7 +230,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
               {reasonLine}
             </>
           }
-          counter={t(strings.revealedCount, { revealed: phase === "dealt" ? number(revealedCount) : "—", total: number(shownSize) })}
+          counter={t(strings.revealedCount, { revealed: phase === "dealt" ? number(view.revealedCount) : "—", total: number(shownSize) })}
           celebration={celebrationResults}
         />
       )}
@@ -307,7 +255,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
               ) : (
                 <>
                   <BoosterCanister
-                    key={dock}
+                    key={docks}
                     ref={canister}
                     label={canisterLabel}
                     seasonLine={seasonLine}
@@ -341,7 +289,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
             (phone ? (
               <>
                 <div className="booster__pile-area">
-                  <ol key={stageKey} className="booster__pile" aria-label={strings.result}>
+                  <ol key={rebuilds} className="booster__pile" aria-label={strings.result}>
                     {dealtCards}
                   </ol>
                 </div>
@@ -349,10 +297,10 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
                   <>
                     <BoosterPlate plate={plate} hint={hint} storeLabel={strings.store} storeBusy={busy} onStore={storeTop} celebration={celebrationResults} />
                     <BoosterTray
-                      key={stageKey}
+                      key={rebuilds}
                       label={strings.tray}
                       countLabel={strings.trayLabel}
-                      count={t(strings.trayCount, { n: number(storedCount), total: number(total) })}
+                      count={t(strings.trayCount, { n: number(view.storedCount), total: number(total) })}
                       slots={cards.map((card) => ({
                         tier: card.tier,
                         coverUrl: card.coverUrl,
@@ -370,7 +318,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
               </>
             ) : (
               <div className="booster__deal-area">
-                <ol key={stageKey} className="booster__deal" aria-label={strings.result}>
+                <ol key={rebuilds} className="booster__deal" aria-label={strings.result}>
                   {dealtCards}
                 </ol>
                 {hint && <p className="booster__hint">{hint}</p>}
@@ -412,8 +360,8 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
           seeCard={strings.seeCard}
           close={strings.close}
           tip={strings.zoomTip}
-          previous={{ label: strings.zoomPrevious, icon: arrowIcons.previous, enabled: zoomNeighbour(stored, zoom, -1) !== null }}
-          next={{ label: strings.zoomNext, icon: arrowIcons.next, enabled: zoomNeighbour(stored, zoom, 1) !== null }}
+          previous={{ label: strings.zoomPrevious, icon: arrowIcons.previous, enabled: view.zoomPrevious }}
+          next={{ label: strings.zoomNext, icon: arrowIcons.next, enabled: view.zoomNext }}
           onStep={stepZoom}
           onSee={seeZoomed}
           repost={repostUrl === null ? null : { label: strings.repost, name: t(strings.repostCard, { card: zoomed.title }), onRepost: () => repost(zoom) }}

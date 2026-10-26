@@ -3,12 +3,10 @@
 // Légendaire's title line under it. It plays once as it is drawn (a still
 // fade under reduced motion), then asks the island to clear it.
 import { useLayoutEffect, useRef } from "react"
-import type { Rarity } from "../lib/card_types"
-import { EPIC_BANNER_MS, LEGENDARY_BANNER_MS, RM_LEGENDARY_STILL } from "../lib/booster"
+import type { Banner } from "../lib/booster"
+import { EPIC_BANNER_MS, LEGENDARY_BANNER_MS, RM_LEGENDARY_STILL } from "../lib/booster_motion"
 import { animate } from "../lib/booster_effects"
 import { bannerKeyframes } from "../lib/booster_keyframes"
-
-export type Banner = { key: number; tier: Rarity; large: boolean; line: string | null; reduced: boolean }
 
 export type BoosterBannerProps = {
   banner: Banner

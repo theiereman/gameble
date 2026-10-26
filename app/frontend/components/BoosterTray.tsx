@@ -29,7 +29,7 @@ export type BoosterTrayProps = {
   /** "3 / 5". */
   count: string
   slots: TraySlot[]
-  stored: boolean[]
+  stored: readonly boolean[]
   rarityIcons: Record<Rarity, string>
   /** The size a card's palette is computed at, so a thumbnail shows its face's colours. */
   artPalette: ArtSize

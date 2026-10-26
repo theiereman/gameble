@@ -1212,4 +1212,80 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster-plate", text: /COMMON/
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
   end
+
+  test "on the wide layout the set celebration waits for the last reveal, is announced once, and comes back still from its album" do
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one), more: true)
+    open_canister
+    assert_dealt(5)
+
+    (1..4).each do |position|
+      find(hit(position)).click
+      assert_selector "#{card(position)}[data-revealed]"
+      assert_no_selector "[data-navigation-locked]", visible: :all
+      assert_no_selector ".booster-celebration"
+    end
+    find(hit(5)).click
+    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_selector ".booster__info .booster-celebration", text: /SET COMPLETE\s+VALVE/
+    assert_no_selector ".booster__info .booster-celebration[data-still]"
+    assert_selector ".booster [role=status] > span", text: /\ASet complete: /, count: 1, visible: :all
+
+    find(".booster__info .booster-celebration a.booster-celebration__banner").click
+    assert_current_path library_set_path(locale: :en, kind: "studio", key: "valve")
+
+    page.go_back
+    assert_selector ".booster-card[data-revealed]", count: 5
+    assert_selector ".booster__info .booster-celebration[data-still]", text: /SET COMPLETE\s+VALVE/
+    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+
+    click_on "Open the next one"
+    assert_no_selector ".booster-celebration"
+    assert_dealt(5)
+    assert_no_selector ".booster [role=status] > span", text: /\ASet complete: /, visible: :all
+  end
+
+  test "on the wide layout Reveal all completing a set with a Légendaire never shows its banner and the celebration together" do
+    open_screen(card_ids(:common_card_one, :portal_one, :common_card_one, :common_card_one, :legendary_card_one))
+    open_canister
+    assert_dealt(5)
+    page.execute_script(<<~JS)
+      window.boosterBannerSeen = false
+      window.boosterOverlap = false
+      new MutationObserver(() => {
+        const banner = document.querySelector(".booster__banner")
+        if (!banner) return
+        window.boosterBannerSeen = true
+        if (document.querySelector(".booster-celebration")) window.boosterOverlap = true
+      }).observe(document.querySelector(".booster"), { childList: true, subtree: true })
+    JS
+
+    click_on "Reveal all"
+    assert_selector ".booster__info .booster-celebration", text: /SET COMPLETE\s+VALVE/, wait: 15
+    assert_no_selector ".booster__banner"
+    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    eventually("the Légendaire's banner should have played") { page.evaluate_script("window.boosterBannerSeen") }
+    assert_not page.evaluate_script("window.boosterOverlap"), "the banner and the celebration should never show together"
+  end
+
+  test "the countdown reaching zero while cards are dealt fetches the reserve once every card is revealed" do
+    create_pack(@player, cards: card_ids(*[ :common_card_one ] * 5), available_at: 1.hour.ago)
+    arrives = 4.seconds.from_now
+    create_pack(@player, available_at: arrives)
+    visit booster_path(locale: :en)
+    open_canister
+    assert_dealt(5)
+
+    sleep [ arrives + 2.seconds - Time.current, 0 ].max
+    assert_selector ".booster-card[data-dealt]", count: 5
+    assert_selector ".booster__row", text: /IN RESERVE\s+0 CAPSULES/
+
+    (1..5).each do |position|
+      find(hit(position)).click
+      assert_selector "#{card(position)}[data-revealed]"
+    end
+
+    assert_selector ".booster__row", text: /IN RESERVE\s+1 CAPSULE\z/
+    assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
+    assert_button "Open the next one", disabled: false
+  end
 end

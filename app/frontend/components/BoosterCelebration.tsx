@@ -23,7 +23,7 @@ import {
 import type { SetTierName } from "../lib/opening"
 
 export type BoosterCelebrationProps = {
-  results: CelebrationResult[]
+  results: readonly CelebrationResult[]
   strings: CelebrationStrings
   delimiter: string
   phone: boolean
@@ -164,7 +164,7 @@ function ResultBanner({ result, position, strings, delimiter, phone, icons, onLe
 }
 
 type FoldedBannerProps = {
-  results: CelebrationResult[]
+  results: readonly CelebrationResult[]
   strings: CelebrationStrings
   phone: boolean
   url: string

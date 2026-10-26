@@ -5,7 +5,7 @@
 // traySparks each stop under reduced motion. No React: the island passes
 // the host and target elements.
 import type { Rarity } from "./card_types"
-import { TRAY_SPARKS, burstPixels, scaled, shakeKeyframes, tierIndex } from "./booster"
+import { TRAY_SPARKS, burstPixels, scaled, shakeKeyframes, tierIndex } from "./booster_motion"
 import { motionReduced } from "./motion"
 
 export const animate = (element: Element | null | undefined, keyframes: Keyframe[], options: KeyframeAnimationOptions) =>

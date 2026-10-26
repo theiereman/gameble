@@ -2,7 +2,7 @@
 // paused while the page is hidden, and the island told a second after it
 // reaches zero, so it can read the new booster.
 import { useEffect, useRef, useState } from "react"
-import { secondsUntil } from "../lib/booster"
+import { secondsUntil } from "../lib/booster_clock"
 
 /** A second after the countdown's zero: the new booster has had time to arrive. */
 const AFTER_ZERO = 1000

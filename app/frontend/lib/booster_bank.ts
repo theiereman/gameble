@@ -44,7 +44,7 @@ function isBank(value: unknown): value is BoosterBank {
 }
 
 /** The hand is put away: every card revealed in a row, every card stored on the phone. */
-export function handPutAway(layout: Layout, revealed: boolean[], stored: boolean[]): boolean {
+export function handPutAway(layout: Layout, revealed: readonly boolean[], stored: readonly boolean[]): boolean {
   const done = layout === "phone" ? stored : revealed
   return done.length > 0 && done.every(Boolean)
 }

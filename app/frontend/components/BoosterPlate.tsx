@@ -10,7 +10,7 @@
 // celebration takes the hint's place and the band grows to hold it.
 import { useLayoutEffect, useMemo, useRef, type ReactNode } from "react"
 import type { Rarity } from "../lib/card_types"
-import { PLATE_POP_LEGENDARY_MS, PLATE_POP_MS } from "../lib/booster"
+import { PLATE_POP_LEGENDARY_MS, PLATE_POP_MS } from "../lib/booster_motion"
 import { motionReduced } from "../lib/motion"
 
 export type PlateCard = {
