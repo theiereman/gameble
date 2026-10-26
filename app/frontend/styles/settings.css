@@ -380,6 +380,24 @@
   color: var(--color-text-bright);
 }
 
+.credits__person {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+
+.credits__contribution {
+  color: var(--color-muted);
+}
+
+.credits__rule {
+  color: var(--color-muted);
+}
+
+.credits__tester {
+  color: var(--color-text-bright);
+}
+
 .legal__credits {
   margin: var(--space-4) 0 0;
 }

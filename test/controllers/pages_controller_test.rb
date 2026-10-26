@@ -750,6 +750,21 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.legal__link[href=?]", "/fr/credits", "Crédits"
   end
 
+  test "the credits page lists the contributors by handle with their contribution, the rule, and the beta testers" do
+    get credits_path(locale: :fr)
+
+    assert_equal [ "micilico", "skyoraa", "Felzpath" ], css_select("a.credits__handle").map { |link| link.text.delete_suffix(" (nouvel onglet)") }
+    assert_select "a.credits__handle[href=?][target=_blank]", "https://github.com/skyoraa"
+    assert_equal [ "Code", "Textes et idées", "Idées et rapports de bugs" ], css_select(".credits__contribution").map(&:text)
+    assert_select ".credits__rule", /pull request de sa part est fusionnée/
+    assert_equal [ "Hydrax", "Skyora", "Zohan", "Feltpath", "Micilico", "Le chocotube" ], css_select(".credits__tester").map(&:text)
+
+    get credits_path(locale: :en)
+
+    assert_select "h2.legal__heading", text: "Beta testers"
+    assert_select ".credits__contribution", text: "Writing and ideas"
+  end
+
   test "the English credits page names Helldivers 2 and not Steam" do
     get credits_path(locale: :en)
 

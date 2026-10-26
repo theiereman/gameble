@@ -15,4 +15,26 @@
       <% end %>
     </ul>
   <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { label: t(".contributors.label") }) do %>
+    <h2 class="legal__heading"><%= t(".contributors.title") %></h2>
+    <ul class="legal__list credits__list">
+      <% Credits::CONTRIBUTORS.each do |handle, contribution| %>
+        <li class="credits__person">
+          <%= external_link_to handle, "https://github.com/#{handle}", class: "legal__link credits__handle" %>
+          <span class="credits__contribution"><%= t(".contributors.#{contribution}") %></span>
+        </li>
+      <% end %>
+    </ul>
+    <p class="credits__rule"><%= t(".contributors.rule") %></p>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { label: t(".testers.label") }) do %>
+    <h2 class="legal__heading"><%= t(".testers.title") %></h2>
+    <ul class="legal__list credits__list">
+      <% Credits::BETA_TESTERS.each do |name| %>
+        <li class="credits__tester"><%= name %></li>
+      <% end %>
+    </ul>
+  <% end %>
 </article>

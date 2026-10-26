@@ -1,1444 +1,2262 @@
-# Interface copy in English, in the Brotherhood tone (brotherhood-tone.md).
-# Every key here has its twin in fr.yml; CI fails on a key missing in either.
+---
 en:
-  layouts:
-    application:
-      title: "Gameble"
-      application_name: "Gameble"
-  shell:
-    live:
-      marker: "Live"
-    top_bar:
-      brand: "Gameble"
-      back: "Bridge"
-      back_landing: "Home"
-      home: "Gameble, command bridge"
-      landing: "Gameble, home page"
-      previous: "Back:"
-      motion_switch: "Reduced motion"
-    screens:
-      collection: "Collection"
-      sets: "Sets"
-      set: "Set"
-      card: "Card"
-      booster: "Capsule"
-      trades: "Trades"
-      friends: "Friends"
-      profile: "Profile"
-      feed: "Feed"
-      achievements: "Achievements"
-      legal: "Legal notice"
-      more: "More"
-      how_it_works: "How it works"
-      back_office: "Back-office"
-    rarity:
-      label: "Rarities"
-      legend: "Rarities"
-    packs:
-      label: "Capsules"
-      next_in: "+1 in"
-      next_at: "Next capsule: %{time}"
-      full: "Reserve full"
-      in_reserve:
-        one: "%{number} in reserve"
-        other: "%{number} in reserve"
-    player:
-      menu: "Player menu"
-      fallback_name: "Player"
-      profile: "My public profile"
-      settings: "Settings"
-      back_office: "Back-office"
-      sign_out: "Sign out"
-    tabs:
-      label: "Main navigation"
-      hub: "Bridge"
-      booster: "Capsule"
-      collection: "Collection"
-      trades: "Trades"
-      more: "More"
-      landing: "Home"
-      all_cards: "All cards"
-      trades_waiting:
-        one: "%{number} trade waiting for you"
-        other: "%{number} trades waiting for you"
-    toast:
-      region: "Notifications"
-      close: "Close"
-    steam_sign_in:
-      alt: "Sign in through Steam (opens Steam)"
-    sign_in:
-      acceptance_html: "By signing in you accept the %{terms} and acknowledge the %{privacy}."
-      terms: "terms of use"
-      privacy: "privacy notice"
-    version:
-      label: "Deployed version"
-      legal: "Legal notice"
-  pages:
-    home:
-      kicker:
-        title: "Command bridge"
-      menu:
-        label: "Bridge menu"
-        all_cards: "All cards"
-        open_booster: "Open a capsule"
-        reserve:
-          one: "%{number} capsule in reserve"
-          other: "%{number} capsules in reserve"
-        reserve_empty: "Reserve empty"
-        collection: "Collection"
-        collection_meta:
-          one: "%{owned} unique card out of %{total}"
-          other: "%{owned} unique cards out of %{total}"
-        trades: "Trades"
-        trades_waiting:
-          one: "%{number} trade waiting for you"
-          other: "%{number} trades waiting for you"
-        friends: "Friends"
-        friends_online:
-          one: "%{number} online"
-          other: "%{number} online"
-        feed: "Activity feed"
-        achievements: "Achievements"
-        achievements_meta:
-          one: "%{earned} achievement earned out of %{total}"
-          other: "%{earned} achievements earned out of %{total}"
-        how_it_works: "How it works"
-        support: "Support"
-      showcase:
-        kicker: "Latest acquisition"
-        chosen_kicker: "Showcase"
-        see_card: "View the card"
-        empty:
-          title: "Open your first capsule"
-          text: "Your finest card will show here."
-          open: "Open a capsule"
-          reserve_empty: "Reserve empty"
-      daily:
-        title: "Daily capsule"
-        ready: "Ready"
-        full: "Reserve full"
-        text: "A free capsule every day. It joins your reserve."
-        full_text: "Open a capsule to collect today's."
-        collect: "Collect"
-        collected: "Collected"
-        next_in: "Next in"
-        next_at: "Next capsule: %{time}"
-      goal:
-        title: "Community goal"
-        line: "The Brotherhood invites its members to join forces and open %{target} capsules this week."
-        players: "All players"
-        progress: "%{total} contributions of %{target} this week"
-        reward: "Reward"
-        reward_text: "A rare capsule for every contributor"
-        reached: "Goal reached"
-        previous_reached: "Last week: %{total} / %{target} · goal reached"
-        previous_missed: "Last week: %{total} / %{target} · goal missed"
-        collect: "Collect"
-        collect_label: "Collect the reward capsule"
-        collected: "Collected"
-        full_text: "Open a capsule to collect your rare capsule."
-      sets:
-        title: "Sets in progress"
-        see_all: "See all"
-      welcome:
-        title: "Welcome to Gameble"
-        founders: "Once banished from Earth, video games were saved through the efforts of our illustrious founders."
-        legacy: "Today, the Great Brotherhood of Gameblers is honored to grant you access to this legacy through cards randomly distributed in our capsules, ensuring complete fairness among our members."
-        collection: "All that remains is for you to build your collection."
-        wishes: "The Brotherhood wishes you excellent pulls."
-        close: "Close"
-    more:
-      title: "More"
-      subtitle: "The rest of the ship"
-      settings: "Profile and settings"
-    credits:
-      title: "Credits"
-      intro: "Gameble draws on the works below. They are inspirations, never affiliations: none of them has anything to do with Gameble or endorses it."
-      list_label: "Inspirations"
-      wikimasters:
-        name: "WikiMasters"
-        inspired: "The loop of collecting cards and showing them off."
-      helldivers:
-        name: "Helldivers 2"
-        inspired: "The panels, the readouts and the mock-solemn tone."
-      balatro_dead_cells:
-        name: "Balatro and Dead Cells"
-        inspired: "Fine pixel art laid over detailed material."
-      hearthstone:
-        name: "Hearthstone"
-        inspired: "The structure of ornamental card backs: frame, medallion and corners."
-    legal:
-      title: "Legal notice and privacy"
-      updated: "Last updated: 20 October 2026"
-      contact_fallback: "the publisher"
-      publisher:
-        title: "Publisher and host"
-        publisher: "Publisher"
-        individual: "Thomas Eyermann, a private individual, on a non-professional and non-commercial basis, whose personal details are known to the host."
-        contact: "Contact"
-        host: "Host"
-      ownership:
-        title: "Steam, Valve and the games"
-        affiliation: "Gameble is not affiliated with Valve or Steam, and is not endorsed or sponsored by them. Steam and the Steam logo are trademarks of Valve Corporation."
-        artwork: "All artwork belongs to the games' publishers and their artists, whom we respect."
-        data: "The games' names, covers and descriptions come from Steam and remain the property of their rights holders. At a rights holder's request, the game concerned is removed without delay."
-      terms:
-        title: "Terms of use"
-        acceptance: "By signing in with Steam, you accept these terms."
-        free: "Gameble is a free game, with no ads and no purchases."
-        no_money: "No real money flows through it: nothing is bought, nothing is sold."
-        no_property: "Cards, capsules and card backs are parts of the game: they are not your property and have no value, neither in money nor outside Gameble. No card may be sold or exchanged for money, in Gameble or outside it."
-        fair_play: "Play fair: no bots, scripts or automation, no multiple accounts, no exploiting bugs."
-        moderation_html: "Players can report a profile. Moderators review every report and may suspend an account that breaks these rules. The decision is always made by a person. A suspended player sees the reason for the decision when trying to sign in and can contest it by writing to %{contact}."
-        notice_html: "Even without a Gameble account, you can report illegal content or ask for the removal of a game whose rights you hold: write to %{contact} with the page's address and the reason for your request."
-        no_guarantee: "The service is free and provided as is. It may be interrupted for maintenance or changed. Should it close for good, the closure would be announced on the site at least 30 days in advance."
-        changes: "These terms may change. A significant change is announced in the game before it applies. The version in force is the one on this page."
-        law: "They are governed by French law."
-      privacy:
-        title: "Privacy"
-        controller_html: "The controller of your data is Thomas Eyermann, publisher of Gameble, reachable at %{contact}."
-        controller: "The controller of your data is Thomas Eyermann, publisher of Gameble."
-        stored:
-          intro: "To run the game, Gameble keeps:"
-          steam: "your Steam id and your Steam profile name;"
-          activity: "your game activity: cards, capsules, trades, friends and invitations, friend code, activity feed entries;"
-          moderation: "the reports you make, those aimed at your profile (their author is not disclosed to you) and the moderation decisions that concern you, with their reason;"
-          settings: "your settings (profile visibility, reduced motion);"
-          last_seen: "the date your account was created, the time of your last visit, and your last data export (its file and its time), kept until the next one;"
-          technical: "technical data: IP address and browser, in the server logs and error tracking."
-        purposes:
-          intro: "Why, and on what basis:"
-          game: "running your account and the game (collection, capsules, trades, friends, profile, activity feed): performance of the terms of use you accept by signing in (GDPR Article 6(1)(b));"
-          moderation: "moderating the community (reports, bans, moderation history): the publisher's legitimate interest in enforcing the rules and protecting players (Article 6(1)(f));"
-          security: "securing the site and fixing errors (server logs, abuse limiting, error tracking, Cloudflare): legitimate interest in keeping the service secure and working properly (Article 6(1)(f));"
-          requests: "answering your messages and your requests about your data: legal obligation (Article 6(1)(c))."
-          no_automation: "No decision about you is made by automated means."
-        visibility: "Your profile is public by default: your profile name, your collection and your activity feed entries are visible to everyone, including visitors who are not signed in. You can restrict it to your friends or make it private in the settings. Gameble's moderators can view any profile, whatever its setting."
-        cookies: "Gameble only uses strictly necessary cookies, exempt from consent: the session cookie, which protects forms and keeps you signed in for 30 days after your last visit, or until you sign out, and the one that remembers your reduced motion choice, for one year. Cloudflare may add a security cookie that filters out bots. Your browser's storage also keeps your trade drafts and the interface's state, on your device only. No advertising or audience measurement trackers."
-        nothing_else: "No analytics, no ads, no real money. Your data is neither sold nor handed over."
-        services:
-          intro: "A few outside services take part:"
-          steam: "Steam (Valve) handles sign-in and provides your profile name;"
-          sentry: "Sentry (Functional Software, Inc.) receives technical errors: the page's address and the one you came from, the browser used and its language, and your internal player id, never your name or your Steam id. Your browser also sends it the page's security reports directly, with your IP address. Data hosted in the European Union;"
-          cloudflare: "Cloudflare, Inc. sits in front of the site to protect and speed it up: it sees its requests, your IP address included, and processes them in the United States among other places. This transfer relies on the European Commission's adequacy decision of 10 July 2023 (Data Privacy Framework), to which Cloudflare adheres;"
-          ovh: "OVH SAS stores the database backups, encrypted before they leave the server, so it cannot read them. Data hosted in France;"
-          images: "card images load from Steam's content delivery network, which your browser contacts directly."
-        retention:
-          intro: "How long your data is kept:"
-          account: "your account, your game activity and your settings: as long as the account exists; an account with no signed-in visit for three years is deleted as if you had deleted it yourself, except those of moderators and administrators;"
-          reports: "a report: until a moderator handles it, then one year; if it targets an account deleted before it was handled, one year after the deletion;"
-          moderation: "the moderation history, reasons included: a ban as long as it lasts, then one year after it is lifted; a dismissal of reports, one year; the history of a deleted account, until one year after the deletion; the log of game actions keeps each decision's date and the accounts concerned, without the reason;"
-          banned_steam_id: "the Steam id of a suspended account: as long as the suspension lasts, to refuse a new sign-up;"
-          logs: "the server's logs: 30 days;"
-          errors: "technical errors received by Sentry: 30 days;"
-          backups: "the database backups, encrypted and kept in France: the last 7 daily backups, that is 7 days in normal times; a deleted account is gone from them after 7 days, a little longer if a backup failed;"
-          leftovers: "what a deleted account leaves behind that concerns other players or the community (past trades, first discoveries, contributions to the community goal, the log of game actions): as long as the game exists, without a Steam id or a name."
-        deletion: "When you delete your account, your Steam id, your profile name, the time of your last visit, your last data export, your latest activity, your collection, your showcase, your set tiers, your achievements, your capsules, your daily bonuses, your community goal rewards, your friendships, your invitations, your friend code and your activity feed entries are erased, your open trades are cancelled and your profile disappears. What also concerns other players, the community or moderation (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) is kept without your Steam id or your name, for the periods given above."
-        rights:
-          intro: "You can access your data, have it rectified or erased, restrict its processing, object to processing based on legitimate interest and receive a reusable copy of it. You can also say what becomes of your data after your death. We reply within one month."
-          access: "access: from the settings, with \"Export\" under \"My data\", which downloads a copy of your data in a reusable file;"
-          rectification_html: "rectification: your profile name follows your Steam one and is read again at each sign-in; for anything else, write to %{contact};"
-          erasure: "deletion: from the settings, with \"Delete my account\";"
-          objection_html: "objection: make your profile private in the settings, or write to %{contact};"
-          death_html: "after your death: tell %{contact} who your data should be passed on to or whether it should be erased;"
-          banned_html: "suspended account: it can no longer sign in; the reason for the suspension is shown when you try to sign in; write to %{contact} to contest the decision, obtain your data or have your account erased;"
-          complaint_html: "complaint: to the %{authority}, the French data protection authority."
-          authority: "CNIL"
-      source:
-        title: "Source code"
-        text: "Gameble's code is free software under the GNU AGPL v3.0 license. Its pixel art is under the Creative Commons BY-NC-SA 4.0 license: reusable with credit, never for a commercial purpose. The Gameble name and logo remain reserved."
-        link: "Source code"
-      credits_link: "Credits"
-      support:
-        title: "Support Gameble"
-        text: "Gameble is free and will stay free. If you enjoy the game, you can help pay for its hosting. Donations are optional and give no advantage in the game. They go through Buy Me a Coffee, under its own terms. The publisher receives whatever you choose to enter there (name, message)."
-        link: "Support"
-    how_it_works:
-      title: "How it works"
-      more: "More"
-      intro: "The rules of the game, as it applies them."
-      local_time: ", local time"
-      minutes:
-        one: "%{count} minute"
-        other: "%{count} minutes"
-      selection:
-        title: "Which games become cards"
-        rule: "Every card is a Steam game. A game becomes a card when it is a game (not software, a demo or downloadable content), has a title, a release date and a vertical image on Steam, and counts at least %{reviews} reviews."
-        seasons: "Each new season reads Steam again: the games that meet these conditions at that moment become its cards."
-      rarity:
-        title: "Rarity"
-        rule: "The more reviews a game has on Steam, the rarer its card."
-        score: "The review count alone ranks the games. The share of positive reviews only orders games with exactly the same number of reviews: the better liked one ranks higher."
-        cut:
-          one: "When a season is published, its cards are ranked this way, from the most reviewed game to the least, then split into %{count} rarity in these proportions:"
-          other: "When a season is published, its cards are ranked this way, from the most reviewed game to the least, then split into %{count} rarities in these proportions:"
-        ties: "Two games with the same number of reviews and the same share of positive reviews always share a rarity, so the actual proportions can differ slightly from these."
-      packs:
-        title: "Capsules and odds"
-        regular:
-          one: "A capsule holds %{count} card. Each card is drawn on its own: first its rarity, with the odds below, then a game of that rarity. The same card can therefore come up more than once."
-          other: "A capsule holds %{count} cards. Each card is drawn on its own: first its rarity, with the odds below, then a game of that rarity. The same card can therefore come up more than once."
-        bonus: "The daily capsule has better odds and never holds a %{common} card:"
-        reward: "The community goal's reward capsule:"
-        forced: "When none of its cards is %{rarity} or better, one of them, at random, is replaced by a card drawn with these odds:"
-        rarity: "Rarity"
-        chance: "Chance per card"
-        tables:
-          regular: "Standard capsule"
-          bonus: "Daily capsule"
-          reward: "Reward capsule"
-          epic_or_better: "Replacement card"
-      timing:
-        title: "The pace of capsules"
-        bank:
-          one: "At most %{count} standard capsule waits for you at a time, ready or on its way."
-          other: "At most %{count} standard capsules wait for you at a time, ready or on their way."
-        replace: "Each capsule opened is replaced %{minutes} after the last capsule waiting, or after the opening when all of them were ready."
-        refill: "Standard capsules opened all at once are therefore all back within %{minutes}."
-        season: "When a new season is published, the standard capsules you are missing are given at once."
-      daily:
-        title: "The daily capsule"
-        once: "Once a day, a free capsule waits for you on the bridge. The day changes at %{time}."
-        content:
-          one: "It holds %{count} card, never a %{common} one."
-          other: "It holds %{count} cards, never a %{common} one."
-        outside: "It comes on top of the standard capsules, without counting toward their limit and without delaying them."
-        full:
-          one: "It is refused while your reserve holds %{count} capsule or more ready to open: open one first."
-          other: "It is refused while your reserve holds %{count} capsules or more ready to open: open one first."
-      goal:
-        title: "The community goal"
-        week: "Every week, for seven days from %{time}, all players aim at one goal together."
-        counts: "Every capsule opened counts toward it, and so does every completed trade, which makes both players contributors."
-        reward:
-          one: "When the goal is reached, every player who contributed earns a reward capsule: %{count} card, at least one of them %{rarity} or better. If you contributed, you collect it on the hub while your reserve holds fewer than %{full} capsules."
-          other: "When the goal is reached, every player who contributed earns a reward capsule: %{count} cards, at least one of them %{rarity} or better. If you contributed, you collect it on the hub while your reserve holds fewer than %{full} capsules."
-      seasons:
-        title: "Seasons"
-        frozen: "A season is drawn from Steam. Once it is published, the rarity, number and sets of each of its cards are fixed: they no longer change during the season."
-        next: "The next season reads Steam again: new games come in, scores are computed again, and the same game's rarity can change from one season to the next."
-      sets:
-        title: "Sets"
-        intro: "Each season groups its cards into sets, and a card can belong to several of them."
-        themes:
-          one: "Themes: %{count} theme groups games by genre, from their most-voted Steam tags."
-          other: "Themes: %{count} themes group games by genre, from their most-voted Steam tags."
-        franchises:
-          one: "Franchises: a series of at least %{count} game, its name usually in their titles and not a studio's or a publisher's."
-          other: "Franchises: a series of at least %{count} games, its name usually in their titles and not a studio's or a publisher's."
-        studios:
-          one: "Studios: at least %{count} game with the same lead studio, one of them with at least %{reviews} reviews."
-          other: "Studios: at least %{count} games with the same lead studio, one of them with at least %{reviews} reviews."
-        hall_of_fame:
-          intro: "The hall of fame, from the rating and the review count on Steam:"
-          row: "%{name}: %{rule}"
-          rules:
-            intouchables: "very well-known games acclaimed almost unanimously;"
-            pepites: "games acclaimed almost unanimously but still little known;"
-            mal-aimes: "very well-known games with a mixed reception;"
-            phenomenes: "the games with a huge number of reviews."
-        ufos: "%{name}: the games that fit no theme."
-        tiers: "Every set has tiers by its size, then completion at 100 %. The last tier before completion is always Master; the larger the set, the more tiers below it: 3 to 4 cards, completion only; 5 to 9, Master at half; 10 to 19, Expert at a third and Master at two thirds; 20 to 59, Adept at 25 %, Expert at 50 % and Master at 75 %; 60 to 199, Apprentice at 10 %, Adept at 25 %, Expert at 50 % and Master at 75 %; from 200, Novice at 10 %, Apprentice at 25 %, Adept at 50 %, Expert at 75 % and Master at 90 %."
-      completion:
-        title: "Completing a set"
-        rule: "A set is complete when you hold all of its cards at the same time. Duplicates count once, and a card counts in every set it belongs to."
-        once: "A completion is recorded only once: a card traded away and gained again completes nothing new. Your profile counts the sets you hold complete right now."
+  accounts:
+    destroy:
+      deleted: Your account has been deleted. Thank you for playing.
+      throttled: Too many attempts in a minute. Try again in a moment.
+      wrong_word: Type %{word} to confirm the deletion. Nothing was erased.
+    dialog:
+      cancel: Cancel
+      close: Close
+      kept: 'Kept, without your Steam id or your name: your past trades, your first
+        discoveries, your contributions to the community goal, reports, the moderation
+        history and the log of game actions. This cannot be undone.'
+      label: Type %{word} to confirm
+      note: 'Erased for good: your Steam id, your name, your profile and its link,
+        the time of your last visit, your last data export and your latest activity,
+        your collection, your showcase, your set tiers and your achievements, your
+        capsules, opened or not, your daily bonuses and your community goal rewards,
+        your friends, your invitations and your friend code, and your activity feed
+        entries: pulls, discoveries, reposts and every trade that names you. Your
+        open trades will be cancelled.'
+      submit: Delete for good
+      title: Delete my account
+      word: DELETE
+  achievements:
+    conditions:
+      boosters_10: Open 10 capsules
+      boosters_100: Open 100 capsules
+      boosters_500: Open 500 capsules
+      first_booster: Open a capsule
+      first_complete_set: Complete a set
+      first_epic: Get an Epic card
+      first_legendary: Get a Legendary card
+      first_repost: Repost a card
+      first_trade: Complete a trade
+      three_complete_sets: Complete 3 sets
+    names:
+      boosters_10: 10 capsules
+      boosters_100: 100 capsules
+      boosters_500: 500 capsules
+      first_booster: First capsule
+      first_complete_set: First complete set
+      first_epic: First Epic
+      first_legendary: First Legendary
+      first_repost: First repost
+      first_trade: First trade
+      three_complete_sets: Three complete sets
+    show:
+      earned_label: Achievements earned
+      groups:
+        earned: Earned · %{count}
+        to_earn: To earn · %{count}
+      more: More
+      progress: "%{progress} of %{threshold}"
+      summary:
+        one: "%{earned} achievement earned out of %{total}"
+        other: "%{earned} achievements earned out of %{total}"
+      title: Achievements
+    unlocked:
+      title: Achievement unlocked
+  activerecord:
+    errors:
+      messages:
+        frozen_once_published: belongs to a published season and can no longer change
+        other_season: belongs to another season
+  authorization:
+    forbidden: Your account has no access to this page.
+    sign_in_required: Sign in through Steam to do that.
   back_office:
-    dashboard:
-      show:
-        heading: "The Brotherhood's back-office"
-        queue:
-          zero: "No reported player awaits the officers."
-          one: "One reported player awaits the officers."
-          other: "%{count} reported players await the officers."
-        players: "The players"
-        reports: "The reports"
-        bans: "The banned players"
-        history: "The history"
-        jobs: "The job queue"
-        import_runs: "The Steam import"
-        seasons: "The catalog seasons"
-        roadmap: "The roadmap"
-        themes: "The themes"
-        cards: "The card press"
-    reports:
-      index:
-        heading: "The reports"
-        intro: "Each row is a reported player, the latest report first. BAN suspends them: they can no longer sign in, their profile disappears for players, their open trades are cancelled and their friendships broken. DISMISS sets their reports aside without touching the player; a report from a player who had not reported them yet brings them back here. An officer acts only on a lower rank than their own."
-        empty: "No report awaits the officers."
-        caption: "Reported players, the latest report first"
-        player: "Player"
-        total: "Total"
-        latest_at: "Latest report"
-        ban: "BAN"
-        dismiss: "DISMISS"
-        dismiss_confirm: "Dismiss the reports on %{name} without banning them?"
-        banned_players: "The banned players"
-        history: "The history"
-      dismiss:
-        dismissed: "The reports on %{name} are dismissed."
     bans:
-      index:
-        heading: "The banned players"
-        intro: "The banned players, the latest first. LIFT THE BAN gives them back their sign-in and their profile; the friendships and trades they lost do not come back. An officer acts only on a lower rank than their own."
-        empty: "No player is banned."
-        caption: "Banned players, the latest first"
-        player: "Player"
-        banned_at: "Banned on"
-        unban: "LIFT THE BAN"
-        reports: "The reports"
-        history: "The history"
       actions:
-        ban: "BAN"
-        ban_confirm: "Ban %{name}? Their open trades will be cancelled and their friendships broken, even if the ban is lifted later."
-        unban: "LIFT THE BAN"
-        unban_confirm: "Lift the ban on %{name}?"
-        reason_label: "Reason for banning %{name}"
-        reason_placeholder: "Reason for the ban"
-        reason_hint: "The player will read this reason if they try to sign in."
+        ban: BAN
+        ban_confirm: Ban %{name}? Their open trades will be cancelled and their friendships
+          broken, even if the ban is lifted later.
+        reason_hint: The player will read this reason if they try to sign in.
+        reason_label: Reason for banning %{name}
+        reason_placeholder: Reason for the ban
+        unban: LIFT THE BAN
+        unban_confirm: Lift the ban on %{name}?
       create:
         banned: "%{name} is banned."
       destroy:
-        unbanned: "The ban on %{name} is lifted."
-    players:
+        unbanned: The ban on %{name} is lifted.
       index:
-        heading: "The players"
-        intro: "Every player of the Brotherhood, banned ones included, the newest account first. Search for a player by part of their name or by their full Steam id. BAN suspends them without waiting for a report; LIFT THE BAN gives them back their sign-in and their profile. An officer acts only on a lower rank than their own."
-        search_label: "Search for a player"
-        search_placeholder: "Name or Steam id"
-        search_submit: "Search"
-        empty: "No player has an account yet."
-        no_match: "No player matches “%{query}”."
-        caption: "Players, the newest account first"
-        player: "Player"
-        role: "Role"
-        visibility: "Visibility"
-        state: "Standing"
-        action: "Ban or lift the ban"
-        history_column: "The player's history"
-        history_link: "History"
-        roles:
-          player: "Player"
-          moderator: "Moderator"
-          administrator: "Administrator"
-        states:
-          good_standing: "In good standing"
-          banned: "Banned"
-        reports: "The reports"
-        history: "The history"
-    history:
-      index:
-        heading: "The moderation history"
-        heading_player: "The history of %{name}"
-        intro: "Every ban, lifted ban and dismissal of reports, the latest first, with the officer who acted and, for a ban, the reason they gave. Each row is erased one year after its end, as the privacy notice says. Bans made before a reason was asked for have none."
-        empty: "No moderation action is recorded yet."
-        player_empty: "No moderation action concerns %{name}."
-        unknown_player: "No player matches this link."
-        caption: "Moderation actions, the latest first"
-        date: "Date"
-        action: "Action"
-        player: "Player"
-        staff: "By"
-        reason: "Reason"
-        kinds:
-          ban: "Ban"
-          unban: "Ban lifted"
-          dismissal: "Reports dismissed"
-        no_reason: "Reason not recorded"
-        deleted_account: "Deleted account"
-        whole_history: "The whole history"
-        players: "The players"
-        reports: "The reports"
-        bans: "The banned players"
-    import_runs:
-      statuses:
-        pending: "Waiting"
-        running: "Under way"
-        completed: "Done"
-        failed: "Halted"
-        abandoned: "Abandoned"
-        ready: "Awaiting promotion"
-        promoted: "Promoted"
-      steps:
-        app_list: "Listing the Steam games"
-        reviews: "Counting the reviews"
-        tags: "Naming the tags"
-        details: "Copying the store pages"
-        cards: "Writing the cards"
-      index:
-        heading: "The Steam import"
-        intro: "Each run copies the list of Steam games into the Brotherhood's ledgers, counts their reviews and sets aside the games with fewer than 500, then copies the store pages of those kept, in French and English, with their tags, before staging them as cards beside the draft season, page by page. The draft is replaced only when you promote a finished run. One run at a time."
-        start: "Start an import"
-        empty: "No import has run yet. The ledgers wait for their first page."
-        caption: "Import runs, the latest first"
-        started_at: "Started"
-        status: "Status"
-        apps_listed: "Games listed"
-        open: "Open"
-      show:
-        heading: "An import run"
-        all_runs: "All import runs"
-        status: "Status"
-        step: "Step"
-        apps_listed: "Games listed"
-        apps_reviewed: "Games reviewed"
-        apps_kept: "Games kept"
-        apps_excluded: "Games set aside"
-        tags_named: "Tags named"
-        apps_detailed: "Store pages copied"
-        apps_excluded_details: "Set aside at the store page"
-        cards_written: "Cards staged"
-        cards_refused: "Cards refused"
-        cursor: "Last appid"
-        started_at: "Started"
-        finished_at: "Finished"
-        resume: "Resume from where it stopped"
-        rescore: "Rescore the cards"
-        rescore_confirm: "Stage every card of this run again, with the prestige formula and the themes as they now stand? The draft season is left as it stands until you promote the result. No call is made to Steam."
-        abandon: "Abandon this run"
-        abandon_confirm: "Abandon this run for good? It can never be resumed, its staged cards are deleted, and the draft season is left as it stands."
-        review_heading: "Review before promotion"
-        review_intro: "This run's cards wait beside the draft season. Promote them to replace the draft's cards with these in one step, or discard them to leave the draft as it stands."
-        review_gap_caption: "The gap between the staged cards and the draft season"
-        staged_cards: "Cards staged"
-        draft_cards: "Cards in the draft"
-        added_cards: "Cards the draft does not hold yet"
-        removed_cards: "Cards the draft would lose"
-        rescored_cards: "Cards whose score changes"
-        draft_spread: "The draft's rarities today"
-        draft_spread_caption: "Cards per rarity in the draft season now"
-        tier: "Rarity"
-        cards: "Cards"
-        preview_heading: "The season, if these cards were promoted and published"
-        preview_intro: "What publishing would give once the staged cards replace the draft's. Rarities, themes and sets are read on the staged cards. Nothing is written here."
-        promote: "PROMOTE"
-        promote_confirm: "Replace the draft season's cards with this run's staged cards? The draft is then replaced in one step."
-        discard: "DISCARD"
-        discard_confirm: "Throw away this run's staged cards? The draft season is left as it stands, and the run cannot be promoted later."
-        errors: "Latest errors"
-      create:
-        started: "The import is under way, officer. The scribes are copying the first page."
-      resume:
-        resumed: "The import resumes from where it stopped, officer."
-      rescore:
-        rescoring: "The scribes are writing the cards again with the new formula, officer. The season cannot be published until they finish."
-        run_in_progress: "An import is under way, officer. Let it finish, or wait for it to halt, before rescoring the cards."
-      abandon:
-        abandoned: "The run is abandoned, officer. The scribes close its ledger for good; the draft season is left as it stands."
-      promote:
-        promoted: "The draft season now holds this run's cards, officer. It can be published."
-      discard:
-        discarded: "The staged cards are thrown away, officer. The draft season is left as it stands."
+        banned_at: Banned on
+        caption: Banned players, the latest first
+        empty: No player is banned.
+        heading: The banned players
+        history: The history
+        intro: The banned players, the latest first. LIFT THE BAN gives them back
+          their sign-in and their profile; the friendships and trades they lost do
+          not come back. An officer acts only on a lower rank than their own.
+        player: Player
+        reports: The reports
+        unban: LIFT THE BAN
     cards:
       index:
-        heading: "The card press"
-        intro: "Every rarity's face at the four sizes, then each rarity at size M with the capsule's effects. Hover a card to tilt it. The art is a sample from the Brotherhood's own chest; the uncommon's art is missing on purpose, to show a card without it."
-        label: "%{rarity}, %{size}"
         booster_label: "%{rarity}, %{size}, capsule"
-        sizes:
-          s: "size S"
-          m: "size M"
-          l: "size L"
-          xl: "size XL"
+        heading: The card press
+        intro: Every rarity's face at the four sizes, then each rarity at size M with
+          the capsule's effects. Hover a card to tilt it. The art is a sample from
+          the Brotherhood's own chest; the uncommon's art is missing on purpose, to
+          show a card without it.
+        label: "%{rarity}, %{size}"
         samples:
-          common: "Tin Soldier"
-          uncommon: "Green Hills"
-          rare: "Blue Depths"
-          epic: "The Long Chronicles of the Amethyst Archive and the Keys Its Keepers Lost at Sea"
-          legendary: "Golden Crown"
-    seasons:
-      statuses:
-        draft: "Draft"
-        published: "Published"
-      index:
-        heading: "The catalog seasons"
-        intro: "Imports fill the draft season. Publishing it cuts its cards into the five rarities, numbers them, binds them into theme, franchise, studio and hall of fame sets and the UFOs, and opens it to the draw, all at once. A published season never changes again."
-        empty: "No season yet. The first import will open the draft."
-        caption: "Catalog seasons, by number"
-        number: "Season"
-        status: "Status"
-        card_count: "Cards"
-        published_at: "Published"
-        sets:
-          theme: "Themes"
-          franchise: "Franchises"
-          studio: "Studios"
-          hall_of_fame: "Hall of fame"
-          ufo: "UFOs"
-        publish: "Publish season %{number}"
-        confirm:
-          one: "Publish season %{number} and its %{count} card? The card's rarity and number will never change again."
-          other: "Publish season %{number} and its %{count} cards? Its rarities and numbers will never change again."
+          common: Tin Soldier
+          epic: The Long Chronicles of the Amethyst Archive and the Keys Its Keepers
+            Lost at Sea
+          legendary: Golden Crown
+          rare: Blue Depths
+          uncommon: Green Hills
+        sizes:
+          l: size L
+          m: size M
+          s: size S
+          xl: size XL
+    dashboard:
       show:
-        heading: "Season %{number}"
-        all_seasons: "All the seasons"
-        status: "Status"
-        published_at: "Published"
-        score_versions: "Prestige formula versions"
-        score_version: "version %{version}"
-        no_score_version: "none recorded (scored before versions)"
-        published_heading: "Season %{number}, as published"
-        published_intro: "What publication stored for this season, read as it stands: each rarity's cards and lowest score, and the sets. Nothing here is written and nothing is cut again. The themes and the UFOs are the sets stored at publication."
+        bans: The banned players
+        cards: The card press
+        heading: The Brotherhood's back-office
+        history: The history
+        import_runs: The Steam import
+        jobs: The job queue
+        players: The players
+        queue:
+          one: One reported player awaits the officers.
+          other: "%{count} reported players await the officers."
+          zero: No reported player awaits the officers.
+        reports: The reports
+        roadmap: The roadmap
+        seasons: The catalog seasons
+        themes: The themes
+    history:
+      index:
+        action: Action
+        bans: The banned players
+        caption: Moderation actions, the latest first
+        date: Date
+        deleted_account: Deleted account
+        empty: No moderation action is recorded yet.
+        heading: The moderation history
+        heading_player: The history of %{name}
+        intro: Every ban, lifted ban and dismissal of reports, the latest first, with
+          the officer who acted and, for a ban, the reason they gave. Each row is
+          erased one year after its end, as the privacy notice says. Bans made before
+          a reason was asked for have none.
+        kinds:
+          ban: Ban
+          dismissal: Reports dismissed
+          unban: Ban lifted
+        no_reason: Reason not recorded
+        player: Player
+        player_empty: No moderation action concerns %{name}.
+        players: The players
+        reason: Reason
+        reports: The reports
+        staff: By
+        unknown_player: No player matches this link.
+        whole_history: The whole history
+    import_runs:
+      abandon:
+        abandoned: The run is abandoned, officer. The scribes close its ledger for
+          good; the draft season is left as it stands.
+      create:
+        started: The import is under way, officer. The scribes are copying the first
+          page.
+      discard:
+        discarded: The staged cards are thrown away, officer. The draft season is
+          left as it stands.
+      index:
+        apps_listed: Games listed
+        caption: Import runs, the latest first
+        empty: No import has run yet. The ledgers wait for their first page.
+        heading: The Steam import
+        intro: Each run copies the list of Steam games into the Brotherhood's ledgers,
+          counts their reviews and sets aside the games with fewer than 500, then
+          copies the store pages of those kept, in French and English, with their
+          tags, before staging them as cards beside the draft season, page by page.
+          The draft is replaced only when you promote a finished run. One run at a
+          time.
+        open: Open
+        start: Start an import
+        started_at: Started
+        status: Status
+      promote:
+        promoted: The draft season now holds this run's cards, officer. It can be
+          published.
+      rescore:
+        rescoring: The scribes are writing the cards again with the new formula, officer.
+          The season cannot be published until they finish.
+        run_in_progress: An import is under way, officer. Let it finish, or wait for
+          it to halt, before rescoring the cards.
+      resume:
+        resumed: The import resumes from where it stopped, officer.
+      show:
+        abandon: Abandon this run
+        abandon_confirm: Abandon this run for good? It can never be resumed, its staged
+          cards are deleted, and the draft season is left as it stands.
+        added_cards: Cards the draft does not hold yet
+        all_runs: All import runs
+        apps_detailed: Store pages copied
+        apps_excluded: Games set aside
+        apps_excluded_details: Set aside at the store page
+        apps_kept: Games kept
+        apps_listed: Games listed
+        apps_reviewed: Games reviewed
+        cards: Cards
+        cards_refused: Cards refused
+        cards_written: Cards staged
+        cursor: Last appid
+        discard: DISCARD
+        discard_confirm: Throw away this run's staged cards? The draft season is left
+          as it stands, and the run cannot be promoted later.
+        draft_cards: Cards in the draft
+        draft_spread: The draft's rarities today
+        draft_spread_caption: Cards per rarity in the draft season now
+        errors: Latest errors
+        finished_at: Finished
+        heading: An import run
+        preview_heading: The season, if these cards were promoted and published
+        preview_intro: What publishing would give once the staged cards replace the
+          draft's. Rarities, themes and sets are read on the staged cards. Nothing
+          is written here.
+        promote: PROMOTE
+        promote_confirm: Replace the draft season's cards with this run's staged cards?
+          The draft is then replaced in one step.
+        removed_cards: Cards the draft would lose
+        rescore: Rescore the cards
+        rescore_confirm: Stage every card of this run again, with the prestige formula
+          and the themes as they now stand? The draft season is left as it stands
+          until you promote the result. No call is made to Steam.
+        rescored_cards: Cards whose score changes
+        resume: Resume from where it stopped
+        review_gap_caption: The gap between the staged cards and the draft season
+        review_heading: Review before promotion
+        review_intro: This run's cards wait beside the draft season. Promote them
+          to replace the draft's cards with these in one step, or discard them to
+          leave the draft as it stands.
+        staged_cards: Cards staged
+        started_at: Started
+        status: Status
+        step: Step
+        tags_named: Tags named
+        tier: Rarity
+      statuses:
+        abandoned: Abandoned
+        completed: Done
+        failed: Halted
+        pending: Waiting
+        promoted: Promoted
+        ready: Awaiting promotion
+        running: Under way
+      steps:
+        app_list: Listing the Steam games
+        cards: Writing the cards
+        details: Copying the store pages
+        reviews: Counting the reviews
+        tags: Naming the tags
+    players:
+      index:
+        action: Ban or lift the ban
+        caption: Players, the newest account first
+        empty: No player has an account yet.
+        heading: The players
+        history: The history
+        history_column: The player's history
+        history_link: History
+        intro: Every player of the Brotherhood, banned ones included, the newest account
+          first. Search for a player by part of their name or by their full Steam
+          id. BAN suspends them without waiting for a report; LIFT THE BAN gives them
+          back their sign-in and their profile. An officer acts only on a lower rank
+          than their own.
+        no_match: No player matches “%{query}”.
+        player: Player
+        reports: The reports
+        role: Role
+        roles:
+          administrator: Administrator
+          moderator: Moderator
+          player: Player
+        search_label: Search for a player
+        search_placeholder: Name or Steam id
+        search_submit: Search
+        state: Standing
+        states:
+          banned: Banned
+          good_standing: In good standing
+        visibility: Visibility
+    reports:
+      dismiss:
+        dismissed: The reports on %{name} are dismissed.
+      index:
+        ban: BAN
+        banned_players: The banned players
+        caption: Reported players, the latest report first
+        dismiss: DISMISS
+        dismiss_confirm: Dismiss the reports on %{name} without banning them?
+        empty: No report awaits the officers.
+        heading: The reports
+        history: The history
+        intro: 'Each row is a reported player, the latest report first. BAN suspends
+          them: they can no longer sign in, their profile disappears for players,
+          their open trades are cancelled and their friendships broken. DISMISS sets
+          their reports aside without touching the player; a report from a player
+          who had not reported them yet brings them back here. An officer acts only
+          on a lower rank than their own.'
+        latest_at: Latest report
+        player: Player
+        total: Total
+    roadmap:
+      back_to_milestone: Back to the milestone
+      columns:
+        actions: Actions
+        order: Order
+        position: Place
+        shown: Landing
+        status: Status
+        wording_en: English
+        wording_fr: French
+      fields:
+        shown: Shown on the landing
+        status: Status
+        wording_en: English wording
+        wording_fr: French wording
+      move:
+        down: Down
+        down_label: Move “%{wording}” down
+        up: Up
+        up_label: Move “%{wording}” up
+      statuses:
+        done: Done
+        in_progress: In progress
+        to_come: To come
+      visibility:
+        hidden: Hidden
+        shown: Shown
+    roadmap_milestones:
+      edit:
+        add_story: Add a story
+        all_milestones: The whole roadmap
+        delete: Delete
+        delete_confirm: Delete the story “%{wording}”? It cannot be brought back.
+        delete_label: Delete “%{wording}”
+        edit_story: Edit
+        edit_story_label: Edit “%{wording}”
+        heading: Milestone “%{wording}”
+        intro: Created for the epic %{epic}. Its wording, status and visibility are
+          yours; the next deploys leave them as they are.
+        no_stories: No story under this milestone yet.
+        save: Save the milestone
+        stories: Its stories
+        stories_caption: Stories of the milestone, in order
+      index:
+        caption: Roadmap milestones, in order
+        edit: Edit
+        edit_label: Edit “%{wording}”
+        empty: No milestone yet. The next deploy creates one for each epic of the
+          initiative.
+        epic: Epic
+        heading: The roadmap
+        intro: 'The roadmap the landing shows. Every deploy gives each new epic of
+          the initiative its milestone, hidden and to come, worded with the epic''s
+          title: word it in both languages before you show it. Milestones are never
+          created or deleted here; hide the one whose epic is gone.'
+        stories: Stories
+      move:
+        moved: The milestone has moved, officer.
+      update:
+        updated: The milestone is saved, officer.
+    roadmap_stories:
+      create:
+        created: The story is added, officer.
+      destroy:
+        deleted: The story is deleted, officer.
+      edit:
+        heading: A story of “%{milestone}”
+        save: Save the story
+      move:
+        moved: The story has moved, officer.
+      new:
+        heading: A new story for “%{milestone}”
+        save: Add the story
+      update:
+        updated: The story is saved, officer.
+    seasons:
+      index:
+        caption: Catalog seasons, by number
+        card_count: Cards
+        confirm:
+          one: Publish season %{number} and its %{count} card? The card's rarity and
+            number will never change again.
+          other: Publish season %{number} and its %{count} cards? Its rarities and
+            numbers will never change again.
+        empty: No season yet. The first import will open the draft.
+        heading: The catalog seasons
+        intro: Imports fill the draft season. Publishing it cuts its cards into the
+          five rarities, numbers them, binds them into theme, franchise, studio and
+          hall of fame sets and the UFOs, and opens it to the draw, all at once. A
+          published season never changes again.
+        number: Season
+        publish: Publish season %{number}
+        published_at: Published
+        sets:
+          franchise: Franchises
+          hall_of_fame: Hall of fame
+          studio: Studios
+          theme: Themes
+          ufo: UFOs
+        status: Status
       preview:
-        heading: "Season %{number}, if published now"
-        intro: "What publishing the draft would give today, read from its cards as they stand. Nothing here is written. The prestige formula and the tier shares live in the code; the themes are curated on the themes page. Change either, rescore the latest import if the formula or the themes changed, then read this again."
-        rescore_needed: "The themes changed since the cards were scored: rescore the latest import to see their effect here."
-        scores: "Prestige scores"
-        scores_caption: "Prestige scores of the season: lowest, percentiles, highest"
+        bottom:
+          one: The lowest-scored card
+          other: The %{count} lowest-scored cards
         card_count:
           one: "%{formatted} card"
           other: "%{formatted} cards"
-        min: "Lowest"
-        max: "Highest"
-        percentile: "p%{p}"
-        tiers: "Rarities"
-        tier: "Rarity"
-        cards: "Cards"
-        threshold: "Lowest score"
+        cards: Cards
+        heading: Season %{number}, if published now
+        intro: What publishing the draft would give today, read from its cards as
+          they stand. Nothing here is written. The prestige formula and the tier shares
+          live in the code; the themes are curated on the themes page. Change either,
+          rescore the latest import if the formula or the themes changed, then read
+          this again.
+        max: Highest
+        min: Lowest
+        no_themes: 'This season was published before themes: its cards have no theme
+          and no UFO set.'
+        percentile: p%{p}
+        prestige_score: Prestige score
+        rank: Rank
+        rating: Rating
+        rescore_needed: 'The themes changed since the cards were scored: rescore the
+          latest import to see their effect here.'
+        scores: Prestige scores
+        scores_caption: 'Prestige scores of the season: lowest, percentiles, highest'
+        sets: Sets
+        theme: Theme
+        themes: Themes
+        threshold: Lowest score
+        tier: Rarity
+        tiers: Rarities
+        title: Title
         top:
-          one: "The highest-scored card"
-          other: "The %{count} highest-scored cards"
-        bottom:
-          one: "The lowest-scored card"
-          other: "The %{count} lowest-scored cards"
-        rank: "Rank"
-        title: "Title"
-        rating: "Rating"
-        prestige_score: "Prestige score"
-        themes: "Themes"
-        theme: "Theme"
+          one: The highest-scored card
+          other: The %{count} highest-scored cards
         ufos:
           one: "%{formatted} card in the UFOs, %{share} of the season."
           other: "%{formatted} cards in the UFOs, %{share} of the season."
-        no_themes: "This season was published before themes: its cards have no theme and no UFO set."
-        sets: "Sets"
       publish:
-        published: "Season %{number} is published, officer. Its cards are ready for the draw."
-        import_active: "A Steam import has not finished, officer. Let it finish or resume it, or abandon it if it halted, before publishing the season."
-        import_awaiting_promotion: "A finished Steam import waits for you, officer. Open it and promote its cards into the draft, or discard them, before publishing the season."
-    roadmap:
+        import_active: A Steam import has not finished, officer. Let it finish or
+          resume it, or abandon it if it halted, before publishing the season.
+        import_awaiting_promotion: A finished Steam import waits for you, officer.
+          Open it and promote its cards into the draft, or discard them, before publishing
+          the season.
+        published: Season %{number} is published, officer. Its cards are ready for
+          the draw.
+      show:
+        all_seasons: All the seasons
+        heading: Season %{number}
+        no_score_version: none recorded (scored before versions)
+        published_at: Published
+        published_heading: Season %{number}, as published
+        published_intro: 'What publication stored for this season, read as it stands:
+          each rarity''s cards and lowest score, and the sets. Nothing here is written
+          and nothing is cut again. The themes and the UFOs are the sets stored at
+          publication.'
+        score_version: version %{version}
+        score_versions: Prestige formula versions
+        status: Status
       statuses:
-        done: "Done"
-        in_progress: "In progress"
-        to_come: "To come"
-      visibility:
-        shown: "Shown"
-        hidden: "Hidden"
-      columns:
-        position: "Place"
-        wording_fr: "French"
-        wording_en: "English"
-        status: "Status"
-        shown: "Landing"
-        order: "Order"
-        actions: "Actions"
-      fields:
-        wording_fr: "French wording"
-        wording_en: "English wording"
-        status: "Status"
-        shown: "Shown on the landing"
-      move:
-        up: "Up"
-        down: "Down"
-        up_label: "Move “%{wording}” up"
-        down_label: "Move “%{wording}” down"
-      back_to_milestone: "Back to the milestone"
+        draft: Draft
+        published: Published
     themes:
-      index:
-        heading: "The themes"
-        intro: "The tags the draft season's cards carry among their five most-voted, with the games that carry each. Attach a tag to a theme, make a theme of it (its English name is filled in, type the French), or dismiss it as no theme. Publishing is refused while a tag is unclassified. A change reaches the cards when the latest import is rescored."
-        rescore_needed: "The classification changed since the cards were scored: rescore the latest import before you read the season."
-        import_runs: "Open the Steam imports"
-        tags_heading: "The tags of the draft"
-        unclassified_count:
-          zero: "No tag is left to classify."
-          one: "%{count} tag is left to classify."
-          other: "%{count} tags are left to classify."
-        show:
-          unclassified: "To classify"
-          all: "All the tags"
-        no_tags: "No tag to show: the draft has none, or all are classified."
-        dismiss_rest:
-          one: "Mark the unclassified tag of this page as no theme"
-          other: "Mark the %{count} unclassified tags of this page as no theme"
-        tags_caption: "Steam tags of the draft season's cards"
-        tag: "Tag"
-        games: "Games"
-        state: "State"
-        states:
-          unclassified: "To classify"
-          dismissed: "Not a theme"
-          theme: "Theme: %{theme}"
-        attach: "Attach to a theme"
-        attach_label: "Theme to attach %{tag} to"
-        attach_submit: "Attach"
-        attach_prompt: "Choose a theme"
-        create: "Make a theme"
-        name_en_label: "English name of the theme made from %{tag}"
-        name_fr_label: "French name of the theme made from %{tag}"
-        create_submit: "Create"
-        actions: "Actions"
-        dismiss: "Not a theme"
-        dismiss_label: "Mark %{tag} as no theme"
-        pages: "Pages of tags"
-        themes_heading: "The themes"
-        themes_caption: "Themes, with their tags and names"
-        theme_key: "Key"
-        tags: "Tags"
-        names: "Names"
-        rename: "Rename"
-        rename_en_label: "English name of %{theme}"
-        rename_fr_label: "French name of %{theme}"
-      create:
-        created: "The theme is created and the tag attached, officer."
-      update:
-        updated: "The theme is renamed, officer."
       attach:
-        attached: "The tag is attached, officer."
-        theme_required: "Choose the theme to attach the tag to, officer."
+        attached: The tag is attached, officer.
+        theme_required: Choose the theme to attach the tag to, officer.
+      create:
+        created: The theme is created and the tag attached, officer.
       dismiss:
         dismissed:
           one: "%{count} tag is marked as no theme, officer."
           other: "%{count} tags are marked as no theme, officer."
-    roadmap_milestones:
       index:
-        heading: "The roadmap"
-        intro: "The roadmap the landing shows. Every deploy gives each new epic of the initiative its milestone, hidden and to come, worded with the epic's title: word it in both languages before you show it. Milestones are never created or deleted here; hide the one whose epic is gone."
-        empty: "No milestone yet. The next deploy creates one for each epic of the initiative."
-        caption: "Roadmap milestones, in order"
-        epic: "Epic"
-        stories: "Stories"
-        edit: "Edit"
-        edit_label: "Edit “%{wording}”"
-      edit:
-        heading: "Milestone “%{wording}”"
-        intro: "Created for the epic %{epic}. Its wording, status and visibility are yours; the next deploys leave them as they are."
-        save: "Save the milestone"
-        stories: "Its stories"
-        stories_caption: "Stories of the milestone, in order"
-        no_stories: "No story under this milestone yet."
-        add_story: "Add a story"
-        edit_story: "Edit"
-        edit_story_label: "Edit “%{wording}”"
-        delete: "Delete"
-        delete_label: "Delete “%{wording}”"
-        delete_confirm: "Delete the story “%{wording}”? It cannot be brought back."
-        all_milestones: "The whole roadmap"
+        actions: Actions
+        attach: Attach to a theme
+        attach_label: Theme to attach %{tag} to
+        attach_prompt: Choose a theme
+        attach_submit: Attach
+        create: Make a theme
+        create_submit: Create
+        dismiss: Not a theme
+        dismiss_label: Mark %{tag} as no theme
+        dismiss_rest:
+          one: Mark the unclassified tag of this page as no theme
+          other: Mark the %{count} unclassified tags of this page as no theme
+        games: Games
+        heading: The themes
+        import_runs: Open the Steam imports
+        intro: The tags the draft season's cards carry among their five most-voted,
+          with the games that carry each. Attach a tag to a theme, make a theme of
+          it (its English name is filled in, type the French), or dismiss it as no
+          theme. Publishing is refused while a tag is unclassified. A change reaches
+          the cards when the latest import is rescored.
+        name_en_label: English name of the theme made from %{tag}
+        name_fr_label: French name of the theme made from %{tag}
+        names: Names
+        no_tags: 'No tag to show: the draft has none, or all are classified.'
+        pages: Pages of tags
+        rename: Rename
+        rename_en_label: English name of %{theme}
+        rename_fr_label: French name of %{theme}
+        rescore_needed: 'The classification changed since the cards were scored: rescore
+          the latest import before you read the season.'
+        show:
+          all: All the tags
+          unclassified: To classify
+        state: State
+        states:
+          dismissed: Not a theme
+          theme: 'Theme: %{theme}'
+          unclassified: To classify
+        tag: Tag
+        tags: Tags
+        tags_caption: Steam tags of the draft season's cards
+        tags_heading: The tags of the draft
+        theme_key: Key
+        themes_caption: Themes, with their tags and names
+        themes_heading: The themes
+        unclassified_count:
+          one: "%{count} tag is left to classify."
+          other: "%{count} tags are left to classify."
+          zero: No tag is left to classify.
       update:
-        updated: "The milestone is saved, officer."
-      move:
-        moved: "The milestone has moved, officer."
-    roadmap_stories:
-      new:
-        heading: "A new story for “%{milestone}”"
-        save: "Add the story"
-      edit:
-        heading: "A story of “%{milestone}”"
-        save: "Save the story"
-      create:
-        created: "The story is added, officer."
-      update:
-        updated: "The story is saved, officer."
-      move:
-        moved: "The story has moved, officer."
-      destroy:
-        deleted: "The story is deleted, officer."
-  packs:
-    create:
-      throttled: "Too many openings in a minute. Try again in a moment."
-    show:
-      heading: "Your capsule"
-      heading_bonus: "Your daily capsule"
-      cards: "The cards of your capsule"
-      open_booster: "Open a capsule"
-      back_to_hub: "Back to the bridge"
-  library:
-    entry:
-      in_progress: "In progress"
-      no_progress: "No set in progress yet. Find one above."
-      search: "Find a set"
-      all_cards: "All cards"
-      results: "Results"
-      search_button: "Search"
-      found:
-        zero: "No set found"
-        one: "1 set found"
-        other: "%{count} sets found"
-      none: "No set found for “%{query}”."
-    set_kinds:
-      theme: "Theme"
-      franchise: "Franchise"
-      studio: "Studio"
-      hall_of_fame: "Hall of fame"
-      ufo: "UFO"
-    set_progress:
-      count:
-        zero: "%{owned} cards out of %{total}"
-        one: "%{owned} card out of %{total}"
-        other: "%{owned} cards out of %{total}"
-      tier: "%{tier} tier"
-      next: "%{tier} at %{required}"
-      complete: "complete"
-      tiers:
-        bronze: "Bronze"
-        silver: "Silver"
-        gold: "Gold"
-        novice: "Novice"
-        apprentice: "Apprentice"
-        adept: "Adept"
-        expert: "Expert"
-        master: "Master"
-        complete: "Complete"
-    album:
-      title: "%{set} · Collection · Gameble"
-      slots: "Cards in the set"
-      search:
-        label: "Search a game of this set by name"
-        placeholder: "Search a game"
-    collection:
-      title: "Collection"
-    cards:
-      title: "All cards · Gameble"
-      heading: "All cards"
-    status:
-      label: "Unique cards:"
-      progress:
-        one: "%{owned} unique card out of %{total}"
-        other: "%{owned} unique cards out of %{total}"
-    report:
-      title: "Report"
-      copies: "Total cards"
-      duplicates: "Duplicates"
-      unique: "Unique cards"
-      fold: "%{copies} · %{duplicates}"
-      copies_count:
-        one: "%{number} card"
-        other: "%{number} cards"
-      duplicates_count:
-        one: "%{number} duplicate"
-        other: "%{number} duplicates"
-    filters:
-      title: "Filters"
-      active: "Active filters:"
-      clear: "Clear all"
-      apply: "Apply"
-      search:
-        label: "Search by title or publisher"
-        placeholder: "Search a title or a publisher"
-      set_kind: "Kind"
-      set_search:
-        label: "Find a set"
-      groups:
-        state: "State"
-        rarity: "Rarity"
-        sets: "Set"
-        genre: "Genre"
-      states:
-        owned: "Owned"
-        all: "All"
-        missing: "Missing"
-        new: "New"
-        duplicates: "Duplicates"
-    grid:
-      label: "Cards"
-      empty: "Nothing matches these filters."
-      result:
-        zero: "No card shown."
-        one: "1 card shown."
-        other: "%{count} cards shown."
-      past_the_end: "No more cards here: the grid ends on an earlier page. Go back to the last page."
-      new: "New"
-      copies:
-        one: "%{number} copy"
-        other: "%{number} copies"
-      editions:
-        short:
-          one: "%{count} ed."
-          other: "%{count} ed."
-        full:
-          one: "%{count} edition"
-          other: "%{count} editions"
-      pages:
-        label: "Pages of cards"
-        page: "Page"
-        previous: "Previous page"
-        next: "Next page"
-        shown:
-          zero: "No more cards shown."
-          one: "Card %{from} of %{total} shown."
-          other: "Cards %{from} to %{to} of %{total} shown."
-    seen:
-      throttled: "Too many requests in a minute. Try again in a moment."
-    show:
-      no_season: "No season of cards is published yet."
-  public_profiles:
-    title: "%{name}"
-    fallback_title: "Player %{code}"
-    show:
-      no_season: "No season of cards is published yet."
-      distinct_cards:
-        one: "%{count} card collected"
-        other: "%{count} cards collected"
-      member_since: "Member since %{date}"
-      banned: "Banned player: only staff can see this profile"
-      trade: "TRADE"
-      trade_label: "Trade with %{name}"
-      add_friend: "ADD FRIEND"
-      add_friend_label: "Add %{name} as a friend"
-      pending: "PENDING"
-      accept: "ACCEPT"
-      accept_label: "Accept the invitation from %{name}"
-      keys:
-        cards: "Cards"
-        complete_sets: "Complete sets"
-        achievements: "Achievements"
-      showcase:
-        title: "Showcase"
-        move_left: "Move %{title} left"
-        move_right: "Move %{title} right"
-        info_label: "How to change the order"
-        info: "Drag the cards to change their order, or move a card one place with the arrows under it."
-        moved: "%{title} is now in place %{position} of %{count}."
-        move_failed: "The new order could not be saved."
-      stats:
-        title: "Statistics"
-        rarities: "Rarities"
-        activity: "Activity"
-        packs_opened: "Capsules opened"
-        first_discoveries: "First discoveries"
-        trades_concluded: "Trades concluded"
-      achievements:
-        title: "Achievements"
-        latest: "Latest earned"
-      sets:
-        title: "Sets"
-        started:
-          one: "%{count} set started"
-          other: "%{count} sets started"
-        full_collection: "See the full collection"
-    set:
-      title: "%{set} · %{name} · Gameble"
-      heading: "%{set} · %{name}"
-    collection:
-      title: "Collection · %{name} · Gameble"
-      heading: "Collection · %{name}"
-    unavailable:
-      title: "Profile not available"
-      body: "This profile is not available. The link leads nowhere, or its owner no longer shows it."
+        updated: The theme is renamed, officer.
   boosters:
-    show:
-      title: "Capsule opening"
-    # The Booster island's words (BoostersHelper#booster_props), uppercase by
-    # CSS where the design shows capitals; plural keys read by the island's
-    # t() (app/frontend/lib/i18n.ts).
     island:
-      kicker: "Capsule · Season %{number}"
-      kicker_plain: "Capsule"
-      title: "Grand catalogue"
-      cards_per_pack: "Cards per capsule"
-      in_reserve: "In reserve"
-      reserve_count:
-        one: "%{n} capsule"
-        other: "%{n} capsules"
-      state: "State"
-      states:
-        sealed: "Sealed"
-        arming: "Arming"
-        ejecting: "Ejection"
-        inventory: "Inventory"
-        legendary_signal: "Legendary signal"
-        complete: "Inventory complete"
-        waiting: "Waiting"
-      reserve: "Reserve"
-      next_in: "+1 in"
-      next_at: "Next capsule: %{time}"
-      reserve_full: "Reserve full"
-      open: "Open the capsule"
-      open_next: "Open the next one"
-      reserve_empty: "Reserve empty"
-      empty_next: "Next capsule in %{time}"
-      reveal_all: "Reveal all"
-      back: "Back to the bridge"
-      revealed_count: "Cards revealed: %{revealed} / %{total}"
-      canister_label: "Open the capsule Season %{season}, grand catalogue, %{count} cards"
-      canister_label_plain: "Open the capsule, grand catalogue, %{count} cards"
-      canister_hint: "Click to open"
-      canister_season: "Season %{number}"
-      result: "Capsule result"
-      hint_remaining:
-        one: "Click a card to reveal it · %{n} left"
-        other: "Click a card to reveal it · %{n} left"
-      hint_done:
-        one: "Capsule inventoried · +%{n} card in the collection"
-        other: "Capsule inventoried · +%{n} cards in the collection"
-      face_down: "Card %{position} of %{total}, face down. Reveal."
-      face_up: "%{card}, %{rarity}. See the card."
-      card_label: "%{title} — %{details}"
-      announce_card: "Card %{position}: %{card}. %{rarity}."
-      summary:
-        one: "%{n} card revealed: %{tiers}."
-        other: "%{n} cards revealed: %{tiers}."
-      summary_tier: "%{rarity} × %{n}"
-      legendary_banner: "%{rarity}!"
+      announce_card: 'Card %{position}: %{card}. %{rarity}.'
+      back: Back to the bridge
       banner_line: "%{title} · %{year}"
-      refused_title: "Opening cancelled"
-      failed: "The opening did not go through. Check your connection or reload the page, then try again."
-      island_failed: "The capsule could not be shown. Your cards are in your collection."
-      reload: "Reload"
-      strip_title: "Season %{number} · Grand catalogue"
-      strip_title_plain: "Grand catalogue"
-      canister_hint_touch: "Tap to open"
       canister_facts:
         one: "%{n} card"
         other: "%{n} cards"
-      hint_tap: "Tap the card to reveal it"
-      hint_swipe: "Swipe the card to store it · or tap it"
-      store: "Store"
-      face_up_store: "%{card}, %{rarity}. Store the card."
-      tray: "Stored cards"
-      tray_label: "Card"
-      tray_count: "%{n} / %{total}"
-      tray_slot: "%{card}, %{rarity}. Enlarge."
-      zoom_line: "%{rarity} · %{year}"
-      see_card: "See the card"
-      close: "Close"
-      zoom_tip: "Hold the card to tilt it"
-      zoom_previous: "Previous card"
-      zoom_next: "Next card"
-      repost: "Repost"
-      repost_card: "Repost %{card}"
-      reposted: "Card reposted to the feed."
-      repost_failed: "The repost did not go through. Check your connection, then try again."
+      canister_hint: Click to open
+      canister_hint_touch: Tap to open
+      canister_label: Open the capsule Season %{season}, grand catalogue, %{count}
+        cards
+      canister_label_plain: Open the capsule, grand catalogue, %{count} cards
+      canister_season: Season %{number}
+      card_label: "%{title} — %{details}"
+      cards_per_pack: Cards per capsule
       celebration:
-        tier_title: "%{tier} TIER"
-        complete_title: "SET COMPLETE"
-        count: "%{owned}/%{total}"
-        tiers:
-          bronze: "BRONZE"
-          silver: "SILVER"
-          gold: "GOLD"
-          novice: "NOVICE"
-          apprentice: "APPRENTICE"
-          adept: "ADEPT"
-          expert: "EXPERT"
-          master: "MASTER"
-          complete: "COMPLETE"
-        folded:
-          one: "%{count} TIER REACHED"
-          other: "%{count} TIERS REACHED"
-        folded_lead: "incl."
-        folded_hint: "IN PROGRESS"
-        open_set: "View set."
-        open_in_progress: "View sets in progress."
-        position: "%{index} / %{count}"
-        next: "Next result"
-        announce_tier: "%{tier} tier reached: %{set}, %{owned} cards out of %{total}."
-        announce_complete: "Set complete: %{set}, %{owned} cards out of %{total}."
+        announce_complete: 'Set complete: %{set}, %{owned} cards out of %{total}.'
         announce_folded:
           one: "%{count} tier reached: %{list}."
           other: "%{count} tiers reached: %{list}."
         announce_item: "%{set}, %{tier}"
         announce_separator: "; "
+        announce_tier: "%{tier} tier reached: %{set}, %{owned} cards out of %{total}."
+        complete_title: SET COMPLETE
+        count: "%{owned}/%{total}"
+        folded:
+          one: "%{count} TIER REACHED"
+          other: "%{count} TIERS REACHED"
+        folded_hint: IN PROGRESS
+        folded_lead: incl.
+        next: Next result
+        open_in_progress: View sets in progress.
+        open_set: View set.
+        position: "%{index} / %{count}"
         spoken_tiers:
-          bronze: "bronze"
-          silver: "silver"
-          gold: "gold"
-          novice: "novice"
-          apprentice: "apprentice"
-          adept: "adept"
-          expert: "expert"
-          master: "master"
-          complete: "complete"
-  settings:
-    show:
-      title: "Profile and settings"
-      more: "More"
-      language:
-        label: "Language"
-      visibility:
-        label: "Profile visibility"
-        public: "Public"
-        friends_only: "Friends only"
-        private: "Private"
-      motion:
-        label: "Reduced motion"
-        system: "System"
-        "on": "Yes"
-        "off": "No"
-      session:
-        label: "Session"
-        sign_out: "Sign out"
-      data:
-        label: "My data"
-        export: "Export"
-        preparing: "Preparing…"
-        retry: "Retry"
-        failed: "The export did not go through. Check your connection, then try again."
-        ready_title: "Export ready"
-        ready: "A copy of your data is waiting, in a JSON file."
-        download: "Download"
-        last_export: "Last export:"
-        next_export: "Next export:"
-      account:
-        label: "Account"
-        delete: "Delete my account"
-      support:
-        label: "Support"
-        link: "Support"
-      legal: "Legal notice"
+          adept: adept
+          apprentice: apprentice
+          bronze: bronze
+          complete: complete
+          expert: expert
+          gold: gold
+          master: master
+          novice: novice
+          silver: silver
+        tier_title: "%{tier} TIER"
+        tiers:
+          adept: ADEPT
+          apprentice: APPRENTICE
+          bronze: BRONZE
+          complete: COMPLETE
+          expert: EXPERT
+          gold: GOLD
+          master: MASTER
+          novice: NOVICE
+          silver: SILVER
+      close: Close
+      empty_next: Next capsule in %{time}
+      face_down: Card %{position} of %{total}, face down. Reveal.
+      face_up: "%{card}, %{rarity}. See the card."
+      face_up_store: "%{card}, %{rarity}. Store the card."
+      failed: The opening did not go through. Check your connection or reload the
+        page, then try again.
+      hint_done:
+        one: Capsule inventoried · +%{n} card in the collection
+        other: Capsule inventoried · +%{n} cards in the collection
+      hint_remaining:
+        one: Click a card to reveal it · %{n} left
+        other: Click a card to reveal it · %{n} left
+      hint_swipe: Swipe the card to store it · or tap it
+      hint_tap: Tap the card to reveal it
+      in_reserve: In reserve
+      island_failed: The capsule could not be shown. Your cards are in your collection.
+      kicker: Capsule · Season %{number}
+      kicker_plain: Capsule
+      legendary_banner: "%{rarity}!"
+      next_at: 'Next capsule: %{time}'
+      next_in: "+1 in"
+      open: Open the capsule
+      open_next: Open the next one
+      refused_title: Opening cancelled
+      reload: Reload
+      repost: Repost
+      repost_card: Repost %{card}
+      repost_failed: The repost did not go through. Check your connection, then try
+        again.
+      reposted: Card reposted to the feed.
+      reserve: Reserve
+      reserve_count:
+        one: "%{n} capsule"
+        other: "%{n} capsules"
+      reserve_empty: Reserve empty
+      reserve_full: Reserve full
+      result: Capsule result
+      reveal_all: Reveal all
+      revealed_count: 'Cards revealed: %{revealed} / %{total}'
+      see_card: See the card
+      state: State
+      states:
+        arming: Arming
+        complete: Inventory complete
+        ejecting: Ejection
+        inventory: Inventory
+        legendary_signal: Legendary signal
+        sealed: Sealed
+        waiting: Waiting
+      store: Store
+      strip_title: Season %{number} · Grand catalogue
+      strip_title_plain: Grand catalogue
       summary:
-        title: "Public profile"
-        cards:
-          zero: "%{count} cards"
-          one: "%{count} card"
-          other: "%{count} cards"
-        showcase: "Showcase"
-        visibility:
-          public: "Visible to every player"
-          friends_only: "Visible to your friends only"
-          private: "Private profile: only you can see it"
-          private_short: "Only you can see it"
-    private_dialog:
-      title: "Go private?"
-      text:
-        zero: "Going private cancels none of your trades."
-        one: "Going private cancels your open trade."
-        other: "Going private cancels your %{count} open trades."
-      confirm: "Go private"
-      cancel: "Cancel"
-      close: "Close"
+        one: "%{n} card revealed: %{tiers}."
+        other: "%{n} cards revealed: %{tiers}."
+      summary_tier: "%{rarity} × %{n}"
+      title: Grand catalogue
+      tray: Stored cards
+      tray_count: "%{n} / %{total}"
+      tray_label: Card
+      tray_slot: "%{card}, %{rarity}. Enlarge."
+      zoom_line: "%{rarity} · %{year}"
+      zoom_next: Next card
+      zoom_previous: Previous card
+      zoom_tip: Hold the card to tilt it
+    show:
+      title: Capsule opening
+  card_details:
+    copies:
+      one: "%{count} copy"
+      other: "%{count} copies"
+    editions_line: "%{rarity}: %{seasons}"
+    editions_more:
+      one: "%{count} more rarity"
+      other: "%{count} more rarities"
+    facts:
+      copies: Copies
+      editions: Editions
+      genre: Genre
+      pioneer: Pioneer
+      publisher: Publisher
+      rarity: Rarity
+      season: Season
+      sets: Sets
+      steam_reviews: Steam reviews
+      year: Year
+    kicker: Card file
+    next: Next card
+    no_copies: None
+    no_editions: None
+    open: "%{title}, %{year}, %{rarity}, season %{season}"
+    open_not_owned: "%{title}, %{year}, %{rarity}, season %{season}, not owned"
+    pioneer:
+      anonymous: An anonymous player
+      dated: on %{date}
+    position: "%{position} / %{total}"
+    preview:
+      description: 'A card of Gameble, your Steam games as collectible cards. Sign
+        in through Steam: ten capsules wait for you.'
+      title: "%{title} — %{rarity}"
+    previous: Previous card
+    season_number: Season %{number}
+    season_short: S%{number}
+    share:
+      button: Share
+      close: Close
+      copied: Link copied
+      copy: Copy
+      manual: Press Ctrl+C to copy
+      note: The link's preview shows the card's title and rarity, without the game's
+        image.
+      public_page: See the public page
+      title: Share the card
+      url: Link to this card
+    steam_reviews:
+      one: "%{percent} positive · %{reviews} review"
+      other: "%{percent} positive · %{reviews} reviews"
+    store: See on Steam
+    swipe: swipe to browse
+  cards:
+    face:
+      image_missing: Image unavailable
+    show:
+      booster: Capsule
+      grid: Grid
+      invitation: Open capsules, complete sets, trade with your friends.
+      legal: Legal notice
+      live:
+        title: Right now on Gameble
+      pitch_title: Your Steam games, as collectible cards.
+      profile: Profile
+      sign_in: Open my first capsules
+      update_browser: Your browser is too old to sign in to Gameble. Update it to
+        play.
+  catalog:
+    hall_of_fame:
+      intouchables: The Untouchables
+      mal-aimes: The Unloved
+      pepites: Hidden Gems
+      phenomenes: The Phenomena
+    rarity:
+      common: Common
+      epic: Epic
+      legendary: Legendary
+      rare: Rare
+      uncommon: Uncommon
+    sets:
+      ufos: The UFOs
+  daily_bonuses:
+    create:
+      collected: A capsule joins your reserve. The next one will be ready on %{time}.
+      throttled: Too many attempts in a minute. Try again in a moment.
+  date:
+    abbr_month_names:
+    -
+    - Jan
+    - Feb
+    - Mar
+    - Apr
+    - May
+    - Jun
+    - Jul
+    - Aug
+    - Sep
+    - Oct
+    - Nov
+    - Dec
+    day_names:
+    - Sunday
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+    formats:
+      long_day: "%B %-d, %Y"
+      long_day_first: "%B %-d, %Y"
+      month_year: "%B %Y"
+    month_names:
+    -
+    - January
+    - February
+    - March
+    - April
+    - May
+    - June
+    - July
+    - August
+    - September
+    - October
+    - November
+    - December
+  errors:
+    accounts:
+      already_banned: That player is already banned, officer.
+      banned: This account has been suspended. You can no longer sign in.
+      cannot_ban_self: You cannot ban yourself, officer.
+      cannot_dismiss_self: You cannot dismiss the reports against you, officer.
+      cannot_report_self: You cannot report your own profile.
+      export_too_soon: One export every 5 minutes at most. Try again in a few minutes.
+      invalid_reason: Choose a reason to send the report.
+      invalid_role: 'That role does not exist: player, moderator or administrator.'
+      invalid_setting: That setting could not be saved. Reload the page and try again.
+      invalid_steam_id: Your Steam ID could not be read. Sign in again.
+      no_longer_idle: 'That player is no longer idle: their account is not deleted.'
+      no_open_reports: That player has no open report left, officer.
+      not_banned: That player is not banned, officer.
+      outranked: 'That player''s rank is equal to or above yours, officer: you cannot
+        act on them.'
+      player_not_found: That profile could not be found.
+      player_required: Sign in with an active account to do that.
+      rate_limited: You have sent many reports today. Try again tomorrow.
+      reason_required: Give the reason for the ban, officer.
+      reason_too_long: The reason for a ban holds 500 characters at most, officer.
+      sign_in_failed: The sign-in failed on our side. Try again in a moment.
+      staff_required: Only the moderation team can do that.
+    catalog:
+      already_numbered: The cards of that season are numbered already, officer.
+      at_edge: That entry cannot move any further that way, officer.
+      empty_season: The draft season holds no card yet, officer. Run an import first.
+      empty_tier: The draft season is too small to fill all five rarities, officer.
+        Import more games first.
+      invalid_card: 'The scribes cannot enter that card in the ledger: its particulars
+        are incomplete or out of order.'
+      invalid_direction: An entry of the roadmap moves only up or down, officer.
+      invalid_status: That status is not one of the roadmap's, officer.
+      invalid_tag: That is not a Steam tag the ledgers know, officer.
+      invalid_theme_name: A theme needs a name in French and in English, of 60 characters
+        at most, officer.
+      invalid_wording: Each wording needs some text, in French and in English, of
+        %{limit} characters at most, officer.
+      missing_text: The scribes need the card's title in every tongue of the Brotherhood
+        before it can enter the ledger.
+      mixed_score_versions: The draft season's cards were scored by more than one
+        prestige formula, officer, so the rarities would be cut on mismatched scales.
+        Open the latest import and press "Rescore the cards", then publish once its
+        pass completes.
+      no_draft: There is no draft season to publish, officer.
+      no_published_season: No published season bears that number, officer.
+      staged_batch_waiting: Staged cards wait beside the draft season, officer. Promote
+        them or discard them before publishing.
+      stale_draft: That draft is no longer the one in the ledgers, officer. Reload
+        the page and look again.
+      story_not_found: That story is no longer on the roadmap, officer.
+      ufo_share_over_limit: The UFOs hold %{share} of the draft season's cards, officer,
+        above the %{limit} allowed. Attach more tags to themes on the themes page
+        and rescore the latest import, then publish.
+      unclassified_tags:
+        one: "%{count} tag of the draft season's cards is not classified yet, officer.
+          Attach it to a theme or dismiss it on the themes page, then publish."
+        other: "%{count} tags of the draft season's cards are not classified yet,
+          officer. Attach them to a theme or dismiss them on the themes page, then
+          publish."
+        zero: No tag is left to classify, officer.
+      unfilled_sources: 'Some cards of the draft season were imported before their
+        sources were stored, officer: a genre from before themes or no review count.
+        Published, they would land in the UFOs and leave the franchise, studio and
+        hall of fame sets short, unseen. Run steam:fill_card_sources, then publish.'
+    game:
+      already_collected: You have already collected today's capsule. The next one
+        will be ready on %{time}.
+      already_friends: You are already friends.
+      already_sent: Invitation already sent.
+      card_already_showcased: This card is already in your showcase.
+      card_not_owned: You do not own this card.
+      card_not_showcased: This card is not in your showcase.
+      friend_profile_private: "%{name}'s profile is private: trades are closed."
+      insufficient_copies: 'You do not have enough free copies of an offered card:
+        some are already in another trade.'
+      invalid_format: 'Expected format: ABCD-1234.'
+      invalid_idempotency_key: The opening request was malformed. Reload the page
+        and try again.
+      invalid_offer: Offer at most four different cards, with a quantity of at least
+        one each.
+      invalid_request: Ask for one to four different cards, with a quantity of at
+        least one each.
+      invalid_time: The time sent could not be read. Reload the page.
+      no_pack_available: Your reserve is empty. The next capsule is on its way.
+      no_season: No season of cards is open yet. Come back later for the daily capsule.
+      not_a_friend: This player is not one of your friends.
+      not_allowed: That is not yours to do in this trade.
+      not_found: That invitation is no longer there.
+      not_friends: You can only trade with a friend.
+      own_code: That is your own code.
+      own_link: That is your own link.
+      own_profile_private: 'Your profile is private: trades are closed.'
+      player_required: Sign in with an active account to do that.
+      position_out_of_range: The showcase has no such place.
+      request_exceeds_holdings: Your friend does not hold that many copies of a card
+        you asked for.
+      requested_cards_unavailable: 'Not enough copies: a card asked for is no longer
+        available. Nothing moved.'
+      reserve_full: 'Your reserve is full: open a capsule to collect today''s.'
+      reward_already_claimed: You have already collected this rare capsule.
+      reward_no_season: No card season is open. Come back later for your rare capsule.
+      reward_not_earned: No rare capsule waits for you for that week.
+      reward_reserve_full: 'Your reserve is full: open a capsule to collect your rare
+        capsule.'
+      showcase_edge: This card cannot move any further.
+      showcase_full: 'Showcase full: remove a card to add another.'
+      trade_already_open: You already have an open trade with this friend. Settle
+        it first.
+      trade_changed: This trade changed since you opened it. Check its new terms,
+        then answer again.
+      trade_expired: 'That trade has expired: its 7 days are over.'
+      trade_not_expired: That trade has not expired yet.
+      trade_not_found: That trade could not be found.
+      trade_not_open: That trade is already closed.
+      trade_side_empty: 'Nothing to receive yet: choose what you want from %{name}''s
+        collection, then send it back.'
+      unknown_code: No player has that code.
+      unknown_direction: Unknown direction.
+      unknown_player: This invitation link is not valid.
+    steam:
+      already_published: The cards of that run are already published in a season,
+        officer. Start a new import to fill the next draft.
+      cursor_moved: That page of the import was already copied.
+      empty_batch: That run staged no card, officer. Discard it.
+      invalid_claimed_id: Steam's answer was not recognised. Sign in again.
+      not_abandonable: Only a halted import can be abandoned, officer.
+      not_completed: Only a completed or promoted import run can be rescored, officer.
+      not_found: The scribes find no such import run in the ledgers.
+      not_latest: Only the latest import run can be resumed, rescored or abandoned,
+        officer.
+      not_ready: Only a finished import awaiting promotion can be promoted or discarded,
+        officer.
+      not_resumable: Only a halted import can be resumed, officer.
+      not_running: That import is not under way.
+      run_awaiting_promotion: A finished import waits for promotion, officer. Promote
+        its cards or discard them first.
+      run_in_progress: An import is already under way, officer. Let it finish, or
+        wait for it to halt, before starting another.
+      sign_in_failed: The sign-in through Steam did not go through. Try again.
+      stale_batch: 'The season that run began on was published since, officer. Its
+        staged cards are thrown away: start a new import.'
+  external_links:
+    new_tab: "(new tab)"
   feeds:
     show:
-      title: "Activity feed"
-      more: "More"
-      empty: "Nothing here yet."
-      empty_filter: "Nothing in this filter yet."
-      tabs_label: "Whose events"
-      tabs:
-        all: "All"
-        friends: "Friends"
-      no_friends: "Add friends to follow their pulls."
-      add_friends: "Add friends"
-      filters_label: "Filter by type"
-      filters:
-        all: "Everything"
-        pulls: "Pulls"
-        discoveries: "Discoveries"
-        trades: "Trades"
-        reposts: "Reposts"
-      nameless: "Nameless player"
-      pulled_html: "%{name} pulled %{card}"
-      first_discovery: "First discovery"
+      add_friends: Add friends
+      announcement:
+        one: 1 new entry in the feed.
+        other: "%{count} new entries in the feed."
+        zero: No new entries in the feed.
       discovered_html: "%{card}, found by %{name} for the first time in the community"
+      empty: Nothing here yet.
+      empty_filter: Nothing in this filter yet.
+      filters:
+        all: Everything
+        discoveries: Discoveries
+        pulls: Pulls
+        reposts: Reposts
+        trades: Trades
+      filters_label: Filter by type
+      first_discovery: First discovery
+      more: More
+      nameless: Nameless player
+      no_friends: Add friends to follow their pulls.
+      pulled_html: "%{name} pulled %{card}"
+      repost_tag: Repost
       reposted_html: "%{name} reposted %{card}."
-      repost_tag: "Repost"
-      traded_html: "%{name} and %{partner} traded %{card} for %{partner_card}"
-      trade_tag: "Trade"
       set_reached:
-        bronze_html: "%{name} reaches bronze in the %{set} set."
-        silver_html: "%{name} reaches silver in the %{set} set."
-        gold_html: "%{name} reaches gold in the %{set} set."
-        novice_html: "%{name} reaches the Novice tier in the %{set} set."
-        apprentice_html: "%{name} reaches the Apprentice tier in the %{set} set."
         adept_html: "%{name} reaches the Adept tier in the %{set} set."
-        expert_html: "%{name} reaches the Expert tier in the %{set} set."
-        master_html: "%{name} reaches the Master tier in the %{set} set."
+        apprentice_html: "%{name} reaches the Apprentice tier in the %{set} set."
+        bronze_html: "%{name} reaches bronze in the %{set} set."
         complete_html: "%{name} completes the %{set} set."
+        expert_html: "%{name} reaches the Expert tier in the %{set} set."
+        gold_html: "%{name} reaches gold in the %{set} set."
+        master_html: "%{name} reaches the Master tier in the %{set} set."
+        novice_html: "%{name} reaches the Novice tier in the %{set} set."
+        silver_html: "%{name} reaches silver in the %{set} set."
       sets_reached_html:
-        zero: "%{name} reaches %{count} tiers · %{set} %{tier}"
         one: "%{name} reaches %{count} tier · %{set} %{tier}"
         other: "%{name} reaches %{count} tiers · %{set} %{tier}"
+        zero: "%{name} reaches %{count} tiers · %{set} %{tier}"
+      tabs:
+        all: All
+        friends: Friends
+      tabs_label: Whose events
       tiers:
-        bronze: "Bronze"
-        silver: "Silver"
-        gold: "Gold"
-        novice: "Novice"
-        apprentice: "Apprentice"
-        adept: "Adept"
-        expert: "Expert"
-        master: "Master"
-        complete: "Complete"
-      announcement:
-        zero: "No new entries in the feed."
-        one: "1 new entry in the feed."
-        other: "%{count} new entries in the feed."
-  friends:
-    public_profile:
-      label: "See the profile"
-      named: "See %{name}'s profile"
-    collection_link:
-      label: "See the collection"
-      named: "See %{name}'s collection"
+        adept: Adept
+        apprentice: Apprentice
+        bronze: Bronze
+        complete: Complete
+        expert: Expert
+        gold: Gold
+        master: Master
+        novice: Novice
+        silver: Silver
+      title: Activity feed
+      trade_tag: Trade
+      traded_html: "%{name} and %{partner} traded %{card} for %{partner_card}"
+  friend_profiles:
     show:
-      title: "Friends"
-      more: "More"
-      code_label: "Your friend code"
-      empty: "No friends yet."
-      empty_invite: "Invite one with your link or your code."
-      nameless: "Nameless player"
-      invite: "Invite a friend"
-      by_link: "By link"
-      copy: "Copy"
-      copied: "Copied ✓"
-      manual: "Copy the link by hand."
-      add_by_code: "Add with a code"
-      add: "Add"
-      invitations: "Invitations"
-      friends: "Friends"
-      no_invitations: "No invitation pending."
+      trade: Trade
+    unavailable:
+      body: This profile is not available.
+  friends:
+    collection_link:
+      label: See the collection
+      named: See %{name}'s collection
+    friend_row:
+      see_profile_of: See the profile of %{name}
+      trade: Trade
+      trade_with: Trade with %{name}
+    more_actions:
+      menu: More actions for %{name}
+      remove: Remove
+      remove_friend: Remove %{name} from your friends
+      report: Report
+      report_player: Report %{name}
+    profile_dialog:
+      close: Close
+      loading: Loading the profile…
+      title: Profile
+    public_profile:
+      label: See the profile
+      named: See %{name}'s profile
+    remove_dialog:
+      cancel: Cancel
+      close: Close
+      confirm: Remove
+      text: "%{name} leaves your friends and you leave theirs. No message is sent;
+        either of you can invite the other again."
+      title: Remove %{name}?
+      trade: Your trade in progress with %{name} is cancelled and its cards are freed.
+    removed:
+      text: "%{name} is no longer one of your friends."
+      title: Friend removed
+    show:
+      accept: Accept
+      add: Add
+      add_by_code: Add with a code
+      by_link: By link
+      cancel: Cancel
+      cancel_invitation_to: Cancel the invitation to %{name}
+      code_label: Your friend code
+      copied: Copied ✓
+      copy: Copy
+      empty: No friends yet.
+      empty_invite: Invite one with your link or your code.
+      friends: Friends
+      ignore: Ignore
+      invitations: Invitations
+      invite: Invite a friend
       invites_you: "%{name} invites you"
-      sent_to: "Sent to %{name}"
-      pending: "Pending"
-      accept: "Accept"
-      ignore: "Ignore"
-      cancel: "Cancel"
-      cancel_invitation_to: "Cancel the invitation to %{name}"
+      manual: Copy the link by hand.
+      more: More
+      nameless: Nameless player
+      no_invitations: No invitation pending.
+      pending: Pending
       presence:
-        online: "Online"
-        offline: "Offline"
-        private: "Private profile"
-        minutes_ago:
-          one: "%{count} min ago"
-          other: "%{count} min ago"
-        hours_ago:
-          one: "%{count} h ago"
-          other: "%{count} h ago"
+        activities:
+          collecting_daily: Collecting the daily capsule
+          making_friends: Making friends
+          opening_pack: Opening a capsule
+          trading: Negotiating a trade
         days_ago:
           one: "%{count} day ago"
           other: "%{count} days ago"
-        activities:
-          opening_pack: "Opening a capsule"
-          collecting_daily: "Collecting the daily capsule"
-          trading: "Negotiating a trade"
-          making_friends: "Making friends"
-    friend_row:
-      see_profile_of: "See the profile of %{name}"
-      trade: "Trade"
-      trade_with: "Trade with %{name}"
-    more_actions:
-      menu: "More actions for %{name}"
-      report: "Report"
-      report_player: "Report %{name}"
-      remove: "Remove"
-      remove_friend: "Remove %{name} from your friends"
-    profile_dialog:
-      title: "Profile"
-      close: "Close"
-      loading: "Loading the profile…"
-    remove_dialog:
-      title: "Remove %{name}?"
-      text: "%{name} leaves your friends and you leave theirs. No message is sent; either of you can invite the other again."
-      trade: "Your trade in progress with %{name} is cancelled and its cards are freed."
-      confirm: "Remove"
-      cancel: "Cancel"
-      close: "Close"
-    removed:
-      title: "Friend removed"
-      text: "%{name} is no longer one of your friends."
-    throttled: "Too many removals in a minute. Try again in a moment."
-  friend_profiles:
-    show:
-      trade: "Trade"
-    unavailable:
-      body: "This profile is not available."
+        hours_ago:
+          one: "%{count} h ago"
+          other: "%{count} h ago"
+        minutes_ago:
+          one: "%{count} min ago"
+          other: "%{count} min ago"
+        offline: Offline
+        online: Online
+        private: Private profile
+      sent_to: Sent to %{name}
+      title: Friends
+    throttled: Too many removals in a minute. Try again in a moment.
+  goal_rewards:
+    create:
+      collected: Management thanks you for your contribution. A rare capsule has been
+        added to your reserve.
+      throttled: Too many attempts in a minute. Try again in a moment.
+      title: Goal reached
   invitations:
-    sent: "Invitation sent to %{to}."
-    cancelled: "Invitation cancelled."
-    throttled: "Too many attempts in a minute. Try again in a moment."
+    cancelled: Invitation cancelled.
     new_friend:
-      title: "New friend"
       text: "%{name} is now one of your friends."
-  achievements:
-    unlocked:
-      title: "Achievement unlocked"
-    names:
-      first_booster: "First capsule"
-      first_epic: "First Epic"
-      first_legendary: "First Legendary"
-      first_complete_set: "First complete set"
-      first_trade: "First trade"
-      boosters_10: "10 capsules"
-      boosters_100: "100 capsules"
-      boosters_500: "500 capsules"
-      three_complete_sets: "Three complete sets"
-      first_repost: "First repost"
-    show:
-      title: "Achievements"
-      more: "More"
-      summary:
-        one: "%{earned} achievement earned out of %{total}"
-        other: "%{earned} achievements earned out of %{total}"
-      earned_label: "Achievements earned"
-      groups:
-        earned: "Earned · %{count}"
-        to_earn: "To earn · %{count}"
-      progress: "%{progress} of %{threshold}"
-    conditions:
-      first_booster: "Open a capsule"
-      first_epic: "Get an Epic card"
-      first_legendary: "Get a Legendary card"
-      first_complete_set: "Complete a set"
-      first_trade: "Complete a trade"
-      boosters_10: "Open 10 capsules"
-      boosters_100: "Open 100 capsules"
-      boosters_500: "Open 500 capsules"
-      three_complete_sets: "Complete 3 sets"
-      first_repost: "Repost a card"
+      title: New friend
+    sent: Invitation sent to %{to}.
+    throttled: Too many attempts in a minute. Try again in a moment.
   invite_links:
     show:
-      title: "%{name} invites you"
-      heading: "Invitation"
+      already_friends: You and %{name} are already friends.
+      already_invited: Invitation already sent to %{name}.
+      heading: Invitation
       invites_you: "%{name} invites you to be friends."
-      send_text: "Send an invitation to %{name}; they will accept or ignore it."
-      sign_in_text: "Sign in with Steam first; you will come back to this invitation."
-      sign_in: "Sign in"
-      send: "Send an invitation"
-      own_link: "This is your own link."
-      to_friends: "To your friends"
-      already_invited: "Invitation already sent to %{name}."
-      already_friends: "You and %{name} are already friends."
+      own_link: This is your own link.
+      send: Send an invitation
+      send_text: Send an invitation to %{name}; they will accept or ignore it.
+      sign_in: Sign in
+      sign_in_text: Sign in with Steam first; you will come back to this invitation.
+      title: "%{name} invites you"
+      to_friends: To your friends
     unknown:
-      title: "Invitation"
-      text: "This invitation link is not valid."
-  trades:
-    title: "Trades"
-    throttled: "Too many actions in one minute. Try again in a moment."
-    insufficient: "Not enough copies"
-    one_at_a_time:
-      title: "One trade at a time"
-      text: "A trade is already open with %{name}."
-    undo_dialog:
-      title: "Discard the changes?"
-      text: "What you changed will be lost, and %{name}'s proposal will come back as it was."
-      confirm: "Discard the changes"
-      keep: "Keep editing"
-      close: "Close"
-    list:
-      label: "Your trades"
-      back: "List"
-      empty: "No trades yet."
-      empty_invite: "Invite a friend to trade cards."
-      yours: "Waiting for you"
-      theirs: "Waiting for their answer"
-      recent: "Recently finished"
-      new: "New trade"
-    chooser:
-      title: "New trade"
-      line: "Choose the friend to trade with."
-      label: "Your friends"
-      trade: "Trade"
-      trade_with: "Trade with %{name}"
-      empty: "No friends yet."
-      empty_invite: "Invite one with your link or your code."
-    row:
-      what_for_what: "%{theirs} for %{yours}"
-      to_choose: "To choose"
-      expires:
-        one: "expires in %{count} d"
-        other: "expires in %{count} d"
-    chip:
-      yours: "Your turn"
-      theirs: "Waiting"
-      concluded: "Done"
-      closed: "Closed"
-      editing: "Editing"
-      draft: "Draft"
-    outcome:
-      accepted: "done %{age}"
-      declined: "declined %{age}"
-      cancelled: "cancelled %{age}"
-      expired: "expired %{age}"
-    age:
-      now: "just now"
+      text: This invitation link is not valid.
+      title: Invitation
+  landings:
+    show:
+      boarding:
+        label: '09 · Boarding'
+        line: They are in your reserve from your first sign-in.
+        reserve: 'Reserve: 10 / 10'
+        title: Ten capsules await you.
+      brotherhood:
+        goal:
+          ends: Ends %{time}. The next goal opens right away.
+          kicker: This week
+          local_time: ", local time"
+          participants:
+            one: "%{count} participant"
+            other: "%{count} participants"
+            zero: "%{count} participants"
+          reached: 'Goal reached: every participant is rewarded.'
+          text: Every capsule opened and every trade concluded moves the same gauge.
+          title: One goal for all
+        label: 02 · The Brotherhood
+        lore:
+          call: The rest is written with you. The Brotherhood is looking for narrators
+            and scribes to bring its story to life.
+          kicker: Archive 001
+          link: Take part in the writing
+          story:
+            archive: To guarantee their safety, the Brotherhood copies every recovered
+              game onto an archive card, in a format it alone can read. You receive
+              them in capsules, sealed, in accordance with the procedure in force.
+            recovery: Recovering a lost game takes years of patience and archives
+              to match. The Great Brotherhood of Gameblers has both, and places them
+              at the disposal of all its members.
+            thanks: The Brotherhood thanks you in advance for your diligence. It will,
+              as always, be rewarded.
+          title: The Brotherhood's chronicle
+        subtitle: Your presence is more than necessary. The Brotherhood moves forward
+          together, week after week, and its story is written with its members.
+        tiles:
+          contribute:
+            completed: Inès completes the Dark Souls set.
+            reposted: Nina reposted Hades.
+            text: 'Notable pulls, discoveries, trades, completed sets: everything
+              shows there, live.'
+            title: Contribute
+          discover:
+            chip: First discovery
+            text: 'Draw a game before anyone else: the Brotherhood will remember it.'
+            title: Discover
+          share:
+            tag: Repost
+            text: A fine card deserves to be seen. Repost it in the feed and show
+              off your finds.
+            title: Share
+          trade:
+            text: Your duplicates make a friend happy. Propose, counter, conclude.
+            title: Trade
+        title: The Great Brotherhood of Gameblers
+      concept:
+        all_cards: See every card
+        cards_label: The five rarities, from the most common to the rarest
+        label: 01 · Concept
+        notes:
+          alive:
+            text: The rarer the card, the more it comes alive.
+            title: Rarer, livelier
+          rarities:
+            text: From the most common to the legendary.
+            title: Five rarities
+          seasons:
+            text: Every season, rarities are calculated anew.
+            title: One rarity per season
+        per_card: "%{percent} per card"
+        subtitle: 'Games are hand-picked and imported on one simple principle: the
+          more popular a game, the rarer its card.'
+        title: Every card is a Steam game.
+      description: Every card is a Steam game. Open capsules, complete sets, trade
+        with friends and join the Brotherhood in its search for lost games. Free to
+        play.
+      footer:
+        credits: Credits
+        how_it_works: How it works
+        legal: Legal notice
+        notice: Gameble is affiliated with neither Steam nor Valve. The illustrations
+          belong to the games' publishers and their artists.
+        source: Source code
+        source_hint: "(GitHub, new tab)"
+        support: Support
+      free:
+        label: '08 · A free game'
+        open: Gameble is free and open. Everyone plays on equal terms, and anyone
+          can see how it works.
+        respect: Your data is neither sold nor exploited. No advertising comes between
+          you and your cards.
+        support:
+          button: Support
+          hint: "(donation site, new tab)"
+          kicker: Support Gameble
+          line: To keep running, the project needs support.
+          text: If you enjoy Gameble, you can help it.
+        title: A free game that respects you.
+      gauge:
+        label: Position on the page
+      hero:
+        embark: Board the bridge
+        embark_label: Board the bridge, sign in through Steam
+        hook: Games have been lost. The Brotherhood sets out to find them. Join it.
+        kicker: Mission in progress
+        lamp:
+          found: Found
+          mode:
+            auto: "· Auto sweep"
+            manual: "· Manual sweep"
+            still: "· All revealed"
+          readout: Games found
+        line: Gameble is a collectible card game built on the public library of Steam
+          games.
+        marker: 00 · Mission
+      how:
+        accumulate:
+          next: Next capsule in
+          text: Capsules arrive in your reserve over time, even while you are away.
+          title: Gather capsules
+        discover:
+          announcement: 'Card revealed: %{title} — %{details}. %{rarity}.'
+          restart: Start over
+          reveal: Reveal
+          text: A capsule holds five face-down cards. Turn them over to discover them.
+          title: Discover new cards
+        grow:
+          set: Roguelike set · in progress
+          text: Every card joins your collection. Complete sets, trade your duplicates
+            with your friends.
+          title: Grow your collection
+        join:
+          badge: New member
+          text: Sign in and your account is created automatically with Steam.
+          title: Join it
+        label: 03 · How it works
+        subtitle: Open, reveal, collect, trade. These four gestures are all you need
+          to advance the Brotherhood's mission.
+        title: Long work awaits you.
+      live:
+        empty: No activity yet.
+        facts:
+          discoveries: First discoveries this week
+          packs: Capsules opened today
+          players: Active players this week
+        feed: Activity feed
+        label: 04 · Live
+        open_feed: Open the activity feed
+        season: Current season
+        season_name: Season %{number} · Grand catalogue
+        subtitle: The latest entries of the activity feed, and the current season.
+        title: The Brotherhood is playing right now.
+      open_source:
+        label: 07 · Open source and contributions
+        license: Free license. Every contribution is reviewed by the author.
+        open_role: Open position
+        project: See the project
+        project_hint: "(GitHub, new tab)"
+        recruiting: We are recruiting people devoted to the Brotherhood.
+        roles:
+          artists:
+            text: Music, sounds, card backs, illustrations… The list is long. It awaits
+              talented people.
+            title: Artists
+          developers:
+            text: The code is open. Anyone can propose a fix or an idea, whatever
+              it may be.
+            title: Developers
+          narrators:
+            text: A voice, characters, a story that moves forward week after week.
+              We need you to chronicle the Brotherhood's landmark events.
+            title: Narrators and scribes
+        subtitle: The code is entirely free and anyone can contribute to the project.
+          Tedious tasks are done by AI; the rest is built by humans, for humans.
+        title: Open source and built with AI.
+      roadmap:
+        all: See the whole roadmap
+        label: 06 · Roadmap
+        line_label: Roadmap milestones, from the oldest to the most distant
+        statuses:
+          done: Done
+          in_progress: In progress
+          to_come: To come
+        subtitle: The collection is built with the community, and so is the game.
+        title: A look at what comes next.
+      structured_data:
+        genre: Trading card game
+      title: Gameble, a free trading card game of Steam games
+      unknown: "—"
+      unlock:
+        label: 05 · To do and to unlock
+        soon: Soon
+        subtitle: Sets to complete, friends to trade with, a shared goal every week.
+        tiles:
+          achievements:
+            first_legendary: First Legendary
+            first_pack: First capsule
+            first_set: First complete set
+            first_trade: First trade
+            text: First capsule, first Epic, first Legendary, first complete set,
+              first trade…
+            title: Achievements
+            to_earn: To earn
+          backs:
+            text: Your face-down cards wear the back of your choice. Meet goals to
+              unlock new ones.
+            title: Card backs
+          collection:
+            text: See at a glance the cards you are missing to complete your collection.
+            title: Collection
+            unique: Unique cards
+          goal:
+            reached: Reached
+            reward: Every participant received a capsule with at least one Epic.
+            text: Every Monday, a new goal for the whole Brotherhood. Every capsule
+              opened and every trade counts.
+            title: Community goal
+            week: Week 41
+          sets:
+            complete: Dark Souls
+            in_progress: Roguelike
+            stamp: Complete
+            text: Themes, franchises, studios, hall of fame and UFOs. Collect them
+              all and advance set tiers to unlock rewards.
+            title: Sets and tiers
+          trades:
+            gives: Léa gives
+            text: Trade the cards you do not care about for the ones that will give
+              you the collection of your dreams.
+            title: Trades between friends
+            you_give: You give
+        title: Enough to fill the hold.
+  layouts:
+    application:
+      application_name: Gameble
+      title: Gameble
+  library:
+    album:
+      search:
+        label: Search a game of this set by name
+        placeholder: Search a game
+      slots: Cards in the set
+      title: "%{set} · Collection · Gameble"
+    cards:
+      heading: All cards
+      title: All cards · Gameble
+    collection:
+      title: Collection
+    entry:
+      all_cards: All cards
+      found:
+        one: 1 set found
+        other: "%{count} sets found"
+        zero: No set found
+      in_progress: In progress
+      no_progress: No set in progress yet. Find one above.
+      none: No set found for “%{query}”.
+      results: Results
+      search: Find a set
+      search_button: Search
+    filters:
+      active: 'Active filters:'
+      apply: Apply
+      clear: Clear all
+      groups:
+        genre: Genre
+        rarity: Rarity
+        sets: Set
+        state: State
+      search:
+        label: Search by title or publisher
+        placeholder: Search a title or a publisher
+      set_kind: Kind
+      set_search:
+        label: Find a set
+      states:
+        all: All
+        duplicates: Duplicates
+        missing: Missing
+        new: New
+        owned: Owned
+      title: Filters
+    grid:
+      copies:
+        one: "%{number} copy"
+        other: "%{number} copies"
+      editions:
+        full:
+          one: "%{count} edition"
+          other: "%{count} editions"
+        short:
+          one: "%{count} ed."
+          other: "%{count} ed."
+      empty: Nothing matches these filters.
+      label: Cards
+      new: New
+      pages:
+        label: Pages of cards
+        next: Next page
+        page: Page
+        previous: Previous page
+        shown:
+          one: Card %{from} of %{total} shown.
+          other: Cards %{from} to %{to} of %{total} shown.
+          zero: No more cards shown.
+      past_the_end: 'No more cards here: the grid ends on an earlier page. Go back
+        to the last page.'
+      result:
+        one: 1 card shown.
+        other: "%{count} cards shown."
+        zero: No card shown.
+    report:
+      copies: Total cards
+      copies_count:
+        one: "%{number} card"
+        other: "%{number} cards"
+      duplicates: Duplicates
+      duplicates_count:
+        one: "%{number} duplicate"
+        other: "%{number} duplicates"
+      fold: "%{copies} · %{duplicates}"
+      title: Report
+      unique: Unique cards
+    seen:
+      throttled: Too many requests in a minute. Try again in a moment.
+    set_kinds:
+      franchise: Franchise
+      hall_of_fame: Hall of fame
+      studio: Studio
+      theme: Theme
+      ufo: UFO
+    set_progress:
+      complete: complete
+      count:
+        one: "%{owned} card out of %{total}"
+        other: "%{owned} cards out of %{total}"
+        zero: "%{owned} cards out of %{total}"
+      next: "%{tier} at %{required}"
+      tier: "%{tier} tier"
+      tiers:
+        adept: Adept
+        apprentice: Apprentice
+        bronze: Bronze
+        complete: Complete
+        expert: Expert
+        gold: Gold
+        master: Master
+        novice: Novice
+        silver: Silver
+    show:
+      no_season: No season of cards is published yet.
+    status:
+      label: 'Unique cards:'
+      progress:
+        one: "%{owned} unique card out of %{total}"
+        other: "%{owned} unique cards out of %{total}"
+  number:
+    format:
+      delimiter: ","
+      separator: "."
+    percentage:
+      format:
+        delimiter: ''
+        format: "%n%"
+    precision:
+      format:
+        delimiter: ''
+  packs:
+    create:
+      throttled: Too many openings in a minute. Try again in a moment.
+    show:
+      back_to_hub: Back to the bridge
+      cards: The cards of your capsule
+      heading: Your capsule
+      heading_bonus: Your daily capsule
+      open_booster: Open a capsule
+  pages:
+    credits:
+      balatro_dead_cells:
+        inspired: Fine pixel art laid over detailed material.
+        name: Balatro and Dead Cells
+      contributors:
+        code: Code
+        ideas_and_bug_reports: Ideas and bug reports
+        label: Contributors
+        rule: 'A contributor is added here when a pull request of theirs is merged
+          or an issue of theirs is accepted, with one broad contribution: code, writing
+          or ideas.'
+        title: Contributors
+        writing_and_ideas: Writing and ideas
+      hearthstone:
+        inspired: 'The structure of ornamental card backs: frame, medallion and corners.'
+        name: Hearthstone
+      helldivers:
+        inspired: The panels, the readouts and the mock-solemn tone.
+        name: Helldivers 2
+      intro: 'Gameble draws on the works below. They are inspirations, never affiliations:
+        none of them has anything to do with Gameble or endorses it.'
+      list_label: Inspirations
+      testers:
+        label: Beta testers
+        title: Beta testers
+      title: Credits
+      wikimasters:
+        inspired: The loop of collecting cards and showing them off.
+        name: WikiMasters
+    home:
+      daily:
+        collect: Collect
+        collected: Collected
+        full: Reserve full
+        full_text: Open a capsule to collect today's.
+        next_at: 'Next capsule: %{time}'
+        next_in: Next in
+        ready: Ready
+        text: A free capsule every day. It joins your reserve.
+        title: Daily capsule
+      goal:
+        collect: Collect
+        collect_label: Collect the reward capsule
+        collected: Collected
+        full_text: Open a capsule to collect your rare capsule.
+        line: The Brotherhood invites its members to join forces and open %{target}
+          capsules this week.
+        players: All players
+        previous_missed: 'Last week: %{total} / %{target} · goal missed'
+        previous_reached: 'Last week: %{total} / %{target} · goal reached'
+        progress: "%{total} contributions of %{target} this week"
+        reached: Goal reached
+        reward: Reward
+        reward_text: A rare capsule for every contributor
+        title: Community goal
+      kicker:
+        title: Command bridge
+      menu:
+        achievements: Achievements
+        achievements_meta:
+          one: "%{earned} achievement earned out of %{total}"
+          other: "%{earned} achievements earned out of %{total}"
+        all_cards: All cards
+        collection: Collection
+        collection_meta:
+          one: "%{owned} unique card out of %{total}"
+          other: "%{owned} unique cards out of %{total}"
+        feed: Activity feed
+        friends: Friends
+        friends_online:
+          one: "%{number} online"
+          other: "%{number} online"
+        how_it_works: How it works
+        label: Bridge menu
+        open_booster: Open a capsule
+        reserve:
+          one: "%{number} capsule in reserve"
+          other: "%{number} capsules in reserve"
+        reserve_empty: Reserve empty
+        support: Support
+        trades: Trades
+        trades_waiting:
+          one: "%{number} trade waiting for you"
+          other: "%{number} trades waiting for you"
+      sets:
+        see_all: See all
+        title: Sets in progress
+      showcase:
+        chosen_kicker: Showcase
+        empty:
+          open: Open a capsule
+          reserve_empty: Reserve empty
+          text: Your finest card will show here.
+          title: Open your first capsule
+        kicker: Latest acquisition
+        see_card: View the card
+      welcome:
+        close: Close
+        collection: All that remains is for you to build your collection.
+        founders: Once banished from Earth, video games were saved through the efforts
+          of our illustrious founders.
+        legacy: Today, the Great Brotherhood of Gameblers is honored to grant you
+          access to this legacy through cards randomly distributed in our capsules,
+          ensuring complete fairness among our members.
+        title: Welcome to Gameble
+        wishes: The Brotherhood wishes you excellent pulls.
+    how_it_works:
+      completion:
+        once: 'A completion is recorded only once: a card traded away and gained again
+          completes nothing new. Your profile counts the sets you hold complete right
+          now.'
+        rule: A set is complete when you hold all of its cards at the same time. Duplicates
+          count once, and a card counts in every set it belongs to.
+        title: Completing a set
+      daily:
+        content:
+          one: It holds %{count} card, never a %{common} one.
+          other: It holds %{count} cards, never a %{common} one.
+        full:
+          one: 'It is refused while your reserve holds %{count} capsule or more ready
+            to open: open one first.'
+          other: 'It is refused while your reserve holds %{count} capsules or more
+            ready to open: open one first.'
+        once: Once a day, a free capsule waits for you on the bridge. The day changes
+          at %{time}.
+        outside: It comes on top of the standard capsules, without counting toward
+          their limit and without delaying them.
+        title: The daily capsule
+      goal:
+        counts: Every capsule opened counts toward it, and so does every completed
+          trade, which makes both players contributors.
+        reward:
+          one: 'When the goal is reached, every player who contributed earns a reward
+            capsule: %{count} card, at least one of them %{rarity} or better. If you
+            contributed, you collect it on the hub while your reserve holds fewer
+            than %{full} capsules.'
+          other: 'When the goal is reached, every player who contributed earns a reward
+            capsule: %{count} cards, at least one of them %{rarity} or better. If
+            you contributed, you collect it on the hub while your reserve holds fewer
+            than %{full} capsules.'
+        title: The community goal
+        week: Every week, for seven days from %{time}, all players aim at one goal
+          together.
+      intro: The rules of the game, as it applies them.
+      local_time: ", local time"
       minutes:
-        one: "%{count} min ago"
-        other: "%{count} min ago"
-      hours:
-        one: "%{count} h ago"
-        other: "%{count} h ago"
+        one: "%{count} minute"
+        other: "%{count} minutes"
+      more: More
+      packs:
+        bonus: 'The daily capsule has better odds and never holds a %{common} card:'
+        chance: Chance per card
+        forced: 'When none of its cards is %{rarity} or better, one of them, at random,
+          is replaced by a card drawn with these odds:'
+        rarity: Rarity
+        regular:
+          one: 'A capsule holds %{count} card. Each card is drawn on its own: first
+            its rarity, with the odds below, then a game of that rarity. The same
+            card can therefore come up more than once.'
+          other: 'A capsule holds %{count} cards. Each card is drawn on its own: first
+            its rarity, with the odds below, then a game of that rarity. The same
+            card can therefore come up more than once.'
+        reward: 'The community goal''s reward capsule:'
+        tables:
+          bonus: Daily capsule
+          epic_or_better: Replacement card
+          regular: Standard capsule
+          reward: Reward capsule
+        title: Capsules and odds
+      rarity:
+        cut:
+          one: 'When a season is published, its cards are ranked this way, from the
+            most reviewed game to the least, then split into %{count} rarity in these
+            proportions:'
+          other: 'When a season is published, its cards are ranked this way, from
+            the most reviewed game to the least, then split into %{count} rarities
+            in these proportions:'
+        rule: The more reviews a game has on Steam, the rarer its card.
+        score: 'The review count alone ranks the games. The share of positive reviews
+          only orders games with exactly the same number of reviews: the better liked
+          one ranks higher.'
+        ties: Two games with the same number of reviews and the same share of positive
+          reviews always share a rarity, so the actual proportions can differ slightly
+          from these.
+        title: Rarity
+      seasons:
+        frozen: 'A season is drawn from Steam. Once it is published, the rarity, number
+          and sets of each of its cards are fixed: they no longer change during the
+          season.'
+        next: 'The next season reads Steam again: new games come in, scores are computed
+          again, and the same game''s rarity can change from one season to the next.'
+        title: Seasons
+      selection:
+        rule: Every card is a Steam game. A game becomes a card when it is a game
+          (not software, a demo or downloadable content), has a title, a release date
+          and a vertical image on Steam, and counts at least %{reviews} reviews.
+        seasons: 'Each new season reads Steam again: the games that meet these conditions
+          at that moment become its cards.'
+        title: Which games become cards
+      sets:
+        franchises:
+          one: 'Franchises: a series of at least %{count} game, its name usually in
+            their titles and not a studio''s or a publisher''s.'
+          other: 'Franchises: a series of at least %{count} games, its name usually
+            in their titles and not a studio''s or a publisher''s.'
+        hall_of_fame:
+          intro: 'The hall of fame, from the rating and the review count on Steam:'
+          row: "%{name}: %{rule}"
+          rules:
+            intouchables: very well-known games acclaimed almost unanimously;
+            mal-aimes: very well-known games with a mixed reception;
+            pepites: games acclaimed almost unanimously but still little known;
+            phenomenes: the games with a huge number of reviews.
+        intro: Each season groups its cards into sets, and a card can belong to several
+          of them.
+        studios:
+          one: 'Studios: at least %{count} game with the same lead studio, one of
+            them with at least %{reviews} reviews.'
+          other: 'Studios: at least %{count} games with the same lead studio, one
+            of them with at least %{reviews} reviews.'
+        themes:
+          one: 'Themes: %{count} theme groups games by genre, from their most-voted
+            Steam tags.'
+          other: 'Themes: %{count} themes group games by genre, from their most-voted
+            Steam tags.'
+        tiers: 'Every set has tiers by its size, then completion at 100 %. The last
+          tier before completion is always Master; the larger the set, the more tiers
+          below it: 3 to 4 cards, completion only; 5 to 9, Master at half; 10 to 19,
+          Expert at a third and Master at two thirds; 20 to 59, Adept at 25 %, Expert
+          at 50 % and Master at 75 %; 60 to 199, Apprentice at 10 %, Adept at 25 %,
+          Expert at 50 % and Master at 75 %; from 200, Novice at 10 %, Apprentice
+          at 25 %, Adept at 50 %, Expert at 75 % and Master at 90 %.'
+        title: Sets
+        ufos: "%{name}: the games that fit no theme."
+      timing:
+        bank:
+          one: At most %{count} standard capsule waits for you at a time, ready or
+            on its way.
+          other: At most %{count} standard capsules wait for you at a time, ready
+            or on their way.
+        refill: Standard capsules opened all at once are therefore all back within
+          %{minutes}.
+        replace: Each capsule opened is replaced %{minutes} after the last capsule
+          waiting, or after the opening when all of them were ready.
+        season: When a new season is published, the standard capsules you are missing
+          are given at once.
+        title: The pace of capsules
+      title: How it works
+    legal:
+      contact_fallback: the publisher
+      credits_link: Credits
+      ownership:
+        affiliation: Gameble is not affiliated with Valve or Steam, and is not endorsed
+          or sponsored by them. Steam and the Steam logo are trademarks of Valve Corporation.
+        artwork: All artwork belongs to the games' publishers and their artists, whom
+          we respect.
+        data: The games' names, covers and descriptions come from Steam and remain
+          the property of their rights holders. At a rights holder's request, the
+          game concerned is removed without delay.
+        title: Steam, Valve and the games
+      privacy:
+        controller: The controller of your data is Thomas Eyermann, publisher of Gameble.
+        controller_html: The controller of your data is Thomas Eyermann, publisher
+          of Gameble, reachable at %{contact}.
+        cookies: 'Gameble only uses strictly necessary cookies, exempt from consent:
+          the session cookie, which protects forms and keeps you signed in for 30
+          days after your last visit, or until you sign out, and the one that remembers
+          your reduced motion choice, for one year. Cloudflare may add a security
+          cookie that filters out bots. Your browser''s storage also keeps your trade
+          drafts and the interface''s state, on your device only. No advertising or
+          audience measurement trackers.'
+        deletion: When you delete your account, your Steam id, your profile name,
+          the time of your last visit, your last data export, your latest activity,
+          your collection, your showcase, your set tiers, your achievements, your
+          capsules, your daily bonuses, your community goal rewards, your friendships,
+          your invitations, your friend code and your activity feed entries are erased,
+          your open trades are cancelled and your profile disappears. What also concerns
+          other players, the community or moderation (past trades, first discoveries,
+          contributions to the community goal, reports, moderation history, the log
+          of game actions) is kept without your Steam id or your name, for the periods
+          given above.
+        nothing_else: No analytics, no ads, no real money. Your data is neither sold
+          nor handed over.
+        purposes:
+          game: 'running your account and the game (collection, capsules, trades,
+            friends, profile, activity feed): performance of the terms of use you
+            accept by signing in (GDPR Article 6(1)(b));'
+          intro: 'Why, and on what basis:'
+          moderation: 'moderating the community (reports, bans, moderation history):
+            the publisher''s legitimate interest in enforcing the rules and protecting
+            players (Article 6(1)(f));'
+          no_automation: No decision about you is made by automated means.
+          requests: 'answering your messages and your requests about your data: legal
+            obligation (Article 6(1)(c)).'
+          security: 'securing the site and fixing errors (server logs, abuse limiting,
+            error tracking, Cloudflare): legitimate interest in keeping the service
+            secure and working properly (Article 6(1)(f));'
+        retention:
+          account: 'your account, your game activity and your settings: as long as
+            the account exists; an account with no signed-in visit for three years
+            is deleted as if you had deleted it yourself, except those of moderators
+            and administrators;'
+          backups: 'the database backups, encrypted and kept in France: the last 7
+            daily backups, that is 7 days in normal times; a deleted account is gone
+            from them after 7 days, a little longer if a backup failed;'
+          banned_steam_id: 'the Steam id of a suspended account: as long as the suspension
+            lasts, to refuse a new sign-up;'
+          errors: 'technical errors received by Sentry: 30 days;'
+          intro: 'How long your data is kept:'
+          leftovers: 'what a deleted account leaves behind that concerns other players
+            or the community (past trades, first discoveries, contributions to the
+            community goal, the log of game actions): as long as the game exists,
+            without a Steam id or a name.'
+          logs: 'the server''s logs: 30 days;'
+          moderation: 'the moderation history, reasons included: a ban as long as
+            it lasts, then one year after it is lifted; a dismissal of reports, one
+            year; the history of a deleted account, until one year after the deletion;
+            the log of game actions keeps each decision''s date and the accounts concerned,
+            without the reason;'
+          reports: 'a report: until a moderator handles it, then one year; if it targets
+            an account deleted before it was handled, one year after the deletion;'
+        rights:
+          access: 'access: from the settings, with "Export" under "My data", which
+            downloads a copy of your data in a reusable file;'
+          authority: CNIL
+          banned_html: 'suspended account: it can no longer sign in; the reason for
+            the suspension is shown when you try to sign in; write to %{contact} to
+            contest the decision, obtain your data or have your account erased;'
+          complaint_html: 'complaint: to the %{authority}, the French data protection
+            authority.'
+          death_html: 'after your death: tell %{contact} who your data should be passed
+            on to or whether it should be erased;'
+          erasure: 'deletion: from the settings, with "Delete my account";'
+          intro: You can access your data, have it rectified or erased, restrict its
+            processing, object to processing based on legitimate interest and receive
+            a reusable copy of it. You can also say what becomes of your data after
+            your death. We reply within one month.
+          objection_html: 'objection: make your profile private in the settings, or
+            write to %{contact};'
+          rectification_html: 'rectification: your profile name follows your Steam
+            one and is read again at each sign-in; for anything else, write to %{contact};'
+        services:
+          cloudflare: 'Cloudflare, Inc. sits in front of the site to protect and speed
+            it up: it sees its requests, your IP address included, and processes them
+            in the United States among other places. This transfer relies on the European
+            Commission''s adequacy decision of 10 July 2023 (Data Privacy Framework),
+            to which Cloudflare adheres;'
+          images: card images load from Steam's content delivery network, which your
+            browser contacts directly.
+          intro: 'A few outside services take part:'
+          ovh: OVH SAS stores the database backups, encrypted before they leave the
+            server, so it cannot read them. Data hosted in France;
+          sentry: 'Sentry (Functional Software, Inc.) receives technical errors: the
+            page''s address and the one you came from, the browser used and its language,
+            and your internal player id, never your name or your Steam id. Your browser
+            also sends it the page''s security reports directly, with your IP address.
+            Data hosted in the European Union;'
+          steam: Steam (Valve) handles sign-in and provides your profile name;
+        stored:
+          activity: 'your game activity: cards, capsules, trades, friends and invitations,
+            friend code, activity feed entries;'
+          intro: 'To run the game, Gameble keeps:'
+          last_seen: the date your account was created, the time of your last visit,
+            and your last data export (its file and its time), kept until the next
+            one;
+          moderation: the reports you make, those aimed at your profile (their author
+            is not disclosed to you) and the moderation decisions that concern you,
+            with their reason;
+          settings: your settings (profile visibility, reduced motion);
+          steam: your Steam id and your Steam profile name;
+          technical: 'technical data: IP address and browser, in the server logs and
+            error tracking.'
+        title: Privacy
+        visibility: 'Your profile is public by default: your profile name, your collection
+          and your activity feed entries are visible to everyone, including visitors
+          who are not signed in. You can restrict it to your friends or make it private
+          in the settings. Gameble''s moderators can view any profile, whatever its
+          setting.'
+      publisher:
+        contact: Contact
+        host: Host
+        individual: Thomas Eyermann, a private individual, on a non-professional and
+          non-commercial basis, whose personal details are known to the host.
+        publisher: Publisher
+        title: Publisher and host
+      source:
+        link: Source code
+        text: 'Gameble''s code is free software under the GNU AGPL v3.0 license. Its
+          pixel art is under the Creative Commons BY-NC-SA 4.0 license: reusable with
+          credit, never for a commercial purpose. The Gameble name and logo remain
+          reserved.'
+        title: Source code
+      support:
+        link: Support
+        text: Gameble is free and will stay free. If you enjoy the game, you can help
+          pay for its hosting. Donations are optional and give no advantage in the
+          game. They go through Buy Me a Coffee, under its own terms. The publisher
+          receives whatever you choose to enter there (name, message).
+        title: Support Gameble
+      terms:
+        acceptance: By signing in with Steam, you accept these terms.
+        changes: These terms may change. A significant change is announced in the
+          game before it applies. The version in force is the one on this page.
+        fair_play: 'Play fair: no bots, scripts or automation, no multiple accounts,
+          no exploiting bugs.'
+        free: Gameble is a free game, with no ads and no purchases.
+        law: They are governed by French law.
+        moderation_html: Players can report a profile. Moderators review every report
+          and may suspend an account that breaks these rules. The decision is always
+          made by a person. A suspended player sees the reason for the decision when
+          trying to sign in and can contest it by writing to %{contact}.
+        no_guarantee: The service is free and provided as is. It may be interrupted
+          for maintenance or changed. Should it close for good, the closure would
+          be announced on the site at least 30 days in advance.
+        no_money: 'No real money flows through it: nothing is bought, nothing is sold.'
+        no_property: 'Cards, capsules and card backs are parts of the game: they are
+          not your property and have no value, neither in money nor outside Gameble.
+          No card may be sold or exchanged for money, in Gameble or outside it.'
+        notice_html: 'Even without a Gameble account, you can report illegal content
+          or ask for the removal of a game whose rights you hold: write to %{contact}
+          with the page''s address and the reason for your request.'
+        title: Terms of use
+      title: Legal notice and privacy
+      updated: 'Last updated: 20 October 2026'
+    more:
+      settings: Profile and settings
+      subtitle: The rest of the ship
+      title: More
+  public_profiles:
+    collection:
+      heading: Collection · %{name}
+      title: Collection · %{name} · Gameble
+    fallback_title: Player %{code}
+    set:
+      heading: "%{set} · %{name}"
+      title: "%{set} · %{name} · Gameble"
+    show:
+      accept: ACCEPT
+      accept_label: Accept the invitation from %{name}
+      achievements:
+        latest: Latest earned
+        title: Achievements
+      add_friend: ADD FRIEND
+      add_friend_label: Add %{name} as a friend
+      banned: 'Banned player: only staff can see this profile'
+      distinct_cards:
+        one: "%{count} card collected"
+        other: "%{count} cards collected"
+      keys:
+        achievements: Achievements
+        cards: Cards
+        complete_sets: Complete sets
+      member_since: Member since %{date}
+      no_season: No season of cards is published yet.
+      pending: PENDING
+      sets:
+        full_collection: See the full collection
+        started:
+          one: "%{count} set started"
+          other: "%{count} sets started"
+        title: Sets
+      showcase:
+        info: Drag the cards to change their order, or move a card one place with
+          the arrows under it.
+        info_label: How to change the order
+        move_failed: The new order could not be saved.
+        move_left: Move %{title} left
+        move_right: Move %{title} right
+        moved: "%{title} is now in place %{position} of %{count}."
+        title: Showcase
+      stats:
+        activity: Activity
+        first_discoveries: First discoveries
+        packs_opened: Capsules opened
+        rarities: Rarities
+        title: Statistics
+        trades_concluded: Trades concluded
+      trade: TRADE
+      trade_label: Trade with %{name}
+    title: "%{name}"
+    unavailable:
+      body: This profile is not available. The link leads nowhere, or its owner no
+        longer shows it.
+      title: Profile not available
+  rate_limit:
+    reading_throttled: Too many pages read in a minute. Try again in a moment.
+    throttled: Too many sign-in attempts. Try again in a minute.
+  reports:
+    create:
+      sent: Thank you. The moderation team will review this profile. The player will
+        not see who reported them.
+      throttled: Too many attempts in a minute. Try again in a moment.
+    dialog:
+      close: Close
+      legend: Why are you reporting this profile?
+      note: The moderation team will review this profile. The player will not see
+        who reported them.
+      submit: SEND THE REPORT
+      title: Report this profile
+    open: REPORT
+    reasons:
+      cheating: Cheating or abuse
+      harassment: Harassment
+      inappropriate_name: Inappropriate username
+      other: Other
+  reposts:
+    button: Repost
+    create:
+      not_found: This card does not exist.
+      reposted: Card reposted to the feed.
+      throttled: Too many reposts in a minute. Try again in a moment.
+  roadmaps:
+    show:
+      description: What is done, what is moving and what is next in Gameble, the free
+        trading card game where every card is a Steam game.
+      heading: What's coming
+      intro: What is done, what is moving, what is next. The collection is built with
+        the community, and so is the game.
+      kicker: Roadmap
+      rail_label: Roadmap milestones, from the oldest to the most distant
+      statuses:
+        done: Done
+        in_progress: In progress
+        to_come: Upcoming
+      title: Roadmap · Gameble
+  sessions:
+    banned:
+      contest_html: To contest this decision, write to %{contact}.
+      no_reason_html: To learn the reason for this suspension or contest it, write
+        to %{contact}.
+      reason_label: Reason given by the moderator
+      title: Account suspended
+    create:
+      welcome: Welcome to Gameble. Your capsules are waiting.
+    destroy:
+      farewell: You are signed out. Your collection will be waiting.
+  settings:
+    private_dialog:
+      cancel: Cancel
+      close: Close
+      confirm: Go private
+      text:
+        one: Going private cancels your open trade.
+        other: Going private cancels your %{count} open trades.
+        zero: Going private cancels none of your trades.
+      title: Go private?
+    show:
+      account:
+        delete: Delete my account
+        label: Account
+      data:
+        download: Download
+        export: Export
+        failed: The export did not go through. Check your connection, then try again.
+        label: My data
+        last_export: 'Last export:'
+        next_export: 'Next export:'
+        preparing: Preparing…
+        ready: A copy of your data is waiting, in a JSON file.
+        ready_title: Export ready
+        retry: Retry
+      language:
+        label: Language
+      legal: Legal notice
+      more: More
+      motion:
+        label: Reduced motion
+        'off': 'No'
+        'on': 'Yes'
+        system: System
+      session:
+        label: Session
+        sign_out: Sign out
+      summary:
+        cards:
+          one: "%{count} card"
+          other: "%{count} cards"
+          zero: "%{count} cards"
+        showcase: Showcase
+        title: Public profile
+        visibility:
+          friends_only: Visible to your friends only
+          private: 'Private profile: only you can see it'
+          private_short: Only you can see it
+          public: Visible to every player
+      support:
+        label: Support
+        link: Support
+      title: Profile and settings
+      visibility:
+        friends_only: Friends only
+        label: Profile visibility
+        private: Private
+        public: Public
+  shell:
+    live:
+      marker: Live
+    packs:
+      full: Reserve full
+      in_reserve:
+        one: "%{number} in reserve"
+        other: "%{number} in reserve"
+      label: Capsules
+      next_at: 'Next capsule: %{time}'
+      next_in: "+1 in"
+    player:
+      back_office: Back-office
+      fallback_name: Player
+      menu: Player menu
+      profile: My public profile
+      settings: Settings
+      sign_out: Sign out
+    rarity:
+      label: Rarities
+      legend: Rarities
+    screens:
+      achievements: Achievements
+      back_office: Back-office
+      booster: Capsule
+      card: Card
+      collection: Collection
+      feed: Feed
+      friends: Friends
+      how_it_works: How it works
+      legal: Legal notice
+      more: More
+      profile: Profile
+      set: Set
+      sets: Sets
+      trades: Trades
+    sign_in:
+      acceptance_html: By signing in you accept the %{terms} and acknowledge the %{privacy}.
+      privacy: privacy notice
+      terms: terms of use
+    steam_sign_in:
+      alt: Sign in through Steam (opens Steam)
+    tabs:
+      all_cards: All cards
+      booster: Capsule
+      collection: Collection
+      hub: Bridge
+      label: Main navigation
+      landing: Home
+      more: More
+      trades: Trades
+      trades_waiting:
+        one: "%{number} trade waiting for you"
+        other: "%{number} trades waiting for you"
+    toast:
+      close: Close
+      region: Notifications
+    top_bar:
+      back: Bridge
+      back_landing: Home
+      brand: Gameble
+      home: Gameble, command bridge
+      landing: Gameble, home page
+      motion_switch: Reduced motion
+      previous: 'Back:'
+    version:
+      label: Deployed version
+      legal: Legal notice
+  showcases:
+    add: Add to showcase
+    full: 'Showcase full: remove a card to add another.'
+    not_found: This card does not exist.
+    remove: Remove from showcase
+  time:
+    formats:
+      local_date_time_year: "%b %-d, %Y, %H:%M"
+      local_datetime: "%b %-d, %H:%M"
+      local_time: "%H:%M"
+      local_weekday_time: "%A %H:%M"
+  trades:
+    accepted:
+      text:
+        one: "%{cards} joins your collection."
+        other: "%{cards} join your collection."
+      title: Trade done
+    actions:
+      abandon: Abandon
+      accept: Accept
+      again: New trade with %{name}
+      cancel: Cancel the proposal
+      counter: Counter
+      decline: Decline
+      send: Send the proposal
+      send_counter: Send the counter-proposal
+      undo: Discard the changes
+    age:
       days:
         one: "%{count} d ago"
         other: "%{count} d ago"
+      hours:
+        one: "%{count} h ago"
+        other: "%{count} h ago"
+      minutes:
+        one: "%{count} min ago"
+        other: "%{count} min ago"
+      now: just now
     board:
-      heading: "Trade with %{name}"
-      expires_html: "Expires in %{days}"
+      choose: Choose the cards on each side.
+      closed: Trade closed.
+      concluded: Trade done.
       days:
         one: "%{count} d"
         other: "%{count} d"
+      editing: Change what you give and what you ask for, then send it back.
+      expires_html: Expires in %{days}
+      heading: Trade with %{name}
+      open_help: 'Leave this side empty: %{name} will choose what they want in return.'
+      open_request: "%{name} lets you choose. Take what you want from their collection,
+        then send it back."
+      send_reason: Place at least one card on %{name}'s side.
+      theirs: Waiting for %{name}'s answer.
+      valid: Valid for 7 days once sent
       yours: "%{name} proposes this trade to you."
-      theirs: "Waiting for %{name}'s answer."
-      concluded: "Trade done."
-      closed: "Trade closed."
-      editing: "Change what you give and what you ask for, then send it back."
-      choose: "Choose the cards on each side."
-      valid: "Valid for 7 days once sent"
-      send_reason: "Place at least one card on %{name}'s side."
-      open_help: "Leave this side empty: %{name} will choose what they want in return."
-      open_request: "%{name} lets you choose. Take what you want from their collection, then send it back."
-    side:
-      friend_gives: "%{name} gives"
-      friend_received: "%{name} received"
-      friend_offered: "%{name} offered"
-      you_give: "You give"
-      you_received: "You received"
-      for_friend_to_choose: "For %{name} to choose"
-      yours_to_choose: "Yours to choose"
-      cards:
-        one: "%{count} card"
-        other: "%{count} cards"
-      cards_copies:
-        one: "%{cards} · %{copies} copies"
-        other: "%{cards} · %{copies} copies"
-      copies_label: "Copies:"
-      reserved:
-        one: "Reserved"
-        other: "%{count} reserved"
-      quantity_label: "Copies of %{title}"
-      max: "/%{max}"
-      new: "New"
-      none:
-        title: "No card available."
-        none_owned: "You no longer hold any of these cards."
-        all_reserved: "Your copies are all reserved in other trades."
-        friend_none_owned: "%{name} no longer holds any of these cards."
-    actions:
-      accept: "Accept"
-      counter: "Counter"
-      decline: "Decline"
-      cancel: "Cancel the proposal"
-      send_counter: "Send the counter-proposal"
-      undo: "Discard the changes"
-      send: "Send the proposal"
-      abandon: "Abandon"
-      again: "New trade with %{name}"
+    cancelled:
+      open_text: "%{name} has nothing left to choose."
+      text: Your cards are no longer reserved.
+      title: Proposal cancelled
+    chip:
+      closed: Closed
+      concluded: Done
+      draft: Draft
+      editing: Editing
+      theirs: Waiting
+      yours: Your turn
+    chooser:
+      empty: No friends yet.
+      empty_invite: Invite one with your link or your code.
+      label: Your friends
+      line: Choose the friend to trade with.
+      title: New trade
+      trade: Trade
+      trade_with: Trade with %{name}
     closed:
-      settings: "SETTINGS"
+      settings: SETTINGS
+    declined:
+      text: Your answer was sent to %{name}.
+      title: Trade declined
+    insufficient: Not enough copies
     island:
       add:
-        friend: "Choose their cards"
-        own: "Place my cards"
+        friend: Choose their cards
+        own: Place my cards
+      note:
+        friend: Choose the cards, then how many copies to ask %{name} for.
+        own: Choose the cards, then the number of copies. A copy you place stays reserved
+          until the answer.
       picker:
-        friend: "Choose from %{name}'s collection"
-        own: "Place my cards"
+        friend: Choose from %{name}'s collection
+        own: Place my cards
       picker_short:
         friend: "%{name}'s cards"
-        own: "My cards"
-      note:
-        friend: "Choose the cards, then how many copies to ask %{name} for."
-        own: "Choose the cards, then the number of copies. A copy you place stays reserved until the answer."
+        own: My cards
       strings:
-        close: "Close"
-        place: "Place"
-        cancel: "Cancel"
-        remove: "Remove %{title}"
-        more: "One more copy"
-        fewer: "One copy fewer"
-        value_text: "%{count} of %{max}"
-        max_phone: "of %{max}"
         available:
-          zero: "none available"
-          one: "1 available"
+          one: 1 available
           other: "%{count} available"
+          zero: none available
+        cancel: Cancel
+        card_label: "%{title}, %{owned}"
+        chips:
+          friend:
+            duplicates: Their duplicates
+            missing: Missing from mine
+            shared: We both own
+          own:
+            available: Available
+            duplicates: My duplicates
+            missing: Missing from theirs
+        clear_filters: Clear filters
+        close: Close
+        compare_legend: Collections
+        fewer: One copy fewer
+        filters_active: 'Active filters:'
+        filters_title: Filters
+        limit_text: Remove a card before placing another.
+        limit_title: 4 cards at most
+        max_phone: of %{max}
+        more: One more copy
+        no_match: No card matches these filters. Clear them to see every card again.
+        owned:
+          one: 1 copy
+          other: "%{count} copies"
         picked: "%{cards} · %{copies} (4 cards at most)"
         picked_cards:
           one: "%{count} card"
@@ -1446,555 +2264,79 @@ en:
         picked_copies:
           one: "%{count} copy"
           other: "%{count} copies"
-        limit_title: "4 cards at most"
-        limit_text: "Remove a card before placing another."
-        card_label: "%{title}, %{owned}"
-        owned:
-          one: "1 copy"
-          other: "%{count} copies"
+        place: Place
+        rarities_legend: Rarity
+        remove: Remove %{title}
         reserved_elsewhere:
-          one: "1 reserved in another trade"
+          one: 1 reserved in another trade
           other: "%{count} reserved in other trades"
-        unavailable: "none available"
-        search_label: "Search by title"
-        search_placeholder: "Search a title"
-        rarities_legend: "Rarity"
-        compare_legend: "Collections"
-        chips:
-          friend:
-            duplicates: "Their duplicates"
-            missing: "Missing from mine"
-            shared: "We both own"
-          own:
-            duplicates: "My duplicates"
-            missing: "Missing from theirs"
-            available: "Available"
-        clear_filters: "Clear filters"
-        filters_title: "Filters"
-        filters_active: "Active filters:"
-        no_match: "No card matches these filters. Clear them to see every card again."
         results:
-          zero: "No card shown."
-          one: "1 card shown."
+          one: 1 card shown.
           other: "%{count} cards shown."
-    accepted:
-      title: "Trade done"
-      text:
-        one: "%{cards} joins your collection."
-        other: "%{cards} join your collection."
-    declined:
-      title: "Trade declined"
-      text: "Your answer was sent to %{name}."
-    cancelled:
-      title: "Proposal cancelled"
-      text: "Your cards are no longer reserved."
-      open_text: "%{name} has nothing left to choose."
+          zero: No card shown.
+        search_label: Search by title
+        search_placeholder: Search a title
+        unavailable: none available
+        value_text: "%{count} of %{max}"
+    list:
+      back: List
+      empty: No trades yet.
+      empty_invite: Invite a friend to trade cards.
+      label: Your trades
+      new: New trade
+      recent: Recently finished
+      theirs: Waiting for their answer
+      yours: Waiting for you
+    one_at_a_time:
+      text: A trade is already open with %{name}.
+      title: One trade at a time
+    outcome:
+      accepted: done %{age}
+      cancelled: cancelled %{age}
+      declined: declined %{age}
+      expired: expired %{age}
+    row:
+      expires:
+        one: expires in %{count} d
+        other: expires in %{count} d
+      to_choose: To choose
+      what_for_what: "%{theirs} for %{yours}"
     sent:
-      title: "Proposal sent"
-      text: "%{name} has 7 days to answer. Your cards are reserved until then."
       open_text: "%{name} has 7 days to choose what they want in return."
-  accounts:
-    dialog:
-      title: "Delete my account"
-      close: "Close"
-      note: "Erased for good: your Steam id, your name, your profile and its link, the time of your last visit, your last data export and your latest activity, your collection, your showcase, your set tiers and your achievements, your capsules, opened or not, your daily bonuses and your community goal rewards, your friends, your invitations and your friend code, and your activity feed entries: pulls, discoveries, reposts and every trade that names you. Your open trades will be cancelled."
-      kept: "Kept, without your Steam id or your name: your past trades, your first discoveries, your contributions to the community goal, reports, the moderation history and the log of game actions. This cannot be undone."
-      word: "DELETE"
-      label: "Type %{word} to confirm"
-      submit: "Delete for good"
-      cancel: "Cancel"
-    destroy:
-      deleted: "Your account has been deleted. Thank you for playing."
-      wrong_word: "Type %{word} to confirm the deletion. Nothing was erased."
-      throttled: "Too many attempts in a minute. Try again in a moment."
-  reports:
-    open: "REPORT"
-    reasons:
-      inappropriate_name: "Inappropriate username"
-      cheating: "Cheating or abuse"
-      harassment: "Harassment"
-      other: "Other"
-    dialog:
-      title: "Report this profile"
-      close: "Close"
-      legend: "Why are you reporting this profile?"
-      note: "The moderation team will review this profile. The player will not see who reported them."
-      submit: "SEND THE REPORT"
-    create:
-      sent: "Thank you. The moderation team will review this profile. The player will not see who reported them."
-      throttled: "Too many attempts in a minute. Try again in a moment."
-  showcases:
-    add: "Add to showcase"
-    remove: "Remove from showcase"
-    full: "Showcase full: remove a card to add another."
-    not_found: "This card does not exist."
-  reposts:
-    button: "Repost"
-    create:
-      reposted: "Card reposted to the feed."
-      not_found: "This card does not exist."
-      throttled: "Too many reposts in a minute. Try again in a moment."
-  daily_bonuses:
-    create:
-      collected: "A capsule joins your reserve. The next one will be ready on %{time}."
-      throttled: "Too many attempts in a minute. Try again in a moment."
-  goal_rewards:
-    create:
-      title: "Goal reached"
-      collected: "Management thanks you for your contribution. A rare capsule has been added to your reserve."
-      throttled: "Too many attempts in a minute. Try again in a moment."
-  roadmaps:
-    show:
-      title: "Roadmap · Gameble"
-      description: "What is done, what is moving and what is next in Gameble, the free trading card game where every card is a Steam game."
-      kicker: "Roadmap"
-      heading: "What's coming"
-      intro: "What is done, what is moving, what is next. The collection is built with the community, and so is the game."
-      rail_label: "Roadmap milestones, from the oldest to the most distant"
-      statuses:
-        done: "Done"
-        in_progress: "In progress"
-        to_come: "Upcoming"
-  landings:
-    show:
-      title: "Gameble, a free trading card game of Steam games"
-      description: "Every card is a Steam game. Open capsules, complete sets, trade with friends and join the Brotherhood in its search for lost games. Free to play."
-      structured_data:
-        genre: "Trading card game"
-      unknown: "—"
-      gauge:
-        label: "Position on the page"
-      hero:
-        kicker: "Mission in progress"
-        marker: "00 · Mission"
-        hook: "Games have been lost. The Brotherhood sets out to find them. Join it."
-        line: "Gameble is a collectible card game built on the public library of Steam games."
-        embark: "Board the bridge"
-        embark_label: "Board the bridge, sign in through Steam"
-        lamp:
-          found: "Found"
-          readout: "Games found"
-          mode:
-            auto: "· Auto sweep"
-            manual: "· Manual sweep"
-            still: "· All revealed"
-      concept:
-        label: "01 · Concept"
-        title: "Every card is a Steam game."
-        subtitle: "Games are hand-picked and imported on one simple principle: the more popular a game, the rarer its card."
-        cards_label: "The five rarities, from the most common to the rarest"
-        per_card: "%{percent} per card"
-        all_cards: "See every card"
-        notes:
-          rarities:
-            title: "Five rarities"
-            text: "From the most common to the legendary."
-          alive:
-            title: "Rarer, livelier"
-            text: "The rarer the card, the more it comes alive."
-          seasons:
-            title: "One rarity per season"
-            text: "Every season, rarities are calculated anew."
-      brotherhood:
-        label: "02 · The Brotherhood"
-        title: "The Great Brotherhood of Gameblers"
-        subtitle: "Your presence is more than necessary. The Brotherhood moves forward together, week after week, and its story is written with its members."
-        lore:
-          kicker: "Archive 001"
-          title: "The Brotherhood's chronicle"
-          story:
-            recovery: "Recovering a lost game takes years of patience and archives to match. The Great Brotherhood of Gameblers has both, and places them at the disposal of all its members."
-            archive: "To guarantee their safety, the Brotherhood copies every recovered game onto an archive card, in a format it alone can read. You receive them in capsules, sealed, in accordance with the procedure in force."
-            thanks: "The Brotherhood thanks you in advance for your diligence. It will, as always, be rewarded."
-          call: "The rest is written with you. The Brotherhood is looking for narrators and scribes to bring its story to life."
-          link: "Take part in the writing"
-        goal:
-          kicker: "This week"
-          title: "One goal for all"
-          text: "Every capsule opened and every trade concluded moves the same gauge."
-          reached: "Goal reached: every participant is rewarded."
-          ends: "Ends %{time}. The next goal opens right away."
-          local_time: ", local time"
-          participants:
-            zero: "%{count} participants"
-            one: "%{count} participant"
-            other: "%{count} participants"
-        tiles:
-          discover:
-            title: "Discover"
-            text: "Draw a game before anyone else: the Brotherhood will remember it."
-            chip: "First discovery"
-          trade:
-            title: "Trade"
-            text: "Your duplicates make a friend happy. Propose, counter, conclude."
-          share:
-            title: "Share"
-            text: "A fine card deserves to be seen. Repost it in the feed and show off your finds."
-            tag: "Repost"
-          contribute:
-            title: "Contribute"
-            text: "Notable pulls, discoveries, trades, completed sets: everything shows there, live."
-            completed: "Inès completes the Dark Souls set."
-            reposted: "Nina reposted Hades."
-      how:
-        label: "03 · How it works"
-        title: "Long work awaits you."
-        subtitle: "Open, reveal, collect, trade. These four gestures are all you need to advance the Brotherhood's mission."
-        join:
-          title: "Join it"
-          text: "Sign in and your account is created automatically with Steam."
-          badge: "New member"
-        accumulate:
-          title: "Gather capsules"
-          text: "Capsules arrive in your reserve over time, even while you are away."
-          next: "Next capsule in"
-        discover:
-          title: "Discover new cards"
-          text: "A capsule holds five face-down cards. Turn them over to discover them."
-          reveal: "Reveal"
-          restart: "Start over"
-          announcement: "Card revealed: %{title} — %{details}. %{rarity}."
-        grow:
-          title: "Grow your collection"
-          text: "Every card joins your collection. Complete sets, trade your duplicates with your friends."
-          set: "Roguelike set · in progress"
-      live:
-        label: "04 · Live"
-        title: "The Brotherhood is playing right now."
-        subtitle: "The latest entries of the activity feed, and the current season."
-        feed: "Activity feed"
-        empty: "No activity yet."
-        open_feed: "Open the activity feed"
-        season: "Current season"
-        season_name: "Season %{number} · Grand catalogue"
-        facts:
-          players: "Active players this week"
-          packs: "Capsules opened today"
-          discoveries: "First discoveries this week"
-      unlock:
-        label: "05 · To do and to unlock"
-        title: "Enough to fill the hold."
-        subtitle: "Sets to complete, friends to trade with, a shared goal every week."
-        soon: "Soon"
-        tiles:
-          sets:
-            title: "Sets and tiers"
-            text: "Themes, franchises, studios, hall of fame and UFOs. Collect them all and advance set tiers to unlock rewards."
-            in_progress: "Roguelike"
-            complete: "Dark Souls"
-            stamp: "Complete"
-          trades:
-            title: "Trades between friends"
-            text: "Trade the cards you do not care about for the ones that will give you the collection of your dreams."
-            gives: "Léa gives"
-            you_give: "You give"
-          goal:
-            title: "Community goal"
-            text: "Every Monday, a new goal for the whole Brotherhood. Every capsule opened and every trade counts."
-            week: "Week 41"
-            reached: "Reached"
-            reward: "Every participant received a capsule with at least one Epic."
-          achievements:
-            title: "Achievements"
-            text: "First capsule, first Epic, first Legendary, first complete set, first trade…"
-            first_pack: "First capsule"
-            first_trade: "First trade"
-            first_legendary: "First Legendary"
-            first_set: "First complete set"
-            to_earn: "To earn"
-          backs:
-            title: "Card backs"
-            text: "Your face-down cards wear the back of your choice. Meet goals to unlock new ones."
-          collection:
-            title: "Collection"
-            text: "See at a glance the cards you are missing to complete your collection."
-            unique: "Unique cards"
-      roadmap:
-        label: "06 · Roadmap"
-        title: "A look at what comes next."
-        subtitle: "The collection is built with the community, and so is the game."
-        line_label: "Roadmap milestones, from the oldest to the most distant"
-        statuses:
-          done: "Done"
-          in_progress: "In progress"
-          to_come: "To come"
-        all: "See the whole roadmap"
-      open_source:
-        label: "07 · Open source and contributions"
-        title: "Open source and built with AI."
-        subtitle: "The code is entirely free and anyone can contribute to the project. Tedious tasks are done by AI; the rest is built by humans, for humans."
-        recruiting: "We are recruiting people devoted to the Brotherhood."
-        open_role: "Open position"
-        roles:
-          artists:
-            title: "Artists"
-            text: "Music, sounds, card backs, illustrations… The list is long. It awaits talented people."
-          narrators:
-            title: "Narrators and scribes"
-            text: "A voice, characters, a story that moves forward week after week. We need you to chronicle the Brotherhood's landmark events."
-          developers:
-            title: "Developers"
-            text: "The code is open. Anyone can propose a fix or an idea, whatever it may be."
-        project: "See the project"
-        project_hint: "(GitHub, new tab)"
-        license: "Free license. Every contribution is reviewed by the author."
-      free:
-        label: "08 · A free game"
-        title: "A free game that respects you."
-        open: "Gameble is free and open. Everyone plays on equal terms, and anyone can see how it works."
-        respect: "Your data is neither sold nor exploited. No advertising comes between you and your cards."
-        support:
-          kicker: "Support Gameble"
-          line: "To keep running, the project needs support."
-          text: "If you enjoy Gameble, you can help it."
-          button: "Support"
-          hint: "(donation site, new tab)"
-      boarding:
-        label: "09 · Boarding"
-        title: "Ten capsules await you."
-        line: "They are in your reserve from your first sign-in."
-        reserve: "Reserve: 10 / 10"
-      footer:
-        how_it_works: "How it works"
-        legal: "Legal notice"
-        credits: "Credits"
-        support: "Support"
-        source: "Source code"
-        source_hint: "(GitHub, new tab)"
-        notice: "Gameble is affiliated with neither Steam nor Valve. The illustrations belong to the games' publishers and their artists."
-  external_links:
-    new_tab: "(new tab)"
-  card_details:
-    open: "%{title}, %{year}, %{rarity}, season %{season}"
-    open_not_owned: "%{title}, %{year}, %{rarity}, season %{season}, not owned"
-    kicker: "Card file"
-    facts:
-      publisher: "Publisher"
-      rarity: "Rarity"
-      genre: "Genre"
-      year: "Year"
-      season: "Season"
-      pioneer: "Pioneer"
-      sets: "Sets"
-      copies: "Copies"
-      editions: "Editions"
-      steam_reviews: "Steam reviews"
-    season_number: "Season %{number}"
-    pioneer:
-      anonymous: "An anonymous player"
-      dated: "on %{date}"
-    season_short: "S%{number}"
-    editions_line: "%{rarity}: %{seasons}"
-    editions_more:
-      one: "%{count} more rarity"
-      other: "%{count} more rarities"
-    steam_reviews:
-      one: "%{percent} positive · %{reviews} review"
-      other: "%{percent} positive · %{reviews} reviews"
-    copies:
-      one: "%{count} copy"
-      other: "%{count} copies"
-    no_copies: "None"
-    no_editions: "None"
-    position: "%{position} / %{total}"
-    swipe: "swipe to browse"
-    previous: "Previous card"
-    next: "Next card"
-    store: "See on Steam"
-    preview:
-      title: "%{title} — %{rarity}"
-      description: "A card of Gameble, your Steam games as collectible cards. Sign in through Steam: ten capsules wait for you."
-    share:
-      button: "Share"
-      title: "Share the card"
-      close: "Close"
-      url: "Link to this card"
-      copy: "Copy"
-      copied: "Link copied"
-      manual: "Press Ctrl+C to copy"
-      note: "The link's preview shows the card's title and rarity, without the game's image."
-      public_page: "See the public page"
-  cards:
-    face:
-      image_missing: "Image unavailable"
-    show:
-      invitation: "Open capsules, complete sets, trade with your friends."
-      pitch_title: "Your Steam games, as collectible cards."
-      sign_in: "Open my first capsules"
-      update_browser: "Your browser is too old to sign in to Gameble. Update it to play."
-      grid: "Grid"
-      booster: "Capsule"
-      profile: "Profile"
-      live:
-        title: "Right now on Gameble"
-      legal: "Legal notice"
-  catalog:
-    rarity:
-      common: "Common"
-      uncommon: "Uncommon"
-      rare: "Rare"
-      epic: "Epic"
-      legendary: "Legendary"
-    sets:
-      ufos: "The UFOs"
-    # Hall of fame set names, by key (Catalog::HallOfFame).
-    hall_of_fame:
-      intouchables: "The Untouchables"
-      pepites: "Hidden Gems"
-      mal-aimes: "The Unloved"
-      phenomenes: "The Phenomena"
-  sessions:
-    create:
-      welcome: "Welcome to Gameble. Your capsules are waiting."
-    banned:
-      title: "Account suspended"
-      reason_label: "Reason given by the moderator"
-      contest_html: "To contest this decision, write to %{contact}."
-      no_reason_html: "To learn the reason for this suspension or contest it, write to %{contact}."
-    destroy:
-      farewell: "You are signed out. Your collection will be waiting."
-  authorization:
-    sign_in_required: "Sign in through Steam to do that."
-    forbidden: "Your account has no access to this page."
-  rate_limit:
-    throttled: "Too many sign-in attempts. Try again in a minute."
-    reading_throttled: "Too many pages read in a minute. Try again in a moment."
-  # Number formats (number_with_delimiter, number_with_precision,
-  # number_to_percentage), as Rails' own defaults; the twin of fr.yml's.
-  number:
-    format:
-      separator: "."
-      delimiter: ","
-    precision:
-      format:
-        delimiter: ""
-    percentage:
-      format:
-        delimiter: ""
-        format: "%n%"
-  date:
-    formats:
-      month_year: "%B %Y"
-      long_day: "%B %-d, %Y"
-      long_day_first: "%B %-d, %Y"
-    month_names: [~, January, February, March, April, May, June, July, August, September, October, November, December]
-    abbr_month_names: [~, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
-    day_names: [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
-  time:
-    formats:
-      local_datetime: "%b %-d, %H:%M"
-      local_date_time_year: "%b %-d, %Y, %H:%M"
-      local_time: "%H:%M"
-      local_weekday_time: "%A %H:%M"
-  activerecord:
-    errors:
-      messages:
-        frozen_once_published: "belongs to a published season and can no longer change"
-        other_season: "belongs to another season"
-  errors:
-    accounts:
-      player_required: "Sign in with an active account to do that."
-      export_too_soon: "One export every 5 minutes at most. Try again in a few minutes."
-      no_longer_idle: "That player is no longer idle: their account is not deleted."
-      invalid_setting: "That setting could not be saved. Reload the page and try again."
-      invalid_steam_id: "Your Steam ID could not be read. Sign in again."
-      banned: "This account has been suspended. You can no longer sign in."
-      sign_in_failed: "The sign-in failed on our side. Try again in a moment."
-      invalid_reason: "Choose a reason to send the report."
-      player_not_found: "That profile could not be found."
-      cannot_report_self: "You cannot report your own profile."
-      rate_limited: "You have sent many reports today. Try again tomorrow."
-      staff_required: "Only the moderation team can do that."
-      cannot_ban_self: "You cannot ban yourself, officer."
-      cannot_dismiss_self: "You cannot dismiss the reports against you, officer."
-      outranked: "That player's rank is equal to or above yours, officer: you cannot act on them."
-      already_banned: "That player is already banned, officer."
-      not_banned: "That player is not banned, officer."
-      no_open_reports: "That player has no open report left, officer."
-      reason_required: "Give the reason for the ban, officer."
-      reason_too_long: "The reason for a ban holds 500 characters at most, officer."
-      invalid_role: "That role does not exist: player, moderator or administrator."
-    catalog:
-      missing_text: "The scribes need the card's title in every tongue of the Brotherhood before it can enter the ledger."
-      invalid_card: "The scribes cannot enter that card in the ledger: its particulars are incomplete or out of order."
-      no_draft: "There is no draft season to publish, officer."
-      stale_draft: "That draft is no longer the one in the ledgers, officer. Reload the page and look again."
-      empty_season: "The draft season holds no card yet, officer. Run an import first."
-      staged_batch_waiting: "Staged cards wait beside the draft season, officer. Promote them or discard them before publishing."
-      empty_tier: "The draft season is too small to fill all five rarities, officer. Import more games first."
-      mixed_score_versions: "The draft season's cards were scored by more than one prestige formula, officer, so the rarities would be cut on mismatched scales. Open the latest import and press \"Rescore the cards\", then publish once its pass completes."
-      no_published_season: "No published season bears that number, officer."
-      already_numbered: "The cards of that season are numbered already, officer."
-      unfilled_sources: "Some cards of the draft season were imported before their sources were stored, officer: a genre from before themes or no review count. Published, they would land in the UFOs and leave the franchise, studio and hall of fame sets short, unseen. Run steam:fill_card_sources, then publish."
-      invalid_tag: "That is not a Steam tag the ledgers know, officer."
-      invalid_theme_name: "A theme needs a name in French and in English, of 60 characters at most, officer."
-      unclassified_tags:
-        zero: "No tag is left to classify, officer."
-        one: "%{count} tag of the draft season's cards is not classified yet, officer. Attach it to a theme or dismiss it on the themes page, then publish."
-        other: "%{count} tags of the draft season's cards are not classified yet, officer. Attach them to a theme or dismiss them on the themes page, then publish."
-      ufo_share_over_limit: "The UFOs hold %{share} of the draft season's cards, officer, above the %{limit} allowed. Attach more tags to themes on the themes page and rescore the latest import, then publish."
-      invalid_wording: "Each wording needs some text, in French and in English, of %{limit} characters at most, officer."
-      invalid_status: "That status is not one of the roadmap's, officer."
-      invalid_direction: "An entry of the roadmap moves only up or down, officer."
-      at_edge: "That entry cannot move any further that way, officer."
-      story_not_found: "That story is no longer on the roadmap, officer."
-    game:
-      player_required: "Sign in with an active account to do that."
-      invalid_time: "The time sent could not be read. Reload the page."
-      no_pack_available: "Your reserve is empty. The next capsule is on its way."
-      already_collected: "You have already collected today's capsule. The next one will be ready on %{time}."
-      no_season: "No season of cards is open yet. Come back later for the daily capsule."
-      reserve_full: "Your reserve is full: open a capsule to collect today's."
-      reward_reserve_full: "Your reserve is full: open a capsule to collect your rare capsule."
-      reward_already_claimed: "You have already collected this rare capsule."
-      reward_not_earned: "No rare capsule waits for you for that week."
-      reward_no_season: "No card season is open. Come back later for your rare capsule."
-      invalid_idempotency_key: "The opening request was malformed. Reload the page and try again."
-      not_friends: "You can only trade with a friend."
-      own_profile_private: "Your profile is private: trades are closed."
-      friend_profile_private: "%{name}'s profile is private: trades are closed."
-      invalid_offer: "Offer at most four different cards, with a quantity of at least one each."
-      invalid_request: "Ask for one to four different cards, with a quantity of at least one each."
-      trade_already_open: "You already have an open trade with this friend. Settle it first."
-      insufficient_copies: "You do not have enough free copies of an offered card: some are already in another trade."
-      trade_not_found: "That trade could not be found."
-      not_allowed: "That is not yours to do in this trade."
-      trade_not_open: "That trade is already closed."
-      trade_expired: "That trade has expired: its 7 days are over."
-      requested_cards_unavailable: "Not enough copies: a card asked for is no longer available. Nothing moved."
-      request_exceeds_holdings: "Your friend does not hold that many copies of a card you asked for."
-      trade_changed: "This trade changed since you opened it. Check its new terms, then answer again."
-      trade_side_empty: "Nothing to receive yet: choose what you want from %{name}'s collection, then send it back."
-      trade_not_expired: "That trade has not expired yet."
-      invalid_format: "Expected format: ABCD-1234."
-      own_code: "That is your own code."
-      own_link: "That is your own link."
-      unknown_code: "No player has that code."
-      unknown_player: "This invitation link is not valid."
-      already_friends: "You are already friends."
-      not_a_friend: "This player is not one of your friends."
-      already_sent: "Invitation already sent."
-      not_found: "That invitation is no longer there."
-      card_not_owned: "You do not own this card."
-      card_already_showcased: "This card is already in your showcase."
-      card_not_showcased: "This card is not in your showcase."
-      showcase_full: "Showcase full: remove a card to add another."
-      showcase_edge: "This card cannot move any further."
-      unknown_direction: "Unknown direction."
-      position_out_of_range: "The showcase has no such place."
-    steam:
-      invalid_claimed_id: "Steam's answer was not recognised. Sign in again."
-      sign_in_failed: "The sign-in through Steam did not go through. Try again."
-      run_in_progress: "An import is already under way, officer. Let it finish, or wait for it to halt, before starting another."
-      not_found: "The scribes find no such import run in the ledgers."
-      not_resumable: "Only a halted import can be resumed, officer."
-      not_running: "That import is not under way."
-      cursor_moved: "That page of the import was already copied."
-      not_latest: "Only the latest import run can be resumed, rescored or abandoned, officer."
-      not_abandonable: "Only a halted import can be abandoned, officer."
-      run_awaiting_promotion: "A finished import waits for promotion, officer. Promote its cards or discard them first."
-      not_ready: "Only a finished import awaiting promotion can be promoted or discarded, officer."
-      empty_batch: "That run staged no card, officer. Discard it."
-      stale_batch: "The season that run began on was published since, officer. Its staged cards are thrown away: start a new import."
-      not_completed: "Only a completed or promoted import run can be rescored, officer."
-      already_published: "The cards of that run are already published in a season, officer. Start a new import to fill the next draft."
+      text: "%{name} has 7 days to answer. Your cards are reserved until then."
+      title: Proposal sent
+    side:
+      cards:
+        one: "%{count} card"
+        other: "%{count} cards"
+      cards_copies:
+        one: "%{cards} · %{copies} copies"
+        other: "%{cards} · %{copies} copies"
+      copies_label: 'Copies:'
+      for_friend_to_choose: For %{name} to choose
+      friend_gives: "%{name} gives"
+      friend_offered: "%{name} offered"
+      friend_received: "%{name} received"
+      max: "/%{max}"
+      new: New
+      none:
+        all_reserved: Your copies are all reserved in other trades.
+        friend_none_owned: "%{name} no longer holds any of these cards."
+        none_owned: You no longer hold any of these cards.
+        title: No card available.
+      quantity_label: Copies of %{title}
+      reserved:
+        one: Reserved
+        other: "%{count} reserved"
+      you_give: You give
+      you_received: You received
+      yours_to_choose: Yours to choose
+    throttled: Too many actions in one minute. Try again in a moment.
+    title: Trades
+    undo_dialog:
+      close: Close
+      confirm: Discard the changes
+      keep: Keep editing
+      text: What you changed will be lost, and %{name}'s proposal will come back as
+        it was.
+      title: Discard the changes?
