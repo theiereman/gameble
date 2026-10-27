@@ -1,6 +1,3 @@
-// The art size of a card face drawn at its rendered size (CardComponent's
-// grid face), and the wait for a resize to settle before drawing it again.
-
 export type ArtSize = { width: number; height: number }
 
 const CSS_PIXELS_PER_ART_PIXEL = 2

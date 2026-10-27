@@ -1,9 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Reloads the enclosing Turbo frame from `url` every `interval` ms, so a page
-// follows a running job without a manual reload (the import run page). The
-// server leaves the controller out once there is nothing left to follow; the
-// new frame content then stops the polling.
 export default class extends Controller<HTMLElement> {
   static values = { url: String, interval: { type: Number, default: 3000 } }
 

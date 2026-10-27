@@ -1,4 +1,3 @@
-// How long a toast stays: at least 5 seconds, plus one second per started group of ten words.
 export const TOAST_BASE_MS = 5000
 export const TOAST_MS_PER_TEN_WORDS = 1000
 
@@ -12,7 +11,6 @@ export function toastActionHref(href: unknown): string | null {
   return /^blob:/.test(href) || /^\/(?![/\\])/.test(href) ? href : null
 }
 
-// A toast with a key (`data-toast-once`) shows once per browser: the first showing records it and answers true. Without usable storage every showing answers true.
 export const TOAST_ONCE_PREFIX = "gameble:toast-once:"
 
 type OnceStorage = Pick<Storage, "getItem" | "setItem">
@@ -31,6 +29,7 @@ export function firstShowing(key: string, storage: OnceStorage | null = browserS
     if (storage.getItem(TOAST_ONCE_PREFIX + key) !== null) return false
     storage.setItem(TOAST_ONCE_PREFIX + key, "1")
   } catch {
+    // Storage refused: the toast shows every time.
   }
   return true
 }

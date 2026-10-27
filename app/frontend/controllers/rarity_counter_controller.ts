@@ -4,7 +4,6 @@ import { formatNumber } from "../lib/i18n"
 
 const CHANGED_MS = 700
 
-// The top bar's rarity counter: a count rises as the booster screen reveals each card (`gameble:tier-revealed`), never before.
 export default class extends Controller<HTMLElement> {
   static targets = ["count"]
   static values = { delimiter: { type: String, default: "," } }

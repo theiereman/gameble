@@ -2,7 +2,6 @@ import { Controller } from "@hotwired/stimulus"
 import { onGameble } from "../lib/events"
 import { formatNumber, t, type Template } from "../lib/i18n"
 
-// The booster screen's reserve chip: follows `gameble:bank-changed`, the label picked by plural from the server's templates.
 export default class extends Controller<HTMLElement> {
   static targets = ["count", "label"]
   static values = { delimiter: { type: String, default: "," }, templates: Object }

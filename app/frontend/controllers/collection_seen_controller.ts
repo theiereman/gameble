@@ -1,7 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
 
-// The collection's watermark: when the grid shows cards new to the player, posts the latest gain's time once the page is really rendered
-// (never Turbo's preview), so they are no longer new on the next visit. A failure is ignored.
 export default class extends Controller<HTMLElement> {
   static values = { url: String, upTo: String }
 
@@ -23,6 +21,10 @@ export default class extends Controller<HTMLElement> {
       body: JSON.stringify({ up_to: this.upToValue }),
       credentials: "same-origin",
       keepalive: true,
-    }).catch(() => {})
+    }).catch(ignoreFailedWatermark)
   }
+}
+
+function ignoreFailedWatermark(): void {
+  // The cards stay new until the next visit posts again.
 }

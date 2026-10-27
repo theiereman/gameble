@@ -3,20 +3,16 @@ import { renderPlain, type PlainRenderer } from "./plain"
 import type { ArtJob, JobRequest, JobResponse, JobResult } from "./worker_job"
 
 export type RenderArtOptions = {
-  /** The art size, in art pixels. */
   width: number
   height: number
-  /** The size the game's palette is computed at: the largest art size drawn. Defaults to the art size. */
   paletteWidth?: number
   paletteHeight?: number
   colors?: number
   signal?: AbortSignal
 }
 
-/** `drawn`: filtered in the worker, with the game's palette. `plain`: pixelated on the main thread, without palette. */
 export type RenderResult = "drawn" | "plain"
 
-/** What the renderer needs of a `Worker`. */
 export type ArtWorker = {
   postMessage(message: JobRequest): void
   addEventListener(type: "message" | "error", listener: (event: any) => void): void
@@ -25,18 +21,14 @@ export type ArtWorker = {
 
 export type ArtRendererOptions = {
   concurrency?: number
-  /** Filtered bitmaps kept in memory; the least recently used is closed first. */
   cacheLimit?: number
   createWorker?: () => ArtWorker
-  /** Whether the browser has `Worker`, `OffscreenCanvas` and `createImageBitmap`. */
   supported?: () => boolean
   plain?: PlainRenderer
 }
 
 export type ArtRenderer = {
-  /** Draws `url` on `canvas` at `width × height`; rejects with `ArtMissingError` when missing, `AbortError` once `signal` aborts. */
   render(url: string, canvas: HTMLCanvasElement, options: RenderArtOptions): Promise<RenderResult>
-  /** Stops the worker, closes every cached bitmap and aborts every waiting render. */
   dispose(): void
 }
 
@@ -50,14 +42,12 @@ type Job = {
   id: number
   key: string
   request: ArtJob
-  /** Renders still waiting for it; a queued job nobody waits for is dropped. */
   waiters: number
   running: boolean
   promise: Promise<Settled>
   settle: (result: Settled) => void
 }
 
-/** A renderer with its own worker, queue and bitmap cache; jobs for the same URL, size, colour count and palette size are shared. */
 export function createArtRenderer({
   concurrency = DEFAULT_CONCURRENCY,
   cacheLimit = DEFAULT_CACHE_LIMIT,
@@ -100,7 +90,6 @@ export function createArtRenderer({
     return worker
   }
 
-  /** From now on, every render takes the main-thread path; jobs under way end `unsupported`. */
   function fallBack(): void {
     mode = "plain"
     stop({ status: "unsupported" })
@@ -271,7 +260,6 @@ function startWorker(): ArtWorker {
 
 let shared: ArtRenderer | undefined
 
-/** `render` on a renderer shared by the page, created on the first call with the defaults. */
 export function renderArt(url: string, canvas: HTMLCanvasElement, options: RenderArtOptions): Promise<RenderResult> {
   shared ??= createArtRenderer()
   return shared.render(url, canvas, options)

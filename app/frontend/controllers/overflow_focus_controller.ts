@@ -1,8 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { overflowsSideways } from "../lib/overflow_focus"
 
-// A row that scrolls sideways only on narrow screens is one tab stop while it
-// overflows, so the arrow keys scroll it; when it fits, it takes no tab stop.
 export default class extends Controller<HTMLElement> {
   private resizes?: ResizeObserver
 

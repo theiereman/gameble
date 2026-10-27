@@ -21,8 +21,6 @@ type Gesture = {
 
 const SHIFT_MS = 160
 
-// The owner's showcase on their profile, reordered by dragging a card (lib/showcase_order.ts): a mouse or pen after a few pixels,
-// a finger after holding still. The new place is sent on release; a refusal puts the previous order back and toasts the server's message.
 export default class extends Controller<HTMLElement> {
   static targets = ["list", "slot", "status"]
   static values = { announcement: String, failed: String }

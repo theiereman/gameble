@@ -1,6 +1,3 @@
-// The path of the daily booster's canister (bonus_arc_controller.ts): a
-// quadratic Bezier from `from` to `to`, its control point lifted over the
-// middle, sampled with an ease-out so the canister leaves fast and settles.
 export type Point = { x: number; y: number }
 
 export const ARC_SAMPLES = 16

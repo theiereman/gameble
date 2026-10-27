@@ -2,8 +2,6 @@ import { Controller } from "@hotwired/stimulus"
 import { keepsFrame } from "../lib/screen_change"
 import { PHONE_WIDTH } from "../lib/sub_view_step"
 
-// The screen-change mark: `html[data-screen-change=same]` tells the CSS to skip the slide for a visit that keeps the page's frame
-// (lib/screen_change.ts) or is made during a card detail step. The layer is data-turbo-permanent, so it may reconnect during a render.
 export default class extends Controller<HTMLElement> {
   private shownPath = location.pathname
 

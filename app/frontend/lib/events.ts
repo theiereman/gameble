@@ -1,9 +1,7 @@
-// The application's own DOM events, `gameble:<noun-verb>`, declared here only; dispatchGameble and onGameble keep both ends typed.
 import type { Rarity } from "./card_types"
 
 export type ToastAction = { label: string; href: string; download?: string }
 
-// A toast to show: the shell's toast region appends it from its template.
 export type ToastDetail = {
   message: string
   title?: string
@@ -11,13 +9,10 @@ export type ToastDetail = {
   action?: ToastAction
 }
 
-// The booster screen revealed a card of `tier`: the player's copies per tier now.
 export type TierRevealedDetail = { tier: Rarity; counts: Record<Rarity, number> }
 
-// The player's reserve changed; times are UTC ISO 8601.
 export type BankChangedDetail = { available: number; reserveFull: boolean; nextAvailableAt: string | null; serverTime: string }
 
-// The booster screen locks the in-app navigation while it opens a booster or reveals a card.
 export type NavigationLockedDetail = { locked: boolean }
 
 export type OpeningRevealingDetail = { revealing: boolean }

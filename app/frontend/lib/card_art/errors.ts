@@ -1,4 +1,3 @@
-/** The art at a URL is missing: an HTTP error, an undecodable or too small image, or Steam's grey placeholder. */
 export class ArtMissingError extends Error {
   readonly url: string
 
@@ -17,7 +16,6 @@ export function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError"
 }
 
-/** `promise`, or an `AbortError` as soon as `signal` aborts. */
 export function abortable<T>(promise: Promise<T>, signal: AbortSignal | undefined): Promise<T> {
   if (!signal) return promise
   if (signal.aborted) return Promise.reject(abortError())

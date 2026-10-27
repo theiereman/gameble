@@ -3,11 +3,6 @@ import { motionReduced } from "../lib/motion"
 import { beginStep, PHONE_WIDTH, stepping, takeFocusWish, trackStepTransition } from "../lib/sub_view_step"
 import { swipeStep } from "../lib/swipe"
 
-// The phone sub-view of a card's detail: its ◀ ▶ links replace the `card-detail` Turbo Frame and the URL.
-// It turns a horizontal swipe on the stage into a press of ◀ or ▶, marks the step until its visit has loaded, renders the frame in a
-// View Transition unless motion is reduced, keeps the title and the top bar's back link in step with the card shown,
-// and on a phone focuses the heading (or the same control after a keyboard step).
-
 type Direction = "previous" | "next"
 
 function shown(element: HTMLElement): boolean {
@@ -59,7 +54,6 @@ export default class extends Controller<HTMLElement> {
     beginStep(direction, document.activeElement === event.currentTarget ? direction : null)
   }
 
-
   press(event: PointerEvent): void {
     if (event.pointerType !== "touch" || !event.isPrimary) return
     this.gesture = { id: event.pointerId, x: event.clientX, y: event.clientY, tilted: false }
@@ -85,7 +79,6 @@ export default class extends Controller<HTMLElement> {
   cancel(): void {
     this.gesture = null
   }
-
 
   private readonly beforeFrameRender = (event: Event): void => {
     const detail = (event as CustomEvent<{ render?: FrameRender }>).detail

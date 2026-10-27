@@ -1,9 +1,7 @@
 import type { Pixels } from "pixelcrush"
 
-/** Something a fake context can draw from. */
 type Drawable = { width: number; height: number; pixels: Pixels }
 
-/** An `ImageBitmap` holding pixels. */
 export class FakeBitmap implements Drawable {
   closed = false
   constructor(readonly pixels: Pixels) {}
@@ -27,7 +25,6 @@ export class FakeImageData {
 
 export type DrawCall = { source: unknown; args: number[] }
 
-/** A scratch canvas whose `drawImage` samples the nearest source pixel. */
 export class FakeSurface implements Drawable {
   readonly canvas = this
   readonly context: FakeContext
@@ -74,7 +71,6 @@ export class FakeContext {
   }
 }
 
-/** The colours of an image's opaque pixels. */
 export function opaqueColors({ data }: Pixels): Set<string> {
   const colors = new Set<string>()
   for (let offset = 0; offset < data.length; offset += 4) {

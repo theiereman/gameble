@@ -1,8 +1,6 @@
-// The set celebration after an opening: one result per set at the highest tier reached, and the live region's message. Pure: no DOM.
 import { formatNumber, t, type Template } from "./i18n"
 import { SET_TIERS, type OpeningSetTier, type SetThreshold, type SetTierName } from "./opening"
 
-/** More results than this fold into one line, "n PALIERS ATTEINTS". */
 export const FOLD_ABOVE = 3
 
 export type CelebrationStrings = {
@@ -30,7 +28,6 @@ export type Rank = (typeof RANKS)[number]
 
 export const isRank = (tier: SetTierName): tier is Rank => (RANKS as readonly SetTierName[]).includes(tier)
 
-/** A set's result: its name, the highest tier the opening reached and the cards it asks, the cards held over the set's, and the set's tiers before completion. */
 export type CelebrationResult = {
   key: string
   name: string
@@ -46,19 +43,16 @@ export type CelebrationResult = {
 
 const METAL_NOTCHES: Partial<Record<SetTierName, number>> = { bronze: 1, silver: 2, gold: 3 }
 
-/** The notches a tier mark carries: one to three for a metal, none otherwise. */
 export const notchCount = (tier: SetTierName): number => METAL_NOTCHES[tier] ?? 0
 
 const tieBreak = (tier: SetTierName): number => SET_TIERS.indexOf(tier)
 
-/** Above zero when `a` stands higher than `b`: complete first, then the larger share of its set, then the later tier name. */
 function standsAbove(a: { tier: SetTierName; required: number; total: number }, b: { tier: SetTierName; required: number; total: number }): number {
   const completes = Number(a.tier === "complete") - Number(b.tier === "complete")
   const share = (row: { required: number; total: number }): number => (row.total > 0 ? row.required / row.total : 1)
   return completes || share(a) - share(b) || tieBreak(a.tier) - tieBreak(b.tier)
 }
 
-/** One result per set (by kind and key), at its highest tier; the highest results first, then in the server's order of sets, as the feed breaks a tie. */
 export function celebrationResults(setTiers: readonly OpeningSetTier[]): CelebrationResult[] {
   const bySet = new Map<string, OpeningSetTier[]>()
   for (const reached of setTiers) {
@@ -96,7 +90,6 @@ export function restoredCelebration(setTiers: readonly OpeningSetTier[], marked:
 
 export const folded = (results: readonly CelebrationResult[]): boolean => results.length > FOLD_ABOVE
 
-/** "PALIER ARGENT" or "SET COMPLET". */
 export const resultTitle = (result: CelebrationResult, strings: CelebrationStrings): string =>
   result.tier === "complete" ? strings.completeTitle : t(strings.tierTitle, { tier: strings.tiers[result.tier] })
 
@@ -109,10 +102,8 @@ export function countParts(result: CelebrationResult, strings: CelebrationString
   }
 }
 
-/** Every tier the results crossed, several in one set counting each. */
 export const tiersReached = (results: readonly CelebrationResult[]): number => results.reduce((count, result) => count + result.crossed.length, 0)
 
-/** "4 PALIERS ATTEINTS". */
 export const foldedTitle = (results: readonly CelebrationResult[], strings: CelebrationStrings): string =>
   t(strings.folded, { count: tiersReached(results) })
 
@@ -124,7 +115,6 @@ export function foldedSubline(results: readonly CelebrationResult[], strings: Ce
 export const MARK_START = 80
 export const MARK_GAP = 90
 
-/** One mark per tier its results reached, ordered by each tier's highest result, lowest first, each lit after the one before. */
 export function foldedMarks(results: readonly CelebrationResult[]): { tier: SetTierName; lightAt: number }[] {
   const tiers = [...new Set(results.map((result) => result.tier))].reverse()
   return tiers.map((tier, lit) => ({ tier, lightAt: MARK_START + MARK_GAP * lit }))
@@ -155,7 +145,6 @@ export type TickState = "solid" | "crossed" | "pending"
 
 export type GaugeTick = { tier: SetTierName; at: number; state: TickState; lightAt: number | null }
 
-/** One tick per tier of the set before completion, at its share of the set: crossed by this capsule, reached before it, or still ahead. None for SET COMPLET. */
 export function gaugeTicks(result: CelebrationResult): GaugeTick[] {
   if (result.tier === "complete" || result.total <= 0) return []
   const fill = gaugeFractions(result)
@@ -210,7 +199,6 @@ export function foldedMessage(results: readonly CelebrationResult[], strings: Ce
   return sentence(t(strings.announceFolded, { count: tiersReached(results), list }))
 }
 
-/** The live region's one message for the results. */
 export function celebrationAnnouncement(results: readonly CelebrationResult[], strings: CelebrationStrings, delimiter: string): string {
   if (folded(results)) return foldedMessage(results, strings)
   return results.map((result) => resultMessage(result, strings, delimiter)).join(" ")

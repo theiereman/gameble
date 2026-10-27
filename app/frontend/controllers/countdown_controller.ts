@@ -6,8 +6,6 @@ import { atZero, fetchChip } from "../lib/countdown"
 const RETRY_MS = 5000
 const BUSY_RETRY_MS = 250
 
-// A refresh would cancel a form submission in flight, so none starts from a submission's start until the next page load or its end.
-// Serves the daily booster panel's countdown to 00:00 UTC and the packs chip: `hours` writes "HH:MM:SS", a `bar` target fills as it runs down.
 export default class extends Controller<HTMLElement> {
   static values = { seconds: Number, refresh: { type: Boolean, default: true }, refreshUrl: String, hours: Boolean, total: Number }
   static targets = ["clock", "bar"]

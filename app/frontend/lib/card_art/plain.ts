@@ -4,10 +4,8 @@ import { isTooSmall } from "./placeholder"
 
 export type PlainOptions = { width: number; height: number; signal?: AbortSignal }
 
-/** Draws `url` on `canvas` without palette; see `renderPlain`. */
 export type PlainRenderer = (url: string, canvas: HTMLCanvasElement, options: PlainOptions) => Promise<void>
 
-/** The main-thread path, for a CORS refusal or a browser without the worker APIs: the image taints the canvases, so no palette and only the size check. Rejects with `ArtMissingError` or `AbortError`. */
 export const renderPlain: PlainRenderer = async (url, canvas, { width, height, signal }) => {
   if (signal?.aborted) throw abortError()
   const image = new Image()

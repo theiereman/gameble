@@ -1,8 +1,5 @@
-// The booster's opening exchange: one JSON POST with the activation's idempotency key and the CSRF token.
-// The outcome is the opened pack, a refusal the server explained, or an unknown failure after which the same key is sent again. No DOM.
 import { RARITIES, type Rarity } from "./card_types"
 
-/** A card of the opened pack, in drawn order (PacksHelper#pack_opening_json). */
 export type OpeningCard = {
   slug: string
   season: number
@@ -10,9 +7,7 @@ export type OpeningCard = {
   coverUrl: string
   title: string
   year: number | null
-  /** The card as spoken: "Hades — Supergiant Games, 2020, Roguelite". */
   label: string
-  /** The face at each size, rendered on the server (CardComponent): s in the narrow row, m in the wide one, xl on the phone. */
   faces: { s: string; m: string; xl: string }
 }
 
@@ -21,28 +16,22 @@ export type OpeningBank = {
   reserveFull: boolean
   nextAvailableAt: string | null
   scheduledAt: string[]
-  /** The card count of the pack the next opening opens, null when none is available. */
   nextPackSize: number | null
 }
 
-/** Every tier name: the metals of earlier seasons, the ranks, complete. The order only breaks a tie between two tiers asking the same count. */
 export const SET_TIERS = ["bronze", "silver", "gold", "novice", "apprentice", "adept", "expert", "master", "complete"] as const
 export type SetTierName = (typeof SET_TIERS)[number]
 
-/** A tier of a set and the cards it asks for. */
 export type SetThreshold = { tier: SetTierName; required: number }
 
-/** A set tier the opening reached: "Roguelike", silver at 16 of its 62 cards. */
 export type OpeningSetTier = {
   kind: string
   key: string
   name: string
   tier: SetTierName
   required: number
-  /** The cards the player held in the set when reaching the tier. */
   held: number
   total: number
-  /** The set's tiers before completion, the fewest cards first. */
   thresholds: SetThreshold[]
   url: string
 }
@@ -53,7 +42,6 @@ export type OpeningAnswer = {
   bank: OpeningBank
   serverTime: string
   tierCountsBefore: Record<Rarity, number>
-  /** Every set tier row the opening inserted, by set then tier. */
   setTiers: OpeningSetTier[]
   unlockedCardBacks: unknown[]
 }
@@ -66,7 +54,6 @@ export type OpeningResult =
 export type SendOpening = {
   url: string
   key: string
-  /** The page's `meta[name=csrf-token]`, when present. */
   csrfToken: string | null
   fetch?: typeof globalThis.fetch
 }

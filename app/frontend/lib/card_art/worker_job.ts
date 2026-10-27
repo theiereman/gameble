@@ -2,7 +2,6 @@ import { applyPalette, buildPalette, pixelate, type Color, type Pixels } from "p
 import { downscale } from "./downscale"
 import { isFlatGrey, isTooSmall } from "./placeholder"
 
-/** One art to draw: `url` at `width × height`, with the game's palette computed at `paletteWidth × paletteHeight`. */
 export type ArtJob = {
   url: string
   width: number
@@ -12,7 +11,6 @@ export type ArtJob = {
   colors: number
 }
 
-/** `drawn` the filtered art; `missing` an HTTP error, undecodable image or placeholder; `cors` the request failed (retry once without CORS); `unsupported` no 2D context. */
 export type JobResult =
   | { status: "drawn"; bitmap: ImageBitmap }
   | { status: "missing" }
@@ -22,13 +20,10 @@ export type JobResult =
 export type JobRequest = ArtJob & { id: number }
 export type JobResponse = JobResult & { id: number }
 
-/** The image request: no added header, no referrer, no cookie. */
 export const IMAGE_REQUEST: Readonly<RequestInit> = Object.freeze({ mode: "cors", credentials: "omit", referrerPolicy: "no-referrer" })
 
-/** How long the image request and its body may take before the art counts as missing. */
 export const FETCH_TIMEOUT_MS = 20_000
 
-/** Games whose palette the worker keeps. */
 export const PALETTE_LIMIT = 256
 
 export type WorkerContext = Pick<
@@ -41,18 +36,14 @@ export type WorkerSurface = {
   context: WorkerContext
 }
 
-/** What a job needs from the worker, injected so it can be tested. */
 export type JobEnvironment = {
   fetch: (url: string, init: RequestInit) => Promise<Pick<Response, "ok" | "blob">>
   createImageBitmap: (blob: Blob) => Promise<ImageBitmap>
-  /** A scratch `OffscreenCanvas` and its 2D context, or `null` when there is none. */
   createSurface: (width: number, height: number) => WorkerSurface | null
   palettes: PaletteCache
-  /** Defaults to `FETCH_TIMEOUT_MS`. */
   fetchTimeout?: number
 }
 
-/** One palette per game, keyed by URL and computed once at the palette size so every card size shares its colours; least recently used dropped past `limit`. */
 export class PaletteCache {
   readonly limit: number
   #entries = new Map<string, { colors: number; palette: Color[] }>()
@@ -83,7 +74,6 @@ export class PaletteCache {
 const MISSING: JobResult = { status: "missing" }
 const UNSUPPORTED: JobResult = { status: "unsupported" }
 
-/** Fetches, decodes, crops (anchored at 42 %), downsizes and remaps one art to the game's palette. Never rejects. */
 export async function runJob(job: ArtJob, environment: JobEnvironment): Promise<JobResult> {
   const timeout = new AbortController()
   const timer = setTimeout(
@@ -145,7 +135,6 @@ export async function runJob(job: ArtJob, environment: JobEnvironment): Promise<
   }
 }
 
-/** The bitmap cropped and averaged to `width × height`, or `null` without a 2D context. */
 function artPixels(bitmap: ImageBitmap, width: number, height: number, { createSurface }: JobEnvironment): Pixels | null {
   const last = downscale(bitmap, bitmap.width, bitmap.height, width, height, createSurface)
   if (!last) return null
@@ -153,7 +142,6 @@ function artPixels(bitmap: ImageBitmap, width: number, height: number, { createS
   return pixelate({ width: last.width, height: last.height, data }, { width, height, crop: "none" })
 }
 
-/** Runs jobs one URL at a time, so a game's next job finds its palette computed; other URLs run side by side. */
 export function createJobRunner(environment: JobEnvironment): (job: ArtJob) => Promise<JobResult> {
   const chains = new Map<string, Promise<JobResult>>()
   return (job) => {
