@@ -1,0 +1,346 @@
+/* The booster's phone tray, actions and card zoom, and every loop stopped under reduced motion. Imported after booster-layouts.css. */
+
+/* The tray: "Carte n / N", then one 44 × 60 slot per card. */
+.booster-tray {
+  grid-area: 3 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.booster-tray__count {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0 6px 0 0;
+  white-space: nowrap;
+}
+
+.booster-tray__count-label {
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.booster-tray__count-value {
+  color: var(--color-text-max);
+  font: var(--font-weight-bold) 1.03125rem / 1.5rem var(--font-family-jetbrains-mono);
+}
+
+.booster-tray__slots {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.booster-tray__item {
+  display: block;
+}
+
+.booster-tray__slot {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 60px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: repeating-linear-gradient(45deg, var(--color-panel) 0 4px, var(--color-panel-sunken) 4px 8px);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
+}
+
+.booster-tray__slot[data-next] {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.booster-tray__slot--filled {
+  background: var(--color-panel-sunken);
+  box-shadow: 0 0 0 var(--space-unit) var(--booster-tier), 0 0 0 4px var(--color-outline);
+  cursor: pointer;
+}
+
+.booster-tray__slot--filled[aria-disabled="true"] {
+  cursor: default;
+}
+
+.booster-tray__cover {
+  display: block;
+  width: 44px;
+  height: 60px;
+  image-rendering: pixelated;
+}
+
+.booster-tray__cover[hidden] {
+  display: none;
+}
+
+.booster-tray__icon {
+  position: absolute;
+  left: -6px;
+  bottom: -6px;
+  display: inline-flex;
+}
+
+/* The actions under the stage: the open button and Tout révéler, then the way back and the reason. */
+.booster__phone-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+}
+
+.booster__phone-actions .button {
+  margin: 0;
+}
+
+.booster__phone-actions .booster__actions-row {
+  gap: 12px;
+}
+
+.booster__phone-actions .booster__open {
+  flex: 1.55;
+  width: auto;
+}
+
+/* ---- The card zoom (phone): a modal dialog over a dark scrim ---- */
+
+.booster-zoom {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: var(--space-5);
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+}
+
+.booster-zoom[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.booster-zoom::backdrop {
+  background: rgb(4 7 10 / 88%);
+}
+
+.booster-zoom[open]::backdrop {
+  animation: modal-fade 160ms linear;
+}
+
+.booster-zoom__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto 0;
+  animation: modal-rise 220ms var(--ease-out);
+}
+
+/* The card between ◀ and ▶; a horizontal swipe on it steps, a vertical
+   drag scrolls the dialog. */
+.booster-zoom__stage {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  touch-action: pan-y;
+}
+
+.booster-zoom__card {
+  position: relative;
+  width: var(--card-xl-width);
+  height: var(--card-xl-height);
+}
+
+/* ◀ and ▶ as on the card detail: 44 × 64, disabled at an end. */
+.booster-zoom__nav {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-touch-min);
+  height: 64px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.booster-zoom__nav:active {
+  background: var(--color-accent-press);
+  color: var(--color-on-accent);
+}
+
+.booster-zoom__nav:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.booster-zoom__nav:disabled {
+  background: var(--color-disabled-bg);
+  box-shadow: none;
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
+.booster-zoom__nav-icon {
+  width: 8px;
+  height: 14px;
+}
+
+.booster-zoom__face .card {
+  display: block;
+}
+
+.booster-zoom[data-tier="legendary"] .booster-zoom__rays {
+  --card-ray: color-mix(in srgb, var(--color-rarity-legendaire) 36%, transparent);
+  animation-duration: 14s;
+}
+
+.booster-zoom__title {
+  max-width: 358px;
+  margin: 22px 0 0;
+  color: var(--color-text-max);
+  font: var(--font-weight-regular) 1.75rem / 1.875rem var(--font-family-vt323);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.booster-zoom__line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+  color: var(--booster-tier);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.booster-zoom__icon {
+  display: inline-flex;
+}
+
+.booster-zoom__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.booster-zoom__actions .button {
+  margin: 0;
+}
+
+.booster-zoom__tip {
+  margin: 10px 0 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+/* ---- Reduced motion: every loop stops; no hover lift, no rays ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .booster-canister__idle,
+  html:not([data-motion="full"]) .booster-canister__rays,
+  html:not([data-motion="full"]) .booster-canister__sweep-band,
+  html:not([data-motion="full"]) .booster-card[data-revealed] .booster-card__rays,
+  html:not([data-motion="full"]) .booster-card__back::after,
+  html:not([data-motion="full"]) .booster-zoom__rays,
+  html:not([data-motion="full"]) .booster-zoom[open]::backdrop {
+    animation: none;
+  }
+
+  html:not([data-motion="full"]) .booster-canister__sweep,
+  html:not([data-motion="full"]) .booster-card__rays,
+  html:not([data-motion="full"]) .booster-card__back::after,
+  html:not([data-motion="full"]) .booster-zoom__rays {
+    display: none;
+  }
+
+  html:not([data-motion="full"]) .booster-card__hover,
+  html:not([data-motion="full"]) .booster[data-layout="phone"] .booster-card__travel {
+    transition: none;
+  }
+
+  /* The zoom only crossfades. */
+  html:not([data-motion="full"]) .booster-zoom__panel {
+    animation-name: modal-fade;
+  }
+
+  /* Each celebration result only crossfades in. */
+  html:not([data-motion="full"]) .booster-celebration .booster-celebration__banner *,
+  html:not([data-motion="full"]) .booster-celebration .booster-celebration__banner *::before {
+    animation: none;
+  }
+
+  html:not([data-motion="full"]) .booster-celebration .booster-celebration__banner {
+    animation: booster-celebration-fade 200ms linear both;
+  }
+
+  html:not([data-motion="full"]) .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
+    transform: none;
+  }
+}
+
+html[data-motion="reduced"] .booster-canister__idle,
+html[data-motion="reduced"] .booster-canister__rays,
+html[data-motion="reduced"] .booster-canister__sweep-band,
+html[data-motion="reduced"] .booster-card[data-revealed] .booster-card__rays,
+html[data-motion="reduced"] .booster-card__back::after,
+html[data-motion="reduced"] .booster-zoom__rays,
+html[data-motion="reduced"] .booster-zoom[open]::backdrop {
+  animation: none;
+}
+
+html[data-motion="reduced"] .booster-canister__sweep,
+html[data-motion="reduced"] .booster-card__rays,
+html[data-motion="reduced"] .booster-card__back::after,
+html[data-motion="reduced"] .booster-zoom__rays {
+  display: none;
+}
+
+html[data-motion="reduced"] .booster-card__hover,
+html[data-motion="reduced"] .booster[data-layout="phone"] .booster-card__travel {
+  transition: none;
+}
+
+html[data-motion="reduced"] .booster-zoom__panel {
+  animation-name: modal-fade;
+}
+
+html[data-motion="reduced"] .booster-celebration .booster-celebration__banner *,
+html[data-motion="reduced"] .booster-celebration .booster-celebration__banner *::before {
+  animation: none;
+}
+
+html[data-motion="reduced"] .booster-celebration .booster-celebration__banner {
+  animation: booster-celebration-fade 200ms linear both;
+}
+
+html[data-motion="reduced"] .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
+  transform: none;
+}
+
+html .booster-celebration[data-still] .booster-celebration__banner,
+html .booster-celebration[data-still] .booster-celebration__banner *,
+html .booster-celebration[data-still] .booster-celebration__banner *::before {
+  animation: none;
+}

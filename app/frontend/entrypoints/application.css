@@ -42,7 +42,11 @@
 @import "../styles/card-tilt-effects.css";
 @import "../styles/card-rarity-effects.css";
 @import "../styles/booster.css";
+@import "../styles/booster-canister.css";
+@import "../styles/booster-effects.css";
+@import "../styles/booster-celebration.css";
 @import "../styles/booster-layouts.css";
+@import "../styles/booster-layouts-tray.css";
 
 /* Read by screen readers, not shown. */
 .visually-hidden {

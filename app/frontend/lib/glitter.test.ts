@@ -1,9 +1,16 @@
 import { describe, expect, it } from "vitest"
-import boosterLayoutsStylesheet from "../styles/booster-layouts.css?raw"
-import boosterStylesheet from "../styles/booster.css?raw"
+import booster from "../styles/booster.css?raw"
+import boosterCanister from "../styles/booster-canister.css?raw"
+import boosterCelebration from "../styles/booster-celebration.css?raw"
+import boosterEffects from "../styles/booster-effects.css?raw"
+import boosterLayouts from "../styles/booster-layouts.css?raw"
+import boosterLayoutsTray from "../styles/booster-layouts-tray.css?raw"
 import card from "../styles/card.css?raw"
 import cardTiltEffects from "../styles/card-tilt-effects.css?raw"
 import { DEFAULT_SEED, FLASH_REACH, TWINKLE_GROUPS, attachGlitter, flakeField, flakeFlash, flakeLevel, glitterSeed } from "./glitter"
+
+const boosterStylesheet = booster + boosterCanister + boosterEffects + boosterCelebration
+const boosterLayoutsStylesheet = boosterLayouts + boosterLayoutsTray
 
 const cardStylesheet = card + cardTiltEffects
 
