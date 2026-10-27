@@ -24,8 +24,6 @@ module Catalog
       unversioned + versioned.sort
     end
 
-    # The sets stored at publication: each kind's count, and the card count
-    # of each theme and of the UFOs.
     def self.published_panel(season_id, rows)
       kinds = Set.where(season_id:).group(:kind).count
       members = SetMembership.joins(:set).where(catalog_sets: { season_id:, kind: %w[theme ufo] })

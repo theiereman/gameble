@@ -1,25 +1,4 @@
 module Catalog
-  # Fills, once, what a source gives a card that the imports written before
-  # did not store: each card's developers, franchises and genres (theme
-  # keys, as Catalog::UpsertDraftCard takes them), and the review count of
-  # its card-seasons that have none. Published card-seasons are filled too,
-  # the one exception to their frozen season data: their count was never
-  # set, so no published value changes; their main theme is never touched.
-  #
-  # Rows are keyed by the card's source key; a row whose card does not exist
-  # is ignored, and a row with a nil review count fills no card-season. All
-  # rows are written in one transaction, in two bulk UPDATEs, the rows
-  # travelling as one jsonb document. Idempotent: a card already holding the
-  # names and genres and a card-season already holding a count are left as
-  # they are, so a second call fills nothing.
-  #
-  # Publishes Catalog::CardSourcesFilled with the counts, even when nothing
-  # was filled.
-  #
-  #   Catalog::FillCardSources.new.call(rows: [
-  #     { source_key: "steam:620", developers: [ "Valve" ], franchises: [ "Portal" ], genres: [ "puzzle" ], review_count: 1_000 }
-  #   ])
-  #   # => Success({ cards: 1, card_seasons: 2 }) | Failure(:invalid_card)
   class FillCardSources < ApplicationOperation
     STREAM = "Catalog::CardSources".freeze
     ROW_KEYS = %i[source_key developers franchises genres review_count].freeze
@@ -39,7 +18,6 @@ module Catalog
 
     private
 
-    # The rows as given, one per source key (the last one wins).
     def validate_rows(rows, theme_keys)
       return Failure(:invalid_card) unless rows.is_a?(Array) && rows.all? { |row| valid_row?(row, theme_keys) }
 

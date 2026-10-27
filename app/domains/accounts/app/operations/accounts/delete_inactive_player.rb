@@ -1,11 +1,4 @@
 module Accounts
-  # Deletes the account of a player idle for Player::IDLE_PERIOD, as
-  # Accounts::DeletePlayer deletes it at the player's request. Idleness, role
-  # and standing are read again on the locked row: a player seen, banned,
-  # deleted or made staff since they were picked is refused.
-  #
-  #   Accounts::DeleteInactivePlayer.new.call(player:, now: Time.current)
-  #   # => Success(player) | Failure(:player_required | :no_longer_idle)
   class DeleteInactivePlayer < ApplicationOperation
     NO_LONGER_IDLE = Dry::Monads::Failure(:no_longer_idle)
 

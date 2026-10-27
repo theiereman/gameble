@@ -1,11 +1,4 @@
 module Accounts
-  # Gives a player, found by their Steam id, the role of player, moderator or
-  # administrator. Run from `bin/rails "accounts:set_role[<steam id>,<role>]"`:
-  # no page assigns roles. Setting the role a player already holds changes
-  # nothing and publishes nothing.
-  #
-  #   Accounts::SetRole.new.call(steam_id: "76561197960287002", role: "moderator")
-  #   # => Success(player) | Failure(:player_not_found | :invalid_role)
   class SetRole < ApplicationOperation
     def call(steam_id:, role:)
       role = step check(role)

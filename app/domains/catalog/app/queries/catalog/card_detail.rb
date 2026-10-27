@@ -1,26 +1,4 @@
 module Catalog
-  # A card's detail: its CardView in one card-season, with what only
-  # the detail shows (the short description, the store link, the Steam
-  # reviews frozen with the card-season, nil without a review count) and
-  # the sets of that season holding it. The card is found by its slug alone
-  # (never by id, never through FriendlyId's fallback to the primary key);
-  # the card-season is that of the season numbered `season_number`, or of
-  # the published season without one. Only a published season is read;
-  # an unknown slug, a season not published, a card absent from the season
-  # or a card without text in the locale is nil.
-  #
-  # Two queries: the card, its text, card-season and season (the published
-  # season folded in as a subquery); then its sets, the main theme's first,
-  # the others in the library's tab order (theme, franchise, studio,
-  # hall_of_fame, ufo), the hall of fame in its fixed order, the others by
-  # key.
-  #
-  #   Catalog::CardDetail.call(slug: "portal", locale: "fr")
-  #   # => Detail(view: CardView(…), short_description: "…", sets: [ SetRef(…) ], current_season: true, …) | nil
-  #
-  # `card_season_id` and `card_id` are for the server's own joins (the
-  # viewer's copies and editions); they never reach a page. `current_season` is true when the card-season is
-  # the published season's.
   module CardDetail
     Detail = Data.define(:view, :short_description, :publisher, :store_url, :steam_reviews, :sets, :card_season_id, :card_id, :current_season)
 
@@ -59,7 +37,6 @@ module Catalog
     end
     private_class_method :card_season
 
-    # The set of the main theme first, then the others in SetKind's order.
     def self.sets(card_season_id, main_theme:)
       Set.joins(:memberships).where(catalog_set_memberships: { card_season_id: })
         .order(SetKind::ORDER, SeasonSets::HALL_OF_FAME_ORDER, :key)

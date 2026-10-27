@@ -1,14 +1,5 @@
 module Catalog
-  # The CardViews of card-seasons, in one query: title in a locale, publisher,
-  # release year and art of the card, rarity, number and main theme of the
-  # card-season, number of its season. A card-season without rarity (a
-  # draft) is left out, as is an unknown id.
-  #
-  #   Catalog::CardViews.call([ 12, 7 ], locale: "fr")
-  #   # => { 12 => CardView(title: "Portal", rarity: "epic", …), 7 => … }
   module CardViews
-    # A card-season's genre: its main theme, nil for a card of no theme or a
-    # season published before themes.
     GENRE = "catalog_card_seasons.main_theme".freeze
 
     COLUMNS = [
@@ -17,7 +8,6 @@ module Catalog
       "catalog_cards.image_url", "catalog_card_seasons.number", GENRE
     ].freeze
 
-    # The rarity enum comes back as its name ("rare").
     def self.call(card_season_ids, locale:)
       return {} if card_season_ids.empty?
 

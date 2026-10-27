@@ -1,14 +1,4 @@
 module Catalog
-  # An administrator makes a theme out of a Steam tag: the theme gets a name
-  # in each language (the tag's English name by default, French typed by
-  # hand, both chosen by the caller) and the tag is attached to it. The
-  # theme's key is the tag's key, followed by a number when another theme has
-  # it already.
-  #
-  # Publishes Catalog::ThemeCreated.
-  #
-  #   Catalog::CreateTheme.new.call(tag_key: "roguelite", name_en: "Roguelite", name_fr: "Roguelite")
-  #   # => Success(theme) | Failure(:invalid_tag) | Failure(:invalid_theme_name)
   class CreateTheme < ApplicationOperation
     include ThemeEditing
 

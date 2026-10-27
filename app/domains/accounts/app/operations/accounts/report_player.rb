@@ -9,7 +9,7 @@ module Accounts
       reason = step check(reason)
 
       transaction do
-        # Serializes one reporter's reports, so the daily limit cannot be raced.
+        # Serializes one reporter's reports so the daily limit cannot be raced.
         reporter.lock!
         existing = Report.find_by(reporter:, reported:)
         next existing if existing
@@ -18,7 +18,6 @@ module Accounts
         Report.create!(reporter:, reported:, reason:)
       end
     rescue ActiveRecord::RecordNotUnique
-      # A double click raced this one: the other report stands.
       Success(Report.find_by!(reporter:, reported:))
     end
 

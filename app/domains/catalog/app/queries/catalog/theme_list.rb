@@ -1,7 +1,4 @@
 module Catalog
-  # Every theme with the number of tags attached to it, by English name, ignoring case.
-  #
-  #   Catalog::ThemeList.call # => [Catalog::ThemeList::Entry, …]
   module ThemeList
     Entry = Data.define(:theme, :tag_count)
 

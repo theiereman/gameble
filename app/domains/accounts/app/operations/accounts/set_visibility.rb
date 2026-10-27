@@ -1,13 +1,4 @@
 module Accounts
-  # Sets who may see a player's profile: "public", "friends_only" or
-  # "private". Locks the player row FOR NO KEY UPDATE first, as
-  # Accounts::BanPlayer and Accounts::DeletePlayer do, then publishes
-  # Accounts::VisibilityChanged (going private cancels the player's open
-  # trades in Game, under the bank locks), then writes the row. Setting the
-  # visibility the player already has publishes nothing.
-  #
-  #   Accounts::SetVisibility.new.call(player:, visibility: "private")
-  #   # => Success(player) | Failure(:player_required) | Failure(:invalid_setting)
   class SetVisibility < ApplicationOperation
     def call(player:, visibility:)
       player = step require_player(player)

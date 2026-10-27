@@ -1,12 +1,4 @@
 module Catalog
-  # The hall of fame sets, in their shelf order, each selecting the
-  # card-seasons its rule accepts from their rating (Steam's whole percent)
-  # and review count, both frozen at publication. A card-season without a
-  # review count is in none; a card can be in several. A set's name is
-  # `catalog.hall_of_fame.<key>` in the locales.
-  #
-  #   Catalog::HallOfFame.keys                       # => ["intouchables", "pepites", "mal-aimes", "phenomenes"]
-  #   Catalog::HallOfFame.selects?("pepites", row)   # => true for 98 % and 999 reviews
   module HallOfFame
     RULES = {
       "intouchables" => ->(rating, review_count) { rating >= 97 && review_count >= 20_000 },

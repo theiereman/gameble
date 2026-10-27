@@ -1,16 +1,4 @@
 module Catalog
-  # A card-season's place in one set of its own season (the card detail's
-  # ◀ ▶ and position line), in one query: the set, the card's
-  # position in slot order (membership position, then membership id, as
-  # SetAlbum), the number of slots, and the slugs of the cards before and
-  # after it (nil at an end). Slots are counted as the grid shows them:
-  # members without a text in `locale`, or without a rarity, are skipped,
-  # as CardViews skips them. nil when the season holds no set of that kind
-  # and key, or when that set does not hold the card-season. The set is
-  # found by its kind and key, never by id.
-  #
-  #   Catalog::SetNeighbours.call(card_season_id: 12, kind: "theme", key: "rpg", locale: "fr")
-  #   # => Neighbours(set: SetRef(kind: "theme", …), position: 3, total: 13, previous: "portal", next: "celeste") | nil
   module SetNeighbours
     Neighbours = Data.define(:set, :position, :total, :previous, :next)
 

@@ -1,22 +1,4 @@
 module Accounts
-  # A player. Known by a Steam id; addressed in public by a random
-  # token, never by its database id. The token is a public,
-  # non-secret handle: it is the link to the player's public profile.
-  # No avatar or password.
-  #
-  # Its display name is the Steam persona name read at the last sign-in
-  # (`persona_name`, nil until Steam gives one): a label, not unique, which
-  # titles the public profile. Reports and moderation key on the token. It is
-  # personal data: an account's export and deletion include it.
-  #
-  # A player holds one role, ranked: player, moderator, administrator; a
-  # signed-out visitor is the absence of a player. A ban is the time it took
-  # effect; a banned player cannot sign in and is signed out on their next
-  # request.
-  #
-  # A deleted account (Accounts::DeletePlayer) keeps its record, as the
-  # target of the rows that name it, anonymised: no Steam id (released, so
-  # the player can sign up again), no name, a new token, and `deleted_at`.
   class Player < ApplicationRecord
     self.table_name = "accounts_players"
 
@@ -35,26 +17,17 @@ module Accounts
 
     before_save :rotate_stream_key, if: :banned_or_deleted_now?
 
-    # The roles, lowest rank first.
     RANKS = %w[player moderator administrator].freeze
 
     enum :role, RANKS.index_by(&:to_sym), default: :player, validate: true
 
-    # Who may see the player's profile: everyone, their friends only
-    # (decided by Game::Visibility, the friendships being Game's) or only
-    # them. The prefix keeps `private` from clashing with Ruby's own.
     enum :visibility, { public: "public", friends_only: "friends_only", private: "private" },
       default: :public, prefix: :visibility, validate: true
 
-    # Uniqueness of the Steam id is the unique index's job: a validation would
-    # race, and Accounts::SignIn relies on the index conflict.
     validates :steam_id, presence: true, format: { with: STEAM_ID_FORMAT }, unless: :deleted?
 
     scope :in_good_standing, -> { where(banned_at: nil, deleted_at: nil) }
     scope :removed, -> { where.not(banned_at: nil).or(where.not(deleted_at: nil)) }
-    # Idleness runs from the last signed-in visit or the last change to the
-    # account (sign-up, unban, role, settings), whichever is later: a ban or
-    # a staff role stops the visits being noted.
     scope :idle, ->(now) {
       where(role: :player).in_good_standing.where("GREATEST(last_seen_at, updated_at) < ?", now - IDLE_PERIOD)
     }
@@ -75,13 +48,10 @@ module Accounts
       banned? || deleted?
     end
 
-    # A moderator or an administrator.
     def staff?
       moderator? || administrator?
     end
 
-    # Whether this player's role ranks above `other`'s: staff act only on
-    # those they outrank.
     def outranks?(other)
       RANKS.index(role) > RANKS.index(other.role)
     end

@@ -1,18 +1,4 @@
 module Catalog
-  # Creates a roadmap milestone for each epic whose slug has none, after the
-  # last milestone, in the epics' order: worded in both languages with the
-  # epic's title, "to come" and hidden, so staff word it before players see
-  # it. An existing milestone is never changed, whatever its epic's title
-  # has become.
-  #
-  # The milestones table is locked (SHARE ROW EXCLUSIVE) for the transaction,
-  # so two containers booting at once neither duplicate a milestone nor take
-  # the same position.
-  #
-  # Publishes Catalog::RoadmapMilestonesCreated when it creates any.
-  #
-  #   Catalog::CreateRoadmapMilestones.new.call(epics: Catalog::InitiativeEpics.read(path).epics)
-  #   # => Success([ milestone, … ]) | Success([])
   class CreateRoadmapMilestones < ApplicationOperation
     include RoadmapEditing
 

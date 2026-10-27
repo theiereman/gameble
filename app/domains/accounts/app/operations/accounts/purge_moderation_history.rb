@@ -1,13 +1,4 @@
 module Accounts
-  # Erases the moderation history rows that ended more than RETENTION ago,
-  # for up to `limit` players at a time. Every row of a deleted account ends
-  # at its deletion; a ban ends at the first unban that follows it, or, lifted
-  # by hand with no unban, at the player's last update, and never while it is
-  # in force; an unban or a dismissal ends when made. All of a
-  # player's expired rows go in one statement, so a ban never outlives the
-  # unban that ended it. Housekeeping: no event names the rows it erases.
-  #
-  #   Accounts::PurgeModerationHistory.new.call(now: Time.current, limit: 500) # => Success(count)
   class PurgeModerationHistory < ApplicationOperation
     RETENTION = 1.year
 

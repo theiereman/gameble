@@ -1,20 +1,11 @@
 module Catalog
-  # How many distinct cards of a set a player needs for one of its tiers:
-  # a rank of TierTable (novice to master), bronze, silver or gold (the
-  # metals of seasons published before the ranks), or complete (every
-  # set's). Written when the season is published and never changed
-  # afterwards.
   class SetTier < ApplicationRecord
     self.table_name = "catalog_set_tiers"
 
     METALS = %w[bronze silver gold].freeze
     COMPLETE = TierTable::COMPLETE
-    # Every tier name, the lower first. Tiers are ordered by `required`; this
-    # order only breaks a tie between two tiers of one set asking the same
-    # count, which a metal set of a few cards can hold.
     TIERS = [ *METALS, *TierTable::RANKS, COMPLETE ].freeze
 
-    # A tier never moves to another set.
     attr_readonly :set_id
 
     belongs_to :set, class_name: "Catalog::Set", inverse_of: :tiers

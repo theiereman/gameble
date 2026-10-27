@@ -1,12 +1,6 @@
 module Catalog
-  # What the operations that write cards share: the validation of a
-  # card's attributes, texts and season scores, and the upsert of the card
-  # and its texts by source key, in place. Included by UpsertDraftCard,
-  # UpsertCardIdentity and StageCardSeason.
   module CardWriting
-    # Tries at an insert that meets a unique index before giving up.
     ATTEMPTS = 3
-    # The column is a smallint.
     SCORE_VERSIONS = 1..32_767
 
     private
@@ -22,9 +16,6 @@ module Catalog
       Success(source_key:, release_date:, image_url:, store_url:, publisher: publisher.presence, genres:, tags:, developers:, franchises:)
     end
 
-    # Texts in every locale, each with a title. A locale outside
-    # CardText::LOCALES, or a title that is not a String, is a bad attribute;
-    # a missing text, or a missing or blank title, is a missing text.
     def validate_texts(texts)
       return Failure(:invalid_card) unless texts.is_a?(Hash)
 
@@ -50,8 +41,6 @@ module Catalog
       value.is_a?(String) && value.present?
     end
 
-    # The card of the source key, locked, updated in place; or a new card
-    # with its texts, whose English title gives the slug.
     def upsert_card(attributes, texts)
       ATTEMPTS.times do
         card = find_card(attributes[:source_key])
@@ -69,11 +58,6 @@ module Catalog
       Card.lock.find_by(source_key: source_key)
     end
 
-    # The texts are built before the card is saved, so the slug sees the
-    # English title. Meeting the source key index means another writer
-    # created the card: the next attempt reads and updates it. Meeting the
-    # slug index means another card took the slug: the next attempt picks
-    # the next candidate.
     def create_card(attributes, texts)
       Card.transaction(requires_new: true) do
         card = Card.new(attributes)
@@ -110,7 +94,6 @@ module Catalog
       nil
     end
 
-    # Scores and counts are numbers as given, never parsed from strings.
     def validate_scores(prestige_score:, prestige_score_version:, rating:, review_count:)
       if real?(prestige_score) && score_version?(prestige_score_version) && real?(rating) && rating.between?(0, 100) &&
           (review_count.nil? || review_count?(review_count))

@@ -1,11 +1,7 @@
 module Catalog
-  # A card-season's place in a set, ordered by position. The card-season and
-  # the set belong to the same season; a membership of a published season
-  # never changes (AD-5).
   class SetMembership < ApplicationRecord
     self.table_name = "catalog_set_memberships"
 
-    # A membership never moves to another set or card-season.
     attr_readonly :set_id, :card_season_id
 
     belongs_to :set, class_name: "Catalog::Set", inverse_of: :memberships

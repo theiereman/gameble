@@ -1,6 +1,4 @@
 module Catalog
-  # A story staff list under a roadmap milestone, worded in both languages,
-  # with its own status, visibility and place among the milestone's stories.
   class RoadmapStory < ApplicationRecord
     self.table_name = "catalog_roadmap_stories"
 

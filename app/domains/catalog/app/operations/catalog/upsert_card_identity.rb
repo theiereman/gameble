@@ -1,24 +1,4 @@
 module Catalog
-  # Writes a card's identity (texts, publisher, developers, franchises,
-  # release date, store and image URL), whatever its source: the card is
-  # keyed by an opaque source key the caller builds. Idempotent: the
-  # same source key again updates the card and its texts in place, even when
-  # the card is in a published season. Touches no season: the card's season
-  # scores are staged apart (Catalog::StageCardSeason).
-  #
-  # `genres` are theme keys (Catalog::Themes), most-voted first; a genre
-  # outside the list is refused. `theme_keys`, the keys of Catalog::Themes
-  # (read once by a caller that writes many cards), spares one query per card.
-  #
-  # Publishes Catalog::CardIdentityUpserted on every call.
-  #
-  #   Catalog::UpsertCardIdentity.new.call(
-  #     source_key: "src:620", release_date: Date.new(2011, 4, 18),
-  #     image_url: "https://…", store_url: "https://…",
-  #     texts: { "en" => { title: "Portal 2", short_description: "…" }, "fr" => { title: "Portal 2" } },
-  #     publisher: "…", genres: %w[puzzle], tags: %w[puzzle], developers: %w[Valve], franchises: [ "Portal" ]
-  #   )
-  #   # => Success(card) | Failure(:missing_text) | Failure(:invalid_card)
   class UpsertCardIdentity < ApplicationOperation
     include CardWriting
 

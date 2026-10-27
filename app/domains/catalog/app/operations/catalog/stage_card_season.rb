@@ -1,15 +1,4 @@
 module Catalog
-  # Stages a card's season scores in a batch, beside the draft season:
-  # the draft is not touched. Idempotent: the same card in the same batch
-  # again replaces its scores. `batch_token` is opaque, given by the caller
-  # (an import run's token); `prestige_score_version` names the formula that
-  # gave `prestige_score`, as in UpsertDraftCard.
-  #
-  # Publishes Catalog::CardSeasonStaged on every call.
-  #
-  #   Catalog::StageCardSeason.new.call(batch_token: run.token, card_id: card.id,
-  #     prestige_score: 0.97, prestige_score_version: 2, rating: 98.0, review_count: 1_000)
-  #   # => Success(staged) | Failure(:invalid_card)
   class StageCardSeason < ApplicationOperation
     include CardWriting
 
