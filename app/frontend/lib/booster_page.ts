@@ -1,27 +1,15 @@
-// What the booster screen asks of the page around it: an idempotency key
-// for the opening, the CSRF token, a visit or a refresh through Turbo (the
-// browser's own when Turbo is absent), the layout the viewport's width
-// asks for, and the addresses that bring an opened pack back: a card's
-// detail walking the pack, and the screen's own history entry naming it.
 import { layoutFor } from "./booster_rules"
 import { NARROW_QUERY, PHONE_QUERY, type Layout } from "./booster_types"
 
-/** The layout the viewport's width asks for (lib/booster.ts, layoutFor). */
 export function readLayout(): Layout {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") return "wide"
   return layoutFor(window.matchMedia(PHONE_QUERY).matches, window.matchMedia(NARROW_QUERY).matches)
 }
 
-/** The query parameter naming the opened pack the screen shows, and its card details walk. */
 export const PACK_PARAM = "pack"
 
 export const CELEBRATION_PARAM = "celebration"
 
-/**
- * A card's detail walking its opened pack: `cardUrl` with the card's slug
- * in place of SLUG, the pack's token and the card's place in it (from 1,
- * as a pack can hold a card twice).
- */
 export function cardHref(cardUrl: string, slug: string, token: string, index: number): string {
   const url = new URL(cardUrl.replace("SLUG", encodeURIComponent(slug)), "http://booster.invalid")
   url.searchParams.set(PACK_PARAM, token)
@@ -29,10 +17,6 @@ export function cardHref(cardUrl: string, slug: string, token: string, index: nu
   return `${url.pathname}${url.search}`
 }
 
-/**
- * `href` naming the opened pack `token` (and its celebration, on demand),
- * or neither when `token` is null; the rest of its query and its hash kept.
- */
 export function withPack(href: string, token: string | null, celebration = false): string {
   const url = new URL(href)
   if (token === null) {
@@ -49,11 +33,6 @@ export const celebrationMarked = (href: string): boolean => new URL(href).search
 
 export const celebrationRemembered = (): boolean => typeof location !== "undefined" && celebrationMarked(location.href)
 
-/**
- * Names the opened pack `token` (or none, for null) in the screen's own
- * history entry, keeping Turbo's state in it: Back from a card's detail
- * then fetches the screen showing that pack (it is never cached).
- */
 export function rememberPack(token: string | null, celebration = false): void {
   const href = withPack(location.href, token, celebration)
   if (href !== location.href) history.replaceState(history.state, "", href)
@@ -81,7 +60,6 @@ export function visit(url: string): void {
   else window.location.assign(url)
 }
 
-/** The screen again from the server, in place (as countdown_controller.ts refreshes the hub). */
 export function refreshPage(): void {
   const turbo = (window as unknown as { Turbo?: TurboVisit }).Turbo
   if (turbo) turbo.visit(location.href, { action: "replace" })
