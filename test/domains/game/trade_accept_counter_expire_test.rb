@@ -1,6 +1,8 @@
 require "test_helper"
+require_relative "../../support/holdings"
 
 class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
+  include Holdings
   setup do
     @alice = accounts_players(:player)
     @bob = accounts_players(:moderator)
@@ -18,10 +20,6 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
   def befriend(first, second)
     low, high = [ first.id, second.id ].minmax
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
-  end
-
-  def hold(player, card_season_id, quantity, last_gained_at: nil)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:, last_gained_at:)
   end
 
   def holding(player, card_season_id) = Game::Holding.find_by(player_id: player.id, card_season_id:)
@@ -69,7 +67,7 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
 
   test "what each player receives is new on their collection, what they give is not marked" do
     long_ago = 3.days.ago
-    hold(@bob, @one, 1, last_gained_at: long_ago)
+    hold(@bob, @one, 1, gained_at: long_ago)
     Game::PlayerState.find_or_initialize_by(player_id: @bob.id).update!(collection_seen_up_to: 2.days.ago)
     Game::PlayerState.find_or_initialize_by(player_id: @alice.id).update!(collection_seen_up_to: 2.days.ago)
     holding(@bob, @three).update_columns(last_gained_at: long_ago)
@@ -87,7 +85,7 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
   end
 
   test "the same card on both sides moves the net difference and marks only a rise" do
-    hold(@bob, @one, 1, last_gained_at: 3.days.ago)
+    hold(@bob, @one, 1, gained_at: 3.days.ago)
     trade = propose(offer: { @one => 2 }, request: { @one => 1 })
 
     accept(trade).value!

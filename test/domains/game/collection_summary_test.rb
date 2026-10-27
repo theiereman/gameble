@@ -1,9 +1,11 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
+require_relative "../../support/holdings"
 
 # Game::CollectionSummary: a player's games, in any edition, and the
 # season's sets they complete.
 class Game::CollectionSummaryTest < ActiveSupport::TestCase
+  include Holdings
   include CatalogSeeds
 
   setup do
@@ -14,10 +16,6 @@ class Game::CollectionSummaryTest < ActiveSupport::TestCase
 
   def members(key)
     Catalog::SetMembership.where(set_id: @sets.fetch(key).id).order(:position).pluck(:card_season_id)
-  end
-
-  def hold(player, card_season_id, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
   end
 
   def summary(player = @player)

@@ -1,7 +1,9 @@
 require "test_helper"
 require_relative "../../support/lock_races"
+require_relative "../../support/holdings"
 
 class Game::TradeConcurrencyTest < ActiveSupport::TestCase
+  include Holdings
   include LockRaces
 
   self.use_transactional_tests = false
@@ -41,10 +43,6 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
   def befriend(first, second)
     low, high = [ first.id, second.id ].minmax
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
-  end
-
-  def hold(player, card_season_id, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
   end
 
   def reserved(player, card_season_id) = Game::Holding.uncached { Game::Holding.find_by(player_id: player.id, card_season_id:)&.reserved.to_i }

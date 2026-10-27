@@ -1,18 +1,16 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/holdings"
 
 # Reposting a card the player holds: the operation's checks, the feed entry
 # its handler writes, and how the feed shows it.
 class Game::RepostCardTest < ActiveSupport::TestCase
+  include Holdings
   include GamePacks
 
   setup do
     @player = accounts_players(:player)
     @common, _, _, @epic, @legendary = fixture_tier_ids
-  end
-
-  def hold(card_season_id, quantity, reserved: 0)
-    Game::Holding.create!(player_id: @player.id, card_season_id:, quantity:, reserved:)
   end
 
   def repost(card_season_id, player: @player)
@@ -22,7 +20,7 @@ class Game::RepostCardTest < ActiveSupport::TestCase
   def reposts = Game::FeedEntry.where(kind: "repost")
 
   test "a held card of any rarity is reposted: one notable entry with no pack, and one event" do
-    hold(@common, 1)
+    hold(@player, @common, 1)
     now = Time.utc(2026, 10, 8, 12, 0)
 
     result = travel_to(now) { repost(@common) }
@@ -37,7 +35,7 @@ class Game::RepostCardTest < ActiveSupport::TestCase
   end
 
   test "the entry carries the card's rarity" do
-    hold(@legendary, 2)
+    hold(@player, @legendary, 2)
 
     repost(@legendary).value!
 
@@ -45,7 +43,7 @@ class Game::RepostCardTest < ActiveSupport::TestCase
   end
 
   test "a card is reposted again, with no limit" do
-    hold(@epic, 1)
+    hold(@player, @epic, 1)
 
     3.times { repost(@epic).value! }
 
@@ -54,7 +52,7 @@ class Game::RepostCardTest < ActiveSupport::TestCase
   end
 
   test "a card not held is refused and writes nothing" do
-    hold(@epic, 0)
+    hold(@player, @epic, 0)
 
     assert_no_difference -> { Game::FeedEntry.count + Rails.configuration.event_store.read.count } do
       assert_equal :card_not_owned, repost(@epic).failure
@@ -70,14 +68,14 @@ class Game::RepostCardTest < ActiveSupport::TestCase
   end
 
   test "copies all promised to a trade still count as held" do
-    hold(@epic, 2, reserved: 2)
+    hold(@player, @epic, 2, reserved: 2)
 
     assert repost(@epic).success?
     assert_equal 1, reposts.count
   end
 
   test "a visitor, a banned or a deleted player is refused" do
-    hold(@epic, 1)
+    hold(@player, @epic, 1)
 
     assert_no_difference -> { Game::FeedEntry.count } do
       assert_equal :player_required, repost(@epic, player: nil).failure
@@ -88,7 +86,7 @@ class Game::RepostCardTest < ActiveSupport::TestCase
   end
 
   test "the handler publishes nothing more" do
-    hold(@epic, 1)
+    hold(@player, @epic, 1)
 
     assert_difference -> { Rails.configuration.event_store.read.count }, 1 do
       repost(@epic).value!
@@ -96,7 +94,7 @@ class Game::RepostCardTest < ActiveSupport::TestCase
   end
 
   test "the feed shows the repost under the whole feed and its filter, never as a filler" do
-    hold(@common, 1)
+    hold(@player, @common, 1)
     repost(@common).value!
 
     [ nil, "repost" ].each do |kind|
@@ -107,7 +105,7 @@ class Game::RepostCardTest < ActiveSupport::TestCase
   end
 
   test "the repost stays once the card is traded away" do
-    holding = hold(@epic, 1)
+    holding = hold(@player, @epic, 1)
     repost(@epic).value!
 
     holding.update!(quantity: 0)
@@ -116,7 +114,7 @@ class Game::RepostCardTest < ActiveSupport::TestCase
   end
 
   test "a private, friends only or banned player's repost is hidden from others" do
-    hold(@epic, 1)
+    hold(@player, @epic, 1)
     repost(@epic).value!
     stranger = accounts_players(:moderator)
 

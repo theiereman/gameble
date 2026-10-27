@@ -1,18 +1,16 @@
 require "test_helper"
+require_relative "../../support/holdings"
 
 # Game::CollectionSlots: a player's copies of the
 # cards asked about, and which are new against their watermark.
 class Game::CollectionSlotsTest < ActiveSupport::TestCase
+  include Holdings
   Slot = Game::CollectionSlots::Slot
 
   setup do
     @player = accounts_players(:player)
     @portal, @common, @legendary = %i[portal_one common_card_one legendary_card_one].map { catalog_card_seasons(it).id }
     @state = Game::PlayerState.find_by!(player_id: @player.id)
-  end
-
-  def hold(player, card_season_id, quantity, gained_at: nil)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:, last_gained_at: gained_at)
   end
 
   def slots(ids = [ @portal, @common, @legendary ]) = Game::CollectionSlots.call(@player, ids)

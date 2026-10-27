@@ -1,17 +1,15 @@
 require "test_helper"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
+require_relative "../support/holdings"
 
 # The shell around every page: the head's metas and font preloads, the top bar for
 # a visitor and for a player, the phone tab bar, the atmosphere, the toasts
 # that replace the flash, and the back-office variant.
 class ShellTest < ActionDispatch::IntegrationTest
+  include Holdings
   include GamePacks
   include SteamSignIn
-
-  def hold(player, card_season, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(card_season).id, quantity:)
-  end
 
   def assert_wordmark_sweeps_on_hover(brand = "a.top-bar__home")
     sweep = "#{brand}[data-controller=wordmark-shine]"
@@ -137,8 +135,8 @@ class ShellTest < ActionDispatch::IntegrationTest
 
   test "a player elsewhere: the back button to the bridge, the rarity counter, the packs chip and the player chip" do
     player = accounts_players(:player)
-    hold(player, :common_card_one, 3)
-    hold(player, :portal_one, 1)
+    hold(player, catalog_card_seasons(:common_card_one).id, 3)
+    hold(player, catalog_card_seasons(:portal_one).id, 1)
     3.times { create_pack(player) }
     create_pack(player, available_at: 125.seconds.from_now)
     sign_in(player)
@@ -235,7 +233,7 @@ class ShellTest < ActionDispatch::IntegrationTest
 
   test "a new season's publication leaves the rarity counter as it stood: every edition counts" do
     player = accounts_players(:player)
-    hold(player, :common_card_one, 3)
+    hold(player, catalog_card_seasons(:common_card_one).id, 3)
     newer = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
     newer.update!(status: :published, published_at: Time.current)
     sign_in(player)

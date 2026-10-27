@@ -1,8 +1,10 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 require_relative "../../support/rake_tasks"
+require_relative "../../support/holdings"
 
 class Game::AchievementsTest < ActiveSupport::TestCase
+  include Holdings
   include ActionCable::TestHelper
   include ActiveJob::TestHelper
   include GamePacks
@@ -20,10 +22,6 @@ class Game::AchievementsTest < ActiveSupport::TestCase
 
   def opened_packs(count, player: @player, kind: :regular)
     count.times { create_pack(player, kind:, opened_at: Time.current) }
-  end
-
-  def hold(card_season_id, quantity = 1, player: @player)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
   end
 
   # Completes `count` franchise sets of the season, each under a key of its own unless `keys` names them.
@@ -48,7 +46,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
 
   def propose_trade(proposer: @player, recipient: @other)
     { proposer => @common, recipient => @uncommon }.each do |player, card_season_id|
-      hold(card_season_id, player:) unless Game::Holding.exists?(player_id: player.id, card_season_id:)
+      hold(player, card_season_id) unless Game::Holding.exists?(player_id: player.id, card_season_id:)
     end
     Game::ProposeTrade.new.call(player: proposer, recipient:, offer: { @common => 1 }, request: { @uncommon => 1 }).value!
   end
@@ -94,10 +92,10 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   end
 
   test "Épiques and Légendaires obtained count the holding rows of exactly that tier, copies traded away included" do
-    hold(@epic, 0)
-    hold(@legendary, 2)
-    hold(@rare, 4)
-    hold(@epic, 1, player: @other)
+    hold(@player, @epic, 0)
+    hold(@player, @legendary, 2)
+    hold(@player, @rare, 4)
+    hold(@other, @epic, 1)
 
     assert_equal [ 1, 1 ], progress.values_at(:epics_obtained, :legendaries_obtained)
   end
@@ -105,8 +103,8 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   test "an Épique held in two seasons is one game obtained" do
     portal_two = Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: second_season.id, prestige_score: 0.9,
       rating: 95, rarity: 4, number: 1 } ], returning: :id).rows.flatten.sole
-    hold(@epic)
-    hold(portal_two)
+    hold(@player, @epic)
+    hold(@player, portal_two)
 
     assert_equal 1, progress[:epics_obtained]
   end
@@ -146,7 +144,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   end
 
   test "reposts count the player's repost entries" do
-    hold(@common)
+    hold(@player, @common)
     2.times { Game::RepostCard.new.call(player: @player, card_season_id: @common).value! }
 
     assert_equal 2, progress[:reposts]
@@ -264,7 +262,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   end
 
   test "a first repost unlocks the first repost" do
-    hold(@common)
+    hold(@player, @common)
 
     perform_enqueued_jobs { Game::RepostCard.new.call(player: @player, card_season_id: @common).value! }
 

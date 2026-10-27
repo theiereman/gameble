@@ -1,7 +1,9 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/holdings"
 
 class Game::FirstDiscoveryAndCompleteSetTest < ActiveSupport::TestCase
+  include Holdings
   include GamePacks
 
   setup do
@@ -34,8 +36,6 @@ class Game::FirstDiscoveryAndCompleteSetTest < ActiveSupport::TestCase
     low, high = [ first.id, second.id ].minmax
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
   end
-
-  def hold(player, card_season_id, quantity) = Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
 
   def trade(offer:, request:, from: @player, to: @other)
     trade = Game::ProposeTrade.new.call(player: from, recipient: to, offer:, request:).value!

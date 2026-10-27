@@ -4,10 +4,12 @@ require_relative "../support/game_packs"
 require_relative "../support/game_sets"
 require_relative "../support/game_trades"
 require_relative "../support/steam_sign_in"
+require_relative "../support/holdings"
 
 # The hub, "Pont de commandement", a player's page, as the server renders
 # it; a visitor is sent to the landing.
 class PagesControllerTest < ActionDispatch::IntegrationTest
+  include Holdings
   include CatalogSeeds
   include GamePacks
   include GameSets
@@ -33,10 +35,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
   def epic_name(locale)
     I18n.t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(4)}", locale:)
-  end
-
-  def hold(card_season_id, gained_at:)
-    Game::Holding.create!(player_id: @player.id, card_season_id:, quantity: 1, last_gained_at: gained_at)
   end
 
   def trade_away_only_copy(card_season_id)
@@ -84,7 +82,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the showcase's line names the card's main theme as its genre, and leaves out a missing number" do
-    hold(catalog_card_seasons(:portal_one).id, gained_at: 1.hour.ago)
+    hold(@player, catalog_card_seasons(:portal_one).id, gained_at: 1.hour.ago)
     Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(main_theme: "puzzle")
     sign_in(@player)
 
@@ -97,9 +95,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a showcased card traded away gives way to the previous one held, still with Repost, and the hub writes nothing" do
-    hold(catalog_card_seasons(:portal_one).id, gained_at: 2.hours.ago)
+    hold(@player, catalog_card_seasons(:portal_one).id, gained_at: 2.hours.ago)
     legendary = catalog_card_seasons(:legendary_card_one).id
-    hold(legendary, gained_at: 1.hour.ago)
+    hold(@player, legendary, gained_at: 1.hour.ago)
     sign_in(@player)
 
     get home_path(locale: :en)
@@ -252,7 +250,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a player holding no tier 4 card sees the empty showcase, its primary opening a booster" do
-    hold(fixture_tier_ids.first, gained_at: 1.hour.ago)
+    hold(@player, fixture_tier_ids.first, gained_at: 1.hour.ago)
     create_pack(@player)
     sign_in(@player)
 
@@ -968,7 +966,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the showcase floats an epic card with purple rays" do
-    hold(catalog_card_seasons(:portal_one).id, gained_at: 1.hour.ago)
+    hold(@player, catalog_card_seasons(:portal_one).id, gained_at: 1.hour.ago)
     sign_in(@player)
 
     get home_path(locale: :en)

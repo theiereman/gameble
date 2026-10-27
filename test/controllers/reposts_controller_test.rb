@@ -1,20 +1,18 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/steam_sign_in"
+require_relative "../support/holdings"
 
 # Reposting a card from its detail, the booster and the hub: the answers in
 # Turbo Stream, HTML and JSON, and every refusal.
 class RepostsControllerTest < ActionDispatch::IntegrationTest
+  include Holdings
   include CountingRateLimit
   include SteamSignIn
 
   setup do
     @player = accounts_players(:player)
     @portal = catalog_card_seasons(:portal_one).id
-  end
-
-  def hold(card_season_id, quantity: 1)
-    Game::Holding.create!(player_id: @player.id, card_season_id:, quantity:)
   end
 
   def repost_path(slug: "portal", number: 1, locale: :en) = card_repost_path(locale:, slug:, number:)
@@ -32,7 +30,7 @@ class RepostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "from Turbo, a held card is reposted with a toast, in French and English" do
-    hold(@portal)
+    hold(@player, @portal)
     sign_in(@player)
 
     post repost_path(locale: :fr), as: :turbo_stream
@@ -48,7 +46,7 @@ class RepostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "without JavaScript the repost goes back to the card with a flash" do
-    hold(@portal)
+    hold(@player, @portal)
     sign_in(@player)
 
     post repost_path, headers: { "HTTP_REFERER" => card_path(locale: :en, slug: "portal") }
@@ -60,7 +58,7 @@ class RepostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "in JSON a repost answers its message, a card not held its error" do
-    hold(@portal)
+    hold(@player, @portal)
     sign_in(@player)
 
     post repost_path, as: :json
@@ -74,7 +72,7 @@ class RepostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a card not held is refused with a toast and writes nothing" do
-    hold(@portal, quantity: 0)
+    hold(@player, @portal, 0)
     sign_in(@player)
 
     assert_no_difference -> { Game::FeedEntry.count + Rails.configuration.event_store.read.of_type([ Game::CardReposted ]).count } do
@@ -86,7 +84,7 @@ class RepostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "an unknown card or season is not found" do
-    hold(@portal)
+    hold(@player, @portal)
     sign_in(@player)
 
     post repost_path(slug: "no-such-game"), as: :json
@@ -121,7 +119,7 @@ class RepostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "thirty reposts a minute are answered; the thirty-first is throttled with Retry-After" do
-    hold(@portal)
+    hold(@player, @portal)
     sign_in(@player)
 
     with_counting_rate_limit(RepostsController) do

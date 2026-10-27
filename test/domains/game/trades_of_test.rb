@@ -1,6 +1,8 @@
 require "test_helper"
+require_relative "../../support/holdings"
 
 class Game::TradesOfTest < ActiveSupport::TestCase
+  include Holdings
   setup do
     @alice = accounts_players(:player)
     @bob = accounts_players(:moderator)
@@ -18,10 +20,6 @@ class Game::TradesOfTest < ActiveSupport::TestCase
   def befriend(first, second)
     low, high = [ first.id, second.id ].minmax
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
-  end
-
-  def hold(player, card_season_id, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:, reserved: 0)
   end
 
   def propose(player, recipient, offer:, request:)

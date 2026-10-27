@@ -1,6 +1,8 @@
 require "test_helper"
+require_relative "../../support/holdings"
 
 class Game::HeldGamesTest < ActiveSupport::TestCase
+  include Holdings
   setup do
     @player = accounts_players(:player)
     @season_two = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
@@ -12,29 +14,27 @@ class Game::HeldGamesTest < ActiveSupport::TestCase
       rarity:, number: one.number } ], returning: :id).rows.flatten.sole
   end
 
-  def hold(card_season_id, quantity = 1, player: @player) = Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
-
   test "a game held in two editions is one game, at its best rarity" do
     rare_two = edition(:rare_card_one, rarity: "legendary")
-    hold(catalog_card_seasons(:rare_card_one).id)
-    hold(rare_two)
+    hold(@player, catalog_card_seasons(:rare_card_one).id)
+    hold(@player, rare_two)
 
     assert_equal({ catalog_cards(:rare_card).id => Catalog::Rarity::TIERS.key(:legendary) }, Game::HeldGames.call(@player.id))
   end
 
   test "an edition held with no copy left counts for nothing" do
     portal_two = edition(:portal_one, rarity: "legendary")
-    hold(catalog_card_seasons(:portal_one).id, 2)
-    hold(portal_two, 0)
-    hold(catalog_card_seasons(:common_card_one).id, 0)
+    hold(@player, catalog_card_seasons(:portal_one).id, 2)
+    hold(@player, portal_two, 0)
+    hold(@player, catalog_card_seasons(:common_card_one).id, 0)
 
     assert_equal({ catalog_cards(:portal).id => Catalog::Rarity::TIERS.key(:epic) }, Game::HeldGames.call(@player.id))
   end
 
   test "card ids narrow the answer; none asked is an empty answer; another player's cards never count" do
-    hold(catalog_card_seasons(:portal_one).id)
-    hold(catalog_card_seasons(:common_card_one).id)
-    hold(catalog_card_seasons(:rare_card_one).id, player: accounts_players(:moderator))
+    hold(@player, catalog_card_seasons(:portal_one).id)
+    hold(@player, catalog_card_seasons(:common_card_one).id)
+    hold(accounts_players(:moderator), catalog_card_seasons(:rare_card_one).id)
     portal, rare = catalog_cards(:portal).id, catalog_cards(:rare_card).id
 
     assert_equal [ portal ], Game::HeldGames.call(@player.id, card_ids: [ portal, rare ]).keys
@@ -46,10 +46,10 @@ class Game::HeldGamesTest < ActiveSupport::TestCase
   test "each game's best held edition: highest rarity, then the season asked, then the latest; copies over every edition, in one query" do
     rare_two = edition(:rare_card_one, rarity: "legendary")
     portal_two = edition(:portal_one, rarity: "epic")
-    hold(catalog_card_seasons(:rare_card_one).id, 1)
-    hold(rare_two, 2)
-    hold(catalog_card_seasons(:portal_one).id, 1)
-    hold(portal_two, 3)
+    hold(@player, catalog_card_seasons(:rare_card_one).id, 1)
+    hold(@player, rare_two, 2)
+    hold(@player, catalog_card_seasons(:portal_one).id, 1)
+    hold(@player, portal_two, 3)
     rare, portal, common = catalog_cards(:rare_card).id, catalog_cards(:portal).id, catalog_cards(:common_card).id
     season = catalog_seasons(:one)
 
@@ -79,7 +79,7 @@ class Game::HeldGamesTest < ActiveSupport::TestCase
   end
 
   test "a visitor or no card asked costs no query; another player's copies never count" do
-    hold(catalog_card_seasons(:portal_one).id, 1, player: accounts_players(:moderator))
+    hold(accounts_players(:moderator), catalog_card_seasons(:portal_one).id, 1)
     portal = catalog_cards(:portal).id
     season = catalog_seasons(:one)
 
@@ -91,12 +91,12 @@ class Game::HeldGamesTest < ActiveSupport::TestCase
   end
 
   test "the games held, and how many at each best rarity, every tier a key, in one query each" do
-    hold(catalog_card_seasons(:rare_card_one).id, 2)
-    hold(edition(:rare_card_one, rarity: "epic"))
-    hold(catalog_card_seasons(:portal_one).id)
-    hold(catalog_card_seasons(:common_card_one).id, 3)
-    hold(catalog_card_seasons(:legendary_card_one).id, 0)
-    hold(catalog_card_seasons(:uncommon_card_one).id, player: accounts_players(:moderator))
+    hold(@player, catalog_card_seasons(:rare_card_one).id, 2)
+    hold(@player, edition(:rare_card_one, rarity: "epic"))
+    hold(@player, catalog_card_seasons(:portal_one).id)
+    hold(@player, catalog_card_seasons(:common_card_one).id, 3)
+    hold(@player, catalog_card_seasons(:legendary_card_one).id, 0)
+    hold(accounts_players(:moderator), catalog_card_seasons(:uncommon_card_one).id)
 
     assert_queries_count(1) { assert_equal 3, Game::HeldGames.count(@player) }
     by_rarity = nil

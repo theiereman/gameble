@@ -1,8 +1,10 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 require_relative "../../support/game_trades"
+require_relative "../../support/holdings"
 
 class Game::ExportOfTest < ActiveSupport::TestCase
+  include Holdings
   include GamePacks
   include GameTrades
 
@@ -149,10 +151,6 @@ class Game::ExportOfTest < ActiveSupport::TestCase
   end
 
   private
-    def hold(player, card_season_id, quantity)
-      holding = Game::Holding.find_or_initialize_by(player_id: player.id, card_season_id:)
-      holding.update!(quantity: holding.quantity.to_i + quantity)
-    end
 
     def befriend(one, other)
       low, high = [ one.id, other.id ].minmax

@@ -1,12 +1,10 @@
+require_relative "holdings"
+
 # Helpers of the request tests of the library, the public profile and the
 # card detail: giving a player copies, reading a set's members, and counting
 # a request's queries. The including test signs in with SteamSignIn.
 module LibraryRequests
-  # Copies of a card-season, last gained at `gained_at` (nil: before the
-  # tracking of new cards, never new).
-  def hold(player, card_season_id, quantity, gained_at: nil)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:, last_gained_at: gained_at)
-  end
+  include Holdings
 
   # The card-season ids of the set `key` of `season`, in slot order.
   def set_members(season, key)

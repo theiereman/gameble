@@ -1,8 +1,10 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 require_relative "../../support/game_packs"
+require_relative "../../support/holdings"
 
 class Game::SetTierTest < ActiveSupport::TestCase
+  include Holdings
   include CatalogSeeds
   include GamePacks
 
@@ -39,8 +41,6 @@ class Game::SetTierTest < ActiveSupport::TestCase
     end
     [ season, Catalog::CardSeason.insert_all!(rows, returning: :id).rows.flatten ]
   end
-
-  def hold(player, card_season_id, quantity = 1) = Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
 
   def open_pack(player, cards, season: @season, idempotency_key: nil)
     create_pack(player, cards:, season:)

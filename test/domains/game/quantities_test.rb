@@ -1,15 +1,13 @@
 require "test_helper"
+require_relative "../../support/holdings"
 
 # Game::Quantities: a player's copies of each card-season
 # asked about.
 class Game::QuantitiesTest < ActiveSupport::TestCase
+  include Holdings
   setup do
     @player = accounts_players(:player)
     @portal, @common, @legendary = %i[portal_one common_card_one legendary_card_one].map { catalog_card_seasons(it).id }
-  end
-
-  def hold(player, card_season_id, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
   end
 
   test "the copies of the cards asked about that the player holds, in one query" do

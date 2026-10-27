@@ -1,18 +1,16 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
+require_relative "../support/holdings"
 
 # Adding a card to the profile showcase and taking it out, from its detail:
 # the answers in Turbo Stream, HTML and JSON, and every refusal.
 class ShowcasesControllerTest < ActionDispatch::IntegrationTest
+  include Holdings
   include SteamSignIn
 
   setup do
     @player = accounts_players(:player)
     @portal = catalog_card_seasons(:portal_one).id
-  end
-
-  def hold(card_season_id, quantity: 1)
-    Game::Holding.create!(player_id: @player.id, card_season_id:, quantity:)
   end
 
   def showcase_path(slug: "portal", number: 1, locale: :en) = card_showcase_path(locale:, slug:, number:)
@@ -32,7 +30,7 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a held card is added and taken out, each answer leading back to its detail" do
-    hold(@portal)
+    hold(@player, @portal)
     sign_in(@player)
 
     post showcase_path, headers: { "HTTP_REFERER" => detail_path }
@@ -48,7 +46,7 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "from Turbo the change leads back to the detail; in JSON it answers no content" do
-    hold(@portal)
+    hold(@player, @portal)
     sign_in(@player)
 
     post showcase_path, as: :turbo_stream
@@ -61,7 +59,7 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a card not held, one already there or not there is refused with its message and writes nothing" do
-    hold(@portal)
+    hold(@player, @portal)
     sign_in(@player)
     post showcase_path, as: :json
 
@@ -83,7 +81,7 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a full showcase refuses a sixth card with the showcase-full line" do
-    hold(@portal)
+    hold(@player, @portal)
     sign_in(@player)
     ids = catalog_card_seasons(:common_card_one, :uncommon_card_one, :rare_card_one, :legendary_card_one).map(&:id)
     ids.each_with_index { |id, position| Game::ShowcaseEntry.create!(player_id: @player.id, card_season_id: id, position:) }
@@ -131,7 +129,7 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
 
   def choose(*fixtures)
     fixtures.map { catalog_card_seasons(it).id }.each do |id|
-      hold(id)
+      hold(@player, id)
       Game::AddToShowcase.new.call(player: @player, card_season_id: id).value!
     end
   end

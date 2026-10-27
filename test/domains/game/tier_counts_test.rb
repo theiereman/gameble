@@ -1,25 +1,23 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/holdings"
 
 # Game::TierCounts: the copies a player holds per rarity tier, every
 # edition counted, for the top bar's rarity counter.
 class Game::TierCountsTest < ActiveSupport::TestCase
+  include Holdings
   include GamePacks
 
   setup do
     @player = accounts_players(:player)
   end
 
-  def hold(player, card_season, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(card_season).id, quantity:)
-  end
-
   test "the copies held per tier, in one query" do
-    hold(@player, :common_card_one, 3)
-    hold(@player, :uncommon_card_one, 1)
-    hold(@player, :portal_one, 2)
-    hold(@player, :legendary_card_one, 0)
-    hold(accounts_players(:moderator), :rare_card_one, 4)
+    hold(@player, catalog_card_seasons(:common_card_one).id, 3)
+    hold(@player, catalog_card_seasons(:uncommon_card_one).id, 1)
+    hold(@player, catalog_card_seasons(:portal_one).id, 2)
+    hold(@player, catalog_card_seasons(:legendary_card_one).id, 0)
+    hold(accounts_players(:moderator), catalog_card_seasons(:rare_card_one).id, 4)
 
     result = nil
     assert_queries_count(1) { result = Game::TierCounts.call(@player) }
@@ -31,7 +29,7 @@ class Game::TierCountsTest < ActiveSupport::TestCase
   end
 
   test "every edition counts, at the rarity it was minted in: publishing a season changes nothing" do
-    hold(@player, :common_card_one, 3)
+    hold(@player, catalog_card_seasons(:common_card_one).id, 3)
     newer = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
     reprint = Catalog::CardSeason.create!(card: catalog_cards(:common_card), season: newer, prestige_score: 0.5, rating: 90, rarity: :rare)
     Game::Holding.create!(player_id: @player.id, card_season_id: reprint.id, quantity: 2)
@@ -43,8 +41,8 @@ class Game::TierCountsTest < ActiveSupport::TestCase
   # --- Before an opening -------------------------------------------
 
   test "before an opening: the current counts minus the pack's cards, a card drawn twice counted twice" do
-    hold(@player, :common_card_one, 5)
-    hold(@player, :portal_one, 3)
+    hold(@player, catalog_card_seasons(:common_card_one).id, 5)
+    hold(@player, catalog_card_seasons(:portal_one).id, 3)
     common, portal = catalog_card_seasons(:common_card_one).id, catalog_card_seasons(:portal_one).id
     pack = create_pack(@player, cards: [ common, portal, common, portal, common ], opened_at: 1.minute.ago)
 
@@ -54,7 +52,7 @@ class Game::TierCountsTest < ActiveSupport::TestCase
   end
 
   test "before an opening: the cards of every season are subtracted, at the rarity they were minted in" do
-    hold(@player, :common_card_one, 2)
+    hold(@player, catalog_card_seasons(:common_card_one).id, 2)
     newer = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
     other = Catalog::CardSeason.create!(card: catalog_cards(:common_card), season: newer, prestige_score: 0.5, rating: 90, rarity: :rare)
     Game::Holding.create!(player_id: @player.id, card_season_id: other.id, quantity: 4)
@@ -65,7 +63,7 @@ class Game::TierCountsTest < ActiveSupport::TestCase
   end
 
   test "before an opening: never below zero" do
-    hold(@player, :legendary_card_one, 1)
+    hold(@player, catalog_card_seasons(:legendary_card_one).id, 1)
     legendary = catalog_card_seasons(:legendary_card_one).id
     pack = create_pack(@player, cards: [ legendary ] * 5, opened_at: 1.minute.ago)
 
