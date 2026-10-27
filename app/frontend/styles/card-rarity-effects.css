@@ -1,6 +1,7 @@
 .card-rays {
   --card-ray: color-mix(in srgb, var(--color-rarity-epique) 22%, transparent);
   --card-rays-size: 420px;
+
   position: absolute;
   left: 50%;
   top: 50%;
@@ -21,6 +22,7 @@
 .card-rays--legendary {
   --card-ray: color-mix(in srgb, var(--color-rarity-legendaire) 36%, transparent);
   --card-rays-size: 500px;
+
   animation-duration: 14s;
 }
 
@@ -29,7 +31,9 @@
 }
 
 @keyframes card-rays-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .card-float {
@@ -39,9 +43,18 @@
 }
 
 @keyframes card-idle-float {
-  0%, 100% { transform: translateY(0); }
-  25% { transform: translateY(calc(-1 * var(--idle-float-max))); }
-  75% { transform: translateY(var(--idle-float-max)); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  25% {
+    transform: translateY(calc(-1 * var(--idle-float-max)));
+  }
+
+  75% {
+    transform: translateY(var(--idle-float-max));
+  }
 }
 
 .card-detail__stage,

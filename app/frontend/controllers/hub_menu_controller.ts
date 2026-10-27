@@ -20,7 +20,8 @@ export default class extends Controller<HTMLElement> {
     const stored = takeStored()
     if (stored === undefined && !this.focusFirstValue) return
 
-    const item = this.focusFirstValue || stored === undefined ? this.itemTargets[0] : (this.item(stored) ?? this.itemTargets[0])
+    const item =
+      this.focusFirstValue || stored === undefined ? this.itemTargets[0] : (this.item(stored) ?? this.itemTargets[0])
     if (this.menuShown()) {
       item?.focus()
     } else if (this.hasHeadingTarget) {
@@ -49,7 +50,9 @@ export default class extends Controller<HTMLElement> {
   }
 
   private item(key: string): HTMLElement | undefined {
-    return this.itemTargets.find((item) => item.getAttribute("aria-keyshortcuts") === key && item.getAttribute("aria-disabled") !== "true")
+    return this.itemTargets.find(
+      (item) => item.getAttribute("aria-keyshortcuts") === key && item.getAttribute("aria-disabled") !== "true",
+    )
   }
 
   private menuShown(): boolean {

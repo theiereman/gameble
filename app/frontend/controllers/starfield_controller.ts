@@ -8,7 +8,12 @@ export default class extends Controller<HTMLElement> {
   private readonly visited = (event: Event): void => {
     if (document.documentElement.dataset.subViewStep) return
     const { url, action } = (event as CustomEvent<{ url?: string; action?: string }>).detail ?? {}
-    if (url !== undefined && keepsFrame(this.leftPath(action), new URL(url, location.href).pathname, { phone: window.matchMedia(PHONE_WIDTH).matches })) {
+    if (
+      url !== undefined &&
+      keepsFrame(this.leftPath(action), new URL(url, location.href).pathname, {
+        phone: window.matchMedia(PHONE_WIDTH).matches,
+      })
+    ) {
       document.documentElement.dataset.screenChange = "same"
     } else {
       delete document.documentElement.dataset.screenChange

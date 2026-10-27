@@ -2,7 +2,10 @@ import { cropRegion } from "pixelcrush"
 
 export const DEFAULT_ANCHOR = 0.42
 
-export type DrawContext = Pick<CanvasRenderingContext2D, "drawImage" | "imageSmoothingEnabled" | "imageSmoothingQuality">
+export type DrawContext = Pick<
+  CanvasRenderingContext2D,
+  "drawImage" | "imageSmoothingEnabled" | "imageSmoothingQuality"
+>
 
 export type Surface<C extends DrawContext = DrawContext> = { canvas: CanvasImageSource; context: C }
 
@@ -20,7 +23,10 @@ export function halvingSizes(regionWidth: number, regionHeight: number, width: n
       currentWidth /= 2
       currentHeight /= 2
     }
-    sizes.push({ width: Math.max(width, Math.round(currentWidth)), height: Math.max(height, Math.round(currentHeight)) })
+    sizes.push({
+      width: Math.max(width, Math.round(currentWidth)),
+      height: Math.max(height, Math.round(currentHeight)),
+    })
   } while (above())
   return sizes
 }

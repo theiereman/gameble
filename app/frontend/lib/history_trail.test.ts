@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest"
-import { TRAIL_KEY, TRAIL_SPAN, entryAfter, previousScreen, readTrail, recordEntry, resetTrail, stepsBackTo, type TrailStorage } from "./history_trail"
+import {
+  TRAIL_KEY,
+  TRAIL_SPAN,
+  entryAfter,
+  previousScreen,
+  readTrail,
+  recordEntry,
+  resetTrail,
+  stepsBackTo,
+  type TrailStorage,
+} from "./history_trail"
 
 function memory(): TrailStorage & { items: Map<string, string> } {
   const items = new Map<string, string>()
@@ -33,7 +43,8 @@ describe("history trail", () => {
 
   it("takes the nearest of several", () => {
     const storage = memory()
-    for (const [index, path] of ["/grid", "/card", "/grid", "/other", "/card"].entries()) recordEntry(index, path, storage)
+    for (const [index, path] of ["/grid", "/card", "/grid", "/other", "/card"].entries())
+      recordEntry(index, path, storage)
 
     expect(stepsBackTo("/grid", 4, storage)).toBe(2)
   })
@@ -130,37 +141,80 @@ describe("history trail", () => {
     it("is the entry right before, one step back, when it shows another screen", () => {
       const trail = trailOf(["/en"], ["/en/library", "Collection"], ["/en/cards/portal", "Card"])
 
-      expect(previousScreen(trail, 2, "Card", "/en/here")).toEqual({ label: "Collection", pathname: "/en/library", steps: 1 })
+      expect(previousScreen(trail, 2, "Card", "/en/here")).toEqual({
+        label: "Collection",
+        pathname: "/en/library",
+        steps: 1,
+      })
     })
 
     it("is hidden on a later page of a screen reached from the hub", () => {
-      const trail = trailOf(["/en"], ["/en/library", "Collection"], ["/en/library", "Collection"], ["/en/library", "Collection"])
+      const trail = trailOf(
+        ["/en"],
+        ["/en/library", "Collection"],
+        ["/en/library", "Collection"],
+        ["/en/library", "Collection"],
+      )
 
       expect(previousScreen(trail, 3, "Collection", "/en/here")).toBeNull()
     })
 
     it("names the grid page a card detail was opened from, one step back", () => {
-      const trail = trailOf(["/en"], ["/en/library", "Collection"], ["/en/library", "Collection"], ["/en/cards/portal", "Card"])
+      const trail = trailOf(
+        ["/en"],
+        ["/en/library", "Collection"],
+        ["/en/library", "Collection"],
+        ["/en/cards/portal", "Card"],
+      )
 
-      expect(previousScreen(trail, 3, "Card", "/en/here")).toEqual({ label: "Collection", pathname: "/en/library", steps: 1 })
+      expect(previousScreen(trail, 3, "Card", "/en/here")).toEqual({
+        label: "Collection",
+        pathname: "/en/library",
+        steps: 1,
+      })
     })
 
     it("goes back past the pages of the current screen to the screen before them", () => {
-      const trail = trailOf(["/en"], ["/en/cards/portal", "Card"], ["/en/library", "Collection"], ["/en/library", "Collection"])
+      const trail = trailOf(
+        ["/en"],
+        ["/en/cards/portal", "Card"],
+        ["/en/library", "Collection"],
+        ["/en/library", "Collection"],
+      )
 
-      expect(previousScreen(trail, 3, "Collection", "/en/here")).toEqual({ label: "Card", pathname: "/en/cards/portal", steps: 2 })
+      expect(previousScreen(trail, 3, "Collection", "/en/here")).toEqual({
+        label: "Card",
+        pathname: "/en/cards/portal",
+        steps: 2,
+      })
     })
 
     it("returns the screen read before a language switch under its path in the selected language", () => {
-      const trail = trailOf(["/fr"], ["/fr/library", "Collection", { en: "Collection", fr: "Collection" }], ["/en/settings", "Profile"])
+      const trail = trailOf(
+        ["/fr"],
+        ["/fr/library", "Collection", { en: "Collection", fr: "Collection" }],
+        ["/en/settings", "Profile"],
+      )
 
-      expect(previousScreen(trail, 2, "Profile", "/en/settings")).toEqual({ label: "Collection", pathname: "/en/library", steps: 1 })
+      expect(previousScreen(trail, 2, "Profile", "/en/settings")).toEqual({
+        label: "Collection",
+        pathname: "/en/library",
+        steps: 1,
+      })
     })
 
     it("names a screen read in the other language by its label in the current language", () => {
-      const trail = trailOf(["/fr"], ["/fr/friends", "Amis", { en: "Friends", fr: "Amis" }], ["/en/settings", "Profile"])
+      const trail = trailOf(
+        ["/fr"],
+        ["/fr/friends", "Amis", { en: "Friends", fr: "Amis" }],
+        ["/en/settings", "Profile"],
+      )
 
-      expect(previousScreen(trail, 2, "Profile", "/en/settings")).toEqual({ label: "Friends", pathname: "/en/friends", steps: 1 })
+      expect(previousScreen(trail, 2, "Profile", "/en/settings")).toEqual({
+        label: "Friends",
+        pathname: "/en/friends",
+        steps: 1,
+      })
     })
 
     it("skips the pages of the current screen read in the other language", () => {
@@ -171,7 +225,11 @@ describe("history trail", () => {
         ["/en/library", "Collection", { en: "Collection", fr: "Collection" }],
       )
 
-      expect(previousScreen(trail, 3, "Collection", "/en/library")).toEqual({ label: "Friends", pathname: "/en/friends", steps: 2 })
+      expect(previousScreen(trail, 3, "Collection", "/en/library")).toEqual({
+        label: "Friends",
+        pathname: "/en/friends",
+        steps: 2,
+      })
     })
 
     it("stops at the hub on the other side of a language switch", () => {
@@ -208,12 +266,20 @@ describe("history trail", () => {
       recordEntry(1, "/en/cards/a", storage, "Card")
       recordEntry(1, "/en/cards/b", storage, "Card")
 
-      expect(previousScreen(readTrail(storage), 1, "Card", "/en/here")).toEqual({ label: "Collection", pathname: "/en/library", steps: 1 })
+      expect(previousScreen(readTrail(storage), 1, "Card", "/en/here")).toEqual({
+        label: "Collection",
+        pathname: "/en/library",
+        steps: 1,
+      })
     })
 
     it("treats an empty label as none, and skips nothing on an unnamed screen", () => {
       expect(previousScreen(trailOf(["/en/library", "Collection"], ["/en/feed", ""]), 2, "Card", "/en/here")).toBeNull()
-      expect(previousScreen(trailOf(["/en"], ["/en/library", "Collection"]), 2, null, "/en/here")).toEqual({ label: "Collection", pathname: "/en/library", steps: 1 })
+      expect(previousScreen(trailOf(["/en"], ["/en/library", "Collection"]), 2, null, "/en/here")).toEqual({
+        label: "Collection",
+        pathname: "/en/library",
+        steps: 1,
+      })
     })
 
     it("finds nothing after a reset, without storage, or from entries it cannot read", () => {

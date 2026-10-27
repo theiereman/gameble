@@ -1,6 +1,13 @@
 import { Controller } from "@hotwired/stimulus"
 import { writeText } from "../lib/dom_writes"
-import { STEPPER, keepStepperFocus, quantityFromButton, quantityFromKey, reflectStepper, type StepperView } from "../lib/stepper"
+import {
+  STEPPER,
+  keepStepperFocus,
+  quantityFromButton,
+  quantityFromKey,
+  reflectStepper,
+  type StepperView,
+} from "../lib/stepper"
 import { cloneContent } from "../lib/templates"
 import type { Side } from "../lib/trade_board"
 
@@ -52,8 +59,11 @@ export default class TradeBoardSideController extends Controller<HTMLElement> {
   }
 
   focus(key: string | null, preventScroll = false): void {
-    const remove = key === null ? null : this.listTarget.querySelector<HTMLElement>(`[data-remove="${CSS.escape(key)}"]`)
-    const fallback = this.addSlotTarget.hidden ? this.listTarget.querySelector<HTMLElement>(".trade-card__remove") : this.addTarget
+    const remove =
+      key === null ? null : this.listTarget.querySelector<HTMLElement>(`[data-remove="${CSS.escape(key)}"]`)
+    const fallback = this.addSlotTarget.hidden
+      ? this.listTarget.querySelector<HTMLElement>(".trade-card__remove")
+      : this.addTarget
     ;(remove ?? fallback)?.focus({ preventScroll })
   }
 

@@ -51,8 +51,12 @@ const layout = (width: number) => {
     art: {
       width: width - inset,
       height: evenFloor(
-        1.5 * width - inset - 3 * value("--card-gap") - value("--card-band-height")
-          - value("--card-line-height") - value("--card-rarity-line-height"),
+        1.5 * width -
+          inset -
+          3 * value("--card-gap") -
+          value("--card-band-height") -
+          value("--card-line-height") -
+          value("--card-rarity-line-height"),
       ),
     },
   }
@@ -70,12 +74,16 @@ const share = (gridWidth: number, columns: number, gap: number) => {
 const fill = (gridWidth: number, gap = GAP) => share(gridWidth, Math.floor((gridWidth + gap) / (MIN + gap)), gap)
 
 const pageGutter = (property: string) => {
-  const match = ruleBody(tokensStylesheet, ":root").match(new RegExp(`${property}:\\s*\\d+px (?:(\\d+)px|var\\((--[\\w-]+)\\))`))
+  const match = ruleBody(tokensStylesheet, ":root").match(
+    new RegExp(`${property}:\\s*\\d+px (?:(\\d+)px|var\\((--[\\w-]+)\\))`),
+  )
   if (!match) throw new Error(`${property} has no inline padding`)
   return match[2] ? token(match[2]) : Number(match[1])
 }
 
-const REPORT = Number(ruleBody(collectionStylesheet, ".collection").match(/grid-template-columns: (\d+)px minmax\(0, 1fr\);/)?.[1])
+const REPORT = Number(
+  ruleBody(collectionStylesheet, ".collection").match(/grid-template-columns: (\d+)px minmax\(0, 1fr\);/)?.[1],
+)
 
 const WIDE_PAGE = 1280 - 2 * pageGutter("--space-page-padding-wide")
 const CARDS_WIDE = WIDE_PAGE - REPORT - token("--space-column-gap-wide")
@@ -83,8 +91,9 @@ const mediumPage = (window: number) => window - 2 * pageGutter("--space-page-pad
 const phonePage = (window: number) => window - 2 * pageGutter("--space-page-padding-phone")
 
 const narrowPhoneGap = () => {
-  const gap = ruleBody(collectionStylesheet, ".collection-grid", collectionStylesheet.indexOf(PHONE_NARROW))
-    .match(/column-gap: var\((--space-\d)\);/)?.[1]
+  const gap = ruleBody(collectionStylesheet, ".collection-grid", collectionStylesheet.indexOf(PHONE_NARROW)).match(
+    /column-gap: var\((--space-\d)\);/,
+  )?.[1]
   if (!gap) throw new Error("the narrow phone grid has no gap of its own")
   return token(gap)
 }
@@ -98,7 +107,7 @@ describe("the grid card", () => {
     expect(gridCard).toContain("--card-height: calc(1.5 * var(--card-width));")
     expect(gridCard).toContain("--card-art-width: calc(var(--card-width) - var(--card-inset));")
     const artHeight = gridCard.slice(gridCard.indexOf("--card-art-height:"))
-    expect(artHeight).toMatch(/^--card-art-height: round\(down,/)
+    expect(artHeight).toMatch(/^--card-art-height: round\(\s*down,/)
     for (const term of [
       "var(--card-height)",
       "var(--card-inset)",
@@ -109,7 +118,7 @@ describe("the grid card", () => {
     ]) {
       expect(artHeight).toContain(term)
     }
-    expect(artHeight).toMatch(/2px\);/)
+    expect(artHeight).toMatch(/2px\s*\);/)
   })
 
   it("is exactly the medium card at 160px and has the small card's layout at 112px", () => {
@@ -181,9 +190,19 @@ describe("the grid of every card", () => {
     { name: "1280px and up, beside the RAPPORT", gridWidth: CARDS_WIDE, columns: 6, card: 146 },
     { name: "1280px beside a classic scrollbar", gridWidth: CARDS_WIDE - CLASSIC_SCROLLBAR, columns: 6, card: 144 },
     { name: "a 1024px window", gridWidth: mediumPage(1024), columns: 6, card: 148 },
-    { name: "a 1024px window beside a classic scrollbar", gridWidth: mediumPage(1024) - CLASSIC_SCROLLBAR, columns: 6, card: 144 },
+    {
+      name: "a 1024px window beside a classic scrollbar",
+      gridWidth: mediumPage(1024) - CLASSIC_SCROLLBAR,
+      columns: 6,
+      card: 144,
+    },
     { name: "an 800px window", gridWidth: mediumPage(800), columns: 4, card: 174 },
-    { name: "an 800px window beside a classic scrollbar", gridWidth: mediumPage(800) - CLASSIC_SCROLLBAR, columns: 4, card: 170 },
+    {
+      name: "an 800px window beside a classic scrollbar",
+      gridWidth: mediumPage(800) - CLASSIC_SCROLLBAR,
+      columns: 4,
+      card: 170,
+    },
   ])("$name: $columns columns of $card px, each under 1px from its column's edges", ({ gridWidth, columns, card }) => {
     const grid = fill(gridWidth)
     expect({ columns: grid.columns, card: grid.card }).toEqual({ columns, card })
@@ -233,7 +252,9 @@ describe("a set's album grid", () => {
 describe("the top bar", () => {
   it("takes the page's inline gutter under 1180px", () => {
     expect(token("--space-gutter-medium")).toBe(28)
-    expect(ruleBody(tokensStylesheet, ":root")).toContain("--space-page-padding-medium: 24px var(--space-gutter-medium) 32px;")
+    expect(ruleBody(tokensStylesheet, ":root")).toContain(
+      "--space-page-padding-medium: 24px var(--space-gutter-medium) 32px;",
+    )
     expect(pageGutter("--space-page-padding-medium")).toBe(28)
     const medium = shellStylesheet.indexOf("@media (max-width: 1179px)")
     expect(medium).toBeGreaterThan(-1)
@@ -241,6 +262,8 @@ describe("the top bar", () => {
     expect(shellStylesheet.indexOf(".main {", medium)).toBeLessThan(nextMedia)
     expect(ruleBody(shellStylesheet, ".main", medium)).toContain("padding: var(--space-page-padding-medium);")
     expect(shellStylesheet.indexOf(".top-bar__inner {", medium)).toBeLessThan(nextMedia)
-    expect(ruleBody(shellStylesheet, ".top-bar__inner", medium)).toContain("padding-inline: var(--space-gutter-medium);")
+    expect(ruleBody(shellStylesheet, ".top-bar__inner", medium)).toContain(
+      "padding-inline: var(--space-gutter-medium);",
+    )
   })
 })

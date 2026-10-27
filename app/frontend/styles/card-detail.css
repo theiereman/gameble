@@ -93,6 +93,7 @@
   justify-content: center;
   min-width: min(340px, 100%);
   gap: var(--space-2);
+
   /* A horizontal swipe steps (sub_view_controller.ts); a vertical drag
      scrolls the page. */
   touch-action: pan-y;
@@ -239,11 +240,25 @@
   height: 14px;
 }
 
-.card-detail__fact .card-detail__rarity--common { color: var(--color-rarity-commune); }
-.card-detail__fact .card-detail__rarity--uncommon { color: var(--color-rarity-peu-commune); }
-.card-detail__fact .card-detail__rarity--rare { color: var(--color-rarity-rare); }
-.card-detail__fact .card-detail__rarity--epic { color: var(--color-rarity-epique); }
-.card-detail__fact .card-detail__rarity--legendary { color: var(--color-rarity-legendaire); }
+.card-detail__fact .card-detail__rarity--common {
+  color: var(--color-rarity-commune);
+}
+
+.card-detail__fact .card-detail__rarity--uncommon {
+  color: var(--color-rarity-peu-commune);
+}
+
+.card-detail__fact .card-detail__rarity--rare {
+  color: var(--color-rarity-rare);
+}
+
+.card-detail__fact .card-detail__rarity--epic {
+  color: var(--color-rarity-epique);
+}
+
+.card-detail__fact .card-detail__rarity--legendary {
+  color: var(--color-rarity-legendaire);
+}
 
 .card-detail__sets {
   display: flex;
@@ -364,7 +379,9 @@
 }
 
 .share-sheet__url:focus-visible {
-  box-shadow: var(--focus-ring-gap), inset 0 0 0 var(--space-unit) var(--color-accent);
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
 }
 
 .share-sheet__row .button {

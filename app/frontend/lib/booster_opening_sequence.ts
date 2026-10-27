@@ -1,7 +1,29 @@
-import { arming, cardsDealt, ejecting, lock, openingAnswered, openingEnded, openingRefused, openingStarted, resultHeadShown, retracted, retracting, unlock, type OpeningRefusal } from "./booster"
+import {
+  arming,
+  cardsDealt,
+  ejecting,
+  lock,
+  openingAnswered,
+  openingEnded,
+  openingRefused,
+  openingStarted,
+  resultHeadShown,
+  retracted,
+  retracting,
+  unlock,
+  type OpeningRefusal,
+} from "./booster"
 import { animate, blast, settle, stageFlash, stageShake } from "./booster_effects"
 import type { BoosterStageHost } from "./booster_host"
-import { armKeyframes, bodyKeyframes, capBottomKeyframes, capTopKeyframes, dockKeyframes, fadeKeyframes, sinkKeyframes } from "./booster_keyframes"
+import {
+  armKeyframes,
+  bodyKeyframes,
+  capBottomKeyframes,
+  capTopKeyframes,
+  dockKeyframes,
+  fadeKeyframes,
+  sinkKeyframes,
+} from "./booster_keyframes"
 import {
   ARM_MS,
   BODY_MS,
@@ -59,7 +81,10 @@ export class OpeningSequence {
     host.apply((s) => arming(s, key))
     const reduced = motionReduced()
     if (!reduced) animate(host.canister()?.move, armKeyframes(), { duration: ARM_MS, fill: "forwards" })
-    const [result] = await Promise.all([sendOpening({ url: host.openUrl, key, csrfToken: csrfToken() }), host.timers().wait(reduced ? 0 : ARM_MS)])
+    const [result] = await Promise.all([
+      sendOpening({ url: host.openUrl, key, csrfToken: csrfToken() }),
+      host.timers().wait(reduced ? 0 : ARM_MS),
+    ])
     if (host.timers().disposed) return
     if (result.kind !== "opened") {
       this.refuse(result)
@@ -97,13 +122,22 @@ export class OpeningSequence {
         const travel = host.part(index, "travel")
         const from = host.phoneLayout() ? pileTransform(pileDepth(index, host.current().stored)) : pose()
         settle(travel)
-        animate(travel, sinkKeyframes(from), { duration: SINK, delay: index * SINK_STAGGER, easing: "cubic-bezier(.5,0,.8,.4)", fill: "forwards" })
+        animate(travel, sinkKeyframes(from), {
+          duration: SINK,
+          delay: index * SINK_STAGGER,
+          easing: "cubic-bezier(.5,0,.8,.4)",
+          fill: "forwards",
+        })
       }
       await wait(SINK + (count - 1) * SINK_STAGGER)
     }
     host.apply(retracted)
     if (!motionReduced()) {
-      animate(host.canister()?.wrap, dockKeyframes(), { duration: DOCK, easing: "cubic-bezier(.2,.9,.3,1)", fill: "none" })
+      animate(host.canister()?.wrap, dockKeyframes(), {
+        duration: DOCK,
+        easing: "cubic-bezier(.2,.9,.3,1)",
+        fill: "none",
+      })
       await wait(DOCK)
     }
   }
@@ -113,8 +147,16 @@ export class OpeningSequence {
     const { wait, later } = host.timers()
     const parts = host.canister()
     host.apply(ejecting)
-    animate(parts?.capTop, capTopKeyframes(), { duration: CAPS_MS, easing: "cubic-bezier(.12,.8,.3,1)", fill: "forwards" })
-    animate(parts?.capBottom, capBottomKeyframes(), { duration: CAPS_MS, easing: "cubic-bezier(.12,.8,.3,1)", fill: "forwards" })
+    animate(parts?.capTop, capTopKeyframes(), {
+      duration: CAPS_MS,
+      easing: "cubic-bezier(.12,.8,.3,1)",
+      fill: "forwards",
+    })
+    animate(parts?.capBottom, capBottomKeyframes(), {
+      duration: CAPS_MS,
+      easing: "cubic-bezier(.12,.8,.3,1)",
+      fill: "forwards",
+    })
     animate(parts?.body, bodyKeyframes(), { duration: BODY_MS, easing: "cubic-bezier(.5,0,1,.6)", fill: "forwards" })
     animate(parts?.rays, fadeKeyframes(1, 0), { duration: RAYS_FADE_MS, fill: "forwards" })
     blast(host.fx(), parts?.button)
@@ -137,7 +179,12 @@ export class OpeningSequence {
       const dy = origin.top + origin.height / 2 - (rect.top + rect.height / 2)
       const delay = position * stagger
       const rest = phone ? pilePose(pileDepth(index, host.current().stored)) : undefined
-      animate(travel, dealKeyframes(dx, dy, dealRotation(index, count), rest), { duration: DEAL_MS, delay, fill: "backwards", easing: "linear" })
+      animate(travel, dealKeyframes(dx, dy, dealRotation(index, count), rest), {
+        duration: DEAL_MS,
+        delay,
+        fill: "backwards",
+        easing: "linear",
+      })
       later(delay + DEAL_MS * DEAL_LAND_AT, () => stageShake(host.shake(), 1.5, LAND_SHAKE_MS))
       end = Math.max(end, delay + DEAL_MS)
     })
@@ -150,7 +197,11 @@ export class OpeningSequence {
     host.apply(resultHeadShown)
     host.apply(cardsDealt)
     for (let index = 0; index < count; index++) {
-      animate(host.part(index, "travel"), fadeKeyframes(0, 1), { duration: RM_CARD_FADE, delay: index * RM_FADE_STAGGER, fill: "backwards" })
+      animate(host.part(index, "travel"), fadeKeyframes(0, 1), {
+        duration: RM_CARD_FADE,
+        delay: index * RM_FADE_STAGGER,
+        fill: "backwards",
+      })
     }
     await host.timers().wait(Math.max(RM_CANISTER_FADE, RM_CARD_FADE + (count - 1) * RM_FADE_STAGGER))
   }

@@ -1,4 +1,11 @@
-import { createJobRunner, PaletteCache, type JobEnvironment, type JobRequest, type JobResponse, type WorkerSurface } from "./worker_job"
+import {
+  createJobRunner,
+  PaletteCache,
+  type JobEnvironment,
+  type JobRequest,
+  type JobResponse,
+  type WorkerSurface,
+} from "./worker_job"
 
 type WorkerScope = {
   addEventListener(type: "message", listener: (event: MessageEvent<JobRequest>) => void): void

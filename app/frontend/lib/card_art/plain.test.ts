@@ -71,7 +71,10 @@ afterEach(() => {
 
 describe("renderPlain", () => {
   it("loads a plain image without CORS and without referrer", async () => {
-    await renderPlain("https://cdn.test/a.jpg", new FakeCanvas() as unknown as HTMLCanvasElement, { width: 68, height: 108 })
+    await renderPlain("https://cdn.test/a.jpg", new FakeCanvas() as unknown as HTMLCanvasElement, {
+      width: 68,
+      height: 108,
+    })
 
     expect(images).toHaveLength(1)
     expect(images[0].src).toBe("https://cdn.test/a.jpg")
@@ -106,7 +109,9 @@ describe("renderPlain", () => {
     decode = () => Promise.reject(new DOMException("The source image cannot be decoded", "EncodingError"))
     const target = new FakeCanvas()
 
-    await expect(renderPlain("https://cdn.test/404.jpg", target as unknown as HTMLCanvasElement, { width: 68, height: 108 })).rejects.toBeInstanceOf(ArtMissingError)
+    await expect(
+      renderPlain("https://cdn.test/404.jpg", target as unknown as HTMLCanvasElement, { width: 68, height: 108 }),
+    ).rejects.toBeInstanceOf(ArtMissingError)
     expect(target.draws).toHaveLength(0)
   })
 
@@ -117,7 +122,12 @@ describe("renderPlain", () => {
       return Promise.resolve()
     }
 
-    await expect(renderPlain("https://cdn.test/small.jpg", new FakeCanvas() as unknown as HTMLCanvasElement, { width: 68, height: 108 })).rejects.toBeInstanceOf(ArtMissingError)
+    await expect(
+      renderPlain("https://cdn.test/small.jpg", new FakeCanvas() as unknown as HTMLCanvasElement, {
+        width: 68,
+        height: 108,
+      }),
+    ).rejects.toBeInstanceOf(ArtMissingError)
   })
 
   it("rejects with AbortError and leaves the canvas untouched once aborted", async () => {
@@ -126,7 +136,11 @@ describe("renderPlain", () => {
     const target = new FakeCanvas()
     const controller = new AbortController()
 
-    const rendering = renderPlain("https://cdn.test/a.jpg", target as unknown as HTMLCanvasElement, { width: 68, height: 108, signal: controller.signal })
+    const rendering = renderPlain("https://cdn.test/a.jpg", target as unknown as HTMLCanvasElement, {
+      width: 68,
+      height: 108,
+      signal: controller.signal,
+    })
     controller.abort()
     finish()
 

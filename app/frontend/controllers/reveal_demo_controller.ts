@@ -1,6 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
 import { motionReduced } from "../lib/motion"
-import { pressRevealDemo, REVEAL_DEMO_START, revealDemoLabel, type RevealDemoState, turnDuration } from "../lib/reveal_demo"
+import {
+  pressRevealDemo,
+  REVEAL_DEMO_START,
+  revealDemoLabel,
+  type RevealDemoState,
+  turnDuration,
+} from "../lib/reveal_demo"
 
 export default class extends Controller<HTMLElement> {
   static targets = ["stage", "face", "button", "status"]
@@ -41,7 +47,10 @@ export default class extends Controller<HTMLElement> {
       this.statusTarget.textContent = ""
       this.turnBack = setTimeout(() => this.show(), turnDuration(motionReduced()))
     }
-    this.buttonTarget.textContent = revealDemoLabel(this.state, { reveal: this.revealLabelValue, restart: this.restartLabelValue })
+    this.buttonTarget.textContent = revealDemoLabel(this.state, {
+      reveal: this.revealLabelValue,
+      restart: this.restartLabelValue,
+    })
   }
 
   private show(): void {

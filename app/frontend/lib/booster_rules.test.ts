@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest"
 import { arming, ejecting } from "./booster_opening"
-import { countsAfterReveal, faceSize, keyAfter, layoutFor, planRevealAll, revealingOpening, storedAfterRebuild, topOfPile, zoomNeighbour } from "./booster_rules"
+import {
+  countsAfterReveal,
+  faceSize,
+  keyAfter,
+  layoutFor,
+  planRevealAll,
+  revealingOpening,
+  storedAfterRebuild,
+  topOfPile,
+  zoomNeighbour,
+} from "./booster_rules"
 import { BoosterStatus, NARROW_QUERY, PHONE_QUERY } from "./booster_types"
 
 describe("layouts", () => {
@@ -33,7 +43,9 @@ describe("revealingOpening", () => {
 
 describe("planRevealAll", () => {
   it("lists the face-down cards in order, a legendary awaited in full", () => {
-    expect(planRevealAll(["common", "legendary", "rare", "legendary", "epic"], [false, false, true, false, false])).toEqual([
+    expect(
+      planRevealAll(["common", "legendary", "rare", "legendary", "epic"], [false, false, true, false, false]),
+    ).toEqual([
       { index: 0, wait: "gap" },
       { index: 1, wait: "full" },
       { index: 3, wait: "full" },
@@ -77,7 +89,12 @@ describe("topOfPile", () => {
 
 describe("storedAfterRebuild", () => {
   it("lays every revealed card in the tray on the way into the phone", () => {
-    expect(storedAfterRebuild([true, false, true, false], [false, false, false, false], "phone")).toEqual([true, false, true, false])
+    expect(storedAfterRebuild([true, false, true, false], [false, false, false, false], "phone")).toEqual([
+      true,
+      false,
+      true,
+      false,
+    ])
     expect(storedAfterRebuild([true, true, false], [true, false, false], "phone")).toEqual([true, true, false])
   })
 

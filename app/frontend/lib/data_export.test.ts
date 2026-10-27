@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { FALLBACK_FILENAME, exportButton, exportFilename, exportedAt, failureMessage, nextExportAt } from "./data_export"
+import {
+  FALLBACK_FILENAME,
+  exportButton,
+  exportFilename,
+  exportedAt,
+  failureMessage,
+  nextExportAt,
+} from "./data_export"
 
 const labels = { idle: "Exporter", preparing: "Préparation…", retry: "Réessayer" }
 
@@ -25,7 +32,9 @@ describe("exportFilename", () => {
   it("reads the file name the server gives", () => {
     const header = `attachment; filename="gameble-export-2026-10-14.json"; filename*=UTF-8''gameble-export-2026-10-14.json`
     expect(exportFilename(header)).toBe("gameble-export-2026-10-14.json")
-    expect(exportFilename(`attachment; filename="gameble-export-2026-10-14.json"`)).toBe("gameble-export-2026-10-14.json")
+    expect(exportFilename(`attachment; filename="gameble-export-2026-10-14.json"`)).toBe(
+      "gameble-export-2026-10-14.json",
+    )
     expect(exportFilename("attachment; filename=gameble-export-2026-10-14.json")).toBe("gameble-export-2026-10-14.json")
   })
 
@@ -43,8 +52,9 @@ describe("exportFilename", () => {
 
 describe("failureMessage", () => {
   it("reads the message of the server's error", () => {
-    expect(failureMessage({ error: { code: "throttled", message: "Un export toutes les 5 minutes au plus." } }, "Échec"))
-      .toBe("Un export toutes les 5 minutes au plus.")
+    expect(
+      failureMessage({ error: { code: "throttled", message: "Un export toutes les 5 minutes au plus." } }, "Échec"),
+    ).toBe("Un export toutes les 5 minutes au plus.")
   })
 
   it("falls back on anything else", () => {
@@ -59,7 +69,9 @@ describe("failureMessage", () => {
 
 describe("exportedAt", () => {
   it("reads the export's time from the file", () => {
-    expect(exportedAt(JSON.stringify({ exportedAt: "2026-10-14T09:30:00Z" }))?.toISOString()).toBe("2026-10-14T09:30:00.000Z")
+    expect(exportedAt(JSON.stringify({ exportedAt: "2026-10-14T09:30:00Z" }))?.toISOString()).toBe(
+      "2026-10-14T09:30:00.000Z",
+    )
   })
 
   it("gives nothing for a file it cannot read", () => {

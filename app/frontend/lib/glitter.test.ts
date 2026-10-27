@@ -7,7 +7,16 @@ import boosterLayouts from "../styles/booster-layouts.css?raw"
 import boosterLayoutsTray from "../styles/booster-layouts-tray.css?raw"
 import card from "../styles/card.css?raw"
 import cardTiltEffects from "../styles/card-tilt-effects.css?raw"
-import { DEFAULT_SEED, FLASH_REACH, TWINKLE_GROUPS, attachGlitter, flakeField, flakeFlash, flakeLevel, glitterSeed } from "./glitter"
+import {
+  DEFAULT_SEED,
+  FLASH_REACH,
+  TWINKLE_GROUPS,
+  attachGlitter,
+  flakeField,
+  flakeFlash,
+  flakeLevel,
+  glitterSeed,
+} from "./glitter"
 
 const boosterStylesheet = booster + boosterCanister + boosterEffects + boosterCelebration
 const boosterLayoutsStylesheet = boosterLayouts + boosterLayoutsTray
@@ -72,7 +81,11 @@ describe("flakeField", () => {
   })
 
   it("gives every size three twinkle groups, each with its own rhythm, and puts every flake in one", () => {
-    for (const [width, height] of [[112, 168], [160, 240], [240, 360]]) {
+    for (const [width, height] of [
+      [112, 168],
+      [160, 240],
+      [240, 360],
+    ]) {
       const field = flakeField(11, width, height)
       expect(field.groups).toHaveLength(TWINKLE_GROUPS)
       expect(TWINKLE_GROUPS).toBe(3)
@@ -141,7 +154,11 @@ describe("attachGlitter", () => {
   const flakesIn = (element: FakeElement) => element.children.flatMap((group) => group.children)
 
   it("draws the flakes into their three twinkle groups, each carrying its rhythm", () => {
-    for (const [width, height] of [[112, 168], [160, 240], [240, 360]]) {
+    for (const [width, height] of [
+      [112, 168],
+      [160, 240],
+      [240, 360],
+    ]) {
       const element = container()
       attachGlitter(element as unknown as HTMLElement, { seed: 5, width, height })
       const field = flakeField(5, width, height)
@@ -168,7 +185,11 @@ describe("attachGlitter", () => {
       attachGlitter(element as unknown as HTMLElement, { seed, width: 160, height: 240 })
       return element.children.map((group) => ({
         rhythm: [group.properties.get("--flake-period"), group.properties.get("--flake-delay")],
-        flakes: group.children.map((flake) => [flake.className, flake.properties.get("left"), flake.properties.get("top")]),
+        flakes: group.children.map((flake) => [
+          flake.className,
+          flake.properties.get("left"),
+          flake.properties.get("top"),
+        ]),
       }))
     }
     expect(draw(9)).toEqual(draw(9))
@@ -223,14 +244,17 @@ describe("the glitter's stylesheet", () => {
   const twinkles = (stylesheet: string) => stylesheet.split("animation: card-glitter-twinkle").length - 1
 
   it("twinkles each flake group, and only while the face is in view", () => {
-    expect(rule(cardStylesheet, ".card[data-in-view] :where(.card__flake-group)")).toContain("animation: card-glitter-twinkle var(--flake-period) steps(1) var(--flake-delay) infinite")
+    expect(rule(cardStylesheet, ".card[data-in-view] :where(.card__flake-group)")).toContain(
+      "animation: card-glitter-twinkle var(--flake-period) steps(1) var(--flake-delay) infinite",
+    )
     expect(twinkles(cardStylesheet) + twinkles(boosterStylesheet) + twinkles(boosterLayoutsStylesheet)).toBe(1)
     expect(rule(cardStylesheet, ".card__flake-group")).toContain("opacity: 0.18")
     expect(rule(cardStylesheet, ".card__flake-glint")).not.toContain("opacity")
   })
 
   it("animates no flake and no glint", () => {
-    const targetsAFlake = (selector: string) => selector.split(",").some((part) => /\.card__flake(?!-group)/.test(part.trim().split(/\s+/).at(-1) ?? ""))
+    const targetsAFlake = (selector: string) =>
+      selector.split(",").some((part) => /\.card__flake(?!-group)/.test(part.trim().split(/\s+/).at(-1) ?? ""))
     const flakeRules = [cardStylesheet, boosterStylesheet, boosterLayoutsStylesheet]
       .flatMap((stylesheet) => [...stylesheet.matchAll(/([^{}]*)\{([^{}]*)\}/g)])
       .filter(([, selector]) => targetsAFlake(selector))
@@ -253,7 +277,10 @@ describe("the glitter's stylesheet", () => {
       expect(rule(stylesheet, `${card} .card__flake-group`)).toContain("animation: none")
       expect(rule(stylesheet, `${card} .card__flake[data-flash] .card__flake-glint`)).toContain("opacity: 0.18")
     }
-    const lowerRays = rule(boosterLayoutsStylesheet, '.booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__rays')
+    const lowerRays = rule(
+      boosterLayoutsStylesheet,
+      '.booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__rays',
+    )
     expect(lowerRays).toContain("display: none")
     expect(lowerRays).not.toContain("opacity")
   })

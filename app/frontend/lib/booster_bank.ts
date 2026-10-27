@@ -25,7 +25,8 @@ export async function fetchBank({ url, fetch: send = globalThis.fetch }: FetchBa
   return { available, reserveFull, nextAvailableAt, serverTime, nextPackSize }
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value)
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value)
 
 function isBank(value: unknown): value is BoosterBank {
   return (

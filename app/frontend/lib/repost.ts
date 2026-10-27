@@ -1,4 +1,5 @@
-export type RepostResult = { kind: "reposted" } | { kind: "refused"; code: string; message: string } | { kind: "failed" }
+export type RepostResult =
+  { kind: "reposted" } | { kind: "refused"; code: string; message: string } | { kind: "failed" }
 
 export type SendRepost = {
   url: string
@@ -12,7 +13,11 @@ export function repostHref(repostUrl: string, slug: string, season: number): str
   return repostUrl.replace("SLUG", encodeURIComponent(slug)).replace("NUMBER", String(season))
 }
 
-export async function sendRepost({ url, csrfToken, fetch: send = globalThis.fetch }: SendRepost): Promise<RepostResult> {
+export async function sendRepost({
+  url,
+  csrfToken,
+  fetch: send = globalThis.fetch,
+}: SendRepost): Promise<RepostResult> {
   const headers: Record<string, string> = { Accept: "application/json" }
   if (csrfToken) headers["X-CSRF-Token"] = csrfToken
 
@@ -35,7 +40,8 @@ export async function sendRepost({ url, csrfToken, fetch: send = globalThis.fetc
   return error ? { kind: "refused", ...error } : FAILED
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value)
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value)
 
 function refusal(value: unknown): { code: string; message: string } | null {
   if (!isRecord(value) || !isRecord(value.error)) return null

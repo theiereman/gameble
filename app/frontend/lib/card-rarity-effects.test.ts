@@ -39,15 +39,21 @@ describe("the shared card rarity effects", () => {
   })
 
   it("floats the wrapper while the card keeps its own transform", () => {
-    expect(rule(cardRarityEffectsStylesheet, ".card-float")).toContain("animation: card-idle-float 14s ease-in-out infinite")
+    expect(rule(cardRarityEffectsStylesheet, ".card-float")).toContain(
+      "animation: card-idle-float 14s ease-in-out infinite",
+    )
     expect(cardRarityEffectsStylesheet).toContain("translateY(calc(-1 * var(--idle-float-max)))")
   })
 
   it("keeps booster reveal, zoom size and phone pile visually unchanged", () => {
     expect(rule(boosterStylesheet, ".booster-card[data-revealed] .booster-card__rays")).toContain("opacity: 1")
     expect(rule(boosterStylesheet, ".booster-card[data-revealed] .booster-card__rays")).toContain("card-rays-spin")
-    expect(rule(boosterStylesheet, '.booster-card[data-revealed][data-tier="legendary"] .booster-card__rays')).toContain("animation-duration: 14s")
-    expect(rule(boosterLayoutsStylesheet, '.booster-zoom[data-tier="legendary"] .booster-zoom__rays')).toContain("var(--color-rarity-legendaire)")
+    expect(
+      rule(boosterStylesheet, '.booster-card[data-revealed][data-tier="legendary"] .booster-card__rays'),
+    ).toContain("animation-duration: 14s")
+    expect(rule(boosterLayoutsStylesheet, '.booster-zoom[data-tier="legendary"] .booster-zoom__rays')).toContain(
+      "var(--color-rarity-legendaire)",
+    )
   })
 
   it("clips the rays sideways at each stage and fades them within the narrow ones", () => {
@@ -58,7 +64,7 @@ describe("the shared card rarity effects", () => {
       expect(ruleBody(cardDetailStylesheet, selector)).toContain("min-width: min(340px, 100%)")
     }
     expect(ruleBody(cardRarityEffectsStylesheet, ".card-detail__stage .card-rays")).toContain(
-      "mask-image: radial-gradient(circle 170px, #000 40%, transparent 100%)"
+      "mask-image: radial-gradient(circle 170px, #000 40%, transparent 100%)",
     )
     expect(cardRarityEffectsStylesheet).toContain(".public-card__stage .card-rays")
     expect(ruleBody(hubStylesheet, ".hub-showcase__stage")).toContain("align-self: stretch")

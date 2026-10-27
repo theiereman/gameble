@@ -16,17 +16,23 @@
   /* Scroll padding covers the pinned actions too, so a focused set link
      or share field is never hidden behind them. */
   html:has(.card-detail__actions) {
-    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height));
+    scroll-padding-bottom: calc(
+      var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height)
+    );
   }
 
   html:has(.card-detail__holder-actions) {
-    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height)
-      + var(--space-button-height-phone) + var(--space-4));
+    scroll-padding-bottom: calc(
+      var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height) +
+        var(--space-button-height-phone) + var(--space-4)
+    );
   }
 
   html:has(.card-detail__showcase-full) {
-    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height)
-      + var(--space-button-height-phone) + var(--space-4) + 2 * 1.125rem + var(--space-3));
+    scroll-padding-bottom: calc(
+      var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height) +
+        var(--space-button-height-phone) + var(--space-4) + 2 * 1.125rem + var(--space-3)
+    );
   }
 
   /* Pinned above the tab bar while the panel scrolls under them. */

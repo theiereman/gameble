@@ -75,7 +75,8 @@ describe("placeCard", () => {
   })
 
   it("shows a card up to the 160px margin and hides it beyond", () => {
-    const edge = (y: number) => placeCard({ ...card, anchor: 0, speed: 1 }, { ...frame, scrollY: 0, dragY: y - 500 + 120 })
+    const edge = (y: number) =>
+      placeCard({ ...card, anchor: 0, speed: 1 }, { ...frame, scrollY: 0, dragY: y - 500 + 120 })
     expect(edge(-399).visible).toBe(true)
     expect(edge(-401).visible).toBe(false)
     expect(edge(1159).visible).toBe(true)

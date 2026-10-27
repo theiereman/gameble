@@ -2,9 +2,16 @@ import { describe, expect, it } from "vitest"
 import { atZero, fetchBank, handPutAway, owedBankDue, phaseForBank } from "./booster_bank"
 import type { BoosterPhase } from "./booster_types"
 
-const bank = { available: 1, reserveFull: false, nextAvailableAt: "2026-10-06T14:32:00.000Z", serverTime: "2026-10-06T14:22:00.000Z", nextPackSize: 5 }
+const bank = {
+  available: 1,
+  reserveFull: false,
+  nextAvailableAt: "2026-10-06T14:32:00.000Z",
+  serverTime: "2026-10-06T14:22:00.000Z",
+  nextPackSize: 5,
+}
 
-const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } })
+const json = (status: number, body: unknown) =>
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } })
 
 function fake(response: Response | Error) {
   const calls: { url: string; init: RequestInit }[] = []
@@ -23,11 +30,21 @@ describe("fetchBank", () => {
     expect(await fetchBank({ url: "/fr/booster.json", fetch: send })).toEqual(bank)
     expect(calls).toHaveLength(1)
     expect(calls[0].url).toBe("/fr/booster.json")
-    expect(calls[0].init).toEqual({ method: "GET", headers: { Accept: "application/json" }, credentials: "same-origin" })
+    expect(calls[0].init).toEqual({
+      method: "GET",
+      headers: { Accept: "application/json" },
+      credentials: "same-origin",
+    })
   })
 
   it("reads a full reserve with no next booster and no pack to open next", async () => {
-    const full = { available: 0, reserveFull: true, nextAvailableAt: null, serverTime: bank.serverTime, nextPackSize: null }
+    const full = {
+      available: 0,
+      reserveFull: true,
+      nextAvailableAt: null,
+      serverTime: bank.serverTime,
+      nextPackSize: null,
+    }
     const { send } = fake(json(200, { bank: { ...full, extra: "ignored" } }))
     expect(await fetchBank({ url: "/en/booster.json", fetch: send })).toEqual(full)
   })
@@ -69,7 +86,8 @@ describe("handPutAway", () => {
 
 describe("atZero", () => {
   it("refreshes the page at rest with no hand", () => {
-    for (const phase of ["sealed", "empty"] as BoosterPhase[]) expect(atZero({ phase, idle: true, handPutAway: false })).toBe("page")
+    for (const phase of ["sealed", "empty"] as BoosterPhase[])
+      expect(atZero({ phase, idle: true, handPutAway: false })).toBe("page")
   })
 
   it("owes the bank while a dealt hand is not put away", () => {

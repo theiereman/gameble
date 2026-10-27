@@ -20,7 +20,11 @@ export class FakeBitmap implements Drawable {
 }
 
 export class FakeImageData {
-  constructor(readonly data: Uint8ClampedArray, readonly width: number, readonly height: number) {}
+  constructor(
+    readonly data: Uint8ClampedArray,
+    readonly width: number,
+    readonly height: number,
+  ) {}
 }
 
 export type DrawCall = { source: unknown; args: number[] }
@@ -30,7 +34,10 @@ export class FakeSurface implements Drawable {
   readonly context: FakeContext
   pixels: Pixels
 
-  constructor(readonly width: number, readonly height: number) {
+  constructor(
+    readonly width: number,
+    readonly height: number,
+  ) {
     this.pixels = { width, height, data: new Uint8ClampedArray(width * height * 4) }
     this.context = new FakeContext(this)
   }
@@ -47,7 +54,17 @@ export class FakeContext {
 
   constructor(readonly surface: FakeSurface) {}
 
-  drawImage(source: Drawable, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void {
+  drawImage(
+    source: Drawable,
+    sx: number,
+    sy: number,
+    sw: number,
+    sh: number,
+    dx: number,
+    dy: number,
+    dw: number,
+    dh: number,
+  ): void {
     this.draws.push({ source, args: [sx, sy, sw, sh, dx, dy, dw, dh] })
     const target = this.surface.pixels
     for (let y = 0; y < dh; y++) {
@@ -61,13 +78,18 @@ export class FakeContext {
   }
 
   getImageData(x: number, y: number, width: number, height: number): FakeImageData {
-    if (x !== 0 || y !== 0 || width !== this.surface.width || height !== this.surface.height) throw new Error("partial read")
+    if (x !== 0 || y !== 0 || width !== this.surface.width || height !== this.surface.height)
+      throw new Error("partial read")
     return new FakeImageData(new Uint8ClampedArray(this.surface.pixels.data), width, height)
   }
 
   putImageData(imageData: FakeImageData, x: number, y: number): void {
     if (x !== 0 || y !== 0) throw new Error("offset write")
-    this.surface.pixels = { width: imageData.width, height: imageData.height, data: new Uint8ClampedArray(imageData.data) }
+    this.surface.pixels = {
+      width: imageData.width,
+      height: imageData.height,
+      data: new Uint8ClampedArray(imageData.data),
+    }
   }
 }
 

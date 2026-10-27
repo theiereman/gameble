@@ -18,7 +18,8 @@ export default class extends Controller<HTMLElement> {
     this.stopListening = onGameble("gameble:bank-changed", ({ available }) => {
       if (typeof available !== "number") return
       this.countTarget.textContent = formatNumber(available, this.delimiterValue)
-      if (this.hasLabelTarget && this.templatesValue) this.labelTarget.textContent = t(this.templatesValue, { count: available, number: "" }).trim()
+      if (this.hasLabelTarget && this.templatesValue)
+        this.labelTarget.textContent = t(this.templatesValue, { count: available, number: "" }).trim()
     })
   }
 

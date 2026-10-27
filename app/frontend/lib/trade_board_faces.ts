@@ -28,12 +28,18 @@ export function facesUrl(base: string, keys: readonly string[]): string {
 export function facesFrom(body: unknown): Record<string, string> {
   const faces = typeof body === "object" && body !== null ? (body as { faces?: unknown }).faces : null
   if (typeof faces !== "object" || faces === null || Array.isArray(faces)) return {}
-  return Object.fromEntries(Object.entries(faces).filter((entry): entry is [string, string] => typeof entry[1] === "string"))
+  return Object.fromEntries(
+    Object.entries(faces).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+  )
 }
 
 type FetchFaces = { url: string; fetch?: typeof fetch; timeout?: number }
 
-export async function fetchFaces({ url, fetch: send = globalThis.fetch, timeout = FACES_TIMEOUT_MS }: FetchFaces): Promise<Record<string, string> | null> {
+export async function fetchFaces({
+  url,
+  fetch: send = globalThis.fetch,
+  timeout = FACES_TIMEOUT_MS,
+}: FetchFaces): Promise<Record<string, string> | null> {
   try {
     const signal = AbortSignal.timeout(timeout)
     const response = await send(url, { headers: { Accept: "application/json" }, credentials: "same-origin", signal })
@@ -79,10 +85,13 @@ export function faceLoader({
         if (arrived) {
           onFaces(arrived)
         } else if (next.tried + 1 < attempts) {
-          later(() => {
-            waiting.push({ keys: next.keys, tried: next.tried + 1 })
-            pump()
-          }, retryDelay * (next.tried + 1))
+          later(
+            () => {
+              waiting.push({ keys: next.keys, tried: next.tried + 1 })
+              pump()
+            },
+            retryDelay * (next.tried + 1),
+          )
         } else {
           next.keys.forEach((key) => asked.delete(key))
         }

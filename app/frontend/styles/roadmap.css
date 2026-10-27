@@ -59,6 +59,7 @@
 
 .roadmap-rail {
   --roadmap-rail-gap: 48px;
+
   display: flex;
   flex-direction: column;
   gap: var(--roadmap-rail-gap);

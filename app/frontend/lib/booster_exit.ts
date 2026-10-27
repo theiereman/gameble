@@ -27,7 +27,8 @@ export class CardExit {
     const card = host.state()?.answer?.cards[index]
     if (!card || !host.repostUrl) return ""
     const result = await sendRepost({ url: repostHref(host.repostUrl, card.slug, card.season), csrfToken: csrfToken() })
-    const message = result.kind === "reposted" ? host.reposted : result.kind === "refused" ? result.message : host.repostFailed
+    const message =
+      result.kind === "reposted" ? host.reposted : result.kind === "refused" ? result.message : host.repostFailed
     dispatchGameble("gameble:toast", { message, tone: result.kind === "reposted" ? "notice" : "alert" })
     return message
   }

@@ -14,10 +14,18 @@ export const SWAY_WAVELENGTH = 420
 export const ROTATION_PER_PIXEL = 0.004
 
 export function hasGutterRoom(leftGutter: number, rightGutter: number, cardWidth: number): boolean {
-  return leftGutter >= cardWidth + LEFT_GUTTER_CLEARANCE + SIDE_GAUGE_CLEARANCE && rightGutter >= cardWidth + RIGHT_GUTTER_CLEARANCE
+  return (
+    leftGutter >= cardWidth + LEFT_GUTTER_CLEARANCE + SIDE_GAUGE_CLEARANCE &&
+    rightGutter >= cardWidth + RIGHT_GUTTER_CLEARANCE
+  )
 }
 
-export function laneBounds(side: "left" | "right", contentLeft: number, contentRight: number, viewportWidth: number): Lane {
+export function laneBounds(
+  side: "left" | "right",
+  contentLeft: number,
+  contentRight: number,
+  viewportWidth: number,
+): Lane {
   if (side === "left") return { start: SIDE_GAUGE_CLEARANCE, end: contentLeft - LEFT_GUTTER_CLEARANCE }
   return { start: contentRight + RIGHT_GUTTER_CLEARANCE, end: viewportWidth }
 }

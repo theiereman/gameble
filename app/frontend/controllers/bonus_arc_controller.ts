@@ -48,7 +48,9 @@ export default class extends Controller<HTMLElement> {
       return
     }
 
-    const origin = visible(document.querySelector(`${PANEL} .button`)) ? document.querySelector(`${PANEL} .button`) : document.querySelector(PANEL)
+    const origin = visible(document.querySelector(`${PANEL} .button`))
+      ? document.querySelector(`${PANEL} .button`)
+      : document.querySelector(PANEL)
     const tab = document.querySelector(BOOSTER_TAB)
     const destination = visible(tab) ? tab : document.querySelector(CHIP)
     const source = document.querySelector<SVGElement>(`${CHIP} .packs-chip__icon`)
@@ -107,8 +109,18 @@ function parseBank(raw: string | undefined): BankChangedDetail | undefined {
   if (!raw) return undefined
   try {
     const bank = JSON.parse(raw) as Partial<BankChangedDetail>
-    if (typeof bank.available !== "number" || typeof bank.reserveFull !== "boolean" || typeof bank.serverTime !== "string") return undefined
-    return { available: bank.available, reserveFull: bank.reserveFull, nextAvailableAt: bank.nextAvailableAt ?? null, serverTime: bank.serverTime }
+    if (
+      typeof bank.available !== "number" ||
+      typeof bank.reserveFull !== "boolean" ||
+      typeof bank.serverTime !== "string"
+    )
+      return undefined
+    return {
+      available: bank.available,
+      reserveFull: bank.reserveFull,
+      nextAvailableAt: bank.nextAvailableAt ?? null,
+      serverTime: bank.serverTime,
+    }
   } catch {
     return undefined
   }

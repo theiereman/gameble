@@ -38,7 +38,12 @@ function resultView(host: BoosterRenderHost, result: CelebrationResult, position
   }
 }
 
-function celebrationView(host: BoosterRenderHost, state: BoosterState, results: readonly CelebrationResult[], phone: boolean): CelebrationView {
+function celebrationView(
+  host: BoosterRenderHost,
+  state: BoosterState,
+  results: readonly CelebrationResult[],
+  phone: boolean,
+): CelebrationView {
   const strings = host.strings.celebration
   const isFolded = folded(results)
   const shown = shownResult(state)
@@ -48,7 +53,11 @@ function celebrationView(host: BoosterRenderHost, state: BoosterState, results: 
     identity: results,
     steps: phone ? state.celebrationSteps : 0,
     still: state.celebrationStill && (!phone || state.celebrationSteps === 0),
-    results: isFolded ? [] : phone ? [resultView(host, results[shown], 0)] : results.map((result, position) => resultView(host, result, position)),
+    results: isFolded
+      ? []
+      : phone
+        ? [resultView(host, results[shown], 0)]
+        : results.map((result, position) => resultView(host, result, position)),
     folded:
       isFolded && subline
         ? {
@@ -68,7 +77,8 @@ export function renderCelebrations(host: BoosterRenderHost, state: BoosterState,
   const results = shownCelebration(state)
   const phone = state.layout === "phone"
   for (const outlet of host.outlets().celebrations) {
-    const shows = results !== null && results.length > 0 && (outlet.phone ? phone && onTable(state) && view.plate === null : !phone)
+    const shows =
+      results !== null && results.length > 0 && (outlet.phone ? phone && onTable(state) && view.plate === null : !phone)
     outlet.render(shows && results ? celebrationView(host, state, results, outlet.phone) : null)
   }
 }

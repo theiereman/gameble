@@ -1,7 +1,38 @@
 import { describe, expect, it } from "vitest"
 import type { OpeningSetTier } from "./opening"
-import { arming, cardStored, openingStarted, revealAllStarted, revealEnded, revealMarked, revealStarted } from "./booster_opening"
-import { bankChanged, bankDue, bankFetchOwed, bankFetched, bannerEnded, bannerShown, celebrate, celebrationSpoken, celebrationStepped, celebrationToAnnounce, countdownAtZero, focusGiven, focusTarget, idle, lock, lockReleased, locked, owedBankTaken, shownCelebration, shownResult, start, unlock } from "./booster_state"
+import {
+  arming,
+  cardStored,
+  openingStarted,
+  revealAllStarted,
+  revealEnded,
+  revealMarked,
+  revealStarted,
+} from "./booster_opening"
+import {
+  bankChanged,
+  bankDue,
+  bankFetchOwed,
+  bankFetched,
+  bannerEnded,
+  bannerShown,
+  celebrate,
+  celebrationSpoken,
+  celebrationStepped,
+  celebrationToAnnounce,
+  countdownAtZero,
+  focusGiven,
+  focusTarget,
+  idle,
+  lock,
+  lockReleased,
+  locked,
+  owedBankTaken,
+  shownCelebration,
+  shownResult,
+  start,
+  unlock,
+} from "./booster_state"
 import { REVEAL_GUARD } from "./booster_types"
 import { layoutApplied, layoutAsked } from "./booster_view"
 import { FIVE, VALVE, answerOf, bank, dealt, revealedAll, startWith } from "./booster_fixtures"
@@ -9,7 +40,14 @@ import { FIVE, VALVE, answerOf, bank, dealt, revealedAll, startWith } from "./bo
 describe("start", () => {
   it("seals the canister with a pack in reserve, the focus on the opening", () => {
     const state = startWith()
-    expect(state).toMatchObject({ phase: "sealed", status: "sealed", answer: null, focus: "open", lockDepth: 0, layout: "wide" })
+    expect(state).toMatchObject({
+      phase: "sealed",
+      status: "sealed",
+      answer: null,
+      focus: "open",
+      lockDepth: 0,
+      layout: "wide",
+    })
   })
 
   it("shows the reserve empty with none, the focus on the way back", () => {
@@ -22,7 +60,13 @@ describe("start", () => {
 
   it("deals a pack shown again every card revealed past the guard, complete", () => {
     const state = startWith({ opened: answerOf(["common", "rare"]), now: 5000 })
-    expect(state).toMatchObject({ phase: "dealt", status: "complete", dealt: true, headShown: true, canisterAway: true })
+    expect(state).toMatchObject({
+      phase: "dealt",
+      status: "complete",
+      dealt: true,
+      headShown: true,
+      canisterAway: true,
+    })
     expect(state.revealed).toEqual([true, true])
     expect(state.revealedAt).toEqual([5000 - REVEAL_GUARD, 5000 - REVEAL_GUARD])
     expect(state.stored).toEqual([false, false])
@@ -162,7 +206,16 @@ describe("celebrate, shownCelebration, celebrationToAnnounce, celebrationSpoken"
 })
 
 describe("celebrationStepped, shownResult", () => {
-  const PORTAL: OpeningSetTier = { ...VALVE, kind: "genre", key: "shooter", name: "Shooter", tier: "silver", required: 2, total: 9, held: 2 }
+  const PORTAL: OpeningSetTier = {
+    ...VALVE,
+    kind: "genre",
+    key: "shooter",
+    name: "Shooter",
+    tier: "silver",
+    required: 2,
+    total: 9,
+    held: 2,
+  }
 
   it("steps through the results one at a time, back to the first after the last", () => {
     const complete = celebrate(revealedAll(dealt(["epic", "common"], {}, [VALVE, PORTAL])))

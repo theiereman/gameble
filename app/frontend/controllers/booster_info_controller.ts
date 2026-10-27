@@ -25,7 +25,9 @@ export default class BoosterInfoController extends Controller<HTMLElement> {
   declare readonly spokenTarget: HTMLElement
 
   render({ lit, size, reserve, tone, reserveFull, next }: InfoView): void {
-    this.element.querySelectorAll<HTMLElement>(".booster__pip").forEach((pip, index) => pip.toggleAttribute("data-lit", index < lit))
+    this.element
+      .querySelectorAll<HTMLElement>(".booster__pip")
+      .forEach((pip, index) => pip.toggleAttribute("data-lit", index < lit))
     if (this.hasSizeTarget) writeText(this.sizeTarget, size)
     if (this.hasReserveTarget) writeText(this.reserveTarget, reserve)
     this.stateTarget.dataset.tone = tone

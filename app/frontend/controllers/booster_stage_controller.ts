@@ -112,7 +112,10 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     if (hand) this.update(hand)
   }
 
-  showBanner({ tier, large, name, line, keyframes, duration }: BannerView, icon: (tier: Rarity) => DocumentFragment | null): void {
+  showBanner(
+    { tier, large, name, line, keyframes, duration }: BannerView,
+    icon: (tier: Rarity) => DocumentFragment | null,
+  ): void {
     this.hideBanner()
     const banner = cloneTemplate(this.bannerTarget)
     if (!banner) return
@@ -184,7 +187,11 @@ export default class BoosterStageController extends Controller<HTMLElement> {
   }
 
   private release(event: PointerEvent, cancelled: boolean): void {
-    const released = this.swipe.end({ id: event.pointerId, x: event.clientX, y: event.clientY }, cancelled, performance.now())
+    const released = this.swipe.end(
+      { id: event.pointerId, x: event.clientX, y: event.clientY },
+      cancelled,
+      performance.now(),
+    )
     if (released) this.dispatch("release", { detail: released satisfies SwipeRelease })
   }
 
@@ -255,7 +262,8 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     writeData(slot, "depth", card.depth === null ? null : String(card.depth))
     slot.inert = card.depth !== null && !top
     if (card.depth === null) {
-      for (const property of ["--pile-y", "--pile-scale", "--pile-rotate", "z-index"]) slot.style.removeProperty(property)
+      for (const property of ["--pile-y", "--pile-scale", "--pile-rotate", "z-index"])
+        slot.style.removeProperty(property)
     } else {
       const pose = pilePose(card.depth)
       slot.style.setProperty("--pile-y", `${pose.y}px`)

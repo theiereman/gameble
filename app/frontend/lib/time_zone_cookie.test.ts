@@ -3,7 +3,9 @@ import { timeZoneCookie } from "./time_zone_cookie"
 
 describe("timeZoneCookie", () => {
   it("stores the zone for a year, site-wide", () => {
-    expect(timeZoneCookie("Europe/Paris", "", false)).toBe("time_zone=Europe%2FParis; path=/; max-age=31536000; samesite=lax")
+    expect(timeZoneCookie("Europe/Paris", "", false)).toBe(
+      "time_zone=Europe%2FParis; path=/; max-age=31536000; samesite=lax",
+    )
   })
 
   it("is secure over HTTPS", () => {
@@ -15,7 +17,9 @@ describe("timeZoneCookie", () => {
   })
 
   it("replaces a zone the browser has left", () => {
-    expect(timeZoneCookie("America/New_York", "time_zone=Europe%2FParis", false)).toMatch(/^time_zone=America%2FNew_York;/)
+    expect(timeZoneCookie("America/New_York", "time_zone=Europe%2FParis", false)).toMatch(
+      /^time_zone=America%2FNew_York;/,
+    )
   })
 
   it("writes nothing for an unknown zone", () => {

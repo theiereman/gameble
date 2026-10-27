@@ -20,7 +20,14 @@ const SMALL = { width: 68, height: 108 }
 const LARGE = { width: 104, height: 164 }
 
 function job(url: string, size = SMALL, palette = LARGE, colors = 32): ArtJob {
-  return { url, width: size.width, height: size.height, paletteWidth: palette.width, paletteHeight: palette.height, colors }
+  return {
+    url,
+    width: size.width,
+    height: size.height,
+    paletteWidth: palette.width,
+    paletteHeight: palette.height,
+    colors,
+  }
 }
 
 let images: Map<string, Pixels>
@@ -94,7 +101,10 @@ describe("runJob", () => {
 
   it("halves on scratch canvases to within twice the art size, cropping anchored at 42 %", async () => {
     // 300 × 600 is taller than the art: the crop keeps 300 × 476.5, 42 % of the way down.
-    images.set("https://cdn.test/tall.jpg", image(300, 600, () => [200, 40, 40, 255]))
+    images.set(
+      "https://cdn.test/tall.jpg",
+      image(300, 600, () => [200, 40, 40, 255]),
+    )
 
     await runJob(job("https://cdn.test/tall.jpg", SMALL, SMALL), environment)
 
@@ -123,7 +133,9 @@ describe("runJob", () => {
     // The palette came from the large size: drawing it alone gives the same colours.
     const fresh = { ...environment, palettes: new PaletteCache() }
     drawnPixels(await runJob(job("https://cdn.test/a.jpg", LARGE), fresh))
-    expect(fresh.palettes.get("https://cdn.test/a.jpg", 32)).toEqual([...environment.palettes.get("https://cdn.test/a.jpg", 32)!])
+    expect(fresh.palettes.get("https://cdn.test/a.jpg", 32)).toEqual([
+      ...environment.palettes.get("https://cdn.test/a.jpg", 32)!,
+    ])
   })
 
   it("shares the palette whichever size comes first", async () => {
@@ -142,14 +154,20 @@ describe("runJob", () => {
     ["narrower than 300", 299, 450],
     ["shorter than 450", 300, 449],
   ])("counts an image %s as missing", async (_name, width, height) => {
-    images.set("https://cdn.test/small.jpg", image(width, height, (x) => [x % 256, 30, 200, 255]))
+    images.set(
+      "https://cdn.test/small.jpg",
+      image(width, height, (x) => [x % 256, 30, 200, 255]),
+    )
 
     expect(await runJob(job("https://cdn.test/small.jpg"), environment)).toEqual({ status: "missing" })
     expect(bitmaps[0].closed).toBe(true)
   })
 
   it("counts Steam's grey placeholder as missing at every size, colour within 2 of grey", async () => {
-    images.set("https://cdn.test/grey.jpg", image(300, 450, (x, y) => [128 + ((x + y) % 3), 129, 128, 255]))
+    images.set(
+      "https://cdn.test/grey.jpg",
+      image(300, 450, (x, y) => [128 + ((x + y) % 3), 129, 128, 255]),
+    )
 
     expect(await runJob(job("https://cdn.test/grey.jpg", SMALL), environment)).toEqual({ status: "missing" })
     expect(await runJob(job("https://cdn.test/grey.jpg", LARGE), environment)).toEqual({ status: "missing" })
@@ -157,10 +175,13 @@ describe("runJob", () => {
   })
 
   it("draws a grayscale cover with a full tonal range", async () => {
-    images.set("https://cdn.test/grayscale.jpg", image(300, 450, (x, y) => {
-      const tone = (x + y) % 256
-      return [tone, tone, tone, 255]
-    }))
+    images.set(
+      "https://cdn.test/grayscale.jpg",
+      image(300, 450, (x, y) => {
+        const tone = (x + y) % 256
+        return [tone, tone, tone, 255]
+      }),
+    )
 
     expect((await runJob(job("https://cdn.test/grayscale.jpg"), environment)).status).toBe("drawn")
     expect(environment.palettes.size).toBe(1)
@@ -169,7 +190,10 @@ describe("runJob", () => {
   it("checks for grey at the palette size, not at the art size", async () => {
     // 300 × 900, grey but for the top 42 rows: the art's crop (from row 178)
     // leaves them out; a palette size of the image's own ratio keeps them.
-    images.set("https://cdn.test/top.jpg", image(300, 900, (_x, y) => (y < 42 ? [220, 30, 30, 255] : [128, 128, 128, 255])))
+    images.set(
+      "https://cdn.test/top.jpg",
+      image(300, 900, (_x, y) => (y < 42 ? [220, 30, 30, 255] : [128, 128, 128, 255])),
+    )
     const art = { width: 68, height: 108 }
     const whole = { width: 30, height: 90 }
 
@@ -179,7 +203,10 @@ describe("runJob", () => {
   })
 
   it("trusts a cached palette: the image already passed the grey check", async () => {
-    images.set("https://cdn.test/grey.jpg", image(300, 450, () => [128, 128, 128, 255]))
+    images.set(
+      "https://cdn.test/grey.jpg",
+      image(300, 450, () => [128, 128, 128, 255]),
+    )
     environment.palettes.set("https://cdn.test/grey.jpg", 32, [[200, 40, 40]])
 
     expect((await runJob(job("https://cdn.test/grey.jpg"), environment)).status).toBe("drawn")
@@ -200,14 +227,20 @@ describe("runJob", () => {
     environment.fetchTimeout = 5
     environment.fetch.mockImplementationOnce(async (_url: string, init: RequestInit) => ({
       ok: true,
-      blob: () => new Promise<Blob>((_resolve, reject) => init.signal!.addEventListener("abort", () => reject(init.signal!.reason))),
+      blob: () =>
+        new Promise<Blob>((_resolve, reject) =>
+          init.signal!.addEventListener("abort", () => reject(init.signal!.reason)),
+        ),
     }))
 
     expect(await runJob(job("https://cdn.test/slow.jpg"), environment)).toEqual({ status: "missing" })
   })
 
   it("takes an exactly 300 × 450 colour image", async () => {
-    images.set("https://cdn.test/min.jpg", image(300, 450, (x, y) => [x % 256, y % 256, 90, 255]))
+    images.set(
+      "https://cdn.test/min.jpg",
+      image(300, 450, (x, y) => [x % 256, y % 256, 90, 255]),
+    )
 
     expect((await runJob(job("https://cdn.test/min.jpg"), environment)).status).toBe("drawn")
   })

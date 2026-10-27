@@ -18,7 +18,9 @@ const REPOST_URL = "/fr/cards/portal/seasons/1/repost"
 
 describe("repostHref", () => {
   it("puts the slug, escaped, in place of SLUG and the card's season in place of NUMBER", () => {
-    expect(repostHref("/fr/cards/SLUG/seasons/NUMBER/repost", "half-life 2", 3)).toBe("/fr/cards/half-life%202/seasons/3/repost")
+    expect(repostHref("/fr/cards/SLUG/seasons/NUMBER/repost", "half-life 2", 3)).toBe(
+      "/fr/cards/half-life%202/seasons/3/repost",
+    )
   })
 })
 
@@ -40,7 +42,9 @@ describe("sendRepost", () => {
   })
 
   it("reads a refusal's code and message", async () => {
-    const { send } = fake(json(422, { error: { code: "card_not_owned", message: "Vous ne possédez pas cette carte." } }))
+    const { send } = fake(
+      json(422, { error: { code: "card_not_owned", message: "Vous ne possédez pas cette carte." } }),
+    )
     expect(await sendRepost({ url: REPOST_URL, csrfToken: null, fetch: send })).toEqual({
       kind: "refused",
       code: "card_not_owned",

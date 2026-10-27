@@ -1,6 +1,21 @@
 import { bankChanged, celebrate, completed, idle } from "./booster_state"
-import { NO_COUNTS, allRevealed, countsAfterReveal, handDone, keyAfter, planRevealAll, topOfPile } from "./booster_rules"
-import { REVEAL_GUARD, type BoosterBank, type BoosterState, type OpeningOutcome, type OpeningRefusal, type RevealAllStep } from "./booster_types"
+import {
+  NO_COUNTS,
+  allRevealed,
+  countsAfterReveal,
+  handDone,
+  keyAfter,
+  planRevealAll,
+  topOfPile,
+} from "./booster_rules"
+import {
+  REVEAL_GUARD,
+  type BoosterBank,
+  type BoosterState,
+  type OpeningOutcome,
+  type OpeningRefusal,
+  type RevealAllStep,
+} from "./booster_types"
 import type { OpeningAnswer } from "./opening"
 
 export function canOpen(state: BoosterState): boolean {
@@ -46,7 +61,9 @@ export function openingRefused(state: BoosterState, result: OpeningRefusal, fail
   const refused = result.kind === "refused"
   const outcome: OpeningOutcome = refused ? { kind: "refused", code: result.code } : { kind: "failed" }
   const emptied = refused && result.code === "no_pack_available"
-  const after = emptied ? bankChanged(state, { ...state.bank, available: 0, reserveFull: false, nextPackSize: null }) : state
+  const after = emptied
+    ? bankChanged(state, { ...state.bank, available: 0, reserveFull: false, nextPackSize: null })
+    : state
   const empty = after.bank.available <= 0
   return {
     ...after,
@@ -63,7 +80,13 @@ export function openingRefused(state: BoosterState, result: OpeningRefusal, fail
 
 export function openingAnswered(state: BoosterState, answer: OpeningAnswer): BoosterState {
   const { available, reserveFull, nextAvailableAt, nextPackSize } = answer.bank
-  const bank: BoosterBank = { available, reserveFull, nextAvailableAt, serverTime: answer.serverTime, nextPackSize: nextPackSize ?? null }
+  const bank: BoosterBank = {
+    available,
+    reserveFull,
+    nextAvailableAt,
+    serverTime: answer.serverTime,
+    nextPackSize: nextPackSize ?? null,
+  }
   return {
     ...bankChanged(state, bank),
     pendingKey: keyFor(state, { kind: "opened" }),
@@ -130,7 +153,9 @@ export function revealEnded(state: BoosterState, index: number, fromAll: boolean
 }
 
 export function canRevealAll(state: BoosterState): boolean {
-  return state.answer !== null && state.phase === "dealt" && !state.revealingAll && !state.legendaryRunning && !state.storing
+  return (
+    state.answer !== null && state.phase === "dealt" && !state.revealingAll && !state.legendaryRunning && !state.storing
+  )
 }
 
 export function revealAllPlan(state: BoosterState): RevealAllStep[] {

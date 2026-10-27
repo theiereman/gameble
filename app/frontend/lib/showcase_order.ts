@@ -46,15 +46,26 @@ export type SendPlacement = {
   fetch?: typeof globalThis.fetch
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value)
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value)
 
-export async function sendPlacement({ url, position, csrfToken, fetch: send = globalThis.fetch }: SendPlacement): Promise<PlacementResult> {
+export async function sendPlacement({
+  url,
+  position,
+  csrfToken,
+  fetch: send = globalThis.fetch,
+}: SendPlacement): Promise<PlacementResult> {
   const headers: Record<string, string> = { "Content-Type": "application/json", Accept: "application/json" }
   if (csrfToken) headers["X-CSRF-Token"] = csrfToken
 
   let response: Response
   try {
-    response = await send(url, { method: "PATCH", headers, body: JSON.stringify({ position }), credentials: "same-origin" })
+    response = await send(url, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ position }),
+      credentials: "same-origin",
+    })
   } catch {
     return { kind: "failed" }
   }

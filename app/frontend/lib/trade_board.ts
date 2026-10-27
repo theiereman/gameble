@@ -129,7 +129,10 @@ export function toggledFold(state: PickerFilters): PickerFilters {
   return { ...state, folded: !state.folded }
 }
 
-export function filterCards<Card extends FilterableCard>(cards: readonly Card[], { query, rarities, chips }: SideFilter): Card[] {
+export function filterCards<Card extends FilterableCard>(
+  cards: readonly Card[],
+  { query, rarities, chips }: SideFilter,
+): Card[] {
   const needle = fold(query)
   return cards.filter(
     (card) =>
@@ -191,7 +194,10 @@ export type PickerView = Readonly<{
   filtering: boolean
 }>
 
-export const bySide = <Value>(value: (side: Side) => Value): BySide<Value> => ({ friend: value("friend"), own: value("own") })
+export const bySide = <Value>(value: (side: Side) => Value): BySide<Value> => ({
+  friend: value("friend"),
+  own: value("own"),
+})
 
 const maximaOf = (cards: readonly TradeCard[]): Maxima => new Map(cards.map((card) => [card.key, card.max]))
 
@@ -249,7 +255,13 @@ function settled(state: BoardState, picker: Picker): BoardState {
 
 export function openPicker(state: BoardState, side: Side): BoardState {
   const lines = state.lines[side]
-  return settled(state, { side, selection: lines, refused: false, activeKey: lines[0]?.key ?? null, shown: PICKER_PAGE })
+  return settled(state, {
+    side,
+    selection: lines,
+    refused: false,
+    activeKey: lines[0]?.key ?? null,
+    shown: PICKER_PAGE,
+  })
 }
 
 export function togglePick(state: BoardState, key: string): BoardState {
@@ -302,7 +314,10 @@ export function moveActive(state: BoardState, key: string, columns: number): Boa
   const active = visible.slice(0, picker.shown).findIndex((card) => card.key === picker.activeKey)
   const next = gridMove(Math.max(0, active), key, visible.length, columns)
   if (next === null) return state
-  return { ...state, picker: { ...picker, activeKey: visible[next]?.key ?? null, shown: Math.max(picker.shown, shownFor(next)) } }
+  return {
+    ...state,
+    picker: { ...picker, activeKey: visible[next]?.key ?? null, shown: Math.max(picker.shown, shownFor(next)) },
+  }
 }
 
 export function place(state: BoardState): BoardState {

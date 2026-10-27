@@ -125,12 +125,16 @@
 
 .trade-row:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring-gap), inset 0 0 0 2px var(--color-line-soft);
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 2px var(--color-line-soft);
 }
 
 .trade-row[aria-current="page"] {
   background: var(--color-panel-raised);
-  box-shadow: inset 5px 0 0 0 var(--color-accent), inset 0 0 0 2px var(--color-line);
+  box-shadow:
+    inset 5px 0 0 0 var(--color-accent),
+    inset 0 0 0 2px var(--color-line);
 }
 
 .trade-row__avatar {
@@ -177,7 +181,18 @@
   white-space: nowrap;
 }
 
-.trade-chip--alert { color: var(--color-alert); }
-.trade-chip--accent { color: var(--color-accent); }
-.trade-chip--lime { color: var(--color-lime); }
-.trade-chip--muted { color: var(--color-muted); }
+.trade-chip--alert {
+  color: var(--color-alert);
+}
+
+.trade-chip--accent {
+  color: var(--color-accent);
+}
+
+.trade-chip--lime {
+  color: var(--color-lime);
+}
+
+.trade-chip--muted {
+  color: var(--color-muted);
+}

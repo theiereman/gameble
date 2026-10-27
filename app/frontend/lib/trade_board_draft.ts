@@ -69,5 +69,7 @@ export function sameLines(a: readonly Line[], b: readonly Line[]): boolean {
 function isLine(value: unknown): value is Line {
   if (typeof value !== "object" || value === null) return false
   const { key, quantity } = value as Record<string, unknown>
-  return typeof key === "string" && key !== "" && typeof quantity === "number" && Number.isInteger(quantity) && quantity > 0
+  return (
+    typeof key === "string" && key !== "" && typeof quantity === "number" && Number.isInteger(quantity) && quantity > 0
+  )
 }

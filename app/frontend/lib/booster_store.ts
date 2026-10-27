@@ -32,7 +32,10 @@ export class CardStore {
     if (host.timers().disposed) return
     host.apply((s) => cardStored(s, index))
     if (!motionReduced()) {
-      animate(host.traySlot(index), slotPopKeyframes(), { duration: SLOT_POP_MS, easing: "cubic-bezier(.2,1.35,.35,1)" })
+      animate(host.traySlot(index), slotPopKeyframes(), {
+        duration: SLOT_POP_MS,
+        easing: "cubic-bezier(.2,1.35,.35,1)",
+      })
       traySparks(host.fx(), host.traySlot(index), card.tier)
     }
     host.apply((s) => storeEnded(s, fromAll))
@@ -44,6 +47,7 @@ export class CardStore {
     if (!float) return
     const from = float.style.transform || "none"
     float.style.transform = ""
-    if (!motionReduced()) animate(float, springBackKeyframes(from), { duration: SPRING_BACK_MS, easing: "cubic-bezier(.2,1.6,.4,1)" })
+    if (!motionReduced())
+      animate(float, springBackKeyframes(from), { duration: SPRING_BACK_MS, easing: "cubic-bezier(.2,1.6,.4,1)" })
   }
 }

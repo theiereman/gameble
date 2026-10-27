@@ -11,14 +11,14 @@ import {
   powerAt,
   RADII_DESKTOP,
   scaleRadii,
-  wanderPoint
+  wanderPoint,
 } from "./lamp"
 
 const area = { width: 500, height: 400 }
 const cards: LampCard[] = [
   { x: 100, y: 100, radius: 40 },
   { x: 400, y: 100, radius: 40 },
-  { x: 250, y: 320, radius: 40 }
+  { x: 250, y: 320, radius: 40 },
 ]
 
 const idle = (now: number, dt = 0.016): LampInput => ({ now, dt, pointer: null, pointerHeld: false })
@@ -163,7 +163,11 @@ describe("Lamp", () => {
     const lamp = new Lamp(cards, area, RADII_DESKTOP, 0)
     let frame = lamp.advance(idle(0))
     for (let now = 16; now <= 60000; now += 16) {
-      if (now % 1000 < 16) lamp.remeasure(cards.map((card) => ({ ...card, x: card.x + 1 })), { width: area.width + 2, height: area.height })
+      if (now % 1000 < 16)
+        lamp.remeasure(
+          cards.map((card) => ({ ...card, x: card.x + 1 })),
+          { width: area.width + 2, height: area.height },
+        )
       frame = lamp.advance(idle(now))
     }
     expect(frame.foundCount).toBe(3)

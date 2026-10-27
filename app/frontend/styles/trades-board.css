@@ -124,8 +124,13 @@
   box-shadow: inset 0 0 0 2px var(--color-line-soft);
 }
 
-.trade-side--friend { grid-area: friend; }
-.trade-side--own { grid-area: own; }
+.trade-side--friend {
+  grid-area: friend;
+}
+
+.trade-side--own {
+  grid-area: own;
+}
 
 .trade-side--editing {
   box-shadow: inset 0 0 0 2px var(--color-accent);
@@ -207,11 +212,20 @@
   width: var(--card-width, var(--card-s-width));
   height: var(--card-height, var(--card-s-height));
   background: var(--color-panel-raised);
-  box-shadow: inset 0 0 0 2px var(--color-line), 0 0 0 3px var(--color-outline);
+  box-shadow:
+    inset 0 0 0 2px var(--color-line),
+    0 0 0 3px var(--color-outline);
 }
 
-.trade-card:has(.card--m) { --card-width: var(--card-m-width); --card-height: var(--card-m-height); }
-.trade-card:has(.card--s) { --card-width: var(--card-s-width); --card-height: var(--card-s-height); }
+.trade-card:has(.card--m) {
+  --card-width: var(--card-m-width);
+  --card-height: var(--card-m-height);
+}
+
+.trade-card:has(.card--s) {
+  --card-width: var(--card-s-width);
+  --card-height: var(--card-s-height);
+}
 
 .trade-card__quantity {
   position: absolute;
@@ -348,7 +362,9 @@
 
 .trade-add:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring-gap), inset 0 0 0 2px var(--color-accent);
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 2px var(--color-accent);
 }
 
 .trade-add__plus {
@@ -360,7 +376,9 @@
   align-items: center;
   height: 26px;
   background: var(--color-input);
-  box-shadow: inset 0 0 0 2px var(--color-line), 0 0 0 2px var(--color-outline);
+  box-shadow:
+    inset 0 0 0 2px var(--color-line),
+    0 0 0 2px var(--color-outline);
   white-space: nowrap;
 }
 

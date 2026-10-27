@@ -12,15 +12,16 @@ export type ArtJob = {
 }
 
 export type JobResult =
-  | { status: "drawn"; bitmap: ImageBitmap }
-  | { status: "missing" }
-  | { status: "cors" }
-  | { status: "unsupported" }
+  { status: "drawn"; bitmap: ImageBitmap } | { status: "missing" } | { status: "cors" } | { status: "unsupported" }
 
 export type JobRequest = ArtJob & { id: number }
 export type JobResponse = JobResult & { id: number }
 
-export const IMAGE_REQUEST: Readonly<RequestInit> = Object.freeze({ mode: "cors", credentials: "omit", referrerPolicy: "no-referrer" })
+export const IMAGE_REQUEST: Readonly<RequestInit> = Object.freeze({
+  mode: "cors",
+  credentials: "omit",
+  referrerPolicy: "no-referrer",
+})
 
 export const FETCH_TIMEOUT_MS = 20_000
 
@@ -112,9 +113,10 @@ export async function runJob(job: ArtJob, environment: JobEnvironment): Promise<
 
     let palette = environment.palettes.get(job.url, job.colors)
     if (!palette) {
-      const atPaletteSize = job.paletteWidth === job.width && job.paletteHeight === job.height
-        ? art
-        : artPixels(bitmap, job.paletteWidth, job.paletteHeight, environment)
+      const atPaletteSize =
+        job.paletteWidth === job.width && job.paletteHeight === job.height
+          ? art
+          : artPixels(bitmap, job.paletteWidth, job.paletteHeight, environment)
       if (!atPaletteSize) return UNSUPPORTED
       if (isFlatGrey(atPaletteSize)) return MISSING
       palette = buildPalette(atPaletteSize, job.colors)
@@ -135,7 +137,12 @@ export async function runJob(job: ArtJob, environment: JobEnvironment): Promise<
   }
 }
 
-function artPixels(bitmap: ImageBitmap, width: number, height: number, { createSurface }: JobEnvironment): Pixels | null {
+function artPixels(
+  bitmap: ImageBitmap,
+  width: number,
+  height: number,
+  { createSurface }: JobEnvironment,
+): Pixels | null {
   const last = downscale(bitmap, bitmap.width, bitmap.height, width, height, createSurface)
   if (!last) return null
   const { data } = last.context.getImageData(0, 0, last.width, last.height)

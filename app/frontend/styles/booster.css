@@ -94,9 +94,11 @@
 .booster__hazard,
 .booster__result-stripe {
   height: var(--hazard-stripe-height);
-  background: repeating-linear-gradient(var(--hazard-stripe-angle),
+  background: repeating-linear-gradient(
+    var(--hazard-stripe-angle),
     var(--color-accent) 0 var(--hazard-stripe-band),
-    var(--color-panel-sunken) var(--hazard-stripe-band) calc(2 * var(--hazard-stripe-band)));
+    var(--color-panel-sunken) var(--hazard-stripe-band) calc(2 * var(--hazard-stripe-band))
+  );
 }
 
 .booster__kicker {
@@ -169,12 +171,29 @@
   background: var(--color-accent);
 }
 
-.booster__state[data-tone="alert"] { color: var(--color-alert); }
-.booster__state[data-tone="alert"] .booster__light { background: var(--color-alert); }
-.booster__state[data-tone="gold"] { color: var(--color-gold); }
-.booster__state[data-tone="gold"] .booster__light { background: var(--color-gold); }
-.booster__state[data-tone="done"] { color: var(--color-lime); }
-.booster__state[data-tone="done"] .booster__light { background: var(--color-lime); }
+.booster__state[data-tone="alert"] {
+  color: var(--color-alert);
+}
+
+.booster__state[data-tone="alert"] .booster__light {
+  background: var(--color-alert);
+}
+
+.booster__state[data-tone="gold"] {
+  color: var(--color-gold);
+}
+
+.booster__state[data-tone="gold"] .booster__light {
+  background: var(--color-gold);
+}
+
+.booster__state[data-tone="done"] {
+  color: var(--color-lime);
+}
+
+.booster__state[data-tone="done"] .booster__light {
+  background: var(--color-lime);
+}
 
 /* The reserve: "+1 dans …" or "Réserve pleine", then ten pips. */
 .booster__reserve-head {

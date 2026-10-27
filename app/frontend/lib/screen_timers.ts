@@ -22,10 +22,13 @@ export function screenTimers(clock: Clock = GLOBAL_CLOCK): ScreenTimers {
   const wait = (ms: number): Promise<void> =>
     new Promise<void>((resolve) => {
       if (disposed) return
-      const timer = clock.setTimeout(() => {
-        pending.delete(timer)
-        if (!disposed) resolve()
-      }, Math.max(0, ms))
+      const timer = clock.setTimeout(
+        () => {
+          pending.delete(timer)
+          if (!disposed) resolve()
+        },
+        Math.max(0, ms),
+      )
       pending.add(timer)
     })
 

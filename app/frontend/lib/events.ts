@@ -11,7 +11,12 @@ export type ToastDetail = {
 
 export type TierRevealedDetail = { tier: Rarity; counts: Record<Rarity, number> }
 
-export type BankChangedDetail = { available: number; reserveFull: boolean; nextAvailableAt: string | null; serverTime: string }
+export type BankChangedDetail = {
+  available: number
+  reserveFull: boolean
+  nextAvailableAt: string | null
+  serverTime: string
+}
 
 export type NavigationLockedDetail = { locked: boolean }
 
@@ -31,14 +36,18 @@ export interface GamebleEventMap {
 
 export type GamebleEventName = keyof GamebleEventMap
 
-export function dispatchGameble<K extends GamebleEventName>(name: K, detail: GamebleEventMap[K], target: EventTarget = window): void {
+export function dispatchGameble<K extends GamebleEventName>(
+  name: K,
+  detail: GamebleEventMap[K],
+  target: EventTarget = window,
+): void {
   target.dispatchEvent(new CustomEvent(name, { detail }))
 }
 
 export function onGameble<K extends GamebleEventName>(
   name: K,
   listener: (detail: GamebleEventMap[K], event: CustomEvent<GamebleEventMap[K]>) => void,
-  target: EventTarget = window
+  target: EventTarget = window,
 ): () => void {
   const handler = (event: Event): void => {
     const custom = event as CustomEvent<GamebleEventMap[K]>

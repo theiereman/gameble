@@ -22,7 +22,10 @@ export class AnnounceBatch {
   }
 }
 
-export function shouldAnnounce(count: number, { reduced, focusInside }: { reduced: boolean; focusInside: boolean }): boolean {
+export function shouldAnnounce(
+  count: number,
+  { reduced, focusInside }: { reduced: boolean; focusInside: boolean },
+): boolean {
   return count > 0 && !reduced && !focusInside
 }
 

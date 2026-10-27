@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { TICKER_MIN_SECONDS, TICKER_PIXELS_PER_SECOND, itemsInView, joinQueued, loopSeconds, repeatsToFill } from "./ticker"
+import {
+  TICKER_MIN_SECONDS,
+  TICKER_PIXELS_PER_SECOND,
+  itemsInView,
+  joinQueued,
+  loopSeconds,
+  repeatsToFill,
+} from "./ticker"
 
 describe("repeatsToFill", () => {
   it("repeats the items until half the track covers the window", () => {

@@ -30,9 +30,17 @@
   text-transform: uppercase;
 }
 
-.daily-booster__state--ready { color: var(--color-lime); }
-.daily-booster__state--collected { color: var(--color-muted); }
-.daily-booster__state--full { color: var(--color-alert); }
+.daily-booster__state--ready {
+  color: var(--color-lime);
+}
+
+.daily-booster__state--collected {
+  color: var(--color-muted);
+}
+
+.daily-booster__state--full {
+  color: var(--color-alert);
+}
 
 /* The full reserve is an alert: the panel's line and the line saying why
    turn orange, as "RÉSERVE PLEINE" does. */
@@ -173,7 +181,9 @@
 }
 
 .set-row:hover {
-  box-shadow: var(--control-border), inset 0 0 0 var(--space-unit) var(--color-accent);
+  box-shadow:
+    var(--control-border),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
 }
 
 .set-row:focus-visible {
@@ -229,7 +239,6 @@
   align-self: flex-end;
   margin: 0;
 }
-
 
 .set-row--progress {
   grid-template-columns: minmax(0, 1fr) auto auto;
@@ -292,6 +301,7 @@
 
 .set-row__tick {
   --tier: var(--color-text-bright);
+
   position: absolute;
   top: 0;
   left: calc(var(--at) * 100%);
@@ -306,9 +316,17 @@
   visibility: hidden;
 }
 
-.set-row__tick--bronze { --tier: var(--color-tier-bronze); }
-.set-row__tick--silver { --tier: var(--color-tier-silver); }
-.set-row__tick--gold { --tier: var(--color-gold); }
+.set-row__tick--bronze {
+  --tier: var(--color-tier-bronze);
+}
+
+.set-row__tick--silver {
+  --tier: var(--color-tier-silver);
+}
+
+.set-row__tick--gold {
+  --tier: var(--color-gold);
+}
 
 .set-row__tick.is-reached {
   top: -4px;
@@ -363,15 +381,29 @@
   text-transform: uppercase;
 }
 
-.set-tier--bronze { --tier: var(--color-tier-bronze); }
-.set-tier--silver { --tier: var(--color-tier-silver); }
-.set-tier--gold { --tier: var(--color-gold); }
-.set-tier--complete { --tier: var(--color-lime); }
+.set-tier--bronze {
+  --tier: var(--color-tier-bronze);
+}
+
+.set-tier--silver {
+  --tier: var(--color-tier-silver);
+}
+
+.set-tier--gold {
+  --tier: var(--color-gold);
+}
+
+.set-tier--complete {
+  --tier: var(--color-lime);
+}
+
 .set-tier--novice,
 .set-tier--apprentice,
 .set-tier--adept,
 .set-tier--expert,
-.set-tier--master { --tier: var(--color-text-bright); }
+.set-tier--master {
+  --tier: var(--color-text-bright);
+}
 
 .set-tier__check {
   width: 7px;
@@ -391,7 +423,9 @@
   width: 22px;
   height: 14px;
   margin: 0 6px;
-  box-shadow: inset 0 0 0 3px var(--color-lime), 0 0 0 var(--space-unit) var(--color-outline);
+  box-shadow:
+    inset 0 0 0 3px var(--color-lime),
+    0 0 0 var(--space-unit) var(--color-outline);
   transform: rotate(-6deg);
 }
 

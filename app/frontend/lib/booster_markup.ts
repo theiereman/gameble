@@ -1,6 +1,13 @@
 import type { BoosterBank } from "./booster_types"
 import { RARITIES, type Rarity } from "./card_types"
-import { SET_TIERS, type OpeningAnswer, type OpeningCard, type OpeningSetTier, type SetThreshold, type SetTierName } from "./opening"
+import {
+  SET_TIERS,
+  type OpeningAnswer,
+  type OpeningCard,
+  type OpeningSetTier,
+  type SetThreshold,
+  type SetTierName,
+} from "./opening"
 
 export type Dataset = Readonly<Record<string, string | undefined>>
 
@@ -23,12 +30,26 @@ const NO_COUNTS: Record<Rarity, number> = { common: 0, uncommon: 0, rare: 0, epi
 
 const whole = (value: string | undefined): number => Number.parseInt(value ?? "", 10) || 0
 
-const tierOf = (value: string | undefined): Rarity => (RARITIES.includes(value as Rarity) ? (value as Rarity) : "common")
+const tierOf = (value: string | undefined): Rarity =>
+  RARITIES.includes(value as Rarity) ? (value as Rarity) : "common"
 
-const setTierOf = (value: string | undefined): SetTierName | null => (SET_TIERS.includes(value as SetTierName) ? (value as SetTierName) : null)
+const setTierOf = (value: string | undefined): SetTierName | null =>
+  SET_TIERS.includes(value as SetTierName) ? (value as SetTierName) : null
 
-export function bankFrom({ available, reserveFull, nextAvailableAt, serverTime, nextPackSize }: BankValues): BoosterBank {
-  return { available, reserveFull, nextAvailableAt: nextAvailableAt || null, serverTime, nextPackSize: nextPackSize > 0 ? nextPackSize : null }
+export function bankFrom({
+  available,
+  reserveFull,
+  nextAvailableAt,
+  serverTime,
+  nextPackSize,
+}: BankValues): BoosterBank {
+  return {
+    available,
+    reserveFull,
+    nextAvailableAt: nextAvailableAt || null,
+    serverTime,
+    nextPackSize: nextPackSize > 0 ? nextPackSize : null,
+  }
 }
 
 export function cardFrom(data: Dataset): OpeningCard {
@@ -73,7 +94,13 @@ export function openedFrom({ pack, cards, setTiers, bank }: OpenedMarkup): Openi
   return {
     pack: { token: pack.token, kind: pack.kind ?? "", cardBack: pack.cardBack ?? "standard", url: pack.url ?? "" },
     cards: cards.map(cardFrom),
-    bank: { available: bank.available, reserveFull: bank.reserveFull, nextAvailableAt: bank.nextAvailableAt, scheduledAt: [], nextPackSize: bank.nextPackSize },
+    bank: {
+      available: bank.available,
+      reserveFull: bank.reserveFull,
+      nextAvailableAt: bank.nextAvailableAt,
+      scheduledAt: [],
+      nextPackSize: bank.nextPackSize,
+    },
     serverTime: bank.serverTime,
     tierCountsBefore: { ...NO_COUNTS },
     setTiers: setTiers.flatMap((data) => setTierFrom(data) ?? []),

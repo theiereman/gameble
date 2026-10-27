@@ -1,6 +1,14 @@
 import { Controller } from "@hotwired/stimulus"
 import "../lib/turbo"
-import { isTurboStream, NEAR_END_MARGIN, NextPage, renderingWhile, TURBO_STREAM, type Step, type StreamRender } from "../lib/next_page"
+import {
+  isTurboStream,
+  NEAR_END_MARGIN,
+  NextPage,
+  renderingWhile,
+  TURBO_STREAM,
+  type Step,
+  type StreamRender,
+} from "../lib/next_page"
 
 type Request = { links: Element; abort: AbortController }
 

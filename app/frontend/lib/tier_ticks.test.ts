@@ -20,15 +20,15 @@ describe("tierAt", () => {
   })
 
   it("refuses a value that is not a share", () => {
-    expect([tierAt(null), tierAt(undefined), tierAt(""), tierAt("abc"), tierAt("-0.1"), tierAt("1.5"), tierAt("Infinity")]).toEqual([
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-    ])
+    expect([
+      tierAt(null),
+      tierAt(undefined),
+      tierAt(""),
+      tierAt("abc"),
+      tierAt("-0.1"),
+      tierAt("1.5"),
+      tierAt("Infinity"),
+    ]).toEqual([null, null, null, null, null, null, null])
   })
 })
 

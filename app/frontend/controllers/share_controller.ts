@@ -19,7 +19,7 @@ export default class extends Controller<HTMLElement> {
     if (window.isSecureContext && navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(url).then(
         () => this.say(this.copiedValue),
-        () => this.copyBySelection()
+        () => this.copyBySelection(),
       )
     } else {
       this.copyBySelection()

@@ -19,7 +19,17 @@ export type OpeningBank = {
   nextPackSize: number | null
 }
 
-export const SET_TIERS = ["bronze", "silver", "gold", "novice", "apprentice", "adept", "expert", "master", "complete"] as const
+export const SET_TIERS = [
+  "bronze",
+  "silver",
+  "gold",
+  "novice",
+  "apprentice",
+  "adept",
+  "expert",
+  "master",
+  "complete",
+] as const
 export type SetTierName = (typeof SET_TIERS)[number]
 
 export type SetThreshold = { tier: SetTierName; required: number }
@@ -47,9 +57,7 @@ export type OpeningAnswer = {
 }
 
 export type OpeningResult =
-  | { kind: "opened"; answer: OpeningAnswer }
-  | { kind: "refused"; code: string; message: string }
-  | { kind: "failed" }
+  { kind: "opened"; answer: OpeningAnswer } | { kind: "refused"; code: string; message: string } | { kind: "failed" }
 
 export type SendOpening = {
   url: string
@@ -60,7 +68,12 @@ export type SendOpening = {
 
 const FAILED: OpeningResult = { kind: "failed" }
 
-export async function sendOpening({ url, key, csrfToken, fetch: send = globalThis.fetch }: SendOpening): Promise<OpeningResult> {
+export async function sendOpening({
+  url,
+  key,
+  csrfToken,
+  fetch: send = globalThis.fetch,
+}: SendOpening): Promise<OpeningResult> {
   const headers: Record<string, string> = { Accept: "application/json", "Idempotency-Key": key }
   if (csrfToken) headers["X-CSRF-Token"] = csrfToken
 
@@ -86,7 +99,8 @@ export async function sendOpening({ url, key, csrfToken, fetch: send = globalThi
 
 const FACE_SIZES = ["s", "m", "xl"] as const
 
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value)
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value)
 
 function isCard(value: unknown): value is OpeningCard {
   return (
@@ -102,7 +116,12 @@ function isCard(value: unknown): value is OpeningCard {
 }
 
 function isThreshold(value: unknown): value is SetThreshold {
-  return isRecord(value) && SET_TIERS.includes(value.tier as SetTierName) && value.tier !== "complete" && Number.isInteger(value.required)
+  return (
+    isRecord(value) &&
+    SET_TIERS.includes(value.tier as SetTierName) &&
+    value.tier !== "complete" &&
+    Number.isInteger(value.required)
+  )
 }
 
 function isSetTier(value: unknown): value is OpeningSetTier {

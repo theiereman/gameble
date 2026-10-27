@@ -54,7 +54,10 @@ export function dockKeyframes(): Keyframe[] {
 }
 
 export function sinkKeyframes(from: string): Keyframe[] {
-  return [{ transform: from, opacity: 1 }, { transform: pose(0, SINK_PX, 0, 0.92), opacity: 0 }]
+  return [
+    { transform: from, opacity: 1 },
+    { transform: pose(0, SINK_PX, 0, 0.92), opacity: 0 },
+  ]
 }
 
 export function trembleKeyframes(level: number, height: number, swell: Swell): Keyframe[] {
@@ -64,7 +67,14 @@ export function trembleKeyframes(level: number, height: number, swell: Swell): K
   for (let step = 1; step < steps; step++) {
     const progress = step / steps
     const side = step % 2 === 1 ? 1 : -1
-    keyframes.push({ transform: pose(side * amplitude * progress * 0.8, -height * easeOut(progress), side * amplitude * progress * 0.6, swell(1 + 0.06 * easeOut(progress))) })
+    keyframes.push({
+      transform: pose(
+        side * amplitude * progress * 0.8,
+        -height * easeOut(progress),
+        side * amplitude * progress * 0.6,
+        swell(1 + 0.06 * easeOut(progress)),
+      ),
+    })
   }
   keyframes.push({ transform: pose(0, -height, 0, swell(1.06)) })
   return keyframes
@@ -98,7 +108,12 @@ export function legendaryJumpKeyframes(rise: number, swell: Swell): Keyframe[] {
     const progress = step / 14
     const side = step % 2 === 1 ? 1 : -1
     jump.push({
-      transform: pose(side * progress * 3, -rise * easeOut(Math.min(1, progress * 1.6)), side * (1 + progress * 4), swell(1 + 0.15 * easeOut(progress))),
+      transform: pose(
+        side * progress * 3,
+        -rise * easeOut(Math.min(1, progress * 1.6)),
+        side * (1 + progress * 4),
+        swell(1 + 0.15 * easeOut(progress)),
+      ),
     })
   }
   jump.push({ transform: pose(0, -rise, 0, swell(1.15)) })
@@ -106,7 +121,11 @@ export function legendaryJumpKeyframes(rise: number, swell: Swell): Keyframe[] {
 }
 
 export function legendarySpinKeyframes(): Keyframe[] {
-  return [{ transform: "rotateY(0deg)" }, { transform: "rotateY(560deg)", offset: 0.8 }, { transform: "rotateY(540deg)" }]
+  return [
+    { transform: "rotateY(0deg)" },
+    { transform: "rotateY(560deg)", offset: 0.8 },
+    { transform: "rotateY(540deg)" },
+  ]
 }
 
 export function legendaryImpactKeyframes(rise: number, swell: Swell): Keyframe[] {
@@ -134,11 +153,7 @@ export function storeKeyframes(start: string, from: Box, to: Box): Keyframe[] {
 }
 
 export function slotPopKeyframes(): Keyframe[] {
-  return [
-    { transform: "scale(1)" },
-    { transform: "scale(1.22)", offset: 0.4 },
-    { transform: "scale(1)" },
-  ]
+  return [{ transform: "scale(1)" }, { transform: "scale(1.22)", offset: 0.4 }, { transform: "scale(1)" }]
 }
 
 export function springBackKeyframes(from: string): Keyframe[] {

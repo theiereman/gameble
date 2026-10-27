@@ -1,8 +1,26 @@
 import { describe, expect, it } from "vitest"
-import { arming, cardStored, ejecting, legendarySignalled, openingStarted, revealAllStarted, revealMarked, revealStarted } from "./booster_opening"
+import {
+  arming,
+  cardStored,
+  ejecting,
+  legendarySignalled,
+  openingStarted,
+  revealAllStarted,
+  revealMarked,
+  revealStarted,
+} from "./booster_opening"
 import { bannerShown, idle, lock, locked } from "./booster_state"
 import { CLICK_AFTER_DRAG, Layout, REVEAL_GUARD } from "./booster_types"
-import { activation, controls, layoutApplied, layoutAsked, onTable, zoomClosed, zoomOpened, zoomStepped } from "./booster_view"
+import {
+  activation,
+  controls,
+  layoutApplied,
+  layoutAsked,
+  onTable,
+  zoomClosed,
+  zoomOpened,
+  zoomStepped,
+} from "./booster_view"
 import { FIVE, VALVE, bank, dealt, revealedAll, startWith } from "./booster_fixtures"
 
 describe("layoutAsked, layoutApplied", () => {
@@ -22,9 +40,19 @@ describe("layoutAsked, layoutApplied", () => {
   })
 
   it("draws the hand again in the new layout: the revealed cards in the tray, the zoom and banner gone", () => {
-    const state = bannerShown({ ...revealMarked(dealt(), 0, 0), zoom: 0 }, { tier: "epic", large: false, line: null, reduced: false })
+    const state = bannerShown(
+      { ...revealMarked(dealt(), 0, 0), zoom: 0 },
+      { tier: "epic", large: false, line: null, reduced: false },
+    )
     const rebuilt = layoutApplied(layoutAsked(state, "phone"), true)
-    expect(rebuilt).toMatchObject({ layout: "phone", pendingLayout: null, rebuilds: state.rebuilds + 1, zoom: null, banner: null, focus: "card" })
+    expect(rebuilt).toMatchObject({
+      layout: "phone",
+      pendingLayout: null,
+      rebuilds: state.rebuilds + 1,
+      zoom: null,
+      banner: null,
+      focus: "card",
+    })
     expect(rebuilt.stored).toEqual([true, false, false, false, false])
     const back = layoutApplied(layoutAsked(rebuilt, "narrow"), false)
     expect(back.stored).toEqual([false, false, false, false, false])
@@ -97,19 +125,42 @@ describe("activation", () => {
 describe("controls", () => {
   it("offers to open a sealed canister, Reveal all disabled", () => {
     const view = controls(startWith())
-    expect(view).toMatchObject({ open: "open", openDisabled: false, busy: false, locked: false, revealAllDisabled: true, tone: "rest", hint: null, top: null })
+    expect(view).toMatchObject({
+      open: "open",
+      openDisabled: false,
+      busy: false,
+      locked: false,
+      revealAllDisabled: true,
+      tone: "rest",
+      hint: null,
+      top: null,
+    })
   })
 
   it("says the reserve is empty, the opening disabled, except while opening", () => {
     expect(controls(startWith({ bank: bank(0) }))).toMatchObject({ open: "empty", openDisabled: true })
     const opening = arming(openingStarted(startWith({ bank: bank(1) })), "key")
-    expect(controls({ ...opening, bank: bank(0) })).toMatchObject({ open: "open", openDisabled: false, busy: true, tone: "alert" })
+    expect(controls({ ...opening, bank: bank(0) })).toMatchObject({
+      open: "open",
+      openDisabled: false,
+      busy: true,
+      tone: "alert",
+    })
   })
 
   it("holds the next one until every card is shown, and counts what is left", () => {
     const hand = revealMarked(dealt(), 0, 0)
-    expect(controls(hand)).toMatchObject({ open: "next", openDisabled: true, revealAllDisabled: false, hint: { kind: "remaining", count: 4 } })
-    expect(controls(revealedAll(hand))).toMatchObject({ openDisabled: false, revealAllDisabled: true, hint: { kind: "done", count: 5 } })
+    expect(controls(hand)).toMatchObject({
+      open: "next",
+      openDisabled: true,
+      revealAllDisabled: false,
+      hint: { kind: "remaining", count: 4 },
+    })
+    expect(controls(revealedAll(hand))).toMatchObject({
+      openDisabled: false,
+      revealAllDisabled: true,
+      hint: { kind: "done", count: 5 },
+    })
   })
 
   it("marks the controls busy and locked while anything holds the navigation", () => {
@@ -119,7 +170,9 @@ describe("controls", () => {
   })
 
   it("tones the state line", () => {
-    const tones = (["sealed", "arming", "ejecting", "inventory", "legendarySignal", "complete", "waiting"] as const).map((status) => controls({ ...startWith(), status }).tone)
+    const tones = (
+      ["sealed", "arming", "ejecting", "inventory", "legendarySignal", "complete", "waiting"] as const
+    ).map((status) => controls({ ...startWith(), status }).tone)
     expect(tones).toEqual(["rest", "alert", "alert", "rest", "gold", "done", "rest"])
   })
 

@@ -112,7 +112,9 @@
 
 .set-search__field:focus-visible {
   outline: 0;
-  box-shadow: var(--focus-ring-gap), inset 0 0 0 var(--space-unit) var(--color-accent);
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
 }
 
 .set-search__status {
@@ -185,7 +187,9 @@
    raised panel, its count in accent. */
 .set-row[aria-current] {
   background: var(--color-panel-raised);
-  box-shadow: inset 5px 0 0 0 var(--color-accent), var(--panel-border);
+  box-shadow:
+    inset 5px 0 0 0 var(--color-accent),
+    var(--panel-border);
 }
 
 .set-row[aria-current] .set-row__name {
@@ -197,9 +201,15 @@
 }
 
 .set-row[aria-current]:hover {
-  box-shadow: inset 5px 0 0 0 var(--color-accent), var(--control-border), inset 0 0 0 var(--space-unit) var(--color-accent);
+  box-shadow:
+    inset 5px 0 0 0 var(--color-accent),
+    var(--control-border),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
 }
 
 .set-row[aria-current]:focus-visible {
-  box-shadow: var(--focus-ring-gap), inset 5px 0 0 0 var(--color-accent), var(--panel-border);
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 5px 0 0 0 var(--color-accent),
+    var(--panel-border);
 }

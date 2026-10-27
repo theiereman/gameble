@@ -11,7 +11,10 @@ export type StepperView = {
 
 export const STEPPER = ".stepper"
 
-export function reflectStepper(stepper: HTMLElement, { value, max, label, valueText, maxText, maxPhoneText }: StepperView): void {
+export function reflectStepper(
+  stepper: HTMLElement,
+  { value, max, label, valueText, maxText, maxPhoneText }: StepperView,
+): void {
   stepper.setAttribute("aria-label", label)
   stepper.setAttribute("aria-valuenow", String(value))
   stepper.setAttribute("aria-valuemax", String(max))

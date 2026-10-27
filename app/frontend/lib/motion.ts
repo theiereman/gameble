@@ -4,7 +4,11 @@ export function motionReduced(): boolean {
   const forced = typeof document !== "undefined" ? document.documentElement.dataset.motion : undefined
   if (forced === "reduced") return true
   if (forced === "full") return false
-  return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(REDUCED_MOTION_QUERY).matches
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia(REDUCED_MOTION_QUERY).matches
+  )
 }
 
 export function onMotionChange(listener: (reduced: boolean) => void): () => void {

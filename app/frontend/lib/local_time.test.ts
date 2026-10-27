@@ -25,8 +25,9 @@ describe("formatLocalTime", () => {
 
   it("adds the year for a date kept on the page", () => {
     expect(formatLocalTime("2026-10-04T07:05:00Z", "date-time-year", paris)).toBe("4 oct. 2026 à 09h05")
-    expect(formatLocalTime(new Date("2026-10-04T07:05:00Z"), "date-time-year", { locale: "en", timeZone: "Europe/Paris" }))
-      .toBe("Oct 4, 2026, 09:05")
+    expect(
+      formatLocalTime(new Date("2026-10-04T07:05:00Z"), "date-time-year", { locale: "en", timeZone: "Europe/Paris" }),
+    ).toBe("Oct 4, 2026, 09:05")
   })
 
   it("gives the day change as a local time and the week start as a local weekday and time", () => {

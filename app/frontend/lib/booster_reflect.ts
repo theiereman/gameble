@@ -2,7 +2,12 @@ import { revealingOpening, type BoosterState } from "./booster"
 import type { BoosterCountdown } from "./booster_countdown"
 import { dispatchGameble } from "./events"
 
-export function reflectChange(before: BoosterState, after: BoosterState, countdown: BoosterCountdown | undefined, whenIdle: () => void): void {
+export function reflectChange(
+  before: BoosterState,
+  after: BoosterState,
+  countdown: BoosterCountdown | undefined,
+  whenIdle: () => void,
+): void {
   if (after.bank !== before.bank) {
     const { available, reserveFull, nextAvailableAt, serverTime } = after.bank
     dispatchGameble("gameble:bank-changed", { available, reserveFull, nextAvailableAt, serverTime })

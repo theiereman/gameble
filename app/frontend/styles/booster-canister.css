@@ -16,7 +16,10 @@
   width: 480px;
   height: 480px;
   border-radius: 50%;
-  background: repeating-conic-gradient(color-mix(in srgb, var(--color-accent) 16%, transparent) 0deg 9deg, transparent 9deg 18deg);
+  background: repeating-conic-gradient(
+    color-mix(in srgb, var(--color-accent) 16%, transparent) 0deg 9deg,
+    transparent 9deg 18deg
+  );
   mask-image: radial-gradient(circle, #000 25%, transparent 68%);
   pointer-events: none;
   animation: booster-spin 40s steps(160) infinite;
@@ -123,9 +126,17 @@
   background: var(--color-accent);
 }
 
-.booster-canister__led--1 { left: 140px; }
-.booster-canister__led--2 { left: 156px; }
-.booster-canister__led--3 { left: 172px; }
+.booster-canister__led--1 {
+  left: 140px;
+}
+
+.booster-canister__led--2 {
+  left: 156px;
+}
+
+.booster-canister__led--3 {
+  left: 172px;
+}
 
 .booster-canister__led--cap {
   left: 160px;
@@ -166,6 +177,7 @@
 .booster-card {
   --booster-tier: var(--color-rarity-commune);
   --booster-tier-hi: var(--color-rarity-commune-hi);
+
   position: relative;
   display: flex;
   flex: none;
@@ -266,7 +278,8 @@
   transition: transform 160ms var(--ease-out);
 }
 
-.booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
+.booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible)
+  .booster-card__hover {
   transform: translateY(-8px);
 }
 
@@ -320,13 +333,15 @@
   bottom: 0;
   left: 0;
   width: 60%;
-  background: linear-gradient(90deg,
+  background: linear-gradient(
+    90deg,
     transparent 20%,
     color-mix(in srgb, var(--color-accent-hi) 16%, transparent) 45%,
     color-mix(in srgb, var(--color-accent-hi) 5%, transparent) 60%,
-    transparent 80%);
+    transparent 80%
+  );
   transform: translateX(-150%) skewX(-20deg);
-  animation: booster-back-sheen 5.2s cubic-bezier(.45, 0, .25, 1) infinite;
+  animation: booster-back-sheen 5.2s cubic-bezier(0.45, 0, 0.25, 1) infinite;
   pointer-events: none;
 }
 

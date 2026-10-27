@@ -22,6 +22,7 @@ export class StreamHold<T> {
 
   defer(batch: T[]): void {
     this.waiting.push(batch)
-    while (this.waiting.length > 1 && this.waiting.reduce((total, each) => total + each.length, 0) > this.keep) this.waiting.shift()
+    while (this.waiting.length > 1 && this.waiting.reduce((total, each) => total + each.length, 0) > this.keep)
+      this.waiting.shift()
   }
 }

@@ -57,7 +57,8 @@ export default class extends Controller<HTMLElement> {
 
   private delays(elements: Element[], stepMs: number): void {
     elements.forEach((element, index) => {
-      if (element instanceof HTMLElement) element.style.setProperty("--power-delay", `${staggerDelayMs(index, stepMs)}ms`)
+      if (element instanceof HTMLElement)
+        element.style.setProperty("--power-delay", `${staggerDelayMs(index, stepMs)}ms`)
     })
   }
 

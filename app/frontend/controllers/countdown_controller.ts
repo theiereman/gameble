@@ -7,7 +7,13 @@ const RETRY_MS = 5000
 const BUSY_RETRY_MS = 250
 
 export default class extends Controller<HTMLElement> {
-  static values = { seconds: Number, refresh: { type: Boolean, default: true }, refreshUrl: String, hours: Boolean, total: Number }
+  static values = {
+    seconds: Number,
+    refresh: { type: Boolean, default: true },
+    refreshUrl: String,
+    hours: Boolean,
+    total: Number,
+  }
   static targets = ["clock", "bar"]
 
   declare readonly secondsValue: number
@@ -30,7 +36,8 @@ export default class extends Controller<HTMLElement> {
   }
 
   private readonly submitEnded = (event: Event): void => {
-    const { success, fetchResponse } = (event as CustomEvent<{ success: boolean; fetchResponse?: { header(name: string): string | null } }>).detail ?? {}
+    const { success, fetchResponse } =
+      (event as CustomEvent<{ success: boolean; fetchResponse?: { header(name: string): string | null } }>).detail ?? {}
     const stream = fetchResponse?.header("Content-Type")?.startsWith("text/vnd.turbo-stream.html") ?? false
     if (!success || stream) this.submitting = false
   }
@@ -68,7 +75,9 @@ export default class extends Controller<HTMLElement> {
     window.clearTimeout(this.timer)
     const left = (this.deadline ?? 0) - performance.now()
     if (left <= -1000) {
-      switch (atZero({ submitting: this.submitting, refreshPage: this.refreshValue, refreshUrl: this.refreshUrlValue })) {
+      switch (
+        atZero({ submitting: this.submitting, refreshPage: this.refreshValue, refreshUrl: this.refreshUrlValue })
+      ) {
         case "wait":
           this.schedule(BUSY_RETRY_MS)
           break

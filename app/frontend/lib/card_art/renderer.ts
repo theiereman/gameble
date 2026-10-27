@@ -251,7 +251,9 @@ function assertColors(colors: number): void {
 }
 
 function browserSupported(): boolean {
-  return typeof Worker !== "undefined" && typeof OffscreenCanvas !== "undefined" && typeof createImageBitmap !== "undefined"
+  return (
+    typeof Worker !== "undefined" && typeof OffscreenCanvas !== "undefined" && typeof createImageBitmap !== "undefined"
+  )
 }
 
 function startWorker(): ArtWorker {

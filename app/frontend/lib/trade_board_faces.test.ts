@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest"
-import { PICKER_PAGE, batches, faceLoader, facesFrom, facesUrl, fetchFaces, missingFaces, nextPage, shownFor, type KnownFaces } from "./trade_board_faces"
+import {
+  PICKER_PAGE,
+  batches,
+  faceLoader,
+  facesFrom,
+  facesUrl,
+  fetchFaces,
+  missingFaces,
+  nextPage,
+  shownFor,
+  type KnownFaces,
+} from "./trade_board_faces"
 
 describe("shownFor", () => {
   it("holds whole pages up to and including the index", () => {
@@ -23,7 +34,10 @@ describe("nextPage", () => {
 describe("missingFaces", () => {
   it("keeps the keys neither known nor asked for, once each, in order", () => {
     const known = new Map([["a--s1", "<span></span>"]])
-    expect(missingFaces(["a--s1", "b--s1", "c--s1", "b--s1", "d--s1"], known, new Set(["c--s1"]))).toEqual(["b--s1", "d--s1"])
+    expect(missingFaces(["a--s1", "b--s1", "c--s1", "b--s1", "d--s1"], known, new Set(["c--s1"]))).toEqual([
+      "b--s1",
+      "d--s1",
+    ])
   })
 
   it("is empty when every face is known or pending", () => {
@@ -69,7 +83,8 @@ describe("facesFrom", () => {
   })
 })
 
-const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } })
+const json = (status: number, body: unknown) =>
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } })
 
 function answering(answer: Response | Error) {
   const calls: { url: string; init: RequestInit }[] = []
@@ -82,13 +97,17 @@ function answering(answer: Response | Error) {
 }
 
 const never = ((_url: string, init: RequestInit) =>
-  new Promise<Response>((_resolve, reject) => init.signal?.addEventListener("abort", () => reject(init.signal?.reason)))) as typeof fetch
+  new Promise<Response>((_resolve, reject) =>
+    init.signal?.addEventListener("abort", () => reject(init.signal?.reason)),
+  )) as typeof fetch
 
 describe("fetchFaces", () => {
   it("asks in JSON with the session's cookies and reads the faces", async () => {
     const { calls, send } = answering(json(200, { faces: { "a--s1": "<div>A</div>" } }))
 
-    expect(await fetchFaces({ url: "/fr/trades/faces?keys%5B%5D=a--s1", fetch: send })).toEqual({ "a--s1": "<div>A</div>" })
+    expect(await fetchFaces({ url: "/fr/trades/faces?keys%5B%5D=a--s1", fetch: send })).toEqual({
+      "a--s1": "<div>A</div>",
+    })
     expect(calls).toHaveLength(1)
     expect(calls[0].url).toBe("/fr/trades/faces?keys%5B%5D=a--s1")
     expect(calls[0].init).toMatchObject({ headers: { Accept: "application/json" }, credentials: "same-origin" })
@@ -97,7 +116,12 @@ describe("fetchFaces", () => {
 
   it("fails without an answer, on a refusal, a server error or an answer that is not JSON", async () => {
     const page = new Response("<html></html>", { status: 200, headers: { "Content-Type": "text/html" } })
-    for (const answer of [new TypeError("Failed to fetch"), json(401, { error: { code: "sign_in_required" } }), json(500, { faces: { "a--s1": "A" } }), page]) {
+    for (const answer of [
+      new TypeError("Failed to fetch"),
+      json(401, { error: { code: "sign_in_required" } }),
+      json(500, { faces: { "a--s1": "A" } }),
+      page,
+    ]) {
       expect(await fetchFaces({ url: "/fr/trades/faces", fetch: answering(answer).send })).toBeNull()
     }
   })
@@ -115,7 +139,11 @@ function deferred<Value>() {
 
 const settled = () => new Promise((done) => setTimeout(done, 0))
 
-function loading({ known = new Set<string>(), concurrency = 2, attempts = 3 }: { known?: KnownFaces; concurrency?: number; attempts?: number } = {}) {
+function loading({
+  known = new Set<string>(),
+  concurrency = 2,
+  attempts = 3,
+}: { known?: KnownFaces; concurrency?: number; attempts?: number } = {}) {
   const calls: { keys: readonly string[]; answer: ReturnType<typeof deferred<Record<string, string> | null>> }[] = []
   const retries: (() => void)[] = []
   const seen: Readonly<Record<string, string>>[] = []
@@ -140,11 +168,18 @@ describe("faceLoader", () => {
     const { loader, calls } = loading()
 
     loader.request(["a", "b", "c", "d", "e", "f"])
-    expect(calls.map((call) => call.keys)).toEqual([["e", "f"], ["c", "d"]])
+    expect(calls.map((call) => call.keys)).toEqual([
+      ["e", "f"],
+      ["c", "d"],
+    ])
 
     calls[0].answer.resolve({ e: "E", f: "F" })
     await settled()
-    expect(calls.map((call) => call.keys)).toEqual([["e", "f"], ["c", "d"], ["a", "b"]])
+    expect(calls.map((call) => call.keys)).toEqual([
+      ["e", "f"],
+      ["c", "d"],
+      ["a", "b"],
+    ])
   })
 
   it("asks only for faces neither known nor already asked for", () => {

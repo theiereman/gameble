@@ -44,11 +44,25 @@
   height: 14px;
 }
 
-.landing-rarity--common { --landing-rarity-colour: var(--color-rarity-commune); }
-.landing-rarity--uncommon { --landing-rarity-colour: var(--color-rarity-peu-commune); }
-.landing-rarity--rare { --landing-rarity-colour: var(--color-rarity-rare); }
-.landing-rarity--epic { --landing-rarity-colour: var(--color-rarity-epique); }
-.landing-rarity--legendary { --landing-rarity-colour: var(--color-rarity-legendaire); }
+.landing-rarity--common {
+  --landing-rarity-colour: var(--color-rarity-commune);
+}
+
+.landing-rarity--uncommon {
+  --landing-rarity-colour: var(--color-rarity-peu-commune);
+}
+
+.landing-rarity--rare {
+  --landing-rarity-colour: var(--color-rarity-rare);
+}
+
+.landing-rarity--epic {
+  --landing-rarity-colour: var(--color-rarity-epique);
+}
+
+.landing-rarity--legendary {
+  --landing-rarity-colour: var(--color-rarity-legendaire);
+}
 
 .landing-rarity__odds,
 .landing-season__fact dt,

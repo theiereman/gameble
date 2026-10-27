@@ -1,6 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
 import { openDialog } from "../lib/dialog"
-import { currentIndex, currentScreenLabel, currentScreenLabels, recordEntry, sessionTrailStorage } from "../lib/history_trail"
+import {
+  currentIndex,
+  currentScreenLabel,
+  currentScreenLabels,
+  recordEntry,
+  sessionTrailStorage,
+} from "../lib/history_trail"
 import { holdLiveRefresh } from "../lib/live_refresh_hold"
 import { opensElsewhere, type Intent } from "../lib/screen"
 import { serverTemplate } from "../lib/server_html"
@@ -252,11 +258,11 @@ export class TradeBoardController extends Controller<HTMLElement> {
   }
 
   private startFromMarkup(filters?: BySide<PickerFilters>): BoardState {
-    const catalogue = bySide((side) => this.cardTargets.filter((card) => card.dataset.side === side).map((card) => cardFrom(card.dataset)))
+    const catalogue = bySide((side) =>
+      this.cardTargets.filter((card) => card.dataset.side === side).map((card) => cardFrom(card.dataset)),
+    )
     const received = bySide((side) =>
-      this.lineTargets
-        .filter((line) => line.dataset.side === side)
-        .map((line) => lineFrom(line.dataset)),
+      this.lineTargets.filter((line) => line.dataset.side === side).map((line) => lineFrom(line.dataset)),
     )
     return start({ catalogue, received, editing: this.editingValue, draft: readDraft(this.draftKeyValue), filters })
   }

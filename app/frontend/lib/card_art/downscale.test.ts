@@ -31,7 +31,11 @@ describe("downscale", () => {
       return surface as unknown as Surface
     })
 
-    expect(surfaces.map(({ width, height }) => [width, height])).toEqual([[283, 450], [142, 225], [71, 113]])
+    expect(surfaces.map(({ width, height }) => [width, height])).toEqual([
+      [283, 450],
+      [142, 225],
+      [71, 113],
+    ])
     expect(surfaces[0].context.draws[0].source).toBe(source)
     expect(surfaces[1].context.draws[0]).toEqual({ source: surfaces[0], args: [0, 0, 283, 450, 0, 0, 142, 225] })
     expect(last).toMatchObject({ canvas: surfaces[2], width: 71, height: 113 })

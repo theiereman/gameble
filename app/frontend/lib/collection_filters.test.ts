@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { reloadOnChange, reloadsSets, SET_OPTIONS_FRAME, submitToFrame, type FrameSubmitter } from "./collection_filters"
+import {
+  reloadOnChange,
+  reloadsSets,
+  SET_OPTIONS_FRAME,
+  submitToFrame,
+  type FrameSubmitter,
+} from "./collection_filters"
 
 function fakeSubmitter(): FrameSubmitter & { removed: boolean } {
   return {

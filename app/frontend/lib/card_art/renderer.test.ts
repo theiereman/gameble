@@ -47,13 +47,23 @@ function drawn(): { status: "drawn"; bitmap: ImageBitmap } & { fake: Bitmap } {
 
 function target() {
   const drawImage = vi.fn()
-  const canvas = { width: 300, height: 150, getContext: vi.fn((type: string) => (type === "2d" ? { drawImage } : null)) }
+  const canvas = {
+    width: 300,
+    height: 150,
+    getContext: vi.fn((type: string) => (type === "2d" ? { drawImage } : null)),
+  }
   return { canvas, drawImage, element: canvas as unknown as HTMLCanvasElement }
 }
 
 function setup(options: ArtRendererOptions = {}) {
   const workers: FakeWorker[] = []
-  const plain = vi.fn(async (_url: string, _canvas: HTMLCanvasElement, _options: { width: number; height: number; signal?: AbortSignal }) => {})
+  const plain = vi.fn(
+    async (
+      _url: string,
+      _canvas: HTMLCanvasElement,
+      _options: { width: number; height: number; signal?: AbortSignal },
+    ) => {},
+  )
   const renderer = createArtRenderer({
     createWorker: () => {
       const worker = new FakeWorker()
@@ -87,7 +97,9 @@ describe("createArtRenderer", () => {
     const { canvas, drawImage, element } = target()
 
     const rendering = renderer.render(url(1), element, SIZE)
-    expect(worker().posted).toEqual([{ id: 1, url: url(1), width: 68, height: 108, paletteWidth: 68, paletteHeight: 108, colors: 32 }])
+    expect(worker().posted).toEqual([
+      { id: 1, url: url(1), width: 68, height: 108, paletteWidth: 68, paletteHeight: 108, colors: 32 },
+    ])
     const result = drawn()
     worker().answer(url(1), result)
 
@@ -203,7 +215,9 @@ describe("createArtRenderer", () => {
     const controller = new AbortController()
     controller.abort()
 
-    await expect(renderer.render(url(1), target().element, { ...SIZE, signal: controller.signal })).rejects.toMatchObject({ name: "AbortError" })
+    await expect(
+      renderer.render(url(1), target().element, { ...SIZE, signal: controller.signal }),
+    ).rejects.toMatchObject({ name: "AbortError" })
     expect(workers).toHaveLength(0)
   })
 
@@ -245,11 +259,20 @@ describe("createArtRenderer", () => {
     const controller = new AbortController()
     const { element } = target()
 
-    const rendering = renderer.render(url(1), element, { ...SIZE, paletteWidth: 104, paletteHeight: 164, signal: controller.signal })
+    const rendering = renderer.render(url(1), element, {
+      ...SIZE,
+      paletteWidth: 104,
+      paletteHeight: 164,
+      signal: controller.signal,
+    })
     worker().answer(url(1), { status: "cors" })
 
     await expect(rendering).resolves.toBe("plain")
-    expect(plain).toHaveBeenCalledExactlyOnceWith(url(1), element, { width: 68, height: 108, signal: controller.signal })
+    expect(plain).toHaveBeenCalledExactlyOnceWith(url(1), element, {
+      width: 68,
+      height: 108,
+      signal: controller.signal,
+    })
 
     void renderer.render(url(1), element, SIZE)
     expect(worker().posted).toHaveLength(1)
@@ -292,7 +315,13 @@ describe("createArtRenderer", () => {
 
   it("takes the main-thread path when the worker cannot be created", async () => {
     const plain = vi.fn(async () => {})
-    const renderer = createArtRenderer({ supported: () => true, plain, createWorker: () => { throw new Error("blocked") } })
+    const renderer = createArtRenderer({
+      supported: () => true,
+      plain,
+      createWorker: () => {
+        throw new Error("blocked")
+      },
+    })
 
     await expect(renderer.render(url(1), target().element, SIZE)).resolves.toBe("plain")
   })

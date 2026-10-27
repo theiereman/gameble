@@ -1,12 +1,25 @@
 import { Controller } from "@hotwired/stimulus"
 import type { Rarity } from "../lib/card_types"
 import { writeText } from "../lib/dom_writes"
-import { STEPPER, keepStepperFocus, quantityFromButton, quantityFromKey, reflectStepper, type StepperView } from "../lib/stepper"
+import {
+  STEPPER,
+  keepStepperFocus,
+  quantityFromButton,
+  quantityFromKey,
+  reflectStepper,
+  type StepperView,
+} from "../lib/stepper"
 import { columnsOf, type Chip, type EmptyReason, type Side, type SideFilter } from "../lib/trade_board"
 import { cloneContent } from "../lib/templates"
 import type { FaceFor } from "./trade_board_side_controller"
 
-export type PickView = { key: string; pressed: boolean; disabled: boolean; tabbable: boolean; stepper: StepperView | null }
+export type PickView = {
+  key: string
+  pressed: boolean
+  disabled: boolean
+  tabbable: boolean
+  stepper: StepperView | null
+}
 
 export type PickerScreen = {
   side: Side
@@ -192,7 +205,8 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     this.filtersTarget.hidden = !hasCards
     if (this.searchTarget.value !== filter.query) this.searchTarget.value = filter.query
     for (const box of this.rarityTargets) box.checked = filter.rarities.includes(box.value as Rarity)
-    for (const box of this.chipTargets) box.checked = box.dataset.for === side && filter.chips.includes(box.value as Chip)
+    for (const box of this.chipTargets)
+      box.checked = box.dataset.for === side && filter.chips.includes(box.value as Chip)
     this.foldTarget.setAttribute("aria-expanded", String(!folded))
     this.groupsTarget.classList.toggle("trade-picker__groups--folded", folded)
     this.filterCountTarget.hidden = chipsOn === 0
@@ -202,7 +216,9 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
   }
 
   private reflectPicks({ side, picks }: PickerScreen, faceFor: FaceFor): void {
-    const items = new Map(this.pickTargets.filter((item) => item.dataset.side === side).map((item) => [item.dataset.key ?? "", item]))
+    const items = new Map(
+      this.pickTargets.filter((item) => item.dataset.side === side).map((item) => [item.dataset.key ?? "", item]),
+    )
     const shown = new Set<Element>()
     for (const pick of picks) {
       const item = items.get(pick.key)
@@ -216,7 +232,11 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     this.gridTarget.hidden = shown.size === 0
   }
 
-  private reflectPick(item: HTMLElement, { key, pressed, disabled, tabbable, stepper }: PickView, faceFor: FaceFor): void {
+  private reflectPick(
+    item: HTMLElement,
+    { key, pressed, disabled, tabbable, stepper }: PickView,
+    faceFor: FaceFor,
+  ): void {
     item.querySelector(".trade-pick__card")?.classList.toggle("trade-pick__card--picked", pressed)
     const check = item.querySelector<HTMLElement>(".trade-pick__check")
     if (check) check.hidden = !pressed

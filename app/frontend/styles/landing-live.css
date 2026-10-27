@@ -196,10 +196,21 @@
   image-rendering: pixelated;
 }
 
-.landing-fan__back:nth-child(1) { transform: rotate(-12deg); }
-.landing-fan__back:nth-child(2) { transform: rotate(-4deg); }
-.landing-fan__back:nth-child(3) { transform: rotate(4deg); }
-.landing-fan__back:nth-child(4) { transform: rotate(12deg); }
+.landing-fan__back:nth-child(1) {
+  transform: rotate(-12deg);
+}
+
+.landing-fan__back:nth-child(2) {
+  transform: rotate(-4deg);
+}
+
+.landing-fan__back:nth-child(3) {
+  transform: rotate(4deg);
+}
+
+.landing-fan__back:nth-child(4) {
+  transform: rotate(12deg);
+}
 
 .landing-fan__back.is-locked img {
   filter: grayscale(1) brightness(0.55);
