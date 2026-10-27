@@ -1,5 +1,6 @@
 ---
-tracker_id: ""
+remote: https://github.com/theiereman/gameble/issues/268
+tracker_id: 268
 key: ""
 type: epic
 title: "Readable by humans: the codebase before the public release"
@@ -33,7 +34,7 @@ No capability of the spec: a platform epic. Each line cites the source it comes 
 - R5. The front-end is linted and formatted: ESLint, Prettier and Stylelint, run in CI. Source: author, 2026-10-07.
 - R6. Documentation for a newcomer: a rewritten README (what gameble is, setup, tests, deploy), an architecture overview, a glossary of the domain terms, CONTRIBUTING, `.env.example`. Source: author, 2026-10-07; spec Constraints, "All repo text is in English".
 - R7. The repository is licensed AGPL-3.0. Source: author, 2026-10-07; spec Constraints, "Open source".
-- R8. No private infrastructure in tracked configuration: LAN addresses, personal paths and private hosts come from the environment. Source: author, 2026-10-07.
+- R8. No private infrastructure in tracked configuration: LAN addresses and personal paths come from the environment or leave; the hosts and names accepted in the Notes stay. Source: author, 2026-10-07; narrowed 2026-10-27.
 
 ## Done when
 
@@ -42,7 +43,7 @@ No capability of the spec: a platform epic. Each line cites the source it comes 
 3. No production Ruby or TypeScript file exceeds 400 lines and no CSS file exceeds 500.
 4. ESLint, Prettier and Stylelint run in CI and pass.
 5. A developer following only the README on a fresh machine runs the app and the tests; the repository holds the architecture overview, the glossary, CONTRIBUTING, `.env.example` and an AGPL-3.0 LICENSE.
-6. No LAN address, personal path or private host is hard-coded in tracked configuration.
+6. No LAN address or personal path is hard-coded in tracked configuration; the hosts and names the Notes accept (staging domain, `theiereman`, the `LEGAL_*` name) stay.
 
 ## Boundaries
 
@@ -68,3 +69,13 @@ A cleanup of the whole codebase, no feature: behaviour, URLs, markup seen by pla
 - Assumption: the size limits (400 lines for Ruby and TypeScript, 500 for CSS) were proposed while slicing and accepted with the envelope; tests are not held to them.
 - Waits on epics 5, 6, 7, 9 and 11 because: the cleanup covers the whole codebase once, after its last feature is written.
 - Decision (2026-10-09, author): the host is chosen after comparing prices, at the end of this epic. Its last entry, with the author in the loop: the host's name, postal address and data-centre country go into `config/deploy.production.yml` (`LEGAL_HOST_NAME`, `LEGAL_HOST_ADDRESS`) and the privacy notice's processors; the app then refuses to boot in production when a `LEGAL_*` variable is missing, and the legal page's `access_publisher` fallback goes. Without the host line the legal page breaks the LCEN for an anonymous publisher, so production does not open before it.
+- Decision (2026-10-27, author): `LEGAL_HOST_NAME: Thomas Eyermann` and `LEGAL_HOST_ADDRESS: France` are the real values (the author hosts it); this supersedes the 2026-10-09 line above on waiting for a host: the host entry keeps only the production boot check for missing `LEGAL_*` variables, the removal of the legal page's fallback and the privacy notice's processors line, and no longer waits on the author.
+- Decision (2026-10-27, author): writes outside operations (`sum_weekly_goal_job.rb`, `handlers/player_activity.rb`) move behind operations, unless a write is truly justified as an exception (a bulk insert whose per-row operation would break its performance or its atomicity): then it stays and AGENTS.md documents the exception with its reason, for that one. The builder of entry 5 judges per write and records which.
+- Decision (2026-10-27, author): `Catalog::UpsertDraftCard` is removed and `steam_apps.carded_run_id` dropped (entry 13) now, even while production is in maintenance on v0.1.1.
+- Decision (2026-10-27, author): private infrastructure, "everything cited is acceptable": the staging domain `gameble.dotsncircles.com`, `theiereman` (image, repository, donation URL) and the `LEGAL_*` personal name stay as they are in tracked files. Entry 25 shrinks to what Done when 6 names that is not cited as acceptable: LAN addresses (`192.168.x.x`) and personal paths; it is no longer `hitl`. R8 and Done when 6 are narrowed to match.
+- Decision (2026-10-27, author): newcomer docs. `CONTRIBUTING.md` becomes first of all a guide for developers (setup pointers, workflow, tests, conventions, architecture detail, how to read the codebase); the player-facing bug-report guide moves to `docs/reporting-problems.md` and is linked from the README. `README.md` becomes a quick summary of what the project is and its architecture only at the surface, linking to `CONTRIBUTING.md`, `RELEASING.md` and the `docs/` files (architecture overview, glossary, `docs/operations.md` which receives the deployment, backup, Sentry and Steam-import material now in the README). Entry 26 moves the material, entry 30 writes architecture and glossary, entry 31 rewrites README and CONTRIBUTING and adds `.env.example`.
+- Decision (2026-10-27, author): the booster root controller entry may be split in two when it starts; it is pre-split into entries 15 (opening sequences and the render region) and 16 (reveal, store and celebration, ending at 400 lines or fewer), following the regions of `booster_controller.ts` at the head of `epic/port-off-react`.
+- Prerequisite (2026-10-27): epic 21 (`epic/port-off-react`) is about to be merged into `develop`. The entries on the booster, the trade board and the front end's TypeScript (14 to 19, 22, 27, 28) run on develop after that merge; each says so in the first line of its description. The cuts and counts were measured on that branch's head, 4d331726.
+- Decision (2026-10-27, agent's choice, for the author to confirm): the epic ships in release 0.5.0, the milestone of epics 17 and 19, which wait on it, so it ships first within that milestone. The sync stops without a release.
+- Decision (2026-10-27, tracer bullet and lanes): entries 1, 2 then a small domain (6) through the checks of entry 3 prove the layout, the checks and the cleanup recipe; the front-end entries (14 to 24) and 8 are disjoint from `packs/` and run in parallel; 25 and 26 never run together with another README edit; 27 runs alone on the front end.
+- Decision (2026-10-27, set check): independent review applied: pathspec exclusions for the AI tooling in greps, path arguments for the check scripts, `script/compare_css_cascade` committed by entry 20 and entries 21 to 24 after it, entries 9, 5 and 3 ordered before the entries that edit the same files, the legal boot check must not break the image build or staging. Suggested for the builders, not yet split: entries 5 (writes behind operations apart from the comment pass), 6 (accounts apart from catalog), 8, 12 (i18n apart) and 19 are large and may be split when they start; a handler that calls an operation must not publish a second event, so entry 5 may end in a documented exception.
