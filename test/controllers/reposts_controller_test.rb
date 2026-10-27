@@ -41,10 +41,6 @@ class RepostsControllerTest < ActionDispatch::IntegrationTest
     assert_toast :notice, "Carte repostée dans le fil."
     entry = reposts.sole
     assert_equal [ @player.id, @portal ], [ entry.player_id, entry.card_season_id ]
-
-    post repost_path(locale: :en), as: :turbo_stream
-    assert_toast :notice, "Card reposted to the feed."
-    assert_equal 2, reposts.count
   end
 
   test "without JavaScript the repost goes back to the card with a flash" do
@@ -83,6 +79,32 @@ class RepostsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_content
     assert_toast :alert, "Vous ne possédez pas cette carte."
+  end
+
+  test "a repost beyond the limits is refused with the translated message in both locales" do
+    hold(@portal)
+    sign_in(@player)
+    post repost_path, as: :json
+    assert_response :success
+
+    assert_no_difference -> { Game::FeedEntry.count } do
+      post repost_path(locale: :fr), as: :turbo_stream
+      assert_response :unprocessable_content
+      assert_toast :alert, "Vous avez déjà reposté cette carte aujourd'hui. Réessayez demain."
+
+      post repost_path, as: :json
+      assert_json_error :unprocessable_content, "already_reposted", "You reposted this card today. Try again tomorrow."
+    end
+
+    Game::FeedEntry.where(kind: "repost").delete_all
+    Game::RepostCard::HOURLY_LIMIT.times do
+      Game::FeedEntry.create!(kind: "repost", player_id: @player.id, card_season_id: @portal, rarity: 1, notable: true,
+        occurred_at: 1.minute.ago)
+    end
+    assert_no_difference -> { Game::FeedEntry.count } do
+      post repost_path, as: :json
+      assert_json_error :unprocessable_content, "repost_limit_reached", "You have reposted a lot this past hour. Try again later."
+    end
   end
 
   test "an unknown card or season is not found" do
@@ -127,14 +149,14 @@ class RepostsControllerTest < ActionDispatch::IntegrationTest
     with_counting_rate_limit(RepostsController) do
       30.times do
         post repost_path, as: :json
-        assert_response :success
+        assert_not_equal 429, response.status
       end
 
       post repost_path, as: :json
       assert_json_error :too_many_requests, "throttled", "Too many reposts in a minute. Try again in a moment."
       assert_equal "60", response.headers["Retry-After"]
     end
-    assert_equal 30, reposts.count
+    assert_equal 1, reposts.count
   end
 
   test "the route takes the slug and the season's number, never an id" do

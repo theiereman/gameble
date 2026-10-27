@@ -852,6 +852,7 @@ en:
       already_collected: You have already collected today's capsule. The next one
         will be ready on %{time}.
       already_friends: You are already friends.
+      already_reposted: You reposted this card today. Try again tomorrow.
       already_sent: Invitation already sent.
       card_already_showcased: This card is already in your showcase.
       card_not_owned: You do not own this card.
@@ -878,6 +879,7 @@ en:
       own_profile_private: 'Your profile is private: trades are closed.'
       player_required: Sign in with an active account to do that.
       position_out_of_range: The showcase has no such place.
+      repost_limit_reached: You have reposted a lot this past hour. Try again later.
       request_exceeds_holdings: Your friend does not hold that many copies of a card
         you asked for.
       requested_cards_unavailable: 'Not enough copies: a card asked for is no longer

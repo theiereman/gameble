@@ -44,13 +44,41 @@ class Game::RepostCardTest < ActiveSupport::TestCase
     assert_equal 5, reposts.sole.rarity
   end
 
-  test "a card is reposted again, with no limit" do
+  test "the eleventh repost within an hour is refused, and the next one passes once the hour is over" do
     hold(@epic, 1)
+    start = Time.utc(2026, 10, 8, 12, 0)
 
-    3.times { repost(@epic).value! }
+    travel_to(start) do
+      Game::RepostCard::HOURLY_LIMIT.times do
+        Game::FeedEntry.create!(kind: "repost", player_id: @player.id, card_season_id: @common, rarity: 1, notable: true,
+          occurred_at: start - 10.minutes)
+      end
 
-    assert_equal 3, reposts.count
-    assert_equal 3, game_events(@player, Game::CardReposted).size
+      assert_no_difference -> { reposts.count + game_events(@player, Game::CardReposted).size } do
+        assert_equal :repost_limit_reached, repost(@epic).failure
+      end
+    end
+
+    travel_to(start + 61.minutes) { assert repost(@epic).success? }
+  end
+
+  test "a second repost of a card within 24 hours is refused; another card and another player pass" do
+    hold(@epic, 1)
+    hold(@common, 1)
+    other = accounts_players(:moderator)
+    Game::Holding.create!(player_id: other.id, card_season_id: @epic, quantity: 1)
+    start = Time.utc(2026, 10, 8, 12, 0)
+
+    travel_to(start) { repost(@epic).value! }
+
+    travel_to(start + 23.hours) do
+      assert_no_difference -> { reposts.count + game_events(@player, Game::CardReposted).size } do
+        assert_equal :already_reposted, repost(@epic).failure
+      end
+      assert repost(@common).success?
+      assert repost(@epic, player: other).success?
+    end
+    travel_to(start + 25.hours) { assert repost(@epic).success? }
   end
 
   test "a card not held is refused and writes nothing" do
