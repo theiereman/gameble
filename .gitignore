@@ -12,6 +12,7 @@ _bmad/render/
 
 # Ignore all environment files.
 /.env*
+!/.env.example
 
 # Ignore all logfiles and tempfiles.
 /log/*
