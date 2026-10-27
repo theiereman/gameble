@@ -4,10 +4,10 @@ type: architecture-spine
 purpose: build-substrate
 altitude: initiative
 paradigm: 'modular monolith with an operations layer'
-scope: 'The gameble MVP as a whole: one Rails application, its four domain packs, its web layer, the Steam import and the deployment.'
+scope: 'The gameble MVP as a whole: one Rails application, its four domains, its web layer, the Steam import and the deployment.'
 status: final
 created: '2026-10-02'
-updated: '2026-10-22'
+updated: '2026-10-27'
 binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25]
 sources:
   - ../spec-gameble/spec-gameble.md
@@ -25,14 +25,14 @@ companions: []
 
 ## Design Paradigm
 
-A **modular monolith with an operations layer**: one Rails application, four domain packs with a fixed dependency direction, and a thin web layer. Every state change is a named operation.
+A **modular monolith with an operations layer**: one Rails application, four domains with a fixed dependency direction, and a thin web layer. Every state change is a named operation.
 
 | Layer | Directory | Holds |
 | --- | --- | --- |
-| `Catalog` | `packs/catalog` | Cards, card texts per locale, the theme list, seasons, a card's rarity and number for a season, sets and their tiers, the roadmap's milestones and their stories |
-| `Steam` | `packs/steam` | Steam API client, import jobs, raw Steam data, import runs, sign-in verification |
-| `Accounts` | `packs/accounts` | Players, staff roles, last seen, profile visibility, preferences, bans, reports, data controls |
-| `Game` | `packs/game` | Pack bank, owned cards, trades, invitations, friendships, set tiers reached, card backs, profile titles, menu themes, weekly goal, daily bonus, achievements, feed, presence activity, events and their handlers |
+| `Catalog` | `app/domains/catalog` | Cards, card texts per locale, the theme list, seasons, a card's rarity and number for a season, sets and their tiers, the roadmap's milestones and their stories |
+| `Steam` | `app/domains/steam` | Steam API client, import jobs, raw Steam data, import runs, sign-in verification |
+| `Accounts` | `app/domains/accounts` | Players, staff roles, last seen, profile visibility, preferences, bans, reports, data controls |
+| `Game` | `app/domains/game` | Pack bank, owned cards, trades, invitations, friendships, set tiers reached, card backs, profile titles, menu themes, weekly goal, daily bonus, achievements, feed, presence activity, events and their handlers |
 | Web layer | `app/` | Controllers, policies, view components, Stimulus controllers and the screen modules behind them, back-office, legal page |
 | Image filter | `app/frontend/lib/card_art` | The card-art worker and renderer, on the `pixelcrush` npm package |
 
@@ -49,17 +49,19 @@ graph TD
   Steam --> Catalog
 ```
 
-### AD-1 — Four packs and a thin web layer `[ADOPTED]`
+### AD-1 — Four domains and a thin web layer `[ADOPTED]`
 
 - **Binds:** all
 - **Prevents:** game rules scattered across controllers, callbacks, jobs and components.
-- **Rule:** Domain code lives in one of the four packs. The web layer holds no game rule: it calls operations and queries, renders, and authorizes. Nothing anywhere takes real money: no purchase, no ad, no cash-out.
+- **Amended 2026-10-27:** the four packs are now domains (AD-32); the rule below says domain where it said pack, and its reasons stand.
+- **Rule:** Domain code lives in one of the four domains. The web layer holds no game rule: it calls operations and queries, renders, and authorizes. Nothing anywhere takes real money: no purchase, no ad, no cash-out.
 
 ### AD-2 — Dependency direction, enforced `[ADOPTED]`
 
 - **Binds:** all
-- **Prevents:** Steam leaking into the engine; packs growing circular references.
-- **Rule:** Only the arrows of the diagram above are allowed. `Catalog` and `Accounts` depend on no pack. No pack depends on the web layer. Packwerk checks this in CI; a violation fails the build.
+- **Amended 2026-10-27:** the packs are domains (AD-32); the arrows are unchanged.
+- **Prevents:** Steam leaking into the engine; domains growing circular references.
+- **Rule:** Only the arrows of the diagram above are allowed. `Catalog` and `Accounts` depend on no pack. No domain depends on the web layer. Packwerk checks this in CI, naming each domain by its path under `app/domains`; a violation fails the build.
 
 ### AD-3 — Every state change is an operation `[ADOPTED]`
 
@@ -358,6 +360,17 @@ graph TD
   - A port keeps its screen's system tests as they stand, selectors and wording included. It may only replace the island's code-loading failure test with the promise that remains (the form working without JavaScript) and rename locale scopes per AD-18.
   - The last port removes React, react-dom, `@types/react` and `@types/react-dom`, Turbo Mount (gem and npm), `@vitejs/plugin-react` and its `react()` plugin, `vite_react_refresh_tag`, the `react-jsx` compiler option, and the development policy's `'unsafe-inline' 'unsafe-eval'` scripts unless something else still needs them.
 
+### AD-32 — Domains live under `app/domains` `[ADOPTED]`
+
+- **Binds:** all
+- **Supersedes:** the layout of AD-1 and AD-2, where each domain was a pack at `packs/<name>`. The reasons of both entries stand; only the place and the name change.
+- **Prevents:** domain code split between a `packs/` tree and `app/`; a second naming for the same four units; autoloading that loads a domain twice or under the wrong constant.
+- **Rule:**
+  - Each domain lives at `app/domains/<name>/app/<kind>/<Namespace>/...`, its former pack tree moved down one level. Constants keep their names (`Accounts::Player`, `Game::OpenPack`).
+  - `app/domains` is kept out of Rails' autoload roots by one line in `config/application.rb` (the exclusion of `domains` from the `app` path); each domain's `app/<kind>` directories are the roots, so no constant gains a `Domains::` prefix.
+  - Packwerk names a package by its path, `app/domains/<name>`, and `packs.yml` lists `app/domains/*`. The dependency arrows of the diagram above do not change.
+  - Settled by the author on 2026-10-27 after a trial that moved `accounts` with packwerk, Zeitwerk and the whole suite green.
+
 ## Consistency Conventions
 
 | Concern | Convention |
@@ -489,11 +502,11 @@ gameble/
       lib/            # screen modules and shared modules: filter client, tilt, motion, t(), DOM events
       images/pixel/   # exported pixel-art assets
     views/
-  packs/
-    catalog/          # models, queries, operations
-    steam/            # API client, import jobs, raw data, sign-in verification
-    accounts/         # models, operations
-    game/             # models, queries, operations, events, handlers, jobs, card backs
+  app/domains/        # not an autoload root; each domain's own app/ is
+    catalog/app/      # <kind>/Catalog/...: models, queries, operations
+    steam/app/        # <kind>/Steam/...: API client, import jobs, raw data, sign-in verification
+    accounts/app/     # <kind>/Accounts/...: models, operations
+    game/app/         # <kind>/Game/...: models, queries, operations, events, handlers, jobs, card backs
   config/locales/     # fr, en
   test/               # Minitest, fixtures
 ```
