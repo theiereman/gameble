@@ -1,30 +1,4 @@
 module Steam
-  # Maps a game a run carried through every step (Steam::App.ready_by) onto
-  # the keywords of Catalog::UpsertDraftCard: plain Ruby values only
-  # (String, Date, Integer, Float, Array, Hash), so Catalog never sees a
-  # Steam record. `tag_names` is { tagid => English name } (Steam::Tag). The
-  # genres are the themes (Catalog::Themes) of the game's TOP_TAGS
-  # most-voted tag keys, most-voted first (Steam::DetailsPolicy keeps tag_ids
-  # heaviest first): the keys are the stored `tags`, so a tagid missing from
-  # `tag_names` or a key already seen takes no place among the five, and
-  # Catalog reads the same five from the stored tags. `classification` is
-  # Catalog::Themes.classification, which a caller mapping many games reads
-  # once; left out, it is read for each call.
-  #
-  # A game without a review score or count cannot be scored: refused with
-  # NO_REVIEWS, without calling Catalog. A score outside 0–100 or a count
-  # below 1 (a row stored before Steam::ReviewPolicy refused such values) is
-  # refused with INVALID_REVIEWS, so Steam::PrestigeScore never raises.
-  #
-  #   Steam::CardMapping.call(app, tag_names: { 19 => "Action" })
-  #   # => Success({ source_key: "steam:620", ... }) | Failure(:no_reviews) | Failure(:invalid_reviews)
-  #
-  # `sources` maps any detailed app onto a row of Catalog::FillCardSources,
-  # for cards written before they carried their developers, franchises,
-  # themes and review count; a review count below 1 maps to nil.
-  #
-  #   Steam::CardMapping.sources(app, tag_names: { 1664 => "Puzzle" })
-  #   # => { source_key: "steam:620", developers: ["Valve"], franchises: ["Portal"], genres: ["puzzle"], review_count: 1000 }
   module CardMapping
     extend Dry::Monads[:result]
 
@@ -72,13 +46,10 @@ module Steam
       Catalog::Themes.of(tag_keys(tag_ids, tag_names).first(TOP_TAGS), classification)
     end
 
-    # The opaque key of the card of `appid` in Catalog.
     def self.source_key(appid)
       "#{SOURCE_PREFIX}#{appid}"
     end
 
-    # The names of the game's tags, in its order, as Catalog::TagKey keys:
-    # unknown tagids dropped, blank keys dropped, each key kept once.
     def self.tag_keys(tag_ids, tag_names)
       Array(tag_ids).filter_map { |tagid| tag_names[tagid] }
         .map { |name| Catalog::TagKey.of(name) }

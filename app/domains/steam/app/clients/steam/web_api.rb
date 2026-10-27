@@ -2,33 +2,6 @@ require "faraday"
 require "faraday/retry"
 
 module Steam
-  # The Steam Web API, over Faraday. A 429 or 5xx is retried with exponential
-  # backoff by faraday-retry; once the retries are spent, or on any other
-  # failure, it raises Steam::WebApi::Error. A missing key, or a key Steam
-  # rejects (401 or 403), raises its subclass Steam::WebApi::BrokenKey.
-  #
-  # The API key comes from config.x.steam.api_key (config/initializers/steam.rb)
-  # and travels as the `key` query parameter. It never leaves this class: every
-  # error raised here has the key redacted from its message and carries no
-  # cause, so neither the logs, Sentry nor the import run's errors see it.
-  #
-  # An answer of the wrong shape raises; a malformed entry inside a good
-  # answer is read defensively (Steam::RawValue), so one bad app never fails
-  # a page: an app-list entry without a valid appid is dropped and counted
-  # (AppListPage#malformed), a store item whose appid is not an integer is
-  # skipped.
-  #
-  #   Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 10_000)
-  #   # => #<Steam::WebApi::AppListPage apps: [{ appid:, name:, last_modified:, price_change_number: }], have_more_results:, last_appid:, malformed: 0>
-  #
-  #   Steam::WebApi.new.get_items(appids: [ 10, 20 ], context: { language: "english", country_code: "US" }, data_request: { include_reviews: true })
-  #   # => { 10 => { "appid" => 10, "success" => 1, "reviews" => { ... }, ... } }
-  #
-  #   Steam::WebApi.new.get_tag_list(language: "english")
-  #   # => [{ tagid: 19, name: "Action" }, ...]
-  #
-  #   Steam::WebApi.new.get_player_summary(steamid: "76561197960287930")
-  #   # => "Gabe" | nil
   class WebApi
     BASE_URL = "https://api.steampowered.com".freeze
     REDACTED = "[FILTERED]".freeze
@@ -37,35 +10,20 @@ module Steam
     class Error < StandardError; end
     class BrokenKey < Error; end
 
-    # `malformed` counts the entries dropped for want of a valid appid.
     AppListPage = Data.define(:apps, :have_more_results, :last_appid, :malformed)
 
-    # The Faraday adapter, as arguments to `Faraday::Connection#adapter`.
-    # Tests swap in Faraday's test adapter: `Steam::WebApi.adapter = [ :test, stubs ]`.
     class_attribute :adapter, default: [ Faraday.default_adapter ]
-    # Seconds before the first retry; doubled on each retry.
     class_attribute :retry_interval, default: 2.0
-    # Seconds a persona name lookup may take in all: connecting, TLS and
-    # reading the answer.
     class_attribute :player_summary_deadline, default: 5.0
 
     def initialize(api_key: Rails.configuration.x.steam.api_key)
       @api_key = api_key.to_s
     end
 
-    # One page of IStoreService/GetAppList, games only, after `last_appid`.
-    # The list is ordered by appid; `last_appid` of the page is the cursor of
-    # the next one. An entry that is not an object, or whose appid is missing,
-    # not an integer or outside 1..2**31 - 1, is dropped and counted in
-    # `malformed`; the other fields of a kept entry are read defensively. A
-    # page that says there is more but holds only malformed entries and no
-    # valid last_appid raises: the cursor could not move past it, and ending
-    # the list there would cut the catalog short.
     def get_app_list(last_appid:, max_results:)
       body = get("/IStoreService/GetAppList/v1/", { include_games: true, last_appid: last_appid, max_results: max_results })
       response = body["response"] if body.is_a?(Hash)
-      # An empty last page still has a `response` object; anything else is
-      # not an answer, and must not end the run as if the list were done.
+      # An empty last page still has a `response` object.
       raise Error, "GetAppList answered without a response object" unless response.is_a?(Hash)
       raise Error, "GetAppList answered apps that are not a list" unless response.fetch("apps", []).is_a?(Array)
 
@@ -80,13 +38,7 @@ module Steam
       AppListPage.new(apps: apps, have_more_results: more, last_appid: last_appid, malformed: entries.size - apps.size)
     end
 
-    # The store items of IStoreBrowseService/GetItems for `appids` (at most
-    # 100 a call), raw, keyed by appid. Only the requested appids are keys:
-    # Steam answers an unknown appid as `id: 0, success: 15`, which matches
-    # none, so an appid missing from the hash got no answer; an item that is
-    # not an object, or whose appid is not an integer, is skipped the same
-    # way. What each item holds depends on `data_request`; the caller reads
-    # it, defensively (Steam::RawValue).
+    # GetItems takes at most 100 appids a call.
     def get_items(appids:, context:, data_request:)
       input = { ids: appids.map { |appid| { appid: appid } }, context: context, data_request: data_request }
       body = get("/IStoreBrowseService/GetItems/v1/", { input_json: input.to_json })
@@ -97,6 +49,7 @@ module Steam
       raise Error, "GetItems answered store items that are not a list" unless items.is_a?(Array)
       raise Error, "GetItems answered no store item for #{appids.size} appids" if items.empty? && appids.any?
 
+      # Steam answers an unknown appid as `id: 0, success: 15`, which matches no requested appid.
       requested = appids.to_set
       items.each_with_object({}) do |item, by_appid|
         next unless item.is_a?(Hash)
@@ -106,9 +59,6 @@ module Steam
       end
     end
 
-    # Steam's store tags named in `language`, from IStoreService/GetTagList.
-    # An answer without a response object, without a tag list, or whose
-    # list names no tag raises.
     def get_tag_list(language:)
       body = get("/IStoreService/GetTagList/v1/", { language: language })
       response = body["response"] if body.is_a?(Hash)
@@ -125,13 +75,8 @@ module Steam
       tags
     end
 
-    # The persona name of one player, from ISteamUser/GetPlayerSummaries, for
-    # a sign-in: one attempt, no retry, within player_summary_deadline, so a
-    # slow Steam never holds a sign-in long. Stripped; nil when Steam answers
-    # no player with that id or an empty name. A failure, an expired deadline
-    # or a malformed answer raises Steam::WebApi::Error, the key redacted.
     def get_player_summary(steamid:)
-      body = get("/ISteamUser/GetPlayerSummaries/v2/", { steamids: steamid }, summary_connection, deadline: player_summary_deadline)
+      body = get("/ISteamUser/GetPlayerSummaries/v2/", { steamids: steamid }, connection_without_retry, deadline: player_summary_deadline)
       response = body["response"] if body.is_a?(Hash)
       raise Error, "GetPlayerSummaries answered without a response object" unless response.is_a?(Hash)
       raise Error, "GetPlayerSummaries answered players that are not a list" unless response["players"].is_a?(Array)
@@ -143,12 +88,10 @@ module Steam
       name&.strip.presence
     end
 
-    # Keeps the key out of inspections (consoles, error reports).
     def inspect
       "#<#{self.class.name}>"
     end
 
-    # The message with the API key replaced, in plain and URL-encoded forms.
     def redact(message)
       return message.to_s if @api_key.empty?
 
@@ -172,8 +115,6 @@ module Steam
       raise Error.new(redact("#{error.class}: #{error.message}")), cause: nil
     end
 
-    # The entry's columns, or nil when it has no valid appid. A malformed
-    # name, date or price change number is left empty.
     def normalize_app(app)
       return unless app.is_a?(Hash)
 
@@ -188,8 +129,7 @@ module Steam
       }
     end
 
-    # raise_error wraps retry: the retry middleware sees the 429 or 5xx
-    # response itself, and raise_error raises once the retries are spent.
+    # raise_error wraps retry: the retry middleware sees the 429 or 5xx response itself.
     def connection
       @connection ||= Faraday.new(url: BASE_URL, request: { timeout: 30, open_timeout: 10 }) do |f|
         f.response :raise_error
@@ -205,10 +145,8 @@ module Steam
       end
     end
 
-    # For a request made while a player waits (a sign-in): no retry, bounded
-    # by the caller's deadline.
-    def summary_connection
-      @summary_connection ||= Faraday.new(url: BASE_URL) do |f|
+    def connection_without_retry
+      @connection_without_retry ||= Faraday.new(url: BASE_URL) do |f|
         f.response :raise_error
         f.response :json
         f.adapter(*adapter)

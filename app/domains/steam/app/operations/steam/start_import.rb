@@ -1,15 +1,4 @@
 module Steam
-  # Starts an import run (CAP-2, AD-19): a running run on the first step,
-  # with that step's cursor (`{ "step" => "app_list", "last_appid" => 0 }`:
-  # the step name lets the job's cursor guard drop a stale job of another
-  # step), then enqueues its first page on the import queue
-  # once the run is committed. One active run at a time: the database refuses
-  # a second, so two administrators starting at once get one run. The run
-  # records the number of the draft season it begins on (season_number). No
-  # run starts while a finished one waits for promotion.
-  #
-  #   Steam::StartImport.new.call
-  #   # => Success(run) | Failure(:run_in_progress) | Failure(:run_awaiting_promotion)
   class StartImport < ApplicationOperation
     def call
       run = transaction do
@@ -34,8 +23,6 @@ module Steam
       ImportRun.active.exists? ? Failure(:run_in_progress) : Success()
     end
 
-    # A run started by someone else between the check and the insert meets
-    # the one-active-run index; the savepoint keeps the transaction usable.
     def create_run
       run = ImportRun.transaction(requires_new: true) do
         ImportRun.create!(

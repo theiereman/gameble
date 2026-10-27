@@ -1,21 +1,11 @@
 module Steam
-  # Steam's image CDN (AD-17): images are served from there, never copied.
-  # A GetItems store item gives an `asset_url_format` (a path holding
-  # `${FILENAME}`) and the file names of its assets, the library capsule
-  # among them, possibly hashed (`<hash>/library_capsule.jpg`).
-  #
-  #   Steam::Cdn.asset_url("steam/apps/620/${FILENAME}?t=1", "library_600x900.jpg")
-  #   # => "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/620/library_600x900.jpg?t=1"
   module Cdn
     ASSET_BASE = "https://shared.akamai.steamstatic.com/store_item_assets/".freeze
     FILENAME = "${FILENAME}".freeze
 
-    # The hosts Steam serves card images from, as Content-Security-Policy
-    # sources (AD-27): ASSET_BASE's host and its siblings.
     IMAGE_SOURCES = %w[https://*.steamstatic.com].freeze
 
-    # The URL of `filename` from the item's format; nil when either is blank
-    # or the format names no file.
+    # Steam gives an `asset_url_format` holding ${FILENAME}; an asset's file name may be hashed (`<hash>/library_capsule.jpg`).
     def self.asset_url(asset_url_format, filename)
       return if asset_url_format.blank? || filename.blank? || !asset_url_format.to_s.include?(FILENAME)
 

@@ -1,10 +1,4 @@
 module Steam
-  # The Steam tags the draft season's cards carry among their most-voted,
-  # each with its English name and the number of games (cards) that carry it,
-  # the most carried first. A tag whose name Steam no longer lists is named
-  # after its key.
-  #
-  #   Steam::DraftTags.call # => [Steam::DraftTags::Entry(key: "roguelite", name: "Roguelite", game_count: 97), …]
   module DraftTags
     Entry = Data.define(:key, :name, :game_count)
 

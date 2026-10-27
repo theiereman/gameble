@@ -1,10 +1,4 @@
 module Steam
-  # Completes an import run after its last step: the run is ready,
-  # its staged cards waiting for promotion. Called by the operation that
-  # imported the last page, inside its transaction, with the run it locked.
-  #
-  #   step Steam::CompleteImport.new.call(import_run: run)
-  #   # => Success(run) | Failure(:not_running)
   class CompleteImport < ApplicationOperation
     def call(import_run:)
       transaction do

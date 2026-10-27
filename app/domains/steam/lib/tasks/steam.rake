@@ -1,9 +1,4 @@
 namespace :steam do
-  # Meant for production: run after the deploys that give cards their
-  # developers, franchises and themes and card-seasons their review count,
-  # so the ones imported before them get them without a new import, and
-  # before the draft is published. An app without a review count still
-  # gives its card the names and themes.
   desc "Fills every card's developers, franchises and themes, and its card-seasons' missing review counts, " \
     "from the stored Steam apps (Catalog::FillCardSources); idempotent"
   task fill_card_sources: :environment do
