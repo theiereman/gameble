@@ -3,7 +3,7 @@ require_relative "../support/counting_rate_limit"
 require_relative "../support/library_requests"
 require_relative "../support/steam_sign_in"
 
-# POST /:locale/library/seen (AD-26, story 10.1): the collection page posts
+# POST /:locale/library/seen: the collection page posts
 # the latest gain it showed as new; the watermark keeps the greater value,
 # never past now. JSON in, 204 or a JSON refusal out.
 class CollectionSeenControllerTest < ActionDispatch::IntegrationTest

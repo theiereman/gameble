@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# Game::CollectDailyBonus under concurrency (AD-7, AD-9): the bank lock
+# Game::CollectDailyBonus under concurrency: the bank lock
 # serialises two collections by the same player. Each thread has its own
 # connection, so the test commits for real and cleans up after itself.
 class Game::CollectDailyBonusConcurrencyTest < ActiveSupport::TestCase

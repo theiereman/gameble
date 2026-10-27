@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# Game::OpenPack under concurrency (AD-7): the bank lock serialises two
+# Game::OpenPack under concurrency: the bank lock serialises two
 # openings by the same player. Each thread has its own connection, so the
 # test commits for real and cleans up after itself.
 class Game::OpenPackConcurrencyTest < ActiveSupport::TestCase

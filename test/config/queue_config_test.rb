@@ -1,6 +1,6 @@
 require "test_helper"
 
-# The import worker (AD-19, AD-21): one process, one thread, the import queue
+# The import worker: one process, one thread, the import queue
 # only; the jobs process leaves that queue alone, and dispatches and serves
 # the queues of the other jobs.
 class QueueConfigTest < ActiveSupport::TestCase

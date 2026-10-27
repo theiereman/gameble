@@ -2,7 +2,7 @@ require "test_helper"
 require Rails.root.join("db/migrate/20261006100000_remove_dust_tier_from_catalog_card_seasons").to_s
 require Rails.root.join("db/migrate/20261019120000_widen_tier_checks_to_ranks").to_s
 
-# The catalog's database constraints and model rules (AD-5): what the
+# The catalog's database constraints and model rules: what the
 # database refuses even when a model is bypassed.
 class Catalog::SchemaTest < ActiveSupport::TestCase
   def refused(error = ActiveRecord::StatementInvalid, &block)

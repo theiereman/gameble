@@ -2,12 +2,12 @@ require "test_helper"
 require_relative "../../support/game_packs"
 require_relative "../../support/rake_tasks"
 
-# Replacement packs (R1, R4, AD-7): opening a regular pack replaces it, the
+# Replacement packs: opening a regular pack replaces it, the
 # new pack drawn at once and scheduled ten minutes after the later of the
 # opening and the latest time in the bank; the bank summary's next pack; and
 # the healing of banks left short (Game::HealBank, game:top_up_banks), every
 # missing pack available at once, which nothing but a season's publication
-# does (epic 7 R6).
+# does.
 class Game::TopUpBankTest < ActiveSupport::TestCase
   include GamePacks
   include RakeTasks

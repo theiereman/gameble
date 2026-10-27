@@ -3,14 +3,14 @@ require "open3"
 require "tmpdir"
 require "zlib"
 
-# The exported pixel art (AD-27, stories 8.1 and 8.8): the files under
+# The exported pixel art: the files under
 # app/frontend/images/pixel/ are exactly what script/pixel_art/export.mjs
 # writes, so an icon, a card back, the canister, the planet or an avatar is
 # changed in the script, never by hand.
 class PixelArtExportTest < ActiveSupport::TestCase
   PIXEL_DIR = Rails.root.join("app/frontend/images/pixel")
   BACK_NAMES = %w[standard saison-1 semaine-38 etoile-dor aurore millesime-2017 centurion soldes-hiver].freeze
-  # Half of each DESIGN.md card size: one art pixel is 2 CSS px.
+  # Half of each card size: one art pixel is 2 CSS px.
   BACK_SIZES = { "xs" => [ 50, 75 ], "s" => [ 56, 84 ], "m" => [ 80, 120 ], "l" => [ 104, 156 ], "xl" => [ 120, 180 ] }.freeze
   AVATAR_COLOURS = %w[blue pink gold jade orange lavender grey violet].freeze
   # Every committed file is one the script writes.

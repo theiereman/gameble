@@ -104,7 +104,7 @@ class Accounts::SignInTest < ActiveSupport::TestCase
     end
   end
 
-  # The persona name (CAP-8)
+  # The persona name
 
   test "a first sign-in stores the persona name and still publishes PlayerRegistered" do
     player = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: "Gabe").value!
@@ -163,7 +163,7 @@ class Accounts::SignInTest < ActiveSupport::TestCase
     assert_equal "Gabe", result.value!.reload.persona_name
   end
 
-  # Invisible characters (story 4.7, retrospective B4).
+  # Invisible characters.
 
   [ "\u200B\u202E", "\u3164", "\u2066 \u3000" ].each do |name|
     test "a first sign-in with a persona name of #{name.inspect}, nothing visible, stores none" do

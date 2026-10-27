@@ -40,7 +40,7 @@ class Game::TierCountsTest < ActiveSupport::TestCase
     assert_equal({ 1 => 3, 2 => 0, 3 => 2, 4 => 0, 5 => 0 }, Game::TierCounts.call(@player))
   end
 
-  # --- Before an opening (AD-23) -------------------------------------------
+  # --- Before an opening -------------------------------------------
 
   test "before an opening: the current counts minus the pack's cards, a card drawn twice counted twice" do
     hold(@player, :common_card_one, 5)

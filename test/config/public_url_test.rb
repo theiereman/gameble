@@ -1,7 +1,7 @@
 require "test_helper"
 require "open3"
 
-# The public base of shared links (CAP-9; epic 4 retrospective U1–U3):
+# The public base of shared links:
 # PUBLIC_URL parsed and checked at boot by config/initializers/public_url.rb,
 # a malformed value refused everywhere, a missing one in production; and
 # each Kamal destination (config/deploy.<destination>.yml) setting it.

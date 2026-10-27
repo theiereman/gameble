@@ -1,6 +1,6 @@
 require "test_helper"
 
-# Absolute links handed out to the world (CAP-9, story 4.5): on the
+# Absolute links handed out to the world: on the
 # configured public base; on the request's own base outside production only.
 class PublicUrlsHelperTest < ActionView::TestCase
   setup do

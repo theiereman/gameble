@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Game::DrawPool (AD-7): the published season by tier, held per process and
+# Game::DrawPool: the published season by tier, held per process and
 # reloaded when the published season changes.
 class Game::DrawPoolTest < ActiveSupport::TestCase
   include CatalogSeeds

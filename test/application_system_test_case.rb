@@ -51,7 +51,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     super
   end
 
-  # Signing in and out through the shell's top bar (story 8.1): the official
+  # Signing in and out through the shell's top bar: the official
   # Steam image for a visitor, the player menu's "Sign out" for a player.
   def click_steam_sign_in
     find(".top-bar .steam-sign-in__button").click

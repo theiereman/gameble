@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# Game::MarkCollectionSeen (AD-26, story 10.1): the collection's watermark
+# Game::MarkCollectionSeen: the collection's watermark
 # only moves forward, never past now, in one upsert that publishes nothing.
 class Game::MarkCollectionSeenTest < ActiveSupport::TestCase
   include GamePacks

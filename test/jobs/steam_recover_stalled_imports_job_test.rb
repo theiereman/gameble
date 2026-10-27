@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../support/steam_api_stubs"
 
-# A worker killed outright loses its page job (AD-19): the recurring recovery
+# A worker killed outright loses its page job: the recurring recovery
 # puts a stalled run back on the import queue, and the run goes on from its
 # cursor without counting a page twice.
 class SteamRecoverStalledImportsJobTest < ActiveJob::TestCase

@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../../support/game_packs"
 require_relative "../../support/game_trades"
 
-# Accounts::DeletePlayer (CAP-14, AD-14) and the Game handler it triggers
+# Accounts::DeletePlayer and the Game handler it triggers
 # (Game::Handlers::PlayerDeleted, Game::ReleasePlayer): the record stays,
 # anonymised; the Steam id is released; what the player held is gone; the
 # other players are untouched.

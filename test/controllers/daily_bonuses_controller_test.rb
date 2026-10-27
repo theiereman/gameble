@@ -3,7 +3,7 @@ require_relative "../support/counting_rate_limit"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# The hub's daily booster panel and its collection (CAP-16, R8): end to
+# The hub's daily booster panel and its collection: end to
 # end, the result page of a bonus pack, and every refusal.
 class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit

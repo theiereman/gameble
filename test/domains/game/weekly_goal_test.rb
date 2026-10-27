@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../../support/game_packs"
 require_relative "../../support/game_trades"
 
-# The weekly goal (CAP-12, AD-9, AD-10, AD-12; story 6.3): a contribution row
+# The weekly goal: a contribution row
 # per player and week from each opening, the periodic sum and the target.
 class Game::WeeklyGoalTest < ActiveSupport::TestCase
   include GamePacks

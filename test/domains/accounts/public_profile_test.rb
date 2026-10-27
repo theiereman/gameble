@@ -1,6 +1,6 @@
 require "test_helper"
 
-# Accounts::PublicProfile (CAP-8): the code naming a player without a persona
+# Accounts::PublicProfile: the code naming a player without a persona
 # name. Whose profile may be shown is Game::Visibility's question.
 class Accounts::PublicProfileTest < ActiveSupport::TestCase
   test "the code is the first six Crockford base32 characters of the token's SHA-256" do

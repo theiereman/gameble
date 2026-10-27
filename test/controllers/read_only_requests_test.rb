@@ -1,6 +1,6 @@
 require "test_helper"
 
-# A test-only controller probing the database role a request runs on (AD-11).
+# A test-only controller probing the database role a request runs on.
 # It takes no policy decision: it exists to write where no page should.
 class ReadOnlyProbeController < ApplicationController
   skip_after_action :verify_authorized
@@ -33,8 +33,8 @@ class ReadOnlyProbeController < ApplicationController
   end
 end
 
-# GET and HEAD requests run under the reading role with writes prevented
-# (AD-11); other verbs write; the Steam callback is the one GET exempt.
+# GET and HEAD requests run under the reading role with writes prevented;
+# other verbs write; the Steam callback is the one GET exempt.
 class ReadOnlyRequestsTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
 

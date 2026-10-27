@@ -1,6 +1,6 @@
 require "test_helper"
 
-# Game::CollectionSlots (CAP-6, AD-26, story 10.1): a player's copies of the
+# Game::CollectionSlots: a player's copies of the
 # cards asked about, and which are new against their watermark.
 class Game::CollectionSlotsTest < ActiveSupport::TestCase
   Slot = Game::CollectionSlots::Slot
@@ -17,7 +17,7 @@ class Game::CollectionSlotsTest < ActiveSupport::TestCase
 
   def slots(ids = [ @portal, @common, @legendary ]) = Game::CollectionSlots.call(@player, ids)
 
-  test "without a watermark every gained holding is new, one never gained (before AD-26) is not; in one query" do
+  test "without a watermark every gained holding is new, one never gained is not; in one query" do
     gained = Time.zone.parse("2026-10-06 10:00:00.123456")
     hold(@player, @portal, 2, gained_at: gained)
     hold(@player, @common, 1)

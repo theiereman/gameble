@@ -1,7 +1,7 @@
 require "test_helper"
 require Rails.root.join("db/migrate/20261003040000_move_import_runs_off_the_genres_step").to_s
 
-# The data migration of story 2.10: a run left on the removed genres step
+# The data migration of a run left on the removed genres step
 # moves to the cards step, cursor 0, and a resume writes its cards.
 class Steam::GenresStepMigrationTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper

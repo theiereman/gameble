@@ -1,6 +1,6 @@
 require "test_helper"
 
-# A pack's row (epic 3 retrospective, D1 and O2): Game::Pack.row, the one
+# A pack's row: Game::Pack.row, the one
 # shape of a new pack, and the database's check on its cards: one dimension,
 # at least one card-season id and no NULL, five for a regular pack and three
 # for a daily bonus pack.

@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# Game::FillBank (R1, R3, AD-7): ten regular packs of five cards, once.
+# Game::FillBank: ten regular packs of five cards, once.
 class Game::FillBankTest < ActiveSupport::TestCase
   include GamePacks
 
