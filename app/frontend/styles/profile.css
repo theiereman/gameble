@@ -49,11 +49,25 @@
   letter-spacing: var(--tracking-number);
 }
 
-.profile-figure--rarity-1 { --figure-color: var(--color-rarity-commune); }
-.profile-figure--rarity-2 { --figure-color: var(--color-rarity-peu-commune); }
-.profile-figure--rarity-3 { --figure-color: var(--color-rarity-rare); }
-.profile-figure--rarity-4 { --figure-color: var(--color-rarity-epique); }
-.profile-figure--rarity-5 { --figure-color: var(--color-rarity-legendaire); }
+.profile-figure--rarity-1 {
+  --figure-color: var(--color-rarity-commune);
+}
+
+.profile-figure--rarity-2 {
+  --figure-color: var(--color-rarity-peu-commune);
+}
+
+.profile-figure--rarity-3 {
+  --figure-color: var(--color-rarity-rare);
+}
+
+.profile-figure--rarity-4 {
+  --figure-color: var(--color-rarity-epique);
+}
+
+.profile-figure--rarity-5 {
+  --figure-color: var(--color-rarity-legendaire);
+}
 
 .profile-band {
   display: flex;

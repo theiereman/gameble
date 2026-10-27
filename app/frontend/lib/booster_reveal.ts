@@ -1,7 +1,26 @@
-import { bannerShown, legendaryEnded, legendarySignalled, lock, revealEnded, revealMarked, revealStarted, unlock } from "./booster"
+import {
+  bannerShown,
+  legendaryEnded,
+  legendarySignalled,
+  lock,
+  revealEnded,
+  revealMarked,
+  revealStarted,
+  unlock,
+} from "./booster"
 import { animate, burst, ring, settle, stageFlash, stageShake } from "./booster_effects"
 import type { BoosterStageHost } from "./booster_host"
-import { fadeKeyframes, flipKeyframes, legendaryDropKeyframes, legendaryImpactKeyframes, legendaryJumpKeyframes, legendarySpinKeyframes, liftKeyframes, settleKeyframes, trembleKeyframes } from "./booster_keyframes"
+import {
+  fadeKeyframes,
+  flipKeyframes,
+  legendaryDropKeyframes,
+  legendaryImpactKeyframes,
+  legendaryJumpKeyframes,
+  legendarySpinKeyframes,
+  liftKeyframes,
+  settleKeyframes,
+  trembleKeyframes,
+} from "./booster_keyframes"
 import {
   ART_POLL,
   ART_WAIT_MAX,
@@ -64,7 +83,10 @@ export class RevealSequence {
   private async artReady(index: number): Promise<void> {
     const { host } = this
     const started = performance.now()
-    while (!host.slot(index)?.querySelector(".booster-card__front .card__art[data-art]") && performance.now() - started < ART_WAIT_MAX) {
+    while (
+      !host.slot(index)?.querySelector(".booster-card__front .card__art[data-art]") &&
+      performance.now() - started < ART_WAIT_MAX
+    ) {
       await host.timers().wait(ART_POLL)
     }
   }
@@ -76,7 +98,10 @@ export class RevealSequence {
     const card = after.answer?.cards[index]
     if (after === before || !card || !after.counts) return
     dispatchGameble("gameble:tier-revealed", { tier: card.tier, counts: after.counts })
-    if (!quiet) host.announce(t(host.announceCardLine, { position: index + 1, card: card.label, rarity: host.rarityNames()[card.tier] }))
+    if (!quiet)
+      host.announce(
+        t(host.announceCardLine, { position: index + 1, card: card.label, rarity: host.rarityNames()[card.tier] }),
+      )
   }
 
   private bannerFor(index: number): string | null {
@@ -127,12 +152,23 @@ export class RevealSequence {
     if (fx) {
       const { width, height: boxHeight } = fx.getBoundingClientRect()
       for (let count = 0; count < RINGS[level]; count++) {
-        ring(fx, `booster-fx__ring booster-fx__ring--${count % 2 === 0 ? "tier" : "white"}`, width / 2, boxHeight / 2 - height, 110 + level * 30, scaled(count * 90))
+        ring(
+          fx,
+          `booster-fx__ring booster-fx__ring--${count % 2 === 0 ? "tier" : "white"}`,
+          width / 2,
+          boxHeight / 2 - height,
+          110 + level * 30,
+          scaled(count * 90),
+        )
       }
     }
     if (level === 3) this.showBanner(tier, false, null)
     settle(lift)
-    animate(lift, settleKeyframes(height, swell), { duration: SETTLE_MS[level], easing: "cubic-bezier(.2,.8,.3,1)", fill: "none" })
+    animate(lift, settleKeyframes(height, swell), {
+      duration: SETTLE_MS[level],
+      easing: "cubic-bezier(.2,.8,.3,1)",
+      fill: "none",
+    })
     await wait(SETTLE_MS[level])
   }
 
@@ -155,13 +191,24 @@ export class RevealSequence {
     await wait(IMPACT_AT)
 
     settle(lift)
-    animate(lift, legendaryImpactKeyframes(rise, swell), { duration: scaled(360), easing: "ease-out", fill: "forwards" })
+    animate(lift, legendaryImpactKeyframes(rise, swell), {
+      duration: scaled(360),
+      easing: "ease-out",
+      fill: "forwards",
+    })
     const fx = host.part(index, "fx")
     burst(fx, "legendary")
     if (fx && !motionReduced()) {
       const { width, height } = fx.getBoundingClientRect()
       ;[0, 100, 200].forEach((delay, count) =>
-        ring(fx, `booster-fx__ring booster-fx__ring--${count % 2 === 0 ? "tier" : "white"}`, width / 2, height / 2 - rise, 200 + count * 60, scaled(delay)),
+        ring(
+          fx,
+          `booster-fx__ring booster-fx__ring--${count % 2 === 0 ? "tier" : "white"}`,
+          width / 2,
+          height / 2 - rise,
+          200 + count * 60,
+          scaled(delay),
+        ),
       )
     }
     stageFlash(host.flash(), "gold", 0.5, LEGENDARY_FLASH_MS)
@@ -171,7 +218,11 @@ export class RevealSequence {
 
     host.apply(legendaryEnded)
     settle(lift)
-    animate(lift, legendaryDropKeyframes(rise, swell), { duration: DROP, easing: "cubic-bezier(.3,1.5,.5,1)", fill: "none" })
+    animate(lift, legendaryDropKeyframes(rise, swell), {
+      duration: DROP,
+      easing: "cubic-bezier(.3,1.5,.5,1)",
+      fill: "none",
+    })
     later(scaled(300), () => stageShake(host.shake(), 2, scaled(120)))
     await wait(DROP)
   }

@@ -1,5 +1,14 @@
 import { Controller } from "@hotwired/stimulus"
-import { Lamp, type LampCard, type LampFrame, type Point, pointerHeld, RADII_DESKTOP, RADII_PHONE, type Size } from "../lib/lamp"
+import {
+  Lamp,
+  type LampCard,
+  type LampFrame,
+  type Point,
+  pointerHeld,
+  RADII_DESKTOP,
+  RADII_PHONE,
+  type Size,
+} from "../lib/lamp"
 import { motionReduced, onMotionChange } from "../lib/motion"
 
 const PHONE_QUERY = "(max-width: 719px)"
@@ -127,7 +136,7 @@ export default class extends Controller<HTMLElement> {
       return {
         x: rect.left - stage.left + rect.width / 2,
         y: rect.top - stage.top + rect.height / 2,
-        radius: Math.min(rect.width, rect.height) * CARD_RADIUS_SHARE
+        radius: Math.min(rect.width, rect.height) * CARD_RADIUS_SHARE,
       }
     })
     return { cards, area: { width: stage.width, height: stage.height } }
@@ -177,7 +186,9 @@ export default class extends Controller<HTMLElement> {
 
   private renderChanges(frame: LampFrame): void {
     if (frame.power !== this.shown.power) {
-      frame.radii.forEach((radius, index) => this.element.style.setProperty(`--lamp-radius-${index + 1}`, `${radius}px`))
+      frame.radii.forEach((radius, index) =>
+        this.element.style.setProperty(`--lamp-radius-${index + 1}`, `${radius}px`),
+      )
       this.element.toggleAttribute("data-lamp-lit", frame.power > 0)
       this.shown.power = frame.power
     }

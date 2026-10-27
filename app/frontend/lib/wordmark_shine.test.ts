@@ -5,7 +5,16 @@ import shellTopBarCss from "../styles/shell-top-bar.css?raw"
 import shellStatusCss from "../styles/shell-status.css?raw"
 import shellControlsCss from "../styles/shell-controls.css?raw"
 import shellScreensCss from "../styles/shell-screens.css?raw"
-import { FRAME_ROWS, STEP_MS, SWEEPING, SWEEP_ANIMATION, SWEEP_STEPS, clearSweep, endSweep, startSweep } from "./wordmark_shine"
+import {
+  FRAME_ROWS,
+  STEP_MS,
+  SWEEPING,
+  SWEEP_ANIMATION,
+  SWEEP_STEPS,
+  clearSweep,
+  endSweep,
+  startSweep,
+} from "./wordmark_shine"
 
 const shellStylesheet = [shellCss, shellTopBarCss, shellStatusCss, shellControlsCss, shellScreensCss].join("\n")
 
@@ -121,7 +130,9 @@ describe("the stylesheet and the exported frames", () => {
     const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
     return shellStylesheet.match(new RegExp(`${escaped} \\{([^}]*)\\}`))?.[1] ?? ""
   }
-  const lastFrameRow = Math.max(...[...sweepSvg.split('<g class="wordmark-sweep__frames">')[1].matchAll(/M\d+ (\d+)h/g)].map((m) => Number(m[1])))
+  const lastFrameRow = Math.max(
+    ...[...sweepSvg.split('<g class="wordmark-sweep__frames">')[1].matchAll(/M\d+ (\d+)h/g)].map((m) => Number(m[1])),
+  )
   const keyframes = shellStylesheet.match(/@keyframes wordmark-sweep \{([\s\S]*?)\n\}/)?.[1] ?? ""
 
   it("holds a rest frame and one frame per step", () => {
@@ -131,7 +142,7 @@ describe("the stylesheet and the exported frames", () => {
 
   it("steps through every frame after the rest frame, one step at a time", () => {
     expect(rule(".top-bar__brand[data-sweeping] .wordmark-sweep__frames")).toContain(
-      `animation: ${SWEEP_ANIMATION} ${SWEEP_STEPS * STEP_MS}ms steps(${SWEEP_STEPS}, jump-none);`
+      `animation: ${SWEEP_ANIMATION} ${SWEEP_STEPS * STEP_MS}ms steps(${SWEEP_STEPS}, jump-none);`,
     )
     expect(keyframes).toMatch(new RegExp(`from \\{\\s*transform: translateY\\(-${FRAME_ROWS}px\\);`))
     expect(keyframes).toMatch(new RegExp(`to \\{\\s*transform: translateY\\(-${SWEEP_STEPS * FRAME_ROWS}px\\);`))
@@ -141,6 +152,8 @@ describe("the stylesheet and the exported frames", () => {
     expect(rule('  html:not([data-motion="full"]) .wordmark-sweep__frames')).toContain("animation: none;")
     expect(rule('html[data-motion="reduced"] .wordmark-sweep__frames')).toContain("animation: none;")
     const reducedBlock = shellStylesheet.slice(shellStylesheet.indexOf("@media (prefers-reduced-motion: reduce)"))
-    expect(reducedBlock.indexOf('html:not([data-motion="full"]) .wordmark-sweep__frames')).toBeLessThan(reducedBlock.indexOf("\n}\n"))
+    expect(reducedBlock.indexOf('html:not([data-motion="full"]) .wordmark-sweep__frames')).toBeLessThan(
+      reducedBlock.indexOf("\n}\n"),
+    )
   })
 })

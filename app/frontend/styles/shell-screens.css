@@ -216,7 +216,9 @@ html[data-sub-view-step] .main {
 
   .modal__panel {
     padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
-    box-shadow: inset 0 var(--space-unit) 0 0 var(--color-line), var(--overlay-shadow);
+    box-shadow:
+      inset 0 var(--space-unit) 0 0 var(--color-line),
+      var(--overlay-shadow);
   }
 
   .modal__panel.panel--brackets::before,
@@ -243,7 +245,7 @@ html[data-sub-view-step] .main {
     left: 0;
     z-index: 10;
     display: block;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0);
     background: var(--color-steam-bar);
     box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line);
   }
@@ -262,7 +264,9 @@ html[data-sub-view-step] .main {
   }
 
   body:has(.tab-bar):has(> .ticker) .app-version {
-    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-ticker-height-phone) + var(--space-2));
+    bottom: calc(
+      var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-ticker-height-phone) + var(--space-2)
+    );
   }
 
   .toast {

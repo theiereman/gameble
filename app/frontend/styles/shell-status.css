@@ -122,11 +122,25 @@ body:has(> .ticker) .app-version {
   text-transform: uppercase;
 }
 
-.ticker__rarity--common { color: var(--color-rarity-commune); }
-.ticker__rarity--uncommon { color: var(--color-rarity-peu-commune); }
-.ticker__rarity--rare { color: var(--color-rarity-rare); }
-.ticker__rarity--epic { color: var(--color-rarity-epique); }
-.ticker__rarity--legendary { color: var(--color-rarity-legendaire); }
+.ticker__rarity--common {
+  color: var(--color-rarity-commune);
+}
+
+.ticker__rarity--uncommon {
+  color: var(--color-rarity-peu-commune);
+}
+
+.ticker__rarity--rare {
+  color: var(--color-rarity-rare);
+}
+
+.ticker__rarity--epic {
+  color: var(--color-rarity-epique);
+}
+
+.ticker__rarity--legendary {
+  color: var(--color-rarity-legendaire);
+}
 
 .ticker__trade {
   display: inline-flex;

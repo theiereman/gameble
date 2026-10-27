@@ -12,16 +12,44 @@ describe("placeholder", () => {
   })
 
   it("counts near-uniform grey pixels as flat grey", () => {
-    expect(isFlatGrey(fromPixels(2, 1, [[128, 130, 129, 255], [132, 134, 133, 255]]))).toBe(true)
-    expect(isFlatGrey(fromPixels(2, 1, [[128, 131, 129, 255], [128, 128, 128, 255]]))).toBe(false)
+    expect(
+      isFlatGrey(
+        fromPixels(2, 1, [
+          [128, 130, 129, 255],
+          [132, 134, 133, 255],
+        ]),
+      ),
+    ).toBe(true)
+    expect(
+      isFlatGrey(
+        fromPixels(2, 1, [
+          [128, 131, 129, 255],
+          [128, 128, 128, 255],
+        ]),
+      ),
+    ).toBe(false)
   })
 
   it("accepts grayscale art with meaningful tonal variation", () => {
-    expect(isFlatGrey(fromPixels(2, 1, [[0, 0, 0, 255], [255, 255, 255, 255]]))).toBe(false)
+    expect(
+      isFlatGrey(
+        fromPixels(2, 1, [
+          [0, 0, 0, 255],
+          [255, 255, 255, 255],
+        ]),
+      ),
+    ).toBe(false)
   })
 
   it("ignores transparent pixels, and counts an image with no other as flat grey", () => {
-    expect(isFlatGrey(fromPixels(2, 1, [[255, 0, 0, 0], [9, 9, 9, 255]]))).toBe(true)
+    expect(
+      isFlatGrey(
+        fromPixels(2, 1, [
+          [255, 0, 0, 0],
+          [9, 9, 9, 255],
+        ]),
+      ),
+    ).toBe(true)
     expect(isFlatGrey(fromPixels(1, 1, [[255, 0, 0, 0]]))).toBe(true)
   })
 

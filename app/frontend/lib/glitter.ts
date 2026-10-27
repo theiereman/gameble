@@ -92,11 +92,20 @@ function groupElement(document: Document, twinkle: Twinkle): HTMLElement {
   return element
 }
 
-export function attachGlitter(container: HTMLElement, { seed, width, height }: { seed: number; width: number; height: number }): Glitter {
+export function attachGlitter(
+  container: HTMLElement,
+  { seed, width, height }: { seed: number; width: number; height: number },
+): Glitter {
   const document = container.ownerDocument
   const field = flakeField(seed, width, height)
   const groups = field.groups.map((twinkle) => groupElement(document, twinkle))
-  const flakes = field.flakes.map((flake) => ({ flake, element: flakeElement(document, flake), group: groups[flake.group], flashing: false, level: "" }))
+  const flakes = field.flakes.map((flake) => ({
+    flake,
+    element: flakeElement(document, flake),
+    group: groups[flake.group],
+    flashing: false,
+    level: "",
+  }))
   for (const { element, group } of flakes) group.append(element)
   container.replaceChildren(...groups)
 

@@ -63,8 +63,18 @@
 
 /* ---- Each layout's parts: the rows' panel, the phone's strip ---- */
 
-.booster:not([data-layout="phone"]) :is(.booster-strip, .booster__pile-area, .booster-plate-band, .booster-tray, .booster__phone-actions, .booster__canister-facts, .booster__canister-hint-touch),
-.booster[data-layout="phone"] :is(.booster__info, .booster__result, .booster__deal-area, .booster__canister-hint-click) {
+.booster:not([data-layout="phone"])
+  :is(
+    .booster-strip,
+    .booster__pile-area,
+    .booster-plate-band,
+    .booster-tray,
+    .booster__phone-actions,
+    .booster__canister-facts,
+    .booster__canister-hint-touch
+  ),
+.booster[data-layout="phone"]
+  :is(.booster__info, .booster__result, .booster__deal-area, .booster__canister-hint-click) {
   display: none;
 }
 
@@ -208,7 +218,7 @@
 }
 
 .booster[data-layout="phone"] .booster-card__travel {
-  transform: translate(0, var(--pile-y, 0px)) rotate(var(--pile-rotate, 0deg)) scale(var(--pile-scale, 1));
+  transform: translate(0, var(--pile-y, 0)) rotate(var(--pile-rotate, 0deg)) scale(var(--pile-scale, 1));
   transition: transform 200ms var(--ease-spring);
 }
 
@@ -275,7 +285,10 @@
   gap: var(--space-4);
   padding: 0 var(--space-2) 0 var(--space-5);
   background: var(--color-panel);
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line), inset 6px 0 0 0 var(--booster-tier), 0 0 0 var(--space-unit) var(--color-outline);
+  box-shadow:
+    inset 0 0 0 var(--space-unit) var(--color-line),
+    inset 6px 0 0 0 var(--booster-tier),
+    0 0 0 var(--space-unit) var(--color-outline);
 }
 
 .booster-plate[data-tier="legendary"] {
@@ -340,7 +353,9 @@
   min-height: 60px;
   padding: 0;
   background: var(--color-panel);
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line), 0 0 0 var(--space-unit) var(--color-outline);
+  box-shadow:
+    inset 0 0 0 var(--space-unit) var(--color-line),
+    0 0 0 var(--space-unit) var(--color-outline);
 }
 
 .booster-celebration--phone .booster-celebration__banner {

@@ -87,8 +87,14 @@ export function revealSummary(tiers: Rarity[], strings: SummaryStrings): string 
     .reverse()
     .map((tier) => ({ tier, n: tiers.filter((each) => each === tier).length }))
     .filter(({ n }) => n > 0)
-    .map(({ tier, n }) => t(strings.summaryTier, { count: n, rarity: strings.rarityNames[tier], n: formatNumber(n, strings.delimiter) }))
-  return t(strings.summary, { count: tiers.length, n: formatNumber(tiers.length, strings.delimiter), tiers: parts.join(", ") })
+    .map(({ tier, n }) =>
+      t(strings.summaryTier, { count: n, rarity: strings.rarityNames[tier], n: formatNumber(n, strings.delimiter) }),
+    )
+  return t(strings.summary, {
+    count: tiers.length,
+    n: formatNumber(tiers.length, strings.delimiter),
+    tiers: parts.join(", "),
+  })
 }
 
 export const BURST_PIXELS: Record<Rarity, number> = {
@@ -101,7 +107,11 @@ export const BURST_PIXELS: Record<Rarity, number> = {
 
 export const BURST_STEPS = 4
 
-export function burstPixels(tier: Rarity, width: number, height: number): { x: number; y: number; dx: number; dy: number }[] {
+export function burstPixels(
+  tier: Rarity,
+  width: number,
+  height: number,
+): { x: number; y: number; dx: number; dy: number }[] {
   const count = BURST_PIXELS[tier]
   const grid = 2
   const stride = grid * BURST_STEPS
@@ -127,8 +137,18 @@ export function dealKeyframes(dx: number, dy: number, rotate: number, rest: Pile
   const { y, scale, rotate: tilt } = rest
   return [
     { transform: pose(dx, dy, rotate, 0.2), opacity: 0, easing: "cubic-bezier(.15,.8,.3,1)" },
-    { transform: pose(dx * 0.2, Math.min(dy * 0.4, 0) - 70, -rotate * 0.3, 1.1), opacity: 1, offset: 0.42, easing: "cubic-bezier(.6,0,.9,.5)" },
-    { transform: pose(0, y + 10, tilt, scale * 1.14, scale * 0.84), opacity: 1, offset: DEAL_LAND_AT, easing: "ease-out" },
+    {
+      transform: pose(dx * 0.2, Math.min(dy * 0.4, 0) - 70, -rotate * 0.3, 1.1),
+      opacity: 1,
+      offset: 0.42,
+      easing: "cubic-bezier(.6,0,.9,.5)",
+    },
+    {
+      transform: pose(0, y + 10, tilt, scale * 1.14, scale * 0.84),
+      opacity: 1,
+      offset: DEAL_LAND_AT,
+      easing: "ease-out",
+    },
     { transform: pose(0, y - 6, tilt, scale * 0.95, scale * 1.06), opacity: 1, offset: 0.86, easing: "ease-in-out" },
     { transform: pose(0, y, tilt, scale), opacity: 1 },
   ]

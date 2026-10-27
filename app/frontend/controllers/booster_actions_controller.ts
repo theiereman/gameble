@@ -43,7 +43,9 @@ export default class BoosterActionsController extends Controller<HTMLElement> {
 
   arrange(layout: Layout): void {
     const phone = layout === "phone"
-    const order = phone ? [this.rowTarget, this.backTarget, this.reasonTarget] : [this.openTarget, this.rowTarget, this.reasonTarget]
+    const order = phone
+      ? [this.rowTarget, this.backTarget, this.reasonTarget]
+      : [this.openTarget, this.rowTarget, this.reasonTarget]
     const row = phone ? [this.openTarget, this.revealAllTarget] : [this.revealAllTarget, this.backTarget]
     if (this.inOrder(this.element, order) && this.inOrder(this.rowTarget, row)) return
     this.rowTarget.replaceChildren(...row)
@@ -64,6 +66,8 @@ export default class BoosterActionsController extends Controller<HTMLElement> {
   }
 
   private inOrder(parent: Element, children: readonly Element[]): boolean {
-    return parent.children.length === children.length && children.every((child, index) => parent.children[index] === child)
+    return (
+      parent.children.length === children.length && children.every((child, index) => parent.children[index] === child)
+    )
   }
 }

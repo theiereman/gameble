@@ -70,11 +70,18 @@ export default class BoosterTrayController extends Controller<HTMLElement> {
   private rebuild(key: string, count: number): void {
     this.abortDraws()
     this.key = key
-    this.items = Array.from({ length: count }, () => cloneTemplate<HTMLLIElement>(this.emptyTarget)).filter((item) => item !== null)
+    this.items = Array.from({ length: count }, () => cloneTemplate<HTMLLIElement>(this.emptyTarget)).filter(
+      (item) => item !== null,
+    )
     this.slotsTarget.replaceChildren(...this.items)
   }
 
-  private fill(item: HTMLLIElement, index: number, slot: TraySlotView, icon: (tier: Rarity) => DocumentFragment | null): HTMLButtonElement | null {
+  private fill(
+    item: HTMLLIElement,
+    index: number,
+    slot: TraySlotView,
+    icon: (tier: Rarity) => DocumentFragment | null,
+  ): HTMLButtonElement | null {
     const button = cloneTemplate<HTMLButtonElement>(this.filledTarget)
     if (!button) return null
     button.dataset.tier = slot.tier

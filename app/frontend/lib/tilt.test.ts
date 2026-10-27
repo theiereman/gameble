@@ -216,7 +216,9 @@ describe("attachTilt", () => {
     while (frames.size > 0) {
       runFrames(1)
       if (card.properties.size === 0) break
-      expect(strip(card) - REST_REFLECTION.strip).toBeCloseTo((previousStrip - REST_REFLECTION.strip) * (1 - EASE_LEAVE))
+      expect(strip(card) - REST_REFLECTION.strip).toBeCloseTo(
+        (previousStrip - REST_REFLECTION.strip) * (1 - EASE_LEAVE),
+      )
       tilt().forEach((angle, axis) => expect(angle).toBeLessThan(previousTilt[axis]))
       previousStrip = strip(card)
       previousTilt = tilt()

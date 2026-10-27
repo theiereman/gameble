@@ -2,9 +2,12 @@ import { describe, expect, it, vi } from "vitest"
 import { forgetSnapshotsBeforeBridge, isBridgeAddress } from "./bridge_cache"
 
 describe("isBridgeAddress", () => {
-  it.each(["https://gameble.test/en", "https://gameble.test/fr/", "http://localhost:3000/en?x=1", "/fr"])("recognises %s", (href) => {
-    expect(isBridgeAddress(href)).toBe(true)
-  })
+  it.each(["https://gameble.test/en", "https://gameble.test/fr/", "http://localhost:3000/en?x=1", "/fr"])(
+    "recognises %s",
+    (href) => {
+      expect(isBridgeAddress(href)).toBe(true)
+    },
+  )
 
   it.each([
     "https://gameble.test/en/collection",

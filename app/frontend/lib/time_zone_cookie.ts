@@ -11,6 +11,10 @@ export function timeZoneCookie(zone: string | undefined, cookies: string, secure
 }
 
 export function rememberTimeZone(): void {
-  const cookie = timeZoneCookie(Intl.DateTimeFormat().resolvedOptions().timeZone, document.cookie, location.protocol === "https:")
+  const cookie = timeZoneCookie(
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+    document.cookie,
+    location.protocol === "https:",
+  )
   if (cookie) document.cookie = cookie
 }

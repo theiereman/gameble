@@ -4,7 +4,16 @@ import type { Line, TradeCard } from "./trade_board"
 
 const number = (value: string | undefined): number => Number(value ?? 0) || 0
 
-export function cardFrom({ key = "", title = "", rarity = "common", owned, reserved, max, copies, otherCopies }: Dataset): TradeCard {
+export function cardFrom({
+  key = "",
+  title = "",
+  rarity = "common",
+  owned,
+  reserved,
+  max,
+  copies,
+  otherCopies,
+}: Dataset): TradeCard {
   return {
     key,
     title,

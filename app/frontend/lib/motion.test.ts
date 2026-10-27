@@ -26,7 +26,7 @@ function stubPage(motion: string | undefined, systemReduces: boolean) {
       disconnect() {
         observers.splice(observers.indexOf(this.callback), 1)
       }
-    }
+    },
   )
   return {
     setMotion(value: string | undefined) {
@@ -101,7 +101,9 @@ describe("onMotionChange", () => {
     const listener = vi.fn()
     onMotionChange(listener)
 
-    vi.stubGlobal("window", { matchMedia: () => ({ matches: true, addEventListener: () => {}, removeEventListener: () => {} }) })
+    vi.stubGlobal("window", {
+      matchMedia: () => ({ matches: true, addEventListener: () => {}, removeEventListener: () => {} }),
+    })
     page.listeners.forEach((check) => check())
 
     expect(listener).not.toHaveBeenCalled()
@@ -112,7 +114,9 @@ describe("onMotionChange", () => {
     const listener = vi.fn()
     onMotionChange(listener)
 
-    vi.stubGlobal("window", { matchMedia: () => ({ matches: true, addEventListener: () => {}, removeEventListener: () => {} }) })
+    vi.stubGlobal("window", {
+      matchMedia: () => ({ matches: true, addEventListener: () => {}, removeEventListener: () => {} }),
+    })
     page.listeners.forEach((check) => check())
 
     expect(listener).toHaveBeenCalledWith(true)

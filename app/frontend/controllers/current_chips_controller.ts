@@ -6,7 +6,8 @@ export default class extends Controller<HTMLElement> {
     const lastCurrentChip = currentChips[currentChips.length - 1]
     if (!lastCurrentChip) return
 
-    const visibleRight = this.element.getBoundingClientRect().right - parseFloat(getComputedStyle(this.element).paddingRight)
+    const visibleRight =
+      this.element.getBoundingClientRect().right - parseFloat(getComputedStyle(this.element).paddingRight)
     const overshoot = lastCurrentChip.getBoundingClientRect().right - visibleRight
     if (overshoot > 0) this.element.scrollLeft += overshoot
   }

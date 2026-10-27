@@ -66,7 +66,9 @@ describe("timings", () => {
   })
 
   it("come to these milliseconds", () => {
-    expect([ARM_MS, CAPS_MS, BODY_MS, FLASH_MS, SHAKE_MS, HEAD_DELAY, DEAL_MS, DEAL_STAGGER]).toEqual([378, 732, 177, 201, 354, 71, 543, 53])
+    expect([ARM_MS, CAPS_MS, BODY_MS, FLASH_MS, SHAKE_MS, HEAD_DELAY, DEAL_MS, DEAL_STAGGER]).toEqual([
+      378, 732, 177, 201, 354, 71, 543, 53,
+    ])
     expect([LEGENDARY_JUMP, SPIN, MARK_IN_SPIN, IMPACT, DROP]).toEqual([614, 661, 106, 897, 448])
   })
 
@@ -104,7 +106,9 @@ describe("revealSummary", () => {
   }
 
   it("names each tier revealed, rarest first", () => {
-    expect(revealSummary(["common", "legendary", "common"], strings)).toBe("3 cartes révélées : Légendaire × 1, Commune × 2.")
+    expect(revealSummary(["common", "legendary", "common"], strings)).toBe(
+      "3 cartes révélées : Légendaire × 1, Commune × 2.",
+    )
     expect(revealSummary(["rare"], strings)).toBe("1 carte révélée : Rare × 1.")
   })
 })
@@ -123,7 +127,10 @@ describe("burstPixels", () => {
 describe("keyframes", () => {
   it("deal from the canister to rest, fully shown from the arc on", () => {
     const frames = dealKeyframes(-200, -120, 26)
-    expect(frames[0]).toMatchObject({ opacity: 0, transform: "translate(-200px, -120px) rotate(26deg) scale(0.2, 0.2)" })
+    expect(frames[0]).toMatchObject({
+      opacity: 0,
+      transform: "translate(-200px, -120px) rotate(26deg) scale(0.2, 0.2)",
+    })
     expect(frames.at(-1)).toMatchObject({ opacity: 1, transform: "translate(0px, 0px) rotate(0deg) scale(1, 1)" })
     expect(frames.map((frame) => frame.offset).filter((offset) => offset !== undefined)).toEqual([0.42, 0.7, 0.86])
   })

@@ -2,7 +2,17 @@ import type { PickView, PickerScreen } from "../controllers/trade_board_picker_c
 import type { SideView } from "../controllers/trade_board_side_controller"
 import { t, type Template } from "./i18n"
 import type { StepperView } from "./stepper"
-import { MAX_CARDS, cardOf, pickerView, showsOpenHelp, sideCount, type BoardState, type Line, type Side, type TradeCard } from "./trade_board"
+import {
+  MAX_CARDS,
+  cardOf,
+  pickerView,
+  showsOpenHelp,
+  sideCount,
+  type BoardState,
+  type Line,
+  type Side,
+  type TradeCard,
+} from "./trade_board"
 
 export type BoardStrings = {
   cards: Template

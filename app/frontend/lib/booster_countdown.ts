@@ -64,7 +64,8 @@ export class BoosterCountdown {
     const ms = this.deadline - this.clock.now()
     const seconds = Math.max(0, Math.ceil(ms / 1000))
     this.show(seconds)
-    if (seconds > 0 && !this.clock.hidden()) this.tickTimer = this.clock.setTimeout(() => this.tick(), Math.max(16, ms - (seconds - 1) * 1000))
+    if (seconds > 0 && !this.clock.hidden())
+      this.tickTimer = this.clock.setTimeout(() => this.tick(), Math.max(16, ms - (seconds - 1) * 1000))
   }
 
   private stopTicking(): void {

@@ -324,11 +324,25 @@ a.packs-chip:focus-visible {
   text-transform: uppercase;
 }
 
-.rarity-legend__row--1 .rarity-legend__name { color: var(--color-rarity-commune); }
-.rarity-legend__row--2 .rarity-legend__name { color: var(--color-rarity-peu-commune); }
-.rarity-legend__row--3 .rarity-legend__name { color: var(--color-rarity-rare); }
-.rarity-legend__row--4 .rarity-legend__name { color: var(--color-rarity-epique); }
-.rarity-legend__row--5 .rarity-legend__name { color: var(--color-rarity-legendaire); }
+.rarity-legend__row--1 .rarity-legend__name {
+  color: var(--color-rarity-commune);
+}
+
+.rarity-legend__row--2 .rarity-legend__name {
+  color: var(--color-rarity-peu-commune);
+}
+
+.rarity-legend__row--3 .rarity-legend__name {
+  color: var(--color-rarity-rare);
+}
+
+.rarity-legend__row--4 .rarity-legend__name {
+  color: var(--color-rarity-epique);
+}
+
+.rarity-legend__row--5 .rarity-legend__name {
+  color: var(--color-rarity-legendaire);
+}
 
 .rarity-legend__count {
   color: var(--color-text-max);

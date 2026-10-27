@@ -1,6 +1,13 @@
 import { Controller } from "@hotwired/stimulus"
 import { dispatchGameble } from "../lib/events"
-import { type ExportPhase, exportButton, exportFilename, exportedAt, failureMessage, nextExportAt } from "../lib/data_export"
+import {
+  type ExportPhase,
+  exportButton,
+  exportFilename,
+  exportedAt,
+  failureMessage,
+  nextExportAt,
+} from "../lib/data_export"
 import { formatLocalTime } from "../lib/local_time"
 
 export default class extends Controller<HTMLFormElement> {
@@ -51,7 +58,11 @@ export default class extends Controller<HTMLFormElement> {
     this.running = true
     this.show("preparing")
     try {
-      const response = await fetch(this.element.action, { method: "POST", headers: this.headers(), credentials: "same-origin" })
+      const response = await fetch(this.element.action, {
+        method: "POST",
+        headers: this.headers(),
+        credentials: "same-origin",
+      })
       if (!response.ok) {
         const body: unknown = await response.json().catch(() => null)
         const next = nextExportAt(body)
@@ -109,7 +120,11 @@ export default class extends Controller<HTMLFormElement> {
   private show(phase: ExportPhase): void {
     const button = this.button()
     if (button) {
-      const state = exportButton(phase, { idle: this.idleLabel, preparing: this.preparingValue, retry: this.retryValue })
+      const state = exportButton(phase, {
+        idle: this.idleLabel,
+        preparing: this.preparingValue,
+        retry: this.retryValue,
+      })
       button.textContent = state.label
       button.disabled = state.disabled
     }

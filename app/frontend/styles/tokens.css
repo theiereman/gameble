@@ -1,7 +1,7 @@
 /*
  * Design tokens as custom properties. Colours are `--color-<key>`, spacing and sizes `--space-<key>`,
- * typography styles `--font-<style>` (a `font` shorthand) with their letter
- * spacing in `--tracking-<style>`; component values are named after their
+ * typography styles `--font-\3c style>` (a `font` shorthand) with their letter
+ * spacing in `--tracking-\3c style>`; component values are named after their
  * DESIGN key. Text sizes are in rem from a 16px root; the art pixel stays in
  * px. Components use these, never raw values.
  */
@@ -24,7 +24,7 @@
   --color-live-red: #b3001b;
   --color-text: #c7d5e0;
   --color-text-bright: #e6eef5;
-  --color-text-max: #ffffff;
+  --color-text-max: #fff;
   --color-muted: #8f98a0;
   --color-publisher: #8a96a2;
   --color-dim: #5d6b78;
@@ -224,6 +224,7 @@
   --space-landing-roadmap-column-phone: 216px;
   --space-roadmap-page-date-column: 168px;
   --space-roadmap-page-rail-node: 28px;
+
   /* Short aliases of the chrome heights, as DESIGN names them. */
   --topbar-height: var(--space-topbar-height);
   --tabbar-height: var(--space-tabbar-height);
@@ -234,7 +235,7 @@
   --pixel-outline-3: 0 -3px 0 0 #06090d, 0 3px 0 0 #06090d, -3px 0 0 0 #06090d, 3px 0 0 0 #06090d;
   --focus-ring-width: 3px;
   --focus-ring-offset: 3px;
-  --focus-ring-color: #ffffff;
+  --focus-ring-color: #fff;
   --focus-ring-gap: 0 0 0 3px #06090d;
   --card-face-bevel: inset 3px 3px 0 0 rgba(255, 255, 255, 0.35), inset -3px -3px 0 0 rgba(0, 0, 0, 0.35);
   --top-bar-rule: 0 2px 0 0 #2a475e;
@@ -269,6 +270,7 @@
   --ease-spring: cubic-bezier(0.2, 1.6, 0.4, 1);
   --step-small: steps(2);
   --idle-float-max: 2px;
+
   /* The one soft drop shadow of dialogs and toasts. */
   --overlay-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
 }

@@ -96,12 +96,44 @@
     --lamp-fit: 1;
   }
 
-  .landing-lamp__card--1 { left: 14%; top: 52%; --lamp-size: 0.45; }
-  .landing-lamp__card--2 { left: 38%; top: 60%; --lamp-size: 0.5; }
-  .landing-lamp__card--3 { left: 62%; top: 40%; --lamp-size: 0.5; }
-  .landing-lamp__card--4 { left: 84%; top: 62%; --lamp-size: 0.55; }
-  .landing-lamp__card--5 { left: 50%; top: 90%; --lamp-size: 0.55; }
-  .landing-lamp__card--6 { display: none; }
+  .landing-lamp__card--1 {
+    left: 14%;
+    top: 52%;
+
+    --lamp-size: 0.45;
+  }
+
+  .landing-lamp__card--2 {
+    left: 38%;
+    top: 60%;
+
+    --lamp-size: 0.5;
+  }
+
+  .landing-lamp__card--3 {
+    left: 62%;
+    top: 40%;
+
+    --lamp-size: 0.5;
+  }
+
+  .landing-lamp__card--4 {
+    left: 84%;
+    top: 62%;
+
+    --lamp-size: 0.55;
+  }
+
+  .landing-lamp__card--5 {
+    left: 50%;
+    top: 90%;
+
+    --lamp-size: 0.55;
+  }
+
+  .landing-lamp__card--6 {
+    display: none;
+  }
 
   .landing-lamp__modes {
     display: none;
@@ -125,6 +157,7 @@
   .landing-rarities .card {
     --tilt-rx: 0deg !important;
     --tilt-ry: 0deg !important;
+
     touch-action: pan-x pan-y;
   }
 

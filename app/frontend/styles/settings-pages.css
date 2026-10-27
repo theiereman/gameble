@@ -252,11 +252,25 @@
   text-transform: uppercase;
 }
 
-.how-it-works__tier--1 .how-it-works__name { color: var(--color-rarity-commune); }
-.how-it-works__tier--2 .how-it-works__name { color: var(--color-rarity-peu-commune); }
-.how-it-works__tier--3 .how-it-works__name { color: var(--color-rarity-rare); }
-.how-it-works__tier--4 .how-it-works__name { color: var(--color-rarity-epique); }
-.how-it-works__tier--5 .how-it-works__name { color: var(--color-rarity-legendaire); }
+.how-it-works__tier--1 .how-it-works__name {
+  color: var(--color-rarity-commune);
+}
+
+.how-it-works__tier--2 .how-it-works__name {
+  color: var(--color-rarity-peu-commune);
+}
+
+.how-it-works__tier--3 .how-it-works__name {
+  color: var(--color-rarity-rare);
+}
+
+.how-it-works__tier--4 .how-it-works__name {
+  color: var(--color-rarity-epique);
+}
+
+.how-it-works__tier--5 .how-it-works__name {
+  color: var(--color-rarity-legendaire);
+}
 
 .how-it-works__percent {
   color: var(--color-text-max);

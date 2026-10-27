@@ -77,11 +77,30 @@ a {
 
 /* A rank's insignia, exported at two CSS px per art pixel; `--fine` draws
    it at one. */
-.rank-mark--novice { --rank-width: 9px; --rank-height: 5px; }
-.rank-mark--apprentice { --rank-width: 9px; --rank-height: 8px; }
-.rank-mark--adept { --rank-width: 9px; --rank-height: 11px; }
-.rank-mark--expert { --rank-width: 9px; --rank-height: 9px; }
-.rank-mark--master { --rank-width: 16px; --rank-height: 7px; }
+.rank-mark--novice {
+  --rank-width: 9px;
+  --rank-height: 5px;
+}
+
+.rank-mark--apprentice {
+  --rank-width: 9px;
+  --rank-height: 8px;
+}
+
+.rank-mark--adept {
+  --rank-width: 9px;
+  --rank-height: 11px;
+}
+
+.rank-mark--expert {
+  --rank-width: 9px;
+  --rank-height: 9px;
+}
+
+.rank-mark--master {
+  --rank-width: 16px;
+  --rank-height: 7px;
+}
 
 .rank-mark--fine {
   width: var(--rank-width);
@@ -159,18 +178,93 @@ body:has(.landing) .atmosphere__twinkle {
 }
 
 /* Places (x y), sizes, delays and periods of the twelve. */
-.atmosphere__twinkle > i:nth-child(1) { --x: 8%; --y: 12%; --delay: 0s; --period: 4s; }
-.atmosphere__twinkle > i:nth-child(2) { --x: 21%; --y: 64%; --size: 4px; --delay: 2s; --period: 5s; }
-.atmosphere__twinkle > i:nth-child(3) { --x: 33%; --y: 28%; --delay: 4s; --period: 3s; }
-.atmosphere__twinkle > i:nth-child(4) { --x: 47%; --y: 82%; --delay: 1s; --period: 6s; }
-.atmosphere__twinkle > i:nth-child(5) { --x: 58%; --y: 9%; --size: 4px; --delay: 5s; --period: 4s; }
-.atmosphere__twinkle > i:nth-child(6) { --x: 66%; --y: 47%; --delay: 3s; --period: 5s; }
-.atmosphere__twinkle > i:nth-child(7) { --x: 74%; --y: 71%; --delay: 0s; --period: 3s; }
-.atmosphere__twinkle > i:nth-child(8) { --x: 83%; --y: 22%; --size: 4px; --delay: 6s; --period: 6s; }
-.atmosphere__twinkle > i:nth-child(9) { --x: 91%; --y: 55%; --delay: 2s; --period: 4s; }
-.atmosphere__twinkle > i:nth-child(10) { --x: 14%; --y: 88%; --delay: 4s; --period: 5s; }
-.atmosphere__twinkle > i:nth-child(11) { --x: 39%; --y: 52%; --size: 4px; --delay: 1s; --period: 3s; }
-.atmosphere__twinkle > i:nth-child(12) { --x: 96%; --y: 91%; --delay: 5s; --period: 6s; }
+.atmosphere__twinkle > i:nth-child(1) {
+  --x: 8%;
+  --y: 12%;
+  --delay: 0s;
+  --period: 4s;
+}
+
+.atmosphere__twinkle > i:nth-child(2) {
+  --x: 21%;
+  --y: 64%;
+  --size: 4px;
+  --delay: 2s;
+  --period: 5s;
+}
+
+.atmosphere__twinkle > i:nth-child(3) {
+  --x: 33%;
+  --y: 28%;
+  --delay: 4s;
+  --period: 3s;
+}
+
+.atmosphere__twinkle > i:nth-child(4) {
+  --x: 47%;
+  --y: 82%;
+  --delay: 1s;
+  --period: 6s;
+}
+
+.atmosphere__twinkle > i:nth-child(5) {
+  --x: 58%;
+  --y: 9%;
+  --size: 4px;
+  --delay: 5s;
+  --period: 4s;
+}
+
+.atmosphere__twinkle > i:nth-child(6) {
+  --x: 66%;
+  --y: 47%;
+  --delay: 3s;
+  --period: 5s;
+}
+
+.atmosphere__twinkle > i:nth-child(7) {
+  --x: 74%;
+  --y: 71%;
+  --delay: 0s;
+  --period: 3s;
+}
+
+.atmosphere__twinkle > i:nth-child(8) {
+  --x: 83%;
+  --y: 22%;
+  --size: 4px;
+  --delay: 6s;
+  --period: 6s;
+}
+
+.atmosphere__twinkle > i:nth-child(9) {
+  --x: 91%;
+  --y: 55%;
+  --delay: 2s;
+  --period: 4s;
+}
+
+.atmosphere__twinkle > i:nth-child(10) {
+  --x: 14%;
+  --y: 88%;
+  --delay: 4s;
+  --period: 5s;
+}
+
+.atmosphere__twinkle > i:nth-child(11) {
+  --x: 39%;
+  --y: 52%;
+  --size: 4px;
+  --delay: 1s;
+  --period: 3s;
+}
+
+.atmosphere__twinkle > i:nth-child(12) {
+  --x: 96%;
+  --y: 91%;
+  --delay: 5s;
+  --period: 6s;
+}
 
 /* At most six infinite animations show at once on a phone view, the
    booster's own among them, so only three stars twinkle there. */

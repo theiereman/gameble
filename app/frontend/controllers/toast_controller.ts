@@ -2,7 +2,14 @@ import { Controller } from "@hotwired/stimulus"
 import { onGameble, type ToastAction, type ToastDetail } from "../lib/events"
 import { RevealHold, firstShowing, toastActionHref, toastDuration } from "../lib/toast"
 
-type Timer = { remaining: number; startedAt?: number; handle?: number; hovered: boolean; focused: boolean; cleanup: () => void }
+type Timer = {
+  remaining: number
+  startedAt?: number
+  handle?: number
+  hovered: boolean
+  focused: boolean
+  cleanup: () => void
+}
 
 export default class extends Controller<HTMLElement> {
   static targets = ["template", "toast"]
@@ -31,7 +38,9 @@ export default class extends Controller<HTMLElement> {
 
   connect(): void {
     this.stopListening = onGameble("gameble:toast", (detail) => this.show(detail))
-    this.stopRevealing = onGameble("gameble:opening-revealing", (detail) => this.revealingChanged(detail?.revealing === true))
+    this.stopRevealing = onGameble("gameble:opening-revealing", (detail) =>
+      this.revealingChanged(detail?.revealing === true),
+    )
     this.element.addEventListener("turbo:before-morph-element", this.keepToast)
     this.connected = true
     this.bringToTop()
@@ -112,7 +121,8 @@ export default class extends Controller<HTMLElement> {
   }
 
   private heldForReveal(toast: HTMLElement): boolean {
-    if (this.timers.has(toast) || !this.revealHold.hold(toast, toast.hasAttribute("data-toast-after-reveal"))) return false
+    if (this.timers.has(toast) || !this.revealHold.hold(toast, toast.hasAttribute("data-toast-after-reveal")))
+      return false
     toast.remove()
     return true
   }

@@ -204,10 +204,19 @@ export default class extends Controller<HTMLElement> {
     this.listTarget.removeAttribute("aria-busy")
 
     if (result.kind === "placed") {
-      this.announce(t(this.announcementValue, { title: slot.dataset.title ?? "", position: position + 1, count: this.slotTargets.length }))
+      this.announce(
+        t(this.announcementValue, {
+          title: slot.dataset.title ?? "",
+          position: position + 1,
+          count: this.slotTargets.length,
+        }),
+      )
     } else {
       this.restore(before)
-      dispatchGameble("gameble:toast", { message: result.kind === "refused" ? result.message : this.failedValue, tone: "alert" })
+      dispatchGameble("gameble:toast", {
+        message: result.kind === "refused" ? result.message : this.failedValue,
+        tone: "alert",
+      })
     }
   }
 

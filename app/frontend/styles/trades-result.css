@@ -42,9 +42,17 @@
   animation: trade-board-confetti 550ms ease-out forwards;
 }
 
-.trade-board__confetti--1 { background: var(--color-gold); }
-.trade-board__confetti--2 { background: var(--color-accent); }
-.trade-board__confetti--3 { background: var(--color-rarity-epique); }
+.trade-board__confetti--1 {
+  background: var(--color-gold);
+}
+
+.trade-board__confetti--2 {
+  background: var(--color-accent);
+}
+
+.trade-board__confetti--3 {
+  background: var(--color-rarity-epique);
+}
 
 .trade-board__flash {
   position: absolute;
@@ -57,17 +65,39 @@
 }
 
 @keyframes trade-board-ring {
-  from { opacity: 1; transform: scale(0.2); }
-  to { opacity: 0; transform: scale(2.4); }
+  from {
+    opacity: 1;
+    transform: scale(0.2);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(2.4);
+  }
 }
 
 @keyframes trade-board-confetti {
-  from { opacity: 1; transform: translate(0, 0) rotate(0deg); }
-  to { opacity: 0; transform: translate(var(--confetti-x), var(--confetti-y)) rotate(180deg); }
+  from {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(var(--confetti-x), var(--confetti-y)) rotate(180deg);
+  }
 }
 
 @keyframes trade-board-flash {
-  0% { opacity: 0; }
-  30% { opacity: 0.16; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.16;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }

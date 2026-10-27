@@ -61,7 +61,9 @@
 
 .booster-tray__slot--filled {
   background: var(--color-panel-sunken);
-  box-shadow: 0 0 0 var(--space-unit) var(--booster-tier), 0 0 0 4px var(--color-outline);
+  box-shadow:
+    0 0 0 var(--space-unit) var(--booster-tier),
+    0 0 0 4px var(--color-outline);
   cursor: pointer;
 }
 
@@ -209,6 +211,7 @@
 
 .booster-zoom[data-tier="legendary"] .booster-zoom__rays {
   --card-ray: color-mix(in srgb, var(--color-rarity-legendaire) 36%, transparent);
+
   animation-duration: 14s;
 }
 
@@ -295,7 +298,9 @@
     animation: booster-celebration-fade 200ms linear both;
   }
 
-  html:not([data-motion="full"]) .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
+  html:not([data-motion="full"])
+    .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible)
+    .booster-card__hover {
     transform: none;
   }
 }
@@ -335,7 +340,9 @@ html[data-motion="reduced"] .booster-celebration .booster-celebration__banner {
   animation: booster-celebration-fade 200ms linear both;
 }
 
-html[data-motion="reduced"] .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
+html[data-motion="reduced"]
+  .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible)
+  .booster-card__hover {
   transform: none;
 }
 

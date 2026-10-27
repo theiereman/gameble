@@ -50,7 +50,11 @@ const fr: CelebrationStrings = {
   next: "Résultat suivant",
   announceTier: "Palier %{tier} atteint : %{set}, %{owned} cartes sur %{total}.",
   announceComplete: "Set complet : %{set}, %{owned} cartes sur %{total}.",
-  announceFolded: { zero: "%{count} palier atteint : %{list}.", one: "%{count} palier atteint : %{list}.", other: "%{count} paliers atteints : %{list}." },
+  announceFolded: {
+    zero: "%{count} palier atteint : %{list}.",
+    one: "%{count} palier atteint : %{list}.",
+    other: "%{count} paliers atteints : %{list}.",
+  },
   announceItem: "%{set}, %{tier}",
   announceSeparator: " ; ",
   spokenTiers: {
@@ -116,10 +120,40 @@ const METAL_SHARES = [
 
 // Catalog::TierTable's rows: ranks counted from the top by the set's size.
 const RANK_ROWS: [number, [Rank, number][]][] = [
-  [200, [["novice", 0.1], ["apprentice", 0.25], ["adept", 0.5], ["expert", 0.75], ["master", 0.9]]],
-  [60, [["apprentice", 0.1], ["adept", 0.25], ["expert", 0.5], ["master", 0.75]]],
-  [20, [["adept", 0.25], ["expert", 0.5], ["master", 0.75]]],
-  [10, [["expert", 1 / 3], ["master", 2 / 3]]],
+  [
+    200,
+    [
+      ["novice", 0.1],
+      ["apprentice", 0.25],
+      ["adept", 0.5],
+      ["expert", 0.75],
+      ["master", 0.9],
+    ],
+  ],
+  [
+    60,
+    [
+      ["apprentice", 0.1],
+      ["adept", 0.25],
+      ["expert", 0.5],
+      ["master", 0.75],
+    ],
+  ],
+  [
+    20,
+    [
+      ["adept", 0.25],
+      ["expert", 0.5],
+      ["master", 0.75],
+    ],
+  ],
+  [
+    10,
+    [
+      ["expert", 1 / 3],
+      ["master", 2 / 3],
+    ],
+  ],
   [5, [["master", 0.5]]],
   [0, []],
 ]
@@ -130,7 +164,14 @@ function thresholdsOf(tier: SetTierName, total: number): SetThreshold[] {
   return shares.map(([name, share]) => ({ tier: name, required: Math.ceil(share * total) }))
 }
 
-const reached = (name: string, tier: OpeningSetTier["tier"], required: number, total: number, kind = "theme", held = required): OpeningSetTier => ({
+const reached = (
+  name: string,
+  tier: OpeningSetTier["tier"],
+  required: number,
+  total: number,
+  kind = "theme",
+  held = required,
+): OpeningSetTier => ({
   kind,
   key: slug(name),
   name,
@@ -158,7 +199,10 @@ describe("celebrationResults", () => {
   })
 
   it("tells sets of different kinds apart under the same key", () => {
-    const results = celebrationResults([reached("Valve", "complete", 3, 3, "studio"), reached("Valve", "complete", 2, 2, "franchise")])
+    const results = celebrationResults([
+      reached("Valve", "complete", 3, 3, "studio"),
+      reached("Valve", "complete", 2, 2, "franchise"),
+    ])
     expect(results).toHaveLength(2)
   })
 
@@ -172,7 +216,14 @@ describe("celebrationResults", () => {
       reached("Horror", "gold", 9, 18),
     ])
 
-    expect(results.map((result) => result.name)).toEqual(["Dark Souls", "Metroidvania", "Pirates", "Horror", "Roguelike", "Cosy"])
+    expect(results.map((result) => result.name)).toEqual([
+      "Dark Souls",
+      "Metroidvania",
+      "Pirates",
+      "Horror",
+      "Roguelike",
+      "Cosy",
+    ])
   })
 
   it("ranks results across sets by the share of the set their tier stands for, whatever its name", () => {
@@ -218,8 +269,16 @@ describe("celebrationResults", () => {
     const [double] = celebrationResults([reached("Cosy", "silver", 1, 3), reached("Cosy", "bronze", 1, 3)])
     expect([double.tier, double.before, double.crossed]).toEqual(["silver", 0, ["bronze", "silver"]])
 
-    const [complete] = celebrationResults([reached("Metroidvania", "gold", 31, 62), reached("Metroidvania", "complete", 62, 62)])
-    expect([complete.tier, complete.before, complete.owned, complete.crossed]).toEqual(["complete", 30, 62, ["gold", "complete"]])
+    const [complete] = celebrationResults([
+      reached("Metroidvania", "gold", 31, 62),
+      reached("Metroidvania", "complete", 62, 62),
+    ])
+    expect([complete.tier, complete.before, complete.owned, complete.crossed]).toEqual([
+      "complete",
+      30,
+      62,
+      ["gold", "complete"],
+    ])
   })
 })
 
@@ -227,7 +286,9 @@ describe("restoredCelebration", () => {
   const tiers = [reached("Roguelike", "silver", 16, 62)]
 
   it("shows the results again on the way back from an album the celebration opened", () => {
-    expect(restoredCelebration(tiers, true)?.map((result) => [result.name, result.tier])).toEqual([["Roguelike", "silver"]])
+    expect(restoredCelebration(tiers, true)?.map((result) => [result.name, result.tier])).toEqual([
+      ["Roguelike", "silver"],
+    ])
   })
 
   it("shows nothing on the way back from anywhere else, or when the pack reached nothing", () => {
@@ -238,11 +299,16 @@ describe("restoredCelebration", () => {
 
 describe("the results as shown", () => {
   it("titles a tier by its name and a completed set as SET COMPLET", () => {
-    const [complete, silver] = celebrationResults([reached("Roguelike", "silver", 16, 62), reached("Dark Souls", "complete", 3, 3, "franchise")])
+    const [complete, silver] = celebrationResults([
+      reached("Roguelike", "silver", 16, 62),
+      reached("Dark Souls", "complete", 3, 3, "franchise"),
+    ])
 
     expect(resultTitle(silver, fr)).toBe("PALIER ARGENT")
     expect(resultTitle(complete, fr)).toBe("SET COMPLET")
-    expect([notchCount("bronze"), notchCount("silver"), notchCount("gold"), notchCount("complete")]).toEqual([1, 2, 3, 0])
+    expect([notchCount("bronze"), notchCount("silver"), notchCount("gold"), notchCount("complete")]).toEqual([
+      1, 2, 3, 0,
+    ])
   })
 
   it("titles a rank by its name, without notches", () => {
@@ -339,7 +405,10 @@ describe("the gauge", () => {
   })
 
   it("keeps a rank reached before the capsule solid, and lights each rank it crosses", () => {
-    const [master] = celebrationResults([reached("Les OVNI", "expert", 188, 250, "ufo"), reached("Les OVNI", "master", 225, 250, "ufo")])
+    const [master] = celebrationResults([
+      reached("Les OVNI", "expert", 188, 250, "ufo"),
+      reached("Les OVNI", "master", 225, 250, "ufo"),
+    ])
 
     expect(gaugeTicks(master).map(({ tier, state }) => [tier, state])).toEqual([
       ["novice", "solid"],
@@ -456,7 +525,9 @@ describe("the folded line", () => {
     const bronzes = celebrationResults(["A", "B", "C", "D"].map((name) => reached(name, "bronze", 2, 20)))
     expect(foldedMarks(bronzes)).toEqual([{ tier: "bronze", lightAt: 80 }])
 
-    const ranks = celebrationResults(["A", "B", "C"].map((name) => reached(name, "adept", 5, 20)).concat(reached("D", "complete", 3, 3)))
+    const ranks = celebrationResults(
+      ["A", "B", "C"].map((name) => reached(name, "adept", 5, 20)).concat(reached("D", "complete", 3, 3)),
+    )
     expect(foldedMarks(ranks)).toEqual([
       { tier: "adept", lightAt: 80 },
       { tier: "complete", lightAt: 170 },
@@ -471,7 +542,10 @@ describe("the folded line", () => {
 
 describe("the link names", () => {
   it("repeat the result's message and end with where it leads", () => {
-    const [complete, silver] = celebrationResults([reached("Roguelike", "silver", 16, 62), reached("Dark Souls", "complete", 3, 3, "franchise")])
+    const [complete, silver] = celebrationResults([
+      reached("Roguelike", "silver", 16, 62),
+      reached("Dark Souls", "complete", 3, 3, "franchise"),
+    ])
 
     expect(resultLinkName(silver, fr, NBSP)).toBe("Palier argent atteint : Roguelike, 16 cartes sur 62. Voir le set.")
     expect(resultLinkName(complete, fr, NBSP)).toBe("Set complet : Dark Souls, 3 cartes sur 3. Voir le set.")
@@ -506,7 +580,10 @@ describe("celebrationAnnouncement", () => {
   })
 
   it("speaks up to three results in one message, in their order", () => {
-    const results = celebrationResults([reached("Roguelike", "bronze", 7, 62), reached("Dark Souls", "complete", 3, 3, "franchise")])
+    const results = celebrationResults([
+      reached("Roguelike", "bronze", 7, 62),
+      reached("Dark Souls", "complete", 3, 3, "franchise"),
+    ])
 
     expect(celebrationAnnouncement(results, fr, NBSP)).toBe(
       "Set complet : Dark Souls, 3 cartes sur 3. Palier bronze atteint : Roguelike, 7 cartes sur 62.",
@@ -526,7 +603,7 @@ describe("celebrationAnnouncement", () => {
     )
   })
 
-  it("starts an English message with a capital and reads \"cards out of\"", () => {
+  it('starts an English message with a capital and reads "cards out of"', () => {
     expect(celebrationAnnouncement(celebrationResults([reached("Roguelike", "silver", 16, 62)]), en, ",")).toBe(
       "Silver tier reached: Roguelike, 16 cards out of 62.",
     )

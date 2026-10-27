@@ -6,7 +6,15 @@ export type SwipeMove = { kind: "none" } | { kind: "started" | "dragging"; dx: n
 
 export type SwipeRelease = { index: number; dx: number; dy: number; abandoned: boolean }
 
-type Gesture = { id: number; index: number; x: number; y: number; dragging: boolean; tilted: boolean; tiltingAtPress: boolean }
+type Gesture = {
+  id: number
+  index: number
+  x: number
+  y: number
+  dragging: boolean
+  tilted: boolean
+  tiltingAtPress: boolean
+}
 
 const NONE: SwipeMove = { kind: "none" }
 

@@ -1,9 +1,19 @@
 import { Controller } from "@hotwired/stimulus"
-import { currentIndex, currentScreenLabel, currentScreenLabels, entryAfter, recordEntry, resetTrail, sessionTrailStorage, stepsBackTo } from "../lib/history_trail"
+import {
+  currentIndex,
+  currentScreenLabel,
+  currentScreenLabels,
+  entryAfter,
+  recordEntry,
+  resetTrail,
+  sessionTrailStorage,
+  stepsBackTo,
+} from "../lib/history_trail"
 
 const storage = sessionTrailStorage()
 resetTrail(storage)
-const record = (): void => recordEntry(currentIndex(), location.pathname, storage, currentScreenLabel(), currentScreenLabels())
+const record = (): void =>
+  recordEntry(currentIndex(), location.pathname, storage, currentScreenLabel(), currentScreenLabels())
 let restoring = false
 document.addEventListener("turbo:visit", (event) => {
   restoring = (event as CustomEvent<{ action?: string }>).detail?.action === "restore"
@@ -37,7 +47,15 @@ export default class extends Controller<HTMLAnchorElement> {
   }
 
   back(event: MouseEvent): void {
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return
     if (this.element.getAttribute("href") !== this.renderedHref) return
     const target = new URL(this.element.href, location.href)
     if (target.origin !== location.origin) return

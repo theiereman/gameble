@@ -47,7 +47,10 @@ export const notchCount = (tier: SetTierName): number => METAL_NOTCHES[tier] ?? 
 
 const tieBreak = (tier: SetTierName): number => SET_TIERS.indexOf(tier)
 
-function standsAbove(a: { tier: SetTierName; required: number; total: number }, b: { tier: SetTierName; required: number; total: number }): number {
+function standsAbove(
+  a: { tier: SetTierName; required: number; total: number },
+  b: { tier: SetTierName; required: number; total: number },
+): number {
   const completes = Number(a.tier === "complete") - Number(b.tier === "complete")
   const share = (row: { required: number; total: number }): number => (row.total > 0 ? row.required / row.total : 1)
   return completes || share(a) - share(b) || tieBreak(a.tier) - tieBreak(b.tier)
@@ -59,9 +62,7 @@ export function celebrationResults(setTiers: readonly OpeningSetTier[]): Celebra
     const key = `${reached.kind}:${reached.key}`
     bySet.set(key, [...(bySet.get(key) ?? []), reached])
   }
-  return [...bySet.entries()]
-    .map(([key, rows]) => resultOf(key, rows))
-    .sort((a, b) => standsAbove(b, a))
+  return [...bySet.entries()].map(([key, rows]) => resultOf(key, rows)).sort((a, b) => standsAbove(b, a))
 }
 
 function resultOf(key: string, rows: readonly OpeningSetTier[]): CelebrationResult {
@@ -93,7 +94,11 @@ export const folded = (results: readonly CelebrationResult[]): boolean => result
 export const resultTitle = (result: CelebrationResult, strings: CelebrationStrings): string =>
   result.tier === "complete" ? strings.completeTitle : t(strings.tierTitle, { tier: strings.tiers[result.tier] })
 
-export function countParts(result: CelebrationResult, strings: CelebrationStrings, delimiter: string): { before: string; owned: string; rest: string } {
+export function countParts(
+  result: CelebrationResult,
+  strings: CelebrationStrings,
+  delimiter: string,
+): { before: string; owned: string; rest: string } {
   const [, rest = ""] = strings.count.split("%{owned}")
   return {
     before: formatNumber(result.before, delimiter),
@@ -102,12 +107,16 @@ export function countParts(result: CelebrationResult, strings: CelebrationString
   }
 }
 
-export const tiersReached = (results: readonly CelebrationResult[]): number => results.reduce((count, result) => count + result.crossed.length, 0)
+export const tiersReached = (results: readonly CelebrationResult[]): number =>
+  results.reduce((count, result) => count + result.crossed.length, 0)
 
 export const foldedTitle = (results: readonly CelebrationResult[], strings: CelebrationStrings): string =>
   t(strings.folded, { count: tiersReached(results) })
 
-export function foldedSubline(results: readonly CelebrationResult[], strings: CelebrationStrings): { lead: string; set: string; tier: string } {
+export function foldedSubline(
+  results: readonly CelebrationResult[],
+  strings: CelebrationStrings,
+): { lead: string; set: string; tier: string } {
   const [highest] = results
   return { lead: strings.foldedLead, set: highest.name, tier: strings.tiers[highest.tier] }
 }
@@ -190,16 +199,27 @@ export function sparkOffsets(count: number, radius: number): { dx: number; dy: n
 const sentence = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1)
 
 export function resultMessage(result: CelebrationResult, strings: CelebrationStrings, delimiter: string): string {
-  const vars = { set: result.name, tier: strings.spokenTiers[result.tier], owned: formatNumber(result.owned, delimiter), total: formatNumber(result.total, delimiter) }
+  const vars = {
+    set: result.name,
+    tier: strings.spokenTiers[result.tier],
+    owned: formatNumber(result.owned, delimiter),
+    total: formatNumber(result.total, delimiter),
+  }
   return sentence(t(result.tier === "complete" ? strings.announceComplete : strings.announceTier, vars))
 }
 
 export function foldedMessage(results: readonly CelebrationResult[], strings: CelebrationStrings): string {
-  const list = results.map((result) => t(strings.announceItem, { set: result.name, tier: strings.spokenTiers[result.tier] })).join(strings.announceSeparator)
+  const list = results
+    .map((result) => t(strings.announceItem, { set: result.name, tier: strings.spokenTiers[result.tier] }))
+    .join(strings.announceSeparator)
   return sentence(t(strings.announceFolded, { count: tiersReached(results), list }))
 }
 
-export function celebrationAnnouncement(results: readonly CelebrationResult[], strings: CelebrationStrings, delimiter: string): string {
+export function celebrationAnnouncement(
+  results: readonly CelebrationResult[],
+  strings: CelebrationStrings,
+  delimiter: string,
+): string {
   if (folded(results)) return foldedMessage(results, strings)
   return results.map((result) => resultMessage(result, strings, delimiter)).join(" ")
 }

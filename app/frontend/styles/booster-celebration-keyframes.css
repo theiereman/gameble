@@ -1,0 +1,214 @@
+/* The set celebration's keyframes and the booster's loops. Imported after booster-celebration.css. */
+
+@keyframes booster-celebration-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes booster-celebration-unlit {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes booster-celebration-wipe {
+  from {
+    clip-path: inset(-4px calc(100% + 4px) -4px -4px);
+  }
+
+  to {
+    clip-path: inset(-4px);
+  }
+}
+
+@keyframes booster-celebration-fill-before {
+  0% {
+    transform: scaleX(0);
+  }
+
+  45%,
+  100% {
+    transform: scaleX(var(--from));
+  }
+}
+
+@keyframes booster-celebration-fill-new {
+  0% {
+    transform: scaleX(0);
+  }
+
+  45% {
+    transform: scaleX(var(--from));
+  }
+
+  100% {
+    transform: scaleX(var(--to));
+  }
+}
+
+@keyframes booster-celebration-roll {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-1rem);
+  }
+}
+
+@keyframes booster-celebration-tick {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes booster-celebration-notches {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.4);
+  }
+
+  1% {
+    opacity: 1;
+  }
+
+  60% {
+    transform: translateX(-50%) scale(1.5);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes booster-celebration-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+
+  1% {
+    opacity: 1;
+  }
+
+  60% {
+    transform: scale(1.3);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes booster-celebration-blink {
+  0% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes booster-celebration-spark {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  1% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+
+  75% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy));
+  }
+}
+
+@keyframes booster-celebration-gloss {
+  0% {
+    opacity: 0;
+    transform: translateX(-24px) skewX(-24deg);
+  }
+
+  1% {
+    opacity: 1;
+    transform: translateX(-24px) skewX(-24deg);
+  }
+
+  99% {
+    opacity: 1;
+    transform: translateX(300px) skewX(-24deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(300px) skewX(-24deg);
+  }
+}
+
+/* ---- Loops: transform only ---- */
+
+@keyframes booster-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes booster-breath {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes booster-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+
+  55%,
+  100% {
+    transform: translateX(700%) skewX(-20deg);
+  }
+}
+
+@keyframes booster-back-sheen {
+  0%,
+  55% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+
+  100% {
+    transform: translateX(220%) skewX(-20deg);
+  }
+}

@@ -71,7 +71,9 @@ export function swapStage(board: HTMLElement, onChange: () => void): SwapStage {
 
     if (motionReduced()) {
       for (const list of [friend, own]) {
-        animations.push(list.animate([{ opacity: 0 }, { opacity: 1 }], { duration: SWAP_CROSSFADE_MS, easing: "ease-out" }))
+        animations.push(
+          list.animate([{ opacity: 0 }, { opacity: 1 }], { duration: SWAP_CROSSFADE_MS, easing: "ease-out" }),
+        )
       }
       timers.later(SWAP_CROSSFADE_MS, finish)
       return

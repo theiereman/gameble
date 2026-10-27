@@ -17,8 +17,13 @@
   background: var(--booster-tier);
 }
 
-.booster-fx__pixel--1 { background: var(--booster-tier-hi); }
-.booster-fx__pixel--2 { background: var(--color-text-max); }
+.booster-fx__pixel--1 {
+  background: var(--booster-tier-hi);
+}
+
+.booster-fx__pixel--2 {
+  background: var(--color-text-max);
+}
 
 .booster-fx__ring {
   border: var(--space-unit) solid var(--booster-tier);
@@ -36,9 +41,17 @@
   background: var(--color-text-max);
 }
 
-.booster-fx__spark--1 { background: var(--color-gold); }
-.booster-fx__spark--2 { background: var(--color-alert); }
-.booster-fx__spark--3 { background: var(--color-accent); }
+.booster-fx__spark--1 {
+  background: var(--color-gold);
+}
+
+.booster-fx__spark--2 {
+  background: var(--color-alert);
+}
+
+.booster-fx__spark--3 {
+  background: var(--color-accent);
+}
 
 .booster-fx__smoke {
   width: 12px;
@@ -51,6 +64,7 @@
 
 .booster__banner {
   --booster-tier: var(--color-rarity-epique);
+
   position: absolute;
   top: var(--space-8);
   left: 0;
@@ -93,7 +107,11 @@
   font: var(--font-banner-small);
   letter-spacing: var(--tracking-banner-small);
   text-transform: uppercase;
-  text-shadow: 3px 0 0 var(--color-outline), -3px 0 0 var(--color-outline), 0 3px 0 var(--color-outline), 0 -3px 0 var(--color-outline);
+  text-shadow:
+    3px 0 0 var(--color-outline),
+    -3px 0 0 var(--color-outline),
+    0 3px 0 var(--color-outline),
+    0 -3px 0 var(--color-outline);
 }
 
 .booster__banner--large .booster__banner-name {
@@ -135,7 +153,7 @@
 .booster-celebration [data-tier="silver"] {
   --celebration-tier: var(--color-tier-silver);
   --celebration-on: var(--color-outline);
-  --celebration-light: #ffffff;
+  --celebration-light: #fff;
   --celebration-dark: #6c7a88;
 }
 
@@ -153,7 +171,7 @@
 .booster-celebration [data-tier="master"] {
   --celebration-tier: var(--color-text-bright);
   --celebration-on: var(--color-outline);
-  --celebration-light: #ffffff;
+  --celebration-light: #fff;
   --celebration-dark: #8f98a0;
 }
 
@@ -174,6 +192,7 @@
 .booster-celebration__banner {
   --entrance: calc(var(--i, 0) * 180ms);
   --wipe-at: 470ms;
+
   position: relative;
   display: block;
   min-height: 60px;
@@ -181,24 +200,31 @@
   background: var(--color-panel);
   color: inherit;
   text-decoration: none;
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line), 0 0 0 var(--space-unit) var(--color-outline);
+  box-shadow:
+    inset 0 0 0 var(--space-unit) var(--color-line),
+    0 0 0 var(--space-unit) var(--color-outline);
   animation: booster-celebration-fade 120ms steps(3) both;
   animation-delay: var(--entrance);
 }
 
 .booster-celebration__banner[data-tier="folded"] {
   --wipe-at: 420ms;
+
   padding-bottom: var(--space-4);
 }
 
 .booster-celebration__banner:hover,
 .booster-celebration__banner:focus-visible {
   background: var(--color-panel-raised);
-  box-shadow: inset 0 0 0 var(--space-unit) var(--celebration-tier), 0 0 0 var(--space-unit) var(--color-outline);
+  box-shadow:
+    inset 0 0 0 var(--space-unit) var(--celebration-tier),
+    0 0 0 var(--space-unit) var(--color-outline);
 }
 
 .booster-celebration__banner:focus-visible {
-  box-shadow: inset 0 0 0 var(--space-unit) var(--celebration-tier), var(--focus-ring-gap);
+  box-shadow:
+    inset 0 0 0 var(--space-unit) var(--celebration-tier),
+    var(--focus-ring-gap);
 }
 
 .booster-celebration__icon-wrap {
@@ -239,7 +265,20 @@
   letter-spacing: 2px;
   text-transform: uppercase;
   white-space: nowrap;
-  clip-path: polygon(0 0, 100% 0, 100% 15%, calc(100% - 4px) 15%, calc(100% - 4px) 30%, calc(100% - 8px) 30%, calc(100% - 8px) 70%, calc(100% - 4px) 70%, calc(100% - 4px) 85%, 100% 85%, 100% 100%, 0 100%);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 15%,
+    calc(100% - 4px) 15%,
+    calc(100% - 4px) 30%,
+    calc(100% - 8px) 30%,
+    calc(100% - 8px) 70%,
+    calc(100% - 4px) 70%,
+    calc(100% - 4px) 85%,
+    100% 85%,
+    100% 100%,
+    0 100%
+  );
 }
 
 .booster-celebration__ribbon .booster-celebration__notches i {
@@ -287,7 +326,11 @@
   width: 2px;
   height: 2px;
   background: var(--color-text-max);
-  box-shadow: 2px 0 var(--color-text-max), -2px 0 var(--color-text-max), 0 2px var(--color-text-max), 0 -2px var(--color-text-max);
+  box-shadow:
+    2px 0 var(--color-text-max),
+    -2px 0 var(--color-text-max),
+    0 2px var(--color-text-max),
+    0 -2px var(--color-text-max);
   opacity: 0;
   animation: booster-celebration-blink 240ms steps(4) both;
   animation-delay: calc(var(--entrance) + 560ms);
@@ -312,6 +355,7 @@
 
 .booster-celebration__sparks {
   --sparks-at: 620ms;
+
   position: absolute;
   top: 50%;
   left: 50%;

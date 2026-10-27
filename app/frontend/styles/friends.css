@@ -167,10 +167,21 @@
       "trade trade";
   }
 
-  .friends__friend > .friends__name { grid-area: name; }
-  .friends__friend > .friends__presence { grid-area: presence; }
-  .friends__friend > .friends__trade { grid-area: trade; }
-  .friends__friend > .friends__more { grid-area: more; }
+  .friends__friend > .friends__name {
+    grid-area: name;
+  }
+
+  .friends__friend > .friends__presence {
+    grid-area: presence;
+  }
+
+  .friends__friend > .friends__trade {
+    grid-area: trade;
+  }
+
+  .friends__friend > .friends__more {
+    grid-area: more;
+  }
 }
 
 @container friends-main (width >= 560px) {

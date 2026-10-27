@@ -114,7 +114,10 @@ describe("NEAR_END_MARGIN", () => {
 describe("renderingWhile", () => {
   it("renders a stream while its grid is current", async () => {
     const rendered: string[] = []
-    const render = renderingWhile((stream: string) => void rendered.push(stream), () => true)
+    const render = renderingWhile(
+      (stream: string) => void rendered.push(stream),
+      () => true,
+    )
 
     await render("append")
 
@@ -124,7 +127,10 @@ describe("renderingWhile", () => {
   it("drops a stream whose grid was reloaded before its turn to render", async () => {
     const rendered: string[] = []
     let current = true
-    const render = renderingWhile((stream: string) => void rendered.push(stream), () => current)
+    const render = renderingWhile(
+      (stream: string) => void rendered.push(stream),
+      () => current,
+    )
 
     await render("append")
     current = false

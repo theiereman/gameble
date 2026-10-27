@@ -1,11 +1,24 @@
 import { Controller } from "@hotwired/stimulus"
 import { frameScheduler } from "../lib/frame_scheduler"
 import { motionReduced, onMotionChange } from "../lib/motion"
-import { CARD_DIMENSIONS, hasGutterRoom, laneBounds, placeCard, type CardSize, type Placement } from "../lib/moving_cards"
+import {
+  CARD_DIMENSIONS,
+  hasGutterRoom,
+  laneBounds,
+  placeCard,
+  type CardSize,
+  type Placement,
+} from "../lib/moving_cards"
 
 const FINE_POINTER_QUERY = "(hover: hover) and (pointer: fine)"
 
-type Mover = { element: HTMLElement; key: string; size: CardSize; side: "left" | "right"; spec: Omit<Placement, "width" | "height" | "lane"> }
+type Mover = {
+  element: HTMLElement
+  key: string
+  size: CardSize
+  side: "left" | "right"
+  spec: Omit<Placement, "width" | "height" | "lane">
+}
 type Drag = { pointerId: number; startX: number; startY: number; originX: number; originY: number; mover: Mover }
 
 export default class extends Controller<HTMLElement> {
@@ -60,7 +73,10 @@ export default class extends Controller<HTMLElement> {
   private mayShow(): boolean {
     if (!this.pointerQuery?.matches || motionReduced()) return false
     const content = this.content()
-    return content !== null && hasGutterRoom(content.left, document.documentElement.clientWidth - content.right, this.widestCard())
+    return (
+      content !== null &&
+      hasGutterRoom(content.left, document.documentElement.clientWidth - content.right, this.widestCard())
+    )
   }
 
   private content(): { left: number; right: number } | null {
@@ -69,7 +85,10 @@ export default class extends Controller<HTMLElement> {
   }
 
   private widestCard(): number {
-    const sizes = Array.from(this.template()?.content.querySelectorAll<HTMLElement>("[data-size]") ?? [], (card) => card.dataset.size as CardSize)
+    const sizes = Array.from(
+      this.template()?.content.querySelectorAll<HTMLElement>("[data-size]") ?? [],
+      (card) => card.dataset.size as CardSize,
+    )
     return Math.max(0, ...sizes.map((size) => CARD_DIMENSIONS[size].width))
   }
 
@@ -81,7 +100,9 @@ export default class extends Controller<HTMLElement> {
     const template = this.template()
     if (!template) return
     this.element.append(template.content.cloneNode(true))
-    this.movers = Array.from(this.element.querySelectorAll<HTMLElement>(".moving-card"), (element) => this.moverFor(element))
+    this.movers = Array.from(this.element.querySelectorAll<HTMLElement>(".moving-card"), (element) =>
+      this.moverFor(element),
+    )
   }
 
   private deactivate(): void {
@@ -97,7 +118,13 @@ export default class extends Controller<HTMLElement> {
       key: data.key ?? "",
       size: data.size as CardSize,
       side: data.lane as "left" | "right",
-      spec: { anchor: Number(data.anchor), speed: Number(data.speed), sway: Number(data.sway), offset: Number(data.offset), rotation: Number(data.rotation) },
+      spec: {
+        anchor: Number(data.anchor),
+        speed: Number(data.speed),
+        sway: Number(data.sway),
+        offset: Number(data.offset),
+        rotation: Number(data.rotation),
+      },
     }
   }
 
@@ -115,7 +142,10 @@ export default class extends Controller<HTMLElement> {
     this.movers.forEach((mover) => {
       const offset = this.offsets.get(mover.key)
       const lane = laneBounds(mover.side, content.left, content.right, viewportWidth)
-      const at = placeCard({ ...mover.spec, ...CARD_DIMENSIONS[mover.size], lane }, { ...frame, dragX: offset?.x ?? 0, dragY: offset?.y ?? 0 })
+      const at = placeCard(
+        { ...mover.spec, ...CARD_DIMENSIONS[mover.size], lane },
+        { ...frame, dragX: offset?.x ?? 0, dragY: offset?.y ?? 0 },
+      )
       mover.element.hidden = !at.visible
       if (!at.visible) return
       mover.element.style.translate = `${at.x}px ${at.y}px`
@@ -131,14 +161,24 @@ export default class extends Controller<HTMLElement> {
     event.preventDefault()
     element.setPointerCapture(event.pointerId)
     const origin = this.offsets.get(mover.key) ?? { x: 0, y: 0 }
-    this.drag = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, originX: origin.x, originY: origin.y, mover }
+    this.drag = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: origin.x,
+      originY: origin.y,
+      mover,
+    }
     element.classList.add("is-dragging")
   }
 
   private readonly pointerMove = (event: PointerEvent): void => {
     const drag = this.drag
     if (!drag || event.pointerId !== drag.pointerId) return
-    this.offsets.set(drag.mover.key, { x: drag.originX + event.clientX - drag.startX, y: drag.originY + event.clientY - drag.startY })
+    this.offsets.set(drag.mover.key, {
+      x: drag.originX + event.clientX - drag.startX,
+      y: drag.originY + event.clientY - drag.startY,
+    })
     this.frames.schedule()
   }
 

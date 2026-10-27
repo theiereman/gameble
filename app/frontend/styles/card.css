@@ -47,11 +47,13 @@
   box-shadow: var(--pixel-outline-4), var(--card-face-bevel);
   color: var(--color-text);
   text-align: left;
+
   /* A vertical drag scrolls the page; a finger held still tilts the face. */
   touch-action: pan-y;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+
   /* The flat card's reflection, until lib/tilt.ts writes a tilted one. */
   --reflection-strip: 30%;
   --reflection-fresnel: 0.8;
@@ -149,10 +151,14 @@
   --card-meta-tracking: var(--tracking-card-meta);
   --card-inset: calc(2 * (var(--card-frame) + var(--card-padding)));
   --card-art-width: calc(var(--card-width) - var(--card-inset));
-  --card-art-height: round(down,
-    calc(var(--card-height) - var(--card-inset) - 3 * var(--card-gap) - var(--card-band-height)
-      - var(--card-line-height) - var(--card-rarity-line-height)),
-    2px);
+  --card-art-height: round(
+    down,
+    calc(
+      var(--card-height) - var(--card-inset) - 3 * var(--card-gap) - var(--card-band-height) - var(--card-line-height) -
+        var(--card-rarity-line-height)
+    ),
+    2px
+  );
 }
 
 @container (width < 140px) {
@@ -370,7 +376,10 @@
   content: "";
   position: absolute;
   inset: 0;
-  box-shadow: var(--pixel-outline-4), var(--card-face-bevel), inset 0 0 0 var(--card-frame) var(--card-rarity);
+  box-shadow:
+    var(--pixel-outline-4),
+    var(--card-face-bevel),
+    inset 0 0 0 var(--card-frame) var(--card-rarity);
   pointer-events: none;
 }
 
@@ -386,10 +395,13 @@
 
 .card__lock {
   --card-lock-width: round(down, calc(var(--card-art-width) / 3), 10px);
+
   position: absolute;
   left: 50%;
-  bottom: calc(var(--card-frame) + var(--card-padding) + var(--card-rarity-line-height) + 2 * var(--card-gap)
-    + var(--card-line-height) + var(--card-art-height) / 2);
+  bottom: calc(
+    var(--card-frame) + var(--card-padding) + var(--card-rarity-line-height) + 2 * var(--card-gap) +
+      var(--card-line-height) + var(--card-art-height) / 2
+  );
   transform: translate(-50%, 50%);
   color: var(--color-text-bright);
   filter: drop-shadow(1px 0 0 var(--color-backdrop)) drop-shadow(-1px 0 0 var(--color-backdrop))

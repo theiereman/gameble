@@ -1,6 +1,13 @@
 import { atZero, owedBankDue, phaseForBank, type ScreenMoment } from "./booster_bank"
 import { handDone, storedAfterRebuild, topOfPile } from "./booster_rules"
-import { REVEAL_GUARD, type BannerAsked, type BoosterBank, type BoosterStart, type BoosterState, type FocusTarget } from "./booster_types"
+import {
+  REVEAL_GUARD,
+  type BannerAsked,
+  type BoosterBank,
+  type BoosterStart,
+  type BoosterState,
+  type FocusTarget,
+} from "./booster_types"
 import { celebrationResults, restoredCelebration, type CelebrationResult } from "./celebration"
 
 export function start({ bank, opened, layout, now, celebrationRemembered, preview }: BoosterStart): BoosterState {
@@ -74,7 +81,11 @@ export function idle(state: BoosterState): boolean {
   )
 }
 
-const moment = (state: BoosterState): ScreenMoment => ({ phase: state.phase, idle: idle(state), handPutAway: handDone(state) })
+const moment = (state: BoosterState): ScreenMoment => ({
+  phase: state.phase,
+  idle: idle(state),
+  handPutAway: handDone(state),
+})
 
 export function lock(state: BoosterState): BoosterState {
   return { ...state, lockDepth: state.lockDepth + 1 }
@@ -127,7 +138,14 @@ export function celebrate(state: BoosterState): BoosterState {
   if (reached === null) return state
   const results = celebrationResults(reached)
   if (results.length === 0) return { ...state, celebrationPending: null }
-  return { ...state, celebrationPending: null, celebration: results, celebrationStill: false, celebrationAnnounced: false, celebrationSteps: 0 }
+  return {
+    ...state,
+    celebrationPending: null,
+    celebration: results,
+    celebrationStill: false,
+    celebrationAnnounced: false,
+    celebrationSteps: 0,
+  }
 }
 
 export function shownCelebration(state: BoosterState): readonly CelebrationResult[] | null {
@@ -139,7 +157,9 @@ export function celebrationToAnnounce(state: BoosterState): readonly Celebration
 }
 
 export function celebrationStepped(state: BoosterState): BoosterState {
-  return state.celebration !== null && state.celebration.length > 1 ? { ...state, celebrationSteps: state.celebrationSteps + 1 } : state
+  return state.celebration !== null && state.celebration.length > 1
+    ? { ...state, celebrationSteps: state.celebrationSteps + 1 }
+    : state
 }
 
 export function shownResult(state: BoosterState): number {

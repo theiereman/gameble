@@ -25,7 +25,16 @@ export type Gameplay = Readonly<{
   cardExit: CardExit
 }>
 
-export function gameplayFor({ stage, strings, delimiter, cardUrl, repostUrl, state, rarityNames, whenIdle }: GameplayConfig): Gameplay {
+export function gameplayFor({
+  stage,
+  strings,
+  delimiter,
+  cardUrl,
+  repostUrl,
+  state,
+  rarityNames,
+  whenIdle,
+}: GameplayConfig): Gameplay {
   const reveals = new RevealSequence({
     ...stage,
     legendarySignal: strings.legendarySignal,
@@ -34,7 +43,13 @@ export function gameplayFor({ stage, strings, delimiter, cardUrl, repostUrl, sta
     rarityNames,
   })
   const cardStore = new CardStore({ ...stage, whenIdle })
-  const cardExit = new CardExit({ state, cardUrl, repostUrl, reposted: strings.reposted, repostFailed: strings.repostFailed })
+  const cardExit = new CardExit({
+    state,
+    cardUrl,
+    repostUrl,
+    reposted: strings.reposted,
+    repostFailed: strings.repostFailed,
+  })
   const everyReveal = new RevealAll({
     ...stage,
     summary: strings.summary,

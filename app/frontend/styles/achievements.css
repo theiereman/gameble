@@ -60,7 +60,9 @@
   background: var(--color-panel-raised);
 }
 
-.achievements__segment--lit { background: var(--color-accent); }
+.achievements__segment--lit {
+  background: var(--color-accent);
+}
 
 .achievements__grid {
   display: grid;

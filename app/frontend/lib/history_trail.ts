@@ -26,8 +26,12 @@ function isTrailEntry(entry: unknown): entry is TrailEntry {
   const { pathname, label, labels } = entry as Record<string, unknown>
   if (typeof pathname !== "string" || (label !== undefined && typeof label !== "string")) return false
   if (labels === undefined) return true
-  return !!labels && typeof labels === "object" && !Array.isArray(labels) &&
+  return (
+    !!labels &&
+    typeof labels === "object" &&
+    !Array.isArray(labels) &&
     Object.values(labels as Record<string, unknown>).every((value) => typeof value === "string")
+  )
 }
 
 export function resetTrail(storage: TrailStorage | null): void {
@@ -83,7 +87,12 @@ export function entryAfter(index: number, storage: TrailStorage | null): string 
 
 export type PreviousScreen = { label: string; pathname: string; steps: number }
 
-export function previousScreen(trail: Trail, index: number, currentLabel: string | null, currentPathname: string): PreviousScreen | null {
+export function previousScreen(
+  trail: Trail,
+  index: number,
+  currentLabel: string | null,
+  currentPathname: string,
+): PreviousScreen | null {
   const locale = localeOf(currentPathname)
   for (let earlier = index - 1; earlier >= Math.max(0, index - TRAIL_SPAN); earlier--) {
     const entry = trail[earlier]

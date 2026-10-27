@@ -1,5 +1,13 @@
 import type { CardView, HandView } from "../controllers/booster_stage_controller"
-import { bannerEnded, controls, onTable, shownCelebration, type BoosterState, type Controls, type Hint } from "./booster"
+import {
+  bannerEnded,
+  controls,
+  onTable,
+  shownCelebration,
+  type BoosterState,
+  type Controls,
+  type Hint,
+} from "./booster"
 import { bannerKeyframes } from "./booster_keyframes"
 import { bannerDuration, pileDepth } from "./booster_motion"
 import { formatClock } from "./booster_clock"
@@ -12,7 +20,8 @@ import type { OpeningCard } from "./opening"
 
 type Clock = Readonly<{ clock: string; spoken: string }>
 
-const localTime = (iso: string): string => formatLocalTime(iso, "datetime", { locale: document.documentElement.lang }) ?? iso
+const localTime = (iso: string): string =>
+  formatLocalTime(iso, "datetime", { locale: document.documentElement.lang }) ?? iso
 
 export class BoosterRenderer {
   private bannerKey: number | null = null
@@ -101,9 +110,15 @@ export class BoosterRenderer {
       empty: state.phase === "empty",
       next:
         clock !== null && nextAvailableAt
-          ? { clock: t(this.strings.emptyNext, { time: clock }), spoken: t(this.strings.nextAt, { time: localTime(nextAvailableAt) }) }
+          ? {
+              clock: t(this.strings.emptyNext, { time: clock }),
+              spoken: t(this.strings.nextAt, { time: localTime(nextAvailableAt) }),
+            }
           : null,
-      label: season > 0 ? t(this.strings.canisterLabel, { season, count: nextSize }) : t(this.strings.canisterLabelPlain, { count: nextSize }),
+      label:
+        season > 0
+          ? t(this.strings.canisterLabel, { season, count: nextSize })
+          : t(this.strings.canisterLabelPlain, { count: nextSize }),
       busy: state.phase !== "sealed" && state.phase !== "dealt",
       armed: state.armed,
       hintHidden: state.phase !== "sealed",
@@ -132,7 +147,10 @@ export class BoosterRenderer {
     const rarityNames = this.host.rarityNames()
     const cardName = (card: OpeningCard, index: number): string =>
       state.revealed[index]
-        ? t(phone ? this.strings.faceUpStore : this.strings.faceUp, { card: card.label, rarity: rarityNames[card.tier] })
+        ? t(phone ? this.strings.faceUpStore : this.strings.faceUp, {
+            card: card.label,
+            rarity: rarityNames[card.tier],
+          })
         : t(this.strings.faceDown, { position: index + 1, total })
     const shown: CardView[] = []
     cards.forEach((card, index) => {
@@ -149,7 +167,13 @@ export class BoosterRenderer {
         depth: phone ? pileDepth(index, state.stored) : null,
       })
     })
-    return { key: `${answer.pack.token}:${state.rebuilds}`, phone, cardBack: answer.pack.cardBack, dealt: state.dealt, cards: shown }
+    return {
+      key: `${answer.pack.token}:${state.rebuilds}`,
+      phone,
+      cardBack: answer.pack.cardBack,
+      dealt: state.dealt,
+      cards: shown,
+    }
   }
 
   private renderStage(state: BoosterState, view: Controls): void {
@@ -228,7 +252,10 @@ export class BoosterRenderer {
       {
         key: `${answer?.pack.token ?? ""}:${state.rebuilds}`,
         shown: onTable(state),
-        count: t(this.strings.trayCount, { n: this.host.number(view.storedCount), total: this.host.number(cards.length) }),
+        count: t(this.strings.trayCount, {
+          n: this.host.number(view.storedCount),
+          total: this.host.number(cards.length),
+        }),
         busy: view.busy,
         slots: cards.map((card, index) => ({
           tier: card.tier,

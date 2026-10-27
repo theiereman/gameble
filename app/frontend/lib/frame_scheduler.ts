@@ -13,6 +13,6 @@ export function frameScheduler(callback: () => void): FrameScheduler {
     cancel: () => {
       cancelAnimationFrame(frame)
       frame = 0
-    }
+    },
   }
 }

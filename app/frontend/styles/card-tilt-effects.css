@@ -22,6 +22,7 @@
   --reflection-curve: calc(0.8 + 1.4 * var(--card-gloss));
   --reflection-half: calc((40 + 28 * (1 - var(--card-gloss))) * 1%);
   --reflection-peak: calc(0.065 * var(--reflection-finish) * var(--reflection-fresnel));
+
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -32,7 +33,9 @@
   --ceiling-peak: calc(0.0425 * var(--reflection-finish));
   --ceiling-edge: calc(var(--reflection-horizon) * var(--card-height));
   --ceiling-band: calc(0.85 / 7 * var(--card-height));
-  background: linear-gradient(174deg,
+
+  background: linear-gradient(
+    174deg,
     color-mix(in srgb, var(--color-text-max) calc(var(--ceiling-peak) * 100%), transparent) 0 var(--ceiling-edge),
     color-mix(in srgb, var(--color-text-max) calc(var(--ceiling-peak) * pow(7 / 8, 1.4) * 100%), transparent)
       var(--ceiling-edge) calc(var(--ceiling-edge) + var(--ceiling-band)),
@@ -48,7 +51,8 @@
       calc(var(--ceiling-edge) + 5 * var(--ceiling-band)) calc(var(--ceiling-edge) + 6 * var(--ceiling-band)),
     color-mix(in srgb, var(--color-text-max) calc(var(--ceiling-peak) * pow(1 / 8, 1.4) * 100%), transparent)
       calc(var(--ceiling-edge) + 6 * var(--ceiling-band)) calc(var(--ceiling-edge) + 7 * var(--ceiling-band)),
-    transparent calc(var(--ceiling-edge) + 7 * var(--ceiling-band)));
+    transparent calc(var(--ceiling-edge) + 7 * var(--ceiling-band))
+  );
 }
 
 /* The main strip's band: seven hard rings each side of its centre, the
@@ -58,28 +62,66 @@
 .card__reflection--iridescence {
   --band-step: calc(var(--band-half) / 7);
   --band-ring-1: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * 100%), transparent);
-  --band-ring-2: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * pow(6 / 7, var(--reflection-curve)) * 100%), transparent);
-  --band-ring-3: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * pow(5 / 7, var(--reflection-curve)) * 100%), transparent);
-  --band-ring-4: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * pow(4 / 7, var(--reflection-curve)) * 100%), transparent);
-  --band-ring-5: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * pow(3 / 7, var(--reflection-curve)) * 100%), transparent);
-  --band-ring-6: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * pow(2 / 7, var(--reflection-curve)) * 100%), transparent);
-  --band-ring-7: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * pow(1 / 7, var(--reflection-curve)) * 100%), transparent);
-  --band: linear-gradient(118deg,
+  --band-ring-2: color-mix(
+    in srgb,
+    var(--color-text-max) calc(var(--band-peak) * pow(6 / 7, var(--reflection-curve)) * 100%),
+    transparent
+  );
+  --band-ring-3: color-mix(
+    in srgb,
+    var(--color-text-max) calc(var(--band-peak) * pow(5 / 7, var(--reflection-curve)) * 100%),
+    transparent
+  );
+  --band-ring-4: color-mix(
+    in srgb,
+    var(--color-text-max) calc(var(--band-peak) * pow(4 / 7, var(--reflection-curve)) * 100%),
+    transparent
+  );
+  --band-ring-5: color-mix(
+    in srgb,
+    var(--color-text-max) calc(var(--band-peak) * pow(3 / 7, var(--reflection-curve)) * 100%),
+    transparent
+  );
+  --band-ring-6: color-mix(
+    in srgb,
+    var(--color-text-max) calc(var(--band-peak) * pow(2 / 7, var(--reflection-curve)) * 100%),
+    transparent
+  );
+  --band-ring-7: color-mix(
+    in srgb,
+    var(--color-text-max) calc(var(--band-peak) * pow(1 / 7, var(--reflection-curve)) * 100%),
+    transparent
+  );
+  --band: linear-gradient(
+    118deg,
     transparent calc(var(--reflection-strip) - 7 * var(--band-step)),
-    var(--band-ring-7) calc(var(--reflection-strip) - 7 * var(--band-step)) calc(var(--reflection-strip) - 6 * var(--band-step)),
-    var(--band-ring-6) calc(var(--reflection-strip) - 6 * var(--band-step)) calc(var(--reflection-strip) - 5 * var(--band-step)),
-    var(--band-ring-5) calc(var(--reflection-strip) - 5 * var(--band-step)) calc(var(--reflection-strip) - 4 * var(--band-step)),
-    var(--band-ring-4) calc(var(--reflection-strip) - 4 * var(--band-step)) calc(var(--reflection-strip) - 3 * var(--band-step)),
-    var(--band-ring-3) calc(var(--reflection-strip) - 3 * var(--band-step)) calc(var(--reflection-strip) - 2 * var(--band-step)),
-    var(--band-ring-2) calc(var(--reflection-strip) - 2 * var(--band-step)) calc(var(--reflection-strip) - var(--band-step)),
+    var(--band-ring-7) calc(var(--reflection-strip) - 7 * var(--band-step))
+      calc(var(--reflection-strip) - 6 * var(--band-step)),
+    var(--band-ring-6) calc(var(--reflection-strip) - 6 * var(--band-step))
+      calc(var(--reflection-strip) - 5 * var(--band-step)),
+    var(--band-ring-5) calc(var(--reflection-strip) - 5 * var(--band-step))
+      calc(var(--reflection-strip) - 4 * var(--band-step)),
+    var(--band-ring-4) calc(var(--reflection-strip) - 4 * var(--band-step))
+      calc(var(--reflection-strip) - 3 * var(--band-step)),
+    var(--band-ring-3) calc(var(--reflection-strip) - 3 * var(--band-step))
+      calc(var(--reflection-strip) - 2 * var(--band-step)),
+    var(--band-ring-2) calc(var(--reflection-strip) - 2 * var(--band-step))
+      calc(var(--reflection-strip) - var(--band-step)),
     var(--band-ring-1) calc(var(--reflection-strip) - var(--band-step)) calc(var(--reflection-strip) + var(--band-step)),
-    var(--band-ring-2) calc(var(--reflection-strip) + var(--band-step)) calc(var(--reflection-strip) + 2 * var(--band-step)),
-    var(--band-ring-3) calc(var(--reflection-strip) + 2 * var(--band-step)) calc(var(--reflection-strip) + 3 * var(--band-step)),
-    var(--band-ring-4) calc(var(--reflection-strip) + 3 * var(--band-step)) calc(var(--reflection-strip) + 4 * var(--band-step)),
-    var(--band-ring-5) calc(var(--reflection-strip) + 4 * var(--band-step)) calc(var(--reflection-strip) + 5 * var(--band-step)),
-    var(--band-ring-6) calc(var(--reflection-strip) + 5 * var(--band-step)) calc(var(--reflection-strip) + 6 * var(--band-step)),
-    var(--band-ring-7) calc(var(--reflection-strip) + 6 * var(--band-step)) calc(var(--reflection-strip) + 7 * var(--band-step)),
-    transparent calc(var(--reflection-strip) + 7 * var(--band-step)));
+    var(--band-ring-2) calc(var(--reflection-strip) + var(--band-step))
+      calc(var(--reflection-strip) + 2 * var(--band-step)),
+    var(--band-ring-3) calc(var(--reflection-strip) + 2 * var(--band-step))
+      calc(var(--reflection-strip) + 3 * var(--band-step)),
+    var(--band-ring-4) calc(var(--reflection-strip) + 3 * var(--band-step))
+      calc(var(--reflection-strip) + 4 * var(--band-step)),
+    var(--band-ring-5) calc(var(--reflection-strip) + 4 * var(--band-step))
+      calc(var(--reflection-strip) + 5 * var(--band-step)),
+    var(--band-ring-6) calc(var(--reflection-strip) + 5 * var(--band-step))
+      calc(var(--reflection-strip) + 6 * var(--band-step)),
+    var(--band-ring-7) calc(var(--reflection-strip) + 6 * var(--band-step))
+      calc(var(--reflection-strip) + 7 * var(--band-step)),
+    transparent calc(var(--reflection-strip) + 7 * var(--band-step))
+  );
 }
 
 /* The strips: the main band, and over it its echo, a narrower and dimmer
@@ -91,11 +133,25 @@
   --echo-step: calc(0.35 * var(--reflection-half) / 4);
   --echo-peak: calc(0.6 * var(--reflection-peak));
   --echo-ring-1: color-mix(in srgb, var(--color-text-max) calc(var(--echo-peak) * 100%), transparent);
-  --echo-ring-2: color-mix(in srgb, var(--color-text-max) calc(var(--echo-peak) * pow(3 / 4, var(--reflection-curve)) * 100%), transparent);
-  --echo-ring-3: color-mix(in srgb, var(--color-text-max) calc(var(--echo-peak) * pow(2 / 4, var(--reflection-curve)) * 100%), transparent);
-  --echo-ring-4: color-mix(in srgb, var(--color-text-max) calc(var(--echo-peak) * pow(1 / 4, var(--reflection-curve)) * 100%), transparent);
+  --echo-ring-2: color-mix(
+    in srgb,
+    var(--color-text-max) calc(var(--echo-peak) * pow(3 / 4, var(--reflection-curve)) * 100%),
+    transparent
+  );
+  --echo-ring-3: color-mix(
+    in srgb,
+    var(--color-text-max) calc(var(--echo-peak) * pow(2 / 4, var(--reflection-curve)) * 100%),
+    transparent
+  );
+  --echo-ring-4: color-mix(
+    in srgb,
+    var(--color-text-max) calc(var(--echo-peak) * pow(1 / 4, var(--reflection-curve)) * 100%),
+    transparent
+  );
+
   background:
-    linear-gradient(118deg,
+    linear-gradient(
+      118deg,
       transparent calc(var(--echo-centre) - 4 * var(--echo-step)),
       var(--echo-ring-4) calc(var(--echo-centre) - 4 * var(--echo-step)) calc(var(--echo-centre) - 3 * var(--echo-step)),
       var(--echo-ring-3) calc(var(--echo-centre) - 3 * var(--echo-step)) calc(var(--echo-centre) - 2 * var(--echo-step)),
@@ -104,7 +160,8 @@
       var(--echo-ring-2) calc(var(--echo-centre) + var(--echo-step)) calc(var(--echo-centre) + 2 * var(--echo-step)),
       var(--echo-ring-3) calc(var(--echo-centre) + 2 * var(--echo-step)) calc(var(--echo-centre) + 3 * var(--echo-step)),
       var(--echo-ring-4) calc(var(--echo-centre) + 3 * var(--echo-step)) calc(var(--echo-centre) + 4 * var(--echo-step)),
-      transparent calc(var(--echo-centre) + 4 * var(--echo-step))),
+      transparent calc(var(--echo-centre) + 4 * var(--echo-step))
+    ),
     var(--band);
 }
 
@@ -113,7 +170,9 @@
 .card__reflection--iridescence {
   --band-half: calc(0.8 * var(--reflection-half));
   --band-peak: 1;
-  background: linear-gradient(118deg,
+
+  background: linear-gradient(
+    118deg,
     var(--color-iridescence-1) 0 calc(100% * 1 / 21),
     var(--color-iridescence-2) calc(100% * 1 / 21) calc(100% * 2 / 21),
     var(--color-iridescence-3) calc(100% * 2 / 21) calc(100% * 3 / 21),
@@ -134,7 +193,8 @@
     var(--color-iridescence-4) calc(100% * 17 / 21) calc(100% * 18 / 21),
     var(--color-iridescence-5) calc(100% * 18 / 21) calc(100% * 19 / 21),
     var(--color-iridescence-6) calc(100% * 19 / 21) calc(100% * 20 / 21),
-    var(--color-iridescence-7) calc(100% * 20 / 21) 100%);
+    var(--color-iridescence-7) calc(100% * 20 / 21) 100%
+  );
   background-position: var(--reflection-hue) 50%;
   background-size: 300% 100%;
   mask-image: var(--band);
@@ -167,10 +227,21 @@
   opacity: var(--flake-level, 0.5);
 }
 
-.card__flake--white { --flake-colour: var(--color-text-max); }
-.card__flake--gold { --flake-colour: var(--color-rarity-legendaire-hi); }
-.card__flake--violet { --flake-colour: var(--color-iridescence-2); }
-.card__flake--blue { --flake-colour: var(--color-iridescence-3); }
+.card__flake--white {
+  --flake-colour: var(--color-text-max);
+}
+
+.card__flake--gold {
+  --flake-colour: var(--color-rarity-legendaire-hi);
+}
+
+.card__flake--violet {
+  --flake-colour: var(--color-iridescence-2);
+}
+
+.card__flake--blue {
+  --flake-colour: var(--color-iridescence-3);
+}
 
 .card__flake-glint {
   display: block;
@@ -181,7 +252,12 @@
 
 .card__flake--cross .card__flake-glint {
   --flake-arm: color-mix(in srgb, var(--flake-colour) 60%, transparent);
-  box-shadow: 2px 0 0 var(--flake-arm), -2px 0 0 var(--flake-arm), 0 2px 0 var(--flake-arm), 0 -2px 0 var(--flake-arm);
+
+  box-shadow:
+    2px 0 0 var(--flake-arm),
+    -2px 0 0 var(--flake-arm),
+    0 2px 0 var(--flake-arm),
+    0 -2px 0 var(--flake-arm);
 }
 
 .card[data-in-view] :where(.card__flake-group) {
@@ -189,11 +265,27 @@
 }
 
 @keyframes card-glitter-twinkle {
-  0%, 44% { opacity: 0.18; }
-  48% { opacity: 0.6; }
-  50% { opacity: 1; }
-  52% { opacity: 0.6; }
-  56%, 100% { opacity: 0.18; }
+  0%,
+  44% {
+    opacity: 0.18;
+  }
+
+  48% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  52% {
+    opacity: 0.6;
+  }
+
+  56%,
+  100% {
+    opacity: 0.18;
+  }
 }
 
 /* ---- Reduced motion: no tilt, the glitter still; the reflection stays at rest ---- */

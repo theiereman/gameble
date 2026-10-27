@@ -5,7 +5,18 @@ const KEY = "3c1f9a2e-7d4b-4c8a-b5e6-0f2d9e8a1b7c"
 
 const answer = {
   pack: { token: "abc", kind: "regular", cardBack: "standard", url: "/fr/packs/abc" },
-  cards: [{ slug: "portal", season: 1, tier: "epic", coverUrl: "https://x/y.jpg", title: "Portal", year: 2007, label: "Portal — Valve, 2007", faces: { s: "<span></span>", m: "<span></span>", xl: "<span></span>" } }],
+  cards: [
+    {
+      slug: "portal",
+      season: 1,
+      tier: "epic",
+      coverUrl: "https://x/y.jpg",
+      title: "Portal",
+      year: 2007,
+      label: "Portal — Valve, 2007",
+      faces: { s: "<span></span>", m: "<span></span>", xl: "<span></span>" },
+    },
+  ],
   bank: { available: 9, reserveFull: false, nextAvailableAt: null, scheduledAt: [], nextPackSize: 5 },
   serverTime: "2026-10-06T14:22:00.000Z",
   tierCountsBefore: { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0 },
@@ -51,7 +62,11 @@ describe("sendOpening", () => {
     expect(calls).toHaveLength(1)
     expect(calls[0].url).toBe("/fr/packs")
     expect(calls[0].init.method).toBe("POST")
-    expect(calls[0].init.headers).toEqual({ Accept: "application/json", "Idempotency-Key": KEY, "X-CSRF-Token": "token" })
+    expect(calls[0].init.headers).toEqual({
+      Accept: "application/json",
+      "Idempotency-Key": KEY,
+      "X-CSRF-Token": "token",
+    })
   })
 
   it("reads the set tiers of both families: earlier seasons' metals and the ranks", async () => {
@@ -61,11 +76,17 @@ describe("sendOpening", () => {
         ...answer.setTiers[0],
         key: "rpg",
         tier,
-        thresholds: ["novice", "apprentice", "adept", "expert", "master"].map((rank, index) => ({ tier: rank, required: [25, 63, 125, 188, 225][index] })),
+        thresholds: ["novice", "apprentice", "adept", "expert", "master"].map((rank, index) => ({
+          tier: rank,
+          required: [25, 63, 125, 188, 225][index],
+        })),
       })),
     ]
     const { send } = fake(json(200, { ...answer, setTiers }))
-    expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({ kind: "opened", answer: { ...answer, setTiers } })
+    expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({
+      kind: "opened",
+      answer: { ...answer, setTiers },
+    })
   })
 
   it("sends no CSRF header without a token", async () => {
@@ -91,7 +112,9 @@ describe("sendOpening", () => {
       fake(json(200, { pack: {} })),
       fake(json(422, { message: "no envelope" })),
       // A card without one of its three faces.
-      fake(json(200, { ...answer, cards: [{ ...answer.cards[0], faces: { m: "<span></span>", xl: "<span></span>" } }] })),
+      fake(
+        json(200, { ...answer, cards: [{ ...answer.cards[0], faces: { m: "<span></span>", xl: "<span></span>" } }] }),
+      ),
       // No set tiers, one of another shape, or one without its album.
       fake(json(200, { ...answer, setTiers: undefined })),
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], tier: "platinum" }] })),
@@ -99,9 +122,22 @@ describe("sendOpening", () => {
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], held: undefined }] })),
       // A set tier without its set's thresholds, or with one of another shape.
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], thresholds: undefined }] })),
-      fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], thresholds: [{ tier: "silver", required: "16" }] }] })),
-      fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], thresholds: [{ tier: "complete", required: 62 }] }] })),
+      fake(
+        json(200, {
+          ...answer,
+          setTiers: [{ ...answer.setTiers[0], thresholds: [{ tier: "silver", required: "16" }] }],
+        }),
+      ),
+      fake(
+        json(200, {
+          ...answer,
+          setTiers: [{ ...answer.setTiers[0], thresholds: [{ tier: "complete", required: 62 }] }],
+        }),
+      ),
     ]
-    for (const { send } of outcomes) expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({ kind: "failed" })
+    for (const { send } of outcomes)
+      expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({
+        kind: "failed",
+      })
   })
 })

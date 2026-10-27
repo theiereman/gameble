@@ -9,7 +9,10 @@ describe("newKey", () => {
   })
 
   it("uses crypto.randomUUID where the context has it", () => {
-    vi.stubGlobal("crypto", { randomUUID: () => "00000000-0000-4000-8000-000000000000", getRandomValues: () => new Uint8Array(16) })
+    vi.stubGlobal("crypto", {
+      randomUUID: () => "00000000-0000-4000-8000-000000000000",
+      getRandomValues: () => new Uint8Array(16),
+    })
     expect(newKey()).toBe("00000000-0000-4000-8000-000000000000")
   })
 
@@ -57,7 +60,9 @@ describe("cardHref", () => {
 describe("withPack", () => {
   it("names the pack in the screen's address, keeping the rest of it", () => {
     expect(withPack("https://gameble.test/fr/booster", "tok3n")).toBe("https://gameble.test/fr/booster?pack=tok3n")
-    expect(withPack("https://gameble.test/fr/booster?pack=old&x=1#top", "tok3n")).toBe("https://gameble.test/fr/booster?pack=tok3n&x=1#top")
+    expect(withPack("https://gameble.test/fr/booster?pack=old&x=1#top", "tok3n")).toBe(
+      "https://gameble.test/fr/booster?pack=tok3n&x=1#top",
+    )
   })
 
   it("drops it for none", () => {
@@ -75,7 +80,9 @@ describe("the celebration mark", () => {
   })
 
   it("is kept while the pack stays named", () => {
-    expect(withPack("https://gameble.test/fr/booster?pack=tok3n&celebration=1", "tok3n")).toBe("https://gameble.test/fr/booster?pack=tok3n&celebration=1")
+    expect(withPack("https://gameble.test/fr/booster?pack=tok3n&celebration=1", "tok3n")).toBe(
+      "https://gameble.test/fr/booster?pack=tok3n&celebration=1",
+    )
   })
 
   it("is dropped with the pack", () => {

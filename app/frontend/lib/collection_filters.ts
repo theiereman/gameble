@@ -24,7 +24,11 @@ export interface FrameForm<S extends FrameSubmitter> {
   requestSubmit(submitter: S): void
 }
 
-export function submitToFrame<S extends FrameSubmitter>(form: FrameForm<NoInfer<S>>, submitter: S, frame: string): void {
+export function submitToFrame<S extends FrameSubmitter>(
+  form: FrameForm<NoInfer<S>>,
+  submitter: S,
+  frame: string,
+): void {
   submitter.type = "submit"
   submitter.dataset.turboFrame = frame
   form.append(submitter)

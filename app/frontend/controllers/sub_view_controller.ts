@@ -10,7 +10,9 @@ function shown(element: HTMLElement): boolean {
 }
 
 type FrameRender = (currentElement: Element, newElement: Element) => void
-type ViewTransitionDocument = Document & { startViewTransition?: (update: () => void) => { finished: Promise<unknown> } }
+type ViewTransitionDocument = Document & {
+  startViewTransition?: (update: () => void) => { finished: Promise<unknown> }
+}
 
 export default class extends Controller<HTMLElement> {
   static targets = ["stage", "previous", "next", "heading"]
@@ -32,13 +34,18 @@ export default class extends Controller<HTMLElement> {
 
   connect(): void {
     if (this.titleValue && document.title !== this.titleValue) document.title = this.titleValue
-    if (this.backValue) document.querySelector<HTMLAnchorElement>(".top-bar__phone-back")?.setAttribute("href", this.backValue)
+    if (this.backValue)
+      document.querySelector<HTMLAnchorElement>(".top-bar__phone-back")?.setAttribute("href", this.backValue)
     this.frame = this.element.closest("turbo-frame")
     this.frame?.addEventListener("turbo:before-frame-render", this.beforeFrameRender)
     const wish = takeFocusWish()
     if (wish) {
       this.focusControl(wish)
-    } else if (!document.documentElement.hasAttribute("data-turbo-preview") && this.hasHeadingTarget && this.subView()) {
+    } else if (
+      !document.documentElement.hasAttribute("data-turbo-preview") &&
+      this.hasHeadingTarget &&
+      this.subView()
+    ) {
       this.headingTarget.focus({ preventScroll: true })
     }
   }
@@ -71,7 +78,8 @@ export default class extends Controller<HTMLElement> {
     if (!gesture || gesture.id !== event.pointerId || gesture.tilted) return
     const step = swipeStep(event.clientX - gesture.x, event.clientY - gesture.y)
     if (step === 0) return
-    const control = step > 0 ? (this.hasNextTarget ? this.nextTarget : null) : this.hasPreviousTarget ? this.previousTarget : null
+    const control =
+      step > 0 ? (this.hasNextTarget ? this.nextTarget : null) : this.hasPreviousTarget ? this.previousTarget : null
     if (!(control instanceof HTMLAnchorElement)) return
     if (shown(control)) control.click()
   }
@@ -91,11 +99,22 @@ export default class extends Controller<HTMLElement> {
   }
 
   private subView(): boolean {
-    return [this.hasPreviousTarget && this.previousTarget, this.hasNextTarget && this.nextTarget].some((control) => control && shown(control)) && window.matchMedia(PHONE_WIDTH).matches
+    return (
+      [this.hasPreviousTarget && this.previousTarget, this.hasNextTarget && this.nextTarget].some(
+        (control) => control && shown(control),
+      ) && window.matchMedia(PHONE_WIDTH).matches
+    )
   }
 
   private focusControl(direction: Direction): void {
-    const control = direction === "previous" ? (this.hasPreviousTarget ? this.previousTarget : null) : this.hasNextTarget ? this.nextTarget : null
+    const control =
+      direction === "previous"
+        ? this.hasPreviousTarget
+          ? this.previousTarget
+          : null
+        : this.hasNextTarget
+          ? this.nextTarget
+          : null
     if (control instanceof HTMLAnchorElement) control.focus()
     else if (this.hasHeadingTarget) this.headingTarget.focus()
   }

@@ -1,6 +1,32 @@
 import { describe, expect, it } from "vitest"
 import type { Rarity } from "./card_types"
-import { arming, canOpen, canReveal, canRevealAll, canStore, cardStored, cardsDealt, ejecting, legendaryEnded, legendarySignalled, openingAnswered, openingEnded, openingRefused, openingStarted, resultHeadShown, retracted, retracting, revealAllEnded, revealAllPlan, revealAllStarted, revealEnded, revealMarked, revealStarted, storeEnded, storeStarted } from "./booster_opening"
+import {
+  arming,
+  canOpen,
+  canReveal,
+  canRevealAll,
+  canStore,
+  cardStored,
+  cardsDealt,
+  ejecting,
+  legendaryEnded,
+  legendarySignalled,
+  openingAnswered,
+  openingEnded,
+  openingRefused,
+  openingStarted,
+  resultHeadShown,
+  retracted,
+  retracting,
+  revealAllEnded,
+  revealAllPlan,
+  revealAllStarted,
+  revealEnded,
+  revealMarked,
+  revealStarted,
+  storeEnded,
+  storeStarted,
+} from "./booster_opening"
 import { bankFetchOwed, celebrate, lock } from "./booster_state"
 import { BoosterState, REVEAL_GUARD } from "./booster_types"
 import { activation } from "./booster_view"
@@ -10,7 +36,12 @@ describe("canOpen, openingStarted", () => {
   it("opens a sealed canister, the reason and the celebration cleared", () => {
     const state = { ...startWith(), reason: "Too fast" }
     expect(canOpen(state)).toBe(true)
-    expect(openingStarted(state)).toMatchObject({ opening: true, reason: null, celebration: null, celebrationPending: null })
+    expect(openingStarted(state)).toMatchObject({
+      opening: true,
+      reason: null,
+      celebration: null,
+      celebrationPending: null,
+    })
   })
 
   it("opens the next one only once every dealt card is revealed", () => {
@@ -44,7 +75,16 @@ describe("retracting, retracted", () => {
     expect(sinking.headShown).toBe(false)
     expect(retracting(sinking)).toBe(sinking)
     const docked = retracted(sinking)
-    expect(docked).toMatchObject({ answer: null, revealed: [], stored: [], dealt: false, armed: false, celebration: null, canisterAway: false, status: "sealed" })
+    expect(docked).toMatchObject({
+      answer: null,
+      revealed: [],
+      stored: [],
+      dealt: false,
+      armed: false,
+      celebration: null,
+      canisterAway: false,
+      status: "sealed",
+    })
     expect(docked.docks).toBe(hand.docks + 1)
   })
 })
@@ -61,12 +101,26 @@ describe("openingRefused", () => {
   const running = () => ejecting(arming(lock(openingStarted(startWith())), "key-1"))
 
   it("disarms the canister, says why and drops the key after a refusal", () => {
-    const refused = openingRefused(running(), { kind: "refused", code: "sign_in_required", message: "Sign in" }, "Failed")
-    expect(refused).toMatchObject({ phase: "sealed", status: "sealed", armed: false, opening: false, reason: "Sign in", pendingKey: null, focus: "open" })
+    const refused = openingRefused(
+      running(),
+      { kind: "refused", code: "sign_in_required", message: "Sign in" },
+      "Failed",
+    )
+    expect(refused).toMatchObject({
+      phase: "sealed",
+      status: "sealed",
+      armed: false,
+      opening: false,
+      reason: "Sign in",
+      pendingKey: null,
+      focus: "open",
+    })
   })
 
   it("keeps the key after a throttle or a failure", () => {
-    expect(openingRefused(running(), { kind: "refused", code: "throttled", message: "Slow down" }, "Failed").pendingKey).toBe("key-1")
+    expect(
+      openingRefused(running(), { kind: "refused", code: "throttled", message: "Slow down" }, "Failed").pendingKey,
+    ).toBe("key-1")
     const failed = openingRefused(running(), { kind: "failed" }, "Failed")
     expect(failed).toMatchObject({ pendingKey: "key-1", reason: "Failed" })
   })
@@ -91,7 +145,13 @@ describe("openingAnswered, ejecting, resultHeadShown, cardsDealt, openingEnded",
     const state = arming(lock(openingStarted(startWith())), "key-1")
     const answer = answerOf(FIVE, [VALVE], 1)
     const answered = openingAnswered(state, answer)
-    expect(answered.bank).toEqual({ available: 1, reserveFull: false, nextAvailableAt: null, serverTime: answer.serverTime, nextPackSize: 5 })
+    expect(answered.bank).toEqual({
+      available: 1,
+      reserveFull: false,
+      nextAvailableAt: null,
+      serverTime: answer.serverTime,
+      nextPackSize: 5,
+    })
     expect(answered.bankGeneration).toBe(state.bankGeneration + 1)
     expect(answered.counts).toEqual(answer.tierCountsBefore)
     expect(answered.counts).not.toBe(answer.tierCountsBefore)
@@ -111,7 +171,13 @@ describe("openingAnswered, ejecting, resultHeadShown, cardsDealt, openingEnded",
     const onTable = cardsDealt(shown)
     expect(onTable.dealt).toBe(true)
     expect(cardsDealt(onTable)).toBe(onTable)
-    expect(openingEnded(onTable)).toMatchObject({ canisterAway: true, status: "inventory", phase: "dealt", opening: false, focus: "card" })
+    expect(openingEnded(onTable)).toMatchObject({
+      canisterAway: true,
+      status: "inventory",
+      phase: "dealt",
+      opening: false,
+      focus: "card",
+    })
   })
 })
 
@@ -184,7 +250,9 @@ describe("revealEnded", () => {
   it("leaves the hand open while cards stay face down, from Reveal all, or on the phone", () => {
     expect(throughReveal(dealt(), 0).status).toBe("inventory")
     expect(throughReveal(revealMarked(dealt(["common", "rare"]), 0, 0), 1, true).status).toBe("inventory")
-    expect(throughReveal(revealMarked(dealt(["common", "rare"], { layout: "phone" }), 0, 0), 1).status).toBe("inventory")
+    expect(throughReveal(revealMarked(dealt(["common", "rare"], { layout: "phone" }), 0, 0), 1).status).toBe(
+      "inventory",
+    )
   })
 })
 

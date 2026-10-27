@@ -47,7 +47,7 @@ export function approach(from: number, to: number, dtSeconds: number, rate: numb
 export function wanderPoint(area: Size, seconds: number): Point {
   return {
     x: area.width * (0.5 + 0.36 * Math.sin(seconds * 0.45)),
-    y: area.height * (0.5 + 0.34 * Math.sin(seconds * 0.71 + 1))
+    y: area.height * (0.5 + 0.34 * Math.sin(seconds * 0.71 + 1)),
   }
 }
 
@@ -91,7 +91,7 @@ export class Lamp {
     private cards: readonly LampCard[],
     private area: Size,
     private readonly radii: Radii,
-    private readonly startedAt: number
+    private readonly startedAt: number,
   ) {
     this.found = this.cards.map(() => false)
     this.rest()
@@ -127,7 +127,17 @@ export class Lamp {
       this.holdUntil = input.now + FOUND_HOLD_MS
     })
 
-    return { x: this.x, y: this.y, power, radii, mode, lit, found: [...this.found], foundCount: this.foundCount(), settled: this.settled(mode) }
+    return {
+      x: this.x,
+      y: this.y,
+      power,
+      radii,
+      mode,
+      lit,
+      found: [...this.found],
+      foundCount: this.foundCount(),
+      settled: this.settled(mode),
+    }
   }
 
   private foundCount(): number {

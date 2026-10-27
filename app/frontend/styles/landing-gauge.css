@@ -134,9 +134,13 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
     background: rgb(11 15 21 / 0.22);
     -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent), linear-gradient(180deg, transparent, #000 35%, #000 65%, transparent);
+    -webkit-mask-image:
+      linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent),
+      linear-gradient(180deg, transparent, #000 35%, #000 65%, transparent);
     -webkit-mask-composite: source-in;
-    mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent), linear-gradient(180deg, transparent, #000 35%, #000 65%, transparent);
+    mask-image:
+      linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent),
+      linear-gradient(180deg, transparent, #000 35%, #000 65%, transparent);
     mask-composite: intersect;
     color: inherit;
     font: var(--font-number);
@@ -146,7 +150,9 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
     pointer-events: none;
     transform: translateX(calc((var(--swell, 1) - 1) * 1.35rem)) scale(var(--swell, 1));
     transform-origin: left center;
-    transition: opacity 140ms ease-out, transform 140ms ease-out;
+    transition:
+      opacity 140ms ease-out,
+      transform 140ms ease-out;
   }
 
   .landing-side-gauge:is(:hover, :focus-within) .landing-side-gauge__name,
@@ -154,10 +160,14 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
     opacity: 1;
   }
 
-  .landing-side-gauge__marker:is(:hover, :focus-visible) { --swell: 1.5; }
+  .landing-side-gauge__marker:is(:hover, :focus-visible) {
+    --swell: 1.5;
+  }
 
   .landing-side-gauge li:has(+ li > :is(:hover, :focus-visible)) > .landing-side-gauge__marker,
-  .landing-side-gauge li:has(> :is(:hover, :focus-visible)) + li > .landing-side-gauge__marker { --swell: 1.25; }
+  .landing-side-gauge li:has(> :is(:hover, :focus-visible)) + li > .landing-side-gauge__marker {
+    --swell: 1.25;
+  }
 
   .landing-side-gauge__track {
     display: flex;
@@ -174,26 +184,36 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
     transition: transform 140ms ease-out;
   }
 
-  .landing-side-gauge__segment:hover { --swell: 2.6; }
+  .landing-side-gauge__segment:hover {
+    --swell: 2.6;
+  }
 
   .landing-side-gauge__segment:has(+ .landing-side-gauge__segment:hover),
-  .landing-side-gauge__segment:hover + .landing-side-gauge__segment { --swell: 2; }
+  .landing-side-gauge__segment:hover + .landing-side-gauge__segment {
+    --swell: 2;
+  }
 
   .landing-side-gauge__segment:has(+ .landing-side-gauge__segment + .landing-side-gauge__segment:hover),
-  .landing-side-gauge__segment:hover + .landing-side-gauge__segment + .landing-side-gauge__segment { --swell: 1.5; }
+  .landing-side-gauge__segment:hover + .landing-side-gauge__segment + .landing-side-gauge__segment {
+    --swell: 1.5;
+  }
 
   .landing-side-gauge__segment.is-lit {
     background: var(--color-accent);
   }
 }
 
-html[data-motion="reduced"] .landing-side-gauge :is(.landing-side-gauge__marker > span:first-child, .landing-side-gauge__segment, .landing-side-gauge__name) {
+html[data-motion="reduced"]
+  .landing-side-gauge
+  :is(.landing-side-gauge__marker > span:first-child, .landing-side-gauge__segment, .landing-side-gauge__name) {
   transform: none;
   transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-motion="full"]) .landing-side-gauge :is(.landing-side-gauge__marker > span:first-child, .landing-side-gauge__segment, .landing-side-gauge__name) {
+  html:not([data-motion="full"])
+    .landing-side-gauge
+    :is(.landing-side-gauge__marker > span:first-child, .landing-side-gauge__segment, .landing-side-gauge__name) {
     transform: none;
     transition: none;
   }
@@ -245,12 +265,14 @@ html[data-motion="reduced"] body:has(.landing) :is(.atmosphere__stars, .atmosphe
 .moving-card--m {
   width: var(--card-m-width);
   height: var(--card-m-height);
+
   --moving-rays-size: 300px;
 }
 
 .moving-card--s {
   width: var(--card-s-width);
   height: var(--card-s-height);
+
   --moving-rays-size: 220px;
 }
 
@@ -260,7 +282,9 @@ html[data-motion="reduced"] body:has(.landing) :is(.atmosphere__stars, .atmosphe
   width: 100%;
   height: 100%;
   filter: drop-shadow(0 18px 0 rgb(0 0 0 / 0.55));
-  transition: scale 220ms ease-out, rotate 220ms ease-out;
+  transition:
+    scale 220ms ease-out,
+    rotate 220ms ease-out;
 }
 
 .moving-card.is-dragging {

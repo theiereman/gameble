@@ -23,10 +23,21 @@
   align-items: start;
 }
 
-.hub__kicker { grid-area: kicker; }
-.hub-menu { grid-area: menu; }
-.hub-showcase { grid-area: showcase; }
-.hub-sets { grid-area: sets; }
+.hub__kicker {
+  grid-area: kicker;
+}
+
+.hub-menu {
+  grid-area: menu;
+}
+
+.hub-showcase {
+  grid-area: showcase;
+}
+
+.hub-sets {
+  grid-area: sets;
+}
 
 .hub__aside {
   grid-area: aside;
@@ -184,7 +195,9 @@ button.menu-item:active {
 /* Under the pointer, the focus ring keeps its gap. */
 a.menu-item:focus-visible:hover,
 button.menu-item:focus-visible:hover {
-  box-shadow: var(--focus-ring-gap), inset 0 0 0 var(--space-unit) var(--color-accent-hi);
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-accent-hi);
 }
 
 .menu-item[aria-disabled="true"] {
@@ -275,11 +288,25 @@ button.menu-item:focus-visible:hover {
   height: 14px;
 }
 
-.hub-showcase__rarity--1 { color: var(--color-rarity-commune); }
-.hub-showcase__rarity--2 { color: var(--color-rarity-peu-commune); }
-.hub-showcase__rarity--3 { color: var(--color-rarity-rare); }
-.hub-showcase__rarity--4 { color: var(--color-rarity-epique); }
-.hub-showcase__rarity--5 { color: var(--color-rarity-legendaire); }
+.hub-showcase__rarity--1 {
+  color: var(--color-rarity-commune);
+}
+
+.hub-showcase__rarity--2 {
+  color: var(--color-rarity-peu-commune);
+}
+
+.hub-showcase__rarity--3 {
+  color: var(--color-rarity-rare);
+}
+
+.hub-showcase__rarity--4 {
+  color: var(--color-rarity-epique);
+}
+
+.hub-showcase__rarity--5 {
+  color: var(--color-rarity-legendaire);
+}
 
 .hub-showcase .button {
   margin: 0;

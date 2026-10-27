@@ -114,7 +114,8 @@ export default class BoosterZoomController extends Controller<HTMLDialogElement>
 
   drag(event: PointerEvent): void {
     const gesture = this.gesture
-    if (gesture && gesture.id === event.pointerId && (event.currentTarget as Element).querySelector("[data-tilting]")) gesture.tilted = true
+    if (gesture && gesture.id === event.pointerId && (event.currentTarget as Element).querySelector("[data-tilting]"))
+      gesture.tilted = true
   }
 
   release(event: PointerEvent): void {
@@ -141,7 +142,9 @@ export default class BoosterZoomController extends Controller<HTMLDialogElement>
     this.element.dataset.tier = tier
     const rays = BANNER_TIERS.includes(tier)
     this.raysTarget.hidden = !rays
-    this.raysTarget.className = rays ? `card-rays card-rays--${tier} card-rays--large booster-zoom__rays` : "card-rays card-rays--large booster-zoom__rays"
+    this.raysTarget.className = rays
+      ? `card-rays card-rays--${tier} card-rays--large booster-zoom__rays`
+      : "card-rays card-rays--large booster-zoom__rays"
     this.faceTarget.replaceChildren(fragments.face(index) ?? "")
     this.titleTarget.textContent = title
     this.iconTarget.replaceChildren(fragments.icon(tier) ?? "")
@@ -153,6 +156,7 @@ export default class BoosterZoomController extends Controller<HTMLDialogElement>
   private keepFocusInside(): void {
     const focused = document.activeElement
     if (!this.element.open) return
-    if (!this.element.contains(focused) || (focused instanceof HTMLButtonElement && focused.disabled)) this.seeTarget.focus()
+    if (!this.element.contains(focused) || (focused instanceof HTMLButtonElement && focused.disabled))
+      this.seeTarget.focus()
   }
 }

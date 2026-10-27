@@ -54,7 +54,13 @@ describe("saveDraft, readDraft and forgetDraft", () => {
 describe("parseDraft", () => {
   it("keeps only well-formed lines of the two fields", () => {
     const raw = JSON.stringify({
-      give: [{ key: "portal--s1", quantity: 2 }, { key: "", quantity: 1 }, { key: "x", quantity: 0 }, { key: "y", quantity: 1.5 }, "z"],
+      give: [
+        { key: "portal--s1", quantity: 2 },
+        { key: "", quantity: 1 },
+        { key: "x", quantity: 0 },
+        { key: "y", quantity: 1.5 },
+        "z",
+      ],
       take: "nothing",
       other: [{ key: "a", quantity: 1 }],
     })

@@ -17,7 +17,22 @@ import { rememberPack } from "../lib/booster_page"
 import type { SwipeRelease } from "../lib/booster_swipe"
 import { dispatchGameble } from "../lib/events"
 import { formatNumber } from "../lib/i18n"
-import { activation, bankDue, canStore, celebrationStepped, faceSize, layoutApplied, lockReleased, owedBankTaken, revealingOpening, topOfPile, zoomClosed, zoomOpened, zoomStepped, type BoosterState } from "../lib/booster"
+import {
+  activation,
+  bankDue,
+  canStore,
+  celebrationStepped,
+  faceSize,
+  layoutApplied,
+  lockReleased,
+  owedBankTaken,
+  revealingOpening,
+  topOfPile,
+  zoomClosed,
+  zoomOpened,
+  zoomStepped,
+  type BoosterState,
+} from "../lib/booster"
 import { screenTimers, type ScreenTimers } from "../lib/screen_timers"
 import { cloneFirstElement } from "../lib/templates"
 import type { Intent } from "../lib/screen"
@@ -146,7 +161,10 @@ export class BoosterController extends Controller<HTMLElement> {
       cards: this.cardTargets.map((card) => card.dataset),
       setTiers: this.setTierTargets.map((row) => row.dataset),
     })
-    this.countdown = browserCountdown({ left: (seconds) => this.countdownLeft(seconds), zero: () => this.bankRefresh?.atZero() })
+    this.countdown = browserCountdown({
+      left: (seconds) => this.countdownLeft(seconds),
+      zero: () => this.bankRefresh?.atZero(),
+    })
     document.addEventListener("visibilitychange", this.visibilityChanged)
     this.countdown.set(this.state.bank.nextAvailableAt, this.state.bank.serverTime)
     this.render()
@@ -167,37 +185,14 @@ export class BoosterController extends Controller<HTMLElement> {
     dispatchGameble("gameble:opening-revealing", { revealing: false })
   }
 
-  boosterInfoOutletConnected(): void {
-    this.render()
-  }
-
-  boosterActionsOutletConnected(): void {
-    this.render()
-  }
-
-  boosterCanisterOutletConnected(): void {
-    this.render()
-  }
-
-  boosterStageOutletConnected(): void {
-    this.render()
-  }
-
-  boosterPlateOutletConnected(): void {
-    this.render()
-  }
-
-  boosterTrayOutletConnected(): void {
-    this.render()
-  }
-
-  boosterZoomOutletConnected(): void {
-    this.render()
-  }
-
-  boosterCelebrationOutletConnected(): void {
-    this.render()
-  }
+  boosterInfoOutletConnected = (): void => this.render()
+  boosterActionsOutletConnected = (): void => this.render()
+  boosterCanisterOutletConnected = (): void => this.render()
+  boosterStageOutletConnected = (): void => this.render()
+  boosterPlateOutletConnected = (): void => this.render()
+  boosterTrayOutletConnected = (): void => this.render()
+  boosterZoomOutletConnected = (): void => this.render()
+  boosterCelebrationOutletConnected = (): void => this.render()
 
   open(): void {
     void this.opening?.open()
@@ -213,7 +208,12 @@ export class BoosterController extends Controller<HTMLElement> {
 
   activateCard({ detail: { index } }: Intent<CardIntent>): void {
     if (!this.state) return
-    const action = activation(this.state, index, performance.now(), this.hasBoosterStageOutlet ? this.boosterStageOutlet.lastDragEnd : -Infinity)
+    const action = activation(
+      this.state,
+      index,
+      performance.now(),
+      this.hasBoosterStageOutlet ? this.boosterStageOutlet.lastDragEnd : -Infinity,
+    )
     if (action === "reveal") void this.gameplay?.reveals.reveal(index, false)
     else if (action === "store") void this.gameplay?.cardStore.store(index, false)
     else if (action === "leave") this.gameplay?.cardExit.leaveFor(index)
@@ -228,7 +228,8 @@ export class BoosterController extends Controller<HTMLElement> {
   }
 
   releaseCard({ detail: { index, dx, dy, abandoned } }: Intent<SwipeRelease>): void {
-    if (this.state && !abandoned && swipeStores(dx, dy) && canStore(this.state, index, false, performance.now())) void this.gameplay?.cardStore.store(index, false)
+    if (this.state && !abandoned && swipeStores(dx, dy) && canStore(this.state, index, false, performance.now()))
+      void this.gameplay?.cardStore.store(index, false)
     else this.gameplay?.cardStore.springBack(index)
   }
 
@@ -336,7 +337,10 @@ export class BoosterController extends Controller<HTMLElement> {
       celebrationStrings: this.strings.celebration,
       delimiter: this.delimiterValue,
     })
-    this.layoutWatch = new LayoutWatch({ apply: (transition) => this.apply(transition), whenIdle: () => this.whenIdle() })
+    this.layoutWatch = new LayoutWatch({
+      apply: (transition) => this.apply(transition),
+      whenIdle: () => this.whenIdle(),
+    })
     this.gameplay = gameplayFor({
       stage: this.stageHost,
       strings: this.strings,

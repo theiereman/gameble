@@ -64,7 +64,8 @@ describe("edgeButtons", () => {
   })
 })
 
-const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } })
+const json = (status: number, body: unknown) =>
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } })
 
 function fake(response: Response | Error) {
   const calls: { url: string; init: RequestInit }[] = []
@@ -82,7 +83,9 @@ describe("sendPlacement", () => {
   it("patches the new place as JSON with the CSRF token and reads a success", async () => {
     const { calls, send } = fake(new Response(null, { status: 204 }))
 
-    expect(await sendPlacement({ url: PLACE_URL, position: 2, csrfToken: "token", fetch: send })).toEqual({ kind: "placed" })
+    expect(await sendPlacement({ url: PLACE_URL, position: 2, csrfToken: "token", fetch: send })).toEqual({
+      kind: "placed",
+    })
     expect(calls).toHaveLength(1)
     expect(calls[0].url).toBe(PLACE_URL)
     expect(calls[0].init.method).toBe("PATCH")
@@ -91,7 +94,9 @@ describe("sendPlacement", () => {
   })
 
   it("brings back the server's refusal with its message", async () => {
-    const { send } = fake(json(422, { error: { code: "position_out_of_range", message: "La vitrine n'a pas cette place." } }))
+    const { send } = fake(
+      json(422, { error: { code: "position_out_of_range", message: "La vitrine n'a pas cette place." } }),
+    )
 
     expect(await sendPlacement({ url: PLACE_URL, position: 9, csrfToken: null, fetch: send })).toEqual({
       kind: "refused",
@@ -102,7 +107,9 @@ describe("sendPlacement", () => {
   it("fails on a network error, a server error or an answer without a message", async () => {
     for (const response of [new Error("offline"), new Response("oops", { status: 500 }), json(422, { nope: true })]) {
       const { send } = fake(response)
-      expect(await sendPlacement({ url: PLACE_URL, position: 0, csrfToken: null, fetch: send })).toEqual({ kind: "failed" })
+      expect(await sendPlacement({ url: PLACE_URL, position: 0, csrfToken: null, fetch: send })).toEqual({
+        kind: "failed",
+      })
     }
   })
 })

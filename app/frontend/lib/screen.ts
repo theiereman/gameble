@@ -10,4 +10,5 @@ export type Fragments = Readonly<{
 export const BANNER_TIERS: readonly Rarity[] = ["epic", "legendary"]
 
 export const opensElsewhere = (event: Event): boolean =>
-  event instanceof MouseEvent && (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+  event instanceof MouseEvent &&
+  (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)

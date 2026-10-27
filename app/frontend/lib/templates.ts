@@ -5,7 +5,8 @@ export function cloneTemplate<T extends Element = HTMLElement>(template: HTMLTem
   if (!element) return null
   const walker = element.ownerDocument.createTreeWalker(element, NodeFilter.SHOW_TEXT)
   const blanks: Node[] = []
-  for (let node = walker.nextNode(); node; node = walker.nextNode()) if (BLANK.test(node.nodeValue ?? "")) blanks.push(node)
+  for (let node = walker.nextNode(); node; node = walker.nextNode())
+    if (BLANK.test(node.nodeValue ?? "")) blanks.push(node)
   blanks.forEach((node) => node.parentNode?.removeChild(node))
   return element as T
 }

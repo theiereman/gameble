@@ -39,7 +39,9 @@ export default class extends Controller<HTMLElement> {
   }
 
   private markCurrent(): void {
-    const tops = this.markerTargets.map((marker) => document.getElementById(marker.hash.slice(1))?.getBoundingClientRect().top ?? Infinity)
+    const tops = this.markerTargets.map(
+      (marker) => document.getElementById(marker.hash.slice(1))?.getBoundingClientRect().top ?? Infinity,
+    )
     const current = currentModuleIndex(tops, window.innerHeight, this.atPageEnd())
     this.markerTargets.forEach((marker, index) => {
       if (index === current) marker.setAttribute("aria-current", "location")

@@ -45,7 +45,20 @@ const RIBBON_SPARK_RADIUS = 30
 const ms = (value: number): string => `${value}ms`
 
 export default class BoosterCelebrationController extends Controller<HTMLElement> {
-  static targets = ["list", "item", "step", "result", "folded", "tick", "mark", "notches", "sparks", "stamp", "check", "rank"]
+  static targets = [
+    "list",
+    "item",
+    "step",
+    "result",
+    "folded",
+    "tick",
+    "mark",
+    "notches",
+    "sparks",
+    "stamp",
+    "check",
+    "rank",
+  ]
   static values = { phone: Boolean }
 
   declare readonly listTarget: HTMLTemplateElement
@@ -114,7 +127,9 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
     const list = cloneFirstElement<HTMLElement>(this.listTarget)!
     list.toggleAttribute("data-still", view.still)
     if (!this.phoneValue) {
-      const banners = view.folded ? [this.foldedBanner(view.folded)] : view.results.map((result) => this.resultBanner(result))
+      const banners = view.folded
+        ? [this.foldedBanner(view.folded)]
+        : view.results.map((result) => this.resultBanner(result))
       for (const banner of banners) {
         const item = cloneFirstElement<HTMLElement>(this.itemTarget)!
         item.append(banner)
@@ -143,7 +158,14 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
     banner.style.setProperty("--from", String(result.from))
     banner.style.setProperty("--to", String(result.to))
 
-    this.fillHead(banner, result.title, complete ? cloneFirstElement<HTMLElement>(this.checkTarget)! : this.tierMark(result.tier), result.juice.glosses, result.juice.ribbonSparks, result.juice.glints)
+    this.fillHead(
+      banner,
+      result.title,
+      complete ? cloneFirstElement<HTMLElement>(this.checkTarget)! : this.tierMark(result.tier),
+      result.juice.glosses,
+      result.juice.ribbonSparks,
+      result.juice.glints,
+    )
 
     this.write(banner, "set-name", result.name)
     if (!complete) banner.querySelector(".booster-celebration__name .booster-celebration__stamp")?.remove()
@@ -157,7 +179,9 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
       const sparks = this.sparks(result.juice.endSparks, END_SPARK_RADIUS)
       if (end && sparks) end.append(sparks)
     } else {
-      gauge.querySelectorAll(".booster-celebration__lime, .booster-celebration__glow, .booster-celebration__end").forEach((part) => part.remove())
+      gauge
+        .querySelectorAll(".booster-celebration__lime, .booster-celebration__glow, .booster-celebration__end")
+        .forEach((part) => part.remove())
     }
     for (const tick of result.ticks) gauge.append(this.tick(tick, result))
     return banner
@@ -190,7 +214,14 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
     if (element) element.textContent = text
   }
 
-  private fillHead(banner: HTMLElement, title: string, lead: Element | null, glosses: number, sparks: number, glints: boolean): void {
+  private fillHead(
+    banner: HTMLElement,
+    title: string,
+    lead: Element | null,
+    glosses: number,
+    sparks: number,
+    glints: boolean,
+  ): void {
     const ribbon = banner.querySelector(".booster-celebration__ribbon")
     const words = ribbon?.firstElementChild
     if (words) words.textContent = title

@@ -1,4 +1,11 @@
-import { celebrationSpoken, celebrationToAnnounce, focusGiven, focusTarget, type BoosterState, type FocusTarget } from "./booster"
+import {
+  celebrationSpoken,
+  celebrationToAnnounce,
+  focusGiven,
+  focusTarget,
+  type BoosterState,
+  type FocusTarget,
+} from "./booster"
 import type { Transition } from "./booster_host"
 import { celebrationAnnouncement } from "./celebration"
 

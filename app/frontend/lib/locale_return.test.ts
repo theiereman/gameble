@@ -35,9 +35,13 @@ describe("returning through history in the language chosen in the settings", () 
   })
 
   it("moves an address read before the choice to the chosen language, keeping its path, query and fragment", () => {
-    expect(addressInChosenLocale("https://gameble.net/fr/library?page=2#card", english)).toBe("https://gameble.net/en/library?page=2#card")
+    expect(addressInChosenLocale("https://gameble.net/fr/library?page=2#card", english)).toBe(
+      "https://gameble.net/en/library?page=2#card",
+    )
     expect(addressInChosenLocale("https://gameble.net/fr", english)).toBe("https://gameble.net/en")
-    expect(addressInChosenLocale("https://gameble.net/en/cards/portal", { locale: "fr", shownSince: [] })).toBe("https://gameble.net/fr/cards/portal")
+    expect(addressInChosenLocale("https://gameble.net/en/cards/portal", { locale: "fr", shownSince: [] })).toBe(
+      "https://gameble.net/fr/cards/portal",
+    )
   })
 
   it("leaves every address alone while no language was chosen in the tab", () => {
@@ -57,7 +61,9 @@ describe("returning through history in the language chosen in the settings", () 
 
     const choice = readLocaleChoice(storage)
     expect(addressInChosenLocale("https://gameble.net/fr/how-it-works?step=2#top", choice)).toBeNull()
-    expect(addressInChosenLocale("https://gameble.net/fr/how-it-works", choice)).toBe("https://gameble.net/en/how-it-works")
+    expect(addressInChosenLocale("https://gameble.net/fr/how-it-works", choice)).toBe(
+      "https://gameble.net/en/how-it-works",
+    )
   })
 
   it("starts each choice afresh and remembers only the pages read in another language", () => {
@@ -79,7 +85,8 @@ describe("returning through history in the language chosen in the settings", () 
   it("keeps the latest pages read since the choice", () => {
     const storage = memory()
     rememberLocaleChoice("https://gameble.net/en/settings", storage)
-    for (let page = 0; page <= SHOWN_SINCE_LIMIT; page++) rememberShownPage(`https://gameble.net/fr/cards/${page}`, storage)
+    for (let page = 0; page <= SHOWN_SINCE_LIMIT; page++)
+      rememberShownPage(`https://gameble.net/fr/cards/${page}`, storage)
 
     const { shownSince } = readLocaleChoice(storage)!
     expect(shownSince).toHaveLength(SHOWN_SINCE_LIMIT)
@@ -89,7 +96,7 @@ describe("returning through history in the language chosen in the settings", () 
 
   it("reads no choice from a malformed record, without storage or where it refuses", () => {
     const storage = memory()
-    storage.setItem(LOCALE_CHOICE_KEY, "{\"locale\":\"en\"}")
+    storage.setItem(LOCALE_CHOICE_KEY, '{"locale":"en"}')
     expect(readLocaleChoice(storage)).toBeNull()
     storage.setItem(LOCALE_CHOICE_KEY, "not json")
     expect(readLocaleChoice(storage)).toBeNull()

@@ -36,6 +36,8 @@ def normalize(css)
     .gsub(/\s+/, " ")
     .gsub(/\s*([{};,>~])\s*/, '\1')
     .gsub(/:\s+/, ":")
+    .gsub(/\(\s+/, "(")
+    .gsub(/\s+\)/, ")")
     .gsub(/;}/, "}")
     .strip
 end

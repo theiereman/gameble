@@ -17,7 +17,9 @@ export function revealingOpening(status: BoosterStatus): boolean {
 }
 
 export function planRevealAll(tiers: readonly Rarity[], revealed: readonly boolean[]): RevealAllStep[] {
-  return tiers.flatMap((tier, index) => (revealed[index] ? [] : [{ index, wait: tier === "legendary" ? "full" : "gap" } as const]))
+  return tiers.flatMap((tier, index) =>
+    revealed[index] ? [] : [{ index, wait: tier === "legendary" ? "full" : "gap" } as const],
+  )
 }
 
 export function keyAfter(outcome: OpeningOutcome, key: string): string | null {
@@ -44,8 +46,14 @@ export function zoomNeighbour(stored: readonly boolean[], index: number, step: -
   return null
 }
 
-export function storedAfterRebuild(revealed: readonly boolean[], stored: readonly boolean[], layout: Layout): boolean[] {
-  return layout === "phone" ? revealed.map((shown, index) => shown || (stored[index] ?? false)) : revealed.map(() => false)
+export function storedAfterRebuild(
+  revealed: readonly boolean[],
+  stored: readonly boolean[],
+  layout: Layout,
+): boolean[] {
+  return layout === "phone"
+    ? revealed.map((shown, index) => shown || (stored[index] ?? false))
+    : revealed.map(() => false)
 }
 
 export const allRevealed = (state: BoosterState): boolean => state.revealed.length > 0 && state.revealed.every(Boolean)

@@ -52,7 +52,9 @@ export default class extends Controller<HTMLElement> {
     if (this.subscribed || !this.hasSourceTarget) return
     this.subscribed = true
     const source = document.importNode(this.sourceTarget.content, true)
-    source.querySelectorAll("turbo-cable-stream-source").forEach((element) => element.setAttribute("data-turbo-temporary", ""))
+    source
+      .querySelectorAll("turbo-cable-stream-source")
+      .forEach((element) => element.setAttribute("data-turbo-temporary", ""))
     this.element.append(source)
   }
 

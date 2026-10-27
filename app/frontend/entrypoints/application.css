@@ -12,6 +12,7 @@
 @import "../styles/hub-goal.css";
 @import "../styles/collection.css";
 @import "../styles/collection-set-tiles.css";
+@import "../styles/collection-set-tiles-cards.css";
 @import "../styles/collection-filters.css";
 @import "../styles/collection-grid.css";
 @import "../styles/profile.css";
@@ -45,6 +46,7 @@
 @import "../styles/booster-canister.css";
 @import "../styles/booster-effects.css";
 @import "../styles/booster-celebration.css";
+@import "../styles/booster-celebration-keyframes.css";
 @import "../styles/booster-layouts.css";
 @import "../styles/booster-layouts-tray.css";
 

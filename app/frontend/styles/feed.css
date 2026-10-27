@@ -21,6 +21,7 @@
 
 .feed__controls {
   --feed-controls-ring: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+
   display: flex;
   align-items: center;
   gap: var(--space-4);
@@ -163,14 +164,33 @@ html .feed__thumb > .card.card--s[data-tilt] {
   text-transform: uppercase;
 }
 
-.feed__tag--common { color: var(--color-rarity-commune); }
-.feed__tag--uncommon { color: var(--color-rarity-peu-commune); }
-.feed__tag--rare { color: var(--color-rarity-rare); }
-.feed__tag--epic { color: var(--color-rarity-epique); }
-.feed__tag--legendary { color: var(--color-rarity-legendaire); }
+.feed__tag--common {
+  color: var(--color-rarity-commune);
+}
 
-.feed__tag--repost { color: var(--color-accent); }
-.feed__tag--trade { color: var(--color-accent); }
+.feed__tag--uncommon {
+  color: var(--color-rarity-peu-commune);
+}
+
+.feed__tag--rare {
+  color: var(--color-rarity-rare);
+}
+
+.feed__tag--epic {
+  color: var(--color-rarity-epique);
+}
+
+.feed__tag--legendary {
+  color: var(--color-rarity-legendaire);
+}
+
+.feed__tag--repost {
+  color: var(--color-accent);
+}
+
+.feed__tag--trade {
+  color: var(--color-accent);
+}
 
 .feed__thumbs {
   display: flex;
@@ -183,11 +203,25 @@ html .feed__thumb > .card.card--s[data-tilt] {
   outline-offset: 2px;
 }
 
-.feed__thumb--common { --feed-frame: var(--color-rarity-commune); }
-.feed__thumb--uncommon { --feed-frame: var(--color-rarity-peu-commune); }
-.feed__thumb--rare { --feed-frame: var(--color-rarity-rare); }
-.feed__thumb--epic { --feed-frame: var(--color-rarity-epique); }
-.feed__thumb--legendary { --feed-frame: var(--color-rarity-legendaire); }
+.feed__thumb--common {
+  --feed-frame: var(--color-rarity-commune);
+}
+
+.feed__thumb--uncommon {
+  --feed-frame: var(--color-rarity-peu-commune);
+}
+
+.feed__thumb--rare {
+  --feed-frame: var(--color-rarity-rare);
+}
+
+.feed__thumb--epic {
+  --feed-frame: var(--color-rarity-epique);
+}
+
+.feed__thumb--legendary {
+  --feed-frame: var(--color-rarity-legendaire);
+}
 
 /* A reached tier: its name in its colour behind its rank's mark, an
    earlier season's one to three rising notches, or, for a completed set,
@@ -199,15 +233,29 @@ html .feed__thumb > .card.card--s[data-tilt] {
   color: var(--feed-tier);
 }
 
-.feed__tier--bronze { --feed-tier: var(--color-tier-bronze); }
-.feed__tier--silver { --feed-tier: var(--color-tier-silver); }
-.feed__tier--gold { --feed-tier: var(--color-gold); }
-.feed__tier--complete { --feed-tier: var(--color-lime); }
+.feed__tier--bronze {
+  --feed-tier: var(--color-tier-bronze);
+}
+
+.feed__tier--silver {
+  --feed-tier: var(--color-tier-silver);
+}
+
+.feed__tier--gold {
+  --feed-tier: var(--color-gold);
+}
+
+.feed__tier--complete {
+  --feed-tier: var(--color-lime);
+}
+
 .feed__tier--novice,
 .feed__tier--apprentice,
 .feed__tier--adept,
 .feed__tier--expert,
-.feed__tier--master { --feed-tier: var(--color-text-bright); }
+.feed__tier--master {
+  --feed-tier: var(--color-text-bright);
+}
 
 .feed__tier-mark {
   display: inline-flex;
@@ -240,7 +288,9 @@ html .feed__thumb > .card.card--s[data-tilt] {
   display: block;
   width: 22px;
   height: 14px;
-  box-shadow: inset 0 0 0 3px var(--color-lime), 0 0 0 var(--space-unit) var(--color-outline);
+  box-shadow:
+    inset 0 0 0 3px var(--color-lime),
+    0 0 0 var(--space-unit) var(--color-outline);
   transform: rotate(-6deg);
 }
 

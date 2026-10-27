@@ -39,7 +39,8 @@ export default class extends Controller<HTMLFormElement> {
       const boxes = this.boxes(state)
       if (field.checked) {
         const everything = field.value === ALL_STATE
-        for (const other of boxes) if (other !== field && (other.value === ALL_STATE) !== everything) other.checked = false
+        for (const other of boxes)
+          if (other !== field && (other.value === ALL_STATE) !== everything) other.checked = false
       }
       if (!boxes.some((b) => b.checked)) {
         const fallback = boxes.find((b) => b.value === (state.dataset.default ?? ALL_STATE))
@@ -97,7 +98,9 @@ export default class extends Controller<HTMLFormElement> {
   private refresh(): void {
     let count = 0
     for (const group of this.groupTargets) {
-      const checked = this.boxes(group).filter((b) => b.checked).map((b) => b.value)
+      const checked = this.boxes(group)
+        .filter((b) => b.checked)
+        .map((b) => b.value)
       if (group.dataset.group === "state") {
         const fallback = group.dataset.default ?? ALL_STATE
         if (!(checked.length === 1 && checked[0] === fallback)) count += checked.length
