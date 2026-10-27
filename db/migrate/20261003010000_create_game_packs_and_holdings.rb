@@ -1,11 +1,11 @@
-# The pack bank and the owned cards (CAP-4, AD-6, AD-7).
+# The pack bank and the owned cards.
 #
 # A pack is one row with its cards pre-drawn, in order, so opening reads one
 # row. Bonus and reward packs are rows of the same table. Addressed in URLs by
-# a random token (AD-15).
+# a random token.
 #
 # Owned cards are counted: one row per player and card-season, with a
-# quantity and a reserved count (AD-6).
+# quantity and a reserved count.
 class CreateGamePacksAndHoldings < ActiveRecord::Migration[8.1]
   def change
     create_table :game_packs do |t|

@@ -1,4 +1,4 @@
-# The review pass of the Steam import (CAP-2, epic 2 R3, R5). Each app keeps
+# The review pass of the Steam import. Each app keeps
 # the review summary of the latest run that reviewed it, the raw `reviews`
 # object Steam answered, and that run's verdict: NULL when the app is kept,
 # too_few_reviews under the review floor, unavailable when the store does

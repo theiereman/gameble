@@ -1,4 +1,4 @@
-# Set completions (CAP-6, AD-9, AD-10, story 6.7): one row per player and
+# Set completions: one row per player and
 # set, the first time the player holds every card of it, unique in the
 # database. Its insert decides that Game::SetCompleted is published, once.
 class CreateGameSetCompletions < ActiveRecord::Migration[8.1]

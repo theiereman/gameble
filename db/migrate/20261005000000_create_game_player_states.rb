@@ -1,4 +1,4 @@
-# One row of game state per player (AD-10, AD-28): the row later stories
+# One row of game state per player: the row later stories
 # lock last (bank lock, holdings, then these rows) and add their columns to.
 # It holds nothing else yet. Created at sign-up (Game::Handlers::
 # PlayerRegistered) and backfilled for existing players by

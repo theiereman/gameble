@@ -1,4 +1,4 @@
-# Reports (CAP-15, AD-14): a player reports another player's username or
+# Reports: a player reports another player's username or
 # profile with one of four reasons. The reporter is kept for the staff's
 # queue and never shown to the reported player. One report per reporter and
 # reported player: a repeat adds nothing (Accounts::ReportPlayer).

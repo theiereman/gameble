@@ -1,4 +1,4 @@
-# A card's number within its season (R3, AD-5, AD-28): 1..n over the
+# A card's number within its season: 1..n over the
 # season's n card-seasons, in a random order, given once by
 # Catalog::PublishSeason and frozen with the rest of the season data. This is
 # the expand step: nullable, as the seasons published before it carry no

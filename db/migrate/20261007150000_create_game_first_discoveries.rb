@@ -1,4 +1,4 @@
-# First discoveries (CAP-13, AD-9, AD-10, story 6.7): the first player to
+# First discoveries: the first player to
 # pull a card in a season, one row per card-season, unique in the database.
 # Written by Game::OpenPack in the opening's transaction, `ON CONFLICT DO
 # NOTHING`, so two simultaneous openings record it once. The pack is

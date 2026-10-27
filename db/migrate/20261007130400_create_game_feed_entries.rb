@@ -1,8 +1,8 @@
-# The activity feed (CAP-13, AD-10, AD-13, story 6.1): one row per card a
+# The activity feed: one row per card a
 # pack-opened event puts in the feed, written by a handler in the opening's
 # transaction. `notable` is a pull of Épique or better; the others are
 # fillers, one per pack at most, for a quiet feed. Nothing about visibility
-# is stored (AD-13): it is asked at render.
+# is stored: it is asked at render.
 class CreateGameFeedEntries < ActiveRecord::Migration[8.1]
   def change
     create_table :game_feed_entries do |t|

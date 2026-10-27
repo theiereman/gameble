@@ -1,4 +1,4 @@
-# The genres step of the Steam import is removed (story 2.10): a card's
+# The genres step of the Steam import is removed: a card's
 # genres now come from the tags the details step stores. A run left on that
 # step (failed, or stopped mid-way) moves to the cards step, cursor 0, so a
 # resume writes its cards. A run still running on that step keeps a queued

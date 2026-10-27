@@ -1,4 +1,4 @@
-# The weekly goal's reward (CAP-12, AD-9, story 6.5): one row per player and
+# The weekly goal's reward: one row per player and
 # week, unique in the database, pointing at the reward pack it granted, so a
 # contributor is rewarded once whatever runs the grant.
 class CreateGameGoalRewards < ActiveRecord::Migration[8.1]

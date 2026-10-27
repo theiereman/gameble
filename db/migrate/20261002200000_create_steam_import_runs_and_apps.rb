@@ -1,4 +1,4 @@
-# The Steam import (CAP-2, AD-19). An import run records its status, its
+# The Steam import. An import run records its status, its
 # current step, the cursor it resumes from, its counts and its errors. The
 # database allows one active (pending or running) run at a time.
 #

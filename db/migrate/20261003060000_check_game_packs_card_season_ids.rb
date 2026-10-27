@@ -1,4 +1,4 @@
-# A pack's cards checked by the database (epic 3 retrospective, O2): a
+# A pack's cards checked by the database: a
 # one-dimensional list of at least one card-season id, none of them NULL,
 # exactly five for a regular pack (Game::Pack::SIZE) and three for a daily
 # bonus pack (Game::Pack::BONUS_SIZE); a reward pack holds one or more. The
