@@ -1,19 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
-import type { Point } from "../lib/arc"
 import { openDialog } from "../lib/dialog"
 import { currentIndex, currentScreenLabel, currentScreenLabels, recordEntry, sessionTrailStorage } from "../lib/history_trail"
-import { t, type Template } from "../lib/i18n"
 import { holdLiveRefresh } from "../lib/live_refresh_hold"
-import { motionReduced } from "../lib/motion"
 import { opensElsewhere, type Intent } from "../lib/screen"
-import { screenTimers } from "../lib/screen_timers"
 import { serverTemplate } from "../lib/server_html"
-import type { StepperView } from "../lib/stepper"
 import { cloneContent } from "../lib/templates"
 import {
-  MAX_CARDS,
   bySide,
-  cardOf,
   changed,
   clearFilters,
   closePicker,
@@ -21,7 +14,6 @@ import {
   edit,
   moveActive,
   openPicker,
-  pickerView,
   place,
   removeLine,
   restore,
@@ -30,53 +22,27 @@ import {
   setLineQuantity,
   setPickQuantity,
   showMore,
-  showsOpenHelp,
-  sideCount,
   start,
   toggleFold,
   togglePick,
   type BoardState,
-  type Line,
   type PickerFilters,
   type BySide,
   type Side,
   type SideFilter,
-  type TradeCard,
 } from "../lib/trade_board"
 import { forgetDraft, readDraft, saveDraft } from "../lib/trade_board_draft"
 import { faceLoader, facesUrl, fetchFaces, type FaceLoader } from "../lib/trade_board_faces"
 import { cardFrom, lineFrom } from "../lib/trade_board_markup"
-import { SWAP_BURST_AT, SWAP_CROSSFADE_MS, SWAP_MS, confettiDirections, swapKeyframes } from "../lib/trade_board_swap"
+import { swapStage, type SwapStage } from "../lib/trade_board_swap_stage"
+import { pickerScreenOf, sideViewOf, type BoardStrings } from "../lib/trade_board_views"
 import type TradeBoardPickerController from "./trade_board_picker_controller"
-import type { MoveIntent, PickView, PickerScreen } from "./trade_board_picker_controller"
+import type { MoveIntent } from "./trade_board_picker_controller"
 import type TradeBoardSendController from "./trade_board_send_controller"
 import type TradeBoardSideController from "./trade_board_side_controller"
-import type { SideIntent, SideView } from "./trade_board_side_controller"
-
-type BoardStrings = {
-  cards: Template
-  cardsCopies: Template
-  quantityLabel: string
-  valueText: string
-  max: string
-  maxPhone: string
-  remove: string
-  picked: string
-  pickedCards: Template
-  pickedCopies: Template
-  results: Template
-}
+import type { SideIntent } from "./trade_board_side_controller"
 
 type SideFocus = { side: Side; key: string | null; preventScroll?: boolean }
-
-const CONFETTI = 14
-const CONFETTI_REACH = 90
-const BURST_MS = 600
-
-const centre = (element: Element): Point => {
-  const rect = element.getBoundingClientRect()
-  return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
-}
 
 export class TradeBoardController extends Controller<HTMLElement> {
   static targets = ["card", "line", "face", "heading", "editButton", "undoDialog"]
@@ -119,12 +85,9 @@ export class TradeBoardController extends Controller<HTMLElement> {
   declare readonly tradeBoardSendOutlet: TradeBoardSendController
 
   private state?: BoardState
+  private swap!: SwapStage
   private faces = new Map<string, HTMLTemplateElement>()
   private loader!: FaceLoader
-  private swapping = false
-  private animations: Animation[] = []
-  private timers = screenTimers()
-  private effects: HTMLElement[] = []
 
   private readonly faceFor = (key: string): DocumentFragment | null => {
     const template = this.faces.get(key)
@@ -145,6 +108,7 @@ export class TradeBoardController extends Controller<HTMLElement> {
   }
 
   initialize(): void {
+    this.swap = swapStage(this.element, () => this.reflectHold())
     this.loader = this.newLoader()
   }
 
@@ -158,7 +122,6 @@ export class TradeBoardController extends Controller<HTMLElement> {
   }
 
   connect(): void {
-    this.timers = screenTimers()
     if (this.forgetValue) forgetDraft(this.forgetValue)
     this.seedFaces()
     this.state = this.startFromMarkup()
@@ -173,7 +136,8 @@ export class TradeBoardController extends Controller<HTMLElement> {
   disconnect(): void {
     document.removeEventListener("turbo:before-cache", this.beforeCache)
     document.removeEventListener("turbo:morph", this.morphed)
-    this.stopSwap()
+    this.swap.stop()
+    holdLiveRefresh(this.element, false)
     this.state = undefined
   }
 
@@ -337,7 +301,7 @@ export class TradeBoardController extends Controller<HTMLElement> {
   }
 
   private reflectHold(): void {
-    const busy = this.swapping || (this.state !== undefined && (this.state.editing || this.state.picker !== null))
+    const busy = this.swap.playing || (this.state !== undefined && (this.state.editing || this.state.picker !== null))
     holdLiveRefresh(this.element, busy)
   }
 
@@ -346,92 +310,14 @@ export class TradeBoardController extends Controller<HTMLElement> {
   }
 
   private renderSide(state: BoardState, outlet: TradeBoardSideController): void {
-    outlet.render(this.sideView(state, outlet.side), this.faceFor)
+    outlet.render(sideViewOf(state, outlet.side, this.stringsValue), this.faceFor)
     this.requestFaces(state.lines[outlet.side].map((line) => line.key))
   }
 
   private renderPicker(state: BoardState, outlet: TradeBoardPickerController): void {
-    const screen = this.pickerScreen(state)
+    const screen = pickerScreenOf(state, this.stringsValue)
     outlet.render(screen, this.faceFor)
     if (screen) this.requestFaces(screen.picks.map((pick) => pick.key))
-  }
-
-  private sideView(state: BoardState, side: Side): SideView {
-    const lines = state.lines[side]
-    return {
-      lines: lines.flatMap((line) => {
-        const card = cardOf(state, side, line.key)
-        if (!card) return []
-        return [
-          {
-            key: line.key,
-            quantity: line.quantity,
-            removeLabel: t(this.stringsValue.remove, { title: card.title }),
-            stepper: card.max > 1 ? this.stepperView(card, line.quantity) : null,
-          },
-        ]
-      }),
-      count: this.countText(lines),
-      canAdd: lines.length < MAX_CARDS,
-      help: showsOpenHelp(side, lines),
-    }
-  }
-
-  private pickerScreen(state: BoardState): PickerScreen | null {
-    const view = pickerView(state)
-    if (!view) return null
-    const strings = this.stringsValue
-    const picked = new Map(view.selection.map((line) => [line.key, line.quantity]))
-    const picks = view.shownKeys.flatMap((key): PickView[] => {
-      const card = cardOf(state, view.side, key)
-      if (!card) return []
-      const quantity = picked.get(key)
-      const pressed = quantity !== undefined
-      return [
-        {
-          key,
-          pressed,
-          disabled: card.max < 1 && !pressed,
-          tabbable: key === view.activeKey,
-          stepper: pressed && card.max > 1 ? this.stepperView(card, quantity) : null,
-        },
-      ]
-    })
-    return {
-      side: view.side,
-      picks,
-      hasMore: view.hasMore,
-      hasCards: view.hasCards,
-      empty: view.empty,
-      results: t(strings.results, { count: view.matches }),
-      count: t(strings.picked, {
-        cards: t(strings.pickedCards, { count: view.count.cards }),
-        copies: t(strings.pickedCopies, { count: view.count.copies }),
-      }),
-      refused: view.refused,
-      filter: view.filter,
-      folded: view.folded,
-      chipsOn: view.chipsOn,
-      filtering: view.filtering,
-    }
-  }
-
-  private stepperView(card: TradeCard, value: number): StepperView {
-    const strings = this.stringsValue
-    return {
-      value,
-      max: card.max,
-      label: t(strings.quantityLabel, { title: card.title }),
-      valueText: t(strings.valueText, { count: value, max: card.max }),
-      maxText: t(strings.max, { max: card.max }),
-      maxPhoneText: t(strings.maxPhone, { max: card.max }),
-    }
-  }
-
-  private countText(lines: readonly Line[]): string {
-    const { cards, copies } = sideCount(lines)
-    const cardsText = t(this.stringsValue.cards, { count: cards })
-    return copies === cards ? cardsText : t(this.stringsValue.cardsCopies, { count: cards, cards: cardsText, copies })
   }
 
   private focusSide({ side, key, preventScroll = false }: SideFocus): void {
@@ -443,101 +329,19 @@ export class TradeBoardController extends Controller<HTMLElement> {
     else if (this.focusValue === "side") this.focusSide({ side: "own", key: null, preventScroll: true })
   }
 
+  private playSwapOnce(): void {
+    if (!this.swapValue) return
+    this.swapValue = false
+    if (document.documentElement.hasAttribute("data-turbo-preview")) return
+    this.swap.play()
+  }
+
   private replaceUrl(url: string): void {
     if (!url) return
     const next = new URL(url, window.location.href)
     if (next.pathname === window.location.pathname) return
     window.history.replaceState(window.history.state, "", next)
     recordEntry(currentIndex(), next.pathname, sessionTrailStorage(), currentScreenLabel(), currentScreenLabels())
-  }
-
-  private playSwapOnce(): void {
-    if (!this.swapValue) return
-    this.swapValue = false
-    if (document.documentElement.hasAttribute("data-turbo-preview")) return
-    this.swapping = true
-    this.reflectHold()
-    this.playSwap()
-  }
-
-  private playSwap(): void {
-    const friend = this.element.querySelector<HTMLElement>(".trade-side--friend .trade-side__cards")
-    const own = this.element.querySelector<HTMLElement>(".trade-side--own .trade-side__cards")
-    if (!friend || !own || typeof this.element.animate !== "function") {
-      this.finishSwap()
-      return
-    }
-
-    if (motionReduced()) {
-      for (const list of [friend, own]) {
-        this.animations.push(list.animate([{ opacity: 0 }, { opacity: 1 }], { duration: SWAP_CROSSFADE_MS, easing: "ease-out" }))
-      }
-      this.timers.later(SWAP_CROSSFADE_MS, () => this.finishSwap())
-      return
-    }
-
-    const from = { friend: centre(own), own: centre(friend) }
-    const to = { friend: centre(friend), own: centre(own) }
-    this.reflectSwapping(true)
-    for (const [list, side] of [
-      [friend, "friend"],
-      [own, "own"],
-    ] as const) {
-      const offset = { x: from[side].x - to[side].x, y: from[side].y - to[side].y }
-      for (const card of list.querySelectorAll<HTMLElement>(":scope > .trade-card")) {
-        this.animations.push(card.animate(swapKeyframes(offset), { duration: SWAP_MS, easing: "linear", fill: "backwards" }))
-      }
-    }
-    this.timers.later(SWAP_MS * SWAP_BURST_AT, () => this.burst())
-    this.timers.later(SWAP_MS, () => this.finishSwap())
-  }
-
-  private burst(): void {
-    const middle = this.element.querySelector<HTMLElement>(".trade-board__middle")
-    if (!middle) return
-    this.effect("trade-board__ring", middle)
-    confettiDirections(CONFETTI, CONFETTI_REACH).forEach((direction, index) => {
-      const piece = this.effect(`trade-board__confetti trade-board__confetti--${index % 4}`, middle)
-      piece.style.setProperty("--confetti-x", `${direction.x}px`)
-      piece.style.setProperty("--confetti-y", `${direction.y}px`)
-    })
-    this.effect("trade-board__flash", this.element)
-    this.timers.later(BURST_MS, () => {
-      this.effects.forEach((effect) => effect.remove())
-      this.effects = []
-    })
-  }
-
-  private effect(className: string, parent: HTMLElement): HTMLElement {
-    const element = document.createElement("span")
-    element.className = className
-    element.setAttribute("aria-hidden", "true")
-    parent.append(element)
-    this.effects.push(element)
-    return element
-  }
-
-  private finishSwap(): void {
-    this.swapping = false
-    this.reflectSwapping(false)
-    this.reflectHold()
-    this.element.querySelector<HTMLElement>(".trade-board__message")?.focus({ preventScroll: true })
-  }
-
-  private stopSwap(): void {
-    this.animations.forEach((animation) => animation.cancel())
-    this.timers.dispose()
-    this.effects.forEach((effect) => effect.remove())
-    this.animations = []
-    this.effects = []
-    this.swapping = false
-    this.reflectSwapping(false)
-    holdLiveRefresh(this.element, false)
-  }
-
-  private reflectSwapping(swapping: boolean): void {
-    this.element.toggleAttribute("data-swapping", swapping)
-    this.element.classList.toggle("trade-board--swapping", swapping)
   }
 }
 
