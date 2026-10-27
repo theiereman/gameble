@@ -39,7 +39,7 @@ class PacksController < ApplicationController
     if result.success?
       redirect_to pack_path(result.value!.token), status: :see_other
     else
-      redirect_to booster_path, alert: Game::OpenPack.failure_message(result.failure), status: :see_other
+      redirect_refused Game::OpenPack, result, booster_path
     end
   end
 

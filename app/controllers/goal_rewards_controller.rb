@@ -1,7 +1,5 @@
 class GoalRewardsController < ApplicationController
-  rate_limit to: 5, within: 1.minute, only: :create,
-    by: -> { current_player&.id || request.remote_ip },
-    with: -> { redirect_to home_path, alert: t("goal_rewards.create.throttled"), status: :see_other }
+  throttle_player to: 5, only: :create, path: -> { home_path }, alert: "goal_rewards.create.throttled"
 
   def create
     authorize :goal_reward, :create?

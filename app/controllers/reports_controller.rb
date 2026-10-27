@@ -1,7 +1,5 @@
 class ReportsController < ApplicationController
-  rate_limit to: 10, within: 1.minute, only: :create,
-    by: -> { current_player&.id || request.remote_ip },
-    with: -> { redirect_to home_path, alert: t("reports.create.throttled"), status: :see_other }
+  throttle_player to: 10, only: :create, path: -> { home_path }, alert: "reports.create.throttled"
 
   def create
     authorize :report, :create?
@@ -14,7 +12,7 @@ class ReportsController < ApplicationController
     if result.success?
       redirect_to back, notice: t(".sent"), status: :see_other
     else
-      redirect_to back, alert: Accounts::ReportPlayer.failure_message(result.failure), status: :see_other
+      redirect_refused Accounts::ReportPlayer, result, back
     end
   end
 end

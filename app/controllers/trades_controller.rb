@@ -1,7 +1,5 @@
 class TradesController < ApplicationController
-  rate_limit to: 20, within: 1.minute, only: %i[create counter accept decline cancel],
-    by: -> { current_player&.id || request.remote_ip },
-    with: -> { redirect_to trades_path, alert: t("trades.throttled"), status: :see_other }
+  throttle_player to: 20, only: %i[create counter accept decline cancel], path: -> { trades_path }, alert: "trades.throttled"
   rate_limit to: 120, within: 1.minute, only: :faces, name: "faces",
     by: -> { current_player&.id || request.remote_ip },
     with: -> { head :too_many_requests }
@@ -103,7 +101,7 @@ class TradesController < ApplicationController
     authorize :trade, :accept?
     trade = find_trade!
 
-    answer(trade, Game::AcceptTrade.new.call(player: current_player, trade_id: trade.id, revision: params[:revision])) do
+    redirect_after(trade, Game::AcceptTrade.new.call(player: current_player, trade_id: trade.id, revision: params[:revision])) do
       cards = Catalog::CardViews.call(trade.friend_side.map(&:card_season_id), locale: I18n.locale)
       gained = trade.friend_side.filter_map { |line| helpers.trade_line_title(line, cards) }
       toast t("trades.accepted.title"), t("trades.accepted.text", count: gained.size, cards: gained.to_sentence)
@@ -115,7 +113,7 @@ class TradesController < ApplicationController
     authorize :trade, :decline?
     trade = find_trade!
 
-    answer(trade, Game::DeclineTrade.new.call(player: current_player, trade_id: trade.id, revision: params[:revision])) do
+    redirect_after(trade, Game::DeclineTrade.new.call(player: current_player, trade_id: trade.id, revision: params[:revision])) do
       toast t("trades.declined.title"), t("trades.declined.text", name: helpers.friend_name(trade.friend))
     end
   end
@@ -124,7 +122,7 @@ class TradesController < ApplicationController
     authorize :trade, :cancel?
     trade = find_trade!
 
-    answer(trade, Game::CancelTrade.new.call(player: current_player, trade_id: trade.id)) do
+    redirect_after(trade, Game::CancelTrade.new.call(player: current_player, trade_id: trade.id)) do
       text = trade.own_side.empty? ? t("trades.cancelled.open_text", name: helpers.friend_name(trade.friend)) : t("trades.cancelled.text")
       toast t("trades.cancelled.title"), text
     end
@@ -213,7 +211,7 @@ class TradesController < ApplicationController
       code == :trade_changed ? trade_path(token: trade.token) : counter_trade_path(token: trade.token)
     end
 
-    def answer(trade, result)
+    def redirect_after(trade, result)
       if result.success?
         yield
       else

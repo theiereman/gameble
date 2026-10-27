@@ -1,9 +1,7 @@
 class InviteLinksController < ApplicationController
   include InvitationFeedback
 
-  rate_limit to: 20, within: 1.minute, only: :create,
-    by: -> { current_player&.id || request.remote_ip },
-    with: -> { redirect_to friends_path, alert: t("invitations.throttled"), status: :see_other }
+  throttle_player to: 20, only: :create, path: -> { friends_path }, alert: "invitations.throttled"
 
   def show
     authorize :invite_link, :show?

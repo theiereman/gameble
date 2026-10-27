@@ -24,7 +24,7 @@ class SettingsController < ApplicationController
     if result.success?
       redirect_to settings_path, status: :see_other
     else
-      redirect_to settings_path, alert: Accounts::SetVisibility.failure_message(result.failure), status: :see_other
+      redirect_refused Accounts::SetVisibility, result, settings_path
     end
   end
 
@@ -36,7 +36,7 @@ class SettingsController < ApplicationController
       write_motion_cookie(result.value!.reduced_motion)
       redirect_to settings_path, status: :see_other
     else
-      redirect_to settings_path, alert: Accounts::UpdateSettings.failure_message(result.failure), status: :see_other
+      redirect_refused Accounts::UpdateSettings, result, settings_path
     end
   end
 
