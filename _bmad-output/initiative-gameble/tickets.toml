@@ -163,3 +163,11 @@ slug = "epic-exotic-cards"
 title = "Exotic cards: a tribute to the beta testers"
 covers = []
 after = []
+
+[[epic]]
+id = 23
+release = "1.1.0"
+slug = "epic-steam-features"
+title = "Steam related features"
+covers = []
+after = []
