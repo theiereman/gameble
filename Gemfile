@@ -89,7 +89,7 @@ gem "sentry-rails", "~> 7.1.0"
 gem "mission_control-jobs", "~> 1.3.1"
 
 # Call the Steam Web API, retrying 429 and 5xx with backoff (AD-19) [https://github.com/lostisland/faraday]
-gem "faraday", "~> 2.14.4"
+gem "faraday", "~> 2.15.0"
 gem "faraday-retry", "~> 2.4.0"
 
 # Read the initiative's epics from its TOML ticket file to create the roadmap milestones [https://github.com/fbernier/tomlrb]
