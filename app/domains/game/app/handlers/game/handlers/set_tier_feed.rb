@@ -1,9 +1,5 @@
 module Game
   module Handlers
-    # Puts in the activity feed the tiers an operation reached for a player:
-    # one entry per player and operation (Game::FeedEntry.record_sets). It
-    # runs in the operation's transaction, writes one upsert and publishes
-    # nothing.
     module SetTierFeed
       EVENTS = [ Game::SetTierReached, Game::SetCompleted ].freeze
 

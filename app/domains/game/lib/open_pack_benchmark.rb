@@ -1,22 +1,3 @@
-# The pack-opening benchmark: an opening must answer within 200 ms at the
-# 95th percentile. It builds a 15,000-card published season, with one set
-# per studio and theme sets, each with its tiers, an earlier season holding
-# a third of its games, and players with full banks holding cards of both
-# seasons in a database of its own, then
-# times, in-process and without concurrency, the opening request (POST
-# /en/packs, the gate: the booster's JSON exchange, a fresh Idempotency-Key
-# per post, its faces rendered in the answer), the result page that follows
-# (GET of the answer's pack url) and the operation alone (Game::OpenPack),
-# three times; it exits non-zero when the worst POST p95 reaches 200 ms.
-# Never in CI. Run by its task, which requires this file:
-#
-#   RAILS_ENV=test bin/rails game:benchmark_open_pack
-#
-# It runs only in the test environment, on `gameble_benchmark` (the test
-# configuration under that name): a database left by a crashed run is
-# dropped first, then it is created, its schema loaded, and it is dropped at
-# the end whatever happens. The connected database's name is checked before
-# any write.
 class OpenPackBenchmark
   DATABASE = "gameble_benchmark".freeze
   CARDS = 15_000
@@ -32,8 +13,6 @@ class OpenPackBenchmark
   LIMIT_MS = 200.0
   PERCENTILES = [ 50, 95, 99 ].freeze
 
-  # The figures of one series: per operation, its time (ms), its queries and
-  # the GC runs it saw.
   Series = Struct.new(:name, :times, :queries, :gc) do
     def self.empty(name) = new(name, [], [], [])
 
@@ -43,8 +22,6 @@ class OpenPackBenchmark
       self.gc << gc
     end
 
-    # Nearest rank: the smallest value with at least p % of the values at or
-    # below it.
     def percentile(p)
       sorted = times.sort
       sorted.fetch([ (p / 100.0 * sorted.size).ceil, 1 ].max - 1)
@@ -79,18 +56,11 @@ class OpenPackBenchmark
 
   private
 
-  # --- Settings -------------------------------------------------------------
-
-  # The settings closest to production that the test environment allows.
   def representative_settings
-    # Production serves prebuilt assets: no build check on each page.
     ViteRuby.reload_with(auto_build: false)
-    # rate_limit captures the controller's cache store when its class body
-    # runs, so the store is set before the controllers load (eager_load!
-    # below). Sign-ins do not use it (Rack::Attack counts in Rails.cache).
-    # In memory: the Solid Cache write of production is not measured.
     loaded = ActionController::Base.descendants.map(&:name).grep(/\APacksController\z/)
     refuse("the packs controller loaded before its rate-limit store was set") if loaded.any?
+    # rate_limit captures the controller's cache store when its class body runs.
     @rate_limit_store = ActiveSupport::Cache::MemoryStore.new
     ActionController::Base.cache_store = @rate_limit_store
 
@@ -104,8 +74,6 @@ class OpenPackBenchmark
     end
   end
 
-  # --- Database -------------------------------------------------------------
-
   def db_config
     @db_config ||= begin
       test = ActiveRecord::Base.configurations.configs_for(env_name: "test", name: "primary")
@@ -114,17 +82,11 @@ class OpenPackBenchmark
   end
 
   def prepare_database
-    # Rails unpacks DATABASE_URL into the config before this runs, so the
-    # environment variable itself is what must be refused: it could point
-    # the drop and create at another server.
     refuse("refuses DATABASE_URL; set DB_HOST, DB_PORT, DB_USER, DB_PASSWORD") if ENV["DATABASE_URL"].present?
     refuse("refuses database #{db_config.database}") unless db_config.database == DATABASE
 
-    # A database left by a crashed run goes first.
     ActiveRecord::Tasks::DatabaseTasks.drop(db_config)
     ActiveRecord::Tasks::DatabaseTasks.create(db_config)
-    # Both roles of ApplicationRecord: the timed GET reads under
-    # `reading`, which would otherwise stay on the test database.
     ApplicationRecord.connects_to(database: { writing: db_config, reading: db_config })
     check_database!
     ActiveRecord::Tasks::DatabaseTasks.load_schema(db_config, :ruby, Rails.root.join("db/schema.rb").to_s)
@@ -138,8 +100,6 @@ class OpenPackBenchmark
     ActiveRecord::Tasks::DatabaseTasks.drop(db_config)
   end
 
-  # Every write goes to the benchmark's own database, or nothing is written;
-  # every read under the reading role (GET requests) comes from it too.
   def check_database!
     connected = current_database
     refuse("connected to #{connected}, not #{DATABASE}") unless connected == DATABASE
@@ -152,11 +112,6 @@ class OpenPackBenchmark
     ApplicationRecord.with_connection { |connection| connection.select_value("SELECT current_database()") }
   end
 
-  # --- Seeding --------------------------------------------------------------
-
-  # A published season of CARDS cards, all five tiers filled by the
-  # publication's cut (Catalog::RarityThresholds), numbered above any other,
-  # and before it an earlier season of its first EARLIER_CARDS games.
   def seed_catalog
     check_database!
     random = Random.new(9)
@@ -187,10 +142,6 @@ class OpenPackBenchmark
     season_id
   end
 
-  # One studio set per studio of the cards (about 17 cards each) and THEMES
-  # theme sets (375 cards each), each with the tiers Catalog::TierTable
-  # gives its size, so every opening runs the tier pass over its cards' sets
-  # as in play.
   def seed_sets(season_id, card_season_ids)
     studios = seed_kind(season_id, card_season_ids, "studio", STUDIOS) { |studio| [ "benchmark-studio-#{studio}", { studio: "Studio #{studio}" } ] }
     themes = seed_kind(season_id, card_season_ids, "theme", THEMES) { |theme| [ "benchmark-theme-#{theme}", { theme: "benchmark-theme-#{theme}" } ] }
@@ -199,7 +150,6 @@ class OpenPackBenchmark
     end)
   end
 
-  # `count` sets of the kind sharing the cards in turn; { set_id => size }.
   def seed_kind(season_id, card_season_ids, kind, count)
     set_ids = Catalog::Set.insert_all!(Array.new(count) do |index|
       key, params = yield(index)
@@ -213,9 +163,6 @@ class OpenPackBenchmark
     card_season_ids.each_index.map { set_ids.fetch(it % count) }.tally
   end
 
-  # Players in separate groups per series and run, each with a full bank
-  # (Game::FillBank), HOLDINGS_PER_PLAYER holdings of the published season
-  # and EARLIER_HOLDINGS_PER_PLAYER of the earlier one.
   def seed_players(season_id)
     check_database!
     per_group = ((TIMED + WARM_UP) / OPENINGS_PER_PLAYER.to_f).ceil
@@ -251,10 +198,6 @@ class OpenPackBenchmark
     groups
   end
 
-  # --- Sign-in --------------------------------------------------------------
-
-  # One integration session per HTTP player, signed in through OmniAuth's
-  # test mode (as pages_controller_test.rb does), each checked.
   def sign_in(runs)
     require "action_dispatch/testing/integration"
     OmniAuth.config.test_mode = true
@@ -274,8 +217,6 @@ class OpenPackBenchmark
     OmniAuth.config.test_mode = false
   end
 
-  # --- Measure --------------------------------------------------------------
-
   def measure_run(run, http_players, sessions, direct_players)
     check_database!
     Game::DrawPool.reset!
@@ -294,8 +235,6 @@ class OpenPackBenchmark
       location = open_over_http(session, post, keep)
       player_id = http_players.fetch(player_index).id
       posts_by_player[player_id] += 1
-      # Checked as soon as the player's posts are done: the count expires
-      # one rate-limit window after the first, shorter than a whole run.
       check_rate_limit_ran(player_id, posts_by_player[player_id]) if posts_by_player[player_id] == OPENINGS_PER_PLAYER
       read_over_http(session, location, get, keep)
 
@@ -305,8 +244,6 @@ class OpenPackBenchmark
     { run:, cold_ms:, series: [ post, get, direct ] }
   end
 
-  # The booster's exchange: a JSON POST with a fresh key, answered 200 with
-  # the pack, whose url the GET then reads.
   def open_over_http(session, series, keep)
     headers = { "Accept" => "application/json", "Idempotency-Key" => SecureRandom.uuid }
     ms, queries, gc = timed { session.post "/en/packs", headers: }
@@ -331,14 +268,11 @@ class OpenPackBenchmark
     series.add(ms, queries, gc) if keep
   end
 
-  # The rate limit ran on the in-memory store: its count for the player is
-  # the number of POSTs.
   def check_rate_limit_ran(player_id, count)
     counted = @rate_limit_store.read("rate-limit:packs:#{player_id}", raw: true).to_i
     refuse("the rate limit counted #{counted} openings of #{count} for player #{player_id}") unless counted == count
   end
 
-  # [ms, queries, GC runs] of the block, timed alone.
   def timed
     queries = @queries
     gc = GC.count
@@ -347,8 +281,6 @@ class OpenPackBenchmark
     elapsed = (Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000.0
     [ elapsed, @queries - queries, GC.count - gc ]
   end
-
-  # --- Report ---------------------------------------------------------------
 
   def report(results)
     puts machine_line

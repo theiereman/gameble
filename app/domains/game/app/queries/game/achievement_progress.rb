@@ -8,8 +8,6 @@ module Game
        WHERE game_holdings.player_id = :player_id AND catalog_card_seasons.rarity = %d
     SQL
 
-    # A set comes back each season under the same kind and key: completing
-    # it again in another season is not another set.
     SETS_COMPLETED_SQL = <<~SQL.squish.freeze
       SELECT COUNT(DISTINCT (catalog_sets.kind, catalog_sets.key)) FROM game_set_tiers
         JOIN catalog_sets ON catalog_sets.id = game_set_tiers.set_id

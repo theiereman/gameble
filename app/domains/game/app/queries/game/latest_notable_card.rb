@@ -1,5 +1,4 @@
 module Game
-  # The hub showcase's card: the Epic-or-better card the player still holds that they gained last.
   module LatestNotableCard
     LOWEST_TIER = Catalog::Rarity::TIERS.key(:epic)
 

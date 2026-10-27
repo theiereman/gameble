@@ -1,14 +1,4 @@
 module Game
-  # The weekly goal the hub shows (CAP-12): the total summed so far and the
-  # target of the current UTC week, whether it is reached, and how the
-  # previous week ended (its final count, reached or missed; nil without a
-  # goal that week), one indexed read. Before the periodic job has created
-  # the week's goal, the total is 0 and the target is computed from last
-  # week's contributions.
-  #
-  #   Game::CurrentGoal.call
-  #   # => { total: n, target: n, reached: bool, previous: { total: n, target: n, reached: bool } | nil }
-  #   Game::CurrentGoal.next_week_start   # => the next Monday 00:00 UTC
   module CurrentGoal
     def self.call(now: Time.current)
       week = WeeklyGoal.week_start(now)

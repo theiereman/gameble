@@ -1,18 +1,4 @@
 module Game
-  # The top bar's rarity counter (DESIGN.md, Rarity counter): the copies a
-  # player holds in each rarity tier, every edition counted at the rarity it
-  # was minted in, whatever its season. Every tier of Catalog::Rarity::TIERS
-  # is a key; zeros, without a query, for nil (a visitor).
-  #
-  #   Game::TierCounts.call(player) # => { 1 => 12, 2 => 4, 3 => 1, 4 => 0, 5 => 0 }
-  #
-  # `before_opening`: the counts as they stood before a pack was opened (the
-  # booster's opening exchange, AD-23), computed rather than stored: the
-  # current counts minus the pack's cards, by tier,
-  # a card drawn twice counted twice, floored at 0. The same for the first
-  # answer and a replay, unless the player gained cards since.
-  #
-  #   Game::TierCounts.before_opening(player, pack) # => { 1 => 9, 2 => 3, … }
   module TierCounts
     SQL = <<~SQL.squish.freeze
       SELECT catalog_card_seasons.rarity AS tier, SUM(game_holdings.quantity) AS copies
@@ -23,8 +9,6 @@ module Game
        GROUP BY catalog_card_seasons.rarity
     SQL
 
-    # The pack's cards per tier; each element of the array is a row, so
-    # duplicates count.
     PACK_SQL = <<~SQL.squish.freeze
       SELECT catalog_card_seasons.rarity AS tier, COUNT(*) AS copies
         FROM game_packs

@@ -1,15 +1,4 @@
 module Game
-  # The set tiers an opening reached, read back by its pack, so a replay
-  # answers them as the first answer did: each with its set's kind, key and
-  # params, the cards the tier asks for, the cards the player held in the
-  # set when reaching it, the set's card count (its complete
-  # tier) and every tier of the set before completion as [tier, required]
-  # pairs, the fewest cards first (none for a set too small for tiers); by
-  # set, then by the count the tier asks.
-  #
-  #   Game::PackSetTiers.call(pack)
-  #   # => [ Row(kind: "theme", key: "roguelike", params: {…}, tier: "silver", required: 16, held: 18, total: 62,
-  #   #          thresholds: [ [ "bronze", 7 ], [ "silver", 16 ], [ "gold", 31 ] ]), … ]
   module PackSetTiers
     Row = Data.define(:kind, :key, :params, :tier, :required, :held, :total, :thresholds)
 

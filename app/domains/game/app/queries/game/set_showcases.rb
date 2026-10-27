@@ -1,14 +1,4 @@
 module Game
-  # What a set progress tile shows of a player's sets, for any number of sets
-  # in two queries. A set of SMALL_SET cards or fewer shows every member in
-  # set order: the player's best edition of a game they hold, the set's own
-  # rarity of one they miss. A larger set shows its BEST_SHOWN best held
-  # games, the rarest first, and counts the others held. Every set names the
-  # game gained in it last, at its best edition.
-  #
-  #   Game::SetShowcases.call(player, set_ids: [ … ], season:, locale: "fr")
-  #   # => { set_id => Showcase(slots: [ Slot(card: CardView, rarity: "epic"), Slot(card: nil, rarity: "rare") ],
-  #   #      others: 0, last_gained: LastGained(card: CardView, gained_at: Time)) }
   module SetShowcases
     SMALL_SET = 5
     BEST_SHOWN = 3
