@@ -1,4 +1,4 @@
-# Pagy's dictionary in English, in the Brotherhood's voice (AD-18), read by
+# Pagy's dictionary in English, in the Brotherhood's voice, read by
 # Pagy::I18n only (config/initializers/pagy.rb): its plural rule, then the
 # words of the page links. Kept apart from en.yml, which Pagy would
 # otherwise load whole.

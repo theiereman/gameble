@@ -1,4 +1,4 @@
-# The daily bonus (CAP-16, AD-9): one claim per player and UTC day, unique in
+# The daily bonus: one claim per player and UTC day, unique in
 # the database, pointing at the bonus pack it granted.
 class CreateGameDailyBonusClaims < ActiveRecord::Migration[8.1]
   def change

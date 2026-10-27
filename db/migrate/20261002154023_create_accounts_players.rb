@@ -1,4 +1,4 @@
-# Players (CAP-1): a Steam id and a public random token (AD-15). No name,
+# Players: a Steam id and a public random token. No name,
 # avatar or password is stored.
 class CreateAccountsPlayers < ActiveRecord::Migration[8.1]
   def change

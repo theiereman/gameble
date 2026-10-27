@@ -1,4 +1,4 @@
-# A trade's public token (AD-15, story 5.6): the trades screen addresses a
+# A trade's public token: the trades screen addresses a
 # trade by it, never by its id. Expand: the column is added nullable, the
 # trades already stored get a token like has_secure_token's (24 base58
 # characters), and a NOT NULL check is added unvalidated; the next

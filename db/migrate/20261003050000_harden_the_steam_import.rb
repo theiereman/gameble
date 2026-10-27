@@ -1,4 +1,4 @@
-# Import hardening before season 1 (story 2.11).
+# Import hardening before season 1.
 #
 # - steam_apps.carded_run_id: the run whose cards step last wrote the app's
 #   card, so the end of a cards pass keeps only the cards it wrote in the

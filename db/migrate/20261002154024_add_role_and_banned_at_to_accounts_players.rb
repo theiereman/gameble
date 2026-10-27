@@ -1,4 +1,4 @@
-# Staff roles and bans (AD-14, CAP-15). A visitor is the absence of a player;
+# Staff roles and bans. A visitor is the absence of a player;
 # a player's role is player, moderator or administrator. A ban is the time it
 # took effect. The check constraint is validated in the next migration so
 # adding it does not block the table (strong_migrations).

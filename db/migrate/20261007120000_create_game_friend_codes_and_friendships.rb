@@ -1,4 +1,4 @@
-# The friend code and the friendship (AD-8, story 5.1). A friend code is one
+# The friend code and the friendship. A friend code is one
 # per player, purely random (XXXX-XXXX), unique. A friendship is one row per
 # pair, the lower player id first; two ordered pairs cannot both exist.
 class CreateGameFriendCodesAndFriendships < ActiveRecord::Migration[8.1]

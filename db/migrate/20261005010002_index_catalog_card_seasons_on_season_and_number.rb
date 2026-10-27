@@ -1,4 +1,4 @@
-# No two cards of a season share a number (R3, AD-5); the card-seasons not
+# No two cards of a season share a number; the card-seasons not
 # numbered yet (NULL) do not collide. Built concurrently so the table stays
 # writable (strong_migrations).
 class IndexCatalogCardSeasonsOnSeasonAndNumber < ActiveRecord::Migration[8.1]

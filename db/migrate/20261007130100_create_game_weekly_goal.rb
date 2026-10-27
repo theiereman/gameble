@@ -1,4 +1,4 @@
-# The weekly goal (CAP-12, AD-9, AD-10, story 6.3). A contribution is one row
+# The weekly goal. A contribution is one row
 # per player and week, unique, written by the player's own openings; the goal
 # is one row per week holding the target and the total a periodic job sums
 # from the contributions, so no row is written by every player.

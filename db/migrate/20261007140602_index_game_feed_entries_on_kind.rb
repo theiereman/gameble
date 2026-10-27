@@ -1,4 +1,4 @@
-# The feed's type filters (story 6.2) read one kind's entries newest first,
+# The feed's type filters read one kind's entries newest first,
 # notable or fillers: this index serves that read in order. Built
 # concurrently so the table stays writable (strong_migrations).
 class IndexGameFeedEntriesOnKind < ActiveRecord::Migration[8.1]

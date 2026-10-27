@@ -1,9 +1,9 @@
-# The trade and its cards (AD-8, story 5.4). A trade is a proposal between
+# The trade and its cards. A trade is a proposal between
 # two friends: the pair (lower player id first, like a friendship), who
 # proposed and who answers, and its status. Two friends have at most one
 # open trade, kept by a partial unique index. Its items are the cards of
 # each side with a quantity; only the offer is reserved on the proposer's
-# holdings (AD-6).
+# holdings.
 class CreateGameTrades < ActiveRecord::Migration[8.1]
   def change
     create_table :game_trades do |t|

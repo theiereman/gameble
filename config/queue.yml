@@ -1,5 +1,5 @@
 # The jobs process (bin/jobs): every queue but `import`, which has its own
-# process (config/queue_import.yml, AD-19). Solid Queue cannot exclude a
+# process (config/queue_import.yml). Solid Queue cannot exclude a
 # queue, so the queues are listed: add a new queue here.
 default: &default
   dispatchers:

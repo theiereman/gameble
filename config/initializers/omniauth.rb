@@ -1,4 +1,4 @@
-# Steam sign-in (CAP-1, AD-14): OmniAuth with omniauth-openid against Steam's
+# Steam sign-in: OmniAuth with omniauth-openid against Steam's
 # OpenID 2.0 endpoint. Every sign-in setting lives here.
 #
 #   POST /auth/steam           request phase: POST only, CSRF-checked by

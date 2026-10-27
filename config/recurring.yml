@@ -10,14 +10,14 @@
 #     schedule: at 5am every day
 
 # The import worker killed outright loses its page job: put stalled runs
-# back on the import queue (AD-19).
+# back on the import queue.
 recover_stalled_imports: &recover_stalled_imports
   class: Steam::RecoverStalledImportsJob
   queue: default
   schedule: every 5 minutes
 
-# The weekly goal's total is summed from the players' own contribution rows
-# (AD-10); the gauge moves about every ten seconds (AD-13).
+# The weekly goal's total is summed from the players' own contribution rows;
+# the gauge moves about every ten seconds.
 sum_weekly_goal: &sum_weekly_goal
   class: Game::SumWeeklyGoalJob
   queue: default

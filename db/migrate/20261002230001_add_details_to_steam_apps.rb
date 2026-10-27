@@ -1,4 +1,4 @@
-# The store details of the Steam import (CAP-2, epic 2 R3, R4, R5). The
+# The store details of the Steam import. The
 # details step stores, for each game kept by a run, its English and French
 # names and short descriptions, publishers, release date, tags, store path and
 # library image, the raw GetItems item, the run that detailed it and that

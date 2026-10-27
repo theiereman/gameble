@@ -1,7 +1,7 @@
-# Account deletion (CAP-14, AD-14): a deleted player's record stays, as the
+# Account deletion: a deleted player's record stays, as the
 # target of the rows that name it, but anonymised: its Steam id is released
-# so the player can sign up again, and `deleted_at` says when. Expand
-# (AD-21): a nullable column, the NOT NULL dropped from steam_id (no rewrite),
+# so the player can sign up again, and `deleted_at` says when. Expand:
+# a nullable column, the NOT NULL dropped from steam_id (no rewrite),
 # and the check that a player has a Steam id exactly while not deleted added
 # unvalidated, to be validated by the contract migration that follows.
 class AddDeletedAtToAccountsPlayers < ActiveRecord::Migration[8.1]

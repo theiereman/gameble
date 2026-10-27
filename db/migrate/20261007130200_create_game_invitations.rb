@@ -1,6 +1,6 @@
-# Friend invitations (AD-8, story 5.2): by friend code or by invite link, a
+# Friend invitations: by friend code or by invite link, a
 # sender asks a recipient; pending until the recipient accepts (which creates
-# the friendship) or ignores. Addressed by a random token (AD-15). At most
+# the friendship) or ignores. Addressed by a random token. At most
 # one pending invitation per sender and recipient.
 class CreateGameInvitations < ActiveRecord::Migration[8.1]
   def change

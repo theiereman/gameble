@@ -1,4 +1,4 @@
-# A pack's Idempotency-Key is unique per player (AD-23), among the packs
+# A pack's Idempotency-Key is unique per player, among the packs
 # that carry one: two requests with one key never open two packs. Built
 # concurrently so the table stays writable (strong_migrations).
 class IndexGamePacksOnPlayerIdAndIdempotencyKey < ActiveRecord::Migration[8.1]

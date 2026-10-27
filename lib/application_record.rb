@@ -1,7 +1,7 @@
 # Base class of every Active Record model. It lives in the `lib` package so
-# pack models can inherit it without depending on the web layer (AD-2).
+# pack models can inherit it without depending on the web layer.
 #
-# The `reading` role is declared from the start (AD-11) and points to the
+# The `reading` role is declared from the start and points to the
 # primary. GET and HEAD requests run under it with writes prevented
 # (ApplicationController). Adding a read replica takes more than
 # `reading: :primary_replica`: pages read right after a write (the hub

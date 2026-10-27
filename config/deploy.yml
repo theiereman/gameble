@@ -8,14 +8,14 @@ service: gameble
 # to its own package (config/deploy.production.yml).
 image: theiereman/gameble
 
-# Environments are Kamal destinations (AD-21): this file holds what they
+# Environments are Kamal destinations: this file holds what they
 # share; config/deploy.<destination>.yml adds their servers, host and
 # PUBLIC_URL, and .kamal/secrets.<destination> their secrets.
 #   bin/kamal deploy -d staging                  # gameble.dotsncircles.com, home lab
 #   bin/kamal deploy -d production --skip-push   # gameble.net, home lab (RELEASING.md)
 #
 # Roles, with their hosts in each destination file: web, and the Steam import
-# worker (AD-19, AD-21), the same image as one process with one thread on the
+# worker, the same image as one process with one thread on the
 # import queue only. The web role's Solid Queue serves every other queue.
 
 registry:
@@ -57,7 +57,7 @@ env:
     # SEARCH_INDEXING=on lets search engines in; unset, as on staging, the
     # app asks them to stay out. Set it on the production destination only.
 
-    # PUBLIC_URL, the public base of shared links (CAP-9), is set per
+    # PUBLIC_URL, the public base of shared links, is set per
     # destination: production refuses to boot without a valid one
     # (config/initializers/public_url.rb; test/config/public_url_test.rb).
 
@@ -110,7 +110,7 @@ ssh:
   port: 2224
 
 # Use accessory services (secrets come from .kamal/secrets).
-# PostgreSQL 18 (AD-21). The user `gameble` is the image's superuser, so the
+# PostgreSQL 18. The user `gameble` is the image's superuser, so the
 # app's `db:prepare` creates the four databases (primary, cache, queue, cable).
 accessories:
   db:

@@ -1,4 +1,4 @@
-# The Steam Web API key (AD-19), read by Steam::WebApi. It comes from the
+# The Steam Web API key, read by Steam::WebApi. It comes from the
 # STEAM_API_KEY environment variable; outside production it falls back to the
 # git-ignored config/steam_api.key. Only Steam::WebApi sends it, and it
 # redacts it from every error it raises, so it reaches no log, error or page.

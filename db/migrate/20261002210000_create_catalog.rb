@@ -1,7 +1,7 @@
-# The catalog (CAP-2, CAP-3, CAP-6, AD-5): cards and their texts per locale,
+# The catalog: cards and their texts per locale,
 # seasons, a card's scores, rarity and dust tier for a season, and the sets of
 # a season. Nothing here names a source: a card is keyed by an opaque source
-# key built by whoever writes it (AD-4).
+# key built by whoever writes it.
 #
 # Status checks are written with OR: the IN (...) form dumps unstably.
 class CreateCatalog < ActiveRecord::Migration[8.1]
@@ -48,7 +48,7 @@ class CreateCatalog < ActiveRecord::Migration[8.1]
 
     # A card in a season. Scores follow the source while the season is a
     # draft; rarity and dust tier stay NULL until the season is published,
-    # then never change (AD-5).
+    # then never change.
     create_table :catalog_card_seasons do |t|
       t.references :card, null: false, index: false, foreign_key: { to_table: :catalog_cards }
       t.references :season, null: false, foreign_key: { to_table: :catalog_seasons }

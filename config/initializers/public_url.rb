@@ -1,6 +1,6 @@
-# The public base of the absolute links gameble hands out (CAP-9): a shared
+# The public base of the absolute links gameble hands out: a shared
 # card's link, its og:url and its canonical link. It comes from PUBLIC_URL
-# (AD-21: configuration from the environment only), never from the request's
+# (configuration comes from the environment only), never from the request's
 # Host header, which a client can forge, and is checked here, at boot:
 #
 # - a malformed value refuses to boot in every environment;

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// Exports the interface's pixel art (DESIGN.md: Rarity, Typography's glyphs,
-// Chrome, Card backs, Booster canister, Showcase, Avatars; AD-27) as static
+// Exports the interface's pixel art (Rarity, Typography's glyphs,
+// Chrome, Card backs, Booster canister, Showcase, Avatars) as static
 // files in app/frontend/images/pixel/.
 //
-// The icons (story 8.1) are SVG. Each is a character grid, one character per
+// The icons are SVG. Each is a character grid, one character per
 // art pixel:
 //   "."  transparent
 //   "c"  currentColor (the icon takes the colour of its text)
@@ -13,7 +13,7 @@
 // per colour, with crisp edges. `starfield` is the exception: a seeded tile
 // of 2px and 4px stars, in CSS px.
 //
-// The card backs, the canister, the planet and the avatars (story 8.8) are
+// The card backs, the canister, the planet and the avatars are
 // PNG at 1x art resolution, drawn by code ported from the prototypes (see
 // "Drawn art" below).
 //
@@ -33,7 +33,7 @@ import { deflateSync, inflateSync } from "node:zlib"
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..")
 const ART_PIXEL = 2
 
-// DESIGN.md colours used by the fixed-colour icons.
+// Design colours used by the fixed-colour icons.
 const OUTLINE = "#06090d"
 const RARITY = [
   null,
@@ -45,7 +45,7 @@ const RARITY = [
 ]
 
 // Rarity silhouettes, 7 × 7: b body, h lit (top) edge, l shaded (bottom)
-// edge. They must stay distinct in grayscale (DESIGN.md, Rarity).
+// edge. They must stay distinct in grayscale.
 const RARITY_SHAPES = {
   // 1: a solid disc.
   1: [
@@ -99,7 +99,7 @@ const RARITY_SHAPES = {
   ],
 }
 
-// The compact rarity set for card faces, 5 × 5 (DESIGN.md, Rarity icon):
+// The compact rarity set for card faces, 5 × 5 (rarity icon):
 // the same five silhouettes, still distinct in grayscale.
 const RARITY_COMPACT_SHAPES = {
   // 1: a solid disc.
@@ -289,7 +289,7 @@ const ICONS = {
       "cccccccccc",
     ],
   },
-  // A missing card's padlock (10 × 12, DESIGN.md, Missing-card slot): a
+  // A missing card's padlock (10 × 12, missing-card slot): a
   // shackle over a body pierced by its keyhole.
   lock: {
     grid: [
@@ -610,7 +610,7 @@ function random(seed) {
   }
 }
 
-// The star field's tile (DESIGN.md, Atmosphere): 2px and 4px squares of
+// The star field's tile (atmosphere): 2px and 4px squares of
 // {colors.star} on the 2px grid, at a few brightnesses, repeated by CSS.
 function starfieldSvg() {
   const SIZE = 480
@@ -633,7 +633,7 @@ function starfieldSvg() {
 
 
 // ---------------------------------------------------------------------------
-// Drawn art (story 8.8): the card backs, the canister, the planet and the
+// Drawn art: the card backs, the canister, the planet and the
 // avatars. Their drawing code is ported pixel for pixel from the approved
 // prototypes (ux-gameble/mockups/key-screens.html and mobile.html): the same
 // formulas, constants, rounding and RNG seeds, run on an in-memory RGBA
@@ -740,7 +740,7 @@ function faviconPng() {
   return g
 }
 
-// Card backs (DESIGN.md, Card backs). `id` is the prototype's id: its length
+// Card backs (card backs). `id` is the prototype's id: its length
 // seeds the stars and the snow, so it is kept as is.
 function backCanvas(id, w, h) {
   const g = canvas(w, h)
@@ -985,7 +985,7 @@ function backCanvas(id, w, h) {
   return g
 }
 
-// The booster canister (DESIGN.md, Booster canister), 100 × 150 art pixels in
+// The booster canister (booster canister), 100 × 150 art pixels in
 // three parts: the caps blow off on opening. Its label text, hazard band and
 // LEDs are page layers (they turn orange when armed), so they are not drawn.
 const CANISTER = (() => {
@@ -1058,7 +1058,7 @@ const CANISTER = (() => {
   return { top: cap(true), body: body(), bottom: cap(false) }
 })()
 
-// The ringed planet under the hub showcase (DESIGN.md, Showcase), 200 × 200.
+// The ringed planet under the hub showcase (showcase), 200 × 200.
 function drawPlanet() {
   const N = 200, g = canvas(N, N), cx = 99.5, cy = 99.5, R0 = 80, ringY = 107, rx = 98, ry = 9
   const P = (x, y, col) => { g.fillStyle = col; g.fillRect(x, y, 1, 1) }
@@ -1137,7 +1137,7 @@ function avatarCanvas(k) {
   return g
 }
 
-// The eight backs of the prototype (DESIGN.md, Card backs), under their file
+// The eight backs of the prototype (card backs), under their file
 // names, and the card sizes they are drawn for: half of each DESIGN card size,
 // since one art pixel is 2 CSS px. The drawing depends on the size, so each
 // size is its own file.
@@ -1411,7 +1411,7 @@ function sheetHtml() {
 <h1>gameble pixel art</h1>
 <p>Every file in <code>${escape(shown)}/</code> (${files.size} files), as written by <code>script/pixel_art/export.mjs</code>, at 2 CSS px per art pixel.</p>
 
-<h2>Interface icons (story 8.1)</h2>
+<h2>Interface icons</h2>
 <div class="grid">
 ${svgs.map(item).join("\n")}
 </div>
