@@ -1,5 +1,4 @@
-# AD-2: Steam -> Catalog.
+# Depends on no other domain.
 enforce_dependencies: true
 dependencies:
   - lib
-  - packs/catalog

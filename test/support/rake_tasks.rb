@@ -6,7 +6,7 @@ require "rake"
 # test:prepare (in a Rake application of its own, so no task is defined
 # here) and loads them again here. A .rake file defines no constant, or
 # that second load warns on stderr: a class a task needs lives beside
-# lib/tasks and is required by the task (packs/game/lib/open_pack_benchmark.rb).
+# lib/tasks and is required by the task (app/domains/game/lib/open_pack_benchmark.rb).
 #
 #   setup { rake_task("game:top_up_banks") }
 #   rake_task("game:top_up_banks").execute

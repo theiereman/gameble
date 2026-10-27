@@ -3,7 +3,7 @@
 
 ## gameble
 
-A free web trading card game where every card is a Steam game. Rails 8 with domain code in packwerk packs (`packs/accounts`, `catalog`, `game`, `steam`), Hotwire with TypeScript Stimulus controllers on every screen, Postgres 18. Planning lives in `_bmad-output/initiative-gameble/`: the spec, the architecture (`architecture-gameble/architecture-gameble.md`, which holds the reasons behind the rules below) and the UX (`ux-gameble/`).
+A free web trading card game where every card is a Steam game. Rails 8 with domain code in four packwerk domains under `app/domains/` (`accounts`, `catalog`, `game`, `steam`), Hotwire with TypeScript Stimulus controllers on every screen, Postgres 18. Planning lives in `_bmad-output/initiative-gameble/`: the spec, the architecture (`architecture-gameble/architecture-gameble.md`, which holds the reasons behind the rules below) and the UX (`ux-gameble/`).
 
 ## Policy
 
@@ -19,14 +19,14 @@ A free web trading card game where every card is a Steam game. Rails 8 with doma
 
 ## Rules that break other files
 
-- Write only through an operation (`ApplicationOperation`, named `Pack::VerbNoun`, returning `Success` or `Failure(:code)`); controllers, jobs, handlers and components never write a model, and read through the pack's queries.
+- Write only through an operation (`ApplicationOperation`, named `Domain::VerbNoun`, returning `Success` or `Failure(:code)`); controllers, jobs, handlers and components never write a model, and read through the domain's queries.
 - An operation publishes one event inside its transaction; handlers run in that transaction and never publish.
 - A GET never writes: GET actions run on the reading role with writes prevented (`ApplicationController`); put the write behind a POST or a job.
 - Jobs are enqueued only after commit; broadcasts go through a job, never inside a transaction.
 - Never expose database ids in URLs, HTML, JSON, DOM ids or stream names; use tokens.
 - Give every controller action a Pundit policy.
-- Put every string in both `en.yml` and `fr.yml`; the locale is the first URL segment. `i18n-tasks` cannot see dynamic `errors.<pack>.<code>` keys, so add both by hand.
-- Pack dependencies follow the architecture diagram (Game → Catalog, Accounts; Steam → Catalog; no pack → web layer); `bundle exec packwerk check` fails otherwise.
+- Put every string in both `en.yml` and `fr.yml`; the locale is the first URL segment. `i18n-tasks` cannot see dynamic `errors.<domain>.<code>` keys, so add both by hand.
+- Domain dependencies follow the architecture diagram (Game → Catalog, Accounts; Steam → Catalog; no domain → web layer); `bundle exec packwerk check` fails otherwise.
 - Never add React or build markup in script: the server renders HTML, and controllers clone server-rendered `<template>`s. A rich screen has one root controller holding its state module from `app/frontend/lib/<screen>.ts`, children talk to it by `dispatch`, and it drives them through outlets.
 - A screen talks to the page chrome only through the `gameble:*` events declared in `app/frontend/lib/events.ts`; server HTML carries no `style` attribute.
 - Make schema changes expand/contract (strong_migrations): a concurrent index in its own migration, a check added then validated in a second one.

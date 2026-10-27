@@ -1,0 +1,6 @@
+# Game -> Catalog, Accounts.
+enforce_dependencies: true
+dependencies:
+  - lib
+  - app/domains/accounts
+  - app/domains/catalog
