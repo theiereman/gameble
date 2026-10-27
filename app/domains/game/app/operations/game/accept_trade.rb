@@ -45,8 +45,6 @@ module Game
       [ trade.low_player_id, trade.high_player_id ].to_h { |player_id| [ player_id, TradeLocks.holdings(player_id, cards) ] }
     end
 
-    # Each player's new tiers, the lower player id first; none with no
-    # season published.
     def tiers_reached(trade, offer, request, season, now)
       return {} if season.nil?
 

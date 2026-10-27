@@ -1,24 +1,12 @@
 module Game
-  # A tier of a set a player reached: one row per player, set and tier,
-  # unique in the database, with how it was reached (an opening's pack, or
-  # a trade). Its insert decides that the tier's event is published, once;
-  # a tier stays reached when cards leave.
   class SetTier < ApplicationRecord
     self.table_name = "game_set_tiers"
 
     TIERS = Catalog::SetTier::TIERS
     REACHED_BY = %w[pack trade].freeze
 
-    # A tier's position among TIERS, joined as `tier_order`: what breaks a
-    # tie between two tiers of one set asking the same count.
     TIER_ORDER_SQL = "unnest(ARRAY[:tiers]::varchar[]) WITH ORDINALITY AS tier_order (tier, position)".freeze
 
-    # The published season's sets holding a game of the credited cards, in
-    # any edition; a member counts when the player holds its game in any
-    # season (Game::HeldGames). Every tier whose `required` the count meets
-    # is inserted with that count, a set too small for tiers reaching only
-    # completion, and the rows inserted are answered, by set, then by the
-    # count their tier asks. One statement, whatever the sets.
     RECORD_SQL = <<~SQL.squish.freeze
       WITH held AS (#{HeldGames::SQL}),
       candidates AS (
@@ -56,10 +44,6 @@ module Game
        ORDER BY inserted.set_id, tiers.required, tier_order.position
     SQL
 
-    # Records the tiers the player reaches with `card_season_ids`, the cards
-    # an operation has just credited to them, in its transaction: answers
-    # the [set_id, tier] pairs reached for the first time, by set, then by
-    # the count their tier asks.
     def self.record(player_id:, card_season_ids:, season_id:, reached_by:, pack_id:, now:)
       return [] if card_season_ids.empty?
 

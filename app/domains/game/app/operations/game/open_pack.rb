@@ -1,45 +1,7 @@
 module Game
-  # Opens a player's next pack: under the bank lock, the oldest available
-  # pack of any kind (by availability time, then id) is marked opened, with
-  # the card back the player has on (Game::CardBacks), its cards are
-  # credited to the player's holdings in one upsert, ascending card-season,
-  # each marked as gained at the opening, and Game::PackOpened is published.
-  # The published season is read once, right after the lock, and serves the
-  # redraw, the top-up and the tier pass alike.
-  # The first pull of a card in its season is recorded (Game::FirstDiscovery)
-  # and every set tier the cards reach for the player for the first time
-  # (Game::SetTier); Game::CardDiscovered, then Game::SetTierReached or
-  # Game::SetCompleted follow Game::PackOpened, one per row inserted.
-  # A pack still of an earlier season, opened before the publication's job
-  # redrew it, is drawn again in the published season as it opens
-  # (Game::PackRedraw), so an opening only credits cards of the published
-  # season.
-  # A pack that is not available yet is never opened. Opening a regular pack
-  # replaces it in the same transaction (Game::TopUpBank), so a full bank
-  # stays full; a bank already short stays short until the next season's
-  # publication heals it (Game::HealBanksJob). A bonus or reward pack
-  # replaces nothing.
-  #
-  # The booster's JSON exchange passes the request's Idempotency-Key, a
-  # UUID, stored on the opened pack. Under the bank lock, before the
-  # availability check, a pack of the player's that already carries the key
-  # is returned as it is: a replay opens nothing, credits nothing, tops up
-  # nothing and publishes nothing, even with no pack available. A request
-  # sharing the key waits on the lock for the first to commit, then replays
-  # it. A malformed key is refused before any write. Without a key (the HTML
-  # form) the pack opens as before and keeps no key.
-  #
-  #   Game::OpenPack.new.call(player:, idempotency_key: nil)
-  #   # => Success(pack) | Failure(:player_required) | Failure(:invalid_idempotency_key)
-  #   #    | Failure(:no_pack_available)
   class OpenPack < Operation
-    # A UUID in its canonical form, any case.
     IDEMPOTENCY_KEY = /\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/
 
-    # Whether the key is a well-formed one that a pack of the player's
-    # already carries: the request would replay it. One indexed lookup,
-    # outside the lock, for the web layer's rate limit (a replay is not
-    # counted); the lookup that decides is the one under the lock in `call`.
     def self.replay?(player, idempotency_key)
       player.present? && idempotency_key.is_a?(String) && idempotency_key.match?(IDEMPOTENCY_KEY) &&
         Pack.exists?(player_id: player.id, idempotency_key:)
@@ -77,7 +39,6 @@ module Game
 
     private
 
-    # One Game::CardDiscovered per card-season the opening discovered.
     def publish_discoveries(player, pack, card_season_ids)
       card_season_ids.each do |card_season_id|
         publish(CardDiscovered.new(data: { player_id: player.id, card_season_id:, pack_id: pack.id }), stream_name: stream_name(player.id))
@@ -85,9 +46,6 @@ module Game
       Success()
     end
 
-    # The season and cards of a pack drawn in an earlier season, drawn again
-    # in the published one; nothing for a pack of the published season, or
-    # with no season published.
     def drawn_in_published_season(pack, pool)
       return {} if pool.nil?
 
@@ -109,10 +67,6 @@ module Game
       pack ? Success(pack) : Failure(:no_pack_available)
     end
 
-    # One row per card-season, in ascending order so concurrent writers lock
-    # holdings in the same order; a card drawn twice adds 2. Every
-    # credited holding gained copies now (its NOUVEAU tag), whether
-    # inserted or raised.
     def credit(player, pack, now)
       rows = pack.card_season_ids.tally.sort.map do |card_season_id, quantity|
         { player_id: player.id, card_season_id:, quantity:, last_gained_at: now, created_at: now, updated_at: now }

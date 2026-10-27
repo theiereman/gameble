@@ -1,15 +1,7 @@
 module Game
-  # A player's contribution to the weekly goal: one row per player and week,
-  # unique in the database. `openings` counts the packs the player opened that
-  # week, `trades` the trades credited to them; the goal's total sums both.
-  # Written only by the handlers of Game::PackOpened and Game::TradeAccepted,
-  # in their operation's transaction.
   class WeeklyContribution < ApplicationRecord
     self.table_name = "game_weekly_contributions"
 
-    # Counts one more opening for the player in the week of `now`, creating
-    # the row on the first one: a single upsert that never fails on a
-    # duplicate.
     def self.record_opening(player_id, now)
       stamp = now.utc
       upsert({ player_id:, week_start: WeeklyGoal.week_start(stamp), openings: 1, created_at: stamp, updated_at: stamp },

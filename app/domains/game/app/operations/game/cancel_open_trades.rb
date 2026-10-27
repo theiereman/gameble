@@ -35,7 +35,7 @@ module Game
       proposed.where(recipient_id: partner.id).or(received.where(proposer_id: partner.id))
     end
 
-    # A partner found after the player's own lock is locked out of order; Postgres aborts one side of a deadlock, which `call` retries from its savepoint.
+    # Postgres aborts one side of a deadlock, which `call` retries from its savepoint.
     def lock_open_trades(player, partner)
       held = []
       loop do

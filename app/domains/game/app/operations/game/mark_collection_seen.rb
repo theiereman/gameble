@@ -1,18 +1,4 @@
 module Game
-  # Moves a player's collection watermark forward (AD-26): the cards gained
-  # up to `up_to` are no longer new (Game::CollectionSlots). The page that
-  # showed new cards posts the latest gain it showed; the watermark keeps
-  # the greater of its value and that one, so an older or repeated post
-  # changes nothing. A time in the future is stored as now, so a forged one
-  # cannot hide cards gained later. Full microsecond precision.
-  #
-  # Under the bank lock, so a deletion is seen and no row recreated for it:
-  # one upsert of the player's Game::PlayerState row (created when missing),
-  # ON CONFLICT keeping GREATEST of both values. Housekeeping: it publishes
-  # no event.
-  #
-  #   Game::MarkCollectionSeen.new.call(player:, up_to: Time)
-  #   # => Success(watermark) | Failure(:player_required) | Failure(:invalid_time)
   class MarkCollectionSeen < Operation
     def call(player:, up_to:)
       player = step require_player(player)
@@ -33,7 +19,6 @@ module Game
 
     private
 
-    # A Time or an ActiveSupport::TimeWithZone (which answers is_a?(Time)).
     def check_time(value)
       value.is_a?(Time) ? Success(value) : Failure(:invalid_time)
     end

@@ -1,7 +1,4 @@
 module Game
-  # Puts one showcased card at a given place (0 first), each card between
-  # its old place and the new one shifting one place to make room: the
-  # owner dropping a card where they dragged it on their profile.
   class PlaceShowcaseCard < Operation
     include ShowcaseSteps
 
