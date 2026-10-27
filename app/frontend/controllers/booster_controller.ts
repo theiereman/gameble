@@ -1,228 +1,39 @@
 import { Controller } from "@hotwired/stimulus"
-import { fetchBank } from "../lib/booster_bank"
-import { formatClock } from "../lib/booster_clock"
+import { BankRefresh } from "../lib/booster_bank_refresh"
+import type { BoosterStageHost, Transition } from "../lib/booster_host"
+import { OpeningSequence } from "../lib/booster_opening_sequence"
+import { BoosterRenderer } from "../lib/booster_render"
+import type { BoosterOutlets, BoosterStrings } from "../lib/booster_render_host"
 import { BoosterCountdown } from "../lib/booster_countdown"
-import { animate, blast, burst, ring, settle, stageFlash, stageShake, traySparks } from "../lib/booster_effects"
-import {
-  armKeyframes,
-  bannerKeyframes,
-  bodyKeyframes,
-  capBottomKeyframes,
-  capTopKeyframes,
-  dockKeyframes,
-  fadeKeyframes,
-  flipKeyframes,
-  legendaryDropKeyframes,
-  legendaryImpactKeyframes,
-  legendaryJumpKeyframes,
-  legendarySpinKeyframes,
-  liftKeyframes,
-  settleKeyframes,
-  sinkKeyframes,
-  slotPopKeyframes,
-  springBackKeyframes,
-  storeKeyframes,
-  trembleKeyframes,
-} from "../lib/booster_keyframes"
+import { animate, burst, ring, settle, stageFlash, stageShake, traySparks } from "../lib/booster_effects"
+import { fadeKeyframes, flipKeyframes, legendaryDropKeyframes, legendaryImpactKeyframes, legendaryJumpKeyframes, legendarySpinKeyframes, liftKeyframes, settleKeyframes, slotPopKeyframes, springBackKeyframes, storeKeyframes, trembleKeyframes } from "../lib/booster_keyframes"
 import { bankFrom, openedFrom } from "../lib/booster_markup"
-import {
-  ARM_MS,
-  ART_POLL,
-  ART_WAIT_MAX,
-  BODY_MS,
-  CAPS_MS,
-  COMMON_LIFT_MS,
-  COMMON_LIFT_PX,
-  DEAL_LAND_AT,
-  DEAL_MS,
-  DEAL_STAGGER,
-  DOCK,
-  DROP,
-  EPIC_SHAKE_MS,
-  FLASH_MS,
-  FLIP_MS,
-  HEAD_DELAY,
-  IMPACT,
-  IMPACT_AT,
-  LAND_SHAKE_MS,
-  LEGENDARY_FLASH_MS,
-  LEGENDARY_JUMP,
-  LEGENDARY_JUMP_PX,
-  LEGENDARY_SHAKE_MS,
-  LIFT_PX,
-  MARK_AT,
-  MARK_IN_SPIN,
-  PHONE_DEAL_STAGGER,
-  RAYS_FADE_MS,
-  REVEAL_ALL_GAP,
-  RINGS,
-  RM_CANISTER_FADE,
-  RM_CARD_FADE,
-  RM_FADE_STAGGER,
-  RM_LEGENDARY_STILL,
-  RM_REVEAL_FADE,
-  SETTLE_MS,
-  SHAKE_MS,
-  SINK,
-  SINK_STAGGER,
-  SLOT_POP_MS,
-  SPIN,
-  SPRING_BACK_MS,
-  STORE_MS,
-  TREMBLE_MS,
-  bannerDuration,
-  dealKeyframes,
-  dealOrder,
-  dealRotation,
-  phoneAllHold,
-  phoneJump,
-  phoneSwell,
-  pileDepth,
-  pileOrder,
-  pilePose,
-  pileTransform,
-  pose,
-  revealSummary,
-  scaled,
-  swipeStores,
-  tierIndex,
-} from "../lib/booster_motion"
-import { cardHref, celebrationRemembered, csrfToken, newKey, readLayout, refreshPage, rememberPack, visit } from "../lib/booster_page"
+import { ART_POLL, ART_WAIT_MAX, COMMON_LIFT_MS, COMMON_LIFT_PX, DROP, EPIC_SHAKE_MS, FLIP_MS, IMPACT, IMPACT_AT, LEGENDARY_FLASH_MS, LEGENDARY_JUMP, LEGENDARY_JUMP_PX, LEGENDARY_SHAKE_MS, LIFT_PX, MARK_AT, MARK_IN_SPIN, REVEAL_ALL_GAP, RINGS, RM_LEGENDARY_STILL, RM_REVEAL_FADE, SETTLE_MS, SLOT_POP_MS, SPIN, SPRING_BACK_MS, STORE_MS, TREMBLE_MS, phoneAllHold, phoneJump, phoneSwell, revealSummary, scaled, swipeStores, tierIndex } from "../lib/booster_motion"
+import { cardHref, celebrationRemembered, csrfToken, readLayout, rememberPack, visit } from "../lib/booster_page"
 import type { SwipeRelease } from "../lib/booster_swipe"
 import { RARITIES, type Rarity } from "../lib/card_types"
-import {
-  celebrationAnnouncement,
-  countParts,
-  folded,
-  foldedLinkName,
-  foldedMarks,
-  foldedSubline,
-  foldedTitle,
-  gaugeFractions,
-  gaugeTicks,
-  juice,
-  resultLinkName,
-  resultTitle,
-  type CelebrationResult,
-  type CelebrationStrings,
-} from "../lib/celebration"
+import { celebrationAnnouncement } from "../lib/celebration"
 import { dispatchGameble } from "../lib/events"
-import { formatNumber, t, type Template } from "../lib/i18n"
-import { formatLocalTime } from "../lib/local_time"
+import { formatNumber, t } from "../lib/i18n"
 import { motionReduced } from "../lib/motion"
-import { sendOpening, type OpeningAnswer, type OpeningCard } from "../lib/opening"
+import { type OpeningAnswer } from "../lib/opening"
 import { repostHref, sendRepost } from "../lib/repost"
 import { serverTemplate } from "../lib/server_html"
-import {
-  NARROW_QUERY,
-  PHONE_QUERY,
-  activation,
-  arming,
-  bankDue,
-  bankFetchOwed,
-  bankFetched,
-  bannerEnded,
-  bannerShown,
-  canRevealAll,
-  canStore,
-  cardStored,
-  cardsDealt,
-  celebrationSpoken,
-  celebrationStepped,
-  celebrationToAnnounce,
-  controls,
-  countdownAtZero,
-  ejecting,
-  faceSize,
-  focusGiven,
-  focusTarget,
-  layoutApplied,
-  layoutAsked,
-  layoutFor,
-  legendaryEnded,
-  legendarySignalled,
-  lock,
-  lockReleased,
-  openingAnswered,
-  openingEnded,
-  openingRefused,
-  openingStarted,
-  owedBankTaken,
-  resultHeadShown,
-  retracted,
-  retracting,
-  revealAllEnded,
-  revealAllPlan,
-  revealAllStarted,
-  revealEnded,
-  revealMarked,
-  revealStarted,
-  revealingOpening,
-  shownCelebration,
-  shownResult,
-  start,
-  storeEnded,
-  storeStarted,
-  topOfPile,
-  unlock,
-  zoomClosed,
-  zoomOpened,
-  zoomStepped,
-  type BoosterState,
-  type Controls,
-  type FocusTarget,
-  type Hint,
-  type OpeningRefusal,
-} from "../lib/booster"
+import { NARROW_QUERY, PHONE_QUERY, activation, bankDue, bannerShown, canRevealAll, canStore, cardStored, celebrationSpoken, celebrationStepped, celebrationToAnnounce, faceSize, focusGiven, focusTarget, layoutApplied, layoutAsked, layoutFor, legendaryEnded, legendarySignalled, lock, lockReleased, owedBankTaken, revealAllEnded, revealAllPlan, revealAllStarted, revealEnded, revealMarked, revealStarted, revealingOpening, start, storeEnded, storeStarted, topOfPile, unlock, zoomClosed, zoomOpened, zoomStepped, type BoosterState, type FocusTarget } from "../lib/booster"
 import { screenTimers, type ScreenTimers } from "../lib/screen_timers"
 import { cloneContent, cloneFirstElement } from "../lib/templates"
 import type { Intent } from "../lib/screen"
 import type BoosterActionsController from "./booster_actions_controller"
 import type BoosterCanisterController from "./booster_canister_controller"
 import type BoosterCelebrationController from "./booster_celebration_controller"
-import type { CelebrationView, ResultView } from "./booster_celebration_controller"
 import type BoosterInfoController from "./booster_info_controller"
 import type BoosterPlateController from "./booster_plate_controller"
 import type BoosterStageController from "./booster_stage_controller"
-import type { CardIntent, CardView, HandView } from "./booster_stage_controller"
+import type { CardIntent } from "./booster_stage_controller"
 import type BoosterTrayController from "./booster_tray_controller"
 import type BoosterZoomController from "./booster_zoom_controller"
 
-type BoosterStrings = {
-  announceCard: string
-  bannerLine: string
-  canisterFacts: Template
-  canisterLabel: string
-  canisterLabelPlain: string
-  celebration: CelebrationStrings
-  emptyNext: string
-  faceDown: string
-  faceUp: string
-  faceUpStore: string
-  failed: string
-  hintDone: Template
-  hintRemaining: Template
-  legendarySignal: string
-  nextAt: string
-  refusedTitle: string
-  repostCard: string
-  repostFailed: string
-  reposted: string
-  reserveCount: Template
-  summary: Template
-  summaryTier: string
-  trayCount: string
-  traySlot: string
-  zoomLine: string
-}
-
-type Transition = (state: BoosterState) => BoosterState
-
-type Clock = Readonly<{ clock: string; spoken: string }>
-
 const ANNOUNCEMENTS_KEPT = 5
-
-const localTime = (iso: string): string => formatLocalTime(iso, "datetime", { locale: document.documentElement.lang }) ?? iso
 
 export class BoosterController extends Controller<HTMLElement> {
   static targets = ["panelActions", "phoneActions", "live", "announcement", "rarity", "pack", "card", "face", "setTier"]
@@ -298,9 +109,38 @@ export class BoosterController extends Controller<HTMLElement> {
   private icons = new Map<Rarity, HTMLTemplateElement>()
   private rarityNames = {} as Record<Rarity, string>
   private rarityLabels = {} as Record<Rarity, string>
-  private bannerKey: number | null = null
   private afterRenderQueued = false
   private media: { phone: MediaQueryList; narrow: MediaQueryList } | null = null
+
+  private readonly stageHost: BoosterStageHost = {
+    current: () => this.current,
+    timers: () => this.timers,
+    apply: (transition) => this.apply(transition),
+    announce: (text) => this.announce(text),
+    part: (index, name) => this.part(index, name),
+    slot: (index) => this.slot(index),
+    traySlot: (index) => this.traySlot(index),
+    shake: () => this.shake,
+    fx: () => this.fx,
+    flash: () => this.flash,
+    canister: () => this.canister(),
+    phoneLayout: () => this.phoneLayout(),
+  }
+
+  private readonly outletSet = (): BoosterOutlets => ({
+    info: this.boosterInfoOutlets,
+    actions: this.hasBoosterActionsOutlet ? this.boosterActionsOutlet : null,
+    canister: this.hasBoosterCanisterOutlet ? this.boosterCanisterOutlet : null,
+    stage: this.hasBoosterStageOutlet ? this.boosterStageOutlet : null,
+    plate: this.hasBoosterPlateOutlet ? this.boosterPlateOutlet : null,
+    tray: this.hasBoosterTrayOutlet ? this.boosterTrayOutlet : null,
+    zoom: this.hasBoosterZoomOutlet ? this.boosterZoomOutlet : null,
+    celebrations: this.boosterCelebrationOutlets,
+  })
+
+  private renderer?: BoosterRenderer
+  private opening?: OpeningSequence
+  private bankRefresh?: BankRefresh
 
   private readonly visibilityChanged = (): void => this.countdown?.visibilityChanged()
 
@@ -325,6 +165,7 @@ export class BoosterController extends Controller<HTMLElement> {
     this.timers = screenTimers()
     this.readRarities()
     this.readFaces()
+    this.assembleCollaborators()
     const bank = bankFrom({
       available: this.availableValue,
       reserveFull: this.reserveFullValue,
@@ -353,7 +194,7 @@ export class BoosterController extends Controller<HTMLElement> {
         setTimeout: (action, ms) => setTimeout(action, ms),
         clearTimeout: (timer) => clearTimeout(timer),
       },
-      { left: (seconds) => this.countdownLeft(seconds), zero: () => this.atZero() },
+      { left: (seconds) => this.countdownLeft(seconds), zero: () => this.bankRefresh?.atZero() },
     )
     document.addEventListener("visibilitychange", this.visibilityChanged)
     this.countdown.set(bank.nextAvailableAt, bank.serverTime)
@@ -410,7 +251,7 @@ export class BoosterController extends Controller<HTMLElement> {
   }
 
   open(): void {
-    void this.openBooster()
+    void this.opening?.open()
   }
 
   revealAll(): void {
@@ -597,6 +438,51 @@ export class BoosterController extends Controller<HTMLElement> {
     return template ? cloneContent(template) : null
   }
 
+  private render(): void {
+    const state = this.state
+    if (!state || !this.renderer) return
+    this.renderer.render(state)
+    this.queueAfterRender()
+  }
+
+  private assembleCollaborators(): void {
+    this.bankRefresh = new BankRefresh({
+      state: () => this.state,
+      current: () => this.current,
+      bankUrl: this.bankUrlValue,
+      disposed: () => this.timers.disposed,
+      apply: (transition) => this.apply(transition),
+    })
+    this.opening = new OpeningSequence({
+      ...this.stageHost,
+      openUrl: this.openUrlValue,
+      failedMessage: this.strings.failed,
+      refusedTitle: this.strings.refusedTitle,
+      keepFaces: (answer) => this.keepFaces(answer),
+      refreshBank: () => this.bankRefresh!.refresh(),
+    })
+    this.renderer = new BoosterRenderer({
+      element: this.element,
+      panelActions: this.panelActionsTarget,
+      phoneActions: this.phoneActionsTarget,
+      strings: this.strings,
+      delimiter: this.delimiterValue,
+      packSize: this.packSizeValue,
+      season: this.seasonValue,
+      cardUrl: this.cardUrlValue,
+      left: () => this.left,
+      rarityNames: () => this.rarityNames,
+      timers: () => this.timers,
+      outlets: this.outletSet,
+      apply: (transition) => this.apply(transition),
+      tierLabel: (tier) => this.tierLabel(tier),
+      number: (value) => this.number(value),
+      face: this.face,
+      faceFragment: (index, size) => this.faceFragment(index, size),
+      icon: this.icon,
+    })
+  }
+
   private number(value: number): string {
     return formatNumber(value, this.delimiterValue)
   }
@@ -657,133 +543,12 @@ export class BoosterController extends Controller<HTMLElement> {
     if (after.layout !== before.layout && this.hasBoosterStageOutlet) this.boosterStageOutlet.forgetGesture()
     if (!bankDue(this.current)) return
     this.apply(owedBankTaken)
-    void this.refreshBank()
-  }
-
-  private async refreshBank(): Promise<void> {
-    const generation = this.current.bankGeneration
-    const fresh = await fetchBank({ url: this.bankUrlValue })
-    if (!fresh || this.timers.disposed) return
-    this.apply((s) => bankFetched(s, fresh, generation))
+    void this.bankRefresh?.refresh()
   }
 
   private countdownLeft(seconds: number | null): void {
     this.left = seconds
     this.render()
-  }
-
-  private atZero(): void {
-    if (this.timers.disposed || !this.state) return
-    const action = countdownAtZero(this.state)
-    if (action === "page") refreshPage()
-    else if (action === "bank") void this.refreshBank()
-    else this.apply(bankFetchOwed)
-  }
-
-  private refuse(result: OpeningRefusal): void {
-    settle(this.canister()?.move)
-    const message = this.apply((s) => openingRefused(s, result, this.strings.failed)).reason ?? this.strings.failed
-    this.announce(message)
-    dispatchGameble("gameble:toast", { title: this.strings.refusedTitle, message, tone: "alert" })
-    this.apply(unlock)
-    if (result.kind === "refused") void this.refreshBank()
-  }
-
-  private async retract(): Promise<void> {
-    const { wait } = this.timers
-    const count = this.current.answer?.cards.length ?? 0
-    this.apply(retracting)
-    if (!motionReduced()) {
-      for (let index = 0; index < count; index++) {
-        const travel = this.part(index, "travel")
-        const from = this.phoneLayout() ? pileTransform(pileDepth(index, this.current.stored)) : pose()
-        settle(travel)
-        animate(travel, sinkKeyframes(from), { duration: SINK, delay: index * SINK_STAGGER, easing: "cubic-bezier(.5,0,.8,.4)", fill: "forwards" })
-      }
-      await wait(SINK + (count - 1) * SINK_STAGGER)
-    }
-    this.apply(retracted)
-    if (!motionReduced()) {
-      animate(this.canister()?.wrap, dockKeyframes(), { duration: DOCK, easing: "cubic-bezier(.2,.9,.3,1)", fill: "none" })
-      await wait(DOCK)
-    }
-  }
-
-  private async blowAndDeal(count: number): Promise<void> {
-    const { wait, later } = this.timers
-    const parts = this.canister()
-    this.apply(ejecting)
-    animate(parts?.capTop, capTopKeyframes(), { duration: CAPS_MS, easing: "cubic-bezier(.12,.8,.3,1)", fill: "forwards" })
-    animate(parts?.capBottom, capBottomKeyframes(), { duration: CAPS_MS, easing: "cubic-bezier(.12,.8,.3,1)", fill: "forwards" })
-    animate(parts?.body, bodyKeyframes(), { duration: BODY_MS, easing: "cubic-bezier(.5,0,1,.6)", fill: "forwards" })
-    animate(parts?.rays, fadeKeyframes(1, 0), { duration: RAYS_FADE_MS, fill: "forwards" })
-    blast(this.fx, parts?.button)
-    stageFlash(this.flash, "warm", 0.35, FLASH_MS)
-    stageShake(this.shake, 5, SHAKE_MS)
-    await wait(HEAD_DELAY)
-    this.apply(resultHeadShown)
-
-    const origin = this.canister()?.button?.getBoundingClientRect()
-    const phone = this.phoneLayout()
-    const stagger = phone ? PHONE_DEAL_STAGGER : DEAL_STAGGER
-    this.apply(cardsDealt)
-    let end = 0
-    ;(phone ? pileOrder(count) : dealOrder(count)).forEach((index, position) => {
-      const slot = this.slot(index)
-      const travel = this.part(index, "travel")
-      if (!slot || !travel || !origin) return
-      const rect = slot.querySelector(".booster-card__frame")?.getBoundingClientRect() ?? slot.getBoundingClientRect()
-      const dx = origin.left + origin.width / 2 - (rect.left + rect.width / 2)
-      const dy = origin.top + origin.height / 2 - (rect.top + rect.height / 2)
-      const delay = position * stagger
-      const rest = phone ? pilePose(pileDepth(index, this.current.stored)) : undefined
-      animate(travel, dealKeyframes(dx, dy, dealRotation(index, count), rest), { duration: DEAL_MS, delay, fill: "backwards", easing: "linear" })
-      later(delay + DEAL_MS * DEAL_LAND_AT, () => stageShake(this.shake, 1.5, LAND_SHAKE_MS))
-      end = Math.max(end, delay + DEAL_MS)
-    })
-    await wait(end)
-  }
-
-  private async fadeAndDeal(count: number): Promise<void> {
-    animate(this.canister()?.wrap, fadeKeyframes(1, 0), { duration: RM_CANISTER_FADE, fill: "forwards" })
-    this.apply(resultHeadShown)
-    this.apply(cardsDealt)
-    for (let index = 0; index < count; index++) {
-      animate(this.part(index, "travel"), fadeKeyframes(0, 1), { duration: RM_CARD_FADE, delay: index * RM_FADE_STAGGER, fill: "backwards" })
-    }
-    await this.timers.wait(Math.max(RM_CANISTER_FADE, RM_CARD_FADE + (count - 1) * RM_FADE_STAGGER))
-  }
-
-  private async openBooster(): Promise<void> {
-    const before = this.state
-    if (!before || this.apply(openingStarted) === before) return
-    this.apply(lock)
-    if (before.phase === "dealt") await this.retract()
-    rememberPack(null)
-
-    const key = this.current.pendingKey ?? newKey()
-    this.apply((s) => arming(s, key))
-    const reduced = motionReduced()
-    if (!reduced) animate(this.canister()?.move, armKeyframes(), { duration: ARM_MS, fill: "forwards" })
-    const [result] = await Promise.all([
-      sendOpening({ url: this.openUrlValue, key, csrfToken: csrfToken() }),
-      this.timers.wait(reduced ? 0 : ARM_MS),
-    ])
-    if (this.timers.disposed) return
-    if (result.kind !== "opened") {
-      this.refuse(result)
-      return
-    }
-
-    const answer = result.answer
-    this.keepFaces(answer)
-    this.apply((s) => openingAnswered(s, answer))
-
-    if (motionReduced()) await this.fadeAndDeal(answer.cards.length)
-    else await this.blowAndDeal(answer.cards.length)
-
-    this.apply(openingEnded)
-    this.apply(unlock)
   }
 
   private async artReady(index: number): Promise<void> {
@@ -1024,299 +789,6 @@ export class BoosterController extends Controller<HTMLElement> {
     return message
   }
 
-  private render(): void {
-    const state = this.state
-    if (!state) return
-    const view = controls(state)
-    const phone = state.layout === "phone"
-    this.element.dataset.layout = state.layout
-    this.element.dataset.phase = state.phase
-    this.element.dataset.status = state.status
-    this.element.setAttribute("aria-labelledby", phone ? "booster-title" : "booster-panel-title")
-
-    this.renderInfo(state, view)
-    this.renderActions(state, view)
-    this.renderCanister(state)
-    this.renderStage(state, view)
-    this.renderBanner(state)
-    this.renderPlate(state, view)
-    this.renderTray(state, view)
-    this.renderZoom(state, view)
-    this.renderCelebrations(state, view)
-    this.queueAfterRender()
-  }
-
-  private nextClock(): string | null {
-    return this.left === null ? null : formatClock(this.left)
-  }
-
-  private nextLine(state: BoosterState): Clock | null {
-    const clock = this.nextClock()
-    const { reserveFull, nextAvailableAt } = state.bank
-    if (reserveFull || clock === null || !nextAvailableAt) return null
-    return { clock, spoken: t(this.strings.nextAt, { time: localTime(nextAvailableAt) }) }
-  }
-
-  private nextSize(state: BoosterState): number {
-    return state.bank.nextPackSize ?? this.packSizeValue
-  }
-
-  private renderInfo(state: BoosterState, view: Controls): void {
-    const { available, reserveFull } = state.bank
-    const shownSize = state.answer?.cards.length || this.nextSize(state)
-    const info = {
-      lit: available,
-      size: this.number(shownSize),
-      reserve: t(this.strings.reserveCount, { count: available, n: this.number(available) }),
-      tone: view.tone,
-      reserveFull,
-      next: this.nextLine(state),
-    }
-    for (const outlet of this.boosterInfoOutlets) outlet.render(info)
-  }
-
-  private renderActions(state: BoosterState, view: Controls): void {
-    if (!this.hasBoosterActionsOutlet) return
-    const actions = this.boosterActionsOutlet
-    const host = state.layout === "phone" ? this.phoneActionsTarget : this.panelActionsTarget
-    if (actions.element.parentElement !== host) host.append(actions.element)
-    actions.arrange(state.layout)
-    actions.render({
-      open: view.open,
-      openDisabled: view.openDisabled,
-      busy: view.busy,
-      revealAllDisabled: view.revealAllDisabled,
-      locked: view.locked,
-      reason: state.reason,
-    })
-  }
-
-  private renderCanister(state: BoosterState): void {
-    if (!this.hasBoosterCanisterOutlet) return
-    const nextSize = this.nextSize(state)
-    const clock = this.nextClock()
-    const { nextAvailableAt } = state.bank
-    const season = this.seasonValue
-    this.boosterCanisterOutlet.render({
-      away: state.canisterAway,
-      empty: state.phase === "empty",
-      next:
-        clock !== null && nextAvailableAt
-          ? { clock: t(this.strings.emptyNext, { time: clock }), spoken: t(this.strings.nextAt, { time: localTime(nextAvailableAt) }) }
-          : null,
-      label: season > 0 ? t(this.strings.canisterLabel, { season, count: nextSize }) : t(this.strings.canisterLabelPlain, { count: nextSize }),
-      busy: state.phase !== "sealed" && state.phase !== "dealt",
-      armed: state.armed,
-      hintHidden: state.phase !== "sealed",
-      facts: t(this.strings.canisterFacts, { count: nextSize, n: this.number(nextSize) }),
-      docks: state.docks,
-    })
-  }
-
-  private hintText(hint: Hint): string {
-    switch (hint.kind) {
-      case "remaining":
-        return t(this.strings.hintRemaining, { count: hint.count, n: this.number(hint.count) })
-      case "done":
-        return t(this.strings.hintDone, { count: hint.count, n: this.number(hint.count) })
-      default:
-        return ""
-    }
-  }
-
-  private hand(state: BoosterState): HandView | null {
-    const answer = state.answer
-    const cards = answer?.cards ?? []
-    if (!answer || cards.length === 0) return null
-    const phone = state.layout === "phone"
-    const total = cards.length
-    const cardName = (card: OpeningCard, index: number): string =>
-      state.revealed[index]
-        ? t(phone ? this.strings.faceUpStore : this.strings.faceUp, { card: card.label, rarity: this.rarityNames[card.tier] })
-        : t(this.strings.faceDown, { position: index + 1, total })
-    const shown: CardView[] = []
-    cards.forEach((card, index) => {
-      if (phone && state.stored[index]) return
-      shown.push({
-        index,
-        tier: card.tier,
-        revealed: state.revealed[index] ?? false,
-        revealedAt: state.revealedAt[index],
-        legendary: state.legendary === index,
-        name: cardName(card, index),
-        tierLabel: this.tierLabel(card.tier),
-        repostName: t(this.strings.repostCard, { card: card.title }),
-        depth: phone ? pileDepth(index, state.stored) : null,
-      })
-    })
-    return { key: `${answer.pack.token}:${state.rebuilds}`, phone, cardBack: answer.pack.cardBack, dealt: state.dealt, cards: shown }
-  }
-
-  private renderStage(state: BoosterState, view: Controls): void {
-    if (!this.hasBoosterStageOutlet) return
-    const phone = state.layout === "phone"
-    this.boosterStageOutlet.render(
-      {
-        legendary: state.legendary !== null,
-        headShown: state.headShown,
-        hand: this.hand(state),
-        hint: !phone && view.hint ? this.hintText(view.hint) : null,
-      },
-      { face: this.face, icon: this.icon },
-    )
-  }
-
-  private renderBanner(state: BoosterState): void {
-    if (!this.hasBoosterStageOutlet) return
-    const banner = state.layout === "phone" ? null : state.banner
-    if ((banner?.key ?? null) === this.bannerKey) return
-    this.bannerKey = banner?.key ?? null
-    if (!banner) {
-      this.boosterStageOutlet.hideBanner()
-      return
-    }
-    const duration = bannerDuration(banner)
-    this.boosterStageOutlet.showBanner(
-      {
-        tier: banner.tier,
-        large: banner.large,
-        name: banner.large ? this.tierLabel(banner.tier) : this.rarityNames[banner.tier],
-        line: banner.line,
-        keyframes: bannerKeyframes(banner.reduced),
-        duration,
-      },
-      this.icon,
-    )
-    const key = banner.key
-    this.timers.later(duration, () => this.apply((s) => bannerEnded(s, key)))
-  }
-
-  private onTable(state: BoosterState): boolean {
-    return state.layout === "phone" && state.dealt && (state.answer?.cards.length ?? 0) > 0
-  }
-
-  private renderPlate(state: BoosterState, view: Controls): void {
-    if (!this.hasBoosterPlateOutlet) return
-    const answer = state.answer
-    const top = view.plate === null ? null : answer?.cards[view.plate]
-    const hint = state.layout === "phone" ? view.hint : null
-    this.boosterPlateOutlet.render(
-      {
-        shown: this.onTable(state),
-        hint: hint && { kind: hint.kind === "remaining" ? "done" : hint.kind, done: this.hintText(hint) },
-        plate:
-          view.plate !== null && top
-            ? {
-                key: `${answer?.pack.token}-${view.plate}`,
-                tier: top.tier,
-                tierText: this.tierLabel(top.tier),
-                line: t(this.strings.bannerLine, { title: top.title, year: top.year ?? "" }),
-              }
-            : null,
-        celebrating: Boolean(shownCelebration(state)) && view.plate === null,
-        busy: view.busy,
-      },
-      this.icon,
-    )
-  }
-
-  private renderTray(state: BoosterState, view: Controls): void {
-    if (!this.hasBoosterTrayOutlet) return
-    const answer = state.answer
-    const cards = answer?.cards ?? []
-    this.boosterTrayOutlet.render(
-      {
-        key: `${answer?.pack.token ?? ""}:${state.rebuilds}`,
-        shown: this.onTable(state),
-        count: t(this.strings.trayCount, { n: this.number(view.storedCount), total: this.number(cards.length) }),
-        busy: view.busy,
-        slots: cards.map((card, index) => ({
-          tier: card.tier,
-          coverUrl: card.coverUrl,
-          name: t(this.strings.traySlot, { card: card.label, rarity: this.rarityNames[card.tier] }),
-          stored: state.stored[index] ?? false,
-        })),
-      },
-      this.icon,
-    )
-  }
-
-  private renderZoom(state: BoosterState, view: Controls): void {
-    if (!this.hasBoosterZoomOutlet) return
-    const { zoom, answer } = state
-    const card = zoom !== null && state.layout === "phone" ? answer?.cards[zoom] : null
-    this.boosterZoomOutlet.render(
-      card && zoom !== null && answer
-        ? {
-            index: zoom,
-            tier: card.tier,
-            title: card.title,
-            line: t(this.strings.zoomLine, { rarity: this.rarityNames[card.tier], year: card.year ?? "" }),
-            href: cardHref(this.cardUrlValue, card.slug, answer.pack.token, zoom),
-            repostName: t(this.strings.repostCard, { card: card.title }),
-            previous: view.zoomPrevious,
-            next: view.zoomNext,
-          }
-        : null,
-      { face: (index) => this.faceFragment(index, "xl"), icon: this.icon },
-    )
-  }
-
-  private resultView(result: CelebrationResult, position: number): ResultView {
-    const strings = this.strings.celebration
-    const count = countParts(result, strings, this.delimiterValue)
-    const { from, to } = gaugeFractions(result)
-    return {
-      url: result.url,
-      tier: result.tier,
-      label: resultLinkName(result, strings, this.delimiterValue),
-      title: resultTitle(result, strings),
-      name: result.name,
-      before: count.before,
-      owned: count.owned,
-      rest: count.rest,
-      position,
-      from,
-      to,
-      juice: juice(result.tier),
-      ticks: gaugeTicks(result),
-    }
-  }
-
-  private celebrationView(state: BoosterState, results: readonly CelebrationResult[], phone: boolean): CelebrationView {
-    const strings = this.strings.celebration
-    const isFolded = folded(results)
-    const shown = shownResult(state)
-    const stepping = phone && !isFolded && results.length > 1
-    const subline = isFolded ? foldedSubline(results, strings) : null
-    return {
-      identity: results,
-      steps: phone ? state.celebrationSteps : 0,
-      still: state.celebrationStill && (!phone || state.celebrationSteps === 0),
-      results: isFolded ? [] : phone ? [this.resultView(results[shown], 0)] : results.map((result, position) => this.resultView(result, position)),
-      folded:
-        isFolded && subline
-          ? {
-              label: foldedLinkName(results, strings),
-              title: foldedTitle(results, strings),
-              marks: foldedMarks(results),
-              lead: subline.lead,
-              set: subline.set,
-              tier: subline.tier,
-            }
-          : null,
-      position: stepping ? t(strings.position, { index: shown + 1, count: results.length }) : null,
-    }
-  }
-
-  private renderCelebrations(state: BoosterState, view: Controls): void {
-    const results = shownCelebration(state)
-    const phone = state.layout === "phone"
-    for (const outlet of this.boosterCelebrationOutlets) {
-      const shows = results !== null && results.length > 0 && (outlet.phone ? phone && this.onTable(state) && view.plate === null : !phone)
-      outlet.render(shows && results ? this.celebrationView(state, results, outlet.phone) : null)
-    }
-  }
 }
 
 export default BoosterController

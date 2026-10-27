@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { arming, cardStored, ejecting, legendarySignalled, openingStarted, revealAllStarted, revealMarked, revealStarted } from "./booster_opening"
 import { bannerShown, idle, lock, locked } from "./booster_state"
 import { CLICK_AFTER_DRAG, Layout, REVEAL_GUARD } from "./booster_types"
-import { activation, controls, layoutApplied, layoutAsked, zoomClosed, zoomOpened, zoomStepped } from "./booster_view"
+import { activation, controls, layoutApplied, layoutAsked, onTable, zoomClosed, zoomOpened, zoomStepped } from "./booster_view"
 import { FIVE, VALVE, bank, dealt, revealedAll, startWith } from "./booster_fixtures"
 
 describe("layoutAsked, layoutApplied", () => {
@@ -137,5 +137,13 @@ describe("controls", () => {
     const state = { ...revealedAll(dealt(FIVE, { layout })), stored: [true, false, true, false, false], zoom: 2 }
     expect(controls(state)).toMatchObject({ zoomPrevious: true, zoomNext: false })
     expect(controls({ ...state, zoom: null })).toMatchObject({ zoomPrevious: false, zoomNext: false })
+  })
+})
+
+describe("onTable", () => {
+  it("is true only for a dealt hand on the phone layout", () => {
+    expect(onTable(dealt())).toBe(false)
+    expect(onTable({ ...dealt(), layout: "phone" })).toBe(true)
+    expect(onTable({ ...startWith(), layout: "phone" })).toBe(false)
   })
 })
