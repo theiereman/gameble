@@ -1,7 +1,9 @@
 require "application_system_test_case"
 require_relative "../support/steam_sign_in"
+require_relative "../support/holdings"
 
 class TradesTest < ApplicationSystemTestCase
+  include Holdings
   include SteamSignIn
 
   setup do
@@ -22,10 +24,6 @@ class TradesTest < ApplicationSystemTestCase
   def befriend(first, second)
     low, high = [ first.id, second.id ].minmax
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
-  end
-
-  def hold(player, card_season_id, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:, reserved: 0)
   end
 
   def propose(player, recipient, offer:, request:)

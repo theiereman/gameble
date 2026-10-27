@@ -1,8 +1,10 @@
 require "test_helper"
+require_relative "../../support/holdings"
 
 # Game::CollectionTiles: one tile per game, over the season's games and
 # every game held in any edition, at the edition the game shows.
 class Game::CollectionTilesTest < ActiveSupport::TestCase
+  include Holdings
   setup do
     @player = accounts_players(:player)
     @one = catalog_seasons(:one)
@@ -15,27 +17,25 @@ class Game::CollectionTilesTest < ActiveSupport::TestCase
       rarity:, number: one.number } ], returning: :id).rows.flatten.sole
   end
 
-  def hold(card_season_id, quantity = 1, player: @player) = Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
-
   def tiles(player = @player, season = @two) = Game::CollectionTiles.call(player, season).pluck(:id).sort
 
   test "a game held in the season and another one shows one tile, at its best rarity, else the season's edition, else the latest" do
     portal_two = edition(:portal_one, season: @two, rarity: "rare")
     rare_two = edition(:rare_card_one, season: @two, rarity: "rare")
     common_two = edition(:common_card_one, season: @two, rarity: "common")
-    hold(catalog_card_seasons(:portal_one).id)
-    hold(portal_two)
-    hold(catalog_card_seasons(:rare_card_one).id)
-    hold(rare_two)
+    hold(@player, catalog_card_seasons(:portal_one).id)
+    hold(@player, portal_two)
+    hold(@player, catalog_card_seasons(:rare_card_one).id)
+    hold(@player, rare_two)
 
     assert_equal [ catalog_card_seasons(:portal_one).id, rare_two, common_two ].sort, tiles
   end
 
   test "a game held only in an edition gone from the season keeps its tile; an edition with no copy left counts for nothing" do
     common_two = edition(:common_card_one, season: @two, rarity: "common")
-    hold(catalog_card_seasons(:legendary_card_one).id)
-    hold(catalog_card_seasons(:uncommon_card_one).id, 0)
-    hold(catalog_card_seasons(:rare_card_one).id, player: accounts_players(:moderator))
+    hold(@player, catalog_card_seasons(:legendary_card_one).id)
+    hold(@player, catalog_card_seasons(:uncommon_card_one).id, 0)
+    hold(accounts_players(:moderator), catalog_card_seasons(:rare_card_one).id)
 
     assert_equal [ catalog_card_seasons(:legendary_card_one).id, common_two ].sort, tiles
   end
@@ -51,8 +51,8 @@ class Game::CollectionTilesTest < ActiveSupport::TestCase
 
   test "the season asked decides between two editions at the same rarity" do
     rare_two = edition(:rare_card_one, season: @two, rarity: "rare")
-    hold(catalog_card_seasons(:rare_card_one).id)
-    hold(rare_two)
+    hold(@player, catalog_card_seasons(:rare_card_one).id)
+    hold(@player, rare_two)
 
     assert_includes tiles, rare_two
     assert_includes tiles(@player, @one), catalog_card_seasons(:rare_card_one).id

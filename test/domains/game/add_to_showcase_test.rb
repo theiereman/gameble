@@ -1,18 +1,16 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/holdings"
 
 # Adding a held card to the player's profile showcase: at the end, five at
 # most, once each, and only a card they hold.
 class Game::AddToShowcaseTest < ActiveSupport::TestCase
+  include Holdings
   include GamePacks
 
   setup do
     @player = accounts_players(:player)
     @cards = fixture_tier_ids
-  end
-
-  def hold(card_season_id, quantity = 1, reserved: 0, player: @player)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:, reserved:)
   end
 
   def add(card_season_id, player: @player)
@@ -30,7 +28,7 @@ class Game::AddToShowcaseTest < ActiveSupport::TestCase
   def writes = Game::ShowcaseEntry.count + Rails.configuration.event_store.read.count
 
   test "a held card joins at the end of the showcase, with one event" do
-    @cards.first(3).each { hold(it) }
+    @cards.first(3).each { hold(@player, it) }
     add(@cards[0]).value!
     add(@cards[1]).value!
 
@@ -45,9 +43,9 @@ class Game::AddToShowcaseTest < ActiveSupport::TestCase
   end
 
   test "a sixth card is refused while five are showcased, with the showcase-full line" do
-    @cards.each { hold(it); add(it).value! }
+    @cards.each { hold(@player, it); add(it).value! }
     sixth = second_edition
-    hold(sixth)
+    hold(@player, sixth)
 
     assert_no_difference -> { writes } do
       assert_equal :showcase_full, add(sixth).failure
@@ -58,8 +56,8 @@ class Game::AddToShowcaseTest < ActiveSupport::TestCase
   end
 
   test "a card not held, or held by someone else, is refused" do
-    hold(@cards[0], 0)
-    hold(@cards[1], player: accounts_players(:moderator))
+    hold(@player, @cards[0], 0)
+    hold(accounts_players(:moderator), @cards[1])
 
     assert_no_difference -> { writes } do
       assert_equal :card_not_owned, add(@cards[0]).failure
@@ -69,13 +67,13 @@ class Game::AddToShowcaseTest < ActiveSupport::TestCase
   end
 
   test "copies all promised to a trade still count as held" do
-    hold(@cards[0], 2, reserved: 2)
+    hold(@player, @cards[0], 2, reserved: 2)
 
     assert add(@cards[0]).success?
   end
 
   test "a card already showcased is refused" do
-    hold(@cards[0])
+    hold(@player, @cards[0])
     add(@cards[0]).value!
 
     assert_no_difference -> { writes } do
@@ -84,7 +82,7 @@ class Game::AddToShowcaseTest < ActiveSupport::TestCase
   end
 
   test "a visitor, a banned or a deleted player is refused" do
-    hold(@cards[0])
+    hold(@player, @cards[0])
 
     assert_no_difference -> { writes } do
       assert_equal :player_required, add(@cards[0], player: nil).failure

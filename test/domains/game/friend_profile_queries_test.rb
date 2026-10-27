@@ -1,7 +1,9 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
+require_relative "../../support/holdings"
 
 class Game::FriendProfileQueriesTest < ActiveSupport::TestCase
+  include Holdings
   include CatalogSeeds
 
   setup do
@@ -11,10 +13,6 @@ class Game::FriendProfileQueriesTest < ActiveSupport::TestCase
 
   def befriend(one, other)
     Game::Friendship.create!(low_player_id: [ one.id, other.id ].min, high_player_id: [ one.id, other.id ].max)
-  end
-
-  def hold(card_season_id, quantity: 1, gained_at: nil, player: @player)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:, last_gained_at: gained_at)
   end
 
   test "two players are friends from either side once their friendship exists" do

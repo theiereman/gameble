@@ -1,7 +1,9 @@
 require "test_helper"
 require_relative "../../support/rake_tasks"
+require_relative "../../support/holdings"
 
 class Game::DropFriendsAndTradesTest < ActiveSupport::TestCase
+  include Holdings
   include ActiveJob::TestHelper
   include RakeTasks
 
@@ -25,7 +27,6 @@ class Game::DropFriendsAndTradesTest < ActiveSupport::TestCase
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
   end
 
-  def hold(player, card_season_id, quantity) = Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
   def holding(player, card_season_id) = Game::Holding.find_by(player_id: player.id, card_season_id:)
   def propose(from, to, offer, request) = Game::ProposeTrade.new.call(player: from, recipient: to, offer:, request:).value!
   def friends?(first, second) = Game::FriendshipBetween.call(first, second)

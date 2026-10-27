@@ -1,8 +1,10 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/steam_sign_in"
+require_relative "../support/holdings"
 
 class TradesControllerTest < ActionDispatch::IntegrationTest
+  include Holdings
   include CountingRateLimit
   include SteamSignIn
 
@@ -28,10 +30,6 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
   def befriend(first, second)
     low, high = [ first.id, second.id ].minmax
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
-  end
-
-  def hold(player, card_season_id, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:, reserved: 0)
   end
 
   def holding(player, card_season_id) = Game::Holding.find_by(player_id: player.id, card_season_id:)
