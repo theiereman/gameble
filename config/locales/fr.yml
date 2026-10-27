@@ -2068,6 +2068,8 @@ fr:
       already_sent: "Invitation déjà envoyée."
       not_found: "Cette invitation n'existe plus."
       card_not_owned: "Vous ne possédez pas cette carte."
+      already_reposted: "Vous avez déjà reposté cette carte aujourd'hui. Réessayez demain."
+      repost_limit_reached: "Vous avez beaucoup reposté depuis une heure. Réessayez plus tard."
       card_already_showcased: "Cette carte est déjà dans votre vitrine."
       card_not_showcased: "Cette carte n'est pas dans votre vitrine."
       showcase_full: "Vitrine pleine : retirez une carte pour en ajouter une autre."

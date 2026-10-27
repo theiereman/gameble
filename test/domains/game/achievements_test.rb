@@ -145,7 +145,8 @@ class Game::AchievementsTest < ActiveSupport::TestCase
 
   test "reposts count the player's repost entries" do
     hold(@player, @common)
-    2.times { Game::RepostCard.new.call(player: @player, card_season_id: @common).value! }
+    hold(@player, @epic)
+    [ @common, @epic ].each { Game::RepostCard.new.call(player: @player, card_season_id: it).value! }
 
     assert_equal 2, progress[:reposts]
   end
