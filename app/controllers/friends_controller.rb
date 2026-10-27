@@ -1,7 +1,5 @@
 class FriendsController < ApplicationController
-  rate_limit to: 20, within: 1.minute, only: :remove,
-    by: -> { current_player&.id || request.remote_ip },
-    with: -> { redirect_to friends_path, alert: t("friends.throttled"), status: :see_other }
+  throttle_player to: 20, only: :remove, path: -> { friends_path }, alert: "friends.throttled"
 
   def show
     authorize :friend, :show?

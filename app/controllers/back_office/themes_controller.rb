@@ -64,7 +64,7 @@ module BackOffice
         if result.success?
           redirect_to destination, notice:, status: :see_other
         else
-          redirect_to destination, alert: operation.failure_message(result.failure), status: :see_other
+          redirect_refused operation, result, destination
         end
       end
 

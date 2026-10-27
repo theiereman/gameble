@@ -40,6 +40,7 @@ fr:
       next_at: "Prochaine capsule : %{time}"
       full: "Réserve pleine"
       in_reserve:
+        zero: "%{number} en réserve"
         one: "%{number} en réserve"
         other: "%{number} en réserve"
     player:
@@ -83,6 +84,7 @@ fr:
         all_cards: "Toutes les cartes"
         open_booster: "Ouvrir une capsule"
         reserve:
+          zero: "%{number} capsule en réserve"
           one: "%{number} capsule en réserve"
           other: "%{number} capsules en réserve"
         reserve_empty: "Réserve vide"
@@ -603,6 +605,7 @@ fr:
           ufo: "OVNI"
         publish: "Publier la saison %{number}"
         confirm:
+          zero: "Publier la saison %{number} et sa seule carte ? La rareté et le numéro de cette carte ne changeront plus jamais."
           one: "Publier la saison %{number} et sa seule carte ? La rareté et le numéro de cette carte ne changeront plus jamais."
           other: "Publier la saison %{number} et ses %{count} cartes ? Ses raretés et leurs numéros ne changeront plus jamais."
       show:
@@ -622,6 +625,7 @@ fr:
         scores: "Scores de prestige"
         scores_caption: "Scores de prestige de la saison : le plus bas, les centiles, le plus haut"
         card_count:
+          zero: "%{formatted} carte"
           one: "%{formatted} carte"
           other: "%{formatted} cartes"
         min: "Le plus bas"
@@ -632,9 +636,11 @@ fr:
         cards: "Cartes"
         threshold: "Score minimal"
         top:
+          zero: "La carte au score le plus haut"
           one: "La carte au score le plus haut"
           other: "Les %{count} cartes aux scores les plus hauts"
         bottom:
+          zero: "La carte au score le plus bas"
           one: "La carte au score le plus bas"
           other: "Les %{count} cartes aux scores les plus bas"
         rank: "Rang"
@@ -697,6 +703,7 @@ fr:
           all: "Tous les tags"
         no_tags: "Aucun tag à montrer : le brouillon n'en a pas, ou tous sont classés."
         dismiss_rest:
+          zero: "Marquer le tag non classé de cette page comme n'étant pas un thème"
           one: "Marquer le tag non classé de cette page comme n'étant pas un thème"
           other: "Marquer les %{count} tags non classés de cette page comme n'étant pas un thème"
         tags_caption: "Tags Steam des cartes de la saison en brouillon"
@@ -736,6 +743,7 @@ fr:
         theme_required: "Choisis le thème auquel rattacher le tag, officier."
       dismiss:
         dismissed:
+          zero: "%{count} tag est marqué comme n'étant pas un thème, officier."
           one: "%{count} tag est marqué comme n'étant pas un thème, officier."
           other: "%{count} tags sont marqués comme n'étant pas un thème, officier."
     roadmap_milestones:
@@ -1279,12 +1287,15 @@ fr:
         offline: "Hors ligne"
         private: "Profil privé"
         minutes_ago:
+          zero: "Il y a %{count} min"
           one: "Il y a %{count} min"
           other: "Il y a %{count} min"
         hours_ago:
+          zero: "Il y a %{count} h"
           one: "Il y a %{count} h"
           other: "Il y a %{count} h"
         days_ago:
+          zero: "Il y a %{count} j"
           one: "Il y a %{count} j"
           other: "Il y a %{count} j"
         activities:
@@ -1494,6 +1505,7 @@ fr:
       what_for_what: "%{theirs} contre %{yours}"
       to_choose: "À choisir"
       expires:
+        zero: "expire dans %{count} j"
         one: "expire dans %{count} j"
         other: "expire dans %{count} j"
     chip:
@@ -1511,18 +1523,22 @@ fr:
     age:
       now: "à l'instant"
       minutes:
+        zero: "il y a %{count} min"
         one: "il y a %{count} min"
         other: "il y a %{count} min"
       hours:
+        zero: "il y a %{count} h"
         one: "il y a %{count} h"
         other: "il y a %{count} h"
       days:
+        zero: "il y a %{count} j"
         one: "il y a %{count} j"
         other: "il y a %{count} j"
     board:
       heading: "Échange avec %{name}"
       expires_html: "Expire dans %{days}"
       days:
+        zero: "%{count} j"
         one: "%{count} j"
         other: "%{count} j"
       yours: "%{name} vous propose cet échange."
@@ -1545,6 +1561,7 @@ fr:
       yours_to_choose: "À vous de choisir"
       copies_label: "Exemplaires :"
       reserved:
+        zero: "Réservée"
         one: "Réservée"
         other: "%{count} réservées"
       new: "Nouveau"
@@ -1568,6 +1585,7 @@ fr:
     accepted:
       title: "Échange conclu"
       text:
+        zero: "%{cards} rejoint votre collection."
         one: "%{cards} rejoint votre collection."
         other: "%{cards} rejoignent votre collection."
     declined:
@@ -1882,6 +1900,7 @@ fr:
       one: "%{percent} positifs · %{reviews} avis"
       other: "%{percent} positifs · %{reviews} avis"
     copies:
+      zero: "%{count} exemplaire"
       one: "%{count} exemplaire"
       other: "%{count} exemplaires"
     no_copies: "Aucun"

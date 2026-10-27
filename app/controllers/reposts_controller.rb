@@ -12,14 +12,14 @@ class RepostsController < ApplicationController
 
     result = Game::RepostCard.new.call(player: current_player, card_season_id:)
     if result.success?
-      answer(:ok, :notice, t(".reposted"))
+      respond_with_message(:ok, :notice, t(".reposted"))
     else
-      answer(:unprocessable_content, :alert, Game::RepostCard.failure_message(result.failure), code: result.failure.to_s)
+      respond_with_message(:unprocessable_content, :alert, Game::RepostCard.failure_message(result.failure), code: result.failure.to_s)
     end
   end
 
   private
-    def answer(status, tone, message, code: nil)
+    def respond_with_message(status, tone, message, code: nil)
       respond_to do |format|
         format.turbo_stream do
           @message = message
@@ -34,11 +34,11 @@ class RepostsController < ApplicationController
     def not_found
       raise ActiveRecord::RecordNotFound unless request.format.turbo_stream? || request.format.json?
 
-      answer(:not_found, :alert, t("reposts.create.not_found"), code: "not_found")
+      respond_with_message(:not_found, :alert, t("reposts.create.not_found"), code: "not_found")
     end
 
     def throttled
       response.headers["Retry-After"] = RATE_LIMIT_WINDOW.to_i.to_s
-      answer(:too_many_requests, :alert, t("reposts.create.throttled"), code: "throttled")
+      respond_with_message(:too_many_requests, :alert, t("reposts.create.throttled"), code: "throttled")
     end
 end

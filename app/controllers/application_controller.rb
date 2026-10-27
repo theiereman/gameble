@@ -20,6 +20,12 @@ class ApplicationController < ActionController::Base
 
   helper_method :current_player, :forced_motion, :motion_reduced?
 
+  def self.throttle_player(to:, only:, path:, alert:, within: 1.minute)
+    rate_limit to:, within:, only:,
+      by: -> { current_player&.id || request.remote_ip },
+      with: -> { redirect_to instance_exec(&path), alert: t(alert), status: :see_other }
+  end
+
   private
     def public_read?
       false
@@ -132,6 +138,10 @@ class ApplicationController < ActionController::Base
         format.json { render json: { error: { code: code, message: message } }, status: status }
         format.any { head status }
       end
+    end
+
+    def redirect_refused(operation, result, to)
+      redirect_to to, alert: operation.failure_message(result.failure), status: :see_other
     end
 
     def default_url_options

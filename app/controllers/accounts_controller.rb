@@ -1,7 +1,5 @@
 class AccountsController < ApplicationController
-  rate_limit to: 5, within: 1.minute, only: :destroy,
-    by: -> { current_player&.id || request.remote_ip },
-    with: -> { redirect_to settings_path, alert: t("accounts.destroy.throttled"), status: :see_other }
+  throttle_player to: 5, only: :destroy, path: -> { settings_path }, alert: "accounts.destroy.throttled"
 
   def destroy
     authorize :account, :destroy?
@@ -16,7 +14,7 @@ class AccountsController < ApplicationController
       reset_session
       redirect_to home_path, notice: t(".deleted"), status: :see_other
     else
-      redirect_to settings_path, alert: Accounts::DeletePlayer.failure_message(result.failure), status: :see_other
+      redirect_refused Accounts::DeletePlayer, result, settings_path
     end
   end
 

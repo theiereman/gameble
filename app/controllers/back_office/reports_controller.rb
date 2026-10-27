@@ -21,7 +21,7 @@ module BackOffice
       if result.success?
         redirect_to back_office_reports_path, notice: t(".dismissed", name: helpers.public_profile_title(player)), status: :see_other
       else
-        redirect_to back_office_reports_path, alert: Accounts::DismissReports.failure_message(result.failure), status: :see_other
+        redirect_refused Accounts::DismissReports, result, back_office_reports_path
       end
     end
   end

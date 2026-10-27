@@ -20,7 +20,7 @@ module BackOffice
       if result.success?
         redirect_to return_path(back_office_reports_path), notice: t(".banned", name: helpers.public_profile_title(player)), status: :see_other
       else
-        redirect_to return_path(back_office_reports_path), alert: Accounts::BanPlayer.failure_message(result.failure), status: :see_other
+        redirect_refused Accounts::BanPlayer, result, return_path(back_office_reports_path)
       end
     end
 
@@ -32,7 +32,7 @@ module BackOffice
       if result.success?
         redirect_to return_path(back_office_bans_path), notice: t(".unbanned", name: helpers.public_profile_title(player)), status: :see_other
       else
-        redirect_to return_path(back_office_bans_path), alert: Accounts::UnbanPlayer.failure_message(result.failure), status: :see_other
+        redirect_refused Accounts::UnbanPlayer, result, return_path(back_office_bans_path)
       end
     end
 
