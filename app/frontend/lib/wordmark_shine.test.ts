@@ -1,7 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 import sweepSvg from "../images/pixel/wordmark-sweep.svg?raw"
-import shellStylesheet from "../styles/shell.css?raw"
+import shellCss from "../styles/shell.css?raw"
+import shellTopBarCss from "../styles/shell-top-bar.css?raw"
+import shellStatusCss from "../styles/shell-status.css?raw"
+import shellControlsCss from "../styles/shell-controls.css?raw"
+import shellScreensCss from "../styles/shell-screens.css?raw"
 import { FRAME_ROWS, STEP_MS, SWEEPING, SWEEP_ANIMATION, SWEEP_STEPS, clearSweep, endSweep, startSweep } from "./wordmark_shine"
+
+const shellStylesheet = [shellCss, shellTopBarCss, shellStatusCss, shellControlsCss, shellScreensCss].join("\n")
 
 // A link stand-in: its attributes only.
 class FakeLink {

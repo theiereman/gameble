@@ -1,0 +1,283 @@
+/* ---- Buttons ---- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: var(--space-button-height);
+  margin: 0 var(--space-3) var(--space-3) 0;
+  padding: var(--space-2) var(--space-5);
+  border: 0;
+  background: var(--color-line);
+  box-shadow: var(--pixel-outline-3), var(--button-inset);
+  color: var(--color-text-bright);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 120ms var(--step-small);
+}
+
+.button--small {
+  min-height: var(--space-button-height-sm);
+  padding: var(--space-1) var(--space-4);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+}
+
+.button:hover {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  transform: translateY(-3px);
+}
+
+.button:active {
+  box-shadow: var(--pixel-outline-3), var(--button-inset-pressed);
+  transform: translateY(2px);
+}
+
+.button:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--button-inset);
+}
+
+.button--primary {
+  background: var(--color-primary);
+  color: var(--color-on-lime);
+}
+
+.button--primary:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-on-lime);
+}
+
+.button--danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.button--danger:hover {
+  background: var(--color-alert);
+  color: var(--color-on-alert);
+}
+
+/* A link: muted JetBrains Mono, accent with a pixel arrow on hover. */
+.button--link {
+  min-height: var(--space-touch-min);
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--color-muted);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+}
+
+.button--link::after {
+  content: "";
+  width: 6px;
+  height: 10px;
+  background: currentColor;
+  mask: url("../images/pixel/arrow-small-right.svg") no-repeat center / contain;
+  visibility: hidden;
+}
+
+.button--link:hover {
+  background: none;
+  color: var(--color-accent);
+  transform: none;
+}
+
+.button--link:hover::after {
+  visibility: visible;
+}
+
+.button--link:active {
+  box-shadow: none;
+  transform: none;
+}
+
+.button--link:focus-visible {
+  box-shadow: var(--focus-ring-gap);
+}
+
+/* Disabled: greyed, no lift, no press; its reason is written beside it. */
+.button:disabled,
+.button[aria-disabled="true"] {
+  background: var(--color-disabled-bg);
+  box-shadow: var(--pixel-outline-3);
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button--link:disabled {
+  background: none;
+  box-shadow: none;
+}
+
+/* A one-button form (sign-out, the chest) sits inline like a link button. */
+.button-form {
+  display: inline-block;
+  margin: 0;
+}
+
+/* ---- Panels ---- */
+
+.panel {
+  position: relative;
+  margin: 0;
+  padding: var(--space-panel-padding);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+  color: var(--color-text);
+}
+
+.panel--quiet {
+  background: var(--color-panel-sunken);
+  box-shadow: var(--panel-soft-border);
+}
+
+/* Two accent L-shapes, top left and bottom right, outside the panel. */
+.panel--brackets::before,
+.panel--brackets::after {
+  content: "";
+  position: absolute;
+  width: var(--corner-brackets-size);
+  height: var(--corner-brackets-size);
+  border: 0 solid var(--color-accent);
+  pointer-events: none;
+}
+
+.panel--brackets::before {
+  top: var(--corner-brackets-offset);
+  left: var(--corner-brackets-offset);
+  border-top-width: var(--corner-brackets-stroke);
+  border-left-width: var(--corner-brackets-stroke);
+}
+
+.panel--brackets::after {
+  right: var(--corner-brackets-offset);
+  bottom: var(--corner-brackets-offset);
+  border-right-width: var(--corner-brackets-stroke);
+  border-bottom-width: var(--corner-brackets-stroke);
+}
+
+/* The line beside a Steam sign-in button: what signing in accepts. */
+.sign-in-acceptance {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.sign-in-acceptance a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sign-in-acceptance a:hover {
+  color: var(--color-accent-hi);
+}
+
+/* ---- Modal: a scrim, a bracketed
+   panel with an accent title row and a square close button. The panel
+   fills the dialog, so a click on the dialog itself is on the scrim. On the
+   phone, a bottom sheet with a grab handle and a line on its top edge. ---- */
+
+.modal {
+  width: min(var(--modal-width), calc(100vw - 2 * var(--space-gutter-phone)));
+  max-width: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  overflow: visible;
+}
+
+.modal::backdrop {
+  background: var(--modal-scrim);
+}
+
+/* Opening: the scrim fades in 160ms, the panel
+   rises 16px into place in 220ms (on the phone, the sheet from below). */
+.modal[open] {
+  animation: modal-rise 220ms var(--ease-out);
+}
+
+.modal[open]::backdrop {
+  animation: modal-fade 160ms linear;
+}
+
+@keyframes modal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@keyframes modal-sheet {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.modal__panel {
+  box-shadow: var(--panel-border), var(--overlay-shadow);
+}
+
+.modal__handle {
+  display: none;
+}
+
+.modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-5);
+}
+
+.modal__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.modal__close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.modal__close:hover {
+  color: var(--color-alert);
+}
+
+.modal__close:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.modal__body {
+  display: flex;
+  justify-content: center;
+}

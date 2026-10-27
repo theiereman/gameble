@@ -585,7 +585,7 @@ function iconSvg(name, { grid, legend = {} }) {
 // The top bar's wordmark under a hovering mouse: the wordmark without its
 // shine, then a strip of shine overlays one wordmark high each, frame 0 the
 // rest shine and the next ones the band's sweep. The SVG clips the strip to
-// frame 0; the stylesheet steps it up a frame at a time (styles/shell.css).
+// frame 0; the stylesheet steps it up a frame at a time (styles/shell-top-bar.css).
 function wordmarkSweepSvg() {
   const mask = wordmarkMask()
   const rows = mask.length
