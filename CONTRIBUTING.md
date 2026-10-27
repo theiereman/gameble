@@ -16,19 +16,7 @@ The forms are in English, but you can fill them in French.
 
 ## Report a bug
 
-Something broke, or did not do what you expected: pick **Bug report**.
-
-Tell it as you would tell a friend, no technical words needed. Three questions matter most:
-
-| Question | Example |
-| --- | --- |
-| What did you do? | Opened a capsule, then clicked the third card |
-| What did you expect? | The card turns over and shows its game |
-| What happened instead? | Nothing, the card stayed face down |
-
-Then add the page address, your device and your browser. A screenshot or a short video helps a lot: drag it straight into the form.
-
-One bug per form. If you see three, send three forms.
+Something broke, or did not do what you expected: pick **Bug report**. [Reporting a problem](docs/reporting-problems.md) tells how to fill it in.
 
 ## Suggest a feature
 

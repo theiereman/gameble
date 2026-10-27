@@ -30,7 +30,7 @@ ssh:
   port: 22
   proxy_command: cloudflared access ssh --hostname %h
 
-# Every container logs to journald, which the host keeps 30 days (README, Retention).
+# Every container logs to journald, which the host keeps 30 days (docs/operations.md, Retention).
 logging:
   driver: journald
 

@@ -33,7 +33,7 @@ step() {
 [ -n "$release" ] || fail "usage: script/backup/restore_drill <release tag, e.g. v1.2.0>"
 sha=$(git rev-parse --verify --quiet "${release}^{commit}") || fail "no commit for $release; run git fetch --tags"
 image="$RELEASE_IMAGE:$sha"
-[ -f config/backup_restic.key ] || fail "config/backup_restic.key is missing (README, Backups)"
+[ -f config/backup_restic.key ] || fail "config/backup_restic.key is missing (docs/operations.md, Backups)"
 [ -f config/master.key ] || fail "config/master.key is missing"
 
 set -a
