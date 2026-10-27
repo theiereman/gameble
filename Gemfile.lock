@@ -552,7 +552,7 @@ GEM
     uri (1.1.2)
     useragent (0.16.11)
     version_gem (1.1.15)
-    view_component (4.15.0)
+    view_component (4.16.0)
       actionview (>= 7.1.0)
       activesupport (>= 7.1.0)
       concurrent-ruby (~> 1)
@@ -635,7 +635,7 @@ DEPENDENCIES
   turbo-mount (~> 0.4.4)
   turbo-rails (~> 2.0.23)
   tzinfo-data
-  view_component (~> 4.15.0)
+  view_component (~> 4.16.0)
   vite_rails (~> 3.11.1)
   web-console
 
@@ -835,7 +835,7 @@ CHECKSUMS
   uri (1.1.2) sha256=89292e98eabbef6248b0a0ed5e7e398e152f83f17560023a6d94a7f492b169fb
   useragent (0.16.11) sha256=700e6413ad4bb954bb63547fa098dddf7b0ebe75b40cc6f93b8d54255b173844
   version_gem (1.1.15) sha256=a73241587b29252e3567e0c818ded80730eb754d43b508f6ce4db22ca9ba27d0
-  view_component (4.15.0) sha256=2924e207b102c04ab51c4d318535f03f1c3aab3c81ecff99b1cc631b43e14eac
+  view_component (4.16.0) sha256=e070850e01f05cabde569c9158350c44d25ebbc90b4e60de4413e2131daeee07
   vite_rails (3.11.1) sha256=61fa4a7c9248fc28f22a05e0760810bf79f645b776c721d888a815c5d21dd338
   vite_ruby (3.11.1) sha256=51286571c86ae1639356755e141d5b191aac690e68d7ad52ef924a95c0710dcd
   web-console (4.3.0) sha256=e13b71301cdfc2093f155b5aa3a622db80b4672d1f2f713119cc7ec7ac6a6da4
