@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+# Usage: script/check_planning_references [path ...]
+# Fails on planning ids in the code; without arguments it scans the repository's code directories.
+
+DEFAULT_ROOTS = %w[app config db lib script test packs].freeze
+PLANNING_REFERENCE = Regexp.union(
+  /\bAD-\d+/, /\bCAP-\d+/, /\bR-\d+/,
+  /\bstory \d+\.\d+/i, /\bepic \d+/i,
+  /DESIGN\.md/, /EXPERIENCE\.md/
+)
+SKIPPED_DIRECTORIES = %w[node_modules tmp .git].freeze
+
+def files_under(path)
+  return [ path ] if File.file?(path)
+
+  Dir.glob(File.join(path, "**", "*"), File::FNM_DOTMATCH).select do |candidate|
+    File.file?(candidate) && (candidate.split("/") & SKIPPED_DIRECTORIES).empty?
+  end
+end
+
+def offending_lines(file)
+  File.foreach(file, encoding: "UTF-8").each_with_index.filter_map do |line, index|
+    return [] unless line.valid_encoding?
+
+    "#{file}:#{index + 1}: #{line.strip}" if line.match?(PLANNING_REFERENCE)
+  end
+end
+
+roots = ARGV.empty? ? DEFAULT_ROOTS.select { |root| File.exist?(root) } : ARGV
+offenders = roots.flat_map { |root| files_under(root) }.sort.flat_map { |file| offending_lines(file) }
+
+if offenders.any?
+  puts "Planning references in the code:", offenders
+  exit 1
+end
