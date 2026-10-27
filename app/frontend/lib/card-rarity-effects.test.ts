@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest"
-import boosterLayoutsStylesheet from "../styles/booster-layouts.css?raw"
-import boosterStylesheet from "../styles/booster.css?raw"
+import booster from "../styles/booster.css?raw"
+import boosterCanister from "../styles/booster-canister.css?raw"
+import boosterCelebration from "../styles/booster-celebration.css?raw"
+import boosterEffects from "../styles/booster-effects.css?raw"
+import boosterLayouts from "../styles/booster-layouts.css?raw"
+import boosterLayoutsTray from "../styles/booster-layouts-tray.css?raw"
 import cardDetail from "../styles/card-detail.css?raw"
 import cardDetailPublic from "../styles/card-detail-public.css?raw"
 import cardDetailStepping from "../styles/card-detail-stepping.css?raw"
 import cardRarityEffectsStylesheet from "../styles/card-rarity-effects.css?raw"
 import hubStylesheet from "../styles/hub.css?raw"
+
+const boosterStylesheet = booster + boosterCanister + boosterEffects + boosterCelebration
+const boosterLayoutsStylesheet = boosterLayouts + boosterLayoutsTray
 
 const cardDetailStylesheet = cardDetail + cardDetailStepping + cardDetailPublic
 

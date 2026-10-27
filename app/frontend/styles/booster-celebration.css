@@ -1,0 +1,384 @@
+/* The booster's set celebration and its loops. Imported after booster-effects.css. */
+
+.booster-celebration__notches {
+  display: inline-flex;
+  flex: none;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.booster-celebration__notches i {
+  display: block;
+  width: 4px;
+  height: 8px;
+  background: var(--celebration-tier);
+}
+
+.booster-celebration__notches i:nth-child(2) {
+  height: 10px;
+}
+
+.booster-celebration__notches i:nth-child(3) {
+  height: 12px;
+}
+
+.booster-celebration__stamp {
+  display: inline-block;
+  flex: none;
+  width: 22px;
+  height: 14px;
+  box-shadow: inset 0 0 0 3px var(--color-lime), 0 0 0 var(--space-unit) var(--color-outline);
+  transform: rotate(-6deg);
+}
+
+.booster-celebration__name .booster-celebration__stamp {
+  animation: booster-celebration-wipe 160ms steps(4) both;
+  animation-delay: calc(var(--entrance) + 680ms);
+}
+
+.booster-celebration__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px 10px;
+}
+
+.booster-celebration__name {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+  color: var(--color-text-max);
+  font: var(--font-card-title-l);
+  letter-spacing: var(--tracking-card-title-l);
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.booster-celebration__count {
+  color: var(--color-text-max);
+  font: var(--font-card-title-l);
+  white-space: nowrap;
+}
+
+.booster-celebration__roll {
+  display: inline-block;
+  height: 1rem;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.booster-celebration__roll > span {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  transform: translateY(-1rem);
+  animation: booster-celebration-roll 120ms steps(2) both;
+  animation-delay: calc(var(--entrance) + 380ms);
+}
+
+.booster-celebration__roll > span > span {
+  display: block;
+  height: 1rem;
+}
+
+.booster-celebration__total {
+  color: var(--color-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.booster-celebration__gauge {
+  position: relative;
+  display: block;
+  height: 8px;
+  margin: 10px 0 21px;
+  background: var(--color-panel-sunken);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-line-soft);
+}
+
+.booster-celebration__fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+}
+
+.booster-celebration__fill--new {
+  background: var(--celebration-tier);
+  transform: scaleX(var(--to));
+  animation: booster-celebration-fill-new 380ms steps(6) both;
+  animation-delay: calc(var(--entrance) + 80ms);
+}
+
+.booster-celebration__fill--before {
+  background: var(--color-accent);
+  transform: scaleX(var(--from));
+  animation: booster-celebration-fill-before 380ms steps(6) both;
+  animation-delay: calc(var(--entrance) + 80ms);
+}
+
+.booster-celebration__lime {
+  position: absolute;
+  inset: 0;
+  background: var(--color-lime);
+  animation: booster-celebration-fade 40ms steps(1, end) both;
+  animation-delay: calc(var(--entrance) + 440ms);
+}
+
+.booster-celebration__glow {
+  position: absolute;
+  inset: -4px;
+  background: var(--celebration-light);
+  opacity: 0;
+  animation: booster-celebration-blink 200ms steps(4) both;
+  animation-delay: calc(var(--entrance) + 440ms);
+}
+
+.booster-celebration__end {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 0;
+  height: 0;
+}
+
+.booster-celebration__end .booster-celebration__sparks {
+  --sparks-at: 440ms;
+}
+
+.booster-celebration__tick {
+  position: absolute;
+  top: -4px;
+  left: calc(var(--at) * 100%);
+  width: 2px;
+  height: 16px;
+  margin-left: -1px;
+  background: repeating-linear-gradient(to bottom, var(--color-line-deep) 0 2px, transparent 2px 4px);
+}
+
+.booster-celebration__tick:not([data-state="pending"]) {
+  background: var(--celebration-tier);
+  transform: translateY(-4px);
+}
+
+.booster-celebration__tick[data-state="crossed"] {
+  animation: booster-celebration-tick 100ms steps(2) both;
+  animation-delay: calc(var(--entrance) + var(--light));
+}
+
+.booster-celebration__tick[data-state="crossed"]::before {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, var(--color-line-deep) 0 2px, var(--color-panel) 2px 4px);
+  content: "";
+  opacity: 0;
+  animation: booster-celebration-unlit 40ms steps(1, end) both;
+  animation-delay: calc(var(--entrance) + var(--light));
+}
+
+.booster-celebration__tick .booster-celebration__notches {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.booster-celebration__tick .booster-celebration__notches i {
+  height: 8px;
+}
+
+.booster-celebration__tick[data-state="pending"] .booster-celebration__notches i {
+  width: 6px;
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--color-line-deep);
+}
+
+/* A rank's mark under its tick, one CSS px per art pixel, 4px under the
+   gauge: line-deep while ahead, the tier colour once reached. */
+.booster-celebration__tick .booster-celebration__rank {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  color: var(--color-line-deep);
+  transform: translateX(-50%);
+}
+
+.booster-celebration__tick:not([data-state="pending"]) .booster-celebration__rank {
+  top: 20px;
+  color: var(--celebration-tier);
+}
+
+.booster-celebration__tick .rank-mark {
+  width: var(--rank-width);
+  height: var(--rank-height);
+}
+
+.booster-celebration__tick[data-state="crossed"] .booster-celebration__notches,
+.booster-celebration__tick[data-state="crossed"] .booster-celebration__rank {
+  animation: booster-celebration-notches 180ms steps(3) both;
+  animation-delay: calc(var(--entrance) + var(--light));
+}
+
+.booster-celebration__tick .booster-celebration__sparks {
+  --sparks-at: var(--light);
+  top: 2px;
+  left: 1px;
+}
+
+.booster-celebration__marks {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 20px;
+  margin-top: 2px;
+}
+
+/* The folded line's marks, one per tier its results reached, each
+   popping in its tier colour after the one before. */
+.booster-celebration__mark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 14px;
+  color: var(--celebration-tier);
+  animation: booster-celebration-pop 180ms steps(2, end) both;
+  animation-delay: calc(var(--entrance) + var(--light));
+}
+
+.booster-celebration__sub {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--color-text);
+  font: var(--font-body-small);
+  font-weight: var(--font-weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.booster-celebration__sub b {
+  color: var(--color-text-bright);
+}
+
+.booster-celebration__hint {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-muted);
+  font: var(--font-weight-bold) 0.625rem / 0.875rem var(--font-family-jetbrains-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.booster-celebration__banner[data-tier="folded"] .booster-celebration__hint {
+  top: auto;
+  bottom: 8px;
+}
+
+/* A result's hint is the arrow alone, in the free corner beside its ribbon. */
+.booster-celebration__hint--arrow {
+  top: 9px;
+}
+
+.booster-celebration__banner:hover .booster-celebration__hint,
+.booster-celebration__banner:focus-visible .booster-celebration__hint {
+  color: var(--color-text-max);
+}
+
+.booster-celebration__banner:hover .booster-celebration__hint--arrow,
+.booster-celebration__banner:focus-visible .booster-celebration__hint--arrow {
+  transform: translateX(2px);
+}
+
+@keyframes booster-celebration-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes booster-celebration-unlit {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes booster-celebration-wipe {
+  from { clip-path: inset(-4px calc(100% + 4px) -4px -4px); }
+  to { clip-path: inset(-4px); }
+}
+
+@keyframes booster-celebration-fill-before {
+  0% { transform: scaleX(0); }
+  45%, 100% { transform: scaleX(var(--from)); }
+}
+
+@keyframes booster-celebration-fill-new {
+  0% { transform: scaleX(0); }
+  45% { transform: scaleX(var(--from)); }
+  100% { transform: scaleX(var(--to)); }
+}
+
+@keyframes booster-celebration-roll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-1rem); }
+}
+
+@keyframes booster-celebration-tick {
+  from { transform: translateY(0); }
+  to { transform: translateY(-4px); }
+}
+
+@keyframes booster-celebration-notches {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.4); }
+  1% { opacity: 1; }
+  60% { transform: translateX(-50%) scale(1.5); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+@keyframes booster-celebration-pop {
+  0% { opacity: 0; transform: scale(0.4); }
+  1% { opacity: 1; }
+  60% { transform: scale(1.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes booster-celebration-blink {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes booster-celebration-spark {
+  0% { opacity: 0; transform: translate(0, 0); }
+  1% { opacity: 1; transform: translate(0, 0); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)); }
+}
+
+@keyframes booster-celebration-gloss {
+  0% { opacity: 0; transform: translateX(-24px) skewX(-24deg); }
+  1% { opacity: 1; transform: translateX(-24px) skewX(-24deg); }
+  99% { opacity: 1; transform: translateX(300px) skewX(-24deg); }
+  100% { opacity: 0; transform: translateX(300px) skewX(-24deg); }
+}
+
+/* ---- Loops: transform only ---- */
+
+@keyframes booster-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes booster-breath {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes booster-sweep {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  55%, 100% { transform: translateX(700%) skewX(-20deg); }
+}
+
+@keyframes booster-back-sheen {
+  0%, 55% { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(220%) skewX(-20deg); }
+}
