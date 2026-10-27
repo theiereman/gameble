@@ -131,7 +131,7 @@ accessories:
 # accessories:
 #   db:
 #     image: mysql:8.0
-#     host: 192.168.0.2
+#     host: <accessory host>
 #     # Change to 3306 to expose port to the world instead of just local network.
 #     port: "127.0.0.1:3306:3306"
 #     env:
@@ -146,7 +146,7 @@ accessories:
 #       - data:/var/lib/mysql
 #   redis:
 #     image: valkey/valkey:8
-#     host: 192.168.0.2
+#     host: <accessory host>
 #     port: 6379
 #     directories:
 #       - data:/data

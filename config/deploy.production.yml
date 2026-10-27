@@ -1,4 +1,4 @@
-# Production: gameble.net on its own home lab LXC (192.168.1.44), reached only
+# Production: gameble.net on its own home lab LXC, reached only
 # through a Cloudflare Tunnel: cloudflared runs on the LXC as a systemd service
 # and forwards plain HTTP to kamal-proxy on localhost:80. No inbound web port
 # is open, so no request reaches the app without passing Cloudflare.

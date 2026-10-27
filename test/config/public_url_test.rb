@@ -13,7 +13,7 @@ class PublicUrlTest < ActiveSupport::TestCase
     "https://Gameble.example/" => "https://gameble.example",
     "HTTPS://GAMEBLE.EXAMPLE:443" => "https://gameble.example",
     "http://h:8080" => "http://h:8080",
-    "http://192.168.1.6" => "http://192.168.1.6",
+    "http://gameble.internal" => "http://gameble.internal",
     "http://h:80/" => "http://h",
     "http://[::1]:3000" => "http://[::1]:3000",
     "https://h:65535" => "https://h:65535",
