@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+# Usage: script/check_file_sizes [path ...]
+# Fails on source files over their line limit; without arguments it scans the repository's code directories.
+
+DEFAULT_ROOTS = %w[app config db lib script packs].freeze
+LIMITS = { ".rb" => 400, ".ts" => 400, ".css" => 500 }.freeze
+EXEMPT = %r{(\A|/)test/|_test\.rb\z|\.test\.ts\z|(\A|/)db/(schema|queue_schema)\.rb\z}
+SKIPPED_DIRECTORIES = %w[node_modules tmp .git].freeze
+
+def files_under(path)
+  return [ path ] if File.file?(path)
+
+  Dir.glob(File.join(path, "**", "*")).select do |candidate|
+    File.file?(candidate) && (candidate.split("/") & SKIPPED_DIRECTORIES).empty?
+  end
+end
+
+roots = ARGV.empty? ? DEFAULT_ROOTS.select { |root| File.exist?(root) } : ARGV
+offenders = roots.flat_map { |root| files_under(root) }.sort.filter_map do |file|
+  limit = LIMITS[File.extname(file)]
+  next if limit.nil? || file.match?(EXEMPT)
+
+  lines = File.foreach(file).count
+  "#{file}: #{lines} lines, limit #{limit}" if lines > limit
+end
+
+if offenders.any?
+  puts "Files over their size limit:", offenders
+  exit 1
+end
