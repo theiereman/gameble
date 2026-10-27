@@ -1,0 +1,366 @@
+/* ---- Screen changes: the old screen slides 32px
+   away and fades in 170ms; the new one slides in from 48px in 260ms, 40ms
+   later. The bars and the atmosphere do not move. ---- */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-old(screen) {
+  animation: screen-out 170ms var(--ease-out) both;
+}
+
+::view-transition-new(screen) {
+  animation: screen-in 260ms var(--ease-out) 40ms both;
+}
+
+/* A visit that keeps the frame of the page shown (the same page, a step of
+   Trades; lib/screen_change.ts) is no screen change: the screen is not
+   captured apart, so the page's new picture replaces the old one at once
+   (with the screen captured and its animations removed, the old and new
+   pictures would show on top of each other until the group's own 250ms
+   animation ends). */
+html[data-screen-change="same"] .main {
+  view-transition-name: none;
+}
+
+/* A sub-view's step (the card detail's ◀ ▶; sub_view_controller.ts) is no
+   screen change either: the screen stays, only the sub-view's own named
+   parts move (styles/card-detail.css). */
+html[data-sub-view-step] .main {
+  view-transition-name: none;
+}
+
+/* The phone tab bar and the toasts are captured apart so the sliding screen,
+   drawn above the root picture, never covers them; they do not move, and
+   their new picture replaces the old one at once. */
+.tab-bar {
+  view-transition-name: tab-bar;
+}
+
+.toasts {
+  view-transition-name: toasts;
+}
+
+::view-transition-group(tab-bar),
+::view-transition-group(toasts),
+::view-transition-new(tab-bar),
+::view-transition-new(toasts) {
+  animation: none;
+}
+
+::view-transition-old(tab-bar),
+::view-transition-old(toasts) {
+  animation: none;
+  opacity: 0;
+}
+
+@keyframes screen-out {
+  to {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+}
+
+/* ---- Widths and breakpoints ---- */
+
+@media (max-width: 1179px) {
+  .main {
+    padding: var(--space-page-padding-medium);
+  }
+
+  .top-bar__inner {
+    padding-inline: var(--space-gutter-medium);
+  }
+
+  /* The packs chip drops its divider and countdown (still in its text). */
+  .packs-chip__divider {
+    display: none;
+  }
+
+  .packs-chip__next {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 899px) {
+  /* Labels give way to their values, which keep them in their names. */
+  .packs-chip__label,
+  .player-chip__name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* The phone: one portrait column of at most 480px, the tab bar fixed at
+   the bottom with the safe area, toasts at the top. */
+@media (max-width: 719px) {
+  html {
+    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .main {
+    max-width: var(--space-phone-column-max);
+    padding: var(--space-page-padding-phone);
+    padding-bottom: calc(var(--space-7) + var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .top-bar__inner {
+    max-width: var(--space-phone-column-max);
+    padding: var(--space-2) var(--space-gutter-phone);
+    padding-top: max(var(--space-2), env(safe-area-inset-top, 0px));
+    gap: var(--space-3);
+  }
+
+  .main:has(+ .ticker) {
+    padding-bottom: var(--space-7);
+  }
+
+  body:has(.tab-bar) > .ticker {
+    margin-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .ticker__inner {
+    max-width: var(--space-phone-column-max);
+    height: var(--space-ticker-height-phone);
+    margin: 0 auto;
+    padding: 0 var(--space-gutter-phone);
+  }
+
+  .top-bar__title {
+    font: var(--font-screen-title-phone);
+    letter-spacing: var(--tracking-screen-title-phone);
+  }
+
+  .rarity-counter,
+  .motion-switch {
+    display: none;
+  }
+
+  .top-bar__start > .top-bar__home,
+  .top-bar__start > .top-bar__divider,
+  .top-bar__start > .top-bar__previous {
+    display: none;
+  }
+
+  .top-bar__start > .top-bar__bridge {
+    display: inline-flex;
+  }
+
+  .top-bar__start > .top-bar__phone-brand {
+    display: flex;
+  }
+
+  .top-bar__start--phone-back > .button:not(.top-bar__phone-back) {
+    display: none;
+  }
+
+  .top-bar__start--phone-back > .top-bar__phone-back {
+    display: inline-flex;
+  }
+
+  .top-bar__start--phone-previous.top-bar__start--has-previous > .top-bar__previous {
+    display: inline-flex;
+  }
+
+  .top-bar__start--phone-previous.top-bar__start--has-previous > .top-bar__bridge {
+    display: none;
+  }
+
+  .button {
+    min-height: var(--space-button-height-phone);
+  }
+
+  .button--small {
+    min-height: var(--space-button-height-sm-phone);
+  }
+
+  .rarity-counter__button,
+  .packs-chip,
+  .player-chip__button {
+    min-height: var(--space-chip-height-touch);
+  }
+
+  .toast__close,
+  .modal__close {
+    width: var(--space-touch-min);
+    height: var(--space-touch-min);
+  }
+
+  .modal {
+    width: 100%;
+    max-width: var(--space-phone-column-max);
+    margin: auto auto 0;
+  }
+
+  .modal[open] {
+    animation-name: modal-sheet;
+  }
+
+  .modal__panel {
+    padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+    box-shadow: inset 0 var(--space-unit) 0 0 var(--color-line), var(--overlay-shadow);
+  }
+
+  .modal__panel.panel--brackets::before,
+  .modal__panel.panel--brackets::after {
+    display: none;
+  }
+
+  .modal__handle {
+    display: block;
+    width: 44px;
+    height: 4px;
+    margin: 0 auto var(--space-4);
+    background: var(--color-line);
+  }
+
+  .atmosphere__vignette {
+    box-shadow: var(--vignette-phone);
+  }
+
+  .tab-bar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: block;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--color-steam-bar);
+    box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line);
+  }
+
+  .toasts {
+    top: max(var(--space-3), env(safe-area-inset-top, 0px));
+    bottom: auto;
+  }
+
+  .app-version {
+    left: var(--space-gutter-phone);
+  }
+
+  body:has(.tab-bar) .app-version {
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-2));
+  }
+
+  body:has(.tab-bar):has(> .ticker) .app-version {
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-ticker-height-phone) + var(--space-2));
+  }
+
+  .toast {
+    animation-name: toast-drop;
+  }
+}
+
+@keyframes toast-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+
+/* ---- Reduced motion: the player's setting (html[data-motion=reduced],
+   motion.ts) or, unless the setting asks for full motion
+   (html[data-motion=full]), the system's preference stops the star
+   twinkle, the screen slides, the toast rise, the wordmark's sweep and
+   the ticker, which shows its latest items still; the LIVE marker stays
+   lit. ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .atmosphere__twinkle > i {
+    animation: none;
+  }
+
+  html:not([data-motion="full"]) .live-marker__dot,
+  html:not([data-motion="full"]) .ticker[data-ticker-state] .ticker__track {
+    animation: none;
+  }
+
+  html:not([data-motion="full"]) .button {
+    transition: none;
+  }
+
+  html:not([data-motion="full"]) .toast {
+    animation: none;
+  }
+
+  html:not([data-motion="full"]) .wordmark-sweep__frames {
+    animation: none;
+  }
+
+  /* A dialog only crossfades. */
+  html:not([data-motion="full"]) .modal[open] {
+    animation-name: modal-fade;
+  }
+
+  html:not([data-motion="full"]) .button:hover,
+  html:not([data-motion="full"]) .button:active {
+    transform: none;
+  }
+
+  html:not([data-motion="full"])::view-transition-group(*),
+  html:not([data-motion="full"])::view-transition-old(*),
+  html:not([data-motion="full"])::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+html[data-motion="reduced"] .atmosphere__twinkle > i {
+  animation: none;
+}
+
+html[data-motion="reduced"] .live-marker__dot,
+html[data-motion="reduced"] .ticker[data-ticker-state] .ticker__track {
+  animation: none;
+}
+
+html[data-motion="reduced"] .button {
+  transition: none;
+}
+
+html[data-motion="reduced"] .toast {
+  animation: none;
+}
+
+html[data-motion="reduced"] .wordmark-sweep__frames {
+  animation: none;
+}
+
+html[data-motion="reduced"] .modal[open] {
+  animation-name: modal-fade;
+}
+
+html[data-motion="reduced"] .button:hover,
+html[data-motion="reduced"] .button:active {
+  transform: none;
+}
+
+html[data-motion="reduced"]::view-transition-group(*),
+html[data-motion="reduced"]::view-transition-old(*),
+html[data-motion="reduced"]::view-transition-new(*) {
+  animation: none !important;
+}
+
+/* ---- Back-office: the tokens and the top bar, nothing else ---- */
+
+.is-back-office .main {
+  view-transition-name: none;
+}

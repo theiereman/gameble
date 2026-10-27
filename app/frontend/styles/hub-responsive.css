@@ -1,0 +1,87 @@
+/* ---- Two columns (720 to 1179px) ---- */
+
+@media (max-width: 1179px) {
+  .hub {
+    grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto 1fr;
+    grid-template-areas:
+      "kicker showcase"
+      "menu showcase"
+      "aside showcase"
+      "sets showcase"
+      ". showcase";
+    column-gap: var(--space-column-gap-medium);
+  }
+}
+
+/* ---- Phone: one column, the tab bar navigates ---- */
+
+@media (max-width: 719px) {
+  .set-row--progress {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "name count"
+      "meta meta"
+      "track track";
+  }
+
+  .set-row__meta {
+    justify-content: flex-start;
+  }
+
+  .hub {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-7);
+  }
+
+  .hub__aside {
+    display: contents;
+  }
+
+  .hub-menu {
+    display: none;
+  }
+
+  .hub__title {
+    font: var(--font-kicker-phone);
+    letter-spacing: var(--tracking-kicker-phone);
+  }
+
+  .hub-showcase__name {
+    font: var(--font-showcase-name-phone);
+    letter-spacing: var(--tracking-showcase-name-phone);
+  }
+
+  .daily-booster .button,
+  .daily-booster .button-form {
+    align-self: stretch;
+  }
+
+  .daily-booster .button {
+    width: 100%;
+  }
+}
+
+/* ---- Reduced motion: no slide ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .menu-item {
+    transition: none;
+  }
+
+  html:not([data-motion="full"]) a.menu-item:hover,
+  html:not([data-motion="full"]) button.menu-item:hover {
+    transform: none;
+  }
+}
+
+html[data-motion="reduced"] .menu-item {
+  transition: none;
+}
+
+html[data-motion="reduced"] a.menu-item:hover,
+html[data-motion="reduced"] button.menu-item:hover {
+  transform: none;
+}

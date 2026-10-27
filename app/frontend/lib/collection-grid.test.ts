@@ -1,8 +1,14 @@
 import { describe, expect, it } from "vitest"
 import cardStylesheet from "../styles/card.css?raw"
 import collectionStylesheet from "../styles/collection.css?raw"
-import shellStylesheet from "../styles/shell.css?raw"
+import shellCss from "../styles/shell.css?raw"
+import shellTopBarCss from "../styles/shell-top-bar.css?raw"
+import shellStatusCss from "../styles/shell-status.css?raw"
+import shellControlsCss from "../styles/shell-controls.css?raw"
+import shellScreensCss from "../styles/shell-screens.css?raw"
 import tokensStylesheet from "../styles/tokens.css?raw"
+
+const shellStylesheet = [shellCss, shellTopBarCss, shellStatusCss, shellControlsCss, shellScreensCss].join("\n")
 
 const ruleBody = (stylesheet: string, selector: string, from = 0) => {
   const at = stylesheet.indexOf(`${selector} {`, from)
