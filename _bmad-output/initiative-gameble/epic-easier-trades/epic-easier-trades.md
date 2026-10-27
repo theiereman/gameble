@@ -4,6 +4,7 @@ key: ""
 type: epic
 title: "Trades easy to start and to fill"
 parent: initiative-gameble
+status: done
 covers: [CAP-11]
 after: []
 assignee: ""

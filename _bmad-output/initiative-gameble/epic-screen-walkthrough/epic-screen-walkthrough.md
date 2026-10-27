@@ -5,6 +5,7 @@ key: ""
 type: epic
 title: "Every screen walked through before the release"
 parent: initiative-gameble
+status: done
 covers: ["CAP-8", "CAP-10"]
 after: []
 assignee: ""

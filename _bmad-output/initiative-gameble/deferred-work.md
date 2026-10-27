@@ -356,3 +356,13 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/epic-visitor-landing-retrospective.md`
   summary: The privacy text does not say that the public card page, indexable by search engines, names a pioneer whose profile is visible; the architecture file still cites the pioneer's old home (line 534).
   evidence: Retrospective F4 and F13: `config/locales/en.yml:216` and `architecture-gameble.md:534`.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-screen-walkthrough/epic-screen-walkthrough-retrospective.md`
+  summary: Epic 16 is accepted by the author on 2026-10-27 with the walkthrough's coverage left partial: seven screens were never marked (seasonal allocation, card picker, public card page, public profile, full collection, Steam sign-in, Plus) and the phone, staff and English were largely unseen; Done when 1 and 2 are not amended and no ticket is created for them yet.
+  evidence: Retrospective, acceptance decision and action item 1; whether issue #67 (standardise the return button) is closed by the guard built in 16.11 is still to decide.
+- source_plan: `_bmad-output/initiative-gameble/epic-card-catalog/epic-card-catalog-retrospective.md`
+  summary: The epic's text still says a not-owned card shows the real card for everyone (R2, Done when 3) and that set albums keep missing slots (Done when 1); walkthrough tickets 16.26 and 16.24 changed both.
+  evidence: Reconciliation section of the retrospective, 2026-10-27.
+- source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/epic-season-preparation-retrospective.md`
+  summary: Epic 11 is accepted by the author on 2026-10-27 with open items: no dedicated test proves a published season never changes, and promote or discard and the themes page were never tried on staging with a real import.
+  evidence: Retrospective, acceptance decision.

@@ -5,6 +5,7 @@ key: ""
 type: epic
 title: "Season preparation"
 parent: initiative-gameble
+status: done
 covers: [CAP-2, CAP-3, CAP-6]
 after: []
 assignee: ""

@@ -4,6 +4,7 @@ key: ""
 type: epic
 title: "Sets players recognize"
 parent: initiative-gameble
+status: done
 covers: [CAP-6, CAP-7, CAP-13, CAP-18]
 after: []
 assignee: ""

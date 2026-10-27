@@ -5,6 +5,7 @@ key: ""
 type: epic
 title: "Every card of the game, browsable and searchable"
 parent: initiative-gameble
+status: done
 covers: [CAP-6, CAP-7, CAP-18]
 after: []
 assignee: ""
