@@ -1,4 +1,4 @@
-<%# locals: (href:, tile:, last_gained: true) %>
+<%# locals: (href:, tile:, last_gained: true, autofocus: false) %>
 <% standing = tile.standing %>
 <% showcase = tile.showcase %>
 <% title = capture do %>
@@ -7,7 +7,8 @@
     <span class="set-tile__kind"><%= set_kind_name(tile.set.kind) %></span>
   </span>
 <% end %>
-<%= link_to href, class: class_names("set-tile", "set-tile--closest": tile.closest), data: { turbo_prefetch: false } do %>
+<%= link_to href, class: class_names("set-tile", "set-tile--closest": tile.closest), autofocus: autofocus || nil,
+  data: { turbo_prefetch: false, turbo_frame: "_top", controller: "set-tile", action: "pointerenter->set-tile#enter focusin->set-tile#focused" } do %>
   <span class="set-tile__face set-tile__face--recto" aria-hidden="true">
     <span class="set-tile__head"><%= title %><%= set_rank_chip(standing) %></span>
     <span class="set-tile__cards">
@@ -17,6 +18,9 @@
         <% else %>
           <span class="set-tile__missing rarity-tone--<%= slot.rarity %>">?</span>
         <% end %>
+      <% end %>
+      <% if showcase.slots.empty? && showcase.others.zero? %>
+        <span class="set-tile__nothing"><%= t("library.set_tile.nothing_yet") %></span>
       <% end %>
       <% if showcase.others.positive? %>
         <span class="set-tile__more"><%= t("library.set_tile.more", count: showcase.others, others: number_with_delimiter(showcase.others)) %></span>
@@ -40,7 +44,8 @@
     <span class="set-tile__path">
       <% set_tier_path(standing).each do |node| %>
         <span class="set-tile__node set-tile__node--<%= node.state %> tier-tone--<%= node.tier %>">
-          <span class="set-tile__dot"><%= node.state == :reached ? pixel_icon("check", class: "set-tile__check") : number_with_delimiter(node.missing) %></span>
+          <% if node.lit %><progress class="set-tile__lit" value="<%= node.lit %>" max="100"></progress><% end %>
+          <span class="set-tile__dot"></span>
           <span class="set-tile__node-name"><%= set_tier_name(node.tier) %></span>
           <span class="set-tile__node-required"><%= number_with_delimiter(node.required) %></span>
         </span>

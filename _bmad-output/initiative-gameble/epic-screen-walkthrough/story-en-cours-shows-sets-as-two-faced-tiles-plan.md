@@ -71,6 +71,8 @@ context:
 - `GET /:locale/library/in-progress` answers only a Turbo Frame request; opened as a page it redirects to the entry. The entry's search no longer reads the standings unless a query finds sets.
 - Query budgets: the frame costs 7 queries whatever the number of sets (`Game::SetShowcases` is 2); the entry without a search 5, with one 9; the public profile 13 for a visitor (was 11), 20 signed in, 19 for the owner.
 
+- Accepted by the author, 2026-10-27: keyboard focus turns a tile at every hover capability, touch devices included.
+
 ## Plan Change Log
 
 ## Review Triage Log

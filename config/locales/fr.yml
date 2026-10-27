@@ -800,6 +800,7 @@ fr:
       results: "Résultats"
       search_button: "Chercher"
       loading: "Chargement des sets en cours…"
+      load_more: "Charger plus"
       found:
         zero: "Aucun set trouvé"
         one: "1 set trouvé"
@@ -831,6 +832,7 @@ fr:
         complete: "Complet"
     set_tile:
       no_tier: "Aucun palier"
+      nothing_yet: "Rien d'obtenu pour l'instant"
       complete: "Toutes les cartes obtenues"
       next_html:
         zero: "Plus que <b>%{missing}</b> pour %{tier}"

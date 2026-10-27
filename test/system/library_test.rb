@@ -1,6 +1,7 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
+require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
 # The collection: a player reaches its entry from the hub's menu 02 or the
@@ -12,6 +13,7 @@ require_relative "../support/steam_sign_in"
 class LibraryTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GamePacks
+  include GameSets
   include SteamSignIn
 
   setup do
@@ -44,11 +46,24 @@ class LibraryTest < ApplicationSystemTestCase
   # The tile's sentence, its accessible name, read from its hidden span.
   def assert_tile(sentence) = assert_selector(".set-tiles a.set-tile > .visually-hidden", text: sentence, visible: :all)
 
-  def turned?(tile) = tile.evaluate_script("getComputedStyle(this).getPropertyValue('--turned').trim()") == "1"
+  def iris(tile, property) = tile.evaluate_script("getComputedStyle(this).getPropertyValue('--iris-#{property}').trim()")
+
+  # The iris is fully open once its radius and its light have reached their end.
+  def opened?(tile) = iris(tile, "k") == "1" && iris(tile, "r") == "150%"
+
+  def closed?(tile) = iris(tile, "k") == "0" && iris(tile, "r") == "0%"
 
   def face_style(tile, face, property) = tile.evaluate_script("getComputedStyle(this.querySelector('.set-tile__face--#{face}')).#{property}")
 
-  def unturned?(tile) = face_style(tile, "verso", "transform").in?([ "none", "matrix(1, 0, 0, 1, 0, 0)" ])
+  # More sets in progress than a page holds: themes of three cards, two held.
+  def start_more_sets(count)
+    cards = Catalog::CardSeason.where(season_id: @season.id).order(:id).ids.last(count * 3)
+    count.times do |index|
+      members = cards.slice(index * 3, 3)
+      insert_theme(members, key: "extra-#{index}", season: @season)
+      hold_all(@player, members.first(2))
+    end
+  end
 
   def box(element) = element.evaluate_script("(() => { const r = this.getBoundingClientRect(); return [ r.x, r.y, r.width, r.height ].map(Math.round) })()")
 
@@ -98,7 +113,7 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path home_path(locale: :en)
   end
 
-  test "EN COURS arrives after the page as tiles; keyboard focus turns a tile in place, reduced motion fades it instead" do
+  test "EN COURS arrives after the page as tiles; keyboard focus opens the iris from the centre in place, reduced motion fades instead" do
     sign_in
     visit library_path(locale: :en)
 
@@ -108,24 +123,100 @@ class LibraryTest < ApplicationSystemTestCase
     assert_equal 2, page.evaluate_script("new Set([ ...document.querySelectorAll('.set-tiles > li') ].map((li) => Math.round(li.getBoundingClientRect().left))).size")
     first = find(".set-tiles a.set-tile", match: :first)
     at_rest = [ box(first), box(first.find(:xpath, "..")) ]
-    assert_not unturned?(first), "the verso should start turned away"
+    assert closed?(first), "the verso should start hidden"
 
     find(".set-search__row a.button--primary").send_keys(:tab)
     assert_selector ".set-tiles > li:first-child > a.set-tile:focus"
-    eventually("the focused tile should turn to its verso") { turned?(first) && unturned?(first) }
+    eventually("the focused tile should open its iris") { opened?(first) }
+    assert_equal [ "50%", "50%" ], [ iris(first, "x"), iris(first, "y") ]
     assert_equal at_rest, [ box(first), box(first.find(:xpath, "..")) ]
     assert_selector ".set-tiles a.set-tile:focus .set-tile__face--verso .set-tile__cta", text: /VIEW THE ALBUM/i
     take_screenshot
 
     page.execute_script("document.documentElement.dataset.motion = 'reduced'")
-    eventually("under reduced motion the verso should fade in, unturned") do
-      face_style(first, "verso", "transform") == "none" && face_style(first, "verso", "opacity") == "1" && face_style(first, "recto", "opacity") == "0"
+    eventually("under reduced motion the verso should fade in with no mask") do
+      face_style(first, "verso", "opacity") == "1" && face_style(first, "verso", "maskImage") == "none" && face_style(first, "recto", "opacity") == "1"
     end
     assert_equal at_rest, [ box(first), box(first.find(:xpath, "..")) ]
     page.execute_script("delete document.documentElement.dataset.motion")
 
     first.send_keys(:enter)
     assert_current_path library_set_path(locale: :en, kind: "theme", key: "pirates")
+  end
+
+  test "the iris opens from where the pointer entered the tile" do
+    sign_in
+    visit library_path(locale: :en)
+    first = find(".set-tiles a.set-tile", match: :first)
+    left, top, width, height = box(first)
+
+    page.driver.browser.action.move_to(first.native, 60 - width / 2, 40 - height / 2).perform
+
+    eventually("the iris should be centred on the pointer's entry") do
+      (iris(first, "x").to_i - 60).abs <= 4 && (iris(first, "y").to_i - 40).abs <= 4
+    end
+    assert_equal [ left, top ], box(first).first(2)
+  end
+
+  test "no frame of the iris leaves a tile empty: both faces stay visible and opaque from the first frame to the last" do
+    sign_in
+    visit library_path(locale: :en)
+    first = find(".set-tiles a.set-tile", match: :first)
+
+    frames = page.evaluate_async_script(<<~JS, first)
+      const tile = arguments[0], done = arguments[arguments.length - 1]
+      const recto = tile.querySelector(".set-tile__face--recto"), verso = tile.querySelector(".set-tile__face--verso")
+      const frames = []
+      const started = performance.now()
+      const sample = () => {
+        const recto_style = getComputedStyle(recto), verso_style = getComputedStyle(verso)
+        frames.push({
+          radius: parseFloat(getComputedStyle(tile).getPropertyValue("--iris-r")),
+          recto: [ recto_style.visibility, recto_style.opacity, recto_style.backgroundColor, recto_style.display ],
+          verso: [ verso_style.visibility, verso_style.opacity, verso_style.backgroundColor, verso_style.display ],
+          mask: verso_style.maskImage
+        })
+        if (performance.now() - started < 1400) requestAnimationFrame(sample); else done(frames)
+      }
+      tile.style.setProperty("--iris-r", "150%")
+      tile.style.setProperty("--iris-k", "1")
+      sample()
+    JS
+
+    assert_operator frames.size, :>, 20
+    assert frames.any? { it["radius"].between?(10, 140) }, "the transition should have been sampled midway"
+    assert frames.select { it["radius"].between?(10, 140) }.all? { it["mask"].include?("radial-gradient") }, "the verso is revealed by the iris mask midway"
+    frames.each do |frame|
+      assert_equal [ "visible", "1" ], frame["recto"].first(2)
+      assert_equal [ "visible", "1" ], frame["verso"].first(2)
+      assert_not_equal "rgba(0, 0, 0, 0)", frame["recto"][2]
+      assert_not_equal "rgba(0, 0, 0, 0)", frame["verso"][2]
+      assert_not_equal "none", frame["recto"][3]
+      assert_not_equal "none", frame["verso"][3]
+    end
+  end
+
+  test "EN COURS shows six sets, Load more adds the next ones, and the search finds any set as tiles in place of the lists" do
+    start_more_sets(8)
+    assert_equal 12, Game::SetBoard.call(@player, season: @season).in_progress.size
+    sign_in
+    visit library_path(locale: :en)
+
+    assert_selector "#set-entry-in-progress-title ~ .set-tiles a.set-tile", count: 6
+    find("turbo-frame.set-more a.button", text: /load more/i).click
+    assert_selector ".set-tiles a.set-tile", count: 12
+    assert_no_selector "turbo-frame.set-more a.button"
+    assert_selector ".set-tiles a.set-tile:focus"
+
+    fill_in "set-search-field", with: "rpg"
+    assert_selector "#set-results-title", text: /\ARESULTS\z/
+    assert_selector ".set-results .set-tiles a.set-tile[href='#{library_set_path(locale: :en, kind: "theme", key: "rpg")}']"
+    assert_selector ".set-results .set-chip--none", text: /NO TIER/i
+    assert_no_selector "#set-entry-in-progress-title"
+
+    fill_in "set-search-field", with: ""
+    assert_no_selector "#set-results-title"
+    assert_selector "#set-entry-in-progress .set-tiles a.set-tile", count: 12
   end
 
   test "COMPLETED follows EN COURS: a complete set's tile turns to its tiers all reached and leads to its album" do
@@ -141,7 +232,7 @@ class LibraryTest < ApplicationSystemTestCase
 
     all("#set-entry-in-progress-title ~ .set-tiles a.set-tile").last.send_keys(:tab)
     assert_selector "#set-entry-completed-title ~ .set-tiles > li:first-child > a.set-tile:focus"
-    eventually("the focused complete tile should turn to its verso") { turned?(complete) && unturned?(complete) }
+    eventually("the focused complete tile should open its iris") { opened?(complete) }
     within(complete) do
       assert_selector ".set-tile__node--reached", minimum: 1
       assert_no_selector ".set-tile__node--next, .set-tile__node--later"

@@ -56,13 +56,13 @@ gem "dry-operation", "~> 1.1.0"
 gem "rails_event_store", "~> 3.2.0"
 
 # Build the shared view parts as tested components (AD-16) [https://viewcomponent.org]
-gem "view_component", "~> 4.15.0"
+gem "view_component", "~> 4.16.0"
 
 # Pick the first-visit locale from the browser's Accept-Language (AD-18) [https://github.com/iain/http_accept_language]
 gem "http_accept_language", "~> 2.1.1"
 
 # Page long lists, such as the library's shelves (Consistency Conventions: Pagination) [https://github.com/ddnexus/pagy]
-gem "pagy", "~> 43.7.0"
+gem "pagy", "~> 43.8.1"
 
 # Sign in with Steam over OpenID 2.0, POST-only and CSRF-protected (AD-14) [https://github.com/omniauth/omniauth]
 gem "omniauth", "~> 2.1.4"
@@ -86,11 +86,11 @@ gem "sentry-rails", "~> 7.1.0"
 gem "mission_control-jobs", "~> 1.3.1"
 
 # Call the Steam Web API, retrying 429 and 5xx with backoff (AD-19) [https://github.com/lostisland/faraday]
-gem "faraday", "~> 2.14.4"
+gem "faraday", "~> 2.15.0"
 gem "faraday-retry", "~> 2.4.0"
 
 # Read the initiative's epics from its TOML ticket file to create the roadmap milestones [https://github.com/fbernier/tomlrb]
-gem "tomlrb", "~> 2.0.5"
+gem "tomlrb", "~> 3.0.0"
 
 # Throttle the sign-in endpoints per client IP, before the OmniAuth middleware [https://github.com/rack/rack-attack]
 gem "rack-attack", "~> 6.8.0"

@@ -1,6 +1,7 @@
 # The collection: its entry, the search over every set and the player's
-# sets in progress, under the top bar's unique cards; the grid of every
-# game of the published season and every game the viewer holds, in any
+# sets in progress and complete, as tiles six at a time, under the top
+# bar's unique cards; the grid of every game of the published season and
+# every game the viewer holds, in any
 # edition, with its filters, its search and the RAPPORT; and one set's
 # album, the player's best edition of each of its games, with its filters
 # and its search. The entry and the albums are a player's pages; a
@@ -17,21 +18,29 @@ class LibraryController < ApplicationController
   include SetBoardLoading
   include SetAlbumLoading
 
+  MORE_RESULTS_FRAME = "set-more-results-"
+
   # GET /:locale/library: the entry, the player's sets.
   def show
     authorize :page, :play?
     @season = Catalog::PublishedSeason.call
     return if @season.nil?
 
+    load_set_search(@season, owner: current_player, offset: turbo_frame_request? ? tile_offset : 0)
+    return render(:more_results) if turbo_frame_request_id.to_s.start_with?(MORE_RESULTS_FRAME)
+
     load_unique_cards
-    load_set_search(@season, owner: current_player)
   end
 
+  # GET /:locale/library/in-progress: the sets in progress and the complete
+  # ones, six of a section at a time; opened as a page it leads to the entry.
   def in_progress
     authorize :page, :play?
     return redirect_to library_path unless turbo_frame_request?
 
-    load_set_tiles(Catalog::PublishedSeason.call, owner: current_player)
+    section = params[:section] if BOARD_SECTIONS.include?(params[:section])
+    load_set_tiles(Catalog::PublishedSeason.call, owner: current_player, section:, offset: tile_offset)
+    render(:more_tiles) if section
   end
 
   # GET /:locale/library/cards: the grid of every game.

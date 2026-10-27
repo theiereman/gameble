@@ -1349,6 +1349,7 @@ en:
         other: "%{count} sets found"
         zero: No set found
       in_progress: In progress
+      load_more: Load more
       loading: Loading the sets in progress…
       no_progress: No set in progress yet. Find one above.
       none: No set found for “%{query}”.
@@ -1464,6 +1465,7 @@ en:
         one: Only <b>%{missing}</b> more for %{tier}
         other: Only <b>%{missing}</b> more for %{tier}
       no_tier: No tier
+      nothing_yet: Nothing collected yet
       open_album: View the album
     show:
       no_season: No season of cards is published yet.

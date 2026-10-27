@@ -386,19 +386,6 @@ risk = "medium"
 notes = ["Found in the screen walkthrough (ticket 16.1, finding 25), author, 2026-10-23: a rework within the design rules, not a restyle of colours only."]
 
 [[entry]]
-id = 33
-type = "spike"
-title = "An exotic card for each beta tester"
-description = "The six beta testers (Hydrax, Skyora, Zohan, Feltpath, Micilico, Le chocotube; author, 2026-10-26) are paid tribute in the game with one \"exotic\" card each, bearing their name and their pseudonym. A card in gameble is a Steam game, so a card that is a person is outside the model: with the author, settle what the tribute card is and how it lives beside the catalog, then write the story that builds it. The output is the decisions, the mockup of the card, the DESIGN.md, EXPERIENCE.md and architecture notes they need, and a build story in the tree."
-verify = "The author has settled each open question and picked the card's look from a mockup in `ux-gameble/mockups`; the decisions are recorded in DESIGN.md, EXPERIENCE.md and the architecture, and a build story for the six cards is in the tree."
-covers = []
-after = []
-hitl = true
-risk = "medium"
-unknown = "what exotic means in the rarity model; how a card that is not a Steam game fits the catalog and its seasons"
-notes = ["Asked by the author, 2026-10-26, as a side task while the credits (16.14) were prepared; the beta testers' names are in 16.14's notes.", "Open questions for the author: (1) exotic: a seventh rarity above Légendaire, or a mark that sits outside the rarities; (2) the model: a card is a Steam game today (`Catalog` pack), so is a tribute card a catalog row with no Steam app, a separate kind of card, or a card in a dedicated set; (3) the seasons: is it carried over, and does it count in the collection totals and the set completions; (4) who receives it: the tester it honours only, every player (then how it is obtained: a gift on sign-in, a reward, a special pack), or no one but the tester as a unique card; (5) trading and reposting: can it be traded, shown in a showcase, reposted; (6) the art and the text: the face (name, pseudonym, a line), who draws it, and whether a tester may refuse or choose the pseudonym; (7) the public side: the visitor's view of the card, the feed entry when it is obtained, and its place in the credits.", "Placed in epic 16 because it came out of the credits ticket; it blocks nothing and can move to its own epic or to a later release when the author chooses."]
-
-[[entry]]
 id = 34
 type = "story"
 title = "EN COURS shows sets as two-faced tiles"
@@ -422,3 +409,15 @@ after = [34]
 hitl = true
 risk = "low"
 notes = ["Assumed by the agent on 2026-10-26, to confirm with the author on staging: the section is titled COMPLÉTÉS / COMPLETED; it is ordered by the latest card gained in the set (the moment it was completed, as no completion date is stored), most recent first; it shows every complete set with no cap; it is hidden when empty."]
+
+[[entry]]
+id = 36
+type = "story"
+title = "The set tiles turn with an iris and EN COURS loads six at a time"
+description = "The author's staging review of the set tiles (2026-10-27) found the turn too fast and ugly, a transparent gap in the middle of it, tier counts overflowing their square, and the full list heavy to load. Four changes to the tiles of the collection entry and the public profile, decided from `ux-gameble/mockups/key-set-tile-motion-and-path.html`: (1) the turn is replaced by a soft-edged iris with a luminous ring (mockup A12 + A14) opening from where the pointer enters the tile, from the centre on keyboard focus, a plain fade under reduced motion, never on touch, and no `visibility` trick that leaves a gap; (2) the verso's tier path is the mockup's B2: small circles, the line lighting up in proportion to the cards owned, each tier showing the number of cards required to reach it, no negative number; (3) EN COURS loads its first six sets and a Load more button adds the next six, the gold frame staying on the one set closest to its next tier of the whole list; (4) the entry's search no longer shows the old result rows nor looks into the catalogue: it filters the tiles of EN COURS and COMPLETED already on the page, loading every remaining set first when a query is typed."
+verify = "In the browser, with a pointer, keyboard focus and reduced motion, a tile opens as an iris with its ring from the pointer or the centre, with no moment where the tile is empty; the verso's path shows circles, the lit line following the cards owned and the required counts for 3-digit tiers without overflow; a player with more than six sets in progress sees six, then six more per click, and the search narrows the tiles of both sections; the request and system tests for the entry and the public profile, `bin/rails test` and `npm run test:js` pass."
+covers = []
+after = [34, 35]
+hitl = true
+risk = "medium"
+notes = ["Decisions of the author, 2026-10-27: iris and ring from the cursor (A12 + A14); B2 for the path with required counts only; six sets then a Load more button; the search filters the displayed tiles instead of the old result rows.", "Assumed by the agent on 2026-10-27, to confirm: Load more adds six sets per click, for EN COURS and COMPLETED alike; the search keeps looking over the whole published season (the author, 2026-10-27: every set must stay findable), capped at 50 matches, and shows its results as the same tiles, six at a time."]

@@ -1,0 +1,6 @@
+<% section = params[:section] %>
+<% page = section == "completed" ? @completed_page : @in_progress_page %>
+<%= turbo_frame_tag turbo_frame_request_id do %>
+  <%= render "library/set_tile_page", page:, next_href: library_in_progress_path(section:, offset: page.next_offset),
+    next_frame: "set-more-#{section}-#{page.next_offset}", focus_first: true %>
+<% end %>
