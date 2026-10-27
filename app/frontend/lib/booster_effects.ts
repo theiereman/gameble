@@ -1,9 +1,3 @@
-// The booster screen's effects, drawn as plain spans or played on the
-// elements they are given: WAAPI on transform and opacity only. animate,
-// settle, spark and ring are the plain helpers (animate also plays the
-// reduced-motion fades); stageShake, stageFlash, burst, blast and
-// traySparks each stop under reduced motion. The controllers pass
-// the host and target elements.
 import type { Rarity } from "./card_types"
 import { TRAY_SPARKS, burstPixels, scaled, shakeKeyframes, tierIndex } from "./booster_motion"
 import { motionReduced } from "./motion"
@@ -11,23 +5,19 @@ import { motionReduced } from "./motion"
 export const animate = (element: Element | null | undefined, keyframes: Keyframe[], options: KeyframeAnimationOptions) =>
   element && typeof element.animate === "function" ? element.animate(keyframes, options) : null
 
-/** Cancels every animation the screen left on an element (fills included). */
 export const settle = (element: Element | null | undefined) => element?.getAnimations?.().forEach((animation) => animation.cancel())
 
-/** The stage shaking by `amplitude` px. */
 export const stageShake = (stage: HTMLElement | null, amplitude: number, duration: number) => {
   if (motionReduced()) return
   animate(stage, shakeKeyframes(amplitude), { duration, fill: "none" })
 }
 
-/** The stage's flash layer lighting up in `tone`, to `peak` opacity. */
 export const stageFlash = (flash: HTMLElement | null, tone: "warm" | "gold", peak: number, duration: number) => {
   if (motionReduced() || !flash) return
   flash.dataset.tone = tone
   animate(flash, [{ opacity: 0 }, { opacity: peak, offset: 0.12 }, { opacity: 0 }], { duration, easing: "ease-out", fill: "none" })
 }
 
-/** A short-lived span in `host` at (x, y), animated, then removed. */
 export const spark = (
   host: HTMLElement,
   className: string,
@@ -63,7 +53,6 @@ export const ring = (host: HTMLElement, className: string, x: number, y: number,
     size,
   )
 
-/** The pixels flying off a card as it shows, in its tier's colours, drawn in the card's effects layer. */
 export const burst = (host: HTMLElement | null, tier: Rarity) => {
   if (!host || motionReduced()) return
   const { width, height } = host.getBoundingClientRect()
@@ -75,7 +64,6 @@ export const burst = (host: HTMLElement | null, tier: Rarity) => {
   )
 }
 
-/** The blast at the canister's `body`, drawn in the stage's effects layer: a ring, sparks and smoke puffs. */
 export const blast = (host: HTMLElement | null, body: HTMLElement | null | undefined) => {
   if (!host || !body || motionReduced()) return
   const box = host.getBoundingClientRect()
@@ -101,7 +89,6 @@ export const blast = (host: HTMLElement | null, body: HTMLElement | null | undef
   }
 }
 
-/** The sparks of an Épique or better landing in its tray `slot`, drawn in the stage's effects layer. */
 export const traySparks = (host: HTMLElement | null, slot: HTMLElement | null | undefined, tier: Rarity) => {
   if (!host || !slot || motionReduced() || tierIndex(tier) < 3) return
   const box = host.getBoundingClientRect()

@@ -173,7 +173,6 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     if (this.element.open) this.element.close()
   }
 
-  // The panel fills the dialog: a click landing on the dialog itself is on its backdrop.
   backdrop(event: MouseEvent): void {
     if (event.target === this.element) this.cancel()
   }

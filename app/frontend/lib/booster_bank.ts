@@ -1,14 +1,10 @@
-// The booster screen's bank read again from the server, and what its
-// countdown's zero does, a dealt hand never refreshed away. No DOM.
 import type { BoosterBank, BoosterPhase, Layout } from "./booster_types"
 
 export type FetchBank = {
-  /** The booster screen in JSON (the root's bankUrl value). */
   url: string
   fetch?: typeof globalThis.fetch
 }
 
-/** The server's bank now, or null when it could not be read. */
 export async function fetchBank({ url, fetch: send = globalThis.fetch }: FetchBank): Promise<BoosterBank | null> {
   let response: Response
   try {
@@ -42,7 +38,6 @@ function isBank(value: unknown): value is BoosterBank {
   )
 }
 
-/** The hand is put away: every card revealed in a row, every card stored on the phone. */
 export function handPutAway(layout: Layout, revealed: readonly boolean[], stored: readonly boolean[]): boolean {
   const done = layout === "phone" ? stored : revealed
   return done.length > 0 && done.every(Boolean)
@@ -50,15 +45,10 @@ export function handPutAway(layout: Layout, revealed: readonly boolean[], stored
 
 export type ScreenMoment = {
   phase: BoosterPhase
-  /** Nothing runs: no opening, no reveal, no "reveal all", no store. */
   idle: boolean
   handPutAway: boolean
 }
 
-/**
- * What the countdown's zero does: the page refreshed with no hand at rest,
- * the bank fetched with a hand put away at rest, else a fetch owed.
- */
 export function atZero({ phase, idle, handPutAway }: ScreenMoment): "page" | "bank" | "owe" {
   if (!idle) return "owe"
   if (phase === "sealed" || phase === "empty") return "page"
@@ -66,12 +56,10 @@ export function atZero({ phase, idle, handPutAway }: ScreenMoment): "page" | "ba
   return "owe"
 }
 
-/** An owed fetch is made once nothing runs and no hand waits to be put away. */
 export function owedBankDue({ phase, idle, handPutAway }: ScreenMoment): boolean {
   return idle && phase !== "opening" && (phase !== "dealt" || handPutAway)
 }
 
-/** The phase a fresh bank leaves: the canister follows the count; a hand or an opening stays. */
 export function phaseForBank(phase: BoosterPhase, available: number): BoosterPhase {
   if (phase !== "sealed" && phase !== "empty") return phase
   return available > 0 ? "sealed" : "empty"

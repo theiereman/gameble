@@ -1,4 +1,3 @@
-/** A countdown: "H:MM:SS" from an hour, else "MM:SS". */
 export function formatClock(seconds: number): string {
   const whole = Math.max(0, Math.ceil(seconds))
   const hours = Math.floor(whole / 3600)
@@ -8,14 +7,12 @@ export function formatClock(seconds: number): string {
   return hours > 0 ? `${hours}:${pad(minutes)}:${pad(rest)}` : `${pad(minutes)}:${pad(rest)}`
 }
 
-/** The daily booster's countdown: always "HH:MM:SS". */
 export function formatDailyClock(seconds: number): string {
   const whole = Math.max(0, Math.ceil(seconds))
   const pad = (value: number) => String(value).padStart(2, "0")
   return `${pad(Math.floor(whole / 3600))}:${pad(Math.floor((whole % 3600) / 60))}:${pad(whole % 60)}`
 }
 
-/** Whole seconds from the server's time to the next booster, rounded up; null when none is scheduled. */
 export function secondsUntil(nextAvailableAt: string | null, serverTime: string): number | null {
   if (nextAvailableAt === null) return null
   const left = Date.parse(nextAvailableAt) - Date.parse(serverTime)
