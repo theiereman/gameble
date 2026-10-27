@@ -152,4 +152,20 @@ class BoosterScreenTest < ApplicationSystemTestCase
     assert_equal "booster-title", find(".booster")["aria-labelledby"]
     assert_selector "#booster-title", text: "SEASON 1 · GRAND CATALOGUE"
   end
+
+  test "on the phone, a hand shown again closes with the inventory hint" do
+    show_again(opened_pack)
+    on_phone
+
+    assert_selector ".booster-plate-band__hint", text: "Capsule inventoried · +5 cards in the collection"
+  end
+
+  test "without a published season the canister names no season" do
+    catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
+    create_pack(@player, available_at: 1.hour.ago)
+    visit booster_path(locale: :en)
+
+    assert_selector ".booster-canister[aria-label='Open the capsule, grand catalogue, 5 cards']"
+    assert_no_selector ".booster-canister[aria-label*='Season']"
+  end
 end

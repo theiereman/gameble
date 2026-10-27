@@ -1,7 +1,3 @@
-// The booster screen's timing and motion. Pure: no DOM. Every
-// duration of the opening and the reveal lives here: the opening, reveal
-// and Légendaire ones multiplied by TIME_SCALE; the others, the
-// reduced-motion ones included (RM_*), unscaled.
 import { RARITIES, type Rarity } from "./card_types"
 import { formatNumber, t, type Template } from "./i18n"
 

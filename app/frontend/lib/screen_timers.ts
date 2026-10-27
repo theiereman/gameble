@@ -1,4 +1,4 @@
-export type BoosterTimers = {
+export type ScreenTimers = {
   readonly disposed: boolean
   wait: (ms: number) => Promise<void>
   later: (ms: number, action: () => void) => void
@@ -15,7 +15,7 @@ const GLOBAL_CLOCK: Clock = {
   clearTimeout: (timer) => globalThis.clearTimeout(timer),
 }
 
-export function boosterTimers(clock: Clock = GLOBAL_CLOCK): BoosterTimers {
+export function screenTimers(clock: Clock = GLOBAL_CLOCK): ScreenTimers {
   const pending = new Set<ReturnType<typeof setTimeout>>()
   let disposed = false
 

@@ -63,6 +63,13 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "the French counts say the same at zero as at one" do
+    %w[hint_remaining hint_done summary canister_facts].each do |key|
+      plural = I18n.t("booster.strings.#{key}", locale: :fr)
+      assert_equal plural[:one], plural[:zero], key
+    end
+  end
+
   test "a visitor is sent to the landing" do
     get booster_path(locale: :en)
 

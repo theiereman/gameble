@@ -9,3 +9,11 @@ export function cloneTemplate<T extends Element = HTMLElement>(template: HTMLTem
   blanks.forEach((node) => node.parentNode?.removeChild(node))
   return element as T
 }
+
+export function cloneContent(template: HTMLTemplateElement): DocumentFragment {
+  return template.content.cloneNode(true) as DocumentFragment
+}
+
+export function cloneFirstElement<T extends Element = HTMLElement>(template: HTMLTemplateElement): T | null {
+  return cloneContent(template).firstElementChild as T | null
+}

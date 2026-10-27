@@ -1011,55 +1011,55 @@
   z-index: 5;
 }
 
-.trade-swap__ring,
-.trade-swap__confetti {
+.trade-board__ring,
+.trade-board__confetti {
   position: absolute;
   top: 50%;
   left: 50%;
   pointer-events: none;
 }
 
-.trade-swap__ring {
+.trade-board__ring {
   width: 64px;
   height: 64px;
   margin: -32px 0 0 -32px;
   box-shadow: 0 0 0 3px var(--color-accent);
-  animation: trade-swap-ring 500ms ease-out forwards;
+  animation: trade-board-ring 500ms ease-out forwards;
 }
 
-.trade-swap__confetti {
+.trade-board__confetti {
   width: 6px;
   height: 6px;
   margin: -3px 0 0 -3px;
   background: var(--color-lime);
-  animation: trade-swap-confetti 550ms ease-out forwards;
+  animation: trade-board-confetti 550ms ease-out forwards;
 }
 
-.trade-swap__confetti--1 { background: var(--color-gold); }
-.trade-swap__confetti--2 { background: var(--color-accent); }
-.trade-swap__confetti--3 { background: var(--color-rarity-epique); }
+.trade-board__confetti--1 { background: var(--color-gold); }
+.trade-board__confetti--2 { background: var(--color-accent); }
+.trade-board__confetti--3 { background: var(--color-rarity-epique); }
 
-.trade-swap__flash {
+.trade-board__flash {
   position: absolute;
   inset: 0;
   z-index: 6;
   background: var(--color-text-max);
   opacity: 0;
   pointer-events: none;
-  animation: trade-swap-flash 300ms ease-out forwards;
+  animation: trade-board-flash 300ms ease-out forwards;
 }
 
-@keyframes trade-swap-ring {
+@keyframes trade-board-ring {
   from { opacity: 1; transform: scale(0.2); }
   to { opacity: 0; transform: scale(2.4); }
 }
 
-@keyframes trade-swap-confetti {
+@keyframes trade-board-confetti {
   from { opacity: 1; transform: translate(0, 0) rotate(0deg); }
   to { opacity: 0; transform: translate(var(--confetti-x), var(--confetti-y)) rotate(180deg); }
 }
 
-@keyframes trade-swap-flash {
+@keyframes trade-board-flash {
   0% { opacity: 0; }
   30% { opacity: 0.16; }
   100% { opacity: 0; }

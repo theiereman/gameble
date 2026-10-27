@@ -1,7 +1,9 @@
 import { Controller } from "@hotwired/stimulus"
 import type { Rarity } from "../lib/card_types"
+import { writeText } from "../lib/dom_writes"
 import { STEPPER, keepStepperFocus, quantityFromButton, quantityFromKey, reflectStepper, type StepperView } from "../lib/stepper"
 import { columnsOf, type Chip, type EmptyReason, type Side, type SideFilter } from "../lib/trade_board"
+import { cloneContent } from "../lib/templates"
 import type { FaceFor } from "./trade_board_side_controller"
 
 export type PickView = { key: string; pressed: boolean; disabled: boolean; tabbable: boolean; stepper: StepperView | null }
@@ -77,7 +79,7 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
   connect(): void {
     this.observer = new IntersectionObserver(
       (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) this.dispatch("more", { cancelable: true })
+        if (entries.some((entry) => entry.isIntersecting)) this.dispatch("more")
       },
       { root: this.bodyTarget, rootMargin: "0px 0px 100% 0px" },
     )
@@ -99,7 +101,7 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     this.reflectPicks(view, faceFor)
     for (const empty of this.emptyTargets) empty.hidden = empty.dataset.reason !== view.empty
     this.refusalTarget.hidden = !view.refused
-    write(this.countTarget, view.count)
+    writeText(this.countTarget, view.count)
     if (!this.element.open) {
       this.element.showModal()
       this.scrollToTop()
@@ -122,7 +124,7 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
 
   toggle(event: Event): void {
     const key = this.keyOf(event)
-    if (key) this.dispatch("toggle", { detail: { key }, cancelable: true })
+    if (key) this.dispatch("toggle", { detail: { key } })
   }
 
   stepperKey(event: KeyboardEvent): void {
@@ -141,7 +143,7 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     if (!(event.target instanceof Element) || !event.target.matches(TOGGLE)) return
     const tops = Array.from(this.gridTarget.children, (item) => (item as HTMLElement).offsetTop)
     const detail: MoveIntent = { key: event.key, columns: columnsOf(tops) }
-    const sent = this.dispatch("move", { detail, cancelable: true })
+    const sent = this.dispatch("move", { detail })
     if (sent.defaultPrevented) event.preventDefault()
   }
 
@@ -152,19 +154,19 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
       rarities: this.rarityTargets.filter((box) => box.checked).map((box) => box.value as Rarity),
       chips: this.chipTargets.filter((box) => box.checked && box.dataset.for === side).map((box) => box.value as Chip),
     }
-    this.dispatch("filter", { detail: filter, cancelable: true })
+    this.dispatch("filter", { detail: filter })
   }
 
   fold(): void {
-    this.dispatch("fold", { cancelable: true })
+    this.dispatch("fold")
   }
 
   clear(): void {
-    this.dispatch("clear", { cancelable: true })
+    this.dispatch("clear")
   }
 
   place(): void {
-    this.dispatch("place", { cancelable: true })
+    this.dispatch("place")
   }
 
   cancel(): void {
@@ -177,7 +179,7 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
   }
 
   closed(): void {
-    this.dispatch("close", { cancelable: true })
+    this.dispatch("close")
   }
 
   private hide(): void {
@@ -195,8 +197,8 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     this.foldTarget.setAttribute("aria-expanded", String(!folded))
     this.groupsTarget.classList.toggle("trade-picker__groups--folded", folded)
     this.filterCountTarget.hidden = chipsOn === 0
-    write(this.chipCountTarget, String(chipsOn))
-    write(this.resultsTarget, results)
+    writeText(this.chipCountTarget, String(chipsOn))
+    writeText(this.resultsTarget, results)
     this.clearTarget.hidden = !filtering
   }
 
@@ -239,7 +241,7 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     const available = foot?.querySelector<HTMLElement>(".trade-pick__available")
     let spinner = foot?.querySelector<HTMLElement>(STEPPER) ?? null
     if (stepper && foot && !spinner) {
-      const fragment = this.stepperTemplateTarget.content.cloneNode(true) as DocumentFragment
+      const fragment = cloneContent(this.stepperTemplateTarget)
       spinner = fragment.querySelector<HTMLElement>(STEPPER)
       if (spinner) foot.append(spinner)
     }
@@ -263,14 +265,10 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
 
   private report(event: Event, quantity: number | null): void {
     const key = this.keyOf(event)
-    if (key && quantity !== null) this.dispatch("quantity", { detail: { key, quantity }, cancelable: true })
+    if (key && quantity !== null) this.dispatch("quantity", { detail: { key, quantity } })
   }
 
   private keyOf(event: Event): string | undefined {
     return (event.currentTarget as Element).closest<HTMLElement>(".trade-pick")?.dataset.key
   }
-}
-
-function write(element: HTMLElement, text: string): void {
-  if (element.textContent !== text) element.textContent = text
 }

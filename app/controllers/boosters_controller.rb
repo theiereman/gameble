@@ -1,16 +1,3 @@
-# The booster screen: its `booster` controller opens packs through the
-# opening exchange (packs#create in JSON) and reveals them. A read-only
-# page: Game answers the player's reserve (which the top bar's reserve chip
-# reuses) and the size of the next pack, Catalog the published season.
-#
-# Given `pack`, the token of one of the player's opened packs, the screen
-# shows that pack dealt, every card face up: the way back from one of its
-# cards' details (the screen writes the token into its history entry
-# before leaving for a card). Another player's pack, one not opened or an
-# unknown token is ignored: the canister, sealed or empty, as without one.
-#
-# In JSON the screen answers the player's bank alone, as its root reads it,
-# so the screen reads it again without leaving its hand.
 class BoostersController < ApplicationController
   include PackCards
 

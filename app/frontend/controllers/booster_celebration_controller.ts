@@ -1,6 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
 import { isRank, notchCount, sparkOffsets, type GaugeTick, type Juice } from "../lib/celebration"
 import type { SetTierName } from "../lib/opening"
+import { opensElsewhere } from "../lib/screen"
+import { cloneFirstElement } from "../lib/templates"
 
 export type ResultView = Readonly<{
   url: string
@@ -86,7 +88,7 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
   }
 
   leave(event: MouseEvent): void {
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    if (event.defaultPrevented || opensElsewhere(event)) return
     this.dispatch("leave")
   }
 
@@ -108,17 +110,13 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
     this.shown = null
   }
 
-  private clone<T extends Element = HTMLElement>(template: HTMLTemplateElement): T {
-    return (template.content.cloneNode(true) as DocumentFragment).firstElementChild as T
-  }
-
   private build(view: CelebrationView): HTMLElement {
-    const list = this.clone(this.listTarget)
+    const list = cloneFirstElement<HTMLElement>(this.listTarget)!
     list.toggleAttribute("data-still", view.still)
     if (!this.phoneValue) {
       const banners = view.folded ? [this.foldedBanner(view.folded)] : view.results.map((result) => this.resultBanner(result))
       for (const banner of banners) {
-        const item = this.clone(this.itemTarget)
+        const item = cloneFirstElement<HTMLElement>(this.itemTarget)!
         item.append(banner)
         list.append(item)
       }
@@ -127,7 +125,7 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
     const [shown] = view.results
     list.append(view.folded ? this.foldedBanner(view.folded) : this.resultBanner(shown))
     if (view.position !== null) {
-      const step = this.clone(this.stepTarget)
+      const step = cloneFirstElement<HTMLElement>(this.stepTarget)!
       const position = step.querySelector(".booster-celebration__position")
       if (position) position.textContent = view.position
       list.append(step)
@@ -136,7 +134,7 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
   }
 
   private resultBanner(result: ResultView): HTMLElement {
-    const banner = this.clone<HTMLAnchorElement>(this.resultTarget)
+    const banner = cloneFirstElement<HTMLAnchorElement>(this.resultTarget)!
     const complete = result.tier === "complete"
     banner.href = result.url
     banner.dataset.tier = result.tier
@@ -145,7 +143,7 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
     banner.style.setProperty("--from", String(result.from))
     banner.style.setProperty("--to", String(result.to))
 
-    this.fillHead(banner, result.title, complete ? this.clone(this.checkTarget) : this.tierMark(result.tier), result.juice.glosses, result.juice.ribbonSparks, result.juice.glints)
+    this.fillHead(banner, result.title, complete ? cloneFirstElement<HTMLElement>(this.checkTarget)! : this.tierMark(result.tier), result.juice.glosses, result.juice.ribbonSparks, result.juice.glints)
 
     this.write(banner, "set-name", result.name)
     if (!complete) banner.querySelector(".booster-celebration__name .booster-celebration__stamp")?.remove()
@@ -166,16 +164,16 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
   }
 
   private foldedBanner(folded: FoldedView): HTMLElement {
-    const banner = this.clone<HTMLAnchorElement>(this.foldedTarget)
+    const banner = cloneFirstElement<HTMLAnchorElement>(this.foldedTarget)!
     banner.setAttribute("aria-label", folded.label)
     banner.style.setProperty("--i", "0")
     this.fillHead(banner, folded.title, null, 0, 0, false)
     const marks = banner.querySelector(".booster-celebration__marks")
     for (const { tier, lightAt } of folded.marks) {
-      const mark = this.clone(this.markTarget)
+      const mark = cloneFirstElement<HTMLElement>(this.markTarget)!
       mark.dataset.tier = tier
       mark.style.setProperty("--light", ms(lightAt))
-      mark.append(tier === "complete" ? this.clone(this.stampTarget) : this.tierMark(tier))
+      mark.append(tier === "complete" ? cloneFirstElement<HTMLElement>(this.stampTarget)! : this.tierMark(tier))
       marks?.append(mark)
     }
     const set = banner.querySelector(".booster-celebration__set")
@@ -208,7 +206,7 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
   }
 
   private tick(tick: GaugeTick, result: ResultView): HTMLElement {
-    const element = this.clone(this.tickTarget)
+    const element = cloneFirstElement<HTMLElement>(this.tickTarget)!
     element.dataset.tier = tick.tier
     element.dataset.state = tick.state
     element.style.setProperty("--at", String(tick.at))
@@ -224,16 +222,16 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
   private tierMark(tier: SetTierName): HTMLElement {
     if (isRank(tier)) {
       const rank = this.rankTargets.find((template) => template.dataset.rank === tier)
-      if (rank) return this.clone(rank)
+      if (rank) return cloneFirstElement(rank)!
     }
-    const notches = this.clone(this.notchesTarget)
+    const notches = cloneFirstElement<HTMLElement>(this.notchesTarget)!
     for (let notch = 0; notch < notchCount(tier); notch++) notches.append(document.createElement("i"))
     return notches
   }
 
   private sparks(count: number, radius: number): HTMLElement | null {
     if (count === 0) return null
-    const host = this.clone(this.sparksTarget)
+    const host = cloneFirstElement<HTMLElement>(this.sparksTarget)!
     for (const { dx, dy, k } of sparkOffsets(count, radius)) {
       const spark = document.createElement("i")
       spark.style.setProperty("--dx", `${dx}px`)

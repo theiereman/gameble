@@ -6,7 +6,7 @@
 <% form_id = TradesHelper::COUNTER_FORM_ID %>
 <% yours = trade.state == :yours %>
 <% editor = local_assigns[:editor] if yours %>
-<% data = trade_board_data(focus: local_assigns.fetch(:focus, ""), editing:, editor:, forget: local_assigns[:forget],
+<% data = trade_board_root_data(focus: local_assigns.fetch(:focus, ""), editing:, editor:, forget: local_assigns[:forget],
           swap: local_assigns[:swap] && trade.state == :concluded, draft_key: (trade_counter_key(current_player, trade) if editor),
           counter_url: (counter_trade_path(token: trade.token) if editor), board_url: (trade_path(token: trade.token) if editor)) %>
 <%= render PanelComponent.new(tag: :section, brackets: true, id: "trade-board", class: class_names("trade-board", "trade-board--editing": editing),

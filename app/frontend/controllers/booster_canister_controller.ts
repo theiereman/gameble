@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
-import { cloneTemplate } from "../lib/booster_templates"
+import { writeText } from "../lib/dom_writes"
+import { cloneTemplate } from "../lib/templates"
 
 export type CanisterParts = Readonly<{
   wrap: HTMLElement | null
@@ -22,10 +23,6 @@ export type CanisterView = Readonly<{
   facts: string
   docks: number
 }>
-
-const text = (element: Element, value: string): void => {
-  if (element.textContent !== value) element.textContent = value
-}
 
 export default class BoosterCanisterController extends Controller<HTMLElement> {
   static targets = ["empty", "emptyNext", "emptyClock", "emptySpoken", "canister", "hint", "facts"]
@@ -68,14 +65,14 @@ export default class BoosterCanisterController extends Controller<HTMLElement> {
     this.emptyTarget.hidden = !empty
     this.emptyNextTarget.hidden = next === null
     if (next) {
-      text(this.emptyClockTarget, next.clock)
-      text(this.emptySpokenTarget, next.spoken)
+      writeText(this.emptyClockTarget, next.clock)
+      writeText(this.emptySpokenTarget, next.spoken)
     }
     this.hintTarget.hidden = empty
     this.factsTarget.hidden = empty
     this.hintTarget.toggleAttribute("data-hidden", hintHidden)
     this.factsTarget.toggleAttribute("data-hidden", hintHidden)
-    text(this.factsTarget, facts)
+    writeText(this.factsTarget, facts)
 
     const { wrap, button } = this.parts
     if (!wrap || !button) return

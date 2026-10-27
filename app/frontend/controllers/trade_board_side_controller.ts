@@ -1,5 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
+import { writeText } from "../lib/dom_writes"
 import { STEPPER, keepStepperFocus, quantityFromButton, quantityFromKey, reflectStepper, type StepperView } from "../lib/stepper"
+import { cloneContent } from "../lib/templates"
 import type { Side } from "../lib/trade_board"
 
 export type LineView = { key: string; quantity: number; removeLabel: string; stepper: StepperView | null }
@@ -45,7 +47,7 @@ export default class TradeBoardSideController extends Controller<HTMLElement> {
     })
 
     this.addSlotTarget.hidden = !canAdd
-    if (this.countTarget.textContent !== count) this.countTarget.textContent = count
+    writeText(this.countTarget, count)
     if (this.hasHelpTarget) this.helpTarget.hidden = !help
   }
 
@@ -56,12 +58,12 @@ export default class TradeBoardSideController extends Controller<HTMLElement> {
   }
 
   add(): void {
-    this.dispatch("add", { detail: { side: this.side }, cancelable: true })
+    this.dispatch("add", { detail: { side: this.side } })
   }
 
   remove(event: Event): void {
     const key = this.keyOf(event)
-    if (key) this.dispatch("remove", { detail: { side: this.side, key } satisfies SideIntent, cancelable: true })
+    if (key) this.dispatch("remove", { detail: { side: this.side, key } satisfies SideIntent })
   }
 
   stepperKey(event: KeyboardEvent): void {
@@ -78,7 +80,7 @@ export default class TradeBoardSideController extends Controller<HTMLElement> {
 
   private report(event: Event, quantity: number | null): void {
     const key = this.keyOf(event)
-    if (key && quantity !== null) this.dispatch("quantity", { detail: { side: this.side, key, quantity }, cancelable: true })
+    if (key && quantity !== null) this.dispatch("quantity", { detail: { side: this.side, key, quantity } })
   }
 
   private keyOf(event: Event): string | undefined {
@@ -90,7 +92,7 @@ export default class TradeBoardSideController extends Controller<HTMLElement> {
   }
 
   private newLine(withStepper: boolean): HTMLLIElement {
-    const fragment = this.lineTemplateTarget.content.cloneNode(true) as DocumentFragment
+    const fragment = cloneContent(this.lineTemplateTarget)
     const item = fragment.querySelector<HTMLLIElement>("li")!
     if (!withStepper) item.querySelector(STEPPER)?.remove()
     return item

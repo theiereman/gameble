@@ -174,7 +174,9 @@ import {
   type Hint,
   type OpeningRefusal,
 } from "../lib/booster"
-import { boosterTimers, type BoosterTimers } from "../lib/booster_timers"
+import { screenTimers, type ScreenTimers } from "../lib/screen_timers"
+import { cloneContent, cloneFirstElement } from "../lib/templates"
+import type { Intent } from "../lib/screen"
 import type BoosterActionsController from "./booster_actions_controller"
 import type BoosterCanisterController from "./booster_canister_controller"
 import type BoosterCelebrationController from "./booster_celebration_controller"
@@ -216,13 +218,9 @@ type BoosterStrings = {
 
 type Transition = (state: BoosterState) => BoosterState
 
-type Intent<Detail> = CustomEvent<Detail>
-
 type Clock = Readonly<{ clock: string; spoken: string }>
 
 const ANNOUNCEMENTS_KEPT = 5
-
-const RESERVE_PIPS = 10
 
 const localTime = (iso: string): string => formatLocalTime(iso, "datetime", { locale: document.documentElement.lang }) ?? iso
 
@@ -293,7 +291,7 @@ export class BoosterController extends Controller<HTMLElement> {
   declare readonly boosterCelebrationOutlets: BoosterCelebrationController[]
 
   private state?: BoosterState
-  private timers: BoosterTimers = boosterTimers()
+  private timers: ScreenTimers = screenTimers()
   private countdown?: BoosterCountdown
   private left: number | null = null
   private faces = new Map<number, Map<string, HTMLTemplateElement>>()
@@ -320,11 +318,11 @@ export class BoosterController extends Controller<HTMLElement> {
 
   private readonly icon = (tier: Rarity): DocumentFragment | null => {
     const template = this.icons.get(tier)
-    return template ? (template.content.cloneNode(true) as DocumentFragment) : null
+    return template ? cloneContent(template) : null
   }
 
   connect(): void {
-    this.timers = boosterTimers()
+    this.timers = screenTimers()
     this.readRarities()
     this.readFaces()
     const bank = bankFrom({
@@ -558,7 +556,7 @@ export class BoosterController extends Controller<HTMLElement> {
   }
 
   private announce(text: string): void {
-    const span = (this.announcementTarget.content.cloneNode(true) as DocumentFragment).firstElementChild
+    const span = cloneFirstElement(this.announcementTarget)
     if (!span) return
     span.textContent = text
     this.liveTarget.append(span)
@@ -596,7 +594,7 @@ export class BoosterController extends Controller<HTMLElement> {
 
   private faceFragment(index: number, size: string): DocumentFragment | null {
     const template = this.faces.get(index)?.get(size)
-    return template ? (template.content.cloneNode(true) as DocumentFragment) : null
+    return template ? cloneContent(template) : null
   }
 
   private number(value: number): string {
@@ -1067,7 +1065,7 @@ export class BoosterController extends Controller<HTMLElement> {
     const { available, reserveFull } = state.bank
     const shownSize = state.answer?.cards.length || this.nextSize(state)
     const info = {
-      lit: Math.min(available, RESERVE_PIPS),
+      lit: available,
       size: this.number(shownSize),
       reserve: t(this.strings.reserveCount, { count: available, n: this.number(available) }),
       tone: view.tone,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { clampValue, keyedValue } from "./stepper"
+import { clampValue, keyedValue, stepperKey } from "./stepper"
 
 describe("keyedValue", () => {
   it("steps by one, or goes to either end, within 1 and the maximum", () => {
@@ -22,5 +22,15 @@ describe("clampValue", () => {
     expect(clampValue(0, 3)).toBe(1)
     expect(clampValue(5, 3)).toBe(3)
     expect(clampValue(2, 3)).toBe(2)
+  })
+})
+
+describe("stepperKey", () => {
+  it("maps arrows, + and -, Home and End", () => {
+    expect(["ArrowUp", "ArrowRight", "+"].map(stepperKey)).toEqual([1, 1, 1])
+    expect(["ArrowDown", "ArrowLeft", "-"].map(stepperKey)).toEqual([-1, -1, -1])
+    expect(stepperKey("Home")).toBe("min")
+    expect(stepperKey("End")).toBe("max")
+    expect(stepperKey("Enter")).toBeNull()
   })
 })

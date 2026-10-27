@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from "vitest"
-import { cloneTemplate } from "./booster_templates"
+import { cloneContent, cloneFirstElement, cloneTemplate } from "./templates"
 
 const template = (build: (content: DocumentFragment) => void): HTMLTemplateElement => {
   const element = document.createElement("template")
@@ -35,5 +35,20 @@ describe("cloneTemplate", () => {
 
   it("answers null for an empty template", () => {
     expect(cloneTemplate(template(() => {}))).toBeNull()
+  })
+})
+
+describe("cloneContent, cloneFirstElement", () => {
+  it("clone the whole content, or its first element with the whitespace kept", () => {
+    const source = template((content) => {
+      const item = document.createElement("li")
+      item.append("\n ", document.createElement("span"))
+      content.append("\n", item, document.createElement("p"))
+    })
+
+    expect(cloneContent(source)).not.toBe(source.content)
+    expect(cloneContent(source).children.length).toBe(2)
+    expect(cloneFirstElement(source)?.childNodes.length).toBe(2)
+    expect(cloneFirstElement(template(() => {}))).toBeNull()
   })
 })

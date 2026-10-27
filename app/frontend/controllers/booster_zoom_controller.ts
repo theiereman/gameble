@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import type { Rarity } from "../lib/card_types"
+import { BANNER_TIERS, opensElsewhere, type Fragments } from "../lib/screen"
 import { swipeStep } from "../lib/swipe"
 
 export type ZoomView = Readonly<{
@@ -13,16 +14,7 @@ export type ZoomView = Readonly<{
   next: boolean
 }>
 
-export type ZoomFragments = Readonly<{
-  face: (index: number) => DocumentFragment | null
-  icon: (tier: Rarity) => DocumentFragment | null
-}>
-
 type Gesture = { id: number; x: number; y: number; tilted: boolean }
-
-const RAYS_TIERS: readonly Rarity[] = ["epic", "legendary"]
-
-const opensElsewhere = (event: MouseEvent): boolean => event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
 
 export default class BoosterZoomController extends Controller<HTMLDialogElement> {
   static targets = ["previous", "next", "rays", "face", "title", "icon", "line", "see", "repost", "status"]
@@ -49,7 +41,7 @@ export default class BoosterZoomController extends Controller<HTMLDialogElement>
     this.hide()
   }
 
-  render(view: ZoomView | null, fragments: ZoomFragments): void {
+  render(view: ZoomView | null, fragments: Fragments): void {
     if (view === null) {
       this.hide()
       return
@@ -89,7 +81,7 @@ export default class BoosterZoomController extends Controller<HTMLDialogElement>
 
   see(event: MouseEvent): void {
     if (opensElsewhere(event)) return
-    const asked = this.dispatch("see", { cancelable: true })
+    const asked = this.dispatch("see")
     if (asked.defaultPrevented) event.preventDefault()
   }
 
@@ -145,9 +137,9 @@ export default class BoosterZoomController extends Controller<HTMLDialogElement>
     this.element.close()
   }
 
-  private fill({ index, tier, title, line, href, repostName }: ZoomView, fragments: ZoomFragments): void {
+  private fill({ index, tier, title, line, href, repostName }: ZoomView, fragments: Fragments): void {
     this.element.dataset.tier = tier
-    const rays = RAYS_TIERS.includes(tier)
+    const rays = BANNER_TIERS.includes(tier)
     this.raysTarget.hidden = !rays
     this.raysTarget.className = rays ? `card-rays card-rays--${tier} card-rays--large booster-zoom__rays` : "card-rays card-rays--large booster-zoom__rays"
     this.faceTarget.replaceChildren(fragments.face(index) ?? "")

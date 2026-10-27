@@ -1,5 +1,5 @@
 <% name = friend_name(friend) %>
-<% data = trade_board_data(focus: "heading", editing: true, editor:, draft_key: trade_draft_key(current_player, friend)) %>
+<% data = trade_board_root_data(focus: "heading", editing: true, editor:, draft_key: trade_draft_key(current_player, friend)) %>
 <%= render PanelComponent.new(tag: :section, brackets: true, id: "trade-board", class: "trade-board trade-board--editing",
       aria: { labelledby: "trade-board-heading" }, data: data.merge(editing: true)) do %>
   <div class="trade-board__form">

@@ -33,7 +33,6 @@ import {
   showsOpenHelp,
   sideCount,
   start,
-  stepperKey,
   toggle,
   toggleFold,
   togglePick,
@@ -109,16 +108,6 @@ describe("showsOpenHelp", () => {
     expect(showsOpenHelp("own", [])).toBe(true)
     expect(showsOpenHelp("own", lines(["a", 1]))).toBe(false)
     expect(showsOpenHelp("friend", [])).toBe(false)
-  })
-})
-
-describe("stepperKey", () => {
-  it("maps arrows, + and -, Home and End", () => {
-    expect(["ArrowUp", "ArrowRight", "+"].map(stepperKey)).toEqual([1, 1, 1])
-    expect(["ArrowDown", "ArrowLeft", "-"].map(stepperKey)).toEqual([-1, -1, -1])
-    expect(stepperKey("Home")).toBe("min")
-    expect(stepperKey("End")).toBe("max")
-    expect(stepperKey("Enter")).toBeNull()
   })
 })
 

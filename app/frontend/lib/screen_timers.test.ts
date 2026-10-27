@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { boosterTimers } from "./booster_timers"
+import { screenTimers } from "./screen_timers"
 
-describe("boosterTimers", () => {
+describe("screenTimers", () => {
   beforeEach(() => vi.useFakeTimers())
   afterEach(() => vi.useRealTimers())
 
   it("resolves a wait after its delay and runs a later action after its own", async () => {
-    const timers = boosterTimers()
+    const timers = screenTimers()
     const done = vi.fn()
     const action = vi.fn()
     void timers.wait(100).then(done)
@@ -23,13 +23,13 @@ describe("boosterTimers", () => {
 
   it("treats a negative delay as none", async () => {
     const done = vi.fn()
-    void boosterTimers().wait(-50).then(done)
+    void screenTimers().wait(-50).then(done)
     await vi.advanceTimersByTimeAsync(0)
     expect(done).toHaveBeenCalledOnce()
   })
 
   it("leaves every pending wait unresolved once disposed, and starts none after", async () => {
-    const timers = boosterTimers()
+    const timers = screenTimers()
     const done = vi.fn()
     const action = vi.fn()
     void timers.wait(100).then(done)

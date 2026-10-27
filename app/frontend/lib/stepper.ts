@@ -1,4 +1,4 @@
-import { stepperKey } from "./trade_board"
+import { writeText } from "./dom_writes"
 
 export type StepperView = {
   value: number
@@ -25,8 +25,25 @@ export function reflectStepper(stepper: HTMLElement, { value, max, label, valueT
   if (more) more.disabled = value >= max
 }
 
-function writeText(element: Element | null, text: string): void {
-  if (element && element.textContent !== text) element.textContent = text
+export function stepperKey(key: string): 1 | -1 | "min" | "max" | null {
+  switch (key) {
+    case "ArrowUp":
+    case "ArrowRight":
+    case "+":
+    case "=":
+      return 1
+    case "ArrowDown":
+    case "ArrowLeft":
+    case "-":
+    case "_":
+      return -1
+    case "Home":
+      return "min"
+    case "End":
+      return "max"
+    default:
+      return null
+  }
 }
 
 export function keyedValue(key: string, value: number, max: number): number | null {

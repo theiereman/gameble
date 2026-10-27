@@ -37,9 +37,6 @@ module PacksHelper
     }
   end
 
-  # A card of an opened pack as the booster screen reads it, in the opening
-  # exchange's answer and in the markup of a pack shown again: its slug,
-  # season, tier, cover, title, year and spoken label.
   def pack_card_fields(card)
     { slug: card.id, season: card.season_number, tier: card.rarity, coverUrl: card.image_url, title: card.title, year: card.year,
       label: pack_card_label(card) }

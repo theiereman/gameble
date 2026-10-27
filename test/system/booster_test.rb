@@ -41,8 +41,8 @@ class BoosterTest < ApplicationSystemTestCase
     names.map { |name| catalog_card_seasons(name).id }
   end
 
-  # Packs holding these card-seasons, then the booster screen with its
-  # island drawn. `more` leaves another pack available after them.
+  # Packs holding these card-seasons, then the booster screen
+  # drawn. `more` leaves another pack available after them.
   def open_screen(*packs, kind: :regular, more: false)
     packs.each_with_index { |cards, index| create_pack(@player, cards:, kind:, available_at: (packs.size - index).days.ago) }
     create_pack(@player, available_at: 1.hour.ago) if more
@@ -652,7 +652,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_no_selector "#{card(1)} .booster-card__rays", visible: true
   end
 
-  test "leaving during Reveal all stops the island: the hub's counts and links stay as they were" do
+  test "leaving during Reveal all stops the screen: the hub's counts and links stay as they were" do
     create_pack(@player, cards: card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
     # Reached through Turbo, so Back is a restoration visit in the same window.
     visit home_path(locale: :en)

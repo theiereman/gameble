@@ -99,9 +99,6 @@ export function restoredCelebration(setTiers: readonly OpeningSetTier[], marked:
 
 export const folded = (results: readonly CelebrationResult[]): boolean => results.length > FOLD_ABOVE
 
-/** The result after `index` on the phone, back to the first after the last. */
-export const nextResult = (index: number, count: number): number => (count > 0 ? (index + 1) % count : 0)
-
 /** "PALIER ARGENT" or "SET COMPLET". */
 export const resultTitle = (result: CelebrationResult, strings: CelebrationStrings): string =>
   result.tier === "complete" ? strings.completeTitle : t(strings.tierTitle, { tier: strings.tiers[result.tier] })

@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
-import { cloneTemplate } from "../lib/booster_templates"
+import { writeText } from "../lib/dom_writes"
+import { cloneTemplate } from "../lib/templates"
 import { drawCardArt } from "../lib/card_art"
 import type { Rarity } from "../lib/card_types"
 
@@ -42,7 +43,7 @@ export default class BoosterTrayController extends Controller<HTMLElement> {
   render({ key, shown, count, busy, slots }: TrayView, icon: (tier: Rarity) => DocumentFragment | null): void {
     this.busy = busy
     this.element.hidden = !shown
-    if (this.countTarget.textContent !== count) this.countTarget.textContent = count
+    writeText(this.countTarget, count)
     if (key !== this.key) this.rebuild(key, slots.length)
     const next = slots.findIndex((slot) => !slot.stored)
     slots.forEach((slot, index) => {

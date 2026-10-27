@@ -1056,15 +1056,18 @@ fr:
       canister_label: "Ouvrir la capsule Saison %{season}, grand catalogue, %{count} cartes"
       canister_label_plain: "Ouvrir la capsule, grand catalogue, %{count} cartes"
       hint_remaining:
+        zero: "Cliquez une carte pour la révéler · %{n} restante"
         one: "Cliquez une carte pour la révéler · %{n} restante"
         other: "Cliquez une carte pour la révéler · %{n} restantes"
       hint_done:
+        zero: "Capsule inventoriée · +%{n} carte dans la collection"
         one: "Capsule inventoriée · +%{n} carte dans la collection"
         other: "Capsule inventoriée · +%{n} cartes dans la collection"
       face_down: "Carte %{position} sur %{total}, face cachée. Révéler."
       face_up: "%{card}, %{rarity}. Voir la fiche."
       announce_card: "Carte %{position} : %{card}. %{rarity}."
       summary:
+        zero: "%{n} carte révélée : %{tiers}."
         one: "%{n} carte révélée : %{tiers}."
         other: "%{n} cartes révélées : %{tiers}."
       summary_tier: "%{rarity} × %{n}"
@@ -1072,6 +1075,7 @@ fr:
       refused_title: "Ouverture annulée"
       failed: "L'ouverture n'a pas abouti. Vérifiez votre connexion ou rechargez la page, puis réessayez."
       canister_facts:
+        zero: "%{n} carte"
         one: "%{n} carte"
         other: "%{n} cartes"
       face_up_store: "%{card}, %{rarity}. Ranger la carte."

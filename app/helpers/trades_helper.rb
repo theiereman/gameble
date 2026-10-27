@@ -4,6 +4,7 @@ module TradesHelper
   FACES_PER_REQUEST = 36
   CARD_KEY = /\A(.+)--s(\d{1,9})\z/
   PICKER_CHIPS = { friend: %w[duplicates missing shared], own: %w[duplicates missing available] }.freeze
+  BOARD_CHILDREN = %w[trade-board-send].freeze
   BOARD_ACTIONS = {
     "trade-board-side" => { add: :openPicker, remove: :removeLine, quantity: :setLineQuantity },
     "trade-board-picker" => { toggle: :togglePick, quantity: :setPickQuantity, filter: :setFilter, fold: :toggleFold,
@@ -150,24 +151,17 @@ module TradesHelper
     }
   end
 
-  def trade_board_data(focus:, editing:, editor: nil, draft_key: nil, counter_url: nil, board_url: nil, forget: nil, swap: false)
+  def trade_board_root_data(focus:, editing:, editor: nil, draft_key: nil, counter_url: nil, board_url: nil, forget: nil, swap: false)
     data = { controller: "trade-board", trade_board_editing_value: editing, trade_board_focus_value: focus,
              trade_board_forget_value: forget, trade_board_swap_value: (true if swap) }
     return data unless editor
 
     data.merge(
-      action: trade_board_actions, trade_board_draft_key_value: draft_key,
+      action: screen_actions("trade-board", BOARD_ACTIONS), trade_board_draft_key_value: draft_key,
       trade_board_counter_url_value: counter_url, trade_board_board_url_value: board_url,
       trade_board_faces_url_value: faces_trades_path, trade_board_faces_batch_value: FACES_PER_REQUEST,
-      trade_board_strings_value: trade_board_strings,
-      trade_board_trade_board_side_outlet: "#trade-board [data-controller~='trade-board-side']",
-      trade_board_trade_board_picker_outlet: "#trade-board [data-controller~='trade-board-picker']",
-      trade_board_trade_board_send_outlet: "#trade-board [data-controller~='trade-board-send']"
-    )
-  end
-
-  def trade_board_strings
-    t("trade_board.strings").deep_transform_keys { it.to_s.camelize(:lower) }
+      trade_board_strings_value: screen_strings("trade_board.strings")
+    ).merge(screen_outlets("trade-board", BOARD_ACTIONS.keys + BOARD_CHILDREN))
   end
 
   def trade_board_stepper(title:, value:, max:)
@@ -187,12 +181,6 @@ module TradesHelper
   end
 
   private
-    def trade_board_actions
-      BOARD_ACTIONS.flat_map do |child, events|
-        events.map { |event, method| "#{child}:#{event}->trade-board##{method}" }
-      end.join(" ")
-    end
-
     def trade_board_side(side, held:, other_held:, picks:, received:)
       copies = trade_game_copies(held, picks)
       other_copies = trade_game_copies(other_held, picks)

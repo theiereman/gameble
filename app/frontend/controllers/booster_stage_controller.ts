@@ -2,7 +2,9 @@ import { Controller } from "@hotwired/stimulus"
 import { animate } from "../lib/booster_effects"
 import { cardBackClass, pilePose } from "../lib/booster_motion"
 import { CardSwipe, dragTransform, type SwipeRelease } from "../lib/booster_swipe"
-import { cloneTemplate } from "../lib/booster_templates"
+import { writeData, writeText } from "../lib/dom_writes"
+import { BANNER_TIERS, type Fragments } from "../lib/screen"
+import { cloneTemplate } from "../lib/templates"
 import type { Rarity } from "../lib/card_types"
 
 export type CardView = Readonly<{
@@ -41,20 +43,7 @@ export type BannerView = Readonly<{
   duration: number
 }>
 
-export type Fragments = Readonly<{
-  face: (index: number) => DocumentFragment | null
-  icon: (tier: Rarity) => DocumentFragment | null
-}>
-
 export type CardIntent = { index: number }
-
-const RAYS_TIERS: readonly Rarity[] = ["epic", "legendary"]
-
-const setData = (element: HTMLElement, name: string, value: string | null): void => {
-  if (value === null) {
-    if (name in element.dataset) delete element.dataset[name]
-  } else if (element.dataset[name] !== value) element.dataset[name] = value
-}
 
 export default class BoosterStageController extends Controller<HTMLElement> {
   static targets = ["shake", "fx", "flash", "result", "dealArea", "deal", "hint", "pileArea", "pile", "card", "banner"]
@@ -117,7 +106,7 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     this.dealAreaTarget.hidden = hand === null
     this.pileAreaTarget.hidden = hand === null
     this.hintTarget.hidden = hint === null
-    if (hint !== null && this.hintTarget.textContent !== hint) this.hintTarget.textContent = hint
+    if (hint !== null) writeText(this.hintTarget, hint)
 
     if ((hand?.key ?? null) !== this.handKey) this.deal(hand, fragments)
     if (hand) this.update(hand)
@@ -162,7 +151,7 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     const slot = (event.target as Element | null)?.closest<HTMLLIElement>(".booster-card")
     if (!slot || !event.isPrimary || this.swipe.active) return
     const index = this.indexOf(slot)
-    const asked = this.dispatch("press", { detail: { index } satisfies CardIntent, cancelable: true })
+    const asked = this.dispatch("press", { detail: { index } satisfies CardIntent })
     if (!asked.defaultPrevented) return
     this.swipe.press({ id: event.pointerId, x: event.clientX, y: event.clientY }, index, this.tilting(slot))
   }
@@ -230,7 +219,7 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     slot.dataset.tier = card.tier
     if (card.tier !== "legendary") slot.querySelector(".booster-card__glow")?.remove()
     const rays = slot.querySelector(".booster-card__rays")
-    if (RAYS_TIERS.includes(card.tier)) rays?.classList.add(`card-rays--${card.tier}`)
+    if (BANNER_TIERS.includes(card.tier)) rays?.classList.add(`card-rays--${card.tier}`)
     else rays?.remove()
     slot.querySelector(".booster-card__back")?.classList.add(cardBackClass(hand.cardBack))
     slot.querySelector(".booster-card__front")?.replaceChildren(fragments.face(card.index) ?? "")
@@ -259,11 +248,11 @@ export default class BoosterStageController extends Controller<HTMLElement> {
   private updateSlot(slot: HTMLLIElement, card: CardView, dealt: boolean): void {
     slot.toggleAttribute("data-dealt", dealt)
     slot.toggleAttribute("data-revealed", card.revealed)
-    setData(slot, "revealedAt", card.revealedAt === undefined ? null : String(card.revealedAt))
+    writeData(slot, "revealedAt", card.revealedAt === undefined ? null : String(card.revealedAt))
     slot.toggleAttribute("data-legendary", card.legendary)
     const top = card.depth === 0
     slot.toggleAttribute("data-top", top)
-    setData(slot, "depth", card.depth === null ? null : String(card.depth))
+    writeData(slot, "depth", card.depth === null ? null : String(card.depth))
     slot.inert = card.depth !== null && !top
     if (card.depth === null) {
       for (const property of ["--pile-y", "--pile-scale", "--pile-rotate", "z-index"]) slot.style.removeProperty(property)

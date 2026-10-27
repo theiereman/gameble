@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import type { Layout, OpenVariant } from "../lib/booster"
+import { writeFlag, writeText } from "../lib/dom_writes"
 
 export type ActionsView = Readonly<{
   open: OpenVariant
@@ -9,11 +10,6 @@ export type ActionsView = Readonly<{
   locked: boolean
   reason: string | null
 }>
-
-const setFlag = (element: Element, name: string, on: boolean): void => {
-  if (on) element.setAttribute(name, "true")
-  else element.removeAttribute(name)
-}
 
 export default class BoosterActionsController extends Controller<HTMLElement> {
   static targets = ["open", "row", "revealAll", "back", "reason"]
@@ -38,11 +34,11 @@ export default class BoosterActionsController extends Controller<HTMLElement> {
     this.busy = busy
     this.openTarget.dataset.open = open
     this.openTarget.disabled = openDisabled
-    setFlag(this.openTarget, "aria-disabled", !openDisabled && busy)
+    writeFlag(this.openTarget, "aria-disabled", !openDisabled && busy)
     this.revealAllTarget.disabled = revealAllDisabled
-    setFlag(this.backTarget, "aria-disabled", locked)
+    writeFlag(this.backTarget, "aria-disabled", locked)
     this.reasonTarget.hidden = reason === null
-    if (this.reasonTarget.textContent !== (reason ?? "")) this.reasonTarget.textContent = reason ?? ""
+    writeText(this.reasonTarget, reason ?? "")
   }
 
   arrange(layout: Layout): void {
@@ -63,7 +59,7 @@ export default class BoosterActionsController extends Controller<HTMLElement> {
   }
 
   back(event: Event): void {
-    const asked = this.dispatch("back", { cancelable: true })
+    const asked = this.dispatch("back")
     if (asked.defaultPrevented) event.preventDefault()
   }
 

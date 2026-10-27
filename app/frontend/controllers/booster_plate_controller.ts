@@ -2,7 +2,9 @@ import { Controller } from "@hotwired/stimulus"
 import { animate } from "../lib/booster_effects"
 import { platePopKeyframes } from "../lib/booster_keyframes"
 import { PLATE_POP_LEGENDARY_MS, PLATE_POP_MS } from "../lib/booster_motion"
-import { cloneTemplate } from "../lib/booster_templates"
+import { writeFlag, writeText } from "../lib/dom_writes"
+import { BANNER_TIERS } from "../lib/screen"
+import { cloneTemplate } from "../lib/templates"
 import type { Rarity } from "../lib/card_types"
 import { motionReduced } from "../lib/motion"
 
@@ -17,8 +19,6 @@ export type PlateView = Readonly<{
   celebrating: boolean
   busy: boolean
 }>
-
-const BANNER_TIERS: readonly Rarity[] = ["epic", "legendary"]
 
 export default class BoosterPlateController extends Controller<HTMLElement> {
   static targets = ["hint", "done", "plate"]
@@ -37,15 +37,13 @@ export default class BoosterPlateController extends Controller<HTMLElement> {
     this.hintTarget.hidden = hint === null || celebrating
     if (hint) {
       this.hintTarget.dataset.shows = hint.kind
-      if (this.doneTarget.textContent !== hint.done) this.doneTarget.textContent = hint.done
+      writeText(this.doneTarget, hint.done)
     }
-    if (plate) this.hintTarget.setAttribute("aria-hidden", "true")
-    else this.hintTarget.removeAttribute("aria-hidden")
+    writeFlag(this.hintTarget, "aria-hidden", Boolean(plate))
 
     if ((plate?.key ?? null) !== this.plateKey) this.showPlate(plate, icon)
     const store = this.plateElement?.querySelector(".booster-plate__store")
-    if (busy) store?.setAttribute("aria-disabled", "true")
-    else store?.removeAttribute("aria-disabled")
+    if (store) writeFlag(store, "aria-disabled", busy)
   }
 
   store(): void {

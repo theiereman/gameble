@@ -5,7 +5,7 @@ export default class TradeBoardSendController extends Controller<HTMLFormElement
 
   declare readonly reasonTarget: HTMLElement
 
-  reflect(blocked: boolean): void {
+  render(blocked: boolean): void {
     const button = this.element.querySelector<HTMLButtonElement>("button[type=submit]")
     if (button) {
       button.disabled = blocked

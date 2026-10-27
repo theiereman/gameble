@@ -49,27 +49,6 @@ export function showsOpenHelp(side: Side, lines: readonly Line[]): boolean {
   return side === "own" && lines.length === 0
 }
 
-export function stepperKey(key: string): 1 | -1 | "min" | "max" | null {
-  switch (key) {
-    case "ArrowUp":
-    case "ArrowRight":
-    case "+":
-    case "=":
-      return 1
-    case "ArrowDown":
-    case "ArrowLeft":
-    case "-":
-    case "_":
-      return -1
-    case "Home":
-      return "min"
-    case "End":
-      return "max"
-    default:
-      return null
-  }
-}
-
 export function gridMove(index: number, key: string, count: number, columns: number): number | null {
   if (count < 1) return null
   const width = Math.max(1, columns)

@@ -15,7 +15,6 @@ import {
   gaugeTicks,
   isRank,
   juice,
-  nextResult,
   notchCount,
   resultLinkName,
   resultTitle,
@@ -277,11 +276,6 @@ describe("the results as shown", () => {
 
     expect(foldedTitle(results, fr)).toBe("5 PALIERS ATTEINTS")
     expect(celebrationAnnouncement(results, fr, NBSP)).toMatch(/^5 paliers atteints : /)
-  })
-
-  it("steps the phone's results in order, back to the first after the last", () => {
-    expect([nextResult(0, 3), nextResult(1, 3), nextResult(2, 3)]).toEqual([1, 2, 0])
-    expect(nextResult(0, 1)).toBe(0)
   })
 })
 

@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import type { StatusTone } from "../lib/booster"
+import { writeText } from "../lib/dom_writes"
 
 export type InfoView = Readonly<{
   lit: number
@@ -9,10 +10,6 @@ export type InfoView = Readonly<{
   reserveFull: boolean
   next: Readonly<{ clock: string; spoken: string }> | null
 }>
-
-const text = (element: Element, value: string): void => {
-  if (element.textContent !== value) element.textContent = value
-}
 
 export default class BoosterInfoController extends Controller<HTMLElement> {
   static targets = ["size", "reserve", "state", "full", "next", "clock", "spoken"]
@@ -29,14 +26,14 @@ export default class BoosterInfoController extends Controller<HTMLElement> {
 
   render({ lit, size, reserve, tone, reserveFull, next }: InfoView): void {
     this.element.querySelectorAll<HTMLElement>(".booster__pip").forEach((pip, index) => pip.toggleAttribute("data-lit", index < lit))
-    if (this.hasSizeTarget) text(this.sizeTarget, size)
-    if (this.hasReserveTarget) text(this.reserveTarget, reserve)
+    if (this.hasSizeTarget) writeText(this.sizeTarget, size)
+    if (this.hasReserveTarget) writeText(this.reserveTarget, reserve)
     this.stateTarget.dataset.tone = tone
     this.fullTarget.hidden = !reserveFull
     this.nextTarget.hidden = reserveFull || next === null
     if (next) {
-      text(this.clockTarget, next.clock)
-      text(this.spokenTarget, next.spoken)
+      writeText(this.clockTarget, next.clock)
+      writeText(this.spokenTarget, next.spoken)
     }
   }
 }

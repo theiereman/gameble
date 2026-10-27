@@ -661,6 +661,22 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".trade-pick[data-key='tin-soldier--s1'] .trade-pick__reserved", "Réservée"
   end
 
+  test "the draft board wires every child action and outlet from its root, and carries no style" do
+    sign_in @alice
+
+    get new_trade_path(locale: :fr, friend: @bob.token)
+
+    root = css_select("#trade-board").sole
+    TradesHelper::BOARD_ACTIONS.each do |child, events|
+      events.each { |event, method| assert_includes root["data-action"].split, "#{child}:#{event}->trade-board##{method}" }
+      assert_select "#trade-board [data-controller=#{child}]"
+      assert_equal "#trade-board [data-controller~='#{child}']", root["data-trade-board-#{child}-outlet"]
+    end
+    assert_select "#trade-board [data-controller=trade-board-send]"
+    assert_equal "#trade-board [data-controller~='trade-board-send']", root["data-trade-board-trade-board-send-outlet"]
+    assert_select "[style]", 0
+  end
+
   def second_edition(card_season_id)
     season = Catalog::Season.find_by(number: 2) || Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
     one = Catalog::CardSeason.find(card_season_id)
