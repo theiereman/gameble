@@ -8,6 +8,10 @@ CI.run do
   step "Translations: missing keys", "bundle exec i18n-tasks missing"
   step "Types: TypeScript", "npm run typecheck"
   step "Markup: built by the server", "script/check_markup_apis"
+  step "Format: TypeScript", "npm run format:check"
+  step "Style: CSS", "npm run lint:css"
+  step "Readability: no planning ids in the code", "script/check_planning_references"
+  step "Readability: file sizes", "script/check_file_sizes"
 
   step "Security: Gem audit", "bin/bundler-audit"
   step "Security: Brakeman code analysis", "bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error"
