@@ -1,12 +1,4 @@
 module Game
-  # The header of a player's public profile: how many games they
-  # hold, in any edition (Game::HeldGames), and how many of the season's
-  # sets they have completed (a set with members, every member's game held
-  # in any edition). One query when the season is given; without it the
-  # published season is looked up first. Zeros, without a query, for nil (a
-  # visitor) or no season.
-  #
-  #   Game::CollectionSummary.call(player, season:) # => Summary(distinct_cards: 12, complete_sets: 1)
   module CollectionSummary
     Summary = Data.define(:distinct_cards, :complete_sets)
     NONE = Summary.new(distinct_cards: 0, complete_sets: 0)

@@ -1,12 +1,4 @@
 module Game
-  # The tiles of a player's collection grid, one per game, as a lazy
-  # relation of Catalog::CardSeason: every rated game of `season` and every
-  # game the player holds in any edition, a game gone from the season
-  # included. A held game's tile is the edition Game::HeldGames.editions
-  # shows; any other's, its edition of `season`. A visitor (nil) holds
-  # nothing: the season's rated card-seasons.
-  #
-  #   Game::CollectionTiles.call(player, season) # => Catalog::CardSeason relation
   module CollectionTiles
     SQL = <<~SQL.squish.freeze
       catalog_card_seasons.id IN (

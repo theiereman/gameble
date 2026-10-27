@@ -1,25 +1,4 @@
 module Game
-  # The games a player holds, whatever the season of their copies: per card,
-  # the best rarity among the card-seasons held with copies left, and the
-  # latest gain among them (`gained_at`, NULL when none was ever timed).
-  #
-  #   Game::HeldGames.call(player_id) # => { card_id => rarity, … }
-  #   Game::HeldGames.call(player_id, card_ids: [ … ]) # those cards only
-  #
-  # `count`: how many games a player holds; `by_rarity`: how many at each
-  # best rarity, every tier of Catalog::Rarity::TIERS a key. One query each;
-  # 0 and zeros, without a query, for nil (a visitor).
-  #
-  #   Game::HeldGames.count(player) # => 17
-  #   Game::HeldGames.by_rarity(player) # => { 1 => 12, 2 => 4, 3 => 1, 4 => 0, 5 => 0 }
-  #
-  # `editions`: per game asked about that the player holds, the edition it
-  # shows (EDITION_ORDER), the copies over every edition, whether any is new
-  # (as in CollectionSlots), how many editions are held and the latest gain;
-  # one query, nothing for nil.
-  #
-  #   Game::HeldGames.editions(player, card_ids: [ … ], season:)
-  #   # => { card_id => Edition(card_season_id: 7, copies: 3, new: true, editions: 2, gained_at: Time) }
   module HeldGames
     Edition = Data.define(:card_season_id, :copies, :new, :editions, :gained_at)
 

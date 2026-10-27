@@ -16,12 +16,7 @@ module Game
       def self.call(event)
         activity, actor = EVENTS.fetch(event.class)
         at = event.metadata[:timestamp] || Time.current
-        PlayerState.upsert(
-          { player_id: event.data.fetch(actor), last_activity: activity.to_s, last_activity_at: at, created_at: at, updated_at: at },
-          unique_by: :player_id, record_timestamps: false,
-          on_duplicate: Arel.sql("last_activity = excluded.last_activity, last_activity_at = excluded.last_activity_at, " \
-            "updated_at = excluded.updated_at")
-        )
+        RecordPlayerActivity.new.call(player_id: event.data.fetch(actor), activity:, at:).value!
       end
     end
   end

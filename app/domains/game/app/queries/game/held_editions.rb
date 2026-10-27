@@ -1,11 +1,4 @@
 module Game
-  # The editions of a game a player holds, those with copies left: each as
-  # its rarity name, its season's number and its copies, the best rarity
-  # first, then by season. One query; nil (a visitor) holds nothing and
-  # costs no query.
-  #
-  #   Game::HeldEditions.call(player, card_id: 12)
-  #   # => [ [ "epic", 4, 1 ], [ "rare", 1, 1 ], [ "rare", 3, 2 ] ]
   module HeldEditions
     SQL = <<~SQL.squish.freeze
       SELECT catalog_card_seasons.rarity, catalog_seasons.number, game_holdings.quantity

@@ -1,30 +1,12 @@
 module Game
-  # The activity feed's entries for a viewer: the newest notable entries
-  # first, of one kind when `kind` is given (the type filters; a list of
-  # kinds gets no filler), of the `players` ids only when given (the friends
-  # tab; a trade is theirs when either side is), each only if
-  # Game::Visibility lets `viewer` (nil for a signed-out visitor) see every
-  # player it names as a player would: staff read the community's stream as
-  # the community does. When fewer than MIN notable entries show, the newest
-  # fillers complete the list so the feed is not empty while any activity
-  # exists; fillers are pulls, so only the whole feed and the pulls get them.
-  # Reads only.
-  #
-  #   Game::FeedEntries.call(nil)
-  #   Game::FeedEntries.call(viewer, kind: "trade")
-  #   Game::FeedEntries.call(viewer, players: friend_ids)
-  #   # => [ Entry(entry, player, partner, filler), … ] newest first
   module FeedEntries
     Entry = Data.define(:entry, :player, :partner, :filler) do
       def initialize(entry:, player:, filler:, partner: nil) = super
     end
 
-    # Entries shown, and the count under which fillers are added; both tuned in play.
     LIMIT = 30
     MIN = 10
 
-    # Rows read per pass, and the passes at most, as hidden players leave
-    # gaps: a crowd of hidden entries does not hide older visible ones.
     WINDOW = 90
     PASSES = 10
 
@@ -38,12 +20,9 @@ module Game
       (notable + fillers).sort_by { |item| [ item.entry.occurred_at, item.entry.id ] }.reverse
     end
 
-    # Reads `scope` newest first, WINDOW rows at a time after the last row
-    # read, until `limit` visible entries are found or the rows run out.
     def self.visible(scope, viewer, limit, filler:)
       found = []
       players = {}
-      # Asked once per player: a friends-only player costs a friendship query.
       shown = Hash.new { |seen, id| seen[id] = Visibility.visible?(viewer, players[id], staff_sees_all: false) }
       cursor = nil
       PASSES.times do

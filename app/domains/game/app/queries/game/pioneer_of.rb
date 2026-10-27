@@ -1,9 +1,4 @@
 module Game
-  # The first player to discover a card-season (one edition of a card), and
-  # when: nil when that edition has no recorded discovery (nothing is
-  # backfilled). One query.
-  #
-  #   Game::PioneerOf.call(12) # => #<data Game::PioneerOf::Pioneer player=…, discovered_at=…>
   module PioneerOf
     Pioneer = Data.define(:player, :discovered_at)
 

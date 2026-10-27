@@ -1,12 +1,4 @@
 module Game
-  # Rewards the contributors of a reached weekly goal (CAP-12, AD-9, AD-14;
-  # story 6.5): every player with a contribution that week and no reward yet
-  # gets one through Game::GrantGoalReward, in their own transaction. Enqueued
-  # by Game::SumWeeklyGoalJob each time a reached goal's total moves, so a
-  # player who contributes after the goal was reached is rewarded on the next
-  # sum. A rerun grants nothing twice; banned and deleted players and
-  # refusals are skipped; a player whose grant raises is reported and the others are
-  # still served.
   class GrantGoalRewardsJob < ActiveJob::Base
     queue_as :default
 

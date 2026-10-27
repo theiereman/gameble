@@ -1,9 +1,4 @@
 module Game
-  # The card-seasons a player chose for their profile showcase, in their
-  # order, in one query; nil (a visitor) has none and costs no query.
-  #
-  #   Game::ChosenShowcase.call(player) # => [ card_season_id, … ]
-  #   Game::ChosenShowcase.full?(ids)   # => whether no card can join them
   module ChosenShowcase
     SIZE = ShowcaseEntry::SIZE
 

@@ -1,24 +1,4 @@
 module Game
-  # The collection grid's state filter (CAP-6; EXPERIENCE.md, Collection
-  # opening): a relation of Catalog::CardSeason narrowed to the states asked,
-  # OR between them, and optionally put newest gained first. A state reads
-  # the game, every edition of the card-season's card counted. States:
-  #
-  # - `owned`: at least one copy held, in any edition;
-  # - `missing`: none held;
-  # - `new`: an edition gained since the player's watermark (as in
-  #   CollectionSlots), or since `seen_up_to` when given: the watermark a
-  #   grid was shown against, which the grid itself may have moved since;
-  # - `duplicates`: two copies or more across editions;
-  # - `all`: no restriction.
-  #
-  # No state asked is DEFAULT, every card. A visitor (nil) holds nothing: `owned`, `new`
-  # and `duplicates` match no card, `missing` and `all` every one. Newest
-  # first replaces the relation's order: the held games before the unheld,
-  # by their latest gain (those never gained last), then the number and id.
-  #
-  #   Game::CollectionStates.call(player, relation, states: %w[missing], newest_first: true)
-  #   Game::CollectionStates.call(player, relation, states: %w[new], seen_up_to: Time)
   module CollectionStates
     STATES = %w[owned all missing new duplicates].freeze
     DEFAULT = "all"
@@ -42,14 +22,11 @@ module Game
       ) held_games ON held_games.card_id = catalog_card_seasons.card_id
     SQL
 
-    # The states asked that exist, in STATES order; `all` beside another
-    # state gives way to it, so a state chosen from the default narrows.
     def self.sanitize(asked)
       states = STATES & Array(asked).map(&:to_s)
       states.size > 1 ? states - [ DEFAULT ] : states
     end
 
-    # Gained since `seen_up_to`, in place of the player's watermark.
     NEW_SINCE = "held_games.gained_at > ?".freeze
 
     def self.call(player, relation, states: [], newest_first: false, seen_up_to: nil)

@@ -1,10 +1,4 @@
 module Game
-  # The weekly goal reward the hub's claim slot shows a player, or nil: the
-  # oldest reward still waiting for its claim, so none is lost, else the
-  # reward claimed last, while its claim falls in the current or previous
-  # week. One indexed read.
-  #
-  #   Game::GoalRewardStatus.call(player) # => { week_start: Date, claimed: bool } | nil
   module GoalRewardStatus
     WAITING_FIRST = Arel.sql("pack_id IS NULL DESC, CASE WHEN pack_id IS NULL THEN week_start END ASC, updated_at DESC")
 
