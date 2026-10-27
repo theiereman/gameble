@@ -119,6 +119,18 @@ jobs:
       - name: Check no script builds markup from a string
         run: script/check_markup_apis
 
+      - name: Check the frontend formatting
+        run: npm run format:check
+
+      - name: Lint the CSS
+        run: npm run lint:css
+
+      - name: Check no planning id is written in the code
+        run: script/check_planning_references
+
+      - name: Check no source file is over its size limit
+        run: script/check_file_sizes
+
       - name: Check the migrations build db/schema.rb
         env:
           RAILS_ENV: test
