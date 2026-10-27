@@ -61,8 +61,8 @@ class Game::RepostCardTest < ActiveSupport::TestCase
   end
 
   test "a second repost of a card within 24 hours is refused; another card and another player pass" do
-    hold(@epic, 1)
-    hold(@common, 1)
+    hold(@player, @epic, 1)
+    hold(@player, @common, 1)
     other = accounts_players(:moderator)
     Game::Holding.create!(player_id: other.id, card_season_id: @epic, quantity: 1)
     start = Time.utc(2026, 10, 8, 12, 0)

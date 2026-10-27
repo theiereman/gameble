@@ -80,7 +80,7 @@ class RepostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a repost beyond the limits is refused with the translated message in both locales" do
-    hold(@portal)
+    hold(@player, @portal)
     sign_in(@player)
     post repost_path, as: :json
     assert_response :success
