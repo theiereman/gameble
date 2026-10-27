@@ -1,6 +1,6 @@
 // The booster screen's bank read again from the server, and what its
 // countdown's zero does, a dealt hand never refreshed away. No DOM.
-import type { BoosterBank, BoosterPhase, Layout } from "./booster"
+import type { BoosterBank, BoosterPhase, Layout } from "./booster_types"
 
 export type FetchBank = {
   /** The booster screen in JSON (the root's bankUrl value). */

@@ -3,7 +3,8 @@
 // browser's own when Turbo is absent), the layout the viewport's width
 // asks for, and the addresses that bring an opened pack back: a card's
 // detail walking the pack, and the screen's own history entry naming it.
-import { NARROW_QUERY, PHONE_QUERY, layoutFor, type Layout } from "./booster"
+import { layoutFor } from "./booster_rules"
+import { NARROW_QUERY, PHONE_QUERY, type Layout } from "./booster_types"
 
 /** The layout the viewport's width asks for (lib/booster.ts, layoutFor). */
 export function readLayout(): Layout {
