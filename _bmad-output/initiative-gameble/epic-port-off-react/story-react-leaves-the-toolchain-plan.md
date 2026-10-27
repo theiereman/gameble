@@ -50,6 +50,10 @@ Leave: `test/system/booster_test.rb` (its comment and test name say "island"; th
 - findings:
   - `[low]` `[patch]` Without `'unsafe-inline'`, web-console's in-view `console` script is refused in development: development nonced no directive, and the helper tags its inline script with the request's nonce — development now nonces `script-src` (styles stay un-nonced, Vite injects them inline); checked live: the header carries `'nonce-…'` on `script-src`, the Vite client connects and no script is refused.
 
+### 2026-10-27 — Author decisions
+- Accepted: development `script-src` carries a nonce in place of `'unsafe-inline'` and `'unsafe-eval'`, keeping web-console's in-view console.
+- Asked: rename the remaining "island" wording in `test/system/booster_test.rb` (a comment and a test name) in the refactor sweep.
+
 ## Verification
 
 Run from the worktree with `DATABASE_URL=postgres://postgres:postgres@localhost:5433/gameble_test_react CHROME_BIN=/usr/bin/chromium`; system test files one at a time; `git checkout db/schema.rb` if a run rewrites it.

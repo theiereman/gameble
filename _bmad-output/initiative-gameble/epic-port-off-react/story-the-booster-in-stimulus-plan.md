@@ -172,6 +172,12 @@ deferred:
   - `[low]` `[patch]` (blind) Header comments the commit rewrote ran past the wrap (`celebration.ts`, `motion.ts`, `i18n.ts`) and kept planning ids (`i18n.ts`, `card_types.ts`, `packs_controller.rb`) — rewrapped, ids dropped on those lines only.
   - `[maybe-false]` `[defer]` (edge) The deferred throw holding the lock, read again: Stimulus 3.2's outlet getters connect an outlet's controller on demand, so `has…Outlet` true never meets a missing controller, and no DOM or data path in a sequence was found to throw; it stays deferred as filed.
 
+### 2026-10-27 — Author decisions
+- Accepted: the six counter assertions removed from `test/system/booster_test.rb` with the counter.
+- Accepted: the open button's label assertions are weaker under the hidden label variants.
+- No action: a throw inside a sequence keeping the navigation lock stays as is, no ticket.
+- No action: "Reveal all" looking enabled during a Légendaire's hold stays as is, no ticket.
+
 ## Design Notes
 
 **Root element** `section#booster.booster[data-controller=booster]` (keeps `aria-labelledby`, pointing at the shown layout's title; ids unique) with values: `openUrl`, `cardUrl`, `repostUrl` (empty without a season), `bankUrl`, `delimiter`, `packSize`, `season` (0 when none), `available`, `reserveFull`, `nextAvailableAt`, `serverTime`, `nextPackSize` (0 when none), `strings` (Object, `booster.strings` camelized, plural hashes kept). Targets: `rarity` `<template>` per tier (`data-tier`, `data-name`, the tier's `booster-card__label-icon` pixel icon), live region with an announcement `<template>`, and for an opened pack: `pack` data (token, kind, card back, url), one `card` target per card (slug, season, tier, cover URL, title, year, label) with three `face` `<template>`s (`data-index`, `data-size` s/m/xl, rendered by `CardComponent(booster: true)`), one `setTier` target per row (kind, key, name, tier, required, held, total, url, `data-thresholds` as space-separated `tier:required`). The root rebuilds an `OpeningAnswer`-shaped value from them for `start()`; faces live in a root map index → size → `<template>`, filled by `serverTemplate()` from each new answer.

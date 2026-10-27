@@ -56,11 +56,12 @@ Checked and clean in the epic's lines: planning ids, `style=` in the screens' vi
 - `reflect` → `render` on the send child; `trade-swap__*` → `trade-board__*`.
 - Strip name-restating comments from the files and methods this epic created.
 - French `zero` forms on the four keys.
+- Rename the remaining "island" wording in `test/system/booster_test.rb` (the comment near line 45, the test name near line 655); asked by the author, 2026-10-27.
 - System tests for the picker's paging, fold and chips, the phone closing hint, the no-season canister label.
 - Optional: render only the connecting outlet in the booster; drop the TS `RESERVE_PIPS`; dispose the face loader on disconnect.
 
 **Leave**
-- `test/system/booster_test.rb`; the `trade-board--editing`/`--swapping` classes.
+- `test/system/booster_test.rb` beyond the "island" rename; the `trade-board--editing`/`--swapping` classes.
 - The `trades.*` / `trade_board.*` locale layout; transition naming.
-- The lock-on-throw and Reveal-all items.
+- The lock-on-throw and Reveal-all items: the author leaves both as they are, no ticket (2026-10-27).
 - Pre-epic comment and planning-id debt, file sizes.
