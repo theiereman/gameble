@@ -3,23 +3,9 @@ import { dispatchGameble, type BankChangedDetail } from "../lib/events"
 import { arcPoints, type Point } from "../lib/arc"
 import { motionReduced } from "../lib/motion"
 
-// The daily booster's arc (EXPERIENCE.md, Motion: "Daily booster", and
-// Implementation notes): a small canister flies from the panel to the packs
-// chip, or, on the phone, to the BOOSTER tab, and the count brightens. 480ms
-// (520ms on the phone).
-//
-// The claim answers in Turbo Stream (daily_bonuses/create.turbo_stream.erb).
-// This controller sits on the hub and listens to `turbo:before-stream-render`
-// on the document, where both ends are still where the player sees them,
-// before the stream replaces the panel and the chip. Only the stream that
-// replaces the panel with a success marker (`data-bonus-arc-collected`)
-// starts it; a refusal's stream carries none. The marker also carries the
-// new reserve, which the controller announces as `gameble:bank-changed` once
-// the canister lands (at once when motion is reduced, and then no canister
-// flies: lib/motion.ts is read at the moment of use).
-//
-// Only transform and opacity move. A flight under way is cancelled when the
-// controller disconnects.
+// The daily booster's arc: a canister flies from the panel to the packs chip (or the BOOSTER tab on a phone) and the count brightens.
+// It listens to `turbo:before-stream-render` while both ends are in place, and starts only for a stream carrying `data-bonus-arc-collected`.
+// Only transform and opacity move; a flight under way is cancelled on disconnect.
 const ARC_MS = 480
 const ARC_MS_PHONE = 520
 const BUMP_MS = 600
@@ -28,7 +14,6 @@ const PANEL = "#daily-booster"
 const CHIP = "#packs-chip"
 const BOOSTER_TAB = ".tab-bar a.tab-bar__tab[href*='/booster']"
 
-// Turbo's StreamElement, as far as this controller reads it.
 type StreamElementLike = HTMLElement & { templateContent?: DocumentFragment }
 
 const centre = (element: Element): Point => {
@@ -55,7 +40,6 @@ export default class extends Controller<HTMLElement> {
     window.clearTimeout(this.bumpTimer)
   }
 
-  // data-action="turbo:before-stream-render@document->bonus-arc#render"
   render(event: Event): void {
     const stream = (event as CustomEvent<{ newStream?: StreamElementLike }>).detail?.newStream
     const marker = stream?.templateContent?.querySelector<HTMLElement>("[data-bonus-arc-collected]")
@@ -109,10 +93,7 @@ export default class extends Controller<HTMLElement> {
     animation.addEventListener("finish", done)
   }
 
-  // The canister landed (or never flew): the reserve is announced, and the
-  // new count of the chip brightens after a flight.
   private arrived(bank: BankChangedDetail | undefined, bump: boolean): void {
-    // After the stream has replaced the chip (this runs at the next task at the earliest for a skipped flight).
     window.setTimeout(() => {
       if (bank) dispatchGameble("gameble:bank-changed", bank)
       if (!bump) return

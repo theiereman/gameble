@@ -8,11 +8,8 @@ const pixels = (value: string): number | undefined => {
   return trimmed.endsWith("px") ? Number.parseFloat(trimmed) || 0 : undefined
 }
 
-// A card face's tilt, reflection, glitter and in-view mark (CardComponent;
-// lib/tilt.ts, lib/glitter.ts): a Légendaire's flakes twinkle only while
-// `data-in-view` is set (styles/card.css). A Turbo snapshot keeps the
-// attributes, properties and flakes of the moment it was taken: each
-// connect starts from a clean face, each disconnect leaves one.
+// A card face's tilt, reflection, glitter and in-view mark. A Turbo snapshot keeps the attributes and flakes of the moment it was taken,
+// so each connect starts from a clean face and each disconnect leaves one.
 export default class extends Controller<HTMLElement> {
   static values = { max: { type: Number, default: 10 } }
   static targets = ["glitter"]
@@ -43,7 +40,6 @@ export default class extends Controller<HTMLElement> {
     this.reset()
   }
 
-  // The face's size from its custom properties, which hold even while it is hidden; a grid face's from its layout.
   private attachGlitter(): Glitter | undefined {
     if (!this.hasGlitterTarget) return undefined
     const style = getComputedStyle(this.element)
@@ -59,7 +55,6 @@ export default class extends Controller<HTMLElement> {
     this.element.removeAttribute("data-in-view")
     this.element.removeAttribute("data-tilt")
     this.element.removeAttribute("data-tilting")
-    // An emptied style attribute goes, so the face is as the server wrote it.
     if (this.element.getAttribute("style") === "") this.element.removeAttribute("style")
   }
 }

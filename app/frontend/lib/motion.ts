@@ -1,13 +1,7 @@
-// The one switch for reduced motion, read by Stimulus controllers. CSS
-// reads the same two sources: `html[data-motion]`, which the server
-// renders from the player's "Animations réduites" setting, else its
-// cookie (ApplicationController#forced_motion), and, when that attribute is
-// absent, the system preference.
+// The one switch for reduced motion, read by Stimulus controllers: `html[data-motion]` from the player's setting, else the system preference.
 export const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)"
 
-// Whether motion is reduced right now: read at the moment of use, never
-// cached, so a change of the attribute or of the system preference is seen
-// by the next call.
+// Read at the moment of use, never cached.
 export function motionReduced(): boolean {
   const forced = typeof document !== "undefined" ? document.documentElement.dataset.motion : undefined
   if (forced === "reduced") return true
@@ -15,11 +9,7 @@ export function motionReduced(): boolean {
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(REDUCED_MOTION_QUERY).matches
 }
 
-// Calls `listener` with the new state whenever the switch flips, either
-// source (the `data-motion` attribute or the system preference). For what
-// is already running when the switch flips (a transition, a loop a
-// controller started). Returns the function that stops listening, for a
-// controller's disconnect.
+// Calls `listener` whenever the switch flips; returns the function that stops listening.
 export function onMotionChange(listener: (reduced: boolean) => void): () => void {
   let last = motionReduced()
   const check = (): void => {

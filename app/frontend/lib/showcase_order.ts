@@ -1,6 +1,4 @@
-// The owner reordering their profile showcase by dragging a card, read by
-// the showcase-order controller. Pure, except sendPlacement, which takes
-// its fetch as an argument.
+// Reordering the profile showcase by dragging a card. Pure, except sendPlacement, which takes its fetch as an argument.
 
 export type Point = { x: number; y: number }
 export type Box = { left: number; top: number; width: number; height: number }

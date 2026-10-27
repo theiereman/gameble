@@ -1,6 +1,4 @@
-// Where a set's tier tick sits on its bar: the share of the set its tier
-// asks for, written by the server as a data attribute and turned into a
-// custom property, since server HTML carries no style attribute.
+// Where a set's tier tick sits on its bar: the server's data attribute turned into a custom property, since server HTML carries no style attribute.
 
 export const TIER_AT_ATTRIBUTE = "data-tier-at"
 export const PLACED_CLASS = "is-placed"

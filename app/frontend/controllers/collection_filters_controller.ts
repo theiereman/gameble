@@ -2,14 +2,8 @@ import { Controller } from "@hotwired/stimulus"
 import { reloadOnChange, reloadsSets, SET_OPTIONS_FRAME, submitToFrame } from "../lib/collection_filters"
 import { Debounce, summaryOf } from "../lib/set_search"
 
-// The grid's search and FILTRES zone: one GET form whose result Turbo loads
-// into the frame that holds the grid. The form itself is never replaced, so
-// the field and the chip keep focus. A chip switched on or off submits at
-// once; typing in the search submits after a short pause. The set group's
-// kind and text filter no card: they reload only the set chips, in their
-// own frame inside the form. The count of active filters and the "clear
-// all" link follow the chips without a round trip. Without JavaScript the
-// form still works with its "apply" button.
+// The grid's search and filters: one GET form whose result Turbo loads into the grid's frame without replacing the form, so focus stays.
+// A chip submits at once, typing after a short pause; the set group's kind and text reload only the set chips.
 const TYPING_PAUSE_MS = 250
 const ALL_STATE = "all"
 
@@ -35,10 +29,7 @@ export default class extends Controller<HTMLFormElement> {
     this.setsTyping.cancel()
   }
 
-  // A chip was switched, or the set kind chosen. In the state group "all"
-  // and the other states exclude each other, and the group never stays
-  // empty: with every state off, its default (every slot) comes back, as
-  // when the page opens.
+  // In the state group "all" and the other states exclude each other, and with every state off the default comes back.
   changed(event: Event): void {
     const field = event.target as HTMLInputElement
     const reload = reloadOnChange(field)
@@ -63,7 +54,6 @@ export default class extends Controller<HTMLFormElement> {
   }
 
   typed(event: Event): void {
-    // A composition (IME) is not text yet: wait for compositionend.
     if ((event as InputEvent).isComposing) return
     if (this.hasSetQueryTarget && event.target === this.setQueryTarget) {
       this.setsTyping.call(() => this.submitSets())
@@ -107,8 +97,6 @@ export default class extends Controller<HTMLFormElement> {
     return Array.from(group.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'))
   }
 
-  // The count shown: the chips on outside the state group, plus the state
-  // chips when they differ from the default the page opens on.
   private refresh(): void {
     let count = 0
     for (const group of this.groupTargets) {

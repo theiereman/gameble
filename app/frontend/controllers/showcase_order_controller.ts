@@ -21,16 +21,8 @@ type Gesture = {
 
 const SHIFT_MS = 160
 
-// The owner's showcase on their own profile, reordered by dragging a card
-// (lib/showcase_order.ts). A mouse or pen picks a card up once it moves a
-// few pixels with its button down, so a click still opens the card; a
-// finger picks it up after holding still a moment, so a swipe still
-// scrolls. While dragged the card follows the pointer and the others make
-// room; on release the card's new place is sent and its ◀ ▶ buttons follow
-// the new order, the move being announced politely. A refusal or a failure
-// puts the previous order back and shows the server's message in a toast.
-// Escape or a cancelled pointer puts the card back. The other cards slide
-// to their places only when motion is not reduced.
+// The owner's showcase on their profile, reordered by dragging a card (lib/showcase_order.ts): a mouse or pen after a few pixels,
+// a finger after holding still. The new place is sent on release; a refusal puts the previous order back and toasts the server's message.
 export default class extends Controller<HTMLElement> {
   static targets = ["list", "slot", "status"]
   static values = { announcement: String, failed: String }
@@ -84,12 +76,10 @@ export default class extends Controller<HTMLElement> {
     window.addEventListener("keydown", this.escape)
   }
 
-  // A link or picture dragged by the browser itself would end the pointer's gesture.
   stopNativeDrag(event: DragEvent): void {
     event.preventDefault()
   }
 
-  // A finger held on a link opens no menu while it carries the card.
   stopMenu(event: Event): void {
     if (this.gesture?.touch) event.preventDefault()
   }
@@ -141,19 +131,16 @@ export default class extends Controller<HTMLElement> {
     gesture.slot.style.translate = `${gesture.shiftX}px ${gesture.shiftY}px`
   }
 
-  // Where the dragged card sits in the row, without the shift that keeps it under the pointer.
   private restingBox(gesture: Gesture): DOMRect {
     const box = gesture.slot.getBoundingClientRect()
     return new DOMRect(box.left - gesture.shiftX, box.top - gesture.shiftY, box.width, box.height)
   }
 
-  // Moves the DOM, then slides each other card from where it was to its new place.
   private reorder(insert: (node: HTMLElement) => void, dragged: HTMLElement): void {
     const others = this.slotTargets.filter((slot) => slot !== dragged)
     const was = new Map(others.map((slot) => [slot, slot.getBoundingClientRect()]))
     insert(dragged)
     if (motionReduced()) return
-    // The cards are measured again only once they have settled, so a sliding card never sends the dragged one back.
     this.settledAt = performance.now() + SHIFT_MS
     others.forEach((slot) => {
       const before = was.get(slot)
@@ -231,7 +218,6 @@ export default class extends Controller<HTMLElement> {
     this.showEdges()
   }
 
-  // No ◀ on the first card, no ▶ on the last, in the order shown.
   private showEdges(): void {
     const slots = this.slotTargets
     slots.forEach((slot, index) => {
@@ -251,7 +237,6 @@ export default class extends Controller<HTMLElement> {
     return document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? null
   }
 
-  // A finger carrying a card does not scroll the page under it.
   private holdScroll = (event: TouchEvent): void => {
     if (this.gesture?.dragging && event.cancelable) event.preventDefault()
   }

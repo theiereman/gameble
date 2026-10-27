@@ -1,10 +1,5 @@
-// The booster's opening exchange, client side (AD-23; story 8.10): one
-// POST to the packs URL in JSON, with the activation's idempotency key and
-// the page's CSRF token. The answer is one of three outcomes: the pack
-// opened (its cards with their faces), a refusal the server explained
-// (`{ error: { code, message } }`), or a failure whose outcome is unknown
-// (no answer, an answer that is not the exchange's, a server error), after
-// which the same key is sent again. No DOM.
+// The booster's opening exchange: one JSON POST with the activation's idempotency key and the CSRF token.
+// The outcome is the opened pack, a refusal the server explained, or an unknown failure after which the same key is sent again. No DOM.
 import { RARITIES, type Rarity } from "./card_types"
 
 /** A card of the opened pack, in drawn order (PacksHelper#pack_opening_json). */
@@ -88,7 +83,6 @@ export async function sendOpening({ url, key, csrfToken, fetch: send = globalThi
   } catch {
     return FAILED
   }
-  // A server error may have opened the pack before failing: unknown.
   if (response.status >= 500) return FAILED
 
   let body: unknown

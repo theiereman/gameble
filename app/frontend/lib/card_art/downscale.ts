@@ -1,10 +1,6 @@
 import { cropRegion } from "pixelcrush"
 
-/**
- * Where a `"cover"` crop sits vertically when the source is taller than the
- * art box: 0 keeps the top, 0.5 the middle, 1 the bottom. Covers put their
- * title and faces above the middle (AD-17).
- */
+/** Where a `"cover"` crop sits vertically when the source is taller than the art box: 0 keeps the top, 1 the bottom. */
 export const DEFAULT_ANCHOR = 0.42
 
 /** What the downscale needs of a 2D context, on a canvas or an `OffscreenCanvas`. */
@@ -18,12 +14,7 @@ export type CreateSurface<C extends DrawContext = DrawContext> = (width: number,
 
 export type Size = { width: number; height: number }
 
-/**
- * The sizes a `regionWidth × regionHeight` region goes through on its way to
- * `width × height`: halved while above twice the target, so each browser
- * resampling averages at most about four pixels into one; the last size is
- * within 2× the target and never under it.
- */
+/** The sizes a region goes through to `width × height`: halved while above twice the target, the last never under it. */
 export function halvingSizes(regionWidth: number, regionHeight: number, width: number, height: number): Size[] {
   const sizes: Size[] = []
   let currentWidth = regionWidth
@@ -39,12 +30,7 @@ export function halvingSizes(regionWidth: number, regionHeight: number, width: n
   return sizes
 }
 
-/**
- * Crops `source` (anchored at `anchor`, AD-17) to the ratio of
- * `width × height` and halves it on scratch surfaces until it is within 2× that
- * size. Returns the last surface and its size, or `null` when a surface has no
- * 2D context. The caller makes the final, exact step.
- */
+/** Crops `source` to the ratio of `width × height` and halves it until within 2× that size; the caller makes the final exact step. `null` without a 2D context. */
 export function downscale<C extends DrawContext>(
   source: CanvasImageSource,
   sourceWidth: number,

@@ -1,24 +1,5 @@
-// A card face's tilt under the pointer, and the studio reflection on its
-// varnish that rides it. The face eases toward its target in animation
-// frames and writes it as custom properties the stylesheet reads
-// (styles/card.css):
-//   --tilt-rx, --tilt-ry   the rotation, in degrees
-//   --reflection-strip     the strips' centre, in % of their gradient line
-//   --reflection-fresnel   how much the varnish brightens with the tilt
-//   --reflection-horizon   the ceiling's edge, as a share of the card's height
-//   --reflection-hue       the iridescence's offset, in % (background-position-x)
-// and marks the face:
-//   data-tilting           while a pointer drives it
-//   data-tilt="moving"     while it eases
-//   data-tilt="held"       once settled on a target other than rest
-// The reflection follows the displayed, eased tilt, never the pointer, so it
-// slides in as the card tilts and back as it lets go. Back at rest every
-// property goes: the stylesheet's defaults draw the flat card's reflection.
-// A mouse or pen tilts it as it moves over it; a finger held still for
-// HOLD_MS tilts it until released (the click that follows is swallowed, so
-// a card in a link does not open), and a drag before then scrolls the page.
-// Under reduced motion (motionReduced() when a pointer starts) nothing
-// happens.
+// Eases a card face toward the pointer's tilt and writes it, with the reflection that rides it, as custom properties for styles/card.css.
+// A held finger tilts it (the click after is swallowed); a drag scrolls instead; reduced motion does nothing.
 import { motionReduced } from "./motion"
 
 export type Tilt = { rx: number; ry: number }
@@ -56,22 +37,14 @@ const unit = (value: number) => Math.min(1, Math.max(0, value))
 
 const withoutNegativeZero = (value: number) => value + 0
 
-/**
- * The tilt for a pointer at (`x`, `y`) over a card laid out at `rect`: the
- * side under the pointer goes down, up to `max` degrees at an edge.
- */
+/** The tilt for a pointer at (`x`, `y`) over a card at `rect`, up to `max` degrees at an edge. */
 export function tiltTarget(x: number, y: number, rect: Box, max: number): Tilt {
   const px = rect.width > 0 ? unit((x - rect.left) / rect.width) : 0.5
   const py = rect.height > 0 ? unit((y - rect.top) / rect.height) : 0.5
   return { rx: withoutNegativeZero(-(py - 0.5) * 2 * max), ry: withoutNegativeZero((px - 0.5) * 2 * max) }
 }
 
-/**
- * The reflection of a card tilted toward (`dx`, `dy`), each from -0.5 to
- * 0.5 (the side brought down, as a share of the card from its centre), on
- * a card `aspect` times as wide as it is tall: the strips and the ceiling
- * slide opposite the tilt, and the varnish brightens as the tilt grows.
- */
+/** The reflection of a card tilted toward (`dx`, `dy`), each from -0.5 to 0.5, on a card `aspect` times as wide as tall. */
 export function reflection(dx: number, dy: number, aspect: number): Reflection {
   const tilt2 = Math.min(1, (dx * dx + dy * dy) / 0.5)
   return {
@@ -82,13 +55,9 @@ export function reflection(dx: number, dy: number, aspect: number): Reflection {
   }
 }
 
-/** The flat card's reflection, which the stylesheet draws by default. */
 export const REST_REFLECTION = reflection(0, 0, CARD_ASPECT)
 
-/**
- * Where a card showing `tilt`, out of `max` degrees at an edge, leans: the
- * side brought down, from -0.5 to 0.5 across (`dx`) and down (`dy`).
- */
+/** Where a card showing `tilt`, out of `max` degrees at an edge, leans: `dx` across and `dy` down, from -0.5 to 0.5. */
 export function leaning(tilt: Tilt, max: number): { dx: number; dy: number } {
   return { dx: withoutNegativeZero(tilt.ry / (2 * max)), dy: withoutNegativeZero(-tilt.rx / (2 * max)) }
 }
@@ -112,12 +81,7 @@ export function easeToward(current: Tilt, target: Tilt, factor: number): Tilt {
   return settled(next, target) ? { ...target } : next
 }
 
-/**
- * The card's layout box: its untransformed size around the centre of what
- * the screen shows. Measured once when a pointer starts driving it (the
- * card then at rest, or nearly), and kept until it lets go or the page
- * scrolls, so the card's own tilt never moves the target it aims for.
- */
+/** The card's untransformed layout box, measured once when a pointer starts driving it so its own tilt never moves its target. */
 function layoutBox(element: HTMLElement): Box {
   const rect = element.getBoundingClientRect()
   const width = element.offsetWidth || rect.width
@@ -127,11 +91,7 @@ function layoutBox(element: HTMLElement): Box {
 
 type Hold = { id: number; startX: number; startY: number; x: number; y: number; timer: ReturnType<typeof setTimeout> }
 
-/**
- * Tilts `element` under the pointer; returns the function that undoes it
- * all. `onTilt` hears where the eased tilt leans on every frame it draws,
- * and (0, 0) once it is back at rest or detached.
- */
+/** Tilts `element` under the pointer; `onTilt` hears the eased tilt each frame, (0, 0) once at rest or detached. Returns the undo. */
 export function attachTilt(
   element: HTMLElement,
   { max, onTilt }: { max: number; onTilt?: (dx: number, dy: number) => void },
@@ -173,7 +133,6 @@ export function attachTilt(
       return
     }
     write()
-    // Driven but resting (the pointer on the centre): neither moving nor held.
     if (still && atRest(target)) delete element.dataset.tilt
     else element.dataset.tilt = still ? "held" : "moving"
     if (!still) frame = requestAnimationFrame(step)
@@ -260,7 +219,6 @@ export function attachTilt(
     event.stopPropagation()
   }
 
-  // A finger tilting the card does not scroll the page under it.
   const onTouchMove = (event: TouchEvent) => {
     if (driver?.touch && event.cancelable) event.preventDefault()
   }

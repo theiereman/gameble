@@ -24,7 +24,6 @@ export type ArtWorker = {
 }
 
 export type ArtRendererOptions = {
-  /** Jobs in the worker at once, 2 to 4 (AD-17). */
   concurrency?: number
   /** Filtered bitmaps kept in memory; the least recently used is closed first. */
   cacheLimit?: number
@@ -35,18 +34,12 @@ export type ArtRendererOptions = {
 }
 
 export type ArtRenderer = {
-  /**
-   * Draws `url` on `canvas` at `width × height` (scale it up with CSS,
-   * `image-rendering: pixelated`). Resolves `"drawn"` or `"plain"`; rejects
-   * with `ArtMissingError` when the art is missing, and with `AbortError`,
-   * drawing nothing, once `signal` aborts.
-   */
+  /** Draws `url` on `canvas` at `width × height`; rejects with `ArtMissingError` when missing, `AbortError` once `signal` aborts. */
   render(url: string, canvas: HTMLCanvasElement, options: RenderArtOptions): Promise<RenderResult>
   /** Stops the worker, closes every cached bitmap and aborts every waiting render. */
   dispose(): void
 }
 
-/** The colour count of the card art (AD-17). */
 export const DEFAULT_COLORS = 32
 export const DEFAULT_CONCURRENCY = 3
 export const DEFAULT_CACHE_LIMIT = 120
@@ -64,16 +57,7 @@ type Job = {
   settle: (result: Settled) => void
 }
 
-/**
- * A renderer with its own worker, queue and bitmap cache (AD-17). The worker
- * is created on the first render that needs it. Jobs for the same URL, size,
- * colour count and palette size are shared; at most `concurrency` run in the
- * worker at once, the rest wait in order. A job whose renders all abort while
- * queued is dropped; one already in the worker finishes into the cache.
- * Failures are never cached. A CORS failure is drawn once on the main thread
- * without palette; without the browser APIs, or once the worker fails, every
- * render takes that path.
- */
+/** A renderer with its own worker, queue and bitmap cache; jobs for the same URL, size, colour count and palette size are shared. */
 export function createArtRenderer({
   concurrency = DEFAULT_CONCURRENCY,
   cacheLimit = DEFAULT_CACHE_LIMIT,

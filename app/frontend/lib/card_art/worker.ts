@@ -1,6 +1,4 @@
-// The worker entry (AD-17): one job per message, one URL at a time, its
-// bitmap transferred back. Started by the renderer on the first render that
-// needs it.
+// The worker entry: one job per message, one URL at a time, its bitmap transferred back.
 import { createJobRunner, PaletteCache, type JobEnvironment, type JobRequest, type JobResponse, type WorkerSurface } from "./worker_job"
 
 type WorkerScope = {

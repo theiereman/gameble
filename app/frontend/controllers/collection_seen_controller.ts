@@ -1,12 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
-// The collection's watermark (AD-26): the server renders this element only
-// when the grid shows cards new to the signed-in player, with the latest
-// gain shown (ISO 8601, to the microsecond). Once the page is really
-// rendered (never Turbo's preview of a cached copy), it posts that time,
-// once, so those cards are no longer new on the next visit. The GET wrote
-// nothing (AD-11). A failure is ignored: the cards stay new until a later
-// visit posts again.
+// The collection's watermark: when the grid shows cards new to the player, posts the latest gain's time once the page is really rendered
+// (never Turbo's preview), so they are no longer new on the next visit. A failure is ignored.
 export default class extends Controller<HTMLElement> {
   static values = { url: String, upTo: String }
 

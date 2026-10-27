@@ -1,10 +1,5 @@
-// A Légendaire's glitter: small flakes on the varnish, tiny mirrors each
-// facing its own way. A flake flashes when the card's eased tilt faces its
-// normal; otherwise it twinkles now and then with its group (styles/card.css),
-// while the face is in view and never under reduced motion. The flakes fall
-// into TWINKLE_GROUPS groups, each twinkling to its own rhythm, so a face
-// runs no more twinkles than that. The field is drawn from the card's seed,
-// so a card shows the same flakes, groups and rhythms on every render.
+// A Légendaire's glitter: flakes on the varnish that flash when the card's eased tilt faces their normal and otherwise twinkle in groups.
+// The field is drawn from the card's seed, so a card shows the same flakes on every render.
 
 export type FlakeColour = "white" | "gold" | "violet" | "blue"
 

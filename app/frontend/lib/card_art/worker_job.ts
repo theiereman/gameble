@@ -12,13 +12,7 @@ export type ArtJob = {
   colors: number
 }
 
-/**
- * - `drawn`: the filtered art, at the art size.
- * - `missing`: an HTTP error, an undecodable image, or a placeholder (AD-17).
- * - `cors`: the request itself failed, which is how a refused CORS read (or an
- *   unreachable host) shows; the caller retries once without CORS.
- * - `unsupported`: no 2D context on an `OffscreenCanvas`.
- */
+/** `drawn` the filtered art; `missing` an HTTP error, undecodable image or placeholder; `cors` the request failed (retry once without CORS); `unsupported` no 2D context. */
 export type JobResult =
   | { status: "drawn"; bitmap: ImageBitmap }
   | { status: "missing" }
@@ -28,7 +22,7 @@ export type JobResult =
 export type JobRequest = ArtJob & { id: number }
 export type JobResponse = JobResult & { id: number }
 
-/** The image request: no added header, no referrer, no cookie (AD-17). */
+/** The image request: no added header, no referrer, no cookie. */
 export const IMAGE_REQUEST: Readonly<RequestInit> = Object.freeze({ mode: "cors", credentials: "omit", referrerPolicy: "no-referrer" })
 
 /** How long the image request and its body may take before the art counts as missing. */
@@ -58,11 +52,7 @@ export type JobEnvironment = {
   fetchTimeout?: number
 }
 
-/**
- * One palette per game, keyed by URL only (one URL is one game) and computed
- * once, at the palette size, so every size of a card shares its colours. The
- * least recently used is dropped past `limit`.
- */
+/** One palette per game, keyed by URL and computed once at the palette size so every card size shares its colours; least recently used dropped past `limit`. */
 export class PaletteCache {
   readonly limit: number
   #entries = new Map<string, { colors: number; palette: Color[] }>()
@@ -93,15 +83,7 @@ export class PaletteCache {
 const MISSING: JobResult = { status: "missing" }
 const UNSUPPORTED: JobResult = { status: "unsupported" }
 
-/**
- * Fetches, decodes and filters one art (AD-17): the image is cropped anchored
- * at 42 %, halved on `OffscreenCanvas` to within 2× the art size, averaged
- * exactly to the art size (one image pixel per art pixel), and remapped to the
- * game's palette. Steam's grey placeholder is caught once, at the palette size,
- * when the palette is computed; a cached palette means the image passed. A
- * request (with its body) that takes longer than the timeout counts as
- * missing. Never rejects.
- */
+/** Fetches, decodes, crops (anchored at 42 %), downsizes and remaps one art to the game's palette. Never rejects. */
 export async function runJob(job: ArtJob, environment: JobEnvironment): Promise<JobResult> {
   const timeout = new AbortController()
   const timer = setTimeout(
@@ -171,11 +153,7 @@ function artPixels(bitmap: ImageBitmap, width: number, height: number, { createS
   return pixelate({ width: last.width, height: last.height, data }, { width, height, crop: "none" })
 }
 
-/**
- * Runs jobs one URL at a time: a game's next job starts once the one before
- * has settled, so it finds the palette already computed. Jobs for other URLs
- * run side by side. A URL's chain is dropped when its last job settles.
- */
+/** Runs jobs one URL at a time, so a game's next job finds its palette computed; other URLs run side by side. */
 export function createJobRunner(environment: JobEnvironment): (job: ArtJob) => Promise<JobResult> {
   const chains = new Map<string, Promise<JobResult>>()
   return (job) => {

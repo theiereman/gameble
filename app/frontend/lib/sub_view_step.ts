@@ -1,16 +1,6 @@
-// A step of the card detail: its ◀ ▶.
-//
-// From the press until Turbo's visit has loaded and the card's transition
-// has ended, <html> carries `data-sub-view-step=previous|next`: the star
-// field does not shift (starfield_controller.ts) and the screen does not
-// slide (styles/shell.css), as a step is no screen change. ◀ ▶ slide the
-// card toward the step (styles/card-detail.css).
-//
-// Turbo's own visit for the new URL renders no body, but would start a
-// View Transition of its own, which would cut the card's short: during a
-// step the page's view-transition meta reads "none", so Turbo starts none
-// (the merged head brings the meta back). The step's state lives here, as
-// the detail that began it is replaced by the step.
+// A step of the card detail (its ◀ ▶): from the press until the visit has loaded and the card's transition has ended,
+// <html> carries `data-sub-view-step=previous|next` so the screen does not slide, and the page's view-transition meta reads "none"
+// so Turbo starts no transition that would cut the card's short.
 
 export type StepDirection = "previous" | "next"
 
@@ -28,11 +18,6 @@ let stepTimer: ReturnType<typeof setTimeout> | undefined
 let pausedMeta: { element: HTMLMetaElement; content: string } | null = null
 let currentStep = 0
 
-// Ends the step, and with it its focus wish: on the normal path the new
-// detail's connect has consumed it already (the frame renders before the
-// promoted visit loads, and a View Transition's update runs before it
-// finishes); after a failed or cancelled visit (the fallback timer) a later
-// detail must not act on it.
 function endStep(): void {
   focusWish = null
   document.removeEventListener("turbo:load", stepLoaded)
@@ -44,8 +29,6 @@ function endStep(): void {
   delete document.documentElement.dataset.subViewStep
 }
 
-// The visit has loaded: the step ends once the card's transition has,
-// unless another step has begun meanwhile (a quick second press).
 function stepLoaded(): void {
   document.removeEventListener("turbo:load", stepLoaded)
   const transition = stepTransition

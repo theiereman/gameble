@@ -1,10 +1,6 @@
 import type { Pixels } from "pixelcrush"
 
-/**
- * The smallest image taken for a cover. Steam answers a missing cover with a
- * grey 300 × 450 placeholder, so an image under this size, or with nearly
- * uniform grey tones, counts as missing.
- */
+/** The smallest image taken for a cover; Steam answers a missing cover with a grey 300 × 450 placeholder. */
 export const MIN_SOURCE = { width: 300, height: 450 } as const
 
 /** How far apart R, G and B may be for a pixel to count as grey. */
@@ -18,10 +14,7 @@ export function isTooSmall(width: number, height: number): boolean {
   return width < MIN_SOURCE.width || height < MIN_SOURCE.height
 }
 
-/**
- * Whether every opaque pixel is grey and the image has almost no tonal range.
- * An image with no opaque pixel counts too.
- */
+/** Whether every opaque pixel is grey and the image has almost no tonal range (or no opaque pixel). */
 export function isFlatGrey(
   pixels: Pixels,
   channelTolerance = GREY_CHANNEL_TOLERANCE,

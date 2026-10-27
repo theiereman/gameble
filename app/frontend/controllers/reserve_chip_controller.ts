@@ -2,11 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { onGameble } from "../lib/events"
 import { formatNumber, t, type Template } from "../lib/i18n"
 
-// The booster screen's reserve chip, "n en réserve" (DESIGN.md, Top bar):
-// it follows the booster screen's `gameble:bank-changed`, the count grouped with
-// the locale's delimiter and the label picked by plural from the same
-// templates as the server's (`shell.packs.in_reserve`, its number left
-// out). The listener goes on disconnect.
+// The booster screen's reserve chip: follows `gameble:bank-changed`, the label picked by plural from the server's templates.
 export default class extends Controller<HTMLElement> {
   static targets = ["count", "label"]
   static values = { delimiter: { type: String, default: "," }, templates: Object }
