@@ -67,7 +67,8 @@ class PublicUrlTest < ActiveSupport::TestCase
   # A production boot in a subprocess, every variable it reads given
   # explicitly (nil unsets it): its status and output.
   def boot_production(public_url:, dummy: nil)
-    env = { "RAILS_ENV" => "production", "SECRET_KEY_BASE" => "0" * 128, "PUBLIC_URL" => public_url, "SECRET_KEY_BASE_DUMMY" => dummy }
+    env = { "RAILS_ENV" => "production", "SECRET_KEY_BASE" => "0" * 128, "PUBLIC_URL" => public_url, "SECRET_KEY_BASE_DUMMY" => dummy,
+            "LEGAL_CONTACT_EMAIL" => "contact@example.test", "LEGAL_HOST_NAME" => "Example Hosting", "LEGAL_HOST_ADDRESS" => "France" }
     script = %(puts "PUBLIC_URL_BASE=\#{Rails.configuration.x.public_url.inspect}")
     output, status = Open3.capture2e(env, "bin/rails", "runner", script, chdir: Rails.root.to_s)
     [ status, output ]

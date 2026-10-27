@@ -188,7 +188,6 @@ fr:
     legal:
       title: "Mentions légales et confidentialité"
       updated: "Dernière mise à jour : 20 octobre 2026"
-      contact_fallback: "l'éditeur"
       publisher:
         title: "Éditeur et hébergeur"
         publisher: "Éditeur"
@@ -215,7 +214,6 @@ fr:
       privacy:
         title: "Confidentialité"
         controller_html: "Le responsable du traitement de vos données est Thomas Eyermann, éditeur de Gameble, joignable à %{contact}."
-        controller: "Le responsable du traitement de vos données est Thomas Eyermann, éditeur de Gameble."
         stored:
           intro: "Pour faire fonctionner le jeu, Gameble conserve :"
           steam: "votre identifiant Steam et votre nom de profil Steam ;"
@@ -236,6 +234,7 @@ fr:
         nothing_else: "Pas de mesure d'audience, pas de publicité, pas d'argent réel. Vos données ne sont ni vendues ni cédées."
         services:
           intro: "Quelques services extérieurs interviennent :"
+          host: "Le site tourne sur des serveurs exploités par %{name}, en %{address} ;"
           steam: "Steam (Valve) gère la connexion et fournit votre nom de profil ;"
           sentry: "Sentry (Functional Software, Inc.) reçoit les erreurs techniques : l'adresse de la page et celle d'où vous venez, le navigateur utilisé et sa langue, et votre identifiant interne de joueur, jamais votre nom ni votre identifiant Steam. Votre navigateur lui envoie aussi directement les rapports de sécurité de la page, avec votre adresse IP. Données hébergées dans l'Union européenne ;"
           cloudflare: "Cloudflare, Inc. se place devant le site pour le protéger et l'accélérer : il voit passer ses requêtes, dont votre adresse IP, et les traite notamment aux États-Unis. Ce transfert repose sur la décision d'adéquation de la Commission européenne du 10 juillet 2023 (Data Privacy Framework), à laquelle Cloudflare adhère ;"

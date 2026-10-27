@@ -29,7 +29,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     Rails.configuration.x.legal = @legal
   end
 
-  def configure_legal(contact_email: nil, host_name: nil, host_address: nil)
+  def configure_legal(contact_email: "contact@example.test", host_name: "Example Hosting", host_address: "France")
     Rails.configuration.x.legal = ActiveSupport::OrderedOptions.new.update(contact_email:, host_name:, host_address:)
   end
 
@@ -803,21 +803,14 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__access a", false
   end
 
-  test "without a configured contact or host, those lines are left out and the page still renders" do
-    configure_legal
+  test "the processors list names the host in both languages" do
+    configure_legal(host_name: "Example Hosting", host_address: "France")
 
     get legal_path(locale: :en)
-
-    assert_response :success
-    assert_select ".legal__contact", false
-    assert_select ".legal__host", false
-    assert_select "a[href^='mailto:']", false
-    assert_select ".legal__fact dt", "Publisher"
-    assert_select ".legal__access", 'access: from the settings, with "Export" under "My data", which downloads a copy of your data in a reusable file;'
-    assert_no_match(/contact address above/, response.body)
+    assert_select ".legal__processor-host", "The site runs on servers operated by Example Hosting, in France;"
 
     get legal_path(locale: :fr)
-    assert_select ".legal__access", "accès : depuis les paramètres, avec « Exporter » dans « Mes données », qui télécharge une copie de vos données dans un fichier réutilisable ;"
+    assert_select ".legal__processor-host", "Le site tourne sur des serveurs exploités par Example Hosting, en France ;"
   end
 
   test "with a contact configured, every line that sends the reader to the publisher carries the mailto link" do
@@ -833,22 +826,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__moderation", /La décision est toujours prise par une personne/
     assert_select ".legal__visibility", /public par défaut/
     assert_select ".legal__section li", /\ASentry .* Données hébergées dans l'Union européenne ;\z/
-  end
-
-  test "without a contact, those lines name the publisher in plain words" do
-    configure_legal
-
-    get legal_path(locale: :en)
-
-    assert_response :success
-    assert_select ".legal__updated", "Last updated: 20 October 2026"
-    assert_select ".legal__moderation", /by writing to the publisher\.\z/
-    assert_select ".legal__notice", /write to the publisher with the page's address/
-    assert_select ".legal__rectification", /write to the publisher;\z/
-    assert_select ".legal__objection", "objection: make your profile private in the settings, or write to the publisher;"
-    assert_select ".legal__death", /\Aafter your death: tell the publisher who/
-    assert_select ".legal__banned", /write to the publisher to contest the decision, obtain your data/
-    assert_select "a[href^='mailto:']", false
   end
 
   test "the privacy section says how long each kind of data is kept, before the deletion paragraph that refers to it" do
@@ -941,19 +918,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#legal-privacy + p.legal__controller",
       "The controller of your data is Thomas Eyermann, publisher of Gameble, reachable at contact@example.test."
-  end
-
-  test "without a contact, the controller line names the publisher only" do
-    configure_legal
-
-    get legal_path(locale: :fr)
-
-    assert_select "#legal-privacy + p.legal__controller", "Le responsable du traitement de vos données est Thomas Eyermann, éditeur de Gameble."
-    assert_select ".legal__controller a", false
-
-    get legal_path(locale: :en)
-
-    assert_select "#legal-privacy + p.legal__controller", "The controller of your data is Thomas Eyermann, publisher of Gameble."
   end
 
   test "an older browser reads the legal page, which the public card page's footer links to" do
