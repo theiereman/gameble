@@ -47,7 +47,7 @@ h1{font-size:18px;color:var(--max);margin:0 0 4px}.lede{color:var(--muted);max-w
 .v3:hover .recto,.v3.go .recto{transform:rotateY(-180deg)}.v3:hover .verso,.v3.go .verso{transform:rotateY(0)}
 /* v4 : le verso glisse par-dessus, sans rotation */
 .v4{overflow:hidden;--d:460ms;--ease:cubic-bezier(.2,.8,.2,1)}
-.v4 .verso{transform:translateY(100%);transition:transform var(--d) var(--ease)}
+.v4 .verso{z-index:2;transform:translateY(100%);transition:transform var(--d) var(--ease)}
 .v4 .recto{transition:filter var(--d) var(--ease),transform var(--d) var(--ease)}
 .v4:hover .verso,.v4.go .verso{transform:translateY(0)}.v4:hover .recto,.v4.go .recto{filter:brightness(.6);transform:scale(.97)}
 /* v5 : fondu doux et léger zoom */
@@ -76,40 +76,82 @@ h1{font-size:18px;color:var(--max);margin:0 0 4px}.lede{color:var(--muted);max-w
 .b2 .node.ok .ci{background:var(--k);box-shadow:0 0 10px color-mix(in srgb,var(--k) 70%,transparent)}
 .b2 .node.nx .ci{box-shadow:0 0 0 3px color-mix(in srgb,var(--k) 30%,transparent)}
 .b2 .nodes{--pad:0px}
+.pick{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap}.pick label{border:1px solid #234e72;padding:4px 12px;cursor:pointer;background:var(--sunk);color:var(--muted)}.pick input{display:none}.pick label:has(input:checked){background:var(--accent);color:#04121c;font-weight:700}
+.list{display:grid;grid-template-columns:repeat(2,400px);gap:18px 24px}@media(max-width:900px){.list{grid-template-columns:400px}}
+
+.recto2{display:none}
+.v6 .recto2,.v7 .recto2{display:flex}
+/* v6 : le sas, deux battants qui s'écartent */
+.v6{overflow:hidden;--d:720ms;--ease:cubic-bezier(.65,0,.25,1)}
+.v6 .recto{z-index:2;clip-path:inset(0 50% 0 0);transition:transform var(--d) var(--ease)}
+.v6 .recto2{z-index:2;clip-path:inset(0 0 0 50%);transition:transform var(--d) var(--ease)}
+.v6:hover .recto,.v6.go .recto{transform:translateX(-101%)}.v6:hover .recto2,.v6.go .recto2{transform:translateX(101%)}
+.v6::after{content:"";position:absolute;z-index:3;top:0;bottom:0;left:calc(50% - 1px);width:2px;background:var(--accent);box-shadow:0 0 14px var(--accent);opacity:0;pointer-events:none}
+.v6:hover::after,.v6.go::after{animation:seam 720ms ease}
+/* v7 : l'écoutille, deux volets qui montent et descendent */
+.v7{overflow:hidden;--d:640ms;--ease:cubic-bezier(.65,0,.25,1)}
+.v7 .recto{z-index:2;clip-path:inset(0 0 50% 0);transition:transform var(--d) var(--ease)}
+.v7 .recto2{z-index:2;clip-path:inset(50% 0 0 0);transition:transform var(--d) var(--ease)}
+.v7:hover .recto,.v7.go .recto{transform:translateY(-101%)}.v7:hover .recto2,.v7.go .recto2{transform:translateY(101%)}
+.v7::after{content:"";position:absolute;z-index:3;left:0;right:0;top:calc(50% - 1px);height:2px;background:var(--accent);box-shadow:0 0 14px var(--accent);opacity:0;pointer-events:none}
+.v7:hover::after,.v7.go::after{animation:seam 720ms ease}
+/* v8 : l'iris, le verso s'ouvre depuis le centre */
+.v8{--d:620ms;--ease:cubic-bezier(.3,.7,.2,1)}
+.v8 .verso{z-index:2;clip-path:circle(0% at 50% 50%);transition:clip-path var(--d) var(--ease)}
+.v8:hover .verso,.v8.go .verso{clip-path:circle(75% at 50% 50%)}
+/* v9 : le balayage, une barre lumineuse découvre le verso */
+.v9{overflow:hidden;--d:560ms;--ease:cubic-bezier(.5,0,.2,1)}
+.v9 .verso{z-index:2;clip-path:inset(0 100% 0 0);transition:clip-path var(--d) var(--ease)}
+.v9:hover .verso,.v9.go .verso{clip-path:inset(0 0 0 0)}
+.v9::after{content:"";position:absolute;z-index:3;top:0;bottom:0;left:0;width:3px;background:#fff;box-shadow:0 0 16px 3px var(--accent);opacity:0;transition:left var(--d) var(--ease),opacity var(--d) ease;pointer-events:none}
+.v9:hover::after,.v9.go::after{left:calc(100% - 3px);opacity:1;animation:fade9 var(--d) forwards}
+@keyframes seam{0%{opacity:0}25%{opacity:1}100%{opacity:0}}
+@keyframes fade9{to{opacity:0}}
+/* v10 : par crans, le balayage à pas de pixel, comme l'écran d'un vieux terminal */
+.v10{--d:520ms}
+.v10 .verso{z-index:2;clip-path:inset(0 100% 0 0);transition:clip-path var(--d) steps(8,end)}
+.v10:hover .verso,.v10.go .verso{clip-path:inset(0 0 0 0)}
 </style>
 <h1>Tuile de set · le retournement et le chemin des paliers</h1>
 <p class="lede">Retour de recette 2026-10-27 : l'animation est trop rapide et peu belle, et les chiffres du chemin débordent du carré quand un palier demande beaucoup de cartes. Deux planches : cinq retournements à essayer au survol (le bouton rejoue sans souris), et deux chemins sans chiffre dans le nœud, montrés sur un set moyen, un très grand set et un petit set. Les cartes sont des silhouettes.</p>
 
-<section class="opt"><h2>A · Le retournement</h2>
-<p>Survole une tuile, ou appuie sur « Rejouer ». <b>A1</b> est l'actuel (360 ms). <b>A2</b> est lent, la tuile se soulève avec une ombre. <b>A3</b> attend 150 ms que l'intention soit claire, puis tourne avec un léger rebond. <b>A4</b> n'a pas de rotation : le verso glisse par-dessus le recto. <b>A5</b> est un fondu enchaîné avec un léger zoom, le plus calme. Le choix retenu garde le fondu pour « animations réduites ».</p>
-<div class="row" id="flips"></div></section>
+<section class="opt"><h2>A · Le retournement, dans une liste de sets</h2>
+<p>Choisis un retournement, puis survole les tuiles de la liste (le verso reprend le chemin B2). <b>A1</b> est l'actuel (360 ms). <b>A2</b> est lent, la tuile se soulève avec une ombre. <b>A3</b> attend 150 ms que l'intention soit claire, puis tourne avec un léger rebond. <b>A4</b> n'a pas de rotation : le verso glisse par-dessus le recto. <b>A5</b> est un fondu enchaîné avec un léger zoom, le plus calme. <b>A6</b>, le sas : la tuile s'ouvre en deux battants qui s'écartent, une ligne lumineuse sur la jonction. <b>A7</b>, l'écoutille : même chose à la verticale. <b>A8</b>, l'iris : le verso s'ouvre en cercle depuis le centre. <b>A9</b>, le balayage : une barre lumineuse traverse la tuile et découvre le verso. <b>A10</b> : le même balayage, mais par crans de pixels. Le choix retenu garde le fondu pour « animations réduites ».</p>
+<div class="pick" id="pick"></div><div class="list" id="list"></div></section>
 
 <section class="opt"><h2>B · Le chemin des paliers du verso</h2>
-<p>Plus aucun nombre dans le nœud : le nombre de cartes du palier passe sous son nom, en petit. <b>B1</b> garde les carrés, qui se remplissent de bas en haut selon la part du palier atteinte. <b>B2</b> remplace les carrés par des cercles et fait s'illuminer la ligne en proportion des cartes du set : elle avance entre les nœuds comme une barre de chargement. Les trois cas montrent un set moyen (40/77), un très grand set (118/160, des paliers à 3 chiffres) et un petit set sans palier (3/5).</p>
+<p>Plus aucun nombre dans le nœud : le nombre de cartes qu'il faut pour atteindre le palier passe sous son nom, sans signe négatif. <b>B1</b> garde les carrés, qui se remplissent de bas en haut selon la part du palier atteinte. <b>B2</b> remplace les carrés par des cercles et fait s'illuminer la ligne en proportion des cartes du set : elle avance entre les nœuds comme une barre de chargement. Les trois cas montrent un set moyen (40/77), un très grand set (118/160, des paliers à 3 chiffres) et un petit set sans palier (3/5).</p>
 <div class="row" id="paths"></div></section>
 
 <script>
-const tile=(cls,inner)=>`<div class="tile ${cls}">${inner}</div>`;
-const recto=tile('near recto',`<div class="head"><span><span class="name">Metroidvania</span><span class="kind">Thème</span></span><span class="tier rk t-or">Or</span></div>
-<div class="body"><div class="vit"><div class="c leg"></div><div class="c epic"></div><div class="c epic"></div><div class="more">+37</div></div></div>
-<div class="foot"><div class="seg"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><div class="line"><span class="next">Plus que <b>4</b> pour <span class="tier t-ma">Maître</span></span></div></div>`);
-const verso=tile('back verso',`<div class="head"><span><span class="name">Metroidvania</span><span class="kind">Thème</span></span><span class="count">40<small>/77</small></span></div>
-<div class="body" style="flex-direction:column;align-items:stretch;justify-content:center;gap:14px"><div class="last"><div class="c s rare"></div><span>Dernière obtenue<br><b>Celeste</b> · il y a 2 jours</span></div></div>
-<div class="foot"><span class="cta">VOIR L'ALBUM ▸</span></div>`);
-const names={v1:'A1 · actuel, 360 ms',v2:'A2 · lent et soulevé, 760 ms',v3:'A3 · intention puis rebond, 150 + 640 ms',v4:'A4 · le verso glisse, 460 ms',v5:'A5 · fondu doux, 480 ms'};
-document.getElementById('flips').innerHTML=Object.keys(names).map(k=>`<div><p class="lab"><b>${names[k]}</b></p><div class="flip ${k}">${verso}${recto}</div><button class="replay" onclick="const f=this.previousElementSibling;f.classList.add('go');setTimeout(()=>f.classList.remove('go'),1600)">Rejouer</button></div>`).join('');
-/* chemin */
 const T=[['Bronze','var(--bronze)'],['Argent','var(--silver)'],['Or','var(--gold)'],['Maître','var(--epic)'],['Complet','#fff']];
-const cases=[
- {t:'Set moyen · 40 / 77',owned:40,total:77,head:'Metroidvania',kind:'Thème',tiers:[20,30,40,44,77]},
- {t:'Très grand set · 118 / 160',owned:118,total:160,head:'Action-aventure',kind:'Genre',tiers:[40,80,110,130,160]},
- {t:'Petit set · 3 / 5',owned:3,total:5,head:'Supergiant Games',kind:'Studio',tiers:[5],only:true}];
-function nodes(c){return c.tiers.map((r,i)=>{const prev=i?c.tiers[i-1]:0;const name=c.only?'Complet':T[i+(5-c.tiers.length)][0];const col=c.only?'#fff':T[i+(5-c.tiers.length)][1];
- const st=c.owned>=r?'ok':(c.owned>=prev?'nx':'off');const frac=Math.max(0,Math.min(1,(c.owned-prev)/(r-prev)));return{r,name,col,st,frac,miss:r-c.owned}})}
-function b1(c){const n=nodes(c);return`<div class="nodes">${n.map(x=>`<div class="node ${x.st}" style="--k:${x.col}"><span class="sq"><i style="--fill:${x.st=='ok'?100:x.st=='nx'?Math.round(x.frac*100):0}%"></i>${x.st=='ok'?'<b>✓</b>':''}</span><span class="nm">${x.name}</span><small>${x.st=='ok'?x.r:'−'+x.miss}</small></div>`).join('')}</div>`}
+const tile=(cls,inner)=>`<div class="tile ${cls}">${inner}</div>`;
+function nodes(c){const off=5-c.tiers.length;return c.tiers.map((r,i)=>{const prev=i?c.tiers[i-1]:0;const [name,col]=c.tiers.length==1?['Complet','#fff']:T[i+off];
+ const st=c.owned>=r?'ok':(c.owned>=prev?'nx':'off');return{r,name,col,st,frac:Math.max(0,Math.min(1,(c.owned-prev)/(r-prev)))}})}
+function b1(c){return`<div class="nodes">${nodes(c).map(x=>`<div class="node ${x.st}" style="--k:${x.col}"><span class="sq"><i style="--fill:${x.st=='ok'?100:x.st=='nx'?Math.round(x.frac*100):0}%"></i>${x.st=='ok'?'<b>✓</b>':''}</span><span class="nm">${x.name}</span><small>${x.r}</small></div>`).join('')}</div>`}
 function b2(c){const n=nodes(c),k=n.length;const p=i=>(i+.5)/k;let w;
- if(c.owned>=n[k-1].r)w=p(k-1);else{let i=n.findIndex(x=>c.owned<x.r);if(i==0)w=p(0)*c.owned/n[0].r;else w=p(i-1)+(p(i)-p(i-1))*n[i].frac}
- return`<div class="nodes"><span class="track" style="left:${p(0)*100}%;right:${(1-p(k-1))*100}%"></span><span class="lit" style="left:${p(0)*100}%;width:${Math.max(0,(w-p(0)))*100}%;${w<p(0)?'display:none':''}"></span>${n.map(x=>`<div class="node ${x.st}" style="--k:${x.col}"><span class="ci"></span><span class="nm">${x.name}</span><small>${x.st=='ok'?x.r:'−'+x.miss}</small></div>`).join('')}</div>`}
-document.getElementById('paths').innerHTML=['b1','b2'].map(v=>cases.map(c=>`<div class="vb ${v}"><p class="lab"><b>${v.toUpperCase()}</b> · ${c.t}</p>${tile('back',`<div class="head"><span><span class="name">${c.head}</span><span class="kind">${c.kind}</span></span><span class="count">${c.owned}<small>/${c.total}</small></span></div><div class="pathbox">${v=='b1'?b1(c):b2(c)}<div class="last"><div class="c s rare"></div><span>Dernière obtenue<br><b>Celeste</b> · il y a 2 jours</span></div></div><div class="foot"><span class="cta">VOIR L'ALBUM ▸</span></div>`)}</div>`).join('')).join('');
+ if(c.owned>=n[k-1].r)w=p(k-1);else{const i=n.findIndex(x=>c.owned<x.r);w=i==0?p(0)*c.owned/n[0].r:p(i-1)+(p(i)-p(i-1))*n[i].frac}
+ return`<div class="nodes"><span class="track" style="left:${p(0)*100}%;right:${(1-p(k-1))*100}%"></span><span class="lit" style="left:${p(0)*100}%;width:${Math.max(0,w-p(0))*100}%"></span>${n.map(x=>`<div class="node ${x.st}" style="--k:${x.col}"><span class="ci"></span><span class="nm">${x.name}</span><small>${x.r}</small></div>`).join('')}</div>`}
+const last=`<div class="last"><div class="c s rare"></div><span>Dernière obtenue<br><b>Celeste</b> · il y a 2 jours</span></div>`;
+const versoOf=(c,v)=>tile('back verso',`<div class="head"><span><span class="name">${c.head}</span><span class="kind">${c.kind}</span></span><span class="count">${c.owned}<small>/${c.total}</small></span></div><div class="pathbox ${v}">${v=='b1'?b1(c):b2(c)}${last}</div><div class="foot"><span class="cta">VOIR L'ALBUM ▸</span></div>`);
+function rectoOf(c){const n=nodes(c);const reached=n.filter(x=>x.st=='ok').pop(),next=n.find(x=>x.st!='ok');
+ const rank=reached&&c.tiers.length>1?`<span class="tier rk" style="color:${reached.col}">${reached.name}</span>`:`<span class="tier rk" style="color:#4a6580;border-style:dashed">Aucun palier</span>`;
+ const cards=c.total<=5?Array.from({length:c.total},(_,i)=>i<c.owned?`<div class="c ${['leg','epic','rare'][i%3]}"></div>`:`<div class="c miss" style="--r:var(--unc)"><i>?</i></div>`).join(''):`<div class="c leg"></div><div class="c epic"></div><div class="c rare"></div><div class="more">+${c.owned-3}</div>`;
+ const segs=Array.from({length:6},(_,i)=>`<i class="${i<Math.round(6*c.owned/c.total)?'on':''}"></i>`).join('');
+ const goal=next?`Plus que <b>${next.r-c.owned}</b> pour <span class="tier" style="color:${next.col}">${next.name}</span>`:'Toutes les cartes obtenues';
+ return tile((c.near?'near ':'')+'recto',`<div class="head"><span><span class="name">${c.head}</span><span class="kind">${c.kind}</span></span>${rank}</div><div class="body"><div class="vit">${cards}</div></div><div class="foot"><div class="seg">${segs}</div><div class="line"><span class="next">${goal}</span></div></div>`)}
+const sets=[
+ {head:'Metroidvania',kind:'Thème',owned:40,total:77,tiers:[20,30,40,44,77],near:1},
+ {head:'Supergiant Games',kind:'Studio',owned:3,total:5,tiers:[5]},
+ {head:'Action-aventure',kind:'Genre',owned:118,total:160,tiers:[40,80,110,130,160]},
+ {head:'Roguelike',kind:'Thème',owned:12,total:60,tiers:[15,25,35,45,60]},
+ {head:'Pixel art',kind:'Thème',owned:27,total:34,tiers:[10,20,25,30,34]},
+ {head:'Indépendants',kind:'Genre',owned:8,total:20,tiers:[5,10,15,18,20]}];
+const names={v1:'A1 · actuel',v2:'A2 · lent, soulevé',v3:'A3 · intention, rebond',v4:'A4 · le verso glisse',v5:'A5 · fondu doux',v6:'A6 · le sas',v7:'A7 · l\'écoutille',v8:'A8 · l\'iris',v9:'A9 · le balayage',v10:'A10 · par crans'};
+document.getElementById('list').innerHTML=sets.map(c=>`<div class="flip v6">${versoOf(c,'b2')}${rectoOf(c)}${rectoOf(c).replace('tile ','tile recto2 ').replace('recto','recto')}</div>`).join('');
+document.getElementById('pick').innerHTML=Object.entries(names).map(([k,n])=>`<label><input type="radio" name="v" value="${k}" ${k=='v6'?'checked':''}>${n}</label>`).join('');
+document.getElementById('pick').addEventListener('change',e=>document.querySelectorAll('.flip').forEach(f=>{f.className='flip '+e.target.value}));
+const cases=[sets[0],sets[2],sets[1]];
+document.getElementById('paths').innerHTML=['b1','b2'].map(v=>cases.map(c=>`<div class="vb ${v}"><p class="lab"><b>${v.toUpperCase()}</b> · ${c.head} · ${c.owned} / ${c.total}</p>${versoOf(c,v)}</div>`).join('')).join('');
 </script>
 </html>
