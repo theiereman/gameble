@@ -2,9 +2,9 @@ module ErrorPage
   UNSUPPORTED_BROWSER = "406-unsupported-browser"
 
   class << self
-    # Rails has rewritten the path to the status by now; the locale is in the original one.
     def call(env)
       request = ActionDispatch::Request.new(env)
+      # Rails has rewritten the path to the status by now; the locale is in the original one.
       original_path = request.get_header("action_dispatch.original_path") || request.path_info
       I18n.with_locale(locale(original_path, request.get_header("HTTP_ACCEPT_LANGUAGE"))) do
         ActionDispatch::PublicExceptions.new(Rails.public_path).call(env)

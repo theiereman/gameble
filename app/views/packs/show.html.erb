@@ -1,10 +1,4 @@
 <% content_for :back_button, true %>
-<%# "My last booster": the cards of an opened pack face up, in their drawn
-    order (five, or three for the daily bonus), each leading to its card's
-    detail. The booster screen reveals them; this page is where the
-    no-JavaScript opening lands and where any later visit shows them. It
-    ends on the booster screen when a pack is available, and on the way
-    back. %>
 <section class="pack-result" aria-labelledby="pack-result-heading">
   <h1 id="pack-result-heading"><%= @pack.bonus? ? t(".heading_bonus") : t(".heading") %></h1>
   <ol class="pack-result__cards" aria-label="<%= t(".cards") %>">

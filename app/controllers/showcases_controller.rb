@@ -1,9 +1,3 @@
-# Adding a card the player holds to their profile showcase or taking it
-# out, from its detail, and, from the owner's profile, moving it one place
-# earlier or later (`direction`) or dropping it at the place it was dragged
-# to (`position`, 0 first); the card is addressed by its slug and season
-# number. After a move, the flash names the card and the direction, so the
-# profile puts the focus back on the button pressed.
 class ShowcasesController < ApplicationController
   def create
     authorize :showcase, :create?

@@ -1,12 +1,3 @@
-<%# The RAPPORT: the copies
-    held in every edition, the duplicates (copies beyond the first of each
-    game) and the games held at each best rarity, each with its icon, name
-    and count in its colour. From 1180px a panel; under 720px a fold reading
-    "n cartes · n doublons", which adds the unique cards when open (the
-    native <details> says whether it is expanded). Between the two, hidden.
-    - counts: copies per rarity tier (Game::TierCounts);
-    - games: the games held per best rarity tier (Game::HeldGames.by_rarity);
-    - unique: the games held. %>
 <% copies = counts.values.sum %>
 <% duplicates = [ copies - unique, 0 ].max %>
 <% tiers = capture do %>

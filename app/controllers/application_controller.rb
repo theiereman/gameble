@@ -1,32 +1,19 @@
 class ApplicationController < ActionController::Base
   include Pundit::Authorization
 
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  # Pages meant to be read from a shared link (the PublicRead concern's
-  # public_read?) are open to any browser, so link previews (Discord, X,
-  # WhatsApp) and older browsers get them.
   allow_browser versions: :modern, unless: :public_read?, block: :refuse_unsupported_browser
 
-  # First, so everything the request reads (the player included) runs on
-  # the role it chose.
   around_action :read_only_unless_writing
   around_action :switch_locale
   before_action :set_sentry_user
   before_action :note_presence
 
-  # Every action takes a policy decision (AD-14); one that skipped `authorize`
-  # raises Pundit::AuthorizationNotPerformedError.
   after_action :verify_authorized
   after_action :keep_out_of_search_engines, unless: -> { Rails.configuration.x.search_indexing }
 
   rescue_from Pundit::NotAuthorizedError, with: :refuse
 
-  # The motion preference's cookie: the player's "Animations réduites"
-  # setting mirrored for the visitor they become at sign-out. No cookie
-  # follows the system.
   MOTION_COOKIE = :motion
-  # The motion a setting forces over the system's preference, by the name
-  # the cookie and `html[data-motion]` carry.
   FORCED_MOTIONS = { "reduced" => true, "full" => false }.freeze
 
   PRESENCE_MARK = :seen_at
@@ -34,9 +21,6 @@ class ApplicationController < ActionController::Base
   helper_method :current_player, :forced_motion, :motion_reduced?
 
   private
-    # Whether this request reads a page meant to be opened from a shared
-    # link, by any browser or link-preview crawler. None by default; the
-    # PublicRead concern opens a controller's GET and HEAD requests.
     def public_read?
       false
     end
@@ -49,11 +33,6 @@ class ApplicationController < ActionController::Base
       render file: ErrorPage.unsupported_browser_file(request), layout: false, status: :not_acceptable
     end
 
-    # A GET or HEAD reads (AD-11): it runs under the `reading` role with
-    # writes prevented, so a write from an ApplicationRecord model or the
-    # event store raises ActiveRecord::ReadOnlyError. A write a page needs
-    # is a separate POST to an operation. Enqueuing a job is not a write to
-    # the primary: Solid Queue keeps its own connection class.
     def read_only_unless_writing(&action)
       if request.get? || request.head?
         ApplicationRecord.connected_to(role: :reading, prevent_writes: true, &action)
@@ -62,10 +41,9 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    # Each request runs in the locale of its URL (AD-18), Pagy's links
-    # included: its locale is per thread, so it is set on every request.
     def switch_locale(&action)
       locale = current_locale
+      # Pagy keeps its locale per thread, so it is set on every request.
       Pagy::I18n.locale = locale
       I18n.with_locale(locale, &action)
     end
@@ -79,11 +57,6 @@ class ApplicationController < ActionController::Base
       params[:locale]
     end
 
-    # The signed-in player, reloaded on each request from the player id the
-    # encrypted session cookie holds (AD-14); nil when signed out. A banned
-    # player, or one whose account was deleted (from another browser too),
-    # is signed out and the request goes on as a visitor's. Only the player
-    # id leaves the session: a sign-in in progress keeps its marker.
     def current_player
       return @current_player if defined?(@current_player)
 
@@ -95,14 +68,10 @@ class ApplicationController < ActionController::Base
       @current_player = player
     end
 
-    # The motion preference: a signed-in player's own setting, else a
-    # visitor's cookie. true forces reduced motion, false full motion, nil
-    # follows the system.
     def motion_setting
       current_player ? current_player.reduced_motion : FORCED_MOTIONS[cookies[MOTION_COOKIE]]
     end
 
-    # "reduced", "full", or nil when CSS and motion.ts follow the system.
     def forced_motion
       FORCED_MOTIONS.key(motion_setting)
     end
@@ -111,8 +80,6 @@ class ApplicationController < ActionController::Base
       forced_motion == "reduced"
     end
 
-    # Mirrors a setting (true, false, nil) in the motion cookie, which lives
-    # a year; nil removes it.
     def write_motion_cookie(setting)
       if setting.nil?
         cookies.delete(MOTION_COOKIE)
@@ -121,8 +88,6 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    # Errors reported to Sentry carry the player id, and nothing else about
-    # the player (AD-21). Sentry runs only where SENTRY_DSN is set.
     def set_sentry_user
       Sentry.set_user(id: current_player.id) if Sentry.initialized? && current_player
     end
@@ -135,6 +100,7 @@ class ApplicationController < ActionController::Base
       return if session[PRESENCE_MARK].to_i > (now - throttle).to_i
       return if current_player.last_seen_at && current_player.last_seen_at > now - throttle
 
+      # Solid Queue writes on its own connection, so enqueueing is not a write under prevent_writes.
       Accounts::NoteLastSeenJob.perform_later(current_player.id, now)
       session[PRESENCE_MARK] = now.to_i
     end
@@ -143,10 +109,8 @@ class ApplicationController < ActionController::Base
       current_player
     end
 
-    # A refused visitor is sent to the landing (401 outside HTML); a refused
-    # player is forbidden (403). Nothing the action would have done
-    # happens. A rescue runs outside the around_action, hence its own locale.
     def refuse
+      # rescue_from runs outside the switch_locale around_action.
       I18n.with_locale(current_locale) { refuse_in_locale }
     end
 
@@ -170,7 +134,6 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    # Links built with route helpers keep the current locale.
     def default_url_options
       { locale: I18n.locale }
     end

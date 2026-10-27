@@ -1,10 +1,3 @@
-<%# The community goal panel: the key panel with its corner brackets. Its
-    public part (pages/goal_progress) is the same for everyone and the goal
-    stream replaces it as the periodic sum moves it; the claim slot of a
-    player's weekly goal reward (pages/goal_reward) sits beside it, under the
-    reward line, so a broadcast never wipes it. Read only.
-    Locals: goal (Game::CurrentGoal), reward (Game::GoalRewardStatus, nil for
-    a player without one), bank (Game::BankSummary, with a reward). %>
 <% reward = local_assigns[:reward] %>
 <%= render PanelComponent.new(tag: :section, brackets: true, id: "community-goal", class: "hub-goal", aria: { labelledby: "community-goal-title" }) do %>
   <%= render "pages/goal_progress", goal: goal %>

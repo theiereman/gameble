@@ -1,5 +1,4 @@
 module SearchTagsHelper
-  # Open Graph's name of each locale of the URL.
   OG_LOCALES = { "en" => "en_US", "fr" => "fr_FR" }.freeze
 
   def language_alternates(route)
@@ -10,12 +9,10 @@ module SearchTagsHelper
     language_alternates(route).fetch(I18n.locale.to_s)
   end
 
-  # The page's locale as Open Graph names it: "en_US", "fr_FR".
   def og_locale
     og_locale_for(I18n.locale.to_s)
   end
 
-  # The name `locale` carries in Open Graph, its own code when it has none.
   def og_locale_for(locale)
     OG_LOCALES.fetch(locale, locale)
   end

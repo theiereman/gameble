@@ -1,6 +1,5 @@
 <% if pagy.count.positive? && (pagy.last > 1 || empty) %>
   <nav id="collection-pages" class="collection-pages" aria-label="<%= t("library.grid.pages.label") %>" data-next-page-target="pages">
-    <%# Past the last page, "previous" leads to the last. %>
     <% if pagy.page > 1 %>
       <%= link_to pixel_icon("arrow-left", class: "collection-pages__arrow"), pagy.page_url([ pagy.page - 1, pagy.last ].min), class: "collection-pages__link",
         rel: "prev", aria: { label: t("library.grid.pages.previous") }, data: { turbo_prefetch: false } %>

@@ -1,7 +1,6 @@
 class BoostersController < ApplicationController
   include PackCards
 
-  # GET /:locale/booster(.json)
   def show
     authorize :booster, :show?
     @bank = Game::BankSummary.reserve(current_player)

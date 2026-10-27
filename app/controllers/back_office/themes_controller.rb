@@ -1,10 +1,4 @@
 module BackOffice
-  # The catalog's themes, administrators only: the tags the draft's cards
-  # carry among their most-voted, with the games that carry each, which an
-  # administrator attaches to a theme, makes a theme of, or dismisses as no
-  # theme (one, or the unclassified rest of the page); and the themes, whose
-  # names are edited. A change reaches the draft's cards only once the
-  # latest import is rescored. Themes are addressed by their token.
   class ThemesController < BaseController
     PER_PAGE = 50
     SHOWN = %w[unclassified all].freeze
@@ -74,8 +68,6 @@ module BackOffice
         end
       end
 
-      # The tags of the draft's cards with their classification, the most
-      # carried first.
       def tag_rows
         @tag_rows ||= begin
           classification = Catalog::Themes.classification

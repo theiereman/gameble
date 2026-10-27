@@ -1,10 +1,3 @@
-<%# The daily claim's answer (see DailyBonusesController): the hub's parts
-    that read the reserve or the claim, replaced with their new state, and the
-    result as a toast. A success marks the panel for the canister's arc
-    (bonus_arc_controller.ts); a refusal (already collected, reserve full)
-    shows the panel as it is now. Once the reserve is full, a waiting goal
-    reward's claim slot turns full too. A target the page does not hold (the
-    empty showcase's action) is skipped by Turbo. %>
 <%= turbo_stream.replace "daily-booster" do %>
   <% if @bank[:bonus_collectable] || @bank[:bonus_collected] %>
     <%= render "pages/daily_booster", bank: @bank, primary: false, arc: @collected %>

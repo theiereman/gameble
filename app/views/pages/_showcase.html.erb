@@ -1,11 +1,3 @@
-<%# The showcase: the first card the player chose for their profile
-    showcase (`chosen`, under the kicker "Vitrine"), else the latest card of
-    tier 4 or above they hold (Game::LatestNotableCard), its title, its line (rarity, genre and
-    number, each left out when the card has none), "Voir la fiche" and
-    "Reposter". Without one, the empty showcase: a hatched
-    frame holding a dashed card outline and the dimmed wordmark, its copy and
-    the view's one primary button, which opens the booster screen (disabled
-    with its reason when the reserve is empty). %>
 <% if card %>
   <% tier = Catalog::Rarity::TIERS.key(card.rarity.to_sym) %>
   <% line = [ t("catalog.rarity.#{card.rarity}"), (SetLabel.genre(card.genre) if card.genre), card.number_label ].compact %>

@@ -1,65 +1,12 @@
-# A card's detail page: the large face and what only the detail tells,
-# its sets and the viewer's copies and editions of its game, in the
-# viewer's language; open to a visitor. The card is addressed by
-# its slug, and by its season's number for a card-season other than the
-# published season's; Catalog answers the card, its sets, its place in one
-# of them and the collection grid, Game the copies and editions, the
-# opened pack and the grid's states.
-#
-# The page browses one context, ◀ ▶ stepping through it and the phone's
-# way back leading to it: the first one the query names that holds the
-# card, else the card's first set (its main theme's set first).
-#
-# - `pack` (and `slot`, the card's place in it from 1, as a pack can hold a
-#   card twice): the viewer's own opened pack, in drawn order, back to the
-#   booster showing it ("◀ Booster");
-# - `grid`: the collection grid as shown (its filters and search, and
-#   the watermark its new cards were judged against, CollectionGridLoading),
-#   in its order across its pages, back to the page of that grid holding
-#   the card ("◀ Grille"); with `brother` in it, a player's token, the grid
-#   of that player's holdings, back to their collection page, ignored when
-#   their profile may not be shown;
-# - `set_kind` and `set_key`: one of the card's sets, back to its album;
-#   with `brother`, a player's token, back to that player's album of it
-#   when their profile may be shown;
-# - `brother` alone: that player's profile showcase, when their profile
-#   may be shown, browsing the card's first set as that player's album
-#   does, back to their profile ("◀ Profil").
-#
-# A signed-in viewer who holds this card-season can put it in their
-# profile showcase, or take it out when it is there (`@showcase`).
-#
-# A pack of another player, not opened or not holding the card, a grid or a
-# set that does not hold it, is ignored. The detail shows the card's face,
-# set apart as not owned for a signed-in viewer holding no copy of its game,
-# whatever the context. Anyone can share it: the link is this card-season's
-# own page, which carries the preview tags; it shows only the card, never who
-# shared or holds it. A visitor who opens that page, without a context in
-# the query, gets the public card page: the card, its facts, the
-# invitation to play and the LIVE strip of the latest public feed entries, with no app chrome.
-# A signed-in viewer, or a visitor browsing a context, gets the detail
-# panel. Read from shared links, it is open to any browser and link-preview
-# crawler (PublicRead).
 class CardsController < ApplicationController
   include PublicRead
   include CardDetailLoading
   include CollectionGridLoading
 
-  # What the detail browses: the card's `position` among `total` cards, the
-  # paths of the cards before and after it (nil at an end), and the way
-  # back to where they are shown (nil for a set of a season the library
-  # does not show).
   Browse = Data.define(:position, :total, :previous, :next, :back)
-  # A way back: its words and its path.
   Back = Data.define(:label, :path)
-  # The pioneer row: the day of the first discovery, and the player's
-  # profile `token` and `name`, both nil when the viewer may not see them.
   PioneerLine = Data.define(:discovered_on, :token, :name)
 
-  # GET /:locale/cards/:slug and /:locale/cards/:slug/seasons/:number. An
-  # unknown slug, or a card the season asked (the published one by default)
-  # does not hold, is not found. A context the query names that does not
-  # hold the card is ignored.
   def show
     authorize :page, :show?
     load_card_detail
@@ -76,8 +23,6 @@ class CardsController < ApplicationController
   end
 
   private
-    # Who first discovered this card in the season shown, named when the
-    # viewer may see their profile; nil without a recorded discovery.
     def pioneer_line
       pioneer = Game::PioneerOf.call(@detail.card_season_id)
       return if pioneer.nil?
@@ -90,15 +35,10 @@ class CardsController < ApplicationController
       PioneerLine.new(discovered_on: day, token: player.token, name:)
     end
 
-    # The absolute link to this card-season's page, always season-qualified,
-    # on the configured public base; nothing in it names the viewer.
     def share_url
       helpers.card_public_url(@detail.view)
     end
 
-    # The viewer's opened pack the query names, when it holds the card: its
-    # cards in drawn order. The card's place is the `slot` asked when the
-    # card is there, else its first place in the pack.
     def pack_browse
       pack = Game::OpenedPackByToken.call(current_player, params[:pack])
       return if pack.nil?
@@ -118,8 +58,6 @@ class CardsController < ApplicationController
       ids.index(@detail.card_season_id)
     end
 
-    # The collection grid the query's `grid` names, as it was shown, when
-    # one of its tiles is this card-season.
     def grid_browse
       source = params[:grid]
       return unless source.is_a?(ActionController::Parameters)
@@ -140,14 +78,11 @@ class CardsController < ApplicationController
       neighbours(ids, index, back:) { { grid: context } }
     end
 
-    # The page `page` of the grid of `context`, with its filters and search.
     def grid_page_path(context, page)
       query = { **context.except(:seen, :brother), page: (page if page > 1) }.compact_blank
       grid_another? ? brother_collection_path(grid_owner.token, query) : library_cards_path(query)
     end
 
-    # The owner of the grid walked: the player a `grid` names by `brother`,
-    # else the viewer.
     def grid_owner
       @grid_owner || current_player
     end
@@ -156,8 +91,6 @@ class CardsController < ApplicationController
       @grid_owner.present?
     end
 
-    # The set the query names, when its kind is a library kind and it is one
-    # of the card's sets.
     def named_set_browse
       kind = params[:set_kind]
       key = params[:set_key]
@@ -166,15 +99,12 @@ class CardsController < ApplicationController
       set_browse(@detail.sets.find { it.kind == kind && it.key == key }, owner: album_owner)
     end
 
-    # The player whose album the query's `brother` names, when their profile
-    # may be shown to the viewer.
     def album_owner
       return @album_owner if defined?(@album_owner)
 
       @album_owner = visible_player(params[:brother])
     end
 
-    # The player `token` names, when their profile may be shown to the viewer.
     def visible_player(token)
       return unless token.is_a?(String)
 
@@ -182,9 +112,6 @@ class CardsController < ApplicationController
       player if player && Game::Visibility.visible?(current_player, player)
     end
 
-    # The profile showcase of the player the query's `brother` names, with
-    # no set named: the card's first set, as their album browses it, back
-    # to their profile.
     def profile_browse
       return if params.key?(:set_kind) || album_owner.nil?
 
@@ -193,9 +120,6 @@ class CardsController < ApplicationController
       browse ? browse.with(back:) : Browse.new(position: 1, total: 1, previous: nil, next: nil, back:)
     end
 
-    # What the viewer may do with this card-season and their profile
-    # showcase: :remove when it is there, else, when they hold it, :add, or
-    # :full when the showcase has no room left; nil otherwise.
     def showcase_state
       return unless @editions.any? { |_, season_number, _| season_number == @detail.view.season_number }
 
@@ -206,10 +130,6 @@ class CardsController < ApplicationController
       end
     end
 
-    # The card's place in `set` (Catalog::SetNeighbours), back to the page of
-    # the set's album holding it, `owner`'s when given, when the library
-    # shows it (a visitor's own albums are closed: no way back without an
-    # owner); nil without a set.
     def set_browse(set, owner: nil)
       return if set.nil?
 
@@ -233,9 +153,6 @@ class CardsController < ApplicationController
       library_set_path(kind: set.kind, key: set.key, page: (page if page > 1))
     end
 
-    # The card at `index` among the card-seasons `ids`: the paths of its
-    # neighbours, each carrying the context the block gives for its index,
-    # read in one query.
     def neighbours(ids, index, back:)
       sides = { previous: (index - 1 if index.positive?), next: (index + 1 if index + 1 < ids.size) }.compact
       views = Catalog::CardViews.call(sides.values.map { ids[it] }, locale: I18n.locale)

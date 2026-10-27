@@ -1,12 +1,4 @@
 module BackOffice
-  # The Steam import runs (R1, R2, AD-19), administrators only: the list of
-  # runs, starting one, watching one, resuming a failed one from its cursor
-  # or abandoning the latest failed one, and rescoring the latest completed
-  # one (its cards step again, after a change of the prestige formula). A
-  # finished run waits for the administrator to review its staged cards on its
-  # page and promote them into the draft season, or discard them. A
-  # run's page reloads its frame every few seconds while the run is active
-  # (poller_controller.ts). Runs are addressed by their token (AD-15).
   class ImportRunsController < BaseController
     rate_limit to: 10, within: 1.minute, only: %i[create resume rescore abandon promote discard]
 
@@ -93,8 +85,6 @@ module BackOffice
     end
 
     private
-      # Authorized before anything is shown: a run that does not exist is a
-      # 404 for an administrator only.
       def set_import_run
         authorize [ :back_office, :import_runs ], :show?
         @import_run = Steam::ImportRunByToken.call(params[:id]) or raise ActiveRecord::RecordNotFound

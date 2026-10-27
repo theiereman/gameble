@@ -1,9 +1,5 @@
 module BackOffice
-  # What the roadmap milestone and story pages share: the record a token
-  # names (an unknown one is a 404), the fields of their one form, and a
-  # refusal's message.
   module RoadmapEntries
-    # The values the form shows: a record's, or those just sent back.
     Entry = Data.define(:wording_fr, :wording_en, :status, :shown)
 
     private

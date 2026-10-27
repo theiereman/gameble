@@ -1,20 +1,3 @@
-<%# The hub, "Pont de commandement". Desktop: the kicker, menu and set
-    progress on the left, the showcase in the centre, the community goal
-    and the daily booster panel under it on the right (from 1180px; from
-    720px they join the left column between the menu and the set progress).
-    Phone: one column without the menu, the tab bar navigating. The daily
-    booster panel stays once the day's booster is collected (the countdown to the
-    next one). The daily claim's Turbo Stream answer
-    replaces the panel, the packs chip, menu 01 and the empty showcase's
-    action (bonus_arc_controller.ts flies the canister). A contributor's
-    weekly goal reward shows its claim slot in the goal panel. A new
-    player's first hub shows the welcome panel above the other blocks,
-    after the heading in reading order.
-    Never served from Turbo's cache; the packs chip's countdown refreshes it
-    by morphing, keeping the scroll. The LIVE ticker fills the layout's
-    ticker slot, a band along the bottom of the hub, and the public goal
-    stream replaces the goal panel's public part as the periodic sum moves
-    it. %>
 <% turbo_exempts_page_from_cache %>
 <% turbo_refreshes_with method: :morph, scroll: :preserve %>
 <% content_for :ticker do %>

@@ -1,19 +1,9 @@
 <!DOCTYPE html>
-<%# data-motion is the one switch over the system's motion preference:
-    "reduced" or "full" overrides it, no attribute follows it. CSS,
-    Stimulus and View Transitions read it (motion.ts). %>
 <html lang="<%= I18n.locale %>"<% if forced_motion %> data-motion="<%= forced_motion %>"<% end %>>
   <head>
     <%= render "layouts/head" %>
   </head>
 
-  <%# The shell: atmosphere under everything, the top bar, the page, the
-      LIVE ticker along its bottom (the hub only), the phone tab bar, the
-      toasts and the deployed version in the bottom-left corner. The back-office keeps the tokens and the
-      top bar only. The public card page (`content_for :public_page`) has
-      the slim top bar and no tab bar. A page's own footer
-      (`content_for :page_footer`, the landing's) follows the main
-      landmark. %>
   <body class="<%= class_names("is-back-office": back_office_page?, "is-public-page": content_for?(:public_page)) %>">
     <%= render "shell/atmosphere" unless back_office_page? %>
     <%= render "shell/top_bar" %>

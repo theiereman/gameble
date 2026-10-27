@@ -1,10 +1,3 @@
-<%# The delete dialog, "SUPPRIMER MON COMPTE": a modal <dialog> (a bottom
-    sheet on the phone) opened from the settings' COMPTE row. The note says
-    what is erased; the field is labelled with the word to type, and
-    "SUPPRIMER DÉFINITIVEMENT" enables once the field holds it, in any case,
-    typed or pasted (confirm_word_controller.ts; the server checks the word
-    again). It posts to accounts#destroy as a full page load: the answer
-    signs the player out. %>
 <% word = t("accounts.dialog.word") %>
 <dialog id="delete-dialog" class="modal delete-dialog" aria-labelledby="delete-dialog-title" data-controller="dialog" data-action="click->dialog#closeOnScrim">
   <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>

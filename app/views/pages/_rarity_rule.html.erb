@@ -1,7 +1,3 @@
-<%# How a card's rarity is decided: the one place the screens explain the
-    rule. Its words are under pages.how_it_works.rarity and its shares come
-    from HowItWorksHelper#rarity_shares; a change of the rule edits only
-    them and this partial. %>
 <p><%= t("pages.how_it_works.rarity.rule") %></p>
 <p><%= t("pages.how_it_works.rarity.score") %></p>
 <p><%= t("pages.how_it_works.rarity.cut", count: Catalog::Rarity::TIERS.size) %></p>

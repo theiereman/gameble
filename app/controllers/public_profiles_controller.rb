@@ -1,15 +1,3 @@
-# A player's public profile, at a link built on their token, readable by
-# anyone, signed out included: the owner's identity and key numbers, their
-# showcase, stats, latest achievements and most complete started sets,
-# never the viewer's; one of their sets' albums, read-only, with the
-# owner's cards; and their whole collection, read-only.
-#
-# An unknown token and a profile that may not be shown to this viewer
-# (Game::Visibility: a banned owner, or one whose visibility hides it, for
-# anyone but staff, who read every profile but a deleted one's) render the
-# same unavailable page with a 404, so a ban cannot be told from a missing
-# player. Read from shared links, so open to any browser and link-preview
-# crawler (PublicRead).
 class PublicProfilesController < ApplicationController
   include PublicRead
   include CollectionGridLoading
@@ -22,7 +10,6 @@ class PublicProfilesController < ApplicationController
   before_action :authorize_page
   before_action :load_owner
 
-  # GET /:locale/brothers/:token
   def show
     @season = Catalog::PublishedSeason.call
     @card_total = Catalog::CardCount.call(@season)
@@ -33,14 +20,10 @@ class PublicProfilesController < ApplicationController
     load_relation
   end
 
-  # GET /:locale/brothers/:token/library/:kind/:key: the album of one of the
-  # owner's sets.
   def set
     load_set_album(Catalog::PublishedSeason.call, owner: @owner, with_new: false)
   end
 
-  # GET /:locale/brothers/:token/library: the owner's whole collection, the
-  # grid of the player's own library over the owner's holdings, read-only.
   def collection
     @season = Catalog::PublishedSeason.call
     return if @season.nil?
@@ -52,8 +35,6 @@ class PublicProfilesController < ApplicationController
   end
 
   private
-    # Games held in an earlier edition count in the summary but not in the
-    # season's total.
     def capped_at_card_total(summary)
       summary.with(distinct_cards: [ summary.distinct_cards, @card_total ].min)
     end
@@ -70,8 +51,6 @@ class PublicProfilesController < ApplicationController
       authorize :page, :show?
     end
 
-    # The owner of the profile, or the unavailable page (which halts the
-    # action) for an unknown token or a profile that may not be shown.
     def load_owner
       @owner = Accounts::PlayerByToken.call(params[:token])
       return if Game::Visibility.visible?(current_player, @owner)

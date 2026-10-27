@@ -1,24 +1,3 @@
-<%# The grid of every card. From 1180px the RAPPORT in a 220px column beside
-    the grid; from 720px the grid alone; on the phone one column, the
-    RAPPORT folded above the grid, two cards wide. A visitor owns nothing:
-    no RAPPORT, the grid alone at every width. Above the grid, the
-    search and the folded FILTRES zone (library/filters), then the grid in
-    a frame the filters reload. A slot opens its card's detail page. When
-    the grid shows new cards to their player, the collection-seen
-    controller posts the latest gain shown, once the page is rendered.
-    - heading: the page's name;
-    - grid: the Catalog::CollectionGrid; slots, pagy: its page, context:
-      the filters its links carry (library/grid);
-    - set_apart: true for a signed-in player, whose grid sets the cards
-      they do not hold apart from theirs (library/grid) and who gets the
-      RAPPORT and the state filters;
-    - unique, games_by_rarity, tier_counts: the viewer's figures;
-    - seen_up_to: the latest gain among the new cards shown, or nil;
-    - pagy also gives the count announced by the status line;
-    - states, states_asked, query, set_filter: the filters on and the set
-      group (library/filters);
-    - clear_path: the grid's page without any filter. A grid of another
-      player's (the context names a `brother`) marks no new card. %>
 <% next_page_data = local_assigns.fetch(:scroll_pages, false) ? { controller: "next-page", action: "focusout->next-page#focusLeft" } : {} %>
 <div class="<%= class_names("collection", "collection--visitor": !set_apart) %>">
   <h1 class="visually-hidden"><%= heading %></h1>

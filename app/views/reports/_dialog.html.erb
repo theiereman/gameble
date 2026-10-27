@@ -1,8 +1,3 @@
-<%# Locals:
-    - owner: the reported player;
-    - id: the dialog's id, "report-dialog" unless a page holds several;
-    - from: "friends" to come back to the Friends screen once sent, else
-      the report comes back to the public profile. %>
 <% id = local_assigns.fetch(:id, "report-dialog") %>
 <dialog id="<%= id %>" class="modal" aria-labelledby="<%= id %>-title" data-controller="dialog" data-action="click->dialog#closeOnScrim">
   <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>

@@ -3,7 +3,6 @@ class AccountsController < ApplicationController
     by: -> { current_player&.id || request.remote_ip },
     with: -> { redirect_to settings_path, alert: t("accounts.destroy.throttled"), status: :see_other }
 
-  # DELETE /:locale/account
   def destroy
     authorize :account, :destroy?
     unless confirmed?

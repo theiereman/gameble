@@ -1,17 +1,3 @@
-# The collection: its entry, the search over every set and the player's
-# sets in progress and complete, as tiles six at a time, under the top
-# bar's unique cards; the grid of every game of the published season and
-# every game the viewer holds, in any
-# edition, with its filters, its search and the RAPPORT; and one set's
-# album, the player's best edition of each of its games, with its filters
-# and its search. The entry and the albums are a player's pages; a
-# visitor reaches only the grid. A player's grid sets the cards they do
-# not hold apart, faded and locked; a visitor owns nothing and sees every
-# card's plain face, and no ownership data: no state filters, no RAPPORT,
-# no unique cards in the top bar. Sets are addressed by kind and key,
-# cards by slug; no id reaches the page. A GET writes nothing: a grid
-# that showed new cards posts the latest gain it showed to
-# CollectionSeenController. Open to any browser (PublicRead).
 class LibraryController < ApplicationController
   include PublicRead
   include CollectionGridLoading
@@ -20,7 +6,6 @@ class LibraryController < ApplicationController
 
   MORE_RESULTS_FRAME = "set-more-results-"
 
-  # GET /:locale/library: the entry, the player's sets.
   def show
     authorize :page, :play?
     @season = Catalog::PublishedSeason.call
@@ -32,8 +17,6 @@ class LibraryController < ApplicationController
     load_unique_cards
   end
 
-  # GET /:locale/library/in-progress: the sets in progress and the complete
-  # ones, six of a section at a time; opened as a page it leads to the entry.
   def in_progress
     authorize :page, :play?
     return redirect_to library_path unless turbo_frame_request?
@@ -43,7 +26,6 @@ class LibraryController < ApplicationController
     render(:more_tiles) if section
   end
 
-  # GET /:locale/library/cards: the grid of every game.
   def cards
     authorize :page, :show?
     @season = Catalog::PublishedSeason.call
@@ -60,7 +42,6 @@ class LibraryController < ApplicationController
     end
   end
 
-  # GET /:locale/library/:kind/:key: one set's album.
   def set
     authorize :page, :play?
     @season = Catalog::PublishedSeason.call

@@ -6,9 +6,6 @@
     <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
   <% end %>
 <% end %>
-<%# The rules of the game, for a visitor and a player alike: one panel per
-    subject. Every number is read from the constant the game applies
-    (HowItWorksHelper), never written in the copy. %>
 <% rarity = ->(tier) { t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(tier)}") } %>
 <% common = rarity.(Catalog::RarityThresholds::COMMON) %>
 <% reward_min = rarity.(Game::RewardDraw::MIN_TIER) %>

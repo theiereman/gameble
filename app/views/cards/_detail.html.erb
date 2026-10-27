@@ -1,41 +1,3 @@
-<%# A card's detail, "FICHE DE LA CARTE": a
-    bracketed panel with the number at top right, the card at card-l over a
-    ground shadow, its title and the facts the card does not carry; under
-    the panel, outside its background, the actions: a holder's first,
-    "Reposter" (the card's main action, the one primary) and the showcase
-    choice, then the card's links, "Partager" and "Voir sur Steam". A
-    signed-in player who holds no copy of its game sees the card faded,
-    grey and locked, as the grids set it apart; a visitor sees its plain
-    face. ◀ ▶ beside the card step through what it
-    browses (an opened pack, a grid, a set), and on a phone
-    (sub_view controller) a swipe on it too, under a position line, with
-    the actions pinned at the bottom. It names no one but the viewer and
-    the card's pioneer (a shared card shows only the card). Locals:
-    - detail: a Catalog::CardDetail::Detail;
-    - copies: how many copies of its game the viewer holds, every edition
-      counted, or nil;
-    - editions: the editions of its game the viewer holds, as
-      Game::HeldEditions answers them (default none);
-    - signed_in: whether a player views it (default false): then the
-      copies row reads their copies, or "None", and the editions row one
-      line per rarity held, the best first, with its seasons ("Rare : S1,
-      S4"), the lines past the third folded, or "None", and the card
-      shows as not owned without a copy;
-    - set_url: ->(set) { path } leading each set to its grid, or nil for
-      the sets' names alone; the sets of a season other than the published
-      one (the one the library shows) are never linked;
-    - share_url: the absolute link to this card-season's page, to share,
-      or nil (the default) for no share or repost button and no share sheet
-      (cards/_share_sheet); the repost button shows only when this
-      card-season is among the editions held, the one a repost posts;
-    - browse: what it browses (a CardsController::Browse: the position,
-      the total, the neighbours' paths, the way back), or nil (the
-      default) for no ◀ ▶ and no position line;
-    - showcase: the viewer's profile showcase action on this card-season:
-      :add, :remove, :full (the add button disabled, the showcase-full line
-      under the holder's buttons) or nil (the default) for none;
-    - pioneer: the card's first discoverer (a CardsController::PioneerLine,
-      anonymous when it has no token) or nil (the default) for no row. %>
 <% share_url = local_assigns.fetch(:share_url, nil) %>
 <% set_url = detail.current_season ? local_assigns.fetch(:set_url, nil) : nil %>
 <% browse = local_assigns.fetch(:browse, nil) %>
@@ -62,9 +24,6 @@
     </header>
     <div class="card-detail__layout">
       <div class="card-detail__columns">
-        <%# The stage: the card between ◀ and ▶ (links replacing the frame and
-            the URL; a disabled button at an end). A horizontal swipe on it
-            presses them; a vertical drag scrolls the page. %>
         <div class="card-detail__stage" data-sub-view-target="stage"
           data-action="pointerdown->sub-view#press pointermove->sub-view#drag pointerup->sub-view#release pointercancel->sub-view#cancel">
           <% if browse %>
@@ -89,7 +48,6 @@
         <div class="card-detail__info">
           <h1 id="card-detail-heading" class="card-detail__title" tabindex="-1" data-sub-view-target="heading"><%= view.title %></h1>
           <% if browse %>
-            <%# "S1 · #4 215 · 3 / 13", or "S1 · 3 / 13" for an unnumbered card. %>
             <% position = [ view.number_label || "S#{view.season_number}", t("card_details.position", position: browse.position, total: browse.total) ] %>
             <% position << t("card_details.swipe") if browse.total > 1 %>
             <p class="card-detail__position"><%= position.join(" · ") %></p>
@@ -218,9 +176,6 @@
     <% end %>
     <div class="card-detail__card-links">
       <% if share_url %>
-        <%# Opens the share sheet and copies the link in the same click,
-            where the browser still allows the clipboard
-            (share_controller.ts). %>
         <button type="button" class="button button--secondary card-detail__share-button" aria-haspopup="dialog"
           data-controller="dialog-opener" data-dialog-opener-dialog-value="share-sheet"
           data-action="dialog-opener#open share#copy"><%= t("card_details.share.button") %></button>

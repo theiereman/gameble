@@ -1,9 +1,3 @@
-# A set album's filters, read from its parameters, anything unknown
-# ignored: `state[]` among STATES, judged by the album owner's holdings;
-# `rarity[]`, of the face the album shows; `q`, found in the shown card's
-# title, case and accents ignored. Answers the FILTRES zone
-# (library/filters) as a Catalog::CollectionGrid does, without the set and
-# genre groups.
 class SetAlbumFilters < Data.define(:states, :states_asked, :chosen_rarities, :query)
   STATES = %w[owned all missing].freeze
 
