@@ -38,7 +38,7 @@ export function rememberPack(token: string | null, celebration = false): void {
   if (href !== location.href) history.replaceState(history.state, "", href)
 }
 
-/** A UUID for the idempotency key (crypto.randomUUID needs a secure context). */
+// A UUID for the idempotency key (crypto.randomUUID needs a secure context).
 export function newKey(): string {
   if (typeof crypto.randomUUID === "function") return crypto.randomUUID()
   const bytes = crypto.getRandomValues(new Uint8Array(16))

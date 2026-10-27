@@ -1,7 +1,3 @@
-// Turbo's restoration index to the page shown at it, kept in sessionStorage and reset on each full document load.
-// It lets a contextual back go through history to an earlier page, and a page shown again focus the link it came from.
-// Entries from other documents of the tab cannot be trusted; any storage error leaves the trail empty.
-
 export const TRAIL_KEY = "gameble:history-trail"
 export const TRAIL_SPAN = 100
 export const ROUTED_LOCALES = ["en", "fr"]
@@ -39,6 +35,7 @@ export function resetTrail(storage: TrailStorage | null): void {
   try {
     storage.setItem(TRAIL_KEY, "{}")
   } catch {
+    // Storage refused: the trail stays empty.
   }
 }
 
@@ -61,10 +58,10 @@ export function recordEntry(
   try {
     storage.setItem(TRAIL_KEY, JSON.stringify(trail))
   } catch {
+    // Storage refused: the trail is not kept.
   }
 }
 
-/** How many entries back the nearest earlier entry showing `pathname`, in either language, is from `index`; null when none. */
 export function stepsBackTo(pathname: string, index: number, storage: TrailStorage | null): number | null {
   const trail = readTrail(storage)
   for (let earlier = index - 1; earlier >= Math.max(0, index - TRAIL_SPAN); earlier--) {
@@ -80,14 +77,12 @@ function samePage(recorded: string, pathname: string): boolean {
   return locale !== null && routedLocaleOf(recorded) !== null && inLocale(recorded, locale) === pathname
 }
 
-/** The pathname recorded right after `index`: the page the user came back from. */
 export function entryAfter(index: number, storage: TrailStorage | null): string | null {
   return readTrail(storage)[index + 1]?.pathname ?? null
 }
 
 export type PreviousScreen = { label: string; pathname: string; steps: number }
 
-/** The nearest entry before `index` showing another screen than `currentLabel`; null when unknown or unlabelled. */
 export function previousScreen(trail: Trail, index: number, currentLabel: string | null, currentPathname: string): PreviousScreen | null {
   const locale = localeOf(currentPathname)
   for (let earlier = index - 1; earlier >= Math.max(0, index - TRAIL_SPAN); earlier--) {
@@ -106,7 +101,6 @@ export function previousScreen(trail: Trail, index: number, currentLabel: string
   return null
 }
 
-/** The tab's session storage, or null where reading it throws. */
 export function sessionTrailStorage(): TrailStorage | null {
   try {
     return window.sessionStorage
@@ -115,13 +109,11 @@ export function sessionTrailStorage(): TrailStorage | null {
   }
 }
 
-/** The current entry's restoration index (Turbo's history state), 0 without one. */
 export function currentIndex(): number {
   const index: unknown = (history.state as { turbo?: { restorationIndex?: unknown } } | null)?.turbo?.restorationIndex
   return typeof index === "number" ? index : 0
 }
 
-/** The short name of the screen shown, carried by the top bar; null for the hub and unnamed screens. */
 export function currentScreenLabel(): string | null {
   return document.querySelector<HTMLElement>(".top-bar")?.dataset.screenLabel || null
 }

@@ -1,8 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { openDialog } from "../lib/dialog"
 
-// A button that opens a modal dialog of the page, named by its id. The dialog remembers this button and hands the focus back when it closes
-// (to the button that opens the menu, when this one is inside a popover menu). An unknown id does nothing.
 export default class extends Controller<HTMLElement> {
   static values = { dialog: String }
 

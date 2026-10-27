@@ -1,4 +1,3 @@
-// Application entrypoint, served by Vite: Turbo and Stimulus.
 // Imported before Turbo so its popstate listener runs before Turbo's own.
 import "../lib/bridge_cache_guard"
 import "@hotwired/turbo-rails"

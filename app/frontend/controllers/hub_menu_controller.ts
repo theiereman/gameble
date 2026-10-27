@@ -3,8 +3,6 @@ import { menuDigit } from "../lib/menu_key"
 
 const STORAGE_KEY = "gameble:hub-menu-item"
 
-// The hub's numbered menu: a digit key from 1 to 9 inside it activates the item whose `aria-keyshortcuts` is that digit.
-// The last item used is remembered for the session and focused when coming back; right after sign-in item 01 (or the heading on a phone) is.
 export default class extends Controller<HTMLElement> {
   static targets = ["menu", "item", "heading"]
   static values = { focusFirst: Boolean }
@@ -46,6 +44,7 @@ export default class extends Controller<HTMLElement> {
     try {
       window.sessionStorage.setItem(STORAGE_KEY, key)
     } catch {
+      // Storage refused: the menu just does not remember the item.
     }
   }
 

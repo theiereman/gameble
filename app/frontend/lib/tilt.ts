@@ -1,25 +1,16 @@
-// Eases a card face toward the pointer's tilt and writes it, with the reflection that rides it, as custom properties for styles/card.css.
-// A held finger tilts it (the click after is swallowed); a drag scrolls instead; reduced motion does nothing.
 import { motionReduced } from "./motion"
 
 export type Tilt = { rx: number; ry: number }
 export type Box = { left: number; top: number; width: number; height: number }
 export type Reflection = { strip: number; fresnel: number; horizon: number; hue: number }
 
-/** The share of the remaining way covered each frame while a pointer drives the card. */
 export const EASE_ENTER = 0.08
-/** The share of the remaining way covered each frame once it lets go. */
 export const EASE_LEAVE = 0.075
-/** How long a finger stays still before it tilts the card. */
 export const HOLD_MS = 150
-/** How far a finger moves, in px, before the hold gives way to a scroll. */
 export const TOUCH_SLOP = 6
-/** How far the reflection slides for a given tilt. */
 export const TRAVEL = 2.5
 
-/** Close enough to snap, in degrees. */
 const SNAP_DEGREES = 0.01
-/** A card face's width over its height, until one is measured. */
 const CARD_ASPECT = 2 / 3
 
 export const REST: Tilt = { rx: 0, ry: 0 }
@@ -37,14 +28,12 @@ const unit = (value: number) => Math.min(1, Math.max(0, value))
 
 const withoutNegativeZero = (value: number) => value + 0
 
-/** The tilt for a pointer at (`x`, `y`) over a card at `rect`, up to `max` degrees at an edge. */
 export function tiltTarget(x: number, y: number, rect: Box, max: number): Tilt {
   const px = rect.width > 0 ? unit((x - rect.left) / rect.width) : 0.5
   const py = rect.height > 0 ? unit((y - rect.top) / rect.height) : 0.5
   return { rx: withoutNegativeZero(-(py - 0.5) * 2 * max), ry: withoutNegativeZero((px - 0.5) * 2 * max) }
 }
 
-/** The reflection of a card tilted toward (`dx`, `dy`), each from -0.5 to 0.5, on a card `aspect` times as wide as tall. */
 export function reflection(dx: number, dy: number, aspect: number): Reflection {
   const tilt2 = Math.min(1, (dx * dx + dy * dy) / 0.5)
   return {
@@ -57,12 +46,10 @@ export function reflection(dx: number, dy: number, aspect: number): Reflection {
 
 export const REST_REFLECTION = reflection(0, 0, CARD_ASPECT)
 
-/** Where a card showing `tilt`, out of `max` degrees at an edge, leans: `dx` across and `dy` down, from -0.5 to 0.5. */
 export function leaning(tilt: Tilt, max: number): { dx: number; dy: number } {
   return { dx: withoutNegativeZero(tilt.ry / (2 * max)), dy: withoutNegativeZero(-tilt.rx / (2 * max)) }
 }
 
-/** The reflection of a card showing `tilt`, out of `max` degrees at an edge. */
 export function reflectionOf(tilt: Tilt, max: number, aspect: number): Reflection {
   const { dx, dy } = leaning(tilt, max)
   return reflection(dx, dy, aspect)
@@ -72,7 +59,6 @@ const settled = (a: Tilt, b: Tilt) => Math.abs(a.rx - b.rx) < SNAP_DEGREES && Ma
 
 const atRest = (tilt: Tilt) => settled(tilt, REST)
 
-/** One frame of easing from `current` toward `target`, snapping onto it when close. */
 export function easeToward(current: Tilt, target: Tilt, factor: number): Tilt {
   const next = {
     rx: current.rx + (target.rx - current.rx) * factor,
@@ -81,7 +67,6 @@ export function easeToward(current: Tilt, target: Tilt, factor: number): Tilt {
   return settled(next, target) ? { ...target } : next
 }
 
-/** The card's untransformed layout box, measured once when a pointer starts driving it so its own tilt never moves its target. */
 function layoutBox(element: HTMLElement): Box {
   const rect = element.getBoundingClientRect()
   const width = element.offsetWidth || rect.width
@@ -91,7 +76,6 @@ function layoutBox(element: HTMLElement): Box {
 
 type Hold = { id: number; startX: number; startY: number; x: number; y: number; timer: ReturnType<typeof setTimeout> }
 
-/** Tilts `element` under the pointer; `onTilt` hears the eased tilt each frame, (0, 0) once at rest or detached. Returns the undo. */
 export function attachTilt(
   element: HTMLElement,
   { max, onTilt }: { max: number; onTilt?: (dx: number, dy: number) => void },

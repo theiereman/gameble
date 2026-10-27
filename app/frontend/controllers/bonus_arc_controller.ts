@@ -3,9 +3,6 @@ import { dispatchGameble, type BankChangedDetail } from "../lib/events"
 import { arcPoints, type Point } from "../lib/arc"
 import { motionReduced } from "../lib/motion"
 
-// The daily booster's arc: a canister flies from the panel to the packs chip (or the BOOSTER tab on a phone) and the count brightens.
-// It listens to `turbo:before-stream-render` while both ends are in place, and starts only for a stream carrying `data-bonus-arc-collected`.
-// Only transform and opacity move; a flight under way is cancelled on disconnect.
 const ARC_MS = 480
 const ARC_MS_PHONE = 520
 const BUMP_MS = 600

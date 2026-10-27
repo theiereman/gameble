@@ -1,22 +1,16 @@
-// Reordering the profile showcase by dragging a card. Pure, except sendPlacement, which takes its fetch as an argument.
-
 export type Point = { x: number; y: number }
 export type Box = { left: number; top: number; width: number; height: number }
 
-/** How far, in px, a mouse or pen moves with its button down before a press becomes a drag; less stays a click. */
 export const DRAG_THRESHOLD = 6
 
-/** How long a finger stays still on a card before it picks the card up; a move before then scrolls the page. */
 export const TOUCH_HOLD_MS = 400
 
-/** Whether a pointer that moved `dx`, `dy` px since its press has gone past `threshold`. */
 export function pastThreshold(dx: number, dy: number, threshold = DRAG_THRESHOLD): boolean {
   return Math.hypot(dx, dy) > threshold
 }
 
 const centre = (box: Box): Point => ({ x: box.left + box.width / 2, y: box.top + box.height / 2 })
 
-/** The index of the box whose centre is nearest `point`: the place a dragged card would take. -1 with no box. */
 export function nearestIndex(point: Point, boxes: Box[]): number {
   let nearest = -1
   let best = Infinity
@@ -31,7 +25,6 @@ export function nearestIndex(point: Point, boxes: Box[]): number {
   return nearest
 }
 
-/** `items` with the one at `from` taken out and put at `to`, the ones between shifting one place. */
 export function moveItem<T>(items: readonly T[], from: number, to: number): T[] {
   const moved = [...items]
   const [item] = moved.splice(from, 1)
@@ -40,7 +33,6 @@ export function moveItem<T>(items: readonly T[], from: number, to: number): T[] 
   return moved
 }
 
-/** Which of a card's ◀ ▶ buttons show at `index` among `count` cards: no ◀ on the first, no ▶ on the last. */
 export function edgeButtons(index: number, count: number): { earlier: boolean; later: boolean } {
   return { earlier: index > 0, later: index < count - 1 }
 }
@@ -56,7 +48,6 @@ export type SendPlacement = {
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value)
 
-/** PATCHes the card's new place (0 first) as JSON; the server's refusal comes back with its message. */
 export async function sendPlacement({ url, position, csrfToken, fetch: send = globalThis.fetch }: SendPlacement): Promise<PlacementResult> {
   const headers: Record<string, string> = { "Content-Type": "application/json", Accept: "application/json" }
   if (csrfToken) headers["X-CSRF-Token"] = csrfToken

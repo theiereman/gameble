@@ -2,8 +2,6 @@ import { Controller } from "@hotwired/stimulus"
 import { reloadOnChange, reloadsSets, SET_OPTIONS_FRAME, submitToFrame } from "../lib/collection_filters"
 import { Debounce, summaryOf } from "../lib/set_search"
 
-// The grid's search and filters: one GET form whose result Turbo loads into the grid's frame without replacing the form, so focus stays.
-// A chip submits at once, typing after a short pause; the set group's kind and text reload only the set chips.
 const TYPING_PAUSE_MS = 250
 const ALL_STATE = "all"
 
@@ -29,7 +27,6 @@ export default class extends Controller<HTMLFormElement> {
     this.setsTyping.cancel()
   }
 
-  // In the state group "all" and the other states exclude each other, and with every state off the default comes back.
   changed(event: Event): void {
     const field = event.target as HTMLInputElement
     const reload = reloadOnChange(field)

@@ -8,8 +8,6 @@ const pixels = (value: string): number | undefined => {
   return trimmed.endsWith("px") ? Number.parseFloat(trimmed) || 0 : undefined
 }
 
-// A card face's tilt, reflection, glitter and in-view mark. A Turbo snapshot keeps the attributes and flakes of the moment it was taken,
-// so each connect starts from a clean face and each disconnect leaves one.
 export default class extends Controller<HTMLElement> {
   static values = { max: { type: Number, default: 10 } }
   static targets = ["glitter"]

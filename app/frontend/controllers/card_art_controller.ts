@@ -2,13 +2,10 @@ import { Controller } from "@hotwired/stimulus"
 import { drawCardArt } from "../lib/card_art"
 import { type ArtSize, artPixels, sameArtSize, type Settle, settle } from "../lib/card_art/fluid_size"
 
-// How near the viewport a card comes before its art is drawn.
 const NEAR_VIEWPORT = "300px"
 
 const RESIZE_SETTLE_MS = 150
 
-// Draws the art of a server-rendered card face once it nears the viewport. Each connect waits and draws again, so a Turbo restore shows the art;
-// a fluid art box draws at its rendered size and again when a resize settles.
 export default class extends Controller<HTMLElement> {
   static targets = ["canvas"]
   static values = {

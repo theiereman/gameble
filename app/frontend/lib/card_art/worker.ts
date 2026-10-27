@@ -1,4 +1,3 @@
-// The worker entry: one job per message, one URL at a time, its bitmap transferred back.
 import { createJobRunner, PaletteCache, type JobEnvironment, type JobRequest, type JobResponse, type WorkerSurface } from "./worker_job"
 
 type WorkerScope = {

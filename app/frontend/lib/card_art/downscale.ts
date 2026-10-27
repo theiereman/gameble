@@ -1,20 +1,15 @@
 import { cropRegion } from "pixelcrush"
 
-/** Where a `"cover"` crop sits vertically when the source is taller than the art box: 0 keeps the top, 1 the bottom. */
 export const DEFAULT_ANCHOR = 0.42
 
-/** What the downscale needs of a 2D context, on a canvas or an `OffscreenCanvas`. */
 export type DrawContext = Pick<CanvasRenderingContext2D, "drawImage" | "imageSmoothingEnabled" | "imageSmoothingQuality">
 
-/** A scratch canvas and its 2D context. */
 export type Surface<C extends DrawContext = DrawContext> = { canvas: CanvasImageSource; context: C }
 
-/** Makes a scratch surface, or `null` when the browser gives no 2D context. */
 export type CreateSurface<C extends DrawContext = DrawContext> = (width: number, height: number) => Surface<C> | null
 
 export type Size = { width: number; height: number }
 
-/** The sizes a region goes through to `width × height`: halved while above twice the target, the last never under it. */
 export function halvingSizes(regionWidth: number, regionHeight: number, width: number, height: number): Size[] {
   const sizes: Size[] = []
   let currentWidth = regionWidth
@@ -30,7 +25,6 @@ export function halvingSizes(regionWidth: number, regionHeight: number, width: n
   return sizes
 }
 
-/** Crops `source` to the ratio of `width × height` and halves it until within 2× that size; the caller makes the final exact step. `null` without a 2D context. */
 export function downscale<C extends DrawContext>(
   source: CanvasImageSource,
   sourceWidth: number,

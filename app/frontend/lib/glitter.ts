@@ -1,6 +1,3 @@
-// A Légendaire's glitter: flakes on the varnish that flash when the card's eased tilt faces their normal and otherwise twinkle in groups.
-// The field is drawn from the card's seed, so a card shows the same flakes on every render.
-
 export type FlakeColour = "white" | "gold" | "violet" | "blue"
 
 export type Flake = {
@@ -19,15 +16,10 @@ export type FlakeField = { groups: Twinkle[]; flakes: Flake[] }
 
 export type Glitter = { update(dx: number, dy: number): void; detach(): void }
 
-/** The seed of a card that names none. */
 export const DEFAULT_SEED = 20261013
-/** How many flakes cover a 200 × 300 px card; a card of another size gets as many per area. */
 export const FLAKES_PER_CARD = 28
-/** How many groups a face's flakes twinkle in, one animation each. */
 export const TWINKLE_GROUPS = 3
-/** How far, in tilt, a flake keeps flashing around its normal. */
 export const FLASH_REACH = 0.14
-/** How bright a flash marks its flake as flashing. */
 export const FLASH_THRESHOLD = 0.25
 
 const REFERENCE_AREA = 200 * 300
@@ -37,7 +29,6 @@ const NORMAL_SPREAD = 0.9
 const CROSS_SHARE = 0.35
 const COLOURS: readonly FlakeColour[] = ["white", "white", "white", "gold", "gold", "violet", "blue"]
 
-/** A seeded generator of numbers in [0, 1) (mulberry32). */
 function randomFrom(seed: number): () => number {
   let state = seed | 0
   return () => {
@@ -48,7 +39,6 @@ function randomFrom(seed: number): () => number {
   }
 }
 
-/** The seed a face names in `data-glitter-seed`, or DEFAULT_SEED when it names none. */
 export function glitterSeed(value: string | undefined): number {
   const seed = Number.parseInt(value ?? "", 10)
   return Number.isNaN(seed) ? DEFAULT_SEED : seed
@@ -56,7 +46,6 @@ export function glitterSeed(value: string | undefined): number {
 
 const onPixelGrid = (value: number) => Math.round(value / ART_PIXEL) * ART_PIXEL
 
-/** The flakes of a card `width` × `height` px and the rhythms of their twinkle groups, the same for the same seed. */
 export function flakeField(seed: number, width: number, height: number): FlakeField {
   const random = randomFrom(seed)
   const groups = Array.from({ length: TWINKLE_GROUPS }, () => ({
@@ -76,12 +65,10 @@ export function flakeField(seed: number, width: number, height: number): FlakeFi
   return { groups, flakes }
 }
 
-/** How brightly `flake` flashes on a card tilted toward (`dx`, `dy`): 1 facing its normal, 0 beyond FLASH_REACH. */
 export function flakeFlash(flake: Pick<Flake, "nx" | "ny">, dx: number, dy: number): number {
   return Math.max(0, 1 - Math.hypot(dx - flake.nx, dy - flake.ny) / FLASH_REACH) ** 1.5
 }
 
-/** A flake's brightness for a flash, in quarter steps from 0.5 to 1. */
 export function flakeLevel(flash: number): number {
   return 0.5 + (0.5 * Math.round(flash * 4)) / 4
 }
@@ -105,7 +92,6 @@ function groupElement(document: Document, twinkle: Twinkle): HTMLElement {
   return element
 }
 
-/** Draws the flakes of a card `width` × `height` px into `container`, each in its twinkle group; returns how to light them and to take them away. */
 export function attachGlitter(container: HTMLElement, { seed, width, height }: { seed: number; width: number; height: number }): Glitter {
   const document = container.ownerDocument
   const field = flakeField(seed, width, height)

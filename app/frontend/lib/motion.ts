@@ -1,7 +1,5 @@
-// The one switch for reduced motion, read by Stimulus controllers: `html[data-motion]` from the player's setting, else the system preference.
 export const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)"
 
-// Read at the moment of use, never cached.
 export function motionReduced(): boolean {
   const forced = typeof document !== "undefined" ? document.documentElement.dataset.motion : undefined
   if (forced === "reduced") return true
@@ -9,7 +7,6 @@ export function motionReduced(): boolean {
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(REDUCED_MOTION_QUERY).matches
 }
 
-// Calls `listener` whenever the switch flips; returns the function that stops listening.
 export function onMotionChange(listener: (reduced: boolean) => void): () => void {
   let last = motionReduced()
   const check = (): void => {

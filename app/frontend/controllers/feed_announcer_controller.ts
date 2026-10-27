@@ -3,7 +3,6 @@ import { ANNOUNCE_INTERVAL_MS, AnnounceBatch, beyondLimit, shouldAnnounce } from
 import { t, type Template } from "../lib/i18n"
 import { motionReduced } from "../lib/motion"
 
-// Screen readers skip a status line rewritten with the same text unless it is emptied first.
 const REWRITE_MS = 100
 
 type StreamRenderDetail = { render: (stream: Element) => void | Promise<void> }

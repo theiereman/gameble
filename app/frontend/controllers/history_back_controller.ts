@@ -1,10 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { currentIndex, currentScreenLabel, currentScreenLabels, entryAfter, recordEntry, resetTrail, sessionTrailStorage, stepsBackTo } from "../lib/history_trail"
 
-// A contextual back link: when its target is an earlier entry of this tab's history, it goes back through history so Turbo restores
-// that page at its scroll; otherwise it navigates as usual.
-// This module also records the history trail for the whole app, afresh on each full document load and bfcache restore.
-// A page shown again by a restore visit focuses the card link leading to the page the user came back from, without scrolling.
 const storage = sessionTrailStorage()
 resetTrail(storage)
 const record = (): void => recordEntry(currentIndex(), location.pathname, storage, currentScreenLabel(), currentScreenLabels())
@@ -33,7 +29,6 @@ function focusReturnLink(): void {
   link?.focus({ preventScroll: true })
 }
 
-// The trail matches pathnames only: once a step of the detail pointed the link at another grid page, it visits that href instead.
 export default class extends Controller<HTMLAnchorElement> {
   private renderedHref: string | null = null
 

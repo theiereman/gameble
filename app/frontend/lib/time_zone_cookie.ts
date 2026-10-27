@@ -1,5 +1,3 @@
-// The browser's time zone, sent to the server so it writes local times as
-// the browser would (local_time_helper.rb) and the page shows no UTC first.
 export const TIME_ZONE_COOKIE = "time_zone"
 
 const YEAR_IN_SECONDS = 365 * 24 * 60 * 60

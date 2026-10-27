@@ -1,7 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
 
-// The share sheet of a card's detail: "Partager" and "Copier" copy the card-season's link, to the clipboard in a secure context,
-// else selected in its read-only field and copied with execCommand. The status says "Link copied" only when that worked.
 export default class extends Controller<HTMLElement> {
   static targets = ["url", "status"]
   static values = { copied: String, manual: String }

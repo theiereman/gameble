@@ -4,8 +4,6 @@ import { RevealHold, firstShowing, toastActionHref, toastDuration } from "../lib
 
 type Timer = { remaining: number; startedAt?: number; handle?: number; hovered: boolean; focused: boolean; cleanup: () => void }
 
-// The shell's toast region: a polite live region holding the server's flash messages and any toast asked for with a `gameble:toast` event.
-// Each toast pauses while hovered or focused and closes with its "✕" or Esc; a toast with a once key shows once per browser.
 export default class extends Controller<HTMLElement> {
   static targets = ["template", "toast"]
 

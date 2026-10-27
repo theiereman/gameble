@@ -1,9 +1,6 @@
-// Where a set's tier tick sits on its bar: the server's data attribute turned into a custom property, since server HTML carries no style attribute.
-
 export const TIER_AT_ATTRIBUTE = "data-tier-at"
 export const PLACED_CLASS = "is-placed"
 
-/** The tick's place from 0 to 1, or null for a value that is not one. */
 export function tierAt(raw: string | null | undefined): number | null {
   if (raw === null || raw === undefined || raw.trim() === "") return null
   const at = Number(raw)
@@ -16,7 +13,6 @@ export type Placeable = {
   classList: { add(name: string): void }
 }
 
-/** Sets `--at` on every tick and figure that carries a valid place and shows it; the others stay hidden. */
 export function placeTicks(elements: Iterable<Placeable>): void {
   for (const element of elements) {
     const at = tierAt(element.getAttribute(TIER_AT_ATTRIBUTE))
