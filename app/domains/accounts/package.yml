@@ -1,4 +1,4 @@
-# Depends on no pack (AD-2).
+# Depends on no other domain.
 enforce_dependencies: true
 dependencies:
   - lib

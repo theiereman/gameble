@@ -1,4 +1,4 @@
-# The task of packs/game/lib/open_pack_benchmark.rb. The class lives outside
+# The task of app/domains/game/lib/open_pack_benchmark.rb. The class lives outside
 # lib/tasks so that loading the tasks again (a test worker after
 # test:prepare) never redefines its constants.
 namespace :game do

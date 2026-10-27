@@ -1,9 +1,9 @@
-# The root package is the web layer (AD-1). It may reference every pack;
-# no pack may reference it (AD-2).
+# The root package is the web layer. It may reference every domain;
+# no domain may reference it.
 enforce_dependencies: true
 dependencies:
   - lib
-  - packs/accounts
-  - packs/catalog
-  - packs/game
-  - packs/steam
+  - app/domains/accounts
+  - app/domains/catalog
+  - app/domains/game
+  - app/domains/steam

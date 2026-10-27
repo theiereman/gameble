@@ -77,7 +77,7 @@ Start small, and grow from there:
 - **Set ideas**: a theme or a hall of fame, with its games.
 - **Designing the game**: a new mechanic, a screen, a reward. Talk it through with the agent before any code.
 
-Leave the database and the game's rules (anything under `db/` or `packs/`) for later, or ask the author first.
+Leave the database and the game's rules (anything under `db/` or `app/domains/`) for later, or ask the author first.
 
 ### How a session goes
 
