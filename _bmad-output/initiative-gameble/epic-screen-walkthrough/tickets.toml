@@ -433,4 +433,4 @@ covers = []
 after = [34, 35]
 hitl = true
 risk = "medium"
-notes = ["Decisions of the author, 2026-10-27: iris and ring from the cursor (A12 + A14); B2 for the path with required counts only; six sets then a Load more button; the search filters the displayed tiles instead of the old result rows.", "Assumed by the agent on 2026-10-27, to confirm: Load more adds six sets per click; typing in the search first loads every remaining set so the filter covers them all; a set the player has not started is no longer found by the search (the old rows listed catalogue sets)."]
+notes = ["Decisions of the author, 2026-10-27: iris and ring from the cursor (A12 + A14); B2 for the path with required counts only; six sets then a Load more button; the search filters the displayed tiles instead of the old result rows.", "Assumed by the agent on 2026-10-27, to confirm: Load more adds six sets per click, for EN COURS and COMPLETED alike; the search keeps looking over the whole published season (the author, 2026-10-27: every set must stay findable), capped at 50 matches, and shows its results as the same tiles, six at a time."]
