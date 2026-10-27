@@ -3,7 +3,7 @@
  * narrower panels above the stage, the narrow row of card-s faces, the
  * phone (information strip, pile, caption plate, tray, actions under the
  * stage), the card zoom, and every loop stopped under reduced motion. The
- * island at its base (layout, panel, stage, canister, cards, effects,
+ * screen at its base (layout, panel, stage, canister, cards, effects,
  * banner, loops) is in booster.css, imported just before this file: these
  * rules override it, so the order of the two files is part of the cascade.
  */
@@ -24,7 +24,6 @@
   }
 
   .booster__hazard,
-  .booster__counter,
   .booster-celebration {
     flex: 1 1 100%;
   }
@@ -62,6 +61,13 @@
 
 .booster[data-layout="narrow"] .booster-card__back--standard {
   background-image: url("../images/pixel/back-standard-s.png");
+}
+
+/* ---- Each layout's parts: the rows' panel, the phone's strip ---- */
+
+.booster:not([data-layout="phone"]) :is(.booster-strip, .booster__pile-area, .booster-plate-band, .booster-tray, .booster__phone-actions, .booster__canister-facts, .booster__canister-hint-touch),
+.booster[data-layout="phone"] :is(.booster__info, .booster__result, .booster__deal-area, .booster__canister-hint-click) {
+  display: none;
 }
 
 /* ---- The phone (under 720px): strip, pile, plate, tray, actions ---- */
@@ -251,6 +257,16 @@
   align-items: center;
   justify-content: center;
   padding: 0 var(--space-4);
+}
+
+.booster-plate-band__hint > [data-hint] {
+  display: none;
+}
+
+.booster-plate-band__hint[data-shows="tap"] > [data-hint="tap"],
+.booster-plate-band__hint[data-shows="swipe"] > [data-hint="swipe"],
+.booster-plate-band__hint[data-shows="done"] > [data-hint="done"] {
+  display: inline;
 }
 
 .booster-plate {

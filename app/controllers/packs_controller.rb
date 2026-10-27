@@ -1,7 +1,7 @@
 # Opening a pack, and the opened pack's page (CAP-4, CAP-5, R9). Packs are
 # addressed by their token (AD-15).
 #
-# The opening answers two ways. The booster island's exchange (JSON, AD-23)
+# The opening answers two ways. The booster screen's exchange (JSON)
 # sends an `Idempotency-Key` header,
 # a UUID per activation: the answer carries the pack, its cards with their
 # faces, the bank, the server time and the per-tier counts before the

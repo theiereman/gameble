@@ -1,0 +1,27 @@
+<%# locals: (repost:) %>
+<template data-booster-stage-target="card">
+  <li class="booster-card">
+    <div class="booster-card__frame">
+      <div class="booster-card__travel">
+        <div class="booster-card__float">
+          <div class="booster-card__hover">
+            <div class="booster-card__lift">
+              <span class="booster-card__glow" aria-hidden="true"></span>
+              <span class="card-rays booster-card__rays" aria-hidden="true"></span>
+              <div class="booster-card__flip">
+                <div class="booster-card__back" aria-hidden="true"></div>
+                <div class="booster-card__front" aria-hidden="true"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="booster-card__fx" aria-hidden="true"></div>
+      <button type="button" class="booster-card__hit"></button>
+    </div>
+    <p class="booster-card__label" aria-hidden="true"><span class="booster-card__label-unknown">? ? ?</span><span class="booster-card__label-icon-box"></span><span class="booster-card__label-name"></span></p>
+    <% if repost %>
+      <button type="button" class="button button--secondary button--small booster-card__repost"><%= t("booster.repost") %></button>
+    <% end %>
+  </li>
+</template>

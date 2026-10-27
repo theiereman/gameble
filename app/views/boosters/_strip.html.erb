@@ -1,0 +1,11 @@
+<%# locals: (season:, bank:) %>
+<div class="booster-strip" data-controller="booster-info">
+  <div class="booster-strip__id">
+    <h2 id="booster-title" class="booster-strip__title"><%= season ? t("booster.strip_title", number: season.number) : t("booster.strip_title_plain") %></h2>
+    <p class="booster-strip__reserve">
+      <span class="booster-strip__pips" aria-hidden="true"><%= booster_pips([ bank[:available], BoostersHelper::RESERVE_PIPS ].min) %></span>
+      <%= render "boosters/next", full_class: "booster-strip__next booster__next--full", next_class: "booster-strip__next" %>
+    </p>
+  </div>
+  <p class="booster__state booster-strip__state" data-booster-info-target="state"><span class="booster__light" aria-hidden="true"></span><span class="booster__state-word"><%= booster_state_words %></span></p>
+</div>

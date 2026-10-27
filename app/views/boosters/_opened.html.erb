@@ -1,0 +1,11 @@
+<%# locals: (pack:, cards:) %>
+<%= tag.template data: { booster_target: "pack", token: pack.token, kind: pack.kind, card_back: pack.card_back_key, url: pack_path(pack.token) } %>
+<% cards.each_with_index do |card, index| %>
+  <%= tag.template data: booster_opened_card_data(card, index) %>
+  <% PacksHelper::REVEAL_SIZES.each do |size| %>
+    <%= tag.template render(CardComponent.new(card:, size:, booster: true)), data: { booster_target: "face", index:, size: } %>
+  <% end %>
+<% end %>
+<% pack_set_tiers(pack).each do |row| %>
+  <%= tag.template data: booster_set_tier_data(row) %>
+<% end %>

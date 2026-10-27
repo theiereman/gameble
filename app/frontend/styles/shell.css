@@ -388,7 +388,7 @@ a.top-bar__home {
   font-variant-numeric: tabular-nums;
 }
 
-/* A count the booster island just raised brightens a moment. */
+/* A count the booster screen just raised brightens a moment. */
 .rarity-counter__count[data-changed],
 .rarity-legend__count[data-changed] {
   color: var(--color-accent-hi);

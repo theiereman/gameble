@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+apis='innerHTML|outerHTML|insertAdjacentHTML|DOMParser|createContextualFragment'
+allowed='^app/frontend/lib/server_html(\.test)?\.ts:'
+
+offending=$(grep -rnIE "$apis" app/frontend | grep -vE "$allowed" || true)
+
+if [ -n "$offending" ]; then
+  echo "Markup built from a string outside app/frontend/lib/server_html.ts:"
+  echo "$offending"
+  exit 1
+fi

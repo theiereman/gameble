@@ -13,8 +13,8 @@
 # request: nothing is autoloaded at boot, and config.x.public_url is read as
 # it stands.
 #
-# Development adds the Vite dev server: its scripts (and React refresh's
-# inline preamble), its styles (inline, injected by Vite, hence no nonce
+# Development adds the Vite dev server: its module scripts (no inline
+# script there either), its styles (inline, injected by Vite, hence no nonce
 # there: a nonce would make browsers ignore 'unsafe-inline') and its
 # websocket.
 #
@@ -28,7 +28,7 @@ Rails.application.configure do
   cable = -> { Rails.configuration.x.public_url&.sub(/\Ahttp/, "ws") }
   # The Vite dev server, in development only.
   vite = ViteRuby.config.host_with_port if Rails.env.development?
-  dev_scripts = vite ? [ :unsafe_inline, :unsafe_eval, "http://#{vite}" ] : []
+  dev_scripts = vite ? [ "http://#{vite}" ] : []
   dev_styles = vite ? [ :unsafe_inline, "http://#{vite}" ] : []
   dev_connections = vite ? [ "ws://#{vite}", "http://#{vite}" ] : []
 
@@ -57,5 +57,7 @@ Rails.application.configure do
   config.content_security_policy_nonce_generator = lambda do |request|
     request.session.id.to_s.presence || SecureRandom.base64(16)
   end
-  config.content_security_policy_nonce_directives = Rails.env.development? ? [] : %w[style-src]
+  # Development nonces scripts, not styles: web-console's in-view console is
+  # an inline script tagged with the nonce, and Vite's styles are inline.
+  config.content_security_policy_nonce_directives = Rails.env.development? ? %w[script-src] : %w[style-src]
 end

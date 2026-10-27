@@ -7,6 +7,7 @@ CI.run do
   step "Boundaries: Packwerk", "bundle exec packwerk validate && bundle exec packwerk check"
   step "Translations: missing keys", "bundle exec i18n-tasks missing"
   step "Types: TypeScript", "npm run typecheck"
+  step "Markup: built by the server", "script/check_markup_apis"
 
   step "Security: Gem audit", "bin/bundler-audit"
   step "Security: Brakeman code analysis", "bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error"

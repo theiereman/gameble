@@ -1,0 +1,15 @@
+<%= tag.li class: class_names("trade-card trade-card--editing", "trade-card--stack": line && line.quantity > 1), data: { key: line&.key } do %>
+  <% if line %>
+    <div class="trade-card__face"><%= render CardComponent.new(card: line.view, size: :s) %></div>
+  <% else %>
+    <div class="trade-card__face trade-card__face--pending"></div>
+  <% end %>
+  <% if line.nil? || line.max > 1 %>
+    <%= render "trades/stepper", controller: "trade-board-side",
+          stepper: (trade_board_stepper(title: line.view.title, value: line.quantity, max: line.max) if line) %>
+  <% end %>
+  <%= tag.button pixel_icon("close", class: "trade-board__close-icon"), type: "button", class: "trade-card__remove",
+        aria: { label: (t("trade_board.strings.remove", title: line.view.title) if line) },
+        data: { remove: line&.key, action: "trade-board-side#remove" } %>
+  <%= tag.input type: "hidden", form:, name: ("#{field}[#{line.key}]" if line), value: line&.quantity %>
+<% end %>

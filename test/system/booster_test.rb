@@ -41,8 +41,8 @@ class BoosterTest < ApplicationSystemTestCase
     names.map { |name| catalog_card_seasons(name).id }
   end
 
-  # Packs holding these card-seasons, then the booster screen with its
-  # island drawn. `more` leaves another pack available after them.
+  # Packs holding these card-seasons, then the booster screen
+  # drawn. `more` leaves another pack available after them.
   def open_screen(*packs, kind: :regular, more: false)
     packs.each_with_index { |cards, index| create_pack(@player, cards:, kind:, available_at: (packs.size - index).days.ago) }
     create_pack(@player, available_at: 1.hour.ago) if more
@@ -150,7 +150,6 @@ class BoosterTest < ApplicationSystemTestCase
       assert_button "Open the capsule"
       assert_button "Reveal all", disabled: true
       assert_link "Back to the bridge", href: "/en"
-      assert_selector ".booster__counter", text: "Cards revealed: — / 5"
     end
     assert_focus ".booster__open"
     assert_no_selector ".booster__fallback", visible: true
@@ -188,7 +187,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
     assert_selector ".booster__pip[data-lit]", count: 1
     assert_equal commons, Integer(rarity_count("common"))
-    assert_selector ".booster__counter", text: "Cards revealed: 0 / 5"
     assert_selector ".booster__hint", text: "Click a card to reveal it · 5 left"
     assert_button "Open the next one", disabled: true
 
@@ -198,7 +196,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_announced "Card 1: Tin Soldier — 2024. Common."
     assert_equal commons + 1, Integer(rarity_count("common"))
     assert_equal "Tin Soldier — 2024, Common. See the card.", find(hit(1))["aria-label"]
-    assert_selector ".booster__counter", text: "Cards revealed: 1 / 5"
     assert_focus hit(1)
 
     find(hit(4)).click
@@ -430,7 +427,6 @@ class BoosterTest < ApplicationSystemTestCase
     open_canister
 
     assert_dealt(3)
-    assert_selector ".booster__counter", text: "Cards revealed: 0 / 3"
     assert_selector ".booster__hint", text: "Click a card to reveal it · 3 left"
     assert_equal "Card 3 of 3, face down. Reveal.", find(hit(3))["aria-label"]
   end
@@ -521,7 +517,7 @@ class BoosterTest < ApplicationSystemTestCase
     JS
 
     open_canister
-    assert_selector ".booster__reason", text: I18n.t("boosters.island.failed", locale: :en)
+    assert_selector ".booster__reason", text: I18n.t("booster.strings.failed", locale: :en)
     assert_selector ".toasts .toast--alert", text: /OPENING CANCELLED/
     assert_selector ".booster__state", text: "SEALED"
     assert_no_selector ".booster-card"
@@ -546,7 +542,7 @@ class BoosterTest < ApplicationSystemTestCase
     page.execute_script("document.querySelector('meta[name=csrf-token]').content = 'stale'")
 
     open_canister
-    assert_selector ".booster__reason", text: I18n.t("boosters.island.failed", locale: :en)
+    assert_selector ".booster__reason", text: I18n.t("booster.strings.failed", locale: :en)
     assert_selector ".booster__state", text: "SEALED"
     assert_equal 0, opened_packs
 
@@ -656,7 +652,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_no_selector "#{card(1)} .booster-card__rays", visible: true
   end
 
-  test "leaving during Reveal all stops the island: the hub's counts and links stay as they were" do
+  test "leaving during Reveal all stops the screen: the hub's counts and links stay as they were" do
     create_pack(@player, cards: card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
     # Reached through Turbo, so Back is a restoration visit in the same window.
     visit home_path(locale: :en)
@@ -713,25 +709,22 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster__state", text: /\AINVENTORY\z/
   end
 
-  test "an island whose code does not load leaves a message and a reload of the whole page" do
-    page.driver.browser.execute_cdp("Network.enable")
-    page.driver.browser.execute_cdp("Network.setBlockedURLs", urls: [ "*/Booster-*.js" ])
-    create_pack(@player)
-    visit booster_path(locale: :en)
+  test "without JavaScript the screen stays hidden and the fallback opens the booster on its pack's page" do
+    create_pack(@player, cards: card_ids(*[ :common_card_one ] * 5), available_at: 1.hour.ago)
+    page.driver.browser.execute_cdp("Emulation.setScriptExecutionDisabled", value: true)
+    # The session's own visit: the test case's waits for Turbo's stream sources to connect, which needs scripts.
+    page.visit booster_path(locale: :en)
 
-    assert_selector ".booster--failed[role=alert]", text: I18n.t("boosters.island.island_failed", locale: :en)
+    assert_selector ".booster", visible: :hidden
     assert_no_selector ".booster-canister"
-    # The form without JavaScript stays, a way to open the booster all the same.
     assert_selector ".booster__fallback", text: /OPEN THE CAPSULE/
-    reload = find_link(I18n.t("boosters.island.reload", locale: :en), href: "/en/booster")
-    assert_equal "false", reload["data-turbo"]
+    assert_link "Back to the bridge", href: "/en"
 
-    page.driver.browser.execute_cdp("Network.setBlockedURLs", urls: [])
-    reload.click
-    assert_selector ".booster-canister"
+    click_button "Open the capsule"
+    assert_current_path %r{\A/en/packs/[^/]+\z}
+    assert_equal 1, opened_packs
   ensure
-    page.driver.browser.execute_cdp("Network.setBlockedURLs", urls: [])
-    page.driver.browser.execute_cdp("Network.disable")
+    page.driver.browser.execute_cdp("Emulation.setScriptExecutionDisabled", value: false)
   end
 
   # ---- The phone, the narrow row and the rebuild (story 8.12) ----
@@ -1116,7 +1109,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster__deal .booster-card[data-dealt]", count: 5
     assert_selector ".booster-card[data-revealed]", count: 2
     assert_equal [ first, second ], [ revealed_at(1), revealed_at(2) ]
-    assert_selector ".booster__counter", text: "Cards revealed: 2 / 5"
     assert_equal 1, request_keys.size
     assert_equal 1, opened_packs
   end
@@ -1174,7 +1166,6 @@ class BoosterTest < ApplicationSystemTestCase
 
     assert_selector ".booster-canister[aria-label='Open the capsule Season 1, grand catalogue, 3 cards']"
     assert_selector ".booster__row", text: /CARDS PER CAPSULE\s+3/
-    assert_selector ".booster__counter", text: "Cards revealed: — / 3"
 
     on_phone
     assert_selector ".booster__canister-facts", text: "3 cards"
@@ -1211,5 +1202,81 @@ class BoosterTest < ApplicationSystemTestCase
     find(phone_hit(1)).click
     assert_selector ".booster-plate", text: /COMMON/
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
+  end
+
+  test "on the wide layout the set celebration waits for the last reveal, is announced once, and comes back still from its album" do
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one), more: true)
+    open_canister
+    assert_dealt(5)
+
+    (1..4).each do |position|
+      find(hit(position)).click
+      assert_selector "#{card(position)}[data-revealed]"
+      assert_no_selector "[data-navigation-locked]", visible: :all
+      assert_no_selector ".booster-celebration"
+    end
+    find(hit(5)).click
+    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_selector ".booster__info .booster-celebration", text: /SET COMPLETE\s+VALVE/
+    assert_no_selector ".booster__info .booster-celebration[data-still]"
+    assert_selector ".booster [role=status] > span", text: /\ASet complete: /, count: 1, visible: :all
+
+    find(".booster__info .booster-celebration a.booster-celebration__banner").click
+    assert_current_path library_set_path(locale: :en, kind: "studio", key: "valve")
+
+    page.go_back
+    assert_selector ".booster-card[data-revealed]", count: 5
+    assert_selector ".booster__info .booster-celebration[data-still]", text: /SET COMPLETE\s+VALVE/
+    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+
+    click_on "Open the next one"
+    assert_no_selector ".booster-celebration"
+    assert_dealt(5)
+    assert_no_selector ".booster [role=status] > span", text: /\ASet complete: /, visible: :all
+  end
+
+  test "on the wide layout Reveal all completing a set with a Légendaire never shows its banner and the celebration together" do
+    open_screen(card_ids(:common_card_one, :portal_one, :common_card_one, :common_card_one, :legendary_card_one))
+    open_canister
+    assert_dealt(5)
+    page.execute_script(<<~JS)
+      window.boosterBannerSeen = false
+      window.boosterOverlap = false
+      new MutationObserver(() => {
+        const banner = document.querySelector(".booster__banner")
+        if (!banner) return
+        window.boosterBannerSeen = true
+        if (document.querySelector(".booster-celebration")) window.boosterOverlap = true
+      }).observe(document.querySelector(".booster"), { childList: true, subtree: true })
+    JS
+
+    click_on "Reveal all"
+    assert_selector ".booster__info .booster-celebration", text: /SET COMPLETE\s+VALVE/, wait: 15
+    assert_no_selector ".booster__banner"
+    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    eventually("the Légendaire's banner should have played") { page.evaluate_script("window.boosterBannerSeen") }
+    assert_not page.evaluate_script("window.boosterOverlap"), "the banner and the celebration should never show together"
+  end
+
+  test "the countdown reaching zero while cards are dealt fetches the reserve once every card is revealed" do
+    create_pack(@player, cards: card_ids(*[ :common_card_one ] * 5), available_at: 1.hour.ago)
+    arrives = 4.seconds.from_now
+    create_pack(@player, available_at: arrives)
+    visit booster_path(locale: :en)
+    open_canister
+    assert_dealt(5)
+
+    sleep [ arrives + 2.seconds - Time.current, 0 ].max
+    assert_selector ".booster-card[data-dealt]", count: 5
+    assert_selector ".booster__row", text: /IN RESERVE\s+0 CAPSULES/
+
+    (1..5).each do |position|
+      find(hit(position)).click
+      assert_selector "#{card(position)}[data-revealed]"
+    end
+
+    assert_selector ".booster__row", text: /IN RESERVE\s+1 CAPSULE\z/
+    assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
+    assert_button "Open the next one", disabled: false
   end
 end

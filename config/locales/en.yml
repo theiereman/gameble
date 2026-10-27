@@ -533,22 +533,49 @@ en:
           zero: No tag is left to classify.
       update:
         updated: The theme is renamed, officer.
-  boosters:
-    island:
+  booster:
+    back: Back to the bridge
+    canister_hint: Click to open
+    canister_hint_touch: Tap to open
+    canister_season: Season %{number}
+    card_label: "%{title} — %{details}"
+    cards_per_pack: Cards per capsule
+    close: Close
+    hint_swipe: Swipe the card to store it · or tap it
+    hint_tap: Tap the card to reveal it
+    in_reserve: In reserve
+    kicker: Capsule · Season %{number}
+    kicker_plain: Capsule
+    legendary_banner: "%{rarity}!"
+    next_in: "+1 in"
+    open: Open the capsule
+    open_next: Open the next one
+    repost: Repost
+    reserve: Reserve
+    reserve_empty: Reserve empty
+    reserve_full: Reserve full
+    result: Capsule result
+    reveal_all: Reveal all
+    see_card: See the card
+    state: State
+    states:
+      arming: Arming
+      complete: Inventory complete
+      ejecting: Ejection
+      inventory: Inventory
+      legendary_signal: Legendary signal
+      sealed: Sealed
+      waiting: Waiting
+    store: Store
+    strings:
       announce_card: 'Card %{position}: %{card}. %{rarity}.'
-      back: Back to the bridge
       banner_line: "%{title} · %{year}"
       canister_facts:
         one: "%{n} card"
         other: "%{n} cards"
-      canister_hint: Click to open
-      canister_hint_touch: Tap to open
       canister_label: Open the capsule Season %{season}, grand catalogue, %{count}
         cards
       canister_label_plain: Open the capsule, grand catalogue, %{count} cards
-      canister_season: Season %{number}
-      card_label: "%{title} — %{details}"
-      cards_per_pack: Cards per capsule
       celebration:
         announce_complete: 'Set complete: %{set}, %{owned} cards out of %{total}.'
         announce_folded:
@@ -589,7 +616,6 @@ en:
           master: MASTER
           novice: NOVICE
           silver: SILVER
-      close: Close
       empty_next: Next capsule in %{time}
       face_down: Card %{position} of %{total}, face down. Reveal.
       face_up: "%{card}, %{rarity}. See the card."
@@ -602,59 +628,32 @@ en:
       hint_remaining:
         one: Click a card to reveal it · %{n} left
         other: Click a card to reveal it · %{n} left
-      hint_swipe: Swipe the card to store it · or tap it
-      hint_tap: Tap the card to reveal it
-      in_reserve: In reserve
-      island_failed: The capsule could not be shown. Your cards are in your collection.
-      kicker: Capsule · Season %{number}
-      kicker_plain: Capsule
-      legendary_banner: "%{rarity}!"
+      legendary_signal: Legendary signal
       next_at: 'Next capsule: %{time}'
-      next_in: "+1 in"
-      open: Open the capsule
-      open_next: Open the next one
       refused_title: Opening cancelled
-      reload: Reload
-      repost: Repost
       repost_card: Repost %{card}
       repost_failed: The repost did not go through. Check your connection, then try
         again.
       reposted: Card reposted to the feed.
-      reserve: Reserve
       reserve_count:
         one: "%{n} capsule"
         other: "%{n} capsules"
-      reserve_empty: Reserve empty
-      reserve_full: Reserve full
-      result: Capsule result
-      reveal_all: Reveal all
-      revealed_count: 'Cards revealed: %{revealed} / %{total}'
-      see_card: See the card
-      state: State
-      states:
-        arming: Arming
-        complete: Inventory complete
-        ejecting: Ejection
-        inventory: Inventory
-        legendary_signal: Legendary signal
-        sealed: Sealed
-        waiting: Waiting
-      store: Store
-      strip_title: Season %{number} · Grand catalogue
-      strip_title_plain: Grand catalogue
       summary:
         one: "%{n} card revealed: %{tiers}."
         other: "%{n} cards revealed: %{tiers}."
       summary_tier: "%{rarity} × %{n}"
-      title: Grand catalogue
-      tray: Stored cards
       tray_count: "%{n} / %{total}"
-      tray_label: Card
       tray_slot: "%{card}, %{rarity}. Enlarge."
       zoom_line: "%{rarity} · %{year}"
-      zoom_next: Next card
-      zoom_previous: Previous card
-      zoom_tip: Hold the card to tilt it
+    strip_title: Season %{number} · Grand catalogue
+    strip_title_plain: Grand catalogue
+    title: Grand catalogue
+    tray: Stored cards
+    tray_label: Card
+    zoom_next: Next card
+    zoom_previous: Previous card
+    zoom_tip: Hold the card to tilt it
+  boosters:
     show:
       title: Capsule opening
   card_details:
@@ -2169,6 +2168,79 @@ en:
       local_datetime: "%b %-d, %H:%M"
       local_time: "%H:%M"
       local_weekday_time: "%A %H:%M"
+  trade_board:
+    add:
+      friend: Choose their cards
+      own: Place my cards
+    available:
+      one: 1 available
+      other: "%{count} available"
+      zero: none available
+    cancel: Cancel
+    card_label: "%{title}, %{owned}"
+    chips:
+      friend:
+        duplicates: Their duplicates
+        missing: Missing from mine
+        shared: We both own
+      own:
+        available: Available
+        duplicates: My duplicates
+        missing: Missing from theirs
+    clear_filters: Clear filters
+    close: Close
+    compare_legend: Collections
+    fewer: One copy fewer
+    filters_active: 'Active filters:'
+    filters_title: Filters
+    limit_text: Remove a card before placing another.
+    limit_title: 4 cards at most
+    more: One more copy
+    no_match: No card matches these filters. Clear them to see every card again.
+    note:
+      friend: Choose the cards, then how many copies to ask %{name} for.
+      own: Choose the cards, then the number of copies. A copy you place stays reserved
+        until the answer.
+    owned:
+      one: 1 copy
+      other: "%{count} copies"
+    picker:
+      friend: Choose from %{name}'s collection
+      own: Place my cards
+    picker_short:
+      friend: "%{name}'s cards"
+      own: My cards
+    place: Place
+    rarities_legend: Rarity
+    reserved_elsewhere:
+      one: 1 reserved in another trade
+      other: "%{count} reserved in other trades"
+    search_label: Search by title
+    search_placeholder: Search a title
+    strings:
+      cards:
+        one: "%{count} card"
+        other: "%{count} cards"
+      cards_copies:
+        one: "%{cards} · %{copies} copies"
+        other: "%{cards} · %{copies} copies"
+      max: "/%{max}"
+      max_phone: of %{max}
+      picked: "%{cards} · %{copies} (4 cards at most)"
+      picked_cards:
+        one: "%{count} card"
+        other: "%{count} cards"
+      picked_copies:
+        one: "%{count} copy"
+        other: "%{count} copies"
+      quantity_label: Copies of %{title}
+      remove: Remove %{title}
+      results:
+        one: 1 card shown.
+        other: "%{count} cards shown."
+        zero: No card shown.
+      value_text: "%{count} of %{max}"
+    unavailable: none available
   trades:
     accepted:
       text:
@@ -2238,71 +2310,6 @@ en:
       text: Your answer was sent to %{name}.
       title: Trade declined
     insufficient: Not enough copies
-    island:
-      add:
-        friend: Choose their cards
-        own: Place my cards
-      note:
-        friend: Choose the cards, then how many copies to ask %{name} for.
-        own: Choose the cards, then the number of copies. A copy you place stays reserved
-          until the answer.
-      picker:
-        friend: Choose from %{name}'s collection
-        own: Place my cards
-      picker_short:
-        friend: "%{name}'s cards"
-        own: My cards
-      strings:
-        available:
-          one: 1 available
-          other: "%{count} available"
-          zero: none available
-        cancel: Cancel
-        card_label: "%{title}, %{owned}"
-        chips:
-          friend:
-            duplicates: Their duplicates
-            missing: Missing from mine
-            shared: We both own
-          own:
-            available: Available
-            duplicates: My duplicates
-            missing: Missing from theirs
-        clear_filters: Clear filters
-        close: Close
-        compare_legend: Collections
-        fewer: One copy fewer
-        filters_active: 'Active filters:'
-        filters_title: Filters
-        limit_text: Remove a card before placing another.
-        limit_title: 4 cards at most
-        max_phone: of %{max}
-        more: One more copy
-        no_match: No card matches these filters. Clear them to see every card again.
-        owned:
-          one: 1 copy
-          other: "%{count} copies"
-        picked: "%{cards} · %{copies} (4 cards at most)"
-        picked_cards:
-          one: "%{count} card"
-          other: "%{count} cards"
-        picked_copies:
-          one: "%{count} copy"
-          other: "%{count} copies"
-        place: Place
-        rarities_legend: Rarity
-        remove: Remove %{title}
-        reserved_elsewhere:
-          one: 1 reserved in another trade
-          other: "%{count} reserved in other trades"
-        results:
-          one: 1 card shown.
-          other: "%{count} cards shown."
-          zero: No card shown.
-        search_label: Search by title
-        search_placeholder: Search a title
-        unavailable: none available
-        value_text: "%{count} of %{max}"
     list:
       back: List
       empty: No trades yet.
@@ -2331,25 +2338,17 @@ en:
       text: "%{name} has 7 days to answer. Your cards are reserved until then."
       title: Proposal sent
     side:
-      cards:
-        one: "%{count} card"
-        other: "%{count} cards"
-      cards_copies:
-        one: "%{cards} · %{copies} copies"
-        other: "%{cards} · %{copies} copies"
       copies_label: 'Copies:'
       for_friend_to_choose: For %{name} to choose
       friend_gives: "%{name} gives"
       friend_offered: "%{name} offered"
       friend_received: "%{name} received"
-      max: "/%{max}"
       new: New
       none:
         all_reserved: Your copies are all reserved in other trades.
         friend_none_owned: "%{name} no longer holds any of these cards."
         none_owned: You no longer hold any of these cards.
         title: No card available.
-      quantity_label: Copies of %{title}
       reserved:
         one: Reserved
         other: "%{count} reserved"

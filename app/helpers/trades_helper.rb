@@ -3,6 +3,22 @@ module TradesHelper
   DRAFT_FORM_ID = "trade-draft-form"
   FACES_PER_REQUEST = 36
   CARD_KEY = /\A(.+)--s(\d{1,9})\z/
+  PICKER_CHIPS = { friend: %w[duplicates missing shared], own: %w[duplicates missing available] }.freeze
+  BOARD_CHILDREN = %w[trade-board-send].freeze
+  BOARD_ACTIONS = {
+    "trade-board-side" => { add: :openPicker, remove: :removeLine, quantity: :setLineQuantity },
+    "trade-board-picker" => { toggle: :togglePick, quantity: :setPickQuantity, filter: :setFilter, fold: :toggleFold,
+                              clear: :clearFilters, more: :showMore, move: :moveActive, place: :place, close: :closePicker }
+  }.freeze
+
+  BoardPick = Data.define(:key, :view, :owned, :reserved, :max, :copies, :other_copies) do
+    def unavailable? = max < 1
+  end
+  BoardLine = Data.define(:pick, :quantity) do
+    def key = pick.key
+    def view = pick.view
+    def max = pick.max
+  end
 
   def trades_refusal(friend)
     if !Game::Visibility.open_to_friends?(current_player) then :own_profile_private
@@ -90,27 +106,14 @@ module TradesHelper
 
   def trade_side_count(lines)
     copies = lines.sum(&:quantity)
-    if copies == lines.size
-      t("trades.side.cards", count: lines.size)
-    else
-      t("trades.side.cards_copies", count: lines.size, cards: t("trades.side.cards", count: lines.size), copies:)
-    end
+    cards = t("trade_board.strings.cards", count: lines.size)
+    copies == lines.size ? cards : t("trade_board.strings.cards_copies", count: lines.size, cards:, copies:)
   end
 
   def trade_card_limit(side, held_copy)
     return 0 unless held_copy
 
     side == :own ? held_copy.free : held_copy.quantity
-  end
-
-  def trade_nothing_to_place(row, side, held)
-    lines = side == :own ? row.own_side : row.friend_side
-    return if held.nil? || lines.empty? || lines.any? { |line| trade_card_limit(side, held[line.card_season_id]).positive? }
-
-    if side == :friend then t("trades.side.none.friend_none_owned", name: friend_name(row.friend))
-    elsif lines.any? { |line| held.key?(line.card_season_id) } then t("trades.side.none.all_reserved")
-    else t("trades.side.none.none_owned")
-    end
   end
 
   def trade_card_key(view)
@@ -132,79 +135,72 @@ module TradesHelper
   def trade_board_locals(trade, cards:, own_held: nil, friend_held: nil, picks: nil, editing: false, **locals)
     return {} unless trade
 
-    island = if trade.state == :yours && own_held && friend_held && picks
-      trade_board_props(trade, own_held:, friend_held:, picks:, cards:, editing:, error: flash[:trade_error])
-    end
-    locals.merge(editing:, island:, own_held:, friend_held:)
+    editor = (trade_board_editor(trade.friend_side, trade.own_side, own_held:, friend_held:, picks:) if trade.state == :yours && own_held && friend_held && picks)
+    locals.merge(editing:, editor:)
   end
 
-  def trade_board_props(trade, own_held:, friend_held:, picks:, cards:, editing:, error: nil)
-    name = friend_name(trade.friend)
-    friend_label, own_label = trade_side_labels(trade)
-    trade_island_props(
-      sides: [
-        trade_island_side(:friend, label: friend_label, name:, held: friend_held, other_held: own_held, lines: trade.friend_side, picks:,
-          read_html: trade_read_side(trade, :friend, label: friend_label, cards:)),
-        trade_island_side(:own, label: own_label, name:, held: own_held, other_held: friend_held, lines: trade.own_side, picks:,
-          read_html: trade_read_side(trade, :own, label: own_label, cards:), help: trade_open_help(trade.friend))
-      ],
-      faces: trade_card_faces((trade.friend_side + trade.own_side).filter_map { picks[it.card_season_id] }),
-      message: trade_message(trade, editing: true), read_message: trade_message(trade),
-      editing:, draft_key: trade_counter_key(current_player, trade), form_id: COUNTER_FORM_ID, error:
-    )
+  def trade_draft_editor(own_held:, friend_held:, picks:)
+    trade_board_editor([], [], own_held:, friend_held:, picks:)
   end
 
-  def trade_draft_props(friend, own_held:, friend_held:, picks:, error: nil)
-    name = friend_name(friend)
-    trade_island_props(
-      sides: [
-        trade_island_side(:friend, label: t("trades.side.friend_gives", name:), name:, held: friend_held, other_held: own_held, lines: [], picks:),
-        trade_island_side(:own, label: t("trades.side.you_give"), name:, held: own_held, other_held: friend_held, lines: [], picks:,
-          help: trade_open_help(friend))
-      ],
-      faces: {}, message: t("trades.board.choose"), read_message: nil,
-      editing: true, draft_key: trade_draft_key(current_player, friend), form_id: DRAFT_FORM_ID, error:
-    )
+  def trade_board_editor(friend_lines, own_lines, own_held:, friend_held:, picks:)
+    {
+      friend: trade_board_side(:friend, held: friend_held, other_held: own_held, picks:, received: friend_lines),
+      own: trade_board_side(:own, held: own_held, other_held: friend_held, picks:, received: own_lines),
+      faces: (friend_lines + own_lines).filter_map { picks[it.card_season_id] }.uniq
+    }
+  end
+
+  def trade_board_root_data(focus:, editing:, editor: nil, draft_key: nil, counter_url: nil, board_url: nil, forget: nil, swap: false)
+    data = { controller: "trade-board", trade_board_editing_value: editing, trade_board_focus_value: focus,
+             trade_board_forget_value: forget, trade_board_swap_value: (true if swap) }
+    return data unless editor
+
+    data.merge(
+      action: screen_actions("trade-board", BOARD_ACTIONS), trade_board_draft_key_value: draft_key,
+      trade_board_counter_url_value: counter_url, trade_board_board_url_value: board_url,
+      trade_board_faces_url_value: faces_trades_path, trade_board_faces_batch_value: FACES_PER_REQUEST,
+      trade_board_strings_value: screen_strings("trade_board.strings")
+    ).merge(screen_outlets("trade-board", BOARD_ACTIONS.keys + BOARD_CHILDREN))
+  end
+
+  def trade_board_stepper(title:, value:, max:)
+    { value:, max:, label: t("trade_board.strings.quantity_label", title:),
+      value_text: t("trade_board.strings.value_text", count: value, max:),
+      max_text: t("trade_board.strings.max", max:), max_phone_text: t("trade_board.strings.max_phone", max:) }
+  end
+
+  def trade_pick_label(pick)
+    [ t("trade_board.card_label", title: pick.view.title, owned: t("trade_board.owned", count: pick.owned)),
+      (t("trade_board.reserved_elsewhere", count: pick.reserved) if pick.reserved.positive?),
+      (t("trade_board.unavailable") if pick.unavailable?) ].compact.join(", ")
+  end
+
+  def trade_picker_none(side, friend)
+    side == :own ? t("trades.side.none.none_owned") : t("trades.side.none.friend_none_owned", name: friend_name(friend))
   end
 
   private
-    def trade_island_props(sides:, faces:, message:, read_message:, editing:, draft_key:, form_id:, error:)
-      {
-        sides:, message:, readMessage: read_message, editing:, draftKey: draft_key, formId: form_id, error:,
-        faces:, facesUrl: faces_trades_path, facesBatch: FACES_PER_REQUEST,
-        swapIcon: pixel_icon("swap", class: "trade-board__swap").to_str,
-        closeIcon: pixel_icon("close", class: "trade-island__close-icon").to_str,
-        chevronIcon: pixel_icon("arrow-small-right", class: "filters__chevron").to_str,
-        strings: trade_island_strings
-      }
-    end
-
-    def trade_read_side(trade, side, label:, cards:)
-      lines = side == :own ? trade.own_side : trade.friend_side
-      render("trades/side", side:, label:, lines:, cards:, editing: false, reserved: side == :friend,
-        empty_label: (trade_empty_side_label(side, trade.friend) if trade.open?)).to_str
-    end
-
-    def trade_island_side(side, label:, name:, held:, other_held:, lines:, picks:, read_html: nil, help: nil)
-      own = side == :own
+    def trade_board_side(side, held:, other_held:, picks:, received:)
       copies = trade_game_copies(held, picks)
       other_copies = trade_game_copies(other_held, picks)
       views = held.keys.filter_map { |id| picks[id] && [ id, picks[id] ] }
       views.sort_by! { |_, view| [ view.season_number, view.number ? 0 : 1, view.number.to_i, view.title ] }
-      {
-        side:, field: own ? "give" : "take", label:, readHtml: read_html, help:,
-        add: t("trades.island.add.#{side}"),
-        pickerTitle: t("trades.island.picker.#{side}", name:),
-        pickerTitleShort: t("trades.island.picker_short.#{side}", name:),
-        note: t("trades.island.note.#{side}", name:),
-        none: own ? t("trades.side.none.none_owned") : t("trades.side.none.friend_none_owned", name:),
-        cards: views.map do |id, view|
-          row = held.fetch(id)
-          { key: trade_card_key(view), title: view.title, rarity: view.rarity.to_s, owned: row.quantity, reserved: own ? row.reserved : 0,
-            max: trade_card_limit(side, row), copies: copies[view.id], otherCopies: other_copies[view.id] }
-        end,
-        lines: lines.filter_map { |line| (view = picks[line.card_season_id]) && { key: trade_card_key(view), quantity: line.quantity } }
-      }
+      by_id = views.to_h do |id, view|
+        row = held.fetch(id)
+        [ id, BoardPick.new(key: trade_card_key(view), view:, owned: row.quantity, reserved: side == :own ? row.reserved : 0,
+          max: trade_card_limit(side, row), copies: copies[view.id], other_copies: other_copies[view.id]) ]
+      end
+      { picks: by_id.values, lines: trade_board_initial_lines(received, by_id) }
+    end
+
+    def trade_board_initial_lines(received, picks_by_id)
+      received.each_with_object([]) do |line, lines|
+        pick = picks_by_id[line.card_season_id]
+        next if pick.nil? || pick.unavailable? || lines.any? { it.key == pick.key } || lines.size >= Game::TradeItem::MAX_CARDS_PER_SIDE
+
+        lines << BoardLine.new(pick:, quantity: line.quantity.clamp(1, pick.max))
+      end
     end
 
     def trade_game_copies(held, picks)
@@ -212,15 +208,5 @@ module TradesHelper
         view = picks[id] or next
         games[view.id] += row.quantity
       end
-    end
-
-    def trade_island_strings
-      t("trades.island.strings").deep_transform_keys { it.to_s.camelize(:lower) }.merge(
-        editing: t("trades.chip.editing"), cards: t("trades.side.cards"), cardsCopies: t("trades.side.cards_copies"),
-        copiesLabel: t("trades.side.copies_label"), reserved: t("trades.side.reserved"),
-        quantity: t("trades.side.quantity_label"), max: t("trades.side.max"),
-        noneTitle: t("trades.side.none.title"), noneAllReserved: t("trades.side.none.all_reserved"),
-        rarities: Catalog::Rarity::TIERS.values.to_h { [ it, t("catalog.rarity.#{it}") ] }
-      )
     end
 end

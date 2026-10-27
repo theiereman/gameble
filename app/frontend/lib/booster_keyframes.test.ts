@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { phoneSwell, pose } from "./booster"
+import { phoneSwell, pose } from "./booster_motion"
 import {
   armKeyframes,
   bannerKeyframes,
   dockKeyframes,
   legendaryDropKeyframes,
   legendaryJumpKeyframes,
+  platePopKeyframes,
   sinkKeyframes,
   storeKeyframes,
   trembleKeyframes,
@@ -66,5 +67,11 @@ describe("booster keyframes", () => {
     expect(last(bannerKeyframes(false))).toEqual({ opacity: 0, transform: "translateY(-16px) scale(1, 1)" })
     expect(first(bannerKeyframes(true))).toEqual({ opacity: 0 })
     expect(last(bannerKeyframes(true))).toEqual({ opacity: 0 })
+  })
+
+  it("pops the caption plate in from a flat squash to rest", () => {
+    const keyframes = platePopKeyframes()
+    expect(first(keyframes)).toEqual({ transform: "scale(1.2, 0.2)", opacity: 0 })
+    expect(last(keyframes)).toEqual({ transform: "scale(1, 1)", opacity: 1 })
   })
 })

@@ -288,7 +288,8 @@
   display: contents;
 }
 
-.trade-board__action-set[hidden] {
+.trade-board[data-editing] .trade-board__read-only,
+.trade-board:not([data-editing]) .trade-board__edit-only {
   display: none;
 }
 
@@ -335,12 +336,6 @@
   color: var(--color-accent);
 }
 
-.trade-side__none {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-body-small);
-}
-
 .trade-side__open {
   flex: 1;
   display: flex;
@@ -360,7 +355,6 @@
   text-align: center;
 }
 
-.trade-side__none-title,
 .trade-picker__empty-title {
   color: var(--color-alert);
   font-weight: inherit;
@@ -437,40 +431,8 @@
   text-transform: uppercase;
 }
 
-.trade-card__stepper {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 0 var(--space-3) 0 0;
-  background: var(--color-input);
-  box-shadow: inset 0 0 0 2px var(--color-line), 0 0 0 2px var(--color-outline);
-}
-
-.trade-card__field {
-  width: 4.5em;
-  min-height: 44px;
-  padding: 0 var(--space-3);
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--color-text-max);
-  font: var(--font-button);
-  text-align: center;
-}
-
-.trade-card__field:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-.trade-card__max {
-  color: var(--color-muted);
-  font: var(--font-body-small);
-}
-
-.trade-island,
-.trade-island__static {
-  display: contents;
+.trade-card[hidden] {
+  display: none;
 }
 
 .trade-board__reason {
@@ -498,10 +460,6 @@
 .trade-board__open {
   flex-basis: 100%;
   text-align: center;
-}
-
-.trade-board__swap-box {
-  display: inline-flex;
 }
 
 .trade-card--editing {
@@ -544,7 +502,7 @@
   outline-offset: 2px;
 }
 
-.trade-island__close-icon {
+.trade-board__close-icon {
   width: 12px;
   height: 12px;
 }
@@ -653,6 +611,11 @@
   display: none;
 }
 
+.trade-picker:not([data-side="friend"]) [data-for="friend"],
+.trade-picker:not([data-side="own"]) [data-for="own"] {
+  display: none;
+}
+
 .trade-picker__note,
 .trade-picker__empty {
   margin: 0;
@@ -665,6 +628,10 @@
   flex-direction: column;
   gap: var(--space-3);
   padding: 0 var(--space-4);
+}
+
+.trade-picker__filters[hidden] {
+  display: none;
 }
 
 .trade-picker__fold {
@@ -738,6 +705,10 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.trade-picker__grid[hidden] {
+  display: none;
 }
 
 .trade-pick {
@@ -853,7 +824,7 @@
   font: var(--font-body-small);
 }
 
-.trade-picker__refusal:empty {
+.trade-picker__refusal:has(> [hidden]) {
   display: none;
 }
 
@@ -1036,59 +1007,59 @@
   position: relative;
 }
 
-.trade-board--swapping .trade-card {
+.trade-board[data-swapping] .trade-card {
   z-index: 5;
 }
 
-.trade-swap__ring,
-.trade-swap__confetti {
+.trade-board__ring,
+.trade-board__confetti {
   position: absolute;
   top: 50%;
   left: 50%;
   pointer-events: none;
 }
 
-.trade-swap__ring {
+.trade-board__ring {
   width: 64px;
   height: 64px;
   margin: -32px 0 0 -32px;
   box-shadow: 0 0 0 3px var(--color-accent);
-  animation: trade-swap-ring 500ms ease-out forwards;
+  animation: trade-board-ring 500ms ease-out forwards;
 }
 
-.trade-swap__confetti {
+.trade-board__confetti {
   width: 6px;
   height: 6px;
   margin: -3px 0 0 -3px;
   background: var(--color-lime);
-  animation: trade-swap-confetti 550ms ease-out forwards;
+  animation: trade-board-confetti 550ms ease-out forwards;
 }
 
-.trade-swap__confetti--1 { background: var(--color-gold); }
-.trade-swap__confetti--2 { background: var(--color-accent); }
-.trade-swap__confetti--3 { background: var(--color-rarity-epique); }
+.trade-board__confetti--1 { background: var(--color-gold); }
+.trade-board__confetti--2 { background: var(--color-accent); }
+.trade-board__confetti--3 { background: var(--color-rarity-epique); }
 
-.trade-swap__flash {
+.trade-board__flash {
   position: absolute;
   inset: 0;
   z-index: 6;
   background: var(--color-text-max);
   opacity: 0;
   pointer-events: none;
-  animation: trade-swap-flash 300ms ease-out forwards;
+  animation: trade-board-flash 300ms ease-out forwards;
 }
 
-@keyframes trade-swap-ring {
+@keyframes trade-board-ring {
   from { opacity: 1; transform: scale(0.2); }
   to { opacity: 0; transform: scale(2.4); }
 }
 
-@keyframes trade-swap-confetti {
+@keyframes trade-board-confetti {
   from { opacity: 1; transform: translate(0, 0) rotate(0deg); }
   to { opacity: 0; transform: translate(var(--confetti-x), var(--confetti-y)) rotate(180deg); }
 }
 
-@keyframes trade-swap-flash {
+@keyframes trade-board-flash {
   0% { opacity: 0; }
   30% { opacity: 0.16; }
   100% { opacity: 0; }

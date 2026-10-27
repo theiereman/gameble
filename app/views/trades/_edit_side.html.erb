@@ -1,0 +1,26 @@
+<% field = side == :own ? "give" : "take" %>
+<%= tag.div class: "trade-side trade-side--#{side} trade-side--editing trade-board__edit-only",
+      data: { controller: "trade-board-side", side:, field: } do %>
+  <p class="trade-side__header">
+    <span class="trade-side__label"><%= label %></span>
+    <span class="trade-side__editing"><%= t("trades.chip.editing") %></span>
+    <span class="trade-side__count" data-trade-board-side-target="count"><%= trade_side_count(lines) %></span>
+  </p>
+  <ul class="trade-side__cards" data-trade-board-side-target="list">
+    <% if local_assigns.fetch(:drawn, true) %>
+      <% lines.each do |line| %>
+        <%= render "trades/line", line:, field:, form: %>
+      <% end %>
+    <% end %>
+    <%= tag.li class: "trade-card", hidden: lines.size >= Game::TradeItem::MAX_CARDS_PER_SIDE, data: { trade_board_side_target: "addSlot" } do %>
+      <button type="button" class="trade-add" aria-haspopup="dialog" data-trade-board-side-target="add" data-action="trade-board-side#add">
+        <span class="trade-add__plus" aria-hidden="true">+</span>
+        <span class="trade-add__label"><%= side == :own ? t("trade_board.add.own") : t("trade_board.add.friend") %></span>
+      </button>
+    <% end %>
+  </ul>
+  <template data-trade-board-side-target="lineTemplate"><%= render "trades/line", line: nil, field:, form: %></template>
+  <% if local_assigns[:help] %>
+    <%= tag.p help, class: "trade-side__help", hidden: lines.any?, data: { trade_board_side_target: "help" } %>
+  <% end %>
+<% end %>

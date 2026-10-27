@@ -1,0 +1,27 @@
+<%# locals: (season:) %>
+<dialog class="booster-zoom" aria-labelledby="booster-zoom-title" data-controller="booster-zoom" data-action="click->booster-zoom#scrim close->booster-zoom#closed">
+  <div class="booster-zoom__panel">
+    <div class="booster-zoom__stage"
+         data-action="pointerdown->booster-zoom#press pointermove->booster-zoom#drag pointerup->booster-zoom#release pointercancel->booster-zoom#cancel">
+      <button type="button" class="booster-zoom__nav booster-zoom__nav--previous" aria-label="<%= t("booster.zoom_previous") %>" data-booster-zoom-target="previous" data-action="booster-zoom#previous"><%= pixel_icon("arrow-left", class: "booster-zoom__nav-icon") %></button>
+      <div class="booster-zoom__card"><span class="card-rays card-rays--large booster-zoom__rays" aria-hidden="true" data-booster-zoom-target="rays" hidden></span><div class="booster-zoom__face" aria-hidden="true" data-booster-zoom-target="face"></div></div>
+      <button type="button" class="booster-zoom__nav booster-zoom__nav--next" aria-label="<%= t("booster.zoom_next") %>" data-booster-zoom-target="next" data-action="booster-zoom#next"><%= pixel_icon("arrow-right", class: "booster-zoom__nav-icon") %></button>
+    </div>
+    <h2 id="booster-zoom-title" class="booster-zoom__title" data-booster-zoom-target="title"></h2>
+    <p class="booster-zoom__line">
+      <span class="booster-zoom__icon" aria-hidden="true" data-booster-zoom-target="icon"></span>
+      <span data-booster-zoom-target="line"></span>
+    </p>
+    <div class="booster-zoom__actions">
+      <a class="button button--primary booster-zoom__see" data-booster-zoom-target="see" data-action="booster-zoom#see"><%= t("booster.see_card") %></a>
+      <% if season %>
+        <button type="button" class="button button--secondary booster-zoom__repost" data-booster-zoom-target="repost" data-action="booster-zoom#repost"><%= t("booster.repost") %></button>
+      <% end %>
+      <button type="button" class="button button--secondary booster-zoom__close" data-action="booster-zoom#shut"><%= t("booster.close") %></button>
+    </div>
+    <p class="booster-zoom__tip"><%= t("booster.zoom_tip") %></p>
+    <% if season %>
+      <p class="visually-hidden booster-zoom__status" role="status" data-booster-zoom-target="status"></p>
+    <% end %>
+  </div>
+</dialog>

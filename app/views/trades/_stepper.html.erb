@@ -1,0 +1,13 @@
+<% stepper = local_assigns[:stepper] || { value: 1, max: 1 } %>
+<% keep_focus = "mousedown->#{controller}#keepFocus click->#{controller}#step" %>
+<%= tag.span class: "stepper", role: "spinbutton", tabindex: 0,
+      aria: { label: stepper[:label], valuenow: stepper[:value], valuemin: 1, valuemax: stepper[:max], valuetext: stepper[:value_text] },
+      data: { action: "keydown->#{controller}#stepperKey" } do %>
+  <%= tag.button "−", type: "button", class: "stepper__button stepper__button--fewer", tabindex: -1, aria: { label: t("trade_board.fewer") },
+        disabled: stepper[:value] <= 1, data: { step: -1, action: keep_focus } %>
+  <span class="stepper__value" aria-hidden="true">×<%= stepper[:value] %></span>
+  <%= tag.button "+", type: "button", class: "stepper__button stepper__button--more", tabindex: -1, aria: { label: t("trade_board.more") },
+        disabled: stepper[:value] >= stepper[:max], data: { step: 1, action: keep_focus } %>
+  <small class="stepper__max" aria-hidden="true"><%= stepper[:max_text] %></small>
+  <small class="stepper__max-phone" aria-hidden="true"><%= stepper[:max_phone_text] %></small>
+<% end %>

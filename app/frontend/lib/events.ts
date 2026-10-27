@@ -2,7 +2,6 @@
 // `gameble:<noun-verb>`, declared here only). Each name maps to its detail;
 // dispatchGameble and onGameble keep both ends typed.
 import type { Rarity } from "./card_types"
-import type { SideCount } from "./trade_board"
 
 export type ToastAction = { label: string; href: string; download?: string }
 
@@ -15,7 +14,7 @@ export type ToastDetail = {
   action?: ToastAction
 }
 
-// The booster island revealed a card of `tier`: the player's copies per
+// The booster screen revealed a card of `tier`: the player's copies per
 // tier now, read by the top bar's rarity counter.
 export type TierRevealedDetail = { tier: Rarity; counts: Record<Rarity, number> }
 
@@ -23,16 +22,13 @@ export type TierRevealedDetail = { tier: Rarity; counts: Record<Rarity, number> 
 // screen's reserve chip. Times are UTC ISO 8601.
 export type BankChangedDetail = { available: number; reserveFull: boolean; nextAvailableAt: string | null; serverTime: string }
 
-// The booster island locks the in-app navigation (top bar back button, tab
+// The booster screen locks the in-app navigation (top bar back button, tab
 // bar) while it opens a booster or reveals a card, and unlocks it after.
 export type NavigationLockedDetail = { locked: boolean }
 
 export type OpeningRevealingDetail = { revealing: boolean }
 
 export type StreamUpdatedDetail = Record<string, never>
-export type TradeChangedDetail = { give: SideCount; take: SideCount; changed: boolean }
-
-export type TradeEditingDetail = { editing: boolean }
 
 export interface GamebleEventMap {
   "gameble:toast": ToastDetail
@@ -42,8 +38,6 @@ export interface GamebleEventMap {
   "gameble:opening-revealing": OpeningRevealingDetail
   "gameble:trades-updated": StreamUpdatedDetail
   "gameble:friends-updated": StreamUpdatedDetail
-  "gameble:trade-changed": TradeChangedDetail
-  "gameble:trade-editing": TradeEditingDetail
 }
 
 export type GamebleEventName = keyof GamebleEventMap

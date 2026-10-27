@@ -21,7 +21,7 @@ Rails.application.routes.draw do
 
     # Opening a pack from the hub, and the list of its cards, by token.
     resources :packs, only: %i[create show], param: :token
-    # The booster screen, where a pack is opened: the island sends the
+    # The booster screen, where a pack is opened: its root controller sends the
     # opening exchange to packs#create.
     resource :booster, only: :show
     resource :packs_chip, path: "packs-chip", only: :show

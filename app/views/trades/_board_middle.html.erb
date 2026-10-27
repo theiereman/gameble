@@ -1,6 +1,10 @@
+<% edit_message = local_assigns[:edit_message] %>
 <div class="trade-board__middle">
   <%= pixel_icon("swap", class: "trade-board__swap") %>
-  <p class="trade-board__message" tabindex="-1"><%= message %></p>
+  <%= tag.p message, class: class_names("trade-board__message", "trade-board__read-only": edit_message), tabindex: -1 %>
+  <% if edit_message %>
+    <%= tag.p edit_message, class: "trade-board__message trade-board__edit-only", tabindex: -1 %>
+  <% end %>
   <% if flash[:trade_error] %>
     <p class="trade-board__error" role="alert"><%= flash[:trade_error] %></p>
   <% end %>

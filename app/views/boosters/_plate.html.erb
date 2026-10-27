@@ -1,0 +1,18 @@
+<div class="booster-plate-band" data-controller="booster-plate" hidden>
+  <%= render "boosters/celebration", phone: true %>
+  <p class="booster__hint booster-plate-band__hint" data-booster-plate-target="hint"><span data-hint="tap"><%= t("booster.hint_tap") %></span><span data-hint="swipe"><%= t("booster.hint_swipe") %></span><span data-hint="done" data-booster-plate-target="done"></span></p>
+  <template data-booster-plate-target="plate">
+    <div class="booster-plate">
+      <div class="booster-plate__text">
+        <p class="booster-plate__tier">
+          <span class="booster-plate__tick" aria-hidden="true"></span>
+          <span class="booster-plate__icon" aria-hidden="true"></span>
+          <span class="booster-plate__tier-name"></span>
+          <span class="booster-plate__tick" aria-hidden="true"></span>
+        </p>
+        <p class="booster-plate__line"></p>
+      </div>
+      <button type="button" class="button button--secondary booster-plate__store" data-action="booster-plate#store"><%= t("booster.store") %></button>
+    </div>
+  </template>
+</div>

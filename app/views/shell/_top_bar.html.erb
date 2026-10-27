@@ -17,9 +17,9 @@
     first, in place of the rarity counter and packs chip (on the phone, of
     the player chip too: collection.css). The booster screen
     (`content_for :booster_top_bar`) shows the rarity counter and a static
-    reserve chip, both following its island's events. The back-office
+    reserve chip, both following its root controller's events. The back-office
     shows the player chip only. The start's links and buttons are locked
-    while the booster island opens or reveals (navigation-lock). %>
+    while the booster screen opens or reveals (navigation-lock). %>
 <% wordmark_shine = { controller: "wordmark-shine", action: "pointerenter->wordmark-shine#sweep animationend->wordmark-shine#end animationcancel->wordmark-shine#end" } %>
 <header class="<%= class_names("top-bar", "top-bar--status": content_for?(:top_bar_status)) %>" <%= tag.attributes(data: { screen_label: shell_screen_label, screen_labels: shell_screen_labels&.to_json }) %>>
   <div class="top-bar__inner">

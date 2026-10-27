@@ -1,31 +1,29 @@
 <% name = friend_name(friend) %>
-<% empty = { lines: [], cards: {}, editing: true } %>
-<%= render PanelComponent.new(tag: :section, brackets: true, class: "trade-board trade-board--editing",
-      aria: { labelledby: "trade-board-heading" },
-      data: { controller: "trade-board", trade_board_editing_value: true, trade_board_focus_value: true,
-              trade_board_draft_value: trade_draft_key(current_player, friend) }) do %>
+<% data = trade_board_root_data(focus: "heading", editing: true, editor:, draft_key: trade_draft_key(current_player, friend)) %>
+<%= render PanelComponent.new(tag: :section, brackets: true, id: "trade-board", class: "trade-board trade-board--editing",
+      aria: { labelledby: "trade-board-heading" }, data: data.merge(editing: true)) do %>
   <div class="trade-board__form">
     <header class="trade-board__header">
       <%= pixel_icon("avatar-default", class: "trade-board__avatar") %>
-      <h2 id="trade-board-heading" class="trade-board__title" tabindex="-1"><%= t("trades.board.heading", name:) %></h2>
+      <h2 id="trade-board-heading" class="trade-board__title" tabindex="-1" data-trade-board-target="heading"><%= t("trades.board.heading", name:) %></h2>
       <span class="trade-chip trade-chip--accent"><%= t("trades.chip.draft") %></span>
       <p class="trade-board__expiry"><%= t("trades.board.valid") %></p>
     </header>
-    <%= turbo_mount("TradeBoard", props: island, class: "trade-island") do %>
-      <%= render "trades/side", side: :friend, label: t("trades.side.friend_gives", name:), reserved: false, **empty %>
-      <%= render "trades/board_middle", message: t("trades.board.choose") %>
-      <%= render "trades/side", side: :own, label: t("trades.side.you_give"), reserved: false, help: trade_open_help(friend), **empty %>
-    <% end %>
+    <%= render "trades/edit_side", side: :friend, label: t("trades.side.friend_gives", name:), lines: [], form: TradesHelper::DRAFT_FORM_ID %>
+    <%= render "trades/board_middle", message: t("trades.board.choose") %>
+    <%= render "trades/edit_side", side: :own, label: t("trades.side.you_give"), lines: [], form: TradesHelper::DRAFT_FORM_ID,
+          help: trade_open_help(friend) %>
     <div class="trade-board__actions">
       <%= form_with url: trades_path, method: :post, id: TradesHelper::DRAFT_FORM_ID, class: "trade-board__action-set",
-            data: { controller: "trade-send" } do %>
+            data: { controller: "trade-board-send" } do %>
         <%= hidden_field_tag :friend, friend.token, id: nil %>
         <%= render ButtonComponent.new(type: :submit) do %><%= t("trades.actions.send") %><% end %>
         <span class="trade-board__action" data-action="click->trade-board#abandon">
           <%= render ButtonComponent.new(variant: :secondary, href: trades_path) do %><%= t("trades.actions.abandon") %><% end %>
         </span>
-        <p id="trade-send-reason" class="trade-board__reason visually-hidden" data-trade-send-target="reason" hidden><%= t("trades.board.send_reason", name:) %></p>
+        <p id="trade-send-reason" class="trade-board__reason visually-hidden" data-trade-board-send-target="reason" hidden><%= t("trades.board.send_reason", name:) %></p>
       <% end %>
     </div>
   </div>
+  <%= render "trades/picker", editor:, friend: %>
 <% end %>

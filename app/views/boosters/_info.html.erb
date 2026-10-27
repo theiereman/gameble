@@ -1,0 +1,33 @@
+<%# locals: (season:, bank:, size:) %>
+<aside class="booster__info" data-controller="booster-info">
+  <div class="booster__hazard" aria-hidden="true"></div>
+  <div class="booster__id">
+    <p class="booster__kicker"><%= season ? t("booster.kicker", number: season.number) : t("booster.kicker_plain") %></p>
+    <h2 id="booster-panel-title" class="booster__title"><%= t("booster.title") %></h2>
+  </div>
+  <dl class="booster__panel panel panel--brackets">
+    <div class="booster__row">
+      <dt><%= t("booster.cards_per_pack") %></dt>
+      <dd class="booster__value" data-booster-info-target="size"><%= number_with_delimiter(size) %></dd>
+    </div>
+    <div class="booster__row">
+      <dt><%= t("booster.in_reserve") %></dt>
+      <dd class="booster__value booster__value--reserve" data-booster-info-target="reserve"><%= booster_reserve_count(bank[:available]) %></dd>
+    </div>
+    <div class="booster__row booster__row--state">
+      <dt><%= t("booster.state") %></dt>
+      <dd class="booster__state" data-booster-info-target="state"><span class="booster__light" aria-hidden="true"></span><span class="booster__state-word"><%= booster_state_words %></span></dd>
+    </div>
+  </dl>
+  <div class="booster__reserve">
+    <p class="booster__reserve-head">
+      <span><%= t("booster.reserve") %></span>
+      <%= render "boosters/next", full_class: "booster__next booster__next--full", next_class: "booster__next" %>
+    </p>
+    <div class="booster__pips" aria-hidden="true"><%= booster_pips([ bank[:available], BoostersHelper::RESERVE_PIPS ].min) %></div>
+  </div>
+  <div class="booster__actions" data-booster-target="panelActions">
+    <%= render "boosters/actions" %>
+  </div>
+  <%= render "boosters/celebration", phone: false %>
+</aside>

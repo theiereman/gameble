@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import "../lib/turbo"
-import { formatClock, formatDailyClock } from "../lib/booster"
+import { formatClock, formatDailyClock } from "../lib/booster_clock"
 import { atZero, fetchChip } from "../lib/countdown"
 
 // After a refresh that brought no new countdown (failed, or the same value),

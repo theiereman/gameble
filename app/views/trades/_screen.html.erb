@@ -16,7 +16,7 @@
     <% if local_assigns.key?(:chooser) %>
       <%= render "trades/chooser", friends: chooser %>
     <% elsif local_assigns[:draft] %>
-      <%= render "trades/draft_board", friend: draft, island: %>
+      <%= render "trades/draft_board", friend: draft, editor: %>
     <% elsif trade %>
       <%= render "trades/board", trade:, cards:, **local_assigns.fetch(:board, {}) %>
     <% end %>

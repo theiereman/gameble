@@ -1,0 +1,19 @@
+<%= tag.li class: "trade-pick",
+      data: { trade_board_target: "card", trade_board_picker_target: "pick", side:, key: pick.key, title: pick.view.title,
+              rarity: pick.view.rarity, owned: pick.owned, reserved: pick.reserved, max: pick.max, copies: pick.copies,
+              other_copies: pick.other_copies } do %>
+  <%= tag.div class: class_names("trade-pick__card", "trade-pick__card--unavailable": pick.unavailable?) do %>
+    <div class="trade-pick__face trade-pick__face--pending" aria-hidden="true"></div>
+    <span class="trade-pick__owned" aria-hidden="true">×<%= pick.owned %></span>
+    <% if pick.reserved.positive? %>
+      <span class="trade-card__reserved trade-pick__reserved" aria-hidden="true"><%= t("trades.side.reserved", count: pick.unavailable? ? 1 : pick.reserved) %></span>
+    <% end %>
+    <span class="trade-pick__check" aria-hidden="true" hidden>✓</span>
+    <%= tag.button type: "button", class: "trade-pick__toggle", tabindex: -1,
+          aria: { pressed: "false", disabled: ("true" if pick.unavailable?), label: trade_pick_label(pick) },
+          data: { action: "trade-board-picker#toggle" } %>
+  <% end %>
+  <div class="trade-pick__foot">
+    <span class="trade-pick__available"><%= t("trade_board.available", count: [ pick.max, 0 ].max) %></span>
+  </div>
+<% end %>

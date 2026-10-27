@@ -6,7 +6,7 @@ import { formatNumber } from "../lib/i18n"
 const CHANGED_MS = 700
 
 // The top bar's rarity counter (DESIGN.md, Rarity counter; EXPERIENCE.md,
-// Rarity counter): a count rises as the booster island reveals each card
+// Rarity counter): a count rises as the booster screen reveals each card
 // (`gameble:tier-revealed`), never before. Each count target (the button's
 // and the legend's) names its tier in `data-tier`; the revealed tier's
 // counts are rewritten from the event's counts, grouped with the locale's

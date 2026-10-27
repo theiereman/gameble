@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <%# data-motion is the one switch over the system's motion preference:
     "reduced" or "full" overrides it, no attribute follows it. CSS,
-    Stimulus, the islands and View Transitions read it (motion.ts). %>
+    Stimulus and View Transitions read it (motion.ts). %>
 <html lang="<%= I18n.locale %>"<% if forced_motion %> data-motion="<%= forced_motion %>"<% end %>>
   <head>
     <%= render "layouts/head" %>
