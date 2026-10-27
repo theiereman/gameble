@@ -2,13 +2,6 @@
 <% content_for :screen_title, t(".title") %>
 <% content_for :title, t(".title") %>
 <% content_for :booster_top_bar, true %>
-<%# The booster screen: the `booster` root controller opens one booster at a
-    time through the opening exchange and reveals its cards. Never served
-    from Turbo's cache: a snapshot would show a hand already dealt; a hand
-    shown again (`?pack=`, the way back from a card's detail) is fetched
-    afresh too. The screen stays hidden until its controller draws it;
-    until then, and without JavaScript, the fallback below: the open-pack
-    form, which lands on the pack's page face up, and the way back. %>
 <% turbo_exempts_page_from_cache %>
 <h1 class="visually-hidden"><%= t(".title") %></h1>
 <%= render "boosters/booster", bank: @bank, season: @season, next_pack_size: @next_pack_size, opened_pack: @opened_pack, opened_cards: @opened_cards %>

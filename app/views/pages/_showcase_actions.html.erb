@@ -1,6 +1,3 @@
-<%# The empty showcase's action (see pages/_showcase): the view's primary
-    button, disabled with its reason when the reserve is empty. Its own
-    partial so the daily claim's Turbo Stream answer can replace it. %>
 <div id="hub-showcase-actions" class="hub-showcase__actions">
   <% if bank[:available].positive? %>
     <%= render ButtonComponent.new(href: booster_path) do %><%= t("pages.home.showcase.empty.open") %><% end %>

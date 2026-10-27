@@ -1,7 +1,4 @@
 module BackOffice
-  # The landing's roadmap milestones, administrators only: every milestone in
-  # its order, and one milestone's wording, status and visibility with its
-  # stories. Staff never create or delete a milestone.
   class RoadmapMilestonesController < BaseController
     include RoadmapEntries
 

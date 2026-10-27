@@ -5,7 +5,6 @@ class BrotherInvitationsController < ApplicationController
     by: -> { current_player&.id || request.remote_ip },
     with: -> { redirect_to brother_path(token: params[:token]), alert: t("invitations.throttled"), status: :see_other }
 
-  # POST /:locale/brothers/:token/invitation
   def create
     authorize :invitation, :create?
 

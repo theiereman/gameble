@@ -1,5 +1,3 @@
-# Sends "/" to the locale that best matches the browser, else the default
-# one: to the hub for a player, to the landing for a visitor.
 class LocalesController < ApplicationController
   def redirect
     authorize :page, :show?
@@ -9,8 +7,8 @@ class LocalesController < ApplicationController
   end
 
   private
-    # Cloudflare's cache ignores Vary, so a stored redirect would send everyone to one language.
     def keep_out_of_shared_caches
+      # Cloudflare ignores Vary, so a cached redirect would send everyone to one language.
       response.cache_control.replace(private: true, no_store: true)
       response.headers["Vary"] = [ response.headers["Vary"], "Accept-Language" ].compact_blank.join(", ")
     end

@@ -1,25 +1,3 @@
-<%# The collection grid: one page of the grid's cards in order, one per
-    game, in columns filling the row, each drawn as its grid face (sized by
-    its slot). An owned game shows the edition it shows, its copies across
-    editions ("x3", from x1, in an accent box at the top-right), under them
-    the editions held when two or more ("2 éd.", in the same box) and, when
-    an edition was gained since the player last saw their collection,
-    "Nouveau" in a lime box at the top-left. With `set_apart`, a game the
-    player does not hold shows its face faded, grey and locked, its link
-    named "not owned" after the card's title, rarity and season; without, it
-    shows its plain face, named as an owned one. Each leads to its card's
-    detail, carrying the grid's filters and search, so the detail walks this
-    grid as shown (◀ ▶) and leads back to it. No card: the empty-filter
-    line, or,
-    past the last page of a grid that has cards, the past-the-end line.
-    - context: the grid's filters and search, as a detail's `grid`
-      parameter carries them (CollectionGridLoading#grid_context);
-    - slots: [ [ Catalog::CardView, Game::HeldGames::Edition | nil ], … ];
-    - set_apart: true for a signed-in player, whose cards not held are set
-      apart from theirs;
-    - pagy: the grid's page;
-    - new_badge: whether an edition gained since the viewer last saw their
-      collection is marked (the viewer's own grid only). %>
 <% if slots.empty? %>
   <p class="collection-grid__empty"><%= pagy.count.positive? ? t("library.grid.past_the_end") : t("library.grid.empty") %></p>
 <% else %>

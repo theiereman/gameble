@@ -1,5 +1,4 @@
 module SetRowsHelper
-  # The notches of an earlier season's metal tier; a rank has its own mark.
   NOTCHES = { "bronze" => 1, "silver" => 2, "gold" => 3 }.freeze
 
   PathNode = Data.define(:tier, :required, :state, :lit)
@@ -42,13 +41,10 @@ module SetRowsHelper
     end
   end
 
-  # Whether the set's bar carries ticks: a tier before completion, not yet complete.
   def set_tier_ticks?(standing)
     !standing.complete? && tick_thresholds(standing).any?
   end
 
-  # One tick per tier before completion, at its share of the set, its mark
-  # under it; with `figures`, the count each tier asks under the mark.
   def set_tier_ticks(standing, figures: false)
     return unless set_tier_ticks?(standing)
 
@@ -68,7 +64,6 @@ module SetRowsHelper
     tag.span(class: "set-notches") { safe_join(Array.new(count) { tag.i }) }
   end
 
-  # A rank's insignia, drawn one CSS pixel per art pixel unless `fine: false`.
   def rank_mark(tier, fine: true, **attrs)
     pixel_icon("rank-#{tier}", **attrs.merge(class: [ "rank-mark", "rank-mark--#{tier}", ("rank-mark--fine" if fine), attrs[:class] ].compact.join(" ")))
   end
@@ -95,7 +90,6 @@ module SetRowsHelper
     t("library.set_tile.next_html", count: standing.missing, missing: number_with_delimiter(standing.missing), tier: set_tier_chip(standing.next_tier))
   end
 
-  # `lit`: the share, from 0 to 100, of the line leading to the node that the cards held light up.
   def set_tier_path(standing)
     upcoming = standing.next_tier
     standing.thresholds.each_with_index.map do |(tier, required), index|

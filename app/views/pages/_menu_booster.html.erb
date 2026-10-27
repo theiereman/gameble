@@ -1,6 +1,3 @@
-<%# Menu 01, "Ouvrir un booster" (see pages/_menu): its own partial so the
-    daily claim's Turbo Stream answer can replace it with the new reserve
-    (daily_bonuses/create.turbo_stream.erb). %>
 <li id="hub-menu-booster" class="hub-menu__entry">
   <%= link_to booster_path, class: "menu-item", aria: { keyshortcuts: "1" },
         data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>

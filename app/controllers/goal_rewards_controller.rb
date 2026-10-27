@@ -1,16 +1,8 @@
-# Claiming a weekly goal reward from the hub's goal panel, named by its week:
-# the reward booster joins the reserve. From the hub the claim answers in
-# Turbo Stream, which replaces the claim slot, the packs chip, menu 01, the
-# empty showcase's action and, once the reserve is full, the daily booster
-# panel, and adds a toast, titled when the reward is collected; without
-# JavaScript it redirects to the hub. A refusal answers the same way, with
-# the slot as the server shows it.
 class GoalRewardsController < ApplicationController
   rate_limit to: 5, within: 1.minute, only: :create,
     by: -> { current_player&.id || request.remote_ip },
     with: -> { redirect_to home_path, alert: t("goal_rewards.create.throttled"), status: :see_other }
 
-  # POST /:locale/goal-rewards/:week
   def create
     authorize :goal_reward, :create?
 

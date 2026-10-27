@@ -1,10 +1,3 @@
-# The numbers of the how-it-works screen, each read from the constant the
-# game applies, so the screen never states a rule the game no longer
-# follows. Percentages go through the locale's number format.
-#
-#   odds_percent(430)                    # => "4.3%" ("4,3 %" in French)
-#   odds_rows(Game::DrawOdds::BONUS)     # => [#<data OddsRow tier: 2, key: :uncommon, percent: "70%">, …]
-#   rarity_shares                        # => { legendary: "1%", epic: "4%", …, common: "60%" }
 module HowItWorksHelper
   OddsRow = Data.define(:tier, :key, :percent)
 

@@ -1,11 +1,8 @@
 class SettingsController < ApplicationController
   include ChosenCards
 
-  # The motion choices the form posts: SYSTÈME (nil, follow the system),
-  # OUI (reduced) and NON (an explicit no). Anything else is refused.
   MOTION_CHOICES = { "system" => nil, "on" => true, "off" => false }.freeze
 
-  # GET /:locale/settings
   def show
     authorize :settings, :show?
     @reduced_motion = current_player.reduced_motion
@@ -18,7 +15,6 @@ class SettingsController < ApplicationController
     @showcase = chosen_cards(current_player)
   end
 
-  # PATCH /:locale/settings/visibility
   def visibility
     authorize :settings, :visibility?
 
@@ -32,7 +28,6 @@ class SettingsController < ApplicationController
     end
   end
 
-  # PATCH /:locale/settings
   def update
     authorize :settings, :update?
 

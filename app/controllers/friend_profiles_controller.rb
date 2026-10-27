@@ -1,6 +1,3 @@
-# A friend's profile, from the Friends screen: a friendship surface, so a
-# private friend hides here from staff friends too; staff read the public
-# profile instead.
 class FriendProfilesController < ApplicationController
   def show
     authorize :friend, :show?

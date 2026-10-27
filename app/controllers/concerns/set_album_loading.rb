@@ -5,14 +5,9 @@ module SetAlbumLoading
 
   ALBUM_SIZE = CollectionGridLoading::GRID_SIZE
 
-  # A slot shows the owner's best edition of its game (`card`), or the
-  # set's own card-season, not owned, when it has no `copies`, and leads to
-  # the set's own card-season, of season `number`, where the set is browsed.
   Slot = Data.define(:card, :copies, :new, :number)
 
   private
-    # The album's header measures the whole set; its grid, the members the
-    # filters asked for (@album_filters), in set order.
     def load_set_album(season, owner:, with_new:)
       raise ActiveRecord::RecordNotFound if season.nil?
 
@@ -29,9 +24,6 @@ module SetAlbumLoading
       @album_slots = album_slots(page, views || card_views(page), number: season.number, with_new:)
     end
 
-    # The members' faces as [ shown card-season id, owner's edition or nil ]
-    # that the filters keep, and the card views read to judge them, nil when
-    # no filter needed one.
     def filtered_faces(members, editions)
       faces = members.filter_map do |card_season_id, card_id|
         edition = editions[card_id]

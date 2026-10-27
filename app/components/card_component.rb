@@ -1,25 +1,7 @@
-# The card face, the only one: every page draws it here, and the pack
-# reveal receives it as HTML rendered here. Styled by
-# app/frontend/styles/card.css.
-#
-#   render CardComponent.new(card: view, size: :l)
-#   render CardComponent.new(card: view, size: :m, booster: true)
-#
-# `card` is a Catalog::CardView. Five sizes: s, m, l and xl, fixed, and
-# grid, whose dimensions come from its slot in a grid filling its row (the
-# medium layout from 140px wide, the small one below). The art is drawn in
-# the browser by the card-art Stimulus controller (pixelcrush), the tilt,
-# the reflection on the varnish and a Légendaire's glitter run by the tilt
-# controller. `booster: true` gives a face the booster opening's
-# rarity effects and a stronger tilt. `owned: false` draws a card
-# its viewer does not hold: faded and grey, without its rarity effects or
-# tilt, a lock bare over its art.
 class CardComponent < ViewComponent::Base
   FIXED_SIZES = %i[s m l xl].freeze
   SIZES = [ *FIXED_SIZES, :grid ].freeze
 
-  # The art box, in art pixels (one art pixel is 2 CSS pixels): half the
-  # art box of each size in CSS pixels.
   ART = {
     s: { width: 50, height: 51 },
     m: { width: 72, height: 74 },
@@ -28,22 +10,16 @@ class CardComponent < ViewComponent::Base
     grid: { width: 72, height: 74 }
   }.freeze
 
-  # Each game's palette is computed at the largest art, so a card shows the
-  # same colours at every size.
   PALETTE = ART.fetch(:xl)
 
-  # The tilt's strength, in degrees.
   TILT_MAX = 10
   TILT_MAX_BOOSTER = 16
 
-  # Sizes showing the publisher, and the number with its season.
   PUBLISHER_SIZES = %i[m l xl grid].freeze
   LARGE_SIZES = %i[l xl].freeze
 
-  # Tiers whose reflection shows pastel hues, under glitter.
   IRIDESCENT = %w[legendary].freeze
 
-  # Room for every card number in a season, so no two cards share a glitter.
   GLITTER_SEED_SEASON_STRIDE = 1_000_000
 
   def initialize(card:, size: :m, booster: false, owned: true)

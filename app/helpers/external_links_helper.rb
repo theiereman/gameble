@@ -3,8 +3,6 @@ module ExternalLinksHelper
   SOURCE_CODE_URL = "https://github.com/theiereman/gameble".freeze
   NEW_TAB = { rel: "noopener noreferrer external", target: "_blank" }.freeze
 
-  # `hint` replaces the hidden "(new tab)" that ends the link's name, for
-  # one that also says where it leads ("(GitHub, new tab)").
   def external_link_to(name, url, button: false, hint: nil, **options)
     content = safe_join([
       tag.span(name, class: ("button__label" if button)),

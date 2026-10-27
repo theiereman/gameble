@@ -1,20 +1,8 @@
-# Reporting a player's profile: the report dialog of the public profile
-# posts here, by the profile's token. Anonymous to the reported player: the
-# answer is the same thank-you whatever a repeat or a hidden profile would
-# say, and nothing is published to them. The reason is
-# Accounts::ReportPlayer's to judge. A profile the reporter may not see is
-# the unavailable page with a 404, as the profile itself (a report cannot
-# probe a hidden player); staff may report every profile they may read. A
-# visitor is refused by the policy and sent to the sign-in; each player is
-# limited per minute here and per day by the operation. A report sent from
-# a friend's profile (`from=friends`) comes back to the Friends screen, any
-# other to the profile.
 class ReportsController < ApplicationController
   rate_limit to: 10, within: 1.minute, only: :create,
     by: -> { current_player&.id || request.remote_ip },
     with: -> { redirect_to home_path, alert: t("reports.create.throttled"), status: :see_other }
 
-  # POST /:locale/brothers/:token/report
   def create
     authorize :report, :create?
 

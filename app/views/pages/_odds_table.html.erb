@@ -1,7 +1,3 @@
-<%# One draw's odds on the how-it-works screen: a row per tier, from the
-    most common, its icon and name beside its chance per card. `name`
-    (regular, bonus, reward, epic_or_better) names the table and its
-    caption; `odds` is the Game::DrawOdds table. %>
 <table class="how-it-works__odds" data-odds="<%= name %>">
   <caption class="how-it-works__caption"><%= t("pages.how_it_works.packs.tables.#{name}") %></caption>
   <thead>

@@ -1,10 +1,3 @@
-<%# The claim slot of a player's weekly goal reward, under the goal panel's
-    reward line, never part of the public broadcast. Waiting: a small
-    "Récupérer" sends the reward booster to the reserve. Reserve full: the
-    button is disabled and the orange line says why. Collected: the state
-    word "Récupéré" in lime. The claim answers in Turbo Stream, which
-    replaces this slot (goal_rewards/create.turbo_stream.erb).
-    Locals: reward (Game::GoalRewardStatus), bank (Game::BankSummary). %>
 <% state = reward[:claimed] ? :collected : (bank[:reserve_full] ? :full : :ready) %>
 <div id="goal-reward" class="hub-goal__claim hub-goal__claim--<%= state %>">
   <% case state %>

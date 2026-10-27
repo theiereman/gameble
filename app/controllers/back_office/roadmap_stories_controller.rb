@@ -1,6 +1,4 @@
 module BackOffice
-  # The stories under a roadmap milestone, administrators only: added,
-  # edited, moved and deleted, each back on the milestone's page.
   class RoadmapStoriesController < BaseController
     include RoadmapEntries
 

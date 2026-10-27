@@ -1,13 +1,3 @@
-<%# The community goal panel's public part: "Objectif communautaire", the one
-    Brotherhood line carrying the week's real target, "Tous les joueurs" with
-    the shared count, a gauge of 24 segments and the reward. Reached, the
-    gauge is full and the panel reads "Objectif atteint", for everyone. At
-    the week boundary a new goal starts, its gauge empty, and the previous
-    week's final count shows below, reached or missed. No per-player figure:
-    the goal stream broadcasts it to every hub (live_streams/goal). Its
-    children lay out in the panel itself, the previous week's count after
-    the reward's claim slot.
-    Locals: goal (Game::CurrentGoal). %>
 <% segments = GoalHelper::SEGMENTS %>
 <% lit = goal_lit_segments(goal) %>
 <div id="community-goal-progress" class="hub-goal__progress">

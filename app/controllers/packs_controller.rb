@@ -1,28 +1,8 @@
-# Opening a pack, and the opened pack's page (CAP-4, CAP-5, R9). Packs are
-# addressed by their token (AD-15).
-#
-# The opening answers two ways. The booster screen's exchange (JSON)
-# sends an `Idempotency-Key` header,
-# a UUID per activation: the answer carries the pack, its cards with their
-# faces, the bank, the server time and the per-tier counts before the
-# opening, and the same key answers the same pack again without opening
-# another (a lost answer, a double activation), even once the reserve is
-# empty or the rate limit reached. The rate limit only exempts a key already
-# committed: a duplicate sent before the first answer commits is counted,
-# and at the limit gets 429; its retry after Retry-After replays the pack.
-# A refusal answers
-# `{ error: { code, message } }`: 400 invalid_idempotency_key (no key, or not
-# a UUID), 401 sign_in_required, 422 no_pack_available, 429 throttled. The
-# booster screen's form (HTML), its fallback without JavaScript, is
-# redirected to the pack's page, which shows the cards face up: "my last
-# booster"; a refusal goes back to the booster screen with its reason.
 class PacksController < ApplicationController
   include PackCards
 
-  # The rate limit's window, also the JSON answer's Retry-After.
   RATE_LIMIT_WINDOW = 1.minute
 
-  # The status and error code of each refusal of the opening, in JSON.
   FAILURES = {
     invalid_idempotency_key: [ :bad_request, "invalid_idempotency_key" ],
     player_required: [ :unauthorized, "sign_in_required" ],
@@ -32,7 +12,6 @@ class PacksController < ApplicationController
   rate_limit to: 30, within: RATE_LIMIT_WINDOW, only: :create,
     by: -> { current_player&.id || request.remote_ip }, with: :throttled, unless: :replayed_key?
 
-  # POST /:locale/packs
   def create
     authorize :pack, :create?
 
@@ -42,8 +21,6 @@ class PacksController < ApplicationController
     end
   end
 
-  # GET /:locale/packs/:token: the pack's cards face up. Another player's
-  # pack, one not opened yet or an unknown token are all not found.
   def show
     @pack = Game::OpenedPackByToken.call(current_player, params[:token])
     raise ActiveRecord::RecordNotFound if @pack.nil?
@@ -51,7 +28,6 @@ class PacksController < ApplicationController
     authorize @pack, :show?, policy_class: PackPolicy
     @cards = cards_of(@pack)
     @strings = CardStrings.new
-    # The reserve, read once: the top bar's packs chip reuses it.
     @bank = Game::BankSummary.reserve(current_player)
     @next_pack = @bank[:available].positive?
   end
@@ -94,8 +70,6 @@ class PacksController < ApplicationController
     request.headers["Idempotency-Key"]
   end
 
-  # A JSON request whose key a pack of the player's already carries: it
-  # replays that pack, so the rate limit does not count it.
   def replayed_key?
     request.format.json? && Game::OpenPack.replay?(current_player, idempotency_key)
   end

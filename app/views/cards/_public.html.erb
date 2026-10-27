@@ -1,21 +1,3 @@
-<%# The public card page (DESIGN.md, Public card page; EXPERIENCE.md, Public
-    pages and sign-in; story 10.3): what a visitor opens from a shared link.
-    The card at card-xl, tilting under the pointer, and beside it the
-    title, publisher, the "rarity, genre, year, number" line, the
-    description, "Voir sur Steam", and the invitation to play. Below, the
-    LIVE strip of the three latest public feed entries, kept current by the
-    public live stream, and the footer's link to the legal page. It never
-    names who shared or holds the card, only its pioneer (the strip names only the feed's
-    public players) and shows no app chrome (the layout's top bar is the
-    slim one).
-    The invitation needs an account, which Steam's sign-in gives only to a
-    modern browser: the invitation is hidden and the update line shown unless
-    the browser supports :has() (styles/card-detail.css), so no script sniffs
-    the browser. Locals:
-    - detail: a Catalog::CardDetail::Detail;
-    - pioneer: the card's first discoverer (a CardsController::PioneerLine,
-      anonymous when it has no token) or nil for no line;
-    - live: the strip's entries ([ entry, card, partner card, set ], FeedItems). %>
 <% view = detail.view %>
 <% strings = CardStrings.new %>
 <% tier = Catalog::Rarity::TIERS.invert.fetch(view.rarity.to_sym) %>
@@ -59,8 +41,6 @@
       <%= external_link_to t("card_details.store"), card_detail_store_url(detail.store_url), button: true,
         class: "button button--link public-card__store" %>
 
-      <%# Signs in through Steam; signing in lands on the hub, where the
-          boosters wait. The page's one primary action. %>
       <%= render PanelComponent.new(tag: :section, class: "public-card__pitch", aria: { labelledby: "public-card-pitch" }) do %>
         <p id="public-card-pitch" class="public-card__pitch-title"><%= t("cards.show.pitch_title") %></p>
         <p class="public-card__pitch-text"><%= t("cards.show.invitation") %></p>
