@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_22_110001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_27_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -523,9 +523,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_22_110001) do
     t.jsonb "details"
     t.bigint "details_run_id"
     t.string "details_exclusion"
-    t.bigint "carded_run_id"
     t.index ["appid"], name: "index_steam_apps_on_appid", unique: true
-    t.index ["carded_run_id", "appid"], name: "index_steam_apps_carded_by_run"
     t.index ["details_run_id", "appid"], name: "index_steam_apps_detailed_by_run", where: "(details_exclusion IS NULL)"
     t.index ["import_run_id"], name: "index_steam_apps_on_import_run_id"
     t.index ["reviewed_run_id", "appid"], name: "index_steam_apps_kept_by_run", where: "(review_exclusion IS NULL)"
@@ -608,7 +606,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_22_110001) do
   add_foreign_key "game_trades", "accounts_players", column: "proposer_id"
   add_foreign_key "game_trades", "accounts_players", column: "recipient_id"
   add_foreign_key "game_weekly_contributions", "accounts_players", column: "player_id"
-  add_foreign_key "steam_apps", "steam_import_runs", column: "carded_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "details_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "import_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "reviewed_run_id"
