@@ -31,7 +31,7 @@ No capability of the spec: a platform epic. Each line cites the source it comes 
 - R2. The code reads without comments: no reference to planning ids (AD-n, CAP-n, R-n, story n.n, epic n, DESIGN.md, EXPERIENCE.md) in code, tests or configuration; a comment survives only where the code cannot say it (an external constraint). Intent is carried by names, extracted methods and objects. Source: author, 2026-10-07.
 - R3. No oversized source file: production Ruby and TypeScript files stay within 400 lines, CSS files within 500. Source: author, 2026-10-07 ("découper les trop gros fichiers").
 - R4. A consistency pass removes duplication and the conventions that diverged between build sessions. Source: author, 2026-10-07 ("tout le reste aussi").
-- R5. The front-end is linted and formatted: ESLint, Prettier and Stylelint, run in CI. Source: author, 2026-10-07.
+- R5. The front-end is formatted and linted: Prettier and Stylelint, run in CI (ESLint dropped by the author, 2026-10-27). Source: author, 2026-10-07.
 - R6. Documentation for a newcomer: a rewritten README (what gameble is, setup, tests, deploy), an architecture overview, a glossary of the domain terms, CONTRIBUTING, `.env.example`. Source: author, 2026-10-07; spec Constraints, "All repo text is in English".
 - R7. The repository is licensed AGPL-3.0. Source: author, 2026-10-07; spec Constraints, "Open source".
 - R8. No private infrastructure in tracked configuration: LAN addresses and personal paths come from the environment or leave; the hosts and names accepted in the Notes stay. Source: author, 2026-10-07; narrowed 2026-10-27.
@@ -41,7 +41,7 @@ No capability of the spec: a platform epic. Each line cites the source it comes 
 1. The backend's domain code lives under `app/domains/`, packwerk's check passes in CI, and the full test suite is green.
 2. A CI step finds no planning reference (AD-n, CAP-n, story n.n, epic n, DESIGN.md, EXPERIENCE.md) in `app`, `config`, `db`, `lib`, `script` or `test`.
 3. No production Ruby or TypeScript file exceeds 400 lines and no CSS file exceeds 500.
-4. ESLint, Prettier and Stylelint run in CI and pass.
+4. Prettier and Stylelint run in CI and pass.
 5. A developer following only the README on a fresh machine runs the app and the tests; the repository holds the architecture overview, the glossary, CONTRIBUTING, `.env.example` and an AGPL-3.0 LICENSE.
 6. No LAN address or personal path is hard-coded in tracked configuration; the hosts and names the Notes accept (staging domain, `theiereman`, the `LEGAL_*` name) stay.
 
