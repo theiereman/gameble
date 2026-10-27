@@ -87,3 +87,14 @@ export class BoosterCountdown {
     this.listener.left(seconds)
   }
 }
+
+export const browserCountdown = (listener: CountdownListener): BoosterCountdown =>
+  new BoosterCountdown(
+    {
+      now: () => performance.now(),
+      hidden: () => document.hidden,
+      setTimeout: (action, ms) => setTimeout(action, ms),
+      clearTimeout: (timer) => clearTimeout(timer),
+    },
+    listener,
+  )
