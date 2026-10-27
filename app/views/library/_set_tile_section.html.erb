@@ -1,9 +1,6 @@
-<%# locals: (id:, title:, tiles:) %>
+<%# locals: (id:, title:, page:, section:) %>
 <section class="set-entry__section" aria-labelledby="<%= id %>">
   <h2 id="<%= id %>" class="set-entry__title"><%= title %></h2>
-  <ul class="set-tiles">
-    <% tiles.each do |tile| %>
-      <li><%= render "library/set_progress_tile", href: library_set_path(kind: tile.set.kind, key: tile.set.key), tile: %></li>
-    <% end %>
-  </ul>
+  <%= render "library/set_tile_page", page:, next_href: library_in_progress_path(section:, offset: page.next_offset),
+    next_frame: "set-more-#{section}-#{page.next_offset}" %>
 </section>

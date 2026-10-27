@@ -1,14 +1,12 @@
+<%# locals: (results:, query:, status:) %>
 <%= turbo_frame_tag "set-search-results", target: "_top" do %>
   <span hidden data-set-search-summary><%= status %></span>
   <% if query.present? %>
     <section class="set-entry__section set-results" aria-labelledby="set-results-title">
       <h2 id="set-results-title" class="set-entry__title"><%= t("library.entry.results") %></h2>
-      <% if results.any? %>
-        <ul class="set-entry__list">
-          <% results.each do |row| %>
-            <li><%= render "library/set_progress_row", href: set_url.call(row.set), set: row.set, standing: row.standing %></li>
-          <% end %>
-        </ul>
+      <% if results.tiles.any? %>
+        <%= render "library/set_tile_page", page: results, next_href: library_path(q: query, offset: results.next_offset),
+          next_frame: "#{LibraryController::MORE_RESULTS_FRAME}#{results.next_offset}" %>
       <% else %>
         <p class="set-results__none"><%= t("library.entry.none", query:) %></p>
       <% end %>

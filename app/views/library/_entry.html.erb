@@ -1,7 +1,7 @@
 <% status = query.present? ? t("library.entry.found", count: results_count) : "" %>
 <div class="set-entry" data-controller="last-album" data-action="turbo:frame-load->last-album#mark">
   <%= render "library/set_search", query:, status:, search_url:, all_cards_url: %>
-  <%= render("library/set_results", results:, query:, status:, set_url:) %>
+  <%= render("library/set_results", results:, query:, status:) %>
   <%= turbo_frame_tag "set-entry-in-progress", src: in_progress_url, loading: :lazy, class: "set-entry__in-progress", target: "_top" do %>
     <p class="set-entry__loading"><%= t("library.entry.loading") %></p>
   <% end %>

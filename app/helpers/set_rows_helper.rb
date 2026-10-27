@@ -2,7 +2,7 @@ module SetRowsHelper
   # The notches of an earlier season's metal tier; a rank has its own mark.
   NOTCHES = { "bronze" => 1, "silver" => 2, "gold" => 3 }.freeze
 
-  PathNode = Data.define(:tier, :required, :state, :missing)
+  PathNode = Data.define(:tier, :required, :state, :lit)
 
   def set_kind_name(kind)
     t("library.set_kinds.#{kind}")
@@ -95,11 +95,12 @@ module SetRowsHelper
     t("library.set_tile.next_html", count: standing.missing, missing: number_with_delimiter(standing.missing), tier: set_tier_chip(standing.next_tier))
   end
 
+  # `lit`: the share, from 0 to 100, of the line leading to the node that the cards held light up.
   def set_tier_path(standing)
     upcoming = standing.next_tier
-    standing.thresholds.map do |tier, required|
+    standing.thresholds.each_with_index.map do |(tier, required), index|
       state = if required <= standing.held then :reached elsif tier == upcoming then :next else :later end
-      PathNode.new(tier:, required:, state:, missing: required - standing.held)
+      PathNode.new(tier:, required:, state:, lit: path_lit(standing.held, index.zero? ? nil : standing.thresholds[index - 1].last, required))
     end
   end
 
@@ -122,6 +123,13 @@ module SetRowsHelper
 
     def tick_thresholds(standing)
       standing.thresholds.select { |tier, _required| before_completion?(tier) }
+    end
+
+    def path_lit(held, previous, required)
+      return if previous.nil?
+      return held >= required ? 100 : 0 unless required > previous
+
+      (100 * (held - previous).clamp(0, required - previous) / (required - previous).to_f).round
     end
 
     def tick_at(required, total)

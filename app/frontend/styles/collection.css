@@ -76,15 +76,6 @@
   text-transform: uppercase;
 }
 
-.set-entry__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
 .set-search__row {
   display: flex;
   align-items: center;
@@ -221,6 +212,21 @@
   gap: var(--space-8);
 }
 
+/* A search takes the place of the sets under it, which load when it is cleared. */
+.set-entry:has(.set-results) > .set-entry__in-progress {
+  display: none;
+}
+
+.set-more {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.set-more > .button {
+  align-self: center;
+}
+
 .set-entry__loading {
   min-height: 1lh;
   margin: 0;
@@ -238,41 +244,58 @@
   list-style: none;
 }
 
+@property --iris-r {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 0%;
+}
+
+@property --iris-k {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
 .set-tile {
-  --turned: 0;
+  --iris-r: 0%;
+  --iris-k: 0;
+  --iris-x: 50%;
+  --iris-y: 50%;
+  --iris-ease: cubic-bezier(0.35, 0, 0.2, 1);
   --tile-card-scale: 0.6;
   position: relative;
   display: grid;
   height: 280px;
   color: var(--color-text);
   text-decoration: none;
-  perspective: 1200px;
+  transition: --iris-r 800ms var(--iris-ease), --iris-k 800ms var(--iris-ease);
 }
 
 .set-tile:focus-visible {
-  --turned: 1;
-}
-
-.set-tile:focus-visible .set-tile__face--recto {
-  visibility: hidden;
-}
-
-.set-tile:focus-visible .set-tile__face--verso {
-  visibility: visible;
+  --iris-r: 150%;
+  --iris-k: 1;
 }
 
 @media (hover: hover) {
   .set-tile:hover {
-    --turned: 1;
+    --iris-r: 150%;
+    --iris-k: 1;
   }
+}
 
-  .set-tile:hover .set-tile__face--recto {
-    visibility: hidden;
-  }
-
-  .set-tile:hover .set-tile__face--verso {
-    visibility: visible;
-  }
+.set-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: min(calc(var(--iris-k) * 8), 1);
+  background: radial-gradient(
+    circle farthest-corner at var(--iris-x) var(--iris-y),
+    transparent calc(var(--iris-r) - 9%),
+    color-mix(in srgb, var(--color-accent) 55%, transparent) calc(var(--iris-r) - 3%),
+    transparent var(--iris-r)
+  );
 }
 
 .set-tile__face {
@@ -285,22 +308,23 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+  isolation: isolate;
   padding: var(--space-5);
   background: var(--color-panel);
   box-shadow: var(--tile-mark), inset 0 0 0 var(--space-unit) var(--tile-frame);
-  backface-visibility: hidden;
-  /* A card's own 3D layers show through a turned face's back: hide it halfway. */
-  transition: transform 360ms var(--ease-out), opacity 200ms linear, visibility 0s linear 180ms;
 }
 
 .set-tile__face--recto {
-  transform: rotateY(calc(var(--turned) * -180deg));
+  filter: brightness(calc(1 - var(--iris-k) * 0.25));
 }
 
 .set-tile__face--verso {
   --tile-frame: var(--color-accent);
-  visibility: hidden;
-  transform: rotateY(calc(180deg - var(--turned) * 180deg));
+  mask-image: radial-gradient(
+    circle farthest-corner at var(--iris-x) var(--iris-y),
+    #000 calc(var(--iris-r) - 28%),
+    transparent var(--iris-r)
+  );
 }
 
 .set-tile--closest .set-tile__face--recto {
@@ -312,31 +336,41 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-motion="full"]) .set-tile .set-tile__face {
-    visibility: visible;
-    transform: none;
+  html:not([data-motion="full"]) .set-tile {
+    transition-duration: 200ms;
+    transition-timing-function: linear;
+  }
+
+  html:not([data-motion="full"]) .set-tile::after {
+    display: none;
   }
 
   html:not([data-motion="full"]) .set-tile__face--recto {
-    opacity: calc(1 - var(--turned));
+    filter: none;
   }
 
   html:not([data-motion="full"]) .set-tile__face--verso {
-    opacity: var(--turned);
+    mask-image: none;
+    opacity: var(--iris-k);
   }
 }
 
-html[data-motion="reduced"] .set-tile .set-tile__face {
-  visibility: visible;
-  transform: none;
+html[data-motion="reduced"] .set-tile {
+  transition-duration: 200ms;
+  transition-timing-function: linear;
+}
+
+html[data-motion="reduced"] .set-tile::after {
+  display: none;
 }
 
 html[data-motion="reduced"] .set-tile__face--recto {
-  opacity: calc(1 - var(--turned));
+  filter: none;
 }
 
 html[data-motion="reduced"] .set-tile__face--verso {
-  opacity: var(--turned);
+  mask-image: none;
+  opacity: var(--iris-k);
 }
 
 .set-tile__head {
@@ -489,6 +523,12 @@ html .set-tile__last-card > .card.card--s[data-tilt] {
   font: var(--font-button);
 }
 
+.set-tile__nothing {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
 .set-tile__more {
   display: grid;
   place-items: center;
@@ -547,33 +587,57 @@ html .set-tile__last-card > .card.card--s[data-tilt] {
 .set-tile__node + .set-tile__node::before {
   content: "";
   position: absolute;
-  top: 13px;
+  top: 8px;
   right: 50%;
   width: 100%;
-  height: var(--space-unit);
-  background: var(--color-line-soft);
+  height: 4px;
+  background: var(--color-panel-sunken);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-line-soft);
+}
+
+.set-tile__lit {
+  position: absolute;
+  top: 8px;
+  right: 50%;
+  width: 100%;
+  height: 4px;
+  border: 0;
+  background: transparent;
+  filter: drop-shadow(0 0 4px var(--color-accent));
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.set-tile__lit::-webkit-progress-bar {
+  background: transparent;
+}
+
+.set-tile__lit::-webkit-progress-value {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 55%, var(--color-panel)), var(--color-accent));
+}
+
+.set-tile__lit::-moz-progress-bar {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 55%, var(--color-panel)), var(--color-accent));
 }
 
 .set-tile__dot {
   position: relative;
   z-index: 1;
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
   background: var(--color-panel);
-  box-shadow: inset 0 0 0 var(--space-unit) currentColor;
-  font: var(--font-label);
+  box-shadow: inset 0 0 0 2px currentColor;
 }
 
 .set-tile__node--reached .set-tile__dot {
   background: var(--tier);
-  color: var(--color-outline);
-  box-shadow: none;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--tier) 70%, transparent);
 }
 
 .set-tile__node--next .set-tile__dot {
-  box-shadow: inset 0 0 0 var(--space-unit) var(--tier), 0 0 0 3px color-mix(in srgb, var(--tier) 30%, transparent);
+  box-shadow: inset 0 0 0 2px var(--tier), 0 0 0 3px color-mix(in srgb, var(--tier) 30%, transparent);
 }
 
 .set-tile__node--later {

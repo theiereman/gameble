@@ -1,0 +1,11 @@
+<%# locals: (page:, next_href:, next_frame:, focus_first: false) %>
+<ul class="set-tiles">
+  <% page.tiles.each_with_index do |tile, index| %>
+    <li><%= render "library/set_progress_tile", href: library_set_path(kind: tile.set.kind, key: tile.set.key), tile:, autofocus: focus_first && index.zero? %></li>
+  <% end %>
+</ul>
+<% if page.next_offset %>
+  <%= turbo_frame_tag next_frame, class: "set-more" do %>
+    <%= render ButtonComponent.new(variant: :secondary, href: next_href) do %><%= t("library.entry.load_more") %><% end %>
+  <% end %>
+<% end %>

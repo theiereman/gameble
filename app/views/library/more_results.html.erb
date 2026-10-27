@@ -1,0 +1,4 @@
+<%= turbo_frame_tag turbo_frame_request_id do %>
+  <%= render "library/set_tile_page", page: @results, next_href: library_path(q: @query, offset: @results.next_offset),
+    next_frame: "#{LibraryController::MORE_RESULTS_FRAME}#{@results.next_offset}", focus_first: true %>
+<% end %>

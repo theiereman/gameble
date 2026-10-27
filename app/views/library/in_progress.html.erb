@@ -1,10 +1,10 @@
 <%= turbo_frame_tag "set-entry-in-progress", class: "set-entry__in-progress", target: "_top" do %>
-  <% if @tiles.any? %>
-    <%= render "library/set_tile_section", id: "set-entry-in-progress-title", title: t("library.entry.in_progress"), tiles: @tiles %>
+  <% if @in_progress_page.tiles.any? %>
+    <%= render "library/set_tile_section", id: "set-entry-in-progress-title", title: t("library.entry.in_progress"), page: @in_progress_page, section: "in_progress" %>
   <% else %>
     <p class="set-entry__empty"><%= t("library.entry.no_progress") %></p>
   <% end %>
-  <% if @complete_tiles.any? %>
-    <%= render "library/set_tile_section", id: "set-entry-completed-title", title: t("library.entry.completed"), tiles: @complete_tiles %>
+  <% if @completed_page.tiles.any? %>
+    <%= render "library/set_tile_section", id: "set-entry-completed-title", title: t("library.entry.completed"), page: @completed_page, section: "completed" %>
   <% end %>
 <% end %>
