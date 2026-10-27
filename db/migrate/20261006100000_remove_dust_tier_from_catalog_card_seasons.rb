@@ -4,7 +4,7 @@
 # (`ignored_columns`), which strong_migrations requires before the removal.
 #
 # Deploy order: the code before this migration still writes `dust_tier`
-# (Catalog::UpsertDraftCard in the import worker, Catalog::PublishSeason in
+# (the import worker, Catalog::PublishSeason in
 # the back-office). Deploy with no import run running and no season being
 # published; `db:prepare` runs this migration once when the new web container
 # boots, while the old containers still serve. The new code ignores the

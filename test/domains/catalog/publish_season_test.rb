@@ -393,14 +393,12 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_equal :mixed_score_versions, publish(season.number).failure
 
     Catalog::CardSeason.where(season_id: season.id).find_each do |card_season|
-      card = card_season.card
-      Catalog::UpsertDraftCard.new.call(
-        source_key: card.source_key, release_date: card.release_date, image_url: card.image_url, store_url: card.store_url,
-        texts: card.texts.to_h { |text| [ text.locale, { title: text.title } ] },
-        prestige_score: card_season.prestige_score, prestige_score_version: 2, rating: card_season.rating.to_f,
-        review_count: card_season.review_count, genres: card.genres, tags: card.tags
+      Catalog::StageCardSeason.new.call(
+        batch_token: "rescore", card_id: card_season.card_id, prestige_score: card_season.prestige_score, prestige_score_version: 2,
+        rating: card_season.rating.to_f, review_count: card_season.review_count
       ).value!
     end
+    Catalog::PromoteStagedBatch.new.call(batch_token: "rescore", season_number: season.number).value!
 
     assert publish(season.number).success?
   end
@@ -421,11 +419,14 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     season = seed_card_seasons(distinct_scores(21))
     publish(season.number)
 
-    card_season = Catalog::UpsertDraftCard.new.call(
+    card = Catalog::UpsertCardIdentity.new.call(
       source_key: "test:seed-#{season.number}-0", release_date: Date.new(2000, 1, 1),
       image_url: "https://images.example.test/a.jpg", store_url: "https://store.example.test/a",
-      texts: { "en" => { title: "Seed" }, "fr" => { title: "Graine" } }, prestige_score: 1.0, prestige_score_version: 2, rating: 50.0
+      texts: { "en" => { title: "Seed" }, "fr" => { title: "Graine" } }
     ).value!
+    Catalog::StageCardSeason.new.call(batch_token: "next", card_id: card.id, prestige_score: 1.0, prestige_score_version: 2, rating: 50.0).value!
+    next_season = Catalog::PromoteStagedBatch.new.call(batch_token: "next", season_number: season.number + 1).value!
+    card_season = Catalog::CardSeason.find_by!(season_id: next_season.id, card_id: card.id)
 
     assert_equal season.number + 1, card_season.season.number
     assert_predicate card_season.season, :draft?

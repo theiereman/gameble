@@ -1,6 +1,7 @@
 module Steam
   class App < ApplicationRecord
     self.table_name = "steam_apps"
+    self.ignored_columns += %w[carded_run_id]
 
     belongs_to :import_run, class_name: "Steam::ImportRun", inverse_of: :apps
     belongs_to :reviewed_run, class_name: "Steam::ImportRun", optional: true

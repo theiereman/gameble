@@ -1,5 +1,5 @@
 # Seeds card-seasons straight into the database with insert_all (slugs set),
-# for tests that need many cards without going through UpsertDraftCard.
+# for tests that need many cards without going through the card operations.
 module CatalogSeeds
   # A draft season (the next number) unless one is given, with one card and
   # card-season per score, and an `en` and `fr` title per card.
