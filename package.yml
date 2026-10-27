@@ -3,7 +3,7 @@
 enforce_dependencies: true
 dependencies:
   - lib
-  - packs/accounts
+  - app/domains/accounts
   - packs/catalog
   - packs/game
   - packs/steam

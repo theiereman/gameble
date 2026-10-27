@@ -16,6 +16,9 @@ module Gameble
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
+    # app/domains holds packages, not an autoload root: each domain's own app/* directories are the roots.
+    config.paths["app"].instance_variable_get(:@exclude) << "domains"
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
