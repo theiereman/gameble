@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import cardStylesheet from "../styles/card.css?raw"
-import detailStylesheet from "../styles/card-detail.css?raw"
+import card from "../styles/card.css?raw"
+import cardTiltEffects from "../styles/card-tilt-effects.css?raw"
+import cardDetail from "../styles/card-detail.css?raw"
+import cardDetailPublic from "../styles/card-detail-public.css?raw"
+import cardDetailStepping from "../styles/card-detail-stepping.css?raw"
 import {
   EASE_ENTER,
   EASE_LEAVE,
@@ -14,6 +17,9 @@ import {
   reflectionOf,
   tiltTarget,
 } from "./tilt"
+
+const cardStylesheet = card + cardTiltEffects
+const detailStylesheet = cardDetail + cardDetailStepping + cardDetailPublic
 
 const RECT = { left: 100, top: 200, width: 160, height: 240 }
 const ASPECT = RECT.width / RECT.height

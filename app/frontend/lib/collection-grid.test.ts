@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
-import cardStylesheet from "../styles/card.css?raw"
-import collectionStylesheet from "../styles/collection.css?raw"
+import card from "../styles/card.css?raw"
+import cardTiltEffects from "../styles/card-tilt-effects.css?raw"
+import collection from "../styles/collection.css?raw"
+import collectionFilters from "../styles/collection-filters.css?raw"
+import collectionGrid from "../styles/collection-grid.css?raw"
+import collectionSetTiles from "../styles/collection-set-tiles.css?raw"
 import shellCss from "../styles/shell.css?raw"
 import shellTopBarCss from "../styles/shell-top-bar.css?raw"
 import shellStatusCss from "../styles/shell-status.css?raw"
@@ -8,6 +12,8 @@ import shellControlsCss from "../styles/shell-controls.css?raw"
 import shellScreensCss from "../styles/shell-screens.css?raw"
 import tokensStylesheet from "../styles/tokens.css?raw"
 
+const cardStylesheet = card + cardTiltEffects
+const collectionStylesheet = collection + collectionSetTiles + collectionFilters + collectionGrid
 const shellStylesheet = [shellCss, shellTopBarCss, shellStatusCss, shellControlsCss, shellScreensCss].join("\n")
 
 const ruleBody = (stylesheet: string, selector: string, from = 0) => {

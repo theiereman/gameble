@@ -1,0 +1,139 @@
+/* ---- The phone sub-view ---- */
+
+@media (max-width: 719px) {
+  .card-detail__panel {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .card-detail__number {
+    display: none;
+  }
+
+  .card-detail__position {
+    display: block;
+  }
+
+  /* Scroll padding covers the pinned actions too, so a focused set link
+     or share field is never hidden behind them. */
+  html:has(.card-detail__actions) {
+    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height));
+  }
+
+  html:has(.card-detail__holder-actions) {
+    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height)
+      + var(--space-button-height-phone) + var(--space-4));
+  }
+
+  html:has(.card-detail__showcase-full) {
+    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height)
+      + var(--space-button-height-phone) + var(--space-4) + 2 * 1.125rem + var(--space-3));
+  }
+
+  /* Pinned above the tab bar while the panel scrolls under them. */
+  .card-detail__actions {
+    position: sticky;
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+    z-index: 2;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: var(--card-detail-actions-height);
+    padding: var(--space-4) 0;
+    background: var(--color-ground);
+    box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line);
+  }
+
+  .card-detail__holder-actions + .card-detail__card-links {
+    margin-left: 0;
+  }
+
+  .card-detail__holder-actions {
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+
+  .card-detail__showcase-full {
+    grid-column: 1 / -1;
+  }
+
+  .card-detail__card-links > .button {
+    flex: 1 1 auto;
+  }
+
+  .card-detail__showcase > * {
+    flex: 1 1 auto;
+  }
+
+  .card-detail__actions .button-form .button {
+    width: 100%;
+  }
+}
+
+/* ---- A step between cards (sub_view_controller.ts): only the card moves.
+   It is named for the View Transition while a step runs; the screen is
+   not (styles/shell.css). ---- */
+
+html[data-sub-view-step] .card-detail__card {
+  view-transition-name: card-detail-card;
+}
+
+::view-transition-group(card-detail-card) {
+  animation: none;
+}
+
+html[data-sub-view-step="next"]::view-transition-old(card-detail-card) {
+  animation: card-detail-out-left 160ms var(--ease-out) both;
+}
+
+html[data-sub-view-step="next"]::view-transition-new(card-detail-card) {
+  animation: card-detail-in-right 260ms var(--ease-out) 40ms both;
+}
+
+html[data-sub-view-step="previous"]::view-transition-old(card-detail-card) {
+  animation: card-detail-out-right 160ms var(--ease-out) both;
+}
+
+html[data-sub-view-step="previous"]::view-transition-new(card-detail-card) {
+  animation: card-detail-in-left 260ms var(--ease-out) 40ms both;
+}
+
+@keyframes card-detail-out-left {
+  to {
+    opacity: 0;
+    transform: translateX(-48px);
+  }
+}
+
+@keyframes card-detail-out-right {
+  to {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+}
+
+@keyframes card-detail-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(48px) rotate(3deg);
+  }
+}
+
+@keyframes card-detail-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-48px) rotate(-3deg);
+  }
+}
+
+/* ---- Reduced motion: the step's card is not captured apart, so it is
+   replaced at once (shell.css drops View Transition animations too, and
+   the controller starts none). ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"])[data-sub-view-step] .card-detail__card {
+    view-transition-name: none;
+  }
+}
+
+html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
+  view-transition-name: none;
+}

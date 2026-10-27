@@ -1,0 +1,225 @@
+/* ---- Tilt ---- */
+
+.card[data-tilt] {
+  transform: perspective(800px) rotateX(var(--tilt-rx, 0deg)) rotateY(var(--tilt-ry, 0deg));
+}
+
+/* ---- Effects, clipped to the card ---- */
+
+.card__effects {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* The reflection: a studio on the varnish, two strip lights and a faint
+   bright ceiling, on every face, glossier with the rarity. The
+   --reflection-* values slide it opposite the tilt; their defaults on .card
+   draw the flat card's. */
+.card__reflection {
+  --reflection-finish: calc(0.5 + 0.5 * var(--card-gloss));
+  --reflection-curve: calc(0.8 + 1.4 * var(--card-gloss));
+  --reflection-half: calc((40 + 28 * (1 - var(--card-gloss))) * 1%);
+  --reflection-peak: calc(0.065 * var(--reflection-finish) * var(--reflection-fresnel));
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* The ceiling: a faint light down to its horizon, then seven bands fading out. */
+.card__reflection--ceiling {
+  --ceiling-peak: calc(0.0425 * var(--reflection-finish));
+  --ceiling-edge: calc(var(--reflection-horizon) * var(--card-height));
+  --ceiling-band: calc(0.85 / 7 * var(--card-height));
+  background: linear-gradient(174deg,
+    color-mix(in srgb, var(--color-text-max) calc(var(--ceiling-peak) * 100%), transparent) 0 var(--ceiling-edge),
+    color-mix(in srgb, var(--color-text-max) calc(var(--ceiling-peak) * pow(7 / 8, 1.4) * 100%), transparent)
+      var(--ceiling-edge) calc(var(--ceiling-edge) + var(--ceiling-band)),
+    color-mix(in srgb, var(--color-text-max) calc(var(--ceiling-peak) * pow(6 / 8, 1.4) * 100%), transparent)
+      calc(var(--ceiling-edge) + var(--ceiling-band)) calc(var(--ceiling-edge) + 2 * var(--ceiling-band)),
+    color-mix(in srgb, var(--color-text-max) calc(var(--ceiling-peak) * pow(5 / 8, 1.4) * 100%), transparent)
+      calc(var(--ceiling-edge) + 2 * var(--ceiling-band)) calc(var(--ceiling-edge) + 3 * var(--ceiling-band)),
+    color-mix(in srgb, var(--color-text-max) calc(var(--ceiling-peak) * pow(4 / 8, 1.4) * 100%), transparent)
+      calc(var(--ceiling-edge) + 3 * var(--ceiling-band)) calc(var(--ceiling-edge) + 4 * var(--ceiling-band)),
+    color-mix(in srgb, var(--color-text-max) calc(var(--ceiling-peak) * pow(3 / 8, 1.4) * 100%), transparent)
+      calc(var(--ceiling-edge) + 4 * var(--ceiling-band)) calc(var(--ceiling-edge) + 5 * var(--ceiling-band)),
+    color-mix(in srgb, var(--color-text-max) calc(var(--ceiling-peak) * pow(2 / 8, 1.4) * 100%), transparent)
+      calc(var(--ceiling-edge) + 5 * var(--ceiling-band)) calc(var(--ceiling-edge) + 6 * var(--ceiling-band)),
+    color-mix(in srgb, var(--color-text-max) calc(var(--ceiling-peak) * pow(1 / 8, 1.4) * 100%), transparent)
+      calc(var(--ceiling-edge) + 6 * var(--ceiling-band)) calc(var(--ceiling-edge) + 7 * var(--ceiling-band)),
+    transparent calc(var(--ceiling-edge) + 7 * var(--ceiling-band)));
+}
+
+/* The main strip's band: seven hard rings each side of its centre, the
+   core brightest. The strips draw it in light; the iridescence shows
+   through it. Each sets the band's half width and peak. */
+.card__reflection--strips,
+.card__reflection--iridescence {
+  --band-step: calc(var(--band-half) / 7);
+  --band-ring-1: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * 100%), transparent);
+  --band-ring-2: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * pow(6 / 7, var(--reflection-curve)) * 100%), transparent);
+  --band-ring-3: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * pow(5 / 7, var(--reflection-curve)) * 100%), transparent);
+  --band-ring-4: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * pow(4 / 7, var(--reflection-curve)) * 100%), transparent);
+  --band-ring-5: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * pow(3 / 7, var(--reflection-curve)) * 100%), transparent);
+  --band-ring-6: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * pow(2 / 7, var(--reflection-curve)) * 100%), transparent);
+  --band-ring-7: color-mix(in srgb, var(--color-text-max) calc(var(--band-peak) * pow(1 / 7, var(--reflection-curve)) * 100%), transparent);
+  --band: linear-gradient(118deg,
+    transparent calc(var(--reflection-strip) - 7 * var(--band-step)),
+    var(--band-ring-7) calc(var(--reflection-strip) - 7 * var(--band-step)) calc(var(--reflection-strip) - 6 * var(--band-step)),
+    var(--band-ring-6) calc(var(--reflection-strip) - 6 * var(--band-step)) calc(var(--reflection-strip) - 5 * var(--band-step)),
+    var(--band-ring-5) calc(var(--reflection-strip) - 5 * var(--band-step)) calc(var(--reflection-strip) - 4 * var(--band-step)),
+    var(--band-ring-4) calc(var(--reflection-strip) - 4 * var(--band-step)) calc(var(--reflection-strip) - 3 * var(--band-step)),
+    var(--band-ring-3) calc(var(--reflection-strip) - 3 * var(--band-step)) calc(var(--reflection-strip) - 2 * var(--band-step)),
+    var(--band-ring-2) calc(var(--reflection-strip) - 2 * var(--band-step)) calc(var(--reflection-strip) - var(--band-step)),
+    var(--band-ring-1) calc(var(--reflection-strip) - var(--band-step)) calc(var(--reflection-strip) + var(--band-step)),
+    var(--band-ring-2) calc(var(--reflection-strip) + var(--band-step)) calc(var(--reflection-strip) + 2 * var(--band-step)),
+    var(--band-ring-3) calc(var(--reflection-strip) + 2 * var(--band-step)) calc(var(--reflection-strip) + 3 * var(--band-step)),
+    var(--band-ring-4) calc(var(--reflection-strip) + 3 * var(--band-step)) calc(var(--reflection-strip) + 4 * var(--band-step)),
+    var(--band-ring-5) calc(var(--reflection-strip) + 4 * var(--band-step)) calc(var(--reflection-strip) + 5 * var(--band-step)),
+    var(--band-ring-6) calc(var(--reflection-strip) + 5 * var(--band-step)) calc(var(--reflection-strip) + 6 * var(--band-step)),
+    var(--band-ring-7) calc(var(--reflection-strip) + 6 * var(--band-step)) calc(var(--reflection-strip) + 7 * var(--band-step)),
+    transparent calc(var(--reflection-strip) + 7 * var(--band-step)));
+}
+
+/* The strips: the main band, and over it its echo, a narrower and dimmer
+   one further along. */
+.card__reflection--strips {
+  --band-half: var(--reflection-half);
+  --band-peak: var(--reflection-peak);
+  --echo-centre: calc(var(--reflection-strip) + 48%);
+  --echo-step: calc(0.35 * var(--reflection-half) / 4);
+  --echo-peak: calc(0.6 * var(--reflection-peak));
+  --echo-ring-1: color-mix(in srgb, var(--color-text-max) calc(var(--echo-peak) * 100%), transparent);
+  --echo-ring-2: color-mix(in srgb, var(--color-text-max) calc(var(--echo-peak) * pow(3 / 4, var(--reflection-curve)) * 100%), transparent);
+  --echo-ring-3: color-mix(in srgb, var(--color-text-max) calc(var(--echo-peak) * pow(2 / 4, var(--reflection-curve)) * 100%), transparent);
+  --echo-ring-4: color-mix(in srgb, var(--color-text-max) calc(var(--echo-peak) * pow(1 / 4, var(--reflection-curve)) * 100%), transparent);
+  background:
+    linear-gradient(118deg,
+      transparent calc(var(--echo-centre) - 4 * var(--echo-step)),
+      var(--echo-ring-4) calc(var(--echo-centre) - 4 * var(--echo-step)) calc(var(--echo-centre) - 3 * var(--echo-step)),
+      var(--echo-ring-3) calc(var(--echo-centre) - 3 * var(--echo-step)) calc(var(--echo-centre) - 2 * var(--echo-step)),
+      var(--echo-ring-2) calc(var(--echo-centre) - 2 * var(--echo-step)) calc(var(--echo-centre) - var(--echo-step)),
+      var(--echo-ring-1) calc(var(--echo-centre) - var(--echo-step)) calc(var(--echo-centre) + var(--echo-step)),
+      var(--echo-ring-2) calc(var(--echo-centre) + var(--echo-step)) calc(var(--echo-centre) + 2 * var(--echo-step)),
+      var(--echo-ring-3) calc(var(--echo-centre) + 2 * var(--echo-step)) calc(var(--echo-centre) + 3 * var(--echo-step)),
+      var(--echo-ring-4) calc(var(--echo-centre) + 3 * var(--echo-step)) calc(var(--echo-centre) + 4 * var(--echo-step)),
+      transparent calc(var(--echo-centre) + 4 * var(--echo-step))),
+    var(--band);
+}
+
+/* A Légendaire's iridescence: pastel hues showing through a wider main
+   band, sliding with the tilt. */
+.card__reflection--iridescence {
+  --band-half: calc(0.8 * var(--reflection-half));
+  --band-peak: 1;
+  background: linear-gradient(118deg,
+    var(--color-iridescence-1) 0 calc(100% * 1 / 21),
+    var(--color-iridescence-2) calc(100% * 1 / 21) calc(100% * 2 / 21),
+    var(--color-iridescence-3) calc(100% * 2 / 21) calc(100% * 3 / 21),
+    var(--color-iridescence-4) calc(100% * 3 / 21) calc(100% * 4 / 21),
+    var(--color-iridescence-5) calc(100% * 4 / 21) calc(100% * 5 / 21),
+    var(--color-iridescence-6) calc(100% * 5 / 21) calc(100% * 6 / 21),
+    var(--color-iridescence-7) calc(100% * 6 / 21) calc(100% * 7 / 21),
+    var(--color-iridescence-1) calc(100% * 7 / 21) calc(100% * 8 / 21),
+    var(--color-iridescence-2) calc(100% * 8 / 21) calc(100% * 9 / 21),
+    var(--color-iridescence-3) calc(100% * 9 / 21) calc(100% * 10 / 21),
+    var(--color-iridescence-4) calc(100% * 10 / 21) calc(100% * 11 / 21),
+    var(--color-iridescence-5) calc(100% * 11 / 21) calc(100% * 12 / 21),
+    var(--color-iridescence-6) calc(100% * 12 / 21) calc(100% * 13 / 21),
+    var(--color-iridescence-7) calc(100% * 13 / 21) calc(100% * 14 / 21),
+    var(--color-iridescence-1) calc(100% * 14 / 21) calc(100% * 15 / 21),
+    var(--color-iridescence-2) calc(100% * 15 / 21) calc(100% * 16 / 21),
+    var(--color-iridescence-3) calc(100% * 16 / 21) calc(100% * 17 / 21),
+    var(--color-iridescence-4) calc(100% * 17 / 21) calc(100% * 18 / 21),
+    var(--color-iridescence-5) calc(100% * 18 / 21) calc(100% * 19 / 21),
+    var(--color-iridescence-6) calc(100% * 19 / 21) calc(100% * 20 / 21),
+    var(--color-iridescence-7) calc(100% * 20 / 21) 100%);
+  background-position: var(--reflection-hue) 50%;
+  background-size: 300% 100%;
+  mask-image: var(--band);
+  mix-blend-mode: screen;
+  opacity: calc(0.5 * var(--reflection-fresnel));
+}
+
+/* A Légendaire's glitter (lib/glitter.ts draws the flakes): each flake a
+   2px mirror, crosses with four arms, at --flake-level; it flashes while
+   the tilt faces it, and otherwise twinkles now and then with its group
+   while in view. A flashing flake sits outside its group, whose opacity
+   would dim it; the group blends as a whole, as its flakes would alone. */
+.card__glitter {
+  position: absolute;
+  inset: 0;
+}
+
+.card__flake-group {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  opacity: 0.18;
+}
+
+.card__flake {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  mix-blend-mode: screen;
+  opacity: var(--flake-level, 0.5);
+}
+
+.card__flake--white { --flake-colour: var(--color-text-max); }
+.card__flake--gold { --flake-colour: var(--color-rarity-legendaire-hi); }
+.card__flake--violet { --flake-colour: var(--color-iridescence-2); }
+.card__flake--blue { --flake-colour: var(--color-iridescence-3); }
+
+.card__flake-glint {
+  display: block;
+  width: 2px;
+  height: 2px;
+  background: var(--flake-colour);
+}
+
+.card__flake--cross .card__flake-glint {
+  --flake-arm: color-mix(in srgb, var(--flake-colour) 60%, transparent);
+  box-shadow: 2px 0 0 var(--flake-arm), -2px 0 0 var(--flake-arm), 0 2px 0 var(--flake-arm), 0 -2px 0 var(--flake-arm);
+}
+
+.card[data-in-view] :where(.card__flake-group) {
+  animation: card-glitter-twinkle var(--flake-period) steps(1) var(--flake-delay) infinite;
+}
+
+@keyframes card-glitter-twinkle {
+  0%, 44% { opacity: 0.18; }
+  48% { opacity: 0.6; }
+  50% { opacity: 1; }
+  52% { opacity: 0.6; }
+  56%, 100% { opacity: 0.18; }
+}
+
+/* ---- Reduced motion: no tilt, the glitter still; the reflection stays at rest ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .card[data-tilt] {
+    transform: none;
+  }
+
+  html:not([data-motion="full"]) .card__flake-group {
+    animation: none;
+  }
+
+  html:not([data-motion="full"]) .card__flake[data-flash] .card__flake-glint {
+    opacity: 0.18;
+  }
+}
+
+html[data-motion="reduced"] .card[data-tilt] {
+  transform: none;
+}
+
+html[data-motion="reduced"] .card__flake-group {
+  animation: none;
+}
+
+html[data-motion="reduced"] .card__flake[data-flash] .card__flake-glint {
+  opacity: 0.18;
+}

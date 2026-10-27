@@ -118,7 +118,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".public-card__pitch"
     assert_select "script", text: /:has|userAgent|navigator/, count: 0
 
-    css = Rails.root.join("app/frontend/styles/card-detail.css").read
+    css = %w[card-detail card-detail-stepping card-detail-public].sum("") { |name| Rails.root.join("app/frontend/styles/#{name}.css").read }
     default, supported = css.split("@supports selector(:has(*))", 2)
     # By default: the invitation and the sign-in image hidden, the line shown.
     assert_match(/\.public-card__pitch \{\s*display: none;/, default)

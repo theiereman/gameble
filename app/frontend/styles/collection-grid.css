@@ -1,0 +1,472 @@
+/* ---- RAPPORT: a panel from 1180px, a fold on the phone ---- */
+
+.report {
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+}
+
+.report--panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-panel-padding);
+}
+
+.report--fold {
+  display: none;
+}
+
+.report__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.report__light {
+  width: 8px;
+  height: 8px;
+  background: var(--color-accent);
+}
+
+.report__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.report__rows--tiers {
+  padding-top: var(--space-3);
+  border-top: var(--space-unit) solid var(--color-line-soft);
+}
+
+.report__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-card-meta);
+  text-transform: uppercase;
+}
+
+.report__row dt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  color: var(--color-muted);
+}
+
+.report__row dd {
+  margin: 0;
+  color: var(--color-text-max);
+  font-variant-numeric: tabular-nums;
+}
+
+.report__icon {
+  width: 14px;
+  height: 14px;
+}
+
+.report__row--tier-1 dd { color: var(--color-rarity-commune); }
+.report__row--tier-2 dd { color: var(--color-rarity-peu-commune); }
+.report__row--tier-3 dd { color: var(--color-rarity-rare); }
+.report__row--tier-4 dd { color: var(--color-rarity-epique); }
+.report__row--tier-5 dd { color: var(--color-rarity-legendaire); }
+
+.report__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--space-touch-min);
+  padding: var(--space-2) var(--space-5);
+  cursor: pointer;
+  list-style: none;
+}
+
+.report__summary::-webkit-details-marker {
+  display: none;
+}
+
+.report__line {
+  flex: 1;
+  color: var(--color-text);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  text-align: right;
+}
+
+.report__chevron {
+  width: 6px;
+  height: 10px;
+  color: var(--color-accent);
+}
+
+.report--fold[open] .report__chevron {
+  transform: rotate(90deg);
+}
+
+.report--fold > .report__rows {
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+.report--fold > .report__rows--tiers {
+  padding-top: var(--space-3);
+}
+
+/* ---- The grids: fixed gaps, medium cards, or cards filling the row ---- */
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, var(--card-m-width));
+  gap: var(--space-grid-gap-rows) var(--space-grid-gap-columns);
+  justify-content: start;
+  margin: 0;
+  padding: var(--space-3) 0;
+  list-style: none;
+}
+
+.collection-grid__empty {
+  margin: 0;
+  padding: var(--space-8) 0;
+  color: var(--color-muted);
+  font: var(--font-body-large);
+  letter-spacing: var(--tracking-body-large);
+  text-align: center;
+}
+
+/* A slot reaches past its card by --slot-bleed on every side (a negative
+   margin keeps the grid's gaps): far from the viewport it skips its
+   rendering, at its known size. The intrinsic size is the content box's
+   (the padding comes on top), so a slot not rendered yet, as on a Turbo
+   restore, takes the card's own size and nothing shifts once it renders. */
+.collection-slot {
+  position: relative;
+  margin: calc(-1 * var(--slot-bleed));
+  padding: var(--slot-bleed);
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--card-m-width) auto var(--card-m-height);
+}
+
+.collection-slot > .card-link {
+  display: block;
+  width: var(--card-m-width);
+  height: var(--card-m-height);
+}
+
+.collection-grid--fill {
+  grid-template-columns: repeat(auto-fill, minmax(var(--space-grid-card-min), 1fr));
+}
+
+.collection-grid--fill > .collection-slot {
+  box-sizing: content-box;
+  width: round(down, 100%, 2px);
+  justify-self: center;
+  min-height: 0;
+  aspect-ratio: 2 / 3;
+  container-type: inline-size;
+}
+
+.collection-grid--fill > .collection-slot > .card-link {
+  width: 100cqi;
+  height: calc(1.5 * 100cqi);
+}
+
+/* "x3": copies owned, a small accent box at the card's top-right. */
+.collection-slot__copies {
+  position: absolute;
+  top: calc(var(--slot-bleed) - 3 * var(--space-1));
+  right: calc(var(--slot-bleed) - 3 * var(--space-1));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 20px;
+  padding: 0 var(--space-2);
+  background: var(--color-accent);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-outline);
+  color: var(--color-on-accent);
+  font: var(--font-label);
+  letter-spacing: 0;
+  pointer-events: none;
+}
+
+.collection-slot__editions {
+  position: absolute;
+  top: calc(var(--slot-bleed) - 3 * var(--space-1) + 20px + 2 * var(--space-unit));
+  right: calc(var(--slot-bleed) - 3 * var(--space-1));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 20px;
+  padding: 0 var(--space-2);
+  background: var(--color-accent);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-outline);
+  color: var(--color-on-accent);
+  font: var(--font-label);
+  letter-spacing: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* "Nouveau": a small lime box at the card's top-left. */
+.collection-slot__new {
+  position: absolute;
+  top: calc(var(--slot-bleed) - 3 * var(--space-1));
+  left: calc(var(--slot-bleed) - 3 * var(--space-1));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 var(--space-2);
+  background: var(--color-lime);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-outline);
+  color: var(--color-on-lime);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-card-meta);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* ---- Set album: the name and count, the bar and its ticks, then the grid ---- */
+
+.set-album {
+  --slot-bleed: var(--space-4);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.set-album > turbo-frame {
+  display: contents;
+}
+
+.set-album__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.set-album__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.set-album__name {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-hero);
+  line-height: 1.2;
+  letter-spacing: 1px;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.set-album__name:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.set-album__count {
+  margin-left: auto;
+  color: var(--color-muted);
+  font: var(--font-number);
+  white-space: nowrap;
+}
+
+.set-album__count b {
+  color: var(--color-text-max);
+  font: var(--font-count-large);
+}
+
+.set-album__stamp {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  margin: var(--space-2) var(--space-4);
+  padding: 0 var(--space-4);
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 3px var(--color-lime);
+  color: var(--color-lime);
+  font: 400 1.75rem / 1.75rem var(--font-family-vt323);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  transform: rotate(-6deg);
+  clip-path: polygon(0 3px, 3px 3px, 3px 0, calc(100% - 3px) 0, calc(100% - 3px) 3px, 100% 3px, 100% calc(100% - 3px),
+    calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 3px calc(100% - 3px), 0 calc(100% - 3px));
+}
+
+.set-album__track {
+  position: relative;
+}
+
+/* Under the tiers' marks, the count each asks, 19px under the bar. */
+.set-album__header.set-album__header--tiered {
+  padding-bottom: 44px;
+}
+
+.set-album__bar {
+  height: 8px;
+}
+
+.set-album__header--complete .set-album__bar::-webkit-progress-value {
+  background: var(--color-lime);
+}
+
+.set-album__header--complete .set-album__bar::-moz-progress-bar {
+  background: var(--color-lime);
+}
+
+.set-album__ticks {
+  --bar-height: 8px;
+  position: absolute;
+  inset: 0 0 auto;
+  height: 8px;
+}
+
+.set-album__figure {
+  position: absolute;
+  top: calc(var(--bar-height) + 19px);
+  left: calc(var(--at) * 100%);
+  color: var(--color-muted);
+  font: var(--font-weight-bold) 0.6875rem / 0.875rem var(--font-family-jetbrains-mono);
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.set-album__figure.is-reached {
+  color: var(--color-text-bright);
+}
+
+/* ---- No season ---- */
+
+.collection-none {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* ---- One column under 1180px: the grid alone, the RAPPORT folded on the phone ---- */
+
+@media (max-width: 1179px) {
+  .collection {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "aside"
+      "main";
+    column-gap: var(--space-column-gap-medium);
+  }
+
+  .report--panel {
+    display: none;
+  }
+}
+
+@media (min-width: 720px) and (max-width: 1179px) {
+  .collection {
+    grid-template-areas: "main";
+  }
+
+  .collection__aside {
+    display: none;
+  }
+}
+
+/* Under 900px the status label gives way to its value. */
+@media (max-width: 899px) {
+  .collection-status__label {
+    display: none;
+  }
+}
+
+/* ---- Phone: one column, chips, the RAPPORT folded, two cards a row ---- */
+
+@media (max-width: 719px) {
+  .set-tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The phone's top bar: the back button, the title and the status, as
+     mocked. */
+  .top-bar--status .player-chip {
+    display: none;
+  }
+
+  .collection__aside {
+    gap: var(--space-5);
+  }
+
+  .collection-status__bar {
+    width: 48px;
+  }
+
+  .filters__group:not(.set-filter),
+  .set-filter__kinds,
+  .set-filter__options {
+    gap: var(--space-touch-gap);
+  }
+
+  .filter-chip__text,
+  .filters__search-field,
+  .filters__summary,
+  .collection-pages__link {
+    min-height: var(--space-touch-min);
+  }
+
+  .collection-pages__link {
+    min-width: var(--space-touch-min);
+  }
+
+  .collection-pages {
+    gap: var(--space-touch-gap);
+  }
+
+  .report--fold {
+    display: block;
+  }
+
+  .collection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .set-search__row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .set-search__row > .button {
+    width: 100%;
+  }
+
+  .set-search__field {
+    min-height: var(--space-button-height-phone);
+  }
+
+  .set-album__name {
+    font-size: 2.5rem;
+  }
+
+  .set-album__count b {
+    font: var(--font-count-large-phone);
+  }
+}
+
+/* The two cards share the page's width: on narrow phones (360px wide) the
+   gap tightens to 8px, leaving the cards more of it. */
+@media (max-width: 371px) {
+  .collection-grid {
+    column-gap: var(--space-3);
+  }
+}
