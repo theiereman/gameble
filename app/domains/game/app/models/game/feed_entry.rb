@@ -1,36 +1,11 @@
 module Game
-  # An entry of the activity feed, named by its player. A pull or a first
-  # discovery is one card of an opened pack, unique per pack and position,
-  # written only by Game::Handlers::PackOpenedFeed in the opening's
-  # transaction: `notable` pulls are Épique or better, a filler is the best
-  # card of a pack that held none, kept so a quiet feed is never empty, and a
-  # discovery is notable whatever its rarity. A repost is a card a player
-  # shared, with no pack, written only by Game::Handlers::CardRepostedFeed.
-  # A trade names its proposer and, as partner, its recipient, with the best
-  # card each gave, unique per trade, written only by
-  # Game::Handlers::TradeAccepted. A set entry sums up the tiers one
-  # operation reached for a player (an opening, or one side of a trade), with
-  # no card: the highest result, the count of sets, unique per player and
-  # time, written only by Game::Handlers::SetTierFeed. Its `kind` is what the
-  # feed's type filters read; visibility is not stored but asked when it is
-  # shown.
   class FeedEntry < ApplicationRecord
     self.table_name = "game_feed_entries"
 
-    # The lowest tier of a notable pull (Catalog::Rarity::TIERS: Épique).
     NOTABLE_TIER = 4
 
-    # The kinds of entry (the database checks the same list); only pulls and
-    # discoveries carry a pack and a position, only sets no card.
     KINDS = %w[pull discovery trade repost set].freeze
 
-    # The tier rows the operation wrote beside the reached one (same player,
-    # way, time and pack), summed up in one entry naming the highest: a
-    # complete set first, then the tier standing for the largest share of
-    # its set (its required count over the complete tier's), then the later
-    # tier in SetTier::TIERS, then the lowest set id. Rewritten whole on every
-    # event of the operation, so the last one leaves it complete and a replay
-    # changes nothing.
     RECORD_SETS_SQL = <<~SQL.squish.freeze
       WITH reached AS (
         SELECT player_id, reached_by, reached_at, pack_id
@@ -63,12 +38,6 @@ module Game
 
     scope :newest_first, -> { order(occurred_at: :desc, id: :desc) }
 
-    # Puts in the feed the cards of `pack` this opening discovered first
-    # (`discovered`, card-season ids: the first position of each, as a
-    # `discovery`, whatever its rarity, story 6.7) and its other notable
-    # cards (as pulls), or, when it holds neither, its best card as a filler
-    # (the first drawn on a tie): one insert, a duplicate (an event handled
-    # twice) is skipped and never fails.
     def self.record_pack(pack, rarities, now, discovered: [])
       cards = pack.card_season_ids.each_with_index.filter_map { |id, position| [ id, position, rarities[id] ] if rarities[id] }
       firsts = discovered.filter_map { |id| cards.find { |card_id, _, _| card_id == id }&.at(1) }
@@ -105,8 +74,6 @@ module Game
       insert_all([ row ], unique_by: :trade_id, record_timestamps: false).rows.any?
     end
 
-    # Sums up in the feed the tiers of the operation that reached `tier` of
-    # `set_id` for the player; nothing when no such tier row exists.
     def self.record_sets(player_id:, set_id:, tier:, now:)
       binds = { player_id:, set_id:, tier:, now:, tiers: SetTier::TIERS }
       connection.exec_update(sanitize_sql_array([ RECORD_SETS_SQL, binds ]), "Game::FeedEntry Record Sets")

@@ -1,24 +1,4 @@
 module Game
-  # Records that a contributor earned the reward of a reached weekly goal. The
-  # reward waits without a pack until the player claims it
-  # (Game::ClaimGoalReward), whatever their reserve holds, so it is never
-  # lost. Under the bank lock:
-  #
-  # 1. the week's goal is not reached: Failure(:goal_not_reached);
-  # 2. the player has no contribution that week: Failure(:not_contributor);
-  # 3. a reward for that week exists: Failure(:already_granted);
-  # 4. the reward row (Game::GoalReward) is inserted with no pack, and
-  #    Game::GoalRewardGranted is published.
-  #
-  # The lock serialises a player's grants; the unique index on (player_id,
-  # week_start) is the database's guarantee behind it. Run by
-  # Game::GrantGoalRewardsJob, one player per transaction. A player whose
-  # account was deleted while it waited on the lock gets nothing
-  # (Game::Operation#lock_bank).
-  #
-  #   Game::GrantGoalReward.new.call(player:, week_start: Date)
-  #   # => Success(goal_reward) | Failure(:player_required) | Failure(:goal_not_reached) | Failure(:not_contributor)
-  #   #    | Failure(:already_granted)
   class GrantGoalReward < Operation
     def call(player:, week_start:)
       player = step require_player(player)

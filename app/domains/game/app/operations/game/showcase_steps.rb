@@ -1,8 +1,4 @@
 module Game
-  # What moving and placing a showcased card share: the player's entries
-  # read in the showcase's order (position, then id) and locked, so a
-  # trade's removal of a card waits for the change, then written back at
-  # 0..n-1, so a gap or a shared place heals on the change.
   module ShowcaseSteps
     private
 

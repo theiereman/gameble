@@ -1,6 +1,4 @@
 module Game
-  # Moves one showcased card one place earlier or later, swapping it with
-  # its neighbour in the showcase's order.
   class MoveShowcaseCard < Operation
     include ShowcaseSteps
 
