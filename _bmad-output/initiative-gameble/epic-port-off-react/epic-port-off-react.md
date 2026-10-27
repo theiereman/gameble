@@ -5,6 +5,7 @@ key: ""
 type: epic
 title: "The booster and the trade board leave React for Stimulus"
 parent: initiative-gameble
+status: done
 covers: []
 after: []
 assignee: ""
