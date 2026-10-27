@@ -1,27 +1,4 @@
 module Steam
-  # Details the next page of games kept by a running run on the details step
-  # (CAP-2, AD-19; epic 2 R3, R4, R5): their names, short descriptions,
-  # publishers, release date, tags, store path and library image come from
-  # IStoreBrowseService/GetItems, asked once in English and once in French,
-  # and each app gets this run's verdict (Steam::DetailsPolicy): NULL when it
-  # can become a card, otherwise why not.
-  #
-  # The page is the next PAGE_SIZE apps kept by this run after the cursor, in
-  # appid order (Steam::App.kept_by). Steam is called outside the
-  # transaction; then, in one transaction, the page's rows are updated (never
-  # created) and the cursor and the counts move past the page. When no app is
-  # left after the cursor, the step finishes (Steam::FinishImportStep) without
-  # calling Steam and hands over to the cards (Steam::ImportCardsPage).
-  #
-  # A Steam failure raises Steam::WebApi::Error (key redacted), for the job to
-  # retry and, once retries are spent, fail the run.
-  #
-  # `cursor`, when given, is the cursor the caller expects the page to start
-  # from; a run that has moved on fails with cursor_moved before the page is
-  # read.
-  #
-  #   Steam::ImportDetailsPage.new.call(import_run_id: run.id, cursor: run.cursor)
-  #   # => Success(run) | Failure(:not_found) | Failure(:not_running) | Failure(:cursor_moved)
   class ImportDetailsPage < ApplicationOperation
     include PageSteps
 
@@ -40,7 +17,7 @@ module Steam
     def call(import_run_id:, cursor: nil)
       run = step find_run(import_run_id)
       step require_on_step(run)
-      step require_expected_cursor(run, cursor)
+      step require_job_cursor_current(run, cursor)
       expected_cursor = run.cursor
       last_appid = run.last_appid
 
@@ -53,7 +30,7 @@ module Steam
       transaction do
         run = step lock_run(import_run_id)
         step require_on_step(run)
-        step require_cursor_unchanged(run, expected_cursor)
+        step require_cursor_unchanged_under_lock(run, expected_cursor)
         if appids.empty?
           step FinishImportStep.new.call(import_run: run)
         else

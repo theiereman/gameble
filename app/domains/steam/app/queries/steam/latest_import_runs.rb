@@ -1,5 +1,4 @@
 module Steam
-  # The latest import runs, the most recent first, for the back-office (AD-3).
   module LatestImportRuns
     LIMIT = 20
 

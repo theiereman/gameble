@@ -1,15 +1,4 @@
 module Steam
-  # Promotes the ready import run: its staged cards replace the draft
-  # season's card-seasons in one transaction (Catalog::PromoteStagedBatch),
-  # and the run is promoted. The draft can then be published.
-  #
-  # When the season the run began on was published since, the batch is stale:
-  # it is discarded, the run is abandoned and the call fails with
-  # stale_batch.
-  #
-  #   Steam::PromoteImport.new.call(import_run_id: run.id)
-  #   # => Success(run) | Failure(:not_found) | Failure(:not_ready)
-  #   #    | Failure(:empty_batch) | Failure(:stale_batch)
   class PromoteImport < ApplicationOperation
     def call(import_run_id:)
       stale = false
