@@ -1,4 +1,4 @@
-import type { BoosterBank } from "./booster"
+import type { BoosterBank } from "./booster_types"
 import { RARITIES, type Rarity } from "./card_types"
 import { SET_TIERS, type OpeningAnswer, type OpeningCard, type OpeningSetTier, type SetThreshold, type SetTierName } from "./opening"
 
