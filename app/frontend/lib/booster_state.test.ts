@@ -30,7 +30,6 @@ import {
   owedBankTaken,
   shownCelebration,
   shownResult,
-  start,
   unlock,
 } from "./booster_state"
 import { REVEAL_GUARD } from "./booster_types"

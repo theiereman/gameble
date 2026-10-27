@@ -57,13 +57,13 @@ function target() {
 
 function setup(options: ArtRendererOptions = {}) {
   const workers: FakeWorker[] = []
-  const plain = vi.fn(
-    async (
-      _url: string,
-      _canvas: HTMLCanvasElement,
-      _options: { width: number; height: number; signal?: AbortSignal },
-    ) => {},
-  )
+  const plain = vi.fn<
+    (
+      url: string,
+      canvas: HTMLCanvasElement,
+      options: { width: number; height: number; signal?: AbortSignal },
+    ) => Promise<void>
+  >(async () => {})
   const renderer = createArtRenderer({
     createWorker: () => {
       const worker = new FakeWorker()

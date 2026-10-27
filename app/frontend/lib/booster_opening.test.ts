@@ -29,7 +29,6 @@ import {
 } from "./booster_opening"
 import { bankFetchOwed, celebrate, lock } from "./booster_state"
 import { BoosterState, REVEAL_GUARD } from "./booster_types"
-import { activation } from "./booster_view"
 import { FIVE, VALVE, answerOf, bank, dealt, revealedAll, startWith } from "./booster_fixtures"
 
 describe("canOpen, openingStarted", () => {

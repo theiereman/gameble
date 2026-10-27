@@ -7,7 +7,8 @@
     "format": "prettier --write app/frontend",
     "format:check": "prettier --check app/frontend",
     "lint:css": "stylelint \"app/frontend/**/*.css\"",
-    "test:js": "vitest run"
+    "test:js": "vitest run",
+    "lint:js": "eslint app/frontend"
   },
   "dependencies": {
     "@hotwired/stimulus": "3.2.2",
@@ -16,11 +17,14 @@
     "stimulus-vite-helpers": "3.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.13.0",
     "happy-dom": "20.14.5",
     "prettier": "3.9.10",
     "stylelint": "17.16.0",
     "stylelint-config-standard": "40.0.0",
-    "typescript": "7.0.2",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
     "vite": "^8.3.4",
     "vite-plugin-ruby": "^5.2.6",
     "vitest": "5.0.5"

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { arming, ejecting } from "./booster_opening"
 import {
   countsAfterReveal,
   faceSize,

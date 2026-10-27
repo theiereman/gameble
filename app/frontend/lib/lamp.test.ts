@@ -102,10 +102,9 @@ describe("Lamp", () => {
 
   it("holds on a find before heading for the next card", () => {
     const lamp = new Lamp(cards, area, RADII_DESKTOP, 0)
-    let foundAt = 0
     let now = 0
     while (!lamp.advance(idle(now)).found[0]) now += 16
-    foundAt = now
+    const foundAt = now
     const during = run(lamp, foundAt, foundAt + FOUND_HOLD_MS - 100)
     expect(Math.hypot(during.x - cards[0].x, during.y - cards[0].y)).toBeLessThan(RADII_DESKTOP[0])
     const after = run(lamp, foundAt + FOUND_HOLD_MS - 100, foundAt + FOUND_HOLD_MS + 4000)

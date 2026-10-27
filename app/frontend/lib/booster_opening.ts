@@ -1,4 +1,4 @@
-import { bankChanged, celebrate, completed, idle } from "./booster_state"
+import { bankChanged, completed } from "./booster_state"
 import {
   NO_COUNTS,
   allRevealed,

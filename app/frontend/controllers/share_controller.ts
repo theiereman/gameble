@@ -29,7 +29,7 @@ export default class extends Controller<HTMLElement> {
   private copyBySelection(): void {
     this.urlTarget.focus()
     this.urlTarget.select()
-    let copied = false
+    let copied: boolean
     try {
       copied = document.execCommand("copy")
     } catch {

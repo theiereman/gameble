@@ -2,14 +2,13 @@ import { describe, expect, it } from "vitest"
 import {
   arming,
   cardStored,
-  ejecting,
   legendarySignalled,
   openingStarted,
   revealAllStarted,
   revealMarked,
   revealStarted,
 } from "./booster_opening"
-import { bannerShown, idle, lock, locked } from "./booster_state"
+import { bannerShown, lock } from "./booster_state"
 import { CLICK_AFTER_DRAG, Layout, REVEAL_GUARD } from "./booster_types"
 import {
   activation,
