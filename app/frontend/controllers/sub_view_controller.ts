@@ -14,7 +14,7 @@ import { swipeStep } from "../lib/swipe"
 //   (lib/sub_view_step.ts);
 // - when motion is allowed, renders the frame in a View Transition: the
 //   card leaves toward the step and the next one comes in with a slight turn
-//   (styles/card-detail.css); under reduced motion it is replaced at once;
+//   (styles/card-detail-stepping.css); under reduced motion it is replaced at once;
 // - sets the page's title to the card's as soon as it shows (Turbo merges
 //   the response's head, layouts/turbo_rails/frame.html.erb, a moment
 //   later), and points the top bar's way back, outside the frame, at the

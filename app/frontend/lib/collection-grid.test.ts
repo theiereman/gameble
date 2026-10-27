@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest"
-import cardStylesheet from "../styles/card.css?raw"
-import collectionStylesheet from "../styles/collection.css?raw"
+import card from "../styles/card.css?raw"
+import cardTiltEffects from "../styles/card-tilt-effects.css?raw"
+import collection from "../styles/collection.css?raw"
+import collectionFilters from "../styles/collection-filters.css?raw"
+import collectionGrid from "../styles/collection-grid.css?raw"
+import collectionSetTiles from "../styles/collection-set-tiles.css?raw"
 import shellStylesheet from "../styles/shell.css?raw"
 import tokensStylesheet from "../styles/tokens.css?raw"
+
+const cardStylesheet = card + cardTiltEffects
+const collectionStylesheet = collection + collectionSetTiles + collectionFilters + collectionGrid
 
 const ruleBody = (stylesheet: string, selector: string, from = 0) => {
   const at = stylesheet.indexOf(`${selector} {`, from)

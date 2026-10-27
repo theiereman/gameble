@@ -4,7 +4,7 @@
 // has ended, <html> carries `data-sub-view-step=previous|next`: the star
 // field does not shift (starfield_controller.ts) and the screen does not
 // slide (styles/shell.css), as a step is no screen change. ◀ ▶ slide the
-// card toward the step (styles/card-detail.css).
+// card toward the step (styles/card-detail-stepping.css).
 //
 // Turbo's own visit for the new URL renders no body, but would start a
 // View Transition of its own, which would cut the card's short: during a

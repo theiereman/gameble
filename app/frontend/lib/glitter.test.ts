@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest"
 import boosterLayoutsStylesheet from "../styles/booster-layouts.css?raw"
 import boosterStylesheet from "../styles/booster.css?raw"
-import cardStylesheet from "../styles/card.css?raw"
+import card from "../styles/card.css?raw"
+import cardTiltEffects from "../styles/card-tilt-effects.css?raw"
 import { DEFAULT_SEED, FLASH_REACH, TWINKLE_GROUPS, attachGlitter, flakeField, flakeFlash, flakeLevel, glitterSeed } from "./glitter"
+
+const cardStylesheet = card + cardTiltEffects
 
 // An element stand-in: a class name, attributes, custom properties and
 // children; a child appended elsewhere leaves its former parent.

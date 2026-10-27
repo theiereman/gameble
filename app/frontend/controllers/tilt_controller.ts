@@ -10,7 +10,7 @@ const pixels = (value: string): number | undefined => {
 
 // A card face's tilt, reflection, glitter and in-view mark (CardComponent;
 // lib/tilt.ts, lib/glitter.ts): a Légendaire's flakes twinkle only while
-// `data-in-view` is set (styles/card.css). A Turbo snapshot keeps the
+// `data-in-view` is set (styles/card-tilt-effects.css). A Turbo snapshot keeps the
 // attributes, properties and flakes of the moment it was taken: each
 // connect starts from a clean face, each disconnect leaves one.
 export default class extends Controller<HTMLElement> {

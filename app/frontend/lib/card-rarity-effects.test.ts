@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest"
 import boosterLayoutsStylesheet from "../styles/booster-layouts.css?raw"
 import boosterStylesheet from "../styles/booster.css?raw"
-import cardDetailStylesheet from "../styles/card-detail.css?raw"
+import cardDetail from "../styles/card-detail.css?raw"
+import cardDetailPublic from "../styles/card-detail-public.css?raw"
+import cardDetailStepping from "../styles/card-detail-stepping.css?raw"
 import cardRarityEffectsStylesheet from "../styles/card-rarity-effects.css?raw"
 import hubStylesheet from "../styles/hub.css?raw"
+
+const cardDetailStylesheet = cardDetail + cardDetailStepping + cardDetailPublic
 
 const rule = (stylesheet: string, selector: string) => {
   const at = stylesheet.indexOf(`${selector} {`)

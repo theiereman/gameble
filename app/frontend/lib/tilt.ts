@@ -1,7 +1,7 @@
 // A card face's tilt under the pointer, and the studio reflection on its
 // varnish that rides it. The face eases toward its target in animation
 // frames and writes it as custom properties the stylesheet reads
-// (styles/card.css):
+// (styles/card-tilt-effects.css):
 //   --tilt-rx, --tilt-ry   the rotation, in degrees
 //   --reflection-strip     the strips' centre, in % of their gradient line
 //   --reflection-fresnel   how much the varnish brightens with the tilt
