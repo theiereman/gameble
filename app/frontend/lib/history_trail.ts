@@ -1,28 +1,8 @@
-// The pages of this tab's history, by Turbo's restoration index (the
-// position Turbo writes in each history entry's state), so a contextual
-// back ("◀ Grille"; history_back_controller.ts) can go back through
-// history to a page shown earlier, which Turbo then restores at its
-// scroll, rather than visit it anew, and a page shown again can focus the
-// link to the page the user came back from. Kept in sessionStorage and
-// started afresh on each full document load (resetTrail): Turbo reads its
-// index back from history.state there (a reload, a back/forward document
-// load), but the pages recorded by earlier documents of the tab, or by
-// entries this document never saw, cannot be trusted to still match those
-// indexes; only entries of the current document are. A reload therefore
-// loses the trail, and the back falls back to a plain visit. Any storage
-// error (private mode, quota) leaves it empty, and the back is a plain visit.
-//
-// Every page load and every frame visit that changes the URL records
-// { index → pathname and screen label }: a replaced entry (◀ ▶) overwrites
-// its index, a new entry its own. Entries before the current one are the
-// pages history would return to; the nearest of them showing another screen,
-// the one the desktop back button names (earlier pages of the current screen,
-// such as the collection's other pages, are skipped); the entry right after
-// it, the page the user just came back from. The hub and unnamed screens
-// record no label.
+// Turbo's restoration index to the page shown at it, kept in sessionStorage and reset on each full document load.
+// It lets a contextual back go through history to an earlier page, and a page shown again focus the link it came from.
+// Entries from other documents of the tab cannot be trusted; any storage error leaves the trail empty.
 
 export const TRAIL_KEY = "gameble:history-trail"
-/** How many entries are kept around the current one, either way. */
 export const TRAIL_SPAN = 100
 export const ROUTED_LOCALES = ["en", "fr"]
 
@@ -54,17 +34,11 @@ function isTrailEntry(entry: unknown): entry is TrailEntry {
     Object.values(labels as Record<string, unknown>).every((value) => typeof value === "string")
 }
 
-/**
- * Empties the trail. Called on each full document load, and when the page
- * comes back from the back/forward cache: entries recorded by another
- * document of the tab may name other pages at the same indexes.
- */
 export function resetTrail(storage: TrailStorage | null): void {
   if (!storage) return
   try {
     storage.setItem(TRAIL_KEY, "{}")
   } catch {
-    // Refused: the trail reads as empty or stale; the back may be a plain visit.
   }
 }
 
@@ -87,15 +61,10 @@ export function recordEntry(
   try {
     storage.setItem(TRAIL_KEY, JSON.stringify(trail))
   } catch {
-    // Full or refused: the back stays a plain visit.
   }
 }
 
-/**
- * How many entries back the nearest earlier entry showing `pathname`, in
- * either language, is from the entry at `index`; null when no earlier entry
- * shows it.
- */
+/** How many entries back the nearest earlier entry showing `pathname`, in either language, is from `index`; null when none. */
 export function stepsBackTo(pathname: string, index: number, storage: TrailStorage | null): number | null {
   const trail = readTrail(storage)
   for (let earlier = index - 1; earlier >= Math.max(0, index - TRAIL_SPAN); earlier--) {
@@ -111,21 +80,14 @@ function samePage(recorded: string, pathname: string): boolean {
   return locale !== null && routedLocaleOf(recorded) !== null && inLocale(recorded, locale) === pathname
 }
 
-/**
- * The pathname recorded for the entry right after the one at `index` (the
- * page the user came back from by a restore visit), or null when none is.
- */
+/** The pathname recorded right after `index`: the page the user came back from. */
 export function entryAfter(index: number, storage: TrailStorage | null): string | null {
   return readTrail(storage)[index + 1]?.pathname ?? null
 }
 
 export type PreviousScreen = { label: string; pathname: string; steps: number }
 
-/**
- * The nearest entry before the one at `index` showing a screen other than
- * `currentLabel`, skipping the entries of the current screen; null when that
- * entry is unknown or its screen has no label (the hub).
- */
+/** The nearest entry before `index` showing another screen than `currentLabel`; null when unknown or unlabelled. */
 export function previousScreen(trail: Trail, index: number, currentLabel: string | null, currentPathname: string): PreviousScreen | null {
   const locale = localeOf(currentPathname)
   for (let earlier = index - 1; earlier >= Math.max(0, index - TRAIL_SPAN); earlier--) {

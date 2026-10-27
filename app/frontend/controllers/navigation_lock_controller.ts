@@ -1,13 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
 import { onGameble } from "../lib/events"
 
-// Locks the in-app navigation inside its element while the booster screen
-// opens a booster or reveals a card (EXPERIENCE.md, Opening protocol, step
-// 6; `gameble:navigation-locked`): the top bar's back button, the phone
-// tab bar. Every link and button inside is marked `aria-disabled` (shown at
-// 40 % opacity, shell.css) and its activation swallowed; unlocked, each
-// is restored as it was. Browser Back is never blocked. The listeners go,
-// and the lock with them, on disconnect.
+// Locks the in-app navigation inside its element (top bar back button, tab bar) while the booster screen opens a booster or reveals a card:
+// every link and button is marked `aria-disabled` and its activation swallowed. Browser Back is never blocked.
 export default class extends Controller<HTMLElement> {
   private stopListening?: () => void
   private locked = false

@@ -2,16 +2,9 @@ import { Controller } from "@hotwired/stimulus"
 import { onGameble } from "../lib/events"
 import { formatNumber } from "../lib/i18n"
 
-// How long a changed count stays brightened (DESIGN.md, Rarity counter).
 const CHANGED_MS = 700
 
-// The top bar's rarity counter (DESIGN.md, Rarity counter; EXPERIENCE.md,
-// Rarity counter): a count rises as the booster screen reveals each card
-// (`gameble:tier-revealed`), never before. Each count target (the button's
-// and the legend's) names its tier in `data-tier`; the revealed tier's
-// counts are rewritten from the event's counts, grouped with the locale's
-// delimiter, and brightened a moment. The listener and the timers go on
-// disconnect.
+// The top bar's rarity counter: a count rises as the booster screen reveals each card (`gameble:tier-revealed`), never before.
 export default class extends Controller<HTMLElement> {
   static targets = ["count"]
   static values = { delimiter: { type: String, default: "," } }

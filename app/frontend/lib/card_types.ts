@@ -1,6 +1,4 @@
-// The card types the booster screen shares with the server. Card
-// faces are rendered on the server only (CardComponent); the screen
-// receives them as HTML.
+// The card types the booster screen shares with the server, which renders card faces as HTML.
 
 /** Catalog::Rarity::TIERS code names, from the most common. */
 export type Rarity = "common" | "uncommon" | "rare" | "epic" | "legendary"

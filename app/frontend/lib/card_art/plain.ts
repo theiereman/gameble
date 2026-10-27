@@ -7,15 +7,7 @@ export type PlainOptions = { width: number; height: number; signal?: AbortSignal
 /** Draws `url` on `canvas` without palette; see `renderPlain`. */
 export type PlainRenderer = (url: string, canvas: HTMLCanvasElement, options: PlainOptions) => Promise<void>
 
-/**
- * The main-thread path, for a CORS refusal and for browsers without a worker,
- * `OffscreenCanvas` or `createImageBitmap` (AD-17): a plain image (no
- * `crossOrigin`, no referrer), cropped anchored at 42 % and halved on scratch
- * canvases to the art size, drawn without palette. The image taints the
- * canvases, so its pixels are never read: no palette, no grey check, only the
- * size check. Rejects with `ArtMissingError` when the image does not load or is
- * too small, and with `AbortError`, drawing nothing, once `signal` aborts.
- */
+/** The main-thread path, for a CORS refusal or a browser without the worker APIs: the image taints the canvases, so no palette and only the size check. Rejects with `ArtMissingError` or `AbortError`. */
 export const renderPlain: PlainRenderer = async (url, canvas, { width, height, signal }) => {
   if (signal?.aborted) throw abortError()
   const image = new Image()

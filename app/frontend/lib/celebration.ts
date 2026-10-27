@@ -1,7 +1,4 @@
-// The set celebration after an opening: the results the booster screen
-// shows once the hand is complete, one per set at the highest tier the
-// opening reached, and the one message the live region speaks for them.
-// Pure: no DOM.
+// The set celebration after an opening: one result per set at the highest tier reached, and the live region's message. Pure: no DOM.
 import { formatNumber, t, type Template } from "./i18n"
 import { SET_TIERS, type OpeningSetTier, type SetThreshold, type SetTierName } from "./opening"
 

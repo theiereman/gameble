@@ -1,15 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
-// The share sheet of a card's detail (CAP-9; DESIGN.md, Share sheet): the
-// "Partager" button (which also opens the sheet, dialog-opener) and the
-// sheet's "Copier" copy the card-season's link. The sheet copies it on
-// opening, in that same click. In a secure context (HTTPS, localhost) the
-// link is written to the clipboard right in the click; elsewhere (the
-// plain-HTTP test server) or when the browser refuses, the link is selected
-// in its read-only field and copied with the older execCommand, and the
-// status (a polite live region) says "Link copied" only when that worked,
-// else how to copy it by hand, the link staying selected. No Web Share API,
-// no tracking: the link only.
+// The share sheet of a card's detail: "Partager" and "Copier" copy the card-season's link, to the clipboard in a secure context,
+// else selected in its read-only field and copied with execCommand. The status says "Link copied" only when that worked.
 export default class extends Controller<HTMLElement> {
   static targets = ["url", "status"]
   static values = { copied: String, manual: String }
@@ -19,7 +11,6 @@ export default class extends Controller<HTMLElement> {
   declare readonly copiedValue: string
   declare readonly manualValue: string
 
-  // A page restored from Turbo's cache shows no earlier feedback.
   connect(): void {
     this.statusTarget.textContent = ""
   }
@@ -37,8 +28,6 @@ export default class extends Controller<HTMLElement> {
     }
   }
 
-  // The link selected in its field, then copied by execCommand when the
-  // browser still allows it; the selection stays for Ctrl+C otherwise.
   private copyBySelection(): void {
     this.urlTarget.focus()
     this.urlTarget.select()
@@ -51,8 +40,7 @@ export default class extends Controller<HTMLElement> {
     this.say(copied ? this.copiedValue : this.manualValue)
   }
 
-  // Written in a later frame than the clear in copy(), so the status region
-  // changes on every press and screen readers announce it each time.
+  // Written a frame after the clear in copy(), so screen readers announce it on every press.
   private say(message: string): void {
     window.requestAnimationFrame(() => {
       this.statusTarget.textContent = message

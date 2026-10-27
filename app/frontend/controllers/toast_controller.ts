@@ -4,14 +4,8 @@ import { RevealHold, firstShowing, toastActionHref, toastDuration } from "../lib
 
 type Timer = { remaining: number; startedAt?: number; handle?: number; hovered: boolean; focused: boolean; cleanup: () => void }
 
-// The shell's toast region (EXPERIENCE.md, Toast): a polite live region
-// holding the server's flash messages and any toast asked for with a
-// `gameble:toast` event, built from the region's server-rendered template.
-// Each toast stays toastDuration(its text), pauses while hovered or focused,
-// and closes with its "✕" or Esc. A morph refresh of the page (the hub)
-// keeps the toasts on screen and brings its own, which are timed as well.
-// A toast with a once key (`data-toast-once`) shows once per browser.
-// Every listener and timer goes on disconnect.
+// The shell's toast region: a polite live region holding the server's flash messages and any toast asked for with a `gameble:toast` event.
+// Each toast pauses while hovered or focused and closes with its "✕" or Esc; a toast with a once key shows once per browser.
 export default class extends Controller<HTMLElement> {
   static targets = ["template", "toast"]
 
@@ -24,9 +18,7 @@ export default class extends Controller<HTMLElement> {
   private frame?: number
   private connected = false
 
-  // A morph would remove a toast still on screen, or rewrite it into a toast
-  // the new page brings: the toast is kept, and the new one is added once
-  // the morph is over.
+  // A morph would remove or rewrite a toast still on screen: it is kept, and the new one added once the morph is over.
   private readonly keepToast = (event: Event): void => {
     if (!this.timers.has(event.target as HTMLElement)) return
     event.preventDefault()
@@ -45,8 +37,7 @@ export default class extends Controller<HTMLElement> {
     this.element.addEventListener("turbo:before-morph-element", this.keepToast)
     this.connected = true
     this.bringToTop()
-    // The server's toasts are taken out and put back on the next frame,
-    // once the region is in the page, so the live region announces them.
+    // Taken out and put back on the next frame so the live region announces them.
     const rendered = this.toasts().filter((toast) => !this.timers.has(toast))
     if (rendered.length === 0) return
     rendered.forEach((toast) => toast.remove())
@@ -56,8 +47,6 @@ export default class extends Controller<HTMLElement> {
     })
   }
 
-  // A toast arriving any other way (a morph refresh) is timed too. The
-  // server's toasts present at connect are handled by connect().
   toastTargetConnected(toast: HTMLElement): void {
     if (this.connected && !this.heldForReveal(toast)) this.track(toast)
   }
@@ -79,7 +68,6 @@ export default class extends Controller<HTMLElement> {
     }
   }
 
-  // The "✕" of a toast.
   close(event: Event): void {
     const toast = (event.currentTarget as HTMLElement).closest<HTMLElement>(".toast")
     if (toast) this.dismiss(toast)
@@ -137,7 +125,6 @@ export default class extends Controller<HTMLElement> {
 
   private track(toast: HTMLElement): void {
     if (this.timers.has(toast)) return
-    // A toast with a once key that this browser already showed goes at once.
     const once = toast.dataset.toastOnce
     if (once && !firstShowing(once)) {
       toast.remove()
@@ -156,7 +143,6 @@ export default class extends Controller<HTMLElement> {
       timer[key] = false
       if (!timer.hovered && !timer.focused) this.run(toast, timer)
     }
-    // Esc closes the toast that holds the focus (EXPERIENCE.md, Esc).
     const escape = (event: Event): void => {
       if ((event as KeyboardEvent).key !== "Escape") return
       event.preventDefault()

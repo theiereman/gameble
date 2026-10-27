@@ -7,15 +7,8 @@ const NEAR_VIEWPORT = "300px"
 
 const RESIZE_SETTLE_MS = 150
 
-// Draws the art of a server-rendered card face (CardComponent), only once
-// the card nears the viewport, so a page of hundreds of cards (a large set)
-// does not fetch and filter every image at once. Each connect waits and
-// draws again, so a Turbo restore visit, whose cached snapshot keeps no
-// canvas pixels, shows the art again; a disconnect stops the wait and aborts
-// a draw under way. The palette size defaults to the art size (0 or absent).
-// A fluid art box (a grid face, sized by its slot) draws at its rendered
-// size, the width and height values until it has one, and once drawn draws
-// again when a resize settles at another size, aborting the draw before.
+// Draws the art of a server-rendered card face once it nears the viewport. Each connect waits and draws again, so a Turbo restore shows the art;
+// a fluid art box draws at its rendered size and again when a resize settles.
 export default class extends Controller<HTMLElement> {
   static targets = ["canvas"]
   static values = {

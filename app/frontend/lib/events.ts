@@ -1,12 +1,9 @@
-// The application's own DOM events (architecture, Consistency Conventions:
-// `gameble:<noun-verb>`, declared here only). Each name maps to its detail;
-// dispatchGameble and onGameble keep both ends typed.
+// The application's own DOM events, `gameble:<noun-verb>`, declared here only; dispatchGameble and onGameble keep both ends typed.
 import type { Rarity } from "./card_types"
 
 export type ToastAction = { label: string; href: string; download?: string }
 
-// A toast to show (EXPERIENCE.md, Toast): the shell's toast region appends
-// it from its server-rendered template.
+// A toast to show: the shell's toast region appends it from its template.
 export type ToastDetail = {
   message: string
   title?: string
@@ -14,16 +11,13 @@ export type ToastDetail = {
   action?: ToastAction
 }
 
-// The booster screen revealed a card of `tier`: the player's copies per
-// tier now, read by the top bar's rarity counter.
+// The booster screen revealed a card of `tier`: the player's copies per tier now.
 export type TierRevealedDetail = { tier: Rarity; counts: Record<Rarity, number> }
 
-// The player's reserve changed (an opening's answer): read by the booster
-// screen's reserve chip. Times are UTC ISO 8601.
+// The player's reserve changed; times are UTC ISO 8601.
 export type BankChangedDetail = { available: number; reserveFull: boolean; nextAvailableAt: string | null; serverTime: string }
 
-// The booster screen locks the in-app navigation (top bar back button, tab
-// bar) while it opens a booster or reveals a card, and unlocks it after.
+// The booster screen locks the in-app navigation while it opens a booster or reveals a card.
 export type NavigationLockedDetail = { locked: boolean }
 
 export type OpeningRevealingDetail = { revealing: boolean }
@@ -46,8 +40,6 @@ export function dispatchGameble<K extends GamebleEventName>(name: K, detail: Gam
   target.dispatchEvent(new CustomEvent(name, { detail }))
 }
 
-// Listens on `target` (window by default) and returns the function that
-// removes the listener, for a controller's disconnect.
 export function onGameble<K extends GamebleEventName>(
   name: K,
   listener: (detail: GamebleEventMap[K], event: CustomEvent<GamebleEventMap[K]>) => void,

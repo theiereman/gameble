@@ -1,8 +1,4 @@
-// A horizontal swipe's step (EXPERIENCE.md, Interaction primitives: "in the
-// card detail, swipe or the ◀ ▶ buttons move between cards"), read by the
-// sub-view controller. A finger moving left goes to the next card, right
-// to the previous one; only when the move is mostly horizontal and long
-// enough, so a vertical drag stays a scroll.
+// A horizontal swipe's step: left is next, right is previous, only when mostly horizontal and long enough.
 
 /** How far, in px, a finger travels sideways before it counts as a swipe. */
 export const SWIPE_THRESHOLD = 70

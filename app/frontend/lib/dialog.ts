@@ -1,6 +1,4 @@
-// Opening a modal <dialog> from a button (EXPERIENCE.md, Modal): the dialog
-// remembers which element opened it, so the dialog controller can give the
-// focus back to it when it closes.
+// Opening a modal <dialog> from a button: the dialog remembers the opener so the dialog controller can give the focus back.
 const openers = new WeakMap<HTMLDialogElement, HTMLElement>()
 
 export function openDialog(dialog: HTMLDialogElement, opener: HTMLElement): void {
