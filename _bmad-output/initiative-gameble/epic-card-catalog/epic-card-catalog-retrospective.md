@@ -143,3 +143,28 @@ Applied on 2026-10-20 from the author's answers above, in two commits:
 - **Docs, the commit that records this section** (docs(card-catalog)): the spec's CAP-1, CAP-18, CAP-24 and the legal line now describe the visitor surface as built, marked "(author, 2026-10-20)" (F-S1, action item 1); the epic file's R2, Done when 3, Boundaries and Notes record the real card on the detail and the 14.7, 14.8 and 14.9 decisions (F-S2, F-S3, action item 2); each plan's `commit` names its develop commit (afe6d9b3, 7649120e, 7a8b899e, 3feb5033, 82fabc5b, 3278d2c3, f87b3f56, b67cd2eb) instead of the worktree one (F-P1, for this epic); this file's verdict and answers.
 
 Not applied here: the process items 4 to 6 (orchestrator) and item 7 (epic-human-readable-codebase).
+
+## Reconciliation, 2026-10-27 (headless re-run, release 0.4.0)
+
+This file already existed (commits `fcb6c2a1`, `d14bebcd`, `0c77b4b6`, 2026-10-20), so the run loaded it and checked its state against the current tree instead of rewriting it. The ticket state is unchanged: nine rows, eight `done` and one `dropped` (14.7), `pending_tickets` empty. The verdict `accepted` is the author's decision of 2026-10-20 and stands. Epic issue #105 is still open and closes with the 0.4.0 milestone.
+
+**Follow-through of this file's action items.**
+1. Spec reconciliation of CAP-1, CAP-18, CAP-24: recorded as applied in "Follow-up applied" (docs commit after `0c77b4b6`). Not re-read line by line here.
+2. Epic record (Notes, R2, Done when 3): applied, `epic-card-catalog.md` lines 38 and 81 carry the new wording.
+3. Feed under the public throttle: landed, `config/initializers/rack_attack.rb:26` lists `feed` in `PAGES` (commit `a20caeef` exists).
+4. The landing link to Comment ça marche: landed, `app/views/landings/_footer.html.erb:5`.
+5. Plan `commit` fields: checked on 14.2, which names develop's `afe6d9b3`.
+6. Orchestrator items 4 to 6 (sweep re-pointing, own test database per session) are process rules with no file to point at: no evidence found either way.
+7. Planning ids (F-D1) deferred to epic-human-readable-codebase: `grep -rEl '(AD|CAP)-[0-9]+'` over app, packs, lib, config and test still matches 194 files, so the deferral is still open (no retrospective in that epic's folder).
+
+**What changed after acceptance and bears on the Done when.** Two later tickets of epic-screen-walkthrough reverse parts of what this epic settled, both by the author after the 2026-10-23 staging walkthrough:
+- 16.26 (`4f85578e`, 2026-10-25) greys and locks a card the player does not own on its detail too (a visitor and the public card page keep the plain face). Done when 3 and R2 still say "the real card's face, owned or not, the same for every viewer", and the entry in `tickets.toml` for 16.26 states that it "reverses the 2026-10-20 call". The criterion no longer holds for a signed-in player; it holds for a visitor.
+- Ticket 24 of that epic's `tickets.toml` (16.x, "A set album's missing cards look like the not-owned cards of the catalog", walkthrough finding of 2026-10-23) changes the album's missing slots, which Done when 1 says "still show". I did not verify its state or build here: no evidence found.
+- The grid itself later gained infinite scroll (`fd1e8136`) and set tiles (`b061d802`, `22cb1cdd`); no criterion contradicts them.
+
+**Action items (new).**
+1. Author, via bmad-ticket: amend `epic-card-catalog.md` Done when 3 and R2 to say the detail shows a card not owned greyed and locked to a signed-in player and plain to a visitor, citing 16.26, and Done when 1 if the album change is built. The 2026-10-20 epic text is otherwise stale against the code.
+2. Author: close #105 with the 0.4.0 milestone; no work of this epic is open.
+3. Author: the planning-ids sweep (F-D1) is still unscheduled; confirm which release carries epic-human-readable-codebase.
+
+Verdict after reconciliation: **accepted** (unchanged, human decision). Open items: the three above.
