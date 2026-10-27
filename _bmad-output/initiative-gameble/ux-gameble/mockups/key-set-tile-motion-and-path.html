@@ -111,12 +111,24 @@ h1{font-size:18px;color:var(--max);margin:0 0 4px}.lede{color:var(--muted);max-w
 .v10{--d:520ms}
 .v10 .verso{z-index:2;clip-path:inset(0 100% 0 0);transition:clip-path var(--d) steps(8,end)}
 .v10:hover .verso,.v10.go .verso{clip-path:inset(0 0 0 0)}
+
+/* ---- variantes proches de l'iris : un bord adouci, deux faces qui se fondent ---- */
+@property --r{syntax:'<percentage>';inherits:true;initial-value:0%}
+@property --k{syntax:'<number>';inherits:true;initial-value:0}
+.v11,.v12,.v13,.v14,.v15{--r:0%;--k:0;--x:50%;--y:50%;--d:800ms;transition:--r var(--d) cubic-bezier(.35,0,.2,1),--k var(--d) cubic-bezier(.35,0,.2,1)}
+.v11:hover,.v12:hover,.v13:hover,.v14:hover,.v15:hover,.v11.go,.v12.go,.v13.go,.v14.go,.v15.go{--r:150%;--k:1}
+.v11 .verso,.v12 .verso,.v13 .verso,.v14 .verso{z-index:2;-webkit-mask-image:radial-gradient(circle farthest-corner at var(--x) var(--y),#000 calc(var(--r) - 28%),transparent var(--r));mask-image:radial-gradient(circle farthest-corner at var(--x) var(--y),#000 calc(var(--r) - 28%),transparent var(--r))}
+.v13 .recto{filter:blur(calc(var(--k)*4px)) brightness(calc(1 - var(--k)*.35));transform:scale(calc(1 - var(--k)*.025))}
+.v14::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;opacity:min(calc(var(--k)*8),1);background:radial-gradient(circle farthest-corner at var(--x) var(--y),transparent calc(var(--r) - 9%),color-mix(in srgb,var(--accent) 55%,transparent) calc(var(--r) - 3%),transparent var(--r))}
+.v14 .recto{filter:brightness(calc(1 - var(--k)*.25))}
+.v15 .verso{z-index:2;-webkit-mask-image:linear-gradient(135deg,#000 calc(var(--r) - 45%),transparent var(--r));mask-image:linear-gradient(135deg,#000 calc(var(--r) - 45%),transparent var(--r))}
+.v15 .recto{filter:blur(calc(var(--k)*3px))}
 </style>
 <h1>Tuile de set · le retournement et le chemin des paliers</h1>
 <p class="lede">Retour de recette 2026-10-27 : l'animation est trop rapide et peu belle, et les chiffres du chemin débordent du carré quand un palier demande beaucoup de cartes. Deux planches : cinq retournements à essayer au survol (le bouton rejoue sans souris), et deux chemins sans chiffre dans le nœud, montrés sur un set moyen, un très grand set et un petit set. Les cartes sont des silhouettes.</p>
 
 <section class="opt"><h2>A · Le retournement, dans une liste de sets</h2>
-<p>Choisis un retournement, puis survole les tuiles de la liste (le verso reprend le chemin B2). <b>A1</b> est l'actuel (360 ms). <b>A2</b> est lent, la tuile se soulève avec une ombre. <b>A3</b> attend 150 ms que l'intention soit claire, puis tourne avec un léger rebond. <b>A4</b> n'a pas de rotation : le verso glisse par-dessus le recto. <b>A5</b> est un fondu enchaîné avec un léger zoom, le plus calme. <b>A6</b>, le sas : la tuile s'ouvre en deux battants qui s'écartent, une ligne lumineuse sur la jonction. <b>A7</b>, l'écoutille : même chose à la verticale. <b>A8</b>, l'iris : le verso s'ouvre en cercle depuis le centre. <b>A9</b>, le balayage : une barre lumineuse traverse la tuile et découvre le verso. <b>A10</b> : le même balayage, mais par crans de pixels. Le choix retenu garde le fondu pour « animations réduites ».</p>
+<p>Choisis un retournement, puis survole les tuiles de la liste (le verso reprend le chemin B2). <b>A1</b> est l'actuel (360 ms). <b>A2</b> est lent, la tuile se soulève avec une ombre. <b>A3</b> attend 150 ms que l'intention soit claire, puis tourne avec un léger rebond. <b>A4</b> n'a pas de rotation : le verso glisse par-dessus le recto. <b>A5</b> est un fondu enchaîné avec un léger zoom, le plus calme. <b>A6</b>, le sas : la tuile s'ouvre en deux battants qui s'écartent, une ligne lumineuse sur la jonction. <b>A7</b>, l'écoutille : même chose à la verticale. <b>A8</b>, l'iris : le verso s'ouvre en cercle depuis le centre. <b>A9</b>, le balayage : une barre lumineuse traverse la tuile et découvre le verso. <b>A10</b> : le même balayage, mais par crans de pixels. <b>A11 à A15 prolongent l'iris</b>, avec un bord adouci qui fond les deux faces l'une dans l'autre : <b>A11</b> un iris doux depuis le centre ; <b>A12</b> le même depuis le point où entre le curseur ; <b>A13</b> le recto se floute et s'assombrit pendant qu'il s'efface ; <b>A14</b> un anneau lumineux accompagne le bord ; <b>A15</b> le même fondu, en balayage diagonal. Le choix retenu garde le fondu pour « animations réduites ».</p>
 <div class="pick" id="pick"></div><div class="list" id="list"></div></section>
 
 <section class="opt"><h2>B · Le chemin des paliers du verso</h2>
@@ -147,9 +159,10 @@ const sets=[
  {head:'Roguelike',kind:'Thème',owned:12,total:60,tiers:[15,25,35,45,60]},
  {head:'Pixel art',kind:'Thème',owned:27,total:34,tiers:[10,20,25,30,34]},
  {head:'Indépendants',kind:'Genre',owned:8,total:20,tiers:[5,10,15,18,20]}];
-const names={v1:'A1 · actuel',v2:'A2 · lent, soulevé',v3:'A3 · intention, rebond',v4:'A4 · le verso glisse',v5:'A5 · fondu doux',v6:'A6 · le sas',v7:'A7 · l\'écoutille',v8:'A8 · l\'iris',v9:'A9 · le balayage',v10:'A10 · par crans'};
-document.getElementById('list').innerHTML=sets.map(c=>`<div class="flip v6">${versoOf(c,'b2')}${rectoOf(c)}${rectoOf(c).replace('tile ','tile recto2 ').replace('recto','recto')}</div>`).join('');
-document.getElementById('pick').innerHTML=Object.entries(names).map(([k,n])=>`<label><input type="radio" name="v" value="${k}" ${k=='v6'?'checked':''}>${n}</label>`).join('');
+const names={v1:'A1 · actuel',v2:'A2 · lent, soulevé',v3:'A3 · intention, rebond',v4:'A4 · le verso glisse',v5:'A5 · fondu doux',v6:'A6 · le sas',v7:'A7 · l\'écoutille',v8:'A8 · l\'iris',v9:'A9 · le balayage',v10:'A10 · par crans',v11:'A11 · iris doux',v12:'A12 · iris depuis le curseur',v13:'A13 · iris et recto qui s\'estompe',v14:'A14 · iris et onde',v15:'A15 · balayage diagonal doux'};
+document.getElementById('list').innerHTML=sets.map(c=>`<div class="flip v11">${versoOf(c,'b2')}${rectoOf(c)}${rectoOf(c).replace('tile ','tile recto2 ').replace('recto','recto')}</div>`).join('');
+document.getElementById('pick').innerHTML=Object.entries(names).map(([k,n])=>`<label><input type="radio" name="v" value="${k}" ${k=='v11'?'checked':''}>${n}</label>`).join('');
+document.getElementById('list').addEventListener('mouseover',e=>{const f=e.target.closest('.flip');if(!f||!f.classList.contains('v12')||f.contains(e.relatedTarget))return;const b=f.getBoundingClientRect();f.style.setProperty('--x',(e.clientX-b.left)+'px');f.style.setProperty('--y',(e.clientY-b.top)+'px')});
 document.getElementById('pick').addEventListener('change',e=>document.querySelectorAll('.flip').forEach(f=>{f.className='flip '+e.target.value}));
 const cases=[sets[0],sets[2],sets[1]];
 document.getElementById('paths').innerHTML=['b1','b2'].map(v=>cases.map(c=>`<div class="vb ${v}"><p class="lab"><b>${v.toUpperCase()}</b> · ${c.head} · ${c.owned} / ${c.total}</p>${versoOf(c,v)}</div>`).join('')).join('');
