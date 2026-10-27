@@ -10,7 +10,13 @@
 @import "../styles/trades.css";
 @import "../styles/feed.css";
 @import "../styles/achievements.css";
-@import "../styles/landing.css";
+@import "../styles/landing-base.css";
+@import "../styles/landing-hero.css";
+@import "../styles/landing-concept.css";
+@import "../styles/landing-live.css";
+@import "../styles/landing-closing.css";
+@import "../styles/landing-responsive.css";
+@import "../styles/landing-gauge.css";
 @import "../styles/roadmap.css";
 @import "../styles/card-detail.css";
 @import "../styles/card.css";

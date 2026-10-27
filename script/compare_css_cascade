@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+# Usage: script/compare_css_cascade [git-revision]   (default: HEAD)
+# Resolves the @imports of app/frontend/entrypoints/application.css in the working tree and at the revision,
+# strips comments and whitespace, normalizes number and colour spelling, and prints a diff of the two cascades.
+# Exits 0 when the rules are identical in content and order. Run it before committing the change, or name the revision to compare with.
+# Normalization is textual, not a CSS parser: it also rewrites digits inside strings and url(); every @import must be a plain one-line @import "path"; or the script stops.
+
+require "open3"
+require "pathname"
+require "tempfile"
+
+ENTRYPOINT = "app/frontend/entrypoints/application.css"
+IMPORT = /^@import\s+["']([^"']+)["'];\s*$/
+
+def resolve(path, read, trail = [])
+  abort "import cycle through #{path}" if trail.include?(path)
+
+  source = read.call(path)
+  unresolvable = source.lines.grep(/^@import/).reject { |line| line.match?(IMPORT) }
+  abort "unsupported @import in #{path}: #{unresolvable.first}" if unresolvable.any?
+
+  source.gsub(IMPORT) do
+    imported = Pathname.new(File.join(File.dirname(path), $1)).cleanpath.to_s
+    resolve(imported, read, trail + [ path ])
+  end
+end
+
+def normalize(css)
+  css
+    .gsub(%r{/\*.*?\*/}m, "")
+    .gsub(/#([0-9a-fA-F]{3,8})\b/) { "#" + shorten_hex($1.downcase) }
+    .gsub(/(?<![\w.#-])0+(?=\.\d)/, "")
+    .gsub(/(\d\.\d*?)0+(?=[^\d]|\z)/, '\1')
+    .gsub(/(\d)\.(?=[^\d])/, '\1')
+    .gsub(/(?<![\w.#-])(-?)0(?:px|em|rem|s|ms)\b/, '\10')
+    .gsub(/\s+/, " ")
+    .gsub(/\s*([{};,>~])\s*/, '\1')
+    .gsub(/:\s+/, ":")
+    .gsub(/;}/, "}")
+    .strip
+end
+
+def shorten_hex(digits)
+  digits.match?(/\A(.)\1(.)\2(.)\3\z/) ? digits.chars.each_slice(2).map(&:first).join : digits
+end
+
+def rule_lines(css)
+  normalize(css).gsub(/([{}])/, "\\1\n").lines
+end
+
+def write_temp(lines)
+  file = Tempfile.new(%w[cascade .css])
+  file.write(lines.join)
+  file.flush
+  file
+end
+
+revision = ARGV.fetch(0, "HEAD")
+current = resolve(ENTRYPOINT, ->(path) { File.exist?(path) ? File.read(path) : abort("cannot read #{path} in the working tree") })
+previous = resolve(ENTRYPOINT, lambda do |path|
+  source, status = Open3.capture2("git", "show", "#{revision}:#{path}")
+  abort "cannot read #{path} at #{revision}" unless status.success?
+  source
+end)
+
+previous_file = write_temp(rule_lines(previous))
+current_file = write_temp(rule_lines(current))
+difference, = Open3.capture2("diff", "-u", previous_file.path, current_file.path)
+
+if difference.empty?
+  puts "Cascade identical to #{revision}"
+else
+  puts difference
+  exit 1
+end

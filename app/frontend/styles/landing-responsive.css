@@ -1,0 +1,195 @@
+@media (max-width: 1179px) {
+  .landing-lamp {
+    --lamp-fit: 0.75;
+  }
+
+  .landing-hero__hook {
+    font: var(--font-landing-hook-medium);
+    letter-spacing: var(--tracking-landing-hook-medium);
+  }
+
+  .landing-rarities {
+    gap: var(--space-3);
+  }
+
+  .landing-rarity__slot {
+    width: var(--card-s-width);
+  }
+
+  .landing-lore,
+  .landing-goal {
+    grid-column: 1 / -1;
+  }
+
+  .landing-tiles--four,
+  .landing-tiles--six {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .landing-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .landing-steps::before {
+    display: none;
+  }
+
+  .landing-live__columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .landing-roles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .landing-role:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .landing-footer__inner {
+    padding-inline: var(--space-gutter-medium);
+  }
+}
+
+@media (max-width: 719px) {
+  .main:has(> .landing) {
+    padding-bottom: var(--space-landing-module-gap-phone);
+  }
+
+  .landing {
+    gap: var(--space-landing-module-gap-phone);
+  }
+
+  .landing-module__title {
+    font: var(--font-landing-module-title-phone);
+    letter-spacing: var(--tracking-landing-module-title-phone);
+  }
+
+  .landing-module__heading--banner .landing-module__title {
+    font: var(--font-public-title-phone);
+    letter-spacing: var(--tracking-public-title-phone);
+  }
+
+  .landing-module__subtitle,
+  .landing-hero__line,
+  .landing-body,
+  .landing-free__text {
+    font: var(--font-body-large-phone);
+    letter-spacing: var(--tracking-body-large-phone);
+  }
+
+  .landing-hero {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .landing-hero__hook {
+    font: var(--font-public-title-phone);
+    letter-spacing: 2px;
+  }
+
+  .landing-hero__field {
+    height: var(--space-landing-lamp-band-phone);
+  }
+
+  .landing-lamp {
+    --lamp-fit: 1;
+  }
+
+  .landing-lamp__card--1 { left: 14%; top: 52%; --lamp-size: 0.45; }
+  .landing-lamp__card--2 { left: 38%; top: 60%; --lamp-size: 0.5; }
+  .landing-lamp__card--3 { left: 62%; top: 40%; --lamp-size: 0.5; }
+  .landing-lamp__card--4 { left: 84%; top: 62%; --lamp-size: 0.55; }
+  .landing-lamp__card--5 { left: 50%; top: 90%; --lamp-size: 0.55; }
+  .landing-lamp__card--6 { display: none; }
+
+  .landing-lamp__modes {
+    display: none;
+  }
+
+  .landing-rarities {
+    justify-content: flex-start;
+    gap: var(--space-5);
+    margin-inline: calc(-1 * var(--space-6));
+    padding: var(--space-2) var(--space-6);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+  }
+
+  .landing-rarity {
+    scroll-snap-align: center;
+  }
+
+  .landing-rarities .card {
+    --tilt-rx: 0deg !important;
+    --tilt-ry: 0deg !important;
+    touch-action: pan-x pan-y;
+  }
+
+  .landing-notes {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  .landing-notes__note {
+    padding-inline: 0;
+  }
+
+  .landing-notes__note + .landing-notes__note,
+  .landing-free__text + .landing-free__text {
+    padding-top: var(--space-5);
+    border-top: var(--space-unit) solid var(--color-line-soft);
+    border-left: 0;
+  }
+
+  .landing-tiles--four,
+  .landing-tiles--six,
+  .landing-steps,
+  .landing-roles,
+  .landing-free__columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .landing-role:last-child {
+    grid-column: auto;
+  }
+
+  .landing-step__illustration {
+    min-height: var(--space-landing-illustration-height-phone);
+  }
+
+  .landing-reveal__button {
+    min-height: var(--space-button-height-sm-phone);
+  }
+
+  .landing-free__columns {
+    gap: var(--space-5);
+  }
+
+  .landing-free__text {
+    padding-inline: 0;
+  }
+
+  .landing-support__line {
+    font: var(--font-showcase-name-phone);
+    letter-spacing: var(--tracking-showcase-name-phone);
+  }
+
+  .landing-boarding__panel {
+    grid-template-areas:
+      "copy"
+      "steam"
+      "accept";
+    grid-template-columns: 1fr;
+  }
+
+  .landing-boarding__actions > :first-child {
+    justify-self: start;
+  }
+
+  .landing-footer__inner {
+    padding-inline: var(--space-gutter-phone);
+  }
+}
