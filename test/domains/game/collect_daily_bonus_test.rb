@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# Game::CollectDailyBonus (CAP-16, R8, AD-7, AD-9): once per UTC day, a bonus
+# Game::CollectDailyBonus: once per UTC day, a bonus
 # pack of three cards with better odds, outside the bank's cap of ten,
 # opened in arrival order, refused while the reserve holds ten; and the bank
 # summary's `bonus_collectable` and `reserve_full`.

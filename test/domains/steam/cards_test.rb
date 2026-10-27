@@ -1,6 +1,6 @@
 require "test_helper"
 
-# The cards step of an import run (epic 2, R4, R5): the prestige score, the
+# The cards step of an import run: the prestige score, the
 # mapping of a ready game onto the card keywords, and the pages that stage
 # the cards beside the draft season.
 class Steam::CardsTest < ActiveSupport::TestCase

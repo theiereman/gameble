@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../support/game_packs"
 
-# The shell's helpers (story 8.1): pixel icons inlined, the back-office
+# The shell's helpers: pixel icons inlined, the back-office
 # switch, and the top bar's figures read once per request.
 class ShellHelperTest < ActionView::TestCase
   include GamePacks

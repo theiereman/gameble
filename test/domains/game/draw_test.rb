@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Game::DrawOdds and Game::Draw (R2, AD-7, AD-22): a tier by the odds, then a
+# Game::DrawOdds and Game::Draw: a tier by the odds, then a
 # card uniformly within the tier; and the statistical test of the odds.
 class Game::DrawTest < ActiveSupport::TestCase
   include CatalogSeeds

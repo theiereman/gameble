@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../../support/steam_api_stubs"
 require_relative "../../support/catalog_seeds"
 
-# The operations of an import run (AD-3, AD-19): each one's success and every
+# The operations of an import run: each one's success and every
 # failure, and the event each publishes.
 class Steam::ImportOperationsTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper

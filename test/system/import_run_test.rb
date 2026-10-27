@@ -1,7 +1,7 @@
 require "application_system_test_case"
 require_relative "../support/steam_sign_in"
 
-# The import run page follows its run without a manual reload (AD-19).
+# The import run page follows its run without a manual reload.
 class ImportRunTest < ApplicationSystemTestCase
   include SteamSignIn
 

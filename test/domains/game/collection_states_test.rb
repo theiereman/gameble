@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Game::CollectionStates (CAP-6, story 10.7): the state filter of the
+# Game::CollectionStates: the state filter of the
 # collection grid and its newest-first order.
 class Game::CollectionStatesTest < ActiveSupport::TestCase
   include CatalogSeeds

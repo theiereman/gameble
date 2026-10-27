@@ -2,8 +2,7 @@ require "application_system_test_case"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# The booster screen (stories 8.11 and 8.12; EXPERIENCE.md: Booster,
-# Opening protocol): the canister sends the opening exchange and deals the
+# The booster screen: the canister sends the opening exchange and deals the
 # cards face down; one activation reveals a card, "Reveal all" the rest;
 # the top bar's rarity counter rises at each reveal and its reserve chip
 # follows each answer; every refusal leaves the canister at rest and says
@@ -727,7 +726,7 @@ class BoosterTest < ApplicationSystemTestCase
     page.driver.browser.execute_cdp("Emulation.setScriptExecutionDisabled", value: false)
   end
 
-  # ---- The phone, the narrow row and the rebuild (story 8.12) ----
+  # ---- The phone, the narrow row and the rebuild ----
 
   def phone_card(position)
     ".booster-card[data-position='#{position}']"
@@ -771,7 +770,7 @@ class BoosterTest < ApplicationSystemTestCase
     JS
   end
 
-  # Running infinite animations on the page (AD-27: six at most on a phone view).
+  # Running infinite animations on the page (six at most on a phone view).
   def infinite_loops
     page.evaluate_script(<<~JS)
       document.getAnimations().filter((animation) => animation.playState === "running" && animation.effect.getTiming().iterations === Infinity).length

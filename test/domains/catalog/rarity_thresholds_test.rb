@@ -1,6 +1,6 @@
 require "test_helper"
 
-# Catalog::RarityThresholds (CAP-3): the shares and the cut of a season's
+# Catalog::RarityThresholds: the shares and the cut of a season's
 # prestige scores into the five tiers.
 class Catalog::RarityThresholdsTest < ActiveSupport::TestCase
   def tier_counts(scores)

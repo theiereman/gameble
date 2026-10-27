@@ -4,7 +4,7 @@ require_relative "../support/counting_rate_limit"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# Opening a pack (R9, CAP-4): the booster's opening exchange (JSON, AD-23),
+# Opening a pack: the booster's opening exchange (JSON),
 # the form the booster screen falls back to without JavaScript, the pack's
 # page face up ("my last booster"), and every refusal.
 class PacksControllerTest < ActionDispatch::IntegrationTest
@@ -308,7 +308,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_empty countdown
   end
 
-  # --- The booster's opening exchange (JSON, AD-23) -----------------------
+  # --- The booster's opening exchange (JSON) -----------------------
 
   KEY = "3c1f9a2e-7d4b-4c8a-b5e6-0f2d9e8a1b7c".freeze
 
@@ -408,7 +408,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
       end
     end
 
-    # No database id (AD-15): no id key, and the only integers are counts.
+    # No database id: no id key, and the only integers are counts.
     assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
     assert_equal [ *Array.new(5) { %w[cards.[].season cards.[].year] }.flatten, "bank.available", "bank.nextPackSize", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" },
       *Array.new(body["setTiers"].size) { %w[setTiers.[].required setTiers.[].held setTiers.[].total] }.flatten ],

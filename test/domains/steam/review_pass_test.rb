@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/steam_api_stubs"
 
-# The review pass of an import run (epic 2, R3, R5): Steam::FinishImportStep,
+# The review pass of an import run: Steam::FinishImportStep,
 # Steam::ImportReviewsPage, the review floor and the apps kept by a run.
 class Steam::ReviewPassTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper

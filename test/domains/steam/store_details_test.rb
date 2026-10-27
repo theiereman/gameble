@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/steam_api_stubs"
 
-# The store details of an import run (epic 2, R3, R4, R5): the tags and
+# The store details of an import run: the tags and
 # details steps, their policies, the plain text of Steam's store text, and
 # the apps a run carried through every step.
 class Steam::StoreDetailsTest < ActiveSupport::TestCase

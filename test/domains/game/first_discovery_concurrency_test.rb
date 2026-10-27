@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# First discoveries under concurrency (AD-9, AD-10, story 6.7): two players
+# First discoveries under concurrency: two players
 # open packs holding the same undiscovered card at once; the unique index
 # makes the second insert wait for the first to commit, then skip, so the
 # card is recorded and published once and both openings succeed. Each thread

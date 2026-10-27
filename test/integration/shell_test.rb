@@ -2,8 +2,7 @@ require "test_helper"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# The shell around every page (story 8.1; AD-28; DESIGN.md, Chrome;
-# EXPERIENCE.md, Toast): the head's metas and font preloads, the top bar for
+# The shell around every page: the head's metas and font preloads, the top bar for
 # a visitor and for a player, the phone tab bar, the atmosphere, the toasts
 # that replace the flash, and the back-office variant.
 class ShellTest < ActionDispatch::IntegrationTest

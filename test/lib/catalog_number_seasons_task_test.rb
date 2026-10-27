@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/rake_tasks"
 
-# catalog:number_seasons (AD-28, the expand step of card numbers): numbers,
+# catalog:number_seasons (the expand step of card numbers): numbers,
 # once, each published season whose cards have no number yet, through
 # Catalog::PublishSeason#number_published.
 class CatalogNumberSeasonsTaskTest < ActiveSupport::TestCase

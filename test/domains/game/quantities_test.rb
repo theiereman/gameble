@@ -1,6 +1,6 @@
 require "test_helper"
 
-# Game::Quantities (CAP-6, story 4.2): a player's copies of each card-season
+# Game::Quantities: a player's copies of each card-season
 # asked about.
 class Game::QuantitiesTest < ActiveSupport::TestCase
   setup do

@@ -1,6 +1,6 @@
 require "test_helper"
 
-# Accounts::PlayerByToken (CAP-8): a player by their public token.
+# Accounts::PlayerByToken: a player by their public token.
 class Accounts::PlayerByTokenTest < ActiveSupport::TestCase
   test "the player with that token, in one query" do
     player = accounts_players(:player)

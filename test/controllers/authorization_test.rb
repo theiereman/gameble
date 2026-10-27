@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
 
-# A controller action that forgets its policy decision (AD-14).
+# A controller action that forgets its policy decision.
 class UnguardedController < ApplicationController
   def show
     render plain: "unguarded"

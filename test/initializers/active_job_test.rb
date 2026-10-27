@@ -1,7 +1,7 @@
 require "test_helper"
 
-# Jobs leave only once their transaction commits (AD-13,
-# config/initializers/active_job.rb): every job class, the packs' own
+# Jobs leave only once their transaction commits
+# (config/initializers/active_job.rb): every job class, the packs' own
 # (inheriting ActiveJob::Base) and the frameworks' included.
 class ActiveJobInitializerTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper

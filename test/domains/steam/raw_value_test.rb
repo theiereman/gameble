@@ -1,6 +1,6 @@
 require "test_helper"
 
-# Steam::RawValue (story 2.11): every reader returns a valid value or a
+# Steam::RawValue: every reader returns a valid value or a
 # neutral one, never raises.
 class Steam::RawValueTest < ActiveSupport::TestCase
   INT4_MAX = Steam::RawValue::INT4_MAX

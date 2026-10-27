@@ -1,11 +1,11 @@
 require "application_system_test_case"
 require_relative "../support/steam_sign_in"
 
-# The hub's daily booster panel (CAP-16, story 10.4): collected in one press,
+# The hub's daily booster panel: collected in one press,
 # the claim answers in Turbo Stream, the canister arcs to the packs chip (and
 # `gameble:bank-changed` follows), menu 01 counts one more booster and the
 # panel stays, collected, with the countdown to 00:00 UTC; with a full
-# reserve (AD-7) it says so, in orange, and its button is disabled. Under
+# reserve it says so, in orange, and its button is disabled. Under
 # reduced motion no canister flies.
 class DailyBonusTest < ApplicationSystemTestCase
   include SteamSignIn

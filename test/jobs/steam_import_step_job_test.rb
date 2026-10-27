@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../support/steam_api_stubs"
 
-# The import job (AD-19): one page per job, the next page enqueued after the
+# The import job: one page per job, the next page enqueued after the
 # commit, each step handing over to the next, the run failed once retries are
 # spent (the waits between attempts well below a stall), and a resumed run
 # going on from its cursor without duplicates.

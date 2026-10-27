@@ -2,8 +2,7 @@ require "application_system_test_case"
 require_relative "../support/steam_api_stubs"
 require_relative "../support/steam_sign_in"
 
-# Sharing a card (CAP-9, story 4.5, redrawn by story 10.3; EXPERIENCE Flow
-# 1, Flow 4): a holder opens the "Partager la carte" sheet from the card's
+# Sharing a card: a holder opens the "Partager la carte" sheet from the card's
 # detail, which copies the link of the card-season's own page on opening; a
 # visitor opens it and sees the public card page, only the card, never who
 # shared it, then signs in from the pitch's sign-in panel and lands on the

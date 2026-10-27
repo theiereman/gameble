@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../../support/catalog_seeds"
 require_relative "../../support/game_packs"
 
-# Game::OpenPack (R4, AD-6, AD-7): the oldest available pack, its cards
+# Game::OpenPack: the oldest available pack, its cards
 # counted into the holdings, and every failure.
 class Game::OpenPackTest < ActiveSupport::TestCase
   include CatalogSeeds
@@ -56,7 +56,7 @@ class Game::OpenPackTest < ActiveSupport::TestCase
     assert_equal 3, Game::Holding.where(player_id: @player.id).count
   end
 
-  test "every credited holding, new or raised, is gained at the opening (AD-26); an untouched one keeps its time" do
+  test "every credited holding, new or raised, is gained at the opening; an untouched one keeps its time" do
     portal, common, legendary = %i[portal_one common_card_one legendary_card_one].map { catalog_card_seasons(it).id }
     earlier = Time.zone.parse("2026-10-01 08:00:00.250000")
     Game::Holding.create!(player_id: @player.id, card_season_id: portal, quantity: 1, last_gained_at: earlier)
@@ -150,7 +150,7 @@ class Game::OpenPackTest < ActiveSupport::TestCase
     end
   end
 
-  # --- The opening exchange's key (AD-23) ---------------------------------
+  # --- The opening exchange's key ---------------------------------
 
   KEY = "0f8e2c4a-6b1d-4e3f-9a7c-5d2b8e1f3a6c".freeze
 

@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# Game::NextPackSize (story 8.12): the card count of the pack the next
+# Game::NextPackSize: the card count of the pack the next
 # opening opens, as Game::OpenPack picks it.
 class Game::NextPackSizeTest < ActiveSupport::TestCase
   include GamePacks
