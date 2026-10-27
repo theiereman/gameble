@@ -1,6 +1,5 @@
 /*
- * Design tokens of DESIGN.md (frontmatter) as custom properties (AD-16,
- * AD-28). Colours are `--color-<key>`, spacing and sizes `--space-<key>`,
+ * Design tokens as custom properties. Colours are `--color-<key>`, spacing and sizes `--space-<key>`,
  * typography styles `--font-<style>` (a `font` shorthand) with their letter
  * spacing in `--tracking-<style>`; component values are named after their
  * DESIGN key. Text sizes are in rem from a 16px root; the art pixel stays in
@@ -270,6 +269,6 @@
   --ease-spring: cubic-bezier(0.2, 1.6, 0.4, 1);
   --step-small: steps(2);
   --idle-float-max: 2px;
-  /* The one soft drop shadow of dialogs and toasts (DESIGN.md, Elevation). */
+  /* The one soft drop shadow of dialogs and toasts. */
   --overlay-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
 }

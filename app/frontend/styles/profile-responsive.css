@@ -1,0 +1,153 @@
+@media (max-width: 719px) {
+  .profile {
+    gap: var(--space-8);
+  }
+
+  .profile-band {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-5);
+    padding: var(--space-5);
+  }
+
+  .profile-band__who {
+    gap: var(--space-5);
+  }
+
+  .profile-band__avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .profile-band__name {
+    font: var(--font-public-title-phone);
+    letter-spacing: var(--tracking-public-title-phone);
+  }
+
+  .profile-band__meta .button--link {
+    min-height: var(--space-touch-min);
+  }
+
+  .profile-band__keys {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding-top: 14px;
+    box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line-soft);
+  }
+
+  .profile-band__keys .profile-figure {
+    margin: 0;
+    padding-left: var(--space-4);
+  }
+
+  .profile-band__keys .profile-figure:first-child {
+    padding-left: 0;
+    box-shadow: none;
+  }
+
+  .profile-figure__value {
+    font: var(--font-count-large-phone);
+    letter-spacing: var(--tracking-count-large-phone);
+    white-space: normal;
+  }
+
+  .profile-figure__total {
+    font-size: 1rem;
+  }
+
+  .profile-stats {
+    padding: 0 var(--space-5);
+  }
+
+  .profile-stats__band {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-5) 0;
+  }
+
+  .profile-stats__kicker {
+    padding-top: 0;
+  }
+
+  .profile-stats__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5) var(--space-4);
+  }
+
+  .profile-stats__grid--rarities {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .achievements__grid.profile-achievements {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .profile-unavailable {
+    margin-top: var(--space-8);
+    padding: var(--space-8) var(--space-5) var(--space-7);
+  }
+
+  .profile-unavailable__title {
+    font: var(--font-showcase-name-phone);
+    letter-spacing: var(--tracking-showcase-name-phone);
+  }
+}
+
+/* The report dialog: the title row in alert
+   orange, a radio list of reasons, the note and the danger button. */
+.modal__title--alert {
+  color: var(--color-alert);
+}
+
+.report-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.report-dialog__reasons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.report-dialog__legend {
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.report-dialog__reason {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--space-touch-min);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.report-dialog__radio {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--color-alert);
+}
+
+.report-dialog__radio:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.report-dialog__note {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
