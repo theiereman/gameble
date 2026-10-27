@@ -2,6 +2,8 @@ import { allRevealed, storedAfterRebuild, topOfPile, zoomNeighbour } from "./boo
 import { celebrate, idle, locked } from "./booster_state"
 import { CLICK_AFTER_DRAG, REVEAL_GUARD, type Activation, type BoosterState, type BoosterStatus, type Controls, type Hint, type Layout, type StatusTone } from "./booster_types"
 
+export const onTable = (state: BoosterState): boolean => state.layout === "phone" && state.dealt && (state.answer?.cards.length ?? 0) > 0
+
 export function layoutAsked(state: BoosterState, layout: Layout): BoosterState {
   return state.pendingLayout === layout ? state : { ...state, pendingLayout: layout }
 }
