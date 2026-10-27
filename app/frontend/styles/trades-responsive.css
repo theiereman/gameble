@@ -1,0 +1,122 @@
+@media (max-width: 1179px) {
+  .trades__layout {
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+}
+
+@media (max-width: 899px) {
+  .trades__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 719px) {
+  .trades--list .trade-board,
+  .trades--board .trades__list,
+  .trades--board .trades__title {
+    display: none;
+  }
+
+  .trades__new .button {
+    flex: 1;
+  }
+
+  .trade-chooser__actions {
+    flex-basis: 100%;
+    justify-content: space-between;
+  }
+
+  .trade-picker {
+    width: 100%;
+    max-width: var(--space-phone-column-max);
+    height: 100dvh;
+    max-height: none;
+    margin: 0 auto;
+  }
+
+  .trade-picker__clear,
+  .trade-picker__fold {
+    min-height: var(--space-touch-min);
+  }
+
+  .trade-picker__fold {
+    display: flex;
+  }
+
+  .trade-picker__groups--folded {
+    display: none;
+  }
+
+  .trade-picker__panel {
+    height: 100%;
+    max-height: none;
+  }
+
+  .trade-picker__title {
+    display: none;
+  }
+
+  .trade-picker__title-short {
+    display: inline;
+  }
+
+  .trade-picker__actions .button {
+    flex: 1;
+  }
+
+  .trade-picker__count {
+    flex-basis: 100%;
+  }
+
+  .trade-card--editing,
+  .trade-pick__foot {
+    padding-bottom: var(--space-6);
+  }
+
+  .stepper {
+    position: relative;
+    height: 36px;
+  }
+
+  .stepper__button {
+    position: relative;
+    width: 44px;
+    height: 36px;
+  }
+
+  .stepper__button::after {
+    content: "";
+    position: absolute;
+    inset: -4px 0;
+  }
+
+  .stepper__max {
+    display: none;
+  }
+
+  .stepper__max-phone {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    display: block;
+    padding-top: var(--space-1);
+    transform: translateX(-50%);
+    color: var(--color-muted);
+    font: var(--font-body-small);
+  }
+
+  .trade-card__remove::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+  }
+
+  .trade-board__actions {
+    position: sticky;
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom));
+    z-index: 3;
+    padding: var(--space-4) 0;
+    background: var(--color-panel);
+  }
+}

@@ -1,0 +1,409 @@
+.trade-board {
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.trade-board__form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 156px minmax(0, 1fr);
+  grid-template-areas:
+    "header header header"
+    "friend middle own"
+    "actions actions actions";
+  row-gap: var(--space-5);
+}
+
+.trade-board__header {
+  grid-area: header;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 40px;
+}
+
+.trade-board__avatar {
+  width: 32px;
+  height: 32px;
+}
+
+.trade-board__title {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
+}
+
+.trade-board__title:focus {
+  outline: none;
+}
+
+.trade-board__expiry {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 0 auto;
+  color: var(--color-muted);
+  font: var(--font-body);
+}
+
+.trade-board__expiry b {
+  color: var(--color-alert);
+  font-weight: inherit;
+}
+
+.trade-board__hourglass {
+  width: 14px;
+  height: 14px;
+}
+
+.trade-board__middle {
+  grid-area: middle;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: 0 var(--space-4);
+  text-align: center;
+}
+
+.trade-board__swap {
+  width: 40px;
+  height: 40px;
+}
+
+.trade-board__message {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.trade-board__error {
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-body-small);
+}
+
+.trade-board__actions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  min-height: 48px;
+}
+
+.trade-board__actions form {
+  display: contents;
+}
+
+.trade-board__action-set,
+.trade-board__action {
+  display: contents;
+}
+
+.trade-board[data-editing] .trade-board__read-only,
+.trade-board:not([data-editing]) .trade-board__edit-only {
+  display: none;
+}
+
+.trade-board__message:focus {
+  outline: none;
+}
+
+.trade-side {
+  min-width: 0;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-4) var(--space-6);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 2px var(--color-line-soft);
+}
+
+.trade-side--friend { grid-area: friend; }
+.trade-side--own { grid-area: own; }
+
+.trade-side--editing {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.trade-side__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.trade-side__count {
+  color: var(--color-text-max);
+  text-transform: none;
+}
+
+.trade-side__editing {
+  color: var(--color-accent);
+}
+
+.trade-side__open {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-align: center;
+}
+
+.trade-side__help {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  text-align: center;
+}
+
+.trade-picker__empty-title {
+  color: var(--color-alert);
+  font-weight: inherit;
+}
+
+.trade-side__cards {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: var(--space-7) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trade-card {
+  position: relative;
+  flex: none;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.trade-card--stack::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 6px;
+  z-index: -1;
+  width: var(--card-width, var(--card-s-width));
+  height: var(--card-height, var(--card-s-height));
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 2px var(--color-line), 0 0 0 3px var(--color-outline);
+}
+
+.trade-card:has(.card--m) { --card-width: var(--card-m-width); --card-height: var(--card-m-height); }
+.trade-card:has(.card--s) { --card-width: var(--card-s-width); --card-height: var(--card-s-height); }
+
+.trade-card__quantity {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  z-index: 2;
+  min-width: 30px;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-gold);
+  box-shadow: 0 0 0 2px var(--color-outline);
+  color: var(--color-on-gold);
+  font: var(--font-button);
+  text-align: center;
+}
+
+.trade-card__reserved {
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 2px var(--color-line-deep);
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.trade-card__new {
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-lime);
+  box-shadow: 0 0 0 2px var(--color-outline);
+  color: var(--color-on-lime);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.trade-card[hidden] {
+  display: none;
+}
+
+.trade-board__reason {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  text-align: center;
+}
+
+.trades-closed,
+.trade-board__open {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.trades-closed__link {
+  color: var(--color-accent);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+}
+
+.trade-board__actions .trades-closed,
+.trade-board__open {
+  flex-basis: 100%;
+  text-align: center;
+}
+
+.trade-card--editing {
+  padding-bottom: var(--space-4);
+}
+
+.trade-card--editing .stepper {
+  position: absolute;
+  bottom: calc(-1 * var(--space-4));
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+}
+
+.trade-card__remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: var(--color-line);
+  box-shadow: 0 0 0 2px var(--color-outline);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.trade-card__remove:hover {
+  background: var(--color-alert);
+  color: var(--color-on-alert);
+}
+
+.trade-card__remove:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+.trade-board__close-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.trade-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  width: var(--card-s-width);
+  height: var(--card-s-height);
+  padding: var(--space-3);
+  border: 0;
+  background: repeating-linear-gradient(45deg, var(--color-panel) 0 6px, var(--color-panel-sunken) 6px 12px);
+  box-shadow: inset 0 0 0 2px var(--color-line);
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.trade-add:hover {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.trade-add:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-gap), inset 0 0 0 2px var(--color-accent);
+}
+
+.trade-add__plus {
+  font: var(--font-weight-regular) 2.875rem / 2.625rem var(--font-family-vt323);
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  background: var(--color-input);
+  box-shadow: inset 0 0 0 2px var(--color-line), 0 0 0 2px var(--color-outline);
+  white-space: nowrap;
+}
+
+.stepper:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.stepper__button {
+  width: 24px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  background: var(--color-line);
+  color: var(--color-text-bright);
+  font: var(--font-button);
+  cursor: pointer;
+}
+
+.stepper__button:hover:not(:disabled) {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.stepper__button:disabled {
+  background: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
+  cursor: default;
+}
+
+.stepper__value {
+  min-width: 30px;
+  color: var(--color-text-max);
+  font: var(--font-button);
+  text-align: center;
+}
+
+.stepper__max {
+  padding: 0 var(--space-3) 0 var(--space-1);
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.stepper__max-phone {
+  display: none;
+}
