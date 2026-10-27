@@ -1746,7 +1746,6 @@ en:
         title: The pace of capsules
       title: How it works
     legal:
-      contact_fallback: the publisher
       credits_link: Credits
       ownership:
         affiliation: Gameble is not affiliated with Valve or Steam, and is not endorsed
@@ -1758,7 +1757,6 @@ en:
           game concerned is removed without delay.
         title: Steam, Valve and the games
       privacy:
-        controller: The controller of your data is Thomas Eyermann, publisher of Gameble.
         controller_html: The controller of your data is Thomas Eyermann, publisher
           of Gameble, reachable at %{contact}.
         cookies: 'Gameble only uses strictly necessary cookies, exempt from consent:
@@ -1844,6 +1842,7 @@ en:
             in the United States among other places. This transfer relies on the European
             Commission''s adequacy decision of 10 July 2023 (Data Privacy Framework),
             to which Cloudflare adheres;'
+          host: The site runs on servers operated by %{name}, in %{address};
           images: card images load from Steam's content delivery network, which your
             browser contacts directly.
           intro: 'A few outside services take part:'

@@ -528,21 +528,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".account-suspended__contest", /\APour connaître le motif/
   end
 
-  test "without a contact, an English banned player is told to write to the publisher" do
-    configure_legal_contact(nil)
-    record_ban(:ban, 1.day.ago, reason: "Spam")
-
-    sign_in_banned(origin: "/en")
-
-    assert_response :forbidden
-    assert_select "html[lang=en]"
-    assert_select "main h1", "Account suspended"
-    assert_select ".account-suspended__lead", "This account has been suspended. You can no longer sign in."
-    assert_select ".account-suspended__label", "Reason given by the moderator"
-    assert_select ".account-suspended__contest", "To contest this decision, write to the publisher."
-    assert_select "a[href^='mailto:']", false
-  end
-
   test "a signed-in player sees the sign-out button" do
     sign_in_with_steam
     get home_path(locale: :fr)

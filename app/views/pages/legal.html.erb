@@ -14,21 +14,17 @@
         <dt><%= t(".publisher.publisher") %></dt>
         <dd><%= t(".publisher.individual") %></dd>
       </div>
-      <% if @legal.contact_email %>
-        <div class="legal__fact legal__contact">
-          <dt><%= t(".publisher.contact") %></dt>
-          <dd><%= mail_to @legal.contact_email, class: "legal__link" %></dd>
-        </div>
-      <% end %>
-      <% if @legal.host_name || @legal.host_address %>
-        <div class="legal__fact legal__host">
-          <dt><%= t(".publisher.host") %></dt>
-          <dd>
-            <% if @legal.host_name %><span class="legal__host-name"><%= @legal.host_name %></span><% end %>
-            <% if @legal.host_address %><span class="legal__host-address"><%= @legal.host_address %></span><% end %>
-          </dd>
-        </div>
-      <% end %>
+      <div class="legal__fact legal__contact">
+        <dt><%= t(".publisher.contact") %></dt>
+        <dd><%= mail_to @legal.contact_email, class: "legal__link" %></dd>
+      </div>
+      <div class="legal__fact legal__host">
+        <dt><%= t(".publisher.host") %></dt>
+        <dd>
+          <span class="legal__host-name"><%= @legal.host_name %></span>
+          <span class="legal__host-address"><%= @legal.host_address %></span>
+        </dd>
+      </div>
     </dl>
   <% end %>
 
@@ -57,11 +53,7 @@
 
   <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { labelledby: "legal-privacy" }) do %>
     <h2 id="legal-privacy" class="legal__heading"><%= t(".privacy.title") %></h2>
-    <% if @legal.contact_email %>
-      <p class="legal__controller"><%= t(".privacy.controller_html", contact:) %></p>
-    <% else %>
-      <p class="legal__controller"><%= t(".privacy.controller") %></p>
-    <% end %>
+    <p class="legal__controller"><%= t(".privacy.controller_html", contact:) %></p>
     <p><%= t(".privacy.stored.intro") %></p>
     <ul class="legal__list">
       <li><%= t(".privacy.stored.steam") %></li>
@@ -84,6 +76,7 @@
     <p><%= t(".privacy.nothing_else") %></p>
     <p><%= t(".privacy.services.intro") %></p>
     <ul class="legal__list">
+      <li class="legal__processor-host"><%= t(".privacy.services.host", name: @legal.host_name, address: @legal.host_address) %></li>
       <li><%= t(".privacy.services.steam") %></li>
       <li><%= t(".privacy.services.sentry") %></li>
       <li><%= t(".privacy.services.cloudflare") %></li>
