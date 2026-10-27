@@ -1,19 +1,4 @@
 module Catalog
-  # What publishing the draft season now would produce, for calibrating the
-  # prestige formula, the tier shares and the themes before a season is
-  # published: a ScorePanel. Reads the draft without a lock and writes
-  # nothing; uses the same rules as PublishSeason (RarityThresholds,
-  # SetBuilder), so publishing a draft unchanged since gives the tier sizes
-  # and set counts shown here.
-  #
-  # Four queries at any size: the draft's rows (SeasonRows, the draft read in
-  # the same query), the theme keys, the tags' classification and the English
-  # titles of the highest and lowest cards.
-  # A draft with no card-season costs a second query to tell it from no
-  # draft at all.
-  #
-  #   Catalog::DraftPreview.call
-  #   # => nil (no draft) | Panel(verdict: :empty_season) | Panel(…)
   module DraftPreview
     def self.call
       rows = SeasonRows.call(Season.draft.select(:id))
@@ -48,8 +33,6 @@ module Catalog
         rescore_verdict: classification.stale?(rows) ? :rescore_needed : nil)
     end
 
-    # Each tier's card count and threshold, legendary first, as PublishSeason
-    # would cut them; nil when a tier would hold no card.
     def self.tiers_of(scores)
       tiers = RarityThresholds.tiers(scores)
       return nil if tiers.nil?

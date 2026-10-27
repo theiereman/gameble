@@ -1,7 +1,4 @@
 namespace :catalog do
-  # Meant for production: run once after the deploy that adds
-  # catalog_card_seasons.number (AD-28, the expand step), before the
-  # migration that makes it NOT NULL for published card-seasons.
   desc "Numbers the cards of every published season that has no numbers yet (Catalog::PublishSeason#number_published); idempotent"
   task number_seasons: :environment do
     Catalog::Season.published.order(:number).pluck(:number).each do |number|
@@ -16,9 +13,6 @@ namespace :catalog do
     end
   end
 
-  # Run on every boot of a web container (bin/docker-entrypoint), after
-  # db:prepare. It never fails the boot: a missing or broken file, or any
-  # other error, is a warning and leaves the roadmap as it is.
   desc "Creates a hidden roadmap milestone for each initiative epic that has none (Catalog::CreateRoadmapMilestones); idempotent"
   task create_roadmap_milestones: :environment do
     reading = Catalog::InitiativeEpics.read(Rails.root.join("_bmad-output/initiative-gameble/tickets.toml"))

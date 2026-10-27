@@ -1,9 +1,4 @@
 module Catalog
-  # The roadmap page: every milestone staff chose to show, in their order,
-  # each with all its shown stories in theirs, worded in the locale.
-  # Cached per locale: a stale roadmap is accepted.
-  #
-  #   Catalog::PublicRoadmap.call(locale: :fr) # => [ Catalog::PublicRoadmap::Milestone, … ]
   module PublicRoadmap
     CACHE_LIFETIME = 10.minutes
 

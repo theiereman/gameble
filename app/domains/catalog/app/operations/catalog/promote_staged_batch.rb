@@ -1,21 +1,4 @@
 module Catalog
-  # Replaces the draft season's card-seasons with a staged batch, in one
-  # transaction: the draft holds exactly the batch's cards, scored as
-  # staged, and the batch is deleted. A card the draft held and the batch
-  # does not stage leaves the draft; its identity stays.
-  #
-  # `season_number` is the number of the draft season the run began on. The
-  # batch is stale, and refused, when that season is no longer the draft: it
-  # was published since. When the run began with no draft, the draft is
-  # created here, with the number the run saw. An empty batch is refused: it
-  # would empty the draft.
-  #
-  # The draft is locked FOR UPDATE, so publishing waits for the promotion.
-  #
-  # Publishes Catalog::StagedBatchPromoted.
-  #
-  #   Catalog::PromoteStagedBatch.new.call(batch_token: run.token, season_number: 3)
-  #   # => Success(season) | Failure(:empty_batch) | Failure(:stale_batch)
   class PromoteStagedBatch < ApplicationOperation
     def call(batch_token:, season_number:)
       transaction do

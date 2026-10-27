@@ -1,8 +1,4 @@
 module Catalog
-  # The stored names of the themes, by key, read once per request or job (a
-  # screen names many cards) and read again after a theme changes.
-  #
-  #   Catalog::ThemeNames.of("horror", :fr) # => "Horreur" | nil
   class ThemeNames < ActiveSupport::CurrentAttributes
     attribute :by_key
 

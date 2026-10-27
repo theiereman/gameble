@@ -1,10 +1,5 @@
 module Catalog
-  # Every season, by number, with its card count and, once published, its
-  # count per rarity tier and per set kind, for the back-office (AD-3).
   module SeasonSummaries
-    # `tier_counts` is { 1 => count, …, 5 => count } once published, nil for
-    # the draft. `set_counts` is { kind => count } for each set kind once
-    # published, nil for the draft.
     Summary = Data.define(:number, :status, :published_at, :card_count, :tier_counts, :set_counts) do
       def draft? = status == "draft"
       def published? = status == "published"

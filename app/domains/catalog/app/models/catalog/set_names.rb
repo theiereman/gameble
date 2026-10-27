@@ -1,29 +1,6 @@
 require "digest"
 
 module Catalog
-  # The names franchise and studio sets are built from. Pure functions.
-  #
-  # A franchise's name drops ™ ® © and a trailing " Franchise", " Series" or
-  # " - Official". A company's name (a developer, a publisher) drops ™ ® ©, a
-  # platform in brackets ("(Mac)", "(Mac/Linux)") and its trailing legal
-  # suffixes; its company form is that name without case. A name's form is
-  # its words; its merge form, those words joined without separators, is
-  # shared by names differing only by case or punctuation ("Watch_Dogs",
-  # "WatchDogs"). A set's key is a form parameterized, or "x-" and a digest
-  # of the form when some character of it has no Latin transliteration.
-  #
-  #   Catalog::SetNames.franchise("Tom Clancy Franchise")          # => "Tom Clancy"
-  #   Catalog::SetNames.company("CAPCOM Co., Ltd.")                # => "CAPCOM"
-  #   Catalog::SetNames.company_form("Feral Interactive (Mac)")    # => "feral interactive"
-  #   Catalog::SetNames.form("S.T.A.L.K.E.R.")                     # => "s t a l k e r"
-  #   Catalog::SetNames.merge_form("S.T.A.L.K.E.R.")               # => "stalker"
-  #   Catalog::SetNames.key("final fantasy")                       # => "final-fantasy"
-  #   Catalog::SetNames.title_matches?("Watch_Dogs 2", "WatchDogs") # => true
-  #
-  # A title matches a franchise name when they share a whole word that is no
-  # stopword and is at least three letters long or the name's only word, or
-  # when the name's words, joined, are a run of the title's words joined.
-  # Words are lowercase letters and digits, apostrophes removed first.
   module SetNames
     MARKS = /[™®©]/
     FRANCHISE_SUFFIX = /\s+(?:franchise|series|-\s*official)\z/i
@@ -35,7 +12,6 @@ module Catalog
     MIN_WORD_LENGTH = 3
     EXEMPT_FROM_TITLES = [ "science adventure", "world of darkness" ].to_set.freeze
     DIGEST_LENGTH = 12
-    # What I18n.transliterate puts in place of a character it cannot transliterate.
     UNTRANSLITERATED = "?".freeze
 
     def self.franchise(name)

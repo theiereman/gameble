@@ -1,8 +1,4 @@
 module Catalog
-  # A theme a card can belong to: a key (stable, URL-safe, kept on cards and
-  # sets), a name in each language, and the Steam tags attached to it
-  # (TagClassification). Created and renamed by administrators through the
-  # theme operations.
   class Theme < ApplicationRecord
     self.table_name = "catalog_themes"
 
@@ -17,7 +13,6 @@ module Catalog
     validates :key, format: { with: Set::KEY_FORMAT }
     validates :name_en, :name_fr, length: { in: 1..NAME_LENGTH }
 
-    # The event stream of every theme and classification change.
     def self.stream_name
       "Catalog::Themes"
     end

@@ -1,27 +1,7 @@
 module Catalog
-  # A card in a season (AD-5): the source's scores for that season, and the
-  # rarity and number in the season (R3) its publication gives. Scores follow
-  # the source while the season is a draft; rarity and number stay NULL until
-  # it is published (a season published before numbers existed stays
-  # unnumbered until `catalog:number_seasons`). Once published, none of them
-  # changes again, and no card-season is added to or removed from the season.
-  # A card-season never moves to another card or season.
-  #
-  # `main_theme` is the card's first theme (Catalog::Themes) when the season
-  # was published, nil for a card of no theme or a season published before
-  # themes.
-  #
-  # `prestige_score` is opaque here and only ordered;
-  # `prestige_score_version` names, as opaquely, the formula that gave it
-  # (nil before versions existed); `rating` is the source's review score in
-  # percent; `review_count` its number of reviews (nil when the source gave
-  # none). Catalog::FillCardSources fills, once, a review count left NULL by
-  # an import that did not carry it, published seasons included.
   class CardSeason < ApplicationRecord
     self.table_name = "catalog_card_seasons"
-    # The columns frozen once the season is published.
     SEASON_DATA = %w[prestige_score prestige_score_version rating review_count rarity number main_theme].freeze
-    # The column is an integer.
     REVIEW_COUNTS = 1..2_147_483_647
 
     attr_readonly :card_id, :season_id

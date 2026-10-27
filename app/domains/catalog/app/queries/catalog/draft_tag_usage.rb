@@ -1,9 +1,4 @@
 module Catalog
-  # How many of the draft season's cards carry each tag among their
-  # most-voted (Themes::TOP_TAGS): { tag key => card count }, the most
-  # carried first. Empty without a draft.
-  #
-  #   Catalog::DraftTagUsage.call # => { "indie" => 812, "roguelite" => 97, … }
   module DraftTagUsage
     def self.call
       sql = <<~SQL.squish

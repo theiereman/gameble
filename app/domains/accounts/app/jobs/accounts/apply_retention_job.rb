@@ -1,8 +1,4 @@
 module Accounts
-  # Keeps personal data no longer than the privacy notice says: deletes the
-  # accounts idle for Player::IDLE_PERIOD, then erases the reports and the
-  # moderation history past their retention. Every step is idempotent, so a
-  # late run catches up on the days it missed.
   class ApplyRetentionJob < ActiveJob::Base
     queue_as :default
 

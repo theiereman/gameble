@@ -1,10 +1,4 @@
 module Catalog
-  # The card-seasons of the published season by rarity tier, for the draw:
-  # { season_id:, tiers: { 1 => [ids], …, 5 => [ids] } }, all
-  # five tiers present; nil when no season is published. A caller that has
-  # already read the published season passes it, so both reads agree.
-  # Reads on the current connection: the draw runs inside a write
-  # transaction.
   module PublishedCardSeasonsByTier
     def self.call(season = PublishedSeason.call)
       return nil if season.nil?

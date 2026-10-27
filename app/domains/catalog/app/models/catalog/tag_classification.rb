@@ -1,8 +1,4 @@
 module Catalog
-  # What the administrators decided about one Steam tag, by its key
-  # (TagKey): attached to a theme, or not a theme. A tag without a
-  # classification is unclassified, and blocks the publication when a draft
-  # card carries it among its most-voted tags.
   class TagClassification < ApplicationRecord
     self.table_name = "catalog_tag_classifications"
 

@@ -1,4 +1,3 @@
-# Depends on no other domain.
 enforce_dependencies: true
 dependencies:
   - lib

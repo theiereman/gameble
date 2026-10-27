@@ -1,6 +1,4 @@
 module Catalog
-  # The names an administrator gives a theme: squished, filled, and no longer
-  # than Theme::NAME_LENGTH.
   module ThemeNaming
     def self.clean(name)
       name.is_a?(String) ? name.squish : nil

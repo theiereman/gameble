@@ -1,14 +1,4 @@
 module Accounts
-  # The staff's queue of reported players: every player in good standing
-  # with open reports, the latest open report first. `players` is the
-  # relation to page; `rows` reads, for a page of it, each player's open
-  # reports per reason, their total and the latest one's time in one query,
-  # so they agree, skipping a player whose reports were handled since the
-  # page was read.
-  #
-  #   page = Accounts::ReportQueue.players.limit(50)
-  #   Accounts::ReportQueue.rows(page) # => [Accounts::ReportQueue::Row, …]
-  #   Accounts::ReportQueue.size       # => 3
   module ReportQueue
     Row = Data.define(:player, :counts, :total, :latest_at)
 

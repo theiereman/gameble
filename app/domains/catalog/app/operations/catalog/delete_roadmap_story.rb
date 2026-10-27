@@ -1,11 +1,4 @@
 module Catalog
-  # Staff delete a roadmap story. The stories after it keep their places,
-  # which stay in order.
-  #
-  # Publishes Catalog::RoadmapChanged (story_deleted).
-  #
-  #   Catalog::DeleteRoadmapStory.new.call(story:)
-  #   # => Success(story) | Failure(:story_not_found)
   class DeleteRoadmapStory < ApplicationOperation
     include RoadmapEditing
 

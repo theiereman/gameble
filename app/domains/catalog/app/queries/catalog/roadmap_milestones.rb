@@ -1,8 +1,4 @@
 module Catalog
-  # Every roadmap milestone in its order, shown or hidden, with its number of
-  # stories, for the back-office.
-  #
-  #   Catalog::RoadmapMilestones.call # => [ Catalog::RoadmapMilestones::Row, … ]
   module RoadmapMilestones
     Row = Data.define(:token, :epic_slug, :wording_fr, :wording_en, :status, :shown, :position, :story_count) do
       include RoadmapWording::Localized

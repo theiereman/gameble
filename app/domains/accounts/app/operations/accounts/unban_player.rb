@@ -1,16 +1,4 @@
 module Accounts
-  # A moderator or an administrator lifts the ban of a player they outrank:
-  # the player can sign in again and their profile shows again. Friendships
-  # and trades dropped by the ban stay dropped, and the reports the ban
-  # handled stay handled. The refusal is read again from the locked row and
-  # from the member of staff's row read FOR SHARE, as Accounts::BanPlayer
-  # does: a change of their role or ban still uncommitted is waited for, and
-  # none commits before the unban does. The list of banned players asks the
-  # refusal too.
-  #
-  #   Accounts::UnbanPlayer.new.call(staff:, player:)
-  #   # => Success(player) | Failure(:staff_required | :player_not_found |
-  #   #    :outranked | :not_banned)
   class UnbanPlayer < ApplicationOperation
     def self.refusal(staff:, player:)
       return :staff_required unless Player.acting_staff?(staff)

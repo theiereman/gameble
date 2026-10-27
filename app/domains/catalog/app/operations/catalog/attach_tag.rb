@@ -1,12 +1,4 @@
 module Catalog
-  # An administrator attaches a Steam tag to an existing theme, whatever it
-  # was before (unclassified, another theme's, no theme). The draft's cards
-  # follow only once the cards are rescored.
-  #
-  # Publishes Catalog::TagAttached.
-  #
-  #   Catalog::AttachTag.new.call(tag_key: "roguelite", theme:)
-  #   # => Success(theme) | Failure(:invalid_tag)
   class AttachTag < ApplicationOperation
     include ThemeEditing
 

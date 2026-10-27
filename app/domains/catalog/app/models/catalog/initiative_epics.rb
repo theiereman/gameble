@@ -1,12 +1,4 @@
 module Catalog
-  # The epics of the initiative's ticket file (a TOML file whose `[[epic]]`
-  # entries carry a `slug` and a `title`), in the file's order, for the
-  # roadmap milestones. A missing or broken file is a reading with a problem,
-  # never an exception: the roadmap stays as it is.
-  #
-  #   Catalog::InitiativeEpics.read(path)
-  #   # => Reading(epics: [ Epic(slug: "epic-steam-catalog", title: "Steam catalog"), … ], problem: nil)
-  #   # => Reading(epics: nil, problem: "missing: …")
   module InitiativeEpics
     Epic = Data.define(:slug, :title)
     Reading = Data.define(:epics, :problem)

@@ -1,19 +1,9 @@
 module Catalog
-  # A set of a season: the games of a theme, of a franchise or of a studio,
-  # the games a hall of fame rule selects from their reviews, or the UFOs,
-  # the games of no theme. Its key is URL-safe and unique within its season
-  # and kind; `params` holds what a screen needs to name it (theme,
-  # franchise, studio, hall_of_fame). Built when the season is published
-  # (SetBuilder), with its tiers, and never changed afterwards. Its kinds
-  # are SetKind's, in their tab order.
   class Set < ApplicationRecord
     self.table_name = "catalog_sets"
 
-    # A set never moves to another season, so its freeze cannot be dodged.
     attr_readonly :season_id
 
-    # What `parameterize` produces: lowercase letters, digits, underscores and
-    # single dashes.
     KEY_FORMAT = /\A[a-z0-9_]+(?:-[a-z0-9_]+)*\z/
 
     enum :kind, SetKind::ALL.index_by(&:to_sym), validate: true

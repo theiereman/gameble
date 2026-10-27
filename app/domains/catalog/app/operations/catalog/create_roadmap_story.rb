@@ -1,12 +1,4 @@
 module Catalog
-  # Staff add a story under a roadmap milestone, after its last story. The
-  # milestone is locked FOR UPDATE, so two stories added at once take two
-  # places.
-  #
-  # Publishes Catalog::RoadmapChanged (story_created).
-  #
-  #   Catalog::CreateRoadmapStory.new.call(milestone:, wording_fr: "…", wording_en: "…", status: "to_come", shown: true)
-  #   # => Success(story) | Failure(:invalid_wording | :invalid_status)
   class CreateRoadmapStory < ApplicationOperation
     include RoadmapEditing
 
