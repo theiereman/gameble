@@ -1,6 +1,6 @@
 ---
 id: 36
-tracker_status: review
+tracker_status: done
 tracker_id: 265
 remote: https://github.com/theiereman/gameble/issues/265
 type: story
