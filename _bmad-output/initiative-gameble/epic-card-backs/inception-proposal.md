@@ -183,3 +183,15 @@ After story 1 (it adds the tables everything reads), three lanes touch disjoint 
 - Release: 0.5.0 for stories 1 to 9, because epic 17 (0.5.0) needs the recap query (9.8), and epic 19 (0.5.0) shares the booster island. Order inside 0.5.0: 21, 12, then 9, then 17 and 19 (19.3 after 9.5).
 - The initiative `tickets.toml` entry for id 9 needs `release = "0.5.0"` before sync (not edited here).
 - Stays out: profile titles and menu themes (question 6; a new epic, a later release, CAP-22); the events that unlock backs (epics 6 and 13 already publish them); any back shown to another player; per-season redrawn backs (a season is a stamp, DESIGN.md Season mark); the allocation screen itself (epic 17); the origin look and intro of special packs (epic 19); backs for franchise, studio and UFO sets; a purchase or trade of backs.
+
+## 7. The author's answers (2026-10-28)
+
+1. Other backs: the 8 prototype backs, as recommended. Semaine 38 the first time a player contributes to a successful weekly goal; Centurion on `boosters_100`, Étoile d'or on `first_legendary`, Aurore on `three_complete_sets`; Saison 1, Millésime 2017 and Soldes d'hiver granted by the console operation. Later goals grant no back.
+2. Set backs: one shared anatomy generated in `export.mjs`, with a word, two or three colours and a motif per set; the list is drafted from the set names and approved by the author.
+3. The faded back on a card not owned is dropped; Done when 3, CAP-20 and AD-25 are amended.
+4. Special packs: the cards always wear the active back; epic 19 changes no back code.
+5. The goal back is granted when the reward is earned (`GoalRewardGranted`), not when it is claimed.
+6. Profile titles and menu themes (CAP-22) leave this epic for a new epic after it.
+7. Release: the MVP is everything before 1.0.0, and this epic comes after it, in release 1.2.0 (not 0.5.0 as section 6 proposed). Epic 17 stays in 0.5.0 without card backs: it no longer waits on this epic, its recap ships without earned backs, and 17.1 drops the back unlocked by a gold reached at the receipt. This epic adds its unlocks to the recap and grants backs for tiers already reached before it ships. Epic 19 no longer orders against this epic: it lands first, so this epic's booster story follows 19.3 to 19.5.
+
+Changes the inception makes at approval: `release = "1.2.0"` on epic 9 in the initiative `tickets.toml`; in `epic-seasons-carry-over`, the "Waits on epic 9" note removed, card backs taken out of R1's recap and out of 17.1's verify, and `epic-card-backs` taken out of 17.2's `after`.
