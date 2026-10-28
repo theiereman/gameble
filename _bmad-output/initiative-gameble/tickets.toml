@@ -196,3 +196,11 @@ slug = "epic-steam-features"
 title = "Steam related features"
 covers = []
 after = []
+
+[[epic]]
+id = 27
+release = "1.2.0"
+slug = "epic-cleanup-1-2-0"
+title = "Cleanup for 1.2.0"
+covers = []
+after = []

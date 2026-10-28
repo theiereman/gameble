@@ -1,0 +1,45 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Card numbers are required for published card-seasons"
+description = "Contract step of the card numbers: make catalog_card_seasons.number required for published card-seasons with a check constraint added with validate: false in one migration and validated in a second (strong_migrations), then drop the nil case of CardView#number and number_label and the TypeScript `number: number | null`. The backfill `catalog:number_seasons` has to have run on every database (staging, production, development) before this deploys; say so in the plan and in the deploy notes of the pull request, since a published card-season without a number would fail the check. Settles an entry of the deferred work; the author asked for it now, 2026-10-28."
+verify = "The check constraint exists and is validated in db/schema.rb; inserting a published card-season without a number fails; CardView and the card face render a number with no nil branch, and the type checks and the Ruby and JavaScript tests pass."
+covers = []
+after = []
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "The complete-sets figure counts a game held in any edition"
+description = "The public profile's complete-sets figure (Game::CollectionSummary) counts only the published season's exact editions while the set rows beside it count a game held in any edition, so a set completed partly with earlier-edition copies shows COMPLET in the rows and is missing from the header. Move the figure onto the any-edition reading the rows use (Game::HeldGames) so both agree. Author, 2026-10-28: count any edition."
+verify = "A test holds a set completed partly with earlier-edition copies and shows the header's count and the rows agreeing on the public profile and on the player's own collection summary."
+covers = []
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "A banned account can be erased by staff"
+description = "The legal page promises erasure on request, yet Accounts::DeletePlayer refuses a banned player. Allow the operation for a banned player when staff run it: the Pundit policy, the operation, a back-office action on the player's page, and the history row that records the erasure; a banned player cannot start it themselves. Author, 2026-10-28: allow it when staff run it."
+verify = "A back-office test erases a banned player through the new action and finds the history row; the same operation is refused for a banned player acting alone; the legal page's promise holds."
+covers = []
+after = []
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "The walkthrough of the screens never marked"
+description = "Epic 16 was accepted with its walkthrough partial: seven screens were never marked (seasonal allocation, card picker, public card page, public profile, full collection, Steam sign-in, Plus) and the phone, the staff screens and English were largely unseen. The author walks them with an agent, marks each one, and the findings become tickets. Whether issue #67 (standardise the return button) is closed by the guard built in 16.11 is still to decide."
+verify = "Each of the seven screens is marked seen, with its findings turned into tickets or deferred entries, and the phone, staff and English passes are recorded."
+covers = []
+after = []
+hitl = true
+risk = "low"
