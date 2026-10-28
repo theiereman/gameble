@@ -1,17 +1,22 @@
 module Game
   module CardBackShelf
-    Row = Data.define(:back, :state) do
+    Row = Data.define(:back, :state, :season, :seasons) do
       def key = back.key
       def asset = back.asset
       def unlock = back.unlock
       def active? = state == :active
       def locked? = state == :locked
+      def choosable_season? = seasons.size > 1
     end
 
     def self.call(player)
-      active = CardBacks.active_key(player)
+      active, active_season = CardBacks.active_with_season(player)
       unlocked = CardBackUnlock.where(player_id: player.id).pluck(:back).to_set
-      CardBacks::CATALOGUE.map { Row.new(back: it, state: state(it, active:, unlocked:)) }
+      earned = CardBackSeasons.call(player)
+      CardBacks::CATALOGUE.map do |back|
+        state = state(back, active:, unlocked:)
+        Row.new(back:, state:, season: (active_season if state == :active), seasons: earned.fetch(back.key, []))
+      end
     end
 
     def self.state(back, active:, unlocked:)

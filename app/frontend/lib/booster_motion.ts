@@ -175,6 +175,10 @@ export function cardBackClass(back: CardBackView): string {
   return `booster-card__back--${back.urls ? "custom" : "standard"}`
 }
 
+export function cardBackSeasonMark(back: CardBackView): string | null {
+  return back.season ? `S${back.season}` : null
+}
+
 export function cardBackProperties(back: CardBackView): Array<[string, string]> {
   if (!back.urls) return []
   return [

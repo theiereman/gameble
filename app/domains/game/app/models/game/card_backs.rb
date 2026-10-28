@@ -62,7 +62,11 @@ module Game
     end
 
     def self.active_key(player)
-      PlayerState.where(player_id: player.id).joins(ACTIVE_UNLOCKED_SQL).pick(:active_card_back) || STANDARD
+      active_with_season(player).first
+    end
+
+    def self.active_with_season(player)
+      PlayerState.where(player_id: player.id).joins(ACTIVE_UNLOCKED_SQL).pick(:active_card_back, :active_card_back_season) || [ STANDARD, nil ]
     end
   end
 end

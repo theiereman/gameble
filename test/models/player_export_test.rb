@@ -106,7 +106,7 @@ class PlayerExportTest < ActiveSupport::TestCase
        achievements trades reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
     assert_equal({ count: 0 }, hash[:friends])
     assert_equal({ received: 0, sent: 0 }, hash[:pendingInvitations])
-    assert_equal({ active: "standard", unlocked: [] }, hash[:cardBacks])
+    assert_equal({ active: "standard", activeSeason: nil, unlocked: [] }, hash[:cardBacks])
     assert_no_database_id(hash)
   end
 
@@ -116,7 +116,7 @@ class PlayerExportTest < ActiveSupport::TestCase
 
     hash = export.to_h
 
-    assert_equal({ active: "set-theme-rpg", unlocked: [ { back: "set-theme-rpg", unlockedAt: "2026-10-10T08:00:00Z" } ] }, hash[:cardBacks])
+    assert_equal({ active: "set-theme-rpg", activeSeason: nil, unlocked: [ { back: "set-theme-rpg", unlockedAt: "2026-10-10T08:00:00Z" } ] }, hash[:cardBacks])
   end
 
   test "one player's export holds none of another's cards, packs, name, token or code" do

@@ -3,10 +3,26 @@
 <%= render "personalizations/section", id: "personalization-back", heading: t("personalizations.show.card_back.heading"), focused: chosen.present? do %>
   <p class="personalization-section__hint"><%= t("personalizations.show.card_back.intro") %></p>
   <div class="back-picker__preview">
-    <%= card_back_image(active, "l") %>
+    <span class="back-picker__stamped">
+      <%= card_back_image(active, "l") %>
+      <% if active.season %>
+        <%= render SeasonMarkComponent.new(season: active.season, class: "back-picker__stamp") %>
+      <% end %>
+    </span>
     <div class="back-picker__preview-text">
       <p class="back-picker__preview-name"><%= card_back_name(active) %></p>
       <p class="back-picker__preview-mark"><%= t("personalizations.show.card_back.active") %></p>
+      <% if active.choosable_season? %>
+        <div class="back-picker__marks" role="group" aria-label="<%= t("personalizations.show.card_back.marks") %>">
+          <% active.seasons.each do |season| %>
+            <%= button_to personalization_back_path, method: :patch, params: { back: active.key, season: }, disabled: season == active.season,
+                  class: class_names("back-picker__mark", "back-picker__mark--active" => season == active.season), form_class: "back-picker__form",
+                  aria: { label: t("personalizations.show.card_back.mark_label", season:) } do %>
+              <%= render SeasonMarkComponent.new(season:) %>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   </div>
   <ul class="back-picker__grid">

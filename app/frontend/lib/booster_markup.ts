@@ -101,7 +101,12 @@ export function setTierFrom(data: Dataset): OpeningSetTier | null {
 
 function cardBackFrom(pack: Dataset): CardBackView {
   const { cardBackS: s, cardBackM: m, cardBackXl: xl } = pack
-  return { key: pack.cardBack ?? "standard", urls: s && m && xl ? { s, m, xl } : null }
+  const season = Number(pack.cardBackSeason)
+  return {
+    key: pack.cardBack ?? "standard",
+    urls: s && m && xl ? { s, m, xl } : null,
+    ...(Number.isInteger(season) && season > 0 ? { season } : {}),
+  }
 }
 
 export function openedFrom({ pack, cards, setTiers, bank }: OpenedMarkup): OpeningAnswer | null {

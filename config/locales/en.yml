@@ -952,6 +952,7 @@ en:
       unknown_back: That card back does not exist.
       unknown_code: No player has that code.
       unknown_direction: Unknown direction.
+      unknown_season: You did not earn this card back in that season.
       unknown_player: This invitation link is not valid.
     steam:
       already_published: The cards of that run are already published in a season,
@@ -1977,6 +1978,8 @@ en:
         heading: Card back
         intro: Only you see it, on your face-down cards when you open a capsule.
         locked: Card back locked
+        mark_label: Wear the mark of season %{season}
+        marks: Season mark
       more: More
       profile_title:
         apply: Apply
@@ -2133,6 +2136,8 @@ en:
       welcome: Welcome to Gameble. Your capsules are waiting.
     destroy:
       farewell: You are signed out. Your collection will be waiting.
+  season_mark:
+    title: Season %{season}
   settings:
     private_dialog:
       cancel: Cancel

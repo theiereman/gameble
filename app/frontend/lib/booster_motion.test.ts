@@ -26,6 +26,7 @@ import {
   burstPixels,
   cardBackClass,
   cardBackProperties,
+  cardBackSeasonMark,
   dealKeyframes,
   dealOrder,
   revealSummary,
@@ -160,6 +161,12 @@ describe("the card back", () => {
       ["--card-back-xl", 'url("/xl.png")'],
     ])
     expect(cardBackProperties({ key: "standard", urls: null })).toEqual([])
+  })
+
+  it("stamps the season the pack's back wore, and nothing when it wore none", () => {
+    expect(cardBackSeasonMark({ key: "set-theme-rpg", urls, season: 2 })).toBe("S2")
+    expect(cardBackSeasonMark({ key: "set-theme-rpg", urls })).toBeNull()
+    expect(cardBackSeasonMark({ key: "set-theme-rpg", urls, season: null })).toBeNull()
   })
 })
 

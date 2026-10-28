@@ -3,9 +3,10 @@ module Game
     KINDS = CardBacks::SET_KEYS.keys.freeze
 
     SQL = <<~SQL.squish.freeze
-      SELECT DISTINCT sets.kind, sets.key
+      SELECT DISTINCT sets.kind, sets.key, seasons.number
         FROM game_set_tiers AS earned
         JOIN catalog_sets AS sets ON sets.id = earned.set_id
+        JOIN catalog_seasons AS seasons ON seasons.id = sets.season_id
         JOIN catalog_set_tiers AS complete ON complete.set_id = sets.id AND complete.tier = 'complete'
         JOIN catalog_set_tiers AS back_tier ON back_tier.set_id = sets.id AND back_tier.tier = earned.tier
        WHERE earned.player_id = :player_id
@@ -18,8 +19,14 @@ module Game
     SQL
 
     def self.call(player)
+      rows(player).map { |kind, key, _| CardBacks.set_key(kind, key) }.uniq
+    end
+
+    def self.rows(player)
       sql = Catalog::Set.sanitize_sql_array([ SQL, { player_id: player.id, kinds: KINDS } ])
-      Catalog::Set.connection.select_rows(sql, "Game::EarnedSetBacks").map { |kind, key| CardBacks.set_key(kind, key) }.select { CardBacks.find(it) }
+      Catalog::Set.connection.select_rows(sql, "Game::EarnedSetBacks")
+        .map { |kind, key, number| [ kind, key, Integer(number) ] }
+        .select { |kind, key, _| CardBacks.find(CardBacks.set_key(kind, key)) }
     end
   end
 end

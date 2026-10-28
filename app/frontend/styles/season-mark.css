@@ -1,0 +1,24 @@
+/* A small stamp laid over a back already drawn: the booster draws it from the
+   back's data attribute, the picker from the component. */
+.season-mark,
+.booster-card__back[data-season-mark]::before {
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 2px var(--color-gold);
+  color: var(--color-gold);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  pointer-events: none;
+}
+
+.booster-card__back[data-season-mark]::before {
+  content: attr(data-season-mark);
+  z-index: 1;
+}
+
+.back-picker__marks .season-mark {
+  position: static;
+}

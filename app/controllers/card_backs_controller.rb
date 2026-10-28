@@ -1,7 +1,7 @@
 class CardBacksController < ApplicationController
   def update
     authorize :card_back, :update?
-    result = Game::ChooseCardBack.new.call(player: current_player, back: params[:back].to_s)
+    result = Game::ChooseCardBack.new.call(player: current_player, back: params[:back].to_s, season: params[:season].presence)
 
     if result.success?
       announce(result.value!)

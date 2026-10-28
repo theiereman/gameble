@@ -49,7 +49,7 @@ export type OpeningSetTier = {
   url: string
 }
 
-export type CardBackView = { key: string; urls: { s: string; m: string; xl: string } | null }
+export type CardBackView = { key: string; urls: { s: string; m: string; xl: string } | null; season?: number | null }
 
 export type OpeningAnswer = {
   pack: { token: string; kind: string; cardBack: CardBackView; url: string }

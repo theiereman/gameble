@@ -21,7 +21,7 @@ class Game::ChooseCardBackTest < ActiveSupport::TestCase
     assert result.success?
     assert_equal "set-theme-rpg", stored
     assert_equal "set-theme-rpg", Game::CardBacks.active_key(@player)
-    assert_equal [ { player_id: @player.id, back: "set-theme-rpg" } ], events.map(&:data)
+    assert_equal [ { player_id: @player.id, back: "set-theme-rpg", season: nil } ], events.map(&:data)
   end
 
   test "Standard needs no unlock and brings the player back to it" do

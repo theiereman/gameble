@@ -125,6 +125,15 @@ describe("openedFrom", () => {
     expect(open({ cardBack: "set-theme-rpg", cardBackS: "/s.png" })?.pack.cardBack.urls).toBeNull()
   })
 
+  it("reads the season the pack's back wore, and none when the attribute is missing or not a season", () => {
+    const open = (dataset: Record<string, string>) =>
+      openedFrom({ pack: { ...pack, ...dataset }, cards: [card], setTiers: [], bank: bankFrom(BANK) })
+
+    expect(open({ cardBack: "set-theme-rpg", cardBackSeason: "2" })?.pack.cardBack.season).toBe(2)
+    expect(open({ cardBack: "set-theme-rpg" })?.pack.cardBack.season).toBeUndefined()
+    expect(open({ cardBack: "set-theme-rpg", cardBackSeason: "x" })?.pack.cardBack.season).toBeUndefined()
+  })
+
   it("is none without a pack or a card", () => {
     expect(openedFrom({ pack: null, cards: [card], setTiers: [], bank: bankFrom(BANK) })).toBeNull()
     expect(openedFrom({ pack, cards: [], setTiers: [], bank: bankFrom(BANK) })).toBeNull()

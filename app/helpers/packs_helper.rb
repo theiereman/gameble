@@ -8,12 +8,12 @@ module PacksHelper
 
   def pack_card_back(pack)
     back = Game::CardBacks.find(pack.card_back_key) || Game::CardBacks.find(Game::CardBacks::STANDARD)
-    { key: back.key, urls: BACK_SIZES.to_h { |size| [ size, vite_asset_path("images/pixel/#{back.asset}-#{size}.png") ] } }
+    { key: back.key, season: pack.card_back_season, urls: BACK_SIZES.to_h { |size| [ size, vite_asset_path("images/pixel/#{back.asset}-#{size}.png") ] } }
   end
 
   def pack_card_back_data(pack)
     back = pack_card_back(pack)
-    back[:urls].transform_keys { :"card_back_#{it}" }.merge(card_back: back[:key])
+    back[:urls].transform_keys { :"card_back_#{it}" }.merge(card_back: back[:key], card_back_season: back[:season])
   end
 
   def pack_opening_json(pack, cards:, player:, now:)

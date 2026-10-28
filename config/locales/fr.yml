@@ -993,6 +993,8 @@ fr:
         current: "Actif"
         choose: "Choisir"
         locked: "Dos verrouillé"
+        marks: "Marque de saison"
+        mark_label: "Porter la marque de la saison %{season}"
       title: "Personnalisation"
       more: "Plus"
       profile_title:
@@ -1222,6 +1224,8 @@ fr:
           master: "maître"
           complete: "complet"
       legendary_signal: "Signal légendaire"
+  season_mark:
+    title: "Saison %{season}"
   settings:
     show:
       title: "Profil et paramètres"
@@ -2201,6 +2205,7 @@ fr:
       title_not_earned: "Vous n'avez pas gagné ce titre."
       back_locked: "Ce dos de carte est encore verrouillé."
       unknown_back: "Ce dos de carte n'existe pas."
+      unknown_season: "Vous n'avez pas obtenu ce dos de carte pendant cette saison."
       showcase_edge: "Cette carte ne peut pas aller plus loin."
       unknown_direction: "Direction inconnue."
       position_out_of_range: "La vitrine n'a pas cette place."

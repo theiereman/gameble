@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_28_140001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -401,6 +401,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_140001) do
     t.datetime "updated_at", null: false
     t.uuid "idempotency_key"
     t.string "card_back"
+    t.integer "card_back_season"
     t.index ["opened_at"], name: "index_game_packs_on_opened_at", where: "(opened_at IS NOT NULL)"
     t.index ["player_id", "available_at", "id"], name: "index_game_packs_unopened", where: "(opened_at IS NULL)"
     t.index ["player_id", "idempotency_key"], name: "index_game_packs_on_player_id_and_idempotency_key", unique: true, where: "(idempotency_key IS NOT NULL)"
@@ -425,6 +426,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_140001) do
     t.string "active_title_kind"
     t.string "active_title_key"
     t.string "active_title_rank"
+    t.integer "active_card_back_season"
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
     t.check_constraint "(active_title_kind IS NULL) = (active_title_key IS NULL) AND (active_title_key IS NULL) = (active_title_rank IS NULL)", name: "game_player_states_active_title_whole_check"
   end

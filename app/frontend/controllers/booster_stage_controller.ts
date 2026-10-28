@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { animate } from "../lib/booster_effects"
-import { cardBackClass, cardBackProperties, pilePose } from "../lib/booster_motion"
+import { cardBackClass, cardBackProperties, cardBackSeasonMark, pilePose } from "../lib/booster_motion"
 import { CardSwipe, dragTransform, type SwipeRelease } from "../lib/booster_swipe"
 import { writeData, writeText } from "../lib/dom_writes"
 import { BANNER_TIERS, type Fragments } from "../lib/screen"
@@ -232,6 +232,8 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     const back = slot.querySelector<HTMLElement>(".booster-card__back")
     back?.classList.add(cardBackClass(hand.cardBack))
     for (const [name, value] of cardBackProperties(hand.cardBack)) back?.style.setProperty(name, value)
+    const seasonMark = cardBackSeasonMark(hand.cardBack)
+    if (back && seasonMark) back.dataset.seasonMark = seasonMark
     slot.querySelector(".booster-card__front")?.replaceChildren(fragments.face(card.index) ?? "")
     slot.querySelector(".booster-card__label-icon-box")?.replaceChildren(fragments.icon(card.tier) ?? "")
     const name = slot.querySelector(".booster-card__label-name")
