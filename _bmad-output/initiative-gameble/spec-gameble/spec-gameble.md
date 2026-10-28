@@ -175,10 +175,10 @@ gameble is an open-source passion project, and the game its author wants to play
     - The player picks one active title; it shows on their profile, in the feed and in trades.
     - Completing 3, 10 and 25 sets, of any kind, unlocks a menu theme each: an accent colour applied to the interface, with contrast checked. Only the player sees it.
 - **CAP-23**
-  - **intent:** When a new season is published, a returning player receives the Brotherhood's seasonal allocation: what they unlocked in the season that ended and the sets that follow them into the new one.
+  - **intent:** When a new season is published, a returning player receives the Brotherhood's seasonal allocation: the tiers they reached in the season that ended and their tiers in the next season.
   - **success:**
-    - At a player's first visit after a publication, before the hub and before any opening, a dedicated screen recaps the season that ended: tiers reached, card backs, achievements and weekly goal rewards earned during it.
-    - The same screen lists the tiers the player still meets in the new season's sets, received at once, and the tiers to win back.
+    - At a player's first visit after a publication, before the hub and before any opening, a dedicated screen recaps the season that ended: the tiers reached during it, and nothing else (author, 2026-10-28: no achievements, weekly goal rewards or card backs).
+    - A second section, "Vos paliers dans la saison suivante", lists the tiers the player still meets in the new season's sets, received at once, and the tiers to win back.
     - Tiers carried into the new season are never celebrated at an opening or announced in the feed; an opening or a trade celebrates only the tiers it crosses itself.
     - One Brotherhood line heads the screen; the rest is plain copy.
     - A player with no card from an earlier season, traded ones included, sees no allocation.
