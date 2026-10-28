@@ -1,0 +1,56 @@
+# tickets.toml — the stories of the personalization epic, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The Personalization page"
+description = "Adds a Personalization page behind the player menu, beside Profil et paramètres (and a PLUS row on the phone), with the section pattern the pickers fill, and moves the profile showcase summary from the settings side column to it (settings/_profile_summary keeps the identity and stats); the page and its menu entry in en.yml and fr.yml, a Pundit policy, and the phone top-bar title."
+verify = "A system test opens Personnalisation from the player menu in English and French, sees the profile showcase there and no longer in the settings, and the settings still show language, visibility, reduced motion, session, data, account and legal; i18n-tasks and the locale files agree."
+covers = ["R1"]
+after = ["10.4"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "The back picker on the Personalization page"
+description = "Adds Game::ChooseCardBack (POST, Pundit policy, Failure(:back_locked)), a Game::CardBackShelf query listing every back with its state and unlock condition, and a \"DOS DE CARTE\" section on the Personalization page with a preview, the active mark, locked backs greyed under a padlock stating their condition, and the equipped and locked feedback; every back name and condition in en.yml and fr.yml, errors.game.back_locked added to both by hand."
+verify = "A system test equips an unlocked back and sees the preview and the feedback, a locked back shows its condition and cannot be equipped even by a forged POST, and the choice survives a reload; i18n-tasks and the locale files agree."
+covers = ["R2"]
+after = ["9.1", "9.2", "9.3", 1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "The title picker on the Personalization page"
+description = "Adds nullable active title columns (set kind, key and title rank) on game_player_states (expand only), Game::ChooseProfileTitle (POST, Pundit policy, Failure(:title_not_earned)) and a \"TITRE DE PROFIL\" section on the Personalization page: a radio group of the earned titles as text, grouped by rank with the highest first, a first row \"Aucun titre\" that removes the active title, one sentence on how to earn one when none is earned, immediate choice with a toast and arrow-key movement; every string in en.yml and fr.yml, errors.game.title_not_earned added to both by hand."
+verify = "A system test equips an earned title and sees the feedback, a title the player has not earned cannot be equipped even by a forged POST, the choice survives a reload, and db/schema.rb is regenerated from the migrations."
+covers = ["R3"]
+after = ["24.1", 1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "The active title on the profile, in the feed and in trades"
+description = "Shows the active title next to the player's name on their profile and public profile, in the feed lines that name the player, and on both sides of a trade; the title is read through Game::ProfileTitles and omitted when the player wears none."
+verify = "System tests show the title on the profile, in a feed line and on a trade in English and French, a player with no active title shows none, and the three screens use the one rendering."
+covers = ["R3"]
+after = [3]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Refactor sweep"
+description = "Removes duplication and divergent conventions the other entries of this epic introduced, and cuts any file left over its size limit, keeping behaviour, URLs and markup as they are."
+verify = "bin/ci, npm run test:js and bin/rails zeitwerk:check pass and script/check_file_sizes reports no file over its limit."
+covers = []
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"

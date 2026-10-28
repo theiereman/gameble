@@ -35,28 +35,6 @@ hitl = true
 risk = "medium"
 
 [[entry]]
-id = 10
-type = "story"
-title = "The Personnalisation page"
-description = "Adds a Personnalisation page behind the player menu, beside Profil et paramètres (and a PLUS row on the phone), with the section pattern the pickers fill, and moves the profile showcase summary from the settings side column to it (settings/_profile_summary keeps the identity and stats); the page and its menu entry in en.yml and fr.yml, a Pundit policy, and the phone top-bar title."
-verify = "A system test opens Personnalisation from the player menu in English and French, sees the profile showcase there and no longer in the settings, and the settings still show language, visibility, reduced motion, session, data, account and legal; i18n-tasks and the locale files agree."
-covers = ["R2"]
-after = ["10.4"]
-hitl = false
-risk = "low"
-
-[[entry]]
-id = 4
-type = "story"
-title = "The back picker on the Personnalisation page"
-description = "Adds Game::ChooseCardBack (POST, Pundit policy, Failure(:back_locked)), a Game::CardBackShelf query listing every back with its state and unlock condition, and a \"DOS DE CARTE\" section on the Personnalisation page with a preview, the active mark, locked backs greyed under a padlock stating their condition, and the equipped and locked feedback; every back name and condition in en.yml and fr.yml, errors.game.back_locked added to both by hand."
-verify = "A system test equips an unlocked back and sees the preview and the feedback, a locked back shows its condition and cannot be equipped even by a forged POST, and the choice survives a reload; i18n-tasks and the locale files agree."
-covers = ["R2", "R4"]
-after = [1, 2, 10]
-hitl = false
-risk = "low"
-
-[[entry]]
 id = 5
 type = "story"
 title = "The active back on the booster and its unlocks announced"
@@ -64,7 +42,7 @@ description = "The server renders each opened pack's back as an asset the booste
 unknown = "How the unlock toast lands during the reveal, the set celebration (EXPERIENCE.md, Set celebration) and with the special packs' intro of 19.5."
 verify = "booster_test.rb opens a pack with a theme back equipped and sees it on all five face-down cards on desktop and phone, an opening that crosses a back tier announces the back once, and vitest covers the back's choice and the unknown-key fallback."
 covers = ["R4", "R5"]
-after = [3, 4, "8.11", "8.12", "21.3", "19.5"]
+after = [3, "8.11", "8.12", "21.3", "19.5"]
 hitl = false
 risk = "high"
 
@@ -86,7 +64,7 @@ title = "Goal, achievement and event backs"
 description = "Adds the goal, achievement and event backs to the catalogue: handlers enqueue GrantCardBacksJob to grant Confrère on the player's first GoalRewardGranted and Centurion, Étoile d'or and Aurore on AchievementUnlocked for boosters_100, first_legendary and three_complete_sets; the SUCCÈS tile of those achievements shows the back; game:grant_card_back runs Game::GrantCardBackJob, which grants Saison 1, Millésime 2017 or Soldes d'hiver to a group by calling UnlockCardBack once per player, each in its own transaction; BackfillCardBacksJob of entry 2 also grants retroactively the goal and achievement backs earned before this epic ships."
 verify = "Tests show each rule granting once, a goal reward claimed or refused for a full reserve granting the same back, the grant job granting a group with one failure not rolling back the others, the backfill run twice writing once, and the SUCCÈS tile naming the back."
 covers = ["R1", "R7"]
-after = [2, 4, "6.5", "6.10", "6.11"]
+after = [2, "6.5", "6.10", "6.11"]
 hitl = false
 risk = "medium"
 
@@ -108,6 +86,6 @@ title = "Refactor sweep"
 description = "Cleans up what this epic's build records and deferred review findings name; scope set when it starts."
 verify = "The full test suite, packwerk, zeitwerk, vitest and the pixel art check pass."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 10]
+after = [1, 2, 3, 5, 6, 7, 8]
 hitl = false
 risk = "low"

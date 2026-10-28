@@ -16,7 +16,7 @@ estimate_basis: ""
 
 ## Description
 
-Players earn card backs by reaching a theme or hall of fame set's back tier, contributing to a successful weekly goal, some achievements, and events, and choose the one their own face-down cards wear. Profile titles and menu themes are epic-profile-titles-and-themes.
+Players earn card backs by reaching a theme or hall of fame set's back tier, contributing to a successful weekly goal, some achievements, and events, and choose the one their own face-down cards wear. Profile titles are epic-profile-titles, the page where the player picks a back or a title is epic-personalization, menu themes are epic-menu-themes.
 
 ## Outcome
 
@@ -29,7 +29,7 @@ The lines of CAP-20 (spec) and the card backs part of CAP-23, with the author's 
 - R1 (CAP-20): every account has the Standard back. A theme or hall of fame set's back tier (its first tier at or above half its cards; gold in seasons published before the tier table) unlocks that set's back; the first contribution to a successful weekly goal unlocks Confrère; the achievements boosters_100, first_legendary and three_complete_sets unlock Centurion, Étoile d'or and Aurore; Saison 1, Millésime 2017 and Soldes d'hiver are granted by an administrator to a group. Each back unlocks once per player; later weekly goals grant no back. The goal back is granted when the reward is earned, not when it is claimed.
 - R2 (CAP-20): a locked back states its unlock condition.
 - R3 (CAP-20): a set back carries the mark of each season it was earned in; the player picks which season's mark the active back wears.
-- R4 (CAP-20): the player picks one active back on the profile and settings screen (`/settings`); it applies from the next pack opened.
+- R4 (CAP-20): the player picks one active back on the Personnalisation page (epic-personalization); it applies from the next pack opened.
 - R5 (CAP-20): only the player sees their back, on their own face-down cards at opening; never on the detail of a card, nor on another player's cards or profile.
 - R6 (CAP-20, `DESIGN.md` Card backs): the 46 set backs share one anatomy drawn by the pixel art export, with a word, colours and a motif per set approved by the author.
 - R7 (CAP-20): backs earned before this epic ships (tiers, achievements, goal rewards) are granted once at its deploy.
@@ -75,3 +75,4 @@ The back catalogue in code, unlocks and the active back in `Game`, the back pick
 - Waits on epic 19 because: the special packs change the booster island and the pixel art export first (19.3 to 19.5).
 - Decision (2026-10-28, author): the goal back is renamed Confrère ("CONFRERE", no week number) and redrawn through export.mjs ahead of entry 7.
 - Decision (2026-10-28, PR review): unlocks follow the achievements pattern: handlers enqueue Game::GrantCardBacksJob, Game::UnlockCardBack is the only writer and publishes Game::CardBackUnlocked, PlayerStream toasts it, and backfills grant retroactively without a toast. Entry 1 carries the CAP-20 and AD-25 correction.
+- Decision (2026-10-28, author): the back picker and the Personnalisation page leave this epic for epic-personalization (entries 9.4 and 9.10 moved); the active back is stored here (9.1) and read by the booster (9.5) whatever screen sets it.

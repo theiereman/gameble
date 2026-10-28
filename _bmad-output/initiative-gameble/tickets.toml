@@ -155,7 +155,7 @@ release = "1.2.0"
 slug = "epic-card-backs"
 title = "Card backs"
 covers = ["CAP-20", "CAP-23"]
-after = [{ epic = 12, needs = "the public release" }, { epic = 13, needs = "the set tier and completion events, and the tier table by set size (13.22)" }, { epic = 6, needs = "the set-completed, goal reward and achievement events" }, { epic = 8, needs = "the booster showing the active back" }, { epic = 10, needs = "the profile and settings screen for the back picker" }, { epic = 21, needs = "the booster in Stimulus (21.3), frozen until then" }, { epic = 17, needs = "the allocation receipt (17.1) and the allocation screen (17.2), for set backs received at a season change and the backs in the recap" }, { epic = 19, needs = "the special packs on the booster (19.5), on the same island" }]
+after = [{ epic = 12, needs = "the public release" }, { epic = 13, needs = "the set tier and completion events, and the tier table by set size (13.22)" }, { epic = 6, needs = "the set-completed, goal reward and achievement events" }, { epic = 8, needs = "the booster showing the active back" }, { epic = 21, needs = "the booster in Stimulus (21.3), frozen until then" }, { epic = 17, needs = "the allocation receipt (17.1) and the allocation screen (17.2), for set backs received at a season change and the backs in the recap" }, { epic = 19, needs = "the special packs on the booster (19.5), on the same island" }]
 
 [[epic]]
 id = 24
@@ -163,7 +163,15 @@ release = "1.2.0"
 slug = "epic-profile-titles"
 title = "Profile titles"
 covers = ["CAP-22"]
-after = [{ epic = 9, needs = "the card backs epic, which this one follows (author, 2026-10-28), and its card back picker (9.4) on the settings screen" }, { epic = 13, needs = "the set tier and completion events" }]
+after = [{ epic = 13, needs = "the set tier and completion events" }]
+
+[[epic]]
+id = 26
+release = "1.2.0"
+slug = "epic-personalization"
+title = "Personalization"
+covers = ["CAP-20", "CAP-22"]
+after = [{ epic = 9, needs = "the back catalogue, the unlock rows and the active back (9.1), the unlocks (9.2) and the set backs drawn (9.3)" }, { epic = 24, needs = "the profile titles read from the tier rows (24.1)" }, { epic = 10, needs = "the profile and settings screen (10.4) the page sits beside" }]
 
 [[epic]]
 id = 25
@@ -171,7 +179,7 @@ release = "1.2.0"
 slug = "epic-menu-themes"
 title = "Menu themes"
 covers = ["CAP-22"]
-after = [{ epic = 24, needs = "the settings screen section pattern settled by the title picker" }, { epic = 13, needs = "the set completion rows" }]
+after = [{ epic = 26, needs = "the Personalization page and its section pattern" }, { epic = 13, needs = "the set completion rows" }]
 
 [[epic]]
 id = 22

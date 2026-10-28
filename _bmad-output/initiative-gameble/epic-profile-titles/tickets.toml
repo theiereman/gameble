@@ -10,36 +10,3 @@ covers = ["R1"]
 after = ["13.22"]
 hitl = false
 risk = "low"
-
-[[entry]]
-id = 2
-type = "story"
-title = "The title picker on the Personnalisation page"
-description = "Adds nullable active title columns (set kind, key and title rank) on game_player_states (expand only), Game::ChooseProfileTitle (POST, Pundit policy, Failure(:title_not_earned)) and a \"TITRE DE PROFIL\" section on the Personnalisation page: a radio group of the earned titles as text, grouped by rank with the highest first, a first row \"Aucun titre\" that removes the active title, one sentence on how to earn one when none is earned, immediate choice with a toast and arrow-key movement; every string in en.yml and fr.yml, errors.game.title_not_earned added to both by hand."
-verify = "A system test equips an earned title and sees the feedback, a title the player has not earned cannot be equipped even by a forged POST, the choice survives a reload, and db/schema.rb is regenerated from the migrations."
-covers = ["R2"]
-after = [1, "9.10"]
-hitl = false
-risk = "low"
-
-[[entry]]
-id = 3
-type = "story"
-title = "The active title on the profile, in the feed and in trades"
-description = "Shows the active title next to the player's name on their profile and public profile, in the feed lines that name the player, and on both sides of a trade; the title is read through Game::ProfileTitles and omitted when the player wears none."
-verify = "System tests show the title on the profile, in a feed line and on a trade in English and French, a player with no active title shows none, and the three screens use the one rendering."
-covers = ["R3"]
-after = [2]
-hitl = false
-risk = "medium"
-
-[[entry]]
-id = 4
-type = "story"
-title = "Refactor sweep"
-description = "Removes duplication and divergent conventions the other entries of this epic introduced, and cuts any file left over its size limit, keeping behaviour, URLs and markup as they are."
-verify = "bin/ci, npm run test:js and bin/rails zeitwerk:check pass and script/check_file_sizes reports no file over its limit."
-covers = []
-after = [1, 2, 3]
-hitl = false
-risk = "low"
