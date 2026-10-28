@@ -3,7 +3,7 @@ title: 'The showcase is edited on the Personalization page'
 type: 'feature'
 ticket: '6'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: '1d91ae607c80b73af123705588f35e18b72a659a'
 route: 'oneshot'
 route_source: 'auto'
