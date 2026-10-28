@@ -1,8 +1,7 @@
 ---
 id: 28
 tracker_status: done
-tracker_id: 256
-remote: https://github.com/theiereman/gameble/issues/256
+tracker_id: ""
 type: story
 title: "The friends screen uses the width of a large screen and gives the friend list the lead"
 parent: epic-screen-walkthrough

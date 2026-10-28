@@ -1,8 +1,7 @@
 ---
 id: 26
 tracker_status: done
-tracker_id: 254
-remote: https://github.com/theiereman/gameble/issues/254
+tracker_id: ""
 type: story
 title: "A not-owned card is greyed and locked on its detail too"
 parent: epic-screen-walkthrough

@@ -1,8 +1,7 @@
 ---
 id: 12
 tracker_status: done
-tracker_id: 165
-remote: https://github.com/theiereman/gameble/issues/165
+tracker_id: ""
 type: story
 title: "Refactor sweep"
 parent: epic-public-launch-readiness

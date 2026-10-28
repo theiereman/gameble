@@ -1,8 +1,7 @@
 ---
 id: 12
 tracker_status: done
-tracker_id: 280
-remote: https://github.com/theiereman/gameble/issues/280
+tracker_id: ""
 type: story
 title: "One convention where build sessions diverged"
 parent: epic-human-readable-codebase

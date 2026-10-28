@@ -1,6 +1,5 @@
 ---
-remote: https://github.com/theiereman/gameble/issues/306
-tracker_id: 306
+tracker_id: ""
 key: ""
 type: epic
 title: "Card backs"

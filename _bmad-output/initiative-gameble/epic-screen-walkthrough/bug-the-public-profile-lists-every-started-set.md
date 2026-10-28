@@ -1,8 +1,7 @@
 ---
 id: 18
 tracker_status: done
-tracker_id: 246
-remote: https://github.com/theiereman/gameble/issues/246
+tracker_id: ""
 type: bug
 title: "The public profile lists every started set"
 parent: epic-screen-walkthrough

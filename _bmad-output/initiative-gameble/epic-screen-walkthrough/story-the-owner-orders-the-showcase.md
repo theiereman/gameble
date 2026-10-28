@@ -1,8 +1,7 @@
 ---
 id: 5
 tracker_status: done
-tracker_id: 198
-remote: https://github.com/theiereman/gameble/issues/198
+tracker_id: ""
 type: story
 title: "The owner orders the showcase"
 parent: epic-screen-walkthrough

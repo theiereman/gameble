@@ -1,8 +1,7 @@
 ---
 id: 11
 tracker_status: done
-tracker_id: 177
-remote: https://github.com/theiereman/gameble/issues/177
+tracker_id: ""
 type: story
 title: "Module 06 shows the roadmap"
 parent: epic-visitor-landing

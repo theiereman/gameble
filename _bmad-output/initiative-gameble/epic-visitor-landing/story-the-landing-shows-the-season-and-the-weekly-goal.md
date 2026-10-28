@@ -1,8 +1,7 @@
 ---
 id: 5
 tracker_status: done
-tracker_id: 170
-remote: https://github.com/theiereman/gameble/issues/170
+tracker_id: ""
 type: story
 title: "The landing shows the season and the weekly goal"
 parent: epic-visitor-landing

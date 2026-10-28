@@ -1,8 +1,7 @@
 ---
 id: 2
 tracker_status: done
-tracker_id: 167
-remote: https://github.com/theiereman/gameble/issues/167
+tracker_id: ""
 type: story
 title: "The landing's shell for visitors"
 parent: epic-visitor-landing

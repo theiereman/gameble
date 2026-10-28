@@ -1,8 +1,7 @@
 ---
 id: 11
 tracker_status: done
-tracker_id: 279
-remote: https://github.com/theiereman/gameble/issues/279
+tracker_id: ""
 type: story
 title: "One shared `hold` test helper"
 parent: epic-human-readable-codebase

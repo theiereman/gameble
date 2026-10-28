@@ -1,8 +1,7 @@
 ---
 id: 32
 tracker_status: done
-tracker_id: 260
-remote: https://github.com/theiereman/gameble/issues/260
+tracker_id: ""
 type: story
 title: "A feed entry is rebuilt for balance and legible parts"
 parent: epic-screen-walkthrough

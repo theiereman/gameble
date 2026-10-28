@@ -1,8 +1,7 @@
 ---
 id: 59
 tracker_status: done
-tracker_id: 164
-remote: https://github.com/theiereman/gameble/issues/164
+tracker_id: ""
 type: story
 title: "A credits section names gameble's inspirations"
 parent: epic-public-launch-readiness

@@ -1,8 +1,7 @@
 ---
 id: 13
 tracker_status: done
-tracker_id: 179
-remote: https://github.com/theiereman/gameble/issues/179
+tracker_id: ""
 type: story
 title: "The card detail names its pioneer"
 parent: epic-visitor-landing

@@ -1,6 +1,5 @@
 ---
-remote: https://github.com/theiereman/gameble/issues/106
-tracker_id: 106
+tracker_id: ""
 key: ""
 type: epic
 title: "Every screen walked through before the release"

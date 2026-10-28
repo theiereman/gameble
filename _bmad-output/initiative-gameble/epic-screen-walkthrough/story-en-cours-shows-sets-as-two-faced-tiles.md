@@ -1,8 +1,7 @@
 ---
 id: 34
 tracker_status: done
-tracker_id: 263
-remote: https://github.com/theiereman/gameble/issues/263
+tracker_id: ""
 type: story
 title: "EN COURS shows sets as two-faced tiles"
 parent: epic-screen-walkthrough

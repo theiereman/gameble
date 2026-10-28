@@ -1,6 +1,5 @@
 ---
-remote: https://github.com/theiereman/gameble/issues/303
-tracker_id: 303
+tracker_id: ""
 type: epic
 title: "Steam related features"
 parent: initiative-gameble

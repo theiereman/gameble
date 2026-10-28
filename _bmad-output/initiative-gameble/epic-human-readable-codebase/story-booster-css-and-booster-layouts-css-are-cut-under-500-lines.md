@@ -1,8 +1,7 @@
 ---
 id: 22
 tracker_status: done
-tracker_id: 290
-remote: https://github.com/theiereman/gameble/issues/290
+tracker_id: ""
 type: story
 title: "booster.css and booster-layouts.css are cut under 500 lines"
 parent: epic-human-readable-codebase

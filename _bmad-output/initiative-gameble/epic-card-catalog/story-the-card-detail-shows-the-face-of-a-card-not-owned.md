@@ -1,8 +1,7 @@
 ---
 id: 3
 tracker_status: done
-tracker_id: 190
-remote: https://github.com/theiereman/gameble/issues/190
+tracker_id: ""
 type: story
 title: "The card detail shows the face of a card not owned"
 parent: epic-card-catalog

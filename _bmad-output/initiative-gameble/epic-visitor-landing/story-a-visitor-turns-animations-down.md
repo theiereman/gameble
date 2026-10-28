@@ -1,8 +1,7 @@
 ---
 id: 9
 tracker_status: done
-tracker_id: 174
-remote: https://github.com/theiereman/gameble/issues/174
+tracker_id: ""
 type: story
 title: "A visitor turns animations down"
 parent: epic-visitor-landing

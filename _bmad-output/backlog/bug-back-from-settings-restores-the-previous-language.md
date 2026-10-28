@@ -12,7 +12,6 @@ risk: low
 severity: P2
 estimate: ""
 tracker_id: "#52"
-remote: https://github.com/theiereman/gameble/issues/52
 ---
 
 # Back from the settings after a language change restores the previous language

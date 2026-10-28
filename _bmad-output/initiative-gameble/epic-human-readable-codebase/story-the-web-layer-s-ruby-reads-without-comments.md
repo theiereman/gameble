@@ -1,8 +1,7 @@
 ---
 id: 8
 tracker_status: done
-tracker_id: 276
-remote: https://github.com/theiereman/gameble/issues/276
+tracker_id: ""
 type: story
 title: "The web layer's Ruby reads without comments"
 parent: epic-human-readable-codebase

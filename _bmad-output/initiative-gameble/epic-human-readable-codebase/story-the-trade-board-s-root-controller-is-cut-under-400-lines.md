@@ -1,8 +1,7 @@
 ---
 id: 17
 tracker_status: done
-tracker_id: 285
-remote: https://github.com/theiereman/gameble/issues/285
+tracker_id: ""
 type: story
 title: "The trade board's root controller is cut under 400 lines"
 parent: epic-human-readable-codebase

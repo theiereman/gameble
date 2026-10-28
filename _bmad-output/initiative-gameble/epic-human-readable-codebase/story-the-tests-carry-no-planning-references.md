@@ -1,8 +1,7 @@
 ---
 id: 10
 tracker_status: done
-tracker_id: 278
-remote: https://github.com/theiereman/gameble/issues/278
+tracker_id: ""
 type: story
 title: "The tests carry no planning references"
 parent: epic-human-readable-codebase

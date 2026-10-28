@@ -1,8 +1,7 @@
 ---
 id: 6
 tracker_status: done
-tracker_id: 193
-remote: https://github.com/theiereman/gameble/issues/193
+tracker_id: ""
 type: story
 title: "Refactor sweep"
 parent: epic-card-catalog

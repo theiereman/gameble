@@ -1,8 +1,7 @@
 ---
 id: 1
 tracker_status: done
-tracker_id: 202
-remote: https://github.com/theiereman/gameble/issues/202
+tracker_id: ""
 type: story
 title: "Walk through every screen with the author"
 parent: epic-screen-walkthrough

@@ -1,8 +1,7 @@
 ---
 id: 13
 tracker_status: done
-tracker_id: 281
-remote: https://github.com/theiereman/gameble/issues/281
+tracker_id: ""
 type: story
 title: "Remove the dead code the sweeps recorded"
 parent: epic-human-readable-codebase

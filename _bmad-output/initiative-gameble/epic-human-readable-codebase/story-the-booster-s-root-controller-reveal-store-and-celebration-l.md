@@ -1,8 +1,7 @@
 ---
 id: 16
 tracker_status: done
-tracker_id: 284
-remote: https://github.com/theiereman/gameble/issues/284
+tracker_id: ""
 type: story
 title: "The booster's root controller: reveal, store and celebration leave it, and it fits 400 lines"
 parent: epic-human-readable-codebase

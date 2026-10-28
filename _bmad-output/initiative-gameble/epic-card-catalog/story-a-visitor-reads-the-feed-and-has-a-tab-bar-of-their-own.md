@@ -1,8 +1,7 @@
 ---
 id: 9
 tracker_status: done
-tracker_id: 219
-remote: https://github.com/theiereman/gameble/issues/219
+tracker_id: ""
 type: story
 title: "A visitor reads the feed and has a tab bar of their own"
 parent: epic-card-catalog

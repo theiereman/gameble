@@ -1,8 +1,7 @@
 ---
 id: 1
 tracker_status: dropped
-tracker_id: 304
-remote: https://github.com/theiereman/gameble/issues/304
+tracker_id: ""
 type: story
 title: "A player adds a card's game to their Steam wishlist"
 parent: epic-steam-features

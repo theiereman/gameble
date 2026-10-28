@@ -1,8 +1,7 @@
 ---
 id: 13
 tracker_status: done
-tracker_id: 94
-remote: https://github.com/theiereman/gameble/issues/94
+tracker_id: ""
 type: bug
 title: "The feed is narrower than the other screens and shows « Tout » twice"
 parent: epic-brotherhood

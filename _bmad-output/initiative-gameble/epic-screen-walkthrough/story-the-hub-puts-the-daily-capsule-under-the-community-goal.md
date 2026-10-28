@@ -1,8 +1,7 @@
 ---
 id: 19
 tracker_status: done
-tracker_id: 247
-remote: https://github.com/theiereman/gameble/issues/247
+tracker_id: ""
 type: story
 title: "The hub puts the daily capsule under the community goal"
 parent: epic-screen-walkthrough

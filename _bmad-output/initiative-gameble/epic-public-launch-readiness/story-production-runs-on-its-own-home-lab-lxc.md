@@ -1,8 +1,7 @@
 ---
 id: 57
 tracker_status: done
-tracker_id: 119
-remote: https://github.com/theiereman/gameble/issues/119
+tracker_id: ""
 type: story
 title: "Production runs on its own home lab LXC"
 parent: epic-public-launch-readiness

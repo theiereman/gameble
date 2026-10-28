@@ -1,8 +1,7 @@
 ---
 id: 4
 tracker_status: done
-tracker_id: 272
-remote: https://github.com/theiereman/gameble/issues/272
+tracker_id: ""
 type: story
 title: "The game domain: models and operations read without comments"
 parent: epic-human-readable-codebase

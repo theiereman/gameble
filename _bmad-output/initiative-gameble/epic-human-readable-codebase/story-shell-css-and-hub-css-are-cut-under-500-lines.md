@@ -1,8 +1,7 @@
 ---
 id: 21
 tracker_status: done
-tracker_id: 289
-remote: https://github.com/theiereman/gameble/issues/289
+tracker_id: ""
 type: story
 title: "shell.css and hub.css are cut under 500 lines"
 parent: epic-human-readable-codebase

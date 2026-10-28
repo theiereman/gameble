@@ -1,8 +1,7 @@
 ---
 id: 16
 tracker_status: done
-tracker_id: 244
-remote: https://github.com/theiereman/gameble/issues/244
+tracker_id: ""
 type: bug
 title: "The reduced-animations switch covers the wordmark on the phone landing"
 parent: epic-screen-walkthrough

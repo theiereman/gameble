@@ -1,8 +1,7 @@
 ---
 id: 30
 tracker_status: done
-tracker_id: 298
-remote: https://github.com/theiereman/gameble/issues/298
+tracker_id: ""
 type: story
 title: "Architecture overview and glossary"
 parent: epic-human-readable-codebase

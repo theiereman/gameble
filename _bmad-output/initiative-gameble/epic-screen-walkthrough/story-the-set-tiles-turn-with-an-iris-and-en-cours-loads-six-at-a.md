@@ -1,8 +1,7 @@
 ---
 id: 36
 tracker_status: done
-tracker_id: 265
-remote: https://github.com/theiereman/gameble/issues/265
+tracker_id: ""
 type: story
 title: "The set tiles turn with an iris and EN COURS loads six at a time"
 parent: epic-screen-walkthrough

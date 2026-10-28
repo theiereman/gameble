@@ -1,8 +1,7 @@
 ---
 id: 7
 tracker_status: done
-tracker_id: 200
-remote: https://github.com/theiereman/gameble/issues/200
+tracker_id: ""
 type: story
 title: "Another player's full collection, read-only"
 parent: epic-screen-walkthrough

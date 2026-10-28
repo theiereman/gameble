@@ -1,8 +1,7 @@
 ---
 id: 18
 tracker_status: done
-tracker_id: 286
-remote: https://github.com/theiereman/gameble/issues/286
+tracker_id: ""
 type: story
 title: "The booster and trade board front end reads without comments"
 parent: epic-human-readable-codebase

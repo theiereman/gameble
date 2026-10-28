@@ -1,8 +1,7 @@
 ---
 id: 9
 tracker_status: done
-tracker_id: 277
-remote: https://github.com/theiereman/gameble/issues/277
+tracker_id: ""
 type: story
 title: "Config, migrations, lib and scripts read without planning references"
 parent: epic-human-readable-codebase

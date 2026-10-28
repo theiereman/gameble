@@ -1,8 +1,7 @@
 ---
 id: 3
 tracker_status: done
-tracker_id: 229
-remote: https://github.com/theiereman/gameble/issues/229
+tracker_id: ""
 type: story
 title: "The booster in Stimulus"
 parent: epic-port-off-react

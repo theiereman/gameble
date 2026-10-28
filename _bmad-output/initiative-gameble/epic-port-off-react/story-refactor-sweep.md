@@ -1,8 +1,7 @@
 ---
 id: 5
 tracker_status: done
-tracker_id: 231
-remote: https://github.com/theiereman/gameble/issues/231
+tracker_id: ""
 type: story
 title: "Refactor sweep"
 parent: epic-port-off-react

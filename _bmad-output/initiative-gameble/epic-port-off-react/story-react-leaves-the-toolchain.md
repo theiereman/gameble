@@ -1,8 +1,7 @@
 ---
 id: 4
 tracker_status: done
-tracker_id: 230
-remote: https://github.com/theiereman/gameble/issues/230
+tracker_id: ""
 type: story
 title: "React leaves the toolchain"
 parent: epic-port-off-react

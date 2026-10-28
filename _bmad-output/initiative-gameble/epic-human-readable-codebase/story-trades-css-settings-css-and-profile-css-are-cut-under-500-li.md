@@ -1,8 +1,7 @@
 ---
 id: 24
 tracker_status: done
-tracker_id: 292
-remote: https://github.com/theiereman/gameble/issues/292
+tracker_id: ""
 type: story
 title: "trades.css, settings.css and profile.css are cut under 500 lines"
 parent: epic-human-readable-codebase

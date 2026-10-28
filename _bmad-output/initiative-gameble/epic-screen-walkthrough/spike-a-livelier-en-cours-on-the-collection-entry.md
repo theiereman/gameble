@@ -1,8 +1,7 @@
 ---
 id: 22
 tracker_status: done
-tracker_id: 250
-remote: https://github.com/theiereman/gameble/issues/250
+tracker_id: ""
 type: spike
 title: "A livelier \"EN COURS\" on the collection entry"
 parent: epic-screen-walkthrough

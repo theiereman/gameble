@@ -1,8 +1,7 @@
 ---
 id: 7
 tracker_status: done
-tracker_id: 275
-remote: https://github.com/theiereman/gameble/issues/275
+tracker_id: ""
 type: story
 title: "The steam domain reads without comments"
 parent: epic-human-readable-codebase

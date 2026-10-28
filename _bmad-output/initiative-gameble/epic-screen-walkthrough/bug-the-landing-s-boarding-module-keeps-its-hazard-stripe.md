@@ -1,8 +1,7 @@
 ---
 id: 12
 tracker_status: done
-tracker_id: 240
-remote: https://github.com/theiereman/gameble/issues/240
+tracker_id: ""
 type: bug
 title: "The landing's boarding module keeps its hazard stripe"
 parent: epic-screen-walkthrough

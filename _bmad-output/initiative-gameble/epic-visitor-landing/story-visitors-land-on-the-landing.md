@@ -1,8 +1,7 @@
 ---
 id: 15
 tracker_status: done
-tracker_id: 181
-remote: https://github.com/theiereman/gameble/issues/181
+tracker_id: ""
 type: story
 title: "Visitors land on the landing"
 parent: epic-visitor-landing

@@ -1,8 +1,7 @@
 ---
 id: 34
 tracker_status: done
-tracker_id: 302
-remote: https://github.com/theiereman/gameble/issues/302
+tracker_id: ""
 type: story
 title: "A player's reposts are capped and a card is not reposted twice in a day"
 parent: epic-human-readable-codebase

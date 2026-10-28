@@ -10,7 +10,6 @@ risk: high
 estimate: ""
 estimate_basis: ""
 tracker_id: milestone-1
-remote: https://github.com/theiereman/gameble/milestone/1
 ---
 
 # gameble MVP: a Steam card game played every day by the Brotherhood

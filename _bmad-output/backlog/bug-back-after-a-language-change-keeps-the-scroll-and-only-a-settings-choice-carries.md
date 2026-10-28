@@ -12,7 +12,6 @@ risk: low
 severity: P3
 estimate: ""
 tracker_id: "#52"
-remote: https://github.com/theiereman/gameble/issues/52
 ---
 
 # Back after a language change keeps the previous screen's scroll, and only a language chosen in the settings carries over

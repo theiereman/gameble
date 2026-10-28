@@ -1,8 +1,7 @@
 ---
 id: 1
 tracker_status: done
-tracker_id: 186
-remote: https://github.com/theiereman/gameble/issues/186
+tracker_id: ""
 type: story
 title: "An import builds beside the draft and replaces it only once validated"
 parent: epic-season-preparation

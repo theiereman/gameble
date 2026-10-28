@@ -1,8 +1,7 @@
 ---
 id: 6
 tracker_status: done
-tracker_id: 274
-remote: https://github.com/theiereman/gameble/issues/274
+tracker_id: ""
 type: story
 title: "The catalog and accounts domains read without comments"
 parent: epic-human-readable-codebase

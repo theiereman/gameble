@@ -1,8 +1,7 @@
 ---
 id: 3
 tracker_status: done
-tracker_id: 271
-remote: https://github.com/theiereman/gameble/issues/271
+tracker_id: ""
 type: story
 title: "Two mechanical checks: planning references and file sizes"
 parent: epic-human-readable-codebase

@@ -1,8 +1,7 @@
 ---
 id: 30
 tracker_status: done
-tracker_id: 258
-remote: https://github.com/theiereman/gameble/issues/258
+tracker_id: ""
 type: story
 title: "Profile and settings use the width of a large screen"
 parent: epic-screen-walkthrough

@@ -1,8 +1,7 @@
 ---
 id: 33
 tracker_status: review
-tracker_id: 301
-remote: https://github.com/theiereman/gameble/issues/301
+tracker_id: ""
 type: story
 title: "A fresh machine follows the README"
 parent: epic-human-readable-codebase

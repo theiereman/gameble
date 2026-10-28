@@ -1,8 +1,7 @@
 ---
 id: 5
 tracker_status: done
-tracker_id: 273
-remote: https://github.com/theiereman/gameble/issues/273
+tracker_id: ""
 type: story
 title: "The game domain: queries, events, jobs and handlers read without comments, and write through operations"
 parent: epic-human-readable-codebase

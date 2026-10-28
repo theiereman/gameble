@@ -1,8 +1,7 @@
 ---
 id: 21
 tracker_status: done
-tracker_id: 249
-remote: https://github.com/theiereman/gameble/issues/249
+tracker_id: ""
 type: bug
 title: "REVEAL ALL is briefly active while the next capsule deals its cards"
 parent: epic-screen-walkthrough

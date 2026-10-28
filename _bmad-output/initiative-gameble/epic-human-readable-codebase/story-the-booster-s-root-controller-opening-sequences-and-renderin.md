@@ -1,8 +1,7 @@
 ---
 id: 15
 tracker_status: done
-tracker_id: 283
-remote: https://github.com/theiereman/gameble/issues/283
+tracker_id: ""
 type: story
 title: "The booster's root controller: opening sequences and rendering leave it"
 parent: epic-human-readable-codebase

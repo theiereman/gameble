@@ -1,8 +1,7 @@
 ---
 id: 32
 tracker_status: done
-tracker_id: 300
-remote: https://github.com/theiereman/gameble/issues/300
+tracker_id: ""
 type: story
 title: "Production refuses to boot without the legal host"
 parent: epic-human-readable-codebase

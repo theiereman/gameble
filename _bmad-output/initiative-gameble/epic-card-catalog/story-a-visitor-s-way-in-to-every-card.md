@@ -1,8 +1,7 @@
 ---
 id: 5
 tracker_status: done
-tracker_id: 192
-remote: https://github.com/theiereman/gameble/issues/192
+tracker_id: ""
 type: story
 title: "A visitor's way in to every card"
 parent: epic-card-catalog

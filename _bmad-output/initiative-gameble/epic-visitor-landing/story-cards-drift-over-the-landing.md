@@ -1,8 +1,7 @@
 ---
 id: 8
 tracker_status: done
-tracker_id: 173
-remote: https://github.com/theiereman/gameble/issues/173
+tracker_id: ""
 type: story
 title: "Cards drift over the landing"
 parent: epic-visitor-landing

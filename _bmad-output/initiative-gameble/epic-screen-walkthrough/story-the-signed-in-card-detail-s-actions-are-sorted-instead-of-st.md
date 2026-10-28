@@ -1,8 +1,7 @@
 ---
 id: 25
 tracker_status: done
-tracker_id: 253
-remote: https://github.com/theiereman/gameble/issues/253
+tracker_id: ""
 type: story
 title: "The signed-in card detail's actions are sorted instead of stacked"
 parent: epic-screen-walkthrough

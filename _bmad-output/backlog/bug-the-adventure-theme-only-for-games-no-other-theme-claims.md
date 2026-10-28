@@ -12,7 +12,6 @@ risk: low
 severity: P3
 estimate: ""
 tracker_id: "#77"
-remote: https://github.com/theiereman/gameble/issues/77
 ---
 
 # The adventure theme only for games no other theme claims

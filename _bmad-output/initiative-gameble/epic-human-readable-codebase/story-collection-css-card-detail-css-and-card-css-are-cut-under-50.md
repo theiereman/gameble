@@ -1,8 +1,7 @@
 ---
 id: 23
 tracker_status: done
-tracker_id: 291
-remote: https://github.com/theiereman/gameble/issues/291
+tracker_id: ""
 type: story
 title: "collection.css, card-detail.css and card.css are cut under 500 lines"
 parent: epic-human-readable-codebase

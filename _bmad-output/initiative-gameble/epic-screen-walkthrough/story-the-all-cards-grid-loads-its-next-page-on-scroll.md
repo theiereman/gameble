@@ -1,8 +1,7 @@
 ---
 id: 15
 tracker_status: done
-tracker_id: 243
-remote: https://github.com/theiereman/gameble/issues/243
+tracker_id: ""
 type: story
 title: "The all cards grid loads its next page on scroll"
 parent: epic-screen-walkthrough

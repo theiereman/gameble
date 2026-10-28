@@ -1,6 +1,5 @@
 ---
-remote: https://github.com/theiereman/gameble/issues/104
-tracker_id: 104
+tracker_id: ""
 key: ""
 type: epic
 title: "Season preparation"

@@ -1,8 +1,7 @@
 ---
 id: 26
 tracker_status: done
-tracker_id: 294
-remote: https://github.com/theiereman/gameble/issues/294
+tracker_id: ""
 type: story
 title: "The operations runbook and the player bug-report guide get their own files"
 parent: epic-human-readable-codebase

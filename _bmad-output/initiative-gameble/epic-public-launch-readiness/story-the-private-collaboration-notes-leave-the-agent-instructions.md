@@ -1,8 +1,7 @@
 ---
 id: 41
 tracker_status: done
-tracker_id: 149
-remote: https://github.com/theiereman/gameble/issues/149
+tracker_id: ""
 type: story
 title: "The private collaboration notes leave the agent instructions"
 parent: epic-public-launch-readiness

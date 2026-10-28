@@ -1,8 +1,7 @@
 ---
 id: 38
 tracker_status: done
-tracker_id: 146
-remote: https://github.com/theiereman/gameble/issues/146
+tracker_id: ""
 type: bug
 title: "Two live update system tests fail at random on CI"
 parent: epic-public-launch-readiness

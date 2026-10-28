@@ -1,8 +1,7 @@
 ---
 id: 28
 tracker_status: dropped
-tracker_id: 296
-remote: https://github.com/theiereman/gameble/issues/296
+tracker_id: ""
 type: story
 title: "ESLint on the front end"
 parent: epic-human-readable-codebase

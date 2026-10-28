@@ -1,8 +1,7 @@
 ---
 id: 14
 tracker_status: done
-tracker_id: 242
-remote: https://github.com/theiereman/gameble/issues/242
+tracker_id: ""
 type: story
 title: "The credits thank the contributors and the beta testers"
 parent: epic-screen-walkthrough

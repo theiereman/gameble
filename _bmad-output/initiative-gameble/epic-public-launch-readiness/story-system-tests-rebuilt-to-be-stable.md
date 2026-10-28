@@ -1,8 +1,7 @@
 ---
 id: 39
 tracker_status: done
-tracker_id: 147
-remote: https://github.com/theiereman/gameble/issues/147
+tracker_id: ""
 type: story
 title: "System tests rebuilt to be stable"
 parent: epic-public-launch-readiness

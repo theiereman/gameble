@@ -1,6 +1,5 @@
 ---
-remote: https://github.com/theiereman/gameble/issues/316
-tracker_id: 316
+tracker_id: ""
 key: ""
 type: epic
 title: "Profile titles"

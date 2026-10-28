@@ -1,8 +1,7 @@
 ---
 id: 24
 tracker_status: done
-tracker_id: 252
-remote: https://github.com/theiereman/gameble/issues/252
+tracker_id: ""
 type: story
 title: "A set album's missing cards look like the not-owned cards of the catalog"
 parent: epic-screen-walkthrough

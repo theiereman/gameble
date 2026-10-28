@@ -1,8 +1,7 @@
 ---
 id: 20
 tracker_status: done
-tracker_id: 225
-remote: https://github.com/theiereman/gameble/issues/225
+tracker_id: ""
 type: story
 title: "The Découvrez tile promises no name"
 parent: epic-visitor-landing

@@ -1,8 +1,7 @@
 ---
 id: 7
 tracker_status: done
-tracker_id: 172
-remote: https://github.com/theiereman/gameble/issues/172
+tracker_id: ""
 type: story
 title: "The landing's modules power on"
 parent: epic-visitor-landing

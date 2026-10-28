@@ -12,7 +12,6 @@ risk: low
 severity: P3
 estimate: ""
 tracker_id: "#77"
-remote: https://github.com/theiereman/gameble/issues/77
 ---
 
 # The capsule's enlarged reveal card shows no game category

@@ -1,8 +1,7 @@
 ---
 id: 14
 tracker_status: done
-tracker_id: 282
-remote: https://github.com/theiereman/gameble/issues/282
+tracker_id: ""
 type: story
 title: "The booster's state module is cut under 400 lines"
 parent: epic-human-readable-codebase

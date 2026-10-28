@@ -1,8 +1,7 @@
 ---
 id: 7
 tracker_status: dropped
-tracker_id: 215
-remote: https://github.com/theiereman/gameble/issues/215
+tracker_id: ""
 type: story
 title: "A visitor's collection entry suggests sets to discover"
 parent: epic-card-catalog

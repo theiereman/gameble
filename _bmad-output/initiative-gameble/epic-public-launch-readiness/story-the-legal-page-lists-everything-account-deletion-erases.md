@@ -1,8 +1,7 @@
 ---
 id: 51
 tracker_status: done
-tracker_id: 159
-remote: https://github.com/theiereman/gameble/issues/159
+tracker_id: ""
 type: story
 title: "The legal page lists everything account deletion erases"
 parent: epic-public-launch-readiness

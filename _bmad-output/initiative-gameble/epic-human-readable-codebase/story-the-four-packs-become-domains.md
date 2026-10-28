@@ -1,8 +1,7 @@
 ---
 id: 2
 tracker_status: done
-tracker_id: 270
-remote: https://github.com/theiereman/gameble/issues/270
+tracker_id: ""
 type: story
 title: "The four packs become domains"
 parent: epic-human-readable-codebase

@@ -1,8 +1,7 @@
 ---
 id: 6
 tracker_status: done
-tracker_id: 199
-remote: https://github.com/theiereman/gameble/issues/199
+tracker_id: ""
 type: story
 title: "The friendship action on a profile"
 parent: epic-screen-walkthrough

@@ -1,8 +1,7 @@
 ---
 id: 31
 tracker_status: done
-tracker_id: 299
-remote: https://github.com/theiereman/gameble/issues/299
+tracker_id: ""
 type: story
 title: "README, CONTRIBUTING and .env.example for a newcomer"
 parent: epic-human-readable-codebase

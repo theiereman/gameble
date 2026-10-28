@@ -1,8 +1,7 @@
 ---
 id: 1
 tracker_status: done
-tracker_id: 269
-remote: https://github.com/theiereman/gameble/issues/269
+tracker_id: ""
 type: spike
 title: "Settle the domain layout by a trial"
 parent: epic-human-readable-codebase

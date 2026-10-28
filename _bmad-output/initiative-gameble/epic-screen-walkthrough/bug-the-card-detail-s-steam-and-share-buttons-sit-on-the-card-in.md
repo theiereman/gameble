@@ -1,8 +1,7 @@
 ---
 id: 17
 tracker_status: done
-tracker_id: 245
-remote: https://github.com/theiereman/gameble/issues/245
+tracker_id: ""
 type: bug
 title: "The card detail's Steam and share buttons sit on the card information's background"
 parent: epic-screen-walkthrough

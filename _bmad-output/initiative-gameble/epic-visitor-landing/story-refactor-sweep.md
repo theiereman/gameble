@@ -1,8 +1,7 @@
 ---
 id: 17
 tracker_status: done
-tracker_id: 184
-remote: https://github.com/theiereman/gameble/issues/184
+tracker_id: ""
 type: story
 title: "Refactor sweep"
 parent: epic-visitor-landing

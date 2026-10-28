@@ -1,8 +1,7 @@
 ---
 id: 14
 tracker_status: done
-tracker_id: 180
-remote: https://github.com/theiereman/gameble/issues/180
+tracker_id: ""
 type: story
 title: "The Brotherhood's story on the landing"
 parent: epic-visitor-landing

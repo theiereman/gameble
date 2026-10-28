@@ -1,6 +1,5 @@
 ---
-remote: https://github.com/theiereman/gameble/issues/268
-tracker_id: 268
+tracker_id: ""
 key: ""
 type: epic
 title: "Readable by humans: the codebase before the public release"

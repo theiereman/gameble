@@ -1,8 +1,7 @@
 ---
 id: 35
 tracker_status: done
-tracker_id: 264
-remote: https://github.com/theiereman/gameble/issues/264
+tracker_id: ""
 type: story
 title: "The collection entry shows the completed sets"
 parent: epic-screen-walkthrough

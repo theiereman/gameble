@@ -1,8 +1,7 @@
 ---
 id: 31
 tracker_status: done
-tracker_id: 259
-remote: https://github.com/theiereman/gameble/issues/259
+tracker_id: ""
 type: story
 title: "The feed's tabs and filters are designed as one control"
 parent: epic-screen-walkthrough

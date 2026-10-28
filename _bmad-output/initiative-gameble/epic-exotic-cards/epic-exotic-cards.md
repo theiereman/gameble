@@ -1,6 +1,5 @@
 ---
-tracker_id: 267
-remote: https://github.com/theiereman/gameble/issues/267
+tracker_id: ""
 type: epic
 title: "Exotic cards: a tribute to the beta testers"
 parent: initiative-gameble

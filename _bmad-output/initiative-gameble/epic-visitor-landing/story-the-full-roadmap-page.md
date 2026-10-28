@@ -1,8 +1,7 @@
 ---
 id: 12
 tracker_status: done
-tracker_id: 178
-remote: https://github.com/theiereman/gameble/issues/178
+tracker_id: ""
 type: story
 title: "The full roadmap page"
 parent: epic-visitor-landing

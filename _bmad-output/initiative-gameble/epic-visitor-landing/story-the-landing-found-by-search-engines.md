@@ -1,8 +1,7 @@
 ---
 id: 18
 tracker_status: done
-tracker_id: 183
-remote: https://github.com/theiereman/gameble/issues/183
+tracker_id: ""
 type: story
 title: "The landing found by search engines"
 parent: epic-visitor-landing

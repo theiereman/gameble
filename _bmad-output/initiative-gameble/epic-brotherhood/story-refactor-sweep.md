@@ -1,8 +1,7 @@
 ---
 id: 12
 tracker_status: done
-tracker_id: 101
-remote: https://github.com/theiereman/gameble/issues/101
+tracker_id: ""
 type: story
 title: "Refactor sweep"
 parent: epic-brotherhood

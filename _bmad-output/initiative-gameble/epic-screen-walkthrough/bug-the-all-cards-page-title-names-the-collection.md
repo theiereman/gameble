@@ -1,8 +1,7 @@
 ---
 id: 13
 tracker_status: done
-tracker_id: 241
-remote: https://github.com/theiereman/gameble/issues/241
+tracker_id: ""
 type: bug
 title: "The all cards page title names the collection"
 parent: epic-screen-walkthrough

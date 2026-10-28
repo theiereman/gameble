@@ -1,6 +1,5 @@
 ---
-remote: https://github.com/theiereman/gameble/issues/107
-tracker_id: 107
+tracker_id: ""
 key: ""
 type: epic
 title: "Seasons carry over"

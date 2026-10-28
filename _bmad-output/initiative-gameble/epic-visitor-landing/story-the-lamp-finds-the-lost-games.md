@@ -1,8 +1,7 @@
 ---
 id: 4
 tracker_status: done
-tracker_id: 169
-remote: https://github.com/theiereman/gameble/issues/169
+tracker_id: ""
 type: story
 title: "The lamp finds the lost games"
 parent: epic-visitor-landing

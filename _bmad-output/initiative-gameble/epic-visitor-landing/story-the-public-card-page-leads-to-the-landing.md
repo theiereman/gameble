@@ -1,8 +1,7 @@
 ---
 id: 16
 tracker_status: done
-tracker_id: 182
-remote: https://github.com/theiereman/gameble/issues/182
+tracker_id: ""
 type: story
 title: "The public card page leads to the landing"
 parent: epic-visitor-landing

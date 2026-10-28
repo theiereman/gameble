@@ -1,6 +1,5 @@
 ---
-remote: https://github.com/theiereman/gameble/issues/108
-tracker_id: 108
+tracker_id: ""
 key: ""
 type: epic
 title: "Special packs stand apart"

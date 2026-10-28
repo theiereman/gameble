@@ -1,8 +1,7 @@
 ---
 id: 20
 tracker_status: done
-tracker_id: 248
-remote: https://github.com/theiereman/gameble/issues/248
+tracker_id: ""
 type: bug
 title: "The top bar's player chip is not as tall as the rarity counter and the capsules chip"
 parent: epic-screen-walkthrough

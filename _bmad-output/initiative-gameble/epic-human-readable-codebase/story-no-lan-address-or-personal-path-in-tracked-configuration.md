@@ -1,8 +1,7 @@
 ---
 id: 25
 tracker_status: done
-tracker_id: 293
-remote: https://github.com/theiereman/gameble/issues/293
+tracker_id: ""
 type: story
 title: "No LAN address or personal path in tracked configuration"
 parent: epic-human-readable-codebase

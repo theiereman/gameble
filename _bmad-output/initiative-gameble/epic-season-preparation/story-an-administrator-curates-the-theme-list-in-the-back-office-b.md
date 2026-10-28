@@ -1,8 +1,7 @@
 ---
 id: 2
 tracker_status: done
-tracker_id: 187
-remote: https://github.com/theiereman/gameble/issues/187
+tracker_id: ""
 type: story
 title: "An administrator curates the theme list in the back-office before publishing"
 parent: epic-season-preparation

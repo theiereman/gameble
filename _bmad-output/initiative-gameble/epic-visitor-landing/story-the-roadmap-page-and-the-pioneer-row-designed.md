@@ -1,8 +1,7 @@
 ---
 id: 3
 tracker_status: done
-tracker_id: 168
-remote: https://github.com/theiereman/gameble/issues/168
+tracker_id: ""
 type: story
 title: "The roadmap page and the pioneer row designed"
 parent: epic-visitor-landing

@@ -1,8 +1,7 @@
 ---
 id: 29
 tracker_status: done
-tracker_id: 257
-remote: https://github.com/theiereman/gameble/issues/257
+tracker_id: ""
 type: story
 title: "The friend profile dialog is arranged, not stacked"
 parent: epic-screen-walkthrough

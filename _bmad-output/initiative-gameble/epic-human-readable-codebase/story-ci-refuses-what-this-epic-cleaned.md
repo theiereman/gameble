@@ -1,8 +1,7 @@
 ---
 id: 29
 tracker_status: done
-tracker_id: 297
-remote: https://github.com/theiereman/gameble/issues/297
+tracker_id: ""
 type: story
 title: "CI refuses what this epic cleaned"
 parent: epic-human-readable-codebase

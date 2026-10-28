@@ -1,8 +1,7 @@
 ---
 id: 27
 tracker_status: done
-tracker_id: 255
-remote: https://github.com/theiereman/gameble/issues/255
+tracker_id: ""
 type: story
 title: "View transitions only where the screen really changes"
 parent: epic-screen-walkthrough

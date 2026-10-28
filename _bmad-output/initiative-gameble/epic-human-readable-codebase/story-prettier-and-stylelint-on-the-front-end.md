@@ -1,8 +1,7 @@
 ---
 id: 27
 tracker_status: done
-tracker_id: 295
-remote: https://github.com/theiereman/gameble/issues/295
+tracker_id: ""
 type: story
 title: "Prettier and Stylelint on the front end"
 parent: epic-human-readable-codebase

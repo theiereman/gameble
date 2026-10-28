@@ -1,8 +1,7 @@
 ---
 id: 19
 tracker_status: done
-tracker_id: 287
-remote: https://github.com/theiereman/gameble/issues/287
+tracker_id: ""
 type: story
 title: "The rest of the front end's TypeScript reads without comments"
 parent: epic-human-readable-codebase

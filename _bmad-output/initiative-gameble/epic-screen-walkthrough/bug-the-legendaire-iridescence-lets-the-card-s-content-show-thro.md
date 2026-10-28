@@ -1,8 +1,7 @@
 ---
 id: 10
 tracker_status: done
-tracker_id: 220
-remote: https://github.com/theiereman/gameble/issues/220
+tracker_id: ""
 type: bug
 title: "The Légendaire iridescence lets the card's content show through"
 parent: epic-screen-walkthrough

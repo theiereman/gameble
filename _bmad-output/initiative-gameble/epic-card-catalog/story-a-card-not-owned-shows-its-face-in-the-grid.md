@@ -1,8 +1,7 @@
 ---
 id: 2
 tracker_status: done
-tracker_id: 189
-remote: https://github.com/theiereman/gameble/issues/189
+tracker_id: ""
 type: story
 title: "A card not owned shows its face in the grid"
 parent: epic-card-catalog

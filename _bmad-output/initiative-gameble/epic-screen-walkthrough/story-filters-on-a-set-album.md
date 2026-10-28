@@ -1,8 +1,7 @@
 ---
 id: 23
 tracker_status: done
-tracker_id: 251
-remote: https://github.com/theiereman/gameble/issues/251
+tracker_id: ""
 type: story
 title: "Filters on a set album"
 parent: epic-screen-walkthrough

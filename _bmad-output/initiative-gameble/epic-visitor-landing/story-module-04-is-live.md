@@ -1,8 +1,7 @@
 ---
 id: 6
 tracker_status: done
-tracker_id: 171
-remote: https://github.com/theiereman/gameble/issues/171
+tracker_id: ""
 type: story
 title: "Module 04 is live"
 parent: epic-visitor-landing

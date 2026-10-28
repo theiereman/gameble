@@ -1,8 +1,7 @@
 ---
 id: 8
 tracker_status: done
-tracker_id: 218
-remote: https://github.com/theiereman/gameble/issues/218
+tracker_id: ""
 type: story
 title: "A visitor reaches only the landing, the catalog and the shared pages"
 parent: epic-card-catalog

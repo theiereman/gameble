@@ -1,8 +1,7 @@
 ---
 id: 4
 tracker_status: done
-tracker_id: 197
-remote: https://github.com/theiereman/gameble/issues/197
+tracker_id: ""
 type: story
 title: "A showcase chosen from the card detail"
 parent: epic-screen-walkthrough

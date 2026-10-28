@@ -1,8 +1,7 @@
 ---
 id: 20
 tracker_status: done
-tracker_id: 288
-remote: https://github.com/theiereman/gameble/issues/288
+tracker_id: ""
 type: story
 title: "landing.css is cut under 500 lines"
 parent: epic-human-readable-codebase

@@ -1,8 +1,7 @@
 ---
 id: 4
 tracker_status: done
-tracker_id: 191
-remote: https://github.com/theiereman/gameble/issues/191
+tracker_id: ""
 type: story
 title: "A visitor browses every card with no ownership data"
 parent: epic-card-catalog

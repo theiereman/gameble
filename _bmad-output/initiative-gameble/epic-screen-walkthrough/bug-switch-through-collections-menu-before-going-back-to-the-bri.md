@@ -1,8 +1,7 @@
 ---
 id: 11
 tracker_status: done
-tracker_id: 223
-remote: https://github.com/theiereman/gameble/issues/223
+tracker_id: ""
 type: bug
 title: "Switch through collections menu before going back to the bridge"
 parent: epic-screen-walkthrough
