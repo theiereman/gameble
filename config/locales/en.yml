@@ -686,6 +686,10 @@ en:
       text: "%{name} will show on your face-down cards."
       title: Card back equipped
     conditions:
+      achievement: Unlock the matching achievement.
+      always: Every player has it.
+      event: Given to those who took part in the event.
+      goal: Take part in the community goal.
       set_tier: Collect half of the %{set} set.
     names:
       aurore: Dawn

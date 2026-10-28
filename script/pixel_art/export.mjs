@@ -1386,6 +1386,8 @@ function sheetHtml() {
   const sizes = Object.keys(CARD_SIZES)
   const backRows = BACK_DESIGNS.map(({ name, title, look }) =>
     `<tr><th scope="row"><b>${escape(title)}</b><span>${escape(look)}</span></th>${sizes.map((size) => `<td>${item(`back-${name}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
+  const setBackRows = SET_BACK_DESIGNS.map((design) =>
+    `<tr><th scope="row"><b>${escape(design.word)}</b><span>${escape(`${design.key}, ${design.kind.replace(/_/g, " ")} set`)}</span></th>${sizes.map((size) => `<td>${item(`back-${setBackName(design)}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
   const canisterParts = ["canister-cap-top.png", "canister-body.png", "canister-cap-bottom.png"]
   const assembled = canisterParts.map((file) => image(file)).join("")
   return `<!doctype html>
@@ -1431,6 +1433,15 @@ ${svgs.map(item).join("\n")}
 <thead><tr><th></th>${sizes.map((size) => `<th scope="col">card-${size}</th>`).join("")}</tr></thead>
 <tbody>
 ${backRows}
+</tbody>
+</table></div>
+
+<h2>Set backs</h2>
+<p>The back of each set, earned at half its cards: one word and one motif per set, one file per size.</p>
+<div class="backs"><table>
+<thead><tr><th></th>${sizes.map((size) => `<th scope="col">card-${size}</th>`).join("")}</tr></thead>
+<tbody>
+${setBackRows}
 </tbody>
 </table></div>
 

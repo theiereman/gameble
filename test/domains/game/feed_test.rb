@@ -112,9 +112,9 @@ class Game::FeedTest < ActiveSupport::TestCase
     Game::Friendship.create!(low_player_id: [ @player.id, @other.id ].min, high_player_id: [ @player.id, @other.id ].max)
 
     # The notable rows, their player, one friendship question (not one per
-    # entry), then the fillers' rows.
+    # entry), then the fillers' rows and the shown players' active titles.
     shown = nil
-    assert_queries_count(4) { shown = Game::FeedEntries.call(@player) }
+    assert_queries_count(5) { shown = Game::FeedEntries.call(@player) }
     assert_equal [ @other ] * 5, shown.map(&:player)
     assert_empty Game::FeedEntries.call(stranger)
     assert_empty Game::FeedEntries.call(nil)

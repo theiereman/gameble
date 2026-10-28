@@ -968,8 +968,19 @@ fr:
       title: "Dos équipé"
       text: "« %{name} » apparaîtra sur vos cartes face cachée."
     conditions:
+      achievement: "Débloquez le succès correspondant."
+      always: "Tous les joueurs l'ont."
+      event: "Offert à celles et ceux qui ont participé à l'événement."
+      goal: "Participez à l'objectif communautaire."
       set_tier: "Réunissez la moitié du set %{set}."
     names:
+      aurore: "Aurore"
+      centurion: "Centurion"
+      confrere: "Confrère"
+      etoile-dor: "Étoile d'or"
+      millesime-2017: "Millésime 2017"
+      saison-1: "Saison 1"
+      soldes-hiver: "Soldes d'hiver"
       standard: "Standard"
   personalizations:
     show:
@@ -1944,15 +1955,6 @@ fr:
         notice: "Gameble n'est affilié ni à Steam ni à Valve. Les illustrations appartiennent aux éditeurs des jeux et à leurs artistes."
   external_links:
     new_tab: "(nouvel onglet)"
-  card_backs:
-    names:
-      aurore: "Aurore"
-      centurion: "Centurion"
-      confrere: "Confrère"
-      etoile-dor: "Étoile d'or"
-      millesime-2017: "Millésime 2017"
-      saison-1: "Saison 1"
-      soldes-hiver: "Soldes d'hiver"
   card_details:
     open: "%{title}, %{year}, %{rarity}, saison %{season}"
     open_not_owned: "%{title}, %{year}, %{rarity}, saison %{season}, non possédée"

@@ -2,13 +2,15 @@ module CardBacksHelper
   SetRef = Data.define(:kind, :params)
 
   def card_back_name(back)
-    return t("card_backs.names.standard") if back.unlock.kind == :always
+    return set_label(back) if back.unlock.kind == :set_tier
 
-    set_label(back)
+    t("card_backs.names.#{back.key}")
   end
 
   def card_back_condition(back)
-    t("card_backs.conditions.#{back.unlock.kind}", set: set_label(back))
+    return t("card_backs.conditions.set_tier", set: set_label(back)) if back.unlock.kind == :set_tier
+
+    t("card_backs.conditions.#{back.unlock.kind}")
   end
 
   def card_back_image(back, size)
