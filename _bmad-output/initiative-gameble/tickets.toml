@@ -160,10 +160,18 @@ after = [{ epic = 12, needs = "the public release" }, { epic = 13, needs = "the 
 [[epic]]
 id = 24
 release = "1.2.0"
-slug = "epic-profile-titles-and-themes"
-title = "Profile titles and menu themes"
+slug = "epic-profile-titles"
+title = "Profile titles"
 covers = ["CAP-22"]
-after = [{ epic = 9, needs = "the card backs epic, which this one follows (author, 2026-10-28)" }, { epic = 13, needs = "the set tier and completion events" }]
+after = [{ epic = 9, needs = "the card backs epic, which this one follows (author, 2026-10-28), and its card back picker (9.4) on the settings screen" }, { epic = 13, needs = "the set tier and completion events" }]
+
+[[epic]]
+id = 25
+release = "1.2.0"
+slug = "epic-menu-themes"
+title = "Menu themes"
+covers = ["CAP-22"]
+after = [{ epic = 24, needs = "the settings screen section pattern settled by the title picker" }, { epic = 13, needs = "the set completion rows" }]
 
 [[epic]]
 id = 22

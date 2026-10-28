@@ -1,0 +1,46 @@
+# tickets.toml — the stories of the profile titles epic, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Profile titles read from the set tier rows"
+description = "Adds Game::ProfileTitles, a query over the player's game_set_tiers rows returning one title per distinct set kind, key and title rank across seasons (bronze counts as apprentice, silver as adept, gold as master, complete as Complétiste) with the latest season it was reached in; the title is rendered from the rank and the set's name in en.yml and fr.yml and never stored as text."
+verify = "Query tests cover each tier and complete, a legacy bronze and a later apprentice of the same set giving one title, the same set across seasons showing the latest season, and a player with no tier having no title; i18n-tasks is clean."
+covers = ["R1"]
+after = ["13.22"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "The title picker on the settings screen"
+description = "Adds nullable active title columns (set kind, key and title rank) on game_player_states (expand only), Game::ChooseProfileTitle (POST, Pundit policy, Failure(:title_not_earned)) and a title section on the settings screen listing the earned titles, the active mark and the feedback; every string in en.yml and fr.yml, errors.game.title_not_earned added to both by hand."
+unknown = "The picker's layout is not drawn in DESIGN.md: the author agreed on 2026-10-28 to a bmad-ux session before this entry is built, with the card back picker (9.4) as the pattern on the same screen."
+verify = "A system test equips an earned title and sees the feedback, a title the player has not earned cannot be equipped even by a forged POST, the choice survives a reload, and db/schema.rb is regenerated from the migrations."
+covers = ["R2"]
+after = [1, "9.4"]
+hitl = true
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "The active title on the profile, in the feed and in trades"
+description = "Shows the active title next to the player's name on their profile and public profile, in the feed lines that name the player, and on both sides of a trade; the title is read through Game::ProfileTitles and omitted when the player wears none."
+verify = "System tests show the title on the profile, in a feed line and on a trade in English and French, a player with no active title shows none, and the three screens use the one rendering."
+covers = ["R3"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Refactor sweep"
+description = "Removes duplication and divergent conventions the other entries of this epic introduced, and cuts any file left over its size limit, keeping behaviour, URLs and markup as they are."
+verify = "bin/ci, npm run test:js and bin/rails zeitwerk:check pass and script/check_file_sizes reports no file over its limit."
+covers = []
+after = [1, 2, 3]
+hitl = false
+risk = "low"
