@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set backs approval</title>
+<style>
+:root{--ground:#0b0f15;--panel:#121a24;--panel-raised:#1b2838;--line:#2a475e;--line-soft:#1f3346;--accent:#66c0f4;--accent-hi:#b5e2ff;--text:#c7d5e0;--muted:#8f98a0;--gold:#f4c542;--lime:#a4d007;--alert:#e8833a;--danger:#ffb39a;--outline:#06090d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--text);font:15px/1.5 ui-monospace,"JetBrains Mono",monospace}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 120px}
+h1{font-size:1.5rem;margin:0 0 6px;color:var(--accent-hi)}
+h2{font-size:1.15rem;margin:34px 0 10px;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:4px}
+.lead,.muted{color:var(--muted)}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin:12px 0}
+.box ul,.box ol{margin:6px 0 0;padding-left:20px}
+code{background:var(--panel-raised);padding:0 4px;border-radius:3px}
+canvas{image-rendering:pixelated;display:block}
+.ref{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end}
+.ref figure{margin:0}
+figcaption{font-size:.8rem;color:var(--muted);margin-top:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:14px}
+.cell{background:var(--panel);border:1px solid var(--line-soft);border-radius:6px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.cell:hover,.cell:focus-visible{border-color:var(--accent);outline:none}
+.cell b{font-size:.85rem;color:var(--accent-hi)}
+.cell small{color:var(--muted);font-size:.75rem;text-align:center}
+.sw{display:inline-block;width:12px;height:12px;border:1px solid var(--outline);vertical-align:-1px;margin-right:3px}
+table{border-collapse:collapse;width:100%;font-size:.8rem}
+th,td{border-bottom:1px solid var(--line-soft);padding:5px 6px;text-align:left;vertical-align:middle}
+th{color:var(--accent);position:sticky;top:0;background:var(--ground)}
+td.n{text-align:right}
+.bad{color:var(--danger);font-weight:700}
+.ok{color:var(--lime)}
+.fit{letter-spacing:1px}
+input[type=text]{width:100%;min-width:140px;background:#0b1015;color:var(--text);border:1px solid var(--line);border-radius:4px;padding:3px 6px;font:inherit}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:center;z-index:5}
+button{background:var(--accent);color:#0b1520;border:0;border-radius:4px;padding:8px 16px;font:inherit;font-weight:700;cursor:pointer}
+button.alt{background:transparent;color:var(--text);border:1px solid var(--line)}
+dialog{background:var(--panel);color:var(--text);border:1px solid var(--accent);border-radius:8px;max-width:96vw;max-height:94vh;overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.7)}
+.sizes{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
+#out{width:100%;min-height:120px;background:#0b1015;color:var(--text);border:1px solid var(--line);border-radius:4px;font:12px/1.4 ui-monospace,monospace;padding:8px;margin-top:8px}
+</style>
+</head>
+<body>
+<main>
+<h1>Set backs: the word, colours and motif of each</h1>
+<p class="lead">Ticket 9.3 asks the author to approve, before the export is drawn, the word, two colours and motif of every theme and hall of fame set back. This page draws each proposal with the real anatomy of the export: frame, field, inner line, corner brackets, a ring with a motif, and the 5 × 7 word. Nothing here is exported yet. <span id="count"></span></p>
+
+<h2>Reference and rules</h2>
+<div class="ref box">
+  <figure><img id="stdM" alt="Standard back, size m" width="160" height="240" style="image-rendering:pixelated"><figcaption>Standard back, real export, size m (80 × 120 art px, shown at 2 CSS px per art px)</figcaption></figure>
+  <figure><canvas id="legend"></canvas><figcaption>Anatomy of a set back (this page's drawing)</figcaption></figure>
+  <div style="flex:1;min-width:280px">
+    <ul>
+      <li><b>Key</b> <code>set-&lt;kind&gt;-&lt;key&gt;</code>, <b>asset</b> <code>back-&lt;kind&gt;-&lt;key&gt;-&lt;size&gt;.png</code> in the five sizes xs, s, m, l, xl (50 × 75 up to 120 × 180 art px).</li>
+      <li><b>Word</b>: one word, A-Z and 0-9 only, at most 9 letters, decorative. The export prints it only when it fits the width minus 16 art px, so a long word disappears on the small sizes (the table shows where). The existing CONFRERE and CENTURION behave the same.</li>
+      <li><b>Colours</b>: two tokens of the DESIGN palette. The first colours the frame, the field (a dark shade of it), the ring and the motif. The second colours the word, the corner brackets and the ring ticks. Hex values are shown in the table.</li>
+      <li><b>Motif</b>: one pixel motif (9 × 9) from a small shared family per kind, drawn in the ring: 18 motifs for the themes, 4 for the hall of fame. The variation between backs is colour, motif and word, not 46 separate pictures.</li>
+      <li><b>Hall of fame</b> backs wear a gold double inner line to tell them from the themes.</li>
+      <li><b>Which sets have a back</b>: themes and hall of fame sets. Franchise, studio and UFO sets grant nothing.</li>
+      <li><b>Unlock</b>: the set's back tier (its first tier at or above half its cards; a set under 5 cards, on completion).</li>
+    </ul>
+  </div>
+</div>
+
+<div id="sections"></div>
+
+<h2>Table to approve or amend</h2>
+<p class="muted">Tick OK for a row you approve; write a correction (another word, colour token, motif) in the field otherwise. Your choices stay in this browser. Contrast is the word's colour against the field's colour (WCAG ratio); the word is decorative, so this is a legibility check, not a requirement.</p>
+<table id="tbl"><thead><tr><th>OK</th><th>Kind</th><th>Key</th><th>Word</th><th>Letters</th><th>Colours</th><th>Motif</th><th title="Sizes where the word is printed: xs s m l xl">Word shown at</th><th>Contrast</th><th>Correction</th></tr></thead><tbody></tbody></table>
+
+<h2>Questions for the author</h2>
+<div class="box"><ol>
+  <li>The seed list <code>db/default_themes.yml</code> holds <b>43</b> themes, the ticket says 42: the extra one is <b>adult</b>. Does it get a back (46 + 1), or none?</li>
+  <li>Words longer than 5 letters vanish on size xs, longer than 6 on size s (the existing backs do too), and words of 8 or 9 letters touch the corner brackets on size m (see WASTELAND, MALAIMES, PHENOMENE). Accept, or restrict every word to 7 letters or fewer?</li>
+  <li>An administrator can add a theme later; the catalogue test then fails until a back exists. Accept that rule, or give new themes a neutral fallback back?</li>
+  <li>The 18 shared theme motifs: enough variety, or do you want some themes to get an own picture?</li>
+  <li>Asset names keep the key as is: <code>back-theme-souls_like-m.png</code>, <code>back-hall_of_fame-mal-aimes-m.png</code> (underscore and hyphen). Fine?</li>
+</ol></div>
+
+<h2>Corrections to paste into the chat</h2>
+<textarea id="out" readonly placeholder="Ticks and corrections appear here."></textarea>
+</main>
+<div class="bar"><button id="copy">Copier les corrections</button><button class="alt" id="reset">Tout effacer</button><span id="status" class="muted" role="status"></span></div>
+<dialog id="dlg"><div style="padding:12px 16px"><div style="display:flex;justify-content:space-between;gap:20px"><b id="dlgTitle"></b><button class="alt" id="dlgClose">Fermer</button></div><div id="dlgBody"></div></div></dialog>
+
+<script>
+const STD_M="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAB4CAYAAABl7nX2AAAOgUlEQVR42u2cyXIjxxGGdXKEHRoSJBYu2AkQGwGC5AyHY8uSRoult9BRJz+KI3z30/hgP4Sfw7q3I7Mqq7Kylq5ucmjLjcNPAj+qa/k6s6rRCz778s9/KQ6qp87iffEZvOivPhxUQw7Ao07/oAoKArxcfkB1p/eODr7rJwA+Fd3pnSPwDr7rRwF2J3eo8dsfDgqI+GQBvFw8ocgjNdWvDPBi8VT8/PdfgpKNQNmLQOO/Nj813iyAHV0ZFIbXsDH877BG6H1TfGJATMCLAqSNJMCmwuMMKCtLAL4vOpO9BrjHjcEjn6spvgK41wCVn0jhfRBgU+FxBsQkGyBsRPSbCu/ZAJsOj/t5AMf74uJa0x7vHYEPaqpPTMCLLyJ6Iwmw6fAIIPkJgI9FZ3yrAd6iwCOfq2m+Aqj8RArfOgAP8KzPgyoL4AGe69cCeID3GJzWkgAl7QM8f1qLAjy/fkRJgOTLRprkAxPykwA7450GuEPZynaOmuYTQHgdBdge71BQuI2VvUORT2qiT0zaSYCjHQppz9+hyCM11UeA2ssGeIBn/WyAkvZrdHbz40/owX96n+O/JlRiAl58EQmE66fqVA6MX/75bXY9n3on82ktCbA92mqAW5StbOuojq8GuzX/eXnohywPAEP1yLKy/uf2M+TbaW2bSuGtA/B8/hblN1LdDw/OludQyJcAyfdh23rcnfNy/edBlQXwU8KDNl+y/hjUsp1Wxa8F8DmNq7ktXp4POHY9tkyvGZHZACXt58KLDS4Gg8p93u4Xn7cHWn2vXbl9aloo25k5Pp/W4ovI7C0KCw+3RuRzL+ZjZ4WPA9HlnUHrzy2oYfF5p0RQRpen7Z0dodulNqldjMSM/sd8zErtRwGe4UY3GuANCjzyuUI+dDJV3oK7sRGGYEaoN91xlqi8AqoiVNZfp/8pH5iQH09hVlhV9oDyG/F9BS9cXg6MgzNgehOtqdWZFveonANzqCPSba9K/8t8HlRZAOvCo/uHQ/B8cAzY2VVxhJoVR+cRwWdnV1jWbNedBEHKnUb9qgu1FsCXjDwFT4AjaAhornRxnRaVOxcwOcj2APsjIfJ+qjkxPyKzAJ6ycIXXXFRZrk+dV3MdizpIv7OpCw7hLIrjS9CyRAssa2ESyKlJbQVxiG3LdOZ95Du/bFzEBLzEIvIQBPgseDxlKeoYOAOtD1pprYvjgRB45nMO04K00chT2kIM9R8g5oyLT2tJgKfDjQa4QdnKNo5s4xszv8Br29kNizyVsibqANwFgbPAWoON0vAmLP25AxTqMBGpo1GnNEUiT2feXxoXjSM1XgIIrxMpvHEA5sCTvoU3cCJPwZNRtypaBA4hbYvWCLQrToRaqK0qY2AyiDwaZSS2B2bnlo0r5vOgigMcbFBI++oeRR4JPIQX8LGDgwx4MGgObrRVoMa3WnuliRa9p88NzBsWkatyiAMFMTaulI8AtZcNsEojct6zC0YE3nCjI25noSGwu+J0eh8UfGaB3qqoxIgMQ1RzIi0sYj7MDAoabzZASTtUGTWG84j2veij1ZbmPAeeiDoH3ENxegV6K/SgPnNAutHoQ5yZ1VlGIY2LxlAWLMQEvPgiEgjXGDzeuI2+AYu+qT4onqsFA1ZODx4DR9Bm74o26lHoHX5mYWqQUIcHUS8smMozlsrqQNsc2lzdq8UvI9P4tJYEeDpYa4BrlK1s7Yj7ao+uRfSxFRcXDJrzJDwLrvj3PyoJtnUgQjrDnAgr9OWSReGViMI1mwvtmPC4MDJeO62tUym8dgD2ru5RshHpG4Ch6NOpSwtGCB5G3PyxOkAA70HUCwulciAKe2bKcSGFxks+D6osgL2rO5QPz/Xd9NXHfM7cp6MPFg1IXZzzKG0VvKrgSG1KaZPOtzqVQ1HIjw0HbDEhSP54uV8LYKwyNW9YgOAhwK5KXzpsUXOfPtZj0WfmPIy89/UBzt/reVHPiU4U6gXFzIU6jbtuGtO4aExqjvehZgOUtHllvHJq0ACU6ctWXkzfYPQ9Fu3rJ7x4xNVdf1V0N6Cvtb5S3urLorP6ougs/1B0Fh9wW6gjGIU8jSEKRRrzvvOAiEWkndYSj3r1pncoLNxfG5HPPfJxL/bF/Oel74093gOALPra1x88gL3N10Xv5mPRu/lG6yN6BuLyi6Kz+D1uy6PQAlRR6KUxB9jXAMW4cJoKjBezUvtJgKf9lQa4QtnKVioChV86/wXTV0ff/AkjyQMI0LbfFmfb71DwGj0D8Y82CuciClka4yFNyTxI4wmNl4sAwusowJP+CgWFT1hl5JM4PB8gffMIzH8TBnCu0hciyQMI8HbfF2e3f1Lafa8hflQpveZR+IR12TT258EjPQ/i4UxgIeHjgiAJjZeYnOQC7E33KF6RCm/rewDZVze7gOhjP/2NIwfg2e47BHe+/wEVW0SiACGNh2we5AB7YYCh8XK/FsBQZXyg1QHeVQT4I6oawLvKAOW4JDyelaUAJW1emQzvvBTelKbwv/42diRTWH5OKk/hTVYKpyLPn9b2qUVkHwQYC+84QLuIROfAWQrgN2oB2SmVApwl5kD5lS4xB4amqdC0lgR40l9qgEuUrWypI9D1/VNY4VW4JQ6i2/owpnP9wQdIhzBbLX0o4wHUhzFtcTDdiq3CzkmFvoa3dMTHy2WntWUqhZcOwFhl3KdOhA+kl5EDaToOVFEowcCBMx4Lbj5qqYNpWc6kLwCcPkQOpJfBA2na+XJcPEi4z4MqC2AIHoU3XVNwALbtSVTzVe5SLCReGqsolGBii4YH0ESfTN9t4IQCO7naHjp9p/GkgiUP4OUSpX6h4ta8J4EnffWrFrfBlTicxrfiTMxjfYBm7gt8C3HS11+Bqe9yXBiBgfEiQO0nAcIGvDCvjFfOAQZPpp4Hvg+zc4H2JKo+eTp/X/z1p99VEmzrn0gIfA8+j59UDQVFKFiICXiJ3425DQIs20O0J1Uau2dkjujyJT8b7RxU20isDvDBPXjmZ6Ux+mT6qsucPHNyM42yshTgyeVCA1ygbGULR9z3D2diUShTec+ug9Dp/Ee1uMD85kid2jen9acSnjiNFYy+kRd9fEwQHLHx2mltkUrhhQMwVBlvBBcS7Zu5MHpFbukcWLeiF5TeGpiOyA9cWGp5Z6KX0StzvK/wmo8hFSw8qLIApipTaez60SiUqexAjF2Z0zAd3SevyLnwFtFrw+bgOZFRIb8GwF2gsl3Sp44530zk1TkJ0bk27F4fduVeXLfXhF14/tU4u/LyPsr+h4KCjzcLYEtvBIXhNRdVlvL9i+vi+rCIxGPvtg59K8eYAyWxWzyGobsSWOSx68G4cIiL6rL/AK9svMQEvMQisgsCDMFTc6Hy6UC05aXyUNzSJu7K6odAapjmPpmtfc9uMjLg+vK+mJm41c09bGnpeQ+UExQcIPlxgONd0bq4VgAvrlHgkc8FHu65i2sFj/nY0YtrH2JPQLyQt7aJu7SE3NvcluLOLJa2Ah7vEwkBRsYV8hGg9uMpzAqXwSOfIEo/CJHfmZq6udLcByiUuMnSv1M1Di+n/7I8D6osgDnwUr451hrv/Hujg3ep2tt7jw1QJgKGmqfvThXwOMA68GoC3AYq22b5lNLg2UgUt/p22V35zs3l8xLN9Dx3xdLVv7WXt21T1vbThVc+rmyAnfHWKUwCvxNoRPoEj/s8CuKPONi79e0d+1Zv5N35kUcdOuOtF3XUH+obh5c7LmICXuJnT7ZBgLmNpHwaFPnxh2wm7JkRoe4k+rANtRuD1wlEXpX+qx/i2JYDbF3MNcA5ylY2d1TFx9+d174doPrMPOZlHucalWjInlAamHpkvSra3P4oePXGRQDhdSKF5w7Al4JHALnPn2+zMPkDhjH1g3WUtfsceDYr5/kAXwIedLqsfOxRVlk+Vi6nP8+Flw/wfI5CgKMb854EXlUfOy98880lUL7sGeFQu7I+3h/efp3+k48AtZ8ECBvwwi/RuBxECB6mW2b9VJb7VGdspz2n/xwgePFFRG8kAT638bKIjEEFH+4UqAL7U8DjWVkKsHU+0wBnKFvZzNFzfDVI9b+svAKYrj+nnuf6dlqbxQEen89QUPiYVUY+6SV9GPyxhnAsYMB7AJgq/1r9JCbHuQBfo1N1ob52f2oD/G919n/RzwbYGW2cwrayDaqpvp3WNqmfPdmgJEDyZSNN8tXPnig/8cj/pjg+u1IAz65Q4JHP1TRfPfKv/HgKs8IHeK7PgyoL4AGe69cCeIC3CU5rSYDt4dopbCtbo5rq22ltnVpE1kGATYdns3JdDvD4bKoBTlG2sqmjpvkEEF4nUnjqADzAsz4PqiyAB3iunwewN0UhQLiNQr8ngddUHwFqPwrwCDdSD5XAay7wQU31iQl60UVEbyQBqohcORU1xZdeKcCj3kRXNkHZPTFx1DTfQp2kUnjiADwdrFCysib6PKiyAB7guX4tgHUbp+u06scc0j685vXQe16WFPJj9XA/VE/VcWUD9GjXgPeb374x4gOP+QRCguLlQWX15PSH6qk6Lj6tJX72ZImSAMn3G/F9BcP6fODcl6D4/1D5WP1Vy9cdl8pK7acAHvXGGuAYZSsbO4r51GE3ZcaRVHLL0/tQeV4/l9pBtp5Qf0L1VB0XAcT30RTujlEIsDvWPwuyND4JvJiPneyOnRQjX6aeLA//Y+V5/al6Qv0J1ZM7LmJATFA5AE/187RV4IUGEhtgVb9q/bHyVeC9OMCcxikqnLTRAw1FasqP1eOlcIXysUiNjYsYZAPktDnAKnvOW/VYilL5HD9Wj/SqlOfb5IxLAjxNPbF+2l+gJEDy/Ub+/30O0PgpgEfdkQY4it7kCJ/ZRkaOfs1+arwEEMvGAOLDgbrwG9YI+aQm+sTkTS7Ag3xlAzzpL1ByTxz8MoCdkXmoGF5zHXzrxw9jDsqWB/Cg6kKA8Oeg+voPoK3k9N2Z1wAAAAAASUVORK5CYII=";
+document.getElementById("stdM").src=STD_M;
+
+/* 5 x 7 font of the export (one base-32 digit per row) */
+const B32="0123456789abcdefghijklmnopqrstuv";
+const FONT={A:"ehhvhhh",B:"uhhuhhu",C:"ehggghe",D:"uhhhhhu",E:"vgguggv",F:"vgguggg",G:"ehgnhhf",H:"hhhvhhh",I:"e44444e",L:"ggggggv",M:"hrllhhh",N:"hpljhhh",O:"ehhhhhe",P:"uhhuggg",R:"uhhukih",S:"fgge11u",T:"v444444",U:"hhhhhhe","1":"4c4444e"," ":"0000000",J:"72222ic",K:"hikokih",Q:"ehhhlid",V:"hhhhha4",W:"hhhllla",X:"hha4ahh",Y:"hha4444",Z:"v1248gv","0":"ehjlphe","2":"eh1248v","3":"v2421he","4":"26aiv22","5":"vgu11he","6":"68guhhe","7":"v124888","8":"ehhehhe","9":"ehhf12c"};
+const SIZES={xs:[50,75],s:[56,84],m:[80,120],l:[104,156],xl:[120,180]};
+const ptw=s=>s.length*6-1;
+
+const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const toHex=a=>"#"+a.map(v=>Math.round(v).toString(16).padStart(2,"0")).join("");
+const mixc=(a,b,t)=>{const x=hex(a),y=hex(b);return toHex(x.map((v,i)=>v+(y[i]-v)*Math.min(1,Math.max(0,t))))};
+const lum=h=>{const c=hex(h).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*c[0]+.7152*c[1]+.0722*c[2]};
+const ratio=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+const GROUND="#0b0f15",OUT="#06090d";
+const fieldOf=P=>mixc(P,GROUND,.88);
+
+/* 9 x 9 motifs: x = main colour, l = light, . = empty */
+const G={
+skull:[".xxxxxxx.","xxxxxxxxx","xx..x..xx","xx..x..xx","xxxxxxxxx",".xxx.xxx.","..xxxxx..","..x.x.x..","........."],
+eye:[".........","..xxxxx..",".xxxxxxx.","xxx.l.xxx","xxlllllxx","xxx.l.xxx",".xxxxxxx.","..xxxxx..","........."],
+flame:["....x....","...xx.x..","..xxxxx..","..xxlxxx.",".xxxllxx.",".xxxlxxx.",".xxxxxxx.","..xxxxx..","...xxx..."],
+compass:["..xxxxx..",".x..x..x.","x...x...x","x..xxx..x","xxxxlxxxx","x..xxx..x","x...x...x",".x..x..x.","..xxxxx.."],
+cube:["xxxxxxxxx","x.......x","x.ll.ll.x","x.ll.ll.x","x.......x","x.ll.ll.x","x.ll.ll.x","x.......x","xxxxxxxxx"],
+cards:["....x....","...xxx...","..xxxxx..",".xxxxxxx.","xxxxlxxxx",".xxxxxxx.","..xxxxx..","...xxx...","....x...."],
+heart:[".xx...xx.","xxxx.xxxx","xlxxxxxxx","xxxxxxxxx","xxxxxxxxx",".xxxxxxx.","..xxxxx..","...xxx...","....x...."],
+leaf:["......xxx","....xxxxx","..xxxxxxx",".xxxxlxxx",".xxxlxxx.","xxxlxxx..","xxlxxx...","xl.xx....","x........"],
+anchor:["...xxx...","...x.x...","...xxx...",".xxxxxxx.","....x....","x...x...x","xx..x..xx",".xxxxxxx.","..xxxxx.."],
+orbit:[".........","...xxx...","..xlxxx..",".xxxxxxx.","lllllllll",".xxxxxxx.","..xxxxx..","...xxx...","........."],
+bolt:["...xxxxx.","..xxxxx..",".xxxxx...","xxxxxxxx.","...xxxx..","..xxx....",".xxx.....",".xx......","x........"],
+target:["..xxxxx..",".x..x..x.","x...x...x","x.......x","xxx.l.xxx","x.......x","x...x...x",".x..x..x.","..xxxxx.."],
+stairs:["......xxx","......xlx","...xxxxxx","...xlxxxx","xxxxxxxxx","xlxxxxxxx","xxxxxxxxx","xxxxxxxxx","xxxxxxxxx"],
+gear:["...xxx...",".x.xxx.x.","..xxxxx..","xxxx.xxxx","xxx...xxx","xxxx.xxxx","..xxxxx..",".x.xxx.x.","...xxx..."],
+ball:["..xxxxx..",".xxxxxxx.","xxxxlxxxx","xxxxlxxxx","lllllllll","xxxxlxxxx","xxxxlxxxx",".xxxxxxx.","..xxxxx.."],
+pawn:["...xxx...","..xxxxx..","...xxx...","....x....","...xxx...","...xxx...","..xxxxx..",".xxxxxxx.","xxxxxxxxx"],
+blade:["....x....","...xlx...","...xlx...","...xlx...","...xlx...","xxxxxxxxx","...xxx...","...xxx...","..xxxxx.."],
+note:["...xxxxxx","...xx...x","...xx...x","...xx...x","...xx...x",".xxxx.xxx","xxxxx.xxx",".xxx..xx.","........."],
+crown:["x...x...x","xx.xxx.xx","xxxxxxxxx","xxxxlxxxx","xxxxxxxxx","xlllllllx","xxxxxxxxx",".........","........."],
+gem:["..xxxxx..",".xlllxxx.","xxlxxxxxx","xxxxxxxxx",".xxxxxxx.","..xxxxx..","...xxx...","....x....","........."],
+cracked:[".xx...xx.","xxxx.xxxx","xxxxx.xxx","xxxx..xxx","xxxxx.xxx",".xxxx.xx.","..xxx.x..","...xx....","....x...."],
+burst:["....x....","x...x...x",".x.xxx.x.","..xxxxx..","xxxxlxxxx","..xxxxx..",".x.xxx.x.","x...x...x","....x...."]
+};
+
+/* kind, key, name, word, primary, secondary, motif */
+const SETS=[
+["theme","souls_like","Souls-like","SOULS","#8f98a0","#ffc49a","flame"],
+["theme","metroidvania","Metroidvania","EXPLORE","#2a6f9a","#9affe0","compass"],
+["theme","roguelike","Roguelike","ROGUE","#b47cff","#ead9ff","cube"],
+["theme","deckbuilder","Deckbuilder","DECK","#66c0f4","#fff09a","cards"],
+["theme","cosy","Cosy","COSY","#ffc49a","#fff3c4","heart"],
+["theme","farming","Farming","FARM","#a4d007","#fff09a","leaf"],
+["theme","horror","Horror","HORROR","#d6403a","#ffb39a","eye"],
+["theme","zombies","Zombies","ZOMBIES","#7aa60a","#d8ff9a","skull"],
+["theme","pirates","Pirates","PIRATES","#2a6f9a","#fff3c4","anchor"],
+["theme","space","Space","SPACE","#b47cff","#9ac8ff","orbit"],
+["theme","cyberpunk","Cyberpunk","CYBER","#ff9ad5","#9affe0","bolt"],
+["theme","fps","FPS","FPS","#e8833a","#fff09a","target"],
+["theme","third_person_shooter","Third-person shooter","SHOOTER","#c4945e","#fff09a","target"],
+["theme","platformer","Platformer","JUMP","#3fcf8e","#fff09a","stairs"],
+["theme","puzzle","Puzzle","PUZZLE","#9ac8ff","#fff09a","gear"],
+["theme","racing","Racing","RACING","#d6403a","#fff09a","bolt"],
+["theme","sports","Sports","SPORTS","#3fcf8e","#e6eef5","ball"],
+["theme","strategy","Strategy","STRATEGY","#2a6f9a","#b5e2ff","pawn"],
+["theme","rpg","RPG","RPG","#b47cff","#fff3c4","blade"],
+["theme","survival","Survival","SURVIVAL","#c4945e","#ffc49a","flame"],
+["theme","city_builder","City builder","CITY","#8f98a0","#b5e2ff","cube"],
+["theme","visual_novel","Visual novel","NOVEL","#ff9ad5","#fff3c4","heart"],
+["theme","point_and_click","Point and click","CLICK","#9ac8ff","#e6eef5","compass"],
+["theme","adventure","Adventure","ADVENTURE","#3fcf8e","#fff3c4","compass"],
+["theme","fighting","Fighting","FIGHT","#d6403a","#fff3c4","blade"],
+["theme","stealth","Stealth","STEALTH","#c9a6ff","#9affe0","eye"],
+["theme","rhythm","Rhythm","RHYTHM","#ff9ad5","#9ac8ff","note"],
+["theme","shoot_em_up","Shoot 'em up","SHMUP","#e8833a","#fff09a","bolt"],
+["theme","hack_and_slash","Hack and slash","SLASH","#d6403a","#ffc49a","blade"],
+["theme","post_apocalyptic","Post-apocalyptic","WASTELAND","#c4945e","#d8ff9a","skull"],
+["theme","war","War","WAR","#8f98a0","#ffb39a","target"],
+["theme","medieval","Medieval","MEDIEVAL","#bcc8d4","#fff3c4","blade"],
+["theme","anime","Anime","ANIME","#ff9ad5","#fff09a","heart"],
+["theme","sandbox","Sandbox","SANDBOX","#ffc49a","#9ac8ff","cube"],
+["theme","tower_defense","Tower defense","TOWER","#3fcf8e","#fff09a","pawn"],
+["theme","mystery","Mystery","MYSTERY","#b47cff","#fff09a","eye"],
+["theme","simulation","Simulation","SIM","#66c0f4","#fff09a","gear"],
+["theme","comedy","Comedy","COMEDY","#fff09a","#ffb39a","heart"],
+["theme","open_world","Open world","OPEN","#9affe0","#fff3c4","compass"],
+["theme","idle","Idle","IDLE","#bcc8d4","#9ac8ff","cards"],
+["theme","walking_simulator","Walking simulator","WALK","#a4d007","#fff3c4","leaf"],
+["theme","vr","VR","VR","#66c0f4","#ead9ff","orbit"],
+["theme","adult","Adult (not in the ticket's 42)","ADULT","#ff9ad5","#ffb39a","heart"],
+["hall_of_fame","intouchables","Intouchables","ELITE","#f4c542","#fff3c4","crown"],
+["hall_of_fame","pepites","Hidden gems","PEPITES","#3fcf8e","#b2f7d4","gem"],
+["hall_of_fame","mal-aimes","Disliked","MALAIMES","#d6403a","#ffb39a","cracked"],
+["hall_of_fame","phenomenes","Phenomena","PHENOMENE","#b47cff","#ead9ff","burst"]
+];
+const KIND_LABEL={theme:"Themes",hall_of_fame:"Hall of fame"};
+
+function drawBack(cv,w,h,s){
+  cv.width=w;cv.height=h;
+  const c=cv.getContext("2d");
+  const F=(x,y,ww,hh,col)=>{c.fillStyle=col;c.fillRect(x,y,ww,hh)};
+  const P=(x,y,col)=>F(Math.round(x),Math.round(y),1,1,col);
+  const [kind,,,word,A,B,motif]=s;
+  const hof=kind==="hall_of_fame",b=5,cx=(w-1)/2,cy=(h-1)/2;
+  const o=mixc(A,GROUND,.55),hi=mixc(A,"#ffffff",hof?.35:.1),lo=mixc(A,GROUND,.85),band=mixc(A,GROUND,.72),well=mixc(A,GROUND,.92);
+  F(0,0,w,h,o);F(0,0,w,1,hi);F(0,0,1,h,hi);F(0,h-1,w,1,lo);F(w-1,0,1,h,lo);
+  F(1,1,w-2,h-2,band);F(2,2,w-4,h-4,well);
+  for(let y=3;y<h-3;y++)for(let x=3;x<w-3;x++){const t=y/h;const base=mixc(fieldOf(A),GROUND,t*.35),alt=mixc(mixc(A,GROUND,.84),GROUND,t*.35);P(x,y,((x+y)>>1)%3===0?alt:base)}
+  const line=mixc(A,GROUND,.7);
+  const inner=col=>{F(b,b,w-2*b,1,col);F(b,h-b-1,w-2*b,1,col);F(b,b,1,h-2*b,col);F(w-b-1,b,1,h-2*b,col)};
+  inner(line);
+  if(hof){const bb=b+2;F(bb,bb,w-2*bb,1,A);F(bb,h-bb-1,w-2*bb,1,A);F(bb,bb,1,h-2*bb,A);F(w-bb-1,bb,1,h-2*bb,A)}
+  const L=Math.max(4,Math.round(w*.08)),q=b+2+(hof?2:0);
+  for(const [x,y,sx,sy] of [[q,q,1,1],[w-q-1,q,-1,1],[q,h-q-1,1,-1],[w-q-1,h-q-1,-1,-1]])for(let i=0;i<L;i++){P(x+i*sx,y,B);P(x,y+i*sy,B)}
+  const sy=cy-h*.04,Rr=w*.3;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const d=Math.hypot(x-cx,y-sy);
+    if(d<Rr-1.2)P(x,y,mixc(mixc(A,GROUND,.8),GROUND,d/Rr*.6));
+    else if(Math.abs(d-Rr)<.62)P(x,y,A);
+    else if(Math.abs(d-(Rr+5))<.5&&((x+y)&1))P(x,y,o)}
+  for(let i=0;i<32;i++){const a=i/32*Math.PI*2,bg=i%8===0,r0=Rr+2,r1=Rr+(bg?4.2:3);for(let r=r0;r<=r1;r+=.5)P(cx+Math.cos(a)*r,sy+Math.sin(a)*r,bg?B:mixc(A,GROUND,.45))}
+  const k=Math.max(2,Math.round(w/22)),g=G[motif],gx=Math.round(cx-(9*k-1)/2),gy=Math.round(sy-(9*k-1)/2),light=mixc(A,"#ffffff",.55);
+  const cellsOf=ch=>ch==="x"?A:ch==="l"?light:null;
+  g.forEach((row,r)=>[...row].forEach((ch,col)=>{if(cellsOf(ch))F(gx+col*k+1,gy+r*k+1,k,k,OUT)}));
+  g.forEach((row,r)=>[...row].forEach((ch,col)=>{const col2=cellsOf(ch);if(col2)F(gx+col*k,gy+r*k,k,k,col2)}));
+  if(ptw(word)<=w-16){const tx=Math.round((w-ptw(word))/2),ty=h-b-12;drawWord(c,word,tx,ty+1,OUT);drawWord(c,word,tx,ty,B)}
+  for(let x=b+4;x<w-b-4;x+=3)P(x,h-b-16,line);
+}
+function drawWord(c,str,x,y,col){c.fillStyle=col;let cx=x;for(const ch of str){const gl=FONT[ch]||FONT[" "];for(let r=0;r<7;r++){const row=B32.indexOf(gl[r]||"0");for(let q=0;q<5;q++)if(row&(1<<(4-q)))c.fillRect(cx+q,y+r,1,1)}cx+=6}}
+function fitsAt(word){return Object.entries(SIZES).map(([n,[w]])=>ptw(word)<=w-16?n:null)}
+
+function canvasOf(s,size,scale){const [w,h]=SIZES[size],cv=document.createElement("canvas");drawBack(cv,w,h,s);cv.style.width=w*scale+"px";cv.style.height=h*scale+"px";return cv}
+
+/* anatomy legend: the standard anatomy annotated */
+(function(){const cv=document.getElementById("legend"),s=SETS[3];drawBack(cv,80,120,s);cv.style.width="160px";cv.style.height="240px"})();
+
+/* sections */
+const KEY="set-backs-approval-v1";let S={};
+try{S=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){S={}}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const id=s=>s[0]+"/"+s[1];
+const sections=document.getElementById("sections");
+for(const kind of ["theme","hall_of_fame"]){
+  const list=SETS.filter(s=>s[0]===kind);
+  const h=document.createElement("h2");h.textContent=KIND_LABEL[kind]+" ("+list.length+")";sections.appendChild(h);
+  const grid=document.createElement("div");grid.className="grid";
+  list.forEach(s=>{
+    const cell=document.createElement("button");cell.type="button";cell.className="cell";cell.style.cssText="background:var(--panel);color:inherit;font:inherit;text-align:center";
+    cell.appendChild(canvasOf(s,"m",2));
+    const t=document.createElement("b");t.textContent=s[3];cell.appendChild(t);
+    const sm=document.createElement("small");sm.innerHTML=s[2]+"<br>"+s[1];cell.appendChild(sm);
+    cell.addEventListener("click",()=>openDlg(s));
+    grid.appendChild(cell);
+  });
+  sections.appendChild(grid);
+}
+const dlg=document.getElementById("dlg");
+document.getElementById("dlgClose").addEventListener("click",()=>dlg.close());
+function openDlg(s){
+  document.getElementById("dlgTitle").textContent=s[0]+" / "+s[1]+" - "+s[3];
+  const body=document.getElementById("dlgBody");body.innerHTML="";
+  const big=canvasOf(s,"l",4);body.appendChild(big);
+  const row=document.createElement("div");row.className="sizes";
+  for(const n of Object.keys(SIZES)){const f=document.createElement("figure");f.style.margin=0;f.appendChild(canvasOf(s,n,2));const fc=document.createElement("figcaption");fc.textContent=n+" "+SIZES[n].join(" x ");f.appendChild(fc);row.appendChild(f)}
+  body.appendChild(row);dlg.showModal();
+}
+
+/* table */
+const tb=document.querySelector("#tbl tbody");
+SETS.forEach(s=>{
+  const [kind,key,name,word,A,B,motif]=s;
+  const r=ratio(B,fieldOf(A)),fit=fitsAt(word);
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td><input type="checkbox" aria-label="OK ${key}"></td><td>${kind}</td><td>${key}<br><span class="muted">${name}</span></td><td><b>${word}</b></td><td class="n">${word.length}</td><td><span class="sw" style="background:${A}"></span>${A}<br><span class="sw" style="background:${B}"></span>${B}</td><td>${motif}</td><td class="fit">${Object.keys(SIZES).map((n,i)=>fit[i]?n:'<s class="muted">'+n+'</s>').join(" ")}</td><td class="${r<4.5?"bad":"ok"}">${r.toFixed(1)}:1</td><td><input type="text" placeholder="correction"></td>`;
+  const cb=tr.querySelector("input[type=checkbox]"),tx=tr.querySelector("input[type=text]"),i=id(s);
+  cb.checked=!!(S[i]&&S[i].ok);tx.value=(S[i]&&S[i].c)||"";
+  cb.addEventListener("change",()=>{S[i]=Object.assign(S[i]||{},{ok:cb.checked});save();render()});
+  tx.addEventListener("input",()=>{S[i]=Object.assign(S[i]||{},{c:tx.value});save();render()});
+  tb.appendChild(tr);
+});
+function render(){
+  let ok=0;const lines=[];
+  SETS.forEach(s=>{const a=S[id(s)]||{};if(a.ok)ok++;const c=(a.c||"").trim();
+    if(a.ok||c)lines.push(`${s[0]}/${s[1]} (${s[3]}) : ${a.ok?"OK":"non valide"}${c?" | correction : "+c:""}`)});
+  document.getElementById("out").value=lines.join("\n");
+  document.getElementById("count").textContent=ok+" / "+SETS.length+" approved.";
+}
+document.getElementById("copy").addEventListener("click",async()=>{const o=document.getElementById("out");o.select();let ok=false;try{await navigator.clipboard.writeText(o.value);ok=true}catch(e){try{ok=document.execCommand("copy")}catch(e2){}}document.getElementById("status").textContent=ok?"Copied.":"Copy failed: select the text by hand."});
+document.getElementById("reset").addEventListener("click",()=>{if(!confirm("Clear all approvals and corrections?"))return;S={};save();tb.querySelectorAll("input[type=checkbox]").forEach(x=>x.checked=false);tb.querySelectorAll("input[type=text]").forEach(x=>x.value="");render()});
+render();
+</script>
+</body>
+</html>
