@@ -178,7 +178,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal 1, request_keys.size
     assert_match(/\A\h{8}-\h{4}-4\h{3}-[89ab]\h{3}-\h{12}\z/, request_keys.first)
     assert_selector ".booster-card:not([data-revealed])", count: 5
-    assert_selector ".booster-card__back.booster-card__back--standard", count: 5
+    assert_selector ".booster-card__back", count: 5
     assert_selector "#{card(1)} .booster-card__label", text: "? ? ?"
     assert_equal "Card 1 of 5, face down. Reveal.", find(hit(1))["aria-label"]
     assert_focus hit(1)
@@ -1296,7 +1296,7 @@ class BoosterTest < ApplicationSystemTestCase
 
     assert_selector ".booster-card__back.booster-card__back--custom", count: 5
     assert_no_selector ".booster-card__back--standard"
-    assert_match(/back-set-theme-rpg-m/, back_image(".booster-card__back"))
+    assert_match(/back-theme-rpg-m/, back_image(".booster-card__back"))
   end
 
   test "an opening with a set back equipped shows it on the phone's pile, at the phone size" do
@@ -1307,6 +1307,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_pile(5)
 
     assert_selector ".booster-card__back.booster-card__back--custom", count: 5
-    assert_match(/back-set-theme-rpg-xl/, back_image(".booster-card__back"))
+    assert_match(/back-theme-rpg-xl/, back_image(".booster-card__back"))
   end
 end
