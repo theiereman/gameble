@@ -54,3 +54,14 @@ covers = []
 after = []
 hitl = true
 risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Sign in with Clerk and with a provider other than Steam"
+description = "Today the only way in is Steam OpenID and a player is identified by a Steam id. Integrate Clerk as the sign-in service and offer at least one sign-in other than Steam, before v1. Open questions the author settles first (not decided here): which providers besides Steam (Google, Discord, email link); whether a Clerk account can exist without a linked Steam account, and if so how a player with no Steam id plays (the game reads their Steam library: link later, or play without a library); how an existing Steam player links a second sign-in and how two accounts of one person merge; whether Clerk replaces the session handling or only the identity step, and what happens to the Steam id as the stable player key (Accounts::Player, the public tokens, the back-office, the erasure of a banned account, the player export and the legal and privacy pages, which name Steam and must now name Clerk as a processor); the Clerk plan and its cost (the free tier only, as for Cloudflare); the staging and production Clerk instances and their keys in the Kamal secrets; rate limits and the sign-in return URLs per destination. The build starts with a short design in Accounts (identity model, linking, migration of existing players) the author approves, then the integration behind the existing sign-in operation. Author, 2026-10-28."
+verify = "A player signs in with Steam as before and with a second provider through Clerk on staging, an existing Steam player links the second sign-in to the same account, a banned or erased player cannot come back through either, and the legal and privacy pages name Clerk."
+covers = []
+after = []
+hitl = true
+risk = "high"
