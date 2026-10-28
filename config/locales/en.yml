@@ -560,7 +560,6 @@ en:
     open_next: Open the next one
     origin:
       bonus: DAILY CAPSULE
-      regular: STANDARD CAPSULE
       reward: GOAL REWARD
     origin_label: Origin
     reserves:
@@ -654,7 +653,6 @@ en:
       reposted: Card reposted to the feed.
       origin_bonus: DAILY CAPSULE
       origin_opening: 'OPENING · %{origin}'
-      origin_regular: STANDARD CAPSULE
       origin_reward: GOAL REWARD
       reserve_count:
         one: "%{n} capsule"

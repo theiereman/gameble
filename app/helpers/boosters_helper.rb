@@ -47,17 +47,16 @@ module BoostersHelper
   end
 
   def booster_reserve_size(bank, reserve)
-    reserve.to_s == "special" ? bank[:special] : bank[:available]
+    special_reserve?(reserve) ? bank[:special] : bank[:available]
   end
 
   def booster_origin_kind(bank, reserve)
-    bank[:next_special_kind].presence if reserve.to_s == "special"
+    bank[:next_special_kind].presence if special_reserve?(reserve)
   end
 
   def booster_origin(bank, reserve)
-    return unless reserve.to_s == "special" && bank[:next_special_kind]
-
-    t("booster.origin.#{bank[:next_special_kind]}")
+    kind = booster_origin_kind(bank, reserve)
+    t("booster.origin.#{kind}") if kind
   end
 
   def booster_state_words
@@ -137,6 +136,10 @@ module BoostersHelper
   end
 
   private
+    def special_reserve?(reserve)
+      reserve.to_s == "special"
+    end
+
     def booster_celebration_head(glints:)
       ribbon = tag.span(tag.span(tag.span, class: "booster-celebration__ribbon"), class: "booster-celebration__wipe")
       glint = tag.span(safe_join([ tag.i, tag.i, tag.i ]), class: "booster-celebration__glints") if glints

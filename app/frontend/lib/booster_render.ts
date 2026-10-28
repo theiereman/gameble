@@ -82,7 +82,6 @@ export class BoosterRenderer {
     const names: Record<string, string> = {
       bonus: this.strings.originBonus,
       reward: this.strings.originReward,
-      regular: this.strings.originRegular,
     }
     return (kind && names[kind]) || null
   }
@@ -90,7 +89,7 @@ export class BoosterRenderer {
   private renderOriginLook(state: BoosterState): void {
     const { element } = this.host
     const kind = this.originKind(state)
-    if (kind && kind !== "regular") element.dataset.origin = kind
+    if (kind) element.dataset.origin = kind
     else delete element.dataset.origin
   }
 

@@ -426,6 +426,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-special-packs/story-a-special-reserve-without-cap-plan.md`
   summary: Two missing safety nets: no test races two `Game::ClaimGoalReward` calls (once per goal under the bank lock), and `bank_races_test.rb` has no case that races a daily claim against an opening or a heal while 10 standard capsules are held and asserts the standard count stays at 10 and the special count is exactly 1.
   evidence: independent review of the 19.2 commit; the guards (unique indexes and `unclaimed` checks) are unchanged, so this is a missing net, not a regression.
+  left in 19.6: new concurrency tests could not be run in that session; write them where `bank_races_test.rb` can run.
 
 ## Deferred from: the staging deploy of the 1.2.0 candidate (2026-10-28)
 

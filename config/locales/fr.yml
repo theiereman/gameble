@@ -1105,7 +1105,6 @@ fr:
     open_next: "Ouvrir la suivante"
     origin:
       bonus: "CAPSULE QUOTIDIENNE"
-      regular: "CAPSULE STANDARD"
       reward: "RÉCOMPENSE D'OBJECTIF"
     origin_label: "Origine"
     reserves:
@@ -1137,7 +1136,6 @@ fr:
     strings:
       origin_bonus: "CAPSULE QUOTIDIENNE"
       origin_opening: "EN OUVERTURE · %{origin}"
-      origin_regular: "CAPSULE STANDARD"
       origin_reward: "RÉCOMPENSE D'OBJECTIF"
       special_arrived: "Une capsule spéciale est arrivée."
       standard_ready: "Une capsule standard est prête."

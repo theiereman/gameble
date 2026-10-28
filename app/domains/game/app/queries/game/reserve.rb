@@ -11,9 +11,8 @@ module Game
     def self.counts(player_id, now: Time.current)
       rows = Pack.where(player_id:).available(now).reorder(nil).group(:kind)
         .pluck(:kind, Arel.sql("COUNT(*)"), Arel.sql("MIN(available_at)"))
-      standard = rows.sum { |kind, count,| kind == "regular" ? count : 0 }
-      specials = rows.reject { |kind,| kind == "regular" }
-      Counts.new(standard:, special: specials.sum { |_, count,| count }, next_special_kind: specials.min_by(&:last)&.first)
+      standard, specials = rows.partition { |kind,| KINDS.fetch("standard").include?(kind) }
+      Counts.new(standard: standard.sum { |_, count,| count }, special: specials.sum { |_, count,| count }, next_special_kind: specials.min_by(&:last)&.first)
     end
 
     def self.of(name)
