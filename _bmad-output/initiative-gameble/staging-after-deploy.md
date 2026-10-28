@@ -31,3 +31,17 @@ Noted from the builds of 2026-10-28. Every task below is idempotent: running it 
 
 - Walkthrough of the seven screens never marked, plus phone, staff and English (ticket 27.4).
 - Rehearsal of a season change on staging (ticket 17.5, when it is built).
+
+## Wish: put staging behind Cloudflare, only if it stays free
+
+Author's wish of 2026-10-28; nothing decided, to study before any change. From general knowledge, not checked against Cloudflare's current plans:
+
+- The Free plan has covered DNS, the proxy with universal HTTPS, DDoS protection and basic caching, and a free Tunnel (`cloudflared`) that exposes the app without opening a public port. Running the Rails app itself on Cloudflare's platform would need containers, which are not part of the free plan: so the realistic target is staging behind Cloudflare as proxy or tunnel, still served by Kamal on the current server.
+- To check before the move:
+  - Kamal's proxy gets its certificate from Let's Encrypt: behind the orange cloud, use "Full (strict)" with an origin certificate, or keep the challenge reachable, and decide who terminates TLS.
+  - Client IP: the rate limits (Rack::Attack, the `rate_limit` of the back-office actions, the public page throttle) read the remote IP; behind Cloudflare they must read `CF-Connecting-IP` through trusted proxies, otherwise every visitor shares one address.
+  - Cached pages: public pages must not cache anything per player (no `Set-Cookie` or session on cached responses); set the cache rules by path.
+  - Steam sign-in return URL and the OpenID realm stay on the staging domain.
+  - Security headers and CSP set by the app must not be altered by the proxy.
+  - WebSockets (Turbo Streams, cable) must pass: Cloudflare proxies them on the Free plan.
+- Production will need the same decisions (the launch notes already list the Cloudflare setup as not done), so staging is the rehearsal.
