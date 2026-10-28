@@ -3,7 +3,7 @@ title: 'Card numbers are required for published card-seasons'
 type: 'chore'
 ticket: '1'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: '0763d9cee6bf068012dd5fd7127f7585934fbe6d'
 route: 'oneshot'
 route_source: 'auto'
