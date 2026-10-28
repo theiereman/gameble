@@ -7,6 +7,7 @@
   <nav id="player-menu" class="player-menu shell-popover" popover aria-label="<%= t("shell.player.menu") %>">
     <ul class="player-menu__list">
       <li><%= link_to t("shell.player.settings"), settings_path, class: "player-menu__item", data: { turbo_prefetch: false } %></li>
+      <li><%= link_to t("shell.player.personalization"), personalization_path, class: "player-menu__item", data: { turbo_prefetch: false } %></li>
       <li><%= link_to t("shell.player.profile"), brother_path(token: player.token), class: "player-menu__item", data: { turbo_prefetch: false } %></li>
       <% if policy([ :back_office, :dashboard ]).show? && !current_page?(back_office_path) %>
         <li><%= link_to t("shell.player.back_office"), back_office_path, class: "player-menu__item" %></li>

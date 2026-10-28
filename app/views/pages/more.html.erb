@@ -43,6 +43,12 @@
       <% end %>
     </li>
     <li>
+      <%= link_to personalization_path, class: "menu-item menu-item--plus", data: { turbo_prefetch: false } do %>
+        <span class="menu-item__label"><%= t(".personalization") %></span>
+        <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
+      <% end %>
+    </li>
+    <li>
       <%= donation_menu_item_to t("pages.home.menu.support"), class: "menu-item menu-item--plus" %>
     </li>
   </ul>

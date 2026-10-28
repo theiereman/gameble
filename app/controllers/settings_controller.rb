@@ -1,6 +1,4 @@
 class SettingsController < ApplicationController
-  include ChosenCards
-
   MOTION_CHOICES = { "system" => nil, "on" => true, "off" => false }.freeze
 
   def show
@@ -12,7 +10,6 @@ class SettingsController < ApplicationController
     @open_trades = Game::OpenTradeCount.call(current_player)
     @asks_to_go_private = flash[:confirm_private].present?
     @card_count = Game::CollectionSummary.call(current_player).distinct_cards
-    @showcase = chosen_cards(current_player)
   end
 
   def visibility

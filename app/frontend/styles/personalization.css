@@ -1,0 +1,58 @@
+/*
+ * The Personalization page: bracketed sections one under the other, each a
+ * muted-label heading over its content. Hard edges on the 2px grid.
+ */
+
+.personalization {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.personalization__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.personalization-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.personalization-section__title {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.personalization-section__empty {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.personalization-showcase {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.personalization-showcase__slot {
+  width: 100px;
+  container-type: inline-size;
+}
+
+.personalization-showcase__slot > .card-link {
+  display: block;
+  width: 100cqi;
+  height: calc(1.5 * 100cqi);
+}

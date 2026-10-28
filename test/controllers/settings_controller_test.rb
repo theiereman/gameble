@@ -519,9 +519,10 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "main h1", "Pont de commandement"
     assert_select ".hub__subtitle", "Le reste du vaisseau"
-    assert_select ".plus__list > li", 7
+    assert_select ".plus__list > li", 8
     assert_select ".plus__list > li:first-child a.menu-item.menu-item--plus[href='/fr/library/cards']", "Toutes les cartes"
     assert_select ".plus__list a.menu-item[href='/fr/settings']", /Profil et paramètres/
+    assert_select ".plus__list a.menu-item[href='/fr/personalization']", /Personnalisation/
     assert_select ".plus__list > li:last-child a.menu-item[href='https://buymeacoffee.com/theiereman'][target=_blank]", "Soutenir (nouvel onglet)" do
       assert_select "svg.menu-item__external"
     end
@@ -555,11 +556,10 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   def summary = css_select("section.settings-summary").sole
 
-  test "before the settings, beside them on a wide screen, the public profile in brief: the avatar, the name leading to the profile, the card count, the chosen cards in their order and who may see it" do
+  test "before the settings, beside them on a wide screen, the public profile in brief: the avatar, the name leading to the profile, the card count and who may see it" do
     @player.update_columns(persona_name: "Gabe the Brave")
     common, rare, portal = catalog_card_seasons(:common_card_one, :rare_card_one, :portal_one).map(&:id)
     [ common, rare, portal ].each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
-    [ rare, common ].each { Game::AddToShowcase.new.call(player: @player, card_season_id: it).value! }
     sign_in(@player)
 
     get settings_path(locale: :fr)
@@ -570,24 +570,20 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select summary, "svg.pixel-icon.settings-summary__avatar"
     assert_select summary, "a.settings-summary__name[href=?]", "/fr/brothers/#{@player.token}", text: "Gabe the Brave"
     assert_select summary, ".settings-summary__cards", "3 cartes"
-    assert_select summary, ".settings-summary__label", "Vitrine"
-    assert_equal [ "/fr/cards/blue-depths/seasons/1", "/fr/cards/tin-soldier/seasons/1" ],
-      css_select(".settings-summary__showcase .settings-summary__slot > a.card-link").map { it["href"] }
-    assert_select summary, ".card.card--grid", 2
+    assert_select summary, ".card", false
     assert_select summary, ".settings-summary__visibility", "Visible par tous les joueurs"
     assert_select "[style]", false
     html = summary.to_html.gsub(/data-card-art-(width|height)-value="\d+"|\/seasons\/\d+|\b(19|20)\d\d\b|\d+ cartes?/, "")
     [ @player.id, common, rare, portal ].each { assert_no_match(/\b#{it}\b/, html) }
   end
 
-  test "with no card chosen the summary has no VITRINE part, and a nameless player is named as in the top bar" do
+  test "a nameless player is named as in the top bar" do
     sign_in(@player)
 
     get settings_path(locale: :en)
 
     assert_select summary, ".settings-summary__name", I18n.t("shell.player.fallback_name", locale: :en)
     assert_select summary, ".settings-summary__cards", "0 cards"
-    assert_select summary, ".settings-summary__label, .settings-summary__showcase", false
   end
 
   {

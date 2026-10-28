@@ -48,6 +48,7 @@ fr:
       fallback_name: "Joueur"
       profile: "Mon profil public"
       settings: "Paramètres"
+      personalization: "Personnalisation"
       back_office: "Back-office"
       sign_out: "Se déconnecter"
     tabs:
@@ -159,6 +160,7 @@ fr:
       title: "Plus"
       subtitle: "Le reste du vaisseau"
       settings: "Profil et paramètres"
+      personalization: "Personnalisation"
     credits:
       title: "Crédits"
       intro: "Gameble s'inspire des œuvres ci-dessous. Ce sont des inspirations, jamais des affiliations : aucune n'a de lien avec Gameble ni ne le cautionne."
@@ -953,6 +955,13 @@ fr:
       throttled: "Trop de requêtes en une minute. Réessayez dans un instant."
     show:
       no_season: "Aucune saison de cartes n'est publiée pour l'instant."
+  personalizations:
+    show:
+      title: "Personnalisation"
+      more: "Plus"
+      showcase:
+        title: "Vitrine"
+        empty: "Votre plus belle carte s'affichera ici, une fois choisie depuis la fiche d'une carte."
   profile_titles:
     ranks:
       adept: Adepte
@@ -1189,7 +1198,6 @@ fr:
           zero: "%{count} carte"
           one: "%{count} carte"
           other: "%{count} cartes"
-        showcase: "Vitrine"
         visibility:
           public: "Visible par tous les joueurs"
           friends_only: "Visible par vos amis seulement"

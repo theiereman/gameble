@@ -10,7 +10,7 @@
   <h1 id="settings-heading" class="settings__title"><%= t(".title") %></h1>
   <div class="settings__layout">
     <div class="settings__side">
-      <%= render "settings/profile_summary", player: current_player, card_count: @card_count, showcase: @showcase, visibility: @visibility %>
+      <%= render "settings/profile_summary", player: current_player, card_count: @card_count, visibility: @visibility %>
     </div>
     <div class="settings__main">
       <%= render PanelComponent.new(brackets: true, class: "settings__panel") do %>

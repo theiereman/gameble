@@ -1921,9 +1921,17 @@ en:
       title: Legal notice and privacy
       updated: 'Last updated: 20 October 2026'
     more:
+      personalization: Personalization
       settings: Profile and settings
       subtitle: The rest of the ship
       title: More
+  personalizations:
+    show:
+      more: More
+      showcase:
+        empty: Your best card will show here once you choose it from a card's page.
+        title: Showcase
+      title: Personalization
   profile_titles:
     ranks:
       adept: Adept
@@ -2083,7 +2091,6 @@ en:
           one: "%{count} card"
           other: "%{count} cards"
           zero: "%{count} cards"
-        showcase: Showcase
         title: Public profile
         visibility:
           friends_only: Visible to your friends only
@@ -2114,6 +2121,7 @@ en:
       back_office: Back-office
       fallback_name: Player
       menu: Player menu
+      personalization: Personalization
       profile: My public profile
       settings: Settings
       sign_out: Sign out

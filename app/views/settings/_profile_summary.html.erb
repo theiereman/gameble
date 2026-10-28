@@ -1,5 +1,4 @@
-<%# locals: (player:, card_count:, showcase:, visibility:) %>
-<% strings = CardStrings.new %>
+<%# locals: (player:, card_count:, visibility:) %>
 <%= render PanelComponent.new(tag: :section, class: "settings-summary", aria: { labelledby: "settings-summary-heading" }) do %>
   <h2 id="settings-summary-heading" class="settings-summary__title"><%= t("settings.show.summary.title") %></h2>
   <div class="settings-summary__who">
@@ -9,18 +8,6 @@
       <p class="settings-summary__cards"><%= t("settings.show.summary.cards", count: card_count) %></p>
     </div>
   </div>
-  <% if showcase.any? %>
-    <p id="settings-summary-showcase" class="settings-summary__label"><%= t("settings.show.summary.showcase") %></p>
-    <ul class="settings-summary__showcase" aria-labelledby="settings-summary-showcase">
-      <% showcase.each do |card| %>
-        <li class="settings-summary__slot">
-          <%= link_to_card_detail(card, strings:) do %>
-            <%= render CardComponent.new(card:, size: :grid) %>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
-  <% end %>
   <p class="settings-summary__visibility">
     <% if visibility == "private" %>
       <span class="settings-summary__visibility-long"><%= t("settings.show.summary.visibility.private") %></span>
