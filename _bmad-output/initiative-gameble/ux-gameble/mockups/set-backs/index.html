@@ -49,6 +49,11 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
 .okbox{display:flex;gap:8px;align-items:center;font-weight:700;cursor:pointer}
 .okbox input{width:22px;height:22px;accent-color:var(--lime)}
 .jump a{color:var(--accent);margin:0 6px}
+.sheet{display:flex;flex-wrap:wrap;gap:10px}
+.tile{display:block;border-radius:4px;outline-offset:2px}
+.tile:focus-visible{outline:2px solid var(--accent)}
+.st-approved{color:var(--lime)}.st-corrected{color:var(--accent-hi)}.st-re-proposed{color:var(--gold)}
+.chk{display:flex;gap:6px;align-items:center;color:var(--muted)}
 .bar select{background:#0b1015;color:var(--text);border:1px solid var(--line);border-radius:4px;padding:6px 8px;font:inherit}
 .bar{flex-wrap:wrap}
 @media(max-width:700px){.row{grid-template-columns:1fr}.backcol{justify-self:center}.fields{grid-template-columns:1fr}}
@@ -57,18 +62,18 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
 <body>
 <main>
 <h1>Set backs: the word, colours and motif of each</h1>
-<p class="lead">Ticket 9.3 asks the author to approve, before the export is drawn, the word, two colours and motif of every theme and hall of fame set back. This page draws each proposal with the real anatomy of the export: frame, field, inner line, corner brackets, a ring with a motif, and the 5 × 7 word. Nothing here is exported yet. Tick OK on a row you approve, or write a correction in its field; the bar at the bottom keeps the counter, the filter and the copy button in view.</p>
+<p class="lead">Ticket 9.3 asks the author to approve, before the export is drawn, the word, two colours and motif of every theme and hall of fame set back. This page draws each proposal with the real anatomy of the export: frame, field, inner line, corner brackets, a ring with a motif, and the 5 × 7 word. Every motif is now drawn on a finer 17 × 17 grid and centred on the ring. Nothing here is exported yet. Tick OK on a row you approve, or write a correction in its field; the bar at the bottom keeps the counter, the filter and the copy button in view.</p>
 
 <h2>Reference and rules</h2>
 <div class="ref box">
   <figure><img id="stdM" alt="Standard back, size m" width="160" height="240" style="image-rendering:pixelated"><figcaption>Standard back, real export, size m (80 × 120 art px, shown at 2 CSS px per art px)</figcaption></figure>
-  <figure><canvas id="legend"></canvas><figcaption>Anatomy of a set back (this page's drawing)</figcaption></figure>
+  <figure><canvas id="legend"></canvas><figcaption>Anatomy of a set back (size m, this page's drawing, shown at 2 CSS px per art px)</figcaption></figure>
   <div style="flex:1;min-width:280px">
     <ul>
       <li><b>Key</b> <code>set-&lt;kind&gt;-&lt;key&gt;</code>, <b>asset</b> <code>back-&lt;kind&gt;-&lt;key&gt;-&lt;size&gt;.png</code> in the five sizes xs, s, m, l, xl (50 × 75 up to 120 × 180 art px).</li>
-      <li><b>Word</b>: one word, A-Z and 0-9 only, at most 9 letters, decorative. The export prints it only when it fits the width minus 16 art px, so a long word disappears on the small sizes (each row shows where). The existing CONFRERE and CENTURION behave the same.</li>
+      <li><b>Word</b>: one word (SHMUP becomes BULLETS), A-Z and 0-9 only, at most 9 letters, decorative. The export prints it only when it fits the width minus 16 art px, so a long word disappears on the small sizes (each row shows where). The existing CONFRERE and CENTURION behave the same.</li>
       <li><b>Colours</b>: two tokens of the DESIGN palette. The first colours the frame, the field (a dark shade of it), the ring and the motif. The second colours the word, the corner brackets and the ring ticks. Hex values are shown in each row.</li>
-      <li><b>Motif</b>: one pixel motif (9 × 9) from a small shared family per kind, drawn in the ring: 18 motifs for the themes, 4 for the hall of fame. The variation between backs is colour, motif and word, not 46 separate pictures.</li>
+      <li><b>Motif</b>: one pixel picture per set, hand-placed on a 17 × 17 grid (finer than the first 9 × 9 pass), drawn in the ring with the dark outline and a light and shadow rim. Its bounding box is centred on the ring centre; tick “Centre guides” in the bar to see the cross. The largest whole pixel scale that keeps it inside the ring is used: 2 px per cell at size m, 3 at l and xl, but only 1 px per cell at xs and s, where the ring is too small for a bigger picture (the row shows the scale per size). 47 motifs: 43 themes and 4 hall of fame.</li>
       <li><b>Hall of fame</b> backs wear a gold double inner line to tell them from the themes.</li>
       <li><b>Which sets have a back</b>: themes and hall of fame sets. Franchise, studio and UFO sets grant nothing.</li>
       <li><b>Unlock</b>: the set's back tier (its first tier at or above half its cards; a set under 5 cards, on completion).</li>
@@ -78,12 +83,17 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
 
 <h2>Questions for the author</h2>
 <div class="box"><ol>
-  <li>The seed list <code>db/default_themes.yml</code> holds <b>43</b> themes, the ticket says 42: the extra one is <b>adult</b>. Does it get a back (46 + 1), or none?</li>
-  <li>Words longer than 5 letters vanish on size xs, longer than 6 on size s (the existing backs do too), and words of 8 or 9 letters touch the corner brackets on size m (see WASTELAND, MALAIMES, PHENOMENE). Accept, or restrict every word to 7 letters or fewer?</li>
+  <li>On sizes xs and s the ring is too small for a bigger picture, so the 17 × 17 motif is drawn at 1 px per cell: fine detail, but small. Accept, or draw a simpler 9 × 9 version of each motif for those two sizes?</li>
+  <li>Words longer than 5 letters vanish on size xs, longer than 6 on size s (the existing backs do too), and words of 8 or 9 letters touch the corner brackets on size m (see WASTELAND, PHENOMENE). Accept, or restrict every word to 7 letters or fewer?</li>
+  <li>New word for the shoot 'em up back: BULLETS (7 letters). Fine, or another?</li>
+  <li>SIM, ELITE and PHENOMENE were not validated: are the new proposals (finer gear, crown, radiant burst) what you want?</li>
   <li>An administrator can add a theme later; the catalogue test then fails until a back exists. Accept that rule, or give new themes a neutral fallback back?</li>
-  <li>The 18 shared theme motifs: enough variety, or do you want some themes to get an own picture?</li>
   <li>Asset names keep the key as is: <code>back-theme-souls_like-m.png</code>, <code>back-hall_of_fame-mal-aimes-m.png</code> (underscore and hyphen). Fine?</li>
 </ol></div>
+
+<h2>Overview</h2>
+<p class="muted">All 47 backs at size m. Click one to jump to its row.</p>
+<div id="sheet" class="sheet"></div>
 
 <nav class="jump muted" aria-label="Jump to a kind">Jump to: <a href="#k-theme">Themes</a><a href="#k-hall_of_fame">Hall of fame</a></nav>
 <p class="muted">Contrast is the word's colour against the field's colour (WCAG ratio); the word is decorative, so this is a legibility check, not a requirement. Your choices stay in this browser.</p>
@@ -92,7 +102,7 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
 <details><summary>Corrections to paste into the chat (preview)</summary>
 <textarea id="out" readonly placeholder="One line per set appears here."></textarea></details>
 </main>
-<div class="bar"><span id="count" role="status"></span><label class="muted">Show <select id="filter" aria-label="Filter rows"><option value="all">all</option><option value="todo">not yet OK</option><option value="fixed">corrected</option></select></label><span class="jump"><a href="#k-theme">Themes</a><a href="#k-hall_of_fame">Hall of fame</a></span><button id="copy">Copier les corrections</button><button class="alt" id="reset">Tout effacer</button><span id="status" class="muted" role="status"></span></div>
+<div class="bar"><span id="count" role="status"></span><label class="muted">Show <select id="filter" aria-label="Filter rows"><option value="all">all</option><option value="todo">not yet OK</option><option value="fixed">corrected</option></select></label><label class="chk"><input type="checkbox" id="guides">Centre guides</label><span class="jump"><a href="#k-theme">Themes</a><a href="#k-hall_of_fame">Hall of fame</a></span><button id="copy">Copier les corrections</button><button class="alt" id="reset">Tout effacer</button><span id="status" class="muted" role="status"></span></div>
 <dialog id="dlg"><div style="padding:12px 16px"><div style="display:flex;justify-content:space-between;gap:20px"><b id="dlgTitle"></b><button class="alt" id="dlgClose">Fermer</button></div><div id="dlgBody"></div></div></dialog>
 
 <script>
@@ -113,91 +123,183 @@ const ratio=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min
 const GROUND="#0b0f15",OUT="#06090d";
 const fieldOf=P=>mixc(P,GROUND,.88);
 
-/* 9 x 9 motifs: x = main colour, l = light, . = empty */
-const G={
-skull:[".xxxxxxx.","xxxxxxxxx","xx..x..xx","xx..x..xx","xxxxxxxxx",".xxx.xxx.","..xxxxx..","..x.x.x..","........."],
-eye:[".........","..xxxxx..",".xxxxxxx.","xxx.l.xxx","xxlllllxx","xxx.l.xxx",".xxxxxxx.","..xxxxx..","........."],
-flame:["....x....","...xx.x..","..xxxxx..","..xxlxxx.",".xxxllxx.",".xxxlxxx.",".xxxxxxx.","..xxxxx..","...xxx..."],
-compass:["..xxxxx..",".x..x..x.","x...x...x","x..xxx..x","xxxxlxxxx","x..xxx..x","x...x...x",".x..x..x.","..xxxxx.."],
-cube:["xxxxxxxxx","x.......x","x.ll.ll.x","x.ll.ll.x","x.......x","x.ll.ll.x","x.ll.ll.x","x.......x","xxxxxxxxx"],
-cards:["....x....","...xxx...","..xxxxx..",".xxxxxxx.","xxxxlxxxx",".xxxxxxx.","..xxxxx..","...xxx...","....x...."],
-heart:[".xx...xx.","xxxx.xxxx","xlxxxxxxx","xxxxxxxxx","xxxxxxxxx",".xxxxxxx.","..xxxxx..","...xxx...","....x...."],
-leaf:["......xxx","....xxxxx","..xxxxxxx",".xxxxlxxx",".xxxlxxx.","xxxlxxx..","xxlxxx...","xl.xx....","x........"],
-anchor:["...xxx...","...x.x...","...xxx...",".xxxxxxx.","....x....","x...x...x","xx..x..xx",".xxxxxxx.","..xxxxx.."],
-orbit:[".........","...xxx...","..xlxxx..",".xxxxxxx.","lllllllll",".xxxxxxx.","..xxxxx..","...xxx...","........."],
-bolt:["...xxxxx.","..xxxxx..",".xxxxx...","xxxxxxxx.","...xxxx..","..xxx....",".xxx.....",".xx......","x........"],
-target:["..xxxxx..",".x..x..x.","x...x...x","x.......x","xxx.l.xxx","x.......x","x...x...x",".x..x..x.","..xxxxx.."],
-stairs:["......xxx","......xlx","...xxxxxx","...xlxxxx","xxxxxxxxx","xlxxxxxxx","xxxxxxxxx","xxxxxxxxx","xxxxxxxxx"],
-gear:["...xxx...",".x.xxx.x.","..xxxxx..","xxxx.xxxx","xxx...xxx","xxxx.xxxx","..xxxxx..",".x.xxx.x.","...xxx..."],
-ball:["..xxxxx..",".xxxxxxx.","xxxxlxxxx","xxxxlxxxx","lllllllll","xxxxlxxxx","xxxxlxxxx",".xxxxxxx.","..xxxxx.."],
-pawn:["...xxx...","..xxxxx..","...xxx...","....x....","...xxx...","...xxx...","..xxxxx..",".xxxxxxx.","xxxxxxxxx"],
-blade:["....x....","...xlx...","...xlx...","...xlx...","...xlx...","xxxxxxxxx","...xxx...","...xxx...","..xxxxx.."],
-note:["...xxxxxx","...xx...x","...xx...x","...xx...x","...xx...x",".xxxx.xxx","xxxxx.xxx",".xxx..xx.","........."],
-crown:["x...x...x","xx.xxx.xx","xxxxxxxxx","xxxxlxxxx","xxxxxxxxx","xlllllllx","xxxxxxxxx",".........","........."],
-gem:["..xxxxx..",".xlllxxx.","xxlxxxxxx","xxxxxxxxx",".xxxxxxx.","..xxxxx..","...xxx...","....x....","........."],
-cracked:[".xx...xx.","xxxx.xxxx","xxxxx.xxx","xxxx..xxx","xxxxx.xxx",".xxxx.xx.","..xxx.x..","...xx....","....x...."],
-burst:["....x....","x...x...x",".x.xxx.x.","..xxxxx..","xxxxlxxxx","..xxxxx..",".x.xxx.x.","x...x...x","....x...."]
-};
+/* 17 x 17 motifs: . empty; x main, d dark, l light, h highlight, b second, e second dark;
+   fixed: r R red, o orange, y yellow, Y gold, w white, g G grey, n N brown, s skin, m M green, u U blue, p pink, v violet, k near black */
+const N=17;
+const mk=()=>Array.from({length:N},()=>Array(N).fill("."));
+const each=f=>{for(let y=0;y<N;y++)for(let x=0;x<N;x++)f(x,y)};
+const put=(g,x,y,c)=>{x=Math.round(x);y=Math.round(y);if(x>=0&&y>=0&&x<N&&y<N)g[y][x]=c};
+const R=(g,x0,y0,x1,y1,c)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)put(g,x,y,c)};
+const D=(g,cx,cy,r,c)=>each((x,y)=>{if(Math.hypot(x-cx,y-cy)<=r)g[y][x]=c});
+const E=(g,cx,cy,rx,ry,c,ang=0)=>{const a=ang*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);each((x,y)=>{const dx=x-cx,dy=y-cy,u=dx*ca+dy*sa,v=-dx*sa+dy*ca;if(u*u/(rx*rx)+v*v/(ry*ry)<=1)g[y][x]=c})};
+const inPoly=(x,y,p)=>{let o=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const[xi,yi]=p[i],[xj,yj]=p[j];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)o=!o}return o};
+const P=(g,p,c)=>each((x,y)=>{if(inPoly(x,y,p))g[y][x]=c});
+const segDist=(x,y,x0,y0,x1,y1)=>{const dx=x1-x0,dy=y1-y0,l=dx*dx+dy*dy,t=l?Math.max(0,Math.min(1,((x-x0)*dx+(y-y0)*dy)/l)):0;return Math.hypot(x-x0-t*dx,y-y0-t*dy)};
+const L=(g,x0,y0,x1,y1,c,t=1)=>each((x,y)=>{if(segDist(x,y,x0,y0,x1,y1)<=t/2)g[y][x]=c});
+const angIn=(a,a0,a1)=>{a=((a%360)+360)%360;a0=((a0%360)+360)%360;a1=((a1%360)+360)%360;return a0<=a1?a>=a0&&a<=a1:a>=a0||a<=a1};
+const ARC=(g,cx,cy,r,a0,a1,t,c)=>each((x,y)=>{const d=Math.hypot(x-cx,y-cy);if(Math.abs(d-r)<=t/2&&angIn(Math.atan2(y-cy,x-cx)*180/Math.PI,a0,a1))g[y][x]=c});
+const ROT=(g,px,py,w,h,ang,c,inset=0)=>{const a=ang*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);each((x,y)=>{const dx=x-px,dy=y-py,u=dx*ca+dy*sa,v=-dx*sa+dy*ca;if(Math.abs(u)<=w/2-inset&&v<=-inset&&v>=-h+inset)g[y][x]=c})};
+const at=(g,x,y)=>x>=0&&y>=0&&x<N&&y<N?g[y][x]:".";
+const BV=(g,base,light,dark)=>{const o=g.map(r=>r.slice());each((x,y)=>{if(o[y][x]!==base)return;if(at(o,x-1,y)==="."||at(o,x,y-1)===".")g[y][x]=light;else if(at(o,x+1,y)==="."||at(o,x,y+1)===".")g[y][x]=dark})};
+const star=(cx,cy,n,ro,ri,rot=-90)=>Array.from({length:n*2},(_,i)=>{const a=(rot+i*180/n)*Math.PI/180,r=i%2?ri:ro;return[cx+Math.cos(a)*r,cy+Math.sin(a)*r]});
+const HEART=["..xxxx...",".xxxxxx..",".xxxxxxx.","xxxxxxxxx","xxxxxxxxx","xxxxxxxxx","xxxxxxxxx",".xxxxxxxx","..xxxxxxx","...xxxxxx","....xxxxx",".....xxxx","......xxx",".......xx","........x"];
+const heartShape=(g,c,cy=0)=>HEART.forEach((h,i)=>{const row=h+[...h.slice(0,-1)].reverse().join("");[...row].forEach((ch,x)=>{if(ch==="x")put(g,x,i+1+cy,c)})});
 
-/* kind, key, name, word, primary, secondary, motif */
+const MOT={
+flame(){const g=mk();D(g,8,10.5,5.6,"r");P(g,[[8,0],[13.4,9],[2.6,9]],"r");P(g,[[3.2,4.6],[5.6,9],[2.6,9.5]],"r");P(g,[[12.8,4.6],[10.4,9],[13.4,9.5]],"r");D(g,8,11.8,4,"o");P(g,[[8,4.6],[12.2,11.5],[3.8,11.5]],"o");D(g,8,12.8,2.4,"y");P(g,[[8,8.4],[10.8,13.5],[5.2,13.5]],"y");return g},
+compass(){const g=mk();ARC(g,8,8,7.4,0,359.9,1,"l");
+ P(g,[[8,0.6],[11.2,8],[4.8,8]],"r");P(g,[[8,0.6],[11.2,8],[8,8]],"R");
+ P(g,[[8,15.4],[11.2,8],[4.8,8]],"g");P(g,[[8,15.4],[11.2,8],[8,8]],"G");
+ P(g,[[15.4,8],[8,4.8],[8,11.2]],"g");P(g,[[15.4,8],[8,11.2],[8,8]],"G");
+ P(g,[[0.6,8],[8,4.8],[8,11.2]],"g");P(g,[[0.6,8],[8,11.2],[8,8]],"G");
+ D(g,8,8,1.4,"w");D(g,8,8,.6,"k");return g},
+loop(){const g=mk();ARC(g,8,8.4,6,75,322,2.2,"x");P(g,[[15.4,7.6],[14.4,0.8],[9.2,6.4]],"x");BV(g,"x","l","d");return g},
+fan(){const g=mk();[[-36,"e","b"],[0,"d","x"],[36,"e","b"]].forEach(([a,c,f],i)=>{ROT(g,8,16,6,13,a,"k");ROT(g,8,16,6,13,a,i===1?"h":"l",1);ROT(g,8,16,6,13,a,i===1?"x":f,2)});[[8,7],[7,8],[9,8],[8,9]].forEach(([x,y])=>put(g,x,y,"h"));return g},
+heart(){const g=mk();heartShape(g,"x");BV(g,"x","l","d");[[3,3],[4,3],[3,4],[2,5]].forEach(([x,y])=>put(g,x,y,"h"));return g},
+tractor(){const g=mk();R(g,2,7,8,11,"x");R(g,6,9,13,12,"x");R(g,8,2,13,9,"e");R(g,9,3,12,6,"l");R(g,7,1,14,2,"b");R(g,3,3,4,7,"g");R(g,3,2,4,2,"G");BV(g,"x","l","d");
+ D(g,11.4,11.4,4.8,"k");D(g,11.4,11.4,3.4,"d");D(g,11.4,11.4,1.6,"x");D(g,3.4,13.2,2.9,"k");D(g,3.4,13.2,1.8,"d");D(g,3.4,13.2,.8,"x");return g},
+ghost(){const g=mk();D(g,8,6.5,6,"h");R(g,2,6,14,13,"h");[4,8,12].forEach(x=>D(g,x,13,2,"h"));
+ R(g,5,5,6,8,"k");R(g,10,5,11,8,"k");put(g,5,5,"w");put(g,10,5,"w");R(g,7,10,9,12,"k");put(g,8,10,"R");put(g,4,9,"p");put(g,3,9,"p");put(g,12,9,"p");put(g,13,9,"p");D(g,1,9.5,1.3,"h");D(g,15,9.5,1.3,"h");BV(g,"h","h","l");return g},
+skull(){const g=mk();D(g,8,6.6,6.4,"h");R(g,4,10,12,15,"h");D(g,5.6,7.6,2.1,"k");D(g,10.4,7.6,2.1,"k");P(g,[[8,9.6],[9.4,11.8],[6.6,11.8]],"k");[6,8,10].forEach(x=>R(g,x,13,x,15,"k"));BV(g,"h","h","l");return g},
+anchor(){const g=mk();ARC(g,8,2.8,2.2,0,359.9,1.6,"x");R(g,7,5,9,14,"x");R(g,4,6,12,7,"x");ARC(g,8,9.4,6.6,10,170,1.9,"x");P(g,[[1.4,10.8],[0,7.2],[4.4,9.6]],"x");P(g,[[14.6,10.8],[16,7.2],[11.6,9.6]],"x");BV(g,"x","l","d");return g},
+saturn(){const g=mk(),a=-24*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a),q=(x,y)=>{const dx=x-8,dy=y-8,u=dx*ca+dy*sa,v=-dx*sa+dy*ca;return[u*u/70+v*v/8,v]};
+ each((x,y)=>{const[m,v]=q(x,y);if(m>=.6&&m<=1&&v<0)g[y][x]="e"});D(g,8,8,5.2,"x");E(g,6.4,6.4,2.2,1.5,"h",-35);each((x,y)=>{if(Math.hypot(x-8,y-8)<=5.2&&Math.hypot(x-5.6,y-5.6)>7)g[y][x]="d"});
+ each((x,y)=>{const[m,v]=q(x,y);if(m>=.6&&m<=1&&v>=0)g[y][x]="b"});return g},
+bolt(){const g=mk();P(g,[[10.4,0],[3,9.2],[7.4,9.2],[5.2,16],[13.6,6.4],[9,6.4]],"x");BV(g,"x","l","d");return g},
+grenade(){const g=mk();E(g,8,10.4,5,5.6,"x");[8,11,14].forEach(y=>each((x,yy)=>{if(yy===y&&g[yy][x]==="x")g[yy][x]="d"}));[5,8,11].forEach(x=>each((xx,y)=>{if(xx===x&&g[y][xx]==="x")g[y][xx]="d"}));
+ R(g,6,3,10,5,"g");R(g,7,2,9,2,"G");P(g,[[9,3],[14,3.4],[14.6,5.4],[10,5.2]],"g");ARC(g,3.8,2.6,2.2,0,359.9,1.2,"Y");L(g,6,3.4,5.8,2.8,"Y",1);D(g,6.2,8.4,1.2,"h");return g},
+target(){const g=mk();ARC(g,8,8,7.3,0,359.9,1.6,"x");ARC(g,8,8,4.2,0,359.9,1.5,"x");D(g,8,8,1.5,"b");R(g,8,0,8,2,"h");R(g,8,14,8,16,"h");R(g,0,8,2,8,"h");R(g,14,8,16,8,"h");return g},
+jumper(){const g=mk();L(g,9.2,7.2,8.2,11,"x",4);L(g,9,8,5,4.4,"x",2.2);D(g,4.4,3.8,1.4,"s");L(g,9.6,8,13.4,5.8,"x",2.2);D(g,14.2,5.2,1.4,"s");
+ L(g,8.5,11,5.5,13.4,"b",2.6);L(g,5.5,13.4,3.2,12.4,"b",2.6);D(g,2.6,12.2,1.5,"k");L(g,8.8,11,12,13,"b",2.6);L(g,12,13,13.2,15,"b",2.6);D(g,13.8,15.2,1.4,"k");
+ D(g,9.6,4.6,2.8,"s");P(g,[[6.6,4],[7,2],[10,1],[12.4,2.4],[12.6,4]],"b");R(g,11,3,15,4,"b");put(g,10.6,4.8,"k");return g},
+puzzle(){const g=mk();R(g,3,5,12,14,"x");D(g,7.5,3.4,2.7,"x");D(g,13.6,9.5,2.7,"x");D(g,2.2,9.5,2.5,".");D(g,7.5,14.8,2.5,".");BV(g,"x","l","d");return g},
+flag(){const g=mk();R(g,2,0,3,16,"g");R(g,3,0,3,16,"G");const wave=[0,1,1,0];for(let cx=0;cx<4;cx++)for(let cy=0;cy<3;cy++){const x0=5+cx*3,y0=1+cy*3+wave[cx];R(g,x0,y0,x0+2,y0+2,(cx+cy)%2?"k":"w")}return g},
+football(){const g=mk();D(g,8,8,7.6,"w");each((x,y)=>{if(Math.hypot(x-8,y-8)<=7.6&&Math.hypot(x-6,y-6)>8.8)g[y][x]="g"});
+ const pent=(cx,cy,r,rot)=>star(cx,cy,5,r,r*.809,rot).filter((_,i)=>i%2===0);P(g,pent(8,8,2.5,-90),"k");
+ for(let i=0;i<5;i++){const a=(-90+i*72)*Math.PI/180;L(g,8+Math.cos(a)*2.5,8+Math.sin(a)*2.5,8+Math.cos(a)*4.9,8+Math.sin(a)*4.9,"G",1);
+  const b=(-54+i*72)*Math.PI/180,bx=8+Math.cos(b)*7.1,by=8+Math.sin(b)*7.1;each((x,y)=>{if(Math.hypot(x-bx,y-by)<=1.9&&Math.hypot(x-8,y-8)<=7.6)g[y][x]="k"})}return g},
+knight(){const g=mk();P(g,[[1.4,8.6],[1.2,6.6],[4.4,3.4],[7,1.4],[8.4,0],[9.4,1.8],[12,3.8],[13.8,8],[14,12],[14.6,13],[3.2,13],[5.6,10.4],[6.2,8.8],[4.8,9.8],[3.2,10]],"x");
+ L(g,8.8,2.4,12.6,9.2,"d",2);L(g,9.8,2.4,13.4,8.8,"d",1.4);put(g,6.4,4.6,"k");put(g,2.4,7.4,"k");R(g,2,14,14,15,"l");R(g,1,16,15,16,"d");R(g,3,13,13,13,"x");BV(g,"x","l","d");return g},
+swordshield(){const g=mk();L(g,14.6,1.6,3.4,12.8,"w",2.2);L(g,14.2,2,3.8,12.4,"g",.8);L(g,1.6,10.8,5.4,14.6,"Y",2);L(g,3.4,12.6,1.2,14.8,"N",1.8);
+ P(g,[[3.4,2.6],[12.6,2.6],[12.6,8.4],[8,15.2],[3.4,8.4]],"l");P(g,[[4.4,3.6],[11.6,3.6],[11.6,8],[8,13.4],[4.4,8]],"x");R(g,7,4,9,12,"b");R(g,5,6,11,7,"b");return g},
+sword(){const g=mk();L(g,14.6,1.6,6.4,9.8,"h",3);L(g,14.2,1,6,9.2,"x",1.2);L(g,14,2.4,7,9.4,"l",1);L(g,4.4,7.4,8.8,11.8,"n",2.2);L(g,6.4,9.6,2.6,13.4,"N",2.4);D(g,1.8,14.2,1.4,"n");P(g,[[15,0.4],[15.6,2.6],[13.4,1]],"h");return g},
+city(){const g=mk();R(g,1,8,4,16,"d");R(g,12,6,15,16,"d");R(g,5,2,11,16,"x");L(g,8,0,8,2,"g",1);
+ [4,6,8,10,12,14].forEach(y=>{R(g,6,y,7,y,"y");R(g,9,y,10,y,(y%4)?"y":"b")});[10,12,14].forEach(y=>R(g,2,y,3,y,"y"));[8,10,12,14].forEach(y=>R(g,13,y,14,y,y%4?"y":"l"));BV(g,"x","l","d");return g},
+book(){const g=mk();P(g,[[0,4.4],[8,6.4],[16,4.4],[16,13.8],[8,15.8],[0,13.8]],"d");P(g,[[1.2,3.4],[8,5.2],[8,14],[1.2,12.2]],"h");P(g,[[14.8,3.4],[8,5.2],[8,14],[14.8,12.2]],"h");
+ [[2.4,6,6.6,7.2],[2.4,8,6.6,9.2],[2.4,10,6.2,11],[9.6,7.2,13.8,6],[9.6,9.2,13.8,8],[9.6,11,13.4,10]].forEach(([x0,y0,x1,y1])=>L(g,x0,y0,x1,y1,"l",1));R(g,7,14,8,16,"b");P(g,[[7,16],[7.5,15],[8,16]],".");return g},
+mouse(){const g=mk();E(g,8,9.6,5.2,6.6,"x");R(g,8,0,8,3,"g");R(g,7,4,8,6,"b");each((x,y)=>{if(g[y][x]==="x"&&y===7)g[y][x]="d";if(g[y][x]==="x"&&y<7&&x<7)g[y][x]="l"});each((x,y)=>{if(g[y][x]==="x"&&y<7&&x===8)g[y][x]="d"});return g},
+fedora(){const g=mk();E(g,8,12.2,7.8,2.4,"d");E(g,8,11,7.8,2.4,"x");P(g,[[4,10.6],[4.6,5],[6,3.4],[8,4.8],[10,3.4],[11.4,5],[12,10.6]],"x");R(g,4,8,12,9,"b");L(g,8,4.8,8,7.4,"d",1);BV(g,"x","l","d");return g},
+fighter(){const g=mk();D(g,9,3.4,2.4,"s");R(g,6,2,12,2,"b");L(g,8.8,5.6,8.2,10.6,"x",3.2);L(g,9,6.6,13,6.4,"x",1.8);D(g,14,6.2,1.7,"s");L(g,8.6,6.8,5,8,"x",1.8);D(g,3.8,7.6,1.7,"s");
+ L(g,8.2,10.4,12,13.4,"b",2.4);L(g,12,13.4,12.4,15.6,"b",2.4);R(g,11,15,14,16,"k");L(g,8,10.4,4.4,13,"b",2.4);L(g,4.4,13,3.6,15.6,"b",2.4);R(g,2,15,5,16,"k");return g},
+feather(){const g=mk(),a=219*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);each((x,y)=>{const dx=x-8.6,dy=y-7.6,u=dx*ca+dy*sa,v=-dx*sa+dy*ca;if(u*u/10.5+v*v/72<=1){g[y][x]=Math.abs(u)<.55?"h":((Math.round(v/1.3)+(u>0?1:0))&1?"x":"l")}});L(g,3.6,13.6,1.6,15.8,"h",1);return g},
+notes(){const g=mk();E(g,4.4,13,3.2,2.3,"x",-22);E(g,11.8,11.4,3.2,2.3,"x",-22);R(g,6,4,7,12,"x");R(g,13,2,14,10,"x");P(g,[[6,2.8],[14.4,0.6],[14.4,3.8],[6,6]],"x");BV(g,"x","l","d");return g},
+rifle(){const g=mk();R(g,12,5,16,5,"g");R(g,15,4,16,6,"g");R(g,12,4,12,4,"g");R(g,6,4,12,6,"G");[7,9,11].forEach(x=>put(g,x,5,"k"));R(g,3,4,6,6,"G");R(g,4,2,9,3,"g");put(g,4,1,"g");R(g,3,7,8,8,"G");
+ P(g,[[5.2,9],[7.6,9],[8.2,13.6],[5.8,13.8]],"G");P(g,[[3,9],[4.9,9],[4.2,12.8],[2.4,12.2]],"G");P(g,[[0,4],[3,4],[3,8],[0.6,9]],"G");R(g,1,5,3,6,"g");BV(g,"G","g","k");return g},
+fruit(){const f=mk();D(f,8,8,6.4,"x");D(f,8,8,5.3,"y");D(f,8,8,1,"w");for(let i=0;i<6;i++){const a=i*60*Math.PI/180;L(f,8,8,8+Math.cos(a)*5,8+Math.sin(a)*5,"o",1)}
+ const g=mk();L(g,2,14,14,2,"w",1);each((x,y)=>{const v=f[y][x];if(v===".")return;const zig=[0,1,0,-1][(((x-y)%4)+4)%4]*.5,s=x+y+zig-16,dx=s<0?-1:1;put(g,x+dx,y+dx,v)});return g},
+barrel(){const g=mk();R(g,3,3,13,15,"x");E(g,8,3,5,1.8,"l");E(g,8,15,5,1.2,"d");R(g,3,6,13,6,"d");R(g,3,13,13,13,"d");
+ D(g,8,9.6,3.3,"y");each((x,y)=>{const dx=x-8,dy=y-9.6,r=Math.hypot(dx,dy);if(r<=2.8&&r>=.9){const a=Math.atan2(dy,dx)*180/Math.PI;if([270,30,150].some(c=>angIn(a,c-30,c+30)))g[y][x]="k"}});D(g,8,9.6,.8,"k");
+ R(g,10,2,11,6,"m");D(g,10.5,7,1.2,"m");R(g,4,3,5,5,"m");put(g,4.5,6,"M");BV(g,"x","l","d");return g},
+tank(){const g=mk();R(g,1,11,15,15,"d");[1,15].forEach(x=>[11,15].forEach(y=>g[y][x]="."));[3,6,9,12].forEach(x=>{D(g,x+.5,13,1.5,"x");put(g,x+.5,13,"k")});
+ R(g,3,8,13,10,"x");P(g,[[5,8],[6.2,4.6],[10.4,4.6],[11.6,8]],"x");R(g,7,3,9,4,"d");R(g,11,5,15,6,"g");R(g,15,4,16,7,"G");BV(g,"x","l","d");return g},
+helmet(){const g=mk();P(g,[[2,6.4],[3,3],[8,1],[13,3],[14,6.4],[13,13],[10,16],[6,16],[3,13]],"x");R(g,4,7,12,8,"k");R(g,7,9,9,14,"d");[10,12,14].forEach(y=>put(g,8,y,"k"));R(g,7,0,9,3,"r");R(g,8,0,9,3,"R");BV(g,"x","l","d");return g},
+animeeye(){const g=mk();E(g,8,8.6,7.5,4.8,"h");D(g,8.4,8.6,4,"x");D(g,8.4,8.6,1.9,"k");D(g,6.6,6.8,1.2,"w");D(g,10.4,10.4,.7,"w");ARC(g,8,13.6,9,225,315,1.8,"k");L(g,14.8,6.6,16,5,"k",1.2);L(g,1.2,6.6,0,5,"k",1.2);
+ P(g,[[14,0],[14.8,1.6],[16,2],[14.8,2.4],[14,4],[13.2,2.4],[12,2],[13.2,1.6]],"y");return g},
+sandcastle(){const g=mk();R(g,1,10,15,15,"x");R(g,1,6,4,10,"x");R(g,12,6,15,10,"x");R(g,5,3,11,10,"x");[6,8,10].forEach(x=>put(g,x,3,"."));put(g,2,6,".");put(g,13,6,".");put(g,14,6,".");
+ R(g,7,12,9,15,"d");put(g,7,12,"x");put(g,9,12,"x");L(g,8,0,8,2,"g",1);P(g,[[8,0],[11.4,1],[8,2]],"r");[11,13].forEach(y=>{for(let x=2;x<=14;x+=3)put(g,x,y,"l")});BV(g,"x","l","d");return g},
+blocks(){const g=mk();[[6,1],[3.5,6],[8.5,6],[1,11],[6,11],[11,11]].forEach(([x,y])=>{x=Math.round(x);R(g,x,y,x+3,y+3,"x");R(g,x,y,x+3,y,"h");R(g,x,y,x,y+3,"h");R(g,x+3,y,x+3,y+3,"d");R(g,x,y+3,x+3,y+3,"d")});R(g,7,2,8,2,"b");return g},
+magnifier(){const g=mk();L(g,10.2,10.2,14.6,14.6,"n",3);ARC(g,6.4,6.4,5.2,0,359.9,1.8,"x");D(g,6.4,6.4,4.2,"l");ARC(g,6.4,6.4,2.8,200,260,1.2,"w");return g},
+gear(){const g=mk();each((x,y)=>{const dx=x-8,dy=y-8,r=Math.hypot(dx,dy),t=Math.atan2(dy,dx);if(r<=6.2||(r<=7.9&&Math.cos(8*t)>=.35))g[y][x]="x";if(r<=2.4)g[y][x]=".";else if(r<=3.4&&g[y][x]==="x")g[y][x]="d"});BV(g,"x","l","d");return g},
+haha(){const g=mk();P(g,star(8,8,10,8,6.4),"y");const H=["x.x","x.x","xxx","x.x","x.x"],A=[".x.","x.x","xxx","x.x","x.x"];[3,9].forEach(y0=>{[H,A].forEach((gl,i)=>gl.forEach((row,r)=>[...row].forEach((ch,c)=>{if(ch==="x")put(g,5+i*4+c,y0+r,"k")})))});return g},
+earth(){const g=mk();D(g,8,8,7.6,"x");const land=[[4.6,5,2.4],[5.4,8,1.8],[6.4,11.6,1.8],[11,6,2],[11.4,9.8,2.1],[13,3.6,1.5]];land.forEach(([cx,cy,r])=>each((x,y)=>{if(Math.hypot(x-cx,y-cy)<=r&&Math.hypot(x-8,y-8)<=7.2)g[y][x]="m"}));
+ each((x,y)=>{if(Math.hypot(x-8,y-8)<=7.6){if(Math.hypot(x-5.2,y-5.2)>9.4)g[y][x]=g[y][x]==="m"?"M":"d"}});D(g,4.6,4.4,1,"h");return g},
+zzz(){const g=mk(),Z=(x0,y0,s,t,c)=>{R(g,x0,y0,x0+s,y0+t-1,c);R(g,x0,y0+s-t+1,x0+s,y0+s,c);L(g,x0+s,y0,x0,y0+s,c,t+.4)};Z(1,11,4,1,"d");Z(5,6,5,2,"x");Z(10,0,6,2,"h");return g},
+walker(){const g=mk();R(g,5,5,6,10,"e");D(g,9,2.8,2.4,"s");L(g,8.8,5.4,8.2,10.4,"x",3.2);L(g,9,6.4,11.8,9.4,"x",1.8);L(g,8.6,6.4,6,9.2,"x",1.8);L(g,8.2,10.2,5.4,15.2,"b",2.4);L(g,8.4,10.2,11.6,15.2,"b",2.4);R(g,3,15,6,16,"k");R(g,10,15,13,16,"k");L(g,13,8,14.6,16,"n",1);return g},
+goggles(){const g=mk();R(g,1,4,15,12,"x");[[1,4],[15,4],[1,12],[15,12]].forEach(([x,y])=>g[y][x]=".");D(g,8,12.6,1.9,".");D(g,4.8,8,2.6,"k");D(g,11.2,8,2.6,"k");put(g,4,7,"l");put(g,10,7,"l");R(g,3,5,13,5,"l");R(g,6,1,10,2,"d");R(g,7,3,9,3,"d");R(g,0,6,0,10,"d");R(g,16,6,16,10,"d");BV(g,"x","l","d");return g},
+cross(){const g=mk();L(g,2,2,14,14,"x",3.8);L(g,14,2,2,14,"x",3.8);BV(g,"x","l","d");return g},
+crown(){const g=mk();P(g,[[2,10.5],[0.8,3.2],[5,7],[8,1.6],[11,7],[15.2,3.2],[14,10.5]],"x");R(g,2,11,14,14,"x");D(g,8,12.6,1.1,"r");D(g,4.6,12.6,.8,"b");D(g,11.4,12.6,.8,"b");D(g,0.8,3,1.1,"h");D(g,8,1.2,1.2,"h");D(g,15.2,3,1.1,"h");BV(g,"x","l","d");return g},
+ruby(){const g=mk();P(g,[[3,1.2],[13,1.2],[16,6],[0,6]],"r");P(g,[[5.6,1.2],[10.4,1.2],[11.6,6],[4.4,6]],"p");P(g,[[3,1.2],[5.6,1.2],[4.4,6],[0,6]],"r");P(g,[[13,1.2],[10.4,1.2],[11.6,6],[16,6]],"R");
+ P(g,[[0,6.6],[16,6.6],[8,15.8]],"R");P(g,[[0,6.6],[4.8,6.6],[8,15.8]],"r");P(g,[[4.8,6.6],[8,6.6],[8,15.8]],"p");P(g,[[8,6.6],[11.2,6.6],[8,15.8]],"r");put(g,6,3,"w");put(g,7,3,"w");put(g,7,4,"w");return g},
+cracked(){const f=mk();heartShape(f,"x");BV(f,"x","l","d");[[3,3],[4,3],[3,4],[2,5]].forEach(([x,y])=>{if(f[y][x]!==".")f[y][x]="h"});const g=mk();L(g,2,14,14,2,"k",1);each((x,y)=>{const v=f[y][x];if(v===".")return;const zig=[0,1,0,-1][(((x-y)%4)+4)%4]*.5,s=x+y+zig-16,dx=s<0?-1:1;put(g,x+dx,y+dx,v)});return g},
+burst(){const g=mk();for(let k=0;k<8;k++){const a=k*Math.PI/4,len=k%2?5.6:7.9,ca=Math.cos(a),sa=Math.sin(a);each((x,y)=>{const dx=x-8,dy=y-8,s=dx*ca+dy*sa,p=Math.abs(-dx*sa+dy*ca);if(s>=2.6&&s<=len&&p<=1.4*(1-(s-2.6)/(len-2.6))+.5)g[y][x]="x"})}
+ D(g,8,8,3,"h");[22.5,67.5,112.5,157.5,202.5,247.5,292.5,337.5].forEach(d=>{const a=d*Math.PI/180;put(g,8+Math.cos(a)*5,8+Math.sin(a)*5,"b")});BV(g,"x","l","d");return g}
+};
+const G={};for(const k in MOT)G[k]=MOT[k]().map(r=>r.join(""));
+
+/* kind, key, name, word, primary, secondary, motif, motif label, status, author's request */
 const SETS=[
-["theme","souls_like","Souls-like","SOULS","#8f98a0","#ffc49a","flame"],
-["theme","metroidvania","Metroidvania","EXPLORE","#2a6f9a","#9affe0","compass"],
-["theme","roguelike","Roguelike","ROGUE","#b47cff","#ead9ff","cube"],
-["theme","deckbuilder","Deckbuilder","DECK","#66c0f4","#fff09a","cards"],
-["theme","cosy","Cosy","COSY","#ffc49a","#fff3c4","heart"],
-["theme","farming","Farming","FARM","#a4d007","#fff09a","leaf"],
-["theme","horror","Horror","HORROR","#d6403a","#ffb39a","eye"],
-["theme","zombies","Zombies","ZOMBIES","#7aa60a","#d8ff9a","skull"],
-["theme","pirates","Pirates","PIRATES","#2a6f9a","#fff3c4","anchor"],
-["theme","space","Space","SPACE","#b47cff","#9ac8ff","orbit"],
-["theme","cyberpunk","Cyberpunk","CYBER","#ff9ad5","#9affe0","bolt"],
-["theme","fps","FPS","FPS","#e8833a","#fff09a","target"],
-["theme","third_person_shooter","Third-person shooter","SHOOTER","#c4945e","#fff09a","target"],
-["theme","platformer","Platformer","JUMP","#3fcf8e","#fff09a","stairs"],
-["theme","puzzle","Puzzle","PUZZLE","#9ac8ff","#fff09a","gear"],
-["theme","racing","Racing","RACING","#d6403a","#fff09a","bolt"],
-["theme","sports","Sports","SPORTS","#3fcf8e","#e6eef5","ball"],
-["theme","strategy","Strategy","STRATEGY","#2a6f9a","#b5e2ff","pawn"],
-["theme","rpg","RPG","RPG","#b47cff","#fff3c4","blade"],
-["theme","survival","Survival","SURVIVAL","#c4945e","#ffc49a","flame"],
-["theme","city_builder","City builder","CITY","#8f98a0","#b5e2ff","cube"],
-["theme","visual_novel","Visual novel","NOVEL","#ff9ad5","#fff3c4","heart"],
-["theme","point_and_click","Point and click","CLICK","#9ac8ff","#e6eef5","compass"],
-["theme","adventure","Adventure","ADVENTURE","#3fcf8e","#fff3c4","compass"],
-["theme","fighting","Fighting","FIGHT","#d6403a","#fff3c4","blade"],
-["theme","stealth","Stealth","STEALTH","#c9a6ff","#9affe0","eye"],
-["theme","rhythm","Rhythm","RHYTHM","#ff9ad5","#9ac8ff","note"],
-["theme","shoot_em_up","Shoot 'em up","SHMUP","#e8833a","#fff09a","bolt"],
-["theme","hack_and_slash","Hack and slash","SLASH","#d6403a","#ffc49a","blade"],
-["theme","post_apocalyptic","Post-apocalyptic","WASTELAND","#c4945e","#d8ff9a","skull"],
-["theme","war","War","WAR","#8f98a0","#ffb39a","target"],
-["theme","medieval","Medieval","MEDIEVAL","#bcc8d4","#fff3c4","blade"],
-["theme","anime","Anime","ANIME","#ff9ad5","#fff09a","heart"],
-["theme","sandbox","Sandbox","SANDBOX","#ffc49a","#9ac8ff","cube"],
-["theme","tower_defense","Tower defense","TOWER","#3fcf8e","#fff09a","pawn"],
-["theme","mystery","Mystery","MYSTERY","#b47cff","#fff09a","eye"],
-["theme","simulation","Simulation","SIM","#66c0f4","#fff09a","gear"],
-["theme","comedy","Comedy","COMEDY","#fff09a","#ffb39a","heart"],
-["theme","open_world","Open world","OPEN","#9affe0","#fff3c4","compass"],
-["theme","idle","Idle","IDLE","#bcc8d4","#9ac8ff","cards"],
-["theme","walking_simulator","Walking simulator","WALK","#a4d007","#fff3c4","leaf"],
-["theme","vr","VR","VR","#66c0f4","#ead9ff","orbit"],
-["theme","adult","Adult (not in the ticket's 42)","ADULT","#ff9ad5","#ffb39a","heart"],
-["hall_of_fame","intouchables","Intouchables","ELITE","#f4c542","#fff3c4","crown"],
-["hall_of_fame","pepites","Hidden gems","PEPITES","#3fcf8e","#b2f7d4","gem"],
-["hall_of_fame","mal-aimes","Disliked","MALAIMES","#d6403a","#ffb39a","cracked"],
-["hall_of_fame","phenomenes","Phenomena","PHENOMENE","#b47cff","#ead9ff","burst"]
+["theme","souls_like","Souls-like","SOULS","#e8833a","#fff09a","flame","classic fire","corrected","classic fire colours"],
+["theme","metroidvania","Metroidvania","EXPLORE","#2a6f9a","#9affe0","compass","compass, north in red","corrected","a better compass, north clearly red, the 3 others grey"],
+["theme","roguelike","Roguelike","ROGUE","#b47cff","#ead9ff","loop","looping arrow","corrected","an arrow showing we start again and again"],
+["theme","deckbuilder","Deckbuilder","DECK","#66c0f4","#fff09a","fan","fanned cards","corrected","cards fanned out"],
+["theme","cosy","Cosy","COSY","#ffc49a","#fff3c4","heart","heart, centred","corrected","ok, the heart better centred"],
+["theme","farming","Farming","FARM","#a4d007","#fff09a","tractor","tractor","corrected","a tractor"],
+["theme","horror","Horror","HORROR","#d6403a","#ffb39a","ghost","cartoon ghost","corrected","a cartoonish ghost"],
+["theme","zombies","Zombies","ZOMBIES","#7aa60a","#d8ff9a","skull","skull, centred","corrected","ok, better centred"],
+["theme","pirates","Pirates","PIRATES","#2a6f9a","#fff3c4","anchor","anchor","approved","OK"],
+["theme","space","Space","SPACE","#b47cff","#9ac8ff","saturn","Saturn","corrected","a more recognisable Saturn"],
+["theme","cyberpunk","Cyberpunk","CYBER","#ff9ad5","#9affe0","bolt","bolt, centred","corrected","ok, better centred"],
+["theme","fps","FPS","FPS","#e8833a","#fff09a","grenade","grenade","corrected","a grenade"],
+["theme","third_person_shooter","Third-person shooter","SHOOTER","#c4945e","#fff09a","target","target","approved","ok"],
+["theme","platformer","Platformer","JUMP","#3fcf8e","#fff09a","jumper","jumping character","corrected","a cartoon character jumping"],
+["theme","puzzle","Puzzle","PUZZLE","#9ac8ff","#fff09a","puzzle","puzzle piece","corrected","a puzzle piece"],
+["theme","racing","Racing","RACING","#d6403a","#fff09a","flag","chequered flag","corrected","a chequered flag"],
+["theme","sports","Sports","SPORTS","#3fcf8e","#e6eef5","football","football","corrected","a football"],
+["theme","strategy","Strategy","STRATEGY","#2a6f9a","#b5e2ff","knight","chess knight","corrected","a chess knight"],
+["theme","rpg","RPG","RPG","#b47cff","#fff3c4","swordshield","sword and shield","corrected","sword and shield"],
+["theme","survival","Survival","SURVIVAL","#c4945e","#ffc49a","sword","pixel sword","corrected","a Minecraft-style sword"],
+["theme","city_builder","City builder","CITY","#8f98a0","#b5e2ff","city","buildings","corrected","a building"],
+["theme","visual_novel","Visual novel","NOVEL","#ff9ad5","#fff3c4","book","open book","corrected","a book"],
+["theme","point_and_click","Point and click","CLICK","#9ac8ff","#e6eef5","mouse","mouse","corrected","a mouse"],
+["theme","adventure","Adventure","ADVENTURE","#3fcf8e","#fff3c4","fedora","fedora","corrected","an Indiana Jones hat"],
+["theme","fighting","Fighting","FIGHT","#d6403a","#fff3c4","fighter","fighting stance","corrected","a character in fighting stance"],
+["theme","stealth","Stealth","STEALTH","#c9a6ff","#9affe0","feather","feather","corrected","a feather"],
+["theme","rhythm","Rhythm","RHYTHM","#ff9ad5","#9ac8ff","notes","beamed notes","corrected","ok, better made"],
+["theme","shoot_em_up","Shoot 'em up","BULLETS","#e8833a","#fff09a","rifle","M4-style rifle","corrected","change the word, a weapon like an M4 (new word BULLETS)"],
+["theme","hack_and_slash","Hack and slash","SLASH","#d6403a","#ffc49a","fruit","sliced fruit","corrected","an object cut in two, Fruit Ninja style"],
+["theme","post_apocalyptic","Post-apocalyptic","WASTELAND","#c4945e","#d8ff9a","barrel","toxic barrel","corrected","a toxic barrel"],
+["theme","war","War","WAR","#8f98a0","#ffb39a","tank","tank","corrected","a tank"],
+["theme","medieval","Medieval","MEDIEVAL","#bcc8d4","#fff3c4","helmet","knight helmet","corrected","a knight's helmet"],
+["theme","anime","Anime","ANIME","#ff9ad5","#fff09a","animeeye","big eye with sparkle","corrected","something other than a heart"],
+["theme","sandbox","Sandbox","SANDBOX","#ffc49a","#9ac8ff","sandcastle","sandcastle","corrected","a sandcastle"],
+["theme","tower_defense","Tower defense","TOWER","#3fcf8e","#fff09a","blocks","stacked blocks","corrected","stacked blocks"],
+["theme","mystery","Mystery","MYSTERY","#b47cff","#fff09a","magnifier","magnifying glass","corrected","a magnifying glass"],
+["theme","simulation","Simulation","SIM","#66c0f4","#fff09a","gear","gear, finer","re-proposed","not validated yet"],
+["theme","comedy","Comedy","COMEDY","#fff09a","#ffb39a","haha","HA HA burst","corrected","a comics-style HA HA"],
+["theme","open_world","Open world","OPEN","#66c0f4","#3fcf8e","earth","planet Earth","corrected","planet Earth"],
+["theme","idle","Idle","IDLE","#bcc8d4","#9ac8ff","zzz","zzz","corrected","zzz"],
+["theme","walking_simulator","Walking simulator","WALK","#a4d007","#fff3c4","walker","walking character","corrected","a walking character"],
+["theme","vr","VR","VR","#66c0f4","#ead9ff","goggles","VR goggles","corrected","VR goggles"],
+["theme","adult","Adult (the 43rd theme)","ADULT","#ff9ad5","#ffb39a","cross","X","corrected","an X"],
+["hall_of_fame","intouchables","Intouchables","ELITE","#f4c542","#fff3c4","crown","crown, finer","re-proposed","not validated yet"],
+["hall_of_fame","pepites","Hidden gems","PEPITES","#3fcf8e","#b2f7d4","ruby","faceted ruby","corrected","a ruby like the Ruby logo"],
+["hall_of_fame","mal-aimes","Disliked","MALAIMES","#d6403a","#ffb39a","cracked","heart cut on the diagonal","corrected","a heart cut on the diagonal, more detailed"],
+["hall_of_fame","phenomenes","Phenomena","PHENOMENE","#b47cff","#ead9ff","burst","radiant burst, finer","re-proposed","not validated yet"]
 ];
 const KIND_LABEL={theme:"Themes",hall_of_fame:"Hall of fame"};
+const FIX={r:"#d6403a",R:"#8e2420",o:"#e8833a",y:"#fff09a",Y:"#f4c542",w:"#e6eef5",g:"#8f98a0",G:"#4a5560",n:"#c4945e",N:"#7a5530",s:"#ffc49a",m:"#3fcf8e",M:"#1f7f55",u:"#66c0f4",U:"#2a6f9a",p:"#ff9ad5",v:"#b47cff",k:"#10161e"};
+let GUIDES=/[?&]guides=1/.test(location.search);
+const CANVASES=[];
 
+/* bounding box of the filled cells, and the largest whole-pixel scale that keeps the motif inside the ring */
+function layout(grid,Rr){
+  let minx=99,maxx=-1,miny=99,maxy=-1;
+  grid.forEach((row,y)=>[...row].forEach((ch,x)=>{if(ch!=="."){minx=Math.min(minx,x);maxx=Math.max(maxx,x);miny=Math.min(miny,y);maxy=Math.max(maxy,y)}}));
+  const cx=(minx+maxx+1)/2,cy=(miny+maxy+1)/2;let far=0;
+  grid.forEach((row,y)=>[...row].forEach((ch,x)=>{if(ch!==".")far=Math.max(far,Math.hypot(Math.abs(x+.5-cx)+.5,Math.abs(y+.5-cy)+.5))}));
+  return {minx,maxx,miny,maxy,k:Math.max(1,Math.floor((Rr-1)/far))};
+}
 function drawBack(cv,w,h,s){
   cv.width=w;cv.height=h;
   const c=cv.getContext("2d");
   const F=(x,y,ww,hh,col)=>{c.fillStyle=col;c.fillRect(x,y,ww,hh)};
   const P=(x,y,col)=>F(Math.round(x),Math.round(y),1,1,col);
   const [kind,,,word,A,B,motif]=s;
-  const hof=kind==="hall_of_fame",b=5,cx=(w-1)/2,cy=(h-1)/2;
+  const hof=kind==="hall_of_fame",b=5,Rr=w*.3;
+  const grid=G[motif],lay=layout(grid,Rr),k=lay.k;
+  const Wp=(lay.maxx-lay.minx+1)*k,Hp=(lay.maxy-lay.miny+1)*k;
+  const gxL=Math.round(w/2-Wp/2),gyT=Math.round(h/2-h*.04-Hp/2);
+  const cx=gxL+Wp/2-.5,sy=gyT+Hp/2-.5;
   const o=mixc(A,GROUND,.55),hi=mixc(A,"#ffffff",hof?.35:.1),lo=mixc(A,GROUND,.85),band=mixc(A,GROUND,.72),well=mixc(A,GROUND,.92);
   F(0,0,w,h,o);F(0,0,w,1,hi);F(0,0,1,h,hi);F(0,h-1,w,1,lo);F(w-1,0,1,h,lo);
   F(1,1,w-2,h-2,band);F(2,2,w-4,h-4,well);
@@ -207,30 +309,37 @@ function drawBack(cv,w,h,s){
   inner(line);
   if(hof){const bb=b+2;F(bb,bb,w-2*bb,1,A);F(bb,h-bb-1,w-2*bb,1,A);F(bb,bb,1,h-2*bb,A);F(w-bb-1,bb,1,h-2*bb,A)}
   const L=Math.max(4,Math.round(w*.08)),q=b+2+(hof?2:0);
-  for(const [x,y,sx,sy] of [[q,q,1,1],[w-q-1,q,-1,1],[q,h-q-1,1,-1],[w-q-1,h-q-1,-1,-1]])for(let i=0;i<L;i++){P(x+i*sx,y,B);P(x,y+i*sy,B)}
-  const sy=cy-h*.04,Rr=w*.3;
+  for(const [x,y,sx,sy2] of [[q,q,1,1],[w-q-1,q,-1,1],[q,h-q-1,1,-1],[w-q-1,h-q-1,-1,-1]])for(let i=0;i<L;i++){P(x+i*sx,y,B);P(x,y+i*sy2,B)}
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){const d=Math.hypot(x-cx,y-sy);
     if(d<Rr-1.2)P(x,y,mixc(mixc(A,GROUND,.8),GROUND,d/Rr*.6));
     else if(Math.abs(d-Rr)<.62)P(x,y,A);
     else if(Math.abs(d-(Rr+5))<.5&&((x+y)&1))P(x,y,o)}
   for(let i=0;i<32;i++){const a=i/32*Math.PI*2,bg=i%8===0,r0=Rr+2,r1=Rr+(bg?4.2:3);for(let r=r0;r<=r1;r+=.5)P(cx+Math.cos(a)*r,sy+Math.sin(a)*r,bg?B:mixc(A,GROUND,.45))}
-  const k=Math.max(2,Math.round(w/22)),g=G[motif],gx=Math.round(cx-(9*k-1)/2),gy=Math.round(sy-(9*k-1)/2),light=mixc(A,"#ffffff",.55);
-  const cellsOf=ch=>ch==="x"?A:ch==="l"?light:null;
-  g.forEach((row,r)=>[...row].forEach((ch,col)=>{if(cellsOf(ch))F(gx+col*k+1,gy+r*k+1,k,k,OUT)}));
-  g.forEach((row,r)=>[...row].forEach((ch,col)=>{const col2=cellsOf(ch);if(col2)F(gx+col*k,gy+r*k,k,k,col2)}));
+  const PAL={...FIX,x:A,d:mixc(A,GROUND,.45),l:mixc(A,"#ffffff",.35),h:mixc(A,"#ffffff",.7),b:B,e:mixc(B,GROUND,.45)};
+  const mask=new Uint8Array(w*h),col=new Array(w*h);
+  grid.forEach((row,gy)=>[...row].forEach((ch,gx)=>{
+    if(ch==="."||!PAL[ch])return;
+    const px=gxL+(gx-lay.minx)*k,py=gyT+(gy-lay.miny)*k;
+    for(let j=0;j<k;j++)for(let i=0;i<k;i++){const X=px+i,Y=py+j;if(X>=0&&Y>=0&&X<w&&Y<h){mask[Y*w+X]=1;col[Y*w+X]=PAL[ch]}}
+  }));
+  const on=(X,Y)=>X>=0&&Y>=0&&X<w&&Y<h&&mask[Y*w+X];
+  for(let Y=0;Y<h;Y++)for(let X=0;X<w;X++)if(!mask[Y*w+X]&&(on(X-1,Y)||on(X+1,Y)||on(X,Y-1)||on(X,Y+1)))F(X,Y,1,1,OUT);
+  for(let Y=0;Y<h;Y++)for(let X=0;X<w;X++)if(mask[Y*w+X])F(X,Y,1,1,col[Y*w+X]);
   if(ptw(word)<=w-16){const tx=Math.round((w-ptw(word))/2),ty=h-b-12;drawWord(c,word,tx,ty+1,OUT);drawWord(c,word,tx,ty,B)}
   for(let x=b+4;x<w-b-4;x+=3)P(x,h-b-16,line);
+  if(GUIDES){c.fillStyle="rgba(255,0,255,.7)";c.fillRect(cx+.5-.5,sy+.5-Rr-3,1,2*Rr+6);c.fillRect(cx+.5-Rr-3,sy+.5-.5,2*Rr+6,1)}
 }
 function drawWord(c,str,x,y,col){c.fillStyle=col;let cx=x;for(const ch of str){const gl=FONT[ch]||FONT[" "];for(let r=0;r<7;r++){const row=B32.indexOf(gl[r]||"0");for(let q=0;q<5;q++)if(row&(1<<(4-q)))c.fillRect(cx+q,y+r,1,1)}cx+=6}}
 function fitsAt(word){return Object.entries(SIZES).map(([n,[w]])=>ptw(word)<=w-16?n:null)}
 
-function canvasOf(s,size,scale){const [w,h]=SIZES[size],cv=document.createElement("canvas");drawBack(cv,w,h,s);cv.style.width=w*scale+"px";cv.style.height=h*scale+"px";return cv}
+function canvasOf(s,size,scale){const [w,h]=SIZES[size],cv=document.createElement("canvas");drawBack(cv,w,h,s);cv.style.width=w*scale+"px";cv.style.height=h*scale+"px";CANVASES.push([cv,s,w,h]);return cv}
+function redrawAll(){CANVASES.forEach(([cv,s,w,h])=>drawBack(cv,w,h,s))}
 
-/* anatomy legend: the standard anatomy annotated */
-(function(){const cv=document.getElementById("legend"),s=SETS[3];drawBack(cv,80,120,s);cv.style.width="160px";cv.style.height="240px"})();
+/* anatomy legend: the deckbuilder back at size m */
+(function(){const cv=document.getElementById("legend");drawBack(cv,80,120,SETS[3]);cv.style.width="160px";cv.style.height="240px";CANVASES.push([cv,SETS[3],80,120])})();
 
 /* rows */
-const KEY="set-backs-approval-v1";let S={};
+const KEY="set-backs-approval-v2";let S={};
 try{S=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){S={}}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const id=s=>s[0]+"/"+s[1];
@@ -242,27 +351,31 @@ document.getElementById("dlgClose").addEventListener("click",()=>dlg.close());
 function openDlg(s){
   document.getElementById("dlgTitle").textContent=s[0]+" / "+s[1]+" - "+s[3];
   const body=document.getElementById("dlgBody");body.innerHTML="";
-  body.appendChild(canvasOf(s,"l",4));
+  body.appendChild(canvasOf(s,"xl",4));
   const row=el("div","sizes");
-  for(const n of Object.keys(SIZES)){const f=el("figure");f.style.margin=0;f.appendChild(canvasOf(s,n,2));f.appendChild(el("figcaption",null,n+" "+SIZES[n].join(" x ")));row.appendChild(f)}
+  for(const n of Object.keys(SIZES)){const f=el("figure");f.style.margin=0;f.appendChild(canvasOf(s,n,3));f.appendChild(el("figcaption",null,n+" "+SIZES[n].join(" x ")));row.appendChild(f)}
   body.appendChild(row);dlg.showModal();
 }
+function cellScales(motif){return Object.entries(SIZES).map(([n,[w]])=>n+" "+layout(G[motif],w*.3).k).join(", ")}
 function buildRow(s){
-  const [kind,key,name,word,A,B,motif]=s,i=id(s),r=ratio(B,fieldOf(A)),fit=fitsAt(word);
-  const row=el("article","row");
-  const back=el("div","backcol"),cv=canvasOf(s,"m",2);cv.setAttribute("role","img");cv.setAttribute("aria-label","Proposed back for "+key+", word "+word);
+  const [kind,key,name,word,A,B,motif,label,status,ask]=s,i=id(s),r=ratio(B,fieldOf(A)),fit=fitsAt(word);
+  const row=el("article","row");row.id="r-"+key;
+  const back=el("div","backcol"),cv=canvasOf(s,"m",3);cv.setAttribute("role","img");cv.setAttribute("aria-label","Proposed back for "+key+", word "+word+", motif "+label);
   back.appendChild(cv);
   const info=el("div");
   info.appendChild(el("h3",null,word));
   info.appendChild(el("div","meta",kind+" / "+key+" - "+name));
   const dl=el("dl","fields");
+  dl.appendChild(field("Status",el("span","st-"+status,status==="approved"?"approved (finer pixels only)":status==="re-proposed"?"re-proposed, finer":"corrected per author")));
+  dl.appendChild(field("Your request",ask));
   dl.appendChild(field("Word",word+" ("+word.length+" letters)"));
+  dl.appendChild(field("Motif",label));
   const col=el("span");col.appendChild(swatch(A));col.appendChild(document.createTextNode("  "));col.appendChild(swatch(B));
   dl.appendChild(field("Colours (frame / word)",col));
-  dl.appendChild(field("Motif",motif));
+  dl.appendChild(field("Contrast",el("span",r<4.5?"bad":"ok",r.toFixed(1)+":1")));
   const shown=el("span","fit");Object.keys(SIZES).forEach((n,k)=>{const t=el(fit[k]?"span":"s",fit[k]?null:"muted",n);shown.appendChild(t);shown.appendChild(document.createTextNode(" "))});
   dl.appendChild(field("Word shown at",shown));
-  dl.appendChild(field("Contrast",el("span",r<4.5?"bad":"ok",r.toFixed(1)+":1")));
+  dl.appendChild(field("Pixels per cell",cellScales(motif)));
   info.appendChild(dl);
   const act=el("div","act"),lab=el("label","okbox"),cb=el("input");cb.type="checkbox";cb.setAttribute("aria-label","OK "+key);
   lab.appendChild(cb);lab.appendChild(document.createTextNode("OK"));
@@ -282,6 +395,9 @@ for(const kind of ["theme","hall_of_fame"]){
   list.forEach(s=>{const r=buildRow(s);rows.push(r);wrap.appendChild(r.el)});
   sectionsEl.appendChild(wrap);wraps.push([wrap,list]);
 }
+/* overview: every back at a glance, a click jumps to its row */
+const sheet=document.getElementById("sheet"),OV=/[?&]big=1/.test(location.search)?3:2;
+SETS.forEach(s=>{const a=el("a","tile");a.href="#r-"+s[1];a.title=s[3]+" - "+s[7];a.appendChild(canvasOf(s,"m",OV));sheet.appendChild(a)});
 const filterEl=document.getElementById("filter");
 function render(){
   let ok=0;const lines=[],mode=filterEl.value;
@@ -297,6 +413,7 @@ function render(){
   document.getElementById("count").textContent=ok+" / "+SETS.length+" approved";
 }
 filterEl.addEventListener("change",render);
+const gd=document.getElementById("guides");gd.checked=GUIDES;gd.addEventListener("change",()=>{GUIDES=gd.checked;redrawAll()});
 document.getElementById("copy").addEventListener("click",async()=>{const o=document.getElementById("out");let ok=false;try{await navigator.clipboard.writeText(o.value);ok=true}catch(e){try{o.select();ok=document.execCommand("copy")}catch(e2){}}document.getElementById("status").textContent=ok?"Copied.":"Copy failed: open the preview and select the text by hand."});
 document.getElementById("reset").addEventListener("click",()=>{if(!confirm("Clear all approvals and corrections?"))return;S={};save();rows.forEach(r=>{r.cb.checked=false;r.tx.value=""});render()});
 render();
