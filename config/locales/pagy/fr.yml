@@ -1,13 +1,16 @@
----
+# Pagy's dictionary in French, in the Brotherhood's voice, read by
+# Pagy::I18n only (config/initializers/pagy.rb): its plural rule, then the
+# words of the page links. Kept apart from fr.yml, which Pagy would
+# otherwise load whole.
 fr:
   pagy:
+    p11n: "OneUptoTwoOther"
     aria_label:
       nav:
-        one: L'étagère
-        other: Les étagères
-      next: L'étagère suivante
-      previous: L'étagère précédente
-    gap: "&hellip;"
-    next: "&gt;"
-    p11n: OneUptoTwoOther
+        one: "L'étagère"
+        other: "Les étagères"
+      previous: "L'étagère précédente"
+      next: "L'étagère suivante"
     previous: "&lt;"
+    next: "&gt;"
+    gap: "&hellip;"
