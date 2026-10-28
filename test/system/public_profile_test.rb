@@ -1,5 +1,6 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
+require_relative "../support/active_titles"
 require_relative "../support/steam_api_stubs"
 require_relative "../support/steam_sign_in"
 
@@ -10,6 +11,7 @@ require_relative "../support/steam_sign_in"
 # components, read-only).
 class PublicProfileTest < ApplicationSystemTestCase
   include CatalogSeeds
+  include ActiveTitles
   include SteamApiStubs
   include SteamSignIn
 
@@ -84,5 +86,15 @@ class PublicProfileTest < ApplicationSystemTestCase
 
     assert_selector "h1", text: /\AProfil indisponible\z/i
     assert_no_selector ".collection-sets"
+  end
+
+  test "a visitor sees the title the owner wears beside their name, in English and in French" do
+    earn_title(@player)
+
+    visit brother_path(locale: :en, token: @player.token)
+    assert_selector ".profile-band .profile-title", text: ACTIVE_TITLE_TEXT
+
+    visit brother_path(locale: :fr, token: @player.token)
+    assert_selector ".profile-band .profile-title", text: "Adepte · Valve"
   end
 end

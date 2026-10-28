@@ -1,5 +1,6 @@
 require "application_system_test_case"
 require_relative "../support/game_packs"
+require_relative "../support/active_titles"
 require_relative "../support/steam_sign_in"
 
 # The activity feed's frame: as wide as the hub on a desktop, signed in, the
@@ -10,6 +11,7 @@ require_relative "../support/steam_sign_in"
 # for a visitor.
 class FeedTest < ApplicationSystemTestCase
   include GamePacks
+  include ActiveTitles
   include SteamSignIn
 
   PHONE = [ 390, 844 ].freeze
@@ -215,4 +217,11 @@ class FeedTest < ApplicationSystemTestCase
     def width_of(selector)
       page.evaluate_script("document.querySelector(#{selector.to_json}).getBoundingClientRect().width")
     end
+
+  test "a feed line shows the title its player wears" do
+    earn_title(@player)
+    visit feed_path(locale: :en)
+
+    assert_selector ".feed__sentence .profile-title", text: /\A#{ACTIVE_TITLE_TEXT}\z/i, minimum: 1
+  end
 end

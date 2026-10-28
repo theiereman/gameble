@@ -5,4 +5,4 @@
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
 <%= render "public_profiles/profile", owner: @owner, title:, season: @season, summary: @summary, card_total: @card_total,
   achievements: @achievements, rarities: @rarities, activity: @activity, started_sets: @started_sets, started_set_count: @started_set_count,
-  showcase: @showcase, relation: @relation, open_trade_token: @open_trade_token %>
+  showcase: @showcase, relation: @relation, open_trade_token: @open_trade_token, owner_title: @owner_title %>

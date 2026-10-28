@@ -1,7 +1,7 @@
 module Game
   module FeedEntries
-    Entry = Data.define(:entry, :player, :partner, :filler) do
-      def initialize(entry:, player:, filler:, partner: nil) = super
+    Entry = Data.define(:entry, :player, :partner, :filler, :player_title, :partner_title) do
+      def initialize(entry:, player:, filler:, partner: nil, player_title: nil, partner_title: nil) = super
     end
 
     LIMIT = 30
@@ -11,6 +11,10 @@ module Game
     PASSES = 10
 
     def self.call(viewer, kind: nil, players: nil)
+      titled(listed(viewer, kind:, players:))
+    end
+
+    def self.listed(viewer, kind:, players:)
       entries = players ? FeedEntry.where(player_id: players).or(FeedEntry.where(partner_id: players)) : FeedEntry.all
       scope = kind ? entries.where(kind:) : entries
       notable = visible(scope.where(notable: true), viewer, LIMIT, filler: false)
@@ -19,6 +23,14 @@ module Game
       fillers = visible(entries.where(kind: "pull", notable: false), viewer, MIN - notable.size, filler: true)
       (notable + fillers).sort_by { |item| [ item.entry.occurred_at, item.entry.id ] }.reverse
     end
+
+    private_class_method :listed
+
+    def self.titled(items)
+      titles = ActiveProfileTitle.for_players(items.flat_map { [ it.player, it.partner ] }.compact.uniq)
+      items.map { it.with(player_title: titles[it.player.id], partner_title: (titles[it.partner.id] if it.partner)) }
+    end
+    private_class_method :titled
 
     def self.visible(scope, viewer, limit, filler:)
       found = []

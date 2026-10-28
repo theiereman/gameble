@@ -5,7 +5,7 @@ module Game
 
     Line = Data.define(:card_season_id, :quantity)
 
-    Row = Data.define(:id, :token, :friend, :state, :outcome, :friend_side, :own_side, :expires_at, :ended_at, :revision) do
+    Row = Data.define(:id, :token, :friend, :friend_title, :own_title, :state, :outcome, :friend_side, :own_side, :expires_at, :ended_at, :revision) do
       def open? = %i[yours theirs].include?(state)
       def card_season_ids = (friend_side + own_side).map(&:card_season_id).uniq
     end
@@ -46,6 +46,7 @@ module Game
       items = TradeItem.where(trade_id: trades.map(&:id)).order(:card_season_id).group_by(&:trade_id)
       others = trades.map { |trade| other_id(trade, player) }.uniq
       friends = Accounts::Player.where(id: others, banned_at: nil).index_by(&:id)
+      titles = ActiveProfileTitle.for_players([ player, *friends.values ])
 
       trades.filter_map do |trade|
         friend = friends[other_id(trade, player)]
@@ -56,7 +57,7 @@ module Game
         request = lines.fetch("request", [])
         proposer = trade.proposer_id == player.id
         state, outcome, ended_at = state_of(trade, player, now)
-        Row.new(id: trade.id, token: trade.token, friend:, state:, outcome:,
+        Row.new(id: trade.id, token: trade.token, friend:, friend_title: titles[friend.id], own_title: titles[player.id], state:, outcome:,
           friend_side: proposer ? request : offer, own_side: proposer ? offer : request,
           expires_at: trade.expires_at, ended_at:, revision: trade.revision)
       end

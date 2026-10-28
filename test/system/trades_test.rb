@@ -1,9 +1,11 @@
 require "application_system_test_case"
 require_relative "../support/steam_sign_in"
 require_relative "../support/holdings"
+require_relative "../support/active_titles"
 
 class TradesTest < ApplicationSystemTestCase
   include Holdings
+  include ActiveTitles
   include SteamSignIn
 
   setup do
@@ -552,5 +554,15 @@ class TradesTest < ApplicationSystemTestCase
     visit new_trade_path(locale: :en, friend: @max.token)
     assert_selector ".trade-side--own .trade-add"
     assert_no_selector ".trade-card__remove"
+  end
+
+  test "the board shows each side's title and none for a player who wears none" do
+    earn_title(@hugo)
+    propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 1 })
+    sign_in(@hugo)
+    visit trades_path(locale: :en)
+
+    assert_selector ".trade-side--own .profile-title", text: ACTIVE_TITLE_TEXT, count: 1
+    assert_no_selector ".trade-side--friend .profile-title"
   end
 end

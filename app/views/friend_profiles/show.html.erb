@@ -7,6 +7,7 @@
       <%= pixel_icon("avatar-default", class: "friend-profile__avatar") %>
       <div class="friend-profile__who">
         <h2 id="friend-profile-name-<%= @owner.token %>" class="friend-profile__name"><%= friend_name(@owner) %></h2>
+        <%= active_title_tag(@owner_title, class_name: "friend-profile__title") %>
         <p class="friend-profile__presence"><%= render "friends/presence", presence: @presence %></p>
         <p class="friend-profile__count"><%= t("public_profiles.show.distinct_cards", count: @distinct_cards) %></p>
       </div>

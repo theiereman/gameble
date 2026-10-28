@@ -28,13 +28,13 @@
         <% end %>
       </p>
     </header>
-    <%= render "trades/side", side: :friend, label: friend_label, lines: friend_lines, cards:, reserved: yours, read_only: editor.present?,
+    <%= render "trades/side", side: :friend, label: friend_label, lines: friend_lines, title: trade.friend_title, cards:, reserved: yours, read_only: editor.present?,
           received: editor.present?, empty_label: (trade_empty_side_label(:friend, trade.friend) if trade.open?) %>
     <% if editor %>
       <%= render "trades/edit_side", side: :friend, label: friend_label, lines: editor[:friend][:lines], drawn: editing, form: form_id %>
     <% end %>
     <%= render "trades/board_middle", message: trade_message(trade), edit_message: (trade_message(trade, editing: true) if editor) %>
-    <%= render "trades/side", side: :own, label: own_label, lines: own_lines, cards:, reserved: trade.state == :theirs, fresh:,
+    <%= render "trades/side", side: :own, label: own_label, lines: own_lines, title: trade.own_title, cards:, reserved: trade.state == :theirs, fresh:,
           read_only: editor.present?, received: editor.present?, empty_label: (trade_empty_side_label(:own, trade.friend) if trade.open?) %>
     <% if editor %>
       <%= render "trades/edit_side", side: :own, label: own_label, lines: editor[:own][:lines], drawn: editing, form: form_id,

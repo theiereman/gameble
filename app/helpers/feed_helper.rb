@@ -1,14 +1,14 @@
 module FeedHelper
   TIER_NOTCHES = { "bronze" => 1, "silver" => 2, "gold" => 3 }.freeze
 
-  def feed_sentence(item, card, partner_card = nil, set = nil, links: true)
-    return feed_set_sentence(item, set, links:) if item.entry.kind == "set"
+  def feed_sentence(item, card, partner_card = nil, set = nil, links: true, titles: false)
+    return feed_set_sentence(item, set, links:, titles:) if item.entry.kind == "set"
 
-    words = { name: feed_name(item.player, links:), card: feed_game(card, links:) }
+    words = { name: feed_name(item.player, item.player_title, links:, titles:), card: feed_game(card, links:) }
     case item.entry.kind
     when "discovery" then t("feeds.show.discovered_html", **words)
     when "repost" then t("feeds.show.reposted_html", **words)
-    when "trade" then t("feeds.show.traded_html", **words, partner: feed_name(item.partner, links:), partner_card: feed_game(partner_card, links:))
+    when "trade" then t("feeds.show.traded_html", **words, partner: feed_name(item.partner, item.partner_title, links:, titles:), partner_card: feed_game(partner_card, links:))
     else t("feeds.show.pulled_html", **words)
     end
   end
@@ -38,8 +38,8 @@ module FeedHelper
 
   private
 
-  def feed_set_sentence(item, set, links:)
-    words = { name: feed_name(item.player, links:), set: tag.strong(SetLabel.for(set)) }
+  def feed_set_sentence(item, set, links:, titles:)
+    words = { name: feed_name(item.player, item.player_title, links:, titles:), set: tag.strong(SetLabel.for(set)) }
     tier = item.entry.tier
     if item.entry.set_count > 1
       t("feeds.show.sets_reached_html", **words, count: item.entry.set_count, tier: feed_tier_name(tier).upcase)
@@ -52,12 +52,13 @@ module FeedHelper
     t("feeds.show.tiers.#{tier}")
   end
 
-  def feed_name(player, links:)
+  def feed_name(player, title, links:, titles:)
     name = player.persona_name.presence
-    return tag.strong(t("feeds.show.nameless")) unless name
-    return tag.strong(name) unless links
-
-    link_to name, brother_path(token: player.token), class: "feed__name", data: { turbo_prefetch: false }
+    shown = if name.nil? then tag.strong(t("feeds.show.nameless"))
+    elsif links then link_to(name, brother_path(token: player.token), class: "feed__name", data: { turbo_prefetch: false })
+    else tag.strong(name)
+    end
+    titles ? safe_join([ shown, active_title_tag(title, class_name: "feed__title") ].compact, " ") : shown
   end
 
   def feed_game(card, links:)

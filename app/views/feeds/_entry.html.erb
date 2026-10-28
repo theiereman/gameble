@@ -18,7 +18,7 @@
     <% end %>
   <% end %>
   <div class="feed__body">
-    <p class="feed__sentence"><%= feed_sentence(item, card, partner_card, set) %></p>
+    <p class="feed__sentence"><%= feed_sentence(item, card, partner_card, set, titles: true) %></p>
     <div class="feed__meta">
       <% if set_entry %>
         <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") %>

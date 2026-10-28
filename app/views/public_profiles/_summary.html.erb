@@ -1,9 +1,10 @@
-<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, relation:, open_trade_token: nil) %>
+<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, relation:, open_trade_token: nil, owner_title: nil) %>
 <%= render PanelComponent.new(tag: :header, brackets: true, class: "profile-band") do %>
   <div class="profile-band__who">
     <%= pixel_icon("avatar-default", class: "profile-band__avatar") %>
     <div class="profile-band__identity">
       <%= content_tag :h1, title, id: "profile-heading", class: "profile-band__name" %>
+      <%= active_title_tag(owner_title, class_name: "profile-band__title") %>
       <%= render "public_profiles/action", owner:, title:, relation:, open_trade_token: %>
       <p class="profile-band__meta">
         <span class="profile-band__since"><%= t("public_profiles.show.member_since", date: l(owner.created_at.to_date, format: :month_year)) %></span>

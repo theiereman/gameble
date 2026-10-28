@@ -16,6 +16,7 @@ class PublicProfilesController < ApplicationController
     @summary = capped_at_card_total(Game::CollectionSummary.call(@owner, season: @season))
     @achievements = Game::EarnedAchievements.call(@owner)
     @showcase = chosen_cards(@owner)
+    @owner_title = Game::ActiveProfileTitle.call(@owner)
     load_stats_and_sets if @season
     load_relation
   end

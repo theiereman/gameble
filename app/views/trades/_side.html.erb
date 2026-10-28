@@ -6,6 +6,7 @@
     <span class="trade-side__label"><%= label %></span>
     <% unless blank %><span class="trade-side__count"><%= trade_side_count(lines) %></span><% end %>
   </p>
+  <%= active_title_tag(title, class_name: "trade-side__title") %>
   <% if blank %>
     <p class="trade-side__open"><%= local_assigns[:empty_label] %></p>
   <% else %>

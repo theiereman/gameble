@@ -1,0 +1,23 @@
+.profile-title {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  overflow-wrap: anywhere;
+}
+
+.profile-band__title,
+.settings-summary__active-title,
+.friend-profile__title {
+  display: block;
+}
+
+.feed__title {
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.trade-side__title {
+  display: block;
+}
