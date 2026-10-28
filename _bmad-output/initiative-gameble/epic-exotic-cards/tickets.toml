@@ -12,3 +12,60 @@ hitl = true
 risk = "medium"
 unknown = "what exotic means in the rarity model; how a card that is not a Steam game fits the catalog and its seasons"
 notes = ["Moved out of the 0.4.0 screen walkthrough (formerly 16.33) on 2026-10-27: the author, 2026-10-27, \"sors la carte exotique du MVP, on le fera plus tard en 1.2.0\".", "Asked by the author, 2026-10-26, as a side task while the credits (16.14) were prepared; the beta testers' names are in 16.14's notes.", "Open questions for the author: (1) exotic: a seventh rarity above Légendaire, or a mark that sits outside the rarities; (2) the model: a card is a Steam game today (`Catalog` pack), so is a tribute card a catalog row with no Steam app, a separate kind of card, or a card in a dedicated set; (3) the seasons: is it carried over, and does it count in the collection totals and the set completions; (4) who receives it: the tester it honours only, every player (then how it is obtained: a gift on sign-in, a reward, a special pack), or no one but the tester as a unique card; (5) trading and reposting: can it be traded, shown in a showcase, reposted; (6) the art and the text: the face (name, pseudonym, a line), who draws it, and whether a tester may refuse or choose the pseudonym; (7) the public side: the visitor's view of the card, the feed entry when it is obtained, and its place in the credits.", "Placed in epic 16 because it came out of the credits ticket; it blocks nothing and can move to its own epic or to a later release when the author chooses.", "Answers from the author, 2026-10-27: (1) exotic is outside the rarities, a mark named \"exotique\" / \"exotic\"; (2) the six cards form a set of their own; (3) the cards have no season; (4) every player can receive one, rarer than a Légendaire; (5) it is a card like any other: traded, shown in a showcase, reposted; (6) the face carries the tester's pseudonym and the category \"beta-builder\"; the author provides a photo of each tester, pixelated for the art, and asks each tester's consent beforehand; (7) the public side is unchanged: a visitor sees the card like any other. Left for the spike: the drop rate, how a seasonless set sits beside the season's sets and totals, and the mockup."]
+
+[[entry]]
+id = 2
+type = "story"
+title = "The exotic tier and the tribute season in the catalog"
+description = "The author approves AD-33 first (hitl gate). Then, expand then contract: a kind column on catalog_seasons (regular by default) and a tribute season numbered 0 that PublishedSeason, the season list, the allocation and the back office ignore; Catalog::Rarity::TIERS gains 6 => :exotic and the tier checks widen to 1..6 with a model validation that only a tribute card is tier 6; a tribute set of the six cards; the six catalog rows (source key, slug, pseudonym text in both locales, no Steam store url) seeded by an idempotent task. The spec gets the capability."
+verify = "Tests show a tier 6 card only inside the tribute season, PublishedSeason and the season totals unchanged with the tribute season present, the tribute set listing six cards, the seed task run twice writing once, and db/schema.rb regenerated from the migrations; packwerk and zeitwerk pass."
+covers = []
+after = ["epic-human-readable-codebase"]
+hitl = true
+risk = "high"
+unknown = "how many of the 37 files that read the tiers need a tier 6 branch; whether image_url and store_url (not null) hold the app's own asset path for a person"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Exotic cards drop from regular packs"
+description = "Game::DrawOdds REGULAR becomes 1 => 7_599 and 6 => 1 (out of 10,000, the total unchanged), with the guarantee, bonus and reward odds untouched; the draw pool holds the six tribute cards beside the published season's, and a tier 6 draw picks one of them evenly; the opening's response, the reveal and the celebration treat tier 6 like a Légendaire with the violet banner of the design; an opened exotic discovers its card (first discovery) and publishes the tier events like any card."
+verify = "Seeded-random tests show the odds summing to 10,000, an exotic drawn once in 10,000 over the test's fixed draws, the six cards drawn evenly, no exotic in a bonus, reward or guarantee pack, and the reveal showing the exotic banner; the draw benchmark does not slow."
+covers = []
+after = [2]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 4
+type = "story"
+title = "The beta-builder capsule and its grant task"
+description = "A pack kind tribute in the special reserve with its own capsule origin look (the special capsules designs), and Game::GrantTributeCapsule, an administrator operation that gives a group of players, one transaction each, a capsule of five cards: the named exotic card and four drawn by the regular odds, publishing the events a pack does; a rake task game:grant_tribute_capsule takes the card and Steam ids separated by spaces, as game:grant_card_back does. The author confirms the five-card shape before the build."
+verify = "Tests show the capsule granted once per player and call, the reserve counting it as special, its opening revealing the named exotic, the daily, goal and reward capsules unchanged, and the task refusing an unknown card or Steam id."
+covers = []
+after = [2, 3]
+hitl = true
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "The exotic face"
+description = "Moves mockups/exotic-card/exotic.css into the app next to card.css and card-tilt-effects.css with the halo glow: CardComponent gains the exotic tier, its icon in both sizes, the name in both locales, no season mark for a tribute card, exotic in IRIDESCENT; the card detail, the public page, the showcase, the trade picker and the repost image show it as the face does; reduced motion stills the halo and the tilt."
+verify = "The system tests of the collection, the card detail, the capsule reveal and a trade show an exotic card with its mark and its metal band, a grayscale render keeps its icon distinct from the five, and npm run format:check, lint:css and vitest pass."
+covers = []
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "The tributes' portraits"
+description = "Each tester agrees first (hitl), then sends a photo; the portraits are pixelated through the pixel art pipeline in the Steam cover's place and registered as the six cards' art. Until a tester agrees, their card ships with a neutral silhouette or does not ship."
+verify = "The six portraits are exported with node script/pixel_art/export.mjs --check passing, each tester's consent is on record, and the cards show the portraits at every size."
+covers = []
+after = [2, 5]
+hitl = true
+risk = "medium"
+unknown = "whether a tester may refuse, and how the author records each consent"

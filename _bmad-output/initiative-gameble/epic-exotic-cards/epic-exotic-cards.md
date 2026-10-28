@@ -27,6 +27,8 @@ No capability of the spec yet: the epic starts with a spike that settles the mod
 
 - R1. The author's decisions of 2026-10-27 hold: exotic is a mark outside the rarities, named "exotique" / "exotic"; the six cards form a set of their own; they have no season; every player can receive one, with a rarity rarer than a Légendaire; they trade, show and repost like any card; the face shows the pseudonym and the category "beta-builder"; the public side is unchanged.
 
+- R2. The author's decisions of 2026-10-29: the face is black with a slow violet halo and a polished metal band that follows the tilt (`ux-gameble/mockups/exotic-card/`); an exotic card is drawn once in 10,000 from a regular pack and also comes from a beta-builder capsule the author grants by hand; the model is a tribute season, to approve (AD-33).
+
 ## Done when
 
 1. The spike's decisions are recorded in DESIGN.md, EXPERIENCE.md and the architecture, the author has picked the card's look from a mockup, and a build story for the six cards is in the tree.
