@@ -26,10 +26,10 @@ For a player: a visible reward for completing sets and for taking part in the Br
 
 The lines of CAP-20 (spec) and the card backs part of CAP-23, with the author's answers of 2026-10-28 (`inception-proposal.md`, section 7). The back catalogue is in `DESIGN.md`, Card backs.
 
-- R1 (CAP-20): every account has the Standard back. A theme or hall of fame set's back tier (its first tier at or above half its cards; gold in seasons published before the tier table) unlocks that set's back; the first contribution to a successful weekly goal unlocks Semaine 38; the achievements boosters_100, first_legendary and three_complete_sets unlock Centurion, Étoile d'or and Aurore; Saison 1, Millésime 2017 and Soldes d'hiver are granted by an administrator to a group. Each back unlocks once per player; later weekly goals grant no back. The goal back is granted when the reward is earned, not when it is claimed.
+- R1 (CAP-20): every account has the Standard back. A theme or hall of fame set's back tier (its first tier at or above half its cards; gold in seasons published before the tier table) unlocks that set's back; the first contribution to a successful weekly goal unlocks Confrère; the achievements boosters_100, first_legendary and three_complete_sets unlock Centurion, Étoile d'or and Aurore; Saison 1, Millésime 2017 and Soldes d'hiver are granted by an administrator to a group. Each back unlocks once per player; later weekly goals grant no back. The goal back is granted when the reward is earned, not when it is claimed.
 - R2 (CAP-20): a locked back states its unlock condition.
 - R3 (CAP-20): a set back carries the mark of each season it was earned in; the player picks which season's mark the active back wears.
-- R4 (CAP-20): the player picks one active back in the profile; it applies from the next pack opened.
+- R4 (CAP-20): the player picks one active back on the profile and settings screen (`/settings`); it applies from the next pack opened.
 - R5 (CAP-20): only the player sees their back, on their own face-down cards at opening; never on the detail of a card, nor on another player's cards or profile.
 - R6 (CAP-20, `DESIGN.md` Card backs): the 46 set backs share one anatomy drawn by the pixel art export, with a word, colours and a motif per set approved by the author.
 - R7 (CAP-20): backs earned before this epic ships (tiers, achievements, goal rewards) are granted once at its deploy.
@@ -39,7 +39,7 @@ The lines of CAP-20 (spec) and the card backs part of CAP-23, with the author's 
 
 1. Every account has the Standard back; a locked back states its unlock condition.
 2. Reaching a theme or hall of fame set's back tier (its first tier at or above half its cards; gold in earlier seasons), the first contribution to a successful weekly goal and the listed achievements unlock their backs, once each. A back earned again in a later season gains that season's mark, not a second unlock. Players who earned them before this epic ships receive them once at its deploy.
-3. The player picks one active back in the profile; it shows on their own face-down cards from the next pack opened, and to nobody else. The player picks the season mark the active back wears.
+3. The player picks one active back on the profile and settings screen; it shows on their own face-down cards from the next pack opened, and to nobody else. The player picks the season mark the active back wears.
 4. An administrator can grant a back to a group of players for an event.
 5. The seasonal allocation screen lists the backs earned in the season that ended.
 6. All of it is live in production.
@@ -51,7 +51,8 @@ The back catalogue in code, unlocks and the active back in `Game`, the back pick
 ## References
 
 - parent — _bmad-output/initiative-gameble/initiative-gameble.md, section Requirements
-- spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, CAP-20
+- spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, CAP-20, CAP-23
+- sibling — _bmad-output/initiative-gameble/epic-seasons-carry-over/epic-seasons-carry-over.md, the allocation receipt (17.1) and the allocation screen (17.2)
 - architecture — _bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md, AD-10, AD-25
 - design — _bmad-output/initiative-gameble/ux-gameble/DESIGN.md, Card backs; EXPERIENCE.md, Profil et paramètres
 
@@ -70,3 +71,5 @@ The back catalogue in code, unlocks and the active back in `Game`, the back pick
 - Decision (2026-10-28): tracer bullet is entry 1 (catalogue, unlock rows, active back stored on the opened pack). After it, three lanes: art (3), unlock rules (2 then 7), picker (4); then 5, 6 and 8 in series on the booster and the recap; the refactor sweep closes the epic.
 - Waits on epic 17 because: set backs are also earned by tiers received at a season change (17.1), and the recap screen that lists them is 17.2.
 - Waits on epic 19 because: the special packs change the booster island and the pixel art export first (19.3 to 19.5).
+- Decision (2026-10-28, author): the goal back is renamed Confrère ("CONFRERE", no week number) and redrawn through export.mjs ahead of entry 7.
+- Decision (2026-10-28, PR review): unlocks follow the achievements pattern: handlers enqueue Game::GrantCardBacksJob, Game::UnlockCardBack is the only writer and publishes Game::CardBackUnlocked, PlayerStream toasts it, and backfills grant retroactively without a toast. Entry 1 carries the CAP-20 and AD-25 correction.
