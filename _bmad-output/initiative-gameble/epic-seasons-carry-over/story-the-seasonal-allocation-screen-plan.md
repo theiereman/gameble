@@ -82,6 +82,15 @@ Own diff review (no independent reviewer: this session could not launch subagent
 - Not reproducible-by-me failures seen in full runs: player/export tests failed in two of six full Ruby runs, then passed four times in a row; the booster system tests fail intermittently with or without the new gate and with or without the new system test (checked by disabling the gate). Not caused by this ticket.
 - `bundle exec packwerk check` reports a syntax error in `app/views/back_office/players/index.html.erb` (not touched here), and `i18n-tasks check-normalized` flags `config/locales/pagy/fr.yml` (not touched here).
 
+Independent review of e35a2865 (read-only reviewer) and how each finding was handled:
+- Medium, fixed: the recap raised `NoMethodError` for a player with no state row (`nil >= n`); a missing row now reads as no received season, like the pending check reads it as seen season 0. Domain test: no state row is pending, the recap previews the carried tiers, marking creates the row. The controller test also renders the screen after the row is deleted, though the request's own activity write puts the row back before the action, so the domain test is the one that fails on the old code.
+- Low, fixed: the recap's ended season is always the published number minus one (marker 1 and published 3 says season 2), and a null marker reads the same; both tested.
+- Low, fixed: the gate leaves Turbo Frame requests alone (`turbo_frame_request?`), as it already did JSON and HEAD (`request.get?` is false for HEAD); a controller test pins the three.
+- Low, kept: the hub budget stays at 20. The seen marker, the collection watermark and the active card back each read the same row through a different query (a pick, a join inside `CollectionSlots`, a join in `CardBacks`); loading it once would thread one object through three unrelated queries for one saved lookup.
+- Low, covered by tests: the failure alert text, the section of the ended season with no season mark or season count on a tier, the booster page after the season is seen, a POST when nothing is pending, a player with no earlier card, the title taking the focus with the button as the screen's only stop, and the sticky button staying in view at three scroll positions on a phone-width list of twelve extra tiers.
+- Low, accepted as planned: a player with earlier cards and nothing to show sees the title and the button only.
+- Booster system tests (`booster_test.rb`, reveal timing) failed twice in two of three runs while three other agents ran suites on the same machine, then passed 90 of 90; they do not touch the allocation and are left for a separate fix.
+
 ## Verification
 
 **Commands:**

@@ -12,7 +12,7 @@ module Game
     def self.call(player)
       published = Catalog::PublishedSeason.call
       state = PlayerState.find_by(player_id: player.id)
-      ended_number = state&.allocation_seen_season || published.number - 1
+      ended_number = published.number - 1
       ended = Catalog::Season.find_by(number: ended_number)
 
       Recap.new(season_number: published.number, ended_season_number: ended_number,
@@ -28,7 +28,7 @@ module Game
     private_class_method :earned_tiers
 
     def self.received_tiers(player, published, state)
-      rows = if state&.allocation_received_season.to_i >= published.number
+      rows = if received_season(state) >= published.number
         SetTier.where(player_id: player.id, reached_by: "allocation").joins(SETS_OF_SEASON)
           .where(catalog_sets: { season_id: published.id }).order(:id).pluck(:set_id, :tier)
       else
@@ -37,6 +37,11 @@ module Game
       tiers_reached(rows)
     end
     private_class_method :received_tiers
+
+    def self.received_season(state)
+      state ? state.allocation_received_season.to_i : 0
+    end
+    private_class_method :received_season
 
     def self.achievements(player, ended, published)
       unlocks = AchievementUnlock.where(player_id: player.id, achievement: Achievements::BY_KEY.keys)

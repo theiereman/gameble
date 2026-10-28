@@ -80,4 +80,28 @@ class Game::SeasonAllocationTest < ActiveSupport::TestCase
     assert_equal %w[novice apprentice adept], Game::SeasonAllocationRecap.call(@player).received.map(&:tier)
     assert Game::SeasonAllocationPending.call(@player)
   end
+
+  test "a player without a state row is pending, gets a recap that previews the carried tiers, and marking creates the row" do
+    Game::PlayerState.where(player_id: @player.id).delete_all
+
+    assert Game::SeasonAllocationPending.call(@player)
+    recap = Game::SeasonAllocationRecap.call(@player)
+    assert_equal %w[novice apprentice adept], recap.received.map(&:tier)
+
+    assert Game::MarkAllocationSeen.new.call(player: @player).success?
+    assert_equal [ 2, 2 ], [ state.allocation_received_season, state.allocation_seen_season ]
+  end
+
+  test "a null marker reads as the season before the published one" do
+    Game::PlayerState.where(player_id: @player.id).update_all(allocation_seen_season: nil, allocation_received_season: nil)
+
+    assert Game::SeasonAllocationPending.call(@player)
+    assert_equal 1, Game::SeasonAllocationRecap.call(@player).ended_season_number
+  end
+
+  test "after skipped seasons the recap speaks of the season that ended, not the last one seen" do
+    Catalog::Season.create!(status: :published, number: 3, published_at: 1.minute.from_now)
+
+    assert_equal [ 3, 2 ], Game::SeasonAllocationRecap.call(@player).then { [ it.season_number, it.ended_season_number ] }
+  end
 end

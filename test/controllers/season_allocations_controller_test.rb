@@ -107,5 +107,68 @@ class SeasonAllocationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to season_allocation_path(locale: :en)
     assert_equal 1, seen_season
+    assert_equal I18n.t("season_allocations.create.failed", locale: :en), flash[:alert]
+  end
+
+  test "a player without a state row is led to the screen, which renders, and continuing creates the row" do
+    sign_in(@player)
+    Game::PlayerState.where(player_id: @player.id).delete_all
+
+    get season_allocation_path(locale: :en)
+    assert_response :success
+    assert_select ".allocation-row", 3
+
+    post season_allocation_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
+    assert_equal 2, seen_season
+  end
+
+  test "only page navigations are led to the screen, not a Turbo Frame, a JSON read or a HEAD request" do
+    sign_in(@player)
+
+    get home_path(locale: :en), headers: { "Turbo-Frame" => "panel" }
+    assert_response :success
+
+    get booster_path(locale: :en, format: :json)
+    assert_response :success
+
+    head home_path(locale: :en)
+    assert_response :success
+  end
+
+  test "the booster page no longer redirects once the season is seen" do
+    sign_in(@player)
+    post season_allocation_path(locale: :en)
+
+    get booster_path(locale: :en)
+
+    assert_response :success
+  end
+
+  test "continuing when nothing is pending changes nothing and leads to the hub" do
+    Game::Holding.where(player_id: @player.id).delete_all
+    sign_in(@player)
+
+    assert_no_difference "Game::SetTier.count" do
+      post season_allocation_path(locale: :en)
+    end
+
+    assert_redirected_to home_path(locale: :en)
+  end
+
+  test "the section of the ended season lists its tiers with no season mark or season count on a tier" do
+    ended = Catalog::Season.find_by!(number: 1)
+    old_set = Catalog::Set.find_by(season_id: ended.id) ||
+      Catalog::Set.find(Catalog::Set.insert_all!([ { season_id: ended.id, kind: "theme", key: "old", params: { "theme" => "old" } } ], returning: :id).rows.flatten.sole)
+    now = Time.current
+    Game::SetTier.insert_all!([ { player_id: @player.id, set_id: old_set.id, tier: "bronze", held: 1, reached_by: "trade", reached_at: 1.day.ago, created_at: now, updated_at: now } ])
+    sign_in(@player)
+
+    get season_allocation_path(locale: :en)
+
+    assert_select "#allocation-earned-heading", "Earned in season 1"
+    assert_select "[aria-labelledby=allocation-earned-heading] .allocation-row", 1
+    assert_select ".allocation-row [class*='season']", 0
+    assert_select ".allocation-row", text: /\bseasons?\b/i, count: 0
   end
 end
