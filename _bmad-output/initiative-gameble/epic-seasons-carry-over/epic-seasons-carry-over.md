@@ -16,7 +16,7 @@ estimate_basis: ""
 
 ## Description
 
-When a new season is published, a returning player keeps everything they built and receives the Brotherhood's seasonal allocation: a screen, shown once before the hub, that recaps the tiers they reached in the season that ended and shows their tiers in the next season. Tiers the player still meets are received again with the new season's mark, silently, so no opening or trade ever celebrates a tier the player already had. The rule that any edition counts for a set is built before the launch in epic-recognizable-sets; this epic adds the season change itself.
+When a new season is published, a returning player keeps everything they built and receives the Brotherhood's seasonal allocation: a screen, shown once before the hub, that recaps the tiers they reached in the season that ended, the card backs and achievements they unlocked in it, and shows their tiers in the next season. Tiers the player still meets are received again with the new season's mark, silently, so no opening or trade ever celebrates a tier the player already had. The rule that any edition counts for a set is built before the launch in epic-recognizable-sets; this epic adds the season change itself.
 
 ## Outcome
 
@@ -26,7 +26,7 @@ For a returning player: a season change reads as a reward, never as a loss; the 
 
 The lines of CAP-23 (spec), with the season rules of `catalog-and-rarity.md`, Seasons, and AD-5, AD-10, AD-25 of the architecture.
 
-- R1 (CAP-23): at a player's first visit after a publication, before the hub and before any opening, a dedicated screen recaps the season that ended: the tiers reached during it, and nothing else: no achievements, weekly goal rewards or card backs (author, 2026-10-28).
+- R1 (CAP-23): at a player's first visit after a publication, before the hub and before any opening, a dedicated screen recaps the season that ended: the tiers reached during it and, in a section "Débloqué pendant la saison N", the card backs and achievements unlocked during it (author, 2026-10-28; weekly goal rewards stay off the screen; the section is omitted when the player unlocked neither; until epic-card-backs lands it holds achievements only).
 - R2 (CAP-23): a second section, "Vos paliers dans la saison suivante", lists the tiers the player still meets in the new season's sets, received at once. A tier is identified by its set and its name; bronze, silver and gold earned in earlier seasons stay as history and are never received again.
 - R3 (CAP-23): tiers carried into the new season are never celebrated at an opening or announced in the feed; an opening or a trade celebrates only the tiers it crosses itself.
 - R4 (CAP-23): no sentence heads the screen: only its title names the season (author, 2026-10-28).
@@ -36,7 +36,7 @@ The lines of CAP-23 (spec), with the season rules of `catalog-and-rarity.md`, Se
 
 ## Done when
 
-1. After a season is published on staging, a returning player is led to the allocation screen once, before the hub, with the tiers reached in the ended season and, in a second section, its tiers in the next season (received at once).
+1. After a season is published on staging, a returning player is led to the allocation screen once, before the hub, with the tiers reached in the ended season, the achievements and card backs unlocked in it (when there are any) and, in a last section, its tiers in the next season (received at once).
 2. Tiers met at publication are received once; none is celebrated or announced in the feed, including when a friend's trade is accepted before the player returns.
 3. A tier is identified by its set and its name; bronze, silver and gold earned in earlier seasons stay as history and are never received again.
 4. A player with no card from an earlier season goes straight to the hub.
@@ -72,3 +72,4 @@ The season change for players: receiving carried tiers, the allocation screen, a
 - Decision (2026-10-28, author): card backs ship after the MVP (epic-card-backs, release 1.2.0), so this epic no longer waits on them: the recap ships without card backs, 17.1 unlocks no back, and the season mark stamp belongs to 9.6. Epic 9 answers the allocation receipt (9.2) and adds the backs to the recap (9.8). Source conflict: CAP-23's first line lists card backs in the recap until epic 9 lands.
 - Decision (2026-10-28, author): the allocation screen has two sections: "Obtenu pendant la saison N", the tiers reached and nothing else, and "Vos paliers dans la saison suivante", the tiers received at once and those to win back. This supersedes the earlier lines that put achievements, goal rewards and card backs on the screen; 9.8 is affected.
 - Decision (2026-10-28, author): the allocation screen has no Brotherhood line or any sentence under its title and no section of tiers to win back; its second section lists only the tiers received at once in the next season; long lists scroll, with no "see more"; two columns on large screens, "CONTINUER" sticky at the bottom on the phone. This supersedes the earlier decision above that kept the tiers to win back.
+- Decision (2026-10-28, author): the allocation screen gets a section "Débloqué pendant la saison N" between the tiers earned and the tiers of the next season: the card backs unlocked and the achievements earned during the ended season, backs and achievements side by side on large screens, omitted when there are none; it supersedes the "tiers only" decision of the same day (weekly goal rewards, the Brotherhood line and the tiers to win back stay off). Card backs keep their entry in epic-card-backs (9.8, R8) and fill the section once that epic lands; until then the section shows achievements only.
