@@ -52,7 +52,7 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
 .sheet{display:flex;flex-wrap:wrap;gap:10px}
 .tile{display:block;border-radius:4px;outline-offset:2px}
 .tile:focus-visible{outline:2px solid var(--accent)}
-.st-approved{color:var(--lime)}.st-redrawn{color:var(--gold)}
+.st-approved{color:var(--lime)}.st-redrawn,.st-reproposed{color:var(--gold)}
 .alts{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
 .chk{display:flex;gap:6px;align-items:center;color:var(--muted)}
 .bar select{background:#0b1015;color:var(--text);border:1px solid var(--line);border-radius:4px;padding:6px 8px;font:inherit}
@@ -146,6 +146,16 @@ const star=(cx,cy,n,ro,ri,rot=-90)=>Array.from({length:n*2},(_,i)=>{const a=(rot
 const HEART=["..xxxx...",".xxxxxx..",".xxxxxxx.","xxxxxxxxx","xxxxxxxxx","xxxxxxxxx","xxxxxxxxx",".xxxxxxxx","..xxxxxxx","...xxxxxx","....xxxxx",".....xxxx","......xxx",".......xx","........x"];
 const heartShape=(g,c,cy=0)=>HEART.forEach((h,i)=>{const row=h+[...h.slice(0,-1)].reverse().join("");[...row].forEach((ch,x)=>{if(ch==="x")put(g,x,i+1+cy,c)})});
 
+const rotPts=(pts,ang,ox,oy)=>pts.map(([x,y])=>{const a=ang*Math.PI/180;return[ox+x*Math.cos(a)-y*Math.sin(a),oy+x*Math.sin(a)+y*Math.cos(a)]});
+const massPad=g=>{let mnx=99,mxx=-1,mny=99,mxy=-1,n=0,sx=0,sy=0;each((x,y)=>{if(g[y][x]!=="."){mnx=Math.min(mnx,x);mxx=Math.max(mxx,x);mny=Math.min(mny,y);mxy=Math.max(mxy,y);n++;sx+=x+.5;sy+=y+.5}});
+ const cx=sx/n,cy=sy/n,bx=(mnx+mxx+1)/2,by=(mny+mxy+1)/2;
+ if(cx<bx)g[mny][Math.max(0,Math.round(2*cx-mxx-1))]="_";else if(cx>bx)g[mny][Math.min(N-1,Math.round(2*cx-mnx-1))]="_";
+ if(cy<by)g[Math.max(0,Math.round(2*cy-mxy-1))][mnx]="_";else if(cy>by)g[Math.min(N-1,Math.round(2*cy-mny-1))][mnx]="_";return g};
+const ASC=rows=>{const g=mk();rows.forEach((r,y)=>[...r].forEach((c,x)=>{if(c!==".")g[y][x]=c}));return g};
+const F1=(c,l,d)=>{const g=ASC(["dddd.............","xxxx.....kkkk....",".d...llll.yy.....",".d..lxxxxxyyxxx..",".dxxxxxxxxxxxxx..","..xxxxxxxxxxxxxxx","..xxxxxxxxxxxxxxx"]);
+ L(g,4,5.5,15.2,5.5,"w",1);R(g,13,9,16,9,"d");R(g,16,7,16,9,"d");
+ D(g,3.5,6.5,3.2,"G");D(g,3.5,6.5,1.7,"g");D(g,3.5,6.5,.6,"w");D(g,13,6.9,2.9,"G");D(g,13,6.9,1.5,"g");D(g,13,6.9,.5,"w");
+ each((x,y)=>{const v=g[y][x];if(v==="x")g[y][x]=c;else if(v==="l")g[y][x]=l;else if(v==="d")g[y][x]=d});BV(g,c,l,d);return g};
 const MOT={
 flame(){const g=mk();D(g,8,10.5,5.6,"r");P(g,[[8,0],[13.4,9],[2.6,9]],"r");P(g,[[3.2,4.6],[5.6,9],[2.6,9.5]],"r");P(g,[[12.8,4.6],[10.4,9],[13.4,9.5]],"r");D(g,8,11.8,4,"o");P(g,[[8,4.6],[12.2,11.5],[3.8,11.5]],"o");D(g,8,12.8,2.4,"y");P(g,[[8,8.4],[10.8,13.5],[5.2,13.5]],"y");return g},
 compass(){const g=mk();
@@ -216,13 +226,12 @@ jumperA(){const g=mk();E(g,8,15.6,4.4,.7,"d");
  L(g,7,10.4,4.4,11.4,"U",2.6);L(g,4.4,11.4,5.4,14,"U",2.6);R(g,3,14.4,6,15.4,"k");
  D(g,8,4.4,2.7,"s");P(g,[[5.2,3.4],[5.6,1.4],[8,0.6],[10.4,1.4],[10.8,3.4]],"b");put(g,7,4.8,"k");put(g,10,4.8,"k");R(g,8,6.6,9,6.6,"R");return g},
 jumperB(){const g=mk();R(g,6,6,10,10,"x");L(g,6.4,7,1.8,2,"x",2.2);D(g,1.4,1.6,1.5,"s");L(g,9.6,7,14.2,2,"x",2.2);D(g,14.6,1.6,1.5,"s");L(g,7,10,3,15,"U",2.6);L(g,9,10,13,15,"U",2.6);R(g,1,15,4,16,"k");R(g,12,15,15,16,"k");D(g,8,4,2.7,"s");P(g,[[5.2,3],[5.6,1],[8,0.2],[10.4,1],[10.8,3]],"b");put(g,7,4.4,"k");put(g,9,4.4,"k");R(g,7,5.8,9,5.8,"R");return g},
-pieceA(){const g=mk();R(g,2,5,11,14,"x");R(g,6,3,7,4,"x");D(g,6.5,2.4,2.2,"x");R(g,12,9,13,10,"x");D(g,14.2,9.5,2,"x");
- R(g,2,9,3,10,".");D(g,5,9.5,2.1,".");BV(g,"x","l","d");[[4,6],[5,6],[4,7]].forEach(([x,y])=>put(g,x,y,"h"));return g},
+pieceA(){const g=ASC(["......xxx........",".....xxxxx.......",".....xxxxx.......",".....xxxxx.......","......xxx........","...xxxxxxxxx.....","...xxxxxxxxx.....","...x...xxxxx.xxx.","........xxxxxxxxx","........xxxxxxxxx","........xxxxxxxxx","...x...xxxxx.xxx.","...xxxxxxxxx.....","...xxxxxxxxx....."]);BV(g,"x","l","d");return massPad(g)},
 pieceB(){const g=mk();R(g,0,4,7,12,"x");R(g,8,4,15,12,"b");R(g,3,2,4,3,"x");D(g,3.5,1.4,1.8,"x");R(g,11,2,12,3,"b");D(g,11.5,1.4,1.8,"b");
  each((x,y)=>{const d=Math.hypot(x-9.6,y-7.5);if(g[y][x]==="b"&&d>2.1&&d<=3.1)g[y][x]="e"});R(g,7,7,8,8,"x");D(g,9.6,7.5,2.1,"x");BV(g,"x","l","d");return g},
-carSide(){const g=mk();R(g,1,0,15,1,"d");R(g,7,2,9,6,"x");R(g,1,2,4,6,"k");R(g,12,2,15,6,"k");R(g,2,3,2,5,"G");R(g,13,3,13,5,"G");
- R(g,6,6,10,12,"x");R(g,5,8,11,11,"x");R(g,0,9,3,14,"k");R(g,13,9,16,14,"k");R(g,1,10,1,13,"G");R(g,14,10,14,13,"G");R(g,7,12,9,14,"x");R(g,2,14,14,16,"d");
- R(g,8,2,8,13,"w");D(g,8,8,1.4,"y");BV(g,"x","l","d");return g},
+carSide(){return F1("x","l","d")},
+carSide2(){return F1("u","w","U")},
+carSide2(){return F1("u","w","U")},
 carTop(){const g=mk();R(g,3,0,13,1,"d");R(g,3,0,3,3,"d");R(g,13,0,13,3,"d");
  R(g,0,3,3,9,"k");R(g,1,4,1,8,"G");R(g,13,3,16,9,"k");R(g,15,4,15,8,"G");
  R(g,6,2,10,12,"x");R(g,4,7,12,11,"x");D(g,8,5.2,1.8,"y");R(g,7,5,9,5,"k");
@@ -243,16 +252,20 @@ fedoraB(){const g=mk();D(g,8,6.6,2.3,"Y");P(g,[[5.2,9],[10.8,9],[11.8,15],[4.2,1
  E(g,8,3.6,5.4,1.3,"N");P(g,[[5.2,3.2],[5.6,0.6],[8,0],[10.4,0.6],[10.8,3.2]],"N");R(g,5,2,11,2,"k");ARC(g,11.4,10.6,4.4,270,90,1.3,"n");return g},
 pow(){const g=mk();P(g,star(8,8,12,8,5.6),"o");P(g,star(8,8,12,7,4.8),"y");const G={P:["xxx","x.x","xxx","x..","x.."],O:["xxx","x.x","x.x","x.x","xxx"],W:["x...x","x...x","x.x.x","xx.xx","x...x"]};
  let cx=2;"POW".split("").forEach(ch=>{G[ch].forEach((row,r)=>[...row].forEach((v,c)=>{if(v==="x")put(g,cx+c,5.5+r,"R")}));cx+=G[ch][0].length+1});return g},
-bullet(){const g=mk();P(g,[[8,0],[9.7,2],[10.8,5],[10.8,7],[5.2,7],[5.2,5],[6.3,2]],"o");R(g,6,2,6,5,"y");R(g,5,7,11,7,"N");R(g,5,8,11,14,"Y");R(g,5,8,5,14,"y");R(g,11,8,11,14,"N");R(g,5,12,11,12,"N");R(g,4,15,12,15,"Y");R(g,4,16,12,16,"N");R(g,7,15,9,15,"d");return g}
+bullet(){const g=ASC([".......o.........","......ooo........","......ooo........",".....ooooo.......",".....ooooo.......",".....ooooo.......",".....ooooo.......",".....NNNNN.......",".....YYYYY.......","....YYYYYYY......","....YYYYYYY......","....YYYYYYY......","....YYYYYYY......","....YYYYYYY......","....NNNNNNN......","...YYYYYYYYY.....","...NNNNdNNNN....."]);BV(g,"o","y","N");BV(g,"Y","y","N");return g},
+bulletB(){const g=mk(),a=45,O=[[0,-7],[1.8,-4.2],[2.5,-1],[2.5,5],[-2.5,5],[-2.5,-1],[-1.8,-4.2]],c=[9.4,7.2],T=pts=>rotPts(pts,a,c[0],c[1]);P(g,T(O),"o");P(g,T([[2.5,2.4],[2.5,5],[-2.5,5],[-2.5,2.4]]),"Y");P(g,T([[2.6,2.1],[2.6,2.9],[-2.6,2.9],[-2.6,2.1]]),"N");P(g,T([[-2.5,-1],[-1.6,-4],[-0.4,-5.6],[-0.4,5],[-2.5,5]]),"y");P(g,T([[0.9,-3.2],[2.5,-1],[2.5,2.4],[1.1,2.4]]),"N");
+ [[-4.2,2.2,6],[0,3.4,9],[4.2,2.2,6]].forEach(([off,s0,s1])=>{const t0=T([[off,5+s0]])[0],t1=T([[off,5+s1]])[0];L(g,t0[0],t0[1],t1[0],t1[1],"w",1)});return g},
+bulletB(){const g=mk(),a=45,O=[[0,-7],[1.8,-4.2],[2.5,-1],[2.5,5],[-2.5,5],[-2.5,-1],[-1.8,-4.2]],c=[8.9,7.4],T=pts=>rotPts(pts,a,c[0],c[1]);P(g,T(O),"o");P(g,T([[2.5,2.4],[2.5,5],[-2.5,5],[-2.5,2.4]]),"Y");P(g,T([[2.6,2.1],[2.6,2.9],[-2.6,2.9],[-2.6,2.1]]),"N");P(g,T([[-2.5,-1],[-1.6,-4],[-0.4,-5.6],[-0.4,5],[-2.5,5]]),"y");P(g,T([[0.9,-3.2],[2.5,-1],[2.5,2.4],[1.1,2.4]]),"N");
+ [[-4.2,2.2,6],[0,3.4,9],[4.2,2.2,6]].forEach(([off,s0,s1])=>{const t0=T([[off,5+s0]])[0],t1=T([[off,5+s1]])[0];L(g,t0[0],t0[1],t1[0],t1[1],"w",1)});return g},
 };
 const G={};for(const k in MOT)G[k]=MOT[k]().map(r=>r.join(""));
 
 /* kind, key, name, word, primary, secondary, motif, motif label, status, author's request */
 const SETS=[
 ["theme","souls_like","Souls-like","SOULS","#e8833a","#fff09a","flame","classic fire","approved","OK, approved by the author"],
-["theme","metroidvania","Metroidvania","EXPLORE","#2a6f9a","#9affe0","compass","compass without the rim","redrawn","remove the circle or make it much less visible on its rim"],
+["theme","metroidvania","Metroidvania","EXPLORE","#2a6f9a","#9affe0","compass","compass without the rim","approved","OK, approved by the author"],
 ["theme","roguelike","Roguelike","ROGUE","#b47cff","#ead9ff","loop","looping arrow","approved","OK, approved by the author"],
-["theme","deckbuilder","Deckbuilder","DECK","#66c0f4","#fff09a","fan","wide fanned cards","redrawn","the cards were too thin, make them wider"],
+["theme","deckbuilder","Deckbuilder","DECK","#66c0f4","#fff09a","fan","wide fanned cards","approved","OK, approved by the author"],
 ["theme","cosy","Cosy","COSY","#ffc49a","#fff3c4","heart","heart, centred","approved","OK, approved by the author"],
 ["theme","farming","Farming","FARM","#a4d007","#fff09a","tractor","tractor","approved","OK, approved by the author"],
 ["theme","horror","Horror","HORROR","#d6403a","#ffb39a","ghost","cartoon ghost","approved","OK, approved by the author"],
@@ -261,22 +274,22 @@ const SETS=[
 ["theme","space","Space","SPACE","#b47cff","#9ac8ff","saturn","Saturn","approved","OK, approved by the author"],
 ["theme","cyberpunk","Cyberpunk","CYBER","#ff9ad5","#9affe0","bolt","bolt, centred","approved","OK, approved by the author"],
 ["theme","fps","FPS","FPS","#e8833a","#fff09a","grenade","grenade","approved","OK, approved by the author"],
-["theme","third_person_shooter","Third-person shooter","SHOOTER","#c4945e","#fff09a","crosshair","crosshair with lines","redrawn","add vertical and horizontal lines to make the viewfinder"],
-["theme","platformer","Platformer","JUMP","#3fcf8e","#fff09a","jumperA","hero arms up, bent leg","redrawn","the jumping character was not good enough: two new proposals",[["J1","jumperA","hero arms up, one bent leg"],["J2","jumperB","round hero mid-jump"]]],
-["theme","puzzle","Puzzle","PUZZLE","#9ac8ff","#fff09a","pieceA","jigsaw piece","redrawn","the puzzle piece was ugly: two new proposals",[["P1","pieceA","clean jigsaw piece with necks"],["P2","pieceB","two pieces joining"]]],
-["theme","racing","Racing","RACING","#d6403a","#fff09a","carSide","F1 car, top view","redrawn","try an F1-style racing car: two views",[["R1","carSide","F1 car, top view"],["R2","carTop","F1 car, front view"]]],
-["theme","sports","Sports","SPORTS","#3fcf8e","#e6eef5","basketball","basketball","redrawn","the football does not work on the black background: a basketball"],
+["theme","third_person_shooter","Third-person shooter","SHOOTER","#c4945e","#fff09a","crosshair","crosshair with lines","approved","OK, approved by the author"],
+["theme","platformer","Platformer","JUMP","#3fcf8e","#fff09a","jumperA","hero arms up, bent leg","approved","OK, approved by the author",[["J1","jumperA","hero arms up, one bent leg"],["J2","jumperB","round hero mid-jump"]]],
+["theme","puzzle","Puzzle","PUZZLE","#9ac8ff","#fff09a","pieceA","jigsaw piece, mass-centred","reproposed","centre the piece better (round 3)"],
+["theme","racing","Racing","RACING","#d6403a","#fff09a","carSide","F1 car, side view","reproposed","side view (round 3)",[["R1","carSide","F1 car, side view, red"],["R2","carSide2","F1 car, side view, blue livery"]]],
+["theme","sports","Sports","SPORTS","#3fcf8e","#e6eef5","basketball","basketball","approved","OK, approved by the author"],
 ["theme","strategy","Strategy","STRATEGY","#2a6f9a","#b5e2ff","knight","chess knight","approved","OK, approved by the author"],
-["theme","rpg","RPG","RPG","#b47cff","#fff3c4","blade","sword only","redrawn","keep only the sword"],
-["theme","survival","Survival","SURVIVAL","#c4945e","#ffc49a","dirt","dirt block","redrawn","a Minecraft-style dirt block instead of the sword"],
+["theme","rpg","RPG","RPG","#b47cff","#fff3c4","blade","sword only","approved","OK, approved by the author"],
+["theme","survival","Survival","SURVIVAL","#c4945e","#ffc49a","dirt","dirt block","approved","OK, approved by the author"],
 ["theme","city_builder","City builder","CITY","#8f98a0","#b5e2ff","city","buildings","approved","OK, approved by the author"],
 ["theme","visual_novel","Visual novel","NOVEL","#ff9ad5","#fff3c4","book","open book","approved","OK, approved by the author"],
-["theme","point_and_click","Point and click","CLICK","#9ac8ff","#e6eef5","cursor","mouse pointer","redrawn","a mouse pointer, not a mouse"],
-["theme","adventure","Adventure","ADVENTURE","#3fcf8e","#fff3c4","fedoraA","fedora and whip","redrawn","more clearly Indiana Jones, the hat was ugly: two proposals",[["A1","fedoraA","fedora and coiled whip"],["A2","fedoraB","golden idol wearing the fedora, whip curled round it"]]],
-["theme","fighting","Fighting","FIGHT","#d6403a","#fff3c4","pow","POW burst","redrawn","a comics-style POW instead of the fighter"],
+["theme","point_and_click","Point and click","CLICK","#9ac8ff","#e6eef5","cursor","mouse pointer","approved","OK, approved by the author"],
+["theme","adventure","Adventure","ADVENTURE","#3fcf8e","#fff3c4","fedoraA","fedora and whip","approved","OK, approved by the author",[["A1","fedoraA","fedora and coiled whip"],["A2","fedoraB","golden idol wearing the fedora, whip curled round it"]]],
+["theme","fighting","Fighting","FIGHT","#d6403a","#fff3c4","pow","POW burst","approved","OK, approved by the author"],
 ["theme","stealth","Stealth","STEALTH","#c9a6ff","#9affe0","feather","feather","approved","OK, approved by the author"],
 ["theme","rhythm","Rhythm","RHYTHM","#ff9ad5","#9ac8ff","notes","beamed notes","approved","OK, approved by the author"],
-["theme","shoot_em_up","Shoot 'em up","BULLETS","#e8833a","#fff09a","bullet","rifle bullet","redrawn","a rifle bullet instead of the M4"],
+["theme","shoot_em_up","Shoot 'em up","BULLETS","#e8833a","#fff09a","bullet","rifle cartridge","reproposed","it looked like a lipstick: redrawn as a cartridge (round 3)",[["B1","bullet","rifle cartridge: copper tip, crimp, brass case, rim"],["B2","bulletB","flying bullet with motion trail"]]],
 ["theme","hack_and_slash","Hack and slash","SLASH","#d6403a","#ffc49a","fruit","sliced fruit","approved","OK, approved by the author"],
 ["theme","post_apocalyptic","Post-apocalyptic","WASTELAND","#c4945e","#d8ff9a","barrel","toxic barrel","approved","OK, approved by the author"],
 ["theme","war","War","WAR","#8f98a0","#ffb39a","tank","tank","approved","OK, approved by the author"],
@@ -360,11 +373,12 @@ function redrawAll(){CANVASES.forEach(([cv,s,w,h])=>drawBack(cv,w,h,s))}
 (function(){const cv=document.getElementById("legend");drawBack(cv,80,120,SETS[3]);cv.style.width="160px";cv.style.height="240px";CANVASES.push([cv,SETS[3],80,120])})();
 
 /* rows */
-const KEY="set-backs-approval-v3";let S={};
+const KEY="set-backs-approval-v4";let S={};
 try{S=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){S={}}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const id=s=>s[0]+"/"+s[1];
-const applyDefaults=()=>SETS.forEach(s=>{if(s[8]==="approved"&&!S[id(s)])S[id(s)]={ok:true}});
+const CHOSEN={platformer:"J1",adventure:"A2"};
+const applyDefaults=()=>SETS.forEach(s=>{if(s[8]==="approved"&&!S[id(s)])S[id(s)]=CHOSEN[s[1]]?{ok:true,alt:CHOSEN[s[1]]}:{ok:true}});
 applyDefaults();
 const el=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n};
 const field=(label,node)=>{const d=el("div");d.appendChild(el("dt",null,label));const dd=el("dd");dd.appendChild(typeof node==="string"?document.createTextNode(node):node);d.appendChild(dd);return d};
@@ -390,7 +404,7 @@ function buildRow(s){
   info.appendChild(el("h3",null,word));
   info.appendChild(el("div","meta",kind+" / "+key+" - "+name));
   const dl=el("dl","fields");
-  dl.appendChild(field("Status",el("span","st-"+status,status==="approved"?"approved by the author":"redrawn, round 2")));
+  dl.appendChild(field("Status",el("span","st-"+status,status==="approved"?"approved by the author":"re-proposed, round 3")));
   dl.appendChild(field("Your request",ask));
   dl.appendChild(field("Word",word+" ("+word.length+" letters)"));
   dl.appendChild(field("Motif",s[10]?s[10].map(x=>x[0]+" "+x[2]).join(" / "):label));
