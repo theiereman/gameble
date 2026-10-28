@@ -30,7 +30,7 @@ The spec is the requirement source: `spec-gameble/spec-gameble.md`, capabilities
 ## Done when
 
 1. The author plays every day for a month alongside at least 10 active players, not all of them friends, and sees their pulls and trades in the feed.
-2. Every capability CAP-1 to CAP-26 except CAP-20, CAP-22 and CAP-23 is live in production, in French and in English; CAP-20 and CAP-22 follow the public launch (epic Cosmetics), and CAP-23 follows it too, live before production's second season (epic-seasons-carry-over).
+2. Every capability CAP-1 to CAP-26 except CAP-20, CAP-22 and CAP-23 is live in production, in French and in English; CAP-20 and CAP-22 follow the public launch (epic-card-backs and epic-profile-titles-and-themes), and CAP-23 follows it too, live before production's second season (epic-seasons-carry-over).
 3. Opening a pack answers within 200 ms at the 95th percentile.
 4. No blocking bug stays open for more than a day during the first month.
 
@@ -77,3 +77,4 @@ One Rails application and its Steam import, cut by capability. Not the V2 market
 - Decision (2026-10-19, author): epic-card-backs (Cosmetics) follows the public release, as Done when 2 already says: epics 12 and 16 no longer wait on it, and it now waits on epic 12. epic-seasons-carry-over still waits on it for the recap.
 - Decision (2026-10-19, author): tiers carry no season mark (no "Or · 12 saisons", no "à reconquérir"); epic-seasons-carry-over drops its entry 3. Card backs keep theirs.
 - Decision (2026-10-22, author): the booster and the trade board leave React in a new epic, epic-port-off-react (21), release 0.5.0, before epic 12 (architecture AD-16, AD-30, AD-31); both screens take bug fixes only until it lands, and epics 9 and 19 wait on it.
+- Decision (2026-10-28, author): the MVP is everything before 1.0.0. epic-card-backs (9) is incepted for release 1.2.0, after epics 17 and 19, and covers CAP-20 and the card backs part of CAP-23; epic-seasons-carry-over no longer waits on it and ships its recap without backs. Profile titles and menu themes (CAP-22) leave it for a new epic, epic-profile-titles-and-themes (24), release 1.2.0, after it.
