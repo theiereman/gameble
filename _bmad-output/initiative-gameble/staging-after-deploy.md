@@ -34,14 +34,11 @@ Noted from the builds of 2026-10-28. Every task below is idempotent: running it 
 
 ## Wish: put staging behind Cloudflare, only if it stays free
 
-Author's wish of 2026-10-28; nothing decided, to study before any change. From general knowledge, not checked against Cloudflare's current plans:
+Author's wish of 2026-10-28; nothing decided. Production already runs this way (`config/deploy.production.yml`, `docs/operations.md`, `RELEASING.md`): `cloudflared` runs as a systemd service on the host, no port is open, Cloudflare terminates TLS (`ssl: false` on the Kamal proxy, `forward_headers: true` to keep `X-Forwarded-For` and `X-Forwarded-Proto`), and Kamal reaches the host over SSH through the same tunnel (`ssh.<domain>`, guarded by Cloudflare Access, `proxy_command: cloudflared access ssh --hostname %h`). So staging can copy the production destination file and its setup steps; the Tunnel and Access are free on Cloudflare's current free tier as far as the production setup shows, to confirm for a second hostname.
 
-- The Free plan has covered DNS, the proxy with universal HTTPS, DDoS protection and basic caching, and a free Tunnel (`cloudflared`) that exposes the app without opening a public port. Running the Rails app itself on Cloudflare's platform would need containers, which are not part of the free plan: so the realistic target is staging behind Cloudflare as proxy or tunnel, still served by Kamal on the current server.
-- To check before the move:
-  - Kamal's proxy gets its certificate from Let's Encrypt: behind the orange cloud, use "Full (strict)" with an origin certificate, or keep the challenge reachable, and decide who terminates TLS.
-  - Client IP: the rate limits (Rack::Attack, the `rate_limit` of the back-office actions, the public page throttle) read the remote IP; behind Cloudflare they must read `CF-Connecting-IP` through trusted proxies, otherwise every visitor shares one address.
-  - Cached pages: public pages must not cache anything per player (no `Set-Cookie` or session on cached responses); set the cache rules by path.
-  - Steam sign-in return URL and the OpenID realm stay on the staging domain.
-  - Security headers and CSP set by the app must not be altered by the proxy.
-  - WebSockets (Turbo Streams, cable) must pass: Cloudflare proxies them on the Free plan.
-- Production will need the same decisions (the launch notes already list the Cloudflare setup as not done), so staging is the rehearsal.
+To check for staging:
+
+- A staging hostname and its tunnel route, plus an SSH route guarded by Access for the deploy from the CI or from the author's machine.
+- Client IP: the production file already trusts the tunnel's private address for `X-Forwarded-For`; the same setting must apply to staging so the rate limits do not see one shared address.
+- Steam sign-in return URL and OpenID realm stay on the staging domain.
+- The deploy workflow secrets (`SSH_KNOWN_HOSTS`, Access service token) for a staging destination, if staging is to be deployed by a workflow.
