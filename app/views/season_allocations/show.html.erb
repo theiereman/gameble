@@ -7,9 +7,10 @@
       <%= render "season_allocations/tiers", label: t("season_allocations.show.earned.tiers"), tiers: @recap.earned %>
     <% end %>
   <% end %>
-  <% if @recap.achievements.any? %>
+  <% if @recap.backs.any? || @recap.achievements.any? %>
     <%= render "season_allocations/section", id: "unlocked", heading: t("season_allocations.show.unlocked.heading", number: @recap.ended_season_number) do %>
-      <%= render "season_allocations/achievements", achievements: @recap.achievements %>
+      <%= render "season_allocations/backs", backs: @recap.backs if @recap.backs.any? %>
+      <%= render "season_allocations/achievements", achievements: @recap.achievements if @recap.achievements.any? %>
     <% end %>
   <% end %>
   <% if @recap.received.any? %>

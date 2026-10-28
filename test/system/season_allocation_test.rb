@@ -74,4 +74,17 @@ class SeasonAllocationTest < ApplicationSystemTestCase
     end
     assert_no_sideways_scroll
   end
+
+  test "a back earned in the ended season shows as a large row with its picture and stays inside a 390 × 844 phone" do
+    Catalog::Season.find_by!(number: 1).update!(published_at: 10.days.ago)
+    Catalog::Season.find_by!(number: 2).update!(published_at: 1.hour.ago)
+    Game::CardBackUnlock.record(@player.id, Game::CardBacks::GOAL_BACK, 3.days.ago)
+    resize_to(390, 844)
+    sign_in_to_the_screen
+
+    assert_selector ".allocation-row--back", count: 1
+    assert_selector ".allocation-row--back .back-picker__image"
+    assert_selector ".allocation-row--back .allocation-row__how", text: "Take part in the community goal."
+    assert_no_sideways_scroll
+  end
 end

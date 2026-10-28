@@ -119,6 +119,20 @@
   white-space: nowrap;
 }
 
+.allocation-row--back {
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+}
+
+.allocation-row--back .back-picker__image {
+  flex: none;
+}
+
+.allocation-row__how {
+  display: block;
+  color: var(--color-muted);
+}
+
 .allocation__go {
   position: sticky;
   bottom: 0;

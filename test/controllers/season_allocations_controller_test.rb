@@ -62,6 +62,28 @@ class SeasonAllocationsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".allocation-row__name b", text: I18n.t("achievements.names.first_booster", locale: :fr)
   end
 
+  test "the screen shows the card backs earned in the ended season, each with its picture, name, condition and date, and names no id" do
+    Catalog::Season.find_by!(number: 1).update!(published_at: 10.days.ago)
+    @season.update!(published_at: 1.hour.ago)
+    Game::CardBackUnlock.record(@player.id, Game::CardBacks.set_key("theme", "horror"), 3.days.ago)
+    Game::CardBackUnlock.record(@player.id, Game::CardBacks::GOAL_BACK, 20.days.ago)
+    sign_in(@player)
+
+    get season_allocation_path(locale: :en)
+
+    assert_select "#allocation-unlocked-heading", "Unlocked in season 1"
+    assert_select ".allocation-row--back", 1
+    assert_select ".allocation-row--back img[src*='back-theme-horror-m']", 1
+    assert_select ".allocation-row--back .allocation-row__name b", text: /\S/
+    assert_select ".allocation-row--back .allocation-row__how", text: /\ACollect half of the .+ set\.\z/
+    assert_select ".allocation-row--back time", 1
+    assert_no_match(/data-id|\bid="\d+"/, response.body)
+
+    get season_allocation_path(locale: :fr)
+
+    assert_select ".allocation-section__sub", text: /Dos de carte/
+  end
+
   test "the screen writes nothing" do
     sign_in(@player)
 

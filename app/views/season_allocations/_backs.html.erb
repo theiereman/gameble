@@ -1,0 +1,14 @@
+<%# locals: (backs:) %>
+<h3 class="allocation-section__sub"><%= t("season_allocations.show.unlocked.backs") %><span class="visually-hidden">, </span><span class="allocation-section__count"><%= backs.size %></span></h3>
+<ul class="allocation-list">
+  <% backs.each do |earned| %>
+    <li class="allocation-row allocation-row--back">
+      <%= card_back_image(earned.back, "m") %>
+      <span class="allocation-row__name">
+        <b><%= card_back_name(earned.back) %></b>
+        <span class="allocation-row__how"><%= card_back_condition(earned.back) %></span>
+      </span>
+      <%= local_time_tag(earned.unlocked_at, :datetime, class: "allocation-row__date") %>
+    </li>
+  <% end %>
+</ul>

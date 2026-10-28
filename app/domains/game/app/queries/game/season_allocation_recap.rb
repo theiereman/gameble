@@ -4,7 +4,7 @@ module Game
     AchievementEarned = Data.define(:key, :unlocked_at) do
       def earned = true
     end
-    Recap = Data.define(:season_number, :ended_season_number, :earned, :achievements, :received)
+    Recap = Data.define(:season_number, :ended_season_number, :earned, :achievements, :backs, :received)
 
     SETS_OF_SEASON = "JOIN catalog_sets ON catalog_sets.id = game_set_tiers.set_id " \
       "JOIN catalog_seasons ON catalog_seasons.id = catalog_sets.season_id".freeze
@@ -17,7 +17,7 @@ module Game
 
       Recap.new(season_number: published.number, ended_season_number: ended_number,
         earned: earned_tiers(player, ended_number), achievements: achievements(player, ended, published),
-        received: received_tiers(player, published, state))
+        backs: CardBacksEarnedIn.call(player, ended, before: published.published_at), received: received_tiers(player, published, state))
     end
 
     def self.earned_tiers(player, ended_number)

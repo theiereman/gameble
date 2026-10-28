@@ -2118,6 +2118,7 @@ en:
       title: Season allocation
       unlocked:
         achievements: Achievements
+        backs: Card backs
         heading: Unlocked in season %{number}
   sessions:
     banned:

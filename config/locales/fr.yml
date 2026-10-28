@@ -2051,6 +2051,7 @@ fr:
       unlocked:
         heading: "Débloqué pendant la saison %{number}"
         achievements: "Succès"
+        backs: "Dos de carte"
       received:
         heading: "Vos paliers dans la saison suivante"
         note: "Reçus d'office dans la saison %{number}, sans célébration."
