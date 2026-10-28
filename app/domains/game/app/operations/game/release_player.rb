@@ -15,6 +15,7 @@ module Game
         ShowcaseEntry.where(player_id: player.id).delete_all
         Holding.where(player_id: player.id).delete_all
         AchievementUnlock.where(player_id: player.id).delete_all
+        CardBackUnlock.where(player_id: player.id).delete_all
         FriendCode.where(player_id: player.id).delete_all
         PlayerState.where(player_id: player.id).delete_all
         player

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_27_100001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -266,6 +266,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_100001) do
     t.index ["player_id", "achievement"], name: "index_game_achievement_unlocks_on_player_id_and_achievement", unique: true
   end
 
+  create_table "game_card_back_unlocks", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.string "back", null: false
+    t.datetime "unlocked_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "back"], name: "index_game_card_back_unlocks_on_player_id_and_back", unique: true
+  end
+
   create_table "game_daily_bonus_claims", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.date "day", null: false
@@ -409,6 +418,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_100001) do
     t.datetime "collection_seen_up_to"
     t.string "last_activity"
     t.datetime "last_activity_at"
+    t.string "active_card_back"
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
   end
 

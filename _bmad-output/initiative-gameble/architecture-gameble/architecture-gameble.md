@@ -294,7 +294,7 @@ graph TD
   - Unlocks are rows per player and back, unique. The active back is a column of the player's `game_player_states` row. Every account has `standard`.
   - Unlocks are granted only by `Game` handlers on events (AD-10), and by one administrator operation run from the console that grants a back to a group of players, one player per transaction.
   - An unlock is announced by the opening's response (AD-23) or the private stream (AD-13).
-  - The active back shows only to its owner: on their face-down cards at opening, as stored on the pack, and faded on the detail of a card they do not own.
+  - The active back shows only to its owner, on their face-down cards at opening, as stored on the pack; never on the detail of a card, nor on another player's cards or profile (author, 2026-10-28).
 
 ### AD-26 — NOUVEAU is a watermark `[ADOPTED]`
 

@@ -41,6 +41,7 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
       codes: Game::FriendCode.where(player_id: player.id).count,
       rewards: Game::GoalReward.where(player_id: player.id).count,
       achievements: Game::AchievementUnlock.where(player_id: player.id).count,
+      card_backs: Game::CardBackUnlock.where(player_id: player.id).count,
       states: Game::PlayerState.where(player_id: player.id).count }
   end
 
@@ -69,6 +70,7 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     play(@player)
     play(@other)
     [ @player, @other ].each { Game::GrantAchievementsJob.perform_now(it.id) }
+    [ @player, @other ].each { Game::CardBackUnlock.record(it.id, "aurore", Time.current) }
     Game::CreatePlayerState.new.call(player: @player).value!
     Game::CreatePlayerState.new.call(player: @other).value!
     week = Game::WeeklyContribution.where(player_id: @player.id).pick(:week_start)
@@ -79,7 +81,7 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
 
     assert delete.success?
 
-    assert_equal({ packs: 0, holdings: 0, showcase: 0, feed: 0, claims: 0, codes: 0, rewards: 0, achievements: 0, states: 0 }, game_rows(@player))
+    assert_equal({ packs: 0, holdings: 0, showcase: 0, feed: 0, claims: 0, codes: 0, rewards: 0, achievements: 0, card_backs: 0, states: 0 }, game_rows(@player))
     assert Game::WeeklyContribution.exists?(player_id: @player.id)
     assert_equal before, game_rows(@other)
   end

@@ -370,3 +370,10 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-human-readable-codebase/story-a-fresh-machine-follows-the-readme-plan.md`
   summary: `PixelArtExportTest` can hang on an idle `node script/pixel_art/export.mjs` child when the Ruby suite runs in parallel in a fresh container.
   evidence: in a `ruby:4.0.7` container with 8 CPUs, one worker waited 20 minutes on the "check fails and names a PNG whose pixels changed" test while its node child sat in a futex wait; the same command alone exits 0 in seconds and the suite passed once that child was killed. Seen once, not reproduced; a fix would add a timeout around the `Open3.capture2e` call.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-card-backs/story-the-back-catalogue-unlock-rows-and-the-active-back-plan.md`
+  summary: Add the card back unlocks and the active back to the player data export and to the account deletion notice, with the choice described in `fr.yml` and `en.yml`.
+  evidence: `Game::ReleasePlayer` now deletes `game_card_back_unlocks` but `Game::ExportOf`, `PlayerExport` and the deletion copy (`accounts` notes) name achievements and not backs; do it with the picker, when a player first sees a back.
+- source_plan: `_bmad-output/initiative-gameble/epic-card-backs/story-the-back-catalogue-unlock-rows-and-the-active-back-plan.md`
+  summary: CAP-20 of the spec still says the player picks the active back "in the profile".
+  evidence: the UX session of 2026-10-28 put the picker on the Personnalisation page (epic-personalization); the spec line should say so.

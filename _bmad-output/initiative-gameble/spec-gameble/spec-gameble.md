@@ -162,7 +162,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - Every account starts with the "Standard" card back.
     - More are unlocked by reaching a theme or hall of fame set's back tier, its first tier at or above half its cards (one back per such set), contributing to a successful weekly goal, some achievements, and events or seasons. A locked back states its unlock condition. A back earned on a set carries the mark of each season it was earned in; the player picks which season's mark the active back wears.
     - The player picks one active back in the profile; it applies from the next pack opened.
-    - Only the player sees it: on their own face-down cards at opening, and faded on the detail of a card they do not own.
+    - Only the player sees it, on their own face-down cards at opening: never on the detail of a card, nor on another player's cards or profile (author, 2026-10-28).
     - The back catalogue is in `DESIGN.md`.
 - **CAP-21**
   - **intent:** A player can see which of their friends are around.
