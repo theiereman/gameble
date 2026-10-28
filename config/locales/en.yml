@@ -23,6 +23,7 @@ en:
       title: Delete my account
       word: DELETE
   achievements:
+    back_reward: Unlocks the %{back} card back
     conditions:
       boosters_10: Open 10 capsules
       boosters_100: Open 100 capsules
@@ -687,6 +688,13 @@ en:
     conditions:
       set_tier: Collect half of the %{set} set.
     names:
+      aurore: Dawn
+      centurion: Centurion
+      confrere: Confrère
+      etoile-dor: Golden star
+      millesime-2017: Vintage 2017
+      saison-1: Season 1
+      soldes-hiver: Winter sales
       standard: Standard
   card_details:
     copies:

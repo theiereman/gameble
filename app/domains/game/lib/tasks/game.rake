@@ -41,6 +41,19 @@ namespace :game do
     puts "game:backfill_card_backs: done; any failure went to the error tracker, and a rerun unlocks only what is missing"
   end
 
+  desc "Grants an event card back (saison-1, millesime-2017 or soldes-hiver) to the players with these Steam ids, separated by spaces; each player in a transaction of their own, a rerun grants only what is missing"
+  task :grant_card_back, %i[back steam_ids] => :environment do |_task, args|
+    back = args[:back].to_s
+    abort "game:grant_card_back: #{back.inspect} is not an event back (#{Game::CardBacks::EVENT_BACK_KEYS.join(", ")})" unless Game::CardBacks.event?(back)
+
+    steam_ids = args[:steam_ids].to_s.split.uniq
+    abort "game:grant_card_back: give the Steam ids of the players, separated by spaces" if steam_ids.empty?
+
+    outcome = Game::GrantCardBackJob.grant(back:, steam_ids:)
+    puts "game:grant_card_back: #{back}: #{outcome.granted} granted, #{outcome.already_held} already held, " \
+         "#{outcome.not_found} not found or banned, #{outcome.failed} failed (see the error tracker)"
+  end
+
   desc "Runs Game::DropFriendsAndTradesJob now: deleted or banned players' open trades cancelled, their friendships and invitations dropped; idempotent"
   task drop_friends_and_trades: :environment do
     Game::DropFriendsAndTradesJob.perform_now

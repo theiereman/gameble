@@ -96,6 +96,29 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select "progress", false
   end
 
+  test "the tiles that unlock a card back name it with its picture, earned or not" do
+    unlock("boosters_100")
+    sign_in(@player)
+
+    get achievements_path(locale: :fr)
+
+    centurion = tile(:earned, "100 capsules")
+    assert_equal "Débloque le dos Centurion", centurion.at_css(".achievement__back").text.strip
+    assert centurion.at_css("img.achievement__back-image")
+    assert_equal "Débloque le dos Étoile d'or", tile(:to_earn, "Première Légendaire").at_css(".achievement__back").text.strip
+    assert_equal "Débloque le dos Aurore", tile(:to_earn, "Trois sets complets").at_css(".achievement__back").text.strip
+    assert_nil tile(:to_earn, "500 capsules").at_css(".achievement__back")
+    assert_nil tile(:to_earn, "Premier échange").at_css(".achievement__back")
+  end
+
+  test "the card back line reads in English" do
+    sign_in(@player)
+
+    get achievements_path(locale: :en)
+
+    assert_equal "Unlocks the Dawn card back", tile(:to_earn, "Three complete sets").at_css(".achievement__back").text.strip
+  end
+
   test "an achievement of threshold one not yet earned shows no bar nor count" do
     sign_in(@player)
 

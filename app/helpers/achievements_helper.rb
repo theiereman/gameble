@@ -12,4 +12,12 @@ module AchievementsHelper
     glyph = GLYPHS.fetch(tile.key)
     pixel_icon(tile.earned ? "achievement-#{glyph}" : "achievement-#{glyph}-locked", class: "achievement__glyph")
   end
+
+  def achievement_back_reward(tile)
+    back = Game::CardBacks.for_achievement(tile.key)
+    return unless back
+
+    image = image_tag(vite_asset_path("images/pixel/#{back.asset}-xs.png"), alt: "", width: 25, height: 38, class: "achievement__back-image")
+    tag.p(safe_join([ image, t("achievements.back_reward", back: t("card_backs.names.#{back.key}")) ], " "), class: "achievement__back")
+  end
 end

@@ -138,6 +138,30 @@
   letter-spacing: var(--tracking-body-small);
 }
 
+.achievement__back {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-max);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.achievement__back-image {
+  display: block;
+  flex: none;
+  image-rendering: pixelated;
+}
+
+.achievement--locked .achievement__back {
+  color: var(--color-muted);
+}
+
+.achievement--locked .achievement__back-image {
+  opacity: 0.55;
+}
+
 .achievement__bar {
   display: block;
   width: 100%;

@@ -23,9 +23,22 @@ module Game
       end
     end.freeze
 
+    GOAL_BACK = "confrere".freeze
+    ACHIEVEMENT_BACKS = { "boosters_100" => "centurion", "first_legendary" => "etoile-dor", "three_complete_sets" => "aurore" }.freeze
+    EVENT_BACK_KEYS = %w[saison-1 millesime-2017 soldes-hiver].freeze
+
+    MILESTONE_BACKS = [
+      Back.new(key: GOAL_BACK, asset: "back-#{GOAL_BACK}", unlock: Unlock.new(kind: :goal, target: nil)),
+      *ACHIEVEMENT_BACKS.map { |achievement, key| Back.new(key:, asset: "back-#{key}", unlock: Unlock.new(kind: :achievement, target: achievement)) }
+    ].freeze
+
+    EVENT_BACKS = EVENT_BACK_KEYS.map { Back.new(key: it, asset: "back-#{it}", unlock: Unlock.new(kind: :event, target: nil)) }.freeze
+
     CATALOGUE = [
       Back.new(key: STANDARD, asset: "back-#{STANDARD}", unlock: Unlock.new(kind: :always, target: nil)),
-      *SET_BACKS
+      *SET_BACKS,
+      *MILESTONE_BACKS,
+      *EVENT_BACKS
     ].freeze
 
     BY_KEY = CATALOGUE.index_by(&:key).freeze
@@ -38,6 +51,14 @@ module Game
 
     def self.find(key)
       BY_KEY[key.to_s]
+    end
+
+    def self.for_achievement(achievement)
+      find(ACHIEVEMENT_BACKS[achievement.to_s])
+    end
+
+    def self.event?(key)
+      find(key)&.unlock&.kind == :event
     end
 
     def self.active_key(player)

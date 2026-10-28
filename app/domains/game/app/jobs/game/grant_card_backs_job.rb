@@ -4,7 +4,7 @@ module Game
 
     def self.grant(player, retroactive: false)
       held = CardBackUnlock.where(player_id: player.id).pluck(:back)
-      (EarnedSetBacks.call(player) - held).map do |back|
+      ((EarnedSetBacks.call(player) + EarnedMilestoneBacks.call(player)) - held).map do |back|
         UnlockCardBack.new.call(player:, back:, retroactive:)
       end
     end
