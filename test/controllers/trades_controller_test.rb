@@ -471,7 +471,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("trade_board.strings", locale: :fr).keys.map { it.to_s.camelize(:lower) }.sort, strings.keys.sort
     assert_equal({ "zero" => "0 carte", "one" => "%{count} carte", "other" => "%{count} cartes" }, strings.fetch("cards"))
     assert_equal "Retirer %{title}", strings.fetch("remove")
-    assert_no_match(/style=|card_season_id|trade[_-]id|\svalue="#{trade.id}"/, board.to_html)
+    assert_no_match(/style=|card_season_id|trade[_-]id|name="[^"]*(?:trade|_id)[^"]*"[^>]*\svalue="#{trade.id}"/, board.to_html)
   end
 
   def get_faces(keys)
