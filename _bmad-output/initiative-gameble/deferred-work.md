@@ -417,3 +417,11 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-cleanup-1-2-0/story-a-banned-account-can-be-erased-by-staff-plan.md`
   summary: `PlayerExportTest` ("a player's export holds every section…") failed once in the full parallel Ruby run on its weekly contributions line and passes alone; look for a week boundary or a time leak between tests.
   evidence: 3261 runs on 2026-10-28, one failure at `test/models/player_export_test.rb:84`, then 0 failures in the file alone, three times.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-special-packs/story-a-special-reserve-without-cap-plan.md`
+  summary: `Game::Reserve.counts` groups unopened packs by kind, which the partial index `index_game_packs_unopened (player_id, available_at, id)` does not cover, so it reads every unopened row of the player on each hub, chip and opening response; the special reserve has no cap.
+  evidence: negligible at realistic volumes (a few daily and goal capsules a week); `OpenPack` and `NextPackSize` use the index and are unaffected. Revisit if a player can hold hundreds of special capsules.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-special-packs/story-a-special-reserve-without-cap-plan.md`
+  summary: Two missing safety nets: no test races two `Game::ClaimGoalReward` calls (once per goal under the bank lock), and `bank_races_test.rb` has no case that races a daily claim against an opening or a heal while 10 standard capsules are held and asserts the standard count stays at 10 and the special count is exactly 1.
+  evidence: independent review of the 19.2 commit; the guards (unique indexes and `unclaimed` checks) are unchanged, so this is a missing net, not a regression.
