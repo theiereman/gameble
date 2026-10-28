@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exotic card: three looks</title>
+<style>
+  :root {
+    --ground: #0e1217;
+    --panel: #161c24;
+    --line: #2a3340;
+    --text: #e8edf2;
+    --muted: #8f98a0;
+    --legendary: #f4c542;
+    --frame: #f4c542;
+    --epic: #b47cff;
+    --rare: #66c0f4;
+    --font-pixel: "VT323", "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 64px;
+    background: var(--ground);
+    color: var(--text);
+    font: 14px/1.5 "JetBrains Mono", ui-monospace, monospace;
+  }
+  main { max-width: 1040px; margin: 0 auto; }
+  h1 { font: 400 2rem/1 var(--font-pixel); margin: 0 0 4px; }
+  h2 { font: 400 1.5rem/1 var(--font-pixel); margin: 40px 0 12px; }
+  p { color: var(--muted); margin: 0 0 12px; max-width: 70ch; }
+  .row { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+  .look { display: flex; flex-direction: column; gap: 8px; }
+  .look h3 { font: 400 1.25rem/1 var(--font-pixel); margin: 0; }
+  .look small { color: var(--muted); max-width: 26ch; }
+
+  /* The card, drawn like the app's: rarity frame, bevel, pixel outline, panel body. */
+  .card {
+    width: 208px; height: 312px; padding: 5px;
+    background: var(--frame);
+    box-shadow: 0 0 0 2px #000, inset 2px 2px 0 rgba(255,255,255,.35), inset -2px -2px 0 rgba(0,0,0,.35);
+    display: block;
+  }
+  .card__body { height: 100%; display: flex; flex-direction: column; gap: 4px; padding: 5px; background: var(--panel); }
+  .card__band { flex: 1 1 0; display: flex; flex-direction: column; justify-content: center; padding: 0 6px; border-left: 3px solid var(--frame); min-height: 0; }
+  .card__title { font: 400 1.5rem/1 var(--font-pixel); }
+  .card__publisher { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .card__art { width: 188px; height: 194px; background: #0a0e13; image-rendering: pixelated; display: block; }
+  .card__line { display: flex; justify-content: space-between; align-items: center; height: 16px; font-size: 11px; color: var(--muted); }
+  .card__line--rarity { height: 20px; color: var(--text); }
+  .card__rarity { font: 400 1.125rem/1 var(--font-pixel); letter-spacing: .04em; }
+  .card__number { color: var(--muted); font-size: 11px; }
+  .gem { display: inline-block; width: 12px; height: 12px; margin-right: 6px; background: var(--frame); box-shadow: 0 0 0 1px #000; transform: rotate(45deg) scale(.85); vertical-align: -1px; }
+
+  /* Look A, Prism: a stepped rainbow frame, no gradient smoothing, the pixel look. */
+  .look--prism .card {
+    background: linear-gradient(135deg, #ff5d8f 0 16%, #ffb24a 16% 33%, #f4e04a 33% 50%, #4ad69b 50% 66%, #4aa8ff 66% 83%, #b47cff 83% 100%);
+  }
+  .look--prism { --frame: #f4e04a; }
+  .look--prism .gem { background: conic-gradient(#ff5d8f, #ffb24a, #f4e04a, #4ad69b, #4aa8ff, #b47cff, #ff5d8f); }
+
+  /* Look B, Neon: hot pink frame with a cyan outline, a colour no rarity uses. */
+  .look--neon { --frame: #ff4fa3; }
+  .look--neon .card { box-shadow: 0 0 0 2px #000, 0 0 0 4px #3df0ff, inset 2px 2px 0 rgba(255,255,255,.35), inset -2px -2px 0 rgba(0,0,0,.35); }
+
+  /* Look C, Obsidian: near-black frame with white pixel stars, the only dark frame. */
+  .look--obsidian { --frame: #0b0b10; }
+  .look--obsidian .card {
+    background:
+      radial-gradient(#fff 1px, transparent 1.5px) 0 0 / 14px 14px,
+      radial-gradient(#9fe8ff 1px, transparent 1.5px) 7px 7px / 14px 14px,
+      #0b0b10;
+    box-shadow: 0 0 0 2px #fff, inset 2px 2px 0 rgba(255,255,255,.2), inset -2px -2px 0 rgba(0,0,0,.6);
+  }
+  .look--obsidian .card__band { border-left-color: #fff; }
+
+  table { border-collapse: collapse; width: 100%; max-width: 900px; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 400; }
+  .tag { display: inline-block; padding: 0 6px; border: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+  .reco { color: var(--legendary); }
+  .context { display: flex; gap: 16px; flex-wrap: wrap; }
+  .grid { display: grid; grid-template-columns: repeat(6, 76px); gap: 8px; }
+  .mini { width: 76px; height: 114px; padding: 3px; background: var(--frame); box-shadow: 0 0 0 2px #000; }
+  .mini div { height: 100%; background: var(--panel); padding: 3px; font: 400 .9rem/1 var(--font-pixel); display: flex; align-items: flex-end; }
+  .mini--common { --frame: #8f98a0; }
+  .mini--rare { --frame: var(--rare); }
+  .mini--epic { --frame: var(--epic); }
+  .mini--legendary { --frame: var(--legendary); }
+  .mini--prism { background: linear-gradient(135deg, #ff5d8f 0 16%, #ffb24a 16% 33%, #f4e04a 33% 50%, #4ad69b 50% 66%, #4aa8ff 66% 83%, #b47cff 83% 100%); }
+  .mini--neon { --frame: #ff4fa3; box-shadow: 0 0 0 2px #000, 0 0 0 4px #3df0ff; }
+  .mini--obsidian { --frame: #0b0b10; box-shadow: 0 0 0 2px #fff; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Exotic card: three looks</h1>
+  <p>The tribute card at the large size (208 × 312). It is outside the rarities: its mark reads « Exotic » / « Exotique », its category line reads « beta-builder », and the art is the tester's photo pixelated. The portraits here are placeholders drawn from the pseudonym; the real ones come from the testers' photos once they agree.</p>
+
+  <h2>1. The frame</h2>
+  <div class="row">
+    <div class="look look--prism">
+      <h3>A · Prism</h3>
+      <span class="card"><span class="card__body">
+        <span class="card__band"><span class="card__title">Hydrax</span><span class="card__publisher">beta-builder</span></span>
+        <canvas class="card__art" width="47" height="48" data-name="Hydrax" data-hue="190"></canvas>
+        <span class="card__line"><span>beta-builder</span><span>2026</span></span>
+        <span class="card__line card__line--rarity"><span><i class="gem"></i><span class="card__rarity">Exotic</span></span><span class="card__number">#1 / 6</span></span>
+      </span></span>
+      <small>A stepped rainbow frame. It reads as « beyond gold » at a glance and fits the pixel look, but it is the busiest.</small>
+    </div>
+
+    <div class="look look--neon">
+      <h3>B · Neon</h3>
+      <span class="card"><span class="card__body">
+        <span class="card__band"><span class="card__title">Skyora</span><span class="card__publisher">beta-builder</span></span>
+        <canvas class="card__art" width="47" height="48" data-name="Skyora" data-hue="330"></canvas>
+        <span class="card__line"><span>beta-builder</span><span>2026</span></span>
+        <span class="card__line card__line--rarity"><span><i class="gem"></i><span class="card__rarity">Exotic</span></span><span class="card__number">#2 / 6</span></span>
+      </span></span>
+      <small>A hot pink frame with a cyan outline. A colour no rarity uses, calmer than the prism, closest to the terminal theme.</small>
+    </div>
+
+    <div class="look look--obsidian">
+      <h3>C · Obsidian</h3>
+      <span class="card"><span class="card__body">
+        <span class="card__band"><span class="card__title">Zohan</span><span class="card__publisher">beta-builder</span></span>
+        <canvas class="card__art" width="47" height="48" data-name="Zohan" data-hue="45"></canvas>
+        <span class="card__line"><span>beta-builder</span><span>2026</span></span>
+        <span class="card__line card__line--rarity"><span><i class="gem"></i><span class="card__rarity">Exotic</span></span><span class="card__number">#3 / 6</span></span>
+      </span></span>
+      <small>A near-black frame with pixel stars and a white outline. The only dark card in a grid, so it stands out without adding a hue.</small>
+    </div>
+  </div>
+
+  <h2>2. Next to a Légendaire, in a grid</h2>
+  <p>Each look at the collection size, between a common, a rare, an epic and a legendary, to judge how far it stands from gold.</p>
+  <div class="context">
+    <div class="grid look--prism" data-grid>
+      <div class="mini mini--common"><div>Common</div></div>
+      <div class="mini mini--rare"><div>Rare</div></div>
+      <div class="mini mini--epic"><div>Epic</div></div>
+      <div class="mini mini--legendary"><div>Legend.</div></div>
+      <div class="mini mini--prism"><div>Exotic</div></div>
+    </div>
+    <div class="grid look--neon" data-grid>
+      <div class="mini mini--common"><div>Common</div></div>
+      <div class="mini mini--rare"><div>Rare</div></div>
+      <div class="mini mini--epic"><div>Epic</div></div>
+      <div class="mini mini--legendary"><div>Legend.</div></div>
+      <div class="mini mini--neon"><div>Exotic</div></div>
+    </div>
+    <div class="grid look--obsidian" data-grid>
+      <div class="mini mini--common"><div>Common</div></div>
+      <div class="mini mini--rare"><div>Rare</div></div>
+      <div class="mini mini--epic"><div>Epic</div></div>
+      <div class="mini mini--legendary"><div>Legend.</div></div>
+      <div class="mini mini--obsidian"><div>Exotic</div></div>
+    </div>
+  </div>
+
+  <h2>3. How often it drops</h2>
+  <p>Today a pack holds five cards and a card is a Légendaire 5 times in 10,000 in a regular pack (0.05 %, about one in 400 packs). The exotic must be rarer. Players open about a pack a day, so the rate decides whether anyone ever sees one. The six cards would be drawn evenly once an exotic drop happens.</p>
+  <table>
+    <thead><tr><th>Option</th><th>What it is</th><th>Expected wait</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b class="reco">1 · Regular packs, 1 in 10,000</b> <span class="tag">recommended</span></td>
+        <td>An exotic can come out of any regular pack card, with a share of 1 in 10,000 (a fifth of the Légendaire rate), taken from the Commune share.</td>
+        <td>About one in 2,000 packs per player. A daily player waits years; across 100 active players someone gets one roughly every 20 days.</td>
+        <td>A rare event that gets talked about, with no new way to obtain it. Needs the draw odds and the pool to accept a card outside the season.</td>
+      </tr>
+      <tr>
+        <td>2 · Regular packs, 2 in 10,000</td>
+        <td>Same as above at twice the rate (two fifths of the Légendaire rate).</td>
+        <td>About one in 1,000 packs per player.</td>
+        <td>Still very rare, but a committed player can see one in a few years.</td>
+      </tr>
+      <tr>
+        <td>3 · A beta-builder capsule</td>
+        <td>A special capsule origin (like the daily and goal ones) that holds one exotic card, granted on an event, a milestone or by hand.</td>
+        <td>Set by the author per grant.</td>
+        <td>The author controls who gets one and when, and the rarity of the drop does not touch the odds. Fits the special packs the game already has.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Questions still on the table for the author: which look, which drop option, and whether the exotic counts in the collection totals and set completions (the cards form a set of their own with no season, so the totals could simply ignore it).</p>
+</main>
+
+<script>
+  // Placeholder portraits: a blocky 47 × 48 silhouette seeded by the name, no real photo.
+  function seeded(text) {
+    let h = 2166136261;
+    for (const c of text) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+    return () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h ^= h >>> 13; return ((h >>> 0) % 1000) / 1000; };
+  }
+  document.querySelectorAll("canvas.card__art").forEach((canvas) => {
+    const ctx = canvas.getContext("2d");
+    const rand = seeded(canvas.dataset.name);
+    const hue = Number(canvas.dataset.hue);
+    ctx.fillStyle = `hsl(${hue} 40% 14%)`;
+    ctx.fillRect(0, 0, 47, 48);
+    for (let y = 0; y < 48; y += 3) for (let x = 0; x < 47; x += 3) {
+      ctx.fillStyle = `hsl(${hue} 35% ${10 + rand() * 12}%)`;
+      ctx.fillRect(x, y, 3, 3);
+    }
+    const skin = `hsl(${(hue + 20) % 360} 30% ${48 + rand() * 12}%)`;
+    const block = (x, y, w, h, fill) => { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); };
+    block(15, 30, 17, 18, `hsl(${hue} 55% 38%)`);
+    block(17, 11, 13, 17, skin);
+    block(15, 8, 17, 7, `hsl(${(hue + 200) % 360} 30% ${18 + rand() * 12}%)`);
+    block(20, 18, 2, 2, "#10141a");
+    block(26, 18, 2, 2, "#10141a");
+    block(21, 23, 5, 1, "#10141a");
+  });
+</script>
+</body>
+</html>
