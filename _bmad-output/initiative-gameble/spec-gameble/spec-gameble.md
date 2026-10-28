@@ -178,9 +178,9 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** When a new season is published, a returning player receives the Brotherhood's seasonal allocation: the tiers they reached in the season that ended and their tiers in the next season.
   - **success:**
     - At a player's first visit after a publication, before the hub and before any opening, a dedicated screen recaps the season that ended: the tiers reached during it, and nothing else (author, 2026-10-28: no achievements, weekly goal rewards or card backs).
-    - A second section, "Vos paliers dans la saison suivante", lists the tiers the player still meets in the new season's sets, received at once, and the tiers to win back.
+    - A second section, "Vos paliers dans la saison suivante", lists the tiers the player still meets in the new season's sets, received at once.
     - Tiers carried into the new season are never celebrated at an opening or announced in the feed; an opening or a trade celebrates only the tiers it crosses itself.
-    - One Brotherhood line heads the screen; the rest is plain copy.
+    - No sentence heads the screen: only its title names the season.
     - A player with no card from an earlier season, traded ones included, sees no allocation.
     - A tier shows no season mark and no count of seasons (author, 2026-10-19), and no season chip appears in the collection grid.
 - **CAP-24**
