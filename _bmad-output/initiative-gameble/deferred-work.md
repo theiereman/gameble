@@ -1,6 +1,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-foundation-and-steam-sign-in/story-walking-skeleton-live-in-production-plan.md`
   summary: Deploy gameble to production with Kamal 2 — Dockerfile changes for the Vite build, `config/deploy.yml` and `.kamal/secrets`, the PostgreSQL 18 accessory with its four databases, HTTPS through the Kamal proxy with Let's Encrypt, and the first `bin/kamal setup`, run by the author.
   evidence: Split from story 1.1 on 2026-10-02 at the author's request. There is no production server, no domain and no Cloudflare setup yet; the author will deploy once a working version exists. Story 1.1's Verify and the epic's Done when checks 1, 4 and 6 name production and wait on this work. Author, 2026-10-12: production goes up once everything is built and validated on staging.
+  resolved: production deploy is already done (author, 2026-10-28).
 - source_plan: `_bmad-output/initiative-gameble/epic-foundation-and-steam-sign-in/story-refactor-sweep-plan.md`
   summary: `config/initializers/omniauth.rb` prepends onto `OpenID::Consumer::AssociationManager`, an internal of ruby-openid 2.9.2, to keep the consumer stateless; a ruby-openid upgrade must re-check it, or the OpenID check can be written inside `Steam` as AD-20 allows.
   evidence: Story 1.6 Implementation Notes and residual risks.
@@ -71,6 +72,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-tier-names-and-season-numbers-plan.md`
   summary: Contract step for card numbers (AD-28): once `catalog:number_seasons` has run on every database, add a migration making `catalog_card_seasons.number` required for published card-seasons (e.g. a check `rarity IS NULL OR number IS NOT NULL`, added `validate: false` then validated), and drop the nil case of `CardView#number`/`number_label` and the TypeScript `number: number | null`.
   evidence: Story 8.3 shipped the expand step only (nullable column); seasons published before it stay unnumbered until the backfill (pending-approvals.md, "Number the published seasons"). Author, 2026-10-12: no production yet; the contract step waits for it.
+  resolved: moved to ticket 27.1 (author, 2026-10-28: do it now).
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-single-card-face-plan.md`
   summary: A phone's long press on a card face inside a link (tome, pack result) may open the browser's link context menu or a text selection after about 500 ms, cancelling the pointer and ending the finger's tilt early; if so, suppress it while a finger tilts (`contextmenu` prevented, `-webkit-touch-callout: none`, `user-select: none` on `.card`).
   evidence: Story 8.6 review (unverified, medium if true): `attachTilt` (`app/frontend/lib/tilt.ts`) handles no `contextmenu` and `.card` sets no callout or selection rule; settle it with a long press on a tome face on an Android Chrome and an iOS Safari device. Author, 2026-10-12: confirmed, a long press selects text on an iPhone.
@@ -94,6 +96,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-popularity-led-prestige-score-plan.md`
   summary: To verify (author, 2026-10-08) that a full import writes its draft cards with the current prestige formula (log10(review count) + 4 × Wilson), not the earlier Wilson + 0.01 × log10(count).
   evidence: On staging (v0.0.1-beta.1, which carries story 2.12), the season 2 draft after an import still showed scores from 0.113 to 1.039 (Stardew Valley 1.039, the old formula; the new one gives about 9.8); "Rescore the cards" on the latest run fixed them. Whether the import had not reached its cards step yet or ran on an image older than 2.12 was not established. Check: after the next full import completes, the draft preview's scores run from about 2.7 to 10 without a rescore; otherwise trace the import role's image and the cards step. Author, 2026-10-12: ok.
+  resolved: the prestige formula has been verified since (author, 2026-10-28).
 - source_plan: none
   summary: Make the special packs (daily bonus and community/reward packs) easier to tell apart from regular packs, above all while they are being opened.
   evidence: Author, 2026-10-08. Decide the look of the special pack and of its opening with a UX conversation (bmad-ux) before planning. Author, 2026-10-12: a bmad-ux workshop settles it before planning.
@@ -112,6 +115,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/spike-sets-on-real-data-plan.md`
   summary: Percentage tiers make a player cross bronze, then silver, on most themes in the same few days, and "EN COURS" sorted by closeness shows near-equal bars.
   evidence: The spike's pack simulation (report section 6) puts 25 % of any theme, 48 or 2,084 cards, at 610 to 850 packs, because the share of a theme held follows the share of the catalog drawn. The agreed 10 / 25 / 50 % keeps this. Stories 5 and 6 (celebration, "EN COURS") should decide how to spread or group these crossings.
+  resolved: percentage tiers are no longer current (author, 2026-10-28).
 
 ## Deferred from: code review of story-themes-franchises-studios-hall-of-fame-and-the-ufos-replace-plan (2026-10-12)
 
@@ -222,6 +226,7 @@
 - source_plan: none
   summary: The trade list row sums each side up as "first game +n" in EXPERIENCE.md (Copy deck, Trade list summary), but `TradesHelper#trade_side_title` joins every title.
   evidence: Found while slicing the open trade request; entry 18.6 adds only "À choisir" for an empty side (author, 2026-10-15).
+  resolved: the author keeps the code, all titles joined by `TradesHelper#trade_side_title`; EXPERIENCE.md now says so (2026-10-28).
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-published-season-gets-its-new-sets-once-plan.md`
   summary: `bundle exec i18n-tasks unused` reports `rate_limit.reading_throttled` and `rate_limit.throttled` in en and fr, which `config/initializers/rack_attack.rb` reads dynamically; add them to `ignore_unused` in `config/i18n-tasks.yml`.
   evidence: The quick review of the retired set kinds removal ran the command; a clean worktree at the baseline gives the same four keys, so the check fails independently of that change.
@@ -241,6 +246,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-collection-opens-on-sets-in-progress-plan.md`
   summary: The public profile's "complete sets" figure (`Game::CollectionSummary`) counts only the published season's exact editions, while the set rows beside it count a game held in any edition; entry 15 of epic-recognizable-sets should move it to `Game::HeldGames` with the other collection reads.
   evidence: The quick review found a set completed partly with earlier-edition copies marked COMPLET in the profile's rows but left out of the header's count.
+  resolved: moved to ticket 27.2 (author, 2026-10-28: count any edition).
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-collection-opens-on-sets-in-progress-plan.md`
   summary: The set progress row of the album last opened should carry the 5px accent bar and `aria-current="true"` on the collection entry; left to the set album (entry 8 of epic-recognizable-sets), which decides how the entry knows it.
   resolved: The set album (2026-10-17) records the album last opened in the tab's session storage; the collection entry, a profile and the hub mark its row.
@@ -266,6 +272,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/story-the-app-speaks-jetbrains-mono-plan.md`
   summary: Figures set in a running-text style rather than a figure token are not bold, for example the community goal's `.hub-goal__figures` ("31 420 / 50 000") on `--font-body`; audit the app's counts, odds and quantities and put them on JetBrains Mono bold as the typography rules ask.
   evidence: The JetBrains Mono build moved only the figures that were set in VT323 onto the bold figure tokens; `.hub-goal__figures` was regular Space Mono before and is regular JetBrains Mono now.
+  resolved: already fine (author, 2026-10-28).
 
 ## Deferred from: the refactor sweep of epic-recognizable-sets (2026-10-19)
 
@@ -301,6 +308,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-brotherhood/epic-brotherhood-retrospective.md`
   summary: Settle the product calls the epic 6 sweep left open: the public feed window's 900-row bound; the goal's 10 s broadcast without change detection; the goal's figures on a bold figure token (resizes them; the typography audit entry covers it); friends-only entries not broadcast live; the ticker's placement wording in the design document; a held achievement toast lost when leaving the booster mid-reveal; achievements granted live after an unban; one grant job per opening, trade, repost and set completion; the toast region under a modal; `game:benchmark_open_pack` still to run; a trade credited to its recipient's row; the friends tab's empty line with friends but no entries; the filter chips' `aria-current` against the design document's `aria-pressed`.
   evidence: Action item 2 (finding F19): these lived only in the Implementation Notes of `epic-brotherhood/story-refactor-sweep-plan.md`; each is a product or design call for the author.
+  resolved: kept as they are (author, 2026-10-28).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-brotherhood/epic-brotherhood-retrospective.md`
   summary: Fold the epic 6 leftovers into `epic-human-readable-codebase`: the planning ids still in `weekly_goal.rb`, `sum_weekly_goal_job.rb`, `grant_goal_rewards_job.rb`, `pack_opened_feed.rb`, `event_store.rb`, and the five friends-and-trades migrations; optionally read the rarity tier through `Catalog::CardSeasonTiers` in `pack_opened_feed.rb` and `trade_accepted.rb`, and share the feed visibility rule between `FeedEntries` and `NewFeedEntries`.
@@ -309,6 +317,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-brotherhood/epic-brotherhood-retrospective.md`
   summary: Process rules for the next epics: a plan's Verification records the results of the commands it lists; a plan's `baseline_revision` is a full hash of a commit that stays reachable and a ticket's commits name its ref; planning ids and new comments are checked mechanically before review.
   evidence: Action item 4 (findings F20, F21, F22): the baseline of 6.19 does not exist in the repository, and commit subjects after 6.10 stop naming the ticket, so the retrospective pre-pass cannot attribute them.
+  resolved: dropped: the plans are local (author, 2026-10-28).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-brotherhood/epic-brotherhood-retrospective.md`
   summary: Cover the live paths in the rebuilt system tests: the hub gauge refresh, the ticker (placement, window width, red square, loop join), the achievement toast during a reveal, the repost toast in the phone zoom; and check the three layout items the sweep did not verify.
@@ -327,6 +336,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
   summary: Give a banned account an erasure path: document the console steps in the README (unban, then `Accounts::DeletePlayer`, noting the history row) or allow the operation for a banned player when staff run it.
   evidence: Action item AI-4 (legal and product call): the legal page promises erasure on request (`config/locales/en.yml:243`) while `DeletePlayer` refuses a banned player (`delete_player.rb:43`).
+  resolved: moved to ticket 27.3 (author, 2026-10-28: allow it when staff run it).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
   summary: Review the three pieces no lens saw twice: the self-dismiss refusal and the `ReportQueue.rows` skip (7.5), the idleness rule `GREATEST(last_seen_at, updated_at)` and the synchronous `last_seen_at` write in `SignIn` (7.14), and the legal page copy (7.3).
@@ -335,10 +345,12 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
   summary: Make builds traceable: the plan template records `built_revision`, a closing step refuses `done` when the baseline is not an ancestor of HEAD, and a `done` plan carries a review block or an explicit `review: none` reason.
   evidence: Action item AI-6: carried a fifth time; no plan of 52 has `built_revision`, four baselines are absent from the repository and four are not ancestors.
+  resolved: dropped: the plans are local (author, 2026-10-28).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
   summary: A `hitl` sign-off records what was seen, where and when (drill output, CSP report count on staging, release run id).
   evidence: Action item AI-7: Done-when criteria 4 and 8 rest on the author's declaration for lack of it.
+  resolved: dropped: the plans are local (author, 2026-10-28).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
   summary: Give the copy-pasted `hold` test helper an owner or a guard: a ticket that shares it, or a check that fails on a new `def hold` in a test file.
@@ -348,25 +360,30 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
   summary: Optional: give the Rack::Attack 429 response a themed body (`rack_attack.rb:61`) and decide whether `legal`, `credits` and `how-it-works` join `PublicReadThrottle::PAGES`.
   evidence: Action item AI-10 (low): the 429 answers in plain text and the three public pages are neither throttled nor cached.
+  resolved: left as it is (author, 2026-10-28).
 - source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/story-an-administrator-curates-the-theme-list-in-the-back-office-b-plan.md`
   summary: French theme names live in db/default_themes.yml, the seed migration and the theme fixtures, outside config/locales/fr.yml.
   evidence: AGENTS.md keeps French in fr.yml, but the stored names of the 43 seeded themes are data and the locale lookup they came from was removed; the author should confirm the exception or choose another home.
+  resolved: exception confirmed: the theme names are data (author, 2026-10-28).
 - source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/epic-visitor-landing-retrospective.md`
   summary: The `deferred` entries of the epic's fourteen plans that stay at `built` never reached this file.
   evidence: Retrospective F17: only one entry for the epic is recorded here; the plans' `deferred` frontmatter (the motion switch's pixel icon, the roadmap page's date and sentence, the reveal demo's DOM test, the typography figures of the hub goal) is the rest.
 - source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/epic-visitor-landing-retrospective.md`
   summary: Process rules for the next epics: a full plan baseline, the ticket named in each feature commit, the verification results recorded in the plan, a comment check before the review.
   evidence: Retrospective F18: the 20.2 baseline is not found, 20.9 has none, 20.18's has 8 characters, no feature commit names its ticket, 20.11 has no review or results recorded.
+  resolved: dropped: the plans are local (author, 2026-10-28).
 - source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/epic-visitor-landing-retrospective.md`
   summary: Verification gaps left open: the reveal demo has no DOM test, the caches are not seen at the request level (the cache is null in tests), and `readable` swallows `ReadOnlyError`.
   evidence: Retrospective F8, F14, F15 and F9.
 - source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/epic-visitor-landing-retrospective.md`
   summary: The privacy text does not say that the public card page, indexable by search engines, names a pioneer whose profile is visible; the architecture file still cites the pioneer's old home (line 534).
   evidence: Retrospective F4 and F13: `config/locales/en.yml:216` and `architecture-gameble.md:534`.
+  resolved: nothing added (author, 2026-10-28).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-screen-walkthrough/epic-screen-walkthrough-retrospective.md`
   summary: Epic 16 is accepted by the author on 2026-10-27 with the walkthrough's coverage left partial: seven screens were never marked (seasonal allocation, card picker, public card page, public profile, full collection, Steam sign-in, Plus) and the phone, staff and English were largely unseen; Done when 1 and 2 are not amended and no ticket is created for them yet.
   evidence: Retrospective, acceptance decision and action item 1; whether issue #67 (standardise the return button) is closed by the guard built in 16.11 is still to decide.
+  resolved: moved to ticket 27.4 (author, 2026-10-28); issue #67 still to decide.
 - source_plan: `_bmad-output/initiative-gameble/epic-card-catalog/epic-card-catalog-retrospective.md`
   summary: The epic's text still says a not-owned card shows the real card for everyone (R2, Done when 3) and that set albums keep missing slots (Done when 1); walkthrough tickets 16.26 and 16.24 changed both.
   evidence: Reconciliation section of the retrospective, 2026-10-27.
