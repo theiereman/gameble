@@ -16,7 +16,7 @@ estimate_basis: ""
 
 ## Description
 
-Every pack that is not a regular pack (today the daily bonus and the weekly goal reward) waits in its own reserve with no cap, counted apart on the hub, chosen apart on the capsule screen, drawn in its origin's colour, and opened after a short intro naming that origin. A player no longer opens a reward without noticing it. Asked for by a player in GitHub issue 49; the claim button the author asked for in the issue's comment is already built (6.17, the community pack claimed with a button).
+Every pack that is not a regular pack (today the daily bonus and the weekly goal reward) waits in its own reserve with no cap, counted apart on the hub, chosen apart on the capsule screen, drawn in its origin's colour, and opened with its origin always visible on the capsule. A player no longer opens a reward without noticing it. Asked for by a player in GitHub issue 49; the claim button the author asked for in the issue's comment is already built (6.17, the community pack claimed with a button).
 
 ## Outcome
 
@@ -26,16 +26,16 @@ A player who earns a reward or a daily bonus sees it waiting apart and opens it 
 
 - R1 (CAP-4, CAP-12, CAP-16; issue 49 point 1): every pack whose kind is not regular joins a special reserve with no cap; the regular reserve keeps its cap of 10 and its regeneration; claiming the daily bonus or a goal reward is never refused because a reserve is full.
 - R2 (CAP-4; issue 49 point 1): the hub shows how many special packs wait, beside the regular count.
-- R3 (CAP-5; issue 49 point 2): on the capsule screen the player switches between the regular and the special reserve; both open through the same reveal.
+- R3 (CAP-5; issue 49 point 2): on the capsule screen two tabs, STANDARD and SPÉCIALES, are always shown, an empty one greyed and disabled; the player switches between the standard and the special reserve, and both open through the same reveal.
 - R4 (CAP-5; issue 49 point 3): each kind of special pack has its own look by origin (the goal reward red, the daily bonus its own); a later kind adds its own.
-- R5 (CAP-5; issue 49 point 4): opening a special pack plays a short intro naming its origin before the usual reveal, which is unchanged; reduced motion shortens it.
+- R5 (CAP-5; issue 49 point 4): a special capsule shows its origin by name and colour on the canister and in the information panel; there is no intro, and the reveal is unchanged (author, 2026-10-28).
 
 ## Done when
 
 1. A player holding 10 regular packs collects the daily bonus and a goal reward; both wait in the special reserve, and the regular reserve still refills to 10 at most.
 2. The hub shows the regular and the special counts.
 3. On the capsule screen the player switches to special packs and opens one through the usual reveal; opening a regular pack is unchanged.
-4. A goal reward and a daily bonus look different from a regular pack and from each other, and each plays its intro before the reveal.
+4. A goal reward and a daily bonus look different from a standard pack and from each other, and each names its origin on the capsule and in the information panel.
 5. Shipped to production.
 
 ## Boundaries
@@ -48,7 +48,8 @@ The pack reserve in `packs/game`, the hub's pack counters and the top bar's pack
 - spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, CAP-4, CAP-5, CAP-12, CAP-16
 - architecture — _bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md, AD-7, AD-23
 - source — https://github.com/theiereman/gameble/issues/49
-- design — _bmad-output/initiative-gameble/ux-gameble/DESIGN.md and EXPERIENCE.md (Capsule, Hub, Opening protocol), updated by entry 1
+- design — _bmad-output/initiative-gameble/ux-gameble/DESIGN.md (Special capsules) and EXPERIENCE.md (Hub, Capsule, Copy deck), updated by entry 1
+- mockups — _bmad-output/initiative-gameble/ux-gameble/mockups/special-capsules/index.html and emblems.html
 - prior work — _bmad-output/initiative-gameble/epic-brotherhood/story-the-community-pack-is-claimed-with-a-button-plan.md
 
 ## Notes
@@ -67,3 +68,7 @@ The pack reserve in `packs/game`, the hub's pack counters and the top bar's pack
 - Waits on epic 13 because: 13.5 and 13.15 change the booster island and the counts it reads.
 - Waits on epic 17 because: 17.1 changes the opening operation entry 3 changes too.
 - Waits on epic 21 because: 21.3 replaces the booster island that entries 3 to 5 change; until it lands the booster takes bug fixes only (architecture AD-31).
+- Decision (2026-10-28, author): one total special count, shown apart from the standard count; the origin is read on the capsule, no intro plays. Entry 5 (the intro) is superseded: its description and verify need rewriting to the origin name on the canister and in the information panel, or the entry is dropped.
+- Decision (2026-10-28, author): the hub shows two count badges beside "OUVRIR UNE CAPSULE" (none at zero), the top bar two chips (standard blue, special green), both capsule tabs always shown (an empty one greyed and disabled), tabs enabling live without a badge, no standard capsule opens the special tab, equal opening order (oldest of the tab first). The goal reward is red `#d6403a` with the cup, the daily capsule yellow with the sun (S1-L2 and C1-L2).
+- Vocabulary (2026-10-28, author): "capsule standard" for the regular capsule, "capsule spéciale" for the others; the code keeps regular and special packs.
+- Sign-off 19.1 (hitl, 2026-10-28): the author saw the mockups mockups/special-capsules/index.html (hub, chips, tabs, live unlock) and emblems.html (sun and cup at three levels of detail) in their browser during the UX session, and chose S1-L2 and C1-L2 and approved the red `#d6403a`; their choices are in the UX memlog (2026-10-28). The 19.1 plan and its `done` stay with the author.
