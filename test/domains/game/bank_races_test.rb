@@ -23,6 +23,8 @@ class Game::BankRacesTest < ActiveSupport::TestCase
   # unlocked operation would be overtaken.
   POOL_DELAY = 0.15
 
+  GOAL_WEEK = Date.new(2026, 10, 5)
+
   setup do
     @player = accounts_players(:player)
     @created = []
@@ -44,7 +46,8 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     Game::Friendship.where(low_player_id: players).or(Game::Friendship.where(high_player_id: players)).delete_all
     # First discoveries made by this test's packs (the fixture ones have none).
     Game::FirstDiscovery.where(pack_id: Game::Pack.where(player_id: players).select(:id)).delete_all
-    [ Game::DailyBonusClaim, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::SetTier, Game::Pack ].each do |model|
+    Game::WeeklyGoal.where(week_start: GOAL_WEEK).delete_all
+    [ Game::GoalReward, Game::DailyBonusClaim, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::SetTier, Game::Pack ].each do |model|
       model.where(player_id: players).delete_all
     end
     Game::PlayerState.where(player_id: @created).delete_all
@@ -163,6 +166,44 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     assert_equal 1, Game::Pack.where(player_id: @player.id).bonus.unopened.count
     assert_empty topped_up
     assert_unique_schedule(Time.current)
+  end
+
+  test "a daily bonus and an opening at once with ten standard capsules held: the opening costs one standard capsule, the bank refills to ten, the special reserve holds the bonus once" do
+    10.times { |index| create_pack(@player, available_at: (index + 1).minutes.ago) }
+
+    results = race(bonus, open)
+
+    assert results.all?(&:success?)
+    counts = Game::Reserve.counts(@player.id)
+    assert_equal 9, counts.standard
+    assert_equal 10, bank.count
+    assert_equal 1, counts.special
+    assert_equal 1, Game::DailyBonusClaim.where(player_id: @player.id).count
+  end
+
+  test "a daily bonus and a heal at once with ten standard capsules held: nothing healed, the standard reserve stays at ten, one bonus" do
+    10.times { |index| create_pack(@player, available_at: (index + 1).minutes.ago) }
+
+    collected, healing = race(bonus, heal)
+
+    assert_predicate collected, :success?
+    assert_equal 0, healing.value!
+    counts = Game::Reserve.counts(@player.id)
+    assert_equal 10, counts.standard
+    assert_equal 1, counts.special
+  end
+
+  test "two claims of one goal reward at once: one reward capsule, the other claim refused" do
+    Game::WeeklyGoal.create!(week_start: GOAL_WEEK, total: 200, target: 200)
+    Game::WeeklyContribution.create!(player_id: @player.id, week_start: GOAL_WEEK, openings: 1)
+    Game::GrantGoalReward.new.call(player: @player, week_start: GOAL_WEEK).value!
+
+    results = race(*Array.new(2) { ->(player) { Game::ClaimGoalReward.new.call(player:, week_start: GOAL_WEEK) } })
+
+    assert_equal 1, results.count(&:success?)
+    assert_equal [ :reward_already_claimed ], results.reject(&:success?).map(&:failure)
+    assert_equal 1, Game::Pack.where(player_id: @player.id).reward.count
+    assert_equal 1, Game::GoalReward.where(player_id: @player.id).where.not(pack_id: nil).count
   end
 
   test "an opening, a daily bonus and a heal at once on a short bank: both succeed, ten packs and the bonus, each pack spent once" do
