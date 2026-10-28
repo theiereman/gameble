@@ -2,6 +2,7 @@
 tracker_id: ""
 key: ""
 type: epic
+status: done
 title: "Readable by humans: the codebase before the public release"
 parent: initiative-gameble
 covers: []

@@ -3,7 +3,7 @@ title: 'A fresh machine follows the README'
 type: 'chore'
 ticket: '33'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: 'd8997473ad6fef5f7c0160f1d755448a9a3dc2d8'
 route: 'oneshot'
 route_source: 'auto'

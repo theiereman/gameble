@@ -1,6 +1,6 @@
 ---
 id: 33
-tracker_status: review
+tracker_status: done
 tracker_id: ""
 type: story
 title: "A fresh machine follows the README"
