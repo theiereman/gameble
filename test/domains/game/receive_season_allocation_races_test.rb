@@ -6,8 +6,10 @@ require_relative "../../support/lock_races"
 
 # The allocation of a newly published season, received by an opening and by an
 # accepted trade of the same player at once: whichever runs first receives
-# it, the other finds it received. Each thread has its own connection, so the
-# test commits for real and cleans up after itself.
+# it, the other finds it received. The receipt is slowed between reading the
+# marker and writing it, the window in which an unlocked operation would be
+# overtaken. Each thread has its own connection, so the test commits for real
+# and cleans up after itself.
 class Game::ReceiveSeasonAllocationRacesTest < ActiveSupport::TestCase
   include Holdings
   include CatalogSeeds
@@ -16,7 +18,15 @@ class Game::ReceiveSeasonAllocationRacesTest < ActiveSupport::TestCase
 
   self.use_transactional_tests = false
 
+  RECEIPT_DELAY = 0.3
+
   setup do
+    @receive = Game::SetTier.method(:receive)
+    receive = @receive
+    Game::SetTier.define_singleton_method(:receive) do |**arguments|
+      sleep RECEIPT_DELAY
+      receive.call(**arguments)
+    end
     @alice = accounts_players(:player)
     @bob = accounts_players(:moderator)
     @common, @uncommon, @rare, @portal, @legendary = fixture_tier_ids
@@ -34,6 +44,7 @@ class Game::ReceiveSeasonAllocationRacesTest < ActiveSupport::TestCase
   end
 
   teardown do
+    Game::SetTier.define_singleton_method(:receive, @receive)
     players = [ @alice.id, @bob.id ]
     trades = Game::Trade.where(proposer_id: players).or(Game::Trade.where(recipient_id: players))
     Game::FeedEntry.where(trade_id: trades.select(:id)).delete_all
@@ -93,6 +104,19 @@ class Game::ReceiveSeasonAllocationRacesTest < ActiveSupport::TestCase
     )
 
     assert results.all?(&:success?), results.inspect
+    assert_equal 1, received(@alice)
+    assert_equal %w[novice apprentice adept], allocation_tiers(@alice)
+    assert_equal 2, marker(@alice)
+  end
+
+  test "two receipts of the same player at once publish the allocation once" do
+    results = together(
+      -> { Game::ReceiveSeasonAllocation.new.call(player: Accounts::Player.find(@alice.id)) },
+      -> { Game::ReceiveSeasonAllocation.new.call(player: Accounts::Player.find(@alice.id)) }
+    )
+
+    assert results.all?(&:success?), results.inspect
+    assert_equal 1, results.count { it.value!.any? }
     assert_equal 1, received(@alice)
     assert_equal %w[novice apprentice adept], allocation_tiers(@alice)
     assert_equal 2, marker(@alice)
