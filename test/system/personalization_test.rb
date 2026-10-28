@@ -173,7 +173,47 @@ class PersonalizationTest < ApplicationSystemTestCase
     assert_nil Game::PlayerState.where(player_id: @player.id).pick(:active_title_rank)
   end
 
+  test "an unlocked card back is equipped with its preview and toast and kept after a reload" do
+    Game::CardBackUnlock.record(@player.id, "set-theme-rpg", Time.current)
+    sign_in_to_personalization
+
+    assert_selector "h2", text: "CARD BACK"
+    assert_selector ".back-picker__preview-name", text: "Standard"
+    within(".back-picker__tile", text: "RPG") { click_button }
+
+    assert_selector ".toast", text: "CARD BACK EQUIPPED"
+    assert_selector ".back-picker__preview-name", text: "RPG"
+    assert_selector ".back-picker__tile--active", text: "RPG"
+    visit personalization_path(locale: :en)
+    assert_selector ".back-picker__preview-name", text: "RPG"
+  end
+
+  test "a locked card back states its condition and cannot be equipped, even by a forged request" do
+    Game::CardBackUnlock.record(@player.id, "set-theme-rpg", Time.current)
+    sign_in_to_personalization
+
+    assert_selector ".back-picker__tile--locked", text: "Collect half of the Horror set."
+    within(".back-picker__tile--locked", text: "Horror") { click_button }
+
+    assert_selector ".toast", text: "This card back is still locked."
+    execute_script(<<~JS)
+      const input = document.querySelector(".back-picker__form input[name=back][value='set-theme-rpg']")
+      input.value = "set-theme-horror"
+      input.form.requestSubmit()
+    JS
+
+    assert_selector ".toast", text: "This card back is still locked.", count: 2
+    assert_nil Game::PlayerState.where(player_id: @player.id).pick(:active_card_back)
+  end
+
   private
+    def sign_in_to_personalization
+      visit home_path(locale: :en)
+      click_steam_sign_in
+      assert_signed_in
+      visit personalization_path(locale: :en)
+    end
+
     def earn_titles
       season, cards = published_cards(5)
       set_id = insert_set(cards, { novice: 1, adept: 3, complete: 5 }, kind: "studio", key: "valve", params: { "studio" => "Valve" }, season:)

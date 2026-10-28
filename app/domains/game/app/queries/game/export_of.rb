@@ -11,12 +11,14 @@ module Game
       def initialize(kind:, card_season_id:, occurred_at:, set: nil, tier: nil, set_count: nil) = super
     end
     Unlock = Data.define(:achievement, :unlocked_at)
+    BackUnlock = Data.define(:back, :unlocked_at)
+    CardBackChoice = Data.define(:active, :unlocks)
     Line = Data.define(:card_season_id, :quantity)
     TradeRow = Data.define(:status, :proposed_at, :closed_at, :offered)
     Invitations = Data.define(:received, :sent)
 
     Result = Data.define(:friend_code, :held_cards, :showcase, :packs, :daily_bonus_days, :goal_reward_weeks, :contributions,
-      :set_tiers, :discoveries, :feed_entries, :unlocks, :friend_count, :invitations, :trades) do
+      :set_tiers, :discoveries, :feed_entries, :unlocks, :card_backs, :friend_count, :invitations, :trades) do
       def card_season_ids
         (held_cards.map(&:card_season_id) + showcase.map(&:card_season_id) + packs.flat_map(&:card_season_ids) + discoveries.map(&:card_season_id) +
           feed_entries.filter_map(&:card_season_id) + trades.flat_map { |trade| trade.offered.map(&:card_season_id) }).uniq
@@ -40,6 +42,7 @@ module Game
         feed_entries: feed_entries(player),
         unlocks: AchievementUnlock.where(player_id: player.id).order(:unlocked_at, :achievement)
           .pluck(:achievement, :unlocked_at).map { |achievement, unlocked_at| Unlock.new(achievement:, unlocked_at:) },
+        card_backs: card_backs(player),
         friend_count: FriendsOf.call(player).size,
         invitations: Invitations.new(received: invitations.received.size, sent: invitations.sent.size),
         trades: trades(player, now)
@@ -78,6 +81,12 @@ module Game
       end
     end
 
+    def self.card_backs(player)
+      unlocks = CardBackUnlock.where(player_id: player.id).order(:unlocked_at, :back)
+        .pluck(:back, :unlocked_at).map { |back, unlocked_at| BackUnlock.new(back:, unlocked_at:) }
+      CardBackChoice.new(active: CardBacks.active_key(player), unlocks:)
+    end
+
     def self.feed_entries(player)
       rows = FeedEntry.where(player_id: player.id).or(FeedEntry.where(partner_id: player.id)).order(:occurred_at, :id)
         .pluck(:kind, :player_id, :card_season_id, :partner_card_season_id, :occurred_at, :set_id, :tier, :set_count)
@@ -110,6 +119,6 @@ module Game
       end
     end
 
-    private_class_method :held_cards, :showcase, :packs, :set_tiers, :feed_entries, :set_refs, :trades
+    private_class_method :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :set_refs, :trades
   end
 end

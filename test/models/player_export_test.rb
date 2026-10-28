@@ -7,7 +7,7 @@ class PlayerExportTest < ActiveSupport::TestCase
   include GameTrades
 
   SECTIONS = %i[exportedAt profile collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
-    firstDiscoveries feedEntries achievements friends pendingInvitations trades reportsFiled reportsReceived
+    firstDiscoveries feedEntries achievements cardBacks friends pendingInvitations trades reportsFiled reportsReceived
     moderationDecisions].freeze
   COUNTING_KEYS = %i[season quantity position openings count received sent].freeze
 
@@ -106,7 +106,17 @@ class PlayerExportTest < ActiveSupport::TestCase
        achievements trades reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
     assert_equal({ count: 0 }, hash[:friends])
     assert_equal({ received: 0, sent: 0 }, hash[:pendingInvitations])
+    assert_equal({ active: "standard", unlocked: [] }, hash[:cardBacks])
     assert_no_database_id(hash)
+  end
+
+  test "the export names the card backs unlocked and the active one" do
+    Game::CardBackUnlock.record(@player.id, "set-theme-rpg", Time.utc(2026, 10, 10, 8))
+    Game::ChooseCardBack.new.call(player: @player, back: "set-theme-rpg").value!
+
+    hash = export.to_h
+
+    assert_equal({ active: "set-theme-rpg", unlocked: [ { back: "set-theme-rpg", unlockedAt: "2026-10-10T08:00:00Z" } ] }, hash[:cardBacks])
   end
 
   test "one player's export holds none of another's cards, packs, name, token or code" do

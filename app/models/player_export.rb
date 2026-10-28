@@ -33,6 +33,7 @@ class PlayerExport
       firstDiscoveries: game.discoveries.map { { card: card(it.card_season_id), discoveredAt: time(it.discovered_at) } },
       feedEntries: game.feed_entries.map { feed_entry(it) },
       achievements: game.unlocks.map { { achievement: it.achievement, unlockedAt: time(it.unlocked_at) } },
+      cardBacks: card_backs,
       friends: { count: game.friend_count },
       pendingInvitations: { received: game.invitations.received, sent: game.invitations.sent },
       trades:,
@@ -85,6 +86,11 @@ class PlayerExport
           availableAt: time(pack.available_at), openedAt: time(pack.opened_at),
           cards: pack.card_season_ids.filter_map { card(it) } }
       end
+    end
+
+    def card_backs
+      { active: game.card_backs.active,
+        unlocked: game.card_backs.unlocks.map { { back: it.back, unlockedAt: time(it.unlocked_at) } } }
     end
 
     def trades

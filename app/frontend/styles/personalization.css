@@ -73,3 +73,115 @@
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+
+.back-picker__preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.back-picker__image {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.back-picker__preview-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.back-picker__preview-name {
+  margin: 0;
+  font: var(--font-body);
+}
+
+.back-picker__preview-mark {
+  margin: 0;
+  color: var(--color-lime);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.back-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.back-picker__tile {
+  border: 2px solid var(--color-line);
+  background: var(--color-panel-sunken);
+}
+
+.back-picker__tile--active {
+  border-color: var(--color-lime);
+}
+
+.back-picker__form {
+  display: block;
+  height: 100%;
+}
+
+.back-picker__button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  height: 100%;
+  padding: var(--space-3);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.back-picker__button:disabled {
+  cursor: default;
+}
+
+.back-picker__button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.back-picker__art {
+  position: relative;
+  display: block;
+}
+
+.back-picker__tile--locked .back-picker__image {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+.back-picker__lock {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 24px;
+  height: 24px;
+  color: var(--color-text-max);
+}
+
+.back-picker__name {
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.back-picker__status {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.back-picker__tile--active .back-picker__status {
+  color: var(--color-lime);
+}

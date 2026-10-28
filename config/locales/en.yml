@@ -14,8 +14,8 @@ en:
       label: Type %{word} to confirm
       note: 'Erased for good: your Steam id, your name, your profile and its link,
         the time of your last visit, your last data export and your latest activity,
-        your collection, your showcase, your set tiers and your achievements, your
-        capsules, opened or not, your daily bonuses and your community goal rewards,
+        your collection, your showcase, your set tiers, your achievements, your
+        card back unlocks and your active card back, your capsules, opened or not, your daily bonuses and your community goal rewards,
         your friends, your invitations and your friend code, and your activity feed
         entries: pulls, discoveries, reposts and every trade that names you. Your
         open trades will be cancelled.'
@@ -680,6 +680,14 @@ en:
   boosters:
     show:
       title: Capsule opening
+  card_backs:
+    chosen:
+      text: "%{name} will show on your face-down cards."
+      title: Card back equipped
+    conditions:
+      set_tier: Collect half of the %{set} set.
+    names:
+      standard: Standard
   card_details:
     copies:
       one: "%{count} copy"
@@ -879,6 +887,7 @@ en:
       already_friends: You are already friends.
       already_reposted: You reposted this card today. Try again tomorrow.
       already_sent: Invitation already sent.
+      back_locked: This card back is still locked.
       card_already_showcased: This card is already in your showcase.
       card_not_owned: You do not own this card.
       card_not_showcased: This card is not in your showcase.
@@ -926,6 +935,7 @@ en:
       trade_not_open: That trade is already closed.
       trade_side_empty: 'Nothing to receive yet: choose what you want from %{name}''s
         collection, then send it back.'
+      unknown_back: That card back does not exist.
       unknown_code: No player has that code.
       unknown_direction: Unknown direction.
       unknown_player: This invitation link is not valid.
@@ -1788,7 +1798,7 @@ en:
         deletion: When you delete your account, your Steam id, your profile name,
           the time of your last visit, your last data export, your latest activity,
           your collection, your showcase, your set tiers, your achievements, your
-          capsules, your daily bonuses, your community goal rewards, your friendships,
+          card back unlocks and your choice of active card back, your capsules, your daily bonuses, your community goal rewards, your friendships,
           your invitations, your friend code and your activity feed entries are erased,
           your open trades are cancelled and your profile disappears. What also concerns
           other players, the community or moderation (past trades, first discoveries,
@@ -1946,6 +1956,13 @@ en:
       title: More
   personalizations:
     show:
+      card_back:
+        active: Active card back
+        choose: Choose
+        current: Active
+        heading: Card back
+        intro: Only you see it, on your face-down cards when you open a capsule.
+        locked: Card back locked
       more: More
       profile_title:
         apply: Apply

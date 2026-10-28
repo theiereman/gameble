@@ -9,5 +9,6 @@
 <section class="personalization" aria-labelledby="personalization-heading">
   <h1 id="personalization-heading" class="personalization__title"><%= t(".title") %></h1>
   <%= render "personalizations/showcase", showcase: @showcase, moved: flash[:moved_showcase_card], removed: flash[:removed_showcase_card] %>
+  <%= render "personalizations/back_picker", shelf: @card_backs, chosen: flash[:chosen_back] %>
   <%= render "personalizations/title_picker", titles: @titles, active: @active_title, chosen: flash[:chosen_title] %>
 </section>
