@@ -897,6 +897,7 @@ en:
       reward_not_earned: No rare capsule waits for you for that week.
       showcase_edge: This card cannot move any further.
       showcase_full: 'Showcase full: remove a card to add another.'
+      title_not_earned: You have not earned that title.
       trade_already_open: You already have an open trade with this friend. Settle
         it first.
       trade_changed: This trade changed since you opened it. Check its new terms,
@@ -1928,11 +1929,19 @@ en:
   personalizations:
     show:
       more: More
+      profile_title:
+        apply: Apply
+        empty: No title yet. Reach a tier of a set, or complete it, to earn one.
+        heading: Profile title
+        intro: Your title shows on your profile, in the activity feed and in your trades.
+        none: No title
       showcase:
         empty: Your best card will show here once you choose it from a card's page.
         title: Showcase
       title: Personalization
   profile_titles:
+    chosen:
+      title: Title equipped
     ranks:
       adept: Adept
       apprentice: Apprentice
@@ -1940,6 +1949,9 @@ en:
       expert: Expert
       master: Master
       novice: Novice
+    removed:
+      text: Your profile no longer shows a title.
+      title: Title removed
     title: "%{rank} · %{set}"
   public_profiles:
     collection:

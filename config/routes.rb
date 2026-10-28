@@ -90,6 +90,7 @@ Rails.application.routes.draw do
     resource :settings, only: %i[show update]
     # The page where the player dresses and shows their collecting.
     resource :personalization, only: :show
+    patch "personalization/title" => "profile_titles#update", as: :personalization_title
     # The profile visibility row of the settings.
     patch "settings/visibility" => "settings#visibility", as: :settings_visibility
     # Deleting the player's own account, from the settings' delete dialog.

@@ -966,10 +966,18 @@ fr:
     show:
       title: "Personnalisation"
       more: "Plus"
+      profile_title:
+        heading: "Titre de profil"
+        intro: "Votre titre s'affiche sur votre profil, dans le fil d'activité et dans vos échanges."
+        none: "Aucun titre"
+        empty: "Aucun titre pour l'instant. Atteignez un palier d'un set, ou complétez-le, pour en gagner un."
+        apply: "Appliquer"
       showcase:
         title: "Vitrine"
         empty: "Votre plus belle carte s'affichera ici, une fois choisie depuis la fiche d'une carte."
   profile_titles:
+    chosen:
+      title: "Titre équipé"
     ranks:
       adept: Adepte
       apprentice: Apprenti
@@ -977,6 +985,9 @@ fr:
       expert: Expert
       master: Maître
       novice: Novice
+    removed:
+      text: "Votre profil n'affiche plus de titre."
+      title: "Titre retiré"
     title: "%{rank} · %{set}"
   public_profiles:
     title: "%{name}"
@@ -2138,6 +2149,7 @@ fr:
       card_already_showcased: "Cette carte est déjà dans votre vitrine."
       card_not_showcased: "Cette carte n'est pas dans votre vitrine."
       showcase_full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
+      title_not_earned: "Vous n'avez pas gagné ce titre."
       showcase_edge: "Cette carte ne peut pas aller plus loin."
       unknown_direction: "Direction inconnue."
       position_out_of_range: "La vitrine n'a pas cette place."

@@ -36,3 +36,40 @@
   color: var(--color-muted);
   font: var(--font-body-small);
 }
+
+.personalization-section__hint {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.title-picker__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.title-picker__rank {
+  margin: var(--space-3) 0 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.title-picker__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.title-picker__option:has(input:checked) {
+  color: var(--color-accent);
+}
+
+.title-picker__option input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
