@@ -31,7 +31,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_150000) do
     t.index ["created_at"], name: "index_accounts_moderation_actions_on_created_at"
     t.index ["player_id", "created_at"], name: "index_accounts_moderation_actions_on_player_id_and_created_at"
     t.index ["staff_id"], name: "index_accounts_moderation_actions_on_staff_id"
-    t.check_constraint "kind::text = ANY (ARRAY['ban'::character varying, 'unban'::character varying, 'dismissal'::character varying, 'erasure'::character varying]::text[])", name: "accounts_moderation_actions_kind_values_check"
+    t.check_constraint "kind::text = 'ban'::text OR kind::text = 'unban'::text OR kind::text = 'dismissal'::text OR kind::text = 'erasure'::text", name: "accounts_moderation_actions_kind_values_check"
     t.check_constraint "reason IS NULL OR char_length(reason) <= 500", name: "accounts_moderation_actions_reason_length_check"
     t.check_constraint "reason IS NULL OR kind::text = 'ban'::text", name: "accounts_moderation_actions_reason_kind_check"
   end
@@ -444,7 +444,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_150000) do
     t.index ["pack_id"], name: "index_game_set_tiers_on_pack_id"
     t.index ["player_id", "set_id", "tier"], name: "index_game_set_tiers_on_player_id_and_set_id_and_tier", unique: true
     t.check_constraint "(reached_by::text = 'pack'::text) = (pack_id IS NOT NULL)", name: "game_set_tiers_pack_check"
-    t.check_constraint "reached_by::text = ANY (ARRAY['pack'::character varying, 'trade'::character varying, 'allocation'::character varying]::text[])", name: "game_set_tiers_reached_by_values_check"
+    t.check_constraint "reached_by::text = 'pack'::text OR reached_by::text = 'trade'::text OR reached_by::text = 'allocation'::text", name: "game_set_tiers_reached_by_values_check"
     t.check_constraint "tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text", name: "game_set_tiers_tier_check"
   end
 
