@@ -58,7 +58,6 @@ export type OpeningAnswer = {
   serverTime: string
   tierCountsBefore: Record<Rarity, number>
   setTiers: OpeningSetTier[]
-  unlockedCardBacks: unknown[]
 }
 
 export type OpeningResult =

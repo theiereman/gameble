@@ -406,7 +406,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "standard", pack.card_back
     assert_equal [ pack.id ], game_events(player, Game::PackOpened).map { it.data[:pack_id] }
 
-    assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers unlockedCardBacks], body.keys
+    assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers], body.keys
     assert_equal %w[token kind cardBack url], body["pack"].keys
     assert_equal [ pack.token, "regular", "/en/packs/#{pack.token}" ], body["pack"].values_at("token", "kind", "url")
     assert_equal "standard", body["pack"]["cardBack"]["key"]
@@ -417,7 +417,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "2026-10-06T14:22:00.000Z", body["serverTime"]
     assert_equal counts_before.transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }, body["tierCountsBefore"]
     assert_equal %w[common uncommon rare epic legendary], body["tierCountsBefore"].keys
-    assert_equal [], body["unlockedCardBacks"]
 
     views = Catalog::CardViews.call(pack.card_season_ids, locale: :en)
     cards = pack.card_season_ids.map { views.fetch(it) }

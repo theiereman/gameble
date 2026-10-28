@@ -63,7 +63,6 @@ export const answerOf = (tiers: Rarity[], setTiers: OpeningSetTier[] = [], avail
   serverTime: "2026-10-26T11:00:01.000Z",
   tierCountsBefore: { common: 3, uncommon: 0, rare: 0, epic: 0, legendary: 0 },
   setTiers,
-  unlockedCardBacks: [],
 })
 
 export const startWith = (overrides: Partial<BoosterStart> = {}): BoosterState =>

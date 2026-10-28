@@ -10,7 +10,8 @@ module Game
       }.freeze
 
       def self.call(event)
-        GrantCardBacksJob.perform_later(event.data.fetch(:player_id), retroactive: EVENTS.fetch(event.class) || event.data.fetch(:retroactive, false))
+        retroactive = EVENTS.fetch(event.class) || event.data.fetch(:retroactive, false)
+        GrantCardBacksJob.perform_later(event.data.fetch(:player_id), retroactive:)
       end
     end
   end

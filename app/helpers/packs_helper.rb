@@ -27,8 +27,7 @@ module PacksHelper
               nextSpecialKind: counts.next_special_kind },
       serverTime: opening_time(now),
       tierCountsBefore: Game::TierCounts.before_opening(player, pack).transform_keys { Catalog::Rarity::TIERS.fetch(it) },
-      setTiers: pack_set_tiers(pack),
-      unlockedCardBacks: []
+      setTiers: pack_set_tiers(pack)
     }
   end
 

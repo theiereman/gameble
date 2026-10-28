@@ -46,7 +46,6 @@ const answer = {
       url: "/fr/library/theme/roguelike",
     },
   ],
-  unlockedCardBacks: [],
 }
 
 const json = (status: number, body: unknown) =>
