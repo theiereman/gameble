@@ -97,7 +97,7 @@ describe("openedFrom", () => {
       ],
       bank: bankFrom(BANK),
     })
-    expect(opened?.pack).toEqual(pack)
+    expect(opened?.pack).toEqual({ ...pack, cardBack: { key: "standard", urls: null } })
     expect(opened?.cards.map((each) => each.slug)).toEqual(["portal", "portal"])
     expect(opened?.setTiers).toHaveLength(1)
     expect(opened?.bank).toEqual({
@@ -111,6 +111,18 @@ describe("openedFrom", () => {
       nextPackSize: 5,
     })
     expect(opened?.serverTime).toBe(BANK.serverTime)
+  })
+
+  it("reads the sizes of the pack's back, and none when one is missing", () => {
+    const sizes = { cardBackS: "/s.png", cardBackM: "/m.png", cardBackXl: "/xl.png" }
+    const open = (dataset: Record<string, string>) =>
+      openedFrom({ pack: { ...pack, ...dataset }, cards: [card], setTiers: [], bank: bankFrom(BANK) })
+
+    expect(open({ cardBack: "set-theme-rpg", ...sizes })?.pack.cardBack).toEqual({
+      key: "set-theme-rpg",
+      urls: { s: "/s.png", m: "/m.png", xl: "/xl.png" },
+    })
+    expect(open({ cardBack: "set-theme-rpg", cardBackS: "/s.png" })?.pack.cardBack.urls).toBeNull()
   })
 
   it("is none without a pack or a card", () => {

@@ -11,6 +11,7 @@ class PlayerStreamJob < ApplicationJob
         waiting: (Game::TradesWaiting.call(player) if topics.include?("trades")),
         friends: announceable_friends(own.filter_map { it[:friend_id] }),
         achievements: own.filter_map { it[:achievement] }.uniq,
+        card_backs: own.filter_map { it[:card_back] }.uniq,
         signals: topics.map { "#{it}-updated" }
       }
       I18n.available_locales.each { broadcast(player, it, locals) }

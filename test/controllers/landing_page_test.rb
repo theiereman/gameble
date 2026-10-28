@@ -37,6 +37,15 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     css_select(".landing-rarities li").map { it["data-tier"] }
   end
 
+  test "the unlock module tags the sets tile as soon but not the card backs tile" do
+    get home_path(locale: :en)
+
+    tiles = css_select(".landing-unlock .landing-tile")
+    soon = tiles.select { it.at_css(".landing-soon") }.map { it.at_css(".landing-tile-title").text.squish.delete_suffix(" Soon") }
+    assert_not_includes soon, I18n.t("landings.show.unlock.tiles.backs.title", locale: :en)
+    assert_includes soon, I18n.t("landings.show.unlock.tiles.sets.title", locale: :en)
+  end
+
   test "a visitor reads the landing in French: one h1, the nine modules, the five rarities with their odds" do
     get home_path(locale: :fr)
 

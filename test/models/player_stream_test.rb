@@ -69,6 +69,23 @@ class PlayerStreamTest < ActiveSupport::TestCase
     end
   end
 
+  test "an unlocked card back tells its player alone; a retroactive one tells no one" do
+    data = { player_id: @alice.id, back: "confrere" }
+
+    assert_equal [ { player_id: @alice.id, card_back: "confrere" } ], PlayerStream.notices(Game::CardBackUnlocked.new(data:))
+    assert_empty PlayerStream.notices(Game::CardBackUnlocked.new(data: data.merge(retroactive: true)))
+  end
+
+  test "a card back unlock enqueues its notice once it commits; a retroactive one, and a second unlock, enqueue nothing" do
+    assert_enqueued_with(job: PlayerStreamJob, args: [ [ { player_id: @alice.id, card_back: "confrere" } ] ]) do
+      Game::UnlockCardBack.new.call(player: @alice, back: "confrere").value!
+    end
+    assert_no_enqueued_jobs(only: PlayerStreamJob) do
+      Game::UnlockCardBack.new.call(player: @alice, back: "confrere")
+      Game::UnlockCardBack.new.call(player: @alice, back: "centurion", retroactive: true).value!
+    end
+  end
+
   test "other events tell nothing" do
     assert_empty PlayerStream.notices(Game::PackOpened.new(data: { player_id: @alice.id, pack_id: 1 }))
   end

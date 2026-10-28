@@ -1,5 +1,6 @@
 import { RARITIES, type Rarity } from "./card_types"
 import { formatNumber, t, type Template } from "./i18n"
+import type { CardBackView } from "./opening"
 
 export const TIME_SCALE = 1.18
 
@@ -170,10 +171,17 @@ export function shakeKeyframes(amplitude: number): Keyframe[] {
   return frames
 }
 
-const CARD_BACKS: readonly string[] = ["standard"]
+export function cardBackClass(back: CardBackView): string {
+  return `booster-card__back--${back.urls ? "custom" : "standard"}`
+}
 
-export function cardBackClass(key: string): string {
-  return `booster-card__back--${CARD_BACKS.includes(key) ? key : "standard"}`
+export function cardBackProperties(back: CardBackView): Array<[string, string]> {
+  if (!back.urls) return []
+  return [
+    ["--card-back-s", `url("${back.urls.s}")`],
+    ["--card-back-m", `url("${back.urls.m}")`],
+    ["--card-back-xl", `url("${back.urls.xl}")`],
+  ]
 }
 
 export type PilePose = { y: number; scale: number; rotate: number }

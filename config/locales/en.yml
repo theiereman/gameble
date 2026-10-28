@@ -700,6 +700,8 @@ en:
       saison-1: Season 1
       soldes-hiver: Winter sales
       standard: Standard
+    unlocked:
+      title: Card back unlocked
   card_details:
     copies:
       one: "%{count} copy"

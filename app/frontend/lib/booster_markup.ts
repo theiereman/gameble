@@ -2,6 +2,7 @@ import type { BoosterBank } from "./booster_types"
 import { RARITIES, type Rarity } from "./card_types"
 import {
   SET_TIERS,
+  type CardBackView,
   type OpeningAnswer,
   type OpeningCard,
   type OpeningSetTier,
@@ -98,10 +99,15 @@ export function setTierFrom(data: Dataset): OpeningSetTier | null {
   }
 }
 
+function cardBackFrom(pack: Dataset): CardBackView {
+  const { cardBackS: s, cardBackM: m, cardBackXl: xl } = pack
+  return { key: pack.cardBack ?? "standard", urls: s && m && xl ? { s, m, xl } : null }
+}
+
 export function openedFrom({ pack, cards, setTiers, bank }: OpenedMarkup): OpeningAnswer | null {
   if (!pack?.token || cards.length === 0) return null
   return {
-    pack: { token: pack.token, kind: pack.kind ?? "", cardBack: pack.cardBack ?? "standard", url: pack.url ?? "" },
+    pack: { token: pack.token, kind: pack.kind ?? "", cardBack: cardBackFrom(pack), url: pack.url ?? "" },
     cards: cards.map(cardFrom),
     bank: {
       available: bank.available,

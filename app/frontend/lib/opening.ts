@@ -49,8 +49,10 @@ export type OpeningSetTier = {
   url: string
 }
 
+export type CardBackView = { key: string; urls: { s: string; m: string; xl: string } | null }
+
 export type OpeningAnswer = {
-  pack: { token: string; kind: string; cardBack: string; url: string }
+  pack: { token: string; kind: string; cardBack: CardBackView; url: string }
   cards: OpeningCard[]
   bank: OpeningBank
   serverTime: string

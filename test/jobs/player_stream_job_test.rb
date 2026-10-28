@@ -75,6 +75,17 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     assert_no_broadcasts PlayerStream.name(@lea, :fr)
   end
 
+  test "an unlocked card back sends its player the toast in each locale, waiting for the reveal" do
+    PlayerStreamJob.perform_now([ { player_id: @hugo.id, card_back: "confrere" } ])
+
+    french = streams(received(@hugo, :fr), "append", "toasts").map { template(it) }
+    assert_equal [ [ "Dos débloqué", "Confrère" ] ], french.map { [ it.at_css(".toast__title").text, it.at_css(".toast__message").text ] }
+    assert french.all? { it.at_css(".toast[data-toast-after-reveal]") }, "a card back waits for the opening's reveal"
+    english = streams(received(@hugo, :en), "append", "toasts").map { template(it) }
+    assert_equal [ [ "Card back unlocked", "Confrère" ] ], english.map { [ it.at_css(".toast__title").text, it.at_css(".toast__message").text ] }
+    assert_no_broadcasts PlayerStream.name(@lea, :fr)
+  end
+
   test "a player's notices go in one message per locale" do
     PlayerStreamJob.perform_now([ { player_id: @hugo.id, topic: "trades" }, { player_id: @hugo.id, topic: "friends", friend_id: @lea.id },
       { player_id: @hugo.id, topic: "trades" } ])

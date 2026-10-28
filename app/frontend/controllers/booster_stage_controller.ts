@@ -1,11 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
 import { animate } from "../lib/booster_effects"
-import { cardBackClass, pilePose } from "../lib/booster_motion"
+import { cardBackClass, cardBackProperties, pilePose } from "../lib/booster_motion"
 import { CardSwipe, dragTransform, type SwipeRelease } from "../lib/booster_swipe"
 import { writeData, writeText } from "../lib/dom_writes"
 import { BANNER_TIERS, type Fragments } from "../lib/screen"
 import { cloneTemplate } from "../lib/templates"
 import type { Rarity } from "../lib/card_types"
+import type { CardBackView } from "../lib/opening"
 
 export type CardView = Readonly<{
   index: number
@@ -22,7 +23,7 @@ export type CardView = Readonly<{
 export type HandView = Readonly<{
   key: string
   phone: boolean
-  cardBack: string
+  cardBack: CardBackView
   dealt: boolean
   cards: readonly CardView[]
 }>
@@ -228,7 +229,9 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     const rays = slot.querySelector(".booster-card__rays")
     if (BANNER_TIERS.includes(card.tier)) rays?.classList.add(`card-rays--${card.tier}`)
     else rays?.remove()
-    slot.querySelector(".booster-card__back")?.classList.add(cardBackClass(hand.cardBack))
+    const back = slot.querySelector<HTMLElement>(".booster-card__back")
+    back?.classList.add(cardBackClass(hand.cardBack))
+    for (const [name, value] of cardBackProperties(hand.cardBack)) back?.style.setProperty(name, value)
     slot.querySelector(".booster-card__front")?.replaceChildren(fragments.face(card.index) ?? "")
     slot.querySelector(".booster-card__label-icon-box")?.replaceChildren(fragments.icon(card.tier) ?? "")
     const name = slot.querySelector(".booster-card__label-name")

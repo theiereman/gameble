@@ -10,6 +10,10 @@
   <%= turbo_stream.append "toasts", ToastComponent.new(title: t("achievements.unlocked.title"), message: t("achievements.names.#{achievement}"),
         after_reveal: true) %>
 <% end %>
+<% card_backs.each do |key| %>
+  <%= turbo_stream.append "toasts", ToastComponent.new(title: t("card_backs.unlocked.title"), message: card_back_name(Game::CardBacks.find(key)),
+        after_reveal: true) %>
+<% end %>
 <% signals.each do |signal| %>
   <%= turbo_stream_action_tag "gameble-event", event: signal %>
 <% end %>

@@ -48,7 +48,7 @@ export const VALVE: OpeningSetTier = {
 }
 
 export const answerOf = (tiers: Rarity[], setTiers: OpeningSetTier[] = [], available = 1): OpeningAnswer => ({
-  pack: { token: "pack-token", kind: "regular", cardBack: "standard", url: "/pack" },
+  pack: { token: "pack-token", kind: "regular", cardBack: { key: "standard", urls: null }, url: "/pack" },
   cards: tiers.map((tier, index) => cardOf(tier, `${tier}-${index}`)),
   bank: {
     available,

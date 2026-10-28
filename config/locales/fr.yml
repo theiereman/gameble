@@ -982,6 +982,8 @@ fr:
       saison-1: "Saison 1"
       soldes-hiver: "Soldes d'hiver"
       standard: "Standard"
+    unlocked:
+      title: "Dos débloqué"
   personalizations:
     show:
       card_back:

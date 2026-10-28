@@ -100,6 +100,28 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Légendaire" ] * 5, body["cards"].map { Nokogiri::HTML5.fragment(it.dig("faces", "m")).at_css(".card__rarity").text }
   end
 
+  test "an opening answers the equipped back with its drawing at the three sizes; the standard back too, and the pack's page carries them" do
+    player = accounts_players(:player)
+    Game::CardBackUnlock.record(player.id, "set-theme-rpg", Time.current)
+    Game::PlayerState.where(player_id: player.id).update_all(active_card_back: "set-theme-rpg")
+    create_pack(player, cards: [ catalog_card_seasons(:legendary_card_one).id ] * 5, available_at: 1.day.ago)
+    sign_in(player)
+
+    open_json
+
+    back = body.dig("pack", "cardBack")
+    assert_equal "set-theme-rpg", back["key"]
+    assert_equal %w[s m xl], back["urls"].keys
+    back["urls"].each { |size, url| assert_match(%r{back-set-theme-rpg-#{size}[-.\w]*\.png\z}, url) }
+
+    follow_up = create_pack(player, cards: [ catalog_card_seasons(:legendary_card_one).id ] * 5, available_at: 1.hour.ago)
+    Game::PlayerState.where(player_id: player.id).update_all(active_card_back: nil)
+    post packs_path(locale: :en), headers: { "Accept" => "application/json", "Idempotency-Key" => "11111111-1111-4111-8111-111111111111" }
+    assert_equal "standard", body.dig("pack", "cardBack", "key")
+    assert_match(/back-standard-m/, body.dig("pack", "cardBack", "urls", "m"))
+    assert_predicate follow_up.reload, :opened_at
+  end
+
   test "with no pack left, the pack's page ends on the way back to the hub alone" do
     player = accounts_players(:player)
     pack = create_pack(player, available_at: 1.day.ago)

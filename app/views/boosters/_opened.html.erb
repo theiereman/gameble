@@ -1,5 +1,5 @@
 <%# locals: (pack:, cards:) %>
-<%= tag.template data: { booster_target: "pack", token: pack.token, kind: pack.kind, card_back: pack.card_back_key, url: pack_path(pack.token) } %>
+<%= tag.template data: { booster_target: "pack", token: pack.token, kind: pack.kind, url: pack_path(pack.token), **pack_card_back_data(pack) } %>
 <% cards.each_with_index do |card, index| %>
   <%= tag.template data: booster_opened_card_data(card, index) %>
   <% PacksHelper::REVEAL_SIZES.each do |size| %>

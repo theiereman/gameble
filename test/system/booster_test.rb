@@ -1278,4 +1278,35 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
     assert_button "Open the next one", disabled: false
   end
+
+  def equip_back(key)
+    Game::CardBackUnlock.record(@player.id, key, Time.current)
+    Game::PlayerState.where(player_id: @player.id).update_all(active_card_back: key)
+  end
+
+  def back_image(selector)
+    page.evaluate_script("getComputedStyle(document.querySelector(#{selector.to_json})).backgroundImage")
+  end
+
+  test "an opening with a set back equipped shows it on all five face-down cards, at the desktop size" do
+    equip_back("set-theme-rpg")
+    open_screen(card_ids(*[ :common_card_one ] * 5))
+    open_canister
+    assert_dealt(5)
+
+    assert_selector ".booster-card__back.booster-card__back--custom", count: 5
+    assert_no_selector ".booster-card__back--standard"
+    assert_match(/back-set-theme-rpg-m/, back_image(".booster-card__back"))
+  end
+
+  test "an opening with a set back equipped shows it on the phone's pile, at the phone size" do
+    equip_back("set-theme-rpg")
+    on_phone
+    open_screen(card_ids(*[ :common_card_one ] * 5))
+    open_canister
+    assert_pile(5)
+
+    assert_selector ".booster-card__back.booster-card__back--custom", count: 5
+    assert_match(/back-set-theme-rpg-xl/, back_image(".booster-card__back"))
+  end
 end

@@ -25,6 +25,7 @@ import {
   TREMBLE_MS,
   burstPixels,
   cardBackClass,
+  cardBackProperties,
   dealKeyframes,
   dealOrder,
   revealSummary,
@@ -143,11 +144,22 @@ describe("keyframes", () => {
   })
 })
 
-describe("cardBackClass", () => {
-  it("names the back of a known key, and the standard back for any other", () => {
-    expect(cardBackClass("standard")).toBe("booster-card__back--standard")
-    expect(cardBackClass("aurora")).toBe("booster-card__back--standard")
-    expect(cardBackClass("")).toBe("booster-card__back--standard")
+describe("the card back", () => {
+  const urls = { s: "/s.png", m: "/m.png", xl: "/xl.png" }
+
+  it("wears the server's drawing when the pack carries its sizes, and the standard back otherwise", () => {
+    expect(cardBackClass({ key: "set-theme-rpg", urls })).toBe("booster-card__back--custom")
+    expect(cardBackClass({ key: "standard", urls: null })).toBe("booster-card__back--standard")
+    expect(cardBackClass({ key: "unknown", urls: null })).toBe("booster-card__back--standard")
+  })
+
+  it("hands the three sizes to the stylesheet as properties, none for the standard back", () => {
+    expect(cardBackProperties({ key: "set-theme-rpg", urls })).toEqual([
+      ["--card-back-s", 'url("/s.png")'],
+      ["--card-back-m", 'url("/m.png")'],
+      ["--card-back-xl", 'url("/xl.png")'],
+    ])
+    expect(cardBackProperties({ key: "standard", urls: null })).toEqual([])
   })
 })
 
