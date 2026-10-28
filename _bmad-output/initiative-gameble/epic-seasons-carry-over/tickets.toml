@@ -13,14 +13,25 @@ risk = "medium"
 notes = ["From the sets epic retrospective (2026-10-20): today the first credit in a new season records, through Game::SetTier.record, every tier the player already meets, as tier events with a feed line and a celebration crossing every tick (a player at 45/62 opening one member card gets novice to expert at once); a set already complete through earlier editions has no complete row until a member is credited again. This story's receipt must run before that recording so the burst never happens."]
 
 [[entry]]
+id = 7
+type = "story"
+title = "The seasonal allocation screen designed"
+description = "Draws the seasonal allocation screen with the author using bmad-ux and records it in DESIGN.md and EXPERIENCE.md before any build: the Brotherhood line, the ended season's tiers, achievements and goal rewards, the sets that follow and the tiers to win back, on a phone and a desktop, in French and English."
+verify = "The author has approved the mockups and DESIGN.md and EXPERIENCE.md describe the screen, its states and its copy."
+covers = ["R1", "R2", "R4", "R5"]
+after = [1, "13.7"]
+hitl = true
+risk = "low"
+
+[[entry]]
 id = 2
 type = "story"
 title = "The seasonal allocation screen"
-description = "Designs the screen with the author, then builds it: the Brotherhood line, the ended season's tiers, achievements and goal rewards, the sets that follow and the tiers to win back; the hub and the booster page redirect to it while the published season is unseen, reading that check from the primary, and its POST receives the allocation through entry 1's operation if still pending and marks it seen, a write that publishes nothing; the recap reads tier rows reached in play, the carried list the allocation's rows; card backs join the recap with epic-card-backs (9.8)."
-unknown = "The screen is drawn with bmad-ux and the author before the build."
+description = "Builds the screen drawn in the design entry before it, which the author approved: the Brotherhood line, the ended season's tiers, achievements and goal rewards, the sets that follow and the tiers to win back; the redirect covers only the hub and the booster page, and they redirect to it while the published season is unseen, reading that check from the primary, and its POST receives the allocation through entry 1's operation if still pending and marks it seen, a write that publishes no event and goes through a Game operation shaped like MarkCollectionSeen; the recap reads tier rows reached in play, the carried list the allocation's rows; card backs join the recap with epic-card-backs (9.8)."
+unknown = "The screen is drawn with bmad-ux and approved by the author in the design entry before this build starts."
 verify = "On staging after a publication, a returning player is led to the screen once, also when opening the booster page first, and then reaches the hub; a player with no card from an earlier season goes straight to the hub; the screen reads in French and English on a phone and a desktop."
 covers = ["R1", "R2", "R4", "R5"]
-after = [1, "13.7"]
+after = [1, "13.7", 7]
 hitl = true
 risk = "medium"
 

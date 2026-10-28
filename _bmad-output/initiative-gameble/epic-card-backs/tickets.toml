@@ -15,10 +15,10 @@ risk = "medium"
 id = 2
 type = "story"
 title = "A set's back unlocks on its back tier"
-description = "A Game handler on SetTierReached and on the allocation receipt of 17.1 (SeasonAllocationReceived) enqueues Game::GrantCardBacksJob, as Handlers::Achievements enqueues GrantAchievementsJob, and the job unlocks through UnlockCardBack the back of a theme or hall of fame set when the tier reached is that set's back tier (its first tier at or above half its cards, gold in seasons published before the tier table), once per set kind and key across seasons; franchise, studio and UFO sets grant nothing; game:backfill_card_backs runs Game::BackfillCardBacksJob by perform_now, in the shape of game:backfill_achievements, granting retroactively (no toast) the backs of tiers reached before this epic ships, and the author runs it on staging and production; entry 7 extends that job."
+description = "Set back keys are `set-<kind>-<key>` and their assets `back-<kind>-<key>`; a set under five cards, which has only the complete tier, unlocks its back on completion. 9.3 is built before this entry. A Game handler on SetTierReached and on the allocation receipt of 17.1 (SeasonAllocationReceived) enqueues Game::GrantCardBacksJob, as Handlers::Achievements enqueues GrantAchievementsJob, and the job unlocks through UnlockCardBack the back of a theme or hall of fame set when the tier reached is that set's back tier (its first tier at or above half its cards, gold in seasons published before the tier table), once per set kind and key across seasons; franchise, studio and UFO sets grant nothing; game:backfill_card_backs runs Game::BackfillCardBacksJob by perform_now, in the shape of game:backfill_achievements, granting retroactively (no toast) the backs of tiers reached before this epic ships, and the author runs it on staging and production; entry 7 extends that job."
 verify = "Tests cover each size row of the tier table, a legacy gold, a trade that crosses the tier, a tier received at the allocation, the same set in a later season (no second unlock), a franchise set (no back), and the backfill run twice writing once; packwerk and zeitwerk pass."
 covers = ["R1", "R7"]
-after = [1, "17.1"]
+after = [1, "17.1", 3]
 hitl = false
 risk = "medium"
 
@@ -26,7 +26,7 @@ risk = "medium"
 id = 3
 type = "story"
 title = "The set backs drawn and exported"
-description = "Drafts the word, two or three colours and motif of each of the 42 themes and 4 hall of fame sets for the author's approval, then extends script/pixel_art/export.mjs with one shared set-back anatomy (frame, field, brackets, motif, 5 x 7 word) drawn from that list, exports the 46 backs in the five sizes and registers each asset in the catalogue; a catalogue test fails when a key of Catalog::Themes or Catalog::HallOfFame has no back."
+description = "Drafts the word, two or three colours and motif of each of the 42 themes and 4 hall of fame sets (a word may differ from the set name: one word of at most 9 letters, no accent, hyphen or apostrophe, since the 5 x 7 font covers A to Z and 0 to 9 only) and waits for the author's approval of the whole list before any build (hitl gate), then extends script/pixel_art/export.mjs with one shared set-back anatomy (frame, field, brackets, motif, 5 x 7 word) drawn from that list, exports the 46 backs in the five sizes and registers each asset in the catalogue; a catalogue test fails when a key of Catalog::Themes or Catalog::HallOfFame has no back."
 unknown = "Whether the 5 x 7 font covers every letter of every set word, accents included; missing glyphs are drawn or the word is changed with the author."
 verify = "node script/pixel_art/export.mjs --check passes, 46 x 5 = 230 new PNGs sit beside the existing 40, and the catalogue test passes."
 covers = ["R6"]
