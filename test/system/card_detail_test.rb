@@ -147,7 +147,7 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".set-album__name", text: /Horror/i
   end
 
-  test "a holder reposts a card from its detail: a toast, the button stays, and the feed opens on the repost" do
+  test "a holder reposts a card from its detail: a toast, the button stays, a second repost is refused, and the feed opens on the repost" do
     player = accounts_players(:player)
     Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
     sign_in(player)
@@ -161,10 +161,10 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".card-detail h1", text: "Portal"
 
     within(".card-detail__actions") { click_on "Reposter" }
-    assert_selector "#toasts .toast--notice", text: /carte repostée dans le fil\./i, count: 2
+    assert_selector "#toasts .toast--alert", text: /déjà reposté cette carte aujourd'hui/i
 
     visit feed_path(locale: :fr)
-    assert_selector ".feed__entry", count: 2
+    assert_selector ".feed__entry", count: 1
     within(first(".feed__entry")) do
       assert_selector ".feed__sentence", text: "Hugo a reposté Portal."
       assert_selector ".feed__tag--repost", text: "REPOST"
