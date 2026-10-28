@@ -133,11 +133,11 @@ class OpenPackBenchmark
     scores = Array.new(CARDS) { |index| index + random.rand }.shuffle(random:)
     tiers = Catalog::RarityThresholds.tiers(scores) || refuse("the cut left a tier empty")
     card_season_ids = Catalog::CardSeason.insert_all!(card_ids.each_with_index.map do |card_id, index|
-      { card_id:, season_id:, prestige_score: scores[index], rating: random.rand(0..100), rarity: tiers[index] }
+      { card_id:, season_id:, number: index + 1, prestige_score: scores[index], rating: random.rand(0..100), rarity: tiers[index] }
     end, returning: :id).rows.flatten
     seed_sets(season_id, card_season_ids)
     Catalog::CardSeason.insert_all!(card_ids.first(EARLIER_CARDS).each_with_index.map do |card_id, index|
-      { card_id:, season_id: earlier_id, prestige_score: scores[index], rating: random.rand(0..100), rarity: tiers[index] }
+      { card_id:, season_id: earlier_id, number: index + 1, prestige_score: scores[index], rating: random.rand(0..100), rarity: tiers[index] }
     end)
     season_id
   end
