@@ -377,3 +377,11 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-card-backs/story-the-back-catalogue-unlock-rows-and-the-active-back-plan.md`
   summary: CAP-20 of the spec still says the player picks the active back "in the profile".
   evidence: the UX session of 2026-10-28 put the picker on the Personnalisation page (epic-personalization); the spec line should say so.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-seasons-carry-over/story-carried-tiers-are-received-once-per-season-silently-plan.md`
+  summary: `OpenPack` locks the player state row before the holdings upsert, while AD-10 orders bank, holdings, then state rows.
+  evidence: harmless today because the player's advisory bank lock serialises both operations and no operation locks holdings then state without it; an operation added later that does would deadlock with `OpenPack`.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-seasons-carry-over/story-carried-tiers-are-received-once-per-season-silently-plan.md`
+  summary: A player state row created by an upsert before `CreatePlayerState` keeps null allocation markers and publishes one extra `SeasonAllocationReceived` at the first opening.
+  evidence: `RecordPlayerActivity` and `MarkCollectionSeen` upsert the row; no path was found where one runs before registration, so the effect is cosmetic (one event, no wrong tier).
