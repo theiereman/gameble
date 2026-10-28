@@ -3,7 +3,7 @@ title: 'The Personalization page'
 type: 'feature'
 ticket: '1'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: '234ff21a550370af83a76a1315d8492a380ad650'
 route: 'oneshot'
 route_source: 'auto'
