@@ -9,7 +9,7 @@ require "zlib"
 # changed in the script, never by hand.
 class PixelArtExportTest < ActiveSupport::TestCase
   PIXEL_DIR = Rails.root.join("app/frontend/images/pixel")
-  BACK_NAMES = %w[standard saison-1 semaine-38 etoile-dor aurore millesime-2017 centurion soldes-hiver].freeze
+  BACK_NAMES = %w[standard saison-1 confrere etoile-dor aurore millesime-2017 centurion soldes-hiver].freeze
   # Half of each card size: one art pixel is 2 CSS px.
   BACK_SIZES = { "xs" => [ 50, 75 ], "s" => [ 56, 84 ], "m" => [ 80, 120 ], "l" => [ 104, 156 ], "xl" => [ 120, 180 ] }.freeze
   AVATAR_COLOURS = %w[blue pink gold jade orange lavender grey violet].freeze

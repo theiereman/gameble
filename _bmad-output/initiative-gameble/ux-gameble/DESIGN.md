@@ -785,7 +785,7 @@ What the player sees on their own face-down cards at opening, and in the collect
 |---|---|
 | Standard (default) | Slate frame, dark diagonal-weave field, a blue ring with a dotted outer ring and gold ticks, the wordmark's gold "G" monogram in the center, "GAMEBLE" below |
 | Saison 1 | Steam blueprint grid, a large engraved "1" in a ring of blue and gold dots, "SAISON" above, "GAMEBLE" below |
-| Semaine 38 | A pennant edged in gold, a gold ring and five small stars, "38" in gold, an orange hazard band, "SEMAINE" |
+| Confrère | A pennant edged in gold, a gold ring crowned by five small stars, an orange hazard band, "CONFRERE" (author, 2026-10-28: formerly Semaine 38) |
 | Étoile d'or | Gold frame, a gold sunburst, a large shaded gold star, sparkles, "LEGENDE" |
 | Aurore | Night sky with jade, blue and violet aurora curtains, stars and a dark mountain line, "AURORE" |
 | Millésime 2017 | Bronze-gold frame, a laurel wreath around "2017", a blue ribbon, "TOP 10" |
