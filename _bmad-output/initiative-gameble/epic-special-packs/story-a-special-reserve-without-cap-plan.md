@@ -3,7 +3,7 @@ title: 'A special reserve without cap'
 type: 'feature'
 ticket: '2'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: 'cde98feaceecbdc0061d9cb6fe723f914aafd0a0'
 route: 'full'
 route_source: 'auto'

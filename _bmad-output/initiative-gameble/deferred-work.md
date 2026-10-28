@@ -421,6 +421,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-special-packs/story-a-special-reserve-without-cap-plan.md`
   summary: `Game::Reserve.counts` groups unopened packs by kind, which the partial index `index_game_packs_unopened (player_id, available_at, id)` does not cover, so it reads every unopened row of the player on each hub, chip and opening response; the special reserve has no cap.
   evidence: negligible at realistic volumes (a few daily and goal capsules a week); `OpenPack` and `NextPackSize` use the index and are unaffected. Revisit if a player can hold hundreds of special capsules.
+  resolved: dropped (author, 2026-10-28): a player will never hold many special capsules.
 
 - source_plan: `_bmad-output/initiative-gameble/epic-special-packs/story-a-special-reserve-without-cap-plan.md`
   summary: Two missing safety nets: no test races two `Game::ClaimGoalReward` calls (once per goal under the bank lock), and `bank_races_test.rb` has no case that races a daily claim against an opening or a heal while 10 standard capsules are held and asserts the standard count stays at 10 and the special count is exactly 1.
