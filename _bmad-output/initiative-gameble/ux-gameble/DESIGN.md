@@ -24,6 +24,8 @@ colors:
   accent-press: '#8fd3ff'
   on-accent: '#0b1520'
   live-red: '#b3001b'
+  capsule-daily: '#f4c542'
+  capsule-goal: '#d6403a'
   text: '#c7d5e0'
   text-bright: '#e6eef5'
   text-max: '#ffffff'
@@ -556,6 +558,7 @@ Dark only. Text reaches a contrast ratio of at least 4.5:1, and interface bounda
 - **Gold (`{colors.gold}`)** belongs to the Légendaire tier, the "PREMIÈRE DÉCOUVERTE" chip, the quantity badge and the "DERNIÈRE OBTENTION" kicker. It is never a general accent. The phone's Légendaire caption plate sits on `{colors.plate-legendaire}`.
 - **Orange (`{colors.alert}`)** is for alerts only: a trade waiting for the player (badge text `{colors.on-alert}`), the armed canister, expiry, "RÉSERVE PLEINE", report and delete, inline errors.
 - **Danger:** `{colors.danger-bg}` with `{colors.danger-text}`, turning orange on hover; only for deleting the account.
+- **Capsule origins (`{colors.capsule-daily}`, `{colors.capsule-goal}`)** colour a special capsule by where it came from: the daily capsule yellow, the weekly goal reward red (author, 2026-10-28). `{colors.capsule-daily}` has the hex of `{colors.gold}` but is a separate role: gold stays the Légendaire tier's. `{colors.capsule-goal}` is not `{colors.live-red}`, which belongs to the LIVE marker alone, nor `{colors.alert}`, which belongs to alerts. A later origin adds its own token. Text on either fill is `{colors.outline}`.
 - **Live red (`{colors.live-red}`)** is only the blinking square of the LIVE ticker's marker, on the accent fill (3.5:1) (author, 2026-10-12).
 
 ### Rarity
@@ -857,7 +860,7 @@ The hub's key panel, with corner brackets: a steady accent light and "OBJECTIF C
 
 #### Daily capsule panel
 
-A quiet panel under the community goal panel (author, 2026-10-23): "CAPSULE QUOTIDIENNE" with a state word on the right ("PRÊTE" lime, "RÉCUPÉRÉE" muted, "RÉSERVE PLEINE" orange), a JetBrains Mono line and the small primary button "RÉCUPÉRER". Reserve full: the button is disabled and the line changes (copy: see `EXPERIENCE.md`, Copy deck). Once collected: "PROCHAINE DANS", the countdown in `{typography.clock}` and a thin bar filling toward the day change.
+A quiet panel under the community goal panel (author, 2026-10-23): "CAPSULE QUOTIDIENNE" with a state word on the right ("PRÊTE" lime, "RÉCUPÉRÉE" muted), a JetBrains Mono line and the small primary button "RÉCUPÉRER". Reserve full: the button is disabled and the line changes (copy: see `EXPERIENCE.md`, Copy deck). Once collected: "PROCHAINE DANS", the countdown in `{typography.clock}` and a thin bar filling toward the day change.
 
 #### Signed-out hub
 
@@ -872,6 +875,18 @@ The capsule is a machine-like metal canister, not a paper wrapper. Reference: [m
 - **At rest:** LEDs lit steadily in blue; the canister breathes 2px; a light band sweeps across it; blue rays turn slowly behind it. A steady hint below: "CLIQUEZ POUR OUVRIR" ("TOUCHEZ POUR OUVRIR" on the phone).
 - **Armed** (after a successful opening request): LEDs and the hazard band turn orange.
 - **Opening:** the same caps blow off up and down with smoke jets, a ring, a short warm flash and a shake; then the five cards burst out (see `EXPERIENCE.md`, Motion).
+
+#### Special capsules
+
+Every capsule that is not a standard capsule (today the daily capsule and the weekly goal reward) waits in the special reserve and is drawn in the colour of its origin (author, 2026-10-28). Mockups: [mockups/special-capsules/index.html](mockups/special-capsules/index.html) (hub counts, chips, capsule screen tabs, live unlock) and [mockups/special-capsules/emblems.html](mockups/special-capsules/emblems.html) (the emblems at three levels of detail); where they differ from the rules, the rules apply.
+
+- **Origins:** daily, `{colors.capsule-daily}` with the sun; weekly goal reward, `{colors.capsule-goal}` with the cup. The standard capsule keeps its blue label and the gold "G" monogram.
+- **The canister** is the real canister art (see Capsule canister): only the label band, the LEDs and the emblem in the window take the origin's colour. The origin's name is printed on the label band ("CAPSULE QUOTIDIENNE", "RÉCOMPENSE D'OBJECTIF"), so the player knows what they open; no intro plays.
+- **Emblems:** pixel-art icons in the project's icon format (character grid, one art pixel per cell), drawn in `script/pixel_art/export.mjs` and exported to `app/frontend/images/pixel/`, never hand-edited. Both are the medium level: 17 × 17 cells, drawn at 1 art pixel per cell like the G monogram, with the `{colors.outline}` outline and three tones (outline, body, shade). The sun (S1-L2, a disc with short rays): body `{colors.capsule-daily}`, shade `#8f5e0a`. The cup (C1-L2, two handles, a stem and a foot): body `{colors.capsule-goal}`, shade `#7a1c1f`. The cup has no 11-cell version: red on the window reaches only 4.2:1.
+- **Count badges:** on the menu entry "OUVRIR UNE CAPSULE", two pill badges in `{typography.label}`: standard in `{colors.accent}` (text `{colors.on-accent}`), special in `{colors.lime}` (text `{colors.on-lime}`). A count of zero shows no badge at all, so with both at zero the entry is bare.
+- **Top bar chips:** a standard chip in `{colors.accent}` and a special chip in `{colors.lime}`, each with its count. At zero a chip stays shown, plain and muted (`{colors.muted}` on `{colors.panel-sunken}`), with no coloured frame and no glow, so the bar does not move.
+- **Capsule screen tabs:** two tabs, "STANDARD · n" and "SPÉCIALES · n", each led by a small version of the real capsule of its kind (the special tab in the colour of its oldest origin), over the Tabs and filters rules. An empty tab is greyed (`{colors.dim}`), outline in `{colors.line-soft}`, and carries no highlight; the active tab has the active tab's underline. A tab that becomes available simply changes from the disabled look to the enabled one: no badge, no pulse, no ring.
+- **Panel while opening:** the information panel names the origin ("EN OUVERTURE · CAPSULE QUOTIDIENNE") in the origin's colour and counts the special reserve as one total.
 
 #### Capsule information panel
 
