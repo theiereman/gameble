@@ -42,8 +42,8 @@
             <% if player.banned? %>
               <td data-player-state="banned"><%= t(".states.banned") %></td>
               <td>
-                <%= render "back_office/bans/unban_action", player:, name:, back: %>
-                <%= render "back_office/players/erase_action", player:, name:, back: %>
+                <%= render("back_office/bans/unban_action", player:, name:, back:) %>
+                <%= render("back_office/players/erase_action", player:, name:, back:) %>
               </td>
             <% else %>
               <td data-player-state="good_standing"><%= t(".states.good_standing") %></td>
