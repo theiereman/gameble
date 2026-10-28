@@ -373,6 +373,20 @@ graph TD
   - Packwerk names a package by its path, `app/domains/<name>`, and `packs.yml` lists `app/domains/*`. The dependency arrows of the diagram above do not change.
   - Settled by the author on 2026-10-27 after a trial that moved `accounts` with packwerk, Zeitwerk and the whole suite green.
 
+### AD-33 — Exotic cards are a tribute season `[PROPOSED]`
+
+- **Binds:** the exotic cards epic; a capability to add to the spec (author, 2026-10-29: the exotic tier, a drop of one in 10,000, the beta-builder capsule).
+- **Prevents:** a second card table beside `catalog_card_seasons`; holdings, trades, showcases and reposts forked for people's cards; the five-tier checks leaking.
+- **Rule (the author approves it before any build, at ticket 2 of the exotic cards epic):**
+  - The six cards are `catalog_card_seasons` rows of one permanent season of kind `tribute`, numbered 0, never the one `PublishedSeason` returns, never carried over or reset (the allocation reads the regular seasons only). Everything keyed by card-season (holdings, showcases, trades, reposts, first discoveries) works unchanged.
+  - Exotic is tier 6: `Catalog::Rarity::TIERS` gains `6 => :exotic` and the tier checks widen to 1..6 in an expand then contract pair, a tribute card being the only tier 6 (a model validation, as a check cannot see the season).
+  - The six cards sit in one `tribute` set of that season; the set tiers machinery runs on it unchanged, and it has no back (AD-25 grants backs for themes and hall of fame sets only).
+  - The draw odds take tier 6 from the Commune share of the regular pack only: `REGULAR` becomes 1 => 7_599 and 6 => 1 out of 10,000; the guarantee, bonus and reward odds hold none. A draw that lands on tier 6 picks one of the six evenly. The draw pool holds the tribute cards beside the published season's.
+  - The beta-builder capsule is a pack of kind `tribute` in the special reserve (AD-23's reserves), granted by one administrator operation run from the console for a group of players, one player per transaction, as AD-25's back grant is. It publishes the events any pack does.
+  - Collection and totals read the published season's card-seasons, so exotic cards stay outside the season's totals; they show in the grid as owned tiles, and the tribute set shows with its own progress.
+- **Costs:** every query keyed on `Rarity::TIERS` or on a season's number handles tier 6 and season 0 (about 37 files read the tiers); the card face drops the season mark for a tribute card.
+- **Rejected:** a card table of its own (forks every feature); a null season (breaks the joins and the unique indexes); a seventh tier inside a regular season (the drop, the totals and the carry-over would treat it as a game).
+
 ## Consistency Conventions
 
 | Concern | Convention |

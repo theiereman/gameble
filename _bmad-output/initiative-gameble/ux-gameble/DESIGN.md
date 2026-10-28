@@ -780,6 +780,18 @@ Every card's varnish reflects a studio, always, at rest as under the pointer (au
 
 The Légendaire's animated effect is its glitter (author, 2026-10-13), on the capsule screen and everywhere else, in place of the former holo sweep and foil: small flakes of white, pale gold, violet and blue, some with four arms, scattered over the card the same way on every render of it. Each is a tiny mirror: it flashes when the tilt faces it, and otherwise twinkles now and then while the card is on screen. Only the Légendaire shines (author, 2026-10-08): no other tier has glitter or iridescence.
 
+#### Exotic cards
+
+Six tribute cards, one per beta tester, outside the five tiers (author, 2026-10-29). Reference: [mockups/exotic-card/index.html](mockups/exotic-card/index.html), which loads the app's own card stylesheets; its `exotic.css` holds every rule below and is what moves into the app.
+
+- **Mark:** "Exotique" / "Exotic", with a violet star icon in the Légendaire's shape (`#f1e4ff` lit, `#a24bff` body, `#4b1d8f` shade). Colour never stands alone: icon and name travel together, as for every tier.
+- **Frame:** near black (`#07050c`), a faint diagonal of violet-black, the bevel's lit edge tinted violet (`rgba(214,168,255,.3)`). The band's tick, the genre line and the rarity name are violet (`#a24bff` tick, `#d6a8ff` text, 10:1 on the raised band).
+- **Halo:** the glow is a slow violet halo round the outline, a 7 second breath from a 2px, 25% shadow to an 8px, 65% one (author, 2026-10-29, picked from six glows). It sits on the face root as a `box-shadow`, so it follows the tilt.
+- **Metal:** the Légendaire's iridescent band is a polished violet chrome here, sliding opposite the tilt over the black frame and the body, with white and violet flakes in place of gold and blue. At rest only the strip lights show; the chrome is the answer to movement.
+- **Art:** the tester's photo through the pixel filter, in the Steam cover's place. Footer: "beta-builder" as the genre, 2026 as the year, "#n" as the number, no season mark (the cards have none).
+- **Reduced motion:** no tilt, a still halo; the chrome stays at rest.
+- **Capsule screen:** an opened exotic gets the Légendaire's large banner in violet, over the same glitter.
+
 #### Card backs
 
 What the player sees on their own face-down cards at opening, and in the collection detail of a card not owned. All backs share one anatomy, drawn at 2 CSS px: an outer frame (lit top-left edge, shaded bottom-right), a patterned field, an inner line, four corner brackets, a central motif and a small word in 5 × 7 pixel letters at the top or the bottom (decorative). A pale `{colors.accent-hi}` sheen crosses each face-down card from time to time.

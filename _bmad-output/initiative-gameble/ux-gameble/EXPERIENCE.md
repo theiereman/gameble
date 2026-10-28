@@ -499,6 +499,13 @@ Movement is fluid at 60fps (transforms and opacity only; continuous loops never 
 - **Locked card backs** are listed with their unlock condition ("Atteindre le palier Expert du set Roguelike"); an achievement that unlocks one shows it on its tile.
 - **The prototype's eight** are examples; the shipping list is open (see `DESIGN.md`, Card backs).
 
+## Exotic cards
+
+- **What they are:** six tribute cards, one per beta tester (Hydrax, Skyora, Zohan, Feltpath, Micilico, Le chocotube), each with the tester's pseudonym, a pixelated portrait the tester agreed to, and the category "beta-builder". They form a set of their own with no season (author, 2026-10-27 and 2026-10-29). Look: `DESIGN.md`, Exotic cards.
+- **Getting one, two ways (author, 2026-10-29):** from any regular pack, one card in ten thousand being exotic (a fifth of a Légendaire's rate, about one pack in two thousand), the six drawn evenly; and from a beta-builder capsule that the author grants by hand to a group of players by Steam id, a special capsule with its own look that holds a tester's exotic card. Daily, goal and reward capsules never hold one.
+- **Using one:** a card like any other: shown in the collection, traded, put in the showcase, reposted. A visitor sees it like any card (the public side is unchanged).
+- **Proposed, to confirm at the build:** the beta-builder capsule holds five cards, the named exotic and four drawn by the regular odds; the set reads "Beta-builders 0/6" and stays out of the season's totals and the season's set list.
+
 ## Accessibility Floor
 
 Behavior only. Contrast values live in `DESIGN.md` (see Colors).
