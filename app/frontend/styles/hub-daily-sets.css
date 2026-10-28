@@ -108,7 +108,8 @@
 }
 
 /* The chip's count brightens a moment once the canister lands. */
-.packs-chip__count.is-bumped {
+.packs-chip__count.is-bumped,
+.packs-chip__special-count.is-bumped {
   color: var(--color-accent-hi);
 }
 

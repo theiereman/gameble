@@ -557,6 +557,15 @@ en:
     next_in: "+1 in"
     open: Open the capsule
     open_next: Open the next one
+    origin:
+      bonus: DAILY CAPSULE
+      regular: STANDARD CAPSULE
+      reward: GOAL REWARD
+    origin_label: Origin
+    reserves:
+      empty_special: No special capsule yet
+      empty_standard: No standard capsule yet
+      label: Capsule reserves
     repost: Repost
     reserve: Reserve
     reserve_empty: Reserve empty
@@ -642,13 +651,21 @@ en:
       repost_failed: The repost did not go through. Check your connection, then try
         again.
       reposted: Card reposted to the feed.
+      origin_bonus: DAILY CAPSULE
+      origin_opening: 'OPENING · %{origin}'
+      origin_regular: STANDARD CAPSULE
+      origin_reward: GOAL REWARD
       reserve_count:
         one: "%{n} capsule"
         other: "%{n} capsules"
       summary:
         one: "%{n} card revealed: %{tiers}."
         other: "%{n} cards revealed: %{tiers}."
+      special_arrived: A special capsule has arrived.
+      standard_ready: A standard capsule is ready.
       summary_tier: "%{rarity} × %{n}"
+      tab_special: "SPECIAL · %{n}"
+      tab_standard: "STANDARD · %{n}"
       tray_count: "%{n} / %{total}"
       tray_slot: "%{card}, %{rarity}. Enlarge."
       zoom_line: "%{rarity} · %{year}"
@@ -875,6 +892,7 @@ en:
         one each.
       invalid_request: Ask for one to four different cards, with a quantity of at
         least one each.
+      invalid_reserve: That reserve does not exist. Reload the page and try again.
       invalid_time: The time sent could not be read. Reload the page.
       no_pack_available: Your reserve is empty. The next capsule is on its way.
       no_season: No season of cards is open yet. Come back later for the daily capsule.
@@ -2154,6 +2172,7 @@ en:
       special_label:
         one: special
         other: special
+      special_none: No special capsule
     player:
       back_office: Back-office
       fallback_name: Player

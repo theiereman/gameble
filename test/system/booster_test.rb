@@ -162,7 +162,7 @@ class BoosterTest < ApplicationSystemTestCase
   test "the packs chip leads to the screen" do
     create_pack(@player)
     visit home_path(locale: :en)
-    find(".top-bar a.packs-chip").click
+    find(".top-bar a.packs-chip:not(.packs-chip--special)").click
 
     assert_current_path "/en/booster"
     assert_selector ".booster-canister"
@@ -583,7 +583,7 @@ class BoosterTest < ApplicationSystemTestCase
   test "reached from a card, the back button to it is locked with the GAMEBLE link while the opening runs" do
     create_pack(@player, cards: card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
     visit card_path(locale: :en, slug: "portal")
-    find(".top-bar a.packs-chip").click
+    find(".top-bar a.packs-chip:not(.packs-chip--special)").click
     assert_selector ".booster"
     previous = ".top-bar .top-bar__start a.top-bar__previous"
     assert_selector previous, text: "CARD"

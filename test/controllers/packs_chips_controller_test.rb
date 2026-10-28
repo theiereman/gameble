@@ -32,7 +32,7 @@ class PacksChipsControllerTest < ActionDispatch::IntegrationTest
       end
     end
 
-    assert_select "#{CHIP} a#packs-chip .packs-chip__count", "1"
+    assert_select "#{CHIP} div#packs-chip .packs-chip__count", "1"
     assert_select "#{CHIP} .packs-chip__next [data-countdown-target=clock]", "10:00"
     assert_select "#{CHIP} .packs-chip__next .visually-hidden", "Next capsule: 2026-10-02 14:32 UTC"
 

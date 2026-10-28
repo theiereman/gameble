@@ -189,11 +189,11 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar .rarity-counter__count[data-rarity-counter-target=count][data-tier]", 5
     assert_equal %w[common uncommon rare epic legendary], css_select(".top-bar .rarity-counter__count").map { it["data-tier"] }
     assert_select ".top-bar .rarity-legend__count[data-rarity-counter-target=count][data-tier]", 5
-    assert_select ".top-bar p.packs-chip.packs-chip--static[data-controller=reserve-chip]" do
+    assert_select ".top-bar .packs-chips[data-controller=reserve-chip] p.packs-chip--static" do
       assert_select ".packs-chip__count[data-reserve-chip-target=count]", "9"
       assert_select ".packs-chip__label[data-reserve-chip-target=label]", "in reserve"
     end
-    chip = css_select(".packs-chip--static").sole
+    chip = css_select(".packs-chips").sole
     assert_equal({ "one" => "%{number} in reserve", "other" => "%{number} in reserve" }, JSON.parse(chip["data-reserve-chip-templates-value"]))
     assert_select ".top-bar a.packs-chip", 0
     assert_select ".tab-bar[data-controller=navigation-lock] a.tab-bar__tab[href='/en/booster'][aria-current=page]"
@@ -217,7 +217,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal "application/json", response.media_type
-    assert_equal({ "bank" => { "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextAvailableAt" => "2026-10-06T14:32:00.000Z",
+    assert_equal({ "bank" => { "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextSpecialKind" => nil, "nextAvailableAt" => "2026-10-06T14:32:00.000Z",
       "serverTime" => "2026-10-06T14:26:00.000Z", "nextPackSize" => 5 } }, response.parsed_body)
     assert_empty json_keys(response.parsed_body).grep(/\Aid\z|Id\z/)
   end
@@ -348,5 +348,44 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     end
     get booster_path(locale: :en, pack: [ foreign.token ])
     assert_empty opened("pack")
+  end
+
+  test "with no standard pack the screen opens on the special reserve and names its origin" do
+    create_pack(@player, kind: :bonus, available_at: 1.hour.ago)
+    sign_in(@player)
+
+    get booster_path(locale: :en)
+
+    assert_equal "special", value("reserve")
+    assert_equal "bonus", bank_value("nextSpecialKind")
+    assert_select "#{ROOT} [role=tab][aria-selected=true]", text: /SPECIAL · 1/
+    assert_select "#{ROOT} [role=tab][data-reserve=standard][disabled]", text: /No standard capsule yet/
+    assert_select "#{ROOT} .booster__origin:not([hidden])", "DAILY CAPSULE"
+  end
+
+  test "with both kinds the screen opens on standard unless the special reserve is asked for" do
+    create_pack(@player, available_at: 1.hour.ago)
+    create_pack(@player, kind: :reward, available_at: 1.hour.ago)
+    sign_in(@player)
+
+    get booster_path(locale: :en)
+    assert_equal "standard", value("reserve")
+    assert_select "#{ROOT} [role=tab]:not([disabled])", 2
+
+    get booster_path(locale: :en, reserve: "special")
+    assert_equal "special", value("reserve")
+
+    get booster_path(locale: :en, reserve: "nonsense")
+    assert_equal "standard", value("reserve")
+  end
+
+  test "asking for the special reserve while it is empty falls back to standard" do
+    create_pack(@player, available_at: 1.hour.ago)
+    sign_in(@player)
+
+    get booster_path(locale: :en, reserve: "special")
+
+    assert_equal "standard", value("reserve")
+    assert_select "#{ROOT} [role=tab][data-reserve=special][disabled]", text: /No special capsule yet/
   end
 end

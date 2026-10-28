@@ -1,7 +1,8 @@
-import { bankFetchOwed, bankFetched, countdownAtZero, type BoosterState } from "./booster"
+import { bankFetchOwed, bankFetched, countdownAtZero, reservesUnlocked, type BoosterState } from "./booster"
 import { fetchBank } from "./booster_bank"
 import type { Transition } from "./booster_host"
 import { refreshPage } from "./booster_page"
+import type { Reserve } from "./booster_types"
 
 export type BankRefreshHost = Readonly<{
   state: () => BoosterState | undefined
@@ -9,6 +10,7 @@ export type BankRefreshHost = Readonly<{
   bankUrl: string
   disposed: () => boolean
   apply: (transition: Transition) => BoosterState
+  announce: (reserve: Reserve) => void
 }>
 
 export class BankRefresh {
@@ -18,7 +20,9 @@ export class BankRefresh {
     const generation = this.host.current().bankGeneration
     const fresh = await fetchBank({ url: this.host.bankUrl })
     if (!fresh || this.host.disposed()) return
-    this.host.apply((s) => bankFetched(s, fresh, generation))
+    const before = this.host.current().bank
+    const after = this.host.apply((s) => bankFetched(s, fresh, generation))
+    if (after.bank === fresh) reservesUnlocked(before, fresh).forEach((reserve) => this.host.announce(reserve))
   }
 
   atZero(): void {

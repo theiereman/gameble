@@ -68,7 +68,7 @@ describe("canOpen, openingStarted", () => {
   })
 
   it("opens a special capsule while no standard capsule is available", () => {
-    const state = startWith({ bank: bank(0, { special: 2, openable: 2 }) })
+    const state = startWith({ bank: bank(0, { special: 2, openable: 2 }), reserve: "special" })
 
     expect(canOpen(state)).toBe(true)
     expect(openingStarted(state).opening).toBe(true)
@@ -163,6 +163,7 @@ describe("openingAnswered, ejecting, resultHeadShown, cardsDealt, openingEnded",
       special: 0,
       openable: 1,
       reserveFull: false,
+      nextSpecialKind: null,
       nextAvailableAt: null,
       serverTime: answer.serverTime,
       nextPackSize: 5,

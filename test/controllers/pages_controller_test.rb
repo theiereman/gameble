@@ -293,8 +293,21 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".menu-item__badge--special", "2"
       assert_select ".visually-hidden", text: "2 special capsules"
     end
-    assert_select "a#packs-chip .packs-chip__count", "2"
-    assert_select "a#packs-chip .packs-chip__special-count", "2"
+    assert_select "div#packs-chip .packs-chip__count", "2"
+    assert_select "div#packs-chip .packs-chip__special-count", "2"
+    assert_select "div#packs-chip a#special-chip[href='/en/booster?reserve=special']:not([aria-disabled])"
+  end
+
+  test "with no special capsule the special chip stays shown, greyed, left out of the tab order and named by its reason" do
+    create_pack(@player)
+    sign_in(@player)
+
+    get home_path(locale: :en)
+
+    assert_select "div#packs-chip a#special-chip[aria-disabled=true][tabindex='-1'][data-empty]" do
+      assert_select ".packs-chip__special-count", "0"
+      assert_select ".visually-hidden:not([hidden])", "No special capsule"
+    end
   end
 
   test "only special capsules show no standard badge on menu 01 and a standard count of zero in the packs chip" do
@@ -305,8 +318,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge--standard", false
     assert_select ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge--special", "1"
-    assert_select "a#packs-chip .packs-chip__special-count", "1"
-    assert_select "a#packs-chip .packs-chip__count", "0"
+    assert_select "div#packs-chip .packs-chip__special-count", "1"
+    assert_select "div#packs-chip .packs-chip__count", "0"
   end
 
   test "on the hub the packs chip's countdown refreshes the page; elsewhere it refreshes the chip alone" do

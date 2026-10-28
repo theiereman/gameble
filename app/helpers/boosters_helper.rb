@@ -5,6 +5,7 @@ module BoostersHelper
   BOOSTER_CHILDREN = %w[booster-info].freeze
   BOOSTER_ACTIONS = {
     "booster-actions" => { open: :open, reveal: :revealAll, back: :guardBack },
+    "booster-reserves" => { select: :selectReserve },
     "booster-canister" => { open: :open },
     "booster-stage" => { activate: :activateCard, repost: :repostCard, press: :pressCard, release: :releaseCard },
     "booster-plate" => { store: :storeTop },
@@ -13,7 +14,7 @@ module BoostersHelper
     "booster-celebration" => { leave: :leaveForAlbum, step: :stepCelebration }
   }.freeze
 
-  def booster_root_data(bank:, season:, next_pack_size:)
+  def booster_root_data(bank:, season:, next_pack_size:, reserve:)
     values = booster_bank(bank:, next_pack_size:)
     {
       controller: "booster", action: screen_actions("booster", BOOSTER_ACTIONS),
@@ -21,13 +22,15 @@ module BoostersHelper
       booster_repost_url_value: season ? card_repost_path(slug: "SLUG", number: "NUMBER") : "",
       booster_bank_url_value: booster_path(format: :json), booster_delimiter_value: t("number.format.delimiter"),
       booster_pack_size_value: Game::Pack::SIZE, booster_season_value: season&.number || 0,
-      booster_bank_value: booster_bank_values(values), booster_strings_value: screen_strings("booster.strings")
+      booster_bank_value: booster_bank_values(values), booster_reserve_value: reserve,
+      booster_strings_value: screen_strings("booster.strings")
     }.merge(screen_outlets("booster", BOOSTER_ACTIONS.keys + BOOSTER_CHILDREN))
   end
 
   def booster_bank_values(values)
     values.slice(:available, :special, :openable, :reserveFull, :serverTime)
-      .merge(nextAvailableAt: values[:nextAvailableAt] || "", nextPackSize: values[:nextPackSize] || 0)
+      .merge(nextAvailableAt: values[:nextAvailableAt] || "", nextPackSize: values[:nextPackSize] || 0,
+        nextSpecialKind: values[:nextSpecialKind] || "")
   end
 
   def booster_bank(bank:, next_pack_size:)
@@ -36,10 +39,21 @@ module BoostersHelper
       special: bank[:special],
       openable: bank[:openable],
       reserveFull: bank[:reserve_full],
+      nextSpecialKind: bank[:next_special_kind],
       nextAvailableAt: bank[:next_available_at] && opening_time(bank[:next_available_at]),
       serverTime: opening_time(Time.current),
       nextPackSize: next_pack_size
     }
+  end
+
+  def booster_reserve_size(bank, reserve)
+    reserve.to_s == "special" ? bank[:special] : bank[:available]
+  end
+
+  def booster_origin(bank, reserve)
+    return unless reserve.to_s == "special" && bank[:next_special_kind]
+
+    t("booster.origin.#{bank[:next_special_kind]}")
   end
 
   def booster_state_words

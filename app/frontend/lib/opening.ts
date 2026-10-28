@@ -16,6 +16,7 @@ export type OpeningBank = {
   special: number
   openable: number
   reserveFull: boolean
+  nextSpecialKind: string | null
   nextAvailableAt: string | null
   scheduledAt: string[]
   nextPackSize: number | null
@@ -63,6 +64,7 @@ export type OpeningResult =
 
 export type SendOpening = {
   url: string
+  reserve: string
   key: string
   csrfToken: string | null
   fetch?: typeof globalThis.fetch
@@ -72,6 +74,7 @@ const FAILED: OpeningResult = { kind: "failed" }
 
 export async function sendOpening({
   url,
+  reserve,
   key,
   csrfToken,
   fetch: send = globalThis.fetch,
@@ -81,7 +84,11 @@ export async function sendOpening({
 
   let response: Response
   try {
-    response = await send(url, { method: "POST", headers, credentials: "same-origin" })
+    response = await send(`${url}?${new URLSearchParams({ reserve })}`, {
+      method: "POST",
+      headers,
+      credentials: "same-origin",
+    })
   } catch {
     return FAILED
   }
@@ -153,6 +160,7 @@ function isAnswer(value: unknown): value is OpeningAnswer {
     typeof value.bank.available === "number" &&
     typeof value.bank.special === "number" &&
     typeof value.bank.openable === "number" &&
+    (value.bank.nextSpecialKind === null || typeof value.bank.nextSpecialKind === "string") &&
     typeof value.serverTime === "string" &&
     isRecord(value.tierCountsBefore) &&
     RARITIES.every((tier) => typeof (value.tierCountsBefore as Record<string, unknown>)[tier] === "number") &&

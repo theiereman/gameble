@@ -6,11 +6,14 @@ export type BoosterPhase = "sealed" | "empty" | "opening" | "dealt"
 
 export type BoosterStatus = "sealed" | "arming" | "ejecting" | "inventory" | "legendarySignal" | "complete" | "waiting"
 
+export type Reserve = "standard" | "special"
+
 export type BoosterBank = {
   available: number
   special: number
   openable: number
   reserveFull: boolean
+  nextSpecialKind: string | null
   nextAvailableAt: string | null
   serverTime: string
   nextPackSize: number | null
@@ -42,6 +45,7 @@ export type BannerAsked = Omit<Banner, "key">
 
 export type BoosterState = Readonly<{
   bank: BoosterBank
+  reserve: Reserve
   bankGeneration: number
   bankOwed: boolean
   phase: BoosterPhase
@@ -81,6 +85,7 @@ export type BoosterState = Readonly<{
 
 export type BoosterStart = {
   bank: BoosterBank
+  reserve: Reserve
   opened: OpeningAnswer | null
   layout: Layout
   now: number

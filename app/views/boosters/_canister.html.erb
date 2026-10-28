@@ -1,4 +1,4 @@
-<%# locals: (season:, available:, next_size:) %>
+<%# locals: (season:, available:, reserve:, origin:, next_size:) %>
 <div class="booster__zone" data-controller="booster-canister">
   <p class="booster__empty" data-booster-canister-target="empty"<%= " hidden" if available.positive? %>>
     <span class="booster__empty-title"><%= t("booster.reserve_empty") %></span>
@@ -32,6 +32,7 @@
       </button>
     </div>
   </template>
+  <p class="booster__origin" data-booster-canister-target="origin"<%= " hidden" unless origin %>><%= origin %></p>
   <p class="booster__canister-hint" aria-hidden="true" data-booster-canister-target="hint"><span class="booster__canister-hint-click"><%= t("booster.canister_hint") %></span><span class="booster__canister-hint-touch"><%= t("booster.canister_hint_touch") %></span></p>
   <p class="booster__canister-facts" aria-hidden="true" data-booster-canister-target="facts"><%= booster_canister_facts(next_size) %></p>
 </div>

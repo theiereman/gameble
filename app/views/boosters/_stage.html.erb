@@ -1,9 +1,9 @@
-<%# locals: (season:, available:, next_size:) %>
+<%# locals: (season:, available:, reserve:, origin:, next_size:) %>
 <div class="booster__stage" data-controller="booster-stage">
   <div class="booster__shake" data-booster-stage-target="shake">
     <div class="booster__dim" aria-hidden="true"></div>
     <div class="booster__fx" aria-hidden="true" data-booster-stage-target="fx"></div>
-    <%= render("boosters/canister", season:, available:, next_size:) %>
+    <%= render("boosters/canister", season:, available:, reserve:, origin:, next_size:) %>
     <div class="booster__result" aria-hidden="true" data-booster-stage-target="result">
       <span class="booster__result-stripe" aria-hidden="true"></span>
       <span class="booster__result-title"><%= t("booster.result") %></span>

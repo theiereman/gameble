@@ -8,6 +8,7 @@ import {
   type Controls,
   type Hint,
 } from "./booster"
+import { reserveCount } from "./booster_bank"
 import { bannerKeyframes } from "./booster_keyframes"
 import { bannerDuration, pileDepth } from "./booster_motion"
 import { formatClock } from "./booster_clock"
@@ -37,6 +38,8 @@ export class BoosterRenderer {
     element.dataset.status = state.status
     element.setAttribute("aria-labelledby", phone ? "booster-title" : "booster-panel-title")
 
+    this.renderReserves(state)
+    element.dataset.reserve = state.reserve
     this.renderInfo(state, view)
     this.renderActions(state, view)
     this.renderCanister(state)
@@ -68,16 +71,47 @@ export class BoosterRenderer {
     return state.bank.nextPackSize ?? this.host.packSize
   }
 
+  private originName(state: BoosterState): string | null {
+    if (state.reserve !== "special") return null
+    const kind = state.phase === "dealt" ? state.answer?.pack.kind : state.bank.nextSpecialKind
+    const names: Record<string, string> = {
+      bonus: this.strings.originBonus,
+      reward: this.strings.originReward,
+      regular: this.strings.originRegular,
+    }
+    return (kind && names[kind]) || null
+  }
+
+  private renderReserves(state: BoosterState): void {
+    const { reserves } = this.host.outlets()
+    if (!reserves) return
+    const tab = (template: string, count: number) => ({
+      label: t(template, { n: this.host.number(count) }),
+      empty: count === 0,
+    })
+    reserves.render({
+      selected: state.reserve,
+      tabs: {
+        standard: tab(this.strings.tabStandard, state.bank.available),
+        special: tab(this.strings.tabSpecial, state.bank.special),
+      },
+    })
+  }
+
   private renderInfo(state: BoosterState, view: Controls): void {
-    const { available, reserveFull } = state.bank
+    const { reserveFull } = state.bank
+    const special = state.reserve === "special"
+    const available = reserveCount(state.bank, state.reserve)
+    const origin = this.originName(state)
     const shownSize = state.answer?.cards.length || this.nextSize(state)
     const info = {
-      lit: available,
+      lit: special ? 0 : available,
       size: this.host.number(shownSize),
       reserve: t(this.strings.reserveCount, { count: available, n: this.host.number(available) }),
       tone: view.tone,
-      reserveFull,
-      next: this.nextLine(state),
+      reserveFull: reserveFull && !special,
+      next: special ? null : this.nextLine(state),
+      origin: origin && (state.phase === "sealed" ? origin : t(this.strings.originOpening, { origin })),
     }
     for (const outlet of this.host.outlets().info) outlet.render(info)
   }
@@ -124,6 +158,7 @@ export class BoosterRenderer {
       hintHidden: state.phase !== "sealed",
       facts: t(this.strings.canisterFacts, { count: nextSize, n: this.host.number(nextSize) }),
       docks: state.docks,
+      origin: this.originName(state),
     })
   }
 

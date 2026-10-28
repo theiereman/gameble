@@ -69,7 +69,7 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_select "turbo-stream[action=replace][target=goal-reward] template #goal-reward.hub-goal__claim--collected .hub-goal__claim-state", "Collected"
-    assert_select "turbo-stream[action=replace][target=packs-chip] template a#packs-chip .packs-chip__special-count", "1"
+    assert_select "turbo-stream[action=replace][target=packs-chip] template div#packs-chip .packs-chip__special-count", "1"
     assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--special", "1"
     assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--standard", false
     assert_select "turbo-stream[action=replace][target=hub-showcase-actions] template #hub-showcase-actions"
@@ -87,7 +87,7 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "turbo-stream[action=replace][target=goal-reward] template #goal-reward.hub-goal__claim--collected"
     assert_select "turbo-stream[target=daily-booster]", false
-    assert_select "turbo-stream[action=replace][target=packs-chip] template a#packs-chip .packs-chip__special-count", "1"
+    assert_select "turbo-stream[action=replace][target=packs-chip] template div#packs-chip .packs-chip__special-count", "1"
     assert_select "turbo-stream[action=append][target=toasts] template .toast--notice .toast__message",
       "Management thanks you for your contribution. A rare capsule has been added to your reserve."
     assert_equal 1, reward_pack_count

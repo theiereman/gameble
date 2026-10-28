@@ -119,7 +119,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     3.times { create_pack(player) }
     sign_in(player)
 
-    assert_queries_match(/SELECT COUNT\(\*\) AS "count_all", "game_packs"."kind"/, count: 1) do
+    assert_queries_match(/SELECT "game_packs"."kind", COUNT\(\*\), MIN\(available_at\)/, count: 1) do
       assert_no_queries_match(/game_daily_bonus_claims/) { get pack_path(pack.token, locale: :en) }
     end
     assert_equal [ "Open a capsule", "Back to the bridge" ], end_buttons
@@ -387,7 +387,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers unlockedCardBacks], body.keys
     assert_equal({ "token" => pack.token, "kind" => "regular", "cardBack" => "standard", "url" => "/en/packs/#{pack.token}" }, body["pack"])
     scheduled = (now + 10.minutes).iso8601(3)
-    assert_equal({ "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ], "nextPackSize" => 5 },
+    assert_equal({ "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ], "nextPackSize" => 5, "nextSpecialKind" => nil },
       body["bank"])
     assert_equal "2026-10-06T14:22:00.000Z", body["serverTime"]
     assert_equal counts_before.transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }, body["tierCountsBefore"]
@@ -465,7 +465,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :ok
     assert_equal bonus.token, body.dig("pack", "token")
-    assert_equal({ "available" => 10, "special" => 0, "openable" => 10, "reserveFull" => true, "nextAvailableAt" => nil, "scheduledAt" => [], "nextPackSize" => 5 }, body["bank"])
+    assert_equal({ "available" => 10, "special" => 0, "openable" => 10, "reserveFull" => true, "nextAvailableAt" => nil, "scheduledAt" => [], "nextPackSize" => 5, "nextSpecialKind" => nil }, body["bank"])
   end
 
   test "the same key again replays the same answer, with nothing opened, even once the reserve is empty" do
@@ -620,5 +620,29 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".pack-result__card .card.card--m", 5
+  end
+
+  test "a JSON opening names its reserve and opens the oldest pack of it" do
+    player = accounts_players(:player)
+    sign_in(player)
+    create_pack(player, available_at: 2.minutes.ago)
+    special = create_pack(player, kind: :bonus, available_at: 1.minute.ago)
+
+    post packs_path(locale: :en, reserve: "special"), headers: { "Accept" => "application/json", "Idempotency-Key" => KEY }
+
+    assert_response :ok
+    assert_equal special.token, body.dig("pack", "token")
+    assert_equal [ 1, 0 ], body["bank"].values_at("available", "special")
+  end
+
+  test "a JSON opening of an unknown reserve is a bad request" do
+    player = accounts_players(:player)
+    sign_in(player)
+    create_pack(player, available_at: 1.minute.ago)
+
+    post packs_path(locale: :en, reserve: "vip"), headers: { "Accept" => "application/json", "Idempotency-Key" => KEY }
+
+    assert_response :bad_request
+    assert_equal 1, Game::Reserve.counts(player.id).standard
   end
 end

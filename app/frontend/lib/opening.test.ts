@@ -22,6 +22,7 @@ const answer = {
     special: 0,
     openable: 9,
     reserveFull: false,
+    nextSpecialKind: null,
     nextAvailableAt: null,
     scheduledAt: [],
     nextPackSize: 5,
@@ -64,11 +65,17 @@ function fake(response: Response | Error) {
 describe("sendOpening", () => {
   it("posts JSON with the key and the CSRF token, and reads the opened pack", async () => {
     const { calls, send } = fake(json(200, answer))
-    const result = await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: "token", fetch: send })
+    const result = await sendOpening({
+      url: "/fr/packs",
+      reserve: "standard",
+      key: KEY,
+      csrfToken: "token",
+      fetch: send,
+    })
 
     expect(result).toEqual({ kind: "opened", answer })
     expect(calls).toHaveLength(1)
-    expect(calls[0].url).toBe("/fr/packs")
+    expect(calls[0].url).toBe("/fr/packs?reserve=standard")
     expect(calls[0].init.method).toBe("POST")
     expect(calls[0].init.headers).toEqual({
       Accept: "application/json",
@@ -91,7 +98,9 @@ describe("sendOpening", () => {
       })),
     ]
     const { send } = fake(json(200, { ...answer, setTiers }))
-    expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({
+    expect(
+      await sendOpening({ url: "/fr/packs", reserve: "standard", key: KEY, csrfToken: null, fetch: send }),
+    ).toEqual({
       kind: "opened",
       answer: { ...answer, setTiers },
     })
@@ -99,13 +108,15 @@ describe("sendOpening", () => {
 
   it("sends no CSRF header without a token", async () => {
     const { calls, send } = fake(json(200, answer))
-    await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })
+    await sendOpening({ url: "/fr/packs", reserve: "standard", key: KEY, csrfToken: null, fetch: send })
     expect(calls[0].init.headers).toEqual({ Accept: "application/json", "Idempotency-Key": KEY })
   })
 
   it("reads a refusal's code and message", async () => {
     const { send } = fake(json(422, { error: { code: "no_pack_available", message: "Plus de capsule." } }))
-    expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({
+    expect(
+      await sendOpening({ url: "/fr/packs", reserve: "standard", key: KEY, csrfToken: null, fetch: send }),
+    ).toEqual({
       kind: "refused",
       code: "no_pack_available",
       message: "Plus de capsule.",
@@ -144,7 +155,9 @@ describe("sendOpening", () => {
       ),
     ]
     for (const { send } of outcomes)
-      expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({
+      expect(
+        await sendOpening({ url: "/fr/packs", reserve: "standard", key: KEY, csrfToken: null, fetch: send }),
+      ).toEqual({
         kind: "failed",
       })
   })

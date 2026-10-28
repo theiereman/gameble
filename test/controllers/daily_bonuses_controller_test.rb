@@ -88,8 +88,8 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
         bank = JSON.parse(css_select("[data-bonus-arc-collected]").sole["data-bonus-arc-bank"])
         assert_equal({ "available" => 9, "special" => 1, "reserveFull" => false, "nextAvailableAt" => "2026-10-02T22:10:00Z", "serverTime" => "2026-10-02T22:00:00Z" }, bank)
       end
-      assert_select "turbo-stream[action=replace][target=packs-chip] template a#packs-chip .packs-chip__count", "9"
-      assert_select "turbo-stream[action=replace][target=packs-chip] template a#packs-chip .packs-chip__special-count", "1"
+      assert_select "turbo-stream[action=replace][target=packs-chip] template div#packs-chip .packs-chip__count", "9"
+      assert_select "turbo-stream[action=replace][target=packs-chip] template div#packs-chip .packs-chip__special-count", "1"
       assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--standard", "9"
       assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--special", "1"
       assert_select "turbo-stream[action=replace][target=hub-showcase-actions] template #hub-showcase-actions"
@@ -126,8 +126,8 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_select "turbo-stream[action=replace][target=daily-booster] template .daily-booster--collected[data-bonus-arc-collected]"
-    assert_select "turbo-stream[action=replace][target=packs-chip] template a#packs-chip .packs-chip__next--full", "Reserve full"
-    assert_select "turbo-stream[action=replace][target=packs-chip] template a#packs-chip .packs-chip__special-count", "1"
+    assert_select "turbo-stream[action=replace][target=packs-chip] template div#packs-chip .packs-chip__next--full", "Reserve full"
+    assert_select "turbo-stream[action=replace][target=packs-chip] template div#packs-chip .packs-chip__special-count", "1"
     assert_equal 1, Game::DailyBonusClaim.count
   end
 

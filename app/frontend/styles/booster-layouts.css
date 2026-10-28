@@ -150,7 +150,12 @@
 /* The stage: the pile over the plate band and the tray; the canister
    (or the empty reserve) across the whole stage. A short screen scrolls. */
 .booster[data-layout="phone"] .booster__stage {
-  min-height: 510px;
+  min-height: 474px;
+}
+
+.booster[data-layout="phone"] .booster-reserves__tab {
+  min-height: 36px;
+  padding: 0 var(--space-4);
 }
 
 .booster[data-layout="phone"] .booster__shake {

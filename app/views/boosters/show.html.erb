@@ -4,10 +4,10 @@
 <% content_for :booster_top_bar, true %>
 <% turbo_exempts_page_from_cache %>
 <h1 class="visually-hidden"><%= t(".title") %></h1>
-<%= render "boosters/booster", bank: @bank, season: @season, next_pack_size: @next_pack_size, opened_pack: @opened_pack, opened_cards: @opened_cards %>
+<%= render "boosters/booster", bank: @bank, season: @season, next_pack_size: @next_pack_size, opened_pack: @opened_pack, opened_cards: @opened_cards, reserve: @reserve %>
 <div class="booster__fallback">
   <% if @bank[:openable].positive? %>
-    <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t("booster.open") %><% end %>
+    <%= render ButtonComponent.new(href: (@reserve == "special" ? packs_path(reserve: "special") : packs_path), method: :post) do %><%= t("booster.open") %><% end %>
   <% end %>
   <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t("booster.back") %><% end %>
 </div>

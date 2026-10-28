@@ -1,24 +1,22 @@
 <% refresh = local_assigns.fetch(:refresh, controller_path == "pages" && action_name == "home") %>
 <% seconds = shell_next_pack_in(bank) %>
-<%= link_to booster_path, id: "packs-chip", class: "packs-chip", data: { turbo_prefetch: false } do %>
-  <%= pixel_icon("canister-small", class: "packs-chip__icon") %>
-  <span class="packs-chip__count"><%= number_with_delimiter(bank[:available]) %></span>
-  <span class="packs-chip__label"><%= t("shell.packs.label") %></span>
-  <% if bank[:special].positive? %>
-    <span class="packs-chip__divider" aria-hidden="true"></span>
-    <span class="packs-chip__special-count"><%= number_with_delimiter(bank[:special]) %></span>
-    <span class="packs-chip__label packs-chip__special-label"><%= t("shell.packs.special_label", count: bank[:special]) %></span>
+<%= tag.div id: "packs-chip", class: "packs-chips", data: { controller: "reserve-chip", reserve_chip_delimiter_value: t("number.format.delimiter"), reserve_chip_special_templates_value: t("shell.packs.special_label").to_json } do %>
+  <%= link_to booster_path, class: "packs-chip", data: { turbo_prefetch: false } do %>
+    <%= pixel_icon("canister-small", class: "packs-chip__icon") %>
+    <span class="packs-chip__count" data-reserve-chip-target="count"><%= number_with_delimiter(bank[:available]) %></span>
+    <span class="packs-chip__label"><%= t("shell.packs.label") %></span>
+    <% if bank[:reserve_full] %>
+      <span class="packs-chip__divider" aria-hidden="true"></span>
+      <span class="packs-chip__next packs-chip__next--full"><%= t("shell.packs.full") %></span>
+    <% elsif seconds %>
+      <span class="packs-chip__divider" aria-hidden="true"></span>
+      <span class="packs-chip__next" data-controller="countdown" data-countdown-seconds-value="<%= seconds %>"
+            data-countdown-refresh-value="<%= refresh %>" data-countdown-refresh-url-value="<%= packs_chip_path %>">
+        <span aria-hidden="true"><%= t("shell.packs.next_in") %>
+          <span class="packs-chip__clock" data-countdown-target="clock"><%= format_remaining(seconds) %></span></span>
+        <span class="visually-hidden"><%= local_time_sentence(bank[:next_available_at]) { t("shell.packs.next_at", time: it) } %></span>
+      </span>
+    <% end %>
   <% end %>
-  <% if bank[:reserve_full] %>
-    <span class="packs-chip__divider" aria-hidden="true"></span>
-    <span class="packs-chip__next packs-chip__next--full"><%= t("shell.packs.full") %></span>
-  <% elsif seconds %>
-    <span class="packs-chip__divider" aria-hidden="true"></span>
-    <span class="packs-chip__next" data-controller="countdown" data-countdown-seconds-value="<%= seconds %>"
-          data-countdown-refresh-value="<%= refresh %>" data-countdown-refresh-url-value="<%= packs_chip_path %>">
-      <span aria-hidden="true"><%= t("shell.packs.next_in") %>
-        <span class="packs-chip__clock" data-countdown-target="clock"><%= format_remaining(seconds) %></span></span>
-      <span class="visually-hidden"><%= local_time_sentence(bank[:next_available_at]) { t("shell.packs.next_at", time: it) } %></span>
-    </span>
-  <% end %>
+  <%= render "shell/special_chip", bank:, link: true %>
 <% end %>

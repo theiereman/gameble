@@ -1,0 +1,10 @@
+<%# locals: (bank:, link: true) %>
+<% count = bank[:special] %>
+<%= content_tag(link ? :a : :p, id: ("special-chip" if link), class: [ "packs-chip", "packs-chip--special", ("packs-chip--static" unless link) ],
+      href: (booster_path(reserve: "special") if link), data: { reserve_chip_target: "special", empty: (count.zero? ? "" : nil), turbo_prefetch: (false if link) },
+      aria: { disabled: (count.zero? ? "true" : nil) }, tabindex: (-1 if link && count.zero?)) do %>
+  <%= pixel_icon("canister-small", class: "packs-chip__icon") %>
+  <span class="packs-chip__special-count" data-reserve-chip-target="specialCount"><%= number_with_delimiter(count) %></span>
+  <span class="packs-chip__label packs-chip__special-label" data-reserve-chip-target="specialLabel"><%= t("shell.packs.special_label", count:) %></span>
+  <span class="visually-hidden" data-reserve-chip-target="specialReason"<%= " hidden" unless count.zero? %>><%= t("shell.packs.special_none") %></span>
+<% end %>

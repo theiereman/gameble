@@ -1,4 +1,4 @@
-<%# locals: (season:, bank:, size:) %>
+<%# locals: (season:, bank:, size:, reserve:) %>
 <aside class="booster__info" data-controller="booster-info">
   <div class="booster__hazard" aria-hidden="true"></div>
   <div class="booster__id">
@@ -12,7 +12,11 @@
     </div>
     <div class="booster__row">
       <dt><%= t("booster.in_reserve") %></dt>
-      <dd class="booster__value booster__value--reserve" data-booster-info-target="reserve"><%= booster_reserve_count(bank[:available]) %></dd>
+      <dd class="booster__value booster__value--reserve" data-booster-info-target="reserve"><%= booster_reserve_count(booster_reserve_size(bank, reserve)) %></dd>
+    </div>
+    <div class="booster__row booster__row--origin"<%= " hidden" unless booster_origin(bank, reserve) %>>
+      <dt><%= t("booster.origin_label") %></dt>
+      <dd class="booster__value" data-booster-info-target="origin"><%= booster_origin(bank, reserve) %></dd>
     </div>
     <div class="booster__row booster__row--state">
       <dt><%= t("booster.state") %></dt>

@@ -17,6 +17,7 @@ export const bank = (available: number, extra: Partial<BoosterBank> = {}): Boost
   special: 0,
   openable: available,
   reserveFull: false,
+  nextSpecialKind: null,
   nextAvailableAt: "2026-10-26T12:00:00.000Z",
   serverTime: "2026-10-26T11:00:00.000Z",
   nextPackSize: available > 0 ? 5 : null,
@@ -54,6 +55,7 @@ export const answerOf = (tiers: Rarity[], setTiers: OpeningSetTier[] = [], avail
     special: 0,
     openable: available,
     reserveFull: false,
+    nextSpecialKind: null,
     nextAvailableAt: null,
     scheduledAt: [],
     nextPackSize: available > 0 ? 5 : null,
@@ -67,6 +69,7 @@ export const answerOf = (tiers: Rarity[], setTiers: OpeningSetTier[] = [], avail
 export const startWith = (overrides: Partial<BoosterStart> = {}): BoosterState =>
   start({
     bank: bank(2),
+    reserve: "standard",
     opened: null,
     layout: "wide",
     now: 1000,

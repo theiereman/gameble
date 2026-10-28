@@ -1,4 +1,11 @@
-import type { BoosterBank, BoosterPhase, Layout } from "./booster_types"
+import type { BoosterBank, BoosterPhase, Layout, Reserve } from "./booster_types"
+
+export const RESERVES: readonly Reserve[] = ["standard", "special"]
+
+export const reserveCount = (bank: BoosterBank, reserve: Reserve): number =>
+  reserve === "special" ? bank.special : bank.available
+
+export const otherReserve = (reserve: Reserve): Reserve => (reserve === "special" ? "standard" : "special")
 
 export type FetchBank = {
   url: string
@@ -21,8 +28,9 @@ export async function fetchBank({ url, fetch: send = globalThis.fetch }: FetchBa
     return null
   }
   if (!isRecord(body) || !isBank(body.bank)) return null
-  const { available, special, openable, reserveFull, nextAvailableAt, serverTime, nextPackSize } = body.bank
-  return { available, special, openable, reserveFull, nextAvailableAt, serverTime, nextPackSize }
+  const { available, special, openable, reserveFull, nextSpecialKind, nextAvailableAt, serverTime, nextPackSize } =
+    body.bank
+  return { available, special, openable, reserveFull, nextSpecialKind, nextAvailableAt, serverTime, nextPackSize }
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -35,6 +43,7 @@ function isBank(value: unknown): value is BoosterBank {
     typeof value.special === "number" &&
     typeof value.openable === "number" &&
     typeof value.reserveFull === "boolean" &&
+    (value.nextSpecialKind === null || typeof value.nextSpecialKind === "string") &&
     (value.nextAvailableAt === null || typeof value.nextAvailableAt === "string") &&
     typeof value.serverTime === "string" &&
     (value.nextPackSize === null || typeof value.nextPackSize === "number")

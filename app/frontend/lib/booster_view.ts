@@ -1,3 +1,4 @@
+import { reserveCount } from "./booster_bank"
 import { allRevealed, storedAfterRebuild, topOfPile, zoomNeighbour } from "./booster_rules"
 import { celebrate, idle, locked } from "./booster_state"
 import {
@@ -81,7 +82,7 @@ export function controls(state: BoosterState): Controls {
   const revealedCount = state.revealed.filter(Boolean).length
   const everyRevealed = total > 0 && revealedCount === total
   const handOnTable = state.phase === "dealt" && total > 0
-  const reserveEmpty = state.bank.openable <= 0 && state.phase !== "opening"
+  const reserveEmpty = reserveCount(state.bank, state.reserve) <= 0 && state.phase !== "opening"
   const top = handOnTable ? topOfPile(state.revealed, state.stored) : null
   const isLocked = locked(state)
   const { zoom } = state

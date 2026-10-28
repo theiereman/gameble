@@ -6,7 +6,8 @@ class PacksController < ApplicationController
   FAILURES = {
     invalid_idempotency_key: [ :bad_request, "invalid_idempotency_key" ],
     player_required: [ :unauthorized, "sign_in_required" ],
-    no_pack_available: [ :unprocessable_content, "no_pack_available" ]
+    no_pack_available: [ :unprocessable_content, "no_pack_available" ],
+    invalid_reserve: [ :bad_request, "invalid_reserve" ]
   }.freeze
 
   rate_limit to: 30, within: RATE_LIMIT_WINDOW, only: :create,
@@ -35,7 +36,7 @@ class PacksController < ApplicationController
   private
 
   def open_from_form
-    result = Game::OpenPack.new.call(player: current_player)
+    result = Game::OpenPack.new.call(player: current_player, reserve: params[:reserve])
     if result.success?
       redirect_to pack_path(result.value!.token), status: :see_other
     else
@@ -47,7 +48,7 @@ class PacksController < ApplicationController
     key = idempotency_key
     return render_failure(:invalid_idempotency_key) if key.blank?
 
-    result = Game::OpenPack.new.call(player: current_player, idempotency_key: key)
+    result = Game::OpenPack.new.call(player: current_player, idempotency_key: key, reserve: params[:reserve])
     if result.success?
       pack = result.value!
       render json: helpers.pack_opening_json(pack, cards: cards_of(pack), player: current_player, now: Time.current)

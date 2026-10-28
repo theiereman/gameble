@@ -95,7 +95,7 @@ class ShellHelperTest < ActionView::TestCase
     Game::Holding.create!(player_id: current_player.id, card_season_id: catalog_card_seasons(:legendary_card_one).id, quantity: 2)
 
     assert_queries_count(2) do
-      assert_equal({ available: 1, special: 0, openable: 1, reserve_full: false, next_available_at: nil }, shell_bank)
+      assert_equal({ available: 1, special: 0, openable: 1, reserve_full: false, next_available_at: nil, next_special_kind: nil }, shell_bank)
     end
     assert_equal 2, shell_tier_counts[5]
     assert_queries_count(0) do

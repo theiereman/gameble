@@ -9,6 +9,7 @@ const BUMP_MS = 600
 const ICON_SIZE = 24
 const PANEL = "#daily-booster"
 const CHIP = "#packs-chip"
+const SPECIAL_CHIP = "#special-chip"
 const BOOSTER_TAB = ".tab-bar a.tab-bar__tab[href*='/booster']"
 
 type StreamElementLike = HTMLElement & { templateContent?: DocumentFragment }
@@ -52,7 +53,7 @@ export default class extends Controller<HTMLElement> {
       ? document.querySelector(`${PANEL} .button`)
       : document.querySelector(PANEL)
     const tab = document.querySelector(BOOSTER_TAB)
-    const destination = visible(tab) ? tab : document.querySelector(CHIP)
+    const destination = visible(tab) ? tab : document.querySelector(SPECIAL_CHIP)
     const source = document.querySelector<SVGElement>(`${CHIP} .packs-chip__icon`)
     if (!origin || !visible(destination) || !source || typeof document.documentElement.animate !== "function") {
       this.arrived(bank, false)
@@ -96,7 +97,7 @@ export default class extends Controller<HTMLElement> {
     window.setTimeout(() => {
       if (bank) dispatchGameble("gameble:bank-changed", bank)
       if (!bump) return
-      const count = document.querySelector<HTMLElement>(`${CHIP} .packs-chip__count`)
+      const count = document.querySelector<HTMLElement>(`${SPECIAL_CHIP} .packs-chip__special-count`)
       if (!count) return
       count.classList.add("is-bumped")
       window.clearTimeout(this.bumpTimer)

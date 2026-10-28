@@ -3,7 +3,8 @@ module Game
     def self.reserve(player, now: Time.current)
       counts = Reserve.counts(player.id, now:)
       { available: counts.standard, special: counts.special, openable: counts.openable,
-        reserve_full: Reserve.full?(counts.standard), next_available_at: BankSchedule.call(player, now:).first }
+        reserve_full: Reserve.full?(counts.standard), next_available_at: BankSchedule.call(player, now:).first,
+        next_special_kind: counts.next_special_kind }
     end
 
     def self.call(player, now: Time.current)

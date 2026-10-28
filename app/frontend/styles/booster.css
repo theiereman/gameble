@@ -442,3 +442,58 @@
 .booster__flash[data-tone="gold"] {
   background: color-mix(in srgb, var(--color-text-max) 65%, var(--color-gold));
 }
+
+/* ---- Reserve tabs: standard and special capsules ---- */
+.booster-reserves {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: var(--space-3);
+}
+
+.booster-reserves__tab {
+  min-height: 44px;
+  padding: 0 var(--space-6);
+  border: var(--control-border);
+  background: var(--color-panel-sunken);
+  color: var(--color-muted);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  cursor: pointer;
+}
+
+.booster-reserves__tab[aria-selected="true"] {
+  color: var(--color-accent);
+  box-shadow: inset 0 calc(-1 * var(--space-unit)) 0 var(--color-accent);
+}
+
+.booster[data-reserve="special"] .booster-reserves__tab[aria-selected="true"] {
+  color: var(--color-lime);
+  box-shadow: inset 0 calc(-1 * var(--space-unit)) 0 var(--color-lime);
+}
+
+.booster-reserves__tab:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.booster-reserves__tab:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.booster__row[hidden],
+.booster__origin[hidden] {
+  display: none;
+}
+
+.booster__origin {
+  margin: 0;
+  color: var(--color-lime);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-align: center;
+}
+
+.booster[data-reserve="special"] .booster__pips,
+.booster[data-reserve="special"] .booster-strip__pips {
+  visibility: hidden;
+}

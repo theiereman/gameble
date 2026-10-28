@@ -22,10 +22,11 @@ export type CanisterView = Readonly<{
   hintHidden: boolean
   facts: string
   docks: number
+  origin: string | null
 }>
 
 export default class BoosterCanisterController extends Controller<HTMLElement> {
-  static targets = ["empty", "emptyNext", "emptyClock", "emptySpoken", "canister", "hint", "facts"]
+  static targets = ["empty", "emptyNext", "emptyClock", "emptySpoken", "canister", "hint", "facts", "origin"]
 
   declare readonly emptyTarget: HTMLElement
   declare readonly emptyNextTarget: HTMLElement
@@ -34,6 +35,7 @@ export default class BoosterCanisterController extends Controller<HTMLElement> {
   declare readonly canisterTarget: HTMLTemplateElement
   declare readonly hintTarget: HTMLElement
   declare readonly factsTarget: HTMLElement
+  declare readonly originTarget: HTMLElement
 
   private wrap: HTMLElement | null = null
   private docks: number | null = null
@@ -57,7 +59,7 @@ export default class BoosterCanisterController extends Controller<HTMLElement> {
     }
   }
 
-  render({ away, empty, next, label, busy, armed, hintHidden, facts, docks }: CanisterView): void {
+  render({ away, empty, next, label, busy, armed, hintHidden, facts, docks, origin }: CanisterView): void {
     if (this.docks !== null && this.docks !== docks) this.dock()
     this.docks = docks
     this.busy = busy
@@ -73,6 +75,8 @@ export default class BoosterCanisterController extends Controller<HTMLElement> {
     this.hintTarget.toggleAttribute("data-hidden", hintHidden)
     this.factsTarget.toggleAttribute("data-hidden", hintHidden)
     writeText(this.factsTarget, facts)
+    this.originTarget.hidden = empty || origin === null
+    writeText(this.originTarget, origin ?? "")
 
     const { wrap, button } = this.parts
     if (!wrap || !button) return

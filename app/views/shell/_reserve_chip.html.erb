@@ -1,8 +1,12 @@
 <% templates = t("shell.packs.in_reserve") %>
-<p class="packs-chip packs-chip--static" data-controller="reserve-chip"
+<div class="packs-chips" data-controller="reserve-chip"
    data-reserve-chip-delimiter-value="<%= t("number.format.delimiter") %>"
-   data-reserve-chip-templates-value="<%= templates.to_json %>">
-  <%= pixel_icon("canister-small", class: "packs-chip__icon") %>
-  <span class="packs-chip__count" data-reserve-chip-target="count"><%= number_with_delimiter(bank[:available]) %></span>
-  <span class="packs-chip__label" data-reserve-chip-target="label"><%= t("shell.packs.in_reserve", count: bank[:available], number: "").strip %></span>
-</p>
+   data-reserve-chip-templates-value="<%= templates.to_json %>"
+   data-reserve-chip-special-templates-value="<%= t("shell.packs.special_label").to_json %>">
+  <p class="packs-chip packs-chip--static">
+    <%= pixel_icon("canister-small", class: "packs-chip__icon") %>
+    <span class="packs-chip__count" data-reserve-chip-target="count"><%= number_with_delimiter(bank[:available]) %></span>
+    <span class="packs-chip__label" data-reserve-chip-target="label"><%= t("shell.packs.in_reserve", count: bank[:available], number: "").strip %></span>
+  </p>
+  <%= render "shell/special_chip", bank:, link: false %>
+</div>

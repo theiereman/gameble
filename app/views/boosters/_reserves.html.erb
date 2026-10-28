@@ -1,0 +1,12 @@
+<%# locals: (bank:, reserve:) %>
+<div class="booster-reserves" role="tablist" aria-label="<%= t("booster.reserves.label") %>" data-controller="booster-reserves">
+  <% Game::Reserve::NAMES.each do |name| %>
+    <% count = booster_reserve_size(bank, name) %>
+    <%= tag.button type: "button", role: "tab", class: "booster-reserves__tab", disabled: count.zero?,
+          aria: { selected: (name == reserve).to_s },
+          data: { booster_reserves_target: "tab", reserve: name, action: "booster-reserves#select" } do %>
+      <span data-booster-reserves-target="label"><%= t("booster.strings.tab_#{name}", n: number_with_delimiter(count)) %></span>
+      <span class="visually-hidden" data-booster-reserves-target="reason"<%= " hidden" unless count.zero? %>><%= t("booster.reserves.empty_#{name}") %></span>
+    <% end %>
+  <% end %>
+</div>

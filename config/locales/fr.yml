@@ -42,6 +42,7 @@ fr:
         zero: "spéciale"
         one: "spéciale"
         other: "spéciales"
+      special_none: "Aucune capsule spéciale"
       full: "Réserve pleine"
       in_reserve:
         zero: "%{number} en réserve"
@@ -1072,6 +1073,15 @@ fr:
     reserve_full: "Réserve pleine"
     open: "Ouvrir la capsule"
     open_next: "Ouvrir la suivante"
+    origin:
+      bonus: "CAPSULE QUOTIDIENNE"
+      regular: "CAPSULE STANDARD"
+      reward: "RÉCOMPENSE D'OBJECTIF"
+    origin_label: "Origine"
+    reserves:
+      label: "Réserves de capsules"
+      empty_standard: "Aucune capsule standard pour le moment"
+      empty_special: "Aucune capsule spéciale pour le moment"
     reserve_empty: "Réserve vide"
     reveal_all: "Tout révéler"
     back: "Retour au pont"
@@ -1095,6 +1105,14 @@ fr:
     zoom_next: "Carte suivante"
     repost: "Reposter"
     strings:
+      origin_bonus: "CAPSULE QUOTIDIENNE"
+      origin_opening: "EN OUVERTURE · %{origin}"
+      origin_regular: "CAPSULE STANDARD"
+      origin_reward: "RÉCOMPENSE D'OBJECTIF"
+      special_arrived: "Une capsule spéciale est arrivée."
+      standard_ready: "Une capsule standard est prête."
+      tab_special: "SPÉCIALES · %{n}"
+      tab_standard: "STANDARD · %{n}"
       reserve_count:
         zero: "%{n} capsule"
         one: "%{n} capsule"
@@ -2118,6 +2136,7 @@ fr:
       reward_not_earned: "Aucune capsule rare ne vous attend pour cette semaine."
       reward_no_season: "Aucune saison de cartes n'est ouverte. Revenez plus tard pour votre capsule rare."
       invalid_idempotency_key: "La demande d'ouverture est mal formée. Rechargez la page et réessayez."
+      invalid_reserve: "Cette réserve n'existe pas. Rechargez la page et réessayez."
       not_friends: "Vous ne pouvez échanger qu'avec un ami."
       own_profile_private: "Votre profil est privé : les échanges sont fermés."
       friend_profile_private: "Le profil de %{name} est privé : échanges fermés."

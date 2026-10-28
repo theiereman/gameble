@@ -254,4 +254,31 @@ class Game::OpenPackTest < ActiveSupport::TestCase
       I18n.with_locale(locale) { assert_predicate Game::OpenPack.failure_message(:invalid_idempotency_key), :present? }
     end
   end
+
+  test "a reserve opens the oldest pack of that reserve only" do
+    standard = create_pack(@player, available_at: 3.minutes.ago)
+    older_special = create_pack(@player, kind: :bonus, available_at: 2.minutes.ago)
+    create_pack(@player, kind: :reward, available_at: 1.minute.ago)
+
+    pack = Game::OpenPack.new.call(player: @player, reserve: "special").value!
+
+    assert_equal older_special, pack
+    assert_not_predicate standard.reload, :opened?
+    assert_equal({ standard: 1, special: 1 }, Game::Reserve.counts(@player.id).to_h.slice(:standard, :special))
+  end
+
+  test "the standard reserve skips the special packs even when they are older" do
+    create_pack(@player, kind: :bonus, available_at: 3.minutes.ago)
+    standard = create_pack(@player, available_at: 1.minute.ago)
+
+    assert_equal standard, Game::OpenPack.new.call(player: @player, reserve: "standard").value!
+  end
+
+  test "an empty reserve refuses with no_pack_available and an unknown one with invalid_reserve" do
+    create_pack(@player, available_at: 1.minute.ago)
+
+    assert_equal :no_pack_available, Game::OpenPack.new.call(player: @player, reserve: "special").failure
+    assert_equal :invalid_reserve, Game::OpenPack.new.call(player: @player, reserve: "vip").failure
+    assert_equal 1, Game::Reserve.counts(@player.id).standard
+  end
 end

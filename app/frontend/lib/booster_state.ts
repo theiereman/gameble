@@ -1,4 +1,4 @@
-import { atZero, owedBankDue, phaseForBank, type ScreenMoment } from "./booster_bank"
+import { atZero, owedBankDue, phaseForBank, reserveCount, type ScreenMoment } from "./booster_bank"
 import { handDone, storedAfterRebuild, topOfPile } from "./booster_rules"
 import {
   REVEAL_GUARD,
@@ -10,10 +10,19 @@ import {
 } from "./booster_types"
 import { celebrationResults, restoredCelebration, type CelebrationResult } from "./celebration"
 
-export function start({ bank, opened, layout, now, celebrationRemembered, preview }: BoosterStart): BoosterState {
-  const sealed = bank.openable > 0
+export function start({
+  bank,
+  reserve,
+  opened,
+  layout,
+  now,
+  celebrationRemembered,
+  preview,
+}: BoosterStart): BoosterState {
+  const sealed = reserveCount(bank, reserve) > 0
   const fresh: BoosterState = {
     bank,
+    reserve,
     bankGeneration: 0,
     bankOwed: false,
     phase: sealed ? "sealed" : "empty",
@@ -116,7 +125,7 @@ export function focusTarget(state: BoosterState): FocusTarget | null {
   if (typeof focus === "object" || focus === "open" || focus === "back") return focus
   const index = cardToFocus(state)
   if (index !== null) return { card: index }
-  return state.bank.openable > 0 ? "open" : "back"
+  return reserveCount(state.bank, state.reserve) > 0 ? "open" : "back"
 }
 
 export function focusGiven(state: BoosterState): BoosterState {
@@ -172,7 +181,11 @@ export function celebrationSpoken(state: BoosterState): BoosterState {
 }
 
 export function completed(state: BoosterState): BoosterState {
-  return celebrate({ ...state, status: "complete", focus: state.bank.openable > 0 ? "open" : "back" })
+  return celebrate({
+    ...state,
+    status: "complete",
+    focus: reserveCount(state.bank, state.reserve) > 0 ? "open" : "back",
+  })
 }
 
 export function bankChanged(state: BoosterState, bank: BoosterBank): BoosterState {
@@ -182,7 +195,7 @@ export function bankChanged(state: BoosterState, bank: BoosterBank): BoosterStat
 export function bankFetched(state: BoosterState, bank: BoosterBank, generation: number): BoosterState {
   if (generation !== state.bankGeneration) return state
   const changed = bankChanged(state, bank)
-  const phase = phaseForBank(state.phase, bank.openable)
+  const phase = phaseForBank(state.phase, reserveCount(bank, state.reserve))
   if (phase === state.phase) return changed
   return { ...changed, phase, status: phase === "sealed" ? "sealed" : "waiting", reason: null }
 }

@@ -12,9 +12,10 @@ module Game
       @random = random
     end
 
-    def call(player:, idempotency_key: nil)
+    def call(player:, idempotency_key: nil, reserve: nil)
       player = step require_player(player)
       step check_key(idempotency_key)
+      step check_reserve(reserve)
 
       transaction do
         step lock_bank(player)
@@ -24,7 +25,7 @@ module Game
 
         now = Time.current
         step ReceiveSeasonAllocation.new.call(player:, season:)
-        pack = step next_pack(player, now)
+        pack = step next_pack(player, now, reserve)
         pool = DrawPool.of(season)
         pack.update!(opened_at: now, idempotency_key:, card_back: CardBacks.active_key(player), **drawn_in_published_season(pack, pool))
         step credit(player, pack, now)
@@ -63,8 +64,13 @@ module Game
       key.nil? || (key.is_a?(String) && key.match?(IDEMPOTENCY_KEY)) ? Success() : Failure(:invalid_idempotency_key)
     end
 
-    def next_pack(player, now)
-      pack = Pack.where(player_id: player.id).available(now).first
+    def check_reserve(reserve)
+      reserve.nil? || Reserve.of(reserve) ? Success() : Failure(:invalid_reserve)
+    end
+
+    def next_pack(player, now, reserve)
+      packs = reserve ? Reserve.available(player.id, Reserve.of(reserve), now:) : Pack.where(player_id: player.id).available(now)
+      pack = packs.first
       pack ? Success(pack) : Failure(:no_pack_available)
     end
 

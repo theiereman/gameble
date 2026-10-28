@@ -122,8 +122,8 @@ class ShellTest < ApplicationSystemTestCase
   end
 
   CHIP_WIDTHS = { "1400" => SCREEN_SIZE, "1000" => [ 1000, 900 ], "800" => [ 800, 900 ] }.merge(PHONES).freeze
-  ALL_CHIPS = %w[rarity-counter__button packs-chip player-chip__button].freeze
-  PHONE_CHIPS = %w[packs-chip player-chip__button].freeze
+  ALL_CHIPS = %w[rarity-counter__button packs-chip packs-chip player-chip__button].freeze
+  PHONE_CHIPS = %w[packs-chip packs-chip player-chip__button].freeze
 
   def visible_chip_boxes
     page.evaluate_script(<<~JS)

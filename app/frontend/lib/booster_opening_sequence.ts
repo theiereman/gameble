@@ -60,6 +60,7 @@ import { sendOpening, type OpeningAnswer } from "./opening"
 export type OpeningSequenceHost = BoosterStageHost &
   Readonly<{
     openUrl: string
+    reserve: () => string
     failedMessage: string
     refusedTitle: string
     keepFaces: (answer: OpeningAnswer) => void
@@ -82,7 +83,7 @@ export class OpeningSequence {
     const reduced = motionReduced()
     if (!reduced) animate(host.canister()?.move, armKeyframes(), { duration: ARM_MS, fill: "forwards" })
     const [result] = await Promise.all([
-      sendOpening({ url: host.openUrl, key, csrfToken: csrfToken() }),
+      sendOpening({ url: host.openUrl, reserve: host.reserve(), key, csrfToken: csrfToken() }),
       host.timers().wait(reduced ? 0 : ARM_MS),
     ])
     if (host.timers().disposed) return

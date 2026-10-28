@@ -234,6 +234,19 @@ a.packs-chip:focus-visible {
   color: var(--color-lime);
 }
 
+.packs-chips {
+  display: contents;
+}
+
+.packs-chip--special[data-empty] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.packs-chip--special[data-empty] .packs-chip__special-count {
+  color: var(--color-muted);
+}
+
 .packs-chip__divider {
   align-self: stretch;
   width: var(--space-unit);

@@ -5,6 +5,7 @@ import type BoosterActionsController from "../controllers/booster_actions_contro
 import type BoosterCanisterController from "../controllers/booster_canister_controller"
 import type BoosterCelebrationController from "../controllers/booster_celebration_controller"
 import type BoosterInfoController from "../controllers/booster_info_controller"
+import type BoosterReservesController from "../controllers/booster_reserves_controller"
 import type BoosterPlateController from "../controllers/booster_plate_controller"
 import type BoosterStageController from "../controllers/booster_stage_controller"
 import type BoosterTrayController from "../controllers/booster_tray_controller"
@@ -14,6 +15,8 @@ export type OutletSource = Readonly<{
   boosterInfoOutlets: BoosterInfoController[]
   hasBoosterActionsOutlet: boolean
   boosterActionsOutlet: BoosterActionsController
+  hasBoosterReservesOutlet: boolean
+  boosterReservesOutlet: BoosterReservesController
   hasBoosterCanisterOutlet: boolean
   boosterCanisterOutlet: BoosterCanisterController
   hasBoosterStageOutlet: boolean
@@ -30,6 +33,7 @@ export type OutletSource = Readonly<{
 export const outletsOf = (source: OutletSource): BoosterOutlets => ({
   info: source.boosterInfoOutlets,
   actions: source.hasBoosterActionsOutlet ? source.boosterActionsOutlet : null,
+  reserves: source.hasBoosterReservesOutlet ? source.boosterReservesOutlet : null,
   canister: source.hasBoosterCanisterOutlet ? source.boosterCanisterOutlet : null,
   stage: source.hasBoosterStageOutlet ? source.boosterStageOutlet : null,
   plate: source.hasBoosterPlateOutlet ? source.boosterPlateOutlet : null,

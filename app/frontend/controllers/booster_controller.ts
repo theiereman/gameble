@@ -27,12 +27,14 @@ import {
   layoutApplied,
   lockReleased,
   owedBankTaken,
+  reserveSelected,
   revealingOpening,
   topOfPile,
   zoomClosed,
   zoomOpened,
   zoomStepped,
   type BoosterState,
+  type Reserve,
 } from "../lib/booster"
 import { screenTimers, type ScreenTimers } from "../lib/screen_timers"
 import { cloneFirstElement } from "../lib/templates"
@@ -41,6 +43,7 @@ import type BoosterActionsController from "./booster_actions_controller"
 import type BoosterCanisterController from "./booster_canister_controller"
 import type BoosterCelebrationController from "./booster_celebration_controller"
 import type BoosterInfoController from "./booster_info_controller"
+import type BoosterReservesController from "./booster_reserves_controller"
 import type BoosterPlateController from "./booster_plate_controller"
 import type BoosterStageController from "./booster_stage_controller"
 import type { CardIntent } from "./booster_stage_controller"
@@ -53,6 +56,7 @@ export class BoosterController extends Controller<HTMLElement> {
   static targets = ["panelActions", "phoneActions", "live", "announcement", "rarity", "pack", "card", "face", "setTier"]
   static values = {
     openUrl: String,
+    reserve: String,
     cardUrl: String,
     repostUrl: String,
     bankUrl: String,
@@ -65,6 +69,7 @@ export class BoosterController extends Controller<HTMLElement> {
   static outlets = [
     "booster-info",
     "booster-actions",
+    "booster-reserves",
     "booster-canister",
     "booster-stage",
     "booster-plate",
@@ -84,6 +89,7 @@ export class BoosterController extends Controller<HTMLElement> {
   declare readonly faceTargets: HTMLTemplateElement[]
   declare readonly setTierTargets: HTMLTemplateElement[]
   declare readonly openUrlValue: string
+  declare readonly reserveValue: Reserve
   declare readonly cardUrlValue: string
   declare readonly repostUrlValue: string
   declare readonly bankUrlValue: string
@@ -95,6 +101,8 @@ export class BoosterController extends Controller<HTMLElement> {
   declare readonly boosterInfoOutlets: BoosterInfoController[]
   declare readonly hasBoosterActionsOutlet: boolean
   declare readonly boosterActionsOutlet: BoosterActionsController
+  declare readonly hasBoosterReservesOutlet: boolean
+  declare readonly boosterReservesOutlet: BoosterReservesController
   declare readonly hasBoosterCanisterOutlet: boolean
   declare readonly boosterCanisterOutlet: BoosterCanisterController
   declare readonly hasBoosterStageOutlet: boolean
@@ -144,6 +152,7 @@ export class BoosterController extends Controller<HTMLElement> {
     this.assembleCollaborators()
     this.state = startingState({
       bank: this.bankValue,
+      reserve: this.reserveValue,
       pack: this.hasPackTarget ? this.packTarget.dataset : null,
       cards: this.cardTargets.map((card) => card.dataset),
       setTiers: this.setTierTargets.map((row) => row.dataset),
@@ -180,6 +189,8 @@ export class BoosterController extends Controller<HTMLElement> {
   boosterTrayOutletConnected = (): void => this.render()
   boosterZoomOutletConnected = (): void => this.render()
   boosterCelebrationOutletConnected = (): void => this.render()
+  selectReserve = ({ detail: { reserve } }: Intent<{ reserve: Reserve }>): void =>
+    void this.apply((s) => reserveSelected(s, reserve))
 
   open(): void {
     void this.opening?.open()
@@ -306,10 +317,12 @@ export class BoosterController extends Controller<HTMLElement> {
       bankUrl: this.bankUrlValue,
       disposed: () => this.timers.disposed,
       apply: (transition) => this.apply(transition),
+      announce: (r) => this.announce(r === "special" ? this.strings.specialArrived : this.strings.standardReady),
     })
     this.opening = new OpeningSequence({
       ...this.stageHost,
       openUrl: this.openUrlValue,
+      reserve: () => this.current.reserve,
       failedMessage: this.strings.failed,
       refusedTitle: this.strings.refusedTitle,
       keepFaces: (answer) => this.faces.keepFaces(answer),

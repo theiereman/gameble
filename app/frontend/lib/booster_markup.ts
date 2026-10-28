@@ -16,6 +16,7 @@ export type BankValues = {
   special: number
   openable: number
   reserveFull: boolean
+  nextSpecialKind: string
   nextAvailableAt: string
   serverTime: string
   nextPackSize: number
@@ -43,6 +44,7 @@ export function bankFrom({
   special,
   openable,
   reserveFull,
+  nextSpecialKind,
   nextAvailableAt,
   serverTime,
   nextPackSize,
@@ -52,6 +54,7 @@ export function bankFrom({
     special,
     openable,
     reserveFull,
+    nextSpecialKind: nextSpecialKind || null,
     nextAvailableAt: nextAvailableAt || null,
     serverTime,
     nextPackSize: nextPackSize > 0 ? nextPackSize : null,
@@ -105,6 +108,7 @@ export function openedFrom({ pack, cards, setTiers, bank }: OpenedMarkup): Openi
       special: bank.special,
       openable: bank.openable,
       reserveFull: bank.reserveFull,
+      nextSpecialKind: bank.nextSpecialKind,
       nextAvailableAt: bank.nextAvailableAt,
       scheduledAt: [],
       nextPackSize: bank.nextPackSize,
