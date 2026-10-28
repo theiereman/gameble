@@ -165,6 +165,25 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_equal "1 copy", slot.css(".visually-hidden").map(&:text).find { it.include?("cop") }
   end
 
+  test "the published card's page, reached from the album for a game held only in an earlier season, showcases that earlier edition" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    members = set_members(season, "horror")
+    earlier = earlier_edition(members[2], rarity: :rare)
+    hold(player, earlier, 1)
+    sign_in(player)
+
+    get library_set_path(locale: :en, kind: "theme", key: "horror")
+    get css_select(".set-album__grid > li")[2].at_css("a.card-link")["href"]
+
+    assert_select ".card-detail__showcase form[action='/en/cards/#{slug(members[2])}/seasons/1/showcase'] button", "Add S1 to showcase"
+
+    Game::AddToShowcase.new.call(player:, card_season_id: earlier).value!
+    get card_season_path(locale: :en, slug: slug(members[2]), number: season.number)
+
+    assert_select ".card-detail__showcase form[action='/en/cards/#{slug(members[2])}/seasons/1/showcase'] button", "Remove S1 from showcase"
+  end
+
   test "a game held in two editions shows the best one and counts the copies of both" do
     season = publish_sets_draft
     player = accounts_players(:player)

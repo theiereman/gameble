@@ -157,16 +157,17 @@
         <% end %>
         <% if showcase %>
           <div class="card-detail__showcase">
-            <% case showcase %>
+            <% showcase_path = card_showcase_path(slug: view.id, number: showcase.season_number) %>
+            <% case showcase.action %>
             <% when :add %>
-              <%= render ButtonComponent.new(variant: :secondary, href: card_showcase_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("showcases.add") %><% end %>
+              <%= render ButtonComponent.new(variant: :secondary, href: showcase_path, method: :post) do %><%= showcase.another_edition ? t("showcases.add_edition", season: showcase.season_number) : t("showcases.add") %><% end %>
             <% when :remove %>
-              <%= render ButtonComponent.new(variant: :secondary, href: card_showcase_path(slug: view.id, number: view.season_number), method: :delete) do %><%= t("showcases.remove") %><% end %>
+              <%= render ButtonComponent.new(variant: :secondary, href: showcase_path, method: :delete) do %><%= showcase.another_edition ? t("showcases.remove_edition", season: showcase.season_number) : t("showcases.remove") %><% end %>
             <% when :full %>
               <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("showcases.add") %><% end %>
             <% end %>
           </div>
-          <% if showcase == :full %>
+          <% if showcase.action == :full %>
             <p class="card-detail__showcase-full"><%= t("showcases.full") %></p>
           <% end %>
         <% end %>

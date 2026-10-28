@@ -2268,9 +2268,11 @@ en:
       legal: Legal notice
   showcases:
     add: Add to showcase
+    add_edition: Add S%{season} to showcase
     full: 'Showcase full: remove a card to add another.'
     not_found: This card does not exist.
     remove: Remove from showcase
+    remove_edition: Remove S%{season} from showcase
     removed:
       text: "%{title} is no longer in your showcase."
       title: Removed from showcase

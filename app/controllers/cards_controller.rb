@@ -6,6 +6,7 @@ class CardsController < ApplicationController
   Browse = Data.define(:position, :total, :previous, :next, :back)
   Back = Data.define(:label, :path)
   PioneerLine = Data.define(:discovered_on, :token, :name)
+  Showcase = Data.define(:action, :season_number, :another_edition)
 
   def show
     authorize :page, :show?
@@ -128,13 +129,24 @@ class CardsController < ApplicationController
     end
 
     def showcase_state
-      return unless @editions.any? { |_, season_number, _| season_number == @detail.view.season_number }
+      edition = showcase_edition
+      return if edition.nil?
+
+      season_number = edition.second
+      another_edition = season_number != @detail.view.season_number
+      card_season_id = another_edition ? Catalog::PublishedCardSeasonId.call(slug: @detail.view.id, season_number:) : @detail.card_season_id
+      return if card_season_id.nil?
 
       chosen = Game::ChosenShowcase.call(current_player)
-      if chosen.include?(@detail.card_season_id) then :remove
+      action = if chosen.include?(card_season_id) then :remove
       elsif Game::ChosenShowcase.full?(chosen) then :full
       else :add
       end
+      Showcase.new(action:, season_number:, another_edition:)
+    end
+
+    def showcase_edition
+      @editions.find { |_, season_number, _| season_number == @detail.view.season_number } || @editions.first
     end
 
     def set_browse(set, owner: nil)

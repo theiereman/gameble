@@ -1717,7 +1717,9 @@ fr:
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   showcases:
     add: "Mettre en vitrine"
+    add_edition: "Mettre la S%{season} en vitrine"
     remove: "Retirer de la vitrine"
+    remove_edition: "Retirer la S%{season} de la vitrine"
     removed:
       title: "Retiré de la vitrine"
       text: "%{title} n'est plus dans votre vitrine."
