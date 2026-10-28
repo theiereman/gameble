@@ -1,0 +1,10 @@
+<%# locals: (label:, tiers:) %>
+<h3 class="allocation-section__sub"><%= label %><span class="visually-hidden">, </span><span class="allocation-section__count"><%= tiers.size %></span></h3>
+<ul class="allocation-list allocation-list--tiers">
+  <% tiers.each do |entry| %>
+    <li class="allocation-row">
+      <span class="allocation-row__marker" aria-hidden="true"></span>
+      <span class="allocation-row__name"><b><%= set_tier_name(entry.tier) %></b> · <%= SetLabel.for(entry.set) %></span>
+    </li>
+  <% end %>
+</ul>

@@ -1,0 +1,11 @@
+<%# locals: (achievements:) %>
+<h3 class="allocation-section__sub"><%= t("season_allocations.show.unlocked.achievements") %><span class="visually-hidden">, </span><span class="allocation-section__count"><%= achievements.size %></span></h3>
+<ul class="allocation-list">
+  <% achievements.each do |achievement| %>
+    <li class="allocation-row">
+      <span class="allocation-row__icon"><%= achievement_icon(achievement) %></span>
+      <span class="allocation-row__name"><b><%= allocation_achievement_name(achievement) %></b></span>
+      <%= local_time_tag(achievement.unlocked_at, :datetime, class: "allocation-row__date") %>
+    </li>
+  <% end %>
+</ul>

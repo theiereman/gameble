@@ -1,0 +1,5 @@
+<%# locals: (id:, heading:) %>
+<%= render PanelComponent.new(tag: :section, class: "allocation-section", aria: { labelledby: "allocation-#{id}-heading" }) do %>
+  <h2 id="allocation-<%= id %>-heading" class="allocation-section__title"><%= heading %></h2>
+  <%= yield %>
+<% end %>

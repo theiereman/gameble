@@ -1,4 +1,8 @@
 class PagesController < ApplicationController
+  include SeasonAllocationGate
+
+  before_action :lead_to_season_allocation, only: :home
+
   def home
     return show_landing if visitor_landing?
 

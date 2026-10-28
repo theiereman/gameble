@@ -1,0 +1,160 @@
+/*
+ * The seasonal allocation: a column of panels under the season's title, and a
+ * button at its foot that stays in view while the lists scroll. Hard edges on
+ * the 2px grid.
+ */
+
+.allocation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.allocation__title {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
+  outline: none;
+}
+
+.allocation-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  animation: allocation-rise 120ms var(--ease-out) both;
+}
+
+.allocation-section:nth-of-type(2) {
+  animation-delay: 80ms;
+}
+
+.allocation-section:nth-of-type(3) {
+  animation-delay: 160ms;
+}
+
+@keyframes allocation-rise {
+  from {
+    opacity: 0;
+  }
+}
+
+.allocation-section__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.allocation-section__note {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.allocation-section__sub {
+  margin: var(--space-3) 0 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.allocation-section__count {
+  margin-left: var(--space-3);
+  color: var(--color-text-max);
+}
+
+.allocation-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.allocation-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 34px;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-panel-sunken);
+  box-shadow: var(--panel-soft-border);
+  font: var(--font-body-small);
+}
+
+.allocation-row__marker {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  background: var(--color-lime);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-outline);
+}
+
+.allocation-row__icon .pixel-icon {
+  display: block;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  image-rendering: pixelated;
+}
+
+.allocation-row__name {
+  flex: 1;
+  min-width: 0;
+}
+
+.allocation-row__name b {
+  color: var(--color-text-bright);
+}
+
+.allocation-row__date {
+  margin-left: auto;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.allocation__go {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-4) 0 var(--space-5);
+  background: linear-gradient(transparent, var(--color-ground) 40%);
+}
+
+@media (min-width: 720px) {
+  .allocation-list--tiers {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 719px) {
+  .allocation__title {
+    font: var(--font-screen-title-phone);
+    letter-spacing: var(--tracking-screen-title-phone);
+  }
+
+  .allocation__go {
+    bottom: calc(var(--space-tabbar-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .allocation__go .button {
+    width: 100%;
+  }
+}
+
+html[data-motion="reduced"] .allocation-section {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .allocation-section {
+    animation: none;
+  }
+}

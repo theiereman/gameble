@@ -1,0 +1,22 @@
+<% content_for :title, t(".title") %>
+<% turbo_exempts_page_from_cache %>
+<section class="allocation" aria-labelledby="allocation-heading">
+  <h1 id="allocation-heading" class="allocation__title" tabindex="-1" autofocus><%= t(".heading", number: @recap.season_number) %></h1>
+  <% if @recap.earned.any? %>
+    <%= render "season_allocations/section", id: "earned", heading: t("season_allocations.show.earned.heading", number: @recap.ended_season_number) do %>
+      <%= render "season_allocations/tiers", label: t("season_allocations.show.earned.tiers"), tiers: @recap.earned %>
+    <% end %>
+  <% end %>
+  <% if @recap.achievements.any? %>
+    <%= render "season_allocations/section", id: "unlocked", heading: t("season_allocations.show.unlocked.heading", number: @recap.ended_season_number) do %>
+      <%= render "season_allocations/achievements", achievements: @recap.achievements %>
+    <% end %>
+  <% end %>
+  <% if @recap.received.any? %>
+    <%= render "season_allocations/section", id: "received", heading: t("season_allocations.show.received.heading") do %>
+      <p class="allocation-section__note"><%= t("season_allocations.show.received.note", number: @recap.season_number) %></p>
+      <%= render "season_allocations/tiers", label: t("season_allocations.show.received.tiers"), tiers: @recap.received %>
+    <% end %>
+  <% end %>
+  <%= button_to t(".continue"), season_allocation_path, method: :post, class: "button button--primary", form: { class: "allocation__go" } %>
+</section>

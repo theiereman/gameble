@@ -2042,6 +2042,24 @@ en:
         in_progress: In progress
         to_come: Upcoming
       title: Roadmap · Gameble
+  season_allocations:
+    create:
+      failed: Could not continue. Try again.
+      throttled: Too many attempts. Wait a moment and try again.
+    show:
+      continue: Continue
+      earned:
+        heading: Earned in season %{number}
+        tiers: Tiers reached
+      heading: ALLOCATION · SEASON %{number}
+      received:
+        heading: Your tiers in the next season
+        note: Received at once in season %{number}, without celebration.
+        tiers: Received at once
+      title: Season allocation
+      unlocked:
+        achievements: Achievements
+        heading: Unlocked in season %{number}
   sessions:
     banned:
       contest_html: To contest this decision, write to %{contact}.

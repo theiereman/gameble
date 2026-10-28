@@ -44,7 +44,7 @@ module Game
        ORDER BY inserted.set_id, tiers.required, tier_order.position
     SQL
 
-    RECEIVE_SQL = <<~SQL.squish.freeze
+    CARRIED_PROGRESS_SQL = <<~SQL.squish.freeze
       WITH held AS (#{HeldGames::SQL}),
       progress AS (
         SELECT members.set_id, COUNT(held.card_id) AS held
@@ -56,17 +56,33 @@ module Game
          GROUP BY members.set_id
         HAVING COUNT(held.card_id) > 0
       )
-      INSERT INTO game_set_tiers (player_id, set_id, tier, held, reached_by, pack_id, reached_at, created_at, updated_at)
-      SELECT :player_id, progress.set_id, tiers.tier, progress.held, 'allocation', NULL, :now, :now, :now
-        FROM progress
+    SQL
+
+    CARRIED_TIERS_SQL = <<~SQL.squish.freeze
+      FROM progress
         JOIN catalog_set_tiers AS tiers ON tiers.set_id = progress.set_id AND progress.held >= tiers.required
         JOIN catalog_set_tiers AS complete ON complete.set_id = progress.set_id AND complete.tier = 'complete'
         JOIN #{TIER_ORDER_SQL} ON tier_order.tier = tiers.tier
        WHERE tiers.tier = 'complete' OR complete.required >= :smallest_tiered
        ORDER BY progress.set_id, tiers.required, tier_order.position
+    SQL
+
+    RECEIVE_SQL = <<~SQL.squish.freeze
+      #{CARRIED_PROGRESS_SQL}
+      INSERT INTO game_set_tiers (player_id, set_id, tier, held, reached_by, pack_id, reached_at, created_at, updated_at)
+      SELECT :player_id, progress.set_id, tiers.tier, progress.held, 'allocation', NULL, :now, :now, :now
+        #{CARRIED_TIERS_SQL}
           ON CONFLICT (player_id, set_id, tier) DO NOTHING
       RETURNING set_id, tier
     SQL
+
+    CARRIED_SQL = "#{CARRIED_PROGRESS_SQL} SELECT progress.set_id, tiers.tier #{CARRIED_TIERS_SQL}".freeze
+
+    def self.carried(player_id:, season_id:)
+      binds = { player_id:, season_id:, tiers: TIERS, smallest_tiered: Catalog::TierTable::SMALLEST_TIERED }
+      rows = connection.select_rows(sanitize_sql_array([ CARRIED_SQL, binds ]), "Game::SetTier Carried")
+      rows.map { |set_id, tier| [ set_id.to_i, tier ] }
+    end
 
     def self.receive(player_id:, season_id:, now:)
       binds = { player_id:, season_id:, now:, tiers: TIERS, smallest_tiered: Catalog::TierTable::SMALLEST_TIERED }

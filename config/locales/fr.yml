@@ -1981,6 +1981,24 @@ fr:
       pepites: "Les Pépites"
       mal-aimes: "Les Mal-aimés"
       phenomenes: "Les Phénomènes"
+  season_allocations:
+    create:
+      failed: "Impossible de continuer. Réessayez."
+      throttled: "Trop de tentatives. Patientez un instant puis réessayez."
+    show:
+      title: "Allocation de saison"
+      heading: "ALLOCATION · SAISON %{number}"
+      continue: "Continuer"
+      earned:
+        heading: "Obtenu pendant la saison %{number}"
+        tiers: "Paliers atteints"
+      unlocked:
+        heading: "Débloqué pendant la saison %{number}"
+        achievements: "Succès"
+      received:
+        heading: "Vos paliers dans la saison suivante"
+        note: "Reçus d'office dans la saison %{number}, sans célébration."
+        tiers: "Reçus d'office"
   sessions:
     create:
       welcome: "Bienvenue sur Gameble. Vos capsules vous attendent."

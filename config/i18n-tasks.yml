@@ -46,6 +46,7 @@ ignore_unused:
   - "goal_rewards.create.throttled"
   - "invitations.throttled"
   - "reports.create.throttled"
+  - "season_allocations.create.throttled"
   - "trades.throttled"
   # Month and day names, read by I18n.l for %b and %A in the local time formats.
   - "date.abbr_month_names"

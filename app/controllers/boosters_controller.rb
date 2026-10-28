@@ -1,5 +1,8 @@
 class BoostersController < ApplicationController
   include PackCards
+  include SeasonAllocationGate
+
+  before_action :lead_to_season_allocation, only: :show
 
   def show
     authorize :booster, :show?

@@ -16,7 +16,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   include GameTrades
   include SteamSignIn
 
-  PLAYER_HUB_QUERIES = 19
+  PLAYER_HUB_QUERIES = 20
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -361,7 +361,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   test "the collection's meta counts the games held in any edition, out of the published season's cards" do
     player = accounts_players(:player)
     Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
-    publish_sets_draft
+    published = publish_sets_draft
+    Game::PlayerState.where(player_id: player.id).update_all(allocation_seen_season: published.number)
     sign_in(player)
 
     get home_path(locale: :en)
@@ -614,7 +615,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     earn_goal_reward
     Game::SumWeeklyGoalJob.new.perform
 
-    # Player lookup, published season, the weekly goal (one read once the job
+    # Player lookup, published season, the allocation check (the seen
+    # marker), the weekly goal (one read once the job
     # has created the week's row), bank (count, next pack, daily claim), the
     # goal reward's claim slot,
     # showcase (cards chosen, card held, card view), collection (owned, total), sets (the

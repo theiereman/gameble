@@ -81,6 +81,9 @@ Rails.application.routes.draw do
     resource :daily_bonus, path: "daily-bonus", only: :create
     post "goal-rewards/:week" => "goal_rewards#create", as: :goal_reward, constraints: { week: /\d{4}-\d{2}-\d{2}/ }
     resource :welcome, only: :destroy
+    # The screen shown once before the hub after a season is published; its
+    # POST receives the allocation if pending and marks it seen.
+    resource :season_allocation, path: "season-allocation", only: %i[show create]
 
     # The player's settings: language, reduced motion and sign-out. GET
     # reads; PATCH writes.
