@@ -4,6 +4,7 @@ module Game
       EVENTS = {
         Game::PackOpened => [ :player_id ],
         Game::SetCompleted => [ :player_id ],
+        Game::SeasonAllocationReceived => [ :player_id ],
         Game::CardReposted => [ :player_id ],
         Game::TradeAccepted => [ :proposer_id, :recipient_id ]
       }.freeze

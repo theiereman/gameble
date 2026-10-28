@@ -23,6 +23,7 @@ module Game
         next replayed if replayed
 
         now = Time.current
+        step ReceiveSeasonAllocation.new.call(player:, season:)
         pack = step next_pack(player, now)
         pool = DrawPool.of(season)
         pack.update!(opened_at: now, idempotency_key:, card_back: CardBacks.active_key(player), **drawn_in_published_season(pack, pool))

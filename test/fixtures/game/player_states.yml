@@ -3,12 +3,20 @@ _fixture:
 
 player:
   player_id: <%= ActiveRecord::FixtureSet.identify(:player) %>
+  allocation_received_season: 1
+  allocation_seen_season: 1
 
 moderator:
   player_id: <%= ActiveRecord::FixtureSet.identify(:moderator) %>
+  allocation_received_season: 1
+  allocation_seen_season: 1
 
 administrator:
   player_id: <%= ActiveRecord::FixtureSet.identify(:administrator) %>
+  allocation_received_season: 1
+  allocation_seen_season: 1
 
 banned:
   player_id: <%= ActiveRecord::FixtureSet.identify(:banned) %>
+  allocation_received_season: 1
+  allocation_seen_season: 1

@@ -21,6 +21,7 @@ module Game
         step no_empty_side(offer, request)
         holdings = lock_holdings(trade, offer, request)
         step enough_copies(request, holdings.fetch(trade.recipient_id), :requested_cards_unavailable)
+        step receive_allocations(trade, season)
         move(trade.proposer_id, holdings.fetch(trade.proposer_id), given: offer, gained: request, released: offer, now:)
         move(trade.recipient_id, holdings.fetch(trade.recipient_id), given: request, gained: offer, released: {}, now:)
         ShowcaseEntry.remove_unheld(trade.proposer_id, offer.keys)
@@ -38,6 +39,13 @@ module Game
 
     def no_empty_side(offer, request)
       offer.empty? || request.empty? ? Failure(:trade_side_empty) : Success()
+    end
+
+    def receive_allocations(trade, season)
+      [ trade.low_player_id, trade.high_player_id ].each do |player_id|
+        step ReceiveSeasonAllocation.new.call(player: Accounts::Player.find(player_id), season:)
+      end
+      Success()
     end
 
     def lock_holdings(trade, offer, request)
