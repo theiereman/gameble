@@ -1,9 +1,11 @@
 require "test_helper"
+require_relative "../../support/counting_rate_limit"
 require_relative "../../support/hidden_back_office"
 require_relative "../../support/steam_sign_in"
 
 module BackOffice
   class PlayersControllerTest < ActionDispatch::IntegrationTest
+    include CountingRateLimit
     include HiddenBackOffice
     include SteamSignIn
 
@@ -232,6 +234,88 @@ module BackOffice
       sign_in(@target)
       get back_office_players_path(locale: :fr, q: "gabe")
       assert_unknown_address
+    end
+
+    test "an administrator sees ÉFFACER on a banned player's row only; a moderator never does" do
+      sign_in(@administrator)
+
+      get back_office_players_path(locale: :fr)
+
+      assert_select "#{row(@banned)} form[action='/fr/back-office/players/#{@banned.token}'][data-turbo-confirm]" do
+        assert_select "input[name=_method][value=delete]"
+        assert_select "button.button--danger", "EFFACER"
+      end
+      assert_select "#{row(@target)} form[action='/fr/back-office/players/#{@target.token}']", false
+      assert_select "#{row(@administrator)} form[action='/fr/back-office/players/#{@administrator.token}']", false
+
+      sign_in(@moderator)
+      get back_office_players_path(locale: :fr)
+
+      assert_select "#{row(@banned)} form[action='/fr/back-office/players/#{@banned.token}']", false
+    end
+
+    test "an administrator erases a banned player from the list and comes back to it with the search" do
+      sign_in(@administrator)
+
+      delete back_office_player_path(locale: :fr, token: @banned.token), params: { q: "exile", page: "2" }
+
+      assert_redirected_to back_office_players_path(locale: :fr, q: "exile", page: 2)
+      assert_equal "Le compte de Exile est effacé.", flash[:notice]
+      assert_predicate @banned.reload, :deleted?
+      assert_predicate @banned, :banned?
+      assert_equal "erasure", Accounts::ModerationAction.where(player: @banned).order(:id).last.kind
+      get back_office_players_path(locale: :fr, q: "exile")
+      assert_select row(@banned), false
+    end
+
+    test "the history lists the erasure under the erased account's deleted name" do
+      sign_in(@administrator)
+      delete back_office_player_path(locale: :fr, token: @banned.token)
+
+      get back_office_history_path(locale: :fr)
+
+      assert_select "tr[data-moderation-kind=erasure] td", text: "Compte effacé"
+      assert_select "tr[data-moderation-kind=erasure] td[data-moderation-player]", "Compte supprimé"
+    end
+
+    test "a moderator cannot erase: the page is forbidden and the account stays" do
+      sign_in(@moderator)
+
+      delete back_office_player_path(locale: :fr, token: @banned.token)
+
+      assert_response :forbidden
+      assert_not_predicate @banned.reload, :deleted?
+    end
+
+    test "a player and a visitor cannot erase" do
+      delete back_office_player_path(locale: :fr, token: @banned.token)
+      assert_unknown_address
+
+      sign_in(@target)
+      delete back_office_player_path(locale: :fr, token: @banned.token)
+      assert_unknown_address
+      assert_not_predicate @banned.reload, :deleted?
+    end
+
+    test "erasing a player in good standing comes back to the list with the alert" do
+      sign_in(@administrator)
+
+      delete back_office_player_path(locale: :fr, token: @target.token)
+
+      assert_redirected_to back_office_players_path(locale: :fr)
+      assert_equal I18n.t("errors.accounts.not_banned", locale: :fr), flash[:alert]
+      assert_not_predicate @target.reload, :deleted?
+    end
+
+    test "erasing is rate limited like banning" do
+      sign_in(@administrator)
+
+      with_counting_rate_limit(BackOffice::PlayersController) do
+        30.times { delete back_office_player_path(locale: :fr, token: @target.token) }
+        delete back_office_player_path(locale: :fr, token: @target.token)
+      end
+
+      assert_response :too_many_requests
     end
   end
 end

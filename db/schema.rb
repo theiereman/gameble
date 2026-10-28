@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_28_120001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_130001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -31,7 +31,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_120001) do
     t.index ["created_at"], name: "index_accounts_moderation_actions_on_created_at"
     t.index ["player_id", "created_at"], name: "index_accounts_moderation_actions_on_player_id_and_created_at"
     t.index ["staff_id"], name: "index_accounts_moderation_actions_on_staff_id"
-    t.check_constraint "kind::text = 'ban'::text OR kind::text = 'unban'::text OR kind::text = 'dismissal'::text", name: "accounts_moderation_actions_kind_check"
+    t.check_constraint "kind::text = ANY (ARRAY['ban'::character varying, 'unban'::character varying, 'dismissal'::character varying, 'erasure'::character varying]::text[])", name: "accounts_moderation_actions_kind_values_check"
     t.check_constraint "reason IS NULL OR char_length(reason) <= 500", name: "accounts_moderation_actions_reason_length_check"
     t.check_constraint "reason IS NULL OR kind::text = 'ban'::text", name: "accounts_moderation_actions_reason_kind_check"
   end

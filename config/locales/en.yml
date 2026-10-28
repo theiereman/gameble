@@ -141,13 +141,14 @@ en:
         empty: No moderation action is recorded yet.
         heading: The moderation history
         heading_player: The history of %{name}
-        intro: Every ban, lifted ban and dismissal of reports, the latest first, with
-          the officer who acted and, for a ban, the reason they gave. Each row is
+        intro: Every ban, lifted ban, dismissal of reports and erasure, the latest first,
+          with the officer who acted and, for a ban, the reason they gave. Each row is
           erased one year after its end, as the privacy notice says. Bans made before
           a reason was asked for have none.
         kinds:
           ban: Ban
           dismissal: Reports dismissed
+          erasure: Account erased
           unban: Ban lifted
         no_reason: Reason not recorded
         player: Player
@@ -258,6 +259,12 @@ en:
         reviews: Counting the reviews
         tags: Naming the tags
     players:
+      actions:
+        erase: ERASE
+        erase_confirm: Erase the account of %{name}? Their data is deleted for good and the account cannot be
+          restored; the ban stays on record.
+      destroy:
+        erased: The account of %{name} is erased.
       index:
         action: Ban or lift the ban
         caption: Players, the newest account first
@@ -269,8 +276,8 @@ en:
         intro: Every player of the Brotherhood, banned ones included, the newest account
           first. Search for a player by part of their name or by their full Steam
           id. BAN suspends them without waiting for a report; LIFT THE BAN gives them
-          back their sign-in and their profile. An officer acts only on a lower rank
-          than their own.
+          back their sign-in and their profile. An administrator can ERASE the account
+          of a banned player. An officer acts only on a lower rank than their own.
         no_match: No player matches “%{query}”.
         player: Player
         reports: The reports
@@ -784,6 +791,7 @@ en:
     - December
   errors:
     accounts:
+      administrator_required: Only an administrator can do that, officer.
       already_banned: That player is already banned, officer.
       banned: This account has been suspended. You can no longer sign in.
       cannot_ban_self: You cannot ban yourself, officer.

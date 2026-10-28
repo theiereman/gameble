@@ -1,0 +1,5 @@
+<%# locals: (player:, name:, back: {}) %>
+<% unless Accounts::EraseBannedPlayer.refusal(staff: current_player, player:) %>
+  <%= render ButtonComponent.new(variant: :danger, size: :small, href: back_office_player_path(token: player.token), method: :delete,
+        params: back.except(:return_to), confirm: t("back_office.players.actions.erase_confirm", name:)) do %><%= t("back_office.players.actions.erase") %><% end %>
+<% end %>

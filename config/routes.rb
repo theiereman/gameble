@@ -177,8 +177,9 @@ Rails.application.routes.draw do
 
       # Moderation, moderators and administrators: the queue of reported
       # players, every player to search, the banned players, each by token,
-      # and the history of every ban, lifted ban and dismissal.
-      resources :players, only: :index
+      # and the history of every ban, lifted ban, dismissal and erasure.
+      resources :players, only: %i[index destroy], param: :token,
+        constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
       resources :reports, only: :index
       post "reports/:token/dismiss" => "reports#dismiss", as: :dismiss_reports,
         constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }

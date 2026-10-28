@@ -203,4 +203,27 @@ class ModerationTest < ApplicationSystemTestCase
     click_on "Tout l'historique"
     assert_selector "tbody tr", count: 3
   end
+
+  test "an administrator erases a banned player after the confirmation naming them, then finds the erasure in the history" do
+    banned = accounts_players(:banned)
+    banned.update!(persona_name: "Exile")
+    steam_identity(accounts_players(:administrator))
+    visit home_path(locale: :fr)
+    click_steam_sign_in
+    assert_signed_in
+
+    visit back_office_players_path(locale: :fr)
+    fill_in "Chercher un joueur", with: "exile"
+    click_on "Chercher"
+    within(row(banned)) do
+      message = accept_confirm { click_on "EFFACER" }
+      assert_includes message, "Exile"
+    end
+
+    assert_text "Le compte de Exile est effacé."
+    assert_no_selector row(banned)
+    assert_predicate banned.reload, :deleted?
+    click_on "L'historique"
+    assert_selector "tbody tr[data-moderation-kind=erasure]", text: "Compte effacé"
+  end
 end

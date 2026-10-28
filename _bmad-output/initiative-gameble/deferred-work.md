@@ -413,3 +413,7 @@
   summary: A player state row created by an upsert before `CreatePlayerState` keeps null allocation markers and publishes one extra `SeasonAllocationReceived` at the first opening.
   evidence: `RecordPlayerActivity` and `MarkCollectionSeen` upsert the row; no path was found where one runs before registration, so the effect is cosmetic (one event, no wrong tier).
   resolved: moved to ticket 17.4 (refactor sweep).
+
+- source_plan: `_bmad-output/initiative-gameble/epic-cleanup-1-2-0/story-a-banned-account-can-be-erased-by-staff-plan.md`
+  summary: `PlayerExportTest` ("a player's export holds every section…") failed once in the full parallel Ruby run on its weekly contributions line and passes alone; look for a week boundary or a time leak between tests.
+  evidence: 3261 runs on 2026-10-28, one failure at `test/models/player_export_test.rb:84`, then 0 failures in the file alone, three times.

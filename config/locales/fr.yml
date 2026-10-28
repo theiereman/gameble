@@ -441,9 +441,14 @@ fr:
       destroy:
         unbanned: "Le ban de %{name} est levé."
     players:
+      actions:
+        erase: "EFFACER"
+        erase_confirm: "Effacer le compte de %{name} ? Ses données sont supprimées définitivement et le compte ne peut pas être rétabli ; le ban reste au registre."
+      destroy:
+        erased: "Le compte de %{name} est effacé."
       index:
         heading: "Les joueurs"
-        intro: "Tous les joueurs de la Confrérie, bannis compris, le compte le plus récent en premier. Cherchez un joueur par une partie de son nom ou par son identifiant Steam complet. BANNIR le suspend sans attendre de signalement ; LEVER LE BAN lui rend la connexion et son profil. Un officier n'agit que sur un rang inférieur au sien."
+        intro: "Tous les joueurs de la Confrérie, bannis compris, le compte le plus récent en premier. Cherchez un joueur par une partie de son nom ou par son identifiant Steam complet. BANNIR le suspend sans attendre de signalement ; LEVER LE BAN lui rend la connexion et son profil. Un administrateur peut EFFACER le compte d'un joueur banni. Un officier n'agit que sur un rang inférieur au sien."
         search_label: "Chercher un joueur"
         search_placeholder: "Nom ou identifiant Steam"
         search_submit: "Chercher"
@@ -470,7 +475,7 @@ fr:
       index:
         heading: "L'historique de modération"
         heading_player: "L'historique de %{name}"
-        intro: "Chaque bannissement, levée de ban et classement de signalements, le plus récent en premier, avec l'officier qui a agi et, pour un bannissement, la raison qu'il a donnée. Chaque ligne s'efface un an après sa fin, comme le dit la notice de confidentialité. Les bannissements faits avant que la raison soit demandée n'en ont pas."
+        intro: "Chaque bannissement, levée de ban, classement de signalements et effacement, le plus récent en premier, avec l'officier qui a agi et, pour un bannissement, la raison qu'il a donnée. Chaque ligne s'efface un an après sa fin, comme le dit la notice de confidentialité. Les bannissements faits avant que la raison soit demandée n'en ont pas."
         empty: "Aucune action de modération n'est encore consignée."
         player_empty: "Aucune action de modération ne concerne %{name}."
         unknown_player: "Aucun joueur ne correspond à ce lien."
@@ -484,6 +489,7 @@ fr:
           ban: "Bannissement"
           unban: "Ban levé"
           dismissal: "Signalements classés"
+          erasure: "Compte effacé"
         no_reason: "Raison non consignée"
         deleted_account: "Compte supprimé"
         whole_history: "Tout l'historique"
@@ -2039,6 +2045,7 @@ fr:
       cannot_report_self: "Vous ne pouvez pas signaler votre propre profil."
       rate_limited: "Vous avez envoyé beaucoup de signalements aujourd'hui. Réessayez demain."
       staff_required: "Seule la modération peut faire cela."
+      administrator_required: "Seul un administrateur peut faire cela, officier."
       cannot_ban_self: "Vous ne pouvez pas vous bannir vous-même, officier."
       cannot_dismiss_self: "Vous ne pouvez pas classer les signalements qui vous visent, officier."
       outranked: "Ce joueur a un rang égal ou supérieur au vôtre, officier : vous ne pouvez pas agir sur lui."
