@@ -3,7 +3,7 @@ title: 'Profile titles read from the set tier rows'
 type: 'feature'
 ticket: '1'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: '91cb61f674b56491b4c7e500a6fdf391828befce'
 route: 'oneshot'
 route_source: 'auto'
