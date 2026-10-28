@@ -78,9 +78,16 @@ review_loop_iteration: 0
 
 No independent review: a fork cannot spawn reviewers. Self-review of the diff: `DeletePlayer` keeps refusing a banned player unless asked; the history row and the deletion share the transaction (a stubbed failing deletion leaves no row); the erased player disappears from the players index and the banned list (both read `deleted_at IS NULL`) and stays in the history, named as a deleted account, until `PurgeModerationHistory` removes it a year after the deletion, as the privacy notice says. One consequence for the pull request: the deletion releases the Steam id, so the ban stays on the record but no longer blocks a new account created with the same Steam id. No finding to defer.
 
+Independent review (read-only), triaged by the author on 2026-10-28:
+- A banned person can register again with the same Steam id after the erasure: decided to leave as is (the erasure really erases, no hash of the Steam id is kept). The confirmation text and the players index intro now say that the Steam id is freed and the person can register again without the ban, and a test pins the behaviour (`SignIn` opens a new unbanned account).
+- The free-text ban reason stays readable in the history until the yearly purge: decided to keep it as is.
+- The first migration had no usable rollback once an `erasure` row exists: it now has an explicit `up` and a `down` that raises `ActiveRecord::IrreversibleMigration`, because going back would mean deleting moderation history rows.
+- Two refusal tests added: `DeleteInactivePlayer` called directly on a long-idle banned player, and a player banned while signed in who tries to delete their own account.
+- `packwerk` failed to parse the shorthand hash arguments of the two row actions in the players index; they are parenthesised (07e042d3).
+
 ## Design Notes
 
-- Once erased, the player has no Steam id (released by the deletion), so the ban no longer blocks a new account with the same Steam id: the ban stays on the record only. This follows the author's decision; noted for the pull request.
+- Once erased, the player has no Steam id (released by the deletion), so the ban no longer blocks a new account with the same Steam id: the ban stays on the record only. This follows the author's decision (confirmed after the review, 2026-10-28): the texts shown to the administrator say so; noted for the pull request. The ban reason text is kept as is, and the first migration is irreversible by design.
 
 ## Verification
 

@@ -73,6 +73,18 @@ class Accounts::EraseBannedPlayerTest < ActiveSupport::TestCase
     assert_not_predicate @banned.reload, :deleted?
   end
 
+  test "after the erasure the Steam id is free: signing in with it opens a new account without the ban" do
+    steam_id = @banned.steam_id
+    erase.value!
+
+    player = Accounts::SignIn.new.call(steam_id:).value!
+
+    assert_not_equal @banned.id, player.id
+    assert_equal steam_id, player.steam_id
+    assert_not_predicate player, :banned?
+    assert_predicate @banned.reload, :banned?
+  end
+
   test "the history kind constraint accepts the erasure and refuses an unknown kind" do
     Accounts::ModerationAction.create!(kind: :erasure, player: @banned, staff: @administrator)
 

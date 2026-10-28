@@ -32,6 +32,16 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_select "label[for=delete-confirmation]", "Type DELETE to confirm"
   end
 
+  test "a player banned while signed in cannot delete their own account" do
+    sign_in(@player)
+    @player.update!(banned_at: Time.current)
+
+    delete account_path(locale: :en), params: { confirmation: "DELETE" }
+
+    assert_not_predicate @player.reload, :deleted?
+    assert_not_nil @player.steam_id
+  end
+
   ERASED_OR_CANCELLED = {
     "accounts_players" => { fr: [ "votre identifiant Steam", "votre nom", "votre profil et son lien", "l'heure de votre dernière visite", "votre dernier export de données" ],
                             en: [ "your Steam id", "your name", "your profile and its link", "the time of your last visit", "your last data export" ] },

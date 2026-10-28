@@ -70,6 +70,15 @@ class Accounts::DeleteInactivePlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test "a banned player is refused when called directly, however long they were idle" do
+    player = accounts_players(:banned)
+    seen(player, 10.years)
+
+    assert_equal NO_LONGER_IDLE, delete(player)
+    assert_not_predicate player.reload, :deleted?
+    assert_empty deleted_events(player)
+  end
+
   test "a player unbanned yesterday after a four-year ban, last seen four years ago, is not idle" do
     @player.update_columns(banned_at: @now - 4.years)
     seen(@player, 4.years)

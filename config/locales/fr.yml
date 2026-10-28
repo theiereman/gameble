@@ -443,12 +443,12 @@ fr:
     players:
       actions:
         erase: "EFFACER"
-        erase_confirm: "Effacer le compte de %{name} ? Ses données sont supprimées définitivement et le compte ne peut pas être rétabli ; le ban reste au registre."
+        erase_confirm: "Effacer le compte de %{name} ? Ses données sont supprimées définitivement et le compte ne peut pas être rétabli. Son identifiant Steam est libéré : la personne peut se réinscrire avec, sans le ban."
       destroy:
         erased: "Le compte de %{name} est effacé."
       index:
         heading: "Les joueurs"
-        intro: "Tous les joueurs de la Confrérie, bannis compris, le compte le plus récent en premier. Cherchez un joueur par une partie de son nom ou par son identifiant Steam complet. BANNIR le suspend sans attendre de signalement ; LEVER LE BAN lui rend la connexion et son profil. Un administrateur peut EFFACER le compte d'un joueur banni. Un officier n'agit que sur un rang inférieur au sien."
+        intro: "Tous les joueurs de la Confrérie, bannis compris, le compte le plus récent en premier. Cherchez un joueur par une partie de son nom ou par son identifiant Steam complet. BANNIR le suspend sans attendre de signalement ; LEVER LE BAN lui rend la connexion et son profil. Un administrateur peut EFFACER le compte d'un joueur banni, ce qui libère son identifiant Steam : la personne pourrait se réinscrire sans le ban. Un officier n'agit que sur un rang inférieur au sien."
         search_label: "Chercher un joueur"
         search_placeholder: "Nom ou identifiant Steam"
         search_submit: "Chercher"

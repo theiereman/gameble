@@ -262,7 +262,7 @@ en:
       actions:
         erase: ERASE
         erase_confirm: Erase the account of %{name}? Their data is deleted for good and the account cannot be
-          restored; the ban stays on record.
+          restored. Their Steam id is freed, so the person can register again with it, without the ban.
       destroy:
         erased: The account of %{name} is erased.
       index:
@@ -277,7 +277,7 @@ en:
           first. Search for a player by part of their name or by their full Steam
           id. BAN suspends them without waiting for a report; LIFT THE BAN gives them
           back their sign-in and their profile. An administrator can ERASE the account
-          of a banned player. An officer acts only on a lower rank than their own.
+          of a banned player, which frees their Steam id, so they could register again without the ban. An officer acts only on a lower rank than their own.
         no_match: No player matches “%{query}”.
         player: Player
         reports: The reports
