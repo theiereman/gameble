@@ -19,16 +19,7 @@ canvas{image-rendering:pixelated;display:block}
 .ref{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end}
 .ref figure{margin:0}
 figcaption{font-size:.8rem;color:var(--muted);margin-top:4px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:14px}
-.cell{background:var(--panel);border:1px solid var(--line-soft);border-radius:6px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
-.cell:hover,.cell:focus-visible{border-color:var(--accent);outline:none}
-.cell b{font-size:.85rem;color:var(--accent-hi)}
-.cell small{color:var(--muted);font-size:.75rem;text-align:center}
 .sw{display:inline-block;width:12px;height:12px;border:1px solid var(--outline);vertical-align:-1px;margin-right:3px}
-table{border-collapse:collapse;width:100%;font-size:.8rem}
-th,td{border-bottom:1px solid var(--line-soft);padding:5px 6px;text-align:left;vertical-align:middle}
-th{color:var(--accent);position:sticky;top:0;background:var(--ground)}
-td.n{text-align:right}
 .bad{color:var(--danger);font-weight:700}
 .ok{color:var(--lime)}
 .fit{letter-spacing:1px}
@@ -40,12 +31,33 @@ dialog{background:var(--panel);color:var(--text);border:1px solid var(--accent);
 dialog::backdrop{background:rgba(0,0,0,.7)}
 .sizes{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
 #out{width:100%;min-height:120px;background:#0b1015;color:var(--text);border:1px solid var(--line);border-radius:4px;font:12px/1.4 ui-monospace,monospace;padding:8px;margin-top:8px}
+[hidden]{display:none!important}
+:root{color-scheme:dark}
+.kindhead{position:sticky;top:0;z-index:3;background:var(--ground);margin:0 0 12px;padding:10px 0 6px;scroll-margin-top:0}
+.row{display:grid;grid-template-columns:auto 1fr;gap:22px;background:var(--panel);border:1px solid var(--line-soft);border-radius:6px;padding:16px;margin:0 0 16px}
+.row:focus-within{border-color:var(--accent)}
+.row.done{border-color:var(--lime)}
+.backcol{display:flex;flex-direction:column;align-items:center;gap:8px}
+.row h3{margin:0;font-size:1.25rem;color:var(--accent-hi);letter-spacing:1px}
+.row .meta{color:var(--muted);font-size:.85rem}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;margin:12px 0}
+.fields div{min-width:0}
+.fields dt{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px}
+.fields dd{margin:2px 0 0;font-size:.95rem}
+.act{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.act input[type=text]{flex:1;min-width:220px;padding:8px 10px;font-size:.95rem}
+.okbox{display:flex;gap:8px;align-items:center;font-weight:700;cursor:pointer}
+.okbox input{width:22px;height:22px;accent-color:var(--lime)}
+.jump a{color:var(--accent);margin:0 6px}
+.bar select{background:#0b1015;color:var(--text);border:1px solid var(--line);border-radius:4px;padding:6px 8px;font:inherit}
+.bar{flex-wrap:wrap}
+@media(max-width:700px){.row{grid-template-columns:1fr}.backcol{justify-self:center}.fields{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main>
 <h1>Set backs: the word, colours and motif of each</h1>
-<p class="lead">Ticket 9.3 asks the author to approve, before the export is drawn, the word, two colours and motif of every theme and hall of fame set back. This page draws each proposal with the real anatomy of the export: frame, field, inner line, corner brackets, a ring with a motif, and the 5 × 7 word. Nothing here is exported yet. <span id="count"></span></p>
+<p class="lead">Ticket 9.3 asks the author to approve, before the export is drawn, the word, two colours and motif of every theme and hall of fame set back. This page draws each proposal with the real anatomy of the export: frame, field, inner line, corner brackets, a ring with a motif, and the 5 × 7 word. Nothing here is exported yet. Tick OK on a row you approve, or write a correction in its field; the bar at the bottom keeps the counter, the filter and the copy button in view.</p>
 
 <h2>Reference and rules</h2>
 <div class="ref box">
@@ -54,8 +66,8 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
   <div style="flex:1;min-width:280px">
     <ul>
       <li><b>Key</b> <code>set-&lt;kind&gt;-&lt;key&gt;</code>, <b>asset</b> <code>back-&lt;kind&gt;-&lt;key&gt;-&lt;size&gt;.png</code> in the five sizes xs, s, m, l, xl (50 × 75 up to 120 × 180 art px).</li>
-      <li><b>Word</b>: one word, A-Z and 0-9 only, at most 9 letters, decorative. The export prints it only when it fits the width minus 16 art px, so a long word disappears on the small sizes (the table shows where). The existing CONFRERE and CENTURION behave the same.</li>
-      <li><b>Colours</b>: two tokens of the DESIGN palette. The first colours the frame, the field (a dark shade of it), the ring and the motif. The second colours the word, the corner brackets and the ring ticks. Hex values are shown in the table.</li>
+      <li><b>Word</b>: one word, A-Z and 0-9 only, at most 9 letters, decorative. The export prints it only when it fits the width minus 16 art px, so a long word disappears on the small sizes (each row shows where). The existing CONFRERE and CENTURION behave the same.</li>
+      <li><b>Colours</b>: two tokens of the DESIGN palette. The first colours the frame, the field (a dark shade of it), the ring and the motif. The second colours the word, the corner brackets and the ring ticks. Hex values are shown in each row.</li>
       <li><b>Motif</b>: one pixel motif (9 × 9) from a small shared family per kind, drawn in the ring: 18 motifs for the themes, 4 for the hall of fame. The variation between backs is colour, motif and word, not 46 separate pictures.</li>
       <li><b>Hall of fame</b> backs wear a gold double inner line to tell them from the themes.</li>
       <li><b>Which sets have a back</b>: themes and hall of fame sets. Franchise, studio and UFO sets grant nothing.</li>
@@ -63,12 +75,6 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
     </ul>
   </div>
 </div>
-
-<div id="sections"></div>
-
-<h2>Table to approve or amend</h2>
-<p class="muted">Tick OK for a row you approve; write a correction (another word, colour token, motif) in the field otherwise. Your choices stay in this browser. Contrast is the word's colour against the field's colour (WCAG ratio); the word is decorative, so this is a legibility check, not a requirement.</p>
-<table id="tbl"><thead><tr><th>OK</th><th>Kind</th><th>Key</th><th>Word</th><th>Letters</th><th>Colours</th><th>Motif</th><th title="Sizes where the word is printed: xs s m l xl">Word shown at</th><th>Contrast</th><th>Correction</th></tr></thead><tbody></tbody></table>
 
 <h2>Questions for the author</h2>
 <div class="box"><ol>
@@ -79,10 +85,14 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
   <li>Asset names keep the key as is: <code>back-theme-souls_like-m.png</code>, <code>back-hall_of_fame-mal-aimes-m.png</code> (underscore and hyphen). Fine?</li>
 </ol></div>
 
-<h2>Corrections to paste into the chat</h2>
-<textarea id="out" readonly placeholder="Ticks and corrections appear here."></textarea>
+<nav class="jump muted" aria-label="Jump to a kind">Jump to: <a href="#k-theme">Themes</a><a href="#k-hall_of_fame">Hall of fame</a></nav>
+<p class="muted">Contrast is the word's colour against the field's colour (WCAG ratio); the word is decorative, so this is a legibility check, not a requirement. Your choices stay in this browser.</p>
+<div id="sections"></div>
+
+<details><summary>Corrections to paste into the chat (preview)</summary>
+<textarea id="out" readonly placeholder="One line per set appears here."></textarea></details>
 </main>
-<div class="bar"><button id="copy">Copier les corrections</button><button class="alt" id="reset">Tout effacer</button><span id="status" class="muted" role="status"></span></div>
+<div class="bar"><span id="count" role="status"></span><label class="muted">Show <select id="filter" aria-label="Filter rows"><option value="all">all</option><option value="todo">not yet OK</option><option value="fixed">corrected</option></select></label><span class="jump"><a href="#k-theme">Themes</a><a href="#k-hall_of_fame">Hall of fame</a></span><button id="copy">Copier les corrections</button><button class="alt" id="reset">Tout effacer</button><span id="status" class="muted" role="status"></span></div>
 <dialog id="dlg"><div style="padding:12px 16px"><div style="display:flex;justify-content:space-between;gap:20px"><b id="dlgTitle"></b><button class="alt" id="dlgClose">Fermer</button></div><div id="dlgBody"></div></div></dialog>
 
 <script>
@@ -219,59 +229,76 @@ function canvasOf(s,size,scale){const [w,h]=SIZES[size],cv=document.createElemen
 /* anatomy legend: the standard anatomy annotated */
 (function(){const cv=document.getElementById("legend"),s=SETS[3];drawBack(cv,80,120,s);cv.style.width="160px";cv.style.height="240px"})();
 
-/* sections */
+/* rows */
 const KEY="set-backs-approval-v1";let S={};
 try{S=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){S={}}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const id=s=>s[0]+"/"+s[1];
-const sections=document.getElementById("sections");
-for(const kind of ["theme","hall_of_fame"]){
-  const list=SETS.filter(s=>s[0]===kind);
-  const h=document.createElement("h2");h.textContent=KIND_LABEL[kind]+" ("+list.length+")";sections.appendChild(h);
-  const grid=document.createElement("div");grid.className="grid";
-  list.forEach(s=>{
-    const cell=document.createElement("button");cell.type="button";cell.className="cell";cell.style.cssText="background:var(--panel);color:inherit;font:inherit;text-align:center";
-    cell.appendChild(canvasOf(s,"m",2));
-    const t=document.createElement("b");t.textContent=s[3];cell.appendChild(t);
-    const sm=document.createElement("small");sm.innerHTML=s[2]+"<br>"+s[1];cell.appendChild(sm);
-    cell.addEventListener("click",()=>openDlg(s));
-    grid.appendChild(cell);
-  });
-  sections.appendChild(grid);
-}
-const dlg=document.getElementById("dlg");
+const el=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n};
+const field=(label,node)=>{const d=el("div");d.appendChild(el("dt",null,label));const dd=el("dd");dd.appendChild(typeof node==="string"?document.createTextNode(node):node);d.appendChild(dd);return d};
+const swatch=col=>{const f=document.createDocumentFragment();const sw=el("span","sw");sw.style.background=col;f.appendChild(sw);f.appendChild(document.createTextNode(col));return f};
+const rows=[],sectionsEl=document.getElementById("sections"),dlg=document.getElementById("dlg");
 document.getElementById("dlgClose").addEventListener("click",()=>dlg.close());
 function openDlg(s){
   document.getElementById("dlgTitle").textContent=s[0]+" / "+s[1]+" - "+s[3];
   const body=document.getElementById("dlgBody");body.innerHTML="";
-  const big=canvasOf(s,"l",4);body.appendChild(big);
-  const row=document.createElement("div");row.className="sizes";
-  for(const n of Object.keys(SIZES)){const f=document.createElement("figure");f.style.margin=0;f.appendChild(canvasOf(s,n,2));const fc=document.createElement("figcaption");fc.textContent=n+" "+SIZES[n].join(" x ");f.appendChild(fc);row.appendChild(f)}
+  body.appendChild(canvasOf(s,"l",4));
+  const row=el("div","sizes");
+  for(const n of Object.keys(SIZES)){const f=el("figure");f.style.margin=0;f.appendChild(canvasOf(s,n,2));f.appendChild(el("figcaption",null,n+" "+SIZES[n].join(" x ")));row.appendChild(f)}
   body.appendChild(row);dlg.showModal();
 }
-
-/* table */
-const tb=document.querySelector("#tbl tbody");
-SETS.forEach(s=>{
-  const [kind,key,name,word,A,B,motif]=s;
-  const r=ratio(B,fieldOf(A)),fit=fitsAt(word);
-  const tr=document.createElement("tr");
-  tr.innerHTML=`<td><input type="checkbox" aria-label="OK ${key}"></td><td>${kind}</td><td>${key}<br><span class="muted">${name}</span></td><td><b>${word}</b></td><td class="n">${word.length}</td><td><span class="sw" style="background:${A}"></span>${A}<br><span class="sw" style="background:${B}"></span>${B}</td><td>${motif}</td><td class="fit">${Object.keys(SIZES).map((n,i)=>fit[i]?n:'<s class="muted">'+n+'</s>').join(" ")}</td><td class="${r<4.5?"bad":"ok"}">${r.toFixed(1)}:1</td><td><input type="text" placeholder="correction"></td>`;
-  const cb=tr.querySelector("input[type=checkbox]"),tx=tr.querySelector("input[type=text]"),i=id(s);
+function buildRow(s){
+  const [kind,key,name,word,A,B,motif]=s,i=id(s),r=ratio(B,fieldOf(A)),fit=fitsAt(word);
+  const row=el("article","row");
+  const back=el("div","backcol"),cv=canvasOf(s,"m",2);cv.setAttribute("role","img");cv.setAttribute("aria-label","Proposed back for "+key+", word "+word);
+  back.appendChild(cv);
+  const info=el("div");
+  info.appendChild(el("h3",null,word));
+  info.appendChild(el("div","meta",kind+" / "+key+" - "+name));
+  const dl=el("dl","fields");
+  dl.appendChild(field("Word",word+" ("+word.length+" letters)"));
+  const col=el("span");col.appendChild(swatch(A));col.appendChild(document.createTextNode("  "));col.appendChild(swatch(B));
+  dl.appendChild(field("Colours (frame / word)",col));
+  dl.appendChild(field("Motif",motif));
+  const shown=el("span","fit");Object.keys(SIZES).forEach((n,k)=>{const t=el(fit[k]?"span":"s",fit[k]?null:"muted",n);shown.appendChild(t);shown.appendChild(document.createTextNode(" "))});
+  dl.appendChild(field("Word shown at",shown));
+  dl.appendChild(field("Contrast",el("span",r<4.5?"bad":"ok",r.toFixed(1)+":1")));
+  info.appendChild(dl);
+  const act=el("div","act"),lab=el("label","okbox"),cb=el("input");cb.type="checkbox";cb.setAttribute("aria-label","OK "+key);
+  lab.appendChild(cb);lab.appendChild(document.createTextNode("OK"));
+  const tx=el("input");tx.type="text";tx.placeholder="correction (another word, colour token, motif)";tx.setAttribute("aria-label","Correction for "+key);
+  const sz=el("button","alt","Sizes");sz.type="button";sz.addEventListener("click",()=>openDlg(s));
+  act.appendChild(lab);act.appendChild(tx);act.appendChild(sz);info.appendChild(act);
+  row.appendChild(back);row.appendChild(info);
   cb.checked=!!(S[i]&&S[i].ok);tx.value=(S[i]&&S[i].c)||"";
   cb.addEventListener("change",()=>{S[i]=Object.assign(S[i]||{},{ok:cb.checked});save();render()});
   tx.addEventListener("input",()=>{S[i]=Object.assign(S[i]||{},{c:tx.value});save();render()});
-  tb.appendChild(tr);
-});
-function render(){
-  let ok=0;const lines=[];
-  SETS.forEach(s=>{const a=S[id(s)]||{};if(a.ok)ok++;const c=(a.c||"").trim();
-    if(a.ok||c)lines.push(`${s[0]}/${s[1]} (${s[3]}) : ${a.ok?"OK":"non valide"}${c?" | correction : "+c:""}`)});
-  document.getElementById("out").value=lines.join("\n");
-  document.getElementById("count").textContent=ok+" / "+SETS.length+" approved.";
+  return {s,el:row,cb,tx};
 }
-document.getElementById("copy").addEventListener("click",async()=>{const o=document.getElementById("out");o.select();let ok=false;try{await navigator.clipboard.writeText(o.value);ok=true}catch(e){try{ok=document.execCommand("copy")}catch(e2){}}document.getElementById("status").textContent=ok?"Copied.":"Copy failed: select the text by hand."});
-document.getElementById("reset").addEventListener("click",()=>{if(!confirm("Clear all approvals and corrections?"))return;S={};save();tb.querySelectorAll("input[type=checkbox]").forEach(x=>x.checked=false);tb.querySelectorAll("input[type=text]").forEach(x=>x.value="");render()});
+const wraps=[];
+for(const kind of ["theme","hall_of_fame"]){
+  const list=SETS.filter(s=>s[0]===kind),wrap=el("section");wrap.id="k-"+kind;
+  wrap.appendChild(el("h2","kindhead",KIND_LABEL[kind]+" ("+list.length+")"));
+  list.forEach(s=>{const r=buildRow(s);rows.push(r);wrap.appendChild(r.el)});
+  sectionsEl.appendChild(wrap);wraps.push([wrap,list]);
+}
+const filterEl=document.getElementById("filter");
+function render(){
+  let ok=0;const lines=[],mode=filterEl.value;
+  rows.forEach(r=>{
+    const a=S[id(r.s)]||{},c=(a.c||"").trim();
+    if(a.ok)ok++;
+    r.el.classList.toggle("done",!!a.ok);
+    r.el.hidden=!(mode==="all"||(mode==="todo"&&!a.ok)||(mode==="fixed"&&c));
+    lines.push(`${r.s[1]} ${r.s[3]} : ${c?"correction : "+c+(a.ok?" (OK ticked)":""):a.ok?"OK":"not validated yet"}`);
+  });
+  wraps.forEach(([w])=>{w.hidden=!rows.some(r=>r.el.parentNode===w&&!r.el.hidden)});
+  document.getElementById("out").value=lines.join("\n");
+  document.getElementById("count").textContent=ok+" / "+SETS.length+" approved";
+}
+filterEl.addEventListener("change",render);
+document.getElementById("copy").addEventListener("click",async()=>{const o=document.getElementById("out");let ok=false;try{await navigator.clipboard.writeText(o.value);ok=true}catch(e){try{o.select();ok=document.execCommand("copy")}catch(e2){}}document.getElementById("status").textContent=ok?"Copied.":"Copy failed: open the preview and select the text by hand."});
+document.getElementById("reset").addEventListener("click",()=>{if(!confirm("Clear all approvals and corrections?"))return;S={};save();rows.forEach(r=>{r.cb.checked=false;r.tx.value=""});render()});
 render();
 </script>
 </body>
