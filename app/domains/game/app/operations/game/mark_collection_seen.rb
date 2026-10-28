@@ -8,7 +8,7 @@ module Game
         step lock_bank(player)
         now = Time.current
         result = PlayerState.upsert(
-          { player_id: player.id, collection_seen_up_to: [ up_to, now ].min, created_at: now, updated_at: now },
+          { player_id: player.id, collection_seen_up_to: [ up_to, now ].min, created_at: now, updated_at: now, **PlayerState.markers_at_published_season },
           unique_by: :player_id, record_timestamps: false, returning: :collection_seen_up_to,
           on_duplicate: Arel.sql("collection_seen_up_to = GREATEST(game_player_states.collection_seen_up_to, " \
             "excluded.collection_seen_up_to), updated_at = excluded.updated_at")

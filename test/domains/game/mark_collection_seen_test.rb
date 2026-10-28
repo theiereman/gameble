@@ -67,6 +67,17 @@ class Game::MarkCollectionSeenTest < ActiveSupport::TestCase
     assert_in_delta up_to, Game::PlayerState.find_by!(player_id: @player.id).collection_seen_up_to, 0.000001
   end
 
+  test "a row it creates starts at the published season, so the first opening receives no allocation" do
+    @state.delete
+
+    assert mark(1.minute.ago).success?
+
+    published = Catalog::PublishedSeason.call.number
+    state = Game::PlayerState.find_by!(player_id: @player.id)
+    assert_equal published, state.allocation_received_season
+    assert_equal published, state.allocation_seen_season
+  end
+
   test "only the player's row changes" do
     other = Game::PlayerState.find_by!(player_id: accounts_players(:moderator).id)
 

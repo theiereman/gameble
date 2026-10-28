@@ -5,8 +5,7 @@ module Game
 
       transaction do
         step lock_bank(player)
-        published = Catalog::PublishedSeason.call&.number
-        PlayerState.insert({ player_id: player.id, allocation_received_season: published, allocation_seen_season: published }, unique_by: :player_id)
+        PlayerState.insert({ player_id: player.id, **PlayerState.markers_at_published_season }, unique_by: :player_id)
         PlayerState.find_by!(player_id: player.id)
       end
     end

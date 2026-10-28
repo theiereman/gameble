@@ -90,6 +90,16 @@ class Game::PlayerActivityTest < ActiveSupport::TestCase
     assert_equal [ "making_friends", @now ], activity(@alice)
   end
 
+  test "a row the activity creates starts at the published season" do
+    Game::PlayerState.where(player_id: @alice.id).delete_all
+
+    Game::RecordPlayerActivity.new.call(player_id: @alice.id, activity: :trading, at: @now).value!
+
+    published = Catalog::PublishedSeason.call.number
+    state = Game::PlayerState.find_by!(player_id: @alice.id)
+    assert_equal [ published, published ], [ state.allocation_received_season, state.allocation_seen_season ]
+  end
+
   test "the activity is the only thing written: the watermark is kept and nothing more is published" do
     seen = @now - 1.day
     Game::PlayerState.where(player_id: @alice.id).update_all(collection_seen_up_to: seen)
