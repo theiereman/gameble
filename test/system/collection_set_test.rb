@@ -52,7 +52,7 @@ class CollectionSetTest < ApplicationSystemTestCase
   test "the album's FILTRES zone narrows a set of forty cards, keeps the header and the focus, clears back to set order, and the back button still leads back" do
     season, cards = published_cards(40)
     insert_theme(cards, key: "roguelike", season:)
-    Catalog::CardSeason.where(id: cards.first(10)).update_all(rarity: Catalog::Rarity::TIERS.key(:rare))
+    rate(cards.first(10), Catalog::Rarity::TIERS.key(:rare))
     player = accounts_players(:player)
     hold_all(player, cards.values_at(0, 5, 12, 20, 33))
     titles = Catalog::CardViews.call(cards, locale: :en).values_at(*cards).map(&:title)

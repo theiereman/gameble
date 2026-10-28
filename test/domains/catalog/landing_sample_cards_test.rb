@@ -8,7 +8,7 @@ class Catalog::LandingSampleCardsTest < ActiveSupport::TestCase
     season = catalog_seasons(:one)
     seed_card_seasons([ score ], season:, prefix:, titles: [ prefix.titleize ])
     card_season = Catalog::CardSeason.joins(:card).find_by!(catalog_cards: { slug: "#{prefix}-#{season.number}-0" })
-    Catalog::CardSeason.where(id: card_season.id).update_all(rarity: Catalog::Rarity::TIERS.key(rarity))
+    rate(card_season.id, Catalog::Rarity::TIERS.key(rarity))
     card_season
   end
 
@@ -81,7 +81,7 @@ class Catalog::LandingSampleCardsTest < ActiveSupport::TestCase
     with_memory_cache do
       Catalog::LandingSampleCards.call(locale: :en)
       newer = seed_card_seasons([ 1.0 ], prefix: "newer", titles: [ "Newer" ])
-      Catalog::CardSeason.where(season_id: newer.id).update_all(rarity: Catalog::Rarity::TIERS.key(:common))
+      rate(Catalog::CardSeason.where(season_id: newer.id), Catalog::Rarity::TIERS.key(:common))
       newer.update_columns(status: "published", published_at: Time.current)
 
       samples = Catalog::LandingSampleCards.call(locale: :en)

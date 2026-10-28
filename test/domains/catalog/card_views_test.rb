@@ -31,15 +31,6 @@ class Catalog::CardViewsTest < ActiveSupport::TestCase
     assert_equal [ 1, nil ], views.fetch(common.id).then { [ it.number, it.genre ] }, "a season published before themes"
   end
 
-  test "an unnumbered card-season has no number and no label" do
-    common = catalog_card_seasons(:common_card_one)
-    Catalog::CardSeason.where(id: common.id).update_all(number: nil)
-
-    view = Catalog::CardViews.call([ common.id ], locale: :en).fetch(common.id)
-    assert_nil view.number
-    assert_nil view.number_label
-  end
-
   test "the number label: the season and the number, digits grouped by three with a no-break space, no total" do
     view = ->(season_number, number) { Catalog::CardView.new(id: "x", title: "X", publisher: nil, year: 2000, season_number:,
       rarity: "common", image_url: "/art.png", number:, genre: nil) }
@@ -48,7 +39,6 @@ class Catalog::CardViewsTest < ActiveSupport::TestCase
     assert_equal "S12 · #7", view.(12, 7).number_label
     assert_equal "S1 · #1\u00A0000\u00A0000", view.(1, 1_000_000).number_label
     assert_equal "S3 · #999", view.(3, 999).number_label
-    assert_nil view.(1, nil).number_label
   end
 
   test "the short number label: the number alone, grouped the same way" do
@@ -57,7 +47,6 @@ class Catalog::CardViewsTest < ActiveSupport::TestCase
 
     assert_equal "#4\u00A0215", view.(4_215).number_label(with_season: false)
     assert_equal "#7", view.(7).number_label(with_season: false)
-    assert_nil view.(nil).number_label(with_season: false)
   end
 
   test "a draft card-season, without rarity, is left out" do

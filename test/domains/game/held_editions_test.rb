@@ -12,7 +12,7 @@ class Game::HeldEditionsTest < ActiveSupport::TestCase
 
   def edition(number, rarity:)
     season = Catalog::Season.create!(status: :published, number:, published_at: Time.current)
-    Catalog::CardSeason.insert_all!([ { card_id: @portal.card_id, season_id: season.id, prestige_score: 0.5, rating: 90, rarity: } ],
+    Catalog::CardSeason.insert_all!([ { card_id: @portal.card_id, season_id: season.id, prestige_score: 0.5, rating: 90, rarity:, number: 1 } ],
       returning: :id).rows.flatten.sole
   end
 

@@ -231,12 +231,19 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     end
   end
 
+  test "the database refuses a rarity without a number, as a published card-season has both" do
+    refused(ActiveRecord::CheckViolation) { Catalog::CardSeason.where(id: card_season.id).update_all(number: nil) }
+    refused(ActiveRecord::CheckViolation) do
+      Catalog::CardSeason.create!(card: catalog_cards(:portal), season: draft, prestige_score: 1, rating: 1, rarity: 1)
+    end
+  end
+
   test "the database refuses a card number twice in a season, but not across seasons nor while unnumbered" do
     refused(ActiveRecord::RecordNotUnique) do
       Catalog::CardSeason.where(id: catalog_card_seasons(:common_card_one).id).update_all(number: card_season.number)
     end
 
-    Catalog::CardSeason.where(id: catalog_card_seasons(:common_card_one, :rare_card_one).map(&:id)).update_all(number: nil)
+    Catalog::CardSeason.where(id: catalog_card_seasons(:common_card_one, :rare_card_one).map(&:id)).update_all(number: nil, rarity: nil)
     other = Catalog::CardSeason.create!(card: catalog_cards(:portal), season: draft, prestige_score: 1, rating: 1)
     assert Catalog::CardSeason.where(id: other.id).update_all(number: card_season.number)
   end

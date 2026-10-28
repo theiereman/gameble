@@ -27,7 +27,7 @@ class Game::SetTierTest < ActiveSupport::TestCase
   def more_commons(count)
     seed_card_seasons(Array.new(count) { 0.1 + (it * 0.001) }, season: @season)
     ids = Catalog::CardSeason.where(season_id: @season.id, rarity: nil).order(:id).ids
-    Catalog::CardSeason.where(id: ids).update_all(rarity: 1)
+    rate(ids, 1)
     ids
   end
 

@@ -191,7 +191,7 @@ class Steam::RescoreCardsTest < ActiveSupport::TestCase
     ready(run, 10, 20)
     run_pages_and_promote(run)
     season = Catalog::DraftSeason.call
-    Catalog::CardSeason.where(season:).update_all(rarity: 1)
+    rate(Catalog::CardSeason.where(season:), 1)
     season.update_columns(status: "published", published_at: Time.current)
     before = [ run.reload.attributes, Catalog::Season.count, Catalog::CardSeason.count, events_of(run).size ]
 

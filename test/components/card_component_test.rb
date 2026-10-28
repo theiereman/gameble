@@ -79,11 +79,10 @@ class CardComponentTest < ViewComponent::TestCase
     end
   end
 
-  test "no genre, no number, no publisher: each element is left out" do
-    render_card(card(genre: nil, number: nil, publisher: nil), size: :xl)
+  test "no genre, no publisher: each element is left out" do
+    render_card(card(genre: nil, publisher: nil), size: :xl)
 
     assert_no_selector ".card__genre"
-    assert_no_selector ".card__number"
     assert_no_selector ".card__publisher"
     assert_selector ".card__year", text: "2014"
     assert_selector ".card__rarity", text: "Rare"
@@ -134,9 +133,6 @@ class CardComponentTest < ViewComponent::TestCase
 
     render_card(card(rarity: "legendary", season_number: 2, number: 42), size: :xl, booster: true)
     assert_selector ".card__glitter[data-glitter-seed='2000042']"
-
-    render_card(card(rarity: "legendary", season_number: 1, number: nil))
-    assert_selector ".card__glitter[data-glitter-seed='1000000']"
   end
 
   test "each tier's icon and name" do

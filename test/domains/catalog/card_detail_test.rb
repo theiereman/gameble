@@ -11,7 +11,7 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
   def publish_season_two_with_portal
     season = seed_published_sets([])
     Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.99, rating: 99,
-      rarity: Catalog::Rarity::TIERS.invert.fetch(:legendary) } ])
+      rarity: Catalog::Rarity::TIERS.invert.fetch(:legendary), number: 1 } ])
     season
   end
 
@@ -105,7 +105,7 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
       [ "hall_of_fame", "phenomenes", { "hall_of_fame" => "phenomenes" } ], [ "hall_of_fame", "mal-aimes", { "hall_of_fame" => "mal-aimes" } ],
       [ "hall_of_fame", "pepites", { "hall_of_fame" => "pepites" } ], [ "hall_of_fame", "intouchables", { "hall_of_fame" => "intouchables" } ]
     ])
-    Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.99, rating: 99, rarity: 5 } ])
+    Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.99, rating: 99, rarity: 5, number: 1 } ])
     card_season_id = Catalog::CardSeason.find_by!(season_id: season.id).id
     Catalog::SetMembership.insert_all!(Catalog::Set.where(season_id: season.id).ids.map { |set_id| { set_id:, card_season_id:, position: 1 } })
 
@@ -150,11 +150,11 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_equal [ [ "ufo", "ufos" ] ], detail.sets.map { [ it.kind, it.key ] }
   end
 
-  test "a card-season of a season published before themes has no genre; one never numbered has no number" do
+  test "a card-season of a season published before themes has no genre" do
     publish_season_two_with_portal
 
     view = Catalog::CardDetail.call(slug: "portal", locale: :en).view
-    assert_equal [ nil, nil, nil ], [ view.number, view.genre, view.number_label ]
+    assert_equal [ 1, nil, "S2 · #1" ], [ view.number, view.genre, view.number_label ]
 
     older = Catalog::CardDetail.call(slug: "portal", locale: :en, season_number: 1).view
     assert_equal [ 4, nil, "S1 · #4" ], [ older.number, older.genre, older.number_label ]

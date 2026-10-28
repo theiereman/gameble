@@ -104,13 +104,14 @@ module Catalog
     end
 
     def write_season_data(card_seasons, tiers, now)
+      number_card_seasons(card_seasons.map(&:id), now)
       card_seasons.zip(tiers)
         .group_by { |_row, tier| tier }
         .each do |rarity, pairs|
           CardSeason.where(id: pairs.map { |row, _| row.id }).update_all(rarity:, updated_at: now)
         end
       write_main_themes(card_seasons, now)
-      number_card_seasons(card_seasons.map(&:id), now)
+      Success()
     end
 
     def write_main_themes(card_seasons, now)

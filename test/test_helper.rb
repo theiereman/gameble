@@ -17,8 +17,12 @@ abort "Vite build failed: see log/test.log" unless ViteRuby.commands.build
 # Set here, before the parallel workers fork.
 Steam::WebApi.adapter = [ :test, Faraday::Adapter::Test::Stubs.new ]
 
+require_relative "support/rated_cards"
+
 module ActiveSupport
   class TestCase
+    include RatedCards
+
     # Run tests in parallel with specified workers
     parallelize(workers: :number_of_processors)
 

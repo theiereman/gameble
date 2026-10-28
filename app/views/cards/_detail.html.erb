@@ -18,9 +18,7 @@
   <%= render PanelComponent.new(brackets: true, class: "card-detail__panel") do %>
     <header class="card-detail__header">
       <p class="card-detail__kicker"><%= t("card_details.kicker") %></p>
-      <% if view.number %>
-        <p class="card-detail__number"><%= view.number_label %></p>
-      <% end %>
+      <p class="card-detail__number"><%= view.number_label %></p>
     </header>
     <div class="card-detail__layout">
       <div class="card-detail__columns">
@@ -48,7 +46,7 @@
         <div class="card-detail__info">
           <h1 id="card-detail-heading" class="card-detail__title" tabindex="-1" data-sub-view-target="heading"><%= view.title %></h1>
           <% if browse %>
-            <% position = [ view.number_label || "S#{view.season_number}", t("card_details.position", position: browse.position, total: browse.total) ] %>
+            <% position = [ view.number_label, t("card_details.position", position: browse.position, total: browse.total) ] %>
             <% position << t("card_details.swipe") if browse.total > 1 %>
             <p class="card-detail__position"><%= position.join(" · ") %></p>
           <% end %>

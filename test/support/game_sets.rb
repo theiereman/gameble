@@ -27,7 +27,7 @@ module GameSets
     prefix = "unheld-#{SecureRandom.hex(4)}"
     season = seed_card_seasons(Array.new(count) { 0.1 + (it * 0.001) }, season: catalog_seasons(:one), prefix:)
     cards = Catalog::CardSeason.where(season_id: season.id, card_id: Catalog::Card.where("slug LIKE ?", "#{prefix}-%").select(:id))
-    cards.update_all(rarity: Catalog::Rarity::TIERS.keys.first)
+    rate(cards, Catalog::Rarity::TIERS.keys.first)
     cards.order(:id).ids
   end
 
@@ -36,7 +36,7 @@ module GameSets
   # with CatalogSeeds; the season and its card-season ids in card order.
   def published_cards(count, review_counts: Array.new(count))
     season = seed_card_seasons(Array.new(count) { |index| (count - index).to_f }, review_counts:, prefix: "board")
-    Catalog::CardSeason.where(season_id: season.id).update_all(rarity: Catalog::Rarity::TIERS.keys.first)
+    rate(Catalog::CardSeason.where(season_id: season.id), Catalog::Rarity::TIERS.keys.first)
     season.update!(status: :published, published_at: Time.current)
     [ season, Catalog::CardSeason.where(season_id: season.id).order(:id).ids ]
   end

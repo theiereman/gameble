@@ -25,7 +25,7 @@ class Game::DrawPoolTest < ActiveSupport::TestCase
   test "every test builds its own pool, so a card an earlier test added to the published season and rolled back is never drawn" do
     seed_card_seasons([ 0.5 ], season: catalog_seasons(:one), prefix: "rolled-back")
     added = Catalog::CardSeason.where(season_id: catalog_seasons(:one).id).maximum(:id)
-    Catalog::CardSeason.where(id: added).update_all(rarity: Catalog::Rarity::TIERS.keys.first)
+    rate(added, Catalog::Rarity::TIERS.keys.first)
 
     assert_includes Game::DrawPool.current.tier_by_id.keys, added
   end
@@ -53,7 +53,7 @@ class Game::DrawPoolTest < ActiveSupport::TestCase
     season = catalog_seasons(:one)
     seed_card_seasons([ 0.1 ], season:)
     added = Catalog::CardSeason.where(season_id: season.id, rarity: nil).sole
-    Catalog::CardSeason.where(id: added.id).update_all(rarity: 1)
+    rate(added.id, 1)
     season.update_columns(published_at: season.published_at + 1.day)
 
     pool = Game::DrawPool.current
@@ -100,7 +100,7 @@ class Game::DrawPoolTest < ActiveSupport::TestCase
   end
 
   test "a published season with an empty tier raises" do
-    Catalog::CardSeason.where(id: catalog_card_seasons(:legendary_card_one).id).update_all(rarity: 4)
+    rate(catalog_card_seasons(:legendary_card_one).id, 4)
     catalog_seasons(:one).update_columns(published_at: 1.minute.ago)
 
     error = assert_raises(Game::DrawPool::EmptyTier) { Game::DrawPool.current }

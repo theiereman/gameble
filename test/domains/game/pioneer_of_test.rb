@@ -16,7 +16,7 @@ class Game::PioneerOfTest < ActiveSupport::TestCase
 
   test "each edition of a card has its own pioneer, whichever season is published" do
     season = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
-    newer = Catalog::CardSeason.insert_all!([ { card_id: @portal_one.card_id, season_id: season.id, prestige_score: 0.5, rating: 90, rarity: 5 } ],
+    newer = Catalog::CardSeason.insert_all!([ { card_id: @portal_one.card_id, season_id: season.id, prestige_score: 0.5, rating: 90, rarity: 5, number: 1 } ],
       returning: :id).rows.flatten.sole
     assert_nil Game::PioneerOf.call(newer)
 

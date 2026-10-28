@@ -45,7 +45,7 @@ class CardComponent < ViewComponent::Base
 
     def iridescent? = IRIDESCENT.include?(card.rarity)
 
-    def glitter_seed = card.season_number.to_i * GLITTER_SEED_SEASON_STRIDE + card.number.to_i
+    def glitter_seed = card.season_number.to_i * GLITTER_SEED_SEASON_STRIDE + card.number
 
     def publisher? = PUBLISHER_SIZES.include?(size) && card.publisher.present?
 

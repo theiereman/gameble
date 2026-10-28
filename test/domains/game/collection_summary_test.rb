@@ -46,7 +46,7 @@ class Game::CollectionSummaryTest < ActiveSupport::TestCase
     pirates = members("pirates")
     reprint = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
     old = Catalog::CardSeason.find(pirates.first)
-    other = Catalog::CardSeason.create!(card_id: old.card_id, season: reprint, prestige_score: 0.5, rating: 90, rarity: :rare)
+    other = Catalog::CardSeason.create!(card_id: old.card_id, season: reprint, prestige_score: 0.5, rating: 90, rarity: :rare, number: 1)
     hold(@player, other.id, 1)
     pirates.drop(1).each { hold(@player, it, 1) }
 

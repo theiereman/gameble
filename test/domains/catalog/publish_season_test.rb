@@ -258,7 +258,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
   def unnumbered_published_season
     season = seed_card_seasons(distinct_scores(21))
     assert publish(season.number).success?
-    Catalog::CardSeason.where(season_id: season.id).update_all(number: nil)
+    Catalog::CardSeason.where(season_id: season.id).update_all(number: nil, rarity: nil)
     season.reload
   end
 

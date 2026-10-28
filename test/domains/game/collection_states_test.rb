@@ -90,7 +90,7 @@ class Game::CollectionStatesTest < ActiveSupport::TestCase
   def reprint(card_season_id)
     season = Catalog::Season.create!(status: :published, number: Catalog::Season.next_number, published_at: Time.current)
     card = Catalog::CardSeason.find(card_season_id)
-    Catalog::CardSeason.insert_all!([ { card_id: card.card_id, season_id: season.id, prestige_score: 0.5, rating: 90, rarity: "common" } ],
+    Catalog::CardSeason.insert_all!([ { card_id: card.card_id, season_id: season.id, prestige_score: 0.5, rating: 90, rarity: "common", number: 1 } ],
       returning: :id).rows.flatten.sole
   end
 

@@ -31,7 +31,7 @@ class Game::TierCountsTest < ActiveSupport::TestCase
   test "every edition counts, at the rarity it was minted in: publishing a season changes nothing" do
     hold(@player, catalog_card_seasons(:common_card_one).id, 3)
     newer = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
-    reprint = Catalog::CardSeason.create!(card: catalog_cards(:common_card), season: newer, prestige_score: 0.5, rating: 90, rarity: :rare)
+    reprint = Catalog::CardSeason.create!(card: catalog_cards(:common_card), season: newer, prestige_score: 0.5, rating: 90, rarity: :rare, number: 1)
     Game::Holding.create!(player_id: @player.id, card_season_id: reprint.id, quantity: 2)
     newer.update!(status: :published, published_at: Time.current)
 
@@ -54,7 +54,7 @@ class Game::TierCountsTest < ActiveSupport::TestCase
   test "before an opening: the cards of every season are subtracted, at the rarity they were minted in" do
     hold(@player, catalog_card_seasons(:common_card_one).id, 2)
     newer = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
-    other = Catalog::CardSeason.create!(card: catalog_cards(:common_card), season: newer, prestige_score: 0.5, rating: 90, rarity: :rare)
+    other = Catalog::CardSeason.create!(card: catalog_cards(:common_card), season: newer, prestige_score: 0.5, rating: 90, rarity: :rare, number: 1)
     Game::Holding.create!(player_id: @player.id, card_season_id: other.id, quantity: 4)
     common = catalog_card_seasons(:common_card_one).id
     pack = create_pack(@player, cards: [ other.id, other.id, other.id, common, common ], opened_at: 1.minute.ago)

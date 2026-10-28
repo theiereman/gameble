@@ -362,7 +362,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     ready(first, 10, 20)
     cards_page(first)
     published = promote_batch(first)
-    Catalog::CardSeason.where(season: published).update_all(rarity: 1)
+    rate(Catalog::CardSeason.where(season: published), 1)
     published.update_columns(status: "published", published_at: Time.current)
     frozen = Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rating, :review_count, :updated_at)
 
@@ -548,7 +548,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     ready(first, 10, 20)
     cards_page(first)
     published = promote_batch(first)
-    Catalog::CardSeason.where(season: published).update_all(rarity: 1)
+    rate(Catalog::CardSeason.where(season: published), 1)
     published.update_columns(status: "published", published_at: Time.current)
     first.update!(status: :promoted, finished_at: Time.current)
     frozen = Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rarity)

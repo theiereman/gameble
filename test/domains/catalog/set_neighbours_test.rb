@@ -13,7 +13,8 @@ class Catalog::SetNeighboursTest < ActiveSupport::TestCase
     season = seed_published_sets([ [ "studio", "valve", { "studio" => "Valve" } ] ])
     other = seed_card_seasons([ 3.0, 2.0, 1.0 ])
     ids = Catalog::CardSeason.where(season_id: other.id).order(:id).ids
-    Catalog::CardSeason.where(id: ids).update_all(season_id: season.id, rarity: 1)
+    Catalog::CardSeason.where(id: ids).update_all(season_id: season.id)
+    rate(ids, 1)
     set = Catalog::Set.find_by!(season_id: season.id)
     Catalog::SetMembership.insert_all!([ [ ids[0], 3 ], [ ids[1], 1 ], [ ids[2], 2 ] ].map { |card_season_id, position| { set_id: set.id, card_season_id:, position: } })
     [ season, ids ]

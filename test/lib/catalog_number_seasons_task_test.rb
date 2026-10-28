@@ -24,7 +24,7 @@ class CatalogNumberSeasonsTaskTest < ActiveSupport::TestCase
     before = numbers_of(one)
     two = seed_card_seasons(distinct_scores(21))
     assert Catalog::PublishSeason.new.call(number: two.number).success?
-    Catalog::CardSeason.where(season_id: two.id).update_all(number: nil)
+    Catalog::CardSeason.where(season_id: two.id).update_all(number: nil, rarity: nil)
     draft = seed_card_seasons(distinct_scores(3))
 
     output, = capture_io { run_task }

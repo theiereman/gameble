@@ -81,17 +81,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "link[rel=stylesheet][href^='/vite-test/assets/application-'][href$='.css']"
   end
 
-  test "the showcase's line names the card's main theme as its genre, and leaves out a missing number" do
+  test "the showcase's line names the card's main theme as its genre" do
     hold(@player, catalog_card_seasons(:portal_one).id, gained_at: 1.hour.ago)
     Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(main_theme: "puzzle")
     sign_in(@player)
 
     get home_path(locale: :fr)
     assert_select ".hub-showcase__rarity span", "#{epic_name(:fr)} · Réflexion · S1 · #4"
-
-    catalog_card_seasons(:portal_one).update_columns(number: nil)
-    get home_path(locale: :en)
-    assert_select ".hub-showcase__rarity span", "#{epic_name(:en)} · Puzzle"
   end
 
   test "a showcased card traded away gives way to the previous one held, still with Repost, and the hub writes nothing" do

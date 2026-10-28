@@ -386,7 +386,7 @@ class Game::FeedTest < ActiveSupport::TestCase
     season = catalog_seasons(:one)
     seed_card_seasons(Array.new(70) { 0.1 + (it * 0.001) }, season:)
     extra = Catalog::CardSeason.where(season_id: season.id, rarity: nil).order(:id).ids
-    Catalog::CardSeason.where(id: extra).update_all(rarity: 1)
+    rate(extra, 1)
     insert_set([ common, *extra.first(61) ], Catalog::TierTable.tiers(62), key: "roguelike")
     dark_souls = insert_set([ common, *extra.last(9) ], Catalog::TierTable.tiers(10), kind: "franchise", key: "dark-souls",
       params: { "franchise" => "Dark Souls" })

@@ -26,7 +26,7 @@ module BackOffice
       assert_select "[data-specimen=rare-s] .card__title", text: "Profondeurs bleues"
       assert_select "[data-specimen=rare-xl] .card__genre", text: "Réflexion"
       assert_select "[data-specimen=common-m] .card__genre", 0
-      assert_select "[data-specimen=epic-m] .card__number", 0
+      assert_select "[data-specimen=epic-m] .card__number", "#128"
       assert_select "[data-specimen=rare-l] .card__number", "S12 · #1 000 000"
       assert_select "[data-specimen=legendary-m-booster] figcaption", "Légendaire, taille M, capsule"
       assert_select "[style]", 0

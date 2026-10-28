@@ -95,7 +95,7 @@ class LandingPageTest < ActionDispatch::IntegrationTest
 
   test "of two cards of a rarity, the one with the higher prestige score is shown" do
     seed_card_seasons([ 0.95 ], season: catalog_seasons(:one), prefix: "bright", titles: [ "Bright Star" ])
-    Catalog::CardSeason.joins(:card).where(catalog_cards: { slug: "bright-1-0" }).update_all(rarity: 4)
+    rate(Catalog::CardSeason.joins(:card).where(catalog_cards: { slug: "bright-1-0" }), 4)
 
     get home_path(locale: :en)
 

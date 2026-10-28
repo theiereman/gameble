@@ -41,7 +41,7 @@ class Steam::FillCardSourcesTaskTest < ActiveSupport::TestCase
   test "a first run fills the cards and every card-season without a count, published ones included; a second changes nothing" do
     imported_before(10, 20)
     published = Catalog::DraftSeason.call
-    Catalog::CardSeason.where(season: published).update_all(rarity: 1)
+    rate(Catalog::CardSeason.where(season: published), 1)
     published.update_columns(status: "published", published_at: Time.current)
     Steam::App.insert_all([ { appid: 30, name: "No card", import_run_id: Steam::ImportRun.last.id, review_count: 5,
       details: details("Elsewhere", "Nothing") } ])

@@ -15,7 +15,7 @@ class Game::SetShowcasesTest < ActiveSupport::TestCase
 
   def take(count) = @free.shift(count)
 
-  def rarity(ids, tier) = Catalog::CardSeason.where(id: ids).update_all(rarity: Catalog::Rarity::TIERS.key(tier))
+  def rarity(ids, tier) = rate(ids, Catalog::Rarity::TIERS.key(tier))
 
   def showcases(set_ids, player: @player) = Game::SetShowcases.call(player, set_ids:, season: @season, locale: :en)
 

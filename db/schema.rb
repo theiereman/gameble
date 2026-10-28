@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_28_110003) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_120001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -89,6 +89,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_110003) do
     t.index ["season_id"], name: "index_catalog_card_seasons_on_season_id"
     t.check_constraint "number > 0", name: "catalog_card_seasons_number_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "catalog_card_seasons_rarity_check"
+    t.check_constraint "rarity IS NULL OR number IS NOT NULL", name: "catalog_card_seasons_rarity_requires_number_check"
     t.check_constraint "rating >= 0::numeric AND rating <= 100::numeric", name: "catalog_card_seasons_rating_check"
     t.check_constraint "review_count IS NULL OR review_count >= 1", name: "catalog_card_seasons_review_count_check"
   end
@@ -437,7 +438,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_110003) do
     t.index ["pack_id"], name: "index_game_set_tiers_on_pack_id"
     t.index ["player_id", "set_id", "tier"], name: "index_game_set_tiers_on_player_id_and_set_id_and_tier", unique: true
     t.check_constraint "(reached_by::text = 'pack'::text) = (pack_id IS NOT NULL)", name: "game_set_tiers_pack_check"
-    t.check_constraint "reached_by::text = ANY (ARRAY['pack'::character varying, 'trade'::character varying, 'allocation'::character varying]::text[])", name: "game_set_tiers_reached_by_values_check"
+    t.check_constraint "reached_by::text = ANY (ARRAY['pack'::character varying::text, 'trade'::character varying::text, 'allocation'::character varying::text])", name: "game_set_tiers_reached_by_values_check"
     t.check_constraint "tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text", name: "game_set_tiers_tier_check"
   end
 

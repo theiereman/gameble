@@ -47,7 +47,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   def publish_season_two_with_portal
     season = seed_published_sets([ [ "theme", "puzzle", { "theme" => "puzzle" } ] ])
     card_season_id = Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.99,
-      rating: 99, rarity: 5 } ], returning: :id).rows.flatten.first
+      rating: 99, rarity: 5, number: 1 } ], returning: :id).rows.flatten.first
     Catalog::SetMembership.insert_all!([ { set_id: Catalog::Set.find_by!(season_id: season.id).id, card_season_id:, position: 1 } ])
     season
   end
@@ -361,16 +361,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "/en/library/theme/roguelike", css_select(".top-bar__phone-back").sole["href"]
     assert_select "a.card-detail__nav[href*=brother]", false
-  end
-
-  test "an unnumbered card's position line keeps its season, and its header shows no number" do
-    add_a_theme_set
-    Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(number: nil)
-
-    get in_theme("portal")
-
-    assert_equal "S1 · 2 / 3 · swipe to browse", position
-    assert_select ".card-detail__number", false
   end
 
   test "an unknown kind, or a set that does not hold the card, is ignored: the first set, the face" do
@@ -1075,7 +1065,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   def portal_edition(number, rarity:)
     season = Catalog::Season.create!(status: :draft, number:)
     season.update!(status: :published, published_at: Time.current)
-    Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.5, rating: 90, rarity: } ],
+    Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.5, rating: 90, rarity:, number: 1 } ],
       returning: :id).rows.flatten.sole
   end
 
@@ -1138,7 +1128,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     publish_season_two_with_portal
     sign_in(player)
     get card_path(locale: :en, slug: "portal", set_kind: "theme", set_key: "puzzle")
-    assert_equal "S2 · 1 / 1", position
+    assert_equal "S2 · #1 · 1 / 1", position
     assert_select ".card-detail__card .card.card--rarity-legendary:not(.card--not-owned)"
   end
 

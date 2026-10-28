@@ -3,7 +3,7 @@ module BackOffice
     PUBLISHERS = { common: nil, uncommon: "Hillside Works", rare: "Deepwater", epic: "Brotherhood Press", legendary: "Crown & Sons" }.freeze
     YEARS = { common: 2024, uncommon: 2019, rare: 2014, epic: 2007, legendary: 1998 }.freeze
     SEASONS = { common: 1, uncommon: 3, rare: 12, epic: 2, legendary: 1 }.freeze
-    NUMBERS = { common: 4_215, uncommon: 7, rare: 1_000_000, epic: nil, legendary: 1 }.freeze
+    NUMBERS = { common: 4_215, uncommon: 7, rare: 1_000_000, epic: 128, legendary: 1 }.freeze
     GENRES = { common: nil, uncommon: "platformer", rare: "puzzle", epic: "visual_novel", legendary: "fps" }.freeze
     MISSING_ART = :uncommon
 
