@@ -48,7 +48,8 @@ gameble is an open-source passion project, and the game its author wants to play
     - Packs are drawn in advance on the server; opening only delivers them.
     - No pack promises a rarity. The only guarantee: a new player gets a Rare or better by their 10th pack, with no visible sign.
     - Pack credit is computed server-side. Opening without a banked pack is refused, whatever the client does.
-    - Packs accrue while the player is away, up to a cap of 10.
+    - Packs accrue while the player is away, up to a cap of 10 standard packs.
+    - Every pack that is not a standard pack (today the daily bonus and the weekly goal reward) waits in a special reserve with no cap, counted as one total apart from the standard reserve; the hub shows both counts, and the pack screen switches between the two reserves. A special pack shows its origin, by name and colour, wherever it is opened; within a reserve the oldest pack opens first, whatever its origin (author, 2026-10-28).
     - Draws pick a rarity tier first, then a card within it.
     - Opened cards are added to the player's collection, each copy carrying its minted rarity and season.
 - **CAP-5**
@@ -112,7 +113,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - A pack opened counts 1; a completed trade counts 1, once for both players.
     - A shared gauge shows progress.
     - The goal's panel and its reward notice speak as the Brotherhood (`brotherhood-tone.md`); their copy is in `EXPERIENCE.md`.
-    - When the goal is reached, every contributing player receives a reward pack of 5 cards with at least one Épique or better, held outside the bank's cap of 10 in its own zone.
+    - When the goal is reached, every contributing player receives a reward pack of 5 cards with at least one Épique or better; it joins the special reserve, which has no cap, so a full standard reserve never refuses it.
 - **CAP-13**
   - **intent:** A live Brotherhood feed shows what other players are doing, so the platform feels inhabited.
   - **success:**
@@ -135,9 +136,9 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-16**
   - **intent:** A player who comes back gets a daily bonus.
   - **success:**
-    - Once a day, a player can collect one small pack of 3 cards with better odds than a normal pack (no Commune; Peu commune 70 %, Rare 24 %, Épique 5 %, Légendaire 1 %). It joins their bank.
+    - Once a day, a player can collect one small pack of 3 cards with better odds than a normal pack (no Commune; Peu commune 70 %, Rare 24 %, Épique 5 %, Légendaire 1 %). It joins the special reserve (CAP-4).
     - A second collection the same day is refused, whatever the client does. The day changes at midnight UTC.
-    - When the bank holds 10 packs, the claim stays disabled until a pack is opened; nothing is lost.
+    - The claim is never refused because the standard reserve is full.
 - **CAP-17**
   - **intent:** A player has simple achievements that mark their progress.
   - **success:**
@@ -161,7 +162,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:**
     - Every account starts with the "Standard" card back.
     - More are unlocked by reaching a theme or hall of fame set's back tier, its first tier at or above half its cards (one back per such set), contributing to a successful weekly goal, some achievements, and events or seasons. A locked back states its unlock condition. A back earned on a set carries the mark of each season it was earned in; the player picks which season's mark the active back wears.
-    - The player picks one active back in the profile; it applies from the next pack opened.
+    - The player picks one active back on the Personalization page; it applies from the next pack opened.
     - Only the player sees it, on their own face-down cards at opening: never on the detail of a card, nor on another player's cards or profile (author, 2026-10-28).
     - The back catalogue is in `DESIGN.md`.
 - **CAP-21**

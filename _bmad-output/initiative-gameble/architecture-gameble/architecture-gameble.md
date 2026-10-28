@@ -110,9 +110,11 @@ graph TD
   - Each pack kind (regular, daily bonus, weekly reward) fixes its card count and its odds table: 5 cards at the published odds for a regular pack, 3 at the bonus odds for the daily bonus.
   - A new player's bank is filled by a `Game` handler reacting to `Accounts::PlayerRegistered`, with the first-session guarantee of the spec.
   - A replacement pack becomes available ten minutes after the latest availability time in the bank, or ten minutes after the opening when the bank was full.
-  - `Game::OpenPack` takes the player's bank lock, consumes the oldest available pack of any kind, credits its cards, publishes its event, and, for a regular pack, draws its one replacement in the same transaction (`Game::TopUpBank`) at once from the in-memory pool. A bank already short of ten, left so by openings while no season was published, stays short: an opening never fills it. The only other drawer is `Game::HealBanksJob`, which, when a season is published, gives every short bank all its missing packs at once, available at once, and redraws every unopened pack of an earlier season in the published one, with the same kind, odds, guarantees and availability time, one player per transaction under the bank lock.
+  - `Game::OpenPack` takes the player's bank lock, consumes the oldest available pack of the requested reserve, credits its cards, publishes its event, and, for a regular pack, draws its one replacement in the same transaction (`Game::TopUpBank`) at once from the in-memory pool. A bank already short of ten, left so by openings while no season was published, stays short: an opening never fills it. The only other drawer is `Game::HealBanksJob`, which, when a season is published, gives every short bank all its missing packs at once, available at once, and redraws every unopened pack of an earlier season in the published one, with the same kind, odds, guarantees and availability time, one player per transaction under the bank lock.
   - A draw picks the tier by the pack kind's odds, then a card uniformly within the tier, with secure randomness, from an in-memory list of the published season.
-  - The reserve shown to the player is every unopened pack, of any kind, already available. The daily bonus claim fails with `reserve_full` while it holds 10; the operation and the page read that from one query.
+  - Every pack whose kind is not regular belongs to the special reserve, which has no cap: claiming the daily bonus or a goal reward never fails for a full reserve (author, 2026-10-28). The regular reserve keeps its cap of 10 and its replacement of an opened pack. The bank lock still serialises claims and openings.
+  - The reserves shown to the player are the available unopened regular packs and, apart, the available unopened special packs as one total; the hub, the top bar and the pack screen read both from one query.
+  - `Game::OpenPack` takes the reserve it is asked for, regular or special, and consumes its oldest available pack, whatever the origin of a special pack; the origin is data the pack screen reads to name and colour the capsule, and there is no intro.
   - The reveal is a browser animation. The server keeps no flip state.
   - Opening reads a pre-drawn pack and writes at most 5 counted rows; its handlers stay within the spec's 200 ms p95, measured on `POST /packs` before launch.
 
@@ -326,7 +328,7 @@ graph TD
 - **Rule:**
   - One story replaces the shell first: tokens, fonts, layout, top bar, tab bar, toasts and base components. Screens are then reworked one at a time; in between a screen may show old content in the new shell. There is no feature flag and no second stylesheet.
   - Data changes follow expand/contract (AD-21): `dust_tier` leaves the card-season record; card-season numbers are added (AD-5); holdings gain `last_gained_at`; `game_player_states` is created and backfilled; tier code names become `common`, `uncommon`, `rare`, `epic`, `legendary` with integers 1 to 5 unchanged.
-  - Built code brought into line: `Card.tsx` and the two-renderer preview give way to AD-16's single face; the daily bonus refuses a full reserve (AD-7); jobs enqueue after commit (AD-13); GETs run on the reading role with writes prevented (AD-11).
+  - Built code brought into line: `Card.tsx` and the two-renderer preview give way to AD-16's single face; the daily bonus and the goal reward join an uncapped special reserve (AD-7); jobs enqueue after commit (AD-13); GETs run on the reading role with writes prevented (AD-11).
 
 ### AD-29 — The roadmap is staff data `[ADOPTED]`
 
