@@ -366,3 +366,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/epic-season-preparation-retrospective.md`
   summary: Epic 11 is accepted by the author on 2026-10-27 with open items: no dedicated test proves a published season never changes, and promote or discard and the themes page were never tried on staging with a real import.
   evidence: Retrospective, acceptance decision.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-human-readable-codebase/story-a-fresh-machine-follows-the-readme-plan.md`
+  summary: `PixelArtExportTest` can hang on an idle `node script/pixel_art/export.mjs` child when the Ruby suite runs in parallel in a fresh container.
+  evidence: in a `ruby:4.0.7` container with 8 CPUs, one worker waited 20 minutes on the "check fails and names a PNG whose pixels changed" test while its node child sat in a futex wait; the same command alone exits 0 in seconds and the suite passed once that child was killed. Seen once, not reproduced; a fix would add a timeout around the `Open3.capture2e` call.
