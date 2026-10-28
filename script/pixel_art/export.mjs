@@ -797,7 +797,7 @@ function backCanvas(id, w, h) {
       inner("#2a475e"); brackets("#66c0f4"); word("SAISON", "#66c0f4", "#06090d", b + 5); word("GAMEBLE", "#3d6c8c", "#06090d", h - b - 12)
       break
     }
-    case "w38": { // Semaine 38: community goal pennant, ring and five stars, hazard band
+    case "conf": { // Confrère: community goal pennant, ring crowned by five stars, hazard band
       frame("#2a475e", "#66c0f4", "#142636", "#1b2838", "#0b1015")
       field((x, y) => ((x - y + 999) % 5 === 0) ? "#152230" : "#0f1822")
       const pw = Math.round(w * 0.25), top = Math.round(h * 0.15), bot = Math.round(h * 0.66), nt = Math.round(h * 0.08)
@@ -809,7 +809,7 @@ function backCanvas(id, w, h) {
           P(x, y, edge ? "#f4c542" : mixc("#22364b", "#16222f", (y - top) / (bot - top)))
         }
       }
-      const ry = h * 0.34, R0 = w * 0.11
+      const ry = h * 0.42, R0 = w * 0.13
       for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
           const d = Math.hypot(x - cx, y - ry)
@@ -817,14 +817,13 @@ function backCanvas(id, w, h) {
         }
       }
       for (let i = -2; i <= 2; i++) {
-        const a = -Math.PI / 2 + i * 0.42, x = cx + Math.cos(a) * w * 0.19, y = ry + Math.sin(a) * w * 0.19
+        const a = -Math.PI / 2 + i * 0.42, x = cx + Math.cos(a) * w * 0.22, y = ry + Math.sin(a) * w * 0.22
         P(x, y, "#fff3c4")
         if (w >= 70) { P(x - 1, y, "#f4c542"); P(x + 1, y, "#f4c542"); P(x, y - 1, "#f4c542"); P(x, y + 1, "#f4c542") }
       }
-      big("38", "#f4c542", "#06090d", Math.round(h * 0.46), w >= 100 ? 2 : 1)
       const hy = Math.round(h * 0.82)
       for (let y = hy; y < hy + 3; y++) for (let x = b + 1; x < w - b - 1; x++) P(x, y, ((x + y) >> 1) % 3 === 0 ? "#e8833a" : "#0b1015")
-      inner("#2a475e"); brackets("#f4c542"); word("SEMAINE", "#8fa3b5", "#06090d", h - b - 11)
+      inner("#2a475e"); brackets("#f4c542"); word("CONFRERE", "#8fa3b5", "#06090d", h - b - 11)
       break
     }
     case "gold": { // Étoile d'or: gold sunburst and a big shaded star
@@ -1144,7 +1143,7 @@ function avatarCanvas(k) {
 const BACK_DESIGNS = [
   { name: "standard", id: "std", title: "Standard", look: "slate frame, diagonal weave, blue ring with gold ticks, the gold G monogram, GAMEBLE" },
   { name: "saison-1", id: "s1", title: "Saison 1", look: "blueprint grid, engraved 1 in a ring of blue and gold dots, SAISON, GAMEBLE" },
-  { name: "semaine-38", id: "w38", title: "Semaine 38", look: "gold-edged pennant, gold ring and five stars, 38, orange hazard band, SEMAINE" },
+  { name: "confrere", id: "conf", title: "Confrère", look: "gold-edged pennant, gold ring crowned by five stars, orange hazard band, CONFRERE" },
   { name: "etoile-dor", id: "gold", title: "Étoile d'or", look: "gold frame, gold sunburst, large shaded gold star, sparkles, LEGENDE" },
   { name: "aurore", id: "aur", title: "Aurore", look: "night sky, jade, blue and violet aurora, stars, dark mountain line, AURORE" },
   { name: "millesime-2017", id: "b17", title: "Millésime 2017", look: "bronze-gold frame, laurel wreath around 2017, blue ribbon, TOP 10" },
