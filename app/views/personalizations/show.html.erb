@@ -8,5 +8,5 @@
 <% end %>
 <section class="personalization" aria-labelledby="personalization-heading">
   <h1 id="personalization-heading" class="personalization__title"><%= t(".title") %></h1>
-  <%= render "personalizations/showcase", showcase: @showcase %>
+  <%= render "personalizations/showcase", showcase: @showcase, moved: flash[:moved_showcase_card] %>
 </section>

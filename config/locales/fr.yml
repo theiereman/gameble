@@ -1002,6 +1002,7 @@ fr:
         info: "Faites glisser les cartes pour changer leur ordre, ou déplacez une carte d'une place avec les flèches sous elle."
         moved: "%{title} est maintenant à la place %{position} sur %{count}."
         move_failed: "Le nouvel ordre n'a pas pu être enregistré."
+        remove: Retirer %{title} de la vitrine
       stats:
         title: "Statistiques"
         rarities: "Raretés"

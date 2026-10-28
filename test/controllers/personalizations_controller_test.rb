@@ -24,9 +24,11 @@ class PersonalizationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1#personalization-heading", "Personnalisation"
-    assert_select "section.personalization-section h2#personalization-showcase-heading", "Vitrine"
+    assert_select "section.profile-section h2#profile-showcase-heading", "Vitrine"
     assert_equal [ "/fr/cards/blue-depths/seasons/1", "/fr/cards/tin-soldier/seasons/1" ],
-      css_select(".personalization-showcase .personalization-showcase__slot > a.card-link").map { it["href"] }
+      css_select(".profile-showcase .profile-showcase__slot > a.card-link").map { it["href"] }
+    assert_select ".profile-showcase__slot form[data-direction]", 4
+    assert_select ".profile-showcase__slot button[aria-label^=?]", "Retirer", 2
     assert_select ".card.card--grid", 2
     assert_select "[style]", false
     [ @player.id, common, rare ].each { assert_no_match(/\b#{it}\b/, css_select("main").to_html.gsub(/data-card-art-(width|height)-value="\d+"|\/seasons\/\d+|\b(19|20)\d\d\b/, "")) }
@@ -37,7 +39,7 @@ class PersonalizationsControllerTest < ActionDispatch::IntegrationTest
 
     get personalization_path(locale: :en)
 
-    assert_select ".personalization-showcase", false
+    assert_select ".profile-showcase", false
     assert_select ".personalization-section__empty", /Your best card/
   end
 
@@ -47,7 +49,7 @@ class PersonalizationsControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :en)
 
     assert_select "nav#player-menu a[href=?]", personalization_path(locale: :en), "Personalization"
-    assert_select ".settings-summary .personalization-showcase, .settings-summary__showcase", false
+    assert_select ".settings-summary .profile-showcase, .settings-summary__showcase", false
 
     get more_path(locale: :en)
 

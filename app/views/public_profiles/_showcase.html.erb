@@ -1,4 +1,4 @@
-<%# locals: (owner:, cards:, movable: false, moved: nil) %>
+<%# locals: (owner:, cards:, movable: false, removable: false, moved: nil) %>
 <% strings = CardStrings.new %>
 <% movable &&= cards.size > 1 %>
 <% order = { controller: "showcase-order", showcase_order_announcement_value: t("public_profiles.show.showcase.moved"), showcase_order_failed_value: t("public_profiles.show.showcase.move_failed") } if movable %>
@@ -20,20 +20,30 @@
       <% place = card_showcase_path(slug: card.id, number: card.season_number) %>
       <% slot = { showcase_order_target: "slot", url: place, title: card.title, action: "pointerdown->showcase-order#press dragstart->showcase-order#stopNativeDrag contextmenu->showcase-order#stopMenu" } if movable %>
       <%= tag.li class: "profile-showcase__slot", data: slot do %>
-        <%= link_to_card_detail(card, strings:, context: { brother: owner.token }) do %>
+        <%= link_to_card_detail(card, strings:, context: (owner ? { brother: owner.token } : {})) do %>
           <%= render CardComponent.new(card:, size: :grid) %>
         <% end %>
-        <% if movable %>
-          <% directions = { "earlier" => index.positive?, "later" => index < cards.size - 1 }.select { |_, present| present }.keys %>
-          <% was_moved = moved.is_a?(Hash) && moved["slug"] == card.id && moved["number"].to_s == card.season_number.to_s %>
-          <% focused = (directions.include?(moved["direction"]) ? moved["direction"] : directions.first) if was_moved %>
+        <% if movable || removable %>
           <div class="profile-showcase__moves">
-            <% { "earlier" => [ "arrow-left", "move_left" ], "later" => [ "arrow-right", "move_right" ] }.each do |direction, (icon, label)| %>
-              <%= button_to place, method: :patch, params: { direction: },
+            <% if movable %>
+              <% directions = { "earlier" => index.positive?, "later" => index < cards.size - 1 }.select { |_, present| present }.keys %>
+              <% was_moved = moved.is_a?(Hash) && moved["slug"] == card.id && moved["number"].to_s == card.season_number.to_s %>
+              <% focused = (directions.include?(moved["direction"]) ? moved["direction"] : directions.first) if was_moved %>
+              <% { "earlier" => [ "arrow-left", "move_left" ], "later" => [ "arrow-right", "move_right" ] }.each do |direction, (icon, label)| %>
+                <%= button_to place, method: :patch, params: { direction: },
+                      class: "button button--secondary button--small profile-showcase__move-button",
+                      form: { class: "profile-showcase__move", hidden: !directions.include?(direction), data: { direction: } },
+                      aria: { label: t("public_profiles.show.showcase.#{label}", title: card.title) }, autofocus: focused == direction do %>
+                  <%= pixel_icon(icon, class: "button__icon") %>
+                <% end %>
+              <% end %>
+            <% end %>
+            <% if removable %>
+              <%= button_to place, method: :delete,
                     class: "button button--secondary button--small profile-showcase__move-button",
-                    form: { class: "profile-showcase__move", hidden: !directions.include?(direction), data: { direction: } },
-                    aria: { label: t("public_profiles.show.showcase.#{label}", title: card.title) }, autofocus: focused == direction do %>
-                <%= pixel_icon(icon, class: "button__icon") %>
+                    form: { class: "profile-showcase__move" },
+                    aria: { label: t("public_profiles.show.showcase.remove", title: card.title) } do %>
+                <%= pixel_icon("close", class: "button__icon") %>
               <% end %>
             <% end %>
           </div>

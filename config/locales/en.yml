@@ -1982,6 +1982,7 @@ en:
         move_left: Move %{title} left
         move_right: Move %{title} right
         moved: "%{title} is now in place %{position} of %{count}."
+        remove: Remove %{title} from the showcase
         title: Showcase
       stats:
         activity: Activity

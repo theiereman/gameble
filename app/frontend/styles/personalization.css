@@ -36,23 +36,3 @@
   color: var(--color-muted);
   font: var(--font-body-small);
 }
-
-.personalization-showcase {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.personalization-showcase__slot {
-  width: 100px;
-  container-type: inline-size;
-}
-
-.personalization-showcase__slot > .card-link {
-  display: block;
-  width: 100cqi;
-  height: calc(1.5 * 100cqi);
-}

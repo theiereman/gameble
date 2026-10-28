@@ -1,17 +1,8 @@
-<%# locals: (showcase:) %>
-<% strings = CardStrings.new %>
-<%= render "personalizations/section", id: "personalization-showcase", heading: t("personalizations.show.showcase.title") do %>
-  <% if showcase.any? %>
-    <ul class="personalization-showcase" aria-labelledby="personalization-showcase-heading">
-      <% showcase.each do |card| %>
-        <li class="personalization-showcase__slot">
-          <%= link_to_card_detail(card, strings:) do %>
-            <%= render CardComponent.new(card:, size: :grid) %>
-          <% end %>
-        </li>
-      <% end %>
-    </ul>
-  <% else %>
+<%# locals: (showcase:, moved: nil) %>
+<% if showcase.any? %>
+  <%= render "public_profiles/showcase", owner: nil, cards: showcase, movable: true, removable: true, moved: %>
+<% else %>
+  <%= render "personalizations/section", id: "personalization-showcase", heading: t("personalizations.show.showcase.title") do %>
     <p class="personalization-section__empty"><%= t("personalizations.show.showcase.empty") %></p>
   <% end %>
 <% end %>
