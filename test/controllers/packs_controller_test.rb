@@ -112,7 +112,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     back = body.dig("pack", "cardBack")
     assert_equal "set-theme-rpg", back["key"]
     assert_equal %w[s m xl], back["urls"].keys
-    back["urls"].each { |size, url| assert_match(%r{back-set-theme-rpg-#{size}[-.\w]*\.png\z}, url) }
+    back["urls"].each { |size, url| assert_match(%r{back-theme-rpg-#{size}[-.\w]*\.png\z}, url) }
 
     follow_up = create_pack(player, cards: [ catalog_card_seasons(:legendary_card_one).id ] * 5, available_at: 1.hour.ago)
     Game::PlayerState.where(player_id: player.id).update_all(active_card_back: nil)
@@ -407,7 +407,10 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ pack.id ], game_events(player, Game::PackOpened).map { it.data[:pack_id] }
 
     assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers unlockedCardBacks], body.keys
-    assert_equal({ "token" => pack.token, "kind" => "regular", "cardBack" => "standard", "url" => "/en/packs/#{pack.token}" }, body["pack"])
+    assert_equal %w[token kind cardBack url], body["pack"].keys
+    assert_equal [ pack.token, "regular", "/en/packs/#{pack.token}" ], body["pack"].values_at("token", "kind", "url")
+    assert_equal "standard", body["pack"]["cardBack"]["key"]
+    assert_equal %w[s m xl], body["pack"]["cardBack"]["urls"].keys
     scheduled = (now + 10.minutes).iso8601(3)
     assert_equal({ "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ], "nextPackSize" => 5, "nextSpecialKind" => nil },
       body["bank"])
