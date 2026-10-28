@@ -1,5 +1,5 @@
-<%# locals: (id:, heading:) %>
+<%# locals: (id:, heading:, focused: false) %>
 <%= render PanelComponent.new(tag: :section, brackets: true, class: "personalization-section", aria: { labelledby: "#{id}-heading" }) do %>
-  <h2 id="<%= id %>-heading" class="personalization-section__title"><%= heading %></h2>
+  <%= tag.h2 heading, id: "#{id}-heading", class: "personalization-section__title", tabindex: (-1 if focused), autofocus: focused %>
   <%= yield %>
 <% end %>

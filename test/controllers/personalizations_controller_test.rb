@@ -24,12 +24,13 @@ class PersonalizationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1#personalization-heading", "Personnalisation"
-    assert_select "section.profile-section h2#profile-showcase-heading", "Vitrine"
-    assert_equal [ "/fr/cards/blue-depths/seasons/1", "/fr/cards/tin-soldier/seasons/1" ],
+    assert_select "section.personalization-section h2#profile-showcase-heading", "Vitrine"
+    assert_equal [ "/fr/cards/blue-depths/seasons/1?from=personalization", "/fr/cards/tin-soldier/seasons/1?from=personalization" ],
       css_select(".profile-showcase .profile-showcase__slot > a.card-link").map { it["href"] }
     assert_select ".profile-showcase__slot form[data-direction]", 4
     assert_select ".profile-showcase__slot button[aria-label^=?]", "Retirer", 2
     assert_select ".card.card--grid", 2
+    assert_select ".profile-showcase__info-text", /croix/
     assert_select "[style]", false
     [ @player.id, common, rare ].each { assert_no_match(/\b#{it}\b/, css_select("main").to_html.gsub(/data-card-art-(width|height)-value="\d+"|\/seasons\/\d+|\b(19|20)\d\d\b/, "")) }
   end

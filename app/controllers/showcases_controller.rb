@@ -1,4 +1,6 @@
 class ShowcasesController < ApplicationController
+  include ChosenCards
+
   def create
     authorize :showcase, :create?
     change(Game::AddToShowcase)
@@ -11,7 +13,11 @@ class ShowcasesController < ApplicationController
 
   def destroy
     authorize :showcase, :destroy?
-    change(Game::RemoveFromShowcase)
+    cards = chosen_cards(current_player)
+    change(Game::RemoveFromShowcase) do
+      announce_removal(cards)
+      changed
+    end
   end
 
   private
@@ -26,6 +32,16 @@ class ShowcasesController < ApplicationController
         flash[:moved_showcase_card] = { "slug" => params[:slug], "number" => params[:number].to_s, "direction" => params[:direction].to_s } unless request.format.json?
         changed(fallback: brother_path(token: current_player.token))
       end
+    end
+
+    def announce_removal(cards)
+      index = cards.index { it.id == params[:slug] && it.season_number.to_s == params[:number].to_s }
+      return if index.nil? || request.format.json?
+
+      neighbour = cards[index + 1] || (cards[index - 1] if index.positive?)
+      flash[:removed_showcase_card] = { "slug" => neighbour&.id, "number" => neighbour&.season_number.to_s }
+      flash[:toast_title] = t("showcases.removed.title")
+      flash[:notice] = t("showcases.removed.text", title: cards[index].title)
     end
 
     def change(operation, **options)

@@ -127,6 +127,96 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/fr/cards/portal/seasons/1/showcase", card_showcase_path(locale: :fr, slug: "portal", number: 1)
   end
 
+  def showcase_slugs(selector = ".profile-showcase .profile-showcase__slot > a.card-link")
+    css_select(selector).map { it["href"][%r{/cards/([^/]+)/}, 1] }
+  end
+
+  [ :en, :fr ].each do |locale|
+    test "a new order is read on the Personalization page, the public profile and the hub in #{locale}" do
+      choose(:portal_one, :common_card_one, :uncommon_card_one)
+      sign_in(@player)
+
+      patch showcase_path(slug: "green-hills", locale:), params: { direction: "earlier" }
+      patch showcase_path(slug: "green-hills", locale:), params: { direction: "earlier" }
+
+      [ personalization_path(locale:), brother_path(locale:, token: @player.token) ].each do |path|
+        get path
+        assert_equal %w[green-hills portal tin-soldier], showcase_slugs, path
+      end
+      get home_path(locale:)
+      assert_select ".hub-showcase__actions a[href=?]", card_season_path(locale:, slug: "green-hills", number: 1)
+    end
+  end
+
+  test "removing a card names it in a toast and sends the focus to the remove button of the next card" do
+    choose(:portal_one, :common_card_one, :uncommon_card_one)
+    sign_in(@player)
+
+    delete showcase_path(slug: "portal", locale: :fr), headers: { "HTTP_REFERER" => personalization_path(locale: :fr) }
+
+    assert_redirected_to personalization_path(locale: :fr)
+    assert_equal "Retiré de la vitrine", flash[:toast_title]
+    assert_match(/n'est plus dans votre vitrine/, flash[:notice])
+    follow_redirect!
+    assert_select "#toasts .toast__title", "Retiré de la vitrine"
+    assert_equal %w[tin-soldier green-hills], showcase_slugs
+    assert_select ".profile-showcase__slot:nth-child(1) button[autofocus][aria-label^=Retirer]"
+    assert_select "[autofocus]", 1
+  end
+
+  test "the focus goes to the previous card after the last one, and to the heading after the only one" do
+    choose(:portal_one, :common_card_one)
+    sign_in(@player)
+
+    delete showcase_path(slug: "tin-soldier"), headers: { "HTTP_REFERER" => personalization_path(locale: :en) }
+    follow_redirect!
+    assert_select "#toasts .toast__title", "Removed from showcase"
+    assert_select ".profile-showcase__slot:nth-child(1) button[autofocus][aria-label^=Remove]"
+    assert_select ".profile-showcase__info-text", /cross/
+    assert_select ".profile-showcase__info-text", { text: /Drag/, count: 0 }
+
+    delete showcase_path(slug: "portal"), headers: { "HTTP_REFERER" => personalization_path(locale: :en) }
+    follow_redirect!
+    assert_select "h2.personalization-section__title[autofocus][tabindex='-1']", "Showcase"
+    assert_select ".profile-showcase", false
+  end
+
+  test "a removal asked in JSON writes no flash" do
+    choose(:portal_one)
+    sign_in(@player)
+
+    delete showcase_path, as: :json
+
+    assert_response :no_content
+    assert_nil flash[:removed_showcase_card]
+    assert_nil flash[:toast_title]
+  end
+
+  test "the cards of the Personalization page lead to a detail that goes back to it" do
+    choose(:portal_one, :common_card_one)
+    sign_in(@player)
+
+    get personalization_path(locale: :en)
+    hrefs = css_select(".profile-showcase__slot > a.card-link").map { it["href"] }
+    assert_equal [ card_season_path(locale: :en, slug: "portal", number: 1, from: "personalization"),
+                   card_season_path(locale: :en, slug: "tin-soldier", number: 1, from: "personalization") ], hrefs
+
+    get hrefs.first
+    assert_response :success
+    assert_select ".top-bar__phone-back[href=?]", personalization_path(locale: :en)
+  end
+
+  test "the profile's own links keep their own context and the personalization context is ignored without a session" do
+    choose(:portal_one)
+    get card_season_path(locale: :en, slug: "portal", number: 1, from: "personalization")
+    assert_select ".top-bar__phone-back[href=?]", personalization_path(locale: :en), false
+
+    sign_in(@player)
+    get brother_path(locale: :en, token: @player.token)
+    assert_select ".profile-showcase__slot > a.card-link[href*=?]", "brother=#{@player.token}"
+    assert_select ".profile-showcase__slot > a.card-link[href*=from]", false
+  end
+
   def choose(*fixtures)
     fixtures.map { catalog_card_seasons(it).id }.each do |id|
       hold(@player, id)

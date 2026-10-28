@@ -999,6 +999,8 @@ fr:
         move_left: "Déplacer %{title} vers la gauche"
         move_right: "Déplacer %{title} vers la droite"
         info_label: "Comment changer l'ordre"
+        info_movable_removable: "Faites glisser les cartes pour changer leur ordre, déplacez une carte d'une place avec les flèches sous elle, ou retirez-la avec la croix."
+        info_removable: "Retirez une carte de la vitrine avec la croix sous elle."
         info: "Faites glisser les cartes pour changer leur ordre, ou déplacez une carte d'une place avec les flèches sous elle."
         moved: "%{title} est maintenant à la place %{position} sur %{count}."
         move_failed: "Le nouvel ordre n'a pas pu être enregistré."
@@ -1649,6 +1651,9 @@ fr:
   showcases:
     add: "Mettre en vitrine"
     remove: "Retirer de la vitrine"
+    removed:
+      title: "Retiré de la vitrine"
+      text: "%{title} n'est plus dans votre vitrine."
     full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
     not_found: "Cette carte n'existe pas."
   reposts:

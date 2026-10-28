@@ -14,7 +14,7 @@ class CardsController < ApplicationController
     @copies = @editions.sum(&:last).nonzero?
     @share_url = share_url
     named = pack_browse || grid_browse || named_set_browse
-    profile = profile_browse unless named
+    profile = profile_browse || personalization_browse unless named
     @public = current_player.nil? && named.nil? && profile.nil?
     @live_strip = LiveStream.strip_items if @public
     @browse = named || profile || set_browse(@detail.sets.first) unless @public
@@ -118,6 +118,13 @@ class CardsController < ApplicationController
       back = Back.new(label: t("cards.show.profile"), path: brother_path(album_owner.token))
       browse = set_browse(@detail.sets.first, owner: album_owner)
       browse ? browse.with(back:) : Browse.new(position: 1, total: 1, previous: nil, next: nil, back:)
+    end
+
+    def personalization_browse
+      return unless current_player && params[:from] == "personalization"
+
+      back = Back.new(label: t("shell.player.personalization"), path: personalization_path)
+      Browse.new(position: 1, total: 1, previous: nil, next: nil, back:)
     end
 
     def showcase_state

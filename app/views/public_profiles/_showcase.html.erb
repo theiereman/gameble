@@ -1,17 +1,23 @@
-<%# locals: (owner:, cards:, movable: false, removable: false, moved: nil) %>
+<%# locals: (owner:, cards:, movable: false, removable: false, moved: nil, removed: nil, framed: false) %>
 <% strings = CardStrings.new %>
 <% movable &&= cards.size > 1 %>
+<% editable = movable || removable %>
+<% info = if movable && removable then t("public_profiles.show.showcase.info_movable_removable") elsif removable then t("public_profiles.show.showcase.info_removable") else t("public_profiles.show.showcase.info") end %>
+<% context = if owner then { brother: owner.token } elsif removable then { from: "personalization" } else {} end %>
+<% removal_focus = removed["slug"].presence if removed.is_a?(Hash) %>
+<% removal_focus_found = cards.any? { it.id == removal_focus && it.season_number.to_s == removed["number"].to_s } if removal_focus %>
 <% order = { controller: "showcase-order", showcase_order_announcement_value: t("public_profiles.show.showcase.moved"), showcase_order_failed_value: t("public_profiles.show.showcase.move_failed") } if movable %>
-<%= tag.section class: "profile-section", aria: { labelledby: "profile-showcase-heading" }, data: order do %>
+<%= tag.section class: (framed ? "panel panel--brackets personalization-section" : "profile-section"), aria: { labelledby: "profile-showcase-heading" }, data: order do %>
   <div class="profile-showcase__head">
-    <h2 id="profile-showcase-heading" class="profile-section__title"><%= t("public_profiles.show.showcase.title") %></h2>
-    <% if movable %>
+    <%= tag.h2 t("public_profiles.show.showcase.title"), id: "profile-showcase-heading", class: (framed ? "personalization-section__title" : "profile-section__title"),
+          tabindex: (-1 if removed), autofocus: (removed.present? && !removal_focus_found) %>
+    <% if editable %>
       <details class="profile-showcase__info">
         <summary class="profile-showcase__info-mark">
           <%= pixel_icon("info", class: "profile-showcase__info-icon") %>
           <span class="visually-hidden"><%= t("public_profiles.show.showcase.info_label") %></span>
         </summary>
-        <p class="profile-showcase__info-text"><%= t("public_profiles.show.showcase.info") %></p>
+        <p class="profile-showcase__info-text"><%= info %></p>
       </details>
     <% end %>
   </div>
@@ -20,7 +26,7 @@
       <% place = card_showcase_path(slug: card.id, number: card.season_number) %>
       <% slot = { showcase_order_target: "slot", url: place, title: card.title, action: "pointerdown->showcase-order#press dragstart->showcase-order#stopNativeDrag contextmenu->showcase-order#stopMenu" } if movable %>
       <%= tag.li class: "profile-showcase__slot", data: slot do %>
-        <%= link_to_card_detail(card, strings:, context: (owner ? { brother: owner.token } : {})) do %>
+        <%= link_to_card_detail(card, strings:, context:) do %>
           <%= render CardComponent.new(card:, size: :grid) %>
         <% end %>
         <% if movable || removable %>
@@ -42,7 +48,8 @@
               <%= button_to place, method: :delete,
                     class: "button button--secondary button--small profile-showcase__move-button",
                     form: { class: "profile-showcase__move" },
-                    aria: { label: t("public_profiles.show.showcase.remove", title: card.title) } do %>
+                    aria: { label: t("public_profiles.show.showcase.remove", title: card.title) },
+                    autofocus: removal_focus_found && removal_focus == card.id && removed["number"].to_s == card.season_number.to_s do %>
                 <%= pixel_icon("close", class: "button__icon") %>
               <% end %>
             <% end %>

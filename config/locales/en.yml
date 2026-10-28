@@ -1978,6 +1978,9 @@ en:
         info: Drag the cards to change their order, or move a card one place with
           the arrows under it.
         info_label: How to change the order
+        info_movable_removable: Drag the cards to change their order, move a card one
+          place with the arrows under it, or take it out with the cross.
+        info_removable: Take a card out of the showcase with the cross under it.
         move_failed: The new order could not be saved.
         move_left: Move %{title} left
         move_right: Move %{title} right
@@ -2181,6 +2184,9 @@ en:
     full: 'Showcase full: remove a card to add another.'
     not_found: This card does not exist.
     remove: Remove from showcase
+    removed:
+      text: "%{title} is no longer in your showcase."
+      title: Removed from showcase
   time:
     formats:
       local_date_time_year: "%b %-d, %Y, %H:%M"
