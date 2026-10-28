@@ -12,7 +12,8 @@ class Game::CardBackSeasonsTest < ActiveSupport::TestCase
     @player = accounts_players(:player)
     tiers = { novice: 1, apprentice: 2, adept: 3, complete: 5 }
     @first = insert_set([], tiers, key: "roguelike", season: catalog_seasons(:one))
-    @second = insert_set([], tiers, key: "roguelike", season: Catalog::Season.create!(status: :published, number: 2, published_at: Time.current))
+    @latest_season = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
+    @second = insert_set([], tiers, key: "roguelike", season: @latest_season)
   end
 
   def reach(set_id, tier, reached_by: "trade")
@@ -101,6 +102,7 @@ class Game::CardBackSeasonsTest < ActiveSupport::TestCase
     Game::PlayerState.insert({ player_id: @player.id }, unique_by: :player_id)
     Game::PlayerState.where(player_id: @player.id).update_all(active_card_back: BACK, active_card_back_season: 3)
     create_pack(@player, cards: fixture_tier_ids, available_at: 2.minutes.ago)
+    @latest_season.update!(status: :draft)
 
     Game::OpenPack.new.call(player: @player).value!
 
@@ -110,6 +112,7 @@ class Game::CardBackSeasonsTest < ActiveSupport::TestCase
 
   test "a pack opened with the standard back stores no season" do
     create_pack(@player, cards: fixture_tier_ids, available_at: 2.minutes.ago)
+    @latest_season.update!(status: :draft)
 
     Game::OpenPack.new.call(player: @player).value!
 
