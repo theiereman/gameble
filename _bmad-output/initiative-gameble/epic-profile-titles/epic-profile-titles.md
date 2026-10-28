@@ -51,7 +51,7 @@ Titles in `Game`, their picker and their display. Not the tier and completion ev
 
 - Decision (2026-10-28, author): split out of epic-card-backs, which it follows, in release 1.2.0.
 - Decision (2026-10-28, author): the menu themes leave this epic for epic-menu-themes, which needs refining first; this epic keeps the titles.
-- Decision (2026-10-28, author): a UX session settles the title picker's layout before the picker is built; entry 2 waits on it.
+- Decision (2026-10-28, author): UX settled: the title picker is a radio list of earned titles as text, grouped by rank, with "Aucun titre", on the new Personnalisation page (entry 9.10 of epic-card-backs builds the page); copy proposals await the author.
 - Decision (2026-10-14, author): titles are counted by set kind, key and tier across seasons and show the latest season they were earned in (change-season-carryover).
 - Decision (2026-10-19, author): one title per set and rank, the tier's rank as title ("Adepte · Roguelike") (change-set-tiers-by-size).
 - Waits on epic 9 because: the author placed it after the card backs epic.

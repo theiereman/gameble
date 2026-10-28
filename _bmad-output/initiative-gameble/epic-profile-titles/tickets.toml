@@ -14,13 +14,12 @@ risk = "low"
 [[entry]]
 id = 2
 type = "story"
-title = "The title picker on the settings screen"
-description = "Adds nullable active title columns (set kind, key and title rank) on game_player_states (expand only), Game::ChooseProfileTitle (POST, Pundit policy, Failure(:title_not_earned)) and a title section on the settings screen listing the earned titles, the active mark and the feedback; every string in en.yml and fr.yml, errors.game.title_not_earned added to both by hand."
-unknown = "The picker's layout is not drawn in DESIGN.md: the author agreed on 2026-10-28 to a bmad-ux session before this entry is built, with the card back picker (9.4) as the pattern on the same screen."
+title = "The title picker on the Personnalisation page"
+description = "Adds nullable active title columns (set kind, key and title rank) on game_player_states (expand only), Game::ChooseProfileTitle (POST, Pundit policy, Failure(:title_not_earned)) and a \"TITRE DE PROFIL\" section on the Personnalisation page: a radio group of the earned titles as text, grouped by rank with the highest first, a first row \"Aucun titre\" that removes the active title, one sentence on how to earn one when none is earned, immediate choice with a toast and arrow-key movement; every string in en.yml and fr.yml, errors.game.title_not_earned added to both by hand."
 verify = "A system test equips an earned title and sees the feedback, a title the player has not earned cannot be equipped even by a forged POST, the choice survives a reload, and db/schema.rb is regenerated from the migrations."
 covers = ["R2"]
-after = [1, "9.4"]
-hitl = true
+after = [1, "9.10"]
+hitl = false
 risk = "low"
 
 [[entry]]

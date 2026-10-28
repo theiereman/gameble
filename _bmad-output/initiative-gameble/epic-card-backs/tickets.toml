@@ -35,15 +35,25 @@ hitl = true
 risk = "medium"
 
 [[entry]]
+id = 10
+type = "story"
+title = "The Personnalisation page"
+description = "Adds a Personnalisation page behind the player menu, beside Profil et paramètres (and a PLUS row on the phone), with the section pattern the pickers fill, and moves the profile showcase summary from the settings side column to it (settings/_profile_summary keeps the identity and stats); the page and its menu entry in en.yml and fr.yml, a Pundit policy, and the phone top-bar title."
+verify = "A system test opens Personnalisation from the player menu in English and French, sees the profile showcase there and no longer in the settings, and the settings still show language, visibility, reduced motion, session, data, account and legal; i18n-tasks and the locale files agree."
+covers = ["R2"]
+after = ["10.4"]
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 4
 type = "story"
-title = "The back picker on the settings screen"
-description = "Adds Game::ChooseCardBack (POST, Pundit policy, Failure(:back_locked)), a Game::CardBackShelf query listing every back with its state and unlock condition, and a card back section on the settings screen with a preview, the active mark, locked backs greyed under a padlock stating their condition, and the equipped and locked feedback; every back name and condition in en.yml and fr.yml, errors.game.back_locked added to both by hand."
-unknown = "The picker's layout is not drawn in DESIGN.md (only copy in EXPERIENCE.md and Flow 3): a short bmad-ux pass with the author first, or the author accepts a grid of thumbnails under the preview."
+title = "The back picker on the Personnalisation page"
+description = "Adds Game::ChooseCardBack (POST, Pundit policy, Failure(:back_locked)), a Game::CardBackShelf query listing every back with its state and unlock condition, and a \"DOS DE CARTE\" section on the Personnalisation page with a preview, the active mark, locked backs greyed under a padlock stating their condition, and the equipped and locked feedback; every back name and condition in en.yml and fr.yml, errors.game.back_locked added to both by hand."
 verify = "A system test equips an unlocked back and sees the preview and the feedback, a locked back shows its condition and cannot be equipped even by a forged POST, and the choice survives a reload; i18n-tasks and the locale files agree."
 covers = ["R2", "R4"]
-after = [1, 2, "10.4"]
-hitl = true
+after = [1, 2, 10]
+hitl = false
 risk = "low"
 
 [[entry]]
@@ -98,6 +108,6 @@ title = "Refactor sweep"
 description = "Cleans up what this epic's build records and deferred review findings name; scope set when it starts."
 verify = "The full test suite, packwerk, zeitwerk, vitest and the pixel art check pass."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 10]
 hitl = false
 risk = "low"
