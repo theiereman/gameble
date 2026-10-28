@@ -53,6 +53,21 @@ class Game::CollectionSummaryTest < ActiveSupport::TestCase
     assert_equal Game::CollectionSummary::Summary.new(distinct_cards: pirates.size, complete_sets: 1), summary
   end
 
+  test "the complete sets figure equals the complete rows of the set list, editions mixed" do
+    pirates = members("pirates")
+    reprint = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    old = Catalog::CardSeason.find(pirates.first)
+    other = Catalog::CardSeason.create!(card_id: old.card_id, season: reprint, prestige_score: 0.5, rating: 90, rarity: :rare, number: 1)
+    hold(@player, other.id, 1)
+    pirates.drop(1).each { hold(@player, it, 1) }
+    members("rpg").first(2).each { hold(@player, it, 1) }
+
+    rows = Game::SetsInProgress.call(@player, season: @season).values
+
+    assert_operator rows.count(&:complete?), :>=, 1
+    assert_equal rows.count(&:complete?), summary.complete_sets
+  end
+
   test "a set without members is never complete" do
     season = seed_published_sets([ [ "studio", "empty", { "studio" => "Empty" } ] ])
 
