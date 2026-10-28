@@ -542,7 +542,6 @@ en:
       update:
         updated: The theme is renamed, officer.
   booster:
-    back: Back to the bridge
     canister_hint: Click to open
     canister_hint_touch: Tap to open
     canister_season: Season %{number}
@@ -1538,7 +1537,6 @@ en:
     create:
       throttled: Too many openings in a minute. Try again in a moment.
     show:
-      back_to_hub: Back to the bridge
       cards: The cards of your capsule
       heading: Your capsule
       heading_bonus: Your daily capsule

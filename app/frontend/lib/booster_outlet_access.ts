@@ -89,7 +89,7 @@ export class OutletAccess {
   focusElement(target: FocusTarget): HTMLElement | null {
     const { actions, tray } = this.outlets()
     if (target === "open") return actions?.openButton ?? null
-    if (target === "back") return actions?.backLink ?? null
+    if (target === "home") return document.querySelector<HTMLElement>(".top-bar__home")
     if ("slot" in target) return tray?.slotElement(target.slot) ?? null
     return this.part(target.card, "hit")
   }

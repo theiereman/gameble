@@ -533,7 +533,7 @@ Behavior only. Contrast values live in `DESIGN.md` (see Colors).
 
 | Step | Focus goes to |
 |---|---|
-| Capsule screen opened | "OUVRIR LA CAPSULE" (when the reserve is empty: the back button, or the GAMEBLE link when there is none) |
+| Capsule screen opened | "OUVRIR LA CAPSULE" (when the reserve is empty: the GAMEBLE link in the top bar; the screen has no back button of its own) |
 | Set album opened (desktop and phone) | Its h1, the set's name |
 | Back from a set album | The set progress row, or the set celebration result, that opened it |
 | Back button (desktop) | The control that opened the screen just left, when it is still there; otherwise the h1 `[ASSUMPTION]` |

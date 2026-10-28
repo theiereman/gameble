@@ -130,7 +130,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{ROOT} .booster-strip h2#booster-title", "Season 1 · Grand catalogue"
     assert_select "#{ROOT} .booster__actions button.booster__open", "Open the capsuleOpen the next oneReserve empty"
     assert_select "#{ROOT} .booster__actions button.booster__reveal-all[disabled]", "Reveal all"
-    assert_select "#{ROOT} .booster__actions a.booster__back[href='/en']", "Back to the bridge"
+    assert_select "#{ROOT} .booster__actions a", 0
 
     # The canister, its words and the card a pack deals, cloned by the controllers.
     assert_select "#{ROOT} template[data-booster-canister-target=canister]"
@@ -201,7 +201,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     # Without JavaScript, the form and the way back; hidden once the screen draws.
     assert_select "#{ROOT} + .booster__fallback" do
       assert_select "form[action='/en/packs'][method=post] button.button--primary", "Open the capsule"
-      assert_select "a.button--secondary[href='/en']", "Back to the bridge"
+      assert_select "a", 0
     end
   end
 
@@ -245,7 +245,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_nil canister.at_css(".booster-canister__line--season")
     assert_select "#{ROOT} .booster-zoom__repost", 0
     assert_select ".booster__fallback form[action='/en/packs'] button", "Open the capsule"
-    assert_select ".booster__fallback a[href='/en']", "Back to the bridge"
+    assert_select ".booster__fallback a", 0
   end
 
   test "an empty reserve: no form in the fallback, the screen told so, in French with its delimiter" do
@@ -266,7 +266,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "argent", celebration.dig("spokenTiers", "silver")
     assert_equal "/fr/cards/SLUG", value("card-url")
     assert_select ".booster__fallback form", 0
-    assert_select ".booster__fallback a[href='/fr']", "Retour au pont"
+    assert_select ".booster__fallback a", 0
     assert_select ".packs-chip--static .packs-chip__label", "en réserve"
   end
 

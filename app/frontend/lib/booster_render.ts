@@ -138,7 +138,6 @@ export class BoosterRenderer {
       openDisabled: view.openDisabled,
       busy: view.busy,
       revealAllDisabled: view.revealAllDisabled,
-      locked: view.locked,
       reason: state.reason,
     })
   }

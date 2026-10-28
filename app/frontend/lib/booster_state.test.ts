@@ -51,7 +51,7 @@ describe("start", () => {
   })
 
   it("shows the reserve empty with none, the focus on the way back", () => {
-    expect(startWith({ bank: bank(0) })).toMatchObject({ phase: "empty", status: "waiting", focus: "back" })
+    expect(startWith({ bank: bank(0) })).toMatchObject({ phase: "empty", status: "waiting", focus: "home" })
   })
 
   it("asks no focus on a Turbo preview", () => {
@@ -135,13 +135,13 @@ describe("focusTarget, focusGiven", () => {
   it("resolves the card to what comes after once every card is shown", () => {
     const state = revealedAll(dealt())
     expect(focusTarget({ ...state, focus: "card" })).toBe("open")
-    expect(focusTarget({ ...state, bank: bank(0), focus: "card" })).toBe("back")
+    expect(focusTarget({ ...state, bank: bank(0), focus: "card" })).toBe("home")
   })
 
   it("keeps the opening, the way back and a tray slot as they are", () => {
     const state = startWith()
     expect(focusTarget(state)).toBe("open")
-    expect(focusTarget({ ...state, focus: "back" })).toBe("back")
+    expect(focusTarget({ ...state, focus: "home" })).toBe("home")
     expect(focusTarget({ ...state, focus: { slot: 2 } })).toEqual({ slot: 2 })
   })
 

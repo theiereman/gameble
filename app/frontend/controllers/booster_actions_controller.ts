@@ -7,17 +7,15 @@ export type ActionsView = Readonly<{
   openDisabled: boolean
   busy: boolean
   revealAllDisabled: boolean
-  locked: boolean
   reason: string | null
 }>
 
 export default class BoosterActionsController extends Controller<HTMLElement> {
-  static targets = ["open", "row", "revealAll", "back", "reason"]
+  static targets = ["open", "row", "revealAll", "reason"]
 
   declare readonly openTarget: HTMLButtonElement
   declare readonly rowTarget: HTMLElement
   declare readonly revealAllTarget: HTMLButtonElement
-  declare readonly backTarget: HTMLAnchorElement
   declare readonly reasonTarget: HTMLElement
 
   private busy = false
@@ -26,27 +24,20 @@ export default class BoosterActionsController extends Controller<HTMLElement> {
     return this.openTarget
   }
 
-  get backLink(): HTMLAnchorElement {
-    return this.backTarget
-  }
-
-  render({ open, openDisabled, busy, revealAllDisabled, locked, reason }: ActionsView): void {
+  render({ open, openDisabled, busy, revealAllDisabled, reason }: ActionsView): void {
     this.busy = busy
     this.openTarget.dataset.open = open
     this.openTarget.disabled = openDisabled
     writeFlag(this.openTarget, "aria-disabled", !openDisabled && busy)
     this.revealAllTarget.disabled = revealAllDisabled
-    writeFlag(this.backTarget, "aria-disabled", locked)
     this.reasonTarget.hidden = reason === null
     writeText(this.reasonTarget, reason ?? "")
   }
 
   arrange(layout: Layout): void {
     const phone = layout === "phone"
-    const order = phone
-      ? [this.rowTarget, this.backTarget, this.reasonTarget]
-      : [this.openTarget, this.rowTarget, this.reasonTarget]
-    const row = phone ? [this.openTarget, this.revealAllTarget] : [this.revealAllTarget, this.backTarget]
+    const order = phone ? [this.rowTarget, this.reasonTarget] : [this.openTarget, this.rowTarget, this.reasonTarget]
+    const row = phone ? [this.openTarget, this.revealAllTarget] : [this.revealAllTarget]
     if (this.inOrder(this.element, order) && this.inOrder(this.rowTarget, row)) return
     this.rowTarget.replaceChildren(...row)
     this.element.replaceChildren(...order)
@@ -58,11 +49,6 @@ export default class BoosterActionsController extends Controller<HTMLElement> {
 
   revealAll(): void {
     this.dispatch("reveal")
-  }
-
-  back(event: Event): void {
-    const asked = this.dispatch("back")
-    if (asked.defaultPrevented) event.preventDefault()
   }
 
   private inOrder(parent: Element, children: readonly Element[]): boolean {

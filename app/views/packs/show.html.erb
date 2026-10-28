@@ -6,10 +6,9 @@
       <li class="pack-result__card"><%= link_to_card_detail(card, strings: @strings) do %><%= render CardComponent.new(card:, size: :m) %><% end %></li>
     <% end %>
   </ol>
-  <div class="pack-end">
-    <% if @next_pack %>
+  <% if @next_pack %>
+    <div class="pack-end">
       <%= render ButtonComponent.new(href: booster_path) do %><%= t(".open_booster") %><% end %>
-    <% end %>
-    <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t(".back_to_hub") %><% end %>
-  </div>
+    </div>
+  <% end %>
 </section>

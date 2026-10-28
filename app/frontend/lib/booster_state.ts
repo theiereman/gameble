@@ -57,7 +57,7 @@ export function start({
     celebrationAnnounced: false,
     celebrationSteps: 0,
     lockDepth: 0,
-    focus: preview ? null : sealed ? "open" : "back",
+    focus: preview ? null : sealed ? "open" : "home",
   }
   if (!opened) return fresh
   const revealed = opened.cards.map(() => true)
@@ -122,10 +122,10 @@ function cardToFocus(state: BoosterState): number | null {
 export function focusTarget(state: BoosterState): FocusTarget | null {
   const { focus } = state
   if (focus === null) return null
-  if (typeof focus === "object" || focus === "open" || focus === "back") return focus
+  if (typeof focus === "object" || focus === "open" || focus === "home") return focus
   const index = cardToFocus(state)
   if (index !== null) return { card: index }
-  return reserveCount(state.bank, state.reserve) > 0 ? "open" : "back"
+  return reserveCount(state.bank, state.reserve) > 0 ? "open" : "home"
 }
 
 export function focusGiven(state: BoosterState): BoosterState {
@@ -184,7 +184,7 @@ export function completed(state: BoosterState): BoosterState {
   return celebrate({
     ...state,
     status: "complete",
-    focus: reserveCount(state.bank, state.reserve) > 0 ? "open" : "back",
+    focus: reserveCount(state.bank, state.reserve) > 0 ? "open" : "home",
   })
 }
 

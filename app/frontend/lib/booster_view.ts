@@ -90,7 +90,6 @@ export function controls(state: BoosterState): Controls {
     open: reserveEmpty ? "empty" : state.phase === "dealt" ? "next" : "open",
     openDisabled: reserveEmpty || (state.phase === "dealt" && !everyRevealed),
     busy: state.phase === "opening" || state.revealingAll || isLocked || state.storing,
-    locked: isLocked,
     revealAllDisabled: !handOnTable || everyRevealed || state.revealingAll || state.storing || state.legendary !== null,
     tone: toneOf(state.status),
     hint: handOnTable ? hintOf(state, total, revealedCount, top) : null,

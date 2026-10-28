@@ -148,7 +148,6 @@ class BoosterTest < ApplicationSystemTestCase
       assert_selector ".booster__pip", count: 10
       assert_button "Open the capsule"
       assert_button "Reveal all", disabled: true
-      assert_link "Back to the bridge", href: "/en"
     end
     assert_focus ".booster__open"
     assert_no_selector ".booster__fallback", visible: true
@@ -385,7 +384,7 @@ class BoosterTest < ApplicationSystemTestCase
     click_on "Reveal all"
     assert_selector ".booster-card[data-revealed]", count: 5, wait: 10
     assert_button "Reserve empty", disabled: true
-    assert_focus ".booster__back"
+    assert_focus ".top-bar__home"
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "0"
   end
 
@@ -439,7 +438,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_no_selector ".booster-canister"
     assert_button "Reserve empty", disabled: true
     assert_selector ".booster__state", text: "WAITING"
-    assert_focus ".booster__back"
+    assert_focus ".top-bar__home"
   end
 
   test "an empty reserve whose next booster arrives while the screen shows: the screen refreshes and the booster can be opened" do
@@ -565,10 +564,7 @@ class BoosterTest < ApplicationSystemTestCase
 
     open_canister
     assert_selector "#{back}[aria-disabled=true][data-navigation-locked]"
-    assert_selector ".booster__back[aria-disabled=true]"
     find(back).click
-    assert_current_path "/en/booster"
-    find(".booster__back").click
     assert_current_path "/en/booster"
     assert_dealt(5)
     assert_no_selector "#{back}[aria-disabled]"
@@ -577,7 +573,6 @@ class BoosterTest < ApplicationSystemTestCase
     find(hit(1)).click
     assert_selector "#{back}[aria-disabled=true]"
     assert_no_selector "#{back}[aria-disabled]", wait: 10
-    assert_selector ".booster__back:not([aria-disabled])"
   end
 
   test "reached from a card, the back button to it is locked with the GAMEBLE link while the opening runs" do
@@ -613,7 +608,6 @@ class BoosterTest < ApplicationSystemTestCase
 
     find(hit(1)).click
     assert_selector "#{back}[aria-disabled=true]"
-    assert_selector ".booster__back[aria-disabled=true]"
     page.execute_script("document.querySelector(#{hit(2).to_json}).click()")
     click_on "Reveal all"
     sleep 0.5
@@ -717,7 +711,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster", visible: :hidden
     assert_no_selector ".booster-canister"
     assert_selector ".booster__fallback", text: /OPEN THE CAPSULE/
-    assert_link "Back to the bridge", href: "/en"
+    assert_no_link "Back to the bridge"
 
     click_button "Open the capsule"
     assert_current_path %r{\A/en/packs/[^/]+\z}
@@ -1060,7 +1054,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_pile(5)
     find(phone_hit(1)).click
     assert_selector "#{phone_card(1)}[data-revealed]"
-    assert_no_selector ".booster__back[aria-disabled=true]", wait: 5
+    assert_no_selector ".top-bar__home[aria-disabled=true]", wait: 5
     sleep 0.45
 
     face = "#{phone_card(1)} .booster-card__front .card"
@@ -1183,7 +1177,7 @@ class BoosterTest < ApplicationSystemTestCase
 
     find(phone_hit(1)).click
     assert_selector "#{phone_card(1)}[data-revealed]"
-    assert_no_selector "[aria-disabled=true].booster__back", wait: 5
+    assert_no_selector ".top-bar__home[aria-disabled=true]", wait: 5
     assert_operator infinite_loops, :<=, 6
   end
 

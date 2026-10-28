@@ -135,7 +135,7 @@ describe("openingRefused", () => {
   it("empties the bank with no pack left, the focus on the way back", () => {
     const state = running()
     const refused = openingRefused(state, { kind: "refused", code: "no_pack_available", message: "None" }, "Failed")
-    expect(refused).toMatchObject({ phase: "empty", status: "waiting", focus: "back" })
+    expect(refused).toMatchObject({ phase: "empty", status: "waiting", focus: "home" })
     expect(refused.bank).toMatchObject({
       available: 0,
       special: 0,
@@ -260,7 +260,7 @@ describe("revealEnded", () => {
     const last = revealMarked(dealt(["common", "rare"]), 0, 0)
     const complete = throughReveal(last, 1)
     expect(complete).toMatchObject({ status: "complete", revealing: [], focus: "open" })
-    expect(throughReveal({ ...last, bank: bank(0) }, 1).focus).toBe("back")
+    expect(throughReveal({ ...last, bank: bank(0) }, 1).focus).toBe("home")
   })
 
   it("leaves the hand open while cards stay face down, from Reveal all, or on the phone", () => {

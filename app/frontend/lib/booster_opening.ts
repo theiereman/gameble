@@ -73,7 +73,7 @@ export function openingRefused(state: BoosterState, result: OpeningRefusal, fail
     phase: empty ? "empty" : "sealed",
     reason: refused ? result.message : failed,
     opening: false,
-    focus: empty ? "back" : state.focus,
+    focus: empty ? "home" : state.focus,
   }
 }
 

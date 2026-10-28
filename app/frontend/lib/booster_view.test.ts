@@ -129,7 +129,6 @@ describe("controls", () => {
       open: "open",
       openDisabled: false,
       busy: false,
-      locked: false,
       revealAllDisabled: true,
       tone: "rest",
       hint: null,
@@ -163,8 +162,8 @@ describe("controls", () => {
     })
   })
 
-  it("marks the controls busy and locked while anything holds the navigation", () => {
-    expect(controls(lock(dealt()))).toMatchObject({ busy: true, locked: true })
+  it("marks the controls busy while anything holds the navigation", () => {
+    expect(controls(lock(dealt()))).toMatchObject({ busy: true })
     expect(controls({ ...dealt(), storing: true })).toMatchObject({ busy: true, revealAllDisabled: true })
     expect(controls(legendarySignalled(dealt(), 0))).toMatchObject({ revealAllDisabled: true, tone: "gold" })
   })

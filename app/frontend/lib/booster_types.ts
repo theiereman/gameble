@@ -35,9 +35,9 @@ export type OpeningOutcome = { kind: "opened" } | { kind: "refused"; code: strin
 
 export type TierCounts = Record<Rarity, number>
 
-export type Focus = "open" | "back" | "card" | { slot: number }
+export type Focus = "open" | "home" | "card" | { slot: number }
 
-export type FocusTarget = "open" | "back" | { card: number } | { slot: number }
+export type FocusTarget = "open" | "home" | { card: number } | { slot: number }
 
 export type Banner = { key: number; tier: Rarity; large: boolean; line: string | null; reduced: boolean }
 
@@ -107,7 +107,6 @@ export type Controls = Readonly<{
   open: OpenVariant
   openDisabled: boolean
   busy: boolean
-  locked: boolean
   revealAllDisabled: boolean
   tone: StatusTone
   hint: Hint | null

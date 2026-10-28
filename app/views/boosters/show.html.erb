@@ -9,5 +9,4 @@
   <% if @bank[:openable].positive? %>
     <%= render ButtonComponent.new(href: (@reserve == "special" ? packs_path(reserve: "special") : packs_path), method: :post) do %><%= t("booster.open") %><% end %>
   <% end %>
-  <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t("booster.back") %><% end %>
 </div>

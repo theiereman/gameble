@@ -806,7 +806,6 @@ fr:
       heading_bonus: "Votre capsule du jour"
       cards: "Les cartes de votre capsule"
       open_booster: "Ouvrir une capsule"
-      back_to_hub: "Retour au pont"
   library:
     entry:
       in_progress: "En cours"
@@ -1113,7 +1112,6 @@ fr:
       empty_special: "Aucune capsule spéciale pour le moment"
     reserve_empty: "Réserve vide"
     reveal_all: "Tout révéler"
-    back: "Retour au pont"
     canister_hint: "Cliquez pour ouvrir"
     canister_season: "Saison %{number}"
     result: "Résultat de la capsule"

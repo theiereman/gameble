@@ -56,7 +56,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".pack-result__card > a.card-link[data-turbo-prefetch=false] > .card.card--m", 5
     assert_select ".pack-result__card .card--booster", 0
     assert_select "[style]", 0
-    assert_equal [ "Open a capsule", "Back to the bridge" ], end_buttons
+    assert_equal [ "Open a capsule" ], end_buttons
     assert_select ".pack-end a.button--primary[href='/en/booster']", "Open a capsule"
     assert_select ".pack-end form", 0
 
@@ -129,10 +129,10 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     post packs_path(locale: :en)
     follow_redirect!
-    assert_equal [ "Back to the bridge" ], end_buttons
+    assert_empty end_buttons
 
     get pack_path(pack.token, locale: :en)
-    assert_equal [ "Back to the bridge" ], end_buttons
+    assert_empty end_buttons
   end
 
   test "the pack's page reads the reserve once, for its end and the packs chip, and never the daily bonus" do
@@ -144,7 +144,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_queries_match(/SELECT "game_packs"."kind", COUNT\(\*\), MIN\(available_at\)/, count: 1) do
       assert_no_queries_match(/game_daily_bonus_claims/) { get pack_path(pack.token, locale: :en) }
     end
-    assert_equal [ "Open a capsule", "Back to the bridge" ], end_buttons
+    assert_equal [ "Open a capsule" ], end_buttons
     assert_select ".packs-chip__count", "3"
   end
 
