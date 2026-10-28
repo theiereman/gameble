@@ -1685,7 +1685,7 @@ fr:
             still: "· Toutes révélées"
       concept:
         label: "01 · Concept"
-        title: "Chaque carte est un jeu Steam."
+        title: "Chaque carte est un jeu Steam"
         subtitle: "Les jeux sont triés sur le volet et importés selon un principe simple : plus un jeu est populaire, plus sa carte sera rare."
         cards_label: "Les cinq raretés, de la plus commune à la plus rare"
         per_card: "%{percent} par carte"
@@ -1743,7 +1743,7 @@ fr:
             reposted: "Nina a reposté Hades."
       how:
         label: "03 · Comment ça marche"
-        title: "Un travail de longue haleine vous attend."
+        title: "Un travail de longue haleine vous attend"
         subtitle: "Ouvrir, révéler, collectionner, échanger. Ces quatre gestes vous suffiront à faire progresser la mission de la Confrérie."
         join:
           title: "Rejoignez-la"
@@ -1765,7 +1765,7 @@ fr:
           set: "Set Roguelike · en cours"
       live:
         label: "04 · En direct"
-        title: "La Confrérie joue en ce moment."
+        title: "La Confrérie joue en ce moment"
         subtitle: "Les dernières entrées du fil d'activité, et la saison en cours."
         feed: "Fil d'activité"
         empty: "Aucune activité pour l'instant."
@@ -1778,7 +1778,7 @@ fr:
           discoveries: "Premières découvertes cette semaine"
       unlock:
         label: "05 · À faire et à débloquer"
-        title: "De quoi remplir la soute."
+        title: "De quoi remplir la soute"
         subtitle: "Des sets à compléter, des amis avec qui échanger, un objectif commun chaque semaine."
         soon: "Bientôt"
         tiles:
@@ -1816,7 +1816,7 @@ fr:
             unique: "Cartes uniques"
       roadmap:
         label: "06 · Feuille de route"
-        title: "Un aperçu des prochaines évolutions."
+        title: "Un aperçu des prochaines évolutions"
         subtitle: "La collection se construit avec la communauté, le jeu aussi."
         line_label: "Étapes de la feuille de route, des plus anciennes aux plus lointaines"
         statuses:
@@ -1826,9 +1826,9 @@ fr:
         all: "Voir toute la feuille de route"
       open_source:
         label: "07 · Open source et contributions"
-        title: "Open source et développé avec l'IA."
+        title: "Open source et développé avec l'IA"
         subtitle: "Le code est entièrement libre et tout le monde peut contribuer au projet. Les tâches fastidieuses sont faites par l'IA, le reste est construit par des humains, pour des humains."
-        recruiting: "Nous recrutons des personnes dévouées à la Confrérie."
+        recruiting: "Nous recrutons des personnes dévouées à la Confrérie"
         open_role: "Poste ouvert"
         roles:
           artists:
@@ -1845,18 +1845,18 @@ fr:
         license: "Licence libre. Chaque contribution est relue par l'auteur."
       free:
         label: "08 · Un jeu libre"
-        title: "Un jeu libre, qui vous respecte."
+        title: "Un jeu libre, qui vous respecte"
         open: "Gameble est gratuit et ouvert. Tout le monde y joue à égalité, et chacun peut voir comment il fonctionne."
         respect: "Vos données ne sont ni revendues ni exploitées. Aucune publicité ne s'intercale entre vous et vos cartes."
         support:
           kicker: "Soutenir Gameble"
-          line: "Pour continuer de tourner, le projet a besoin de soutien."
+          line: "Pour continuer de tourner, le projet a besoin de soutien"
           text: "Si Gameble vous plaît, vous pouvez l'aider."
           button: "Soutenir"
           hint: "(site de dons, nouvel onglet)"
       boarding:
         label: "09 · Embarquement"
-        title: "Dix capsules vous attendent."
+        title: "Dix capsules vous attendent"
         line: "Elles sont dans votre réserve dès votre première connexion."
         reserve: "Réserve : 10 / 10"
       footer:

@@ -1099,7 +1099,7 @@ en:
         label: '09 · Boarding'
         line: They are in your reserve from your first sign-in.
         reserve: 'Reserve: 10 / 10'
-        title: Ten capsules await you.
+        title: Ten capsules await you
       brotherhood:
         goal:
           ends: Ends %{time}. The next goal opens right away.
@@ -1167,7 +1167,7 @@ en:
         per_card: "%{percent} per card"
         subtitle: 'Games are hand-picked and imported on one simple principle: the
           more popular a game, the rarer its card.'
-        title: Every card is a Steam game.
+        title: Every card is a Steam game
       description: Every card is a Steam game. Open capsules, complete sets, trade
         with friends and join the Brotherhood in its search for lost games. Free to
         play.
@@ -1190,9 +1190,9 @@ en:
           button: Support
           hint: "(donation site, new tab)"
           kicker: Support Gameble
-          line: To keep running, the project needs support.
+          line: To keep running, the project needs support
           text: If you enjoy Gameble, you can help it.
-        title: A free game that respects you.
+        title: A free game that respects you
       gauge:
         label: Position on the page
       hero:
@@ -1233,7 +1233,7 @@ en:
         label: 03 · How it works
         subtitle: Open, reveal, collect, trade. These four gestures are all you need
           to advance the Brotherhood's mission.
-        title: Long work awaits you.
+        title: Long work awaits you
       live:
         empty: No activity yet.
         facts:
@@ -1246,14 +1246,14 @@ en:
         season: Current season
         season_name: Season %{number} · Grand catalogue
         subtitle: The latest entries of the activity feed, and the current season.
-        title: The Brotherhood is playing right now.
+        title: The Brotherhood is playing right now
       open_source:
         label: 07 · Open source and contributions
         license: Free license. Every contribution is reviewed by the author.
         open_role: Open position
         project: See the project
         project_hint: "(GitHub, new tab)"
-        recruiting: We are recruiting people devoted to the Brotherhood.
+        recruiting: We are recruiting people devoted to the Brotherhood
         roles:
           artists:
             text: Music, sounds, card backs, illustrations… The list is long. It awaits
@@ -1269,7 +1269,7 @@ en:
             title: Narrators and scribes
         subtitle: The code is entirely free and anyone can contribute to the project.
           Tedious tasks are done by AI; the rest is built by humans, for humans.
-        title: Open source and built with AI.
+        title: Open source and built with AI
       roadmap:
         all: See the whole roadmap
         label: 06 · Roadmap
@@ -1279,7 +1279,7 @@ en:
           in_progress: In progress
           to_come: To come
         subtitle: The collection is built with the community, and so is the game.
-        title: A look at what comes next.
+        title: A look at what comes next
       structured_data:
         genre: Trading card game
       title: Gameble, a free trading card game of Steam games
@@ -1326,7 +1326,7 @@ en:
               you the collection of your dreams.
             title: Trades between friends
             you_give: You give
-        title: Enough to fill the hold.
+        title: Enough to fill the hold
   layouts:
     application:
       application_name: Gameble
