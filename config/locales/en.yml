@@ -1924,6 +1924,15 @@ en:
       settings: Profile and settings
       subtitle: The rest of the ship
       title: More
+  profile_titles:
+    ranks:
+      adept: Adept
+      apprentice: Apprentice
+      complete: Completionist
+      expert: Expert
+      master: Master
+      novice: Novice
+    title: "%{rank} · %{set}"
   public_profiles:
     collection:
       heading: Collection · %{name}

@@ -1,16 +1,13 @@
-# Pagy's dictionary in English, in the Brotherhood's voice, read by
-# Pagy::I18n only (config/initializers/pagy.rb): its plural rule, then the
-# words of the page links. Kept apart from en.yml, which Pagy would
-# otherwise load whole.
+---
 en:
   pagy:
-    p11n: "OneOther"
     aria_label:
       nav:
-        one: "The shelf"
-        other: "The shelves"
-      previous: "The previous shelf"
-      next: "The next shelf"
-    previous: "&lt;"
-    next: "&gt;"
+        one: The shelf
+        other: The shelves
+      next: The next shelf
+      previous: The previous shelf
     gap: "&hellip;"
+    next: "&gt;"
+    p11n: OneOther
+    previous: "&lt;"
