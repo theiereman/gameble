@@ -45,12 +45,23 @@ hitl = false
 risk = "medium"
 
 [[entry]]
+id = 6
+type = "story"
+title = "The showcase is edited on the Personalization page"
+description = "On the Personalization page the player edits their profile showcase as on their public profile: the cards in order, the move left and right buttons with their accessible names and polite announcement, drag to reorder (the showcase-order controller), and the remove button, through the existing showcase endpoints; the strings in en.yml and fr.yml reuse the public profile's copy, and the page's showcase section shows the empty state when no card is chosen."
+verify = "A system test reorders a card with the arrow buttons and removes another on the Personalization page, sees the new order on the public profile and on the hub, in English and French; keyboard use and the announcement work as on the public profile."
+covers = ["R1"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 5
 type = "story"
 title = "Refactor sweep"
 description = "Removes duplication and divergent conventions the other entries of this epic introduced, and cuts any file left over its size limit, keeping behaviour, URLs and markup as they are."
 verify = "bin/ci, npm run test:js and bin/rails zeitwerk:check pass and script/check_file_sizes reports no file over its limit."
 covers = []
-after = [1, 2, 3, 4]
+after = [1, 2, 3, 4, 6]
 hitl = false
 risk = "low"

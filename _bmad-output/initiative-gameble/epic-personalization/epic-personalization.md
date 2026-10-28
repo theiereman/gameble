@@ -26,7 +26,7 @@ For a player: one place to choose what their collecting looks like, and a title 
 
 Source: CAP-20 and CAP-22 of the spec, AD-25 of the architecture, the UX session of 2026-10-28 (DESIGN.md and EXPERIENCE.md, Personnalisation).
 
-- R1. A Personnalisation page behind the player menu holds the sections the pickers fill; the profile showcase summary moves to it from the settings. Source: author, 2026-10-28.
+- R1. A Personnalisation page behind the player menu holds the sections the pickers fill; the profile showcase moves to it from the settings and is edited there as on the public profile (order and removal). Source: author, 2026-10-28.
 - R2. The player picks one active card back on the page, each back showing its state or its unlock condition; it applies from the next pack opened. Source: CAP-20 (the picker was on the settings screen before the session).
 - R3. The player picks one active profile title among those earned, or none, and it shows on their profile, in the feed and in trades. Source: CAP-22.
 
@@ -52,3 +52,4 @@ The page, the two pickers and the display of the title. Not the back catalogue, 
 - Decision (2026-10-28, author): one epic for the Personnalisation page, the card back picker and the title picker; it gathers the entries that were 9.4 and 9.10 of epic-card-backs and 24.2 and 24.3 of epic-profile-titles.
 - Decision (2026-10-28, agent's choice, for the author to confirm): the entries that read the active back (9.5, 9.7) no longer wait on the picker, because the active back is stored by 9.1 whatever screen sets it; this keeps the dependency between epic-card-backs and this epic one-way.
 - Decision (2026-10-28, author): the title picker lists only earned titles, grouped by rank, with "Aucun titre" first.
+- Decision (2026-10-28, author): the showcase is editable on the Personalization page as on the public profile; 26.1 moves it in read-only form and entry 26.6 adds the editing.
