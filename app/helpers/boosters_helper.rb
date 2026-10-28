@@ -23,7 +23,7 @@ module BoostersHelper
       booster_bank_url_value: booster_path(format: :json), booster_delimiter_value: t("number.format.delimiter"),
       booster_pack_size_value: Game::Pack::SIZE, booster_season_value: season&.number || 0,
       booster_bank_value: booster_bank_values(values), booster_reserve_value: reserve,
-      booster_strings_value: screen_strings("booster.strings")
+      booster_strings_value: screen_strings("booster.strings"), origin: booster_origin_kind(bank, reserve)
     }.merge(screen_outlets("booster", BOOSTER_ACTIONS.keys + BOOSTER_CHILDREN))
   end
 
@@ -48,6 +48,10 @@ module BoostersHelper
 
   def booster_reserve_size(bank, reserve)
     reserve.to_s == "special" ? bank[:special] : bank[:available]
+  end
+
+  def booster_origin_kind(bank, reserve)
+    bank[:next_special_kind].presence if reserve.to_s == "special"
   end
 
   def booster_origin(bank, reserve)

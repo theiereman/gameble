@@ -77,6 +77,14 @@
   height: 40px;
 }
 
+.booster[data-origin="bonus"] .booster-canister__body {
+  background-image: url("../images/pixel/canister-body-daily.png");
+}
+
+.booster[data-origin="reward"] .booster-canister__body {
+  background-image: url("../images/pixel/canister-body-goal.png");
+}
+
 .booster-canister__cap--top {
   top: 0;
   background-image: url("../images/pixel/canister-cap-top.png");
@@ -141,6 +149,29 @@
 .booster-canister__led--cap {
   left: 160px;
   top: 14px;
+}
+
+.booster[data-origin="bonus"] .booster-canister__led {
+  background: var(--color-capsule-daily);
+}
+
+.booster[data-origin="reward"] .booster-canister__led {
+  background: var(--color-capsule-goal);
+}
+
+.booster[data-origin="bonus"] .booster-canister__line,
+.booster[data-origin="reward"] .booster-canister__line {
+  color: var(--color-outline);
+}
+
+.booster[data-origin="bonus"] .booster__origin,
+.booster[data-origin="bonus"] .booster__row--origin .booster__value {
+  color: var(--color-capsule-daily);
+}
+
+.booster[data-origin="reward"] .booster__origin,
+.booster[data-origin="reward"] .booster__row--origin .booster__value {
+  color: var(--color-capsule-goal);
 }
 
 /* Armed: the LEDs and the hazard band turn orange, steadily. */

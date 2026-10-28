@@ -30,6 +30,7 @@ import { dirname, join, relative, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { deflateSync, inflateSync } from "node:zlib"
 import { SET_BACK_DESIGNS, drawSetBack, setBackName } from "./set_backs.mjs"
+import { EMBLEM_SIZE, ORIGIN_LOOKS, drawEmblem, originBodyFile } from "./origin_canisters.mjs"
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..")
 const ART_PIXEL = 2
@@ -1015,7 +1016,8 @@ const CANISTER = (() => {
     if (top) { rc(g, 75, 4, 15, 10, "#06090d"); rc(g, 76, 5, 13, 8, "#0e141b"); rc(g, 76, 5, 13, 1, "#06090d"); rc(g, 76, 12, 13, 1, "#2a475e") } // indicator window
     return g
   }
-  function body() {
+  const STANDARD_BAND = { top: "#e6f6ff", second: "#b5e2ff", body: "#66c0f4", stripe: "#5cb6ea", dark: "#2a6f9a", edge: "#1f5a80" }
+  function body(band = STANDARD_BAND, origin = null) {
     const g = canvas(W, 110)
     for (let y = 0; y < 110; y++) {
       for (let x = 0; x < W; x++) {
@@ -1034,12 +1036,12 @@ const CANISTER = (() => {
     for (let y = 15; y <= 49; y++) { // label band
       for (let x = 1; x < W - 1; x++) {
         const t = cyl(x)
-        let col = y === 15 ? "#e6f6ff" : y === 16 ? "#b5e2ff" : y === 49 ? "#1f5a80" : y === 48 ? "#2a6f9a" : (y % 3 === 0 ? "#5cb6ea" : "#66c0f4")
-        if (t < 0.04) col = mixc(col, "#ffffff", 0.22); else if (t > 0.75) col = mixc(col, "#1f5a80", (t - 0.75) * 1.7)
+        let col = y === 15 ? band.top : y === 16 ? band.second : y === 49 ? band.edge : y === 48 ? band.dark : (y % 3 === 0 ? band.stripe : band.body)
+        if (t < 0.04) col = mixc(col, "#ffffff", 0.22); else if (t > 0.75) col = mixc(col, band.edge, (t - 0.75) * 1.7)
         pc(g, x, y, col)
       }
     }
-    for (const x0 of [4, W - 14]) for (let y = 19; y <= 45; y++) for (let x = x0; x < x0 + 10; x++) if (((x + y) >> 1) % 3 === 0) pc(g, x, y, "#2a6f9a")
+    for (const x0 of [4, W - 14]) for (let y = 19; y <= 45; y++) for (let x = x0; x < x0 + 10; x++) if (((x + y) >> 1) % 3 === 0) pc(g, x, y, band.dark)
     const wx = 35, wy = 55, ww = 30, wh = 32 // emblem window
     rc(g, wx - 1, wy - 1, ww + 2, wh + 2, "#06090d"); rc(g, wx, wy, ww, wh, "#c7d5e0"); rc(g, wx, wy, ww, 1, "#f2f7fb"); rc(g, wx, wy, 1, wh, "#f2f7fb")
     rc(g, wx, wy + wh - 1, ww, 1, "#8f98a0"); rc(g, wx + ww - 1, wy, 1, wh, "#8f98a0")
@@ -1048,14 +1050,15 @@ const CANISTER = (() => {
     }
     rc(g, wx + 2, wy + 2, ww - 4, 1, "#06090d"); rc(g, wx + 2, wy + 2, 1, wh - 4, "#06090d")
     const mk = 2
-    drawMonogram(g, wx + (ww - MONOGRAM_WIDTH * mk) / 2, wy + (wh - MONOGRAM_HEIGHT * mk) / 2, mk)
+    if (origin) drawEmblem(g, wx + (ww - EMBLEM_SIZE + 1) / 2 | 0, wy + (wh - EMBLEM_SIZE) / 2 | 0, origin)
+    else drawMonogram(g, wx + (ww - MONOGRAM_WIDTH * mk) / 2, wy + (wh - MONOGRAM_HEIGHT * mk) / 2, mk)
     for (const [x, y] of [[5, 7], [93, 7], [5, 100], [93, 100]]) { rc(g, x, y, 2, 2, "#8f98a0"); pc(g, x, y, "#f2f7fb"); pc(g, x + 1, y + 1, "#3d4a57") } // rivets
     rc(g, 65, 89, 28, 12, "#06090d"); rc(g, 66, 90, 26, 10, "#121a24"); rc(g, 66, 99, 26, 1, "#2a475e") // LED plate (the LEDs are a page layer)
     rc(g, 7, 89, 48, 8, "#06090d") // hazard frame (the band is a page layer)
     for (let x = 8; x < 54; x++) { if ((x * 7) % 5 < 2) continue; rc(g, x, 99, 1, (x * 3) % 4 ? 3 : 5, "#5d6b7c") } // barcode
     return g
   }
-  return { top: cap(true), body: body(), bottom: cap(false) }
+  return { top: cap(true), body: body(), bottom: cap(false), origins: ORIGIN_LOOKS.map((look) => [look, body(look.band, look)]) }
 })()
 
 // The ringed planet under the hub showcase (showcase), 200 × 200.
@@ -1253,6 +1256,7 @@ for (const design of SET_BACK_DESIGNS) {
 files.set("canister-cap-top.png", CANISTER.top)
 files.set("canister-body.png", CANISTER.body)
 files.set("canister-cap-bottom.png", CANISTER.bottom)
+for (const [look, body] of CANISTER.origins) files.set(originBodyFile(look), body)
 files.set("planet.png", drawPlanet())
 files.set("favicon.png", faviconPng())
 for (const [key, colour] of Object.entries(AVATARS)) files.set(`avatar-${colour}.png`, avatarCanvas(key))
@@ -1304,6 +1308,8 @@ const DESCRIPTIONS = {
   "canister-cap-top.png": "Canister top cap: steel grip, collar, indicator window, 100 × 20",
   "canister-body.png": "Canister body: slate cylinder, label band, emblem window with the gold G monogram, rivets, LED plate, barcode, 100 × 110",
   "canister-cap-bottom.png": "Canister bottom cap: steel grip and collar, 100 × 20",
+  ...Object.fromEntries(ORIGIN_LOOKS.map((look) => [originBodyFile(look),
+    `${look.title} canister body: the label band and the window's ${look.emblemName} emblem in the origin's colour, 100 × 110`])),
   "planet.png": "Ringed planet under the hub showcase: slate and blue bands, a lit ring, 200 × 200",
   "favicon.png": "Home-screen icon: the wordmark's gold G, 20 screen pixels per glyph pixel, 180 × 180",
   ...Object.fromEntries(Object.entries(AVATARS).map(([key, colour]) => [`avatar-${colour}.png`, `Avatar, ${colour} palette (“${key}” in the prototype), 16 × 16`])),
@@ -1388,8 +1394,8 @@ function sheetHtml() {
     `<tr><th scope="row"><b>${escape(title)}</b><span>${escape(look)}</span></th>${sizes.map((size) => `<td>${item(`back-${name}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
   const setBackRows = SET_BACK_DESIGNS.map((design) =>
     `<tr><th scope="row"><b>${escape(design.word)}</b><span>${escape(`${design.key}, ${design.kind.replace(/_/g, " ")} set`)}</span></th>${sizes.map((size) => `<td>${item(`back-${setBackName(design)}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
-  const canisterParts = ["canister-cap-top.png", "canister-body.png", "canister-cap-bottom.png"]
-  const assembled = canisterParts.map((file) => image(file)).join("")
+  const canisterParts = ["canister-cap-top.png", "canister-body.png", "canister-cap-bottom.png", ...ORIGIN_LOOKS.map(originBodyFile)]
+  const assembled = canisterParts.slice(0, 3).map((file) => image(file)).join("")
   return `<!doctype html>
 <html lang="en">
 <head>

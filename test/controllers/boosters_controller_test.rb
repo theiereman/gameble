@@ -388,4 +388,29 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "standard", value("reserve")
     assert_select "#{ROOT} [role=tab][data-reserve=special][disabled]", text: /No special capsule yet/
   end
+
+  test "each special origin is told to the screen so the canister wears its own look" do
+    create_pack(@player, kind: :bonus, available_at: 1.hour.ago)
+    sign_in(@player)
+
+    get booster_path(locale: :en)
+    assert_select "#{ROOT}[data-origin=bonus]"
+
+    Game::Pack.where(player_id: @player.id).delete_all
+    create_pack(@player, kind: :reward, available_at: 1.hour.ago)
+
+    get booster_path(locale: :en)
+    assert_select "#{ROOT}[data-origin=reward]"
+  end
+
+  test "the standard reserve carries no origin look, even with a special capsule waiting" do
+    create_pack(@player, available_at: 1.hour.ago)
+    create_pack(@player, kind: :bonus, available_at: 1.hour.ago)
+    sign_in(@player)
+
+    get booster_path(locale: :en)
+
+    assert_equal "standard", value("reserve")
+    assert_select "#{ROOT}[data-origin]", 0
+  end
 end

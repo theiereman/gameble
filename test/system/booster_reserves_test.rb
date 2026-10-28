@@ -48,6 +48,19 @@ class BoosterReservesTest < ApplicationSystemTestCase
     assert_selector "#{tab(:standard)}[aria-selected=true]"
   end
 
+  test "each origin's canister wears its look on the special tab and the standard tab drops it" do
+    create_pack(@player, available_at: 3.hours.ago)
+    create_pack(@player, kind: :reward, available_at: 2.hours.ago)
+    visit booster_path(locale: :en)
+
+    assert_no_selector "#booster[data-origin]"
+    find(tab(:special)).click
+    assert_selector "#booster[data-origin=reward]"
+    assert_selector ".booster__origin", text: "GOAL REWARD"
+    find(tab(:standard)).click
+    assert_no_selector "#booster[data-origin]"
+  end
+
   test "with no standard capsule the screen opens on the special tab and the standard tab says why it is off" do
     create_pack(@player, kind: :reward, available_at: 1.hour.ago)
     visit booster_path(locale: :en)

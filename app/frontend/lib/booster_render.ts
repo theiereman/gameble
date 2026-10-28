@@ -40,6 +40,7 @@ export class BoosterRenderer {
 
     this.renderReserves(state)
     element.dataset.reserve = state.reserve
+    this.renderOriginLook(state)
     this.renderInfo(state, view)
     this.renderActions(state, view)
     this.renderCanister(state)
@@ -71,15 +72,26 @@ export class BoosterRenderer {
     return state.bank.nextPackSize ?? this.host.packSize
   }
 
-  private originName(state: BoosterState): string | null {
+  private originKind(state: BoosterState): string | null {
     if (state.reserve !== "special") return null
-    const kind = state.phase === "dealt" ? state.answer?.pack.kind : state.bank.nextSpecialKind
+    return (state.phase === "dealt" ? state.answer?.pack.kind : state.bank.nextSpecialKind) || null
+  }
+
+  private originName(state: BoosterState): string | null {
+    const kind = this.originKind(state)
     const names: Record<string, string> = {
       bonus: this.strings.originBonus,
       reward: this.strings.originReward,
       regular: this.strings.originRegular,
     }
     return (kind && names[kind]) || null
+  }
+
+  private renderOriginLook(state: BoosterState): void {
+    const { element } = this.host
+    const kind = this.originKind(state)
+    if (kind && kind !== "regular") element.dataset.origin = kind
+    else delete element.dataset.origin
   }
 
   private renderReserves(state: BoosterState): void {

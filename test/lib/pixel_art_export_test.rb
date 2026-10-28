@@ -123,6 +123,20 @@ class PixelArtExportTest < ActiveSupport::TestCase
     AVATAR_COLOURS.each { |colour| assert_equal [ 16, 16 ], png_size("avatar-#{colour}.png"), colour }
   end
 
+  test "each special origin has its own canister body: the label band and the window emblem change, nothing else" do
+    standard = png_pixels("canister-body.png")
+    { "daily" => [ 244, 197, 66, 255 ], "goal" => [ 214, 64, 58, 255 ] }.each do |origin, colour|
+      body = png_pixels("canister-body-#{origin}.png")
+
+      assert_equal [ 100, 110 ], png_size("canister-body-#{origin}.png")
+      assert_equal colour, body[[ 50, 17 ]], origin
+      assert_not_equal standard[[ 50, 17 ]], body[[ 50, 17 ]], origin
+      assert_includes (35..64).flat_map { |x| (55..86).map { |y| body[[ x, y ]] } }, colour, "#{origin} emblem"
+      unchanged = body.keys.reject { |x, y| (15..49).cover?(y) || ((34..65).cover?(x) && (54..87).cover?(y)) }
+      assert_equal standard.values_at(*unchanged), body.values_at(*unchanged), "#{origin} body outside the band and the window"
+    end
+  end
+
   test "the top bar's sweep strip holds the rest frame and 22 sweep frames, and rests on the wordmark" do
     sweep = PIXEL_DIR.join("wordmark-sweep.svg").read
     base, frames = sweep.split('<g class="wordmark-sweep__frames">')
@@ -188,6 +202,21 @@ class PixelArtExportTest < ActiveSupport::TestCase
     assert_equal (width * 4 + 1) * height, rows.size
     rows[1] ^= 0xff
     File.binwrite(path, bytes.byteslice(0, 33) + png_chunk("IDAT", Zlib::Deflate.deflate(rows.pack("C*"))) + png_chunk("IEND", ""))
+  end
+
+  # Every pixel's [r, g, b, a] by [x, y], from the filter-0 rows the export writes.
+  def png_pixels(file)
+    bytes = File.binread(PIXEL_DIR.join(file))
+    width, height = bytes.byteslice(16, 8).unpack("NN")
+    idat = String.new
+    position = 8
+    while position < bytes.bytesize
+      length, type = bytes.byteslice(position, 8).unpack("Na4")
+      idat << bytes.byteslice(position + 8, length) if type == "IDAT"
+      position += 12 + length
+    end
+    rows = Zlib::Inflate.inflate(idat).bytes
+    (0...height).flat_map { |y| (0...width).map { |x| [ [ x, y ], rows.slice(y * (width * 4 + 1) + 1 + x * 4, 4) ] } }.to_h
   end
 
   def png_chunk(type, data)
