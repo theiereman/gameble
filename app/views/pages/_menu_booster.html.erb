@@ -4,10 +4,14 @@
     <span class="menu-item__number" aria-hidden="true">01</span>
     <span class="menu-item__label"><%= t("pages.home.menu.open_booster") %></span>
     <% if bank[:available].positive? %>
-      <span class="menu-item__badge" aria-hidden="true"><%= number_with_delimiter(bank[:available]) %></span>
+      <span class="menu-item__badge menu-item__badge--standard" aria-hidden="true"><%= number_with_delimiter(bank[:available]) %></span>
       <span class="visually-hidden"><%= t("pages.home.menu.reserve", count: bank[:available], number: number_with_delimiter(bank[:available])) %></span>
-    <% else %>
-      <span class="menu-item__badge menu-item__badge--zero" aria-hidden="true">0</span>
+    <% end %>
+    <% if bank[:special].positive? %>
+      <span class="menu-item__badge menu-item__badge--special" aria-hidden="true"><%= number_with_delimiter(bank[:special]) %></span>
+      <span class="visually-hidden"><%= t("pages.home.menu.special", count: bank[:special], number: number_with_delimiter(bank[:special])) %></span>
+    <% end %>
+    <% if bank[:openable].zero? %>
       <span class="visually-hidden"><%= t("pages.home.menu.reserve_empty") %></span>
     <% end %>
     <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>

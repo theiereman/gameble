@@ -3,9 +3,6 @@
     <%= render "pages/daily_booster", bank: @bank, primary: false, arc: @collected %>
   <% end %>
 <% end %>
-<% if @goal_reward && !@goal_reward[:claimed] %>
-  <%= turbo_stream.replace "goal-reward", partial: "pages/goal_reward", locals: { reward: @goal_reward, bank: @bank } %>
-<% end %>
 <%= turbo_stream.replace "packs-chip", partial: "shell/packs_chip", locals: { bank: @bank, refresh: true } %>
 <%= turbo_stream.replace "hub-menu-booster", partial: "pages/menu_booster", locals: { bank: @bank } %>
 <%= turbo_stream.replace "hub-showcase-actions", partial: "pages/showcase_actions", locals: { bank: @bank } %>

@@ -884,12 +884,9 @@ en:
         you asked for.
       requested_cards_unavailable: 'Not enough copies: a card asked for is no longer
         available. Nothing moved.'
-      reserve_full: 'Your reserve is full: open a capsule to collect today''s.'
       reward_already_claimed: You have already collected this rare capsule.
       reward_no_season: No card season is open. Come back later for your rare capsule.
       reward_not_earned: No rare capsule waits for you for that week.
-      reward_reserve_full: 'Your reserve is full: open a capsule to collect your rare
-        capsule.'
       showcase_edge: This card cannot move any further.
       showcase_full: 'Showcase full: remove a card to add another.'
       trade_already_open: You already have an open trade with this friend. Settle
@@ -1530,8 +1527,6 @@ en:
       daily:
         collect: Collect
         collected: Collected
-        full: Reserve full
-        full_text: Open a capsule to collect today's.
         next_at: 'Next capsule: %{time}'
         next_in: Next in
         ready: Ready
@@ -1541,7 +1536,6 @@ en:
         collect: Collect
         collect_label: Collect the reward capsule
         collected: Collected
-        full_text: Open a capsule to collect your rare capsule.
         line: The Brotherhood invites its members to join forces and open %{target}
           capsules this week.
         players: All players
@@ -1576,6 +1570,9 @@ en:
           one: "%{number} capsule in reserve"
           other: "%{number} capsules in reserve"
         reserve_empty: Reserve empty
+        special:
+          one: "%{number} special capsule"
+          other: "%{number} special capsules"
         support: Support
         trades: Trades
         trades_waiting:
@@ -1615,15 +1612,12 @@ en:
         content:
           one: It holds %{count} card, never a %{common} one.
           other: It holds %{count} cards, never a %{common} one.
-        full:
-          one: 'It is refused while your reserve holds %{count} capsule or more ready
-            to open: open one first.'
-          other: 'It is refused while your reserve holds %{count} capsules or more
-            ready to open: open one first.'
         once: Once a day, a free capsule waits for you on the bridge. The day changes
           at %{time}.
         outside: It comes on top of the standard capsules, without counting toward
           their limit and without delaying them.
+        special: 'It joins your special reserve, which has no limit: it is never refused,
+          even when your standard reserve is full.'
         title: The daily capsule
       goal:
         counts: Every capsule opened counts toward it, and so does every completed
@@ -1631,12 +1625,10 @@ en:
         reward:
           one: 'When the goal is reached, every player who contributed earns a reward
             capsule: %{count} card, at least one of them %{rarity} or better. If you
-            contributed, you collect it on the hub while your reserve holds fewer
-            than %{full} capsules.'
+            contributed, you collect it on the hub and it joins your special reserve.'
           other: 'When the goal is reached, every player who contributed earns a reward
             capsule: %{count} cards, at least one of them %{rarity} or better. If
-            you contributed, you collect it on the hub while your reserve holds fewer
-            than %{full} capsules.'
+            you contributed, you collect it on the hub and it joins your special reserve.'
         title: The community goal
         week: Every week, for seven days from %{time}, all players aim at one goal
           together.
@@ -2121,6 +2113,9 @@ en:
       label: Capsules
       next_at: 'Next capsule: %{time}'
       next_in: "+1 in"
+      special_label:
+        one: special
+        other: special
     player:
       back_office: Back-office
       fallback_name: Player

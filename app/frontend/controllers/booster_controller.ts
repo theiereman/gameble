@@ -10,6 +10,7 @@ import { gameplayFor, type Gameplay } from "../lib/booster_gameplay"
 import { BoosterFaces } from "../lib/booster_faces"
 import { LayoutWatch } from "../lib/booster_layout_watch"
 import { BoosterRenderer } from "../lib/booster_render"
+import type { BankValues } from "../lib/booster_markup"
 import type { BoosterStrings } from "../lib/booster_render_host"
 import { BoosterCountdown, browserCountdown } from "../lib/booster_countdown"
 import { swipeStores } from "../lib/booster_motion"
@@ -58,11 +59,7 @@ export class BoosterController extends Controller<HTMLElement> {
     delimiter: String,
     packSize: Number,
     season: Number,
-    available: Number,
-    reserveFull: Boolean,
-    nextAvailableAt: String,
-    serverTime: String,
-    nextPackSize: Number,
+    bank: Object,
     strings: Object,
   }
   static outlets = [
@@ -93,11 +90,7 @@ export class BoosterController extends Controller<HTMLElement> {
   declare readonly delimiterValue: string
   declare readonly packSizeValue: number
   declare readonly seasonValue: number
-  declare readonly availableValue: number
-  declare readonly reserveFullValue: boolean
-  declare readonly nextAvailableAtValue: string
-  declare readonly serverTimeValue: string
-  declare readonly nextPackSizeValue: number
+  declare readonly bankValue: BankValues
   declare readonly stringsValue: BoosterStrings
   declare readonly boosterInfoOutlets: BoosterInfoController[]
   declare readonly hasBoosterActionsOutlet: boolean
@@ -150,13 +143,7 @@ export class BoosterController extends Controller<HTMLElement> {
     this.faces.readFaces(this.faceTargets)
     this.assembleCollaborators()
     this.state = startingState({
-      bank: {
-        available: this.availableValue,
-        reserveFull: this.reserveFullValue,
-        nextAvailableAt: this.nextAvailableAtValue,
-        serverTime: this.serverTimeValue,
-        nextPackSize: this.nextPackSizeValue,
-      },
+      bank: this.bankValue,
       pack: this.hasPackTarget ? this.packTarget.dataset : null,
       cards: this.cardTargets.map((card) => card.dataset),
       setTiers: this.setTierTargets.map((row) => row.dataset),

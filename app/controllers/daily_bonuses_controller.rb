@@ -10,7 +10,6 @@ class DailyBonusesController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         @bank = Game::BankSummary.call(current_player)
-        @goal_reward = Game::GoalRewardStatus.call(current_player) if @bank[:reserve_full]
         @message = helpers.local_time_sentence(@bank[:next_bonus_at]) { message(result, time: it) }
         @tone = tone
         @collected = result.success?

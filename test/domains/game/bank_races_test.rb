@@ -128,18 +128,15 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     %i[player moderator administrator].each { |name| assert_equal 10, bank(accounts_players(name)).count, name }
   end
 
-  test "a daily bonus and the publication's fill at once for a player with no pack: ten packs, filled once, the bonus whole or refused" do
+  test "a daily bonus and the publication's fill at once for a player with no pack: ten packs, filled once, the bonus whole" do
     collected, filling = race(bonus, fill)
 
     assert_predicate filling, :success?
+    assert_predicate collected, :success?
     assert_equal 10, bank.count
     assert_equal 1, filled
-    # The bonus first fills the bank itself, then adds its pack; after the
-    # fill, the reserve holds ten available packs and refuses it, unclaimed.
-    expected = collected.success? ? 1 : 0
-    assert_equal :reserve_full, collected.failure unless collected.success?
-    assert_equal expected, Game::Pack.where(player_id: @player.id).bonus.count
-    assert_equal expected, Game::DailyBonusClaim.where(player_id: @player.id).count
+    assert_equal 1, Game::Pack.where(player_id: @player.id).bonus.count
+    assert_equal 1, Game::DailyBonusClaim.where(player_id: @player.id).count
   end
 
   test "a daily bonus and a heal at once on a short bank: ten packs and the bonus" do

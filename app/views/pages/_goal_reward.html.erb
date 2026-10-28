@@ -1,11 +1,8 @@
-<% state = reward[:claimed] ? :collected : (bank[:reserve_full] ? :full : :ready) %>
+<% state = reward[:claimed] ? :collected : :ready %>
 <div id="goal-reward" class="hub-goal__claim hub-goal__claim--<%= state %>">
   <% case state %>
   <% when :collected %>
     <p class="hub-goal__claim-state"><%= t("pages.home.goal.collected") %></p>
-  <% when :full %>
-    <%= render ButtonComponent.new(variant: :secondary, size: :small, disabled: true, aria_label: t("pages.home.goal.collect_label")) do %><%= t("pages.home.goal.collect") %><% end %>
-    <p class="hub-goal__claim-text"><%= t("pages.home.goal.full_text") %></p>
   <% else %>
     <%= render ButtonComponent.new(variant: :secondary, size: :small, href: goal_reward_path(week: reward[:week_start].iso8601), method: :post,
           aria_label: t("pages.home.goal.collect_label")) do %><%= t("pages.home.goal.collect") %><% end %>

@@ -6,13 +6,13 @@ module PacksHelper
   end
 
   def pack_opening_json(pack, cards:, player:, now:)
-    available = Game::Reserve.count(player.id, now:)
+    counts = Game::Reserve.counts(player.id, now:)
     scheduled = Game::BankSchedule.call(player, now:).map { opening_time(it) }
     {
       pack: { token: pack.token, kind: pack.kind, cardBack: pack.card_back_key, url: pack_path(pack.token) },
       cards: cards.map { pack_card_fields(it).merge(faces: pack_faces(it)) },
-      bank: { available:, reserveFull: Game::Reserve.full?(available), nextAvailableAt: scheduled.first, scheduledAt: scheduled,
-              nextPackSize: Game::NextPackSize.call(player, now:) },
+      bank: { available: counts.standard, special: counts.special, openable: counts.openable, reserveFull: Game::Reserve.full?(counts.standard),
+              nextAvailableAt: scheduled.first, scheduledAt: scheduled, nextPackSize: Game::NextPackSize.call(player, now:) },
       serverTime: opening_time(now),
       tierCountsBefore: Game::TierCounts.before_opening(player, pack).transform_keys { Catalog::Rarity::TIERS.fetch(it) },
       setTiers: pack_set_tiers(pack),

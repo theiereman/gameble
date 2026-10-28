@@ -11,7 +11,7 @@ import {
 import { celebrationResults, restoredCelebration, type CelebrationResult } from "./celebration"
 
 export function start({ bank, opened, layout, now, celebrationRemembered, preview }: BoosterStart): BoosterState {
-  const sealed = bank.available > 0
+  const sealed = bank.openable > 0
   const fresh: BoosterState = {
     bank,
     bankGeneration: 0,
@@ -116,7 +116,7 @@ export function focusTarget(state: BoosterState): FocusTarget | null {
   if (typeof focus === "object" || focus === "open" || focus === "back") return focus
   const index = cardToFocus(state)
   if (index !== null) return { card: index }
-  return state.bank.available > 0 ? "open" : "back"
+  return state.bank.openable > 0 ? "open" : "back"
 }
 
 export function focusGiven(state: BoosterState): BoosterState {
@@ -172,7 +172,7 @@ export function celebrationSpoken(state: BoosterState): BoosterState {
 }
 
 export function completed(state: BoosterState): BoosterState {
-  return celebrate({ ...state, status: "complete", focus: state.bank.available > 0 ? "open" : "back" })
+  return celebrate({ ...state, status: "complete", focus: state.bank.openable > 0 ? "open" : "back" })
 }
 
 export function bankChanged(state: BoosterState, bank: BoosterBank): BoosterState {
@@ -182,7 +182,7 @@ export function bankChanged(state: BoosterState, bank: BoosterBank): BoosterStat
 export function bankFetched(state: BoosterState, bank: BoosterBank, generation: number): BoosterState {
   if (generation !== state.bankGeneration) return state
   const changed = bankChanged(state, bank)
-  const phase = phaseForBank(state.phase, bank.available)
+  const phase = phaseForBank(state.phase, bank.openable)
   if (phase === state.phase) return changed
   return { ...changed, phase, status: phase === "sealed" ? "sealed" : "waiting", reason: null }
 }

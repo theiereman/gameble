@@ -29,7 +29,7 @@ class PacksController < ApplicationController
     @cards = cards_of(@pack)
     @strings = CardStrings.new
     @bank = Game::BankSummary.reserve(current_player)
-    @next_pack = @bank[:available].positive?
+    @next_pack = @bank[:openable].positive?
   end
 
   private

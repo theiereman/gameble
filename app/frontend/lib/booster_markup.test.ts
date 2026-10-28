@@ -3,6 +3,8 @@ import { bankFrom, cardFrom, openedFrom, setTierFrom, thresholdsFrom } from "./b
 
 const BANK = {
   available: 2,
+  special: 1,
+  openable: 3,
   reserveFull: false,
   nextAvailableAt: "2026-10-26T12:00:00.000Z",
   serverTime: "2026-10-26T11:00:00.000Z",
@@ -99,6 +101,8 @@ describe("openedFrom", () => {
     expect(opened?.setTiers).toHaveLength(1)
     expect(opened?.bank).toEqual({
       available: 2,
+      special: 1,
+      openable: 3,
       reserveFull: false,
       nextAvailableAt: BANK.nextAvailableAt,
       scheduledAt: [],

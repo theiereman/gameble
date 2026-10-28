@@ -124,7 +124,7 @@
   min-width: 0;
 }
 
-/* The count badge: lime, greyed at zero; steady. */
+/* The count badges: lime, greyed at zero; steady. The capsule entry's standard one is in the accent and shows no zero. */
 .menu-item__badge {
   flex: none;
   min-width: 26px;
@@ -134,6 +134,11 @@
   font: var(--font-button);
   letter-spacing: 0;
   text-align: center;
+}
+
+.menu-item__badge--standard {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
 }
 
 .menu-item__badge--alert {

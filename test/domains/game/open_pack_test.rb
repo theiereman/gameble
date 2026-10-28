@@ -98,13 +98,23 @@ class Game::OpenPackTest < ActiveSupport::TestCase
     assert_empty holdings
   end
 
-  test "a bonus pack is counted and opened in order like the others" do
+  test "a bonus pack is counted apart and opened in order like the others" do
     regular = create_pack(@player, available_at: 1.minute.ago)
     bonus = create_pack(@player, available_at: 2.minutes.ago, kind: :bonus)
 
-    assert_equal 2, Game::BankSummary.call(@player)[:available]
+    assert_equal [ 1, 1, 2 ], Game::BankSummary.call(@player).values_at(:available, :special, :openable)
     assert_equal bonus, open.value!
     assert_equal regular, open.value!
+  end
+
+  test "a player holding only special packs opens them, oldest first" do
+    reward = create_pack(@player, available_at: 3.minutes.ago, kind: :reward)
+    bonus = create_pack(@player, available_at: 2.minutes.ago, kind: :bonus)
+
+    assert_equal [ 0, 2, 2 ], Game::BankSummary.call(@player).values_at(:available, :special, :openable)
+    assert_equal reward, open.value!
+    assert_equal bonus, open.value!
+    assert_equal :no_pack_available, open.failure
   end
 
   test "another player's packs are not opened" do

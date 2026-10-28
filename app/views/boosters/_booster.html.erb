@@ -3,7 +3,7 @@
 <%= tag.section id: "booster", class: "booster", aria: { labelledby: "booster-panel-title" }, data: booster_root_data(bank:, season:, next_pack_size:) do %>
   <%= render("boosters/strip", season:, bank:) %>
   <%= render("boosters/info", season:, bank:, size:) %>
-  <%= render "boosters/stage", season:, available: bank[:available], next_size: next_pack_size || Game::Pack::SIZE %>
+  <%= render "boosters/stage", season:, available: bank[:openable], next_size: next_pack_size || Game::Pack::SIZE %>
   <div class="booster__phone-actions" data-booster-target="phoneActions"></div>
   <%= render("boosters/zoom", season:) %>
   <div class="visually-hidden" role="status" aria-live="polite" data-booster-target="live"></div>

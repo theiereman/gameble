@@ -117,10 +117,3 @@
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
 }
-
-.hub-goal__claim-text {
-  margin: 0;
-  color: var(--color-alert);
-  font: var(--font-body-small);
-  letter-spacing: var(--tracking-body-small);
-}

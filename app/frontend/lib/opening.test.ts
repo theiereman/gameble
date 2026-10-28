@@ -17,7 +17,15 @@ const answer = {
       faces: { s: "<span></span>", m: "<span></span>", xl: "<span></span>" },
     },
   ],
-  bank: { available: 9, reserveFull: false, nextAvailableAt: null, scheduledAt: [], nextPackSize: 5 },
+  bank: {
+    available: 9,
+    special: 0,
+    openable: 9,
+    reserveFull: false,
+    nextAvailableAt: null,
+    scheduledAt: [],
+    nextPackSize: 5,
+  },
   serverTime: "2026-10-06T14:22:00.000Z",
   tierCountsBefore: { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0 },
   setTiers: [

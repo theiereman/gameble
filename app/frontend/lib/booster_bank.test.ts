@@ -4,6 +4,8 @@ import type { BoosterPhase } from "./booster_types"
 
 const bank = {
   available: 1,
+  special: 2,
+  openable: 3,
   reserveFull: false,
   nextAvailableAt: "2026-10-06T14:32:00.000Z",
   serverTime: "2026-10-06T14:22:00.000Z",
@@ -40,6 +42,8 @@ describe("fetchBank", () => {
   it("reads a full reserve with no next booster and no pack to open next", async () => {
     const full = {
       available: 0,
+      special: 0,
+      openable: 0,
       reserveFull: true,
       nextAvailableAt: null,
       serverTime: bank.serverTime,

@@ -20,8 +20,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     css_select(".hub-menu .menu-item[aria-keyshortcuts='1']").sole
   end
 
-  def reserve_badge
-    open_item.at_css(".menu-item__badge").text
+  def reserve_badge(kind = :standard)
+    open_item.at_css(".menu-item__badge--#{kind}")&.text
   end
 
   def end_buttons
@@ -119,7 +119,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     3.times { create_pack(player) }
     sign_in(player)
 
-    assert_queries_match(/SELECT COUNT\(\*\) FROM "game_packs"/, count: 1) do
+    assert_queries_match(/SELECT COUNT\(\*\) AS "count_all", "game_packs"."kind"/, count: 1) do
       assert_no_queries_match(/game_daily_bonus_claims/) { get pack_path(pack.token, locale: :en) }
     end
     assert_equal [ "Open a capsule", "Back to the bridge" ], end_buttons
@@ -167,7 +167,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "an empty reserve greys menu 01's badge, and opening is refused back to the booster screen with an alert" do
+  test "an empty reserve shows no badge on menu 01, and opening is refused back to the booster screen with an alert" do
     player = accounts_players(:player)
     create_pack(player, available_at: 1.day.from_now)
     sign_in(player)
@@ -175,7 +175,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :fr)
     assert_equal "/fr/booster", open_item["href"]
     assert_nil open_item["aria-disabled"]
-    assert_equal "0", open_item.at_css(".menu-item__badge.menu-item__badge--zero").text
+    assert_nil open_item.at_css(".menu-item__badge")
     assert_equal "Réserve vide", open_item.at_css(".visually-hidden").text
     assert_select ".hub-menu form", false
 
@@ -259,7 +259,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".packs-chip__next .visually-hidden time[datetime='2026-10-02T09:40:00Z']"
   end
 
-  test "with no pack available now, menu 01's badge reads 0 and the countdown shows" do
+  test "with no pack available now, menu 01 shows no badge and the countdown shows" do
     player = accounts_players(:player)
     create_pack(player, available_at: 4.minutes.from_now)
     sign_in(player)
@@ -267,7 +267,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
 
     assert_equal "/en/booster", open_item["href"]
-    assert_equal "0", reserve_badge
+    assert_nil reserve_badge
     assert_equal 1, countdown.size
   end
 
@@ -286,7 +286,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".packs-chip__next .visually-hidden time[datetime='2026-10-02T15:52:00Z']"
   end
 
-  test "a full bank with bonus packs shows no countdown" do
+  test "a full bank with a bonus pack shows no countdown, the bonus pack counted apart" do
     player = accounts_players(:player)
     Game::FillBank.new.call(player:).value!
     create_pack(player, kind: :bonus)
@@ -295,7 +295,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_equal "11", reserve_badge
+    assert_equal "10", reserve_badge
+    assert_equal "1", reserve_badge(:special)
     assert_empty countdown
     assert_select ".packs-chip__next--full", "Reserve full"
   end
@@ -386,7 +387,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers unlockedCardBacks], body.keys
     assert_equal({ "token" => pack.token, "kind" => "regular", "cardBack" => "standard", "url" => "/en/packs/#{pack.token}" }, body["pack"])
     scheduled = (now + 10.minutes).iso8601(3)
-    assert_equal({ "available" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ], "nextPackSize" => 5 },
+    assert_equal({ "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ], "nextPackSize" => 5 },
       body["bank"])
     assert_equal "2026-10-06T14:22:00.000Z", body["serverTime"]
     assert_equal counts_before.transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }, body["tierCountsBefore"]
@@ -410,7 +411,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     # No database id: no id key, and the only integers are counts.
     assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
-    assert_equal [ *Array.new(5) { %w[cards.[].season cards.[].year] }.flatten, "bank.available", "bank.nextPackSize", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" },
+    assert_equal [ *Array.new(5) { %w[cards.[].season cards.[].year] }.flatten, "bank.available", "bank.special", "bank.openable", "bank.nextPackSize", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" },
       *Array.new(body["setTiers"].size) { %w[setTiers.[].required setTiers.[].held setTiers.[].total] }.flatten ],
       json_integers(body).map(&:first)
   end
@@ -464,7 +465,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :ok
     assert_equal bonus.token, body.dig("pack", "token")
-    assert_equal({ "available" => 10, "reserveFull" => true, "nextAvailableAt" => nil, "scheduledAt" => [], "nextPackSize" => 5 }, body["bank"])
+    assert_equal({ "available" => 10, "special" => 0, "openable" => 10, "reserveFull" => true, "nextAvailableAt" => nil, "scheduledAt" => [], "nextPackSize" => 5 }, body["bank"])
   end
 
   test "the same key again replays the same answer, with nothing opened, even once the reserve is empty" do

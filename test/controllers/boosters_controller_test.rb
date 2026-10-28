@@ -29,6 +29,10 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     JSON.parse(value("strings"))
   end
 
+  def bank_value(name)
+    JSON.parse(value("bank")).fetch(name)
+  end
+
   def opened(name)
     css_select("#{ROOT} template[data-booster-target=#{name}]")
   end
@@ -99,8 +103,8 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/en/booster.json", value("bank-url")
     assert_equal ",", value("delimiter")
     assert_equal [ "1", "5" ], [ value("season"), value("pack-size") ]
-    assert_equal [ "9", "false", "2026-10-06T14:32:00.000Z", "2026-10-06T14:22:00.000Z", "5" ],
-      %w[available reserve-full next-available-at server-time next-pack-size].map { value(it) }
+    assert_equal [ 9, false, "2026-10-06T14:32:00.000Z", "2026-10-06T14:22:00.000Z", 5 ],
+      %w[available reserveFull nextAvailableAt serverTime nextPackSize].map { bank_value(it) }
     BoostersHelper::BOOSTER_ACTIONS.each do |child, events|
       events.each { |event, method| assert_includes root["data-action"].split, "#{child}:#{event}->booster##{method}" }
       assert_select "#{ROOT} [data-controller=#{child}]"
@@ -213,7 +217,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal "application/json", response.media_type
-    assert_equal({ "bank" => { "available" => 9, "reserveFull" => false, "nextAvailableAt" => "2026-10-06T14:32:00.000Z",
+    assert_equal({ "bank" => { "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextAvailableAt" => "2026-10-06T14:32:00.000Z",
       "serverTime" => "2026-10-06T14:26:00.000Z", "nextPackSize" => 5 } }, response.parsed_body)
     assert_empty json_keys(response.parsed_body).grep(/\Aid\z|Id\z/)
   end
@@ -251,7 +255,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     get booster_path(locale: :fr)
 
     assert_response :success
-    assert_equal "0", value("available")
+    assert_equal 0, bank_value("available")
     assert_equal "\u00A0", value("delimiter")
     assert_select "#{ROOT} .booster__empty:not([hidden]) .booster__empty-title", "Réserve vide"
     assert_select "#{ROOT} button.booster__open", /Ouvrir la capsule.*Réserve vide/
@@ -274,7 +278,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     get booster_path(locale: :en)
 
     assert_response :success
-    assert_equal [ "3", "5" ], [ value("next-pack-size"), value("pack-size") ]
+    assert_equal [ 3, "5" ], [ bank_value("nextPackSize"), value("pack-size") ]
     assert_select "#{ROOT} .booster__value", "3"
     assert_select "#{ROOT} .booster__canister-facts", "3 cards"
   end
@@ -312,7 +316,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
       refute_empty row.thresholds
       assert_equal row.thresholds.map { |tier, required| "#{tier}:#{required}" }.join(" "), shown_row["data-thresholds"]
     end
-    assert_equal "1", value("available")
+    assert_equal 1, bank_value("available")
     assert_empty id_attributes
     assert_select ".booster__fallback form[action='/fr/packs']"
   end
@@ -340,7 +344,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
       assert_response :success, token
       assert_empty opened("pack"), token
       assert_empty opened("card"), token
-      assert_equal "1", value("available"), token
+      assert_equal 1, bank_value("available"), token
     end
     get booster_path(locale: :en, pack: [ foreign.token ])
     assert_empty opened("pack")

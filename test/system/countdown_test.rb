@@ -15,7 +15,8 @@ class CountdownTest < ApplicationSystemTestCase
   end
 
   COUNTDOWN = ".top-bar .packs-chip__next[data-controller=countdown]".freeze
-  BADGE = ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge".freeze
+  BADGE = ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge--standard".freeze
+  SPECIAL_BADGE = ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge--special".freeze
 
   test "the count rises after the countdown's refresh, morphed into the same page" do
     create_pack(@player)
@@ -77,7 +78,8 @@ class CountdownTest < ApplicationSystemTestCase
     within(".daily-booster") { click_on "Collect" }
 
     assert_text I18n.t("daily_bonuses.create.collected", locale: :en, time: "%{time}").partition("%{time}").first.strip, wait: 10
-    assert_selector BADGE, text: "3", wait: 10
+    assert_selector BADGE, text: "2", wait: 10
+    assert_selector SPECIAL_BADGE, text: "1"
   end
 
   test "elsewhere the chip alone refreshes at zero: the count rises without a page visit" do

@@ -21,15 +21,20 @@ module BoostersHelper
       booster_repost_url_value: season ? card_repost_path(slug: "SLUG", number: "NUMBER") : "",
       booster_bank_url_value: booster_path(format: :json), booster_delimiter_value: t("number.format.delimiter"),
       booster_pack_size_value: Game::Pack::SIZE, booster_season_value: season&.number || 0,
-      booster_available_value: values[:available], booster_reserve_full_value: values[:reserveFull],
-      booster_next_available_at_value: values[:nextAvailableAt] || "", booster_server_time_value: values[:serverTime],
-      booster_next_pack_size_value: next_pack_size || 0, booster_strings_value: screen_strings("booster.strings")
+      booster_bank_value: booster_bank_values(values), booster_strings_value: screen_strings("booster.strings")
     }.merge(screen_outlets("booster", BOOSTER_ACTIONS.keys + BOOSTER_CHILDREN))
+  end
+
+  def booster_bank_values(values)
+    values.slice(:available, :special, :openable, :reserveFull, :serverTime)
+      .merge(nextAvailableAt: values[:nextAvailableAt] || "", nextPackSize: values[:nextPackSize] || 0)
   end
 
   def booster_bank(bank:, next_pack_size:)
     {
       available: bank[:available],
+      special: bank[:special],
+      openable: bank[:openable],
       reserveFull: bank[:reserve_full],
       nextAvailableAt: bank[:next_available_at] && opening_time(bank[:next_available_at]),
       serverTime: opening_time(Time.current),

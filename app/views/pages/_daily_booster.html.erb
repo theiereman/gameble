@@ -1,5 +1,5 @@
 <% arc = local_assigns.fetch(:arc, false) %>
-<% state = bank[:bonus_collected] ? :collected : (bank[:reserve_full] ? :full : :ready) %>
+<% state = bank[:bonus_collected] ? :collected : :ready %>
 <% seconds = daily_bonus_seconds(bank) %>
 <%= render PanelComponent.new(tag: :section, quiet: true, id: "daily-booster", class: "daily-booster daily-booster--#{state}",
       aria: { labelledby: "daily-booster-title" },
@@ -18,9 +18,6 @@
       <progress class="daily-booster__bar" aria-hidden="true" max="<%= ShellHelper::DAY_SECONDS %>" value="<%= ShellHelper::DAY_SECONDS - seconds %>" data-countdown-target="bar"></progress>
       <span class="visually-hidden"><%= local_time_sentence(bank[:next_bonus_at]) { t("pages.home.daily.next_at", time: it) } %></span>
     </div>
-  <% when :full %>
-    <p class="daily-booster__text"><%= t("pages.home.daily.full_text") %></p>
-    <%= render ButtonComponent.new(size: :small, disabled: true) do %><%= t("pages.home.daily.collect") %><% end %>
   <% else %>
     <p class="daily-booster__text"><%= t("pages.home.daily.text") %></p>
     <%= render ButtonComponent.new(variant: primary ? :primary : :secondary, size: :small, href: daily_bonus_path, method: :post) do %><%= t("pages.home.daily.collect") %><% end %>

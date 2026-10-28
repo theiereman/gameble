@@ -38,6 +38,10 @@ fr:
       label: "Capsules"
       next_in: "+1 dans"
       next_at: "Prochaine capsule : %{time}"
+      special_label:
+        zero: "spéciale"
+        one: "spéciale"
+        other: "spéciales"
       full: "Réserve pleine"
       in_reserve:
         zero: "%{number} en réserve"
@@ -89,6 +93,10 @@ fr:
           one: "%{number} capsule en réserve"
           other: "%{number} capsules en réserve"
         reserve_empty: "Réserve vide"
+        special:
+          zero: "%{number} capsule spéciale"
+          one: "%{number} capsule spéciale"
+          other: "%{number} capsules spéciales"
         collection: "Collection"
         collection_meta:
           zero: "%{owned} carte unique sur %{total}"
@@ -125,9 +133,7 @@ fr:
       daily:
         title: "Capsule quotidienne"
         ready: "Prête"
-        full: "Réserve pleine"
         text: "Une capsule offerte chaque jour. Elle rejoint votre réserve."
-        full_text: "Ouvrez une capsule pour récupérer celle du jour."
         collect: "Récupérer"
         collected: "Récupérée"
         next_in: "Prochaine dans"
@@ -145,7 +151,6 @@ fr:
         collect: "Récupérer"
         collect_label: "Récupérer la capsule de récompense"
         collected: "Récupérée"
-        full_text: "Ouvrez une capsule pour récupérer votre capsule rare."
       sets:
         title: "Sets en cours"
         see_all: "Tout voir"
@@ -332,20 +337,16 @@ fr:
           one: "Elle contient %{count} carte, aucune %{common}."
           other: "Elle contient %{count} cartes, aucune %{common}."
         outside: "Elle s'ajoute aux capsules standard, sans compter dans leur limite et sans les retarder."
-        # French keeps the singular for 0, which the plural rule here does not.
-        full:
-          zero: "Elle est refusée tant que votre réserve compte %{count} capsule ou plus prête à ouvrir : ouvrez-en une d'abord."
-          one: "Elle est refusée tant que votre réserve compte %{count} capsule ou plus prête à ouvrir : ouvrez-en une d'abord."
-          other: "Elle est refusée tant que votre réserve compte %{count} capsules ou plus prêtes à ouvrir : ouvrez-en une d'abord."
+        special: "Elle rejoint votre réserve spéciale, qui n'a pas de limite : elle n'est jamais refusée, même quand votre réserve standard est pleine."
       goal:
         title: "L'objectif communautaire"
         week: "Chaque semaine, pendant sept jours à partir du %{time}, tous les joueurs visent ensemble un même objectif."
         counts: "Chaque capsule ouverte y compte, de même que chaque échange conclu, qui fait des deux joueurs des contributeurs."
         # French keeps the singular for 0, which the plural rule here does not.
         reward:
-          zero: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont tant que votre réserve compte moins de %{full} capsules."
-          one: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont tant que votre réserve compte moins de %{full} capsules."
-          other: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} cartes, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont tant que votre réserve compte moins de %{full} capsules."
+          zero: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
+          one: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
+          other: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} cartes, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
       seasons:
         title: "Les saisons"
         frozen: "Une saison est tirée de Steam. Dès sa publication, la rareté, le numéro et les sets de chacune de ses cartes sont figés : ils ne changent plus pendant la saison."
@@ -2077,8 +2078,6 @@ fr:
       no_pack_available: "Votre réserve est vide. La prochaine capsule arrive bientôt."
       already_collected: "Vous avez déjà récupéré la capsule du jour. La prochaine sera prête le %{time}."
       no_season: "Aucune saison de cartes n'est encore ouverte. Revenez plus tard pour la capsule du jour."
-      reserve_full: "Votre réserve est pleine : ouvrez une capsule pour récupérer celle du jour."
-      reward_reserve_full: "Votre réserve est pleine : ouvrez une capsule pour récupérer votre capsule rare."
       reward_already_claimed: "Vous avez déjà récupéré cette capsule rare."
       reward_not_earned: "Aucune capsule rare ne vous attend pour cette semaine."
       reward_no_season: "Aucune saison de cartes n'est ouverte. Revenez plus tard pour votre capsule rare."

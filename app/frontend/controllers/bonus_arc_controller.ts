@@ -111,12 +111,14 @@ function parseBank(raw: string | undefined): BankChangedDetail | undefined {
     const bank = JSON.parse(raw) as Partial<BankChangedDetail>
     if (
       typeof bank.available !== "number" ||
+      typeof bank.special !== "number" ||
       typeof bank.reserveFull !== "boolean" ||
       typeof bank.serverTime !== "string"
     )
       return undefined
     return {
       available: bank.available,
+      special: bank.special,
       reserveFull: bank.reserveFull,
       nextAvailableAt: bank.nextAvailableAt ?? null,
       serverTime: bank.serverTime,

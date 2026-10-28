@@ -66,6 +66,13 @@ describe("canOpen, openingStarted", () => {
       expect(openingStarted(busy)).toBe(busy)
     }
   })
+
+  it("opens a special capsule while no standard capsule is available", () => {
+    const state = startWith({ bank: bank(0, { special: 2, openable: 2 }) })
+
+    expect(canOpen(state)).toBe(true)
+    expect(openingStarted(state).opening).toBe(true)
+  })
 })
 
 describe("retracting, retracted", () => {
@@ -129,7 +136,13 @@ describe("openingRefused", () => {
     const state = running()
     const refused = openingRefused(state, { kind: "refused", code: "no_pack_available", message: "None" }, "Failed")
     expect(refused).toMatchObject({ phase: "empty", status: "waiting", focus: "back" })
-    expect(refused.bank).toMatchObject({ available: 0, reserveFull: false, nextPackSize: null })
+    expect(refused.bank).toMatchObject({
+      available: 0,
+      special: 0,
+      openable: 0,
+      reserveFull: false,
+      nextPackSize: null,
+    })
     expect(refused.bankGeneration).toBe(state.bankGeneration + 1)
   })
 
@@ -147,6 +160,8 @@ describe("openingAnswered, ejecting, resultHeadShown, cardsDealt, openingEnded",
     const answered = openingAnswered(state, answer)
     expect(answered.bank).toEqual({
       available: 1,
+      special: 0,
+      openable: 1,
       reserveFull: false,
       nextAvailableAt: null,
       serverTime: answer.serverTime,

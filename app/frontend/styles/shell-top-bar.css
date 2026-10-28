@@ -230,6 +230,10 @@ a.packs-chip:focus-visible {
   color: var(--color-muted);
 }
 
+.packs-chip__special-count {
+  color: var(--color-lime);
+}
+
 .packs-chip__divider {
   align-self: stretch;
   width: var(--space-unit);

@@ -9,8 +9,8 @@ export function reflectChange(
   whenIdle: () => void,
 ): void {
   if (after.bank !== before.bank) {
-    const { available, reserveFull, nextAvailableAt, serverTime } = after.bank
-    dispatchGameble("gameble:bank-changed", { available, reserveFull, nextAvailableAt, serverTime })
+    const { available, special, reserveFull, nextAvailableAt, serverTime } = after.bank
+    dispatchGameble("gameble:bank-changed", { available, special, reserveFull, nextAvailableAt, serverTime })
     countdown?.set(nextAvailableAt, serverTime)
   }
   const revealing = revealingOpening(after.status)

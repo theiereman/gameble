@@ -265,19 +265,48 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "main .button--primary", 1
   end
 
-  test "an empty reserve greys menu 01's badge and disables the empty showcase's button, saying why" do
+  test "an empty reserve shows no badge on menu 01 and disables the empty showcase's button, saying why" do
     sign_in(@player)
 
     get home_path(locale: :en)
 
     assert_select ".hub-menu a.menu-item[href='/en/booster'][aria-keyshortcuts='1']:not([aria-disabled])" do
-      assert_select ".menu-item__badge.menu-item__badge--zero[aria-hidden=true]", "0"
+      assert_select ".menu-item__badge", false
       assert_select ".visually-hidden", "Reserve empty"
     end
     assert_select ".hub-menu form[action='/en/packs']", false
     assert_select ".hub-showcase--empty button.button[type=button][disabled]", "Open a capsule"
     assert_select ".hub-showcase--empty .hub-showcase__reason", "Reserve empty"
     assert_select "main form[action='/en/packs']", false
+  end
+
+  test "special capsules get their own badge beside the standard one on menu 01 and their own count in the packs chip" do
+    2.times { create_pack(@player) }
+    create_pack(@player, kind: :bonus)
+    create_pack(@player, kind: :reward)
+    sign_in(@player)
+
+    get home_path(locale: :en)
+
+    assert_select ".hub-menu .menu-item[aria-keyshortcuts='1']" do
+      assert_select ".menu-item__badge--standard", "2"
+      assert_select ".menu-item__badge--special", "2"
+      assert_select ".visually-hidden", text: "2 special capsules"
+    end
+    assert_select "a#packs-chip .packs-chip__count", "2"
+    assert_select "a#packs-chip .packs-chip__special-count", "2"
+  end
+
+  test "only special capsules show no standard badge on menu 01 and a standard count of zero in the packs chip" do
+    create_pack(@player, kind: :bonus)
+    sign_in(@player)
+
+    get home_path(locale: :en)
+
+    assert_select ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge--standard", false
+    assert_select ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge--special", "1"
+    assert_select "a#packs-chip .packs-chip__special-count", "1"
+    assert_select "a#packs-chip .packs-chip__count", "0"
   end
 
   test "on the hub the packs chip's countdown refreshes the page; elsewhere it refreshes the chip alone" do
@@ -292,17 +321,15 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar .packs-chip__next[data-controller=countdown][data-countdown-refresh-value=false][data-countdown-refresh-url-value='/en/packs-chip']"
   end
 
-  test "a full reserve: the daily panel says so in orange and its button is disabled" do
+  test "a full reserve keeps the daily panel ready: the capsule joins the special reserve" do
     10.times { create_pack(@player) }
     sign_in(@player)
 
     get home_path(locale: :fr)
 
-    assert_select ".daily-booster" do
-      assert_select ".daily-booster__state--full", "Réserve pleine"
-      assert_select ".daily-booster__text", "Ouvrez une capsule pour récupérer celle du jour."
-      assert_select "button.button.button--small[type=button][disabled]", "Récupérer"
-      assert_select "form", false
+    assert_select ".daily-booster.daily-booster--ready" do
+      assert_select ".daily-booster__state", "Prête"
+      assert_select "form button", "Récupérer"
     end
   end
 
@@ -498,19 +525,15 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#goal-reward", false
   end
 
-  test "with a full reserve the claim slot disables its button and says why; collected, it reads Collected" do
+  test "with a full reserve the claim slot stays ready; collected, it reads Collected" do
     week = earn_goal_reward
     Game::FillBank.new.call(player: @player).value!
     sign_in(@player)
 
     get home_path(locale: :en)
-    assert_select "#goal-reward.hub-goal__claim--full" do
-      assert_select "button[disabled][aria-label=?]", "Collect the reward capsule", text: "Collect"
-      assert_select "form", 0
-      assert_select ".hub-goal__claim-text", "Open a capsule to collect your rare capsule."
+    assert_select "#goal-reward.hub-goal__claim--ready" do
+      assert_select "form button[aria-label=?]", "Collect the reward capsule", text: "Collect"
     end
-    get home_path(locale: :fr)
-    assert_select "#goal-reward .hub-goal__claim-text", "Ouvrez une capsule pour récupérer votre capsule rare."
 
     Game::OpenPack.new.call(player: @player).value!
     Game::ClaimGoalReward.new.call(player: @player, week_start: week).value!

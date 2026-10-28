@@ -81,7 +81,7 @@ export function controls(state: BoosterState): Controls {
   const revealedCount = state.revealed.filter(Boolean).length
   const everyRevealed = total > 0 && revealedCount === total
   const handOnTable = state.phase === "dealt" && total > 0
-  const reserveEmpty = state.bank.available <= 0 && state.phase !== "opening"
+  const reserveEmpty = state.bank.openable <= 0 && state.phase !== "opening"
   const top = handOnTable ? topOfPile(state.revealed, state.stored) : null
   const isLocked = locked(state)
   const { zoom } = state

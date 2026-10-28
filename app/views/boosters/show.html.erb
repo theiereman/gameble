@@ -6,7 +6,7 @@
 <h1 class="visually-hidden"><%= t(".title") %></h1>
 <%= render "boosters/booster", bank: @bank, season: @season, next_pack_size: @next_pack_size, opened_pack: @opened_pack, opened_cards: @opened_cards %>
 <div class="booster__fallback">
-  <% if @bank[:available].positive? %>
+  <% if @bank[:openable].positive? %>
     <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t("booster.open") %><% end %>
   <% end %>
   <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t("booster.back") %><% end %>

@@ -14,6 +14,8 @@ import type { OpeningAnswer, OpeningCard, OpeningSetTier } from "./opening"
 
 export const bank = (available: number, extra: Partial<BoosterBank> = {}): BoosterBank => ({
   available,
+  special: 0,
+  openable: available,
   reserveFull: false,
   nextAvailableAt: "2026-10-26T12:00:00.000Z",
   serverTime: "2026-10-26T11:00:00.000Z",
@@ -49,6 +51,8 @@ export const answerOf = (tiers: Rarity[], setTiers: OpeningSetTier[] = [], avail
   cards: tiers.map((tier, index) => cardOf(tier, `${tier}-${index}`)),
   bank: {
     available,
+    special: 0,
+    openable: available,
     reserveFull: false,
     nextAvailableAt: null,
     scheduledAt: [],

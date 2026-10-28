@@ -1,5 +1,5 @@
 <div id="hub-showcase-actions" class="hub-showcase__actions">
-  <% if bank[:available].positive? %>
+  <% if bank[:openable].positive? %>
     <%= render ButtonComponent.new(href: booster_path) do %><%= t("pages.home.showcase.empty.open") %><% end %>
   <% else %>
     <%= render ButtonComponent.new(disabled: true) do %><%= t("pages.home.showcase.empty.open") %><% end %>

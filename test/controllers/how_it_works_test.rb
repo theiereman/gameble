@@ -86,7 +86,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_select ".how-it-works__refill", /\b#{Regexp.escape(minutes.((Game::Pack::BANK_SIZE * Game::Pack::INTERVAL).in_minutes.to_i))}/
     assert_select ".how-it-works__bonus-size", /\b#{Game::Pack::BONUS_SIZE}\b/
     assert_select ".how-it-works__reward-size", /\b#{Game::Pack::SIZE}\b/
-    assert_select ".how-it-works__reserve", /\b#{Game::Reserve::FULL}\b/
+    assert_select ".how-it-works__reserve", I18n.t("pages.how_it_works.daily.special", locale:)
     assert_select ".how-it-works__themes", /\b#{Catalog::Themes.keys.size}\b/
     assert_select ".how-it-works__franchises", /\b#{Catalog::SetBuilder::MIN_GAMES}\b/
     assert_select ".how-it-works__studios",

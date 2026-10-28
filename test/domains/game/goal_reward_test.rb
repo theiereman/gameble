@@ -51,7 +51,7 @@ class Game::GoalRewardTest < ActiveSupport::TestCase
     assert_equal [ [ WEEK, nil ] ], rewards.pluck(:week_start, :pack_id)
     assert_not_predicate reward, :claimed?
     assert_equal 0, reward_packs.count
-    assert_equal 0, Game::Reserve.count(@player.id)
+    assert_equal 0, Game::Reserve.counts(@player.id).standard
     event = game_events(@player, Game::GoalRewardGranted).sole
     assert_equal({ player_id: @player.id, week_start: "2026-10-05" }, event.data)
   end
@@ -92,7 +92,7 @@ class Game::GoalRewardTest < ActiveSupport::TestCase
       assert_equal Game::Pack::SIZE, pack.card_season_ids.size
       assert pack.card_season_ids.any? { |id| tier(id) >= 4 }, "a reward pack holds an Épique or better"
       assert_equal [ [ WEEK, pack.id ] ], rewards.pluck(:week_start, :pack_id)
-      assert_equal 1, Game::Reserve.count(@player.id)
+      assert_equal 1, Game::Reserve.counts(@player.id).special
       event = game_events(@player, Game::GoalRewardClaimed).sole
       assert_equal({ player_id: @player.id, pack_id: pack.id, week_start: "2026-10-05" }, event.data)
     end
@@ -118,21 +118,18 @@ class Game::GoalRewardTest < ActiveSupport::TestCase
     assert_equal 1, game_events(@player, Game::GoalRewardClaimed).size
   end
 
-  test "a full reserve refuses the claim and the reward waits; after an opening the claim succeeds" do
+  test "a full standard reserve does not refuse the claim: the reward joins the special reserve" do
     earned
     Game::FillBank.new.call(player: @player).value!
-    assert Game::Reserve.full?(Game::Reserve.count(@player.id))
+    assert Game::Reserve.full?(Game::Reserve.counts(@player.id).standard)
 
-    assert_equal :reward_reserve_full, claim.failure
-    assert_equal 0, reward_packs.count
-    assert_equal [ nil ], rewards.pluck(:pack_id)
-    assert_empty game_events(@player, Game::GoalRewardClaimed)
+    pack = claim.value!
 
-    Game::OpenPack.new.call(player: @player).value!
-    claim.value!
-
-    assert_equal 1, reward_packs.count
-    assert_equal Game::Reserve::FULL, Game::Reserve.count(@player.id)
+    assert_equal [ pack.id ], reward_packs.ids
+    assert_equal [ pack.id ], rewards.pluck(:pack_id)
+    assert_equal 1, game_events(@player, Game::GoalRewardClaimed).size
+    assert_equal Game::Reserve::FULL, Game::Reserve.counts(@player.id).standard
+    assert_equal 1, Game::Reserve.counts(@player.id).special
   end
 
   test "a claim is refused for a week not earned, by another player, by a banned player and without a season" do

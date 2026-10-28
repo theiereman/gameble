@@ -13,6 +13,8 @@ export type OpeningCard = {
 
 export type OpeningBank = {
   available: number
+  special: number
+  openable: number
   reserveFull: boolean
   nextAvailableAt: string | null
   scheduledAt: string[]
@@ -149,6 +151,8 @@ function isAnswer(value: unknown): value is OpeningAnswer {
     value.cards.every(isCard) &&
     isRecord(value.bank) &&
     typeof value.bank.available === "number" &&
+    typeof value.bank.special === "number" &&
+    typeof value.bank.openable === "number" &&
     typeof value.serverTime === "string" &&
     isRecord(value.tierCountsBefore) &&
     RARITIES.every((tier) => typeof (value.tierCountsBefore as Record<string, unknown>)[tier] === "number") &&

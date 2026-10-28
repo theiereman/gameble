@@ -270,7 +270,7 @@ class HubTest < ApplicationSystemTestCase
     assert_nil focused_item
   end
 
-  test "menu 01 opens the booster screen; back on the bridge after its last booster, menu 01 is focused, its badge greyed" do
+  test "menu 01 opens the booster screen; back on the bridge after its last booster, menu 01 is focused, its badge gone" do
     create_pack(@player, cards: fixture_tier_ids)
     sign_in
 
@@ -281,7 +281,8 @@ class HubTest < ApplicationSystemTestCase
     assert_selector ".booster__state", text: /\AINVENTORY\z/
     find(".top-bar__home").click
     assert_current_path home_path(locale: :en)
-    assert_selector ".hub-menu .menu-item[aria-keyshortcuts='1']:not([aria-disabled]) .menu-item__badge--zero", text: "0"
+    assert_selector ".hub-menu .menu-item[aria-keyshortcuts='1']:not([aria-disabled])"
+    assert_no_selector ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge"
     assert_equal "1", focused_item
   end
 

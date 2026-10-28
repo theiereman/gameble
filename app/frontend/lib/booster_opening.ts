@@ -20,7 +20,7 @@ import type { OpeningAnswer } from "./opening"
 
 export function canOpen(state: BoosterState): boolean {
   if (state.opening || state.revealing.length > 0 || state.revealingAll || state.storing) return false
-  if (state.bank.available <= 0) return false
+  if (state.bank.openable <= 0) return false
   if (state.phase === "dealt") return state.revealed.every(Boolean)
   return state.phase === "sealed"
 }
@@ -62,9 +62,16 @@ export function openingRefused(state: BoosterState, result: OpeningRefusal, fail
   const outcome: OpeningOutcome = refused ? { kind: "refused", code: result.code } : { kind: "failed" }
   const emptied = refused && result.code === "no_pack_available"
   const after = emptied
-    ? bankChanged(state, { ...state.bank, available: 0, reserveFull: false, nextPackSize: null })
+    ? bankChanged(state, {
+        ...state.bank,
+        available: 0,
+        special: 0,
+        openable: 0,
+        reserveFull: false,
+        nextPackSize: null,
+      })
     : state
-  const empty = after.bank.available <= 0
+  const empty = after.bank.openable <= 0
   return {
     ...after,
     pendingKey: keyFor(state, outcome),
@@ -79,9 +86,11 @@ export function openingRefused(state: BoosterState, result: OpeningRefusal, fail
 }
 
 export function openingAnswered(state: BoosterState, answer: OpeningAnswer): BoosterState {
-  const { available, reserveFull, nextAvailableAt, nextPackSize } = answer.bank
+  const { available, special, openable, reserveFull, nextAvailableAt, nextPackSize } = answer.bank
   const bank: BoosterBank = {
     available,
+    special,
+    openable,
     reserveFull,
     nextAvailableAt,
     serverTime: answer.serverTime,

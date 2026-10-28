@@ -13,6 +13,8 @@ export type Dataset = Readonly<Record<string, string | undefined>>
 
 export type BankValues = {
   available: number
+  special: number
+  openable: number
   reserveFull: boolean
   nextAvailableAt: string
   serverTime: string
@@ -38,6 +40,8 @@ const setTierOf = (value: string | undefined): SetTierName | null =>
 
 export function bankFrom({
   available,
+  special,
+  openable,
   reserveFull,
   nextAvailableAt,
   serverTime,
@@ -45,6 +49,8 @@ export function bankFrom({
 }: BankValues): BoosterBank {
   return {
     available,
+    special,
+    openable,
     reserveFull,
     nextAvailableAt: nextAvailableAt || null,
     serverTime,
@@ -96,6 +102,8 @@ export function openedFrom({ pack, cards, setTiers, bank }: OpenedMarkup): Openi
     cards: cards.map(cardFrom),
     bank: {
       available: bank.available,
+      special: bank.special,
+      openable: bank.openable,
       reserveFull: bank.reserveFull,
       nextAvailableAt: bank.nextAvailableAt,
       scheduledAt: [],

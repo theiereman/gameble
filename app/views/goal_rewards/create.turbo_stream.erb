@@ -1,9 +1,6 @@
 <%= turbo_stream.replace "goal-reward" do %>
   <%= render "pages/goal_reward", reward: @reward, bank: @bank if @reward %>
 <% end %>
-<% if @bank[:reserve_full] && (@bank[:bonus_collectable] || @bank[:bonus_collected]) %>
-  <%= turbo_stream.replace "daily-booster", partial: "pages/daily_booster", locals: { bank: @bank, primary: false } %>
-<% end %>
 <%= turbo_stream.replace "packs-chip", partial: "shell/packs_chip", locals: { bank: @bank, refresh: true } %>
 <%= turbo_stream.replace "hub-menu-booster", partial: "pages/menu_booster", locals: { bank: @bank } %>
 <%= turbo_stream.replace "hub-showcase-actions", partial: "pages/showcase_actions", locals: { bank: @bank } %>

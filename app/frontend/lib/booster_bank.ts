@@ -21,8 +21,8 @@ export async function fetchBank({ url, fetch: send = globalThis.fetch }: FetchBa
     return null
   }
   if (!isRecord(body) || !isBank(body.bank)) return null
-  const { available, reserveFull, nextAvailableAt, serverTime, nextPackSize } = body.bank
-  return { available, reserveFull, nextAvailableAt, serverTime, nextPackSize }
+  const { available, special, openable, reserveFull, nextAvailableAt, serverTime, nextPackSize } = body.bank
+  return { available, special, openable, reserveFull, nextAvailableAt, serverTime, nextPackSize }
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -32,6 +32,8 @@ function isBank(value: unknown): value is BoosterBank {
   return (
     isRecord(value) &&
     typeof value.available === "number" &&
+    typeof value.special === "number" &&
+    typeof value.openable === "number" &&
     typeof value.reserveFull === "boolean" &&
     (value.nextAvailableAt === null || typeof value.nextAvailableAt === "string") &&
     typeof value.serverTime === "string" &&
@@ -61,7 +63,7 @@ export function owedBankDue({ phase, idle, handPutAway }: ScreenMoment): boolean
   return idle && phase !== "opening" && (phase !== "dealt" || handPutAway)
 }
 
-export function phaseForBank(phase: BoosterPhase, available: number): BoosterPhase {
+export function phaseForBank(phase: BoosterPhase, openable: number): BoosterPhase {
   if (phase !== "sealed" && phase !== "empty") return phase
-  return available > 0 ? "sealed" : "empty"
+  return openable > 0 ? "sealed" : "empty"
 }

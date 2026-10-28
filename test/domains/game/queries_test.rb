@@ -8,7 +8,7 @@ class Game::QueriesTest < ActiveSupport::TestCase
 
   setup { @player = accounts_players(:player) }
 
-  test "the bank summary counts the packs available now, of every kind, and the next regular one" do
+  test "the bank summary counts the standard packs available now, the special ones apart, and the next regular one" do
     now = Time.current.change(usec: 0)
     create_pack(@player)
     create_pack(@player, kind: :bonus)
@@ -20,7 +20,7 @@ class Game::QueriesTest < ActiveSupport::TestCase
     create_pack(@player, opened_at: 1.minute.ago)
     create_pack(accounts_players(:moderator), available_at: now + 10.minutes)
 
-    assert_equal({ available: 3, reserve_full: false, next_available_at: now + 1.hour, bonus_collectable: true,
+    assert_equal({ available: 1, special: 2, openable: 3, reserve_full: false, next_available_at: now + 1.hour, bonus_collectable: true,
                    bonus_collected: false, next_bonus_at: now.utc.tomorrow.beginning_of_day }, Game::BankSummary.call(@player, now:))
   end
 
@@ -34,9 +34,9 @@ class Game::QueriesTest < ActiveSupport::TestCase
     reserve = nil
     assert_queries_count(2) { reserve = Game::BankSummary.reserve(@player, now:) }
 
-    assert_equal({ available: 2, reserve_full: false, next_available_at: now + 1.hour }, reserve)
+    assert_equal({ available: 1, special: 1, openable: 2, reserve_full: false, next_available_at: now + 1.hour }, reserve)
     summary = Game::BankSummary.call(@player, now:)
-    assert_equal reserve, summary.slice(:available, :reserve_full, :next_available_at)
+    assert_equal reserve, summary.slice(:available, :special, :openable, :reserve_full, :next_available_at)
     assert_equal [ false, true ], summary.values_at(:bonus_collectable, :bonus_collected)
 
     10.times { create_pack(@player) }

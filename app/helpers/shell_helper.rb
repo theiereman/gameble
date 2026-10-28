@@ -129,7 +129,7 @@ module ShellHelper
   end
 
   def bank_changed_json(bank)
-    { available: bank[:available], reserveFull: bank[:reserve_full], nextAvailableAt: bank[:next_available_at]&.utc&.iso8601,
+    { available: bank[:available], special: bank[:special], reserveFull: bank[:reserve_full], nextAvailableAt: bank[:next_available_at]&.utc&.iso8601,
       serverTime: Time.current.utc.iso8601 }.to_json
   end
 end

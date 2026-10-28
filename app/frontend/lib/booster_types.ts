@@ -8,6 +8,8 @@ export type BoosterStatus = "sealed" | "arming" | "ejecting" | "inventory" | "le
 
 export type BoosterBank = {
   available: number
+  special: number
+  openable: number
   reserveFull: boolean
   nextAvailableAt: string | null
   serverTime: string

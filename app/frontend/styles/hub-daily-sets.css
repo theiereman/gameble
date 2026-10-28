@@ -38,20 +38,6 @@
   color: var(--color-muted);
 }
 
-.daily-booster__state--full {
-  color: var(--color-alert);
-}
-
-/* The full reserve is an alert: the panel's line and the line saying why
-   turn orange, as "RÉSERVE PLEINE" does. */
-.panel.daily-booster--full {
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-alert);
-}
-
-.daily-booster--full .daily-booster__text {
-  color: var(--color-alert);
-}
-
 /* Collected: "Prochain dans", the clock and a thin bar
    filling toward 00:00 UTC (the countdown controller). */
 .daily-booster__next {

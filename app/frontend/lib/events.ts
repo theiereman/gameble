@@ -13,6 +13,7 @@ export type TierRevealedDetail = { tier: Rarity; counts: Record<Rarity, number> 
 
 export type BankChangedDetail = {
   available: number
+  special: number
   reserveFull: boolean
   nextAvailableAt: string | null
   serverTime: string

@@ -14,7 +14,6 @@ module Game
         reward = step earned(player, week_start)
         step unclaimed(reward)
         pool = step published_pool
-        step room_in_reserve(player, now)
         pack = Pack.create!(Pack.row(player_id: player.id, kind: :reward, season_id: pool.season_id, available_at: now,
           card_season_ids: RewardDraw.cards(pool:, random: @random)))
         reward.update!(pack_id: pack.id)
@@ -38,10 +37,6 @@ module Game
     def published_pool
       pool = DrawPool.current
       pool ? Success(pool) : Failure(:reward_no_season)
-    end
-
-    def room_in_reserve(player, now)
-      Reserve.full?(Reserve.count(player.id, now:)) ? Failure(:reward_reserve_full) : Success()
     end
   end
 end
