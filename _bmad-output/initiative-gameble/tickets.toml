@@ -127,19 +127,12 @@ covers = []
 after = [{ epic = 7, needs = "every feature written" }, { epic = 5, needs = "every feature written" }, { epic = 6, needs = "every feature written" }, { epic = 11, needs = "every feature written" }, { epic = 13, needs = "every feature written" }, { epic = 14, needs = "every feature written" }, { epic = 18, needs = "every feature written" }, { epic = 16, needs = "the screens walked through and the fixes before the release decided" }, { epic = 20, needs = "every feature written" }, { epic = 21, needs = "React gone from the front end" }]
 
 [[epic]]
-id = 9
-slug = "epic-card-backs"
-title = "Cosmetics: card backs, titles and menu themes"
-covers = ["CAP-20", "CAP-22"]
-after = [{ epic = 12, needs = "the public release" }, { epic = 13, needs = "the set tier and completion events, and the tier table by set size (13.22)" }, { epic = 6, needs = "the set-completed, goal reward and achievement events" }, { epic = 8, needs = "the booster showing the active back" }, { epic = 10, needs = "the profile and settings screen for the back picker" }, { epic = 21, needs = "the booster in Stimulus (21.3), frozen until then" }]
-
-[[epic]]
 id = 17
 release = "0.5.0"
 slug = "epic-seasons-carry-over"
 title = "Seasons carry over"
 covers = ["CAP-23"]
-after = [{ epic = 12, needs = "production open on its first season" }, { epic = 9, needs = "card backs and their unlocks, for the recap" }, { epic = 13, needs = "tiers across editions (13.5), tiers in the feed (13.6), the hub panel (13.7), the album (13.8), the collection across editions (13.15)" }]
+after = [{ epic = 12, needs = "production open on its first season" }, { epic = 13, needs = "tiers across editions (13.5), tiers in the feed (13.6), the hub panel (13.7), the album (13.8), the collection across editions (13.15)" }]
 
 [[epic]]
 id = 15
@@ -155,6 +148,22 @@ slug = "epic-special-packs"
 title = "Special packs stand apart"
 covers = ["CAP-4", "CAP-5", "CAP-12", "CAP-16"]
 after = [{ epic = 12, needs = "the public release" }, { epic = 13, needs = "the opening celebration (13.5) and the collection across editions (13.15) on the booster" }, { epic = 17, needs = "the opening changed for carried tiers (17.1)" }, { epic = 21, needs = "the booster in Stimulus (21.3), frozen until then" }]
+
+[[epic]]
+id = 9
+release = "1.2.0"
+slug = "epic-card-backs"
+title = "Card backs"
+covers = ["CAP-20", "CAP-23"]
+after = [{ epic = 12, needs = "the public release" }, { epic = 13, needs = "the set tier and completion events, and the tier table by set size (13.22)" }, { epic = 6, needs = "the set-completed, goal reward and achievement events" }, { epic = 8, needs = "the booster showing the active back" }, { epic = 10, needs = "the profile and settings screen for the back picker" }, { epic = 21, needs = "the booster in Stimulus (21.3), frozen until then" }, { epic = 17, needs = "the allocation receipt (17.1) and the allocation screen (17.2), for set backs received at a season change and the backs in the recap" }, { epic = 19, needs = "the special packs on the booster (19.5), on the same island" }]
+
+[[epic]]
+id = 24
+release = "1.2.0"
+slug = "epic-profile-titles-and-themes"
+title = "Profile titles and menu themes"
+covers = ["CAP-22"]
+after = [{ epic = 9, needs = "the card backs epic, which this one follows (author, 2026-10-28)" }, { epic = 13, needs = "the set tier and completion events" }]
 
 [[epic]]
 id = 22

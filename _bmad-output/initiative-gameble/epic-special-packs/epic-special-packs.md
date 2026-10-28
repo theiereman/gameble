@@ -62,7 +62,7 @@ The pack reserve in `packs/game`, the hub's pack counters and the top bar's pack
 - Source conflict: AD-7 — `OpenPack` consumes the oldest available pack of any kind, the shown reserve counts every unopened pack of any kind, and the daily bonus fails with `reserve_full` vs R1 and R3. Entry 1 carries the architecture update.
 - Decision (2026-10-15): until entry 3 adds the switch, opening keeps taking the oldest available pack of any kind and the capsule screen counts both reserves for its empty state, so a player holding only special packs can still open them (author).
 - Decision (2026-10-15): tracer bullet is entry 2 (the special reserve, the hub and top bar counters); it does not cross the booster island, which entry 3 reaches. The least certain is entry 5 (the intro). Entries 3, 4 and 5 change the booster island in that order. Entry 3 waits on 13.5 and 13.15, which change the same island and the counts it reads, and on 17.1, which also changes the opening.
-- Touch point: 13.7 also changes the hub's panel; a minor merge with entry 2, no order needed. Epic 9 (card backs, not yet incepted) touches the same island and the pixel art export; its inception orders against entries 3 to 5.
+- Touch point: 13.7 also changes the hub's panel; a minor merge with entry 2, no order needed. Epic 9 (card backs) touches the same island and the pixel art export; its inception (2026-10-28) placed it after this epic: 9.5 follows entry 5, and special packs' cards wear the active back, so this epic changes no back code.
 - Decision (2026-10-15): built after the public release (author).
 - Waits on epic 12 because: built after the public release.
 - Waits on epic 13 because: 13.5 and 13.15 change the booster island and the counts it reads.
