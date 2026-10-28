@@ -1,0 +1,198 @@
+<!doctype html><html lang="fr" class="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>gameble — allocation saisonnière (maquettes)</title><style>:root{--ground:#0b0f15;--bar:#171a21;--panel:#121a24;--sunken:#0e141b;--raised:#1b2838;--line:#2a475e;--soft:#1f3346;--deep:#2a6f9a;--accent:#66c0f4;--accent-press:#8fd3ff;--on-accent:#0b1520;--text:#c7d5e0;--bright:#e6eef5;--muted:#8f98a0;--dim:#5d6b78;--outline:#06090d;--lime:#a4d007;--primary:#7aa60a;--on-lime:#0f1a03;--gold:#f4c542;--alert:#e8833a;--goal:#d6403a;--mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--pixel:'VT323','Courier New',monospace}
+*{box-sizing:border-box}html,body{margin:0;background:#05070a;color:var(--text);font-family:var(--mono)}
+html.fr .en{display:none}html.en .fr{display:none}
+a{color:var(--accent)}body{padding:0 0 80px}
+.index{position:sticky;top:0;z-index:5;background:var(--bar);box-shadow:0 2px 0 0 var(--line);padding:10px 24px;display:flex;gap:6px 16px;flex-wrap:wrap;font-size:12px;align-items:center}
+.index b{color:var(--bright);letter-spacing:1.5px}.lang{margin-left:auto;background:transparent;color:var(--accent);border:0;box-shadow:inset 0 0 0 2px var(--deep);font:700 11px var(--mono);letter-spacing:1px;padding:6px 12px;cursor:pointer}
+.wrap{padding:0 24px}h1.pg{font:400 44px/44px var(--pixel);color:var(--bright);margin:28px 0 6px}
+h2{font:400 30px/32px var(--pixel);color:var(--bright);margin:56px 0 4px;letter-spacing:1px}
+.lead,.cap{font-size:12px;line-height:1.6;color:var(--muted);max-width:900px}.cap b{color:var(--text)}
+.scroll{overflow-x:auto;padding:12px 0 6px}.row{display:flex;gap:24px;align-items:flex-start}
+.frame{background:var(--ground);box-shadow:0 0 0 2px var(--soft);flex:none;position:relative}.frame.d{width:1280px}.frame.p{width:390px}
+.top{height:56px;background:var(--bar);box-shadow:0 2px 0 0 var(--line);display:flex;align-items:center;gap:12px;padding:0 32px}
+.top .word,.ptop .word{font:400 26px var(--pixel);letter-spacing:3px;color:var(--bright);margin-right:auto}
+.chip{height:34px;display:inline-flex;align-items:center;gap:8px;padding:0 12px;background:var(--sunken);font-size:11px;font-weight:700;letter-spacing:1px;white-space:nowrap}
+.chip .n{font-size:18px}.chip .sep{width:2px;height:16px;background:var(--soft)}.chip .next{color:var(--muted);font-weight:400}
+.chip.reg{box-shadow:inset 0 0 0 2px var(--accent)}.chip.reg .n{color:var(--accent)}
+.chip.sp{box-shadow:inset 0 0 0 2px var(--lime)}.chip.sp .n{color:var(--lime)}
+.chip.player{box-shadow:inset 0 0 0 2px var(--line);color:var(--text)}
+.ptop{height:52px;background:var(--bar);box-shadow:0 2px 0 0 var(--line);display:flex;align-items:center;gap:8px;padding:0 12px}.ptop .word{font-size:22px;letter-spacing:2px}.ptop .chip{height:44px;padding:0 10px}
+.stagebox{padding:36px 32px 44px}
+.pscroll{position:relative;overflow:auto;padding:16px 16px 0}
+.tabbar{height:56px;background:var(--bar);box-shadow:0 -2px 0 0 var(--line);display:grid;grid-template-columns:repeat(5,1fr);font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--muted);text-align:center;align-items:center}
+.alloc{max-width:760px;margin:0 auto}
+.head{margin-bottom:20px}
+.line{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--accent);box-shadow:inset 3px 0 0 var(--accent);padding-left:14px}
+.alloc h1{font:400 40px/40px var(--pixel);color:var(--bright);margin:0;letter-spacing:1px;outline:none}
+.grp{background:var(--panel);box-shadow:inset 0 0 0 2px var(--line);padding:18px 22px 20px;margin:0 0 16px;position:relative}
+.grp h2{font:400 22px/24px var(--pixel);color:var(--accent);margin:0 0 10px;letter-spacing:2px}
+.grp h3{font-size:11px;letter-spacing:1.5px;font-weight:700;color:var(--muted);margin:14px 0 8px}.ct{color:var(--bright);margin-left:6px}
+.sub{font-size:12px;line-height:1.55;color:var(--muted);margin:0 0 10px}
+.tl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px 18px}
+.tl li{display:flex;align-items:center;gap:10px;min-height:34px;padding:4px 10px;background:var(--sunken);box-shadow:inset 0 0 0 2px var(--soft);font-size:12px}
+.tl .nm{flex:1}.tl .nm b{color:var(--bright)}
+.mk{width:10px;height:10px;background:var(--lime);box-shadow:0 0 0 2px var(--outline);flex:none}.mk.g{background:var(--gold)}.mk.r{background:var(--goal)}
+.more{font-size:11px;color:var(--muted);white-space:nowrap}
+.ph{margin:0;padding:12px;border:2px dashed var(--soft);font-size:12px;color:var(--dim)}
+.go{display:flex;justify-content:flex-end;position:sticky;bottom:0;padding:12px 0 16px;background:linear-gradient(transparent,var(--ground) 40%)}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 24px;font:700 12px var(--mono);letter-spacing:1px;background:var(--primary);color:var(--on-lime);box-shadow:inset 0 0 0 2px var(--outline);border:0;cursor:pointer}
+.btn:focus-visible{outline:3px solid var(--accent-press);outline-offset:3px}
+.toast{background:var(--raised);box-shadow:inset 0 0 0 2px var(--alert);padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--bright);margin-bottom:14px}
+.frame.p .tl{grid-template-columns:1fr}.frame.p .alloc h1{font-size:32px;line-height:32px}.frame.p .grp{padding:14px}
+.frame.p .go{justify-content:stretch}.frame.p .btn{width:100%}
+.flow{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.nd{background:var(--panel);box-shadow:inset 0 0 0 2px var(--line);padding:12px 14px;font-size:12px;max-width:300px}.nd.q{box-shadow:inset 0 0 0 2px var(--gold)}.nd.end{box-shadow:inset 0 0 0 2px var(--lime)}
+.ar{color:var(--accent)}.two{display:flex;flex-direction:column;gap:12px}.br{display:flex;gap:10px;align-items:center}.yn{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--gold);width:42px}
+.row2{display:flex;gap:16px;flex-wrap:wrap}.row2 .pn{flex:1 1 380px}
+.pn{padding:16px 20px;background:var(--sunken);box-shadow:inset 0 0 0 2px var(--soft)}.kick{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--accent);margin:0 0 8px}
+.copy{font-size:12px;line-height:1.6;margin:0}.ord{margin:0;padding-left:20px;font-size:12px;line-height:1.7}
+.qa{background:#1a1608;box-shadow:inset 0 0 0 2px var(--gold);padding:18px 22px;margin-top:40px;max-width:900px}.qa h3{font:400 24px var(--pixel);color:var(--gold);margin:0 0 8px}.qa li{font-size:12px;line-height:1.65;margin-bottom:6px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<nav class="index"><b>ALLOCATION SAISONNIÈRE</b><a href="#desk">Bureau</a><a href="#phone">Téléphone</a><a href="#long">Longue liste</a><a href="#flow">Parcours</a><a href="#motion">Mouvement</a><a href="#order">Ordre clavier</a><a href="#fail">Échec</a><a href="#questions">Questions</a><button class="lang" type="button" id="lang" aria-pressed="false">FR / EN</button></nav>
+<div class="wrap">
+<h1 class="pg">Allocation saisonnière (17.2)</h1>
+<p class="lead"><span class="fr">L’écran affiché une seule fois, au premier passage après la publication d’une saison, avant le hub. Les mêmes jetons que le jeu ; aucune marque de saison ni compte de saisons sur un palier. Le bouton FR / EN bascule la langue de tous les écrans de la page.</span><span class="en">The screen shown once, at a player’s first visit after a season is published, before the hub. The game’s own tokens; no season mark and no count of seasons on a tier. The FR / EN button switches the language of every screen on the page.</span></p>
+
+<h2 id="desk">1 · Bureau</h2>
+<p class="cap"><b>Ordre de lecture :</b> la ligne de la Confrérie ouvre l’écran, puis le h1 « ALLOCATION · SAISON 2 » (le seul endroit qui nomme la saison), puis trois groupes de listes : obtenu pendant la saison qui s’achève, les sets qui suivent, ce qui reste à regagner. Un seul bouton, « CONTINUER », en bas. Deux colonnes de paliers sur bureau, une colonne centrée de 760 px au plus.</p>
+<div class="scroll"><div class="frame d"><div class="top"><span class="word">GAMEBLE</span><span class="chip reg">CAPSULES <span class="n">3</span><span class="sep"></span><span class="next">+1 dans 04:12</span></span><span class="chip sp"><span class="n">1</span> SPÉCIALE</span><span class="chip player">THIERRY</span></div><div class="stagebox">
+<main class="alloc" aria-labelledby="hd">
+ <div class="head">
+  <p class="line"><span class="fr">La Direction a le plaisir de vous confirmer que vos acquis sont reconduits. Aucune démarche n’est requise.</span><span class="en">Management is pleased to confirm that your holdings carry over. No action is required.</span></p>
+  <h1 id="hd" tabindex="-1"><span class="fr">ALLOCATION · SAISON 2</span><span class="en">ALLOCATION · SEASON 2</span></h1>
+ </div>
+ <section class="grp" aria-labelledby="g1d">
+  <h2 id="g1d"><span class="fr">OBTENU PENDANT LA SAISON 1</span><span class="en">EARNED IN SEASON 1</span></h2>
+  <h3><span class="fr">Paliers atteints</span><span class="en">Tiers reached</span> <span class="ct">5</span></h3>
+  <ul class="tl"><li><span class="mk"></span><span class="nm"><b><span class="fr">Adepte</span><span class="en">Adept</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Studio Aurore</span><span class="en">Studio Aurore</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Expert</span><span class="en">Expert</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Pixel art</span><span class="en">Pixel art</span></span></li></ul>
+  <h3><span class="fr">Succès</span><span class="en">Achievements</span> <span class="ct">3</span></h3>
+  <ul class="tl ach"><li><span class="mk g"></span><span class="nm"><span class="fr">Premier set entamé</span><span class="en">First set started</span></span></li><li><span class="mk g"></span><span class="nm"><span class="fr">Vingt capsules ouvertes</span><span class="en">Twenty capsules opened</span></span></li><li><span class="mk g"></span><span class="nm"><span class="fr">Échange conclu</span><span class="en">Trade made</span></span></li></ul>
+  <h3><span class="fr">Récompenses de l’objectif communautaire</span><span class="en">Community goal rewards</span> <span class="ct">2</span></h3>
+  <ul class="tl"><li><span class="mk r"></span><span class="nm"><span class="fr">Capsule d’objectif · semaine 12</span><span class="en">Goal capsule · week 12</span></span></li><li><span class="mk r"></span><span class="nm"><span class="fr">Capsule d’objectif · semaine 14</span><span class="en">Goal capsule · week 14</span></span></li></ul>
+  <h3><span class="fr">Dos de carte</span><span class="en">Card backs</span></h3>
+  <p class="ph"><span class="fr">Les dos gagnés pendant la saison s’afficheront ici.</span><span class="en">Backs earned during the season will show here.</span></p>
+ </section>
+ <section class="grp" aria-labelledby="g2d">
+  <h2 id="g2d"><span class="fr">VOS SETS VOUS SUIVENT</span><span class="en">YOUR SETS FOLLOW YOU</span></h2>
+  <p class="sub"><span class="fr">Reçus d’office dans la saison 2, sans célébration.</span><span class="en">Received at once in season 2, without celebration.</span></p>
+  <ul class="tl"><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Studio Aurore</span><span class="en">Studio Aurore</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span></li></ul>
+ </section>
+ <section class="grp" aria-labelledby="g3d">
+  <h2 id="g3d"><span class="fr">À REGAGNER</span><span class="en">TO WIN BACK</span></h2>
+  <p class="sub"><span class="fr">Ces paliers restent à rejoindre avec les cartes de la saison 2.</span><span class="en">These tiers are still to reach with season 2 cards.</span></p>
+  <ul class="tl"><li><span class="mk"></span><span class="nm"><b><span class="fr">Adepte</span><span class="en">Adept</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span><span class="more"><span class="fr">3 cartes de plus</span><span class="en">3 more cards</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span><span class="more"><span class="fr">2 cartes de plus</span><span class="en">2 more cards</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Expert</span><span class="en">Expert</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span><span class="more"><span class="fr">6 cartes de plus</span><span class="en">6 more cards</span></span></li></ul>
+ </section>
+ <div class="go"><button class="btn" type="button"><span class="fr">CONTINUER</span><span class="en">CONTINUE</span></button></div>
+</main></div></div></div>
+
+<h2 id="phone">2 · Téléphone (390 px)</h2>
+<p class="cap"><b>Une colonne qui défile.</b> La barre d’onglets reste ; « CONTINUER » est collé en bas de la zone de défilement, au-dessus de la barre d’onglets, quand la liste est longue.</p>
+<div class="scroll"><div class="row"><div class="frame p"><div class="ptop"><span class="word">GAMEBLE</span><span class="chip reg"><span class="n">3</span></span><span class="chip sp"><span class="n">1</span></span></div><div class="pscroll" style="height:860px;overflow:auto">
+<main class="alloc" aria-labelledby="hp">
+ <div class="head">
+  <p class="line"><span class="fr">La Direction a le plaisir de vous confirmer que vos acquis sont reconduits. Aucune démarche n’est requise.</span><span class="en">Management is pleased to confirm that your holdings carry over. No action is required.</span></p>
+  <h1 id="hp" tabindex="-1"><span class="fr">ALLOCATION · SAISON 2</span><span class="en">ALLOCATION · SEASON 2</span></h1>
+ </div>
+ <section class="grp" aria-labelledby="g1p">
+  <h2 id="g1p"><span class="fr">OBTENU PENDANT LA SAISON 1</span><span class="en">EARNED IN SEASON 1</span></h2>
+  <h3><span class="fr">Paliers atteints</span><span class="en">Tiers reached</span> <span class="ct">5</span></h3>
+  <ul class="tl"><li><span class="mk"></span><span class="nm"><b><span class="fr">Adepte</span><span class="en">Adept</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Studio Aurore</span><span class="en">Studio Aurore</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Expert</span><span class="en">Expert</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Pixel art</span><span class="en">Pixel art</span></span></li></ul>
+  <h3><span class="fr">Succès</span><span class="en">Achievements</span> <span class="ct">3</span></h3>
+  <ul class="tl ach"><li><span class="mk g"></span><span class="nm"><span class="fr">Premier set entamé</span><span class="en">First set started</span></span></li><li><span class="mk g"></span><span class="nm"><span class="fr">Vingt capsules ouvertes</span><span class="en">Twenty capsules opened</span></span></li><li><span class="mk g"></span><span class="nm"><span class="fr">Échange conclu</span><span class="en">Trade made</span></span></li></ul>
+  <h3><span class="fr">Récompenses de l’objectif communautaire</span><span class="en">Community goal rewards</span> <span class="ct">2</span></h3>
+  <ul class="tl"><li><span class="mk r"></span><span class="nm"><span class="fr">Capsule d’objectif · semaine 12</span><span class="en">Goal capsule · week 12</span></span></li><li><span class="mk r"></span><span class="nm"><span class="fr">Capsule d’objectif · semaine 14</span><span class="en">Goal capsule · week 14</span></span></li></ul>
+  <h3><span class="fr">Dos de carte</span><span class="en">Card backs</span></h3>
+  <p class="ph"><span class="fr">Les dos gagnés pendant la saison s’afficheront ici.</span><span class="en">Backs earned during the season will show here.</span></p>
+ </section>
+ <section class="grp" aria-labelledby="g2p">
+  <h2 id="g2p"><span class="fr">VOS SETS VOUS SUIVENT</span><span class="en">YOUR SETS FOLLOW YOU</span></h2>
+  <p class="sub"><span class="fr">Reçus d’office dans la saison 2, sans célébration.</span><span class="en">Received at once in season 2, without celebration.</span></p>
+  <ul class="tl"><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Studio Aurore</span><span class="en">Studio Aurore</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span></li></ul>
+ </section>
+ <section class="grp" aria-labelledby="g3p">
+  <h2 id="g3p"><span class="fr">À REGAGNER</span><span class="en">TO WIN BACK</span></h2>
+  <p class="sub"><span class="fr">Ces paliers restent à rejoindre avec les cartes de la saison 2.</span><span class="en">These tiers are still to reach with season 2 cards.</span></p>
+  <ul class="tl"><li><span class="mk"></span><span class="nm"><b><span class="fr">Adepte</span><span class="en">Adept</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span><span class="more"><span class="fr">3 cartes de plus</span><span class="en">3 more cards</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span><span class="more"><span class="fr">2 cartes de plus</span><span class="en">2 more cards</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Expert</span><span class="en">Expert</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span><span class="more"><span class="fr">6 cartes de plus</span><span class="en">6 more cards</span></span></li></ul>
+ </section>
+ <div class="go"><button class="btn" type="button"><span class="fr">CONTINUER</span><span class="en">CONTINUE</span></button></div>
+</main></div><div class="tabbar"><span>HUB</span><span>CAPSULES</span><span>COLLECTION</span><span>AMIS</span><span>PLUS</span></div></div></div></div>
+
+<h2 id="long">3 · Longue liste</h2>
+<p class="cap"><b>Rien n’est tronqué.</b> Les listes montrent tous les paliers (aucun « voir plus », pas de compteur de saisons). Le décompte à côté de chaque sous-titre annonce la taille de la liste aux lecteurs d’écran. Le bouton reste visible, collé en bas.</p>
+<div class="scroll"><div class="row"><div class="frame p"><div class="ptop"><span class="word">GAMEBLE</span><span class="chip reg"><span class="n">3</span></span><span class="chip sp"><span class="n">1</span></span></div><div class="pscroll" style="height:700px;overflow:auto">
+<main class="alloc" aria-labelledby="hl">
+ <div class="head">
+  <p class="line"><span class="fr">La Direction a le plaisir de vous confirmer que vos acquis sont reconduits. Aucune démarche n’est requise.</span><span class="en">Management is pleased to confirm that your holdings carry over. No action is required.</span></p>
+  <h1 id="hl" tabindex="-1"><span class="fr">ALLOCATION · SAISON 2</span><span class="en">ALLOCATION · SEASON 2</span></h1>
+ </div>
+ <section class="grp" aria-labelledby="g1l">
+  <h2 id="g1l"><span class="fr">OBTENU PENDANT LA SAISON 1</span><span class="en">EARNED IN SEASON 1</span></h2>
+  <h3><span class="fr">Paliers atteints</span><span class="en">Tiers reached</span> <span class="ct">15</span></h3>
+  <ul class="tl"><li><span class="mk"></span><span class="nm"><b><span class="fr">Adepte</span><span class="en">Adept</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Studio Aurore</span><span class="en">Studio Aurore</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Expert</span><span class="en">Expert</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Pixel art</span><span class="en">Pixel art</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Adepte</span><span class="en">Adept</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Studio Aurore</span><span class="en">Studio Aurore</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Expert</span><span class="en">Expert</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Pixel art</span><span class="en">Pixel art</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Adepte</span><span class="en">Adept</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Studio Aurore</span><span class="en">Studio Aurore</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Expert</span><span class="en">Expert</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Pixel art</span><span class="en">Pixel art</span></span></li></ul>
+  <h3><span class="fr">Succès</span><span class="en">Achievements</span> <span class="ct">6</span></h3>
+  <ul class="tl ach"><li><span class="mk g"></span><span class="nm"><span class="fr">Premier set entamé</span><span class="en">First set started</span></span></li><li><span class="mk g"></span><span class="nm"><span class="fr">Vingt capsules ouvertes</span><span class="en">Twenty capsules opened</span></span></li><li><span class="mk g"></span><span class="nm"><span class="fr">Échange conclu</span><span class="en">Trade made</span></span></li><li><span class="mk g"></span><span class="nm"><span class="fr">Premier set entamé</span><span class="en">First set started</span></span></li><li><span class="mk g"></span><span class="nm"><span class="fr">Vingt capsules ouvertes</span><span class="en">Twenty capsules opened</span></span></li><li><span class="mk g"></span><span class="nm"><span class="fr">Échange conclu</span><span class="en">Trade made</span></span></li></ul>
+  <h3><span class="fr">Récompenses de l’objectif communautaire</span><span class="en">Community goal rewards</span> <span class="ct">2</span></h3>
+  <ul class="tl"><li><span class="mk r"></span><span class="nm"><span class="fr">Capsule d’objectif · semaine 12</span><span class="en">Goal capsule · week 12</span></span></li><li><span class="mk r"></span><span class="nm"><span class="fr">Capsule d’objectif · semaine 14</span><span class="en">Goal capsule · week 14</span></span></li></ul>
+  <h3><span class="fr">Dos de carte</span><span class="en">Card backs</span></h3>
+  <p class="ph"><span class="fr">Les dos gagnés pendant la saison s’afficheront ici.</span><span class="en">Backs earned during the season will show here.</span></p>
+ </section>
+ <section class="grp" aria-labelledby="g2l">
+  <h2 id="g2l"><span class="fr">VOS SETS VOUS SUIVENT</span><span class="en">YOUR SETS FOLLOW YOU</span></h2>
+  <p class="sub"><span class="fr">Reçus d’office dans la saison 2, sans célébration.</span><span class="en">Received at once in season 2, without celebration.</span></p>
+  <ul class="tl"><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Studio Aurore</span><span class="en">Studio Aurore</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Studio Aurore</span><span class="en">Studio Aurore</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Novice</span><span class="en">Novice</span></b> · <span class="fr">Studio Aurore</span><span class="en">Studio Aurore</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span></li></ul>
+ </section>
+ <section class="grp" aria-labelledby="g3l">
+  <h2 id="g3l"><span class="fr">À REGAGNER</span><span class="en">TO WIN BACK</span></h2>
+  <p class="sub"><span class="fr">Ces paliers restent à rejoindre avec les cartes de la saison 2.</span><span class="en">These tiers are still to reach with season 2 cards.</span></p>
+  <ul class="tl"><li><span class="mk"></span><span class="nm"><b><span class="fr">Adepte</span><span class="en">Adept</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span><span class="more"><span class="fr">3 cartes de plus</span><span class="en">3 more cards</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span><span class="more"><span class="fr">2 cartes de plus</span><span class="en">2 more cards</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Expert</span><span class="en">Expert</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span><span class="more"><span class="fr">6 cartes de plus</span><span class="en">6 more cards</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Adepte</span><span class="en">Adept</span></b> · <span class="fr">Roguelike</span><span class="en">Roguelike</span></span><span class="more"><span class="fr">3 cartes de plus</span><span class="en">3 more cards</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Apprenti</span><span class="en">Apprentice</span></b> · <span class="fr">Metroidvania</span><span class="en">Metroidvania</span></span><span class="more"><span class="fr">2 cartes de plus</span><span class="en">2 more cards</span></span></li><li><span class="mk"></span><span class="nm"><b><span class="fr">Expert</span><span class="en">Expert</span></b> · <span class="fr">Deckbuilder</span><span class="en">Deckbuilder</span></span><span class="more"><span class="fr">6 cartes de plus</span><span class="en">6 more cards</span></span></li></ul>
+ </section>
+ <div class="go"><button class="btn" type="button"><span class="fr">CONTINUER</span><span class="en">CONTINUE</span></button></div>
+</main></div><div class="tabbar"><span>HUB</span><span>CAPSULES</span><span>COLLECTION</span><span>AMIS</span><span>PLUS</span></div></div></div></div>
+
+<h2 id="flow">4 · Qui voit l’écran</h2>
+<div class="flow">
+ <div class="nd"><span class="fr">Premier passage après une publication</span><span class="en">First visit after a publication</span></div><div class="ar">▶</div>
+ <div class="nd q"><span class="fr">Au moins une carte d’une saison antérieure, échanges compris ?</span><span class="en">At least one card from an earlier season, trades included?</span></div>
+ <div class="two"><div class="br"><span class="yn"><span class="fr">NON</span><span class="en">NO</span></span><div class="nd end"><span class="fr">Directement au hub. Aucun écran, aucune trace.</span><span class="en">Straight to the hub. No screen, no trace.</span></div></div>
+ <div class="br"><span class="yn"><span class="fr">OUI</span><span class="en">YES</span></span><div class="nd"><span class="fr">L’écran. « CONTINUER » reçoit l’allocation si elle est en attente, la marque vue, puis ouvre le hub.</span><span class="en">The screen. “CONTINUE” receives the allocation if pending, marks it seen, then opens the hub.</span></div><div class="ar">▶</div><div class="nd end"><span class="fr">Deuxième passage : directement au hub, jamais revu.</span><span class="en">Second visit: straight to the hub, never shown again.</span></div></div></div>
+</div>
+<p class="cap"><b>Où on y mène :</b> le hub et la page capsule redirigent tant que la saison publiée n’est pas vue. Si un échange est accepté avant le retour du joueur, ses paliers reportés sont déjà reçus en silence : l’écran les liste quand même.</p>
+
+<h2 id="motion">5 · Mouvement</h2>
+<div class="row2">
+ <div class="pn soft"><p class="kick"><span class="fr">PAR DÉFAUT</span><span class="en">DEFAULT</span></p><p class="copy"><span class="fr">À l’ouverture, les trois groupes entrent l’un après l’autre : 120 ms de fondu, 80 ms entre deux groupes, 400 ms au total. Rien ne bouge ensuite.</span><span class="en">On arrival the three groups enter one after the other: a 120 ms fade, 80 ms between groups, 400 ms in all. Nothing moves afterwards.</span></p></div>
+ <div class="pn soft"><p class="kick"><span class="fr">ANIMATIONS RÉDUITES</span><span class="en">REDUCED MOTION</span></p><p class="copy"><span class="fr">Tout est affiché d’un coup, sans fondu. Même ordre, même contenu.</span><span class="en">Everything shows at once, no fade. Same order, same content.</span></p></div>
+</div>
+
+<h2 id="order">6 · Clavier et lecteur d’écran</h2>
+<div class="row2">
+ <div class="pn soft"><p class="kick"><span class="fr">ORDRE</span><span class="en">ORDER</span></p><ol class="ord">
+  <li><span class="fr">À l’arrivée le focus est sur le h1 (tabindex −1) ; la ligne de la Confrérie est lue juste avant.</span><span class="en">On arrival focus is on the h1 (tabindex −1); the Brotherhood line is read just before it.</span></li>
+  <li><span class="fr">h2 par groupe : « Obtenu pendant la saison 1 », « Vos sets vous suivent », « À regagner ».</span><span class="en">One h2 per group: “Earned in season 1”, “Your sets follow you”, “To win back”.</span></li>
+  <li><span class="fr">Chaque liste est une vraie liste ; le sous-titre annonce « Paliers atteints, 5 » ; un palier se lit « Adepte, Roguelike ».</span><span class="en">Each list is a real list; the sub-heading announces “Tiers reached, 5”; a tier reads “Adept, Roguelike”.</span></li>
+  <li><span class="fr">Le seul élément atteignable au clavier est « CONTINUER », en dernier ; il porte l’anneau de focus du jeu.</span><span class="en">The only keyboard stop is “CONTINUE”, last; it carries the game’s focus ring.</span></li></ol></div>
+ <div class="pn soft"><p class="kick"><span class="fr">PAS DE COULEUR SEULE</span><span class="en">NEVER COLOUR ALONE</span></p><p class="copy"><span class="fr">Le carré de chaque ligne (vert : reçu, or : succès, rouge : objectif) double toujours le mot. Le texte « à regagner » est écrit, jamais seulement grisé.</span><span class="en">Each row’s square (green: received, gold: achievement, red: goal) always doubles the word. “To win back” is written, never only greyed.</span></p></div>
+</div>
+
+<h2 id="fail">7 · Échec de « CONTINUER »</h2>
+<div class="scroll"><div class="row"><div class="frame p"><div class="ptop"><span class="word">GAMEBLE</span><span class="chip reg"><span class="n">3</span></span><span class="chip sp"><span class="n">1</span></span></div><div class="pscroll" style="height:420px;overflow:auto"><main class="alloc"><div class="toast" role="alert"><span class="fr">Impossible de continuer. Réessayez.</span><span class="en">Could not continue. Try again.</span></div><div class="head"><p class="line"><span class="fr">La Direction a le plaisir de vous confirmer que vos acquis sont reconduits. Aucune démarche n’est requise.</span><span class="en">Management is pleased to confirm that your holdings carry over. No action is required.</span></p><h1 tabindex="-1"><span class="fr">ALLOCATION · SAISON 2</span><span class="en">ALLOCATION · SEASON 2</span></h1></div><p class="ph"><span class="fr">…les groupes, inchangés…</span><span class="en">…the groups, unchanged…</span></p><div class="go"><button class="btn" type="button"><span class="fr">CONTINUER</span><span class="en">CONTINUE</span></button></div></main></div><div class="tabbar"><span>HUB</span><span>CAPSULES</span><span>COLLECTION</span><span>AMIS</span><span>PLUS</span></div></div></div></div>
+<p class="cap"><span class="fr">Le toast d’erreur n’efface rien ; l’écran reste, le bouton reste actif, l’allocation n’est pas marquée vue.</span><span class="en">The error toast clears nothing; the screen stays, the button stays active, the allocation is not marked seen.</span></p>
+
+<div class="qa" id="questions"><h3>Questions pour l’auteur</h3><ol>
+<li>La ligne de la Confrérie : « La Direction a le plaisir de vous confirmer que vos acquis sont reconduits. Aucune démarche n’est requise. » Ton juste ? (« vous », ni nom ni titre, ironie discrète.)</li>
+<li>« À regagner » : on liste les paliers que le joueur avait à la fin de la saison 1 mais qu’il n’atteint pas encore avec les cartes de la saison 2, avec « n cartes de plus ». Garder le « n cartes de plus », ou seulement le nom du palier ?</li>
+<li>Faut-il montrer les succès et les capsules d’objectif de la saison, ou seulement les paliers ? (Le ticket les nomme tous les trois.)</li>
+<li>Le groupe « Dos de carte » est un emplacement vide tant que les dos ne sont pas là : le laisser visible, ou le cacher jusqu’à 9.8 ?</li>
+<li>Pas de « voir plus » sur les longues listes : on défile. D’accord ?</li>
+<li>Le bouton « CONTINUER » collé en bas sur téléphone : d’accord ?</li></ol></div>
+<div class="qa"><h3>À détailler</h3><ol>
+<li>Les repères de chaque ligne en vrai pixel art (palier, succès, capsule d’objectif).</li>
+<li>La mise en page des deux colonnes sur bureau avec de très longues listes.</li>
+<li>L’anglais mot à mot, relu avec la voix de la Direction.</li></ol></div>
+</div>
+<script>
+(function(){var r=document.documentElement,b=document.getElementById("lang");
+try{if(localStorage.getItem("alloc-lang")==="en"){r.lang="en";r.className="en";b.setAttribute("aria-pressed","true")}}catch(e){}
+b.addEventListener("click",function(){var en=r.className!=="en";r.lang=en?"en":"fr";r.className=en?"en":"fr";b.setAttribute("aria-pressed",String(en));try{localStorage.setItem("alloc-lang",en?"en":"fr")}catch(e){}});})();
+</script></body></html>

@@ -1045,7 +1045,16 @@ Reference: the footer of [mockups/key-roadmap-page.html](mockups/key-roadmap-pag
 
 #### Seasonal allocation (after the launch, CAP-23)
 
-A panel page in the shell's tokens, one scrolling column on the phone. Its layout is designed with the author before the screen is built.
+A panel page in the shell's tokens, one scrolling column on the phone. Reference: [mockups/seasonal-allocation/index.html](mockups/seasonal-allocation/index.html) (drawn 2026-10-28, pending the author's review; where the mock differs from the rules, the rules apply).
+
+- **Column:** one centred column, at most 760px wide, in the shell with its top bar and, on the phone, its tab bar. Order: the Brotherhood line, the h1, three group panels, the button.
+- **Brotherhood line:** one sentence in `{typography.body}` `{colors.accent}` behind a 3px `{colors.accent}` bar on its left, above the h1; no name, rank or form of address.
+- **h1:** "ALLOCATION · SAISON 2" in the page title style; it is the only place that names a season.
+- **Group panel:** `{colors.panel}` with the panel border; an h2 in the kicker style (`{colors.accent}`), then sub-headings in muted `{typography.label}` each followed by its count in `{colors.text-max}`; a short muted line under the h2 where the group needs one. Three groups: "OBTENU PENDANT LA SAISON 1" (tiers reached, achievements, community goal rewards, card backs), "VOS SETS VOUS SUIVENT" (tiers received), "À REGAGNER" (tiers to win back, each with how many cards are missing).
+- **Row:** a sunken box (`{colors.panel-sunken}` with the soft border, 34px tall at least) holding a 10px square marker with a `{colors.outline}` edge, the tier's name in bold then the set, and the missing-cards figure on the right where it applies. Markers: `{colors.lime}` tiers, `{colors.gold}` achievements, `{colors.capsule-goal}` goal rewards; the word always carries the meaning, the colour never alone. Two columns on desktop, one on the phone. No season mark, no season count.
+- **Card backs:** until the card backs ship, an empty dashed placeholder line.
+- **Button:** one primary "CONTINUER" at the right of the column's foot, sticky at the bottom of the scroll area so a long list never hides it; full width on the phone above the tab bar.
+- **Error:** a `{colors.alert}`-edged toast above the heading; the screen stays.
 
 #### Public card page
 
