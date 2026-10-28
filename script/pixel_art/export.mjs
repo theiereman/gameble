@@ -29,6 +29,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { dirname, join, relative, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { deflateSync, inflateSync } from "node:zlib"
+import { SET_BACK_DESIGNS, drawSetBack, setBackName } from "./set_backs.mjs"
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..")
 const ART_PIXEL = 2
@@ -1242,6 +1243,13 @@ files.set("starfield.svg", starfieldSvg())
 for (const { name, id } of BACK_DESIGNS) {
   for (const [size, [w, h]] of Object.entries(CARD_SIZES)) files.set(`back-${name}-${size}.png`, backCanvas(id, w / 2 | 0, h / 2 | 0))
 }
+for (const design of SET_BACK_DESIGNS) {
+  for (const [size, [w, h]] of Object.entries(CARD_SIZES)) {
+    const g = canvas(w / 2 | 0, h / 2 | 0)
+    drawSetBack(g, g.width, g.height, design, { mixc, ptext, ptw })
+    files.set(`back-${setBackName(design)}-${size}.png`, g)
+  }
+}
 files.set("canister-cap-top.png", CANISTER.top)
 files.set("canister-body.png", CANISTER.body)
 files.set("canister-cap-bottom.png", CANISTER.bottom)
@@ -1291,6 +1299,8 @@ const DESCRIPTIONS = {
   "starfield.svg": "Star field tile, 480 × 480 CSS px, repeated under the content",
   ...Object.fromEntries(BACK_DESIGNS.flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${name}-${size}.png`, `${title} back for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
+  ...Object.fromEntries(SET_BACK_DESIGNS.flatMap((design) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
+    [`back-${setBackName(design)}-${size}.png`, `${design.word} back of the ${design.key} ${design.kind.replace(/_/g, " ")} set for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
   "canister-cap-top.png": "Canister top cap: steel grip, collar, indicator window, 100 × 20",
   "canister-body.png": "Canister body: slate cylinder, label band, emblem window with the gold G monogram, rivets, LED plate, barcode, 100 × 110",
   "canister-cap-bottom.png": "Canister bottom cap: steel grip and collar, 100 × 20",

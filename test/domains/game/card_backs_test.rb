@@ -13,9 +13,31 @@ class Game::CardBacksTest < ActiveSupport::TestCase
   def unlock(key, player: @player) = Game::CardBackUnlock.record(player.id, key, Time.current)
 
   test "the catalogue holds Standard, which needs no unlock row" do
-    assert_equal [ "standard" ], Game::CardBacks::KEYS
+    assert_equal "standard", Game::CardBacks::KEYS.first
     assert_equal :always, Game::CardBacks.find("standard").unlock.kind
     assert_nil Game::CardBacks.find("unknown")
+  end
+
+  test "every theme and hall of fame set has a back, and no other set does" do
+    assert_equal Catalog::Themes.keys.sort, Game::CardBacks::THEME_KEYS.sort
+    assert_equal Catalog::HallOfFame.keys.sort, Game::CardBacks::HALL_OF_FAME_KEYS.sort
+  end
+
+  test "a set back is keyed by its kind and key and unlocks on that set's tier" do
+    back = Game::CardBacks.find("set-hall_of_fame-mal-aimes")
+
+    assert_equal "back-hall_of_fame-mal-aimes", back.asset
+    assert_equal :set_tier, back.unlock.kind
+    assert_equal [ "hall_of_fame", "mal-aimes" ], back.unlock.target
+    assert_equal 1 + 43 + 4, Game::CardBacks::KEYS.size
+  end
+
+  test "every back has its image in the five card sizes" do
+    sizes = %w[xs s m l xl]
+    missing = Game::CardBacks::CATALOGUE.flat_map { |back| sizes.map { |size| "#{back.asset}-#{size}.png" } }
+      .reject { |file| Rails.root.join("app/frontend/images/pixel", file).exist? }
+
+    assert_empty missing
   end
 
   test "a new account wears Standard" do
