@@ -3,163 +3,231 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Exotic card: three looks</title>
+<title>Exotic card: black with a violet glow</title>
 <style>
+  @property --angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
   :root {
-    --ground: #0e1217;
-    --panel: #161c24;
-    --line: #2a3340;
-    --text: #e8edf2;
-    --muted: #8f98a0;
-    --legendary: #f4c542;
-    --frame: #f4c542;
-    --epic: #b47cff;
-    --rare: #66c0f4;
+    --color-ground: #0b0f15;
+    --color-panel: #121a24;
+    --color-panel-sunken: #0e141b;
+    --color-panel-raised: #1b2838;
+    --color-text: #c7d5e0;
+    --color-text-max: #fff;
+    --color-muted: #8f98a0;
+    --color-publisher: #8a96a2;
+    --color-outline: #06090d;
+    --color-line: #2a3340;
+    --color-rarity-commune: #8f98a0;
+    --color-rarity-rare: #66c0f4;
+    --color-rarity-epique: #b47cff;
+    --color-rarity-legendaire: #f4c542;
+    --violet: #a24bff;
+    --violet-hi: #d6a8ff;
+    --violet-lo: #4b1d8f;
+    --pixel-outline-4: 0 -4px 0 0 #06090d, 0 4px 0 0 #06090d, -4px 0 0 0 #06090d, 4px 0 0 0 #06090d;
+    --card-face-bevel: inset 3px 3px 0 0 rgba(255,255,255,.35), inset -3px -3px 0 0 rgba(0,0,0,.35);
     --font-pixel: "VT323", "Courier New", monospace;
+    --font-mono: "JetBrains Mono", ui-monospace, "DejaVu Sans Mono", monospace;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    padding: 24px 16px 64px;
-    background: var(--ground);
-    color: var(--text);
-    font: 14px/1.5 "JetBrains Mono", ui-monospace, monospace;
-  }
+  body { margin: 0; padding: 24px 16px 64px; background: var(--color-ground); color: var(--color-text); font: 14px/1.5 var(--font-mono); }
   main { max-width: 1040px; margin: 0 auto; }
-  h1 { font: 400 2rem/1 var(--font-pixel); margin: 0 0 4px; }
-  h2 { font: 400 1.5rem/1 var(--font-pixel); margin: 40px 0 12px; }
-  p { color: var(--muted); margin: 0 0 12px; max-width: 70ch; }
-  .row { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
-  .look { display: flex; flex-direction: column; gap: 8px; }
-  .look h3 { font: 400 1.25rem/1 var(--font-pixel); margin: 0; }
-  .look small { color: var(--muted); max-width: 26ch; }
+  h1 { font: 400 2rem/1 var(--font-pixel); margin: 0 0 4px; color: #fff; }
+  h2 { font: 400 1.5rem/1 var(--font-pixel); margin: 44px 0 12px; color: #fff; }
+  p { color: var(--color-muted); margin: 0 0 12px; max-width: 72ch; }
+  .row { display: flex; flex-wrap: wrap; gap: 44px; align-items: flex-start; padding: 12px 8px 8px; }
+  .look { display: flex; flex-direction: column; gap: 14px; }
+  .look h3 { font: 400 1.25rem/1 var(--font-pixel); margin: 0; color: #fff; }
+  .look small { color: var(--color-muted); max-width: 28ch; }
 
-  /* The card, drawn like the app's: rarity frame, bevel, pixel outline, panel body. */
+  /* ---- The face, copied from the app: frame, bevel, pixel outline, body, band, art box, two footer lines ---- */
   .card {
-    width: 208px; height: 312px; padding: 5px;
-    background: var(--frame);
-    box-shadow: 0 0 0 2px #000, inset 2px 2px 0 rgba(255,255,255,.35), inset -2px -2px 0 rgba(0,0,0,.35);
-    display: block;
+    --card-rarity: var(--color-rarity-legendaire);
+    --card-width: 208px; --card-height: 312px;
+    --card-frame: 5px; --card-padding: 5px; --card-gap: 4px;
+    --card-art-width: 188px; --card-art-height: 194px;
+    --card-line-height: 16px; --card-rarity-line-height: 20px;
+    position: relative; display: inline-block; flex: none; vertical-align: top;
+    width: var(--card-width); height: var(--card-height); padding: var(--card-frame);
+    background: var(--card-rarity);
+    box-shadow: var(--pixel-outline-4), var(--card-face-bevel);
+    color: var(--color-text); text-align: left;
   }
-  .card__body { height: 100%; display: flex; flex-direction: column; gap: 4px; padding: 5px; background: var(--panel); }
-  .card__band { flex: 1 1 0; display: flex; flex-direction: column; justify-content: center; padding: 0 6px; border-left: 3px solid var(--frame); min-height: 0; }
-  .card__title { font: 400 1.5rem/1 var(--font-pixel); }
-  .card__publisher { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-  .card__art { width: 188px; height: 194px; background: #0a0e13; image-rendering: pixelated; display: block; }
-  .card__line { display: flex; justify-content: space-between; align-items: center; height: 16px; font-size: 11px; color: var(--muted); }
-  .card__line--rarity { height: 20px; color: var(--text); }
-  .card__rarity { font: 400 1.125rem/1 var(--font-pixel); letter-spacing: .04em; }
-  .card__number { color: var(--muted); font-size: 11px; }
-  .gem { display: inline-block; width: 12px; height: 12px; margin-right: 6px; background: var(--frame); box-shadow: 0 0 0 1px #000; transform: rotate(45deg) scale(.85); vertical-align: -1px; }
-
-  /* Look A, Prism: a stepped rainbow frame, no gradient smoothing, the pixel look. */
-  .look--prism .card {
-    background: linear-gradient(135deg, #ff5d8f 0 16%, #ffb24a 16% 33%, #f4e04a 33% 50%, #4ad69b 50% 66%, #4aa8ff 66% 83%, #b47cff 83% 100%);
+  .card--m {
+    --card-width: 160px; --card-height: 240px; --card-frame: 4px; --card-padding: 4px; --card-gap: 2px;
+    --card-art-width: 144px; --card-art-height: 148px; --card-line-height: 14px; --card-rarity-line-height: 16px;
   }
-  .look--prism { --frame: #f4e04a; }
-  .look--prism .gem { background: conic-gradient(#ff5d8f, #ffb24a, #f4e04a, #4ad69b, #4aa8ff, #b47cff, #ff5d8f); }
-
-  /* Look B, Neon: hot pink frame with a cyan outline, a colour no rarity uses. */
-  .look--neon { --frame: #ff4fa3; }
-  .look--neon .card { box-shadow: 0 0 0 2px #000, 0 0 0 4px #3df0ff, inset 2px 2px 0 rgba(255,255,255,.35), inset -2px -2px 0 rgba(0,0,0,.35); }
-
-  /* Look C, Obsidian: near-black frame with white pixel stars, the only dark frame. */
-  .look--obsidian { --frame: #0b0b10; }
-  .look--obsidian .card {
-    background:
-      radial-gradient(#fff 1px, transparent 1.5px) 0 0 / 14px 14px,
-      radial-gradient(#9fe8ff 1px, transparent 1.5px) 7px 7px / 14px 14px,
-      #0b0b10;
-    box-shadow: 0 0 0 2px #fff, inset 2px 2px 0 rgba(255,255,255,.2), inset -2px -2px 0 rgba(0,0,0,.6);
+  .card--epic { --card-rarity: var(--color-rarity-epique); }
+  .card--rare { --card-rarity: var(--color-rarity-rare); }
+  .card__body { display: flex; flex-direction: column; gap: var(--card-gap); height: 100%; padding: var(--card-padding); background: var(--color-panel); position: relative; }
+  .card__band {
+    display: flex; flex: 1 1 0; flex-direction: column; justify-content: center; min-height: 0; overflow: hidden;
+    padding: 0 6px 0 calc(3px + 6px); background: var(--color-panel-raised); box-shadow: inset 3px 0 0 0 var(--card-rarity);
   }
-  .look--obsidian .card__band { border-left-color: #fff; }
+  .card__title { font: 700 .875rem/1rem var(--font-mono); color: var(--color-text-max); text-transform: uppercase; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .card--m .card__title { font-size: .75rem; line-height: .875rem; }
+  .card__publisher { font: 700 .6875rem/normal var(--font-mono); color: var(--color-publisher); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card--m .card__publisher { font-size: .625rem; }
+  .card__art { position: relative; flex: none; width: var(--card-art-width); height: var(--card-art-height); background: var(--color-panel-sunken); }
+  .card__art::before, .card__art::after { content: ""; position: absolute; width: 8px; height: 8px; border: 0 solid #fff; pointer-events: none; }
+  .card__art::before { top: 2px; left: 2px; border-top-width: 2px; border-left-width: 2px; }
+  .card__art::after { right: 2px; bottom: 2px; border-right-width: 2px; border-bottom-width: 2px; }
+  .card__canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+  .card__line {
+    display: flex; flex: none; align-items: center; gap: 4px; height: var(--card-line-height); padding: 0 4px; overflow: hidden;
+    background: var(--color-panel-raised); font: 700 .625rem/normal var(--font-mono); letter-spacing: .5px; text-transform: uppercase; white-space: nowrap;
+  }
+  .card__line--rarity { height: var(--card-rarity-line-height); }
+  .card__genre, .card__rarity { min-width: 0; overflow: hidden; color: var(--card-rarity); text-overflow: ellipsis; }
+  .card__year, .card__number { flex: none; margin-left: auto; color: var(--color-muted); }
+  .card__rarity-icon { display: block; width: 14px; height: 14px; image-rendering: pixelated; }
+  .card--m .card__rarity-icon { width: 10px; height: 10px; }
+
+  /* ---- Exotic: a black frame; each look differs only by its slow violet glow ---- */
+  .card--exotic {
+    --card-rarity: #07050c;
+    box-shadow: var(--pixel-outline-4), inset 3px 3px 0 0 rgba(214,168,255,.28), inset -3px -3px 0 0 rgba(0,0,0,.7);
+  }
+  .card--exotic .card__body { background: #0a0710; }
+  .card--exotic .card__band, .card--exotic .card__line { background: #120c1c; }
+  .card--exotic .card__band { box-shadow: inset 3px 0 0 0 var(--violet); }
+  .card--exotic .card__genre, .card--exotic .card__rarity { color: var(--violet-hi); }
+
+  /* A · Halo: the whole card breathes a violet light around its outline. */
+  .look--halo .card--exotic { animation: halo 7s ease-in-out infinite; }
+  @keyframes halo {
+    0%, 100% { box-shadow: var(--pixel-outline-4), inset 3px 3px 0 0 rgba(214,168,255,.28), inset -3px -3px 0 0 rgba(0,0,0,.7), 0 0 8px 2px rgba(162,75,255,.25); }
+    50% { box-shadow: var(--pixel-outline-4), inset 3px 3px 0 0 rgba(214,168,255,.5), inset -3px -3px 0 0 rgba(0,0,0,.7), 0 0 26px 8px rgba(162,75,255,.65); }
+  }
+
+  /* B · Vein: a violet glow travels slowly round the black frame. */
+  .look--vein .card--exotic::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    padding: var(--card-frame);
+    background: conic-gradient(from var(--angle), transparent 0 55%, var(--violet-lo) 68%, var(--violet) 80%, var(--violet-hi) 86%, var(--violet) 92%, transparent 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    animation: orbit 12s linear infinite;
+  }
+  .look--vein .card--exotic { filter: drop-shadow(0 0 10px rgba(162,75,255,.35)); }
+  @keyframes orbit { to { --angle: 360deg; } }
+
+  /* C · Aura: the glow is inside, behind the portrait, and the frame stays plain black. */
+  .look--aura .card--exotic .card__art::before { content: none; }
+  .look--aura .card--exotic .card__art { animation: aura 8s ease-in-out infinite; }
+  @keyframes aura {
+    0%, 100% { box-shadow: inset 0 0 14px 0 rgba(162,75,255,.25); }
+    50% { box-shadow: inset 0 0 38px 6px rgba(162,75,255,.75); }
+  }
+  .look--aura .card--exotic { filter: drop-shadow(0 0 6px rgba(162,75,255,.3)); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .look--halo .card--exotic, .look--vein .card--exotic::before, .look--aura .card--exotic .card__art { animation: none; }
+  }
+
+  .context { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; padding: 12px 8px; }
+  .caption { color: var(--color-muted); font-size: 12px; margin-top: 8px; }
 
   table { border-collapse: collapse; width: 100%; max-width: 900px; font-size: 13px; }
-  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { color: var(--muted); font-weight: 400; }
-  .tag { display: inline-block; padding: 0 6px; border: 1px solid var(--line); color: var(--muted); font-size: 11px; }
-  .reco { color: var(--legendary); }
-  .context { display: flex; gap: 16px; flex-wrap: wrap; }
-  .grid { display: grid; grid-template-columns: repeat(6, 76px); gap: 8px; }
-  .mini { width: 76px; height: 114px; padding: 3px; background: var(--frame); box-shadow: 0 0 0 2px #000; }
-  .mini div { height: 100%; background: var(--panel); padding: 3px; font: 400 .9rem/1 var(--font-pixel); display: flex; align-items: flex-end; }
-  .mini--common { --frame: #8f98a0; }
-  .mini--rare { --frame: var(--rare); }
-  .mini--epic { --frame: var(--epic); }
-  .mini--legendary { --frame: var(--legendary); }
-  .mini--prism { background: linear-gradient(135deg, #ff5d8f 0 16%, #ffb24a 16% 33%, #f4e04a 33% 50%, #4ad69b 50% 66%, #4aa8ff 66% 83%, #b47cff 83% 100%); }
-  .mini--neon { --frame: #ff4fa3; box-shadow: 0 0 0 2px #000, 0 0 0 4px #3df0ff; }
-  .mini--obsidian { --frame: #0b0b10; box-shadow: 0 0 0 2px #fff; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--color-line); vertical-align: top; }
+  th { color: var(--color-muted); font-weight: 400; }
+  .tag { display: inline-block; padding: 0 6px; border: 1px solid var(--color-line); color: var(--color-muted); font-size: 11px; }
+  .reco { color: var(--color-rarity-legendaire); }
 </style>
 </head>
 <body>
 <main>
-  <h1>Exotic card: three looks</h1>
-  <p>The tribute card at the large size (208 × 312). It is outside the rarities: its mark reads « Exotic » / « Exotique », its category line reads « beta-builder », and the art is the tester's photo pixelated. The portraits here are placeholders drawn from the pseudonym; the real ones come from the testers' photos once they agree.</p>
+  <h1>Exotic card: black with a violet glow</h1>
+  <p>The same face as the app's cards (frame, bevel, pixel outline, title band, art box with its two corner brackets, two footer lines), at the large size 208 × 312. The exotic frame is black; the three looks differ only in how the violet glow lives, always slow. Under reduced motion the glow stays still. The portraits are placeholders drawn from the pseudonym; the real ones are the testers' photos, pixelated.</p>
 
-  <h2>1. The frame</h2>
+  <h2>1. Three glows</h2>
   <div class="row">
-    <div class="look look--prism">
-      <h3>A · Prism</h3>
-      <span class="card"><span class="card__body">
-        <span class="card__band"><span class="card__title">Hydrax</span><span class="card__publisher">beta-builder</span></span>
-        <canvas class="card__art" width="47" height="48" data-name="Hydrax" data-hue="190"></canvas>
-        <span class="card__line"><span>beta-builder</span><span>2026</span></span>
-        <span class="card__line card__line--rarity"><span><i class="gem"></i><span class="card__rarity">Exotic</span></span><span class="card__number">#1 / 6</span></span>
+    <div class="look look--halo">
+      <h3>A · Halo</h3>
+      <span class="card card--exotic"><span class="card__body">
+        <span class="card__band"><span class="card__title">Hydrax</span><span class="card__publisher">gameble beta</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Hydrax"></canvas></span>
+        <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" viewBox="0 0 7 7" aria-hidden="true"><path fill="#d6a8ff" d="M3 0h1v1h1v1h1v1h1v1H6v1H5v1H4v1H3V6H2V5H1V4H0V3h1V2h1V1h1z"/><path fill="#07050c" d="M3 2h1v1h1v1H4v1H3V4H2V3h1z"/></svg><span class="card__rarity">Exotic</span><span class="card__number">#1</span></span>
       </span></span>
-      <small>A stepped rainbow frame. It reads as « beyond gold » at a glance and fits the pixel look, but it is the busiest.</small>
+      <small>The whole card breathes a violet light around its outline, 7 seconds a cycle. The most visible in a grid.</small>
     </div>
 
-    <div class="look look--neon">
-      <h3>B · Neon</h3>
-      <span class="card"><span class="card__body">
-        <span class="card__band"><span class="card__title">Skyora</span><span class="card__publisher">beta-builder</span></span>
-        <canvas class="card__art" width="47" height="48" data-name="Skyora" data-hue="330"></canvas>
-        <span class="card__line"><span>beta-builder</span><span>2026</span></span>
-        <span class="card__line card__line--rarity"><span><i class="gem"></i><span class="card__rarity">Exotic</span></span><span class="card__number">#2 / 6</span></span>
+    <div class="look look--vein">
+      <h3>B · Vein</h3>
+      <span class="card card--exotic"><span class="card__body">
+        <span class="card__band"><span class="card__title">Skyora</span><span class="card__publisher">gameble beta</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Skyora"></canvas></span>
+        <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" viewBox="0 0 7 7" aria-hidden="true"><path fill="#d6a8ff" d="M3 0h1v1h1v1h1v1h1v1H6v1H5v1H4v1H3V6H2V5H1V4H0V3h1V2h1V1h1z"/><path fill="#07050c" d="M3 2h1v1h1v1H4v1H3V4H2V3h1z"/></svg><span class="card__rarity">Exotic</span><span class="card__number">#2</span></span>
       </span></span>
-      <small>A hot pink frame with a cyan outline. A colour no rarity uses, calmer than the prism, closest to the terminal theme.</small>
+      <small>A violet light runs round the black frame in 12 seconds, like a vein under the surface. The most subtle, a frame that is alive.</small>
     </div>
 
-    <div class="look look--obsidian">
-      <h3>C · Obsidian</h3>
-      <span class="card"><span class="card__body">
-        <span class="card__band"><span class="card__title">Zohan</span><span class="card__publisher">beta-builder</span></span>
-        <canvas class="card__art" width="47" height="48" data-name="Zohan" data-hue="45"></canvas>
-        <span class="card__line"><span>beta-builder</span><span>2026</span></span>
-        <span class="card__line card__line--rarity"><span><i class="gem"></i><span class="card__rarity">Exotic</span></span><span class="card__number">#3 / 6</span></span>
+    <div class="look look--aura">
+      <h3>C · Aura</h3>
+      <span class="card card--exotic"><span class="card__body">
+        <span class="card__band"><span class="card__title">Zohan</span><span class="card__publisher">gameble beta</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Zohan"></canvas></span>
+        <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" viewBox="0 0 7 7" aria-hidden="true"><path fill="#d6a8ff" d="M3 0h1v1h1v1h1v1h1v1H6v1H5v1H4v1H3V6H2V5H1V4H0V3h1V2h1V1h1z"/><path fill="#07050c" d="M3 2h1v1h1v1H4v1H3V4H2V3h1z"/></svg><span class="card__rarity">Exotic</span><span class="card__number">#3</span></span>
       </span></span>
-      <small>A near-black frame with pixel stars and a white outline. The only dark card in a grid, so it stands out without adding a hue.</small>
+      <small>The glow breathes inside, behind the portrait, in 8 seconds; the frame stays plain black. The portrait is the star.</small>
     </div>
   </div>
 
-  <h2>2. Next to a Légendaire, in a grid</h2>
-  <p>Each look at the collection size, between a common, a rare, an epic and a legendary, to judge how far it stands from gold.</p>
+  <h2>2. Beside the other rarities</h2>
+  <p>A Rare, an Épique, a Légendaire and an exotic (look A) at the same size, to judge the black frame against the others.</p>
+  <div class="context look--halo">
+    <span class="card card--rare"><span class="card__body">
+      <span class="card__band"><span class="card__title">Portal</span><span class="card__publisher">Valve</span></span>
+      <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Portal"></canvas></span>
+      <span class="card__line"><span class="card__genre">Puzzle</span><span class="card__year">2007</span></span>
+      <span class="card__line card__line--rarity"><span class="card__rarity">Rare</span><span class="card__number">#12</span></span>
+    </span></span>
+    <span class="card card--epic"><span class="card__body">
+      <span class="card__band"><span class="card__title">Hades</span><span class="card__publisher">Supergiant</span></span>
+      <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Hades"></canvas></span>
+      <span class="card__line"><span class="card__genre">Roguelike</span><span class="card__year">2020</span></span>
+      <span class="card__line card__line--rarity"><span class="card__rarity">Épique</span><span class="card__number">#7</span></span>
+    </span></span>
+    <span class="card"><span class="card__body">
+      <span class="card__band"><span class="card__title">Half-Life 2</span><span class="card__publisher">Valve</span></span>
+      <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Half-Life 2"></canvas></span>
+      <span class="card__line"><span class="card__genre">FPS</span><span class="card__year">2004</span></span>
+      <span class="card__line card__line--rarity"><span class="card__rarity">Légendaire</span><span class="card__number">#1</span></span>
+    </span></span>
+    <span class="card card--exotic"><span class="card__body">
+      <span class="card__band"><span class="card__title">Feltpath</span><span class="card__publisher">gameble beta</span></span>
+      <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Feltpath"></canvas></span>
+      <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+      <span class="card__line card__line--rarity"><span class="card__rarity">Exotic</span><span class="card__number">#4</span></span>
+    </span></span>
+  </div>
+
+  <h2>3. At the collection size</h2>
   <div class="context">
-    <div class="grid look--prism" data-grid>
-      <div class="mini mini--common"><div>Common</div></div>
-      <div class="mini mini--rare"><div>Rare</div></div>
-      <div class="mini mini--epic"><div>Epic</div></div>
-      <div class="mini mini--legendary"><div>Legend.</div></div>
-      <div class="mini mini--prism"><div>Exotic</div></div>
-    </div>
-    <div class="grid look--neon" data-grid>
-      <div class="mini mini--common"><div>Common</div></div>
-      <div class="mini mini--rare"><div>Rare</div></div>
-      <div class="mini mini--epic"><div>Epic</div></div>
-      <div class="mini mini--legendary"><div>Legend.</div></div>
-      <div class="mini mini--neon"><div>Exotic</div></div>
-    </div>
-    <div class="grid look--obsidian" data-grid>
-      <div class="mini mini--common"><div>Common</div></div>
-      <div class="mini mini--rare"><div>Rare</div></div>
-      <div class="mini mini--epic"><div>Epic</div></div>
-      <div class="mini mini--legendary"><div>Legend.</div></div>
-      <div class="mini mini--obsidian"><div>Exotic</div></div>
-    </div>
+    <div class="look look--halo"><span class="card card--m card--exotic"><span class="card__body">
+      <span class="card__band"><span class="card__title">Micilico</span><span class="card__publisher">gameble beta</span></span>
+      <span class="card__art"><canvas class="card__canvas" width="72" height="74" data-name="Micilico"></canvas></span>
+      <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+      <span class="card__line card__line--rarity"><span class="card__rarity">Exotic</span><span class="card__number">#5</span></span>
+    </span></span></div>
+    <div class="look look--vein"><span class="card card--m card--exotic"><span class="card__body">
+      <span class="card__band"><span class="card__title">Le chocotube</span><span class="card__publisher">gameble beta</span></span>
+      <span class="card__art"><canvas class="card__canvas" width="72" height="74" data-name="Le chocotube"></canvas></span>
+      <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+      <span class="card__line card__line--rarity"><span class="card__rarity">Exotic</span><span class="card__number">#6</span></span>
+    </span></span></div>
+    <div class="look look--aura"><span class="card card--m card--exotic"><span class="card__body">
+      <span class="card__band"><span class="card__title">Zohan</span><span class="card__publisher">gameble beta</span></span>
+      <span class="card__art"><canvas class="card__canvas" width="72" height="74" data-name="Zohan"></canvas></span>
+      <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+      <span class="card__line card__line--rarity"><span class="card__rarity">Exotic</span><span class="card__number">#3</span></span>
+    </span></span></div>
   </div>
 
-  <h2>3. How often it drops</h2>
+<h2>4. How often it drops</h2>
   <p>Today a pack holds five cards and a card is a Légendaire 5 times in 10,000 in a regular pack (0.05 %, about one in 400 packs). The exotic must be rarer. Players open about a pack a day, so the rate decides whether anyone ever sees one. The six cards would be drawn evenly once an exotic drop happens.</p>
   <table>
     <thead><tr><th>Option</th><th>What it is</th><th>Expected wait</th><th>Effect</th></tr></thead>
@@ -188,27 +256,30 @@
 </main>
 
 <script>
-  // Placeholder portraits: a blocky 47 × 48 silhouette seeded by the name, no real photo.
+  // Placeholder art: a blocky silhouette seeded by the name, no real photo. Exotic cards get a violet backdrop.
   function seeded(text) {
     let h = 2166136261;
     for (const c of text) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
     return () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h ^= h >>> 13; return ((h >>> 0) % 1000) / 1000; };
   }
-  document.querySelectorAll("canvas.card__art").forEach((canvas) => {
+  document.querySelectorAll("canvas.card__canvas").forEach((canvas) => {
     const ctx = canvas.getContext("2d");
+    const w = canvas.width, h = canvas.height, u = w / 47;
     const rand = seeded(canvas.dataset.name);
-    const hue = Number(canvas.dataset.hue);
-    ctx.fillStyle = `hsl(${hue} 40% 14%)`;
-    ctx.fillRect(0, 0, 47, 48);
-    for (let y = 0; y < 48; y += 3) for (let x = 0; x < 47; x += 3) {
-      ctx.fillStyle = `hsl(${hue} 35% ${10 + rand() * 12}%)`;
-      ctx.fillRect(x, y, 3, 3);
+    const exotic = canvas.closest(".card--exotic") !== null;
+    const hue = exotic ? 275 : Math.floor(rand() * 360);
+    ctx.fillStyle = `hsl(${hue} 40% 12%)`;
+    ctx.fillRect(0, 0, w, h);
+    const step = Math.round(3 * u);
+    for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
+      ctx.fillStyle = `hsl(${hue} 38% ${9 + rand() * (exotic ? 16 : 12)}%)`;
+      ctx.fillRect(x, y, step, step);
     }
+    const block = (x, y, bw, bh, fill) => { ctx.fillStyle = fill; ctx.fillRect(x * u, y * u, bw * u, bh * u); };
     const skin = `hsl(${(hue + 20) % 360} 30% ${48 + rand() * 12}%)`;
-    const block = (x, y, w, h, fill) => { ctx.fillStyle = fill; ctx.fillRect(x, y, w, h); };
-    block(15, 30, 17, 18, `hsl(${hue} 55% 38%)`);
+    block(13, 30, 21, 18, `hsl(${(hue + 40) % 360} 55% 36%)`);
     block(17, 11, 13, 17, skin);
-    block(15, 8, 17, 7, `hsl(${(hue + 200) % 360} 30% ${18 + rand() * 12}%)`);
+    block(15, 8, 17, 7, `hsl(${(hue + 200) % 360} 30% ${16 + rand() * 12}%)`);
     block(20, 18, 2, 2, "#10141a");
     block(26, 18, 2, 2, "#10141a");
     block(21, 23, 5, 1, "#10141a");
