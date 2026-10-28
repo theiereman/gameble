@@ -75,6 +75,7 @@
   summary: A phone's long press on a card face inside a link (tome, pack result) may open the browser's link context menu or a text selection after about 500 ms, cancelling the pointer and ending the finger's tilt early; if so, suppress it while a finger tilts (`contextmenu` prevented, `-webkit-touch-callout: none`, `user-select: none` on `.card`).
   evidence: Story 8.6 review (unverified, medium if true): `attachTilt` (`app/frontend/lib/tilt.ts`) handles no `contextmenu` and `.card` sets no callout or selection rule; settle it with a long press on a tome face on an Android Chrome and an iOS Safari device. Author, 2026-10-12: confirmed, a long press selects text on an iPhone.
   issue: GitHub #31, opened 2026-10-12 to be built.
+  resolved: `app/frontend/lib/tilt.ts` handles `contextmenu` and the card stylesheet sets `-webkit-touch-callout: none`, both asserted in `tilt.test.ts` (checked 2026-10-28).
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-island-phone-plan.md`
   summary: The phone booster's gestures (the swipe that stores the top card, a tap after the 400 ms guard, the 150 ms tilt hold that is never a swipe, the pile's `touch-action: none` beside the page's panning on the plate, tray and actions) were verified only with synthetic pointer events in headless Chromium; check them on an iOS Safari and an Android Chrome device, with the card zoom (native dialog, Esc or the scrim) and the Légendaire's sequence on a real phone.
   evidence: Story 8.12; `test/system/booster_test.rb` (`drag_top`, the tilt-hold test), `app/frontend/components/useCardSwipe.ts`.
@@ -156,6 +157,7 @@
   summary: The `hold` test helper is still copied in about 20 test files (the game pack unit tests, the trades and reposts controller tests, the integration shell test, the trades system test) beside `LibraryRequests#hold`, with differing signatures (`reserved:`, `gained_at:`, a `player:` default).
   evidence: `grep -rn "def hold" test`; named with the sign-in copies in the collection-and-sharing retrospective (D2); the request-test helpers ticket shared the sign-in helpers only.
 - The `hold` comment in `test/support/library_requests.rb` still names AD-26; pre-existing, to fold into the repo-wide planning-id sweep.
+  resolved: `def hold` now lives only in `test/support/holdings.rb` (checked 2026-10-28).
 
 ## Deferred from: closure of epic-space-terminal-redesign and epic-space-terminal-screens (2026-10-13)
 
@@ -174,6 +176,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/epic-space-terminal-screens-retrospective.md`
   summary: The comment in `packs/game/app/models/game/holding.rb` says only `Game::OpenPack` sets `last_gained_at`, but `Game::AcceptTrade` sets it too.
   evidence: Retrospective item 6b; `accept_trade.rb` writes `last_gained_at` for the cards a trade brings.
+  resolved: the comment is gone: `app/domains/game/app/models/game/holding.rb` no longer mentions `last_gained_at` (checked 2026-10-28).
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/epic-space-terminal-redesign-retrospective.md`
   summary: Entry 5 of epic-space-terminal-redesign and its plan still name `packages/pixel-art-filter`, which the `pixelcrush` npm package replaced; the architecture and the epic's closure note record the substitution.
   evidence: Retrospective item 2; commit 6c6ee61; architecture-gameble.md amended. Found open by the epic's closure check.
@@ -222,6 +225,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-published-season-gets-its-new-sets-once-plan.md`
   summary: `bundle exec i18n-tasks unused` reports `rate_limit.reading_throttled` and `rate_limit.throttled` in en and fr, which `config/initializers/rack_attack.rb` reads dynamically; add them to `ignore_unused` in `config/i18n-tasks.yml`.
   evidence: The quick review of the retired set kinds removal ran the command; a clean worktree at the baseline gives the same four keys, so the check fails independently of that change.
+  resolved: `config/i18n-tasks.yml` lists `rate_limit.*` under `ignore_unused` (checked 2026-10-28).
 - source_plan: none
   summary: Staging moves behind its own Cloudflare Tunnel at staging.gameble.net, web and SSH (Access service token for the staging workflow), as production did, so the home lab's ports 80, 443 and 2224 can close and its address stops being published by gameble.dotsncircles.com.
   evidence: The author decided on 2026-10-16, while moving production's SSH into its tunnel, to do the same for staging later under staging.gameble.net; PUBLIC_URL, deploy.staging.yml, the staging workflow, CONTRIBUTING.md's test-version link and Steam's return URL follow the new name.
@@ -277,10 +281,12 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/story-an-import-builds-beside-the-draft-and-replaces-it-only-once-plan.md`
   summary: Drop the unused steam_apps.carded_run_id column with its foreign key and index in a contract migration.
   evidence: The staged import stopped writing the card marks (11.1); nothing reads the column any more, and expand/contract leaves its removal to a later migration.
+  resolved: `steam_apps.carded_run_id` is absent from `db/schema.rb` (checked 2026-10-28).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/story-an-import-builds-beside-the-draft-and-replaces-it-only-once-plan.md`
   summary: Remove Catalog::UpsertDraftCard, or move db/seeds.rb and the tests to the staged operations.
   evidence: The import no longer calls it (11.1); only the seeds and tests do, and it still writes card-seasons straight into the draft.
+  resolved: `Catalog::UpsertDraftCard` no longer exists in `app`, `test` or `db` (checked 2026-10-28).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/story-an-import-builds-beside-the-draft-and-replaces-it-only-once-plan.md`
   summary: Deploy the staged import only when no import run is active.
@@ -337,6 +343,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
   summary: Give the copy-pasted `hold` test helper an owner or a guard: a ticket that shares it, or a check that fails on a new `def hold` in a test file.
   evidence: Action item AI-8: the helper grew from about 20 to 34 test files while it was registered as deferred.
+  resolved: `def hold` now lives only in `test/support/holdings.rb`, shared by every test (checked 2026-10-28).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
   summary: Optional: give the Rack::Attack 429 response a themed body (`rack_attack.rb:61`) and decide whether `legal`, `credits` and `how-it-works` join `PublicReadThrottle::PAGES`.
@@ -374,14 +381,18 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-card-backs/story-the-back-catalogue-unlock-rows-and-the-active-back-plan.md`
   summary: Add the card back unlocks and the active back to the player data export and to the account deletion notice, with the choice described in `fr.yml` and `en.yml`.
   evidence: `Game::ReleasePlayer` now deletes `game_card_back_unlocks` but `Game::ExportOf`, `PlayerExport` and the deletion copy (`accounts` notes) name achievements and not backs; do it with the picker, when a player first sees a back.
+  resolved: moved to ticket 26.2 (the picker owns the choice; the export and deletion notice name the backs).
 - source_plan: `_bmad-output/initiative-gameble/epic-card-backs/story-the-back-catalogue-unlock-rows-and-the-active-back-plan.md`
   summary: CAP-20 of the spec still says the player picks the active back "in the profile".
   evidence: the UX session of 2026-10-28 put the picker on the Personnalisation page (epic-personalization); the spec line should say so.
+  resolved: moved to ticket 26.2 (spec text fix).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-seasons-carry-over/story-carried-tiers-are-received-once-per-season-silently-plan.md`
   summary: `OpenPack` locks the player state row before the holdings upsert, while AD-10 orders bank, holdings, then state rows.
   evidence: harmless today because the player's advisory bank lock serialises both operations and no operation locks holdings then state without it; an operation added later that does would deadlock with `OpenPack`.
+  resolved: moved to ticket 17.4 (refactor sweep).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-seasons-carry-over/story-carried-tiers-are-received-once-per-season-silently-plan.md`
   summary: A player state row created by an upsert before `CreatePlayerState` keeps null allocation markers and publishes one extra `SeasonAllocationReceived` at the first opening.
   evidence: `RecordPlayerActivity` and `MarkCollectionSeen` upsert the row; no path was found where one runs before registration, so the effect is cosmetic (one event, no wrong tier).
+  resolved: moved to ticket 17.4 (refactor sweep).
