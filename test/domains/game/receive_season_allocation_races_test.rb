@@ -52,7 +52,7 @@ class Game::ReceiveSeasonAllocationRacesTest < ActiveSupport::TestCase
     trades.delete_all
     Game::Friendship.where(low_player_id: players).or(Game::Friendship.where(high_player_id: players)).delete_all
     Game::FirstDiscovery.where(pack_id: Game::Pack.where(player_id: players).select(:id)).delete_all
-    [ Game::Holding, Game::FeedEntry, Game::SetTier, Game::Pack ].each { |model| model.where(player_id: players).delete_all }
+    [ Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::SetTier, Game::Pack ].each { |model| model.where(player_id: players).delete_all }
     Game::PlayerState.where(player_id: players).update_all(allocation_received_season: 1, allocation_seen_season: 1)
     Catalog::SetMembership.where(set_id: @set).delete_all
     Catalog::SetTier.where(set_id: @set).delete_all
