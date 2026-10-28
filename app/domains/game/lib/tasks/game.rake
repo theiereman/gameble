@@ -34,6 +34,13 @@ namespace :game do
     puts "game:backfill_achievements: done; any failure went to the error tracker, and a rerun grants only what is missing"
   end
 
+  desc "Runs Game::BackfillCardBacksJob now: the back of every set whose back tier a player in good standing already reached is unlocked, without a toast; idempotent"
+  task backfill_card_backs: :environment do
+    Game::BackfillCardBacksJob.perform_now
+
+    puts "game:backfill_card_backs: done; any failure went to the error tracker, and a rerun unlocks only what is missing"
+  end
+
   desc "Runs Game::DropFriendsAndTradesJob now: deleted or banned players' open trades cancelled, their friendships and invitations dropped; idempotent"
   task drop_friends_and_trades: :environment do
     Game::DropFriendsAndTradesJob.perform_now

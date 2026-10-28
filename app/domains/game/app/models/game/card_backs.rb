@@ -2,6 +2,8 @@ module Game
   module CardBacks
     STANDARD = "standard".freeze
 
+    def self.set_key(kind, key) = "set-#{kind}-#{key}"
+
     Back = Data.define(:key, :asset, :unlock)
     Unlock = Data.define(:kind, :target)
 
@@ -17,7 +19,7 @@ module Game
 
     SET_BACKS = SET_KEYS.flat_map do |kind, keys|
       keys.map do |key|
-        Back.new(key: "set-#{kind}-#{key}", asset: "back-#{kind}-#{key}", unlock: Unlock.new(kind: :set_tier, target: [ kind, key ]))
+        Back.new(key: set_key(kind, key), asset: "back-#{kind}-#{key}", unlock: Unlock.new(kind: :set_tier, target: [ kind, key ]))
       end
     end.freeze
 
