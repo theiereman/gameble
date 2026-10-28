@@ -1,0 +1,260 @@
+/*
+ * The exotic rarity, written the way the card face is: a rarity class that sets
+ * the frame, the band's tick and the footer colour, plus one override of the
+ * Légendaire's iridescent band that turns it into polished metal. Integrating it
+ * means moving this file's rules next to card.css and card-tilt-effects.css,
+ * adding "exotic" to CardComponent::IRIDESCENT and to the rarity tiers, and
+ * keeping one of the glow classes.
+ */
+
+.card--rarity-exotic {
+  --card-rarity: #07050c;
+  --card-gloss: 1.25;
+  --exotic-violet: #a24bff;
+  --exotic-violet-hi: #d6a8ff;
+  --exotic-violet-lo: #4b1d8f;
+  --card-face-bevel: inset 3px 3px 0 0 rgba(214, 168, 255, 0.3), inset -3px -3px 0 0 rgba(0, 0, 0, 0.7);
+  --exotic-glow: 0 0 8px 2px rgba(162, 75, 255, 0.25);
+
+  /* A brushed anodised frame: black with a slow diagonal of violet-black. */
+  background: linear-gradient(135deg, #150b26 0%, #07050c 34%, #1d1036 52%, #07050c 70%, #120a21 100%);
+  box-shadow: var(--pixel-outline-4), var(--card-face-bevel), var(--exotic-glow);
+}
+
+.card--rarity-exotic .card__body {
+  background: #0a0710;
+}
+
+.card--rarity-exotic .card__band,
+.card--rarity-exotic .card__line {
+  background: #140d21;
+}
+
+.card--rarity-exotic .card__band {
+  box-shadow: inset 3px 0 0 0 var(--exotic-violet);
+}
+
+.card--rarity-exotic .card__genre,
+.card--rarity-exotic .card__rarity {
+  color: var(--exotic-violet-hi);
+}
+
+.card--rarity-exotic .card__art {
+  background-color: #0a0710;
+}
+
+/* The metal: the iridescent band's mask and slide, with a polished violet chrome
+   in place of the pastel hues. The band slides opposite the tilt, so a move
+   drags the bright edge across the face and over the frame. */
+.card--rarity-exotic .card__reflection--iridescence {
+  background: linear-gradient(
+    118deg,
+    #1a0838 0%,
+    #6a35d0 8%,
+    #f1e4ff 14%,
+    #fff 17%,
+    #9d6bff 23%,
+    #2b1260 31%,
+    #0e0420 36%,
+    #7a3cff 44%,
+    #e9d6ff 50%,
+    #4b1d8f 58%,
+    #12062b 66%,
+    #b98cff 74%,
+    #fff 78%,
+    #6a35d0 85%,
+    #1a0838 100%
+  );
+  background-position: var(--reflection-hue) 50%;
+  background-size: 300% 100%;
+  opacity: calc(0.7 * var(--reflection-fresnel));
+}
+
+.card--rarity-exotic .card__flake--gold {
+  --flake-colour: var(--exotic-violet-hi);
+}
+
+.card--rarity-exotic .card__flake--blue {
+  --flake-colour: var(--color-text-max);
+}
+
+/* ---- The glow: one of these classes goes on the face. All are slow. ---- */
+
+/* Halo: the whole card breathes a violet light round its outline. */
+.card--glow-halo {
+  animation: exotic-halo 7s ease-in-out infinite;
+}
+
+@keyframes exotic-halo {
+  0%,
+  100% {
+    box-shadow:
+      var(--pixel-outline-4),
+      var(--card-face-bevel),
+      0 0 8px 2px rgba(162, 75, 255, 0.25);
+  }
+
+  50% {
+    box-shadow:
+      var(--pixel-outline-4),
+      var(--card-face-bevel),
+      0 0 26px 8px rgba(162, 75, 255, 0.65);
+  }
+}
+
+/* Vein: a violet light runs round the black frame in twelve seconds. */
+@property --exotic-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.card--glow-vein::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: var(--card-frame);
+  background: conic-gradient(
+    from var(--exotic-angle),
+    transparent 0 55%,
+    var(--exotic-violet-lo) 68%,
+    var(--exotic-violet) 80%,
+    var(--exotic-violet-hi) 86%,
+    var(--exotic-violet) 92%,
+    transparent 100%
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  pointer-events: none;
+  animation: exotic-orbit 12s linear infinite;
+}
+
+@keyframes exotic-orbit {
+  to {
+    --exotic-angle: 360deg;
+  }
+}
+
+/* Aura: the glow breathes inside the portrait box and the frame stays plain black. */
+.card--glow-aura .card__art {
+  animation: exotic-aura 8s ease-in-out infinite;
+}
+
+@keyframes exotic-aura {
+  0%,
+  100% {
+    box-shadow: inset 0 0 14px 0 rgba(162, 75, 255, 0.25);
+  }
+
+  50% {
+    box-shadow: inset 0 0 38px 6px rgba(162, 75, 255, 0.75);
+  }
+}
+
+/* Nebula: soft clouds drift behind the portrait and the band, eighteen seconds. */
+.card--glow-nebula .card__body {
+  overflow: hidden;
+}
+
+.card--glow-nebula .card__body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 40% at 25% 30%, rgba(162, 75, 255, 0.45), transparent 70%),
+    radial-gradient(55% 45% at 75% 65%, rgba(104, 52, 214, 0.5), transparent 70%),
+    radial-gradient(40% 30% at 50% 90%, rgba(214, 168, 255, 0.25), transparent 70%);
+  background-size: 200% 200%;
+  pointer-events: none;
+  animation: exotic-nebula 18s ease-in-out infinite alternate;
+}
+
+.card--glow-nebula .card__body > * {
+  position: relative;
+}
+
+.card--glow-nebula .card__band,
+.card--glow-nebula .card__line {
+  background: rgba(20, 13, 33, 0.8);
+}
+
+@keyframes exotic-nebula {
+  from {
+    background-position: 0% 0%;
+  }
+
+  to {
+    background-position: 100% 100%;
+  }
+}
+
+/* Shift: the halo drifts between indigo and orchid, ten seconds. */
+.card--glow-shift {
+  animation: exotic-shift 10s ease-in-out infinite;
+}
+
+.card--glow-shift .card__band {
+  animation: exotic-shift-tick 10s ease-in-out infinite;
+}
+
+@keyframes exotic-shift {
+  0%,
+  100% {
+    box-shadow:
+      var(--pixel-outline-4),
+      inset 3px 3px 0 0 rgba(120, 110, 255, 0.45),
+      inset -3px -3px 0 0 rgba(0, 0, 0, 0.7),
+      0 0 22px 5px rgba(79, 70, 255, 0.55);
+  }
+
+  50% {
+    box-shadow:
+      var(--pixel-outline-4),
+      inset 3px 3px 0 0 rgba(224, 120, 255, 0.5),
+      inset -3px -3px 0 0 rgba(0, 0, 0, 0.7),
+      0 0 22px 5px rgba(200, 75, 255, 0.6);
+  }
+}
+
+@keyframes exotic-shift-tick {
+  0%,
+  100% {
+    box-shadow: inset 3px 0 0 0 #6c63ff;
+  }
+
+  50% {
+    box-shadow: inset 3px 0 0 0 #d06bff;
+  }
+}
+
+/* Eclipse: a violet corona breathes in a ring behind the portrait, eight seconds. */
+.card--glow-eclipse .card__art {
+  background:
+    radial-gradient(circle at 50% 45%, #000 0 34%, rgba(162, 75, 255, 0.9) 38%, rgba(104, 52, 214, 0.5) 50%, transparent 72%),
+    #0a0710;
+  animation: exotic-corona 8s ease-in-out infinite;
+}
+
+@keyframes exotic-corona {
+  0%,
+  100% {
+    filter: brightness(0.7);
+  }
+
+  50% {
+    filter: brightness(1.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .card--glow-halo,
+  html:not([data-motion="full"]) .card--glow-shift,
+  html:not([data-motion="full"]) .card--glow-shift .card__band,
+  html:not([data-motion="full"]) .card--glow-vein::before,
+  html:not([data-motion="full"]) .card--glow-aura .card__art,
+  html:not([data-motion="full"]) .card--glow-nebula .card__body::before,
+  html:not([data-motion="full"]) .card--glow-eclipse .card__art {
+    animation: none;
+  }
+}

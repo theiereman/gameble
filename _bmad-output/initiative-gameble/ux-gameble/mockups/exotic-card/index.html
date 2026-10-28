@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exotic card: black, violet glow, polished metal</title>
+<link rel="stylesheet" href="../../../../../app/frontend/styles/fonts.css">
+<link rel="stylesheet" href="../../../../../app/frontend/styles/tokens.css">
+<link rel="stylesheet" href="../../../../../app/frontend/styles/card.css">
+<link rel="stylesheet" href="../../../../../app/frontend/styles/card-tilt-effects.css">
+<link rel="stylesheet" href="exotic.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px 16px 64px; background: var(--color-ground); color: var(--color-text); font: 400 14px/1.5 var(--font-family-jetbrains-mono); }
+  main { max-width: 1080px; margin: 0 auto; }
+  h1 { font: var(--font-screen-title); color: #fff; margin: 0 0 6px; }
+  h2 { font: var(--font-screen-title); color: #fff; margin: 48px 0 12px; }
+  h3 { font: 400 1.25rem/1 var(--font-family-vt323); color: #fff; margin: 0; }
+  p { color: var(--color-muted); margin: 0 0 12px; max-width: 74ch; }
+  .row { display: flex; flex-wrap: wrap; gap: 44px 40px; padding: 14px 10px; align-items: flex-start; }
+  .look { display: flex; flex-direction: column; gap: 16px; }
+  .look small { color: var(--color-muted); max-width: 28ch; }
+  table { border-collapse: collapse; width: 100%; max-width: 900px; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--color-line, #2a3340); vertical-align: top; }
+  th { color: var(--color-muted); font-weight: 400; }
+  .tag { display: inline-block; padding: 0 6px; border: 1px solid #2a3340; color: var(--color-muted); font-size: 11px; }
+  .reco { color: var(--color-rarity-legendaire); }
+  .hint { color: var(--color-text-bright); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Exotic card: black, violet glow, polished metal</h1>
+  <p>These faces use the app's own stylesheets (<code>tokens.css</code>, <code>card.css</code>, <code>card-tilt-effects.css</code>) and its own tilt and glitter code, bundled as <code>tilt.js</code>. Only <code>exotic.css</code> is new: it is what would be added to the game. <span class="hint">Move the pointer over a card, or drag a finger on a phone: the face tilts, and a band of polished violet metal slides across the black frame and the body, with white and violet flakes that flash as the light reaches them.</span> Under reduced motion there is no tilt and the glow stays still. The portraits are placeholders; the real ones are the testers' photos, pixelated.</p>
+
+  <h2>1. Six glows</h2>
+  <div class="row"><div class="look"><h3>A · Halo</h3><span class="card card--l card--rarity-exotic card--glow-halo" data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Hydrax</span><span class="card__publisher">gameble beta</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Hydrax" data-exotic="1"></canvas></span>
+        <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7 7" width="14" height="14" shape-rendering="crispEdges" aria-hidden="true"><path fill="#f1e4ff" d="M3 0h1v1h-1zM2 1h1v1h-1zM4 1h1v1h-1zM0 2h2v1h-2zM5 2h2v1h-2z"/><path fill="#a24bff" d="M3 1h1v1h-1zM2 2h3v1h-3zM1 3h5v1h-5zM2 4h3v1h-3zM1 5h2v1h-2zM4 5h1v1h-1z"/><path fill="#4b1d8f" d="M5 5h1v1h-1zM1 6h1v1h-1zM5 6h1v1h-1z"/></svg><span class="card__rarity">Exotic</span><span class="card__number">S0 · #1</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--iridescence"></span><span class="card__reflection card__reflection--strips"></span><span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="700"></span></span>
+    </span><small>The whole card breathes a violet light round its outline, 7 seconds a cycle. The most visible in a grid.</small></div><div class="look"><h3>B · Vein</h3><span class="card card--l card--rarity-exotic card--glow-vein" data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Skyora</span><span class="card__publisher">gameble beta</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Skyora" data-exotic="1"></canvas></span>
+        <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7 7" width="14" height="14" shape-rendering="crispEdges" aria-hidden="true"><path fill="#f1e4ff" d="M3 0h1v1h-1zM2 1h1v1h-1zM4 1h1v1h-1zM0 2h2v1h-2zM5 2h2v1h-2z"/><path fill="#a24bff" d="M3 1h1v1h-1zM2 2h3v1h-3zM1 3h5v1h-5zM2 4h3v1h-3zM1 5h2v1h-2zM4 5h1v1h-1z"/><path fill="#4b1d8f" d="M5 5h1v1h-1zM1 6h1v1h-1zM5 6h1v1h-1z"/></svg><span class="card__rarity">Exotic</span><span class="card__number">S0 · #2</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--iridescence"></span><span class="card__reflection card__reflection--strips"></span><span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="701"></span></span>
+    </span><small>A violet light runs round the black frame in 12 seconds, like a vein under the surface. The most discreet.</small></div><div class="look"><h3>C · Aura</h3><span class="card card--l card--rarity-exotic card--glow-aura" data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Zohan</span><span class="card__publisher">gameble beta</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Zohan" data-exotic="1"></canvas></span>
+        <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7 7" width="14" height="14" shape-rendering="crispEdges" aria-hidden="true"><path fill="#f1e4ff" d="M3 0h1v1h-1zM2 1h1v1h-1zM4 1h1v1h-1zM0 2h2v1h-2zM5 2h2v1h-2z"/><path fill="#a24bff" d="M3 1h1v1h-1zM2 2h3v1h-3zM1 3h5v1h-5zM2 4h3v1h-3zM1 5h2v1h-2zM4 5h1v1h-1z"/><path fill="#4b1d8f" d="M5 5h1v1h-1zM1 6h1v1h-1zM5 6h1v1h-1z"/></svg><span class="card__rarity">Exotic</span><span class="card__number">S0 · #3</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--iridescence"></span><span class="card__reflection card__reflection--strips"></span><span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="702"></span></span>
+    </span><small>The glow breathes inside the portrait box, 8 seconds; the frame stays plain black.</small></div><div class="look"><h3>D · Nebula</h3><span class="card card--l card--rarity-exotic card--glow-nebula" data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Feltpath</span><span class="card__publisher">gameble beta</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Feltpath" data-exotic="1"></canvas></span>
+        <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7 7" width="14" height="14" shape-rendering="crispEdges" aria-hidden="true"><path fill="#f1e4ff" d="M3 0h1v1h-1zM2 1h1v1h-1zM4 1h1v1h-1zM0 2h2v1h-2zM5 2h2v1h-2z"/><path fill="#a24bff" d="M3 1h1v1h-1zM2 2h3v1h-3zM1 3h5v1h-5zM2 4h3v1h-3zM1 5h2v1h-2zM4 5h1v1h-1z"/><path fill="#4b1d8f" d="M5 5h1v1h-1zM1 6h1v1h-1zM5 6h1v1h-1z"/></svg><span class="card__rarity">Exotic</span><span class="card__number">S0 · #4</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--iridescence"></span><span class="card__reflection card__reflection--strips"></span><span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="703"></span></span>
+    </span><small>Soft violet clouds drift behind the portrait and the band, 18 seconds. Deep and calm.</small></div><div class="look"><h3>E · Shift</h3><span class="card card--l card--rarity-exotic card--glow-shift" data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Micilico</span><span class="card__publisher">gameble beta</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Micilico" data-exotic="1"></canvas></span>
+        <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7 7" width="14" height="14" shape-rendering="crispEdges" aria-hidden="true"><path fill="#f1e4ff" d="M3 0h1v1h-1zM2 1h1v1h-1zM4 1h1v1h-1zM0 2h2v1h-2zM5 2h2v1h-2z"/><path fill="#a24bff" d="M3 1h1v1h-1zM2 2h3v1h-3zM1 3h5v1h-5zM2 4h3v1h-3zM1 5h2v1h-2zM4 5h1v1h-1z"/><path fill="#4b1d8f" d="M5 5h1v1h-1zM1 6h1v1h-1zM5 6h1v1h-1z"/></svg><span class="card__rarity">Exotic</span><span class="card__number">S0 · #5</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--iridescence"></span><span class="card__reflection card__reflection--strips"></span><span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="704"></span></span>
+    </span><small>The halo drifts between indigo and orchid, 10 seconds. The only one that changes hue.</small></div><div class="look"><h3>F · Eclipse</h3><span class="card card--l card--rarity-exotic card--glow-eclipse" data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Le chocotube</span><span class="card__publisher">gameble beta</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Le chocotube" data-exotic="1"></canvas></span>
+        <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7 7" width="14" height="14" shape-rendering="crispEdges" aria-hidden="true"><path fill="#f1e4ff" d="M3 0h1v1h-1zM2 1h1v1h-1zM4 1h1v1h-1zM0 2h2v1h-2zM5 2h2v1h-2z"/><path fill="#a24bff" d="M3 1h1v1h-1zM2 2h3v1h-3zM1 3h5v1h-5zM2 4h3v1h-3zM1 5h2v1h-2zM4 5h1v1h-1z"/><path fill="#4b1d8f" d="M5 5h1v1h-1zM1 6h1v1h-1zM5 6h1v1h-1z"/></svg><span class="card__rarity">Exotic</span><span class="card__number">S0 · #6</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--iridescence"></span><span class="card__reflection card__reflection--strips"></span><span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="705"></span></span>
+    </span><small>A violet corona breathes in a ring behind the portrait, 8 seconds. The most dramatic.</small></div></div>
+
+  <h2>2. Beside the other rarities</h2>
+  <p>Same size, same tilt: a Rare, an Épique, the Légendaire with its pastel iridescence, and the exotic.</p>
+  <div class="row"><span class="card card--l card--rarity-rare " data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Portal</span><span class="card__publisher">Valve</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Portal" data-exotic="0"></canvas></span>
+        <span class="card__line"><span class="card__genre">Puzzle</span><span class="card__year">2007</span></span>
+        <span class="card__line card__line--rarity"><span class="card__rarity">Rare</span><span class="card__number">S1 · #12</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--strips"></span></span>
+    </span><span class="card card--l card--rarity-epic " data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Hades</span><span class="card__publisher">Supergiant</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Hades" data-exotic="0"></canvas></span>
+        <span class="card__line"><span class="card__genre">Roguelike</span><span class="card__year">2020</span></span>
+        <span class="card__line card__line--rarity"><span class="card__rarity">Épique</span><span class="card__number">S1 · #7</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--strips"></span></span>
+    </span><span class="card card--l card--rarity-legendary " data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Half-Life 2</span><span class="card__publisher">Valve</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Half-Life 2" data-exotic="0"></canvas></span>
+        <span class="card__line"><span class="card__genre">FPS</span><span class="card__year">2004</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7 7" width="14" height="14" shape-rendering="crispEdges" aria-hidden="true"><path fill="#fff3c4" d="M3 0h1v1h-1zM2 1h1v1h-1zM4 1h1v1h-1zM0 2h2v1h-2zM5 2h2v1h-2z"/><path fill="#f4c542" d="M3 1h1v1h-1zM2 2h3v1h-3zM1 3h5v1h-5zM2 4h3v1h-3zM1 5h2v1h-2zM4 5h1v1h-1z"/><path fill="#8f5e0a" d="M5 5h1v1h-1zM1 6h1v1h-1zM5 6h1v1h-1z"/></svg><span class="card__rarity">Légendaire</span><span class="card__number">S1 · #1</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--iridescence"></span><span class="card__reflection card__reflection--strips"></span><span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="5"></span></span>
+    </span><span class="card card--l card--rarity-exotic card--glow-halo" data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Feltpath</span><span class="card__publisher">gameble beta</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="94" height="97" data-name="Feltpath" data-exotic="1"></canvas></span>
+        <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7 7" width="14" height="14" shape-rendering="crispEdges" aria-hidden="true"><path fill="#f1e4ff" d="M3 0h1v1h-1zM2 1h1v1h-1zM4 1h1v1h-1zM0 2h2v1h-2zM5 2h2v1h-2z"/><path fill="#a24bff" d="M3 1h1v1h-1zM2 2h3v1h-3zM1 3h5v1h-5zM2 4h3v1h-3zM1 5h2v1h-2zM4 5h1v1h-1z"/><path fill="#4b1d8f" d="M5 5h1v1h-1zM1 6h1v1h-1zM5 6h1v1h-1z"/></svg><span class="card__rarity">Exotic</span><span class="card__number">S0 · #4</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--iridescence"></span><span class="card__reflection card__reflection--strips"></span><span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="706"></span></span>
+    </span></div>
+
+  <h2>3. At the collection and booster sizes</h2>
+  <div class="row"><span class="card card--m card--rarity-exotic card--glow-halo" data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Micilico</span><span class="card__publisher">gameble beta</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="72" height="74" data-name="Micilico" data-exotic="1"></canvas></span>
+        <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 5" width="10" height="10" shape-rendering="crispEdges" aria-hidden="true"><path fill="#f1e4ff" d="M2 0h1v1h-1zM0 1h2v1h-2zM3 1h2v1h-2z"/><path fill="#a24bff" d="M2 1h1v1h-1zM1 2h3v1h-3zM1 3h1v1h-1z"/><path fill="#4b1d8f" d="M3 3h1v1h-1zM0 4h1v1h-1zM4 4h1v1h-1z"/></svg><span class="card__rarity">Exotic</span><span class="card__number">#5</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--iridescence"></span><span class="card__reflection card__reflection--strips"></span><span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="710"></span></span>
+    </span><span class="card card--m card--rarity-legendary " data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Half-Life 2</span><span class="card__publisher">Valve</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="72" height="74" data-name="Half-Life 2" data-exotic="0"></canvas></span>
+        <span class="card__line"><span class="card__genre">FPS</span><span class="card__year">2004</span></span>
+        <span class="card__line card__line--rarity"><span class="card__rarity">Légendaire</span><span class="card__number">#1</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--iridescence"></span><span class="card__reflection card__reflection--strips"></span><span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="711"></span></span>
+    </span><span class="card card--s card--rarity-exotic card--glow-halo" data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Hydrax</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="50" height="51" data-name="Hydrax" data-exotic="1"></canvas></span>
+        <span class="card__line"><span class="card__genre">beta-builder</span><span class="card__year">2026</span></span>
+        <span class="card__line card__line--rarity"><svg class="card__rarity-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 5" width="10" height="10" shape-rendering="crispEdges" aria-hidden="true"><path fill="#f1e4ff" d="M2 0h1v1h-1zM0 1h2v1h-2zM3 1h2v1h-2z"/><path fill="#a24bff" d="M2 1h1v1h-1zM1 2h3v1h-3zM1 3h1v1h-1z"/><path fill="#4b1d8f" d="M3 3h1v1h-1zM0 4h1v1h-1zM4 4h1v1h-1z"/></svg><span class="card__rarity">Exotic</span><span class="card__number">#1</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--iridescence"></span><span class="card__reflection card__reflection--strips"></span><span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="712"></span></span>
+    </span><span class="card card--s card--rarity-legendary " data-tilt-max="10">
+      <span class="card__body">
+        <span class="card__band"><span class="card__title">Half-Life 2</span></span>
+        <span class="card__art"><canvas class="card__canvas" width="50" height="51" data-name="Half-Life 2" data-exotic="0"></canvas></span>
+        <span class="card__line"><span class="card__genre">FPS</span><span class="card__year">2004</span></span>
+        <span class="card__line card__line--rarity"><span class="card__rarity">Légendaire</span><span class="card__number">#1</span></span>
+      </span>
+      <span class="card__effects" aria-hidden="true"><span class="card__reflection card__reflection--ceiling"></span><span class="card__reflection card__reflection--iridescence"></span><span class="card__reflection card__reflection--strips"></span><span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="713"></span></span>
+    </span></div>
+
+<h2>4. How often it drops</h2>
+  <p>Today a pack holds five cards and a card is a Légendaire 5 times in 10,000 in a regular pack (0.05 %, about one in 400 packs). The exotic must be rarer. Players open about a pack a day, so the rate decides whether anyone ever sees one. The six cards would be drawn evenly once an exotic drop happens.</p>
+  <table>
+    <thead><tr><th>Option</th><th>What it is</th><th>Expected wait</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b class="reco">1 · Regular packs, 1 in 10,000</b> <span class="tag">recommended</span></td>
+        <td>An exotic can come out of any regular pack card, with a share of 1 in 10,000 (a fifth of the Légendaire rate), taken from the Commune share.</td>
+        <td>About one in 2,000 packs per player. A daily player waits years; across 100 active players someone gets one roughly every 20 days.</td>
+        <td>A rare event that gets talked about, with no new way to obtain it. Needs the draw odds and the pool to accept a card outside the season.</td>
+      </tr>
+      <tr>
+        <td>2 · Regular packs, 2 in 10,000</td>
+        <td>Same as above at twice the rate (two fifths of the Légendaire rate).</td>
+        <td>About one in 1,000 packs per player.</td>
+        <td>Still very rare, but a committed player can see one in a few years.</td>
+      </tr>
+      <tr>
+        <td>3 · A beta-builder capsule</td>
+        <td>A special capsule origin (like the daily and goal ones) that holds one exotic card, granted on an event, a milestone or by hand.</td>
+        <td>Set by the author per grant.</td>
+        <td>The author controls who gets one and when, and the rarity of the drop does not touch the odds. Fits the special packs the game already has.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Questions still on the table for the author: which look, which drop option, and whether the exotic counts in the collection totals and set completions (the cards form a set of their own with no season, so the totals could simply ignore it).</p>
+
+</main>
+<script>
+  // Placeholder art: a blocky silhouette seeded by the name, no real photo.
+  function seeded(text) {
+    let h = 2166136261;
+    for (const c of text) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+    return () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h ^= h >>> 13; return ((h >>> 0) % 1000) / 1000; };
+  }
+  document.querySelectorAll("canvas.card__canvas").forEach((canvas) => {
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width, h = canvas.height, u = w / 47;
+    const rand = seeded(canvas.dataset.name);
+    const exotic = canvas.dataset.exotic === "1";
+    const hue = exotic ? 275 : Math.floor(rand() * 360);
+    ctx.fillStyle = `hsl(${hue} 40% 12%)`;
+    ctx.fillRect(0, 0, w, h);
+    const step = Math.max(2, Math.round(3 * u));
+    for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
+      ctx.fillStyle = `hsl(${hue} 38% ${9 + rand() * (exotic ? 16 : 12)}%)`;
+      ctx.fillRect(x, y, step, step);
+    }
+    const block = (x, y, bw, bh, fill) => { ctx.fillStyle = fill; ctx.fillRect(x * u, y * u, bw * u, bh * u); };
+    const skin = `hsl(${(hue + 20) % 360} 30% ${48 + rand() * 12}%)`;
+    block(13, 30, 21, 18, `hsl(${(hue + 40) % 360} 55% 36%)`);
+    block(17, 11, 13, 17, skin);
+    block(15, 8, 17, 7, `hsl(${(hue + 200) % 360} 30% ${16 + rand() * 12}%)`);
+    block(20, 18, 2, 2, "#10141a");
+    block(26, 18, 2, 2, "#10141a");
+    block(21, 23, 5, 1, "#10141a");
+  });
+</script>
+<script src="tilt.js"></script>
+</body>
+</html>
