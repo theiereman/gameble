@@ -195,3 +195,5 @@ After story 1 (it adds the tables everything reads), three lanes touch disjoint 
 7. Release: the MVP is everything before 1.0.0, and this epic comes after it, in release 1.2.0 (not 0.5.0 as section 6 proposed). Epic 17 stays in 0.5.0 without card backs: it no longer waits on this epic, its recap ships without earned backs, and 17.1 drops the back unlocked by a gold reached at the receipt. This epic adds its unlocks to the recap and grants backs for tiers already reached before it ships. Epic 19 no longer orders against this epic: it lands first, so this epic's booster story follows 19.3 to 19.5.
 
 Changes the inception makes at approval: `release = "1.2.0"` on epic 9 in the initiative `tickets.toml`; in `epic-seasons-carry-over`, the "Waits on epic 9" note removed, card backs taken out of R1's recap and out of 17.1's verify, and `epic-card-backs` taken out of 17.2's `after`.
+
+Later on 2026-10-28 the author renamed the goal back Confrère; it is redrawn without the week number.

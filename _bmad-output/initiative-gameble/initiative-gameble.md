@@ -30,7 +30,7 @@ The spec is the requirement source: `spec-gameble/spec-gameble.md`, capabilities
 ## Done when
 
 1. The author plays every day for a month alongside at least 10 active players, not all of them friends, and sees their pulls and trades in the feed.
-2. Every capability CAP-1 to CAP-26 except CAP-20, CAP-22 and CAP-23 is live in production, in French and in English; CAP-20 and CAP-22 follow the public launch (epic-card-backs and epic-profile-titles-and-themes), and CAP-23 follows it too, live before production's second season (epic-seasons-carry-over).
+2. Every capability CAP-1 to CAP-26 except CAP-20, CAP-22 and CAP-23 is live in production, in French and in English; CAP-20 and CAP-22 follow the public launch (epic-card-backs and epic-profile-titles-and-themes), and CAP-23 follows it too, live before production's second season (epic-seasons-carry-over) except the card backs in its recap, which arrive with epic-card-backs.
 3. Opening a pack answers within 200 ms at the 95th percentile.
 4. No blocking bug stays open for more than a day during the first month.
 
