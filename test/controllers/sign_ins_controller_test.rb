@@ -15,6 +15,16 @@ class SignInsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "the sign-in page lets Clerk's frontend API, its bot protection script and the captcha through" do
+    get sign_in_callback_path(locale: :en)
+
+    policy = response.headers["Content-Security-Policy"]
+    frontend_api = Rails.configuration.x.clerk.frontend_api
+    assert_match(/connect-src [^;]*https:\/\/#{Regexp.escape(frontend_api)}/, policy)
+    assert_match(%r{script-src [^;]*https://cdn\.protect\.clerk\.com}, policy)
+    assert_match(%r{script-src [^;]*https://challenges\.cloudflare\.com}, policy)
+  end
+
   test "the terms and the privacy notice are named beside the options" do
     get sign_in_path(locale: :fr)
 
