@@ -111,3 +111,33 @@ The callback reads the Clerk user and looks for the player through any of the us
 | Explanatory comments | low | patch | The client and identities comments are removed; the initializer header follows the Steam initializer's precedent. |
 | Single `clerk_secret.key` instead of one per destination | low | false | Each destination writes its own value to that file; one file name mirrors the Steam key. |
 | Export does not name Clerk | low | defer | The export lists identities by provider; wording in the export file itself is not changed. |
+
+## Code Review
+
+### 2026-10-29
+
+Review of tickets 27.6 and 27.7 together, production code from `eea10180` to `fb70c2d0` (2430 lines; tests, locales and styles left out). 1 `decision-needed`, 3 `patch`, 2 `defer`, 14 rejected.
+
+- [ ] [Review][Decision] The production proxy answers on www.gameble.net but Clerk sessions are accepted only for the apex origin — a sign-in started from www fails the `azp` check with the generic error. Redirect www to the apex, or accept the www origin [app/domains/accounts/app/clients/accounts/clerk_client.rb:27, config/deploy.production.yml:38]
+- [ ] [Review][Patch] A failed first key fetch leaves the key set empty, so every sign-in refetches under the lock, with the client's retries, and the 30-second cooldown never applies [app/domains/accounts/app/clients/accounts/clerk_client.rb:37]
+- [ ] [Review][Patch] A returning player found through a later key never gets the first key attached: `add_missing` skips `keys.first`, which only a new registration adds [app/domains/accounts/app/operations/accounts/sign_in_through_clerk.rb:17]
+- [ ] [Review][Patch] No test pins the settings page's Clerk CSP origins, so the add-a-sign-in widget can break again like the sign-in screen did [test/controllers/sign_in_methods_controller_test.rb]
+- [x] [Review][Defer] The Stimulus controller's wiring (submit on `signedIn`, buttons re-enabled after a failure, strategy whitelist) has no test — deferred: browser glue over Clerk's SDK, a mocked vitest of the controller fits
+- [x] [Review][Defer] The form is submitted right after `setActive`, and the server reads the `__session` cookie: unverified (medium) that Clerk has written it by then — deferred: settled by a real sign-in on staging with Discord, Google and an email code after the CSP fix
+
+#### Rejected
+
+- Production SSH port dropped: false, `deploy.production.yml` sets `ssh: port: 22` and its own proxy command.
+- Missing `CLERK_SECRET_KEY` secret: false, both `.kamal/secrets.*` files read it from `config/clerk_secret.key`.
+- Missing locales, styles, schema and tests: false, those files were left out of the reviewed diff, not missing.
+- Erasure job dropped silently after 10 attempts: false, `retry_on` re-raises after the last attempt, so the job lands in the failed executions and reports.
+- Ban reason missing for an unstamped banned player: false, a Clerk player is stamped by their first successful sign-in, which precedes any ban; a new Clerk identity of a banned Steam player is a different account.
+- Shared Clerk user deleted by a concurrent sign-in: low, one Clerk user is one player, so no second player can hold it.
+- Acceptance notice absent on the callback screen: low, the callback only follows the start screen that shows it.
+- `frame-src` replaced instead of extended: low, no frame source is set before it.
+- `+tag` stripped for every domain in the email hash: low, the author's anti-duplicate choice.
+- Buttons stay disabled when Clerk's script fails to load: low, the error shows and a reload retries.
+- Sign-out does not end the Clerk session: low, the sign-in screen signs the stale session out first.
+- Duplicated private helpers, `@registered`, count comparison for "already added": low, no named harm, and the fix is a refactor.
+- Unrelated changes in the diff (staging tunnel, showcase rename): out of scope for this review.
+- Config hygiene (duplicated development key, silent Clerk off): low, production sets the key.

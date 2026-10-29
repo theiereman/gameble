@@ -454,3 +454,8 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-cleanup-1-2-0/story-the-sign-in-screen-offers-discord-google-and-email-through-clerk-plan.md`
   summary: Name Clerk and the identities in the data export file itself.
   evidence: ExportOf lists identities by provider; the privacy notice names Clerk but the export carries no processor wording.
+
+## Deferred from: code review of story-the-sign-in-screen-offers-discord-google-and-email-through-clerk-plan (2026-10-29)
+
+- The Stimulus controller `clerk_sign_in_controller.ts` has no test of its wiring (submit on `signedIn`, buttons re-enabled after a failure, the Discord and Google strategy whitelist). A mocked vitest of the controller fits.
+- Unverified (medium): the controller submits the form right after `setActive` and the server reads the `__session` cookie; settle it with a real sign-in on staging with Discord, Google and an email code.
