@@ -8,7 +8,7 @@ module Accounts
       email_hash = ClerkIdentities.email_hash(user)
 
       transaction do
-        player = step existing_player(user, keys) || register(keys.first, email_hash)
+        player = step existing_player(user, keys) || new_player(user, keys, email_hash)
         step refuse_banned(player)
         add_missing(player, keys.drop(1), email_hash)
         ClerkIdentities.stamp(player, user, keys + [ ClerkIdentities.email_key(user) ])
@@ -32,6 +32,10 @@ module Accounts
 
       player.lock!("FOR NO KEY UPDATE")
       player.deleted? ? nil : Success(player)
+    end
+
+    def new_player(user, keys, email_hash)
+      ClerkIdentities.known_email_failure(user) || register(keys.first, email_hash)
     end
 
     def register(key, email_hash)

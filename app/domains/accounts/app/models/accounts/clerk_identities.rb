@@ -9,6 +9,12 @@ module Accounts
       EmailHash.call(user.primary_verified_email)
     end
 
+    def self.known_email_failure(user, except_player_id: nil)
+      addresses = user.external_accounts.select(&:verified).map(&:email) << user.primary_verified_email
+      owner = Identity.where(email_hash: addresses.filter_map { EmailHash.call(it) }.uniq).where.not(player_id: except_player_id).first
+      Dry::Monads::Failure(:"email_known_#{owner.provider}") if owner
+    end
+
     # The key an email-code user is found through, even when external accounts were attached since.
     def self.email_key(user)
       [ "email", user.id ]

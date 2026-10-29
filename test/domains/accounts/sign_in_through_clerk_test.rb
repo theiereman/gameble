@@ -10,6 +10,7 @@ class Accounts::SignInThroughClerkTest < ActiveSupport::TestCase
       "user_other" => ClerkFake.api_user("user_other", email: "other@example.com", accounts: [ { provider: "discord", uid: "d-1" } ]),
       "user_code" => ClerkFake.api_user("user_code", email: "code@example.com"),
       "user_code_same_email" => ClerkFake.api_user("user_code_same_email", email: "gabe@example.com"),
+      "user_second_address" => ClerkFake.api_user("user_second_address", email: "primary@example.com", accounts: [ { provider: "google", uid: "g-9", email: "gabe@example.com" } ]),
       "user_unverified" => ClerkFake.api_user("user_unverified", email: "ghost@example.com", email_verified: false),
       "user_both" => ClerkFake.api_user("user_both", accounts: [ { provider: "discord", uid: "d-1" }, { provider: "google", uid: "g-1" } ])
     })
@@ -77,6 +78,12 @@ class Accounts::SignInThroughClerkTest < ActiveSupport::TestCase
     sign_in("user_discord").value!
 
     assert_equal Dry::Monads::Failure(:email_known_discord), sign_in("user_code_same_email")
+  end
+
+  test "an address of an external account other than the primary one is checked too" do
+    sign_in("user_discord").value!
+
+    assert_equal Dry::Monads::Failure(:email_known_discord), sign_in("user_second_address")
   end
 
   test "an unverified email gives no hash" do

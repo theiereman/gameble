@@ -27,6 +27,7 @@ class ClerkSessionsController < ApplicationController
     end
 
     def refuse_banned
+      @ban_reason = Accounts::CurrentBanReason.through_clerk(clerk_session_token)
       render "sessions/banned", status: :forbidden
     end
 

@@ -1882,7 +1882,7 @@ fr:
         subtitle: "Ouvrir, révéler, collectionner, échanger. Ces quatre gestes vous suffiront à faire progresser la mission de la Confrérie."
         join:
           title: "Rejoignez-la"
-          text: "Connectez-vous et créez votre compte automatiquement avec Steam."
+          text: "Connectez-vous avec Steam, Discord, Google ou un code par e-mail : votre compte est créé automatiquement."
           badge: "Nouveau membre"
         accumulate:
           title: "Accumulez des capsules"
@@ -2046,7 +2046,7 @@ fr:
     store: "Voir sur Steam"
     preview:
       title: "%{title} — %{rarity}"
-      description: "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix capsules vous attendent."
+      description: "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous : dix capsules vous attendent."
     share:
       button: "Partager"
       title: "Partager la carte"
@@ -2263,7 +2263,7 @@ fr:
       position_out_of_range: "La vitrine n'a pas cette place."
     steam:
       invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
-      sign_in_failed: "La connexion avec Steam n'a pas abouti. Réessayez."
+      sign_in_failed: "La connexion n'a pas abouti. Réessayez."
       run_in_progress: "Un import est déjà en cours, officier. Laisse-le finir, ou attends qu'il s'interrompe, avant d'en lancer un autre."
       not_found: "Les scribes ne trouvent pas cette passe d'import dans les registres."
       not_resumable: "Seul un import interrompu peut être repris, officier."

@@ -730,7 +730,7 @@ en:
     position: "%{position} / %{total}"
     preview:
       description: 'A card of Gameble, your Steam games as collectible cards. Sign
-        in through Steam: ten capsules wait for you.'
+        in: ten capsules wait for you.'
       title: "%{title} — %{rarity}"
     previous: Previous card
     season_number: Season %{number}
@@ -979,7 +979,7 @@ en:
         its cards or discard them first.
       run_in_progress: An import is already under way, officer. Let it finish, or
         wait for it to halt, before starting another.
-      sign_in_failed: The sign-in through Steam did not go through. Try again.
+      sign_in_failed: The sign-in did not go through. Try again.
       stale_batch: 'The season that run began on was published since, officer. Its
         staged cards are thrown away: start a new import.'
   external_links:
@@ -1283,7 +1283,7 @@ en:
           title: Grow your collection
         join:
           badge: New member
-          text: Sign in and your account is created automatically with Steam.
+          text: Sign in with Steam, Discord, Google or an email code and your account is created automatically.
           title: Join it
         label: 03 · How it works
         subtitle: Open, reveal, collect, trade. These four gestures are all you need

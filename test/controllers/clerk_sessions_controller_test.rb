@@ -125,6 +125,18 @@ class ClerkSessionsControllerTest < ActionDispatch::IntegrationTest
     assert_nil session[:player_id]
   end
 
+  test "a banned player who signed in through Clerk is shown the reason of the ban" do
+    banned = accounts_players(:banned)
+    banned.identities.create!(provider: "discord", uid: "discord-1", clerk_user_id: CLERK_USER)
+    Accounts::ModerationAction.create!(kind: :ban, player: banned, staff: accounts_players(:moderator), reason: "Insults in the name")
+    present_clerk_session
+
+    post clerk_session_path(locale: :en)
+
+    assert_response :forbidden
+    assert_select ".account-suspended__reason", "Insults in the name"
+  end
+
   test "a signed-in session is replaced by the new one" do
     sign_in(accounts_players(:player))
     old_session_id = session.id.to_s

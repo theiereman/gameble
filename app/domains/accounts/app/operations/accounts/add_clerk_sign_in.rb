@@ -12,6 +12,7 @@ module Accounts
         player.lock!("FOR NO KEY UPDATE")
         step require_player(player)
         step refuse_taken(player, keys + [ ClerkIdentities.email_key(user) ])
+        step ClerkIdentities.known_email_failure(user, except_player_id: player.id) || Success(player)
         keys.each do |provider, uid|
           step AddIdentity.new.call(player:, provider:, uid:, email_hash:) unless player.identities.exists?(provider:, uid:)
         end

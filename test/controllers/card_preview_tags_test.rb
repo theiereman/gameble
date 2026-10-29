@@ -133,7 +133,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
     assert_equal "Blue Depths — Rare", og("title")
     assert_select "title", "Blue Depths — Rare"
-    description = "A card of Gameble, your Steam games as collectible cards. Sign in through Steam: ten capsules wait for you."
+    description = "A card of Gameble, your Steam games as collectible cards. Sign in: ten capsules wait for you."
     assert_equal description, og("description")
     assert_equal description, meta("name", "description")
     assert_equal "website", og("type")
@@ -156,7 +156,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select "title", "Profondeurs bleues — Rare"
     assert_equal "fr_FR", og("locale")
     assert_equal season_url(locale: :fr), og("url")
-    assert_equal "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix capsules vous attendent.", og("description")
+    assert_equal "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous : dix capsules vous attendent.", og("description")
     assert_select ".public-card__pitch-title", "Vos jeux Steam, en cartes à collectionner."
     assert_select ".public-card__pitch-text", "Ouvrez des capsules, complétez des sets, échangez avec vos amis."
     assert_select ".public-card__pitch a.button--primary", "Ouvrir mes premières capsules"

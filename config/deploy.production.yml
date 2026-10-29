@@ -36,7 +36,9 @@ logging:
 
 proxy:
   ssl: false                       # Cloudflare holds the certificate
-  host: gameble.net
+  hosts:
+    - gameble.net
+    - www.gameble.net
   forward_headers: true            # keep Cloudflare's X-Forwarded-For and X-Forwarded-Proto
   run:
     log_max_size: ""
