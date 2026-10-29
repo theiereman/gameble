@@ -3,7 +3,7 @@ title: 'A back earned in several seasons wears the season the player picks'
 type: 'feature'
 ticket: '6'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: '88b5fc4d78ab050b0ab8ad8afce177d58af2ce72'
 route: 'full'
 route_source: 'auto'

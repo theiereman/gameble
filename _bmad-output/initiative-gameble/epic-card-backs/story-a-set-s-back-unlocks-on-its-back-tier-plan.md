@@ -3,7 +3,7 @@ title: 'A set''s back unlocks on its back tier'
 type: 'feature'
 ticket: '2'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: 'd0c7deb518615307ad60da73a9139fded30f0188'
 route: 'oneshot'
 route_source: 'auto'

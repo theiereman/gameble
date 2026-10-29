@@ -34,17 +34,6 @@ hitl = false
 risk = "medium"
 
 [[entry]]
-id = 4
-type = "story"
-title = "The walkthrough of the screens never marked"
-description = "Epic 16 was accepted with its walkthrough partial: seven screens were never marked (seasonal allocation, card picker, public card page, public profile, full collection, Steam sign-in, Plus) and the phone, the staff screens and English were largely unseen. The author walks them with an agent, marks each one, and the findings become tickets. Whether issue #67 (standardise the return button) is closed by the guard built in 16.11 is still to decide."
-verify = "Each of the seven screens is marked seen, with its findings turned into tickets or deferred entries, and the phone, staff and English passes are recorded."
-covers = []
-after = []
-hitl = true
-risk = "low"
-
-[[entry]]
 id = 5
 type = "story"
 title = "Staging moves to test.gameble.net behind a Cloudflare Tunnel"

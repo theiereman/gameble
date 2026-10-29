@@ -3,7 +3,7 @@ title: 'The active back on the booster and its unlocks announced'
 type: 'feature'
 ticket: '5'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: '6c4cae84'
 route: 'oneshot'
 route_source: 'auto'

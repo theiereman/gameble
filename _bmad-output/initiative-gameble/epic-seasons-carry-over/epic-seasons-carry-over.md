@@ -20,7 +20,7 @@ When a new season is published, a returning player keeps everything they built a
 
 ## Outcome
 
-For a returning player: a season change reads as a reward, never as a loss; the signal is that the rehearsal on staging shows no counter drop, no tier lost and the allocation once per player.
+For a returning player: a season change reads as a reward, never as a loss; the signal is that a season change shows no counter drop, no tier lost and the allocation once per player.
 
 ## Requirements
 
@@ -73,3 +73,4 @@ The season change for players: receiving carried tiers, the allocation screen, a
 - Decision (2026-10-28, author): the allocation screen has two sections: "Obtenu pendant la saison N", the tiers reached and nothing else, and "Vos paliers dans la saison suivante", the tiers received at once and those to win back. This supersedes the earlier lines that put achievements, goal rewards and card backs on the screen; 9.8 is affected.
 - Decision (2026-10-28, author): the allocation screen has no Brotherhood line or any sentence under its title and no section of tiers to win back; its second section lists only the tiers received at once in the next season; long lists scroll, with no "see more"; two columns on large screens, "CONTINUER" sticky at the bottom on the phone. This supersedes the earlier decision above that kept the tiers to win back.
 - Decision (2026-10-28, author): the allocation screen gets a section "Débloqué pendant la saison N" between the tiers earned and the tiers of the next season: the card backs unlocked and the achievements earned during the ended season, backs and achievements side by side on large screens, omitted when there are none; it supersedes the "tiers only" decision of the same day (weekly goal rewards, the Brotherhood line and the tiers to win back stay off). Card backs keep their entry in epic-card-backs (9.8, R8) and fill the section once that epic lands; until then the section shows achievements only.
+- Dropped (2026-10-29, author): entry 5, the rehearsal of a season change on a copy of staging. The tests of entries 1, 2 and 6 cover the counters, the carried tiers and the allocation once per player; the 200 ms opening time is left to the existing performance checks.

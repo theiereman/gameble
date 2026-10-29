@@ -3,7 +3,7 @@ title: 'The seasonal recap lists the season''s backs'
 type: 'feature'
 ticket: '8'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: '6c4cae8460a558e6a783a7cc91a135262909412b'
 route: 'oneshot'
 route_source: 'auto'

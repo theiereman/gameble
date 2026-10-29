@@ -3,7 +3,7 @@ title: 'The complete-sets figure counts a game in any edition'
 type: 'feature'
 ticket: '2'
 created: '2026-10-28'
-status: built
+status: done
 ---
 
 ## Intent

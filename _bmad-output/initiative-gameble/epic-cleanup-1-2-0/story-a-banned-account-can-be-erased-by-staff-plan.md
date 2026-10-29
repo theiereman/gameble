@@ -3,7 +3,7 @@ title: 'A banned account can be erased by staff'
 type: 'feature'
 ticket: '3'
 created: '2026-10-28'
-status: built
+status: done
 baseline_revision: 'f9b5aed9490f58b87046faa76d461c9bcacaffd5'
 route: 'full'
 route_source: 'auto'

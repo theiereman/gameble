@@ -3,7 +3,7 @@ title: 'The seasonal allocation screen'
 type: 'feature'
 ticket: '2'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: '329a7e26a6a72f1947851ac46bb455761b8f8081'
 route: 'full'
 route_source: 'auto'

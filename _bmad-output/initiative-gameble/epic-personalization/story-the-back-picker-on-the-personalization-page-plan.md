@@ -3,7 +3,7 @@ title: 'The back picker on the Personalization page'
 type: 'feature'
 ticket: '2'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: '20d65ecfc2d6c1d9feaa26ff91acdcc7136efd2d'
 route: 'full'
 route_source: 'auto'

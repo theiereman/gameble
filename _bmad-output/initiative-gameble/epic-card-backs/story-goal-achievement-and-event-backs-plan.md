@@ -3,7 +3,7 @@ title: 'Goal, achievement and event backs'
 type: 'feature'
 ticket: '7'
 created: '2026-10-28'
-status: 'built'
+status: done
 baseline_revision: '20d65ecfc2d6c1d9feaa26ff91acdcc7136efd2d'
 route: 'oneshot'
 route_source: 'auto'

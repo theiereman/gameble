@@ -56,15 +56,3 @@ covers = []
 after = [1, 2, 6]
 hitl = false
 risk = "low"
-
-[[entry]]
-id = 5
-type = "story"
-title = "A season change rehearsed on staging"
-description = "Publishes a season on a copy of staging that holds players with progress and checks the season change end to end, with the author: counters, carried tiers, the allocation, the feed and the opening time."
-verify = "No total counter drops, carried tiers are received once with no feed entry, each returning player sees the allocation once, and POST /packs stays under 200 ms at p95."
-covers = ["R1", "R2", "R3", "R5", "R6"]
-after = [4]
-unknown = "How the p95 is measured on the staging copy; no measuring script exists yet."
-hitl = true
-risk = "medium"
