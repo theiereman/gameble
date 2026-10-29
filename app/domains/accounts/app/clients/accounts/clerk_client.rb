@@ -7,6 +7,7 @@ module Accounts
     include Dry::Monads[:result]
 
     JWKS_LIFETIME = 1.hour
+    JWKS_REFETCH_COOLDOWN = 30.seconds
     LEEWAY = 5
     PROVIDERS = { "oauth_discord" => "discord", "oauth_google" => "google" }.freeze
     LOCAL_ORIGINS = %w[http://localhost:3000 http://127.0.0.1:3000 http://localhost:3036 http://127.0.0.1:3036].freeze
@@ -41,7 +42,7 @@ module Accounts
             fetch_jwks(adapter)
             fetched = true
           end
-          fetch_jwks(adapter) if !@jwks.key?(kid) && !fetched
+          fetch_jwks(adapter) if !@jwks.key?(kid) && !fetched && @jwks_fetched_at < JWKS_REFETCH_COOLDOWN.ago
           @jwks[kid]
         end
       end

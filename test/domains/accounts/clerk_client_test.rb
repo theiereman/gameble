@@ -74,10 +74,20 @@ class Accounts::ClerkClientTest < ActiveSupport::TestCase
     client.verify_session(ClerkFake.session_token(user_id: "user_1"))
     assert_equal 1, @fake.jwks_calls
 
-    result = client.verify_session(ClerkFake.session_token(user_id: "user_1", kid: "rotated"))
+    travel_to(31.seconds.from_now) do
+      result = client.verify_session(ClerkFake.session_token(user_id: "user_1", kid: "rotated"))
 
-    assert_equal Dry::Monads::Failure(:invalid_session), result
-    assert_equal 2, @fake.jwks_calls
+      assert_equal Dry::Monads::Failure(:invalid_session), result
+      assert_equal 2, @fake.jwks_calls
+    end
+  end
+
+  test "unknown key ids cannot make the key list refetch more than once in 30 seconds" do
+    client.verify_session(ClerkFake.session_token(user_id: "user_1"))
+
+    3.times { client.verify_session(ClerkFake.session_token(user_id: "user_1", kid: "forged")) }
+
+    assert_equal 1, @fake.jwks_calls
   end
 
   test "the key list is cached for an hour" do
