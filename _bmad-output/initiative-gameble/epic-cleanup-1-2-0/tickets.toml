@@ -67,3 +67,15 @@ covers = []
 after = [ 6 ]
 hitl = true
 risk = "high"
+
+[[entry]]
+id = 8
+type = "story"
+title = "The hub's central showcase shows the best latest card, even a common one"
+description = "The central component of the hub (the showcase, pages/_showcase and Game::LatestNotableCard) picks the latest notable card. Change it to show simply the best of the player's latest cards, even when that card is a common, so the centre is never skipped or empty for a player who has opened capsules. A card the player chose for the showcase still wins. Before v1."
+verify = "A player whose latest pulls are all commons sees the best of those commons in the hub's centre; a player who chose a showcase card still sees it; a player with no card sees the empty state."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["Asked by the author, 2026-10-29, as a side note during the Clerk sign-in work."]
