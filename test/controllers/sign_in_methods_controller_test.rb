@@ -99,6 +99,7 @@ class SignInMethodsControllerTest < ActionDispatch::IntegrationTest
     assert_match(%r{connect-src [^;]*https://#{Regexp.escape(frontend_api)}}, policy)
     assert_match(%r{script-src [^;]*https://cdn\.protect\.clerk\.com}, policy)
     assert_match(%r{script-src [^;]*https://challenges\.cloudflare\.com}, policy)
+    assert_match(%r{connect-src [^;]*https://\*\.client\.protect\.clerk\.com}, policy)
   end
 
   test "the settings come back from Clerk in callback mode" do
