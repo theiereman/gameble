@@ -99,14 +99,15 @@ class SignInsControllerTest < ActionDispatch::IntegrationTest
     assert_select "form.steam-sign-in", 0
   end
 
-  test "the Clerk origins are allowed on the sign-in screen only" do
-    get sign_in_path(locale: :en)
+  test "the Clerk origins are allowed on every page, since a Turbo visit to the sign-in screen keeps the first page's policy" do
     api = "https://#{Rails.configuration.x.clerk.frontend_api}"
-    connect = response.headers["Content-Security-Policy"].split(/;\s*/).find { it.start_with?("connect-src") }
-    assert_includes connect.split, api
 
-    get how_it_works_path(locale: :en)
-    other = response.headers["Content-Security-Policy"].split(/;\s*/).find { it.start_with?("connect-src") }
-    assert_not_includes other.split, api
+    [ how_it_works_path(locale: :en), sign_in_path(locale: :en) ].each do |path|
+      get path
+      directives = response.headers["Content-Security-Policy"].split(/;\s*/).to_h { [ it.split.first, it.split.drop(1) ] }
+      assert_includes directives["connect-src"], api, path
+      assert_includes directives["script-src"], "https://challenges.cloudflare.com", path
+      assert_includes directives["frame-src"], "https://challenges.cloudflare.com", path
+    end
   end
 end

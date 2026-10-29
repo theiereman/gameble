@@ -1,6 +1,5 @@
 class SignInsController < ApplicationController
   include PublicRead
-  include ClerkContentSecurityPolicy
 
   def show
     authorize :sign_in, :show?

@@ -1,6 +1,4 @@
 class SettingsController < ApplicationController
-  include ClerkContentSecurityPolicy
-
   MOTION_CHOICES = { "system" => nil, "on" => true, "off" => false }.freeze
 
   def show

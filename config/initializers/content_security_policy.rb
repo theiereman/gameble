@@ -9,6 +9,10 @@
 # and connect-src; the cable connects to the public origin over ws(s). Vite
 # may inline small assets as data: URIs; fonts are allowed as data: URIs too.
 #
+# Clerk's Frontend API and its bot protection (Cloudflare's captcha, Clerk's
+# script and probes) are allowed on every page, not only where Clerk signs
+# in: a Turbo visit keeps the CSP of the document it started from.
+#
 # Sources that read app code or configuration are procs, resolved per
 # request: nothing is autoloaded at boot, and config.x.public_url is read as
 # it stands.
@@ -31,17 +35,21 @@ Rails.application.configure do
   dev_scripts = vite ? [ "http://#{vite}" ] : []
   dev_styles = vite ? [ :unsafe_inline, "http://#{vite}" ] : []
   dev_connections = vite ? [ "ws://#{vite}", "http://#{vite}" ] : []
+  clerk_api = -> { Rails.configuration.x.clerk.frontend_api&.then { "https://#{it}" } }
+  clerk_bot_protection = [ "https://challenges.cloudflare.com", "https://cdn.protect.clerk.com" ]
+  clerk_probes = "https://*.client.protect.clerk.com"
 
   config.content_security_policy do |policy|
     policy.default_src :self
     policy.base_uri :self
     policy.object_src :none
-    policy.script_src :self, *dev_scripts
+    policy.script_src :self, *clerk_bot_protection, *dev_scripts
     policy.style_src :self, *dev_styles
     policy.img_src :self, :data, steam_images
     policy.font_src :self, :data
     policy.worker_src :self, :blob
-    policy.connect_src :self, steam_images, cable, *dev_connections
+    policy.connect_src :self, steam_images, cable, clerk_api, *clerk_bot_protection, clerk_probes, *dev_connections
+    policy.frame_src :self, *clerk_bot_protection
 
     # Sentry is initialised after this file (config/initializers/sentry.rb):
     # the report URI is read per request.
