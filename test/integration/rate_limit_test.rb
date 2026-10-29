@@ -114,6 +114,21 @@ class RateLimitTest < ActionDispatch::IntegrationTest
     assert_response :too_many_requests
   end
 
+  test "a format or doubled slashes in a Clerk sign-in post count toward the same limit" do
+    paths = %w[/en/auth/clerk.json /en//auth/clerk /fr/settings/sign-ins.html /fr//settings//sign-ins/ /EN/AUTH/CLERK]
+    (SignInThrottle::LIMIT - 1).times do |index|
+      post paths[index % paths.size], env: { "REMOTE_ADDR" => IP }
+
+      assert_not_equal 429, response.status, "request #{index + 1}"
+    end
+    post "/en/auth/clerk", env: { "REMOTE_ADDR" => IP }
+    assert_not_equal 429, response.status
+
+    post "/en/auth/clerk.json", env: { "REMOTE_ADDR" => IP }
+
+    assert_response :too_many_requests
+  end
+
   test "another IP is handled normally meanwhile" do
     11.times { |index| sign_in_request(index) }
     assert_response :too_many_requests
@@ -251,7 +266,8 @@ class RateLimitTest < ActionDispatch::IntegrationTest
   test "the shared pages are counted on GET and HEAD, with or without a format, and nothing else is" do
     read = ->(method, path) { PublicReadThrottle.public_read?(Rack::Request.new(Rack::MockRequest.env_for(path, method:))) }
 
-    %w[/fr/cards/hades /en/brothers/abc /en/brothers/abc/library/theme/roguelike /fr/library /fr/library/ /fr/library.html /fr/library/theme/roguelike /en /fr /fr/feed /en/feed.html].each do |path|
+    %w[/fr/cards/hades /en/brothers/abc /en/brothers/abc/library/theme/roguelike /fr/library /fr/library/ /fr/library.html /fr/library/theme/roguelike /en /fr /fr/feed /en/feed.html
+      /fr//cards/hades /en//cards//hades /EN/Feed].each do |path|
       assert read.("GET", path), path
     end
     assert read.("HEAD", "/fr/cards/hades")

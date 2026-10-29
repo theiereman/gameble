@@ -6,6 +6,15 @@ module ClientAddress
   end
 end
 
+module RoutedPath
+  FORMAT = %r{\.[^/]*\z}
+
+  # OmniAuth matches its paths case-insensitively, so this downcases too.
+  def self.of(request)
+    ActionDispatch::Journey::Router::Utils.normalize_path(request.path).downcase.sub(FORMAT, "")
+  end
+end
+
 module SignInThrottle
   LIMIT = 10
   PERIOD = 1.minute
@@ -16,9 +25,8 @@ module SignInThrottle
 
   CLERK_POST_PAGES = %w[auth/clerk settings/sign-ins].freeze
 
-  # OmniAuth matches its paths case-insensitively, so this does too.
   def self.sign_in?(request)
-    path = request.path.downcase.chomp("/")
+    path = RoutedPath.of(request)
     PATHS.fetch(request.request_method, []).include?(path) || clerk_post?(request, path)
   end
 
@@ -36,10 +44,10 @@ module PublicReadThrottle
   def self.public_read?(request)
     return false unless request.get? || request.head?
 
-    locale, page = request.path.split("/", 4)[1, 2]
+    locale, page = RoutedPath.of(request).split("/", 4)[1, 2]
     return false unless I18n.available_locales.map(&:to_s).include?(locale)
 
-    page.blank? || PAGES.include?(page.split(".").first)
+    page.blank? || PAGES.include?(page)
   end
 end
 
