@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_29_100100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_29_150100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -70,6 +70,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_100100) do
     t.index ["stream_key"], name: "index_accounts_players_on_stream_key", unique: true
     t.index ["token"], name: "index_accounts_players_on_token", unique: true
     t.check_constraint "deleted_at IS NULL OR steam_id IS NULL", name: "accounts_players_deleted_no_steam_id_check"
+    t.check_constraint "persona_name IS NULL OR char_length(persona_name::text) <= 512", name: "accounts_players_persona_name_length_check"
     t.check_constraint "role::text = 'player'::text OR role::text = 'moderator'::text OR role::text = 'administrator'::text", name: "accounts_players_role_check"
     t.check_constraint "visibility::text = 'public'::text OR visibility::text = 'friends_only'::text OR visibility::text = 'private'::text", name: "accounts_players_visibility_check"
   end

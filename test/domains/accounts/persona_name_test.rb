@@ -2,7 +2,8 @@ require "test_helper"
 
 # A Steam persona name made fit to show:
 # invisible characters dropped, spaces made plain and squished, cut to 64
-# graphemes, and nil when nothing visible remains. Every character other
+# graphemes of at most 8 code points each, and nil when nothing visible
+# remains. Every character other
 # than ASCII is written as a \u escape.
 class Accounts::PersonaNameTest < ActiveSupport::TestCase
   def clean(value) = Accounts::PersonaName.clean(value)
@@ -72,6 +73,17 @@ class Accounts::PersonaNameTest < ActiveSupport::TestCase
     test "#{name.grapheme_clusters.size} graphemes in #{name.length} code points are kept" do
       assert_equal name, clean(name)
     end
+  end
+
+  test "a grapheme stacked with combining marks keeps only its first code points" do
+    assert_equal "a" + "́" * 7 + "b", clean("a" + "́" * 10_000 + "b")
+  end
+
+  test "a name of stacked graphemes stays within the code point ceiling" do
+    cleaned = clean(("a" + "́" * 50) * 100)
+
+    assert_equal 64, cleaned.grapheme_clusters.size
+    assert_equal Accounts::PersonaName::MAX_CODE_POINTS, cleaned.length
   end
 
   test "bytes that are not UTF-8 are dropped; a UTF-8 name tagged binary keeps its characters" do
