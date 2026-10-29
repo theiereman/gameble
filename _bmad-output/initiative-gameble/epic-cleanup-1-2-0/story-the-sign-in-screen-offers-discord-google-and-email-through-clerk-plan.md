@@ -3,7 +3,8 @@ title: 'The sign-in screen offers Discord, Google and email through Clerk'
 type: 'feature'
 ticket: '7'
 created: '2026-10-29'
-status: 'draft'
+status: 'in-progress'
+baseline_revision: 'd52da79754bea9cd36a69cfc34755701962e7cc3'
 route: 'full'
 route_source: 'auto'
 context: ['_bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md']
@@ -77,3 +78,14 @@ context: ['_bmad-output/initiative-gameble/architecture-gameble/architecture-gam
 ## Design Notes
 
 Open facts the spike settles: how the session token names the provider used when Clerk merged two providers into one user; whether the script's session cookie reaches the app domain on a development instance; the exact Backend API field names. The plan changes only outside the frozen block if the spike contradicts the approach; if it contradicts the approach itself, the author decides.
+
+### Spike result (2026-10-29, Clerk development instance, real sign-ins)
+
+- Clerk's browser script sets the `__session` cookie on the app's own origin, so the server can read the session token from the callback request. The token carries `sub` (the Clerk user id), `sid`, `iss` (the instance's Frontend API), `azp` (the page origin) and `exp` after 60 seconds. It carries no provider and no sign-in method.
+- The Backend API read of a user returns `external_accounts` with `provider` (`oauth_discord`, `oauth_google`), `provider_user_id`, `email_address`, `email_address_verified` and a verification status, plus `email_addresses` with their verification.
+- An email code sent to an address already verified through Discord signs in the same Clerk user, with a new session, and nothing in the token or the user tells which method was used. The frozen row "the provider used is the one the token names" therefore cannot be applied.
+- Discord and Google accounts with different addresses are two Clerk users, as intended. Two OAuth providers sharing one address were not exercised; by the same mechanism they would be one Clerk user.
+
+### Decision (author, 2026-10-29): one Clerk user is one player
+
+The callback reads the Clerk user and looks for the player through any of the user's external accounts (provider and provider user id), then through the Clerk user id kept as an `email` identity. A found player is signed in, and the user's external accounts missing from the player's identities are added when free. A user matching nothing becomes a new player holding one identity per external account, or the `email` identity keyed on the Clerk user id when there is none. A user whose verified address hash belongs to another player's identity is refused naming the provider. This replaces the frozen row on a merged Clerk user.
