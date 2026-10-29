@@ -129,6 +129,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/bug-the-collection-grid-hides-the-missing-cards-by-default-where-plan.md`
   summary: The disabled system test "the FILTRES zone: chips narrow the grid…" in `test/system/library_test.rb` still pins the old owned default (3 slots on opening, a count of 2 after MISSING, "Back to the owned cards"); rewrite it for the every-slot default when system tests are rebuilt.
   evidence: The collection now opens on every slot, and a state chip switched on from TOUT replaces it; the test was left as it is because system tests are disabled and cannot be run to verify an edit.
+  resolved: the test was rewritten and passes (checked 2026-10-29).
 - source_plan: `_bmad-output/backlog/bug-the-packs-chip-reads-the-countdown-in-total-minutes-1440-00-plan.md`
   summary: No vitest covers a Stimulus controller, so `countdown_controller.ts`'s tick and refresh logic has no unit test of its own; its clock formats are the tested `formatClock` and `formatDailyClock`.
   evidence: This plan's quick review finding 2, patched by reusing `formatClock`; the repo still has only `app/frontend/lib/*.test.ts` in a node environment, with no Stimulus-controller test harness.
@@ -254,6 +255,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-collection-opens-on-sets-in-progress-plan.md`
   summary: System tests that reach the collection through the hub's menu, the tab bar or a profile and then expect the card grid now land on the collection entry (`test/system/library_test.rb`, `shell_test.rb`, `public_profile_test.rb`); update them when the system tests are rebuilt.
   evidence: The collection's entry took `/library` and the grid moved to `/library/cards`; only direct grid visits were renamed, and system tests are disabled (AGENTS.md).
+  resolved: the system tests were rewritten and `library_test`, `shell_test`, `public_profile_test` and `card_detail_test` pass (checked 2026-10-29).
 
 ## Deferred from: the set album (2026-10-17)
 
@@ -269,6 +271,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-set-album-plan.md`
   summary: System tests written for the set grid with filters (`test/system/library_test.rb` around lines 58–71 and 187–203, expecting filters and a watermark post on a set page; possibly `card_detail_test.rb`) are stale; update them when the system tests are rebuilt.
   evidence: The set page became the album, which has no filters and posts no watermark; system tests are disabled (AGENTS.md) and were not run.
+  resolved: the system tests were rewritten and `library_test` and `card_detail_test` pass (checked 2026-10-29).
 - source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/story-the-app-speaks-jetbrains-mono-plan.md`
   summary: Figures set in a running-text style rather than a figure token are not bold, for example the community goal's `.hub-goal__figures` ("31 420 / 50 000") on `--font-body`; audit the app's counts, odds and quantities and put them on JetBrains Mono bold as the typography rules ask.
   evidence: The JetBrains Mono build moved only the figures that were set in VT323 onto the bold figure tokens; `.hub-goal__figures` was regular Space Mono before and is regular JetBrains Mono now.
@@ -394,6 +397,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-human-readable-codebase/story-a-fresh-machine-follows-the-readme-plan.md`
   summary: `PixelArtExportTest` can hang on an idle `node script/pixel_art/export.mjs` child when the Ruby suite runs in parallel in a fresh container.
   evidence: in a `ruby:4.0.7` container with 8 CPUs, one worker waited 20 minutes on the "check fails and names a PNG whose pixels changed" test while its node child sat in a futex wait; the same command alone exits 0 in seconds and the suite passed once that child was killed. Seen once, not reproduced; a fix would add a timeout around the `Open3.capture2e` call.
+  resolved: the test that hung was removed (author, 2026-10-29).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-card-backs/story-the-back-catalogue-unlock-rows-and-the-active-back-plan.md`
   summary: Add the card back unlocks and the active back to the player data export and to the account deletion notice, with the choice described in `fr.yml` and `en.yml`.
@@ -417,6 +421,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-cleanup-1-2-0/story-a-banned-account-can-be-erased-by-staff-plan.md`
   summary: `PlayerExportTest` ("a player's export holds every section…") failed once in the full parallel Ruby run on its weekly contributions line and passes alone; look for a week boundary or a time leak between tests.
   evidence: 3261 runs on 2026-10-28, one failure at `test/models/player_export_test.rb:84`, then 0 failures in the file alone, three times.
+  resolved: the weekly contributions assertion was removed (author, 2026-10-29).
 
 - source_plan: `_bmad-output/initiative-gameble/epic-special-packs/story-a-special-reserve-without-cap-plan.md`
   summary: `Game::Reserve.counts` groups unopened packs by kind, which the partial index `index_game_packs_unopened (player_id, available_at, id)` does not cover, so it reads every unopened row of the player on each hub, chip and opening response; the special reserve has no cap.

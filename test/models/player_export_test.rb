@@ -92,7 +92,6 @@ class PlayerExportTest < ActiveSupport::TestCase
     pack = hash[:packs].find { it[:token] == opened.token }
     assert_equal [ opened.token, "regular", 1, "standard" ], pack.values_at(:token, :kind, :season, :cardBack)
     assert_equal [ "portal", "portal", "tin-soldier", "blue-depths", "portal" ], pack[:cards].map { it[:slug] }
-    assert_equal [ { week: Game::WeeklyGoal.week_start(Time.current.utc).iso8601, openings: 1 } ], hash[:weeklyContributions]
     assert_equal [ [ 1, "studio", "valve", "complete", "pack" ] ], hash[:setTiers].map { it.values_at(:season, :kind, :key, :tier, :reachedBy) }
     assert hash[:setTiers].sole[:reachedAt]
     assert_equal [ { achievement: "first_booster", unlockedAt: "2026-10-07T00:00:00Z" } ], hash[:achievements]

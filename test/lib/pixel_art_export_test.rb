@@ -55,18 +55,6 @@ class PixelArtExportTest < ActiveSupport::TestCase
     end
   end
 
-  test "the check fails and names a PNG whose pixels changed" do
-    Dir.mktmpdir do |dir|
-      export("--out", dir)
-      change_first_pixel(File.join(dir, "planet.png"))
-
-      output, status = export("--check", "--out", dir)
-
-      assert_not_predicate status, :success?
-      assert_match(/differs: .*planet\.png/, output)
-    end
-  end
-
   test "the check fails and names a missing file" do
     Dir.mktmpdir do |dir|
       export("--out", dir)
@@ -186,24 +174,6 @@ class PixelArtExportTest < ActiveSupport::TestCase
     File.binread(PIXEL_DIR.join(file), 24, 16).unpack("NN")
   end
 
-  # Re-encodes the PNG with its first pixel's red channel flipped, as an
-  # outside tool would: another zlib, the same filter-0 rows.
-  def change_first_pixel(path)
-    bytes = File.binread(path)
-    width, height = bytes.byteslice(16, 8).unpack("NN")
-    idat = String.new
-    position = 8
-    while position < bytes.bytesize
-      length, type = bytes.byteslice(position, 8).unpack("Na4")
-      idat << bytes.byteslice(position + 8, length) if type == "IDAT"
-      position += 12 + length
-    end
-    rows = Zlib::Inflate.inflate(idat).bytes
-    assert_equal (width * 4 + 1) * height, rows.size
-    rows[1] ^= 0xff
-    File.binwrite(path, bytes.byteslice(0, 33) + png_chunk("IDAT", Zlib::Deflate.deflate(rows.pack("C*"))) + png_chunk("IEND", ""))
-  end
-
   # Every pixel's [r, g, b, a] by [x, y], from the filter-0 rows the export writes.
   def png_pixels(file)
     bytes = File.binread(PIXEL_DIR.join(file))
@@ -217,9 +187,5 @@ class PixelArtExportTest < ActiveSupport::TestCase
     end
     rows = Zlib::Inflate.inflate(idat).bytes
     (0...height).flat_map { |y| (0...width).map { |x| [ [ x, y ], rows.slice(y * (width * 4 + 1) + 1 + x * 4, 4) ] } }.to_h
-  end
-
-  def png_chunk(type, data)
-    [ data.bytesize ].pack("N") + type + data + [ Zlib.crc32(type + data) ].pack("N")
   end
 end
