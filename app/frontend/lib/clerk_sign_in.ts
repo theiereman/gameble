@@ -40,7 +40,7 @@ interface SignUpLike {
 export interface ClerkLike {
   session?: unknown
   client?: { signIn: SignInLike; signUp: SignUpLike } | undefined
-  signOut(): Promise<unknown>
+  signOut(afterSignOut?: () => Promise<unknown>): Promise<unknown>
   setActive(params: { session: string }): Promise<unknown>
   handleRedirectCallback(
     params: {
@@ -124,7 +124,8 @@ export class ClerkSignIn {
   async prepareFreshStart(): Promise<Outcome | null> {
     if (!this.clerk.session) return null
     return this.attempt(async () => {
-      await this.clerk.signOut()
+      // Clerk's signOut navigates to its after-sign-out URL unless it is given a callback.
+      await this.clerk.signOut(async () => undefined)
       return null
     })
   }

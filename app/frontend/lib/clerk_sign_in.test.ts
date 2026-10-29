@@ -38,6 +38,12 @@ describe("prepareFreshStart", () => {
     expect(clerk.signOut).toHaveBeenCalledOnce()
   })
 
+  it("signs out without letting Clerk navigate away from the screen", async () => {
+    const { clerk, driver } = buildFake({ session: { id: "sess_old" } })
+    await driver.prepareFreshStart()
+    expect(clerk.signOut).toHaveBeenCalledWith(expect.any(Function))
+  })
+
   it("leaves a signed-out visitor alone", async () => {
     const { clerk, driver } = buildFake()
     expect(await driver.prepareFreshStart()).toBeNull()
