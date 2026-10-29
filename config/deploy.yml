@@ -109,8 +109,11 @@ builder:
 # Each destination file sets how its servers are reached over SSH.
 
 # Use accessory services (secrets come from .kamal/secrets).
-# PostgreSQL 18. The user `gameble` is the image's superuser, so the
-# app's `db:prepare` creates the four databases (primary, cache, queue, cable).
+# PostgreSQL 18. The user `gameble` is the image's superuser, kept for
+# administration and backups. The app connects as `gameble_app`, which
+# script/database/hand_over_to_app_role creates once per server: it may create
+# databases, so the app's `db:prepare` creates the four (primary, cache, queue,
+# cable), and owns them, but is not a superuser.
 accessories:
   db:
     image: postgres:18

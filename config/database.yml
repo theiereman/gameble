@@ -81,7 +81,9 @@ production:
     max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 3 } %>
     database: gameble_production
     host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
-    username: gameble
+    # Not a superuser: it owns the databases, so it migrates them, and no more
+    # (script/database/hand_over_to_app_role).
+    username: gameble_app
     password: <%= ENV["GAMEBLE_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production

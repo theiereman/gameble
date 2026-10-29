@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# Gives gameble's databases to the role the app connects as, gameble_app: a
+# login that owns the four databases and every object in them, so the app's
+# db:prepare still migrates, but that is not a superuser, so SQL run as the app
+# can no longer reach the server's files or run programs. The image's
+# superuser, gameble, keeps administering and backing up. Run it where docker
+# reaches the database container, as many times as needed:
+#
+#   GAMEBLE_APP_DATABASE_PASSWORD=... script/database/hand_over_to_app_role [container]
+#
+# Without the variable, it asks for the password. The container defaults to
+# gameble-db, the Kamal accessory.
+set -euo pipefail
+
+readonly CONTAINER=${1:-gameble-db}
+readonly DATABASES="'gameble_production', 'gameble_production_cache', 'gameble_production_queue', 'gameble_production_cable'"
+
+if [ -z "${GAMEBLE_APP_DATABASE_PASSWORD:-}" ]; then
+  [ -t 0 ] || { echo "hand_over_to_app_role: set GAMEBLE_APP_DATABASE_PASSWORD" >&2; exit 1; }
+  read -rsp "gameble_app's password: " GAMEBLE_APP_DATABASE_PASSWORD
+  echo
+fi
+[ -n "$GAMEBLE_APP_DATABASE_PASSWORD" ] || { echo "hand_over_to_app_role: the password is empty" >&2; exit 1; }
+export GAMEBLE_APP_DATABASE_PASSWORD
+
+psql_as_superuser() {
+  docker exec --interactive --env GAMEBLE_APP_DATABASE_PASSWORD "$CONTAINER" \
+    psql --username=gameble --no-psqlrc --quiet --set=ON_ERROR_STOP=1 "$@"
+}
+
+psql_as_superuser --dbname=postgres <<SQL
+\getenv app_password GAMEBLE_APP_DATABASE_PASSWORD
+SELECT 'CREATE ROLE gameble_app' WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'gameble_app') \gexec
+ALTER ROLE gameble_app WITH LOGIN NOSUPERUSER NOCREATEROLE CREATEDB NOREPLICATION NOBYPASSRLS PASSWORD :'app_password';
+SELECT format('ALTER DATABASE %I OWNER TO gameble_app', datname) FROM pg_database WHERE datname IN ($DATABASES) \gexec
+SQL
+
+databases=$(psql_as_superuser --dbname=postgres --tuples-only --no-align \
+  --command="SELECT datname FROM pg_database WHERE datname IN ($DATABASES) ORDER BY datname")
+
+for database in $databases; do
+  psql_as_superuser --dbname="$database" <<'SQL'
+DO $$
+DECLARE
+  object record;
+BEGIN
+  FOR object IN
+    SELECT format('ALTER %s %s OWNER TO gameble_app',
+      CASE c.relkind WHEN 'S' THEN 'SEQUENCE' WHEN 'v' THEN 'VIEW' WHEN 'm' THEN 'MATERIALIZED VIEW' WHEN 'f' THEN 'FOREIGN TABLE' ELSE 'TABLE' END,
+      c.oid::regclass) AS statement
+    FROM pg_class c
+    WHERE c.relnamespace = 'public'::regnamespace
+      AND c.relkind IN ('r', 'p', 'v', 'm', 'f', 'S')
+      AND c.relowner <> 'gameble_app'::regrole
+      -- A sequence that belongs to a column follows its table.
+      AND NOT EXISTS (
+        SELECT FROM pg_depend d
+        WHERE d.classid = 'pg_class'::regclass AND d.objid = c.oid AND d.deptype IN ('a', 'i'))
+  LOOP
+    EXECUTE object.statement;
+  END LOOP;
+
+  FOR object IN
+    SELECT format('ALTER ROUTINE %s OWNER TO gameble_app', p.oid::regprocedure) AS statement
+    FROM pg_proc p
+    WHERE p.pronamespace = 'public'::regnamespace AND p.proowner <> 'gameble_app'::regrole
+  LOOP
+    EXECUTE object.statement;
+  END LOOP;
+
+  FOR object IN
+    SELECT format('ALTER TYPE %s OWNER TO gameble_app', t.oid::regtype) AS statement
+    FROM pg_type t
+    WHERE t.typnamespace = 'public'::regnamespace AND t.typtype IN ('e', 'd', 'r') AND t.typowner <> 'gameble_app'::regrole
+  LOOP
+    EXECUTE object.statement;
+  END LOOP;
+END
+$$;
+SQL
+
+  left=$(psql_as_superuser --dbname="$database" --tuples-only --no-align --command="
+    SELECT count(*) FROM pg_class
+    WHERE relnamespace = 'public'::regnamespace AND relkind IN ('r', 'p', 'v', 'm', 'f', 'S') AND relowner <> 'gameble_app'::regrole")
+  [ "$left" -eq 0 ] || { echo "hand_over_to_app_role: $left relations of $database are not gameble_app's" >&2; exit 1; }
+  echo "hand_over_to_app_role: $database belongs to gameble_app"
+done

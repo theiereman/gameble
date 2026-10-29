@@ -143,6 +143,7 @@ jobs:
           SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_APP_PASSWORD: ${{ secrets.DATABASE_APP_PASSWORD }}
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           DISCORD_WEBHOOK_PRODUCTION: ${{ secrets.DISCORD_WEBHOOK_PRODUCTION }}
@@ -153,6 +154,7 @@ jobs:
           printf '%s' "$SECRET_KEY_BASE" > config/secret_key_base.production.key
           printf '%s' "$SENTRY_DSN" > config/sentry_dsn.key
           printf '%s' "$DATABASE_PASSWORD" > config/database_password.production.key
+          printf '%s' "$DATABASE_APP_PASSWORD" > config/database_app_password.production.key
           printf '%s' "$STEAM_API_KEY" > config/steam_api.key
           printf '%s' "$CLERK_SECRET_KEY" > config/clerk_secret.key
           printf '%s' "$DISCORD_WEBHOOK_PRODUCTION" > config/discord_webhook.production.key
@@ -240,6 +242,7 @@ jobs:
           SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_APP_PASSWORD: ${{ secrets.DATABASE_APP_PASSWORD }}
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           DISCORD_WEBHOOK_PRODUCTION: ${{ secrets.DISCORD_WEBHOOK_PRODUCTION }}
@@ -250,6 +253,7 @@ jobs:
           printf '%s' "$SECRET_KEY_BASE" > config/secret_key_base.production.key
           printf '%s' "$SENTRY_DSN" > config/sentry_dsn.key
           printf '%s' "$DATABASE_PASSWORD" > config/database_password.production.key
+          printf '%s' "$DATABASE_APP_PASSWORD" > config/database_app_password.production.key
           printf '%s' "$STEAM_API_KEY" > config/steam_api.key
           printf '%s' "$CLERK_SECRET_KEY" > config/clerk_secret.key
           printf '%s' "$DISCORD_WEBHOOK_PRODUCTION" > config/discord_webhook.production.key

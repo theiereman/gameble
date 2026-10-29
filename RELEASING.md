@@ -172,7 +172,8 @@ Before the first production deploy:
      | `CLOUDFLARE_ACCESS_CLIENT_SECRET` | its Client Secret |
      | `RAILS_MASTER_KEY` | the same as staging's |
      | `SECRET_KEY_BASE` | `bin/rails secret`; production's own |
-     | `DATABASE_PASSWORD` | `openssl rand -hex 32`; production's own |
+     | `DATABASE_PASSWORD` | `openssl rand -hex 32`; production's own, the database superuser's |
+     | `DATABASE_APP_PASSWORD` | `openssl rand -hex 32`; production's own, the app's role's (docs/operations.md, Database role) |
      | `SENTRY_DSN` | the same as staging's |
      | `STEAM_API_KEY` | the same as staging's |
      | `CLERK_SECRET_KEY` | the secret key of the Clerk **production** instance (Clerk dashboard → API keys); never the development one |
@@ -180,7 +181,7 @@ Before the first production deploy:
 
    `CLERK_SECRET_KEY` is the production instance's, unlike staging's, which is the development instance's (docs/operations.md, Clerk); the production publishable key is in `config/deploy.production.yml`, and the Clerk dashboard's allowed URLs for https://gameble.net must be checked once.
 
-   Keep `SECRET_KEY_BASE` and `DATABASE_PASSWORD` in your password manager too: GitHub never shows a secret again. If you lose the database password, the app is locked out of its data; if you change the secret, every player is signed out.
+   Keep `SECRET_KEY_BASE`, `DATABASE_PASSWORD` and `DATABASE_APP_PASSWORD` in your password manager too: GitHub never shows a secret again. If you lose the database passwords, the app is locked out of its data; if you change the secret, every player is signed out.
 
 2. **SSH through the tunnel.** Kamal reaches the LXC at `ssh.gameble.net`, the tunnel's SSH route, through `cloudflared access ssh` (`config/deploy.production.yml`); no port of the home lab is open. In Cloudflare Zero Trust:
    - **Networks → Tunnels →** the production tunnel **→ Public hostnames → Add**: `ssh.gameble.net`, service `SSH`, URL `localhost:22`;
@@ -204,13 +205,15 @@ Before the first production deploy:
    rm /tmp/gameble_production_deploy /tmp/gameble_production_deploy.pub
    ```
 
-4. **The first deploy** needs the database before the app, and the workflow's `kamal deploy` never boots an accessory. Cut, accept and promote the first candidate as usual; while its production run waits for approval, boot the database from your machine, with the production key files that `.kamal/secrets.production` reads in `config/` (`database_password.production.key` holds the same value as the environment's secret):
+4. **The first deploy** needs the database before the app, and the workflow's `kamal deploy` never boots an accessory. Cut, accept and promote the first candidate as usual; while its production run waits for approval, boot the database from your machine, with the production key files that `.kamal/secrets.production` reads in `config/` (`database_password.production.key` and `database_app_password.production.key` hold the same values as the environment's secrets), then give it to the app's role (docs/operations.md, Database role):
 
    ```sh
    bin/kamal accessory boot db -d production
+   scp script/database/hand_over_to_app_role ssh.gameble.net:/usr/local/bin/hand_over_to_app_role
+   ssh -t ssh.gameble.net hand_over_to_app_role
    ```
 
-   Then approve the run: the deploy starts kamal-proxy and the app, whose `db:prepare` creates the four databases. Every later release goes through the workflow alone.
+   Then approve the run: the deploy starts kamal-proxy and the app, whose `db:prepare` creates the other three databases. Every later release goes through the workflow alone.
 
 5. **The Cloudflare Tunnel** must already route https://gameble.net to the LXC (`cloudflared` running there, its published application `gameble.net` → `http://localhost:80`): see `config/deploy.production.yml`.
 

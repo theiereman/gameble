@@ -10,7 +10,7 @@ Deployment, production checks, backups, staffing, retention, the job queue, the 
 - Staging (https://test.gameble.net) runs release candidates, never a push: publishing a GitHub pre-release `vX.Y.Z-rc.N` whose tag is on `develop` runs the full CI on its commit, deploys it, and sets the commit status `staging` to success (`.github/workflows/deploy-staging.yml`). A release that is not a pre-release, or a pre-release whose tag is not on `develop`, deploys nothing there.
 - `main` is production's (https://gameble.net) and only moves through `bin/promote`, which fast-forwards it to an accepted candidate's commit and publishes the release `vX.Y.Z` on that commit. The release copies the candidate's image to `ghcr.io/theiereman/gameble-releases` and, once the author approves the run in the GitHub environment `production`, deploys it with `bin/kamal deploy -d production --skip-push` (`.github/workflows/deploy-production.yml`). Production never builds an image. Never merge into `main`.
 
-The staging workflow needs these secrets of the `staging` environment: `SSH_KEY` (private key allowed on the LXC) and `SSH_KNOWN_HOSTS` (`ssh-staging.gameble.net ` followed by the LXC's `/etc/ssh/ssh_host_ed25519_key.pub`), `CLOUDFLARE_ACCESS_CLIENT_ID` and `CLOUDFLARE_ACCESS_CLIENT_SECRET` (the Access service token `github-actions deploy staging`; same Cloudflare setup as production in RELEASING.md, Setup, once), each environment holding its own under the same name, `SECRET_KEY_BASE` and `DATABASE_PASSWORD` (staging's own), `RAILS_MASTER_KEY`, `SENTRY_DSN` and `STEAM_API_KEY` (repository secrets, shared with production), `CLERK_SECRET_KEY` (the secret key of the Clerk development instance, see Clerk below; production has its own, different, one), all written to the same `config/*.key` files that `.kamal/secrets.staging` reads, and `DISCORD_WEBHOOK_STAGING` (the webhook URL of the Discord channel: Edit channel → Integrations → Webhooks → New webhook). The image and its build cache are pushed to GitHub's container registry (`ghcr.io/theiereman/gameble` and `gameble-build-cache`) with the job's own `GITHUB_TOKEN`, so no secret is needed for them; the workflow keeps the last five images and drops the build caches replaced. The release images live in their own package, `gameble-releases`, which nothing cleans. The production workflow's secrets, in the `production` environment, are listed in RELEASING.md (Setup, once).
+The staging workflow needs these secrets of the `staging` environment: `SSH_KEY` (private key allowed on the LXC) and `SSH_KNOWN_HOSTS` (`ssh-staging.gameble.net ` followed by the LXC's `/etc/ssh/ssh_host_ed25519_key.pub`), `CLOUDFLARE_ACCESS_CLIENT_ID` and `CLOUDFLARE_ACCESS_CLIENT_SECRET` (the Access service token `github-actions deploy staging`; same Cloudflare setup as production in RELEASING.md, Setup, once), each environment holding its own under the same name, `SECRET_KEY_BASE`, `DATABASE_PASSWORD` and `DATABASE_APP_PASSWORD` (staging's own), `RAILS_MASTER_KEY`, `SENTRY_DSN` and `STEAM_API_KEY` (repository secrets, shared with production), `CLERK_SECRET_KEY` (the secret key of the Clerk development instance, see Clerk below; production has its own, different, one), all written to the same `config/*.key` files that `.kamal/secrets.staging` reads, and `DISCORD_WEBHOOK_STAGING` (the webhook URL of the Discord channel: Edit channel → Integrations → Webhooks → New webhook). The image and its build cache are pushed to GitHub's container registry (`ghcr.io/theiereman/gameble` and `gameble-build-cache`) with the job's own `GITHUB_TOKEN`, so no secret is needed for them; the workflow keeps the last five images and drops the build caches replaced. The release images live in their own package, `gameble-releases`, which nothing cleans. The production workflow's secrets, in the `production` environment, are listed in RELEASING.md (Setup, once).
 
 ### Discord announcement
 
@@ -28,7 +28,7 @@ KAMAL_DESTINATION=staging KAMAL_VERSION=$(git rev-parse HEAD) KAMAL_PERFORMER=$U
 ```
 Another destination gets the same with its own `config/discord_webhook.<destination>.key` and `deployed/<destination>` tag.
 
-Production (https://gameble.net, its own LXC, reached through a Cloudflare Tunnel) is deployed by its workflow only; before its first deploy, `bin/kamal accessory boot db -d production` is run once by hand (RELEASING.md). Both destinations read the same shared files (`master.key`, `sentry_dsn.key`, `steam_api.key`, `registry_password.key`) and their own: `config/clerk_secret.key` (the destination's Clerk instance, see Clerk below), `config/secret_key_base.<destination>.key` (`bin/rails secret`; each destination signs its sessions and cookies with it, so no staging session is valid in production, and the credentials' `secret_key_base` is never used) and `config/database_password.<destination>.key`. Keep both outside the machine too: losing the database password locks the app out of its data, and changing the secret signs every player out.
+Production (https://gameble.net, its own LXC, reached through a Cloudflare Tunnel) is deployed by its workflow only; before its first deploy, `bin/kamal accessory boot db -d production` is run once by hand (RELEASING.md). Both destinations read the same shared files (`master.key`, `sentry_dsn.key`, `steam_api.key`, `registry_password.key`) and their own: `config/clerk_secret.key` (the destination's Clerk instance, see Clerk below), `config/secret_key_base.<destination>.key` (`bin/rails secret`; each destination signs its sessions and cookies with it, so no staging session is valid in production, and the credentials' `secret_key_base` is never used), `config/database_password.<destination>.key` (the database superuser's) and `config/database_app_password.<destination>.key` (the app's role, see Database role). Keep them outside the machine too: losing the database passwords locks the app out of its data, and changing the secret signs every player out.
 
 Always name the destination (`-d staging`, `-d production`). A Kamal command without one deploys containers named without the destination (`gameble-web-<version>`, `gameble-import-<version>`) that a later `bin/kamal deploy -d staging` neither replaces nor stops. They keep running their old code against the same database and take jobs from the same queues, so an import or a rescore is written by whichever version picks each page up. List what runs on the host with `bin/kamal server exec -d staging 'docker ps'`; stop and remove any `gameble-*` container whose name lacks the destination. `test/lib/post_deploy_hook_test.rb` runs both hooks against a throwaway repository and a local webhook, and `test/bin/promote_test.rb` runs `bin/promote` against a throwaway repository and a stub `gh`.
 
@@ -103,6 +103,19 @@ docker container prune -f
 ```
 
 Staging keeps Docker's default log driver. Sentry keeps errors 30 days, the retention of its Developer plan.
+
+### Database role
+
+The app connects to PostgreSQL as `gameble_app`, never as the accessory's superuser `gameble`. `gameble_app` owns the four databases and everything in them, so the app's `db:prepare` migrates them and creates any that is missing, but it is not a superuser: SQL run as the app cannot read the server's files, run programs or change the server's settings. `gameble` keeps administering, and the backup dumps as it.
+
+`script/database/hand_over_to_app_role` creates the role, sets its password and gives it the databases and their objects. It changes nothing on a second run, so run it again whenever objects were created as `gameble`: after a restore (below), or after migrating by hand as the superuser. Run it once on each LXC before the first release whose `config/database.yml` connects as `gameble_app`, and before a new LXC's first deploy, after `bin/kamal accessory boot db`. From your machine (`ssh-staging.gameble.net` for staging):
+
+```sh
+scp script/database/hand_over_to_app_role ssh.gameble.net:/usr/local/bin/hand_over_to_app_role
+ssh -t ssh.gameble.net hand_over_to_app_role
+```
+
+It asks for the password, the value of the environment's `DATABASE_APP_PASSWORD` secret, and prints one line per database it handed over. To change that password, update the secret, run the script with the new value and deploy right after: the running app's new connections are refused until the deploy.
 
 ### Backups
 
@@ -181,9 +194,12 @@ restic snapshots --tag gameble_production
 docker exec gameble-db dropdb --username=gameble gameble_production
 docker exec gameble-db createdb --username=gameble gameble_production
 restic dump <snapshot id> /gameble_production.dump | docker exec -i gameble-db pg_restore --username=gameble --dbname=gameble_production --no-owner --exit-on-error
+hand_over_to_app_role
 ```
 
-On a new LXC, run `bin/kamal accessory boot db -d production` first (it creates an empty `gameble_production`), restore, and only then deploy: the app's `db:prepare` would otherwise load an empty schema. Finally `bin/kamal app boot -d production` (or the deploy), and check `/up` and the player count below.
+The restore creates every object as `gameble`; `hand_over_to_app_role` (Database role) gives them back to the app, which could not migrate them otherwise.
+
+On a new LXC, run `bin/kamal accessory boot db -d production` first (it creates an empty `gameble_production`), copy `hand_over_to_app_role` there (Database role), restore, and only then deploy: the app's `db:prepare` would otherwise load an empty schema. Finally `bin/kamal app boot -d production` (or the deploy), and check `/up` and the player count below.
 
 **The restore drill.** `script/backup/restore_drill`, run from your machine, proves a backup restores and that the release production runs boots on it, without touching production. It reads the repository's settings from `config/backup_restic.key` (git-ignored like `master.key`: the same `RESTIC_*` and `AWS_*` lines as the LXC's env file, without `DISCORD_WEBHOOK`) and needs restic, Docker, Ruby, OpenSSL and `config/master.key`. The release images are private: log in once with `docker login ghcr.io -u theiereman --password-stdin < config/registry_password.key`.
 

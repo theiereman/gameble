@@ -86,6 +86,7 @@ step "pulling $image"
 docker image inspect "$image" >/dev/null 2>&1 || docker pull --quiet "$image" >/dev/null
 
 POSTGRES_PASSWORD=$(openssl rand -hex 24)
+# A release from before the app role connects as the superuser: both share the password.
 GAMEBLE_DATABASE_PASSWORD=$POSTGRES_PASSWORD
 SECRET_KEY_BASE=$(openssl rand -hex 64)
 RAILS_MASTER_KEY=$(<config/master.key)
@@ -101,6 +102,9 @@ wait_for_postgres
 step "restoring snapshot $snapshot ($snapshot_time)"
 restic dump "$snapshot" "$DUMP_PATH" |
   docker exec --interactive "$db" pg_restore --username=gameble --dbname=gameble_production --no-owner --exit-on-error
+
+step "handing the restored database over to the app's role"
+GAMEBLE_APP_DATABASE_PASSWORD=$GAMEBLE_DATABASE_PASSWORD script/database/hand_over_to_app_role "$db" >/dev/null
 
 step "booting $image on the restored data"
 docker run --detach --name "$app" --network "$network" \

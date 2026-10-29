@@ -3,6 +3,10 @@
 Operations and decisions waiting for the author's go-ahead, kept since 2026-10-02. Open items first; settled ones are listed by date at the end.
 
 
+## Open
+
+- The app connects to PostgreSQL as `gameble_app`, not as the superuser. Run `script/database/hand_over_to_app_role` on the staging LXC before the first candidate that carries it is deployed there, and on the production LXC before its release is promoted (docs/operations.md, Database role); a deploy before that cannot connect to the database. The `DATABASE_APP_PASSWORD` secret of both environments is set.
+
 ## Settled on 2026-10-29
 
 Settled by the author in conversation on 2026-10-29.
