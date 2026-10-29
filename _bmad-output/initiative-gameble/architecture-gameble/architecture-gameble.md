@@ -373,11 +373,11 @@ graph TD
   - Packwerk names a package by its path, `app/domains/<name>`, and `packs.yml` lists `app/domains/*`. The dependency arrows of the diagram above do not change.
   - Settled by the author on 2026-10-27 after a trial that moved `accounts` with packwerk, Zeitwerk and the whole suite green.
 
-### AD-33 — Exotic cards are a tribute season `[PROPOSED]`
+### AD-33 — Exotic cards are a tribute season `[ADOPTED]`
 
 - **Binds:** the exotic cards epic; a capability to add to the spec (author, 2026-10-29: the exotic tier, a drop of one in 10,000, the beta-builder capsule).
 - **Prevents:** a second card table beside `catalog_card_seasons`; holdings, trades, showcases and reposts forked for people's cards; the five-tier checks leaking.
-- **Rule (the author approves it before any build, at ticket 2 of the exotic cards epic):**
+- **Rule (approved by the author on 2026-10-29, as the tribute season with exotic as a sixth rarity):**
   - The six cards are `catalog_card_seasons` rows of one permanent season of kind `tribute`, numbered 0, never the one `PublishedSeason` returns, never carried over or reset (the allocation reads the regular seasons only). Everything keyed by card-season (holdings, showcases, trades, reposts, first discoveries) works unchanged.
   - Exotic is tier 6: `Catalog::Rarity::TIERS` gains `6 => :exotic` and the tier checks widen to 1..6 in an expand then contract pair, a tribute card being the only tier 6 (a model validation, as a check cannot see the season).
   - The six cards sit in one `tribute` set of that season; the set tiers machinery runs on it unchanged, and it has no back (AD-25 grants backs for themes and hall of fame sets only).

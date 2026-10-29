@@ -27,7 +27,7 @@ No capability of the spec yet: the epic starts with a spike that settles the mod
 
 - R1. The author's decisions of 2026-10-27 hold: exotic is a mark outside the rarities, named "exotique" / "exotic"; the six cards form a set of their own; they have no season; every player can receive one, with a rarity rarer than a Légendaire; they trade, show and repost like any card; the face shows the pseudonym and the category "beta-builder"; the public side is unchanged.
 
-- R2. The author's decisions of 2026-10-29: the face is black with a slow violet halo and a polished metal band that follows the tilt (`ux-gameble/mockups/exotic-card/`); an exotic card is drawn once in 10,000 from a regular pack and also comes from a beta-builder capsule the author grants by hand; the model is a tribute season, to approve (AD-33).
+- R2. The author's decisions of 2026-10-29: the face is black with a slow violet halo and a polished metal band that follows the tilt (`ux-gameble/mockups/exotic-card/`); an exotic card is drawn once in 10,000 from a regular pack and also comes from a beta-builder capsule the author grants by hand; the model is a tribute season (AD-33, approved 2026-10-29).
 
 ## Done when
 
@@ -45,3 +45,4 @@ The tribute cards only. Nothing in the 0.4.0 release.
 
 - Decision (2026-10-27, author): out of the MVP, release 1.2.0.
 - Open for the spike: the drop rate, how a seasonless set sits beside the season's sets and in the totals, the mockup, the testers' consent.
+- Decision (2026-10-29, author): the exotic cards are set aside until the official release (v1) is out. Nothing of this epic is built before: AD-33 stays adopted, the design and the mockup stay as they are.

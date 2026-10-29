@@ -17,7 +17,7 @@ notes = ["Moved out of the 0.4.0 screen walkthrough (formerly 16.33) on 2026-10-
 id = 2
 type = "story"
 title = "The exotic tier and the tribute season in the catalog"
-description = "The author approves AD-33 first (hitl gate). Then, expand then contract: a kind column on catalog_seasons (regular by default) and a tribute season numbered 0 that PublishedSeason, the season list, the allocation and the back office ignore; Catalog::Rarity::TIERS gains 6 => :exotic and the tier checks widen to 1..6 with a model validation that only a tribute card is tier 6; a tribute set of the six cards; the six catalog rows (source key, slug, pseudonym text in both locales, no Steam store url) seeded by an idempotent task. The spec gets the capability."
+description = "AD-33 is approved (author, 2026-10-29). Expand then contract: a kind column on catalog_seasons (regular by default) and a tribute season numbered 0 that PublishedSeason, the season list, the allocation and the back office ignore; Catalog::Rarity::TIERS gains 6 => :exotic and the tier checks widen to 1..6 with a model validation that only a tribute card is tier 6; a tribute set of the six cards; the six catalog rows (source key, slug, pseudonym text in both locales, no Steam store url) seeded by an idempotent task. The spec gets the capability."
 verify = "Tests show a tier 6 card only inside the tribute season, PublishedSeason and the season totals unchanged with the tribute season present, the tribute set listing six cards, the seed task run twice writing once, and db/schema.rb regenerated from the migrations; packwerk and zeitwerk pass."
 covers = []
 after = ["epic-human-readable-codebase"]
