@@ -2,7 +2,12 @@
 
 Operations and decisions waiting for the author's go-ahead, kept since 2026-10-02. Open items first; settled ones are listed by date at the end.
 
-- **Cloudflare and link previews (epic 4; author 2026-10-08: when production is set up).** When Cloudflare is set up: Bot Fight Mode off, or a WAF skip rule for Discordbot, Twitterbot and WhatsApp on `/*/cards/*` (the share link since story 4.7) and `/*/brothers/*` (public profiles, and the old share links that redirect to the card), or previews fail.
+
+## Settled on 2026-10-29
+
+Settled by the author in conversation on 2026-10-29.
+
+- Cloudflare and link previews (epic 4): link previews of shared cards and public profiles work behind Cloudflare; no rule change was needed or made beyond what the author did.
 
 ## Settled on 2026-10-20
 
