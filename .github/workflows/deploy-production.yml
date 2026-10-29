@@ -108,7 +108,8 @@ jobs:
       - name: Checkout the release
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.release.tag_name }}
+          # The commit checked before the approval, even if the tag moved since.
+          ref: ${{ needs.release-image.outputs.sha }}
           # The changelog reads the commits since the deployed/production tag.
           fetch-depth: 0
           fetch-tags: true
@@ -208,7 +209,8 @@ jobs:
       - name: Checkout the release to roll back to
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.rollback_to }}
+          # The commit the tag named when the run started, even if it moved since.
+          ref: ${{ needs.rollback-target.outputs.sha }}
           fetch-depth: 0
           fetch-tags: true
 
