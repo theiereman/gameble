@@ -464,3 +464,4 @@
 
 - The Stimulus controller `clerk_sign_in_controller.ts` has no test of its wiring (submit on `signedIn`, buttons re-enabled after a failure, the Discord and Google strategy whitelist). A mocked vitest of the controller fits.
 - Unverified (medium): the controller submits the form right after `setActive` and the server reads the `__session` cookie; settle it with a real sign-in on staging with Discord, Google and an email code.
+  resolved: a real Clerk sign-in works on staging on v1.0.0-rc.2, reached from the hub through a Turbo visit, and a Steam account links from the settings (author, 2026-10-29).

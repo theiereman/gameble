@@ -3,7 +3,7 @@ title: 'A player signed in with Discord, Google or email links their Steam accou
 type: 'feature'
 ticket: '2'
 created: '2026-10-29'
-status: 'built'
+status: done
 baseline_revision: 'b2502b00996838fd84ad97296549a0ff59fc2732'
 route: 'full'
 route_source: 'auto'
