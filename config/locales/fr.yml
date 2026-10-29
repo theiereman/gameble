@@ -8,6 +8,7 @@ fr:
   sign_in_methods:
     create:
       added: "La connexion est ajoutée à votre compte."
+      already_added: "Cette connexion est déjà celle de votre compte."
   sign_ins:
     show:
       heading: "Se connecter"

@@ -2225,6 +2225,7 @@ en:
   sign_in_methods:
     create:
       added: The sign-in is added to your account.
+      already_added: That sign-in is already the one of your account.
   sign_ins:
     clerk:
       back: Use another address

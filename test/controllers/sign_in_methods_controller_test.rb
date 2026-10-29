@@ -111,4 +111,18 @@ class SignInMethodsControllerTest < ActionDispatch::IntegrationTest
   ensure
     Rails.configuration.x.clerk.publishable_key = key
   end
+
+  test "a Clerk user the account already holds says so instead of claiming an addition" do
+    player = accounts_players(:player)
+    sign_in(player)
+    present_clerk_session
+    post settings_sign_ins_path(locale: :en)
+    follow_redirect!
+    present_clerk_session
+
+    post settings_sign_ins_path(locale: :en)
+
+    assert_redirected_to settings_path(locale: :en)
+    assert_equal I18n.t("sign_in_methods.create.already_added", locale: :en), flash[:notice]
+  end
 end

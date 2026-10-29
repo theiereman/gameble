@@ -151,7 +151,9 @@ export class ClerkSignIn {
         },
         async () => undefined,
       )
-      return this.clerk.session ? { kind: "signedIn" } : { kind: "failed", message: "generic" }
+      if (this.clerk.session) return { kind: "signedIn" }
+      console.error("Clerk returned without a session", this.clerk.client?.signIn, this.clerk.client?.signUp)
+      return { kind: "failed", message: "generic" }
     })
   }
 
@@ -206,6 +208,7 @@ export class ClerkSignIn {
     try {
       return (await run()) ?? { kind: "emailStep" }
     } catch (error) {
+      console.error("Clerk sign-in failed", error)
       return { kind: "failed", message: messageKeyForError(error) }
     }
   }
