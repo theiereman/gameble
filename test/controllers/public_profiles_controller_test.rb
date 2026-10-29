@@ -381,6 +381,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "main form:not([method=get])", false
     assert_select "form[role=search][action=?]", brother_collection_path(locale: :en, token: @owner.token)
     assert_select "a.filters__clear[href=?]", brother_collection_path(locale: :en, token: @owner.token)
+    assert_select "ol#collection-slots[data-controller=grid-keys]", 1
     assert_select "[style]", false
     assert_select "input[name='state[]'][value=new]", 0
     assert_select "input[name='state[]'][value=owned]", 1

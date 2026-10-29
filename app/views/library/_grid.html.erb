@@ -1,7 +1,8 @@
 <% if slots.empty? %>
   <p class="collection-grid__empty"><%= pagy.count.positive? ? t("library.grid.past_the_end") : t("library.grid.empty") %></p>
 <% else %>
-  <ol id="collection-slots" class="collection-grid collection-grid--fill" aria-label="<%= t("library.grid.label") %>">
+  <ol id="collection-slots" class="collection-grid collection-grid--fill" aria-label="<%= t("library.grid.label") %>"
+    data-controller="grid-keys" data-action="keydown->grid-keys#move focusin->grid-keys#remember">
     <%= render "library/slots", slots:, context:, set_apart:, new_badge: %>
   </ol>
 <% end %>

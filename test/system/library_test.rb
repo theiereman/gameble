@@ -441,6 +441,31 @@ class LibraryTest < ApplicationSystemTestCase
     assert_no_selector "#collection-pages a[rel=next]", visible: :all
   end
 
+  test "the grid is one tab stop: arrow keys move the focus by card and by row, into appended pages, End reaches the last card" do
+    visit library_cards_path(locale: :en)
+    assert_slots 60
+    assert_selector ".collection-grid a.card-link[tabindex='0']", count: 1, visible: :all
+    columns = evaluate_script("[...document.querySelectorAll('.collection-grid > li')].filter((slot, _, slots) => slot.getBoundingClientRect().top === slots[0].getBoundingClientRect().top).length")
+
+    find(".collection-grid > li:first-child a.card-link").execute_script("this.focus()")
+    page.send_keys(:right)
+    assert_focused ".collection-grid > li:nth-child(2) a.card-link"
+    page.send_keys(:down)
+    assert_focused ".collection-grid > li:nth-child(#{2 + columns}) a.card-link"
+
+    scroll_to_pages
+    assert_slots 120
+    assert_no_selector ".collection-grid a.card-link:not([tabindex])", visible: :all
+    assert_selector ".collection-grid a.card-link[tabindex='0']", count: 1, visible: :all
+    find(".collection-grid > li:nth-child(60) a.card-link").execute_script("this.focus()")
+    page.send_keys(:down)
+    assert_focused ".collection-grid > li:nth-child(#{60 + columns}) a.card-link"
+    page.send_keys(:end)
+    assert_focused ".collection-grid > li:nth-child(120) a.card-link"
+    page.send_keys(:tab)
+    eventually("the focus stayed in the grid") { evaluate_script("!document.activeElement?.closest('.collection-grid')") }
+  end
+
   test "back from a card of an appended page, the grid shows its appended cards at its scroll, the focus on that card's link" do
     visit library_cards_path(locale: :en)
     scroll_to_pages

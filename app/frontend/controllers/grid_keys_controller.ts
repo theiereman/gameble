@@ -2,9 +2,16 @@ import { Controller } from "@hotwired/stimulus"
 import { columnsOf, nextIndex } from "../lib/grid_keys"
 
 export default class extends Controller<HTMLElement> {
+  private appended?: MutationObserver
+
   connect(): void {
-    const links = this.links()
-    this.rove(links.find((link) => link.getAttribute("tabindex") === "0") ?? links[0])
+    this.roveToTabStop()
+    this.appended = new MutationObserver(() => this.roveToTabStop())
+    this.appended.observe(this.element, { childList: true })
+  }
+
+  disconnect(): void {
+    this.appended?.disconnect()
   }
 
   move(event: KeyboardEvent): void {
@@ -28,6 +35,11 @@ export default class extends Controller<HTMLElement> {
 
   private links(): HTMLAnchorElement[] {
     return Array.from(this.element.querySelectorAll<HTMLAnchorElement>(":scope > li > a"))
+  }
+
+  private roveToTabStop(): void {
+    const links = this.links()
+    this.rove(links.find((link) => link.getAttribute("tabindex") === "0") ?? links[0])
   }
 
   private rove(current: HTMLAnchorElement | undefined): void {
