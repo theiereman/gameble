@@ -32,7 +32,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_090300) do
     t.index ["email_hash"], name: "index_accounts_identities_on_email_hash"
     t.index ["player_id"], name: "index_accounts_identities_on_player_id"
     t.index ["provider", "uid"], name: "index_accounts_identities_on_provider_and_uid", unique: true
-    t.check_constraint "provider::text = ANY (ARRAY['steam'::character varying, 'discord'::character varying, 'google'::character varying, 'email'::character varying]::text[])", name: "accounts_identities_provider_check"
+    t.check_constraint "provider::text = ANY (ARRAY['steam'::character varying::text, 'discord'::character varying::text, 'google'::character varying::text, 'email'::character varying::text])", name: "accounts_identities_provider_check"
   end
 
   create_table "accounts_moderation_actions", force: :cascade do |t|

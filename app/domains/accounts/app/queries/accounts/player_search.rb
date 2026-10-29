@@ -7,13 +7,11 @@ module Accounts
       text = normalize(query)
       return players if text.empty?
 
-      players.where("accounts_players.persona_name ILIKE :pattern OR accounts_players.id IN (#{steam_identities})",
-        pattern: "%#{Player.sanitize_sql_like(text)}%", text:)
+      players.where("accounts_players.persona_name ILIKE ?", "%#{Player.sanitize_sql_like(text)}%")
+        .or(players.where(id: steam_identities(text)))
     end
 
-    def self.steam_identities
-      "SELECT player_id FROM accounts_identities WHERE provider = 'steam' AND uid = :text"
-    end
+    def self.steam_identities(text) = Identity.where(provider: "steam", uid: text).select(:player_id)
     private_class_method :steam_identities
 
     def self.normalize(query)
