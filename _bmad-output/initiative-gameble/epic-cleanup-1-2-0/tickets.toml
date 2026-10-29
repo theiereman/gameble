@@ -56,3 +56,14 @@ hitl = true
 risk = "high"
 notes = ["Answers from the author, 2026-10-29: (1) Discord and Google beside Steam; (2) a Clerk account may exist without Steam and plays normally; (3) no linking of a second sign-in to an existing account for now, so each provider is its own account; (4) Clerk proves the identity only, the app keeps its own session; (5) the player keeps accounts_players and its public token, with an identities table beside, as proposed in AD-34; (6) Clerk free plan only; (7) two Clerk instances, staging and production, keys in the Kamal secrets, return URLs per destination. Next: the author approves AD-34, then the build stories are written (identities and backfill; the Clerk sign-in behind the sign-in operation; players without Steam, their handle, export, deletion and legal pages; the Clerk instances and secrets)."]
 
+
+[[entry]]
+id = 7
+type = "story"
+title = "The sign-in screen offers Discord, Google and email through Clerk"
+description = "Slice 2 of the Clerk sign-in (the identity foundation is built): the Clerk sign-in on the sign-in screen, the add-a-sign-in section in the settings, the legal and export wording naming Clerk, the erasure of the Clerk user with the account, and the secrets and deployment for local, staging (Clerk development instance) and production (Clerk production instance)."
+verify = "On a Clerk development instance a visitor signs in with Discord, with Google and with an email code, each its own account; a second sign-in added from the settings joins the same account; a verified email already known is refused naming the provider; erasing the account erases the Clerk user; staging and production configuration documented."
+covers = []
+after = [ 6 ]
+hitl = true
+risk = "high"
