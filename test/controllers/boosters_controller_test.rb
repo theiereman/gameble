@@ -363,6 +363,15 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{ROOT} .booster__origin:not([hidden])", "DAILY CAPSULE"
   end
 
+  test "with only special capsules the no-JS fallback opens the special reserve" do
+    create_pack(@player, kind: :bonus, available_at: 1.hour.ago)
+    sign_in(@player)
+
+    get booster_path(locale: :en)
+
+    assert_select ".booster__fallback form[action=?] button", "/en/packs?reserve=special", text: "Open the capsule"
+  end
+
   test "with both kinds the screen opens on standard unless the special reserve is asked for" do
     create_pack(@player, available_at: 1.hour.ago)
     create_pack(@player, kind: :reward, available_at: 1.hour.ago)

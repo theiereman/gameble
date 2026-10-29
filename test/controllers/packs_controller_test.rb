@@ -659,6 +659,21 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ 1, 0 ], body["bank"].values_at("available", "special")
   end
 
+  test "a form opening of the special reserve opens the oldest special pack and keeps the standard one" do
+    player = accounts_players(:player)
+    sign_in(player)
+    standard = create_pack(player, available_at: 2.minutes.ago)
+    special = create_pack(player, kind: :bonus, available_at: 1.minute.ago)
+    newer_special = create_pack(player, kind: :bonus, available_at: 30.seconds.ago)
+
+    post packs_path(locale: :en, reserve: "special")
+
+    assert_redirected_to pack_path(special.token, locale: :en)
+    assert_nil standard.reload.opened_at
+    assert_nil newer_special.reload.opened_at
+    assert_not_nil special.reload.opened_at
+  end
+
   test "a JSON opening of an unknown reserve is a bad request" do
     player = accounts_players(:player)
     sign_in(player)

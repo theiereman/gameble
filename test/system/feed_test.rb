@@ -152,6 +152,13 @@ class FeedTest < ApplicationSystemTestCase
     assert_selector "main h1", text: /\AAmis\z/i
   end
 
+  test "a feed line shows the title its player wears" do
+    earn_title(@player)
+    visit feed_path(locale: :en)
+
+    assert_selector ".feed__sentence .profile-title", text: /\A#{ACTIVE_TITLE_TEXT}\z/i, minimum: 1
+  end
+
   private
     def open_epic(player)
       create_pack(player, cards: [ fixture_tier_ids[3] ] * 5)
@@ -217,11 +224,4 @@ class FeedTest < ApplicationSystemTestCase
     def width_of(selector)
       page.evaluate_script("document.querySelector(#{selector.to_json}).getBoundingClientRect().width")
     end
-
-  test "a feed line shows the title its player wears" do
-    earn_title(@player)
-    visit feed_path(locale: :en)
-
-    assert_selector ".feed__sentence .profile-title", text: /\A#{ACTIVE_TITLE_TEXT}\z/i, minimum: 1
-  end
 end

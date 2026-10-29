@@ -1,8 +1,10 @@
 require "test_helper"
+require_relative "../support/counting_rate_limit"
 require_relative "../support/second_season"
 require_relative "../support/steam_sign_in"
 
 class SeasonAllocationsControllerTest < ActionDispatch::IntegrationTest
+  include CountingRateLimit
   include SecondSeason
   include SteamSignIn
 
@@ -114,6 +116,22 @@ class SeasonAllocationsControllerTest < ActionDispatch::IntegrationTest
 
     get season_allocation_path(locale: :en)
     assert_redirected_to home_path(locale: :en)
+  end
+
+  test "continuing is throttled per player and sends the thirty-first attempt back with an alert" do
+    sign_in(@player)
+
+    with_counting_rate_limit(SeasonAllocationsController) do
+      30.times do
+        post season_allocation_path(locale: :en)
+        assert_not_equal I18n.t("season_allocations.create.throttled", locale: :en), flash[:alert]
+      end
+
+      post season_allocation_path(locale: :en)
+    end
+
+    assert_redirected_to season_allocation_path(locale: :en)
+    assert_equal I18n.t("season_allocations.create.throttled", locale: :en), flash[:alert]
   end
 
   test "a failed marking keeps the screen and shows the alert" do
