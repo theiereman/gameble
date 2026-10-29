@@ -39,6 +39,7 @@ fr:
         captcha: "Le contrôle de sécurité n'a pas abouti. Réessayez."
         invalid_email: "Cette adresse e-mail semble incorrecte."
         code_sent: "Nous vous avons envoyé un code. Saisissez-le ci-dessous."
+        loading: "Chargement des options de connexion…"
         signing_in: "Connexion en cours…"
   shell:
     live:

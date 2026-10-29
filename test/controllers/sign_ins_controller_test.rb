@@ -62,6 +62,7 @@ class SignInsControllerTest < ActionDispatch::IntegrationTest
       assert_match %r{/en/sign-in/callback\?origin=%2Fen%2Flibrary\z}, root["data-clerk-sign-in-callback-url-value"]
       assert_equal root["data-clerk-sign-in-callback-url-value"], root["data-clerk-sign-in-complete-url-value"]
       assert_includes JSON.parse(root["data-clerk-sign-in-messages-value"]).keys, "codeIncorrect"
+      assert_includes JSON.parse(root["data-clerk-sign-in-messages-value"]).keys, "loading"
       assert_select "button[data-action='clerk-sign-in#start'][data-clerk-sign-in-strategy-param=oauth_discord]", "Discord"
       assert_select "button[data-clerk-sign-in-strategy-param=oauth_google]", "Google"
       assert_select "form[data-action='submit->clerk-sign-in#sendCode'] input[type=email][data-clerk-sign-in-target=email]"

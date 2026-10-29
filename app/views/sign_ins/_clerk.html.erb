@@ -1,6 +1,6 @@
 <%# locals: mode ("start" or "callback"), callback_url, form_url, origin (nil when the endpoint needs none), retry_path %>
 <% if Rails.configuration.x.clerk.publishable_key.present? %>
-  <% messages = %w[generic network code_incorrect code_expired too_many_requests captcha invalid_email code_sent signing_in].index_with { |key| t(".messages.#{key}") }.transform_keys { |key| key.camelize(:lower) } %>
+  <% messages = %w[generic network code_incorrect code_expired too_many_requests captcha invalid_email code_sent loading signing_in].index_with { |key| t(".messages.#{key}") }.transform_keys { |key| key.camelize(:lower) } %>
   <% field_prefix = origin.nil? ? "clerk-settings" : "clerk-sign-in" %>
   <%= tag.div class: "clerk-sign-in",
         data: { controller: "clerk-sign-in",

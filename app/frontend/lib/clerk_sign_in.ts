@@ -7,6 +7,7 @@ export type MessageKey =
   | "captcha"
   | "invalidEmail"
   | "codeSent"
+  | "loading"
   | "signingIn"
 
 export type Messages = Record<MessageKey, string>

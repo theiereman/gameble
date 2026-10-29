@@ -38,9 +38,12 @@ export default class extends Controller<HTMLElement> {
   connect(): void {
     this.showStep("email")
     this.setBusy(true)
+    if (this.modeValue === "start") this.setStatus("loading")
     this.ready = this.load()
     void this.ready.then((loaded) => {
-      if (loaded) this.setBusy(false)
+      if (!loaded) return
+      this.setBusy(false)
+      if (this.modeValue === "start" && this.hasStatusTarget) this.statusTarget.textContent = ""
     })
   }
 
