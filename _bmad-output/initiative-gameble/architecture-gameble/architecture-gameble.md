@@ -387,20 +387,21 @@ graph TD
 - **Costs:** every query keyed on `Rarity::TIERS` or on a season's number handles tier 6 and season 0 (about 37 files read the tiers); the card face drops the season mark for a tribute card.
 - **Rejected:** a card table of its own (forks every feature); a null season (breaks the joins and the unique indexes); a seventh tier inside a regular season (the drop, the totals and the carry-over would treat it as a game).
 
-### AD-34 — Sign-in providers are identities, Clerk proves them `[PROPOSED]`
+### AD-34 — Sign-in providers are identities, Clerk proves them `[ADOPTED]`
 
 - **Binds:** CAP-18 (sign-in), CAP-19 (privacy and deletion); the author's decisions of 2026-10-29: Discord and Google beside Steam, a player without Steam allowed, Clerk for the identity step only, the free plan.
 - **Prevents:** `steam_id` as the player's key; a provider's verdict deciding bans or roles; two sign-ins merging a player behind their back.
-- **Rule (the author approves it before any build, at ticket 6 of the cleanup epic):**
+- **Rule (approved by the author on 2026-10-29, with the add-a-sign-in and email-hash rules):**
   - A player is still `accounts_players` (`id`, public token, role, ban, deletion). Each way in is a row of `accounts_identities` (`player_id`, `provider` in `steam`, `discord`, `google`, `uid`, unique on provider and uid). Steam's row is backfilled from `steam_id`; `steam_id` stays for now and is null for a player without Steam. The check that ties `steam_id` to deletion becomes "a deleted account has no `steam_id`".
   - One sign-in operation takes a provider and a uid, finds or creates the player through the identity, refuses a banned one and registers a new one, exactly as `Accounts::SignIn` does for Steam today. Steam keeps its OpenID path and calls it with `steam` and the Steam id.
   - Clerk proves the identity only: the player is sent to Clerk's sign-in, and the app verifies Clerk's session token with Clerk's keys, reads the external account's provider and provider user id from Clerk's backend API, and opens its own session as today. Bans, roles, deletion and the public token never depend on Clerk. The identity is keyed on the provider's uid, not on the Clerk user id, so a Clerk user that the provider's email would merge still gives one player per provider.
-  - No linking for now (author, 2026-10-29): Discord, Google and Steam sign-ins are three separate players, each with a plain notice at sign-in, and Clerk's automatic account linking is switched off. Linking and merging are a later decision.
+  - No merging of two existing players for now (author, 2026-10-29), and Clerk's automatic account linking is switched off. A signed-in player can add a sign-in to their own account from the settings (an identity row for the same player); it is refused when that identity already belongs to another player. Merging two existing players is a later decision.
+  - One person, one account when the provider shows it (author, 2026-10-29, important): an identity stores a hash of the provider's verified email (salted with a server secret, never the email itself). A new Discord or Google identity whose verified email hash matches another player's identity opens no account; the screen says that an account already exists through that provider and asks the player to sign in with it and add this sign-in from the settings. Steam gives no email and is outside this check. An unverified email is never used.
   - A player without Steam has a handle in place of a Steam persona name: generated at registration (not the provider's real name, which Google exposes) and shown wherever a persona name is. Screens that name Steam or link to a Steam profile hide for them.
   - A banned player is refused through any of their identities, as today. A deleted player's identity rows are removed with the account, as `steam_id` is nulled today, so the same person who returns gets a new account; the author confirms this parity.
   - Clerk is a data processor: the legal and privacy pages, the retention page and the export name it; two instances (staging, production) with their keys in the Kamal secrets, and the return URLs per destination.
-- **Costs:** 16 files read `steam_id`; the export and the deletion notice gain the identities; the sign-in throttles key on provider as well.
-- **Rejected:** Clerk as the session (bans and roles would live in two places); the Clerk user id as the key (its email merging would link accounts silently); fusing accounts in the first version.
+- **Costs:** 16 files read `steam_id`; the export and the deletion notice gain the identities; the sign-in throttles key on provider as well. The email hash is personal data: the privacy page, the retention page, the export and the deletion (the hash goes with the identity row) name it.
+- **Rejected:** Clerk as the session (bans and roles would live in two places); the Clerk user id as the key (its email merging would link accounts silently); fusing accounts in the first version. Banning by email hash across identities was offered and not retained (author, 2026-10-29); a later decision.
 
 ## Consistency Conventions
 
