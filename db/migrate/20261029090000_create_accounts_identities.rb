@@ -9,7 +9,7 @@ class CreateAccountsIdentities < ActiveRecord::Migration[8.1]
 
       t.index [ :provider, :uid ], unique: true
       t.index :email_hash
-      t.check_constraint "provider IN ('steam', 'discord', 'google', 'email')",
+      t.check_constraint "provider ~ '^(steam|discord|google|email)$'",
         name: "accounts_identities_provider_check", validate: false
     end
   end
