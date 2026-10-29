@@ -46,6 +46,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "accounts_players" => { fr: [ "votre identifiant Steam", "votre nom", "votre profil et son lien", "l'heure de votre dernière visite", "votre dernier export de données" ],
                             en: [ "your Steam id", "your name", "your profile and its link", "the time of your last visit", "your last data export" ] },
     "accounts_data_exports" => { fr: [ "votre dernier export de données" ], en: [ "your last data export" ] },
+    "accounts_identities" => { fr: [ "vos modes de connexion" ], en: [ "your sign-in methods" ] },
     "game_player_states" => { fr: [ "votre dernière activité" ], en: [ "your latest activity" ] },
     "game_holdings" => { fr: [ "votre collection" ], en: [ "your collection" ] },
     "game_showcase_entries" => { fr: [ "votre vitrine" ], en: [ "your showcase" ] },

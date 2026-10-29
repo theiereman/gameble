@@ -38,6 +38,7 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
     connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
     connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events WHERE event_id IN (?)", event_ids ])) if event_ids.any?
+    Accounts::Identity.where(player_id: created).delete_all
     Accounts::Player.where(id: created).delete_all
   end
 

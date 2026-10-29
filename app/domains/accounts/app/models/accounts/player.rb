@@ -24,7 +24,9 @@ module Accounts
     enum :visibility, { public: "public", friends_only: "friends_only", private: "private" },
       default: :public, prefix: :visibility, validate: true
 
-    validates :steam_id, presence: true, format: { with: STEAM_ID_FORMAT }, unless: :deleted?
+    has_many :identities, class_name: "Accounts::Identity", foreign_key: :player_id, inverse_of: :player
+
+    validates :steam_id, format: { with: STEAM_ID_FORMAT }, allow_nil: true
 
     scope :in_good_standing, -> { where(banned_at: nil, deleted_at: nil) }
     scope :removed, -> { where.not(banned_at: nil).or(where.not(deleted_at: nil)) }

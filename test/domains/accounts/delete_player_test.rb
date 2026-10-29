@@ -66,6 +66,16 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     assert_equal({ player_id: @player.id }, events.first.data)
   end
 
+  test "the identity rows go with the account; another player keeps theirs" do
+    Accounts::Identity.create!(player: @player, provider: "google", uid: "g-1")
+    other_rows = Accounts::Identity.where(player_id: @other.id).count
+
+    assert delete.success?
+
+    assert_not Accounts::Identity.exists?(player_id: @player.id)
+    assert_equal other_rows, Accounts::Identity.where(player_id: @other.id).count
+  end
+
   test "what the player held is released, goal rewards, achievements and the state row included; the weekly contribution stays; another player is untouched" do
     play(@player)
     play(@other)
@@ -178,8 +188,7 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     end
   end
 
-  test "the database refuses a player without a Steam id who is not deleted, and a deleted one with a Steam id" do
-    assert_raises(ActiveRecord::StatementInvalid) { @player.update_column(:steam_id, nil) }
+  test "the database refuses a deleted player who still has a Steam id" do
     assert_raises(ActiveRecord::StatementInvalid) { @player.update_column(:deleted_at, Time.current) }
   end
 

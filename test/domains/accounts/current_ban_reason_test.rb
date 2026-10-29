@@ -66,6 +66,14 @@ class Accounts::CurrentBanReasonTest < ActiveSupport::TestCase
     assert_nil reason_for(player)
   end
 
+  test "a banned player without a Steam id is never found by a Steam id" do
+    @banned.identities.destroy_all
+    Accounts::Identity.create!(player: @banned, provider: "google", uid: @banned.steam_id)
+    action(:ban, 1.day.ago, reason: "Spam")
+
+    assert_nil reason_for
+  end
+
   test "an unknown or non-String Steam id gives none" do
     assert_nil Accounts::CurrentBanReason.call("76561197960299999")
     assert_nil Accounts::CurrentBanReason.call(nil)

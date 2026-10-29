@@ -9,6 +9,7 @@ module Accounts
         step require_player(player, allow_banned:)
         step publish(PlayerDeleted.new(data: { player_id: player.id }), stream_name: "Accounts::Player$#{player.id}")
         DataExport.where(player_id: player.id).delete_all
+        Identity.where(player_id: player.id).delete_all
         player.update!(steam_id: nil, persona_name: nil, last_seen_at: nil, last_exported_at: nil, token: Player.generate_unique_secure_token,
           deleted_at: Time.current)
         player

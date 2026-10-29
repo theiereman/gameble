@@ -21,6 +21,7 @@ class PlayerExport
     {
       exportedAt: time(@now),
       profile:,
+      identities: accounts.identities.map { { provider: it.provider, createdAt: time(it.created_at) } },
       collection:,
       showcase:,
       packs:,

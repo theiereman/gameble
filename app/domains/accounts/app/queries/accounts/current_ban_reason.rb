@@ -3,7 +3,7 @@ module Accounts
     def self.call(steam_id)
       return nil unless steam_id.is_a?(String)
 
-      player = Player.where.not(banned_at: nil).find_by(steam_id:)
+      player = Player.where.not(banned_at: nil).find_by(id: Identity.where(provider: "steam", uid: steam_id).select(:player_id))
       return nil if player.nil?
 
       latest = ModerationAction.where(player:, kind: [ :ban, :unban ]).order(created_at: :desc, id: :desc).first

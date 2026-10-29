@@ -16,6 +16,16 @@ class Accounts::ExportOfTest < ActiveSupport::TestCase
       [ profile.steam_id, profile.persona_name, profile.visibility, profile.reduced_motion, profile.created_at, profile.last_seen_at ]
   end
 
+  test "identities list the provider and the creation date, never the uid or the hash" do
+    Accounts::Identity.create!(player: @player, provider: "google", uid: "g-secret", email_hash: "abc123", created_at: 1.day.from_now)
+
+    identities = Accounts::ExportOf.call(@player).identities
+
+    assert_equal [ "steam", "google" ], identities.map(&:provider)
+    assert_equal [ :provider, :created_at ], identities.first.to_h.keys
+    assert_empty Accounts::ExportOf.call(@other).identities.map(&:provider) - [ "steam" ]
+  end
+
   test "reports filed and received keep their reason and dates, never the other player" do
     assert Accounts::ReportPlayer.new.call(reporter: @player, reported: @other, reason: "cheating").success?
     assert Accounts::ReportPlayer.new.call(reporter: @other, reported: @player, reason: "harassment").success?

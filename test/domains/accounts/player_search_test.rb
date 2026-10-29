@@ -6,7 +6,9 @@ class Accounts::PlayerSearchTest < ActiveSupport::TestCase
   end
 
   def player(steam_id, name = nil, at: 1.hour.ago, **attributes)
-    Accounts::Player.create!(steam_id:, persona_name: name, created_at: at, **attributes)
+    Accounts::Player.create!(steam_id:, persona_name: name, created_at: at, **attributes).tap do |player|
+      Accounts::Identity.create!(player:, provider: "steam", uid: steam_id) if steam_id
+    end
   end
 
   def search(query) = Accounts::PlayerSearch.call(query).to_a
@@ -38,6 +40,14 @@ class Accounts::PlayerSearchTest < ActiveSupport::TestCase
     namesake = player("76561197960370022", "fan of 76561197960370021", at: 2.hours.ago)
 
     assert_equal [ target, namesake ], search("76561197960370021")
+  end
+
+  test "a player without a Steam id is found by name, and a Steam id found through the identity row only" do
+    handle = player(nil, "Brother-4F7K2Q")
+    google = Accounts::Identity.create!(player: handle, provider: "google", uid: "76561197960370099")
+
+    assert_equal [ handle ], search("brother-4f7")
+    assert_empty search(google.uid)
   end
 
   test "a part of a Steam id finds no one unless a name holds it" do

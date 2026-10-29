@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_28_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_29_090300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -20,6 +20,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_150000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["player_id"], name: "index_accounts_data_exports_on_player_id", unique: true
+  end
+
+  create_table "accounts_identities", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.string "provider", null: false
+    t.string "uid", null: false
+    t.string "email_hash"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_hash"], name: "index_accounts_identities_on_email_hash"
+    t.index ["player_id"], name: "index_accounts_identities_on_player_id"
+    t.index ["provider", "uid"], name: "index_accounts_identities_on_provider_and_uid", unique: true
+    t.check_constraint "provider::text = ANY (ARRAY['steam'::character varying, 'discord'::character varying, 'google'::character varying, 'email'::character varying]::text[])", name: "accounts_identities_provider_check"
   end
 
   create_table "accounts_moderation_actions", force: :cascade do |t|
@@ -54,7 +67,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_150000) do
     t.index ["steam_id"], name: "index_accounts_players_on_steam_id", unique: true
     t.index ["stream_key"], name: "index_accounts_players_on_stream_key", unique: true
     t.index ["token"], name: "index_accounts_players_on_token", unique: true
-    t.check_constraint "(steam_id IS NULL) = (deleted_at IS NOT NULL)", name: "accounts_players_deleted_check"
+    t.check_constraint "deleted_at IS NULL OR steam_id IS NULL", name: "accounts_players_deleted_no_steam_id_check"
     t.check_constraint "role::text = 'player'::text OR role::text = 'moderator'::text OR role::text = 'administrator'::text", name: "accounts_players_role_check"
     t.check_constraint "visibility::text = 'public'::text OR visibility::text = 'friends_only'::text OR visibility::text = 'private'::text", name: "accounts_players_visibility_check"
   end
@@ -577,6 +590,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_150000) do
   end
 
   add_foreign_key "accounts_data_exports", "accounts_players", column: "player_id"
+  add_foreign_key "accounts_identities", "accounts_players", column: "player_id"
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "player_id"
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "staff_id"
   add_foreign_key "accounts_reports", "accounts_players", column: "reported_id"

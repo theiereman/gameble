@@ -1,0 +1,22 @@
+_fixture:
+  model_class: Accounts::Identity
+
+player:
+  player: player
+  provider: steam
+  uid: "76561197960287001"
+
+moderator:
+  player: moderator
+  provider: steam
+  uid: "76561197960287002"
+
+administrator:
+  player: administrator
+  provider: steam
+  uid: "76561197960287003"
+
+banned:
+  player: banned
+  provider: steam
+  uid: "76561197960287004"

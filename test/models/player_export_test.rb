@@ -6,7 +6,7 @@ class PlayerExportTest < ActiveSupport::TestCase
   include GamePacks
   include GameTrades
 
-  SECTIONS = %i[exportedAt profile collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
+  SECTIONS = %i[exportedAt profile identities collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
     firstDiscoveries feedEntries achievements cardBacks friends pendingInvitations trades reportsFiled reportsReceived
     moderationDecisions].freeze
   COUNTING_KEYS = %i[season quantity position openings count received sent].freeze
@@ -58,6 +58,17 @@ class PlayerExportTest < ActiveSupport::TestCase
         assert_not_includes json, trace
       end
     end
+  end
+
+  test "the identities are listed by provider and date, with no uid and no hash" do
+    Accounts::Identity.create!(player: @player, provider: "discord", uid: "d-secret-uid", email_hash: "feedbeef")
+
+    hash = export.to_h
+
+    assert_equal %w[steam discord], hash[:identities].map { it[:provider] }
+    assert_equal %i[provider createdAt], hash[:identities].first.keys
+    assert_not_includes hash.to_json, "d-secret-uid"
+    assert_not_includes hash.to_json, "feedbeef"
   end
 
   test "a player's export holds every section, by slug, season and token; the friend and the trade partner stay out" do

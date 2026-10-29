@@ -52,6 +52,7 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     end
     Game::PlayerState.where(player_id: @created).delete_all
     Game::FriendCode.where(player_id: @created).delete_all
+    Accounts::Identity.where(player_id: @created).delete_all
     Accounts::Player.where(id: @created).delete_all
     streams = players.map { |id| Game::Operation.stream_name(id) } + @created.map { |id| "Accounts::Player$#{id}" }
     connection = ActiveRecord::Base.connection
