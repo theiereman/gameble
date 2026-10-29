@@ -79,15 +79,3 @@ after = []
 hitl = false
 risk = "low"
 notes = ["Asked by the author, 2026-10-29, as a side note during the Clerk sign-in work."]
-
-[[entry]]
-id = 9
-type = "story"
-title = "A player signed in with Discord, Google or email links their Steam account from the settings"
-description = "Accounts::Identity already holds several providers per player and Accounts::AddClerkSignIn adds a Clerk sign-in to a player from the settings, but the reverse does not exist: the Steam OpenID return (SessionsController#create) only signs in or creates a player, so a Discord or Google player who signs in with Steam gets a second account. Add a Link Steam button to the settings sign-ins row, shown only when the player has no steam identity. It records a link intent in the session and goes to /auth/steam; the Steam return, with a signed-in player and that intent, calls a new operation Accounts::AddSteamSignIn (modelled on AddClerkSignIn: lock the player, refuse identity_taken, AddIdentity with provider steam, refresh the persona name) and goes back to the settings without opening a new session. When the Steam id already belongs to another player the link is refused with a clear message; there is no account merge (author, 2026-10-29). Future Steam features (wishlist, library) will require the steam identity and point to this button otherwise. Needs a Pundit policy for the action, strings in en.yml and fr.yml, and tests including a system test. Before v1."
-verify = "A player signed in with Discord or Google clicks Link Steam in the settings, signs in on Steam and comes back to the settings with Steam listed among their sign-ins and no second account; a Steam id already held by another player is refused with a message and links nothing; a player who already has Steam sees no button."
-covers = []
-after = [ 6, 7 ]
-hitl = false
-risk = "medium"
-notes = ["Decision by the author, 2026-10-29: refuse when the Steam id is taken, no merge. Flag: the spec still says Steam is the only sign-in method (CAP-1 and its non-goals); to update with the Clerk decision."]

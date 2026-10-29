@@ -26,10 +26,12 @@ A player who likes a card's game can act on it in Steam without leaving gameble 
 No capability of the spec yet: the epic starts from its first ticket.
 
 - R1. A player can add the game of a card to their Steam wishlist from gameble.
+- R2. A player signed in with Discord, Google or email can link their Steam account from the settings; a Steam id already held by another player is refused, with no account merge. Steam features need this identity.
 
 ## Done when
 
 1. R1 holds on the card detail, for a signed-in player, in English and French, with the outcome shown on the card.
+2. R2 holds from the settings, in English and French, without a second account.
 
 ## Boundaries
 
