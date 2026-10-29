@@ -82,5 +82,8 @@
   <% @friends.each do |friend| %>
     <%= render "friends/profile_dialog", friend: friend.player %>
     <%= render "friends/remove_dialog", friend: friend.player, open_trade: @open_trade_tokens.key?(friend.player.id) %>
+    <% unless Game::Visibility.open_to_friends?(friend.player) %>
+      <%= render "reports/dialog", owner: friend.player, id: friend_report_dialog_id(friend.player.token), from: "friends" %>
+    <% end %>
   <% end %>
 </section>

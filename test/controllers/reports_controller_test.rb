@@ -125,6 +125,19 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a friend whose profile is private can still be reported from Amis" do
+    @owner.update!(visibility: "private")
+    low, high = [ @owner.id, @reporter.id ].minmax
+    Game::Friendship.create!(low_player_id: low, high_player_id: high)
+    sign_in(@reporter)
+
+    assert_difference "Accounts::Report.count", 1 do
+      post report_path_of(@owner), params: { reason: "inappropriate_name", from: "friends" }
+    end
+
+    assert_redirected_to friends_path(locale: :en)
+  end
+
   test "staff report a private, a friends-only and a banned profile they may read" do
     banned = accounts_players(:banned)
     sign_in(accounts_players(:moderator))

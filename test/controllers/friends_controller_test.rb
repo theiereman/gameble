@@ -245,6 +245,23 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__friend .friends__trade + .friends__more button[data-dialog-opener-dialog-value=?]", "remove-friend-#{sam.token}", "Retirer"
   end
 
+  test "only a private friend's more-actions menu offers the report, whose dialog sends back to Amis" do
+    sam = befriend_sam
+    sign_in(@player)
+
+    get friends_path(locale: :fr)
+    assert_select "#friend-actions-#{sam.token} button[data-dialog-opener-dialog-value=?]", "report-dialog-#{sam.token}", 0
+    assert_select "dialog#report-dialog-#{sam.token}", 0
+
+    sam.update!(visibility: "private")
+    get friends_path(locale: :fr)
+
+    assert_select "#friend-actions-#{sam.token} button.friends__menu-item[data-dialog-opener-dialog-value=?]", "report-dialog-#{sam.token}", "Signaler"
+    assert_select "dialog#report-dialog-#{sam.token} form[action=?]", brother_report_path(locale: :fr, token: sam.token) do
+      assert_select "input[type=hidden][name=from][value=friends]"
+    end
+  end
+
   test "a friend whose profile is private shows no collection button" do
     sam = accounts_players(:moderator)
     sam.update!(persona_name: "Sam", visibility: "private")
