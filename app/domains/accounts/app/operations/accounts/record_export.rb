@@ -1,15 +1,16 @@
 module Accounts
   class RecordExport < ApplicationOperation
-    def call(player:, at:, file:)
+    def call(player:, at:, &build_file)
       player = step require_player(player)
 
       transaction do
         player.lock!("FOR NO KEY UPDATE")
         step require_player(player)
         step require_due(player, at)
+        file = build_file.call
         player.update!(last_exported_at: at)
         DataExport.upsert({ player_id: player.id, file:, created_at: at, updated_at: at }, unique_by: :player_id)
-        player
+        file
       end
     end
 

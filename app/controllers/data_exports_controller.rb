@@ -12,11 +12,10 @@ class DataExportsController < ApplicationController
     return export_refused(:export_too_soon) if current_player.next_export_at
 
     export = PlayerExport.new(current_player, locale: I18n.locale)
-    file = JSON.pretty_generate(export.to_h)
-    result = Accounts::RecordExport.new.call(player: current_player, at: export.exported_at, file:)
+    result = Accounts::RecordExport.new.call(player: current_player, at: export.exported_at) { JSON.pretty_generate(export.to_h) }
     return export_refused(result.failure) if result.failure?
 
-    send_data file, type: :json, filename: export.filename, disposition: :attachment
+    send_data result.value!, type: :json, filename: export.filename, disposition: :attachment
   end
 
   private

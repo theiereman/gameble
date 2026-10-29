@@ -3,7 +3,7 @@ require "test_helper"
 class Accounts::RecordExportTest < ActiveSupport::TestCase
   setup { @player = accounts_players(:player) }
 
-  def note(player = @player, at: Time.utc(2026, 10, 14, 9, 30), file: "{}") = Accounts::RecordExport.new.call(player:, at:, file:)
+  def note(player = @player, at: Time.utc(2026, 10, 14, 9, 30), file: "{}") = Accounts::RecordExport.new.call(player:, at:) { file }
 
   def kept_file = Accounts::LastExportOf.call(@player.reload)&.file
 
@@ -29,6 +29,19 @@ class Accounts::RecordExportTest < ActiveSupport::TestCase
 
     assert note(at: Time.utc(2026, 10, 14, 9, 35)).success?
     assert_nil @player.reload.next_export_at(Time.utc(2026, 10, 14, 9, 40))
+  end
+
+  test "a refused export never builds its file" do
+    note
+    built = false
+
+    result = Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 14, 9, 31)) do
+      built = true
+      "{}"
+    end
+
+    assert_equal Dry::Monads::Failure(:export_too_soon), result
+    assert_not built
   end
 
   test "a banned or deleted player, or no player, is refused" do

@@ -81,7 +81,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the time of the last export shows under the buttons, for the browser to show in its own time" do
-    Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 4, 7, 5), file: "{}").value!
+    Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 4, 7, 5)) { "{}" }.value!
     sign_in(@player)
 
     get settings_path(locale: :fr)
@@ -96,7 +96,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "once the browser has sent its zone, the time of the last export is already the local one the browser shows" do
-    Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 4, 7, 5), file: "{}").value!
+    Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 4, 7, 5)) { "{}" }.value!
     sign_in(@player)
     cookies[LocalTimeHelper::TIME_ZONE_COOKIE] = "Europe/Paris"
 
@@ -111,7 +111,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     travel_to Time.utc(2026, 10, 14, 9, 32) do
-      Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 14, 9, 30), file: "{}").value!
+      Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 14, 9, 30)) { "{}" }.value!
       get settings_path(locale: :fr)
     end
 

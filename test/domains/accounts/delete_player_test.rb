@@ -132,7 +132,7 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
 
   test "the last-seen time and the last export are erased, and a last-seen write queued before the deletion writes nothing" do
     @player.update_columns(last_seen_at: 10.minutes.ago)
-    Accounts::RecordExport.new.call(player: @player, at: 1.day.ago, file: "{}").value!
+    Accounts::RecordExport.new.call(player: @player, at: 1.day.ago) { "{}" }.value!
     delete
     assert_not Accounts::DataExport.exists?(player_id: @player.id)
 

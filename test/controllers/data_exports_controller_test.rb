@@ -52,7 +52,7 @@ class DataExportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the export's own file gives the time of the export before it" do
-    Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 1, 8), file: "{}").value!
+    Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 1, 8)) { "{}" }.value!
     sign_in(@player)
 
     post settings_export_path(locale: :en), headers: json_headers
