@@ -845,7 +845,9 @@ en:
       invalid_role: 'That role does not exist: player, moderator or administrator.'
       invalid_session: That sign-in expired before it reached us. Try again.
       invalid_session: That sign-in could not be verified. Try again.
+      invalid_name: That name cannot be used. Type at least one visible character.
       invalid_setting: That setting could not be saved. Reload the page and try again.
+      name_from_steam: Your name comes from Steam and is refreshed at each sign-in.
       invalid_steam_id: Your Steam ID could not be read. Sign in again.
       no_longer_idle: 'That player is no longer idle: their account is not deleted.'
       no_open_reports: That player has no open report left, officer.
@@ -2195,6 +2197,9 @@ en:
       session:
         label: Session
         sign_out: Sign out
+      name:
+        label: Name
+        save: Save
       sign_ins:
         label: Sign-ins
       summary:

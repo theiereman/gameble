@@ -14,6 +14,7 @@ class SettingsController < ApplicationController
     @card_count = Game::CollectionSummary.call(current_player).distinct_cards
     @active_title = Game::ActiveProfileTitle.call(current_player)
     @identities = Accounts::IdentitiesOf.call(current_player)
+    @name_editable = @identities.none? { it.provider == "steam" }
     @clerk_mode = params[:add_sign_in].present? ? "callback" : "start"
   end
 
@@ -27,6 +28,17 @@ class SettingsController < ApplicationController
       redirect_to settings_path, status: :see_other
     else
       redirect_refused Accounts::SetVisibility, result, settings_path
+    end
+  end
+
+  def name
+    authorize :settings, :name?
+
+    result = Accounts::ChangePersonaName.new.call(player: current_player, name: params[:name])
+    if result.success?
+      redirect_to settings_path, status: :see_other
+    else
+      redirect_refused Accounts::ChangePersonaName, result, settings_path
     end
   end
 

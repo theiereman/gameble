@@ -34,7 +34,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_100100) do
     t.index ["email_hash"], name: "index_accounts_identities_on_email_hash"
     t.index ["player_id"], name: "index_accounts_identities_on_player_id"
     t.index ["provider", "uid"], name: "index_accounts_identities_on_provider_and_uid", unique: true
-    t.check_constraint "provider::text = ANY (ARRAY['steam'::character varying::text, 'discord'::character varying::text, 'google'::character varying::text, 'email'::character varying::text])", name: "accounts_identities_provider_check"
+    t.check_constraint "provider::text = ANY (ARRAY['steam'::character varying, 'discord'::character varying, 'google'::character varying, 'email'::character varying]::text[])", name: "accounts_identities_provider_check"
   end
 
   create_table "accounts_moderation_actions", force: :cascade do |t|
@@ -459,7 +459,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_100100) do
     t.index ["pack_id"], name: "index_game_set_tiers_on_pack_id"
     t.index ["player_id", "set_id", "tier"], name: "index_game_set_tiers_on_player_id_and_set_id_and_tier", unique: true
     t.check_constraint "(reached_by::text = 'pack'::text) = (pack_id IS NOT NULL)", name: "game_set_tiers_pack_check"
-    t.check_constraint "reached_by::text = 'pack'::text OR reached_by::text = 'trade'::text OR reached_by::text = 'allocation'::text", name: "game_set_tiers_reached_by_values_check"
+    t.check_constraint "reached_by::text = ANY (ARRAY['pack'::character varying, 'trade'::character varying, 'allocation'::character varying]::text[])", name: "game_set_tiers_reached_by_values_check"
     t.check_constraint "tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text", name: "game_set_tiers_tier_check"
   end
 

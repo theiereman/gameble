@@ -102,6 +102,8 @@ Rails.application.routes.draw do
     patch "personalization/back" => "card_backs#update", as: :personalization_back
     # The profile visibility row of the settings.
     patch "settings/visibility" => "settings#visibility", as: :settings_visibility
+    # The name row of the settings, for a player whose name does not come from Steam.
+    patch "settings/name" => "settings#name", as: :settings_name
     # Deleting the player's own account, from the settings' delete dialog.
     resource :account, only: :destroy
     resource :data_export, only: %i[show create], path: "settings/export", as: :settings_export

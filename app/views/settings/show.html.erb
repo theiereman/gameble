@@ -39,6 +39,17 @@
             <% end %>
           </li>
 
+          <% if @name_editable %>
+            <li class="settings-row">
+              <label for="settings-name" class="settings-row__label"><%= t(".name.label") %></label>
+              <%= form_with url: settings_name_path, method: :patch, class: "settings-row__form settings-name", data: { turbo: false } do %>
+                <%= text_field_tag :name, Accounts::PersonaName.clean(current_player.persona_name), id: "settings-name", class: "settings-name__input",
+                      maxlength: Accounts::PersonaName::LENGTH, autocomplete: "nickname", required: true %>
+                <%= render ButtonComponent.new(variant: :secondary, size: :small, type: :submit) do %><%= t(".name.save") %><% end %>
+              <% end %>
+            </li>
+          <% end %>
+
           <li class="settings-row">
             <p id="settings-motion" class="settings-row__label"><%= t(".motion.label") %></p>
             <%= form_with url: settings_path, method: :patch, class: "settings-row__form", data: { turbo: false } do %>

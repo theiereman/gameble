@@ -1280,6 +1280,9 @@ fr:
       session:
         label: "Session"
         sign_out: "Se déconnecter"
+      name:
+        label: "Nom"
+        save: "Enregistrer"
       sign_ins:
         label: "Connexions"
       data:
@@ -2156,7 +2159,9 @@ fr:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       export_too_soon: "Un export toutes les 5 minutes au plus. Réessayez dans quelques minutes."
       no_longer_idle: "Ce joueur n'est plus inactif : son compte n'est pas supprimé."
+      invalid_name: "Ce nom ne peut pas être utilisé. Saisissez au moins un caractère visible."
       invalid_setting: "Ce réglage n'a pas pu être enregistré. Rechargez la page et réessayez."
+      name_from_steam: "Votre nom vient de Steam et est actualisé à chaque connexion."
       email_known_discord: "Un compte existe déjà avec cet e-mail via Discord. Connectez-vous avec Discord, puis ajoutez cette connexion depuis les réglages."
       email_known_email: "Un compte existe déjà avec cet e-mail via un code par e-mail. Connectez-vous avec votre e-mail, puis ajoutez cette connexion depuis les réglages."
       email_known_google: "Un compte existe déjà avec cet e-mail via Google. Connectez-vous avec Google, puis ajoutez cette connexion depuis les réglages."
