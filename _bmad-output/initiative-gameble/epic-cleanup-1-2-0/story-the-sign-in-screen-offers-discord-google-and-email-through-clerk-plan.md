@@ -119,9 +119,9 @@ The callback reads the Clerk user and looks for the player through any of the us
 Review of tickets 27.6 and 27.7 together, production code from `eea10180` to `fb70c2d0` (2430 lines; tests, locales and styles left out). 1 `decision-needed`, 3 `patch`, 2 `defer`, 14 rejected.
 
 - [ ] [Review][Decision] The production proxy answers on www.gameble.net but Clerk sessions are accepted only for the apex origin — a sign-in started from www fails the `azp` check with the generic error. Redirect www to the apex, or accept the www origin [app/domains/accounts/app/clients/accounts/clerk_client.rb:27, config/deploy.production.yml:38]
-- [ ] [Review][Patch] A failed first key fetch leaves the key set empty, so every sign-in refetches under the lock, with the client's retries, and the 30-second cooldown never applies [app/domains/accounts/app/clients/accounts/clerk_client.rb:37]
-- [ ] [Review][Patch] A returning player found through a later key never gets the first key attached: `add_missing` skips `keys.first`, which only a new registration adds [app/domains/accounts/app/operations/accounts/sign_in_through_clerk.rb:17]
-- [ ] [Review][Patch] No test pins the settings page's Clerk CSP origins, so the add-a-sign-in widget can break again like the sign-in screen did [test/controllers/sign_in_methods_controller_test.rb]
+- [x] [Review][Patch] A failed first key fetch leaves the key set empty, so every sign-in refetches under the lock, with the client's retries, and the 30-second cooldown never applies [app/domains/accounts/app/clients/accounts/clerk_client.rb:37]
+- [x] [Review][Patch] A returning player found through a later key never gets the first key attached: `add_missing` skips `keys.first`, which only a new registration adds [app/domains/accounts/app/operations/accounts/sign_in_through_clerk.rb:17]
+- [x] [Review][Patch] No test pins the settings page's Clerk CSP origins, so the add-a-sign-in widget can break again like the sign-in screen did [test/controllers/sign_in_methods_controller_test.rb]
 - [x] [Review][Defer] The Stimulus controller's wiring (submit on `signedIn`, buttons re-enabled after a failure, strategy whitelist) has no test — deferred: browser glue over Clerk's SDK, a mocked vitest of the controller fits
 - [x] [Review][Defer] The form is submitted right after `setActive`, and the server reads the `__session` cookie: unverified (medium) that Clerk has written it by then — deferred: settled by a real sign-in on staging with Discord, Google and an email code after the CSP fix
 

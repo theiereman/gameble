@@ -36,17 +36,21 @@ module Accounts
 
       def jwk_for(kid, adapter)
         @jwks_lock.synchronize do
-          fetched = false
-          if @jwks.nil? || @jwks_fetched_at < JWKS_LIFETIME.ago
-            fetch_jwks(adapter)
-            fetched = true
-          end
-          fetch_jwks(adapter) if !@jwks.key?(kid) && !fetched && @jwks_attempted_at < JWKS_REFETCH_COOLDOWN.ago
+          fetch_jwks(adapter) if refetch_due?(kid)
+          raise Error, "Clerk's key list is unavailable" if @jwks.nil?
+
           @jwks[kid]
         end
       end
 
       private
+
+      def refetch_due?(kid)
+        return true if @jwks_attempted_at.nil?
+        return false if @jwks_attempted_at >= JWKS_REFETCH_COOLDOWN.ago
+
+        @jwks.nil? || @jwks_fetched_at < JWKS_LIFETIME.ago || !@jwks.key?(kid)
+      end
 
       def fetch_jwks(adapter)
         @jwks_attempted_at = Time.current

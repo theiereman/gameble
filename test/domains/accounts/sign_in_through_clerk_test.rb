@@ -48,6 +48,16 @@ class Accounts::SignInThroughClerkTest < ActiveSupport::TestCase
     assert_equal 1, first.identities.count
   end
 
+  test "a player found through the Google account gets the Discord account added too" do
+    google_only = Accounts::Player.create!(persona_name: "Gabe")
+    google_only.identities.create!(provider: "google", uid: "g-1")
+
+    player = sign_in("user_both").value!
+
+    assert_equal google_only, player
+    assert_equal [ [ "discord", "d-1" ], [ "google", "g-1" ] ], player.identities.order(:provider).pluck(:provider, :uid)
+  end
+
   test "a user with both a Discord and a Google account gets both identities, then the missing one is added to a returning player" do
     discord_only = Accounts::Player.create!(persona_name: "Gabe")
     discord_only.identities.create!(provider: "discord", uid: "d-1")

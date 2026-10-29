@@ -7,17 +7,19 @@ module ClerkFake
 
   # The stand-in for Accounts::ClerkClient::HttpAdapter: answers from `users` and records what it was asked.
   class Adapter
-    attr_reader :users, :deleted, :jwks_calls
+    attr_reader :users, :deleted, :jwks_calls, :jwks_attempts
     attr_accessor :unavailable
 
     def initialize(users)
       @users = users.stringify_keys
       @deleted = []
       @jwks_calls = 0
+      @jwks_attempts = 0
       @unavailable = false
     end
 
     def jwks
+      @jwks_attempts += 1
       fail_if_unavailable
       @jwks_calls += 1
       [ JWT::JWK.new(ClerkFake.signing_key.public_key, kid: KID).export.stringify_keys ]

@@ -10,7 +10,7 @@ module Accounts
       transaction do
         player = step existing_player(user, keys) || new_player(user, keys, email_hash)
         step refuse_banned(player)
-        add_missing(player, keys.drop(1), email_hash)
+        add_missing(player, keys, email_hash)
         ClerkIdentities.stamp(player, user, keys + [ ClerkIdentities.email_key(user) ])
         player.update_columns(last_seen_at: Time.current)
         player

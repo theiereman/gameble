@@ -89,6 +89,18 @@ class SignInMethodsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", 0
   end
 
+  test "the settings let Clerk's frontend API, its bot protection script and the captcha through" do
+    sign_in(accounts_players(:player))
+
+    get settings_path(locale: :en, add_sign_in: 1)
+
+    policy = response.headers["Content-Security-Policy"]
+    frontend_api = Rails.configuration.x.clerk.frontend_api
+    assert_match(%r{connect-src [^;]*https://#{Regexp.escape(frontend_api)}}, policy)
+    assert_match(%r{script-src [^;]*https://cdn\.protect\.clerk\.com}, policy)
+    assert_match(%r{script-src [^;]*https://challenges\.cloudflare\.com}, policy)
+  end
+
   test "the settings come back from Clerk in callback mode" do
     sign_in(accounts_players(:player))
 

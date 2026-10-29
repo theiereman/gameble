@@ -107,6 +107,18 @@ class Accounts::ClerkClientTest < ActiveSupport::TestCase
     assert_equal Dry::Monads::Failure(:clerk_unavailable), client.verify_session(ClerkFake.session_token(user_id: "user_1"))
   end
 
+  test "an unreachable key list is asked again at most once in 30 seconds, then answered again" do
+    @fake.unavailable = true
+    token = ClerkFake.session_token(user_id: "user_1")
+
+    3.times { assert_equal Dry::Monads::Failure(:clerk_unavailable), client.verify_session(token) }
+    assert_equal 1, @fake.jwks_attempts
+
+    @fake.unavailable = false
+    travel_to(31.seconds.from_now) { assert client.verify_session(token).success? }
+    assert_equal 2, @fake.jwks_attempts
+  end
+
   test "a user keeps the Discord and Google accounts, drops other providers, and reads the primary verified email" do
     user = client.user("user_1").value!
 
