@@ -125,3 +125,5 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "jwt", "~> 3.3"
