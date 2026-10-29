@@ -11,7 +11,7 @@ module Accounts
         DataExport.where(player_id: player.id).delete_all
         clerk_user_ids = Identity.where(player_id: player.id).through_clerk.distinct.pluck(:clerk_user_id)
         Identity.where(player_id: player.id).delete_all
-        erase_clerk_users_after_commit(clerk_user_ids)
+        erase_clerk_users_after_commit(clerk_user_ids - Identity.where(clerk_user_id: clerk_user_ids).pluck(:clerk_user_id))
         player.update!(steam_id: nil, persona_name: nil, last_seen_at: nil, last_exported_at: nil, token: Player.generate_unique_secure_token,
           deleted_at: Time.current)
         player

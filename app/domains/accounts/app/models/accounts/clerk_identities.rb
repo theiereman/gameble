@@ -1,6 +1,4 @@
 module Accounts
-  # What a Clerk user stands for in the app: one identity per verified external account, or the
-  # Clerk user id itself under the "email" provider when it has none.
   module ClerkIdentities
     def self.keys(user)
       accounts = user.external_accounts.select(&:verified).map { [ it.provider, it.uid ] }.uniq

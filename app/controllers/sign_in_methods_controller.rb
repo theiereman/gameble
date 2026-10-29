@@ -8,7 +8,7 @@ class SignInMethodsController < ApplicationController
     result = add_reporting_failure
     if result&.success?
       added = Accounts::IdentitiesOf.call(current_player).size > before
-      redirect_to settings_path, notice: t(added ? ".added" : ".already_added"), status: :see_other
+      redirect_to settings_path, notice: (added ? t(".added") : t(".already_added")), status: :see_other
     else
       redirect_to settings_path, alert: refusal_message(result), status: :see_other
     end

@@ -38,4 +38,11 @@ class Accounts::DeletePlayerClerkTest < ActiveJob::TestCase
 
     assert_no_enqueued_jobs(only: Accounts::DeleteClerkUserJob) { Accounts::DeletePlayer.new.call(player: @player) }
   end
+
+  test "a Clerk user another player still signs in through is not erased" do
+    @player.identities.create!(provider: "discord", uid: "d-1", clerk_user_id: "user_shared")
+    accounts_players(:moderator).identities.create!(provider: "google", uid: "g-1", clerk_user_id: "user_shared")
+
+    assert_no_enqueued_jobs(only: Accounts::DeleteClerkUserJob) { Accounts::DeletePlayer.new.call(player: @player).value! }
+  end
 end

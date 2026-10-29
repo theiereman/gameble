@@ -1,8 +1,6 @@
 require "jwt"
 
 module Accounts
-  # Verifies Clerk session tokens and reads or deletes Clerk users. An adapter answers `jwks`
-  # (the key list), `user(id)` (the user hash, nil when missing) and `delete_user(id)`, and raises Error.
   class ClerkClient
     include Dry::Monads[:result]
 
@@ -19,6 +17,7 @@ module Accounts
     @jwks_lock = Mutex.new
     @jwks = nil
     @jwks_fetched_at = nil
+    @jwks_attempted_at = nil
 
     class << self
       def configured?
@@ -32,7 +31,7 @@ module Accounts
       end
 
       def reset_jwks!
-        @jwks_lock.synchronize { @jwks = @jwks_fetched_at = nil }
+        @jwks_lock.synchronize { @jwks = @jwks_fetched_at = @jwks_attempted_at = nil }
       end
 
       def jwk_for(kid, adapter)
@@ -42,7 +41,7 @@ module Accounts
             fetch_jwks(adapter)
             fetched = true
           end
-          fetch_jwks(adapter) if !@jwks.key?(kid) && !fetched && @jwks_fetched_at < JWKS_REFETCH_COOLDOWN.ago
+          fetch_jwks(adapter) if !@jwks.key?(kid) && !fetched && @jwks_attempted_at < JWKS_REFETCH_COOLDOWN.ago
           @jwks[kid]
         end
       end
@@ -50,6 +49,7 @@ module Accounts
       private
 
       def fetch_jwks(adapter)
+        @jwks_attempted_at = Time.current
         @jwks = adapter.jwks.select { it.is_a?(Hash) && it["kid"].is_a?(String) }.index_by { it["kid"] }
         @jwks_fetched_at = Time.current
       end

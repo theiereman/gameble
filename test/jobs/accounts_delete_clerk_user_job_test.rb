@@ -28,11 +28,11 @@ class AccountsDeleteClerkUserJobTest < ActiveJob::TestCase
     assert_raises(Accounts::DeleteClerkUserJob::Unavailable) { job.perform_now }
   end
 
-  test "it discards without a secret key" do
+  test "it retries without a secret key instead of dropping the erasure" do
     key = Rails.configuration.x.clerk.secret_key
     Rails.configuration.x.clerk.secret_key = nil
 
-    assert_no_enqueued_jobs { Accounts::DeleteClerkUserJob.perform_now("user_1") }
+    assert_enqueued_with(job: Accounts::DeleteClerkUserJob, args: [ "user_1" ]) { Accounts::DeleteClerkUserJob.perform_now("user_1") }
   ensure
     Rails.configuration.x.clerk.secret_key = key
   end

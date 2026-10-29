@@ -2167,8 +2167,6 @@ fr:
       email_known_email: "Un compte existe déjà avec cet e-mail via un code par e-mail. Connectez-vous avec votre e-mail, puis ajoutez cette connexion depuis les réglages."
       email_known_google: "Un compte existe déjà avec cet e-mail via Google. Connectez-vous avec Google, puis ajoutez cette connexion depuis les réglages."
       identity_taken: "Cette connexion appartient déjà à un autre compte."
-      invalid_session: "Cette connexion a expiré avant de nous parvenir. Réessayez."
-      clerk_unavailable: "Le service de connexion n'a pas répondu. Réessayez dans un instant."
       invalid_identity: "Cette connexion n'a pas pu être lue. Réessayez."
       invalid_steam_id: "Votre identifiant Steam n'a pas pu être lu. Connectez-vous à nouveau."
       invalid_session: "Cette connexion n'a pas pu être vérifiée. Réessayez."

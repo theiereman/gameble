@@ -438,3 +438,19 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-cleanup-1-2-0/story-sign-in-with-clerk-and-with-a-provider-other-than-steam-plan.md`
   summary: Prove that every screen renders for a player with no Steam id and a generated handle.
   evidence: No view dereferences steam_id, but no request test signs in such a player; slice 2 adds the sign-in that makes it testable.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-cleanup-1-2-0/story-the-sign-in-screen-offers-discord-google-and-email-through-clerk-plan.md`
+  summary: Show the ban reason to a banned player who signed in through Clerk.
+  evidence: CurrentBanReason reads a ban through a Steam id; the failed sign-in carries no player, so the banned page shows the generic text.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-cleanup-1-2-0/story-the-sign-in-screen-offers-discord-google-and-email-through-clerk-plan.md`
+  summary: A Clerk user who signs in again between its erasure commit and the erasure job is deleted with its new account.
+  evidence: The new sign-in registers a player keyed on the Clerk user id, then the job deletes that Clerk user; only possible within seconds of an erasure.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-cleanup-1-2-0/story-the-sign-in-screen-offers-discord-google-and-email-through-clerk-plan.md`
+  summary: Hash every verified address of a Clerk user, not only the primary one, for the duplicate-email check.
+  evidence: ClerkIdentities.email_hash reads the primary verified address; an external account with another verified address passes the check.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-cleanup-1-2-0/story-the-sign-in-screen-offers-discord-google-and-email-through-clerk-plan.md`
+  summary: Name Clerk and the identities in the data export file itself.
+  evidence: ExportOf lists identities by provider; the privacy notice names Clerk but the export carries no processor wording.

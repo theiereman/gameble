@@ -833,7 +833,6 @@ en:
       cannot_ban_self: You cannot ban yourself, officer.
       cannot_dismiss_self: You cannot dismiss the reports against you, officer.
       cannot_report_self: You cannot report your own profile.
-      clerk_unavailable: The sign-in service did not answer. Try again in a moment.
       clerk_unavailable: The sign-in service is not answering. Try again in a moment.
       email_known_discord: An account already exists with this email through Discord. Sign in with Discord, then add this sign-in from the settings.
       email_known_email: An account already exists with this email through an email code. Sign in with your email, then add this sign-in from the settings.
@@ -843,7 +842,6 @@ en:
       invalid_identity: That sign-in could not be read. Try again.
       invalid_reason: Choose a reason to send the report.
       invalid_role: 'That role does not exist: player, moderator or administrator.'
-      invalid_session: That sign-in expired before it reached us. Try again.
       invalid_session: That sign-in could not be verified. Try again.
       invalid_name: That name cannot be used. Type at least one visible character.
       invalid_setting: That setting could not be saved. Reload the page and try again.

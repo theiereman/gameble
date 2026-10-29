@@ -152,7 +152,7 @@ export class ClerkSignIn {
         async () => undefined,
       )
       if (this.clerk.session) return { kind: "signedIn" }
-      console.error("Clerk returned without a session", this.clerk.client?.signIn, this.clerk.client?.signUp)
+      console.error("Clerk returned without a session")
       return { kind: "failed", message: "generic" }
     })
   }

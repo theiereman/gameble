@@ -3,7 +3,11 @@ title: 'The sign-in screen offers Discord, Google and email through Clerk'
 type: 'feature'
 ticket: '7'
 created: '2026-10-29'
-status: 'in-progress'
+status: 'built'
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: [quick]
+review_loop_iteration: 0
 baseline_revision: 'd52da79754bea9cd36a69cfc34755701962e7cc3'
 route: 'full'
 route_source: 'auto'
@@ -89,3 +93,21 @@ Open facts the spike settles: how the session token names the provider used when
 ### Decision (author, 2026-10-29): one Clerk user is one player
 
 The callback reads the Clerk user and looks for the player through any of the user's external accounts (provider and provider user id), then through the Clerk user id kept as an `email` identity. A found player is signed in, and the user's external accounts missing from the player's identities are added when free. A user matching nothing becomes a new player holding one identity per external account, or the `email` identity keyed on the Clerk user id when there is none. A user whose verified address hash belongs to another player's identity is refused naming the provider. This replaces the frozen row on a merged Clerk user.
+
+## Review Triage Log
+
+| Finding | Verdict | Route | Evidence |
+|---|---|---|---|
+| Duplicate `clerk_unavailable` and `invalid_session` keys in both locales | medium | patch | Both packages defined them; the first definitions are removed and one message each remains. |
+| No ban reason shown for a banned Clerk player | low | defer | The ban page renders with 403 and the generic text; the reason lookup works through a Steam id only. |
+| Erasure job dropped silently without a secret key | medium | patch | It now raises, so the job retries and fails visibly; a test covers it. |
+| Clerk user re-signs in between the erasure commit and the job | low | defer | Needs a sign-in within seconds of an erasure; an email-code user would lose the new account when the job runs. |
+| Erasing one player deletes a Clerk user another player signs in through | medium | patch | Clerk user ids still held by another player's identities are no longer erased; a test covers it. |
+| Key list fetch under the mutex, refetch cooldown not applied after a failed fetch | medium | patch | The cooldown now counts every attempt; holding the lock across the fetch stays, the sign-in throttle bounds it. |
+| Email duplicate check hashes only the Clerk primary verified address | medium | defer | A new Clerk user whose external account address differs from its primary address bypasses the check; hashing every verified address is a larger change to the sign-in operations. |
+| `add_missing` swallows refusals | false | none | Intended: a returning player is signed in and identities owned by others are ignored, as the plan states. |
+| Console log carried Clerk objects; buttons stayed disabled after a failed fresh start | low | patch | Only a short message is logged; the buttons are enabled again with the error shown. |
+| CSP Cloudflare origins apply to the whole page, no image origin | low | false | The headless flow needs no image origin; the extra origins are limited to the two Clerk screens. |
+| Explanatory comments | low | patch | The client and identities comments are removed; the initializer header follows the Steam initializer's precedent. |
+| Single `clerk_secret.key` instead of one per destination | low | false | Each destination writes its own value to that file; one file name mirrors the Steam key. |
+| Export does not name Clerk | low | defer | The export lists identities by provider; wording in the export file itself is not changed. |

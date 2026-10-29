@@ -102,7 +102,7 @@ export default class extends Controller<HTMLElement> {
     const outcome = await signIn.prepareFreshStart()
     if (outcome?.kind === "failed") {
       this.apply(outcome)
-      return false
+      return true
     }
     return true
   }
