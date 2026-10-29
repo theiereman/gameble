@@ -7,16 +7,16 @@
 # Cloudflare terminates TLS at its edge and sets X-Forwarded-For; the request
 # then arrives from cloudflared's private address, which Rails trusts.
 #
-# Kamal reaches the LXC over SSH through the same tunnel: ssh.staging.gameble.net
+# Kamal reaches the LXC over SSH through the same tunnel: ssh-staging.gameble.net
 # is its SSH route, guarded by Cloudflare Access, and cloudflared on the
 # deploying machine carries the connection (a service token in the workflow, an
 # Access login on the author's machine).
 servers:
   web:
-    - ssh.staging.gameble.net
+    - ssh-staging.gameble.net
   import:
     hosts:
-      - ssh.staging.gameble.net
+      - ssh-staging.gameble.net
     cmd: bin/jobs -c config/queue_import.yml --skip-recurring
 
 ssh:
@@ -39,4 +39,4 @@ env:
 
 accessories:
   db:
-    host: ssh.staging.gameble.net
+    host: ssh-staging.gameble.net
