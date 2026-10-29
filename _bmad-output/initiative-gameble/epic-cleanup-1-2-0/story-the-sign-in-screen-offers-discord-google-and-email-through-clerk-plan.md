@@ -3,7 +3,7 @@ title: 'The sign-in screen offers Discord, Google and email through Clerk'
 type: 'feature'
 ticket: '7'
 created: '2026-10-29'
-status: 'built'
+status: done
 review: 'quick'
 review_source: 'pinned'
 lenses_ran: [quick]
@@ -118,7 +118,7 @@ The callback reads the Clerk user and looks for the player through any of the us
 
 Review of tickets 27.6 and 27.7 together, production code from `eea10180` to `fb70c2d0` (2430 lines; tests, locales and styles left out). 1 `decision-needed`, 3 `patch`, 2 `defer`, 14 rejected.
 
-- [ ] [Review][Decision] The production proxy answers on www.gameble.net but Clerk sessions are accepted only for the apex origin — a sign-in started from www fails the `azp` check with the generic error. Redirect www to the apex, or accept the www origin [app/domains/accounts/app/clients/accounts/clerk_client.rb:27, config/deploy.production.yml:38]
+- [x] [Review][Decision] The production proxy answers on www.gameble.net but Clerk sessions are accepted only for the apex origin — a sign-in started from www fails the `azp` check with the generic error. Redirect www to the apex, or accept the www origin [app/domains/accounts/app/clients/accounts/clerk_client.rb:27, config/deploy.production.yml:38] — resolved: fine as is (author, 2026-10-29)
 - [x] [Review][Patch] A failed first key fetch leaves the key set empty, so every sign-in refetches under the lock, with the client's retries, and the 30-second cooldown never applies [app/domains/accounts/app/clients/accounts/clerk_client.rb:37]
 - [x] [Review][Patch] A returning player found through a later key never gets the first key attached: `add_missing` skips `keys.first`, which only a new registration adds [app/domains/accounts/app/operations/accounts/sign_in_through_clerk.rb:17]
 - [x] [Review][Patch] No test pins the settings page's Clerk CSP origins, so the add-a-sign-in widget can break again like the sign-in screen did [test/controllers/sign_in_methods_controller_test.rb]

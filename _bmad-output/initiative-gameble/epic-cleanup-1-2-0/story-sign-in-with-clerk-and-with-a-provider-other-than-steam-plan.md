@@ -3,7 +3,7 @@ title: 'Players are identified by identity rows, ready for sign-ins other than S
 type: 'feature'
 ticket: '6'
 created: '2026-10-29'
-status: 'built'
+status: done
 baseline_revision: 'eea101800f31d57fa671ae4e29e2bb3566afcec1'
 route: 'full'
 route_source: 'auto'
