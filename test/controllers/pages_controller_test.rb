@@ -39,7 +39,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
   def trade_away_only_copy(card_season_id)
     Game::Holding.where(player_id: @player.id, card_season_id:).update_all(quantity: 0)
-    conclude_trade(@player, accounts_players(:moderator), offer: { card_season_id => 1 }, request: { fixture_tier_ids.first => 1 })
+    received = fixture_tier_ids.first
+    conclude_trade(@player, accounts_players(:moderator), offer: { card_season_id => 1 }, request: { received => 1 })
+    Game::Holding.where(player_id: @player.id, card_season_id: received).update_all(last_gained_at: 1.day.ago)
   end
 
   def written_statements(&request)
@@ -108,7 +110,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-showcase form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
   end
 
-  test "a player's hub: the menu, the latest notable card held, the daily panel and the sets in progress" do
+  test "a player's hub: the menu, the latest card held, the daily panel and the sets in progress" do
     gained = 1.hour.ago.change(usec: 0)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2, last_gained_at: gained)
     Game::SetTier.insert_all!([ { player_id: @player.id, set_id: catalog_sets(:valve_one).id, tier: "complete", reached_by: "trade",
@@ -245,8 +247,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2.hub-showcase__name", "Soldat de plomb"
   end
 
-  test "a player holding no tier 4 card sees the empty showcase, its primary opening a booster" do
-    hold(@player, fixture_tier_ids.first, gained_at: 1.hour.ago)
+  test "a player holding no card sees the empty showcase, its primary opening a booster" do
     create_pack(@player)
     sign_in(@player)
 
@@ -263,6 +264,15 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # One lime action: the daily panel's button turns secondary.
     assert_select ".daily-booster form button.button--secondary.button--small", "Collect"
     assert_select "main .button--primary", 1
+  end
+
+  test "a player holding only commons sees the best of the latest in the showcase" do
+    hold(@player, fixture_tier_ids.first, gained_at: 1.hour.ago)
+    sign_in(@player)
+
+    get home_path(locale: :en)
+
+    assert_select ".hub-showcase:not(.hub-showcase--empty)"
   end
 
   test "an empty reserve shows no badge on menu 01 and disables the empty showcase's button, saying why" do
