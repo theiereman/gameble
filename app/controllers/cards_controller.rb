@@ -21,6 +21,7 @@ class CardsController < ApplicationController
     @browse = named || profile || set_browse(@detail.sets.first) unless @public
     @showcase = showcase_state
     @pioneer = pioneer_line
+    @set_url = set_url
   end
 
   private
@@ -38,6 +39,13 @@ class CardsController < ApplicationController
 
     def share_url
       helpers.card_public_url(@detail.view)
+    end
+
+    def set_url
+      owner = album_owner
+      return ->(set) { brother_set_path(owner.token, kind: set.kind, key: set.key) } if owner
+
+      ->(set) { library_set_path(kind: set.kind, key: set.key) } if current_player
     end
 
     def pack_browse

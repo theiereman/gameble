@@ -320,7 +320,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/en/library/theme/roguelike?page=2", css_select(".top-bar__phone-back").sole["href"]
   end
 
-  test "a card opened from a player's album browses it, leads back to that album and shows the face of a card that player does not hold" do
+  test "a card opened from a player's album browses it, leads back to that album, links its sets to that player's albums and shows the face of a card that player does not hold" do
     season, cards = published_cards(70)
     insert_theme(cards, key: "roguelike", season:)
     owner = accounts_players(:player)
@@ -332,6 +332,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "/en/brothers/#{owner.token}/library/theme/roguelike?page=2", css_select(".top-bar__phone-back").sole["href"]
     assert_equal [ [ "a", detail.(cards[59]) ], [ "a", detail.(cards[61]) ] ], navs
+    assert_equal [ "/en/brothers/#{owner.token}/library/theme/roguelike" ], css_select(".card-detail__sets a").map { it["href"] }
     assert_select ".card-detail__card .card.card--l", 1
 
     get detail.(cards[59])
@@ -361,6 +362,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "/en/library/theme/roguelike", css_select(".top-bar__phone-back").sole["href"]
     assert_select "a.card-detail__nav[href*=brother]", false
+    assert_equal [ "/en/library/theme/roguelike" ], css_select(".card-detail__sets a").map { it["href"] }
   end
 
   test "an unknown kind, or a set that does not hold the card, is ignored: the first set, the face" do
