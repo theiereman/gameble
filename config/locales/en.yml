@@ -1049,6 +1049,8 @@ en:
       label: See the collection
       named: See %{name}'s collection
     friend_row:
+      collection: Collection
+      collection_of: See the collection of %{name}
       see_profile_of: See the profile of %{name}
       trade: Trade
       trade_with: Trade with %{name}

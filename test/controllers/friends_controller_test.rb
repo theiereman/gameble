@@ -54,7 +54,8 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__friend" do
       assert_select "button.friends__name[type=button][aria-haspopup=dialog][aria-label='Voir le profil de Sam'][data-dialog-opener-dialog-value=?]", "friend-#{sam.token}", "Sam"
       assert_select ".friends__trade a.button.button--secondary[href=?][aria-label='Échange avec Sam']", new_trade_path(locale: :fr, friend: sam.token), "Échange"
-      assert_select ".button", 1, "the trade is the row's only filled button"
+      assert_select ".friends__trade a.button.button--secondary[href=?][aria-label='Voir la collection de Sam']", brother_collection_path(locale: :fr, token: sam.token), "Collection"
+      assert_select ".button--primary", 0, "the row has no filled button"
       assert_select "button", text: "Voir le profil", count: 0
       assert_select "a[href=?]", brother_path(locale: :fr, token: sam.token), 0
     end
@@ -240,7 +241,19 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     @player.update!(visibility: "private")
     get friends_path(locale: :fr)
     assert_select ".friends__friend .friends__trade .trades-closed", /Votre profil est privé/
+    assert_select ".friends__friend .friends__trade a[href=?]", brother_collection_path(locale: :fr, token: sam.token)
     assert_select ".friends__friend .friends__trade + .friends__more button[data-dialog-opener-dialog-value=?]", "remove-friend-#{sam.token}", "Retirer"
+  end
+
+  test "a friend whose profile is private shows no collection button" do
+    sam = accounts_players(:moderator)
+    sam.update!(persona_name: "Sam", visibility: "private")
+    Game::Friendship.create!(low_player_id: [ @player.id, sam.id ].min, high_player_id: [ @player.id, sam.id ].max)
+    sign_in(@player)
+
+    get friends_path(locale: :fr)
+
+    assert_select ".friends__friend .friends__trade a[href=?]", brother_collection_path(locale: :fr, token: sam.token), 0
   end
 
   test "confirming the removal ends the friendship for both, cancels the trade in progress and frees its copies, silently for the former friend" do

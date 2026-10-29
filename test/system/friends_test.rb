@@ -225,7 +225,7 @@ class FriendsTest < ApplicationSystemTestCase
     [ ".friends__presence", ".friends__trade", ".friends__more-button" ].each do |part|
       assert_equal 1, lefts(".friends__friend #{part}").uniq.size, "#{part} starts at the same place in every row"
     end
-    within(".friends__friend", text: "Maximilien") { assert_selector ".button", count: 1 }
+    within(".friends__friend", text: "Maximilien") { assert_selector ".button", count: 2 }
     assert no_horizontal_scroll?
     take_screenshot
   end

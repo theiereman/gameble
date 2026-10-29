@@ -11,6 +11,10 @@
             href: open_trade_token ? trade_path(token: open_trade_token) : new_trade_path(friend: player.token),
             aria_label: t(".trade_with", name:)) do %><%= t(".trade") %><% end %>
     <% end %>
+    <% if Game::Visibility.open_to_friends?(player) %>
+      <%= render ButtonComponent.new(variant: :secondary, size: :small, href: brother_collection_path(token: player.token),
+            aria_label: t(".collection_of", name:)) do %><%= t(".collection") %><% end %>
+    <% end %>
   </div>
   <%= render "friends/more_actions", player:, menu_id: friend_actions_menu_id(player.token), remove_dialog_id: remove_friend_dialog_id(player.token) %>
 </li>

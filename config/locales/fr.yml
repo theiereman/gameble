@@ -1432,6 +1432,8 @@ fr:
           trading: "Négocie un échange"
           making_friends: "Se fait des amis"
     friend_row:
+      collection: "Collection"
+      collection_of: "Voir la collection de %{name}"
       see_profile_of: "Voir le profil de %{name}"
       trade: "Échange"
       trade_with: "Échange avec %{name}"
