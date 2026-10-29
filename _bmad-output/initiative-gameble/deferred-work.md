@@ -465,3 +465,7 @@
 - The Stimulus controller `clerk_sign_in_controller.ts` has no test of its wiring (submit on `signedIn`, buttons re-enabled after a failure, the Discord and Google strategy whitelist). A mocked vitest of the controller fits.
 - Unverified (medium): the controller submits the form right after `setActive` and the server reads the `__session` cookie; settle it with a real sign-in on staging with Discord, Google and an email code.
   resolved: a real Clerk sign-in works on staging on v1.0.0-rc.2, reached from the hub through a Turbo visit, and a Steam account links from the settings (author, 2026-10-29).
+
+## Deferred from: the author, in conversation (2026-10-29)
+
+- A ticket is to be written to rework the layout of the personalization page (`epic-personalization/story-the-personalization-page-plan.md`). The author has not said yet what to change: ask them before writing it, and build nothing from this entry alone.
