@@ -27,7 +27,7 @@ module Accounts
       end
 
       def delete_user(clerk_user_id)
-        request { connection.delete("/v1/users/#{ERB::Util.url_encode(clerk_user_id)}") }
+        request { http.delete("/v1/users/#{ERB::Util.url_encode(clerk_user_id)}") }
         true
       rescue Faraday::ResourceNotFound
         true
@@ -48,7 +48,7 @@ module Accounts
       private
 
       def get(path)
-        request { connection.get(path).body }
+        request { http.get(path).body }
       rescue Faraday::ResourceNotFound
         nil
       end
@@ -63,8 +63,8 @@ module Accounts
         raise Error.new(redact("#{error.class}: #{error.message}")), cause: nil
       end
 
-      def connection
-        @connection ||= Faraday.new(url: BASE_URL, headers: { "Authorization" => "Bearer #{@secret_key}" },
+      def http
+        @http ||= Faraday.new(url: BASE_URL, headers: { "Authorization" => "Bearer #{@secret_key}" },
           request: { timeout: 10, open_timeout: 5 }) do |f|
           f.response :raise_error
           f.request :retry, max: 3, interval: retry_interval, backoff_factor: 2, max_interval: 30,
