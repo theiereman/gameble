@@ -7,8 +7,7 @@
     <p class="invite-link__line"><%= t(".invites_you", name:) %></p>
     <% if current_player.nil? %>
       <p class="friends__label"><%= t(".sign_in_text") %></p>
-      <%= steam_sign_in_button t(".sign_in"), origin: request.path, class: "button button--primary" %>
-      <%= render "shell/sign_in_acceptance" %>
+      <%= sign_in_button t(".sign_in"), origin: request.path, class: "button button--primary" %>
     <% elsif current_player.id == @owner.id %>
       <p class="friends__label"><%= t(".send_text", name:) %></p>
       <p class="friends__message friends__message--error"><%= t(".own_link") %></p>

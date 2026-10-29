@@ -1138,7 +1138,7 @@ en:
       send: Send an invitation
       send_text: Send an invitation to %{name}; they will accept or ignore it.
       sign_in: Sign in
-      sign_in_text: Sign in with Steam first; you will come back to this invitation.
+      sign_in_text: Sign in first; you will come back to this invitation.
       title: "%{name} invites you"
       to_friends: To your friends
     unknown:
@@ -1248,7 +1248,7 @@ en:
         label: Position on the page
       hero:
         embark: Board the bridge
-        embark_label: Board the bridge, sign in through Steam
+        embark_label: Board the bridge, choose how to sign in
         hook: Games have been lost. The Brotherhood sets out to find them. Join it.
         kicker: Mission in progress
         lamp:
@@ -2196,6 +2196,11 @@ en:
         label: Profile visibility
         private: Private
         public: Public
+  sign_ins:
+    show:
+      heading: Sign in
+      line: Choose how you want to come aboard.
+      title: Sign in
   shell:
     live:
       marker: Live
@@ -2236,6 +2241,7 @@ en:
       profile: Profile
       set: Set
       sets: Sets
+      sign_in: Sign in
       trades: Trades
     sign_in:
       acceptance_html: By signing in you accept the %{terms} and acknowledge the %{privacy}.
@@ -2265,6 +2271,7 @@ en:
       home: Gameble, command bridge
       landing: Gameble, home page
       motion_switch: Reduced motion
+      sign_in: Sign in
       previous: 'Back:'
     version:
       label: Deployed version

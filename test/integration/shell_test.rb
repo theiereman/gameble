@@ -46,17 +46,14 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "a visitor on the landing: the wordmark and the official Steam image as a POST form back to this page" do
+  test "a visitor on the landing: the wordmark and the sign-in link back to this page" do
     get home_path(locale: :fr)
 
     assert_select "body > header.top-bar:not([data-screen-label])" do
       assert_select ".top-bar__start p.top-bar__brand svg.pixel-icon.top-bar__wordmark"
       assert_select ".top-bar__start .top-bar__brand .top-bar__name", "Gameble"
       assert_select ".top-bar__start a", false
-      assert_select ".top-bar__end form.steam-sign-in[action='/auth/steam'][method=post][data-turbo=false]" do
-        assert_select "input[type=hidden][name=origin][value='/fr']"
-        assert_select "button.steam-sign-in__button img[alt=?]", "Se connecter via Steam (ouvre Steam)"
-      end
+      assert_select ".top-bar__end a.button[href=?]", "/fr/sign-in?origin=%2Ffr", text: "Se connecter"
       assert_select ".rarity-counter, .packs-chip, .player-chip", false
     end
   end
@@ -130,7 +127,7 @@ class ShellTest < ActionDispatch::IntegrationTest
   test "a visitor elsewhere signs in back to that page" do
     get library_cards_path(locale: :en)
 
-    assert_select ".top-bar__end form.steam-sign-in input[name=origin][value='/en/library/cards']"
+    assert_select ".top-bar__end a[href=?]", "/en/sign-in?origin=%2Fen%2Flibrary%2Fcards"
   end
 
   test "a player elsewhere: the back button to the bridge, the rarity counter, the packs chip and the player chip" do

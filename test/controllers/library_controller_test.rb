@@ -358,7 +358,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert labels.none? { it.nil? || it.end_with?("not owned") }
     assert_select ".collection-slot__new, [data-controller=collection-seen]", false
     assert_select ".collection-status, .top-bar--status", false
-    assert_select ".top-bar__end form.steam-sign-in input[name=origin][value='/en/library/cards']"
+    assert_select ".top-bar__end a[href=?]", "/en/sign-in?origin=%2Fen%2Flibrary%2Fcards"
     assert_select ".report, .collection__aside, #collection-report-title", false
     assert_select ".collection.collection--visitor > .collection__main"
     assert_select "[data-group=state], input[name='state[]']", false
@@ -405,7 +405,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".collection-grid .card--not-owned", false
     assert_select ".collection-slot__new", false
     assert_select "[data-group=state], .report, .collection__aside, .collection-status", false
-    assert_select ".top-bar__end form.steam-sign-in"
+    assert_select ".top-bar__end a[href^='/en/sign-in']"
     assert_nil session[:player_id]
   end
 

@@ -49,6 +49,7 @@ module ShellHelper
     "public_profiles#set" => :set,
     "public_profiles" => :profile,
     "settings" => :profile,
+    "sign_ins" => :sign_in,
     "feeds" => :feed,
     "achievements" => :achievements,
     "pages#legal" => :legal,
@@ -64,9 +65,8 @@ module ShellHelper
     current_player ? t("shell.top_bar.back") : t("shell.top_bar.back_landing")
   end
 
-  def steam_sign_in_button(label, origin:, class:, aria_label: nil)
-    button_to label, "/auth/steam", params: { origin: }, class:, form_class: "button-form",
-      form: { data: { turbo: false } }, aria: { label: aria_label }.compact
+  def sign_in_button(label, origin:, class:, aria_label: nil)
+    link_to label, sign_in_path(origin:), class:, aria: { label: aria_label }.compact
   end
 
   def shell_screen_label

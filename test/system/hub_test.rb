@@ -170,7 +170,7 @@ class HubTest < ApplicationSystemTestCase
     assert_selector ".landing-hero__hook", text: "Des jeux ont été perdus. La Confrérie part les retrouver. Rejoignez-la."
     assert_no_selector ".hub-menu"
     assert_no_selector ".daily-booster"
-    assert_selector ".top-bar .steam-sign-in__button"
+    assert_selector ".top-bar .top-bar__end a[href*='/sign-in']"
     assert_no_sideways_scroll
     take_screenshot
   end
@@ -202,8 +202,9 @@ class HubTest < ApplicationSystemTestCase
 
   test "a visitor follows the terms link beside the sign-in button to the legal page's terms" do
     visit home_path(locale: :en)
+    find(".landing-hero__action").click_on "Board the bridge"
 
-    within(".landing-hero__action") do
+    within(".sign-in") do
       assert_text "By signing in you accept the terms of use and acknowledge the privacy notice."
       click_on "terms of use"
     end
@@ -238,6 +239,7 @@ class HubTest < ApplicationSystemTestCase
     visit card_path(locale: :en, slug: "portal")
 
     within(".public-card__pitch") { click_on "Open my first capsules" }
+    find(".sign-in .steam-sign-in__button").click
 
     assert_signed_in
     assert_current_path home_path(locale: :en)

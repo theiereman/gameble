@@ -117,6 +117,7 @@ class ShareCardTest < ApplicationSystemTestCase
     newcomer = accounts_players(:moderator)
     mock_steam_sign_in(newcomer.steam_id)
     within(".public-card__pitch") { click_on "Open my first capsules" }
+    find(".sign-in .steam-sign-in__button").click
 
     assert_signed_in
     assert_current_path "/en"

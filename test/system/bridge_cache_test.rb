@@ -7,7 +7,7 @@ class BridgeCacheTest < ApplicationSystemTestCase
   setup do
     mock_steam_sign_in(accounts_players(:player).steam_id)
     visit home_path(locale: :en)
-    find(".top-bar .steam-sign-in__button").click
+    click_steam_sign_in
     assert_selector ".hub"
     find(".hub-menu .menu-item[aria-keyshortcuts='2']").click
     assert_current_path library_path(locale: :en)

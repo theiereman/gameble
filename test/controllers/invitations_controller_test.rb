@@ -156,10 +156,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     get link
     assert_response :success
     assert_select ".invite-link__line", /Sam vous invite/
-    assert_select "main form.button-form[action='/auth/steam'][method=post][data-turbo=false]" do
-      assert_select "input[name=origin][value=?]", link
-      assert_select "button.button--primary[type=submit]", /Se connecter/
-    end
+    assert_select "main a.button--primary[href=?]", sign_in_path(locale: :fr, origin: link), /Se connecter/
     assert_select "[aria-haspopup=dialog]", false
 
     sign_in @alice, origin: link

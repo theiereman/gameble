@@ -1,28 +1,37 @@
-# Staging: the home lab LXC behind the author's Traefik, which
-# terminates TLS for gameble.dotsncircles.com and forwards plain HTTP to
-# kamal-proxy on port 80 of the LXC.
+# Staging: a home lab LXC reached only through a Cloudflare Tunnel:
+# cloudflared runs on the LXC as a systemd service and forwards plain HTTP for
+# test.gameble.net to kamal-proxy on localhost:80. No inbound port is open.
 #   bin/kamal deploy -d staging
+# run by .github/workflows/deploy-staging.yml for each release candidate.
 #
-# Kamal reaches the LXC over SSH through Traefik (entrypoint :2224 ->
-# the LXC's port 22), so servers use the DNS name, not the LXC's own address,
-# which has nothing listening on 2224.
+# Cloudflare terminates TLS at its edge and sets X-Forwarded-For; the request
+# then arrives from cloudflared's private address, which Rails trusts.
+#
+# Kamal reaches the LXC over SSH through the same tunnel: ssh.staging.gameble.net
+# is its SSH route, guarded by Cloudflare Access, and cloudflared on the
+# deploying machine carries the connection (a service token in the workflow, an
+# Access login on the author's machine).
 servers:
   web:
-    - gameble.dotsncircles.com
+    - ssh.staging.gameble.net
   import:
     hosts:
-      - gameble.dotsncircles.com
+      - ssh.staging.gameble.net
     cmd: bin/jobs -c config/queue_import.yml --skip-recurring
 
+ssh:
+  port: 22
+  proxy_command: cloudflared access ssh --hostname %h
+
 proxy:
-  ssl: false                       # Traefik holds the certificate
-  host: gameble.dotsncircles.com
-  forward_headers: true            # keep Traefik's X-Forwarded-Proto: https
+  ssl: false                       # Cloudflare holds the certificate
+  host: test.gameble.net
+  forward_headers: true            # keep Cloudflare's X-Forwarded-For and X-Forwarded-Proto
 
 env:
   clear:
     SENTRY_ENVIRONMENT: staging
-    PUBLIC_URL: https://gameble.dotsncircles.com
+    PUBLIC_URL: https://test.gameble.net
     # Production mode refuses to boot without the legal page's contact and host.
     LEGAL_CONTACT_EMAIL: contact@gameble.net
     LEGAL_HOST_NAME: Thomas Eyermann
@@ -30,4 +39,4 @@ env:
 
 accessories:
   db:
-    host: gameble.dotsncircles.com
+    host: ssh.staging.gameble.net

@@ -52,10 +52,10 @@ class LandingMotionSwitchTest < ApplicationSystemTestCase
       visit home_path(locale:)
 
       assert_selector ".top-bar .top-bar__wordmark", visible: true
-      assert_selector ".top-bar .steam-sign-in__button", visible: true
+      assert_selector ".top-bar .top-bar__end a[href*='/sign-in']", visible: true
       assert_no_selector ".motion-switch", visible: true
       assert_no_button label
-      assert_not overlap?(box(".top-bar .top-bar__wordmark"), box(".top-bar .steam-sign-in__button")), "the sign-in image sits over the wordmark"
+      assert_not overlap?(box(".top-bar .top-bar__wordmark"), box(".top-bar .top-bar__end a[href*='/sign-in']")), "the sign-in link sits over the wordmark"
     end
   end
 end

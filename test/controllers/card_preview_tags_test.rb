@@ -63,10 +63,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail, .card-detail__copies, #share-sheet, .card-detail__share", false
     assert_select ".public-card__pitch-title", "Your Steam games, as collectible cards."
     assert_select ".public-card__pitch-text", "Open capsules, complete sets, trade with your friends."
-    assert_select ".public-card__pitch form.button-form[action='/auth/steam'][method=post][data-turbo=false] button.button--primary[type=submit]",
-      "Open my first capsules"
+    assert_select ".public-card__pitch a.button--primary[href^='/en/sign-in']", "Open my first capsules"
     assert_select ".public-card__pitch [aria-haspopup]", false
-    assert_select ".public-card__pitch p.sign-in-acceptance a[href='/en/legal#legal-privacy']", "privacy notice"
     # The page's one primary action; "See on Steam" is a link.
     assert_select "main .button--primary", 1
     link = css_select("main a.public-card__store.button--link").sole
@@ -78,9 +76,9 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__start > a.top-bar__brand.top-bar__phone-brand[href='/en']"
     assert_select ".top-bar__start > a", 2
     assert_select ".top-bar__start p.top-bar__brand", false
-    assert_select ".top-bar__end form[action='/auth/steam'] img.steam-sign-in__image"
+    assert_select ".top-bar__end a[href^='/en/sign-in']"
     assert_select "nav.tab-bar", false
-    assert_select "main form[action='/auth/steam']", 1
+    assert_select "main a[href^='/en/sign-in']", 1
     assert_select ".public-card__live-title", /Live\s+·\s+Right now on Gameble/
     assert_select "#live-strip .public-card__live-empty", "Nothing here yet."
     assert_select ".public-card__footer a.public-card__legal[href=?]", "/en/legal", "Legal notice"
@@ -161,7 +159,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_equal "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix capsules vous attendent.", og("description")
     assert_select ".public-card__pitch-title", "Vos jeux Steam, en cartes à collectionner."
     assert_select ".public-card__pitch-text", "Ouvrez des capsules, complétez des sets, échangez avec vos amis."
-    assert_select ".public-card__pitch button", "Ouvrir mes premières capsules"
+    assert_select ".public-card__pitch a.button--primary", "Ouvrir mes premières capsules"
     assert_select ".public-card__update", "Votre navigateur est trop ancien pour se connecter à Gameble. Mettez-le à jour pour jouer."
     assert_select ".public-card__live-title", /En ce moment sur Gameble/
     assert_select ".public-card__legal", "Mentions légales"
@@ -221,7 +219,9 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
   test "a visitor signing in from the pitch lands on the hub" do
     get card_page
-    form = css_select(".public-card__pitch form[action='/auth/steam']").sole
+    link = css_select(".public-card__pitch a[href^='/en/sign-in']").sole
+    get link["href"]
+    form = css_select("form.steam-sign-in[action='/auth/steam']").sole
     origin = form.at_css("input[name=origin]")["value"]
     assert_equal URI(card_page).path, origin
 

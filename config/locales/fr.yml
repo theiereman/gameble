@@ -5,6 +5,11 @@ fr:
     application:
       title: "Gameble"
       application_name: "Gameble"
+  sign_ins:
+    show:
+      heading: "Se connecter"
+      line: "Choisissez comment embarquer."
+      title: "Se connecter"
   shell:
     live:
       marker: "Live"
@@ -16,6 +21,7 @@ fr:
       landing: "Gameble, page d'accueil"
       previous: "Retour :"
       motion_switch: "Animations réduites"
+      sign_in: "Se connecter"
     screens:
       collection: "Collection"
       sets: "Sets"
@@ -27,6 +33,7 @@ fr:
       profile: "Profil"
       feed: "Fil"
       achievements: "Succès"
+      sign_in: "Connexion"
       legal: "Mentions légales"
       more: "Plus"
       how_it_works: "Comment ça marche"
@@ -1467,7 +1474,7 @@ fr:
       heading: "Invitation"
       invites_you: "%{name} vous invite à devenir amis."
       send_text: "Envoyez une invitation à %{name} ; elle l'acceptera ou l'ignorera."
-      sign_in_text: "Connectez-vous d'abord avec Steam ; vous reviendrez à cette invitation."
+      sign_in_text: "Connectez-vous d'abord ; vous reviendrez à cette invitation."
       sign_in: "Se connecter"
       send: "Envoyer une invitation"
       own_link: "C'est votre propre lien."
@@ -1765,7 +1772,7 @@ fr:
         hook: "Des jeux ont été perdus. La Confrérie part les retrouver. Rejoignez-la."
         line: "Gameble est un jeu de cartes à collectionner basé sur la bibliothèque publique de jeux Steam."
         embark: "Embarquer sur le pont"
-        embark_label: "Embarquer sur le pont, se connecter avec Steam"
+        embark_label: "Embarquer sur le pont, choisir comment se connecter"
         lamp:
           found: "Trouvé"
           readout: "Jeux retrouvés"

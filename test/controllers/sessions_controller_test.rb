@@ -351,7 +351,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_select ".landing-hero"
     assert_select ".toast", /#{Regexp.escape(I18n.t("sessions.destroy.farewell", locale: :en))}/
-    assert_select ".top-bar__end form[action='/auth/steam'][method=post] button img[alt=?]", "Sign in through Steam (opens Steam)"
+    assert_select ".top-bar__end a.button[href=?]", "/en/sign-in?origin=%2Fen", text: "Sign in"
     assert_select ".top-bar form[action^='/session']", false
   end
 
@@ -427,13 +427,10 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".landing"
   end
 
-  test "a signed-out visitor sees the Steam sign-in button as a POST form" do
+  test "a signed-out visitor sees a sign-in link carrying the page to come back to" do
     get how_it_works_path(locale: :fr)
 
-    assert_select ".top-bar__end form.steam-sign-in[action='/auth/steam'][method=post][data-turbo=false]" do
-      assert_select "input[name=origin][value='/fr/how-it-works']"
-      assert_select "button.steam-sign-in__button img[src*='sits_01'][width='180'][height='35'][alt=?]", "Se connecter via Steam (ouvre Steam)"
-    end
+    assert_select ".top-bar__end a.button[href=?]", "/fr/sign-in?origin=%2Ffr%2Fhow-it-works", text: "Se connecter"
   end
 
   def record_ban(kind, at, reason: nil)

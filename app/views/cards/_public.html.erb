@@ -44,8 +44,7 @@
       <%= render PanelComponent.new(tag: :section, class: "public-card__pitch", aria: { labelledby: "public-card-pitch" }) do %>
         <p id="public-card-pitch" class="public-card__pitch-title"><%= t("cards.show.pitch_title") %></p>
         <p class="public-card__pitch-text"><%= t("cards.show.invitation") %></p>
-        <%= steam_sign_in_button t("cards.show.sign_in"), origin: request.path, class: "button button--primary" %>
-        <%= render "shell/sign_in_acceptance" %>
+        <%= sign_in_button t("cards.show.sign_in"), origin: request.path, class: "button button--primary" %>
       <% end %>
       <p class="public-card__update"><%= t("cards.show.update_browser") %></p>
     </div>

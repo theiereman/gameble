@@ -382,7 +382,7 @@ class LibraryTest < ApplicationSystemTestCase
     assert_no_selector ".collection-status"
     assert_no_selector ".collection-slot__new, .card--not-owned", visible: :all
     assert_no_selector ".report--panel", visible: :all
-    assert_selector ".top-bar .steam-sign-in__button"
+    assert_selector ".top-bar .top-bar__end a[href*='/sign-in']"
     assert_no_sideways_scroll
   end
 
@@ -391,7 +391,7 @@ class LibraryTest < ApplicationSystemTestCase
 
     visit library_cards_path(locale: :en)
 
-    assert_selector ".top-bar .steam-sign-in__button", visible: true
+    assert_selector ".top-bar .top-bar__end a[href*='/sign-in']", visible: true
     assert_no_selector ".collection-status", visible: true
     tops = page.evaluate_script("[...document.querySelectorAll('.collection-grid > li')].slice(0, 3).map((slot) => Math.round(slot.getBoundingClientRect().top))")
     assert_equal tops[0], tops[1]

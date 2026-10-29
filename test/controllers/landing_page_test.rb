@@ -225,27 +225,16 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     Catalog::CardSeason.pluck(:id).each { |id| assert_no_match(/\b(card[-_]?season|id)[^>]*\b#{id}\b/, response.body) }
   end
 
-  test "the Steam image twice, the hero boarding signing in with its full name, the external links naming where they lead" do
+  test "the hero and the boarding lead to the sign-in screen with their full name, the external links naming where they lead" do
     get home_path(locale: :fr)
 
-    assert_select "header form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr']"
-    assert_select "main form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr']"
-    boardings = css_select("main form.button-form[action='/auth/steam'][method=post][data-turbo=false]")
-    assert_equal 1, boardings.size
-    assert(boardings.all? { it.at_css("input[name=origin]")["value"] == "/fr" })
-    buttons = boardings.map { it.at_css("button[type=submit]") }
-    assert(buttons.all? { it.text.squish == "Embarquer sur le pont" && it["aria-label"] == "Embarquer sur le pont, se connecter avec Steam" })
-    assert_equal [ "landing-hero__embark" ], buttons.map { it["class"].split.last }
-    assert_equal 1, buttons.count { it["class"].include?("button--primary") }
-    assert_select ".landing-boarding__actions form.button-form", false
+    assert_select "header a.button[href=?]", "/fr/sign-in?origin=%2Ffr", text: "Se connecter"
+    hero = css_select("main a.landing-hero__embark[href='/fr/sign-in?origin=%2Ffr']").sole
+    assert_equal "Embarquer sur le pont", hero.text.squish
+    assert_equal "Embarquer sur le pont, choisir comment se connecter", hero["aria-label"]
+    assert_select ".landing-boarding__actions a.button--primary[href=?]", "/fr/sign-in?origin=%2Ffr", text: "Se connecter"
+    assert_select "main form[action='/auth/steam']", false
     assert_select "main a[href='/fr']", false
-    [ ".landing-hero__action", ".landing-boarding__actions" ].each do |actions|
-      assert_select "#{actions} p.sign-in-acceptance",
-        "En vous connectant, vous acceptez les conditions d'utilisation et prenez connaissance de la politique de confidentialité." do
-        assert_select "a[href=?]", "/fr/legal#legal-terms", "conditions d'utilisation"
-        assert_select "a[href=?]", "/fr/legal#legal-privacy", "politique de confidentialité"
-      end
-    end
 
     project = css_select("main a[href='#{ExternalLinksHelper::SOURCE_CODE_URL}']").sole
     assert_equal "Voir le projet (GitHub, nouvel onglet)", project.text.squish

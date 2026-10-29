@@ -51,10 +51,12 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     super
   end
 
-  # Signing in and out through the shell's top bar: the official
-  # Steam image for a visitor, the player menu's "Sign out" for a player.
+  # Signing in and out through the shell's top bar: its sign-in link, then the
+  # official Steam image on the sign-in screen, for a visitor; the player
+  # menu's "Sign out" for a player.
   def click_steam_sign_in
-    find(".top-bar .steam-sign-in__button").click
+    find(".top-bar .top-bar__end a[href*='/sign-in']").click
+    find(".sign-in .steam-sign-in__button").click
   end
 
   def assert_signed_in
@@ -67,6 +69,6 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   end
 
   def assert_signed_out
-    assert_selector ".top-bar .steam-sign-in__button"
+    assert_selector ".top-bar .top-bar__end a[href*='/sign-in']"
   end
 end

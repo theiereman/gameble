@@ -408,14 +408,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
 
-  test "every form posting to /auth/steam is a full-page POST back to its page, and no link leads there" do
+  test "every sign-in button of the landing leads to the sign-in screen, and none posts to Steam" do
     get home_path(locale: :en)
 
-    forms = css_select("form[action='/auth/steam']")
-    assert_equal 3, forms.size, "the top bar's and the boarding's official images, the hero's Embark"
-    assert(forms.all? { it["method"] == "post" && it["data-turbo"] == "false" && it.at_css("input[name=origin]")["value"] == "/en" })
-    assert_equal 2, forms.count { it.classes.include?("steam-sign-in") && it.at_css("button.steam-sign-in__button img[src*='sits_01']") }
-    assert_select "a[href*='/auth/steam']", false
+    links = css_select("a[href^='/en/sign-in']")
+    assert_equal 3, links.size, "the top bar's, the hero's Embark and the boarding's"
+    assert(links.all? { it["href"] == "/en/sign-in?origin=%2Fen" })
+    assert_select "form[action='/auth/steam']", false
   end
 
   test "a player with five sets in progress sees the board's first four, and See all leads to the collection" do

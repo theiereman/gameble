@@ -16,7 +16,7 @@ main ─────────────────────●         
 | Step | Who | Where | What happens |
 |---|---|---|---|
 | 1. Cut a candidate | you | GitHub release, pre-release, on `develop` | full CI, build, staging deploy, Discord |
-| 2. Accept it | you | https://gameble.dotsncircles.com | the checklist below |
+| 2. Accept it | you | https://test.gameble.net | the checklist below |
 | 3. Promote it | you | `bin/promote` on your machine | `main` moves to the candidate, release `vX.Y.Z` published |
 | 4. Approve production | you | GitHub Actions, one click | production deploy, Discord |
 
@@ -63,7 +63,7 @@ A release that is not a pre-release, or whose tag is not on `develop`, deploys n
 
 ## 2. Accept the candidate
 
-Walk through staging at https://gameble.dotsncircles.com, on a phone and on a desktop, in French and in English:
+Walk through staging at https://test.gameble.net, on a phone and on a desktop, in French and in English:
 
 - [ ] the bottom-left corner shows the candidate (`v1.0.0-rc.N`);
 - [ ] signed out: the landing, the legal page, a shared card link and a public profile open;

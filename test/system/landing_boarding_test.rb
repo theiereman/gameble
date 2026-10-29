@@ -22,7 +22,7 @@ class LandingBoardingTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     panel = rect(".landing-boarding__panel")
     copy = rect(".landing-boarding__copy")
-    button = rect(".landing-boarding .steam-sign-in")
+    button = rect(".landing-boarding__actions a.button")
 
     assert_in_delta panel["right"], button["right"], 40
     assert_operator button["top"], :<, copy["top"] + 80
@@ -33,7 +33,7 @@ class LandingBoardingTest < ApplicationSystemTestCase
     resize_to(390, 900)
     visit home_path(locale: :en)
     copy = rect(".landing-boarding__copy")
-    button = rect(".landing-boarding .steam-sign-in")
+    button = rect(".landing-boarding__actions a.button")
 
     assert_operator button["top"], :>=, copy["bottom"]
   end

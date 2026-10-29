@@ -14,6 +14,8 @@ Rails.application.routes.draw do
     root "pages#home", as: :home
     # The landing once lived here; its links lead to the root.
     get "landing", to: redirect("/%{locale}", status: 301)
+    # Where a visitor chooses how to sign in; the sign-in buttons across the site lead here.
+    get "sign-in" => "sign_ins#show", as: :sign_in
     # The public roadmap, every milestone and story staff chose to show.
     get "roadmap" => "roadmaps#show", as: :roadmap
     # The visitor's motion switch, written into the motion cookie.

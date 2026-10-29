@@ -11,7 +11,7 @@ image: theiereman/gameble
 # Environments are Kamal destinations: this file holds what they
 # share; config/deploy.<destination>.yml adds their servers, host and
 # PUBLIC_URL, and .kamal/secrets.<destination> their secrets.
-#   bin/kamal deploy -d staging                  # gameble.dotsncircles.com, home lab
+#   bin/kamal deploy -d staging                  # test.gameble.net, home lab
 #   bin/kamal deploy -d production --skip-push   # gameble.net, home lab (RELEASING.md)
 #
 # Roles, with their hosts in each destination file: web, and the Steam import
@@ -105,9 +105,7 @@ builder:
 # ssh:
 #   user: app
 
-# The servers' SSH daemon listens on 2224, whichever machine runs Kamal.
-ssh:
-  port: 2224
+# Each destination file sets how its servers are reached over SSH.
 
 # Use accessory services (secrets come from .kamal/secrets).
 # PostgreSQL 18. The user `gameble` is the image's superuser, so the

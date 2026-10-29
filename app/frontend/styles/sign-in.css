@@ -1,0 +1,41 @@
+/* ---- Sign-in screen ---- */
+
+.sign-in {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+:where(.sign-in) :where(p, ul, h1) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sign-in__title {
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.sign-in__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.sign-in__options {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+}
+
+.sign-in__option {
+  display: flex;
+  justify-content: center;
+}

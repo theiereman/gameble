@@ -93,7 +93,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_nil session[:player_id]
-    assert_select ".top-bar__end form[action='/auth/steam']"
+    assert_select ".top-bar__end a[href^='/fr/sign-in']"
     assert_select ".top-bar form[action^='/session']", false
   end
 
@@ -131,7 +131,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     assert_nil session[:player_id]
     assert_response :forbidden
     assert_select ".account-suspended__lead", I18n.t("errors.accounts.banned", locale: :en)
-    assert_select ".top-bar .steam-sign-in"
+    assert_select ".top-bar a[href^='/en/sign-in']"
   end
 
   test "a player banned by a moderator is refused at sign-in, and signs in again once unbanned" do

@@ -7,7 +7,7 @@ require "tmpdir"
 # that lease from it. Each role is counted under its deploy env alone.
 class ConnectionBudgetTest < ActiveSupport::TestCase
   CONFIG_FILES = %w[database.yml puma.rb deploy.yml deploy.staging.yml deploy.production.yml queue.yml queue_import.yml recurring.yml].freeze
-  STAGING = "gameble.dotsncircles.com".freeze
+  STAGING = "ssh.staging.gameble.net".freeze
 
   teardown do
     FileUtils.remove_entry(@root) if @root

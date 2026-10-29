@@ -9,8 +9,7 @@
       </p>
     </div>
     <div class="landing-boarding__actions">
-      <%= render SteamSignInComponent.new(origin: request.path) %>
-      <%= render "shell/sign_in_acceptance" %>
+      <%= sign_in_button t("shell.top_bar.sign_in"), origin: request.path, class: "button button--primary" %>
     </div>
   <% end %>
 </section>
