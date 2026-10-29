@@ -22,6 +22,8 @@ Rails.application.routes.draw do
     post "auth/clerk" => "clerk_sessions#create", as: :clerk_session
     # A signed-in player adding Discord, Google or an email code to their account.
     post "settings/sign-ins" => "sign_in_methods#create", as: :settings_sign_ins
+    # A signed-in player without Steam asking to link it: the Steam return then adds it to their account.
+    post "settings/steam" => "steam_links#create", as: :settings_steam
     # The public roadmap, every milestone and story staff chose to show.
     get "roadmap" => "roadmaps#show", as: :roadmap
     # The visitor's motion switch, written into the motion cookie.

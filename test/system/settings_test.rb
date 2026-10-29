@@ -191,6 +191,24 @@ class SettingsTest < ApplicationSystemTestCase
     assert_selector ".legal__ownership", text: "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
   end
 
+  test "a player without Steam links it from the sign-ins row, stays signed in and finds Steam listed" do
+    sign_in
+    Accounts::Identity.where(player_id: @player.id, provider: "steam").delete_all
+    @player.update_columns(steam_id: nil)
+    visit settings_path(locale: :en)
+    assert_no_selector "ul.sign-in-methods li", text: /steam/i
+    mock_steam_sign_in("76561197960287930")
+
+    click_on "Link Steam"
+
+    assert_selector ".toast", text: /steam is linked to your account/i
+    assert_current_path settings_path(locale: :en)
+    assert_selector "ul.sign-in-methods li", text: /steam/i
+    assert_no_button "Link Steam"
+    assert_signed_in
+    assert_equal [ @player.id ], Accounts::Identity.where(provider: "steam", uid: "76561197960287930").pluck(:player_id)
+  end
+
   test "sign-out from the settings screen lands on the landing" do
     sign_in(settings_path(locale: :en))
 

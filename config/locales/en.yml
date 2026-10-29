@@ -859,6 +859,7 @@ en:
       reason_too_long: The reason for a ban holds 500 characters at most, officer.
       sign_in_failed: The sign-in failed on our side. Try again in a moment.
       staff_required: Only the moderation team can do that.
+      steam_taken: This Steam account already belongs to another Gameble account.
     catalog:
       already_numbered: The cards of that season are numbered already, officer.
       at_edge: That entry cannot move any further that way, officer.
@@ -2155,6 +2156,8 @@ en:
       reason_label: Reason given by the moderator
       title: Account suspended
     create:
+      steam_already_linked: This Steam account is already linked to yours.
+      steam_linked: Steam is linked to your account.
       welcome: Welcome to Gameble. Your capsules are waiting.
     destroy:
       farewell: You are signed out. Your collection will be waiting.
@@ -2202,6 +2205,7 @@ en:
         save: Save
       sign_ins:
         label: Sign-ins
+        link_steam: Link Steam
       summary:
         cards:
           one: "%{count} card"

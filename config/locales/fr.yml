@@ -1287,6 +1287,7 @@ fr:
         save: "Enregistrer"
       sign_ins:
         label: "Connexions"
+        link_steam: "Lier Steam"
       data:
         label: "Mes données"
         export: "Exporter"
@@ -2111,6 +2112,8 @@ fr:
   sessions:
     create:
       welcome: "Bienvenue sur Gameble. Vos capsules vous attendent."
+      steam_linked: "Steam est lié à votre compte."
+      steam_already_linked: "Ce compte Steam est déjà lié au vôtre."
     banned:
       title: "Compte suspendu"
       reason_label: "Motif indiqué par le modérateur"
@@ -2181,6 +2184,7 @@ fr:
       cannot_report_self: "Vous ne pouvez pas signaler votre propre profil."
       rate_limited: "Vous avez envoyé beaucoup de signalements aujourd'hui. Réessayez demain."
       staff_required: "Seule la modération peut faire cela."
+      steam_taken: "Ce compte Steam appartient déjà à un autre compte Gameble."
       administrator_required: "Seul un administrateur peut faire cela, officier."
       cannot_ban_self: "Vous ne pouvez pas vous bannir vous-même, officier."
       cannot_dismiss_self: "Vous ne pouvez pas classer les signalements qui vous visent, officier."

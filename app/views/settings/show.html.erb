@@ -78,6 +78,13 @@
                   </li>
                 <% end %>
               </ul>
+              <% if @identities.none? { it.provider == "steam" } %>
+                <%# OmniAuth checks this token again at /auth/steam, so it cannot be tied to this form's action. %>
+                <%= form_with url: settings_steam_path, method: :post, authenticity_token: form_authenticity_token, data: { turbo: false } do %>
+                  <%= hidden_field_tag :origin, settings_path, id: nil %>
+                  <%= tag.button t(".sign_ins.link_steam"), type: :submit, class: "button button--secondary" %>
+                <% end %>
+              <% end %>
               <%= render "sign_ins/clerk", mode: @clerk_mode, callback_url: settings_url(add_sign_in: 1), form_url: settings_sign_ins_path,
                     origin: nil, retry_path: settings_path %>
             </div>

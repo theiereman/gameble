@@ -107,4 +107,26 @@ class SteamOpenIdTest < ActionDispatch::IntegrationTest
     assert_nil session[:player_id]
     assert_nil Accounts::Player.find_by(steam_id: STEAM_ID)
   end
+
+  test "linking Steam from the settings passes both authenticity checks and adds Steam to the signed-in player" do
+    steam_answers(valid: true)
+    return_to = start_sign_in
+    get URI(return_to).request_uri, params: assertion_params(return_to)
+    player = Accounts::Player.find_by!(steam_id: STEAM_ID)
+    Accounts::Identity.where(player_id: player.id).delete_all
+    player.update_columns(steam_id: nil)
+
+    get "/en/settings"
+    form = css_select("form[action='/en/settings/steam']").sole
+    params = { origin: "/en/settings", authenticity_token: form.at_css("input[name=authenticity_token]")["value"] }
+    post "/en/settings/steam", params: params
+    assert_response :temporary_redirect
+    post URI(response.location).request_uri, params: params
+    return_to = Rack::Utils.parse_query(URI(response.location).query).fetch("openid.return_to")
+    get URI(return_to).request_uri, params: assertion_params(return_to)
+
+    assert_redirected_to "/en/settings"
+    assert_equal player.id, session[:player_id]
+    assert_equal [ STEAM_ID ], player.identities.where(provider: "steam").pluck(:uid)
+  end
 end

@@ -2,6 +2,7 @@ class SessionsController < ApplicationController
   include OpensPlayerSession
 
   SIGN_IN_STARTED = "steam_sign_in_started".freeze
+  STEAM_LINK = "steam_link".freeze
 
   # rack-openid relabels Steam's GET return as POST, so it carries no authenticity token.
   skip_forgery_protection only: :create
@@ -13,12 +14,16 @@ class SessionsController < ApplicationController
 
   def create
     authorize :session
+    link_nonce = take_steam_link_request
     return fail_sign_in("errors.steam.sign_in_failed") unless sign_in_started_in_this_browser?
 
     result = Steam::SignInIdentity.steam_id_from(request.env["omniauth.auth"])
     return fail_sign_in(Steam::SignInIdentity.failure_key(result.failure)) if result.failure?
 
     steam_id = result.value!
+    return fail_sign_in("errors.steam.sign_in_failed") if params.key?(:link) && !link_answered?(link_nonce)
+    return link_steam(steam_id) if params.key?(:link) && current_player
+
     result = sign_in_reporting_failure(steam_id)
     return fail_sign_in(Accounts::SignIn.failure_key(:sign_in_failed)) if result.nil?
     return refuse_banned(steam_id) if result.failure == :banned
@@ -37,6 +42,7 @@ class SessionsController < ApplicationController
   def failure
     authorize :session
     sign_in_started_in_this_browser?
+    take_steam_link_request
     fail_sign_in("errors.steam.sign_in_failed")
   end
 
@@ -48,6 +54,28 @@ class SessionsController < ApplicationController
   end
 
   private
+    def link_steam(steam_id)
+      linked_before = Accounts::IdentitiesOf.call(current_player).any? { it.provider == "steam" }
+      result = link_reporting_failure(steam_id)
+      if result&.success?
+        redirect_to settings_path, notice: linked_before ? t("sessions.create.steam_already_linked") : t("sessions.create.steam_linked")
+      else
+        redirect_to settings_path, alert: link_refusal_message(result)
+      end
+    end
+
+    def link_reporting_failure(steam_id)
+      Accounts::AddSteamSignIn.new.call(player: current_player, steam_id:, persona_name: persona_name_or_nil(steam_id))
+    rescue StandardError => error
+      Rails.error.report(error)
+      nil
+    end
+
+    def link_refusal_message(result)
+      key = result && Accounts::AddSteamSignIn.failure_key(result.failure)
+      I18n.exists?(key.to_s) ? t(key) : t("errors.accounts.sign_in_failed")
+    end
+
     def sign_in_reporting_failure(steam_id)
       Accounts::SignIn.new.call(steam_id:, persona_name: persona_name_or_nil(steam_id))
     rescue StandardError => error
@@ -70,6 +98,14 @@ class SessionsController < ApplicationController
 
     def sign_in_started_in_this_browser?
       session.delete(SIGN_IN_STARTED).present?
+    end
+
+    def take_steam_link_request
+      session.delete(STEAM_LINK)
+    end
+
+    def link_answered?(nonce)
+      nonce.is_a?(String) && params[:link].is_a?(String) && ActiveSupport::SecurityUtils.secure_compare(nonce, params[:link])
     end
 
     def fail_sign_in(key)

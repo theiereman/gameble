@@ -67,6 +67,17 @@ class RateLimitTest < ActionDispatch::IntegrationTest
     assert_not_equal 429, response.status
   end
 
+  test "asking to link Steam shares the sign-in throttle, whatever the locale" do
+    SignInThrottle::LIMIT.times { post "/en/settings/steam", params: { origin: "/en/settings" }, env: { "REMOTE_ADDR" => IP } }
+    assert_not_equal 429, response.status
+
+    post "/fr/settings/steam", env: { "REMOTE_ADDR" => IP }
+    assert_response :too_many_requests
+
+    post "/en/settings/steam", env: { "REMOTE_ADDR" => OTHER_IP }
+    assert_not_equal 429, response.status
+  end
+
   test "ten sign-in requests from one IP within a minute are each handled" do
     10.times do |index|
       sign_in_request(index)
