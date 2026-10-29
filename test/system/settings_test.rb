@@ -266,7 +266,7 @@ class SettingsTest < ApplicationSystemTestCase
   end
 
   def assert_every_setting_shown
-    assert_selector ".settings__main .settings-row", count: 8
+    assert_selector ".settings__main .settings-row", count: 9
     assert_selector ".settings__main .segmented[aria-labelledby=settings-language]"
     assert_selector ".settings__main .segmented[aria-labelledby=settings-visibility]"
     assert_selector ".settings__main .segmented[aria-labelledby=settings-motion]"
