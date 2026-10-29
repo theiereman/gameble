@@ -109,7 +109,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-12**
   - **intent:** The Brotherhood has a weekly shared goal that every player's pack openings advance, and trades to a lesser degree.
   - **success:**
-    - The week starts Monday 00:00 UTC. The target is the previous week's active players (at least one pack opened) × 50, never below 200.
+    - The week starts Monday 00:00 UTC. The target is the previous week's active players (at least one pack opened) × 125, never below 500 (author, 2026-10-29).
     - A pack opened counts 1; a completed trade counts 1, once for both players.
     - A shared gauge shows progress.
     - The goal's panel and its reward notice speak as the Brotherhood (`brotherhood-tone.md`); their copy is in `EXPERIENCE.md`.

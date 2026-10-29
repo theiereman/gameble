@@ -6,7 +6,7 @@ class Game::WeeklyGoalOperationsTest < ActiveSupport::TestCase
   test "creating a weekly goal twice leaves the one row" do
     2.times { Game::CreateWeeklyGoal.new.call(week_start: WEEK).value! }
 
-    assert_equal [ [ 0, 200 ] ], Game::WeeklyGoal.where(week_start: WEEK).pluck(:total, :target)
+    assert_equal [ [ 0, 500 ] ], Game::WeeklyGoal.where(week_start: WEEK).pluck(:total, :target)
   end
 
   test "summing reports whether the total moved" do

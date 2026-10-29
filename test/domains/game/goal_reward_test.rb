@@ -228,12 +228,12 @@ class Game::GoalRewardTest < ActiveSupport::TestCase
   end
 
   test "the sum enqueues the grant when a reached goal's total moves, and a late contributor is rewarded too" do
-    contribute(@player, openings: 150)
+    contribute(@player, openings: 450)
     contribute(@other, openings: 49)
     now = MONDAY + 1.day
 
     assert_no_enqueued_jobs(only: Game::GrantGoalRewardsJob) { Game::SumWeeklyGoalJob.new.perform(now:) }
-    assert_equal [ 199, 200 ], Game::WeeklyGoal.where(week_start: WEEK).pick(:total, :target)
+    assert_equal [ 499, 500 ], Game::WeeklyGoal.where(week_start: WEEK).pick(:total, :target)
 
     Game::WeeklyContribution.where(player_id: @other.id).update_all(openings: 50)
     assert_enqueued_with(job: Game::GrantGoalRewardsJob, args: [ { week_start: WEEK } ]) { Game::SumWeeklyGoalJob.new.perform(now:) }

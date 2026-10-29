@@ -2,8 +2,8 @@ module Game
   class WeeklyGoal < ApplicationRecord
     self.table_name = "game_weekly_goals"
 
-    PER_PLAYER = 50
-    FLOOR = 200
+    PER_PLAYER = 125
+    FLOOR = 500
 
     scope :reached, -> { where("total >= target") }
 
