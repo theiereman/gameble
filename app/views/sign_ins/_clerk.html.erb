@@ -1,0 +1,52 @@
+<%# locals: mode ("start" or "callback"), callback_url, form_url, origin (nil when the endpoint needs none), retry_path %>
+<% if Rails.configuration.x.clerk.publishable_key.present? %>
+  <% messages = %w[generic network code_incorrect code_expired too_many_requests captcha invalid_email code_sent signing_in].index_with { |key| t(".messages.#{key}") }.transform_keys { |key| key.camelize(:lower) } %>
+  <% field_prefix = origin.nil? ? "clerk-settings" : "clerk-sign-in" %>
+  <%= tag.div class: "clerk-sign-in",
+        data: { controller: "clerk-sign-in",
+                clerk_sign_in_publishable_key_value: Rails.configuration.x.clerk.publishable_key,
+                clerk_sign_in_mode_value: mode,
+                clerk_sign_in_callback_url_value: callback_url,
+                clerk_sign_in_complete_url_value: callback_url,
+                clerk_sign_in_messages_value: messages } do %>
+    <% if mode == "start" %>
+      <ul class="clerk-sign-in__providers">
+        <% { "oauth_discord" => t(".discord"), "oauth_google" => t(".google") }.each do |strategy, label| %>
+          <li>
+            <%= tag.button label, type: :button, class: "button button--secondary clerk-sign-in__provider",
+                  data: { clerk_sign_in_target: "provider", action: "clerk-sign-in#start", clerk_sign_in_strategy_param: strategy } %>
+          </li>
+        <% end %>
+      </ul>
+      <div class="clerk-sign-in__step" data-clerk-sign-in-target="emailStep">
+        <%= tag.form class: "clerk-sign-in__form", data: { action: "submit->clerk-sign-in#sendCode" } do %>
+          <label class="clerk-sign-in__label" for="<%= field_prefix %>-email"><%= t(".email_label") %></label>
+          <%= tag.input type: :email, id: "#{field_prefix}-email", class: "clerk-sign-in__input", autocomplete: "email", inputmode: "email",
+                required: true, data: { clerk_sign_in_target: "email" } %>
+          <%= tag.button t(".send_code"), type: :submit, class: "button button--secondary" %>
+        <% end %>
+      </div>
+      <div class="clerk-sign-in__step" data-clerk-sign-in-target="codeStep" hidden>
+        <%= tag.form class: "clerk-sign-in__form", data: { action: "submit->clerk-sign-in#verifyCode" } do %>
+          <label class="clerk-sign-in__label" for="<%= field_prefix %>-code"><%= t(".code_label") %></label>
+          <%= tag.input type: :text, id: "#{field_prefix}-code", class: "clerk-sign-in__input", autocomplete: "one-time-code", inputmode: "numeric",
+                required: true, data: { clerk_sign_in_target: "code" } %>
+          <div class="clerk-sign-in__actions">
+            <%= tag.button t(".verify"), type: :submit, class: "button button--primary" %>
+            <%= tag.button t(".back"), type: :button, class: "button button--secondary", data: { action: "clerk-sign-in#back" } %>
+          </div>
+        <% end %>
+      </div>
+      <noscript><p class="clerk-sign-in__note"><%= t(".javascript_needed") %></p></noscript>
+    <% end %>
+    <p class="clerk-sign-in__status" role="status" data-clerk-sign-in-target="status"></p>
+    <p class="clerk-sign-in__error" role="alert" data-clerk-sign-in-target="error"></p>
+    <% if mode == "callback" %>
+      <%= link_to t(".retry"), retry_path, class: "clerk-sign-in__retry" %>
+    <% end %>
+    <%= form_with url: form_url, method: :post, class: "clerk-sign-in__hidden-form", html: { hidden: true }, data: { turbo: false, clerk_sign_in_target: "form" } do %>
+      <% if origin.present? %><%= hidden_field_tag :origin, origin, id: nil %><% end %>
+    <% end %>
+    <div id="clerk-captcha"></div>
+  <% end %>
+<% end %>

@@ -16,6 +16,12 @@ Rails.application.routes.draw do
     get "landing", to: redirect("/%{locale}", status: 301)
     # Where a visitor chooses how to sign in; the sign-in buttons across the site lead here.
     get "sign-in" => "sign_ins#show", as: :sign_in
+    # Where Clerk returns to after an OAuth hop; the same screen, finishing the sign-in.
+    get "sign-in/callback" => "sign_ins#show", as: :sign_in_callback, defaults: { mode: "callback" }
+    # The browser posts here once Clerk holds a session: the server checks it and opens its own.
+    post "auth/clerk" => "clerk_sessions#create", as: :clerk_session
+    # A signed-in player adding Discord, Google or an email code to their account.
+    post "settings/sign-ins" => "sign_in_methods#create", as: :settings_sign_ins
     # The public roadmap, every milestone and story staff chose to show.
     get "roadmap" => "roadmaps#show", as: :roadmap
     # The visitor's motion switch, written into the motion cookie.

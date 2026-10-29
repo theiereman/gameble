@@ -56,6 +56,17 @@ class RateLimitTest < ActionDispatch::IntegrationTest
     assert_equal 1, middlewares.count(Rack::Attack)
   end
 
+  test "the Clerk sign-in posts share the sign-in throttle, whatever the locale" do
+    SignInThrottle::LIMIT.times { post "/fr/auth/clerk", params: { origin: "/fr" }, env: { "REMOTE_ADDR" => IP } }
+    assert_not_equal 429, response.status
+
+    post "/en/settings/sign-ins", env: { "REMOTE_ADDR" => IP }
+    assert_response :too_many_requests
+
+    post "/en/auth/clerk", env: { "REMOTE_ADDR" => OTHER_IP }
+    assert_not_equal 429, response.status
+  end
+
   test "ten sign-in requests from one IP within a minute are each handled" do
     10.times do |index|
       sign_in_request(index)

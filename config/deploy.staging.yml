@@ -32,6 +32,8 @@ env:
   clear:
     SENTRY_ENVIRONMENT: staging
     PUBLIC_URL: https://test.gameble.net
+    # Staging signs in through the Clerk development instance.
+    CLERK_PUBLISHABLE_KEY: pk_test_dGhvcm91Z2gtc2hhZC00MzYzLmNsZXJrLmFjY291bnRzLmRldiQ
     # Production mode refuses to boot without the legal page's contact and host.
     LEGAL_CONTACT_EMAIL: contact@gameble.net
     LEGAL_HOST_NAME: Thomas Eyermann

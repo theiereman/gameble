@@ -57,6 +57,22 @@
           </li>
 
           <li class="settings-row">
+            <p id="settings-sign-ins" class="settings-row__label"><%= t(".sign_ins.label") %></p>
+            <div class="settings-row__stack">
+              <ul class="sign-in-methods" aria-labelledby="settings-sign-ins">
+                <% @identities.each do |identity| %>
+                  <li class="sign-in-methods__item">
+                    <span><%= t("sign_ins.providers.#{identity.provider}") %></span>
+                    <span class="sign-in-methods__since"><%= local_time_tag(identity.created_at, :date_time_year) %></span>
+                  </li>
+                <% end %>
+              </ul>
+              <%= render "sign_ins/clerk", mode: @clerk_mode, callback_url: settings_url(add_sign_in: 1), form_url: settings_sign_ins_path,
+                    origin: nil, retry_path: settings_path %>
+            </div>
+          </li>
+
+          <li class="settings-row">
             <p id="settings-data" class="settings-row__label"><%= t(".data.label") %></p>
             <%= form_with url: settings_export_path, method: :post, class: "settings-row__form settings-row__export",
                   data: { turbo: false, controller: "data-export", action: "submit->data-export#export",

@@ -1,12 +1,23 @@
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".heading") %>
+<% clerk = Rails.configuration.x.clerk.publishable_key.present? %>
 <section class="sign-in" aria-labelledby="sign-in-heading">
   <h1 id="sign-in-heading" class="sign-in__title"><%= t(".heading") %></h1>
   <%= render PanelComponent.new(brackets: true, class: "sign-in__panel") do %>
-    <p class="sign-in__line"><%= t(".line") %></p>
-    <ul class="sign-in__options">
-      <li class="sign-in__option"><%= render SteamSignInComponent.new(origin: @origin || home_path) %></li>
-    </ul>
-    <%= render "shell/sign_in_acceptance" %>
+    <% if @mode == "callback" && clerk %>
+      <%= render "sign_ins/clerk", mode: "callback", callback_url: @callback_url, form_url: clerk_session_path, origin: @origin || home_path,
+            retry_path: sign_in_path(origin: @origin) %>
+    <% else %>
+      <p class="sign-in__line"><%= t(".line") %></p>
+      <ul class="sign-in__options">
+        <li class="sign-in__option"><%= render SteamSignInComponent.new(origin: @origin || home_path) %></li>
+      </ul>
+      <% if clerk %>
+        <p class="sign-in__separator"><%= t(".separator") %></p>
+        <%= render "sign_ins/clerk", mode: "start", callback_url: @callback_url, form_url: clerk_session_path, origin: @origin || home_path,
+              retry_path: nil %>
+      <% end %>
+      <%= render "shell/sign_in_acceptance" %>
+    <% end %>
   <% end %>
 </section>

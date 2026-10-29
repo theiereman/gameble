@@ -832,7 +832,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__contact a[href=?]", "mailto:contact@example.test", "contact@example.test"
     assert_select ".legal__host-name", "Example Hosting"
     assert_select ".legal__host-address", "1 rue de l'Exemple, 75000 Paris"
-    assert_select ".legal__access", 'access: from the settings, with "Export" under "My data", which downloads a copy of your data in a reusable file;'
+    assert_select ".legal__access", 'access: from the settings, with "Export" under "My data", which downloads a copy of your data in a reusable file, your sign-in methods included;'
     assert_select ".legal__access a", false
   end
 
@@ -867,7 +867,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__retention li", 8
+    assert_select ".legal__retention li", 9
     retention = css_select(".legal__retention").text
     [ "trois ans", "un an", "30 jours", "tant que la suspension dure" ].each { assert_includes retention, it }
     assert_select ".legal__retention li", "les erreurs techniques reçues par Sentry : 30 jours ;"
@@ -876,7 +876,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get legal_path(locale: :en)
 
-    assert_select ".legal__retention li", 8
+    assert_select ".legal__retention li", 9
     retention = css_select(".legal__retention").text
     [ "three years", "one year", "30 days", "as long as the suspension lasts" ].each { assert_includes retention, it }
     assert_select ".legal__retention li", "technical errors received by Sentry: 30 days;"

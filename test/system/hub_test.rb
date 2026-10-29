@@ -212,7 +212,7 @@ class HubTest < ApplicationSystemTestCase
     assert_current_path %r{/en/legal#legal-terms\z}, url: true
     assert_selector "h1#legal-heading", text: /LEGAL NOTICE AND PRIVACY/i
     assert_selector "h2#legal-terms", text: /TERMS OF USE/i
-    assert_text "By signing in with Steam, you accept these terms."
+    assert_text "By signing in, you accept these terms."
   end
 
   test "on a phone, a visitor taps the legal link beside the version and reads the legal page" do

@@ -39,3 +39,134 @@
   display: flex;
   justify-content: center;
 }
+
+.sign-in__separator {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* ---- Discord, Google and email code (sign-in screen and settings) ---- */
+
+.clerk-sign-in {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+:where(.clerk-sign-in) :where(p, ul) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.clerk-sign-in__providers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.clerk-sign-in__providers > li {
+  display: flex;
+  flex: 1 1 140px;
+}
+
+.clerk-sign-in__provider {
+  flex: 1;
+}
+
+.clerk-sign-in__form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.clerk-sign-in__label {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.clerk-sign-in__input {
+  width: 100%;
+  min-height: var(--space-touch-min);
+  margin: 0;
+  padding: 0 var(--space-3);
+  border: var(--space-unit) solid var(--color-line);
+  border-radius: 0;
+  background: var(--color-input);
+  color: var(--color-text-bright);
+  font: var(--font-body);
+}
+
+.clerk-sign-in__input:focus-visible {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.clerk-sign-in__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.clerk-sign-in__status,
+.clerk-sign-in__note {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.clerk-sign-in__error {
+  color: var(--color-alert);
+  font: var(--font-body-small);
+  font-weight: 700;
+}
+
+.clerk-sign-in__status:empty,
+.clerk-sign-in__error:empty {
+  display: none;
+}
+
+.clerk-sign-in__step[hidden],
+.clerk-sign-in__hidden-form[hidden] {
+  display: none;
+}
+
+/* ---- The player's sign-ins in the settings ---- */
+
+.settings-row__stack {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.sign-in-methods {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sign-in-methods__item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-5);
+  color: var(--color-text-bright);
+  font: var(--font-body);
+}
+
+.sign-in-methods__since {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}

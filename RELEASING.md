@@ -175,7 +175,10 @@ Before the first production deploy:
      | `DATABASE_PASSWORD` | `openssl rand -hex 32`; production's own |
      | `SENTRY_DSN` | the same as staging's |
      | `STEAM_API_KEY` | the same as staging's |
+     | `CLERK_SECRET_KEY` | the secret key of the Clerk **production** instance (Clerk dashboard → API keys); never the development one |
      | `DISCORD_WEBHOOK_PRODUCTION` | the webhook of the production announcement channel |
+
+   `CLERK_SECRET_KEY` is the production instance's, unlike staging's, which is the development instance's (docs/operations.md, Clerk); the production publishable key is in `config/deploy.production.yml`, and the Clerk dashboard's allowed URLs for https://gameble.net must be checked once.
 
    Keep `SECRET_KEY_BASE` and `DATABASE_PASSWORD` in your password manager too: GitHub never shows a secret again. If you lose the database password, the app is locked out of its data; if you change the secret, every player is signed out.
 

@@ -14,7 +14,7 @@ npm install                   # the Ruby suite builds the Vite assets first and 
 bin/setup --skip-server       # gems, npm packages, databases
 ```
 
-The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`, with defaults matching `compose.yaml`. Every variable the app reads is listed, with an example, in [.env.example](.env.example). `PUBLIC_URL` is required in production only. The Steam import reads `STEAM_API_KEY`, or, outside production, the ignored file `config/steam_api.key`.
+The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`, with defaults matching `compose.yaml`. Every variable the app reads is listed, with an example, in [.env.example](.env.example). `PUBLIC_URL` is required in production only. The Steam import reads `STEAM_API_KEY`, or, outside production, the ignored file `config/steam_api.key`. Sign-in reads `CLERK_SECRET_KEY`, or the ignored file `config/clerk_secret.key`; see docs/operations.md (Clerk).
 
 ## Run
 

@@ -12,7 +12,7 @@ en:
         discoveries, your contributions to the community goal, reports, the moderation
         history and the log of game actions. This cannot be undone.'
       label: Type %{word} to confirm
-      note: 'Erased for good: your Steam id, your sign-in methods, your name, your profile and its link,
+      note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), your name, your profile and its link,
         the time of your last visit, your last data export and your latest activity,
         your collection, your showcase, your set tiers, your achievements, your
         card back unlocks and your active card back, your capsules, opened or not, your daily bonuses and your community goal rewards,
@@ -66,7 +66,7 @@ en:
         other_season: belongs to another season
   authorization:
     forbidden: Your account has no access to this page.
-    sign_in_required: Sign in through Steam to do that.
+    sign_in_required: Sign in to do that.
   back_office:
     bans:
       actions:
@@ -833,6 +833,8 @@ en:
       cannot_ban_self: You cannot ban yourself, officer.
       cannot_dismiss_self: You cannot dismiss the reports against you, officer.
       cannot_report_self: You cannot report your own profile.
+      clerk_unavailable: The sign-in service did not answer. Try again in a moment.
+      clerk_unavailable: The sign-in service is not answering. Try again in a moment.
       email_known_discord: An account already exists with this email through Discord. Sign in with Discord, then add this sign-in from the settings.
       email_known_email: An account already exists with this email through an email code. Sign in with your email, then add this sign-in from the settings.
       email_known_google: An account already exists with this email through Google. Sign in with Google, then add this sign-in from the settings.
@@ -841,6 +843,8 @@ en:
       invalid_identity: That sign-in could not be read. Try again.
       invalid_reason: Choose a reason to send the report.
       invalid_role: 'That role does not exist: player, moderator or administrator.'
+      invalid_session: That sign-in expired before it reached us. Try again.
+      invalid_session: That sign-in could not be verified. Try again.
       invalid_setting: That setting could not be saved. Reload the page and try again.
       invalid_steam_id: Your Steam ID could not be read. Sign in again.
       no_longer_idle: 'That player is no longer idle: their account is not deleted.'
@@ -1811,7 +1815,7 @@ en:
           cookie that filters out bots. Your browser''s storage also keeps your trade
           drafts and the interface''s state, on your device only. No advertising or
           audience measurement trackers.'
-        deletion: When you delete your account, your Steam id, your sign-in methods, your profile name,
+        deletion: When you delete your account, your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address, which is deleted there too), your profile name,
           the time of your last visit, your last data export, your latest activity,
           your collection, your showcase, your set tiers, your achievements, your
           card back unlocks and your choice of active card back, your capsules, your daily bonuses, your community goal rewards, your friendships,
@@ -1847,6 +1851,9 @@ en:
             from them after 7 days, a little longer if a backup failed;'
           banned_steam_id: 'the Steam id of a suspended account: as long as the suspension
             lasts, to refuse a new sign-up;'
+          clerk: 'the Clerk user created for a Discord, Google or email code sign-in, with
+            your email address and its sessions: as long as the account exists; it is
+            deleted from Clerk when you delete your account;'
           errors: 'technical errors received by Sentry: 30 days;'
           intro: 'How long your data is kept:'
           leftovers: 'what a deleted account leaves behind that concerns other players
@@ -1863,7 +1870,8 @@ en:
             an account deleted before it was handled, one year after the deletion;'
         rights:
           access: 'access: from the settings, with "Export" under "My data", which
-            downloads a copy of your data in a reusable file;'
+            downloads a copy of your data in a reusable file, your sign-in methods
+            included;'
           authority: CNIL
           banned_html: 'suspended account: it can no longer sign in; the reason for
             the suspension is shown when you try to sign in; write to %{contact} to
@@ -1879,9 +1887,16 @@ en:
             your death. We reply within one month.
           objection_html: 'objection: make your profile private in the settings, or
             write to %{contact};'
-          rectification_html: 'rectification: your profile name follows your Steam
-            one and is read again at each sign-in; for anything else, write to %{contact};'
+          rectification_html: 'rectification: a Steam profile name is read again at each
+            Steam sign-in; for anything else, write to %{contact};'
         services:
+          clerk: 'Clerk, Inc. handles sign-in through Discord, Google or an email code,
+            as our processor: it holds the Clerk user created for you (your email address,
+            the identifier Discord or Google gives for you, and your sign-in sessions),
+            and may process it in the United States among other places. Your browser
+            contacts it directly on the sign-in screen and in the settings. Gameble
+            keeps only the Clerk user''s identifier and a one-way hash of your verified
+            email address, never the address itself;'
           cloudflare: 'Cloudflare, Inc. sits in front of the site to protect and speed
             it up: it sees its requests, your IP address included, and processes them
             in the United States among other places. This transfer relies on the European
@@ -1902,6 +1917,10 @@ en:
         stored:
           activity: 'your game activity: cards, capsules, trades, friends and invitations,
             friend code, activity feed entries;'
+          identities: 'your sign-in methods: Steam, Discord, Google or an email code, each
+            with its identifier at that provider, the date it was added and, for the
+            last three, a one-way hash of your verified email address, never the address
+            itself;'
           intro: 'To run the game, Gameble keeps:'
           last_seen: the date your account was created, the time of your last visit,
             and your last data export (its file and its time), kept until the next
@@ -1941,7 +1960,7 @@ en:
           receives whatever you choose to enter there (name, message).
         title: Support Gameble
       terms:
-        acceptance: By signing in with Steam, you accept these terms.
+        acceptance: By signing in, you accept these terms.
         changes: These terms may change. A significant change is announced in the
           game before it applies. The version in force is the one on this page.
         fair_play: 'Play fair: no bots, scripts or automation, no multiple accounts,
@@ -2176,6 +2195,8 @@ en:
       session:
         label: Session
         sign_out: Sign out
+      sign_ins:
+        label: Sign-ins
       summary:
         cards:
           one: "%{count} card"
@@ -2196,10 +2217,39 @@ en:
         label: Profile visibility
         private: Private
         public: Public
+  sign_in_methods:
+    create:
+      added: The sign-in is added to your account.
   sign_ins:
+    clerk:
+      back: Use another address
+      code_label: Code received by email
+      discord: Discord
+      email_label: Email address
+      google: Google
+      javascript_needed: Discord, Google and email codes need JavaScript.
+      messages:
+        captcha: The security check did not complete. Try again.
+        code_expired: That code expired. Ask for a new one.
+        code_incorrect: That code is not right. Check it and try again.
+        code_sent: We sent you a code. Enter it below.
+        generic: The sign-in did not go through. Try again.
+        invalid_email: That email address does not look right.
+        network: The sign-in service could not be reached. Check your connection and try again.
+        signing_in: Signing you in…
+        too_many_requests: Too many attempts. Wait a moment, then try again.
+      retry: Back to the sign-in screen
+      send_code: Send me a code
+      verify: Confirm
+    providers:
+      discord: Discord
+      email: Email code
+      google: Google
+      steam: Steam
     show:
       heading: Sign in
       line: Choose how you want to come aboard.
+      separator: or
       title: Sign in
   shell:
     live:

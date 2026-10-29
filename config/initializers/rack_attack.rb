@@ -14,9 +14,17 @@ module SignInThrottle
     "GET" => %w[/auth/steam/callback /auth/failure]
   }.freeze
 
+  CLERK_POST_PAGES = %w[auth/clerk settings/sign-ins].freeze
+
   # OmniAuth matches its paths case-insensitively, so this does too.
   def self.sign_in?(request)
-    PATHS.fetch(request.request_method, []).include?(request.path.downcase.chomp("/"))
+    path = request.path.downcase.chomp("/")
+    PATHS.fetch(request.request_method, []).include?(path) || clerk_post?(request, path)
+  end
+
+  def self.clerk_post?(request, path)
+    locale, page = path.delete_prefix("/").split("/", 2)
+    request.post? && I18n.available_locales.map(&:to_s).include?(locale) && CLERK_POST_PAGES.include?(page)
   end
 end
 

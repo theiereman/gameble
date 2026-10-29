@@ -9,7 +9,9 @@ module Accounts
         step require_player(player, allow_banned:)
         step publish(PlayerDeleted.new(data: { player_id: player.id }), stream_name: "Accounts::Player$#{player.id}")
         DataExport.where(player_id: player.id).delete_all
+        clerk_user_ids = Identity.where(player_id: player.id).through_clerk.distinct.pluck(:clerk_user_id)
         Identity.where(player_id: player.id).delete_all
+        erase_clerk_users_after_commit(clerk_user_ids)
         player.update!(steam_id: nil, persona_name: nil, last_seen_at: nil, last_exported_at: nil, token: Player.generate_unique_secure_token,
           deleted_at: Time.current)
         player
@@ -17,6 +19,11 @@ module Accounts
     end
 
     private
+
+    def erase_clerk_users_after_commit(clerk_user_ids)
+      transaction = ApplicationRecord.current_transaction
+      clerk_user_ids.each { |id| transaction.after_commit { DeleteClerkUserJob.perform_later(id) } }
+    end
 
     def require_player(player, allow_banned:)
       player.is_a?(Player) && player.persisted? && (allow_banned || !player.banned?) && !player.deleted? ? Success(player) : Failure(:player_required)

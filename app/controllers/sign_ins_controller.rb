@@ -1,10 +1,13 @@
 class SignInsController < ApplicationController
   include PublicRead
+  include ClerkContentSecurityPolicy
 
   def show
     authorize :sign_in, :show?
 
     @origin = origin_param
+    @mode = request.path_parameters[:mode] == "callback" ? "callback" : "start"
+    @callback_url = sign_in_callback_url(origin: @origin)
     redirect_to(@origin || home_path) if current_player
   end
 

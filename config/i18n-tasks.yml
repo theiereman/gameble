@@ -40,6 +40,9 @@ ignore_unused:
   - "achievements.conditions.*"
   # The throttled request's 429 message, picked by the matched throttle (rack_attack.rb).
   - "rate_limit.*"
+  # The Clerk messages go whole to the sign-in controller; provider names are picked by the identity's provider.
+  - "sign_ins.clerk.messages.*"
+  - "sign_ins.providers.*"
   - "accounts.destroy.throttled"
   - "daily_bonuses.create.throttled"
   - "friends.throttled"

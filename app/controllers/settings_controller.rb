@@ -1,4 +1,6 @@
 class SettingsController < ApplicationController
+  include ClerkContentSecurityPolicy
+
   MOTION_CHOICES = { "system" => nil, "on" => true, "off" => false }.freeze
 
   def show
@@ -11,6 +13,8 @@ class SettingsController < ApplicationController
     @asks_to_go_private = flash[:confirm_private].present?
     @card_count = Game::CollectionSummary.call(current_player).distinct_cards
     @active_title = Game::ActiveProfileTitle.call(current_player)
+    @identities = Accounts::IdentitiesOf.call(current_player)
+    @clerk_mode = params[:add_sign_in].present? ? "callback" : "start"
   end
 
   def visibility

@@ -8,5 +8,7 @@ module Accounts
 
     validates :provider, inclusion: { in: PROVIDERS }
     validates :uid, presence: true
+
+    scope :through_clerk, -> { where.not(clerk_user_id: nil) }
   end
 end

@@ -1,4 +1,6 @@
 class SessionsController < ApplicationController
+  include OpensPlayerSession
+
   SIGN_IN_STARTED = "steam_sign_in_started".freeze
 
   # rack-openid relabels Steam's GET return as POST, so it carries no authenticity token.
@@ -46,12 +48,6 @@ class SessionsController < ApplicationController
   end
 
   private
-    def carry_visitor_motion_switch(player)
-      return player unless cookies[MOTION_COOKIE] == FORCED_MOTIONS.key(true)
-
-      Accounts::UpdateSettings.new.call(player:, reduced_motion: true).value_or(player)
-    end
-
     def sign_in_reporting_failure(steam_id)
       Accounts::SignIn.new.call(steam_id:, persona_name: persona_name_or_nil(steam_id))
     rescue StandardError => error
