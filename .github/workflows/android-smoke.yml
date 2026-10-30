@@ -20,6 +20,7 @@ jobs:
     env:
       ROOT_URL: ${{ inputs.root_url || 'https://gameble.net' }}
       IMAGE: system-images;android-34;google_apis;x86_64
+      ANDROID_AVD_HOME: /home/runner/.android/avd
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -35,9 +36,12 @@ jobs:
           ls -l /dev/kvm
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "emulator" "platform-tools" "$IMAGE" | tail -3
+          mkdir -p "$ANDROID_AVD_HOME"
           echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n smoke -k "$IMAGE" --device pixel_6
+          ls "$ANDROID_AVD_HOME"
           nohup "$ANDROID_HOME/emulator/emulator" -avd smoke -no-window -no-audio -no-boot-anim -no-snapshot -accel on -gpu swiftshader_indirect > emulator.log 2>&1 &
           for i in $(seq 1 120); do
+            kill -0 $! 2>/dev/null || break
             [ "$("$ANDROID_HOME/platform-tools/adb" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ] && echo booted && exit 0
             sleep 5
           done
