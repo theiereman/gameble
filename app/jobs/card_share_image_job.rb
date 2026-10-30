@@ -3,7 +3,7 @@ require "vips"
 class CardShareImageJob < ApplicationJob
   class NotStored < StandardError; end
 
-  queue_as :default
+  queue_as :share_images
 
   def perform(card_season_id, locale)
     return unless I18n.available_locales.map(&:to_s).include?(locale.to_s)
@@ -28,8 +28,9 @@ class CardShareImageJob < ApplicationJob
   def store(card_season_id, locale, fingerprint, view)
     png = CardShareImage::Composition.new(view, CardShareImage::Art.new(view.image_url).pixels).png
     result = Catalog::StoreShareImage.new.call(card_season_id:, locale:, fingerprint:, png:,
-      width: CardShareImage::WIDTH, height: CardShareImage::HEIGHT)
-    report(NotStored.new(result.failure.to_s), card_season_id, locale, fingerprint) if result.failure?
+      width: CardShareImage::WIDTH, height: CardShareImage::HEIGHT,
+      current_fingerprint: -> { CardShareImage.fingerprint_of(card_season_id, locale) })
+    report(NotStored.new(result.failure.to_s), card_season_id, locale, fingerprint) if result.failure? && result.failure != :stale_render
   end
 
   def report(error, card_season_id, locale, fingerprint)

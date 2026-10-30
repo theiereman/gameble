@@ -31,6 +31,14 @@ module ShareImageArt
     red.bandjoin([ green, blue ]).cast(:uchar).copy(interpretation: :srgb).jpegsave_buffer(Q: 90)
   end
 
+  # A cover of colour noise, the busiest art a card can show.
+  def noisy_cover_jpeg(width: 600, height: 900)
+    bands = Array.new(3) { Vips::Image.gaussnoise(width, height, mean: 128, sigma: 90) }
+    bands.first.bandjoin(bands.drop(1)).cast(:uchar).copy(interpretation: :srgb).jpegsave_buffer(Q: 95)
+  end
+
+  def png_colour_type(png) = png.getbyte(25)
+
   # Steam's answer for a missing cover: grey, 300 × 450, with JPEG noise wider than a pixel's channel tolerance.
   def grey_placeholder_jpeg
     noise = Vips::Image.gaussnoise(300, 450, mean: 142, sigma: 4)
@@ -56,6 +64,7 @@ module ShareImageArt
 
   # Stores an image for the card-season as the render job would, with its current fingerprint unless one is given.
   def store_share_image(card_season_id, locale, fingerprint: current_fingerprint(card_season_id, locale), png: tiny_png)
-    Catalog::StoreShareImage.new.call(card_season_id:, locale:, fingerprint:, png:, width: 4, height: 4).value!
+    Catalog::StoreShareImage.new.call(card_season_id:, locale:, fingerprint:, png:, width: 4, height: 4,
+      current_fingerprint: -> { fingerprint }).value!
   end
 end

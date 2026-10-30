@@ -892,6 +892,8 @@ en:
         them or discard them before publishing.
       stale_draft: That draft is no longer the one in the ledgers, officer. Reload
         the page and look again.
+      stale_render: That card changed while its preview image was drawn, so that image
+        was not kept.
       story_not_found: That story is no longer on the roadmap, officer.
       ufo_share_over_limit: The UFOs hold %{share} of the draft season's cards, officer,
         above the %{limit} allowed. Attach more tags to themes on the themes page

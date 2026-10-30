@@ -4,6 +4,7 @@ module CardShareImage
   WIDTH = 1200
   HEIGHT = 630
   CONTENT_TYPE = "image/png".freeze
+  MAX_BYTES = 300.kilobytes
 
   RENDER_VERSION = 1
 
@@ -15,6 +16,11 @@ module CardShareImage
       [ CardStrings.new.rarity_name(view.rarity), view.genre && SetLabel.genre(view.genre), view.number && view.number_label ]
     end
     Digest::SHA256.hexdigest([ RENDER_VERSION, locale.to_s, view.to_h.sort, words ].to_json)
+  end
+
+  def self.fingerprint_of(card_season_id, locale)
+    view = Catalog::CardViews.call([ card_season_id ], locale:)[card_season_id]
+    view && fingerprint(view, locale)
   end
 
   def self.current_token(card_season_id:, view:, locale:)

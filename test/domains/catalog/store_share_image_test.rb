@@ -4,7 +4,9 @@ require_relative "../../support/share_image_art"
 
 # Catalog::StoreShareImage and the share image queries: one image per
 # published card-season and language, replaced under a new token when its
-# fingerprint changes, untouched when it does not.
+# fingerprint changes or its file is lost, untouched when it does not; the
+# PNG uploaded before the transaction, a render the card has outgrown
+# refused, and no file left behind by what is not stored.
 class Catalog::StoreShareImageTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include CatalogSeeds
@@ -15,12 +17,40 @@ class Catalog::StoreShareImageTest < ActiveSupport::TestCase
 
   def card_season_id = catalog_card_seasons(:rare_card_one).id
 
-  def store(fingerprint: FINGERPRINT, locale: "en", png: tiny_png, card_season_id: self.card_season_id, width: 4, height: 4)
-    Catalog::StoreShareImage.new.call(card_season_id:, locale:, fingerprint:, png:, width:, height:)
+  def store(fingerprint: FINGERPRINT, locale: "en", png: tiny_png, card_season_id: self.card_season_id, width: 4, height: 4,
+    current_fingerprint: -> { fingerprint })
+    Catalog::StoreShareImage.new.call(card_season_id:, locale:, fingerprint:, png:, width:, height:, current_fingerprint:)
   end
 
   def stored_events
     Rails.configuration.event_store.read.of_type(Catalog::ShareImageStored).to_a
+  end
+
+  def service = ActiveStorage::Blob.service
+
+  def open_transactions = ActiveRecord::Base.connection.open_transactions
+
+  # The files the block uploads, each with the transactions open at its upload.
+  def recording_uploads
+    uploads = []
+    upload = service.method(:upload)
+    service.define_singleton_method(:upload) do |key, io, **options|
+      uploads << { key:, open_transactions: ActiveRecord::Base.connection.open_transactions }
+      upload.call(key, io, **options)
+    end
+    yield uploads
+    uploads
+  ensure
+    service.singleton_class.send(:remove_method, :upload)
+  end
+
+  def assert_no_file_left(uploads)
+    assert_not_empty uploads
+    uploads.each { assert_not service.exist?(it[:key]), "#{it[:key]} left in storage" }
+  end
+
+  def lose_file(share_image)
+    service.delete(share_image.image.blob.key)
   end
 
   test "a first image: its row with a token, its PNG with its size and no analysis to run, and one event" do
@@ -42,10 +72,68 @@ class Catalog::StoreShareImageTest < ActiveSupport::TestCase
   test "the fingerprint already stored writes nothing" do
     first = store.value!
 
+    uploads = nil
     assert_no_difference [ "ActiveStorage::Blob.count", "Catalog::ShareImage.count", -> { stored_events.size } ] do
-      assert_equal first, store(png: tiny_png(width: 6)).value!
+      uploads = recording_uploads { assert_equal first, store(png: tiny_png(width: 6)).value! }
     end
     assert_equal first.token, first.reload.token
+    assert service.exist?(first.image.blob.key)
+    assert_no_file_left(uploads)
+  end
+
+  test "the PNG is uploaded before the transaction opens, and its file is there when the card-season is locked" do
+    outside = open_transactions
+    file_when_locked = nil
+    uploads = recording_uploads do |so_far|
+      store(current_fingerprint: -> { file_when_locked = service.exist?(so_far.sole[:key]) && open_transactions > outside; FINGERPRINT })
+        .value!
+    end
+
+    assert_equal [ outside ], uploads.map { it[:open_transactions] }
+    assert service.exist?(uploads.sole[:key])
+    assert file_when_locked
+  end
+
+  test "a render the card has outgrown is refused: no row changed, no event, no file left" do
+    first = store.value!
+
+    uploads = nil
+    assert_no_difference [ "ActiveStorage::Blob.count", "Catalog::ShareImage.count", -> { stored_events.size } ] do
+      uploads = recording_uploads do
+        assert_equal :stale_render, store(fingerprint: OTHER_FINGERPRINT, current_fingerprint: -> { FINGERPRINT }).failure
+        assert_equal :stale_render, store(locale: "fr", current_fingerprint: -> { nil }).failure
+      end
+    end
+
+    assert_equal [ first.token, FINGERPRINT ], first.reload.slice(:token, :fingerprint).values
+    assert_no_file_left(uploads)
+  end
+
+  test "a stored image whose file is lost is not found, and its fingerprint stores again under a new token" do
+    first = store.value!
+    lose_file(first)
+
+    assert_nil Catalog::ShareImageFor.call(card_season_id:, locale: "en")
+    first.image.blob.update_columns(service_name: "gone")
+    assert_nil Catalog::ShareImageFor.call(card_season_id:, locale: "en")
+
+    replaced = store.value!
+    assert_equal first.id, replaced.id
+    assert_not_equal first.token, replaced.reload.token
+    assert service.exist?(replaced.image.blob.key)
+    assert_equal 2, stored_events.size
+    assert_equal Catalog::ShareImageFor::Stored.new(token: replaced.token, fingerprint: FINGERPRINT),
+      Catalog::ShareImageFor.call(card_season_id:, locale: "en")
+  end
+
+  test "an error inside the transaction rolls it back and leaves no file" do
+    uploads = recording_uploads do
+      assert_raises(RuntimeError) { store(current_fingerprint: -> { raise "the card could not be read" }) }
+    end
+
+    assert_equal 0, Catalog::ShareImage.count
+    assert_empty stored_events
+    assert_no_file_left(uploads)
   end
 
   test "a new fingerprint replaces the image under a new token, and the old blob is purged after commit" do
@@ -77,18 +165,25 @@ class Catalog::StoreShareImageTest < ActiveSupport::TestCase
   test "a card-season outside a published season is refused, nothing written" do
     draft = seed_card_seasons([ 1.0 ]).card_seasons.sole
 
+    uploads = nil
     assert_no_difference [ "ActiveStorage::Blob.count", "Catalog::ShareImage.count", -> { stored_events.size } ] do
-      assert_equal :card_season_not_published, store(card_season_id: draft.id).failure
-      assert_equal :card_season_not_published, store(card_season_id: 0).failure
+      uploads = recording_uploads do
+        assert_equal :card_season_not_published, store(card_season_id: draft.id).failure
+        assert_equal :card_season_not_published, store(card_season_id: 0).failure
+      end
     end
+    assert_no_file_left(uploads)
   end
 
-  test "a malformed locale, fingerprint, PNG or size is refused" do
-    [ { locale: "de" }, { locale: nil }, { fingerprint: "abc" }, { fingerprint: nil }, { png: "GIF89a" }, { png: nil },
-      { width: 0 }, { height: "630" } ].each do |overrides|
-      assert_equal :invalid_share_image, store(**overrides).failure, overrides.inspect
+  test "a malformed locale, fingerprint, PNG, size or card fingerprint is refused before any upload" do
+    uploads = recording_uploads do
+      [ { locale: "de" }, { locale: nil }, { fingerprint: "abc" }, { fingerprint: nil }, { png: "GIF89a" }, { png: nil },
+        { width: 0 }, { height: "630" }, { current_fingerprint: FINGERPRINT }, { current_fingerprint: nil } ].each do |overrides|
+        assert_equal :invalid_share_image, store(**overrides).failure, overrides.inspect
+      end
     end
     assert_equal 0, Catalog::ShareImage.count
+    assert_empty uploads
   end
 
   test "a locale given as a symbol is the same language" do

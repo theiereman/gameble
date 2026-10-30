@@ -18,8 +18,9 @@ class ConnectionBudgetTaskTest < ActiveSupport::TestCase
     output, = capture_io { run_task }
 
     assert_includes output, "  web (ssh-staging.gameble.net) Puma: 17 (primary 3, primary (reading) 3, queue 5, cache 3, cable 3)\n"
+    assert_includes output, "  web (ssh-staging.gameble.net) Solid Queue worker (share_images): 14 (primary 3, queue 5, cache 3, cable 3)\n"
     assert_includes output, "  import (ssh-staging.gameble.net) Solid Queue worker (import): 14 (primary 3, queue 5, cache 3, cable 3)\n"
-    assert_includes output, "db:connection_budget: total 65, limit 80\n"
+    assert_includes output, "db:connection_budget: total 79, limit 80\n"
     assert_match(/^db:connection_budget: live allowance (\d+) \(max_connections \d+ less \d+ superuser_reserved_connections\)$/, output)
   end
 
@@ -44,7 +45,7 @@ class ConnectionBudgetTaskTest < ActiveSupport::TestCase
 
     _, error = capture_io { assert_raises(SystemExit) { run_task } }
 
-    assert_includes error, "db:connection_budget: total 135 is over the limit of 80\n"
+    assert_includes error, "db:connection_budget: total 170 is over the limit of 80\n"
     assert_includes error, "db:connection_budget: web (ssh-staging.gameble.net): the queue pool holds 5 connections, its Puma needs 10\n"
   ensure
     ConnectionBudget.singleton_class.remove_method(:new)

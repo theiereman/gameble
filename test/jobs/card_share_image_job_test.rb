@@ -4,7 +4,8 @@ require_relative "../support/share_image_art"
 
 # CardShareImageJob: renders and stores a published card-season's image in
 # one language; a rerun on the stored fingerprint fetches and writes
-# nothing; an unusable art stores nothing and is reported.
+# nothing; an unusable art stores nothing and is reported; a render the card
+# outgrew while it was drawn stores nothing, quietly.
 class CardShareImageJobTest < ActiveJob::TestCase
   include CatalogSeeds
   include ShareImageArt
@@ -28,6 +29,37 @@ class CardShareImageJobTest < ActiveJob::TestCase
     assert_equal current_fingerprint(card_season_id, "fr"), stored("fr").fingerprint
     assert_nil stored("en")
     assert_equal [ "pngload_buffer", 1200, 630 ], png_size(Catalog::ShareImageByToken.call(stored("fr").token))
+  end
+
+  test "a card changed while its image was drawn stores nothing and reports nothing, and its next render is not held off" do
+    cache_was = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+    view = Catalog::CardViews.call([ card_season_id ], locale: "en").fetch(card_season_id)
+    art_stubs.get(STEAM_ART) do
+      Catalog::CardText.where(card: catalog_cards(:rare_card), locale: "en").update_all(title: "Bluer Depths")
+      [ 200, { "Content-Type" => "image/jpeg" }, cover_jpeg ]
+    end
+
+    assert_no_difference [ "ActiveStorage::Blob.count", -> { Rails.configuration.event_store.read.of_type(Catalog::ShareImageStored).count } ] do
+      assert_no_error_reported { CardShareImageJob.perform_now(card_season_id, "en") }
+    end
+
+    assert_nil stored
+    assert_enqueued_jobs(1, only: CardShareImageJob) { CardShareImage.current_token(card_season_id:, view:, locale: :en) }
+  ensure
+    Rails.cache = cache_was
+  end
+
+  test "an image whose file is lost renders again under a new token" do
+    stub_art
+    CardShareImageJob.perform_now(card_season_id, "en")
+    share_image = Catalog::ShareImage.find_by!(card_season_id:, locale: "en")
+    share_image.image.blob.service.delete(share_image.image.blob.key)
+
+    CardShareImageJob.perform_now(card_season_id, "en")
+
+    assert_not_equal share_image.token, stored.token
+    assert_equal [ "pngload_buffer", 1200, 630 ], png_size(Catalog::ShareImageByToken.call(stored.token))
   end
 
   test "a rerun on the stored fingerprint fetches nothing and writes nothing" do

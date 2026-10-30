@@ -20,6 +20,14 @@ module Catalog
       "Catalog::ShareImage$#{id}"
     end
 
+    def self.file_stored?(key:, service_name:)
+      ActiveStorage::Blob.services.fetch(service_name) { return false }.exist?(key)
+    end
+
+    def file_stored?
+      image.attached? && self.class.file_stored?(key: image.blob.key, service_name: image.blob.service_name)
+    end
+
     def to_param
       token
     end

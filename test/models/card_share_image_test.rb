@@ -4,7 +4,8 @@ require_relative "../support/share_image_art"
 # CardShareImage: the fingerprint of what an image shows, the page's
 # lookup that enqueues a missing or stale render at most once an hour,
 # the art taken only from Steam's hosts and refused as the card face
-# refuses it, the composed PNG, and the refresh on a card's change.
+# refuses it, the composed PNG, kept light, and the refresh on a card's
+# change, each on the share_images queue.
 class CardShareImageTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include ShareImageArt
@@ -75,15 +76,28 @@ class CardShareImageTest < ActiveSupport::TestCase
     end
   end
 
-  test "the page's lookup: no image or a stale one gives nil and enqueues its render" do
-    assert_enqueued_with(job: CardShareImageJob, args: [ card_season_id, "en" ]) do
+  test "the page's lookup: no image, a stale one or one whose file is lost gives nil and enqueues its render" do
+    assert_enqueued_with(job: CardShareImageJob, args: [ card_season_id, "en" ], queue: "share_images") do
       assert_nil CardShareImage.current_token(card_season_id:, view:, locale: :en)
     end
 
     store_share_image(card_season_id, "fr", fingerprint: "c" * 64)
-    assert_enqueued_with(job: CardShareImageJob, args: [ card_season_id, "fr" ]) do
+    assert_enqueued_with(job: CardShareImageJob, args: [ card_season_id, "fr" ], queue: "share_images") do
       assert_nil CardShareImage.current_token(card_season_id:, view: view("fr"), locale: :fr)
     end
+
+    lost = store_share_image(card_season_id, "en")
+    ActiveStorage::Blob.service.delete(lost.image.blob.key)
+    with_memory_cache do
+      assert_enqueued_with(job: CardShareImageJob, args: [ card_season_id, "en" ], queue: "share_images") do
+        assert_nil CardShareImage.current_token(card_season_id:, view:, locale: :en)
+      end
+    end
+  end
+
+  test "the card's current fingerprint by card-season, nil for a card-season with no card view" do
+    assert_equal CardShareImage.fingerprint(view("fr"), "fr"), CardShareImage.fingerprint_of(card_season_id, "fr")
+    assert_nil CardShareImage.fingerprint_of(0, "en")
   end
 
   test "the page's lookup enqueues one render an hour per card-season, language and fingerprint" do
@@ -170,6 +184,28 @@ class CardShareImageTest < ActiveSupport::TestCase
     assert_equal 2, pngs.uniq.size, "the rarity in each language"
   end
 
+  test "the composition of a card with busy art stays under the size limit" do
+    stub_art(body: noisy_cover_jpeg)
+    art = CardShareImage::Art.new(STEAM_ART).pixels
+
+    png = CardShareImage::Composition.new(view.with(title: "Long words " * 12), art).png
+
+    assert_operator png.bytesize, :<, CardShareImage::MAX_BYTES
+    assert_equal 2, png_colour_type(png), "truecolour under the limit"
+  end
+
+  test "a composition over the size limit is saved again with a palette" do
+    stub_art(body: noisy_cover_jpeg)
+    art = CardShareImage::Art.new(STEAM_ART).pixels
+    plain = CardShareImage::Composition.new(view, art).png
+
+    paletted = stub_const(CardShareImage, :MAX_BYTES, plain.bytesize - 1) { CardShareImage::Composition.new(view, art).png }
+
+    assert_equal 3, png_colour_type(paletted)
+    assert_operator paletted.bytesize, :<, plain.bytesize
+    assert_equal [ "pngload_buffer", 1200, 630 ], png_size(paletted)
+  end
+
   test "the composition draws the title on the card and in the column" do
     stub_art
     art = CardShareImage::Art.new(STEAM_ART).pixels
@@ -218,7 +254,7 @@ class CardShareImageTest < ActiveSupport::TestCase
         store_url: "https://store.example.test/x", texts: { en: { title: }, fr: { title: } }, genres: [])
     end
 
-    assert_enqueued_jobs(2, only: CardShareImageJob) { assert identity.("src:403", "Blue Depths").success? }
+    assert_enqueued_jobs(2, only: CardShareImageJob, queue: "share_images") { assert identity.("src:403", "Blue Depths").success? }
     assert_equal [ [ card_season_id, "en" ], [ card_season_id, "fr" ] ],
       enqueued_jobs.select { it[:job] == CardShareImageJob }.map { it[:args] }.sort
 

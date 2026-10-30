@@ -141,7 +141,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   end
 
   test "the preview tags: title and rarity, a fixed line, the season URL, en_US; before the image exists, a summary card and its render enqueued" do
-    assert_enqueued_with(job: CardShareImageJob, args: [ rare_card_season_id, "en" ]) { get card_page }
+    assert_enqueued_with(job: CardShareImageJob, args: [ rare_card_season_id, "en" ], queue: "share_images") { get card_page }
 
     assert_equal "Blue Depths — Rare", og("title")
     assert_select "title", "Blue Depths — Rare"
@@ -196,6 +196,16 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
     assert_enqueued_with(job: CardShareImageJob, args: [ rare_card_season_id, "en" ]) { get card_page }
 
+    assert_text_preview
+  end
+
+  test "an image whose file is lost gives the text preview and enqueues its render on the share images queue" do
+    lost = store_share_image(rare_card_season_id, "en")
+    ActiveStorage::Blob.service.delete(lost.image.blob.key)
+
+    assert_enqueued_with(job: CardShareImageJob, args: [ rare_card_season_id, "en" ], queue: "share_images") { get card_page }
+
+    assert_response :success
     assert_text_preview
   end
 

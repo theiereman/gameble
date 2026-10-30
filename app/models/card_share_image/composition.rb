@@ -55,11 +55,16 @@ module CardShareImage
       canvas = canvas.insert(art.zoom(ART_PIXEL, ART_PIXEL), ART.x, ART.y)
       canvas = draw_art_brackets(canvas)
       canvas = draw_card_text(canvas)
-      draw_column(canvas).pngsave_buffer(compression: 9, strip: true)
+      encode(draw_column(canvas))
     end
 
     private
       attr_reader :view, :art
+
+      def encode(canvas)
+        png = canvas.pngsave_buffer(compression: 9, strip: true)
+        png.bytesize > MAX_BYTES ? canvas.pngsave_buffer(compression: 9, strip: true, palette: true) : png
+      end
 
       def rarity_colour = RARITY_COLOURS.fetch(view.rarity.to_s)
 

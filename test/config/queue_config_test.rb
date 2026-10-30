@@ -2,7 +2,8 @@ require "test_helper"
 
 # The import worker: one process, one thread, the import queue
 # only; the jobs process leaves that queue alone, and dispatches and serves
-# the queues of the other jobs.
+# the queues of the other jobs, the share image renders with one worker of
+# one thread.
 class QueueConfigTest < ActiveSupport::TestCase
   def load_config(name)
     YAML.safe_load(ERB.new(Rails.root.join("config", name).read).result, aliases: true)
@@ -37,6 +38,18 @@ class QueueConfigTest < ActiveSupport::TestCase
 
       assert_not_empty config.fetch("dispatchers"), env
       (queues + [ recurring.fetch(env).fetch("recover_stalled_imports").fetch("queue") ]).each { assert_includes served, it, env }
+    end
+  end
+
+  test "the share image renders run on their own worker, one process of one thread, in every environment" do
+    assert_equal "share_images", CardShareImageJob.new.queue_name
+
+    %w[development test production].each do |env|
+      workers = load_config("queue.yml").fetch(env).fetch("workers")
+
+      assert_equal [ { "queues" => [ "share_images" ], "threads" => 1, "processes" => 1, "polling_interval" => 1 } ],
+        workers.select { Array(it["queues"]).include?("share_images") }, env
+      assert_not_includes workers.find { Array(it["queues"]).include?("default") }.fetch("queues"), "share_images", env
     end
   end
 
