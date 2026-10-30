@@ -28,14 +28,21 @@ jobs:
         run: JAVA_HOME="$JAVA_HOME_17_X64" ./gradlew --no-daemon assembleDebug -PgambleRootUrl="$ROOT_URL"
 
       - name: Start an emulator
+        timeout-minutes: 15
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "emulator" "platform-tools" "$IMAGE" > /dev/null
+          ls -l /dev/kvm
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "emulator" "platform-tools" "$IMAGE" | tail -3
           echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n smoke -k "$IMAGE" --device pixel_6
-          "$ANDROID_HOME/emulator/emulator" -avd smoke -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect &
-          "$ANDROID_HOME/platform-tools/adb" wait-for-device
-          until [ "$("$ANDROID_HOME/platform-tools/adb" shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; do sleep 5; done
+          nohup "$ANDROID_HOME/emulator/emulator" -avd smoke -no-window -no-audio -no-boot-anim -no-snapshot -accel on -gpu swiftshader_indirect > emulator.log 2>&1 &
+          for i in $(seq 1 120); do
+            [ "$("$ANDROID_HOME/platform-tools/adb" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ] && echo booted && exit 0
+            sleep 5
+          done
+          tail -60 emulator.log
+          exit 1
 
       - name: Open the app and read its logs
         run: |
