@@ -207,7 +207,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "#rarity-legend [data-rarity-counter-target]", false
   end
 
-  test "the rarity legend: owned editions against the game's, this season and over every season, each rarity a link to its cards" do
+  test "the rarity legend: owned cards against the game's, this season and over every season, each rarity a link to its cards" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:common_card_one).id, 3)
     hold(player, catalog_card_seasons(:portal_one).id, 1)
@@ -229,6 +229,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "#rarity-legend tbody tr:first-child td .visually-hidden", "1 sur 1 possédée"
     assert_select "#rarity-legend tbody tr:nth-child(2) td .visually-hidden", "0 sur 1 possédée"
     assert_select "#rarity-legend tfoot td .visually-hidden", "2 sur 5 possédées"
+    assert_select "#rarity-legend tfoot td:last-child .rarity-legend__owned", css_select(".collection-status__value").text.split("/").first.strip
   end
 
   test "a screen without a back button: the wordmark links to the hub on a desktop, the plain brand on a phone, each sweeping on hover" do

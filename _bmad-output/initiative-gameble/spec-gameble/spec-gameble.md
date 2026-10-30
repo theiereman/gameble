@@ -71,7 +71,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - The collection shows one card per game: its best minted rarity among the copies owned, the copies owned across editions, and a mark when several editions are held. The total counter counts distinct games across editions and never drops when a season is published.
     - Every set has one to five tiers before completion, named by rank (Novice, Apprenti, Adepte, Expert, Maître) counted from the top, so the last before completion is always Maître and a larger set adds lower ranks (table in catalog-and-rarity.md); a set of 3 or 4 cards is only complete or not.
     - The grid of every card, with its filters and search, stays reachable from the collection.
-    - The collection counter in the top bar opens, right under it, a rarity legend: for each rarity, the distinct cards owned and the total the game holds, for the published season and overall, then the same totals across rarities; choosing a rarity filters the card grid on it (#221, author, 2026-10-30).
+    - The collection counter in the top bar opens, right under it, a rarity legend: for each rarity, the cards owned and the total the game holds, for the published season and overall, then the same totals across rarities; choosing a rarity filters the card grid on it (#221, author, 2026-10-30). The overall figures count distinct games: a game counts once in a rarity whatever its editions of that rarity, and once in the totals whatever its rarities, so the owned total matches the unique cards counter (author, 2026-10-30).
 - **CAP-7**
   - **intent:** A player sees a card's face at a glance and can open its detail view to see the game and its credits.
   - **success:**

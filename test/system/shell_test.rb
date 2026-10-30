@@ -151,7 +151,7 @@ class ShellTest < ApplicationSystemTestCase
     assert_no_selector "[data-group=rarity] .filter-chip__box:not([value=epic]):checked", visible: :all
   end
 
-  test "the rarity legend opens under the counter or the collection status, owned editions against the game's, each rarity a way to its cards" do
+  test "the rarity legend opens under the counter or the collection status, owned cards against the game's, each rarity a way to its cards" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:common_card_one).id, 3)
     hold(player, catalog_card_seasons(:portal_one).id)
