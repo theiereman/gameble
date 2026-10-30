@@ -9,12 +9,17 @@ module Steam
 
     class Error < StandardError; end
     class BrokenKey < Error; end
+    class Unavailable < Error; end
+
+    UNAVAILABLE = [ Faraday::TooManyRequestsError, Faraday::RequestTimeoutError, Faraday::ServerError, Faraday::TimeoutError,
+      Faraday::ConnectionFailed, Faraday::SSLError ].freeze
 
     AppListPage = Data.define(:apps, :have_more_results, :last_appid, :malformed)
 
     class_attribute :adapter, default: [ Faraday.default_adapter ]
     class_attribute :retry_interval, default: 2.0
     class_attribute :player_summary_deadline, default: 5.0
+    class_attribute :owned_games_deadline, default: 10.0
 
     def initialize(api_key: Rails.configuration.x.steam.api_key)
       @api_key = api_key.to_s
@@ -88,6 +93,23 @@ module Steam
       name&.strip.presence
     end
 
+    # Steam answers a private library as a `response` without `games`.
+    def get_owned_games(steamid:)
+      params = { steamid: steamid, include_appinfo: false, include_played_free_games: true, skip_unvetted_apps: false }
+      body = get("/IPlayerService/GetOwnedGames/v1/", params, connection_without_retry, deadline: owned_games_deadline)
+      response = body["response"] if body.is_a?(Hash)
+      raise Error, "GetOwnedGames answered without a response object" unless response.is_a?(Hash)
+      return unless response.key?("games")
+      raise Error, "GetOwnedGames answered games that are not a list" unless response["games"].is_a?(Array)
+
+      appids = response["games"].filter_map do |game|
+        RawValue.integer(game["appid"], min: 1, max: RawValue::INT4_MAX) if game.is_a?(Hash)
+      end
+      raise Error, "GetOwnedGames answered #{response["games"].size} games and no readable appid" if appids.empty? && response["games"].any?
+
+      appids
+    end
+
     def inspect
       "#<#{self.class.name}>"
     end
@@ -111,6 +133,8 @@ module Steam
       end
     rescue Faraday::UnauthorizedError, Faraday::ForbiddenError => error
       raise BrokenKey.new(redact("#{error.class}: #{error.message}")), cause: nil
+    rescue *UNAVAILABLE => error
+      raise Unavailable.new(redact("#{error.class}: #{error.message}")), cause: nil
     rescue Faraday::Error, JSON::ParserError => error
       raise Error.new(redact("#{error.class}: #{error.message}")), cause: nil
     end
