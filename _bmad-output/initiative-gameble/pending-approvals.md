@@ -2,6 +2,13 @@
 
 Operations and decisions waiting for the author's go-ahead, kept since 2026-10-02. Open items first; settled ones are listed by date at the end.
 
+## Open
+
+- Shared card link previews with a generated image (backlog story `story-a-shared-card-link-previews-with-a-generated-image`), before it reaches production:
+  - Steam's terms on reusing store art: the image shows the card's Steam cover, pixelated in the card frame. The author checks the Steam terms allow it.
+  - Crawler reach of `/share-images/<token>.png`: the image sits outside the locale scope, served signed out with `Cache-Control: public, max-age=31536000, immutable`. Cloudflare must let Discordbot, Twitterbot, WhatsApp and facebookexternalhit fetch it as it lets them fetch the card page. While `SEARCH_INDEXING` is off, `robots.txt` answers `Disallow: /`, which Twitterbot obeys for images too: check an X preview on staging.
+  - The render has run only against the development and CI builds of libvips, never inside the Docker image: on staging, open a card page, wait a few seconds, reload, and check the page carries `og:image` and the image shows the card's title in VT323 and a pixelated art. A missing text or palette feature in the image's libvips shows as a Sentry report from `CardShareImageJob` or as unquantised art.
+  - The images are stored by Active Storage on the `local` service, under `/rails/storage` (the `gameble_storage` volume): a lost volume with the database kept leaves each stored image's tags pointing at a missing file until the `catalog_share_images` rows are cleared or `CardShareImage::RENDER_VERSION` is bumped, after which each card page enqueues its render again.
 
 ## Settled on 2026-10-29
 

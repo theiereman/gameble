@@ -3,7 +3,7 @@ title: "The capsule's enlarged reveal card shows no game category"
 type: 'bugfix'
 ticket: "bug-the-capsule-reveal-card-shows-no-game-category"
 created: '2026-10-19'
-status: built
+status: done
 baseline_revision: 'ac80a01a6e3a085a6db0c78ac87e610b8a280f51'
 route: 'oneshot'
 route_source: 'auto'

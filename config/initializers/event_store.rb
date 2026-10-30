@@ -18,6 +18,8 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Handlers::VisibilityChanged, to: [ Accounts::VisibilityChanged ])
   # Players left without a bank get one when a season is published.
   event_store.subscribe(Game::Handlers::SeasonPublished, to: [ Catalog::SeasonPublished ])
+  # A card's new art or title renders its preview images again, once the change commits.
+  event_store.subscribe(CardShareImage::Refresh, to: CardShareImage::Refresh::EVENTS)
 
   # Every opening counts toward the weekly goal.
   event_store.subscribe(Game::Handlers::PackOpened, to: [ Game::PackOpened ])

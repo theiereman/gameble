@@ -11,7 +11,12 @@
 #
 # Clerk's Frontend API and its bot protection (Cloudflare's captcha, Clerk's
 # script and probes) are allowed on every page, not only where Clerk signs
-# in: a Turbo visit keeps the CSP of the document it started from.
+# in: a Turbo visit keeps the CSP of the document it started from. The
+# probes load a script from a per-visitor subdomain and connect to it on
+# several ports (443, 992, 2082, 8443, 18443), hence the port wildcard.
+#
+# Cloudflare, in front of the app, injects its Web Analytics beacon: a script
+# from static.cloudflareinsights.com that reports to cloudflareinsights.com.
 #
 # Sources that read app code or configuration are procs, resolved per
 # request: nothing is autoloaded at boot, and config.x.public_url is read as
@@ -37,18 +42,21 @@ Rails.application.configure do
   dev_connections = vite ? [ "ws://#{vite}", "http://#{vite}" ] : []
   clerk_api = -> { Rails.configuration.x.clerk.frontend_api&.then { "https://#{it}" } }
   clerk_bot_protection = [ "https://challenges.cloudflare.com", "https://cdn.protect.clerk.com" ]
-  clerk_probes = "https://*.client.protect.clerk.com"
+  clerk_probe_scripts = "https://*.client.protect.clerk.com"
+  clerk_probes = "https://*.client.protect.clerk.com:*"
+  cloudflare_beacon = "https://static.cloudflareinsights.com"
+  cloudflare_analytics = "https://cloudflareinsights.com"
 
   config.content_security_policy do |policy|
     policy.default_src :self
     policy.base_uri :self
     policy.object_src :none
-    policy.script_src :self, *clerk_bot_protection, *dev_scripts
+    policy.script_src :self, *clerk_bot_protection, clerk_probe_scripts, cloudflare_beacon, *dev_scripts
     policy.style_src :self, *dev_styles
     policy.img_src :self, :data, steam_images
     policy.font_src :self, :data
     policy.worker_src :self, :blob
-    policy.connect_src :self, steam_images, cable, clerk_api, *clerk_bot_protection, clerk_probes, *dev_connections
+    policy.connect_src :self, steam_images, cable, clerk_api, *clerk_bot_protection, clerk_probes, cloudflare_analytics, *dev_connections
     policy.frame_src :self, *clerk_bot_protection
 
     # Sentry is initialised after this file (config/initializers/sentry.rb):

@@ -189,8 +189,7 @@ a.top-bar__home {
 }
 
 /* A count the booster screen just raised brightens a moment. */
-.rarity-counter__count[data-changed],
-.rarity-legend__count[data-changed] {
+.rarity-counter__count[data-changed] {
   color: var(--color-accent-hi);
 }
 
@@ -315,7 +314,6 @@ a.packs-chip:focus-visible {
   text-transform: uppercase;
 }
 
-.rarity-legend__list,
 .player-menu__list {
   display: flex;
   flex-direction: column;
@@ -323,49 +321,6 @@ a.packs-chip:focus-visible {
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.rarity-legend__row {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: var(--space-3);
-  min-height: var(--space-chip-height);
-  padding: 0 var(--space-3);
-  background: var(--color-panel-raised);
-}
-
-.rarity-legend__name {
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-}
-
-.rarity-legend__row--1 .rarity-legend__name {
-  color: var(--color-rarity-commune);
-}
-
-.rarity-legend__row--2 .rarity-legend__name {
-  color: var(--color-rarity-peu-commune);
-}
-
-.rarity-legend__row--3 .rarity-legend__name {
-  color: var(--color-rarity-rare);
-}
-
-.rarity-legend__row--4 .rarity-legend__name {
-  color: var(--color-rarity-epique);
-}
-
-.rarity-legend__row--5 .rarity-legend__name {
-  color: var(--color-rarity-legendaire);
-}
-
-.rarity-legend__count {
-  color: var(--color-text-max);
-  font: var(--font-number);
-  letter-spacing: var(--tracking-number);
-  font-variant-numeric: tabular-nums;
 }
 
 .player-menu__form {

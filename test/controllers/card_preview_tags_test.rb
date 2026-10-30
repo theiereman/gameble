@@ -3,19 +3,22 @@ require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
+require_relative "../support/share_image_art"
 
 # A card's page as a share link opens it: only the card, never who shared
-# or holds it; the preview tags (title and rarity, never an
-# image) in the URL's language, on the configured public base; for a
-# visitor, the public card page with the invitation to play and, for an
-# older browser, the line asking to update; open to link-preview crawlers
-# and older browsers, with the library its sets lead to; the old share
-# links, which named the sharer, redirected; no database id.
+# or holds it; the preview tags (title and rarity, and the card's image
+# once rendered, its render enqueued until then) in the URL's language, on
+# the configured public base; for a visitor, the public card page with
+# the invitation to play and, for an older browser, the line asking to
+# update; open to link-preview crawlers and older browsers, with the
+# library its sets lead to; the old share links, which named the sharer,
+# redirected; no database id.
 class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
   include GamePacks
   include SteamSignIn
+  include ShareImageArt
 
   # Discordbot, the old Firefox Discord also fetches with, Twitterbot,
   # WhatsApp and an iOS 16 Safari.
@@ -48,6 +51,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   end
 
   def meta(attribute, value) = css_select("head meta[#{attribute}='#{value}']").sole["content"]
+  def image_tags = css_select("head meta[property^='og:image'], head meta[name^='twitter:image']")
+  def rare_card_season_id = catalog_card_seasons(:rare_card_one).id
   def og(property) = meta("property", "og:#{property}")
   def canonical = css_select("head link[rel=canonical]").sole["href"]
 
@@ -128,8 +133,15 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_match(/\.is-public-page \.top-bar__end \{\s*display: flex;/, supported)
   end
 
-  test "the preview tags: title and rarity, a fixed line, the season URL, en_US, a summary card, no image" do
-    get card_page
+  def assert_text_preview(locale: :en)
+    assert_equal "Blue Depths — Rare", og("title") if locale == :en
+    assert_equal "summary", meta("name", "twitter:card")
+    assert_empty image_tags
+    assert_select "head link[rel=image_src], head meta[name=image_src]", false
+  end
+
+  test "the preview tags: title and rarity, a fixed line, the season URL, en_US; before the image exists, a summary card and its render enqueued" do
+    assert_enqueued_with(job: CardShareImageJob, args: [ rare_card_season_id, "en" ], queue: "share_images") { get card_page }
 
     assert_equal "Blue Depths — Rare", og("title")
     assert_select "title", "Blue Depths — Rare"
@@ -141,12 +153,81 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_equal season_url, og("url")
     assert_equal season_url, canonical
     assert_equal "en_US", og("locale")
-    assert_equal "summary", meta("name", "twitter:card")
     assert_select "head meta[name=robots]", false
-    # Never an image in the preview.
-    assert_select "head meta[property^='og:image'], head meta[name^='twitter:image'], head meta[property^='twitter:image']", false
-    assert_select "head link[rel=image_src], head meta[name=image_src]", false
-    assert_no_match(/og:image|twitter:image|image_src/, css_select("head").sole.to_html)
+    assert_text_preview
+    assert_equal 0, Catalog::ShareImage.count
+  end
+
+  test "a current image: its absolute URL by token, its size, type and alt, a large card; the other tags unchanged" do
+    token = store_share_image(rare_card_season_id, "en").token
+    image_url = "http://www.example.com/share-images/#{token}.png"
+
+    assert_no_enqueued_jobs(only: CardShareImageJob) { get card_page }
+
+    assert_equal image_url, og("image")
+    assert_equal "image/png", og("image:type")
+    assert_equal [ "1200", "630" ], [ og("image:width"), og("image:height") ]
+    assert_equal "The card Blue Depths (Rare) with its Steam art", og("image:alt")
+    assert_equal "summary_large_image", meta("name", "twitter:card")
+    assert_equal image_url, meta("name", "twitter:image")
+    assert_equal "The card Blue Depths (Rare) with its Steam art", meta("name", "twitter:image:alt")
+    assert_equal [ "Blue Depths — Rare", season_url, season_url, "en_US" ], [ og("title"), og("url"), canonical, og("locale") ]
+    assert_select "head meta[name=robots]", false
+    assert_equal 8, image_tags.size + css_select("head meta[name='twitter:card']").size
+
+    get image_url
+    assert_response :success
+    assert_equal "image/png", response.media_type
+  end
+
+  test "each language has its own image; the French page names the card in French" do
+    store_share_image(rare_card_season_id, "en")
+    french = store_share_image(rare_card_season_id, "fr").token
+
+    get card_page(locale: :fr)
+
+    assert_equal "http://www.example.com/share-images/#{french}.png", og("image")
+    assert_equal "La carte Profondeurs bleues (Rare) avec son illustration Steam", og("image:alt")
+    assert_equal [ "Profondeurs bleues — Rare", "fr_FR" ], [ og("title"), og("locale") ]
+  end
+
+  test "an image of the card as it was gives the text preview and enqueues its render again" do
+    store_share_image(rare_card_season_id, "en", fingerprint: "e" * 64)
+
+    assert_enqueued_with(job: CardShareImageJob, args: [ rare_card_season_id, "en" ]) { get card_page }
+
+    assert_text_preview
+  end
+
+  test "an image whose file is lost gives the text preview and enqueues its render on the share images queue" do
+    lost = store_share_image(rare_card_season_id, "en")
+    ActiveStorage::Blob.service.delete(lost.image.blob.key)
+
+    assert_enqueued_with(job: CardShareImageJob, args: [ rare_card_season_id, "en" ], queue: "share_images") { get card_page }
+
+    assert_response :success
+    assert_text_preview
+  end
+
+  test "the image URL comes from the configured base and holds the token only" do
+    Rails.configuration.x.public_url = "https://gameble.example"
+    host! "evil.example"
+    token = store_share_image(rare_card_season_id, "en").token
+
+    get card_page
+
+    assert_equal "https://gameble.example/share-images/#{token}.png", og("image")
+    assert_equal og("image"), meta("name", "twitter:image")
+  end
+
+  test "a signed-in viewer's page renders no image either and writes nothing: the render waits in the queue" do
+    sign_in(@sharer)
+
+    assert_no_difference [ "Catalog::ShareImage.count", "ActiveStorage::Blob.count" ] do
+      assert_enqueued_jobs(1, only: CardShareImageJob) { get card_page }
+    end
+    assert_response :success
+    assert_text_preview
   end
 
   test "in French: the French title and rarity, fr_FR, the French URL, the French invitation" do

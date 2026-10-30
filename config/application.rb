@@ -33,5 +33,8 @@ module Gameble
 
     # Read at request time: ErrorPage is reloadable app code.
     config.exceptions_app = ->(env) { ErrorPage.call(env) }
+
+    # Active Storage's own URLs carry signed blob ids, database ids: the stored files are served by token instead.
+    config.active_storage.draw_routes = false
   end
 end

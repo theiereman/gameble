@@ -1,7 +1,8 @@
-<div class="collection-status">
+<button type="button" class="collection-status" popovertarget="rarity-legend">
   <span class="collection-status__label" aria-hidden="true"><%= t("library.status.label") %></span>
   <span class="collection-status__value" aria-hidden="true"><%= number_with_delimiter(unique) %> / <%= number_with_delimiter(total) %></span>
   <span class="visually-hidden"><%= t("library.status.progress", count: unique, owned: number_with_delimiter(unique), total: number_with_delimiter(total)) %></span>
   <% bar_max = [ total, 1 ].max %>
   <progress class="collection-status__bar" value="<%= [ unique, bar_max ].min %>" max="<%= bar_max %>" aria-hidden="true"></progress>
-</div>
+</button>
+<%= render "shell/rarity_legend", legend: shell_rarity_legend %>

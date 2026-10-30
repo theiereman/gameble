@@ -25,11 +25,15 @@ Context for MVP design decisions that must not block these. Nothing here is buil
 ## Later
 
 - **Odds input at opening:** an input the player makes at opening that improves the odds of a good card. The stratagem-like arrow code is rejected as too close to Helldivers; the form is open.
-- **Steam library bonuses:** bonuses on the cards of games a player owns, from playtime and achievements. They are bonuses only; the library never grants a card. Reading a player's library may depend on their Steam profile privacy settings; verify before designing.
+- **Steam library bonuses:** bonuses on the cards of games a player owns, from playtime and achievements. They are bonuses only; the library never grants a card. Steam shares a player's library only when their profile's game details are public; the Steam library set (CAP-27, release 1.1.0) reads it first.
 - **Library info on a shared card:** show the owner's Steam library info when they own the game.
 - **Live trades:** both players at the trade board at the same time.
 - **Trade discussion:** a free-text discussion between the two players on a trade, raised while forging the open trade request (2026-10-15); to be forged on its own. Player-written text needs reports, hiding and back-office reading (CAP-15), export and erasure with the account (CAP-14), bans, private profiles, an unread badge, live delivery and rate limits.
 - **Card marks:** favourite, to trade, personal categories.
+- **Brotherhood sets (author, 2026-10-30):** a community page where players publish custom sets (CAP-27) and others add them to their own library; custom sets and goals on them then show on profiles. Player-written set names need reports, hiding and back-office reading (CAP-15), export and erasure with the account (CAP-14), and bans. To be refined.
+- **Trade suggestions beyond friends (#64):** suggestions among other players willing to trade, with privacy controls.
+- **Secret achievements (#66):** achievements whose title and condition stay hidden until earned, some opening hidden branches, explored once active goals (CAP-28) ship; sensitive ones private by default.
+- **Targeted capsules (#64):** capsules aimed at a goal, to explore in their own issue.
 - **Feed reactions:** reacting to or commenting on a friend's pull or repost.
 - **Knowledge battles** (parked idea, unscheduled; detail in the brief addendum): live three-round matches on themes drawn from Steam data, played with cards picked from a random hand, rewarding knowledge of games rather than collection size; optionally a challenge market where players stake cards. It conflicts with the Combat non-goal and with the rule that currency comes only from destroying cards.
 - **Delisted games:** manual curation, since the store API returns little for them.

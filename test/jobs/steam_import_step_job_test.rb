@@ -142,7 +142,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal 10, run.last_appid
     assert_equal 1, run.apps_listed
     message = run.latest_errors.first.message
-    assert_includes message, "Steam::WebApi::Error"
+    assert_includes message, "Steam::WebApi::Unavailable"
     assert_includes message, "503"
     assert_not_includes message, API_KEY
     assert_equal 1, run.error_messages.size

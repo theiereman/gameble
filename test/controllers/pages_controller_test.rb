@@ -16,7 +16,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   include GameTrades
   include SteamSignIn
 
-  PLAYER_HUB_QUERIES = 20
+  PLAYER_HUB_QUERIES = 21
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -644,7 +644,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # showcase (cards chosen, card held, card view), collection (owned, total), sets (the
     # player's standings, the popular fill, which finds no other set here, so no figures
     # and no set to name),
-    # the top bar's copies per tier, menu 05's friends online, menu 07's
+    # the top bar's copies per tier and rarity legend, menu 05's friends online, menu 07's
     # achievements earned, the trades
     # waiting (menu 04 and the tab bar share one count) and the LIVE ticker's
     # entries (none here, so no players or cards).
@@ -862,7 +862,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__updated", "Dernière mise à jour : 20 octobre 2026"
+    assert_select ".legal__updated", "Dernière mise à jour : 30 octobre 2026"
     %w[.legal__moderation .legal__notice .legal__rectification .legal__objection .legal__death .legal__banned].each do |line|
       assert_select "#{line} a.legal__link[href=?]", "mailto:contact@example.test", "contact@example.test"
     end
@@ -909,6 +909,27 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       deletion = css_select(".legal__retention + p").text
       phrases.each { assert_includes deletion, it }
       assert_no_match(/complétés|completed sets/, deletion)
+    end
+  end
+
+  test "the stored data line and the deletion paragraph name the same game data" do
+    configure_legal
+    game_data = {
+      fr: [ "collection", "vitrine", "paliers de sets", "succès", "dos de carte débloqués", "dos de carte actif", "capsules", "bonus du jour",
+            "récompenses de l'objectif communautaire", "amitiés", "invitations", "code ami", "entrées du fil d'activité", "dernière activité" ],
+      en: [ "collection", "showcase", "set tiers", "achievements", "card back unlocks", "active card back", "capsules", "daily bonuses",
+            "community goal rewards", "friendships", "invitations", "friend code", "activity feed entries", "latest activity" ]
+    }
+
+    game_data.each do |locale, terms|
+      get legal_path(locale:)
+
+      stored = css_select(".legal__stored-activity").sole.text
+      deletion = css_select(".legal__retention + p").text
+      terms.each do |term|
+        assert_includes stored, term
+        assert_includes deletion, term
+      end
     end
   end
 

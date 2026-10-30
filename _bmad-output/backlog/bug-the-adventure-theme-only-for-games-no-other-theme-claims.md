@@ -33,3 +33,4 @@ Verify: a game tagged Adventure and RPG gets RPG as main theme and is not in the
 ## Notes
 
 - Filed on 2026-10-19 from the author's decisions on the day's builds.
+- Dropped (2026-10-30, author): Adventure stays an ordinary theme; the fallback rule is not built.

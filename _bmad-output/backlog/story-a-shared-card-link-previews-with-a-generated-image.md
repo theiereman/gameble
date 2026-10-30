@@ -3,7 +3,7 @@ id: story-a-shared-card-link-previews-with-a-generated-image
 type: story
 title: "A shared card link previews with a generated image"
 parent: none
-covers: []
+covers: [CAP-9]
 after: []
 assignee: ""
 refined: false

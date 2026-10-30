@@ -7,13 +7,14 @@ paradigm: 'modular monolith with an operations layer'
 scope: 'The gameble MVP as a whole: one Rails application, its four domains, its web layer, the Steam import and the deployment.'
 status: final
 created: '2026-10-02'
-updated: '2026-10-27'
-binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25]
+updated: '2026-10-30'
+binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25, CAP-27, CAP-28]
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/catalog-and-rarity.md
   - ../spec-gameble/later-roadmap.md
   - ../spec-gameble/brotherhood-tone.md
+  - ../spec-gameble/achievements.md
   - ../ux-gameble/DESIGN.md
   - ../ux-gameble/EXPERIENCE.md
   - ../ux-gameble/ux-gameble.md
@@ -29,11 +30,11 @@ A **modular monolith with an operations layer**: one Rails application, four dom
 
 | Layer | Directory | Holds |
 | --- | --- | --- |
-| `Catalog` | `app/domains/catalog` | Cards, card texts per locale, the theme list, seasons, a card's rarity and number for a season, sets and their tiers, the roadmap's milestones and their stories |
+| `Catalog` | `app/domains/catalog` | Cards, card texts per locale, the theme list, seasons, a card's rarity and number for a season, sets and their tiers, the share preview images, the roadmap's milestones and their stories |
 | `Steam` | `app/domains/steam` | Steam API client, import jobs, raw Steam data, import runs, sign-in verification |
 | `Accounts` | `app/domains/accounts` | Players, staff roles, last seen, profile visibility, preferences, bans, reports, data controls |
-| `Game` | `app/domains/game` | Pack bank, owned cards, trades, invitations, friendships, set tiers reached, card backs, profile titles, menu themes, weekly goal, daily bonus, achievements, feed, presence activity, events and their handlers |
-| Web layer | `app/` | Controllers, policies, view components, Stimulus controllers and the screen modules behind them, back-office, legal page |
+| `Game` | `app/domains/game` | Pack bank, owned cards, trades, invitations, friendships, set tiers reached, custom sets and the Steam library set, active goals, card backs, profile titles, menu themes, weekly goal, daily bonus, achievements, feed, presence activity, events and their handlers |
+| Web layer | `app/` | Controllers, policies, view components, Stimulus controllers and the screen modules behind them, jobs that chain several domains (`app/jobs`), back-office, legal page |
 | Image filter | `app/frontend/lib/card_art` | The card-art worker and renderer, on the `pixelcrush` npm package |
 
 ## Invariants & Rules
@@ -71,13 +72,14 @@ graph TD
 
 ### AD-4 — Steam is an adapter `[ADOPTED]`
 
-- **Binds:** CAP-1, CAP-2, CAP-3, CAP-6
+- **Binds:** CAP-1, CAP-2, CAP-3, CAP-6, CAP-27
+- **Amended 2026-10-30:** a player's own library is read for their Steam library set (AD-36).
 - **Prevents:** an engine that cannot be forked onto another catalog; Steam data about players kept beyond need.
 - **Rule:**
   - `Steam` is the only code that knows Steam. It keeps raw Steam catalog responses in its own tables and writes cards into `Catalog`. `Catalog` and `Game` never reference a Steam-specific field; a card's image is an opaque `image_url`.
   - `Steam` computes the prestige score from the review score and review count only, and hands `Catalog` a source-neutral rating and the review count, which the hall of fame sets read.
   - `Steam` hands `Catalog` each game's tags, most-voted first, as opaque keys, and its developers and franchises as Steam names them. It computes no genre and no theme: the theme list, its names and a card's main theme belong to `Catalog`.
-  - The only Steam data kept about a player is the Steam id and the persona name, refreshed at each sign-in. A player's library, playtime or achievements are never read.
+  - The only Steam data kept about a player is the Steam id and the persona name, refreshed at each sign-in. A player's library is read only to sync their Steam library set (AD-36): `Steam` keeps no raw library response, and the list lives only as that set's games in `Game`. Playtime and Steam achievements are never read.
 
 ### AD-5 — The catalog is published by season `[ADOPTED]`
 
@@ -91,7 +93,7 @@ graph TD
   - The theme list (keys, French and English names) and the set constants (franchise and studio minimum, hall of fame thresholds, the tier table by set size, the UFOs' share limit) live in `Catalog`, in code until Season preparation moves the theme list to back-office data.
   - Tiers: every set is tiered by its distinct card count at publication, from the table in `Catalog` (`catalog-and-rarity.md`): zero to five tiers named by rank (`novice`, `apprentice`, `adept`, `expert`, `master`) counted from the top: the last tier before `complete` at 100 % is always `master`, and a set with fewer tiers drops ranks from `novice` up. Seasons published before the table keep `bronze`, `silver`, `gold` and `complete`; the tier checks accept both families and no row is renamed. A tier name gives a rank within its set, never a share: readers order a set's tiers by required count, and rank tiers of different sets by required count over the set's cards. `PublishSeason` writes each set's tiers as rows (set, tier, distinct cards required, rounded up from the shares); `Game` and every query read those rows, so tuning the shares changes only later publications. A player holds a card when its quantity is above zero.
   - The three tier checks (`catalog_set_tiers`, `game_set_tiers`, `game_feed_entries`) are widened expand/contract (AD-21): the wider check added unvalidated, validated in a second migration, then the narrow one dropped.
-  - A player holds a set's member when they hold, with quantity above zero, a card-season of that member's card in any season. Holdings stay one row per card-season (AD-6): the minted season is the copy's edition. Readers use one of two measures, neither filtered by season: games, through `Game::HeldGames` (distinct games at their best minted rarity: the collection tile, the total counter, set progress, the album, and the tier pass, which shares its SQL), and copies (quantities per minted rarity across editions: the rarity counter and AD-23's counts before opening).
+  - A player holds a set's member when they hold, with quantity above zero, a card-season of that member's card in any season. Holdings stay one row per card-season (AD-6): the minted season is the copy's edition. Readers use one of two measures, neither filtered by season: games, through `Game::HeldGames` (distinct games at their best minted rarity: the collection tile, the total counter, set progress, the album, and the tier pass, which shares its SQL), and copies (quantities per minted rarity across editions: the rarity counter and AD-23's counts before opening). The rarity legend (CAP-6) counts editions, one card-season each (author, 2026-10-30): its season row reads the published season's card-seasons of each rarity and those the player holds; its overall row reads the card-seasons of every published season at their minted rarity and those held; a draft season and a tribute season (AD-33) count in neither. Its totals count editions, so they differ from the top bar's game counter by design.
   - The retired kinds (`publisher`, `tome`, `best_of_year`) are removed once, before the public launch, by a migration that deletes their sets, memberships, tiers and completion rows in every season, then narrows the set kind check to the five kinds; production never held them. A season published with them (staging's first) keeps its card-seasons with no set and no main theme; nothing rebuilds a published season's sets.
   - A card's identity (texts, publisher, developers, franchises, release date, store and image URL) is shared by its seasons and follows Steam: it is refreshed by the import (`Catalog::UpsertDraftCard`), by AD-19's image refresh, and once by the backfill of developers and franchises from the stored Steam items, nothing else.
 
@@ -115,7 +117,7 @@ graph TD
   - Every pack whose kind is not regular belongs to the special reserve, which has no cap: claiming the daily bonus or a goal reward never fails for a full reserve (author, 2026-10-28). The regular reserve keeps its cap of 10 and its replacement of an opened pack. The bank lock still serialises claims and openings.
   - The reserves shown to the player are the available unopened regular packs and, apart, the available unopened special packs as one total; the hub, the top bar and the pack screen read both from one query.
   - `Game::OpenPack` takes the reserve it is asked for, regular or special, and consumes its oldest available pack, whatever the origin of a special pack; the origin is data the pack screen reads to name and colour the capsule, and there is no intro.
-  - The reveal is a browser animation. The server keeps no flip state.
+  - The reveal is a browser animation. The server keeps no flip state; it records only, once the reveal ends, how the pack was revealed (AD-37).
   - Opening reads a pre-drawn pack and writes at most 5 counted rows; its handlers stay within the spec's 200 ms p95, measured on `POST /packs` before launch.
 
 ### AD-8 — Trades reserve the offer `[ADOPTED]`
@@ -147,7 +149,7 @@ graph TD
   - Every operation that raises a player's quantities (`Game::OpenPack`, and `Game::AcceptTrade` for both players) reads the published season once, right after its bank locks, and passes it to the receipt, the draw (`Game::DrawPool` for that season), the tier pass and its response. It then receives each player's pending allocation as a step of its own transaction, before any credit, so it celebrates only the tiers it crosses itself; the allocation's event precedes the caller's. The received season is checked under the bank lock, so concurrent operations receive once.
   - The allocation is received and seen apart. While the player's last seen season is below the published one and they hold a card-season of an earlier season, the hub and the booster page redirect to the allocation screen (a GET that writes nothing, AD-11, reading this check from the primary); the screen's POST receives the allocation if still pending and marks it seen, a housekeeping write that publishes nothing.
   - A handler runs in that transaction, never publishes an event, and writes only rows of that player or new rows: a feed entry, a weekly contribution, an achievement, a card back unlock, the player's latest activity. Unique rows are inserted with `ON CONFLICT DO NOTHING`; a duplicate never fails the operation.
-  - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then holdings in ascending player then card-season, then the players' `game_player_states` rows.
+  - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then holdings in ascending player then card-season, then the players' `game_player_states` rows, then the player's custom sets and their games.
   - Totals across players (the gauge) are summed by one periodic job.
   - State tables are the truth; events are not replayed to rebuild them.
   - Events carry identifiers only. Deleting an account anonymises the player record.
@@ -171,7 +173,7 @@ graph TD
 - **Prevents:** broadcasts of uncommitted state; one message per event at high load; a per-friend fan-out; a hidden player shown.
 - **Rule:**
   - Jobs are enqueued only after their transaction commits (`enqueue_after_transaction_commit`). Broadcasts are sent by a job, never inside a transaction. The gauge is broadcast about every ten seconds; feed entries leave in small batches. Feed and gauge streams are public. The choice of what enters the feed lives in one handler. A set feed entry names the player, the set (season, kind, key) and the tier, with no pack or card.
-  - Each player has one private Turbo Stream, named by an opaque random key held in `Accounts` and rotated on ban and deletion. It carries only what calls for an answer: trade proposals and their state changes, friend invitations, and card backs unlocked outside an opening. The cable connection identifies the player from the session and refuses a banned one.
+  - Each player has one private Turbo Stream, named by an opaque random key held in `Accounts` and rotated on ban and deletion. It carries only what calls for an answer: trade proposals and their state changes, friend invitations, and achievements and card backs unlocked outside an opening. The cable connection identifies the player from the session and refuses a banned one.
   - The feed's Friends tab and friends' presence are read when the page renders; nothing is broadcast to every friend.
   - Every surface that names a player beside their cards asks one question, `Game::Visibility.visible?(viewer, owner)`, at render or at broadcast; nothing is stored on the entry. Public surfaces show an entry only if every player it names is public and not banned or deleted; the Friends tab also shows friends-only friends.
   - A second question, `Game::Visibility.open_to_friends?(player)`, is false for a private player (and a banned or deleted one). Trades (AD-8), presence (AD-24) and the trade actions on the friend row and friend profile ask it; nothing else needs it, since `visible?` already hides a private player from friends.
@@ -186,13 +188,14 @@ graph TD
   - Every controller action has a Pundit policy; a signed-out player is refused with `sign_in_required`. Every `Game` operation acts for one player given as input; work over many players is a job running that operation once per player, or a `Game::SystemOperation` that writes only rows belonging to no player.
   - Roles: signed-out visitor, player, moderator, administrator.
   - Profile visibility is public, friends only or private, stored in `Accounts`. The profile policy and AD-13's visibility questions combine it with `Game`'s friendship query. Setting it to private publishes `Accounts::VisibilityChanged`; `Game` handles it by cancelling the player's open trades and releasing their reservations under AD-10's lock order (bank locks of both players in ascending id, taken before any trade row), and `PlayerStream` tells the partners, as it does for a deletion.
-  - Deleting an account publishes `Accounts::PlayerDeleted`; `Game` handles it by cancelling open trades, releasing reservations and dropping friendships, invitations, set tiers, card back unlocks and its private key. First discoveries keep their player, so the card's first discoverer reads as anonymous. A ban hides the player everywhere through AD-13. The data export is assembled in the web layer from `Accounts` and `Game` queries.
+  - Deleting an account publishes `Accounts::PlayerDeleted`; `Game` handles it by cancelling open trades, releasing reservations and dropping friendships, invitations, set tiers, card back unlocks, custom sets with their games (the Steam library list included), active goals and its private key. First discoveries keep their player, so the card's first discoverer reads as anonymous. A ban hides the player everywhere through AD-13. The data export is assembled in the web layer from `Accounts` and `Game` queries, custom sets, the Steam library list and active goals included.
 
 ### AD-15 — No internal id in a URL `[ADOPTED]`
 
-- **Binds:** CAP-6, CAP-7, CAP-8, CAP-9, CAP-10
+- **Binds:** CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-27
+- **Amended 2026-10-30:** the preview carries a generated image (AD-39); custom sets have tokens.
 - **Prevents:** counting or enumerating players; a share link exposing its sharer.
-- **Rule:** Players are addressed by a random token, cards by a slug, packs and invitations by a token, sets by season number, kind and key. Database ids never appear in URLs, HTML, JSON, DOM ids or stream names. The share link addresses a card-season and never a player; its page shows the card only, and its preview carries the title and rarity and no image.
+- **Rule:** Players are addressed by a random token, cards by a slug, packs, invitations, custom sets and share images by a token, game sets by season number, kind and key. Database ids never appear in URLs, HTML, JSON, DOM ids or stream names. The share link addresses a card-season and never a player; its page and its preview image show the card only, and its preview carries the title, the rarity and, once rendered, the image of AD-39.
 
 ### AD-16 — Server-rendered pages, Hotwire only `[ADOPTED]`
 
@@ -216,7 +219,7 @@ graph TD
 - **Rule:**
   - Pixelation and reduction to 32 colours by median cut, without dithering, come from `pixelcrush`, the author's npm package (published from github.com/theiereman/pixelcrush), with no dependency on gameble. Cropping to the art box (anchored at 42 %), pixelation at 2 CSS px per art pixel and the card-art worker live in `app/frontend/lib/card_art`.
   - The filter runs in a Web Worker with `OffscreenCanvas`, lazily, with 2 to 4 jobs at once. One palette per game is computed from the largest size needed and reused at every size. A browser without these APIs (public pages are open to older browsers) gets the cover pixelated without palette on the main thread.
-  - Filtered bitmaps are kept in a bounded in-memory cache and closed when evicted. Images are loaded from Steam's CDN, never stored, never in a service worker or browser storage, and no palette or other image-derived data is stored server-side.
+  - Filtered bitmaps are kept in a bounded in-memory cache and closed when evicted. Images are loaded from Steam's CDN, never stored, never in a service worker or browser storage, and no palette or other image-derived data is stored server-side, except the share preview image of AD-39 (amended 2026-10-30).
   - Image requests carry no added header and no referrer. A CORS failure is retried once on the main thread with a plain image and drawn pixelated without palette; a failure is not cached for the session.
   - A decoded image under 300 × 450 or whose grey tones are nearly uniform counts as missing; legitimate grayscale covers remain valid.
 
@@ -256,6 +259,8 @@ graph TD
   - App instances are stateless. Configuration comes from environment variables only; production refuses to boot without a valid `PUBLIC_URL`.
   - Web answers a health check at `/up`; web and job processes drain on `SIGTERM`.
   - PostgreSQL has four logical databases: primary, queue, cache, cable. Each can move to its own server.
+  - Nothing slow runs on `default`: share image renders run on `share_images`, one thread in the jobs process (`config/queue.yml` lists it); Steam calls run on `import` and `steam_library`, both served by the import worker's single thread (`config/queue_import.yml`). `CardShareImageJob`, built on `default`, moves to `share_images`.
+  - Files are Active Storage attachments; only AD-39's share images exist. Today they sit on the `local` disk service under `/rails/storage`, the `gameble_storage` volume of each destination. The author's S3-compatible object storage is the chosen target (2026-10-30): one private bucket per destination, its credentials in `.kamal/secrets.<destination>`, the disk service kept in development and test. The images are derived data, so moving copies no file: the service changes and `CardShareImage::RENDER_VERSION` is bumped.
   - Every schema change is expand/contract; `strong_migrations` refuses a migration that would block the database.
   - Cloudflare sits in front. Sentry receives errors. Backups exist before launch.
   - Environments are Kamal destinations sharing `config/deploy.yml`: `staging` (gameble.dotsncircles.com, the home lab LXC behind the author's Traefik, which terminates TLS) and `production` (gameble.net, its own home lab LXC reached only through a Cloudflare Tunnel: `cloudflared` on the LXC forwards to kamal-proxy, Cloudflare terminates TLS, no inbound web port is open; Kamal's SSH still goes through the home lab's Traefik). Each has its own servers, host, `PUBLIC_URL` and `.kamal/secrets.<destination>`; both run `RAILS_ENV=production` with `assume_ssl` and `force_ssl`.
@@ -276,6 +281,7 @@ graph TD
   - Failure uses the JSON error convention with the codes `no_pack_available`, `throttled`, `sign_in_required`.
   - The key and the active card back, with the season mark it wears, are stored on the opened pack; the key is unique per player. A repeated key returns that pack as it was opened, before any throttle or availability check, and opens nothing more.
   - The opened pack's page (`/:locale/packs/:token`) stays as "mon dernier booster": cards face up, no reveal.
+  - When the last card is face up, the booster sends `POST /:locale/packs/:token/reveal` with the mode: `all` when "Tout révéler" was used at all, `one_by_one` otherwise. It is accepted only for the player's most recently opened pack while its mode is null; a repeat answers success and changes nothing; it answers no content (amended 2026-10-30).
 
 ### AD-24 — Presence is read, not tracked `[ADOPTED]`
 
@@ -407,6 +413,65 @@ graph TD
 - **Costs:** 16 files read `steam_id`; the export and the deletion notice gain the identities; the sign-in throttles key on provider as well. The email hash is personal data: the privacy page, the retention page, the export and the deletion (the hash goes with the identity row) name it.
 - **Rejected:** Clerk as the session (bans and roles would live in two places); the Clerk user id as the key (its email merging would link accounts silently); fusing accounts in the first version. Banning by email hash across identities was offered and not retained (author, 2026-10-29); a later decision.
 
+### AD-35 — Custom sets and active goals live in `Game`
+
+- **Binds:** CAP-6, CAP-11, CAP-27, CAP-28
+- **Prevents:** a custom set stored as a catalog set and earning rewards; goals that bend the draw; each screen computing a goal's missing cards its own way; a player's private set shown to others.
+- **Rule:**
+  - `Game` owns custom sets: `game_custom_sets` (player, public token, name, kind `custom` or `steam_library`, the library's sync state) and `game_custom_set_games` (custom set, `catalog_cards` id), unique per set and game. A set lists only games with a card-season in a published regular season, through one `Catalog::PublishedCardIds` query that both the picker and `Steam::OwnedGames` filter by; a game later seasons drop keeps counting (any edition held counts) and its empty slot shows its card-season of the latest published season that holds it. A custom set lists games, never card-seasons, and is never a `catalog_sets` row: it earns no `game_set_tiers` row, title, back, celebration, feed entry or allocation.
+  - Limits are checked by the operations under the player's bank lock: a `custom` set holds 3 to 50 games and a player at most 10 of them; one `steam_library` set per player (a partial unique index), with no size cap, outside the 10. Only AD-36's sync writes a library set's games.
+  - A custom set's progress and album read `Game::HeldGames`, as a game set's do (AD-5: any edition counts), through one `Game::CustomSetStandings` query that the album, the sets list, the hub and `Game::GoalNeeds` share. A set's games and goals reference it with `ON DELETE CASCADE`. Its tiers are computed at read from `Catalog`'s tier table for its current game count; nothing about them is stored.
+  - A custom set shows to its owner only: its pages, its name and its goals are refused to anyone else by policy, and nothing names it on a public or friends' surface.
+  - Active goals are `game_goals` rows (player, position checked between 1 and 5, unique per player and position, so the database caps them at five), each targeting exactly one of a game set by kind and key (checked) or a `custom` set, unique per player and target; a library set and a tribute set are never a goal. A goal is addressed by its target (a game set by season, kind and key, a custom set by token), never by position; reordering is one operation that rewrites the player's positions under the bank lock. A game set goal reads the published season's set of that kind and key; when the published season has none, the goal shows as ended until the player removes it.
+  - One query, `Game::GoalNeeds(player)`, returns each goal's missing games; the collection grid, the albums, the hub, the profile and AD-38 read it, and highlighting stores nothing. The profile shows the goals on game sets only, under `Game::Visibility.visible?` (AD-13).
+  - Draws never read goals or custom sets: `Game::DrawPool` and the odds take no player input, and the draw's statistical test is unchanged.
+
+### AD-36 — The Steam library set is synced by a web-layer job
+
+- **Binds:** CAP-27, CAP-14
+- **Prevents:** a new dependency arrow into or out of `Steam`; play waiting on Steam; a private or failing Steam answer erasing a library; the library list kept as raw Steam data or frozen in an event; the key's daily quota spent by the sync.
+- **Rule:**
+  - `Steam::OwnedGames` calls `IPlayerService/GetOwnedGames` with the key from the environment, `include_appinfo=false`, `include_played_free_games=true` and `skip_unvetted_apps=false` (without it, profile-limited games are left out), and returns the `catalog_cards` ids of the owned games present in the catalog, `Failure(:library_private)` only when Steam answers 200 without a games list, or `Failure(:steam_unavailable)` on a timeout, a 429 or a 5xx, which the job retries later and which leaves the set and its state unchanged. An empty answer is never read as an empty library.
+  - `SyncSteamLibrariesJob` in `app/jobs`, scheduled once a day in `config/recurring.yml` (AD-12), enqueues one `SyncSteamLibraryJob` per player with a library set on the `steam_library` queue, served by the import worker's single thread (`config/queue_import.yml` lists `[import, steam_library]`), so Steam is called one request at a time. Each job takes the player id and the set's token only, never a Steam id or a games list, so no list sits in a job's arguments. It reads the Steam id through an `Accounts` query, calls `Steam::OwnedGames`, then `Game::SyncLibrarySet`, which takes the bank lock first (refusing a deleted player), re-finds the set by token, succeeds without writing when it is gone, never creates one, and applies the difference to the set's games in one transaction, or, on `:library_private`, `Game::MarkLibraryPrivate`, which keeps the last list and records since when Steam stopped sharing it. Creating the set enqueues its first sync after commit. No domain calls another to do this; only the arrows of AD-2 are used.
+  - The key's quota is 100,000 calls a day (Steam Web API Terms of Use). Each day the sync enqueues at most `STEAM_LIBRARY_DAILY_SYNCS` sets (configuration), least recently synced first, so no counter is kept and the rest of the quota stays with the import; sets of banned or deleted players are skipped. Creating a library set is rate limited like any mutating endpoint.
+  - `Game::SyncLibrarySet` publishes `Game::LibrarySetSynced` with the player and the set only, when the games changed; events never carry the list (AD-10).
+  - A player without a Steam identity (AD-34) cannot create a library set. Pages read the stored list; nothing waits on Steam.
+  - The privacy page, the retention page and the export name the stored library list, as Valve's terms require telling players what Steam data is kept.
+
+### AD-37 — Achievements are metrics read from state
+
+- **Binds:** CAP-17, CAP-20
+- **Prevents:** a condition computed one way live and another way in the backfill; achievements counted from events; an achievement lost or doubled by a rename; a reveal mode invented by the server.
+- **Rule:**
+  - The catalogue stays one constant, `Game::Achievements`: a key, a metric and a threshold. Every metric is read from state tables by `Game::AchievementProgress`, the one query both the live grant (`GrantAchievementsJob`, after the events of AD-10) and the release backfill (`BackfillAchievementsJob`) use; no condition reads events or a stored counter. The query computes only the metrics of achievements the player has not unlocked.
+  - A metric is the best the tables can show: one-capsule metrics count opened packs whose `card_season_ids` match (a standard capsule is a pack of kind `regular`); streak metrics are the longest run over opened `regular` packs in `opened_at` order, or over consecutive days of `game_daily_bonus_claims`; holding metrics are the current maximum over `game_holdings` (held at once; copies of a game summed across its editions); community metrics count `game_first_discoveries`, repost feed entries of a card-season the player first discovered, and accepted trades per partner. A game is a card (AD-5); a studio is the card's first developer normalised by the `Catalog` function studio sets use, read through `Catalog`. The achievement backs already in AD-25's constant stay.
+  - The reveal mode is stored on the opened pack: `game_packs.reveal_mode`, null, `all` or `one_by_one`, set once by `Game::RecordReveal` from the POST of AD-23, accepted only for the player's latest opened pack while its mode is null; it is trusted from the client since it moves no card, and publishes `Game::PackRevealed`. The reveal streaks run over every opened pack, any kind, in `opened_at` order; a pack without a mode breaks both, so packs opened before the column grant nothing.
+  - `GrantAchievementsJob` also follows `Game::DailyBonusCollected`, `Game::CardDiscovered` and `Game::PackRevealed`.
+  - A release that adds achievements runs the backfill as a data step of its deploy, before the new code takes traffic, so no live grant announces history as new; its grants are retroactive (no toast; AD-25's back handler honours the flag). Under the bank lock, `GrantAchievement` re-reads only the metric of the achievement it grants.
+  - Keys never change. An achievement's title, condition and flavor text are the locale keys `achievements.names`, `achievements.conditions` and `achievements.flavors` under its key; renaming one is a locale change. Achievement backs are entries of AD-25's constant.
+
+### AD-38 — Trade suggestions are read, not stored
+
+- **Binds:** CAP-8, CAP-11, CAP-28
+- **Prevents:** a suggestion table drifting from holdings and goals; the list and the prefilled proposal disagreeing on what is spare; a second way to create a trade; a private player exposed.
+- **Rule:**
+  - `Game::TradeSuggestions(player)` computes the suggestions on read, on the reading role (AD-11), from `Game::GoalNeeds` of the player (all their goals) and of each friend for whom `Game::Visibility.open_to_friends?` holds (their goals on game sets only, so a private custom set never shows through), and from their holdings. Nothing is stored or broadcast; a private player neither appears nor sees suggestions.
+  - A spare is a free copy of a game (`quantity - reserved`, summed over its editions) beyond the one its holder keeps. The holder keeps a copy at their best minted rarity; the edition placed is the one with the most free copies among the rest, then the earliest season. The same rule reads the player's own spares, and only this query applies it.
+  - Mutual suggestions come before one-sided ones. A suggestion names the friend and the cards, never a goal, set or tier. The library set never feeds them: they read goals only.
+  - With an open trade between the two friends, a suggestion opens that trade and prefills nothing. Otherwise starting a trade from a suggestion replaces the stored draft for that friend and opens the trade board prefilled with its card-seasons (by slug and season, AD-15); a prefill holds at most AD-8's 4 card-seasons per side, and the proposal is sent through `Game::ProposeTrade` like any other and checked by AD-8 at send and acceptance.
+
+### AD-39 — The share preview image is rendered once and stored `[ADOPTED]`
+
+- **Binds:** CAP-9
+- **Supersedes:** "its preview carries the title and rarity and no image" (AD-15) and AD-17's ban on stored image-derived data, for this image only.
+- **Prevents:** a render inside a GET; an image per sharer leaking who shared; a stale image after a card changes; a broken page when the render fails; an image too heavy for a link preview.
+- **Rule (ratifies commit 46a61856):**
+  - `Catalog` owns `catalog_share_images` (`Catalog::ShareImage`): one row per card-season and locale (the rarity is a card-season's), with a public token, the fingerprint of what it shows and its PNG attached; a new fingerprint gets a new image under a new token, so an image cached for a year under the old token is never served for the new one. The images are derived data: the store is a cache, never backed up, and a row whose file is missing counts as missing (the page drops the tags and enqueues the render) through Active Storage (AD-21), written only by `Catalog::StoreShareImage`, which publishes `Catalog::ShareImageStored`. The PNG is uploaded before its transaction; under the card-season row's lock the store refuses with `Failure(:stale_render)` a render whose fingerprint no longer matches the card. Nothing in it depends on a player.
+  - `CardShareImageJob` (`app/jobs`) renders with ruby-vips through `CardShareImage` (`app/models/card_share_image`): 1200 × 630, the Steam cover pixelated in the card's frame, rarity colours and fonts, the title and rarity in the link's language. libvips quantises with libimagequant, not `pixelcrush`'s median cut, so the art is close to the card's, not identical. A failure is reported to Sentry and leaves the page on its text-only preview.
+  - The fingerprint covers the render version, the locale and every value the image draws. The card page's GET reads the stored row and enqueues the render on the `share_images` queue (at most once an hour per image, throttled through `Rails.cache`) when it is missing or its fingerprint no longer matches; it writes `og:image`, `twitter:image` and a large-image `twitter:card` only for an image that matches. Every `Catalog` operation that changes a card's cover or texts, AD-19's refresh included, publishes `Catalog::CardIdentityUpserted`, which renders its images again; bumping `CardShareImage::RENDER_VERSION` renders every image again as each card page is next opened.
+  - The image is served at `/share-images/<token>.png`, outside the locale scope, signed out, without a session cookie, `noindex`, with a year-long immutable cache behind Cloudflare. Active Storage's own routes are not drawn.
+  - The image stays under 300 KB, checked by a test on its byte size; a larger render is saved with a palette.
+
 ## Consistency Conventions
 
 | Concern | Convention |
@@ -480,6 +545,7 @@ Verified against the RubyGems and npm registries on 2026-10-02, and against the 
 | http_accept_language | 2.1.1 |
 | sentry-rails | 7.1.0 |
 | rack-attack | 6.8.0 |
+| ruby-vips (libvips in the image; share preview rendering) | 2.3.0 |
 
 ## Structural Seed
 
@@ -490,6 +556,10 @@ graph LR
   W --> PG[(PostgreSQL: primary, queue, cache, cable)]
   W --> OID[Steam OpenID]
   J[jobs] --> PG
+  J --> API
+  J --> S3[(object storage: share images)]
+  W --> S3
+  J --> CDN
   I[import worker] --> PG
   I --> API[Steam Web API]
 ```
@@ -507,6 +577,12 @@ erDiagram
   ACCOUNTS_PLAYER ||--o{ GAME_GOAL_CONTRIBUTION : contributes
   ACCOUNTS_PLAYER ||--o{ GAME_ACHIEVEMENT_UNLOCK : earns
   ACCOUNTS_PLAYER ||--o{ GAME_FEED_ENTRY : "appears in"
+  ACCOUNTS_PLAYER ||--o{ GAME_CUSTOM_SET : composes
+  ACCOUNTS_PLAYER ||--o{ GAME_GOAL : "aims at"
+  GAME_CUSTOM_SET ||--o{ GAME_CUSTOM_SET_GAME : lists
+  CATALOG_CARD ||--o{ GAME_CUSTOM_SET_GAME : "is listed in"
+  GAME_CUSTOM_SET ||--o{ GAME_GOAL : "is aimed at by"
+  CATALOG_CARD_SEASON ||--o{ CATALOG_SHARE_IMAGE : "is previewed by"
   ACCOUNTS_PLAYER ||--o| GAME_PLAYER_STATE : "has activity, active back, seen watermark, allocation received and seen up to"
   ACCOUNTS_PLAYER ||--o{ ACCOUNTS_REPORT : "is reported by"
   GAME_WEEKLY_GOAL ||--o{ GAME_GOAL_CONTRIBUTION : receives
@@ -556,18 +632,18 @@ gameble/
 | CAP-3 Rarity | `Steam` (score), `Catalog` (tiers) | AD-4, AD-5 |
 | CAP-4 Packs | `Game`, booster screen | AD-3, AD-6, AD-7, AD-16, AD-23, AD-30, AD-31 |
 | CAP-5 Reveal | booster screen, image filter | AD-7, AD-16, AD-17, AD-23, AD-27, AD-30, AD-31 |
-| CAP-6 Collection and sets | `Game` (holdings, set tiers), `Catalog` (sets, theme list) | AD-5, AD-6, AD-10, AD-11, AD-26 |
+| CAP-6 Collection and sets | `Game` (holdings, set tiers), `Catalog` (sets, theme list) | AD-5, AD-6, AD-10, AD-11, AD-26, AD-35 |
 | CAP-7 Card face and detail | web layer, `Catalog`, `Game` (editions owned) | AD-5, AD-11, AD-15, AD-16, AD-18 |
 | CAP-8 Profile and visibility | web layer, `Accounts`, `Game` | AD-8, AD-11, AD-13, AD-14, AD-15, AD-24 |
-| CAP-9 Share link | web layer, `Catalog` | AD-15 |
+| CAP-9 Share link | web layer, `Catalog` (preview image) | AD-15, AD-17, AD-21, AD-39 |
 | CAP-10 Friends and invitations | `Game` | AD-3, AD-8, AD-13, AD-15 |
-| CAP-11 Trades | `Game`, trade board screen | AD-6, AD-8, AD-13, AD-16, AD-30, AD-31 |
+| CAP-11 Trades and suggestions | `Game`, trade board screen | AD-6, AD-8, AD-13, AD-16, AD-30, AD-31, AD-38 |
 | CAP-12 Weekly goal | `Game` | AD-7, AD-9, AD-10, AD-13 |
 | CAP-13 Feed and Friends tab | `Game` | AD-10, AD-11, AD-13, AD-14 |
 | CAP-14 Data controls | `Accounts`, `Game` (by event), web layer (export) | AD-10, AD-13, AD-14 |
 | CAP-15 Reports and moderation | `Accounts`, back-office | AD-14 |
 | CAP-16 Daily bonus | `Game` | AD-7, AD-9 |
-| CAP-17 Achievements | `Game` | AD-9, AD-10 |
+| CAP-17 Achievements | `Game`, booster screen (reveal mode) | AD-9, AD-10, AD-25, AD-37 |
 | CAP-18 Signed-out visit | web layer, `Game` | AD-11, AD-14 |
 | CAP-19 Repost | `Game` | AD-3, AD-10, AD-13 |
 | CAP-20 Card backs | `Game`, booster screen | AD-9, AD-10, AD-16, AD-25, AD-30 |
@@ -575,12 +651,17 @@ gameble/
 | CAP-22 Titles and menu themes (after the launch) | `Game`, web layer | AD-10, AD-18, AD-25 |
 | CAP-23 Seasonal allocation (after the launch) | `Game`, web layer | AD-5, AD-9, AD-10, AD-11, AD-18, AD-25 |
 | CAP-25 Roadmap | `Catalog`, back-office | AD-3, AD-18, AD-29 |
+| CAP-27 Custom sets and the Steam library set | `Game`, `Steam` (library read), `app/jobs` (sync) | AD-4, AD-5, AD-14, AD-15, AD-35, AD-36 |
+| CAP-28 Active goals | `Game`, web layer (collection, hub, profile) | AD-11, AD-13, AD-35 |
 | Legal page | web layer | AD-18 |
 
 ## Deferred
 
 - **Prestige formula and tier thresholds:** settled: the tier shares in `Catalog::RarityThresholds` were kept on the first real import, and the formula is `review_count + percent_positive / 1000`, the count ranking and the rating only ordering equal counts (author, 2026-10-13; `catalog-and-rarity.md`, Rarity). It replaced `log10(review_count) + 4 × Wilson lower bound` (2026-10-06).
-- **Which card backs ship beyond one per set at its back tier:** goal, achievement and event backs are open in the spec; AD-25's constant holds them.
+- **Which card backs ship beyond one per set at its back tier:** the achievement backs are settled in `achievements.md`; goal and event backs stay open in the spec; AD-25's constant holds them all.
+- **Trade suggestion cache:** AD-38 computes suggestions on read; a stored or cached form is designed only if the query is measured past the page budget.
+- **Moving share images to object storage (AD-21):** add `aws-sdk-s3` (1.237.0 on 2026-10-30) to the Stack, an S3 entry in `config/storage.yml` with the store's `endpoint` and `force_path_style`, `request_checksum_calculation` and `response_checksum_validation` set to `when_required` unless the store accepts the SDK's default checksums, the Kamal secrets per destination, an upload and download check on staging, then the switch and a render version bump. Until then a lost volume is healed by the same bump.
+- **Steam library daily budget:** the share of the key's daily quota left to AD-36's sync is a configuration value set once the import's own daily use is measured.
 - **Set numbers on real data:** the theme list, the franchise and studio minimum, the hall of fame thresholds and the tier table by set size are set by the spike that opens epic-recognizable-sets; AD-5 fixes only where they live.
 - **Theme list as back-office data:** when Season preparation moves it out of code, theme names become catalog data, an AD-18 exception like card text; designed in an update run before that story.
 - **Feed selection thresholds and ticker events:** tuned with real activity; the rule lives in one handler (AD-13).

@@ -3,7 +3,7 @@ title: "Back after a language change keeps the previous screen's scroll, and onl
 type: 'bugfix'
 ticket: 'bug-back-after-a-language-change-keeps-the-scroll-and-only-a-settings-choice-carries'
 created: '2026-10-19'
-status: 'built'
+status: done
 baseline_revision: 'ac80a01a6e3a085a6db0c78ac87e610b8a280f51'
 route: 'oneshot'
 route_source: 'auto'

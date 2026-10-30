@@ -1,6 +1,7 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
+require_relative "../support/holdings"
 require_relative "../support/steam_sign_in"
 
 # The shell in a real browser: the top bar, the phone tab bar
@@ -12,6 +13,7 @@ require_relative "../support/steam_sign_in"
 class ShellTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GamePacks
+  include Holdings
   include SteamSignIn
 
   PHONES = { "390" => [ 390, 844 ], "360" => [ 360, 740 ] }.freeze
@@ -119,6 +121,62 @@ class ShellTest < ApplicationSystemTestCase
       assert_no_sideways_scroll
       take_screenshot
     end
+  end
+
+  def assert_legend_under(opener)
+    eventually("the rarity legend should open right under #{opener}, its end edge on the opener's") do
+      page.evaluate_script(<<~JS)
+        (() => {
+          const opener = document.querySelector(#{opener.to_json}).getBoundingClientRect()
+          const legend = document.querySelector("#rarity-legend").getBoundingClientRect()
+          const gap = legend.top - opener.bottom
+          return gap >= 0 && gap <= 16 && Math.abs(legend.right - opener.right) <= 1 && legend.left >= 0
+        })()
+      JS
+    end
+  end
+
+  def assert_legend_rows(figures)
+    within("#rarity-legend") do
+      figures.each do |name, season, overall|
+        row = find("tr", text: /\A#{name}\b/i)
+        assert_equal [ season, overall ], row.all("td > [aria-hidden=true]", count: 2).map(&:text)
+      end
+    end
+  end
+
+  def assert_epic_chosen(locale)
+    assert_current_path library_cards_path(locale:, rarity: [ "epic" ])
+    assert_selector "[data-group=rarity] .filter-chip__box[value=epic]:checked", visible: :all
+    assert_no_selector "[data-group=rarity] .filter-chip__box:not([value=epic]):checked", visible: :all
+  end
+
+  test "the rarity legend opens under the counter or the collection status, owned editions against the game's, each rarity a way to its cards" do
+    player = accounts_players(:player)
+    hold(player, catalog_card_seasons(:common_card_one).id, 3)
+    hold(player, catalog_card_seasons(:portal_one).id)
+    sign_in(player)
+
+    find(".rarity-counter__button").click
+    assert_selector "#rarity-legend", visible: true, text: /RARITIES/i
+    assert_legend_rows([ [ "Common", "1 / 1", "1 / 1" ], [ "Uncommon", "0 / 1", "0 / 1" ], [ "Epic", "1 / 1", "1 / 1" ], [ "Total", "2 / 5", "2 / 5" ] ])
+    assert_legend_under(".rarity-counter__button")
+    take_screenshot
+    within("#rarity-legend") { click_link "Epic" }
+    assert_epic_chosen(:en)
+
+    find(".top-bar .collection-status").click
+    assert_selector "#rarity-legend", visible: true, text: /RARITIES/i
+    assert_legend_rows([ [ "Epic", "1 / 1", "1 / 1" ], [ "Total", "2 / 5", "2 / 5" ] ])
+    assert_legend_under(".top-bar .collection-status")
+    find(".top-bar .collection-status").send_keys(:escape)
+    assert_no_selector "#rarity-legend", visible: true
+
+    visit home_path(locale: :fr)
+    find(".rarity-counter__button").click
+    assert_selector "#rarity-legend", visible: true, text: /RARETÉS/i
+    within("#rarity-legend") { click_link "Épique" }
+    assert_epic_chosen(:fr)
   end
 
   CHIP_WIDTHS = { "1400" => SCREEN_SIZE, "1000" => [ 1000, 900 ], "800" => [ 800, 900 ] }.merge(PHONES).freeze
