@@ -38,7 +38,7 @@ Completed at inception, once `bmad-spec` has added the new capabilities. The lin
 2. A player creates, edits and deletes a custom set, and opens it as an album with its missing slots.
 3. A player sets three to five active goals, sets or custom sets, and sees each one's progress and every card of its set marked where their collection shows them.
 4. Pack draws are unchanged by goals: the pack odds tests pass untouched.
-5. A player whose Steam game details are public gets their Steam library set automatically when signed in with Steam, sees a game added to their library appear in it by the next day, and finds its list in their data export; deleting it erases that list.
+5. A player whose Steam game details are public gets their Steam library set automatically when signed in with Steam, sees a game added to their library appear in it by the next day, and finds its list in their data export; deleting their account erases that list.
 
 ## Boundaries
 
@@ -65,6 +65,7 @@ The collection and its sets, on the Collection side. Not the trade suggestions b
 - Unknown: the architecture rule letting a daily background job read a player's library within the Steam Web API's quota; `bmad-architecture` settles it before the story is built.
 - Follow-up: the legal page's stored-data line and the privacy notice name the library list.
 - Decision (2026-10-30, inception): twelve entries. The tracer bullet is entry 3, a custom set created and opened as an album through every layer. Entries 1, 2 and 6 run in parallel from the start; entry 3 then opens the custom sets lane (4, 5) and the goals lane (9, 11), entry 10 waits on both, and the library lane (7, 8) waits on 3 and 6. A closing refactor sweep (12) is kept.
+- Decision (2026-10-30, author, UX): the Steam library set cannot be deleted by the player, its list goes with the account; a goal that completes leaves with an OBJECTIF ATTEINT toast; a typed set search replaces every section; custom sets and the library set stay out of the hub's sets, the card detail's sets and the grid's set filter.
 - Decision (2026-10-30, author, UX): the Steam library set is created automatically for a player signed in with Steam (entry 7); a custom set's album carries MODIFIER and SUPPRIMER, and an empty name is refused (entry 4); the set search finds custom sets and the Steam library set while EN COURS and COMPLÉTÉS list game sets only (entry 5); goals are never reordered and a goal whose set becomes complete leaves by itself (entry 9); the goal bookmark marks every card of the goal's set, owned or not, and never shows to another player (entry 10); the profile shows game set goals as goal rows (entry 11); no Key Flow is needed; French copy takes U+202F before : ; ? ! and inside « » (entry 14).
 - Decision (2026-10-30, author): the screens are designed first with `bmad-ux`, in a hitl entry (2) every screen entry waits on, rather than in each build.
 - Decision (2026-10-30, author): the collection pages' top-bar counter opens the same rarity legend as the other pages' counter (entry 1).

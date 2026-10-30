@@ -237,7 +237,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **French and English UI**, both complete at launch. Card text is available in every UI language. The English copy is translated by AI from the French. All repo text (code, comments, docs) is in English.
 - **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability up to CAP-26 is live at launch. CAP-23 is live before the second season is published in production. Release 1.1.0 ships CAP-27, CAP-28 and the 2026-10-30 changes to CAP-6, CAP-9, CAP-17 and CAP-20; the trade suggestions of CAP-11 may follow in a later release.
 - **Landing ship conditions:** CAP-24 and CAP-25 go live only once the lore text exists in French and English (`lore.md`), the pioneer (CAP-13) is built, the repository is public with a license file, the roadmap's milestones are created from the initiative's epics and curated by staff in the back-office, and the app uses JetBrains Mono.
-- **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports, and, while a player keeps a Steam library set (CAP-27), the catalog games of their library, covered by export and deletion.
+- **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports, and, for a player with a Steam identity, the catalog games of their library (CAP-27), covered by export and by account deletion.
 - **Player-facing words:** the interface says "capsule" for pack (French and English), "réserve" for bank and "mission hebdo" / "weekly mission" for the weekly goal, so "objectif" / "goal" names only a player's goals (CAP-28) (author, 2026-10-30), and keeps "carte" / "card" (in the lore, an archive card: `lore.md`). The spec, the code, the database, stored events and URLs keep pack, bank and weekly goal.
 - **Cards are only pulled or traded.** Owning a game on Steam never grants its card.
 - **Card copies:** a player can own several copies of a card. Copies are counted per card and season, so each keeps the rarity and season it was minted with, and a V2 market needs no migration. The minted season is the copy's edition. Draws give only the published season's cards; earlier editions change hands only by trade.
@@ -292,7 +292,7 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 - Per-card draw odds are those in `catalog-and-rarity.md` and are tuned in playtests.
 - Card text translations come from Steam's own localized store text, imported once per UI language.
-- When Steam stops sharing the library, the Steam library set keeps its last list; deleting it stops the sync and erases the stored list (CAP-27).
+- When Steam stops sharing the library, the Steam library set keeps its last list. The player cannot delete the set; deleting the account erases the stored list (CAP-27, author, 2026-10-30).
 - A repost is a past event: it stays in the feed after the card is traded away, and disappears with a hidden or banned profile (CAP-14, CAP-15).
 
 ## Open Questions
