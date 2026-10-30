@@ -2,6 +2,8 @@ name: Android smoke test
 
 # Opens the debug app in an emulator and prints what Hotwire Native logs while the first page loads.
 on:
+  push:
+    paths: [ "mobile/android/**", ".github/workflows/android-smoke.yml" ]
   workflow_dispatch:
     inputs:
       root_url:
