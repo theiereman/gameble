@@ -204,3 +204,27 @@ slug = "epic-cleanup-1-2-0"
 title = "Cleanup for 1.2.0"
 covers = []
 after = []
+
+[[epic]]
+id = 28
+release = "1.1.0"
+slug = "epic-aim-at-the-cards-you-want"
+title = "Aim at the cards you want"
+covers = ["CAP-6"]
+after = []
+
+[[epic]]
+id = 29
+release = "1.1.0"
+slug = "epic-trade-suggestions"
+title = "Trade suggestions"
+covers = ["CAP-11"]
+after = [{ epic = 28, needs = "the active goals and the missing cards they name" }]
+
+[[epic]]
+id = 30
+release = "1.1.0"
+slug = "epic-more-achievements-and-easy-card-backs"
+title = "More achievements, and card backs easy to pick"
+covers = ["CAP-17", "CAP-20"]
+after = []

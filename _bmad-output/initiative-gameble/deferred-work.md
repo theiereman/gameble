@@ -468,4 +468,4 @@
 
 ## Deferred from: the author, in conversation (2026-10-29)
 
-- A ticket is to be written to rework the layout of the personalization page (`epic-personalization/story-the-personalization-page-plan.md`). The author has not said yet what to change: ask them before writing it, and build nothing from this entry alone.
+- A ticket is to be written to rework the layout of the personalization page (`epic-personalization/story-the-personalization-page-plan.md`). The author has not said yet what to change: ask them before writing it, and build nothing from this entry alone. Settled (2026-10-30, author): picking a back becomes simpler and each back says how it was earned; planned in `epic-more-achievements-and-easy-card-backs/` (requirement E5).
