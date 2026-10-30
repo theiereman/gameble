@@ -63,3 +63,8 @@ The collection and its sets, on the Collection side. Not the trade suggestions b
 - Decision (2026-10-30, author): the Steam library set has no size cap and syncs once a day; it is a special set kept out of the costly operations (active goals, trade suggestions); the spec's Steam profile data and Catalog source constraints carry the exception.
 - Unknown: the architecture rule letting a daily background job read a player's library within the Steam Web API's quota; `bmad-architecture` settles it before the story is built.
 - Follow-up: the legal page's stored-data line and the privacy notice name the library list.
+- Decision (2026-10-30, inception): twelve entries. The tracer bullet is entry 3, a custom set created and opened as an album through every layer. Entries 1, 2 and 6 run in parallel from the start; entry 3 then opens the custom sets lane (4, 5) and the goals lane (9, 11), entry 10 waits on both, and the library lane (7, 8) waits on 3 and 6. A closing refactor sweep (12) is kept.
+- Decision (2026-10-30, author): the screens are designed first with `bmad-ux`, in a hitl entry (2) every screen entry waits on, rather than in each build.
+- Decision (2026-10-30, author): the collection pages' top-bar counter opens the same rarity legend as the other pages' counter (entry 1).
+- Decision (2026-10-30, inception): the high-risk entries 3, 7 and 9 (schema, a background job on Steam, the goals table) are each checked by the author on staging before the next entry of their lane starts.
+- Decision (2026-10-30, inception): the backlog bug on the legal page's stored-data line is built before entry 8, which edits the same pages.
