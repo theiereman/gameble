@@ -25,7 +25,7 @@ Context for MVP design decisions that must not block these. Nothing here is buil
 ## Later
 
 - **Odds input at opening:** an input the player makes at opening that improves the odds of a good card. The stratagem-like arrow code is rejected as too close to Helldivers; the form is open.
-- **Steam library bonuses:** bonuses on the cards of games a player owns, from playtime and achievements. They are bonuses only; the library never grants a card. Reading a player's library may depend on their Steam profile privacy settings; verify before designing.
+- **Steam library bonuses:** bonuses on the cards of games a player owns, from playtime and achievements. They are bonuses only; the library never grants a card. Steam shares a player's library only when their profile's game details are public; the Steam library set (CAP-27, release 1.1.0) reads it first.
 - **Library info on a shared card:** show the owner's Steam library info when they own the game.
 - **Live trades:** both players at the trade board at the same time.
 - **Trade discussion:** a free-text discussion between the two players on a trade, raised while forging the open trade request (2026-10-15); to be forged on its own. Player-written text needs reports, hiding and back-office reading (CAP-15), export and erasure with the account (CAP-14), bans, private profiles, an unread badge, live delivery and rate limits.

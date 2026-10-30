@@ -222,6 +222,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - A custom set shows owned / total distinct cards and opens as an album with an empty slot naming each missing game; a copy counts whatever edition it was minted in.
     - It shows the rank tiers a game set of its size has (`catalog-and-rarity.md`), with no reward: no title, back, celebration, feed line or seasonal allocation.
     - Only its author sees a custom set or its name (author, 2026-10-30).
+    - A player can create one Steam library set: the catalog games they own on Steam, with no size cap, kept in step with their library. It grants no card. When Steam does not share the library (game details not public), the screen says so (author, 2026-10-30).
 - **CAP-28**
   - **intent:** A player picks a few sets to aim at, and the game keeps their progress and missing cards in front of them.
   - **success:**
@@ -236,7 +237,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **French and English UI**, both complete at launch. Card text is available in every UI language. The English copy is translated by AI from the French. All repo text (code, comments, docs) is in English.
 - **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability up to CAP-26 is live at launch. CAP-23 is live before the second season is published in production. Release 1.1.0 ships CAP-27, CAP-28 and the 2026-10-30 changes to CAP-6, CAP-9, CAP-17 and CAP-20; the trade suggestions of CAP-11 may follow in a later release.
 - **Landing ship conditions:** CAP-24 and CAP-25 go live only once the lore text exists in French and English (`lore.md`), the pioneer (CAP-13) is built, the repository is public with a license file, the roadmap's milestones are created from the initiative's epics and curated by staff in the back-office, and the app uses JetBrains Mono.
-- **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports.
+- **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports, and, while a player keeps a Steam library set (CAP-27), the catalog games of their library, covered by export and deletion.
 - **Player-facing words:** the interface says "capsule" for pack (French and English), "réserve" for bank and "objectif communautaire" for the weekly goal, and keeps "carte" / "card" (in the lore, an archive card: `lore.md`). The spec, the code, the database, stored events and URLs keep pack, bank and weekly goal.
 - **Cards are only pulled or traded.** Owning a game on Steam never grants its card.
 - **Card copies:** a player can own several copies of a card. Copies are counted per card and season, so each keeps the rarity and season it was minted with, and a V2 market needs no migration. The minted season is the copy's edition. Draws give only the published season's cards; earlier editions change hands only by trade.
@@ -248,7 +249,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CI/CD ready:** one reproducible container image, run as web, jobs and import processes; configuration by environment variables only; automated tests in CI from day one.
 - **Separable processes:** the web app, the catalog importer and background workers are parts of one modular monolith that can be deployed separately.
 - **Pack opening:** p95 latency < 200 ms.
-- **Catalog source:** the Steam Web API (keyed, batched), read only by offline import scripts that copy the data into gameble's database; the keyless store API is not used. Play never depends on a live Steam API call, and a card keeps its data if Steam changes or removes the game.
+- **Catalog source:** the Steam Web API (keyed, batched), read only by offline import scripts that copy the data into gameble's database, except a player's own library, read by a background job for their Steam library set (CAP-27); the keyless store API is not used. Play never depends on a live Steam API call, and a card keeps its data if Steam changes or removes the game.
 - **Images:** loaded from Steam's CDN, never copied, except the shared link's preview image (CAP-9), rendered from the Steam art and stored by gameble. In the browser, at display time, the vertical cover is cropped to the card's art box, pixelated at 2 CSS px per image pixel and reduced to about 32 colours, with no dithering. The publisher is shown on the card; the ownership notice is on the legal page. There is no fallback art.
 - **Legal:** the notice that gameble has no affiliation with Steam or Valve, the ownership notice (in substance: « Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons. »), the terms of use and the privacy notice live on a legal page reached from "Mentions légales" (profile, public page footer and landing footer; author, 2026-10-20).
 - **Look and behaviour** follow `DESIGN.md` and `EXPERIENCE.md`. The back-office is outside them: plain functional style, behaviour unchanged, designed later.
@@ -291,10 +292,12 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 - Per-card draw odds are those in `catalog-and-rarity.md` and are tuned in playtests.
 - Card text translations come from Steam's own localized store text, imported once per UI language.
+- A Steam library set counts among the player's 10 custom sets; when Steam stops sharing the library it keeps its last list; deleting it stops the sync and erases the stored list (CAP-27).
 - A repost is a past event: it stays in the feed after the card is traded away, and disappears with a hidden or banned profile (CAP-14, CAP-15).
 
 ## Open Questions
 
 - **Card backs (CAP-20):** beyond one back per theme or hall of fame set at its back tier and the achievement backs of `achievements.md`, which goal and event backs ship, and does every successful weekly goal grant one?
+- **Steam library set (CAP-27):** how often it syncs within the Steam Web API's daily quota (architecture), and what goals and trade suggestions over an uncapped set cost (inception).
 - **Preview image (CAP-9):** do Steam's terms allow its store art in a derived, stored image? The author checks before it ships.
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.
