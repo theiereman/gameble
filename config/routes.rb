@@ -111,6 +111,8 @@ Rails.application.routes.draw do
     resource :data_export, only: %i[show create], path: "settings/export", as: :settings_export
     resource :friends, only: :show
     resource :achievements, only: :show
+    # Collecting an achievement the player has reached, by its catalogue key.
+    post "achievements/:key/collect" => "achievement_collections#create", as: :collect_achievement, constraints: { key: /[a-z0-9_]+/ }
     get "friends/:token" => "friend_profiles#show", as: :friend_profile,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     post "friends/:token/remove" => "friends#remove", as: :remove_friend,

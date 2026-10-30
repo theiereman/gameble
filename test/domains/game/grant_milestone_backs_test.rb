@@ -25,12 +25,11 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
   end
 
   def record_achievement(key, player: @player)
-    Game::AchievementUnlock.create!(player_id: player.id, achievement: key, unlocked_at: Time.current)
+    Game::AchievementUnlock.create!(player_id: player.id, achievement: key, unlocked_at: Time.current, collected_at: Time.current)
   end
 
-  def achievement_event(key, retroactive: false)
-    data = { player_id: @player.id, achievement: key }
-    Game::AchievementUnlocked.new(data: retroactive ? data.merge(retroactive: true) : data)
+  def achievement_event(key)
+    Game::AchievementCollected.new(data: { player_id: @player.id, achievement: key })
   end
 
   test "the catalogue names the goal, achievement and event backs with their rules" do
@@ -82,22 +81,18 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
     assert_empty unlocked
   end
 
-  test "a retroactive achievement unlock grants its back silently" do
-    record_achievement("boosters_100")
-    perform_enqueued_jobs { Game::Handlers::CardBacks.call(achievement_event("boosters_100", retroactive: true)) }
-
-    assert_equal [ "centurion" ], unlocked
-    assert unlock_events.sole.data[:retroactive]
-  end
-
-  test "granting the achievement itself grants its back through the subscribed handler" do
+  test "a reached achievement grants its back only once the player collects it, through the subscribed handler" do
     progress = Hash.new(0).merge(legendaries_obtained: 1)
     original = Game::AchievementProgress.method(:call)
     Game::AchievementProgress.define_singleton_method(:call) { |_player| progress }
 
     perform_enqueued_jobs { Game::GrantAchievement.new.call(player: @player, achievement: "first_legendary").value! }
+    assert_empty unlocked
+
+    perform_enqueued_jobs { Game::CollectAchievement.new.call(player: @player, achievement: "first_legendary").value! }
 
     assert_equal [ "etoile-dor" ], unlocked
+    assert_not unlock_events.sole.data[:retroactive]
   ensure
     Game::AchievementProgress.define_singleton_method(:call, original)
   end

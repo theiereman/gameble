@@ -143,6 +143,9 @@ profile routes are named `brothers` for historical reasons.
 **Achievement.** A badge unlocked by a milestone (first capsule, first epic,
 openings counts...). `Game::Achievements` lists them,
 `Game::GrantAchievement` unlocks one, `Game::AchievementUnlock` stores it.
+An unlocked achievement waits, ready to collect, until the player clicks it on
+the achievements screen: `Game::CollectAchievement` stamps it collected, and
+only then does it count as earned and grant its card back.
 
 **Card back.** The cosmetic back of a pack. Only the standard one exists today.
 `Game::CardBacks`.

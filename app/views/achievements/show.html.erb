@@ -2,17 +2,18 @@
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".title") %>
 <% content_for :phone_back do %>
-  <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
-    <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
+  <%= link_to brother_path(token: current_player.token), class: "button button--secondary button--small top-bar__phone-back" do %>
+    <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".profile") %></span>
   <% end %>
 <% end %>
-<% earned, to_earn = @tiles.partition(&:earned) %>
+<% ready = @tiles.select(&:ready) %>
+<% earned, to_earn = (@tiles - ready).partition(&:earned) %>
 <section class="achievements" aria-labelledby="achievements-heading">
   <h1 id="achievements-heading" class="achievements__title"><%= t(".title") %></h1>
   <%= render "achievements/header", earned: earned.size, total: @tiles.size %>
-  <% [ [ :earned, earned ], [ :to_earn, to_earn ] ].each do |group, tiles| %>
+  <% [ [ :ready, ready ], [ :earned, earned ], [ :to_earn, to_earn ] ].each do |group, tiles| %>
     <% next if tiles.empty? %>
-    <section class="achievements__group" aria-labelledby="achievements-<%= group %>">
+    <section class="<%= class_names("achievements__group", "achievements__group--ready": group == :ready) %>" aria-labelledby="achievements-<%= group %>">
       <h2 id="achievements-<%= group %>" class="achievements__heading"><%= t(".groups.#{group}", count: tiles.size) %></h2>
       <ul class="achievements__grid">
         <%= render partial: "achievements/tile", collection: tiles, as: :tile %>

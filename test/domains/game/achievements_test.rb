@@ -212,9 +212,9 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_equal [ { player_id: @player.id, achievement: "first_booster" } ], unlock_events.map(&:data)
     toasts = broadcasts(PlayerStream.name(@player, :fr)).map { ActiveSupport::JSON.decode(it) }
     assert_equal 1, toasts.size
-    assert_match "Succès débloqué", toasts.sole
+    assert_match "Succès à récupérer", toasts.sole
     assert_match "Première capsule", toasts.sole
-    assert_match "Achievement unlocked", ActiveSupport::JSON.decode(broadcasts(PlayerStream.name(@player, :en)).sole)
+    assert_match "Achievement to collect", ActiveSupport::JSON.decode(broadcasts(PlayerStream.name(@player, :en)).sole)
     assert_no_broadcasts PlayerStream.name(@other, :fr)
   end
 

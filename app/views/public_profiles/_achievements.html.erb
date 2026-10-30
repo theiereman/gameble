@@ -1,6 +1,16 @@
-<%# locals: (achievements:) %>
+<%# locals: (achievements:, own: false) %>
 <section class="profile-section" aria-labelledby="profile-achievements-heading">
   <h2 id="profile-achievements-heading" class="profile-section__title"><%= t("public_profiles.show.achievements.title") %></h2>
+  <% if own %>
+    <%= link_to achievements_path, class: "button button--secondary button--small profile-achievements__open", data: { turbo_prefetch: false } do %>
+      <%= pixel_icon("bell", class: "button__icon") %>
+      <span class="button__label"><%= t("public_profiles.show.achievements.open") %></span>
+      <% if achievements.ready.positive? %>
+        <span class="profile-achievements__badge" aria-hidden="true"><%= achievements.ready %></span>
+        <span class="visually-hidden"><%= t("public_profiles.show.achievements.ready", count: achievements.ready) %></span>
+      <% end %>
+    <% end %>
+  <% end %>
   <%= render "achievements/header", earned: achievements.count, total: achievements.total %>
   <% if achievements.latest.any? %>
     <p class="profile-section__label"><%= t("public_profiles.show.achievements.latest") %></p>

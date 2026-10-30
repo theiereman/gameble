@@ -6,7 +6,7 @@ module Game
         Game::SetCompleted => false,
         Game::SeasonAllocationReceived => true,
         Game::GoalRewardGranted => false,
-        Game::AchievementUnlocked => false
+        Game::AchievementCollected => false
       }.freeze
 
       def self.call(event)

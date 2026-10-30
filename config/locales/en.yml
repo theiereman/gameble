@@ -51,14 +51,17 @@ en:
       groups:
         earned: Earned · %{count}
         to_earn: To earn · %{count}
-      more: More
+        ready: "Ready to collect · %{count}"
       progress: "%{progress} of %{threshold}"
       summary:
         one: "%{earned} achievement earned out of %{total}"
         other: "%{earned} achievements earned out of %{total}"
       title: Achievements
+      collect: "Collect"
+      collect_label: "Collect %{name}"
+      profile: "Profile"
     unlocked:
-      title: Achievement unlocked
+      title: "Achievement to collect"
   activerecord:
     errors:
       messages:
@@ -961,6 +964,8 @@ en:
       unknown_direction: Unknown direction.
       unknown_season: You did not earn this card back in that season.
       unknown_player: This invitation link is not valid.
+      not_ready: "This achievement is not ready to collect yet."
+      unknown_achievement: "This achievement does not exist."
     steam:
       already_published: The cards of that run are already published in a season,
         officer. Start a new import to fill the next draft.
@@ -2042,6 +2047,10 @@ en:
       achievements:
         latest: Latest earned
         title: Achievements
+        open: "Achievements"
+        ready:
+          one: "%{count} achievement to collect"
+          other: "%{count} achievements to collect"
       add_friend: ADD FRIEND
       add_friend_label: Add %{name} as a friend
       banned: 'Banned player: only staff can see this profile'
@@ -2549,3 +2558,6 @@ en:
       text: What you changed will be lost, and %{name}'s proposal will come back as
         it was.
       title: Discard the changes?
+  achievement_collections:
+    collected:
+      title: "Achievement collected"

@@ -7,7 +7,7 @@ class Game::EarnedAchievementsTest < ActiveSupport::TestCase
   end
 
   def unlock(key, at, player: @player)
-    Game::AchievementUnlock.create!(player_id: player.id, achievement: key, unlocked_at: at)
+    Game::AchievementUnlock.create!(player_id: player.id, achievement: key, unlocked_at: at, collected_at: at)
   end
 
   test "the count over the catalogue and the four latest earned, newest first, a tie by key, in one query" do
@@ -45,9 +45,20 @@ class Game::EarnedAchievementsTest < ActiveSupport::TestCase
     assert_equal %i[first_booster], earned.latest.map(&:key)
   end
 
+  test "a reached achievement not yet collected is counted as ready, never as earned" do
+    unlock("first_booster", @now - 1.day)
+    Game::AchievementUnlock.create!(player_id: @player.id, achievement: "first_epic", unlocked_at: @now)
+
+    earned = nil
+    assert_queries_count(1) { earned = Game::EarnedAchievements.call(@player) }
+
+    assert_equal [ 1, 1 ], [ earned.count, earned.ready ]
+    assert_equal %i[first_booster], earned.latest.map(&:key)
+  end
+
   test "nothing earned, without a query, for nil" do
     assert_queries_count(0) do
-      assert_equal Game::EarnedAchievements::Earned.new(count: 0, total: 10, latest: []), Game::EarnedAchievements.call(nil)
+      assert_equal Game::EarnedAchievements::Earned.new(count: 0, total: 10, latest: [], ready: 0), Game::EarnedAchievements.call(nil)
     end
   end
 end

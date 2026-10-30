@@ -519,7 +519,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "main h1", "Pont de commandement"
     assert_select ".hub__subtitle", "Le reste du vaisseau"
-    assert_select ".plus__list > li", 8
+    assert_select ".plus__list > li", 7
     assert_select ".plus__list > li:first-child a.menu-item.menu-item--plus[href='/fr/library/cards']", "Toutes les cartes"
     assert_select ".plus__list a.menu-item[href='/fr/settings']", /Profil et paramètres/
     assert_select ".plus__list a.menu-item[href='/fr/personalization']", /Personnalisation/
@@ -529,7 +529,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".plus__list a.menu-item[href='/fr/how-it-works']", /Comment ça marche/
     assert_select ".plus__list a.menu-item[href='/fr/friends']", /Amis/
     assert_select ".plus__list a.menu-item[href='/fr/feed']", /Fil d'activité/
-    assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
+    assert_select ".plus__list a.menu-item[href='/fr/achievements']", false
     assert_select ".plus__list .menu-item[aria-disabled]", false
     assert_select "a.tab-bar__tab[href='/fr/more'][aria-current=page]"
   end
