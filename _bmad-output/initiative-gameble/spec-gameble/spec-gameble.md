@@ -222,11 +222,11 @@ gameble is an open-source passion project, and the game its author wants to play
     - A custom set shows owned / total distinct cards and opens as an album with an empty slot naming each missing game; a copy counts whatever edition it was minted in.
     - It shows the rank tiers a game set of its size has (`catalog-and-rarity.md`), with no reward: no title, back, celebration, feed line or seasonal allocation.
     - Only its author sees a custom set or its name (author, 2026-10-30).
-    - A player can create one Steam library set: the catalog games they own on Steam, with no size cap, kept in step with their library. It grants no card. When Steam does not share the library (game details not public), the screen says so (author, 2026-10-30).
+    - A player can create one Steam library set: the catalog games they own on Steam, with no size cap, synced with their library once a day. It is a special set, apart from the 10 custom sets: it cannot be an active goal (CAP-28) and never feeds trade suggestions (CAP-11). It grants no card. When Steam does not share the library (game details not public), the screen says so (author, 2026-10-30).
 - **CAP-28**
   - **intent:** A player picks a few sets to aim at, and the game keeps their progress and missing cards in front of them.
   - **success:**
-    - A player holds up to five active goals at once, among the game's sets and their own custom sets, and changes them freely (#64, author, 2026-10-30).
+    - A player holds up to five active goals at once, among the game's sets and their own custom sets, the Steam library set excepted, and changes them freely (#64, author, 2026-10-30).
     - Each goal shows its progress, and its missing cards are highlighted wherever the collection shows them.
     - The bridge shows the player's goals. The profile shows their goals on game sets, under its visibility (CAP-8); a goal on a custom set never shows there (author, 2026-10-30).
     - Goals never change draw odds nor guarantee a card: pack draws are the same with or without goals.
@@ -292,12 +292,11 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 - Per-card draw odds are those in `catalog-and-rarity.md` and are tuned in playtests.
 - Card text translations come from Steam's own localized store text, imported once per UI language.
-- A Steam library set counts among the player's 10 custom sets; when Steam stops sharing the library it keeps its last list; deleting it stops the sync and erases the stored list (CAP-27).
+- When Steam stops sharing the library, the Steam library set keeps its last list; deleting it stops the sync and erases the stored list (CAP-27).
 - A repost is a past event: it stays in the feed after the card is traded away, and disappears with a hidden or banned profile (CAP-14, CAP-15).
 
 ## Open Questions
 
 - **Card backs (CAP-20):** beyond one back per theme or hall of fame set at its back tier and the achievement backs of `achievements.md`, which goal and event backs ship, and does every successful weekly goal grant one?
-- **Steam library set (CAP-27):** how often it syncs within the Steam Web API's daily quota (architecture), and what goals and trade suggestions over an uncapped set cost (inception).
 - **Preview image (CAP-9):** do Steam's terms allow its store art in a derived, stored image? The author checks before it ships.
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.
