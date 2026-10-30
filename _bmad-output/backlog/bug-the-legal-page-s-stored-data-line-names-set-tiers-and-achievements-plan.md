@@ -29,6 +29,13 @@ deferred:
     location: >-
       config/locales/en.yml pages.legal.privacy.purposes.game
     severity: low
+  - summary: >-
+      The stored data line does not name first discoveries or contributions to the community goal, which the deletion paragraph says are kept.
+    evidence: |-
+      Game::ReleasePlayer keeps game_first_discoveries rows (only their pack_id is cleared) and never touches game_weekly_contributions; both carry player_id while the account exists, and the deletion paragraph lists them among what is kept. The ticket asks the stored line to name what the deletion paragraph erases, so kept items were left out; naming them (and adding them to the pages test's term list) is a follow-up wording change in both locales.
+    location: >-
+      config/locales/en.yml pages.legal.privacy.stored.activity, config/locales/fr.yml pages.legal.privacy.stored.activity, test/controllers/pages_controller_test.rb
+    severity: medium
 ---
 
 <intent-contract>
@@ -68,6 +75,14 @@ Done: the stored activity line in both locales now uses the deletion paragraph's
   - `[low]` `[defer]` The purposes line still lists the old, partial set of game data — real but pre-existing and not caused by this change; the line summarises a purpose rather than listing data; deferred.
   - `[low]` `[patch]` The test's fixed term list means a new item added to the deletion paragraph alone would pass, while the test name promised every erased item — renamed the test to "the stored data line and the deletion paragraph name the same game data"; parsing the paragraph instead would add complexity for little gain.
 
+### 2026-10-30 — Review pass
+- verdicts: 4 findings — high 0, medium 2, low 2, false 0, maybe-false 0
+- findings:
+  - `[medium]` `[defer]` The stored line names trades but not first discoveries or community goal contributions, which the deletion paragraph says are kept — real: ReleasePlayer keeps FirstDiscovery rows (pack_id cleared) and never touches WeeklyContribution, both keyed by player_id; the ticket asks for what the deletion paragraph erases, so kept items fall outside it; deferred.
+  - `[low]` `[defer]` The pages test's term list does not cover the kept items and, being fixed, cannot catch an item added to one line only — the kept-items half shares the root cause above and is deferred with it; the fixed-list half is carried: same claim as the earlier low patch, the test was already renamed to match.
+  - `[low]` `[reject]` The plan says `en.yml` stays normalized but `i18n-tasks check-normalized` now flags it — the fix is an edit to this build's plan; the flag comes from the long, unwrapped deletion line, not from this change's wrapped stored line, and CI runs only `i18n-tasks missing`.
+  - `[medium]` `[defer]` The active title is named in neither line — carried: PlayerState still holds the active_title columns and ReleasePlayer deletes it; already deferred.
+
 ## Verification
 
 **Commands:**
@@ -86,3 +101,11 @@ Done: the stored activity line in both locales now uses the deletion paragraph's
 - **Follow-up review recommended:** false (one low patch).
 - **Verification:** `bin/rails test test/controllers/pages_controller_test.rb` 59 runs, 0 failures; with search_engines, sessions, sign_ins and shell tests 163 runs, 0 failures; system tests reaching the legal page (`hub_test -n /legal/` 3, `share_card_test -n /legal page/` 1, `settings_test -n /legal page/` 1) pass; `i18n-tasks missing`, `script/check_planning_references`, `script/check_file_sizes`, rubocop pass.
 - **Residual risks:** the active title stays unnamed in the privacy copy (deferred).
+
+### Follow-up review pass (2026-10-30)
+
+- **Summary:** re-dispatched on a `built` plan; the change (commit 5184a2873befa51c7b52caf666632260fae5f4db) was reviewed again with the quick lens, no code changed.
+- **Review:** 4 findings: 0 patches, 3 deferred (kept first discoveries and community goal contributions unnamed in the stored line, medium, new; the test's term list, low, grouped with it; the active title, medium, carried), 1 rejected (the plan's normalization note; fixing it means editing the plan).
+- **Follow-up review recommended:** false (no patch on this pass).
+- **Verification:** `bin/rails test test/controllers/pages_controller_test.rb` 59 runs, 0 failures; `i18n-tasks missing` clean; `script/check_planning_references` and `script/check_file_sizes` pass.
+- **Residual risks:** the privacy copy still omits the active title, first discoveries and community goal contributions from the stored list (deferred).
