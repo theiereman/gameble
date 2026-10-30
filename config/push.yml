@@ -1,0 +1,12 @@
+# The push services of the mobile apps. A platform without its key is left
+# out: PushNotices sends nothing to its devices.
+shared:
+  apple:
+    key_id: <%= ENV["APNS_KEY_ID"] %>
+    encryption_key: <%= ENV["APNS_ENCRYPTION_KEY"]&.dump %>
+    team_id: <%= ENV["APNS_TEAM_ID"] %>
+    topic: <%= ENV.fetch("APNS_TOPIC", "net.gameble.app") %>
+    connect_to_development_server: <%= ENV["APNS_DEVELOPMENT"] == "on" %>
+  google:
+    encryption_key: <%= ENV["FCM_SERVICE_ACCOUNT"]&.dump %>
+    project_id: <%= ENV["FCM_PROJECT_ID"] %>

@@ -1,6 +1,24 @@
 # Interface copy in French, in the Brotherhood tone (brotherhood-tone.md).
 # Every key here has its twin in en.yml; CI fails on a key missing in either.
 fr:
+  native_sign_ins:
+    show:
+      back_to_app: "Revenir à l'appli"
+      line: "Vous êtes connecté en tant que %{name}. Revenez dans l'appli Gameble pour continuer à jouer."
+      title: "Connexion à l'appli"
+  push_notices:
+    invitation_sent:
+      body: "%{name} veut devenir votre ami."
+      title: "Demande d'ami"
+    trade_accepted:
+      body: "%{name} a accepté votre échange."
+      title: "Échange accepté"
+    trade_countered:
+      body: "%{name} a répondu à votre échange par une contre-offre."
+      title: "Contre-offre"
+    trade_proposed:
+      body: "%{name} vous propose un échange."
+      title: "Nouvelle offre d'échange"
   layouts:
     application:
       title: "Gameble"
@@ -12,6 +30,8 @@ fr:
       already_added: "Cette connexion est déjà celle de votre compte."
   sign_ins:
     show:
+      native_continue: "Se connecter dans le navigateur"
+      native_line: "Connectez-vous avec Steam, Discord, Google ou un code par e-mail dans le navigateur du téléphone, puis revenez ici."
       heading: "Se connecter"
       line: "Choisissez comment embarquer."
       separator: "ou"
@@ -1482,6 +1502,12 @@ fr:
     title: "Saison %{season}"
   settings:
     show:
+      notifications:
+        denied: "Les notifications sont coupées. Activez-les dans les réglages du téléphone."
+        failed: "Les notifications n'ont pas pu être activées. Réessayez dans un instant."
+        granted: "Les notifications sont activées sur ce téléphone."
+        label: "Notifications"
+        turn_on: "Activer"
       title: "Profil et paramètres"
       language:
         label: "Langue"
@@ -1629,6 +1655,8 @@ fr:
       label: "Voir la collection"
       named: "Voir la collection de %{name}"
     show:
+      share: "Partager"
+      share_text: "Rejoins-moi sur Gameble, le jeu de cartes à échanger où chaque carte est un jeu Steam."
       title: "Amis"
       code_label: "Votre code ami"
       empty: "Aucun ami pour l'instant."
@@ -2034,7 +2062,7 @@ fr:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos réactions aux entrées du fil et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), les téléphones où vont vos notifications, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos réactions aux entrées du fil et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
       kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à la mission hebdo, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
@@ -2574,6 +2602,7 @@ fr:
       announcement_not_found: "Cette annonce est introuvable."
       announcement_not_shown: "Cette annonce n'est plus sur le bandeau."
       invalid_announcement: "Écrivez l'annonce dans les deux langues, 280 caractères au plus chacune."
+      invalid_push_device: "Cet appareil n'a pas pu être inscrit aux notifications. Réessayez."
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       export_too_soon: "Un export toutes les 5 minutes au plus. Réessayez dans quelques minutes."
       no_longer_idle: "Ce joueur n'est plus inactif : son compte n'est pas supprimé."

@@ -1,7 +1,7 @@
 <title><%= content_for(:title) || t("layouts.application.title") %></title>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171a21">
-<% unless motion_reduced? %>
+<% unless motion_reduced? || hotwire_native_app? %>
   <meta name="view-transition" content="same-origin">
 <% end %>
 <% if current_player&.welcome_pending %>

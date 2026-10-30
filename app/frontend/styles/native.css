@@ -1,0 +1,10 @@
+/* Inside the mobile apps: their native tab and navigation bars take the place of the web ones. */
+:root[data-native-app] {
+  --tabbar-height: 0;
+}
+
+:root[data-native-app] .top-bar__bridge,
+:root[data-native-app] .top-bar__previous,
+:root[data-native-app] .top-bar__phone-back {
+  display: none;
+}

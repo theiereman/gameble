@@ -10,6 +10,7 @@ module Accounts
         step publish(PlayerDeleted.new(data: { player_id: player.id }), stream_name: "Accounts::Player$#{player.id}")
         DataExport.where(player_id: player.id).delete_all
         AnnouncementDismissal.where(player_id: player.id).delete_all
+        PushDevice.where(player_id: player.id).delete_all
         clerk_user_ids = Identity.where(player_id: player.id).through_clerk.distinct.pluck(:clerk_user_id)
         Identity.where(player_id: player.id).delete_all
         erase_clerk_users_after_commit(clerk_user_ids - Identity.where(clerk_user_id: clerk_user_ids).pluck(:clerk_user_id))

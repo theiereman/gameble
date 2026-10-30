@@ -35,6 +35,8 @@ class SessionsController < ApplicationController
     CreateSteamLibrarySetJob.perform_later(player.id)
     if (invite = invite_origin)
       redirect_to invite, notice: t(".welcome")
+    elsif (native = native_sign_in_origin)
+      redirect_to native
     else
       redirect_to home_path, notice: (t(".welcome") unless player.welcome_pending), flash: { signed_in: true }
     end
@@ -50,11 +52,17 @@ class SessionsController < ApplicationController
   def destroy
     authorize :session
     write_motion_cookie(current_player.reduced_motion)
+    forget_push_device
     reset_session
     redirect_to home_path, notice: t(".farewell")
   end
 
   private
+    def forget_push_device
+      token = session[PushDevicesController::SESSION_KEY]
+      Accounts::ForgetPushDevice.new.call(token:) if token
+    end
+
     def link_steam(steam_id)
       linked_before = Accounts::IdentitiesOf.call(current_player).any? { it.provider == "steam" }
       result = link_reporting_failure(steam_id)
@@ -126,6 +134,11 @@ class SessionsController < ApplicationController
     def invite_origin
       origin = origin_path
       origin if origin && INVITE_PATH.match?(origin)
+    end
+
+    def native_sign_in_origin
+      origin = origin_path
+      origin if NativeSignIn.path?(origin)
     end
 
     def return_path

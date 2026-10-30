@@ -89,6 +89,19 @@
             </li>
           <% end %>
 
+          <% if hotwire_native_app? %>
+          <li class="settings-row" hidden <%= tag.attributes(data: { controller: "bridge--push-permission", bridge__push_permission_url_value: push_devices_path,
+                bridge__push_permission_granted_value: t(".notifications.granted"), bridge__push_permission_denied_value: t(".notifications.denied"),
+                bridge__push_permission_failed_value: t(".notifications.failed") }) %>>
+            <p id="settings-notifications" class="settings-row__label"><%= t(".notifications.label") %></p>
+            <div class="settings-row__actions">
+              <button type="button" class="button button--secondary button--small" aria-describedby="settings-notifications"
+                data-bridge--push-permission-target="button" data-action="bridge--push-permission#request"><%= t(".notifications.turn_on") %></button>
+              <p class="settings-row__note" role="status" data-bridge--push-permission-target="status"></p>
+            </div>
+          </li>
+          <% end %>
+
           <li class="settings-row">
             <p id="settings-session" class="settings-row__label"><%= t(".session.label") %></p>
             <%= render ButtonComponent.new(variant: :secondary, size: :small, href: session_path, method: :delete, turbo: false) do %><%= t(".session.sign_out") %><% end %>

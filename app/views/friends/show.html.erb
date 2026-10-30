@@ -17,6 +17,8 @@
           <div class="friends__row-field">
             <input type="text" id="invite-link" class="friends__input" value="<%= invite_url %>" readonly data-share-target="url">
             <button type="button" class="button button--secondary button--small" data-action="share#copy"><%= t(".copy") %></button>
+            <button type="button" class="button button--secondary button--small" hidden data-action="bridge--share#share"
+              <%= tag.attributes(data: { controller: "bridge--share", bridge__share_url_value: invite_url, bridge__share_text_value: t(".share_text") }) %>><%= t(".share") %></button>
           </div>
           <p class="friends__status" role="status" data-share-target="status"></p>
         </div>

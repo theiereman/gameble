@@ -1,5 +1,23 @@
 ---
 en:
+  native_sign_ins:
+    show:
+      back_to_app: Back to the app
+      line: You are signed in as %{name}. Go back to the Gameble app to keep playing there.
+      title: Sign in to the app
+  push_notices:
+    invitation_sent:
+      body: "%{name} wants to be your friend."
+      title: Friend request
+    trade_accepted:
+      body: "%{name} accepted your trade."
+      title: Trade accepted
+    trade_countered:
+      body: "%{name} answered your trade with a counter-offer."
+      title: Counter-offer
+    trade_proposed:
+      body: "%{name} sent you a trade offer."
+      title: New trade offer
   accounts:
     destroy:
       deleted: Your account has been deleted. Thank you for playing.
@@ -12,7 +30,7 @@ en:
         discoveries, your contributions to the weekly mission, reports, the moderation
         history and the log of game actions. This cannot be undone.'
       label: Type %{word} to confirm
-      note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), your name, your profile and its link,
+      note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), the phones your notifications go to, your name, your profile and its link,
         the time of your last visit, your last data export, the announcements you closed and your latest activity,
         your collection, your showcase, your set tiers, your custom sets, your goals, your achievements, your
         card back unlocks and your active card back, your capsules, opened or not, your daily bonuses and your weekly mission rewards,
@@ -963,6 +981,7 @@ en:
       announcement_not_found: "That announcement could not be found."
       announcement_not_shown: "That announcement is no longer on the banner."
       invalid_announcement: "Write the announcement in both languages, 280 characters at most each."
+      invalid_push_device: That device could not be registered for notifications. Try again.
       administrator_required: Only an administrator can do that, officer.
       already_banned: That player is already banned, officer.
       banned: This account has been suspended. You can no longer sign in.
@@ -1258,6 +1277,8 @@ en:
       text: "%{name} is no longer one of your friends."
       title: Friend removed
     show:
+      share: Share
+      share_text: Join me on Gameble, the trading card game where every card is a Steam game.
       accept: Accept
       add: Add
       add_by_code: Add with a code
@@ -2543,6 +2564,12 @@ en:
         zero: Going private cancels none of your trades.
       title: Go private?
     show:
+      notifications:
+        denied: Notifications are off. Turn them on in your phone's settings.
+        failed: Notifications could not be turned on. Try again in a moment.
+        granted: Notifications are on for this phone.
+        label: Notifications
+        turn_on: Turn on
       account:
         delete: Delete my account
         label: Account
@@ -2638,6 +2665,8 @@ en:
       google: Google
       steam: Steam
     show:
+      native_continue: Sign in in the browser
+      native_line: Sign in with Steam, Discord, Google or an email code in your phone's browser, then come back here.
       heading: Sign in
       line: Choose how you want to come aboard.
       separator: or

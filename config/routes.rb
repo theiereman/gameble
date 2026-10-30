@@ -20,6 +20,13 @@ Rails.application.routes.draw do
     get "sign-in/callback" => "sign_ins#show", as: :sign_in_callback, defaults: { mode: "callback" }
     # The browser posts here once Clerk holds a session: the server checks it and opens its own.
     post "auth/clerk" => "clerk_sessions#create", as: :clerk_session
+    # The mobile apps' sign-in, opened in the system browser: once signed in there, the player is sent back to the app with a ticket.
+    get "native/sign-in/:state" => "native_sign_ins#show", as: :native_sign_in, constraints: { state: NativeSignIn::STATE }
+    post "native/sign-in/:state" => "native_sign_ins#create", constraints: { state: NativeSignIn::STATE }
+    # Where the app trades that ticket for the session its web views share.
+    post "native/session" => "native_sessions#create", as: :native_session
+    # A signed-in app giving the device its push notifications go to.
+    post "native/push-devices" => "push_devices#create", as: :push_devices
     # A signed-in player adding Discord, Google or an email code to their account.
     post "settings/sign-ins" => "sign_in_methods#create", as: :settings_sign_ins
     # A signed-in player without Steam asking to link it: the Steam return then adds it to their account.

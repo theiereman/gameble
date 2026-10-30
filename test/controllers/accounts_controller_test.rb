@@ -28,6 +28,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "accounts_data_exports" => { fr: [ "votre dernier export de données" ], en: [ "your last data export" ] },
     "accounts_announcement_dismissals" => { fr: [ "les annonces que vous avez fermées" ], en: [ "the announcements you closed" ] },
     "accounts_identities" => { fr: [ "vos modes de connexion" ], en: [ "your sign-in methods" ] },
+    "accounts_push_devices" => { fr: [ "les téléphones où vont vos notifications" ], en: [ "the phones your notifications go to" ] },
     "game_player_states" => { fr: [ "votre dernière activité" ], en: [ "your latest activity" ] },
     "game_holdings" => { fr: [ "votre collection" ], en: [ "your collection" ] },
     "game_showcase_entries" => { fr: [ "votre vitrine" ], en: [ "your showcase" ] },
