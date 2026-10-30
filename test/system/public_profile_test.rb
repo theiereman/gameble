@@ -30,7 +30,7 @@ class PublicProfileTest < ApplicationSystemTestCase
     unstub_steam_api
   end
 
-  test "a player finds their public profile in the player menu; a visitor reads it" do
+  test "a player opens their public profile from the top bar's avatar; a visitor reads it" do
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
@@ -39,7 +39,6 @@ class PublicProfileTest < ApplicationSystemTestCase
     within(".hub-menu") { click_on "Collection" }
     assert_current_path library_path(locale: :en)
     find(".player-chip__button").click
-    within("#player-menu") { click_on "My public profile" }
 
     assert_current_path brother_path(locale: :en, token: @player.token)
     assert_title "Gabe the Brave"

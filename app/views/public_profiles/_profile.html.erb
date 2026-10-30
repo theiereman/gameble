@@ -1,7 +1,16 @@
-<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:, started_set_count:, showcase:, relation:, open_trade_token: nil, owner_title: nil) %>
+<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:, started_set_count:, showcase:, relation:, open_trade_token: nil, owner_title: nil, editing: nil) %>
 <section class="profile" aria-labelledby="profile-heading">
-  <%= render "public_profiles/summary", owner:, title:, season:, summary:, card_total:, achievements: achievements, relation: relation, open_trade_token: open_trade_token, owner_title: owner_title %>
-  <%= render "public_profiles/showcase", owner:, cards: showcase, movable: current_player.present? && current_player == owner, moved: flash[:moved_showcase_card] if showcase.any? %>
+  <%= render "public_profiles/summary", owner:, title:, season:, summary:, card_total:, achievements: achievements, relation: relation, open_trade_token: open_trade_token, owner_title: owner_title, editing: %>
+  <% if showcase.any? %>
+    <%= render "public_profiles/showcase", owner:, cards: showcase, movable: editing.present?, removable: editing.present?,
+          moved: flash[:moved_showcase_card], removed: (flash[:removed_showcase_card] if editing) %>
+  <% elsif editing %>
+    <section class="profile-section" aria-labelledby="profile-showcase-heading">
+      <% removed = flash[:removed_showcase_card].present? %>
+      <%= tag.h2 t("public_profiles.show.showcase.title"), id: "profile-showcase-heading", class: "profile-section__title", tabindex: (-1 if removed), autofocus: removed %>
+      <p class="profile-section__empty"><%= t("personalizations.show.showcase.empty") %></p>
+    </section>
+  <% end %>
   <% if season.nil? %>
     <%= render PanelComponent.new(tag: :p, class: "profile__no-season") do %><%= t("public_profiles.show.no_season") %><% end %>
   <% else %>
@@ -11,3 +20,4 @@
   <% end %>
 </section>
 <%= render "reports/dialog", owner: owner if current_player && current_player != owner %>
+<%= render "public_profiles/edit_dialogs", owner:, active_title: owner_title, **editing if editing %>

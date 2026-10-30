@@ -182,17 +182,13 @@ class ShellTest < ActionDispatch::IntegrationTest
     end
     assert_select ".packs-chip a, p.packs-chip", false
 
-    assert_select ".player-chip button.player-chip__button[popovertarget=player-menu]" do
+    assert_select ".player-chip a.player-chip__button[href=?][aria-label=?]", "/en/brothers/#{player.token}", "Your profile, Player" do
       assert_select "svg.pixel-icon.player-chip__avatar"
       assert_select ".player-chip__name", "Player"
       assert_select ".player-chip__dot[aria-hidden=true]"
     end
-    assert_select "nav#player-menu[popover][aria-label=?]", "Player menu" do
-      assert_select "a.player-menu__item[href=?]", "/en/brothers/#{player.token}", text: "My public profile"
-      assert_select "a[href='/en/back-office']", false
-      assert_select "form[action=?] input[name=_method][value=delete]", "/session?locale=en"
-      assert_select "form button.player-menu__item", "Sign out"
-    end
+    assert_select "#player-menu, [popovertarget=player-menu]", false
+    assert_select ".top-bar form[action^='/session']", false
     assert_select ".top-bar form[action='/auth/steam']", false
   end
 
@@ -240,12 +236,14 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_equal %w[3 0 0 0 0], css_select(".rarity-counter__count").map { it.text.strip }
   end
 
-  test "staff find the back-office in the player menu" do
+  test "staff find the back-office in the settings, not in the top bar" do
     sign_in(accounts_players(:moderator))
 
     get library_path(locale: :fr)
+    assert_select ".top-bar a[href='/fr/back-office']", false
 
-    assert_select "#player-menu a.player-menu__item[href='/fr/back-office']", "Back-office"
+    get settings_path(locale: :fr)
+    assert_select ".settings-row a[href='/fr/back-office']", "Back-office"
   end
 
   test "the phone tab bar: five tabs, the screens as links, locked during an opening" do

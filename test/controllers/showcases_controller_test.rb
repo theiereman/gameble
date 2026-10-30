@@ -132,17 +132,15 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
   end
 
   [ :en, :fr ].each do |locale|
-    test "a new order is read on the Personalization page, the public profile and the hub in #{locale}" do
+    test "a new order is read on the public profile and the hub in #{locale}" do
       choose(:portal_one, :common_card_one, :uncommon_card_one)
       sign_in(@player)
 
       patch showcase_path(slug: "green-hills", locale:), params: { direction: "earlier" }
       patch showcase_path(slug: "green-hills", locale:), params: { direction: "earlier" }
 
-      [ personalization_path(locale:), brother_path(locale:, token: @player.token) ].each do |path|
-        get path
-        assert_equal %w[green-hills portal tin-soldier], showcase_slugs, path
-      end
+      get brother_path(locale:, token: @player.token)
+      assert_equal %w[green-hills portal tin-soldier], showcase_slugs
       get home_path(locale:)
       assert_select ".hub-showcase__actions a[href=?]", card_season_path(locale:, slug: "green-hills", number: 1)
     end
@@ -152,9 +150,9 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     choose(:portal_one, :common_card_one, :uncommon_card_one)
     sign_in(@player)
 
-    delete showcase_path(slug: "portal", locale: :fr), headers: { "HTTP_REFERER" => personalization_path(locale: :fr) }
+    delete showcase_path(slug: "portal", locale: :fr), headers: { "HTTP_REFERER" => brother_path(locale: :fr, token: @player.token) }
 
-    assert_redirected_to personalization_path(locale: :fr)
+    assert_redirected_to brother_path(locale: :fr, token: @player.token)
     assert_equal "Retiré de la vitrine", flash[:toast_title]
     assert_match(/n'est plus dans votre vitrine/, flash[:notice])
     follow_redirect!
@@ -168,16 +166,16 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     choose(:portal_one, :common_card_one)
     sign_in(@player)
 
-    delete showcase_path(slug: "tin-soldier"), headers: { "HTTP_REFERER" => personalization_path(locale: :en) }
+    delete showcase_path(slug: "tin-soldier"), headers: { "HTTP_REFERER" => brother_path(locale: :en, token: @player.token) }
     follow_redirect!
     assert_select "#toasts .toast__title", "Removed from showcase"
     assert_select ".profile-showcase__slot:nth-child(1) button[autofocus][aria-label^=Remove]"
     assert_select ".profile-showcase__info-text", /cross/
     assert_select ".profile-showcase__info-text", { text: /Drag/, count: 0 }
 
-    delete showcase_path(slug: "portal"), headers: { "HTTP_REFERER" => personalization_path(locale: :en) }
+    delete showcase_path(slug: "portal"), headers: { "HTTP_REFERER" => brother_path(locale: :en, token: @player.token) }
     follow_redirect!
-    assert_select "h2.personalization-section__title[autofocus][tabindex='-1']", "Showcase"
+    assert_select "h2.profile-section__title[autofocus][tabindex='-1']", "Showcase"
     assert_select ".profile-showcase", false
   end
 
@@ -192,25 +190,8 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     assert_nil flash[:toast_title]
   end
 
-  test "the cards of the Personalization page lead to a detail that goes back to it" do
-    choose(:portal_one, :common_card_one)
-    sign_in(@player)
-
-    get personalization_path(locale: :en)
-    hrefs = css_select(".profile-showcase__slot > a.card-link").map { it["href"] }
-    assert_equal [ card_season_path(locale: :en, slug: "portal", number: 1, from: "personalization"),
-                   card_season_path(locale: :en, slug: "tin-soldier", number: 1, from: "personalization") ], hrefs
-
-    get hrefs.first
-    assert_response :success
-    assert_select ".top-bar__phone-back[href=?]", personalization_path(locale: :en)
-  end
-
-  test "the profile's own links keep their own context and the personalization context is ignored without a session" do
+  test "the own profile's showcase links keep the profile as their context" do
     choose(:portal_one)
-    get card_season_path(locale: :en, slug: "portal", number: 1, from: "personalization")
-    assert_select ".top-bar__phone-back[href=?]", personalization_path(locale: :en), false
-
     sign_in(@player)
     get brother_path(locale: :en, token: @player.token)
     assert_select ".profile-showcase__slot > a.card-link[href*=?]", "brother=#{@player.token}"

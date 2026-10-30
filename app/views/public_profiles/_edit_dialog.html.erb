@@ -1,0 +1,13 @@
+<%# locals: (id:, heading:) %>
+<dialog id="<%= id %>" class="modal profile-edit" aria-labelledby="<%= id %>-title" data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <h2 id="<%= id %>-title" class="modal__title"><%= heading %></h2>
+      <button type="button" class="modal__close" aria-label="<%= t("public_profiles.edit.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= yield %>
+  <% end %>
+</dialog>

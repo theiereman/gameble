@@ -1,0 +1,17 @@
+<%# locals: (owner:, titles:, active_title:, card_backs:, name_editable:) %>
+<% if name_editable %>
+  <%= render "public_profiles/edit_dialog", id: "profile-name-dialog", heading: t("public_profiles.edit.name.heading") do %>
+    <%= form_with url: settings_name_path, method: :patch, class: "profile-edit__name", data: { turbo: false } do %>
+      <label for="profile-name" class="visually-hidden"><%= t("public_profiles.edit.name.heading") %></label>
+      <%= text_field_tag :name, Accounts::PersonaName.clean(owner.persona_name), id: "profile-name", class: "profile-edit__input",
+            maxlength: Accounts::PersonaName::LENGTH, autocomplete: "nickname", required: true %>
+      <%= render ButtonComponent.new(size: :small, type: :submit) do %><%= t("public_profiles.edit.name.save") %><% end %>
+    <% end %>
+  <% end %>
+<% end %>
+<%= render "public_profiles/edit_dialog", id: "profile-title-dialog", heading: t("personalizations.show.profile_title.heading") do %>
+  <%= render "personalizations/title_picker", titles:, active: active_title, labelled_by: "profile-title-dialog-title" %>
+<% end %>
+<%= render "public_profiles/edit_dialog", id: "profile-back-dialog", heading: t("personalizations.show.card_back.heading") do %>
+  <%= render "personalizations/back_picker", shelf: card_backs %>
+<% end %>

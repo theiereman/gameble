@@ -372,6 +372,34 @@ const ICONS = {
       "..c....",
     ],
   },
+  // A pen on a slant (9 × 9): the mark beside what the player can change.
+  pen: {
+    grid: [
+      ".......cc",
+      "......ccc",
+      ".....ccc.",
+      "....ccc..",
+      "...ccc...",
+      "..ccc....",
+      ".ccc.....",
+      "cc.......",
+      "c........",
+    ],
+  },
+  // A cog (9 × 9): the way to the settings.
+  gear: {
+    grid: [
+      "....c....",
+      ".c.ccc.c.",
+      "..ccccc..",
+      ".cc...cc.",
+      "ccc...ccc",
+      ".cc...cc.",
+      "..ccccc..",
+      ".c.ccc.c.",
+      "....c....",
+    ],
+  },
   // An "i" in a rounded frame (9 × 9): a short explanation beside a heading.
   info: {
     grid: [
@@ -1283,6 +1311,8 @@ const DESCRIPTIONS = {
   "close.svg": "✕ close and remove (text colour)",
   "check.svg": "✓ check mark (text colour)",
   "more.svg": "⋯ more actions, the menu of a row's rarer actions (text colour)",
+  "pen.svg": "A slanted pen, the mark beside what the player can change, 9 × 9 (text colour)",
+  "gear.svg": "A cog, the way to the settings, 9 × 9 (text colour)",
   "info.svg": "An \"i\" in a rounded frame, the info mark beside a heading, 9 × 9 (text colour)",
   "rank-novice.svg": "Novice rank mark: one chevron, 9 × 5 (text colour)",
   "rank-apprentice.svg": "Apprentice rank mark: two stacked chevrons, 9 × 8 (text colour)",

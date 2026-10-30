@@ -9,10 +9,7 @@ class SettingsController < ApplicationController
     @next_export_at = current_player.next_export_at
     @open_trades = Game::OpenTradeCount.call(current_player)
     @asks_to_go_private = flash[:confirm_private].present?
-    @card_count = Game::CollectionSummary.call(current_player).distinct_cards
-    @active_title = Game::ActiveProfileTitle.call(current_player)
     @identities = Accounts::IdentitiesOf.call(current_player)
-    @name_editable = @identities.none? { it.provider == "steam" }
     @clerk_mode = params[:add_sign_in].present? ? "callback" : "start"
   end
 
@@ -34,9 +31,9 @@ class SettingsController < ApplicationController
 
     result = Accounts::ChangePersonaName.new.call(player: current_player, name: params[:name])
     if result.success?
-      redirect_to settings_path, status: :see_other
+      redirect_to own_profile_path, status: :see_other
     else
-      redirect_refused Accounts::ChangePersonaName, result, settings_path
+      redirect_refused Accounts::ChangePersonaName, result, own_profile_path
     end
   end
 
@@ -53,6 +50,10 @@ class SettingsController < ApplicationController
   end
 
   private
+
+  def own_profile_path
+    brother_path(token: current_player.token)
+  end
 
   def cancels_unconfirmed_trades?
     params[:visibility] == "private" && !current_player.visibility_private? &&

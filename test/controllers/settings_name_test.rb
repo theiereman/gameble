@@ -17,15 +17,20 @@ class SettingsNameTest < ActionDispatch::IntegrationTest
     assert session[:player_id]
   end
 
-  test "a player without Steam changes their name from the settings" do
+  def own_profile_path = brother_path(locale: :en, token: Accounts::Player.find(session[:player_id]).token)
+
+  test "a player without Steam changes their name from the pen of their own profile" do
     sign_in_through_clerk
 
+    get own_profile_path
+    assert_select ".profile-band__line button.profile-pen[data-dialog-opener-dialog-value=profile-name-dialog]"
+    assert_select "dialog#profile-name-dialog form[action=?] input[name=name]", "/en/settings/name"
     get settings_path(locale: :en)
-    assert_select "form[action=?] input[name=name]", "/en/settings/name"
+    assert_select "input[name=name]", false
 
     patch settings_name_path(locale: :en), params: { name: "  Gabe the Brave " }
 
-    assert_redirected_to settings_path(locale: :en)
+    assert_redirected_to own_profile_path
     assert_equal "Gabe the Brave", Accounts::Player.find(session[:player_id]).persona_name
   end
 
@@ -34,16 +39,16 @@ class SettingsNameTest < ActionDispatch::IntegrationTest
 
     patch settings_name_path(locale: :en), params: { name: "  " }
 
-    assert_redirected_to settings_path(locale: :en)
+    assert_redirected_to own_profile_path
     assert_equal I18n.t("errors.accounts.invalid_name", locale: :en), flash[:alert]
   end
 
-  test "a Steam player has no name row and cannot change the name" do
+  test "a Steam player has no name pen and cannot change the name" do
     player = accounts_players(:player)
     sign_in(player)
 
-    get settings_path(locale: :en)
-    assert_select "input[name=name]", false
+    get brother_path(locale: :en, token: player.token)
+    assert_select "#profile-name-dialog, input[name=name]", false
 
     patch settings_name_path(locale: :en), params: { name: "Other" }
     assert_equal I18n.t("errors.accounts.name_from_steam", locale: :en), flash[:alert]

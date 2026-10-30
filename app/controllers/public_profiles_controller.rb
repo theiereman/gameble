@@ -19,6 +19,7 @@ class PublicProfilesController < ApplicationController
     @owner_title = Game::ActiveProfileTitle.call(@owner)
     load_stats_and_sets if @season
     load_relation
+    load_editing if current_player == @owner
   end
 
   def set
@@ -64,6 +65,12 @@ class PublicProfilesController < ApplicationController
 
       @relation = Game::ProfileRelation.call(current_player, @owner)
       @open_trade_token = Game::OpenTradesByFriend.call(current_player)[@owner.id] if @relation == :friends
+    end
+
+    def load_editing
+      @titles = Game::ProfileTitles.call(@owner)
+      @card_backs = Game::CardBackShelf.call(@owner)
+      @name_editable = Accounts::IdentitiesOf.call(@owner).none? { it.provider == "steam" }
     end
 
     def load_stats_and_sets

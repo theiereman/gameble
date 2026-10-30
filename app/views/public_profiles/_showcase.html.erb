@@ -1,15 +1,15 @@
-<%# locals: (owner:, cards:, movable: false, removable: false, moved: nil, removed: nil, framed: false) %>
+<%# locals: (owner:, cards:, movable: false, removable: false, moved: nil, removed: nil) %>
 <% strings = CardStrings.new %>
 <% movable &&= cards.size > 1 %>
 <% editable = movable || removable %>
 <% info = if movable && removable then t("public_profiles.show.showcase.info_movable_removable") elsif removable then t("public_profiles.show.showcase.info_removable") else t("public_profiles.show.showcase.info") end %>
-<% context = if owner then { brother: owner.token } elsif removable then { from: "personalization" } else {} end %>
+<% context = { brother: owner.token } %>
 <% removal_focus = removed["slug"].presence if removed.is_a?(Hash) %>
 <% removal_focus_found = cards.any? { it.id == removal_focus && it.season_number.to_s == removed["number"].to_s } if removal_focus %>
 <% order = { controller: "showcase-order", showcase_order_announcement_value: t("public_profiles.show.showcase.moved"), showcase_order_failed_value: t("public_profiles.show.showcase.move_failed") } if movable %>
-<%= tag.section class: (framed ? "panel panel--brackets personalization-section" : "profile-section"), aria: { labelledby: "profile-showcase-heading" }, data: order do %>
+<%= tag.section class: "profile-section", aria: { labelledby: "profile-showcase-heading" }, data: order do %>
   <div class="profile-showcase__head">
-    <%= tag.h2 t("public_profiles.show.showcase.title"), id: "profile-showcase-heading", class: (framed ? "personalization-section__title" : "profile-section__title"),
+    <%= tag.h2 t("public_profiles.show.showcase.title"), id: "profile-showcase-heading", class: "profile-section__title",
           tabindex: (-1 if removed), autofocus: (removed.present? && !removal_focus_found) %>
     <% if editable %>
       <details class="profile-showcase__info">

@@ -90,8 +90,7 @@ class ShellTest < ApplicationSystemTestCase
     find(".rarity-counter__button").send_keys(:escape)
     assert_no_selector "#rarity-legend", visible: true
 
-    find(".player-chip__button").click
-    within("#player-menu") { assert_link "My public profile" }
+    assert_selector "a.player-chip__button[href*='/brothers/']"
     take_screenshot
   end
 

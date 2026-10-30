@@ -18,12 +18,14 @@ class CardBacksControllerTest < ActionDispatch::IntegrationTest
     assert_nil stored
   end
 
-  test "the page shows the active back, the unlocked ones to choose and the locked ones with their condition" do
+  test "the own profile's card back dialog shows the active back, the unlocked ones to choose and the locked ones with their condition" do
     sign_in(@player)
 
-    get personalization_path(locale: :fr)
+    get brother_path(locale: :fr, token: @player.token)
 
-    assert_select "section h2#personalization-back-heading", "Dos de carte"
+    assert_select ".profile-band__back", /Dos de carte : Standard/
+    assert_select ".profile-band__back button.profile-pen[aria-haspopup=dialog][data-dialog-opener-dialog-value=profile-back-dialog]"
+    assert_select "dialog#profile-back-dialog h2#profile-back-dialog-title", "Dos de carte"
     assert_select ".back-picker__preview-name", "Standard"
     assert_select ".back-picker__tile--active", 1
     assert_select ".back-picker__tile--locked", Game::CardBacks::KEYS.size - 2
@@ -39,7 +41,7 @@ class CardBacksControllerTest < ActionDispatch::IntegrationTest
 
     patch personalization_back_path(locale: :en), params: { back: "set-theme-rpg" }
 
-    assert_redirected_to personalization_path(locale: :en)
+    assert_redirected_to brother_path(locale: :en, token: @player.token)
     assert_equal "set-theme-rpg", stored
     follow_redirect!
     assert_select ".toast", /Card back equipped/
