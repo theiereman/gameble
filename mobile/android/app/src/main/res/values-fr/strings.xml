@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_bridge">Pont</string>
+    <string name="tab_capsule">Capsule</string>
+    <string name="tab_collection">Collection</string>
+    <string name="tab_trades">Échanges</string>
+    <string name="tab_more">Plus</string>
+    <string name="notification_channel">Échanges et amis</string>
+</resources>

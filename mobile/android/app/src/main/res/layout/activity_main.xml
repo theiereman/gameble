@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/bridge_host"
+            android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/capsule_host"
+            android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/collection_host"
+            android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/trades_host"
+            android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/more_host"
+            android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:labelVisibilityMode="labeled"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+</LinearLayout>

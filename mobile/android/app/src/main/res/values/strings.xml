@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Gameble</string>
+    <string name="tab_bridge">Bridge</string>
+    <string name="tab_capsule">Capsule</string>
+    <string name="tab_collection">Collection</string>
+    <string name="tab_trades">Trades</string>
+    <string name="tab_more">More</string>
+    <string name="notification_channel">Trades and friends</string>
+</resources>
