@@ -53,7 +53,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
 
   # Signing in and out through the shell's top bar: its sign-in link, then the
   # official Steam image on the sign-in screen, for a visitor; the player
-  # menu's "Sign out" for a player.
+  # settings' "Sign out", reached from the own profile, for a player.
   def click_steam_sign_in
     find(".top-bar .top-bar__end a[href*='/sign-in']").click
     find(".sign-in .steam-sign-in__button").click
@@ -65,7 +65,8 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
 
   def sign_out
     find(".top-bar .player-chip__button").click
-    within("#player-menu") { click_on "Sign out" }
+    find(".profile-band__settings").click
+    click_on "Sign out"
   end
 
   def assert_signed_out

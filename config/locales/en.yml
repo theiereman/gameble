@@ -1997,8 +1997,6 @@ en:
       title: Legal notice and privacy
       updated: 'Last updated: 30 October 2026'
     more:
-      personalization: Personalization
-      settings: Profile and settings
       subtitle: The rest of the ship
       title: More
   personalizations:
@@ -2012,7 +2010,6 @@ en:
         locked: Card back locked
         mark_label: Wear the mark of season %{season}
         marks: Season mark
-      more: More
       profile_title:
         apply: Apply
         empty: No title yet. Reach a tier of a set, or complete it, to earn one.
@@ -2021,8 +2018,6 @@ en:
         none: No title
       showcase:
         empty: Your best card will show here once you choose it from a card's page.
-        title: Showcase
-      title: Personalization
   profile_titles:
     chosen:
       title: Title equipped
@@ -2097,6 +2092,19 @@ en:
       body: This profile is not available. The link leads nowhere, or its owner no
         longer shows it.
       title: Profile not available
+    edit:
+      close: "Close"
+      settings: "Settings"
+      name:
+        heading: "Your name"
+        open: "Change your name"
+        save: "Save"
+      profile_title:
+        none: "No title"
+        open: "Choose your title"
+      card_back:
+        current: "Card back: %{name}"
+        open: "Choose your card back"
   rate_limit:
     reading_throttled: Too many pages read in a minute. Try again in a moment.
     throttled: Too many sign-in attempts. Try again in a minute.
@@ -2200,7 +2208,6 @@ en:
       language:
         label: Language
       legal: Legal notice
-      more: More
       motion:
         label: Reduced motion
         'off': 'No'
@@ -2209,32 +2216,22 @@ en:
       session:
         label: Session
         sign_out: Sign out
-      name:
-        label: Name
-        save: Save
       sign_ins:
         label: Sign-ins
         link_steam: Link Steam
-      summary:
-        cards:
-          one: "%{count} card"
-          other: "%{count} cards"
-          zero: "%{count} cards"
-        title: Public profile
-        visibility:
-          friends_only: Visible to your friends only
-          private: 'Private profile: only you can see it'
-          private_short: Only you can see it
-          public: Visible to every player
       support:
         label: Support
         link: Support
-      title: Profile and settings
+      title: "Settings"
       visibility:
         friends_only: Friends only
         label: Profile visibility
         private: Private
         public: Public
+      profile: "Profile"
+      back_office:
+        label: "Staff"
+        open: "Back-office"
   sign_in_methods:
     create:
       added: The sign-in is added to your account.
@@ -2287,13 +2284,8 @@ en:
         other: special
       special_none: No special capsule
     player:
-      back_office: Back-office
       fallback_name: Player
-      menu: Player menu
-      personalization: Personalization
-      profile: My public profile
-      settings: Settings
-      sign_out: Sign out
+      profile_label: "Your profile, %{name}"
     rarity:
       columns:
         overall: All seasons
@@ -2321,6 +2313,7 @@ en:
       sets: Sets
       sign_in: Sign in
       trades: Trades
+      settings: "Settings"
     sign_in:
       acceptance_html: By signing in you accept the %{terms} and acknowledge the %{privacy}.
       privacy: privacy notice

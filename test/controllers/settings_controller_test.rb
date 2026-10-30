@@ -33,10 +33,10 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :fr)
 
     assert_response :success
-    assert_select "title", /Profil et paramètres/
-    assert_select "main h1", "Profil et paramètres"
+    assert_select "title", /Paramètres/
+    assert_select "main h1", "Paramètres"
     assert_select ".settings-row", 9
-    assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Session", "Connexions", "Mes données", "Compte", "Soutenir" ], css_select(".settings-row__label").map(&:text)
+    assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Connexions", "Mes données", "Session", "Compte", "Soutenir" ], css_select(".settings-row__label").map(&:text)
     assert_select "[role=group][aria-labelledby=settings-language] a.segmented__option[data-locale-choice][data-turbo-action=replace]", 2
     assert_select "a.segmented__option[href='/fr/settings'][aria-current=true][lang=fr]", "Français"
     assert_select "a.segmented__option[href='/en/settings'][lang=en]:not([aria-current])", "English"
@@ -128,7 +128,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     get settings_path(locale: :en)
 
-    assert_select "main h1", "Profile and settings"
+    assert_select "main h1", "Settings"
     assert_equal [ "Language", "Profile visibility", "Reduced motion", "Session", "Sign-ins", "My data", "Account", "Support" ], css_select(".settings-row__label").map(&:text)
     assert_select "button[name=reduced_motion][value=on][aria-pressed=true]", "Yes"
     assert_select "button[name=reduced_motion][value=system][aria-pressed=false]", "System"
@@ -502,16 +502,28 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_nil forced_motion
   end
 
-  test "the player menu links to the settings, and the tab bar's PLUS opens the rest of the ship" do
+  test "the own profile's gear leads to the settings, and the tab bar's PLUS opens the rest of the ship" do
     sign_in(@player)
 
-    get home_path(locale: :en)
+    get brother_path(locale: :en, token: @player.token)
 
-    assert_select "#player-menu a.player-menu__item[href='/en/settings']", "Settings"
+    assert_select ".profile-band a.profile-band__settings[href='/en/settings'][aria-label=?]", "Settings" do
+      assert_select "svg.pixel-icon"
+    end
     assert_select "a.tab-bar__tab[href='/en/more']", /More/
   end
 
-  test "the PLUS screen lists the screens that are not tabs, settings among them" do
+  test "another player's profile shows no gear and no pen" do
+    sign_in(accounts_players(:moderator))
+
+    get brother_path(locale: :en, token: @player.token)
+
+    assert_select ".profile-band__settings", false
+    assert_select ".profile-pen", false
+    assert_select "dialog.profile-edit", false
+  end
+
+  test "the PLUS screen lists the screens that are not tabs, and no longer the settings" do
     sign_in(@player)
 
     get more_path(locale: :fr)
@@ -519,10 +531,10 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "main h1", "Pont de commandement"
     assert_select ".hub__subtitle", "Le reste du vaisseau"
-    assert_select ".plus__list > li", 8
+    assert_select ".plus__list > li", 6
     assert_select ".plus__list > li:first-child a.menu-item.menu-item--plus[href='/fr/library/cards']", "Toutes les cartes"
-    assert_select ".plus__list a.menu-item[href='/fr/settings']", /Profil et paramètres/
-    assert_select ".plus__list a.menu-item[href='/fr/personalization']", /Personnalisation/
+    assert_select ".plus__list a.menu-item[href='/fr/settings']", false
+    assert_select ".plus__list a.menu-item[href='/fr/personalization']", false
     assert_select ".plus__list > li:last-child a.menu-item[href='https://buymeacoffee.com/theiereman'][target=_blank]", "Soutenir (nouvel onglet)" do
       assert_select "svg.menu-item__external"
     end
@@ -534,14 +546,24 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.tab-bar__tab[href='/fr/more'][aria-current=page]"
   end
 
-  test "the settings screen is under the PLUS tab, with a contextual phone back" do
+  test "the settings screen belongs to the own profile: no tab is current and the phone back leads to the profile" do
     sign_in(@player)
 
     get settings_path(locale: :fr)
 
-    assert_select "a.tab-bar__tab[href='/fr/more'][aria-current=page]"
-    assert_select "a.tab-bar__tab[href='/fr'][aria-current]", false
-    assert_select ".top-bar a.top-bar__phone-back[href='/fr/more']", /Plus/
+    assert_select "a.tab-bar__tab[aria-current]", false
+    assert_select ".top-bar a.top-bar__phone-back[href=?]", "/fr/brothers/#{@player.token}", text: /Profil/
+  end
+
+  test "staff reach the back-office from a row of the settings, players do not" do
+    sign_in(@player)
+    get settings_path(locale: :en)
+    assert_select "#settings-back-office", false
+
+    sign_in(accounts_players(:moderator))
+    get settings_path(locale: :fr)
+    assert_select "li.settings-row #settings-back-office", "Équipe"
+    assert_select "li.settings-row a.button[href='/fr/back-office']", "Back-office"
   end
 
   test "the hub tab is current on the hub only" do
@@ -550,64 +572,5 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get more_path(locale: :en)
 
     assert_select "a.tab-bar__tab[href='/en'][aria-current]", false
-  end
-
-  # The public profile in brief
-
-  def summary = css_select("section.settings-summary").sole
-
-  test "before the settings, beside them on a wide screen, the public profile in brief: the avatar, the name leading to the profile, the card count and who may see it" do
-    @player.update_columns(persona_name: "Gabe the Brave")
-    common, rare, portal = catalog_card_seasons(:common_card_one, :rare_card_one, :portal_one).map(&:id)
-    [ common, rare, portal ].each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
-    sign_in(@player)
-
-    get settings_path(locale: :fr)
-
-    assert_select ".settings > h1 + .settings__layout > .settings__side:first-child > section.settings-summary"
-    assert_select ".settings__layout > .settings__side + .settings__main > .settings__panel .settings__list"
-    assert_select summary, "h2#settings-summary-heading", "Profil public"
-    assert_select summary, "svg.pixel-icon.settings-summary__avatar"
-    assert_select summary, "a.settings-summary__name[href=?]", "/fr/brothers/#{@player.token}", text: "Gabe the Brave"
-    assert_select summary, ".settings-summary__cards", "3 cartes"
-    assert_select summary, ".card", false
-    assert_select summary, ".settings-summary__visibility", "Visible par tous les joueurs"
-    assert_select "[style]", false
-    html = summary.to_html.gsub(/data-card-art-(width|height)-value="\d+"|\/seasons\/\d+|\b(19|20)\d\d\b|\d+ cartes?/, "")
-    [ @player.id, common, rare, portal ].each { assert_no_match(/\b#{it}\b/, html) }
-  end
-
-  test "a nameless player is named as in the top bar" do
-    sign_in(@player)
-
-    get settings_path(locale: :en)
-
-    assert_select summary, ".settings-summary__name", I18n.t("shell.player.fallback_name", locale: :en)
-    assert_select summary, ".settings-summary__cards", "0 cards"
-  end
-
-  {
-    "public" => [ "Visible to every player" ],
-    "friends_only" => [ "Visible to your friends only" ],
-    "private" => [ "Private profile: only you can see it", "Only you can see it" ]
-  }.each do |visibility, lines|
-    test "a #{visibility} profile says who may see it" do
-      @player.update_columns(visibility:)
-      sign_in(@player)
-
-      get settings_path(locale: :en)
-
-      assert_equal lines, css_select(".settings-summary__visibility").sole.then { |line| line.css("span").any? ? line.css("span").map { it.text.squish } : [ line.text.squish ] }
-    end
-  end
-
-  test "the private lines in French, the short one for the phone" do
-    @player.update_columns(visibility: "private")
-    sign_in(@player)
-
-    get settings_path(locale: :fr)
-
-    assert_select ".settings-summary__visibility-long", "Profil privé : vous seul le voyez"
-    assert_select ".settings-summary__visibility-short", "Vous seul le voyez"
   end
 end

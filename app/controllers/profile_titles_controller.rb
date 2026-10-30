@@ -8,7 +8,7 @@ class ProfileTitlesController < ApplicationController
 
     if result.success?
       announce(result.value!)
-      redirect_to personalization_path, status: :see_other
+      redirect_to brother_path(token: current_player.token), status: :see_other
     else
       personalization_refused(Game::ChooseProfileTitle.failure_message(result.failure), code: result.failure.to_s)
     end

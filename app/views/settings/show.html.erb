@@ -2,138 +2,129 @@
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".title") %>
 <% content_for :phone_back do %>
-  <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
-    <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
+  <%= link_to brother_path(token: current_player.token), class: "button button--secondary button--small top-bar__phone-back" do %>
+    <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".profile") %></span>
   <% end %>
 <% end %>
 <section class="settings" aria-labelledby="settings-heading">
   <h1 id="settings-heading" class="settings__title"><%= t(".title") %></h1>
-  <div class="settings__layout">
-    <div class="settings__side">
-      <%= render "settings/profile_summary", player: current_player, card_count: @card_count, visibility: @visibility, title: @active_title %>
-    </div>
-    <div class="settings__main">
-      <%= render PanelComponent.new(brackets: true, class: "settings__panel") do %>
-        <ul class="settings__list">
-          <li class="settings-row">
-            <p id="settings-language" class="settings-row__label"><%= t(".language.label") %></p>
-            <div class="segmented" role="group" aria-labelledby="settings-language">
-              <% { fr: "Français", en: "English" }.each do |locale, name| %>
-                <%= link_to name, settings_path(locale:), class: "segmented__option", lang: locale, hreflang: locale,
-                      aria: { current: ("true" if locale == I18n.locale) }, data: { turbo_prefetch: false, turbo_action: "replace", locale_choice: true } %>
+  <div class="settings__main">
+    <%= render PanelComponent.new(brackets: true, class: "settings__panel") do %>
+      <ul class="settings__list">
+        <li class="settings-row">
+          <p id="settings-language" class="settings-row__label"><%= t(".language.label") %></p>
+          <div class="segmented" role="group" aria-labelledby="settings-language">
+            <% { fr: "Français", en: "English" }.each do |locale, name| %>
+              <%= link_to name, settings_path(locale:), class: "segmented__option", lang: locale, hreflang: locale,
+                    aria: { current: ("true" if locale == I18n.locale) }, data: { turbo_prefetch: false, turbo_action: "replace", locale_choice: true } %>
+            <% end %>
+          </div>
+        </li>
+
+        <li class="settings-row">
+          <p id="settings-visibility" class="settings-row__label"><%= t(".visibility.label") %></p>
+          <%= form_with url: settings_visibility_path, method: :patch, class: "settings-row__form", data: { turbo: false } do %>
+            <div class="segmented" role="group" aria-labelledby="settings-visibility">
+              <% Accounts::Player.visibilities.each_key do |choice| %>
+                <% confirm = choice == "private" && @visibility != choice && @open_trades.positive? %>
+                <%= tag.button t(".visibility.#{choice}"), type: :submit, name: "visibility", value: choice, class: "segmented__option",
+                      aria: { pressed: (@visibility == choice).to_s, haspopup: ("dialog" if confirm) },
+                      data: ({ controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "private-dialog" } if confirm) %>
               <% end %>
             </div>
-          </li>
-
-          <li class="settings-row">
-            <p id="settings-visibility" class="settings-row__label"><%= t(".visibility.label") %></p>
-            <%= form_with url: settings_visibility_path, method: :patch, class: "settings-row__form", data: { turbo: false } do %>
-              <div class="segmented" role="group" aria-labelledby="settings-visibility">
-                <% Accounts::Player.visibilities.each_key do |choice| %>
-                  <% confirm = choice == "private" && @visibility != choice && @open_trades.positive? %>
-                  <%= tag.button t(".visibility.#{choice}"), type: :submit, name: "visibility", value: choice, class: "segmented__option",
-                        aria: { pressed: (@visibility == choice).to_s, haspopup: ("dialog" if confirm) },
-                        data: ({ controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "private-dialog" } if confirm) %>
-                <% end %>
-              </div>
-            <% end %>
-          </li>
-
-          <% if @name_editable %>
-            <li class="settings-row">
-              <label for="settings-name" class="settings-row__label"><%= t(".name.label") %></label>
-              <%= form_with url: settings_name_path, method: :patch, class: "settings-row__form settings-name", data: { turbo: false } do %>
-                <%= text_field_tag :name, Accounts::PersonaName.clean(current_player.persona_name), id: "settings-name", class: "settings-name__input",
-                      maxlength: Accounts::PersonaName::LENGTH, autocomplete: "nickname", required: true %>
-                <%= render ButtonComponent.new(variant: :secondary, size: :small, type: :submit) do %><%= t(".name.save") %><% end %>
-              <% end %>
-            </li>
           <% end %>
+        </li>
 
-          <li class="settings-row">
-            <p id="settings-motion" class="settings-row__label"><%= t(".motion.label") %></p>
-            <%= form_with url: settings_path, method: :patch, class: "settings-row__form", data: { turbo: false } do %>
-              <div class="segmented" role="group" aria-labelledby="settings-motion">
-                <% { "system" => nil, "on" => true, "off" => false }.each do |choice, value| %>
-                  <%= tag.button t(".motion.#{choice}"), type: :submit, name: "reduced_motion", value: choice, class: "segmented__option",
-                        aria: { pressed: (@reduced_motion == value).to_s } %>
-                <% end %>
-              </div>
-            <% end %>
-          </li>
-
-          <li class="settings-row">
-            <p id="settings-session" class="settings-row__label"><%= t(".session.label") %></p>
-            <%= render ButtonComponent.new(variant: :secondary, size: :small, href: session_path, method: :delete, turbo: false) do %><%= t(".session.sign_out") %><% end %>
-          </li>
-
-          <li class="settings-row">
-            <p id="settings-sign-ins" class="settings-row__label"><%= t(".sign_ins.label") %></p>
-            <div class="settings-row__stack">
-              <ul class="sign-in-methods" aria-labelledby="settings-sign-ins">
-                <% @identities.each do |identity| %>
-                  <li class="sign-in-methods__item">
-                    <span><%= t("sign_ins.providers.#{identity.provider}") %></span>
-                    <span class="sign-in-methods__since"><%= local_time_tag(identity.created_at, :date_time_year) %></span>
-                  </li>
-                <% end %>
-              </ul>
-              <% if @identities.none? { it.provider == "steam" } %>
-                <%# OmniAuth checks this token again at /auth/steam, so it cannot be tied to this form's action. %>
-                <%= form_with url: settings_steam_path, method: :post, authenticity_token: form_authenticity_token, data: { turbo: false } do %>
-                  <%= hidden_field_tag :origin, settings_path, id: nil %>
-                  <%= tag.button t(".sign_ins.link_steam"), type: :submit, class: "button button--secondary" %>
-                <% end %>
+        <li class="settings-row">
+          <p id="settings-motion" class="settings-row__label"><%= t(".motion.label") %></p>
+          <%= form_with url: settings_path, method: :patch, class: "settings-row__form", data: { turbo: false } do %>
+            <div class="segmented" role="group" aria-labelledby="settings-motion">
+              <% { "system" => nil, "on" => true, "off" => false }.each do |choice, value| %>
+                <%= tag.button t(".motion.#{choice}"), type: :submit, name: "reduced_motion", value: choice, class: "segmented__option",
+                      aria: { pressed: (@reduced_motion == value).to_s } %>
               <% end %>
-              <%= render "sign_ins/clerk", mode: @clerk_mode, callback_url: settings_url(add_sign_in: 1), form_url: settings_sign_ins_path,
-                    origin: nil, retry_path: settings_path %>
             </div>
-          </li>
+          <% end %>
+        </li>
 
-          <li class="settings-row">
-            <p id="settings-data" class="settings-row__label"><%= t(".data.label") %></p>
-            <%= form_with url: settings_export_path, method: :post, class: "settings-row__form settings-row__export",
-                  data: { turbo: false, controller: "data-export", action: "submit->data-export#export",
-                          data_export_preparing_value: t(".data.preparing"), data_export_retry_value: t(".data.retry"),
-                          data_export_failed_value: t(".data.failed"), data_export_ready_title_value: t(".data.ready_title"),
-                          data_export_ready_value: t(".data.ready"), data_export_download_value: t(".data.download"),
-                          data_export_interval_value: Accounts::Player::EXPORT_INTERVAL.to_i,
-                          data_export_next_export_at_value: @next_export_at&.utc&.iso8601 } do %>
-              <div class="settings-row__actions">
-                <%= tag.button t(".data.export"), type: :submit, class: "button button--secondary button--small", disabled: @next_export_at.present? %>
-                <%= link_to t(".data.download"), settings_export_path, class: "button button--secondary button--small settings-row__download",
-                      download: (PlayerExport.filename(@last_export.exported_at) if @last_export), hidden: @last_export.nil?,
-                      data: { data_export_target: "download", turbo: false } %>
-              </div>
-              <% last_exported_at = @last_export&.exported_at %>
-              <p class="settings-row__note" data-data-export-target="lastExport" <%= "hidden" unless last_exported_at %>>
-                <%= t(".data.last_export") %>
-                <%= local_time_tag(last_exported_at, :date_time_year, data: { data_export_target: "time" }) %>
-              </p>
-              <p class="settings-row__note" data-data-export-target="nextExport" <%= "hidden" unless @next_export_at %>>
-                <%= t(".data.next_export") %>
-                <%= local_time_tag(@next_export_at, :date_time_year, data: { data_export_target: "nextTime" }) %>
-              </p>
-              <p class="settings-row__error" role="alert" data-data-export-target="error" hidden></p>
+        <li class="settings-row">
+          <p id="settings-sign-ins" class="settings-row__label"><%= t(".sign_ins.label") %></p>
+          <div class="settings-row__stack">
+            <ul class="sign-in-methods" aria-labelledby="settings-sign-ins">
+              <% @identities.each do |identity| %>
+                <li class="sign-in-methods__item">
+                  <span><%= t("sign_ins.providers.#{identity.provider}") %></span>
+                  <span class="sign-in-methods__since"><%= local_time_tag(identity.created_at, :date_time_year) %></span>
+                </li>
+              <% end %>
+            </ul>
+            <% if @identities.none? { it.provider == "steam" } %>
+              <%# OmniAuth checks this token again at /auth/steam, so it cannot be tied to this form's action. %>
+              <%= form_with url: settings_steam_path, method: :post, authenticity_token: form_authenticity_token, data: { turbo: false } do %>
+                <%= hidden_field_tag :origin, settings_path, id: nil %>
+                <%= tag.button t(".sign_ins.link_steam"), type: :submit, class: "button button--secondary" %>
+              <% end %>
             <% end %>
-          </li>
+            <%= render "sign_ins/clerk", mode: @clerk_mode, callback_url: settings_url(add_sign_in: 1), form_url: settings_sign_ins_path,
+                  origin: nil, retry_path: settings_path %>
+          </div>
+        </li>
 
-          <li class="settings-row">
-            <p id="settings-account" class="settings-row__label"><%= t(".account.label") %></p>
-            <%= render ButtonComponent.new(variant: :danger, size: :small, opens: "delete-dialog") do %><%= t(".account.delete") %><% end %>
-          </li>
+        <li class="settings-row">
+          <p id="settings-data" class="settings-row__label"><%= t(".data.label") %></p>
+          <%= form_with url: settings_export_path, method: :post, class: "settings-row__form settings-row__export",
+                data: { turbo: false, controller: "data-export", action: "submit->data-export#export",
+                        data_export_preparing_value: t(".data.preparing"), data_export_retry_value: t(".data.retry"),
+                        data_export_failed_value: t(".data.failed"), data_export_ready_title_value: t(".data.ready_title"),
+                        data_export_ready_value: t(".data.ready"), data_export_download_value: t(".data.download"),
+                        data_export_interval_value: Accounts::Player::EXPORT_INTERVAL.to_i,
+                        data_export_next_export_at_value: @next_export_at&.utc&.iso8601 } do %>
+            <div class="settings-row__actions">
+              <%= tag.button t(".data.export"), type: :submit, class: "button button--secondary button--small", disabled: @next_export_at.present? %>
+              <%= link_to t(".data.download"), settings_export_path, class: "button button--secondary button--small settings-row__download",
+                    download: (PlayerExport.filename(@last_export.exported_at) if @last_export), hidden: @last_export.nil?,
+                    data: { data_export_target: "download", turbo: false } %>
+            </div>
+            <% last_exported_at = @last_export&.exported_at %>
+            <p class="settings-row__note" data-data-export-target="lastExport" <%= "hidden" unless last_exported_at %>>
+              <%= t(".data.last_export") %>
+              <%= local_time_tag(last_exported_at, :date_time_year, data: { data_export_target: "time" }) %>
+            </p>
+            <p class="settings-row__note" data-data-export-target="nextExport" <%= "hidden" unless @next_export_at %>>
+              <%= t(".data.next_export") %>
+              <%= local_time_tag(@next_export_at, :date_time_year, data: { data_export_target: "nextTime" }) %>
+            </p>
+            <p class="settings-row__error" role="alert" data-data-export-target="error" hidden></p>
+          <% end %>
+        </li>
 
+        <% if policy([ :back_office, :dashboard ]).show? %>
           <li class="settings-row">
-            <p id="settings-support" class="settings-row__label"><%= t(".support.label") %></p>
-            <%= donation_link_to t(".support.link"), class: "button button--secondary button--small settings-row__support" %>
+            <p id="settings-back-office" class="settings-row__label"><%= t(".back_office.label") %></p>
+            <%= render ButtonComponent.new(variant: :secondary, size: :small, href: back_office_path) do %><%= t(".back_office.open") %><% end %>
           </li>
+        <% end %>
 
-          <li class="settings-row">
-            <%= render ButtonComponent.new(variant: :link, href: legal_path) do %><%= t(".legal") %><% end %>
-          </li>
-        </ul>
-      <% end %>
-    </div>
+        <li class="settings-row">
+          <p id="settings-session" class="settings-row__label"><%= t(".session.label") %></p>
+          <%= render ButtonComponent.new(variant: :secondary, size: :small, href: session_path, method: :delete, turbo: false) do %><%= t(".session.sign_out") %><% end %>
+        </li>
+
+        <li class="settings-row">
+          <p id="settings-account" class="settings-row__label"><%= t(".account.label") %></p>
+          <%= render ButtonComponent.new(variant: :danger, size: :small, opens: "delete-dialog") do %><%= t(".account.delete") %><% end %>
+        </li>
+
+        <li class="settings-row">
+          <p id="settings-support" class="settings-row__label"><%= t(".support.label") %></p>
+          <%= donation_link_to t(".support.link"), class: "button button--secondary button--small settings-row__support" %>
+        </li>
+
+        <li class="settings-row">
+          <%= render ButtonComponent.new(variant: :link, href: legal_path) do %><%= t(".legal") %><% end %>
+        </li>
+      </ul>
+    <% end %>
   </div>
 </section>
 <%= render "accounts/dialog" %>

@@ -48,7 +48,7 @@ module ShellHelper
     "friend_profiles" => :profile,
     "public_profiles#set" => :set,
     "public_profiles" => :profile,
-    "settings" => :profile,
+    "settings" => :settings,
     "sign_ins" => :sign_in,
     "feeds" => :feed,
     "achievements" => :achievements,

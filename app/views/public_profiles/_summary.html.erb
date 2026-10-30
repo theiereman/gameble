@@ -1,11 +1,27 @@
-<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, relation:, open_trade_token: nil, owner_title: nil) %>
+<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, relation:, open_trade_token: nil, owner_title: nil, editing: nil) %>
 <%= render PanelComponent.new(tag: :header, brackets: true, class: "profile-band") do %>
   <div class="profile-band__who">
     <%= pixel_icon("avatar-default", class: "profile-band__avatar") %>
     <div class="profile-band__identity">
-      <%= content_tag :h1, title, id: "profile-heading", class: "profile-band__name" %>
-      <%= active_title_tag(owner_title, class_name: "profile-band__title") %>
-      <%= render "public_profiles/action", owner:, title:, relation:, open_trade_token: %>
+      <div class="profile-band__line">
+        <%= content_tag :h1, title, id: "profile-heading", class: "profile-band__name" %>
+        <%= render "public_profiles/pen", opens: "profile-name-dialog", label: t("public_profiles.edit.name.open") if editing&.dig(:name_editable) %>
+      </div>
+      <% if editing %>
+        <div class="profile-band__line">
+          <%= active_title_tag(owner_title, class_name: "profile-band__title") || tag.span(t("public_profiles.edit.profile_title.none"), class: "profile-band__placeholder") %>
+          <%= render "public_profiles/pen", opens: "profile-title-dialog", label: t("public_profiles.edit.profile_title.open") %>
+        </div>
+        <% back = editing[:card_backs].find(&:active?) %>
+        <div class="profile-band__line profile-band__back">
+          <span class="profile-band__back-art"><%= card_back_image(back, "xs") %></span>
+          <span><%= t("public_profiles.edit.card_back.current", name: card_back_name(back)) %></span>
+          <%= render "public_profiles/pen", opens: "profile-back-dialog", label: t("public_profiles.edit.card_back.open") %>
+        </div>
+      <% else %>
+        <%= active_title_tag(owner_title, class_name: "profile-band__title") %>
+        <%= render "public_profiles/action", owner:, title:, relation:, open_trade_token: %>
+      <% end %>
       <p class="profile-band__meta">
         <span class="profile-band__since"><%= t("public_profiles.show.member_since", date: l(owner.created_at.to_date, format: :month_year)) %></span>
         <% if owner.banned? %>
@@ -24,4 +40,9 @@
     <%= render "public_profiles/figure", label: t("public_profiles.show.keys.complete_sets"), value: summary.complete_sets %>
     <%= render "public_profiles/figure", label: t("public_profiles.show.keys.achievements"), value: achievements.count, total: achievements.total %>
   </dl>
+  <% if editing %>
+    <%= link_to settings_path, class: "profile-band__settings", aria: { label: t("public_profiles.edit.settings") }, data: { turbo_prefetch: false } do %>
+      <%= pixel_icon("gear", class: "profile-band__settings-icon") %>
+    <% end %>
+  <% end %>
 <% end %>

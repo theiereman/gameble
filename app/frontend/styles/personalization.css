@@ -1,34 +1,103 @@
 /*
- * The Personalization page: bracketed sections one under the other, each a
- * muted-label heading over its content. Hard edges on the 2px grid.
+ * Editing one's own profile: the pens beside what can change, the gear to
+ * the settings, and the dialogs the pens open (name, title, card back).
+ * Hard edges on the 2px grid.
  */
 
-.personalization {
+.profile-band {
+  position: relative;
+}
+
+.profile-band__line {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-7);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
 }
 
-.personalization__title {
+.profile-band__placeholder {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.profile-band__back {
+  margin: var(--space-3) 0 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.profile-band__back-art {
+  display: inline-flex;
+}
+
+.profile-pen,
+.profile-band__settings {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-touch-min);
+  height: var(--space-touch-min);
   margin: 0;
-  color: var(--color-accent);
-  font: var(--font-kicker);
-  letter-spacing: var(--tracking-kicker);
-  text-transform: uppercase;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
 }
 
-.personalization-section {
+.profile-pen:hover,
+.profile-band__settings:hover {
+  color: var(--color-accent);
+}
+
+.profile-pen:focus-visible,
+.profile-band__settings:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.profile-band__settings {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+}
+
+.profile-section__empty {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.profile-edit .modal__panel {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
-.personalization-section__title {
+.profile-edit__name {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.profile-edit__input {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--space-touch-min);
   margin: 0;
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  padding: 0 var(--space-3);
+  border: var(--space-unit) solid var(--color-line);
+  border-radius: 0;
+  background: var(--color-input);
+  color: var(--color-text-bright);
+  font: var(--font-body);
+}
+
+.profile-edit__input:focus-visible {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-accent);
 }
 
 .personalization-section__empty {

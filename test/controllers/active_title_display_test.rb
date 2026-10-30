@@ -64,13 +64,13 @@ class ActiveTitleDisplayTest < ActionDispatch::IntegrationTest
     assert_empty shown
   end
 
-  test "the settings show the signed-in player's own title" do
+  test "the own profile shows the signed-in player's own title beside its pen" do
     earn_title(@alice)
     sign_in(@alice)
 
-    get settings_path(locale: :en)
+    get brother_path(locale: :en, token: @alice.token)
 
-    assert_equal [ ACTIVE_TITLE_TEXT ], shown(".settings-summary .profile-title")
+    assert_equal [ ACTIVE_TITLE_TEXT ], shown(".profile-band__line .profile-title")
   end
 
   test "a friend's profile frame shows their title" do

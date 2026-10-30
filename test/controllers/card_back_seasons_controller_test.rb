@@ -28,7 +28,7 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
     reach(@second, reached_by: "allocation")
     patch personalization_back_path(locale: :en), params: { back: BACK, season: 1 }
 
-    get personalization_path(locale: :en)
+    get brother_path(locale: :en, token: @player.token)
 
     assert_equal [ BACK, 1 ], stored
     assert_select ".back-picker__marks .back-picker__mark", 2
@@ -46,7 +46,7 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
 
     patch personalization_back_path(locale: :en), params: { back: BACK, season: 2 }
 
-    assert_redirected_to personalization_path
+    assert_redirected_to brother_path(locale: :en, token: @player.token)
     assert_equal [ BACK, 2 ], stored
   end
 
@@ -54,11 +54,11 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
     reach(@first)
     patch personalization_back_path(locale: :en), params: { back: BACK }
 
-    get personalization_path(locale: :en)
+    get brother_path(locale: :en, token: @player.token)
 
     assert_equal [ BACK, nil ], stored
     assert_select ".back-picker__marks", false
-    assert_select ".season-mark", false
+    assert_select "#profile-back-dialog .season-mark", false
   end
 
   test "a forged season is refused and the choice does not change" do

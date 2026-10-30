@@ -69,6 +69,7 @@ fr:
       more: "Plus"
       how_it_works: "Comment ça marche"
       back_office: "Back-office"
+      settings: "Paramètres"
     rarity:
       label: "Raretés"
       legend: "Raretés"
@@ -96,13 +97,8 @@ fr:
         one: "%{number} en réserve"
         other: "%{number} en réserve"
     player:
-      menu: "Menu du joueur"
       fallback_name: "Joueur"
-      profile: "Mon profil public"
-      settings: "Paramètres"
-      personalization: "Personnalisation"
-      back_office: "Back-office"
-      sign_out: "Se déconnecter"
+      profile_label: "Votre profil, %{name}"
     tabs:
       label: "Navigation principale"
       hub: "Pont"
@@ -212,8 +208,6 @@ fr:
     more:
       title: "Plus"
       subtitle: "Le reste du vaisseau"
-      settings: "Profil et paramètres"
-      personalization: "Personnalisation"
     credits:
       title: "Crédits"
       intro: "Gameble s'inspire des œuvres ci-dessous. Ce sont des inspirations, jamais des affiliations : aucune n'a de lien avec Gameble ni ne le cautionne."
@@ -1044,8 +1038,6 @@ fr:
         locked: "Dos verrouillé"
         marks: "Marque de saison"
         mark_label: "Porter la marque de la saison %{season}"
-      title: "Personnalisation"
-      more: "Plus"
       profile_title:
         heading: "Titre de profil"
         intro: "Votre titre s'affiche sur votre profil, dans le fil d'activité et dans vos échanges."
@@ -1053,7 +1045,6 @@ fr:
         empty: "Aucun titre pour l'instant. Atteignez un palier d'un set, ou complétez-le, pour en gagner un."
         apply: "Appliquer"
       showcase:
-        title: "Vitrine"
         empty: "Votre plus belle carte s'affichera ici, une fois choisie depuis la fiche d'une carte."
   profile_titles:
     chosen:
@@ -1129,6 +1120,19 @@ fr:
     unavailable:
       title: "Profil indisponible"
       body: "Ce profil n'est pas disponible. Le lien ne mène nulle part, ou son propriétaire ne le montre plus."
+    edit:
+      close: "Fermer"
+      settings: "Paramètres"
+      name:
+        heading: "Votre nom"
+        open: "Changer de nom"
+        save: "Enregistrer"
+      profile_title:
+        none: "Aucun titre"
+        open: "Choisir votre titre"
+      card_back:
+        current: "Dos de carte : %{name}"
+        open: "Choisir votre dos de carte"
   boosters:
     show:
       title: "Ouverture de capsule"
@@ -1274,8 +1278,7 @@ fr:
     title: "Saison %{season}"
   settings:
     show:
-      title: "Profil et paramètres"
-      more: "Plus"
+      title: "Paramètres"
       language:
         label: "Langue"
       visibility:
@@ -1291,9 +1294,6 @@ fr:
       session:
         label: "Session"
         sign_out: "Se déconnecter"
-      name:
-        label: "Nom"
-        save: "Enregistrer"
       sign_ins:
         label: "Connexions"
         link_steam: "Lier Steam"
@@ -1315,17 +1315,10 @@ fr:
         label: "Soutenir"
         link: "Soutenir"
       legal: "Mentions légales"
-      summary:
-        title: "Profil public"
-        cards:
-          zero: "%{count} carte"
-          one: "%{count} carte"
-          other: "%{count} cartes"
-        visibility:
-          public: "Visible par tous les joueurs"
-          friends_only: "Visible par vos amis seulement"
-          private: "Profil privé : vous seul le voyez"
-          private_short: "Vous seul le voyez"
+      profile: "Profil"
+      back_office:
+        label: "Équipe"
+        open: "Back-office"
     private_dialog:
       title: "Passer en privé ?"
       text:

@@ -1,53 +1,51 @@
-<%# locals: (shelf:, chosen: nil) %>
+<%# locals: (shelf:) %>
 <% active = shelf.find(&:active?) %>
-<%= render "personalizations/section", id: "personalization-back", heading: t("personalizations.show.card_back.heading"), focused: chosen.present? do %>
-  <p class="personalization-section__hint"><%= t("personalizations.show.card_back.intro") %></p>
-  <div class="back-picker__preview">
-    <span class="back-picker__stamped">
-      <%= card_back_image(active, "l") %>
-      <% if active.season %>
-        <%= render SeasonMarkComponent.new(season: active.season, class: "back-picker__stamp") %>
-      <% end %>
-    </span>
-    <div class="back-picker__preview-text">
-      <p class="back-picker__preview-name"><%= card_back_name(active) %></p>
-      <p class="back-picker__preview-mark"><%= t("personalizations.show.card_back.active") %></p>
-      <% if active.choosable_season? %>
-        <div class="back-picker__marks" role="group" aria-label="<%= t("personalizations.show.card_back.marks") %>">
-          <% active.seasons.each do |season| %>
-            <%= button_to personalization_back_path, method: :patch, params: { back: active.key, season: }, disabled: season == active.season,
-                  class: class_names("back-picker__mark", "back-picker__mark--active" => season == active.season), form_class: "back-picker__form",
-                  aria: { label: t("personalizations.show.card_back.mark_label", season:) } do %>
-              <%= render SeasonMarkComponent.new(season:) %>
-            <% end %>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
-  </div>
-  <ul class="back-picker__grid">
-    <% shelf.each do |row| %>
-      <li class="<%= class_names("back-picker__tile", "back-picker__tile--active" => row.active?, "back-picker__tile--locked" => row.locked?) %>">
-        <%= button_to personalization_back_path, method: :patch, params: { back: row.key }, disabled: row.active?, class: "back-picker__button",
-              form_class: "back-picker__form", aria: { label: card_back_name(row.back) } do %>
-          <span class="back-picker__art">
-            <%= card_back_image(row.back, "xs") %>
-            <% if row.locked? %>
-              <%= pixel_icon("lock", class: "back-picker__lock") %>
-            <% end %>
-          </span>
-          <span class="back-picker__name"><%= card_back_name(row.back) %></span>
-          <span class="back-picker__status">
-            <% if row.active? %>
-              <%= t("personalizations.show.card_back.current") %>
-            <% elsif row.locked? %>
-              <span class="visually-hidden"><%= t("personalizations.show.card_back.locked") %>. </span><%= card_back_condition(row.back) %>
-            <% else %>
-              <%= t("personalizations.show.card_back.choose") %>
-            <% end %>
-          </span>
-        <% end %>
-      </li>
+<p class="personalization-section__hint"><%= t("personalizations.show.card_back.intro") %></p>
+<div class="back-picker__preview">
+  <span class="back-picker__stamped">
+    <%= card_back_image(active, "l") %>
+    <% if active.season %>
+      <%= render SeasonMarkComponent.new(season: active.season, class: "back-picker__stamp") %>
     <% end %>
-  </ul>
-<% end %>
+  </span>
+  <div class="back-picker__preview-text">
+    <p class="back-picker__preview-name"><%= card_back_name(active) %></p>
+    <p class="back-picker__preview-mark"><%= t("personalizations.show.card_back.active") %></p>
+    <% if active.choosable_season? %>
+      <div class="back-picker__marks" role="group" aria-label="<%= t("personalizations.show.card_back.marks") %>">
+        <% active.seasons.each do |season| %>
+          <%= button_to personalization_back_path, method: :patch, params: { back: active.key, season: }, disabled: season == active.season,
+                class: class_names("back-picker__mark", "back-picker__mark--active" => season == active.season), form_class: "back-picker__form",
+                aria: { label: t("personalizations.show.card_back.mark_label", season:) } do %>
+            <%= render SeasonMarkComponent.new(season:) %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+<ul class="back-picker__grid">
+  <% shelf.each do |row| %>
+    <li class="<%= class_names("back-picker__tile", "back-picker__tile--active" => row.active?, "back-picker__tile--locked" => row.locked?) %>">
+      <%= button_to personalization_back_path, method: :patch, params: { back: row.key }, disabled: row.active?, class: "back-picker__button",
+            form_class: "back-picker__form", aria: { label: card_back_name(row.back) } do %>
+        <span class="back-picker__art">
+          <%= card_back_image(row.back, "xs") %>
+          <% if row.locked? %>
+            <%= pixel_icon("lock", class: "back-picker__lock") %>
+          <% end %>
+        </span>
+        <span class="back-picker__name"><%= card_back_name(row.back) %></span>
+        <span class="back-picker__status">
+          <% if row.active? %>
+            <%= t("personalizations.show.card_back.current") %>
+          <% elsif row.locked? %>
+            <span class="visually-hidden"><%= t("personalizations.show.card_back.locked") %>. </span><%= card_back_condition(row.back) %>
+          <% else %>
+            <%= t("personalizations.show.card_back.choose") %>
+          <% end %>
+        </span>
+      <% end %>
+    </li>
+  <% end %>
+</ul>

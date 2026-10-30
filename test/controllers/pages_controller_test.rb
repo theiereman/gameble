@@ -713,20 +713,24 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   [ :moderator, :administrator ].each do |role|
-    test "a #{role} sees the back-office link in the player menu, in the current locale" do
+    test "a #{role} sees the back-office link in the settings, in the current locale" do
       sign_in(accounts_players(role))
 
-      get home_path(locale: :fr)
+      get settings_path(locale: :fr)
 
-      assert_select "#player-menu a.player-menu__item[href='/fr/back-office']", "Back-office"
+      assert_select ".settings-row a.button[href='/fr/back-office']", "Back-office"
     end
   end
 
-  test "signing out is a full page load from the player menu" do
+  test "signing out is a full page load from the settings, and the top bar no longer offers it" do
     sign_in(@player)
     get home_path(locale: :en)
 
-    assert_select "#player-menu form.player-menu__form[action^='/session'][data-turbo=false]"
+    assert_select ".top-bar form[action^='/session']", false
+
+    get settings_path(locale: :en)
+
+    assert_select "form[action^='/session'][data-turbo=false]"
   end
 
   test "an unknown locale segment answers not found" do

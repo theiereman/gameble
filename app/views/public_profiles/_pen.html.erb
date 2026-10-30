@@ -1,0 +1,5 @@
+<%# locals: (opens:, label:) %>
+<%= tag.button type: :button, class: "profile-pen", aria: { label:, haspopup: "dialog" },
+      data: { controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: opens } do %>
+  <%= pixel_icon("pen", class: "profile-pen__icon") %>
+<% end %>

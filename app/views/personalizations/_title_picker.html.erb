@@ -1,25 +1,23 @@
-<%# locals: (titles:, active:, chosen: nil) %>
-<%= render "personalizations/section", id: "personalization-title", heading: t("personalizations.show.profile_title.heading") do %>
-  <p class="personalization-section__hint"><%= t("personalizations.show.profile_title.intro") %></p>
-  <%= form_with url: personalization_title_path, method: :patch, class: "title-picker", data: { controller: "radio-submit", action: "change->radio-submit#submit" } do %>
-    <div role="radiogroup" aria-labelledby="personalization-title-heading" class="title-picker__group">
-      <label class="title-picker__option">
-        <%= radio_button_tag "title", "", active.nil?, autofocus: chosen.present? && active.nil? %>
-        <span><%= t("personalizations.show.profile_title.none") %></span>
-      </label>
-      <% titles.group_by(&:rank).each do |rank, ranked| %>
-        <h3 class="title-picker__rank" aria-hidden="true"><%= t("profile_titles.ranks.#{rank}") %></h3>
-        <% ranked.each do |title| %>
-          <label class="title-picker__option">
-            <%= radio_button_tag "title", "#{title.rank}:#{title.kind}:#{title.key}", title == active, autofocus: chosen.present? && title == active %>
-            <span><%= profile_title_text(title) %></span>
-          </label>
-        <% end %>
+<%# locals: (titles:, active:, labelled_by:) %>
+<p class="personalization-section__hint"><%= t("personalizations.show.profile_title.intro") %></p>
+<%= form_with url: personalization_title_path, method: :patch, class: "title-picker", data: { controller: "radio-submit", action: "change->radio-submit#submit" } do %>
+  <div role="radiogroup" aria-labelledby="<%= labelled_by %>" class="title-picker__group">
+    <label class="title-picker__option">
+      <%= radio_button_tag "title", "", active.nil? %>
+      <span><%= t("personalizations.show.profile_title.none") %></span>
+    </label>
+    <% titles.group_by(&:rank).each do |rank, ranked| %>
+      <h3 class="title-picker__rank" aria-hidden="true"><%= t("profile_titles.ranks.#{rank}") %></h3>
+      <% ranked.each do |title| %>
+        <label class="title-picker__option">
+          <%= radio_button_tag "title", "#{title.rank}:#{title.kind}:#{title.key}", title == active %>
+          <span><%= profile_title_text(title) %></span>
+        </label>
       <% end %>
-    </div>
-    <% if titles.empty? %>
-      <p class="personalization-section__empty"><%= t("personalizations.show.profile_title.empty") %></p>
     <% end %>
-    <noscript><%= button_tag t("personalizations.show.profile_title.apply"), type: :submit, class: "button button--secondary button--small" %></noscript>
+  </div>
+  <% if titles.empty? %>
+    <p class="personalization-section__empty"><%= t("personalizations.show.profile_title.empty") %></p>
   <% end %>
+  <noscript><%= button_tag t("personalizations.show.profile_title.apply"), type: :submit, class: "button button--secondary button--small" %></noscript>
 <% end %>

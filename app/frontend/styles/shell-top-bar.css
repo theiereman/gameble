@@ -161,6 +161,8 @@ a.top-bar__home {
 
 .rarity-counter__button,
 .player-chip__button {
+  color: inherit;
+  text-decoration: none;
   cursor: pointer;
 }
 
@@ -289,7 +291,7 @@ a.packs-chip:focus-visible {
   background: var(--color-lime);
 }
 
-/* The legend and the player menu: native popovers under the top bar, at
+/* The legend: a native popover under the top bar, at
    the right edge of the content. */
 .shell-popover {
   position: fixed;
@@ -312,51 +314,6 @@ a.packs-chip:focus-visible {
   font: var(--font-kicker);
   letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
-}
-
-.player-menu__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.player-menu__form {
-  margin: 0;
-}
-
-.player-menu__item {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-height: var(--space-touch-min);
-  padding: 0 var(--space-4);
-  border: 0;
-  background: var(--color-panel);
-  box-shadow: var(--control-border);
-  color: var(--color-text-bright);
-  font: var(--font-menu);
-  letter-spacing: var(--tracking-menu);
-  text-align: left;
-  text-decoration: none;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.player-menu__item:hover {
-  background: var(--color-accent);
-  color: var(--color-on-accent);
-}
-
-.player-menu__item:active {
-  background: var(--color-accent-press);
-  color: var(--color-on-accent);
-}
-
-.player-menu__item:focus-visible {
-  box-shadow: var(--focus-ring-gap), var(--control-border);
 }
 
 /* The official Steam image, untouched, in a 44px hit area. */

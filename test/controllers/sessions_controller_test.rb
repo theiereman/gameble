@@ -340,8 +340,8 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
   test "signing out resets the session, lands on the landing with the farewell and shows the sign-in button again" do
     sign_in_with_steam
-    follow_redirect!
-    assert_select "#player-menu form[action=?][data-turbo=false] input[name=_method][value=delete]", "/session?locale=en"
+    get settings_path(locale: :en)
+    assert_select "form[action=?][data-turbo=false] input[name=_method][value=delete]", "/session?locale=en"
 
     delete session_path(locale: :en)
 
@@ -525,11 +525,11 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".account-suspended__contest", /\APour connaître le motif/
   end
 
-  test "a signed-in player sees the sign-out button" do
+  test "a signed-in player sees the sign-out button in the settings, and no sign-in button" do
     sign_in_with_steam
-    get home_path(locale: :fr)
+    get settings_path(locale: :fr)
 
-    assert_select "#player-menu form[action=?] button.player-menu__item", "/session?locale=fr", text: "Se déconnecter"
+    assert_select "form[action=?] button", "/session?locale=fr", text: "Se déconnecter"
     assert_select ".top-bar form[action='/auth/steam']", false
   end
 

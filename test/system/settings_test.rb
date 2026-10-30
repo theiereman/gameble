@@ -128,8 +128,8 @@ class SettingsTest < ApplicationSystemTestCase
   test "a player picks reduced motion on the settings screen, and the switch follows on every page, signed in and out" do
     sign_in
     find(".top-bar .player-chip__button").click
-    within("#player-menu") { click_on "Settings" }
-    assert_selector "h1", text: "PROFILE AND SETTINGS"
+    find(".profile-band__settings").click
+    assert_selector "h1", text: "SETTINGS"
     assert_selector "button[aria-pressed=true]", text: "SYSTEM"
     assert_not forced?
     assert view_transition_meta?
@@ -291,54 +291,41 @@ class SettingsTest < ApplicationSystemTestCase
     assert_selector ".settings__main .settings-row a.button--link", text: /legal notice/i
   end
 
-  test "on a desktop the profile summary stands on the left and the settings take the larger area, and the back button still leads back" do
-    sign_in friends_path(locale: :en)
+  test "on a desktop the settings take one column, reached from the own profile" do
+    sign_in
     find(".player-chip__button").click
-    find(".player-menu__item", text: /\Asettings\z/i).click
-    assert_selector "h1", text: "PROFILE AND SETTINGS"
+    find(".profile-band__settings").click
+    assert_selector "h1", text: "SETTINGS"
 
-    { 1400 => 380, 1000 => 300 }.each do |width, side_width|
+    [ 1400, 1000 ].each do |width|
       resize_to(width, width)
-      eventually("the summary stands in a #{side_width}px side area left of the settings at #{width}px") do
-        side, main = box(".settings__side"), box(".settings__main")
-        (side[:width] - side_width).abs <= 1 && main[:left] > side[:right]
-      end
-      side, main = box(".settings__side"), box(".settings__main")
-      assert_in_delta side[:top], main[:top], 1, "both areas start at the same height at #{width}px"
-      assert_operator main[:width], :>, side[:width] * 1.3, "the settings take the larger area at #{width}px"
-      within(".settings__side") { assert_selector "section.settings-summary" }
+      assert_no_selector ".settings-summary"
       assert_every_setting_shown
       assert no_horizontal_scroll?, "no sideways scroll at #{width}px"
       take_screenshot
     end
-
-    find(".top-bar__start > a.top-bar__previous", text: /friends/i).click
-    assert_current_path friends_path(locale: :en)
   end
 
-  test "on a phone the summary and the settings stay one column, the summary first" do
+  test "on a phone the settings stay one column with no sideways scroll" do
     resize_to(390, 844)
     sign_in settings_path(locale: :en)
 
-    eventually("the settings sit under the summary") { box(".settings__main")[:top] >= box(".settings__side")[:bottom] }
-    assert_in_delta box(".settings__side")[:left], box(".settings__main")[:left], 1
     assert_every_setting_shown
     assert no_horizontal_scroll?
     take_screenshot
   end
 
-  test "on a phone, PLUS leads to the settings screen and its contextual back leads to PLUS" do
+  test "on a phone, the avatar leads to the own profile, its gear to the settings, and the contextual back to the profile" do
     page.driver.browser.manage.window.resize_to(390, 844)
     sign_in
 
-    within(".tab-bar") { click_on "More" }
-    assert_selector ".plus__list"
-    assert_selector ".tab-bar__tab[aria-current=page]", text: "MORE"
-    within(".plus__list") { click_on "Profile and settings" }
+    find(".top-bar .player-chip__button").click
+    assert_current_path brother_path(locale: :en, token: @player.token)
+    find(".profile-band__settings").click
 
-    assert_selector "h1", text: "PROFILE AND SETTINGS"
-    assert_selector ".tab-bar__tab[aria-current=page]", text: "MORE"
-    within(".top-bar") { click_on "More" }
-    assert_selector ".plus__list"
+    assert_selector "h1", text: "SETTINGS"
+    assert_no_selector ".tab-bar__tab[aria-current=page]"
+    within(".top-bar") { click_on "Profile" }
+    assert_current_path brother_path(locale: :en, token: @player.token)
   end
 end
