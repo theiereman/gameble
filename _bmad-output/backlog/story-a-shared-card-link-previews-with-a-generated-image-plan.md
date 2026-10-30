@@ -11,7 +11,7 @@ review: 'thorough'
 review_source: 'pinned'
 lenses_ran: [blind-hunter, edge-case-hunter, verification-gap, intent-alignment]
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context:
   - '{project-root}/AGENTS.md'
   - '{project-root}/_bmad-output/backlog/story-a-shared-card-link-previews-with-a-generated-image.md'
@@ -26,6 +26,18 @@ deferred:
     location: >-
       Dockerfile:19, app/models/card_share_image/composition.rb
     severity: medium (unverified)
+  - summary: >-
+      AD-39 as committed in 27c5fb02, after this build, asks for four things the build does not do.
+    evidence: |-
+      The architecture ratifies this build and adds four rules:
+      1. renders run on a `share_images` queue with one thread (the job is on `default`, and `config/queue.yml` has no such queue);
+      2. a row whose file is missing counts as missing: the page drops the tags and enqueues the render (today it keeps advertising a 404 image);
+      3. the PNG is uploaded before the store's transaction, and under the card-season lock a render whose fingerprint no longer matches the card is refused with `Failure(:stale_render)`;
+      4. the image stays under 300 KB, checked by a test on its byte size, and a larger render is saved with a palette.
+      The review lenses found rows 2 and 3 as defects (lost file, upload inside the transaction, stale race). Each is small alone, but they are rules of the adopted architecture now. They need a follow-up ticket: the plan's intent did not hold them, and each adds a branch or a failure code.
+    location: >-
+      app/jobs/card_share_image_job.rb, config/queue.yml, app/models/card_share_image.rb (current_token), app/domains/catalog/app/operations/catalog/store_share_image.rb
+    severity: low
 ---
 
 <intent-contract>
@@ -154,6 +166,46 @@ deferred:
   - `[maybe-false]` `[reject]` (intent) The throttle is untested on Solid Cache — `unless_exist` is part of Solid Cache 1.0.10's `write_entry`; if wrong, only extra no-op jobs (low).
   - `[false]` `[reject]` (intent) The pending entry adds an unasked storage-volume item — informative for the author, not a defect.
 
+### 2026-10-30 — Review pass
+- verdicts: 36 findings — high 0, medium 1, low 28, false 7, maybe-false 0
+- findings:
+  - `[false]` `[reject]` (blind) Local disk storage contradicts the architecture's S3 bucket (AD-21, `aws-sdk-s3`) — the architecture as committed in 27c5fb02 keeps the images on the `local` disk service today and lists the move to S3 under Deferred; the reviewer read an uncommitted draft.
+  - `[false]` `[reject]` (blind) The architecture's AD-39 names another job, a slug route and a stored cover URL and title — AD-39 as committed in 27c5fb02 names `CardShareImageJob`, `/share-images/<token>.png` and the fingerprint.
+  - `[low]` `[defer]` (blind) A lost file is never repaired and the rescue is silent — rejected in the first pass, but AD-39 as committed in 27c5fb02 (after this build) now says a row whose file is missing counts as missing; deferred to that follow-up with the architecture's other new rules.
+  - `[low]` `[defer]` (blind) The blob is uploaded inside the transaction, holding the card-season lock — rejected in the first pass, but AD-39 of 27c5fb02 now says the PNG is uploaded before the transaction and a stale render is refused with `Failure(:stale_render)`; deferred to the same follow-up.
+  - `[low]` `[reject]` (blind) Replacing an image 404s the old token for platforms that fetch posted previews again — purging on replace is what keeps a year-long immutable URL correct; only the image of a preview posted before the card's art or title changed is lost; a grace period needs a second token and a delayed purge.
+  - `[low]` `[reject]` (blind) The first share usually has no image; nothing renders ahead — carried: the card page's GET enqueues the render before the link is pasted; a catalog-wide render is the author's call.
+  - `[low]` `[reject]` (blind) A transient Steam failure (5xx, timeout) holds the render off for a day — Steam CDN outages are rare and the page stays text-only for that day only; splitting transient from permanent errors adds an error class and a branch.
+  - `[low]` `[defer]` (blind) `Refresh` enqueues one job per stored image on every upsert, with no concurrency limit — carried for the enqueue (chosen so the import's transaction does no fingerprint work; each job skips a current image); the stale race is a rule of AD-39 of 27c5fb02 now (`Failure(:stale_render)`), and its `share_images` queue keeps renders off `default`; deferred to the same follow-up.
+  - `[low]` `[reject]` (blind) The fingerprint hashes the cover URL, not its bytes, and `view.to_h` holds undrawn fields — carried for `to_h` (chosen over a hand-kept field list); a field added to the view re-renders lazily, throttled per page; Steam serves new art under a new URL.
+  - `[low]` `[reject]` (blind) Turbo-frame visits pay for the lookup — carried: one indexed query; warming browsed cards is wanted.
+  - `[low]` `[reject]` (blind) Long text is cut mid-glyph; a zero width or empty text aborts the render — a third band line (titles over ~45 characters, measured 86 px against the 60 px cap) is cut, while the column shows the whole title; the zero width needs a right label of ~30 characters (the longest is "S1 · #12 345"); `CardText` validates the title's presence and the publisher passes through `.presence`.
+  - `[low]` `[reject]` (blind) Constants duplicated: content type, token length 24, locales — carried for the content type; reading a model constant in `config/routes.rb` would load `ApplicationRecord` at route drawing, before the test workers fork; the three locale checks guard three boundaries (job argument, row, database).
+  - `[low]` `[patch]` (blind) Comments narrate intent against the AGENTS.md rule — the headers and method comments of `CardShareImage`, `Art`, `Composition`, `Refresh`, `ShareImagesController`, `StoreShareImage` and `ShareImageByToken` removed; kept the one-line external constraints (Steam's placeholder, libvips' palette, fonts and SVG loader, Pango markup) and added one on the session skip (a shared cache refuses a response that sets a cookie); config and migration comments follow those files' existing style.
+  - `[low]` `[reject]` (blind) The body is buffered before the size check and a redirect counts as a failure — carried for the buffering; no Steam cover URL is known to redirect, and following redirects widens the hosts check.
+  - `[low]` `[reject]` (blind) No kill switch while Steam's terms, Cloudflare and libvips are open — production waits on the author's merge to `main` after the pending entry is settled; a flag adds branches to the page and the job.
+  - `[false]` `[reject]` (blind) `robots.txt` answers `Disallow: /`, which Twitterbot obeys — production sets `SEARCH_INDEXING: "on"` (`config/deploy.production.yml:54`), so only staging disallows, and the pending entry asks for the staging check.
+  - `[low]` `[patch]` (blind) Tests missing: hold-off through the job, the size, side and format refusals, and more — the first two patched (see the verification-gap rows); redirect, palette fallback, refresh on rollback, a composition `Vips::Error` and a signed-in viewer with an image rejected: none guards a branch a reader could break unseen beyond those covered.
+  - `[low]` `[patch]` (blind) Test polish: the badly rewrapped header of `card_preview_tags_test.rb`, an extra blank line in `pending-approvals.md` — both rewrapped and removed; the count of 8 tags is left as it names the eight tags of the matrix.
+  - `[low]` `[defer]` (edge) Orphaned PNG on rollback — as the blind upload row above; deferred to the same follow-up.
+  - `[low]` `[defer]` (edge) A missing blob file keeps a 404 image advertised — as the blind lost-file row above; deferred to the same follow-up.
+  - `[low]` `[reject]` (edge) A token rotated between the page and the crawler's fetch — carried: only on a card change, in a seconds-long window.
+  - `[low]` `[reject]` (edge) The body is buffered before the size check — carried.
+  - `[false]` `[reject]` (edge) A right text wider than the line leaves no width for the left one — the right texts are the year and a number label of at most ~12 characters (~120 px) in a 327 px line; the zero width is unreachable.
+  - `[low]` `[reject]` (edge) An empty title or publisher after stripping makes `Vips::Image.text` raise — confirmed it raises on empty text, but `CardText` validates the title's presence and the publisher goes through `.presence`; only a title of control characters alone reaches it.
+  - `[medium]` `[patch]` (verification-gap) The job's failure hold-off is never exercised through the job (the test cache is a null store) — job test: an unusable art under a `MemoryStore` keeps the page from enqueueing past the hourly throttle; removing the `hold_off` call fails it.
+  - `[low]` `[patch]` (verification-gap) The 8 MB, 4096 px and loader refusals are untested — model test: each refused with its own reason in the message, so removing one guard fails it.
+  - `[low]` `[patch]` (verification-gap) The composed text is never observed — model test: two titles give different band and column pixels; skipping the column's title fails it.
+  - `[false]` `[reject]` (verification-gap) With indexing off, `keep_out_of_search_engines` overwrites the image's `noindex` — it writes `noindex, nofollow`, which still keeps the image out of the index.
+  - `[low]` `[reject]` (intent) Every card GET, Turbo frames included, looks up and may enqueue — carried: as the blind row above.
+  - `[low]` `[reject]` (intent) The throttle and hold-off run only on a `MemoryStore`, not Solid Cache — carried: `unless_exist` is part of Solid Cache's `write_entry`; if wrong, only extra no-op jobs.
+  - `[low]` `[reject]` (intent) The page's stale test fakes the fingerprint instead of changing the card — the page only compares fingerprints; real changes are tested by the fingerprint, job and refresh tests.
+  - `[low]` `[patch]` (intent) Nothing checks the image's text or ties it to the in-game card — same root cause as the composed-text row; fixed there; the copied colours stay a recorded residual risk.
+  - `[low]` `[reject]` (intent) A failed render's page is not tested — carried: the page never reads the job's outcome.
+  - `[false]` `[reject]` (intent) Crawler reach and Steam's terms are left to the pending entry — the intent itself puts them in that entry.
+  - `[low]` `[reject]` (intent) A palette failure silently keeps the full colours — the design degrades without failing on a libvips without a palette writer; the pending entry's staging check names unquantised art.
+  - `[false]` `[reject]` (intent) The bevel is a 35 % white or black mix, not the `-hi` and `-lo` tokens — the card face's bevel is `--card-face-bevel`, 35 % white and black (`tokens.css:242`), which the composition copies.
+
 ## Design Notes
 
 - Fingerprint: SHA-256 of the card view's fields (slug, title, publisher, year, season, rarity, art URL, number, genre), the locale and a render version; bumping the version re-renders every image lazily. A new token per render keeps year-long caches correct.
@@ -197,6 +249,14 @@ Work in `/home/teyermann/projets/gameble/.claude/worktrees/agent-a468fbd0dfce20d
 - The rest were rejected with the reasons in the triage log.
 
 **Follow-up review:** recommended. Six medium rows were patched after the lenses ran: the hold-off, the fingerprint words, the refresh rewrite and the grey check moved to art size. These were checked only by the tests the patcher wrote and the full suite, not by a second review.
+
+**Follow-up review (2026-10-30):** 36 findings, no high.
+- The first pass's six medium fixes held: the fingerprint words, the refresh rewrite and the art-size grey check drew no new defect. The hold-off was only exercised outside the job, and is now tested through it.
+- Patched: 7 rows in 5 entries, 1 medium and 4 low. The medium is the job's hold-off test. The low ones are the art refusal tests, the composed-title test, the narrative comments removed, and the test header rewrapped with the extra blank line removed from `pending-approvals.md`.
+- Deferred: AD-39 as committed in 27c5fb02 (another session's architecture commit, after this build) ratifies the build and adds four rules it does not meet. Renders go on a `share_images` queue; a missing file counts as missing; the PNG is uploaded before the transaction and a stale render is refused with `:stale_render`; a byte-size test keeps the image under 300 KB. These need a follow-up ticket. Five rows (lost file, upload inside the transaction, stale race) moved from reject to defer because of it.
+- Rejected: every other row, with its reason in the triage log.
+- Further follow-up review: not recommended. This pass patched no high, and its patches are tests, comment removals and whitespace.
+- Verification: `bin/rails test` 3666 runs, 0 failures; system `share_card_test.rb` and `card_detail_test.rb` 20 runs, 0 failures; the five share-image test files 67 runs, 0 failures; the new tests fail on the mutations they target (no `hold_off`, no column title). Clean: rubocop on the touched files, `bundle exec packwerk check`, `bin/rails zeitwerk:check`, `script/check_planning_references`, `script/check_file_sizes`, `bundle exec i18n-tasks missing`.
 
 **Verification:**
 - `bin/rails test`: 3662 runs, 0 failures.

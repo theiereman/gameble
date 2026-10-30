@@ -1,9 +1,6 @@
 require "vips"
 
 module CardShareImage
-  # The preview image: the xl card face at 1.5×, its pixelated art in its
-  # rarity frame, beside a column with the title, the rarity and the
-  # number, in the card's fonts and the current locale.
   class Composition
     Box = Data.define(:x, :y, :width, :height)
 

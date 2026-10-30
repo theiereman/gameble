@@ -1,5 +1,4 @@
 module Catalog
-  # The stored PNG of a share image, or nil.
   module ShareImageByToken
     def self.call(token)
       return unless token.is_a?(String) && token.present?

@@ -8,11 +8,11 @@ require_relative "../support/share_image_art"
 # A card's page as a share link opens it: only the card, never who shared
 # or holds it; the preview tags (title and rarity, and the card's image
 # once rendered, its render enqueued until then) in the URL's language, on
-# the configured public base; for a
-# visitor, the public card page with the invitation to play and, for an
-# older browser, the line asking to update; open to link-preview crawlers
-# and older browsers, with the library its sets lead to; the old share
-# links, which named the sharer, redirected; no database id.
+# the configured public base; for a visitor, the public card page with
+# the invitation to play and, for an older browser, the line asking to
+# update; open to link-preview crawlers and older browsers, with the
+# library its sets lead to; the old share links, which named the sharer,
+# redirected; no database id.
 class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests

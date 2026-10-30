@@ -1,6 +1,4 @@
 module CardShareImage
-  # Renders the card's stored images again once its change commits: the
-  # job skips each one that still shows the card as it is.
   module Refresh
     EVENTS = [ Catalog::CardIdentityUpserted ].freeze
 

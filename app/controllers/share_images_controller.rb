@@ -1,13 +1,10 @@
-# A shared card's preview image, by token, for any browser or link-preview
-# crawler, signed out. It never writes the session, so no cookie keeps a
-# cache from holding it for its year; search engines are kept from indexing
-# the Steam art under the site.
 class ShareImagesController < ApplicationController
   include PublicRead
 
   CACHE_LIFETIME = 365.days
 
   skip_before_action :set_sentry_user, :note_presence
+  # A shared cache refuses to store a response that sets a cookie.
   before_action { request.session_options[:skip] = true }
 
   def show

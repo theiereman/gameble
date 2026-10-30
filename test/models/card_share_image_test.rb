@@ -138,6 +138,17 @@ class CardShareImageTest < ActiveSupport::TestCase
     end
   end
 
+  test "the art is refused over 8 MB, over 4096 pixels a side, or in a format other than JPEG, PNG or WebP" do
+    gif = Vips::Image.new_from_buffer(cover_jpeg, "").gifsave_buffer
+    { "x" * (CardShareImage::Art::MAX_BYTES + 1) => "bytes", cover_jpeg(width: 300, height: 4097) => "pixels a side",
+      gif => "is not a JPEG" }.each do |body, reason|
+      stub_share_image_art
+      stub_art(body:)
+      error = assert_raises(CardShareImage::Art::Unusable) { CardShareImage::Art.new(STEAM_ART).pixels }
+      assert_includes error.message, reason
+    end
+  end
+
   test "the art is refused when the fetch fails at the connection" do
     art_stubs.get(STEAM_ART) { raise Faraday::ConnectionFailed, "refused" }
 
@@ -157,6 +168,20 @@ class CardShareImageTest < ActiveSupport::TestCase
 
     pngs.each { assert_equal [ "pngload_buffer", 1200, 630 ], png_size(it) }
     assert_equal 2, pngs.uniq.size, "the rarity in each language"
+  end
+
+  test "the composition draws the title on the card and in the column" do
+    stub_art
+    art = CardShareImage::Art.new(STEAM_ART).pixels
+    composition = CardShareImage::Composition
+    drawn = ->(title) { Vips::Image.new_from_buffer(composition.new(view.with(title:), art).png, "") }
+    region = ->(image, box) { image.crop(box.x, box.y, box.width, box.height).write_to_memory }
+
+    portal, half_life = drawn.("Portal"), drawn.("Half-Life")
+
+    [ composition::BAND, composition::COLUMN ].each do |box|
+      assert_not_equal region.(portal, box), region.(half_life, box), box.inspect
+    end
   end
 
   test "the composition draws the art at three screen pixels a pixel, inside the rarity's frame" do

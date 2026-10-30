@@ -1,20 +1,15 @@
 require "digest"
 
-# The image a shared card's link previews with: one per published
-# card-season and language, rendered by CardShareImageJob, never in a
-# request, and served by token from ShareImagesController.
 module CardShareImage
   WIDTH = 1200
   HEIGHT = 630
   CONTENT_TYPE = "image/png".freeze
 
-  # Bumping it renders every image again, as each card page is next opened.
   RENDER_VERSION = 1
 
   RENDER_THROTTLE = 1.hour
   FAILURE_HOLD_OFF = 1.day
 
-  # What the image shows: the view, and the words it draws in the locale.
   def self.fingerprint(view, locale)
     words = I18n.with_locale(locale) do
       [ CardStrings.new.rarity_name(view.rarity), view.genre && SetLabel.genre(view.genre), view.number && view.number_label ]
@@ -22,8 +17,6 @@ module CardShareImage
     Digest::SHA256.hexdigest([ RENDER_VERSION, locale.to_s, view.to_h.sort, words ].to_json)
   end
 
-  # The token of the card-season's image when it shows the view as it is
-  # now; otherwise nil, with its render enqueued at most once an hour.
   def self.current_token(card_season_id:, view:, locale:)
     fingerprint = fingerprint(view, locale)
     stored = Catalog::ShareImageFor.call(card_season_id:, locale:)
@@ -33,7 +26,6 @@ module CardShareImage
     nil
   end
 
-  # A render that failed is not enqueued again from the page for a day.
   def self.hold_off(card_season_id, locale, fingerprint)
     Rails.cache.write(throttle_key(card_season_id, locale, fingerprint), true, expires_in: FAILURE_HOLD_OFF)
   end

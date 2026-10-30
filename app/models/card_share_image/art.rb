@@ -2,10 +2,6 @@ require "faraday"
 require "vips"
 
 module CardShareImage
-  # A card's Steam cover, fetched from Steam's image hosts only and turned
-  # into the xl card's art: refused as the face refuses it (too small, or
-  # Steam's flat grey placeholder), cropped at the face's anchor, brought
-  # down to the art's pixels and to its palette.
   class Art
     class Unusable < StandardError; end
 
@@ -45,7 +41,6 @@ module CardShareImage
       @url = url
     end
 
-    # The art at the xl face's pixels, three sRGB bands.
     def pixels
       image = decode(download)
       refuse("is smaller than #{MIN_WIDTH} × #{MIN_HEIGHT}") if image.width < MIN_WIDTH || image.height < MIN_HEIGHT

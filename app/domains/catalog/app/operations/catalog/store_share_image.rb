@@ -1,8 +1,4 @@
 module Catalog
-  # Stores the link-preview PNG of a published card-season in one language.
-  # A new fingerprint gets a new image under a new token, so an image cached
-  # for a year under the old token is never served for the new one; the
-  # fingerprint already stored writes nothing.
   class StoreShareImage < ApplicationOperation
     PNG_SIGNATURE = "\x89PNG\r\n\x1A\n".b.freeze
     CONTENT_TYPE = "image/png".freeze
@@ -33,7 +29,6 @@ module Catalog
       valid ? Success() : Failure(:invalid_share_image)
     end
 
-    # Writers of one card-season's images queue on its row; the season row stays free.
     def lock_published_card_season(card_season_id)
       locked = CardSeason.joins(:season).where(id: card_season_id, catalog_seasons: { status: "published" }).where.not(rarity: nil)
         .lock("FOR NO KEY UPDATE OF catalog_card_seasons").pick(:id)

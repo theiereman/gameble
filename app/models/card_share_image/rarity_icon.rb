@@ -1,6 +1,5 @@
 module CardShareImage
-  # A rarity's pixel icon, drawn square by square from the runs of its pixel
-  # SVG: libvips' own SVG loader is blocked as untrusted.
+  # libvips' own SVG loader is blocked as untrusted: the icon is drawn from the SVG's runs.
   class RarityIcon
     PATH = /<path fill="#(\h{6})" d="([^"]+)"/
     RUN = /M(\d+) (\d+)h(\d+)v(\d+)h-\d+z/

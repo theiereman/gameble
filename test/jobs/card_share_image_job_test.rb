@@ -84,6 +84,21 @@ class CardShareImageJobTest < ActiveJob::TestCase
     assert_not_equal french, stored("fr").token
   end
 
+  test "a failed render keeps the page from enqueueing it again past the hourly throttle" do
+    cache_was = Rails.cache
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
+    stub_art(body: grey_placeholder_jpeg)
+    view = Catalog::CardViews.call([ card_season_id ], locale: "en").fetch(card_season_id)
+
+    assert_error_reported(CardShareImage::Art::Unusable) { CardShareImageJob.perform_now(card_season_id, "en") }
+
+    travel CardShareImage::RENDER_THROTTLE + 1.second do
+      assert_no_enqueued_jobs(only: CardShareImageJob) { CardShareImage.current_token(card_season_id:, view:, locale: :en) }
+    end
+  ensure
+    Rails.cache = cache_was
+  end
+
   test "a rendered image the catalog refuses to store is reported" do
     draft = seed_card_seasons([ 1.0 ]).card_seasons.sole
     draft.update_columns(rarity: 3, number: 1)
