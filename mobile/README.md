@@ -62,6 +62,8 @@ sends nothing.
    its `google-services.json` in `mobile/android/app/`.
 3. Debug builds load `http://10.0.2.2:3000` (the host from the emulator),
    release builds load `https://gameble.net`.
+4. In debug builds, five quick taps in the top-left corner show a panel with
+   the Hotwire and WebView logs, which can be copied.
 
 ## Not done yet
 

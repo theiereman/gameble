@@ -10,7 +10,6 @@ import dev.hotwire.navigation.config.defaultFragmentDestination
 import dev.hotwire.navigation.config.registerBridgeComponents
 import dev.hotwire.navigation.config.registerFragmentDestinations
 import dev.hotwire.navigation.fragments.HotwireWebBottomSheetFragment
-import dev.hotwire.navigation.fragments.HotwireWebFragment
 import net.gameble.app.bridge.HapticsComponent
 import net.gameble.app.bridge.PushPermissionComponent
 import net.gameble.app.bridge.ShareComponent
@@ -33,8 +32,8 @@ class GamebleApplication : Application() {
                 remoteFileUrl = "${Gameble.ROOT_URL}/configurations/android_v1.json"
             )
         )
-        Hotwire.defaultFragmentDestination = HotwireWebFragment::class
-        Hotwire.registerFragmentDestinations(HotwireWebFragment::class, HotwireWebBottomSheetFragment::class)
+        Hotwire.defaultFragmentDestination = GamebleWebFragment::class
+        Hotwire.registerFragmentDestinations(GamebleWebFragment::class, HotwireWebBottomSheetFragment::class)
         Hotwire.registerBridgeComponents(
             BridgeComponentFactory("sign-in", ::SignInComponent),
             BridgeComponentFactory("push-permission", ::PushPermissionComponent),

@@ -8,6 +8,7 @@ import android.graphics.Typeface
 import android.os.Build
 import android.os.Process
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -31,10 +32,17 @@ class DebugLogPanel(private val activity: Activity) {
         setBackgroundColor(0xDD000000.toInt())
         addView(log)
     }
+    private val panel = LinearLayout(activity).apply {
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.END
+        visibility = View.GONE
+    }
+    private val recentCornerTaps = ArrayDeque<Long>()
 
     fun attachTo(container: FrameLayout) {
-        container.addView(scroll, FrameLayout.LayoutParams(MATCH_PARENT, container.resources.displayMetrics.heightPixels / 2, Gravity.BOTTOM))
-        container.addView(buttons(), FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.TOP or Gravity.END))
+        panel.addView(buttons(), LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT))
+        panel.addView(scroll, LinearLayout.LayoutParams(MATCH_PARENT, container.resources.displayMetrics.heightPixels / 2))
+        container.addView(panel, FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT, Gravity.BOTTOM))
         environment().forEach(::append)
         thread(isDaemon = true) { tailLogcat() }
     }
@@ -47,8 +55,27 @@ class DebugLogPanel(private val activity: Activity) {
         "user agent: ${WebSettings.getDefaultUserAgent(activity)}"
     )
 
+    fun onTouch(event: MotionEvent) {
+        if (event.actionMasked != MotionEvent.ACTION_DOWN || !inTopLeftCorner(event)) return
+        recentCornerTaps.addLast(event.eventTime)
+        while (event.eventTime - recentCornerTaps.first() > TAPS_WINDOW_MS) recentCornerTaps.removeFirst()
+        if (recentCornerTaps.size >= TAPS_TO_TOGGLE) {
+            recentCornerTaps.clear()
+            toggle()
+        }
+    }
+
+    private fun inTopLeftCorner(event: MotionEvent): Boolean {
+        val screen = activity.resources.displayMetrics
+        return event.rawX < screen.widthPixels * 0.4f && event.rawY < screen.heightPixels * 0.2f
+    }
+
+    private fun toggle() {
+        panel.visibility = if (panel.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+    }
+
     private fun buttons() = LinearLayout(activity).apply {
-        addView(button(R.string.debug_log_toggle) { scroll.visibility = if (scroll.isShown) View.GONE else View.VISIBLE })
+        addView(button(R.string.debug_log_hide) { toggle() })
         addView(button(R.string.debug_log_copy) { copy() })
     }
 
@@ -85,5 +112,7 @@ class DebugLogPanel(private val activity: Activity) {
 
     private companion object {
         const val MAX_LINES = 400
+        const val TAPS_TO_TOGGLE = 5
+        const val TAPS_WINDOW_MS = 3000L
     }
 }

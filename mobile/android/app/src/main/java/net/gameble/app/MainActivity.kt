@@ -5,9 +5,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.messaging.FirebaseMessaging
 import dev.hotwire.navigation.activities.HotwireActivity
@@ -17,6 +21,7 @@ import dev.hotwire.navigation.tabs.navigatorConfigurations
 class MainActivity : HotwireActivity() {
     private val tabs by lazy { Tabs.all(this) }
     private lateinit var bottomNavigation: HotwireBottomNavigationController
+    private val debugLog by lazy { if (BuildConfig.DEBUG) DebugLogPanel(this) else null }
     private var pendingGrant: ((String?) -> Unit)? = null
 
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -26,10 +31,16 @@ class MainActivity : HotwireActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        keepScreensBelowStatusBar()
         bottomNavigation = HotwireBottomNavigationController(this, findViewById<BottomNavigationView>(R.id.bottom_navigation))
         bottomNavigation.load(tabs)
-        if (BuildConfig.DEBUG) DebugLogPanel(this).attachTo(findViewById<FrameLayout>(R.id.screens))
+        debugLog?.attachTo(findViewById<FrameLayout>(R.id.screens))
         openNotificationPath(intent)
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        debugLog?.onTouch(event)
+        return super.dispatchTouchEvent(event)
     }
 
     override fun navigatorConfigurations() = tabs.navigatorConfigurations
@@ -54,6 +65,16 @@ class MainActivity : HotwireActivity() {
     private fun finishGrant(token: String?) {
         pendingGrant?.invoke(token)
         pendingGrant = null
+    }
+
+    private fun keepScreensBelowStatusBar() {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.screens)) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(0, bars.top, 0, 0)
+            WindowInsetsCompat.Builder(insets)
+                .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.of(bars.left, 0, bars.right, bars.bottom))
+                .build()
+        }
     }
 
     private fun openNotificationPath(intent: Intent?) {
