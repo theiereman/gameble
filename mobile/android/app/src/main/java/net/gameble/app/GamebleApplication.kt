@@ -4,6 +4,7 @@ import android.app.Application
 import dev.hotwire.core.bridge.BridgeComponentFactory
 import dev.hotwire.core.bridge.KotlinXJsonConverter
 import dev.hotwire.core.config.Hotwire
+import dev.hotwire.core.logging.HotwireLogLevel
 import dev.hotwire.core.turbo.config.PathConfiguration
 import dev.hotwire.navigation.config.defaultFragmentDestination
 import dev.hotwire.navigation.config.registerBridgeComponents
@@ -19,6 +20,10 @@ class GamebleApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        if (BuildConfig.DEBUG) {
+            Hotwire.config.logger.logLevel = HotwireLogLevel.DEBUG
+            Hotwire.config.webViewDebuggingEnabled = true
+        }
         Hotwire.config.applicationUserAgentPrefix = "Gameble Android;"
         Hotwire.config.jsonConverter = KotlinXJsonConverter()
         Hotwire.loadPathConfiguration(

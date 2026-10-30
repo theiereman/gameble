@@ -1,0 +1,47 @@
+name: Android smoke test
+
+# Opens the debug app in an emulator and prints what Hotwire Native logs while the first page loads.
+on:
+  workflow_dispatch:
+    inputs:
+      root_url:
+        description: The server the app loads
+        default: https://gameble.net
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ROOT_URL: ${{ inputs.root_url || 'https://gameble.net' }}
+      IMAGE: system-images;android-34;google_apis;x86_64
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build the debug APK
+        working-directory: mobile/android
+        run: JAVA_HOME="$JAVA_HOME_17_X64" ./gradlew --no-daemon assembleDebug -PgambleRootUrl="$ROOT_URL"
+
+      - name: Start an emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "emulator" "platform-tools" "$IMAGE" > /dev/null
+          echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n smoke -k "$IMAGE" --device pixel_6
+          "$ANDROID_HOME/emulator/emulator" -avd smoke -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect &
+          "$ANDROID_HOME/platform-tools/adb" wait-for-device
+          until [ "$("$ANDROID_HOME/platform-tools/adb" shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; do sleep 5; done
+
+      - name: Open the app and read its logs
+        run: |
+          adb="$ANDROID_HOME/platform-tools/adb"
+          $adb install mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          $adb logcat -c
+          $adb shell am start -n net.gameble.app/.MainActivity
+          sleep 60
+          $adb logcat -d > logcat.txt
+          grep -iE "Hotwire|Turbo|chromium|console|AndroidRuntime|net.gameble" logcat.txt | tail -400
+          $adb shell uiautomator dump /sdcard/ui.xml > /dev/null && $adb shell cat /sdcard/ui.xml | grep -o 'text="[^"]\+"' | head -60
