@@ -292,7 +292,7 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 - Per-card draw odds are those in `catalog-and-rarity.md` and are tuned in playtests.
 - Card text translations come from Steam's own localized store text, imported once per UI language.
-- When Steam stops sharing the library, the Steam library set keeps its last list. The player cannot delete the set; deleting the account erases the stored list (CAP-27, author, 2026-10-30).
+- When Steam stops sharing the library, the Steam library set keeps its last list. The set has no delete action; a setting, on by default, turns the sync off, which erases the set and its stored list, and turning it back on recreates the set; deleting the account erases the list too (CAP-27, author, 2026-10-30).
 - A repost is a past event: it stays in the feed after the card is traded away, and disappears with a hidden or banned profile (CAP-14, CAP-15).
 
 ## Open Questions

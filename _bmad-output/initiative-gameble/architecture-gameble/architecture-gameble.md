@@ -436,6 +436,7 @@ graph TD
   - The key's quota is 100,000 calls a day (Steam Web API Terms of Use). Each day the sync enqueues at most `STEAM_LIBRARY_DAILY_SYNCS` sets (configuration), least recently synced first, so no counter is kept and the rest of the quota stays with the import; sets of banned or deleted players are skipped.
   - `Game::SyncLibrarySet` publishes `Game::LibrarySetSynced` with the player and the set only, when the games changed; events never carry the list (AD-10).
   - A player without a Steam identity (AD-34) has no library set. Pages read the stored list; nothing waits on Steam.
+  - The library sync is a player setting in `Accounts`, on by default (author, 2026-10-30). Turning it off publishes the settings operation's event, whose `Game` handler deletes the library set and its games in the same transaction; the creation after a Steam sign-in skips a player who turned it off, and turning it on creates the set, its first sync enqueued after commit.
   - The privacy page, the retention page and the export name the stored library list, as Valve's terms require telling players what Steam data is kept.
 
 ### AD-37 — Achievements are metrics read from state

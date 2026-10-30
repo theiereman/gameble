@@ -83,13 +83,25 @@ risk = "high"
 references = ["architecture-gameble/architecture-gameble.md#ad-36"]
 
 [[entry]]
+id = 15
+type = "story"
+title = "A player turns the Steam library sync off in the settings, which erases the set and its list"
+description = "The settings show SYNCHRONISER MA LUDOTHÈQUE STEAM, on by default, to a player with a Steam identity only; turning it off, after the design's confirmation, erases the library set and its stored list in the same transaction and stops its sync; the creation after a Steam sign-in skips a player who turned it off; turning it on creates the set again and enqueues its first sync after commit."
+verify = "On staging, a Steam player turns the sync off, confirms, and the set and its games are gone from the collection and the database; signing in again does not recreate it; turning it on brings it back after the sync; a player without Steam does not see the setting; operation, handler and system tests cover it."
+covers = ["E5"]
+after = [7]
+hitl = false
+risk = "medium"
+notes = ["Asked by the author on 2026-10-30, for the player's right to object and to erasure."]
+
+[[entry]]
 id = 8
 type = "story"
 title = "The stored Steam library list is named in the privacy and retention pages and in the data export"
-description = "The privacy page, the retention page and the data export name the stored library list, as Valve's terms require, and the export includes it; the player cannot delete the set, and deleting the account erases the list."
+description = "The privacy page, the retention page and the data export name the stored library list, as Valve's terms require, and the export includes it; turning the sync off in the settings or deleting the account erases the list."
 verify = "The pages name the list in both languages, a player's export holds their library list, and after deleting the account neither the list nor its games remain; controller and export tests cover it."
 covers = ["E5"]
-after = [7]
+after = [7, 15]
 hitl = false
 risk = "medium"
 
@@ -158,6 +170,6 @@ title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full suite, packwerk, the linters and the size checks pass, and no behavior changes."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15]
 hitl = false
 risk = "low"
