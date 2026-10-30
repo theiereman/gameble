@@ -9,7 +9,7 @@ class Game::AchievementBoardTest < ActiveSupport::TestCase
   end
 
   def unlock(*keys, player: @player)
-    keys.each { |key| Game::AchievementUnlock.create!(player_id: player.id, achievement: key, unlocked_at: Time.current) }
+    keys.each { |key| Game::AchievementUnlock.create!(player_id: player.id, achievement: key, unlocked_at: Time.current, collected_at: Time.current) }
   end
 
   def opened_packs(count, player: @player)
@@ -51,6 +51,16 @@ class Game::AchievementBoardTest < ActiveSupport::TestCase
   test "only an achievement with a threshold above one is countable" do
     assert_equal %i[boosters_10 boosters_100 boosters_500 three_complete_sets],
       Game::AchievementBoard.call(@player).select(&:countable?).map(&:key)
+  end
+
+  test "a reached achievement waits as ready until collected, and the summary counts only the collected" do
+    Game::AchievementUnlock.create!(player_id: @player.id, achievement: "first_trade", unlocked_at: Time.current)
+    unlock("first_booster")
+
+    assert_equal [ true, false ], [ tile(:first_trade).ready, tile(:first_trade).earned ]
+    assert_equal [ false, true ], [ tile(:first_booster).ready, tile(:first_booster).earned ]
+    assert_not tile(:first_epic).ready
+    assert_equal({ earned: 1, total: 10 }, Game::AchievementBoard.summary(@player))
   end
 
   test "an unlock row whose key the catalogue no longer holds is ignored" do

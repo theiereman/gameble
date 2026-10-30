@@ -29,7 +29,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
   def card_total(season) = Catalog::CardSeason.where(season_id: season.id).where.not(rarity: nil).count
 
-  def unlock(key, at) = Game::AchievementUnlock.create!(player_id: @owner.id, achievement: key, unlocked_at: at)
+  def unlock(key, at) = Game::AchievementUnlock.create!(player_id: @owner.id, achievement: key, unlocked_at: at, collected_at: at)
 
   def written_statements(&request)
     statements = []

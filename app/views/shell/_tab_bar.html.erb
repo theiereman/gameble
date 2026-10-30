@@ -5,7 +5,7 @@
        [ :booster, "tab-booster", booster_path, controller_path == "boosters" ],
        [ :collection, "tab-collection", library_path, %w[library cards].include?(controller_path) ],
        [ :trades, "tab-trades", trades_path, controller_path == "trades" ],
-       [ :more, "tab-more", more_path, (controller_path == "pages" && %w[more how_it_works].include?(action_name)) || %w[settings personalizations friends feeds achievements].include?(controller_path) ]
+       [ :more, "tab-more", more_path, (controller_path == "pages" && %w[more how_it_works].include?(action_name)) || %w[settings personalizations friends feeds].include?(controller_path) ]
      ]
    else
      [

@@ -6,7 +6,7 @@
     <%= render PanelComponent.new(tag: :p, class: "profile__no-season") do %><%= t("public_profiles.show.no_season") %><% end %>
   <% else %>
     <%= render "public_profiles/stats", rarities:, activity: activity %>
-    <%= render "public_profiles/achievements", achievements: achievements %>
+    <%= render "public_profiles/achievements", achievements: achievements, own: current_player.present? && current_player == owner %>
     <%= render "public_profiles/sets", owner:, started_sets:, started_set_count: %>
   <% end %>
 </section>

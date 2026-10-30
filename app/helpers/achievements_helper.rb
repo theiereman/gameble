@@ -10,7 +10,7 @@ module AchievementsHelper
 
   def achievement_icon(tile)
     glyph = GLYPHS.fetch(tile.key)
-    pixel_icon(tile.earned ? "achievement-#{glyph}" : "achievement-#{glyph}-locked", class: "achievement__glyph")
+    pixel_icon(tile.earned || tile.ready ? "achievement-#{glyph}" : "achievement-#{glyph}-locked", class: "achievement__glyph")
   end
 
   def achievement_back_reward(tile)

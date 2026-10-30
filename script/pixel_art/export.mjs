@@ -372,6 +372,20 @@ const ICONS = {
       "..c....",
     ],
   },
+  // A bell (9 × 9): something waits for the player.
+  bell: {
+    grid: [
+      "....c....",
+      "...ccc...",
+      "..ccccc..",
+      "..ccccc..",
+      "..ccccc..",
+      ".ccccccc.",
+      "ccccccccc",
+      ".........",
+      "...ccc...",
+    ],
+  },
   // An "i" in a rounded frame (9 × 9): a short explanation beside a heading.
   info: {
     grid: [
@@ -1283,6 +1297,7 @@ const DESCRIPTIONS = {
   "close.svg": "✕ close and remove (text colour)",
   "check.svg": "✓ check mark (text colour)",
   "more.svg": "⋯ more actions, the menu of a row's rarer actions (text colour)",
+  "bell.svg": "A bell, something waits for the player, 9 × 9 (text colour)",
   "info.svg": "An \"i\" in a rounded frame, the info mark beside a heading, 9 × 9 (text colour)",
   "rank-novice.svg": "Novice rank mark: one chevron, 9 × 5 (text colour)",
   "rank-apprentice.svg": "Apprentice rank mark: two stacked chevrons, 9 × 8 (text colour)",

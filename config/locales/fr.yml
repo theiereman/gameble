@@ -1113,6 +1113,11 @@ fr:
       achievements:
         title: "Succès"
         latest: "Derniers obtenus"
+        open: "Succès"
+        ready:
+          zero: "%{count} succès à récupérer"
+          one: "%{count} succès à récupérer"
+          other: "%{count} succès à récupérer"
       sets:
         title: "Sets"
         started:
@@ -1484,7 +1489,7 @@ fr:
   achievements:
     back_reward: "Débloque le dos %{back}"
     unlocked:
-      title: "Succès débloqué"
+      title: "Succès à récupérer"
     names:
       first_booster: "Première capsule"
       first_epic: "Première Épique"
@@ -1498,7 +1503,6 @@ fr:
       first_repost: "Premier repost"
     show:
       title: "Succès"
-      more: "Plus"
       summary:
         zero: "%{earned} succès obtenu sur %{total}"
         one: "%{earned} succès obtenu sur %{total}"
@@ -1507,7 +1511,11 @@ fr:
       groups:
         earned: "Obtenus · %{count}"
         to_earn: "À obtenir · %{count}"
+        ready: "À récupérer · %{count}"
       progress: "%{progress} sur %{threshold}"
+      collect: "Récupérer"
+      collect_label: "Récupérer %{name}"
+      profile: "Profil"
     conditions:
       first_booster: "Ouvrir une capsule"
       first_epic: "Obtenir une carte Épique"
@@ -2281,6 +2289,8 @@ fr:
       showcase_edge: "Cette carte ne peut pas aller plus loin."
       unknown_direction: "Direction inconnue."
       position_out_of_range: "La vitrine n'a pas cette place."
+      not_ready: "Ce succès n'est pas encore prêt à être récupéré."
+      unknown_achievement: "Ce succès n'existe pas."
     steam:
       invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
       sign_in_failed: "La connexion n'a pas abouti. Réessayez."
@@ -2297,3 +2307,6 @@ fr:
       stale_batch: "La saison sur laquelle cette passe a commencé a été publiée depuis, officier. Ses cartes en réserve sont jetées : lance un nouvel import."
       not_completed: "Seule une passe d'import terminée ou promue peut être recalculée, officier."
       already_published: "Les cartes de cette passe sont déjà publiées dans une saison, officier. Lance un nouvel import pour remplir le prochain brouillon."
+  achievement_collections:
+    collected:
+      title: "Succès récupéré"

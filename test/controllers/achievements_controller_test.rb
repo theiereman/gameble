@@ -11,7 +11,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
   end
 
   def unlock(*keys)
-    keys.each { |key| Game::AchievementUnlock.create!(player_id: @player.id, achievement: key, unlocked_at: Time.current) }
+    keys.each { |key| Game::AchievementUnlock.create!(player_id: @player.id, achievement: key, unlocked_at: Time.current, collected_at: Time.current) }
   end
 
   def opened_packs(count)
@@ -149,16 +149,16 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_nil flash[:alert]
   end
 
-  test "on the phone the screen sits under the PLUS tab, with a way back to it" do
+  test "on the phone the screen belongs to the own profile, with a way back to it" do
     sign_in(@player)
 
     get achievements_path(locale: :fr)
 
-    assert_select "a.tab-bar__tab[href='/fr/more'][aria-current=page]", /Plus/
-    assert_select ".top-bar a.top-bar__phone-back[href='/fr/more']", /Plus/
+    assert_select "a.tab-bar__tab[aria-current]", false
+    assert_select ".top-bar a.top-bar__phone-back[href=?]", "/fr/brothers/#{@player.token}", text: /Profil/
   end
 
-  test "menu 07 and the PLUS row lead a player to the achievements, with the count earned" do
+  test "menu 07 leads a player to the achievements, with the count earned, and PLUS no longer lists them" do
     unlock("first_booster", "first_trade", "first_repost")
     sign_in(@player)
 
@@ -171,6 +171,76 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
     assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of 10"
     get more_path(locale: :fr)
-    assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
+    assert_select ".plus__list a.menu-item[href='/fr/achievements']", false
+  end
+
+  def reach(*keys)
+    keys.each { |key| Game::AchievementUnlock.record(@player.id, key, Time.current) }
+  end
+
+  test "a reached achievement waits first, in its own group, with a Collect button that posts to its key" do
+    reach("first_trade")
+    unlock("first_booster")
+    sign_in(@player)
+
+    get achievements_path(locale: :fr)
+
+    assert_equal %w[achievements-ready achievements-earned achievements-to_earn], css_select(".achievements__group > h2").map { it["id"] }
+    assert_select "h2#achievements-ready", "À récupérer · 1"
+    assert_select ".achievements__count", "1 / 10"
+    ready = tile(:ready, "Premier échange")
+    assert ready["class"].include?("achievement--ready")
+    assert_not ready["class"].include?("achievement--locked")
+    form = ready.at_css("form.achievement__collect-form[action='/fr/achievements/first_trade/collect'][data-turbo=false]")
+    assert form
+    assert_equal [ "Récupérer", "Récupérer Premier échange" ], [ form.at_css("button").text.strip, form.at_css("button")["aria-label"] ]
+    assert_nil tile(:earned, "Première capsule").at_css("form")
+  end
+
+  test "collecting moves the achievement to the earned group with a toast; a second click is refused" do
+    reach("first_trade")
+    sign_in(@player)
+
+    post collect_achievement_path(locale: :en, key: "first_trade")
+
+    assert_redirected_to achievements_path(locale: :en)
+    assert_equal [ "Achievement collected", "First trade" ], [ flash[:toast_title], flash[:notice] ]
+    follow_redirect!
+    assert_select "#achievements-ready", false
+    assert_equal [ "First trade" ], group_names(:earned)
+
+    post collect_achievement_path(locale: :en, key: "first_trade")
+    assert_equal I18n.t("errors.game.not_ready", locale: :en), flash[:alert]
+  end
+
+  test "an achievement not reached cannot be collected, and a visitor is sent to the landing" do
+    sign_in(@player)
+    post collect_achievement_path(locale: :fr, key: "first_trade")
+    assert_equal I18n.t("errors.game.not_ready", locale: :fr), flash[:alert]
+    assert_nil Game::AchievementUnlock.find_by(player_id: @player.id, achievement: "first_trade")
+
+    delete session_path(locale: :en)
+    post collect_achievement_path(locale: :fr, key: "first_trade")
+    assert_redirected_to home_path(locale: :fr)
+  end
+
+  test "the own profile's achievements button rings with the count to collect; a visitor's view has no button" do
+    reach("first_trade", "first_epic")
+    unlock("first_booster")
+    sign_in(@player)
+
+    get brother_path(locale: :en, token: @player.token)
+
+    assert_select "#profile-achievements-heading + a.profile-achievements__open[href='/en/achievements']" do
+      assert_select "svg.pixel-icon"
+      assert_select ".button__label", "Achievements"
+      assert_select ".profile-achievements__badge[aria-hidden=true]", "2"
+      assert_select ".visually-hidden", "2 achievements to collect"
+    end
+    assert_select ".profile-band__keys .profile-figure", /1\s*\/\s*10/
+
+    sign_in(accounts_players(:moderator))
+    get brother_path(locale: :en, token: @player.token)
+    assert_select ".profile-achievements__open", false
   end
 end
