@@ -45,7 +45,7 @@ Suggestions among friends, on the trade side. Not suggestions beyond friends (#6
 ## References
 
 - parent — _bmad-output/initiative-gameble/initiative-gameble.md
-- spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, CAP-8 and CAP-11
+- spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, CAP-8, CAP-11 and CAP-28
 - input — https://github.com/theiereman/gameble/issues/64, part 2, with the author's comment
 
 ## Notes

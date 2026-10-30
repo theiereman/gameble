@@ -4,7 +4,7 @@ key: ""
 type: epic
 title: "Aim at the cards you want"
 parent: initiative-gameble
-covers: [CAP-6]
+covers: [CAP-6, CAP-27, CAP-28]
 after: []
 assignee: ""
 risk: medium
@@ -27,9 +27,9 @@ For players with a growing collection: they know what they are missing and work 
 Completed at inception, once `bmad-spec` has added the new capabilities. The lines from the source:
 
 - E1 (CAP-6). The collection's rarity legend pop-up shows, for each rarity, the distinct cards owned and the total the game holds, for the published season and overall (#221); the author details at inception what more the pop-up offers.
-- E2 (new capability). A player composes custom sets from cards they choose, and follows them like the game's sets: owned / total, album with the missing slots (#214).
-- E3 (new capability). A player picks three to five active goals among the game's sets and their custom sets, sees their progress and their missing cards highlighted, and changes them freely; whether goals show on the profile and the bridge is settled at inception (#64).
-- E4. Active goals never change drop rates nor guarantee a card (#64).
+- E2 (CAP-27). A player composes custom sets from cards they choose, and follows them like the game's sets: owned / total, album with the missing slots (#214).
+- E3 (CAP-28). A player picks three to five active goals among the game's sets and their custom sets, sees their progress and their missing cards highlighted, and changes them freely; whether goals show on the profile and the bridge is settled at inception (#64).
+- E4 (CAP-28). Active goals never change drop rates nor guarantee a card (#64).
 
 ## Done when
 
@@ -45,7 +45,7 @@ The collection and its sets, on the Collection side. Not the trade suggestions b
 ## References
 
 - parent — _bmad-output/initiative-gameble/initiative-gameble.md
-- spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, CAP-6
+- spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, CAP-6, CAP-27 and CAP-28
 - spec — _bmad-output/initiative-gameble/spec-gameble/catalog-and-rarity.md, Sets
 - design — _bmad-output/initiative-gameble/ux-gameble/DESIGN.md and EXPERIENCE.md, Collection
 - input — https://github.com/theiereman/gameble/issues/221, with its comments (owned / total per rarity, this season and overall)

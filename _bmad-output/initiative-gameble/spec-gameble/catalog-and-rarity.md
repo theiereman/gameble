@@ -81,6 +81,8 @@ The tiers before completion are named by rank, Novice, Apprentice, Adept, Expert
 
 **Rewards.** Every tier: a celebration at opening and a feed line. A theme or hall of fame set's first tier at or above 50 % of its cards (its back tier: Adept from 200 cards, Expert from 20 to 199, Master from 5 to 19, completion below; gold in earlier seasons) also unlocks that set's card back. Complete: also a "complete" stamp on the album. The tiers and completions one opening reaches make one feed line, naming the highest, ranked by the share of its set the tier stands for. Profile titles and menu themes: CAP-22 of the spec.
 
+**Custom sets (CAP-27).** A player's own set of 3 to 50 games shows the tiers of the table above for its size, with no reward.
+
 Tomes, publisher sets and "best rated of the year" sets are retired.
 
 ## Seasons
