@@ -9,6 +9,7 @@ assignee: ""
 risk: medium
 estimate: ""
 estimate_basis: ""
+status: done
 ---
 
 # Steam related features
@@ -44,3 +45,4 @@ Steam related features only. Nothing in the 0.5.0 release.
 ## Notes
 
 - Decision (2026-10-27, author): milestone 1.1.0 now holds the gameplay extensions and "Steam related features"; the mobile version moved to 1.3.0.
+- Closed (2026-10-30, author): R2 holds and shipped in v1.0.0; R1 is dropped, since Steam has no API that writes a wishlist for a third-party site (23.1). Done when 1 is waived with it.
