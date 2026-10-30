@@ -69,6 +69,7 @@ fr:
       more: "Plus"
       how_it_works: "Comment ça marche"
       back_office: "Back-office"
+      settings: "Paramètres"
     rarity:
       label: "Raretés"
       legend: "Raretés"

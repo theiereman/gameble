@@ -2296,6 +2296,7 @@ en:
       sets: Sets
       sign_in: Sign in
       trades: Trades
+      settings: "Settings"
     sign_in:
       acceptance_html: By signing in you accept the %{terms} and acknowledge the %{privacy}.
       privacy: privacy notice
