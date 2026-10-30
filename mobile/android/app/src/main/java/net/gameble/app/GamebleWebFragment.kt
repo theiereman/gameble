@@ -10,7 +10,7 @@ import dev.hotwire.navigation.fragments.HotwireWebFragment
 class GamebleWebFragment : HotwireWebFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (navigator.isAtStartDestination()) hideAppBar()
+        hideAppBar()
     }
 
     private fun hideAppBar() {

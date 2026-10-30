@@ -8,7 +8,7 @@ on:
     inputs:
       root_url:
         description: The server the app loads
-        default: https://gameble.net
+        default: https://test.gameble.net
 
 permissions:
   contents: read
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
-      ROOT_URL: ${{ inputs.root_url || 'https://gameble.net' }}
+      ROOT_URL: ${{ inputs.root_url || 'https://test.gameble.net' }}
       IMAGE: system-images;android-34;google_apis;x86_64
       ANDROID_AVD_HOME: /home/runner/.android/avd
     steps:

@@ -9,7 +9,8 @@ sheet and haptics.
 
 - **App detection.** The apps' user agent contains `Hotwire Native`, so
   `hotwire_native_app?` is true. The layout then marks `<html data-native-app>`,
-  leaves out the web tab bar, and hides the web back buttons.
+  and leaves out the web tab bar. The web header and its back buttons stay;
+  the Android app hides its native app bar so the header is not doubled.
 - **Path configuration.** `public/configurations/ios_v1.json` and
   `android_v1.json` say how each URL is shown. Each app also bundles a minimal
   copy for its first launch.
@@ -61,7 +62,8 @@ sends nothing.
 2. Create a Firebase project with the Android app `net.gameble.app`, and put
    its `google-services.json` in `mobile/android/app/`.
 3. Debug builds load `http://10.0.2.2:3000` (the host from the emulator),
-   release builds load `https://gameble.net`.
+   release builds load `https://gameble.net`. The CI build
+   (`.github/workflows/android.yml`) points at `https://test.gameble.net`.
 4. In debug builds, five quick taps in the top-left corner show a panel with
    the Hotwire and WebView logs, which can be copied.
 

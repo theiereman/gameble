@@ -7,7 +7,7 @@ on:
     inputs:
       root_url:
         description: The server the app loads
-        default: https://gameble.net
+        default: https://test.gameble.net
 
 permissions:
   contents: read
@@ -25,7 +25,7 @@ jobs:
       # The runner image ships JDK 17 and the Android SDK.
       - name: Build the debug APK
         env:
-          ROOT_URL: ${{ inputs.root_url || 'https://gameble.net' }}
+          ROOT_URL: ${{ inputs.root_url || 'https://test.gameble.net' }}
         run: JAVA_HOME="$JAVA_HOME_17_X64" ./gradlew --no-daemon assembleDebug -PgamebleRootUrl="$ROOT_URL"
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

@@ -2,3 +2,7 @@
   --tabbar-height: 0px;
   --space-tabbar-height: 0px;
 }
+
+:root[data-native-app] .top-bar__bridge {
+  display: none;
+}
