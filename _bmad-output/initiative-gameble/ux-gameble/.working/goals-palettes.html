@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Couleurs d'objectif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;family=VT323&amp;display=swap" rel="stylesheet">
+<style>
+/* =====================================================================
+   gameble · goal colours, three candidate palettes (working mock, 2026-10-30)
+   Illustrates the author's decisions of 2026-10-30:
+     - active goals (OBJECTIFS), up to 5, each with its own colour;
+     - the goal indicator on grid cards, on goal rows and on the OBJECTIFS filter chips;
+     - a goal is never told by colour alone: colour + number 1-5 + the set's name in text or accessible name;
+     - goal colours kept apart from rarity (grey, jade, blue, purple, gold), tier (bronze, silver, gold),
+       alert orange #e8833a, capsule red #d6403a (MISSION HEBDO reward) and the lime primary #a4d007.
+   Figures: WCAG 2 contrast; CIEDE2000 distances; colour vision simulated with Machado et al. 2009 (severity 1).
+   Tokens, fonts, panels, chips and the card face come from DESIGN.md and mockups/catalog-not-owned.html.
+   ===================================================================== */
+:root{
+  --backdrop:#05070a;--ground:#0b0f15;--bar:#171a21;--pn:#121a24;--pn2:#0e141b;--pn3:#1b2838;--input:#0b1015;
+  --line:#2a475e;--line2:#1f3346;--line-deep:#2a6f9a;--acc:#66c0f4;--acc-hi:#b5e2ff;--on-acc:#0b1520;
+  --txt:#c7d5e0;--txt-b:#e6eef5;--wht:#fff;--mut:#8f98a0;--pub:#8a96a2;--dim:#5d6b78;--ink:#06090d;
+  --primary:#7aa60a;--primary-h:#beee11;--lime:#a4d007;--on-lime:#0f1a03;--gold:#f4c542;--org:#e8833a;
+  --bronze:#c4945e;--silver:#bcc8d4;--cap-goal:#d6403a;--dis-bg:#18212a;--dis-tx:#56636f;
+  --r1:#8f98a0;--r2:#3fcf8e;--r3:#66c0f4;--r4:#b47cff;--r5:#f4c542;
+  /* goal colours, palette A */
+  --g1:#29e3e3;--g2:#ff5ce6;--g3:#8aa0ff;--g4:#ff7088;--g5:#78ff6e;--on-g:#06090d;
+  --fv:'VT323',monospace;--fs:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  --ol3:0 -3px 0 0 var(--ink),0 3px 0 0 var(--ink),-3px 0 0 0 var(--ink),3px 0 0 0 var(--ink);
+  --ol4:0 -4px 0 0 var(--ink),0 4px 0 0 var(--ink),-4px 0 0 0 var(--ink),4px 0 0 0 var(--ink);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--backdrop);color:var(--txt);font-family:var(--fs)}
+a{color:inherit;text-decoration:none}
+h1,h2,h3{margin:0;font-weight:400}
+p{margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+svg{shape-rendering:crispEdges}
+
+/* ---------- presentation sheet ---------- */
+.doc-h{max-width:1840px;margin:0 auto;padding:28px 24px 8px}
+.doc-h h1{font-family:var(--fv);font-size:38px;line-height:40px;color:var(--wht);letter-spacing:1px}
+.doc-h p{max-width:1080px;margin-top:8px;font-size:12px;line-height:18px;color:var(--mut)}
+.doc-h p b,.cap b{color:var(--txt-b)}
+.sec-doc{max-width:1840px;margin:0 auto;padding:30px 24px 44px}
+.sec-doc>h2{font-family:var(--fv);font-size:30px;line-height:32px;color:var(--wht);letter-spacing:1px}
+.sec-doc>h2 .tag{display:inline-block;vertical-align:middle;margin-right:10px;padding:0 8px;height:26px;line-height:26px;background:var(--acc);color:var(--on-acc);font-family:var(--fs);font-weight:700;font-size:14px;letter-spacing:1px}
+.cap{max-width:1080px;margin:6px 0 20px;font-size:12px;line-height:18px;color:var(--mut)}
+.row-frames{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.fr-cap{margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--acc);text-transform:uppercase}
+.rules{max-width:1080px;margin:0;padding:0 0 0 18px;font-size:12px;line-height:19px;color:var(--txt)}
+.rules li{margin:0 0 6px}.rules b{color:var(--wht)}
+
+/* ---------- frames ---------- */
+.browser{width:1280px;flex:none;box-shadow:0 0 0 2px #2a2f36,0 24px 60px rgba(0,0,0,.6)}
+.chrome{height:36px;display:flex;align-items:center;gap:8px;padding:0 14px;background:#22262c}
+.chrome i{width:10px;height:10px;border-radius:50%;background:#3a3f47}
+.chrome .url{margin-left:18px;flex:1;max-width:520px;height:22px;display:flex;align-items:center;padding:0 12px;border-radius:11px;background:#15181c;font-size:11px;color:#9aa3ad}
+.app{position:relative;isolation:isolate;background:var(--ground);overflow:hidden}
+.scanlines{position:absolute;inset:0;z-index:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.11) 0 1px,transparent 1px 3px)}
+.vignette{position:absolute;inset:0;z-index:0;pointer-events:none;box-shadow:inset 0 0 180px 30px rgba(0,0,0,.7)}
+.vignette.ph{box-shadow:inset 0 0 110px 16px rgba(0,0,0,.62)}
+:where(.app>*:not(.scanlines):not(.vignette)){position:relative;z-index:2}
+.phone.fixed .ph-scroll{min-height:0;overflow:hidden}
+.phone-wrap{padding:12px;background:#0b0d10;border-radius:44px;box-shadow:0 0 0 2px #2a2f36,0 24px 60px rgba(0,0,0,.6);width:414px;flex:none}
+.phone{position:relative;width:390px;min-height:844px;overflow:hidden;border-radius:34px;background:var(--ground);display:flex;flex-direction:column}
+.phone.fixed{height:844px}
+.sbar{position:absolute;left:0;right:0;top:0;height:44px;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:4px 28px 0 34px;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--txt-b)}
+.sbar span{display:flex;align-items:center;gap:8px}
+.sbar .sig{width:16px;height:10px;background:var(--txt-b);clip-path:polygon(0 70%,25% 70%,25% 45%,50% 45%,50% 20%,75% 20%,75% 0,100% 0,100% 100%,0 100%)}
+.sbar .bat{width:22px;height:11px;box-shadow:inset 0 0 0 2px var(--txt-b);background:linear-gradient(90deg,var(--txt-b) 0 70%,transparent 70%) 3px 3px/16px 5px no-repeat}
+.homebar{position:absolute;left:50%;bottom:8px;width:120px;height:4px;margin-left:-60px;z-index:40;background:var(--txt);opacity:.5}
+.ph-scroll{flex:1;padding:16px 16px 24px;display:flex;flex-direction:column;gap:14px}
+.ph-scroll>*{flex:none}
+.tabbar{flex:none;display:flex;height:84px;padding-bottom:26px;background:var(--bar);box-shadow:0 -2px 0 0 var(--line);z-index:5}
+.tbb{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--mut);font-size:10px;font-weight:700}
+.tbb.on{color:var(--acc);background:var(--pn3);box-shadow:inset 0 3px 0 0 var(--acc)}
+.scroll-note{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--dim);text-align:center;padding:4px 0 0}
+
+/* ---------- top bar ---------- */
+.topbar{background:var(--bar);box-shadow:0 2px 0 0 var(--line)}
+.tb-in{max-width:1280px;margin:0 auto;height:56px;display:flex;align-items:center;gap:16px;padding:0 32px}
+.tb-title{font-family:var(--fv);font-size:26px;line-height:26px;color:var(--wht);letter-spacing:1px;text-transform:uppercase}
+.backbtn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;background:var(--pn2);box-shadow:inset 0 0 0 2px var(--line-deep);font-size:11px;font-weight:700;letter-spacing:1px;color:var(--txt-b);text-transform:uppercase}
+.sp{flex:1}
+.c-head{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--mut)}
+.c-head b{font-weight:700;font-size:16px;color:var(--wht)}
+.bar{position:relative;display:block;width:180px;height:6px;background:var(--pn2);box-shadow:0 0 0 2px var(--line-deep)}
+.bar>i{position:absolute;left:0;top:0;bottom:0;background:var(--acc)}
+.avatar{width:32px;height:32px;flex:none;background:linear-gradient(135deg,#3fcf8e 0 50%,#2a6f9a 50%);box-shadow:0 0 0 2px var(--ink),0 0 0 4px var(--line)}
+.topbar.ph{flex:none;display:flex;align-items:center;gap:12px;height:100px;padding:44px 16px 0;z-index:5}
+.topbar.ph .tb-title{flex:1;min-width:0;font-size:24px;line-height:24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- primitives ---------- */
+.kicker{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--acc);text-transform:uppercase}
+.kick-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.kick-row .cnt{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--mut)}
+.kick-row .cnt b{color:var(--txt-b)}
+.pnl{background:var(--pn);box-shadow:inset 0 0 0 2px var(--line)}
+.pnl-soft{background:var(--pn2);box-shadow:inset 0 0 0 2px var(--line2)}
+.brk{position:relative}
+.brk::before,.brk::after{content:"";position:absolute;width:14px;height:14px;border:0 solid var(--acc);pointer-events:none;z-index:3}
+.brk::before{top:-5px;left:-5px;border-top-width:3px;border-left-width:3px}
+.brk::after{bottom:-5px;right:-5px;border-bottom-width:3px;border-right-width:3px}
+.px-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border:0;
+  font-family:var(--fs);font-weight:700;font-size:13px;letter-spacing:1px;white-space:nowrap;background:var(--line);color:var(--txt-b);text-transform:uppercase;cursor:pointer;
+  box-shadow:var(--ol3),inset 0 -4px 0 0 rgba(0,0,0,.35);transition:transform .16s cubic-bezier(.16,1,.3,1),background-color .1s steps(2),color .1s steps(2)}
+.px-btn:hover{transform:translateY(-3px);background:var(--acc);color:var(--on-acc)}
+.px-btn.go{background:var(--primary);color:var(--on-lime)}
+.px-btn.go:hover{background:var(--primary-h);color:var(--on-lime)}
+.px-btn.sm{height:34px;font-size:11px;padding:0 14px}
+.px-btn.dis,.px-btn.dis:hover{background:var(--dis-bg);color:var(--dis-tx);transform:none;cursor:not-allowed}
+.px-btn.ph{height:48px}
+.lnk{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--mut);text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;min-height:24px}
+.lnk:hover{color:var(--acc)}
+.search{display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;background:var(--input);box-shadow:inset 0 0 0 2px var(--line-deep);min-width:0}
+.search .ph{font-size:14px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search .val{font-size:14px;color:var(--txt-b)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--mut);text-transform:uppercase}
+.field .in{display:flex;align-items:center;justify-content:space-between;height:44px;padding:0 14px;background:var(--input);box-shadow:inset 0 0 0 2px var(--line-deep);font-size:14px;color:var(--txt-b)}
+.field .in.focus{box-shadow:inset 0 0 0 2px var(--acc)}
+.field .in small{font-size:11px;font-weight:700;color:var(--mut)}
+.caret{display:inline-block;width:2px;height:18px;background:var(--acc);margin-left:1px;vertical-align:middle}
+.err{font-size:12px;line-height:18px;font-weight:700;color:var(--org)}
+.err b{letter-spacing:1px}
+.quiet{font-size:12px;line-height:18px;font-weight:700;color:var(--mut)}
+.led{display:inline-block;flex:none;width:8px;height:8px;background:var(--acc)}
+.led.lime{background:var(--lime)}.led.org{background:var(--org)}
+.fchip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;background:var(--pn2);box-shadow:inset 0 0 0 2px var(--line-deep);font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--txt);text-transform:uppercase;white-space:nowrap}
+.fchip.on{background:var(--acc);color:var(--on-acc);box-shadow:none}
+.fchip.touch{height:44px;padding:0 12px;font-size:11px}
+.fzone{padding:12px 16px 16px}
+.fsum{display:flex;align-items:center;gap:10px;min-height:20px}
+.ftitle{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--acc)}
+.fcount{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:18px;padding:0 4px;background:var(--lime);color:var(--on-lime);font-size:10px;font-weight:700}
+.fgroups{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.fgroup{display:flex;align-items:baseline;gap:14px}
+.fgroup.col{flex-direction:column;align-items:stretch;gap:8px}
+.flegend{flex:none;width:74px;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--mut)}
+.fchips{display:flex;flex-wrap:wrap;gap:6px}
+.icon-acc{color:var(--acc)}
+
+/* ---------- goal marker: numbered bookmark in the goal colour ---------- */
+.k1{--g:var(--g1)}.k2{--g:var(--g2)}.k3{--g:var(--g3)}.k4{--g:var(--g4)}.k5{--g:var(--g5)}
+.gm{display:inline-flex;flex:none;filter:drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink))}
+.gm>i{display:flex;align-items:flex-start;justify-content:center;width:18px;height:22px;padding-top:3px;background:var(--g);color:var(--on-g);
+  font-style:normal;font-weight:700;font-size:11px;line-height:13px;clip-path:polygon(0 0,100% 0,100% 100%,50% 76%,0 100%)}
+.gm.xs{filter:drop-shadow(1px 0 0 var(--ink)) drop-shadow(-1px 0 0 var(--ink)) drop-shadow(0 1px 0 var(--ink)) drop-shadow(0 -1px 0 var(--ink))}
+.gm.xs>i{width:14px;height:17px;padding-top:2px;font-size:10px;line-height:11px}
+.gm.lg>i{width:22px;height:27px;padding-top:4px;font-size:13px;line-height:15px}
+.gm.hollow>i{background:transparent;box-shadow:inset 0 0 0 2px var(--g)}
+.gname{color:var(--g);font-weight:700}
+
+/* ---------- card face (grid face: band above the art) ---------- */
+.cslot{position:relative;width:var(--cw,140px);height:calc(var(--cw,140px) * 1.5);flex:none}
+.card{position:relative;flex:none;background:var(--rc);overflow:hidden;width:var(--cw,140px);height:calc(var(--cw,140px) * 1.5);padding:4px;
+  box-shadow:var(--ol4),inset 3px 3px 0 0 rgba(255,255,255,.35),inset -3px -3px 0 0 rgba(0,0,0,.35)}
+.card.t1{--rc:var(--r1)}.card.t2{--rc:var(--r2)}.card.t3{--rc:var(--r3)}.card.t4{--rc:var(--r4)}.card.t5{--rc:var(--r5)}
+.cin{position:relative;height:100%;background:var(--pn);display:flex;flex-direction:column;padding:4px;gap:2px}
+.ttl{flex:none;height:40px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;background:var(--pn3);box-shadow:inset 3px 0 0 0 var(--rc);padding:0 6px 0 9px;overflow:hidden}
+.ttl .tn{max-width:100%;font-weight:700;font-size:12px;line-height:13px;text-transform:uppercase;color:var(--wht);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ttl .pb{max-width:100%;font-weight:700;font-size:10px;line-height:12px;color:var(--pub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.art{position:relative;flex:1;min-height:0;overflow:hidden;box-shadow:0 0 0 2px var(--ink);background:repeating-linear-gradient(45deg,#16202d 0 4px,#121a24 4px 8px)}
+.art::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 2px,transparent 2px 4px),repeating-linear-gradient(90deg,rgba(0,0,0,.1) 0 2px,transparent 2px 4px)}
+.meta{flex:none;height:14px;display:flex;justify-content:space-between;align-items:center;padding:0 5px;background:var(--pn3);font-size:10px;font-weight:700;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-transform:uppercase}
+.meta .ge{color:var(--rc);overflow:hidden;text-overflow:ellipsis}
+.meta .yr{color:var(--mut);margin-left:6px}
+.rr{flex:none;height:16px;display:flex;align-items:center;gap:5px;padding:0 3px;font-size:10px;font-weight:700;white-space:nowrap;text-transform:uppercase}
+.rr .rn{flex:1;color:var(--rc);letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis}
+.rr .nu{color:var(--mut)}
+.ri{display:block;flex:none}
+.varnish{position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(115deg,transparent 0 22%,rgba(255,255,255,.06) 22% 30%,transparent 30% 36%,rgba(255,255,255,.05) 36% 38%,transparent 38%)}
+.card.sz-s{--cw:112px;padding:3px}.sz-s .cin{padding:3px}.sz-s .ttl{height:32px;padding:0 4px 0 7px}.sz-s .ttl .tn{font-size:10px;line-height:11px}.sz-s .ttl .pb{display:none}
+.cslot.s{--cw:112px}
+.card.sz-l{--cw:208px;padding:5px}.sz-l .cin{padding:5px;gap:4px}
+.sz-l .ttl{height:52px;padding:0 8px 0 11px}.sz-l .ttl .tn{font-size:14px;line-height:16px}.sz-l .ttl .pb{font-size:11px;line-height:13px}
+.sz-l .meta{height:16px;padding:0 6px}.sz-l .rr{height:20px;gap:6px}.sz-l .ri{width:14px;height:14px}
+.cslot.l{--cw:208px}
+/* badges */
+.dup,.eds{position:absolute;right:-6px;top:-6px;z-index:6;min-width:26px;height:20px;padding:0 4px;display:flex;align-items:center;justify-content:center;background:var(--acc);color:var(--on-acc);font-size:11px;font-weight:700;box-shadow:0 0 0 2px var(--ink)}
+.dup+.eds{top:18px}.eds{font-size:10px}
+.newtag{position:absolute;left:-6px;top:-6px;z-index:6;height:20px;padding:0 6px;display:flex;align-items:center;background:var(--lime);color:var(--on-lime);font-size:10px;font-weight:700;letter-spacing:1px;box-shadow:0 0 0 2px var(--ink)}
+/* goal markers hang from the top edge of the cover art, in its top-left corner, side by side
+   (art top = card padding + inner padding + title band + gap; left = the art's edge + 4px) */
+.gstack{position:absolute;left:12px;top:50px;z-index:7;display:flex;flex-direction:row;gap:4px}
+.cslot.s .gstack{left:10px;top:40px;gap:3px}
+.cslot.l .gstack{left:14px;top:66px;gap:5px}
+/* Card not owned: the face grey at 45 %, effects off, the bare lock at the centre of the art */
+.cslot.no .card{opacity:.45;filter:grayscale(1)}
+.cslot.no .lk{position:absolute;z-index:6;left:50%;top:calc(50% - 4px);width:20px;height:24px;margin:-12px 0 0 -10px;color:var(--txt-b);
+  filter:drop-shadow(1px 0 0 var(--backdrop)) drop-shadow(-1px 0 0 var(--backdrop)) drop-shadow(0 1px 0 var(--backdrop)) drop-shadow(0 -1px 0 var(--backdrop))}
+.cslot.l.no .lk{width:30px;height:36px;margin:-18px 0 0 -15px}
+.lk{display:none}.cslot.no .lk{display:block}
+/* picked (picker / editor): steady lime frame and a check */
+.cslot.pick::before{content:"";position:absolute;inset:-9px;z-index:5;box-shadow:0 0 0 3px var(--lime);pointer-events:none}
+.ck{position:absolute;z-index:8;right:-8px;bottom:-8px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:var(--pn2);box-shadow:inset 0 0 0 2px var(--line-deep),0 0 0 2px var(--ink);color:transparent}
+.cslot.pick .ck{background:var(--lime);box-shadow:0 0 0 2px var(--ink);color:var(--on-lime)}
+.cslot.sel::before{content:"";position:absolute;inset:-9px;z-index:5;box-shadow:0 0 0 3px var(--acc);pointer-events:none}
+
+/* ---------- game art (stand-ins for the pixel-filtered Steam covers) ---------- */
+.a-hades{background:radial-gradient(circle at 50% 66%,#ffb347 0 9%,#ff5a1f 9% 18%,#9e1c1c 18% 30%,transparent 30%),linear-gradient(#170709,#3b0e14 60%,#0e0406)}
+.a-balatro{background:linear-gradient(#f4f1e6,#f4f1e6) 50% 52%/34% 46% no-repeat,linear-gradient(135deg,#d6304a 0 34%,#2d5bd1 34% 66%,#101b45 66%)}
+.a-celeste{background:linear-gradient(150deg,transparent 52%,#2b1d4f 52%),linear-gradient(210deg,transparent 60%,#3d2a6b 60%),linear-gradient(#4b2f86,#d77aa6)}
+.a-hk{background:radial-gradient(ellipse 22% 24% at 50% 44%,#f3f5f9 0 96%,transparent 100%),linear-gradient(#0b1426,#203457)}
+.a-stardew{background:radial-gradient(circle at 76% 22%,#fff2a8 0 8%,transparent 9%),linear-gradient(#78c6ef 0 48%,#4fae55 48% 74%,#8b5a2b 74%)}
+.a-portal{background:radial-gradient(ellipse 12% 22% at 30% 55%,#2f8bff 0 88%,transparent 92%),radial-gradient(ellipse 12% 22% at 70% 55%,#ff8a1f 0 88%,transparent 92%),linear-gradient(#dde2e7,#8f9aa4)}
+.a-ow{background:radial-gradient(circle at 70% 28%,#ffb347 0 11%,transparent 12%),radial-gradient(circle at 34% 72%,#3d8b72 0 17%,transparent 18%),linear-gradient(#0a0f2e,#24306a)}
+.a-de{background:linear-gradient(172deg,#1e5b60 0 44%,#c9a24a 44% 58%,#7a3b2a 58%)}
+.a-sts{background:linear-gradient(90deg,transparent 41%,#2a0d0d 41% 59%,transparent 59%) 0 30%/100% 100% no-repeat,linear-gradient(#e0632e,#5b1a12)}
+.a-factorio{background:linear-gradient(transparent 58%,#e07b1f 58% 64%,transparent 64%),repeating-linear-gradient(90deg,#5a4630 0 8px,#463826 8px 16px)}
+.a-dc{background:radial-gradient(circle at 50% 38%,#ff7a2a 0 10%,transparent 11%),linear-gradient(#1c2a3e,#3a2f5a 70%,#181225)}
+.a-ror{background:radial-gradient(circle at 30% 30%,#e8f0ff 0 6%,transparent 7%),linear-gradient(#5a6fa8,#c9a0c8 60%,#3a3550 60%)}
+.a-gungeon{background:linear-gradient(transparent 62%,#1a1410 62%),radial-gradient(circle at 50% 50%,#ffd04a 0 10%,#c04a1f 10% 18%,transparent 19%),linear-gradient(#3a2a22,#5b4030)}
+.a-inscryption{background:radial-gradient(ellipse 18% 12% at 50% 40%,#e9d79a 0 90%,transparent 94%),linear-gradient(#1d140c,#3a2414)}
+.a-bastion{background:linear-gradient(transparent 58%,#a77b3e 58% 70%,transparent 70%) 50% 0/60% 100% no-repeat,linear-gradient(#5fc6c9,#f0d7a0)}
+.a-transistor{background:linear-gradient(115deg,transparent 46%,#ff3d5a 46% 52%,transparent 52%),linear-gradient(#0c2a3a,#1d6b80)}
+.a-pyre{background:radial-gradient(circle at 50% 40%,#ffdb8a 0 7%,transparent 8%),linear-gradient(#3b1f5c,#c0507a)}
+.a-ori{background:radial-gradient(circle at 50% 50%,#ffffff 0 5%,#9ad9ff 5% 14%,transparent 15%),linear-gradient(#0a2240,#1f5f8a)}
+.a-blas{background:linear-gradient(90deg,transparent 44%,#d9c8a0 44% 56%,transparent 56%) 0 0/100% 60% no-repeat,linear-gradient(#3a0d10,#120607)}
+.a-terraria{background:linear-gradient(#6fb6ff 0 40%,#4a9a3a 40% 52%,#7a5230 52%)}
+.a-rimworld{background:linear-gradient(#b9a37a 0 30%,#7c8a4a 30% 70%,#5a4a30 70%)}
+.a-cotl{background:radial-gradient(circle at 50% 46%,#f6f1ec 0 14%,transparent 15%),linear-gradient(#5a1240,#c2306a)}
+.a-witness{background:radial-gradient(circle at 60% 40%,#f2e3a0 0 10%,transparent 11%),linear-gradient(#83c8e8 0 55%,#f0c070 55%)}
+.a-ftl{background:radial-gradient(ellipse 30% 10% at 50% 50%,#c0c8d0 0 90%,transparent 95%),linear-gradient(#060a1a,#1a1440)}
+/* ---------- rank chip and set gauge ---------- */
+.rank{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px;box-shadow:inset 0 0 0 2px var(--txt-b);color:var(--txt-b);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+.rank.sm{height:20px;padding:0 6px;font-size:10px;gap:5px;box-shadow:inset 0 0 0 1px var(--txt-b)}
+.rank.none{color:var(--mut);box-shadow:none;outline:2px dashed var(--line-deep);outline-offset:-2px}
+.rank.done{color:var(--lime);box-shadow:inset 0 0 0 2px var(--lime)}
+.gauge{display:block;position:relative;height:6px;background:var(--pn2);box-shadow:0 0 0 2px var(--line-deep)}
+.gauge>i{position:absolute;left:0;top:0;bottom:0;background:var(--acc)}
+.gauge.done>i{background:var(--lime)}
+.gauge .tk{position:absolute;top:-6px;width:2px;height:14px;background:var(--txt-b)}
+.gauge .tk.off{top:-2px;height:10px;background:repeating-linear-gradient(180deg,var(--line-deep) 0 2px,transparent 2px 4px)}
+.gauge.g>i{background:var(--g)}
+
+/* ---------- this sheet ---------- */
+.pal-a{--g1:#29e3e3;--g2:#ff5ce6;--g3:#8aa0ff;--g4:#ff7088;--g5:#78ff6e}
+.pal-b{--g1:#a6f4ee;--g2:#ffb3f0;--g3:#b8bcff;--g4:#ffa8bc;--g5:#d4f79a}
+.pal-c{--g1:#bffff3;--g2:#5fe86a;--g3:#ff96dc;--g4:#f7476f;--g5:#5d52f7}
+.pal-c .k5{--on-g:#fff}
+.sec-a .k1{--g:#29e3e3}
+.sec-a .k2{--g:#ff5ce6}
+.sec-a .k3{--g:#8aa0ff}
+.sec-a .k4{--g:#ff7088}
+.sec-a .k5{--g:#78ff6e}
+.sec-b .k1{--g:#a6f4ee}
+.sec-b .k2{--g:#ffb3f0}
+.sec-b .k3{--g:#b8bcff}
+.sec-b .k4{--g:#ffa8bc}
+.sec-b .k5{--g:#d4f79a}
+.sec-c .k1{--g:#bffff3}
+.sec-c .k2{--g:#5fe86a}
+.sec-c .k3{--g:#ff96dc}
+.sec-c .k4{--g:#f7476f}
+.sec-c .k5{--g:#5d52f7}
+.sec-doc .sws{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;max-width:1240px;margin:22px 0 26px}
+.sw{background:var(--pn);box-shadow:inset 0 0 0 2px var(--line);padding:14px 14px 12px}
+.sw-top{display:flex;align-items:center;gap:12px;height:58px;padding:0 0 0 12px;background:var(--pn);box-shadow:inset 6px 0 0 0 var(--g)}
+.sw-chip{width:44px;height:44px;background:var(--g);box-shadow:0 0 0 2px var(--ink)}
+.sw-txt{font-size:13px;font-weight:700;color:var(--g)}
+.sw-name{margin:10px 0 8px;font-size:12px;font-weight:700;color:var(--wht)}
+.sw-name code{font-family:var(--fs);color:var(--mut);margin-left:6px}
+.sw-f{margin:0;display:flex;flex-direction:column;gap:3px}
+.sw-f div{display:flex;justify-content:space-between;gap:8px;padding:4px 8px;background:var(--pn2);font-size:10px;font-weight:700}
+.sw-f dt{color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.sw-f dd{margin:0;color:var(--txt-b);text-align:right}
+.sw-f div.weak dd{color:var(--org)}
+.hruler{position:relative;width:900px;height:62px;margin:18px 0 0}
+.hr-track{position:absolute;left:0;right:0;top:24px;height:10px;background:linear-gradient(90deg,hsl(0 80% 55%),hsl(60 80% 55%),hsl(120 80% 55%),hsl(180 80% 55%),hsl(240 80% 60%),hsl(300 80% 58%),hsl(360 80% 55%));opacity:.35;box-shadow:0 0 0 2px var(--line2)}
+.hr-res{position:absolute;top:8px;width:4px;height:32px;margin-left:-2px;box-shadow:0 0 0 2px var(--ink)}
+.hr-pal{position:absolute;top:38px;margin-left:-7px}
+.hr-l{position:absolute;top:0;font-size:10px;font-weight:700;color:var(--dim)}.hr-l.l0{left:0}.hr-l.l1{left:440px}.hr-l.l2{right:0}
+.demo{display:flex;flex-wrap:wrap;gap:32px;padding:26px 28px 28px;background:var(--ground);box-shadow:inset 0 0 0 2px var(--line2);max-width:1240px}
+.dm-cards{display:flex;gap:22px;padding:6px 0 0 8px}
+.dm-col{min-width:0}
+.mrows{width:440px;padding:8px}
+.mrow{display:flex;align-items:center;gap:12px;min-height:40px;padding:4px 10px 4px 14px;box-shadow:inset 4px 0 0 0 var(--g)}
+.mrow+.mrow{margin-top:4px}
+.mr-n{flex:1;font-size:12px;font-weight:700;color:var(--wht)}
+.mr-g{width:130px;flex:none}
+.mr-c{width:56px;text-align:right;font-size:11px;font-weight:700;color:var(--txt-b)}
+.two{display:grid;grid-template-columns:560px 1fr;gap:36px;max-width:1240px;margin-top:26px}
+.sims{display:flex;flex-direction:column;gap:8px}
+.sim{display:flex;align-items:center;gap:12px}
+.sim-l{width:120px;font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--mut);text-transform:uppercase}
+.sim-cs{display:flex;gap:4px}
+.sim-c{width:44px;height:30px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px var(--ink)}
+.sim-c b{font-size:11px;color:var(--ink)}
+.sim-rs{display:flex;align-items:center;gap:3px;margin-left:12px}
+.sim-r{width:16px;height:30px;box-shadow:0 0 0 2px var(--ink)}
+.sim-rs em{font-style:normal;font-size:10px;font-weight:700;color:var(--dim);margin-left:6px}
+.sim.grey .sim-cs,.sim.grey .sim-rs{filter:grayscale(1)}
+.sims .quiet{margin-top:6px;max-width:540px}
+.reserved{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.rs{display:flex;align-items:center;gap:10px;height:40px;padding:0 12px 0 0;background:var(--pn);box-shadow:inset 0 0 0 2px var(--line2);font-size:11px;font-weight:700;color:var(--txt-b)}
+.rs i{width:32px;height:40px;background:var(--c);box-shadow:inset -2px 0 0 0 var(--ink)}
+.rs code{font-family:var(--fs);color:var(--mut)}
+table.cmp{border-collapse:collapse;margin-top:16px;font-size:12px;max-width:1240px}
+.cmp th,.cmp td{padding:9px 14px;text-align:left;vertical-align:top;box-shadow:inset 0 -2px 0 0 var(--line2)}
+.cmp th{font-size:10px;letter-spacing:1px;color:var(--mut);text-transform:uppercase}
+.cmp td{color:var(--txt)}.cmp td b{color:var(--wht)}
+.cmp .dots{display:flex;gap:3px}.cmp .dots i{width:16px;height:16px;box-shadow:0 0 0 2px var(--ink)}
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="rc1" viewBox="0 0 5 5"><path fill="#dfe6ec" d="M1 0h3v1h-3zM0 1h1v1h-1z"/><path fill="#8f98a0" d="M1 1h4v1h-4zM0 2h5v1h-5zM0 3h4v1h-4z"/><path fill="#4d5866" d="M4 3h1v1h-1zM1 4h3v1h-3z"/></symbol>
+<symbol id="rc2" viewBox="0 0 5 5"><path fill="#b2f7d4" d="M1 0h3v1h-3zM0 1h1v1h-1z"/><path fill="#3fcf8e" d="M4 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM4 2h1v1h-1zM0 3h1v1h-1z"/><path fill="#16684a" d="M4 3h1v1h-1zM1 4h3v1h-3z"/></symbol>
+<symbol id="rc3" viewBox="0 0 5 5"><path fill="#d2efff" d="M2 0h1v1h-1zM1 1h1v1h-1zM0 2h1v1h-1z"/><path fill="#66c0f4" d="M2 1h2v1h-2zM1 2h3v1h-3zM1 3h2v1h-2z"/><path fill="#2a6f9a" d="M4 2h1v1h-1zM3 3h1v1h-1zM2 4h1v1h-1z"/></symbol>
+<symbol id="rc4" viewBox="0 0 5 5"><path fill="#ead9ff" d="M2 0h1v1h-1zM1 1h1v1h-1zM0 3h1v1h-1z"/><path fill="#b47cff" d="M2 1h2v1h-2zM1 2h3v1h-3zM1 3h4v1h-4z"/><path fill="#55308f" d="M0 4h5v1h-5z"/></symbol>
+<symbol id="rc5" viewBox="0 0 5 5"><path fill="#fff3c4" d="M2 0h1v1h-1zM0 1h2v1h-2zM3 1h2v1h-2z"/><path fill="#f4c542" d="M2 1h1v1h-1zM1 2h3v1h-3zM1 3h1v1h-1z"/><path fill="#8f5e0a" d="M3 3h1v1h-1zM0 4h1v1h-1zM4 4h1v1h-1z"/></symbol>
+<symbol id="i-lock" viewBox="0 0 10 12"><path fill="currentColor" d="M3 0h4v1h-4zM2 1h1v1h-1zM7 1h1v1h-1zM2 2h1v1h-1zM7 2h1v1h-1zM2 3h1v1h-1zM7 3h1v1h-1zM2 4h1v1h-1zM7 4h1v1h-1zM1 5h8v1h-8zM1 6h8v1h-8zM1 7h3v1h-3zM6 7h3v1h-3zM1 8h3v1h-3zM6 8h3v1h-3zM1 9h3v1h-3zM6 9h3v1h-3zM1 10h8v1h-8zM1 11h8v1h-8z"/></symbol>
+<symbol id="i-arrow-left" viewBox="0 0 4 7"><path fill="currentColor" d="M3 0h1v1h-1zM2 1h2v1h-2zM1 2h3v1h-3zM0 3h4v1h-4zM1 4h3v1h-3zM2 5h2v1h-2zM3 6h1v1h-1z"/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 4 7"><path fill="currentColor" d="M0 0h1v1h-1zM0 1h2v1h-2zM0 2h3v1h-3zM0 3h4v1h-4zM0 4h3v1h-3zM0 5h2v1h-2zM0 6h1v1h-1z"/></symbol>
+<symbol id="i-arrow-small-right" viewBox="0 0 3 5"><path fill="currentColor" d="M0 0h1v1h-1zM0 1h2v1h-2zM0 2h3v1h-3zM0 3h2v1h-2zM0 4h1v1h-1z"/></symbol>
+<symbol id="i-check" viewBox="0 0 7 6"><path fill="currentColor" d="M6 0h1v1h-1zM5 1h2v1h-2zM0 2h1v1h-1zM4 2h2v1h-2zM0 3h2v1h-2zM3 3h2v1h-2zM1 4h3v1h-3zM2 5h1v1h-1z"/></symbol>
+<symbol id="i-x" viewBox="0 0 5 5"><path fill="currentColor" d="M0 0h1v1h-1zM4 0h1v1h-1zM1 1h1v1h-1zM3 1h1v1h-1zM2 2h1v1h-1zM1 3h1v1h-1zM3 3h1v1h-1zM0 4h1v1h-1zM4 4h1v1h-1z"/></symbol>
+<symbol id="i-plus" viewBox="0 0 5 5"><path fill="currentColor" d="M2 0h1v5h-1zM0 2h2v1h-2zM3 2h2v1h-2z"/></symbol>
+<symbol id="i-mark" viewBox="0 0 7 9"><path fill="currentColor" d="M0 0h7v1h-7zM0 1h1v8h-1zM6 1h1v8h-1zM1 7h1v1h-1zM5 7h1v1h-1zM2 6h1v1h-1zM4 6h1v1h-1zM3 5h1v1h-1z"/></symbol>
+<symbol id="i-external" viewBox="0 0 7 7"><path fill="currentColor" d="M3 0h4v1h-4zM6 1h1v3h-1zM5 1h1v1h-1zM4 2h1v1h-1zM3 3h1v1h-1zM2 4h1v1h-1zM1 5h1v1h-1zM0 6h1v1h-1z"/></symbol>
+<symbol id="i-pen" viewBox="0 0 7 7"><path fill="currentColor" d="M5 0h1v1h-1zM4 1h3v1h-3zM3 2h3v1h-3zM2 3h3v1h-3zM1 4h3v1h-3zM0 5h2v1h-2zM0 6h1v1h-1z"/></symbol>
+<symbol id="rk1" viewBox="0 0 9 5"><path fill="currentColor" d="M3 0h3v1h-3zM2 1h2v1h-2zM5 1h2v1h-2zM1 2h2v1h-2zM6 2h2v1h-2zM0 3h2v1h-2zM7 3h2v1h-2zM0 4h1v1h-1zM8 4h1v1h-1z"/></symbol>
+<symbol id="rk2" viewBox="0 0 9 8"><path fill="currentColor" d="M3 0h3v1h-3zM2 1h2v1h-2zM5 1h2v1h-2zM1 2h2v1h-2zM6 2h2v1h-2zM0 3h2v1h-2zM7 3h2v1h-2zM0 4h1v1h-1zM8 4h1v1h-1zM3 3h3v1h-3zM2 4h2v1h-2zM5 4h2v1h-2zM1 5h2v1h-2zM6 5h2v1h-2zM0 6h2v1h-2zM7 6h2v1h-2zM0 7h1v1h-1zM8 7h1v1h-1z"/></symbol>
+<symbol id="rk3" viewBox="0 0 9 11"><path fill="currentColor" d="M3 0h3v1h-3zM2 1h2v1h-2zM5 1h2v1h-2zM1 2h2v1h-2zM6 2h2v1h-2zM0 3h2v1h-2zM7 3h2v1h-2zM0 4h1v1h-1zM8 4h1v1h-1zM3 3h3v1h-3zM2 4h2v1h-2zM5 4h2v1h-2zM1 5h2v1h-2zM6 5h2v1h-2zM0 6h2v1h-2zM7 6h2v1h-2zM0 7h1v1h-1zM8 7h1v1h-1zM3 6h3v1h-3zM2 7h2v1h-2zM5 7h2v1h-2zM1 8h2v1h-2zM6 8h2v1h-2zM0 9h2v1h-2zM7 9h2v1h-2zM0 10h1v1h-1zM8 10h1v1h-1z"/></symbol>
+<symbol id="rk4" viewBox="0 0 9 9"><path fill="currentColor" d="M4 0h1v1h-1zM4 1h1v1h-1zM3 2h3v1h-3zM0 3h9v1h-9zM1 4h7v1h-7zM2 5h5v1h-5zM2 6h5v1h-5zM1 7h3v1h-3zM5 7h3v1h-3zM1 8h1v1h-1zM7 8h1v1h-1z"/></symbol>
+<symbol id="rk5" viewBox="0 0 16 7"><path fill="currentColor" d="M3 0h1v1h-1zM3 1h1v1h-1zM0 2h7v1h-7zM1 3h5v1h-5zM1 4h5v1h-5zM1 5h2v1h-2zM4 5h2v1h-2zM1 6h1v1h-1zM5 6h1v1h-1zM12 0h1v1h-1zM12 1h1v1h-1zM9 2h7v1h-7zM10 3h5v1h-5zM10 4h5v1h-5zM10 5h2v1h-2zM13 5h2v1h-2zM10 6h1v1h-1zM14 6h1v1h-1z"/></symbol>
+<symbol id="i-tab-booster" viewBox="0 0 11 11"><path fill="currentColor" d="M2 0h7v1h-7zM1 1h9v1h-9zM1 2h1v1h-1zM9 2h1v1h-1zM1 3h9v1h-9zM1 4h1v1h-1zM9 4h1v1h-1zM1 5h1v1h-1zM3 5h5v1h-5zM9 5h1v1h-1zM1 6h1v1h-1zM9 6h1v1h-1zM1 7h9v1h-9zM1 8h1v1h-1zM9 8h1v1h-1zM1 9h9v1h-9zM2 10h7v1h-7z"/></symbol>
+<symbol id="i-tab-collection" viewBox="0 0 11 11"><path fill="currentColor" d="M4 0h7v1h-7zM4 1h1v1h-1zM10 1h1v1h-1zM2 2h7v1h-7zM10 2h1v1h-1zM2 3h1v1h-1zM8 3h1v1h-1zM10 3h1v1h-1zM0 4h8v1h-8zM10 4h1v1h-1zM0 5h1v1h-1zM7 5h1v1h-1zM10 5h1v1h-1zM0 6h1v1h-1zM7 6h1v1h-1zM10 6h1v1h-1zM0 7h1v1h-1zM7 7h4v1h-4zM0 8h1v1h-1zM7 8h1v1h-1zM0 9h1v1h-1zM7 9h1v1h-1zM0 10h8v1h-8z"/></symbol>
+<symbol id="i-tab-hub" viewBox="0 0 11 11"><path fill="currentColor" d="M0 1h11v1h-11zM0 2h1v1h-1zM10 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM10 3h1v1h-1zM0 4h1v1h-1zM10 4h1v1h-1zM0 5h1v1h-1zM2 5h1v1h-1zM4 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h1v1h-1zM0 6h1v1h-1zM10 6h1v1h-1zM0 7h11v1h-11zM4 8h3v1h-3zM4 9h3v1h-3zM2 10h7v1h-7z"/></symbol>
+<symbol id="i-tab-more" viewBox="0 0 11 11"><path fill="currentColor" d="M0 0h4v1h-4zM7 0h4v1h-4zM0 1h1v1h-1zM3 1h1v1h-1zM7 1h1v1h-1zM10 1h1v1h-1zM0 2h1v1h-1zM3 2h1v1h-1zM7 2h1v1h-1zM10 2h1v1h-1zM0 3h4v1h-4zM7 3h4v1h-4zM0 7h4v1h-4zM7 7h4v1h-4zM0 8h1v1h-1zM3 8h1v1h-1zM7 8h1v1h-1zM10 8h1v1h-1zM0 9h1v1h-1zM3 9h1v1h-1zM7 9h1v1h-1zM10 9h1v1h-1zM0 10h4v1h-4zM7 10h4v1h-4z"/></symbol>
+<symbol id="i-tab-trades" viewBox="0 0 11 11"><path fill="currentColor" d="M8 0h1v1h-1zM8 1h2v1h-2zM0 2h11v1h-11zM8 3h2v1h-2zM8 4h1v1h-1zM2 6h1v1h-1zM1 7h2v1h-2zM0 8h11v1h-11zM1 9h2v1h-2zM2 10h1v1h-1z"/></symbol>
+</defs></svg>
+<header class="doc-h">
+<h1>Couleurs d'objectif · trois palettes</h1>
+<p>Chaque objectif en cours (cinq au plus) reçoit une couleur, portée par un <b>marque-page numéroté</b> : sur les cartes de la grille, sur la rangée de l'objectif, sur la puce du filtre OBJECTIFS, à la capsule et sur la fiche. Le chiffre (1 à 5) est toujours dans la pastille et le nom du set toujours dans le texte ou le nom accessible : la couleur aide à reconnaître, elle ne porte jamais seule l'information. Les chiffres de contraste sont mesurés contre <b>panel #121a24</b> (et panel-raised #1b2838, la bande des cartes) ; ΔE est la distance CIEDE2000 à la couleur réservée la plus proche (sous 10, deux couleurs se confondent ; au-delà de 20, elles se séparent nettement).</p>
+</header>
+<section class="sec-doc">
+<h2>Couleurs déjà prises</h2>
+<p class="cap">Les teintes que le jeu a déjà données à un rôle. Commune et Argent sont des gris ; tout le reste tient sur la roue entre le rouge (3°) et le violet Épique (266°). Il reste quatre trous nets (cyan, pervenche, fuchsia, rose) et un cinquième étroit (vert, entre le lime et le jade) : la cinquième couleur se paie toujours quelque part.</p>
+<div class="reserved"><span class="rs" style="--c:#8f98a0"><i></i>Commune <code>#8f98a0</code></span><span class="rs" style="--c:#3fcf8e"><i></i>Peu commune <code>#3fcf8e</code></span><span class="rs" style="--c:#66c0f4"><i></i>Rare <code>#66c0f4</code></span><span class="rs" style="--c:#b47cff"><i></i>Épique <code>#b47cff</code></span><span class="rs" style="--c:#f4c542"><i></i>Légendaire / or <code>#f4c542</code></span><span class="rs" style="--c:#c4945e"><i></i>Bronze <code>#c4945e</code></span><span class="rs" style="--c:#bcc8d4"><i></i>Argent <code>#bcc8d4</code></span><span class="rs" style="--c:#e8833a"><i></i>Alerte <code>#e8833a</code></span><span class="rs" style="--c:#d6403a"><i></i>Capsule MISSION HEBDO <code>#d6403a</code></span><span class="rs" style="--c:#a4d007"><i></i>Lime d'action <code>#a4d007</code></span></div>
+</section>
+<div class="sec-a"><section class="sec-doc">
+<h2><span class="tag">A</span>Interstices</h2>
+<p class="cap">Cinq teintes saturées posées dans les trous de la roue chromatique que le jeu laisse libres (entre le vert jade et le bleu Rare, entre Rare et Épique, après Épique, avant le rouge capsule, entre le lime et le jade). Clartés voisines : la palette la plus vive, la plus « néon », la plus proche de l'esprit terminal.</p>
+<div class="hruler pal-a"><div class="hr-track"></div><i class="hr-res" style="left:382px;background:#3fcf8e" title="Peu commune"></i><i class="hr-res" style="left:505px;background:#66c0f4" title="Rare"></i><i class="hr-res" style="left:664px;background:#b47cff" title="Épique"></i><i class="hr-res" style="left:110px;background:#f4c542" title="Légendaire / or"></i><i class="hr-res" style="left:79px;background:#c4945e" title="Bronze"></i><i class="hr-res" style="left:63px;background:#e8833a" title="Alerte"></i><i class="hr-res" style="left:6px;background:#d6403a" title="Capsule MISSION HEBDO"></i><i class="hr-res" style="left:183px;background:#a4d007" title="Lime d'action"></i><span class="hr-pal" style="left:450px"><span class="gm xs k1" aria-hidden="true"><i>1</i></span></span><span class="hr-pal" style="left:773px"><span class="gm xs k2" aria-hidden="true"><i>2</i></span></span><span class="hr-pal" style="left:572px"><span class="gm xs k3" aria-hidden="true"><i>3</i></span></span><span class="hr-pal" style="left:875px"><span class="gm xs k4" aria-hidden="true"><i>4</i></span></span><span class="hr-pal" style="left:290px"><span class="gm xs k5" aria-hidden="true"><i>5</i></span></span><span class="hr-l l0">0°</span><span class="hr-l l1">180°</span><span class="hr-l l2">360°</span></div>
+<div class="sws"><div class="sw k1">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k1" aria-hidden="true"><i>1</i></span><span class="sw-txt">Objectif 1</span></div>
+<div class="sw-name">Cyan <code>#29e3e3</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>11,0:1</dd></div><div class=""><dt>panel-raised</dt><dd>9,4:1</dd></div><div><dt>chiffre (encre)</dt><dd>12,5:1</dd></div><div><dt>voisine réservée</dt><dd>peu commune · ΔE 20,0</dd></div></dl>
+</div><div class="sw k2">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k2" aria-hidden="true"><i>2</i></span><span class="sw-txt">Objectif 2</span></div>
+<div class="sw-name">Fuchsia <code>#ff5ce6</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>6,6:1</dd></div><div class=""><dt>panel-raised</dt><dd>5,6:1</dd></div><div><dt>chiffre (encre)</dt><dd>7,5:1</dd></div><div><dt>voisine réservée</dt><dd>épique · ΔE 14,8</dd></div></dl>
+</div><div class="sw k3">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k3" aria-hidden="true"><i>3</i></span><span class="sw-txt">Objectif 3</span></div>
+<div class="sw-name">Pervenche <code>#8aa0ff</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>7,1:1</dd></div><div class=""><dt>panel-raised</dt><dd>6,1:1</dd></div><div><dt>chiffre (encre)</dt><dd>8,1:1</dd></div><div><dt>voisine réservée</dt><dd>épique · ΔE 15,3</dd></div></dl>
+</div><div class="sw k4">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k4" aria-hidden="true"><i>4</i></span><span class="sw-txt">Objectif 4</span></div>
+<div class="sw-name">Rose corail <code>#ff7088</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>6,6:1</dd></div><div class=""><dt>panel-raised</dt><dd>5,6:1</dd></div><div><dt>chiffre (encre)</dt><dd>7,5:1</dd></div><div><dt>voisine réservée</dt><dd>capsule · ΔE 18,3</dd></div></dl>
+</div><div class="sw k5">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k5" aria-hidden="true"><i>5</i></span><span class="sw-txt">Objectif 5</span></div>
+<div class="sw-name">Vert pomme <code>#78ff6e</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>13,6:1</dd></div><div class=""><dt>panel-raised</dt><dd>11,6:1</dd></div><div><dt>chiffre (encre)</dt><dd>15,5:1</dd></div><div><dt>voisine réservée</dt><dd>lime · ΔE 15,4</dd></div></dl>
+</div></div>
+<div class="demo pal-a">
+<div class="dm-col"><p class="fr-cap">Sur des cartes de la grille</p><div class="dm-cards"><div class="cslot" role="img" aria-label="Hades, Supergiant Games, Épique, 2020, objectif 1 : Roguelike, objectif 4 : Supergiant Games"><div class="card t4"><div class="cin"><div class="ttl"><span class="tn">Hades</span><span class="pb">Supergiant Games</span></div><div class="art a-hades"></div><div class="meta"><span class="ge">Roguelike</span><span class="yr">2020</span></div><div class="rr"><svg class="ri" width="10" height="10" aria-hidden="true"><use href="#rc4"/></svg><span class="rn">Épique</span><span class="nu">S1</span></div></div><span class="varnish"></span></div><span class="dup">x2</span><span class="gstack"><span class="gm k1" aria-hidden="true"><i>1</i></span><span class="gm k4" aria-hidden="true"><i>4</i></span></span></div><div class="cslot" role="img" aria-label="Hollow Knight, Team Cherry, Épique, 2017, objectif 2 : Metroidvania, objectif 3 : Mes favoris"><div class="card t4"><div class="cin"><div class="ttl"><span class="tn">Hollow Knight</span><span class="pb">Team Cherry</span></div><div class="art a-hk"></div><div class="meta"><span class="ge">Metroidvania</span><span class="yr">2017</span></div><div class="rr"><svg class="ri" width="10" height="10" aria-hidden="true"><use href="#rc4"/></svg><span class="rn">Épique</span><span class="nu">S1</span></div></div><span class="varnish"></span></div><span class="gstack"><span class="gm k2" aria-hidden="true"><i>2</i></span><span class="gm k3" aria-hidden="true"><i>3</i></span></span></div><div class="cslot no" role="img" aria-label="Slay the Spire, Mega Crit, Rare, 2019, non possédée, objectif 1 : Roguelike"><div class="card t3"><div class="cin"><div class="ttl"><span class="tn">Slay the Spire</span><span class="pb">Mega Crit</span></div><div class="art a-sts"></div><div class="meta"><span class="ge">Roguelike</span><span class="yr">2019</span></div><div class="rr"><svg class="ri" width="10" height="10" aria-hidden="true"><use href="#rc3"/></svg><span class="rn">Rare</span><span class="nu">S1</span></div></div><span class="varnish"></span></div><svg class="lk" viewBox="0 0 10 12" aria-hidden="true"><use href="#i-lock"/></svg><span class="gstack"><span class="gm k1" aria-hidden="true"><i>1</i></span></span></div><div class="cslot" role="img" aria-label="Portal 2, Valve, Légendaire, 2011, objectif 5 : Valve"><div class="card t5"><div class="cin"><div class="ttl"><span class="tn">Portal 2</span><span class="pb">Valve</span></div><div class="art a-portal"></div><div class="meta"><span class="ge">Réflexion</span><span class="yr">2011</span></div><div class="rr"><svg class="ri" width="10" height="10" aria-hidden="true"><use href="#rc5"/></svg><span class="rn">Légendaire</span><span class="nu">S1</span></div></div><span class="varnish"></span></div><span class="gstack"><span class="gm k5" aria-hidden="true"><i>5</i></span></span></div></div></div>
+<div class="dm-col"><p class="fr-cap">Rangées d'objectifs</p><div class="pnl mrows"><div class="mrow k1"><span class="gm k1" aria-hidden="true"><i>1</i></span><span class="mr-n">Roguelike</span><span class="gauge g mr-g"><i style="width:19%"></i></span><span class="mr-c">12/62</span></div><div class="mrow k2"><span class="gm k2" aria-hidden="true"><i>2</i></span><span class="mr-n">Metroidvania</span><span class="gauge g mr-g"><i style="width:52%"></i></span><span class="mr-c">40/77</span></div><div class="mrow k3"><span class="gm k3" aria-hidden="true"><i>3</i></span><span class="mr-n">Mes favoris</span><span class="gauge g mr-g"><i style="width:64%"></i></span><span class="mr-c">9/14</span></div><div class="mrow k4"><span class="gm k4" aria-hidden="true"><i>4</i></span><span class="mr-n">Supergiant Games</span><span class="gauge g mr-g"><i style="width:60%"></i></span><span class="mr-c">3/5</span></div><div class="mrow k5"><span class="gm k5" aria-hidden="true"><i>5</i></span><span class="mr-n">Valve</span><span class="gauge g mr-g"><i style="width:43%"></i></span><span class="mr-c">6/14</span></div></div>
+<p class="fr-cap" style="margin-top:18px">Filtre OBJECTIFS</p><div class="pnl fzone"><div class="fgroup col"><span class="flegend">OBJECTIFS</span><div class="fchips"><span class="fchip"><span class="gm xs k1" aria-hidden="true"><i>1</i></span>Roguelike</span><span class="fchip on"><span class="gm xs k2" aria-hidden="true"><i>2</i></span>Metroidvania</span><span class="fchip"><span class="gm xs k3" aria-hidden="true"><i>3</i></span>Mes favoris</span><span class="fchip"><span class="gm xs k4" aria-hidden="true"><i>4</i></span>Supergiant Games</span><span class="fchip"><span class="gm xs k5" aria-hidden="true"><i>5</i></span>Valve</span></div></div></div></div>
+</div>
+<div class="two"><div><p class="fr-cap">Daltonismes et niveaux de gris</p><div class="sims"><div class="sim "><span class="sim-l">Vision normale</span><span class="sim-cs"><span class="sim-c" style="background:#29e3e3"><b>1</b></span><span class="sim-c" style="background:#ff5ce6"><b>2</b></span><span class="sim-c" style="background:#8aa0ff"><b>3</b></span><span class="sim-c" style="background:#ff7088"><b>4</b></span><span class="sim-c" style="background:#78ff6e"><b>5</b></span></span><span class="sim-rs"><span class="sim-r" style="background:#8f98a0" title="Commune"></span><span class="sim-r" style="background:#3fcf8e" title="Peu commune"></span><span class="sim-r" style="background:#66c0f4" title="Rare"></span><span class="sim-r" style="background:#b47cff" title="Épique"></span><span class="sim-r" style="background:#f4c542" title="Légendaire"></span><em>raretés</em></span></div><div class="sim grey"><span class="sim-l">Niveaux de gris</span><span class="sim-cs"><span class="sim-c" style="background:#29e3e3"><b>1</b></span><span class="sim-c" style="background:#ff5ce6"><b>2</b></span><span class="sim-c" style="background:#8aa0ff"><b>3</b></span><span class="sim-c" style="background:#ff7088"><b>4</b></span><span class="sim-c" style="background:#78ff6e"><b>5</b></span></span><span class="sim-rs"><span class="sim-r" style="background:#8f98a0" title="Commune"></span><span class="sim-r" style="background:#3fcf8e" title="Peu commune"></span><span class="sim-r" style="background:#66c0f4" title="Rare"></span><span class="sim-r" style="background:#b47cff" title="Épique"></span><span class="sim-r" style="background:#f4c542" title="Légendaire"></span><em>raretés</em></span></div><div class="sim "><span class="sim-l">Deutéranopie</span><span class="sim-cs"><span class="sim-c" style="background:#bbc5e4"><b>1</b></span><span class="sim-c" style="background:#90a8e2"><b>2</b></span><span class="sim-c" style="background:#72a1fd"><b>3</b></span><span class="sim-c" style="background:#b3aa85"><b>4</b></span><span class="sim-c" style="background:#f3de79"><b>5</b></span></span><span class="sim-rs"><span class="sim-r" style="background:#9396a0" title="Commune"></span><span class="sim-r" style="background:#bab292" title="Peu commune"></span><span class="sim-r" style="background:#94b0f3" title="Rare"></span><span class="sim-r" style="background:#5e97fc" title="Épique"></span><span class="sim-r" style="background:#e7d049" title="Légendaire"></span><em>raretés</em></span></div><div class="sim "><span class="sim-l">Protanopie</span><span class="sim-cs"><span class="sim-c" style="background:#d3d7e3"><b>1</b></span><span class="sim-c" style="background:#5a90ea"><b>2</b></span><span class="sim-c" style="background:#7dabff"><b>3</b></span><span class="sim-c" style="background:#8e8d88"><b>4</b></span><span class="sim-c" style="background:#ffea5f"><b>5</b></span></span><span class="sim-rs"><span class="sim-r" style="background:#9598a0" title="Commune"></span><span class="sim-r" style="background:#cdbf8a" title="Peu commune"></span><span class="sim-r" style="background:#a8bff6" title="Rare"></span><span class="sim-r" style="background:#4e97ff" title="Épique"></span><span class="sim-r" style="background:#dcc32e" title="Légendaire"></span><em>raretés</em></span></div>
+<p class="quiet">Paire la plus proche, ΔE 2000 : deutéranopie 2 et 3 (6,3) · protanopie 2 et 3 (8,3) · vision normale 2 et 4 (20,8).</p></div></div>
+<div><p class="fr-cap">Collisions restantes</p><ul class="rules"><li><b>Pervenche (3)</b> est la plus proche d'une rareté : à ΔE 15 de Rare comme d'Épique, elle se lit comme leur cousine sur une carte encadrée de bleu ou de violet. Le marque-page, sa forme et son chiffre la portent.</li><li><b>Vert pomme (5)</b> reste à ΔE 15 du lime d'action et du jade Peu commune. Elle ne remplit jamais un bouton ; c'est la cinquième, qui n'apparaît que quand les cinq objectifs sont posés.</li><li><b>Fuchsia (2) et Pervenche (3)</b> se confondent en deutéranopie (ΔE 6,3) et en protanopie (8,3), et le fuchsia y prend le bleu de Rare. En niveaux de gris, 2, 3 et 4 ont la même clarté : seul le chiffre les sépare.</li><li>Contraste : 6,6:1 au moins sur le panneau, donc utilisables en texte (le nom du set dans sa couleur), chiffre en encre sur la pastille à 7,5:1 au moins.</li></ul></div></div>
+</section></div>
+<div class="sec-b"><section class="sec-doc">
+<h2><span class="tag">B</span>Pastels</h2>
+<p class="cap">Les mêmes trous de teinte, mais en teintes claires et peu saturées. Elles se distinguent des raretés, toutes saturées, par la famille plutôt que par la teinte : un objectif paraît « annoté », pas « rare ». Contraste très élevé, mais elles se rapprochent entre elles et des textes clairs.</p>
+<div class="hruler pal-b"><div class="hr-track"></div><i class="hr-res" style="left:382px;background:#3fcf8e" title="Peu commune"></i><i class="hr-res" style="left:505px;background:#66c0f4" title="Rare"></i><i class="hr-res" style="left:664px;background:#b47cff" title="Épique"></i><i class="hr-res" style="left:110px;background:#f4c542" title="Légendaire / or"></i><i class="hr-res" style="left:79px;background:#c4945e" title="Bronze"></i><i class="hr-res" style="left:63px;background:#e8833a" title="Alerte"></i><i class="hr-res" style="left:6px;background:#d6403a" title="Capsule MISSION HEBDO"></i><i class="hr-res" style="left:183px;background:#a4d007" title="Lime d'action"></i><span class="hr-pal" style="left:438px"><span class="gm xs k1" aria-hidden="true"><i>1</i></span></span><span class="hr-pal" style="left:780px"><span class="gm xs k2" aria-hidden="true"><i>2</i></span></span><span class="hr-pal" style="left:592px"><span class="gm xs k3" aria-hidden="true"><i>3</i></span></span><span class="hr-pal" style="left:866px"><span class="gm xs k4" aria-hidden="true"><i>4</i></span></span><span class="hr-pal" style="left:206px"><span class="gm xs k5" aria-hidden="true"><i>5</i></span></span><span class="hr-l l0">0°</span><span class="hr-l l1">180°</span><span class="hr-l l2">360°</span></div>
+<div class="sws"><div class="sw k1">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k1" aria-hidden="true"><i>1</i></span><span class="sw-txt">Objectif 1</span></div>
+<div class="sw-name">Aqua <code>#a6f4ee</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>14,0:1</dd></div><div class=""><dt>panel-raised</dt><dd>11,9:1</dd></div><div><dt>chiffre (encre)</dt><dd>16,0:1</dd></div><div><dt>voisine réservée</dt><dd>texte · ΔE 18,1</dd></div></dl>
+</div><div class="sw k2">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k2" aria-hidden="true"><i>2</i></span><span class="sw-txt">Objectif 2</span></div>
+<div class="sw-name">Dragée <code>#ffb3f0</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>10,8:1</dd></div><div class=""><dt>panel-raised</dt><dd>9,2:1</dd></div><div><dt>chiffre (encre)</dt><dd>12,3:1</dd></div><div><dt>voisine réservée</dt><dd>épique · ΔE 20,7</dd></div></dl>
+</div><div class="sw k3">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k3" aria-hidden="true"><i>3</i></span><span class="sw-txt">Objectif 3</span></div>
+<div class="sw-name">Lavande <code>#b8bcff</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>9,7:1</dd></div><div class=""><dt>panel-raised</dt><dd>8,3:1</dd></div><div><dt>chiffre (encre)</dt><dd>11,1:1</dd></div><div><dt>voisine réservée</dt><dd>argent · ΔE 13,2</dd></div></dl>
+</div><div class="sw k4">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k4" aria-hidden="true"><i>4</i></span><span class="sw-txt">Objectif 4</span></div>
+<div class="sw-name">Rose thé <code>#ffa8bc</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>9,7:1</dd></div><div class=""><dt>panel-raised</dt><dd>8,2:1</dd></div><div><dt>chiffre (encre)</dt><dd>11,0:1</dd></div><div><dt>voisine réservée</dt><dd>danger-text · ΔE 15,8</dd></div></dl>
+</div><div class="sw k5">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k5" aria-hidden="true"><i>5</i></span><span class="sw-txt">Objectif 5</span></div>
+<div class="sw-name">Pistache <code>#d4f79a</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>14,7:1</dd></div><div class=""><dt>panel-raised</dt><dd>12,5:1</dd></div><div><dt>chiffre (encre)</dt><dd>16,7:1</dd></div><div><dt>voisine réservée</dt><dd>lime · ΔE 13,9</dd></div></dl>
+</div></div>
+<div class="demo pal-b">
+<div class="dm-col"><p class="fr-cap">Sur des cartes de la grille</p><div class="dm-cards"><div class="cslot" role="img" aria-label="Hades, Supergiant Games, Épique, 2020, objectif 1 : Roguelike, objectif 4 : Supergiant Games"><div class="card t4"><div class="cin"><div class="ttl"><span class="tn">Hades</span><span class="pb">Supergiant Games</span></div><div class="art a-hades"></div><div class="meta"><span class="ge">Roguelike</span><span class="yr">2020</span></div><div class="rr"><svg class="ri" width="10" height="10" aria-hidden="true"><use href="#rc4"/></svg><span class="rn">Épique</span><span class="nu">S1</span></div></div><span class="varnish"></span></div><span class="dup">x2</span><span class="gstack"><span class="gm k1" aria-hidden="true"><i>1</i></span><span class="gm k4" aria-hidden="true"><i>4</i></span></span></div><div class="cslot" role="img" aria-label="Hollow Knight, Team Cherry, Épique, 2017, objectif 2 : Metroidvania, objectif 3 : Mes favoris"><div class="card t4"><div class="cin"><div class="ttl"><span class="tn">Hollow Knight</span><span class="pb">Team Cherry</span></div><div class="art a-hk"></div><div class="meta"><span class="ge">Metroidvania</span><span class="yr">2017</span></div><div class="rr"><svg class="ri" width="10" height="10" aria-hidden="true"><use href="#rc4"/></svg><span class="rn">Épique</span><span class="nu">S1</span></div></div><span class="varnish"></span></div><span class="gstack"><span class="gm k2" aria-hidden="true"><i>2</i></span><span class="gm k3" aria-hidden="true"><i>3</i></span></span></div><div class="cslot no" role="img" aria-label="Slay the Spire, Mega Crit, Rare, 2019, non possédée, objectif 1 : Roguelike"><div class="card t3"><div class="cin"><div class="ttl"><span class="tn">Slay the Spire</span><span class="pb">Mega Crit</span></div><div class="art a-sts"></div><div class="meta"><span class="ge">Roguelike</span><span class="yr">2019</span></div><div class="rr"><svg class="ri" width="10" height="10" aria-hidden="true"><use href="#rc3"/></svg><span class="rn">Rare</span><span class="nu">S1</span></div></div><span class="varnish"></span></div><svg class="lk" viewBox="0 0 10 12" aria-hidden="true"><use href="#i-lock"/></svg><span class="gstack"><span class="gm k1" aria-hidden="true"><i>1</i></span></span></div><div class="cslot" role="img" aria-label="Portal 2, Valve, Légendaire, 2011, objectif 5 : Valve"><div class="card t5"><div class="cin"><div class="ttl"><span class="tn">Portal 2</span><span class="pb">Valve</span></div><div class="art a-portal"></div><div class="meta"><span class="ge">Réflexion</span><span class="yr">2011</span></div><div class="rr"><svg class="ri" width="10" height="10" aria-hidden="true"><use href="#rc5"/></svg><span class="rn">Légendaire</span><span class="nu">S1</span></div></div><span class="varnish"></span></div><span class="gstack"><span class="gm k5" aria-hidden="true"><i>5</i></span></span></div></div></div>
+<div class="dm-col"><p class="fr-cap">Rangées d'objectifs</p><div class="pnl mrows"><div class="mrow k1"><span class="gm k1" aria-hidden="true"><i>1</i></span><span class="mr-n">Roguelike</span><span class="gauge g mr-g"><i style="width:19%"></i></span><span class="mr-c">12/62</span></div><div class="mrow k2"><span class="gm k2" aria-hidden="true"><i>2</i></span><span class="mr-n">Metroidvania</span><span class="gauge g mr-g"><i style="width:52%"></i></span><span class="mr-c">40/77</span></div><div class="mrow k3"><span class="gm k3" aria-hidden="true"><i>3</i></span><span class="mr-n">Mes favoris</span><span class="gauge g mr-g"><i style="width:64%"></i></span><span class="mr-c">9/14</span></div><div class="mrow k4"><span class="gm k4" aria-hidden="true"><i>4</i></span><span class="mr-n">Supergiant Games</span><span class="gauge g mr-g"><i style="width:60%"></i></span><span class="mr-c">3/5</span></div><div class="mrow k5"><span class="gm k5" aria-hidden="true"><i>5</i></span><span class="mr-n">Valve</span><span class="gauge g mr-g"><i style="width:43%"></i></span><span class="mr-c">6/14</span></div></div>
+<p class="fr-cap" style="margin-top:18px">Filtre OBJECTIFS</p><div class="pnl fzone"><div class="fgroup col"><span class="flegend">OBJECTIFS</span><div class="fchips"><span class="fchip"><span class="gm xs k1" aria-hidden="true"><i>1</i></span>Roguelike</span><span class="fchip on"><span class="gm xs k2" aria-hidden="true"><i>2</i></span>Metroidvania</span><span class="fchip"><span class="gm xs k3" aria-hidden="true"><i>3</i></span>Mes favoris</span><span class="fchip"><span class="gm xs k4" aria-hidden="true"><i>4</i></span>Supergiant Games</span><span class="fchip"><span class="gm xs k5" aria-hidden="true"><i>5</i></span>Valve</span></div></div></div></div>
+</div>
+<div class="two"><div><p class="fr-cap">Daltonismes et niveaux de gris</p><div class="sims"><div class="sim "><span class="sim-l">Vision normale</span><span class="sim-cs"><span class="sim-c" style="background:#a6f4ee"><b>1</b></span><span class="sim-c" style="background:#ffb3f0"><b>2</b></span><span class="sim-c" style="background:#b8bcff"><b>3</b></span><span class="sim-c" style="background:#ffa8bc"><b>4</b></span><span class="sim-c" style="background:#d4f79a"><b>5</b></span></span><span class="sim-rs"><span class="sim-r" style="background:#8f98a0" title="Commune"></span><span class="sim-r" style="background:#3fcf8e" title="Peu commune"></span><span class="sim-r" style="background:#66c0f4" title="Rare"></span><span class="sim-r" style="background:#b47cff" title="Épique"></span><span class="sim-r" style="background:#f4c542" title="Légendaire"></span><em>raretés</em></span></div><div class="sim grey"><span class="sim-l">Niveaux de gris</span><span class="sim-cs"><span class="sim-c" style="background:#a6f4ee"><b>1</b></span><span class="sim-c" style="background:#ffb3f0"><b>2</b></span><span class="sim-c" style="background:#b8bcff"><b>3</b></span><span class="sim-c" style="background:#ffa8bc"><b>4</b></span><span class="sim-c" style="background:#d4f79a"><b>5</b></span></span><span class="sim-rs"><span class="sim-r" style="background:#8f98a0" title="Commune"></span><span class="sim-r" style="background:#3fcf8e" title="Peu commune"></span><span class="sim-r" style="background:#66c0f4" title="Rare"></span><span class="sim-r" style="background:#b47cff" title="Épique"></span><span class="sim-r" style="background:#f4c542" title="Légendaire"></span><em>raretés</em></span></div><div class="sim "><span class="sim-l">Deutéranopie</span><span class="sim-cs"><span class="sim-c" style="background:#dde1ef"><b>1</b></span><span class="sim-c" style="background:#c5cfee"><b>2</b></span><span class="sim-c" style="background:#a6bffd"><b>3</b></span><span class="sim-c" style="background:#cac6ba"><b>4</b></span><span class="sim-c" style="background:#fbea9f"><b>5</b></span></span><span class="sim-rs"><span class="sim-r" style="background:#9396a0" title="Commune"></span><span class="sim-r" style="background:#bab292" title="Peu commune"></span><span class="sim-r" style="background:#94b0f3" title="Rare"></span><span class="sim-r" style="background:#5e97fc" title="Épique"></span><span class="sim-r" style="background:#e7d049" title="Légendaire"></span><em>raretés</em></span></div><div class="sim "><span class="sim-l">Protanopie</span><span class="sim-cs"><span class="sim-c" style="background:#ececee"><b>1</b></span><span class="sim-c" style="background:#b3c5f2"><b>2</b></span><span class="sim-c" style="background:#a9c4ff"><b>3</b></span><span class="sim-c" style="background:#b5b7bd"><b>4</b></span><span class="sim-c" style="background:#ffec93"><b>5</b></span></span><span class="sim-rs"><span class="sim-r" style="background:#9598a0" title="Commune"></span><span class="sim-r" style="background:#cdbf8a" title="Peu commune"></span><span class="sim-r" style="background:#a8bff6" title="Rare"></span><span class="sim-r" style="background:#4e97ff" title="Épique"></span><span class="sim-r" style="background:#dcc32e" title="Légendaire"></span><em>raretés</em></span></div>
+<p class="quiet">Paire la plus proche, ΔE 2000 : deutéranopie 1 et 2 (7,3) · protanopie 2 et 3 (3,60) · vision normale 2 et 4 (12,2).</p></div></div>
+<div><p class="fr-cap">Collisions restantes</p><ul class="rules"><li><b>Lavande (3)</b> est à ΔE 13 du palier argent et à 14 du texte courant : sur la ligne de faits de la fiche, elle passe pour une valeur ordinaire. <b>Rose thé (4)</b> est à ΔE 16 du texte d'alerte de suppression (#ffb39a).</li><li><b>Pistache (5)</b> est à ΔE 14 du lime ; Aqua, Dragée et Pistache font écho aux reflets irisés du Légendaire (#9affe0, #ff9ad5, #d8ff9a) et aux tons clairs des icônes de rareté.</li><li>Entre elles, c'est la palette la plus serrée : Dragée et Rose thé à ΔE 12 ; Dragée et Lavande presque identiques en protanopie (3,6). En niveaux de gris, toutes claires, elles se lisent comme du texte.</li><li>Contraste le plus haut (9,7:1 au moins) : aucun souci de lisibilité, le souci est la séparation.</li></ul></div></div>
+</section></div>
+<div class="sec-c"><section class="sec-doc">
+<h2><span class="tag">C</span>Échelle de clarté</h2>
+<p class="cap">Teinte et clarté changent ensemble : du plus clair (1) au plus sombre (5), comme une échelle. La palette tient en niveaux de gris et pour les daltonismes rouge-vert les plus courants, au prix d'un indigo sombre qui ne fait que 3,35:1 sur le panneau.</p>
+<div class="hruler pal-c"><div class="hr-track"></div><i class="hr-res" style="left:382px;background:#3fcf8e" title="Peu commune"></i><i class="hr-res" style="left:505px;background:#66c0f4" title="Rare"></i><i class="hr-res" style="left:664px;background:#b47cff" title="Épique"></i><i class="hr-res" style="left:110px;background:#f4c542" title="Légendaire / or"></i><i class="hr-res" style="left:79px;background:#c4945e" title="Bronze"></i><i class="hr-res" style="left:63px;background:#e8833a" title="Alerte"></i><i class="hr-res" style="left:6px;background:#d6403a" title="Capsule MISSION HEBDO"></i><i class="hr-res" style="left:183px;background:#a4d007" title="Lime d'action"></i><span class="hr-pal" style="left:422px"><span class="gm xs k1" aria-hidden="true"><i>1</i></span></span><span class="hr-pal" style="left:312px"><span class="gm xs k2" aria-hidden="true"><i>2</i></span></span><span class="hr-pal" style="left:800px"><span class="gm xs k3" aria-hidden="true"><i>3</i></span></span><span class="hr-pal" style="left:866px"><span class="gm xs k4" aria-hidden="true"><i>4</i></span></span><span class="hr-pal" style="left:610px"><span class="gm xs k5" aria-hidden="true"><i>5</i></span></span><span class="hr-l l0">0°</span><span class="hr-l l1">180°</span><span class="hr-l l2">360°</span></div>
+<div class="sws"><div class="sw k1">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k1" aria-hidden="true"><i>1</i></span><span class="sw-txt">Objectif 1</span></div>
+<div class="sw-name">Givre <code>#bffff3</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>15,7:1</dd></div><div class=""><dt>panel-raised</dt><dd>13,4:1</dd></div><div><dt>chiffre (encre)</dt><dd>17,9:1</dd></div><div><dt>voisine réservée</dt><dd>texte · ΔE 18,6</dd></div></dl>
+</div><div class="sw k2">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k2" aria-hidden="true"><i>2</i></span><span class="sw-txt">Objectif 2</span></div>
+<div class="sw-name">Vert <code>#5fe86a</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>11,0:1</dd></div><div class=""><dt>panel-raised</dt><dd>9,4:1</dd></div><div><dt>chiffre (encre)</dt><dd>12,6:1</dd></div><div><dt>voisine réservée</dt><dd>peu commune · ΔE 11,2</dd></div></dl>
+</div><div class="sw k3">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k3" aria-hidden="true"><i>3</i></span><span class="sw-txt">Objectif 3</span></div>
+<div class="sw-name">Rose <code>#ff96dc</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>8,9:1</dd></div><div class=""><dt>panel-raised</dt><dd>7,6:1</dd></div><div><dt>chiffre (encre)</dt><dd>10,1:1</dd></div><div><dt>voisine réservée</dt><dd>épique · ΔE 19,1</dd></div></dl>
+</div><div class="sw k4">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k4" aria-hidden="true"><i>4</i></span><span class="sw-txt">Objectif 4</span></div>
+<div class="sw-name">Framboise <code>#f7476f</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>5,1:1</dd></div><div class=""><dt>panel-raised</dt><dd>4,3:1</dd></div><div><dt>chiffre (encre)</dt><dd>5,8:1</dd></div><div><dt>voisine réservée</dt><dd>capsule · ΔE 13,8</dd></div></dl>
+</div><div class="sw k5">
+<div class="sw-top"><span class="sw-chip"></span><span class="gm lg k5" aria-hidden="true"><i>5</i></span><span class="sw-txt">Objectif 5</span></div>
+<div class="sw-name">Indigo <code>#5d52f7</code></div>
+<dl class="sw-f"><div><dt>panel #121a24</dt><dd>3,35:1</dd></div><div class="weak"><dt>panel-raised</dt><dd>2,85:1</dd></div><div><dt>chiffre (blanc)</dt><dd>5,2:1</dd></div><div><dt>voisine réservée</dt><dd>épique · ΔE 18,3</dd></div></dl>
+</div></div>
+<div class="demo pal-c">
+<div class="dm-col"><p class="fr-cap">Sur des cartes de la grille</p><div class="dm-cards"><div class="cslot" role="img" aria-label="Hades, Supergiant Games, Épique, 2020, objectif 1 : Roguelike, objectif 4 : Supergiant Games"><div class="card t4"><div class="cin"><div class="ttl"><span class="tn">Hades</span><span class="pb">Supergiant Games</span></div><div class="art a-hades"></div><div class="meta"><span class="ge">Roguelike</span><span class="yr">2020</span></div><div class="rr"><svg class="ri" width="10" height="10" aria-hidden="true"><use href="#rc4"/></svg><span class="rn">Épique</span><span class="nu">S1</span></div></div><span class="varnish"></span></div><span class="dup">x2</span><span class="gstack"><span class="gm k1" aria-hidden="true"><i>1</i></span><span class="gm k4" aria-hidden="true"><i>4</i></span></span></div><div class="cslot" role="img" aria-label="Hollow Knight, Team Cherry, Épique, 2017, objectif 2 : Metroidvania, objectif 3 : Mes favoris"><div class="card t4"><div class="cin"><div class="ttl"><span class="tn">Hollow Knight</span><span class="pb">Team Cherry</span></div><div class="art a-hk"></div><div class="meta"><span class="ge">Metroidvania</span><span class="yr">2017</span></div><div class="rr"><svg class="ri" width="10" height="10" aria-hidden="true"><use href="#rc4"/></svg><span class="rn">Épique</span><span class="nu">S1</span></div></div><span class="varnish"></span></div><span class="gstack"><span class="gm k2" aria-hidden="true"><i>2</i></span><span class="gm k3" aria-hidden="true"><i>3</i></span></span></div><div class="cslot no" role="img" aria-label="Slay the Spire, Mega Crit, Rare, 2019, non possédée, objectif 1 : Roguelike"><div class="card t3"><div class="cin"><div class="ttl"><span class="tn">Slay the Spire</span><span class="pb">Mega Crit</span></div><div class="art a-sts"></div><div class="meta"><span class="ge">Roguelike</span><span class="yr">2019</span></div><div class="rr"><svg class="ri" width="10" height="10" aria-hidden="true"><use href="#rc3"/></svg><span class="rn">Rare</span><span class="nu">S1</span></div></div><span class="varnish"></span></div><svg class="lk" viewBox="0 0 10 12" aria-hidden="true"><use href="#i-lock"/></svg><span class="gstack"><span class="gm k1" aria-hidden="true"><i>1</i></span></span></div><div class="cslot" role="img" aria-label="Portal 2, Valve, Légendaire, 2011, objectif 5 : Valve"><div class="card t5"><div class="cin"><div class="ttl"><span class="tn">Portal 2</span><span class="pb">Valve</span></div><div class="art a-portal"></div><div class="meta"><span class="ge">Réflexion</span><span class="yr">2011</span></div><div class="rr"><svg class="ri" width="10" height="10" aria-hidden="true"><use href="#rc5"/></svg><span class="rn">Légendaire</span><span class="nu">S1</span></div></div><span class="varnish"></span></div><span class="gstack"><span class="gm k5" aria-hidden="true"><i>5</i></span></span></div></div></div>
+<div class="dm-col"><p class="fr-cap">Rangées d'objectifs</p><div class="pnl mrows"><div class="mrow k1"><span class="gm k1" aria-hidden="true"><i>1</i></span><span class="mr-n">Roguelike</span><span class="gauge g mr-g"><i style="width:19%"></i></span><span class="mr-c">12/62</span></div><div class="mrow k2"><span class="gm k2" aria-hidden="true"><i>2</i></span><span class="mr-n">Metroidvania</span><span class="gauge g mr-g"><i style="width:52%"></i></span><span class="mr-c">40/77</span></div><div class="mrow k3"><span class="gm k3" aria-hidden="true"><i>3</i></span><span class="mr-n">Mes favoris</span><span class="gauge g mr-g"><i style="width:64%"></i></span><span class="mr-c">9/14</span></div><div class="mrow k4"><span class="gm k4" aria-hidden="true"><i>4</i></span><span class="mr-n">Supergiant Games</span><span class="gauge g mr-g"><i style="width:60%"></i></span><span class="mr-c">3/5</span></div><div class="mrow k5"><span class="gm k5" aria-hidden="true"><i>5</i></span><span class="mr-n">Valve</span><span class="gauge g mr-g"><i style="width:43%"></i></span><span class="mr-c">6/14</span></div></div>
+<p class="fr-cap" style="margin-top:18px">Filtre OBJECTIFS</p><div class="pnl fzone"><div class="fgroup col"><span class="flegend">OBJECTIFS</span><div class="fchips"><span class="fchip"><span class="gm xs k1" aria-hidden="true"><i>1</i></span>Roguelike</span><span class="fchip on"><span class="gm xs k2" aria-hidden="true"><i>2</i></span>Metroidvania</span><span class="fchip"><span class="gm xs k3" aria-hidden="true"><i>3</i></span>Mes favoris</span><span class="fchip"><span class="gm xs k4" aria-hidden="true"><i>4</i></span>Supergiant Games</span><span class="fchip"><span class="gm xs k5" aria-hidden="true"><i>5</i></span>Valve</span></div></div></div></div>
+</div>
+<div class="two"><div><p class="fr-cap">Daltonismes et niveaux de gris</p><div class="sims"><div class="sim "><span class="sim-l">Vision normale</span><span class="sim-cs"><span class="sim-c" style="background:#bffff3"><b>1</b></span><span class="sim-c" style="background:#5fe86a"><b>2</b></span><span class="sim-c" style="background:#ff96dc"><b>3</b></span><span class="sim-c" style="background:#f7476f"><b>4</b></span><span class="sim-c" style="background:#5d52f7"><b>5</b></span></span><span class="sim-rs"><span class="sim-r" style="background:#8f98a0" title="Commune"></span><span class="sim-r" style="background:#3fcf8e" title="Peu commune"></span><span class="sim-r" style="background:#66c0f4" title="Rare"></span><span class="sim-r" style="background:#b47cff" title="Épique"></span><span class="sim-r" style="background:#f4c542" title="Légendaire"></span><em>raretés</em></span></div><div class="sim grey"><span class="sim-l">Niveaux de gris</span><span class="sim-cs"><span class="sim-c" style="background:#bffff3"><b>1</b></span><span class="sim-c" style="background:#5fe86a"><b>2</b></span><span class="sim-c" style="background:#ff96dc"><b>3</b></span><span class="sim-c" style="background:#f7476f"><b>4</b></span><span class="sim-c" style="background:#5d52f7"><b>5</b></span></span><span class="sim-rs"><span class="sim-r" style="background:#8f98a0" title="Commune"></span><span class="sim-r" style="background:#3fcf8e" title="Peu commune"></span><span class="sim-r" style="background:#66c0f4" title="Rare"></span><span class="sim-r" style="background:#b47cff" title="Épique"></span><span class="sim-r" style="background:#f4c542" title="Légendaire"></span><em>raretés</em></span></div><div class="sim "><span class="sim-l">Deutéranopie</span><span class="sim-cs"><span class="sim-c" style="background:#edeff4"><b>1</b></span><span class="sim-c" style="background:#dac973"><b>2</b></span><span class="sim-c" style="background:#b6bfd9"><b>3</b></span><span class="sim-c" style="background:#a2976b"><b>4</b></span><span class="sim-c" style="background:#0066f4"><b>5</b></span></span><span class="sim-rs"><span class="sim-r" style="background:#9396a0" title="Commune"></span><span class="sim-r" style="background:#bab292" title="Peu commune"></span><span class="sim-r" style="background:#94b0f3" title="Rare"></span><span class="sim-r" style="background:#5e97fc" title="Épique"></span><span class="sim-r" style="background:#e7d049" title="Légendaire"></span><em>raretés</em></span></div><div class="sim "><span class="sim-l">Protanopie</span><span class="sim-cs"><span class="sim-c" style="background:#f9f8f3"><b>1</b></span><span class="sim-c" style="background:#ecd55e"><b>2</b></span><span class="sim-c" style="background:#9baedf"><b>3</b></span><span class="sim-c" style="background:#747370"><b>4</b></span><span class="sim-c" style="background:#0073fc"><b>5</b></span></span><span class="sim-rs"><span class="sim-r" style="background:#9598a0" title="Commune"></span><span class="sim-r" style="background:#cdbf8a" title="Peu commune"></span><span class="sim-r" style="background:#a8bff6" title="Rare"></span><span class="sim-r" style="background:#4e97ff" title="Épique"></span><span class="sim-r" style="background:#dcc32e" title="Légendaire"></span><em>raretés</em></span></div>
+<p class="quiet">Paire la plus proche, ΔE 2000 : deutéranopie 1 et 3 (14,0) · protanopie 3 et 5 (20,9) · vision normale 3 et 4 (22,2).</p></div></div>
+<div><p class="fr-cap">Collisions restantes</p><ul class="rules"><li><b>Vert (2)</b> est la collision la plus forte des trois palettes : ΔE 11 du jade Peu commune. <b>Framboise (4)</b> est à ΔE 14 du rouge capsule de la MISSION HEBDO, ce qui peut faire croire à une récompense.</li><li><b>Givre (1)</b>, presque blanc, voisine le blanc de l'anneau de focus et des titres ; la forme du marque-page l'en distingue, mais un 1 blanc sur une carte claire attire moins l'œil que les autres.</li><li><b>Indigo (5)</b> : 3,35:1 sur le panneau, 2,85:1 sur panel-raised. Passe pour un graphisme sur le panneau, échoue sur les bandes des cartes et les rangées sélectionnées ; jamais en texte, chiffre en blanc (5,2:1).</li><li>En contrepartie, la meilleure séparation pour les daltonismes (ΔE minimal 14 en deutéranopie, 21 en protanopie) et une vraie échelle en niveaux de gris.</li></ul></div></div>
+</section></div>
+<section class="sec-doc">
+<h2>Comparaison</h2>
+<table class="cmp"><thead><tr><th>Palette</th><th>Couleurs</th><th>Contraste mini sur panel</th><th>Plus proche d'une couleur réservée (ΔE)</th><th>Entre elles, ΔE mini</th><th>Daltonismes, ΔE mini (deut. / prot.)</th></tr></thead>
+<tbody><tr><td><b>A · Interstices</b></td><td><span class="dots"><i style="background:#29e3e3"></i><i style="background:#ff5ce6"></i><i style="background:#8aa0ff"></i><i style="background:#ff7088"></i><i style="background:#78ff6e"></i></span></td><td>6,6:1</td><td>14,8 (2, épique)</td><td>20,8</td><td>6,3 / 8,3</td></tr><tr><td><b>B · Pastels</b></td><td><span class="dots"><i style="background:#a6f4ee"></i><i style="background:#ffb3f0"></i><i style="background:#b8bcff"></i><i style="background:#ffa8bc"></i><i style="background:#d4f79a"></i></span></td><td>9,7:1</td><td>13,2 (3, argent)</td><td>12,2</td><td>7,3 / 3,60</td></tr><tr><td><b>C · Échelle de clarté</b></td><td><span class="dots"><i style="background:#bffff3"></i><i style="background:#5fe86a"></i><i style="background:#ff96dc"></i><i style="background:#f7476f"></i><i style="background:#5d52f7"></i></span></td><td>3,35:1</td><td>11,2 (2, peu commune)</td><td>22,2</td><td>14,0 / 20,9</td></tr></tbody></table>
+<ul class="rules" style="margin-top:18px">
+<li><b>A</b> est la plus lisible comme système de couleurs du terminal et garde ses cinq teintes loin des raretés à vision normale : c'est elle qu'utilisent les autres maquettes. Son point faible est la paire 2 / 3 pour les daltoniens, que le chiffre couvre.</li>
+<li><b>B</b> évite d'imiter une rareté mais se confond avec les textes clairs et avec elle-même ; à garder si l'on veut des objectifs discrets.</li>
+<li><b>C</b> est la plus robuste pour les daltonismes et en niveaux de gris, mais elle a la pire collision (Vert contre Peu commune) et un indigo trop sombre pour les bandes des cartes.</li>
+<li>Quelle que soit la palette : la pastille porte son chiffre en toutes circonstances, le nom accessible de chaque carte dit « objectif n : nom du set », et la puce du filtre écrit le nom du set à côté de la pastille.</li>
+</ul>
+</section>
+</body>
+</html>
