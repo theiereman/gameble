@@ -59,7 +59,8 @@ The collection and its sets, on the Collection side. Not the trade suggestions b
 
 - Decision (2026-10-30, author): #221, #214 and #64 go to release 1.1.0; the trade suggestions of #64 are their own epic so 1.1.0 can ship without them.
 - Decision (2026-10-30, author): three to five active goals at once, since sets share cards (#64, author's comment).
-- Settled in the spec (2026-10-30): the rarity legend's filter, totals and place (CAP-6); custom set limits, private sets and tiers without reward (CAP-27); goals on the bridge, and on the profile for game sets only (CAP-28).
+- Settled in the spec (2026-10-30): the rarity legend's filter, totals and place (CAP-6); custom set limits and private sets (CAP-27); goals on the profile for game sets only (CAP-28).
+- Decision (2026-10-30, author, UX): custom sets and the Steam library set have no tiers, only owned / total up to complete; the bridge shows no goals; the community weekly goal is renamed the weekly mission everywhere a player reads it (entry 13).
 - Decision (2026-10-30, author): the Steam library set has no size cap and syncs once a day; it is a special set kept out of the costly operations (active goals, trade suggestions); the spec's Steam profile data and Catalog source constraints carry the exception.
 - Unknown: the architecture rule letting a daily background job read a player's library within the Steam Web API's quota; `bmad-architecture` settles it before the story is built.
 - Follow-up: the legal page's stored-data line and the privacy notice name the library list.
