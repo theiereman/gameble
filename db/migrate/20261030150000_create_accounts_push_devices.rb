@@ -8,7 +8,7 @@ class CreateAccountsPushDevices < ActiveRecord::Migration[8.1]
       t.timestamps
 
       t.index :token, unique: true
-      t.check_constraint "platform IN ('apple', 'google')", name: "accounts_push_devices_platform_check", validate: false
+      t.check_constraint "platform ~ '^(apple|google)$'", name: "accounts_push_devices_platform_check", validate: false
       t.check_constraint "char_length(token) <= 4096", name: "accounts_push_devices_token_length_check", validate: false
     end
   end
