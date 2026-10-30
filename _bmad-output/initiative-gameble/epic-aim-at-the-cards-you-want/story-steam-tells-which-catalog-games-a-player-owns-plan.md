@@ -11,11 +11,18 @@ review: 'quick'
 review_source: 'pinned'
 lenses_ran: [quick]
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context:
   - '{project-root}/AGENTS.md'
 warnings: []
-deferred: []
+deferred:
+  - summary: >-
+      An answer whose `game_count` is positive while `games` is an empty list would be read as an empty library and answered `Success([])`.
+    evidence: |-
+      `get_owned_games` returns `[]` for `{"response":{"game_count":12,"games":[]}}` and nothing compares the count with the list. No source shows Steam sending that shape: the architecture review (review-versions-2026-10-30.md, F2) reports `{"response":{}}` for some public profiles, which is read as private. A recorded Steam answer with a positive count and an empty list would settle it; the library sync entry is where it would erase a set.
+    location: >-
+      app/domains/steam/app/clients/steam/web_api.rb get_owned_games
+    severity: medium (unverified)
 ---
 
 <intent-contract>
@@ -97,6 +104,11 @@ deferred: []
   - `[medium]` `[patch]` Every draft-only card-season in the tests was unrated, so the published-season filter was never exercised (confirmed from `seed_card_seasons`, which inserts no rarity) — the draft-only card-season is now rated in both test files; removing the season filter fails three tests.
   - `[low]` `[patch]` The "kept once" test used an unrated second card-season, so deduplication was not exercised — a new test rates the same card in two published seasons and expects its id once.
 
+### 2026-10-30 — Review pass (follow-up)
+- verdicts: 1 findings — high 0, medium 0, low 0, false 0, maybe-false 1
+- findings:
+  - `[maybe-false]` `[defer]` `game_count` is never compared with `games`, so `{"game_count":12,"games":[]}` would give `Success([])` — not a carried row (the first pass's empty-library finding was about unreadable entries). The cited source (review-versions F2) shows `{"response":{}}`, which is read as private; no source shows a positive count with an empty list. A recorded Steam answer of that shape would settle it; if real it is medium. Deferred to the frontmatter `deferred` list.
+
 ## Design Notes
 
 `Unavailable` lives in the client because only the client sees Faraday's error classes; `Steam::OwnedGames` turns it into a failure code and lets `Error` and `BrokenKey` raise, since those mean a broken answer or configuration that a later retry will not fix silently and the job's error reporting should surface.
@@ -130,3 +142,10 @@ No retry middleware: the import connection retries 4 times with backoff up to a 
 **Verification:** `bin/rails test test/domains/steam test/domains/catalog/published_card_ids_test.rb test/jobs/steam_import_step_job_test.rb test/controllers/sessions_controller_test.rb` -- 393 runs, 0 failures; `bundle exec packwerk check` -- no violations; rubocop on the touched paths -- no offenses; `script/check_planning_references`, `script/check_file_sizes`, `bin/rails zeitwerk:check` -- pass. Full suite and system tests not run (no screen touched).
 
 **Residual risks:** every Steam call now raises `Unavailable` (an `Error`) on transient failures, so import run messages recorded from now on name that class; rescuers of `Error` are unaffected. A list with some readable appids and some unreadable ones is read as the readable part.
+
+### Follow-up pass (2026-10-30)
+
+- One independent quick review of the whole change since the baseline. It found every acceptance criterion met and the parameters, error classes, single bounded call, published filter, packwerk arrow and redaction sound.
+- Findings: 1, `maybe-false`, deferred (a positive `game_count` with an empty `games` list would read as an empty library; no source shows Steam sends it). Patches: none. Rejected: none.
+- Follow-up review recommended: false -- this follow-up pass patched nothing.
+- Verification: the reviewer ran the three touched test files (112 runs, 0 failures), rubocop, packwerk, `script/check_planning_references` and `script/check_file_sizes`, all clean; no code changed in this pass.
