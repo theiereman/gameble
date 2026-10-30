@@ -1918,8 +1918,10 @@ en:
             Data hosted in the European Union;'
           steam: Steam (Valve) handles sign-in and provides your profile name;
         stored:
-          activity: 'your game activity: cards, capsules, trades, friends and invitations,
-            friend code, activity feed entries;'
+          activity: 'your game activity: card collection, showcase, set tiers, achievements,
+            card back unlocks and active card back, capsules, daily bonuses, community
+            goal rewards, trades, friendships, invitations, friend code, activity feed
+            entries and latest activity;'
           identities: 'your sign-in methods: Steam, Discord, Google or an email code, each
             with its identifier at that provider, the date it was added and, for the
             last three, a one-way hash of your verified email address, never the address
@@ -1986,7 +1988,7 @@ en:
           with the page''s address and the reason for your request.'
         title: Terms of use
       title: Legal notice and privacy
-      updated: 'Last updated: 20 October 2026'
+      updated: 'Last updated: 30 October 2026'
     more:
       personalization: Personalization
       settings: Profile and settings

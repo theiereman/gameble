@@ -233,7 +233,7 @@ fr:
         title: "Testeurs de la bêta"
     legal:
       title: "Mentions légales et confidentialité"
-      updated: "Dernière mise à jour : 20 octobre 2026"
+      updated: "Dernière mise à jour : 30 octobre 2026"
       publisher:
         title: "Éditeur et hébergeur"
         publisher: "Éditeur"
@@ -264,7 +264,7 @@ fr:
           intro: "Pour faire fonctionner le jeu, Gameble conserve :"
           steam: "votre identifiant Steam et votre nom de profil Steam ;"
           identities: "vos modes de connexion : Steam, Discord, Google ou code par e-mail, chacun avec son identifiant chez ce fournisseur, la date de son ajout et, pour les trois derniers, une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
-          activity: "votre activité de jeu : cartes, capsules, échanges, amis et invitations, code ami, entrées du fil d'activité ;"
+          activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de l'objectif communautaire, échanges, amitiés, invitations, code ami, entrées du fil d'activité et dernière activité ;"
           moderation: "les signalements que vous faites, ceux qui visent votre profil (leur auteur ne vous est pas communiqué) et les décisions de modération qui vous concernent, avec leur motif ;"
           settings: "vos réglages (visibilité du profil, animations réduites) ;"
           last_seen: "la date de création de votre compte, l'heure de votre dernière visite, et votre dernier export de données (son fichier et son heure), gardé jusqu'à l'export suivant ;"
