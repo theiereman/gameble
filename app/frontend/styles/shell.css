@@ -1,9 +1,11 @@
 /*
  * The shell: base, focus ring, atmosphere layers and page widths. The rest
- * is cut by region, in cascade order: shell-top-bar.css, shell-status.css
- * (LIVE marker and ticker, phone tab bar, version, toasts), shell-controls.css
- * (buttons, panels, modal) and shell-screens.css (screen-change transitions,
- * breakpoints, reduced motion, the back-office variant).
+ * is cut by region, in cascade order: shell-top-bar.css,
+ * shell-rarity-legend.css (the rarity legend's table and its anchoring),
+ * shell-status.css (LIVE marker and ticker, phone tab bar, version, toasts),
+ * shell-controls.css (buttons, panels, modal) and shell-screens.css
+ * (screen-change transitions, breakpoints, reduced motion, the back-office
+ * variant).
  *
  * Breakpoints (CSS px of the viewport): phone under 720, narrow under 900,
  * three columns from 1180. Text sizes in rem, art pixels in px.

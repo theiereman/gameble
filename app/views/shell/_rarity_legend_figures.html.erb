@@ -1,0 +1,6 @@
+<% figures.each do |figure| %>
+  <td class="rarity-legend__figure">
+    <span aria-hidden="true"><span class="rarity-legend__owned"><%= number_with_delimiter(figure.owned) %></span> <span class="rarity-legend__total">/ <%= number_with_delimiter(figure.total) %></span></span>
+    <span class="visually-hidden"><%= t("shell.rarity.figure", count: figure.owned, owned: number_with_delimiter(figure.owned), total: number_with_delimiter(figure.total)) %></span>
+  </td>
+<% end %>

@@ -1,0 +1,139 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The rarity legend counts distinct cards against the game's totals and filters the grid"
+description = "The rarity legend pop-up shows, for each rarity, the distinct cards owned and the total the game holds, for the published season and overall, then the totals across rarities; choosing a rarity opens the card grid filtered on it (the filter exists), and the collection pages' top-bar counter opens the same pop-up."
+verify = "In English and French, on the hub and on a collection page, the counter opens the legend with owned / total per rarity for the season and overall and the totals row, the figures match a query test on fixtures, and choosing Épique lands on the grid filtered on Épique; the shell system test covers it."
+covers = ["E1"]
+after = []
+hitl = false
+risk = "low"
+references = ["spec-gameble/spec-gameble.md#cap-6"]
+
+[[entry]]
+id = 2
+type = "story"
+title = "The screens of custom sets, the Steam library set and active goals are designed"
+description = "The author and `bmad-ux` design the custom sets list, editor and album, the Steam library set and its private-library message, and the active goals on the collection, the bridge and the profile, in DESIGN.md and EXPERIENCE.md, so every later entry builds from one design."
+verify = "DESIGN.md and EXPERIENCE.md describe each of those screens and states, with copy in French and English, and the author approves them."
+covers = ["E2", "E3", "E5"]
+after = []
+hitl = true
+risk = "low"
+references = ["ux-gameble/ux-gameble.md", "architecture-gameble/architecture-gameble.md#ad-35", "architecture-gameble/architecture-gameble.md#ad-36"]
+
+[[entry]]
+id = 3
+type = "story"
+title = "A player creates a custom set and opens it as an album"
+description = "The tracer bullet: the custom set tables of the architecture, the operations that create, rename and delete a custom set, and its album with an empty slot naming each missing game, read through one standings query and refused by policy to anyone but its author; the game picker here may be the minimal one the design allows, the full editor is entry 4."
+verify = "A player creates a custom set of three games, opens its album on staging with owned / total and the missing slots, renames and deletes it; another player gets a refusal on its URL; operation, query, policy and system tests cover it."
+covers = ["E2"]
+after = [2]
+hitl = false
+risk = "high"
+references = ["architecture-gameble/architecture-gameble.md#ad-35"]
+
+[[entry]]
+id = 4
+type = "story"
+title = "The custom set editor picks 3 to 50 published games, at most 10 sets"
+description = "The editor of the design adds and removes catalog games with a published card-season, owned or not, within 3 to 50 games per set and 10 sets per player, checked under the bank lock, and every refusal says why."
+verify = "A player builds and edits a set from the catalog search; adding a 51st game, saving with 2 games, or creating an 11th set is refused with its message in both languages; operation and system tests cover it."
+covers = ["E2"]
+after = [3]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Custom sets join the collection with their tiers shown, without reward"
+description = "The collection lists the player's custom sets beside the game's sets, in its sections and its search, and each shows the rank tiers a game set of its size has, computed at read, with no title, back, celebration, feed line or allocation."
+verify = "A custom set of 20 games shows in the collection and its search with owned / total and its rank tiers; reaching a tier records nothing and announces nothing; query and system tests cover it."
+covers = ["E2"]
+after = [4]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Steam tells which catalog games a player owns"
+description = "`Steam::OwnedGames` calls GetOwnedGames with the architecture's parameters and returns the catalog card ids owned, `library_private` when Steam answers without a games list, and `steam_unavailable` on a timeout, a 429 or a 5xx, never reading an empty answer as an empty library."
+verify = "Client tests on recorded Steam answers cover an owned list, a private library, a 429 and a 5xx, and an answer with games outside the catalog."
+covers = ["E5"]
+after = []
+hitl = false
+risk = "medium"
+references = ["architecture-gameble/architecture-gameble.md#ad-36"]
+
+[[entry]]
+id = 7
+type = "story"
+title = "A player creates their Steam library set, synced once a day"
+description = "A player with a Steam identity creates their one library set; its first sync runs after commit and a daily job then syncs at most the configured number of sets, least recently synced first, one Steam call at a time on its own queue, keeping the last list and showing the design's message when Steam stops sharing the library; it is never a goal."
+verify = "On staging a player with public game details creates the set and sees their owned catalog games; a game added to the library appears after the next daily run; a private library keeps the list and shows the message; a player without Steam cannot create it; job, operation and system tests cover it."
+covers = ["E5"]
+after = [3, 6]
+hitl = false
+risk = "high"
+references = ["architecture-gameble/architecture-gameble.md#ad-36"]
+
+[[entry]]
+id = 8
+type = "story"
+title = "The stored Steam library list is named in the privacy and retention pages and in the data export"
+description = "The privacy page, the retention page and the data export name the stored library list, as Valve's terms require, and the export includes it; deleting the set erases it."
+verify = "The pages name the list in both languages, a player's export holds their library list, and after deleting the set neither the list nor its games remain; controller and export tests cover it."
+covers = ["E5"]
+after = [7]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 9
+type = "story"
+title = "A player picks up to five active goals and follows them in the collection"
+description = "The goals table of the architecture, named apart from the community weekly goal, with the operations that add, remove and reorder up to five goals among game sets and custom sets (never the library set), the one query that returns each goal's missing games, and the goals shown in the collection with their progress; draws read nothing of it."
+verify = "A player adds goals from a set's album and a custom set's album, sees them in the collection with progress, reorders and removes them, and a sixth is refused; the draw's statistical test passes unchanged; operation, query and system tests cover it."
+covers = ["E3", "E4"]
+after = [3]
+hitl = false
+risk = "high"
+references = ["architecture-gameble/architecture-gameble.md#ad-35"]
+
+[[entry]]
+id = 10
+type = "story"
+title = "A goal's missing cards are highlighted wherever the collection shows them"
+description = "The card grid, the albums and the set tiles mark the missing cards of the player's goals, read from the goals' missing-games query, storing nothing."
+verify = "With a goal set, its missing games are marked in the grid, in the albums of every set holding them and on the tiles; removing the goal removes the marks; system tests cover it."
+covers = ["E3"]
+after = [9, 5]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 11
+type = "story"
+title = "Goals show on the bridge, and on the profile for game sets only"
+description = "The bridge shows the player's goals with their progress; the profile shows the goals on game sets under its visibility, and never a goal on a custom set."
+verify = "The bridge lists every goal; a public profile shows the game set goals to a visitor, hides them when private, and never names a custom set; controller and system tests cover it."
+covers = ["E3"]
+after = [9]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 12
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
+verify = "The full suite, packwerk, the linters and the size checks pass, and no behavior changes."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+hitl = false
+risk = "low"

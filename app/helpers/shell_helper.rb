@@ -105,6 +105,10 @@ module ShellHelper
     @shell_tier_counts ||= Game::TierCounts.call(current_player)
   end
 
+  def shell_rarity_legend
+    @shell_rarity_legend ||= Game::RarityLegend.call(current_player)
+  end
+
   def shell_next_pack_in(bank)
     return if bank.nil? || bank[:reserve_full] || bank[:next_available_at].nil?
 

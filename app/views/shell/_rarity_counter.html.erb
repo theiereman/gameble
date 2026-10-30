@@ -9,16 +9,5 @@
       </span>
     <% end %>
   </button>
-  <section id="rarity-legend" class="rarity-legend shell-popover" popover aria-labelledby="rarity-legend-title">
-    <p id="rarity-legend-title" class="shell-popover__title"><%= t("shell.rarity.legend") %></p>
-    <ul class="rarity-legend__list">
-      <% Catalog::Rarity::TIERS.each do |tier, code| %>
-        <li class="rarity-legend__row rarity-legend__row--<%= tier %>">
-          <%= pixel_icon("rarity-#{tier}", class: "rarity-legend__icon") %>
-          <span class="rarity-legend__name"><%= t("catalog.rarity.#{code}") %></span>
-          <span class="rarity-legend__count" data-rarity-counter-target="count" data-tier="<%= code %>"><%= number_with_delimiter(counts.fetch(tier)) %></span>
-        </li>
-      <% end %>
-    </ul>
-  </section>
+  <%= render "shell/rarity_legend", legend: shell_rarity_legend %>
 </div>

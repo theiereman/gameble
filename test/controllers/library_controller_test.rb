@@ -98,12 +98,15 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "All cards · Gameble"
     assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
     assert_select ".top-bar__title", "Collection"
-    assert_select ".top-bar__end .collection-status" do
+    assert_select ".top-bar__end button.collection-status[type=button][popovertarget=rarity-legend]" do
       assert_select ".collection-status__label[aria-hidden=true]", "Unique cards:"
       assert_select ".collection-status__value[aria-hidden=true]", "3 / 150"
       assert_select ".visually-hidden", "3 unique cards out of 150"
       assert_select "progress.collection-status__bar[value='3'][max='150'][aria-hidden=true]"
     end
+    assert_select ".top-bar__end > .collection-status + #rarity-legend[popover]"
+    assert_equal [ "3 / 150", "3 / 155" ], css_select("#rarity-legend tfoot td > [aria-hidden=true]").map { it.text.squish }
+    assert_equal "/en/library/cards?rarity%5B%5D=epic", css_select("#rarity-legend a.rarity-legend__link")[3]["href"]
     assert_select ".top-bar .rarity-counter, .top-bar .packs-chip", false
     assert_select ".top-bar .player-chip"
     assert_select "h1.visually-hidden", "All cards"
@@ -208,9 +211,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     Game::PlayerState.where(player_id: player.id).update_all(collection_seen_up_to: watermark)
     sign_in(player)
 
-    # The fourteen of a player's grid, the state asked sparing the count
+    # The fifteen of a player's grid, the state asked sparing the count
     # read again from the query cache and adding the watermark.
-    assert_request_queries(15) { get library_cards_path(locale: :en, state: %w[new duplicates]) }
+    assert_request_queries(16) { get library_cards_path(locale: :en, state: %w[new duplicates]) }
     seen = css_select(".collection-grid a.card-link").map { Rack::Utils.parse_nested_query(URI(it["href"]).query).dig("grid", "seen") }
     assert_equal [ "2026-10-08T09:30:15.123456Z" ] * 2, seen
 
@@ -691,6 +694,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".collection-status__label", "Cartes uniques :"
     assert_select ".collection-status .visually-hidden", "1 carte unique sur 150"
+    assert_select "#rarity-legend .shell-popover__title", "Raretés"
+    assert_select "#rarity-legend a.rarity-legend__link[href=?] .rarity-legend__name", "/fr/library/cards?rarity%5B%5D=epic", "Épique"
+    assert_select "#rarity-legend tfoot th", "Total"
     assert_select ".report--panel .report__title", "Rapport"
     assert_select ".report--fold .report__line", "1 carte · 0 doublon"
     assert_equal [ "Cartes totales", "Doublons" ], css_select(".report--panel .report__row dt").first(2).map { it.text.strip }
@@ -751,7 +757,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a player's request costs fourteen queries, a visitor's eight" do
+  test "a player's request costs fifteen queries, a visitor's eight" do
     season = publish_sets_draft
     player = accounts_players(:player)
     hold(player, season_cards(season).first, 1, gained_at: 1.minute.ago)
@@ -760,15 +766,16 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, published season; the grid: genres, count of the
     # player's tiles, page, card views, the player's editions of the games
     # shown; the figures: the season's cards, games per rarity, copies per
-    # tier; the set group: the kinds the
+    # tier; the rarity legend; the set group: the kinds the
     # season holds, the sets of the kind shown; the tab bar's trades
     # waiting; the themes' names. No set per card: the links carry the grid,
     # which the detail reads itself.
-    assert_request_queries(14) { get library_cards_path(locale: :en) }
+    assert_request_queries(15) { get library_cards_path(locale: :en) }
 
     delete session_path(locale: :en)
-    # The same without the lookup, the player's editions, the figures and
-    # the trades waiting; the grid's count is the whole season's.
+    # The same without the lookup, the player's editions, the figures, the
+    # rarity legend and the trades waiting; the grid's count is the whole
+    # season's.
     assert_request_queries(8) { get library_cards_path(locale: :en) }
   end
 
@@ -1404,14 +1411,14 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     hold_all(player, (sets[3, 37] - [ sets[13] ]).flat_map { it.first(2) })
     forty = count_queries { get library_path(locale: :en, q: "theme") }
     assert_equal three, forty
-    # Player lookup, season, unique cards and the season's count; the
-    # search's sets, the standings, the figures of those not started and
-    # the faces of those shown; the tab bar's trades waiting; the themes'
-    # names.
-    assert_equal 11, forty
+    # Player lookup, season, unique cards and the season's count, the
+    # rarity legend; the search's sets, the standings, the figures of those
+    # not started and the faces of those shown; the tab bar's trades
+    # waiting; the themes' names.
+    assert_equal 12, forty
     assert_equal 7, count_queries { get library_path(locale: :en, q: "theme", offset: 6), headers: { "Turbo-Frame" => "set-more-results-6" } }
     # No search: neither the sets nor the standings.
-    assert_equal 5, count_queries { get library_path(locale: :en) }
+    assert_equal 6, count_queries { get library_path(locale: :en) }
   end
 
   test "a player who holds no card sees the search, the way to all the cards and a line pointing to the search; a visitor is sent to the landing" do
@@ -1665,7 +1672,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     epic, = two_editions(season, player)
     sign_in(player)
 
-    assert_request_queries(14) { get library_cards_path(locale: :en, state: %w[owned]) }
+    assert_request_queries(15) { get library_cards_path(locale: :en, state: %w[owned]) }
 
     assert_equal [ [ :owned, title(epic), "x2", nil ] ], slots
     assert_equal [ "/seasons/#{season.number}" ], tile_hrefs

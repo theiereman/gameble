@@ -16,6 +16,8 @@ abort "Vite build failed: see log/test.log" unless ViteRuby.commands.build
 # (SteamApiStubs, which restores this on unstub); an unstubbed call raises.
 # Set here, before the parallel workers fork.
 Steam::WebApi.adapter = [ :test, Faraday::Adapter::Test::Stubs.new ]
+# Nor does a card's art fetch (ShareImageArt stubs it).
+CardShareImage::Art.adapter = [ :test, Faraday::Adapter::Test::Stubs.new ]
 
 require_relative "support/rated_cards"
 

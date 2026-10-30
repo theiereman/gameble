@@ -1,0 +1,32 @@
+<section id="rarity-legend" class="rarity-legend shell-popover" popover aria-labelledby="rarity-legend-title">
+  <p id="rarity-legend-title" class="shell-popover__title"><%= t("shell.rarity.legend") %></p>
+  <table class="rarity-legend__table">
+    <thead>
+      <tr>
+        <th scope="col" class="rarity-legend__heading"><%= t("shell.rarity.columns.rarity") %></th>
+        <th scope="col" class="rarity-legend__heading"><%= t("shell.rarity.columns.season") %></th>
+        <th scope="col" class="rarity-legend__heading"><%= t("shell.rarity.columns.overall") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% legend.rows.each do |row| %>
+        <% tier = Catalog::Rarity::TIERS.key(row.rarity) %>
+        <tr class="rarity-legend__row rarity-legend__row--<%= tier %>">
+          <th scope="row" class="rarity-legend__rarity">
+            <%= link_to library_cards_path(rarity: [ row.rarity ]), class: "rarity-legend__link" do %>
+              <%= pixel_icon("rarity-#{tier}", class: "rarity-legend__icon") %>
+              <span class="rarity-legend__name"><%= t("catalog.rarity.#{row.rarity}") %></span>
+            <% end %>
+          </th>
+          <%= render "shell/rarity_legend_figures", figures: [ row.season, row.overall ] %>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot>
+      <tr class="rarity-legend__row rarity-legend__row--totals">
+        <th scope="row" class="rarity-legend__rarity"><span class="rarity-legend__name"><%= t("shell.rarity.totals") %></span></th>
+        <%= render "shell/rarity_legend_figures", figures: [ legend.totals.season, legend.totals.overall ] %>
+      </tr>
+    </tfoot>
+  </table>
+</section>

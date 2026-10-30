@@ -362,4 +362,118 @@ class Steam::WebApiTest < ActiveSupport::TestCase
       assert_not_includes error.message, API_KEY
     end
   end
+
+  # GetOwnedGames
+
+  def owned_games(steamid = STEAM_ID)
+    Steam::WebApi.new.get_owned_games(steamid:)
+  end
+
+  test "get_owned_games asks for the player's games, free ones and unvetted ones included, without app info, with the key" do
+    calls = stub_owned_games([ 10 ])
+
+    owned_games
+
+    assert_equal [ { "steamid" => STEAM_ID, "include_appinfo" => "false", "include_played_free_games" => "true",
+      "skip_unvetted_apps" => "false", "key" => API_KEY } ], calls
+  end
+
+  test "get_owned_games returns the appids of the owned games" do
+    stub_owned_games([ 10, 440, 570 ])
+
+    assert_equal [ 10, 440, 570 ], owned_games
+  end
+
+  test "get_owned_games returns an empty list when Steam lists no game" do
+    stub_owned_games([])
+
+    assert_equal [], owned_games
+  end
+
+  [ nil, 12 ].each do |game_count|
+    test "get_owned_games answers nil for a private library (game count #{game_count.inspect})" do
+      stub_private_owned_games(game_count:)
+
+      assert_nil owned_games
+    end
+  end
+
+  test "get_owned_games skips an entry that is not an object or whose appid is not a positive int4" do
+    games = [ "junk", [ 10 ], {}, { "appid" => "x" }, { "appid" => 0 }, { "appid" => -3 }, { "appid" => 2**31 }, { "appid" => 1.5 },
+      { "appid" => 20 }, { "appid" => "30" } ]
+    stub_owned_games_response({ "game_count" => games.size, "games" => games })
+
+    assert_equal [ 20, 30 ], owned_games
+  end
+
+  test "get_owned_games raises, without the key, when no listed game has a readable appid" do
+    stub_owned_games_response({ "game_count" => 2, "games" => [ {}, { "app_id" => 10 } ] })
+
+    error = assert_raises(Steam::WebApi::Error) { owned_games }
+
+    assert_not_kind_of Steam::WebApi::Unavailable, error
+    assert_not_includes error.message, API_KEY
+  end
+
+  [ 408, 429, 500, 502, 503, 504, :timeout, :connection_failed, :ssl_error ].each do |failure|
+    test "get_owned_games makes one attempt and raises unavailable, without the key, on #{failure}" do
+      calls = stub_owned_games_failure(failure)
+
+      error = assert_raises(Steam::WebApi::Unavailable) { owned_games }
+
+      assert_equal 1, calls.size
+      assert_not_includes error.message, API_KEY
+      assert_not_includes error.full_message, API_KEY
+      assert_nil error.cause
+    end
+  end
+
+  test "get_owned_games waits ten seconds at most, in all" do
+    assert_equal 10.0, Steam::WebApi.owned_games_deadline
+  end
+
+  test "get_owned_games raises unavailable at its deadline when Steam is slow" do
+    Steam::WebApi.owned_games_deadline = 0.05
+    answered = false
+    steam_stubs.get(OWNED_GAMES_PATH) do
+      sleep 0.2
+      answered = true
+      [ 200, { "Content-Type" => "application/json" }, { "response" => { "games" => [] } }.to_json ]
+    end
+
+    error = assert_raises(Steam::WebApi::Unavailable) { owned_games }
+
+    assert_not answered
+    assert_includes error.message, "Faraday::TimeoutError"
+  end
+
+  [ 401, 403 ].each do |status|
+    test "get_owned_games raises a broken key, without the key, when Steam rejects it (#{status})" do
+      calls = stub_owned_games_failure(status)
+
+      error = assert_raises(Steam::WebApi::BrokenKey) { owned_games }
+
+      assert_equal 1, calls.size
+      assert_not_includes error.message, API_KEY
+    end
+  end
+
+  test "get_owned_games raises a broken key, calling no one, when no key is set" do
+    Rails.configuration.x.steam.api_key = nil
+    calls = stub_owned_games([ 10 ])
+
+    assert_raises(Steam::WebApi::BrokenKey) { owned_games }
+    assert_empty calls
+  end
+
+  [ "not json", "{}", { "response" => [] }.to_json, { "response" => { "games" => {} } }.to_json,
+    { "response" => { "games" => nil } }.to_json ].each do |body|
+    test "get_owned_games raises on a malformed answer (#{body})" do
+      steam_stubs.get(OWNED_GAMES_PATH) { [ 200, { "Content-Type" => "application/json" }, body ] }
+
+      error = assert_raises(Steam::WebApi::Error) { owned_games }
+      assert_not_kind_of Steam::WebApi::Unavailable, error
+      assert_not_includes error.message, API_KEY
+    end
+  end
 end

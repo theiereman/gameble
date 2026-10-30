@@ -7,11 +7,13 @@ module SteamApiStubs
   ITEMS_PATH = "/IStoreBrowseService/GetItems/v1/".freeze
   TAG_LIST_PATH = "/IStoreService/GetTagList/v1/".freeze
   PLAYER_SUMMARIES_PATH = "/ISteamUser/GetPlayerSummaries/v2/".freeze
+  OWNED_GAMES_PATH = "/IPlayerService/GetOwnedGames/v1/".freeze
 
   attr_reader :steam_stubs
 
   def stub_steam_api
-    @steam_api_was = [ Steam::WebApi.adapter, Steam::WebApi.retry_interval, Steam::WebApi.player_summary_deadline, Rails.configuration.x.steam.api_key ]
+    @steam_api_was = [ Steam::WebApi.adapter, Steam::WebApi.retry_interval, Steam::WebApi.player_summary_deadline, Steam::WebApi.owned_games_deadline,
+      Rails.configuration.x.steam.api_key ]
     @steam_stubs = Faraday::Adapter::Test::Stubs.new
     Steam::WebApi.adapter = [ :test, @steam_stubs ]
     Steam::WebApi.retry_interval = 0
@@ -19,7 +21,8 @@ module SteamApiStubs
   end
 
   def unstub_steam_api
-    Steam::WebApi.adapter, Steam::WebApi.retry_interval, Steam::WebApi.player_summary_deadline, Rails.configuration.x.steam.api_key = @steam_api_was
+    Steam::WebApi.adapter, Steam::WebApi.retry_interval, Steam::WebApi.player_summary_deadline, Steam::WebApi.owned_games_deadline,
+      Rails.configuration.x.steam.api_key = @steam_api_was
   end
 
   # A GetAppList page answered for the request that starts after `after`.
@@ -166,6 +169,49 @@ module SteamApiStubs
     steam_stubs.get(PLAYER_SUMMARIES_PATH) do |env|
       calls << env.params
       raise Faraday::ConnectionFailed, "failed to open #{env.url}" if status == :connection_failed
+
+      [ status, { "Content-Type" => "application/json" }, "{}" ]
+    end
+    calls
+  end
+
+  # Answers GetOwnedGames with `appids` as the owned games, shaped on Steam's
+  # answer without app info. Returns the params of each call.
+  def stub_owned_games(appids)
+    games = appids.map do |appid|
+      { "appid" => appid, "playtime_forever" => 120, "playtime_windows_forever" => 120, "playtime_mac_forever" => 0,
+        "playtime_linux_forever" => 0, "playtime_deck_forever" => 0, "rtime_last_played" => 1_700_000_000, "playtime_disconnected" => 0 }
+    end
+    stub_owned_games_response({ "game_count" => games.size, "games" => games })
+  end
+
+  # Answers GetOwnedGames as Steam answers a private library: a response
+  # without games, with or without a game count.
+  def stub_private_owned_games(game_count: nil)
+    stub_owned_games_response(game_count.nil? ? {} : { "game_count" => game_count })
+  end
+
+  # Answers GetOwnedGames with `response` as its response object. Returns the
+  # params of each call.
+  def stub_owned_games_response(response)
+    calls = []
+    steam_stubs.get(OWNED_GAMES_PATH) do |env|
+      calls << env.params
+      [ 200, { "Content-Type" => "application/json" }, { "response" => response }.to_json ]
+    end
+    calls
+  end
+
+  # Answers GetOwnedGames with `status`, or raises a connection failure for
+  # :connection_failed, a timeout for :timeout and an SSL failure for
+  # :ssl_error. Returns the params of each call.
+  def stub_owned_games_failure(status = 503)
+    calls = []
+    steam_stubs.get(OWNED_GAMES_PATH) do |env|
+      calls << env.params
+      raise Faraday::ConnectionFailed, "failed to open #{env.url}" if status == :connection_failed
+      raise Faraday::TimeoutError, "timed out on #{env.url}" if status == :timeout
+      raise Faraday::SSLError, "SSL handshake failed on #{env.url}" if status == :ssl_error
 
       [ status, { "Content-Type" => "application/json" }, "{}" ]
     end

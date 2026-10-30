@@ -30,3 +30,4 @@ Verify: at 340, 390 and 430 px, signed out, on a public profile, the unavailable
 ## Notes
 
 - Filed on 2026-10-19 from the author's decisions on the day's builds.
+- Dropped (2026-10-30, author): not worth fixing; the author drops it.

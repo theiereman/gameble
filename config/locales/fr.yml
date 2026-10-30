@@ -73,6 +73,15 @@ fr:
     rarity:
       label: "Raretés"
       legend: "Raretés"
+      columns:
+        rarity: "Rareté"
+        season: "Cette saison"
+        overall: "Toutes saisons"
+      totals: "Total"
+      figure:
+        zero: "%{owned} sur %{total} possédée"
+        one: "%{owned} sur %{total} possédée"
+        other: "%{owned} sur %{total} possédées"
     packs:
       label: "Capsules"
       next_in: "+1 dans"
@@ -227,7 +236,7 @@ fr:
         title: "Testeurs de la bêta"
     legal:
       title: "Mentions légales et confidentialité"
-      updated: "Dernière mise à jour : 20 octobre 2026"
+      updated: "Dernière mise à jour : 30 octobre 2026"
       publisher:
         title: "Éditeur et hébergeur"
         publisher: "Éditeur"
@@ -258,7 +267,7 @@ fr:
           intro: "Pour faire fonctionner le jeu, Gameble conserve :"
           steam: "votre identifiant Steam et votre nom de profil Steam ;"
           identities: "vos modes de connexion : Steam, Discord, Google ou code par e-mail, chacun avec son identifiant chez ce fournisseur, la date de son ajout et, pour les trois derniers, une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
-          activity: "votre activité de jeu : cartes, capsules, échanges, amis et invitations, code ami, entrées du fil d'activité ;"
+          activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de l'objectif communautaire, échanges, amitiés, invitations, code ami, entrées du fil d'activité et dernière activité ;"
           moderation: "les signalements que vous faites, ceux qui visent votre profil (leur auteur ne vous est pas communiqué) et les décisions de modération qui vous concernent, avec leur motif ;"
           settings: "vos réglages (visibilité du profil, animations réduites) ;"
           last_seen: "la date de création de votre compte, l'heure de votre dernière visite, et votre dernier export de données (son fichier et son heure), gardé jusqu'à l'export suivant ;"
@@ -2044,6 +2053,7 @@ fr:
     preview:
       title: "%{title} — %{rarity}"
       description: "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous : dix capsules vous attendent."
+      image_alt: "La carte %{title} (%{rarity}) avec son illustration Steam"
     share:
       button: "Partager"
       title: "Partager la carte"
@@ -2212,6 +2222,9 @@ fr:
       invalid_direction: "Une entrée de la feuille de route ne fait que monter ou descendre, officier."
       at_edge: "Cette entrée ne peut pas aller plus loin dans ce sens, officier."
       story_not_found: "Cette histoire n'est plus sur la feuille de route, officier."
+      card_season_not_published: "Cette carte n'est dans aucune saison publiée : elle n'a pas d'image d'aperçu."
+      invalid_share_image: "L'image d'aperçu de cette carte n'est pas un PNG de carte, dans une des langues de la Confrérie."
+      stale_render: "Cette carte a changé pendant que son image d'aperçu était dessinée : cette image n'a pas été gardée."
     game:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       invalid_time: "L'heure envoyée n'a pas pu être lue. Rechargez la page."

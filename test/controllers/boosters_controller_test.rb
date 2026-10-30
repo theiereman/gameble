@@ -188,7 +188,8 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar .rarity-counter[data-controller=rarity-counter][data-rarity-counter-delimiter-value=',']"
     assert_select ".top-bar .rarity-counter__count[data-rarity-counter-target=count][data-tier]", 5
     assert_equal %w[common uncommon rare epic legendary], css_select(".top-bar .rarity-counter__count").map { it["data-tier"] }
-    assert_select ".top-bar .rarity-legend__count[data-rarity-counter-target=count][data-tier]", 5
+    assert_select ".top-bar #rarity-legend tbody tr", 5
+    assert_select ".top-bar #rarity-legend [data-rarity-counter-target]", false
     assert_select ".top-bar .packs-chips[data-controller=reserve-chip] p.packs-chip--static" do
       assert_select ".packs-chip__count[data-reserve-chip-target=count]", "9"
       assert_select ".packs-chip__label[data-reserve-chip-target=label]", "in reserve"

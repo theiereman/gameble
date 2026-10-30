@@ -3,7 +3,7 @@ title: 'Back after a language change returns to the previous screen in the chose
 type: 'bugfix'
 ticket: 'bug-back-from-settings-restores-the-previous-language'
 created: '2026-10-19'
-status: 'built'
+status: done
 baseline_revision: '32fee1d122754f42610d4e35418a8912af0ef370'
 route: 'oneshot'
 route_source: 'auto'

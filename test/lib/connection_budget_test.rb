@@ -39,7 +39,7 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
     File.write(path, YAML.dump(yaml))
   end
 
-  test "staging's processes open 65 connections at most, under the limit, and every pool covers its threads" do
+  test "staging's processes open 79 connections at most, under the limit, and every pool covers its threads" do
     staging = budget
 
     assert_equal({
@@ -47,12 +47,13 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
       "web (#{STAGING}) Solid Queue supervisor" => 5,
       "web (#{STAGING}) Solid Queue dispatcher" => 5,
       "web (#{STAGING}) Solid Queue worker (default)" => 14,
+      "web (#{STAGING}) Solid Queue worker (share_images)" => 14,
       "web (#{STAGING}) Solid Queue scheduler" => 5,
       "import (#{STAGING}) Solid Queue supervisor" => 5,
       "import (#{STAGING}) Solid Queue worker (import)" => 14
     }, figures(staging))
     assert_equal({ "primary" => 3, "primary (reading)" => 3, "queue" => 5, "cache" => 3, "cable" => 3 }, staging.processes.first.pools)
-    assert_equal 65, staging.total
+    assert_equal 79, staging.total
     assert_not staging.over_limit?, "staging opens #{staging.total} connections, over the limit of #{ConnectionBudget::LIMIT}"
     assert_empty staging.undersized
   end
@@ -62,20 +63,20 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
     host = "ssh.gameble.net"
 
     assert_equal [ "web (#{host}) Puma", "web (#{host}) Solid Queue supervisor", "web (#{host}) Solid Queue dispatcher",
-      "web (#{host}) Solid Queue worker (default)", "web (#{host}) Solid Queue scheduler",
+      "web (#{host}) Solid Queue worker (default)", "web (#{host}) Solid Queue worker (share_images)", "web (#{host}) Solid Queue scheduler",
       "import (#{host}) Solid Queue supervisor", "import (#{host}) Solid Queue worker (import)" ], production.processes.map(&:name)
-    assert_equal 65, production.total
+    assert_equal 79, production.total
     assert_not production.over_limit?, "production opens #{production.total} connections, over the limit of #{ConnectionBudget::LIMIT}"
     assert_empty production.undersized
   end
 
   test "a variable set in the shell but not in the deploy files changes no count" do
     with_env("RAILS_MAX_THREADS" => "10", "JOB_CONCURRENCY" => "3", "WEB_CONCURRENCY" => "2", "MAX_THREADS" => "16") do
-      assert_equal 65, budget.total
+      assert_equal 79, budget.total
     end
   end
 
-  test "JOB_CONCURRENCY 2 in the deploy env counts a second worker in the web role, within the limit" do
+  test "JOB_CONCURRENCY 2 in the deploy env counts a second default worker in the web role, 93, over the limit" do
     root = copied_root
     edit_yaml("deploy.yml") { it["env"]["clear"]["JOB_CONCURRENCY"] = 2 }
 
@@ -83,8 +84,8 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
     workers = staging.processes.select { it.kind.start_with?("Solid Queue worker (default)") }
 
     assert_equal [ "Solid Queue worker (default) 1/2", "Solid Queue worker (default) 2/2" ], workers.map(&:kind)
-    assert_equal 79, staging.total
-    assert_not staging.over_limit?
+    assert_equal 93, staging.total
+    assert staging.over_limit?
   end
 
   test "RAILS_MAX_THREADS 10 in the deploy env goes over the limit and outgrows the queue pool" do
@@ -93,7 +94,7 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
 
     staging = budget(root:)
 
-    assert_equal 135, staging.total
+    assert_equal 170, staging.total
     assert staging.over_limit?
     assert_includes staging.undersized, "web (#{STAGING}): the queue pool holds 5 connections, its Puma needs 10"
   end
@@ -108,27 +109,27 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
     assert_includes staging.undersized, "web (#{STAGING}): the primary pool holds 3 connections, its Puma 1/2 needs 4"
   end
 
-  test "the deploy env counts: JOB_CONCURRENCY 3 in config/deploy.yml makes 93, over the limit" do
+  test "the deploy env counts: JOB_CONCURRENCY 3 in config/deploy.yml makes 107, over the limit" do
     root = copied_root
     edit_yaml("deploy.yml") { it["env"]["clear"]["JOB_CONCURRENCY"] = 3 }
 
     with_env("JOB_CONCURRENCY" => "1") do
       staging = budget(root:)
 
-      assert_equal 93, staging.total
+      assert_equal 107, staging.total
       assert staging.over_limit?
       assert_equal "1", ENV["JOB_CONCURRENCY"], "the deploy env is laid over ENV while counting, then restored"
     end
   end
 
-  test "WEB_CONCURRENCY 2 in the deploy env counts two Puma processes, 82, over the limit" do
+  test "WEB_CONCURRENCY 2 in the deploy env counts two Puma processes, 96, over the limit" do
     root = copied_root
     edit_yaml("deploy.yml") { it["env"]["clear"]["WEB_CONCURRENCY"] = 2 }
 
     staging = budget(root:)
 
     assert_equal [ "Puma 1/2", "Puma 2/2" ], staging.processes.map(&:kind).grep(/Puma/)
-    assert_equal 82, staging.total
+    assert_equal 96, staging.total
     assert staging.over_limit?
   end
 
@@ -155,7 +156,7 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
 
     assert_equal({ "primary" => 8, "queue" => 5, "cache" => 8, "cable" => 8 }, staging.processes.last.pools)
     assert_equal 3, staging.processes.first.pools.fetch("primary")
-    assert_equal 80, staging.total
+    assert_equal 94, staging.total
   end
 
   test "a role env raising Puma's threads past the queue pool reports it undersized" do

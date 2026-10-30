@@ -1,0 +1,113 @@
+/* ---- Rarity legend: owned / total per rarity, this season and all seasons ---- */
+
+.rarity-legend__table {
+  border-collapse: separate;
+  border-spacing: 0 var(--space-2);
+  margin: calc(-1 * var(--space-2)) 0;
+}
+
+.rarity-legend__heading {
+  padding: 0 var(--space-3);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-align: end;
+  text-transform: uppercase;
+  vertical-align: bottom;
+}
+
+.rarity-legend__heading:first-child {
+  text-align: start;
+}
+
+.rarity-legend__row > * {
+  height: var(--space-chip-height);
+  padding: 0 var(--space-3);
+  background: var(--color-panel-raised);
+}
+
+.rarity-legend__rarity {
+  font-weight: inherit;
+  text-align: start;
+}
+
+.rarity-legend__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--space-chip-height);
+  color: inherit;
+  text-decoration: none;
+}
+
+.rarity-legend__link:hover .rarity-legend__name,
+.rarity-legend__link:focus-visible .rarity-legend__name {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.rarity-legend__name {
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.rarity-legend__row--1 .rarity-legend__name {
+  color: var(--color-rarity-commune);
+}
+
+.rarity-legend__row--2 .rarity-legend__name {
+  color: var(--color-rarity-peu-commune);
+}
+
+.rarity-legend__row--3 .rarity-legend__name {
+  color: var(--color-rarity-rare);
+}
+
+.rarity-legend__row--4 .rarity-legend__name {
+  color: var(--color-rarity-epique);
+}
+
+.rarity-legend__row--5 .rarity-legend__name {
+  color: var(--color-rarity-legendaire);
+}
+
+.rarity-legend__row--totals > * {
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 var(--space-unit) 0 var(--color-line);
+}
+
+.rarity-legend__row--totals .rarity-legend__name {
+  color: var(--color-text-bright);
+}
+
+.rarity-legend__figure {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.rarity-legend__owned,
+.rarity-legend__total {
+  white-space: nowrap;
+}
+
+.rarity-legend__owned {
+  color: var(--color-text-max);
+}
+
+/* Right under whichever counter opened it, its end edge on the counter's. */
+@supports (position-area: block-end) {
+  .rarity-counter__button,
+  .collection-status {
+    anchor-name: --rarity-legend;
+  }
+
+  .rarity-legend {
+    inset: auto;
+    margin: var(--space-3) 0 0;
+    position-anchor: --rarity-legend;
+    position-area: block-end span-inline-start;
+  }
+}

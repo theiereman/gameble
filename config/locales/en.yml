@@ -731,6 +731,7 @@ en:
     preview:
       description: 'A card of Gameble, your Steam games as collectible cards. Sign
         in: ten capsules wait for you.'
+      image_alt: The card %{title} (%{rarity}) with its Steam art
       title: "%{title} — %{rarity}"
     previous: Previous card
     season_number: Season %{number}
@@ -863,12 +864,16 @@ en:
     catalog:
       already_numbered: The cards of that season are numbered already, officer.
       at_edge: That entry cannot move any further that way, officer.
+      card_season_not_published: That card is in no published season, so it has no preview
+        image.
       empty_season: The draft season holds no card yet, officer. Run an import first.
       empty_tier: The draft season is too small to fill all five rarities, officer.
         Import more games first.
       invalid_card: 'The scribes cannot enter that card in the ledger: its particulars
         are incomplete or out of order.'
       invalid_direction: An entry of the roadmap moves only up or down, officer.
+      invalid_share_image: The preview image of that card is not a PNG of a card, in
+        one of the Brotherhood's tongues.
       invalid_status: That status is not one of the roadmap's, officer.
       invalid_tag: That is not a Steam tag the ledgers know, officer.
       invalid_theme_name: A theme needs a name in French and in English, of 60 characters
@@ -887,6 +892,8 @@ en:
         them or discard them before publishing.
       stale_draft: That draft is no longer the one in the ledgers, officer. Reload
         the page and look again.
+      stale_render: That card changed while its preview image was drawn, so that image
+        was not kept.
       story_not_found: That story is no longer on the roadmap, officer.
       ufo_share_over_limit: The UFOs hold %{share} of the draft season's cards, officer,
         above the %{limit} allowed. Attach more tags to themes on the themes page
@@ -1918,8 +1925,10 @@ en:
             Data hosted in the European Union;'
           steam: Steam (Valve) handles sign-in and provides your profile name;
         stored:
-          activity: 'your game activity: cards, capsules, trades, friends and invitations,
-            friend code, activity feed entries;'
+          activity: 'your game activity: card collection, showcase, set tiers, achievements,
+            card back unlocks and active card back, capsules, daily bonuses, community
+            goal rewards, trades, friendships, invitations, friend code, activity feed
+            entries and latest activity;'
           identities: 'your sign-in methods: Steam, Discord, Google or an email code, each
             with its identifier at that provider, the date it was added and, for the
             last three, a one-way hash of your verified email address, never the address
@@ -1986,7 +1995,7 @@ en:
           with the page''s address and the reason for your request.'
         title: Terms of use
       title: Legal notice and privacy
-      updated: 'Last updated: 20 October 2026'
+      updated: 'Last updated: 30 October 2026'
     more:
       subtitle: The rest of the ship
       title: More
@@ -2278,8 +2287,16 @@ en:
       fallback_name: Player
       profile_label: "Your profile, %{name}"
     rarity:
+      columns:
+        overall: All seasons
+        rarity: Rarity
+        season: This season
+      figure:
+        one: "%{owned} of %{total} owned"
+        other: "%{owned} of %{total} owned"
       label: Rarities
       legend: Rarities
+      totals: Total
     screens:
       achievements: Achievements
       back_office: Back-office
