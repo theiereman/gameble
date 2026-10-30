@@ -2051,6 +2051,7 @@ fr:
     preview:
       title: "%{title} — %{rarity}"
       description: "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous : dix capsules vous attendent."
+      image_alt: "La carte %{title} (%{rarity}) avec son illustration Steam"
     share:
       button: "Partager"
       title: "Partager la carte"
@@ -2219,6 +2220,8 @@ fr:
       invalid_direction: "Une entrée de la feuille de route ne fait que monter ou descendre, officier."
       at_edge: "Cette entrée ne peut pas aller plus loin dans ce sens, officier."
       story_not_found: "Cette histoire n'est plus sur la feuille de route, officier."
+      card_season_not_published: "Cette carte n'est dans aucune saison publiée : elle n'a pas d'image d'aperçu."
+      invalid_share_image: "L'image d'aperçu de cette carte n'est pas un PNG de carte, dans une des langues de la Confrérie."
     game:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       invalid_time: "L'heure envoyée n'a pas pu être lue. Rechargez la page."

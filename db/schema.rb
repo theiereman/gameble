@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_29_150100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_30_093935) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -86,6 +86,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_150100) do
     t.index ["reporter_id", "created_at"], name: "index_accounts_reports_on_reporter_id_and_created_at"
     t.index ["reporter_id", "reported_id"], name: "index_accounts_reports_on_reporter_id_and_reported_id", unique: true
     t.check_constraint "reason::text = 'inappropriate_name'::text OR reason::text = 'cheating'::text OR reason::text = 'harassment'::text OR reason::text = 'other'::text", name: "accounts_reports_reason_check"
+  end
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
   create_table "catalog_card_seasons", force: :cascade do |t|
@@ -209,6 +237,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_150100) do
     t.jsonb "params", default: {}, null: false
     t.index ["season_id", "kind", "key"], name: "index_catalog_sets_on_season_id_and_kind_and_key", unique: true
     t.check_constraint "kind::text = 'theme'::text OR kind::text = 'franchise'::text OR kind::text = 'studio'::text OR kind::text = 'hall_of_fame'::text OR kind::text = 'ufo'::text", name: "catalog_sets_kind_check"
+  end
+
+  create_table "catalog_share_images", force: :cascade do |t|
+    t.bigint "card_season_id", null: false
+    t.string "locale", null: false
+    t.string "token", null: false
+    t.string "fingerprint", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_season_id", "locale"], name: "index_catalog_share_images_on_card_season_id_and_locale", unique: true
+    t.index ["token"], name: "index_catalog_share_images_on_token", unique: true
+    t.check_constraint "locale::text = 'en'::text OR locale::text = 'fr'::text", name: "catalog_share_images_locale_check"
   end
 
   create_table "catalog_staged_card_seasons", force: :cascade do |t|
@@ -598,6 +638,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_150100) do
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "staff_id"
   add_foreign_key "accounts_reports", "accounts_players", column: "reported_id"
   add_foreign_key "accounts_reports", "accounts_players", column: "reporter_id"
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "catalog_card_seasons", "catalog_cards", column: "card_id"
   add_foreign_key "catalog_card_seasons", "catalog_seasons", column: "season_id"
   add_foreign_key "catalog_card_texts", "catalog_cards", column: "card_id"
@@ -606,6 +648,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_150100) do
   add_foreign_key "catalog_set_memberships", "catalog_sets", column: "set_id"
   add_foreign_key "catalog_set_tiers", "catalog_sets", column: "set_id"
   add_foreign_key "catalog_sets", "catalog_seasons", column: "season_id"
+  add_foreign_key "catalog_share_images", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "catalog_staged_card_seasons", "catalog_cards", column: "card_id"
   add_foreign_key "catalog_tag_classifications", "catalog_themes", column: "theme_id"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"

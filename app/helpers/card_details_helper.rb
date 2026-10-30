@@ -3,8 +3,16 @@ module CardDetailsHelper
     t("card_details.preview.title", title: view.title, rarity: CardStrings.new.rarity_name(view.rarity))
   end
 
+  def card_share_image_alt(view)
+    t("card_details.preview.image_alt", title: view.title, rarity: CardStrings.new.rarity_name(view.rarity))
+  end
+
   def card_public_url(view)
     public_url_for(card_season_path(slug: view.id, number: view.season_number))
+  end
+
+  def card_share_image_url(token)
+    public_url_for(share_image_path(token:, locale: nil))
   end
 
   def card_detail_store_url(url)

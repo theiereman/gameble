@@ -218,6 +218,11 @@ Rails.application.routes.draw do
   get "auth/failure" => "sessions#failure", as: :auth_failure
   resource :session, only: :destroy
 
+  # A shared card's preview image, by its token (never an id), the same in
+  # every language: outside the locale scope, built with `locale: nil`.
+  get "share-images/:token.png" => "share_images#show", as: :share_image, format: false,
+    constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+
   get "robots.txt" => "robots#show", format: false
   get "sitemap.xml" => "sitemaps#show", defaults: { format: :xml }, format: false
 
