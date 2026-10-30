@@ -9,6 +9,7 @@ class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
   include SteamSignIn
 
   CLERK_BOT_PROTECTION = %w[https://challenges.cloudflare.com https://cdn.protect.clerk.com].freeze
+  CLERK_SCRIPTS = [ *CLERK_BOT_PROTECTION, "https://*.client.protect.clerk.com" ].freeze
 
   setup { @public_url = Rails.configuration.x.public_url }
   teardown { Rails.configuration.x.public_url = @public_url }
@@ -22,7 +23,7 @@ class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
   end
 
   def clerk_connections
-    [ "https://#{Rails.configuration.x.clerk.frontend_api}", *CLERK_BOT_PROTECTION, "https://*.client.protect.clerk.com" ]
+    [ "https://#{Rails.configuration.x.clerk.frontend_api}", *CLERK_BOT_PROTECTION, "https://*.client.protect.clerk.com:*" ]
   end
 
   test "a page carries the policy enforced, never report-only" do
@@ -38,7 +39,7 @@ class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en)
 
     assert_response :success
-    assert_equal [ "'self'", *CLERK_BOT_PROTECTION ], directive("script-src")
+    assert_equal [ "'self'", *CLERK_SCRIPTS ], directive("script-src")
   end
 
   test "the directives: self by default, no inline script, nonced styles, Steam images, workers from blobs, Clerk" do
@@ -48,7 +49,7 @@ class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
     assert_equal %w['self'], directive("default-src")
     assert_equal %w['self'], directive("base-uri")
     assert_equal %w['none'], directive("object-src")
-    assert_equal [ "'self'", *CLERK_BOT_PROTECTION ], directive("script-src")
+    assert_equal [ "'self'", *CLERK_SCRIPTS ], directive("script-src")
     assert_equal [ "'self'", *CLERK_BOT_PROTECTION ], directive("frame-src")
     assert_equal "'self'", directive("style-src").first
     assert_match(/\A'nonce-.+'\z/, directive("style-src").second)
