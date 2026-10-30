@@ -1,0 +1,35 @@
+name: Android app
+
+on:
+  push:
+    paths: [ "mobile/android/**", ".github/workflows/android.yml" ]
+  workflow_dispatch:
+    inputs:
+      root_url:
+        description: The server the app loads
+        default: https://gameble.net
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: mobile/android
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The runner image ships JDK 17 and the Android SDK.
+      - name: Build the debug APK
+        env:
+          ROOT_URL: ${{ inputs.root_url || 'https://gameble.net' }}
+        run: JAVA_HOME="$JAVA_HOME_17_X64" ./gradlew --no-daemon assembleDebug -PgambleRootUrl="$ROOT_URL"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: gameble-debug-apk
+          path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14

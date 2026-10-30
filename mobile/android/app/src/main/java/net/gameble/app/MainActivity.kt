@@ -45,9 +45,8 @@ class MainActivity : HotwireActivity() {
     }
 
     private fun fetchPushToken() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            finishGrant(if (task.isSuccessful) task.result else null)
-        }
+        val token = runCatching { FirebaseMessaging.getInstance().token }.getOrNull() ?: return finishGrant(null)
+        token.addOnCompleteListener { task -> finishGrant(if (task.isSuccessful) task.result else null) }
     }
 
     private fun finishGrant(token: String?) {

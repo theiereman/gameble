@@ -2,8 +2,14 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.serialization")
-    id("com.google.gms.google-services")
 }
+
+// Push needs the Firebase project's google-services.json; the app builds and runs without it.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
+val debugRootUrl = (findProperty("gamebleRootUrl") as String?) ?: "http://10.0.2.2:3000"
 
 android {
     namespace = "net.gameble.app"
@@ -19,8 +25,8 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "ROOT_URL", "\"http://10.0.2.2:3000\"")
-            manifestPlaceholders["usesCleartextTraffic"] = true
+            buildConfigField("String", "ROOT_URL", "\"$debugRootUrl\"")
+            manifestPlaceholders["usesCleartextTraffic"] = debugRootUrl.startsWith("http:")
         }
         release {
             buildConfigField("String", "ROOT_URL", "\"https://gameble.net\"")
