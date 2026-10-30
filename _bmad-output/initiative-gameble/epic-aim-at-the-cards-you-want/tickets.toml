@@ -50,9 +50,9 @@ risk = "medium"
 [[entry]]
 id = 5
 type = "story"
-title = "Custom sets join the collection with their tiers shown, without reward"
-description = "The collection lists the player's custom sets beside the game's sets, in its sections and its search, and each shows the rank tiers a game set of its size has, computed at read, with no title, back, celebration, feed line or allocation."
-verify = "A custom set of 20 games shows in the collection and its search with owned / total and its rank tiers; reaching a tier records nothing and announces nothing; query and system tests cover it."
+title = "Custom sets join the collection in their own section, without tiers or reward"
+description = "The collection lists the player's custom sets beside the game's sets, in its sections and its search, in the MES SETS section of the design and in its search, each showing owned / total and a gauge up to complete, with no tiers and no title, back, celebration, feed line or allocation."
+verify = "A custom set of 20 games shows in the collection and its search with owned / total and no tier; completing it records nothing and announces nothing; query and system tests cover it."
 covers = ["E2"]
 after = [4]
 hitl = false

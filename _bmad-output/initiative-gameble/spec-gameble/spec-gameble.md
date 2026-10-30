@@ -220,7 +220,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:**
     - A player creates, renames, edits and deletes custom sets: 3 to 50 games of the catalog each, owned or not, at most 10 per player (author, 2026-10-30).
     - A custom set shows owned / total distinct cards and opens as an album with an empty slot naming each missing game; a copy counts whatever edition it was minted in.
-    - It shows the rank tiers a game set of its size has (`catalog-and-rarity.md`), with no reward: no title, back, celebration, feed line or seasonal allocation.
+    - It has no tiers: it shows owned / total and a gauge up to complete, and earns no reward: no title, back, celebration, feed line or seasonal allocation. The Steam library set has no tiers either (author, 2026-10-30).
     - Only its author sees a custom set or its name (author, 2026-10-30).
     - A player can create one Steam library set: the catalog games they own on Steam, with no size cap, synced with their library once a day. It is a special set, apart from the 10 custom sets: it cannot be an active goal (CAP-28) and never feeds trade suggestions (CAP-11). It grants no card. When Steam does not share the library (game details not public), the screen says so (author, 2026-10-30).
 - **CAP-28**
