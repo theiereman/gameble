@@ -1,0 +1,162 @@
+# tickets.toml — DRAFT breakdown of epic 30 (epic-more-achievements-and-easy-card-backs), in build order. Not recorded.
+# Requirement ids E1-E5 are the epic's Requirements; references are relative to _bmad-output/initiative-gameble/.
+
+[[entry]]
+id = 1
+type = "story"
+title = "A capsule with two Rare-or-better cards earns Statistical Non-Compliance, in play and from history"
+description = "The tracer bullet: Game::AchievementProgress computes only the metrics of achievements the player has not unlocked and Game::GrantAchievement re-reads under the bank lock only the metric it grants, the first one-capsule metric counts opened regular packs whose card_season_ids hold two cards of Rare or better, Game::Achievements gains statistical_non_compliance, and its name, condition and flavor keys land in en.yml and fr.yml (English from achievements.md, French a builder draft, both replaced by entry 5) with an existing glyph on the achievements screen."
+verify = "On staging a player whose recorded packs already hold one with two Rare-or-better cards gets the achievement from bin/rails game:backfill_achievements with no toast, a new such opening grants it once with a toast, the screen shows it in English and French, and query, operation, job and system tests cover the metric on fixtures."
+covers = ["E1", "E3"]
+after = []
+hitl = false
+risk = "medium"
+unknown = "Whether AchievementProgress stays one SQL statement once it skips earned metrics, or splits into one query per metric family that the later entries extend."
+references = ["architecture-gameble/architecture-gameble.md#ad-37", "spec-gameble/achievements.md"]
+
+[[entry]]
+id = 2
+type = "story"
+title = "The achievement copy, the new backs and the reworked Personalization page are designed"
+description = "The author and bmad-ux confirm the achievements that ship and the four that unlock a back (achievements.md), set N for Lazy Opener and Hardworking, write in EXPERIENCE.md the final English and French title, condition and flavor text of all twenty-three achievements and where the flavor text shows (reachable from the achievements screen), and draw in DESIGN.md the glyphs of the new achievements, the four new backs with their names, and the reworked DOS DE CARTE section where a back is picked in one step and each back says how it was earned or can be earned."
+verify = "EXPERIENCE.md holds the twenty-three titles, conditions and flavor texts in both languages and N, DESIGN.md holds the glyphs, the four backs and the Personalization section with its earned and locked lines, and the author approves them."
+covers = ["E1", "E2", "E4", "E5"]
+after = []
+hitl = true
+risk = "low"
+unknown = "Whether First Claim, All Rights Reserved keeps its back, being a card's pioneer being easy early in a season while players are few."
+references = ["spec-gameble/achievements.md", "spec-gameble/brotherhood-tone.md", "ux-gameble/DESIGN.md", "ux-gameble/EXPERIENCE.md"]
+
+[[entry]]
+id = 3
+type = "story"
+title = "The booster records how each capsule was revealed"
+description = "Adds game_packs.reveal_mode (null, all or one_by_one; the check added then validated in a second migration), Game::RecordReveal behind POST /:locale/packs/:token/reveal with its Pundit policy, accepted only for the player's latest opened pack while its mode is null and publishing Game::PackRevealed with the player id (which entry 10 follows), the booster sending it for every pack kind, all when Tout révéler was used and one_by_one otherwise, once the last card is face up, and the player data export listing each pack's mode."
+verify = "On staging a regular and a special capsule revealed with Tout révéler store all and one turned card by card stores one_by_one, a repeat or a POST on an older pack changes nothing, the export shows the mode, db/schema.rb is regenerated from the migrations, and operation, request, vitest and booster system tests cover both modes."
+covers = ["E1"]
+after = []
+hitl = false
+risk = "high"
+unknown = "A capsule left before its last card is face up keeps a null mode and breaks both reveal streaks; and whether the legal page's stored-data line on capsules already covers the reveal mode."
+references = ["architecture-gameble/architecture-gameble.md#ad-23", "architecture-gameble/architecture-gameble.md#ad-37"]
+
+[[entry]]
+id = 4
+type = "story"
+title = "A release grants new achievements from history before it takes traffic"
+description = "The deploy runs the idempotent achievement backfill as a data step after db:prepare and before the server takes traffic, so achievements a release adds are granted retroactively without a toast, with RELEASING.md saying so; the author checks it on a staging candidate."
+verify = "A staging deploy of a candidate with entry 1 grants Statistical Non-Compliance to players whose history meets it before the first request, announces nothing, a second boot grants nothing more, and the author records the boot time it added."
+covers = ["E3"]
+after = [1]
+hitl = true
+risk = "high"
+unknown = "The mechanism: AD-37 asks for a data step before traffic, the entrypoint runs only db:prepare and the roadmap rake today, and a backfill on every boot grows with the player count inside Kamal's health-check window; the author chooses between the entrypoint and a once-per-release step."
+references = ["architecture-gameble/architecture-gameble.md#ad-37"]
+
+[[entry]]
+id = 5
+type = "story"
+title = "The ten achievements are renamed and every achievement shows its flavor text"
+description = "Swaps in the approved English and French titles and conditions of the ten existing achievements and the approved copy and glyph of Statistical Non-Compliance, keeping every key and earned grant, updates the landing's Succès tile that lists the old names, and makes each achievement's flavor text reachable from the achievements screen where entry 2's design places it (the unlock toast may carry it too), never crowding the list."
+verify = "In English and French the achievements screen, the profile's latest achievements, the allocation recap, the landing tile and an unlock toast show the new titles, the flavor text is reachable from the achievements screen, a player's earned rows are untouched before and after, and i18n-tasks and the system tests pass."
+covers = ["E2"]
+after = [1, 2]
+hitl = false
+risk = "low"
+references = ["ux-gameble/EXPERIENCE.md"]
+
+[[entry]]
+id = 6
+type = "story"
+title = "Three more one-capsule achievements"
+description = "Adds Packaging Irregularity (two copies of one game in any capsule), Excellence in Mediocrity (five Commune cards in a standard capsule) and Historical Asset Management (a game released before 2000 and one released in 2025 or later in any capsule, read from the card's release date) as one-capsule metrics over recorded packs, with the approved copy and glyphs."
+verify = "Query tests on fixture packs grant each achievement on its matching pack and not on a near miss, the backfill grants them from history without a toast, and the achievements screen shows them in both languages."
+covers = ["E1", "E3"]
+after = [5]
+hitl = false
+risk = "low"
+unknown = "How often Historical Asset Management can happen depends on the production catalog's share of games released before 2000 and from 2025."
+
+[[entry]]
+id = 7
+type = "story"
+title = "Two streak achievements over capsules and daily bonuses"
+description = "Adds Luck Is a Marketing Concept (ten standard capsules in a row, in opened_at order, with no card of Rare or better) and Leave Request Denied (the daily bonus collected seven UTC days in a row) as longest-run metrics over game_packs and game_daily_bonus_claims, GrantAchievementsJob following Game::DailyBonusCollected, with the approved copy and glyphs; their backs come with entry 11."
+verify = "Query tests on fixtures grant each at exactly ten capsules and seven days and not at nine and six, a broken run restarts the count, the backfill grants them from history, and the achievements screen shows them in both languages."
+covers = ["E1", "E3"]
+after = [6]
+hitl = false
+risk = "medium"
+unknown = "Whether a streak tile shows the best run so far against its threshold follows entry 2's design."
+
+[[entry]]
+id = 8
+type = "story"
+title = "Two collection achievements, one on copies and one on a studio"
+description = "Adds Diversified Portfolio (five copies of one game held at once, summed across its editions) and Market Concentration (ten different games of one studio held at once, the studio being the card's first developer normalised as studio sets do, read through a new Catalog query), as metrics over the current game_holdings, with the approved copy and glyphs."
+verify = "Query tests grant Diversified Portfolio at five copies spread over two editions and Market Concentration at ten games whose developer names differ only in the forms studio sets merge, neither at one less, the backfill grants them from the current collection, and packwerk passes."
+covers = ["E1", "E3"]
+after = [7]
+hitl = false
+risk = "medium"
+unknown = "Whether copies reserved by an open trade count as held (counting them, as quantity does, is recommended), and the cost of normalising the studios of a player's held cards in Ruby on every grant job."
+references = ["spec-gameble/catalog-and-rarity.md"]
+
+[[entry]]
+id = 9
+type = "story"
+title = "Three community achievements"
+description = "Adds First Claim, All Rights Reserved (a game_first_discoveries row), A Discovery of Ours (a repost feed entry of a card-season the player first discovered) and A Strictly Professional Relationship (three accepted trades with one partner), GrantAchievementsJob following Game::CardDiscovered, with the approved copy and glyphs."
+verify = "Query tests grant each on fixtures and not on a near miss (a repost of a card someone else discovered, three trades with three partners), the backfill grants them from history without a toast, and the screen shows them in both languages."
+covers = ["E1", "E3"]
+after = [8]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Lazy Opener and Hardworking from the reveal streaks"
+description = "Adds the two #68 achievements as the longest run of opened packs of any kind, in opened_at order, revealed with all or one_by_one, a pack without a mode breaking both, read from entry 3's reveal_mode; GrantAchievementsJob follows entry 3's Game::PackRevealed; nothing is granted from before the column."
+verify = "Query tests on fixtures grant each at N packs in a row and not at N - 1, a pack with a null mode breaks the run, revealing N capsules with Tout révéler on staging grants Lazy Opener with a toast, and the screen shows both in both languages."
+covers = ["E1"]
+after = [3, 9]
+hitl = false
+risk = "low"
+unknown = "N is set by the author in entry 2; ten for both is recommended."
+
+[[entry]]
+id = 11
+type = "story"
+title = "The four hardest achievements unlock their drawn backs"
+description = "Draws and exports with script/pixel_art the four backs entry 2 designed, adds their names under card_backs.names in en.yml and fr.yml, and adds them to Game::CardBacks::ACHIEVEMENT_BACKS for the achievements entry 2 confirmed (Luck Is a Marketing Concept, Leave Request Denied, Market Concentration and First Claim in achievements.md), so the existing back handler grants them on AchievementUnlocked, without a toast when the grant is retroactive, and each tile shows its DOS image; it leaves card_backs.conditions and the card backs helper to entry 12."
+verify = "node script/pixel_art/export.mjs --check passes, each of the four achievements unlocks its back once with a toast in play and silently from the backfill, the tiles show the back, and the back picker lists the four backs locked for a new account."
+covers = ["E4"]
+after = [2, 9]
+hitl = false
+risk = "medium"
+references = ["architecture-gameble/architecture-gameble.md#ad-25", "ux-gameble/DESIGN.md"]
+
+[[entry]]
+id = 12
+type = "story"
+title = "The Personalization page picks a back in one step and says how each back was earned"
+description = "Reworks the DOS DE CARTE section to entry 2's design: the player equips a back in one action, Game::CardBackShelf gives each earned back how it was earned (the set and its seasons, the community goal, the achievement by its locale name, the event) and each locked back how to earn it (naming the achievement or the set), owning card_backs.conditions, the card backs helper and personalizations.show.card_back in en.yml and fr.yml, through the existing Game::ChooseCardBack."
+verify = "In English and French a system test equips an unlocked back in one action, reads the earned line of a set back, the goal back and Centurion, reads the locked line naming its achievement as I18n gives it, sees a locked back refused even by a forged request, and the page passes the accessibility checks of the existing tests."
+covers = ["E5"]
+after = [2]
+hitl = false
+risk = "medium"
+unknown = "Whether the goal back's line names the week it was earned, read from the player's first game_goal_rewards row, since the unlock row keeps only unlocked_at and CAP-20 says only weekly goal."
+references = ["ux-gameble/DESIGN.md", "ux-gameble/EXPERIENCE.md", "epic-personalization/story-the-back-picker-on-the-personalization-page-plan.md"]
+
+[[entry]]
+id = 13
+type = "story"
+title = "Refactor sweep"
+description = "Cleans up what this epic's build records and deferred review findings name, scope set when it starts, keeping behaviour, URLs and markup."
+verify = "bin/ci, npm run test:js and bin/rails zeitwerk:check pass and script/check_file_sizes reports no file over its limit."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+hitl = false
+risk = "low"
