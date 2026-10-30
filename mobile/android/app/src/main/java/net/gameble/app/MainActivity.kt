@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.widget.FrameLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -27,6 +28,7 @@ class MainActivity : HotwireActivity() {
         setContentView(R.layout.activity_main)
         bottomNavigation = HotwireBottomNavigationController(this, findViewById<BottomNavigationView>(R.id.bottom_navigation))
         bottomNavigation.load(tabs)
+        if (BuildConfig.DEBUG) DebugLogPanel(this).attachTo(findViewById<FrameLayout>(R.id.screens))
         openNotificationPath(intent)
     }
 

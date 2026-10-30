@@ -7,4 +7,6 @@
     <string name="tab_trades">Trades</string>
     <string name="tab_more">More</string>
     <string name="notification_channel">Trades and friends</string>
+    <string name="debug_log_toggle">Logs</string>
+    <string name="debug_log_copy">Copy</string>
 </resources>

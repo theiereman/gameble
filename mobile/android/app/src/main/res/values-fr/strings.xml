@@ -6,4 +6,6 @@
     <string name="tab_trades">Échanges</string>
     <string name="tab_more">Plus</string>
     <string name="notification_channel">Échanges et amis</string>
+    <string name="debug_log_toggle">Logs</string>
+    <string name="debug_log_copy">Copier</string>
 </resources>
