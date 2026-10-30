@@ -292,7 +292,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "1 carte sur 8", css_select("progress.set-album__bar").sole["aria-valuetext"]
   end
 
-  test "an owner's album costs eight queries for a visitor, filtered or not, a signed-in viewer's five more" do
+  test "an owner's album costs eight queries for a visitor, filtered or not, a signed-in viewer's six more" do
     season = publish_sets_draft
     hold(@owner, set_members(season, "rpg").first, 1)
 
@@ -304,9 +304,9 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     sign_in(accounts_players(:moderator))
-    # The same, the viewer's lookup, the top bar's three and the trades
+    # The same, the viewer's lookup, the top bar's four and the trades
     # waiting.
-    assert_request_queries(13) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
+    assert_request_queries(14) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
   end
 
@@ -738,7 +738,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor's profile costs fifteen queries whatever the owner's history, a signed-in viewer's seven more, a showcase one more" do
+  test "a visitor's profile costs fifteen queries whatever the owner's history, a signed-in viewer's eight more, a showcase one more" do
     season = publish_sets_draft
     set_members(season, "horror").last(2).each { |id| hold(@owner, id, 1) }
     unlock("first_booster", 1.day.ago)
@@ -760,21 +760,21 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-achievements .achievement", 4
 
     sign_in(accounts_players(:moderator))
-    # The same, the viewer's lookup and the top bar's three (reserve count,
-    # next pack, copies per tier), the tab bar's trades waiting, and the
-    # viewer's friendship and invitations with the owner.
-    assert_request_queries(22) { get brother_path(locale: :en, token: @owner.token) }
+    # The same, the viewer's lookup and the top bar's four (reserve count,
+    # next pack, copies per tier, rarity legend), the tab bar's trades
+    # waiting, and the viewer's friendship and invitations with the owner.
+    assert_request_queries(23) { get brother_path(locale: :en, token: @owner.token) }
 
     # The chosen cards' views, however many.
     held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)
     held.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
-    assert_request_queries(23) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(24) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase .card", held.size
     assert_response :success
 
     # The owner's move buttons cost nothing more.
     sign_in(@owner)
-    assert_request_queries(21) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(22) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase__moves", held.size
   end
 

@@ -859,15 +859,15 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__phone-back", false
   end
 
-  test "a player's request costs twelve queries, a visitor's six; a frame visit (◀ ▶) skips the top bar's" do
+  test "a player's request costs thirteen queries, a visitor's six; a frame visit (◀ ▶) skips the top bar's" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 2)
     sign_in(player)
 
     # Player lookup, card detail, sets, neighbours, quantities, the
-    # holder's showcase, the pioneer, the share image, and the top bar's three (reserve count, next pack,
-    # copies per tier), and the tab bar's trades waiting.
-    assert_request_queries(12) { get card_path(locale: :en, slug: "portal") }
+    # holder's showcase, the pioneer, the share image, and the top bar's four (reserve count, next pack,
+    # copies per tier, rarity legend), and the tab bar's trades waiting.
+    assert_request_queries(13) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
     assert_equal [ "Copies", "2 copies" ], facts.to_h.assoc("Copies")
     assert_select "#share-sheet"
@@ -887,17 +887,17 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     pack = create_pack(player, cards: fixture_tier_ids, opened_at: 1.minute.ago)
     sign_in(player)
 
-    # The ten, the set's neighbours replaced by the pack and its two
+    # The eleven, the set's neighbours replaced by the pack and its two
     # neighbours' cards.
-    assert_request_queries(12) { get pack_detail("blue-depths", pack, slot: 3) }
+    assert_request_queries(13) { get pack_detail("blue-depths", pack, slot: 3) }
     assert_equal "S1 · #3 · 3 / 5 · swipe to browse", position
 
     # The set's neighbours replaced by the published season, the grid's
     # genres, the grid's cards in order and its two neighbours' cards,
     # whether a state is asked or not.
-    assert_request_queries(14) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "" }) }
+    assert_request_queries(15) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "" }) }
     assert_select ".card-detail__nav", 2
-    assert_request_queries(14) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "", state: %w[all] }) }
+    assert_request_queries(15) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "", state: %w[all] }) }
   end
 
   # The row of a card whose fixture pioneer is the banned player.

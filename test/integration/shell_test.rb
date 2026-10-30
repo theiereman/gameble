@@ -162,12 +162,7 @@ class ShellTest < ActionDispatch::IntegrationTest
       assert_equal %w[3 0 0 1 0], css_select(".rarity-counter__count").map { it.text.strip }
       assert_select ".visually-hidden", /Rarities/
     end
-    assert_select "#rarity-legend[popover]" do
-      assert_select ".shell-popover__title", "Rarities"
-      assert_select "li.rarity-legend__row", 5
-      assert_equal [ "Common", "Uncommon", "Rare", "Epic", "Legendary" ], css_select(".rarity-legend__name").map(&:text)
-      assert_equal %w[3 0 0 1 0], css_select(".rarity-legend__count").map(&:text)
-    end
+    assert_rarity_legend(names: [ "Common", "Uncommon", "Rare", "Epic", "Legendary", "Total" ], locale: :en)
 
     assert_select ".top-bar__end a.packs-chip[href='/en/booster'][data-turbo-prefetch=false]" do
       assert_select "svg.pixel-icon.packs-chip__icon"
@@ -194,6 +189,46 @@ class ShellTest < ActionDispatch::IntegrationTest
       assert_select "form button.player-menu__item", "Sign out"
     end
     assert_select ".top-bar form[action='/auth/steam']", false
+  end
+
+  def assert_rarity_legend(names:, locale:)
+    assert_select "#rarity-legend[popover][aria-labelledby=rarity-legend-title]", 1
+    assert_select "#rarity-legend .shell-popover__title#rarity-legend-title", locale == :en ? "Rarities" : "Raretés"
+    assert_select "#rarity-legend table.rarity-legend__table" do
+      assert_select "thead th[scope=col]", 3
+      assert_select "tbody tr.rarity-legend__row", 5
+      assert_select "tfoot tr.rarity-legend__row--totals", 1
+      assert_equal names, css_select("th[scope=row] .rarity-legend__name").map { it.text.strip }
+      assert_equal %w[common uncommon rare epic legendary].map { "/#{locale}/library/cards?rarity%5B%5D=#{it}" },
+        css_select("tbody th[scope=row] a.rarity-legend__link").map { it["href"] }
+      shown = css_select("tbody tr, tfoot tr").map { |row| css_select(row, "td > [aria-hidden=true]").map { it.text.squish } }
+      assert_equal [ [ "1 / 1", "1 / 1" ], [ "0 / 1", "0 / 1" ], [ "0 / 1", "0 / 1" ], [ "1 / 1", "1 / 1" ], [ "0 / 1", "0 / 1" ], [ "2 / 5", "2 / 5" ] ], shown
+    end
+    assert_select "#rarity-legend [data-rarity-counter-target]", false
+  end
+
+  test "the rarity legend: owned editions against the game's, this season and over every season, each rarity a link to its cards" do
+    player = accounts_players(:player)
+    hold(player, catalog_card_seasons(:common_card_one).id, 3)
+    hold(player, catalog_card_seasons(:portal_one).id, 1)
+    sign_in(player)
+
+    get home_path(locale: :en)
+
+    assert_select ".rarity-counter button.rarity-counter__button[popovertarget=rarity-legend] + #rarity-legend"
+    assert_rarity_legend(names: [ "Common", "Uncommon", "Rare", "Epic", "Legendary", "Total" ], locale: :en)
+    assert_equal [ "Rarity", "This season", "All seasons" ], css_select("#rarity-legend thead th").map { it.text.strip }
+    assert_select "#rarity-legend tbody tr:first-child td .visually-hidden", "1 of 1 owned"
+
+    get library_cards_path(locale: :fr)
+
+    assert_select ".top-bar .rarity-counter", false
+    assert_select ".top-bar__end > button.collection-status[type=button][popovertarget=rarity-legend] + #rarity-legend"
+    assert_rarity_legend(names: [ "Commune", "Peu commune", "Rare", "Épique", "Légendaire", "Total" ], locale: :fr)
+    assert_equal [ "Rareté", "Cette saison", "Toutes saisons" ], css_select("#rarity-legend thead th").map { it.text.strip }
+    assert_select "#rarity-legend tbody tr:first-child td .visually-hidden", "1 sur 1 possédée"
+    assert_select "#rarity-legend tbody tr:nth-child(2) td .visually-hidden", "0 sur 1 possédée"
+    assert_select "#rarity-legend tfoot td .visually-hidden", "2 sur 5 possédées"
   end
 
   test "a screen without a back button: the wordmark links to the hub on a desktop, the plain brand on a phone, each sweeping on hover" do

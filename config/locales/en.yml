@@ -2295,8 +2295,16 @@ en:
       settings: Settings
       sign_out: Sign out
     rarity:
+      columns:
+        overall: All seasons
+        rarity: Rarity
+        season: This season
+      figure:
+        one: "%{owned} of %{total} owned"
+        other: "%{owned} of %{total} owned"
       label: Rarities
       legend: Rarities
+      totals: Total
     screens:
       achievements: Achievements
       back_office: Back-office

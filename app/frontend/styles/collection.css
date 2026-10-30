@@ -140,15 +140,29 @@
   flex-shrink: 0;
 }
 
+/* A button: it opens the rarity legend, as the rarity counter does. */
 .collection-status {
   display: flex;
   align-items: center;
   gap: var(--space-4);
   min-width: 0;
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  border: 0;
+  background: none;
   color: var(--color-muted);
   font: var(--font-body);
   letter-spacing: var(--tracking-body);
   white-space: nowrap;
+  cursor: pointer;
+}
+
+.collection-status:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.collection-status:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
 }
 
 .collection-status__value {

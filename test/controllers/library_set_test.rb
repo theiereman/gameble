@@ -335,7 +335,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".collection-pages a[rel=prev][href=?]", "/fr/library/theme/roguelike?page=3"
   end
 
-  test "an album of 752 cards costs the same queries as one of three: eleven for a player" do
+  test "an album of 752 cards costs the same queries as one of three: twelve for a player" do
     season, cards = published_cards(755)
     insert_theme(cards.first(752), key: "roguelike", season:)
     insert_theme(cards.last(3), key: "horror", season:)
@@ -345,18 +345,18 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
 
     # Player lookup, published season; the album: its set, members and
     # tiers, the player's editions, the page's card views; the top bar's
-    # unique cards and season's cards; the tab bar's trades waiting; the
-    # themes' names.
-    assert_request_queries(11) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
+    # unique cards, season's cards and rarity legend; the tab bar's trades
+    # waiting; the themes' names.
+    assert_request_queries(12) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
     assert_response :success
     assert_select ".set-album__grid > li", 60
     assert_select ".collection-pages"
     assert_equal "400/752", count
 
-    assert_request_queries(11) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
+    assert_request_queries(12) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
     assert_equal "1/3", count
 
-    assert_request_queries(11) { get library_set_path(locale: :en, kind: "theme", key: "roguelike", state: [ "missing" ], rarity: [ "common" ], q: "seed") }
+    assert_request_queries(12) { get library_set_path(locale: :en, kind: "theme", key: "roguelike", state: [ "missing" ], rarity: [ "common" ], q: "seed") }
     assert_response :success
     assert_select ".set-album__grid > li", 60
     assert_equal "400/752", count

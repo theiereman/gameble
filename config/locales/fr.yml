@@ -72,6 +72,15 @@ fr:
     rarity:
       label: "Raretés"
       legend: "Raretés"
+      columns:
+        rarity: "Rareté"
+        season: "Cette saison"
+        overall: "Toutes saisons"
+      totals: "Total"
+      figure:
+        zero: "%{owned} sur %{total} possédée"
+        one: "%{owned} sur %{total} possédée"
+        other: "%{owned} sur %{total} possédées"
     packs:
       label: "Capsules"
       next_in: "+1 dans"

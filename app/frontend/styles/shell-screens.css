@@ -194,7 +194,9 @@ html[data-sub-view-step] .main {
 
   .rarity-counter__button,
   .packs-chip,
-  .player-chip__button {
+  .player-chip__button,
+  .collection-status,
+  .rarity-legend__link {
     min-height: var(--space-chip-height-touch);
   }
 
