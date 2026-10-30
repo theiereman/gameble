@@ -228,7 +228,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:**
     - A player holds up to five active goals at once, among the game's sets and their own custom sets, the Steam library set excepted, and changes them freely (#64, author, 2026-10-30).
     - Each goal shows its progress, and its missing cards are highlighted wherever the collection shows them.
-    - The bridge shows the player's goals. The profile shows their goals on game sets, under its visibility (CAP-8); a goal on a custom set never shows there (author, 2026-10-30).
+    - The profile shows the player's goals on game sets, under its visibility (CAP-8); a goal on a custom set never shows there. The bridge shows no goals (author, 2026-10-30).
     - Goals never change draw odds nor guarantee a card: pack draws are the same with or without goals.
 
 ## Constraints

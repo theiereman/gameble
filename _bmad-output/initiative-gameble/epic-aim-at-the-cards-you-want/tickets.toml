@@ -119,13 +119,25 @@ risk = "medium"
 [[entry]]
 id = 11
 type = "story"
-title = "Goals show on the bridge, and on the profile for game sets only"
-description = "The bridge shows the player's goals with their progress; the profile shows the goals on game sets under its visibility, and never a goal on a custom set."
-verify = "The bridge lists every goal; a public profile shows the game set goals to a visitor, hides them when private, and never names a custom set; controller and system tests cover it."
+title = "Goals show on the profile, for game sets only"
+description = "The profile shows the player's goals on game sets under its visibility, and never a goal on a custom set; the bridge shows no goals."
+verify = "A public profile shows the game set goals to a visitor, hides them when private, and never names a custom set; controller and system tests cover it."
 covers = ["E3"]
 after = [9]
 hitl = false
 risk = "medium"
+
+[[entry]]
+id = 13
+type = "story"
+title = "The community weekly goal is called the weekly mission everywhere a player reads it"
+description = "Every player-facing mention of the community weekly goal (its panel, OBJECTIF COMMUNAUTAIRE, OBJECTIF ATTEINT, RÉCOMPENSE D'OBJECTIF, the landing's 'Un objectif pour tous', notices, toasts, the how-it-works page, the roadmap and achievement texts) takes the mission wording of the design in French and English, so 'objectif' names only the player's goals; code names and stored data stay as they are."
+verify = "A search of en.yml, fr.yml and the views finds no player-facing 'objectif' or 'goal' left for the weekly mission; the hub, landing and capsule system tests read the new wording; i18n-tasks missing and unused are clean."
+covers = ["E3"]
+after = [2]
+hitl = false
+risk = "low"
+notes = ["Rename everything (author, 2026-10-30)."]
 
 [[entry]]
 id = 12
@@ -134,6 +146,6 @@ title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full suite, packwerk, the linters and the size checks pass, and no behavior changes."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13]
 hitl = false
 risk = "low"
