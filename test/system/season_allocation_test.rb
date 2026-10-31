@@ -84,7 +84,7 @@ class SeasonAllocationTest < ApplicationSystemTestCase
 
     assert_selector ".allocation-row--back", count: 1
     assert_selector ".allocation-row--back .back-picker__image"
-    assert_selector ".allocation-row--back .allocation-row__how", text: "Take part in the community goal."
+    assert_selector ".allocation-row--back .allocation-row__how", text: "Take part in the weekly mission."
     assert_no_sideways_scroll
   end
 end

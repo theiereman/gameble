@@ -187,15 +187,15 @@ fr:
         next_in: "Prochaine dans"
         next_at: "Prochaine capsule : %{time}"
       goal:
-        title: "Objectif communautaire"
+        title: "Mission hebdo"
         line: "La Confrérie invite ses membres à unir leurs efforts pour ouvrir %{target} capsules cette semaine."
         players: "Tous les joueurs"
         progress: "%{total} contributions sur %{target} cette semaine"
         reward: "Récompense"
         reward_text: "Une capsule rare pour chaque contributeur"
-        reached: "Objectif atteint"
-        previous_reached: "Semaine dernière : %{total} / %{target} · objectif atteint"
-        previous_missed: "Semaine dernière : %{total} / %{target} · objectif manqué"
+        reached: "Mission accomplie"
+        previous_reached: "Semaine dernière : %{total} / %{target} · mission accomplie"
+        previous_missed: "Semaine dernière : %{total} / %{target} · mission manquée"
         collect: "Récupérer"
         collect_label: "Récupérer la capsule de récompense"
         collected: "Récupérée"
@@ -273,7 +273,7 @@ fr:
           intro: "Pour faire fonctionner le jeu, Gameble conserve :"
           steam: "votre identifiant Steam et votre nom de profil Steam ;"
           identities: "vos modes de connexion : Steam, Discord, Google ou code par e-mail, chacun avec son identifiant chez ce fournisseur, la date de son ajout et, pour les trois derniers, une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
-          activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de l'objectif communautaire, échanges, amitiés, invitations, code ami, entrées du fil d'activité et dernière activité ;"
+          activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de la mission hebdo, échanges, amitiés, invitations, code ami, entrées du fil d'activité et dernière activité ;"
           moderation: "les signalements que vous faites, ceux qui visent votre profil (leur auteur ne vous est pas communiqué) et les décisions de modération qui vous concernent, avec leur motif ;"
           settings: "vos réglages (visibilité du profil, animations réduites) ;"
           last_seen: "la date de création de votre compte, l'heure de votre dernière visite, et votre dernier export de données (son fichier et son heure), gardé jusqu'à l'export suivant ;"
@@ -307,8 +307,8 @@ fr:
           logs: "les journaux du serveur : 30 jours ;"
           errors: "les erreurs techniques reçues par Sentry : 30 jours ;"
           backups: "les sauvegardes de la base de données, chiffrées et conservées en France : les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal ; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué ;"
-          leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à l'objectif communautaire, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
-        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos bonus du jour, vos récompenses de l'objectif communautaire, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à l'objectif communautaire, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
+          leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à la mission hebdo, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
+        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos bonus du jour, vos récompenses de la mission hebdo, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à la mission hebdo, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
         rights:
           intro: "Vous pouvez accéder à vos données, les faire rectifier ou effacer, en limiter le traitement, vous opposer à un traitement fondé sur l'intérêt légitime et en recevoir une copie réutilisable. Vous pouvez aussi indiquer ce que deviennent vos données après votre décès. Nous répondons sous un mois."
           access: "accès : depuis les paramètres, avec « Exporter » dans « Mes données », qui télécharge une copie de vos données dans un fichier réutilisable, vos modes de connexion compris ;"
@@ -360,7 +360,7 @@ fr:
           one: "Une capsule contient %{count} carte. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
           other: "Une capsule contient %{count} cartes. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
         bonus: "La capsule quotidienne a de meilleures chances et ne contient jamais de carte %{common} :"
-        reward: "La capsule de récompense de l'objectif communautaire :"
+        reward: "La capsule de récompense de la mission hebdo :"
         forced: "Si elle ne contient aucune carte %{rarity} ou mieux, l'une de ses cartes, au hasard, est remplacée par une carte tirée avec ces chances :"
         rarity: "Rareté"
         chance: "Chance par carte"
@@ -390,14 +390,14 @@ fr:
         outside: "Elle s'ajoute aux capsules standard, sans compter dans leur limite et sans les retarder."
         special: "Elle rejoint votre réserve spéciale, qui n'a pas de limite : elle n'est jamais refusée, même quand votre réserve standard est pleine."
       goal:
-        title: "L'objectif communautaire"
-        week: "Chaque semaine, pendant sept jours à partir du %{time}, tous les joueurs visent ensemble un même objectif."
+        title: "La mission hebdo"
+        week: "Chaque semaine, pendant sept jours à partir du %{time}, tous les joueurs mènent ensemble une même mission."
         counts: "Chaque capsule ouverte y compte, de même que chaque échange conclu, qui fait des deux joueurs des contributeurs."
         # French keeps the singular for 0, which the plural rule here does not.
         reward:
-          zero: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
-          one: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
-          other: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} cartes, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
+          zero: "Si la mission est accomplie, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
+          one: "Si la mission est accomplie, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
+          other: "Si la mission est accomplie, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} cartes, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
       seasons:
         title: "Les saisons"
         frozen: "Une saison est tirée de Steam. Dès sa publication, la rareté, le numéro et les sets de chacune de ses cartes sont figés : ils ne changent plus pendant la saison."
@@ -1020,7 +1020,7 @@ fr:
       achievement: "Débloquez le succès correspondant."
       always: "Tous les joueurs l'ont."
       event: "Offert à celles et ceux qui ont participé à l'événement."
-      goal: "Participez à l'objectif communautaire."
+      goal: "Participez à la mission hebdo."
       set_tier: "Réunissez la moitié du set %{set}."
     names:
       aurore: "Aurore"
@@ -1154,7 +1154,7 @@ fr:
     open_next: "Ouvrir la suivante"
     origin:
       bonus: "CAPSULE QUOTIDIENNE"
-      reward: "RÉCOMPENSE D'OBJECTIF"
+      reward: "RÉCOMPENSE DE MISSION"
     origin_label: "Origine"
     reserves:
       label: "Réserves de capsules"
@@ -1184,7 +1184,7 @@ fr:
     strings:
       origin_bonus: "CAPSULE QUOTIDIENNE"
       origin_opening: "EN OUVERTURE · %{origin}"
-      origin_reward: "RÉCOMPENSE D'OBJECTIF"
+      origin_reward: "RÉCOMPENSE DE MISSION"
       special_arrived: "Une capsule spéciale est arrivée."
       standard_ready: "Une capsule standard est prête."
       tab_special: "SPÉCIALES · %{n}"
@@ -1745,8 +1745,8 @@ fr:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de l'objectif communautaire, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
-      kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à l'objectif communautaire, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
+      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à la mission hebdo, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
       submit: "Supprimer définitivement"
@@ -1793,7 +1793,7 @@ fr:
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   goal_rewards:
     create:
-      title: "Objectif atteint"
+      title: "Mission accomplie"
       collected: "La Direction vous remercie pour votre participation. Une capsule rare a rejoint votre réserve."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   roadmaps:
@@ -1863,10 +1863,10 @@ fr:
           link: "Participer à l'écriture"
         goal:
           kicker: "Cette semaine"
-          title: "Un objectif pour tous"
+          title: "Une mission pour tous"
           text: "Chaque capsule ouverte et chaque échange conclu font avancer la même jauge."
-          reached: "Objectif atteint : tous les participants sont récompensés."
-          ends: "Fin %{time}. Le prochain objectif s'ouvre aussitôt."
+          reached: "Mission accomplie : tous les participants sont récompensés."
+          ends: "Fin %{time}. La prochaine mission s'ouvre aussitôt."
           local_time: ", heure locale"
           participants:
             zero: "%{count} participant"
@@ -1927,7 +1927,7 @@ fr:
       unlock:
         label: "05 · À faire et à débloquer"
         title: "De quoi remplir la soute"
-        subtitle: "Des sets à compléter, des amis avec qui échanger, un objectif commun chaque semaine."
+        subtitle: "Des sets à compléter, des amis avec qui échanger, une mission commune chaque semaine."
         soon: "Bientôt"
         tiles:
           sets:
@@ -1942,8 +1942,8 @@ fr:
             gives: "Léa donne"
             you_give: "Vous donnez"
           goal:
-            title: "Objectif communautaire"
-            text: "Chaque lundi, un nouvel objectif pour toute la Confrérie. Chaque capsule ouverte et chaque échange comptent."
+            title: "Mission hebdo"
+            text: "Chaque lundi, une nouvelle mission pour toute la Confrérie. Chaque capsule ouverte et chaque échange comptent."
             week: "Semaine 41"
             reached: "Atteint"
             reward: "Chaque participant a reçu une capsule avec au moins une Épique."
@@ -1957,7 +1957,7 @@ fr:
             to_earn: "À obtenir"
           backs:
             title: "Dos de cartes"
-            text: "Vos cartes face cachée portent le dos de votre choix. Remplissez des objectifs pour en débloquer de nouveaux."
+            text: "Vos cartes face cachée portent le dos de votre choix. Accomplissez des missions pour en débloquer de nouveaux."
           collection:
             title: "Collection"
             text: "Voyez en un coup d'œil les cartes qui vous manquent pour compléter votre collection."

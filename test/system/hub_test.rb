@@ -63,6 +63,7 @@ class HubTest < ApplicationSystemTestCase
     sign_in_with_showcase_and_sets
 
     assert_selector ".hub-menu .menu-item", count: 9
+    assert_selector "#community-goal .hub-goal__title", text: /\AWeekly mission\z/i
     assert_operator rect(".hub-menu")[:left], :<, rect(".hub-showcase")[:left]
     assert_operator rect(".hub-showcase")[:left], :<, rect("#community-goal")[:left]
     assert_stacked(".hub-menu", ".hub-sets")

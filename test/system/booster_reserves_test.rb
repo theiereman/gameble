@@ -56,7 +56,7 @@ class BoosterReservesTest < ApplicationSystemTestCase
     assert_no_selector "#booster[data-origin]"
     find(tab(:special)).click
     assert_selector "#booster[data-origin=reward]"
-    assert_selector ".booster__origin", text: "GOAL REWARD"
+    assert_selector ".booster__origin", text: "MISSION REWARD"
     find(tab(:standard)).click
     assert_no_selector "#booster[data-origin]"
   end
@@ -67,7 +67,7 @@ class BoosterReservesTest < ApplicationSystemTestCase
 
     assert_selector "#{tab(:special)}[aria-selected=true]"
     assert_selector "#{tab(:standard)}[disabled]", text: /No standard capsule yet/
-    assert_selector ".booster__origin", text: "GOAL REWARD"
+    assert_selector ".booster__origin", text: "MISSION REWARD"
     assert_selector ".booster-canister"
   end
 

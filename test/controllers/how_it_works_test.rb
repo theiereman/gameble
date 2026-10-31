@@ -9,12 +9,12 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
 
   FRENCH_HEADINGS = [
     "Quels jeux deviennent des cartes", "La rareté", "Capsules et probabilités", "Le rythme des capsules",
-    "La capsule quotidienne", "L'objectif communautaire", "Les saisons", "Les sets", "Compléter un set"
+    "La capsule quotidienne", "La mission hebdo", "Les saisons", "Les sets", "Compléter un set"
   ].freeze
 
   ENGLISH_HEADINGS = [
     "Which games become cards", "Rarity", "Capsules and odds", "The pace of capsules",
-    "The daily capsule", "The community goal", "Seasons", "Sets", "Completing a set"
+    "The daily capsule", "The weekly mission", "Seasons", "Sets", "Completing a set"
   ].freeze
 
   # `parts` out of `whole` as a percent with at most two decimals, written

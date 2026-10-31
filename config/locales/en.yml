@@ -9,13 +9,13 @@ en:
       cancel: Cancel
       close: Close
       kept: 'Kept, without your Steam id or your name: your past trades, your first
-        discoveries, your contributions to the community goal, reports, the moderation
+        discoveries, your contributions to the weekly mission, reports, the moderation
         history and the log of game actions. This cannot be undone.'
       label: Type %{word} to confirm
       note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), your name, your profile and its link,
         the time of your last visit, your last data export and your latest activity,
         your collection, your showcase, your set tiers, your achievements, your
-        card back unlocks and your active card back, your capsules, opened or not, your daily bonuses and your community goal rewards,
+        card back unlocks and your active card back, your capsules, opened or not, your daily bonuses and your weekly mission rewards,
         your friends, your invitations and your friend code, and your activity feed
         entries: pulls, discoveries, reposts and every trade that names you. Your
         open trades will be cancelled.'
@@ -559,7 +559,7 @@ en:
     open_next: Open the next one
     origin:
       bonus: DAILY CAPSULE
-      reward: GOAL REWARD
+      reward: MISSION REWARD
     origin_label: Origin
     reserves:
       empty_special: No special capsule yet
@@ -652,7 +652,7 @@ en:
       reposted: Card reposted to the feed.
       origin_bonus: DAILY CAPSULE
       origin_opening: 'OPENING · %{origin}'
-      origin_reward: GOAL REWARD
+      origin_reward: MISSION REWARD
       reserve_count:
         one: "%{n} capsule"
         other: "%{n} capsules"
@@ -686,7 +686,7 @@ en:
       achievement: Unlock the matching achievement.
       always: Every player has it.
       event: Given to those who took part in the event.
-      goal: Take part in the community goal.
+      goal: Take part in the weekly mission.
       set_tier: Collect half of the %{set} set.
     names:
       aurore: Dawn
@@ -1134,7 +1134,7 @@ en:
       collected: Management thanks you for your contribution. A rare capsule has been
         added to your reserve.
       throttled: Too many attempts in a minute. Try again in a moment.
-      title: Goal reached
+      title: Mission accomplished
   invitations:
     cancelled: Invitation cancelled.
     new_friend:
@@ -1167,16 +1167,16 @@ en:
         title: Ten capsules await you
       brotherhood:
         goal:
-          ends: Ends %{time}. The next goal opens right away.
+          ends: Ends %{time}. The next mission opens right away.
           kicker: This week
           local_time: ", local time"
           participants:
             one: "%{count} participant"
             other: "%{count} participants"
             zero: "%{count} participants"
-          reached: 'Goal reached: every participant is rewarded.'
+          reached: 'Mission accomplished: every participant is rewarded.'
           text: Every capsule opened and every trade concluded moves the same gauge.
-          title: One goal for all
+          title: One mission for all
         label: 02 · The Brotherhood
         lore:
           call: The rest is written with you. The Brotherhood is looking for narrators
@@ -1352,7 +1352,7 @@ en:
       unlock:
         label: 05 · To do and to unlock
         soon: Soon
-        subtitle: Sets to complete, friends to trade with, a shared goal every week.
+        subtitle: Sets to complete, friends to trade with, a shared mission every week.
         tiles:
           achievements:
             first_legendary: First Legendary
@@ -1364,7 +1364,7 @@ en:
             title: Achievements
             to_earn: To earn
           backs:
-            text: Your face-down cards wear the back of your choice. Meet goals to
+            text: Your face-down cards wear the back of your choice. Complete missions to
               unlock new ones.
             title: Card backs
           collection:
@@ -1374,9 +1374,9 @@ en:
           goal:
             reached: Reached
             reward: Every participant received a capsule with at least one Epic.
-            text: Every Monday, a new goal for the whole Brotherhood. Every capsule
+            text: Every Monday, a new mission for the whole Brotherhood. Every capsule
               opened and every trade counts.
-            title: Community goal
+            title: Weekly mission
             week: Week 41
           sets:
             complete: Dark Souls
@@ -1606,13 +1606,13 @@ en:
         line: The Brotherhood invites its members to join forces and open %{target}
           capsules this week.
         players: All players
-        previous_missed: 'Last week: %{total} / %{target} · goal missed'
-        previous_reached: 'Last week: %{total} / %{target} · goal reached'
+        previous_missed: 'Last week: %{total} / %{target} · mission missed'
+        previous_reached: 'Last week: %{total} / %{target} · mission accomplished'
         progress: "%{total} contributions of %{target} this week"
-        reached: Goal reached
+        reached: Mission accomplished
         reward: Reward
         reward_text: A rare capsule for every contributor
-        title: Community goal
+        title: Weekly mission
       kicker:
         title: Command bridge
       menu:
@@ -1690,14 +1690,14 @@ en:
         counts: Every capsule opened counts toward it, and so does every completed
           trade, which makes both players contributors.
         reward:
-          one: 'When the goal is reached, every player who contributed earns a reward
+          one: 'When the mission is accomplished, every player who contributed earns a reward
             capsule: %{count} card, at least one of them %{rarity} or better. If you
             contributed, you collect it on the hub and it joins your special reserve.'
-          other: 'When the goal is reached, every player who contributed earns a reward
+          other: 'When the mission is accomplished, every player who contributed earns a reward
             capsule: %{count} cards, at least one of them %{rarity} or better. If
             you contributed, you collect it on the hub and it joins your special reserve.'
-        title: The community goal
-        week: Every week, for seven days from %{time}, all players aim at one goal
+        title: The weekly mission
+        week: Every week, for seven days from %{time}, all players take on one mission
           together.
       intro: The rules of the game, as it applies them.
       local_time: ", local time"
@@ -1718,7 +1718,7 @@ en:
           other: 'A capsule holds %{count} cards. Each card is drawn on its own: first
             its rarity, with the odds below, then a game of that rarity. The same
             card can therefore come up more than once.'
-        reward: 'The community goal''s reward capsule:'
+        reward: 'The weekly mission''s reward capsule:'
         tables:
           bonus: Daily capsule
           epic_or_better: Replacement card
@@ -1828,11 +1828,11 @@ en:
         deletion: When you delete your account, your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address, which is deleted there too), your profile name,
           the time of your last visit, your last data export, your latest activity,
           your collection, your showcase, your set tiers, your achievements, your
-          card back unlocks and your choice of active card back, your capsules, your daily bonuses, your community goal rewards, your friendships,
+          card back unlocks and your choice of active card back, your capsules, your daily bonuses, your weekly mission rewards, your friendships,
           your invitations, your friend code and your activity feed entries are erased,
           your open trades are cancelled and your profile disappears. What also concerns
           other players, the community or moderation (past trades, first discoveries,
-          contributions to the community goal, reports, moderation history, the log
+          contributions to the weekly mission, reports, moderation history, the log
           of game actions) is kept without your Steam id or your name, for the periods
           given above.
         nothing_else: No analytics, no ads, no real money. Your data is neither sold
@@ -1868,7 +1868,7 @@ en:
           intro: 'How long your data is kept:'
           leftovers: 'what a deleted account leaves behind that concerns other players
             or the community (past trades, first discoveries, contributions to the
-            community goal, the log of game actions): as long as the game exists,
+            weekly mission, the log of game actions): as long as the game exists,
             without a Steam id or a name.'
           logs: 'the server''s logs: 30 days;'
           moderation: 'the moderation history, reasons included: a ban as long as
@@ -1926,8 +1926,8 @@ en:
           steam: Steam (Valve) handles sign-in and provides your profile name;
         stored:
           activity: 'your game activity: card collection, showcase, set tiers, achievements,
-            card back unlocks and active card back, capsules, daily bonuses, community
-            goal rewards, trades, friendships, invitations, friend code, activity feed
+            card back unlocks and active card back, capsules, daily bonuses, weekly
+            mission rewards, trades, friendships, invitations, friend code, activity feed
             entries and latest activity;'
           identities: 'your sign-in methods: Steam, Discord, Google or an email code, each
             with its identifier at that provider, the date it was added and, for the

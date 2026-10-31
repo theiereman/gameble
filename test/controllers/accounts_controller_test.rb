@@ -54,7 +54,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "game_achievement_unlocks" => { fr: [ "vos succès" ], en: [ "your achievements" ] },
     "game_packs" => { fr: [ "vos capsules, ouvertes ou non" ], en: [ "your capsules, opened or not" ] },
     "game_daily_bonus_claims" => { fr: [ "vos bonus du jour" ], en: [ "your daily bonuses" ] },
-    "game_goal_rewards" => { fr: [ "vos récompenses de l'objectif communautaire" ], en: [ "your community goal rewards" ] },
+    "game_goal_rewards" => { fr: [ "vos récompenses de la mission hebdo" ], en: [ "your weekly mission rewards" ] },
     "game_friendships" => { fr: [ "vos amis" ], en: [ "your friends" ] },
     "game_invitations" => { fr: [ "vos invitations" ], en: [ "your invitations" ] },
     "game_friend_codes" => { fr: [ "votre code ami" ], en: [ "your friend code" ] },
@@ -66,7 +66,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
   KEPT = {
     "game_trades" => { fr: [ "vos échanges passés" ], en: [ "your past trades" ] },
     "game_first_discoveries" => { fr: [ "vos premières découvertes" ], en: [ "your first discoveries" ] },
-    "game_weekly_contributions" => { fr: [ "vos contributions à l'objectif communautaire" ], en: [ "your contributions to the community goal" ] },
+    "game_weekly_contributions" => { fr: [ "vos contributions à la mission hebdo" ], en: [ "your contributions to the weekly mission" ] },
     "accounts_reports" => { fr: [ "les signalements" ], en: [ "reports" ] },
     "accounts_moderation_actions" => { fr: [ "l'historique de modération" ], en: [ "the moderation history" ] },
     "event_store_events" => { fr: [ "le journal des actions du jeu" ], en: [ "the log of game actions" ] }

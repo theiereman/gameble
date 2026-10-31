@@ -101,6 +101,21 @@ class LandingPowerOnTest < ApplicationSystemTestCase
     assert_equal "0px", drift("near")
   end
 
+  test "the Brotherhood's panel and the unlock tile call the weekly community gauge a mission" do
+    visit home_path(locale: :en)
+    scroll_to_module("landing-brotherhood")
+    assert_selector ".landing-module[data-power=on]:has(#landing-brotherhood)"
+    assert_selector ".landing-goal .landing-panel-title", text: /\AOne mission for all\z/i
+    assert_selector ".landing-goal .landing-goal__end", text: /The next mission opens right away\./
+
+    scroll_to_module("landing-unlock")
+    assert_selector ".landing-tile-title", text: /\AWeekly mission\z/i
+
+    scroll_to_module("landing-boarding")
+    assert_no_selector ".landing-module[data-power=armed]", visible: :all
+    assert_no_text(/goal/i)
+  end
+
   test "scrolling moves the star layers by a share of the scroll" do
     visit home_path(locale: :en)
     page.execute_script("window.scrollTo(0, 1000)")

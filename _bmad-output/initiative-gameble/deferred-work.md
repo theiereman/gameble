@@ -469,3 +469,7 @@
 ## Deferred from: the author, in conversation (2026-10-29)
 
 - A ticket is to be written to rework the layout of the personalization page (`epic-personalization/story-the-personalization-page-plan.md`). The author has not said yet what to change: ask them before writing it, and build nothing from this entry alone. Settled (2026-10-30, author): picking a back becomes simpler and each back says how it was earned; planned in `epic-more-achievements-and-easy-card-backs/` (requirement E5).
+
+## Deferred from: build of story-the-community-weekly-goal-is-called-the-weekly-mission-every-plan (2026-10-31)
+
+- The roadmap's milestones and stories are stored data the author writes in the back office (French and English wording per story), so the rename left them untouched. If one of them names "l'objectif communautaire" / "the community goal", the author rewords it to the weekly mission ("la mission hebdo" / "the weekly mission") from the back office's roadmap pages.

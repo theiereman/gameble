@@ -482,20 +482,20 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#community-goal .hub-goal__line", text: /\ALa Confrérie invite ses membres à unir leurs efforts pour ouvrir 50[\s\u00a0\u202f]000 capsules cette semaine\.\z/
   end
 
-  test "a reached goal reads Objectif atteint with a full gauge, in both languages" do
+  test "a reached goal reads Mission accomplie with a full gauge, in both languages" do
     week = Game::WeeklyGoal.week_start(Time.current)
     Game::WeeklyGoal.create!(week_start: week, total: 210, target: 200)
     sign_in(accounts_players(:moderator))
 
     get home_path(locale: :en)
-    assert_select "#community-goal .hub-goal__status", text: "Goal reached"
+    assert_select "#community-goal .hub-goal__status", text: "Mission accomplished"
     assert_select "#community-goal .hub-goal__figures", text: "210 / 200"
     assert_select "#community-goal .hub-goal__segment--lit", count: 24
     assert_select "#community-goal .hub-goal__previous", false
 
     sign_in(@player, origin: "/fr")
     get home_path(locale: :fr)
-    assert_select "#community-goal .hub-goal__status", text: "Objectif atteint"
+    assert_select "#community-goal .hub-goal__status", text: "Mission accomplie"
     assert_select "#community-goal .hub-goal__segment--lit", count: 24
   end
 
@@ -509,11 +509,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#community-goal .hub-goal__status", false
     assert_select "#community-goal .hub-goal__figures", text: "0 / 250"
     assert_select "#community-goal .hub-goal__segment--lit", count: 0
-    assert_select "#community-goal .hub-goal__previous", text: "Semaine dernière : 180 / 200 · objectif manqué"
+    assert_select "#community-goal .hub-goal__previous", text: "Semaine dernière : 180 / 200 · mission manquée"
 
     Game::WeeklyGoal.where(week_start: week - 7).update_all(total: 260)
     get home_path(locale: :en)
-    assert_select "#community-goal .hub-goal__previous", text: "Last week: 260 / 200 · goal reached"
+    assert_select "#community-goal .hub-goal__previous", text: "Last week: 260 / 200 · mission accomplished"
   end
 
   def earn_goal_reward(player = @player)
@@ -898,9 +898,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     configure_legal
     erased = {
       fr: [ "votre dernière activité", "votre collection", "votre vitrine", "vos paliers de sets", "vos succès", "vos capsules", "vos bonus du jour",
-            "vos récompenses de l'objectif communautaire", "vos amitiés", "vos invitations", "votre code ami", "vos entrées du fil d'activité" ],
+            "vos récompenses de la mission hebdo", "vos amitiés", "vos invitations", "votre code ami", "vos entrées du fil d'activité" ],
       en: [ "your latest activity", "your collection", "your showcase", "your set tiers", "your achievements", "your capsules", "your daily bonuses",
-            "your community goal rewards", "your friendships", "your invitations", "your friend code", "your activity feed entries" ]
+            "your weekly mission rewards", "your friendships", "your invitations", "your friend code", "your activity feed entries" ]
     }
 
     erased.each do |locale, phrases|
@@ -916,9 +916,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     configure_legal
     game_data = {
       fr: [ "collection", "vitrine", "paliers de sets", "succès", "dos de carte débloqués", "dos de carte actif", "capsules", "bonus du jour",
-            "récompenses de l'objectif communautaire", "amitiés", "invitations", "code ami", "entrées du fil d'activité", "dernière activité" ],
+            "récompenses de la mission hebdo", "amitiés", "invitations", "code ami", "entrées du fil d'activité", "dernière activité" ],
       en: [ "collection", "showcase", "set tiers", "achievements", "card back unlocks", "active card back", "capsules", "daily bonuses",
-            "community goal rewards", "friendships", "invitations", "friend code", "activity feed entries", "latest activity" ]
+            "weekly mission rewards", "friendships", "invitations", "friend code", "activity feed entries", "latest activity" ]
     }
 
     game_data.each do |locale, terms|

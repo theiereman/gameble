@@ -43,7 +43,7 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_equal "9", reserve_badge
     assert_equal "1", reserve_badge(:special)
-    assert_select "#toasts .toast--notice .toast__title", "Goal reached"
+    assert_select "#toasts .toast--notice .toast__title", "Mission accomplished"
     assert_select "#goal-reward .hub-goal__claim-state", "Collected"
 
     get home_path(locale: :en)
@@ -76,7 +76,7 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-stream[target=daily-booster]", false
     assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__message",
       "Management thanks you for your contribution. A rare capsule has been added to your reserve."
-    assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__title", "Goal reached"
+    assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__title", "Mission accomplished"
   end
 
   test "from Turbo, a claim at a full standard reserve succeeds: the slot collected, the special count shown, the daily panel untouched" do
@@ -100,7 +100,7 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
     post claim_path(locale: :fr)
     assert_redirected_to home_path(locale: :fr)
     assert_equal "La Direction vous remercie pour votre participation. Une capsule rare a rejoint votre réserve.", flash[:notice]
-    assert_equal "Objectif atteint", flash[:toast_title]
+    assert_equal "Mission accomplie", flash[:toast_title]
     assert_equal 1, reward_pack_count
     assert_equal 10, Game::Reserve.counts(@player.id).standard
   end
