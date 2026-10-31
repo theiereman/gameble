@@ -3,7 +3,7 @@ title: "The rarity legend counts distinct cards against the game's totals and fi
 type: 'feature'
 ticket: '1'
 created: '2026-10-30'
-status: 'built'
+status: done
 baseline_revision: '4ce7ab9e9a7b81425a90f2c8917fcbba7926dd83'
 route: 'full'
 route_source: 'auto'

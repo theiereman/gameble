@@ -5,7 +5,6 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
 ## Open
 
 - Release 1.1.0, to resume in a new session (2026-10-30):
-  - Entry 28.2, the UX of custom sets, the Steam library set and goals, is designed, committed and has no open item; the author marks it done.
   - The UX of trade suggestions (epic 29) and of the Personalization page (epic 30) is to run next, in one `bmad-ux` Update session, on the coaching path with mocks. Questions waiting for the author's brain dump:
     1. Where trade suggestions show: on the goal rows of the Collection, on a card's detail ("2 amis en ont un double"), in the Trades screen, elsewhere.
     2. What a suggestion shows: the friend, the cards on each side, a mark for mutual trades.
@@ -15,13 +14,19 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
     6. A grid of backs with the active one set apart, or a large preview beside a list.
     7. A locked back: shown greyed with how to earn it, or hidden.
   - Epics 29 and 30 have draft breakdowns, not recorded as their `tickets.toml` yet: `epic-trade-suggestions/inception-draft.toml` (7 entries) and `epic-more-achievements-and-easy-card-backs/inception-draft.toml` (13 entries), each with its `inception-draft-notes.md` listing the questions for the author with a recommended answer (epic 29: page budget, spares, prefill order, optional entries, outcome signal; epic 30: the achievement list already approved in the spec, First Claim's back, N for Lazy Opener and Hardworking, flavor text, backfill before traffic, AD-37 adoption). Once the UX is designed, drop or adapt each draft's own UX entry, settle the questions, and write the drafts into `tickets.toml`.
-  - Built and waiting for the author's staging check: 28.1 (rarity legend, overall figures in distinct games), 28.6 (Steam owned games).
 
 - Shared card link previews with a generated image (backlog story `story-a-shared-card-link-previews-with-a-generated-image`), before it reaches production:
   - Steam's terms on reusing store art: the image shows the card's Steam cover, pixelated in the card frame. The author checks the Steam terms allow it.
   - Crawler reach of `/share-images/<token>.png`: the image sits outside the locale scope, served signed out with `Cache-Control: public, max-age=31536000, immutable`. Cloudflare must let Discordbot, Twitterbot, WhatsApp and facebookexternalhit fetch it as it lets them fetch the card page. While `SEARCH_INDEXING` is off, `robots.txt` answers `Disallow: /`, which Twitterbot obeys for images too: check an X preview on staging.
   - The render has run only against the development and CI builds of libvips, never inside the Docker image: on staging, open a card page, wait a few seconds, reload, and check the page carries `og:image` and the image shows the card's title in VT323 and a pixelated art. A missing text or palette feature in the image's libvips shows as a Sentry report from `CardShareImageJob` or as unquantised art.
   - The images are stored by Active Storage on the `local` service, under `/rails/storage` (the `gameble_storage` volume): a lost volume with the database kept leaves each stored image's tags pointing at a missing file until the `catalog_share_images` rows are cleared or `CardShareImage::RENDER_VERSION` is bumped, after which each card page enqueues its render again.
+
+## Settled on 2026-10-31
+
+Settled by the author in conversation on 2026-10-31.
+
+- Entry 28.2, the UX of custom sets, the Steam library set and goals: marked done.
+- 28.1 (rarity legend, overall figures in distinct games) and 28.6 (Steam owned games), on staging in v1.0.1-rc.1: validated and marked done; 28.6 has no screen and was accepted on its tests.
 
 ## Settled on 2026-10-29
 
