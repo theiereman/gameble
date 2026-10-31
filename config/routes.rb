@@ -41,6 +41,11 @@ Rails.application.routes.draw do
     resource :library, controller: :library, only: :show
     get "library/in-progress" => "library#in_progress", as: :library_in_progress
     get "library/cards" => "library#cards", as: :library_cards
+    # The sets a player gathers themselves, by token; the picker's search
+    # posts the form back, so the typed name and the checked games stay.
+    post "library/custom-sets/picker" => "custom_sets#picker", as: :custom_set_picker
+    resources :custom_sets, path: "library/custom-sets", only: %i[new create show edit update destroy], param: :token,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # One set's album, by kind and key, never by id.
     get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: Catalog::SetKind::PATTERN }
     # The collection's watermark: the page posts the latest gain it showed

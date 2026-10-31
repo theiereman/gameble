@@ -38,6 +38,7 @@ class PlayerExport
       friends: { count: game.friend_count },
       pendingInvitations: { received: game.invitations.received, sent: game.invitations.sent },
       trades:,
+      customSets: custom_sets,
       reportsFiled: accounts.reports_filed.map { { reason: it.reason, createdAt: time(it.created_at) } },
       reportsReceived: accounts.reports_received.map do
         { reason: it.reason, createdAt: time(it.created_at), handledAt: time(it.handled_at) }
@@ -99,6 +100,20 @@ class PlayerExport
         { status: trade.status, proposedAt: time(trade.proposed_at), closedAt: time(trade.closed_at),
           offered: trade.offered.filter_map { |line| card(line.card_season_id)&.merge(quantity: line.quantity) } }
       end
+    end
+
+    def custom_sets
+      games = custom_set_games
+      game.custom_sets.map do |custom_set|
+        { token: custom_set.token, name: custom_set.name, kind: custom_set.kind, createdAt: time(custom_set.created_at),
+          games: custom_set.card_ids.filter_map { games[it] } }
+      end
+    end
+
+    def custom_set_games
+      faces = Catalog::LatestPublishedCardSeasons.call(game.custom_sets.flat_map(&:card_ids))
+      faced = Catalog::CardViews.call(faces.values, locale: @locale)
+      faces.transform_values { |card_season_id| faced[card_season_id] }.compact.transform_values { { slug: it.id, title: it.title } }
     end
 
     def feed_entry(entry)

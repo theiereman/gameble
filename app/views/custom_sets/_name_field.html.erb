@@ -1,0 +1,5 @@
+<%# locals: (name:) %>
+<div class="custom-set-form__field">
+  <label for="custom-set-name" class="custom-set-form__label"><%= t("custom_sets.form.name") %></label>
+  <%= text_field_tag :name, name, id: "custom-set-name", class: "custom-set-form__input", maxlength: Game::CustomSet::NAME_LIMIT, autocomplete: "off" %>
+</div>

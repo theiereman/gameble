@@ -1055,11 +1055,11 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1.visually-hidden", "Collection"
     assert_select ".top-bar__title", "Collection"
     assert_select ".top-bar__end .collection-status .collection-status__value", "74 / 300"
-    assert_equal [ "Find a set" ], css_select(".set-entry h2").map(&:text)
+    assert_equal [ "Find a set", "My sets" ], css_select(".set-entry h2").map(&:text)
     assert_select ".set-search .set-search__row a.button--primary[href='/en/library/cards']", "All cards" do
       assert_select "svg.pixel-icon[aria-hidden=true]"
     end
-    assert_select ".set-entry > .set-search + turbo-frame#set-search-results + " \
+    assert_select ".set-entry > .set-search + turbo-frame#set-search-results + section.custom-sets + " \
       "turbo-frame#set-entry-in-progress.set-entry__in-progress[src='/en/library/in-progress'][loading=lazy][target=_top]" do
       assert_select "p.set-entry__loading", "Loading the sets in progress…"
     end
@@ -1414,11 +1414,11 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, season, unique cards and the season's count, the
     # rarity legend; the search's sets, the standings, the figures of those
     # not started and the faces of those shown; the tab bar's trades
-    # waiting; the themes' names.
-    assert_equal 12, forty
+    # waiting; the themes' names; the player's own sets.
+    assert_equal 13, forty
     assert_equal 7, count_queries { get library_path(locale: :en, q: "theme", offset: 6), headers: { "Turbo-Frame" => "set-more-results-6" } }
     # No search: neither the sets nor the standings.
-    assert_equal 6, count_queries { get library_path(locale: :en) }
+    assert_equal 7, count_queries { get library_path(locale: :en) }
   end
 
   test "a player who holds no card sees the search, the way to all the cards and a line pointing to the search; a visitor is sent to the landing" do
@@ -1428,9 +1428,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :fr)
 
-    assert_equal [ "Chercher un set" ], css_select(".set-entry h2").map(&:text)
+    assert_equal [ "Chercher un set", "Mes sets" ], css_select(".set-entry h2").map(&:text)
     assert_select ".set-search a.button--primary[href='/fr/library/cards']", "Toutes les cartes"
-    assert_select ".set-search + turbo-frame#set-search-results + turbo-frame#set-entry-in-progress[src='/fr/library/in-progress']"
+    assert_select ".set-search + turbo-frame#set-search-results + section.custom-sets + turbo-frame#set-entry-in-progress[src='/fr/library/in-progress']"
 
     get_in_progress(locale: :fr)
     assert_select "#set-entry-in-progress-title, .set-tile", false
@@ -1526,8 +1526,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       end
       assert_select ".set-search__row ~ p.set-search__status[role=status]", "1 set trouvé"
     end
-    assert_equal [ "Chercher un set", "Résultats" ], css_select(".set-entry h2").map(&:text)
-    assert_select ".set-entry > .set-search + turbo-frame#set-search-results + turbo-frame#set-entry-in-progress"
+    assert_equal [ "Chercher un set", "Résultats", "Mes sets" ], css_select(".set-entry h2").map(&:text)
+    assert_select ".set-entry > .set-search + turbo-frame#set-search-results + section.custom-sets + turbo-frame#set-entry-in-progress"
     assert_select "#set-search-title", "Chercher un set"
     assert_select "turbo-frame#set-search-results[target=_top]" do
       assert_select "[data-set-search-summary][hidden]", "1 set trouvé"

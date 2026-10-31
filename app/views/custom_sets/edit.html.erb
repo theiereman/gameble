@@ -1,0 +1,12 @@
+<% content_for :back_button, true %>
+<% content_for :screen_title, t("library.collection.title") %>
+<% content_for :title, t("custom_sets.edit.title") %>
+<section class="custom-set-form" aria-labelledby="custom-set-form-title">
+  <%= render PanelComponent.new(brackets: true) do %>
+    <h1 id="custom-set-form-title" class="custom-set-form__title"><%= t("custom_sets.edit.heading") %></h1>
+    <%= form_with url: custom_set_path(token: params[:token]), method: :patch, class: "custom-set-form__form", data: { turbo: false } do %>
+      <%= render "custom_sets/name_field", name: @name %>
+      <%= render "custom_sets/actions", refusal: @refusal, cancel_path: custom_set_path(token: params[:token]) %>
+    <% end %>
+  <% end %>
+</section>

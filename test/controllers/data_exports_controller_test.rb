@@ -30,6 +30,18 @@ class DataExportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal Time.utc(2026, 10, 14, 9, 30), @player.reload.last_exported_at
   end
 
+  test "the export file lists the player's custom sets with their games by slug" do
+    card_ids = %i[rare_card portal common_card].map { catalog_cards(it).id }
+    custom_set = Game::CreateCustomSet.new.call(player: @player, name: "Mes favoris", card_ids:).value!
+    sign_in(@player)
+
+    post settings_export_path(locale: :en), headers: json_headers
+
+    exported = response.parsed_body["customSets"].sole
+    assert_equal [ custom_set.token, "Mes favoris", "custom" ], exported.values_at("token", "name", "kind")
+    assert_equal card_ids.map { Catalog::Card.find(it).slug }, exported["games"].map { it["slug"] }
+  end
+
   test "the last export's file downloads again later, and nobody else's" do
     sign_in(@player)
     travel_to Time.utc(2026, 10, 14, 9, 30) do

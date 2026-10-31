@@ -125,7 +125,7 @@ class LibraryTest < ApplicationSystemTestCase
     at_rest = [ box(first), box(first.find(:xpath, "..")) ]
     assert closed?(first), "the verso should start hidden"
 
-    find(".set-search__row a.button--primary").send_keys(:tab)
+    find(".custom-sets a.button").send_keys(:tab)
     assert_selector ".set-tiles > li:first-child > a.set-tile:focus"
     eventually("the focused tile should open its iris") { opened?(first) }
     assert_equal [ "50%", "50%" ], [ iris(first, "x"), iris(first, "y") ]

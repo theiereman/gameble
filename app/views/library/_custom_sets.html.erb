@@ -1,0 +1,21 @@
+<%# locals: (custom_sets:) %>
+<section class="set-entry__section custom-sets" aria-labelledby="custom-sets-title">
+  <h2 id="custom-sets-title" class="set-entry__title"><%= t("library.entry.custom_sets.title") %></h2>
+  <p class="custom-sets__note"><%= t("library.entry.custom_sets.count", sets: custom_sets.size, max: Game::CustomSet::PER_PLAYER) %></p>
+  <% if custom_sets.any? %>
+    <ul class="custom-sets__list">
+      <% custom_sets.each do |custom_set| %>
+        <li>
+          <%= link_to custom_set_path(token: custom_set.token), class: "custom-sets__link" do %>
+            <span class="custom-sets__name"><%= custom_set.name %></span>
+            <span class="custom-sets__count" aria-hidden="true"><b><%= number_with_delimiter(custom_set.held) %></b>/<%= number_with_delimiter(custom_set.total) %></span>
+            <span class="visually-hidden"><%= set_album_value_text(custom_set.to_set_standing) %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+  <% if custom_sets.size < Game::CustomSet::PER_PLAYER %>
+    <%= render ButtonComponent.new(variant: :secondary, href: new_custom_set_path) do %><%= t("library.entry.custom_sets.new") %><% end %>
+  <% end %>
+</section>

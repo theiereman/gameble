@@ -1,0 +1,201 @@
+/* ---- The player's own sets: MES SETS on the entry, the album's actions and the set form ---- */
+
+/* A search takes the place of MES SETS, as of the sets under it. */
+.set-entry:has(.set-results) > .custom-sets {
+  display: none;
+}
+
+.custom-sets > .button {
+  align-self: flex-start;
+}
+
+.custom-sets__note,
+.custom-set-picker__counter,
+.custom-set-picker__none,
+.custom-set-picker__facts {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.custom-sets__list,
+.custom-set-picker__games {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.custom-sets__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--space-touch-min);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+  color: var(--color-text-bright);
+  text-decoration: none;
+}
+
+.custom-sets__link:hover {
+  box-shadow:
+    var(--control-border),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.custom-sets__link:focus-visible {
+  outline: 0;
+  box-shadow: var(--focus-ring-gap), var(--panel-border);
+}
+
+.custom-sets__name {
+  flex: 1;
+  min-width: 0;
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+  overflow-wrap: anywhere;
+}
+
+.custom-sets__count {
+  flex: none;
+  color: var(--color-muted);
+  font: var(--font-number);
+  font-variant-numeric: tabular-nums;
+}
+
+.custom-sets__count b {
+  color: var(--color-text-max);
+}
+
+.set-album__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.set-album__actions .button-form {
+  margin: 0;
+}
+
+.custom-set-form {
+  width: 100%;
+  max-width: 880px;
+  margin-inline: auto;
+}
+
+.custom-set-form__title {
+  margin: 0 0 var(--space-6);
+  color: var(--color-text-max);
+  font: var(--font-hero);
+  text-transform: uppercase;
+}
+
+.custom-set-form__form,
+.custom-set-form__field,
+.custom-set-picker__search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.custom-set-form__form {
+  gap: var(--space-6);
+}
+
+.custom-set-form__label {
+  padding: 0;
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.custom-set-form__input {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: var(--space-button-height);
+  padding: var(--space-1) var(--space-5);
+  background: var(--color-input);
+  border: 0;
+  box-shadow: var(--control-border);
+  color: var(--color-text-max);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.custom-set-form__input:focus-visible {
+  outline: 0;
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.custom-set-picker__search-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.custom-set-picker__search-row > .custom-set-form__input {
+  flex: 1 1 260px;
+}
+
+.custom-set-picker__search-row > .button {
+  flex: none;
+  margin: 0;
+}
+
+.custom-set-picker__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.custom-set-picker__game {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  min-height: var(--space-touch-min);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.custom-set-picker__check {
+  grid-row: span 2;
+  margin: 0;
+  accent-color: var(--color-accent);
+}
+
+.custom-set-picker__title {
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+  overflow-wrap: anywhere;
+}
+
+.custom-set-form__refusal {
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.custom-set-form__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3) var(--space-4);
+}

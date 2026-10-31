@@ -22,7 +22,7 @@ class Game::ExportOfTest < ActiveSupport::TestCase
     export = Game::ExportOf.call(@player)
 
     assert_equal "7K2Q-F3NX", export.friend_code
-    %i[held_cards showcase packs daily_bonus_days goal_reward_weeks contributions set_tiers discoveries feed_entries unlocks trades].each do
+    %i[held_cards showcase packs daily_bonus_days goal_reward_weeks contributions set_tiers discoveries feed_entries unlocks trades custom_sets].each do
       assert_empty export.public_send(it), it
     end
     assert_equal 0, export.friend_count
@@ -136,6 +136,19 @@ class Game::ExportOfTest < ActiveSupport::TestCase
     assert_equal [ nil, Game::ExportOf::SetRef.new(season_number: 1, kind: "studio", key: "valve"), "complete", 1, pack.reload.opened_at ],
       [ entry.card_season_id, entry.set, entry.tier, entry.set_count, entry.occurred_at ]
     assert_not_includes Game::ExportOf.call(@player).card_season_ids, nil
+  end
+
+  test "the custom sets list each of the player's sets, oldest first, with its games in the order picked" do
+    portal, rare, common = %i[portal rare_card common_card].map { catalog_cards(it).id }
+    first = Game::CreateCustomSet.new.call(player: @player, name: "Mes favoris", card_ids: [ rare, portal, common ]).value!
+    second = Game::CreateCustomSet.new.call(player: @player, name: "Autre", card_ids: [ common, rare, portal ]).value!
+    Game::CreateCustomSet.new.call(player: @friend, name: "Secret garden", card_ids: [ rare, portal, common ]).value!
+
+    sets = Game::ExportOf.call(@player).custom_sets
+
+    assert_equal [ [ first.token, "Mes favoris", "custom", [ rare, portal, common ] ], [ second.token, "Autre", "custom", [ common, rare, portal ] ] ],
+      sets.map { [ it.token, it.name, it.kind, it.card_ids ] }
+    assert_equal first.created_at, sets.first.created_at
   end
 
   test "another player's data stays out" do

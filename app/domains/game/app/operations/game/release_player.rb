@@ -13,6 +13,7 @@ module Game
         SetTier.where(player_id: player.id).delete_all
         Pack.where(player_id: player.id).delete_all
         ShowcaseEntry.where(player_id: player.id).delete_all
+        CustomSet.where(player_id: player.id).delete_all
         Holding.where(player_id: player.id).delete_all
         AchievementUnlock.where(player_id: player.id).delete_all
         CardBackUnlock.where(player_id: player.id).delete_all

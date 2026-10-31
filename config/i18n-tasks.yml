@@ -51,6 +51,7 @@ ignore_unused:
   - "reports.create.throttled"
   - "season_allocations.create.throttled"
   - "trades.throttled"
+  - "custom_sets.throttled"
   # Month and day names, read by I18n.l for %b and %A in the local time formats.
   - "date.abbr_month_names"
   - "date.day_names"

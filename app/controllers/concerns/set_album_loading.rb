@@ -18,10 +18,14 @@ module SetAlbumLoading
       @set = album.set
       @standing = Game::SetStanding.measured(set_id: album.set.id, held: album.members.count { editions.key?(it.last) },
         total: album.members.size, tiers: album.tiers)
+      load_album_slots(album.members, editions, number: season.number, with_new:)
+    end
+
+    def load_album_slots(members, editions, with_new:, number: nil)
       @album_filters = SetAlbumFilters.from(params)
-      faces, views = filtered_faces(album.members, editions)
+      faces, views = filtered_faces(members, editions)
       @album_pagy, page = pagy(:offset, faces, limit: ALBUM_SIZE, page: album_page)
-      @album_slots = album_slots(page, views || card_views(page), number: season.number, with_new:)
+      @album_slots = album_slots(page, views || card_views(page), number:, with_new:)
     end
 
     def filtered_faces(members, editions)
@@ -43,7 +47,8 @@ module SetAlbumLoading
       faces.filter_map do |shown_id, edition|
         next unless views.key?(shown_id)
 
-        Slot.new(card: views.fetch(shown_id), copies: edition&.copies, new: with_new && edition&.new == true, number:)
+        card = views.fetch(shown_id)
+        Slot.new(card:, copies: edition&.copies, new: with_new && edition&.new == true, number: number || card.season_number)
       end
     end
 

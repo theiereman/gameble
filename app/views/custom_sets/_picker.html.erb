@@ -1,0 +1,28 @@
+<%# locals: (name:, query:, picked:, found:, refusal:) %>
+<%= form_with url: custom_sets_path, method: :post, class: "custom-set-form__form custom-set-picker", data: { turbo: false } do %>
+  <%= render("custom_sets/name_field", name:) %>
+  <div class="custom-set-picker__search" role="search" aria-labelledby="custom-set-query-label">
+    <label id="custom-set-query-label" for="custom-set-query" class="custom-set-form__label"><%= t("custom_sets.picker.search") %></label>
+    <div class="custom-set-picker__search-row">
+      <%= search_field_tag :q, query, id: "custom-set-query", class: "custom-set-form__input", maxlength: Catalog::CollectionGrid::MAX_QUERY,
+        autocomplete: "off", placeholder: t("custom_sets.picker.placeholder") %>
+      <%= button_tag t("custom_sets.picker.search_button"), type: :submit, name: nil, formaction: custom_set_picker_path, class: "button button--secondary" %>
+    </div>
+  </div>
+  <fieldset class="custom-set-picker__group">
+    <legend class="custom-set-form__label"><%= t("custom_sets.picker.picked", games: picked.size) %></legend>
+    <p class="custom-set-picker__counter"><%= t("custom_sets.picker.counter", count: picked.size, min: Game::CustomSet::GAMES.min, max: Game::CustomSet::GAMES.max) %></p>
+    <%= render "custom_sets/games", cards: picked, checked: true %>
+  </fieldset>
+  <% if query.present? %>
+    <fieldset class="custom-set-picker__group">
+      <legend class="custom-set-form__label"><%= t("custom_sets.picker.found") %></legend>
+      <% if found.any? %>
+        <%= render "custom_sets/games", cards: found, checked: false %>
+      <% else %>
+        <p class="custom-set-picker__none"><%= t("custom_sets.picker.none", query:) %></p>
+      <% end %>
+    </fieldset>
+  <% end %>
+  <%= render "custom_sets/actions", refusal:, cancel_path: library_path %>
+<% end %>

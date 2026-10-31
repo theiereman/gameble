@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_30_093935) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_31_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -330,6 +330,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_093935) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["player_id", "back"], name: "index_game_card_back_unlocks_on_player_id_and_back", unique: true
+  end
+
+  create_table "game_custom_set_games", force: :cascade do |t|
+    t.bigint "custom_set_id", null: false
+    t.bigint "card_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_id"], name: "index_game_custom_set_games_on_card_id"
+    t.index ["custom_set_id", "card_id"], name: "index_game_custom_set_games_on_custom_set_id_and_card_id", unique: true
+  end
+
+  create_table "game_custom_sets", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.string "token", null: false
+    t.string "kind", null: false
+    t.string "name"
+    t.datetime "synced_at"
+    t.datetime "library_private_since"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "player_id, lower((name)::text)", name: "index_game_custom_sets_on_player_id_and_lower_name", unique: true, where: "((kind)::text = 'custom'::text)"
+    t.index ["player_id"], name: "index_game_custom_sets_on_player_id"
+    t.index ["player_id"], name: "index_game_custom_sets_one_library_per_player", unique: true, where: "((kind)::text = 'steam_library'::text)"
+    t.index ["token"], name: "index_game_custom_sets_on_token", unique: true
+    t.check_constraint "kind::text <> 'custom'::text OR name IS NOT NULL AND char_length(name::text) >= 1 AND char_length(name::text) <= 40", name: "game_custom_sets_name_check"
+    t.check_constraint "kind::text <> 'custom'::text OR synced_at IS NULL AND library_private_since IS NULL", name: "game_custom_sets_sync_check"
+    t.check_constraint "kind::text = 'custom'::text OR kind::text = 'steam_library'::text", name: "game_custom_sets_kind_check"
   end
 
   create_table "game_daily_bonus_claims", force: :cascade do |t|
@@ -653,6 +680,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_093935) do
   add_foreign_key "catalog_tag_classifications", "catalog_themes", column: "theme_id"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   add_foreign_key "game_achievement_unlocks", "accounts_players", column: "player_id"
+  add_foreign_key "game_custom_set_games", "catalog_cards", column: "card_id"
+  add_foreign_key "game_custom_set_games", "game_custom_sets", column: "custom_set_id", on_delete: :cascade
+  add_foreign_key "game_custom_sets", "accounts_players", column: "player_id"
   add_foreign_key "game_daily_bonus_claims", "accounts_players", column: "player_id"
   add_foreign_key "game_daily_bonus_claims", "game_packs", column: "pack_id"
   add_foreign_key "game_feed_entries", "accounts_players", column: "partner_id"

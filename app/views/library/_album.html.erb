@@ -7,6 +7,9 @@
         <span class="set-album__stamp"><%= set_tier_name("complete") %></span>
       <% end %>
       <span class="set-album__count" aria-hidden="true"><b><%= number_with_delimiter(standing.held) %></b>/<%= number_with_delimiter(standing.total) %></span>
+      <% if local_assigns[:actions] %>
+        <div class="set-album__actions"><%= actions %></div>
+      <% end %>
     </div>
     <div class="set-album__track" data-controller="tier-ticks">
       <progress class="set-row__bar set-album__bar" value="<%= [ standing.held, standing.total ].min %>" max="<%= [ standing.total, 1 ].max %>"

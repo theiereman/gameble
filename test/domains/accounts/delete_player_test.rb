@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 require_relative "../../support/game_trades"
+require_relative "../../support/custom_sets"
 
 # Accounts::DeletePlayer and the Game handler it triggers
 # (Game::Handlers::PlayerDeleted, Game::ReleasePlayer): the record stays,
@@ -9,6 +10,7 @@ require_relative "../../support/game_trades"
 class Accounts::DeletePlayerTest < ActiveSupport::TestCase
   include GamePacks
   include GameTrades
+  include CustomSets
 
   setup do
     @player = accounts_players(:player)
@@ -94,6 +96,19 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     assert_equal({ packs: 0, holdings: 0, showcase: 0, feed: 0, claims: 0, codes: 0, rewards: 0, achievements: 0, card_backs: 0, states: 0 }, game_rows(@player))
     assert Game::WeeklyContribution.exists?(player_id: @player.id)
     assert_equal before, game_rows(@other)
+  end
+
+  test "the player's custom sets and the Steam library set are erased with their games; another player's stay" do
+    mine = create_custom_set(@player)
+    library = Game::CustomSet.create!(player_id: @player.id, kind: Game::CustomSet::STEAM_LIBRARY)
+    Game::CustomSetGame.insert_all!(fixture_card_ids.map { { custom_set_id: library.id, card_id: it } })
+    theirs = create_custom_set(@other)
+
+    assert delete.success?
+
+    assert_not Game::CustomSet.exists?(player_id: @player.id)
+    assert_not Game::CustomSetGame.exists?(custom_set_id: [ mine.id, library.id ])
+    assert_equal 3, Game::CustomSetGame.where(custom_set_id: theirs.id).count
   end
 
   test "the trades naming the player on either side leave the feed; a trade between others stays" do

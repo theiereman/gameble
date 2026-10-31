@@ -1,0 +1,14 @@
+<%# locals: (cards:, checked:) %>
+<% if cards.any? %>
+  <ul class="custom-set-picker__games">
+    <% cards.each do |card| %>
+      <li>
+        <label class="custom-set-picker__game">
+          <%= check_box_tag "games[]", card.id, checked, id: nil, class: "custom-set-picker__check" %>
+          <span class="custom-set-picker__title"><%= card.title %></span>
+          <span class="custom-set-picker__facts"><%= [ card.publisher, card.year ].compact_blank.join(" · ") %></span>
+        </label>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

@@ -55,4 +55,22 @@ class Catalog::PublishedCardIdsTest < ActiveSupport::TestCase
   test "nothing asked, no query" do
     assert_queries_count(0) { assert_equal [], Catalog::PublishedCardIds.call(source_keys: []) }
   end
+
+  test "within: the card ids asked with a rated card-season in a published season, sorted, once each, in one query" do
+    portal, rare = catalog_cards(:portal), catalog_cards(:rare_card)
+    ids = [ rare.id, card_in_draft_only.id, card_unrated_in_published_season.id, portal.id, rare.id, -1, nil, "1" ]
+
+    assert_equal [ portal.id, rare.id ].sort, assert_queries_count(1) { Catalog::PublishedCardIds.within(ids) }
+    assert_queries_count(0) { assert_equal [], Catalog::PublishedCardIds.within([ nil ]) }
+  end
+
+  test "by_slug: the published cards of the slugs asked, by slug, in one query" do
+    portal = catalog_cards(:portal)
+    draft = card_in_draft_only
+
+    found = assert_queries_count(1) { Catalog::PublishedCardIds.by_slug([ portal.slug, draft.slug, "nope", portal.slug, 42 ]) }
+
+    assert_equal({ portal.slug => portal.id }, found)
+    assert_queries_count(0) { assert_equal({}, Catalog::PublishedCardIds.by_slug([])) }
+  end
 end

@@ -40,6 +40,8 @@ module ShellHelper
     "library#show" => :sets,
     "library#cards" => :collection,
     "library#set" => :set,
+    "custom_sets#show" => :set,
+    "custom_sets" => :sets,
     "cards" => :card,
     "boosters" => :booster,
     "packs" => :booster,

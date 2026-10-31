@@ -7,7 +7,7 @@ class PlayerExportTest < ActiveSupport::TestCase
   include GameTrades
 
   SECTIONS = %i[exportedAt profile identities collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
-    firstDiscoveries feedEntries achievements cardBacks friends pendingInvitations trades reportsFiled reportsReceived
+    firstDiscoveries feedEntries achievements cardBacks friends pendingInvitations trades customSets reportsFiled reportsReceived
     moderationDecisions].freeze
   COUNTING_KEYS = %i[season quantity position openings count received sent].freeze
 
@@ -113,10 +113,31 @@ class PlayerExportTest < ActiveSupport::TestCase
 
     assert_equal SECTIONS, hash.keys
     %i[collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers firstDiscoveries feedEntries
-       achievements trades reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
+       achievements trades customSets reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
     assert_equal({ count: 0 }, hash[:friends])
     assert_equal({ received: 0, sent: 0 }, hash[:pendingInvitations])
     assert_equal({ active: "standard", activeSeason: nil, unlocked: [] }, hash[:cardBacks])
+    assert_no_database_id(hash)
+  end
+
+  test "the player's own sets are listed by token, name, kind and games, by slug in the order picked, never another player's" do
+    portal, rare, common = %i[portal rare_card common_card].map { catalog_cards(it).id }
+    mine = Game::CreateCustomSet.new.call(player: @player, name: "Mes favoris", card_ids: [ rare, portal, common ]).value!
+    library = Game::CustomSet.create!(player_id: @player.id, kind: Game::CustomSet::STEAM_LIBRARY)
+    Game::CustomSetGame.insert_all!([ { custom_set_id: library.id, card_id: portal } ])
+    theirs = Game::CreateCustomSet.new.call(player: @friend, name: "Secret garden", card_ids: [ rare, portal, common ]).value!
+
+    hash = export.to_h
+
+    assert_equal [ mine.token, library.token ], hash[:customSets].map { it[:token] }
+    favourites = hash[:customSets].first
+    assert_equal [ "Mes favoris", "custom" ], favourites.values_at(:name, :kind)
+    assert_equal %w[blue-depths portal tin-soldier], favourites[:games].map { it[:slug] }
+    assert_equal "Portal", favourites[:games].second[:title]
+    assert_equal mine.created_at.utc.iso8601, favourites[:createdAt]
+    assert_equal [ nil, "steam_library", [ "portal" ] ], hash[:customSets].last.values_at(:name, :kind, :games).then { [ it[0], it[1], it[2].map { |game| game[:slug] } ] }
+    assert_not_includes hash.to_json, theirs.token
+    assert_not_includes hash.to_json, "Secret garden"
     assert_no_database_id(hash)
   end
 

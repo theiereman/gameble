@@ -1,0 +1,8 @@
+<%# locals: (refusal:, cancel_path:) %>
+<% if refusal %>
+  <p class="custom-set-form__refusal" role="alert"><%= refusal %></p>
+<% end %>
+<div class="custom-set-form__buttons">
+  <%= render ButtonComponent.new(variant: :link, href: cancel_path) do %><%= t("custom_sets.form.cancel") %><% end %>
+  <%= render ButtonComponent.new(variant: :primary, type: :submit) do %><%= t("custom_sets.form.save") %><% end %>
+</div>

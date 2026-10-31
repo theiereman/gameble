@@ -897,9 +897,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   test "the deletion paragraph names the game data an account deletion erases, completions as set tiers" do
     configure_legal
     erased = {
-      fr: [ "votre dernière activité", "votre collection", "votre vitrine", "vos paliers de sets", "vos succès", "vos capsules", "vos bonus du jour",
+      fr: [ "votre dernière activité", "votre collection", "votre vitrine", "vos paliers de sets", "vos sets perso", "vos succès", "vos capsules", "vos bonus du jour",
             "vos récompenses de la mission hebdo", "vos amitiés", "vos invitations", "votre code ami", "vos entrées du fil d'activité" ],
-      en: [ "your latest activity", "your collection", "your showcase", "your set tiers", "your achievements", "your capsules", "your daily bonuses",
+      en: [ "your latest activity", "your collection", "your showcase", "your set tiers", "your custom sets", "your achievements", "your capsules", "your daily bonuses",
             "your weekly mission rewards", "your friendships", "your invitations", "your friend code", "your activity feed entries" ]
     }
 
@@ -915,9 +915,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   test "the stored data line and the deletion paragraph name the same game data" do
     configure_legal
     game_data = {
-      fr: [ "collection", "vitrine", "paliers de sets", "succès", "dos de carte débloqués", "dos de carte actif", "capsules", "bonus du jour",
+      fr: [ "collection", "vitrine", "paliers de sets", "sets perso", "succès", "dos de carte débloqués", "dos de carte actif", "capsules", "bonus du jour",
             "récompenses de la mission hebdo", "amitiés", "invitations", "code ami", "entrées du fil d'activité", "dernière activité" ],
-      en: [ "collection", "showcase", "set tiers", "achievements", "card back unlocks", "active card back", "capsules", "daily bonuses",
+      en: [ "collection", "showcase", "set tiers", "custom sets", "achievements", "card back unlocks", "active card back", "capsules", "daily bonuses",
             "weekly mission rewards", "friendships", "invitations", "friend code", "activity feed entries", "latest activity" ]
     }
 

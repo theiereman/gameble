@@ -16,9 +16,10 @@ module Game
     Line = Data.define(:card_season_id, :quantity)
     TradeRow = Data.define(:status, :proposed_at, :closed_at, :offered)
     Invitations = Data.define(:received, :sent)
+    CustomSetRow = Data.define(:token, :name, :kind, :created_at, :card_ids)
 
     Result = Data.define(:friend_code, :held_cards, :showcase, :packs, :daily_bonus_days, :goal_reward_weeks, :contributions,
-      :set_tiers, :discoveries, :feed_entries, :unlocks, :card_backs, :friend_count, :invitations, :trades) do
+      :set_tiers, :discoveries, :feed_entries, :unlocks, :card_backs, :friend_count, :invitations, :trades, :custom_sets) do
       def card_season_ids
         (held_cards.map(&:card_season_id) + showcase.map(&:card_season_id) + packs.flat_map(&:card_season_ids) + discoveries.map(&:card_season_id) +
           feed_entries.filter_map(&:card_season_id) + trades.flat_map { |trade| trade.offered.map(&:card_season_id) }).uniq
@@ -45,7 +46,8 @@ module Game
         card_backs: card_backs(player),
         friend_count: FriendsOf.call(player).size,
         invitations: Invitations.new(received: invitations.received.size, sent: invitations.sent.size),
-        trades: trades(player, now)
+        trades: trades(player, now),
+        custom_sets: custom_sets(player)
       )
     end
 
@@ -120,6 +122,15 @@ module Game
       end
     end
 
-    private_class_method :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :set_refs, :trades
+    def self.custom_sets(player)
+      rows = CustomSet.where(player_id: player.id).order(:id).pluck(:id, :token, :name, :kind, :created_at)
+      games = CustomSetGame.where(custom_set_id: rows.map(&:first)).order(:id).pluck(:custom_set_id, :card_id)
+        .group_by(&:first).transform_values { |pairs| pairs.map(&:last) }
+      rows.map do |id, token, name, kind, created_at|
+        CustomSetRow.new(token:, name:, kind:, created_at:, card_ids: games.fetch(id, []))
+      end
+    end
+
+    private_class_method :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :set_refs, :trades, :custom_sets
   end
 end
