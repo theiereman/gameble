@@ -8,7 +8,7 @@
       </span>
     </button>
   <% else %>
-    <% shown = row.season || row.seasons.max %>
+    <% shown = row.active? ? row.season : row.seasons.max %>
     <%= button_to personalization_back_path, method: :patch, params: { back: row.key }, class: "back-picker__back", form_class: "back-picker__form",
           aria: { label: card_back_label(row) }, autofocus: chosen == row.key,
           data: { active_label: card_back_label(row, state: :active), unlocked_label: card_back_label(row, state: :unlocked) } do %>

@@ -197,6 +197,27 @@ class PersonalizationTest < ApplicationSystemTestCase
     assert_selector ".back-picker__tile--active[data-key='set-theme-rpg']"
   end
 
+  test "a back equipped in place stays the active one once the page is restored from the cache by Back, and equipping goes on from there" do
+    Game::CardBackUnlock.record(@player.id, "set-theme-rpg", Time.current)
+    sign_in_to_personalization
+    find("[data-key='set-theme-rpg'] .back-picker__back").click
+    assert_selector ".back-picker__tile--active[data-key='set-theme-rpg']"
+    execute_script("document.querySelector('.back-picker').dataset.restored = 'from-cache'")
+
+    execute_script("Turbo.visit('#{home_path(locale: :en)}')")
+    assert_no_selector ".back-picker"
+    go_back
+
+    assert_selector ".back-picker[data-restored=from-cache]"
+    assert_selector ".back-picker__strip[data-showing=active]", text: /ACTIVE\s+RPG/
+    find("[data-key=standard] .back-picker__back").click
+    assert_selector ".back-picker__tile--active[data-key=standard]"
+    find("[data-key='set-theme-rpg'] .back-picker__back").click
+    assert_selector ".back-picker__tile--active[data-key='set-theme-rpg']"
+    assert_selector ".back-picker__tile--active", count: 1
+    assert_equal "set-theme-rpg", Game::PlayerState.where(player_id: @player.id).pick(:active_card_back)
+  end
+
   test "a hovered or locked back only fills the strip, and a forged choice leaves the frame where it was and says it failed" do
     Game::CardBackUnlock.record(@player.id, "set-theme-rpg", Time.current)
     sign_in_to_personalization

@@ -11,7 +11,7 @@ review: 'quick'
 review_source: 'pinned'
 lenses_ran: [quick]
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context:
   - '{project-root}/AGENTS.md'
 warnings: [oversized]
@@ -109,6 +109,14 @@ deferred: []
   - `[low]` `[patch]` (quick) `progress.spoken` / `spoken_missing` read "0 cartes" / "1 cartes" in a locked set back's accessible name — fixed: plural on `held`, helper test lines for 0 and 1 held.
   - `[medium]` `[patch]` (orchestrator check against the ticket's verify) the system tests were English only, never read a set back's or the goal back's earned line, and hardcoded achievement copy another lane is renaming — fixed: a new system test in English and French reads the earned lines of Roguelike, Confrère and Centurion and the locked line of Étoile d'or with achievement names and conditions from I18n; helper and controller tests build achievement copy from I18n too.
 
+### 2026-11-01 — Review pass (follow-up)
+- verdicts: 3 findings — high 0, medium 0, low 3, false 0, maybe-false 0
+- findings:
+  - `[low]` `[patch]` (quick) `_back_tile.html.erb` showed the latest season's stamp on the active back when its stored season is nil, so a back equipped while earned in one season and later earned in a second wore "S2" on its tile while `OpenPack` dresses the face-down cards with no mark (`ChooseCardBack` is the only writer of `active_card_back_season`); the main button cannot correct it since `isCurrentChoice` sees the same choice — fixed: the active tile shows only the season it wears (`shown = row.active? ? row.season : row.seasons.max`), so no stamp and no pressed season button until the player presses one; controller test covers it (fails without the fix).
+  - `[low]` `[reject]` (quick) `back_picker_controller.ts#choose` drops a second click while a request is pending, with no announcement, and the strip then names the second back as unlocked — the window is one request's latency, the strip and frame stay truthful (the second back is not active and says so), and the player clicks again; a fix needs queueing or a re-send branch.
+  - `[low]` `[reject]` (quick) without JS a sighted player cannot read how a non-active back is earned, since the sentence lives in a per-tile `<template>` and the button's `aria-label` — every screen of the app runs Stimulus controllers, the no-JS requirement covers equipping (forms submit and redirect, verified by the controller tests), and a fix adds a second no-JS rendering of every back's detail.
+- also verified (orchestrator): the Turbo cache restore path the first pass patched (equip in place, leave with a Turbo visit, Back restores the snapshot) — the restored strip names the equipped back, the previous back re-equips and a third equip leaves one frame; added as a system test.
+
 ## Design Notes
 
 Copy (fr from the copy deck; en and unmarked fr written here):
@@ -147,3 +155,12 @@ Decisions: the goal back names the week of the player's earliest goal reward (th
 - **Follow-up review recommended:** true -- two medium entries patched on a first pass; the unverified risk is the Turbo cache restore path (equip, navigate away, Back), which no test exercises.
 - **Verification:** `bin/rails test test/domains/game test/controllers test/helpers test/models` 2099 runs green; `bin/rails test test/system/personalization_test.rb test/system/season_allocation_test.rb` 19 runs green; vitest 768 green; prettier, stylelint, pixel `--check`, file sizes, planning references, rubocop on touched Ruby, i18n-tasks unused and missing, packwerk, zeitwerk clean. French strings with « » use U+202F.
 - **Residual risks:** the strip sticks at `top: 0` since the top bar does not stick; at 960px MISSION DE LA CONFRÉRIE may wrap below the first two groups; the hover lift was not seen in headless screenshots; dates render in the app time zone; a multi-season back equipped from its main button wears its latest season and announces it; the title picker keeps its radio-list layout (the preview and rank columns stay `[ASSUMPTION]`); the mock's dashed free showcase places are not built; English copy and the unmarked French fallbacks were written at build time.
+
+### Follow-up pass (2026-11-01)
+
+- **Change:** the active back's tile shows only the season mark it wears; a regression system test for the Turbo cache restore path.
+- **Files:** `app/views/personalizations/_back_tile.html.erb` -- the active tile's shown stamp is its stored season; `test/controllers/personalizations_controller_test.rb` -- an active back worn with no mark, earned in two seasons, shows no stamp and no pressed season; `test/system/personalization_test.rb` -- equip, Turbo visit away, Back restores from the cache, equipping goes on with one frame.
+- **Review:** 1 patched (low 1), 0 deferred, 2 rejected (low: a click during a pending request is dropped while the strip stays truthful, fix needs a queue; low: no-JS readers cannot see non-active backs' conditions, the app runs controllers on every screen and the fix adds a second rendering path).
+- **Follow-up review recommended:** false -- a follow-up pass that patched no high entry; patched counts: high 0, medium 0, low 1.
+- **Verification:** `bin/rails test test/domains/game test/controllers test/helpers test/models` 2206 runs green; `bin/rails test test/system/personalization_test.rb test/system/season_allocation_test.rb` 20 runs green; vitest 795 green; prettier, stylelint, pixel `--check`, file sizes, planning references, rubocop on touched files, i18n-tasks unused and missing, packwerk, zeitwerk clean. The new controller test fails with the old view line.
+- **Residual risks:** a second click during a pending equip is silently dropped; without JS only the active back's sentence is readable; an active multi-season back stored with no mark (possible only once a second season is published) shows no stamp until the player presses a season button, as its face-down cards wear none; the first pass's residual risks stand.

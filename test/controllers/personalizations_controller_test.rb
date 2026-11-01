@@ -1,8 +1,10 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
+require_relative "../support/game_sets"
 
 class PersonalizationsControllerTest < ActionDispatch::IntegrationTest
   include SteamSignIn
+  include GameSets
 
   setup do
     @player = accounts_players(:player)
@@ -74,5 +76,24 @@ class PersonalizationsControllerTest < ActionDispatch::IntegrationTest
     get more_path(locale: :en)
 
     assert_select ".plus__list a[href=?]", personalization_path(locale: :en), /Personalization/
+  end
+
+  test "an active back worn with no season mark shows none, even once it is earned in a second season" do
+    tiers = { novice: 1, adept: 3, complete: 5 }
+    later = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
+    [ insert_set([], tiers, key: "roguelike"), insert_set([], tiers, key: "roguelike", season: later) ].each do |set_id|
+      Game::SetTier.create!(player_id: @player.id, set_id:, tier: "adept", reached_by: "trade", reached_at: Time.current)
+    end
+    Game::CardBackUnlock.record(@player.id, "set-theme-roguelike", Time.current)
+    Game::PlayerState.where(player_id: @player.id).update_all(active_card_back: "set-theme-roguelike", active_card_back_season: nil)
+    sign_in(@player)
+
+    get personalization_path(locale: :en)
+
+    assert_select ".back-picker__tile--active[data-key='set-theme-roguelike']" do
+      assert_select ".back-picker__stamp", 2
+      assert_select ".back-picker__stamp:not([hidden])", false
+      assert_select ".back-picker__season[aria-pressed=true]", false
+    end
   end
 end
