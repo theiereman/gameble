@@ -18,7 +18,3 @@
   content: attr(data-season-mark);
   z-index: 1;
 }
-
-.back-picker__marks .season-mark {
-  position: static;
-}

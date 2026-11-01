@@ -1029,9 +1029,6 @@ fr:
     show:
       no_season: "Aucune saison de cartes n'est publiée pour l'instant."
   card_backs:
-    chosen:
-      title: "Dos équipé"
-      text: "« %{name} » apparaîtra sur vos cartes face cachée."
     conditions:
       achievement: "Débloquez le succès correspondant."
       always: "Tous les joueurs l'ont."
@@ -1054,23 +1051,88 @@ fr:
       card_back:
         heading: "Dos de carte"
         intro: "Vous seul le voyez, sur vos cartes face cachée à l'ouverture."
-        active: "Dos actif"
-        current: "Actif"
-        choose: "Choisir"
-        locked: "Dos verrouillé"
+        unlocked:
+          zero: "débloqué"
+          one: "débloqué"
+          other: "débloqués"
         marks: "Marque de saison"
-        mark_label: "Porter la marque de la saison %{season}"
+        groups:
+          base: "De base et événements"
+          achievement: "Succès"
+          goal: "Mission de la Confrérie"
+          theme: "Sets · Thèmes"
+          hall_of_fame: "Sets · Palmarès"
+        chips:
+          active: "Actif"
+          unlocked: "Débloqué"
+          locked: "Verrouillé"
+        states:
+          active: "actif"
+          unlocked: "débloqué"
+          locked: "verrouillé"
+        label: "%{name}, %{state}. %{sentence}."
+        label_with_tail: "%{name}, %{state}. %{sentence}, %{tail}."
+        label_to_equip: "%{label} Équiper."
+        earned:
+          always: "Offert à tous les joueurs"
+          events:
+            saison-1: "Offert aux joueurs de la saison 1"
+            millesime-2017: "Offert aux participants du Millésime 2017"
+            soldes-hiver: "Offert aux participants des Soldes d'hiver"
+          achievement: "Gagné avec le succès %{name} · %{condition}"
+          goal: "Gagné en accomplissant la mission de la semaine du %{week}"
+          goal_any: "Gagné en accomplissant une mission de la Confrérie"
+          set: "Gagné au palier %{tier} du set %{set} · %{seasons}"
+          set_any: "Gagné avec le set %{set}"
+        to_earn:
+          achievement: "Débloquez le succès %{name} · %{condition}"
+          goal: "Accomplissez une mission de la Confrérie"
+          set: "Atteignez la moitié du set %{set}"
+          set_absent: "Set absent de la saison en cours"
+          event: "Événement terminé"
+        seasons:
+          zero: "aucune saison"
+          one: "saison %{list}"
+          other: "saisons %{list}"
+        seasons_connector: " et "
+        on_date: "le %{date}"
+        on_sign_up: "à l'inscription"
+        progress:
+          shown: "%{held} / %{total} cartes"
+          shown_missing: "%{held} / %{total} cartes · plus que %{missing}"
+          spoken:
+            zero: "%{held} carte sur %{total}"
+            one: "%{held} carte sur %{total}"
+            other: "%{held} cartes sur %{total}"
+          spoken_missing:
+            zero: "%{held} carte sur %{total}, plus que %{missing}"
+            one: "%{held} carte sur %{total}, plus que %{missing}"
+            other: "%{held} cartes sur %{total}, plus que %{missing}"
+        equipped: "Dos équipé. « %{name} » apparaîtra sur vos cartes face cachée."
+        equipped_with_season: "Dos équipé. « %{name} », marque de la saison %{season}, apparaîtra sur vos cartes face cachée."
+        failed: "Le dos n'a pas pu être équipé. Réessayez."
+        season_label: "Équiper %{name} avec la marque de la saison %{season}"
       title: "Personnalisation"
       more: "Plus"
+      fraction: "%{count} sur %{total}"
+      scope:
+        public: "Visible par tous"
+        private: "Vous seul"
       profile_title:
         heading: "Titre de profil"
         intro: "Votre titre s'affiche sur votre profil, dans le fil d'activité et dans vos échanges."
         none: "Aucun titre"
         empty: "Aucun titre pour l'instant. Atteignez un palier d'un set, ou complétez-le, pour en gagner un."
         apply: "Appliquer"
+        count_html:
+          zero: "Aucun titre gagné"
+          one: "<b>%{count}</b> titre gagné"
+          other: "<b>%{count}</b> titres gagnés"
       showcase:
         title: "Vitrine"
         empty: "Votre plus belle carte s'affichera ici, une fois choisie depuis la fiche d'une carte."
+        why: "Jusqu'à cinq cartes, en tête de votre profil public."
+        hint: "Ajoutez une carte depuis sa fiche, avec « %{add} ». Faites glisser les cartes pour changer leur ordre."
   profile_titles:
     chosen:
       title: "Titre équipé"
@@ -2207,6 +2269,8 @@ fr:
       month_year: "%B %Y"
       long_day: "%-d %B %Y"
       long_day_first: "1er %B %Y"
+      day_month: "%-d %B"
+      day_month_first: "1er %B"
     month_names: [~, janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre]
     abbr_month_names: [~, janv., févr., mars, avr., mai, juin, juil., août, sept., oct., nov., déc.]
     day_names: [dimanche, lundi, mardi, mercredi, jeudi, vendredi, samedi]

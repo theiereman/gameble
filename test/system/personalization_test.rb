@@ -173,40 +173,105 @@ class PersonalizationTest < ApplicationSystemTestCase
     assert_nil Game::PlayerState.where(player_id: @player.id).pick(:active_title_rank)
   end
 
-  test "an unlocked card back is equipped with its preview and toast and kept after a reload" do
+  test "an unlocked card back is equipped in one click, in place and announced, the focus staying on it, and kept after a reload" do
     Game::CardBackUnlock.record(@player.id, "set-theme-rpg", Time.current)
     sign_in_to_personalization
 
     assert_selector "h2", text: "CARD BACK"
-    assert_selector ".back-picker__preview-name", text: "Standard"
-    within(".back-picker__tile", text: "RPG") { click_button }
+    assert_selector ".back-picker__strip[data-showing=active] .back-picker__name", text: "STANDARD"
+    execute_script("window.stayedOnPage = true")
+    find("[data-key='set-theme-rpg'] .back-picker__back").click
 
-    assert_selector ".toast", text: "CARD BACK EQUIPPED"
-    assert_selector ".back-picker__preview-name", text: "RPG"
-    assert_selector ".back-picker__tile--active", text: "RPG"
+    assert_selector ".back-picker__tile--active[data-key='set-theme-rpg'] .back-picker__plate", text: "ACTIVE"
+    assert_no_selector ".back-picker__tile--active[data-key=standard]"
+    assert_selector "p[role=status]", text: "Card back equipped. RPG will show on your face-down cards.", visible: :all
+    assert_selector "[data-key='set-theme-rpg'] .back-picker__back:focus"
+    assert_selector ".back-picker__strip[data-showing=active]", text: /ACTIVE\s+RPG/
+    assert_selector "[data-key='set-theme-rpg'] .back-picker__back[aria-label^='RPG, active.']"
+    assert_selector "[data-key=standard] .back-picker__back[aria-label$='Equip.']"
+    assert_no_selector ".toast", text: /EQUIPPED/
+    assert evaluate_script("window.stayedOnPage")
+    assert_equal "set-theme-rpg", Game::PlayerState.where(player_id: @player.id).pick(:active_card_back)
+
     visit personalization_path(locale: :en)
-    assert_selector ".back-picker__preview-name", text: "RPG"
+    assert_selector ".back-picker__tile--active[data-key='set-theme-rpg']"
   end
 
-  test "a locked card back states its condition and cannot be equipped, even by a forged request" do
+  test "a hovered or locked back only fills the strip, and a forged choice leaves the frame where it was and says it failed" do
     Game::CardBackUnlock.record(@player.id, "set-theme-rpg", Time.current)
     sign_in_to_personalization
 
-    assert_selector ".back-picker__tile--locked", text: "Collect half of the Horror set."
-    within(".back-picker__tile--locked", text: "Horror") { click_button }
+    find("[data-key=centurion] .back-picker__back").hover
+    assert_selector ".back-picker__strip[data-showing=other]", text: /LOCKED\s+CENTURION\s+Unlock the achievement #{Regexp.escape(achievement(:boosters_100, :en))}/
+    find("[data-key='etoile-dor'] .back-picker__back").click
+    assert_selector ".back-picker__strip", text: "Unlock the achievement #{achievement(:first_legendary, :en)}"
+    assert_selector ".back-picker__tile--active[data-key=standard]"
 
-    assert_selector ".toast", text: "This card back is still locked."
     execute_script(<<~JS)
-      const input = document.querySelector(".back-picker__form input[name=back][value='set-theme-rpg']")
+      const input = document.querySelector("[data-key='set-theme-rpg'] .back-picker__form input[name=back]")
       input.value = "set-theme-horror"
       input.form.requestSubmit()
     JS
 
-    assert_selector ".toast", text: "This card back is still locked.", count: 2
+    assert_selector ".back-picker__strip[data-showing=failed]", text: "The card back could not be equipped. Try again."
+    assert_selector "p[role=status]", text: "The card back could not be equipped. Try again.", visible: :all
+    assert_selector ".back-picker__tile--active[data-key=standard]"
     assert_nil Game::PlayerState.where(player_id: @player.id).pick(:active_card_back)
   end
 
+  test "each earned back says how and when it was earned, and a locked achievement back names its achievement, in English and in French" do
+    set_id = insert_set([], { novice: 1, adept: 3, complete: 5 }, key: "roguelike")
+    Game::SetTier.create!(player_id: @player.id, set_id:, tier: "adept", reached_by: "trade", reached_at: Time.current)
+    %w[set-theme-roguelike confrere centurion].each { Game::CardBackUnlock.record(@player.id, it, Time.zone.local(2026, 10, 24, 10)) }
+    Game::GoalReward.create!(player_id: @player.id, week_start: Date.new(2026, 10, 12))
+    sign_in_to_personalization
+
+    {
+      en: { set: "Earned at the Adept tier of the Roguelike set · season 1", goal: "Earned by completing the mission of the week of October 12",
+            centurion: "Earned with the achievement", locked: "Unlock the achievement", date: "on October 24, 2026" },
+      fr: { set: "Gagné au palier Adepte du set Roguelike · saison 1", goal: "Gagné en accomplissant la mission de la semaine du 12 octobre",
+            centurion: "Gagné avec le succès", locked: "Débloquez le succès", date: "le 24 octobre 2026" }
+    }.each do |locale, copy|
+      visit personalization_path(locale:)
+
+      { "set-theme-roguelike" => copy[:set], "confrere" => copy[:goal], "centurion" => "#{copy[:centurion]} #{achievement(:boosters_100, locale)}" }.each do |key, sentence|
+        find("[data-key='#{key}'] .back-picker__back").hover
+        assert_selector ".back-picker__strip[data-showing=other] .back-picker__sentence", text: sentence, exact_text: true
+        assert_selector ".back-picker__strip .back-picker__tail", text: copy[:date], exact_text: true
+        assert_selector "[data-key='#{key}'] .back-picker__back[aria-label*=\"#{sentence}, #{copy[:date]}.\"]"
+      end
+      locked = "#{copy[:locked]} #{achievement(:first_legendary, locale)}"
+      find("[data-key='etoile-dor'] .back-picker__back").hover
+      assert_selector ".back-picker__strip .back-picker__sentence", text: locked, exact_text: true
+      assert_selector "[data-key='etoile-dor'] .back-picker__back[aria-label$=\"#{locked}.\"]"
+    end
+  end
+
+  test "a back earned in two seasons is equipped with the mark of the season pressed" do
+    tiers = { novice: 1, apprentice: 2, adept: 3, complete: 5 }
+    later = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
+    [ insert_set([], tiers, key: "roguelike"), insert_set([], tiers, key: "roguelike", season: later) ].each do |set_id|
+      Game::SetTier.create!(player_id: @player.id, set_id:, tier: "adept", reached_by: "trade", reached_at: Time.current)
+    end
+    Game::CardBackUnlock.record(@player.id, "set-theme-roguelike", Time.current)
+    sign_in_to_personalization
+
+    within("[data-key='set-theme-roguelike']") do
+      assert_selector ".back-picker__stamp", text: "S2"
+      click_button "S1"
+
+      assert_selector ".back-picker__season[aria-pressed=true]", text: "S1"
+      assert_selector ".back-picker__stamp", text: "S1"
+      assert_no_selector ".back-picker__stamp", text: "S2"
+    end
+    assert_selector ".back-picker__tile--active[data-key='set-theme-roguelike']"
+    assert_selector "p[role=status]", text: "Card back equipped. Roguelike, with the mark of season 1, will show on your face-down cards.", visible: :all
+    assert_equal [ "set-theme-roguelike", 1 ], Game::PlayerState.where(player_id: @player.id).pick(:active_card_back, :active_card_back_season)
+  end
+
   private
+    def achievement(key, locale) = "#{I18n.t("achievements.names.#{key}", locale:)} · #{I18n.t("achievements.conditions.#{key}", locale:)}"
+
     def sign_in_to_personalization
       visit home_path(locale: :en)
       click_steam_sign_in

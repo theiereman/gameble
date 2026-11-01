@@ -1,0 +1,37 @@
+<%# locals: (row:, chosen:) %>
+<%= tag.li class: class_names("back-picker__tile", "back-picker__tile--active" => row.active?, "back-picker__tile--locked" => row.locked?), data: { back_picker_target: "tile", key: row.key } do %>
+  <% if row.locked? %>
+    <button type="button" class="back-picker__back" aria-label="<%= card_back_label(row) %>">
+      <span class="back-picker__art">
+        <%= card_back_picture(row.back) %>
+        <%= pixel_icon("lock", class: "back-picker__lock") %>
+      </span>
+    </button>
+  <% else %>
+    <% shown = row.season || row.seasons.max %>
+    <%= button_to personalization_back_path, method: :patch, params: { back: row.key }, class: "back-picker__back", form_class: "back-picker__form",
+          aria: { label: card_back_label(row) }, autofocus: chosen == row.key,
+          data: { active_label: card_back_label(row, state: :active), unlocked_label: card_back_label(row, state: :unlocked) } do %>
+      <span class="back-picker__art">
+        <%= card_back_picture(row.back) %>
+        <% if row.choosable_season? %>
+          <% row.seasons.each do |season| %>
+            <%= render SeasonMarkComponent.new(season:, class: "back-picker__stamp", hidden: season != shown, data: { season: }) %>
+          <% end %>
+        <% end %>
+        <span class="back-picker__plate" aria-hidden="true"><%= t("personalizations.show.card_back.chips.active") %></span>
+      </span>
+    <% end %>
+    <% if row.choosable_season? %>
+      <div class="back-picker__seasons" role="group" aria-label="<%= t("personalizations.show.card_back.marks") %>">
+        <% row.seasons.each do |season| %>
+          <%= button_to personalization_back_path, method: :patch, params: { back: row.key, season: }, class: "back-picker__season", form_class: "back-picker__form",
+                aria: { label: card_back_season_label(row.back, season), pressed: row.active? && season == row.season }, data: { season: } do %>
+            <%= SeasonMarkComponent.label(season) %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+  <template class="back-picker__detail"><%= render "personalizations/back_detail", row: %></template>
+<% end %>

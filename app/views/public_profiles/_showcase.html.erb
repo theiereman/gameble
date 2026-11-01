@@ -8,19 +8,28 @@
 <% removal_focus_found = cards.any? { it.id == removal_focus && it.season_number.to_s == removed["number"].to_s } if removal_focus %>
 <% order = { controller: "showcase-order", showcase_order_announcement_value: t("public_profiles.show.showcase.moved"), showcase_order_failed_value: t("public_profiles.show.showcase.move_failed") } if movable %>
 <%= tag.section class: (framed ? "panel panel--brackets personalization-section" : "profile-section"), aria: { labelledby: "profile-showcase-heading" }, data: order do %>
-  <div class="profile-showcase__head">
-    <%= tag.h2 t("public_profiles.show.showcase.title"), id: "profile-showcase-heading", class: (framed ? "personalization-section__title" : "profile-section__title"),
-          tabindex: (-1 if removed), autofocus: (removed.present? && !removal_focus_found) %>
-    <% if editable %>
-      <details class="profile-showcase__info">
-        <summary class="profile-showcase__info-mark">
-          <%= pixel_icon("info", class: "profile-showcase__info-icon") %>
-          <span class="visually-hidden"><%= t("public_profiles.show.showcase.info_label") %></span>
-        </summary>
-        <p class="profile-showcase__info-text"><%= info %></p>
-      </details>
+  <% head = capture do %>
+    <div class="profile-showcase__head">
+      <%= tag.h2 t("public_profiles.show.showcase.title"), id: "profile-showcase-heading", class: (framed ? "personalization-section__title" : "profile-section__title"),
+            tabindex: (-1 if removed), autofocus: (removed.present? && !removal_focus_found) %>
+      <% if editable %>
+        <details class="profile-showcase__info">
+          <summary class="profile-showcase__info-mark">
+            <%= pixel_icon("info", class: "profile-showcase__info-icon") %>
+            <span class="visually-hidden"><%= t("public_profiles.show.showcase.info_label") %></span>
+          </summary>
+          <p class="profile-showcase__info-text"><%= info %></p>
+        </details>
+      <% end %>
+    </div>
+  <% end %>
+  <% if framed %>
+    <%= render "personalizations/section_head", why: t("personalizations.show.showcase.why"), count: personalization_fraction(cards.size, Game::ChosenShowcase::SIZE), scope: :public do %>
+      <%= head %>
     <% end %>
-  </div>
+  <% else %>
+    <%= head %>
+  <% end %>
   <%= tag.ul class: [ "profile-showcase", ("profile-showcase--sortable" if movable) ], data: ({ showcase_order_target: "list" } if movable) do %>
     <% cards.each_with_index do |card, index| %>
       <% place = card_showcase_path(slug: card.id, number: card.season_number) %>
@@ -57,6 +66,9 @@
         <% end %>
       <% end %>
     <% end %>
+  <% end %>
+  <% if framed %>
+    <p class="personalization-section__hint"><%= t("personalizations.show.showcase.hint", add: t("showcases.add")) %></p>
   <% end %>
   <% if movable %>
     <p class="visually-hidden" role="status" data-showcase-order-target="status"></p>

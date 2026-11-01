@@ -35,6 +35,25 @@ class PersonalizationsControllerTest < ActionDispatch::IntegrationTest
     [ @player.id, common, rare ].each { assert_no_match(/\b#{it}\b/, css_select("main").to_html.gsub(/data-card-art-(width|height)-value="\d+"|\/seasons\/\d+|\b(19|20)\d\d\b/, "")) }
   end
 
+  test "the public sections come first, each saying what it is for, how many it holds and who sees it" do
+    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:common_card_one).id, quantity: 1)
+    Game::AddToShowcase.new.call(player: @player, card_season_id: catalog_card_seasons(:common_card_one).id).value!
+    sign_in(@player)
+
+    get personalization_path(locale: :fr)
+
+    assert_equal %w[profile-showcase-heading personalization-title-heading personalization-back-heading], css_select(".personalization-section h2").map { it["id"] }
+    assert_select ".personalization__public > .personalization-section", 2
+    assert_equal [ "Jusqu'à cinq cartes, en tête de votre profil public.", "Votre titre s'affiche sur votre profil, dans le fil d'activité et dans vos échanges.",
+      "Vous seul le voyez, sur vos cartes face cachée à l'ouverture." ], css_select(".personalization-section__why").map(&:text)
+    assert_equal [ "Visible par tous", "Visible par tous", "Vous seul" ], css_select(".personalization-section__scope").map { it.text.strip }
+    assert_select ".personalization-section__count [aria-hidden=true]", text: "1 / 5"
+    assert_select ".personalization-section__count .visually-hidden", "1 sur 5"
+    assert_select ".personalization-section__count", "Aucun titre gagné"
+    assert_select ".personalization-section__hint", "Ajoutez une carte depuis sa fiche, avec « Mettre en vitrine ». Faites glisser les cartes pour changer leur ordre."
+    assert_select ".personalization-section__scope svg.pixel-icon", 3
+  end
+
   test "with no card chosen the section says how to choose one" do
     sign_in(@player)
 

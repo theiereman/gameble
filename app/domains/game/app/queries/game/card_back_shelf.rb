@@ -1,6 +1,9 @@
 module Game
   module CardBackShelf
-    Row = Data.define(:back, :state, :season, :seasons) do
+    SET_GROUPS = %i[theme hall_of_fame].freeze
+    GROUPS = [ :base, :achievement, :goal, *SET_GROUPS ].freeze
+
+    Row = Data.define(:back, :state, :season, :seasons, :unlocked_at, :tier, :week, :progress, :group) do
       def key = back.key
       def asset = back.asset
       def unlock = back.unlock
@@ -11,21 +14,47 @@ module Game
 
     def self.call(player)
       active, active_season = CardBacks.active_with_season(player)
-      unlocked = CardBackUnlock.where(player_id: player.id).pluck(:back).to_set
-      earned = CardBackSeasons.call(player)
+      unlocks = CardBackUnlock.where(player_id: player.id).pluck(:back, :unlocked_at).to_h
+      earned = EarnedSetBacks.rows(player)
+      seasons = CardBackSeasons.of(earned)
+      tiers = latest_tiers(earned)
+      week = first_goal_week(player, unlocks)
+      states = CardBacks::CATALOGUE.to_h { [ it.key, state(it, active:, unlocked: unlocks) ] }
+      progress = SetBackProgress.call(player, states.select { |_, state| state == :locked }.keys)
+
       CardBacks::CATALOGUE.map do |back|
-        state = state(back, active:, unlocked:)
-        Row.new(back:, state:, season: (active_season if state == :active), seasons: earned.fetch(back.key, []))
+        state = states.fetch(back.key)
+        Row.new(back:, state:, season: (active_season if state == :active), seasons: seasons.fetch(back.key, []),
+          unlocked_at: unlocks[back.key], tier: tiers[back.key], week: (week if back.key == CardBacks::GOAL_BACK),
+          progress: progress[back.key], group: group(back))
       end
     end
 
     def self.state(back, active:, unlocked:)
       if back.key == active then :active
-      elsif back.key == CardBacks::STANDARD || unlocked.include?(back.key) then :unlocked
+      elsif back.key == CardBacks::STANDARD || unlocked.key?(back.key) then :unlocked
       else :locked
       end
     end
 
-    private_class_method :state
+    def self.group(back)
+      case back.unlock.kind
+      when :always, :event then :base
+      when :set_tier then back.unlock.target.first.to_sym
+      else back.unlock.kind
+      end
+    end
+
+    def self.latest_tiers(earned)
+      earned.group_by { |kind, key, _, _| CardBacks.set_key(kind, key) }.transform_values do |rows|
+        rows.max_by { |_, _, number, tier| [ number, Catalog::SetTier::TIERS.index(tier) || -1 ] }.last
+      end
+    end
+
+    def self.first_goal_week(player, unlocks)
+      GoalReward.where(player_id: player.id).minimum(:week_start) if unlocks.key?(CardBacks::GOAL_BACK)
+    end
+
+    private_class_method :state, :group, :latest_tiers, :first_goal_week
   end
 end

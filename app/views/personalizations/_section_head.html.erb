@@ -1,0 +1,11 @@
+<%# locals: (why:, count:, scope:) %>
+<header class="personalization-section__head">
+  <div class="personalization-section__lead">
+    <%= yield %>
+    <p class="personalization-section__why"><%= why %></p>
+  </div>
+  <div class="personalization-section__meta">
+    <p class="personalization-section__count"><%= count %></p>
+    <%= personalization_scope(scope) %>
+  </div>
+</header>

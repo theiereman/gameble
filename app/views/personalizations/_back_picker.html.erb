@@ -1,53 +1,27 @@
 <%# locals: (shelf:, chosen: nil) %>
 <% active = shelf.find(&:active?) %>
-<%= render "personalizations/section", id: "personalization-back", heading: t("personalizations.show.card_back.heading"), focused: chosen.present? do %>
-  <p class="personalization-section__hint"><%= t("personalizations.show.card_back.intro") %></p>
-  <div class="back-picker__preview">
-    <span class="back-picker__stamped">
-      <%= card_back_image(active, "l") %>
-      <% if active.season %>
-        <%= render SeasonMarkComponent.new(season: active.season, class: "back-picker__stamp") %>
-      <% end %>
-    </span>
-    <div class="back-picker__preview-text">
-      <p class="back-picker__preview-name"><%= card_back_name(active) %></p>
-      <p class="back-picker__preview-mark"><%= t("personalizations.show.card_back.active") %></p>
-      <% if active.choosable_season? %>
-        <div class="back-picker__marks" role="group" aria-label="<%= t("personalizations.show.card_back.marks") %>">
-          <% active.seasons.each do |season| %>
-            <%= button_to personalization_back_path, method: :patch, params: { back: active.key, season: }, disabled: season == active.season,
-                  class: class_names("back-picker__mark", "back-picker__mark--active" => season == active.season), form_class: "back-picker__form",
-                  aria: { label: t("personalizations.show.card_back.mark_label", season:) } do %>
-              <%= render SeasonMarkComponent.new(season:) %>
-            <% end %>
-          <% end %>
-        </div>
+<% groups = shelf.group_by(&:group) %>
+<% unlocked = shelf.count { !it.locked? } %>
+<% actions = "pointerover->back-picker#hover pointerout->back-picker#unhover focusin->back-picker#focus focusout->back-picker#blur click->back-picker#tap submit->back-picker#choose" %>
+<%= render "personalizations/section", id: "personalization-back", heading: t("personalizations.show.card_back.heading"), why: t("personalizations.show.card_back.intro"),
+      count: personalization_fraction(unlocked, shelf.size, suffix: t("personalizations.show.card_back.unlocked", count: unlocked)), scope: :private do %>
+  <%= tag.div class: "back-picker", data: { controller: "back-picker", back_picker_active_value: active.key, back_picker_season_value: active.season, action: actions } do %>
+    <div class="back-picker__strip" aria-hidden="true" data-back-picker-target="strip" data-showing="active">
+      <%= render "personalizations/back_chip", state: :active %>
+      <%= render "personalizations/back_detail", row: active %>
+    </div>
+    <template data-back-picker-target="activeChip"><%= render "personalizations/back_chip", state: :active %></template>
+    <template data-back-picker-target="unlockedChip"><%= render "personalizations/back_chip", state: :unlocked %></template>
+    <template data-back-picker-target="lockedChip"><%= render "personalizations/back_chip", state: :locked %></template>
+    <template data-back-picker-target="failure"><span class="back-picker__sentence"><%= t("personalizations.show.card_back.failed") %></span></template>
+    <div class="back-picker__row">
+      <% (Game::CardBackShelf::GROUPS - Game::CardBackShelf::SET_GROUPS).each do |group| %>
+        <%= render "personalizations/back_group", group:, rows: groups.fetch(group, []), chosen: %>
       <% end %>
     </div>
-  </div>
-  <ul class="back-picker__grid">
-    <% shelf.each do |row| %>
-      <li class="<%= class_names("back-picker__tile", "back-picker__tile--active" => row.active?, "back-picker__tile--locked" => row.locked?) %>">
-        <%= button_to personalization_back_path, method: :patch, params: { back: row.key }, disabled: row.active?, class: "back-picker__button",
-              form_class: "back-picker__form", aria: { label: card_back_name(row.back) } do %>
-          <span class="back-picker__art">
-            <%= card_back_image(row.back, "xs") %>
-            <% if row.locked? %>
-              <%= pixel_icon("lock", class: "back-picker__lock") %>
-            <% end %>
-          </span>
-          <span class="back-picker__name"><%= card_back_name(row.back) %></span>
-          <span class="back-picker__status">
-            <% if row.active? %>
-              <%= t("personalizations.show.card_back.current") %>
-            <% elsif row.locked? %>
-              <span class="visually-hidden"><%= t("personalizations.show.card_back.locked") %>. </span><%= card_back_condition(row.back) %>
-            <% else %>
-              <%= t("personalizations.show.card_back.choose") %>
-            <% end %>
-          </span>
-        <% end %>
-      </li>
+    <% Game::CardBackShelf::SET_GROUPS.each do |group| %>
+      <%= render "personalizations/back_group", group:, rows: groups.fetch(group, []), chosen: %>
     <% end %>
-  </ul>
+    <p class="visually-hidden" role="status" data-back-picker-target="status"></p>
+  <% end %>
 <% end %>

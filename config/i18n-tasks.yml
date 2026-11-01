@@ -59,3 +59,6 @@ ignore_unused:
   - "time.formats.local_*"
   # The landing's unlock tiles, named under a prefix held in a variable (landings/_unlock).
   - "landings.show.unlock.tiles.*"
+  # The back picker's group headings and event sentences, named after a back's group or key.
+  - "personalizations.show.card_back.groups.*"
+  - "personalizations.show.card_back.earned.events.*"

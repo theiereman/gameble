@@ -1,0 +1,7 @@
+<%# locals: (row:) %>
+<% tail = card_back_tail(row) %>
+<span class="back-picker__name"><%= card_back_name(row.back) %></span>
+<span class="back-picker__sentence"><%= card_back_sentence(row) %></span>
+<% if tail %>
+  <span class="back-picker__tail"><%= tail %></span>
+<% end %>

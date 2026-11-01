@@ -1,0 +1,9 @@
+<%# locals: (state:) %>
+<% case state %>
+<% when :active %>
+  <span class="back-picker__chip back-picker__chip--active"><%= pixel_icon("check", class: "back-picker__chip-icon") %><%= t("personalizations.show.card_back.chips.active") %></span>
+<% when :unlocked %>
+  <span class="back-picker__chip"><%= t("personalizations.show.card_back.chips.unlocked") %></span>
+<% else %>
+  <span class="back-picker__chip back-picker__chip--locked"><%= pixel_icon("lock", class: "back-picker__chip-icon") %><%= t("personalizations.show.card_back.chips.locked") %></span>
+<% end %>

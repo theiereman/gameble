@@ -2,7 +2,8 @@
 <% if showcase.any? %>
   <%= render "public_profiles/showcase", owner: nil, cards: showcase, movable: true, removable: true, moved:, removed:, framed: true %>
 <% else %>
-  <%= render "personalizations/section", id: "personalization-showcase", heading: t("personalizations.show.showcase.title"), focused: removed.present? do %>
+  <%= render "personalizations/section", id: "personalization-showcase", heading: t("personalizations.show.showcase.title"), why: t("personalizations.show.showcase.why"),
+        count: personalization_fraction(0, Game::ChosenShowcase::SIZE), scope: :public, focused: removed.present? do %>
     <p class="personalization-section__empty"><%= t("personalizations.show.showcase.empty") %></p>
   <% end %>
 <% end %>

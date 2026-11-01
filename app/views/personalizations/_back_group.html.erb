@@ -1,0 +1,14 @@
+<%# locals: (group:, rows:, chosen:) %>
+<% if rows.any? %>
+  <div class="back-picker__group back-picker__group--<%= group.to_s.dasherize %>">
+    <h3 class="back-picker__group-heading">
+      <span class="back-picker__group-name"><%= t("personalizations.show.card_back.groups.#{group}") %></span>
+      <span class="back-picker__group-count"><%= personalization_fraction(rows.count { !it.locked? }, rows.size) %></span>
+    </h3>
+    <ul class="back-picker__mosaic">
+      <% rows.each do |row| %>
+        <%= render "personalizations/back_tile", row:, chosen: %>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

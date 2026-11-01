@@ -31,11 +31,14 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
     get personalization_path(locale: :en)
 
     assert_equal [ BACK, 1 ], stored
-    assert_select ".back-picker__marks .back-picker__mark", 2
-    assert_select ".back-picker__marks .back-picker__mark--active .season-mark", "S1"
-    assert_select ".back-picker__marks button[disabled]", 1
-    assert_select ".back-picker__stamped .season-mark", "S1"
-    assert_select ".back-picker__grid .season-mark", false
+    assert_select ".back-picker__tile--active[data-key='#{BACK}']" do
+      assert_select ".back-picker__seasons[role=group][aria-label='Season mark'] button.back-picker__season", 2
+      assert_select "button.back-picker__season[aria-pressed=true][aria-label='Equip Roguelike with the mark of season 1']", "S1"
+      assert_select "button.back-picker__season[aria-pressed=false]", "S2"
+      assert_select ".back-picker__stamp.season-mark:not([hidden])", "S1"
+      assert_select ".back-picker__stamp.season-mark[hidden]", "S2"
+    end
+    assert_select ".back-picker__strip .back-picker__sentence", "Earned at the Adept tier of the Roguelike set · seasons 1 and 2"
     assert_select "[style]", false
   end
 
@@ -57,7 +60,7 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
     get personalization_path(locale: :en)
 
     assert_equal [ BACK, nil ], stored
-    assert_select ".back-picker__marks", false
+    assert_select ".back-picker__seasons", false
     assert_select ".season-mark", false
   end
 

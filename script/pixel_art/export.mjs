@@ -309,6 +309,18 @@ const ICONS = {
       ".cccccccc.",
     ],
   },
+  // An open eye (11 × 7): who sees a setting, beside a section's heading.
+  eye: {
+    grid: [
+      "...ccccc...",
+      ".cc.....cc.",
+      "c...ccc...c",
+      "c...ccc...c",
+      "c...ccc...c",
+      ".cc.....cc.",
+      "...ccccc...",
+    ],
+  },
   // ◀ and ▶.
   "arrow-left": {
     grid: [
@@ -1277,6 +1289,7 @@ const DESCRIPTIONS = {
   ])),
   "picture.svg": "Missing cover art: a frame, a sun and a mountain (text colour)",
   "lock.svg": "A missing card's padlock on its empty slot (10 × 12, text colour)",
+  "eye.svg": "An open eye, who sees a section's setting, 11 × 7 (text colour)",
   "arrow-left.svg": "◀ arrow (text colour)",
   "arrow-right.svg": "▶ arrow (text colour)",
   "arrow-small-right.svg": "▸ small arrow for links (text colour)",

@@ -681,9 +681,6 @@ en:
     show:
       title: Capsule opening
   card_backs:
-    chosen:
-      text: "%{name} will show on your face-down cards."
-      title: Card back equipped
     conditions:
       achievement: Unlock the matching achievement.
       always: Every player has it.
@@ -843,6 +840,8 @@ en:
     - Friday
     - Saturday
     formats:
+      day_month: "%B %-d"
+      day_month_first: "%B %-d"
       long_day: "%B %-d, %Y"
       long_day_first: "%B %-d, %Y"
       month_year: "%B %Y"
@@ -2070,24 +2069,86 @@ en:
   personalizations:
     show:
       card_back:
-        active: Active card back
-        choose: Choose
-        current: Active
+        chips:
+          active: Active
+          locked: Locked
+          unlocked: Unlocked
+        earned:
+          achievement: Earned with the achievement %{name} · %{condition}
+          always: Given to every player
+          events:
+            millesime-2017: Given to those who took part in Vintage 2017
+            saison-1: Given to the players of season 1
+            soldes-hiver: Given to those who took part in the Winter sales
+          goal: Earned by completing the mission of the week of %{week}
+          goal_any: Earned by completing a Brotherhood mission
+          set: Earned at the %{tier} tier of the %{set} set · %{seasons}
+          set_any: Earned with the %{set} set
+        equipped: Card back equipped. %{name} will show on your face-down cards.
+        equipped_with_season: Card back equipped. %{name}, with the mark of season %{season},
+          will show on your face-down cards.
+        failed: The card back could not be equipped. Try again.
+        groups:
+          achievement: Achievements
+          base: Basic and events
+          goal: Brotherhood mission
+          hall_of_fame: Sets · Hall of fame
+          theme: Sets · Themes
         heading: Card back
         intro: Only you see it, on your face-down cards when you open a capsule.
-        locked: Card back locked
-        mark_label: Wear the mark of season %{season}
+        label: "%{name}, %{state}. %{sentence}."
+        label_to_equip: "%{label} Equip."
+        label_with_tail: "%{name}, %{state}. %{sentence}, %{tail}."
         marks: Season mark
+        on_date: on %{date}
+        on_sign_up: when you signed up
+        progress:
+          shown: "%{held} / %{total} cards"
+          shown_missing: "%{held} / %{total} cards · %{missing} to go"
+          spoken:
+            one: "%{held} of %{total} cards"
+            other: "%{held} of %{total} cards"
+          spoken_missing:
+            one: "%{held} of %{total} cards, %{missing} to go"
+            other: "%{held} of %{total} cards, %{missing} to go"
+        season_label: Equip %{name} with the mark of season %{season}
+        seasons:
+          one: season %{list}
+          other: seasons %{list}
+        seasons_connector: " and "
+        states:
+          active: active
+          locked: locked
+          unlocked: unlocked
+        to_earn:
+          achievement: Unlock the achievement %{name} · %{condition}
+          event: Event over
+          goal: Complete a Brotherhood mission
+          set: Reach half of the %{set} set
+          set_absent: Set not in the current season
+        unlocked:
+          one: unlocked
+          other: unlocked
+      fraction: "%{count} of %{total}"
       more: More
       profile_title:
         apply: Apply
+        count_html:
+          one: "<b>%{count}</b> title earned"
+          other: "<b>%{count}</b> titles earned"
+          zero: No title earned
         empty: No title yet. Reach a tier of a set, or complete it, to earn one.
         heading: Profile title
         intro: Your title shows on your profile, in the activity feed and in your trades.
         none: No title
+      scope:
+        private: Only you
+        public: Visible to all
       showcase:
         empty: Your best card will show here once you choose it from a card's page.
+        hint: Add a card from its page, with “%{add}”. Drag the cards to change their order.
         title: Showcase
+        why: Up to five cards, at the top of your public profile.
       title: Personalization
   profile_titles:
     chosen:

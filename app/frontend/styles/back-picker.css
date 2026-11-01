@@ -1,0 +1,356 @@
+/*
+ * The card back picker: one strip naming a back over a mosaic grouped by
+ * origin. Outward from a back's art: its outline, the lime frame of the
+ * active back, then the focus ring's gap and ring, kept clear of the
+ * "ACTIF" plate by the button's padding.
+ */
+
+.back-picker {
+  --back-picker-strip-height: 0px;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.back-picker__strip {
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) calc(var(--space-4) + var(--space-1));
+  min-height: 64px;
+  padding: var(--space-4) calc(var(--space-5) + var(--space-1));
+  background: var(--color-panel-sunken);
+  box-shadow: var(--panel-soft-border);
+}
+
+.back-picker__strip[data-showing="other"] {
+  box-shadow: var(--control-border);
+}
+
+.back-picker__strip[data-showing="failed"] {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-alert);
+  color: var(--color-alert);
+}
+
+.back-picker__chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--space-6);
+  padding: 0 var(--space-3);
+  box-shadow: var(--control-border);
+  color: var(--color-text);
+  font: var(--font-card-meta);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.back-picker__chip--active {
+  background: var(--color-lime);
+  box-shadow: none;
+  color: var(--color-on-lime);
+}
+
+.back-picker__chip--locked {
+  color: var(--color-muted);
+}
+
+.back-picker__chip-icon {
+  width: auto;
+  height: 10px;
+}
+
+.back-picker__name {
+  color: var(--color-text-max);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
+  text-transform: uppercase;
+}
+
+.back-picker__sentence {
+  flex: 1 1 16rem;
+  min-width: 0;
+  color: var(--color-text);
+  font: var(--font-menu);
+}
+
+.back-picker__strip[data-showing="failed"] .back-picker__sentence {
+  color: var(--color-alert);
+}
+
+.back-picker__tail {
+  flex: none;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.back-picker__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: calc(var(--space-6) + var(--space-1)) var(--space-8);
+}
+
+.back-picker__row .back-picker__group {
+  min-width: 150px;
+}
+
+.back-picker__group-heading {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: 0 0 calc(var(--space-3) + var(--space-1));
+  color: var(--color-muted);
+  font: var(--font-card-meta);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.back-picker__row .back-picker__group-heading {
+  flex-wrap: wrap;
+  align-content: flex-end;
+  row-gap: var(--space-1);
+  min-height: 40px;
+  contain: inline-size;
+}
+
+.back-picker__group-count {
+  letter-spacing: var(--tracking-card-meta);
+}
+
+.back-picker__group-count b {
+  color: var(--color-text-bright);
+}
+
+.back-picker__mosaic {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.back-picker__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.back-picker__form {
+  display: block;
+  margin: 0;
+}
+
+.back-picker__back {
+  display: block;
+  padding: calc(var(--space-2) + var(--space-1)) calc(var(--space-2) + var(--space-1)) var(--space-4);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.back-picker__art {
+  position: relative;
+  display: block;
+  box-shadow: 0 0 0 var(--space-unit) var(--color-outline);
+}
+
+.back-picker__picture {
+  display: block;
+}
+
+.back-picker__image {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.back-picker__art .back-picker__image {
+  width: 80px;
+  height: 120px;
+}
+
+.back-picker__tile--active .back-picker__art {
+  box-shadow:
+    0 0 0 var(--space-unit) var(--color-outline),
+    0 0 0 calc(var(--space-unit) + 3px) var(--color-lime);
+}
+
+.back-picker__tile--locked .back-picker__image {
+  opacity: 0.42;
+  filter: grayscale(1) brightness(0.6);
+}
+
+.back-picker__lock {
+  position: absolute;
+  inset: 0;
+  width: 20px;
+  height: 24px;
+  margin: auto;
+  color: var(--color-text-bright);
+  filter: drop-shadow(1px 0 0 var(--color-backdrop)) drop-shadow(-1px 0 0 var(--color-backdrop))
+    drop-shadow(0 1px 0 var(--color-backdrop)) drop-shadow(0 -1px 0 var(--color-backdrop));
+}
+
+.back-picker__plate {
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  z-index: 2;
+  display: none;
+  align-items: center;
+  height: 18px;
+  padding: 0 var(--space-3);
+  background: var(--color-lime);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-outline);
+  color: var(--color-on-lime);
+  font: var(--font-card-meta);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.back-picker__tile--active .back-picker__plate {
+  display: flex;
+}
+
+.back-picker__stamp[hidden] {
+  display: none;
+}
+
+.back-picker__seasons {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.back-picker__season {
+  min-width: 34px;
+  height: var(--space-7);
+  padding: 0 var(--space-3);
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text);
+  font: var(--font-card-meta);
+  letter-spacing: var(--tracking-card-meta);
+  cursor: pointer;
+}
+
+.back-picker__season:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-gold);
+  color: var(--color-gold);
+}
+
+.back-picker__season[aria-pressed="true"] {
+  background: var(--color-gold);
+  box-shadow: none;
+  color: var(--color-on-gold);
+}
+
+.back-picker__season:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+@media (hover: hover) {
+  .back-picker__art {
+    transition: transform 160ms var(--ease-out);
+  }
+
+  .back-picker__tile:not(.back-picker__tile--active) .back-picker__back:hover .back-picker__art {
+    box-shadow:
+      0 0 0 var(--space-unit) var(--color-outline),
+      0 0 0 calc(2 * var(--space-unit)) var(--color-accent);
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .back-picker__tile .back-picker__back .back-picker__art {
+    transition: none;
+  }
+
+  html:not([data-motion="full"]) .back-picker__tile .back-picker__back:hover .back-picker__art {
+    transform: none;
+  }
+}
+
+html[data-motion="reduced"] .back-picker__tile .back-picker__back .back-picker__art {
+  transition: none;
+}
+
+html[data-motion="reduced"] .back-picker__tile .back-picker__back:hover .back-picker__art {
+  transform: none;
+}
+
+/* While the viewport is tall enough, the strip sticks at the top and the
+   backs scroll clear of it. */
+@media (min-height: 560px) {
+  .back-picker__strip {
+    position: sticky;
+    top: 0;
+  }
+
+  .back-picker__back,
+  .back-picker__season {
+    scroll-margin-top: calc(var(--back-picker-strip-height) + var(--space-4));
+  }
+}
+
+@media (max-width: 719px) {
+  .back-picker__strip {
+    gap: var(--space-2) calc(var(--space-3) + var(--space-1));
+    min-height: 96px;
+    padding: calc(var(--space-3) + var(--space-1)) var(--space-4);
+  }
+
+  .back-picker__sentence {
+    flex-basis: 100%;
+    order: 3;
+    font: var(--font-body-small);
+  }
+
+  .back-picker__tail {
+    order: 4;
+  }
+
+  .back-picker__row {
+    gap: var(--space-5) calc(var(--space-5) + var(--space-1));
+  }
+
+  .back-picker__mosaic {
+    gap: var(--space-touch-gap);
+  }
+
+  .back-picker__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 78px;
+    min-height: 98px;
+  }
+
+  .back-picker__art .back-picker__image {
+    width: 56px;
+    height: 84px;
+  }
+
+  .back-picker__seasons {
+    gap: var(--space-touch-gap);
+    margin-top: var(--space-touch-gap);
+  }
+
+  .back-picker__season {
+    min-width: var(--space-touch-min);
+    height: var(--space-touch-min);
+  }
+}
