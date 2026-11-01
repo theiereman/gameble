@@ -11,7 +11,7 @@ review: 'quick'
 review_source: 'pinned'
 lenses_ran: ['quick']
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context:
   - '{project-root}/AGENTS.md'
 warnings: ['oversized']
@@ -171,6 +171,15 @@ Environment: work only in /home/teyermann/projets/gameble/.claude/worktrees/buil
   - `[low]` `[patch]` The "Steam library set never feeds suggestions" query test had no goal, so it passed vacuously — the player now has a real game-set goal while the friend spares only library-set games.
   - `[low]` `[patch]` A one-shot `focused?` read in `test/system/trade_suggestions_test.rb` broke the retrying-matcher rule — now `eventually(...)`.
 
+### 2026-11-01 — Review pass
+- verdicts: 5 findings — high 0, medium 0, low 3, false 2, maybe-false 0
+- findings:
+  - `[low]` `[reject]` After ENVOYER the focus lands on the next suggestion's opener, so the screen-wide live refresh stays held until the player moves the focus — the intent contract asks for both the hold while focus is in the section and that landing focus. The hold lifts on the first focus move, and the deferred refresh then runs (`live_refresh_controller` observes the attribute). Narrowing it would contradict the intent, and morph refresh is page-wide by design (the trade board holds the same way).
+  - `[low]` `[reject]` ENVOYER's `throttle_player` budget is separate from the board's send, because Rails 8.1 keys `rate_limit` by `scope` (the controller path), so a player could alternate them for up to 40 proposals a minute — the invitation controllers already split their budgets the same way. No player meets this in everyday use, and merging the budgets would add a `scope:` parameter to `throttle_player`.
+  - `[false]` `[reject]` `FREE_EDITIONS` accepts unrated or unpublished editions that the prefill resolver drops — holdings are written only by `Game::OpenPack` from `Catalog::PublishedSeason`, rarity is set when a season is published, and nothing unpublishes a season, so no held edition is unrated or in a draft season.
+  - `[false]` `[reject]` The row's focus ring shows only when the opener is focused, not when ENVOYER is — DESIGN.md's whole-row ring is the row's own keyboard focus (the opener is the row's target). ENVOYER is a separate target with its own ring, and ringing the row too would show two rings for one focus.
+  - `[low]` `[patch]` No browser test checked that the focus lands on the next suggestion's opener after ENVOYER, or that the hold then holds — added a system test in `test/system/trade_suggestions_test.rb`. It covers two suggestions, a send of the first, real focus on the remaining opener, the hold set, the hold kept after a `focusout` with no `relatedTarget` while the focus stays (a window or tab blur), and the hold released once the focus leaves. Mutating `focusLeft` to release on every `focusout` makes it fail.
+
 ## Auto Run Result
 
 - **Summary:** the Échanges trade list shows a SUGGESTIONS section, at most 3 one-sided rows, one per friend, computed on read by `Game::TradeSuggestions` from the player's goals and AD-38's spare rule (free copies beyond the kept one, minus games already on the friend's side of an open trade between the pair). The section is hidden when there is no suggestion and absent for a private player, and it never names a private, banned or deleted friend. ENVOYER proposes the row's cards through `Game::ProposeTrade`, shows the title-only "Proposition transmise" toast, keeps the friend's stored draft and moves the focus as designed. The row's opener is a GET link (`friend` token plus `take[]` `slug--sN` keys) that renders the prefilled draft board without reading or writing the stored draft.
@@ -201,3 +210,16 @@ Environment: work only in /home/teyermann/projets/gameble/.claude/worktrees/buil
   - Edits on a prefilled board are not stored, and the address is not replaced. Entry 4 owns that.
   - The key line lists all of the player's goals.
   - Server time of the read at scale is not yet measured; entry 3 does that.
+
+### Follow-up review pass (2026-11-01)
+
+- **Summary:** a follow-up quick review of commit b66e4d27 against its parent. No production code changed. One test was added: the browser path after ENVOYER with two suggestions, and the live-refresh hold through a window blur.
+- **Files changed:** `test/system/trade_suggestions_test.rb`: the focus lands on the next suggestion's opener, and the hold survives a window blur and lifts when the focus leaves.
+- **Review findings:** 1 patched (low), 0 deferred, 4 rejected. Two low findings were rejected: the screen-wide hold after a send is what the intent prescribes, and the split rate-limit budget matches the invitation controllers and would need a new parameter. Two findings were false: no held edition is unrated or unpublished, and the row ring is meant for the opener's focus.
+- **Follow-up review recommendation:** false. This was a follow-up pass with no high patched (patched by verdict: high 0, medium 0, low 1).
+- **Verification:** the follow-up's unverified point now has a test. A `focusout` with a null `relatedTarget` while `document.activeElement` stays in the section is what a window or tab blur sends, and it keeps the hold; a real blur to the body releases it. The test fails when `focusLeft` drops the hold unconditionally.
+  - `test/system/trade_suggestions_test.rb` + `test/system/trades_test.rb`: 19 runs, 0 failures.
+  - The domain, controller and policy tests, plus French typography: 301 runs, 0 failures.
+  - Full `PARALLEL_WORKERS=3 bin/rails test`: 4061 runs, 0 failures.
+  - packwerk, zeitwerk, i18n-tasks missing and unused, rubocop, vitest (795), prettier, stylelint, tsc, `script/check_planning_references` and `script/check_file_sizes` all pass.
+- **Residual risks:** the blur is simulated with a synthetic `focusout`, because headless Chrome does not blur the window reliably. A real window switch in Firefox or Safari was not exercised. After a send, live refresh stays held until the player moves the focus, as the intent prescribes. ENVOYER and the board's send have separate 20-per-minute budgets. The earlier pass's residual risks still stand.

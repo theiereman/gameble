@@ -106,6 +106,32 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
     assert_equal stored, lea_draft
   end
 
+  test "after ENVOYER the focus lands on the next suggestion's opener, which holds live refresh through a window blur" do
+    Game::Holding.find_by!(player_id: @lea.id, card_season_id: @hills).update!(reserved: 1)
+    hold(@max, @hills, 2)
+    sign_in @hugo
+
+    visit trades_path(locale: :en)
+    assert_selector ".trade-suggestion", count: 2
+    first(".trade-suggestion__send button", text: /SEND/i).click
+
+    assert_selector ".toast .toast__title", text: /PROPOSAL FORWARDED/i
+    assert_selector ".trade-suggestion", count: 1
+    assert_selector ".trade-suggestion__summary", text: "Green Hills · for Max to choose in return"
+    eventually("focus on the remaining suggestion's opener") { focused?(".trade-suggestion__opener") }
+    assert_selector ".trade-suggestions[data-live-refresh-hold]", visible: :all
+
+    page.execute_script("document.activeElement.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }))")
+    held_after_blur = page.evaluate_async_script(<<~JS)
+      const done = arguments[arguments.length - 1]
+      setTimeout(() => done(document.querySelector(".trade-suggestions").hasAttribute("data-live-refresh-hold")), 100)
+    JS
+    assert held_after_blur, "a window blur keeps the hold while the focus stays in the section"
+
+    page.execute_script("document.activeElement.blur()")
+    assert_no_selector ".trade-suggestions[data-live-refresh-hold]", visible: :all
+  end
+
   test "on a phone the row and ENVOYER are touch targets, and the list does not scroll sideways" do
     resize_to(390, 844)
     sign_in @hugo
