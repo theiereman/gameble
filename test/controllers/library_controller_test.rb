@@ -1416,11 +1416,12 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, season, unique cards and the season's count, the
     # rarity legend; the search's sets, the standings, the figures of those
     # not started and the faces of those shown; the tab bar's trades and
-    # invitations waiting; the themes' names; the player's own sets and goals; their Steam library set.
-    assert_equal 16, forty
-    assert_equal 7, count_queries { get library_path(locale: :en, q: "theme", offset: 6), headers: { "Turbo-Frame" => "set-more-results-6" } }
+    # invitations waiting; the themes' names; the player's own sets, read once
+    # with their Steam library set, and goals.
+    assert_equal 15, forty
+    assert_equal 8, count_queries { get library_path(locale: :en, q: "theme", offset: 6), headers: { "Turbo-Frame" => "set-more-results-6" } }
     # No search: neither the sets nor the standings.
-    assert_equal 10, count_queries { get library_path(locale: :en) }
+    assert_equal 9, count_queries { get library_path(locale: :en) }
   end
 
   test "a player who holds no card sees the search, the way to all the cards and a line pointing to the search; a visitor is sent to the landing" do
@@ -1789,7 +1790,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
   def steam_library_section = css_select("section.steam-library").sole
 
-  test "a synced Steam library set has its section after MES SETS: the sync date, the tile with its kind line, owned over total and a gauge" do
+  test "a synced Steam library set has its section after MES SETS: the sync date, then its tile with its kind line, owned over total and no tier" do
     player = accounts_players(:player)
     library = create_library_set(player, card_ids: fixture_card_ids.first(3), synced_at: Time.zone.local(2026, 10, 29, 5))
     hold_all(player, [ catalog_card_seasons(:common_card_one).id ])
@@ -1800,17 +1801,20 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".set-entry > section.custom-sets + section.steam-library[aria-labelledby=steam-library-title] + turbo-frame#set-entry-in-progress"
     assert_equal [ "Chercher un set", "Objectifs", "Mes sets", "Ma ludothèque Steam" ], css_select(".set-entry h2").map(&:text)
-    assert_equal 1, css_select(".custom-sets .custom-sets__link").size
+    assert_equal 1, css_select(".custom-sets a.set-tile").size
     within_section = steam_library_section
     assert_equal "Synchronisée avec Steam le 29 octobre 2026.", within_section.at_css("p.steam-library__sync").text.squish
     assert_nil within_section.at_css("p.steam-library__sync b")
-    link = within_section.at_css("a.custom-sets__link.steam-library__link[href='/fr/library/custom-sets/#{library.token}']")
-    assert_equal "Ma ludothèque Steam", link.at_css(".custom-sets__name").text
-    assert_equal "Steam · 3 jeux du catalogue", link.at_css(".steam-library__kind").text
-    assert_equal "1/3", link.at_css(".custom-sets__count").text.squish
-    assert link.at_css("progress.set-row__bar[value='1'][max='3'][aria-hidden=true]")
-    assert_equal "Ma ludothèque Steam, 1 carte sur 3", link.at_css(".visually-hidden").text
-    assert_select ".steam-library .set-tier, .steam-library .set-row__tick, .steam-library .button", false
+    tile = within_section.at_css("p.steam-library__sync + ul.set-tiles > li > a.set-tile[href='/fr/library/custom-sets/#{library.token}']")
+    recto = tile.at_css(".set-tile__face--recto")
+    assert_equal "Ma ludothèque Steam", recto.at_css(".set-tile__name").text
+    assert_equal "Steam · 3 jeux du catalogue", recto.at_css(".set-tile__kind").text
+    assert_equal "1/3", recto.at_css(".set-tile__head > .set-tile__count").text.squish
+    assert recto.at_css("progress.set-row__bar[value='1'][max='3']")
+    assert_equal "Plus que 2 pour Complet", recto.at_css(".set-tile__next").text.squish
+    assert_equal %w[complete], tile.css(".set-tile__node").map { it["class"][/tier-tone--(\w+)/, 1] }
+    assert_equal "Ma ludothèque Steam, 1 carte sur 3", tile.at_css("> .visually-hidden").text
+    assert_select ".steam-library .set-chip--rank, .steam-library .set-row__tick, .steam-library .set-tile--closest", false
     assert_select "[style]", false
   end
 
@@ -1825,7 +1829,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     lines = sync.at_css(".steam-library__lines").children
     assert_equal [ "Steam does not share your library. Make the game details of your Steam profile public.", "br", "Last sync: October 1, 2026." ],
       lines.map { it.name == "br" ? "br" : it.text }
-    assert_equal "My Steam library, 0 cards out of 3", steam_library_section.at_css("a .visually-hidden").text
+    assert_equal "My Steam library, 0 cards out of 3", steam_library_section.at_css("a.set-tile > .visually-hidden").text
 
     get library_path(locale: :fr)
     assert_equal "Dernière synchronisation\u202F: 1er octobre 2026.", steam_library_section.at_css("p.steam-library__sync b").text
@@ -1840,7 +1844,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "Steam does not share your library. Make the game details of your Steam profile public.",
       steam_library_section.at_css("p.steam-library__sync").text.squish
-    assert_equal "Steam · 0 catalog games", steam_library_section.at_css(".steam-library__kind").text
+    assert_equal "Steam · 0 catalog games", steam_library_section.at_css(".set-tile__face--recto .set-tile__kind").text
   end
 
   test "no section for a library set never synced, nor for a player without one" do
@@ -1853,6 +1857,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     create_library_set(player, synced_at: nil)
     get library_path(locale: :en)
     assert_select ".steam-library", false
-    assert_select ".custom-sets__link", false
+    assert_select ".custom-sets a.set-tile", false
   end
 end

@@ -48,7 +48,7 @@ class CustomSetsTest < ApplicationSystemTestCase
 
     within("section.custom-sets") do
       assert_text "Visible to you only · 0 / 10"
-      click_on "+ New set"
+      find("button.new-set-tile", text: /new set\s+3 to 50 games · 10 sets at most/i).click
     end
     within(editor) do
       assert_selector ".modal__title", text: /\Anew set\z/i
@@ -82,8 +82,10 @@ class CustomSetsTest < ApplicationSystemTestCase
     assert_current_path library_path(locale: :en)
     within("section.custom-sets") do
       assert_text "Visible to you only · 1 / 10"
-      assert_selector ".custom-sets__link", text: /Mes favoris\s+1\/3/
+      assert_selector "li:first-child > a.set-tile .set-tile__face--recto .set-tile__head", text: /Mes favoris\s+custom set · 3 games\s+1\/3/i
+      assert_selector "li:last-child > button.new-set-tile"
     end
+    take_screenshot
   end
 
   test "the author edits the set from MODIFIER: takes a game out, adds two, renames it, and lands on its album" do
@@ -167,7 +169,7 @@ class CustomSetsTest < ApplicationSystemTestCase
     assert_selector "#toasts .toast", text: /Set deleted/i
     assert_selector "#toasts .toast", text: "“Jeux du soir” is no longer one of your sets."
     assert_current_path library_path(locale: :en)
-    assert_no_selector ".custom-sets__link"
+    assert_no_selector "section.custom-sets a.set-tile"
     assert_text "Visible to you only · 0 / 10"
   end
 
@@ -204,7 +206,7 @@ class CustomSetsTest < ApplicationSystemTestCase
     sign_in(@player)
     visit library_path(locale: :en)
 
-    within("section.custom-sets") { click_on "+ New set" }
+    find("button.new-set-tile").click
     within(editor) do
       fill_in "Set name", with: "Mes favoris"
       fill_in "Search a game", with: "Seed"
@@ -236,7 +238,7 @@ class CustomSetsTest < ApplicationSystemTestCase
     resize_to(390, 844)
     visit library_path(locale: :fr)
 
-    within("section.custom-sets") { click_on "+ Nouveau set" }
+    find("button.new-set-tile").click
     within(editor) do
       fill_in "Nom du set", with: "Mes favoris"
       click_on "Enregistrer"
@@ -278,5 +280,57 @@ class CustomSetsTest < ApplicationSystemTestCase
     assert_selector ".collection .collection-grid"
     assert_no_selector ".custom-sets"
     assert_no_text "Mes favoris"
+  end
+
+  test "a typed set search finds a custom set in place of every section, which come back once it is cleared" do
+    insert_theme(@cards, key: "roguelike", season: @season)
+    hold_all(@player, @cards.first(2))
+    create_set
+    sign_in(@player)
+    visit library_path(locale: :en)
+    assert_selector "#set-entry-in-progress a.set-tile"
+
+    fill_in "set-search-field", with: "favo"
+    within(".set-results") do
+      assert_selector "a.set-tile[href='#{custom_set_path(locale: :en, token: Game::CustomSet.sole.token)}']", count: 1
+      assert_selector "a.set-tile .set-tile__face--recto .set-tile__name", text: "Mes favoris"
+    end
+    assert_selector ".set-search__status", text: "1 set found"
+    [ "#goals", "section.custom-sets", "#set-entry-in-progress" ].each { assert_no_selector it, visible: true }
+
+    fill_in "set-search-field", with: ""
+    assert_no_selector ".set-results"
+    [ "#goals", "section.custom-sets", "#set-entry-in-progress" ].each { assert_selector it, visible: true }
+  end
+
+  test "on the phone MES SETS shows two sets and the new set tile, and Tout voir unfolds the others in place, focusing the third" do
+    4.times { create_set(name: "Set #{it}") }
+    sign_in(@player)
+    visit library_path(locale: :fr)
+    within("section.custom-sets") do
+      assert_selector "a.set-tile", count: 4
+      assert_no_selector ".custom-sets__unfold"
+    end
+
+    resize_to(390, 844)
+    within("section.custom-sets") do
+      assert_selector "a.set-tile", count: 2
+      assert_equal [ "Set 0", "Set 1" ], all("a.set-tile .set-tile__face--recto .set-tile__name").map(&:text)
+      eventually("the new set tile should be a 120px row, its 44px square beside its text") do
+        tile = page.evaluate_script(<<~JS)
+          (() => {
+            const box = (selector) => document.querySelector(selector).getBoundingClientRect()
+            return { height: box(".new-set-tile").height, square: box(".new-set-tile__plus").width, besides: box(".new-set-tile__text").left > box(".new-set-tile__plus").right }
+          })()
+        JS
+        tile["height"] == 120 && tile["square"] == 44 && tile["besides"]
+      end
+      take_screenshot
+      find(".custom-sets__unfold", text: /\Aet 2 autres sets · tout voir\z/i).click
+      assert_selector "a.set-tile", count: 4
+      assert_no_selector ".custom-sets__unfold"
+      assert_selector "ul.custom-sets__tiles > li:nth-child(3) > a.set-tile:focus"
+      assert_selector "ul.custom-sets__tiles > li:last-child > button.new-set-tile"
+    end
   end
 end

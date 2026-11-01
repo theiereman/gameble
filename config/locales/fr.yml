@@ -886,8 +886,18 @@ fr:
       completed: "Complétés"
       custom_sets:
         count: "Visibles par vous seul · %{sets} / %{max}"
-        new: "+ Nouveau set"
+        count_full: "Visibles par vous seul · %{sets} / %{max} · retirez un set pour en créer un autre"
+        kind:
+          zero: "Set perso · %{games} jeu"
+          one: "Set perso · %{games} jeu"
+          other: "Set perso · %{games} jeux"
+        new: "Nouveau set"
+        new_rule: "%{min} à %{max} jeux · %{sets} sets au plus"
         title: "Mes sets"
+        unfold:
+          zero: "et aucun autre set · Tout voir"
+          one: "et 1 autre set · Tout voir"
+          other: "et %{count} autres sets · Tout voir"
       no_progress: "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
       search: "Chercher un set"
       all_cards: "Toutes les cartes"

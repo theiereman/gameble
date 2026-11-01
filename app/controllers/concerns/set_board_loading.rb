@@ -2,7 +2,16 @@ module SetBoardLoading
   extend ActiveSupport::Concern
 
   SetRow = Data.define(:set, :standing)
-  SetTile = Data.define(:set, :standing, :showcase, :closest)
+  SetTile = Data.define(:set, :standing, :showcase, :closest) do
+    def own? = false
+  end
+  OwnSetTile = Data.define(:own_set, :showcase) do
+    def own? = true
+
+    def closest = false
+
+    def standing = own_set.to_set_standing
+  end
   TilePage = Data.define(:tiles, :next_offset)
 
   TILES_PER_PAGE = 6
@@ -15,14 +24,18 @@ module SetBoardLoading
       params[:offset].to_s.match?(/\A\d{1,5}\z/) ? params[:offset].to_i : 0
     end
 
-    def load_set_search(season, owner:, offset: 0)
+    def load_set_search(season, owner:, own_sets: [], offset: 0)
       @query = SetSearch.clean(params[:q].is_a?(String) ? params[:q] : "")
-      search = SetSearch.call(season:, query: @query, locale: I18n.locale)
+      named = own_sets.index_with { helpers.custom_set_display_name(it) }
+      search = SetSearch.call(season:, query: @query, locale: I18n.locale, own_sets: named)
       shown = search.sets.drop(offset).first(TILES_PER_PAGE)
-      standings = shown.empty? ? {} : Game::SetsInProgress.call(owner, season:)
-      tiles = set_tiles(search_rows(shown, standings), owner:, season:, closest: nil)
-      @results = TilePage.new(tiles:, next_offset: next_offset(offset, search.sets.size))
+      @results = TilePage.new(tiles: search_tiles(shown, owner:, season:), next_offset: next_offset(offset, search.sets.size))
       @results_count = search.count
+    end
+
+    def own_set_tiles(own_sets, owner:, season:)
+      showcases = Game::SetShowcases.custom_sets(owner, tokens: own_sets.map(&:token), season:, locale: I18n.locale)
+      own_sets.map { OwnSetTile.new(own_set: it, showcase: showcases.fetch(it.token, NO_SHOWCASE)) }
     end
 
     def load_set_tiles(season, owner:, section: nil, offset: 0)
@@ -58,6 +71,14 @@ module SetBoardLoading
 
     def closest_to_next_tier(rows)
       rows.each_with_index.select { |row, _index| row.standing.missing }.min_by { |row, index| [ row.standing.missing, index ] }&.first
+    end
+
+    def search_tiles(shown, owner:, season:)
+      own_sets, game_sets = shown.partition { it.is_a?(Game::CustomSetStandings::Standing) }
+      standings = game_sets.empty? ? {} : Game::SetsInProgress.call(owner, season:)
+      tiles = set_tiles(search_rows(game_sets, standings), owner:, season:, closest: nil).index_by(&:set)
+        .merge(own_set_tiles(own_sets, owner:, season:).index_by(&:own_set))
+      shown.filter_map { tiles[it] }
     end
 
     def search_rows(found, standings)

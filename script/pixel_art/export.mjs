@@ -384,6 +384,19 @@ const ICONS = {
       "..c....",
     ],
   },
+  // + (8 × 8): the new set tile's add mark.
+  plus: {
+    grid: [
+      "...cc...",
+      "...cc...",
+      "...cc...",
+      "cccccccc",
+      "cccccccc",
+      "...cc...",
+      "...cc...",
+      "...cc...",
+    ],
+  },
   // An "i" in a rounded frame (9 × 9): a short explanation beside a heading.
   info: {
     grid: [
@@ -1295,6 +1308,7 @@ const DESCRIPTIONS = {
   "arrow-small-right.svg": "▸ small arrow for links (text colour)",
   "close.svg": "✕ close and remove (text colour)",
   "check.svg": "✓ check mark (text colour)",
+  "plus.svg": "+ add mark, the new set tile's, 8 × 8 (text colour)",
   "more.svg": "⋯ more actions, the menu of a row's rarer actions (text colour)",
   "info.svg": "An \"i\" in a rounded frame, the info mark beside a heading, 9 × 9 (text colour)",
   "rank-novice.svg": "Novice rank mark: one chevron, 9 × 5 (text colour)",

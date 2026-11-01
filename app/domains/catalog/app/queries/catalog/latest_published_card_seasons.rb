@@ -11,6 +11,11 @@ module Catalog
         .to_h
     end
 
+    def self.rarities
+      published.order(Arel.sql(LATEST_FIRST))
+        .select(Arel.sql("DISTINCT ON (catalog_card_seasons.card_id) catalog_card_seasons.card_id, catalog_card_seasons.rarity"))
+    end
+
     def self.faces(query: nil, locale: I18n.locale, picked: nil)
       latest = published.order(Arel.sql(LATEST_FIRST)).select(Arel.sql("DISTINCT ON (catalog_card_seasons.card_id) catalog_card_seasons.id"))
       latest = latest.where(card_id: picked) if picked

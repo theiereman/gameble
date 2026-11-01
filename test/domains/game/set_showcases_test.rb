@@ -1,11 +1,14 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 require_relative "../../support/game_sets"
+require_relative "../../support/custom_sets"
 
-# Game::SetShowcases: what a set progress tile shows of a player's sets.
+# Game::SetShowcases: what a set progress tile shows of a player's sets,
+# game sets by id and their own sets (custom and Steam library) by token.
 class Game::SetShowcasesTest < ActiveSupport::TestCase
   include CatalogSeeds
   include GameSets
+  include CustomSets
 
   setup do
     @player = accounts_players(:player)
@@ -82,5 +85,56 @@ class Game::SetShowcasesTest < ActiveSupport::TestCase
     assert_queries_count(2) { assert_equal 40, showcases(sets.map(&:first)).size }
     assert_queries_count(0) { assert_equal({}, showcases(sets.map(&:first), player: nil)) }
     assert_queries_count(0) { assert_equal({}, showcases([])) }
+  end
+
+  def card_ids(card_season_ids) = Catalog::CardSeason.where(id: card_season_ids).in_order_of(:id, card_season_ids).pluck(:card_id)
+
+  def own_showcases(tokens, player: @player) = Game::SetShowcases.custom_sets(player, tokens:, season: @season, locale: :en)
+
+  test "a custom set of five games or fewer shows every game in its order, a missing one by its latest published face's rarity" do
+    members = take(3)
+    custom_set = create_custom_set(@player, name: "Petit", card_ids: card_ids(members))
+    rarity([ members[1] ], :epic)
+    Catalog::CardSeason.insert_all!([ { card_id: card_ids([ members[1] ]).sole, season_id: catalog_seasons(:one).id, prestige_score: 0.5, rating: 90,
+      rarity: Catalog::Rarity::TIERS.key(:legendary), number: 901 } ])
+    hold_all(@player, [ members[0] ])
+
+    showcase = own_showcases([ custom_set.token ]).fetch(custom_set.token)
+
+    assert_equal [ [ slug(members[0]), "common", true ], [ nil, "epic", false ], [ nil, "common", false ] ],
+      showcase.slots.map { [ it.card&.id, it.rarity, it.owned? ] }
+    assert_equal 0, showcase.others
+  end
+
+  test "a larger custom set shows its three rarest held games at their best edition and counts the others; the game gained last is named" do
+    members = take(20)
+    custom_set = create_custom_set(@player, name: "Grand", card_ids: card_ids(members))
+    rarity([ members[4] ], :rare)
+    rarity([ members[9] ], :legendary)
+    rarity([ members[2] ], :uncommon)
+    latest = Time.utc(2026, 10, 20, 9)
+    hold_all(@player, members.first(6), gained_at: latest - 1.day)
+    hold_all(@player, [ members[9] ], gained_at: latest)
+
+    showcase = own_showcases([ custom_set.token ]).fetch(custom_set.token)
+
+    assert_equal [ [ slug(members[9]), "legendary" ], [ slug(members[4]), "rare" ], [ slug(members[2]), "uncommon" ] ],
+      showcase.slots.map { [ it.card.id, it.rarity ] }
+    assert_equal 4, showcase.others
+    assert_equal [ slug(members[9]), latest ], [ showcase.last_gained.card.id, showcase.last_gained.gained_at ]
+  end
+
+  test "a Steam library set shows the same way; another player's set shows nothing; any number of own sets costs two queries" do
+    members = take(4)
+    library = create_library_set(@player, card_ids: card_ids(members))
+    others = create_custom_set(accounts_players(:moderator), name: "Le sien", card_ids: card_ids(take(3)))
+    sets = (1..3).map { |index| create_custom_set(@player, name: "Set #{index}", card_ids: card_ids(take(5))) }
+    hold_all(@player, members.first(1))
+
+    assert_queries_count(2) { assert_equal 4, own_showcases([ library.token, *sets.map(&:token) ]).size }
+    assert_equal [ true, false, false, false ], own_showcases([ library.token ]).fetch(library.token).slots.map(&:owned?)
+    assert_equal({}, own_showcases([ others.token ]))
+    assert_queries_count(0) { assert_equal({}, own_showcases([ library.token ], player: nil)) }
+    assert_queries_count(0) { assert_equal({}, own_showcases([])) }
   end
 end

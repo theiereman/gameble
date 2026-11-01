@@ -1,22 +1,40 @@
-<%# locals: (custom_sets:) %>
-<section class="set-entry__section custom-sets" aria-labelledby="custom-sets-title">
-  <h2 id="custom-sets-title" class="set-entry__title"><%= t("library.entry.custom_sets.title") %></h2>
-  <p class="custom-sets__note"><%= t("library.entry.custom_sets.count", sets: custom_sets.size, max: Game::CustomSet::PER_PLAYER) %></p>
-  <% if custom_sets.any? %>
-    <ul class="custom-sets__list">
-      <% custom_sets.each do |custom_set| %>
-        <li>
-          <%= link_to custom_set_path(token: custom_set.token), class: "custom-sets__link" do %>
-            <span class="custom-sets__name"><%= custom_set.name %></span>
-            <span class="custom-sets__count" aria-hidden="true"><b><%= number_with_delimiter(custom_set.held) %></b>/<%= number_with_delimiter(custom_set.total) %></span>
-            <span class="visually-hidden"><%= set_album_value_text(custom_set.to_set_standing) %></span>
-          <% end %>
-        </li>
+<%# locals: (tiles:) %>
+<% room = tiles.size < Game::CustomSet::PER_PLAYER %>
+<% folded = tiles.size - CustomSetsHelper::SHOWN_ON_PHONE %>
+<section class="set-entry__section custom-sets" aria-labelledby="custom-sets-title" data-controller="set-fold">
+  <div class="custom-sets__head">
+    <h2 id="custom-sets-title" class="set-entry__title"><%= t("library.entry.custom_sets.title") %></h2>
+    <p class="custom-sets__note">
+      <%= pixel_icon("lock", class: "custom-sets__lock") %>
+      <% if room %>
+        <%= t("library.entry.custom_sets.count", sets: tiles.size, max: Game::CustomSet::PER_PLAYER) %>
+      <% else %>
+        <%= t("library.entry.custom_sets.count_full", sets: tiles.size, max: Game::CustomSet::PER_PLAYER) %>
       <% end %>
-    </ul>
+    </p>
+  </div>
+  <ul class="set-tiles custom-sets__tiles" data-set-fold-target="list">
+    <% tiles.each do |tile| %>
+      <li><%= render "library/set_progress_tile", href: set_tile_path(tile), tile: %></li>
+    <% end %>
+    <% if room %>
+      <li class="custom-sets__add">
+        <button type="button" class="new-set-tile" aria-haspopup="dialog"
+          data-controller="dialog-opener" data-action="dialog-opener#open" data-dialog-opener-dialog-value="custom-set-editor">
+          <span class="new-set-tile__plus"><%= pixel_icon("plus") %></span>
+          <span class="new-set-tile__text">
+            <b class="new-set-tile__title"><%= t("library.entry.custom_sets.new") %></b>
+            <span class="new-set-tile__rule"><%= t("library.entry.custom_sets.new_rule", min: Game::CustomSet::GAMES.min, max: Game::CustomSet::GAMES.max,
+              sets: Game::CustomSet::PER_PLAYER) %></span>
+          </span>
+        </button>
+      </li>
+    <% end %>
+  </ul>
+  <% if folded.positive? %>
+    <button type="button" class="button button--link custom-sets__unfold" data-set-fold-target="button" data-action="set-fold#unfold">
+      <%= t("library.entry.custom_sets.unfold", count: folded) %>
+    </button>
   <% end %>
-  <% if custom_sets.size < Game::CustomSet::PER_PLAYER %>
-    <%= render ButtonComponent.new(variant: :secondary, opens: "custom-set-editor") do %><%= t("library.entry.custom_sets.new") %><% end %>
-    <%= render "custom_sets/editor" %>
-  <% end %>
+  <%= render "custom_sets/editor" if room %>
 </section>

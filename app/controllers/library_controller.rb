@@ -12,11 +12,12 @@ class LibraryController < ApplicationController
     @season = Catalog::PublishedSeason.call
     return if @season.nil?
 
-    load_set_search(@season, owner: current_player, offset: turbo_frame_request? ? tile_offset : 0)
+    own_sets = Game::CustomSetStandings.call(current_player).select { it.custom? || it.ever_synced? }
+    load_set_search(@season, owner: current_player, own_sets:, offset: turbo_frame_request? ? tile_offset : 0)
     return render(:more_results) if turbo_frame_request_id.to_s.start_with?(MORE_RESULTS_FRAME)
 
-    @custom_sets = Game::CustomSetStandings.call(current_player, kind: Game::CustomSet::CUSTOM)
-    @steam_library = Game::CustomSetStandings.call(current_player, kind: Game::CustomSet::STEAM_LIBRARY).find(&:ever_synced?)
+    @custom_set_tiles, library_tiles = own_set_tiles(own_sets, owner: current_player, season: @season).partition { it.own_set.custom? }
+    @steam_library_tile = library_tiles.first
     @goals = Game::GoalNeeds.call(current_player)
     load_unique_cards
   end

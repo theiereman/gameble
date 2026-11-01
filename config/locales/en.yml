@@ -1494,8 +1494,18 @@ en:
       completed: Completed
       custom_sets:
         count: Visible to you only · %{sets} / %{max}
-        new: "+ New set"
+        count_full: Visible to you only · %{sets} / %{max} · remove a set to create another
+        kind:
+          one: Custom set · %{games} game
+          other: Custom set · %{games} games
+          zero: Custom set · %{games} games
+        new: New set
+        new_rule: "%{min} to %{max} games · %{sets} sets at most"
         title: My sets
+        unfold:
+          one: and 1 more set · See all
+          other: and %{count} more sets · See all
+          zero: and no more set · See all
       found:
         one: 1 set found
         other: "%{count} sets found"

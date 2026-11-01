@@ -64,9 +64,10 @@ class SteamLibraryTest < ApplicationSystemTestCase
     within("section.steam-library") do
       assert_selector "h2", text: "MY STEAM LIBRARY"
       assert_text "Synced with Steam on #{today}."
-      assert_link class: "steam-library__link", text: /My Steam library/
-      assert_selector ".steam-library__kind", text: "STEAM · 2 CATALOG GAMES"
-      assert_selector ".custom-sets__count", text: "1/2"
+      assert_link class: "set-tile", text: /My Steam library/
+      assert_selector ".set-tile__face--recto .set-tile__kind", text: "STEAM · 2 CATALOG GAMES"
+      assert_selector ".set-tile__face--recto .set-tile__count", text: "1/2"
+      assert_no_selector ".set-chip--rank"
     end
 
     sign_out
@@ -98,7 +99,7 @@ class SteamLibraryTest < ApplicationSystemTestCase
     within("section.steam-library") do
       assert_text "Steam does not share your library. Make the game details of your Steam profile public."
       assert_selector "b", text: "Last sync: #{today}."
-      assert_selector ".custom-sets__count", text: "0/2"
+      assert_selector ".set-tile__face--recto .set-tile__count", text: "0/2"
     end
 
     fill_in "set-search-field", with: "zzz"
@@ -149,7 +150,7 @@ class SteamLibraryTest < ApplicationSystemTestCase
 
     within("section.steam-library") do
       assert_selector "h2", text: "MY STEAM LIBRARY"
-      assert_selector ".steam-library__kind", text: "STEAM · 2 CATALOG GAMES"
+      assert_selector ".set-tile__face--recto .set-tile__kind", text: "STEAM · 2 CATALOG GAMES"
     end
   end
 end

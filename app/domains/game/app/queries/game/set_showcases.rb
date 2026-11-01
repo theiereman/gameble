@@ -15,14 +15,35 @@ module Game
       def card_ids = [ *shown.filter_map(&:held_id), latest&.held_id ].compact.uniq
     end
 
-    SQL = <<~SQL.squish.freeze
-      WITH members AS (
+    GAME_SET_MEMBERS = <<~SQL.squish.freeze
+      members AS (
         SELECT memberships.set_id, memberships.position, memberships.id AS membership_id, member.card_id, member.rarity,
                COUNT(*) OVER (PARTITION BY memberships.set_id) AS size
           FROM catalog_set_memberships AS memberships
           JOIN catalog_card_seasons AS member ON member.id = memberships.card_season_id
          WHERE memberships.set_id IN (:set_ids)
-      ),
+      )
+    SQL
+
+    CUSTOM_SET_GAMES = <<~SQL.squish.freeze
+      picked AS (
+        SELECT custom_sets.token AS set_id, games.id AS position, games.card_id,
+               COUNT(*) OVER (PARTITION BY games.custom_set_id) AS size
+          FROM game_custom_set_games AS games
+          JOIN game_custom_sets AS custom_sets ON custom_sets.id = games.custom_set_id
+         WHERE custom_sets.player_id = :player_id AND custom_sets.token IN (:tokens)
+      )
+    SQL
+
+    CUSTOM_SET_MEMBERS = <<~SQL.squish.freeze
+      members AS (
+        SELECT picked.set_id, picked.position, picked.position AS membership_id, picked.card_id, latest.rarity, picked.size
+          FROM picked
+          LEFT JOIN latest ON latest.card_id = picked.card_id
+      )
+    SQL
+
+    SHOWN = <<~SQL.squish.freeze
       editions AS (
         SELECT DISTINCT ON (catalog_card_seasons.card_id) catalog_card_seasons.card_id, game_holdings.card_season_id,
                catalog_card_seasons.rarity, MAX(game_holdings.last_gained_at) OVER games AS gained_at
@@ -43,14 +64,29 @@ module Game
     def self.call(player, set_ids:, season:, locale:)
       return {} if player.nil? || season.nil? || set_ids.empty?
 
-      picks = members_by_set(player, set_ids, season).transform_values { pick(it) }
+      showcases("WITH #{GAME_SET_MEMBERS}, #{SHOWN}", player:, season:, locale:, set_ids: set_ids.uniq)
+    end
+
+    def self.custom_sets(player, tokens:, season:, locale:)
+      return {} if player.nil? || season.nil? || tokens.empty?
+
+      showcases(custom_set_sql, player:, season:, locale:, tokens: tokens.uniq)
+    end
+
+    def self.showcases(sql, player:, season:, locale:, **binds)
+      picks = members_by_set(sql, player:, season:, **binds).transform_values { pick(it) }
       views = Catalog::CardViews.call(picks.values.flat_map(&:card_ids), locale:)
       picks.transform_values { showcase(it, views) }
     end
 
-    def self.members_by_set(player, set_ids, season)
-      sql = Holding.sanitize_sql_array([ SQL, { player_id: player.id, set_ids: set_ids.uniq, season_id: season.id, small_set: SMALL_SET } ])
-      rows = Holding.connection.select_all(sql, "Game::SetShowcases").cast_values
+    def self.custom_set_sql
+      latest = Catalog::LatestPublishedCardSeasons.rarities.where("catalog_card_seasons.card_id IN (SELECT picked.card_id FROM picked)").to_sql
+      "WITH #{CUSTOM_SET_GAMES}, latest AS (#{latest}), #{CUSTOM_SET_MEMBERS}, #{SHOWN}"
+    end
+
+    def self.members_by_set(sql, player:, season:, **binds)
+      query = Holding.sanitize_sql_array([ sql, { player_id: player.id, season_id: season.id, small_set: SMALL_SET, **binds } ])
+      rows = Holding.connection.select_all(query, "Game::SetShowcases").cast_values
       rows.group_by(&:first).transform_values do |set_rows|
         set_rows.map do |_set_id, size, rarity, held_id, held_rarity, gained_at|
           Member.new(size:, rarity: rarity_name(rarity), held_id:, held_rarity:, gained_at:)
@@ -82,6 +118,6 @@ module Game
       Catalog::Rarity::TIERS[rarity]&.to_s
     end
 
-    private_class_method :members_by_set, :pick, :showcase, :best, :rarity_name
+    private_class_method :showcases, :custom_set_sql, :members_by_set, :pick, :showcase, :best, :rarity_name
   end
 end

@@ -2,6 +2,7 @@ module SetRowsHelper
   NOTCHES = { "bronze" => 1, "silver" => 2, "gold" => 3 }.freeze
 
   PathNode = Data.define(:tier, :required, :state, :lit)
+  TileLabel = Data.define(:name, :kind, :sentence)
 
   def set_kind_name(kind)
     t("library.set_kinds.#{kind}")
@@ -20,6 +21,18 @@ module SetRowsHelper
       t("library.set_progress.count", count: standing.held, owned: number_with_delimiter(standing.held), total: number_with_delimiter(standing.total)) ]
     parts.concat(standing.complete? ? [ t("library.set_progress.complete") ] : tier_words(standing))
     parts.join(", ")
+  end
+
+  def set_tile_label(tile)
+    if tile.own?
+      TileLabel.new(name: custom_set_display_name(tile.own_set), kind: own_set_kind_line(tile.own_set), sentence: own_set_tile_name(tile.own_set))
+    else
+      TileLabel.new(name: SetLabel.for(tile.set), kind: set_kind_name(tile.set.kind), sentence: set_progress_sentence(tile.set, tile.standing))
+    end
+  end
+
+  def set_tile_path(tile)
+    tile.own? ? custom_set_path(token: tile.own_set.token) : library_set_path(kind: tile.set.kind, key: tile.set.key)
   end
 
   def set_album_value_text(standing)

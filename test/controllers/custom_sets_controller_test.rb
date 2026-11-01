@@ -132,7 +132,8 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :fr)
 
-    assert_select "section.custom-sets > button.button[data-dialog-opener-dialog-value=custom-set-editor]", I18n.t("library.entry.custom_sets.new", locale: :fr)
+    assert_select "section.custom-sets ul.set-tiles > li > button.new-set-tile[data-controller=dialog-opener][data-action='dialog-opener#open']" \
+      "[data-dialog-opener-dialog-value=custom-set-editor]", /Nouveau set\s+3 à 50 jeux · 10 sets au plus/
     assert_select "section.custom-sets dialog#custom-set-editor" do
       assert_select "p#custom-set-editor-title", "Nouveau set"
       assert_select "form#custom-set-editor-form[action='/fr/library/custom-sets'][method=post]"
@@ -332,12 +333,16 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
     assert_select "section.custom-sets[aria-labelledby=custom-sets-title]" do
       assert_select "h2#custom-sets-title", "My sets"
       assert_select ".custom-sets__note", "Visible to you only · 1 / 10"
-      assert_select "a.custom-sets__link[href='/en/library/custom-sets/#{custom_set.token}']" do
-        assert_select ".custom-sets__name", "Mes favoris"
-        assert_select ".custom-sets__count", "0/3"
-        assert_select ".visually-hidden", "0 cards out of 3"
+      assert_select "ul.set-tiles > li > a.set-tile[href='/en/library/custom-sets/#{custom_set.token}']" do
+        assert_select ".set-tile__face--recto .set-tile__name", "Mes favoris"
+        assert_select ".set-tile__face--recto .set-tile__kind", "Custom set · 3 games"
+        assert_select ".set-tile__face--recto .set-tile__head > .set-tile__count", "0/3"
+        assert_select "a > .visually-hidden", "Mes favoris, custom set, 0 cards out of 3"
       end
-      assert_select "button.button[data-dialog-opener-dialog-value=custom-set-editor]", "+ New set"
+      assert_select "ul.set-tiles > li:last-child > button.new-set-tile[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=custom-set-editor]" do
+        assert_select ".new-set-tile__title", "New set"
+        assert_select ".new-set-tile__rule", "3 to 50 games · 10 sets at most"
+      end
     end
   end
 
@@ -383,9 +388,9 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
     assert_refusal "10 SETS AU PLUS · Retirez un set pour en créer un autre."
 
     get library_path(locale: :en)
-    assert_select ".custom-sets__note", "Visible to you only · 10 / 10"
-    assert_select ".custom-sets__link", 10
-    assert_select ".custom-sets button.button, #custom-set-editor", false
+    assert_select ".custom-sets__note", "Visible to you only · 10 / 10 · remove a set to create another"
+    assert_select ".custom-sets a.set-tile", 10
+    assert_select ".new-set-tile, #custom-set-editor", false
   end
 
   test "a refusal answered as HTML returns where the editor was, with its message" do
@@ -496,7 +501,7 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en)
 
     assert_select ".custom-sets__note", "Visible to you only · 1 / 10"
-    assert_equal [ "/en/library/custom-sets/#{custom_set.token}" ], css_select(".custom-sets__link").map { it["href"] }
+    assert_equal [ "/en/library/custom-sets/#{custom_set.token}" ], css_select(".custom-sets a.set-tile").map { it["href"] }
   end
 
   test "deleting a library set is not found and erases nothing" do
