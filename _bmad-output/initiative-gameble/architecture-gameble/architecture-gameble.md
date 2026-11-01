@@ -416,7 +416,7 @@ graph TD
 - **Costs:** 16 files read `steam_id`; the export and the deletion notice gain the identities; the sign-in throttles key on provider as well. The email hash is personal data: the privacy page, the retention page, the export and the deletion (the hash goes with the identity row) name it.
 - **Rejected:** Clerk as the session (bans and roles would live in two places); the Clerk user id as the key (its email merging would link accounts silently); fusing accounts in the first version. Banning by email hash across identities was offered and not retained (author, 2026-10-29); a later decision.
 
-### AD-35 — Custom sets and active goals live in `Game`
+### AD-35 — Custom sets and active goals live in `Game` `[ADOPTED]`
 
 - **Binds:** CAP-6, CAP-11, CAP-27, CAP-28
 - **Prevents:** a custom set stored as a catalog set and earning rewards; goals that bend the draw; each screen computing a goal's missing cards its own way; a player's private set shown to others.
@@ -429,7 +429,7 @@ graph TD
   - One query, `Game::GoalNeeds(player)`, returns each goal's games, owned or not, and its missing ones; the collection grid, the albums, the capsule reveal, the card detail, the profile and AD-38 read it, and marking stores nothing. The hub reads no goal (author, 2026-10-30). The profile shows the goals on game sets only, under `Game::Visibility.visible?` (AD-13).
   - Draws never read goals or custom sets: `Game::DrawPool` and the odds take no player input, and the draw's statistical test is unchanged.
 
-### AD-36 — The Steam library set is synced by a web-layer job
+### AD-36 — The Steam library set is synced by a web-layer job `[ADOPTED]`
 
 - **Binds:** CAP-27, CAP-14
 - **Prevents:** a new dependency arrow into or out of `Steam`; play waiting on Steam; a private or failing Steam answer erasing a library; the library list kept as raw Steam data or frozen in an event; the key's daily quota spent by the sync.
@@ -442,7 +442,7 @@ graph TD
   - The library sync is a player setting in `Accounts`, on by default (author, 2026-10-30). Turning it off publishes the settings operation's event, whose `Game` handler deletes the library set and its games in the same transaction; the creation after a Steam sign-in skips a player who turned it off, and turning it on creates the set, its first sync enqueued after commit.
   - The privacy page, the retention page and the export name the stored library list, as Valve's terms require telling players what Steam data is kept.
 
-### AD-37 — Achievements are metrics read from state
+### AD-37 — Achievements are metrics read from state `[ADOPTED]`
 
 - **Binds:** CAP-17, CAP-20
 - **Prevents:** a condition computed one way live and another way in the backfill; achievements counted from events; an achievement lost or doubled by a rename; a reveal mode invented by the server.
@@ -454,7 +454,7 @@ graph TD
   - A release that adds achievements runs the backfill as a data step of its deploy, before the new code takes traffic, so no live grant announces history as new; its grants are retroactive (no toast; AD-25's back handler honours the flag). Under the bank lock, `GrantAchievement` re-reads only the metric of the achievement it grants.
   - Keys never change. An achievement's title, condition and flavor text are the locale keys `achievements.names`, `achievements.conditions` and `achievements.flavors` under its key; renaming one is a locale change. Achievement backs are entries of AD-25's constant.
 
-### AD-38 — Trade suggestions are read, not stored
+### AD-38 — Trade suggestions are read, not stored `[ADOPTED]`
 
 - **Binds:** CAP-8, CAP-11, CAP-28
 - **Prevents:** a suggestion table drifting from holdings and goals; the list and the prefilled proposal disagreeing on what is spare; a second way to create a trade; a private player exposed; a sent suggestion offered again; a look at a suggestion wiping a hand-built draft.

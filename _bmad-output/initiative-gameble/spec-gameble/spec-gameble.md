@@ -113,7 +113,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - Going private cancels the player's open trades at once: every reserved copy is released and the friend sees the trade closed.
     - For the missing cards of a player's active goals (CAP-28), the game lists the friends who hold a spare copy: a copy beyond their first of that game, not reserved in an open trade.
     - At most 3 suggestions at a time, one per friend, each grouping the cards that friend spares for the player's goals. Mutual suggestions come first (the friend spares a card the player's goals miss, and the player spares one the friend's goals miss), then the friend bringing the most cards (author, 2026-10-31).
-    - A suggestion places the friend's cards, up to 4: those of the player's lowest-numbered goals first, then the rarest. A mutual one also places every spare of the player that the friend's goals miss, up to 4 (author, 2026-10-31).
+    - A suggestion places the friend's cards, up to 4: those of the player's lowest-numbered goals first, then the rarest. A mutual one also places every spare of the player that the friend's game-set goals miss, up to 4; a friend's custom sets never count (author, 2026-10-31 and 2026-11-01).
     - A suggestion is sent as it stands, or opened to change either side before sending; once sent it runs under the rules above. A suggestion cannot be dismissed (author, 2026-10-31).
     - A private player is never suggested and sees no suggestions; suggestions name friends only. The Brotherhood presents itself as the go-between (`brotherhood-tone.md`).
 - **CAP-12**
@@ -300,5 +300,4 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 - **Card backs (CAP-20):** beyond one back per theme or hall of fame set at its back tier and the achievement backs of `achievements.md`, which goal and event backs ship, and does every successful weekly goal grant one?
 - **Preview image (CAP-9):** do Steam's terms allow its store art in a derived, stored image? The author checks before it ships.
-- **Mutual suggestions and custom sets (CAP-11, CAP-27):** may a friend's goal on a custom set, which only its owner sees, count toward a mutual suggestion? Recommended: game-set goals only, as the public profile shows them.
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.
