@@ -82,6 +82,8 @@ export type BoosterState = Readonly<{
   celebrationStill: boolean
   celebrationAnnounced: boolean
   celebrationSteps: number
+  goalsPending: readonly string[]
+  goalsReached: readonly string[]
   lockDepth: number
   focus: Focus | null
 }>

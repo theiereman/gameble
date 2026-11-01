@@ -1,0 +1,383 @@
+/* ---- The player's goals: the bookmark, OBJECTIFS on the entry and the album's goal button ---- */
+
+.goal-tone--1 {
+  --goal: var(--color-goal-1);
+}
+
+.goal-tone--2 {
+  --goal: var(--color-goal-2);
+}
+
+.goal-tone--3 {
+  --goal: var(--color-goal-3);
+}
+
+.goal-tone--4 {
+  --goal: var(--color-goal-4);
+}
+
+.goal-tone--5 {
+  --goal: var(--color-goal-5);
+}
+
+/* A numbered bookmark: the outline is a filter on the wrapper, since a clip-path would cut it. */
+.goal-bookmark {
+  --bookmark-width: 18px;
+  --bookmark-height: 22px;
+  --bookmark-number: 0.6875rem;
+  --bookmark-inset: 3px;
+
+  display: inline-flex;
+  flex: none;
+  filter: drop-shadow(2px 0 0 var(--color-outline)) drop-shadow(-2px 0 0 var(--color-outline))
+    drop-shadow(0 2px 0 var(--color-outline)) drop-shadow(0 -2px 0 var(--color-outline));
+}
+
+.goal-bookmark--small {
+  --bookmark-width: 14px;
+  --bookmark-height: 17px;
+  --bookmark-number: 0.625rem;
+  --bookmark-inset: 2px;
+
+  filter: drop-shadow(1px 0 0 var(--color-outline)) drop-shadow(-1px 0 0 var(--color-outline))
+    drop-shadow(0 1px 0 var(--color-outline)) drop-shadow(0 -1px 0 var(--color-outline));
+}
+
+.goal-bookmark--large {
+  --bookmark-width: 22px;
+  --bookmark-height: 27px;
+  --bookmark-number: 0.8125rem;
+  --bookmark-inset: 4px;
+}
+
+.goal-bookmark__shape {
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--bookmark-width);
+  height: var(--bookmark-height);
+  padding-top: var(--bookmark-inset);
+  background: var(--goal);
+  color: var(--color-on-goal);
+  font-family: var(--font-family-jetbrains-mono);
+  font-size: var(--bookmark-number);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.15;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%);
+}
+
+.goal-bookmark--hollow .goal-bookmark__shape {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--color-line-deep);
+  color: var(--color-muted);
+}
+
+/* ---- OBJECTIFS ---- */
+
+/* A search takes the place of OBJECTIFS, as of MES SETS. */
+.set-entry:has(.set-results) > .goals {
+  display: none;
+}
+
+.goals__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.goals__count {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.goals__count b {
+  color: var(--color-text-bright);
+}
+
+.goals__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px var(--space-4);
+}
+
+.goals__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.goal-row {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) minmax(120px, 210px) 64px minmax(0, 200px) auto;
+  grid-template-areas: "mark name track count next album";
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 58px;
+  padding: 6px var(--space-4) 6px 18px;
+  background: var(--color-panel);
+  box-shadow: inset 6px 0 0 0 var(--goal);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.goal-row:hover {
+  background: var(--color-panel-raised);
+}
+
+.goal-row:focus-visible {
+  outline: 0;
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 6px 0 0 0 var(--goal);
+}
+
+.goal-row > .goal-bookmark {
+  grid-area: mark;
+}
+
+.goal-row__name {
+  grid-area: name;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.goal-row__name b {
+  color: var(--color-text-max);
+  font: 700 0.875rem / 1.2 var(--font-family-jetbrains-mono);
+  overflow-wrap: anywhere;
+}
+
+.goal-row__kind {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.goal-row__track {
+  --bar-height: 6px;
+
+  grid-area: track;
+  position: relative;
+  display: block;
+}
+
+.goal-row__bar::-webkit-progress-value {
+  background: var(--goal);
+}
+
+.goal-row__bar::-moz-progress-bar {
+  background: var(--goal);
+}
+
+.goal-row .set-row__tick-mark {
+  display: none;
+}
+
+.goal-row__count {
+  grid-area: count;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.goal-row__count b {
+  color: var(--color-text-bright);
+  font: 700 0.8125rem / normal var(--font-family-jetbrains-mono);
+}
+
+.goal-row__next {
+  grid-area: next;
+  color: var(--color-text);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.goal-row__next b {
+  color: var(--color-text-max);
+}
+
+.goal-row__next .set-chip {
+  vertical-align: 1px;
+}
+
+.goal-row__album {
+  grid-area: album;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-self: end;
+  color: var(--color-muted);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+  text-transform: uppercase;
+}
+
+.goal-row:hover .goal-row__album {
+  color: var(--color-accent);
+}
+
+.goals__free {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--space-touch-min);
+  margin: 0;
+  padding: 0 18px;
+  outline: var(--space-unit) dashed var(--color-line-soft);
+  outline-offset: calc(-1 * var(--space-unit));
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.goals__free > .goal-bookmark {
+  opacity: 0.7;
+}
+
+.goals__empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  margin: 0;
+  padding: var(--space-3) var(--space-3);
+  color: var(--color-text);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+/* ---- The album's goal button and the header's goal edge ---- */
+
+.goal-control {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.goal-button.button {
+  margin: 0;
+}
+
+.goal-control--set .goal-button {
+  background: var(--color-panel-sunken);
+  box-shadow:
+    var(--pixel-outline-3),
+    inset 0 0 0 var(--space-unit) var(--goal),
+    var(--button-inset);
+  color: var(--goal);
+}
+
+.goal-control--set .goal-button:hover {
+  background: var(--color-panel-raised);
+  color: var(--goal);
+}
+
+.goal-control--set .goal-button:focus-visible {
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--goal),
+    var(--button-inset);
+}
+
+.goal-button > .goal-bookmark {
+  margin-left: -6px;
+}
+
+.goal-control__refusal {
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  text-align: right;
+}
+
+.goal-control__refusal:not(:empty) {
+  margin-top: var(--space-3);
+}
+
+.goal-control__limit {
+  text-transform: uppercase;
+}
+
+.goal-control__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: var(--space-3);
+  color: var(--color-accent);
+  text-transform: uppercase;
+}
+
+.goal-control__link:hover {
+  color: var(--color-accent-hi);
+}
+
+.set-album__header:has(.goal-control--set) {
+  box-shadow:
+    inset 6px 0 0 0 var(--goal),
+    var(--panel-border);
+}
+
+.set-album__header:has(.goal-control--set.goal-tone--1) {
+  --goal: var(--color-goal-1);
+}
+
+.set-album__header:has(.goal-control--set.goal-tone--2) {
+  --goal: var(--color-goal-2);
+}
+
+.set-album__header:has(.goal-control--set.goal-tone--3) {
+  --goal: var(--color-goal-3);
+}
+
+.set-album__header:has(.goal-control--set.goal-tone--4) {
+  --goal: var(--color-goal-4);
+}
+
+.set-album__header:has(.goal-control--set.goal-tone--5) {
+  --goal: var(--color-goal-5);
+}
+
+@media (max-width: 719px) {
+  .goal-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "mark name count"
+      "track track track"
+      "next next next";
+    gap: var(--space-3) var(--space-4);
+    padding: var(--space-3) var(--space-4) var(--space-3) 18px;
+  }
+
+  .goal-row__album {
+    display: none;
+  }
+
+  .set-album__actions:has(.goal-control) {
+    flex-basis: 100%;
+  }
+
+  .goal-control {
+    flex-basis: 100%;
+    align-items: stretch;
+  }
+
+  .goal-control .button-form,
+  .goal-control .goal-button {
+    width: 100%;
+  }
+
+  .goal-control__refusal {
+    text-align: left;
+  }
+}

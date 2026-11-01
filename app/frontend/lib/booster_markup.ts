@@ -127,5 +127,6 @@ export function openedFrom({ pack, cards, setTiers, bank }: OpenedMarkup): Openi
     serverTime: bank.serverTime,
     tierCountsBefore: { ...NO_COUNTS },
     setTiers: setTiers.flatMap((data) => setTierFrom(data) ?? []),
+    goalsReached: [],
   }
 }

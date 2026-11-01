@@ -1164,4 +1164,20 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_not_equal I18n.t("trades.throttled", locale: :fr), flash[:alert]
     end
   end
+
+  test "an accepted trade that completes goals of both players toasts the accepting player's alone" do
+    roguelike = Catalog::Set.insert_all!([ { season_id: catalog_seasons(:one).id, kind: "theme", key: "roguelike", params: { "theme" => "roguelike" } } ], returning: :id).rows.flatten.sole
+    Catalog::SetMembership.insert_all!([ { set_id: roguelike, card_season_id: @depths, position: 1 } ])
+    Game::AddGoal.new.call(player: @alice, kind: "theme", key: "roguelike").value!
+    Game::AddGoal.new.call(player: @bob, kind: "studio", key: "valve").value!
+    trade = from_lea
+    sign_in @alice
+
+    post accept_trade_path(token: trade.token, locale: :fr), params: revision(trade)
+    follow_redirect!
+
+    assert_select "#toasts .toast", /Objectif atteint.*Roguelike/m
+    assert_select "#toasts .toast", text: /Valve/, count: 0
+    assert_empty Game::Goal.where(player_id: [ @alice.id, @bob.id ])
+  end
 end

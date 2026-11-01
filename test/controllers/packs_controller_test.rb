@@ -406,7 +406,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "standard", pack.card_back
     assert_equal [ pack.id ], game_events(player, Game::PackOpened).map { it.data[:pack_id] }
 
-    assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers], body.keys
+    assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers goalsReached], body.keys
+    assert_equal [], body["goalsReached"]
     assert_equal %w[token kind cardBack url revealUrl], body["pack"].keys
     assert_equal [ pack.token, "regular", "/en/packs/#{pack.token}", "/en/packs/#{pack.token}/reveal" ],
       body["pack"].values_at("token", "kind", "url", "revealUrl")
@@ -684,5 +685,28 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :bad_request
     assert_equal 1, Game::Reserve.counts(player.id).standard
+  end
+
+  test "an opening that completes goals names them in its answer and in toasts on the pack's page; a replay names none" do
+    player = accounts_players(:player)
+    portals = Array.new(Game::Pack::SIZE, catalog_card_seasons(:portal_one).id)
+    Game::AddGoal.new.call(player:, kind: "studio", key: "valve").value!
+    create_pack(player, cards: portals)
+    sign_in(player)
+
+    open_json
+
+    assert_equal [ "Valve" ], body["goalsReached"]
+    assert_empty Game::Goal.where(player_id: player.id)
+    open_json
+    assert_equal [], body["goalsReached"]
+
+    Game::Holding.where(player_id: player.id).delete_all
+    Game::AddGoal.new.call(player:, kind: "studio", key: "valve").value!
+    create_pack(player, cards: portals)
+    post packs_path(locale: :fr)
+    follow_redirect!
+
+    assert_select "#toasts .toast", /Objectif atteint.*Valve/m
   end
 end

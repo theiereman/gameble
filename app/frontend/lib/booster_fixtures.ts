@@ -47,7 +47,12 @@ export const VALVE: OpeningSetTier = {
   url: "/en/library/studio/valve",
 }
 
-export const answerOf = (tiers: Rarity[], setTiers: OpeningSetTier[] = [], available = 1): OpeningAnswer => ({
+export const answerOf = (
+  tiers: Rarity[],
+  setTiers: OpeningSetTier[] = [],
+  available = 1,
+  goalsReached: string[] = [],
+): OpeningAnswer => ({
   pack: { token: "pack-token", kind: "regular", cardBack: { key: "standard", urls: null }, url: "/pack" },
   cards: tiers.map((tier, index) => cardOf(tier, `${tier}-${index}`)),
   bank: {
@@ -63,6 +68,7 @@ export const answerOf = (tiers: Rarity[], setTiers: OpeningSetTier[] = [], avail
   serverTime: "2026-10-26T11:00:01.000Z",
   tierCountsBefore: { common: 3, uncommon: 0, rare: 0, epic: 0, legendary: 0 },
   setTiers,
+  goalsReached,
 })
 
 export const startWith = (overrides: Partial<BoosterStart> = {}): BoosterState =>

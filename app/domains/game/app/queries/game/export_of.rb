@@ -17,9 +17,10 @@ module Game
     TradeRow = Data.define(:status, :proposed_at, :closed_at, :offered)
     Invitations = Data.define(:received, :sent)
     CustomSetRow = Data.define(:token, :name, :kind, :created_at, :card_ids)
+    GoalRow = Data.define(:position, :set_kind, :set_key, :custom_set_token, :created_at)
 
     Result = Data.define(:friend_code, :held_cards, :showcase, :packs, :daily_bonus_days, :goal_reward_weeks, :contributions,
-      :set_tiers, :discoveries, :feed_entries, :unlocks, :card_backs, :friend_count, :invitations, :trades, :custom_sets) do
+      :set_tiers, :discoveries, :feed_entries, :unlocks, :card_backs, :friend_count, :invitations, :trades, :custom_sets, :goals) do
       def card_season_ids
         (held_cards.map(&:card_season_id) + showcase.map(&:card_season_id) + packs.flat_map(&:card_season_ids) + discoveries.map(&:card_season_id) +
           feed_entries.filter_map(&:card_season_id) + trades.flat_map { |trade| trade.offered.map(&:card_season_id) }).uniq
@@ -47,7 +48,8 @@ module Game
         friend_count: FriendsOf.call(player).size,
         invitations: Invitations.new(received: invitations.received.size, sent: invitations.sent.size),
         trades: trades(player, now),
-        custom_sets: custom_sets(player)
+        custom_sets: custom_sets(player),
+        goals: goals(player)
       )
     end
 
@@ -131,6 +133,12 @@ module Game
       end
     end
 
-    private_class_method :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :set_refs, :trades, :custom_sets
+    def self.goals(player)
+      Goal.where(player_id: player.id).left_joins(:custom_set).order(:position)
+        .pluck(:position, :set_kind, :set_key, Arel.sql("game_custom_sets.token"), :created_at)
+        .map { |position, set_kind, set_key, custom_set_token, created_at| GoalRow.new(position:, set_kind:, set_key:, custom_set_token:, created_at:) }
+    end
+
+    private_class_method :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :set_refs, :trades, :custom_sets, :goals
   end
 end

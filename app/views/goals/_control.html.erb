@@ -1,0 +1,13 @@
+<%# locals: (aim:, goal:, refused: false, complete: false) %>
+<div id="set-album-goal" class="<%= class_names("goal-control", "goal-control--set": goal, "goal-tone--#{goal&.position}": goal) %>"
+  data-controller="goal-control" data-action="submit->goal-control#remember">
+  <% if goal %>
+    <%= button_to library_goals_path, method: :delete, params: aim, class: "button button--small goal-button", form_class: "button-form",
+      aria: { label: t("goals.button.remove_label", number: goal.position, set: goal_set_name(goal)) } do %>
+      <%= goal_bookmark(goal.position, size: :small) %><span><%= t("goals.button.remove", number: goal.position) %></span>
+    <% end %>
+  <% elsif !complete %>
+    <%= button_to t("goals.button.add"), library_goals_path, method: :post, params: aim, class: "button button--secondary button--small goal-button", form_class: "button-form" %>
+  <% end %>
+  <p class="goal-control__refusal" role="status"><% if refused %><span class="goal-control__limit"><%= t("goals.full.limit") %></span> · <%= t("goals.full.hint") %><%= link_to library_path(anchor: "goals"), class: "goal-control__link" do %><%= t("goals.full.link") %><%= pixel_icon("arrow-small-right") %><% end %><% end %></p>
+</div>

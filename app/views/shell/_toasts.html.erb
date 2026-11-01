@@ -4,6 +4,9 @@
   <% messages.each do |type, message| %>
     <%= render ToastComponent.new(message:, title:, tone: type.to_sym) %>
   <% end %>
+  <% Array(flash["goals_reached"]).each do |name| %>
+    <%= render ToastComponent.new(message: name, title: t("goals.reached.title")) %>
+  <% end %>
   <%= content_for(:toasts) %>
   <template data-toast-target="template"><%= render ToastComponent.new(message: "", title: "", action: { label: "", href: "#" }) %></template>
 </div>

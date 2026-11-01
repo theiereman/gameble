@@ -39,6 +39,9 @@ class PlayerExport
       pendingInvitations: { received: game.invitations.received, sent: game.invitations.sent },
       trades:,
       customSets: custom_sets,
+      goals: game.goals.map do
+        { position: it.position, setKind: it.set_kind, setKey: it.set_key, customSet: it.custom_set_token, createdAt: time(it.created_at) }.compact
+      end,
       reportsFiled: accounts.reports_filed.map { { reason: it.reason, createdAt: time(it.created_at) } },
       reportsReceived: accounts.reports_received.map do
         { reason: it.reason, createdAt: time(it.created_at), handledAt: time(it.handled_at) }

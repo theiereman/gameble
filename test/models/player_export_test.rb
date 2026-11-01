@@ -7,7 +7,7 @@ class PlayerExportTest < ActiveSupport::TestCase
   include GameTrades
 
   SECTIONS = %i[exportedAt profile identities collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
-    firstDiscoveries feedEntries achievements cardBacks friends pendingInvitations trades customSets reportsFiled reportsReceived
+    firstDiscoveries feedEntries achievements cardBacks friends pendingInvitations trades customSets goals reportsFiled reportsReceived
     moderationDecisions].freeze
   COUNTING_KEYS = %i[season quantity position openings count received sent].freeze
 
@@ -129,7 +129,7 @@ class PlayerExportTest < ActiveSupport::TestCase
 
     assert_equal SECTIONS, hash.keys
     %i[collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers firstDiscoveries feedEntries
-       achievements trades customSets reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
+       achievements trades customSets goals reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
     assert_equal({ count: 0 }, hash[:friends])
     assert_equal({ received: 0, sent: 0 }, hash[:pendingInvitations])
     assert_equal({ active: "standard", activeSeason: nil, unlocked: [] }, hash[:cardBacks])
@@ -155,6 +155,19 @@ class PlayerExportTest < ActiveSupport::TestCase
     assert_not_includes hash.to_json, theirs.token
     assert_not_includes hash.to_json, "Secret garden"
     assert_no_database_id(hash)
+  end
+
+  test "the player's goals are listed in number order, a game set by kind and key, a custom set by token" do
+    mine = Game::CreateCustomSet.new.call(player: @player, name: "Mes favoris", card_ids: %i[portal rare_card common_card].map { catalog_cards(it).id }).value!
+    Game::AddGoal.new.call(player: @player, kind: "studio", key: "valve").value!
+    Game::AddGoal.new.call(player: @player, custom_set: mine.token).value!
+    Game::AddGoal.new.call(player: @friend, kind: "studio", key: "valve").value!
+
+    goals = export.to_h[:goals]
+
+    assert_equal [ { position: 1, setKind: "studio", setKey: "valve" }, { position: 2, customSet: mine.token } ], goals.map { it.except(:createdAt) }
+    assert goals.all? { it[:createdAt].present? }
+    assert_no_database_id(export.to_h)
   end
 
   test "the export names the card backs unlocked and the active one" do

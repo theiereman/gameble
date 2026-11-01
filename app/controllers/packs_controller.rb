@@ -1,5 +1,6 @@
 class PacksController < ApplicationController
   include PackCards
+  include GoalsReachedTracking
 
   RATE_LIMIT_WINDOW = 1.minute
 
@@ -36,8 +37,9 @@ class PacksController < ApplicationController
   private
 
   def open_from_form
-    result = Game::OpenPack.new.call(player: current_player, reserve: params[:reserve])
+    result, reached = tracking_goals_reached(current_player) { Game::OpenPack.new.call(player: current_player, reserve: params[:reserve]) }
     if result.success?
+      toast_goals_reached(reached)
       redirect_to pack_path(result.value!.token), status: :see_other
     else
       redirect_refused Game::OpenPack, result, booster_path
@@ -48,10 +50,12 @@ class PacksController < ApplicationController
     key = idempotency_key
     return render_failure(:invalid_idempotency_key) if key.blank?
 
-    result = Game::OpenPack.new.call(player: current_player, idempotency_key: key, reserve: params[:reserve])
+    result, reached = tracking_goals_reached(current_player) do
+      Game::OpenPack.new.call(player: current_player, idempotency_key: key, reserve: params[:reserve])
+    end
     if result.success?
       pack = result.value!
-      render json: helpers.pack_opening_json(pack, cards: cards_of(pack), player: current_player, now: Time.current)
+      render json: helpers.pack_opening_json(pack, cards: cards_of(pack), player: current_player, now: Time.current, goals_reached: reached)
     else
       render_failure(result.failure)
     end

@@ -1,4 +1,6 @@
 class TradesController < ApplicationController
+  include GoalsReachedTracking
+
   throttle_player to: 20, only: %i[create counter accept decline cancel], path: -> { trades_path }, alert: "trades.throttled"
   rate_limit to: 120, within: 1.minute, only: :faces, name: "faces",
     by: -> { current_player&.id || request.remote_ip },
@@ -96,7 +98,11 @@ class TradesController < ApplicationController
     authorize :trade, :accept?
     trade = find_trade!
 
-    redirect_after(trade, Game::AcceptTrade.new.call(player: current_player, trade_id: trade.id, revision: params[:revision])) do
+    result, reached = tracking_goals_reached(current_player) do
+      Game::AcceptTrade.new.call(player: current_player, trade_id: trade.id, revision: params[:revision])
+    end
+    redirect_after(trade, result) do
+      toast_goals_reached(reached)
       cards = Catalog::CardViews.call(trade.friend_side.map(&:card_season_id), locale: I18n.locale)
       gained = trade.friend_side.filter_map { |line| helpers.trade_line_title(line, cards) }
       toast t("trades.accepted.title"), t("trades.accepted.text", count: gained.size, cards: gained.to_sentence)

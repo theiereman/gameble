@@ -273,7 +273,7 @@ fr:
           intro: "Pour faire fonctionner le jeu, Gameble conserve :"
           steam: "votre identifiant Steam et votre nom de profil Steam ;"
           identities: "vos modes de connexion : Steam, Discord, Google ou code par e-mail, chacun avec son identifiant chez ce fournisseur, la date de son ajout et, pour les trois derniers, une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
-          activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, sets perso, succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de la mission hebdo, échanges, amitiés, invitations, code ami, entrées du fil d'activité et dernière activité ;"
+          activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, sets perso, objectifs, succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de la mission hebdo, échanges, amitiés, invitations, code ami, entrées du fil d'activité et dernière activité ;"
           moderation: "les signalements que vous faites, ceux qui visent votre profil (leur auteur ne vous est pas communiqué) et les décisions de modération qui vous concernent, avec leur motif ;"
           settings: "vos réglages (visibilité du profil, animations réduites) ;"
           last_seen: "la date de création de votre compte, l'heure de votre dernière visite, et votre dernier export de données (son fichier et son heure), gardé jusqu'à l'export suivant ;"
@@ -308,7 +308,7 @@ fr:
           errors: "les erreurs techniques reçues par Sentry : 30 jours ;"
           backups: "les sauvegardes de la base de données, chiffrées et conservées en France : les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal ; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué ;"
           leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à la mission hebdo, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
-        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos bonus du jour, vos récompenses de la mission hebdo, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à la mission hebdo, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
+        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos bonus du jour, vos récompenses de la mission hebdo, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à la mission hebdo, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
         rights:
           intro: "Vous pouvez accéder à vos données, les faire rectifier ou effacer, en limiter le traitement, vous opposer à un traitement fondé sur l'intérêt légitime et en recevoir une copie réutilisable. Vous pouvez aussi indiquer ce que deviennent vos données après votre décès. Nous répondons sous un mois."
           access: "accès : depuis les paramètres, avec « Exporter » dans « Mes données », qui télécharge une copie de vos données dans un fichier réutilisable, vos modes de connexion compris ;"
@@ -861,6 +861,19 @@ fr:
       open_booster: "Ouvrir une capsule"
   library:
     entry:
+      goals:
+        title: "Objectifs"
+        count_html: "<b>%{count}</b> / %{max}"
+        album: "Album"
+        custom_kind: "Set perso"
+        row: "Objectif %{number} : %{set}, %{kind}, %{count}, %{next}"
+        next: "plus que %{missing} pour %{tier}"
+        next_complete: "plus que %{missing} pour le set complet"
+        free:
+          zero: "Aucun objectif libre · marquez un set depuis son album"
+          one: "Un objectif libre · marquez un set depuis son album"
+          other: "%{count} objectifs libres · marquez un set depuis son album"
+        empty: "Aucun objectif. Ouvrez l'album d'un set et marquez-le comme objectif."
       in_progress: "En cours"
       completed: "Complétés"
       custom_sets:
@@ -1294,6 +1307,7 @@ fr:
       banner_line: "%{title} · %{year}"
       refused_title: "Ouverture annulée"
       failed: "L'ouverture n'a pas abouti. Vérifiez votre connexion ou rechargez la page, puis réessayez."
+      goal_reached: "Objectif atteint"
       canister_facts:
         zero: "%{n} carte"
         one: "%{n} carte"
@@ -1825,7 +1839,7 @@ fr:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
       kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à la mission hebdo, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
@@ -1908,6 +1922,18 @@ fr:
       title: "Mission accomplie"
       collected: "La Direction vous remercie pour votre participation. Une capsule rare a rejoint votre réserve."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
+  goals:
+    button:
+      add: "Marquer comme objectif"
+      remove: "Objectif %{number} · Retirer"
+      remove_label: "Objectif %{number}, %{set}. Retirer des objectifs"
+    full:
+      limit: "5 objectifs au plus"
+      hint: "Retirez un objectif pour en ajouter un autre."
+      link: "Voir mes objectifs"
+    reached:
+      title: "Objectif atteint"
+    throttled: "Trop de changements d'objectifs en une minute. Réessayez dans un instant."
   roadmaps:
     show:
       title: "Feuille de route · Gameble"
@@ -2391,6 +2417,9 @@ fr:
       card_already_showcased: "Cette carte est déjà dans votre vitrine."
       card_not_showcased: "Cette carte n'est pas dans votre vitrine."
       custom_set_not_found: "Ce set n'existe pas ou n'est pas à vous."
+      goal_set_not_found: "Ce set ne fait pas partie de la saison publiée."
+      goal_set_complete: "Ce set est déjà complet."
+      too_many_goals: "5 objectifs au plus. Retirez un objectif pour en ajouter un autre."
       game_not_in_catalog: "Un jeu choisi n'est pas dans le catalogue. Rechargez la page et réessayez."
       name_required: "Nom requis : donnez un nom à votre set."
       name_taken: "Nom déjà pris : un autre de vos sets porte ce nom."

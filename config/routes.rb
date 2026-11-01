@@ -48,6 +48,10 @@ Rails.application.routes.draw do
     post "library/custom-sets/picker" => "custom_sets#picker", as: :custom_set_picker
     resources :custom_sets, path: "library/custom-sets", only: %i[new create show edit update destroy], param: :token,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    # A player's goals, each named by its set: a kind and key, or a custom
+    # set's token, never a position.
+    post "library/goals" => "goals#create", as: :library_goals
+    delete "library/goals" => "goals#destroy"
     # One set's album, by kind and key, never by id.
     get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: Catalog::SetKind::PATTERN }
     # The collection's watermark: the page posts the latest gain it showed

@@ -1,5 +1,5 @@
 import { otherReserve, reserveCount } from "./booster_bank"
-import { bankChanged, celebrate, completed, idle } from "./booster_state"
+import { bankChanged, celebrate, completed, goalsAnnounced, idle } from "./booster_state"
 import {
   NO_COUNTS,
   allRevealed,
@@ -29,7 +29,8 @@ export function canOpen(state: BoosterState): boolean {
 
 export function openingStarted(state: BoosterState): BoosterState {
   if (!canOpen(state)) return state
-  return { ...state, opening: true, reason: null, celebrationPending: null, celebration: null, celebrationSteps: 0 }
+  const announced = goalsAnnounced(state)
+  return { ...announced, opening: true, reason: null, celebrationPending: null, celebration: null, celebrationSteps: 0 }
 }
 
 export function retracting(state: BoosterState): BoosterState {
@@ -116,6 +117,7 @@ export function openingAnswered(state: BoosterState, answer: OpeningAnswer): Boo
     pendingKey: keyFor(state, { kind: "opened" }),
     counts: { ...answer.tierCountsBefore },
     celebrationPending: answer.setTiers,
+    goalsPending: answer.goalsReached,
     answer,
     revealAllUsed: false,
     revealed: answer.cards.map(() => false),

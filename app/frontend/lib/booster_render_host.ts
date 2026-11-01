@@ -25,6 +25,7 @@ export type BoosterStrings = {
   faceUp: string
   faceUpStore: string
   failed: string
+  goalReached: string
   hintDone: Template
   hintRemaining: Template
   legendarySignal: string

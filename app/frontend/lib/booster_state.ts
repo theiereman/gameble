@@ -57,6 +57,8 @@ export function start({
     celebrationStill: false,
     celebrationAnnounced: false,
     celebrationSteps: 0,
+    goalsPending: [],
+    goalsReached: [],
     lockDepth: 0,
     focus: preview ? null : sealed ? "open" : "home",
   }
@@ -143,7 +145,12 @@ export function bannerEnded(state: BoosterState, key: number): BoosterState {
   return state.banner?.key === key ? { ...state, banner: null } : state
 }
 
-export function celebrate(state: BoosterState): BoosterState {
+export function goalsAnnounced(state: BoosterState): BoosterState {
+  return state.goalsPending.length === 0 ? state : { ...state, goalsPending: [], goalsReached: state.goalsPending }
+}
+
+export function celebrate(before: BoosterState): BoosterState {
+  const state = goalsAnnounced(before)
   const reached = state.celebrationPending
   if (reached === null) return state
   const results = celebrationResults(reached)

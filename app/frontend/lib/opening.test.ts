@@ -46,6 +46,7 @@ const answer = {
       url: "/fr/library/theme/roguelike",
     },
   ],
+  goalsReached: ["Roguelike"],
 }
 
 const json = (status: number, body: unknown) =>
@@ -138,6 +139,9 @@ describe("sendOpening", () => {
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], tier: "platinum" }] })),
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], url: undefined }] })),
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], held: undefined }] })),
+      // No reached goals, or a goal named by something else than its set's name.
+      fake(json(200, { ...answer, goalsReached: undefined })),
+      fake(json(200, { ...answer, goalsReached: [2] })),
       // A set tier without its set's thresholds, or with one of another shape.
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], thresholds: undefined }] })),
       fake(

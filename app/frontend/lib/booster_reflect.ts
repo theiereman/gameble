@@ -8,8 +8,12 @@ export function reflectChange(
   before: BoosterState,
   after: BoosterState,
   countdown: BoosterCountdown | undefined,
+  goalReachedTitle: string,
   whenIdle: () => void,
 ): void {
+  if (after.goalsReached !== before.goalsReached) {
+    after.goalsReached.forEach((name) => dispatchGameble("gameble:toast", { title: goalReachedTitle, message: name }))
+  }
   if (after.bank !== before.bank) {
     const { available, special, reserveFull, nextAvailableAt, serverTime } = after.bank
     dispatchGameble("gameble:bank-changed", { available, special, reserveFull, nextAvailableAt, serverTime })

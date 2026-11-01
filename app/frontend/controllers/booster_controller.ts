@@ -289,7 +289,7 @@ export class BoosterController extends Controller<HTMLElement> {
     if (after === before) return before
     this.state = after
     this.render()
-    reflectChange(before, after, this.countdown, () => {
+    reflectChange(before, after, this.countdown, this.strings.goalReached, () => {
       if (!this.timers.disposed) this.whenIdle()
     })
     return after

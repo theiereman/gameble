@@ -444,6 +444,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_150100) do
     t.index ["week_start"], name: "index_game_goal_rewards_on_week_start"
   end
 
+  create_table "game_goals", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.integer "position", null: false
+    t.string "set_kind"
+    t.string "set_key"
+    t.bigint "custom_set_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["custom_set_id"], name: "index_game_goals_on_custom_set_id", unique: true, where: "(custom_set_id IS NOT NULL)"
+    t.index ["player_id", "position"], name: "index_game_goals_on_player_id_and_position", unique: true
+    t.index ["player_id", "set_kind", "set_key"], name: "index_game_goals_on_player_id_and_game_set", unique: true, where: "(set_kind IS NOT NULL)"
+    t.check_constraint "(custom_set_id IS NULL) = (set_kind IS NOT NULL) AND (set_kind IS NULL) = (set_key IS NULL)", name: "game_goals_target_check"
+    t.check_constraint "\"position\" >= 1 AND \"position\" <= 5", name: "game_goals_position_check"
+    t.check_constraint "set_kind IS NULL OR set_kind::text = 'theme'::text OR set_kind::text = 'franchise'::text OR set_kind::text = 'studio'::text OR set_kind::text = 'hall_of_fame'::text OR set_kind::text = 'ufo'::text", name: "game_goals_set_kind_check"
+  end
+
   create_table "game_holdings", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.bigint "card_season_id", null: false
@@ -698,6 +714,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_150100) do
   add_foreign_key "game_friendships", "accounts_players", column: "low_player_id"
   add_foreign_key "game_goal_rewards", "accounts_players", column: "player_id"
   add_foreign_key "game_goal_rewards", "game_packs", column: "pack_id"
+  add_foreign_key "game_goals", "accounts_players", column: "player_id"
+  add_foreign_key "game_goals", "game_custom_sets", column: "custom_set_id", on_delete: :cascade
   add_foreign_key "game_holdings", "accounts_players", column: "player_id"
   add_foreign_key "game_holdings", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_invitations", "accounts_players", column: "recipient_id"

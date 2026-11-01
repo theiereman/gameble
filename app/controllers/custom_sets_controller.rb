@@ -1,6 +1,7 @@
 class CustomSetsController < ApplicationController
   include SetAlbumLoading
   include CustomSetPicking
+  include GoalControlLoading
 
   throttle_player to: 20, only: %i[create update destroy], path: -> { library_path }, alert: "custom_sets.throttled"
 
@@ -15,6 +16,7 @@ class CustomSetsController < ApplicationController
     @standing = @custom_set.to_set_standing
     editions = Game::HeldGames.editions(current_player, card_ids: @custom_set.card_ids, season: @season)
     load_album_slots(album_members(@custom_set.card_ids, editions), editions, with_new: true)
+    load_goal_control(custom_set: @custom_set.token) if @custom_set.custom?
     @unique = Game::HeldGames.count(current_player)
     @season_cards = Catalog::CardCount.call(@season)
   end

@@ -27,6 +27,7 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Handlers::PackOpenedFeed, to: [ Game::PackOpened ])
   event_store.subscribe(Game::Handlers::CardRepostedFeed, to: [ Game::CardReposted ])
   event_store.subscribe(Game::Handlers::TradeAccepted, to: [ Game::TradeAccepted ])
+  event_store.subscribe(Game::Handlers::GoalsReached, to: Game::Handlers::GoalsReached::EVENTS)
   event_store.subscribe(Game::Handlers::SetTierFeed, to: Game::Handlers::SetTierFeed::EVENTS)
   event_store.subscribe(Game::Handlers::Achievements, to: Game::Handlers::Achievements::EVENTS.keys)
   event_store.subscribe(Game::Handlers::CardBacks, to: Game::Handlers::CardBacks::EVENTS.keys)

@@ -52,6 +52,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "game_showcase_entries" => { fr: [ "votre vitrine" ], en: [ "your showcase" ] },
     "game_set_tiers" => { fr: [ "vos paliers de sets" ], en: [ "your set tiers" ] },
     "game_custom_sets" => { fr: [ "vos sets perso" ], en: [ "your custom sets" ] },
+    "game_goals" => { fr: [ "vos objectifs" ], en: [ "your goals" ] },
     "game_achievement_unlocks" => { fr: [ "vos succès" ], en: [ "your achievements" ] },
     "game_packs" => { fr: [ "vos capsules, ouvertes ou non" ], en: [ "your capsules, opened or not" ] },
     "game_daily_bonus_claims" => { fr: [ "vos bonus du jour" ], en: [ "your daily bonuses" ] },

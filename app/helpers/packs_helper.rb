@@ -16,7 +16,7 @@ module PacksHelper
     back[:urls].transform_keys { :"card_back_#{it}" }.merge(card_back: back[:key], card_back_season: back[:season])
   end
 
-  def pack_opening_json(pack, cards:, player:, now:)
+  def pack_opening_json(pack, cards:, player:, now:, goals_reached: [])
     counts = Game::Reserve.counts(player.id, now:)
     scheduled = Game::BankSchedule.call(player, now:).map { opening_time(it) }
     {
@@ -28,7 +28,8 @@ module PacksHelper
               nextSpecialKind: counts.next_special_kind },
       serverTime: opening_time(now),
       tierCountsBefore: Game::TierCounts.before_opening(player, pack).transform_keys { Catalog::Rarity::TIERS.fetch(it) },
-      setTiers: pack_set_tiers(pack)
+      setTiers: pack_set_tiers(pack),
+      goalsReached: goals_reached
     }
   end
 

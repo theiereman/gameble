@@ -58,6 +58,7 @@ export type OpeningAnswer = {
   serverTime: string
   tierCountsBefore: Record<Rarity, number>
   setTiers: OpeningSetTier[]
+  goalsReached: string[]
 }
 
 export type OpeningResult =
@@ -166,7 +167,9 @@ function isAnswer(value: unknown): value is OpeningAnswer {
     isRecord(value.tierCountsBefore) &&
     RARITIES.every((tier) => typeof (value.tierCountsBefore as Record<string, unknown>)[tier] === "number") &&
     Array.isArray(value.setTiers) &&
-    value.setTiers.every(isSetTier)
+    value.setTiers.every(isSetTier) &&
+    Array.isArray(value.goalsReached) &&
+    value.goalsReached.every((name) => typeof name === "string")
   )
 }
 

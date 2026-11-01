@@ -3,6 +3,7 @@ class LibraryController < ApplicationController
   include CollectionGridLoading
   include SetBoardLoading
   include SetAlbumLoading
+  include GoalControlLoading
 
   MORE_RESULTS_FRAME = "set-more-results-"
 
@@ -16,6 +17,7 @@ class LibraryController < ApplicationController
 
     @custom_sets = Game::CustomSetStandings.call(current_player, kind: Game::CustomSet::CUSTOM)
     @steam_library = Game::CustomSetStandings.call(current_player, kind: Game::CustomSet::STEAM_LIBRARY).find(&:ever_synced?)
+    @goals = Game::GoalNeeds.call(current_player)
     load_unique_cards
   end
 
@@ -48,6 +50,7 @@ class LibraryController < ApplicationController
     authorize :page, :play?
     @season = Catalog::PublishedSeason.call
     load_set_album(@season, owner: current_player, with_new: true)
+    load_goal_control(kind: @set.kind, key: @set.key)
     load_unique_cards
   end
 
