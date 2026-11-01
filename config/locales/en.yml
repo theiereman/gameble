@@ -2756,6 +2756,17 @@ en:
       you_give: You give
       you_received: You received
       yours_to_choose: Yours to choose
+    suggestions:
+      card: "%{title} (%{goals})"
+      goal: 'goal %{number}: %{set}'
+      heading: Suggestions
+      key: 'For your goals:'
+      label_open: 'Suggestion from %{name}: %{cards}, %{name} chooses in return. %{presence}.'
+      line: The Brotherhood has identified opportunities for collaboration among its members.
+      send: Send
+      send_label: Send the suggestion to %{name}
+      sent: Proposal forwarded
+      summary_open: "%{cards} · for %{name} to choose in return"
     throttled: Too many actions in one minute. Try again in a moment.
     title: Trades
     undo_dialog:

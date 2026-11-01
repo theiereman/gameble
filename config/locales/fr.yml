@@ -1867,6 +1867,17 @@ fr:
       title: "Proposition envoyée"
       text: "%{name} a 7 jours pour répondre. Vos cartes sont réservées d'ici là."
       open_text: "%{name} a 7 jours pour choisir ce qui lui plaît en retour."
+    suggestions:
+      heading: "Suggestions"
+      line: "La Confrérie a identifié des opportunités de collaboration entre ses membres."
+      key: "Pour vos objectifs :"
+      goal: "objectif %{number} : %{set}"
+      summary_open: "%{cards} · à %{name} de choisir en retour"
+      card: "%{title} (%{goals})"
+      label_open: "Suggestion de %{name} : %{cards}, %{name} choisit en retour. %{presence}."
+      send: "Envoyer"
+      send_label: "Envoyer la suggestion à %{name}"
+      sent: "Proposition transmise"
   accounts:
     dialog:
       title: "Supprimer mon compte"

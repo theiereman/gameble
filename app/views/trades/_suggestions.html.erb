@@ -1,0 +1,21 @@
+<%# locals: (suggestions:, cards:, prefill:, focus:) %>
+<%= tag.section class: "trade-suggestions", aria: { labelledby: "trade-suggestions-heading" }, data: { controller: "trade-suggestions" } do %>
+  <h2 class="trades__group trade-suggestions__heading" id="trade-suggestions-heading"><%= t("trades.suggestions.heading") %></h2>
+  <p class="trade-suggestions__line"><%= t("trades.suggestions.line") %></p>
+  <p class="trade-suggestions__key">
+    <span><%= t("trades.suggestions.key") %></span>
+    <% suggestions.goals.each do |goal| %>
+      <span class="trade-suggestions__goal">
+        <%= goal_bookmark(goal.position, size: :small) %>
+        <span class="visually-hidden"><%= trade_suggestion_goal_name(goal) %></span>
+        <span class="trade-suggestions__set" aria-hidden="true"><%= goal_set_name(goal) %></span>
+      </span>
+    <% end %>
+  </p>
+  <ul class="trade-suggestions__rows">
+    <% suggestions.suggestions.each_with_index do |suggestion, index| %>
+      <%= render "trades/suggestion", suggestion:, index:, cards:, goals: suggestions.goals,
+            current: trade_suggestion_current?(suggestion, prefill), focused: focus[:suggestion] == index %>
+    <% end %>
+  </ul>
+<% end %>

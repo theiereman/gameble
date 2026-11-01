@@ -57,6 +57,7 @@ export class TradeBoardController extends Controller<HTMLElement> {
     focus: String,
     forget: String,
     draftKey: String,
+    prefilled: Boolean,
     counterUrl: String,
     boardUrl: String,
     facesUrl: String,
@@ -78,6 +79,7 @@ export class TradeBoardController extends Controller<HTMLElement> {
   declare readonly focusValue: string
   declare readonly forgetValue: string
   declare readonly draftKeyValue: string
+  declare readonly prefilledValue: boolean
   declare readonly counterUrlValue: string
   declare readonly boardUrlValue: string
   declare readonly facesUrlValue: string
@@ -185,7 +187,7 @@ export class TradeBoardController extends Controller<HTMLElement> {
   }
 
   abandon(): void {
-    if (this.draftKeyValue) forgetDraft(this.draftKeyValue)
+    if (this.storedDraftKey) forgetDraft(this.storedDraftKey)
   }
 
   removeLine({ detail: { side, key } }: Intent<SideIntent>): void {
@@ -264,7 +266,7 @@ export class TradeBoardController extends Controller<HTMLElement> {
     const received = bySide((side) =>
       this.lineTargets.filter((line) => line.dataset.side === side).map((line) => lineFrom(line.dataset)),
     )
-    return start({ catalogue, received, editing: this.editingValue, draft: readDraft(this.draftKeyValue), filters })
+    return start({ catalogue, received, editing: this.editingValue, draft: readDraft(this.storedDraftKey), filters })
   }
 
   private seedFaces(): void {
@@ -299,11 +301,16 @@ export class TradeBoardController extends Controller<HTMLElement> {
   private persist(): void {
     const state = this.state
     if (!state) return
-    if (this.draftKeyValue) {
-      if (changed(state)) saveDraft(this.draftKeyValue, draftSides(state))
-      else forgetDraft(this.draftKeyValue)
+    const key = this.storedDraftKey
+    if (key) {
+      if (changed(state)) saveDraft(key, draftSides(state))
+      else forgetDraft(key)
     }
     if (this.hasTradeBoardSendOutlet) this.tradeBoardSendOutlet.render(!sendable(state))
+  }
+
+  private get storedDraftKey(): string {
+    return this.prefilledValue ? "" : this.draftKeyValue
   }
 
   private reflectHold(): void {

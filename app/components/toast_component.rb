@@ -1,7 +1,7 @@
 class ToastComponent < ViewComponent::Base
   TONES = %i[notice alert].freeze
 
-  def initialize(message:, title: nil, tone: :notice, once: nil, after_reveal: false, action: nil)
+  def initialize(message: nil, title: nil, tone: :notice, once: nil, after_reveal: false, action: nil)
     raise ArgumentError, "unknown toast tone: #{tone.inspect}" unless TONES.include?(tone)
 
     @message = message

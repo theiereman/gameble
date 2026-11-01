@@ -139,8 +139,8 @@ module TradesHelper
     locals.merge(editing:, editor:)
   end
 
-  def trade_draft_editor(own_held:, friend_held:, picks:)
-    trade_board_editor([], [], own_held:, friend_held:, picks:)
+  def trade_draft_editor(own_held:, friend_held:, picks:, prefill: nil)
+    trade_board_editor(prefill&.lines(:take) || [], prefill&.lines(:give) || [], own_held:, friend_held:, picks:)
   end
 
   def trade_board_editor(friend_lines, own_lines, own_held:, friend_held:, picks:)
@@ -151,9 +151,10 @@ module TradesHelper
     }
   end
 
-  def trade_board_root_data(focus:, editing:, editor: nil, draft_key: nil, counter_url: nil, board_url: nil, forget: nil, swap: false)
+  def trade_board_root_data(focus:, editing:, editor: nil, draft_key: nil, counter_url: nil, board_url: nil, forget: nil, swap: false,
+    prefilled: false)
     data = { controller: "trade-board", trade_board_editing_value: editing, trade_board_focus_value: focus,
-             trade_board_forget_value: forget, trade_board_swap_value: (true if swap) }
+             trade_board_forget_value: forget, trade_board_swap_value: (true if swap), trade_board_prefilled_value: (true if prefilled) }
     return data unless editor
 
     data.merge(

@@ -12,11 +12,12 @@
       data: { controller: "live-refresh", live_refresh_signal_value: "trades-updated" } do %>
   <h1 id="trades-heading" class="trades__title"><%= t("trades.title") %></h1>
   <div class="trades__layout">
-    <%= render "trades/list", trades:, current: (trade if view == :board), cards: %>
+    <%= render "trades/list", trades:, current: (trade if view == :board), cards:, suggestions: local_assigns[:suggestions],
+          prefill: local_assigns[:prefill] %>
     <% if local_assigns.key?(:chooser) %>
       <%= render "trades/chooser", friends: chooser %>
     <% elsif local_assigns[:draft] %>
-      <%= render "trades/draft_board", friend: draft, editor: %>
+      <%= render "trades/draft_board", friend: draft, editor:, prefilled: local_assigns[:prefill].present? %>
     <% elsif trade %>
       <%= render "trades/board", trade:, cards:, **local_assigns.fetch(:board, {}) %>
     <% end %>

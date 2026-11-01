@@ -1,5 +1,6 @@
 <% name = friend_name(friend) %>
-<% data = trade_board_root_data(focus: "heading", editing: true, editor:, draft_key: trade_draft_key(current_player, friend)) %>
+<% data = trade_board_root_data(focus: "heading", editing: true, editor:, draft_key: trade_draft_key(current_player, friend),
+          prefilled: local_assigns.fetch(:prefilled, false)) %>
 <%= render PanelComponent.new(tag: :section, brackets: true, id: "trade-board", class: "trade-board trade-board--editing",
       aria: { labelledby: "trade-board-heading" }, data: data.merge(editing: true)) do %>
   <div class="trade-board__form">
@@ -9,9 +10,9 @@
       <span class="trade-chip trade-chip--accent"><%= t("trades.chip.draft") %></span>
       <p class="trade-board__expiry"><%= t("trades.board.valid") %></p>
     </header>
-    <%= render "trades/edit_side", side: :friend, label: t("trades.side.friend_gives", name:), lines: [], form: TradesHelper::DRAFT_FORM_ID %>
+    <%= render "trades/edit_side", side: :friend, label: t("trades.side.friend_gives", name:), lines: editor[:friend][:lines], form: TradesHelper::DRAFT_FORM_ID %>
     <%= render "trades/board_middle", message: t("trades.board.choose") %>
-    <%= render "trades/edit_side", side: :own, label: t("trades.side.you_give"), lines: [], form: TradesHelper::DRAFT_FORM_ID,
+    <%= render "trades/edit_side", side: :own, label: t("trades.side.you_give"), lines: editor[:own][:lines], form: TradesHelper::DRAFT_FORM_ID,
           help: trade_open_help(friend) %>
     <div class="trade-board__actions">
       <%= form_with url: trades_path, method: :post, id: TradesHelper::DRAFT_FORM_ID, class: "trade-board__action-set",
@@ -25,5 +26,11 @@
       <% end %>
     </div>
   </div>
-  <%= render "trades/picker", editor:, friend: %>
+  <%= render("trades/picker", editor:, friend:) %>
+  <%= render "trades/faces", views: editor[:faces] %>
+  <% [ :friend, :own ].each do |side| %>
+    <% editor[side][:lines].each do |line| %>
+      <%= tag.span hidden: true, data: { trade_board_target: "line", side:, key: line.key, quantity: line.quantity } %>
+    <% end %>
+  <% end %>
 <% end %>

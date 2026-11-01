@@ -2,9 +2,11 @@ require "test_helper"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/steam_sign_in"
 require_relative "../support/holdings"
+require_relative "../support/custom_sets"
 
 class TradesControllerTest < ActionDispatch::IntegrationTest
   include Holdings
+  include CustomSets
   include CountingRateLimit
   include SteamSignIn
 
@@ -1179,5 +1181,186 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#toasts .toast", /Objectif atteint.*Roguelike/m
     assert_select "#toasts .toast", text: /Valve/, count: 0
     assert_empty Game::Goal.where(player_id: [ @alice.id, @bob.id ])
+  end
+
+  def goal_on(*card_season_ids)
+    card_ids = Catalog::CardSeason.where(id: card_season_ids).pluck(:card_id)
+    name = "Objectif #{Game::Goal.where(player_id: @alice.id).count + 1}"
+    Game::AddGoal.new.call(player: @alice, custom_set: create_custom_set(@alice, name:, card_ids:).token).value!
+  end
+
+  def suggest_from_lea
+    @hills = catalog_card_seasons(:uncommon_card_one).id
+    goal_on(@soldier, @hills, @depths)
+    hold(@bob, @hills, 2)
+  end
+
+  def new_friend(steam_id)
+    Accounts::Player.create!(steam_id:).tap { befriend(@alice, it) }
+  end
+
+  def count_queries(&request)
+    ActiveRecord::Base.connection.clear_query_cache
+    queries = 0
+    counter = ->(*, payload) { queries += 1 unless payload[:name].in?([ "SCHEMA", "TRANSACTION" ]) || payload[:cached] }
+    ActiveSupport::Notifications.subscribed(counter, "sql.active_record", &request)
+    queries
+  end
+
+  test "SUGGESTIONS names the one friend sparing the goal's missing games, under NOUVEL ÉCHANGE and above the groups" do
+    suggest_from_lea
+    dave = new_friend("76561197960299001")
+    erin = new_friend("76561197960299002")
+    hold(dave, @hills, 2, reserved: 1)
+    hold(erin, @hills, 2)
+    erin.update_columns(visibility: "private")
+    propose(@alice, @carol, offer: { @soldier => 1 }, request: { @depths => 1 })
+    sign_in @alice
+
+    get trades_path(locale: :fr)
+
+    assert_response :success
+    list = css_select(".trades__list").sole
+    assert_equal %w[trades__new trade-suggestions trades__group], list.element_children.first(3).map { it["class"].split.first }
+    assert_select ".trade-suggestions[aria-labelledby='trade-suggestions-heading'][data-controller='trade-suggestions']" do
+      assert_select "h2#trade-suggestions-heading.trades__group", "Suggestions"
+      assert_select ".trade-suggestions__line", "La Confrérie a identifié des opportunités de collaboration entre ses membres."
+      assert_select ".trade-suggestions__key" do
+        assert_select "span", /\APour vos objectifs\u202F:\z/
+        assert_select ".trade-suggestions__goal .goal-bookmark[aria-hidden=true]", "1"
+        assert_select ".trade-suggestions__goal .visually-hidden", "objectif 1\u202F: Objectif 1"
+        assert_select ".trade-suggestions__goal .trade-suggestions__set[aria-hidden=true]", "Objectif 1"
+      end
+    end
+    rows = css_select(".trade-suggestion")
+    assert_equal 1, rows.size
+    row = rows.sole
+    opener = row.at_css("a.trade-suggestion__opener")
+    presence = row.at_css(".friends__presence").text.strip
+    assert_equal "Suggestion de Lea\u202F: Profondeurs bleues (objectif 1\u202F: Objectif 1), Collines vertes (objectif 1\u202F: Objectif 1), " \
+      "Lea choisit en retour. #{presence}.", opener["aria-label"]
+    assert_equal new_trade_path(locale: :fr, friend: @bob.token, take: %w[blue-depths--s1 green-hills--s1]), opener["href"]
+    assert_empty opener.text
+    assert_nil opener["aria-current"]
+    assert_equal opener, row.element_children.first
+    assert_equal "LEA", row.at_css(".trade-suggestion__name").text.strip.upcase
+    assert_equal "true", row.at_css(".trade-suggestion__who")["aria-hidden"]
+    assert_equal "true", row.at_css(".trade-suggestion__avatar")["aria-hidden"]
+    assert_equal "true", row.at_css(".trade-suggestion__marks")["aria-hidden"]
+    assert_equal [ [ "1", "×2" ] ], row.css(".trade-suggestion__mark").map { [ it.at_css(".goal-bookmark").text.strip, it.at_css(".trade-suggestion__count")&.text ] }
+    summary = row.at_css(".trade-suggestion__summary")
+    assert_equal [ "Profondeurs bleues, Collines vertes · à Lea de choisir en retour", "true" ], [ summary.text, summary["aria-hidden"] ]
+    form = row.at_css(".trade-suggestion__send form")
+    assert_equal suggestions_trades_path(locale: :fr), form["action"]
+    assert_equal({ "friend" => @bob.token, "position" => "0", "take[blue-depths--s1]" => "1", "take[green-hills--s1]" => "1" },
+      form.css("input[type=hidden]").reject { it["name"] == "authenticity_token" }.to_h { [ it["name"], it["value"] ] })
+    button = form.at_css("button")
+    assert_equal [ "Envoyer", "Envoyer la suggestion à Lea" ], [ button.text.strip, button["aria-label"] ]
+    assert_no_match(/card_season_id|style=|#{@bob.id}\b/, list.to_html.gsub(/value="[^"]*"/, ""))
+  end
+
+  test "SUGGESTIONS reads in English" do
+    suggest_from_lea
+    sign_in @alice, origin: "/en"
+
+    get trades_path(locale: :en)
+
+    assert_select ".trade-suggestions__heading", "Suggestions"
+    assert_select ".trade-suggestions__line", "The Brotherhood has identified opportunities for collaboration among its members."
+    assert_select ".trade-suggestions__goal .visually-hidden", "goal 1: Objectif 1"
+    assert_select ".trade-suggestion__summary", "Blue Depths, Green Hills · for Lea to choose in return"
+    assert_match(/\ASuggestion from Lea: Blue Depths \(goal 1: Objectif 1\), Green Hills \(goal 1: Objectif 1\), Lea chooses in return\. .+\.\z/,
+      css_select(".trade-suggestion__opener").sole["aria-label"])
+    assert_select ".trade-suggestion__send button[aria-label='Send the suggestion to Lea']", "Send"
+  end
+
+  test "every screen of the trade list shows the suggestions; none for a private player or without a spare" do
+    suggest_from_lea
+    trade = from_lea
+    sign_in @alice
+
+    [ trades_path(locale: :fr), trade_path(locale: :fr, token: trade.token), new_trade_path(locale: :fr),
+      new_trade_path(locale: :fr, friend: @carol.token), counter_trade_path(locale: :fr, token: trade.token) ].each do |path|
+      get path
+      assert_select ".trade-suggestions .trade-suggestion", { count: 1 }, path
+    end
+
+    Game::Holding.where(player_id: @bob.id).update_all(quantity: 1)
+    get trades_path(locale: :fr)
+    assert_select ".trade-suggestions, .trade-suggestions__heading", 0
+
+    Game::Holding.where(player_id: @bob.id).update_all(quantity: 2)
+    @alice.update_columns(visibility: "private")
+    get trades_path(locale: :fr)
+    assert_select ".trade-suggestions", 0
+  end
+
+  test "the list costs the same queries with one friend's suggestion or three" do
+    suggest_from_lea
+    portal = catalog_card_seasons(:portal_one).id
+    crown = catalog_card_seasons(:legendary_card_one).id
+    goal_on(@soldier, portal, crown)
+    sign_in @alice
+    one = count_queries { get trades_path(locale: :fr) }
+    assert_select ".trade-suggestion", 1
+
+    hold(@carol, crown, 2)
+    hold(new_friend("76561197960299003"), portal, 2)
+    Game::Holding.where(player_id: @alice.id, card_season_id: portal).delete_all
+
+    assert_equal one, count_queries { get trades_path(locale: :fr) }
+    assert_select ".trade-suggestion", 3
+  end
+
+  test "a suggestion opened on the board: the friend's cards placed, the player's side empty, the row current, no draft touched" do
+    suggest_from_lea
+    sign_in @alice
+
+    assert_no_difference -> { Game::Trade.count } do
+      get new_trade_path(locale: :fr, friend: @bob.token, take: %w[blue-depths--s1 green-hills--s1])
+    end
+
+    assert_response :success
+    root = css_select("#trade-board").sole
+    assert_equal [ "true", "heading", "#{@alice.token}:#{@bob.token}" ],
+      %w[prefilled focus draft-key].map { root["data-trade-board-#{it}-value"] }
+    assert_equal [ [ "friend", "blue-depths--s1", 1 ], [ "friend", "green-hills--s1", 1 ] ], board_lines
+    assert_equal %w[blue-depths--s1 green-hills--s1], css_select(".trade-side--friend.trade-side--editing li[data-key]").map { it["data-key"] }
+    assert_select ".trade-side--friend.trade-side--editing input[type=hidden][form='trade-draft-form'][name='take[blue-depths--s1]'][value='1']"
+    assert_select ".trade-side--own.trade-side--editing li[data-key]", 0
+    assert_select ".trade-side--own .trade-side__help:not([hidden])"
+    assert_equal %w[blue-depths--s1 green-hills--s1], css_select("template[data-trade-board-target='face']").map { it["data-key"] }.sort
+    assert_select ".trade-suggestion.trade-suggestion--current .trade-suggestion__opener[aria-current='true']"
+    assert_select "[style]", 0
+  end
+
+  test "a crafted prefill ignores the cards its holder lacks and unknown keys; the row is current only for its own cards" do
+    suggest_from_lea
+    sign_in @alice
+
+    get new_trade_path(locale: :fr, friend: @bob.token, take: %w[blue-depths--s1 portal--s1 nope--s1 green-hills], give: %w[portal--s1 golden-crown--s1])
+
+    assert_equal [ [ "friend", "blue-depths--s1", 1 ], [ "own", "portal--s1", 1 ] ], board_lines
+    assert_select ".trade-suggestion--current", 0
+    assert_select ".trade-suggestion__opener[aria-current]", 0
+
+    get new_trade_path(locale: :fr, friend: @bob.token, take: { "blue-depths--s1" => "1" })
+    assert_response :success
+    assert_empty board_lines
+
+    get new_trade_path(locale: :fr, friend: @bob.token)
+    assert_nil css_select("#trade-board").sole["data-trade-board-prefilled-value"]
+  end
+
+  test "a prefill for a private friend or a stranger is refused as any draft" do
+    sign_in @alice
+    @bob.update_columns(visibility: "private")
+
+    get new_trade_path(locale: :fr, friend: @bob.token, take: %w[blue-depths--s1])
+    assert_redirected_to trades_path(locale: :fr)
+    assert_equal "Le profil de Lea est privé\u202F: échanges fermés.", flash[:alert]
+
+    get new_trade_path(locale: :fr, friend: accounts_players(:banned).token, take: %w[blue-depths--s1])
+    assert_redirected_to trades_path(locale: :fr)
   end
 end

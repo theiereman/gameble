@@ -146,6 +146,7 @@ Rails.application.routes.draw do
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
       collection do
         get :faces
+        post :suggestions, to: "trade_suggestions#create"
       end
       member do
         get :counter, action: :edit

@@ -1,7 +1,12 @@
+<%# locals: (trades:, current:, cards:, suggestions: nil, prefill: nil) %>
+<% focus = suggestions ? trade_suggestion_focus(flash[:sent_suggestion], suggestions.suggestions) : {} %>
 <nav class="trades__list" aria-label="<%= t("trades.list.label") %>">
   <div class="trades__new">
     <%= render ButtonComponent.new(variant: :secondary, href: new_trade_path, size: :small) do %><%= t("trades.list.new") %><% end %>
   </div>
+  <% if suggestions && !suggestions.empty? %>
+    <%= render "trades/suggestions", suggestions:, cards:, prefill:, focus: %>
+  <% end %>
   <% if trades.empty? %>
     <%= render PanelComponent.new(tag: :p, class: "trades__empty") do %><%= t("trades.list.empty") %> <%= link_to t("trades.list.empty_invite"), friends_path(anchor: "friends-invite") %><% end %>
   <% end %>
@@ -13,7 +18,7 @@
         <% tone, chip = trade_chip(row) %>
         <li>
           <%= link_to trade_path(token: row.token), class: "trade-row", aria: { current: ("page" if current&.token == row.token) },
-                data: { turbo_prefetch: false } do %>
+                autofocus: (true if focus[:trade] == row.token), data: { turbo_prefetch: false } do %>
             <%= pixel_icon("avatar-default", class: "trade-row__avatar") %>
             <span class="trade-row__text">
               <span class="trade-row__name"><%= friend_name(row.friend) %></span>

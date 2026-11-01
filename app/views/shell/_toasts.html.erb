@@ -4,6 +4,9 @@
   <% messages.each do |type, message| %>
     <%= render ToastComponent.new(message:, title:, tone: type.to_sym) %>
   <% end %>
+  <% if flash["title_toast"].present? %>
+    <%= render ToastComponent.new(title: flash["title_toast"]) %>
+  <% end %>
   <% Array(flash["goals_reached"]).each do |name| %>
     <%= render ToastComponent.new(message: name, title: t("goals.reached.title")) %>
   <% end %>

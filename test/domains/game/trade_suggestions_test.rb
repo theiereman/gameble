@@ -1,0 +1,231 @@
+require "test_helper"
+require_relative "../../support/custom_sets"
+require_relative "../../support/game_sets"
+require_relative "../../support/holdings"
+
+# Which friends spare the games the player's goals miss: at most three
+# suggestions, one per friend, up to four of the friend's cards each.
+class Game::TradeSuggestionsTest < ActiveSupport::TestCase
+  include CustomSets
+  include GameSets
+  include Holdings
+
+  setup do
+    @player = accounts_players(:player)
+    @lea = accounts_players(:moderator)
+    @max = accounts_players(:administrator)
+    @portal = catalog_card_seasons(:portal_one)
+    @soldier = catalog_card_seasons(:common_card_one)
+    @hills = catalog_card_seasons(:uncommon_card_one)
+    @depths = catalog_card_seasons(:rare_card_one)
+    @crown = catalog_card_seasons(:legendary_card_one)
+  end
+
+  def befriend(friend, at: Time.current)
+    low, high = [ @player.id, friend.id ].minmax
+    Game::Friendship.create!(low_player_id: low, high_player_id: high, created_at: at)
+  end
+
+  def new_friend(number, at: Time.current)
+    Accounts::Player.create!(steam_id: "7656119796099#{number.to_s.rjust(4, "0")}").tap { befriend(it, at:) }
+  end
+
+  def goal(*card_season_ids, name: "Mes favoris #{SecureRandom.hex(2)}")
+    card_ids = Catalog::CardSeason.where(id: card_season_ids).pluck(:card_id)
+    Game::AddGoal.new.call(player: @player, custom_set: create_custom_set(@player, name:, card_ids:).token).value!
+  end
+
+  def spare(friend, *card_season_ids, copies: 2)
+    card_season_ids.each { hold(friend, it, copies) }
+  end
+
+  def second_edition(card_season, rarity:)
+    season = Catalog::Season.find_by(number: 2) || Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
+    Catalog::CardSeason.insert_all!([ { card_id: card_season.card_id, season_id: season.id, prestige_score: 0.5, rating: 80.0,
+      rarity: Catalog::Rarity::TIERS.invert.fetch(rarity), number: Catalog::CardSeason.where(season_id: season.id).count + 1 } ],
+      returning: :id).rows.flatten.sole
+  end
+
+  def suggestions = Game::TradeSuggestions.call(@player).suggestions
+
+  def placed = suggestions.map { [ it.player, it.card_season_ids ] }
+
+  def count_queries(&block)
+    queries = 0
+    counter = ->(*, payload) { queries += 1 unless payload[:name].in?([ "SCHEMA", "TRANSACTION" ]) || payload[:cached] }
+    ActiveSupport::Notifications.subscribed(counter, "sql.active_record", &block)
+    queries
+  end
+
+  test "a friend holding a spare of each missing game is suggested with both, the player's side empty" do
+    befriend(@lea)
+    hold(@player, @hills.id)
+    goal(@portal.id, @depths.id, @hills.id)
+    spare(@lea, @portal.id, @depths.id)
+
+    result = Game::TradeSuggestions.call(@player)
+
+    suggestion = result.suggestions.sole
+    assert_equal @lea, suggestion.player
+    assert_equal [ @depths.id, @portal.id ].sort, suggestion.card_season_ids.sort
+    assert_equal [ [ 1 ], [ 1 ] ], suggestion.lines.map(&:goal_positions)
+    assert_equal [ 1, 1 ], suggestion.lines.map(&:quantity)
+    assert_empty suggestion.own_lines
+    assert_equal({ 1 => 2 }, suggestion.served_goals)
+    assert_equal [ 1 ], result.goals.map(&:position)
+    assert_equal [ @depths.id, @portal.id ].sort, result.card_season_ids.sort
+  end
+
+  test "a single copy, or two with one reserved, is no spare" do
+    befriend(@lea)
+    befriend(@max)
+    goal(@portal.id, @depths.id, @hills.id)
+    hold(@lea, @portal.id, 1)
+    hold(@max, @portal.id, 2, reserved: 1)
+
+    assert_empty suggestions
+  end
+
+  test "editions are summed: the rarer edition is kept and the other is placed" do
+    befriend(@lea)
+    goal(@portal.id, @depths.id, @hills.id)
+    common_portal = second_edition(@portal, rarity: :common)
+    hold(@lea, @portal.id, 1)
+    hold(@lea, common_portal, 1)
+
+    assert_equal [ [ @lea, [ common_portal ] ] ], placed
+  end
+
+  test "among the free copies left, the edition with the most is placed, then the earliest season" do
+    befriend(@lea)
+    goal(@portal.id, @depths.id, @hills.id)
+    common_portal = second_edition(@portal, rarity: :common)
+    hold(@lea, @portal.id, 2)
+    hold(@lea, common_portal, 2)
+
+    assert_equal [ [ @lea, [ common_portal ] ] ], placed
+
+    Game::Holding.where(player_id: @lea.id, card_season_id: @portal.id).update_all(quantity: 3)
+
+    assert_equal [ [ @lea, [ @portal.id ] ] ], placed
+  end
+
+  test "a game on the friend's side of an open trade between the two is no spare, whoever proposed it, until it expires" do
+    befriend(@lea)
+    befriend(@max)
+    goal(@portal.id, @depths.id, @hills.id)
+    spare(@lea, @portal.id)
+    spare(@max, @depths.id, copies: 3)
+    requested = Game::ProposeTrade.new.call(player: @player, recipient: @lea, offer: {}, request: { @portal.id => 1 }).value!
+    hold(@player, @soldier.id)
+    offered = Game::ProposeTrade.new.call(player: @max, recipient: @player, offer: { @depths.id => 1 }, request: { @soldier.id => 1 }).value!
+
+    assert_empty suggestions
+
+    Game::Trade.where(id: [ requested.id, offered.id ]).update_all(expires_at: 1.minute.ago)
+
+    assert_equal [ [ @lea, [ @portal.id ] ], [ @max, [ @depths.id ] ] ].sort_by { it.first.id }, placed.sort_by { it.first.id }
+  end
+
+  test "a private, banned or deleted friend is never suggested" do
+    banned = accounts_players(:banned)
+    deleted = new_friend(1)
+    [ @lea, banned ].each { befriend(it) }
+    goal(@portal.id, @depths.id, @hills.id)
+    [ @lea, banned, deleted ].each { spare(it, @portal.id) }
+    @lea.update_columns(visibility: "private")
+    Accounts::DeletePlayer.new.call(player: deleted).value!
+
+    assert_empty suggestions
+  end
+
+  test "a private player, a player with no goal or with nothing missing has no suggestion" do
+    befriend(@lea)
+    spare(@lea, @portal.id, @depths.id, @hills.id)
+
+    assert_empty suggestions
+
+    goal(@portal.id, @depths.id, @hills.id)
+    @player.update_columns(visibility: "private")
+
+    assert_empty Game::TradeSuggestions.call(@player.reload).then { [ *it.suggestions, *it.goals ] }
+
+    @player.update_columns(visibility: "public")
+    [ @portal, @depths, @hills ].each { hold(@player, it.id) }
+
+    assert_empty suggestions
+  end
+
+  test "a Steam library set never feeds suggestions" do
+    befriend(@lea)
+    insert_set([ @soldier.id, @crown.id ], { complete: 2 }, key: "roguelike", params: { "theme" => "roguelike" })
+    Game::AddGoal.new.call(player: @player, kind: "theme", key: "roguelike").value!
+    create_library_set(@player, card_ids: [ @portal.card_id, @depths.card_id, @hills.card_id ])
+    spare(@lea, @portal.id, @depths.id, @hills.id)
+
+    result = Game::TradeSuggestions.call(@player)
+
+    assert_equal [ 1 ], result.goals.map(&:position)
+    assert_empty result.suggestions
+  end
+
+  test "more than four spares: the lowest goal's games first, then the rarest, then by slug" do
+    befriend(@lea)
+    unheld = unheld_cards(1).sole
+    goal(@soldier.id, unheld, @depths.id)
+    goal(@portal.id, @crown.id, @hills.id)
+    spare(@lea, @soldier.id, unheld, @depths.id, @portal.id, @crown.id, @hills.id)
+
+    suggestion = suggestions.sole
+
+    assert_equal [ @depths.id, @soldier.id, unheld, @crown.id ], suggestion.card_season_ids
+    assert_equal({ 1 => 3, 2 => 1 }, suggestion.served_goals)
+  end
+
+  test "a game spared by two friends is placed on the higher one only; a friend left with none is dropped" do
+    hugo = new_friend(1)
+    [ @lea, @max ].each { befriend(it) }
+    goal(@portal.id, @depths.id, @hills.id, @crown.id)
+    spare(@lea, @portal.id, @depths.id, @hills.id)
+    spare(@max, @portal.id, @crown.id)
+    spare(hugo, @portal.id)
+
+    assert_equal [ [ @lea, [ @portal.id, @depths.id, @hills.id ].sort ], [ @max, [ @crown.id ] ] ], placed.map { |friend, ids| [ friend, ids.sort ] }
+  end
+
+  test "friends rank by their spare games, then the oldest friendship; three at most" do
+    first, second, third = [ 3.days.ago, 1.day.ago, 2.days.ago ].each_with_index.map { |at, index| new_friend(index + 1, at:) }
+    befriend(@lea)
+    extra = unheld_cards(2)
+    goal(@portal.id, @soldier.id, @hills.id, @depths.id, @crown.id, *extra)
+    spare(@lea, @soldier.id, @hills.id, @depths.id)
+    spare(first, extra.first)
+    spare(second, extra.last)
+    spare(third, @portal.id, @crown.id)
+
+    assert_equal [ @lea, third, first ], suggestions.map(&:player)
+  end
+
+  test "friends level on spares and friendship age rank by token" do
+    at = 1.day.ago
+    friends = [ new_friend(1, at:), new_friend(2, at:) ]
+    goal(@portal.id, @depths.id, @hills.id)
+    spare(friends.first, @portal.id)
+    spare(friends.last, @depths.id)
+
+    assert_equal friends.sort_by(&:token), suggestions.map(&:player)
+  end
+
+  test "the reads cost the same with one friend or three" do
+    goal(@portal.id, @depths.id, @hills.id)
+    befriend(@lea)
+    spare(@lea, @portal.id)
+    one = count_queries { assert_equal 1, suggestions.size }
+
+    befriend(@max)
+    spare(@max, @depths.id)
+    spare(new_friend(1), @hills.id)
+
+    assert_equal one, count_queries { assert_equal 3, suggestions.size }
+  end
+end

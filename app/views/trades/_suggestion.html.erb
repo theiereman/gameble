@@ -1,0 +1,25 @@
+<%# locals: (suggestion:, index:, cards:, goals:, current:, focused:) %>
+<%= tag.li class: class_names("trade-suggestion", "trade-suggestion--current": current) do %>
+  <%= link_to "", trade_suggestion_opener_path(suggestion, cards), class: "trade-suggestion__opener", autofocus: (true if focused),
+        aria: { label: trade_suggestion_opener_name(suggestion, cards, goals), current: ("true" if current) }, data: { turbo_prefetch: false } %>
+  <div class="trade-suggestion__head">
+    <%= pixel_icon("avatar-default", class: "trade-suggestion__avatar") %>
+    <span class="trade-suggestion__who" aria-hidden="true">
+      <span class="trade-suggestion__name"><%= friend_name(suggestion.player) %></span>
+      <%= render "friends/presence", presence: suggestion.friend %>
+    </span>
+    <div class="trade-suggestion__send">
+      <%= render ButtonComponent.new(variant: :secondary, size: :small, href: suggestions_trades_path, method: :post,
+            params: trade_suggestion_send_params(suggestion, cards, position: index), aria_label: trade_suggestion_send_name(suggestion)) do %><%= t("trades.suggestions.send") %><% end %>
+    </div>
+  </div>
+  <p class="trade-suggestion__marks" aria-hidden="true">
+    <% suggestion.served_goals.each do |position, count| %>
+      <span class="trade-suggestion__mark">
+        <%= goal_bookmark(position) %>
+        <% if count > 1 %><span class="trade-suggestion__count">×<%= count %></span><% end %>
+      </span>
+    <% end %>
+  </p>
+  <p class="trade-suggestion__summary" aria-hidden="true"><%= trade_suggestion_summary(suggestion, cards) %></p>
+<% end %>
