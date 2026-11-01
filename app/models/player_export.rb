@@ -39,6 +39,7 @@ class PlayerExport
       pendingInvitations: { received: game.invitations.received, sent: game.invitations.sent },
       trades:,
       customSets: custom_sets,
+      steamLibrary: steam_library,
       goals: game.goals.map do
         { position: it.position, setKind: it.set_kind, setKey: it.set_key, customSet: it.custom_set_token, createdAt: time(it.created_at) }.compact
       end,
@@ -66,7 +67,7 @@ class PlayerExport
     def profile
       profile = accounts.profile
       { steamId: profile.steam_id, personaName: profile.persona_name, visibility: profile.visibility,
-        reducedMotion: profile.reduced_motion, friendCode: game.friend_code,
+        reducedMotion: profile.reduced_motion, steamLibrarySync: profile.steam_library_sync, friendCode: game.friend_code,
         createdAt: time(profile.created_at), lastSeenAt: time(profile.last_seen_at),
         lastExportedAt: time(profile.last_exported_at) }
     end
@@ -106,17 +107,29 @@ class PlayerExport
     end
 
     def custom_sets
-      games = custom_set_games
       game.custom_sets.map do |custom_set|
         { token: custom_set.token, name: custom_set.name, kind: custom_set.kind, createdAt: time(custom_set.created_at),
-          games: custom_set.card_ids.filter_map { games[it] } }
+          games: set_games(custom_set.card_ids) }
       end
     end
 
-    def custom_set_games
-      faces = Catalog::LatestPublishedCardSeasons.call(game.custom_sets.flat_map(&:card_ids))
-      faced = Catalog::CardViews.call(faces.values, locale: @locale)
-      faces.transform_values { |card_season_id| faced[card_season_id] }.compact.transform_values { { slug: it.id, title: it.title } }
+    def steam_library
+      library = game.steam_library
+      library && { token: library.token, createdAt: time(library.created_at), syncedAt: time(library.synced_at),
+        notSharedSince: time(library.library_private_since), games: set_games(library.card_ids) }
+    end
+
+    def set_games(card_ids)
+      card_ids.filter_map { set_game_faces[it] }
+    end
+
+    def set_game_faces
+      @set_game_faces ||= begin
+        card_ids = game.custom_sets.flat_map(&:card_ids) + Array(game.steam_library&.card_ids)
+        faces = Catalog::LatestPublishedCardSeasons.call(card_ids)
+        faced = Catalog::CardViews.call(faces.values, locale: @locale)
+        faces.transform_values { |card_season_id| faced[card_season_id] }.compact.transform_values { { slug: it.id, title: it.title } }
+      end
     end
 
     def feed_entry(entry)

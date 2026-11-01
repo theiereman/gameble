@@ -1,10 +1,12 @@
 require "test_helper"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
+require_relative "../support/custom_sets"
 
 class DataExportsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
   include SteamSignIn
+  include CustomSets
 
   setup do
     @player = accounts_players(:player)
@@ -40,6 +42,21 @@ class DataExportsControllerTest < ActionDispatch::IntegrationTest
     exported = response.parsed_body["customSets"].sole
     assert_equal [ custom_set.token, "Mes favoris", "custom" ], exported.values_at("token", "name", "kind")
     assert_equal card_ids.map { Catalog::Card.find(it).slug }, exported["games"].map { it["slug"] }
+  end
+
+  test "a Steam player's export file holds their Steam library with its games by slug, apart from the custom sets" do
+    card_ids = %i[portal rare_card].map { catalog_cards(it).id }
+    library = create_library_set(@player, card_ids:)
+    sign_in(@player)
+
+    post settings_export_path(locale: :en), headers: json_headers
+
+    exported = response.parsed_body["steamLibrary"]
+    assert_equal library.token, exported["token"]
+    assert_equal library.synced_at.utc.iso8601, exported["syncedAt"]
+    assert_equal card_ids.map { Catalog::Card.find(it).slug }, exported["games"].map { it["slug"] }
+    assert_equal [], response.parsed_body["customSets"]
+    assert_equal true, response.parsed_body.dig("profile", "steamLibrarySync")
   end
 
   test "the last export's file downloads again later, and nobody else's" do

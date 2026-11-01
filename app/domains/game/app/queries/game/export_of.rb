@@ -17,10 +17,11 @@ module Game
     TradeRow = Data.define(:status, :proposed_at, :closed_at, :offered)
     Invitations = Data.define(:received, :sent)
     CustomSetRow = Data.define(:token, :name, :kind, :created_at, :card_ids)
+    LibraryRow = Data.define(:token, :created_at, :synced_at, :library_private_since, :card_ids)
     GoalRow = Data.define(:position, :set_kind, :set_key, :custom_set_token, :created_at)
 
     Result = Data.define(:friend_code, :held_cards, :showcase, :packs, :daily_bonus_days, :goal_reward_weeks, :contributions,
-      :set_tiers, :discoveries, :feed_entries, :unlocks, :card_backs, :friend_count, :invitations, :trades, :custom_sets, :goals) do
+      :set_tiers, :discoveries, :feed_entries, :unlocks, :card_backs, :friend_count, :invitations, :trades, :custom_sets, :steam_library, :goals) do
       def card_season_ids
         (held_cards.map(&:card_season_id) + showcase.map(&:card_season_id) + packs.flat_map(&:card_season_ids) + discoveries.map(&:card_season_id) +
           feed_entries.filter_map(&:card_season_id) + trades.flat_map { |trade| trade.offered.map(&:card_season_id) }).uniq
@@ -49,6 +50,7 @@ module Game
         invitations: Invitations.new(received: invitations.received.size, sent: invitations.sent.size),
         trades: trades(player, now),
         custom_sets: custom_sets(player),
+        steam_library: steam_library(player),
         goals: goals(player)
       )
     end
@@ -125,12 +127,24 @@ module Game
     end
 
     def self.custom_sets(player)
-      rows = CustomSet.where(player_id: player.id).order(:id).pluck(:id, :token, :name, :kind, :created_at)
-      games = CustomSetGame.where(custom_set_id: rows.map(&:first)).order(:id).pluck(:custom_set_id, :card_id)
-        .group_by(&:first).transform_values { |pairs| pairs.map(&:last) }
+      rows = CustomSet.custom.where(player_id: player.id).order(:id).pluck(:id, :token, :name, :kind, :created_at)
+      games = card_ids_by_set(rows.map(&:first))
       rows.map do |id, token, name, kind, created_at|
         CustomSetRow.new(token:, name:, kind:, created_at:, card_ids: games.fetch(id, []))
       end
+    end
+
+    def self.steam_library(player)
+      id, token, created_at, synced_at, library_private_since = CustomSet.steam_library.where(player_id: player.id)
+        .pick(:id, :token, :created_at, :synced_at, :library_private_since)
+      return unless id
+
+      LibraryRow.new(token:, created_at:, synced_at:, library_private_since:, card_ids: card_ids_by_set([ id ]).fetch(id, []))
+    end
+
+    def self.card_ids_by_set(custom_set_ids)
+      CustomSetGame.where(custom_set_id: custom_set_ids).order(:id).pluck(:custom_set_id, :card_id)
+        .group_by(&:first).transform_values { |pairs| pairs.map(&:last) }
     end
 
     def self.goals(player)
@@ -139,6 +153,6 @@ module Game
         .map { |position, set_kind, set_key, custom_set_token, created_at| GoalRow.new(position:, set_kind:, set_key:, custom_set_token:, created_at:) }
     end
 
-    private_class_method :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :set_refs, :trades, :custom_sets, :goals
+    private_class_method :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :set_refs, :trades, :custom_sets, :steam_library, :card_ids_by_set, :goals
   end
 end

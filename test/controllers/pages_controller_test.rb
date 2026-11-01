@@ -848,7 +848,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__contact a[href=?]", "mailto:contact@example.test", "contact@example.test"
     assert_select ".legal__host-name", "Example Hosting"
     assert_select ".legal__host-address", "1 rue de l'Exemple, 75000 Paris"
-    assert_select ".legal__access", 'access: from the settings, with "Export" under "My data", which downloads a copy of your data in a reusable file, your sign-in methods included;'
+    assert_select ".legal__access", 'access: from the settings, with "Export" under "My data", which downloads a copy of your data in a reusable file, your sign-in methods and your Steam library list included;'
     assert_select ".legal__access a", false
   end
 
@@ -868,7 +868,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__updated", "Dernière mise à jour\u202F: 30 octobre 2026"
+    assert_select ".legal__updated", "Dernière mise à jour\u202F: 1er novembre 2026"
     %w[.legal__moderation .legal__notice .legal__rectification .legal__objection .legal__death .legal__banned].each do |line|
       assert_select "#{line} a.legal__link[href=?]", "mailto:contact@example.test", "contact@example.test"
     end
@@ -883,7 +883,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__retention li", 9
+    assert_select ".legal__retention li", 10
     retention = css_select(".legal__retention").text
     [ "trois ans", "un an", "30 jours", "tant que la suspension dure" ].each { assert_includes retention, it }
     assert_select ".legal__retention li", "les erreurs techniques reçues par Sentry\u202F: 30 jours\u202F;"
@@ -892,7 +892,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get legal_path(locale: :en)
 
-    assert_select ".legal__retention li", 9
+    assert_select ".legal__retention li", 10
     retention = css_select(".legal__retention").text
     [ "three years", "one year", "30 days", "as long as the suspension lasts" ].each { assert_includes retention, it }
     assert_select ".legal__retention li", "technical errors received by Sentry: 30 days;"
@@ -936,6 +936,36 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
         assert_includes stored, term
         assert_includes deletion, term
       end
+    end
+  end
+
+  test "the privacy section names the stored Steam library list: what is kept, how long, what deletion erases, how to export or object" do
+    configure_legal
+    library = {
+      fr: { stored: "si vous vous connectez avec Steam et laissez «\u202FSynchroniser mes jeux Steam\u202F» activé dans les paramètres\u202F: la liste des jeux du catalogue que contient votre bibliothèque Steam, lue chez Steam une fois par jour pour votre set «\u202FMa ludothèque Steam\u202F», avec la date de sa dernière synchronisation et, quand Steam ne partage plus votre bibliothèque, depuis quand\u202F;",
+            retention: "la liste des jeux de votre bibliothèque Steam\u202F: tant que le compte existe et que la synchronisation est activée\u202F; elle est effacée aussitôt que vous désactivez «\u202FSynchroniser mes jeux Steam\u202F» dans les paramètres ou supprimez votre compte\u202F;",
+            list: "la liste de votre bibliothèque Steam", setting: "synchronisation des jeux Steam", objection: "désactivez «\u202FSynchroniser mes jeux Steam\u202F»",
+            service: "Steam (Valve) gère la connexion et fournit votre nom de profil et, une fois par jour tant que la synchronisation est activée, les jeux de votre bibliothèque Steam\u202F;",
+            updated: "Dernière mise à jour\u202F: 1er novembre 2026" },
+      en: { stored: 'if you sign in with Steam and leave "Sync my Steam games" on in the settings: the list of the catalog games your Steam library holds, read from Steam once a day for your "My Steam library" set, with the date of its last sync and, when Steam stops sharing your library, since when;',
+            retention: 'the list of your Steam library\'s games: as long as the account exists and the sync is on; it is erased at once when you turn "Sync my Steam games" off in the settings or delete your account;',
+            list: "your Steam library list", setting: "Steam games sync", objection: 'turn "Sync my Steam games" off',
+            service: "Steam (Valve) handles sign-in and provides your profile name and, once a day while the sync is on, the games of your Steam library;",
+            updated: "Last updated: 1 November 2026" }
+    }
+
+    library.each do |locale, copy|
+      get legal_path(locale:)
+
+      assert_response :success
+      assert_select ".legal__stored-steam-library", copy[:stored]
+      assert_select ".legal__retention .legal__retention-steam-library", copy[:retention]
+      assert_select ".legal__section li", text: /#{Regexp.escape(copy[:setting])}\)/
+      assert_includes css_select(".legal__retention + p").text, "#{copy[:list]}, "
+      assert_includes css_select(".legal__access").sole.text, copy[:list]
+      assert_includes css_select(".legal__objection").sole.text, copy[:objection]
+      assert_select ".legal__section li", copy[:service]
+      assert_select ".legal__updated", copy[:updated]
     end
   end
 

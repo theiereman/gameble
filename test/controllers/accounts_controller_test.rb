@@ -1,10 +1,12 @@
 require "test_helper"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
+require_relative "../support/custom_sets"
 
 class AccountsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
   include SteamSignIn
+  include CustomSets
 
   setup do
     @player = accounts_players(:player)
@@ -148,6 +150,17 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
       assert_equal 1, Game::Pack.where(player_id: @player.id).count
       assert session[:player_id]
     end
+  end
+
+  test "deleting the account leaves neither the Steam library set nor its games" do
+    library = create_library_set(@player, card_ids: fixture_card_ids.first(2))
+    sign_in(@player)
+
+    delete account_path(locale: :fr), params: { confirmation: "SUPPRIMER" }
+
+    assert_predicate @player.reload, :deleted?
+    assert_not Game::CustomSet.exists?(player_id: @player.id)
+    assert_not Game::CustomSetGame.exists?(custom_set_id: library.id)
   end
 
   test "a visitor is sent to the landing; nothing is deleted" do

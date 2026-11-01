@@ -1950,7 +1950,7 @@ en:
           audience measurement trackers.'
         deletion: When you delete your account, your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address, which is deleted there too), your profile name,
           the time of your last visit, your last data export, your latest activity,
-          your collection, your showcase, your set tiers, your custom sets, your goals, your achievements, your
+          your collection, your showcase, your set tiers, your custom sets, your Steam library list, your goals, your achievements, your
           card back unlocks and your choice of active card back, your capsules, your daily bonuses, your weekly mission rewards, your friendships,
           your invitations, your friend code and your activity feed entries are erased,
           your open trades are cancelled and your profile disappears. What also concerns
@@ -2001,10 +2001,13 @@ en:
             without the reason;'
           reports: 'a report: until a moderator handles it, then one year; if it targets
             an account deleted before it was handled, one year after the deletion;'
+          steam_library: 'the list of your Steam library''s games: as long as the account
+            exists and the sync is on; it is erased at once when you turn "Sync my Steam
+            games" off in the settings or delete your account;'
         rights:
           access: 'access: from the settings, with "Export" under "My data", which
             downloads a copy of your data in a reusable file, your sign-in methods
-            included;'
+            and your Steam library list included;'
           authority: CNIL
           banned_html: 'suspended account: it can no longer sign in; the reason for
             the suspension is shown when you try to sign in; write to %{contact} to
@@ -2018,7 +2021,8 @@ en:
             processing, object to processing based on legitimate interest and receive
             a reusable copy of it. You can also say what becomes of your data after
             your death. We reply within one month.
-          objection_html: 'objection: make your profile private in the settings, or
+          objection_html: 'objection: make your profile private in the settings, turn
+            "Sync my Steam games" off so Gameble stops reading your Steam library, or
             write to %{contact};'
           rectification_html: 'rectification: a Steam profile name is read again at each
             Steam sign-in; for anything else, write to %{contact};'
@@ -2046,7 +2050,8 @@ en:
             and your internal player id, never your name or your Steam id. Your browser
             also sends it the page''s security reports directly, with your IP address.
             Data hosted in the European Union;'
-          steam: Steam (Valve) handles sign-in and provides your profile name;
+          steam: Steam (Valve) handles sign-in and provides your profile name and, once
+            a day while the sync is on, the games of your Steam library;
         stored:
           activity: 'your game activity: card collection, showcase, set tiers, custom sets, goals, achievements,
             card back unlocks and active card back, capsules, daily bonuses, weekly
@@ -2063,8 +2068,12 @@ en:
           moderation: the reports you make, those aimed at your profile (their author
             is not disclosed to you) and the moderation decisions that concern you,
             with their reason;
-          settings: your settings (profile visibility, reduced motion);
+          settings: your settings (profile visibility, reduced motion, Steam games sync);
           steam: your Steam id and your Steam profile name;
+          steam_library: 'if you sign in with Steam and leave "Sync my Steam games" on
+            in the settings: the list of the catalog games your Steam library holds,
+            read from Steam once a day for your "My Steam library" set, with the date
+            of its last sync and, when Steam stops sharing your library, since when;'
           technical: 'technical data: IP address and browser, in the server logs and
             error tracking.'
         title: Privacy
@@ -2118,7 +2127,7 @@ en:
           with the page''s address and the reason for your request.'
         title: Terms of use
       title: Legal notice and privacy
-      updated: 'Last updated: 30 October 2026'
+      updated: 'Last updated: 1 November 2026'
     more:
       personalization: Personalization
       settings: Profile and settings

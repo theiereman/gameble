@@ -16,6 +16,14 @@ class Accounts::ExportOfTest < ActiveSupport::TestCase
       [ profile.steam_id, profile.persona_name, profile.visibility, profile.reduced_motion, profile.created_at, profile.last_seen_at ]
   end
 
+  test "the profile carries the player's Steam games sync setting" do
+    assert_equal true, Accounts::ExportOf.call(@player).profile.steam_library_sync
+
+    @player.update!(steam_library_sync: false)
+
+    assert_equal false, Accounts::ExportOf.call(@player).profile.steam_library_sync
+  end
+
   test "identities list the provider and the creation date, never the uid or the hash" do
     Accounts::Identity.create!(player: @player, provider: "google", uid: "g-secret", email_hash: "abc123", created_at: 1.day.from_now)
 

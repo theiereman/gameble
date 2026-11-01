@@ -1,13 +1,15 @@
 require "test_helper"
 require_relative "../support/game_packs"
 require_relative "../support/game_trades"
+require_relative "../support/custom_sets"
 
 class PlayerExportTest < ActiveSupport::TestCase
   include GamePacks
   include GameTrades
+  include CustomSets
 
   SECTIONS = %i[exportedAt profile identities collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
-    firstDiscoveries feedEntries achievements cardBacks friends pendingInvitations trades customSets goals reportsFiled reportsReceived
+    firstDiscoveries feedEntries achievements cardBacks friends pendingInvitations trades customSets steamLibrary goals reportsFiled reportsReceived
     moderationDecisions].freeze
   COUNTING_KEYS = %i[season quantity position openings count received sent].freeze
 
@@ -84,7 +86,7 @@ class PlayerExportTest < ActiveSupport::TestCase
     assert_equal SECTIONS, hash.keys
     assert_equal [ { slug: "blue-depths", season: 1, position: 0 }, { slug: "portal", season: 1, position: 1 } ], hash[:showcase]
     assert_equal "2026-10-14T09:30:00Z", hash[:exportedAt]
-    assert_equal({ steamId: "76561197960287001", personaName: "Léa", visibility: "public", reducedMotion: nil,
+    assert_equal({ steamId: "76561197960287001", personaName: "Léa", visibility: "public", reducedMotion: nil, steamLibrarySync: true,
       friendCode: "7K2Q-F3NX", createdAt: @player.created_at.utc.iso8601, lastSeenAt: nil, lastExportedAt: nil }, hash[:profile])
     portal = hash[:collection].find { it[:slug] == "portal" }
     assert_equal({ slug: "portal", season: 1, title: "Portal", quantity: 3 }, portal.except(:lastGainedAt))
@@ -133,28 +135,54 @@ class PlayerExportTest < ActiveSupport::TestCase
     assert_equal({ count: 0 }, hash[:friends])
     assert_equal({ received: 0, sent: 0 }, hash[:pendingInvitations])
     assert_equal({ active: "standard", activeSeason: nil, unlocked: [] }, hash[:cardBacks])
+    assert_nil hash[:steamLibrary]
     assert_no_database_id(hash)
   end
 
-  test "the player's own sets are listed by token, name, kind and games, by slug in the order picked, never another player's" do
+  test "the player's own sets are listed by token, name, kind and games, by slug in the order picked, never the library or another player's" do
     portal, rare, common = %i[portal rare_card common_card].map { catalog_cards(it).id }
     mine = Game::CreateCustomSet.new.call(player: @player, name: "Mes favoris", card_ids: [ rare, portal, common ]).value!
-    library = Game::CustomSet.create!(player_id: @player.id, kind: Game::CustomSet::STEAM_LIBRARY)
-    Game::CustomSetGame.insert_all!([ { custom_set_id: library.id, card_id: portal } ])
+    library = create_library_set(@player, card_ids: [ portal ])
     theirs = Game::CreateCustomSet.new.call(player: @friend, name: "Secret garden", card_ids: [ rare, portal, common ]).value!
 
     hash = export.to_h
 
-    assert_equal [ mine.token, library.token ], hash[:customSets].map { it[:token] }
-    favourites = hash[:customSets].first
-    assert_equal [ "Mes favoris", "custom" ], favourites.values_at(:name, :kind)
+    favourites = hash[:customSets].sole
+    assert_equal [ mine.token, "Mes favoris", "custom" ], favourites.values_at(:token, :name, :kind)
     assert_equal %w[blue-depths portal tin-soldier], favourites[:games].map { it[:slug] }
     assert_equal "Portal", favourites[:games].second[:title]
     assert_equal mine.created_at.utc.iso8601, favourites[:createdAt]
-    assert_equal [ nil, "steam_library", [ "portal" ] ], hash[:customSets].last.values_at(:name, :kind, :games).then { [ it[0], it[1], it[2].map { |game| game[:slug] } ] }
+    assert_equal library.token, hash[:steamLibrary][:token]
+    assert_not_includes hash[:customSets].to_json, library.token
     assert_not_includes hash.to_json, theirs.token
     assert_not_includes hash.to_json, "Secret garden"
     assert_no_database_id(hash)
+  end
+
+  test "a synced Steam library gets its own section: token, dates and games by slug and title in the order stored" do
+    library = create_library_set(@player, card_ids: %i[rare_card portal].map { catalog_cards(it).id }, synced_at: Time.utc(2026, 10, 13, 4))
+
+    hash = export.to_h
+
+    assert_equal({ token: library.token, createdAt: library.created_at.utc.iso8601, syncedAt: "2026-10-13T04:00:00Z", notSharedSince: nil,
+      games: [ { slug: "blue-depths", title: "Profondeurs bleues" }, { slug: "portal", title: "Portal" } ] }, hash[:steamLibrary])
+    assert_equal [], hash[:customSets]
+    assert_no_database_id(hash)
+  end
+
+  test "a library Steam stopped sharing keeps its games and says since when" do
+    create_library_set(@player, card_ids: [ catalog_cards(:portal).id ], library_private_since: Time.utc(2026, 10, 12, 4))
+
+    library = export.to_h[:steamLibrary]
+
+    assert_equal "2026-10-12T04:00:00Z", library[:notSharedSince]
+    assert_equal [ "portal" ], library[:games].map { it[:slug] }
+  end
+
+  test "the profile carries the Steam games sync turned off" do
+    @player.update!(steam_library_sync: false)
+
+    assert_equal false, export(@player.reload).to_h[:profile][:steamLibrarySync]
   end
 
   test "the player's goals are listed in number order, a game set by kind and key, a custom set by token" do
