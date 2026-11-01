@@ -63,7 +63,7 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
         assert_select "input[type=hidden][name=from][value=friends]"
       end
       assert_select "dialog#friend-profile-remove-#{@friend.token}.modal[aria-labelledby=?]", "friend-profile-remove-#{@friend.token}-title" do
-        assert_select ".modal__title", "Retirer Léa ?"
+        assert_select ".modal__title", "Retirer Léa\u202F?"
         assert_select "form[method=post][action=?][data-turbo=false]", remove_friend_path(locale: :fr, token: @friend.token)
         assert_select ".remove-friend-dialog__trade", 0
       end
@@ -163,7 +163,7 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".friend-profile__actions a.friends__collection-link", "Voir la collection"
     assert_select ".friend-profile__actions a.button--primary", 0
-    assert_select ".friend-profile__actions .trades-closed", /Votre profil est privé : les échanges sont fermés\./
+    assert_select ".friend-profile__actions .trades-closed", /Votre profil est privé\u202F: les échanges sont fermés\./
     assert_select ".friend-profile__actions .friend-profile__trade .trades-closed a[href=?]", settings_path(locale: :fr), "RÉGLAGES"
     assert_equal %w[Signaler Retirer], css_select(".friend-profile__trade + .friends__more button.friends__menu-item").map { it.text.strip }
   end

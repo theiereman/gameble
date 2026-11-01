@@ -51,7 +51,7 @@ class Game::AddToShowcaseTest < ActiveSupport::TestCase
       assert_equal :showcase_full, add(sixth).failure
     end
     assert_equal "Showcase full: remove a card to add another.", I18n.with_locale(:en) { Game::AddToShowcase.failure_message(:showcase_full) }
-    assert_equal "Vitrine pleine : retirez une carte pour en ajouter une autre.",
+    assert_equal "Vitrine pleine\u202F: retirez une carte pour en ajouter une autre.",
       I18n.with_locale(:fr) { Game::AddToShowcase.failure_message(:showcase_full) }
   end
 

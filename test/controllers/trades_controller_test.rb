@@ -338,7 +338,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     @bob.update_columns(visibility: "private")
     get trade_path(token: trade.token, locale: :fr)
     assert_select ".trade-board__actions a.button", 0
-    assert_select ".trade-board__actions .trades-closed", "Le profil de Lea est privé : échanges fermés."
+    assert_select ".trade-board__actions .trades-closed", "Le profil de Lea est privé\u202F: échanges fermés."
 
     @bob.update_columns(visibility: "friends_only")
     get trade_path(token: trade.token, locale: :fr)
@@ -347,7 +347,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     @alice.update_columns(visibility: "private")
     get trade_path(token: trade.token, locale: :fr)
     assert_select ".trade-board__actions a.button", 0
-    assert_select ".trade-board__actions .trades-closed", /Votre profil est privé : les échanges sont fermés\./
+    assert_select ".trade-board__actions .trades-closed", /Votre profil est privé\u202F: les échanges sont fermés\./
     assert_select ".trade-board__actions .trades-closed a[href=?]", settings_path(locale: :fr), "RÉGLAGES"
   end
 
@@ -358,12 +358,12 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
     post accept_trade_path(token: trade.token, locale: :fr), params: revision(trade)
     follow_redirect!
-    assert_select ".toast--alert", /Le profil de Lea est privé : échanges fermés\./
+    assert_select ".toast--alert", /Le profil de Lea est privé\u202F: échanges fermés\./
     assert_equal "open", trade.reload.status
 
     post counter_trade_path(token: trade.token, locale: :fr), params: { **revision(trade), give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
     follow_redirect!
-    assert_select ".toast--alert", /Le profil de Lea est privé : échanges fermés\./
+    assert_select ".toast--alert", /Le profil de Lea est privé\u202F: échanges fermés\./
     assert_equal "open", trade.reload.status
     assert_equal 2, holding(@bob, @depths).quantity
   end
@@ -463,7 +463,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select ".trade-side--friend.trade-side--editing[data-field='take'] li[data-key='blue-depths--s1'] input[name='take[blue-depths--s1]'][value='1']"
     assert_select ".trade-side--own.trade-side--editing .trade-add", /Placer mes cartes/
-    assert_select ".trade-side--own .trade-side__help[hidden]", "Laissez ce côté vide : Lea choisira ce qui lui plaît en retour."
+    assert_select ".trade-side--own .trade-side__help[hidden]", "Laissez ce côté vide\u202F: Lea choisira ce qui lui plaît en retour."
     assert_select ".trade-side--friend .trade-side__help", 0
     assert_select ".trade-board__message.trade-board__edit-only", "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez."
     assert_select ".trade-board__message.trade-board__read-only", "Lea vous propose cet échange."
@@ -626,7 +626,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_select "[data-action='click->trade-board#undo'] a[href=?]", trade_path(token: trade.token, locale: :fr), "Annuler les modifications"
     end
     assert_select "dialog#trade-undo-dialog[data-trade-board-target='undoDialog']" do
-      assert_select ".modal__title", "Annuler les modifications ?"
+      assert_select ".modal__title", "Annuler les modifications\u202F?"
       assert_select "#trade-undo-dialog-text", "Ce que vous avez changé sera perdu et la proposition de Lea reviendra telle quelle."
       assert_select "button[data-action='trade-board#restore']", "Annuler les modifications"
       assert_select "button[data-action='dialog#close']", "Continuer à modifier"
@@ -660,7 +660,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".trade-side--own .trade-side__label", "Vous donnez"
       assert_select ".trade-side__count", { count: 2, text: "0 carte" }
       assert_select ".trade-board__message", "Choisissez les cartes de chaque côté."
-      assert_select ".trade-side--own .trade-side__help", "Laissez ce côté vide : Lea choisira ce qui lui plaît en retour."
+      assert_select ".trade-side--own .trade-side__help", "Laissez ce côté vide\u202F: Lea choisira ce qui lui plaît en retour."
       assert_select ".trade-side--friend .trade-side__help", 0
       assert_select "#trade-send-reason", "Placez au moins une carte du côté de Lea."
       assert_select "form#trade-draft-form[action=?][data-controller='trade-board-send']", trades_path(locale: :fr) do
@@ -722,7 +722,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ "duplicates" => "Mes doublons", "missing" => "Absentes de sa collection", "available" => "Disponibles" }, chips.call(:own))
     assert_select ".trade-picker__compare legend", "Collections"
     assert_select ".trade-picker__fold .filters__title", "Filtres"
-    assert_select ".trade-picker__fold .filters__count[hidden] .visually-hidden", "Filtres actifs :"
+    assert_select ".trade-picker__fold .filters__count[hidden] .visually-hidden", "Filtres actifs\u202F:"
     assert_select ".trade-picker__fold svg.pixel-icon.filters__chevron"
     assert_no_match(/card_season_id|style=/, css_select("#trade-board").sole.to_html)
   end
@@ -776,7 +776,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
     lea, max = %w[Lea Max].map { |name| css_select(".trade-chooser__friend").find { it.at_css(".trade-chooser__name").text == name } }
     assert_equal "Profil privé", lea.at_css(".friends__presence--private").text.strip
-    assert_equal "Le profil de Lea est privé : échanges fermés.", lea.at_css(".trades-closed").text.strip
+    assert_equal "Le profil de Lea est privé\u202F: échanges fermés.", lea.at_css(".trades-closed").text.strip
     assert_nil lea.at_css("a.button")
     assert_equal new_trade_path(friend: @carol.token, locale: :fr), max.at_css("a.button")["href"]
   end
@@ -789,7 +789,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".trade-chooser__friend", 2
     assert_select ".trade-chooser__friend a.button", 0
-    assert_select ".trade-chooser__friend .trades-closed", text: /Votre profil est privé : les échanges sont fermés\./, count: 2
+    assert_select ".trade-chooser__friend .trades-closed", text: /Votre profil est privé\u202F: les échanges sont fermés\./, count: 2
     assert_select ".trade-chooser__friend .trades-closed a[href=?]", settings_path(locale: :fr), text: "RÉGLAGES", count: 2
   end
 
@@ -857,14 +857,14 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     get new_trade_path(locale: :fr, friend: @bob.token)
     assert_redirected_to trades_path(locale: :fr)
     follow_redirect!
-    assert_select ".toast--alert", /Le profil de Lea est privé : échanges fermés\./
+    assert_select ".toast--alert", /Le profil de Lea est privé\u202F: échanges fermés\./
 
     @bob.update_columns(visibility: "public")
     @alice.update_columns(visibility: "private")
     get new_trade_path(locale: :fr, friend: @bob.token)
     assert_redirected_to trades_path(locale: :fr)
     follow_redirect!
-    assert_select ".toast--alert", /Votre profil est privé : les échanges sont fermés\./
+    assert_select ".toast--alert", /Votre profil est privé\u202F: les échanges sont fermés\./
   end
 
   test "a forged proposal to a private friend, or from a private player, is refused and reserves nothing" do
@@ -875,14 +875,14 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     post trades_path(locale: :fr), params: params
     assert_redirected_to trades_path(locale: :fr)
     follow_redirect!
-    assert_select ".toast--alert", /Le profil de Lea est privé : échanges fermés\./
+    assert_select ".toast--alert", /Le profil de Lea est privé\u202F: échanges fermés\./
 
     @bob.update_columns(visibility: "public")
     @alice.update_columns(visibility: "private")
     post trades_path(locale: :fr), params: params
     assert_redirected_to trades_path(locale: :fr)
     follow_redirect!
-    assert_select ".toast--alert", /Votre profil est privé : les échanges sont fermés\./
+    assert_select ".toast--alert", /Votre profil est privé\u202F: les échanges sont fermés\./
     assert_equal 0, Game::Trade.count
     assert_equal 0, holding(@alice, @portal).reserved
   end
@@ -976,7 +976,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     post accept_trade_path(token: trade.token, locale: :fr), params: revision(trade)
     follow_redirect!
 
-    message = "Rien à recevoir pour l'instant : choisissez ce que vous voulez dans la collection de Lea, puis renvoyez."
+    message = "Rien à recevoir pour l'instant\u202F: choisissez ce que vous voulez dans la collection de Lea, puis renvoyez."
     assert_select ".trade-board__error[role=alert]", message
     assert_select ".toast--alert", /#{Regexp.escape(message)}/
     assert trade.reload.open?

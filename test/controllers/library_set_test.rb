@@ -331,7 +331,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
 
     get library_set_path(locale: :fr, kind: "theme", key: "roguelike", page: 4)
     assert_empty slots
-    assert_select ".collection-grid__empty", "Plus aucune carte ici : la grille s'arrête sur une page précédente. Revenez à la dernière page."
+    assert_select ".collection-grid__empty", "Plus aucune carte ici\u202F: la grille s'arrête sur une page précédente. Revenez à la dernière page."
     assert_select ".collection-pages a[rel=prev][href=?]", "/fr/library/theme/roguelike?page=3"
   end
 

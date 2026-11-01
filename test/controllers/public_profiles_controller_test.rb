@@ -828,7 +828,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get brother_path(locale: :fr, token: accounts_players(:banned).token)
 
-    assert_select ".profile-band__banned", "Joueur banni : visible par les officiers de la Confrérie seulement"
+    assert_select ".profile-band__banned", "Joueur banni\u202F: visible par les officiers de la Confrérie seulement"
   end
 
   test "the chosen cards show under VITRINE after the identity band, in their order, each leading to its detail with the owner's token, and the GET writes nothing" do

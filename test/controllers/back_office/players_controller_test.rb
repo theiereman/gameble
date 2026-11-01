@@ -108,7 +108,7 @@ module BackOffice
       get back_office_players_path(locale: :fr, q: "nobody<b>")
 
       assert_select "tbody", false
-      assert_select "main .panel[data-player-search-empty]", "Aucun joueur ne correspond à « nobody<b> »."
+      assert_select "main .panel[data-player-search-empty]", "Aucun joueur ne correspond à «\u202Fnobody<b>\u202F»."
     end
 
     test "a deleted account is not listed, even searched by its old name" do

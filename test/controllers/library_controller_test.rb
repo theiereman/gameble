@@ -692,7 +692,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_cards_path(locale: :fr, state: %w[all])
 
-    assert_select ".collection-status__label", "Cartes uniques :"
+    assert_select ".collection-status__label", "Cartes uniques\u202F:"
     assert_select ".collection-status .visually-hidden", "1 carte unique sur 150"
     assert_select "#rarity-legend .shell-popover__title", "Raretés"
     assert_select "#rarity-legend a.rarity-legend__link[href=?] .rarity-legend__name", "/fr/library/cards?rarity%5B%5D=epic", "Épique"

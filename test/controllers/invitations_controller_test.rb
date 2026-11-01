@@ -108,7 +108,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
   test "the copy deck's refusals answer on the line under the field" do
     sign_in @alice
     {
-      "abc" => "Format attendu : ABCD-1234.",
+      "abc" => "Format attendu\u202F: ABCD-1234.",
       "7K2Q-F3NX" => "C'est votre propre code.",
       "2222-3333" => "Aucun joueur n'a ce code."
     }.each do |code, line|

@@ -277,7 +277,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "3", reserve_badge
     assert_equal "300", countdown.sole["data-countdown-seconds-value"]
     assert_select ".packs-chip__next [aria-hidden=true]", text: /\+1 dans\s+05:00/
-    assert_select ".packs-chip__next .visually-hidden", "Prochaine capsule : 2026-10-02 09:40 UTC"
+    assert_select ".packs-chip__next .visually-hidden", "Prochaine capsule\u202F: 2026-10-02 09:40 UTC"
     assert_select ".packs-chip__next .visually-hidden time[datetime='2026-10-02T09:40:00Z']"
   end
 

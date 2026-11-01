@@ -218,7 +218,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "Copies", "1 copy" ], [ "Editions", "Legendary: S1" ] ], facts.last(2)
 
     get card_path(locale: :fr, slug: "golden-crown")
-    assert_equal [ [ "Exemplaires", "1 exemplaire" ], [ "Éditions", "Légendaire : S1" ] ], facts.last(2)
+    assert_equal [ [ "Exemplaires", "1 exemplaire" ], [ "Éditions", "Légendaire\u202F: S1" ] ], facts.last(2)
 
     get card_path(locale: :en, slug: "tin-soldier")
     assert_equal [ [ "Copies", "None" ], [ "Editions", "None" ] ], facts.last(2)
@@ -1087,7 +1087,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", 0
 
     get card_season_path(locale: :fr, slug: "portal", number: 1)
-    assert_equal [ [ "Exemplaires", "2 exemplaires" ], [ "Éditions", "Légendaire : S2 | Épique : S1" ] ], facts.to_h.slice("Exemplaires", "Éditions").to_a
+    assert_equal [ [ "Exemplaires", "2 exemplaires" ], [ "Éditions", "Légendaire\u202F: S2 | Épique\u202F: S1" ] ], facts.to_h.slice("Exemplaires", "Éditions").to_a
   end
 
   test "the editions of one rarity share a line, seasons ascending; past three lines they fold under how many more" do

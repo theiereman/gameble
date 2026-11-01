@@ -50,7 +50,7 @@ fr:
       back_landing: "Accueil"
       home: "Gameble, pont de commandement"
       landing: "Gameble, page d'accueil"
-      previous: "Retour :"
+      previous: "Retour :"
       motion_switch: "Animations réduites"
       sign_in: "Se connecter"
     screens:
@@ -84,7 +84,7 @@ fr:
     packs:
       label: "Capsules"
       next_in: "+1 dans"
-      next_at: "Prochaine capsule : %{time}"
+      next_at: "Prochaine capsule : %{time}"
       special_label:
         zero: "spéciale"
         one: "spéciale"
@@ -185,7 +185,7 @@ fr:
         collect: "Récupérer"
         collected: "Récupérée"
         next_in: "Prochaine dans"
-        next_at: "Prochaine capsule : %{time}"
+        next_at: "Prochaine capsule : %{time}"
       goal:
         title: "Mission hebdo"
         line: "La Confrérie invite ses membres à unir leurs efforts pour ouvrir %{target} capsules cette semaine."
@@ -194,8 +194,8 @@ fr:
         reward: "Récompense"
         reward_text: "Une capsule rare pour chaque contributeur"
         reached: "Mission accomplie"
-        previous_reached: "Semaine dernière : %{total} / %{target} · mission accomplie"
-        previous_missed: "Semaine dernière : %{total} / %{target} · mission manquée"
+        previous_reached: "Semaine dernière : %{total} / %{target} · mission accomplie"
+        previous_missed: "Semaine dernière : %{total} / %{target} · mission manquée"
         collect: "Récupérer"
         collect_label: "Récupérer la capsule de récompense"
         collected: "Récupérée"
@@ -216,7 +216,7 @@ fr:
       personalization: "Personnalisation"
     credits:
       title: "Crédits"
-      intro: "Gameble s'inspire des œuvres ci-dessous. Ce sont des inspirations, jamais des affiliations : aucune n'a de lien avec Gameble ni ne le cautionne."
+      intro: "Gameble s'inspire des œuvres ci-dessous. Ce sont des inspirations, jamais des affiliations : aucune n'a de lien avec Gameble ni ne le cautionne."
       list_label: "Inspirations"
       wikimasters:
         name: "WikiMasters"
@@ -229,20 +229,20 @@ fr:
         inspired: "Un pixel art fin posé sur une matière détaillée."
       hearthstone:
         name: "Hearthstone"
-        inspired: "La structure des dos de cartes ornementaux : cadre, médaillon et coins."
+        inspired: "La structure des dos de cartes ornementaux : cadre, médaillon et coins."
       contributors:
         label: "Contributeurs"
         title: "Contributeurs"
         code: "Code"
         writing_and_ideas: "Textes et idées"
         ideas_and_bug_reports: "Idées et rapports de bugs"
-        rule: "Un contributeur est ajouté ici quand une pull request de sa part est fusionnée ou qu'une issue de sa part est acceptée, avec une contribution large : code, textes ou idées."
+        rule: "Un contributeur est ajouté ici quand une pull request de sa part est fusionnée ou qu'une issue de sa part est acceptée, avec une contribution large : code, textes ou idées."
       testers:
         label: "Testeurs de la bêta"
         title: "Testeurs de la bêta"
     legal:
       title: "Mentions légales et confidentialité"
-      updated: "Dernière mise à jour : 30 octobre 2026"
+      updated: "Dernière mise à jour : 30 octobre 2026"
       publisher:
         title: "Éditeur et hébergeur"
         publisher: "Éditeur"
@@ -258,11 +258,11 @@ fr:
         title: "Conditions d'utilisation"
         acceptance: "En vous connectant, vous acceptez ces conditions."
         free: "Gameble est un jeu gratuit, sans publicité et sans achat."
-        no_money: "Aucun argent réel n'y circule : rien ne s'y achète, rien ne s'y vend."
-        no_property: "Les cartes, capsules et dos de cartes sont des éléments du jeu : ils ne sont pas votre propriété et n'ont aucune valeur, ni en argent ni hors de Gameble. Aucune carte ne peut être vendue ou échangée contre de l'argent, dans Gameble ou en dehors."
-        fair_play: "Jouez loyalement : pas de bot, de script ni d'automatisation, pas de comptes multiples, pas d'exploitation de bug."
+        no_money: "Aucun argent réel n'y circule : rien ne s'y achète, rien ne s'y vend."
+        no_property: "Les cartes, capsules et dos de cartes sont des éléments du jeu : ils ne sont pas votre propriété et n'ont aucune valeur, ni en argent ni hors de Gameble. Aucune carte ne peut être vendue ou échangée contre de l'argent, dans Gameble ou en dehors."
+        fair_play: "Jouez loyalement : pas de bot, de script ni d'automatisation, pas de comptes multiples, pas d'exploitation de bug."
         moderation_html: "Les joueurs peuvent signaler un profil. Des modérateurs examinent chaque signalement et peuvent suspendre un compte qui enfreint ces règles. La décision est toujours prise par une personne. Le joueur suspendu voit le motif de la décision quand il tente de se connecter et peut la contester en écrivant à %{contact}."
-        notice_html: "Même sans compte Gameble, vous pouvez signaler un contenu illicite ou demander le retrait d'un jeu dont vous détenez les droits : écrivez à %{contact} en indiquant l'adresse de la page et la raison de votre demande."
+        notice_html: "Même sans compte Gameble, vous pouvez signaler un contenu illicite ou demander le retrait d'un jeu dont vous détenez les droits : écrivez à %{contact} en indiquant l'adresse de la page et la raison de votre demande."
         no_guarantee: "Le service est gratuit et fourni tel quel. Il peut être interrompu pour maintenance ou modifié. S'il devait fermer définitivement, la fermeture serait annoncée sur le site au moins 30 jours à l'avance."
         changes: "Ces conditions peuvent évoluer. Une modification importante est annoncée dans le jeu avant de s'appliquer. La version en vigueur est celle de cette page."
         law: "Elles sont régies par le droit français."
@@ -270,58 +270,58 @@ fr:
         title: "Confidentialité"
         controller_html: "Le responsable du traitement de vos données est Thomas Eyermann, éditeur de Gameble, joignable à %{contact}."
         stored:
-          intro: "Pour faire fonctionner le jeu, Gameble conserve :"
-          steam: "votre identifiant Steam et votre nom de profil Steam ;"
-          identities: "vos modes de connexion : Steam, Discord, Google ou code par e-mail, chacun avec son identifiant chez ce fournisseur, la date de son ajout et, pour les trois derniers, une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
-          activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, sets perso, succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de la mission hebdo, échanges, amitiés, invitations, code ami, entrées du fil d'activité et dernière activité ;"
-          moderation: "les signalements que vous faites, ceux qui visent votre profil (leur auteur ne vous est pas communiqué) et les décisions de modération qui vous concernent, avec leur motif ;"
-          settings: "vos réglages (visibilité du profil, animations réduites) ;"
-          last_seen: "la date de création de votre compte, l'heure de votre dernière visite, et votre dernier export de données (son fichier et son heure), gardé jusqu'à l'export suivant ;"
-          technical: "des données techniques : adresse IP et navigateur, dans les journaux du serveur et le suivi d'erreurs."
+          intro: "Pour faire fonctionner le jeu, Gameble conserve :"
+          steam: "votre identifiant Steam et votre nom de profil Steam ;"
+          identities: "vos modes de connexion : Steam, Discord, Google ou code par e-mail, chacun avec son identifiant chez ce fournisseur, la date de son ajout et, pour les trois derniers, une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
+          activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, sets perso, succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de la mission hebdo, échanges, amitiés, invitations, code ami, entrées du fil d'activité et dernière activité ;"
+          moderation: "les signalements que vous faites, ceux qui visent votre profil (leur auteur ne vous est pas communiqué) et les décisions de modération qui vous concernent, avec leur motif ;"
+          settings: "vos réglages (visibilité du profil, animations réduites) ;"
+          last_seen: "la date de création de votre compte, l'heure de votre dernière visite, et votre dernier export de données (son fichier et son heure), gardé jusqu'à l'export suivant ;"
+          technical: "des données techniques : adresse IP et navigateur, dans les journaux du serveur et le suivi d'erreurs."
         purposes:
-          intro: "Pourquoi et sur quelle base :"
-          game: "faire fonctionner votre compte et le jeu (collection, capsules, échanges, amis, profil, fil d'activité) : exécution des conditions d'utilisation que vous acceptez en vous connectant (art. 6.1.b du RGPD) ;"
-          moderation: "modérer la communauté (signalements, bannissements, historique de modération) : intérêt légitime de l'éditeur à faire respecter les règles et à protéger les joueurs (art. 6.1.f) ;"
-          security: "sécuriser le site et corriger les erreurs (journaux du serveur, limitation des abus, suivi d'erreurs, Cloudflare) : intérêt légitime à assurer la sécurité et le bon fonctionnement du service (art. 6.1.f) ;"
-          requests: "répondre à vos messages et à vos demandes sur vos données : obligation légale (art. 6.1.c)."
+          intro: "Pourquoi et sur quelle base :"
+          game: "faire fonctionner votre compte et le jeu (collection, capsules, échanges, amis, profil, fil d'activité) : exécution des conditions d'utilisation que vous acceptez en vous connectant (art. 6.1.b du RGPD) ;"
+          moderation: "modérer la communauté (signalements, bannissements, historique de modération) : intérêt légitime de l'éditeur à faire respecter les règles et à protéger les joueurs (art. 6.1.f) ;"
+          security: "sécuriser le site et corriger les erreurs (journaux du serveur, limitation des abus, suivi d'erreurs, Cloudflare) : intérêt légitime à assurer la sécurité et le bon fonctionnement du service (art. 6.1.f) ;"
+          requests: "répondre à vos messages et à vos demandes sur vos données : obligation légale (art. 6.1.c)."
           no_automation: "Aucune décision vous concernant n'est prise de façon automatisée."
-        visibility: "Votre profil est public par défaut : votre nom de profil, votre collection et vos entrées du fil d'activité sont visibles de tous, y compris des visiteurs non connectés. Vous pouvez le réserver à vos amis ou le rendre privé dans les paramètres. Les modérateurs de Gameble peuvent consulter tout profil, quel que soit son réglage."
-        cookies: "Gameble n'utilise que des cookies strictement nécessaires, exemptés de consentement : celui de la session, qui protège les formulaires et vous garde connecté pendant 30 jours après votre dernière visite, ou jusqu'à la déconnexion, et celui qui retient votre choix d'animations réduites, pendant un an. Cloudflare peut y ajouter un cookie de sécurité qui filtre les robots. Le stockage de votre navigateur garde aussi vos brouillons d'échange et l'état de l'interface, sur votre appareil seulement. Aucun traceur publicitaire ni de mesure d'audience."
+        visibility: "Votre profil est public par défaut : votre nom de profil, votre collection et vos entrées du fil d'activité sont visibles de tous, y compris des visiteurs non connectés. Vous pouvez le réserver à vos amis ou le rendre privé dans les paramètres. Les modérateurs de Gameble peuvent consulter tout profil, quel que soit son réglage."
+        cookies: "Gameble n'utilise que des cookies strictement nécessaires, exemptés de consentement : celui de la session, qui protège les formulaires et vous garde connecté pendant 30 jours après votre dernière visite, ou jusqu'à la déconnexion, et celui qui retient votre choix d'animations réduites, pendant un an. Cloudflare peut y ajouter un cookie de sécurité qui filtre les robots. Le stockage de votre navigateur garde aussi vos brouillons d'échange et l'état de l'interface, sur votre appareil seulement. Aucun traceur publicitaire ni de mesure d'audience."
         nothing_else: "Pas de mesure d'audience, pas de publicité, pas d'argent réel. Vos données ne sont ni vendues ni cédées."
         services:
-          intro: "Quelques services extérieurs interviennent :"
-          host: "Le site tourne sur des serveurs exploités par %{name}, en %{address} ;"
-          steam: "Steam (Valve) gère la connexion et fournit votre nom de profil ;"
-          clerk: "Clerk, Inc. gère la connexion par Discord, Google ou code par e-mail, en tant que sous-traitant : il conserve l'utilisateur Clerk créé pour vous (votre adresse e-mail, l'identifiant que Discord ou Google donne pour vous, et vos sessions de connexion) et peut le traiter notamment aux États-Unis. Votre navigateur le contacte directement sur l'écran de connexion et dans les paramètres. Gameble ne garde que l'identifiant de cet utilisateur Clerk et une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
-          sentry: "Sentry (Functional Software, Inc.) reçoit les erreurs techniques : l'adresse de la page et celle d'où vous venez, le navigateur utilisé et sa langue, et votre identifiant interne de joueur, jamais votre nom ni votre identifiant Steam. Votre navigateur lui envoie aussi directement les rapports de sécurité de la page, avec votre adresse IP. Données hébergées dans l'Union européenne ;"
-          cloudflare: "Cloudflare, Inc. se place devant le site pour le protéger et l'accélérer : il voit passer ses requêtes, dont votre adresse IP, et les traite notamment aux États-Unis. Ce transfert repose sur la décision d'adéquation de la Commission européenne du 10 juillet 2023 (Data Privacy Framework), à laquelle Cloudflare adhère ;"
-          ovh: "OVH SAS conserve les sauvegardes de la base de données, chiffrées avant de quitter le serveur : il ne peut pas les lire. Données hébergées en France ;"
+          intro: "Quelques services extérieurs interviennent :"
+          host: "Le site tourne sur des serveurs exploités par %{name}, en %{address} ;"
+          steam: "Steam (Valve) gère la connexion et fournit votre nom de profil ;"
+          clerk: "Clerk, Inc. gère la connexion par Discord, Google ou code par e-mail, en tant que sous-traitant : il conserve l'utilisateur Clerk créé pour vous (votre adresse e-mail, l'identifiant que Discord ou Google donne pour vous, et vos sessions de connexion) et peut le traiter notamment aux États-Unis. Votre navigateur le contacte directement sur l'écran de connexion et dans les paramètres. Gameble ne garde que l'identifiant de cet utilisateur Clerk et une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
+          sentry: "Sentry (Functional Software, Inc.) reçoit les erreurs techniques : l'adresse de la page et celle d'où vous venez, le navigateur utilisé et sa langue, et votre identifiant interne de joueur, jamais votre nom ni votre identifiant Steam. Votre navigateur lui envoie aussi directement les rapports de sécurité de la page, avec votre adresse IP. Données hébergées dans l'Union européenne ;"
+          cloudflare: "Cloudflare, Inc. se place devant le site pour le protéger et l'accélérer : il voit passer ses requêtes, dont votre adresse IP, et les traite notamment aux États-Unis. Ce transfert repose sur la décision d'adéquation de la Commission européenne du 10 juillet 2023 (Data Privacy Framework), à laquelle Cloudflare adhère ;"
+          ovh: "OVH SAS conserve les sauvegardes de la base de données, chiffrées avant de quitter le serveur : il ne peut pas les lire. Données hébergées en France ;"
           images: "les images des cartes se chargent depuis le réseau de diffusion de Steam, que votre navigateur contacte directement."
         retention:
-          intro: "Combien de temps vos données sont conservées :"
-          account: "votre compte, votre activité de jeu et vos réglages : tant que le compte existe ; un compte sans aucune visite connectée depuis trois ans est supprimé comme si vous l'aviez supprimé vous-même, sauf ceux des modérateurs et des administrateurs ;"
-          reports: "un signalement : jusqu'à ce qu'un modérateur le traite, puis un an ; s'il vise un compte supprimé avant d'être traité, un an après la suppression ;"
-          moderation: "l'historique de modération, motifs compris : une suspension tant qu'elle dure, puis un an après sa levée ; un classement de signalements, un an ; l'historique d'un compte supprimé, jusqu'à un an après la suppression ; le journal des actions du jeu garde la date de chaque décision et les comptes concernés, sans le motif ;"
-          banned_steam_id: "l'identifiant Steam d'un compte suspendu : tant que la suspension dure, pour refuser une nouvelle inscription ;"
-          clerk: "l'utilisateur Clerk créé pour une connexion par Discord, Google ou code par e-mail, avec votre adresse e-mail et ses sessions : tant que le compte existe ; il est supprimé chez Clerk quand vous supprimez votre compte ;"
-          logs: "les journaux du serveur : 30 jours ;"
-          errors: "les erreurs techniques reçues par Sentry : 30 jours ;"
-          backups: "les sauvegardes de la base de données, chiffrées et conservées en France : les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal ; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué ;"
-          leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à la mission hebdo, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
+          intro: "Combien de temps vos données sont conservées :"
+          account: "votre compte, votre activité de jeu et vos réglages : tant que le compte existe ; un compte sans aucune visite connectée depuis trois ans est supprimé comme si vous l'aviez supprimé vous-même, sauf ceux des modérateurs et des administrateurs ;"
+          reports: "un signalement : jusqu'à ce qu'un modérateur le traite, puis un an ; s'il vise un compte supprimé avant d'être traité, un an après la suppression ;"
+          moderation: "l'historique de modération, motifs compris : une suspension tant qu'elle dure, puis un an après sa levée ; un classement de signalements, un an ; l'historique d'un compte supprimé, jusqu'à un an après la suppression ; le journal des actions du jeu garde la date de chaque décision et les comptes concernés, sans le motif ;"
+          banned_steam_id: "l'identifiant Steam d'un compte suspendu : tant que la suspension dure, pour refuser une nouvelle inscription ;"
+          clerk: "l'utilisateur Clerk créé pour une connexion par Discord, Google ou code par e-mail, avec votre adresse e-mail et ses sessions : tant que le compte existe ; il est supprimé chez Clerk quand vous supprimez votre compte ;"
+          logs: "les journaux du serveur : 30 jours ;"
+          errors: "les erreurs techniques reçues par Sentry : 30 jours ;"
+          backups: "les sauvegardes de la base de données, chiffrées et conservées en France : les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal ; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué ;"
+          leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à la mission hebdo, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
         deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos bonus du jour, vos récompenses de la mission hebdo, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à la mission hebdo, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
         rights:
           intro: "Vous pouvez accéder à vos données, les faire rectifier ou effacer, en limiter le traitement, vous opposer à un traitement fondé sur l'intérêt légitime et en recevoir une copie réutilisable. Vous pouvez aussi indiquer ce que deviennent vos données après votre décès. Nous répondons sous un mois."
-          access: "accès : depuis les paramètres, avec « Exporter » dans « Mes données », qui télécharge une copie de vos données dans un fichier réutilisable, vos modes de connexion compris ;"
-          rectification_html: "rectification : un nom de profil Steam est relu à chaque connexion Steam ; pour le reste, écrivez à %{contact} ;"
-          erasure: "suppression : depuis les paramètres, avec « Supprimer mon compte » ;"
-          objection_html: "opposition : rendez votre profil privé dans les paramètres, ou écrivez à %{contact} ;"
-          death_html: "après votre décès : indiquez à %{contact} à qui vos données doivent être communiquées ou si elles doivent être effacées ;"
-          banned_html: "compte suspendu : il ne peut plus se connecter ; le motif de la suspension s'affiche quand vous tentez de vous connecter ; écrivez à %{contact} pour contester la décision, obtenir vos données ou l'effacement de votre compte ;"
-          complaint_html: "réclamation : auprès de la %{authority}."
+          access: "accès : depuis les paramètres, avec « Exporter » dans « Mes données », qui télécharge une copie de vos données dans un fichier réutilisable, vos modes de connexion compris ;"
+          rectification_html: "rectification : un nom de profil Steam est relu à chaque connexion Steam ; pour le reste, écrivez à %{contact} ;"
+          erasure: "suppression : depuis les paramètres, avec « Supprimer mon compte » ;"
+          objection_html: "opposition : rendez votre profil privé dans les paramètres, ou écrivez à %{contact} ;"
+          death_html: "après votre décès : indiquez à %{contact} à qui vos données doivent être communiquées ou si elles doivent être effacées ;"
+          banned_html: "compte suspendu : il ne peut plus se connecter ; le motif de la suspension s'affiche quand vous tentez de vous connecter ; écrivez à %{contact} pour contester la décision, obtenir vos données ou l'effacement de votre compte ;"
+          complaint_html: "réclamation : auprès de la %{authority}."
           authority: "CNIL"
       source:
         title: "Code source"
-        text: "Le code de Gameble est libre, sous licence GNU AGPL v3.0. Son pixel art est sous licence Creative Commons BY-NC-SA 4.0 : réutilisable en citant Gameble, jamais à des fins commerciales. Le nom Gameble et son logo restent réservés."
+        text: "Le code de Gameble est libre, sous licence GNU AGPL v3.0. Son pixel art est sous licence Creative Commons BY-NC-SA 4.0 : réutilisable en citant Gameble, jamais à des fins commerciales. Le nom Gameble et son logo restent réservés."
         link: "Code source"
       credits_link: "Crédits"
       support:
@@ -341,27 +341,27 @@ fr:
       selection:
         title: "Quels jeux deviennent des cartes"
         rule: "Chaque carte est un jeu Steam. Un jeu devient une carte s'il est bien un jeu (ni un logiciel, ni une démo, ni un contenu additionnel), s'il a un titre, une date de sortie et une image verticale sur Steam, et s'il compte au moins %{reviews} évaluations."
-        seasons: "Chaque nouvelle saison relit Steam : les jeux qui remplissent ces conditions à ce moment-là deviennent ses cartes."
+        seasons: "Chaque nouvelle saison relit Steam : les jeux qui remplissent ces conditions à ce moment-là deviennent ses cartes."
       rarity:
         title: "La rareté"
         rule: "Plus un jeu a d'évaluations sur Steam, plus sa carte est rare."
-        score: "Seul le nombre d'évaluations classe les jeux. La part d'évaluations positives ne départage que des jeux qui ont exactement le même nombre d'évaluations : le plus apprécié passe devant."
+        score: "Seul le nombre d'évaluations classe les jeux. La part d'évaluations positives ne départage que des jeux qui ont exactement le même nombre d'évaluations : le plus apprécié passe devant."
         # French keeps the singular for 0, which the plural rule here does not.
         cut:
-          zero: "À la publication d'une saison, ses cartes sont classées ainsi, du jeu le plus évalué au moins évalué, puis réparties en %{count} rareté dans ces proportions :"
-          one: "À la publication d'une saison, ses cartes sont classées ainsi, du jeu le plus évalué au moins évalué, puis réparties en %{count} rareté dans ces proportions :"
-          other: "À la publication d'une saison, ses cartes sont classées ainsi, du jeu le plus évalué au moins évalué, puis réparties en %{count} raretés dans ces proportions :"
-        ties: "Deux jeux qui ont le même nombre d'évaluations et la même part d'évaluations positives ont toujours la même rareté : les proportions réelles peuvent donc s'écarter un peu de celles-ci."
+          zero: "À la publication d'une saison, ses cartes sont classées ainsi, du jeu le plus évalué au moins évalué, puis réparties en %{count} rareté dans ces proportions :"
+          one: "À la publication d'une saison, ses cartes sont classées ainsi, du jeu le plus évalué au moins évalué, puis réparties en %{count} rareté dans ces proportions :"
+          other: "À la publication d'une saison, ses cartes sont classées ainsi, du jeu le plus évalué au moins évalué, puis réparties en %{count} raretés dans ces proportions :"
+        ties: "Deux jeux qui ont le même nombre d'évaluations et la même part d'évaluations positives ont toujours la même rareté : les proportions réelles peuvent donc s'écarter un peu de celles-ci."
       packs:
         title: "Capsules et probabilités"
         # French keeps the singular for 0, which the plural rule here does not.
         regular:
-          zero: "Une capsule contient %{count} carte. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
-          one: "Une capsule contient %{count} carte. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
-          other: "Une capsule contient %{count} cartes. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
-        bonus: "La capsule quotidienne a de meilleures chances et ne contient jamais de carte %{common} :"
-        reward: "La capsule de récompense de la mission hebdo :"
-        forced: "Si elle ne contient aucune carte %{rarity} ou mieux, l'une de ses cartes, au hasard, est remplacée par une carte tirée avec ces chances :"
+          zero: "Une capsule contient %{count} carte. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
+          one: "Une capsule contient %{count} carte. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
+          other: "Une capsule contient %{count} cartes. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
+        bonus: "La capsule quotidienne a de meilleures chances et ne contient jamais de carte %{common} :"
+        reward: "La capsule de récompense de la mission hebdo :"
+        forced: "Si elle ne contient aucune carte %{rarity} ou mieux, l'une de ses cartes, au hasard, est remplacée par une carte tirée avec ces chances :"
         rarity: "Rareté"
         chance: "Chance par carte"
         tables:
@@ -388,52 +388,52 @@ fr:
           one: "Elle contient %{count} carte, aucune %{common}."
           other: "Elle contient %{count} cartes, aucune %{common}."
         outside: "Elle s'ajoute aux capsules standard, sans compter dans leur limite et sans les retarder."
-        special: "Elle rejoint votre réserve spéciale, qui n'a pas de limite : elle n'est jamais refusée, même quand votre réserve standard est pleine."
+        special: "Elle rejoint votre réserve spéciale, qui n'a pas de limite : elle n'est jamais refusée, même quand votre réserve standard est pleine."
       goal:
         title: "La mission hebdo"
         week: "Chaque semaine, pendant sept jours à partir du %{time}, tous les joueurs mènent ensemble une même mission."
         counts: "Chaque capsule ouverte y compte, de même que chaque échange conclu, qui fait des deux joueurs des contributeurs."
         # French keeps the singular for 0, which the plural rule here does not.
         reward:
-          zero: "Si la mission est accomplie, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
-          one: "Si la mission est accomplie, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
-          other: "Si la mission est accomplie, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} cartes, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
+          zero: "Si la mission est accomplie, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
+          one: "Si la mission est accomplie, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
+          other: "Si la mission est accomplie, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} cartes, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont et elle rejoint votre réserve spéciale."
       seasons:
         title: "Les saisons"
-        frozen: "Une saison est tirée de Steam. Dès sa publication, la rareté, le numéro et les sets de chacune de ses cartes sont figés : ils ne changent plus pendant la saison."
-        next: "La saison suivante relit Steam : de nouveaux jeux entrent, les scores sont recalculés et la rareté d'un même jeu peut changer d'une saison à l'autre."
+        frozen: "Une saison est tirée de Steam. Dès sa publication, la rareté, le numéro et les sets de chacune de ses cartes sont figés : ils ne changent plus pendant la saison."
+        next: "La saison suivante relit Steam : de nouveaux jeux entrent, les scores sont recalculés et la rareté d'un même jeu peut changer d'une saison à l'autre."
       sets:
         title: "Les sets"
         intro: "Chaque saison regroupe ses cartes en sets, et une carte peut appartenir à plusieurs d'entre eux."
         # French keeps the singular for 0, which the plural rule here does not.
         themes:
-          zero: "Les thèmes : %{count} thème regroupe les jeux par genre, d'après leurs tags Steam les plus votés."
-          one: "Les thèmes : %{count} thème regroupe les jeux par genre, d'après leurs tags Steam les plus votés."
-          other: "Les thèmes : %{count} thèmes regroupent les jeux par genre, d'après leurs tags Steam les plus votés."
+          zero: "Les thèmes : %{count} thème regroupe les jeux par genre, d'après leurs tags Steam les plus votés."
+          one: "Les thèmes : %{count} thème regroupe les jeux par genre, d'après leurs tags Steam les plus votés."
+          other: "Les thèmes : %{count} thèmes regroupent les jeux par genre, d'après leurs tags Steam les plus votés."
         # French keeps the singular for 0, which the plural rule here does not.
         franchises:
-          zero: "Les franchises : une série d'au moins %{count} jeu, dont le nom figure d'ordinaire dans leurs titres et n'est pas celui d'un studio ou d'un éditeur."
-          one: "Les franchises : une série d'au moins %{count} jeu, dont le nom figure d'ordinaire dans leurs titres et n'est pas celui d'un studio ou d'un éditeur."
-          other: "Les franchises : une série d'au moins %{count} jeux, dont le nom figure d'ordinaire dans leurs titres et n'est pas celui d'un studio ou d'un éditeur."
+          zero: "Les franchises : une série d'au moins %{count} jeu, dont le nom figure d'ordinaire dans leurs titres et n'est pas celui d'un studio ou d'un éditeur."
+          one: "Les franchises : une série d'au moins %{count} jeu, dont le nom figure d'ordinaire dans leurs titres et n'est pas celui d'un studio ou d'un éditeur."
+          other: "Les franchises : une série d'au moins %{count} jeux, dont le nom figure d'ordinaire dans leurs titres et n'est pas celui d'un studio ou d'un éditeur."
         # French keeps the singular for 0, which the plural rule here does not.
         studios:
-          zero: "Les studios : au moins %{count} jeu d'un même studio principal, dont l'un compte au moins %{reviews} évaluations."
-          one: "Les studios : au moins %{count} jeu d'un même studio principal, dont l'un compte au moins %{reviews} évaluations."
-          other: "Les studios : au moins %{count} jeux d'un même studio principal, dont l'un compte au moins %{reviews} évaluations."
+          zero: "Les studios : au moins %{count} jeu d'un même studio principal, dont l'un compte au moins %{reviews} évaluations."
+          one: "Les studios : au moins %{count} jeu d'un même studio principal, dont l'un compte au moins %{reviews} évaluations."
+          other: "Les studios : au moins %{count} jeux d'un même studio principal, dont l'un compte au moins %{reviews} évaluations."
         hall_of_fame:
-          intro: "Le panthéon, d'après la note et le nombre d'évaluations sur Steam :"
-          row: "%{name} : %{rule}"
+          intro: "Le panthéon, d'après la note et le nombre d'évaluations sur Steam :"
+          row: "%{name} : %{rule}"
           rules:
-            intouchables: "les jeux très connus et presque unanimement salués ;"
-            pepites: "les jeux presque unanimement salués mais encore peu connus ;"
-            mal-aimes: "les jeux très connus mais à l'accueil mitigé ;"
+            intouchables: "les jeux très connus et presque unanimement salués ;"
+            pepites: "les jeux presque unanimement salués mais encore peu connus ;"
+            mal-aimes: "les jeux très connus mais à l'accueil mitigé ;"
             phenomenes: "les jeux qui comptent un nombre énorme d'évaluations."
-        ufos: "%{name} : les jeux qui n'entrent dans aucun thème."
-        tiers: "Chaque set a des paliers selon sa taille, puis la complétion à 100 %. Le dernier palier avant la complétion est toujours Maître ; plus le set est grand, plus il compte de paliers en dessous : de 3 à 4 cartes, la complétion seule ; de 5 à 9, Maître à la moitié ; de 10 à 19, Expert au tiers et Maître aux deux tiers ; de 20 à 59, Adepte à 25 %, Expert à 50 % et Maître à 75 % ; de 60 à 199, Apprenti à 10 %, Adepte à 25 %, Expert à 50 % et Maître à 75 % ; à partir de 200, Novice à 10 %, Apprenti à 25 %, Adepte à 50 %, Expert à 75 % et Maître à 90 %."
+        ufos: "%{name} : les jeux qui n'entrent dans aucun thème."
+        tiers: "Chaque set a des paliers selon sa taille, puis la complétion à 100 %. Le dernier palier avant la complétion est toujours Maître ; plus le set est grand, plus il compte de paliers en dessous : de 3 à 4 cartes, la complétion seule ; de 5 à 9, Maître à la moitié ; de 10 à 19, Expert au tiers et Maître aux deux tiers ; de 20 à 59, Adepte à 25 %, Expert à 50 % et Maître à 75 % ; de 60 à 199, Apprenti à 10 %, Adepte à 25 %, Expert à 50 % et Maître à 75 % ; à partir de 200, Novice à 10 %, Apprenti à 25 %, Adepte à 50 %, Expert à 75 % et Maître à 90 %."
       completion:
         title: "Compléter un set"
         rule: "Un set est complet quand vous possédez en même temps toutes ses cartes. Les doubles ne comptent qu'une fois, et une carte compte dans chaque set où elle figure."
-        once: "Une complétion n'est enregistrée qu'une fois : une carte échangée puis récupérée ne complète rien de nouveau. Votre profil compte les sets que vous possédez complets en ce moment."
+        once: "Une complétion n'est enregistrée qu'une fois : une carte échangée puis récupérée ne complète rien de nouveau. Votre profil compte les sets que vous possédez complets en ce moment."
   back_office:
     dashboard:
       show:
@@ -455,7 +455,7 @@ fr:
     reports:
       index:
         heading: "Les signalements"
-        intro: "Chaque ligne est un joueur signalé, le signalement le plus récent en premier. BANNIR le suspend : il ne peut plus se connecter, son profil disparaît pour les joueurs, ses échanges en cours sont annulés et ses amitiés rompues. CLASSER écarte ses signalements sans toucher au joueur ; un signalement d'un joueur qui ne l'avait pas encore signalé le ramène ici. Un officier n'agit que sur un rang inférieur au sien."
+        intro: "Chaque ligne est un joueur signalé, le signalement le plus récent en premier. BANNIR le suspend : il ne peut plus se connecter, son profil disparaît pour les joueurs, ses échanges en cours sont annulés et ses amitiés rompues. CLASSER écarte ses signalements sans toucher au joueur ; un signalement d'un joueur qui ne l'avait pas encore signalé le ramène ici. Un officier n'agit que sur un rang inférieur au sien."
         empty: "Aucun signalement n'attend les officiers."
         caption: "Joueurs signalés, le signalement le plus récent en premier"
         player: "Joueur"
@@ -463,7 +463,7 @@ fr:
         latest_at: "Dernier signalement"
         ban: "BANNIR"
         dismiss: "CLASSER"
-        dismiss_confirm: "Classer les signalements de %{name} sans le bannir ?"
+        dismiss_confirm: "Classer les signalements de %{name} sans le bannir ?"
         banned_players: "Les bannis"
         history: "L'historique"
       dismiss:
@@ -471,7 +471,7 @@ fr:
     bans:
       index:
         heading: "Les bannis"
-        intro: "Les joueurs bannis, le plus récent en premier. LEVER LE BAN leur rend la connexion et leur profil ; les amitiés et les échanges perdus ne reviennent pas. Un officier n'agit que sur un rang inférieur au sien."
+        intro: "Les joueurs bannis, le plus récent en premier. LEVER LE BAN leur rend la connexion et leur profil ; les amitiés et les échanges perdus ne reviennent pas. Un officier n'agit que sur un rang inférieur au sien."
         empty: "Aucun joueur n'est banni."
         caption: "Joueurs bannis, le plus récent en premier"
         player: "Joueur"
@@ -481,9 +481,9 @@ fr:
         history: "L'historique"
       actions:
         ban: "BANNIR"
-        ban_confirm: "Bannir %{name} ? Ses échanges en cours seront annulés et ses amitiés rompues, même si le ban est levé plus tard."
+        ban_confirm: "Bannir %{name} ? Ses échanges en cours seront annulés et ses amitiés rompues, même si le ban est levé plus tard."
         unban: "LEVER LE BAN"
-        unban_confirm: "Lever le ban de %{name} ?"
+        unban_confirm: "Lever le ban de %{name} ?"
         reason_label: "Raison du bannissement de %{name}"
         reason_placeholder: "Raison du ban"
         reason_hint: "Le joueur lira cette raison s'il tente de se connecter."
@@ -494,17 +494,17 @@ fr:
     players:
       actions:
         erase: "EFFACER"
-        erase_confirm: "Effacer le compte de %{name} ? Ses données sont supprimées définitivement et le compte ne peut pas être rétabli. Son identifiant Steam est libéré : la personne peut se réinscrire avec, sans le ban."
+        erase_confirm: "Effacer le compte de %{name} ? Ses données sont supprimées définitivement et le compte ne peut pas être rétabli. Son identifiant Steam est libéré : la personne peut se réinscrire avec, sans le ban."
       destroy:
         erased: "Le compte de %{name} est effacé."
       index:
         heading: "Les joueurs"
-        intro: "Tous les joueurs de la Confrérie, bannis compris, le compte le plus récent en premier. Cherchez un joueur par une partie de son nom ou par son identifiant Steam complet. BANNIR le suspend sans attendre de signalement ; LEVER LE BAN lui rend la connexion et son profil. Un administrateur peut EFFACER le compte d'un joueur banni, ce qui libère son identifiant Steam : la personne pourrait se réinscrire sans le ban. Un officier n'agit que sur un rang inférieur au sien."
+        intro: "Tous les joueurs de la Confrérie, bannis compris, le compte le plus récent en premier. Cherchez un joueur par une partie de son nom ou par son identifiant Steam complet. BANNIR le suspend sans attendre de signalement ; LEVER LE BAN lui rend la connexion et son profil. Un administrateur peut EFFACER le compte d'un joueur banni, ce qui libère son identifiant Steam : la personne pourrait se réinscrire sans le ban. Un officier n'agit que sur un rang inférieur au sien."
         search_label: "Chercher un joueur"
         search_placeholder: "Nom ou identifiant Steam"
         search_submit: "Chercher"
         empty: "Aucun joueur n'a encore de compte."
-        no_match: "Aucun joueur ne correspond à « %{query} »."
+        no_match: "Aucun joueur ne correspond à « %{query} »."
         caption: "Joueurs, le compte le plus récent en premier"
         player: "Joueur"
         role: "Rôle"
@@ -591,9 +591,9 @@ fr:
         finished_at: "Terminé"
         resume: "Reprendre là où il s'est arrêté"
         rescore: "Recalculer les cartes"
-        rescore_confirm: "Mettre à nouveau en réserve chaque carte de cette passe, avec la formule de prestige et les thèmes tels qu'ils sont désormais ? La saison en brouillon reste telle quelle jusqu'à ce que tu promeuves le résultat. Aucun appel n'est fait à Steam."
+        rescore_confirm: "Mettre à nouveau en réserve chaque carte de cette passe, avec la formule de prestige et les thèmes tels qu'ils sont désormais ? La saison en brouillon reste telle quelle jusqu'à ce que tu promeuves le résultat. Aucun appel n'est fait à Steam."
         abandon: "Abandonner cette passe"
-        abandon_confirm: "Abandonner cette passe pour de bon ? Elle ne pourra plus jamais être reprise, ses cartes en réserve sont supprimées, et la saison en brouillon reste telle quelle."
+        abandon_confirm: "Abandonner cette passe pour de bon ? Elle ne pourra plus jamais être reprise, ses cartes en réserve sont supprimées, et la saison en brouillon reste telle quelle."
         review_heading: "À relire avant la promotion"
         review_intro: "Les cartes de cette passe attendent à côté de la saison en brouillon. Promeus-les pour remplacer d'un coup les cartes du brouillon par celles-ci, ou jette-les pour laisser le brouillon tel quel."
         review_gap_caption: "L'écart entre les cartes en réserve et la saison en brouillon"
@@ -609,9 +609,9 @@ fr:
         preview_heading: "La saison, si ces cartes étaient promues puis publiées"
         preview_intro: "Ce que donnerait la publication une fois les cartes en réserve à la place de celles du brouillon. Les raretés, les thèmes et les collections sont lus sur les cartes en réserve. Rien n'est écrit ici."
         promote: "PROMOUVOIR"
-        promote_confirm: "Remplacer les cartes de la saison en brouillon par les cartes en réserve de cette passe ? Le brouillon est alors remplacé d'un seul coup."
+        promote_confirm: "Remplacer les cartes de la saison en brouillon par les cartes en réserve de cette passe ? Le brouillon est alors remplacé d'un seul coup."
         discard: "JETER"
-        discard_confirm: "Jeter les cartes en réserve de cette passe ? La saison en brouillon reste telle quelle, et la passe ne pourra plus être promue."
+        discard_confirm: "Jeter les cartes en réserve de cette passe ? La saison en brouillon reste telle quelle, et la passe ne pourra plus être promue."
         errors: "Dernières erreurs"
       create:
         started: "L'import est lancé, officier. Les scribes recopient la première page."
@@ -621,7 +621,7 @@ fr:
         rescoring: "Les scribes réinscrivent les cartes avec la nouvelle formule, officier. La saison ne peut pas être publiée avant qu'ils aient fini."
         run_in_progress: "Un import est en cours, officier. Laisse-le finir, ou attends qu'il s'interrompe, avant de recalculer les cartes."
       abandon:
-        abandoned: "La passe est abandonnée, officier. Les scribes referment son registre pour de bon ; la saison en brouillon reste telle quelle."
+        abandoned: "La passe est abandonnée, officier. Les scribes referment son registre pour de bon ; la saison en brouillon reste telle quelle."
       promote:
         promoted: "La saison en brouillon tient désormais les cartes de cette passe, officier. Elle peut être publiée."
       discard:
@@ -629,7 +629,7 @@ fr:
     cards:
       index:
         heading: "La presse à cartes"
-        intro: "La face de chaque rareté aux quatre tailles, puis chaque rareté en taille M avec les effets de la capsule. Survolez une carte pour l'incliner. L'image est un échantillon du coffre de la Confrérie ; celle de la peu commune manque exprès, pour montrer une carte sans image."
+        intro: "La face de chaque rareté aux quatre tailles, puis chaque rareté en taille M avec les effets de la capsule. Survolez une carte pour l'incliner. L'image est un échantillon du coffre de la Confrérie ; celle de la peu commune manque exprès, pour montrer une carte sans image."
         label: "%{rarity}, %{size}"
         booster_label: "%{rarity}, %{size}, capsule"
         sizes:
@@ -664,9 +664,9 @@ fr:
           ufo: "OVNI"
         publish: "Publier la saison %{number}"
         confirm:
-          zero: "Publier la saison %{number} et sa seule carte ? La rareté et le numéro de cette carte ne changeront plus jamais."
-          one: "Publier la saison %{number} et sa seule carte ? La rareté et le numéro de cette carte ne changeront plus jamais."
-          other: "Publier la saison %{number} et ses %{count} cartes ? Ses raretés et leurs numéros ne changeront plus jamais."
+          zero: "Publier la saison %{number} et sa seule carte ? La rareté et le numéro de cette carte ne changeront plus jamais."
+          one: "Publier la saison %{number} et sa seule carte ? La rareté et le numéro de cette carte ne changeront plus jamais."
+          other: "Publier la saison %{number} et ses %{count} cartes ? Ses raretés et leurs numéros ne changeront plus jamais."
       show:
         heading: "La saison %{number}"
         all_seasons: "Toutes les saisons"
@@ -676,13 +676,13 @@ fr:
         score_version: "version %{version}"
         no_score_version: "aucune notée (avant les versions)"
         published_heading: "La saison %{number}, telle que publiée"
-        published_intro: "Ce que la publication a inscrit pour cette saison, lu tel quel : les cartes et le score minimal de chaque rareté, et les collections. Rien n'est écrit ici et rien n'est retaillé. Les thèmes et les OVNI sont les collections inscrites à la publication."
+        published_intro: "Ce que la publication a inscrit pour cette saison, lu tel quel : les cartes et le score minimal de chaque rareté, et les collections. Rien n'est écrit ici et rien n'est retaillé. Les thèmes et les OVNI sont les collections inscrites à la publication."
       preview:
         heading: "La saison %{number}, si elle était publiée maintenant"
-        intro: "Ce que donnerait la publication du brouillon aujourd'hui, lu sur ses cartes telles qu'elles sont. Rien n'est écrit ici. La formule de prestige et les parts des raretés vivent dans le code ; les thèmes se gèrent sur la page des thèmes. Change l'un ou l'autre, recalcule le dernier import si la formule ou les thèmes ont changé, puis relis ceci."
-        rescore_needed: "Les thèmes ont changé depuis le calcul des cartes : recalcule le dernier import pour en voir l'effet ici."
+        intro: "Ce que donnerait la publication du brouillon aujourd'hui, lu sur ses cartes telles qu'elles sont. Rien n'est écrit ici. La formule de prestige et les parts des raretés vivent dans le code ; les thèmes se gèrent sur la page des thèmes. Change l'un ou l'autre, recalcule le dernier import si la formule ou les thèmes ont changé, puis relis ceci."
+        rescore_needed: "Les thèmes ont changé depuis le calcul des cartes : recalcule le dernier import pour en voir l'effet ici."
         scores: "Scores de prestige"
-        scores_caption: "Scores de prestige de la saison : le plus bas, les centiles, le plus haut"
+        scores_caption: "Scores de prestige de la saison : le plus bas, les centiles, le plus haut"
         card_count:
           zero: "%{formatted} carte"
           one: "%{formatted} carte"
@@ -713,7 +713,7 @@ fr:
           zero: "%{formatted} carte dans les OVNI, %{share} de la saison."
           one: "%{formatted} carte dans les OVNI, %{share} de la saison."
           other: "%{formatted} cartes dans les OVNI, %{share} de la saison."
-        no_themes: "Cette saison a été publiée avant les thèmes : ses cartes n'ont pas de thème et pas de collection OVNI."
+        no_themes: "Cette saison a été publiée avant les thèmes : ses cartes n'ont pas de thème et pas de collection OVNI."
         sets: "Collections"
       publish:
         published: "La saison %{number} est publiée, officier. Ses cartes sont prêtes pour le tirage."
@@ -743,14 +743,14 @@ fr:
       move:
         up: "Monter"
         down: "Descendre"
-        up_label: "Monter « %{wording} »"
-        down_label: "Descendre « %{wording} »"
+        up_label: "Monter « %{wording} »"
+        down_label: "Descendre « %{wording} »"
       back_to_milestone: "Retour à l'étape"
     themes:
       index:
         heading: "Les thèmes"
-        intro: "Les tags que les cartes du brouillon portent parmi leurs cinq plus votés, avec les jeux qui les portent. Rattache un tag à un thème, fais-en un thème (son nom anglais est prérempli, saisis le français) ou écarte-le : ce n'est pas un thème. La publication est refusée tant qu'un tag n'est pas classé. Un changement atteint les cartes quand le dernier import est recalculé."
-        rescore_needed: "Le classement a changé depuis le calcul des cartes : recalcule le dernier import avant de lire la saison."
+        intro: "Les tags que les cartes du brouillon portent parmi leurs cinq plus votés, avec les jeux qui les portent. Rattache un tag à un thème, fais-en un thème (son nom anglais est prérempli, saisis le français) ou écarte-le : ce n'est pas un thème. La publication est refusée tant qu'un tag n'est pas classé. Un changement atteint les cartes quand le dernier import est recalculé."
+        rescore_needed: "Le classement a changé depuis le calcul des cartes : recalcule le dernier import avant de lire la saison."
         import_runs: "Ouvrir les imports Steam"
         tags_heading: "Les tags du brouillon"
         unclassified_count:
@@ -760,7 +760,7 @@ fr:
         show:
           unclassified: "À classer"
           all: "Tous les tags"
-        no_tags: "Aucun tag à montrer : le brouillon n'en a pas, ou tous sont classés."
+        no_tags: "Aucun tag à montrer : le brouillon n'en a pas, ou tous sont classés."
         dismiss_rest:
           zero: "Marquer le tag non classé de cette page comme n'étant pas un thème"
           one: "Marquer le tag non classé de cette page comme n'étant pas un thème"
@@ -772,7 +772,7 @@ fr:
         states:
           unclassified: "À classer"
           dismissed: "Pas un thème"
-          theme: "Thème : %{theme}"
+          theme: "Thème : %{theme}"
         attach: "Rattacher à un thème"
         attach_label: "Thème auquel rattacher %{tag}"
         attach_submit: "Rattacher"
@@ -808,26 +808,26 @@ fr:
     roadmap_milestones:
       index:
         heading: "La feuille de route"
-        intro: "La feuille de route que montre l'accueil. Chaque déploiement donne à chaque nouvel epic de l'initiative son étape, masquée et à venir, au titre de l'epic : formule-la dans les deux langues avant de l'afficher. Les étapes ne se créent ni ne se suppriment ici ; masque celle dont l'epic n'est plus."
+        intro: "La feuille de route que montre l'accueil. Chaque déploiement donne à chaque nouvel epic de l'initiative son étape, masquée et à venir, au titre de l'epic : formule-la dans les deux langues avant de l'afficher. Les étapes ne se créent ni ne se suppriment ici ; masque celle dont l'epic n'est plus."
         empty: "Aucune étape pour l'instant. Le prochain déploiement en crée une pour chaque epic de l'initiative."
         caption: "Étapes de la feuille de route, dans l'ordre"
         epic: "Epic"
         stories: "Histoires"
         edit: "Modifier"
-        edit_label: "Modifier « %{wording} »"
+        edit_label: "Modifier « %{wording} »"
       edit:
-        heading: "Étape « %{wording} »"
-        intro: "Créée pour l'epic %{epic}. Son libellé, son état et son affichage t'appartiennent ; les prochains déploiements les laissent tels quels."
+        heading: "Étape « %{wording} »"
+        intro: "Créée pour l'epic %{epic}. Son libellé, son état et son affichage t'appartiennent ; les prochains déploiements les laissent tels quels."
         save: "Enregistrer l'étape"
         stories: "Ses histoires"
         stories_caption: "Histoires de l'étape, dans l'ordre"
         no_stories: "Aucune histoire sous cette étape pour l'instant."
         add_story: "Ajouter une histoire"
         edit_story: "Modifier"
-        edit_story_label: "Modifier « %{wording} »"
+        edit_story_label: "Modifier « %{wording} »"
         delete: "Supprimer"
-        delete_label: "Supprimer « %{wording} »"
-        delete_confirm: "Supprimer l'histoire « %{wording} » ? Elle ne pourra pas revenir."
+        delete_label: "Supprimer « %{wording} »"
+        delete_confirm: "Supprimer l'histoire « %{wording} » ? Elle ne pourra pas revenir."
         all_milestones: "Toute la feuille de route"
       update:
         updated: "L'étape est enregistrée, officier."
@@ -835,10 +835,10 @@ fr:
         moved: "L'étape a changé de place, officier."
     roadmap_stories:
       new:
-        heading: "Une nouvelle histoire pour « %{milestone} »"
+        heading: "Une nouvelle histoire pour « %{milestone} »"
         save: "Ajouter l'histoire"
       edit:
-        heading: "Une histoire de « %{milestone} »"
+        heading: "Une histoire de « %{milestone} »"
         save: "Enregistrer l'histoire"
       create:
         created: "L'histoire est ajoutée, officier."
@@ -939,7 +939,7 @@ fr:
       title: "Toutes les cartes · Gameble"
       heading: "Toutes les cartes"
     status:
-      label: "Cartes uniques :"
+      label: "Cartes uniques :"
       # French keeps the singular for 0, which the plural rule here does not.
       progress:
         zero: "%{owned} carte unique sur %{total}"
@@ -961,7 +961,7 @@ fr:
         other: "%{number} doublons"
     filters:
       title: "Filtres"
-      active: "Filtres actifs :"
+      active: "Filtres actifs :"
       clear: "Tout effacer"
       apply: "Appliquer"
       search:
@@ -988,7 +988,7 @@ fr:
         zero: "Aucune carte affichée."
         one: "1 carte affichée."
         other: "%{count} cartes affichées."
-      past_the_end: "Plus aucune carte ici : la grille s'arrête sur une page précédente. Revenez à la dernière page."
+      past_the_end: "Plus aucune carte ici : la grille s'arrête sur une page précédente. Revenez à la dernière page."
       new: "Nouveau"
       copies:
         zero: "%{number} exemplaire"
@@ -1019,7 +1019,7 @@ fr:
   card_backs:
     chosen:
       title: "Dos équipé"
-      text: "« %{name} » apparaîtra sur vos cartes face cachée."
+      text: "« %{name} » apparaîtra sur vos cartes face cachée."
     conditions:
       achievement: "Débloquez le succès correspondant."
       always: "Tous les joueurs l'ont."
@@ -1084,7 +1084,7 @@ fr:
         one: "%{count} carte collectionnée"
         other: "%{count} cartes collectionnées"
       member_since: "Membre depuis %{date}"
-      banned: "Joueur banni : visible par les officiers de la Confrérie seulement"
+      banned: "Joueur banni : visible par les officiers de la Confrérie seulement"
       trade: "ÉCHANGE"
       trade_label: "Échange avec %{name}"
       add_friend: "AJOUTER EN AMI"
@@ -1170,7 +1170,7 @@ fr:
     canister_season: "Saison %{number}"
     result: "Résultat de la capsule"
     card_label: "%{title} — %{details}"
-    legendary_banner: "%{rarity} !"
+    legendary_banner: "%{rarity} !"
     strip_title: "Saison %{number} · Grand catalogue"
     strip_title_plain: "Grand catalogue"
     canister_hint_touch: "Touchez pour ouvrir"
@@ -1197,7 +1197,7 @@ fr:
         zero: "%{n} capsule"
         one: "%{n} capsule"
         other: "%{n} capsules"
-      next_at: "Prochaine capsule : %{time}"
+      next_at: "Prochaine capsule : %{time}"
       empty_next: "Prochaine capsule dans %{time}"
       canister_label: "Ouvrir la capsule Saison %{season}, grand catalogue, %{count} cartes"
       canister_label_plain: "Ouvrir la capsule, grand catalogue, %{count} cartes"
@@ -1211,11 +1211,11 @@ fr:
         other: "Capsule inventoriée · +%{n} cartes dans la collection"
       face_down: "Carte %{position} sur %{total}, face cachée. Révéler."
       face_up: "%{card}, %{rarity}. Voir la fiche."
-      announce_card: "Carte %{position} : %{card}. %{rarity}."
+      announce_card: "Carte %{position} : %{card}. %{rarity}."
       summary:
-        zero: "%{n} carte révélée : %{tiers}."
-        one: "%{n} carte révélée : %{tiers}."
-        other: "%{n} cartes révélées : %{tiers}."
+        zero: "%{n} carte révélée : %{tiers}."
+        one: "%{n} carte révélée : %{tiers}."
+        other: "%{n} cartes révélées : %{tiers}."
       summary_tier: "%{rarity} × %{n}"
       banner_line: "%{title} · %{year}"
       refused_title: "Ouverture annulée"
@@ -1255,14 +1255,14 @@ fr:
         open_in_progress: "Voir les sets en cours."
         position: "%{index} / %{count}"
         next: "Résultat suivant"
-        announce_tier: "Palier %{tier} atteint : %{set}, %{owned} cartes sur %{total}."
-        announce_complete: "Set complet : %{set}, %{owned} cartes sur %{total}."
+        announce_tier: "Palier %{tier} atteint : %{set}, %{owned} cartes sur %{total}."
+        announce_complete: "Set complet : %{set}, %{owned} cartes sur %{total}."
         announce_folded:
-          zero: "%{count} palier atteint : %{list}."
-          one: "%{count} palier atteint : %{list}."
-          other: "%{count} paliers atteints : %{list}."
+          zero: "%{count} palier atteint : %{list}."
+          one: "%{count} palier atteint : %{list}."
+          other: "%{count} paliers atteints : %{list}."
         announce_item: "%{set}, %{tier}"
-        announce_separator: " ; "
+        announce_separator: " ; "
         spoken_tiers:
           bronze: "bronze"
           silver: "argent"
@@ -1310,8 +1310,8 @@ fr:
         ready_title: "Export prêt"
         ready: "Une copie de vos données vous attend, dans un fichier JSON."
         download: "Télécharger"
-        last_export: "Dernier export :"
-        next_export: "Prochain export :"
+        last_export: "Dernier export :"
+        next_export: "Prochain export :"
       account:
         label: "Compte"
         delete: "Supprimer mon compte"
@@ -1328,10 +1328,10 @@ fr:
         visibility:
           public: "Visible par tous les joueurs"
           friends_only: "Visible par vos amis seulement"
-          private: "Profil privé : vous seul le voyez"
+          private: "Profil privé : vous seul le voyez"
           private_short: "Vous seul le voyez"
     private_dialog:
-      title: "Passer en privé ?"
+      title: "Passer en privé ?"
       text:
         zero: "Passer en privé n'annule aucun de vos échanges."
         one: "Passer en privé annule votre échange en cours."
@@ -1463,8 +1463,8 @@ fr:
       close: "Fermer"
       loading: "Chargement du profil…"
     remove_dialog:
-      title: "Retirer %{name} ?"
-      text: "%{name} quitte vos amis et vous quittez les siens. Aucun message n'est envoyé ; chacun de vous pourra réinviter l'autre."
+      title: "Retirer %{name} ?"
+      text: "%{name} quitte vos amis et vous quittez les siens. Aucun message n'est envoyé ; chacun de vous pourra réinviter l'autre."
       trade:
         zero: "Aucun échange en cours avec %{name} n'est annulé."
         one: "Votre échange en cours avec %{name} est annulé et ses cartes sont libérées."
@@ -1533,8 +1533,8 @@ fr:
       title: "%{name} vous invite"
       heading: "Invitation"
       invites_you: "%{name} vous invite à devenir amis."
-      send_text: "Envoyez une invitation à %{name} ; elle l'acceptera ou l'ignorera."
-      sign_in_text: "Connectez-vous d'abord ; vous reviendrez à cette invitation."
+      send_text: "Envoyez une invitation à %{name} ; elle l'acceptera ou l'ignorera."
+      sign_in_text: "Connectez-vous d'abord ; vous reviendrez à cette invitation."
       sign_in: "Se connecter"
       send: "Envoyer une invitation"
       own_link: "C'est votre propre lien."
@@ -1593,7 +1593,7 @@ fr:
         available: "Disponibles"
     clear_filters: "Effacer les filtres"
     filters_title: "Filtres"
-    filters_active: "Filtres actifs :"
+    filters_active: "Filtres actifs :"
     no_match: "Aucune carte ne correspond à ces filtres. Effacez-les pour revoir toutes les cartes."
     strings:
       cards:
@@ -1627,7 +1627,7 @@ fr:
     throttled: "Trop d'actions en une minute. Réessayez dans un instant."
     insufficient: "Exemplaires insuffisants"
     undo_dialog:
-      title: "Annuler les modifications ?"
+      title: "Annuler les modifications ?"
       text: "Ce que vous avez changé sera perdu et la proposition de %{name} reviendra telle quelle."
       confirm: "Annuler les modifications"
       keep: "Continuer à modifier"
@@ -1697,7 +1697,7 @@ fr:
       choose: "Choisissez les cartes de chaque côté."
       valid: "Valable 7 jours après l'envoi"
       send_reason: "Placez au moins une carte du côté de %{name}."
-      open_help: "Laissez ce côté vide : %{name} choisira ce qui lui plaît en retour."
+      open_help: "Laissez ce côté vide : %{name} choisira ce qui lui plaît en retour."
       open_request: "%{name} vous laisse choisir. Prenez ce que vous voulez dans sa collection, puis renvoyez."
     side:
       friend_gives: "%{name} donne"
@@ -1707,7 +1707,7 @@ fr:
       you_received: "Vous avez reçu"
       for_friend_to_choose: "À choisir par %{name}"
       yours_to_choose: "À vous de choisir"
-      copies_label: "Exemplaires :"
+      copies_label: "Exemplaires :"
       reserved:
         zero: "Réservée"
         one: "Réservée"
@@ -1751,8 +1751,8 @@ fr:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
-      kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à la mission hebdo, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
+      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à la mission hebdo, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
       submit: "Supprimer définitivement"
@@ -1771,7 +1771,7 @@ fr:
     dialog:
       title: "Signaler ce profil"
       close: "Fermer"
-      legend: "Pourquoi signalez-vous ce profil ?"
+      legend: "Pourquoi signalez-vous ce profil ?"
       note: "L'équipe de modération examinera ce profil. Le joueur ne verra pas qui l'a signalé."
       submit: "ENVOYER LE SIGNALEMENT"
     create:
@@ -1785,7 +1785,7 @@ fr:
     removed:
       title: "Retiré de la vitrine"
       text: "%{title} n'est plus dans votre vitrine."
-    full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
+    full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
     not_found: "Cette carte n'existe pas."
   reposts:
     button: "Reposter"
@@ -1901,7 +1901,7 @@ fr:
           kicker: "Cette semaine"
           title: "Une mission pour tous"
           text: "Chaque capsule ouverte et chaque échange conclu font avancer la même jauge."
-          reached: "Mission accomplie : tous les participants sont récompensés."
+          reached: "Mission accomplie : tous les participants sont récompensés."
           ends: "Fin %{time}. La prochaine mission s'ouvre aussitôt."
           local_time: ", heure locale"
           participants:
@@ -1911,7 +1911,7 @@ fr:
         tiles:
           discover:
             title: "Découvrez"
-            text: "Tirez un jeu avant tout le monde : la Confrérie s'en souviendra."
+            text: "Tirez un jeu avant tout le monde : la Confrérie s'en souviendra."
             chip: "Première découverte"
           trade:
             title: "Échangez"
@@ -1931,7 +1931,7 @@ fr:
         subtitle: "Ouvrir, révéler, collectionner, échanger. Ces quatre gestes vous suffiront à faire progresser la mission de la Confrérie."
         join:
           title: "Rejoignez-la"
-          text: "Connectez-vous avec Steam, Discord, Google ou un code par e-mail : votre compte est créé automatiquement."
+          text: "Connectez-vous avec Steam, Discord, Google ou un code par e-mail : votre compte est créé automatiquement."
           badge: "Nouveau membre"
         accumulate:
           title: "Accumulez des capsules"
@@ -2073,7 +2073,7 @@ fr:
       anonymous: "Un joueur anonyme"
       dated: "le %{date}"
     season_short: "S%{number}"
-    editions_line: "%{rarity} : %{seasons}"
+    editions_line: "%{rarity} : %{seasons}"
     editions_more:
       zero: "%{count} autre rareté"
       one: "%{count} autre rareté"
@@ -2095,7 +2095,7 @@ fr:
     store: "Voir sur Steam"
     preview:
       title: "%{title} — %{rarity}"
-      description: "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous : dix capsules vous attendent."
+      description: "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous : dix capsules vous attendent."
       image_alt: "La carte %{title} (%{rarity}) avec son illustration Steam"
     share:
       button: "Partager"
@@ -2211,7 +2211,7 @@ fr:
     accounts:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       export_too_soon: "Un export toutes les 5 minutes au plus. Réessayez dans quelques minutes."
-      no_longer_idle: "Ce joueur n'est plus inactif : son compte n'est pas supprimé."
+      no_longer_idle: "Ce joueur n'est plus inactif : son compte n'est pas supprimé."
       invalid_name: "Ce nom ne peut pas être utilisé. Saisissez au moins un caractère visible."
       invalid_setting: "Ce réglage n'a pas pu être enregistré. Rechargez la page et réessayez."
       name_from_steam: "Votre nom vient de Steam et est actualisé à chaque connexion."
@@ -2234,25 +2234,25 @@ fr:
       administrator_required: "Seul un administrateur peut faire cela, officier."
       cannot_ban_self: "Vous ne pouvez pas vous bannir vous-même, officier."
       cannot_dismiss_self: "Vous ne pouvez pas classer les signalements qui vous visent, officier."
-      outranked: "Ce joueur a un rang égal ou supérieur au vôtre, officier : vous ne pouvez pas agir sur lui."
+      outranked: "Ce joueur a un rang égal ou supérieur au vôtre, officier : vous ne pouvez pas agir sur lui."
       already_banned: "Ce joueur est déjà banni, officier."
       not_banned: "Ce joueur n'est pas banni, officier."
       no_open_reports: "Ce joueur n'a plus de signalement en attente, officier."
       reason_required: "Indiquez la raison du bannissement, officier."
       reason_too_long: "La raison d'un bannissement tient en 500 caractères au plus, officier."
-      invalid_role: "Ce rôle n'existe pas : player, moderator ou administrator."
+      invalid_role: "Ce rôle n'existe pas : player, moderator ou administrator."
     catalog:
       missing_text: "Les scribes ont besoin du titre de la carte dans chaque langue de la Confrérie avant de l'inscrire au registre."
-      invalid_card: "Les scribes ne peuvent pas inscrire cette carte au registre : ses particularités sont incomplètes ou en désordre."
+      invalid_card: "Les scribes ne peuvent pas inscrire cette carte au registre : ses particularités sont incomplètes ou en désordre."
       no_draft: "Il n'y a aucune saison en brouillon à publier, officier."
       stale_draft: "Ce brouillon n'est plus celui des registres, officier. Recharge la page et regarde à nouveau."
       empty_season: "La saison en brouillon ne contient encore aucune carte, officier. Lance d'abord un import."
       staged_batch_waiting: "Des cartes en réserve attendent à côté de la saison en brouillon, officier. Promeus-les ou jette-les avant de publier."
       empty_tier: "La saison en brouillon est trop petite pour remplir les cinq raretés, officier. Importe d'abord plus de jeux."
-      mixed_score_versions: "Les cartes de la saison en brouillon ont été notées par plusieurs formules de prestige, officier : les raretés seraient taillées sur des échelles différentes. Ouvre le dernier import et appuie sur « Recalculer les cartes », puis publie une fois sa passe terminée."
+      mixed_score_versions: "Les cartes de la saison en brouillon ont été notées par plusieurs formules de prestige, officier : les raretés seraient taillées sur des échelles différentes. Ouvre le dernier import et appuie sur « Recalculer les cartes », puis publie une fois sa passe terminée."
       no_published_season: "Aucune saison publiée ne porte ce numéro, officier."
       already_numbered: "Les cartes de cette saison sont déjà numérotées, officier."
-      unfilled_sources: "Des cartes de la saison en brouillon ont été importées avant que leurs sources soient enregistrées, officier : un genre d'avant les thèmes ou aucun nombre d'avis. Publiées, elles tomberaient dans les OVNI et laisseraient les sets franchise, studio et panthéon incomplets sans qu'on le voie. Lance steam:fill_card_sources, puis publie."
+      unfilled_sources: "Des cartes de la saison en brouillon ont été importées avant que leurs sources soient enregistrées, officier : un genre d'avant les thèmes ou aucun nombre d'avis. Publiées, elles tomberaient dans les OVNI et laisseraient les sets franchise, studio et panthéon incomplets sans qu'on le voie. Lance steam:fill_card_sources, puis publie."
       invalid_tag: "Ce n'est pas un tag Steam que les registres connaissent, officier."
       invalid_theme_name: "Un thème a besoin d'un nom en français et en anglais, de 60 caractères au plus, officier."
       unclassified_tags:
@@ -2265,9 +2265,9 @@ fr:
       invalid_direction: "Une entrée de la feuille de route ne fait que monter ou descendre, officier."
       at_edge: "Cette entrée ne peut pas aller plus loin dans ce sens, officier."
       story_not_found: "Cette histoire n'est plus sur la feuille de route, officier."
-      card_season_not_published: "Cette carte n'est dans aucune saison publiée : elle n'a pas d'image d'aperçu."
+      card_season_not_published: "Cette carte n'est dans aucune saison publiée : elle n'a pas d'image d'aperçu."
       invalid_share_image: "L'image d'aperçu de cette carte n'est pas un PNG de carte, dans une des langues de la Confrérie."
-      stale_render: "Cette carte a changé pendant que son image d'aperçu était dessinée : cette image n'a pas été gardée."
+      stale_render: "Cette carte a changé pendant que son image d'aperçu était dessinée : cette image n'a pas été gardée."
     game:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       invalid_time: "L'heure envoyée n'a pas pu être lue. Rechargez la page."
@@ -2280,22 +2280,22 @@ fr:
       invalid_idempotency_key: "La demande d'ouverture est mal formée. Rechargez la page et réessayez."
       invalid_reserve: "Cette réserve n'existe pas. Rechargez la page et réessayez."
       not_friends: "Vous ne pouvez échanger qu'avec un ami."
-      own_profile_private: "Votre profil est privé : les échanges sont fermés."
-      friend_profile_private: "Le profil de %{name} est privé : échanges fermés."
+      own_profile_private: "Votre profil est privé : les échanges sont fermés."
+      friend_profile_private: "Le profil de %{name} est privé : échanges fermés."
       invalid_offer: "Proposez au plus quatre cartes différentes, avec une quantité d'au moins un chacune."
       invalid_request: "Demandez une à quatre cartes différentes, avec une quantité d'au moins un chacune."
       trade_already_sent: "Vous avez déjà envoyé cette proposition à %{name}."
-      insufficient_copies: "Vous n'avez pas assez d'exemplaires libres d'une carte proposée : certains sont déjà dans un autre échange."
+      insufficient_copies: "Vous n'avez pas assez d'exemplaires libres d'une carte proposée : certains sont déjà dans un autre échange."
       trade_not_found: "Cet échange est introuvable."
       not_allowed: "Ce n'est pas à vous d'agir dans cet échange."
       trade_not_open: "Cet échange est déjà clos."
-      trade_expired: "Cet échange a expiré : ses 7 jours sont écoulés."
-      requested_cards_unavailable: "Exemplaires insuffisants : une carte demandée n'est plus disponible. Rien n'a bougé."
+      trade_expired: "Cet échange a expiré : ses 7 jours sont écoulés."
+      requested_cards_unavailable: "Exemplaires insuffisants : une carte demandée n'est plus disponible. Rien n'a bougé."
       request_exceeds_holdings: "Votre ami ne possède pas autant d'exemplaires d'une carte que vous demandez."
       trade_changed: "Cet échange a changé depuis que vous l'avez ouvert. Relisez ses nouvelles conditions, puis répondez à nouveau."
-      trade_side_empty: "Rien à recevoir pour l'instant : choisissez ce que vous voulez dans la collection de %{name}, puis renvoyez."
+      trade_side_empty: "Rien à recevoir pour l'instant : choisissez ce que vous voulez dans la collection de %{name}, puis renvoyez."
       trade_not_expired: "Cet échange n'a pas encore expiré."
-      invalid_format: "Format attendu : ABCD-1234."
+      invalid_format: "Format attendu : ABCD-1234."
       own_code: "C'est votre propre code."
       own_link: "C'est votre propre lien."
       unknown_code: "Aucun joueur n'a ce code."
@@ -2317,7 +2317,7 @@ fr:
       too_few_games: "3 jeux au moins : ajoutez des jeux pour enregistrer le set."
       too_many_games: "50 jeux au plus : retirez un jeu pour en ajouter un autre."
       too_many_sets: "10 sets au plus : retirez un set pour en créer un autre."
-      showcase_full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
+      showcase_full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
       title_not_earned: "Vous n'avez pas gagné ce titre."
       back_locked: "Ce dos de carte est encore verrouillé."
       unknown_back: "Ce dos de carte n'existe pas."
@@ -2338,6 +2338,6 @@ fr:
       run_awaiting_promotion: "Un import terminé attend sa promotion, officier. Promeus ses cartes ou jette-les d'abord."
       not_ready: "Seul un import terminé en attente de promotion peut être promu ou jeté, officier."
       empty_batch: "Cette passe n'a mis aucune carte en réserve, officier. Jette-la."
-      stale_batch: "La saison sur laquelle cette passe a commencé a été publiée depuis, officier. Ses cartes en réserve sont jetées : lance un nouvel import."
+      stale_batch: "La saison sur laquelle cette passe a commencé a été publiée depuis, officier. Ses cartes en réserve sont jetées : lance un nouvel import."
       not_completed: "Seule une passe d'import terminée ou promue peut être recalculée, officier."
       already_published: "Les cartes de cette passe sont déjà publiées dans une saison, officier. Lance un nouvel import pour remplir le prochain brouillon."

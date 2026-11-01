@@ -48,15 +48,15 @@ const fr: CelebrationStrings = {
   openInProgress: "Voir les sets en cours.",
   position: "%{index} / %{count}",
   next: "Résultat suivant",
-  announceTier: "Palier %{tier} atteint : %{set}, %{owned} cartes sur %{total}.",
-  announceComplete: "Set complet : %{set}, %{owned} cartes sur %{total}.",
+  announceTier: "Palier %{tier} atteint\u202F: %{set}, %{owned} cartes sur %{total}.",
+  announceComplete: "Set complet\u202F: %{set}, %{owned} cartes sur %{total}.",
   announceFolded: {
-    zero: "%{count} palier atteint : %{list}.",
-    one: "%{count} palier atteint : %{list}.",
-    other: "%{count} paliers atteints : %{list}.",
+    zero: "%{count} palier atteint\u202F: %{list}.",
+    one: "%{count} palier atteint\u202F: %{list}.",
+    other: "%{count} paliers atteints\u202F: %{list}.",
   },
   announceItem: "%{set}, %{tier}",
-  announceSeparator: " ; ",
+  announceSeparator: "\u202F; ",
   spokenTiers: {
     bronze: "bronze",
     silver: "argent",
@@ -341,7 +341,7 @@ describe("the results as shown", () => {
     ])
 
     expect(foldedTitle(results, fr)).toBe("5 PALIERS ATTEINTS")
-    expect(celebrationAnnouncement(results, fr, NBSP)).toMatch(/^5 paliers atteints : /)
+    expect(celebrationAnnouncement(results, fr, NBSP)).toMatch(/^5 paliers atteints\u202F: /)
   })
 })
 
@@ -547,8 +547,10 @@ describe("the link names", () => {
       reached("Dark Souls", "complete", 3, 3, "franchise"),
     ])
 
-    expect(resultLinkName(silver, fr, NBSP)).toBe("Palier argent atteint : Roguelike, 16 cartes sur 62. Voir le set.")
-    expect(resultLinkName(complete, fr, NBSP)).toBe("Set complet : Dark Souls, 3 cartes sur 3. Voir le set.")
+    expect(resultLinkName(silver, fr, NBSP)).toBe(
+      "Palier argent atteint\u202F: Roguelike, 16 cartes sur 62. Voir le set.",
+    )
+    expect(resultLinkName(complete, fr, NBSP)).toBe("Set complet\u202F: Dark Souls, 3 cartes sur 3. Voir le set.")
     expect(resultLinkName(silver, en, ",")).toBe("Silver tier reached: Roguelike, 16 cards out of 62. View set.")
   })
 
@@ -561,7 +563,7 @@ describe("the link names", () => {
     ])
 
     expect(foldedLinkName(results, fr)).toBe(
-      "4 paliers atteints : Dark Souls, complet ; Metroidvania, or ; Roguelike, argent ; Les Pépites, bronze. Voir les sets en cours.",
+      "4 paliers atteints\u202F: Dark Souls, complet\u202F; Metroidvania, or\u202F; Roguelike, argent\u202F; Les Pépites, bronze. Voir les sets en cours.",
     )
     expect(foldedLinkName(results, en)).toBe(
       "4 tiers reached: Dark Souls, complete; Metroidvania, gold; Roguelike, silver; Les Pépites, bronze. View sets in progress.",
@@ -572,10 +574,10 @@ describe("the link names", () => {
 describe("celebrationAnnouncement", () => {
   it("speaks a tier reached and a set completed with their counts", () => {
     expect(celebrationAnnouncement(celebrationResults([reached("Roguelike", "silver", 16, 62)]), fr, NBSP)).toBe(
-      "Palier argent atteint : Roguelike, 16 cartes sur 62.",
+      "Palier argent atteint\u202F: Roguelike, 16 cartes sur 62.",
     )
     expect(celebrationAnnouncement(celebrationResults([reached("Roguelike", "complete", 1062, 1062)]), fr, NBSP)).toBe(
-      `Set complet : Roguelike, 1${NBSP}062 cartes sur 1${NBSP}062.`,
+      `Set complet\u202F: Roguelike, 1${NBSP}062 cartes sur 1${NBSP}062.`,
     )
   })
 
@@ -586,7 +588,7 @@ describe("celebrationAnnouncement", () => {
     ])
 
     expect(celebrationAnnouncement(results, fr, NBSP)).toBe(
-      "Set complet : Dark Souls, 3 cartes sur 3. Palier bronze atteint : Roguelike, 7 cartes sur 62.",
+      "Set complet\u202F: Dark Souls, 3 cartes sur 3. Palier bronze atteint\u202F: Roguelike, 7 cartes sur 62.",
     )
   })
 
@@ -599,7 +601,7 @@ describe("celebrationAnnouncement", () => {
     ])
 
     expect(celebrationAnnouncement(results, fr, NBSP)).toBe(
-      "4 paliers atteints : Dark Souls, complet ; Metroidvania, or ; Roguelike, argent ; Cosy, bronze.",
+      "4 paliers atteints\u202F: Dark Souls, complet\u202F; Metroidvania, or\u202F; Roguelike, argent\u202F; Cosy, bronze.",
     )
   })
 

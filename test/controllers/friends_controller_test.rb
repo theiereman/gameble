@@ -84,7 +84,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get friends_path(locale: :fr)
-    assert_select ".friends__friend .trades-closed", "Le profil de Léa est privé : échanges fermés."
+    assert_select ".friends__friend .trades-closed", "Le profil de Léa est privé\u202F: échanges fermés."
     assert_select ".friends__friend a[href=?]", new_trade_path(locale: :fr, friend: lea.token), 0
 
     lea.update!(visibility: "public")
@@ -216,7 +216,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
       end
     end
     assert_select "dialog#remove-friend-#{sam.token}.modal[aria-labelledby=?][aria-describedby=?]", "remove-friend-#{sam.token}-title", "remove-friend-#{sam.token}-text" do
-      assert_select "#remove-friend-#{sam.token}-title.modal__title", "Retirer Sam ?"
+      assert_select "#remove-friend-#{sam.token}-title.modal__title", "Retirer Sam\u202F?"
       assert_select "button.modal__close[aria-label=Fermer][data-action='dialog#close']"
       assert_select "form[method=post][action=?][data-turbo=false]", remove_friend_path(locale: :fr, token: sam.token) do
         assert_select "#remove-friend-#{sam.token}-text", /Sam quitte vos amis et vous quittez les siens\. Aucun message n'est envoyé/

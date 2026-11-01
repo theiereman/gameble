@@ -509,7 +509,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#community-goal .hub-goal__status", false
     assert_select "#community-goal .hub-goal__figures", text: "0 / 250"
     assert_select "#community-goal .hub-goal__segment--lit", count: 0
-    assert_select "#community-goal .hub-goal__previous", text: "Semaine dernière : 180 / 200 · mission manquée"
+    assert_select "#community-goal .hub-goal__previous", text: "Semaine dernière\u202F: 180 / 200 · mission manquée"
 
     Game::WeeklyGoal.where(week_start: week - 7).update_all(total: 260)
     get home_path(locale: :en)
@@ -853,7 +853,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__processor-host", "The site runs on servers operated by Example Hosting, in France;"
 
     get legal_path(locale: :fr)
-    assert_select ".legal__processor-host", "Le site tourne sur des serveurs exploités par Example Hosting, en France ;"
+    assert_select ".legal__processor-host", "Le site tourne sur des serveurs exploités par Example Hosting, en France\u202F;"
   end
 
   test "with a contact configured, every line that sends the reader to the publisher carries the mailto link" do
@@ -862,13 +862,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__updated", "Dernière mise à jour : 30 octobre 2026"
+    assert_select ".legal__updated", "Dernière mise à jour\u202F: 30 octobre 2026"
     %w[.legal__moderation .legal__notice .legal__rectification .legal__objection .legal__death .legal__banned].each do |line|
       assert_select "#{line} a.legal__link[href=?]", "mailto:contact@example.test", "contact@example.test"
     end
     assert_select ".legal__moderation", /La décision est toujours prise par une personne/
     assert_select ".legal__visibility", /public par défaut/
-    assert_select ".legal__section li", /\ASentry .* Données hébergées dans l'Union européenne ;\z/
+    assert_select ".legal__section li", /\ASentry .* Données hébergées dans l'Union européenne\u202F;\z/
   end
 
   test "the privacy section says how long each kind of data is kept, before the deletion paragraph that refers to it" do
@@ -880,8 +880,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__retention li", 9
     retention = css_select(".legal__retention").text
     [ "trois ans", "un an", "30 jours", "tant que la suspension dure" ].each { assert_includes retention, it }
-    assert_select ".legal__retention li", "les erreurs techniques reçues par Sentry : 30 jours ;"
-    assert_select ".legal__retention li", "les sauvegardes de la base de données, chiffrées et conservées en France : les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal ; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué ;"
+    assert_select ".legal__retention li", "les erreurs techniques reçues par Sentry\u202F: 30 jours\u202F;"
+    assert_select ".legal__retention li", "les sauvegardes de la base de données, chiffrées et conservées en France\u202F: les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal\u202F; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué\u202F;"
     assert_select ".legal__retention + p", /pendant les durées indiquées plus haut\.\z/
 
     get legal_path(locale: :en)
@@ -939,7 +939,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__backup_host", "OVH SAS conserve les sauvegardes de la base de données, chiffrées avant de quitter le serveur : il ne peut pas les lire. Données hébergées en France ;"
+    assert_select ".legal__backup_host", "OVH SAS conserve les sauvegardes de la base de données, chiffrées avant de quitter le serveur\u202F: il ne peut pas les lire. Données hébergées en France\u202F;"
 
     get legal_path(locale: :en)
 

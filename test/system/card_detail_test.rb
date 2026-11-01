@@ -213,7 +213,7 @@ class CardDetailTest < ApplicationSystemTestCase
           })()
         JS
       end
-      assert_selector ".card-detail__showcase-full", text: "Vitrine pleine : retirez une carte pour en ajouter une autre."
+      assert_selector ".card-detail__showcase-full", text: "Vitrine pleine\u202F: retirez une carte pour en ajouter une autre."
     end
     take_screenshot
   end

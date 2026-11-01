@@ -62,7 +62,7 @@ class PacksChipsControllerTest < ActionDispatch::IntegrationTest
       get_chip(locale: :fr)
 
       assert_select "#{CHIP} .packs-chip__next [aria-hidden=true]", text: /\+1 dans\s+05:00/
-      assert_select "#{CHIP} .packs-chip__next .visually-hidden", "Prochaine capsule : 2026-10-02 09:05 UTC"
+      assert_select "#{CHIP} .packs-chip__next .visually-hidden", "Prochaine capsule\u202F: 2026-10-02 09:05 UTC"
       assert_equal "/fr/packs-chip", css_select("#{CHIP} .packs-chip__next[data-controller=countdown]").sole["data-countdown-refresh-url-value"]
     end
   end

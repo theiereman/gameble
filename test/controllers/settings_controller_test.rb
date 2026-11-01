@@ -85,7 +85,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get settings_path(locale: :fr)
-    assert_select "p.settings-row__note:not([hidden])", /Dernier export :\s+2026-10-04 07:05 UTC/
+    assert_select "p.settings-row__note:not([hidden])", /Dernier export\u202F:\s+2026-10-04 07:05 UTC/
     assert_select "p.settings-row__note time[datetime='2026-10-04T07:05:00Z'][data-controller=local-time][data-local-time-style-value=date-time-year]" \
       "[data-data-export-target=time]", "2026-10-04 07:05 UTC"
 
@@ -118,7 +118,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     form = css_select("form[data-controller=data-export]").sole
     assert_select form, "button[type=submit][disabled]", "Exporter"
     assert_select form, "p.settings-row__note:not([hidden]) time[datetime='2026-10-14T09:35:00Z'][data-data-export-target=nextTime]", "2026-10-14 09:35 UTC"
-    assert_select form, "p.settings-row__note:not([hidden])", /Prochain export :/
+    assert_select form, "p.settings-row__note:not([hidden])", /Prochain export\u202F:/
     assert_equal "2026-10-14T09:35:00Z", form["data-data-export-next-export-at-value"]
   end
 
@@ -607,7 +607,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     get settings_path(locale: :fr)
 
-    assert_select ".settings-summary__visibility-long", "Profil privé : vous seul le voyez"
+    assert_select ".settings-summary__visibility-long", "Profil privé\u202F: vous seul le voyez"
     assert_select ".settings-summary__visibility-short", "Vous seul le voyez"
   end
 end

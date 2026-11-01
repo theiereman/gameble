@@ -262,7 +262,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{ROOT} button.booster__open", /Ouvrir la capsule.*Réserve vide/
     assert_select "#{ROOT} .booster__value--reserve", "0 capsule"
     celebration = strings["celebration"]
-    assert_equal [ "PALIER %{tier}", "SET COMPLET", "Résultat suivant", " ; " ], celebration.values_at("tierTitle", "completeTitle", "next", "announceSeparator")
+    assert_equal [ "PALIER %{tier}", "SET COMPLET", "Résultat suivant", "\u202F; " ], celebration.values_at("tierTitle", "completeTitle", "next", "announceSeparator")
     assert_equal({ "zero" => "%{count} PALIER ATTEINT", "one" => "%{count} PALIER ATTEINT", "other" => "%{count} PALIERS ATTEINTS" }, celebration["folded"])
     assert_equal "argent", celebration.dig("spokenTiers", "silver")
     assert_equal "/fr/cards/SLUG", value("card-url")

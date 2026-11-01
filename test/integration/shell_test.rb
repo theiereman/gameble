@@ -364,7 +364,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "body.is-back-office"
     assert_select ".top-bar__start > a.button--secondary[href='/fr'] .button__label", "Pont"
     assert_select ".top-bar__start > a.top-bar__home[href='/fr'][aria-label=?]", "Gameble, pont de commandement"
-    assert_select ".top-bar__previous .visually-hidden", "Retour :"
+    assert_select ".top-bar__previous .visually-hidden", "Retour\u202F:"
     assert_select "header.top-bar[data-screen-label=Back-office]"
     assert_select "#atmosphere, .atmosphere", false
     assert_select ".tab-bar", false

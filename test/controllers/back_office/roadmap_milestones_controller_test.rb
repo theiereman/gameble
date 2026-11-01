@@ -136,7 +136,7 @@ module BackOffice
         assert_select ".ledger-errors [data-roadmap-failure]", I18n.t("errors.catalog.#{code}", limit: 200, locale: :fr)
         assert_select "input[name=wording_fr][value=?]", fields(**changes)[:wording_fr]
         assert_select "input#roadmap-shown[checked]"
-        assert_select "h1", "Étape « Epic Two »"
+        assert_select "h1", "Étape «\u202FEpic Two\u202F»"
       end
     end
 
