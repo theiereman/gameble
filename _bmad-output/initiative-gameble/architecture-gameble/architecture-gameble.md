@@ -7,7 +7,7 @@ paradigm: 'modular monolith with an operations layer'
 scope: 'The gameble MVP as a whole: one Rails application, its four domains, its web layer, the Steam import and the deployment.'
 status: final
 created: '2026-10-02'
-updated: '2026-10-30'
+updated: '2026-11-01'
 binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25, CAP-27, CAP-28]
 sources:
   - ../spec-gameble/spec-gameble.md
@@ -123,14 +123,17 @@ graph TD
 ### AD-8 — Trades reserve the offer `[ADOPTED]`
 
 - **Binds:** CAP-10, CAP-11
-- **Prevents:** a card promised twice; partial transfers; one-way transfers; deadlocks; a friend freezing a player's cards.
+- **Prevents:** a card promised twice; partial transfers; one-way transfers; deadlocks; a friend freezing a player's cards; a repeated send creating a second trade; two unsent edits overwriting each other.
 - **Rule:**
   - A friendship is one row per pair, the lower player id first, unique. It exists once an invitation is accepted. An invitation (by link or by friend code) is pending, accepted or ignored; accepting creates the friendship in the same operation. Each player has a short random friend code in `Game`, never derived from an id.
   - Every trade operation requires the two players to be friends and neither to be private (AD-13's `open_to_friends?`).
-  - Two friends have at most one open trade. A proposal holds an offer and a request, at most 4 distinct card-seasons per side, each with a quantity. At every send, proposal or counter-proposal, the request holds at least one card; the sender's offer may be empty, which leaves the other player to choose (the open request). An empty offer reserves nothing.
+  - Two friends may have any number of open trades at once (author, 2026-10-31); reservations and the acceptance check keep a card from being promised twice across them. `Game::ProposeTrade` refuses, under the two bank locks, a proposal whose offer and request equal those of an open trade the same player proposed to the same friend (`Failure(:trade_already_sent)`), so a repeated send creates nothing.
+  - The browser keeps two kinds of unsent edits: one new-proposal draft per friend, keyed by the player's token then the friend's token, and one counter draft per trade and proposal, keyed by the player's token, the trade's token and the proposal's expiry. "ÉCHANGE" and "ÉCHANGER" open the friend's stored new-proposal draft, empty when there is none, never an open trade. A send from the board forgets that draft; a send from a suggestion row leaves it.
+  - A proposal holds an offer and a request, at most 4 distinct card-seasons per side, each with a quantity. At every send, proposal or counter-proposal, the request holds at least one card; the sender's offer may be empty, which leaves the other player to choose (the open request). An empty offer reserves nothing.
   - Only the current proposal's offer is reserved: sending it raises `reserved` on the sender's rows, up to `quantity - reserved`. A counter-proposal releases the previous offer and reserves the new one, then hands the turn over. Declining, cancelling and expiry release the offer.
   - Acceptance is one transaction: it refuses a proposal past its expiry, locks both players in the order of AD-10, refuses, on the locked trade after the current-terms check, a trade with an empty side, checks that the requested cards are still free, moves both sides and closes the trade. No card ever moves one way.
   - A proposal expires 7 days after it was sent; a periodic job closes expired trades, one trade per transaction.
+- **Costs:** the per-pair partial unique index on `game_trades` is dropped, concurrently, in its own migration; `Game::ProposeTrade` neither checks nor expires a pair's trades (its `trade_already_open` refusal, the new-trade redirect and their locale keys go); `OpenTradesByFriend` stops mapping a friend to one trade; the trade actions on the friend row, the friend profile and the public profile open the friend's new-proposal draft; the remove-friend dialog counts the open trades it cancels.
 
 ### AD-9 — No row is written by every player `[ADOPTED]`
 
@@ -149,7 +152,7 @@ graph TD
   - Every operation that raises a player's quantities (`Game::OpenPack`, and `Game::AcceptTrade` for both players) reads the published season once, right after its bank locks, and passes it to the receipt, the draw (`Game::DrawPool` for that season), the tier pass and its response. It then receives each player's pending allocation as a step of its own transaction, before any credit, so it celebrates only the tiers it crosses itself; the allocation's event precedes the caller's. The received season is checked under the bank lock, so concurrent operations receive once.
   - The allocation is received and seen apart. While the player's last seen season is below the published one and they hold a card-season of an earlier season, the hub and the booster page redirect to the allocation screen (a GET that writes nothing, AD-11, reading this check from the primary); the screen's POST receives the allocation if still pending and marks it seen, a housekeeping write that publishes nothing.
   - A handler runs in that transaction, never publishes an event, and writes only rows of that player or new rows: a feed entry, a weekly contribution, an achievement, a card back unlock, the player's latest activity. Unique rows are inserted with `ON CONFLICT DO NOTHING`; a duplicate never fails the operation.
-  - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then holdings in ascending player then card-season, then the players' `game_player_states` rows, then the player's custom sets and their games.
+  - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then trade rows in ascending id, then holdings in ascending player then card-season, then the players' `game_player_states` rows, then the player's custom sets and their games.
   - Totals across players (the gauge) are summed by one periodic job.
   - State tables are the truth; events are not replayed to rebuild them.
   - Events carry identifiers only. Deleting an account anonymises the player record.
@@ -454,12 +457,12 @@ graph TD
 ### AD-38 — Trade suggestions are read, not stored
 
 - **Binds:** CAP-8, CAP-11, CAP-28
-- **Prevents:** a suggestion table drifting from holdings and goals; the list and the prefilled proposal disagreeing on what is spare; a second way to create a trade; a private player exposed.
+- **Prevents:** a suggestion table drifting from holdings and goals; the list and the prefilled proposal disagreeing on what is spare; a second way to create a trade; a private player exposed; a sent suggestion offered again; a look at a suggestion wiping a hand-built draft.
 - **Rule:**
   - `Game::TradeSuggestions(player)` computes the suggestions on read, on the reading role (AD-11), from `Game::GoalNeeds` of the player (all their goals) and of each friend for whom `Game::Visibility.open_to_friends?` holds (their goals on game sets only, so a private custom set never shows through), and from their holdings. Nothing is stored or broadcast; a private player neither appears nor sees suggestions.
-  - A spare is a free copy of a game (`quantity - reserved`, summed over its editions) beyond the one its holder keeps. The holder keeps a copy at their best minted rarity; the edition placed is the one with the most free copies among the rest, then the earliest season. The same rule reads the player's own spares, and only this query applies it.
-  - Mutual suggestions come before one-sided ones. A suggestion names the friend and the cards, never a goal, set or tier. The library set never feeds them: they read goals only.
-  - With an open trade between the two friends, a suggestion opens that trade and prefills nothing. Otherwise starting a trade from a suggestion replaces the stored draft for that friend and opens the trade board prefilled with its card-seasons (by slug and season, AD-15); a prefill holds at most AD-8's 4 card-seasons per side, and the proposal is sent through `Game::ProposeTrade` like any other and checked by AD-8 at send and acceptance.
+  - A spare is a free copy of a game (`quantity - reserved`, summed over its editions) beyond the one its holder keeps. The holder keeps a copy at their best minted rarity; the edition placed is the one with the most free copies among the rest, then the earliest season. The same rule reads the player's own spares, and only this query applies it. A game already on the friend's side of an open trade between the two players, whoever's turn it is, is not a spare of that friend for the player's suggestions; a game already on the player's side of such a trade is not one of the player's spares for that friend.
+  - The query returns at most 3 suggestions, one per friend (author, 2026-10-31). Friends are ordered by mutual first, then the number of distinct games they spare for the player's goals before the cap of 4, then the friendship's creation, then the friend's token. A suggestion's friend side holds up to 4 games: a game ranks by the lowest position of the player's goals that hold it, then its placed edition's rarity, rarest first, then its slug. A mutual one also holds every spare of the player that the friend's game-set goals miss, up to 4, ranked the same way on the friend's goals. Each placed line has quantity 1. The query fills the suggestions in friend order: a game already placed on the friend's side of a higher suggestion, and a copy of the player's already placed on the player's side of one, is not placed again; a suggestion left with no friend card is not shown, and the next friend takes its place. A suggestion names the friend and the cards, never the friend's goal, set or tier. The library set never feeds them: they read goals only. Suggestions are never dismissed, so nothing about them is stored.
+  - A suggestion row's send posts its card-seasons to `Game::ProposeTrade` like any other proposal, checked by AD-8 at send and acceptance. Its opener is a link whose address carries the friend's token and the suggestion's card-seasons (slug and season, AD-15), whatever trades are open between the two friends; the board renders that prefill and does not write it. The stored new-proposal draft for that friend is replaced only when the player changes the prefilled board or sends it; the board then replaces its address with the friend's plain new-trade address, so a reload or Back resumes the stored draft and never re-applies the suggestion. A suggestion left unsent stays a suggestion.
 
 ### AD-39 — The share preview image is rendered once and stored `[ADOPTED]`
 
