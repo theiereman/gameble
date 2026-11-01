@@ -16,7 +16,8 @@ image: theiereman/gameble
 #
 # Roles, with their hosts in each destination file: web, and the Steam import
 # worker, the same image as one process with one thread on the
-# import queue only. The web role's Solid Queue serves every other queue.
+# import and steam_library queues only. The web role's Solid Queue serves
+# every other queue.
 
 registry:
   server: ghcr.io

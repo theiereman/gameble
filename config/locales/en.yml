@@ -798,6 +798,8 @@ en:
       cancel: Cancel
       name: Set name
       save: Save
+    library:
+      name: My Steam library
     new:
       heading: New set
       title: New set · Collection · Gameble
@@ -1474,6 +1476,16 @@ en:
       results: Results
       search: Find a set
       search_button: Search
+      steam_library:
+        kind:
+          one: Steam · %{games} catalog game
+          other: Steam · %{games} catalog games
+          zero: Steam · %{games} catalog games
+        last_sync: 'Last sync: %{date}.'
+        not_shared: Steam does not share your library. Make the game details of your
+          Steam profile public.
+        synced: Synced with Steam on %{date}.
+        title: My Steam library
     filters:
       active: 'Active filters:'
       apply: Apply

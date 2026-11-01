@@ -32,6 +32,7 @@ class SessionsController < ApplicationController
     player = carry_visitor_motion_switch(result.value!)
     reset_session
     session[:player_id] = player.id
+    CreateSteamLibrarySetJob.perform_later(player.id)
     if (invite = invite_origin)
       redirect_to invite, notice: t(".welcome")
     else
@@ -58,6 +59,7 @@ class SessionsController < ApplicationController
       linked_before = Accounts::IdentitiesOf.call(current_player).any? { it.provider == "steam" }
       result = link_reporting_failure(steam_id)
       if result&.success?
+        CreateSteamLibrarySetJob.perform_later(current_player.id)
         redirect_to settings_path, notice: linked_before ? t("sessions.create.steam_already_linked") : t("sessions.create.steam_linked")
       else
         redirect_to settings_path, alert: link_refusal_message(result)

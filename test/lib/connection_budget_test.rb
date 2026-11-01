@@ -50,7 +50,7 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
       "web (#{STAGING}) Solid Queue worker (share_images)" => 14,
       "web (#{STAGING}) Solid Queue scheduler" => 5,
       "import (#{STAGING}) Solid Queue supervisor" => 5,
-      "import (#{STAGING}) Solid Queue worker (import)" => 14
+      "import (#{STAGING}) Solid Queue worker (import, steam_library)" => 14
     }, figures(staging))
     assert_equal({ "primary" => 3, "primary (reading)" => 3, "queue" => 5, "cache" => 3, "cable" => 3 }, staging.processes.first.pools)
     assert_equal 79, staging.total
@@ -64,7 +64,7 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
 
     assert_equal [ "web (#{host}) Puma", "web (#{host}) Solid Queue supervisor", "web (#{host}) Solid Queue dispatcher",
       "web (#{host}) Solid Queue worker (default)", "web (#{host}) Solid Queue worker (share_images)", "web (#{host}) Solid Queue scheduler",
-      "import (#{host}) Solid Queue supervisor", "import (#{host}) Solid Queue worker (import)" ], production.processes.map(&:name)
+      "import (#{host}) Solid Queue supervisor", "import (#{host}) Solid Queue worker (import, steam_library)" ], production.processes.map(&:name)
     assert_equal 79, production.total
     assert_not production.over_limit?, "production opens #{production.total} connections, over the limit of #{ConnectionBudget::LIMIT}"
     assert_empty production.undersized
@@ -181,7 +181,7 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
   test "a queue file without a dispatcher and a skipped recurring schedule count neither" do
     import = budget.processes.select { it.container.start_with?("import") }
 
-    assert_equal [ "Solid Queue supervisor", "Solid Queue worker (import)" ], import.map(&:kind)
+    assert_equal [ "Solid Queue supervisor", "Solid Queue worker (import, steam_library)" ], import.map(&:kind)
   end
 
   test "a role command that is neither Puma nor bin/jobs is refused" do

@@ -879,6 +879,15 @@ fr:
         one: "1 set trouvé"
         other: "%{count} sets trouvés"
       none: "Aucun set trouvé pour « %{query} »."
+      steam_library:
+        title: "Ma ludothèque Steam"
+        kind:
+          zero: "Steam · %{games} jeu du catalogue"
+          one: "Steam · %{games} jeu du catalogue"
+          other: "Steam · %{games} jeux du catalogue"
+        synced: "Synchronisée avec Steam le %{date}."
+        not_shared: "Steam ne partage pas votre bibliothèque. Rendez publics les détails de jeux de votre profil Steam."
+        last_sync: "Dernière synchronisation : %{date}."
     set_kinds:
       theme: "Thème"
       franchise: "Franchise"
@@ -1811,6 +1820,8 @@ fr:
       cancel: "Annuler"
       name: "Nom du set"
       save: "Enregistrer"
+    library:
+      name: "Ma ludothèque Steam"
     new:
       heading: "Nouveau set"
       title: "Nouveau set · Collection · Gameble"

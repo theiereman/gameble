@@ -1,0 +1,19 @@
+<%# locals: (steam_library:) %>
+<% note, last_sync = steam_library_sync_lines(steam_library) %>
+<section class="set-entry__section steam-library" aria-labelledby="steam-library-title">
+  <h2 id="steam-library-title" class="set-entry__title"><%= t("library.entry.steam_library.title") %></h2>
+  <p class="steam-library__sync">
+    <span class="steam-library__light" aria-hidden="true"></span>
+    <span class="steam-library__lines"><%= note %><% if last_sync %><br><b><%= last_sync %></b><% end %></span>
+  </p>
+  <%= link_to custom_set_path(token: steam_library.token), class: "custom-sets__link steam-library__link" do %>
+    <span class="steam-library__heading" aria-hidden="true">
+      <span class="custom-sets__name"><%= custom_set_display_name(steam_library) %></span>
+      <span class="steam-library__kind"><%= steam_library_kind_line(steam_library) %></span>
+    </span>
+    <span class="custom-sets__count" aria-hidden="true"><b><%= number_with_delimiter(steam_library.held) %></b>/<%= number_with_delimiter(steam_library.total) %></span>
+    <progress class="set-row__bar steam-library__bar" aria-hidden="true" value="<%= [ steam_library.held, steam_library.total ].min %>"
+      max="<%= [ steam_library.total, 1 ].max %>"></progress>
+    <span class="visually-hidden"><%= steam_library_tile_name(steam_library) %></span>
+  <% end %>
+</section>

@@ -281,14 +281,18 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "« Mes favoris » ne fait plus partie de vos sets.", flash[:notice]
   end
 
-  test "a library set's album has no edit or delete, and its edit form is not found" do
-    library = Game::CustomSet.create!(player_id: @player.id, kind: Game::CustomSet::STEAM_LIBRARY)
-    Game::CustomSetGame.insert_all!(fixture_card_ids.first(3).map { { custom_set_id: library.id, card_id: it } })
+  test "a library set's album is named, has no edit, delete or goal button, and its edit form is not found" do
+    library = create_library_set(@player)
     sign_in(@player)
 
     get custom_set_path(locale: :en, token: library.token)
     assert_response :success
-    assert_select ".set-album__actions", false
+    assert_select "title", "My Steam library · Collection · Gameble"
+    assert_select "h1#set-album-heading", "My Steam library"
+    assert_select ".set-album__actions, .set-album__title .button, .set-album__title form", false
+
+    get custom_set_path(locale: :fr, token: library.token)
+    assert_select "h1#set-album-heading", "Ma ludothèque Steam"
 
     get edit_custom_set_path(locale: :en, token: library.token)
     assert_response :not_found

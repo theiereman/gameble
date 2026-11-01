@@ -58,4 +58,26 @@ class Game::CustomSetStandingsTest < ActiveSupport::TestCase
     end
     assert_equal [], Game::CustomSetStandings.call(@player)
   end
+
+  test "the sets of one kind only, each with its sync dates; a custom set has none" do
+    custom = create_custom_set(@player)
+    synced_at = Time.zone.local(2026, 10, 12, 5)
+    private_since = Time.zone.local(2026, 10, 13, 5)
+    library = create_library_set(@player, card_ids: fixture_card_ids.first(2), synced_at:, library_private_since: private_since)
+
+    assert_equal [ custom.token ], Game::CustomSetStandings.call(@player, kind: Game::CustomSet::CUSTOM).map(&:token)
+    mine = Game::CustomSetStandings.call(@player, kind: Game::CustomSet::STEAM_LIBRARY).sole
+    assert_equal [ library.token, nil, synced_at, private_since, 2 ], [ mine.token, mine.name, mine.synced_at, mine.library_private_since, mine.total ]
+    assert_equal [ true, false, true, true ], [ mine.steam_library?, mine.custom?, mine.library_private?, mine.ever_synced? ]
+    custom_standing = Game::CustomSetStandings.call(@player, kind: Game::CustomSet::CUSTOM).sole
+    assert_equal [ nil, nil, false ], [ custom_standing.synced_at, custom_standing.library_private_since, custom_standing.ever_synced? ]
+  end
+
+  test "a library set never synced has run no sync; one found private at its first sync has" do
+    library = create_library_set(@player, card_ids: [], synced_at: nil)
+    assert_not Game::CustomSetStandings.call(@player).sole.ever_synced?
+
+    library.update!(library_private_since: Time.current)
+    assert Game::CustomSetStandings.call(@player).sole.ever_synced?
+  end
 end

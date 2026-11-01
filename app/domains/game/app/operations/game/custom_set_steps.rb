@@ -30,6 +30,10 @@ module Game
       custom_set ? Success(custom_set) : Failure(:custom_set_not_found)
     end
 
+    def locked_library_set(player, token)
+      CustomSet.steam_library.where(player_id: player.id).lock.find_by(token:) if token.is_a?(String)
+    end
+
     def published(event, player, custom_set)
       publish(event.new(data: { player_id: player.id, custom_set_id: custom_set.id }), stream_name: stream_name(player.id))
     end

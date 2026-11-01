@@ -19,7 +19,7 @@ class ConnectionBudgetTaskTest < ActiveSupport::TestCase
 
     assert_includes output, "  web (ssh-staging.gameble.net) Puma: 17 (primary 3, primary (reading) 3, queue 5, cache 3, cable 3)\n"
     assert_includes output, "  web (ssh-staging.gameble.net) Solid Queue worker (share_images): 14 (primary 3, queue 5, cache 3, cable 3)\n"
-    assert_includes output, "  import (ssh-staging.gameble.net) Solid Queue worker (import): 14 (primary 3, queue 5, cache 3, cable 3)\n"
+    assert_includes output, "  import (ssh-staging.gameble.net) Solid Queue worker (import, steam_library): 14 (primary 3, queue 5, cache 3, cable 3)\n"
     assert_includes output, "db:connection_budget: total 79, limit 80\n"
     assert_match(/^db:connection_budget: live allowance (\d+) \(max_connections \d+ less \d+ superuser_reserved_connections\)$/, output)
   end

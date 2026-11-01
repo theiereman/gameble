@@ -1,10 +1,10 @@
-# The import worker: one process, one thread, the `import` queue only,
-# so Steam is called one page at a time. Run with
-# `bin/jobs -c config/queue_import.yml --skip-recurring`. It has no dispatcher:
-# the jobs process (config/queue.yml) dispatches scheduled retries.
+# The import worker: one process, one thread, the `import` and
+# `steam_library` queues only, so Steam is called one request at a time.
+# Run with `bin/jobs -c config/queue_import.yml --skip-recurring`. It has no
+# dispatcher: the jobs process (config/queue.yml) dispatches scheduled retries.
 default: &default
   workers:
-    - queues: [ import ]
+    - queues: [ import, steam_library ]
       threads: 1
       processes: 1
       polling_interval: 1

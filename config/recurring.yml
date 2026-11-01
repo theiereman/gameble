@@ -39,12 +39,19 @@ apply_retention: &apply_retention
   queue: default
   schedule: every day at 4am
 
+# Each player's Steam library set follows their Steam games, once a day.
+sync_steam_libraries: &sync_steam_libraries
+  class: SyncSteamLibrariesJob
+  queue: default
+  schedule: every day at 5am
+
 development:
   recover_stalled_imports: *recover_stalled_imports
   sum_weekly_goal: *sum_weekly_goal
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
   apply_retention: *apply_retention
+  sync_steam_libraries: *sync_steam_libraries
 
 production:
   recover_stalled_imports: *recover_stalled_imports
@@ -52,6 +59,7 @@ production:
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
   apply_retention: *apply_retention
+  sync_steam_libraries: *sync_steam_libraries
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

@@ -1,6 +1,6 @@
-# The jobs process (bin/jobs): every queue but `import`, which has its own
-# process (config/queue_import.yml). Solid Queue cannot exclude a
-# queue, so the queues are listed: add a new queue here.
+# The jobs process (bin/jobs): every queue but `import` and `steam_library`,
+# which have their own process (config/queue_import.yml). Solid Queue cannot
+# exclude a queue, so the queues are listed: add a new queue here.
 default: &default
   dispatchers:
     - polling_interval: 1

@@ -1,7 +1,8 @@
-/* ---- The player's own sets: MES SETS on the entry, the album's actions and the set form ---- */
+/* ---- The player's own sets: MES SETS and the Steam library on the entry, the album's actions and the set form ---- */
 
-/* A search takes the place of MES SETS, as of the sets under it. */
-.set-entry:has(.set-results) > .custom-sets {
+/* A search takes the place of MES SETS and the Steam library, as of the sets under them. */
+.set-entry:has(.set-results) > .custom-sets,
+.set-entry:has(.set-results) > .steam-library {
   display: none;
 }
 
@@ -69,6 +70,56 @@
 
 .custom-sets__count b {
   color: var(--color-text-max);
+}
+
+/* The sync line is information, never an alert: muted, with a muted light. */
+.steam-library__sync {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.steam-library__light {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  background: var(--color-muted);
+}
+
+.steam-library__lines b {
+  color: var(--color-text);
+}
+
+.steam-library__link {
+  flex-wrap: wrap;
+  row-gap: var(--space-3);
+}
+
+.steam-library__heading {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.steam-library__kind {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.steam-library__bar {
+  flex-basis: 100%;
 }
 
 .set-album__actions {

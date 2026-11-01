@@ -72,6 +72,10 @@ The task prints the new role, or aborts with the reason (unknown Steam id, delet
 
 Ban from the back-office, not from the console: setting `banned_at` by hand publishes nothing, so the player's trades and friendships stay until `bin/rails game:drop_friends_and_trades` runs.
 
+### Steam library sync
+
+Every day at 5am `SyncSteamLibrariesJob` (`config/recurring.yml`) enqueues at most `STEAM_LIBRARY_DAILY_SYNCS` (default 5000) Steam library syncs, never-synced sets first, then the least recently synced, on the `steam_library` queue of the import worker.
+
 ### Retention
 
 Every day at 4am `Accounts::ApplyRetentionJob` (`config/recurring.yml`) keeps personal data no longer than the privacy notice says, and logs how many accounts, reports and history rows it removed:
@@ -240,7 +244,7 @@ Locally: `npx clerk@latest env pull --file .env.local` writes the development pu
 
 ### Steam import
 
-Administrators start and watch import runs at `/<locale>/back-office/import-runs`. The `import` queue has its own process, one thread (`bin/jobs -c config/queue_import.yml --skip-recurring`, the `import` role of `config/deploy.yml`); the key comes from `config/steam_api.key` through `.kamal/secrets`. A run that fails after its retries can be resumed from its cursor on its page, or, while it is the latest run that was not abandoned, abandoned ("Abandon this run", `Steam::AbandonImport`): an abandoned run is finished for good, blocks no new run, discards its staged rows, and is skipped when deciding whether a season can be published (the latest run that was not abandoned decides, and a failed one can be abandoned in turn). A failed run keeps its staged rows so a resume continues.
+Administrators start and watch import runs at `/<locale>/back-office/import-runs`. The `import` and `steam_library` queues have their own process, one thread (`bin/jobs -c config/queue_import.yml --skip-recurring`, the `import` role of `config/deploy.yml`); the key comes from `config/steam_api.key` through `.kamal/secrets`. A run that fails after its retries can be resumed from its cursor on its page, or, while it is the latest run that was not abandoned, abandoned ("Abandon this run", `Steam::AbandonImport`): an abandoned run is finished for good, blocks no new run, discards its staged rows, and is skipped when deciding whether a season can be published (the latest run that was not abandoned decides, and a failed one can be abandoned in turn). A failed run keeps its staged rows so a resume continues.
 
 A run goes through five steps: the app list (`GetAppList`), the review pass (`GetItems`, 100 games a call), the tag names (`GetTagList`), the details of the kept games (`GetItems`, in English and French), then the cards, whose scores are staged beside the draft season. Only the Steam Web API is called; the keyless store API (`appdetails`) is not, so a run takes minutes rather than hours. A card's genres are its tags among the curated list of `Steam::GenreTags`, most-voted first, and it sits in the tome of the first; a change of that list takes effect on "Rescore the cards" (without calling Steam) while the run's draft is unpublished, otherwise on the next import.
 

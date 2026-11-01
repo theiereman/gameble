@@ -1,7 +1,7 @@
 <% content_for :back_button, true %>
 <% content_for :phone_previous, true %>
 <% content_for :screen_title, t("library.collection.title") %>
-<% content_for :title, t("library.album.title", set: @custom_set.name) %>
+<% content_for :title, t("library.album.title", set: custom_set_display_name(@custom_set)) %>
 <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
 <% actions = capture do %>
   <% if @custom_set.custom? %>
@@ -10,5 +10,5 @@
       confirm: t("custom_sets.album.delete_confirm", name: @custom_set.name)) do %><%= t("custom_sets.album.delete") %><% end %>
   <% end %>
 <% end %>
-<%= render "library/album", standing: @standing, heading: @custom_set.name, slots: @album_slots, pagy: @album_pagy, filters: @album_filters,
+<%= render "library/album", standing: @standing, heading: custom_set_display_name(@custom_set), slots: @album_slots, pagy: @album_pagy, filters: @album_filters,
   context: {}, actions: actions.presence %>

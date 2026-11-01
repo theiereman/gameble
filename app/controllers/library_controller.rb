@@ -14,7 +14,8 @@ class LibraryController < ApplicationController
     load_set_search(@season, owner: current_player, offset: turbo_frame_request? ? tile_offset : 0)
     return render(:more_results) if turbo_frame_request_id.to_s.start_with?(MORE_RESULTS_FRAME)
 
-    @custom_sets = Game::CustomSetStandings.call(current_player).select(&:custom?)
+    @custom_sets = Game::CustomSetStandings.call(current_player, kind: Game::CustomSet::CUSTOM)
+    @steam_library = Game::CustomSetStandings.call(current_player, kind: Game::CustomSet::STEAM_LIBRARY).find(&:ever_synced?)
     load_unique_cards
   end
 

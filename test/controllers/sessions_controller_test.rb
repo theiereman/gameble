@@ -64,6 +64,25 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".toasts[role=status] > .toast", 0
   end
 
+  test "a Steam sign-in, first or returning, asks for the player's library set after it" do
+    sign_in_with_steam
+    player = new_players.sole
+    assert_enqueued_with(job: CreateSteamLibrarySetJob, args: [ player.id ])
+    clear_enqueued_jobs
+    delete session_path(locale: :en)
+
+    sign_in_with_steam
+
+    assert_enqueued_with(job: CreateSteamLibrarySetJob, args: [ player.id ])
+  end
+
+  test "a refused sign-in asks for no library set" do
+    mock_steam_sign_in(accounts_players(:banned).steam_id)
+    sign_in_with_steam
+
+    assert_no_enqueued_jobs(only: CreateSteamLibrarySetJob)
+  end
+
   test "a returning player who closed the welcome is greeted by the toast" do
     sign_in_with_steam
     Accounts::CloseWelcome.new.call(player_id: new_players.sole.id).value!
