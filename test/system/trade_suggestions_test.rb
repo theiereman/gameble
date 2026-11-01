@@ -74,8 +74,6 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
     assert_no_selector ".trade-side--own.trade-side--editing .trade-card__remove"
     assert_selector ".trade-suggestion--current .trade-suggestion__opener[aria-current='true']"
     eventually("focus on the board heading") { focused?("#trade-board-heading") }
-    find(".trade-side--friend .trade-card__remove[aria-label='Remove Green Hills']").click
-    assert_no_selector ".trade-card__remove[aria-label='Remove Green Hills']"
     assert_equal stored, lea_draft
 
     click_on "Abandon"

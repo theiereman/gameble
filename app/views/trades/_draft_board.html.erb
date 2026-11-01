@@ -1,6 +1,7 @@
 <% name = friend_name(friend) %>
+<% prefilled = local_assigns.fetch(:prefilled, false) %>
 <% data = trade_board_root_data(focus: "heading", editing: true, editor:, draft_key: trade_draft_key(current_player, friend),
-          prefilled: local_assigns.fetch(:prefilled, false)) %>
+          prefilled:, board_url: (new_trade_path(friend: friend.token) if prefilled)) %>
 <%= render PanelComponent.new(tag: :section, brackets: true, id: "trade-board", class: "trade-board trade-board--editing",
       aria: { labelledby: "trade-board-heading" }, data: data.merge(editing: true)) do %>
   <div class="trade-board__form">
@@ -16,7 +17,7 @@
           help: trade_open_help(friend) %>
     <div class="trade-board__actions">
       <%= form_with url: trades_path, method: :post, id: TradesHelper::DRAFT_FORM_ID, class: "trade-board__action-set",
-            data: { controller: "trade-board-send" } do %>
+            data: { controller: "trade-board-send", action: ("submit->trade-board#send" if prefilled) } do %>
         <%= hidden_field_tag :friend, friend.token, id: nil %>
         <%= render ButtonComponent.new(type: :submit) do %><%= t("trades.actions.send") %><% end %>
         <span class="trade-board__action" data-action="click->trade-board#abandon">

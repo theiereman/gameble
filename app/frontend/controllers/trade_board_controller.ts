@@ -12,6 +12,7 @@ import { opensElsewhere, type Intent } from "../lib/screen"
 import { serverTemplate } from "../lib/server_html"
 import { cloneContent } from "../lib/templates"
 import {
+  adopted,
   bySide,
   changed,
   clearFilters,
@@ -79,7 +80,7 @@ export class TradeBoardController extends Controller<HTMLElement> {
   declare readonly focusValue: string
   declare readonly forgetValue: string
   declare readonly draftKeyValue: string
-  declare readonly prefilledValue: boolean
+  declare prefilledValue: boolean
   declare readonly counterUrlValue: string
   declare readonly boardUrlValue: string
   declare readonly facesUrlValue: string
@@ -188,6 +189,12 @@ export class TradeBoardController extends Controller<HTMLElement> {
 
   abandon(): void {
     if (this.storedDraftKey) forgetDraft(this.storedDraftKey)
+  }
+
+  send(): void {
+    if (!this.prefilledValue) return
+    this.adopt()
+    this.persist()
   }
 
   removeLine({ detail: { side, key } }: Intent<SideIntent>): void {
@@ -299,6 +306,7 @@ export class TradeBoardController extends Controller<HTMLElement> {
   }
 
   private persist(): void {
+    if (this.prefilledValue && this.state && changed(this.state)) this.adopt()
     const state = this.state
     if (!state) return
     const key = this.storedDraftKey
@@ -307,6 +315,14 @@ export class TradeBoardController extends Controller<HTMLElement> {
       else forgetDraft(key)
     }
     if (this.hasTradeBoardSendOutlet) this.tradeBoardSendOutlet.render(!sendable(state))
+  }
+
+  private adopt(): void {
+    if (!this.state) return
+    this.prefilledValue = false
+    this.state = adopted(this.state)
+    for (const line of this.lineTargets) line.remove()
+    this.replaceUrl(this.boardUrlValue)
   }
 
   private get storedDraftKey(): string {
@@ -352,7 +368,7 @@ export class TradeBoardController extends Controller<HTMLElement> {
   private replaceUrl(url: string): void {
     if (!url) return
     const next = new URL(url, window.location.href)
-    if (next.pathname === window.location.pathname) return
+    if (next.pathname + next.search === window.location.pathname + window.location.search) return
     window.history.replaceState(window.history.state, "", next)
     recordEntry(currentIndex(), next.pathname, sessionTrailStorage(), currentScreenLabel(), currentScreenLabels())
   }

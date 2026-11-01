@@ -48,6 +48,18 @@ module Game
            OR (game_trades.recipient_id = :player_id AND game_trades.proposer_id IN (:friend_ids) AND game_trade_items.side = 'offer'))
     SQL
 
+    ON_HOLDER_SIDE = <<~SQL.squish.freeze
+      SELECT DISTINCT catalog_card_seasons.card_id
+        FROM game_trade_items
+        JOIN game_trades ON game_trades.id = game_trade_items.trade_id
+        JOIN catalog_card_seasons ON catalog_card_seasons.id = game_trade_items.card_season_id
+       WHERE game_trades.status = 'open' AND game_trades.expires_at > :now
+         AND ((game_trades.proposer_id = :holder_id AND game_trades.recipient_id = :other_id AND game_trade_items.side = 'offer')
+           OR (game_trades.proposer_id = :other_id AND game_trades.recipient_id = :holder_id AND game_trade_items.side = 'request'))
+    SQL
+
+    CARDS_OF_SEASONS = "SELECT id, card_id FROM catalog_card_seasons WHERE id IN (:card_season_ids)".freeze
+
     def self.call(player, now: Time.current)
       return NONE unless Visibility.open_to_friends?(player)
 
@@ -102,10 +114,29 @@ module Game
       spares.to_h { |friend_id, list| [ friend_id, list.sort_by(&:rank) ] }
     end
 
+    def self.still_spared(card_season_ids, holder:, other:, now: Time.current)
+      return [] if card_season_ids.empty?
+
+      card_ids = card_ids_of(card_season_ids)
+      return [] if card_ids.empty?
+
+      taken = on_holder_side(holder, other, now)
+      editions = free_editions([ holder.id ], card_ids.values.uniq)
+      card_season_ids.select do |id|
+        card_id = card_ids[id.to_i]
+        next false if card_id.nil? || taken.include?(card_id)
+
+        spare_editions(editions.fetch([ holder.id, card_id ], [])).any? { it.card_season_id == id.to_i }
+      end
+    end
+
     def self.placed_edition(editions)
+      spare_editions(editions).max_by { [ it.free, -it.season_number ] }
+    end
+
+    def self.spare_editions(editions)
       kept = editions.max_by { [ it.rarity, -it.season_number ] }
-      remaining = editions.map { it == kept ? it.with(free: it.free - 1) : it }.select { it.free.positive? }
-      remaining.max_by { [ it.free, -it.season_number ] }
+      editions.map { it == kept ? it.with(free: it.free - 1) : it }.select { it.free.positive? }
     end
 
     def self.free_editions(friend_ids, card_ids)
@@ -124,6 +155,16 @@ module Game
       Trade.connection.select_rows(sql, "Game::TradeSuggestions.in_open_trades").to_set { |friend_id, card_id| [ friend_id.to_i, card_id.to_i ] }
     end
 
+    def self.card_ids_of(card_season_ids)
+      sql = Holding.sanitize_sql_array([ CARDS_OF_SEASONS, { card_season_ids: } ])
+      Holding.connection.select_rows(sql, "Game::TradeSuggestions.card_ids_of").to_h { |id, card_id| [ id.to_i, card_id.to_i ] }
+    end
+
+    def self.on_holder_side(holder, other, now)
+      sql = Trade.sanitize_sql_array([ ON_HOLDER_SIDE, { holder_id: holder.id, other_id: other.id, now: } ])
+      Trade.connection.select_rows(sql, "Game::TradeSuggestions.on_holder_side").to_set { |(card_id)| card_id.to_i }
+    end
+
     def self.friendship_dates(player)
       Friendship.of(player.id).pluck(:low_player_id, :high_player_id, :created_at)
         .to_h { |low, high, created_at| [ low == player.id ? high : low, created_at ] }
@@ -131,5 +172,6 @@ module Game
 
     private_class_method :goal_positions_by_card, :suggestions, :fill, :spares_by_friend, :placed_edition, :free_editions,
       :in_open_trades, :friendship_dates
+    private_class_method :spare_editions, :card_ids_of, :on_holder_side
   end
 end

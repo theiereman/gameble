@@ -227,6 +227,10 @@ export function restore(state: BoardState): BoardState {
   return { ...state, editing: false, lines: state.received, picker: null }
 }
 
+export function adopted(state: BoardState): BoardState {
+  return { ...state, received: { friend: [], own: [] } }
+}
+
 function withLines(state: BoardState, side: Side, lines: readonly Line[]): BoardState {
   return { ...state, lines: { ...state.lines, [side]: lines } }
 }

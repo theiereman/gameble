@@ -162,7 +162,9 @@ class TradesController < ApplicationController
       keys = { take: prefill_keys(params[:take]), give: prefill_keys(params[:give]) }
       ids = Catalog::PublishedCardSeasonIds.call(keys.values.flatten.filter_map { helpers.trade_card_key_parts(it) })
       sides = keys.transform_values { |side| side.filter_map { (parts = helpers.trade_card_key_parts(it)) && ids[parts] } }
-      TradeSuggestionsHelper::Prefill.new(friend:, **sides)
+      TradeSuggestionsHelper::Prefill.new(friend:,
+        take: Game::TradeSuggestions.still_spared(sides[:take], holder: friend, other: current_player),
+        give: Game::TradeSuggestions.still_spared(sides[:give], holder: current_player, other: friend))
     end
 
     def prefill_keys(keys)

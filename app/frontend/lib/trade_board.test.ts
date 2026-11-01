@@ -5,6 +5,7 @@ import {
   EMPTY_FILTER,
   FRESH_PICKER_FILTERS,
   activeChips,
+  adopted,
   cardOf,
   changed,
   clearFilters,
@@ -370,6 +371,27 @@ describe("the board", () => {
 
     it("keeps the friend's side as taken and the player's as given", () => {
       expect(draftSides(board())).toEqual({ take: lines(["depths", 1]), give: lines(["portal", 2]) })
+    })
+  })
+
+  describe("adopted", () => {
+    it("keeps the lines, the picker and the filters, and starts from an empty board", () => {
+      const filters = {
+        friend: FRESH_PICKER_FILTERS,
+        own: { filter: { ...EMPTY_FILTER, query: "portal" }, folded: false },
+      }
+      const state = openPicker(edit(board({ filters })), "own")
+      const taken = adopted(state)
+      expect(taken.lines).toBe(state.lines)
+      expect(taken.received).toEqual({ friend: [], own: [] })
+      expect(taken.picker).toBe(state.picker)
+      expect(taken.filters).toBe(filters)
+    })
+
+    it("is changed while it holds a line, and unchanged once emptied", () => {
+      expect(changed(adopted(board()))).toBe(true)
+      const emptied = removeLine(removeLine(adopted(board()), "friend", "depths"), "own", "portal")
+      expect(changed(emptied)).toBe(false)
     })
   })
 
