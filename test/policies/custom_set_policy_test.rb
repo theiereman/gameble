@@ -8,20 +8,20 @@ class CustomSetPolicyTest < ActiveSupport::TestCase
     CustomSetPolicy.new(role == :visitor ? nil : accounts_players(role), record)
   end
 
-  test "a visitor may not make a set" do
-    %i[new? create? picker?].each { assert_not policy_for(:visitor).public_send(it) }
+  test "a visitor may not make a set or browse its games" do
+    %i[create? games?].each { assert_not policy_for(:visitor).public_send(it) }
   end
 
   [ :player, :moderator, :administrator ].each do |role|
-    test "a #{role} may make a set" do
-      %i[new? create? picker?].each { assert policy_for(role).public_send(it) }
+    test "a #{role} may make a set and browse its games" do
+      %i[create? games?].each { assert policy_for(role).public_send(it) }
     end
   end
 
   test "only its author may open, edit or delete a set, staff included" do
     custom_set = create_custom_set(accounts_players(:player))
 
-    %i[show? edit? update? destroy?].each do |query|
+    %i[show? update? destroy?].each do |query|
       assert policy_for(:player, custom_set).public_send(query)
       assert_not policy_for(:moderator, custom_set).public_send(query)
       assert_not policy_for(:administrator, custom_set).public_send(query)

@@ -3,7 +3,7 @@ require_relative "../../support/game_packs"
 require_relative "../../support/game_sets"
 require_relative "../../support/custom_sets"
 
-# Creating, renaming and deleting a player's own sets: a named list of 3 to
+# Creating, editing and deleting a player's own sets: a named list of 3 to
 # 50 published games, 10 sets at most, a name unique to the player whatever
 # its case; each change writes one event, a refusal writes nothing.
 class Game::CustomSetOperationsTest < ActiveSupport::TestCase
@@ -19,7 +19,11 @@ class Game::CustomSetOperationsTest < ActiveSupport::TestCase
     Game::CreateCustomSet.new.call(player:, name:, card_ids:)
   end
 
-  def rename(token, name, player: @player) = Game::RenameCustomSet.new.call(player:, token:, name:)
+  def edit(token, name: "Mes favoris", card_ids: fixture_card_ids.first(3), player: @player)
+    Game::EditCustomSet.new.call(player:, token:, name:, card_ids:)
+  end
+
+  def games_of(custom_set) = Game::CustomSetGame.where(custom_set_id: custom_set.id).order(:id).pluck(:card_id)
 
   def delete(token, player: @player) = Game::DeleteCustomSet.new.call(player:, token:)
 
@@ -124,38 +128,50 @@ class Game::CustomSetOperationsTest < ActiveSupport::TestCase
 
     [ nil, Accounts::Player.new, accounts_players(:banned), deleted ].each do |player|
       assert_refused(:player_required) { create(player:) }
-      assert_refused(:player_required) { rename(token, "Autre", player:) }
+      assert_refused(:player_required) { edit(token, name: "Autre", player:) }
       assert_refused(:player_required) { delete(token, player:) }
     end
   end
 
-  test "a rename keeps the games, writes one event, and may keep the set's own name in another case" do
+  test "an edit replaces the name and the games in their new order and writes one event" do
+    custom_set = create.value!
+    ids = fixture_card_ids.values_at(4, 1, 0, 3)
+
+    assert_equal "Jeux du soir", edit(custom_set.token, name: " Jeux du soir ", card_ids: ids + [ ids.first ]).value!.name
+
+    assert_equal [ "Jeux du soir", ids ], [ custom_set.reload.name, games_of(custom_set) ]
+    assert_equal [ { player_id: @player.id, custom_set_id: custom_set.id } ], game_events(@player, Game::CustomSetEdited).map(&:data)
+  end
+
+  test "an edit may keep the set's own name, in another case, and change its games only" do
     custom_set = create.value!
 
-    assert_equal "Jeux du soir", rename(custom_set.token, " Jeux du soir ").value!.name
-    assert rename(custom_set.token, "JEUX DU SOIR").success?
+    assert edit(custom_set.token, name: "MES FAVORIS", card_ids: fixture_card_ids.last(3)).success?
 
-    assert_equal "JEUX DU SOIR", custom_set.reload.name
-    assert_equal 3, Game::CustomSetGame.where(custom_set_id: custom_set.id).count
-    assert_equal [ { player_id: @player.id, custom_set_id: custom_set.id } ] * 2, game_events(@player, Game::CustomSetRenamed).map(&:data)
+    assert_equal [ "MES FAVORIS", fixture_card_ids.last(3) ], [ custom_set.reload.name, games_of(custom_set) ]
   end
 
-  test "a rename to another set's name, blank or too long is refused" do
+  test "an edit to another set's name, blank or too long, or to too few, too many or unpublished games is refused and changes nothing" do
+    _season, card_season_ids = published_cards(51)
+    many = Catalog::CardSeason.where(id: card_season_ids).order(:id).pluck(:card_id)
     create(name: "Autre").value!
-    token = create.value!.token
+    custom_set = create.value!
 
-    assert_refused(:name_taken) { rename(token, "autre") }
-    assert_refused(:name_required) { rename(token, " ") }
-    assert_refused(:name_too_long) { rename(token, "a" * 41) }
-    assert_equal "Mes favoris", Game::CustomSet.find_by!(token:).name
+    assert_refused(:name_taken) { edit(custom_set.token, name: "autre") }
+    assert_refused(:name_required) { edit(custom_set.token, name: " ") }
+    assert_refused(:name_too_long) { edit(custom_set.token, name: "a" * 41) }
+    assert_refused(:too_few_games) { edit(custom_set.token, card_ids: fixture_card_ids.first(2)) }
+    assert_refused(:too_many_games) { edit(custom_set.token, card_ids: many) }
+    assert_refused(:game_not_in_catalog) { edit(custom_set.token, card_ids: fixture_card_ids.first(2) + [ -1 ]) }
+    assert_equal [ "Mes favoris", fixture_card_ids.first(3) ], [ custom_set.reload.name, games_of(custom_set) ]
   end
 
-  test "another player's set, a library set or an unknown token is not found by a rename or a delete" do
+  test "another player's set, a library set or an unknown token is not found by an edit or a delete" do
     theirs = create(player: accounts_players(:moderator)).value!.token
     library = Game::CustomSet.create!(player_id: @player.id, kind: Game::CustomSet::STEAM_LIBRARY).token
 
     [ theirs, library, "1" * 24, nil, 42 ].each do |token|
-      assert_refused(:custom_set_not_found) { rename(token, "Autre") }
+      assert_refused(:custom_set_not_found) { edit(token, name: "Autre") }
       assert_refused(:custom_set_not_found) { delete(token) }
     end
   end
@@ -175,11 +191,14 @@ class Game::CustomSetOperationsTest < ActiveSupport::TestCase
   test "every refusal has a message in both locales" do
     %i[name_required name_too_long name_taken too_few_games too_many_games too_many_sets game_not_in_catalog custom_set_not_found].each do |code|
       %i[en fr].each do |locale|
-        assert_not I18n.with_locale(locale) { Game::CreateCustomSet.failure_message(code) }.start_with?("Translation missing"), "#{code} in #{locale}"
+        assert_not I18n.with_locale(locale) { Game::CreateCustomSet.failure_message(code, count: 1) }.start_with?("Translation missing"), "#{code} in #{locale}"
         assert I18n.exists?(Game::CreateCustomSet.failure_key(code), locale), "#{code} in #{locale}"
       end
     end
-    assert_equal "Nom déjà pris : un autre de vos sets porte ce nom.", I18n.with_locale(:fr) { Game::CreateCustomSet.failure_message(:name_taken) }
+    assert_equal "NOM DÉJÀ PRIS · Un autre de vos sets porte ce nom.", I18n.with_locale(:fr) { Game::CreateCustomSet.failure_message(:name_taken) }
+    assert_equal [ "3 JEUX AU MOINS · Ajoutez encore 1 jeu pour enregistrer le set.", "3 JEUX AU MOINS · Ajoutez encore 2 jeux pour enregistrer le set." ],
+      [ 1, 2 ].map { |count| I18n.with_locale(:fr) { Game::CreateCustomSet.failure_message(:too_few_games, count:) } }
+    assert_equal "3 GAMES AT LEAST · Add 2 more games to save the set.", I18n.with_locale(:en) { Game::CreateCustomSet.failure_message(:too_few_games, count: 2) }
   end
 
   test "the database holds one library set per player, a custom set's name to 40 characters and no sync state on a custom set" do

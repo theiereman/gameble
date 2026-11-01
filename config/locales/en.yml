@@ -784,34 +784,47 @@ en:
   custom_sets:
     album:
       delete: Delete
-      delete_confirm: Delete “%{name}”?
       edit: Edit
+    delete_dialog:
+      cancel: Cancel
+      close: Close
+      confirm: Delete
+      text: The set leaves your sets, with its goal if it is one. Your cards stay in your collection.
+      title: Delete “%{name}”?
     deleted:
       text: "“%{name}” is no longer one of your sets."
       title: Set deleted
-    edit:
-      heading: Edit the set
-      title: Edit the set · Collection · Gameble
-    form:
+    editor:
       cancel: Cancel
+      chips:
+        all: All
+        missing: Missing
+        owned: Owned
+      close: Close
+      edit_title: Edit the set
+      empty: No game to show.
+      filters: Show
+      load_more: Load more
+      loading: Loading the games…
       name: Set name
+      new_title: New set
+      none: No game found for “%{query}”.
+      owned: "%{title}, owned"
+      placeholder: Search a game of the catalog
+      range: "%{min} to %{max}"
       save: Save
+      search: Search a game
+      strings:
+        games:
+          one: "%{count} game"
+          other: "%{count} games"
+          zero: "%{count} games"
+        in_set: ", in the set"
+        name_count: "%{count} / %{max}"
+        picked: Selected · %{count}
+      unowned: "%{title}, not owned"
     library:
       name: My Steam library
-    new:
-      heading: New set
-      title: New set · Collection · Gameble
-    picker:
-      counter:
-        one: "%{count} game · %{min} to %{max}"
-        other: "%{count} games · %{min} to %{max}"
-        zero: "%{count} games · %{min} to %{max}"
-      found: Results
-      none: No game found for “%{query}”.
-      picked: Selected · %{games}
-      placeholder: Search a game of the catalog
-      search: Find a game
-      search_button: Search
     throttled: Too many changes to your sets in a minute. Try again in a moment.
   daily_bonuses:
     create:
@@ -957,13 +970,16 @@ en:
       goal_set_complete: This set is already complete.
       goal_set_not_found: This set is not in the published season.
       game_not_in_catalog: A chosen game is not in the catalog. Reload the page and try again.
-      name_required: 'Name required: give your set a name.'
-      name_taken: 'Name taken: another of your sets has this name.'
+      name_required: NAME REQUIRED · Give your set a name.
+      name_taken: NAME TAKEN · Another of your sets has this name.
       name_too_long: '40 characters at most: shorten the name of the set.'
-      too_few_games: '3 games at least: add games to save the set.'
-      too_many_games: '50 games at most: remove a game to add another.'
+      too_few_games:
+        one: 3 GAMES AT LEAST · Add %{count} more game to save the set.
+        other: 3 GAMES AT LEAST · Add %{count} more games to save the set.
+        zero: 3 GAMES AT LEAST · Add %{count} more games to save the set.
+      too_many_games: 50 GAMES AT MOST · Remove a game to add another.
       too_many_goals: 5 goals at most. Remove a goal to add another one.
-      too_many_sets: '10 sets at most: remove a set to create another.'
+      too_many_sets: 10 SETS AT MOST · Remove a set to create another.
       friend_profile_private: "%{name}'s profile is private: trades are closed."
       insufficient_copies: 'You do not have enough free copies of an offered card:
         some are already in another trade.'

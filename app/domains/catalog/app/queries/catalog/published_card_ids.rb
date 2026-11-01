@@ -21,6 +21,13 @@ module Catalog
       published_cards.where(slug: slugs).pluck(:slug, :id).to_h
     end
 
+    def self.slugs(card_ids)
+      ids = card_ids.grep(Integer).uniq
+      return {} if ids.empty?
+
+      published_cards.where(id: ids).pluck(:id, :slug).to_h
+    end
+
     def self.published_cards
       Card.where(id: CardSeason.where.not(rarity: nil).joins(:season).where(catalog_seasons: { status: "published" }).select(:card_id))
     end

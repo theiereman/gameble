@@ -6,7 +6,8 @@ require_relative "../../support/custom_sets"
 require_relative "../../support/holdings"
 
 # A goal leaves the goals by itself, freeing its number: when an opening or
-# a trade completes its set, within that change; when a newly published
+# a trade completes its set, or its owner edits a custom set down to games
+# they hold, within that change; when a newly published
 # season no longer holds its game set; with its custom set.
 class Game::GoalsReachedTest < ActiveSupport::TestCase
   include GamePacks
@@ -44,6 +45,28 @@ class Game::GoalsReachedTest < ActiveSupport::TestCase
     Game::OpenPack.new.call(player: @player).value!
 
     assert_equal [ [ 1, "studio", "valve", nil ] ], goals
+  end
+
+  test "a custom set its owner edits down to games they all hold leaves the goals" do
+    custom_set = create_custom_set(@player, card_ids: fixture_card_ids.values_at(0, 1, 4))
+    hold(@player, catalog_card_seasons(:common_card_one).id)
+    hold(@player, catalog_card_seasons(:legendary_card_one).id)
+    hold(@player, @portal)
+    add(custom_set: custom_set.token)
+
+    Game::EditCustomSet.new.call(player: @player, token: custom_set.token, name: custom_set.name, card_ids: fixture_card_ids.values_at(0, 3, 4)).value!
+
+    assert_empty goals
+  end
+
+  test "a custom set edited without completing it keeps its goal" do
+    custom_set = create_custom_set(@player, card_ids: fixture_card_ids.values_at(0, 1, 4))
+    hold(@player, catalog_card_seasons(:common_card_one).id)
+    add(custom_set: custom_set.token)
+
+    Game::EditCustomSet.new.call(player: @player, token: custom_set.token, name: "Mes jeux", card_ids: fixture_card_ids.values_at(0, 2, 4)).value!
+
+    assert_equal [ [ 1, nil, nil, custom_set.id ] ], goals
   end
 
   test "a custom set completed by an opening leaves the goals" do

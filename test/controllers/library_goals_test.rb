@@ -136,7 +136,7 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get custom_set_path(locale: :fr, token: custom_set.token)
-    assert_select ".set-album__actions > #set-album-goal + a.button", "Modifier"
+    assert_select ".set-album__actions > #set-album-goal + .button", "Modifier"
     assert_select "#set-album-goal input[name=custom_set][value='#{custom_set.token}']"
 
     get custom_set_path(locale: :fr, token: library.token)

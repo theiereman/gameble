@@ -1,7 +1,7 @@
 module Game
   module Handlers
     module GoalsReached
-      EVENTS = [ Game::PackOpened, Game::TradeAccepted ].freeze
+      EVENTS = [ Game::PackOpened, Game::TradeAccepted, Game::CustomSetEdited ].freeze
 
       def self.call(event)
         data = event.data

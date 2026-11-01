@@ -16,6 +16,7 @@
     </ul>
   <% end %>
   <% if custom_sets.size < Game::CustomSet::PER_PLAYER %>
-    <%= render ButtonComponent.new(variant: :secondary, href: new_custom_set_path) do %><%= t("library.entry.custom_sets.new") %><% end %>
+    <%= render ButtonComponent.new(variant: :secondary, opens: "custom-set-editor") do %><%= t("library.entry.custom_sets.new") %><% end %>
+    <%= render "custom_sets/editor" %>
   <% end %>
 </section>

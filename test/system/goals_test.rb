@@ -48,7 +48,7 @@ class GoalsTest < ApplicationSystemTestCase
 
     visit library_set_path(locale: :en, kind: "theme", key: "roguelike")
     press_goal_button("GOAL 1 · REMOVE")
-    assert_equal "Goal 1, Roguelike. Remove from goals", goal_button["aria-label"]
+    assert_selector "#set-album-goal .goal-button[aria-label='Goal 1, Roguelike. Remove from goals']"
     assert_selector ".set-album__header #set-album-goal.goal-control--set.goal-tone--1"
 
     visit custom_set_path(locale: :en, token: custom_set.token)

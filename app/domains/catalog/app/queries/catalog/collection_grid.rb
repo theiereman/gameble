@@ -56,6 +56,5 @@ module Catalog
         locale.to_s, pattern, pattern
       ])
     end
-    private_class_method :text_match
   end
 end

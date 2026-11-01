@@ -1,0 +1,16 @@
+<%= turbo_frame_tag(@page == 1 ? "custom-set-games" : "custom-set-games-page-#{@page}") do %>
+  <% if @games.any? %>
+    <ul class="custom-set-editor__grid" aria-labelledby="custom-set-editor-title"
+        data-custom-set-editor-target="<%= @page == 1 ? "grid" : "page" %>" data-action="keydown->custom-set-editor#keydown">
+      <%= render partial: "custom_sets/game", collection: @games, as: :game %>
+    </ul>
+  <% elsif @page == 1 %>
+    <p class="custom-set-editor__note"><%= @query.present? ? t("custom_sets.editor.none", query: @query) : t("custom_sets.editor.empty") %></p>
+  <% end %>
+  <% if @more %>
+    <%= turbo_frame_tag "custom-set-games-page-#{@page + 1}", class: "custom-set-editor__more" do %>
+      <%= render ButtonComponent.new(variant: :secondary, href: custom_set_games_path(q: @query.presence, state: (@state unless @state == "all"),
+            games: @picked.presence, page: @page + 1)) do %><%= t("custom_sets.editor.load_more") %><% end %>
+    <% end %>
+  <% end %>
+<% end %>

@@ -1,0 +1,294 @@
+/* ---- The custom set editor: a wide modal over the collection, a full-height
+   sheet on the phone; the name, the search and its chips, the grid of the
+   catalog's games and the foot with the counter, the refusal and the buttons.
+   Then the delete-set dialog. ---- */
+
+.custom-set-editor__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-height: calc(100dvh - 2 * var(--space-7));
+}
+
+.custom-set-editor__panel .modal__head {
+  margin: 0;
+}
+
+.custom-set-editor__form,
+.custom-set-editor__filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+}
+
+.custom-set-editor__name {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--space-3) var(--space-4);
+}
+
+.custom-set-editor__name .custom-set-editor__input {
+  grid-column: 1 / -1;
+}
+
+.custom-set-editor__label {
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.custom-set-editor__name-count {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.custom-set-editor__input {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: var(--space-button-height);
+  padding: var(--space-1) var(--space-5);
+  background: var(--color-input);
+  border: 0;
+  box-shadow: var(--control-border);
+  color: var(--color-text-max);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.custom-set-editor__input:focus-visible {
+  outline: 0;
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.custom-set-editor__inputs {
+  display: none;
+}
+
+.custom-set-editor__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.custom-set-editor__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-4) var(--space-2);
+}
+
+.custom-set-editor__games {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.custom-set-editor__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--card-s-width) + var(--space-4)), 1fr));
+  justify-items: center;
+  gap: var(--space-7) var(--space-4);
+  width: 100%;
+  margin: 0;
+  padding: var(--space-3) 0;
+  list-style: none;
+}
+
+.custom-set-editor__note {
+  align-self: stretch;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.custom-set-game__card {
+  position: relative;
+  display: block;
+  width: var(--card-s-width);
+  height: var(--card-s-height);
+}
+
+/* A picked card: a steady 3px lime frame 9px outside it. */
+.custom-set-game__card::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  z-index: 3;
+  box-shadow: inset 0 0 0 3px transparent;
+  pointer-events: none;
+}
+
+.custom-set-game--picked .custom-set-game__card::before {
+  box-shadow: inset 0 0 0 3px var(--color-lime);
+}
+
+.custom-set-game__check {
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  z-index: 3;
+  width: 26px;
+  height: 26px;
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 2px var(--color-line-deep);
+  color: var(--color-on-lime);
+  font: var(--font-button);
+  line-height: 26px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.custom-set-game--picked .custom-set-game__check {
+  background: var(--color-lime);
+  box-shadow: 0 0 0 2px var(--color-outline);
+}
+
+.custom-set-game--picked .custom-set-game__check::before {
+  content: "\2713" / "";
+}
+
+.custom-set-game__toggle {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.custom-set-game__toggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@keyframes custom-set-game-refused {
+  from,
+  to {
+    box-shadow: inset 0 0 0 3px var(--color-alert);
+  }
+}
+
+/* The 51st game: the card flashes an alert frame for an instant. */
+.custom-set-game--refused .custom-set-game__card::before {
+  animation: custom-set-game-refused 400ms steps(1, end);
+}
+
+html[data-motion="reduced"] .custom-set-game--refused .custom-set-game__card::before {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .custom-set-game--refused .custom-set-game__card::before {
+    animation: none;
+  }
+}
+
+.custom-set-editor__more {
+  display: flex;
+  justify-content: center;
+}
+
+.custom-set-editor__foot {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "count refusal actions";
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+}
+
+.custom-set-editor__count {
+  grid-area: count;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.custom-set-editor__count b {
+  color: var(--color-text-max);
+  font: var(--font-button);
+}
+
+.custom-set-editor__range {
+  color: var(--color-muted);
+  font: var(--font-button-sm);
+}
+
+.custom-set-editor__refusal {
+  grid-area: refusal;
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-body-small);
+}
+
+.custom-set-editor__refusal:empty {
+  display: none;
+}
+
+.custom-set-editor__actions {
+  grid-area: actions;
+  display: flex;
+  gap: var(--space-4);
+}
+
+.delete-custom-set__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.delete-custom-set__text {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.delete-custom-set__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+@media (max-width: 719px) {
+  .custom-set-editor {
+    width: 100%;
+    max-width: var(--space-phone-column-max);
+    height: 100dvh;
+    max-height: none;
+    margin: 0 auto;
+  }
+
+  .custom-set-editor__panel {
+    height: 100%;
+    max-height: none;
+    box-sizing: border-box;
+  }
+
+  .custom-set-editor__foot {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "count"
+      "refusal"
+      "actions";
+  }
+
+  .custom-set-editor__actions .button {
+    flex: 1;
+    min-height: var(--space-button-height-phone);
+  }
+}

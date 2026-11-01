@@ -1,0 +1,72 @@
+<%# locals: (custom_set: nil, picks: []) %>
+<% editing = !custom_set.nil? %>
+<% name = editing ? custom_set.name : "" %>
+<% strings = screen_strings("custom_sets.editor.strings") %>
+<% limit = Game::CustomSet::NAME_LIMIT %>
+<%= tag.dialog id: "custom-set-editor", class: "modal modal--wide custom-set-editor", aria: { labelledby: "custom-set-editor-title" },
+      data: { controller: "dialog custom-set-editor", action: "click->dialog#closeOnScrim close->custom-set-editor#closed",
+              custom_set_editor_games_url_value: custom_set_games_path, custom_set_editor_max_value: Game::CustomSet::GAMES.max,
+              custom_set_editor_name_limit_value: limit, custom_set_editor_strings_value: strings } do %>
+  <div class="panel panel--brackets modal__panel custom-set-editor__panel">
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="custom-set-editor-title" class="modal__title"><%= editing ? t(".edit_title") : t(".new_title") %></p>
+      <button type="button" class="modal__close" aria-label="<%= t(".close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= form_with url: editing ? custom_set_path(token: custom_set.token) : custom_sets_path, method: editing ? :patch : :post,
+          id: "custom-set-editor-form", class: "custom-set-editor__form" do %>
+      <div class="custom-set-editor__name">
+        <label for="custom-set-name" class="custom-set-editor__label"><%= t(".name") %></label>
+        <span id="custom-set-name-count" class="custom-set-editor__name-count" data-custom-set-editor-target="nameCount"><%= t("custom_sets.editor.strings.name_count", count: name.length, max: limit) %></span>
+        <%= text_field_tag :name, name, id: "custom-set-name", class: "custom-set-editor__input", maxlength: limit, autocomplete: "off", autofocus: true,
+              aria: { describedby: "custom-set-name-count" }, data: { custom_set_editor_target: "name", action: "input->custom-set-editor#named" } %>
+      </div>
+      <div class="custom-set-editor__inputs" data-custom-set-editor-target="inputs">
+        <% picks.each do |slug| %>
+          <%= hidden_field_tag "games[]", slug, id: nil %>
+        <% end %>
+      </div>
+    <% end %>
+    <div class="custom-set-editor__filters" role="search">
+      <label for="custom-set-search" class="custom-set-editor__label"><%= t(".search") %></label>
+      <%= search_field_tag :q, "", id: "custom-set-search", class: "filters__search-field custom-set-editor__search", autocomplete: "off",
+            maxlength: Catalog::CollectionGrid::MAX_QUERY, placeholder: t(".placeholder"),
+            data: { custom_set_editor_target: "search", action: "input->custom-set-editor#typed compositionend->custom-set-editor#typed" } %>
+      <fieldset class="custom-set-editor__chips">
+        <legend class="visually-hidden"><%= t(".filters") %></legend>
+        <% CustomSetEditing::GAME_STATES.each do |state| %>
+          <label class="filter-chip">
+            <%= radio_button_tag "custom-set-state", state, state == CustomSetEditing::GAME_STATES.first, id: nil, class: "filter-chip__box",
+                  data: { custom_set_editor_target: "chip", action: "change->custom-set-editor#filtered" } %>
+            <% if state == "picked" %>
+              <span class="filter-chip__text" data-custom-set-editor-target="pickedChip"><%= t("custom_sets.editor.strings.picked", count: picks.size) %></span>
+            <% else %>
+              <span class="filter-chip__text"><%= t(".chips.#{state}") %></span>
+            <% end %>
+          </label>
+        <% end %>
+      </fieldset>
+    </div>
+    <div class="custom-set-editor__body" data-custom-set-editor-target="body">
+      <%= turbo_frame_tag "custom-set-games", src: custom_set_games_path, loading: :lazy, class: "custom-set-editor__games",
+            data: { custom_set_editor_target: "frame" } do %>
+        <p class="custom-set-editor__note"><%= t(".loading") %></p>
+      <% end %>
+    </div>
+    <div class="custom-set-editor__foot">
+      <p class="custom-set-editor__count" aria-live="polite">
+        <b data-custom-set-editor-target="count"><%= t("custom_sets.editor.strings.games", count: picks.size) %></b>
+        <span class="custom-set-editor__range"><%= t(".range", min: Game::CustomSet::GAMES.min, max: Game::CustomSet::GAMES.max) %></span>
+      </p>
+      <p id="<%= CustomSetEditing::REFUSAL %>" class="custom-set-editor__refusal" role="alert" data-custom-set-editor-target="refusal"></p>
+      <div class="custom-set-editor__actions">
+        <%= tag.button t(".cancel"), type: :button, class: "button button--secondary", data: { action: "dialog#close" } %>
+        <%= tag.button t(".save"), type: :submit, form: "custom-set-editor-form", class: "button button--primary" %>
+      </div>
+    </div>
+  </div>
+  <template data-custom-set-editor-target="inputTemplate"><%= hidden_field_tag "games[]", "", id: nil %></template>
+  <template data-custom-set-editor-target="limitTemplate"><%= Game::CreateCustomSet.failure_message(:too_many_games) %></template>
+<% end %>

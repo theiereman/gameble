@@ -1,0 +1,10 @@
+<%# locals: (game:) %>
+<% label = game.owned ? t("custom_sets.editor.owned", title: game.card.title) : t("custom_sets.editor.unowned", title: game.card.title) %>
+<li class="custom-set-game" data-custom-set-editor-target="game" data-key="<%= game.card.id %>">
+  <span class="custom-set-game__card">
+    <%= render CardComponent.new(card: game.card, size: :s, owned: game.owned) %>
+    <span class="custom-set-game__check" aria-hidden="true"></span>
+    <%= tag.button type: :button, class: "custom-set-game__toggle", tabindex: -1, aria: { pressed: "false", label: },
+          data: { label:, action: "custom-set-editor#toggle" } %>
+  </span>
+</li>

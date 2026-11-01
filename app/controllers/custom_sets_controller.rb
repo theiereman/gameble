@@ -1,6 +1,6 @@
 class CustomSetsController < ApplicationController
   include SetAlbumLoading
-  include CustomSetPicking
+  include CustomSetEditing
   include GoalControlLoading
 
   throttle_player to: 20, only: %i[create update destroy], path: -> { library_path }, alert: "custom_sets.throttled"
@@ -14,6 +14,7 @@ class CustomSetsController < ApplicationController
     raise ActiveRecord::RecordNotFound if @custom_set.nil?
 
     @standing = @custom_set.to_set_standing
+    @picks = editor_picks(@custom_set.card_ids) if @custom_set.custom?
     editions = Game::HeldGames.editions(current_player, card_ids: @custom_set.card_ids, season: @season)
     load_album_slots(album_members(@custom_set.card_ids, editions), editions, with_new: true)
     load_goal_control(custom_set: @custom_set.token) if @custom_set.custom?
@@ -21,40 +22,29 @@ class CustomSetsController < ApplicationController
     @season_cards = Catalog::CardCount.call(@season)
   end
 
-  def new
-    authorize :custom_set, :new?
-    load_picker([])
-  end
+  def games
+    authorize :custom_set, :games?
+    return redirect_to(library_path) unless turbo_frame_request?
 
-  def picker
-    authorize :custom_set, :picker?
-    load_picker(picked_slugs)
-    render :new
+    load_games_page
   end
 
   def create
     authorize :custom_set, :create?
-    slugs = picked_slugs
-    result = Game::CreateCustomSet.new.call(player: current_player, name: params[:name], card_ids: picked_card_ids(slugs))
-    return redirect_to(custom_set_path(token: result.value!.token), status: :see_other) if result.success?
+    card_ids = picked_card_ids(picked_slugs)
+    result = Game::CreateCustomSet.new.call(player: current_player, name: params[:name], card_ids:)
+    return redirect_to(library_path, status: :see_other) if result.success?
 
-    @refusal = Game::CreateCustomSet.failure_message(result.failure)
-    load_picker(slugs)
-    render :new, status: :unprocessable_content
-  end
-
-  def edit
-    @name = editable_custom_set(:edit?).name
+    refuse_edit(Game::CreateCustomSet, result.failure, card_ids, library_path)
   end
 
   def update
     editable_custom_set(:update?)
-    result = Game::RenameCustomSet.new.call(player: current_player, token: params[:token], name: params[:name])
+    card_ids = picked_card_ids(picked_slugs)
+    result = Game::EditCustomSet.new.call(player: current_player, token: params[:token], name: params[:name], card_ids:)
     return redirect_to(custom_set_path(token: params[:token]), status: :see_other) if result.success?
 
-    @name = params[:name].is_a?(String) ? params[:name] : ""
-    @refusal = Game::RenameCustomSet.failure_message(result.failure)
-    render :edit, status: :unprocessable_content
+    refuse_edit(Game::EditCustomSet, result.failure, card_ids, custom_set_path(token: params[:token]))
   end
 
   def destroy

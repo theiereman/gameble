@@ -13,6 +13,25 @@ module Game
       end
     end
 
+    def games_in_range(card_ids)
+      card_ids = Array(card_ids).uniq
+      if card_ids.size < CustomSet::GAMES.min
+        Failure(:too_few_games)
+      elsif card_ids.size > CustomSet::GAMES.max
+        Failure(:too_many_games)
+      else
+        Success(card_ids)
+      end
+    end
+
+    def in_catalog(card_ids)
+      Catalog::PublishedCardIds.within(card_ids).size == card_ids.size ? Success() : Failure(:game_not_in_catalog)
+    end
+
+    def insert_games(custom_set, card_ids)
+      CustomSetGame.insert_all!(card_ids.map { |card_id| { custom_set_id: custom_set.id, card_id: } })
+    end
+
     def visible(name)
       name = name.dup.force_encoding(Encoding::UTF_8).scrub("").unicode_normalize(:nfc)
       name = name.gsub(Accounts::PersonaName::INVISIBLE, "").gsub(Accounts::PersonaName::SPACE, " ").squish

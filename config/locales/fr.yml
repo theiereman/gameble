@@ -1884,34 +1884,47 @@ fr:
   custom_sets:
     album:
       delete: "Supprimer"
-      delete_confirm: "Supprimer « %{name} » ?"
       edit: "Modifier"
+    delete_dialog:
+      title: "Supprimer « %{name} » ?"
+      text: "Le set disparaît de vos sets, avec son objectif s'il en est un. Vos cartes restent dans votre collection."
+      confirm: "Supprimer"
+      cancel: "Annuler"
+      close: "Fermer"
     deleted:
       text: "« %{name} » ne fait plus partie de vos sets."
       title: "Set supprimé"
-    edit:
-      heading: "Modifier le set"
-      title: "Modifier le set · Collection · Gameble"
-    form:
-      cancel: "Annuler"
+    editor:
+      new_title: "Nouveau set"
+      edit_title: "Modifier le set"
       name: "Nom du set"
+      search: "Rechercher un jeu"
+      placeholder: "Rechercher un jeu du catalogue"
+      filters: "Afficher"
+      chips:
+        all: "Tout"
+        owned: "Possédées"
+        missing: "Manquantes"
+      range: "%{min} à %{max}"
+      loading: "Chargement des jeux…"
+      load_more: "Charger plus"
+      none: "Aucun jeu trouvé pour « %{query} »."
+      empty: "Aucun jeu à afficher."
+      owned: "%{title}, possédé"
+      unowned: "%{title}, non possédé"
+      cancel: "Annuler"
       save: "Enregistrer"
+      close: "Fermer"
+      strings:
+        games:
+          zero: "%{count} jeu"
+          one: "%{count} jeu"
+          other: "%{count} jeux"
+        in_set: ", dans le set"
+        name_count: "%{count} / %{max}"
+        picked: "Sélectionnés · %{count}"
     library:
       name: "Ma ludothèque Steam"
-    new:
-      heading: "Nouveau set"
-      title: "Nouveau set · Collection · Gameble"
-    picker:
-      counter:
-        zero: "%{count} jeu · %{min} à %{max}"
-        one: "%{count} jeu · %{min} à %{max}"
-        other: "%{count} jeux · %{min} à %{max}"
-      found: "Résultats"
-      none: "Aucun jeu trouvé pour « %{query} »."
-      picked: "Sélectionnés · %{games}"
-      placeholder: "Rechercher un jeu du catalogue"
-      search: "Rechercher un jeu"
-      search_button: "Chercher"
     throttled: "Trop de modifications de vos sets en une minute. Réessayez dans un instant."
   daily_bonuses:
     create:
@@ -2421,12 +2434,15 @@ fr:
       goal_set_complete: "Ce set est déjà complet."
       too_many_goals: "5 objectifs au plus. Retirez un objectif pour en ajouter un autre."
       game_not_in_catalog: "Un jeu choisi n'est pas dans le catalogue. Rechargez la page et réessayez."
-      name_required: "Nom requis : donnez un nom à votre set."
-      name_taken: "Nom déjà pris : un autre de vos sets porte ce nom."
+      name_required: "NOM REQUIS · Donnez un nom à votre set."
+      name_taken: "NOM DÉJÀ PRIS · Un autre de vos sets porte ce nom."
       name_too_long: "40 caractères au plus : raccourcissez le nom du set."
-      too_few_games: "3 jeux au moins : ajoutez des jeux pour enregistrer le set."
-      too_many_games: "50 jeux au plus : retirez un jeu pour en ajouter un autre."
-      too_many_sets: "10 sets au plus : retirez un set pour en créer un autre."
+      too_few_games:
+        zero: "3 JEUX AU MOINS · Ajoutez encore %{count} jeu pour enregistrer le set."
+        one: "3 JEUX AU MOINS · Ajoutez encore %{count} jeu pour enregistrer le set."
+        other: "3 JEUX AU MOINS · Ajoutez encore %{count} jeux pour enregistrer le set."
+      too_many_games: "50 JEUX AU PLUS · Retirez un jeu pour en ajouter un autre."
+      too_many_sets: "10 SETS AU PLUS · Retirez un set pour en créer un autre."
       showcase_full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
       title_not_earned: "Vous n'avez pas gagné ce titre."
       back_locked: "Ce dos de carte est encore verrouillé."

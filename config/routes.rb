@@ -43,10 +43,10 @@ Rails.application.routes.draw do
     resource :library, controller: :library, only: :show
     get "library/in-progress" => "library#in_progress", as: :library_in_progress
     get "library/cards" => "library#cards", as: :library_cards
-    # The sets a player gathers themselves, by token; the picker's search
-    # posts the form back, so the typed name and the checked games stay.
-    post "library/custom-sets/picker" => "custom_sets#picker", as: :custom_set_picker
-    resources :custom_sets, path: "library/custom-sets", only: %i[new create show edit update destroy], param: :token,
+    # The sets a player gathers themselves, by token; the editor's games
+    # arrive page by page in a frame, searched and filtered.
+    get "library/custom-sets/games" => "custom_sets#games", as: :custom_set_games
+    resources :custom_sets, path: "library/custom-sets", only: %i[create show update destroy], param: :token,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # A player's goals, each named by its set: a kind and key, or a custom
     # set's token, never a position.

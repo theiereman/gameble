@@ -1,0 +1,20 @@
+<%# locals: (custom_set:) %>
+<dialog id="delete-custom-set" class="modal" aria-labelledby="delete-custom-set-title" aria-describedby="delete-custom-set-text"
+        data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="delete-custom-set-title" class="modal__title"><%= t(".title", name: custom_set.name) %></p>
+      <button type="button" class="modal__close" aria-label="<%= t(".close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= form_with url: custom_set_path(token: custom_set.token), method: :delete, class: "delete-custom-set__form", data: { turbo: false } do %>
+      <p id="delete-custom-set-text" class="delete-custom-set__text"><%= t(".text") %></p>
+      <div class="delete-custom-set__actions">
+        <%= tag.button t(".confirm"), type: :submit, class: "button button--primary" %>
+        <%= tag.button t(".cancel"), type: :button, class: "button button--secondary", data: { action: "dialog#close" } %>
+      </div>
+    <% end %>
+  <% end %>
+</dialog>
