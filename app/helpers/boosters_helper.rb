@@ -89,8 +89,8 @@ module BoostersHelper
     end
   end
 
-  def booster_opened_card_data(card, index)
-    { booster_target: "card", index: }.merge(pack_card_fields(card).transform_keys { it.to_s.underscore })
+  def booster_opened_card_data(card, index, goals: [])
+    { booster_target: "card", index: }.merge(pack_card_fields(card, goals:).transform_keys { it.to_s.underscore })
   end
 
   def booster_set_tier_data(row)

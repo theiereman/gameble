@@ -1,4 +1,4 @@
-<%# locals: (tiles:) %>
+<%# locals: (tiles:, goals: []) %>
 <% room = tiles.size < Game::CustomSet::PER_PLAYER %>
 <% folded = tiles.size - CustomSetsHelper::SHOWN_ON_PHONE %>
 <section class="set-entry__section custom-sets" aria-labelledby="custom-sets-title" data-controller="set-fold">
@@ -15,7 +15,7 @@
   </div>
   <ul class="set-tiles custom-sets__tiles" data-set-fold-target="list">
     <% tiles.each do |tile| %>
-      <li><%= render "library/set_progress_tile", href: set_tile_path(tile), tile: %></li>
+      <li><%= render "library/set_progress_tile", href: set_tile_path(tile), tile:, goal: set_tile_goal(tile, goals) %></li>
     <% end %>
     <% if room %>
       <li class="custom-sets__add">

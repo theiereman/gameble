@@ -1,8 +1,10 @@
 <% strings = CardStrings.new %>
+<% goals = local_assigns.fetch(:goals, GoalMarks::NONE) %>
 <% slots.each do |card, held| %>
+  <% marks = goals.goals_for(card.card_id) %>
   <li class="collection-slot">
     <% if held %>
-      <%= link_to_card_detail(card, strings:, context: { grid: context }) do %><%= render CardComponent.new(card:, size: :grid) %><% end %>
+      <%= link_to_card_detail(card, strings:, context: { grid: context }, goals: marks) do %><%= render CardComponent.new(card:, size: :grid, goals: marks.map(&:position)) %><% end %>
       <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(held.copies) %></span>
       <span class="visually-hidden"><%= t("library.grid.copies", count: held.copies, number: number_with_delimiter(held.copies)) %></span>
       <% if held.editions > 1 %>
@@ -13,7 +15,7 @@
         <span class="collection-slot__new"><%= t("library.grid.new") %></span>
       <% end %>
     <% else %>
-      <%= link_to_card_detail(card, strings:, context: { grid: context }, owned: !set_apart) do %><%= render CardComponent.new(card:, size: :grid, owned: !set_apart) %><% end %>
+      <%= link_to_card_detail(card, strings:, context: { grid: context }, owned: !set_apart, goals: marks) do %><%= render CardComponent.new(card:, size: :grid, owned: !set_apart, goals: marks.map(&:position)) %><% end %>
     <% end %>
   </li>
 <% end %>

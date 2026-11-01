@@ -8,8 +8,8 @@ module CollectionHelper
     end
   end
 
-  def collection_filter_count(filters:, states:, states_asked:)
-    chosen = filters.chosen_rarities.size + filters.chosen_sets.size + filters.chosen_genres.size
+  def collection_filter_count(filters:, states:, states_asked:, goals: [])
+    chosen = filters.chosen_rarities.size + filters.chosen_sets.size + filters.chosen_genres.size + goals.size
     chosen + (states_asked && states != [ Game::CollectionStates::DEFAULT ] ? states.size : 0)
   end
 end

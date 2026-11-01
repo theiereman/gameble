@@ -1017,6 +1017,7 @@ fr:
         label: "Chercher un set"
       groups:
         state: "État"
+        goals: "Objectifs"
         rarity: "Rareté"
         sets: "Set"
         genre: "Genre"
@@ -1321,6 +1322,7 @@ fr:
         other: "Capsule inventoriée · +%{n} cartes dans la collection"
       face_down: "Carte %{position} sur %{total}, face cachée. Révéler."
       face_up: "%{card}, %{rarity}. Voir la fiche."
+      face_up_goals: "%{card}, %{rarity}, %{goals}. Voir la fiche."
       announce_card: "Carte %{position} : %{card}. %{rarity}."
       summary:
         zero: "%{n} carte révélée : %{tiers}."
@@ -1336,8 +1338,10 @@ fr:
         one: "%{n} carte"
         other: "%{n} cartes"
       face_up_store: "%{card}, %{rarity}. Ranger la carte."
+      face_up_store_goals: "%{card}, %{rarity}, %{goals}. Ranger la carte."
       tray_count: "%{n} / %{total}"
       tray_slot: "%{card}, %{rarity}. Agrandir."
+      tray_slot_goals: "%{card}, %{rarity}, %{goals}. Agrandir."
       zoom_line: "%{rarity} · %{year}"
       repost_card: "Reposter %{card}"
       reposted: "Carte repostée dans le fil."
@@ -1992,6 +1996,9 @@ fr:
     reached:
       title: "Objectif atteint"
     throttled: "Trop de changements d'objectifs en une minute. Réessayez dans un instant."
+    name: "Objectif %{number} : %{set}"
+    card_words: "objectif %{number} : %{set}"
+    tile_words: "objectif %{number}"
   roadmaps:
     show:
       title: "Feuille de route · Gameble"
@@ -2225,6 +2232,7 @@ fr:
       season: "Saison"
       pioneer: "Pionnier"
       sets: "Sets"
+      goals: "Objectifs"
       copies: "Exemplaires"
       editions: "Éditions"
       steam_reviews: "Avis Steam"

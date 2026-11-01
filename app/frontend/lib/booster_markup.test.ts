@@ -25,7 +25,7 @@ describe("bankFrom", () => {
 })
 
 describe("cardFrom", () => {
-  it("reads a card's data, without a year when it has none", () => {
+  it("reads a card's data, without a year or goals when it has none", () => {
     const data = {
       slug: "portal",
       season: "1",
@@ -34,6 +34,7 @@ describe("cardFrom", () => {
       title: "Portal",
       year: "2007",
       label: "Portal — Valve, 2007",
+      goals: "goal 2: Valve",
     }
     expect(cardFrom(data)).toEqual({ ...data, season: 1, year: 2007, faces: { s: "", m: "", xl: "" } })
     expect(cardFrom({ slug: "x", tier: "bogus", title: "X" })).toMatchObject({
@@ -42,6 +43,7 @@ describe("cardFrom", () => {
       year: null,
       label: "X",
       coverUrl: "",
+      goals: "",
     })
   })
 })

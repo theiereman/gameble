@@ -15,7 +15,7 @@ module CardShareImage
     words = I18n.with_locale(locale) do
       [ CardStrings.new.rarity_name(view.rarity), view.genre && SetLabel.genre(view.genre), view.number && view.number_label ]
     end
-    Digest::SHA256.hexdigest([ RENDER_VERSION, locale.to_s, view.to_h.sort, words ].to_json)
+    Digest::SHA256.hexdigest([ RENDER_VERSION, locale.to_s, view.to_h.except(:card_id).sort, words ].to_json)
   end
 
   def self.fingerprint_of(card_season_id, locale)

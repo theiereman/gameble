@@ -4,13 +4,14 @@ module Catalog
 
     MAX_QUERY = 100
 
-    def self.call(season:, cards: nil, genres: [], rarities: [], sets: [], query: nil, locale: I18n.locale)
+    def self.call(season:, cards: nil, genres: [], rarities: [], sets: [], query: nil, locale: I18n.locale, card_ids: nil)
       genres_asked = genres
       season_cards = CardSeason.where(season_id: season.id).where.not(rarity: nil)
       cards ||= season_cards
 
       genres = season_cards.where.not(main_theme: nil).distinct.pluck(:main_theme).sort
       cards = cards.order(:number, :id)
+      cards = cards.where(card_id: card_ids) if card_ids
       chosen_genres = genres & Array(genres_asked).map(&:to_s)
       cards = cards.where(genre_match(season, chosen_genres)) if chosen_genres.any?
 

@@ -23,7 +23,9 @@ export type BoosterStrings = {
   emptyNext: string
   faceDown: string
   faceUp: string
+  faceUpGoals: string
   faceUpStore: string
+  faceUpStoreGoals: string
   failed: string
   goalReached: string
   hintDone: Template
@@ -46,6 +48,7 @@ export type BoosterStrings = {
   summaryTier: string
   trayCount: string
   traySlot: string
+  traySlotGoals: string
   zoomLine: string
 }
 

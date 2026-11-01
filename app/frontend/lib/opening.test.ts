@@ -14,6 +14,7 @@ const answer = {
       title: "Portal",
       year: 2007,
       label: "Portal — Valve, 2007",
+      goals: "goal 1: Valve",
       faces: { s: "<span></span>", m: "<span></span>", xl: "<span></span>" },
     },
   ],
@@ -134,6 +135,9 @@ describe("sendOpening", () => {
       fake(
         json(200, { ...answer, cards: [{ ...answer.cards[0], faces: { m: "<span></span>", xl: "<span></span>" } }] }),
       ),
+      // A card without its goal words, or with goals named by something else than words.
+      fake(json(200, { ...answer, cards: [{ ...answer.cards[0], goals: undefined }] })),
+      fake(json(200, { ...answer, cards: [{ ...answer.cards[0], goals: [1] }] })),
       // No set tiers, one of another shape, or one without its album.
       fake(json(200, { ...answer, setTiers: undefined })),
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], tier: "platinum" }] })),

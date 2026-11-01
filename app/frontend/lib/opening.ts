@@ -8,6 +8,7 @@ export type OpeningCard = {
   title: string
   year: number | null
   label: string
+  goals: string
   faces: { s: string; m: string; xl: string }
 }
 
@@ -121,6 +122,7 @@ function isCard(value: unknown): value is OpeningCard {
     RARITIES.includes(value.tier as Rarity) &&
     typeof value.title === "string" &&
     typeof value.label === "string" &&
+    typeof value.goals === "string" &&
     isRecord(value.faces) &&
     FACE_SIZES.every((size) => typeof (value.faces as Record<string, unknown>)[size] === "string")
   )

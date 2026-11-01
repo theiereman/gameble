@@ -185,6 +185,36 @@ class CardComponentTest < ViewComponent::TestCase
     assert_selector ".card.card--grid[data-controller=tilt] > .card__effects"
   end
 
+  test "a card in goals carries their numbered bookmarks beside its body, in number order, aria-hidden" do
+    render_card(size: :grid, goals: [ 2, 4 ])
+
+    assert_selector ".card > .card__body + .card__effects + .card__goals[aria-hidden=true]", visible: :all
+    assert_equal %w[2 4], page.all(".card__goals > .goal-bookmark:not(.goal-bookmark--large)", visible: :all).map(&:text)
+    assert_selector ".card__goals > .goal-bookmark.goal-tone--2 + .goal-bookmark.goal-tone--4", visible: :all
+    assert_no_selector ".card__body .goal-bookmark, [style]", visible: :all
+  end
+
+  test "a card not owned keeps its bookmarks outside the faded body, after the lock" do
+    render_card(size: :m, owned: false, goals: [ 1 ])
+
+    assert_selector ".card.card--not-owned > .card__body + .card__lock + .card__goals > .goal-bookmark.goal-tone--1", visible: :all
+  end
+
+  { s: false, m: false, grid: false, l: true, xl: true }.each do |size, large|
+    test "the #{size} face carries the #{large ? "large" : "standard"} bookmark" do
+      render_card(size:, goals: [ 3 ])
+
+      assert_equal large, page.has_selector?(".card__goals > .goal-bookmark.goal-bookmark--large", visible: :all)
+      assert_selector ".card__goals > .goal-bookmark", count: 1, visible: :all
+    end
+  end
+
+  test "a card in no goal has no bookmark" do
+    render_card(size: :l)
+
+    assert_no_selector ".card__goals, .goal-bookmark", visible: :all
+  end
+
   test "an unknown size is refused" do
     assert_raises(ArgumentError) { CardComponent.new(card:, size: :huge) }
     assert_raises(ArgumentError) { CardComponent.new(card:, size: :small) }

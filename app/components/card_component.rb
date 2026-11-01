@@ -22,17 +22,20 @@ class CardComponent < ViewComponent::Base
 
   GLITTER_SEED_SEASON_STRIDE = 1_000_000
 
-  def initialize(card:, size: :m, booster: false, owned: true)
+  def initialize(card:, size: :m, booster: false, owned: true, goals: [])
     raise ArgumentError, "unknown card size: #{size.inspect}" unless SIZES.include?(size)
 
     @card = card
     @size = size
     @booster = booster
     @owned = owned
+    @goals = goals
   end
 
   private
-    attr_reader :card, :size, :booster, :owned
+    attr_reader :card, :size, :booster, :owned, :goals
+
+    def goal_bookmark_size = large? ? :large : nil
 
     def classes
       [ "card", "card--#{size}", "card--rarity-#{card.rarity}", ("card--booster" if booster), ("card--not-owned" unless owned) ]

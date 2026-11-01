@@ -213,9 +213,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     Game::PlayerState.where(player_id: player.id).update_all(collection_seen_up_to: watermark)
     sign_in(player)
 
-    # The sixteen of a player's grid, the state asked sparing the count
+    # The seventeen of a player's grid, the state asked sparing the count
     # read again from the query cache and adding the watermark.
-    assert_request_queries(17) { get library_cards_path(locale: :en, state: %w[new duplicates]) }
+    assert_request_queries(18) { get library_cards_path(locale: :en, state: %w[new duplicates]) }
     seen = css_select(".collection-grid a.card-link").map { Rack::Utils.parse_nested_query(URI(it["href"]).query).dig("grid", "seen") }
     assert_equal [ "2026-10-08T09:30:15.123456Z" ] * 2, seen
 
@@ -770,9 +770,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # shown; the figures: the season's cards, games per rarity, copies per
     # tier; the rarity legend; the set group: the kinds the
     # season holds, the sets of the kind shown; the tab bar's trades and
-    # invitations waiting; the themes' names. No set per card: the links carry the grid,
-    # which the detail reads itself.
-    assert_request_queries(16) { get library_cards_path(locale: :en) }
+    # invitations waiting; the themes' names; the player's goals. No set per
+    # card: the links carry the grid, which the detail reads itself.
+    assert_request_queries(17) { get library_cards_path(locale: :en) }
 
     delete session_path(locale: :en)
     # The same without the lookup, the player's editions, the figures, the
@@ -1257,8 +1257,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ 6, 5 ], [ tiles.size, completed_tiles.size ]
     assert_equal three, forty
     # Player lookup, season; the standings, the sets named, their cards and
-    # the faces of those shown; the themes' names.
-    assert_equal 7, forty
+    # the faces of those shown; the themes' names; the player's goals.
+    assert_equal 8, forty
     assert_equal [ "Load more" ], load_more("section[aria-labelledby=set-entry-in-progress-title]").map(&:text)
     assert_empty load_more("section[aria-labelledby=set-entry-completed-title]")
 
@@ -1419,7 +1419,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # invitations waiting; the themes' names; the player's own sets, read once
     # with their Steam library set, and goals.
     assert_equal 15, forty
-    assert_equal 8, count_queries { get library_path(locale: :en, q: "theme", offset: 6), headers: { "Turbo-Frame" => "set-more-results-6" } }
+    assert_equal 9, count_queries { get library_path(locale: :en, q: "theme", offset: 6), headers: { "Turbo-Frame" => "set-more-results-6" } }
     # No search: neither the sets nor the standings.
     assert_equal 9, count_queries { get library_path(locale: :en) }
   end
@@ -1675,7 +1675,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     epic, = two_editions(season, player)
     sign_in(player)
 
-    assert_request_queries(16) { get library_cards_path(locale: :en, state: %w[owned]) }
+    assert_request_queries(17) { get library_cards_path(locale: :en, state: %w[owned]) }
 
     assert_equal [ [ :owned, title(epic), "x2", nil ] ], slots
     assert_equal [ "/seasons/#{season.number}" ], tile_hrefs

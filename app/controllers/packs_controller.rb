@@ -1,6 +1,9 @@
 class PacksController < ApplicationController
   include PackCards
   include GoalsReachedTracking
+  include GoalMarksLoading
+
+  helper_method :goal_marks
 
   RATE_LIMIT_WINDOW = 1.minute
 
@@ -50,12 +53,14 @@ class PacksController < ApplicationController
     key = idempotency_key
     return render_failure(:invalid_idempotency_key) if key.blank?
 
+    marks_before_opening = goal_marks
     result, reached = tracking_goals_reached(current_player) do
       Game::OpenPack.new.call(player: current_player, idempotency_key: key, reserve: params[:reserve])
     end
     if result.success?
       pack = result.value!
-      render json: helpers.pack_opening_json(pack, cards: cards_of(pack), player: current_player, now: Time.current, goals_reached: reached)
+      render json: helpers.pack_opening_json(pack, cards: cards_of(pack), player: current_player, now: Time.current, goals_reached: reached,
+        goals: marks_before_opening)
     else
       render_failure(result.failure)
     end

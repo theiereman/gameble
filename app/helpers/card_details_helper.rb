@@ -43,13 +43,14 @@ module CardDetailsHelper
     end
   end
 
-  def card_detail_open_label(view, strings, owned: true)
-    t(owned ? "card_details.open" : "card_details.open_not_owned",
+  def card_detail_open_label(view, strings, owned: true, goals: [])
+    label = t(owned ? "card_details.open" : "card_details.open_not_owned",
       title: view.title, year: view.year, rarity: strings.rarity_name(view.rarity), season: view.season_number)
+    goals.any? ? [ label, goal_card_words(goals) ].join(", ") : label
   end
 
-  def link_to_card_detail(view, strings:, context: {}, number: view.season_number, owned: true, &)
-    link_to(card_detail_path(view.id, number, context), class: "card-link", aria: { label: card_detail_open_label(view, strings, owned:) },
+  def link_to_card_detail(view, strings:, context: {}, number: view.season_number, owned: true, goals: [], &)
+    link_to(card_detail_path(view.id, number, context), class: "card-link", aria: { label: card_detail_open_label(view, strings, owned:, goals:) },
       data: { turbo_prefetch: false }, &)
   end
 

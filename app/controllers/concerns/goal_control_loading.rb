@@ -2,8 +2,8 @@ module GoalControlLoading
   extend ActiveSupport::Concern
 
   private
-    def load_goal_control(aim)
+    def load_goal_control(aim, targets: Game::GoalNeeds.targets(current_player))
       @goal_aim = aim
-      @goal = Game::GoalNeeds.targets(current_player).find { it.aims_at?(**aim) }
+      @goal = targets.find { it.aims_at?(**aim) }
     end
 end

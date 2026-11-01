@@ -636,7 +636,9 @@ en:
       empty_next: Next capsule in %{time}
       face_down: Card %{position} of %{total}, face down. Reveal.
       face_up: "%{card}, %{rarity}. See the card."
+      face_up_goals: "%{card}, %{rarity}, %{goals}. See the card."
       face_up_store: "%{card}, %{rarity}. Store the card."
+      face_up_store_goals: "%{card}, %{rarity}, %{goals}. Store the card."
       failed: The opening did not go through. Check your connection or reload the
         page, then try again.
       goal_reached: Goal reached
@@ -669,6 +671,7 @@ en:
       tab_standard: "STANDARD · %{n}"
       tray_count: "%{n} / %{total}"
       tray_slot: "%{card}, %{rarity}. Enlarge."
+      tray_slot_goals: "%{card}, %{rarity}, %{goals}. Enlarge."
       zoom_line: "%{rarity} · %{year}"
     strip_title: Season %{number} · Grand catalogue
     strip_title_plain: Grand catalogue
@@ -711,6 +714,7 @@ en:
       copies: Copies
       editions: Editions
       genre: Genre
+      goals: Goals
       pioneer: Pioneer
       publisher: Publisher
       rarity: Rarity
@@ -1209,13 +1213,16 @@ en:
       add: Mark as goal
       remove: Goal %{number} · Remove
       remove_label: Goal %{number}, %{set}. Remove from goals
+    card_words: 'goal %{number}: %{set}'
     full:
       hint: Remove a goal to add another one.
       limit: 5 goals at most
       link: See my goals
+    name: 'Goal %{number}: %{set}'
     reached:
       title: Goal reached
     throttled: Too many changes to your goals in a minute. Try again in a moment.
+    tile_words: goal %{number}
   invitations:
     cancelled: Invitation cancelled.
     new_friend:
@@ -1546,6 +1553,7 @@ en:
       clear: Clear all
       groups:
         genre: Genre
+        goals: Goals
         rarity: Rarity
         sets: Set
         state: State

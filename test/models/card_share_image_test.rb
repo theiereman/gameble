@@ -41,6 +41,10 @@ class CardShareImageTest < ActiveSupport::TestCase
     end
   end
 
+  test "the fingerprint ignores the catalog card id the view carries, which the image does not draw" do
+    assert_equal CardShareImage.fingerprint(view, "en"), CardShareImage.fingerprint(view.with(card_id: 42), "en")
+  end
+
   test "the fingerprint follows the words the image draws: a renamed theme changes it, in its language" do
     horror = view.with(genre: "horror")
     english = CardShareImage.fingerprint(horror, "en")

@@ -39,4 +39,7 @@
   <% else %>
     <span class="card__lock"><%= helpers.pixel_icon("lock") %></span>
   <% end %>
+  <% if goals.any? %>
+    <span class="card__goals" aria-hidden="true"><% goals.each do |number| %><%= helpers.goal_bookmark(number, size: goal_bookmark_size) %><% end %></span>
+  <% end %>
 </span>

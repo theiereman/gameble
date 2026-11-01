@@ -16,18 +16,18 @@ module SetRowsHelper
     [ SetLabel.for(set), set_kind_name(set.kind).downcase ].join(", ")
   end
 
-  def set_progress_sentence(set, standing)
-    parts = [ set_label_sentence(set),
+  def set_progress_sentence(set, standing, goal: nil)
+    parts = [ set_label_sentence(set), (t("goals.tile_words", number: goal.position) if goal),
       t("library.set_progress.count", count: standing.held, owned: number_with_delimiter(standing.held), total: number_with_delimiter(standing.total)) ]
     parts.concat(standing.complete? ? [ t("library.set_progress.complete") ] : tier_words(standing))
-    parts.join(", ")
+    parts.compact.join(", ")
   end
 
-  def set_tile_label(tile)
+  def set_tile_label(tile, goal: nil)
     if tile.own?
-      TileLabel.new(name: custom_set_display_name(tile.own_set), kind: own_set_kind_line(tile.own_set), sentence: own_set_tile_name(tile.own_set))
+      TileLabel.new(name: custom_set_display_name(tile.own_set), kind: own_set_kind_line(tile.own_set), sentence: own_set_tile_name(tile.own_set, goal:))
     else
-      TileLabel.new(name: SetLabel.for(tile.set), kind: set_kind_name(tile.set.kind), sentence: set_progress_sentence(tile.set, tile.standing))
+      TileLabel.new(name: SetLabel.for(tile.set), kind: set_kind_name(tile.set.kind), sentence: set_progress_sentence(tile.set, tile.standing, goal:))
     end
   end
 

@@ -1,17 +1,18 @@
-<%# locals: (href:, tile:, last_gained: true, autofocus: false) %>
+<%# locals: (href:, tile:, last_gained: true, autofocus: false, goal: nil) %>
 <% standing = tile.standing %>
 <% showcase = tile.showcase %>
-<% label = set_tile_label(tile) %>
+<% label = set_tile_label(tile, goal:) %>
 <% title = capture do %>
   <span class="set-tile__title">
     <span class="set-tile__name"><%= label.name %></span>
     <span class="set-tile__kind"><%= label.kind %></span>
   </span>
 <% end %>
+<% title = tag.span(goal_bookmark(goal.position, size: :large) + title, class: "set-tile__goal") if goal %>
 <% count = capture do %>
   <span class="set-tile__count"><%= number_with_delimiter(standing.held) %><span class="set-tile__total">/<%= number_with_delimiter(standing.total) %></span></span>
 <% end %>
-<%= link_to href, class: class_names("set-tile", "set-tile--closest": tile.closest), autofocus: autofocus || nil,
+<%= link_to href, class: class_names("set-tile", "set-tile--closest": tile.closest, "set-tile--goal goal-tone--#{goal&.position}": goal), autofocus: autofocus || nil,
   data: { turbo_prefetch: false, turbo_frame: "_top", controller: "set-tile", action: "pointerenter->set-tile#enter focusin->set-tile#focused" } do %>
   <span class="set-tile__face set-tile__face--recto" aria-hidden="true">
     <span class="set-tile__head"><%= title %><%= tile.own? ? count : set_rank_chip(standing) %></span>
@@ -35,8 +36,8 @@
         <progress class="set-row__bar" value="<%= [ standing.held, standing.total ].min %>" max="<%= [ standing.total, 1 ].max %>"></progress>
         <%= set_tier_ticks(standing) %>
       </span>
-      <% if (goal = set_goal_line(standing)) %>
-        <span class="set-tile__next"><%= goal %></span>
+      <% if (goal_line = set_goal_line(standing)) %>
+        <span class="set-tile__next"><%= goal_line %></span>
       <% end %>
     </span>
   </span>

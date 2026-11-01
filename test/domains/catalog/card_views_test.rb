@@ -15,7 +15,7 @@ class Catalog::CardViewsTest < ActiveSupport::TestCase
 
     assert_equal [ portal.id, common.id, legendary.id ].sort, views.keys.sort
     assert_equal Catalog::CardView.new(id: "portal", title: "Portal", publisher: "Valve", year: 2007, season_number: 1,
-      rarity: "epic", image_url: "https://images.example.test/400.jpg", number: 4, genre: nil), views.fetch(portal.id)
+      rarity: "epic", image_url: "https://images.example.test/400.jpg", number: 4, genre: nil, card_id: portal.card_id), views.fetch(portal.id)
     assert_equal [ "Soldat de plomb", nil, 2024, "common" ], views.fetch(common.id).then { [ it.title, it.publisher, it.year, it.rarity ] }
     assert_equal [ "Couronne d'or", 1998, "legendary" ], views.fetch(legendary.id).then { [ it.title, it.year, it.rarity ] }
     assert_equal "Golden Crown", Catalog::CardViews.call([ legendary.id ], locale: "en").fetch(legendary.id).title

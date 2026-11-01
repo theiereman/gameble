@@ -22,7 +22,7 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_queries_count(2) { detail = Catalog::CardDetail.call(slug: "portal", locale: :en) }
 
     assert_equal Catalog::CardView.new(id: "portal", title: "Portal", publisher: "Valve", year: 2007, season_number: 1,
-      rarity: "epic", image_url: "https://images.example.test/400.jpg", number: 4, genre: nil), detail.view
+      rarity: "epic", image_url: "https://images.example.test/400.jpg", number: 4, genre: nil, card_id: portal.card_id), detail.view
     assert_equal "A puzzle game of portals.", detail.short_description
     assert_equal "Valve", detail.publisher
     assert_equal "https://store.example.test/400", detail.store_url

@@ -1,16 +1,31 @@
 module CollectionGridLoading
   extend ActiveSupport::Concern
 
+  include GoalMarksLoading
+
   GRID_SIZE = 60
   NOTHING_SEEN = Time.utc(1970)
-  LIST_FILTERS = %i[state rarity sets genre].freeze
+  LIST_FILTERS = %i[state rarity sets genre goals].freeze
   # A larger page number would overflow Postgres' OFFSET.
   MAX_PAGE = 100_000
 
   private
     def collection_grid(season, source)
       Catalog::CollectionGrid.call(season:, cards: Game::CollectionTiles.call(grid_owner, season), genres: grid_list(source, :genre), rarities: grid_list(source, :rarity),
-        sets: grid_list(source, :sets), query: grid_query(source), locale: I18n.locale)
+        sets: grid_list(source, :sets), query: grid_query(source), locale: I18n.locale, card_ids: grid_goal_card_ids(source))
+    end
+
+    def grid_goals
+      grid_another? || grid_owner.nil? ? GoalMarks::NONE : goal_marks
+    end
+
+    def grid_goals_chosen(source)
+      grid_goals.chosen(grid_list(source, :goals))
+    end
+
+    def grid_goal_card_ids(source)
+      chosen = grid_goals_chosen(source)
+      grid_goals.card_ids_of(chosen) if chosen.any?
     end
 
     def grid_cards(grid, states, seen_up_to: nil)
@@ -57,7 +72,8 @@ module CollectionGridLoading
     end
 
     def grid_list_filters
-      grid_owner ? LIST_FILTERS : LIST_FILTERS - %i[state]
+      filters = grid_owner ? LIST_FILTERS : LIST_FILTERS - %i[state]
+      grid_goals.any? ? filters : filters - %i[goals]
     end
 
     def load_grid(grid)
@@ -65,6 +81,8 @@ module CollectionGridLoading
       asked = grid_states_asked(params)
       @states_asked = asked.any?
       @states = @states_asked ? asked : [ Game::CollectionStates::DEFAULT ]
+      @grid_goals = grid_goals
+      @goals_chosen = grid_goals_chosen(params)
       @grid_context = grid_context(params, seen: (shown_watermark if @states.include?("new")))
       @grid_pagy, page = pagy(:offset, grid_cards(grid, @states), limit: GRID_SIZE, page: page_param, querify: pages_query)
       tiles = page.pluck(:id, :card_id)

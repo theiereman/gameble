@@ -3,7 +3,8 @@
   <h1 id="pack-result-heading"><%= @pack.bonus? ? t(".heading_bonus") : t(".heading") %></h1>
   <ol class="pack-result__cards" aria-label="<%= t(".cards") %>">
     <% @cards.each do |card| %>
-      <li class="pack-result__card"><%= link_to_card_detail(card, strings: @strings) do %><%= render CardComponent.new(card:, size: :m) %><% end %></li>
+      <% marks = goal_marks.goals_for(card.card_id) %>
+      <li class="pack-result__card"><%= link_to_card_detail(card, strings: @strings, goals: marks) do %><%= render CardComponent.new(card:, size: :m, goals: marks.map(&:position)) %><% end %></li>
     <% end %>
   </ol>
   <% if @next_pack %>

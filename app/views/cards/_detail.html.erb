@@ -5,6 +5,8 @@
 <% editions = local_assigns.fetch(:editions, []) %>
 <% showcase = local_assigns.fetch(:showcase, nil) %>
 <% pioneer = local_assigns.fetch(:pioneer, nil) %>
+<% goals = local_assigns.fetch(:goals, []) %>
+<% goal_numbers = goals.map(&:position) %>
 <% repostable = share_url && editions.any? { |_, season_number, _| season_number == detail.view.season_number } %>
 <% view = detail.view %>
 <% owned = !signed_in || copies.present? %>
@@ -31,10 +33,10 @@
             <% if owned && card_top_rarity?(view.rarity) %>
               <div class="card-float">
                 <%= card_rays(view.rarity) %>
-                <%= render CardComponent.new(card: view, size: :l) %>
+                <%= render CardComponent.new(card: view, size: :l, goals: goal_numbers) %>
               </div>
             <% else %>
-              <%= render CardComponent.new(card: view, size: :l, owned:) %>
+              <%= render CardComponent.new(card: view, size: :l, owned:, goals: goal_numbers) %>
             <% end %>
             <span class="card-detail__shadow" aria-hidden="true"></span>
           </div>
@@ -101,6 +103,18 @@
                   <ul class="card-detail__sets">
                     <% detail.sets.each do |set| %>
                       <li><%= set_url ? link_to(SetLabel.for(set), set_url.call(set)) : SetLabel.for(set) %></li>
+                    <% end %>
+                  </ul>
+                </dd>
+              </div>
+            <% end %>
+            <% if goals.any? %>
+              <div class="card-detail__fact card-detail__fact--goals">
+                <dt><%= t("card_details.facts.goals") %></dt>
+                <dd>
+                  <ul class="card-detail__goals">
+                    <% goals.each do |goal| %>
+                      <li><%= link_to goal_album_path(goal), class: "card-detail__goal goal-tone--#{goal.position}", aria: { label: goal_name(goal) } do %><%= goal_bookmark(goal.position, size: :small) %><%= goal_set_name(goal) %><% end %></li>
                     <% end %>
                   </ul>
                 </dd>

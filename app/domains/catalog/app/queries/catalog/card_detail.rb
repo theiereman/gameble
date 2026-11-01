@@ -21,7 +21,7 @@ module Catalog
       id, slug, title, description, publisher, store_url, release_date, season_number, rarity, image_url, current,
         number, genre, review_count, rating, card_id = row
       view = CardView.new(id: slug, title:, publisher:, year: release_date.year, season_number:,
-        rarity:, image_url:, number:, genre:)
+        rarity:, image_url:, number:, genre:, card_id:)
       steam_reviews = review_count && SteamReviews.new(count: review_count, positive_percent: rating)
       Detail.new(view:, short_description: description.presence, publisher:, store_url:, steam_reviews:,
         sets: sets(id, main_theme: genre), card_season_id: id, card_id:, current_season: current)

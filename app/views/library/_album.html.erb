@@ -1,4 +1,5 @@
 <% strings = CardStrings.new %>
+<% goals = local_assigns.fetch(:goals, GoalMarks::NONE) %>
 <div class="set-album" data-controller="set-album">
   <%= render PanelComponent.new(tag: :header, brackets: true, class: class_names("set-album__header", "set-album__header--tiered": set_tier_ticks?(standing), "set-album__header--complete": standing.complete?)) do %>
     <div class="set-album__title">
@@ -27,9 +28,10 @@
       <ol class="collection-grid collection-grid--fill set-album__grid" aria-label="<%= t("library.album.slots") %>"
         data-controller="grid-keys" data-action="keydown->grid-keys#move focusin->grid-keys#remember">
         <% slots.each do |slot| %>
+          <% marks = goals.goals_for(slot.card.card_id) %>
           <li class="collection-slot">
             <% if slot.copies %>
-              <%= link_to_card_detail(slot.card, strings:, context:, number: slot.number) do %><%= render CardComponent.new(card: slot.card, size: :grid) %><% end %>
+              <%= link_to_card_detail(slot.card, strings:, context:, number: slot.number, goals: marks) do %><%= render CardComponent.new(card: slot.card, size: :grid, goals: marks.map(&:position)) %><% end %>
               <% if slot.copies > 1 %>
                 <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(slot.copies) %></span>
               <% end %>
@@ -38,7 +40,7 @@
                 <span class="collection-slot__new"><%= t("library.grid.new") %></span>
               <% end %>
             <% else %>
-              <%= link_to_card_detail(slot.card, strings:, context:, number: slot.number, owned: false) do %><%= render CardComponent.new(card: slot.card, size: :grid, owned: false) %><% end %>
+              <%= link_to_card_detail(slot.card, strings:, context:, number: slot.number, owned: false, goals: marks) do %><%= render CardComponent.new(card: slot.card, size: :grid, owned: false, goals: marks.map(&:position)) %><% end %>
             <% end %>
           </li>
         <% end %>

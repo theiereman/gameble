@@ -1,7 +1,7 @@
-<%# locals: (page:, next_href:, next_frame:, focus_first: false) %>
+<%# locals: (page:, next_href:, next_frame:, focus_first: false, goals: []) %>
 <ul class="set-tiles">
   <% page.tiles.each_with_index do |tile, index| %>
-    <li><%= render "library/set_progress_tile", href: set_tile_path(tile), tile:, autofocus: focus_first && index.zero? %></li>
+    <li><%= render "library/set_progress_tile", href: set_tile_path(tile), tile:, autofocus: focus_first && index.zero?, goal: set_tile_goal(tile, goals) %></li>
   <% end %>
 </ul>
 <% if page.next_offset %>

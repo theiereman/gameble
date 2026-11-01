@@ -20,6 +20,18 @@ module GoalsHelper
     tag.span(tag.span(number, class: "goal-bookmark__shape"), class: classes, aria: { hidden: true })
   end
 
+  def goal_name(goal)
+    t("goals.name", number: goal.position, set: goal_set_name(goal))
+  end
+
+  def goal_card_words(goals)
+    goals.map { t("goals.card_words", number: it.position, set: goal_set_name(it)) }.join(", ")
+  end
+
+  def set_tile_goal(tile, goals)
+    goals.find { tile.own? ? it.custom_set_token == tile.own_set.token : !it.custom? && it.kind == tile.set.kind && it.key == tile.set.key }
+  end
+
   def goal_row_sentence(need)
     t("library.entry.goals.row", number: need.position, **goal_row_words(need))
   end

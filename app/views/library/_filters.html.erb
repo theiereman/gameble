@@ -1,5 +1,7 @@
 <% set_filter = local_assigns[:set_filter] %>
-<% count = collection_filter_count(filters:, states:, states_asked:) %>
+<% goals = local_assigns.fetch(:goals, GoalMarks::NONE) %>
+<% goals_chosen = local_assigns.fetch(:goals_chosen, []) %>
+<% count = collection_filter_count(filters:, states:, states_asked:, goals: goals_chosen) %>
 <%= form_with url: request.path, method: :get, class: "filters", html: { role: "search" }, data: {
   controller: "collection-filters", turbo_frame: "collection-results",
   action: "input->collection-filters#typed compositionend->collection-filters#typed change->collection-filters#changed " \
@@ -24,6 +26,17 @@
             <label class="filter-chip">
               <%= check_box_tag "state[]", state, states.include?(state), id: nil, class: "filter-chip__box" %>
               <span class="filter-chip__text"><%= t("library.filters.states.#{state}") %></span>
+            </label>
+          <% end %>
+        </fieldset>
+      <% end %>
+      <% if goals.any? %>
+        <fieldset class="filters__group" data-collection-filters-target="group" data-group="goals">
+          <legend class="filters__legend"><%= t("library.filters.groups.goals") %></legend>
+          <% goals.needs.each do |goal| %>
+            <label class="filter-chip filter-chip--goal">
+              <%= check_box_tag "goals[]", GoalMarks.filter_value(goal), goals_chosen.include?(goal), id: nil, class: "filter-chip__box", aria: { label: goal_name(goal) } %>
+              <span class="filter-chip__text"><%= goal_bookmark(goal.position, size: :small) %><%= goal_set_name(goal) %></span>
             </label>
           <% end %>
         </fieldset>

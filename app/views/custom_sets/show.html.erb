@@ -11,7 +11,7 @@
   <% end %>
 <% end %>
 <%= render "library/album", standing: @standing, heading: custom_set_display_name(@custom_set), slots: @album_slots, pagy: @album_pagy, filters: @album_filters,
-  context: {}, actions: actions.presence %>
+  context: {}, actions: actions.presence, goals: goal_marks.without(@goal) %>
 <% if @custom_set.custom? %>
   <%= render "custom_sets/editor", custom_set: @custom_set, picks: @picks %>
   <%= render "custom_sets/delete_dialog", custom_set: @custom_set %>

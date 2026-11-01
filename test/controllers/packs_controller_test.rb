@@ -425,7 +425,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal cards.map { [ it.id, it.season_number, it.rarity, it.image_url, it.title, it.year ] },
       body["cards"].map { it.values_at("slug", "season", "tier", "coverUrl", "title", "year") }
     body["cards"].zip(cards).each do |card, view|
-      assert_equal %w[slug season tier coverUrl title year label faces], card.keys
+      assert_equal %w[slug season tier coverUrl title year label goals faces], card.keys
+      assert_equal "", card["goals"]
       assert_equal %w[s m xl], card["faces"].keys
       card["faces"].each do |size, html|
         face = Nokogiri::HTML5.fragment(html)
@@ -697,6 +698,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     open_json
 
     assert_equal [ "Valve" ], body["goalsReached"]
+    assert_equal [ "goal 1: Valve" ] * Game::Pack::SIZE, body["cards"].map { it["goals"] }
+    assert_equal [ "1" ], Nokogiri::HTML5.fragment(body["cards"].first["faces"]["m"]).css(".card__goals > .goal-bookmark").map(&:text)
     assert_empty Game::Goal.where(player_id: player.id)
     open_json
     assert_equal [], body["goalsReached"]

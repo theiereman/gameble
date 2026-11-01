@@ -20,6 +20,7 @@ class CardsController < ApplicationController
     @public = current_player.nil? && named.nil? && profile.nil?
     @live_strip = LiveStream.strip_items if @public
     @browse = named || profile || set_browse(@detail.sets.first) unless @public
+    @goals = goal_marks.goals_for(@detail.card_id) unless @public
     @showcase = showcase_state
     @pioneer = pioneer_line
     @set_url = set_url

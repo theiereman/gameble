@@ -17,10 +17,11 @@ module CustomSetsHelper
     own_set.custom? ? custom_set_kind_line(own_set) : steam_library_kind_line(own_set)
   end
 
-  def own_set_tile_name(own_set)
+  def own_set_tile_name(own_set, goal: nil)
     return steam_library_tile_name(own_set) if own_set.steam_library?
 
-    [ own_set.name, t("library.entry.goals.custom_kind").downcase, set_album_value_text(own_set.to_set_standing) ].join(", ")
+    [ own_set.name, t("library.entry.goals.custom_kind").downcase, (t("goals.tile_words", number: goal.position) if goal),
+      set_album_value_text(own_set.to_set_standing) ].compact.join(", ")
   end
 
   def steam_library_tile_name(library)

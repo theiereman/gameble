@@ -5,6 +5,8 @@ class LibraryController < ApplicationController
   include SetAlbumLoading
   include GoalControlLoading
 
+  helper_method :goal_marks
+
   MORE_RESULTS_FRAME = "set-more-results-"
 
   def show
@@ -14,11 +16,11 @@ class LibraryController < ApplicationController
 
     own_sets = Game::CustomSetStandings.call(current_player).select { it.custom? || it.ever_synced? }
     load_set_search(@season, owner: current_player, own_sets:, offset: turbo_frame_request? ? tile_offset : 0)
-    return render(:more_results) if turbo_frame_request_id.to_s.start_with?(MORE_RESULTS_FRAME)
+    return more_results if turbo_frame_request_id.to_s.start_with?(MORE_RESULTS_FRAME)
 
     @custom_set_tiles, library_tiles = own_set_tiles(own_sets, owner: current_player, season: @season).partition { it.own_set.custom? }
     @steam_library_tile = library_tiles.first
-    @goals = Game::GoalNeeds.call(current_player)
+    @goals = goal_marks.needs
     load_unique_cards
   end
 
@@ -28,6 +30,7 @@ class LibraryController < ApplicationController
 
     section = params[:section] if BOARD_SECTIONS.include?(params[:section])
     load_set_tiles(Catalog::PublishedSeason.call, owner: current_player, section:, offset: tile_offset)
+    @goals = Game::GoalNeeds.targets(current_player)
     render(:more_tiles) if section
   end
 
@@ -51,11 +54,16 @@ class LibraryController < ApplicationController
     authorize :page, :play?
     @season = Catalog::PublishedSeason.call
     load_set_album(@season, owner: current_player, with_new: true)
-    load_goal_control(kind: @set.kind, key: @set.key)
+    load_goal_control({ kind: @set.kind, key: @set.key }, targets: goal_marks.targets)
     load_unique_cards
   end
 
   private
+    def more_results
+      @goals = Game::GoalNeeds.targets(current_player)
+      render :more_results
+    end
+
     def load_unique_cards
       @unique = Game::HeldGames.count(current_player)
       @season_cards = Catalog::CardCount.call(@season)

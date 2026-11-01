@@ -192,9 +192,10 @@ export class BoosterRenderer {
     const rarityNames = this.host.rarityNames()
     const cardName = (card: OpeningCard, index: number): string =>
       state.revealed[index]
-        ? t(phone ? this.strings.faceUpStore : this.strings.faceUp, {
+        ? t(this.faceUpString(phone, card), {
             card: card.label,
             rarity: rarityNames[card.tier],
+            goals: card.goals,
           })
         : t(this.strings.faceDown, { position: index + 1, total })
     const shown: CardView[] = []
@@ -219,6 +220,11 @@ export class BoosterRenderer {
       dealt: state.dealt,
       cards: shown,
     }
+  }
+
+  private faceUpString(phone: boolean, card: OpeningCard): string {
+    if (phone) return card.goals ? this.strings.faceUpStoreGoals : this.strings.faceUpStore
+    return card.goals ? this.strings.faceUpGoals : this.strings.faceUp
   }
 
   private renderStage(state: BoosterState, view: Controls): void {
@@ -305,7 +311,11 @@ export class BoosterRenderer {
         slots: cards.map((card, index) => ({
           tier: card.tier,
           coverUrl: card.coverUrl,
-          name: t(this.strings.traySlot, { card: card.label, rarity: this.host.rarityNames()[card.tier] }),
+          name: t(card.goals ? this.strings.traySlotGoals : this.strings.traySlot, {
+            card: card.label,
+            rarity: this.host.rarityNames()[card.tier],
+            goals: card.goals,
+          }),
           stored: state.stored[index] ?? false,
         })),
       },
