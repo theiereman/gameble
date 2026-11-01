@@ -25,6 +25,18 @@ risk = "high"
 references = ["architecture-gameble/architecture-gameble.md#ad-8", "architecture-gameble/architecture-gameble.md#ad-10", "spec-gameble/spec-gameble.md#cap-11", "ux-gameble/EXPERIENCE.md"]
 
 [[entry]]
+id = 10
+type = "story"
+title = "The menu shows how many friend invitations wait for the player's answer"
+description = "Friend invitations the player received and has not answered get the orange count badge, built like the trades-waiting badge: on 05 AMIS in the desktop menu, and on the phone on the PLUS tab and on Amis in the PLUS list; a sent invitation never counts; the number is part of the item's accessible name, hidden at zero in the tab bar and greyed at zero in the menu; it updates live through the player stream when an invitation arrives, is accepted, ignored or cancelled."
+verify = "A player who receives an invitation sees the badge with 1 on AMIS on desktop and on PLUS and its Amis row on the phone, in English and French, without reloading; accepting or ignoring it clears the badge; the sender sees no badge; helper, controller and system tests cover it."
+covers = ["E6"]
+after = []
+hitl = false
+risk = "low"
+references = ["ux-gameble/EXPERIENCE.md", "spec-gameble/spec-gameble.md#cap-10"]
+
+[[entry]]
 id = 2
 type = "story"
 title = "A player sees which friends spare their goals' missing cards and starts a trade from one"
@@ -91,7 +103,7 @@ title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full suite, packwerk, the linters and the size checks pass, and no behavior changes."
 covers = []
-after = [1, 8, 2, 9, 3, 4]
+after = [1, 8, 10, 2, 9, 3, 4]
 hitl = false
 risk = "low"
 

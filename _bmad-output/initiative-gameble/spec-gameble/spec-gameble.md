@@ -96,7 +96,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - The shared page and its image show the card only, never who shared or owns it.
 - **CAP-10**
   - **intent:** Players can become friends through an invite link, a friend code, or another player's profile.
-  - **success:** A valid link or code, or the add-friend action on a player's profile, sends an invitation. Once the other player accepts it, the friendship exists and is visible to both. They can also ignore it.
+  - **success:** A valid link or code, or the add-friend action on a player's profile, sends an invitation. Once the other player accepts it, the friendship exists and is visible to both. They can also ignore it. While invitations wait for a player's answer, the menu shows how many on every screen (author, 2026-11-01).
 - **CAP-11**
   - **intent:** Friends can trade cards directly and asynchronously, one or several cards on each side, with no currency, and the game suggests the trades that move their active goals forward.
   - **success:**

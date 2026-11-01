@@ -31,6 +31,7 @@ Completed at inception. The lines from the source:
 - E3 (CAP-11). A suggestion starts a trade proposal with its cards already placed, under the trade rules of CAP-11.
 - E4 (CAP-8, CAP-11). A private player, or one whose profile hides from the player, is never suggested and never sees suggestions naming others.
 - E5 (CAP-11). Two friends may hold any number of open trades at once; a proposal identical to one already open between them is refused (author, 2026-10-31).
+- E6 (CAP-10). While friend invitations wait for the player's answer, the menu shows how many, on desktop and on the phone (author, 2026-11-01).
 
 ## Done when
 
@@ -39,7 +40,8 @@ Completed at inception. The lines from the source:
 3. Starting a trade from a suggestion opens the proposal with its cards placed, and the trade then runs as any other.
 4. No suggestion ever names a private player or reveals a collection its owner hides.
 5. Two friends hold two open trades at once, each reserving only its own offer, and a repeated send creates no second trade.
-6. Release 1.1.0 or the release carrying the suggestions is on production.
+6. A player sees from the menu, without reloading, how many friend invitations wait for their answer.
+7. Release 1.1.0 or the release carrying the suggestions is on production.
 
 ## Boundaries
 
