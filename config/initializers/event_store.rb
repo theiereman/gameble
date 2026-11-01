@@ -16,6 +16,8 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Handlers::PlayerDeleted, to: [ Accounts::PlayerDeleted ])
   event_store.subscribe(Game::Handlers::PlayerBanned, to: [ Accounts::PlayerBanned ])
   event_store.subscribe(Game::Handlers::VisibilityChanged, to: [ Accounts::VisibilityChanged ])
+  # A player who turns the Steam library sync off has the set and its games erased within the change.
+  event_store.subscribe(Game::Handlers::SteamLibrarySyncChanged, to: [ Accounts::SteamLibrarySyncChanged ])
   # Players left without a bank get one when a season is published.
   event_store.subscribe(Game::Handlers::SeasonPublished, to: [ Catalog::SeasonPublished ])
   # A card's new art or title renders its preview images again, once the change commits.

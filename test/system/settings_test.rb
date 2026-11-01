@@ -284,10 +284,11 @@ class SettingsTest < ApplicationSystemTestCase
   end
 
   def assert_every_setting_shown
-    assert_selector ".settings__main .settings-row", count: 9
+    assert_selector ".settings__main .settings-row", count: 10
     assert_selector ".settings__main .segmented[aria-labelledby=settings-language]"
     assert_selector ".settings__main .segmented[aria-labelledby=settings-visibility]"
     assert_selector ".settings__main .segmented[aria-labelledby=settings-motion]"
+    assert_selector ".settings__main .segmented[aria-labelledby=settings-steam-library]"
     assert_selector ".settings__main .settings-row a.button--link", text: /legal notice/i
   end
 

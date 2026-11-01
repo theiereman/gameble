@@ -3,4 +3,5 @@ class SettingsPolicy < ApplicationPolicy
   def update? = player?
   def visibility? = player?
   def name? = player?
+  def steam_library? = player?
 end

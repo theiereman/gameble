@@ -28,4 +28,25 @@ class CreateSteamLibrarySetJobTest < ActiveJob::TestCase
 
     assert_not Game::CustomSet.steam_library.exists?
   end
+
+  test "a first sync, asked when the player turns the sync back on, enqueues one sync of the new set" do
+    assert_enqueued_jobs 1, only: SyncSteamLibraryJob do
+      CreateSteamLibrarySetJob.perform_now(@player.id, first_sync: true)
+    end
+
+    library_set = Game::CustomSet.steam_library.find_by!(player_id: @player.id)
+    assert_enqueued_with job: SyncSteamLibraryJob, args: [ @player.id, library_set.token ]
+  end
+
+  test "a player who turned the sync off gets no set, no event and no sync" do
+    @player.update_column(:steam_library_sync, false)
+
+    assert_no_enqueued_jobs do
+      CreateSteamLibrarySetJob.perform_now(@player.id)
+      CreateSteamLibrarySetJob.perform_now(@player.id, first_sync: true)
+    end
+
+    assert_not Game::CustomSet.steam_library.exists?
+    assert_empty game_events(@player, Game::LibrarySetCreated)
+  end
 end

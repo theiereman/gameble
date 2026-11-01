@@ -1,10 +1,15 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
+require_relative "../support/clerk_fake"
+require_relative "../support/custom_sets"
 
 # The settings screen and the motion switch: the player's setting, else the
 # cookie, else the system, rendered as `html[data-motion]` ("reduced", "full"
 # or absent) and in the view-transition meta.
 class SettingsControllerTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
+  include ClerkFake
+  include CustomSets
   include SteamSignIn
 
   setup do
@@ -35,8 +40,8 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "title", /Profil et paramètres/
     assert_select "main h1", "Profil et paramètres"
-    assert_select ".settings-row", 9
-    assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Session", "Connexions", "Mes données", "Compte", "Soutenir" ], css_select(".settings-row__label").map(&:text)
+    assert_select ".settings-row", 10
+    assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Synchroniser mes jeux Steam", "Session", "Connexions", "Mes données", "Compte", "Soutenir" ], css_select(".settings-row__label").map(&:text)
     assert_select "[role=group][aria-labelledby=settings-language] a.segmented__option[data-locale-choice][data-turbo-action=replace]", 2
     assert_select "a.segmented__option[href='/fr/settings'][aria-current=true][lang=fr]", "Français"
     assert_select "a.segmented__option[href='/en/settings'][lang=en]:not([aria-current])", "English"
@@ -129,7 +134,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :en)
 
     assert_select "main h1", "Profile and settings"
-    assert_equal [ "Language", "Profile visibility", "Reduced motion", "Session", "Sign-ins", "My data", "Account", "Support" ], css_select(".settings-row__label").map(&:text)
+    assert_equal [ "Language", "Profile visibility", "Reduced motion", "Sync my Steam games", "Session", "Sign-ins", "My data", "Account", "Support" ], css_select(".settings-row__label").map(&:text)
     assert_select "button[name=reduced_motion][value=on][aria-pressed=true]", "Yes"
     assert_select "button[name=reduced_motion][value=system][aria-pressed=false]", "System"
     assert_select "button[name=reduced_motion][value=off][aria-pressed=false]", "No"
@@ -609,5 +614,203 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".settings-summary__visibility-long", "Profil privé\u202F: vous seul le voyez"
     assert_select ".settings-summary__visibility-short", "Vous seul le voyez"
+  end
+
+  # The Steam library sync row
+
+  def sign_in_without_steam
+    ClerkFake.install(users: { "user_discord" => ClerkFake.api_user("user_discord", accounts: [ { provider: "discord", uid: "discord-1" } ]) })
+    cookies["__session"] = ClerkFake.session_token(user_id: "user_discord")
+    post clerk_session_path(locale: :en)
+    Accounts::Player.find(session.fetch(:player_id))
+  end
+
+  def library_set_of(player) = Game::CustomSet.steam_library.find_by(player_id: player.id)
+
+  test "a Steam player's sync row: the label, the line under it, OUI pressed and NON opening the dialog" do
+    sign_in(@player)
+
+    get settings_path(locale: :fr)
+
+    assert_select ".settings-row__heading .settings-row__label#settings-steam-library", "Synchroniser mes jeux Steam"
+    assert_select ".settings-row__heading .settings-row__hint#settings-steam-library-hint",
+      "Gameble lit les jeux de votre compte Steam une fois par jour pour votre set MA LUDOTHÈQUE STEAM."
+    assert_select "form[action='/fr/settings/steam-library'][data-turbo=false]" do
+      assert_select "input[name=_method][value=patch]"
+      assert_select "[role=group][aria-labelledby=settings-steam-library][aria-describedby=settings-steam-library-hint] button[name=steam_library_sync]", 2
+      assert_select "button[name=steam_library_sync][value=on][aria-pressed=true]:not([aria-haspopup])", "Oui"
+      assert_select "button[name=steam_library_sync][value=off][aria-pressed=false][aria-haspopup=dialog]" \
+        "[data-controller=dialog-opener][data-action='dialog-opener#open'][data-dialog-opener-dialog-value=library-sync-dialog]", "Non"
+    end
+    assert_select "dialog#library-sync-dialog:not([open])[aria-labelledby=library-sync-dialog-title][aria-describedby=library-sync-dialog-text]" do
+      assert_select "#library-sync-dialog-title", "Désactiver la synchronisation\u202F?"
+      assert_select "button.modal__close[type=submit][form=library-sync-dialog-form][formmethod=dialog][aria-label=Fermer]"
+      assert_select "form#library-sync-dialog-form[action='/fr/settings/steam-library'][data-turbo=false]" do
+        assert_select "input[name=_method][value=patch]"
+        assert_select "input[type=hidden][name=steam_library_sync][value=off]"
+        assert_select "input[type=hidden][name=confirmed][value='1']"
+        assert_select "#library-sync-dialog-text", "Le set MA LUDOTHÈQUE STEAM et la liste de vos jeux Steam seront effacés."
+        assert_select "button[type=submit]:not([formmethod])", "Désactiver"
+        assert_select "button[type=submit][formmethod=dialog][data-action='dialog#close']", "Annuler"
+      end
+    end
+    assert_select "[style]", 0
+  end
+
+  test "the sync row in English, NON pressed and no dialog once the sync is off" do
+    @player.update_column(:steam_library_sync, false)
+    sign_in(@player)
+
+    get settings_path(locale: :en)
+
+    assert_select "#settings-steam-library", "Sync my Steam games"
+    assert_select "#settings-steam-library-hint", "Gameble reads the games of your Steam account once a day for your MY STEAM LIBRARY set."
+    assert_select "button[name=steam_library_sync][value=on][aria-pressed=false]", "Yes"
+    assert_select "button[name=steam_library_sync][value=off][aria-pressed=true]:not([aria-haspopup])", "No"
+    assert_select "dialog#library-sync-dialog", 0
+  end
+
+  test "the dialog's copy in English" do
+    sign_in(@player)
+
+    get settings_path(locale: :en)
+
+    assert_select "dialog#library-sync-dialog" do
+      assert_select "#library-sync-dialog-title", "Turn off the sync?"
+      assert_select "#library-sync-dialog-text", "The MY STEAM LIBRARY set and the list of your Steam games will be erased."
+      assert_select "button.modal__close[aria-label=Close]"
+      assert_select "button[type=submit]:not([formmethod])", "Turn off"
+      assert_select "button[formmethod=dialog]", "Cancel"
+    end
+  end
+
+  test "a player without Steam has neither the sync row nor the dialog, and cannot set it" do
+    player = sign_in_without_steam
+
+    get settings_path(locale: :fr)
+
+    assert_response :success
+    assert_select "#settings-steam-library", 0
+    assert_select "button[name=steam_library_sync]", 0
+    assert_select "dialog#library-sync-dialog", 0
+
+    %w[off on].each do |choice|
+      patch settings_steam_library_path(locale: :fr), params: { steam_library_sync: choice, confirmed: "1" }
+
+      assert_redirected_to settings_path(locale: :fr)
+      assert_equal "Liez d'abord un compte Steam.", flash[:alert]
+    end
+    assert player.reload.steam_library_sync
+    assert_empty Rails.configuration.event_store.read.of_type(Accounts::SteamLibrarySyncChanged).to_a
+  end
+
+  test "NON without the confirmation writes nothing and comes back with the dialog open" do
+    library_set = create_library_set(@player)
+    sign_in(@player)
+
+    patch settings_steam_library_path(locale: :fr), params: { steam_library_sync: "off" }
+
+    assert_redirected_to settings_path(locale: :fr)
+    assert @player.reload.steam_library_sync
+    assert Game::CustomSet.exists?(library_set.id)
+    assert_nil flash[:alert]
+    follow_redirect!
+    assert_select "dialog#library-sync-dialog[open] input[name=confirmed][value='1']"
+    assert_nil flash[:notice]
+
+    get settings_path(locale: :fr)
+    assert_select "dialog#library-sync-dialog:not([open])"
+  end
+
+  test "NON confirmed turns the sync off and erases the set and its games, with no notice" do
+    library_set = create_library_set(@player)
+    sign_in(@player)
+    get settings_path(locale: :fr)
+
+    assert_no_enqueued_jobs(only: CreateSteamLibrarySetJob) do
+      patch settings_steam_library_path(locale: :fr), params: { steam_library_sync: "off", confirmed: "1" }
+    end
+
+    assert_redirected_to settings_path(locale: :fr)
+    assert_not @player.reload.steam_library_sync
+    assert_not Game::CustomSet.exists?(library_set.id)
+    assert_equal 0, Game::CustomSetGame.where(custom_set_id: library_set.id).count
+    follow_redirect!
+    assert_nil flash[:notice]
+    assert_select "button[name=steam_library_sync][value=off][aria-pressed=true]"
+    assert_select "dialog#library-sync-dialog", 0
+  end
+
+  test "OUI from off turns the sync on and enqueues the creation of the set with its first sync" do
+    @player.update_column(:steam_library_sync, false)
+    sign_in(@player)
+    get settings_path(locale: :fr)
+    clear_enqueued_jobs
+
+    patch settings_steam_library_path(locale: :fr), params: { steam_library_sync: "on" }
+
+    assert_redirected_to settings_path(locale: :fr)
+    assert @player.reload.steam_library_sync
+    assert_enqueued_with job: CreateSteamLibrarySetJob, args: [ @player.id, { first_sync: true } ]
+    assert_equal 1, enqueued_jobs.count { it["job_class"] == "CreateSteamLibrarySetJob" }
+    follow_redirect!
+    assert_nil flash[:notice]
+  end
+
+  test "the value the player already has writes nothing and enqueues nothing" do
+    sign_in(@player)
+    clear_enqueued_jobs
+
+    assert_no_enqueued_jobs do
+      patch settings_steam_library_path(locale: :fr), params: { steam_library_sync: "on" }
+    end
+    assert_redirected_to settings_path(locale: :fr)
+
+    @player.update_column(:steam_library_sync, false)
+    assert_no_enqueued_jobs do
+      patch settings_steam_library_path(locale: :fr), params: { steam_library_sync: "off" }
+    end
+    assert_redirected_to settings_path(locale: :fr)
+    follow_redirect!
+    assert_select "dialog#library-sync-dialog", 0
+    assert_empty Rails.configuration.event_store.read.of_type(Accounts::SteamLibrarySyncChanged).to_a
+  end
+
+  [ nil, "", "maybe", "On", [ "on" ] ].each do |choice|
+    test "#{choice.inspect} is no sync choice: refused with its message, nothing changes" do
+      library_set = create_library_set(@player)
+      sign_in(@player)
+
+      patch settings_steam_library_path(locale: :fr), params: { steam_library_sync: choice, confirmed: "1" }
+
+      assert_redirected_to settings_path(locale: :fr)
+      assert_equal I18n.t("errors.accounts.invalid_setting", locale: :fr), flash[:alert]
+      assert @player.reload.steam_library_sync
+      assert Game::CustomSet.exists?(library_set.id)
+    end
+  end
+
+  test "a visitor cannot set the sync, and a GET writes nothing" do
+    library_set = create_library_set(@player)
+
+    patch settings_steam_library_path(locale: :en), params: { steam_library_sync: "off", confirmed: "1" }
+    assert_redirected_to home_path(locale: :en)
+    assert @player.reload.steam_library_sync
+
+    sign_in(@player)
+    get settings_path(locale: :en, steam_library_sync: "off", confirmed: "1")
+    assert @player.reload.steam_library_sync
+    assert Game::CustomSet.exists?(library_set.id)
+  end
+
+  test "a player banned since they signed in cannot set the sync" do
+    library_set = create_library_set(@player)
+    sign_in(@player)
+    @player.update_column(:banned_at, Time.current)
+
+    patch settings_steam_library_path(locale: :en), params: { steam_library_sync: "off", confirmed: "1" }
+
+    assert @player.reload.steam_library_sync
+    assert Game::CustomSet.exists?(library_set.id)
   end
 end

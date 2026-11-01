@@ -6,7 +6,9 @@ require_relative "../support/steam_sign_in"
 # A player signed in with Steam gets their Steam library set with no action
 # of theirs: the daily sync fills it from the games Steam lists, the
 # collection shows it under MA LUDOTHÈQUE STEAM once synced, and a library
-# Steam stops sharing keeps its games under a quiet line.
+# Steam stops sharing keeps its games under a quiet line. A player who turns
+# the sync off in the settings has the set erased, and gets it back by
+# turning the sync on again.
 class SteamLibraryTest < ApplicationSystemTestCase
   include ActiveJob::TestHelper
   include GameSets
@@ -102,5 +104,52 @@ class SteamLibraryTest < ApplicationSystemTestCase
     fill_in "set-search-field", with: "zzz"
     assert_selector ".set-results"
     assert_no_selector "section.steam-library", visible: true
+  end
+
+  test "turning the sync off asks first, erases the set for good across sign-ins, and turning it on brings it back" do
+    steam_lists(:portal, :common_card)
+    sign_in_with_steam
+    run_daily_sync
+    library_set = Game::CustomSet.steam_library.find_by!(player_id: @player.id)
+    visit settings_path(locale: :fr)
+
+    within("[role=group][aria-labelledby=settings-steam-library]") { click_on "Non" }
+    within("dialog#library-sync-dialog[open]") do
+      assert_selector "#library-sync-dialog-title", text: "DÉSACTIVER LA SYNCHRONISATION\u202F?"
+      assert_text "Le set MA LUDOTHÈQUE STEAM et la liste de vos jeux Steam seront effacés."
+      click_on "Annuler"
+    end
+    assert_no_selector "dialog#library-sync-dialog[open]"
+    assert @player.reload.steam_library_sync
+    assert Game::CustomSet.exists?(library_set.id)
+
+    within("[role=group][aria-labelledby=settings-steam-library]") { click_on "Non" }
+    within("dialog#library-sync-dialog[open]") { click_on "Désactiver" }
+    assert_selector "button[name=steam_library_sync][value=off][aria-pressed=true]"
+    assert_no_selector "dialog#library-sync-dialog"
+    assert_not @player.reload.steam_library_sync
+    assert_not Game::CustomSet.exists?(library_set.id)
+    assert_equal 0, Game::CustomSetGame.where(custom_set_id: library_set.id).count
+
+    visit library_path(locale: :en)
+    assert_selector "section.custom-sets"
+    assert_no_selector "section.steam-library"
+
+    sign_out
+    assert_signed_out
+    sign_in_with_steam
+    assert_not Game::CustomSet.steam_library.exists?(player_id: @player.id)
+
+    visit settings_path(locale: :fr)
+    within("[role=group][aria-labelledby=settings-steam-library]") { click_on "Oui" }
+    assert_selector "button[name=steam_library_sync][value=on][aria-pressed=true]"
+    perform_enqueued_jobs(only: CreateSteamLibrarySetJob)
+    perform_enqueued_jobs(only: SyncSteamLibraryJob)
+    visit library_path(locale: :en)
+
+    within("section.steam-library") do
+      assert_selector "h2", text: "MY STEAM LIBRARY"
+      assert_selector ".steam-library__kind", text: "STEAM · 2 CATALOG GAMES"
+    end
   end
 end

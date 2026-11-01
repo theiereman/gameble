@@ -907,6 +907,7 @@ en:
       reason_too_long: The reason for a ban holds 500 characters at most, officer.
       sign_in_failed: The sign-in failed on our side. Try again in a moment.
       staff_required: Only the moderation team can do that.
+      steam_identity_required: Link a Steam account first.
       steam_taken: This Steam account already belongs to another Gameble account.
     catalog:
       already_numbered: The cards of that season are numbered already, officer.
@@ -2350,6 +2351,12 @@ en:
   season_mark:
     title: Season %{season}
   settings:
+    library_sync_dialog:
+      cancel: Cancel
+      close: Close
+      confirm: Turn off
+      text: The MY STEAM LIBRARY set and the list of your Steam games will be erased.
+      title: Turn off the sync?
     private_dialog:
       cancel: Cancel
       close: Close
@@ -2392,6 +2399,11 @@ en:
       sign_ins:
         label: Sign-ins
         link_steam: Link Steam
+      steam_library:
+        hint: Gameble reads the games of your Steam account once a day for your MY STEAM LIBRARY set.
+        label: Sync my Steam games
+        'off': 'No'
+        'on': 'Yes'
       summary:
         cards:
           one: "%{count} card"

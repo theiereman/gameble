@@ -62,6 +62,25 @@
             <% end %>
           </li>
 
+          <% unless @library_sync.nil? %>
+            <li class="settings-row">
+              <div class="settings-row__heading">
+                <p id="settings-steam-library" class="settings-row__label"><%= t(".steam_library.label") %></p>
+                <p id="settings-steam-library-hint" class="settings-row__hint"><%= t(".steam_library.hint") %></p>
+              </div>
+              <%= form_with url: settings_steam_library_path, method: :patch, class: "settings-row__form", data: { turbo: false } do %>
+                <div class="segmented" role="group" aria-labelledby="settings-steam-library" aria-describedby="settings-steam-library-hint">
+                  <% SettingsController::LIBRARY_SYNC_CHOICES.each do |choice, value| %>
+                    <% confirm = @library_sync && !value %>
+                    <%= tag.button t(".steam_library.#{choice}"), type: :submit, name: "steam_library_sync", value: choice, class: "segmented__option",
+                          aria: { pressed: (@library_sync == value).to_s, haspopup: ("dialog" if confirm) },
+                          data: ({ controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "library-sync-dialog" } if confirm) %>
+                  <% end %>
+                </div>
+              <% end %>
+            </li>
+          <% end %>
+
           <li class="settings-row">
             <p id="settings-session" class="settings-row__label"><%= t(".session.label") %></p>
             <%= render ButtonComponent.new(variant: :secondary, size: :small, href: session_path, method: :delete, turbo: false) do %><%= t(".session.sign_out") %><% end %>
@@ -139,4 +158,7 @@
 <%= render "accounts/dialog" %>
 <% if @visibility != "private" && @open_trades.positive? %>
   <%= render "settings/private_dialog", open_trades: @open_trades, shown: @asks_to_go_private %>
+<% end %>
+<% if @library_sync %>
+  <%= render "settings/library_sync_dialog", shown: @asks_to_turn_library_off %>
 <% end %>

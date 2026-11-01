@@ -8,6 +8,7 @@ module Game
 
       transaction do
         step lock_bank(player)
+        step library_sync_on(player)
         CustomSet.steam_library.find_by(player_id: player.id) || created(player)
       end
     end
@@ -16,6 +17,10 @@ module Game
 
     def steam_identity(player)
       Accounts::SteamIdOf.call(player) ? Success() : Failure(:steam_identity_required)
+    end
+
+    def library_sync_on(player)
+      Accounts::SteamLibrarySyncOn.call(player) ? Success() : Failure(:library_sync_off)
     end
 
     def created(player)

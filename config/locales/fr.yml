@@ -1391,6 +1391,11 @@ fr:
         system: "Système"
         "on": "Oui"
         "off": "Non"
+      steam_library:
+        label: "Synchroniser mes jeux Steam"
+        hint: "Gameble lit les jeux de votre compte Steam une fois par jour pour votre set MA LUDOTHÈQUE STEAM."
+        "on": "Oui"
+        "off": "Non"
       session:
         label: "Session"
         sign_out: "Se déconnecter"
@@ -1436,6 +1441,12 @@ fr:
         one: "Passer en privé annule votre échange en cours."
         other: "Passer en privé annule vos %{count} échanges en cours."
       confirm: "Passer en privé"
+      cancel: "Annuler"
+      close: "Fermer"
+    library_sync_dialog:
+      title: "Désactiver la synchronisation ?"
+      text: "Le set MA LUDOTHÈQUE STEAM et la liste de vos jeux Steam seront effacés."
+      confirm: "Désactiver"
       cancel: "Annuler"
       close: "Fermer"
   feeds:
@@ -2359,6 +2370,7 @@ fr:
       rate_limited: "Vous avez envoyé beaucoup de signalements aujourd'hui. Réessayez demain."
       staff_required: "Seule la modération peut faire cela."
       steam_taken: "Ce compte Steam appartient déjà à un autre compte Gameble."
+      steam_identity_required: "Liez d'abord un compte Steam."
       administrator_required: "Seul un administrateur peut faire cela, officier."
       cannot_ban_self: "Vous ne pouvez pas vous bannir vous-même, officier."
       cannot_dismiss_self: "Vous ne pouvez pas classer les signalements qui vous visent, officier."

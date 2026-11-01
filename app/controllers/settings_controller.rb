@@ -1,5 +1,6 @@
 class SettingsController < ApplicationController
   MOTION_CHOICES = { "system" => nil, "on" => true, "off" => false }.freeze
+  LIBRARY_SYNC_CHOICES = { "on" => true, "off" => false }.freeze
 
   def show
     authorize :settings, :show?
@@ -12,7 +13,10 @@ class SettingsController < ApplicationController
     @card_count = Game::CollectionSummary.call(current_player).distinct_cards
     @active_title = Game::ActiveProfileTitle.call(current_player)
     @identities = Accounts::IdentitiesOf.call(current_player)
-    @name_editable = @identities.none? { it.provider == "steam" }
+    steam_linked = @identities.any? { it.provider == "steam" }
+    @name_editable = !steam_linked
+    @library_sync = current_player.steam_library_sync if steam_linked
+    @asks_to_turn_library_off = flash[:confirm_library_off].present?
     @clerk_mode = params[:add_sign_in].present? ? "callback" : "start"
   end
 
@@ -26,6 +30,21 @@ class SettingsController < ApplicationController
       redirect_to settings_path, status: :see_other
     else
       redirect_refused Accounts::SetVisibility, result, settings_path
+    end
+  end
+
+  def steam_library
+    authorize :settings, :steam_library?
+    enabled = LIBRARY_SYNC_CHOICES.fetch(params[:steam_library_sync].to_s, :invalid)
+
+    return redirect_to(settings_path, flash: { confirm_library_off: true }, status: :see_other) if erases_library_unconfirmed?(enabled)
+
+    result = Accounts::SetSteamLibrarySync.new.call(player: current_player, enabled:)
+    if result.success?
+      CreateSteamLibrarySetJob.perform_later(current_player.id, first_sync: true) if turned_on?(result.value!)
+      redirect_to settings_path, status: :see_other
+    else
+      redirect_refused Accounts::SetSteamLibrarySync, result, settings_path
     end
   end
 
@@ -57,5 +76,13 @@ class SettingsController < ApplicationController
   def cancels_unconfirmed_trades?
     params[:visibility] == "private" && !current_player.visibility_private? &&
       Game::OpenTradeCount.call(current_player) > params[:confirmed_trades].to_s.to_i
+  end
+
+  def turned_on?(player)
+    player.saved_change_to_steam_library_sync? && player.steam_library_sync
+  end
+
+  def erases_library_unconfirmed?(enabled)
+    enabled == false && current_player.steam_library_sync && params[:confirmed] != "1" && Accounts::SteamIdOf.call(current_player).present?
   end
 end

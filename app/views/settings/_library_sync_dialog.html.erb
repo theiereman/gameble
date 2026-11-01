@@ -1,0 +1,21 @@
+<%= tag.dialog id: "library-sync-dialog", class: "modal", open: shown, aria: { labelledby: "library-sync-dialog-title", describedby: "library-sync-dialog-text" },
+      data: { controller: "dialog", action: "click->dialog#closeOnScrim" } do %>
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="library-sync-dialog-title" class="modal__title"><%= t("settings.library_sync_dialog.title") %></p>
+      <button type="submit" form="library-sync-dialog-form" formmethod="dialog" class="modal__close" aria-label="<%= t("settings.library_sync_dialog.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= form_with url: settings_steam_library_path, method: :patch, id: "library-sync-dialog-form", class: "library-sync-dialog__form", data: { turbo: false } do %>
+      <%= hidden_field_tag "steam_library_sync", "off", id: nil %>
+      <%= hidden_field_tag "confirmed", "1", id: nil %>
+      <p id="library-sync-dialog-text" class="library-sync-dialog__text"><%= t("settings.library_sync_dialog.text") %></p>
+      <div class="library-sync-dialog__actions">
+        <%= tag.button t("settings.library_sync_dialog.confirm"), type: :submit, class: "button button--primary" %>
+        <%= tag.button t("settings.library_sync_dialog.cancel"), type: :submit, formmethod: :dialog, class: "button button--secondary", data: { action: "dialog#close" } %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

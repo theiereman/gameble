@@ -84,6 +84,22 @@
   text-transform: uppercase;
 }
 
+/* A label with its explaining line under it, both on the left. */
+.settings-row__heading {
+  display: flex;
+  flex: 1 1 240px;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.settings-row__hint {
+  max-width: 420px;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
 .settings-row__form,
 .settings-row .button,
 .settings-row .button-form {
@@ -201,19 +217,22 @@
   }
 }
 
-.private-dialog__form {
+.private-dialog__form,
+.library-sync-dialog__form {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
 }
 
-.private-dialog__text {
+.private-dialog__text,
+.library-sync-dialog__text {
   margin: 0;
   color: var(--color-text);
   font: var(--font-body);
 }
 
-.private-dialog__actions {
+.private-dialog__actions,
+.library-sync-dialog__actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
