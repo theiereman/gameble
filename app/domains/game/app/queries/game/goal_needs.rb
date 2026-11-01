@@ -29,8 +29,11 @@ module Game
       resolve(rows, Catalog::SetsByKey.sets(season: season_for(rows), keys: game_set_keys(rows)))
     end
 
-    def self.call(player)
-      rows = goal_rows(player)
+    def self.call(player) = needs(player, goal_rows(player))
+
+    def self.on_game_sets(player) = needs(player, goal_rows(player, Goal.where(custom_set_id: nil)))
+
+    def self.needs(player, rows)
       return [] if rows.empty?
 
       albums = Catalog::SetsByKey.call(season: season_for(rows), keys: game_set_keys(rows))
@@ -48,10 +51,10 @@ module Game
       end
     end
 
-    def self.goal_rows(player)
+    def self.goal_rows(player, goals = Goal.all)
       return [] if player.nil?
 
-      Goal.where(player_id: player.id).left_joins(:custom_set).order(:position)
+      goals.where(player_id: player.id).left_joins(:custom_set).order(:position)
         .pluck(:id, :position, :set_kind, :set_key, Arel.sql("game_custom_sets.token"), Arel.sql("game_custom_sets.name"))
     end
 
@@ -72,6 +75,6 @@ module Game
       end
     end
 
-    private_class_method :goal_rows, :game_set_keys, :season_for, :resolve
+    private_class_method :needs, :goal_rows, :game_set_keys, :season_for, :resolve
   end
 end

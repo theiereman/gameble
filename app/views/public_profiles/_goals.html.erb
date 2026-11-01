@@ -1,0 +1,9 @@
+<%# locals: (owner:, goals:) %>
+<section class="profile-section" aria-labelledby="profile-goals-heading">
+  <h2 id="profile-goals-heading" class="profile-section__title"><%= t("public_profiles.show.goals.title") %></h2>
+  <ol class="goals__list profile-goals">
+    <% goals.each.with_index(1) do |need, tone| %>
+      <li><%= render "goals/row", need:, href: brother_set_path(owner.token, kind: need.kind, key: need.key), sentence: profile_goal_row_sentence(need), bookmark: false, tone: %></li>
+    <% end %>
+  </ol>
+</section>

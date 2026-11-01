@@ -1,8 +1,8 @@
 /*
  * A player's public profile (public_profiles/*): the identity band with its
- * key numbers, the stats, the latest achievements and the started sets, one
- * column; and the quiet panel of a profile that cannot be shown. Hard edges
- * and pixel outlines on the 2px grid.
+ * key numbers, the stats, the latest achievements, the game set goals and
+ * the started sets, one column; and the quiet panel of a profile that cannot
+ * be shown. Hard edges and pixel outlines on the 2px grid.
  */
 
 .profile {

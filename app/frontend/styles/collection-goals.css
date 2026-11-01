@@ -126,6 +126,11 @@
   text-decoration: none;
 }
 
+.goal-row--no-bookmark {
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 210px) 64px minmax(0, 200px) auto;
+  grid-template-areas: "name track count next album";
+}
+
 .goal-row:hover {
   background: var(--color-panel-raised);
 }
@@ -357,6 +362,14 @@
       "next next next";
     gap: var(--space-3) var(--space-4);
     padding: var(--space-3) var(--space-4) var(--space-3) 18px;
+  }
+
+  .goal-row--no-bookmark {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "name count"
+      "track track"
+      "next next";
   }
 
   .goal-row__album {

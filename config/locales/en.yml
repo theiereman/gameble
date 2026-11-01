@@ -2231,6 +2231,9 @@ en:
       distinct_cards:
         one: "%{count} card collected"
         other: "%{count} cards collected"
+      goals:
+        row: "%{set}, %{kind}, %{count}, %{next}"
+        title: Goals
       keys:
         achievements: Achievements
         cards: Cards

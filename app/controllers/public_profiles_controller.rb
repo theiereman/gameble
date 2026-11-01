@@ -17,7 +17,7 @@ class PublicProfilesController < ApplicationController
     @achievements = Game::EarnedAchievements.call(@owner)
     @showcase = chosen_cards(@owner)
     @owner_title = Game::ActiveProfileTitle.call(@owner)
-    load_stats_and_sets if @season
+    load_season_sections if @season
     load_relation
   end
 
@@ -65,12 +65,13 @@ class PublicProfilesController < ApplicationController
       @relation = Game::ProfileRelation.call(current_player, @owner)
     end
 
-    def load_stats_and_sets
+    def load_season_sections
       @rarities = Game::HeldGames.by_rarity(@owner)
       @activity = Game::ProfileActivity.call(@owner)
       standings = started_standings
       @started_set_count = standings.size
       @started_sets = most_complete_set_tiles(standings)
+      @goals = Game::GoalNeeds.on_game_sets(@owner)
     end
 
     def started_standings

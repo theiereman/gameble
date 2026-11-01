@@ -60,6 +60,23 @@ class Game::GoalNeedsTest < ActiveSupport::TestCase
     assert favourites.aims_at?(custom_set: custom_set.token)
   end
 
+  test "on game sets reads the game set goals alone, in number order, without reading a custom set" do
+    add(custom_set: create_custom_set(@player).token)
+    insert_set(unheld_cards(3), { complete: 3 }, key: "roguelike", params: { "theme" => "roguelike" })
+    add(kind: "theme", key: "roguelike")
+    add(kind: "studio", key: "valve")
+
+    statements = []
+    record = ->(*, payload) { statements << payload[:sql] }
+    needs = ActiveSupport::Notifications.subscribed(record, "sql.active_record") { Game::GoalNeeds.on_game_sets(@player) }
+
+    assert_equal [ [ 2, "theme", "roguelike", 0, 3 ], [ 3, "studio", "valve", 0, 1 ] ], needs.map { [ it.position, it.kind, it.key, it.held, it.total ] }
+    assert needs.none?(&:custom?)
+    assert_empty statements.grep(/FROM "game_custom_sets"/)
+    without_goals = accounts_players(:moderator)
+    assert_queries_count(1) { assert_equal [], Game::GoalNeeds.on_game_sets(without_goals) }
+  end
+
   test "a player without goals, or no player, has none, read in one query" do
     assert_queries_count(1) { assert_equal [], Game::GoalNeeds.call(@player) }
     assert_queries_count(0) { assert_equal [], Game::GoalNeeds.targets(nil) }

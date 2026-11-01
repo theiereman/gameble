@@ -738,7 +738,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor's profile costs fifteen queries whatever the owner's history, a signed-in viewer's nine more, a showcase one more" do
+  test "a visitor's profile costs sixteen queries whatever the owner's history, a signed-in viewer's nine more, a showcase one more" do
     season = publish_sets_draft
     set_members(season, "horror").last(2).each { |id| hold(@owner, id, 1) }
     unlock("first_booster", 1.day.ago)
@@ -746,16 +746,16 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # Owner by token, published season; the summary, the season's card
     # count, the achievements earned, the showcase, the rarities, the
     # activity, the owner's started sets, those sets, their cards and the
-    # faces of those shown; the themes' names; the owner's earned titles and
-    # their chosen one.
-    assert_request_queries(15) { get brother_path(locale: :en, token: @owner.token) }
+    # faces of those shown; the themes' names; the owner's game set goals;
+    # the owner's earned titles and their chosen one.
+    assert_request_queries(16) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
     assert_select ".profile-sets .set-tile", minimum: 1
 
     hold_started_sets(season)
     open_packs(season, 3)
     %w[first_epic first_trade boosters_10 first_repost].each { unlock(it, 1.hour.ago) }
-    assert_request_queries(15) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(16) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-sets .set-tile", 5
     assert_select ".profile-achievements .achievement", 4
 
@@ -763,18 +763,18 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # The same, the viewer's lookup and the top bar's four (reserve count,
     # next pack, copies per tier, rarity legend), the tab bar's trades and
     # invitations waiting, and the viewer's friendship and invitations with the owner.
-    assert_request_queries(24) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(25) { get brother_path(locale: :en, token: @owner.token) }
 
     # The chosen cards' views, however many.
     held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)
     held.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
-    assert_request_queries(25) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(26) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase .card", held.size
     assert_response :success
 
     # The owner's move buttons cost nothing more.
     sign_in(@owner)
-    assert_request_queries(23) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(24) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase__moves", held.size
   end
 

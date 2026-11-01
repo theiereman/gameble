@@ -1,17 +1,19 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 require_relative "../support/active_titles"
+require_relative "../support/custom_sets"
 require_relative "../support/steam_api_stubs"
 require_relative "../support/steam_sign_in"
 
 # A player's public profile: a player signs in, their
 # Steam persona name is stored, and they find the link to their profile in
 # the library; a visitor opens that link and sees the owner's avatar and name,
-# key numbers, started sets and, in a set, the owner's cards (the collection's
-# components, read-only).
+# key numbers, goals on game sets, started sets and, in a set, the owner's
+# cards (the collection's components, read-only).
 class PublicProfileTest < ApplicationSystemTestCase
   include CatalogSeeds
   include ActiveTitles
+  include CustomSets
   include SteamApiStubs
   include SteamSignIn
 
@@ -96,5 +98,34 @@ class PublicProfileTest < ApplicationSystemTestCase
 
     visit brother_path(locale: :fr, token: @player.token)
     assert_selector ".profile-band .profile-title", text: "Adepte · Valve"
+  end
+
+  test "a visitor reads the owner's game set goals without bookmark, opens one's album, and none once the profile is private" do
+    Game::AddGoal.new.call(player: @player, custom_set: create_custom_set(@player).token).value!
+    Game::AddGoal.new.call(player: @player, kind: "theme", key: "horror").value!
+    Game::AddGoal.new.call(player: @player, kind: "theme", key: "rpg").value!
+
+    visit brother_path(locale: :en, token: @player.token)
+
+    assert_selector "#profile-goals-heading", text: /\Agoals\z/i
+    assert_selector ".profile-goals a.goal-row", count: 2
+    assert_selector ".profile-goals li:first-child > a.goal-row > .visually-hidden", text: /\AHorror, theme, 8 cards out of 16, /, visible: :all
+    assert_no_selector ".goal-bookmark", visible: :all
+    assert_no_text "Mes favoris"
+    take_screenshot
+
+    resize_to(390, 844)
+    assert_selector ".profile-goals a.goal-row", count: 2
+    scroll_to find("#profile-goals-heading")
+    take_screenshot
+
+    first(".profile-goals a.goal-row").click
+    assert_current_path brother_set_path(locale: :en, token: @player.token, kind: "theme", key: "horror")
+    assert_selector "h1", text: /\AHorror · /i
+
+    @player.update!(visibility: "private")
+    visit brother_path(locale: :en, token: @player.token)
+    assert_selector "h1", text: /\AProfile not available\z/i
+    assert_no_selector ".goal-row"
   end
 end

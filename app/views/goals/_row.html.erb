@@ -1,0 +1,18 @@
+<%# locals: (need:, href:, sentence:, bookmark:, tone: need.position) %>
+<% standing = need.to_set_standing %>
+<%= link_to href, class: class_names("goal-row", "goal-tone--#{tone}", "goal-row--tiered": set_tier_ticks?(standing), "goal-row--no-bookmark": !bookmark),
+  data: { turbo_prefetch: false } do %>
+  <%= goal_bookmark(need.position, size: :large) if bookmark %>
+  <span class="goal-row__name" aria-hidden="true">
+    <b><%= goal_set_name(need) %></b>
+    <span class="goal-row__kind"><%= goal_kind_name(need) %></span>
+  </span>
+  <span class="goal-row__track" aria-hidden="true" data-controller="tier-ticks">
+    <progress class="set-row__bar goal-row__bar" value="<%= [ standing.held, standing.total ].min %>" max="<%= [ standing.total, 1 ].max %>"></progress>
+    <%= set_tier_ticks(standing) %>
+  </span>
+  <span class="goal-row__count" aria-hidden="true"><b><%= number_with_delimiter(standing.held) %></b>/<%= number_with_delimiter(standing.total) %></span>
+  <span class="goal-row__next" aria-hidden="true"><%= set_goal_line(standing) %></span>
+  <span class="goal-row__album" aria-hidden="true"><%= t("library.entry.goals.album") %><%= pixel_icon("arrow-small-right") %></span>
+  <span class="visually-hidden"><%= sentence %></span>
+<% end %>

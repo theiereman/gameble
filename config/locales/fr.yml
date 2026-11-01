@@ -1212,6 +1212,9 @@ fr:
       achievements:
         title: "Succès"
         latest: "Derniers obtenus"
+      goals:
+        title: "Objectifs"
+        row: "%{set}, %{kind}, %{count}, %{next}"
       sets:
         title: "Sets"
         started:
