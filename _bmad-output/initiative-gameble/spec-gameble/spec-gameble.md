@@ -107,13 +107,14 @@ gameble is an open-source passion project, and the game its author wants to play
     - Neither player needs to be connected at the same time as the other.
     - The proposer can cancel it. A proposal expires after a fixed 7 days.
     - A card a player offers in an open trade is reserved: it cannot be used elsewhere until the trade ends. Cards requested from the friend are not reserved; acceptance checks they are still free.
-    - Two friends have at most one open trade at a time.
+    - Two friends may have any number of open trades at once (author, 2026-10-31).
     - On acceptance, all cards swap owners atomically with their minted rarity and season.
     - Non-friends cannot trade, and neither can a private player (CAP-8): nobody proposes to them and they propose to nobody. Where a trade would start, the screen says trades are closed while that profile is private, naming whose profile it is.
     - Going private cancels the player's open trades at once: every reserved copy is released and the friend sees the trade closed.
     - For the missing cards of a player's active goals (CAP-28), the game lists the friends who hold a spare copy: a copy beyond their first of that game, not reserved in an open trade.
-    - Mutual suggestions come first: the friend spares a card the player's goals miss, and the player spares one the friend's goals miss.
-    - Starting a trade from a suggestion opens a proposal with its cards placed; it then runs under the rules above.
+    - At most 3 suggestions at a time, one per friend, each grouping the cards that friend spares for the player's goals. Mutual suggestions come first (the friend spares a card the player's goals miss, and the player spares one the friend's goals miss), then the friend bringing the most cards (author, 2026-10-31).
+    - A suggestion places the friend's cards, up to 4: those of the player's lowest-numbered goals first, then the rarest. A mutual one also places every spare of the player that the friend's goals miss, up to 4 (author, 2026-10-31).
+    - A suggestion is sent as it stands, or opened to change either side before sending; once sent it runs under the rules above. A suggestion cannot be dismissed (author, 2026-10-31).
     - A private player is never suggested and sees no suggestions; suggestions name friends only. The Brotherhood presents itself as the go-between (`brotherhood-tone.md`).
 - **CAP-12**
   - **intent:** The Brotherhood has a weekly shared goal that every player's pack openings advance, and trades to a lesser degree.
@@ -153,7 +154,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:**
     - An achievement is granted once, when its condition is met, and shows as earned on the achievements screen.
     - Conditions read cumulative progress, one capsule's contents, streaks of openings or days, the collection with the games' metadata (studio, release year), and community actions (discoveries, reposts, repeated trades with one player). The catalog is in `achievements.md`.
-    - Every achievement shows a title in the Brotherhood's tone, a short condition and a flavor text, in French and English (`brotherhood-tone.md`).
+    - Every achievement shows a title in the Brotherhood's tone and a short condition, in French and English (`brotherhood-tone.md`); no flavor text (author, 2026-10-31).
     - The ten launch achievements (first pack, first Épique, first Légendaire, first complete set, first trade, 10, 100 and 500 packs opened, three complete sets, first repost) are renamed in that tone; their conditions are unchanged and no player loses one they earned (author, 2026-10-30).
     - A new achievement is granted at its release to every player whose recorded history already meets it; one with no recorded history counts from its release.
     - An achievement rewards with recognition and, for some, a card back (CAP-20); never with a pack or a currency.
@@ -299,4 +300,5 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 - **Card backs (CAP-20):** beyond one back per theme or hall of fame set at its back tier and the achievement backs of `achievements.md`, which goal and event backs ship, and does every successful weekly goal grant one?
 - **Preview image (CAP-9):** do Steam's terms allow its store art in a derived, stored image? The author checks before it ships.
+- **Mutual suggestions and custom sets (CAP-11, CAP-27):** may a friend's goal on a custom set, which only its owner sees, count toward a mutual suggestion? Recommended: game-set goals only, as the public profile shows them.
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.
