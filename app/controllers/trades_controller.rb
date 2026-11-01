@@ -31,11 +31,6 @@ class TradesController < ApplicationController
     end
 
     @trades = Game::TradesOf.call(current_player)
-    if (open = open_trade_with(@trades, @friend))
-      show_refusal t("trades.one_at_a_time.text", name: helpers.friend_name(@friend)), title: t("trades.one_at_a_time.title")
-      return redirect_to(trade_path(token: open.token))
-    end
-
     @cards = card_views(@trades, nil)
     load_holdings(@friend)
   end
@@ -152,10 +147,6 @@ class TradesController < ApplicationController
 
     def befriended?(friend)
       friend.present? && !friend.removed? && Game::FriendshipBetween.call(current_player, friend)
-    end
-
-    def open_trade_with(trades, friend)
-      (trades.yours + trades.theirs).find { |row| row.friend.id == friend.id }
     end
 
     def card_views(trades, trade)

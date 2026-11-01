@@ -156,7 +156,7 @@ class FriendsTest < ApplicationSystemTestCase
     assert_not Game::FriendshipBetween.call(@player, @friend)
   end
 
-  test "a player opens the trade in progress with a friend from their row" do
+  test "a player with a trade in progress opens a new draft from the friend's row" do
     offered, requested = Game::Holding.where(player_id: @friend.id).order(:card_season_id).limit(2).pluck(:card_season_id)
     Game::Holding.create!(player_id: @player.id, card_season_id: requested, quantity: 1)
     trade = Game::ProposeTrade.new.call(player: @friend, recipient: @player, offer: { offered => 1 }, request: { requested => 1 }).value!
@@ -164,11 +164,13 @@ class FriendsTest < ApplicationSystemTestCase
 
     within(".friends__friend", text: "Lea") { click_on "Trade" }
 
-    assert_current_path trade_path(locale: :en, token: trade.token)
-    assert_no_selector ".toast", text: /one trade at a time/i
+    assert_current_path new_trade_path(locale: :en, friend: @friend.token)
+    assert_selector "#trade-board.trade-board--editing"
+    assert_no_selector ".toast--alert"
+    assert trade.reload.open?
   end
 
-  test "a player opens the trade in progress with a friend from the friend profile" do
+  test "a player with a trade in progress opens a new draft from the friend profile" do
     offered, requested = Game::Holding.where(player_id: @friend.id).order(:card_season_id).limit(2).pluck(:card_season_id)
     Game::Holding.create!(player_id: @player.id, card_season_id: requested, quantity: 1)
     trade = Game::ProposeTrade.new.call(player: @friend, recipient: @player, offer: { offered => 1 }, request: { requested => 1 }).value!
@@ -177,8 +179,10 @@ class FriendsTest < ApplicationSystemTestCase
     within(".friends__friend", text: "Lea") { click_on "Lea" }
     within("dialog#friend-#{@friend.token}[open]") { click_on "Trade" }
 
-    assert_current_path trade_path(locale: :en, token: trade.token)
-    assert_no_selector ".toast", text: /one trade at a time/i
+    assert_current_path new_trade_path(locale: :en, friend: @friend.token)
+    assert_selector "#trade-board.trade-board--editing"
+    assert_no_selector ".toast--alert"
+    assert trade.reload.open?
   end
 
   test "on a phone the profile is a bottom sheet that closes back on the friend's name" do

@@ -431,53 +431,31 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
     end
   end
 
-  test "proposing to a friend whose trade is past its expiry, not yet swept, expires it first" do
+  test "a trade past its expiry, not yet swept, keeps its offer reserved beside a new proposal to the friend" do
     trade = propose
 
-    travel_to(trade.expires_at - 1.second) do
-      assert_equal Dry::Monads::Failure(:trade_already_open), Game::ProposeTrade.new.call(player: @alice, recipient: @bob, offer: { @one => 1 }, request: { @three => 1 })
-    end
     travel_to(trade.expires_at + 1.minute) do
-      fresh = propose(@alice, @bob, offer: { @one => 3 }, request: { @three => 1 })
-
-      assert_equal "expired", trade.reload.status
-      assert fresh.open?
-      assert_equal({ @one => [ 3, 3 ], @two => [ 1, 0 ] }, holdings(@alice), "the expired offer was released before the new one")
-      assert_equal [ trade.id ], events(Game::TradeExpired).map { it.data[:trade_id] }
-      assert_equal [ trade.id, fresh.id ], events(Game::TradeProposed).map { it.data[:trade_id] }
-    end
-  end
-
-  test "a due trade another request closed first does not stop the proposal" do
-    trade = propose
-    original = Game::ExpireTrade.method(:new)
-    Game::ExpireTrade.define_singleton_method(:new) do |*args, **options|
-      operation = original.call(*args, **options)
-      operation.define_singleton_method(:call) do |player:, trade_id:|
-        super(player:, trade_id:).value!
-        Game::ExpireTrade::CLOSED_MEANWHILE
-      end
-      operation
-    end
-
-    travel_to(trade.expires_at + 1.minute) do
+      assert_equal Dry::Monads::Failure(:insufficient_copies),
+        Game::ProposeTrade.new.call(player: @alice, recipient: @bob, offer: { @one => 2 }, request: { @three => 1 })
       fresh = propose(@alice, @bob, offer: { @one => 1 }, request: { @three => 1 })
 
+      assert_equal "open", trade.reload.status
       assert fresh.open?
-      assert_equal "expired", trade.reload.status
+      assert_equal({ @one => [ 3, 3 ], @two => [ 1, 1 ] }, holdings(@alice))
     end
-  ensure
-    Game::ExpireTrade.singleton_class.remove_method(:new)
   end
 
-  test "the recipient of a due trade may propose to its proposer, who sees it expired" do
+  test "the recipient of a due trade may propose to its proposer, and the sweep then expires only the due one" do
     trade = propose
 
     travel_to(trade.expires_at, with_usec: true) do
       fresh = propose(@bob, @alice, offer: { @three => 1 }, request: { @one => 1 })
+      assert_equal [ @bob.id, @alice.id ], [ fresh.proposer_id, fresh.recipient_id ]
+
+      Game::ExpireTradesJob.perform_now
 
       assert_equal "expired", trade.reload.status
-      assert_equal [ @bob.id, @alice.id ], [ fresh.proposer_id, fresh.recipient_id ]
+      assert fresh.reload.open?
       assert_equal({ @one => [ 3, 0 ], @two => [ 1, 0 ] }, holdings(@alice))
       assert_equal 1, events(Game::TradeExpired).size
     end

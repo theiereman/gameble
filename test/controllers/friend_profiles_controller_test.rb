@@ -132,22 +132,26 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".trades-closed", 0
   end
 
-  test "a friend's profile opens the trade in progress with them, whoever proposed it, and a new draft once it is closed" do
+  test "a friend's profile opens a new draft while trades are in progress, and its remove dialog counts them" do
     portal = catalog_card_seasons(:portal_one).id
     soldier = catalog_card_seasons(:common_card_one).id
     hold(@friend, portal, 1)
-    hold(@player, soldier, 1)
+    hold(@player, soldier, 2)
     trade = Game::ProposeTrade.new.call(player: @friend, recipient: @player, offer: { portal => 1 }, request: { soldier => 1 }).value!
     sign_in(@player)
 
     get friend_profile_path(locale: :fr, token: @friend.token)
-    assert_select ".friend-profile__actions a.button--primary[href=?]", trade_path(locale: :fr, token: trade.token), "Échange"
-    assert_select ".friend-profile__actions a[href=?]", new_trade_path(locale: :fr, friend: @friend.token), 0
+    assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Échange"
+    assert_select ".friend-profile__actions a[href=?]", trade_path(locale: :fr, token: trade.token), 0
     assert_select "dialog#friend-profile-remove-#{@friend.token} .remove-friend-dialog__trade", "Votre échange en cours avec Léa est annulé et ses cartes sont libérées."
+
+    Game::ProposeTrade.new.call(player: @player, recipient: @friend, offer: { soldier => 1 }, request: { portal => 1 }).value!
+    get friend_profile_path(locale: :fr, token: @friend.token)
+    assert_select "dialog#friend-profile-remove-#{@friend.token} .remove-friend-dialog__trade", "Vos 2 échanges en cours avec Léa sont annulés et leurs cartes sont libérées."
 
     Game::CancelTrade.new.call(player: @friend, trade_id: trade.id).value!
     get friend_profile_path(locale: :fr, token: @friend.token)
-    assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Échange"
+    assert_select "dialog#friend-profile-remove-#{@friend.token} .remove-friend-dialog__trade", "Votre échange en cours avec Léa est annulé et ses cartes sont libérées."
   end
 
   test "a private player still sees a friend's profile, with the trades-closed line instead of the trade action" do

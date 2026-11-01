@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_31_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_01_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -567,7 +567,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_31_100000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "token", null: false
-    t.index ["low_player_id", "high_player_id"], name: "index_game_trades_one_open_per_pair", unique: true, where: "((status)::text = 'open'::text)"
     t.index ["proposer_id", "status"], name: "index_game_trades_on_proposer_id_and_status"
     t.index ["recipient_id", "status"], name: "index_game_trades_on_recipient_id_and_status"
     t.index ["token"], name: "index_game_trades_on_token", unique: true

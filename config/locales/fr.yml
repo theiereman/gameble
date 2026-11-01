@@ -1465,7 +1465,10 @@ fr:
     remove_dialog:
       title: "Retirer %{name} ?"
       text: "%{name} quitte vos amis et vous quittez les siens. Aucun message n'est envoyé ; chacun de vous pourra réinviter l'autre."
-      trade: "Votre échange en cours avec %{name} est annulé et ses cartes sont libérées."
+      trade:
+        zero: "Aucun échange en cours avec %{name} n'est annulé."
+        one: "Votre échange en cours avec %{name} est annulé et ses cartes sont libérées."
+        other: "Vos %{count} échanges en cours avec %{name} sont annulés et leurs cartes sont libérées."
       confirm: "Retirer"
       cancel: "Annuler"
       close: "Fermer"
@@ -1621,9 +1624,6 @@ fr:
     title: "Échanges"
     throttled: "Trop d'actions en une minute. Réessayez dans un instant."
     insufficient: "Exemplaires insuffisants"
-    one_at_a_time:
-      title: "Un échange à la fois"
-      text: "Un échange est déjà ouvert avec %{name}."
     undo_dialog:
       title: "Annuler les modifications ?"
       text: "Ce que vous avez changé sera perdu et la proposition de %{name} reviendra telle quelle."
@@ -2282,7 +2282,7 @@ fr:
       friend_profile_private: "Le profil de %{name} est privé : échanges fermés."
       invalid_offer: "Proposez au plus quatre cartes différentes, avec une quantité d'au moins un chacune."
       invalid_request: "Demandez une à quatre cartes différentes, avec une quantité d'au moins un chacune."
-      trade_already_open: "Vous avez déjà un échange ouvert avec cet ami. Réglez-le d'abord."
+      trade_already_sent: "Vous avez déjà envoyé cette proposition à %{name}."
       insufficient_copies: "Vous n'avez pas assez d'exemplaires libres d'une carte proposée : certains sont déjà dans un autre échange."
       trade_not_found: "Cet échange est introuvable."
       not_allowed: "Ce n'est pas à vous d'agir dans cet échange."

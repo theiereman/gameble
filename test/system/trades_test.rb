@@ -519,14 +519,35 @@ class TradesTest < ApplicationSystemTestCase
     end
   end
 
-  test "a draft with a friend already trading opens that trade instead" do
-    trade = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
+  test "a draft with a friend already trading opens the draft beside the open trade" do
+    propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
     sign_in @hugo
 
     visit new_trade_path(locale: :en, friend: @lea.token)
 
-    assert_current_path trade_path(token: trade.token, locale: :en)
-    assert_selector ".trade-board__error", text: "A trade is already open with Lea."
+    assert_current_path new_trade_path(locale: :en, friend: @lea.token)
+    assert_selector "#trade-board.trade-board--editing"
+    assert_selector ".trade-row", count: 1
+    assert_no_selector ".trade-board__error"
+  end
+
+  test "sending again a proposal already open with the friend lands back on the draft with the refusal" do
+    trade = propose(@hugo, @max, offer: { @portal => 1 }, request: { @depths => 1 })
+    sign_in @hugo
+
+    visit new_trade_path(locale: :en, friend: @max.token)
+    find(".trade-side--own .trade-add").click
+    pick_toggle("Portal").click
+    place_picks
+    find(".trade-side--friend .trade-add").click
+    pick_toggle("Blue Depths").click
+    place_picks
+    click_on "Send the proposal"
+
+    assert_selector ".trade-board__error", text: "You already sent this proposal to Max."
+    assert_current_path new_trade_path(locale: :en, friend: @max.token)
+    assert_selector ".trade-board .trade-chip--accent", text: /DRAFT/i
+    assert_equal [ trade.id ], Game::Trade.ids
   end
 
   test "a draft for a private friend goes back to the list, which says why" do

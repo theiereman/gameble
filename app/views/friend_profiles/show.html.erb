@@ -17,7 +17,7 @@
         <% if @trades_closed %>
           <%= trades_closed_line(@trades_closed, @owner) %>
         <% else %>
-          <%= render ButtonComponent.new(href: @open_trade_token ? trade_path(token: @open_trade_token) : new_trade_path(friend: @owner.token)) do %><%= t(".trade") %><% end %>
+          <%= render ButtonComponent.new(href: new_trade_path(friend: @owner.token)) do %><%= t(".trade") %><% end %>
         <% end %>
       </div>
       <%= render "friends/more_actions", player: @owner, menu_id: friend_profile_actions_menu_id(@owner.token),
@@ -26,6 +26,6 @@
       <%= render "friends/collection_link", friend: @owner %>
     </div>
     <%= render "reports/dialog", owner: @owner, id: friend_report_dialog_id(@owner.token), from: "friends" %>
-    <%= render "friends/remove_dialog", friend: @owner, open_trade: @open_trade_token.present?, id: friend_profile_remove_dialog_id(@owner.token) %>
+    <%= render "friends/remove_dialog", friend: @owner, open_trades: @open_trade_count, id: friend_profile_remove_dialog_id(@owner.token) %>
   </section>
 <% end %>

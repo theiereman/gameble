@@ -991,8 +991,7 @@ en:
       showcase_edge: This card cannot move any further.
       showcase_full: 'Showcase full: remove a card to add another.'
       title_not_earned: You have not earned that title.
-      trade_already_open: You already have an open trade with this friend. Settle
-        it first.
+      trade_already_sent: You already sent this proposal to %{name}.
       trade_changed: This trade changed since you opened it. Check its new terms,
         then answer again.
       trade_expired: 'That trade has expired: its 7 days are over.'
@@ -1120,7 +1119,11 @@ en:
       text: "%{name} leaves your friends and you leave theirs. No message is sent;
         either of you can invite the other again."
       title: Remove %{name}?
-      trade: Your trade in progress with %{name} is cancelled and its cards are freed.
+      trade:
+        one: Your trade in progress with %{name} is cancelled and its cards are freed.
+        other: Your %{count} trades in progress with %{name} are cancelled and their
+          cards are freed.
+        zero: No trade in progress with %{name} is cancelled.
     removed:
       text: "%{name} is no longer one of your friends."
       title: Friend removed
@@ -2563,9 +2566,6 @@ en:
       recent: Recently finished
       theirs: Waiting for their answer
       yours: Waiting for you
-    one_at_a_time:
-      text: A trade is already open with %{name}.
-      title: One trade at a time
     outcome:
       accepted: done %{age}
       cancelled: cancelled %{age}

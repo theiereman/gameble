@@ -10,7 +10,7 @@ class FriendProfilesController < ApplicationController
     @presence = Game::FriendsPresence.of(@owner)
     @owner_title = Game::ActiveProfileTitle.call(@owner)
     @trades_closed = :own_profile_private unless Game::Visibility.open_to_friends?(current_player)
-    @open_trade_token = Game::OpenTradesByFriend.call(current_player)[@owner.id]
+    @open_trade_count = Game::OpenTradeCountsByFriend.call(current_player).fetch(@owner.id, 0)
     @distinct_cards = Game::HeldGames.count(@owner)
   end
 end

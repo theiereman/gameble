@@ -61,7 +61,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a friend's row opens the trade in progress with them, whoever proposed it, and a new draft once it is closed" do
+  test "a friend's row opens a new draft even while a trade with them is in progress" do
     sam = accounts_players(:moderator)
     sam.update!(persona_name: "Sam", visibility: "public")
     Game::Friendship.create!(low_player_id: [ @player.id, sam.id ].min, high_player_id: [ @player.id, sam.id ].max)
@@ -73,12 +73,8 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get friends_path(locale: :fr)
-    assert_select ".friends__friend a.button[href=?][aria-label='Échange avec Sam']", trade_path(locale: :fr, token: trade.token), "Échange"
-    assert_select ".friends__friend a[href=?]", new_trade_path(locale: :fr, friend: sam.token), 0
-
-    Game::CancelTrade.new.call(player: sam, trade_id: trade.id).value!
-    get friends_path(locale: :fr)
-    assert_select ".friends__friend a.button[href=?]", new_trade_path(locale: :fr, friend: sam.token), "Échange"
+    assert_select ".friends__friend a.button[href=?][aria-label='Échange avec Sam']", new_trade_path(locale: :fr, friend: sam.token), "Échange"
+    assert_select ".friends__friend a[href=?]", trade_path(locale: :fr, token: trade.token), 0
   end
 
   test "a friend's row says trades are closed instead of proposing one when either profile is private" do
@@ -198,6 +194,14 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     [ trade, Game::Holding.find_by(player_id: @player.id, card_season_id: portal) ]
   end
 
+  def trade_from(sam)
+    portal = catalog_card_seasons(:portal_one).id
+    depths = catalog_card_seasons(:rare_card_one).id
+    Game::Holding.create!(player_id: sam.id, card_season_id: depths, quantity: 1, reserved: 0)
+    trade = Game::ProposeTrade.new.call(player: sam, recipient: @player, offer: { depths => 1 }, request: { portal => 1 }).value!
+    [ trade, Game::Holding.find_by(player_id: sam.id, card_season_id: depths) ]
+  end
+
   test "each friend's more-actions menu offers to remove them, through a dialog that posts to their token and warns of a trade in progress only when there is one" do
     sam = befriend_sam
     sign_in(@player)
@@ -225,6 +229,10 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     open_trade_with(sam)
     get friends_path(locale: :fr)
     assert_select "dialog#remove-friend-#{sam.token} .remove-friend-dialog__trade", "Votre échange en cours avec Sam est annulé et ses cartes sont libérées."
+
+    trade_from(sam)
+    get friends_path(locale: :fr)
+    assert_select "dialog#remove-friend-#{sam.token} .remove-friend-dialog__trade", "Vos 2 échanges en cours avec Sam sont annulés et leurs cartes sont libérées."
     assert Game::FriendshipBetween.call(@player, sam), "the GET removes nothing"
   end
 
@@ -318,6 +326,20 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__no-friends"
   end
 
+  test "confirming the removal cancels every trade in progress with the friend and frees all their copies" do
+    sam = befriend_sam
+    sent, own_holding = open_trade_with(sam)
+    received, sam_holding = trade_from(sam)
+    assert_equal [ 2, 1 ], [ own_holding.reserved, sam_holding.reserved ]
+    sign_in(@player)
+
+    post remove_friend_path(locale: :fr, token: sam.token)
+
+    assert_redirected_to friends_path(locale: :fr)
+    assert_equal %w[cancelled cancelled], [ sent.reload.status, received.reload.status ]
+    assert_equal [ 0, 0 ], [ own_holding.reload.reserved, sam_holding.reload.reserved ]
+  end
+
   test "removing a player who is not a friend changes nothing and says so" do
     sam = befriend_sam
     stranger = accounts_players(:administrator)
@@ -345,6 +367,12 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select "dialog#remove-friend-#{sam.token}" do
       assert_select ".modal__title", "Remove Sam?"
       assert_select ".remove-friend-dialog__trade", "Your trade in progress with Sam is cancelled and its cards are freed."
+    end
+
+    trade_from(sam)
+    get friends_path(locale: :en)
+    assert_select "dialog#remove-friend-#{sam.token}" do
+      assert_select ".remove-friend-dialog__trade", "Your 2 trades in progress with Sam are cancelled and their cards are freed."
       assert_select "button[type=submit]", "Remove"
       assert_select "button[type=button]", "Cancel"
     end

@@ -253,21 +253,45 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ 3, 0 ], [ holding(@alice, @portal).reserved, holding(@bob, @depths).reserved ]
   end
 
-  test "proposing again to a friend whose trade expired but is not yet swept closes it and sends the new proposal" do
-    expired = propose(@alice, @bob, offer: { @portal => 3 }, request: { @depths => 1 })
+  test "proposing again the terms of a trade expired but not yet swept sends a new proposal" do
+    expired = propose(@alice, @bob, offer: { @portal => 1 }, request: { @depths => 1 })
     sign_in @alice
 
     travel_to(expired.expires_at + 1.second) do
       get new_trade_path(locale: :fr, friend: @bob.token)
       assert_response :success
-      post trades_path(locale: :fr), params: { friend: @bob.token, give: { "portal--s1" => "3" }, take: { "blue-depths--s1" => "1" } }
+      post trades_path(locale: :fr), params: { friend: @bob.token, give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
     end
 
     fresh = Game::Trade.order(:id).last
     assert_redirected_to trade_path(token: fresh.token, locale: :fr)
-    assert_equal "expired", expired.reload.status
-    assert_equal [ "open", 3 ], [ fresh.status, holding(@alice, @portal).reserved ]
-    assert_equal 1, Game::Trade.in_progress.count
+    assert_not_equal expired.id, fresh.id
+    assert_equal [ "open", 2 ], [ fresh.status, holding(@alice, @portal).reserved ]
+  end
+
+  test "sending again terms already open with the friend returns to the draft with the refusal" do
+    propose(@alice, @bob, offer: { @portal => 2 }, request: { @depths => 1 })
+    sign_in @alice
+
+    post trades_path(locale: :fr), params: { friend: @bob.token, give: { "portal--s1" => "2" }, take: { "blue-depths--s1" => "1" } }
+
+    assert_redirected_to new_trade_path(friend: @bob.token, locale: :fr)
+    follow_redirect!
+    assert_select ".trade-board__error[role=alert]", "Vous avez déjà envoyé cette proposition à Lea."
+    assert_equal 1, Game::Trade.count
+    assert_equal 2, holding(@alice, @portal).reserved
+  end
+
+  test "a second proposal on other terms opens beside the first" do
+    first = propose(@alice, @bob, offer: { @portal => 2 }, request: { @depths => 1 })
+    sign_in @alice
+
+    post trades_path(locale: :fr), params: { friend: @bob.token, give: { "tin-soldier--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
+
+    second = Game::Trade.order(:id).last
+    assert_redirected_to trade_path(token: second.token, locale: :fr)
+    assert_not_equal first.id, second.id
+    assert_equal 2, Game::Trade.in_progress.count
   end
 
   test "asking for more copies than the friend holds is refused and nothing is reserved" do
@@ -769,8 +793,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".trade-chooser__friend .trades-closed a[href=?]", settings_path(locale: :fr), text: "RÉGLAGES", count: 2
   end
 
-  test "the chooser leads a friend already trading to that trade, one at a time" do
-    trade = from_lea
+  test "the chooser leads a friend already trading to a new draft" do
+    from_lea
     sign_in @alice
 
     get new_trade_path(locale: :fr)
@@ -778,9 +802,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal new_trade_path(friend: @bob.token, locale: :fr), lea.at_css("a.button")["href"]
 
     get lea.at_css("a.button")["href"]
-    assert_redirected_to trade_path(token: trade.token, locale: :fr)
-    follow_redirect!
-    assert_select ".toast--alert", /Un échange à la fois/
+    assert_response :success
+    assert_select "#trade-board.trade-board--editing[data-trade-board-draft-key-value=?]", "#{@alice.token}:#{@bob.token}"
   end
 
   test "the chooser of a player without friends points to the invite panel" do
@@ -874,16 +897,17 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, Game::Trade.count
   end
 
-  test "a draft with a friend already trading opens that trade, one at a time" do
-    trade = from_lea
+  test "a draft with a friend already trading opens the draft, the open trades still listed" do
+    from_lea
+    propose(@alice, @bob, offer: { @soldier => 1 }, request: { @depths => 1 })
     sign_in @alice
 
     get new_trade_path(locale: :fr, friend: @bob.token)
 
-    assert_redirected_to trade_path(token: trade.token, locale: :fr)
-    follow_redirect!
-    assert_select ".trade-board__error[role=alert]", "Un échange est déjà ouvert avec Lea."
-    assert_select ".toast--alert", /Un échange à la fois/
+    assert_response :success
+    assert_select "#trade-board.trade-board--editing[data-trade-board-draft-key-value=?]", "#{@alice.token}:#{@bob.token}"
+    assert_select ".trade-row", 2
+    assert_select ".toast--alert", 0
   end
 
   test "sending a draft proposes the trade, reserves the offer and tells the board to forget the draft" do

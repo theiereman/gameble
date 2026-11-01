@@ -6,7 +6,7 @@ class FriendsController < ApplicationController
     @friend_code = Game::FriendCodeOf.call(current_player)
     @friends = Game::FriendsPresence.call(current_player)
     @invitations = Game::InvitationsOf.call(current_player)
-    @open_trade_tokens = Game::OpenTradesByFriend.call(current_player)
+    @open_trade_counts = Game::OpenTradeCountsByFriend.call(current_player)
   end
 
   def remove

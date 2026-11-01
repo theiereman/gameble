@@ -63,7 +63,6 @@ class PublicProfilesController < ApplicationController
       return unless Game::Visibility.visible?(current_player, @owner, staff_sees_all: false)
 
       @relation = Game::ProfileRelation.call(current_player, @owner)
-      @open_trade_token = Game::OpenTradesByFriend.call(current_player)[@owner.id] if @relation == :friends
     end
 
     def load_stats_and_sets

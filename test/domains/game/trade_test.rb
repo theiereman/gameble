@@ -92,24 +92,64 @@ class Game::TradeTest < ActiveSupport::TestCase
     assert propose.success?
   end
 
-  test "a second open trade for the pair is refused, in either direction" do
-    propose.value!
-    hold(@bob, catalog_card_seasons(:uncommon_card_one).id, 1)
+  test "a second proposal on other terms opens a second trade, each reserving its own offer" do
+    first = propose.value!
+    second = propose(offer: { @two => 1 }, request: { @three => 1 }).value!
 
-    assert_equal Dry::Monads::Failure(:trade_already_open), propose
-    assert_equal Dry::Monads::Failure(:trade_already_open), propose(@bob, @alice, offer: { @three => 1 }, request: { @one => 1 })
-    assert_equal 2, reserved(@alice, @one)
-    assert_equal 1, Game::Trade.count
+    assert [ first, second ].all?(&:open?)
+    assert_equal [ 2, 1 ], [ reserved(@alice, @one), reserved(@alice, @two) ]
+    assert_equal 2, Game::Trade.in_progress.count
   end
 
-  test "the database holds one open trade per pair" do
+  test "the friend's opposite proposal opens beside the first" do
     propose.value!
-    clash = Game::Trade.new(low_player_id: [ @alice.id, @bob.id ].min, high_player_id: [ @alice.id, @bob.id ].max,
-      proposer_id: @bob.id, recipient_id: @alice.id, proposed_at: Time.current, expires_at: 7.days.from_now)
 
-    assert_raises(ActiveRecord::RecordNotUnique) { Game::Trade.transaction(requires_new: true) { clash.save! } }
-    clash.status = "cancelled"
-    assert clash.save, "a closed trade does not block the pair"
+    assert propose(@bob, @alice, offer: { @three => 1 }, request: { @one => 1 }).value!.open?
+    assert_equal [ 2, 1 ], [ reserved(@alice, @one), reserved(@bob, @three) ]
+    assert_equal 2, Game::Trade.in_progress.count
+  end
+
+  test "sending again terms already open with that friend is refused and reserves nothing more" do
+    propose.value!
+
+    assert_equal Dry::Monads::Failure(:trade_already_sent), propose
+    assert_equal Dry::Monads::Failure(:trade_already_sent), propose(offer: { @one.to_s => "2" }, request: { @three.to_s => "1" })
+    assert_equal 2, reserved(@alice, @one)
+    assert_equal 1, Game::Trade.count
+    assert_equal 1, events(Game::TradeProposed).size
+  end
+
+  test "an open request is identical to an open request on the same cards, not to an offer" do
+    propose(offer: {}, request: { @three => 1 }).value!
+
+    assert_equal Dry::Monads::Failure(:trade_already_sent), propose(offer: {}, request: { @three => 1 })
+    assert propose(offer: {}, request: { @three => 2 }).success?
+    assert propose(offer: { @one => 1 }, request: { @three => 1 }).success?
+    assert_equal 3, Game::Trade.count
+  end
+
+  test "identical terms past their expiry, not yet swept, open a new trade" do
+    first = propose(offer: { @one => 1 }).value!
+    first.update_columns(expires_at: 1.second.ago)
+
+    assert propose(offer: { @one => 1 }).value!.open?
+    assert_equal 2, reserved(@alice, @one)
+  end
+
+  test "identical terms the friend proposed do not block the same terms sent back" do
+    hold(@bob, @one, 2)
+    hold(@alice, @three, 1)
+    propose(@bob, @alice, offer: { @one => 2 }, request: { @three => 1 }).value!
+
+    assert propose.value!.open?
+    assert_equal 2, Game::Trade.in_progress.count
+  end
+
+  test "a closed trade with the same terms does not block them" do
+    trade = propose.value!
+    Game::CancelTrade.new.call(player: @alice, trade_id: trade.id).value!
+
+    assert propose.value!.open?
   end
 
   test "sides need at most four different cards with positive integer quantities, and the request at least one" do

@@ -1,4 +1,4 @@
-<%# locals: (owner:, title:, relation:, open_trade_token:) %>
+<%# locals: (owner:, title:, relation:) %>
 <% case relation %>
 <% when :visitor %>
   <%= render ButtonComponent.new(variant: :secondary, size: :small, disabled: true,
@@ -16,7 +16,7 @@
     <%= trades_closed_line(refusal, owner) %>
   <% else %>
     <%= render ButtonComponent.new(variant: :secondary, size: :small,
-          href: open_trade_token ? trade_path(token: open_trade_token) : new_trade_path(friend: owner.token),
+          href: new_trade_path(friend: owner.token),
           aria_label: t("public_profiles.show.trade_label", name: title)) do %><%= t("public_profiles.show.trade") %><% end %>
   <% end %>
 <% end %>

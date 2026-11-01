@@ -8,7 +8,7 @@
       <%= trades_closed_line(refusal, player) %>
     <% else %>
       <%= render ButtonComponent.new(variant: :secondary, size: :small,
-            href: open_trade_token ? trade_path(token: open_trade_token) : new_trade_path(friend: player.token),
+            href: new_trade_path(friend: player.token),
             aria_label: t(".trade_with", name:)) do %><%= t(".trade") %><% end %>
     <% end %>
     <% if Game::Visibility.open_to_friends?(player) %>
