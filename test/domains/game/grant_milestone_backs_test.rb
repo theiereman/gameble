@@ -93,7 +93,7 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
   test "granting the achievement itself grants its back through the subscribed handler" do
     progress = Hash.new(0).merge(legendaries_obtained: 1)
     original = Game::AchievementProgress.method(:call)
-    Game::AchievementProgress.define_singleton_method(:call) { |_player| progress }
+    Game::AchievementProgress.define_singleton_method(:call) { |_player, _metrics| progress }
 
     perform_enqueued_jobs { Game::GrantAchievement.new.call(player: @player, achievement: "first_legendary").value! }
 

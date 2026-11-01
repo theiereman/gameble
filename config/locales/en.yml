@@ -34,6 +34,7 @@ en:
       first_legendary: Get a Legendary card
       first_repost: Repost a card
       first_trade: Complete a trade
+      statistical_non_compliance: Two cards of Rare or better in one standard capsule
       three_complete_sets: Complete 3 sets
     names:
       boosters_10: 10 capsules
@@ -45,6 +46,7 @@ en:
       first_legendary: First Legendary
       first_repost: First repost
       first_trade: First trade
+      statistical_non_compliance: Statistical Non-Compliance
       three_complete_sets: Three complete sets
     show:
       earned_label: Achievements earned

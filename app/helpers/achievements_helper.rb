@@ -1,7 +1,7 @@
 module AchievementsHelper
   GLYPHS = {
     first_booster: "pack", boosters_10: "pack", boosters_100: "pack", boosters_500: "pack",
-    first_epic: "gem",
+    first_epic: "gem", statistical_non_compliance: "gem",
     first_legendary: "star",
     first_complete_set: "set", three_complete_sets: "set",
     first_trade: "trade",

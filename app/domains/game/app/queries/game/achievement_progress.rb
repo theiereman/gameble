@@ -1,7 +1,5 @@
 module Game
   module AchievementProgress
-    METRICS = %i[packs_opened epics_obtained legendaries_obtained sets_completed trades_accepted reposts].freeze
-
     OBTAINED_SQL = <<~SQL.squish.freeze
       SELECT COUNT(DISTINCT catalog_card_seasons.card_id) FROM game_holdings
         JOIN catalog_card_seasons ON catalog_card_seasons.id = game_holdings.card_season_id
@@ -19,21 +17,36 @@ module Game
       SELECT COUNT(*) FROM game_trades WHERE status = 'accepted' AND (proposer_id = :player_id OR recipient_id = :player_id)
     SQL
 
-    SQL = <<~SQL.squish.freeze
-      SELECT
-        (#{PACKS_OPENED_SQL}),
-        (#{format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:epic))}),
-        (#{format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:legendary))}),
-        (#{SETS_COMPLETED_SQL}),
-        (#{TRADES_ACCEPTED_SQL}),
-        (SELECT COUNT(*) FROM game_feed_entries WHERE player_id = :player_id AND kind = 'repost')
+    REPOSTS_SQL = "SELECT COUNT(*) FROM game_feed_entries WHERE player_id = :player_id AND kind = 'repost'".freeze
+
+    TWO_RARE_OR_BETTER_SQL = format(<<~SQL.squish, Catalog::Rarity::TIERS.key(:rare)).freeze
+      SELECT COUNT(*) FROM game_packs
+       WHERE game_packs.player_id = :player_id AND game_packs.kind = 'regular' AND game_packs.opened_at IS NOT NULL
+         AND (SELECT COUNT(*) FROM unnest(game_packs.card_season_ids) AS drawn(card_season_id)
+                JOIN catalog_card_seasons ON catalog_card_seasons.id = drawn.card_season_id
+               WHERE catalog_card_seasons.rarity >= %d) >= 2
     SQL
 
-    def self.call(player)
-      return METRICS.index_with(0) if player.nil?
+    METRIC_SQL = {
+      packs_opened: PACKS_OPENED_SQL,
+      epics_obtained: format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:epic)),
+      legendaries_obtained: format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:legendary)),
+      sets_completed: SETS_COMPLETED_SQL,
+      trades_accepted: TRADES_ACCEPTED_SQL,
+      reposts: REPOSTS_SQL,
+      two_rare_or_better_capsules: TWO_RARE_OR_BETTER_SQL
+    }.freeze
 
-      row = Pack.connection.select_rows(Pack.sanitize_sql_array([ SQL, { player_id: player.id } ]), "Game::AchievementProgress").first
-      METRICS.zip(row.map(&:to_i)).to_h
+    METRICS = METRIC_SQL.keys.freeze
+
+    def self.call(player, metrics)
+      metrics = metrics.uniq
+      return metrics.index_with(0) if player.nil?
+      return {} if metrics.empty?
+
+      sql = "SELECT #{metrics.map { "(#{METRIC_SQL.fetch(it)})" }.join(", ")}"
+      row = Pack.connection.select_rows(Pack.sanitize_sql_array([ sql, { player_id: player.id } ]), "Game::AchievementProgress").first
+      metrics.zip(row.map(&:to_i)).to_h
     end
   end
 end

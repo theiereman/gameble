@@ -1503,6 +1503,7 @@ fr:
       boosters_500: "500 capsules"
       three_complete_sets: "Trois sets complets"
       first_repost: "Premier repost"
+      statistical_non_compliance: "Non-conformité statistique"
     show:
       title: "Succès"
       more: "Plus"
@@ -1526,6 +1527,7 @@ fr:
       boosters_500: "Ouvrir 500 capsules"
       three_complete_sets: "Compléter 3 sets"
       first_repost: "Reposter une carte"
+      statistical_non_compliance: "Deux cartes Rare ou mieux dans une capsule standard"
   invite_links:
     show:
       title: "%{name} vous invite"

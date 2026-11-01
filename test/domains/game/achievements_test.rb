@@ -18,10 +18,29 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   def grant(key, player: @player, retroactive: false) = Game::GrantAchievement.new.call(player:, achievement: key, retroactive:)
   def unlocked(player = @player) = Game::AchievementUnlock.where(player_id: player.id).order(:id).pluck(:achievement)
   def unlock_events(player = @player) = game_events(player, Game::AchievementUnlocked)
-  def progress(player = @player) = Game::AchievementProgress.call(player)
+  def progress(player = @player, metrics = Game::AchievementProgress::METRICS) = Game::AchievementProgress.call(player, metrics)
 
-  def opened_packs(count, player: @player, kind: :regular)
-    count.times { create_pack(player, kind:, opened_at: Time.current) }
+  def commons(kind = :regular) = Array.new(kind.to_s == "bonus" ? Game::Pack::BONUS_SIZE : Game::Pack::SIZE, @common)
+
+  def opened_packs(count, player: @player, kind: :regular, cards: commons(kind))
+    count.times { create_pack(player, kind:, cards:, opened_at: Time.current) }
+  end
+
+  def two_rare_or_better(player = @player) = progress(player, [ :two_rare_or_better_capsules ]).fetch(:two_rare_or_better_capsules)
+
+  def toasts(player, locale) = broadcasts(PlayerStream.name(player, locale)).map { ActiveSupport::JSON.decode(it) }
+
+  def progress_reads
+    asked = []
+    original = Game::AchievementProgress.method(:call)
+    Game::AchievementProgress.define_singleton_method(:call) do |player, metrics|
+      asked << metrics
+      original.call(player, metrics)
+    end
+    yield
+    asked
+  ensure
+    Game::AchievementProgress.define_singleton_method(:call, original)
   end
 
   # Completes `count` franchise sets of the season, each under a key of its own unless `keys` names them.
@@ -55,12 +74,12 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     Game::AcceptTrade.new.call(player:, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision).value!
   end
 
-  test "the catalogue holds ten achievements, in order, each a metric and a threshold" do
+  test "the catalogue holds eleven achievements, in order, each a metric and a threshold" do
     expected = [
       [ :first_booster, :packs_opened, 1 ], [ :first_epic, :epics_obtained, 1 ], [ :first_legendary, :legendaries_obtained, 1 ],
       [ :first_complete_set, :sets_completed, 1 ], [ :first_trade, :trades_accepted, 1 ], [ :boosters_10, :packs_opened, 10 ],
       [ :boosters_100, :packs_opened, 100 ], [ :boosters_500, :packs_opened, 500 ], [ :three_complete_sets, :sets_completed, 3 ],
-      [ :first_repost, :reposts, 1 ]
+      [ :first_repost, :reposts, 1 ], [ :statistical_non_compliance, :two_rare_or_better_capsules, 1 ]
     ]
 
     assert_equal expected, Game::Achievements::CATALOGUE.map { [ it.key, it.metric, it.threshold ] }
@@ -80,6 +99,33 @@ class Game::AchievementsTest < ActiveSupport::TestCase
 
     assert_equal zeros, progress(nil)
     assert_equal zeros, progress
+  end
+
+  test "progress reads only the metrics asked for, and nothing at all for none" do
+    opened_packs(2)
+
+    assert_equal({ packs_opened: 2 }, progress(@player, [ :packs_opened ]))
+    assert_equal({ reposts: 0 }, progress(nil, [ :reposts ]))
+    assert_queries_count(0) { assert_equal({}, progress(@player, [])) }
+  end
+
+  test "a standard capsule with two Rare-or-better cards counts, copies included" do
+    opened_packs(1, cards: [ @rare, @epic ] + [ @common ] * 3)
+    assert_equal 1, two_rare_or_better
+
+    opened_packs(1, cards: [ @rare, @rare ] + [ @common ] * 3)
+    assert_equal 2, two_rare_or_better
+  end
+
+  test "a single Rare-or-better card, a bonus or reward capsule, an unopened capsule or another player's never counts" do
+    opened_packs(1, cards: [ @legendary, @uncommon ] + [ @common ] * 3)
+    opened_packs(1, kind: :bonus, cards: [ @rare, @epic, @common ])
+    opened_packs(1, kind: :reward, cards: [ @epic, @legendary ])
+    create_pack(@player, cards: [ @rare, @epic ] + [ @common ] * 3)
+    opened_packs(1, player: @other, cards: [ @rare, @epic ] + [ @common ] * 3)
+
+    assert_equal 0, two_rare_or_better
+    assert_equal 1, two_rare_or_better(@other)
   end
 
   test "packs opened count every kind of opened pack, never an unopened one or another player's" do
@@ -184,6 +230,39 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     end
   end
 
+  test "Statistical Non-Compliance is granted once for two Rare-or-better cards in one capsule, and refused on a near miss" do
+    opened_packs(1, cards: [ @legendary ] + [ @uncommon ] * 4)
+    assert_no_difference -> { Game::AchievementUnlock.count + Rails.configuration.event_store.read.count } do
+      assert_equal :not_reached, grant(:statistical_non_compliance).failure
+    end
+
+    opened_packs(1, cards: [ @rare, @epic ] + [ @common ] * 3)
+
+    assert_equal :statistical_non_compliance, grant(:statistical_non_compliance).value!.key
+    assert_equal :already_unlocked, grant(:statistical_non_compliance).failure
+    assert_equal [ "statistical_non_compliance" ], unlocked
+  end
+
+  test "the grant re-reads only its achievement's metric" do
+    opened_packs(1)
+
+    assert_equal [ [ :packs_opened ] ], progress_reads { grant(:first_booster).value! }
+  end
+
+  test "the grant job reads only the metrics of achievements not yet unlocked, and nothing once all are" do
+    opened_packs(1, cards: [ @rare, @epic ] + [ @common ] * 3)
+    Game::AchievementUnlock.record(@player.id, :statistical_non_compliance, Time.current)
+
+    reads = progress_reads { Game::GrantAchievementsJob.perform_now(@player.id) }
+
+    assert_not_includes reads.first, :two_rare_or_better_capsules
+    assert_equal Game::AchievementProgress::METRICS - [ :two_rare_or_better_capsules ], reads.first
+    assert_equal %w[statistical_non_compliance first_booster], unlocked
+
+    Game::Achievements::CATALOGUE.each { Game::AchievementUnlock.record(@player.id, it.key, Time.current) }
+    assert_equal [ [] ], progress_reads { Game::GrantAchievementsJob.perform_now(@player.id) }
+  end
+
   test "a visitor, a banned or a deleted player is refused" do
     banned = accounts_players(:banned)
     opened_packs(1, player: banned)
@@ -226,6 +305,19 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     open_with_jobs([ @epic ] + [ @common ] * 4)
 
     assert_includes unlocked, "first_epic"
+  end
+
+  test "a capsule opened with a Rare and an Épique unlocks Statistical Non-Compliance once, toasted in each locale" do
+    open_with_jobs([ @rare, @epic ] + [ @common ] * 3)
+
+    assert_equal 1, unlocked.count("statistical_non_compliance")
+    assert_equal 1, toasts(@player, :fr).count { it.include?("Non-conformité statistique") }
+    assert_equal 1, toasts(@player, :en).count { it.include?("Statistical Non-Compliance") }
+
+    assert_no_difference -> { unlock_events.size } do
+      open_with_jobs([ @rare, @epic ] + [ @common ] * 3)
+    end
+    assert_equal 1, toasts(@player, :en).count { it.include?("Statistical Non-Compliance") }
   end
 
   test "the tenth opening unlocks ten boosters once, and the eleventh nothing more" do
@@ -314,14 +406,16 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
     @player = accounts_players(:player)
     @other = accounts_players(:moderator)
     @banned = accounts_players(:banned)
-    [ @player, @other, @banned ].each { create_pack(it, opened_at: Time.current) }
+    [ @player, @other, @banned ].each { create_pack(it, cards: [ fixture_tier_ids.first ] * Game::Pack::SIZE, opened_at: Time.current) }
     create_pack(@player, cards: [ fixture_tier_ids.last ] * 5, opened_at: Time.current)
     Game::Holding.create!(player_id: @player.id, card_season_id: fixture_tier_ids.last, quantity: 5)
   end
 
   def unlocked = Game::AchievementUnlock.pluck(:player_id, :achievement).sort
 
-  def expected = [ [ @player.id, "first_booster" ], [ @player.id, "first_legendary" ], [ @other.id, "first_booster" ] ].sort
+  def expected
+    [ [ @player.id, "first_booster" ], [ @player.id, "first_legendary" ], [ @player.id, "statistical_non_compliance" ], [ @other.id, "first_booster" ] ].sort
+  end
 
   def run_task = rake_task("game:backfill_achievements").execute
 
@@ -332,7 +426,7 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
 
     assert_equal expected, unlocked
     events = Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a
-    assert_equal 3, events.size
+    assert_equal 4, events.size
     assert events.all? { it.data[:retroactive] }
   end
 

@@ -16,7 +16,8 @@ module Game
       Achievement.new(:boosters_100, :packs_opened, 100),
       Achievement.new(:boosters_500, :packs_opened, 500),
       Achievement.new(:three_complete_sets, :sets_completed, 3),
-      Achievement.new(:first_repost, :reposts, 1)
+      Achievement.new(:first_repost, :reposts, 1),
+      Achievement.new(:statistical_non_compliance, :two_rare_or_better_capsules, 1)
     ].freeze
 
     BY_KEY = CATALOGUE.index_by { it.key.to_s }.freeze
@@ -25,8 +26,12 @@ module Game
       BY_KEY[key.to_s]
     end
 
-    def self.met(progress)
-      CATALOGUE.select { it.met?(progress) }
+    def self.unearned(unlocked_keys)
+      CATALOGUE.reject { unlocked_keys.include?(it.key) }
+    end
+
+    def self.metrics(achievements)
+      achievements.map(&:metric).uniq
     end
   end
 end

@@ -3,8 +3,9 @@ module Game
     queue_as :default
 
     def self.grant(player, retroactive: false)
-      unlocked = UnlockedAchievements.call(player)
-      Achievements.met(AchievementProgress.call(player)).reject { unlocked.include?(it.key) }.map do |achievement|
+      unearned = Achievements.unearned(UnlockedAchievements.call(player))
+      progress = AchievementProgress.call(player, Achievements.metrics(unearned))
+      unearned.select { it.met?(progress) }.map do |achievement|
         GrantAchievement.new.call(player:, achievement: achievement.key, retroactive:)
       end
     end

@@ -21,7 +21,7 @@ module Game
     end
 
     def reached(player, achievement)
-      achievement.met?(AchievementProgress.call(player)) ? Success() : Failure(:not_reached)
+      achievement.met?(AchievementProgress.call(player, [ achievement.metric ])) ? Success() : Failure(:not_reached)
     end
 
     def unlock(player, achievement)
