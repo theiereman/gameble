@@ -104,6 +104,17 @@ class ShellHelperTest < ActionView::TestCase
     end
   end
 
+  test "the invitations waiting are read once per request, and not at all for a visitor" do
+    assert_queries_count(0) { assert_nil shell_invitations_waiting }
+
+    remove_instance_variable(:@shell_invitations_waiting)
+    self.current_player = accounts_players(:player)
+    Game::Invitation.create!(sender_id: accounts_players(:moderator).id, recipient_id: current_player.id)
+
+    assert_queries_count(1) { assert_equal 1, shell_invitations_waiting }
+    assert_queries_count(0) { assert_equal 1, shell_invitations_waiting }
+  end
+
   test "the page's own bank is the shell's, without a query" do
     self.current_player = accounts_players(:player)
     @bank = { available: 4, reserve_full: false, next_available_at: nil }

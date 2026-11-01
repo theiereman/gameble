@@ -114,6 +114,18 @@ class Game::InvitationTest < ActiveSupport::TestCase
     assert_equal :not_found, Game::AcceptInvitation.new.call(player: @bob, token: invitation.token).failure
   end
 
+  test "ignoring is announced once, on the recipient's stream" do
+    invitation = send_by_code(@alice, "8F2D-K9XM").value!
+
+    Game::IgnoreInvitation.new.call(player: @bob, token: invitation.token).value!
+
+    ignored = Rails.configuration.event_store.read.of_type([ Game::InvitationIgnored ]).to_a
+    assert_equal [ { invitation_id: invitation.id, sender_id: @alice.id, recipient_id: @bob.id } ], ignored.map(&:data)
+    assert_equal 1, Rails.configuration.event_store.read.stream(Game::Operation.stream_name(@bob.id)).of_type([ Game::InvitationIgnored ]).count
+    assert_equal :not_found, Game::IgnoreInvitation.new.call(player: @bob, token: invitation.token).failure
+    assert_equal 1, Rails.configuration.event_store.read.of_type([ Game::InvitationIgnored ]).count
+  end
+
   test "inviting someone who invited you accepts their invitation" do
     send_by_code(@bob, "7K2Q-F3NX").value!
 

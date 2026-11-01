@@ -16,7 +16,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   include GameTrades
   include SteamSignIn
 
-  PLAYER_HUB_QUERIES = 21
+  PLAYER_HUB_QUERIES = 22
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -164,6 +164,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".menu-item__label", "Échanges"
       assert_select ".menu-item__badge.menu-item__badge--alert.menu-item__badge--zero", "0"
       assert_select ".visually-hidden", "0 échange en attente de vous"
+    end
+    # 05: the Friends screen, the invitations waiting greyed at zero.
+    assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='5']" do
+      assert_select ".menu-item__badge.menu-item__badge--alert.menu-item__badge--zero", "0"
+      assert_select ".visually-hidden", "0 invitation en attente de votre réponse"
     end
     # 07: the achievements screen, none earned yet.
     assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='7'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
@@ -646,7 +651,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # and no set to name),
     # the top bar's copies per tier and rarity legend, menu 05's friends online, menu 07's
     # achievements earned, the trades
-    # waiting (menu 04 and the tab bar share one count) and the LIVE ticker's
+    # waiting (menu 04 and the tab bar share one count), the invitations waiting
+    # (menu 05 and the PLUS tab share one count) and the LIVE ticker's
     # entries (none here, so no players or cards).
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"

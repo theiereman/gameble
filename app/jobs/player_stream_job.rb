@@ -9,6 +9,7 @@ class PlayerStreamJob < ApplicationJob
       topics = own.filter_map { it[:topic] }.uniq
       locals = {
         waiting: (Game::TradesWaiting.call(player) if topics.include?("trades")),
+        invitations: (Game::InvitationsWaiting.call(player) if topics.include?("friends")),
         friends: announceable_friends(own.filter_map { it[:friend_id] }),
         achievements: own.filter_map { it[:achievement] }.uniq,
         card_backs: own.filter_map { it[:card_back] }.uniq,

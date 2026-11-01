@@ -1,4 +1,5 @@
 <% waiting = shell_trades_waiting %>
+<% invitations = shell_invitations_waiting %>
 <% tabs = if current_player
      [
        [ :hub, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
@@ -22,6 +23,9 @@
           <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
           <% if key == :trades %>
             <span id="tab-trades-badge" class="stream-slot"><%= render "shell/tab_trades_badge", waiting: %></span>
+          <% end %>
+          <% if key == :more %>
+            <span id="tab-more-badge" class="stream-slot"><%= render "shell/tab_invitations_badge", invitations: %></span>
           <% end %>
         <% end %>
       </li>

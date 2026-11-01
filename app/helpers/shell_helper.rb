@@ -97,6 +97,12 @@ module ShellHelper
     @shell_trades_waiting = current_player && Game::TradesWaiting.call(current_player)
   end
 
+  def shell_invitations_waiting
+    return @shell_invitations_waiting if defined?(@shell_invitations_waiting)
+
+    @shell_invitations_waiting = current_player && Game::InvitationsWaiting.call(current_player)
+  end
+
   def player_stream_tag
     return if current_player.nil? || back_office_page?
 

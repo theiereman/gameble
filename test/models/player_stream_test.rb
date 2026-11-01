@@ -50,6 +50,20 @@ class PlayerStreamTest < ActiveSupport::TestCase
       PlayerStream.notices(Game::InvitationAccepted.new(data:))
   end
 
+  test "an ignored invitation tells its recipient alone, so the sender never learns of it" do
+    data = { invitation_id: 1, sender_id: @alice.id, recipient_id: @bob.id }
+
+    assert_equal [ { player_id: @bob.id, topic: "friends" } ], PlayerStream.notices(Game::InvitationIgnored.new(data:))
+  end
+
+  test "ignoring an invitation enqueues the recipient's notice once it commits" do
+    invitation = Game::Invitation.create!(sender_id: accounts_players(:administrator).id, recipient_id: @bob.id)
+
+    assert_enqueued_with(job: PlayerStreamJob, args: [ [ { player_id: @bob.id, topic: "friends" } ] ]) do
+      Game::IgnoreInvitation.new.call(player: @bob, token: invitation.token).value!
+    end
+  end
+
   test "an unlocked achievement tells its player alone, with no topic; a retroactive one tells no one" do
     data = { player_id: @alice.id, achievement: "first_booster" }
 

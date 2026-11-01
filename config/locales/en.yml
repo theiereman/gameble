@@ -1740,6 +1740,9 @@ en:
           one: "%{number} online"
           other: "%{number} online"
         how_it_works: How it works
+        invitations_waiting:
+          one: "%{number} invitation waiting for your answer"
+          other: "%{number} invitations waiting for your answer"
         label: Bridge menu
         open_booster: Open a capsule
         reserve:
@@ -2503,6 +2506,9 @@ en:
       booster: Capsule
       collection: Collection
       hub: Bridge
+      invitations_waiting:
+        one: "%{number} invitation waiting for your answer"
+        other: "%{number} invitations waiting for your answer"
       label: Main navigation
       landing: Home
       more: More

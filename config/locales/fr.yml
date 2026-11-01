@@ -116,6 +116,10 @@ fr:
         zero: "%{number} échange en attente de vous"
         one: "%{number} échange en attente de vous"
         other: "%{number} échanges en attente de vous"
+      invitations_waiting:
+        zero: "%{number} invitation en attente de votre réponse"
+        one: "%{number} invitation en attente de votre réponse"
+        other: "%{number} invitations en attente de votre réponse"
     toast:
       region: "Notifications"
       close: "Fermer"
@@ -155,6 +159,10 @@ fr:
           zero: "%{number} échange en attente de vous"
           one: "%{number} échange en attente de vous"
           other: "%{number} échanges en attente de vous"
+        invitations_waiting:
+          zero: "%{number} invitation en attente de votre réponse"
+          one: "%{number} invitation en attente de votre réponse"
+          other: "%{number} invitations en attente de votre réponse"
         friends: "Amis"
         # French keeps the singular for 0, which the plural rule here does not.
         friends_online:

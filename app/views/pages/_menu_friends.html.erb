@@ -6,6 +6,7 @@
     <% if online %>
       <span class="menu-item__meta"><%= t("pages.home.menu.friends_online", count: online, number: number_with_delimiter(online)) %></span>
     <% end %>
+    <span id="menu-friends-badge" class="stream-slot"><%= render "pages/menu_invitations_badge", invitations: %></span>
     <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
   <% end %>
 </li>

@@ -15,6 +15,7 @@
     <li>
       <%= link_to friends_path, class: "menu-item menu-item--plus", data: { turbo_prefetch: false } do %>
         <span class="menu-item__label"><%= t("pages.home.menu.friends") %></span>
+        <span id="plus-friends-badge" class="stream-slot"><%= render "pages/menu_invitations_badge", invitations: shell_invitations_waiting %></span>
         <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
       <% end %>
     </li>
