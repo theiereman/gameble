@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_01_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_01_150100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -485,6 +485,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_100000) do
     t.uuid "idempotency_key"
     t.string "card_back"
     t.integer "card_back_season"
+    t.string "reveal_mode"
     t.index ["opened_at"], name: "index_game_packs_on_opened_at", where: "(opened_at IS NOT NULL)"
     t.index ["player_id", "available_at", "id"], name: "index_game_packs_unopened", where: "(opened_at IS NULL)"
     t.index ["player_id", "idempotency_key"], name: "index_game_packs_on_player_id_and_idempotency_key", unique: true, where: "(idempotency_key IS NOT NULL)"
@@ -494,6 +495,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_100000) do
     t.index ["token"], name: "index_game_packs_on_token", unique: true
     t.check_constraint "array_ndims(card_season_ids) = 1 AND cardinality(card_season_ids) >= 1 AND array_position(card_season_ids, NULL::bigint) IS NULL AND (kind::text <> 'regular'::text OR cardinality(card_season_ids) = 5) AND (kind::text <> 'bonus'::text OR cardinality(card_season_ids) = 3)", name: "game_packs_card_season_ids_check"
     t.check_constraint "kind::text = 'regular'::text OR kind::text = 'bonus'::text OR kind::text = 'reward'::text", name: "game_packs_kind_check"
+    t.check_constraint "reveal_mode IS NULL OR (reveal_mode::text = ANY (ARRAY['all'::character varying, 'one_by_one'::character varying]::text[]))", name: "game_packs_reveal_mode_check"
   end
 
   create_table "game_player_states", force: :cascade do |t|

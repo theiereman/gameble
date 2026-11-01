@@ -31,6 +31,8 @@ Rails.application.routes.draw do
 
     # Opening a pack from the hub, and the list of its cards, by token.
     resources :packs, only: %i[create show], param: :token
+    # The booster posts how a capsule was revealed once its last card is face up.
+    post "packs/:token/reveal" => "pack_reveals#create", as: :pack_reveal, constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # The booster screen, where a pack is opened: its root controller sends the
     # opening exchange to packs#create.
     resource :booster, only: :show

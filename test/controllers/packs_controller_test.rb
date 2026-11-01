@@ -407,8 +407,9 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ pack.id ], game_events(player, Game::PackOpened).map { it.data[:pack_id] }
 
     assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers], body.keys
-    assert_equal %w[token kind cardBack url], body["pack"].keys
-    assert_equal [ pack.token, "regular", "/en/packs/#{pack.token}" ], body["pack"].values_at("token", "kind", "url")
+    assert_equal %w[token kind cardBack url revealUrl], body["pack"].keys
+    assert_equal [ pack.token, "regular", "/en/packs/#{pack.token}", "/en/packs/#{pack.token}/reveal" ],
+      body["pack"].values_at("token", "kind", "url", "revealUrl")
     assert_equal "standard", body["pack"]["cardBack"]["key"]
     assert_equal %w[s m xl], body["pack"]["cardBack"]["urls"].keys
     scheduled = (now + 10.minutes).iso8601(3)

@@ -1,6 +1,8 @@
-import { revealingOpening, type BoosterState } from "./booster"
+import { revealModeReached, revealingOpening, type BoosterState } from "./booster"
 import type { BoosterCountdown } from "./booster_countdown"
+import { csrfToken } from "./booster_page"
 import { dispatchGameble } from "./events"
+import { sendReveal } from "./reveal"
 
 export function reflectChange(
   before: BoosterState,
@@ -20,4 +22,11 @@ export function reflectChange(
     dispatchGameble("gameble:navigation-locked", { locked: false })
     whenIdle()
   }
+  recordReveal(before, after)
+}
+
+function recordReveal(before: BoosterState, after: BoosterState): void {
+  const mode = revealModeReached(before, after)
+  const url = after.answer?.pack.revealUrl
+  if (mode && url) void sendReveal({ url, mode, csrfToken: csrfToken() })
 }

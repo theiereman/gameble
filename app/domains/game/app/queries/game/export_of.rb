@@ -2,7 +2,7 @@ module Game
   module ExportOf
     HeldCard = Data.define(:card_season_id, :quantity, :last_gained_at)
     ShowcaseCard = Data.define(:card_season_id, :position)
-    PackRow = Data.define(:token, :kind, :season_number, :card_back, :card_back_season, :available_at, :opened_at, :card_season_ids)
+    PackRow = Data.define(:token, :kind, :season_number, :card_back, :card_back_season, :available_at, :opened_at, :reveal_mode, :card_season_ids)
     Contribution = Data.define(:week_start, :openings)
     ReachedTier = Data.define(:season_number, :kind, :key, :tier, :reached_by, :reached_at)
     Discovery = Data.define(:card_season_id, :discovered_at)
@@ -64,11 +64,11 @@ module Game
 
     def self.packs(player)
       rows = Pack.where(player_id: player.id).order(:available_at, :id)
-        .pluck(:token, :kind, :season_id, :card_back, :card_back_season, :available_at, :opened_at, :card_season_ids)
+        .pluck(:token, :kind, :season_id, :card_back, :card_back_season, :available_at, :opened_at, :reveal_mode, :card_season_ids)
       numbers = Catalog::Season.where(id: rows.map { it[2] }.uniq).pluck(:id, :number).to_h
-      rows.map do |token, kind, season_id, card_back, card_back_season, available_at, opened_at, card_season_ids|
+      rows.map do |token, kind, season_id, card_back, card_back_season, available_at, opened_at, reveal_mode, card_season_ids|
         unopened = opened_at.nil?
-        PackRow.new(token:, kind:, season_number: numbers[season_id], available_at:, opened_at:,
+        PackRow.new(token:, kind:, season_number: numbers[season_id], available_at:, opened_at:, reveal_mode: unopened ? nil : reveal_mode,
           card_back: unopened ? nil : card_back || CardBacks::STANDARD, card_back_season: unopened ? nil : card_back_season,
           card_season_ids: unopened ? [] : card_season_ids)
       end

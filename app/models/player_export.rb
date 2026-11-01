@@ -85,7 +85,7 @@ class PlayerExport
     def packs
       game.packs.map do |pack|
         { token: pack.token, kind: pack.kind, season: pack.season_number, cardBack: pack.card_back, cardBackSeason: pack.card_back_season,
-          availableAt: time(pack.available_at), openedAt: time(pack.opened_at),
+          availableAt: time(pack.available_at), openedAt: time(pack.opened_at), revealMode: pack.reveal_mode,
           cards: pack.card_season_ids.filter_map { card(it) } }
       end
     end

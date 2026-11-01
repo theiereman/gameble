@@ -108,6 +108,22 @@ class PlayerExportTest < ActiveSupport::TestCase
     assert_names_nobody_else(hash, @friend)
   end
 
+  test "each pack lists how it was revealed, null until its last card is face up and for an unopened pack" do
+    first = create_pack(@player, available_at: 3.minutes.ago)
+    second = create_pack(@player, available_at: 2.minutes.ago)
+    unopened = create_pack(@player, available_at: 1.minute.from_now)
+    Game::OpenPack.new.call(player: @player).value!
+    Game::RecordReveal.new.call(player: @player, token: first.token, mode: "all").value!
+    Game::OpenPack.new.call(player: @player).value!
+
+    packs = export.to_h[:packs].index_by { it[:token] }
+
+    assert_equal "all", packs.fetch(first.token)[:revealMode]
+    assert_nil packs.fetch(second.token)[:revealMode]
+    assert packs.fetch(unopened.token).key?(:revealMode)
+    assert_nil packs.fetch(unopened.token)[:revealMode]
+  end
+
   test "an empty player's export holds every section, empty" do
     hash = export.to_h
 

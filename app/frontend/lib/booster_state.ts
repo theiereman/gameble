@@ -36,6 +36,7 @@ export function start({
     legendary: null,
     legendaryRunning: false,
     revealingAll: false,
+    revealAllUsed: false,
     storing: false,
     stored: [],
     counts: null,

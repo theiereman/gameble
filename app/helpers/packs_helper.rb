@@ -20,7 +20,8 @@ module PacksHelper
     counts = Game::Reserve.counts(player.id, now:)
     scheduled = Game::BankSchedule.call(player, now:).map { opening_time(it) }
     {
-      pack: { token: pack.token, kind: pack.kind, cardBack: pack_card_back(pack), url: pack_path(pack.token) },
+      pack: { token: pack.token, kind: pack.kind, cardBack: pack_card_back(pack), url: pack_path(pack.token),
+              revealUrl: pack_reveal_path(pack.token) },
       cards: cards.map { pack_card_fields(it).merge(faces: pack_faces(it)) },
       bank: { available: counts.standard, special: counts.special, openable: counts.openable, reserveFull: Game::Reserve.full?(counts.standard),
               nextAvailableAt: scheduled.first, scheduledAt: scheduled, nextPackSize: Game::NextPackSize.call(player, now:),

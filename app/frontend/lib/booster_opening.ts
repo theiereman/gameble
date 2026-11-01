@@ -16,6 +16,7 @@ import {
   type OpeningOutcome,
   type OpeningRefusal,
   type RevealAllStep,
+  type RevealMode,
 } from "./booster_types"
 import type { OpeningAnswer } from "./opening"
 
@@ -116,6 +117,7 @@ export function openingAnswered(state: BoosterState, answer: OpeningAnswer): Boo
     counts: { ...answer.tierCountsBefore },
     celebrationPending: answer.setTiers,
     answer,
+    revealAllUsed: false,
     revealed: answer.cards.map(() => false),
     revealedAt: answer.cards.map(() => undefined),
     stored: answer.cards.map(() => false),
@@ -191,7 +193,13 @@ export function revealAllPlan(state: BoosterState): RevealAllStep[] {
 }
 
 export function revealAllStarted(state: BoosterState): BoosterState {
-  return canRevealAll(state) ? { ...state, revealingAll: true } : state
+  return canRevealAll(state) ? { ...state, revealingAll: true, revealAllUsed: true } : state
+}
+
+export function revealModeReached(before: BoosterState, after: BoosterState): RevealMode | null {
+  if (!after.answer || after.answer !== before.answer) return null
+  if (allRevealed(before) || !allRevealed(after)) return null
+  return after.revealAllUsed ? "all" : "one_by_one"
 }
 
 export function revealAllEnded(state: BoosterState): BoosterState {

@@ -31,6 +31,8 @@ export const NARROW_QUERY = "(max-width: 899px)"
 
 export type RevealAllStep = { index: number; wait: "full" | "gap" }
 
+export type RevealMode = "all" | "one_by_one"
+
 export type OpeningOutcome = { kind: "opened" } | { kind: "refused"; code: string } | { kind: "failed" }
 
 export type TierCounts = Record<Rarity, number>
@@ -59,6 +61,7 @@ export type BoosterState = Readonly<{
   legendary: number | null
   legendaryRunning: boolean
   revealingAll: boolean
+  revealAllUsed: boolean
   storing: boolean
   stored: readonly boolean[]
   counts: TierCounts | null

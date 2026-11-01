@@ -970,6 +970,8 @@ en:
       invalid_request: Ask for one to four different cards, with a quantity of at
         least one each.
       invalid_reserve: That reserve does not exist. Reload the page and try again.
+      invalid_reveal_mode: The way the capsule was revealed could not be read. Reload
+        the page.
       invalid_time: The time sent could not be read. Reload the page.
       no_pack_available: Your reserve is empty. The next capsule is on its way.
       no_season: No season of cards is open yet. Come back later for the daily capsule.
@@ -977,9 +979,11 @@ en:
       not_allowed: That is not yours to do in this trade.
       not_found: That invitation is no longer there.
       not_friends: You can only trade with a friend.
+      not_latest_pack: Only your most recently opened capsule records how it was revealed.
       own_code: That is your own code.
       own_link: That is your own link.
       own_profile_private: 'Your profile is private: trades are closed.'
+      pack_not_found: That capsule could not be found.
       player_required: Sign in with an active account to do that.
       position_out_of_range: The showcase has no such place.
       repost_limit_reached: You have reposted a lot this past hour. Try again later.
@@ -1599,6 +1603,9 @@ en:
     precision:
       format:
         delimiter: ''
+  pack_reveals:
+    create:
+      throttled: Too many requests in a minute. Try again in a moment.
   packs:
     create:
       throttled: Too many openings in a minute. Try again in a moment.
