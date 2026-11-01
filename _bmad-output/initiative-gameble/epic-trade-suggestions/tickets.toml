@@ -1,0 +1,107 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The trade suggestions are designed"
+description = "The author and `bmad-ux` design, in DESIGN.md and EXPERIENCE.md with French and English copy, the SUGGESTIONS section of the Échanges screen, its rows, the start and send actions, the states with no suggestion and a private player, the Brotherhood's go-between line, and the friend actions that open a new draft once trades between two friends are unlimited."
+verify = "DESIGN.md and EXPERIENCE.md describe each of those places and states with copy in both languages, and the author approves them."
+covers = ["E1", "E2", "E3", "E4", "E5"]
+after = ["28.2"]
+hitl = true
+risk = "low"
+references = ["ux-gameble/EXPERIENCE.md", "ux-gameble/mockups/trade-suggestions.html", "spec-gameble/brotherhood-tone.md"]
+
+[[entry]]
+id = 8
+type = "story"
+title = "Two friends can hold any number of open trades"
+description = "Lifts the one-open-trade-per-pair rule as AD-8's Costs list it: drops the per-pair partial unique index on game_trades concurrently in its own migration, removes ProposeTrade's trade_already_open check and the new-trade redirect with their locale keys, adds the trade_already_sent refusal of a proposal equal to an open one the same player sent the same friend, stops OpenTradesByFriend mapping a friend to one trade, makes ÉCHANGE on the friend row, the friend chooser, the friend profile and the public profile open the friend's new-proposal draft, and has the remove-friend dialog count the open trades it cancels."
+verify = "A player sends two different proposals to one friend and both stay open, reserving only their own offers; the same proposal sent twice creates one trade; ÉCHANGE opens the friend's draft with trades open; removing the friend cancels every trade and releases every reservation; db/schema.rb is regenerated from the migrations; operation, controller and system tests cover it."
+covers = ["E5"]
+after = []
+hitl = false
+risk = "high"
+references = ["architecture-gameble/architecture-gameble.md#ad-8", "architecture-gameble/architecture-gameble.md#ad-10", "spec-gameble/spec-gameble.md#cap-11", "ux-gameble/EXPERIENCE.md"]
+
+[[entry]]
+id = 2
+type = "story"
+title = "A player sees which friends spare their goals' missing cards and starts a trade from one"
+description = "The tracer bullet: `Game::TradeSuggestions` reads, on the reading role, the player's `Game::GoalNeeds` and the holdings of each friend open to trades, applies AD-38's spare rule (a game already in an open trade between the pair is not a spare), ranks friends and cards and keeps at most 3 one-sided suggestions; the Échanges screen shows them in the SUGGESTIONS section as the design draws them (goal bookmarks, the title summary, ENVOYER), hides the section when there is none, shows none to a private player and never names a private, banned or deleted friend; ENVOYER posts the suggestion through `Game::ProposeTrade`, and the row's opener is a link that renders the prefilled board, addressed by slug and season, without writing the stored draft."
+verify = "On staging a player whose goal misses two games sees, in English and French, the friend holding a spare of each but not one holding a single copy, one whose spare is reserved, or a private friend, and sees nothing once they go private; ENVOYER sends the trade and the suggestion leaves the list; the opener shows the board with those cards requested and a reload keeps the stored draft; query, policy, controller and system tests cover it."
+covers = ["E1", "E3", "E4"]
+after = [1, 8, "28.9"]
+hitl = false
+risk = "high"
+references = ["architecture-gameble/architecture-gameble.md#ad-38", "architecture-gameble/architecture-gameble.md#ad-35", "architecture-gameble/architecture-gameble.md#ad-8", "ux-gameble/mockups/trade-suggestions.html"]
+
+[[entry]]
+id = 9
+type = "story"
+title = "Goal bookmarks show on every trade board"
+description = "The cards of every trade board, on both sides, carry the player's goal bookmarks with the Goal bookmark rule (top-left corner of the card's image), and a card's accessible name ends with its goals, as everywhere the player's goals mark cards."
+verify = "A board holding a card of one of the player's goals shows its numbered bookmark in the corner of the image on desktop and phone and names the goal in the card's accessible name; a board with none shows no bookmark; system tests cover it."
+covers = ["E1"]
+after = [1, "28.10"]
+hitl = false
+risk = "low"
+references = ["ux-gameble/DESIGN.md", "ux-gameble/EXPERIENCE.md"]
+
+[[entry]]
+id = 3
+type = "story"
+title = "Mutual suggestions come first, at a cost that does not grow with friends"
+description = "`Game::TradeSuggestions` adds, for each friend open to trades, the missing games of their goals on game sets only (never a custom set) against the player's own spares by the same rule, in a batched read whose query count does not depend on the number of friends, puts mutual suggestions first with every player spare the friend misses placed on the give side up to 4, fills the suggestions in friend order without placing a game or a copy twice, and measures its cost on the seeded worst case."
+verify = "A friend who spares a card the player misses and misses a card the player spares is listed before a one-sided friend, a friend's custom-set goal never makes a suggestion mutual, sending it proposes both sides, a query-count test holds with 1 and 30 friends, and the read stays under 200 ms of server time on a seeded worst case of 100 friends each with 5 goals of 50-game sets."
+covers = ["E2", "E4"]
+after = [2]
+hitl = false
+risk = "high"
+unknown = "Whether AD-38's deferred suggestion cache is needed to hold the 200 ms budget; if the measure fails, bmad-architecture designs it before this entry ships."
+references = ["architecture-gameble/architecture-gameble.md#ad-38", "architecture-gameble/architecture-gameble.md#ad-11"]
+
+[[entry]]
+id = 4
+type = "story"
+title = "A trade started from a suggestion follows the trade rules"
+description = "A suggestion places at most four card-seasons per side ranked by AD-38, drops a placed card the friend or the player no longer spares when the board opens or the proposal is sent, writes the friend's stored new-proposal draft only when the player changes the prefilled board or sends it and then replaces the address with the plain new-trade one, and leaves an opened but unsent suggestion a suggestion, the prefill contract of entry 2 being the only way in."
+verify = "A suggestion with six candidate cards prefills four in AD-38's order; a card traded away since the list was read is not placed; a hand-built draft survives looking at a suggestion; reload or Back after a send never re-applies it; a crafted prefill URL for a private friend or for cards the friend lacks is refused or ignored; controller, vitest and system tests cover it."
+covers = ["E3"]
+after = [2]
+hitl = false
+risk = "medium"
+references = ["architecture-gameble/architecture-gameble.md#ad-8", "architecture-gameble/architecture-gameble.md#ad-38"]
+
+[[entry]]
+id = 5
+type = "story"
+title = "A goal leads to the friends who can help"
+description = "Dropped: suggestions live only in the Échanges screen (author, 2026-11-01)."
+verify = "None."
+covers = []
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
+verify = "The full suite, packwerk, the linters and the size checks pass, and no behavior changes."
+covers = []
+after = [1, 8, 2, 9, 3, 4]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "End-to-end suite of trade suggestions"
+description = "One system suite across the epic plays two and three friends with goals through the suggestion list, a mutual trade sent from its row, accepted and gone from the list, a second trade with the same friend while the first is open, and the privacy cases of a private, friends-only, banned and deleted friend."
+verify = "The suite passes three runs in a row on CI with no retry, and each of the epic's Done when lines is named by one of its tests."
+covers = ["E1", "E2", "E3", "E4", "E5"]
+after = [6]
+hitl = false
+risk = "low"
