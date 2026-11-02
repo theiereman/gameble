@@ -8,6 +8,7 @@ module AchievementsHelper
     first_repost: "card",
     packaging_irregularity: "duplicate", excellence_in_mediocrity: "tokens", historical_asset_management: "hourglass",
     luck_is_a_marketing_concept: "clover", leave_request_denied: "refused",
+    streamlined_opening_procedure: "skip", diligence_beyond_the_call_of_duty: "revealed",
     diversified_portfolio: "fan", market_concentration: "tower",
     first_claim_all_rights_reserved: "flag", a_discovery_of_ours: "lens", a_strictly_professional_relationship: "clasp"
   }.freeze

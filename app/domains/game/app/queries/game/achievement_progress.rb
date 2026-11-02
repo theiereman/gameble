@@ -80,6 +80,18 @@ module Game
       ) AS runs
     SQL
 
+    REVEAL_STREAK_SQL = <<~SQL.squish.freeze
+      SELECT COALESCE(MAX(run_length), 0) FROM (
+        SELECT COUNT(*) AS run_length FROM (
+          SELECT revealed, ROW_NUMBER() OVER (ORDER BY opened_at, id) - ROW_NUMBER() OVER (PARTITION BY revealed ORDER BY opened_at, id) AS run
+            FROM (SELECT id, opened_at, COALESCE(reveal_mode = '%s', FALSE) AS revealed
+                    FROM game_packs
+                   WHERE game_packs.player_id = :player_id AND game_packs.opened_at IS NOT NULL) AS capsules
+        ) AS numbered
+        WHERE revealed GROUP BY run
+      ) AS runs
+    SQL
+
     MOST_COPIES_OF_A_GAME_SQL = <<~SQL.squish.freeze
       SELECT COALESCE(MAX(copies), 0) FROM (
         SELECT SUM(game_holdings.quantity) AS copies FROM game_holdings
@@ -126,6 +138,8 @@ module Game
       old_and_new_game_capsules: OLD_AND_NEW_SQL,
       capsules_without_rare_streak: CAPSULES_WITHOUT_RARE_STREAK_SQL,
       daily_bonus_streak: DAILY_BONUS_STREAK_SQL,
+      reveal_all_streak: format(REVEAL_STREAK_SQL, "all"),
+      reveal_one_by_one_streak: format(REVEAL_STREAK_SQL, "one_by_one"),
       most_copies_of_a_game: MOST_COPIES_OF_A_GAME_SQL,
       first_discoveries: FIRST_DISCOVERIES_SQL,
       pioneered_reposts: PIONEERED_REPOSTS_SQL,

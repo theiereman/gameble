@@ -173,8 +173,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # 07: the achievements screen, none earned yet.
     assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='7'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Succès"
-      assert_select ".menu-item__meta[aria-hidden=true]", "0/21"
-      assert_select ".visually-hidden", "0 succès obtenu sur 21"
+      assert_select ".menu-item__meta[aria-hidden=true]", "0/23"
+      assert_select ".visually-hidden", "0 succès obtenu sur 23"
     end
     assert_select ".hub-menu [aria-disabled]", false
 
@@ -489,7 +489,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
   test "a reached goal reads Mission accomplie with a full gauge, in both languages" do
     week = Game::WeeklyGoal.week_start(Time.current)
-    Game::WeeklyGoal.create!(week_start: week, total: 210, target: 200)
+    Game::WeeklyGoal.create!(week_start: week, total: 230, target: 200)
     sign_in(accounts_players(:moderator))
 
     get home_path(locale: :en)
@@ -506,7 +506,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
   test "after the rollover the panel shows the new week's empty gauge and target, and last week's final count" do
     week = Game::WeeklyGoal.week_start(Time.current)
-    Game::WeeklyGoal.create!(week_start: week - 7, total: 210, target: 200)
+    Game::WeeklyGoal.create!(week_start: week - 7, total: 230, target: 200)
     Game::WeeklyGoal.create!(week_start: week, total: 0, target: 250)
     sign_in(accounts_players(:moderator))
 

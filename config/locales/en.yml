@@ -30,6 +30,7 @@ en:
       boosters_500: Open 500 capsules
       a_discovery_of_ours: Repost a card you pioneered
       a_strictly_professional_relationship: Complete three trades with the same player
+      diligence_beyond_the_call_of_duty: 10 capsules in a row with every card revealed one by one
       diversified_portfolio: Hold five copies of the same game at once
       excellence_in_mediocrity: Five Common cards in one standard capsule
       first_booster: Open a capsule
@@ -45,6 +46,7 @@ en:
       market_concentration: Hold 10 different games of the same studio at once
       packaging_irregularity: Two copies of the same game in one capsule
       statistical_non_compliance: Two Rare or better cards in one standard capsule
+      streamlined_opening_procedure: 10 capsules in a row opened with "Reveal all"
       three_complete_sets: Complete 3 sets
     names:
       boosters_10: Probation Period Completed
@@ -52,6 +54,7 @@ en:
       boosters_500: Loyalty Beyond Reasonable Limits
       a_discovery_of_ours: A Discovery of Ours
       a_strictly_professional_relationship: A Strictly Professional Relationship
+      diligence_beyond_the_call_of_duty: Diligence Beyond the Call of Duty
       diversified_portfolio: Diversified Portfolio
       excellence_in_mediocrity: Excellence in Mediocrity
       first_booster: Your First Authorized Acquisition
@@ -67,6 +70,7 @@ en:
       market_concentration: Market Concentration
       packaging_irregularity: Packaging Irregularity
       statistical_non_compliance: Statistical Non-Compliance
+      streamlined_opening_procedure: Streamlined Opening Procedure
       three_complete_sets: Archival Excellence
     show:
       earned_label: Achievements earned

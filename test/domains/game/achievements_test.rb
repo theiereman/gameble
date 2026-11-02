@@ -74,7 +74,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     Game::AcceptTrade.new.call(player:, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision).value!
   end
 
-  test "the catalogue holds eighteen achievements, in order, each a metric and a threshold" do
+  test "the catalogue holds twenty-three achievements, in order, each a metric and a threshold" do
     expected = [
       [ :first_booster, :packs_opened, 1 ], [ :first_epic, :epics_obtained, 1 ], [ :first_legendary, :legendaries_obtained, 1 ],
       [ :first_complete_set, :sets_completed, 1 ], [ :first_trade, :trades_accepted, 1 ], [ :boosters_10, :packs_opened, 10 ],
@@ -82,7 +82,8 @@ class Game::AchievementsTest < ActiveSupport::TestCase
       [ :first_repost, :reposts, 1 ], [ :statistical_non_compliance, :two_rare_or_better_capsules, 1 ],
       [ :packaging_irregularity, :repeated_game_capsules, 1 ], [ :excellence_in_mediocrity, :all_common_capsules, 1 ],
       [ :historical_asset_management, :old_and_new_game_capsules, 1 ], [ :luck_is_a_marketing_concept, :capsules_without_rare_streak, 10 ],
-      [ :leave_request_denied, :daily_bonus_streak, 7 ], [ :diversified_portfolio, :most_copies_of_a_game, 5 ],
+      [ :leave_request_denied, :daily_bonus_streak, 7 ], [ :streamlined_opening_procedure, :reveal_all_streak, 10 ],
+      [ :diligence_beyond_the_call_of_duty, :reveal_one_by_one_streak, 10 ], [ :diversified_portfolio, :most_copies_of_a_game, 5 ],
       [ :market_concentration, :most_games_of_a_studio, 10 ], [ :first_claim_all_rights_reserved, :first_discoveries, 1 ],
       [ :a_discovery_of_ours, :pioneered_reposts, 1 ], [ :a_strictly_professional_relationship, :most_trades_with_a_partner, 3 ]
     ]
@@ -583,6 +584,94 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_includes unlocked, "a_discovery_of_ours"
   end
 
+  def reveal_modes(modes, player: @player, from: Time.utc(2026, 1, 1))
+    modes.each_with_index do |mode, index|
+      create_pack(player, cards: commons, opened_at: from + index.minutes).update_columns(reveal_mode: mode)
+    end
+  end
+
+  def reveal_streak(metric, player = @player) = capsule_metric(metric, player)
+
+  test "the reveal streaks are the longest runs of opened capsules of any kind revealed one way, in opening order" do
+    reveal_modes(%w[all all one_by_one all all all one_by_one one_by_one])
+    assert_equal 3, reveal_streak(:reveal_all_streak)
+    assert_equal 2, reveal_streak(:reveal_one_by_one_streak)
+
+    assert_equal 0, reveal_streak(:reveal_all_streak, @other)
+    assert_equal 0, reveal_streak(:reveal_one_by_one_streak, @other)
+  end
+
+  test "a capsule without a reveal mode breaks both reveal streaks" do
+    reveal_modes(%w[all all all] + [ nil ] + %w[all all])
+    reveal_modes(%w[one_by_one one_by_one] + [ nil ] + %w[one_by_one], from: Time.utc(2026, 2, 1))
+    assert_equal 3, reveal_streak(:reveal_all_streak)
+    assert_equal 2, reveal_streak(:reveal_one_by_one_streak)
+  end
+
+  test "the reveal streaks count capsules of every kind, ignore unopened ones and follow opened_at" do
+    later = Time.utc(2026, 6, 1)
+    %i[regular bonus reward].each_with_index do |kind, index|
+      create_pack(@player, kind:, cards: commons(kind), opened_at: later + index.minutes).update_columns(reveal_mode: "all")
+    end
+    create_pack(@player, cards: commons).update_columns(reveal_mode: "all")
+    create_pack(@player, cards: commons, opened_at: later - 1.day).update_columns(reveal_mode: "one_by_one")
+    create_pack(@player, cards: commons, opened_at: later + 1.day).update_columns(reveal_mode: "all")
+
+    assert_equal 4, reveal_streak(:reveal_all_streak)
+    assert_equal 1, reveal_streak(:reveal_one_by_one_streak)
+  end
+
+  test "the reveal achievements are granted at exactly ten capsules in a row and refused at nine" do
+    reveal_modes(%w[all] * 9)
+    reveal_modes(%w[one_by_one] * 9, from: Time.utc(2026, 2, 1))
+    assert_equal :not_reached, grant(:streamlined_opening_procedure).failure
+    assert_equal :not_reached, grant(:diligence_beyond_the_call_of_duty).failure
+
+    reveal_modes(%w[all] * 10, player: @other)
+    reveal_modes(%w[one_by_one] * 10, player: @other, from: Time.utc(2026, 2, 1))
+    assert_equal :streamlined_opening_procedure, grant(:streamlined_opening_procedure, player: @other).value!.key
+    assert_equal :diligence_beyond_the_call_of_duty, grant(:diligence_beyond_the_call_of_duty, player: @other).value!.key
+  end
+
+  test "a run of nine, a capsule without a mode and a run of nine never reach ten" do
+    reveal_modes(%w[all] * 9 + [ nil ] + %w[all] * 9)
+
+    assert_equal 9, reveal_streak(:reveal_all_streak)
+    assert_equal :not_reached, grant(:streamlined_opening_procedure).failure
+  end
+
+  test "capsules opened before the reveal mode was recorded grant neither achievement" do
+    reveal_modes([ nil ] * 12)
+
+    assert_equal 0, reveal_streak(:reveal_all_streak)
+    assert_equal 0, reveal_streak(:reveal_one_by_one_streak)
+    assert_equal :not_reached, grant(:streamlined_opening_procedure).failure
+    assert_equal :not_reached, grant(:diligence_beyond_the_call_of_duty).failure
+  end
+
+  test "revealing the tenth capsule with Reveal all grants Streamlined Opening Procedure with a toast in each locale" do
+    reveal_modes(%w[all] * 9 + [ nil ])
+    assert_empty unlocked
+
+    latest = Game::Pack.where(player_id: @player.id).order(:opened_at, :id).last
+    perform_enqueued_jobs { Game::RecordReveal.new.call(player: @player, token: latest.token, mode: "all").value! }
+
+    assert_equal %w[streamlined_opening_procedure], unlocked
+    assert_equal 1, toasts(@player, :fr).count { it.include?("Procédure d'ouverture simplifiée") }
+    assert_equal 1, toasts(@player, :en).count { it.include?("Streamlined Opening Procedure") }
+  end
+
+  test "revealing the tenth capsule card by card grants Diligence Beyond the Call of Duty with a toast in each locale" do
+    reveal_modes(%w[one_by_one] * 9 + [ nil ])
+
+    latest = Game::Pack.where(player_id: @player.id).order(:opened_at, :id).last
+    perform_enqueued_jobs { Game::RecordReveal.new.call(player: @player, token: latest.token, mode: "one_by_one").value! }
+
+    assert_equal %w[diligence_beyond_the_call_of_duty], unlocked
+    assert_equal 1, toasts(@player, :fr).count { it.include?("Zèle au-delà des obligations") }
+    assert_equal 1, toasts(@player, :en).count { it.include?("Diligence Beyond the Call of Duty") }
+  end
+
   test "the grant re-reads only its achievement's metric" do
     opened_packs(1)
 
@@ -705,7 +794,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   test "every trigger enqueues the grant for its players" do
     data = { player_id: @player.id, proposer_id: @player.id, recipient_id: @other.id }
 
-    assert_enqueued_jobs 8, only: Game::GrantAchievementsJob do
+    assert_enqueued_jobs 9, only: Game::GrantAchievementsJob do
       Game::Handlers::Achievements::EVENTS.each_key { Game::Handlers::Achievements.call(it.new(data:)) }
     end
   end
@@ -785,6 +874,19 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
     assert_includes granted, "leave_request_denied"
     events = Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a
     assert events.all? { it.data[:retroactive] }
+  end
+
+  test "the reveal achievements are granted from the recorded reveal modes, silently" do
+    Array.new(10) { Time.utc(2026, 1, 1) + it.minutes }.each do |at|
+      create_pack(@other, cards: fixture_tier_ids.first(1) * Game::Pack::SIZE, opened_at: at).update_columns(reveal_mode: "all")
+    end
+
+    assert_no_enqueued_jobs(only: PlayerStreamJob) { Game::BackfillAchievementsJob.perform_now }
+
+    granted = Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement)
+    assert_includes granted, "streamlined_opening_procedure"
+    assert_not_includes granted, "diligence_beyond_the_call_of_duty"
+    assert Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a.all? { it.data[:retroactive] }
   end
 
   test "the collection achievements are granted from the current collection, silently" do

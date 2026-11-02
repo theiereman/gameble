@@ -23,6 +23,8 @@ module Game
       Achievement.new(:historical_asset_management, :old_and_new_game_capsules, 1),
       Achievement.new(:luck_is_a_marketing_concept, :capsules_without_rare_streak, 10),
       Achievement.new(:leave_request_denied, :daily_bonus_streak, 7),
+      Achievement.new(:streamlined_opening_procedure, :reveal_all_streak, 10),
+      Achievement.new(:diligence_beyond_the_call_of_duty, :reveal_one_by_one_streak, 10),
       Achievement.new(:diversified_portfolio, :most_copies_of_a_game, 5),
       Achievement.new(:market_concentration, :most_games_of_a_studio, 10),
       Achievement.new(:first_claim_all_rights_reserved, :first_discoveries, 1),
