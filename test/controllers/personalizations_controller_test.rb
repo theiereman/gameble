@@ -37,7 +37,7 @@ class PersonalizationsControllerTest < ActionDispatch::IntegrationTest
     [ @player.id, common, rare ].each { assert_no_match(/\b#{it}\b/, css_select("main").to_html.gsub(/data-card-art-(width|height)-value="\d+"|\/seasons\/\d+|\b(19|20)\d\d\b/, "")) }
   end
 
-  test "the card back comes first, then the public sections, each saying what it is for, how many it holds and who sees it" do
+  test "the showcase comes first, then the card back, then the title, each saying what it is for, how many it holds and who sees it" do
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:common_card_one).id, quantity: 1)
     Game::AddToShowcase.new.call(player: @player, card_season_id: catalog_card_seasons(:common_card_one).id).value!
     sign_in(@player)

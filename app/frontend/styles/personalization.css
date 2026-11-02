@@ -20,12 +20,6 @@
   text-transform: uppercase;
 }
 
-.personalization__public {
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--space-4) + var(--space-1));
-}
-
 .personalization-section {
   display: flex;
   flex-direction: column;
@@ -135,8 +129,7 @@
 }
 
 @media (max-width: 719px) {
-  .personalization,
-  .personalization__public {
+  .personalization {
     gap: var(--space-6);
   }
 
