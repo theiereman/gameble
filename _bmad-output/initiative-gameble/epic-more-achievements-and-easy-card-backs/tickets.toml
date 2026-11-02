@@ -190,3 +190,14 @@ covers = []
 after = [14]
 hitl = false
 risk = "medium"
+
+[[entry]]
+id = 17
+type = "story"
+title = "Claiming an achievement updates the page in place, keeping the scroll"
+description = "Author on staging, 2026-11-02: actions such as claiming an achievement must keep the scroll position and not reload the whole page. Answer the claim POST with a Turbo Stream (HTML redirect stays as the fallback without JavaScript): replace the claimed row (its Claim button gives way to the unlocked back state), update the Achievements menu badge on desktop and phone (and remove it at zero), update the earned and to-earn counts and the gauge of the page head, and send a toast or announce the result in a polite status for screen readers; keep focus on a sensible element (the row or the next Claim button). Check the other one-click actions of the Achievements and Personalization pages and of the settings sync button: where one redirects and loses the scroll, give it the same stream answer, within the same story if small, else list it in the plan."
+verify = "On a long Achievements page, claiming a row far down leaves the scroll where it was, updates the row, the counts and the menu badge without a full reload (the page's navigation timing shows no new document), and still works without JavaScript through the redirect; the claim tests cover both formats."
+covers = []
+after = [16]
+hitl = false
+risk = "low"

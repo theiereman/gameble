@@ -3,7 +3,7 @@ title: 'The Personalization page shows the card back picker before the title pic
 type: 'feature'
 ticket: '15'
 created: '2026-11-02'
-status: 'built'
+status: done
 baseline_revision: '60aa9c9b64bffe9d4549d4868e6aa887bef87651'
 route: 'oneshot'
 route_source: 'auto'

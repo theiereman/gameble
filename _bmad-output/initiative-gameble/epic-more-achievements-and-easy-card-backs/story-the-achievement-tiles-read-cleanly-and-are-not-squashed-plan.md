@@ -3,7 +3,7 @@ title: 'The achievement tiles read cleanly and are not squashed'
 type: 'feature'
 ticket: '14'
 created: '2026-11-02'
-status: 'built'
+status: done
 baseline_revision: '8564e2b87e61b408c44913cd285a4288ddc4f887'
 route: 'oneshot'
 route_source: 'auto'
