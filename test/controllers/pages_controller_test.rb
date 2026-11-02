@@ -489,7 +489,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
   test "a reached goal reads Mission accomplie with a full gauge, in both languages" do
     week = Game::WeeklyGoal.week_start(Time.current)
-    Game::WeeklyGoal.create!(week_start: week, total: 230, target: 200)
+    Game::WeeklyGoal.create!(week_start: week, total: 210, target: 200)
     sign_in(accounts_players(:moderator))
 
     get home_path(locale: :en)
@@ -506,7 +506,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
   test "after the rollover the panel shows the new week's empty gauge and target, and last week's final count" do
     week = Game::WeeklyGoal.week_start(Time.current)
-    Game::WeeklyGoal.create!(week_start: week - 7, total: 230, target: 200)
+    Game::WeeklyGoal.create!(week_start: week - 7, total: 210, target: 200)
     Game::WeeklyGoal.create!(week_start: week, total: 0, target: 250)
     sign_in(accounts_players(:moderator))
 
