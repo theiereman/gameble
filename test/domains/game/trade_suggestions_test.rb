@@ -228,4 +228,128 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
 
     assert_equal one, count_queries { assert_equal 3, suggestions.size }
   end
+
+  def game_set_goal(friend, *card_season_ids, key: "mutual-#{SecureRandom.hex(3)}")
+    insert_set(card_season_ids, { complete: card_season_ids.size }, key:, params: { "theme" => key })
+    Game::AddGoal.new.call(player: friend, kind: "theme", key:).value!
+  end
+
+  test "a mutual suggestion comes before a one-sided friend who spares more, with the player's spares on the give side" do
+    befriend(@lea)
+    befriend(@max)
+    goal(@portal.id, @depths.id)
+    spare(@player, @soldier.id)
+    spare(@lea, @portal.id)
+    spare(@max, @portal.id, @depths.id)
+    game_set_goal(@lea, @soldier.id, *unheld_cards(2))
+
+    result = Game::TradeSuggestions.call(@player).suggestions
+
+    assert_equal [ @lea, @max ], result.map(&:player)
+    assert_predicate result.first, :mutual?
+    assert_equal [ @soldier.id ], result.first.own_card_season_ids
+    assert_equal [ @portal.id ], result.first.card_season_ids
+    assert_equal [ @depths.id ], result.last.card_season_ids
+    assert_empty result.last.own_lines
+  end
+
+  test "a friend's goal on a custom set never makes a suggestion mutual" do
+    befriend(@lea)
+    goal(@portal.id, @depths.id)
+    spare(@player, @soldier.id)
+    spare(@lea, @portal.id)
+    card_ids = Catalog::CardSeason.where(id: @soldier.id).pluck(:card_id)
+    Game::AddGoal.new.call(player: @lea, custom_set: create_custom_set(@lea, name: "Private", card_ids:).token).value!
+
+    suggestion = suggestions.sole
+
+    assert_not_predicate suggestion, :mutual?
+    assert_empty suggestion.own_lines
+  end
+
+  test "a game the friend already holds is not given" do
+    befriend(@lea)
+    goal(@portal.id, @depths.id)
+    spare(@player, @soldier.id)
+    spare(@lea, @portal.id)
+    hold(@lea, @soldier.id)
+    game_set_goal(@lea, @soldier.id, *unheld_cards(2))
+
+    assert_not_predicate suggestions.sole, :mutual?
+  end
+
+  test "the give side holds up to four spares, ranked on the friend's goals then rarity then slug" do
+    befriend(@lea)
+    goal(@portal.id, @depths.id)
+    spare(@lea, @portal.id)
+    cards = unheld_cards(5)
+    cards.each { hold(@player, it, 2) }
+    spare(@player, @crown.id)
+    game_set_goal(@lea, *cards)
+    game_set_goal(@lea, @crown.id)
+
+    suggestion = suggestions.sole
+
+    assert_equal 4, suggestion.own_lines.size
+    assert_equal cards.first(4).sort, suggestion.own_card_season_ids.sort
+    assert(suggestion.own_lines.all? { it.goal_positions.empty? })
+  end
+
+  test "a spare of the player is placed on one give side only, and each friend's cards once" do
+    befriend(@lea)
+    befriend(@max)
+    goal(@portal.id, @depths.id, @hills.id, @crown.id)
+    spare(@player, @soldier.id)
+    spare(@lea, @portal.id, @depths.id, @hills.id)
+    spare(@max, @portal.id, @depths.id, @crown.id)
+    game_set_goal(@lea, @soldier.id, *unheld_cards(2))
+    game_set_goal(@max, @soldier.id, *unheld_cards(2))
+
+    result = suggestions
+
+    assert_equal [ @lea, @max ], result.map(&:player)
+    assert_equal [ [ @soldier.id ], [] ], result.map(&:own_card_season_ids)
+    assert_equal [ @portal.id, @depths.id, @hills.id, @crown.id ].sort, result.flat_map(&:card_season_ids).sort
+  end
+
+  test "the reads cost the same with one mutual friend or thirty" do
+    goal(@portal.id, @depths.id, @hills.id)
+    spare(@player, @soldier.id)
+    befriend(@lea)
+    spare(@lea, @portal.id)
+    game_set_goal(@lea, @soldier.id, *unheld_cards(2))
+    one = count_queries { assert_equal 1, suggestions.size }
+
+    29.times do |index|
+      friend = new_friend(index + 1)
+      spare(friend, @depths.id)
+      game_set_goal(friend, @soldier.id, *unheld_cards(1))
+    end
+
+    assert_equal one, count_queries { assert_operator suggestions.size, :>=, 2 }
+  end
+
+  test "the read stays under 200 ms on 100 friends with five goals of fifty games" do
+    wanted = unheld_cards(250)
+    offered = unheld_cards(250)
+    wanted.each_slice(50).with_index { |members, index| game_set_goal(@player, *members, key: "wanted-#{index}") }
+    offered.each_slice(50).with_index { |members, index| insert_set(members, { complete: 50 }, key: "offered-#{index}", params: { "theme" => "offered-#{index}" }) }
+    hold_all(@player, offered.each_slice(50).flat_map { it.first(10) }, quantity: 2)
+    now = Time.current
+    friends = Array.new(100) { |index| Accounts::Player.create!(steam_id: "7656119796098#{index.to_s.rjust(4, "0")}") }
+    Game::Friendship.insert_all!(friends.map { |friend| low, high = [ @player.id, friend.id ].minmax; { low_player_id: low, high_player_id: high, created_at: now } })
+    Game::Goal.insert_all!(friends.flat_map do |friend|
+      5.times.map { |index| { player_id: friend.id, position: index + 1, set_kind: "theme", set_key: "offered-#{index}", created_at: now, updated_at: now } }
+    end)
+    friends.each { |friend| hold_all(friend, wanted.each_slice(50).flat_map { it.first(15) }, quantity: 2) }
+
+    Game::TradeSuggestions.call(@player)
+    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    result = Game::TradeSuggestions.call(@player)
+    elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
+
+    assert_equal 3, result.suggestions.size
+    assert(result.suggestions.all?(&:mutual?))
+    assert_operator elapsed, :<, 0.2
+  end
 end

@@ -3,7 +3,7 @@ module TradeSuggestionsHelper
     def lines(side) = public_send(side).map { Game::TradesOf::Line.new(card_season_id: it, quantity: 1) }
 
     def shows?(suggestion)
-      suggestion.player == friend && give.empty? && suggestion.card_season_ids.sort == take.sort
+      suggestion.player == friend && suggestion.own_card_season_ids.sort == give.sort && suggestion.card_season_ids.sort == take.sort
     end
   end
 
@@ -12,7 +12,10 @@ module TradeSuggestionsHelper
   end
 
   def trade_suggestion_summary(suggestion, cards)
-    t("trades.suggestions.summary_open", cards: trade_suggestion_titles(suggestion, cards).join(", "), name: friend_name(suggestion.player))
+    cards_text = trade_suggestion_titles(suggestion.lines, cards).join(", ")
+    return t("trades.suggestions.summary_mutual", cards: cards_text, given: trade_suggestion_titles(suggestion.own_lines, cards).join(", ")) if suggestion.mutual?
+
+    t("trades.suggestions.summary_open", cards: cards_text, name: friend_name(suggestion.player))
   end
 
   def trade_suggestion_opener_name(suggestion, cards, goals)
@@ -22,7 +25,13 @@ module TradeSuggestionsHelper
       served = line.goal_positions.filter_map { by_position[it] }.map { trade_suggestion_goal_name(it) }
       t("trades.suggestions.card", title: view.title, goals: served.join(", "))
     end
-    t("trades.suggestions.label_open", name: friend_name(suggestion.player), cards: named.join(", "), presence: presence_text(suggestion.friend))
+    presence = presence_text(suggestion.friend)
+    if suggestion.mutual?
+      return t("trades.suggestions.label_mutual", name: friend_name(suggestion.player), cards: named.join(", "), presence:,
+        given: trade_suggestion_titles(suggestion.own_lines, cards).join(", "))
+    end
+
+    t("trades.suggestions.label_open", name: friend_name(suggestion.player), cards: named.join(", "), presence:)
   end
 
   def trade_suggestion_send_name(suggestion)
@@ -51,8 +60,8 @@ module TradeSuggestionsHelper
   end
 
   private
-    def trade_suggestion_titles(suggestion, cards)
-      suggestion.lines.filter_map { cards[it.card_season_id]&.title }
+    def trade_suggestion_titles(lines, cards)
+      lines.filter_map { cards[it.card_season_id]&.title }
     end
 
     def trade_suggestion_keys(lines, cards)

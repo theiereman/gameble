@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/custom_sets"
+require_relative "../support/game_sets"
 require_relative "../support/holdings"
 require_relative "../support/steam_sign_in"
 
@@ -9,6 +10,7 @@ require_relative "../support/steam_sign_in"
 class TradeSuggestionsControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
   include CustomSets
+  include GameSets
   include Holdings
   include SteamSignIn
 
@@ -140,5 +142,22 @@ class TradeSuggestionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to trades_path(locale: :fr)
     assert_equal I18n.t("trades.throttled", locale: :fr), flash[:alert]
+  end
+
+  test "a mutual suggestion reads against the player's spare and ENVOYER proposes both sides" do
+    portal = catalog_card_seasons(:portal_one).id
+    hold(@alice, portal, 2)
+    insert_set([ portal, *unheld_cards(2) ], { complete: 3 }, key: "mutual", params: { "theme" => "mutual" })
+    Game::AddGoal.new.call(player: @bob, kind: "theme", key: "mutual").value!
+    sign_in @alice
+
+    get trades_path(locale: :fr)
+
+    assert_select ".trade-suggestion__summary", text: /\scontre\s/
+    assert_select "a.trade-suggestion__opener[href*=?]", "give"
+
+    assert_difference -> { Game::Trade.count }, 1 do
+      send_suggestion(take: { "blue-depths--s1" => 1, "green-hills--s1" => 1 }, position: 0)
+    end
   end
 end
