@@ -25,7 +25,7 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
     Game::AddGoal.new.call(player: @hugo, custom_set: create_custom_set(@hugo, card_ids:).token).value!
     hold(@lea, @depths, 2)
     hold(@lea, @hills, 2)
-    hold(@max, @depths, 1)
+    hold(@max, @depths, 1, reserved: 1)
   end
 
   def befriend(first, second)
@@ -44,19 +44,8 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
 
   def focused?(selector) = page.evaluate_script("document.activeElement?.matches(#{selector.to_json}) === true")
 
-  def store_draft_for_lea
-    visit new_trade_path(locale: :en, friend: @lea.token)
-    find(".trade-side--own .trade-add").click
-    find(".trade-picker .trade-pick__toggle[aria-label^='Portal,']").click
-    within(".trade-picker") { click_on "Place", exact: true }
-    assert_no_selector ".trade-picker", visible: true
-    eventually("the draft for Lea is stored") { lea_draft.present? }
-    lea_draft
-  end
-
-  test "a suggestion opens on the board prefilled, leaving the friend's stored draft as it was" do
+  test "a suggestion opens on the board prefilled, leaving nothing stored" do
     sign_in @hugo
-    stored = store_draft_for_lea
 
     visit trades_path(locale: :en)
     within(".trade-suggestions") do
@@ -74,20 +63,16 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
     assert_no_selector ".trade-side--own.trade-side--editing .trade-card__remove"
     assert_selector ".trade-suggestion--current .trade-suggestion__opener[aria-current='true']"
     eventually("focus on the board heading") { focused?("#trade-board-heading") }
-    assert_equal stored, lea_draft
+    assert_nil lea_draft
 
     click_on "Abandon"
     assert_current_path trades_path(locale: :en)
-    assert_equal stored, lea_draft
-
-    visit new_trade_path(locale: :en, friend: @lea.token)
-    within(".trade-side--own") { assert_selector ".trade-card__remove[aria-label='Remove Portal']" }
-    assert_equal stored, lea_draft
+    assert_selector ".trade-suggestion", count: 1
+    assert_nil lea_draft
   end
 
   test "ENVOYER sends the suggestion, the title-only toast shows, and the focus lands on the sent trade's row" do
     sign_in @hugo
-    stored = store_draft_for_lea
 
     visit trades_path(locale: :en)
     find(".trade-suggestion__opener").send_keys(:tab)
@@ -101,11 +86,11 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
     trade = Game::Trade.sole
     assert_equal [ [ "request", @hills, 1 ], [ "request", @depths, 1 ] ].sort, trade.items.map { [ it.side, it.card_season_id, it.quantity ] }.sort
     eventually("focus on the sent trade's row") { focused?(".trade-row[href$='#{trade.token}']") }
-    assert_equal stored, lea_draft
+    assert_nil lea_draft
   end
 
   test "after ENVOYER the focus lands on the next suggestion's opener, which holds live refresh through a window blur" do
-    Game::Holding.find_by!(player_id: @lea.id, card_season_id: @hills).update!(reserved: 1)
+    Game::Holding.find_by!(player_id: @lea.id, card_season_id: @hills).update!(reserved: 2)
     hold(@max, @hills, 2)
     sign_in @hugo
 

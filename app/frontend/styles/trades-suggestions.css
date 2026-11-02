@@ -174,3 +174,8 @@
     min-height: var(--space-touch-min);
   }
 }
+
+.trade-suggestions[hidden],
+.trade-suggestion[hidden] {
+  display: none;
+}

@@ -1341,6 +1341,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
   test "every screen of the trade list shows the suggestions; none for a private player or without a spare" do
     suggest_from_lea
     trade = from_lea
+    Game::Holding.where(player_id: @carol.id).update_all(reserved: 1)
     sign_in @alice
 
     [ trades_path(locale: :fr), trade_path(locale: :fr, token: trade.token), new_trade_path(locale: :fr),
@@ -1349,11 +1350,12 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".trade-suggestions .trade-suggestion", { count: 1 }, path
     end
 
-    Game::Holding.where(player_id: @bob.id).update_all(quantity: 1)
+    Game::Holding.where(player_id: [ @bob.id, @carol.id ]).update_all("reserved = quantity")
     get trades_path(locale: :fr)
     assert_select ".trade-suggestions, .trade-suggestions__heading", 0
 
-    Game::Holding.where(player_id: @bob.id).update_all(quantity: 2)
+    Game::Holding.where(player_id: @bob.id, card_season_id: @hills).update_all(reserved: 0)
+    Game::Holding.where(player_id: @bob.id, card_season_id: @depths).update_all(reserved: 1)
     @alice.update_columns(visibility: "private")
     get trades_path(locale: :fr)
     assert_select ".trade-suggestions", 0

@@ -101,11 +101,11 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
     href = opener_href
     hills = Game::Holding.find_by!(player_id: @bob.id, card_season_id: @hills)
 
-    hills.update!(quantity: 1)
+    hills.update!(quantity: 0)
     get href
     assert_equal taken(@depths), board_lines
 
-    hills.update!(quantity: 2, reserved: 1)
+    hills.update!(quantity: 2, reserved: 2)
     get href
     assert_equal taken(@depths), board_lines
 
@@ -127,7 +127,7 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
 
     get new_trade_path(locale: :fr, friend: @bob.token, take: %w[green-hills--s1], give: [ key_of(@soldier), key_of(@portal), key_of(@crown) ])
 
-    assert_equal taken(@hills) + [ [ "own", key_of(@crown), 1 ] ], board_lines
+    assert_equal taken(@hills) + [ [ "own", key_of(@soldier), 1 ], [ "own", key_of(@crown), 1 ] ], board_lines
   end
 
   test "a prefilled board carries the friend's plain new-trade address and the send action; a plain board neither" do
@@ -144,17 +144,17 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
     assert_nil css_select("form#trade-draft-form").sole["data-action"]
   end
 
-  test "ENVOYER after a card is gone requests the rest; with every card gone it is refused and nothing is proposed" do
+  test "ENVOYER after a card is no longer free requests the rest; with every card gone it is refused and nothing is proposed" do
     suggest_from_lea
     sign_in @alice
-    Game::Holding.where(player_id: @bob.id, card_season_id: @hills).update_all(quantity: 1)
+    Game::Holding.where(player_id: @bob.id, card_season_id: @hills).update_all("reserved = quantity")
 
     assert_difference -> { Game::Trade.count }, 1 do
       send_suggestion
     end
     assert_equal [ [ "request", @depths, 1 ] ], Game::Trade.last.items.map { [ it.side, it.card_season_id, it.quantity ] }
 
-    Game::Holding.where(player_id: @bob.id, card_season_id: @depths).update_all(quantity: 1)
+    Game::Holding.where(player_id: @bob.id, card_season_id: @depths).update_all("reserved = quantity")
 
     assert_no_difference -> { Game::Trade.count } do
       send_suggestion
@@ -168,20 +168,21 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
   test "ENVOYER drops the player's give cards no longer spared for the friend and proposes the rest" do
     suggest_from_lea
     hold(@alice, @portal, 3)
+    hold(@alice, @crown, 1, reserved: 1)
     sign_in @alice
 
     assert_difference -> { Game::Trade.count }, 1 do
       post suggestions_trades_path(locale: :fr),
-        params: { friend: @bob.token, take: { "blue-depths--s1" => 1 }, give: { key_of(@soldier) => 1, key_of(@portal) => 1 }, position: 0 }
+        params: { friend: @bob.token, take: { "blue-depths--s1" => 1 }, give: { key_of(@crown) => 1, key_of(@portal) => 1 }, position: 0 }
     end
 
     assert_equal [ [ "offer", @portal, 1 ], [ "request", @depths, 1 ] ],
       Game::Trade.last.items.order(:side).map { [ it.side, it.card_season_id, it.quantity ] }
   end
 
-  test "a crafted prefill of a card the friend holds once ignores it" do
+  test "a crafted prefill of a card the friend has no free copy of ignores it" do
     suggest_from_lea
-    hold(@bob, @crown, 1)
+    hold(@bob, @crown, 1, reserved: 1)
     sign_in @alice
 
     get new_trade_path(locale: :fr, friend: @bob.token, take: [ key_of(@crown), "blue-depths--s1" ])

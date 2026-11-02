@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../../support/holdings"
 
 # Whether given cards of one holder are still spared for one other player:
-# a free copy beyond the kept one, and the game on no open trade between the two.
+# any free copy, and the game on no open trade between the two.
 class Game::TradeSuggestionSparesTest < ActiveSupport::TestCase
   include Holdings
 
@@ -45,25 +45,26 @@ class Game::TradeSuggestionSparesTest < ActiveSupport::TestCase
     queries
   end
 
-  test "a card the holder has a free copy of beyond the kept one is still spared" do
+  test "a card the holder has two free copies of is spared" do
     hold(@lea, @portal, 2)
 
     assert_equal [ @portal ], spared_by_lea(@portal)
   end
 
-  test "a single copy, two with one reserved, or a card the holder lacks is no longer spared" do
+  test "a single copy, or two with one reserved, is spared; a fully reserved copy or a card the holder lacks is not" do
     hold(@lea, @portal, 1)
     hold(@lea, @hills, 2, reserved: 1)
+    hold(@lea, @soldier, 1, reserved: 1)
 
-    assert_empty spared_by_lea(@portal, @hills, @depths)
+    assert_equal [ @portal, @hills ], spared_by_lea(@portal, @hills, @soldier, @depths)
   end
 
-  test "editions are summed: the kept rarer edition is dropped, the other edition stays" do
+  test "every edition with a free copy is spared" do
     rare_soldier = second_edition(@soldier, rarity: :rare)
     hold(@lea, @soldier, 1)
     hold(@lea, rare_soldier, 1)
 
-    assert_equal [ @soldier ], spared_by_lea(@soldier, rare_soldier)
+    assert_equal [ @soldier, rare_soldier ], spared_by_lea(@soldier, rare_soldier)
   end
 
   test "a game on the friend's side of an open trade with the player is dropped, whoever proposed it, until it expires" do

@@ -20,8 +20,8 @@ module Game
     end
 
     Edition = Data.define(:card_season_id, :free, :rarity, :season_number, :slug)
-    Spare = Data.define(:card_id, :edition, :goal_positions) do
-      def rank = [ goal_positions.min, -edition.rarity, edition.slug ]
+    Spare = Data.define(:card_id, :edition, :goal_positions, :copies) do
+      def rank = [ copies > 1 ? 0 : 1, goal_positions.min, -edition.rarity, edition.slug ]
     end
 
     NONE = Result.new(goals: [], suggestions: []).freeze
@@ -58,6 +58,14 @@ module Game
        WHERE game_trades.status = 'open' AND game_trades.expires_at > :now
          AND ((game_trades.proposer_id = :player_id AND game_trades.recipient_id IN (:friend_ids) AND game_trade_items.side = 'request')
            OR (game_trades.recipient_id = :player_id AND game_trades.proposer_id IN (:friend_ids) AND game_trade_items.side = 'offer'))
+    SQL
+
+    DECLINED_BY_FRIEND = <<~SQL.squish.freeze
+      SELECT DISTINCT game_trades.recipient_id, catalog_card_seasons.card_id, game_trade_items.side
+        FROM game_trade_items
+        JOIN game_trades ON game_trades.id = game_trade_items.trade_id
+        JOIN catalog_card_seasons ON catalog_card_seasons.id = game_trade_items.card_season_id
+       WHERE game_trades.status = 'declined' AND game_trades.proposer_id = :player_id AND game_trades.recipient_id IN (:friend_ids)
     SQL
 
     ON_HOLDER_SIDE = <<~SQL.squish.freeze
@@ -99,15 +107,13 @@ module Game
       ranked = friends.select { spares.key?(it.player.id) }.sort_by do
         [ gives.key?(it.player.id) ? 0 : 1, -spares[it.player.id].size, befriended_at.fetch(it.player.id), it.player.token ]
       end
-      fill(ranked, spares, gives)
+      fill(ranked, spares, gives).sort_by.with_index { |suggestion, index| [ suggestion.mutual? ? 0 : 1, index ] }.first(MAX_SUGGESTIONS)
     end
 
     def self.fill(ranked, spares, gives)
       placed = Set.new
       given = Set.new
       ranked.each_with_object([]) do |friend, suggestions|
-        break suggestions if suggestions.size >= MAX_SUGGESTIONS
-
         chosen = spares.fetch(friend.player.id).reject { placed.include?(it.card_id) }.first(TradeItem::MAX_CARDS_PER_SIDE)
         next if chosen.empty?
 
@@ -128,29 +134,29 @@ module Game
       gaps = GameSetGaps.call(friend_ids)
       return {} if gaps.empty?
 
-      spared = free_editions([ player.id ], nil).filter_map { |(_, card_id), editions| (edition = placed_edition(editions)) && [ card_id, edition ] }
+      spared = free_editions([ player.id ], nil).filter_map { |(_, card_id), editions| (edition = placed_edition(editions)) && [ card_id, edition, copies_of(editions) ] }
       return {} if spared.empty?
 
-      offered = on_player_side(player, friend_ids, now)
+      offered = on_player_side(player, friend_ids, now) | declined_by_friend(player, friend_ids)[:offer]
       friend_ids.each_with_object({}) do |friend_id, gives|
         missed = gaps.fetch(friend_id, {})
-        list = spared.filter_map do |card_id, edition|
+        list = spared.filter_map do |card_id, edition, copies|
           next unless missed.key?(card_id) && !offered.include?([ friend_id, card_id ])
 
-          Spare.new(card_id:, edition:, goal_positions: missed.fetch(card_id).uniq.sort)
+          Spare.new(card_id:, edition:, copies:, goal_positions: missed.fetch(card_id).uniq.sort)
         end
         gives[friend_id] = list.sort_by(&:rank).map { it.with(goal_positions: []) } if list.any?
       end
     end
 
     def self.spares_by_friend(player, friend_ids, wanted, now)
-      taken = in_open_trades(player, friend_ids, now)
+      taken = in_open_trades(player, friend_ids, now) | declined_by_friend(player, friend_ids)[:request]
       spares = Hash.new { |hash, friend_id| hash[friend_id] = [] }
       free_editions(friend_ids, wanted.keys).each do |(friend_id, card_id), editions|
         next if taken.include?([ friend_id, card_id ])
 
         edition = placed_edition(editions) or next
-        spares[friend_id] << Spare.new(card_id:, edition:, goal_positions: wanted.fetch(card_id).uniq.sort)
+        spares[friend_id] << Spare.new(card_id:, edition:, copies: copies_of(editions), goal_positions: wanted.fetch(card_id).uniq.sort)
       end
       spares.to_h { |friend_id, list| [ friend_id, list.sort_by(&:rank) ] }
     end
@@ -175,10 +181,9 @@ module Game
       spare_editions(editions).max_by { [ it.free, -it.season_number ] }
     end
 
-    def self.spare_editions(editions)
-      kept = editions.max_by { [ it.rarity, -it.season_number ] }
-      editions.map { it == kept ? it.with(free: it.free - 1) : it }.select { it.free.positive? }
-    end
+    def self.spare_editions(editions) = editions.select { it.free.positive? }
+
+    def self.copies_of(editions) = editions.sum(&:free)
 
     def self.free_editions(friend_ids, card_ids)
       sql = Holding.sanitize_sql_array([ FREE_EDITIONS, { friend_ids:, card_ids: card_ids || [ 0 ], all_cards: card_ids.nil? } ])
@@ -189,6 +194,13 @@ module Game
             Edition.new(card_season_id: card_season_id.to_i, free: free.to_i, rarity: rarity.to_i, season_number: season_number.to_i, slug:)
           end
         end
+    end
+
+    def self.declined_by_friend(player, friend_ids)
+      sql = Trade.sanitize_sql_array([ DECLINED_BY_FRIEND, { player_id: player.id, friend_ids: } ])
+      Trade.connection.select_rows(sql, "Game::TradeSuggestions.declined_by_friend").each_with_object({ request: Set.new, offer: Set.new }) do |(friend_id, card_id, side), declined|
+        declined.fetch(side.to_sym) << [ friend_id.to_i, card_id.to_i ]
+      end
     end
 
     def self.in_open_trades(player, friend_ids, now)
@@ -217,7 +229,7 @@ module Game
     end
 
     private_class_method :goal_positions_by_card, :suggestions, :fill, :spares_by_friend, :placed_edition, :free_editions,
-      :in_open_trades, :friendship_dates, :lines_of, :gives_by_friend, :on_player_side
+      :in_open_trades, :declined_by_friend, :copies_of, :friendship_dates, :lines_of, :gives_by_friend, :on_player_side
     private_class_method :spare_editions, :card_ids_of, :on_holder_side
   end
 end

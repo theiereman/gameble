@@ -1881,7 +1881,7 @@ fr:
       summary_mutual: "%{cards} contre %{given}"
       summary_open: "%{cards} · à %{name} de choisir en retour"
       card: "%{title} (%{goals})"
-      label_mutual: "Suggestion de %{name} : %{cards} contre %{given}. %{presence}."
+      label_mutual: "Suggestion de %{name} : %{cards} contre %{given}. %{presence}."
       label_open: "Suggestion de %{name} : %{cards}, %{name} choisit en retour. %{presence}."
       send: "Envoyer"
       send_label: "Envoyer la suggestion à %{name}"

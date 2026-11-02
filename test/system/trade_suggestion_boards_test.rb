@@ -59,28 +59,26 @@ class TradeSuggestionBoardsTest < ApplicationSystemTestCase
 
   def plain_board_path = new_trade_path(locale: :en, friend: @lea.token)
 
-  test "opening a suggestion, then going Back or abandoning it, leaves the stored draft and the suggestion as they were" do
+  test "opening a suggestion, then going Back or abandoning it, stores nothing and leaves the suggestion listed" do
     sign_in @hugo
-    stored = store_draft_for_lea
 
     open_suggestion
     assert_selector ".trade-side--friend .trade-card__remove[aria-label='Remove Green Hills']"
     page.go_back
     assert_current_path trades_path(locale: :en)
     assert_selector ".trade-suggestion", count: 1
-    assert_equal stored, lea_draft
+    assert_nil lea_draft
 
     find(".trade-suggestion__opener").click
     assert_selector ".trade-side--friend .trade-card__remove[aria-label='Remove Green Hills']"
     click_on "Abandon"
     assert_current_path trades_path(locale: :en)
     assert_selector ".trade-suggestion", count: 1
-    assert_equal stored, lea_draft
+    assert_nil lea_draft
   end
 
   test "removing a card from the prefilled board stores the board for the friend at the plain address, which a reload shows" do
     sign_in @hugo
-    store_draft_for_lea
 
     open_suggestion
     find(".trade-side--friend .trade-card__remove[aria-label='Remove Green Hills']").click
@@ -95,6 +93,17 @@ class TradeSuggestionBoardsTest < ApplicationSystemTestCase
       assert_no_selector ".trade-card__remove[aria-label='Remove Green Hills']"
     end
     assert_no_selector ".trade-side--own .trade-card__remove"
+  end
+
+  test "a friend whose board is stored as a draft leaves the suggestions of the trade list" do
+    sign_in @hugo
+    visit trades_path(locale: :en)
+    assert_selector ".trade-suggestion", count: 1
+
+    store_draft_for_lea
+    visit trades_path(locale: :en)
+
+    assert_no_selector ".trade-suggestions"
   end
 
   test "sending the prefilled board unchanged proposes the suggested cards, and Back lands on an empty plain board" do
@@ -141,7 +150,7 @@ class TradeSuggestionBoardsTest < ApplicationSystemTestCase
     visit trades_path(locale: :en)
     assert_selector ".trade-suggestion__summary", text: "Blue Depths, Green Hills · for Lea to choose in return"
 
-    Game::Holding.find_by!(player_id: @lea.id, card_season_id: @hills).update!(quantity: 1)
+    Game::Holding.find_by!(player_id: @lea.id, card_season_id: @hills).update!(reserved: 2)
     find(".trade-suggestion__opener").click
 
     assert_current_path new_trade_path(locale: :en, friend: @lea.token, take: %w[blue-depths--s1 green-hills--s1])

@@ -1,5 +1,6 @@
 <%# locals: (suggestion:, index:, cards:, goals:, current:, focused:) %>
-<%= tag.li class: class_names("trade-suggestion", "trade-suggestion--current": current) do %>
+<%= tag.li class: class_names("trade-suggestion", "trade-suggestion--current": current),
+      data: { trade_suggestions_target: "row", draft_key: trade_draft_key(current_player, suggestion.player) } do %>
   <%= link_to "", trade_suggestion_opener_path(suggestion, cards), class: "trade-suggestion__opener", autofocus: (true if focused),
         aria: { label: trade_suggestion_opener_name(suggestion, cards, goals), current: ("true" if current) }, data: { turbo_prefetch: false } %>
   <div class="trade-suggestion__head">
