@@ -64,6 +64,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "game_friend_codes" => { fr: [ "votre code ami" ], en: [ "your friend code" ] },
     "game_feed_entries" => { fr: [ "vos entrées du fil d'activité\u202F: tirages, découvertes, reposts et tous les échanges qui vous nomment" ],
                              en: [ "your activity feed entries: pulls, discoveries, reposts and every trade that names you" ] },
+    "game_feed_reactions" => { fr: [ "vos réactions aux entrées du fil" ], en: [ "your reactions to feed entries" ] },
     "game_trades" => { fr: [ "Vos échanges en cours seront annulés" ], en: [ "Your open trades will be cancelled" ] }
   }.freeze
 

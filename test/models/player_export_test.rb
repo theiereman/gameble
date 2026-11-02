@@ -2,14 +2,16 @@ require "test_helper"
 require_relative "../support/game_packs"
 require_relative "../support/game_trades"
 require_relative "../support/custom_sets"
+require_relative "../support/feed_reactions"
 
 class PlayerExportTest < ActiveSupport::TestCase
   include GamePacks
   include GameTrades
   include CustomSets
+  include FeedReactions
 
   SECTIONS = %i[exportedAt profile identities collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
-    firstDiscoveries feedEntries achievements cardBacks friends pendingInvitations trades customSets steamLibrary goals reportsFiled reportsReceived
+    firstDiscoveries feedEntries feedReactions achievements cardBacks friends pendingInvitations trades customSets steamLibrary goals reportsFiled reportsReceived
     moderationDecisions].freeze
   COUNTING_KEYS = %i[season quantity position openings count received sent].freeze
 
@@ -131,7 +133,7 @@ class PlayerExportTest < ActiveSupport::TestCase
 
     assert_equal SECTIONS, hash.keys
     %i[collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers firstDiscoveries feedEntries
-       achievements trades customSets goals reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
+       feedReactions achievements trades customSets goals reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
     assert_equal({ count: 0 }, hash[:friends])
     assert_equal({ received: 0, sent: 0 }, hash[:pendingInvitations])
     assert_equal({ active: "standard", activeSeason: nil, unlocked: [] }, hash[:cardBacks])
@@ -239,6 +241,23 @@ class PlayerExportTest < ActiveSupport::TestCase
     assert hash[:moderationDecisions].all? { it[:createdAt] }
     assert_names_nobody_else(hash, @friend, @staff)
     assert_no_database_id(hash)
+  end
+
+  test "the reactions a player made are listed by the entry's token and the reaction, never who else reacted" do
+    mine = feed_entry_of(@friend)
+    other = feed_entry_of(@staff)
+    react(@player, mine, "heart")
+    react(@friend, mine, "wow")
+    react(@staff, other, "gg")
+
+    hash = export.to_h
+
+    reaction = hash[:feedReactions].sole
+    assert_equal({ reaction: "heart", entry: mine.token, entryKind: "repost", reactedAt: reaction[:reactedAt] }, reaction)
+    assert reaction[:reactedAt]
+    assert_no_database_id(hash)
+    assert_names_nobody_else(hash, @friend, @staff)
+    assert_equal [ "wow" ], export(@friend).to_h[:feedReactions].map { it[:reaction] }
   end
 
   test "the file is named by the UTC day of the export" do

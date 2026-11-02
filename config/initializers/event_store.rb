@@ -34,6 +34,7 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Handlers::Achievements, to: Game::Handlers::Achievements::EVENTS.keys)
   event_store.subscribe(Game::Handlers::CardBacks, to: Game::Handlers::CardBacks::EVENTS.keys)
   event_store.subscribe(LiveStream, to: LiveStream::EVENTS)
+  event_store.subscribe(ReactionStream, to: ReactionStream::EVENTS)
   event_store.subscribe(Game::Handlers::PlayerActivity, to: Game::Handlers::PlayerActivity::EVENTS.keys)
 
   event_store.subscribe(PlayerStream, to: PlayerStream::EVENTS)

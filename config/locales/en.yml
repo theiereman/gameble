@@ -16,7 +16,7 @@ en:
         the time of your last visit, your last data export and your latest activity,
         your collection, your showcase, your set tiers, your custom sets, your goals, your achievements, your
         card back unlocks and your active card back, your capsules, opened or not, your daily bonuses and your weekly mission rewards,
-        your friends, your invitations and your friend code, and your activity feed
+        your friends, your invitations, your friend code, your reactions to feed entries and your activity feed
         entries: pulls, discoveries, reposts and every trade that names you. Your
         open trades will be cancelled.'
       submit: Delete for good
@@ -1017,6 +1017,7 @@ en:
       own_profile_private: 'Your profile is private: trades are closed.'
       pack_not_found: That capsule could not be found.
       player_required: Sign in with an active account to do that.
+      entry_not_found: That feed entry could not be found.
       position_out_of_range: The showcase has no such place.
       repost_limit_reached: You have reposted a lot this past hour. Try again later.
       request_exceeds_holdings: Your friend does not hold that many copies of a card
@@ -1042,6 +1043,7 @@ en:
       unknown_back: That card back does not exist.
       unknown_code: No player has that code.
       unknown_direction: Unknown direction.
+      unknown_reaction: That reaction does not exist.
       unknown_season: You did not earn this card back in that season.
       unknown_player: This invitation link is not valid.
     steam:
@@ -1973,7 +1975,7 @@ en:
           the time of your last visit, your last data export, your latest activity,
           your collection, your showcase, your set tiers, your custom sets, your Steam library list, your goals, your achievements, your
           card back unlocks and your choice of active card back, your capsules, your daily bonuses, your weekly mission rewards, your friendships,
-          your invitations, your friend code and your activity feed entries are erased,
+          your invitations, your friend code, your activity feed entries and your reactions are erased,
           your open trades are cancelled and your profile disappears. What also concerns
           other players, the community or moderation (past trades, first discoveries,
           contributions to the weekly mission, reports, moderation history, the log
@@ -2020,6 +2022,8 @@ en:
             year; the history of a deleted account, until one year after the deletion;
             the log of game actions keeps each decision''s date and the accounts concerned,
             without the reason;'
+          reactions: 'your reactions to feed entries: as long as the account exists and the
+            entry stays in the feed; other players only see how many reacted, never who;'
           reports: 'a report: until a moderator handles it, then one year; if it targets
             an account deleted before it was handled, one year after the deletion;'
           steam_library: 'the list of your Steam library''s games: as long as the account
@@ -2077,7 +2081,7 @@ en:
           activity: 'your game activity: card collection, showcase, set tiers, custom sets, goals, achievements,
             card back unlocks and active card back, capsules, daily bonuses, weekly
             mission rewards, trades, friendships, invitations, friend code, activity feed
-            entries and latest activity;'
+            entries, your reactions to feed entries and latest activity;'
           identities: 'your sign-in methods: Steam, Discord, Google or an email code, each
             with its identifier at that provider, the date it was added and, for the
             last three, a one-way hash of your verified email address, never the address
@@ -2318,6 +2322,17 @@ en:
   rate_limit:
     reading_throttled: Too many pages read in a minute. Try again in a moment.
     throttled: Too many sign-in attempts. Try again in a minute.
+  reactions:
+    group: Reactions
+    names:
+      gg: GG
+      heart: Heart
+      middle_finger: Middle finger
+      thumb: Thumb up
+      wow: Wow
+    reacted: 'Reaction sent: %{reaction}.'
+    removed: Reaction removed.
+    throttled: Too many reactions in a minute. Try again in a moment.
   reports:
     create:
       sent: Thank you. The moderation team will review this profile. The player will

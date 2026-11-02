@@ -1,0 +1,5 @@
+<% counts.each do |token, per_kind| %>
+  <% per_kind.each do |kind, count| %>
+    <%= turbo_stream.update ReactionStream.count_id(token, kind), count.to_s %>
+  <% end %>
+<% end %>

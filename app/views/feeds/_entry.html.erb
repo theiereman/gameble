@@ -38,5 +38,9 @@
       <% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span><% end %>
       <%= local_time_tag(item.entry.occurred_at, class: "feed__time") %>
     </div>
+    <% if local_assigns[:reactions] %>
+      <% lazy = local_assigns.fetch(:lazy, false) %>
+      <%= render "reactions/bar", token: item.entry.token, summary: reactions.fetch(item.entry.id), interactive: !lazy && current_player.present?, lazy: %>
+    <% end %>
   </div>
 </li>

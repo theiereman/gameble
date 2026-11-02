@@ -38,7 +38,7 @@
       <%= tag.div data: { controller: "next-page", action: "focusout->next-page#focusLeft" } do %>
         <%= tag.ul class: "feed__list", id: "feed-entries", data: ({ feed_announcer_target: "list" } if @live) do %>
           <% @items.each do |item, card, partner_card, set| %>
-            <%= render "feeds/entry", item:, card:, partner_card:, set: %>
+            <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions: @reactions %>
           <% end %>
         <% end %>
         <%= render "feeds/pages", next_cursor: @next_cursor, filter: @filter, tab: @tab %>
@@ -48,6 +48,8 @@
       <%= render PanelComponent.new(tag: :p, class: "feed__empty") do %><%= @filter ? t(".empty_filter") : t(".empty") %><% end %>
     <% end %>
   <% end %>
+  <p id="reaction-status" class="visually-hidden" role="status"></p>
+  <%= turbo_stream_from(*ReactionStream.streamables) %>
   <% if @live %>
     <p class="visually-hidden" role="status" data-feed-announcer-target="status"></p>
     <%= turbo_stream_from(*LiveStream.feed_streamables) %>

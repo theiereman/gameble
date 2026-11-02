@@ -134,6 +134,13 @@ Rails.application.routes.draw do
 
     # The activity feed: public, read only.
     get "feed" => "feeds#show", as: :feed
+    # An entry's reactions, by its token: the bar a lazy frame loads, a player's reaction and its removal.
+    get "feed/entries/:token/reactions" => "reactions#show", as: :feed_entry_reactions,
+      constraints: { token: /\h{8}-\h{4}-\h{4}-\h{4}-\h{12}/ }
+    post "feed/entries/:token/reaction" => "reactions#create", as: :feed_entry_reaction,
+      constraints: { token: /\h{8}-\h{4}-\h{4}-\h{4}-\h{12}/ }
+    delete "feed/entries/:token/reaction" => "reactions#destroy",
+      constraints: { token: /\h{8}-\h{4}-\h{4}-\h{4}-\h{12}/ }
     post "friends/invitations" => "invitations#create", as: :invitations
     post "friends/invitations/:token/accept" => "invitations#accept", as: :accept_invitation,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }

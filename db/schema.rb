@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_02_140100) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_02_150400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -387,12 +387,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_140100) do
     t.bigint "set_id"
     t.string "tier"
     t.integer "set_count"
+    t.uuid "token", default: -> { "gen_random_uuid()" }, null: false
     t.index ["kind", "notable", "occurred_at"], name: "index_game_feed_entries_on_kind_and_notable_and_occurred_at"
     t.index ["notable", "occurred_at", "id"], name: "index_game_feed_entries_on_notable_and_occurred_at_and_id"
     t.index ["pack_id", "position"], name: "index_game_feed_entries_on_pack_id_and_position", unique: true
     t.index ["partner_id"], name: "index_game_feed_entries_on_partner_id"
     t.index ["player_id", "occurred_at"], name: "index_game_feed_entries_one_set_per_operation", unique: true, where: "((kind)::text = 'set'::text)"
     t.index ["player_id"], name: "index_game_feed_entries_on_player_id"
+    t.index ["token"], name: "index_game_feed_entries_on_token", unique: true
     t.index ["trade_id"], name: "index_game_feed_entries_on_trade_id", unique: true, where: "(trade_id IS NOT NULL)"
     t.check_constraint "(kind::text = 'pull'::text OR kind::text = 'discovery'::text) = (pack_id IS NOT NULL AND \"position\" IS NOT NULL)", name: "game_feed_entries_pack_check"
     t.check_constraint "(kind::text = 'set'::text) = (set_id IS NOT NULL AND tier IS NOT NULL AND set_count IS NOT NULL) AND (kind::text = 'set'::text) = (card_season_id IS NULL) AND (kind::text = 'set'::text) = (rarity IS NULL)", name: "game_feed_entries_set_check"
@@ -400,6 +402,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_140100) do
     t.check_constraint "(tier IS NULL OR tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text) AND (set_count IS NULL OR set_count > 0)", name: "game_feed_entries_tier_check"
     t.check_constraint "kind::text = 'pull'::text OR kind::text = 'discovery'::text OR kind::text = 'trade'::text OR kind::text = 'repost'::text OR kind::text = 'set'::text", name: "game_feed_entries_kind_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
+  end
+
+  create_table "game_feed_reactions", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "feed_entry_id", null: false
+    t.string "kind", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feed_entry_id", "kind"], name: "index_game_feed_reactions_on_feed_entry_id_and_kind"
+    t.index ["player_id", "feed_entry_id"], name: "index_game_feed_reactions_on_player_id_and_feed_entry_id", unique: true
+    t.check_constraint "kind::text = ANY (ARRAY['thumb'::character varying, 'heart'::character varying, 'gg'::character varying, 'wow'::character varying, 'middle_finger'::character varying]::text[])", name: "game_feed_reactions_kind_check"
   end
 
   create_table "game_first_discoveries", force: :cascade do |t|
@@ -708,6 +721,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_140100) do
   add_foreign_key "game_feed_entries", "catalog_card_seasons", column: "partner_card_season_id"
   add_foreign_key "game_feed_entries", "game_packs", column: "pack_id"
   add_foreign_key "game_feed_entries", "game_trades", column: "trade_id"
+  add_foreign_key "game_feed_reactions", "accounts_players", column: "player_id"
+  add_foreign_key "game_feed_reactions", "game_feed_entries", column: "feed_entry_id", on_delete: :cascade
   add_foreign_key "game_first_discoveries", "accounts_players", column: "player_id"
   add_foreign_key "game_first_discoveries", "game_packs", column: "pack_id"
   add_foreign_key "game_friend_codes", "accounts_players", column: "player_id"

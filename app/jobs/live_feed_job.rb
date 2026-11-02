@@ -8,14 +8,15 @@ class LiveFeedJob < ApplicationJob
     return if entries.empty?
 
     latest = Game::FeedEntries.call(nil).first(LiveStream::STRIP_SIZE)
-    I18n.available_locales.each { broadcast(it, entries, latest) }
+    reactions = Game::FeedReactionSummaries.call(entries.map { it.entry.id })
+    I18n.available_locales.each { broadcast(it, entries, reactions, latest) }
   end
 
   private
 
-  def broadcast(locale, entries, latest)
+  def broadcast(locale, entries, reactions, latest)
     items = FeedItems.call(entries, locale:)
-    locals = { items:, ticker: items.select { |item, _| LiveStream.ticker?(item) }, strip: FeedItems.call(latest, locale:) }
+    locals = { items:, reactions:, ticker: items.select { |item, _| LiveStream.ticker?(item) }, strip: FeedItems.call(latest, locale:) }
     content = I18n.with_locale(locale) do
       ApplicationController.render(partial: "live_streams/feed", formats: [ :turbo_stream ], locals:)
     end

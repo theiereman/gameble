@@ -2,6 +2,7 @@ require "test_helper"
 require_relative "../../support/game_packs"
 require_relative "../../support/game_trades"
 require_relative "../../support/custom_sets"
+require_relative "../../support/feed_reactions"
 
 # Accounts::DeletePlayer and the Game handler it triggers
 # (Game::Handlers::PlayerDeleted, Game::ReleasePlayer): the record stays,
@@ -11,6 +12,7 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
   include GamePacks
   include GameTrades
   include CustomSets
+  include FeedReactions
 
   setup do
     @player = accounts_players(:player)
@@ -66,6 +68,20 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     events = Rails.configuration.event_store.read.stream("Accounts::Player$#{@player.id}").of_type(Accounts::PlayerDeleted).to_a
     assert_equal 1, events.size
     assert_equal({ player_id: @player.id }, events.first.data)
+  end
+
+  test "the reactions a player made go with the account, and so do those on their entries; others' stay" do
+    own_entry = feed_entry_of(@player)
+    other_entry = feed_entry_of(@other)
+    react(@player, other_entry, "heart")
+    react(@other, own_entry, "wow")
+    stranger = accounts_players(:administrator)
+    react(stranger, other_entry, "gg")
+
+    assert delete.success?
+
+    assert_equal [ [ stranger.id, "gg" ] ], Game::FeedReaction.pluck(:player_id, :kind)
+    assert_not Game::FeedEntry.exists?(own_entry.id)
   end
 
   test "the identity rows go with the account; another player keeps theirs" do

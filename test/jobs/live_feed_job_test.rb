@@ -27,6 +27,23 @@ class LiveFeedJobTest < ActiveSupport::TestCase
     Nokogiri::HTML5.fragment(fragment.css("turbo-stream[action='#{action}'][target='#{target}']").sole.at_css("template").inner_html)
   end
 
+  test "each prepended entry carries a lazy reaction frame that loads the viewer's own bar, with its counters and no button" do
+    pack = open_pack
+
+    LiveFeedJob.perform_now([ { pack_id: pack.id } ])
+
+    feed = template(received(:en), "prepend", "feed-entries")
+    frames = feed.css("li.feed__entry turbo-frame.feed__reactions")
+    assert_equal 5, frames.size
+    token = Game::FeedEntry.find_by!(pack_id: pack.id, position: 0).token
+    frame = frames.find { it["id"] == "reactions-#{token}" }
+    assert_equal "lazy", frame["loading"]
+    assert_equal "/en/feed/entries/#{token}/reactions", frame["src"]
+    assert_equal 5, frame.css(".feed__reaction--static").size
+    assert_empty frame.css("button, form")
+    assert_equal %w[0 0 0 0 0], frame.css(".feed__reaction-count").map(&:text)
+  end
+
   test "an opening's entries go to the feed, the ticker and the strip, rendered once per locale" do
     pack = open_pack
 

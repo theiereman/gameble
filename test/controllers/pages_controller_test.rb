@@ -780,6 +780,20 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", 0
   end
 
+  test "the legal page names the reactions among the data kept and in the retention periods, in both languages" do
+    configure_legal
+
+    get legal_path(locale: :fr)
+    assert_select ".legal__retention-reactions", /vos réactions aux entrées du fil/
+    assert_select ".legal__stored-activity", /réactions/
+    assert_select "p", text: /vos réactions sont effacés/
+
+    get legal_path(locale: :en)
+    assert_select ".legal__retention-reactions", /your reactions to feed entries/
+    assert_select ".legal__stored-activity", /your reactions/
+    assert_select "p", text: /your reactions are erased/
+  end
+
   test "a visitor reads the French credits page: the four inspirations, the no-affiliation line, linked from the legal page" do
     configure_legal
 
@@ -883,7 +897,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__retention li", 10
+    assert_select ".legal__retention li", 11
     retention = css_select(".legal__retention").text
     [ "trois ans", "un an", "30 jours", "tant que la suspension dure" ].each { assert_includes retention, it }
     assert_select ".legal__retention li", "les erreurs techniques reçues par Sentry\u202F: 30 jours\u202F;"
@@ -892,7 +906,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get legal_path(locale: :en)
 
-    assert_select ".legal__retention li", 10
+    assert_select ".legal__retention li", 11
     retention = css_select(".legal__retention").text
     [ "three years", "one year", "30 days", "as long as the suspension lasts" ].each { assert_includes retention, it }
     assert_select ".legal__retention li", "technical errors received by Sentry: 30 days;"

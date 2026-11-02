@@ -1,0 +1,67 @@
+/* ---- The reaction bar under a feed entry: one counter per reaction, never a name ---- */
+
+.feed__reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.feed__reaction-form {
+  display: contents;
+}
+
+.feed__reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--space-button-height-sm);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+  color: var(--color-muted);
+  font: var(--font-label);
+  cursor: pointer;
+}
+
+.feed__reaction--static {
+  cursor: default;
+}
+
+button.feed__reaction:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+  color: var(--color-text-max);
+}
+
+button.feed__reaction:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* A reaction made is told by its fill and its underline, not by colour alone. */
+.feed__reaction[aria-pressed="true"] {
+  background: var(--color-accent);
+  box-shadow: inset 0 calc(-2 * var(--space-unit)) 0 0 var(--color-line-deep);
+  color: var(--color-on-accent);
+}
+
+.feed__reaction-icon {
+  flex: none;
+  height: 1.25em;
+  width: auto;
+}
+
+.feed__reaction-count {
+  min-width: 1ch;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (pointer: coarse) {
+  .feed__reaction {
+    min-height: var(--space-touch-min);
+  }
+}
+
+/* The landing page's strip shows the feed's entries without their reactions. */
+.landing-live__list .feed__reactions {
+  display: none;
+}

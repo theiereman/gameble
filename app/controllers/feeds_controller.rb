@@ -13,6 +13,7 @@ class FeedsController < ApplicationController
     @live = @tab.nil? && @filter.nil? && @after.nil?
     page = @no_friends ? nil : feed_page(players: friend_ids)
     @items = page ? FeedItems.call(page.items) : []
+    @reactions = Game::FeedReactionSummaries.call(@items.map { |item, *| item.entry.id }, viewer: current_player)
     @next_cursor = FeedCursor.encode(page.cursor) if page&.more
     respond_to do |format|
       format.html

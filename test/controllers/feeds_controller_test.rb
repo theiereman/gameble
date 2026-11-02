@@ -3,6 +3,7 @@ require_relative "../support/game_packs"
 require_relative "../support/game_trades"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
+require_relative "../support/feed_reactions"
 
 # The activity feed, readable without an account: newest pulls and first
 # discoveries first, under the All and Friends tabs (Friends a player's)
@@ -13,6 +14,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
   include GameTrades
   include GameSets
   include SteamSignIn
+  include FeedReactions
 
   setup do
     @player = accounts_players(:player)
@@ -435,6 +437,10 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
   # The page's public streams, without the signed-in player's own.
   def stream_names
+    all_stream_names - [ "reactions" ]
+  end
+
+  def all_stream_names
     css_select("turbo-cable-stream-source:not([channel=PlayerStreamChannel])").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
   end
 
@@ -470,7 +476,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     { feed_path(locale: :en, filter: "pulls") => 15, feed_path(locale: :en, tab: "friends") => 6 }.each do |path, entries|
       get path
       assert_select ".feed__entry", entries
-      assert_select ".feed [role=status], [data-controller=feed-announcer]", 0
+      assert_select ".feed [role=status]:not(#reaction-status), [data-controller=feed-announcer]", 0
       assert_equal [], stream_names, path
     end
   end
@@ -654,5 +660,80 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".feed__entry", Game::FeedEntries::LIMIT
+  end
+
+  test "a visitor sees a counter per reaction on each entry and cannot react" do
+    entry = open_epic.then { Game::FeedEntry.where(kind: "pull").first }
+    react(accounts_players(:moderator), entry, "heart")
+    reset!
+
+    get feed_path(locale: :en)
+
+    entries = css_select(".feed__entry").size
+    assert_select ".feed__reactions[role=group]", entries
+    assert_select ".feed__reactions .feed__reaction", entries * 5
+    assert_select ".feed__reactions button", 0
+    assert_select "##{ReactionStream.count_id(entry.token, "heart")}", "1"
+    assert_equal [ "reactions", "live:en" ], all_stream_names
+    assert_select "#reaction-status[role=status]"
+  end
+
+  test "a player reacts from each entry, the own reaction marked" do
+    entry = open_epic.then { Game::FeedEntry.where(kind: "pull").first }
+    react(@player, entry, "wow")
+    sign_in(@player)
+
+    get feed_path(locale: :en)
+
+    assert_select ".feed__reactions button", css_select(".feed__entry").size * 5
+    assert_select "#reactions-#{entry.token} button[aria-pressed=true]", 1
+    assert_select "#reactions-#{entry.token} button[data-reaction-kind=wow][aria-pressed=true]"
+    assert_select "form[action='/en/feed/entries/#{entry.token}/reaction']", 5
+  end
+
+  test "the counters of a page are read in one query whatever the number of entries" do
+    open_epic
+    sign_in(@player)
+    counts = lambda do |&block|
+      queries = []
+      subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") { |*, payload| queries << payload[:sql] if payload[:sql].include?("game_feed_reactions") }
+      block.call
+      queries.size
+    ensure
+      ActiveSupport::Notifications.unsubscribe(subscriber)
+    end
+
+    few = counts.call { get feed_path(locale: :en) }
+    5.times { open_epic }
+    many = counts.call { get feed_path(locale: :en) }
+
+    assert_equal 1, few
+    assert_equal 1, many
+  end
+
+  test "the pages the endless scroll appends carry the bars" do
+    add_pulls(Game::FeedEntries::LIMIT + 5)
+    get feed_path(locale: :en)
+
+    get next_link["href"], headers: { "Accept" => Mime[:turbo_stream].to_s }
+
+    assert_select "turbo-stream[action=append][target=feed-entries] .feed__entry .feed__reactions", 5
+  end
+
+  test "an empty feed page draws no bar and asks for no reactions" do
+    get feed_path(locale: :en, tab: "friends")
+
+    assert_select ".feed__reactions", 0
+  end
+
+  test "no name and no database id comes with a counter" do
+    entry = open_epic.then { Game::FeedEntry.where(kind: "pull").first }
+    react(accounts_players(:moderator), entry, "heart")
+
+    get feed_path(locale: :en)
+
+    bars = css_select(".feed__reactions").map(&:to_html).join
+    assert_no_match(/Sam|moderator|8fRbREJutTNEvhJdRHHihZ78/, bars)
+    assert_no_match(%r{entries/#{entry.id}/}, bars)
   end
 end

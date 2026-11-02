@@ -1,0 +1,4 @@
+<%= turbo_stream.replace "reactions-#{@token}" do %>
+  <%= render "reactions/bar", token: @token, summary: @summary, interactive: true, lazy: false %>
+<% end %>
+<%= turbo_stream.update "reaction-status", @status %>

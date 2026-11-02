@@ -1,7 +1,7 @@
 <% if items.any? %>
   <%= turbo_stream.prepend "feed-entries" do %>
     <% items.each do |item, card, partner_card, set| %>
-      <%= render "feeds/entry", item:, card:, partner_card:, set: %>
+      <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions:, lazy: true %>
     <% end %>
   <% end %>
 <% end %>
