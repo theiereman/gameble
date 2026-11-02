@@ -74,14 +74,15 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     Game::AcceptTrade.new.call(player:, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision).value!
   end
 
-  test "the catalogue holds fourteen achievements, in order, each a metric and a threshold" do
+  test "the catalogue holds sixteen achievements, in order, each a metric and a threshold" do
     expected = [
       [ :first_booster, :packs_opened, 1 ], [ :first_epic, :epics_obtained, 1 ], [ :first_legendary, :legendaries_obtained, 1 ],
       [ :first_complete_set, :sets_completed, 1 ], [ :first_trade, :trades_accepted, 1 ], [ :boosters_10, :packs_opened, 10 ],
       [ :boosters_100, :packs_opened, 100 ], [ :boosters_500, :packs_opened, 500 ], [ :three_complete_sets, :sets_completed, 3 ],
       [ :first_repost, :reposts, 1 ], [ :statistical_non_compliance, :two_rare_or_better_capsules, 1 ],
       [ :packaging_irregularity, :repeated_game_capsules, 1 ], [ :excellence_in_mediocrity, :all_common_capsules, 1 ],
-      [ :historical_asset_management, :old_and_new_game_capsules, 1 ]
+      [ :historical_asset_management, :old_and_new_game_capsules, 1 ], [ :luck_is_a_marketing_concept, :capsules_without_rare_streak, 10 ],
+      [ :leave_request_denied, :daily_bonus_streak, 7 ]
     ]
 
     assert_equal expected, Game::Achievements::CATALOGUE.map { [ it.key, it.metric, it.threshold ] }
@@ -249,6 +250,25 @@ class Game::AchievementsTest < ActiveSupport::TestCase
 
   def capsule_metric(metric, player = @player) = progress(player, [ metric ]).fetch(metric)
 
+  def open_regular(*cards_per_pack, player: @player, kind: :regular)
+    cards_per_pack.each_with_index do |cards, index|
+      create_pack(player, kind:, cards: cards || commons(kind), opened_at: Time.utc(2026, 1, 1) + index.minutes)
+    end
+  end
+
+  def claim_days(days, player: @player)
+    days.each do |day|
+      pack = create_pack(player, kind: :bonus)
+      Game::DailyBonusClaim.create!(player_id: player.id, day:, pack_id: pack.id)
+    end
+  end
+
+  def days_from(first, count) = Array.new(count) { Date.new(2026, 3, 1) + first + it }
+
+  def luck_streak(player = @player) = capsule_metric(:capsules_without_rare_streak, player)
+
+  def bonus_streak(player = @player) = capsule_metric(:daily_bonus_streak, player)
+
   def release!(card_season_id, date) = Catalog::Card.where(id: card_id_of(card_season_id)).update_all(release_date: date)
 
   test "a capsule of any kind holding the same game twice counts, a near miss never" do
@@ -327,6 +347,87 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_equal 1, toasts(@player, :fr).count { it.include?("Gestion du patrimoine historique") }
     assert_equal 1, toasts(@player, :en).count { it.include?("Historical Asset Management") }
     assert_equal 1, toasts(@player, :en).count { it.include?("Packaging Irregularity") }
+  end
+
+  test "the capsule streak is the longest run of opened standard capsules with no Rare or better card, in opening order" do
+    open_regular(nil, nil, nil, [ @rare ] + [ @common ] * 4, nil, nil, [ @common ] * 4 + [ @uncommon ], nil, nil, [ @epic ] + [ @common ] * 4, nil)
+    assert_equal 5, luck_streak
+
+    open_regular(*Array.new(2) { [ @legendary ] + [ @common ] * 4 }, player: @other)
+    assert_equal 0, luck_streak(@other)
+  end
+
+  test "the capsule streak ignores bonus, reward, unopened capsules and other players' capsules" do
+    open_regular(nil, nil, nil, [ @rare ] + [ @common ] * 4, nil)
+    open_regular(*Array.new(5) { nil }, kind: :bonus, player: @other)
+    open_regular(*Array.new(5) { [ @common ] * 3 }, kind: :bonus)
+    open_regular(*Array.new(5) { nil }, kind: :reward)
+    create_pack(@player, cards: commons)
+    assert_equal 3, luck_streak
+    assert_equal 0, luck_streak(@other)
+  end
+
+  test "the capsule streak follows opened_at rather than creation order" do
+    later = Time.utc(2026, 6, 1)
+    create_pack(@player, cards: [ @rare ] + [ @common ] * 4, opened_at: later)
+    5.times { create_pack(@player, cards: commons, opened_at: later - 1.day - it.minutes) }
+    5.times { create_pack(@player, cards: commons, opened_at: later + 1.day + it.minutes) }
+    assert_equal 5, luck_streak
+  end
+
+  test "Luck Is a Marketing Concept is granted at exactly ten capsules without a Rare and refused at nine" do
+    open_regular(*Array.new(9) { nil })
+    assert_equal 9, luck_streak
+    assert_equal :not_reached, grant(:luck_is_a_marketing_concept).failure
+
+    open_regular(*Array.new(10) { nil }, player: @other)
+    assert_equal :luck_is_a_marketing_concept, grant(:luck_is_a_marketing_concept, player: @other).value!.key
+  end
+
+  test "a Rare capsule breaks the run, which restarts the count" do
+    open_regular(*Array.new(9) { nil }, [ @rare ] + [ @common ] * 4, *Array.new(9) { nil })
+    assert_equal 9, luck_streak
+    assert_equal :not_reached, grant(:luck_is_a_marketing_concept).failure
+
+    create_pack(@player, cards: commons, opened_at: Time.utc(2026, 2, 1))
+    assert_equal :luck_is_a_marketing_concept, grant(:luck_is_a_marketing_concept).value!.key
+  end
+
+  test "the daily bonus streak is the longest run of consecutive UTC days, a gap restarting it" do
+    claim_days(days_from(0, 3) + days_from(4, 6) + days_from(11, 2))
+    assert_equal 6, bonus_streak
+
+    claim_days(days_from(0, 7), player: @other)
+    assert_equal 7, bonus_streak(@other)
+    assert_equal 0, bonus_streak(accounts_players(:banned))
+  end
+
+  test "the daily bonus streak counts days across a month and a year end, and one claim a day" do
+    claim_days([ Date.new(2025, 12, 30), Date.new(2025, 12, 31), Date.new(2026, 1, 1), Date.new(2026, 1, 2) ])
+    assert_equal 4, bonus_streak
+  end
+
+  test "Leave Request Denied is granted at exactly seven days in a row and refused at six" do
+    claim_days(days_from(0, 6))
+    assert_equal :not_reached, grant(:leave_request_denied).failure
+
+    claim_days(days_from(7, 1))
+    assert_equal :not_reached, grant(:leave_request_denied).failure
+
+    claim_days(days_from(6, 1))
+    assert_equal :leave_request_denied, grant(:leave_request_denied).value!.key
+  end
+
+  test "collecting the daily bonus grants Leave Request Denied on the seventh day, toasted in each locale" do
+    today = Game::DailyBonusClaim.day_of(Time.current)
+    claim_days((1..6).map { today - it })
+    assert_empty unlocked
+
+    perform_enqueued_jobs { Game::CollectDailyBonus.new.call(player: @player).value! }
+
+    assert_includes unlocked, "leave_request_denied"
+    assert_equal 1, toasts(@player, :fr).count { it.include?("Demande de congé refusée") }
+    assert_equal 1, toasts(@player, :en).count { it.include?("Leave Request Denied") }
   end
 
   test "the grant re-reads only its achievement's metric" do
@@ -410,12 +511,12 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     opened_packs(9)
 
     open_with_jobs([ @common ] * 5)
-    assert_equal %w[first_booster boosters_10 packaging_irregularity excellence_in_mediocrity], unlocked
+    assert_equal %w[first_booster boosters_10 packaging_irregularity excellence_in_mediocrity luck_is_a_marketing_concept], unlocked
 
     assert_no_difference -> { unlock_events.size } do
       open_with_jobs([ @common ] * 5)
     end
-    assert_equal %w[first_booster boosters_10 packaging_irregularity excellence_in_mediocrity], unlocked
+    assert_equal %w[first_booster boosters_10 packaging_irregularity excellence_in_mediocrity luck_is_a_marketing_concept], unlocked
   end
 
   test "a first set completed unlocks the first complete set, the third three complete sets" do
@@ -451,7 +552,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   test "every trigger enqueues the grant for its players" do
     data = { player_id: @player.id, proposer_id: @player.id, recipient_id: @other.id }
 
-    assert_enqueued_jobs 6, only: Game::GrantAchievementsJob do
+    assert_enqueued_jobs 7, only: Game::GrantAchievementsJob do
       Game::Handlers::Achievements::EVENTS.each_key { Game::Handlers::Achievements.call(it.new(data:)) }
     end
   end
@@ -514,6 +615,22 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
     assert_equal expected, unlocked
     events = Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a
     assert_equal 8, events.size
+    assert events.all? { it.data[:retroactive] }
+  end
+
+  test "the streak achievements are granted from history, silently" do
+    Array.new(10) { Time.utc(2026, 1, 1) + it.minutes }.each { create_pack(@other, cards: [ fixture_tier_ids.first ] * Game::Pack::SIZE, opened_at: it) }
+    (0...7).each do |offset|
+      pack = create_pack(@other, kind: :bonus, opened_at: Time.current)
+      Game::DailyBonusClaim.create!(player_id: @other.id, day: Date.new(2026, 4, 1) + offset, pack_id: pack.id)
+    end
+
+    assert_no_enqueued_jobs(only: PlayerStreamJob) { Game::BackfillAchievementsJob.perform_now }
+
+    granted = Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement)
+    assert_includes granted, "luck_is_a_marketing_concept"
+    assert_includes granted, "leave_request_denied"
+    events = Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a
     assert events.all? { it.data[:retroactive] }
   end
 

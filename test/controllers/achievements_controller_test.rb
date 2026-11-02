@@ -38,17 +38,18 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select "header.top-bar[data-screen-label=Succès]"
     assert_select ".top-bar__title", "Succès"
     assert_select "main h1", "Succès"
-    assert_select ".achievements__count[aria-hidden=true]", "3 / 14"
-    assert_select ".achievements__head .visually-hidden", "3 succès obtenus sur 14"
+    assert_select ".achievements__count[aria-hidden=true]", "3 / 16"
+    assert_select ".achievements__head .visually-hidden", "3 succès obtenus sur 16"
     assert_select ".achievements__label", "Succès obtenus"
-    assert_select ".achievements__gauge[aria-hidden=true] .achievements__segment", 14
+    assert_select ".achievements__gauge[aria-hidden=true] .achievements__segment", 16
     assert_select ".achievements__segment--lit", 3
     assert_select "h2#achievements-earned", "Obtenus · 3"
-    assert_select "h2#achievements-to_earn", "À obtenir · 11"
+    assert_select "h2#achievements-to_earn", "À obtenir · 13"
     assert_equal [ "Première acquisition approuvée", "A surpassé les attentes", "Période d'essai validée" ], group_names(:earned)
     assert_equal [ "Nous n'en demandions pas autant", "Dossier complété", "Entraide mutuelle", "Historique de consommation exemplaire",
       "Loyauté au-delà du raisonnable", "Excellence administrative", "Contribution non rémunérée", "Non-conformité statistique",
-      "Irrégularité de conditionnement", "L'excellence dans la médiocrité", "Gestion du patrimoine historique" ], group_names(:to_earn)
+      "Irrégularité de conditionnement", "L'excellence dans la médiocrité", "Gestion du patrimoine historique",
+      "La chance est un concept marketing", "Demande de congé refusée" ], group_names(:to_earn)
 
     hundred = tile(:to_earn, "Historique de consommation exemplaire")
     assert_equal "Ouvrir 100 capsules", hundred.at_css(".achievement__condition").text
@@ -71,15 +72,15 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
 
     get achievements_path(locale: :en)
 
-    assert_select ".achievements__count", "0 / 14"
-    assert_select ".achievements__head .visually-hidden", "0 achievements earned out of 14"
+    assert_select ".achievements__count", "0 / 16"
+    assert_select ".achievements__head .visually-hidden", "0 achievements earned out of 16"
     assert_select ".achievements__label", "Achievements earned"
     assert_select ".achievements__segment--lit", 0
     assert_select "#achievements-earned", false
-    assert_select "h2#achievements-to_earn", "To earn · 14"
-    assert_equal [ [ "0", "10" ], [ "0", "100" ], [ "0", "500" ], [ "0", "3" ] ],
+    assert_select "h2#achievements-to_earn", "To earn · 16"
+    assert_equal [ [ "0", "10" ], [ "0", "100" ], [ "0", "500" ], [ "0", "3" ], [ "0", "10" ], [ "0", "7" ] ],
       css_select("progress.achievement__bar").map { [ it["value"], it["max"] ] }
-    assert_equal [ "0 / 10", "0 / 100", "0 / 500", "0 / 3" ], css_select(".achievement__progress").map(&:text)
+    assert_equal [ "0 / 10", "0 / 100", "0 / 500", "0 / 3", "0 / 10", "0 / 7" ], css_select(".achievement__progress").map(&:text)
     assert_equal "0 of 10", tile(:to_earn, "Probation Period Completed").at_css(".visually-hidden").text
     assert_equal "Open a capsule", tile(:to_earn, "Your First Authorized Acquisition").at_css(".achievement__condition").text
   end
@@ -90,9 +91,9 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
 
     get achievements_path(locale: :en)
 
-    assert_select ".achievements__count", "14 / 14"
-    assert_select ".achievements__segment--lit", 14
-    assert_select "h2#achievements-earned", "Earned · 14"
+    assert_select ".achievements__count", "16 / 16"
+    assert_select ".achievements__segment--lit", 16
+    assert_select "h2#achievements-earned", "Earned · 16"
     assert_select "#achievements-to_earn", false
     assert_select "progress", false
   end
@@ -130,6 +131,25 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
         assert_equal condition, found.at_css(".achievement__condition").text
         assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
         assert_nil found.at_css("progress")
+      end
+    end
+  end
+
+  test "the two streak achievements: their names, conditions and glyphs in each locale, earned or not" do
+    unlock("luck_is_a_marketing_concept")
+    sign_in(@player)
+    glyph = ->(name) { Nokogiri::HTML5.fragment(ShellHelper.pixel_source(name)).at_css("svg").inner_html }
+
+    { en: [ [ "Luck Is a Marketing Concept", "10 standard capsules in a row with no Rare or better card", "clover" ],
+            [ "Leave Request Denied", "Collect the daily bonus 7 days in a row (UTC days)", "refused-locked" ] ],
+      fr: [ [ "La chance est un concept marketing", "10 capsules standard de suite sans carte Rare ou mieux", "clover" ],
+            [ "Demande de congé refusée", "Récupérer le bonus quotidien 7 jours de suite (jours UTC)", "refused-locked" ] ] }.each do |locale, tiles|
+      get achievements_path(locale:)
+
+      tiles.each_with_index do |(name, condition, icon), index|
+        found = tile(index.zero? ? :earned : :to_earn, name)
+        assert_equal condition, found.at_css(".achievement__condition").text
+        assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
       end
     end
   end
@@ -203,11 +223,11 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :fr)
     assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='7']" do
       assert_select ".menu-item__label", "Succès"
-      assert_select ".menu-item__meta[aria-hidden=true]", "3/14"
-      assert_select ".visually-hidden", "3 succès obtenus sur 14"
+      assert_select ".menu-item__meta[aria-hidden=true]", "3/16"
+      assert_select ".visually-hidden", "3 succès obtenus sur 16"
     end
     get home_path(locale: :en)
-    assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of 14"
+    assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of 16"
     get more_path(locale: :fr)
     assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
   end

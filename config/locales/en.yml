@@ -36,6 +36,8 @@ en:
       first_repost: Repost a card
       first_trade: Complete a trade
       historical_asset_management: A game released before 2000 and one released in 2025 or later in one capsule
+      leave_request_denied: Collect the daily bonus 7 days in a row (UTC days)
+      luck_is_a_marketing_concept: 10 standard capsules in a row with no Rare or better card
       packaging_irregularity: Two copies of the same game in one capsule
       statistical_non_compliance: Two Rare or better cards in one standard capsule
       three_complete_sets: Complete 3 sets
@@ -51,6 +53,8 @@ en:
       first_repost: Unpaid Promotion
       first_trade: Approved Mutual Assistance
       historical_asset_management: Historical Asset Management
+      leave_request_denied: Leave Request Denied
+      luck_is_a_marketing_concept: Luck Is a Marketing Concept
       packaging_irregularity: Packaging Irregularity
       statistical_non_compliance: Statistical Non-Compliance
       three_complete_sets: Archival Excellence

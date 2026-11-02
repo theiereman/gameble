@@ -173,8 +173,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # 07: the achievements screen, none earned yet.
     assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='7'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Succès"
-      assert_select ".menu-item__meta[aria-hidden=true]", "0/14"
-      assert_select ".visually-hidden", "0 succès obtenu sur 14"
+      assert_select ".menu-item__meta[aria-hidden=true]", "0/16"
+      assert_select ".visually-hidden", "0 succès obtenu sur 16"
     end
     assert_select ".hub-menu [aria-disabled]", false
 

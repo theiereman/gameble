@@ -55,6 +55,31 @@ module Game
                       WHERE catalog_cards.release_date >= DATE '2025-01-01')
     SQL
 
+    CAPSULES_WITHOUT_RARE_STREAK_SQL = format(<<~SQL.squish, Catalog::Rarity::TIERS.key(:rare)).freeze
+      SELECT COALESCE(MAX(run_length), 0) FROM (
+        SELECT COUNT(*) AS run_length FROM (
+          SELECT lucky, ROW_NUMBER() OVER (ORDER BY opened_at, id) - ROW_NUMBER() OVER (PARTITION BY lucky ORDER BY opened_at, id) AS run
+            FROM (SELECT id, opened_at,
+                         EXISTS (SELECT 1 FROM unnest(game_packs.card_season_ids) AS drawn(card_season_id)
+                                   JOIN catalog_card_seasons ON catalog_card_seasons.id = drawn.card_season_id
+                                  WHERE catalog_card_seasons.rarity >= %d) AS lucky
+                    FROM game_packs
+                   WHERE game_packs.player_id = :player_id AND game_packs.kind = 'regular' AND game_packs.opened_at IS NOT NULL) AS capsules
+        ) AS numbered
+        WHERE NOT lucky GROUP BY run
+      ) AS runs
+    SQL
+
+    DAILY_BONUS_STREAK_SQL = <<~SQL.squish.freeze
+      SELECT COALESCE(MAX(run_length), 0) FROM (
+        SELECT COUNT(*) AS run_length FROM (
+          SELECT day - CAST(ROW_NUMBER() OVER (ORDER BY day) AS integer) AS run
+            FROM game_daily_bonus_claims WHERE player_id = :player_id
+        ) AS numbered
+        GROUP BY run
+      ) AS runs
+    SQL
+
     METRIC_SQL = {
       packs_opened: PACKS_OPENED_SQL,
       epics_obtained: format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:epic)),
@@ -65,7 +90,9 @@ module Game
       two_rare_or_better_capsules: TWO_RARE_OR_BETTER_SQL,
       repeated_game_capsules: REPEATED_GAME_SQL,
       all_common_capsules: ALL_COMMON_SQL,
-      old_and_new_game_capsules: OLD_AND_NEW_SQL
+      old_and_new_game_capsules: OLD_AND_NEW_SQL,
+      capsules_without_rare_streak: CAPSULES_WITHOUT_RARE_STREAK_SQL,
+      daily_bonus_streak: DAILY_BONUS_STREAK_SQL
     }.freeze
 
     METRICS = METRIC_SQL.keys.freeze

@@ -6,6 +6,7 @@ module Game
         Game::SetCompleted => [ :player_id ],
         Game::SeasonAllocationReceived => [ :player_id ],
         Game::CardReposted => [ :player_id ],
+        Game::DailyBonusCollected => [ :player_id ],
         Game::TradeAccepted => [ :proposer_id, :recipient_id ]
       }.freeze
 

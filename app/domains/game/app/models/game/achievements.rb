@@ -20,7 +20,9 @@ module Game
       Achievement.new(:statistical_non_compliance, :two_rare_or_better_capsules, 1),
       Achievement.new(:packaging_irregularity, :repeated_game_capsules, 1),
       Achievement.new(:excellence_in_mediocrity, :all_common_capsules, 1),
-      Achievement.new(:historical_asset_management, :old_and_new_game_capsules, 1)
+      Achievement.new(:historical_asset_management, :old_and_new_game_capsules, 1),
+      Achievement.new(:luck_is_a_marketing_concept, :capsules_without_rare_streak, 10),
+      Achievement.new(:leave_request_denied, :daily_bonus_streak, 7)
     ].freeze
 
     BY_KEY = CATALOGUE.index_by { it.key.to_s }.freeze
