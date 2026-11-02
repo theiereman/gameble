@@ -28,24 +28,30 @@ en:
       boosters_10: Open 10 capsules
       boosters_100: Open 100 capsules
       boosters_500: Open 500 capsules
+      excellence_in_mediocrity: Five Common cards in one standard capsule
       first_booster: Open a capsule
       first_complete_set: Complete a set
       first_epic: Get an Epic card
       first_legendary: Get a Legendary card
       first_repost: Repost a card
       first_trade: Complete a trade
+      historical_asset_management: A game released before 2000 and one released in 2025 or later in one capsule
+      packaging_irregularity: Two copies of the same game in one capsule
       statistical_non_compliance: Two Rare or better cards in one standard capsule
       three_complete_sets: Complete 3 sets
     names:
       boosters_10: Probation Period Completed
       boosters_100: Outstanding Consumption Record
       boosters_500: Loyalty Beyond Reasonable Limits
+      excellence_in_mediocrity: Excellence in Mediocrity
       first_booster: Your First Authorized Acquisition
       first_complete_set: File Closed in Full
       first_epic: Noted Above Expectations
       first_legendary: An Exceptional Administrative Incident
       first_repost: Unpaid Promotion
       first_trade: Approved Mutual Assistance
+      historical_asset_management: Historical Asset Management
+      packaging_irregularity: Packaging Irregularity
       statistical_non_compliance: Statistical Non-Compliance
       three_complete_sets: Archival Excellence
     show:

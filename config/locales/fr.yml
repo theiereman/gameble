@@ -1630,6 +1630,9 @@ fr:
       three_complete_sets: "Excellence administrative"
       first_repost: "Contribution non rémunérée"
       statistical_non_compliance: "Non-conformité statistique"
+      packaging_irregularity: "Irrégularité de conditionnement"
+      excellence_in_mediocrity: "L'excellence dans la médiocrité"
+      historical_asset_management: "Gestion du patrimoine historique"
     show:
       title: "Succès"
       more: "Plus"
@@ -1654,6 +1657,9 @@ fr:
       three_complete_sets: "Compléter 3 sets"
       first_repost: "Reposter une carte"
       statistical_non_compliance: "Deux cartes Rares ou mieux dans une capsule standard"
+      packaging_irregularity: "Deux exemplaires du même jeu dans une capsule"
+      excellence_in_mediocrity: "Cinq cartes Communes dans une capsule standard"
+      historical_asset_management: "Un jeu sorti avant 2000 et un jeu sorti en 2025 ou après dans une même capsule"
   invite_links:
     show:
       title: "%{name} vous invite"

@@ -5,7 +5,8 @@ module AchievementsHelper
     first_legendary: "star",
     first_complete_set: "set", three_complete_sets: "set",
     first_trade: "trade",
-    first_repost: "card"
+    first_repost: "card",
+    packaging_irregularity: "duplicate", excellence_in_mediocrity: "tokens", historical_asset_management: "hourglass"
   }.freeze
 
   def achievement_icon(tile)

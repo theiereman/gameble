@@ -74,12 +74,14 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     Game::AcceptTrade.new.call(player:, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision).value!
   end
 
-  test "the catalogue holds eleven achievements, in order, each a metric and a threshold" do
+  test "the catalogue holds fourteen achievements, in order, each a metric and a threshold" do
     expected = [
       [ :first_booster, :packs_opened, 1 ], [ :first_epic, :epics_obtained, 1 ], [ :first_legendary, :legendaries_obtained, 1 ],
       [ :first_complete_set, :sets_completed, 1 ], [ :first_trade, :trades_accepted, 1 ], [ :boosters_10, :packs_opened, 10 ],
       [ :boosters_100, :packs_opened, 100 ], [ :boosters_500, :packs_opened, 500 ], [ :three_complete_sets, :sets_completed, 3 ],
-      [ :first_repost, :reposts, 1 ], [ :statistical_non_compliance, :two_rare_or_better_capsules, 1 ]
+      [ :first_repost, :reposts, 1 ], [ :statistical_non_compliance, :two_rare_or_better_capsules, 1 ],
+      [ :packaging_irregularity, :repeated_game_capsules, 1 ], [ :excellence_in_mediocrity, :all_common_capsules, 1 ],
+      [ :historical_asset_management, :old_and_new_game_capsules, 1 ]
     ]
 
     assert_equal expected, Game::Achievements::CATALOGUE.map { [ it.key, it.metric, it.threshold ] }
@@ -243,6 +245,90 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_equal [ "statistical_non_compliance" ], unlocked
   end
 
+  def card_id_of(card_season_id) = Catalog::CardSeason.find(card_season_id).card_id
+
+  def capsule_metric(metric, player = @player) = progress(player, [ metric ]).fetch(metric)
+
+  def release!(card_season_id, date) = Catalog::Card.where(id: card_id_of(card_season_id)).update_all(release_date: date)
+
+  test "a capsule of any kind holding the same game twice counts, a near miss never" do
+    opened_packs(1, cards: [ @common, @uncommon, @rare, @epic, @legendary ])
+    opened_packs(1, kind: :bonus, cards: [ @common, @common, @rare ])
+    opened_packs(1, kind: :reward, cards: [ @uncommon, @uncommon ])
+    assert_equal 2, capsule_metric(:repeated_game_capsules)
+
+    create_pack(@player, cards: [ @rare, @rare, @common, @uncommon, @epic ])
+    opened_packs(1, player: @other, cards: [ @common, @uncommon, @rare, @epic, @legendary ])
+    assert_equal 2, capsule_metric(:repeated_game_capsules)
+    assert_equal 0, capsule_metric(:repeated_game_capsules, @other)
+  end
+
+  test "Packaging Irregularity is granted on a capsule with a repeated game and refused on a capsule of five different games" do
+    opened_packs(1, cards: [ @common, @uncommon, @rare, @epic, @legendary ])
+    assert_equal :not_reached, grant(:packaging_irregularity).failure
+
+    opened_packs(1, cards: [ @legendary, @legendary, @common, @uncommon, @rare ])
+    assert_equal :packaging_irregularity, grant(:packaging_irregularity).value!.key
+  end
+
+  test "a standard capsule of five Common cards counts, a near miss never" do
+    opened_packs(1, cards: [ @common ] * 4 + [ @uncommon ])
+    opened_packs(1, kind: :bonus, cards: [ @common ] * 3)
+    opened_packs(1, kind: :reward, cards: [ @common ] * 5)
+    create_pack(@player, cards: [ @common ] * 5)
+    opened_packs(1, player: @other, cards: [ @common ] * 4 + [ @rare ])
+    assert_equal 0, capsule_metric(:all_common_capsules)
+
+    opened_packs(2)
+    assert_equal 2, capsule_metric(:all_common_capsules)
+    assert_equal 0, capsule_metric(:all_common_capsules, @other)
+  end
+
+  test "Excellence in Mediocrity is granted on a standard capsule of Common cards and refused on four" do
+    opened_packs(1, cards: [ @common ] * 4 + [ @uncommon ])
+    assert_equal :not_reached, grant(:excellence_in_mediocrity).failure
+
+    opened_packs(1)
+    assert_equal :excellence_in_mediocrity, grant(:excellence_in_mediocrity).value!.key
+  end
+
+  test "a capsule with a game released before 2000 and one from 2025 on counts, a near miss never" do
+    release!(@rare, Date.new(2025, 1, 1))
+    release!(@epic, Date.new(1999, 12, 31))
+    opened_packs(1, cards: [ @legendary, @common, @uncommon, @uncommon, @common ])
+    opened_packs(1, cards: [ @rare, @common, @uncommon, @uncommon, @common ])
+    opened_packs(1, cards: [ @epic, @common, @uncommon, @uncommon, @common ])
+    assert_equal 0, capsule_metric(:old_and_new_game_capsules)
+
+    opened_packs(1, kind: :bonus, cards: [ @epic, @rare, @uncommon ])
+    opened_packs(1, cards: [ @legendary, @rare, @uncommon, @uncommon, @common ])
+    create_pack(@player, cards: [ @epic, @rare, @uncommon, @uncommon, @common ])
+    opened_packs(1, player: @other, cards: [ @uncommon, @common, @common, @uncommon, @uncommon ])
+    assert_equal 2, capsule_metric(:old_and_new_game_capsules)
+    assert_equal 0, capsule_metric(:old_and_new_game_capsules, @other)
+  end
+
+  test "Historical Asset Management is granted on an old and a new game in one capsule and refused when they come from two" do
+    release!(@rare, Date.new(2026, 3, 1))
+    opened_packs(1, cards: [ @legendary, @common, @uncommon, @uncommon, @common ])
+    opened_packs(1, cards: [ @rare, @common, @uncommon, @uncommon, @common ])
+    assert_equal :not_reached, grant(:historical_asset_management).failure
+
+    opened_packs(1, cards: [ @legendary, @rare, @uncommon, @uncommon, @common ])
+    assert_equal :historical_asset_management, grant(:historical_asset_management).value!.key
+  end
+
+  test "the grant job toasts the new achievements on an opening that meets them, in each locale" do
+    release!(@rare, Date.new(2025, 6, 1))
+    open_with_jobs([ @legendary, @rare, @common, @common, @common ])
+
+    assert_includes unlocked, "historical_asset_management"
+    assert_includes unlocked, "packaging_irregularity"
+    assert_equal 1, toasts(@player, :fr).count { it.include?("Gestion du patrimoine historique") }
+    assert_equal 1, toasts(@player, :en).count { it.include?("Historical Asset Management") }
+    assert_equal 1, toasts(@player, :en).count { it.include?("Packaging Irregularity") }
+  end
+
   test "the grant re-reads only its achievement's metric" do
     opened_packs(1)
 
@@ -257,7 +343,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
 
     assert_not_includes reads.first, :two_rare_or_better_capsules
     assert_equal Game::AchievementProgress::METRICS - [ :two_rare_or_better_capsules ], reads.first
-    assert_equal %w[statistical_non_compliance first_booster], unlocked
+    assert_equal %w[statistical_non_compliance first_booster packaging_irregularity], unlocked
 
     Game::Achievements::CATALOGUE.each { Game::AchievementUnlock.record(@player.id, it.key, Time.current) }
     assert_equal [ [] ], progress_reads { Game::GrantAchievementsJob.perform_now(@player.id) }
@@ -287,20 +373,20 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   test "a first opening unlocks the first booster once, toasted to the player's stream only" do
     open_with_jobs([ @common ] * 5)
 
-    assert_equal [ "first_booster" ], unlocked
-    assert_equal [ { player_id: @player.id, achievement: "first_booster" } ], unlock_events.map(&:data)
+    assert_equal %w[first_booster packaging_irregularity excellence_in_mediocrity], unlocked
+    assert_equal unlocked.map { { player_id: @player.id, achievement: it } }, unlock_events.map(&:data)
     toasts = broadcasts(PlayerStream.name(@player, :fr)).map { ActiveSupport::JSON.decode(it) }
-    assert_equal 1, toasts.size
-    assert_match "Succès débloqué", toasts.sole
-    assert_match "Première acquisition approuvée", toasts.sole
-    assert_match "Achievement unlocked", ActiveSupport::JSON.decode(broadcasts(PlayerStream.name(@player, :en)).sole)
+    assert_equal 3, toasts.size
+    assert toasts.all? { it.include?("Succès débloqué") }
+    assert_equal 1, toasts.count { it.include?("Première acquisition approuvée") }
+    assert_equal 3, broadcasts(PlayerStream.name(@player, :en)).count { it.include?("Achievement unlocked") }
     assert_no_broadcasts PlayerStream.name(@other, :fr)
   end
 
   test "an Épique pulled unlocks the first Épique; a Légendaire alone unlocks the first Légendaire only" do
     open_with_jobs([ @legendary ] + [ @common ] * 4)
 
-    assert_equal %w[first_booster first_legendary], unlocked
+    assert_equal %w[first_booster first_legendary packaging_irregularity], unlocked
 
     open_with_jobs([ @epic ] + [ @common ] * 4)
 
@@ -324,12 +410,12 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     opened_packs(9)
 
     open_with_jobs([ @common ] * 5)
-    assert_equal %w[first_booster boosters_10], unlocked
+    assert_equal %w[first_booster boosters_10 packaging_irregularity excellence_in_mediocrity], unlocked
 
     assert_no_difference -> { unlock_events.size } do
       open_with_jobs([ @common ] * 5)
     end
-    assert_equal %w[first_booster boosters_10], unlocked
+    assert_equal %w[first_booster boosters_10 packaging_irregularity excellence_in_mediocrity], unlocked
   end
 
   test "a first set completed unlocks the first complete set, the third three complete sets" do
@@ -379,8 +465,8 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     Game::GrantAchievementsJob.perform_now(banned.id)
     Game::GrantAchievementsJob.perform_now(0)
 
-    assert_equal [ "first_booster" ], unlocked
-    assert_equal 1, unlock_events.size
+    assert_equal %w[first_booster packaging_irregularity excellence_in_mediocrity], unlocked
+    assert_equal 3, unlock_events.size
     assert_empty unlocked(banned)
   end
 
@@ -392,7 +478,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     Accounts::DeletePlayer.new.call(player: @player).value!
 
     assert_empty unlocked
-    assert_equal [ "first_booster" ], unlocked(@other)
+    assert_equal %w[first_booster packaging_irregularity excellence_in_mediocrity], unlocked(@other)
   end
 end
 
@@ -414,7 +500,8 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
   def unlocked = Game::AchievementUnlock.pluck(:player_id, :achievement).sort
 
   def expected
-    [ [ @player.id, "first_booster" ], [ @player.id, "first_legendary" ], [ @player.id, "statistical_non_compliance" ], [ @other.id, "first_booster" ] ].sort
+    (%w[first_booster first_legendary statistical_non_compliance packaging_irregularity excellence_in_mediocrity].map { [ @player.id, it ] } +
+      %w[first_booster packaging_irregularity excellence_in_mediocrity].map { [ @other.id, it ] }).sort
   end
 
   def run_task = rake_task("game:backfill_achievements").execute
@@ -426,7 +513,7 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
 
     assert_equal expected, unlocked
     events = Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a
-    assert_equal 4, events.size
+    assert_equal 8, events.size
     assert events.all? { it.data[:retroactive] }
   end
 
@@ -441,7 +528,7 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
 
     assert_error_reported(RuntimeError) { Game::BackfillAchievementsJob.perform_now }
 
-    assert_equal [ [ @other.id, "first_booster" ] ], unlocked
+    assert_equal %w[first_booster packaging_irregularity excellence_in_mediocrity].map { [ @other.id, it ] }.sort, unlocked
   ensure
     Game::GrantAchievementsJob.define_singleton_method(:grant, grant)
   end

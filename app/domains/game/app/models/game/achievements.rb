@@ -17,7 +17,10 @@ module Game
       Achievement.new(:boosters_500, :packs_opened, 500),
       Achievement.new(:three_complete_sets, :sets_completed, 3),
       Achievement.new(:first_repost, :reposts, 1),
-      Achievement.new(:statistical_non_compliance, :two_rare_or_better_capsules, 1)
+      Achievement.new(:statistical_non_compliance, :two_rare_or_better_capsules, 1),
+      Achievement.new(:packaging_irregularity, :repeated_game_capsules, 1),
+      Achievement.new(:excellence_in_mediocrity, :all_common_capsules, 1),
+      Achievement.new(:historical_asset_management, :old_and_new_game_capsules, 1)
     ].freeze
 
     BY_KEY = CATALOGUE.index_by { it.key.to_s }.freeze
