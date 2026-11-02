@@ -203,7 +203,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
 
     { en: [ [ "Streamlined Opening Procedure", "10 capsules in a row opened with \"Reveal all\"", "skip" ],
             [ "Diligence Beyond the Call of Duty", "10 capsules in a row with every card revealed one by one", "revealed-locked" ] ],
-      fr: [ [ "Procédure d'ouverture simplifiée", "10 capsules de suite ouvertes avec « Tout révéler »", "skip" ],
+      fr: [ [ "Procédure d'ouverture simplifiée", "10 capsules de suite ouvertes avec « Tout révéler »", "skip" ],
             [ "Zèle au-delà des obligations", "10 capsules de suite dont chaque carte est révélée une à une", "revealed-locked" ] ] }.each do |locale, tiles|
       get achievements_path(locale:)
 

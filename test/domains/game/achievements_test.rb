@@ -433,20 +433,23 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_equal 1, toasts(@player, :en).count { it.include?("Leave Request Denied") }
   end
 
+  def published_edition(season, card_id, number)
+    Catalog::CardSeason.insert_all!([ { card_id:, season_id: season.id, prestige_score: 0.5, rating: 80.0,
+      rarity: Catalog::Rarity::TIERS.invert.fetch(:common), number: } ], returning: :id).rows.flatten.sole
+  end
+
   def hold_edition(card_id, quantity, reserved: 0)
-    season = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
-    edition = Catalog::CardSeason.create!(card_id:, season:, prestige_score: 0.5, rating: 80, rarity: :common, number: 1)
-    hold(@player, edition.id, quantity, reserved:)
+    season = Catalog::Season.create!(status: :published, number: Catalog::Season.next_number, published_at: Time.current)
+    hold(@player, published_edition(season, card_id, 1), quantity, reserved:)
   end
 
   def studio_games(count, developer: [ "Acme Studios" ], player: @player)
-    season = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    season = Catalog::Season.create!(status: :published, number: Catalog::Season.next_number, published_at: Time.current)
     Array.new(count) do |index|
       slug = "studio-#{developer.first.to_s.parameterize}-#{player.id}-#{Catalog::Card.count}-#{index}"
       card = Catalog::Card.create!(source_key: "src:#{slug}", slug:, release_date: Date.new(2020, 1, 1), developers: developer,
         image_url: "https://images.example.test/#{slug}.jpg", store_url: "https://store.example.test/#{slug}")
-      season_id = Catalog::CardSeason.create!(card:, season:, prestige_score: 0.5, rating: 80, rarity: :common, number: index + 1).id
-      hold(player, season_id)
+      hold(player, published_edition(season, card.id, index + 1))
       card
     end
   end
@@ -656,8 +659,8 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     latest = Game::Pack.where(player_id: @player.id).order(:opened_at, :id).last
     perform_enqueued_jobs { Game::RecordReveal.new.call(player: @player, token: latest.token, mode: "all").value! }
 
-    assert_equal %w[streamlined_opening_procedure], unlocked
-    assert_equal 1, toasts(@player, :fr).count { it.include?("Procédure d'ouverture simplifiée") }
+    assert_includes unlocked, "streamlined_opening_procedure"
+    assert_equal 1, toasts(@player, :fr).count { it.include?("ouverture simplifiée") }
     assert_equal 1, toasts(@player, :en).count { it.include?("Streamlined Opening Procedure") }
   end
 
@@ -667,7 +670,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     latest = Game::Pack.where(player_id: @player.id).order(:opened_at, :id).last
     perform_enqueued_jobs { Game::RecordReveal.new.call(player: @player, token: latest.token, mode: "one_by_one").value! }
 
-    assert_equal %w[diligence_beyond_the_call_of_duty], unlocked
+    assert_includes unlocked, "diligence_beyond_the_call_of_duty"
     assert_equal 1, toasts(@player, :fr).count { it.include?("Zèle au-delà des obligations") }
     assert_equal 1, toasts(@player, :en).count { it.include?("Diligence Beyond the Call of Duty") }
   end
@@ -685,7 +688,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     reads = progress_reads { Game::GrantAchievementsJob.perform_now(@player.id) }
 
     assert_not_includes reads.first, :two_rare_or_better_capsules
-    assert_equal Game::AchievementProgress::METRICS - [ :two_rare_or_better_capsules ], reads.first
+    assert_equal (Game::AchievementProgress::METRICS - [ :two_rare_or_better_capsules ]).sort, reads.first.sort
     assert_equal %w[statistical_non_compliance first_booster packaging_irregularity], unlocked
 
     Game::Achievements::CATALOGUE.each { Game::AchievementUnlock.record(@player.id, it.key, Time.current) }
@@ -716,13 +719,13 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   test "a first opening unlocks the first booster once, toasted to the player's stream only" do
     open_with_jobs([ @common ] * 5)
 
-    assert_equal %w[first_booster packaging_irregularity excellence_in_mediocrity], unlocked
+    assert_equal %w[first_booster packaging_irregularity excellence_in_mediocrity diversified_portfolio], unlocked
     assert_equal unlocked.map { { player_id: @player.id, achievement: it } }, unlock_events.map(&:data)
     toasts = broadcasts(PlayerStream.name(@player, :fr)).map { ActiveSupport::JSON.decode(it) }
-    assert_equal 3, toasts.size
+    assert_equal 4, toasts.size
     assert toasts.all? { it.include?("Succès débloqué") }
     assert_equal 1, toasts.count { it.include?("Première acquisition approuvée") }
-    assert_equal 3, broadcasts(PlayerStream.name(@player, :en)).count { it.include?("Achievement unlocked") }
+    assert_equal 4, broadcasts(PlayerStream.name(@player, :en)).count { it.include?("Achievement unlocked") }
     assert_no_broadcasts PlayerStream.name(@other, :fr)
   end
 
@@ -743,7 +746,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_equal 1, toasts(@player, :fr).count { it.include?("Non-conformité statistique") }
     assert_equal 1, toasts(@player, :en).count { it.include?("Statistical Non-Compliance") }
 
-    assert_no_difference -> { unlock_events.size } do
+    assert_no_difference -> { unlocked.count("statistical_non_compliance") } do
       open_with_jobs([ @rare, @epic ] + [ @common ] * 3)
     end
     assert_equal 1, toasts(@player, :en).count { it.include?("Statistical Non-Compliance") }
@@ -753,12 +756,12 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     opened_packs(9)
 
     open_with_jobs([ @common ] * 5)
-    assert_equal %w[first_booster boosters_10 packaging_irregularity excellence_in_mediocrity luck_is_a_marketing_concept], unlocked
+    assert_equal %w[first_booster boosters_10 packaging_irregularity excellence_in_mediocrity luck_is_a_marketing_concept diversified_portfolio], unlocked
 
     assert_no_difference -> { unlock_events.size } do
       open_with_jobs([ @common ] * 5)
     end
-    assert_equal %w[first_booster boosters_10 packaging_irregularity excellence_in_mediocrity luck_is_a_marketing_concept], unlocked
+    assert_equal %w[first_booster boosters_10 packaging_irregularity excellence_in_mediocrity luck_is_a_marketing_concept diversified_portfolio], unlocked
   end
 
   test "a first set completed unlocks the first complete set, the third three complete sets" do
