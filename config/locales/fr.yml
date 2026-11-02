@@ -1553,7 +1553,6 @@ fr:
         you: "Votre chance"
         rank: "n° %{rank}"
       row:
-        rank: "n° %{rank}"
         luck: "Chance"
         capsules: "Capsules"
         hidden: "–"

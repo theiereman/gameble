@@ -177,15 +177,6 @@
   gap: var(--space-3);
 }
 
-.player-entry__rank {
-  flex: none;
-  min-width: 4ch;
-  color: var(--color-muted);
-  font: var(--font-number);
-  letter-spacing: var(--tracking-number);
-  text-align: right;
-}
-
 .player-row {
   display: flex;
   flex: 1;
@@ -302,13 +293,20 @@
   color: var(--color-rarity-legendaire);
 }
 
-.player-row__luck {
+.player-entry__luck {
+  display: flex;
   flex: none;
-  margin-left: auto;
-  min-width: 5ch;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 5.5ch;
   font: var(--font-count-large);
   letter-spacing: var(--tracking-count-large);
-  text-align: right;
+}
+
+.player-entry__clover {
+  display: block;
+  flex: none;
 }
 
 @container (max-width: 719px) {
@@ -316,16 +314,12 @@
     gap: var(--space-2);
   }
 
-  .player-entry__rank {
-    min-width: 3ch;
-  }
-
   .player-row {
     display: grid;
     grid-template-areas:
-      "avatar who luck"
-      "figures figures figures";
-    grid-template-columns: auto minmax(0, 1fr) auto;
+      "avatar who"
+      "figures figures";
+    grid-template-columns: auto minmax(0, 1fr);
     gap: var(--space-1) var(--space-3);
     padding: var(--space-2) var(--space-3);
   }
@@ -352,8 +346,8 @@
     padding-left: var(--space-2);
   }
 
-  .player-row__luck {
-    grid-area: luck;
+  .player-entry__luck {
+    gap: var(--space-1);
     font: var(--font-count-large-phone);
   }
 }

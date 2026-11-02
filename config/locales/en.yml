@@ -1162,7 +1162,6 @@ en:
         capsules: Capsules
         hidden: "–"
         luck: Luck
-        rank: "#%{rank}"
       sorts:
         capsules: Most capsules
         luck: Luckiest

@@ -1,7 +1,6 @@
 <%# locals: (row:) %>
 <% shown = row.shown_to?(current_player) %>
 <li class="player-entry">
-  <span class="player-entry__rank"><%= t("fortune_registers.show.row.rank", rank: number_with_delimiter(row.rank)) %></span>
   <%= tag.div class: class_names("player-row", "player-row--privileged": row.privileged, "player-row--own": row.player == current_player) do %>
     <%= pixel_icon("avatar-default", class: "player-row__avatar") %>
     <span class="player-row__who">
@@ -28,8 +27,9 @@
         <dd><%= number_with_delimiter(row.packs_opened) %></dd>
       </div>
     </dl>
-    <span class="<%= class_names("player-row__luck", "fortune-index", fortune_index_tone(row.index)) %>">
-      <span class="visually-hidden"><%= t("fortune_registers.show.row.luck") %></span><%= fortune_index_text(row.index) %>
-    </span>
   <% end %>
+  <span class="<%= class_names("player-entry__luck", "fortune-index", fortune_index_tone(row.index)) %>">
+    <%= pixel_icon("clover", class: "player-entry__clover") %>
+    <span class="visually-hidden"><%= t("fortune_registers.show.row.luck") %></span><%= fortune_index_text(row.index) %>
+  </span>
 </li>
