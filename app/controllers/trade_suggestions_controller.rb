@@ -22,7 +22,8 @@ class TradeSuggestionsController < ApplicationController
     def sent_position = params[:position].to_i.clamp(0, Game::TradeSuggestions::MAX_SUGGESTIONS - 1)
 
     def still_spared_sides(friend, offer:, request:)
-      kept_request = request.slice(*Game::TradeSuggestions.still_spared(request.keys, holder: friend, other: current_player))
+      kept_request = request.slice(*Game::TradeSuggestions.still_spared(request.keys, holder: friend, other: current_player,
+        minimum_copies: Game::TradeSuggestions::DUPLICATE_COPIES))
       return Dry::Monads::Failure(:requested_cards_unavailable) if request.any? && kept_request.empty?
 
       kept_offer = offer.slice(*Game::TradeSuggestions.still_spared(offer.keys, holder: current_player, other: friend))

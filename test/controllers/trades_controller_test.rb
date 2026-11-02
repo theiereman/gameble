@@ -1365,14 +1365,15 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     suggest_from_lea
     portal = catalog_card_seasons(:portal_one).id
     crown = catalog_card_seasons(:legendary_card_one).id
-    goal_on(@soldier, portal, crown)
+    goal_on(@soldier, crown)
     sign_in @alice
     one = count_queries { get trades_path(locale: :fr) }
     assert_select ".trade-suggestion", 1
 
+    Game::Holding.where(player_id: @alice.id, card_season_id: portal).delete_all
+    goal_on(@soldier, portal)
     hold(@carol, crown, 2)
     hold(new_friend("76561197960299003"), portal, 2)
-    Game::Holding.where(player_id: @alice.id, card_season_id: portal).delete_all
 
     assert_equal one, count_queries { get trades_path(locale: :fr) }
     assert_select ".trade-suggestion", 3

@@ -118,6 +118,27 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
     assert_equal taken(@depths), board_lines
   end
 
+  test "the opener followed after the friend is left with a single free copy places the rest" do
+    suggest_from_lea
+    sign_in @alice
+    href = opener_href
+
+    Game::Holding.where(player_id: @bob.id, card_season_id: @hills).update_all(quantity: 2, reserved: 1)
+    get href
+    assert_equal taken(@depths), board_lines
+  end
+
+  test "ENVOYER requests only the cards the friend still holds as a duplicate" do
+    suggest_from_lea
+    sign_in @alice
+    Game::Holding.where(player_id: @bob.id, card_season_id: @hills).update_all(quantity: 2, reserved: 1)
+
+    assert_difference -> { Game::Trade.count }, 1 do
+      send_suggestion
+    end
+    assert_equal [ [ "request", @depths, 1 ] ], Game::Trade.last.items.map { [ it.side, it.card_season_id, it.quantity ] }
+  end
+
   test "the player's give cards no longer spared for the friend are dropped" do
     suggest_from_lea
     hold(@alice, @portal, 3)

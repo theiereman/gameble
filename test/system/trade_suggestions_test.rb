@@ -91,7 +91,10 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
 
   test "after ENVOYER the focus lands on the next suggestion's opener, which holds live refresh through a window blur" do
     Game::Holding.find_by!(player_id: @lea.id, card_season_id: @hills).update!(reserved: 2)
-    hold(@max, @hills, 2)
+    crown = catalog_card_seasons(:legendary_card_one).id
+    crown_card_ids = Catalog::CardSeason.where(id: [ catalog_card_seasons(:common_card_one).id, crown ]).pluck(:card_id)
+    Game::AddGoal.new.call(player: @hugo, custom_set: create_custom_set(@hugo, name: "Crown run", card_ids: crown_card_ids).token).value!
+    hold(@max, crown, 2)
     sign_in @hugo
 
     visit trades_path(locale: :en)
@@ -100,7 +103,7 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
 
     assert_selector ".toast .toast__title", text: /PROPOSAL FORWARDED/i
     assert_selector ".trade-suggestion", count: 1
-    assert_selector ".trade-suggestion__summary", text: "Green Hills · for Max to choose in return"
+    assert_selector ".trade-suggestion__summary", text: "Golden Crown · for Max to choose in return"
     eventually("focus on the remaining suggestion's opener") { focused?(".trade-suggestion__opener") }
     assert_selector ".trade-suggestions[data-live-refresh-hold]", visible: :all
 

@@ -4,9 +4,10 @@ require_relative "../support/game_sets"
 require_relative "../support/holdings"
 require_relative "../support/steam_sign_in"
 
-# Hugo aims at Tin Soldier, Green Hills and Blue Depths through a custom set,
-# and holds the Soldier and two Portals. His friends hold the cards he misses;
-# the tests play two and three of them through the Trades screen.
+# Hugo aims at Blue Depths through one custom set and at Green Hills through
+# another, and holds the Soldier and two Portals. His friends hold, as
+# duplicates, the cards he misses; the tests play two and three of them
+# through the Trades screen.
 class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
   include CustomSets
   include GameSets
@@ -28,7 +29,8 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
     @crown = catalog_card_seasons(:legendary_card_one).id
     hold(@hugo, @soldier)
     hold(@hugo, @portal, 2)
-    custom_goal(@hugo, "Hugo's trio", [ @soldier, @hills, @depths ])
+    custom_goal(@hugo, "Hugo's depths", [ @soldier, @depths ])
+    custom_goal(@hugo, "Hugo's hills", [ @soldier, @hills ])
   end
 
   def befriend(first, second)
@@ -66,10 +68,10 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
 
   test "a player with an active goal sees, in English and French, which friends hold a spare of each missing card" do
     zoe = friend_of_hugo("Zoe", "76561197960287101")
-    hold(@lea, @depths)
-    hold(@max, @hills)
+    hold(@lea, @depths, 2)
+    hold(@max, @hills, 2)
     custom_goal(@hugo, "Crown run", [ @crown ])
-    hold(zoe, @crown)
+    hold(zoe, @crown, 2)
     sign_in @hugo
 
     visit trades_path(locale: :en)
@@ -92,7 +94,7 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
     hold(@lea, @depths, 2)
     hold(@lea, @hills, 2)
     custom_goal(@hugo, "Crown run", [ @crown ])
-    hold(zoe, @crown)
+    hold(zoe, @crown, 2)
     game_set_goal(zoe, [ @portal, @crown ])
     sign_in @hugo
 
@@ -105,8 +107,8 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
   end
 
   test "a friend's side reads only their game-set goals" do
-    hold(@lea, @depths)
-    hold(@max, @hills)
+    hold(@lea, @depths, 2)
+    hold(@max, @hills, 2)
     game_set_goal(@lea, [ @portal, @crown ])
     custom_goal(@max, "Max wants Portal", [ @portal, @crown ])
     sign_in @hugo
@@ -119,21 +121,40 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
     end
   end
 
-  test "a spared card is any free copy, and a double ranks first" do
-    hold(@lea, @depths)
+  test "a card is suggested only when the friend holds it as a duplicate" do
+    hold(@lea, @depths, 1)
     hold(@lea, @hills, 2)
     sign_in @hugo
 
     visit trades_path(locale: :en)
 
-    assert_selector ".trade-suggestion__summary", text: "Green Hills, Blue Depths · for Lea to choose in return"
+    assert_selector ".trade-suggestion", count: 1
+    assert_selector ".trade-suggestion__summary", text: "Green Hills · for Lea to choose in return"
+    assert_no_selector ".trade-suggestion__summary", text: "Blue Depths"
+  end
+
+  test "a goal with many missing cards gets one suggestion, however many friends hold them" do
+    wanted = unheld_cards(8)
+    custom_goal(@hugo, "Big set", wanted)
+    zoe = friend_of_hugo("Zoe", "76561197960287101")
+    pia = friend_of_hugo("Pia", "76561197960287102")
+    [ @lea, @max, zoe, pia ].each { |friend| wanted.each { hold(friend, it, 2) } }
+    hold(@lea, @depths, 2)
+    hold(@max, @hills, 2)
+    sign_in @hugo
+
+    visit trades_path(locale: :en)
+
+    assert_selector ".trade-suggestion", count: 2
+    assert_selector ".trade-suggestion__summary", text: "Blue Depths", count: 1
+    assert_selector ".trade-suggestion__summary", text: "Green Hills", count: 1
   end
 
   test "starting a trade from a suggestion opens the proposal with its cards placed, and the trade then runs as any other" do
     zoe = friend_of_hugo("Zoe", "76561197960287101")
-    hold(@lea, @depths)
+    hold(@lea, @depths, 2)
     custom_goal(@hugo, "Crown run", [ @crown ])
-    hold(zoe, @crown)
+    hold(zoe, @crown, 2)
     game_set_goal(zoe, [ @portal, @crown ])
     sign_in @hugo
 
@@ -168,7 +189,7 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
   test "the opener of a mutual suggestion places both sides of the proposal, which sends as it stands" do
     zoe = friend_of_hugo("Zoe", "76561197960287101")
     custom_goal(@hugo, "Crown run", [ @crown ])
-    hold(zoe, @crown)
+    hold(zoe, @crown, 2)
     game_set_goal(zoe, [ @portal, @crown ])
     sign_in @hugo
 
@@ -187,8 +208,8 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
   end
 
   test "a suggestion the friend declined never returns" do
-    hold(@lea, @depths)
-    hold(@lea, @hills)
+    hold(@lea, @depths, 2)
+    hold(@lea, @hills, 2)
     sign_in @hugo
 
     visit trades_path(locale: :en)
@@ -205,7 +226,7 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
   test "two friends hold two open trades at once, each reserving only its own offer, and a repeated send creates no second trade" do
     extras = unheld_cards(4)
     custom_goal(@hugo, "Extras", extras)
-    [ @depths, @hills, *extras ].each { hold(@lea, it) }
+    [ @depths, @hills, *extras ].each { hold(@lea, it, 2) }
     game_set_goal(@lea, [ @portal, @soldier ])
     sign_in @hugo
 
@@ -243,11 +264,11 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
     befriend(@hugo, banned)
     extras = unheld_cards(2)
     custom_goal(@hugo, "Crown run", [ @crown, *extras ])
-    hold(@lea, @depths)
-    hold(@max, @hills)
-    hold(pia, @crown)
-    hold(banned, extras.first)
-    hold(deleted, extras.second)
+    hold(@lea, @depths, 2)
+    hold(@max, @hills, 2)
+    hold(pia, @crown, 2)
+    hold(banned, extras.first, 2)
+    hold(deleted, extras.second, 2)
     @max.update!(visibility: :friends_only)
     pia.update!(visibility: :private)
     Accounts::DeletePlayer.new.call(player: deleted).value!
@@ -267,7 +288,7 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
   end
 
   test "a private player sees no suggestion naming others" do
-    hold(@lea, @depths)
+    hold(@lea, @depths, 2)
     Accounts::SetVisibility.new.call(player: @hugo, visibility: "private").value!
     sign_in @hugo
 

@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../../support/holdings"
 
 # Whether given cards of one holder are still spared for one other player:
-# any free copy, and the game on no open trade between the two.
+# any free copy (or a minimum of free copies), and the game on no open trade between the two.
 class Game::TradeSuggestionSparesTest < ActiveSupport::TestCase
   include Holdings
 
@@ -57,6 +57,18 @@ class Game::TradeSuggestionSparesTest < ActiveSupport::TestCase
     hold(@lea, @soldier, 1, reserved: 1)
 
     assert_equal [ @portal, @hills ], spared_by_lea(@portal, @hills, @soldier, @depths)
+  end
+
+  test "with a minimum of two copies, a single free copy is not spared but two free copies across editions are" do
+    rare_soldier = second_edition(@soldier, rarity: :rare)
+    hold(@lea, @portal, 1)
+    hold(@lea, @hills, 2, reserved: 1)
+    hold(@lea, @depths, 2)
+    hold(@lea, @soldier, 1)
+    hold(@lea, rare_soldier, 1)
+
+    ids = [ @portal, @hills, @depths, @soldier ]
+    assert_equal [ @depths, @soldier ], Game::TradeSuggestions.still_spared(ids, holder: @lea, other: @player, minimum_copies: Game::TradeSuggestions::DUPLICATE_COPIES)
   end
 
   test "every edition with a free copy is spared" do

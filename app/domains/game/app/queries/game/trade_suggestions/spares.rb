@@ -11,6 +11,8 @@ module Game
         FreeEditions.call(friend_ids, wanted.keys).each do |(friend_id, card_id), editions|
           next if taken.include?([ friend_id, card_id ])
 
+          next unless FreeEditions.copies(editions) >= TradeSuggestions::DUPLICATE_COPIES
+
           edition = FreeEditions.placed(editions) or next
           spares[friend_id] << Spare.new(card_id:, edition:, copies: FreeEditions.copies(editions), goal_positions: wanted.fetch(card_id).uniq.sort)
         end

@@ -14,6 +14,8 @@ module Game
       def served_goals = lines.flat_map(&:goal_positions).tally.sort.to_h
     end
 
+    DUPLICATE_COPIES = 2
+
     Result = Data.define(:goals, :suggestions) do
       def empty? = suggestions.empty?
       def card_season_ids = suggestions.flat_map { it.card_season_ids + it.own_card_season_ids }.uniq
@@ -32,7 +34,7 @@ module Game
       Result.new(goals:, suggestions: suggestions(player, friends, wanted, now))
     end
 
-    def self.still_spared(card_season_ids, holder:, other:, now: Time.current)
+    def self.still_spared(card_season_ids, holder:, other:, now: Time.current, minimum_copies: 1)
       return [] if card_season_ids.empty?
 
       card_ids = FreeEditions.card_ids_of(card_season_ids)
@@ -44,7 +46,8 @@ module Game
         card_id = card_ids[id.to_i]
         next false if card_id.nil? || taken.include?(card_id)
 
-        FreeEditions.spare(editions.fetch([ holder.id, card_id ], [])).any? { it.card_season_id == id.to_i }
+        held = editions.fetch([ holder.id, card_id ], [])
+        FreeEditions.copies(held) >= minimum_copies && FreeEditions.spare(held).any? { it.card_season_id == id.to_i }
       end
     end
 
@@ -71,12 +74,14 @@ module Game
     def self.fill(ranked, spares, gives)
       placed = Set.new
       given = Set.new
+      served = Set.new
       ranked.each_with_object([]) do |friend, suggestions|
-        chosen = spares.fetch(friend.player.id).reject { placed.include?(it.card_id) }.first(TradeItem::MAX_CARDS_PER_SIDE)
+        chosen = spares.fetch(friend.player.id).reject { placed.include?(it.card_id) || it.goal_positions.intersect?(served.to_a) }.first(TradeItem::MAX_CARDS_PER_SIDE)
         next if chosen.empty?
 
         offered = gives.fetch(friend.player.id, []).reject { given.include?(it.card_id) }.first(TradeItem::MAX_CARDS_PER_SIDE)
         placed.merge(chosen.map(&:card_id))
+        served.merge(chosen.flat_map(&:goal_positions))
         given.merge(offered.map(&:card_id))
         suggestions << Suggestion.new(friend:, lines: lines_of(chosen), own_lines: lines_of(offered))
       end
