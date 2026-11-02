@@ -74,7 +74,7 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
 
     get opener_href
 
-    lines = css_select(".trade-card--editing")
+    lines = css_select(".trade-card--editing[data-key]")
     assert_equal [ [ "blue-depths--s1", [ 1 ] ], [ "green-hills--s1", [ 1 ] ] ],
       lines.map { |line| [ line["data-key"], line.css(".card > .card__goals > .goal-bookmark").map { it.text.to_i } ] }.sort
     assert_select ".trade-card--editing .visually-hidden", text: /objectif 1/, minimum: 2

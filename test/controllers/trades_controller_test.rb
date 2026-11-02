@@ -526,7 +526,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
   test "the board of a trade marks the viewer's goal cards on both sides and names them for a screen reader" do
     trade = from_lea
-    goal_on(@portal, @depths)
+    goal_on(@portal, @depths, @soldier)
     sign_in @alice
 
     get trade_path(token: trade.token, locale: :fr)
@@ -534,15 +534,15 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal [ 1 ], bookmark_numbers(".trade-side--friend")
     assert_equal [ 1 ], bookmark_numbers(".trade-side--own")
-    assert_select ".trade-side--own .trade-card .visually-hidden", "objectif 1 : Objectif 1"
-    assert_select ".trade-side--friend .trade-card .visually-hidden", "objectif 1 : Objectif 1"
-    assert_select ".trade-board .card__goals[aria-hidden=true]", 2
+    assert_select ".trade-side--own .trade-card .visually-hidden", /\Aobjectif 1.+Objectif 1\z/
+    assert_select ".trade-side--friend .trade-card .visually-hidden", /\Aobjectif 1.+Objectif 1\z/
+    assert_select ".trade-board .card__goals[aria-hidden=true]", minimum: 2
     assert_no_match(/style=/, css_select(".trade-board").to_html)
   end
 
   test "a board without a goal card shows no bookmark" do
     trade = from_lea
-    goal_on(@soldier)
+    goal_on(@soldier, catalog_card_seasons(:uncommon_card_one).id, catalog_card_seasons(:legendary_card_one).id)
     sign_in @alice
 
     get trade_path(token: trade.token, locale: :fr)
@@ -554,34 +554,35 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
   test "the friend sees only the bookmarks of their own goals on the same trade" do
     trade = from_lea
-    goal_on(@portal)
-    Game::AddGoal.new.call(player: @bob, custom_set: create_custom_set(@bob, name: "Abysses", card_ids: Catalog::CardSeason.where(id: @depths).pluck(:card_id)).token).value!
+    goal_on(@portal, @soldier, catalog_card_seasons(:uncommon_card_one).id)
+    abysses = [ @depths, @soldier, catalog_card_seasons(:legendary_card_one).id ]
+    Game::AddGoal.new.call(player: @bob, custom_set: create_custom_set(@bob, name: "Abysses", card_ids: Catalog::CardSeason.where(id: abysses).pluck(:card_id)).token).value!
     sign_in @bob
 
     get trade_path(token: trade.token, locale: :fr)
 
     assert_equal [ 1 ], bookmark_numbers(".trade-side--own")
     assert_empty bookmark_numbers(".trade-side--friend")
-    assert_select ".trade-side--own .trade-card .visually-hidden", "objectif 1 : Abysses"
+    assert_select ".trade-side--own .trade-card .visually-hidden", /\Aobjectif 1.+Abysses\z/
   end
 
   test "the draft board, the counter board and the faces the editor fetches carry the viewer's bookmarks" do
     trade = from_lea
-    goal_on(@portal, @depths)
+    goal_on(@portal, @depths, catalog_card_seasons(:uncommon_card_one).id)
     sign_in @alice
 
     get new_trade_path(friend: @bob.token, locale: :fr)
     assert_response :success
-    assert_select ".trade-pick__toggle[aria-label$=?]", "objectif 1 : Objectif 1", minimum: 1
+    assert_select ".trade-pick__toggle[aria-label$=?]", "Objectif 1", minimum: 1
 
     get counter_trade_path(token: trade.token, locale: :fr)
     assert_response :success
     assert_select ".trade-card--editing .card__goals .goal-bookmark", text: "1", minimum: 1
-    assert_select ".trade-card--editing .visually-hidden", "objectif 1 : Objectif 1"
+    assert_select ".trade-card--editing .visually-hidden", { text: /\Aobjectif 1.+Objectif 1\z/, minimum: 1 }
 
     faces = faces_of(%w[portal--s1 tin-soldier--s1])
     assert_includes faces.fetch("portal--s1"), "card__goals"
-    assert_includes faces.fetch("portal--s1"), "objectif 1 : Objectif 1"
+    assert_match(/objectif 1.+Objectif 1/, faces.fetch("portal--s1"))
     assert_not_includes faces.fetch(faces.keys.find { it != "portal--s1" }), "card__goals"
   end
 

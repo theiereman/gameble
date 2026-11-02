@@ -146,8 +146,8 @@ class GoalBookmarksTest < ApplicationSystemTestCase
     assert_selector ".trade-board .card", count: 2
     assert_no_selector ".trade-board .card__goals"
 
-    add(kind: "studio", key: "valve")
-    add(custom_set: create_custom_set(@player, card_ids: [ catalog_cards(:common_card).id ]).token)
+    add(custom_set: create_custom_set(@player, name: "Portals", card_ids: %i[portal uncommon_card legendary_card].map { catalog_cards(it).id }).token)
+    add(custom_set: create_custom_set(@player, name: "Commons", card_ids: %i[common_card uncommon_card legendary_card].map { catalog_cards(it).id }).token)
     visit trade_path(locale: :en, token: trade.token)
     assert_selector ".trade-board .card__goals .goal-bookmark", count: 2
     own = find(".trade-side--own .card")
