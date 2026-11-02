@@ -27,7 +27,7 @@
     </div>
   </dl>
   <span class="<%= class_names("player-row__luck", "fortune-index", fortune_index_tone(row.index)) %>">
-    <span class="visually-hidden"><%= t("fortune_registers.show.row.luck") %></span><%= fortune_index_text(row.index) %>
+    <span class="player-row__luck-value"><span class="visually-hidden"><%= t("fortune_registers.show.row.luck") %></span><%= fortune_index_text(row.index) %></span>
     <%= pixel_icon("clover", class: "player-row__clover") %>
   </span>
 <% end %>
