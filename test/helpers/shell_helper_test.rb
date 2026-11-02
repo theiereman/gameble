@@ -29,6 +29,12 @@ class ShellHelperTest < ActionView::TestCase
     assert_equal "crispEdges", svg["shape-rendering"]
   end
 
+  test "each feed reaction has its pixel icon" do
+    %w[thumb heart gg wow middle-finger].each do |kind|
+      assert_not_nil Nokogiri::HTML5.fragment(pixel_icon("reaction-#{kind}")).at("svg"), kind
+    end
+  end
+
   test "attributes are added, the class kept" do
     svg = Nokogiri::HTML5.fragment(pixel_icon("close", class: "toast__icon", data: { part: "x" })).at("svg")
 
