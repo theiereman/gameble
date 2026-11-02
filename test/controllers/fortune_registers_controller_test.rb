@@ -18,12 +18,11 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     Game::OpenPack.new.call(player:).value!
   end
 
-  test "the week's dashboard shows every player as a tile: luck, capsules, collection and showcase; private ones keep only their luck" do
+  test "the week's dashboard has one row per player: capsules, a count per rarity and the luck last; a private one shows only its luck" do
     hidden = Accounts::Player.create!(steam_id: "76561197960400101", persona_name: "Secret", visibility: :private)
     open_cards(@player, 5)
     open_cards(@player, 1)
     open_cards(hidden, 1)
-    Game::AddToShowcase.new.call(player: @player, card_season_id: fixture_tier_ids[4]).value!
 
     get fortune_register_path(locale: :en)
 
@@ -32,21 +31,24 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".register__summary .profile-figure", text: /Active this week\s*2/
     assert_select ".register__summary .profile-figure", text: /Capsules this week\s*3/
     assert_select ".register__summary .profile-figure", text: %r{Privileged\s*1/2}
-    assert_select ".player-tile", 2
-    assert_select ".player-tile:nth-child(1).player-tile--privileged" do
-      assert_select "a.player-tile__name[href=?]", brother_path(locale: :en, token: @player.token), "Hugo"
-      assert_select ".player-tile__rank", "#1"
-      assert_select ".player-tile__label", "Indecently Lucky"
-      assert_select ".fortune-index--up", "+500"
-      assert_select ".profile-figure", text: /Capsules\s*2/
-      assert_select ".profile-figure--rarity-5 .profile-figure__value", "1"
-      assert_select ".player-tile__showcase .card", 1
+    assert_select ".player-row", 2
+    assert_select ".player-row:nth-child(1).player-row--privileged" do
+      assert_select "a.player-row__name[href=?]", brother_path(locale: :en, token: @player.token), "Hugo"
+      assert_select ".player-row__rank", "#1"
+      assert_select ".player-row__label", "Indecently Lucky"
+      assert_select ".player-row__capsules dd", "2"
+      assert_select ".player-row__rarity svg.player-row__icon", 5
+      assert_select ".player-row__rarity--1 dd", "1"
+      assert_select ".player-row__rarity--5 dd", "1"
+      assert_select ".player-row__rarity--5 dt .visually-hidden", "Legendary"
+      assert_select ".fortune__privileged", "PRIVILEGED"
+      assert_select ".player-row__luck.fortune-index--up", /\+500/
+      assert_select ":last-child.player-row__luck"
     end
-    assert_select ".player-tile:nth-child(2)" do
-      assert_select ".player-tile__name--hidden", "Private member"
+    assert_select ".player-row:nth-child(2)" do
+      assert_select ".player-row__name--hidden", "Private member"
       assert_select ".fortune__privileged", false
-      assert_select ".player-tile__rarities", false
-      assert_select ".player-tile__no-showcase", "This member keeps their collection private."
+      assert_select ".player-row__rarity dd", text: "–", count: 5
     end
     assert_no_match "Secret", response.body
     assert_select "[style]", false
@@ -61,7 +63,7 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Registre des Privilégiés"
     assert_select ".register__tabs a[aria-current=true]", "Depuis toujours"
     assert_select ".register__sorts a[aria-current=true]", "Le plus de capsules"
-    assert_select ".player-tile.player-tile--own", 1
+    assert_select ".player-row.player-row--own", 1
     assert_select ".register__mine", /Votre chance/
 
     get fortune_register_path(locale: :en)

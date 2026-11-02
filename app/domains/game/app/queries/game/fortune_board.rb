@@ -2,11 +2,9 @@ module Game
   module FortuneBoard
     PAGE_SIZE = 24
 
-    SHOWCASE_SHOWN = 3
-
     SORTS = %i[luck capsules].freeze
 
-    Row = Data.define(:rank, :player, :index, :privileged, :packs_opened, :rarities, :showcase_ids) do
+    Row = Data.define(:rank, :player, :index, :privileged, :packs_opened, :rarities) do
       def label = FortuneIndex.label(index)
       def shown_to?(viewer) = player == viewer || player.visibility_public?
     end
@@ -29,11 +27,10 @@ module Game
       players = Accounts::Player.where(id: ids).index_by(&:id)
       privileged = Privileged.ids(now:)
       rarities = HeldGames.by_rarity_among(ids)
-      showcases = ChosenShowcase.among(ids, limit: SHOWCASE_SHOWN)
       fortunes.map do |fortune|
         Row.new(rank: fortune.luck_rank, player: players.fetch(fortune.player_id), index: FortuneIndex.of(fortune.z_score),
           privileged: privileged.include?(fortune.player_id), packs_opened: fortune.packs_by_kind.values.sum,
-          rarities: rarities.fetch(fortune.player_id), showcase_ids: showcases.fetch(fortune.player_id, []))
+          rarities: rarities.fetch(fortune.player_id))
       end
     end
 

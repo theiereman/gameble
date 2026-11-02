@@ -1158,6 +1158,11 @@ en:
         10% are Privileged.'
       more: More
       pages_label: Pages
+      row:
+        capsules: Capsules
+        hidden: "–"
+        luck: Luck
+        rank: "#%{rank}"
       sorts:
         capsules: Most capsules
         luck: Luckiest
@@ -1172,14 +1177,6 @@ en:
         privileged: Privileged
         rank: "#%{rank}"
         you: Your luck
-      tile:
-        capsules: Capsules
-        luck: Luck
-        no_showcase: No card in the showcase yet.
-        private: This member keeps their collection private.
-        rank: "#%{rank}"
-        showcase: Showcase
-        status: Status
       title: Register of the Privileged
   fortunes:
     labels:

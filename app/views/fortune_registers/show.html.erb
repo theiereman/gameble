@@ -47,8 +47,8 @@
   <% if @rows.empty? %>
     <%= render PanelComponent.new(tag: :p, class: "register__empty") do %><%= t(".empty.#{@period}") %><% end %>
   <% else %>
-    <ol class="register__grid">
-      <%= render partial: "fortune_registers/tile", collection: @rows, as: :row, locals: { cards: @cards } %>
+    <ol class="register__rows">
+      <%= render partial: "fortune_registers/row", collection: @rows, as: :row %>
     </ol>
     <% if @pagy.last > 1 %>
       <nav class="register__pages" aria-label="<%= t(".pages_label") %>"><%= @pagy.series_nav.html_safe %></nav>

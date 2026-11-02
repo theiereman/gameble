@@ -41,17 +41,15 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     assert_equal [ [ busy, 2, 9 ], [ steady, 1, 1 ] ], board(sort: :capsules).map { [ it.player, it.rank, it.packs_opened ] }
   end
 
-  test "each row carries the player's collection by rarity and their first three showcase cards" do
+  test "each row carries the player's collection by rarity, one count per game" do
     collector = player(1)
     luck(collector, 1.0)
     ids = %i[common_card_one rare_card_one portal_one legendary_card_one].map { catalog_card_seasons(it).id }
     ids.each { Game::Holding.create!(player_id: collector.id, card_season_id: it, quantity: 2, last_gained_at: NOW) }
-    ids.reverse.each_with_index { |id, index| Game::ShowcaseEntry.create!(player_id: collector.id, card_season_id: id, position: index + 1) }
 
     row = board.sole
 
     assert_equal({ 1 => 1, 2 => 0, 3 => 1, 4 => 1, 5 => 1 }, row.rarities)
-    assert_equal ids.reverse.first(3), row.showcase_ids
   end
 
   test "the Privileged are the top tenth of this week's active players, rounded up, and change as the week's ranking does" do

@@ -1552,14 +1552,11 @@ fr:
         privileged: "Privilégiés"
         you: "Votre chance"
         rank: "n° %{rank}"
-      tile:
+      row:
         rank: "n° %{rank}"
         luck: "Chance"
         capsules: "Capsules"
-        showcase: "Vitrine"
-        status: "Statut"
-        no_showcase: "Aucune carte en vitrine pour l'instant."
-        private: "Ce membre garde sa collection privée."
+        hidden: "–"
   fortunes:
     periods_label: "Période"
     periods:

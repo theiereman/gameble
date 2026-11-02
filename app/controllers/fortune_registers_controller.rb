@@ -13,6 +13,5 @@ class FortuneRegistersController < ApplicationController
     @rows = Game::FortuneBoard.rows(fortunes.to_a)
     @summary = Game::FortuneBoard.summary(@period)
     @mine = Game::FortuneStanding.call(current_player, period: @period) if current_player
-    @cards = Catalog::CardViews.call(@rows.select { it.shown_to?(current_player) }.flat_map(&:showcase_ids), locale: I18n.locale)
   end
 end
