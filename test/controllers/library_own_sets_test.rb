@@ -135,7 +135,7 @@ class LibraryOwnSetsTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get library_path(locale: :fr, q: "ludo")
-    assert_equal [ "Ma ludothèque Steam" ], result_names
+    assert_equal [ "Ma bibliothèque Steam" ], result_names
     assert_equal "Steam · 3 jeux du catalogue", result_tiles.sole.at_css(".set-tile__kind").text
 
     get library_path(locale: :en, q: "steam")

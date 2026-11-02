@@ -636,7 +636,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".settings-row__heading .settings-row__label#settings-steam-library", "Synchroniser mes jeux Steam"
     assert_select ".settings-row__heading .settings-row__hint#settings-steam-library-hint",
-      "Gameble lit les jeux de votre compte Steam une fois par jour pour votre set MA LUDOTHÈQUE STEAM."
+      "Gameble lit les jeux de votre compte Steam une fois par jour pour votre set MA BIBLIOTHÈQUE STEAM."
     assert_select "form[action='/fr/settings/steam-library'][data-turbo=false]" do
       assert_select "input[name=_method][value=patch]"
       assert_select "[role=group][aria-labelledby=settings-steam-library][aria-describedby=settings-steam-library-hint] button[name=steam_library_sync]", 2
@@ -651,7 +651,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
         assert_select "input[name=_method][value=patch]"
         assert_select "input[type=hidden][name=steam_library_sync][value=off]"
         assert_select "input[type=hidden][name=confirmed][value='1']"
-        assert_select "#library-sync-dialog-text", "Le set MA LUDOTHÈQUE STEAM et la liste de vos jeux Steam seront effacés."
+        assert_select "#library-sync-dialog-text", "Le set MA BIBLIOTHÈQUE STEAM et la liste de vos jeux Steam seront effacés."
         assert_select "button[type=submit]:not([formmethod])", "Désactiver"
         assert_select "button[type=submit][formmethod=dialog][data-action='dialog#close']", "Annuler"
       end

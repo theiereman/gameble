@@ -5,7 +5,7 @@ require_relative "../support/steam_sign_in"
 
 # A player signed in with Steam gets their Steam library set with no action
 # of theirs: the daily sync fills it from the games Steam lists, the
-# collection shows it under MA LUDOTHÈQUE STEAM once synced, and a library
+# collection shows it under MA BIBLIOTHÈQUE STEAM once synced, and a library
 # Steam stops sharing keeps its games under a quiet line. A player who turns
 # the sync off in the settings has the set erased, and gets it back by
 # turning the sync on again.
@@ -117,7 +117,7 @@ class SteamLibraryTest < ApplicationSystemTestCase
     within("[role=group][aria-labelledby=settings-steam-library]") { click_on "Non" }
     within("dialog#library-sync-dialog[open]") do
       assert_selector "#library-sync-dialog-title", text: "DÉSACTIVER LA SYNCHRONISATION\u202F?"
-      assert_text "Le set MA LUDOTHÈQUE STEAM et la liste de vos jeux Steam seront effacés."
+      assert_text "Le set MA BIBLIOTHÈQUE STEAM et la liste de vos jeux Steam seront effacés."
       click_on "Annuler"
     end
     assert_no_selector "dialog#library-sync-dialog[open]"

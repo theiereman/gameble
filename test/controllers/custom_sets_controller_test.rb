@@ -462,7 +462,7 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "« Mes favoris » ne fait plus partie de vos sets.", flash[:notice]
   end
 
-  test "a library set's album is named, has no edit, delete or goal button, no editor and no dialog, and an edit of it is not found" do
+  test "a library set's album is named, has a goal button but no edit or delete button, no editor and no dialog, and an edit of it is not found" do
     library = create_library_set(@player)
     sign_in(@player)
 
@@ -470,10 +470,11 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "title", "My Steam library · Collection · Gameble"
     assert_select "h1#set-album-heading", "My Steam library"
-    assert_select ".set-album__actions, .set-album__title .button, .set-album__title form, dialog", false
+    assert_select "#set-album-goal form[action='/en/library/goals']"
+    assert_select "[data-dialog-opener-dialog-value], dialog", false
 
     get custom_set_path(locale: :fr, token: library.token)
-    assert_select "h1#set-album-heading", "Ma ludothèque Steam"
+    assert_select "h1#set-album-heading", "Ma bibliothèque Steam"
 
     patch custom_set_path(locale: :en, token: library.token), params: { name: "x", games: slugs_of(:portal, :rare_card, :common_card) }
     assert_response :not_found

@@ -4,8 +4,8 @@
 <% content_for :title, t("library.album.title", set: custom_set_display_name(@custom_set)) %>
 <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
 <% actions = capture do %>
+  <%= render "goals/control", aim: @goal_aim, goal: @goal, refused: flash[:goal_refused].present?, complete: @standing.complete? || @standing.total.zero? %>
   <% if @custom_set.custom? %>
-    <%= render "goals/control", aim: @goal_aim, goal: @goal, refused: flash[:goal_refused].present?, complete: @standing.complete? %>
     <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: "custom-set-editor") do %><%= t("custom_sets.album.edit") %><% end %>
     <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: "delete-custom-set") do %><%= t("custom_sets.album.delete") %><% end %>
   <% end %>

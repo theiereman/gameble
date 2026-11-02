@@ -1800,20 +1800,20 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :fr)
 
     assert_select ".set-entry > section.custom-sets + section.steam-library[aria-labelledby=steam-library-title] + turbo-frame#set-entry-in-progress"
-    assert_equal [ "Chercher un set", "Objectifs", "Mes sets", "Ma ludothèque Steam" ], css_select(".set-entry h2").map(&:text)
+    assert_equal [ "Chercher un set", "Objectifs", "Mes sets", "Ma bibliothèque Steam" ], css_select(".set-entry h2").map(&:text)
     assert_equal 1, css_select(".custom-sets a.set-tile").size
     within_section = steam_library_section
     assert_equal "Synchronisée avec Steam le 29 octobre 2026.", within_section.at_css("p.steam-library__sync").text.squish
     assert_nil within_section.at_css("p.steam-library__sync b")
     tile = within_section.at_css("p.steam-library__sync + ul.set-tiles > li > a.set-tile[href='/fr/library/custom-sets/#{library.token}']")
     recto = tile.at_css(".set-tile__face--recto")
-    assert_equal "Ma ludothèque Steam", recto.at_css(".set-tile__name").text
+    assert_equal "Ma bibliothèque Steam", recto.at_css(".set-tile__name").text
     assert_equal "Steam · 3 jeux du catalogue", recto.at_css(".set-tile__kind").text
     assert_equal "1/3", recto.at_css(".set-tile__head > .set-tile__count").text.squish
     assert recto.at_css("progress.set-row__bar[value='1'][max='3']")
     assert_equal "Plus que 2 pour Complet", recto.at_css(".set-tile__next").text.squish
     assert_equal %w[complete], tile.css(".set-tile__node").map { it["class"][/tier-tone--(\w+)/, 1] }
-    assert_equal "Ma ludothèque Steam, 1 carte sur 3", tile.at_css("> .visually-hidden").text
+    assert_equal "Ma bibliothèque Steam, 1 carte sur 3", tile.at_css("> .visually-hidden").text
     assert_select ".steam-library .set-chip--rank, .steam-library .set-row__tick, .steam-library .set-tile--closest", false
     assert_select "[style]", false
   end

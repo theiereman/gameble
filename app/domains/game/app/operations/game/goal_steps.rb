@@ -10,9 +10,11 @@ module Game
 
     def custom_set_aim(player, token)
       custom_set = own_custom_set(player, token)
-      return Failure(:custom_set_not_found) unless custom_set&.custom?
+      return Failure(:custom_set_not_found) if custom_set.nil?
 
       standing = CustomSetStandings.call(player, tokens: [ token ]).sole
+      return Failure(:library_set_empty) if custom_set.steam_library? && standing.total.zero?
+
       Success(Aim.new(columns: { custom_set_id: custom_set.id }, complete: standing.complete?))
     end
 

@@ -280,7 +280,7 @@ fr:
         stored:
           intro: "Pour faire fonctionner le jeu, Gameble conserve :"
           steam: "votre identifiant Steam et votre nom de profil Steam ;"
-          steam_library: "si vous vous connectez avec Steam et laissez « Synchroniser mes jeux Steam » activé dans les paramètres : la liste des jeux du catalogue que contient votre bibliothèque Steam, lue chez Steam une fois par jour pour votre set « Ma ludothèque Steam », avec la date de sa dernière synchronisation et, quand Steam ne partage plus votre bibliothèque, depuis quand ;"
+          steam_library: "si vous vous connectez avec Steam et laissez « Synchroniser mes jeux Steam » activé dans les paramètres : la liste des jeux du catalogue que contient votre bibliothèque Steam, lue chez Steam une fois par jour pour votre set « Ma bibliothèque Steam », avec la date de sa dernière synchronisation et, quand Steam ne partage plus votre bibliothèque, depuis quand ;"
           identities: "vos modes de connexion : Steam, Discord, Google ou code par e-mail, chacun avec son identifiant chez ce fournisseur, la date de son ajout et, pour les trois derniers, une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
           activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, sets perso, objectifs, succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de la mission hebdo, échanges, amitiés, invitations, code ami, entrées du fil d'activité et dernière activité ;"
           moderation: "les signalements que vous faites, ceux qui visent votre profil (leur auteur ne vous est pas communiqué) et les décisions de modération qui vous concernent, avec leur motif ;"
@@ -913,7 +913,7 @@ fr:
         other: "%{count} sets trouvés"
       none: "Aucun set trouvé pour « %{query} »."
       steam_library:
-        title: "Ma ludothèque Steam"
+        title: "Ma bibliothèque Steam"
         kind:
           zero: "Steam · %{games} jeu du catalogue"
           one: "Steam · %{games} jeu du catalogue"
@@ -1413,7 +1413,7 @@ fr:
         "off": "Non"
       steam_library:
         label: "Synchroniser mes jeux Steam"
-        hint: "Gameble lit les jeux de votre compte Steam une fois par jour pour votre set MA LUDOTHÈQUE STEAM."
+        hint: "Gameble lit les jeux de votre compte Steam une fois par jour pour votre set MA BIBLIOTHÈQUE STEAM."
         "on": "Oui"
         "off": "Non"
         last_sync: "Dernière synchronisation :"
@@ -1467,12 +1467,12 @@ fr:
       cancel: "Annuler"
       close: "Fermer"
     sync_library:
-      started: "La synchronisation de votre ludothèque Steam a démarré."
+      started: "La synchronisation de votre bibliothèque Steam a démarré."
       throttled: "La synchronisation vient d'être lancée. Réessayez dans quelques minutes."
       unavailable: "Activez d'abord la synchronisation de vos jeux Steam."
     library_sync_dialog:
       title: "Désactiver la synchronisation ?"
-      text: "Le set MA LUDOTHÈQUE STEAM et la liste de vos jeux Steam seront effacés."
+      text: "Le set MA BIBLIOTHÈQUE STEAM et la liste de vos jeux Steam seront effacés."
       confirm: "Désactiver"
       cancel: "Annuler"
       close: "Fermer"
@@ -2013,7 +2013,7 @@ fr:
         name_count: "%{count} / %{max}"
         picked: "Sélectionnés · %{count}"
     library:
-      name: "Ma ludothèque Steam"
+      name: "Ma bibliothèque Steam"
     throttled: "Trop de modifications de vos sets en une minute. Réessayez dans un instant."
   daily_bonuses:
     create:
@@ -2526,6 +2526,7 @@ fr:
       custom_set_not_found: "Ce set n'existe pas ou n'est pas à vous."
       goal_set_not_found: "Ce set ne fait pas partie de la saison publiée."
       goal_set_complete: "Ce set est déjà complet."
+      library_set_empty: "Votre bibliothèque Steam ne contient encore aucun jeu du catalogue."
       too_many_goals: "5 objectifs au plus. Retirez un objectif pour en ajouter un autre."
       game_not_in_catalog: "Un jeu choisi n'est pas dans le catalogue. Rechargez la page et réessayez."
       name_required: "NOM REQUIS · Donnez un nom à votre set."

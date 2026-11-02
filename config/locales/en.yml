@@ -1001,6 +1001,7 @@ en:
       card_not_showcased: This card is not in your showcase.
       custom_set_not_found: That set does not exist or is not yours.
       goal_set_complete: This set is already complete.
+      library_set_empty: Your Steam library holds no catalog game yet.
       goal_set_not_found: This set is not in the published season.
       game_not_in_catalog: A chosen game is not in the catalog. Reload the page and try again.
       name_required: NAME REQUIRED · Give your set a name.
