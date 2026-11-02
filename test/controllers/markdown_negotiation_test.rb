@@ -144,7 +144,7 @@ class MarkdownNegotiationTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :en), headers: MARKDOWN
 
     assert_response :unauthorized
-    assert_not_equal "text/markdown", response.media_type
+    assert_empty response.body
   end
 
   test "a private page in HTML is unchanged for a signed-in player" do
