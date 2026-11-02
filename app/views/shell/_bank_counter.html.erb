@@ -1,0 +1,41 @@
+<%# locals: (bank:) %>
+<% seconds = shell_next_pack_in(bank) %>
+<%= tag.div class: "bank-counter", data: { controller: "reserve-chip", reserve_chip_delimiter_value: t("number.format.delimiter") } do %>
+  <button type="button" class="bank-counter__button" popovertarget="bank-detail">
+    <span class="visually-hidden"><%= t("shell.bank.label") %></span>
+    <span class="bank-counter__item">
+      <%= pixel_icon("capsule-standard", class: "bank-counter__icon") %>
+      <span class="visually-hidden"><%= t("shell.bank.standard") %></span>
+      <span class="bank-counter__count" data-reserve-chip-target="count"><%= number_with_delimiter(bank[:available]) %></span>
+    </span>
+    <span class="bank-counter__item bank-counter__item--special">
+      <%= pixel_icon("capsule-special", class: "bank-counter__icon") %>
+      <span class="visually-hidden"><%= t("shell.bank.special") %></span>
+      <span class="bank-counter__count" data-reserve-chip-target="specialCount"><%= number_with_delimiter(bank[:special]) %></span>
+    </span>
+  </button>
+  <div id="bank-detail" class="bank-detail shell-popover" popover>
+    <p class="shell-popover__title"><%= t("shell.bank.label") %></p>
+    <ul class="bank-detail__list">
+      <li class="bank-detail__row">
+        <%= pixel_icon("capsule-standard", class: "bank-counter__icon") %>
+        <span class="bank-detail__name"><%= t("shell.bank.standard") %></span>
+        <span class="bank-counter__count" data-reserve-chip-target="count"><%= number_with_delimiter(bank[:available]) %></span>
+      </li>
+      <li class="bank-detail__row">
+        <%= pixel_icon("capsule-special", class: "bank-counter__icon") %>
+        <span class="bank-detail__name"><%= t("shell.bank.special") %></span>
+        <span class="bank-counter__count" data-reserve-chip-target="specialCount"><%= number_with_delimiter(bank[:special]) %></span>
+      </li>
+    </ul>
+    <% if bank[:reserve_full] %>
+      <p class="bank-detail__next bank-detail__next--full"><%= t("shell.packs.full") %></p>
+    <% elsif seconds %>
+      <p class="bank-detail__next" data-controller="countdown" data-countdown-seconds-value="<%= seconds %>" data-countdown-refresh-value="false">
+        <%= t("shell.bank.next_in") %>
+        <span class="bank-detail__clock" data-countdown-target="clock"><%= format_remaining(seconds) %></span>
+      </p>
+    <% end %>
+    <%= link_to t("shell.bank.open"), booster_path, class: "button button--secondary button--small bank-detail__open", data: { turbo_prefetch: false } %>
+  </div>
+<% end %>

@@ -2508,6 +2508,12 @@ en:
       separator: or
       title: Sign in
   shell:
+    bank:
+      label: Capsule reserve
+      next_in: Next capsule in
+      open: Open a capsule
+      special: Special
+      standard: Capsules
     live:
       marker: Live
     packs:

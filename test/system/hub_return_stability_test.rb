@@ -57,10 +57,10 @@ class HubReturnStabilityTest < ApplicationSystemTestCase
 
   def return_to_hub_from(path)
     visit path
-    assert_selector ".top-bar__start a.top-bar__home, .top-bar__start a.top-bar__bridge"
+    assert_selector ".top-bar__start a.top-bar__home, .top-bar__start a.top-bar__g-home, .top-bar__start a.top-bar__bridge"
     page.execute_script("window.scrollTo(0, 300)")
     page.execute_script(SAMPLER)
-    find(".top-bar__start a.top-bar__home, .top-bar__start a.top-bar__bridge", match: :first).click
+    find(".top-bar__start a.top-bar__home, .top-bar__start a.top-bar__g-home, .top-bar__start a.top-bar__bridge", match: :first).click
     assert_current_path home_path(locale: :en)
     assert_hub_does_not_move
   end

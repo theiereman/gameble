@@ -133,10 +133,6 @@ html[data-sub-view-step] .main {
     padding-bottom: var(--space-7);
   }
 
-  body:has(.tab-bar) > .ticker {
-    margin-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
-  }
-
   .ticker__inner {
     max-width: var(--space-phone-column-max);
     height: var(--space-ticker-height-phone);
@@ -255,20 +251,6 @@ html[data-sub-view-step] .main {
   .toasts {
     top: max(var(--space-3), env(safe-area-inset-top, 0px));
     bottom: auto;
-  }
-
-  .app-version {
-    left: var(--space-gutter-phone);
-  }
-
-  body:has(.tab-bar) .app-version {
-    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-2));
-  }
-
-  body:has(.tab-bar):has(> .ticker) .app-version {
-    bottom: calc(
-      var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-ticker-height-phone) + var(--space-2)
-    );
   }
 
   .toast {

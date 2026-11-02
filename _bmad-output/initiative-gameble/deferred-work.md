@@ -473,3 +473,10 @@
 ## Deferred from: build of story-the-community-weekly-goal-is-called-the-weekly-mission-every-plan (2026-10-31)
 
 - The roadmap's milestones and stories are stored data the author writes in the back office (French and English wording per story), so the rename left them untouched. If one of them names "l'objectif communautaire" / "the community goal", the author rewords it to the weekly mission ("la mission hebdo" / "the weekly mission") from the back office's roadmap pages.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-header-that-fits-on-a-phone-plan.md`
+  summary: Raising the phone font tokens (label, kicker, button-sm) to 12px is not checked for overflow on fixed-width chips, tab labels and hub kickers.
+  evidence: maybe-false, medium if true; a 390px capture of the hub, collection and trades settles it.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-header-that-fits-on-a-phone-plan.md`
+  summary: On phone, screens with a top_bar_status (the collection) show the G but no merged capsule counter.
+  evidence: the status replaces the header counters in the template; the author decides whether the counter joins the status or replaces it.

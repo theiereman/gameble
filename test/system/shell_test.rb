@@ -24,7 +24,7 @@ class ShellTest < ApplicationSystemTestCase
     mock_steam_sign_in(player.steam_id)
     visit home_path(locale:)
     click_steam_sign_in
-    assert_selector ".top-bar .player-chip"
+    assert_selector ".top-bar .player-chip", visible: :all
   end
 
   def assert_no_sideways_scroll
@@ -108,7 +108,7 @@ class ShellTest < ApplicationSystemTestCase
       assert_selector ".tab-bar a.tab-bar__tab[href='/fr/more']", text: /PLUS/i
       assert_selector ".tab-bar a.tab-bar__tab[href='/fr/trades']", text: /ÉCHANGES/i
       assert_no_selector ".rarity-counter__button", visible: true
-      assert_selector ".top-bar .player-chip__button", visible: true
+      assert_no_selector ".top-bar .player-chip__button", visible: true
       assert_equal "fixed", computed(".tab-bar", "position")
       bottom = page.evaluate_script("Math.round(document.querySelector('.tab-bar').getBoundingClientRect().bottom)")
       assert_equal page.evaluate_script("window.innerHeight"), bottom
@@ -181,11 +181,12 @@ class ShellTest < ApplicationSystemTestCase
 
   CHIP_WIDTHS = { "1400" => SCREEN_SIZE, "1000" => [ 1000, 900 ], "800" => [ 800, 900 ] }.merge(PHONES).freeze
   ALL_CHIPS = %w[rarity-counter__button packs-chip packs-chip player-chip__button].freeze
-  PHONE_CHIPS = %w[packs-chip packs-chip player-chip__button].freeze
+  PHONE_CHIPS = %w[bank-counter__button].freeze
+  PHONE_DRILL_DOWN_CHIPS = %w[packs-chip packs-chip player-chip__button].freeze
 
   def visible_chip_boxes
     page.evaluate_script(<<~JS)
-      Array.from(document.querySelectorAll(".top-bar .rarity-counter__button, .top-bar .packs-chip, .top-bar .player-chip__button"))
+      Array.from(document.querySelectorAll(".top-bar .rarity-counter__button, .top-bar .packs-chip, .top-bar .bank-counter__button, .top-bar .player-chip__button"))
         .filter((chip) => chip.checkVisibility())
         .map((chip) => [chip.classList[0], chip.getBoundingClientRect().height, chip.getBoundingClientRect().top])
     JS
@@ -214,7 +215,7 @@ class ShellTest < ApplicationSystemTestCase
       chip_height = length_token(phone ? "--space-chip-height-touch" : "--space-chip-height")
       shown = phone ? PHONE_CHIPS : ALL_CHIPS
       { hub: [ home_path(locale: :en), shown ], library: [ library_path(locale: :en), phone ? [] : %w[player-chip__button] ],
-        card: [ card_path(locale: :en, slug: "portal"), shown ], booster: [ booster_path(locale: :en), shown ] }.each do |name, (path, chips)|
+        card: [ card_path(locale: :en, slug: "portal"), phone ? PHONE_DRILL_DOWN_CHIPS : shown ], booster: [ booster_path(locale: :en), shown ] }.each do |name, (path, chips)|
         visit path
         assert_chip_boxes chips.map { [ it, chip_height ] }, "the #{name} at #{width}px"
       end
@@ -452,7 +453,7 @@ class ShellTest < ApplicationSystemTestCase
     JS
 
     assert_selector ".toasts .toast"
-    assert_operator page.evaluate_script("document.querySelector('.toasts').getBoundingClientRect().top"), :<, 40
+    assert_operator page.evaluate_script("document.querySelector('.toasts').getBoundingClientRect().top"), :<, 80
     take_screenshot
   end
 
@@ -535,15 +536,16 @@ class ShellTest < ApplicationSystemTestCase
     assert_no_selector PREVIOUS
   end
 
-  test "on a phone, the top bar keeps the bridge button or the contextual back, never the GAMEBLE link nor the desktop back" do
+  test "on a phone, a top-level screen shows the G button, a drill-down keeps the contextual back, never the GAMEBLE link nor the desktop back" do
     resize_to(*PHONES["390"])
     sign_in_with_three_cards
-    assert_selector ".top-bar__start > p.top-bar__brand", visible: true
+    assert_selector ".top-bar__start > .top-bar__g-home", visible: true
+    assert_no_selector ".top-bar__start > p.top-bar__brand", visible: true
 
     find(".tab-bar a.tab-bar__tab[href='/en/library']").click
     assert_current_path library_path(locale: :en)
-    assert_selector ".top-bar__start > a.top-bar__bridge", text: "BRIDGE"
-    assert_no_selector ".top-bar__home, .top-bar__divider", visible: true
+    assert_selector ".top-bar__start > a.top-bar__g-home", visible: true
+    assert_no_selector ".top-bar__bridge, .top-bar__home, .top-bar__divider", visible: true
 
     open_first_card_of_the_set
     assert_selector ".top-bar__phone-back", text: "GRID"

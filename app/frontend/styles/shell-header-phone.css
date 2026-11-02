@@ -1,0 +1,193 @@
+/*
+ * The phone header: a sticky bar that hides on scroll down, a G home button
+ * and one merged capsule counter on the top-level screens, small texts
+ * raised, and the version line in the page flow. Imported after
+ * shell-screens.css, whose phone block it builds on.
+ */
+
+.top-bar__g-home,
+.bank-counter {
+  display: none;
+}
+
+.bank-counter {
+  position: relative;
+}
+
+.bank-counter__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--space-chip-height-touch);
+  margin: 0;
+  padding: var(--space-1) var(--space-4);
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.bank-counter__button:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.bank-counter__button:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.bank-counter__item,
+.bank-detail__row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.bank-counter__count {
+  color: var(--color-text-max);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+  font-variant-numeric: tabular-nums;
+}
+
+.bank-counter__item--special .bank-counter__count {
+  color: var(--color-lime);
+}
+
+.bank-detail__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.bank-detail__row {
+  gap: var(--space-3);
+}
+
+.bank-detail__name {
+  flex: 1;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.bank-detail__next {
+  margin: 0 0 var(--space-4);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.bank-detail__next--full {
+  color: var(--color-alert);
+}
+
+.bank-detail__clock {
+  color: var(--color-text-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+.bank-detail__open {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 719px) {
+  :root {
+    --font-label: 700 0.75rem / normal var(--font-family-jetbrains-mono);
+    --font-kicker: 700 0.75rem / normal var(--font-family-jetbrains-mono);
+    --font-kicker-phone: 700 0.75rem / normal var(--font-family-jetbrains-mono);
+    --font-button-sm: 700 0.75rem / normal var(--font-family-jetbrains-mono);
+  }
+
+  .top-bar--top-level {
+    position: sticky;
+    top: 0;
+    transition: transform 160ms ease-out;
+  }
+
+  .top-bar--top-level[data-hidden] {
+    transform: translateY(-100%);
+  }
+
+  .top-bar--top-level .top-bar__start > :not(.top-bar__g-home, .top-bar__title) {
+    display: none;
+  }
+
+  .top-bar--top-level .top-bar__title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .top-bar--top-level .top-bar__g-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--space-touch-min);
+    min-height: var(--space-touch-min);
+    text-decoration: none;
+  }
+
+  .top-bar__g {
+    width: 24px;
+    height: auto;
+  }
+
+  .top-bar__g-home:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  .toasts {
+    top: calc(max(var(--space-3), env(safe-area-inset-top, 0px)) + var(--topbar-height));
+  }
+
+  .top-bar--top-level .packs-chips > .packs-chip,
+  .top-bar--top-level .player-chip,
+  .top-bar--top-level .rarity-counter {
+    display: none;
+  }
+
+  .top-bar--top-level .bank-counter {
+    display: block;
+  }
+
+  .app-version {
+    position: static;
+    padding: 0 var(--space-gutter-phone);
+    pointer-events: auto;
+  }
+
+  body:has(.tab-bar) .main {
+    padding-bottom: var(--space-7);
+  }
+
+  body:has(.tab-bar) .app-version {
+    margin-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .app-version__legal {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--space-touch-min);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .top-bar {
+    transition: none;
+  }
+}
+
+html[data-motion="reduced"] .top-bar {
+  transition: none;
+}

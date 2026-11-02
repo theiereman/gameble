@@ -42,6 +42,12 @@ fr:
         loading: "Chargement des options de connexion…"
         signing_in: "Connexion en cours…"
   shell:
+    bank:
+      label: "Réserve de capsules"
+      next_in: "Prochaine capsule dans"
+      open: "Ouvrir une capsule"
+      special: "Spéciales"
+      standard: "Capsules"
     live:
       marker: "Live"
     top_bar:

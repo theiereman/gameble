@@ -60,7 +60,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   end
 
   def assert_signed_in
-    assert_selector ".top-bar .player-chip"
+    assert_selector ".top-bar .player-chip", visible: :all
   end
 
   def sign_out

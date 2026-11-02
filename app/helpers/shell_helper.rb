@@ -59,6 +59,12 @@ module ShellHelper
     "pages#more" => :more
   }.freeze
 
+  def shell_top_level_screen?
+    return false if current_player.nil? || back_office_page? || content_for?(:phone_back)
+
+    %w[boosters trades].include?(controller_path) || %w[pages#home library#show].include?("#{controller_path}##{action_name}")
+  end
+
   def shell_home_label
     current_player ? t("shell.top_bar.home") : t("shell.top_bar.landing")
   end
