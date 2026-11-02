@@ -525,7 +525,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "main h1", "Pont de commandement"
     assert_select ".hub__subtitle", "Le reste du vaisseau"
     assert_select ".plus__list > li", 9
-    assert_select ".plus__list a.menu-item[href='/fr/register']", /Registre des Privilégiés/
+    assert_select ".plus__list a.menu-item[href='/fr/register']", /Le Chattomètre/
     assert_select ".plus__list > li:first-child a.menu-item.menu-item--plus[href='/fr/library/cards']", "Toutes les cartes"
     assert_select ".plus__list a.menu-item[href='/fr/settings']", /Profil et paramètres/
     assert_select ".plus__list a.menu-item[href='/fr/personalization']", /Personnalisation/

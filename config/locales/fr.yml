@@ -222,7 +222,7 @@ fr:
       subtitle: "Le reste du vaisseau"
       settings: "Profil et paramètres"
       personalization: "Personnalisation"
-      register: "Registre des Privilégiés"
+      register: "Le Chattomètre"
     credits:
       title: "Crédits"
       intro: "Gameble s'inspire des œuvres ci-dessous. Ce sont des inspirations, jamais des affiliations : aucune n'a de lien avec Gameble ni ne le cautionne."
@@ -1530,7 +1530,7 @@ fr:
         other: "%{count} nouvelles entrées dans le fil."
   fortune_registers:
     show:
-      title: "Registre des Privilégiés"
+      title: "Le Chattomètre"
       more: "Plus"
       intro: "La Confrérie classe ses membres selon la chance de leurs capsules : ce que leurs cartes ont rapporté face à ce que les capsules promettent. Chaque semaine, les 10 % les plus chanceux sont Privilégiés."
       empty:

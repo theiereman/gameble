@@ -63,7 +63,7 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
 
     get fortune_register_path(locale: :fr, period: "all_time", sort: "capsules")
 
-    assert_select "h1", "Registre des Privilégiés"
+    assert_select "h1", "Le Chattomètre"
     assert_select ".register__tabs a[aria-current=true]", "Depuis toujours"
     assert_select ".register__sorts a[aria-current=true]", "Le plus de capsules"
     assert_select ".player-row.player-row--own", 1
