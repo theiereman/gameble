@@ -1416,6 +1416,9 @@ fr:
         hint: "Gameble lit les jeux de votre compte Steam une fois par jour pour votre set MA LUDOTHÈQUE STEAM."
         "on": "Oui"
         "off": "Non"
+        last_sync: "Dernière synchronisation :"
+        never_synced: "Pas encore synchronisée."
+        sync_now: "Synchroniser maintenant"
       session:
         label: "Session"
         sign_out: "Se déconnecter"
@@ -1463,6 +1466,10 @@ fr:
       confirm: "Passer en privé"
       cancel: "Annuler"
       close: "Fermer"
+    sync_library:
+      started: "La synchronisation de votre ludothèque Steam a démarré."
+      throttled: "La synchronisation vient d'être lancée. Réessayez dans quelques minutes."
+      unavailable: "Activez d'abord la synchronisation de vos jeux Steam."
     library_sync_dialog:
       title: "Désactiver la synchronisation ?"
       text: "Le set MA LUDOTHÈQUE STEAM et la liste de vos jeux Steam seront effacés."

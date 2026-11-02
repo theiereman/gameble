@@ -2460,8 +2460,11 @@ en:
       steam_library:
         hint: Gameble reads the games of your Steam account once a day for your MY STEAM LIBRARY set.
         label: Sync my Steam games
+        last_sync: 'Last sync:'
+        never_synced: Not synced yet.
         'off': 'No'
         'on': 'Yes'
+        sync_now: Sync now
       summary:
         cards:
           one: "%{count} card"
@@ -2482,6 +2485,10 @@ en:
         label: Profile visibility
         private: Private
         public: Public
+    sync_library:
+      started: The sync of your Steam library has started.
+      throttled: The sync was just started. Try again in a few minutes.
+      unavailable: Turn on the Steam games sync first.
   sign_in_methods:
     create:
       added: The sign-in is added to your account.

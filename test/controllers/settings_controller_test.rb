@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
 require_relative "../support/clerk_fake"
+require_relative "../support/counting_rate_limit"
 require_relative "../support/custom_sets"
 
 # The settings screen and the motion switch: the player's setting, else the
@@ -9,6 +10,7 @@ require_relative "../support/custom_sets"
 class SettingsControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
   include ClerkFake
+  include CountingRateLimit
   include CustomSets
   include SteamSignIn
 
@@ -702,6 +704,71 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     end
     assert player.reload.steam_library_sync
     assert_empty Rails.configuration.event_store.read.of_type(Accounts::SteamLibrarySyncChanged).to_a
+  end
+
+  test "the sync row offers Sync now and the date of the last sync, or says it never ran" do
+    create_library_set(@player, synced_at: Time.utc(2026, 10, 30, 8, 0))
+    sign_in(@player)
+
+    get settings_path(locale: :en)
+
+    assert_select "form[action='/en/settings/steam-library/sync'][data-turbo=false] button", "Sync now"
+    assert_select "#settings-steam-library-last-sync", /Last sync:/
+    assert_select "#settings-steam-library-last-sync time"
+
+    Game::CustomSet.steam_library.where(player_id: @player.id).update_all(synced_at: nil)
+    get settings_path(locale: :en)
+
+    assert_select "#settings-steam-library-last-sync", "Not synced yet."
+  end
+
+  test "no Sync now once the sync is off" do
+    @player.update_column(:steam_library_sync, false)
+    sign_in(@player)
+
+    get settings_path(locale: :en)
+
+    assert_select "#settings-steam-library-last-sync", 0
+    assert_select "form[action$='/settings/steam-library/sync']", 0
+  end
+
+  test "Sync now enqueues one sync for the player and says it started" do
+    sign_in(@player)
+    clear_enqueued_jobs
+
+    post settings_steam_library_sync_path(locale: :en)
+
+    assert_redirected_to settings_path(locale: :en)
+    assert_equal "The sync of your Steam library has started.", flash[:notice]
+    assert_enqueued_with job: CreateSteamLibrarySetJob, args: [ @player.id, { first_sync: true } ]
+    assert_equal 1, enqueued_jobs.count { it["job_class"] == "CreateSteamLibrarySetJob" }
+  end
+
+  test "a second Sync now within the delay is refused with a message and enqueues nothing more" do
+    sign_in(@player)
+    clear_enqueued_jobs
+
+    with_counting_rate_limit(SettingsController) do
+      post settings_steam_library_sync_path(locale: :en)
+      post settings_steam_library_sync_path(locale: :en)
+    end
+
+    assert_redirected_to settings_path(locale: :en)
+    assert_equal "The sync was just started. Try again in a few minutes.", flash[:alert]
+    assert_equal 1, enqueued_jobs.count { it["job_class"] == "CreateSteamLibrarySetJob" }
+  end
+
+  test "Sync now is refused with the sync off" do
+    @player.update_column(:steam_library_sync, false)
+    sign_in(@player)
+    clear_enqueued_jobs
+
+    assert_no_enqueued_jobs(only: CreateSteamLibrarySetJob) do
+      post settings_steam_library_sync_path(locale: :fr)
+    end
+
+    assert_redirected_to settings_path(locale: :fr)
+    assert_equal "Activez d'abord la synchronisation de vos jeux Steam.", flash[:alert]
   end
 
   test "NON without the confirmation writes nothing and comes back with the dialog open" do

@@ -119,6 +119,7 @@ Rails.application.routes.draw do
     patch "settings/name" => "settings#name", as: :settings_name
     # The Steam library sync row of the settings, for a player with a Steam identity.
     patch "settings/steam-library" => "settings#steam_library", as: :settings_steam_library
+    post "settings/steam-library/sync" => "settings#sync_steam_library", as: :settings_steam_library_sync
     # Deleting the player's own account, from the settings' delete dialog.
     resource :account, only: :destroy
     resource :data_export, only: %i[show create], path: "settings/export", as: :settings_export
