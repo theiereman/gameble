@@ -1058,7 +1058,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__title", "Collection"
     assert_select ".top-bar__end .collection-status .collection-status__value", "74 / 300"
     assert_equal [ "Find a set", "Goals", "My sets" ], css_select(".set-entry h2").map(&:text)
-    assert_select "nav.library-switch a.segmented__option[href='/en/library/cards']", "All cards"
+    assert_select ".set-search .set-search__row a.button--primary[href='/en/library/cards']", "All cards" do
+      assert_select "svg.pixel-icon[aria-hidden=true]"
+    end
     assert_select ".set-entry > .set-search + turbo-frame#set-search-results + section#goals + section.custom-sets + " \
       "turbo-frame#set-entry-in-progress.set-entry__in-progress[src='/en/library/in-progress'][loading=lazy][target=_top]" do
       assert_select "p.set-entry__loading", "Loading the sets in progress…"
@@ -1430,7 +1432,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :fr)
 
     assert_equal [ "Chercher un set", "Objectifs", "Mes sets" ], css_select(".set-entry h2").map(&:text)
-    assert_select "nav.library-switch a.segmented__option[href='/fr/library/cards']", "Toutes les cartes"
+    assert_select ".set-search a.button--primary[href='/fr/library/cards']", "Toutes les cartes"
     assert_select ".set-search + turbo-frame#set-search-results + section#goals + section.custom-sets + turbo-frame#set-entry-in-progress[src='/fr/library/in-progress']"
 
     get_in_progress(locale: :fr)

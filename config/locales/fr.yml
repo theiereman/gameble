@@ -882,6 +882,7 @@ fr:
           other: "et %{count} autres sets · Tout voir"
       no_progress: "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
       search: "Chercher un set"
+      all_cards: "Toutes les cartes"
       results: "Résultats"
       search_button: "Chercher"
       loading: "Chargement des sets en cours…"
@@ -969,10 +970,6 @@ fr:
         zero: "%{owned} carte unique sur %{total}"
         one: "%{owned} carte unique sur %{total}"
         other: "%{owned} cartes uniques sur %{total}"
-    view_switch:
-      label: "Vue de la collection"
-      sets: "Sets"
-      all_cards: "Toutes les cartes"
     report:
       title: "Rapport"
       copies: "Cartes totales"

@@ -1506,6 +1506,7 @@ en:
     collection:
       title: Collection
     entry:
+      all_cards: All cards
       completed: Completed
       custom_sets:
         count: Visible to you only · %{sets} / %{max}
@@ -1674,10 +1675,6 @@ en:
       progress:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
-    view_switch:
-      all_cards: All cards
-      label: Collection view
-      sets: Sets
   number:
     format:
       delimiter: ","

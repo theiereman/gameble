@@ -1,5 +1,0 @@
-<%# locals: (current:) %>
-<nav class="segmented library-switch" aria-label="<%= t("library.view_switch.label") %>">
-  <%= link_to t("library.view_switch.sets"), library_path, class: "segmented__option", aria: { current: (current == :sets).to_s }, data: { turbo_prefetch: false } %>
-  <%= link_to t("library.view_switch.all_cards"), library_cards_path, class: "segmented__option", aria: { current: (current == :cards).to_s }, data: { turbo_prefetch: false } %>
-</nav>

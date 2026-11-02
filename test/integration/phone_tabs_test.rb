@@ -54,25 +54,6 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     %w[/en/settings /en/personalization /en/achievements /en/how-it-works].each { assert_select ".plus__list a.menu-item[href='#{it}']" }
   end
 
-  test "the Sets and All cards screens carry the same two-segment switch, each marking itself" do
-    get library_path(locale: :fr)
-    assert_select "nav.library-switch a.segmented__option", 2
-    assert_select "nav.library-switch a[href='/fr/library'][aria-current=true]", "Sets"
-    assert_select "nav.library-switch a[href='/fr/library/cards'][aria-current=false]", "Toutes les cartes"
-
-    get library_cards_path(locale: :fr)
-    assert_select "nav.library-switch a[href='/fr/library/cards'][aria-current=true]", "Toutes les cartes"
-    assert_select "nav.library-switch a[href='/fr/library'][aria-current=false]", "Sets"
-  end
-
-  test "a visitor's All cards screen has no switch" do
-    reset!
-
-    get library_cards_path(locale: :en)
-
-    assert_select "nav.library-switch", false
-  end
-
   test "the Social tab holds the trades and invitations badge slots, the Me tab the achievements one" do
     Game::Invitation.create!(sender_id: accounts_players(:moderator).id, recipient_id: @player.id)
     Game::AchievementUnlock.record(@player.id, "boosters_100", Time.current, claimed: false)
