@@ -9,7 +9,7 @@
 
   <%= form_with url: back_office_save_roadmap_path, method: :post, class: "stack roadmap-editor",
         data: { controller: "roadmap-editor", roadmap_editor_milestone_key_value: RoadmapEditorHelper::MILESTONE_KEY,
-          roadmap_editor_story_key_value: RoadmapEditorHelper::STORY_KEY, action: "input->roadmap-editor#changed change->roadmap-editor#changed" } do %>
+          roadmap_editor_story_key_value: RoadmapEditorHelper::STORY_KEY, action: "input->roadmap-editor#changed change->roadmap-editor#changed submit->roadmap-editor#submitted" } do %>
     <% if @failure %>
       <ul class="ledger-errors" role="alert">
         <li data-roadmap-failure><%= @failure %></li>

@@ -86,6 +86,10 @@ export default class RoadmapEditorController extends Controller<HTMLFormElement>
     this.schedulePreview()
   }
 
+  submitted(event: SubmitEvent): void {
+    if (event.submitter !== this.previewButtonTarget) this.debounce.cancel()
+  }
+
   private build(template: HTMLTemplateElement, replacements: KeyReplacements): HTMLElement | null {
     const row = cloneFirstElement<HTMLElement>(template)
     if (row) applyKeys(row, replacements)
