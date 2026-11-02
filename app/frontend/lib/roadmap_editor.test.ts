@@ -71,14 +71,18 @@ describe("applyKeys", () => {
   it("rewrites the attributes of the element and of everything under it", () => {
     const row = document.createElement("li")
     row.dataset.key = "__s__"
-    row.innerHTML = `<label for="field-__s__">x</label><input id="field-__s__" name="milestones[__m__][stories][__s__][wording_en]">`
+    const label = document.createElement("label")
+    label.htmlFor = "field-__s__"
+    const input = document.createElement("input")
+    input.id = "field-__s__"
+    input.name = "milestones[__m__][stories][__s__][wording_en]"
+    row.append(label, input)
 
     applyKeys(row, { __m__: "Zk3mP9", __s__: "new-4" })
 
     expect(row.dataset.key).toBe("new-4")
     expect(row.querySelector("label")?.getAttribute("for")).toBe("field-new-4")
-    const input = row.querySelector("input")
-    expect(input?.id).toBe("field-new-4")
-    expect(input?.name).toBe("milestones[Zk3mP9][stories][new-4][wording_en]")
+    expect(input.id).toBe("field-new-4")
+    expect(input.name).toBe("milestones[Zk3mP9][stories][new-4][wording_en]")
   })
 })
