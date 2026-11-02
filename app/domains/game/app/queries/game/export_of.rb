@@ -148,6 +148,6 @@ module Game
         .map { |position, set_kind, set_key, custom_set_token, created_at| GoalRow.new(position:, set_kind:, set_key:, custom_set_token:, created_at:) }
     end
 
-    private_class_method :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :set_refs, :trades, :custom_sets, :steam_library, :card_ids_by_set, :goals
+    private_class_method :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :set_refs, :trades, :custom_sets, :steam_library, :goals
   end
 end
