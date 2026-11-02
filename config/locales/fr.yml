@@ -1480,6 +1480,9 @@ fr:
         all: "Tous"
         friends: "Amis"
       no_friends: "Ajoutez des amis pour suivre leurs tirages."
+      pages:
+        label: "Pages du fil"
+        next: "Entrées plus anciennes"
       add_friends: "Ajouter des amis"
       filters_label: "Filtrer par type"
       filters:

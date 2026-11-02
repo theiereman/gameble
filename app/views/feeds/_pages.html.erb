@@ -1,0 +1,6 @@
+<% if next_cursor %>
+  <nav id="feed-pages" class="feed__pages" aria-label="<%= t("feeds.show.pages.label") %>" data-next-page-target="pages">
+    <%= link_to t("feeds.show.pages.next"), feed_path(filter:, tab:, cursor: next_cursor), class: "feed__more",
+      rel: "next", data: { turbo_prefetch: false } %>
+  </nav>
+<% end %>

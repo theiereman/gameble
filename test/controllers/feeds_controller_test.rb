@@ -444,7 +444,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     get feed_path(locale: :fr)
 
     assert_equal %w[live:fr], stream_names
-    assert_select "section.feed[data-controller=feed-announcer][data-feed-announcer-limit-value=?]", Game::FeedEntries::LIMIT.to_s
+    assert_select "section.feed[data-controller=feed-announcer]"
     assert_select "section.feed[data-controller=feed-announcer]" do |section|
       templates = JSON.parse(section.sole["data-feed-announcer-templates-value"])
       assert_equal "3 nouvelles entrées dans le fil.", templates["other"].sub("%{count}", "3")
@@ -464,13 +464,13 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[live:en], stream_names
   end
 
-  test "a filtered view and the Friends tab are read at render: no stream, no live list, no status line" do
+  test "a filtered view and the Friends tab are read at render: no stream, no live announcer, no status line" do
     friends_and_strangers
 
     { feed_path(locale: :en, filter: "pulls") => 15, feed_path(locale: :en, tab: "friends") => 6 }.each do |path, entries|
       get path
       assert_select ".feed__entry", entries
-      assert_select "#feed-entries, .feed [role=status], [data-controller=feed-announcer]", 0
+      assert_select ".feed [role=status], [data-controller=feed-announcer]", 0
       assert_equal [], stream_names, path
     end
   end
@@ -595,5 +595,64 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
       get feed_path(locale: :en, filter:)
       assert_select ".feed__entry--set", 0
     end
+  end
+
+  def add_pulls(count)
+    pack = create_pack(@player)
+    from = 1.hour.ago
+    rows = Array.new(count) do |index|
+      at = from + index.seconds
+      { kind: "pull", player_id: @player.id, pack_id: pack.id, card_season_id: fixture_tier_ids[3], position: index, rarity: 4,
+        notable: true, occurred_at: at, created_at: at, updated_at: at }
+    end
+    Game::FeedEntry.insert_all!(rows)
+  end
+
+  def next_link = css_select(".feed__pages a[rel=next]").first
+
+  test "a feed longer than a page links to the older entries with an opaque cursor" do
+    add_pulls(Game::FeedEntries::LIMIT + 5)
+
+    get feed_path(locale: :en)
+
+    assert_select ".feed__list#feed-entries > .feed__entry", Game::FeedEntries::LIMIT
+    assert_select ".feed__pages[data-next-page-target=pages] a[rel=next][href*=\"cursor=\"]", 1
+    cursor = Rack::Utils.parse_query(URI(next_link["href"]).query)["cursor"]
+    assert_no_match(/\d{4}-\d{2}-\d{2}/, cursor)
+    assert_no_match(/\d{10}/, cursor)
+  end
+
+  test "the next link opens the older entries as a page without JavaScript, and as a stream with it" do
+    add_pulls(Game::FeedEntries::LIMIT + 5)
+    get feed_path(locale: :en)
+    href = next_link["href"]
+
+    get href
+    assert_response :success
+    assert_select ".feed__entry", 5
+    assert_select ".feed__pages", 0
+    assert_select "section.feed[data-controller=feed-announcer]", 0
+
+    get href, headers: { "Accept" => Mime[:turbo_stream].to_s }
+    assert_equal Mime[:turbo_stream], response.media_type
+    assert_select "turbo-stream[action=append][target=feed-entries] .feed__entry", 5
+    assert_select "turbo-stream[action=replace][target=feed-pages]"
+  end
+
+  test "the cursor keeps the filter" do
+    add_pulls(Game::FeedEntries::LIMIT + 5)
+
+    get feed_path(locale: :en, filter: "pulls")
+
+    assert_includes next_link["href"], "filter=pulls"
+  end
+
+  test "a tampered cursor serves the first page" do
+    add_pulls(Game::FeedEntries::LIMIT + 5)
+
+    get feed_path(locale: :en, cursor: "tampered")
+
+    assert_response :success
+    assert_select ".feed__entry", Game::FeedEntries::LIMIT
   end
 end

@@ -10,15 +10,24 @@ module Game
     WINDOW = 90
     PASSES = 10
 
-    def self.call(viewer, kind: nil, players: nil)
-      titled(listed(viewer, kind:, players:))
+    Page = Data.define(:items, :more) do
+      def cursor = more ? [ items.last.entry.occurred_at, items.last.entry.id ] : nil
     end
 
-    def self.listed(viewer, kind:, players:)
+    def self.call(viewer, kind: nil, players: nil)
+      page(viewer, kind:, players:).items
+    end
+
+    def self.page(viewer, kind: nil, players: nil, after: nil)
+      found = listed(viewer, kind:, players:, after:)
+      Page.new(items: titled(found.first(LIMIT)), more: found.size > LIMIT)
+    end
+
+    def self.listed(viewer, kind:, players:, after:)
       entries = players ? FeedEntry.where(player_id: players).or(FeedEntry.where(partner_id: players)) : FeedEntry.all
       scope = kind ? entries.where(kind:) : entries
-      notable = visible(scope.where(notable: true), viewer, LIMIT, filler: false)
-      return notable if notable.size >= MIN || !(kind.nil? || kind == "pull")
+      notable = visible(scope.where(notable: true), viewer, LIMIT + 1, filler: false, after:)
+      return notable if after || notable.size >= MIN || !(kind.nil? || kind == "pull")
 
       fillers = visible(entries.where(kind: "pull", notable: false), viewer, MIN - notable.size, filler: true)
       (notable + fillers).sort_by { |item| [ item.entry.occurred_at, item.entry.id ] }.reverse
@@ -32,11 +41,11 @@ module Game
     end
     private_class_method :titled
 
-    def self.visible(scope, viewer, limit, filler:)
+    def self.visible(scope, viewer, limit, filler:, after: nil)
       found = []
       players = {}
       shown = Hash.new { |seen, id| seen[id] = Visibility.visible?(viewer, players[id], staff_sees_all: false) }
-      cursor = nil
+      cursor = after
       PASSES.times do
         page = scope.newest_first
         page = page.where("(game_feed_entries.occurred_at, game_feed_entries.id) < (?, ?)", *cursor) if cursor

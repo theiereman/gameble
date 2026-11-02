@@ -22,6 +22,17 @@ class FeedTest < ApplicationSystemTestCase
     open_epic(@player)
   end
 
+  test "scrolling to the end of a long feed appends the older entries, then stops asking" do
+    (Game::FeedEntries::LIMIT / 5).times { open_epic(@player) }
+    visit feed_path(locale: :en)
+    assert_selector "#feed-entries > li.feed__entry", count: Game::FeedEntries::LIMIT
+
+    page.execute_script("document.querySelector('.feed__pages').scrollIntoView()")
+
+    assert_selector "#feed-entries > li.feed__entry", count: Game::FeedEntry.where(notable: true).count
+    assert_no_selector ".feed__pages"
+  end
+
   test "signed out, the feed's list shows under one choice of everything, and Friends is disabled" do
     visit feed_path(locale: :en)
 

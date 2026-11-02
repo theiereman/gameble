@@ -1110,6 +1110,9 @@ en:
       more: More
       nameless: Nameless player
       no_friends: Add friends to follow their pulls.
+      pages:
+        label: Pages of the feed
+        next: Older entries
       pulled_html: "%{name} pulled %{card}"
       repost_tag: Repost
       reposted_html: "%{name} reposted %{card}."

@@ -9,8 +9,7 @@
   <% end %>
 <% end %>
 <%= tag.section class: "feed", aria: { labelledby: "feed-heading" },
-      data: ({ controller: "feed-announcer", feed_announcer_templates_value: t(".announcement").to_json,
-               feed_announcer_limit_value: Game::FeedEntries::LIMIT } if @live) do %>
+      data: ({ controller: "feed-announcer", feed_announcer_templates_value: t(".announcement").to_json } if @live) do %>
   <h1 id="feed-heading" class="feed__title"><%= t(".title") %></h1>
   <div class="feed__controls" data-controller="current-chips">
     <nav class="feed__tabs" aria-label="<%= t(".tabs_label") %>">
@@ -36,10 +35,13 @@
     <% end %>
   <% else %>
     <% if @live || @items.any? %>
-      <%= tag.ul class: "feed__list", id: ("feed-entries" if @live), data: ({ feed_announcer_target: "list" } if @live) do %>
-        <% @items.each do |item, card, partner_card, set| %>
-          <%= render "feeds/entry", item:, card:, partner_card:, set: %>
+      <%= tag.div data: { controller: "next-page", action: "focusout->next-page#focusLeft" } do %>
+        <%= tag.ul class: "feed__list", id: "feed-entries", data: ({ feed_announcer_target: "list" } if @live) do %>
+          <% @items.each do |item, card, partner_card, set| %>
+            <%= render "feeds/entry", item:, card:, partner_card:, set: %>
+          <% end %>
         <% end %>
+        <%= render "feeds/pages", next_cursor: @next_cursor, filter: @filter, tab: @tab %>
       <% end %>
     <% end %>
     <% if @items.empty? %>
