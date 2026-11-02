@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
-# If running the rails server then create or migrate existing database, then add the roadmap milestones of new epics
+# If running the rails server then create or migrate existing database, then add the roadmap milestones of new epics and grant the achievements a release adds from history
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  ./bin/rails db:prepare catalog:create_roadmap_milestones
+  ./bin/rails db:prepare catalog:create_roadmap_milestones game:backfill_achievements
 fi
 
 exec "${@}"

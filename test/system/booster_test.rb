@@ -238,16 +238,16 @@ class BoosterTest < ApplicationSystemTestCase
     open_canister
     assert_dealt(5)
 
-    stream_toast_waiting_for_the_reveal("First capsule")
+    stream_toast_waiting_for_the_reveal("Your First Authorized Acquisition")
     (1..4).each do |position|
       find(hit(position)).click
       assert_selector "#{card(position)}[data-revealed]"
-      assert_no_selector "#toasts .toast", text: "First capsule"
+      assert_no_selector "#toasts .toast", text: "Your First Authorized Acquisition"
     end
 
     find(hit(5)).click
     assert_selector ".booster__state", text: "INVENTORY COMPLETE"
-    assert_selector "#toasts .toast[data-toast-after-reveal]", text: "First capsule"
+    assert_selector "#toasts .toast[data-toast-after-reveal]", text: "Your First Authorized Acquisition"
   end
 
   test "a revealed card ignores activation for 400 ms, then opens its card page" do

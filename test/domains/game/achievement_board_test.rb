@@ -30,7 +30,7 @@ class Game::AchievementBoardTest < ActiveSupport::TestCase
 
     assert tiles.none?(&:earned)
     assert tiles.all? { it.progress.zero? }
-    assert_equal({ earned: 0, total: 11 }, Game::AchievementBoard.summary(nil))
+    assert_equal({ earned: 0, total: total_achievements }, Game::AchievementBoard.summary(nil))
   end
 
   test "a tile is earned when its unlock row exists, and the summary counts those rows" do
@@ -38,7 +38,7 @@ class Game::AchievementBoardTest < ActiveSupport::TestCase
     unlock("first_epic", player: accounts_players(:moderator))
 
     assert_equal %i[first_booster first_trade boosters_10], Game::AchievementBoard.call(@player).select(&:earned).map(&:key)
-    assert_equal({ earned: 3, total: 11 }, Game::AchievementBoard.summary(@player))
+    assert_equal({ earned: 3, total: total_achievements }, Game::AchievementBoard.summary(@player))
   end
 
   test "an unearned tile's progress is the metric clamped to the threshold" do
@@ -81,14 +81,18 @@ class Game::AchievementBoardTest < ActiveSupport::TestCase
   end
 
   test "only an achievement with a threshold above one is countable" do
-    assert_equal %i[boosters_10 boosters_100 boosters_500 three_complete_sets],
+    assert_equal %i[boosters_10 boosters_100 boosters_500 three_complete_sets luck_is_a_marketing_concept leave_request_denied
+      streamlined_opening_procedure diligence_beyond_the_call_of_duty diversified_portfolio market_concentration
+      a_strictly_professional_relationship],
       Game::AchievementBoard.call(@player).select(&:countable?).map(&:key)
   end
 
   test "an unlock row whose key the catalogue no longer holds is ignored" do
     unlock("first_booster", "retired_achievement")
 
-    assert_equal({ earned: 1, total: 11 }, Game::AchievementBoard.summary(@player))
+    assert_equal({ earned: 1, total: total_achievements }, Game::AchievementBoard.summary(@player))
     assert_equal 1, Game::AchievementBoard.call(@player).count(&:earned)
   end
+
+  def total_achievements = Game::Achievements::CATALOGUE.size
 end

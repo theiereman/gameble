@@ -3,7 +3,7 @@ title: 'Mutual suggestions come first, at a cost that does not grow with friends
 type: 'feature'
 ticket: '3'
 created: '2026-11-02'
-status: 'in-review'
+status: built
 baseline_revision: '6a713df243a1249cda9384b47c7d9ca76f5b7529'
 route: 'full'
 route_source: 'auto'

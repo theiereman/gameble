@@ -62,7 +62,11 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
     assert_equal 1, unlock_events.size
   end
 
-  { "boosters_100" => "centurion", "first_legendary" => "etoile-dor", "three_complete_sets" => "aurore" }.each do |achievement, back|
+  {
+    "boosters_100" => "centurion", "first_legendary" => "etoile-dor", "three_complete_sets" => "aurore",
+    "luck_is_a_marketing_concept" => "trefle-fane", "leave_request_denied" => "assidu",
+    "market_concentration" => "siege-social", "a_strictly_professional_relationship" => "contrat"
+  }.each do |achievement, back|
     test "the achievement #{achievement} grants #{back} once" do
       record_achievement(achievement)
       event = achievement_event(achievement)
@@ -72,6 +76,32 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
       assert_equal [ back ], unlocked
       assert_equal 1, unlock_events.size
       assert_not unlock_events.sole.data[:retroactive]
+    end
+  end
+
+  {
+    "luck_is_a_marketing_concept" => "trefle-fane", "leave_request_denied" => "assidu",
+    "market_concentration" => "siege-social", "a_strictly_professional_relationship" => "contrat"
+  }.each do |achievement, back|
+    test "the achievement #{achievement} names #{back} in the catalogue and tells its player in play, not from the backfill" do
+      assert_equal [ :achievement, achievement ], Game::CardBacks.find(back).unlock.to_h.values_at(:kind, :target)
+      assert_equal back, Game::CardBacks.for_achievement(achievement).key
+
+      assert_enqueued_with(job: PlayerStreamJob, args: [ [ { player_id: @player.id, card_back: back } ] ]) do
+        Game::UnlockCardBack.new.call(player: @player, back:).value!
+      end
+      assert_no_enqueued_jobs(only: PlayerStreamJob) do
+        Game::UnlockCardBack.new.call(player: @other, back:, retroactive: true).value!
+      end
+    end
+
+    test "the backfill grants #{back} silently for #{achievement}, and run twice writes once" do
+      record_achievement(achievement)
+
+      capture_io { 2.times { rake_task("game:backfill_card_backs").execute } }
+
+      assert_equal [ back ], unlocked
+      assert unlock_events.sole.data[:retroactive]
     end
   end
 

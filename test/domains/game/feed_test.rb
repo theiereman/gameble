@@ -467,4 +467,69 @@ class Game::FeedTest < ActiveSupport::TestCase
     assert Game::FeedEntry.create!(**set)
     refused.(ActiveRecord::RecordNotUnique, tier: "bronze")
   end
+
+  def walk(viewer = nil, **filters)
+    pages = []
+    after = nil
+    loop do
+      page = Game::FeedEntries.page(viewer, after:, **filters)
+      pages << page
+      break unless page.more
+
+      after = page.cursor
+    end
+    pages
+  end
+
+  test "a long feed is read page after page, newest first, with no entry twice or missing" do
+    add_entries(@player, Game::FeedEntries::LIMIT * 2 + 5)
+
+    pages = walk
+
+    assert_equal [ Game::FeedEntries::LIMIT, Game::FeedEntries::LIMIT, 5 ], pages.map { it.items.size }
+    assert_equal [ true, true, false ], pages.map(&:more)
+    ids = pages.flat_map { |page| page.items.map { it.entry.id } }
+    assert_equal Game::FeedEntry.where(notable: true).newest_first.pluck(:id), ids
+  end
+
+  test "a page that ends the feed has no cursor" do
+    add_entries(@player, Game::FeedEntries::LIMIT)
+
+    page = Game::FeedEntries.page(nil)
+
+    assert_not page.more
+    assert_nil page.cursor
+  end
+
+  test "older pages skip the entries of hidden players without counting them" do
+    add_entries(@other, Game::FeedEntries::LIMIT + 10, from: 3.hours.ago)
+    add_entries(@player, Game::FeedEntries::LIMIT + 10)
+    @other.update!(visibility: :private)
+
+    pages = walk
+
+    assert_equal [ @player ], pages.flat_map { |page| page.items.map(&:player) }.uniq
+    assert_equal [ Game::FeedEntries::LIMIT, 10 ], pages.map { it.items.size }
+  end
+
+  test "fillers appear on the first page of a sparse feed only" do
+    add_entries(@player, 3, notable: false)
+
+    pages = walk(kind: "pull")
+
+    assert_equal 1, pages.size
+    assert pages.first.items.all?(&:filler)
+    assert_nil pages.first.cursor
+  end
+
+  test "older pages obey the kind and the players asked for" do
+    add_entries(@player, Game::FeedEntries::LIMIT + 4, from: 3.hours.ago)
+    add_entries(@other, Game::FeedEntries::LIMIT + 4)
+    add_entries(@other, 3, kind: "repost")
+
+    pages = walk(kind: "pull", players: [ @player.id ])
+
+    assert_equal [ Game::FeedEntries::LIMIT, 4 ], pages.map { it.items.size }
+    assert_equal [ [ "pull" ], [ @player ] ], [ pages.flat_map { |page| page.items.map { it.entry.kind } }.uniq, pages.flat_map { |page| page.items.map(&:player) }.uniq ]
+  end
 end

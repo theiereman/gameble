@@ -9,12 +9,19 @@ class FeedsController < ApplicationController
     @tab = params[:tab].presence_in(TABS) if current_player
     friend_ids = Game::FriendsOf.call(current_player).map(&:id) if @tab
     @no_friends = friend_ids&.empty?
-    @live = @tab.nil? && @filter.nil?
-    @items = @no_friends ? [] : items(players: friend_ids)
+    @after = FeedCursor.decode(params[:cursor])
+    @live = @tab.nil? && @filter.nil? && @after.nil?
+    page = @no_friends ? nil : feed_page(players: friend_ids)
+    @items = page ? FeedItems.call(page.items) : []
+    @next_cursor = FeedCursor.encode(page.cursor) if page&.more
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   private
-    def items(players:)
-      FeedItems.call(Game::FeedEntries.call(current_player, kind: FILTERS[@filter], players:))
+    def feed_page(players:)
+      Game::FeedEntries.page(current_player, kind: FILTERS[@filter], players:, after: @after)
     end
 end

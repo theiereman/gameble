@@ -74,12 +74,18 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     Game::AcceptTrade.new.call(player:, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision).value!
   end
 
-  test "the catalogue holds eleven achievements, in order, each a metric and a threshold" do
+  test "the catalogue holds twenty-three achievements, in order, each a metric and a threshold" do
     expected = [
       [ :first_booster, :packs_opened, 1 ], [ :first_epic, :epics_obtained, 1 ], [ :first_legendary, :legendaries_obtained, 1 ],
       [ :first_complete_set, :sets_completed, 1 ], [ :first_trade, :trades_accepted, 1 ], [ :boosters_10, :packs_opened, 10 ],
       [ :boosters_100, :packs_opened, 100 ], [ :boosters_500, :packs_opened, 500 ], [ :three_complete_sets, :sets_completed, 3 ],
-      [ :first_repost, :reposts, 1 ], [ :statistical_non_compliance, :two_rare_or_better_capsules, 1 ]
+      [ :first_repost, :reposts, 1 ], [ :statistical_non_compliance, :two_rare_or_better_capsules, 1 ],
+      [ :packaging_irregularity, :repeated_game_capsules, 1 ], [ :excellence_in_mediocrity, :all_common_capsules, 1 ],
+      [ :historical_asset_management, :old_and_new_game_capsules, 1 ], [ :luck_is_a_marketing_concept, :capsules_without_rare_streak, 10 ],
+      [ :leave_request_denied, :daily_bonus_streak, 7 ], [ :streamlined_opening_procedure, :reveal_all_streak, 10 ],
+      [ :diligence_beyond_the_call_of_duty, :reveal_one_by_one_streak, 10 ], [ :diversified_portfolio, :most_copies_of_a_game, 5 ],
+      [ :market_concentration, :most_games_of_a_studio, 10 ], [ :first_claim_all_rights_reserved, :first_discoveries, 1 ],
+      [ :a_discovery_of_ours, :pioneered_reposts, 1 ], [ :a_strictly_professional_relationship, :most_trades_with_a_partner, 3 ]
     ]
 
     assert_equal expected, Game::Achievements::CATALOGUE.map { [ it.key, it.metric, it.threshold ] }
@@ -243,6 +249,432 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_equal [ "statistical_non_compliance" ], unlocked
   end
 
+  def card_id_of(card_season_id) = Catalog::CardSeason.find(card_season_id).card_id
+
+  def capsule_metric(metric, player = @player) = progress(player, [ metric ]).fetch(metric)
+
+  def open_regular(*cards_per_pack, player: @player, kind: :regular)
+    cards_per_pack.each_with_index do |cards, index|
+      create_pack(player, kind:, cards: cards || commons(kind), opened_at: Time.utc(2026, 1, 1) + index.minutes)
+    end
+  end
+
+  def claim_days(days, player: @player)
+    days.each do |day|
+      pack = create_pack(player, kind: :bonus)
+      Game::DailyBonusClaim.create!(player_id: player.id, day:, pack_id: pack.id)
+    end
+  end
+
+  def days_from(first, count) = Array.new(count) { Date.new(2026, 3, 1) + first + it }
+
+  def luck_streak(player = @player) = capsule_metric(:capsules_without_rare_streak, player)
+
+  def bonus_streak(player = @player) = capsule_metric(:daily_bonus_streak, player)
+
+  def release!(card_season_id, date) = Catalog::Card.where(id: card_id_of(card_season_id)).update_all(release_date: date)
+
+  test "a capsule of any kind holding the same game twice counts, a near miss never" do
+    opened_packs(1, cards: [ @common, @uncommon, @rare, @epic, @legendary ])
+    opened_packs(1, kind: :bonus, cards: [ @common, @common, @rare ])
+    opened_packs(1, kind: :reward, cards: [ @uncommon, @uncommon ])
+    assert_equal 2, capsule_metric(:repeated_game_capsules)
+
+    create_pack(@player, cards: [ @rare, @rare, @common, @uncommon, @epic ])
+    opened_packs(1, player: @other, cards: [ @common, @uncommon, @rare, @epic, @legendary ])
+    assert_equal 2, capsule_metric(:repeated_game_capsules)
+    assert_equal 0, capsule_metric(:repeated_game_capsules, @other)
+  end
+
+  test "Packaging Irregularity is granted on a capsule with a repeated game and refused on a capsule of five different games" do
+    opened_packs(1, cards: [ @common, @uncommon, @rare, @epic, @legendary ])
+    assert_equal :not_reached, grant(:packaging_irregularity).failure
+
+    opened_packs(1, cards: [ @legendary, @legendary, @common, @uncommon, @rare ])
+    assert_equal :packaging_irregularity, grant(:packaging_irregularity).value!.key
+  end
+
+  test "a standard capsule of five Common cards counts, a near miss never" do
+    opened_packs(1, cards: [ @common ] * 4 + [ @uncommon ])
+    opened_packs(1, kind: :bonus, cards: [ @common ] * 3)
+    opened_packs(1, kind: :reward, cards: [ @common ] * 5)
+    create_pack(@player, cards: [ @common ] * 5)
+    opened_packs(1, player: @other, cards: [ @common ] * 4 + [ @rare ])
+    assert_equal 0, capsule_metric(:all_common_capsules)
+
+    opened_packs(2)
+    assert_equal 2, capsule_metric(:all_common_capsules)
+    assert_equal 0, capsule_metric(:all_common_capsules, @other)
+  end
+
+  test "Excellence in Mediocrity is granted on a standard capsule of Common cards and refused on four" do
+    opened_packs(1, cards: [ @common ] * 4 + [ @uncommon ])
+    assert_equal :not_reached, grant(:excellence_in_mediocrity).failure
+
+    opened_packs(1)
+    assert_equal :excellence_in_mediocrity, grant(:excellence_in_mediocrity).value!.key
+  end
+
+  test "a capsule with a game released before 2000 and one from 2025 on counts, a near miss never" do
+    release!(@rare, Date.new(2025, 1, 1))
+    release!(@epic, Date.new(1999, 12, 31))
+    opened_packs(1, cards: [ @legendary, @common, @uncommon, @uncommon, @common ])
+    opened_packs(1, cards: [ @rare, @common, @uncommon, @uncommon, @common ])
+    opened_packs(1, cards: [ @epic, @common, @uncommon, @uncommon, @common ])
+    assert_equal 0, capsule_metric(:old_and_new_game_capsules)
+
+    opened_packs(1, kind: :bonus, cards: [ @epic, @rare, @uncommon ])
+    opened_packs(1, cards: [ @legendary, @rare, @uncommon, @uncommon, @common ])
+    create_pack(@player, cards: [ @epic, @rare, @uncommon, @uncommon, @common ])
+    opened_packs(1, player: @other, cards: [ @uncommon, @common, @common, @uncommon, @uncommon ])
+    assert_equal 2, capsule_metric(:old_and_new_game_capsules)
+    assert_equal 0, capsule_metric(:old_and_new_game_capsules, @other)
+  end
+
+  test "Historical Asset Management is granted on an old and a new game in one capsule and refused when they come from two" do
+    release!(@rare, Date.new(2026, 3, 1))
+    opened_packs(1, cards: [ @legendary, @common, @uncommon, @uncommon, @common ])
+    opened_packs(1, cards: [ @rare, @common, @uncommon, @uncommon, @common ])
+    assert_equal :not_reached, grant(:historical_asset_management).failure
+
+    opened_packs(1, cards: [ @legendary, @rare, @uncommon, @uncommon, @common ])
+    assert_equal :historical_asset_management, grant(:historical_asset_management).value!.key
+  end
+
+  test "the grant job toasts the new achievements on an opening that meets them, in each locale" do
+    release!(@rare, Date.new(2025, 6, 1))
+    open_with_jobs([ @legendary, @rare, @common, @common, @common ])
+
+    assert_includes unlocked, "historical_asset_management"
+    assert_includes unlocked, "packaging_irregularity"
+    assert_equal 1, toasts(@player, :fr).count { it.include?("Gestion du patrimoine historique") }
+    assert_equal 1, toasts(@player, :en).count { it.include?("Historical Asset Management") }
+    assert_equal 1, toasts(@player, :en).count { it.include?("Packaging Irregularity") }
+  end
+
+  test "the capsule streak is the longest run of opened standard capsules with no Rare or better card, in opening order" do
+    open_regular(nil, nil, nil, [ @rare ] + [ @common ] * 4, nil, nil, [ @common ] * 4 + [ @uncommon ], nil, nil, [ @epic ] + [ @common ] * 4, nil)
+    assert_equal 5, luck_streak
+
+    open_regular(*Array.new(2) { [ @legendary ] + [ @common ] * 4 }, player: @other)
+    assert_equal 0, luck_streak(@other)
+  end
+
+  test "the capsule streak ignores bonus, reward, unopened capsules and other players' capsules" do
+    open_regular(nil, nil, nil, [ @rare ] + [ @common ] * 4, nil)
+    open_regular(*Array.new(5) { nil }, kind: :bonus, player: @other)
+    open_regular(*Array.new(5) { [ @common ] * 3 }, kind: :bonus)
+    open_regular(*Array.new(5) { nil }, kind: :reward)
+    create_pack(@player, cards: commons)
+    assert_equal 3, luck_streak
+    assert_equal 0, luck_streak(@other)
+  end
+
+  test "the capsule streak follows opened_at rather than creation order" do
+    later = Time.utc(2026, 6, 1)
+    create_pack(@player, cards: [ @rare ] + [ @common ] * 4, opened_at: later)
+    5.times { create_pack(@player, cards: commons, opened_at: later - 1.day - it.minutes) }
+    5.times { create_pack(@player, cards: commons, opened_at: later + 1.day + it.minutes) }
+    assert_equal 5, luck_streak
+  end
+
+  test "Luck Is a Marketing Concept is granted at exactly ten capsules without a Rare and refused at nine" do
+    open_regular(*Array.new(9) { nil })
+    assert_equal 9, luck_streak
+    assert_equal :not_reached, grant(:luck_is_a_marketing_concept).failure
+
+    open_regular(*Array.new(10) { nil }, player: @other)
+    assert_equal :luck_is_a_marketing_concept, grant(:luck_is_a_marketing_concept, player: @other).value!.key
+  end
+
+  test "a Rare capsule breaks the run, which restarts the count" do
+    open_regular(*Array.new(9) { nil }, [ @rare ] + [ @common ] * 4, *Array.new(9) { nil })
+    assert_equal 9, luck_streak
+    assert_equal :not_reached, grant(:luck_is_a_marketing_concept).failure
+
+    create_pack(@player, cards: commons, opened_at: Time.utc(2026, 2, 1))
+    assert_equal :luck_is_a_marketing_concept, grant(:luck_is_a_marketing_concept).value!.key
+  end
+
+  test "the daily bonus streak is the longest run of consecutive UTC days, a gap restarting it" do
+    claim_days(days_from(0, 3) + days_from(4, 6) + days_from(11, 2))
+    assert_equal 6, bonus_streak
+
+    claim_days(days_from(0, 7), player: @other)
+    assert_equal 7, bonus_streak(@other)
+    assert_equal 0, bonus_streak(accounts_players(:banned))
+  end
+
+  test "the daily bonus streak counts days across a month and a year end, and one claim a day" do
+    claim_days([ Date.new(2025, 12, 30), Date.new(2025, 12, 31), Date.new(2026, 1, 1), Date.new(2026, 1, 2) ])
+    assert_equal 4, bonus_streak
+  end
+
+  test "Leave Request Denied is granted at exactly seven days in a row and refused at six" do
+    claim_days(days_from(0, 6))
+    assert_equal :not_reached, grant(:leave_request_denied).failure
+
+    claim_days(days_from(7, 1))
+    assert_equal :not_reached, grant(:leave_request_denied).failure
+
+    claim_days(days_from(6, 1))
+    assert_equal :leave_request_denied, grant(:leave_request_denied).value!.key
+  end
+
+  test "collecting the daily bonus grants Leave Request Denied on the seventh day, toasted in each locale" do
+    today = Game::DailyBonusClaim.day_of(Time.current)
+    claim_days((1..6).map { today - it })
+    assert_empty unlocked
+
+    perform_enqueued_jobs { Game::CollectDailyBonus.new.call(player: @player).value! }
+
+    assert_includes unlocked, "leave_request_denied"
+    assert_equal 1, toasts(@player, :fr).count { it.include?("Demande de congé refusée") }
+    assert_equal 1, toasts(@player, :en).count { it.include?("Leave Request Denied") }
+  end
+
+  def published_edition(season, card_id, number)
+    Catalog::CardSeason.insert_all!([ { card_id:, season_id: season.id, prestige_score: 0.5, rating: 80.0,
+      rarity: Catalog::Rarity::TIERS.invert.fetch(:common), number: } ], returning: :id).rows.flatten.sole
+  end
+
+  def hold_edition(card_id, quantity, reserved: 0)
+    season = Catalog::Season.create!(status: :published, number: Catalog::Season.next_number, published_at: Time.current)
+    hold(@player, published_edition(season, card_id, 1), quantity, reserved:)
+  end
+
+  def studio_games(count, developer: [ "Acme Studios" ], player: @player)
+    season = Catalog::Season.create!(status: :published, number: Catalog::Season.next_number, published_at: Time.current)
+    Array.new(count) do |index|
+      slug = "studio-#{developer.first.to_s.parameterize}-#{player.id}-#{Catalog::Card.count}-#{index}"
+      card = Catalog::Card.create!(source_key: "src:#{slug}", slug:, release_date: Date.new(2020, 1, 1), developers: developer,
+        image_url: "https://images.example.test/#{slug}.jpg", store_url: "https://store.example.test/#{slug}")
+      hold(player, published_edition(season, card.id, index + 1))
+      card
+    end
+  end
+
+  def most_copies(player = @player) = capsule_metric(:most_copies_of_a_game, player)
+
+  def most_studio_games(player = @player) = capsule_metric(:most_games_of_a_studio, player)
+
+  test "copies of a game are summed across its editions, reserved ones included" do
+    hold(@player, @common, 2)
+    hold_edition(card_id_of(@common), 2, reserved: 1)
+    hold(@player, @uncommon, 3)
+    hold(@other, @common, 9)
+
+    assert_equal 4, most_copies
+    assert_equal 9, most_copies(@other)
+    assert_equal 0, most_copies(accounts_players(:banned))
+  end
+
+  test "Diversified Portfolio is granted at five copies over two editions and refused at four" do
+    hold(@player, @common, 2)
+    hold_edition(card_id_of(@common), 2)
+    assert_equal :not_reached, grant(:diversified_portfolio).failure
+
+    Game::Holding.find_by!(player_id: @player.id, card_season_id: @common).update!(quantity: 3)
+    assert_equal :diversified_portfolio, grant(:diversified_portfolio).value!.key
+  end
+
+  test "the studio is the card's first developer normalised as studio sets do" do
+    studio_games(4, developer: [ "Valve" ])
+    studio_games(2, developer: [ "Valve Corporation", "Someone Else" ])
+    studio_games(1, developer: [ "VALVE, Inc." ])
+    studio_games(1, developer: [ "Valve™" ])
+    studio_games(3, developer: [ "Someone Else", "Valve" ])
+    studio_games(2, developer: [])
+
+    assert_equal 8, most_studio_games
+  end
+
+  test "held games of a studio count once however many editions and copies, and only while held" do
+    games = studio_games(3)
+    hold_edition(games.first.id, 2)
+    Game::Holding.where(player_id: @player.id).where(card_season_id: Catalog::CardSeason.where(card_id: games.last.id).select(:id)).update_all(quantity: 0)
+
+    assert_equal 2, most_studio_games
+    assert_equal 0, most_studio_games(@other)
+  end
+
+  test "Market Concentration is granted at ten games of one studio and refused at nine" do
+    studio_games(9, developer: [ "Acme Studios" ])
+    studio_games(5, developer: [ "Other House" ])
+    assert_equal :not_reached, grant(:market_concentration).failure
+
+    studio_games(1, developer: [ "Acme Studios, Ltd." ])
+    assert_equal :market_concentration, grant(:market_concentration).value!.key
+  end
+
+  def pioneer(card_season_id, player: @player)
+    Game::FirstDiscovery.where(card_season_id:).delete_all
+    Game::FirstDiscovery.create!(card_season_id:, player_id: player.id, discovered_at: Time.current)
+  end
+
+  def repost_entry(card_season_id, player: @player)
+    Game::FeedEntry.record_repost(player_id: player.id, card_season_id:, at: Time.current)
+  end
+
+  def accepted_trades(count, proposer: @player, recipient: @other)
+    low, high = [ proposer.id, recipient.id ].minmax
+    count.times do
+      Game::Trade.create!(low_player_id: low, high_player_id: high, proposer_id: proposer.id, recipient_id: recipient.id, status: "accepted",
+        proposed_at: 2.hours.ago, expires_at: 1.day.from_now, closed_at: 1.hour.ago)
+    end
+  end
+
+  test "First Claim is granted for a first discovery row and refused when other players hold them all" do
+    assert_equal 0, capsule_metric(:first_discoveries)
+    assert_equal :not_reached, grant(:first_claim_all_rights_reserved).failure
+
+    pioneer(@common)
+    pioneer(@uncommon, player: @other)
+
+    assert_equal 1, capsule_metric(:first_discoveries)
+    assert_equal :first_claim_all_rights_reserved, grant(:first_claim_all_rights_reserved).value!.key
+  end
+
+  test "A Discovery of Ours counts a repost of a card-season the player pioneered, and not one someone else pioneered" do
+    pioneer(@uncommon, player: @other)
+    repost_entry(@uncommon)
+    assert_equal 0, capsule_metric(:pioneered_reposts)
+    assert_equal :not_reached, grant(:a_discovery_of_ours).failure
+
+    pioneer(@common)
+    repost_entry(@common, player: @other)
+    assert_equal 0, capsule_metric(:pioneered_reposts)
+
+    repost_entry(@common)
+    assert_equal 1, capsule_metric(:pioneered_reposts)
+    assert_equal :a_discovery_of_ours, grant(:a_discovery_of_ours).value!.key
+  end
+
+  test "A Strictly Professional Relationship needs three accepted trades with one partner, not three partners" do
+    third = accounts_players(:banned)
+    accepted_trades(1)
+    accepted_trades(1, proposer: @other, recipient: @player)
+    accepted_trades(1, recipient: third)
+    accepted_trades(1, proposer: @other, recipient: third)
+    assert_equal 2, capsule_metric(:most_trades_with_a_partner)
+    assert_equal :not_reached, grant(:a_strictly_professional_relationship).failure
+
+    accepted_trades(1, proposer: @other, recipient: @player)
+    assert_equal 3, capsule_metric(:most_trades_with_a_partner)
+    assert_equal 3, capsule_metric(:most_trades_with_a_partner, @other)
+    assert_equal :a_strictly_professional_relationship, grant(:a_strictly_professional_relationship).value!.key
+  end
+
+  test "open trades and declined ones do not count toward a partner" do
+    accepted_trades(2)
+    low, high = [ @player.id, @other.id ].minmax
+    %w[open declined cancelled expired].each do |status|
+      Game::Trade.create!(low_player_id: low, high_player_id: high, proposer_id: @player.id, recipient_id: @other.id, status:,
+        proposed_at: 2.hours.ago, expires_at: 1.day.from_now)
+    end
+
+    assert_equal 2, capsule_metric(:most_trades_with_a_partner)
+  end
+
+  test "opening a card nobody found before unlocks First Claim, and a repost of it unlocks A Discovery of Ours" do
+    Game::FirstDiscovery.where(card_season_id: @common).delete_all
+
+    open_with_jobs([ @common ] * 5)
+    assert_includes unlocked, "first_claim_all_rights_reserved"
+    assert_not_includes unlocked, "a_discovery_of_ours"
+
+    perform_enqueued_jobs { Game::RepostCard.new.call(player: @player, card_season_id: @common).value! }
+    assert_includes unlocked, "a_discovery_of_ours"
+  end
+
+  def reveal_modes(modes, player: @player, from: Time.utc(2026, 1, 1))
+    modes.each_with_index do |mode, index|
+      create_pack(player, cards: commons, opened_at: from + index.minutes).update_columns(reveal_mode: mode)
+    end
+  end
+
+  def reveal_streak(metric, player = @player) = capsule_metric(metric, player)
+
+  test "the reveal streaks are the longest runs of opened capsules of any kind revealed one way, in opening order" do
+    reveal_modes(%w[all all one_by_one all all all one_by_one one_by_one])
+    assert_equal 3, reveal_streak(:reveal_all_streak)
+    assert_equal 2, reveal_streak(:reveal_one_by_one_streak)
+
+    assert_equal 0, reveal_streak(:reveal_all_streak, @other)
+    assert_equal 0, reveal_streak(:reveal_one_by_one_streak, @other)
+  end
+
+  test "a capsule without a reveal mode breaks both reveal streaks" do
+    reveal_modes(%w[all all all] + [ nil ] + %w[all all])
+    reveal_modes(%w[one_by_one one_by_one] + [ nil ] + %w[one_by_one], from: Time.utc(2026, 2, 1))
+    assert_equal 3, reveal_streak(:reveal_all_streak)
+    assert_equal 2, reveal_streak(:reveal_one_by_one_streak)
+  end
+
+  test "the reveal streaks count capsules of every kind, ignore unopened ones and follow opened_at" do
+    later = Time.utc(2026, 6, 1)
+    %i[regular bonus reward].each_with_index do |kind, index|
+      create_pack(@player, kind:, cards: commons(kind), opened_at: later + index.minutes).update_columns(reveal_mode: "all")
+    end
+    create_pack(@player, cards: commons).update_columns(reveal_mode: "all")
+    create_pack(@player, cards: commons, opened_at: later - 1.day).update_columns(reveal_mode: "one_by_one")
+    create_pack(@player, cards: commons, opened_at: later + 1.day).update_columns(reveal_mode: "all")
+
+    assert_equal 4, reveal_streak(:reveal_all_streak)
+    assert_equal 1, reveal_streak(:reveal_one_by_one_streak)
+  end
+
+  test "the reveal achievements are granted at exactly ten capsules in a row and refused at nine" do
+    reveal_modes(%w[all] * 9)
+    reveal_modes(%w[one_by_one] * 9, from: Time.utc(2026, 2, 1))
+    assert_equal :not_reached, grant(:streamlined_opening_procedure).failure
+    assert_equal :not_reached, grant(:diligence_beyond_the_call_of_duty).failure
+
+    reveal_modes(%w[all] * 10, player: @other)
+    reveal_modes(%w[one_by_one] * 10, player: @other, from: Time.utc(2026, 2, 1))
+    assert_equal :streamlined_opening_procedure, grant(:streamlined_opening_procedure, player: @other).value!.key
+    assert_equal :diligence_beyond_the_call_of_duty, grant(:diligence_beyond_the_call_of_duty, player: @other).value!.key
+  end
+
+  test "a run of nine, a capsule without a mode and a run of nine never reach ten" do
+    reveal_modes(%w[all] * 9 + [ nil ] + %w[all] * 9)
+
+    assert_equal 9, reveal_streak(:reveal_all_streak)
+    assert_equal :not_reached, grant(:streamlined_opening_procedure).failure
+  end
+
+  test "capsules opened before the reveal mode was recorded grant neither achievement" do
+    reveal_modes([ nil ] * 12)
+
+    assert_equal 0, reveal_streak(:reveal_all_streak)
+    assert_equal 0, reveal_streak(:reveal_one_by_one_streak)
+    assert_equal :not_reached, grant(:streamlined_opening_procedure).failure
+    assert_equal :not_reached, grant(:diligence_beyond_the_call_of_duty).failure
+  end
+
+  test "revealing the tenth capsule with Reveal all grants Streamlined Opening Procedure with a toast in each locale" do
+    reveal_modes(%w[all] * 9 + [ nil ])
+    assert_empty unlocked
+
+    latest = Game::Pack.where(player_id: @player.id).order(:opened_at, :id).last
+    perform_enqueued_jobs { Game::RecordReveal.new.call(player: @player, token: latest.token, mode: "all").value! }
+
+    assert_includes unlocked, "streamlined_opening_procedure"
+    assert_equal 1, toasts(@player, :fr).count { it.include?("ouverture simplifiée") }
+    assert_equal 1, toasts(@player, :en).count { it.include?("Streamlined Opening Procedure") }
+  end
+
+  test "revealing the tenth capsule card by card grants Diligence Beyond the Call of Duty with a toast in each locale" do
+    reveal_modes(%w[one_by_one] * 9 + [ nil ])
+
+    latest = Game::Pack.where(player_id: @player.id).order(:opened_at, :id).last
+    perform_enqueued_jobs { Game::RecordReveal.new.call(player: @player, token: latest.token, mode: "one_by_one").value! }
+
+    assert_includes unlocked, "diligence_beyond_the_call_of_duty"
+    assert_equal 1, toasts(@player, :fr).count { it.include?("Zèle au-delà des obligations") }
+    assert_equal 1, toasts(@player, :en).count { it.include?("Diligence Beyond the Call of Duty") }
+  end
+
   test "the grant re-reads only its achievement's metric" do
     opened_packs(1)
 
@@ -256,8 +688,8 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     reads = progress_reads { Game::GrantAchievementsJob.perform_now(@player.id) }
 
     assert_not_includes reads.first, :two_rare_or_better_capsules
-    assert_equal Game::AchievementProgress::METRICS - [ :two_rare_or_better_capsules ], reads.first
-    assert_equal %w[statistical_non_compliance first_booster], unlocked
+    assert_equal (Game::AchievementProgress::METRICS - [ :two_rare_or_better_capsules ]).sort, reads.first.sort
+    assert_equal %w[statistical_non_compliance first_booster packaging_irregularity], unlocked
 
     Game::Achievements::CATALOGUE.each { Game::AchievementUnlock.record(@player.id, it.key, Time.current) }
     assert_equal [ [] ], progress_reads { Game::GrantAchievementsJob.perform_now(@player.id) }
@@ -287,20 +719,20 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   test "a first opening unlocks the first booster once, toasted to the player's stream only" do
     open_with_jobs([ @common ] * 5)
 
-    assert_equal [ "first_booster" ], unlocked
-    assert_equal [ { player_id: @player.id, achievement: "first_booster" } ], unlock_events.map(&:data)
+    assert_equal %w[first_booster packaging_irregularity excellence_in_mediocrity diversified_portfolio], unlocked
+    assert_equal unlocked.map { { player_id: @player.id, achievement: it } }, unlock_events.map(&:data)
     toasts = broadcasts(PlayerStream.name(@player, :fr)).map { ActiveSupport::JSON.decode(it) }
-    assert_equal 1, toasts.size
-    assert_match "Succès débloqué", toasts.sole
-    assert_match "Première capsule", toasts.sole
-    assert_match "Achievement unlocked", ActiveSupport::JSON.decode(broadcasts(PlayerStream.name(@player, :en)).sole)
+    assert_equal 4, toasts.size
+    assert toasts.all? { it.include?("Succès débloqué") }
+    assert_equal 1, toasts.count { it.include?("Première acquisition approuvée") }
+    assert_equal 4, broadcasts(PlayerStream.name(@player, :en)).count { it.include?("Achievement unlocked") }
     assert_no_broadcasts PlayerStream.name(@other, :fr)
   end
 
   test "an Épique pulled unlocks the first Épique; a Légendaire alone unlocks the first Légendaire only" do
     open_with_jobs([ @legendary ] + [ @common ] * 4)
 
-    assert_equal %w[first_booster first_legendary], unlocked
+    assert_equal %w[first_booster first_legendary packaging_irregularity], unlocked
 
     open_with_jobs([ @epic ] + [ @common ] * 4)
 
@@ -314,7 +746,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_equal 1, toasts(@player, :fr).count { it.include?("Non-conformité statistique") }
     assert_equal 1, toasts(@player, :en).count { it.include?("Statistical Non-Compliance") }
 
-    assert_no_difference -> { unlock_events.size } do
+    assert_no_difference -> { unlocked.count("statistical_non_compliance") } do
       open_with_jobs([ @rare, @epic ] + [ @common ] * 3)
     end
     assert_equal 1, toasts(@player, :en).count { it.include?("Statistical Non-Compliance") }
@@ -324,12 +756,12 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     opened_packs(9)
 
     open_with_jobs([ @common ] * 5)
-    assert_equal %w[first_booster boosters_10], unlocked
+    assert_equal %w[first_booster boosters_10 packaging_irregularity excellence_in_mediocrity luck_is_a_marketing_concept diversified_portfolio], unlocked
 
     assert_no_difference -> { unlock_events.size } do
       open_with_jobs([ @common ] * 5)
     end
-    assert_equal %w[first_booster boosters_10], unlocked
+    assert_equal %w[first_booster boosters_10 packaging_irregularity excellence_in_mediocrity luck_is_a_marketing_concept diversified_portfolio], unlocked
   end
 
   test "a first set completed unlocks the first complete set, the third three complete sets" do
@@ -365,7 +797,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   test "every trigger enqueues the grant for its players" do
     data = { player_id: @player.id, proposer_id: @player.id, recipient_id: @other.id }
 
-    assert_enqueued_jobs 6, only: Game::GrantAchievementsJob do
+    assert_enqueued_jobs 9, only: Game::GrantAchievementsJob do
       Game::Handlers::Achievements::EVENTS.each_key { Game::Handlers::Achievements.call(it.new(data:)) }
     end
   end
@@ -379,8 +811,8 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     Game::GrantAchievementsJob.perform_now(banned.id)
     Game::GrantAchievementsJob.perform_now(0)
 
-    assert_equal [ "first_booster" ], unlocked
-    assert_equal 1, unlock_events.size
+    assert_equal %w[first_booster packaging_irregularity excellence_in_mediocrity], unlocked
+    assert_equal 3, unlock_events.size
     assert_empty unlocked(banned)
   end
 
@@ -392,7 +824,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     Accounts::DeletePlayer.new.call(player: @player).value!
 
     assert_empty unlocked
-    assert_equal [ "first_booster" ], unlocked(@other)
+    assert_equal %w[first_booster packaging_irregularity excellence_in_mediocrity], unlocked(@other)
   end
 end
 
@@ -414,7 +846,8 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
   def unlocked = Game::AchievementUnlock.pluck(:player_id, :achievement).sort
 
   def expected
-    [ [ @player.id, "first_booster" ], [ @player.id, "first_legendary" ], [ @player.id, "statistical_non_compliance" ], [ @other.id, "first_booster" ] ].sort
+    (%w[first_booster first_legendary statistical_non_compliance packaging_irregularity excellence_in_mediocrity diversified_portfolio].map { [ @player.id, it ] } +
+      %w[first_booster packaging_irregularity excellence_in_mediocrity].map { [ @other.id, it ] }).sort
   end
 
   def run_task = rake_task("game:backfill_achievements").execute
@@ -426,8 +859,70 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
 
     assert_equal expected, unlocked
     events = Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a
-    assert_equal 4, events.size
+    assert_equal 9, events.size
     assert events.all? { it.data[:retroactive] }
+  end
+
+  test "the streak achievements are granted from history, silently" do
+    Array.new(10) { Time.utc(2026, 1, 1) + it.minutes }.each { create_pack(@other, cards: [ fixture_tier_ids.first ] * Game::Pack::SIZE, opened_at: it) }
+    (0...7).each do |offset|
+      pack = create_pack(@other, kind: :bonus, opened_at: Time.current)
+      Game::DailyBonusClaim.create!(player_id: @other.id, day: Date.new(2026, 4, 1) + offset, pack_id: pack.id)
+    end
+
+    assert_no_enqueued_jobs(only: PlayerStreamJob) { Game::BackfillAchievementsJob.perform_now }
+
+    granted = Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement)
+    assert_includes granted, "luck_is_a_marketing_concept"
+    assert_includes granted, "leave_request_denied"
+    events = Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a
+    assert events.all? { it.data[:retroactive] }
+  end
+
+  test "the reveal achievements are granted from the recorded reveal modes, silently" do
+    Array.new(10) { Time.utc(2026, 1, 1) + it.minutes }.each do |at|
+      create_pack(@other, cards: fixture_tier_ids.first(1) * Game::Pack::SIZE, opened_at: at).update_columns(reveal_mode: "all")
+    end
+
+    assert_no_enqueued_jobs(only: PlayerStreamJob) { Game::BackfillAchievementsJob.perform_now }
+
+    granted = Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement)
+    assert_includes granted, "streamlined_opening_procedure"
+    assert_not_includes granted, "diligence_beyond_the_call_of_duty"
+    assert Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a.all? { it.data[:retroactive] }
+  end
+
+  test "the collection achievements are granted from the current collection, silently" do
+    card = Catalog::Card.create!(source_key: "src:backfill-studio", slug: "backfill-studio", release_date: Date.new(2020, 1, 1),
+      image_url: "https://images.example.test/b.jpg", store_url: "https://store.example.test/b", developers: [ "Acme" ])
+    season = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    Catalog::CardSeason.create!(card:, season:, prestige_score: 0.5, rating: 80, rarity: :common, number: 1)
+    Game::Holding.where(player_id: @player.id).delete_all
+    Game::Holding.create!(player_id: @other.id, card_season_id: card.card_seasons.sole.id, quantity: 5)
+
+    assert_no_enqueued_jobs(only: PlayerStreamJob) { Game::BackfillAchievementsJob.perform_now }
+
+    assert_includes Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement), "diversified_portfolio"
+    assert_not_includes Game::AchievementUnlock.where(player_id: @player.id).pluck(:achievement), "diversified_portfolio"
+    assert Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a.all? { it.data[:retroactive] }
+  end
+
+  test "the community achievements are granted from history, silently" do
+    Game::FirstDiscovery.where(card_season_id: fixture_tier_ids.first).delete_all
+    Game::FirstDiscovery.create!(card_season_id: fixture_tier_ids.first, player_id: @other.id, discovered_at: 1.day.ago)
+    Game::FeedEntry.record_repost(player_id: @other.id, card_season_id: fixture_tier_ids.first, at: Time.current)
+    low, high = [ @player.id, @other.id ].minmax
+    3.times do
+      Game::Trade.create!(low_player_id: low, high_player_id: high, proposer_id: @player.id, recipient_id: @other.id, status: "accepted",
+        proposed_at: 2.hours.ago, expires_at: 1.day.from_now, closed_at: 1.hour.ago)
+    end
+
+    assert_no_enqueued_jobs(only: PlayerStreamJob) { Game::BackfillAchievementsJob.perform_now }
+
+    assert_equal %w[a_discovery_of_ours a_strictly_professional_relationship first_claim_all_rights_reserved],
+      Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement).grep(/discovery|claim|professional/).sort
+    assert_equal %w[a_strictly_professional_relationship], Game::AchievementUnlock.where(player_id: @player.id).pluck(:achievement).grep(/discovery|claim|professional/)
+    assert Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a.all? { it.data[:retroactive] }
   end
 
   test "a player whose grant raises is reported, and the others are still served" do
@@ -441,7 +936,7 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
 
     assert_error_reported(RuntimeError) { Game::BackfillAchievementsJob.perform_now }
 
-    assert_equal [ [ @other.id, "first_booster" ] ], unlocked
+    assert_equal %w[first_booster packaging_irregularity excellence_in_mediocrity].map { [ @other.id, it ] }.sort, unlocked
   ensure
     Game::GrantAchievementsJob.define_singleton_method(:grant, grant)
   end

@@ -1,11 +1,16 @@
 module AchievementsHelper
   GLYPHS = {
     first_booster: "pack", boosters_10: "pack", boosters_100: "pack", boosters_500: "pack",
-    first_epic: "gem", statistical_non_compliance: "gem",
+    first_epic: "gem", statistical_non_compliance: "outlier",
     first_legendary: "star",
     first_complete_set: "set", three_complete_sets: "set",
     first_trade: "trade",
-    first_repost: "card"
+    first_repost: "card",
+    packaging_irregularity: "duplicate", excellence_in_mediocrity: "tokens", historical_asset_management: "hourglass",
+    luck_is_a_marketing_concept: "clover", leave_request_denied: "refused",
+    streamlined_opening_procedure: "skip", diligence_beyond_the_call_of_duty: "revealed",
+    diversified_portfolio: "fan", market_concentration: "tower",
+    first_claim_all_rights_reserved: "flag", a_discovery_of_ours: "lens", a_strictly_professional_relationship: "clasp"
   }.freeze
 
   def achievement_icon(tile)

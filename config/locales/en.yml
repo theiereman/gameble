@@ -28,26 +28,50 @@ en:
       boosters_10: Open 10 capsules
       boosters_100: Open 100 capsules
       boosters_500: Open 500 capsules
+      a_discovery_of_ours: Repost a card you pioneered
+      a_strictly_professional_relationship: Complete three trades with the same player
+      diligence_beyond_the_call_of_duty: 10 capsules in a row with every card revealed one by one
+      diversified_portfolio: Hold five copies of the same game at once
+      excellence_in_mediocrity: Five Common cards in one standard capsule
       first_booster: Open a capsule
+      first_claim_all_rights_reserved: Be the pioneer of a card in a season
       first_complete_set: Complete a set
       first_epic: Get an Epic card
       first_legendary: Get a Legendary card
       first_repost: Repost a card
       first_trade: Complete a trade
-      statistical_non_compliance: Two cards of Rare or better in one standard capsule
+      historical_asset_management: A game released before 2000 and one released in 2025 or later in one capsule
+      leave_request_denied: Collect the daily bonus 7 days in a row (UTC days)
+      luck_is_a_marketing_concept: 10 standard capsules in a row with no Rare or better card
+      market_concentration: Hold 10 different games of the same studio at once
+      packaging_irregularity: Two copies of the same game in one capsule
+      statistical_non_compliance: Two Rare or better cards in one standard capsule
+      streamlined_opening_procedure: 10 capsules in a row opened with "Reveal all"
       three_complete_sets: Complete 3 sets
     names:
-      boosters_10: 10 capsules
-      boosters_100: 100 capsules
-      boosters_500: 500 capsules
-      first_booster: First capsule
-      first_complete_set: First complete set
-      first_epic: First Epic
-      first_legendary: First Legendary
-      first_repost: First repost
-      first_trade: First trade
+      boosters_10: Probation Period Completed
+      boosters_100: Outstanding Consumption Record
+      boosters_500: Loyalty Beyond Reasonable Limits
+      a_discovery_of_ours: A Discovery of Ours
+      a_strictly_professional_relationship: A Strictly Professional Relationship
+      diligence_beyond_the_call_of_duty: Diligence Beyond the Call of Duty
+      diversified_portfolio: Diversified Portfolio
+      excellence_in_mediocrity: Excellence in Mediocrity
+      first_booster: Your First Authorized Acquisition
+      first_claim_all_rights_reserved: First Claim, All Rights Reserved
+      first_complete_set: File Closed in Full
+      first_epic: Noted Above Expectations
+      first_legendary: An Exceptional Administrative Incident
+      first_repost: Unpaid Promotion
+      first_trade: Approved Mutual Assistance
+      historical_asset_management: Historical Asset Management
+      leave_request_denied: Leave Request Denied
+      luck_is_a_marketing_concept: Luck Is a Marketing Concept
+      market_concentration: Market Concentration
+      packaging_irregularity: Packaging Irregularity
       statistical_non_compliance: Statistical Non-Compliance
-      three_complete_sets: Three complete sets
+      streamlined_opening_procedure: Streamlined Opening Procedure
+      three_complete_sets: Archival Excellence
     show:
       earned_label: Achievements earned
       groups:
@@ -692,14 +716,18 @@ en:
       goal: Take part in the weekly mission.
       set_tier: Collect half of the %{set} set.
     names:
+      assidu: Assiduous
       aurore: Dawn
       centurion: Centurion
       confrere: Confrère
+      contrat: Contract
       etoile-dor: Golden star
       millesime-2017: Vintage 2017
       saison-1: Season 1
+      siege-social: Headquarters
       soldes-hiver: Winter sales
       standard: Standard
+      trefle-fane: Wilted clover
     unlocked:
       title: Card back unlocked
   card_details:
@@ -1082,6 +1110,9 @@ en:
       more: More
       nameless: Nameless player
       no_friends: Add friends to follow their pulls.
+      pages:
+        label: Pages of the feed
+        next: Older entries
       pulled_html: "%{name} pulled %{card}"
       repost_tag: Repost
       reposted_html: "%{name} reposted %{card}."
@@ -1517,12 +1548,12 @@ en:
         subtitle: Sets to complete, friends to trade with, a shared mission every week.
         tiles:
           achievements:
-            first_legendary: First Legendary
-            first_pack: First capsule
-            first_set: First complete set
-            first_trade: First trade
-            text: First capsule, first Epic, first Legendary, first complete set,
-              first trade…
+            first_legendary: An Exceptional Administrative Incident
+            first_pack: Your First Authorized Acquisition
+            first_set: File Closed in Full
+            first_trade: Approved Mutual Assistance
+            text: Your First Authorized Acquisition, Noted Above Expectations, File Closed
+              in Full, Approved Mutual Assistance…
             title: Achievements
             to_earn: To earn
           backs:

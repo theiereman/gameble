@@ -73,9 +73,9 @@ describe("RevealHold", () => {
   it("holds a marked toast while an opening is revealing and releases the held ones in arrival order", () => {
     const hold = new RevealHold<string>()
     expect(hold.revealingChanged(true)).toEqual([])
-    expect(hold.hold("Première Épique", true)).toBe(true)
-    expect(hold.hold("Premier set complet", true)).toBe(true)
-    expect(hold.revealingChanged(false)).toEqual(["Première Épique", "Premier set complet"])
+    expect(hold.hold("A surpassé les attentes", true)).toBe(true)
+    expect(hold.hold("Dossier complété", true)).toBe(true)
+    expect(hold.revealingChanged(false)).toEqual(["A surpassé les attentes", "Dossier complété"])
     expect(hold.revealingChanged(false)).toEqual([])
   })
 
@@ -88,26 +88,26 @@ describe("RevealHold", () => {
 
   it("lets a marked toast through when no opening is revealing", () => {
     const hold = new RevealHold<string>()
-    expect(hold.hold("Première capsule", true)).toBe(false)
+    expect(hold.hold("Première acquisition approuvée", true)).toBe(false)
     hold.revealingChanged(true)
     hold.revealingChanged(false)
-    expect(hold.hold("Premier échange", true)).toBe(false)
+    expect(hold.hold("Entraide mutuelle", true)).toBe(false)
   })
 
   it("keeps holding while the reveal goes on", () => {
     const hold = new RevealHold<string>()
     hold.revealingChanged(true)
-    hold.hold("Première capsule", true)
+    hold.hold("Première acquisition approuvée", true)
     expect(hold.revealingChanged(true)).toEqual([])
-    expect(hold.revealingChanged(false)).toEqual(["Première capsule"])
+    expect(hold.revealingChanged(false)).toEqual(["Première acquisition approuvée"])
   })
 
   it("drops the held toasts and stops holding once cleared", () => {
     const hold = new RevealHold<string>()
     hold.revealingChanged(true)
-    hold.hold("Première capsule", true)
+    hold.hold("Première acquisition approuvée", true)
     hold.clear()
-    expect(hold.hold("Première Légendaire", true)).toBe(false)
+    expect(hold.hold("Nous n'en demandions pas autant", true)).toBe(false)
     expect(hold.revealingChanged(false)).toEqual([])
   })
 })

@@ -84,7 +84,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-band__identity > button.button--secondary.button--small[type=button][disabled][aria-label=?]", "Trade with Gabe the Brave",
       text: "TRADE"
     assert_select ".profile-band [aria-haspopup], .profile-band a", false
-    assert_equal [ [ "Cards", "11/#{card_total(season)}" ], [ "Complete sets", "1" ], [ "Achievements", "5/11" ] ], keys
+    assert_equal [ [ "Cards", "11/#{card_total(season)}" ], [ "Complete sets", "1" ], [ "Achievements", "5/23" ] ], keys
 
     assert_select "section.profile-stats[aria-label=Statistics]"
     rarities = figures(".profile-stats__grid--rarities")
@@ -95,10 +95,10 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
       figures(".profile-stats__grid:not(.profile-stats__grid--rarities)")
 
     assert_equal [ "Fortune", "Achievements", "Sets" ], css_select("h2").map(&:text)
-    assert_select "#profile-achievements-heading ~ .achievements__head .visually-hidden", "5 achievements earned out of 11"
+    assert_select "#profile-achievements-heading ~ .achievements__head .visually-hidden", "5 achievements earned out of 23"
     assert_select "#profile-achievements-heading ~ .achievements__head .achievements__segment--lit", 5
     assert_select ".profile-section__label", "Latest earned"
-    assert_equal [ "First complete set", "10 capsules", "First trade", "First Epic" ],
+    assert_equal [ "File Closed in Full", "Probation Period Completed", "Approved Mutual Assistance", "Noted Above Expectations" ],
       css_select(".profile-achievements .achievement__name").map(&:text)
     assert_select ".profile-achievements .achievement--locked, .profile-achievements .achievement__bar", false
 
@@ -135,7 +135,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get brother_path(locale: :en, token: @owner.token)
 
-    assert_equal [ "First Epic", "First capsule" ], css_select(".profile-achievements .achievement__name").map(&:text)
+    assert_equal [ "Noted Above Expectations", "Your First Authorized Acquisition" ], css_select(".profile-achievements .achievement__name").map(&:text)
   end
 
   test "the owner's figures, never the viewer's" do
@@ -177,9 +177,9 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.token)
 
     assert_response :success
-    assert_equal [ [ "Cards", "0/#{card_total(season)}" ], [ "Complete sets", "0" ], [ "Achievements", "0/11" ] ], keys
+    assert_equal [ [ "Cards", "0/#{card_total(season)}" ], [ "Complete sets", "0" ], [ "Achievements", "0/23" ] ], keys
     assert_equal [ 0 ] * 5, figures(".profile-stats__grid--rarities").map { it.last.to_i }
-    assert_select ".achievements__segment", 11
+    assert_select ".achievements__segment", 23
     assert_select ".achievements__segment--lit", false
     assert_select ".profile-section__label, .profile-achievements", false
     assert_select ".profile-section__aside", "0 sets started"
@@ -193,7 +193,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".profile__no-season", "No season of cards is published yet."
-    assert_equal [ [ "Cards", "0" ], [ "Complete sets", "0" ], [ "Achievements", "0/11" ] ], keys
+    assert_equal [ [ "Cards", "0" ], [ "Complete sets", "0" ], [ "Achievements", "0/23" ] ], keys
     assert_select ".profile-stats, .profile-section", false
   end
 
@@ -656,13 +656,13 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "Joueur #{code}"
     assert_select "h1", "Joueur #{code}"
     assert_select ".profile-band__since", "Membre depuis mars 2026"
-    assert_equal [ [ "Cartes", "0/#{card_total(season)}" ], [ "Sets complets", "0" ], [ "Succès", "0/11" ] ], keys
+    assert_equal [ [ "Cartes", "0/#{card_total(season)}" ], [ "Sets complets", "0" ], [ "Succès", "0/23" ] ], keys
     assert_select "section.profile-stats[aria-label=Statistiques]"
     assert_equal [ "Raretés", "Activité" ], css_select(".profile-stats__kicker").map(&:text)
     assert_equal [ "Capsules ouvertes", "Premières découvertes", "Échanges conclus" ],
       figures(".profile-stats__grid:not(.profile-stats__grid--rarities)").map(&:first)
     assert_equal [ "Fortune", "Succès", "Sets" ], css_select("h2").map(&:text)
-    assert_select "#profile-achievements-heading ~ .achievements__head .visually-hidden", "0 succès obtenu sur 11"
+    assert_select "#profile-achievements-heading ~ .achievements__head .visually-hidden", "0 succès obtenu sur 23"
     assert_select ".profile-section__aside", "0 set entamé"
 
     set_members(season, "pirates").each { |id| hold(@owner, id, 1) }

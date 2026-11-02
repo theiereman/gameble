@@ -347,11 +347,14 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     end
   end
 
-  test "the live feed keeps its newest entries up to the feed's limit" do
-    (Game::FeedEntries::LIMIT / 5).times { open_epic(@hugo) }
+  test "the live feed keeps the older pages already loaded when a new entry tops it" do
+    (Game::FeedEntries::LIMIT / 5 + 1).times { open_epic(@hugo) }
     perform_enqueued_jobs(only: LiveFeedJob)
     visit feed_path(locale: :en)
     assert_selector "#feed-entries > li.feed__entry", count: Game::FeedEntries::LIMIT
+    page.execute_script("document.querySelector('.feed__pages').scrollIntoView()")
+    total = Game::FeedEntry.where(notable: true).count
+    assert_selector "#feed-entries > li.feed__entry", count: total
     listening_to_all
 
     create_pack(@hugo, cards: [ catalog_card_seasons(:legendary_card_one).id ] * 5)
@@ -359,7 +362,7 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     perform_enqueued_jobs(only: LiveFeedJob)
 
     assert_selector "#feed-entries > li.feed__entry:nth-child(-n+5) .feed__tag--legendary", count: 5
-    assert_selector "#feed-entries > li.feed__entry", count: Game::FeedEntries::LIMIT
+    assert_selector "#feed-entries > li.feed__entry", count: total + 5
     assert not_reloaded?
   end
 

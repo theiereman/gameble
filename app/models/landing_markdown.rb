@@ -17,55 +17,55 @@ class LandingMarkdown
 
   private
     def hero
-      [ "# #{t("hero.hook")}", t("hero.line") ].join("\n\n")
+      [ "# #{words("hero.hook")}", words("hero.line") ].join("\n\n")
     end
 
     def concept
-      [ "## #{t("concept.title")}", t("concept.subtitle"), rarities, notes ].join("\n\n")
+      [ "## #{words("concept.title")}", words("concept.subtitle"), rarities, notes ].join("\n\n")
     end
 
     def rarities
       @odds.map do |row|
-        entry = "#{I18n.t("catalog.rarity.#{row.key}")}, #{t("concept.per_card", percent: row.percent)}"
+        entry = "#{I18n.t("catalog.rarity.#{row.key}")}, #{words("concept.per_card", percent: row.percent)}"
         card = @samples[row.key]
         card ? "- #{entry} (#{card.title})" : "- #{entry}"
       end.join("\n")
     end
 
     def notes
-      NOTES.map { "- **#{t("concept.notes.#{it}.title")}**: #{t("concept.notes.#{it}.text")}" }.join("\n")
+      NOTES.map { "- **#{words("concept.notes.#{it}.title")}**: #{words("concept.notes.#{it}.text")}" }.join("\n")
     end
 
     def how
-      steps = STEPS.each_with_index.map { |step, index| "#{index + 1}. **#{t("how.#{step}.title")}**: #{t("how.#{step}.text")}" }
-      [ "## #{t("how.title")}", t("how.subtitle"), steps.join("\n") ].join("\n\n")
+      steps = STEPS.each_with_index.map { |step, index| "#{index + 1}. **#{words("how.#{step}.title")}**: #{words("how.#{step}.text")}" }
+      [ "## #{words("how.title")}", words("how.subtitle"), steps.join("\n") ].join("\n\n")
     end
 
     def live
-      return "## #{t("live.title")}" if @season_facts.nil?
+      return "## #{words("live.title")}" if @season_facts.nil?
 
-      facts = FACTS.map { "- #{t("live.facts.#{it}")}: #{ActiveSupport::NumberHelper.number_to_delimited(@season_facts[it.to_sym])}" }
-      season = t("live.season_name", number: @season_facts[:season_number]) if @season_facts[:season_number]
-      [ "## #{t("live.title")}", season, facts.join("\n") ].compact.join("\n\n")
+      facts = FACTS.map { "- #{words("live.facts.#{it}")}: #{ActiveSupport::NumberHelper.number_to_delimited(@season_facts[it.to_sym])}" }
+      season = words("live.season_name", number: @season_facts[:season_number]) if @season_facts[:season_number]
+      [ "## #{words("live.title")}", season, facts.join("\n") ].compact.join("\n\n")
     end
 
     def roadmap
       milestones = @roadmap.map do |milestone|
-        stories = milestone.stories.map { "  - #{it.wording} (#{t("roadmap.statuses.#{it.status}")})" }
-        [ "- #{milestone.wording} (#{t("roadmap.statuses.#{milestone.status}")})", *stories ].join("\n")
+        stories = milestone.stories.map { "  - #{it.wording} (#{words("roadmap.statuses.#{it.status}")})" }
+        [ "- #{milestone.wording} (#{words("roadmap.statuses.#{milestone.status}")})", *stories ].join("\n")
       end
-      [ "## #{t("roadmap.title")}", t("roadmap.subtitle"), milestones.join("\n") ].compact_blank.join("\n\n")
+      [ "## #{words("roadmap.title")}", words("roadmap.subtitle"), milestones.join("\n") ].compact_blank.join("\n\n")
     end
 
     def free
-      [ "## #{t("free.title")}", t("free.open"), t("free.respect") ].join("\n\n")
+      [ "## #{words("free.title")}", words("free.open"), words("free.respect") ].join("\n\n")
     end
 
     def footer
       @links.map { |label, url| "- [#{label}](#{url})" }.join("\n")
     end
 
-    def t(key, **options)
+    def words(key, **options)
       I18n.t("landings.show.#{key}", **options)
     end
 end

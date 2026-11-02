@@ -28,12 +28,12 @@ class AchievementsTest < ApplicationSystemTestCase
 
     visit achievements_path(locale: :en)
     within(earned_tile("Statistical Non-Compliance")) do
-      assert_selector ".achievement__condition", text: "Two cards of Rare or better in one standard capsule"
+      assert_selector ".achievement__condition", text: "Two Rare or better cards in one standard capsule"
     end
 
     visit achievements_path(locale: :fr)
     within(earned_tile("Non-conformité statistique")) do
-      assert_selector ".achievement__condition", text: "Deux cartes Rare ou mieux dans une capsule standard"
+      assert_selector ".achievement__condition", text: "Deux cartes Rares ou mieux dans une capsule standard"
     end
   end
 end

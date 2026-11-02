@@ -56,8 +56,27 @@
   display: none;
 }
 
-.feed__list:has(> li) ~ .feed__empty {
+.feed:has(.feed__list > li) .feed__empty {
   display: none;
+}
+
+.feed__pages {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-3);
+}
+
+.feed__more {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-chip-height);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+  color: var(--color-text);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+  text-decoration: none;
 }
 
 .feed__entry {
