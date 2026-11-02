@@ -1316,12 +1316,6 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "1", "×2" ] ], row.css(".trade-suggestion__mark").map { [ it.at_css(".goal-bookmark").text.strip, it.at_css(".trade-suggestion__count")&.text ] }
     summary = row.at_css(".trade-suggestion__summary")
     assert_equal [ "Profondeurs bleues, Collines vertes · à Lea de choisir en retour", "true" ], [ summary.text, summary["aria-hidden"] ]
-    form = row.at_css(".trade-suggestion__send form")
-    assert_equal suggestions_trades_path(locale: :fr), form["action"]
-    assert_equal({ "friend" => @bob.token, "position" => "0", "take[blue-depths--s1]" => "1", "take[green-hills--s1]" => "1" },
-      form.css("input[type=hidden]").reject { it["name"] == "authenticity_token" }.to_h { [ it["name"], it["value"] ] })
-    button = form.at_css("button")
-    assert_equal [ "Envoyer", "Envoyer la suggestion à Lea" ], [ button.text.strip, button["aria-label"] ]
     assert_no_match(/card_season_id|style=|#{@bob.id}\b/, list.to_html.gsub(/value="[^"]*"/, ""))
   end
 
@@ -1337,7 +1331,6 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".trade-suggestion__summary", "Blue Depths, Green Hills · for Lea to choose in return"
     assert_match(/\ASuggestion from Lea: Blue Depths \(goal 1: Objectif 1\), Green Hills \(goal 1: Objectif 1\), Lea chooses in return\. .+\.\z/,
       css_select(".trade-suggestion__opener").sole["aria-label"])
-    assert_select ".trade-suggestion__send button[aria-label='Send the suggestion to Lea']", "Send"
   end
 
   test "every screen of the trade list shows the suggestions; none for a private player or without a spare" do

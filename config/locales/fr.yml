@@ -1932,9 +1932,6 @@ fr:
       card: "%{title} (%{goals})"
       label_mutual: "Suggestion de %{name} : %{cards} contre %{given}. %{presence}."
       label_open: "Suggestion de %{name} : %{cards}, %{name} choisit en retour. %{presence}."
-      send: "Envoyer"
-      send_label: "Envoyer la suggestion à %{name}"
-      sent: "Proposition transmise"
   accounts:
     dialog:
       title: "Supprimer mon compte"

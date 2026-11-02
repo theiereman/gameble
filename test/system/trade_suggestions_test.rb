@@ -73,40 +73,11 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
     assert_nil lea_draft
   end
 
-  test "ENVOYER sends the suggestion, the title-only toast shows, and the focus lands on the sent trade's row" do
+  test "focusing the opener holds live refresh through a window blur until the focus leaves the section" do
     sign_in @hugo
 
     visit trades_path(locale: :en)
-    find(".trade-suggestion__opener").send_keys(:tab)
-    eventually("ENVOYER after the opener") { focused?(".trade-suggestion__send button") }
-    assert_selector ".trade-suggestions[data-live-refresh-hold]", visible: :all
-    find(".trade-suggestion__send button", text: /SEND/i).click
-
-    assert_selector ".toast .toast__title", text: /PROPOSAL FORWARDED/i
-    assert_no_selector ".toast .toast__message"
-    assert_no_selector ".trade-suggestions"
-    trade = Game::Trade.sole
-    assert_equal [ [ "request", @hills, 1 ], [ "request", @depths, 1 ] ].sort, trade.items.map { [ it.side, it.card_season_id, it.quantity ] }.sort
-    eventually("focus on the sent trade's row") { focused?(".trade-row[href$='#{trade.token}']") }
-    assert_nil lea_draft
-  end
-
-  test "after ENVOYER the focus lands on the next suggestion's opener, which holds live refresh through a window blur" do
-    Game::Holding.find_by!(player_id: @lea.id, card_season_id: @hills).update!(reserved: 2)
-    crown = catalog_card_seasons(:legendary_card_one).id
-    crown_card_ids = Catalog::CardSeason.where(id: [ catalog_card_seasons(:common_card_one).id, crown, *unheld_cards(1) ]).pluck(:card_id)
-    Game::AddGoal.new.call(player: @hugo, custom_set: create_custom_set(@hugo, name: "Crown run", card_ids: crown_card_ids).token).value!
-    hold(@max, crown, 2)
-    sign_in @hugo
-
-    visit trades_path(locale: :en)
-    assert_selector ".trade-suggestion", count: 2
-    first(".trade-suggestion__send button", text: /SEND/i).click
-
-    assert_selector ".toast .toast__title", text: /PROPOSAL FORWARDED/i
-    assert_selector ".trade-suggestion", count: 1
-    assert_selector ".trade-suggestion__summary", text: "Golden Crown · for Max to choose in return"
-    eventually("focus on the remaining suggestion's opener") { focused?(".trade-suggestion__opener") }
+    page.execute_script("document.querySelector('.trade-suggestion__opener').focus()")
     assert_selector ".trade-suggestions[data-live-refresh-hold]", visible: :all
 
     page.execute_script("document.activeElement.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }))")
@@ -120,18 +91,14 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
     assert_no_selector ".trade-suggestions[data-live-refresh-hold]", visible: :all
   end
 
-  test "on a phone the row and ENVOYER are touch targets, and the list does not scroll sideways" do
+  test "on a phone the row is a touch target, and the list does not scroll sideways" do
     resize_to(390, 844)
     sign_in @hugo
 
     visit trades_path(locale: :en)
 
     row = find(".trade-suggestion")
-    send = find(".trade-suggestion__send button")
     assert_operator row.rect.height, :>=, 44
-    assert_operator send.rect.height, :>=, 44
-    assert_operator send.rect.y - row.rect.y, :>=, 8
-    assert_operator (row.rect.x + row.rect.width) - (send.rect.x + send.rect.width), :>=, 8
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "no sideways scroll"
   end
 end

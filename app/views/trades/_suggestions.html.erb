@@ -1,4 +1,4 @@
-<%# locals: (suggestions:, cards:, prefill:, focus:) %>
+<%# locals: (suggestions:, cards:, prefill:) %>
 <%= tag.section class: "trade-suggestions", aria: { labelledby: "trade-suggestions-heading" }, data: { controller: "trade-suggestions" } do %>
   <h2 class="trades__group trade-suggestions__heading" id="trade-suggestions-heading"><%= t("trades.suggestions.heading") %></h2>
   <p class="trade-suggestions__line"><%= t("trades.suggestions.line") %></p>
@@ -13,9 +13,8 @@
     <% end %>
   </p>
   <ul class="trade-suggestions__rows">
-    <% suggestions.suggestions.each_with_index do |suggestion, index| %>
-      <%= render "trades/suggestion", suggestion:, index:, cards:, goals: suggestions.goals,
-            current: trade_suggestion_current?(suggestion, prefill), focused: focus[:suggestion] == index %>
+    <% suggestions.suggestions.each do |suggestion| %>
+      <%= render "trades/suggestion", suggestion:, cards:, goals: suggestions.goals, current: trade_suggestion_current?(suggestion, prefill) %>
     <% end %>
   </ul>
 <% end %>

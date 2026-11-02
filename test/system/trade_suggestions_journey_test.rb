@@ -160,14 +160,14 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
 
     visit trades_path(locale: :en)
     assert_selector ".trade-suggestion", count: 2
-    find(".trade-suggestion", text: "Golden Crown against Portal").find(".trade-suggestion__send button", text: /SEND/i).click
+    find(".trade-suggestion", text: "Golden Crown against Portal").find(".trade-suggestion__opener").click
+    click_on "Send the proposal"
 
-    assert_selector ".toast .toast__title", text: /PROPOSAL FORWARDED/i
+    assert_selector ".toast .toast__title", text: /PROPOSAL SENT/i
     trade = Game::Trade.sole
     assert_equal [ @crown ], items_of(trade, "request")
     assert_equal [ @portal ], items_of(trade, "offer")
     assert_equal 1, Game::Holding.find_by!(player_id: @hugo.id, card_season_id: @portal).reserved
-    assert_selector ".trade-suggestion", count: 1
 
     sign_out
     assert_signed_out
@@ -213,8 +213,9 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
     sign_in @hugo
 
     visit trades_path(locale: :en)
-    find(".trade-suggestion__send button", text: /SEND/i).click
-    assert_selector ".toast .toast__title", text: /PROPOSAL FORWARDED/i
+    find(".trade-suggestion__opener").click
+    click_on "Send the proposal"
+    assert_selector ".toast .toast__title", text: /PROPOSAL SENT/i
     trade = Game::Trade.sole
     Game::DeclineTrade.new.call(player: @lea, trade_id: trade.id, revision: trade.revision).value!
 
@@ -223,7 +224,7 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
     assert_no_selector ".trade-suggestions"
   end
 
-  test "two friends hold two open trades at once, each reserving only its own offer, and a repeated send creates no second trade" do
+  test "two friends hold two open trades at once, each reserving only its own offer" do
     extras = unheld_cards(4)
     custom_goal(@hugo, "Extras", extras)
     [ @depths, @hills, *extras ].each { hold(@lea, it, 2) }
@@ -232,16 +233,18 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
 
     visit trades_path(locale: :en)
     assert_selector ".trade-suggestion", count: 1
-    page.execute_script("window.staleSend = document.querySelector('.trade-suggestion__send form').outerHTML")
-    find(".trade-suggestion__send button", text: /SEND/i).click
+    find(".trade-suggestion__opener").click
+    click_on "Send the proposal"
 
-    assert_selector ".toast .toast__title", text: /PROPOSAL FORWARDED/i
+    assert_selector ".toast .toast__title", text: /PROPOSAL SENT/i
     first_trade = Game::Trade.sole
     assert_equal 4, items_of(first_trade, "request").size
     assert_equal [ @portal, @soldier ].sort, items_of(first_trade, "offer").sort
+    visit trades_path(locale: :en)
     assert_selector ".trade-suggestion", count: 1, text: /for Lea to choose in return/
 
-    find(".trade-suggestion__send button", text: /SEND/i).click
+    find(".trade-suggestion__opener").click
+    click_on "Send the proposal"
     eventually("the second trade is open") { Game::Trade.count == 2 }
     second_trade = Game::Trade.where.not(id: first_trade.id).sole
     assert_equal [ "open" ], Game::Trade.distinct.pluck(:status)
@@ -250,10 +253,6 @@ class TradeSuggestionsJourneyTest < ApplicationSystemTestCase
     assert_equal [ @depths, @hills, *extras ].sort, (items_of(first_trade, "request") + items_of(second_trade, "request")).sort
     assert_equal [ 1, 1 ], [ @portal, @soldier ].map { Game::Holding.find_by!(player_id: @hugo.id, card_season_id: it).reserved }
     assert_equal 0, Game::Holding.where(player_id: @lea.id).sum(:reserved)
-
-    page.execute_script("document.body.insertAdjacentHTML('beforeend', window.staleSend); document.body.lastElementChild.requestSubmit()")
-    assert_selector ".toast", text: /Not enough copies/
-    assert_equal 2, Game::Trade.count
   end
 
   test "no suggestion ever names a private player or reveals a collection its owner hides" do

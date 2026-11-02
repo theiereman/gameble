@@ -2833,9 +2833,6 @@ en:
       label_mutual: 'Suggestion from %{name}: %{cards} against %{given}. %{presence}.'
       label_open: 'Suggestion from %{name}: %{cards}, %{name} chooses in return. %{presence}.'
       line: The Brotherhood has identified opportunities for collaboration among its members.
-      send: Send
-      send_label: Send the suggestion to %{name}
-      sent: Proposal forwarded
       summary_mutual: "%{cards} against %{given}"
       summary_open: "%{cards} · for %{name} to choose in return"
     throttled: Too many actions in one minute. Try again in a moment.
