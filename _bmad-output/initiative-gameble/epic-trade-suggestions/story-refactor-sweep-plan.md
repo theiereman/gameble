@@ -3,13 +3,13 @@ title: 'Refactor sweep'
 type: 'refactor'
 ticket: 6
 created: '2026-11-02'
-status: 'in-review'
+status: 'built'
 baseline_revision: 'ddcb5b303cc01fe02644e757004b66f294af6398'
 route: 'oneshot'
 route_source: 'auto'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: [quick]
 review_loop_iteration: 0
 followup_review_recommended: false
 context: []
@@ -42,3 +42,13 @@ Oneshot: a mechanical move of existing code with no new behavior. The epic's pla
 - rubocop, `script/check_file_sizes`, `script/check_planning_references`, `bundle exec packwerk check`, `bin/rails zeitwerk:check` -- clean. Suites run later in the main tree.
 
 ## Review Triage Log
+
+### 2026-11-02 - Review pass
+- verdicts: 0 findings - high 0, medium 0, low 0, false 0, maybe-false 0
+
+## Auto Run Result
+
+- Summary: trade suggestions split into FreeEditions, OpenTrades, DeclinedByFriend and Spares; declined pairs read once; batched held-games read moved to `HeldGames.among_players`.
+- Review: 0 findings. Follow-up review recommended: false.
+- Verification: static checks only (rubocop, size, planning-reference, packwerk, zeitwerk); suites not run by author's instruction.
+- Residual risk: the budget and flat-query tests have not run on this change.
