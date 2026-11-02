@@ -30,6 +30,7 @@ import { dirname, join, relative, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { deflateSync, inflateSync } from "node:zlib"
 import { SET_BACK_DESIGNS, drawSetBack, setBackName } from "./set_backs.mjs"
+import { ACHIEVEMENT_BACK_DESIGNS, drawAchievementBack } from "./achievement_backs.mjs"
 import { EMBLEM_SIZE, ORIGIN_LOOKS, drawEmblem, originBodyFile } from "./origin_canisters.mjs"
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..")
@@ -1284,6 +1285,13 @@ files.set("starfield.svg", starfieldSvg())
 for (const { name, id } of BACK_DESIGNS) {
   for (const [size, [w, h]] of Object.entries(CARD_SIZES)) files.set(`back-${name}-${size}.png`, backCanvas(id, w / 2 | 0, h / 2 | 0))
 }
+for (const design of ACHIEVEMENT_BACK_DESIGNS) {
+  for (const [size, [w, h]] of Object.entries(CARD_SIZES)) {
+    const g = canvas(w / 2 | 0, h / 2 | 0)
+    drawAchievementBack(g, g.width, g.height, design, { mixc, ptext, ptw })
+    files.set(`back-${design.name}-${size}.png`, g)
+  }
+}
 for (const design of SET_BACK_DESIGNS) {
   for (const [size, [w, h]] of Object.entries(CARD_SIZES)) {
     const g = canvas(w / 2 | 0, h / 2 | 0)
@@ -1342,6 +1350,8 @@ const DESCRIPTIONS = {
   "tab-more.svg": "Phone tab bar icon: PLUS (text colour)",
   "starfield.svg": "Star field tile, 480 × 480 CSS px, repeated under the content",
   ...Object.fromEntries(BACK_DESIGNS.flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
+    [`back-${name}-${size}.png`, `${title} back for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
+  ...Object.fromEntries(ACHIEVEMENT_BACK_DESIGNS.flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${name}-${size}.png`, `${title} back for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
   ...Object.fromEntries(SET_BACK_DESIGNS.flatMap((design) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${setBackName(design)}-${size}.png`, `${design.word} back of the ${design.key} ${design.kind.replace(/_/g, " ")} set for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
@@ -1432,6 +1442,8 @@ function sheetHtml() {
   const sizes = Object.keys(CARD_SIZES)
   const backRows = BACK_DESIGNS.map(({ name, title, look }) =>
     `<tr><th scope="row"><b>${escape(title)}</b><span>${escape(look)}</span></th>${sizes.map((size) => `<td>${item(`back-${name}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
+  const achievementBackRows = ACHIEVEMENT_BACK_DESIGNS.map(({ name, title, look }) =>
+    `<tr><th scope="row"><b>${escape(title)}</b><span>${escape(look)}</span></th>${sizes.map((size) => `<td>${item(`back-${name}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
   const setBackRows = SET_BACK_DESIGNS.map((design) =>
     `<tr><th scope="row"><b>${escape(design.word)}</b><span>${escape(`${design.key}, ${design.kind.replace(/_/g, " ")} set`)}</span></th>${sizes.map((size) => `<td>${item(`back-${setBackName(design)}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
   const canisterParts = ["canister-cap-top.png", "canister-body.png", "canister-cap-bottom.png", ...ORIGIN_LOOKS.map(originBodyFile)]
@@ -1479,6 +1491,7 @@ ${svgs.map(item).join("\n")}
 <thead><tr><th></th>${sizes.map((size) => `<th scope="col">card-${size}</th>`).join("")}</tr></thead>
 <tbody>
 ${backRows}
+${achievementBackRows}
 </tbody>
 </table></div>
 

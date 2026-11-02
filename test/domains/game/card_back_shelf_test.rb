@@ -40,7 +40,7 @@ class Game::CardBackShelfTest < ActiveSupport::TestCase
 
     assert_equal Game::CardBackShelf::GROUPS, groups.keys.sort_by { Game::CardBackShelf::GROUPS.index(it) }
     assert_equal %w[standard saison-1 millesime-2017 soldes-hiver], groups[:base].map(&:key)
-    assert_equal %w[centurion etoile-dor aurore], groups[:achievement].map(&:key)
+    assert_equal %w[centurion etoile-dor aurore trefle-fane assidu siege-social contrat], groups[:achievement].map(&:key)
     assert_equal %w[confrere], groups[:goal].map(&:key)
     assert_equal Game::CardBacks::THEME_KEYS.map { "set-theme-#{it}" }, groups[:theme].map(&:key)
     assert_equal Game::CardBacks::HALL_OF_FAME_KEYS.map { "set-hall_of_fame-#{it}" }, groups[:hall_of_fame].map(&:key)

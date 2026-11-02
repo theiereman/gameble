@@ -230,6 +230,18 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_nil tile(:to_earn, "Entraide mutuelle").at_css(".achievement__back")
   end
 
+  test "the four hardest achievements show the back they unlock, with its picture" do
+    sign_in(@player)
+    { "luck_is_a_marketing_concept" => "Wilted clover", "leave_request_denied" => "Assiduous",
+      "market_concentration" => "Headquarters", "a_strictly_professional_relationship" => "Contract" }.each do |key, back|
+      get achievements_path(locale: :en)
+      found = tile(:to_earn, I18n.t("achievements.names.#{key}", locale: :en))
+
+      assert_equal "Unlocks the #{back} card back", found.at_css(".achievement__back").text.strip
+      assert found.at_css("img.achievement__back-image")
+    end
+  end
+
   test "the card back line reads in English" do
     sign_in(@player)
 

@@ -716,14 +716,18 @@ en:
       goal: Take part in the weekly mission.
       set_tier: Collect half of the %{set} set.
     names:
+      assidu: Assiduous
       aurore: Dawn
       centurion: Centurion
       confrere: Confrère
+      contrat: Contract
       etoile-dor: Golden star
       millesime-2017: Vintage 2017
       saison-1: Season 1
+      siege-social: Headquarters
       soldes-hiver: Winter sales
       standard: Standard
+      trefle-fane: Wilted clover
     unlocked:
       title: Card back unlocked
   card_details:

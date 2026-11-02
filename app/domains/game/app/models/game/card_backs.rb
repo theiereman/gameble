@@ -24,7 +24,15 @@ module Game
     end.freeze
 
     GOAL_BACK = "confrere".freeze
-    ACHIEVEMENT_BACKS = { "boosters_100" => "centurion", "first_legendary" => "etoile-dor", "three_complete_sets" => "aurore" }.freeze
+    ACHIEVEMENT_BACKS = {
+      "boosters_100" => "centurion",
+      "first_legendary" => "etoile-dor",
+      "three_complete_sets" => "aurore",
+      "luck_is_a_marketing_concept" => "trefle-fane",
+      "leave_request_denied" => "assidu",
+      "market_concentration" => "siege-social",
+      "a_strictly_professional_relationship" => "contrat"
+    }.freeze
     EVENT_BACK_KEYS = %w[saison-1 millesime-2017 soldes-hiver].freeze
 
     MILESTONE_BACKS = [
