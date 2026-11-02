@@ -44,4 +44,30 @@ describe("downscale", () => {
   it("answers null when a surface has no 2D context", () => {
     expect(downscale({} as CanvasImageSource, 600, 900, 68, 108, () => null)).toBeNull()
   })
+
+  it("crops within a band, anchored like a whole image", () => {
+    const surfaces: FakeSurface[] = []
+    const source = new FakeSurface(600, 900)
+    source.pixels = image(600, 900, () => [10, 20, 30, 255])
+
+    downscale(
+      source as unknown as CanvasImageSource,
+      600,
+      900,
+      68,
+      108,
+      (width, height) => {
+        const surface = new FakeSurface(width, height)
+        surfaces.push(surface)
+        return surface as unknown as Surface
+      },
+      0.5,
+      { start: 0.2, end: 0.6 },
+    )
+
+    // The band is 600 × 360; the art ratio keeps 226.7 × 360 of it, centred, from row 180.
+    const [sx, sy, sw, sh] = surfaces[0].context.draws[0].args
+    expect(sx).toBeCloseTo((600 - 226.67) / 2)
+    expect([sy, sw > 226 && sw < 227.5, sh]).toEqual([180, true, 360])
+  })
 })

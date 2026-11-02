@@ -1,5 +1,6 @@
 import { applyPalette, buildPalette, pixelate, type Color, type Pixels } from "pixelcrush"
 import { downscale } from "./downscale"
+import { findSharpBand, SAMPLE_WIDTH, type Band } from "./letterbox"
 import { isFlatGrey, isTooSmall } from "./placeholder"
 
 export type ArtJob = {
@@ -108,7 +109,8 @@ export async function runJob(job: ArtJob, environment: JobEnvironment): Promise<
 
   try {
     if (isTooSmall(bitmap.width, bitmap.height)) return MISSING
-    const art = artPixels(bitmap, job.width, job.height, environment)
+    const band = sharpBand(bitmap, environment)
+    const art = artPixels(bitmap, job.width, job.height, band, environment)
     if (!art) return UNSUPPORTED
 
     let palette = environment.palettes.get(job.url, job.colors)
@@ -116,7 +118,7 @@ export async function runJob(job: ArtJob, environment: JobEnvironment): Promise<
       const atPaletteSize =
         job.paletteWidth === job.width && job.paletteHeight === job.height
           ? art
-          : artPixels(bitmap, job.paletteWidth, job.paletteHeight, environment)
+          : artPixels(bitmap, job.paletteWidth, job.paletteHeight, band, environment)
       if (!atPaletteSize) return UNSUPPORTED
       if (isFlatGrey(atPaletteSize)) return MISSING
       palette = buildPalette(atPaletteSize, job.colors)
@@ -137,13 +139,26 @@ export async function runJob(job: ArtJob, environment: JobEnvironment): Promise<
   }
 }
 
+function sharpBand(bitmap: ImageBitmap, { createSurface }: JobEnvironment): Band | null {
+  const height = Math.round((SAMPLE_WIDTH * bitmap.height) / bitmap.width)
+  if (height <= SAMPLE_WIDTH) return null
+  const surface = createSurface(SAMPLE_WIDTH, height)
+  if (!surface) return null
+  surface.context.imageSmoothingEnabled = true
+  surface.context.imageSmoothingQuality = "high"
+  surface.context.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height, 0, 0, SAMPLE_WIDTH, height)
+  const { data } = surface.context.getImageData(0, 0, SAMPLE_WIDTH, height)
+  return findSharpBand({ width: SAMPLE_WIDTH, height, data })
+}
+
 function artPixels(
   bitmap: ImageBitmap,
   width: number,
   height: number,
+  band: Band | null,
   { createSurface }: JobEnvironment,
 ): Pixels | null {
-  const last = downscale(bitmap, bitmap.width, bitmap.height, width, height, createSurface)
+  const last = downscale(bitmap, bitmap.width, bitmap.height, width, height, createSurface, undefined, band)
   if (!last) return null
   const { data } = last.context.getImageData(0, 0, last.width, last.height)
   return pixelate({ width: last.width, height: last.height, data }, { width, height, crop: "none" })

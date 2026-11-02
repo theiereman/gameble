@@ -109,7 +109,7 @@ describe("runJob", () => {
     await runJob(job("https://cdn.test/tall.jpg", SMALL, SMALL), environment)
 
     const regionHeight = 300 / (68 / 108)
-    const [first, ...rest] = surfaces.filter((surface) => surface.context.draws.length > 0)
+    const [first, ...rest] = surfaces.slice(1).filter((surface) => surface.context.draws.length > 0)
     const [sx, sy, sw, sh] = first.context.draws[0].args
     expect([sx, sw]).toEqual([0, 300])
     expect(sy).toBeCloseTo((600 - regionHeight) * 0.42)
@@ -118,6 +118,35 @@ describe("runJob", () => {
     expect(last.width).toBeLessThanOrEqual(2 * 68)
     expect(last.width).toBeGreaterThanOrEqual(68)
     expect(first.context.imageSmoothingQuality).toBe("high")
+  })
+
+  it("crops a cover built from a banner to its sharp band", async () => {
+    images.set(
+      "https://cdn.test/banner.png",
+      image(600, 900, (x, y) =>
+        y >= 130 && y < 410
+          ? [40 + ((x * 37 + y * 91) % 170), (x * 11) % 256, (y * 29) % 256, 255]
+          : [150 + Math.round(20 * Math.sin(x / 90)), 100, 60, 255],
+      ),
+    )
+
+    await runJob(job("https://cdn.test/banner.png", SMALL, SMALL), environment)
+
+    const [sx, sy, sw, sh] = surfaces[1].context.draws[0].args
+    expect(sy).toBeGreaterThanOrEqual(130)
+    expect(sy + sh).toBeLessThanOrEqual(410)
+    expect(sh).toBeGreaterThan(250)
+    expect(sw).toBeLessThan(sh)
+    expect(sx).toBeGreaterThan(0)
+  })
+
+  it("keeps the whole of a genuine portrait", async () => {
+    images.set("https://cdn.test/a.jpg", COVER)
+
+    await runJob(job("https://cdn.test/a.jpg", SMALL, SMALL), environment)
+
+    const [, , , regionHeight] = surfaces[1].context.draws[0].args
+    expect(regionHeight).toBeCloseTo(900)
   })
 
   it("computes a game's palette once, at the palette size, and draws every size with it", async () => {

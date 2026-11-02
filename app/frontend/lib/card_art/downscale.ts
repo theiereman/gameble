@@ -1,4 +1,5 @@
 import { cropRegion } from "pixelcrush"
+import type { Band } from "./letterbox"
 
 export const DEFAULT_ANCHOR = 0.42
 
@@ -39,8 +40,12 @@ export function downscale<C extends DrawContext>(
   height: number,
   createSurface: CreateSurface<C>,
   anchor = DEFAULT_ANCHOR,
+  band: Band | null = null,
 ): (Surface<C> & Size) | null {
-  const region = cropRegion(sourceWidth, sourceHeight, { width, height, anchor: { y: anchor } })
+  const offset = band ? Math.round(band.start * sourceHeight) : 0
+  const bandHeight = band ? Math.round(band.end * sourceHeight) - offset : sourceHeight
+  const cropped = cropRegion(sourceWidth, bandHeight, { width, height, anchor: { y: anchor } })
+  const region = { ...cropped, y: cropped.y + offset }
   let previous: (Surface<C> & Size) | null = null
   for (const size of halvingSizes(region.width, region.height, width, height)) {
     const surface = createSurface(size.width, size.height)
