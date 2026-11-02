@@ -121,7 +121,7 @@ class PersonalizationTest < ApplicationSystemTestCase
     assert_selector "a.top-bar__phone-back[href='#{personalization_path(locale: :en)}']", visible: :all
   end
 
-  test "an earned title is equipped from the picker, shown with its toast, kept after a reload and removed with the no title row" do
+  test "an earned title is chosen in the menu, shown with its toast, kept after a reload and removed with the no title option" do
     earn_titles
     visit home_path(locale: :en)
     click_steam_sign_in
@@ -129,31 +129,31 @@ class PersonalizationTest < ApplicationSystemTestCase
     visit personalization_path(locale: :en)
 
     assert_selector "h2", text: "PROFILE TITLE"
-    assert_checked_field "No title"
-    find("label", text: "Adept · Valve").click
+    assert_selector :select, "title", selected: "No title"
+    select "Adept · Valve", from: "title"
 
     assert_selector ".toast", text: "TITLE EQUIPPED"
-    assert_checked_field "Adept · Valve"
+    assert_selector :select, "title", selected: "Adept · Valve"
     visit personalization_path(locale: :en)
-    assert_checked_field "Adept · Valve"
+    assert_selector :select, "title", selected: "Adept · Valve"
 
-    find("label", text: "No title").click
+    select "No title", from: "title"
 
     assert_selector ".toast", text: "TITLE REMOVED"
-    assert_checked_field "No title"
+    assert_selector :select, "title", selected: "No title"
   end
 
-  test "the arrow keys move through the titles and choose each one" do
+  test "the card back section comes before the title section and the menu stays one control tall" do
     earn_titles
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
     visit personalization_path(locale: :en)
 
-    find_field("No title").send_keys(:arrow_down)
-
-    assert_selector ".toast", text: "TITLE EQUIPPED"
-    assert_checked_field "Adept · Valve"
+    back_top = find("#personalization-back-heading").evaluate_script("this.getBoundingClientRect().top")
+    title_top = find("#personalization-title-heading").evaluate_script("this.getBoundingClientRect().top")
+    assert_operator back_top, :<, title_top
+    assert_operator find(".title-picker__select").evaluate_script("this.getBoundingClientRect().height"), :<, 60
   end
 
   test "a title not earned cannot be equipped by a forged request" do
@@ -164,9 +164,10 @@ class PersonalizationTest < ApplicationSystemTestCase
     visit personalization_path(locale: :en)
 
     execute_script(<<~JS)
-      const radio = document.querySelector("input[name=title][value='adept:studio:valve']")
-      radio.value = "complete:studio:valve"
-      radio.click()
+      const option = document.querySelector(".title-picker__select option[value='adept:studio:valve']")
+      option.value = "complete:studio:valve"
+      option.selected = true
+      option.parentElement.dispatchEvent(new Event("change", { bubbles: true }))
     JS
 
     assert_selector ".toast", text: "You have not earned that title."
@@ -304,10 +305,6 @@ class PersonalizationTest < ApplicationSystemTestCase
       season, cards = published_cards(5)
       set_id = insert_set(cards, { novice: 1, adept: 3, complete: 5 }, kind: "studio", key: "valve", params: { "studio" => "Valve" }, season:)
       Game::SetTier.insert_all!(%w[novice adept].map { |tier| { player_id: @player.id, set_id:, tier:, reached_by: "trade", reached_at: Time.current } })
-    end
-
-    def assert_checked_field(label)
-      assert_field label, type: :radio, checked: true, visible: :all
     end
 
     def card_slugs

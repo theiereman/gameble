@@ -24,18 +24,18 @@ class ProfileTitlesControllerTest < ActionDispatch::IntegrationTest
     assert_nil stored.compact.presence
   end
 
-  test "the page lists the earned titles by rank with a no title row, the active one checked" do
+  test "the page offers the earned titles in one menu grouped by rank with a no title option, the active one selected" do
     Game::ChooseProfileTitle.new.call(player: @player, rank: "adept", kind: "studio", key: "valve").value!
     sign_in(@player)
 
     get personalization_path(locale: :fr)
 
     assert_select "section h2#personalization-title-heading", "Titre de profil"
-    assert_select "[role=radiogroup][aria-labelledby=personalization-title-heading]"
-    assert_equal [ "Aucun titre", "Adepte · Valve", "Novice · Valve" ], css_select(".title-picker__option span").map { it.text.strip }
-    assert_equal [ "Adepte", "Novice" ], css_select(".title-picker__rank").map { it.text.strip }
-    assert_select "input[type=radio][name=title][checked]", 1
-    assert_select "input[type=radio][value='adept:studio:valve'][checked]"
+    assert_select "select.title-picker__select[name=title][aria-labelledby=personalization-title-heading]", 1
+    assert_equal [ "Aucun titre", "Adepte · Valve", "Novice · Valve" ], css_select(".title-picker__select option").map { it.text.strip }
+    assert_equal [ "Adepte", "Novice" ], css_select(".title-picker__select optgroup").map { it["label"] }
+    assert_select ".title-picker__select option[selected]", 1
+    assert_select ".title-picker__select option[value='adept:studio:valve'][selected]"
     assert_select "[style]", false
   end
 
@@ -45,8 +45,8 @@ class ProfileTitlesControllerTest < ActionDispatch::IntegrationTest
 
     get personalization_path(locale: :en)
 
-    assert_select ".title-picker__option", 1
-    assert_select ".title-picker__rank", 0
+    assert_select ".title-picker__select option", 1
+    assert_select ".title-picker__select optgroup", 0
     assert_select ".personalization-section__empty", /Reach a tier of a set/
   end
 
@@ -59,7 +59,7 @@ class ProfileTitlesControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[studio valve novice], stored
     follow_redirect!
     assert_select ".toast", /Title equipped/
-    assert_select "input[type=radio][value='novice:studio:valve'][checked][autofocus]"
+    assert_select "select.title-picker__select[autofocus] option[value='novice:studio:valve'][selected]"
   end
 
   test "the empty value removes the title with its own toast" do
