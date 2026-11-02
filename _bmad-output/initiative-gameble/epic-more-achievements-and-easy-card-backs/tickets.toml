@@ -179,3 +179,14 @@ covers = []
 after = []
 hitl = true
 risk = "low"
+
+[[entry]]
+id = 16
+type = "story"
+title = "An achievement that unlocks a card back is claimed by the player, and the menu flags a reward waiting"
+description = "Staging feedback, 2026-11-02 (author): when an achievement unlocks something, the player must press a Claim button, and the Achievements entry shows an indicator while a reward waits for the player's interaction to be added to the list on the profile. Scope as understood: the four achievements that unlock a card back. Earning the achievement still happens as today; the back joins the player's backs (the Personalization shelf and the profile) only when claimed, through a POST operation that writes the claim and publishes its event. The Achievements row shows a Claim button on an earned achievement with an unclaimed back, then the usual 'back unlocked' state; the Achievements entry of the menu (desktop and phone) shows a count badge of unclaimed rewards, as the friend invitation count does. Open questions for the plan, to be settled by the author: (1) does the claim also apply to anything other than backs (a title, a profile mark)? (2) the backs players already hold stay claimed (assumed), so no one sees a Claim button for a reward they already use. Build after the achievement rows redesign, which owns the same row."
+verify = "An achievement with a back earned but not claimed shows a Claim button and counts in the menu badge; claiming adds the back to the Personalization shelf and clears the badge when none is left; a back held before the release shows no Claim button; a GET never writes; the claim is refused for another player's achievement or one not earned."
+covers = []
+after = [14]
+hitl = false
+risk = "medium"
