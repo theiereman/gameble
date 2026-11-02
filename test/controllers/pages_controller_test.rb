@@ -16,7 +16,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   include GameTrades
   include SteamSignIn
 
-  PLAYER_HUB_QUERIES = 22
+  PLAYER_HUB_QUERIES = 23
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -650,7 +650,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # player's standings, the popular fill, which finds no other set here, so no figures
     # and no set to name),
     # the top bar's copies per tier and rarity legend, menu 05's friends online, menu 07's
-    # achievements earned, the trades
+    # achievements earned and the rewards waiting to be claimed, the trades
     # waiting (menu 04 and the tab bar share one count), the invitations waiting
     # (menu 05 and the PLUS tab share one count) and the LIVE ticker's
     # entries (none here, so no players or cards).

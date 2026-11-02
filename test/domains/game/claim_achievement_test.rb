@@ -1,7 +1,9 @@
 require "test_helper"
+require_relative "../../support/game_packs"
 
 class Game::ClaimAchievementTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
+  include GamePacks
 
   setup do
     @player = accounts_players(:player)
@@ -12,6 +14,7 @@ class Game::ClaimAchievementTest < ActiveSupport::TestCase
     Game::AchievementUnlock.record(player.id, key, Time.current, claimed:)
   end
 
+  def opened_packs(count, player: @player) = count.times { create_pack(player, opened_at: Time.current) }
   def claim(key, player: @player) = Game::ClaimAchievement.new.call(player:, achievement: key)
   def claimed_at(key, player: @player) = Game::AchievementUnlock.find_by!(player_id: player.id, achievement: key).claimed_at
   def backs(player = @player) = Game::CardBackUnlock.where(player_id: player.id).pluck(:back)
@@ -61,21 +64,18 @@ class Game::ClaimAchievementTest < ActiveSupport::TestCase
   test "an achievement without a reward is born claimed" do
     assert_nil Game::CardBacks.for_achievement(:first_booster)
 
-    perform_enqueued_jobs do
-      Game::AchievementProgress.stub(:call, Hash.new(0).merge(packs_opened: 1)) do
-        Game::GrantAchievement.new.call(player: @player, achievement: :first_booster).value!
-      end
-    end
+    opened_packs(1)
+    perform_enqueued_jobs { Game::GrantAchievement.new.call(player: @player, achievement: :first_booster).value! }
 
     assert claimed_at("first_booster")
     assert_equal 0, Game::UnclaimedAchievements.count(@player)
   end
 
   test "an achievement with a reward waits for its claim unless granted retroactively" do
-    Game::AchievementProgress.stub(:call, Hash.new(0).merge(packs_opened: 100)) do
-      Game::GrantAchievement.new.call(player: @player, achievement: :boosters_100).value!
-      Game::GrantAchievement.new.call(player: @other, achievement: :boosters_100, retroactive: true).value!
-    end
+    opened_packs(100)
+    opened_packs(100, player: @other)
+    Game::GrantAchievement.new.call(player: @player, achievement: :boosters_100).value!
+    Game::GrantAchievement.new.call(player: @other, achievement: :boosters_100, retroactive: true).value!
 
     assert_nil claimed_at("boosters_100")
     assert claimed_at("boosters_100", player: @other)
