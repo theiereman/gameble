@@ -712,7 +712,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     get settings_path(locale: :en)
 
-    assert_select "form[action='/en/settings/steam-library/sync'][data-turbo=false] button", "Sync now"
+    assert_select "form[action='/en/settings/steam-library/sync'] button", "Sync now"
     assert_select "#settings-steam-library-last-sync", /Last sync:/
     assert_select "#settings-steam-library-last-sync time"
 
