@@ -1,0 +1,12 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The feed loads older entries without limit"
+description = "Replace the fixed LIMIT of Game::FeedEntries (30 notable entries, MIN 10 with pull fillers) with keyset pagination on (occurred_at, id), the cursor the visibility scan already uses. FeedsController serves the next page as a Turbo Frame or stream, the page asks for it when the player reaches the end of the list (a sentinel observed by a Stimulus controller, server-rendered markup, no database id in the cursor: use a token). Visibility rules, kind and player filters, and the pull fillers of a sparse feed stay as they are; the live feed keeps prepending new entries and the cursor ignores them. Gone when the entries run out. Every string in en.yml and fr.yml."
+verify = "A feed longer than one page shows the older entries as the player scrolls, in order, with no duplicate and no entry hidden by Game::Visibility; the last page shows no further request; a controller test covers the cursor and a system test scrolls to the second page."
+covers = []
+after = []
+hitl = false
+risk = "medium"

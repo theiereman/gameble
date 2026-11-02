@@ -228,3 +228,11 @@ slug = "epic-more-achievements-and-easy-card-backs"
 title = "More achievements, and card backs easy to pick"
 covers = ["CAP-17", "CAP-20"]
 after = []
+
+[[epic]]
+id = 31
+release = "1.1.0"
+slug = "epic-feed-pagination"
+title = "Unlimited feed"
+covers = []
+after = []
