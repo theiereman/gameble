@@ -1,0 +1,54 @@
+<%# locals: (owner:, fortune:) %>
+<%= turbo_frame_tag "profile-fortune" do %>
+  <%= render PanelComponent.new(tag: :section, class: "fortune", aria: { labelledby: "fortune-heading" }) do %>
+    <header class="fortune__head">
+      <h2 id="fortune-heading" class="fortune__kicker"><%= t("fortunes.profile.title") %></h2>
+      <nav class="fortune__tabs" aria-label="<%= t("fortunes.periods_label") %>">
+        <% Game::FortuneStanding::PERIODS.each do |period| %>
+          <%= link_to brother_path(token: owner.token, fortune: (FortunePeriod::ALL_TIME if period == :all_time)),
+                class: "filter-chip", aria: { current: ("true" if period == fortune.period) }, data: { turbo_frame: "profile-fortune" } do %>
+            <span class="filter-chip__text"><%= t("fortunes.periods.#{period}") %></span>
+          <% end %>
+        <% end %>
+      </nav>
+    </header>
+    <% if fortune.opened? %>
+      <div class="fortune__verdict">
+        <p class="<%= class_names("fortune-index", fortune_index_tone(fortune.index)) %>">
+          <span class="fortune-index__value"><%= fortune_index_text(fortune.index) %></span>
+          <span class="fortune-index__scale"><%= t("fortunes.scale", limit: Game::FortuneIndex::LIMIT) %></span>
+        </p>
+        <div class="fortune__words">
+          <p class="fortune__label">
+            <%= fortune_label_title(fortune.index) %>
+            <% if fortune.privileged %><span class="fortune__privileged"><%= t("fortunes.privileged") %></span><% end %>
+          </p>
+          <p class="fortune__text"><%= fortune_label_text(fortune.index) %></p>
+          <p class="fortune__rank">
+            <%= link_to t("fortunes.profile.rank", rank: number_with_delimiter(fortune.rank), count: number_with_delimiter(fortune.ranked_count)),
+                  fortune_register_path(period: (FortunePeriod::ALL_TIME if fortune.period == :all_time)), data: { turbo_frame: "_top" } %>
+          </p>
+        </div>
+      </div>
+      <details class="fortune__details">
+        <summary class="fortune__summary"><%= t("fortunes.profile.details") %></summary>
+        <dl class="profile-stats__grid fortune__figures">
+          <%= render "public_profiles/figure", label: t("fortunes.profile.actual_points"), value: fortune.actual_points %>
+          <%= render "public_profiles/figure", label: t("fortunes.profile.expected_points"), value: fortune.expected_points.round %>
+          <% fortune.packs.each do |kind, count| %>
+            <%= render "public_profiles/figure", label: t("fortunes.profile.packs.#{kind}"), value: count %>
+          <% end %>
+        </dl>
+        <dl class="profile-stats__grid profile-stats__grid--rarities fortune__figures">
+          <% fortune.cards.each do |tier, count| %>
+            <%= render "public_profiles/figure", label: t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(tier)}"), value: count,
+              modifier: "rarity-#{tier}", icon: pixel_icon("rarity-#{tier}", class: "profile-figure__icon") %>
+          <% end %>
+        </dl>
+        <p class="fortune__explainer"><%= t("fortunes.profile.explainer") %></p>
+      </details>
+    <% else %>
+      <p class="fortune__empty"><%= t("fortunes.profile.empty.#{fortune.period}") %></p>
+    <% end %>
+  <% end %>
+<% end %>

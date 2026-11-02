@@ -57,6 +57,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "game_goals" => { fr: [ "vos objectifs" ], en: [ "your goals" ] },
     "game_achievement_unlocks" => { fr: [ "vos succès" ], en: [ "your achievements" ] },
     "game_packs" => { fr: [ "vos capsules, ouvertes ou non" ], en: [ "your capsules, opened or not" ] },
+    "game_fortunes" => { fr: [ "vos scores de chance" ], en: [ "your luck scores" ] },
     "game_daily_bonus_claims" => { fr: [ "vos bonus du jour" ], en: [ "your daily bonuses" ] },
     "game_goal_rewards" => { fr: [ "vos récompenses de la mission hebdo" ], en: [ "your weekly mission rewards" ] },
     "game_friendships" => { fr: [ "vos amis" ], en: [ "your friends" ] },

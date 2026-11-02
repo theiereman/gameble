@@ -4,6 +4,7 @@ class PublicProfilesController < ApplicationController
   include SetBoardLoading
   include SetAlbumLoading
   include ChosenCards
+  include FortunePeriod
 
   MOST_COMPLETE_SETS_SHOWN = 6
 
@@ -17,6 +18,7 @@ class PublicProfilesController < ApplicationController
     @achievements = Game::EarnedAchievements.call(@owner)
     @showcase = chosen_cards(@owner)
     @owner_title = Game::ActiveProfileTitle.call(@owner)
+    @fortune = Game::FortuneStanding.call(@owner, period: fortune_period(params[:fortune]))
     load_season_sections if @season
     load_relation
   end

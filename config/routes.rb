@@ -131,6 +131,8 @@ Rails.application.routes.draw do
 
     # The activity feed: public, read only.
     get "feed" => "feeds#show", as: :feed
+    # The luck leaderboards, this week's and all time's: public, read only.
+    get "register" => "fortune_registers#show", as: :fortune_register
     post "friends/invitations" => "invitations#create", as: :invitations
     post "friends/invitations/:token/accept" => "invitations#accept", as: :accept_invitation,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }

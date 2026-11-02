@@ -1,4 +1,4 @@
-<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:, started_set_count:, goals: [], showcase:, relation:, owner_title: nil) %>
+<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:, started_set_count:, goals: [], showcase:, relation:, owner_title: nil, fortune: nil) %>
 <section class="profile" aria-labelledby="profile-heading">
   <%= render "public_profiles/summary", owner:, title:, season:, summary:, card_total:, achievements: achievements, relation: relation, owner_title: owner_title %>
   <%= render "public_profiles/showcase", owner:, cards: showcase, movable: current_player.present? && current_player == owner, moved: flash[:moved_showcase_card] if showcase.any? %>
@@ -6,6 +6,7 @@
     <%= render PanelComponent.new(tag: :p, class: "profile__no-season") do %><%= t("public_profiles.show.no_season") %><% end %>
   <% else %>
     <%= render "public_profiles/stats", rarities:, activity: activity %>
+    <%= render "public_profiles/fortune", owner:, fortune: fortune if fortune %>
     <%= render "public_profiles/achievements", achievements: achievements %>
     <%= render "public_profiles/goals", owner:, goals: goals if goals.any? %>
     <%= render "public_profiles/sets", owner:, started_sets:, started_set_count: %>

@@ -1,0 +1,38 @@
+<% content_for :back_button, true %>
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t(".title") %>
+<% if current_player %>
+  <% content_for :phone_back do %>
+    <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
+      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
+    <% end %>
+  <% end %>
+<% end %>
+<section class="register" aria-labelledby="register-heading">
+  <h1 id="register-heading" class="register__title"><%= t(".title") %></h1>
+  <p class="register__intro"><%= t(".intro") %></p>
+  <nav class="register__tabs" aria-label="<%= t("fortunes.periods_label") %>">
+    <% Game::FortuneStanding::PERIODS.each do |period| %>
+      <%= link_to fortune_register_path(period: (FortunePeriod::ALL_TIME if period == :all_time)), class: "filter-chip",
+            aria: { current: ("true" if period == @period) } do %>
+        <span class="filter-chip__text"><%= t("fortunes.periods.#{period}") %></span>
+      <% end %>
+    <% end %>
+  </nav>
+  <p class="register__privileged-count">
+    <%= t(".privileged_count", count: @board.privileged_count, players: number_with_delimiter(@board.active_count)) %>
+  </p>
+  <% if @board.rows.empty? %>
+    <%= render PanelComponent.new(tag: :p, class: "register__empty") do %><%= t(".empty.#{@period}") %><% end %>
+  <% else %>
+    <ol class="register__list">
+      <%= render partial: "fortune_registers/row", collection: @board.rows, as: :row %>
+    </ol>
+    <% if @board.own %>
+      <p class="register__own-label"><%= t(".your_place") %></p>
+      <ol class="register__list register__list--own">
+        <%= render "fortune_registers/row", row: @board.own %>
+      </ol>
+    <% end %>
+  <% end %>
+</section>
