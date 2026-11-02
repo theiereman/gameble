@@ -175,6 +175,15 @@
     margin-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
   }
 
+  body:has(.tab-bar) > .ticker {
+    order: 1;
+    margin-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  body:has(.tab-bar):has(> .ticker) .app-version {
+    margin-bottom: 0;
+  }
+
   .app-version__legal {
     display: inline-flex;
     align-items: center;
