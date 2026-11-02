@@ -1637,6 +1637,9 @@ fr:
       leave_request_denied: "Demande de congé refusée"
       diversified_portfolio: "Portefeuille diversifié"
       market_concentration: "Concentration du marché"
+      first_claim_all_rights_reserved: "Premier arrivé, premier servi"
+      a_discovery_of_ours: "Une découverte qui nous appartient"
+      a_strictly_professional_relationship: "Une relation strictement professionnelle"
     show:
       title: "Succès"
       more: "Plus"
@@ -1668,6 +1671,9 @@ fr:
       leave_request_denied: "Récupérer le bonus quotidien 7 jours de suite (jours UTC)"
       diversified_portfolio: "Détenir cinq exemplaires d'un même jeu en même temps"
       market_concentration: "Détenir 10 jeux différents d'un même studio en même temps"
+      first_claim_all_rights_reserved: "Être le pionnier d'une carte dans une saison"
+      a_discovery_of_ours: "Reposter une carte dont vous êtes le pionnier"
+      a_strictly_professional_relationship: "Conclure trois échanges avec le même joueur"
   invite_links:
     show:
       title: "%{name} vous invite"

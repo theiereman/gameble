@@ -47,7 +47,7 @@ class Game::EarnedAchievementsTest < ActiveSupport::TestCase
 
   test "nothing earned, without a query, for nil" do
     assert_queries_count(0) do
-      assert_equal Game::EarnedAchievements::Earned.new(count: 0, total: 18, latest: []), Game::EarnedAchievements.call(nil)
+      assert_equal Game::EarnedAchievements::Earned.new(count: 0, total: 21, latest: []), Game::EarnedAchievements.call(nil)
     end
   end
 end

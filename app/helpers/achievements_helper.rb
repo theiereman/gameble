@@ -8,7 +8,8 @@ module AchievementsHelper
     first_repost: "card",
     packaging_irregularity: "duplicate", excellence_in_mediocrity: "tokens", historical_asset_management: "hourglass",
     luck_is_a_marketing_concept: "clover", leave_request_denied: "refused",
-    diversified_portfolio: "fan", market_concentration: "tower"
+    diversified_portfolio: "fan", market_concentration: "tower",
+    first_claim_all_rights_reserved: "flag", a_discovery_of_ours: "lens", a_strictly_professional_relationship: "clasp"
   }.freeze
 
   def achievement_icon(tile)

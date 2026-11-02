@@ -38,18 +38,19 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select "header.top-bar[data-screen-label=Succès]"
     assert_select ".top-bar__title", "Succès"
     assert_select "main h1", "Succès"
-    assert_select ".achievements__count[aria-hidden=true]", "3 / 18"
-    assert_select ".achievements__head .visually-hidden", "3 succès obtenus sur 18"
+    assert_select ".achievements__count[aria-hidden=true]", "3 / 21"
+    assert_select ".achievements__head .visually-hidden", "3 succès obtenus sur 21"
     assert_select ".achievements__label", "Succès obtenus"
-    assert_select ".achievements__gauge[aria-hidden=true] .achievements__segment", 18
+    assert_select ".achievements__gauge[aria-hidden=true] .achievements__segment", 21
     assert_select ".achievements__segment--lit", 3
     assert_select "h2#achievements-earned", "Obtenus · 3"
-    assert_select "h2#achievements-to_earn", "À obtenir · 15"
+    assert_select "h2#achievements-to_earn", "À obtenir · 18"
     assert_equal [ "Première acquisition approuvée", "A surpassé les attentes", "Période d'essai validée" ], group_names(:earned)
     assert_equal [ "Nous n'en demandions pas autant", "Dossier complété", "Entraide mutuelle", "Historique de consommation exemplaire",
       "Loyauté au-delà du raisonnable", "Excellence administrative", "Contribution non rémunérée", "Non-conformité statistique",
       "Irrégularité de conditionnement", "L'excellence dans la médiocrité", "Gestion du patrimoine historique",
-      "La chance est un concept marketing", "Demande de congé refusée", "Portefeuille diversifié", "Concentration du marché" ], group_names(:to_earn)
+      "La chance est un concept marketing", "Demande de congé refusée", "Portefeuille diversifié", "Concentration du marché", "Premier arrivé, premier servi",
+      "Une découverte qui nous appartient", "Une relation strictement professionnelle" ], group_names(:to_earn)
 
     hundred = tile(:to_earn, "Historique de consommation exemplaire")
     assert_equal "Ouvrir 100 capsules", hundred.at_css(".achievement__condition").text
@@ -72,15 +73,15 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
 
     get achievements_path(locale: :en)
 
-    assert_select ".achievements__count", "0 / 18"
-    assert_select ".achievements__head .visually-hidden", "0 achievements earned out of 18"
+    assert_select ".achievements__count", "0 / 21"
+    assert_select ".achievements__head .visually-hidden", "0 achievements earned out of 21"
     assert_select ".achievements__label", "Achievements earned"
     assert_select ".achievements__segment--lit", 0
     assert_select "#achievements-earned", false
-    assert_select "h2#achievements-to_earn", "To earn · 18"
-    assert_equal [ [ "0", "10" ], [ "0", "100" ], [ "0", "500" ], [ "0", "3" ], [ "0", "10" ], [ "0", "7" ], [ "0", "5" ], [ "0", "10" ] ],
+    assert_select "h2#achievements-to_earn", "To earn · 21"
+    assert_equal [ [ "0", "10" ], [ "0", "100" ], [ "0", "500" ], [ "0", "3" ], [ "0", "10" ], [ "0", "7" ], [ "0", "5" ], [ "0", "10" ], [ "0", "3" ] ],
       css_select("progress.achievement__bar").map { [ it["value"], it["max"] ] }
-    assert_equal [ "0 / 10", "0 / 100", "0 / 500", "0 / 3", "0 / 10", "0 / 7", "0 / 5", "0 / 10" ], css_select(".achievement__progress").map(&:text)
+    assert_equal [ "0 / 10", "0 / 100", "0 / 500", "0 / 3", "0 / 10", "0 / 7", "0 / 5", "0 / 10", "0 / 3" ], css_select(".achievement__progress").map(&:text)
     assert_equal "0 of 10", tile(:to_earn, "Probation Period Completed").at_css(".visually-hidden").text
     assert_equal "Open a capsule", tile(:to_earn, "Your First Authorized Acquisition").at_css(".achievement__condition").text
   end
@@ -91,9 +92,9 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
 
     get achievements_path(locale: :en)
 
-    assert_select ".achievements__count", "18 / 18"
-    assert_select ".achievements__segment--lit", 18
-    assert_select "h2#achievements-earned", "Earned · 18"
+    assert_select ".achievements__count", "21 / 21"
+    assert_select ".achievements__segment--lit", 21
+    assert_select "h2#achievements-earned", "Earned · 21"
     assert_select "#achievements-to_earn", false
     assert_select "progress", false
   end
@@ -144,6 +145,27 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
             [ "Market Concentration", "Hold 10 different games of the same studio at once", "tower-locked" ] ],
       fr: [ [ "Portefeuille diversifié", "Détenir cinq exemplaires d'un même jeu en même temps", "fan" ],
             [ "Concentration du marché", "Détenir 10 jeux différents d'un même studio en même temps", "tower-locked" ] ] }.each do |locale, tiles|
+      get achievements_path(locale:)
+
+      tiles.each_with_index do |(name, condition, icon), index|
+        found = tile(index.zero? ? :earned : :to_earn, name)
+        assert_equal condition, found.at_css(".achievement__condition").text
+        assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
+      end
+    end
+  end
+
+  test "the three community achievements: their names, conditions and glyphs in each locale, earned or not" do
+    unlock("first_claim_all_rights_reserved")
+    sign_in(@player)
+    glyph = ->(name) { Nokogiri::HTML5.fragment(ShellHelper.pixel_source(name)).at_css("svg").inner_html }
+
+    { en: [ [ "First Claim, All Rights Reserved", "Be the pioneer of a card in a season", "flag" ],
+            [ "A Discovery of Ours", "Repost a card you pioneered", "lens-locked" ],
+            [ "A Strictly Professional Relationship", "Complete three trades with the same player", "clasp-locked" ] ],
+      fr: [ [ "Premier arrivé, premier servi", "Être le pionnier d'une carte dans une saison", "flag" ],
+            [ "Une découverte qui nous appartient", "Reposter une carte dont vous êtes le pionnier", "lens-locked" ],
+            [ "Une relation strictement professionnelle", "Conclure trois échanges avec le même joueur", "clasp-locked" ] ] }.each do |locale, tiles|
       get achievements_path(locale:)
 
       tiles.each_with_index do |(name, condition, icon), index|
@@ -242,11 +264,11 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :fr)
     assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='7']" do
       assert_select ".menu-item__label", "Succès"
-      assert_select ".menu-item__meta[aria-hidden=true]", "3/18"
-      assert_select ".visually-hidden", "3 succès obtenus sur 18"
+      assert_select ".menu-item__meta[aria-hidden=true]", "3/21"
+      assert_select ".visually-hidden", "3 succès obtenus sur 21"
     end
     get home_path(locale: :en)
-    assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of 18"
+    assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of 21"
     get more_path(locale: :fr)
     assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
   end

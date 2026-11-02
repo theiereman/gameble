@@ -96,6 +96,23 @@ module Game
        GROUP BY catalog_card_seasons.card_id HAVING SUM(game_holdings.quantity) > 0
     SQL
 
+    FIRST_DISCOVERIES_SQL = "SELECT COUNT(*) FROM game_first_discoveries WHERE player_id = :player_id".freeze
+
+    PIONEERED_REPOSTS_SQL = <<~SQL.squish.freeze
+      SELECT COUNT(*) FROM game_feed_entries
+        JOIN game_first_discoveries ON game_first_discoveries.card_season_id = game_feed_entries.card_season_id
+                                   AND game_first_discoveries.player_id = game_feed_entries.player_id
+       WHERE game_feed_entries.kind = 'repost' AND game_feed_entries.player_id = :player_id
+    SQL
+
+    MOST_TRADES_WITH_A_PARTNER_SQL = <<~SQL.squish.freeze
+      SELECT COALESCE(MAX(trades), 0) FROM (
+        SELECT COUNT(*) AS trades FROM game_trades
+         WHERE status = 'accepted' AND (proposer_id = :player_id OR recipient_id = :player_id)
+         GROUP BY CASE WHEN proposer_id = :player_id THEN recipient_id ELSE proposer_id END
+      ) AS partners
+    SQL
+
     METRIC_SQL = {
       packs_opened: PACKS_OPENED_SQL,
       epics_obtained: format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:epic)),
@@ -109,7 +126,10 @@ module Game
       old_and_new_game_capsules: OLD_AND_NEW_SQL,
       capsules_without_rare_streak: CAPSULES_WITHOUT_RARE_STREAK_SQL,
       daily_bonus_streak: DAILY_BONUS_STREAK_SQL,
-      most_copies_of_a_game: MOST_COPIES_OF_A_GAME_SQL
+      most_copies_of_a_game: MOST_COPIES_OF_A_GAME_SQL,
+      first_discoveries: FIRST_DISCOVERIES_SQL,
+      pioneered_reposts: PIONEERED_REPOSTS_SQL,
+      most_trades_with_a_partner: MOST_TRADES_WITH_A_PARTNER_SQL
     }.freeze
 
     STUDIO_METRIC = :most_games_of_a_studio

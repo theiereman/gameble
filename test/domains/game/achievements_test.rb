@@ -83,7 +83,8 @@ class Game::AchievementsTest < ActiveSupport::TestCase
       [ :packaging_irregularity, :repeated_game_capsules, 1 ], [ :excellence_in_mediocrity, :all_common_capsules, 1 ],
       [ :historical_asset_management, :old_and_new_game_capsules, 1 ], [ :luck_is_a_marketing_concept, :capsules_without_rare_streak, 10 ],
       [ :leave_request_denied, :daily_bonus_streak, 7 ], [ :diversified_portfolio, :most_copies_of_a_game, 5 ],
-      [ :market_concentration, :most_games_of_a_studio, 10 ]
+      [ :market_concentration, :most_games_of_a_studio, 10 ], [ :first_claim_all_rights_reserved, :first_discoveries, 1 ],
+      [ :a_discovery_of_ours, :pioneered_reposts, 1 ], [ :a_strictly_professional_relationship, :most_trades_with_a_partner, 3 ]
     ]
 
     assert_equal expected, Game::Achievements::CATALOGUE.map { [ it.key, it.metric, it.threshold ] }
@@ -502,6 +503,86 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_equal :market_concentration, grant(:market_concentration).value!.key
   end
 
+  def pioneer(card_season_id, player: @player)
+    Game::FirstDiscovery.where(card_season_id:).delete_all
+    Game::FirstDiscovery.create!(card_season_id:, player_id: player.id, discovered_at: Time.current)
+  end
+
+  def repost_entry(card_season_id, player: @player)
+    Game::FeedEntry.record_repost(player_id: player.id, card_season_id:, at: Time.current)
+  end
+
+  def accepted_trades(count, proposer: @player, recipient: @other)
+    low, high = [ proposer.id, recipient.id ].minmax
+    count.times do
+      Game::Trade.create!(low_player_id: low, high_player_id: high, proposer_id: proposer.id, recipient_id: recipient.id, status: "accepted",
+        proposed_at: 2.hours.ago, expires_at: 1.day.from_now, closed_at: 1.hour.ago)
+    end
+  end
+
+  test "First Claim is granted for a first discovery row and refused when other players hold them all" do
+    assert_equal 0, capsule_metric(:first_discoveries)
+    assert_equal :not_reached, grant(:first_claim_all_rights_reserved).failure
+
+    pioneer(@common)
+    pioneer(@uncommon, player: @other)
+
+    assert_equal 1, capsule_metric(:first_discoveries)
+    assert_equal :first_claim_all_rights_reserved, grant(:first_claim_all_rights_reserved).value!.key
+  end
+
+  test "A Discovery of Ours counts a repost of a card-season the player pioneered, and not one someone else pioneered" do
+    pioneer(@uncommon, player: @other)
+    repost_entry(@uncommon)
+    assert_equal 0, capsule_metric(:pioneered_reposts)
+    assert_equal :not_reached, grant(:a_discovery_of_ours).failure
+
+    pioneer(@common)
+    repost_entry(@common, player: @other)
+    assert_equal 0, capsule_metric(:pioneered_reposts)
+
+    repost_entry(@common)
+    assert_equal 1, capsule_metric(:pioneered_reposts)
+    assert_equal :a_discovery_of_ours, grant(:a_discovery_of_ours).value!.key
+  end
+
+  test "A Strictly Professional Relationship needs three accepted trades with one partner, not three partners" do
+    third = accounts_players(:banned)
+    accepted_trades(1)
+    accepted_trades(1, proposer: @other, recipient: @player)
+    accepted_trades(1, recipient: third)
+    accepted_trades(1, proposer: @other, recipient: third)
+    assert_equal 2, capsule_metric(:most_trades_with_a_partner)
+    assert_equal :not_reached, grant(:a_strictly_professional_relationship).failure
+
+    accepted_trades(1, proposer: @other, recipient: @player)
+    assert_equal 3, capsule_metric(:most_trades_with_a_partner)
+    assert_equal 3, capsule_metric(:most_trades_with_a_partner, @other)
+    assert_equal :a_strictly_professional_relationship, grant(:a_strictly_professional_relationship).value!.key
+  end
+
+  test "open trades and declined ones do not count toward a partner" do
+    accepted_trades(2)
+    low, high = [ @player.id, @other.id ].minmax
+    %w[open declined cancelled expired].each do |status|
+      Game::Trade.create!(low_player_id: low, high_player_id: high, proposer_id: @player.id, recipient_id: @other.id, status:,
+        proposed_at: 2.hours.ago, expires_at: 1.day.from_now)
+    end
+
+    assert_equal 2, capsule_metric(:most_trades_with_a_partner)
+  end
+
+  test "opening a card nobody found before unlocks First Claim, and a repost of it unlocks A Discovery of Ours" do
+    Game::FirstDiscovery.where(card_season_id: @common).delete_all
+
+    open_with_jobs([ @common ] * 5)
+    assert_includes unlocked, "first_claim_all_rights_reserved"
+    assert_not_includes unlocked, "a_discovery_of_ours"
+
+    perform_enqueued_jobs { Game::RepostCard.new.call(player: @player, card_season_id: @common).value! }
+    assert_includes unlocked, "a_discovery_of_ours"
+  end
+
   test "the grant re-reads only its achievement's metric" do
     opened_packs(1)
 
@@ -624,7 +705,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   test "every trigger enqueues the grant for its players" do
     data = { player_id: @player.id, proposer_id: @player.id, recipient_id: @other.id }
 
-    assert_enqueued_jobs 7, only: Game::GrantAchievementsJob do
+    assert_enqueued_jobs 8, only: Game::GrantAchievementsJob do
       Game::Handlers::Achievements::EVENTS.each_key { Game::Handlers::Achievements.call(it.new(data:)) }
     end
   end
@@ -718,6 +799,24 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
 
     assert_includes Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement), "diversified_portfolio"
     assert_not_includes Game::AchievementUnlock.where(player_id: @player.id).pluck(:achievement), "diversified_portfolio"
+    assert Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a.all? { it.data[:retroactive] }
+  end
+
+  test "the community achievements are granted from history, silently" do
+    Game::FirstDiscovery.where(card_season_id: fixture_tier_ids.first).delete_all
+    Game::FirstDiscovery.create!(card_season_id: fixture_tier_ids.first, player_id: @other.id, discovered_at: 1.day.ago)
+    Game::FeedEntry.record_repost(player_id: @other.id, card_season_id: fixture_tier_ids.first, at: Time.current)
+    low, high = [ @player.id, @other.id ].minmax
+    3.times do
+      Game::Trade.create!(low_player_id: low, high_player_id: high, proposer_id: @player.id, recipient_id: @other.id, status: "accepted",
+        proposed_at: 2.hours.ago, expires_at: 1.day.from_now, closed_at: 1.hour.ago)
+    end
+
+    assert_no_enqueued_jobs(only: PlayerStreamJob) { Game::BackfillAchievementsJob.perform_now }
+
+    assert_equal %w[a_discovery_of_ours a_strictly_professional_relationship first_claim_all_rights_reserved],
+      Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement).grep(/discovery|claim|professional/).sort
+    assert_equal %w[a_strictly_professional_relationship], Game::AchievementUnlock.where(player_id: @player.id).pluck(:achievement).grep(/discovery|claim|professional/)
     assert Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a.all? { it.data[:retroactive] }
   end
 
