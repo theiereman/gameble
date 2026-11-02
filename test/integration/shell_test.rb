@@ -235,7 +235,7 @@ class ShellTest < ActionDispatch::IntegrationTest
   test "a screen without a back button: the wordmark links to the hub on a desktop, the plain brand on a phone, each sweeping on hover" do
     sign_in(accounts_players(:player))
 
-    get more_path(locale: :en)
+    get me_path(locale: :en)
 
     assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/en'][aria-label=?]", "Gameble, command bridge" do
       assert_select "svg.pixel-icon.top-bar__wordmark"
@@ -271,7 +271,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     newer.update!(status: :published, published_at: Time.current)
     sign_in(player)
 
-    get more_path(locale: :en)
+    get me_path(locale: :en)
 
     assert_equal %w[3 0 0 0 0], css_select(".rarity-counter__count").map { it.text.strip }
   end
@@ -284,24 +284,23 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "#player-menu a.player-menu__item[href='/fr/back-office']", "Back-office"
   end
 
-  test "the phone tab bar: five tabs, the screens as links, locked during an opening" do
+  test "the phone tab bar: four tabs, the screens as links, locked during an opening" do
     sign_in(accounts_players(:player))
     get library_path(locale: :fr)
 
-    assert_select "nav.tab-bar[aria-label=?] ul.tab-bar__list > li.tab-bar__item", "Navigation principale", 5
-    assert_equal [ "Pont", "Capsule", "Collection", "Échanges", "Plus" ], css_select(".tab-bar__label").map(&:text)
-    assert_select "a.tab-bar__tab[href='/fr']:not([aria-current])", /Pont/
+    assert_select "nav.tab-bar[aria-label=?] ul.tab-bar__list > li.tab-bar__item", "Navigation principale", 4
+    assert_equal [ "Capsule", "Sets", "Social", "Moi" ], css_select(".tab-bar__label").map(&:text)
     assert_select "a.tab-bar__tab[href='/fr/booster']:not([aria-current])", /Capsule/
-    assert_select "a.tab-bar__tab[href='/fr/library'][aria-current=page]", /Collection/
-    assert_select "a.tab-bar__tab[href='/fr/more']:not([aria-current])", /Plus/
-    assert_select "a.tab-bar__tab[href='/fr/trades']:not([aria-current])", /Échanges/
+    assert_select "a.tab-bar__tab[href='/fr/library'][aria-current=page]", /Sets/
+    assert_select "a.tab-bar__tab[href='/fr/social']:not([aria-current])", /Social/
+    assert_select "a.tab-bar__tab[href='/fr/me']:not([aria-current])", /Moi/
     assert_select "span.tab-bar__tab[aria-disabled=true], button.tab-bar__tab, .tab-bar__list--visitor", 0
     assert_select "nav.tab-bar[data-controller=navigation-lock]"
     assert_select ".top-bar__start[data-controller=navigation-lock]"
-    assert_select ".tab-bar__tab svg.pixel-icon.tab-bar__icon", 5
+    assert_select ".tab-bar__tab svg.pixel-icon.tab-bar__icon", 4
 
     get home_path(locale: :fr)
-    assert_select "a.tab-bar__tab[href='/fr'][aria-current=page]"
+    assert_select "a.tab-bar__tab[aria-current]", false
   end
 
   test "the atmosphere: permanent, hidden, under the page" do
@@ -326,7 +325,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
     assert_select "body > main#main + #live-ticker.ticker", 1
     [ library_path(locale: :en), feed_path(locale: :en), trades_path(locale: :en), friends_path(locale: :en),
-      settings_path(locale: :en), more_path(locale: :en) ].each do |path|
+      settings_path(locale: :en), me_path(locale: :en) ].each do |path|
       get path
       assert_response :success
       assert_select ".ticker", 0, "#{path} should carry no ticker"

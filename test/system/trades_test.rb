@@ -160,7 +160,8 @@ class TradesTest < ApplicationSystemTestCase
     sign_in @hugo
 
     assert_selector ".tab-bar a.tab-bar__tab .tab-bar__badge--alert", text: "1"
-    find(".tab-bar a.tab-bar__tab[href='/en/trades']").click
+    find(".tab-bar a.tab-bar__tab[href='/en/social']").click
+    find(".plus a[href='/en/trades']").click
     assert_selector ".trade-row", visible: true
     assert_no_selector ".trade-board", visible: true
 

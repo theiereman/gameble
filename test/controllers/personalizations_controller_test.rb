@@ -65,7 +65,7 @@ class PersonalizationsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".personalization-section__empty", /Your best card/
   end
 
-  test "the player menu and the PLUS list lead to the page, and the settings no longer show the showcase" do
+  test "the player menu and the Me list lead to the page, and the settings no longer show the showcase" do
     sign_in(@player)
 
     get settings_path(locale: :en)
@@ -73,7 +73,7 @@ class PersonalizationsControllerTest < ActionDispatch::IntegrationTest
     assert_select "nav#player-menu a[href=?]", personalization_path(locale: :en), "Personalization"
     assert_select ".settings-summary .profile-showcase, .settings-summary__showcase", false
 
-    get more_path(locale: :en)
+    get me_path(locale: :en)
 
     assert_select ".plus__list a[href=?]", personalization_path(locale: :en), /Personalization/
   end

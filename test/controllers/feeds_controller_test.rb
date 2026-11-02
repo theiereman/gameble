@@ -253,11 +253,11 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__entry", 0
   end
 
-  test "menu 06 and the PLUS row link to the feed" do
+  test "menu 06 and the Social row link to the feed" do
     get home_path(locale: :en)
     assert_select "a.menu-item[href=?]", feed_path(locale: :en), /Activity feed/
 
-    get more_path(locale: :en)
+    get social_path(locale: :en)
     assert_select "a.menu-item--plus[href=?]", feed_path(locale: :en)
   end
 
@@ -401,19 +401,19 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__filter[href=?]", feed_path(locale: :fr, filter: "trades")
   end
 
-  test "a visitor's back leads to the landing, not to PLUS; a player's leads to PLUS" do
+  test "a visitor's back leads to the landing, not to Social; a player's leads to Social" do
     reset!
 
     get feed_path(locale: :fr)
 
     assert_select ".top-bar__phone-back", false
     assert_select ".top-bar__start > a.top-bar__bridge[href='/fr']"
-    assert_select "a[href='/fr/more']", false
+    assert_select "a[href='/fr/social']", false
 
     sign_in(@player)
     get feed_path(locale: :fr)
 
-    assert_select "a.top-bar__phone-back[href='/fr/more']"
+    assert_select "a.top-bar__phone-back[href='/fr/social']"
     assert_select "a.feed__tab[href=?]", feed_path(locale: :fr, tab: "friends"), text: "Amis"
     assert_select "button.feed__tab", false
   end

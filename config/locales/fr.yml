@@ -72,7 +72,8 @@ fr:
       achievements: "Succès"
       sign_in: "Connexion"
       legal: "Mentions légales"
-      more: "Plus"
+      me: "Moi"
+      social: "Social"
       how_it_works: "Comment ça marche"
       back_office: "Back-office"
     rarity:
@@ -111,11 +112,10 @@ fr:
       sign_out: "Se déconnecter"
     tabs:
       label: "Navigation principale"
-      hub: "Pont"
       booster: "Capsule"
-      collection: "Collection"
-      trades: "Échanges"
-      more: "Plus"
+      sets: "Sets"
+      social: "Social"
+      me: "Moi"
       landing: "Accueil"
       all_cards: "Toutes les cartes"
       trades_waiting:
@@ -227,11 +227,14 @@ fr:
         collection: "Il ne vous reste plus qu'à constituer votre collection."
         wishes: "La Confrérie vous souhaite d'excellents tirages."
         close: "Fermer"
-    more:
-      title: "Plus"
-      subtitle: "Le reste du vaisseau"
+    me:
+      title: "Moi"
+      subtitle: "Votre profil, vos récompenses et l'aide"
       settings: "Profil et paramètres"
       personalization: "Personnalisation"
+    social:
+      title: "Social"
+      subtitle: "Échanges, amis et activité"
     credits:
       title: "Crédits"
       intro: "Gameble s'inspire des œuvres ci-dessous. Ce sont des inspirations, jamais des affiliations : aucune n'a de lien avec Gameble ni ne le cautionne."
@@ -351,7 +354,6 @@ fr:
         link: "Soutenir"
     how_it_works:
       title: "Comment ça marche"
-      more: "Plus"
       intro: "Les règles du jeu, telles qu'il les applique."
       local_time: ", heure locale"
       # French keeps the singular for 0, which the plural rule here does not.
@@ -880,7 +882,6 @@ fr:
           other: "et %{count} autres sets · Tout voir"
       no_progress: "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
       search: "Chercher un set"
-      all_cards: "Toutes les cartes"
       results: "Résultats"
       search_button: "Chercher"
       loading: "Chargement des sets en cours…"
@@ -968,6 +969,10 @@ fr:
         zero: "%{owned} carte unique sur %{total}"
         one: "%{owned} carte unique sur %{total}"
         other: "%{owned} cartes uniques sur %{total}"
+    view_switch:
+      label: "Vue de la collection"
+      sets: "Sets"
+      all_cards: "Toutes les cartes"
     report:
       title: "Rapport"
       copies: "Cartes totales"
@@ -1129,7 +1134,6 @@ fr:
         failed: "Le dos n'a pas pu être équipé. Réessayez."
         season_label: "Équiper %{name} avec la marque de la saison %{season}"
       title: "Personnalisation"
-      more: "Plus"
       fraction: "%{count} sur %{total}"
       scope:
         public: "Visible par tous"
@@ -1376,7 +1380,6 @@ fr:
   settings:
     show:
       title: "Profil et paramètres"
-      more: "Plus"
       language:
         label: "Langue"
       visibility:
@@ -1457,7 +1460,6 @@ fr:
   feeds:
     show:
       title: "Fil d'activité"
-      more: "Plus"
       empty: "Rien pour l'instant."
       empty_filter: "Rien pour l'instant dans ce filtre."
       tabs_label: "Événements de"
@@ -1521,7 +1523,6 @@ fr:
       named: "Voir la collection de %{name}"
     show:
       title: "Amis"
-      more: "Plus"
       code_label: "Votre code ami"
       empty: "Aucun ami pour l'instant."
       empty_invite: "Invitez-en un avec votre lien ou votre code."
@@ -1643,7 +1644,6 @@ fr:
       a_strictly_professional_relationship: "Une relation strictement professionnelle"
     show:
       title: "Succès"
-      more: "Plus"
       summary:
         zero: "%{earned} succès obtenu sur %{total}"
         one: "%{earned} succès obtenu sur %{total}"

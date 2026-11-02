@@ -31,7 +31,7 @@ class AchievementClaimsControllerTest < ActionDispatch::IntegrationTest
     unlock("first_legendary")
     sign_in(@player)
 
-    get more_path(locale: :en)
+    get me_path(locale: :en)
 
     assert_select "#plus-achievements-badge .menu-item__badge", "2"
   end

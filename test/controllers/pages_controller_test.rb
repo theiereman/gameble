@@ -407,8 +407,19 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu", false
   end
 
-  test "a visitor is sent from the PLUS screen to the landing, in its locale, without an alert" do
-    get more_path(locale: :en)
+  test "the old More address redirects for good to the Me screen, in its locale" do
+    get more_path(locale: :fr)
+
+    assert_redirected_to "/fr/me"
+    assert_response :moved_permanently
+  end
+
+  test "a visitor is sent from the Me and Social screens to the landing, in its locale, without an alert" do
+    get social_path(locale: :fr)
+
+    assert_redirected_to home_path(locale: :fr)
+
+    get me_path(locale: :en)
 
     assert_redirected_to home_path(locale: :en)
     assert_response :see_other
@@ -652,7 +663,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # the top bar's copies per tier and rarity legend, menu 05's friends online, menu 07's
     # achievements earned and the rewards waiting to be claimed, the trades
     # waiting (menu 04 and the tab bar share one count), the invitations waiting
-    # (menu 05 and the PLUS tab share one count) and the LIVE ticker's
+    # (menu 05 and the Social tab share one count) and the LIVE ticker's
     # entries (none here, so no players or cards).
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"

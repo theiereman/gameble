@@ -306,7 +306,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:moderator))
     # The same, the viewer's lookup, the top bar's four and the trades and
     # invitations waiting.
-    assert_request_queries(15) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
+    assert_request_queries(16) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
   end
 
@@ -763,18 +763,18 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # The same, the viewer's lookup and the top bar's four (reserve count,
     # next pack, copies per tier, rarity legend), the tab bar's trades and
     # invitations waiting, and the viewer's friendship and invitations with the owner.
-    assert_request_queries(25) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(26) { get brother_path(locale: :en, token: @owner.token) }
 
     # The chosen cards' views, however many.
     held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)
     held.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
-    assert_request_queries(26) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(27) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase .card", held.size
     assert_response :success
 
     # The owner's move buttons cost nothing more.
     sign_in(@owner)
-    assert_request_queries(24) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(25) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase__moves", held.size
   end
 

@@ -60,7 +60,7 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     assert_empty streams(received(@lea, :en), "append"), "the accepting player has their own toast already"
   end
 
-  test "a friends notice sends the invitations badge to the hub menu, the PLUS list and the PLUS tab, in each locale" do
+  test "a friends notice sends the invitations badge to the hub menu, the Social list and the Social tab, in each locale" do
     max = accounts_players(:administrator)
     Game::Invitation.create!(sender_id: max.id, recipient_id: @hugo.id)
 
@@ -72,19 +72,19 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
       assert_equal "1", menu.at_css(".menu-item__badge.menu-item__badge--alert:not(.menu-item__badge--zero)").text, target
       assert_equal "1 invitation waiting for your answer", menu.at_css(".visually-hidden").text, target
     end
-    tab = template(streams(english, "update", "tab-more-badge").sole)
+    tab = template(streams(english, "update", "tab-invitations-badge").sole)
     assert_equal "1", tab.at_css(".tab-bar__badge--alert").text
     assert_equal "1 invitation waiting for your answer", tab.at_css(".visually-hidden").text
     assert_empty streams(english, "update", "menu-trades-badge")
 
     french = received(@hugo, :fr)
     assert_equal "1 invitation en attente de votre réponse", template(streams(french, "update", "plus-friends-badge").sole).at_css(".visually-hidden").text
-    assert_equal "1 invitation en attente de votre réponse", template(streams(french, "update", "tab-more-badge").sole).at_css(".visually-hidden").text
+    assert_equal "1 invitation en attente de votre réponse", template(streams(french, "update", "tab-invitations-badge").sole).at_css(".visually-hidden").text
 
     sender = received(max, :fr)
     assert_equal "0", template(streams(sender, "update", "menu-friends-badge").sole).at_css(".menu-item__badge--zero").text
     assert_equal "0 invitation en attente de votre réponse", template(streams(sender, "update", "menu-friends-badge").sole).at_css(".visually-hidden").text
-    assert_nil template(streams(sender, "update", "tab-more-badge").sole).at_css(".tab-bar__badge"), "hidden at zero"
+    assert_nil template(streams(sender, "update", "tab-invitations-badge").sole).at_css(".tab-bar__badge"), "hidden at zero"
   end
 
   test "a trades notice alone leaves the invitations badge untouched" do
@@ -92,7 +92,7 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
 
     english = received(@hugo, :en)
     assert_empty streams(english, "update", "menu-friends-badge")
-    assert_empty streams(english, "update", "tab-more-badge")
+    assert_empty streams(english, "update", "tab-invitations-badge")
   end
 
   test "an unlocked achievement sends its player the toast in each locale, and no signal" do
@@ -104,7 +104,7 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     assert_equal [ "Première acquisition approuvée", "Période d'essai validée" ], toasts.map { it.at_css(".toast__message").text }
     assert toasts.all? { it.at_css(".toast[data-toast-after-reveal]") }, "an achievement waits for the opening's reveal"
     assert_empty streams(french, "gameble-event")
-    assert_equal [ "menu-achievements-badge", "plus-achievements-badge" ], streams(french, "update").map { it["target"] }.sort
+    assert_equal [ "menu-achievements-badge", "plus-achievements-badge", "tab-me-badge" ], streams(french, "update").map { it["target"] }.sort
     english = template(streams(received(@hugo, :en), "append", "toasts").first)
     assert_equal [ "Achievement unlocked", "Your First Authorized Acquisition" ], [ english.at_css(".toast__title").text, english.at_css(".toast__message").text ]
     assert_no_broadcasts PlayerStream.name(@lea, :fr)

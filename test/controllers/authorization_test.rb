@@ -42,7 +42,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor's HTML request for a player's page is sent to the landing, without an alert" do
-    get more_path(locale: :fr)
+    get me_path(locale: :fr)
 
     assert_redirected_to home_path(locale: :fr)
     assert_response :see_other
@@ -50,7 +50,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor's JSON request for a player's page answers 401 sign_in_required" do
-    get more_path(locale: :en), headers: { "Accept" => "application/json" }
+    get me_path(locale: :en), headers: { "Accept" => "application/json" }
 
     assert_response :unauthorized
     assert_equal "sign_in_required", response.parsed_body.dig("error", "code")

@@ -2,11 +2,10 @@
 <% invitations = shell_invitations_waiting %>
 <% tabs = if current_player
      [
-       [ :hub, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
-       [ :booster, "tab-booster", booster_path, controller_path == "boosters" ],
-       [ :collection, "tab-collection", library_path, %w[library cards].include?(controller_path) ],
-       [ :trades, "tab-trades", trades_path, controller_path == "trades" ],
-       [ :more, "tab-more", more_path, (controller_path == "pages" && %w[more how_it_works].include?(action_name)) || %w[settings personalizations friends feeds achievements].include?(controller_path) ]
+       [ :booster, "tab-capsule", booster_path, %w[boosters packs].include?(controller_path) ],
+       [ :sets, "tab-sets", library_path, %w[library cards custom_sets].include?(controller_path) ],
+       [ :social, "tab-social", social_path, social_tab_current? ],
+       [ :me, "tab-me", me_path, me_tab_current? ]
      ]
    else
      [
@@ -21,11 +20,12 @@
         <%= link_to path, class: "tab-bar__tab", aria: { current: ("page" if current) }, data: { turbo_prefetch: false } do %>
           <%= pixel_icon(icon, class: "tab-bar__icon") %>
           <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
-          <% if key == :trades %>
+          <% if key == :social %>
             <span id="tab-trades-badge" class="stream-slot"><%= render "shell/tab_trades_badge", waiting: %></span>
+            <span id="tab-invitations-badge" class="stream-slot tab-bar__slot--start"><%= render "shell/tab_invitations_badge", invitations: %></span>
           <% end %>
-          <% if key == :more %>
-            <span id="tab-more-badge" class="stream-slot"><%= render "shell/tab_invitations_badge", invitations: %></span>
+          <% if key == :me %>
+            <span id="tab-me-badge" class="stream-slot"><%= render "shell/tab_achievements_badge", unclaimed: shell_achievements_unclaimed %></span>
           <% end %>
         <% end %>
       </li>

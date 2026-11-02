@@ -398,7 +398,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   test "the player's screens and the sessions still turn an old browser away, the landing does not" do
     old = { "User-Agent" => USER_AGENTS[:ios_16_safari] }
 
-    get more_path(locale: :en), headers: old
+    get me_path(locale: :en), headers: old
     assert_response :not_acceptable
 
     get home_path(locale: :en), headers: old

@@ -261,7 +261,7 @@ class LibraryTest < ApplicationSystemTestCase
     page.driver.browser.manage.window.resize_to(390, 844)
     sign_in
 
-    find(".tab-bar a.tab-bar__tab", text: /COLLECTION/i).click
+    find(".tab-bar a.tab-bar__tab", text: /SETS/i).click
 
     assert_current_path library_path(locale: :en)
     assert_selector ".collection-status__value", text: "3 / 150"

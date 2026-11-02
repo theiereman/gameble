@@ -3,7 +3,7 @@ class RobotsController < ApplicationController
 
   PRIVATE_SCREENS = %w[
     back-office settings booster packs packs-chip daily-bonus goal-rewards welcome account
-    friends invite trades achievements more
+    friends invite trades achievements more me social
   ].freeze
 
   def show

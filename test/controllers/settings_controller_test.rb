@@ -509,54 +509,50 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_nil forced_motion
   end
 
-  test "the player menu links to the settings, and the tab bar's PLUS opens the rest of the ship" do
+  test "the player menu links to the settings, and the tab bar's Me opens the rest of the ship" do
     sign_in(@player)
 
     get home_path(locale: :en)
 
     assert_select "#player-menu a.player-menu__item[href='/en/settings']", "Settings"
-    assert_select "a.tab-bar__tab[href='/en/more']", /More/
+    assert_select "a.tab-bar__tab[href='/en/me']", /Me/
   end
 
-  test "the PLUS screen lists the screens that are not tabs, settings among them" do
+  test "the Me screen lists settings, personalization, achievements, how it works and support" do
     sign_in(@player)
 
-    get more_path(locale: :fr)
+    get me_path(locale: :fr)
 
     assert_response :success
-    assert_select "main h1", "Pont de commandement"
-    assert_select ".hub__subtitle", "Le reste du vaisseau"
-    assert_select ".plus__list > li", 8
-    assert_select ".plus__list > li:first-child a.menu-item.menu-item--plus[href='/fr/library/cards']", "Toutes les cartes"
-    assert_select ".plus__list a.menu-item[href='/fr/settings']", /Profil et paramètres/
+    assert_select "main h1", "Moi"
+    assert_select ".hub__subtitle", "Votre profil, vos récompenses et l'aide"
+    assert_select ".plus__list > li", 5
+    assert_select ".plus__list > li:first-child a.menu-item[href='/fr/settings']", /Profil et paramètres/
     assert_select ".plus__list a.menu-item[href='/fr/personalization']", /Personnalisation/
     assert_select ".plus__list > li:last-child a.menu-item[href='https://buymeacoffee.com/theiereman'][target=_blank]", "Soutenir (nouvel onglet)" do
       assert_select "svg.menu-item__external"
     end
     assert_select ".plus__list a.menu-item[href='/fr/how-it-works']", /Comment ça marche/
-    assert_select ".plus__list a.menu-item[href='/fr/friends']", /Amis/
-    assert_select ".plus__list a.menu-item[href='/fr/feed']", /Fil d'activité/
     assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
     assert_select ".plus__list .menu-item[aria-disabled]", false
-    assert_select "a.tab-bar__tab[href='/fr/more'][aria-current=page]"
+    assert_select "a.tab-bar__tab[href='/fr/me'][aria-current=page]"
   end
 
-  test "the settings screen is under the PLUS tab, with a contextual phone back" do
+  test "the settings screen is under the Me tab, with a contextual phone back" do
     sign_in(@player)
 
     get settings_path(locale: :fr)
 
-    assert_select "a.tab-bar__tab[href='/fr/more'][aria-current=page]"
-    assert_select "a.tab-bar__tab[href='/fr'][aria-current]", false
-    assert_select ".top-bar a.top-bar__phone-back[href='/fr/more']", /Plus/
+    assert_select "a.tab-bar__tab[href='/fr/me'][aria-current=page]"
+    assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
   end
 
-  test "the hub tab is current on the hub only" do
+  test "no tab is current on the hub" do
     sign_in(@player)
 
-    get more_path(locale: :en)
+    get home_path(locale: :en)
 
-    assert_select "a.tab-bar__tab[href='/en'][aria-current]", false
+    assert_select "a.tab-bar__tab[aria-current]", false
   end
 
   # The public profile in brief

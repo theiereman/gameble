@@ -103,10 +103,11 @@ class ShellTest < ApplicationSystemTestCase
       sign_in(accounts_players(:player), locale: :fr)
 
       assert_selector ".tab-bar", visible: true
-      assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: /PONT/i
+      assert_selector ".tab-bar a.tab-bar__tab", count: 4
       assert_selector ".tab-bar a.tab-bar__tab[href='/fr/booster']", text: /CAPSULE/i
-      assert_selector ".tab-bar a.tab-bar__tab[href='/fr/more']", text: /PLUS/i
-      assert_selector ".tab-bar a.tab-bar__tab[href='/fr/trades']", text: /ÉCHANGES/i
+      assert_selector ".tab-bar a.tab-bar__tab[href='/fr/library']", text: /SETS/i
+      assert_selector ".tab-bar a.tab-bar__tab[href='/fr/social']", text: /SOCIAL/i
+      assert_selector ".tab-bar a.tab-bar__tab[href='/fr/me']", text: /MOI/i
       assert_no_selector ".rarity-counter__button", visible: true
       assert_no_selector ".top-bar .player-chip__button", visible: true
       assert_equal "fixed", computed(".tab-bar", "position")
@@ -117,7 +118,7 @@ class ShellTest < ApplicationSystemTestCase
       take_screenshot
 
       visit library_path(locale: :fr)
-      assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: /COLLECTION/i
+      assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: /SETS/i
       assert_no_sideways_scroll
       take_screenshot
     end

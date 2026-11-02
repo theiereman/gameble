@@ -84,7 +84,6 @@ en:
       groups:
         earned: Earned · %{count}
         to_earn: To earn · %{count}
-      more: More
       progress: "%{progress} of %{threshold}"
       summary:
         one: "%{earned} achievement earned out of %{total}"
@@ -1088,7 +1087,6 @@ en:
         trades: Trades
       filters_label: Filter by type
       first_discovery: First discovery
-      more: More
       nameless: Nameless player
       no_friends: Add friends to follow their pulls.
       pages:
@@ -1189,7 +1187,6 @@ en:
       invite: Invite a friend
       invites_you: "%{name} invites you"
       manual: Copy the link by hand.
-      more: More
       nameless: Nameless player
       no_invitations: No invitation pending.
       pending: Pending
@@ -1509,7 +1506,6 @@ en:
     collection:
       title: Collection
     entry:
-      all_cards: All cards
       completed: Completed
       custom_sets:
         count: Visible to you only · %{sets} / %{max}
@@ -1678,6 +1674,10 @@ en:
       progress:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
+    view_switch:
+      all_cards: All cards
+      label: Collection view
+      sets: Sets
   number:
     format:
       delimiter: ","
@@ -1850,7 +1850,6 @@ en:
       minutes:
         one: "%{count} minute"
         other: "%{count} minutes"
-      more: More
       packs:
         bonus: 'The daily capsule has better odds and never holds a %{common} card:'
         chance: Chance per card
@@ -2153,11 +2152,14 @@ en:
         title: Terms of use
       title: Legal notice and privacy
       updated: 'Last updated: 1 November 2026'
-    more:
+    me:
       personalization: Personalization
       settings: Profile and settings
-      subtitle: The rest of the ship
-      title: More
+      subtitle: Your profile, rewards and help
+      title: Me
+    social:
+      subtitle: Trades, friends and activity
+      title: Social
   personalizations:
     show:
       card_back:
@@ -2222,7 +2224,6 @@ en:
           one: unlocked
           other: unlocked
       fraction: "%{count} of %{total}"
-      more: More
       profile_title:
         apply: Apply
         count_html:
@@ -2439,7 +2440,6 @@ en:
       language:
         label: Language
       legal: Legal notice
-      more: More
       motion:
         label: Reduced motion
         'off': 'No'
@@ -2572,11 +2572,12 @@ en:
       friends: Friends
       how_it_works: How it works
       legal: Legal notice
-      more: More
+      me: Me
       profile: Profile
       set: Set
       sets: Sets
       sign_in: Sign in
+      social: Social
       trades: Trades
     sign_in:
       acceptance_html: By signing in you accept the %{terms} and acknowledge the %{privacy}.
@@ -2587,15 +2588,14 @@ en:
     tabs:
       all_cards: All cards
       booster: Capsule
-      collection: Collection
-      hub: Bridge
       invitations_waiting:
         one: "%{number} invitation waiting for your answer"
         other: "%{number} invitations waiting for your answer"
       label: Main navigation
       landing: Home
-      more: More
-      trades: Trades
+      me: Me
+      sets: Sets
+      social: Social
       trades_waiting:
         one: "%{number} trade waiting for you"
         other: "%{number} trades waiting for you"

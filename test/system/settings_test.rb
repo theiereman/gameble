@@ -328,18 +328,18 @@ class SettingsTest < ApplicationSystemTestCase
     take_screenshot
   end
 
-  test "on a phone, PLUS leads to the settings screen and its contextual back leads to PLUS" do
+  test "on a phone, Me leads to the settings screen and its contextual back leads to Me" do
     page.driver.browser.manage.window.resize_to(390, 844)
     sign_in
 
-    within(".tab-bar") { click_on "More" }
+    within(".tab-bar") { click_on "Me" }
     assert_selector ".plus__list"
-    assert_selector ".tab-bar__tab[aria-current=page]", text: "MORE"
+    assert_selector ".tab-bar__tab[aria-current=page]", text: "ME"
     within(".plus__list") { click_on "Profile and settings" }
 
     assert_selector "h1", text: "PROFILE AND SETTINGS"
-    assert_selector ".tab-bar__tab[aria-current=page]", text: "MORE"
-    within(".top-bar") { click_on "More" }
+    assert_selector ".tab-bar__tab[aria-current=page]", text: "ME"
+    within(".top-bar") { click_on "Me" }
     assert_selector ".plus__list"
   end
 end

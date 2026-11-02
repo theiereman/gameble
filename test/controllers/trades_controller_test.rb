@@ -136,7 +136,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :fr)
     assert_select ".hub-menu a.menu-item[href='/fr/trades'] .menu-item__badge--alert", "1"
     assert_select ".hub-menu a.menu-item[href='/fr/trades'] .visually-hidden", "1 échange en attente de vous"
-    assert_select ".tab-bar a.tab-bar__tab[href='/fr/trades'] .tab-bar__badge--alert", "1"
+    assert_select ".tab-bar a.tab-bar__tab[href='/fr/social'] .tab-bar__badge--alert", "1"
 
     post accept_trade_path(token: trade.token, locale: :fr), params: revision(trade)
     assert_redirected_to trade_path(token: trade.token, locale: :fr)

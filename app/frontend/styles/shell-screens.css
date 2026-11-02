@@ -140,9 +140,14 @@ html[data-sub-view-step] .main {
     padding: 0 var(--space-gutter-phone);
   }
 
+  /* A drill-down header on the phone is its back button alone. */
   .top-bar__title {
-    font: var(--font-screen-title-phone);
-    letter-spacing: var(--tracking-screen-title-phone);
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .rarity-counter,

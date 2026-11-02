@@ -1,10 +1,14 @@
 <% content_for :back_button, true %>
 <% content_for :screen_title, t("trades.title") %>
 <% turbo_exempts_page_from_cache %>
-<% if view == :board %>
-  <% content_for :phone_back do %>
+<% content_for :phone_back do %>
+  <% if view == :board %>
     <%= link_to trades_path, class: "button button--secondary button--small top-bar__phone-back" do %>
       <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t("trades.list.back") %></span>
+    <% end %>
+  <% else %>
+    <%= link_to social_path, class: "button button--secondary button--small top-bar__phone-back" do %>
+      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t("shell.tabs.social") %></span>
     <% end %>
   <% end %>
 <% end %>

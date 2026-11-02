@@ -280,16 +280,16 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_nil flash[:alert]
   end
 
-  test "on the phone the screen sits under the PLUS tab, with a way back to it" do
+  test "on the phone the screen sits under the Me tab, with a way back to it" do
     sign_in(@player)
 
     get achievements_path(locale: :fr)
 
-    assert_select "a.tab-bar__tab[href='/fr/more'][aria-current=page]", /Plus/
-    assert_select ".top-bar a.top-bar__phone-back[href='/fr/more']", /Plus/
+    assert_select "a.tab-bar__tab[href='/fr/me'][aria-current=page]", /Moi/
+    assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
   end
 
-  test "menu 07 and the PLUS row lead a player to the achievements, with the count earned" do
+  test "menu 07 and the Me row lead a player to the achievements, with the count earned" do
     unlock("first_booster", "first_trade", "first_repost")
     sign_in(@player)
 
@@ -301,7 +301,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     end
     get home_path(locale: :en)
     assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of #{total_achievements}"
-    get more_path(locale: :fr)
+    get me_path(locale: :fr)
     assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
   end
 

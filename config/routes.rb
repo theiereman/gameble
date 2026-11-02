@@ -165,8 +165,11 @@ Rails.application.routes.draw do
         post :cancel
       end
     end
-    # The phone's PLUS tab: the rest of the ship.
-    get "more" => "pages#more", as: :more
+    # The phone's Social and Me tabs open these two menus.
+    get "social" => "pages#social", as: :social
+    get "me" => "pages#me", as: :me
+    # The phone's fifth tab once lived here; its links lead to the Me menu.
+    get "more", to: redirect("/%{locale}/me", status: 301), as: :more
     get "legal" => "pages#legal", as: :legal
     get "credits" => "pages#credits", as: :credits
     # The rules of the game, readable signed out.

@@ -24,7 +24,11 @@ class PagesController < ApplicationController
     @sets = @season ? set_rows : []
   end
 
-  def more
+  def me
+    authorize :page, :play?
+  end
+
+  def social
     authorize :page, :play?
   end
 

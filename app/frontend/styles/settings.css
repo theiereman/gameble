@@ -188,6 +188,17 @@
   box-shadow: var(--focus-ring-gap), var(--control-border);
 }
 
+/* The collection's two views, Sets and All cards. */
+.library-switch {
+  display: flex;
+  margin-bottom: var(--space-4);
+}
+
+.library-switch .segmented__option {
+  flex: 1;
+  text-decoration: none;
+}
+
 .plus {
   display: flex;
   flex-direction: column;

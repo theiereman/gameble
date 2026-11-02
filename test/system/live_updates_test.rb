@@ -149,14 +149,14 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     sign_in @hugo
     visit friends_path(locale: :en)
     assert_selector ".friends__invitation", text: "Max invites you"
-    assert_selector "#tab-more-badge .tab-bar__badge", text: "1", visible: :all
+    assert_selector "#tab-invitations-badge .tab-bar__badge", text: "1", visible: :all
     listening
 
     Game::CancelInvitation.new.call(player: @max, token: invitation.token).value!
     deliver
 
     assert_no_selector ".friends__invitation", text: "Max invites you"
-    assert_no_selector "#tab-more-badge .tab-bar__badge", visible: :all
+    assert_no_selector "#tab-invitations-badge .tab-bar__badge", visible: :all
     assert not_reloaded?
   end
 
@@ -168,7 +168,7 @@ class LiveUpdatesTest < ApplicationSystemTestCase
       sign_in @max
       listening
       page.execute_script("document.querySelector('#menu-friends-badge').replaceChildren()")
-      page.execute_script("document.querySelector('#tab-more-badge').innerHTML = '<span class=\"tab-bar__badge\">9</span>'")
+      page.execute_script("document.querySelector('#tab-invitations-badge').innerHTML = '<span class=\"tab-bar__badge\">9</span>'")
     end
 
     invitation = Game::SendInvitation.new.call(player: @max, code: "7K2Q-F3NX").value!
@@ -180,7 +180,7 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     using_session("max") do
       assert_selector "#menu-friends-badge .menu-item__badge--zero", text: "0"
       assert_selector "#menu-friends-badge .visually-hidden", text: "0 invitations waiting for your answer", visible: :all
-      assert_no_selector "#tab-more-badge .tab-bar__badge", visible: :all
+      assert_no_selector "#tab-invitations-badge .tab-bar__badge", visible: :all
       assert not_reloaded?
     end
 
@@ -191,20 +191,20 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     assert not_reloaded?
   end
 
-  test "on a phone, an invitation lights the PLUS tab and the Friends row in French without a reload, and answering it clears them" do
+  test "on a phone, an invitation lights the Social tab and the Friends row in French without a reload, and answering it clears them" do
     original = page.driver.browser.manage.window.size
     page.driver.browser.manage.window.resize_to(*PHONE)
     sign_in @hugo
-    visit more_path(locale: :fr)
+    visit social_path(locale: :fr)
     assert_selector "#plus-friends-badge .menu-item__badge--zero", text: "0"
-    assert_no_selector "#tab-more-badge .tab-bar__badge"
+    assert_no_selector "#tab-invitations-badge .tab-bar__badge"
     listening
 
     invitation = Game::SendInvitation.new.call(player: @max, code: "7K2Q-F3NX").value!
     deliver
 
-    assert_selector ".tab-bar a.tab-bar__tab #tab-more-badge .tab-bar__badge--alert", text: "1"
-    assert_selector "#tab-more-badge .visually-hidden", text: "1 invitation en attente de votre réponse", visible: :all
+    assert_selector ".tab-bar a.tab-bar__tab #tab-invitations-badge .tab-bar__badge--alert", text: "1"
+    assert_selector "#tab-invitations-badge .visually-hidden", text: "1 invitation en attente de votre réponse", visible: :all
     assert_selector ".plus a.menu-item #plus-friends-badge .menu-item__badge--alert:not(.menu-item__badge--zero)", text: "1"
     assert_selector "#plus-friends-badge .visually-hidden", text: "1 invitation en attente de votre réponse", visible: :all
     assert not_reloaded?
@@ -212,7 +212,7 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     Game::AcceptInvitation.new.call(player: @hugo, token: invitation.token).value!
     deliver
 
-    assert_no_selector "#tab-more-badge .tab-bar__badge", visible: :all
+    assert_no_selector "#tab-invitations-badge .tab-bar__badge", visible: :all
     assert_selector "#plus-friends-badge .menu-item__badge--zero", text: "0"
     assert not_reloaded?
   ensure

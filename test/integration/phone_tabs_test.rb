@@ -1,0 +1,87 @@
+require "test_helper"
+require_relative "../support/steam_sign_in"
+
+# The phone's four tabs, the Social and Me menus behind two of them, and the
+# Sets | All cards switch.
+class PhoneTabsTest < ActionDispatch::IntegrationTest
+  include SteamSignIn
+
+  FORMER_MORE_DESTINATIONS = %w[
+    /en/library/cards /en/trades /en/friends /en/feed /en/achievements /en/settings /en/personalization /en/how-it-works
+  ].freeze
+
+  setup do
+    @player = accounts_players(:player)
+    sign_in(@player)
+  end
+
+  test "the old More address redirects for good to the Me menu in the same locale" do
+    get more_path(locale: :en)
+
+    assert_redirected_to "/en/me"
+    assert_response :moved_permanently
+  end
+
+  test "every tab is current on its own screens and on their drill-downs" do
+    { library_path(locale: :en) => "/en/library", library_cards_path(locale: :en) => "/en/library",
+      social_path(locale: :en) => "/en/social", trades_path(locale: :en) => "/en/social", friends_path(locale: :en) => "/en/social",
+      feed_path(locale: :en) => "/en/social", me_path(locale: :en) => "/en/me", settings_path(locale: :en) => "/en/me",
+      personalization_path(locale: :en) => "/en/me", achievements_path(locale: :en) => "/en/me", how_it_works_path(locale: :en) => "/en/me" }.each do |path, tab|
+      get path
+      assert_response :success
+      assert_select "a.tab-bar__tab[aria-current=page]", 1, path
+      assert_select "a.tab-bar__tab[href='#{tab}'][aria-current=page]", 1, path
+    end
+  end
+
+  test "every former More destination is one tap from Social or Me, or from the Sets switch" do
+    reachable = []
+    [ social_path(locale: :en), me_path(locale: :en), library_path(locale: :en) ].each do |path|
+      get path
+      reachable.concat(css_select("main a[href]").pluck("href"))
+    end
+
+    assert_empty FORMER_MORE_DESTINATIONS - reachable
+  end
+
+  test "the Social menu lists trades, friends and the feed; the Me menu settings, personalization, achievements, how it works and support" do
+    get social_path(locale: :en)
+    assert_select ".plus__list > li a.menu-item", 3
+    %w[/en/trades /en/friends /en/feed].each { assert_select ".plus__list a.menu-item[href='#{it}']" }
+
+    get me_path(locale: :en)
+    assert_select ".plus__list > li", 5
+    %w[/en/settings /en/personalization /en/achievements /en/how-it-works].each { assert_select ".plus__list a.menu-item[href='#{it}']" }
+  end
+
+  test "the Sets and All cards screens carry the same two-segment switch, each marking itself" do
+    get library_path(locale: :fr)
+    assert_select "nav.library-switch a.segmented__option", 2
+    assert_select "nav.library-switch a[href='/fr/library'][aria-current=true]", "Sets"
+    assert_select "nav.library-switch a[href='/fr/library/cards'][aria-current=false]", "Toutes les cartes"
+
+    get library_cards_path(locale: :fr)
+    assert_select "nav.library-switch a[href='/fr/library/cards'][aria-current=true]", "Toutes les cartes"
+    assert_select "nav.library-switch a[href='/fr/library'][aria-current=false]", "Sets"
+  end
+
+  test "a visitor's All cards screen has no switch" do
+    reset!
+
+    get library_cards_path(locale: :en)
+
+    assert_select "nav.library-switch", false
+  end
+
+  test "the Social tab holds the trades and invitations badge slots, the Me tab the achievements one" do
+    Game::Invitation.create!(sender_id: accounts_players(:moderator).id, recipient_id: @player.id)
+    Game::AchievementUnlock.record(@player.id, "boosters_100", Time.current, claimed: false)
+
+    get home_path(locale: :en)
+
+    assert_select ".tab-bar a.tab-bar__tab[href='/en/social'] #tab-trades-badge.stream-slot", 1
+    assert_select ".tab-bar a.tab-bar__tab[href='/en/social'] #tab-invitations-badge.stream-slot .tab-bar__badge--alert", "1"
+    assert_select ".tab-bar a.tab-bar__tab[href='/en/me'] #tab-me-badge.stream-slot .tab-bar__badge--alert", "1"
+    assert_select "#tab-me-badge .visually-hidden", "1 reward to claim"
+  end
+end
