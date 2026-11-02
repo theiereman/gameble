@@ -1,0 +1,23 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The five reaction icons are drawn in the pixel set"
+description = "Draw five pixel icons for the reactions in script/pixel_art/export.mjs (never hand-edit app/frontend/images/pixel/; run node script/pixel_art/export.mjs, --check verifies): a thumb up, a heart, GG, wow and a raised middle finger, in the style and sizes of the existing icons (pixel_icon helper and the sizes the feed and the buttons need, a lit and a resting state if the existing icons have them). Register them for the pixel_icon helper under stable keys."
+verify = "The export writes the five icons, `node script/pixel_art/export.mjs --check` passes, and the icons render through pixel_icon in the existing icon test or a new one."
+covers = []
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "A player reacts to a feed entry and sees the counters"
+description = "A signed-in player reacts to a visible feed entry with one of the five reactions (thumb, heart, gg, wow, middle_finger), changes it or removes it, one per player per entry, through an operation (Game::ReactToFeedEntry, Success/Failure(:code), one event inside the transaction) writing a reactions table (player_id, feed entry id, kind, unique per player and entry, a check on the kind) with the migrations expand/contract and a concurrent index in its own migration. Each feed entry shows a counter per reaction, to visitors too, never a name or list of reactors, not even to the player an entry is about; the viewer's own reaction is marked. Counters are read in one query for the page (no per-entry query). The POST answers a Turbo Stream that updates the entry's reaction bar in place keeping the scroll, with an HTML redirect fallback; focus stays on the pressed reaction and the change is announced in a polite status. Entries of the live feed and of the pages loaded by the endless scroll carry the bar; counters stay current through the live feed broadcast (at least on the entries in view, by a debounced refresh or a stream, decide in the plan). Follow Game::Visibility: no reaction on an entry of a hidden, banned or private player; reactions of a banned player do not count; reactions are erased with the account (the retention and erasure paths), appear in the data export and are named in the privacy and retention pages (en and fr). Pundit policy on every action, rate limit on the POST, tokens not database ids in HTML (use the entry's public token or a signed one), strings in en.yml and fr.yml."
+verify = "A signed-in player reacts, changes and removes a reaction on an entry and the counters follow in place; a second player's counter increments for the first without a reload; a visitor sees counters and cannot react; no name appears in the HTML or any JSON; a banned player's reactions do not count; erasing an account removes its reactions; the data export lists them; the operation, controller, policy and system tests pass."
+covers = []
+after = [1]
+hitl = false
+risk = "medium"
