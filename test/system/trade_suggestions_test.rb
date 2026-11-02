@@ -1,10 +1,12 @@
 require "application_system_test_case"
 require_relative "../support/custom_sets"
+require_relative "../support/game_sets"
 require_relative "../support/holdings"
 require_relative "../support/steam_sign_in"
 
 class TradeSuggestionsTest < ApplicationSystemTestCase
   include CustomSets
+  include GameSets
   include Holdings
   include SteamSignIn
 
@@ -92,7 +94,7 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
   test "after ENVOYER the focus lands on the next suggestion's opener, which holds live refresh through a window blur" do
     Game::Holding.find_by!(player_id: @lea.id, card_season_id: @hills).update!(reserved: 2)
     crown = catalog_card_seasons(:legendary_card_one).id
-    crown_card_ids = Catalog::CardSeason.where(id: [ catalog_card_seasons(:common_card_one).id, crown ]).pluck(:card_id)
+    crown_card_ids = Catalog::CardSeason.where(id: [ catalog_card_seasons(:common_card_one).id, crown, *unheld_cards(1) ]).pluck(:card_id)
     Game::AddGoal.new.call(player: @hugo, custom_set: create_custom_set(@hugo, name: "Crown run", card_ids: crown_card_ids).token).value!
     hold(@max, crown, 2)
     sign_in @hugo

@@ -130,7 +130,7 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
     assert_select "#set-album-goal button", false
   end
 
-  test "a custom set's album holds the goal button beside its own; the Steam library set's has none" do
+  test "a custom set's album holds the goal button beside its own, and the Steam library set's holds it too" do
     custom_set = create_custom_set(@player)
     library = Game::CustomSet.create!(player_id: @player.id, kind: Game::CustomSet::STEAM_LIBRARY)
     Game::CustomSetGame.create!(custom_set_id: library.id, card_id: catalog_cards(:portal).id)
@@ -141,7 +141,7 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
     assert_select "#set-album-goal input[name=custom_set][value='#{custom_set.token}']"
 
     get custom_set_path(locale: :fr, token: library.token)
-    assert_select "#set-album-goal", false
+    assert_select "#set-album-goal input[name=custom_set][value='#{library.token}']"
   end
 
   test "another player's album of the same set and the hub show no goal; a public profile no bookmark nor custom set goal" do

@@ -32,8 +32,14 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
   end
 
   def goal(*card_season_ids, name: "Mes favoris #{SecureRandom.hex(2)}")
-    card_ids = Catalog::CardSeason.where(id: card_season_ids).pluck(:card_id)
+    card_ids = padded_to_three(Catalog::CardSeason.where(id: card_season_ids).pluck(:card_id))
     Game::AddGoal.new.call(player: @player, custom_set: create_custom_set(@player, name:, card_ids:).token).value!
+  end
+
+  def padded_to_three(card_ids)
+    return card_ids if card_ids.size >= 3
+
+    card_ids + Catalog::CardSeason.where(id: unheld_cards(3 - card_ids.size)).pluck(:card_id)
   end
 
   def spare(friend, *card_season_ids, copies: 2)

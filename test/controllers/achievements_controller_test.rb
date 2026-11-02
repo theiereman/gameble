@@ -55,9 +55,9 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
 
     hundred = tile(:to_earn, "Historique de consommation exemplaire")
     assert_equal "Ouvrir 100 capsules", hundred.at_css(".achievement__condition").text
-    bar = hundred.at_css("progress.achievement__bar[aria-hidden=true]")
+    bar = hundred.at_css("[aria-hidden=true] progress.achievement__bar")
     assert_equal [ "64", "100" ], [ bar["value"], bar["max"] ]
-    assert_equal "64 / 100", hundred.at_css(".achievement__progress[aria-hidden=true]").text
+    assert_equal "64 / 100", hundred.at_css("[aria-hidden=true] .achievement__progress").text
     assert_equal "64 sur 100", hundred.at_css(".visually-hidden").text
     assert_equal "Ouvrir 500 capsules", tile(:to_earn, "Loyauté au-delà du raisonnable").at_css(".achievement__condition").text
 

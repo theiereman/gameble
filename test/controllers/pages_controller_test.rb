@@ -942,7 +942,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   test "the privacy section names the stored Steam library list: what is kept, how long, what deletion erases, how to export or object" do
     configure_legal
     library = {
-      fr: { stored: "si vous vous connectez avec Steam et laissez «\u202FSynchroniser mes jeux Steam\u202F» activé dans les paramètres\u202F: la liste des jeux du catalogue que contient votre bibliothèque Steam, lue chez Steam une fois par jour pour votre set «\u202FMa ludothèque Steam\u202F», avec la date de sa dernière synchronisation et, quand Steam ne partage plus votre bibliothèque, depuis quand\u202F;",
+      fr: { stored: "si vous vous connectez avec Steam et laissez «\u202FSynchroniser mes jeux Steam\u202F» activé dans les paramètres\u202F: la liste des jeux du catalogue que contient votre bibliothèque Steam, lue chez Steam une fois par jour pour votre set «\u202FMa bibliothèque Steam\u202F», avec la date de sa dernière synchronisation et, quand Steam ne partage plus votre bibliothèque, depuis quand\u202F;",
             retention: "la liste des jeux de votre bibliothèque Steam\u202F: tant que le compte existe et que la synchronisation est activée\u202F; elle est effacée aussitôt que vous désactivez «\u202FSynchroniser mes jeux Steam\u202F» dans les paramètres ou supprimez votre compte\u202F;",
             list: "la liste de votre bibliothèque Steam", setting: "synchronisation des jeux Steam", objection: "désactivez «\u202FSynchroniser mes jeux Steam\u202F»",
             service: "Steam (Valve) gère la connexion et fournit votre nom de profil et, une fois par jour tant que la synchronisation est activée, les jeux de votre bibliothèque Steam\u202F;",

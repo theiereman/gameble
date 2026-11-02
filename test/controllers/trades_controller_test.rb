@@ -7,6 +7,7 @@ require_relative "../support/custom_sets"
 class TradesControllerTest < ActionDispatch::IntegrationTest
   include Holdings
   include CustomSets
+  include GameSets
   include CountingRateLimit
   include SteamSignIn
 
@@ -1249,6 +1250,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
   def goal_on(*card_season_ids)
     card_ids = Catalog::CardSeason.where(id: card_season_ids).pluck(:card_id)
+    card_ids += Catalog::CardSeason.where(id: unheld_cards(3 - card_ids.size)).pluck(:card_id) if card_ids.size < 3
     name = "Objectif #{Game::Goal.where(player_id: @alice.id).count + 1}"
     Game::AddGoal.new.call(player: @alice, custom_set: create_custom_set(@alice, name:, card_ids:).token).value!
   end
