@@ -7,7 +7,8 @@ module AchievementsHelper
     first_trade: "trade",
     first_repost: "card",
     packaging_irregularity: "duplicate", excellence_in_mediocrity: "tokens", historical_asset_management: "hourglass",
-    luck_is_a_marketing_concept: "clover", leave_request_denied: "refused"
+    luck_is_a_marketing_concept: "clover", leave_request_denied: "refused",
+    diversified_portfolio: "fan", market_concentration: "tower"
   }.freeze
 
   def achievement_icon(tile)

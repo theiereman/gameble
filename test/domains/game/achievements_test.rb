@@ -74,7 +74,7 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     Game::AcceptTrade.new.call(player:, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision).value!
   end
 
-  test "the catalogue holds sixteen achievements, in order, each a metric and a threshold" do
+  test "the catalogue holds eighteen achievements, in order, each a metric and a threshold" do
     expected = [
       [ :first_booster, :packs_opened, 1 ], [ :first_epic, :epics_obtained, 1 ], [ :first_legendary, :legendaries_obtained, 1 ],
       [ :first_complete_set, :sets_completed, 1 ], [ :first_trade, :trades_accepted, 1 ], [ :boosters_10, :packs_opened, 10 ],
@@ -82,7 +82,8 @@ class Game::AchievementsTest < ActiveSupport::TestCase
       [ :first_repost, :reposts, 1 ], [ :statistical_non_compliance, :two_rare_or_better_capsules, 1 ],
       [ :packaging_irregularity, :repeated_game_capsules, 1 ], [ :excellence_in_mediocrity, :all_common_capsules, 1 ],
       [ :historical_asset_management, :old_and_new_game_capsules, 1 ], [ :luck_is_a_marketing_concept, :capsules_without_rare_streak, 10 ],
-      [ :leave_request_denied, :daily_bonus_streak, 7 ]
+      [ :leave_request_denied, :daily_bonus_streak, 7 ], [ :diversified_portfolio, :most_copies_of_a_game, 5 ],
+      [ :market_concentration, :most_games_of_a_studio, 10 ]
     ]
 
     assert_equal expected, Game::Achievements::CATALOGUE.map { [ it.key, it.metric, it.threshold ] }
@@ -430,6 +431,77 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_equal 1, toasts(@player, :en).count { it.include?("Leave Request Denied") }
   end
 
+  def hold_edition(card_id, quantity, reserved: 0)
+    season = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    edition = Catalog::CardSeason.create!(card_id:, season:, prestige_score: 0.5, rating: 80, rarity: :common, number: 1)
+    hold(@player, edition.id, quantity, reserved:)
+  end
+
+  def studio_games(count, developer: [ "Acme Studios" ], player: @player)
+    season = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    Array.new(count) do |index|
+      slug = "studio-#{developer.first.to_s.parameterize}-#{player.id}-#{Catalog::Card.count}-#{index}"
+      card = Catalog::Card.create!(source_key: "src:#{slug}", slug:, release_date: Date.new(2020, 1, 1), developers: developer,
+        image_url: "https://images.example.test/#{slug}.jpg", store_url: "https://store.example.test/#{slug}")
+      season_id = Catalog::CardSeason.create!(card:, season:, prestige_score: 0.5, rating: 80, rarity: :common, number: index + 1).id
+      hold(player, season_id)
+      card
+    end
+  end
+
+  def most_copies(player = @player) = capsule_metric(:most_copies_of_a_game, player)
+
+  def most_studio_games(player = @player) = capsule_metric(:most_games_of_a_studio, player)
+
+  test "copies of a game are summed across its editions, reserved ones included" do
+    hold(@player, @common, 2)
+    hold_edition(card_id_of(@common), 2, reserved: 1)
+    hold(@player, @uncommon, 3)
+    hold(@other, @common, 9)
+
+    assert_equal 4, most_copies
+    assert_equal 9, most_copies(@other)
+    assert_equal 0, most_copies(accounts_players(:banned))
+  end
+
+  test "Diversified Portfolio is granted at five copies over two editions and refused at four" do
+    hold(@player, @common, 2)
+    hold_edition(card_id_of(@common), 2)
+    assert_equal :not_reached, grant(:diversified_portfolio).failure
+
+    Game::Holding.find_by!(player_id: @player.id, card_season_id: @common).update!(quantity: 3)
+    assert_equal :diversified_portfolio, grant(:diversified_portfolio).value!.key
+  end
+
+  test "the studio is the card's first developer normalised as studio sets do" do
+    studio_games(4, developer: [ "Valve" ])
+    studio_games(2, developer: [ "Valve Corporation", "Someone Else" ])
+    studio_games(1, developer: [ "VALVE, Inc." ])
+    studio_games(1, developer: [ "Valve™" ])
+    studio_games(3, developer: [ "Someone Else", "Valve" ])
+    studio_games(2, developer: [])
+
+    assert_equal 8, most_studio_games
+  end
+
+  test "held games of a studio count once however many editions and copies, and only while held" do
+    games = studio_games(3)
+    hold_edition(games.first.id, 2)
+    Game::Holding.where(player_id: @player.id).where(card_season_id: Catalog::CardSeason.where(card_id: games.last.id).select(:id)).update_all(quantity: 0)
+
+    assert_equal 2, most_studio_games
+    assert_equal 0, most_studio_games(@other)
+  end
+
+  test "Market Concentration is granted at ten games of one studio and refused at nine" do
+    studio_games(9, developer: [ "Acme Studios" ])
+    studio_games(5, developer: [ "Other House" ])
+    assert_equal :not_reached, grant(:market_concentration).failure
+
+    studio_games(1, developer: [ "Acme Studios, Ltd." ])
+    assert_equal :market_concentration, grant(:market_concentration).value!.key
+  end
+
   test "the grant re-reads only its achievement's metric" do
     opened_packs(1)
 
@@ -601,7 +673,7 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
   def unlocked = Game::AchievementUnlock.pluck(:player_id, :achievement).sort
 
   def expected
-    (%w[first_booster first_legendary statistical_non_compliance packaging_irregularity excellence_in_mediocrity].map { [ @player.id, it ] } +
+    (%w[first_booster first_legendary statistical_non_compliance packaging_irregularity excellence_in_mediocrity diversified_portfolio].map { [ @player.id, it ] } +
       %w[first_booster packaging_irregularity excellence_in_mediocrity].map { [ @other.id, it ] }).sort
   end
 
@@ -614,7 +686,7 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
 
     assert_equal expected, unlocked
     events = Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a
-    assert_equal 8, events.size
+    assert_equal 9, events.size
     assert events.all? { it.data[:retroactive] }
   end
 
@@ -632,6 +704,21 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
     assert_includes granted, "leave_request_denied"
     events = Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a
     assert events.all? { it.data[:retroactive] }
+  end
+
+  test "the collection achievements are granted from the current collection, silently" do
+    card = Catalog::Card.create!(source_key: "src:backfill-studio", slug: "backfill-studio", release_date: Date.new(2020, 1, 1),
+      image_url: "https://images.example.test/b.jpg", store_url: "https://store.example.test/b", developers: [ "Acme" ])
+    season = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    Catalog::CardSeason.create!(card:, season:, prestige_score: 0.5, rating: 80, rarity: :common, number: 1)
+    Game::Holding.where(player_id: @player.id).delete_all
+    Game::Holding.create!(player_id: @other.id, card_season_id: card.card_seasons.sole.id, quantity: 5)
+
+    assert_no_enqueued_jobs(only: PlayerStreamJob) { Game::BackfillAchievementsJob.perform_now }
+
+    assert_includes Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement), "diversified_portfolio"
+    assert_not_includes Game::AchievementUnlock.where(player_id: @player.id).pluck(:achievement), "diversified_portfolio"
+    assert Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a.all? { it.data[:retroactive] }
   end
 
   test "a player whose grant raises is reported, and the others are still served" do

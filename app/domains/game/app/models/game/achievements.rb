@@ -22,7 +22,9 @@ module Game
       Achievement.new(:excellence_in_mediocrity, :all_common_capsules, 1),
       Achievement.new(:historical_asset_management, :old_and_new_game_capsules, 1),
       Achievement.new(:luck_is_a_marketing_concept, :capsules_without_rare_streak, 10),
-      Achievement.new(:leave_request_denied, :daily_bonus_streak, 7)
+      Achievement.new(:leave_request_denied, :daily_bonus_streak, 7),
+      Achievement.new(:diversified_portfolio, :most_copies_of_a_game, 5),
+      Achievement.new(:market_concentration, :most_games_of_a_studio, 10)
     ].freeze
 
     BY_KEY = CATALOGUE.index_by { it.key.to_s }.freeze

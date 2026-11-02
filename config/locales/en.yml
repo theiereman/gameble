@@ -28,6 +28,7 @@ en:
       boosters_10: Open 10 capsules
       boosters_100: Open 100 capsules
       boosters_500: Open 500 capsules
+      diversified_portfolio: Hold five copies of the same game at once
       excellence_in_mediocrity: Five Common cards in one standard capsule
       first_booster: Open a capsule
       first_complete_set: Complete a set
@@ -38,6 +39,7 @@ en:
       historical_asset_management: A game released before 2000 and one released in 2025 or later in one capsule
       leave_request_denied: Collect the daily bonus 7 days in a row (UTC days)
       luck_is_a_marketing_concept: 10 standard capsules in a row with no Rare or better card
+      market_concentration: Hold 10 different games of the same studio at once
       packaging_irregularity: Two copies of the same game in one capsule
       statistical_non_compliance: Two Rare or better cards in one standard capsule
       three_complete_sets: Complete 3 sets
@@ -45,6 +47,7 @@ en:
       boosters_10: Probation Period Completed
       boosters_100: Outstanding Consumption Record
       boosters_500: Loyalty Beyond Reasonable Limits
+      diversified_portfolio: Diversified Portfolio
       excellence_in_mediocrity: Excellence in Mediocrity
       first_booster: Your First Authorized Acquisition
       first_complete_set: File Closed in Full
@@ -55,6 +58,7 @@ en:
       historical_asset_management: Historical Asset Management
       leave_request_denied: Leave Request Denied
       luck_is_a_marketing_concept: Luck Is a Marketing Concept
+      market_concentration: Market Concentration
       packaging_irregularity: Packaging Irregularity
       statistical_non_compliance: Statistical Non-Compliance
       three_complete_sets: Archival Excellence

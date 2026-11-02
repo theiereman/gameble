@@ -80,6 +80,22 @@ module Game
       ) AS runs
     SQL
 
+    MOST_COPIES_OF_A_GAME_SQL = <<~SQL.squish.freeze
+      SELECT COALESCE(MAX(copies), 0) FROM (
+        SELECT SUM(game_holdings.quantity) AS copies FROM game_holdings
+          JOIN catalog_card_seasons ON catalog_card_seasons.id = game_holdings.card_season_id
+         WHERE game_holdings.player_id = :player_id
+         GROUP BY catalog_card_seasons.card_id
+      ) AS held
+    SQL
+
+    HELD_GAMES_SQL = <<~SQL.squish.freeze
+      SELECT catalog_card_seasons.card_id FROM game_holdings
+        JOIN catalog_card_seasons ON catalog_card_seasons.id = game_holdings.card_season_id
+       WHERE game_holdings.player_id = :player_id
+       GROUP BY catalog_card_seasons.card_id HAVING SUM(game_holdings.quantity) > 0
+    SQL
+
     METRIC_SQL = {
       packs_opened: PACKS_OPENED_SQL,
       epics_obtained: format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:epic)),
@@ -92,19 +108,39 @@ module Game
       all_common_capsules: ALL_COMMON_SQL,
       old_and_new_game_capsules: OLD_AND_NEW_SQL,
       capsules_without_rare_streak: CAPSULES_WITHOUT_RARE_STREAK_SQL,
-      daily_bonus_streak: DAILY_BONUS_STREAK_SQL
+      daily_bonus_streak: DAILY_BONUS_STREAK_SQL,
+      most_copies_of_a_game: MOST_COPIES_OF_A_GAME_SQL
     }.freeze
 
-    METRICS = METRIC_SQL.keys.freeze
+    STUDIO_METRIC = :most_games_of_a_studio
+
+    METRICS = (METRIC_SQL.keys + [ STUDIO_METRIC ]).freeze
 
     def self.call(player, metrics)
       metrics = metrics.uniq
       return metrics.index_with(0) if player.nil?
       return {} if metrics.empty?
 
+      read = sql_metrics(player, metrics - [ STUDIO_METRIC ])
+      read[STUDIO_METRIC] = most_games_of_a_studio(player) if metrics.include?(STUDIO_METRIC)
+      metrics.index_with { read.fetch(it) }
+    end
+
+    def self.sql_metrics(player, metrics)
+      return {} if metrics.empty?
+
       sql = "SELECT #{metrics.map { "(#{METRIC_SQL.fetch(it)})" }.join(", ")}"
-      row = Pack.connection.select_rows(Pack.sanitize_sql_array([ sql, { player_id: player.id } ]), "Game::AchievementProgress").first
+      row = Pack.connection.select_rows(sanitized(sql, player), "Game::AchievementProgress").first
       metrics.zip(row.map(&:to_i)).to_h
     end
+
+    def self.most_games_of_a_studio(player)
+      card_ids = Pack.connection.select_values(sanitized(HELD_GAMES_SQL, player), "Game::AchievementProgress").map(&:to_i)
+      Catalog::StudioKeys.call(card_ids).values.tally.values.max || 0
+    end
+
+    def self.sanitized(sql, player) = Pack.sanitize_sql_array([ sql, { player_id: player.id } ])
+
+    private_class_method :sql_metrics, :most_games_of_a_studio, :sanitized
   end
 end
