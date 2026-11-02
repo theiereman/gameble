@@ -1180,6 +1180,12 @@ en:
       title: Register of the Privileged
   fortunes:
     labels:
+      black_cat_owner:
+        text: "Statistically, you have walked under several ladders this week."
+        title: "Black Cat Owner"
+      chosen_by_the_rng:
+        text: "The random number generator has stopped being random for you. An inquiry has been opened."
+        title: "Chosen by the RNG"
       enemy_of_meritocracy:
         text: Your results exceed what merit alone can explain. Management has been
           informed.
@@ -1192,10 +1198,22 @@ en:
         text: Your pulls defy statistical expectations. The Brotherhood is watching
           you.
         title: Indecently Lucky
+      mildly_inconvenienced:
+        text: "A Common where an Uncommon was owed. Nothing the Brotherhood would call a pattern."
+        title: "Mildly Inconvenienced"
+      on_a_good_streak:
+        text: "Things are going well. The Brotherhood advises against telling anyone."
+        title: "On a Good Streak"
       overlooked_by_fortune:
         text: Your results are slightly below forecast. Perseverance remains your best
           asset.
         title: Overlooked by Fortune
+      patron_saint_of_commons:
+        text: "Your misfortune balances the books for the whole Brotherhood. Thank you for your service."
+        title: "Patron Saint of Commons"
+      seven_years_of_commons:
+        text: "A mirror was broken somewhere, and the bill was sent to you."
+        title: "Seven Years of Commons"
       shunned_by_the_odds:
         text: The odds have been unkind. The Brotherhood reminds you that every capsule
           is a new opportunity.
@@ -1207,10 +1225,16 @@ en:
         text: Your pulls match the forecast exactly. The Brotherhood thanks you for
           your compliance.
         title: Statistically Ordinary Citizen
+      suspected_of_rigging:
+        text: "Your capsules are under review by the audit department. Please keep your hands visible."
+        title: "Suspected of Rigging"
       suspiciously_fortunate:
         text: Your capsules perform above forecast. The Brotherhood congratulates you,
           cautiously.
         title: Suspiciously Fortunate
+      walking_lucky_charm:
+        text: "Your fellow members now touch your sleeve before opening a capsule."
+        title: "Walking Lucky Charm"
     periods:
       all_time: All time
       week: This week

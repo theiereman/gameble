@@ -1579,30 +1579,54 @@ fr:
         all_time: "Aucune capsule ouverte pour l'instant."
       explainer: "Chaque carte rapporte selon sa rareté, doublons compris : 0 pour une Commune, 1 pour une Peu commune, 5 pour une Rare, 20 pour une Épique, 100 pour une Légendaire. L'indice compare les points obtenus à ce que les capsules promettent en moyenne : 0 correspond exactement à la moyenne, et seule une chance extraordinaire le rapproche de +500 ou de -500."
     labels:
+      chosen_by_the_rng:
+        title: "Élu du RNG"
+        text: "Le générateur aléatoire a cessé de l'être pour vous. Une enquête est ouverte."
       indecently_lucky:
         title: "Indécemment chanceux"
         text: "Vos tirages défient les prévisions statistiques. La Confrérie vous observe."
+      suspected_of_rigging:
+        title: "Soupçonné de trucage"
+        text: "Vos capsules sont examinées par le service d'audit. Gardez les mains bien visibles."
       enemy_of_meritocracy:
         title: "Ennemi de la méritocratie"
         text: "Vos résultats dépassent ce que le seul mérite peut expliquer. La Direction a été informée."
+      walking_lucky_charm:
+        title: "Porte-bonheur ambulant"
+        text: "Vos confrères touchent désormais votre manche avant d'ouvrir une capsule."
       suspiciously_fortunate:
         title: "Étrangement fortuné"
         text: "Vos capsules dépassent les prévisions. La Confrérie vous félicite, avec prudence."
+      on_a_good_streak:
+        title: "Dans une bonne passe"
+        text: "Tout va bien. La Confrérie vous déconseille de le crier sur les toits."
       favored_by_probability:
         title: "Favorisé par les probabilités"
         text: "Les probabilités penchent de votre côté. La Confrérie ne voit à ce stade aucun motif d'inquiétude."
       statistically_ordinary:
         title: "Citoyen statistiquement ordinaire"
         text: "Vos tirages correspondent exactement aux prévisions. La Confrérie vous remercie de votre conformité."
+      mildly_inconvenienced:
+        title: "Légèrement contrarié"
+        text: "Une Commune là où une Peu commune était due. Rien que la Confrérie qualifierait de tendance."
       overlooked_by_fortune:
         title: "Oublié par la fortune"
         text: "Vos résultats sont légèrement sous les prévisions. La persévérance reste votre meilleur atout."
+      black_cat_owner:
+        title: "Propriétaire d'un chat noir"
+        text: "Statistiquement, vous êtes passé sous plusieurs échelles cette semaine."
       shunned_by_the_odds:
         title: "Boudé par les probabilités"
         text: "Les probabilités ont été peu clémentes. La Confrérie vous rappelle que chaque capsule est une nouvelle opportunité."
+      seven_years_of_commons:
+        title: "Sept ans de Communes"
+        text: "Un miroir a été brisé quelque part, et la facture vous a été adressée."
       statistically_cursed:
         title: "Statistiquement maudit"
         text: "Même les probabilités semblent vous avoir abandonné."
+      patron_saint_of_commons:
+        title: "Saint patron des Communes"
+        text: "Votre malchance équilibre les comptes de toute la Confrérie. Merci pour votre service."
   friends:
     public_profile:
       label: "Voir le profil"

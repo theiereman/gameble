@@ -8,11 +8,21 @@ class Game::FortuneIndexTest < ActiveSupport::TestCase
     assert_equal 500, Game::FortuneIndex.of(40)
   end
 
-  test "each band of the index has its label, from cursed to indecently lucky" do
-    { 471 => :indecently_lucky, 450 => :indecently_lucky, 449 => :enemy_of_meritocracy, 200 => :suspiciously_fortunate,
-      60 => :favored_by_probability, 0 => :statistically_ordinary, -49 => :statistically_ordinary, -50 => :overlooked_by_fortune,
-      -231 => :shunned_by_the_odds, -399 => :shunned_by_the_odds, -400 => :statistically_cursed, -453 => :statistically_cursed }.each do |index, label|
-      assert_equal label, Game::FortuneIndex.label(index), "index #{index}"
+  test "each band of the index has its title, from patron saint of commons to chosen by the RNG" do
+    { 500 => :chosen_by_the_rng, 490 => :chosen_by_the_rng, 489 => :indecently_lucky, 450 => :indecently_lucky,
+      449 => :suspected_of_rigging, 375 => :suspected_of_rigging, 374 => :enemy_of_meritocracy, 300 => :enemy_of_meritocracy,
+      299 => :walking_lucky_charm, 200 => :suspiciously_fortunate, 149 => :on_a_good_streak, 100 => :on_a_good_streak,
+      60 => :favored_by_probability, 0 => :statistically_ordinary, -49 => :statistically_ordinary, -50 => :mildly_inconvenienced,
+      -100 => :overlooked_by_fortune, -150 => :black_cat_owner, -231 => :shunned_by_the_odds, -300 => :seven_years_of_commons,
+      -375 => :statistically_cursed, -449 => :statistically_cursed, -450 => :patron_saint_of_commons, -500 => :patron_saint_of_commons }
+      .each { |index, label| assert_equal label, Game::FortuneIndex.label(index), "index #{index}" }
+  end
+
+  test "every title has its words in English and French" do
+    (Game::FortuneIndex::LABELS.map(&:last) << Game::FortuneIndex::LUCKLESS).each do |label|
+      %i[en fr].each do |locale|
+        %w[title text].each { |part| assert I18n.exists?("fortunes.labels.#{label}.#{part}", locale), "#{locale} #{label} #{part}" }
+      end
     end
   end
 

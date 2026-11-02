@@ -85,7 +85,7 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
       assert_select "h2", "Fortune"
       assert_select ".fortune__tabs a[aria-current=true]", "This week"
       assert_select ".fortune-index__value", "+500"
-      assert_select ".fortune__label", /Indecently Lucky/
+      assert_select ".fortune__label", /Chosen by the RNG/
       assert_select ".fortune__privileged", "PRIVILEGED"
       assert_select ".fortune__rank a[href=?]", fortune_register_path(locale: :en), "Rank 1 of 1"
       assert_select ".profile-figure", text: /Points earned\s*500/

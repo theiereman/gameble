@@ -214,8 +214,7 @@
 .player-row__name {
   overflow: hidden;
   color: var(--color-text-bright);
-  font: var(--font-menu);
-  letter-spacing: var(--tracking-menu);
+  font: var(--font-card-title-m);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -226,12 +225,16 @@
 
 .player-row__badge {
   align-self: flex-start;
+  font: var(--font-card-meta);
 }
 
 .player-row__label {
+  overflow: hidden;
   color: var(--color-muted);
-  font: var(--font-label);
+  font: var(--font-card-meta);
   letter-spacing: var(--tracking-label);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .player-row__figures {
