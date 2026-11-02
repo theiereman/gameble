@@ -133,6 +133,36 @@ class GoalBookmarksTest < ApplicationSystemTestCase
     assert_current_path custom_set_path(locale: :en, token: custom_set.token)
   end
 
+  test "a trade board marks the cards of the viewer's goal from the top of their art on desktop and phone, and none without a goal" do
+    friend = accounts_players(:moderator)
+    low, high = [ @player.id, friend.id ].minmax
+    Game::Friendship.create!(low_player_id: low, high_player_id: high)
+    hold(@player, @portal)
+    hold(friend, @common)
+    trade = Game::ProposeTrade.new.call(player: friend, recipient: @player, offer: { @common => 1 }, request: { @portal => 1 }).value!
+    sign_in(@player)
+
+    visit trade_path(locale: :en, token: trade.token)
+    assert_selector ".trade-board .card", count: 2
+    assert_no_selector ".trade-board .card__goals"
+
+    add(kind: "studio", key: "valve")
+    add(custom_set: create_custom_set(@player, card_ids: [ catalog_cards(:common_card).id ]).token)
+    visit trade_path(locale: :en, token: trade.token)
+    assert_selector ".trade-board .card__goals .goal-bookmark", count: 2
+    own = find(".trade-side--own .card")
+    assert_equal %w[1], own.all(".card__goals .goal-bookmark").map(&:text)
+    assert_hangs_from_the_art(own)
+    friends = find(".trade-side--friend .card")
+    assert_equal %w[2], friends.all(".card__goals .goal-bookmark").map(&:text)
+    assert_hangs_from_the_art(friends)
+
+    resize_to(390, 844)
+    visit trade_path(locale: :en, token: trade.token)
+    assert_selector ".trade-board .card__goals .goal-bookmark", count: 2
+    assert_hangs_from_the_art(find(".trade-side--own .card"))
+  end
+
   test "another player's collection and album show no bookmark, though the viewer and the owner both aim at the set" do
     roguelike
     viewer = accounts_players(:moderator)

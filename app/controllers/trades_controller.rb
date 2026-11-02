@@ -1,6 +1,9 @@
 class TradesController < ApplicationController
   include GoalsReachedTracking
   include TradeProposals
+  include GoalMarksLoading
+
+  helper_method :goal_marks
 
   throttle_player to: 20, only: %i[create counter accept decline cancel], path: -> { trades_path }, alert: "trades.throttled"
   rate_limit to: 120, within: 1.minute, only: :faces, name: "faces",

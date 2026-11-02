@@ -1,6 +1,6 @@
 <%= tag.li class: class_names("trade-card trade-card--editing", "trade-card--stack": line && line.quantity > 1), data: { key: line&.key } do %>
   <% if line %>
-    <div class="trade-card__face"><%= render CardComponent.new(card: line.view, size: :s) %></div>
+    <div class="trade-card__face"><%= trade_card_face(line.view) %></div>
   <% else %>
     <div class="trade-card__face trade-card__face--pending"></div>
   <% end %>

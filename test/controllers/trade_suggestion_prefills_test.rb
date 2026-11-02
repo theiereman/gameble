@@ -68,7 +68,19 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
     Game::ProposeTrade.new.call(player:, recipient:, offer:, request:).value!
   end
 
-  test "six spared games: the opener holds the first four and the board places them in that order" do
+  test "the opener's prefilled board marks the cards of the viewer's goal with their bookmark" do
+    suggest_from_lea
+    sign_in @alice
+
+    get opener_href
+
+    lines = css_select(".trade-card--editing")
+    assert_equal [ [ "blue-depths--s1", [ 1 ] ], [ "green-hills--s1", [ 1 ] ] ],
+      lines.map { |line| [ line["data-key"], line.css(".card > .card__goals > .goal-bookmark").map { it.text.to_i } ] }.sort
+    assert_select ".trade-card--editing .visually-hidden", text: /objectif 1/, minimum: 2
+  end
+
+  test "six spared games:the opener holds the first four and the board places them in that order" do
     unheld = unheld_cards(1).sole
     goal_on(@soldier, unheld, @depths)
     goal_on(@portal, @crown, @hills)

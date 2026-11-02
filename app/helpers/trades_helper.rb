@@ -126,7 +126,16 @@ module TradesHelper
   end
 
   def trade_card_faces(views)
-    views.to_h { |view| [ trade_card_key(view), render(CardComponent.new(card: view, size: :s)).to_str ] }
+    views.to_h { |view| [ trade_card_key(view), trade_card_face(view).to_str ] }
+  end
+
+  def trade_card_face(view, size: :s)
+    safe_join([ render(CardComponent.new(card: view, size:, goals: goal_marks.numbers_for(view.card_id))), trade_card_goal_words(view) ])
+  end
+
+  def trade_card_goal_words(view)
+    goals = goal_marks.goals_for(view.card_id)
+    tag.span(goal_card_words(goals), class: "visually-hidden") if goals.any?
   end
 
   def trade_draft_key(player, friend) = "#{player.token}:#{friend.token}"
@@ -172,9 +181,11 @@ module TradesHelper
   end
 
   def trade_pick_label(pick)
+    goals = goal_marks.goals_for(pick.view.card_id)
     [ t("trade_board.card_label", title: pick.view.title, owned: t("trade_board.owned", count: pick.owned)),
       (t("trade_board.reserved_elsewhere", count: pick.reserved) if pick.reserved.positive?),
-      (t("trade_board.unavailable") if pick.unavailable?) ].compact.join(", ")
+      (t("trade_board.unavailable") if pick.unavailable?),
+      (goal_card_words(goals) if goals.any?) ].compact.join(", ")
   end
 
   def trade_picker_none(side, friend)

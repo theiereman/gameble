@@ -15,7 +15,7 @@
         <% view = cards[line.card_season_id] or next %>
         <%= tag.li class: class_names("trade-card", "trade-card--stack": line.quantity > 1),
               data: ({ trade_board_target: "line", side:, key: trade_card_key(view), quantity: line.quantity } if local_assigns[:received]) do %>
-          <%= render CardComponent.new(card: view, size:) %>
+          <%= trade_card_face(view, size:) %>
           <% if line.quantity > 1 %>
             <span class="trade-card__quantity"><span class="visually-hidden"><%= t("trades.side.copies_label") %></span>×<%= line.quantity %></span>
           <% end %>

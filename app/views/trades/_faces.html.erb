@@ -1,3 +1,3 @@
 <% views.each do |view| %>
-  <template data-trade-board-target="face" data-key="<%= trade_card_key(view) %>"><%= render CardComponent.new(card: view, size: :s) %></template>
+  <template data-trade-board-target="face" data-key="<%= trade_card_key(view) %>"><%= trade_card_face(view) %></template>
 <% end %>
