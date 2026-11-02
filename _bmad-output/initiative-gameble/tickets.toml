@@ -254,7 +254,7 @@ covers = []
 after = [{ epic = 28, needs = "the active goals" }, { epic = 29, needs = "the friends who hold a missing card" }]
 
 [[epic]]
-id = 33
+id = 34
 release = "1.1.0"
 slug = "epic-feed-reactions"
 title = "Reactions on the feed"
