@@ -70,7 +70,7 @@ class RoadmapsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a single milestone renders its node and line" do
-    seed_roadmap.drop(1).each { Catalog::UpdateRoadmapMilestone.new.call(milestone: it, wording_fr: "x", wording_en: "x", status: "to_come", shown: false).value! }
+    seed_roadmap.drop(1).each { it.update!(shown: false) }
     Rails.cache.clear
 
     get roadmap_path(locale: :en)

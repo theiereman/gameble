@@ -11,6 +11,19 @@ module Catalog
       end
     end
 
+    # The shown rows of draft entries, as the public roadmap lists them.
+    def self.shown(entries, locale:)
+      wording = locale.to_s == "fr" ? :wording_fr : :wording_en
+      entries.select(&:shown).map do |milestone|
+        stories = milestone.stories.select(&:shown).map { Story.new(wording: it.public_send(wording).to_s, status: status_of(it)) }
+        Milestone.new(wording: milestone.public_send(wording).to_s, status: status_of(milestone), stories:)
+      end
+    end
+
+    def self.status_of(entry)
+      RoadmapMilestone::STATUSES.include?(entry.status) ? entry.status : RoadmapDraft::DEFAULT_STATUS
+    end
+
     def self.read
       milestones = RoadmapMilestone.where(shown: true).ordered.to_a
       stories = RoadmapStory.where(milestone_id: milestones.map(&:id), shown: true).ordered.group_by(&:milestone_id)
@@ -20,6 +33,6 @@ module Catalog
       end
     end
 
-    private_class_method :read
+    private_class_method :read, :status_of
   end
 end

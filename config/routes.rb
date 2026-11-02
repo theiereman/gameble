@@ -183,18 +183,12 @@ Rails.application.routes.draw do
         post :publish, on: :collection
       end
 
-      # The landing's roadmap, administrators only: the milestones of the
-      # initiative's epics, and the stories under each, by token.
-      resources :roadmap_milestones, path: "roadmap", param: :token, only: %i[index edit update],
-        constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
-        post :move, on: :member
-        resources :roadmap_stories, path: "stories", only: %i[new create],
-          constraints: { roadmap_milestone_token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+      # The landing's roadmap, administrators only: every milestone and its
+      # stories in one form, saved at once, with a live preview of the landing.
+      resource :roadmap, only: :show do
+        post :preview
       end
-      resources :roadmap_stories, path: "roadmap/stories", param: :token, only: %i[edit update destroy],
-        constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
-        post :move, on: :member
-      end
+      post "roadmap" => "roadmaps#update", as: :save_roadmap
 
       # The themes of the catalog and the Steam tags the draft's cards carry,
       # administrators only: each tag is attached to a theme, made a theme or

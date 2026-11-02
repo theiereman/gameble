@@ -349,81 +349,49 @@ en:
         latest_at: Latest report
         player: Player
         total: Total
-    roadmap:
-      back_to_milestone: Back to the milestone
-      columns:
-        actions: Actions
-        order: Order
-        position: Place
-        shown: Landing
-        status: Status
-        wording_en: English
-        wording_fr: French
+    roadmaps:
       fields:
         shown: Shown on the landing
         status: Status
         wording_en: English wording
         wording_fr: French wording
-      move:
-        down: Down
-        down_label: Move “%{wording}” down
-        up: Up
-        up_label: Move “%{wording}” up
+      milestone:
+        add_story: Add a story
+        down: Move the milestone down
+        legend: Milestone
+        remove: Remove the milestone
+        remove_confirm: Remove this milestone and all its stories? They are deleted
+          when you save.
+        up: Move the milestone up
+      show:
+        add_milestone: Add a milestone
+        heading: The roadmap
+        intro: Every milestone of the landing's roadmap and the stories under it, in
+          one form. Edit, add, move and remove rows, then save everything at once;
+          nothing changes on the site before that. The order of the rows is the order
+          on the landing and on the roadmap page.
+        locales:
+          en: English
+          fr: French
+        milestones_heading: Milestones and stories
+        preview_heading: On the home page
+        preview_hint: What the landing's roadmap would show with the rows as they
+          stand below, saved or not. Hidden rows stay out of it, and the landing keeps
+          only its first milestones and stories.
+        preview_language: Language of the preview
+        save: Save the roadmap
       statuses:
         done: Done
         in_progress: In progress
         to_come: To come
-      visibility:
-        hidden: Hidden
-        shown: Shown
-    roadmap_milestones:
-      edit:
-        add_story: Add a story
-        all_milestones: The whole roadmap
-        delete: Delete
-        delete_confirm: Delete the story “%{wording}”? It cannot be brought back.
-        delete_label: Delete “%{wording}”
-        edit_story: Edit
-        edit_story_label: Edit “%{wording}”
-        heading: Milestone “%{wording}”
-        intro: Created for the epic %{epic}. Its wording, status and visibility are
-          yours; the next deploys leave them as they are.
-        no_stories: No story under this milestone yet.
-        save: Save the milestone
-        stories: Its stories
-        stories_caption: Stories of the milestone, in order
-      index:
-        caption: Roadmap milestones, in order
-        edit: Edit
-        edit_label: Edit “%{wording}”
-        empty: No milestone yet. The next deploy creates one for each epic of the
-          initiative.
-        epic: Epic
-        heading: The roadmap
-        intro: 'The roadmap the landing shows. Every deploy gives each new epic of
-          the initiative its milestone, hidden and to come, worded with the epic''s
-          title: word it in both languages before you show it. Milestones are never
-          created or deleted here; hide the one whose epic is gone.'
-        stories: Stories
-      move:
-        moved: The milestone has moved, officer.
+      story:
+        down: Move the story down
+        legend: Story
+        remove: Remove the story
+        remove_confirm: Remove this story? It is deleted when you save.
+        up: Move the story up
       update:
-        updated: The milestone is saved, officer.
-    roadmap_stories:
-      create:
-        created: The story is added, officer.
-      destroy:
-        deleted: The story is deleted, officer.
-      edit:
-        heading: A story of “%{milestone}”
-        save: Save the story
-      move:
-        moved: The story has moved, officer.
-      new:
-        heading: A new story for “%{milestone}”
-        save: Add the story
-      update:
-        updated: The story is saved, officer.
+        saved: The roadmap is saved, officer.
     seasons:
       index:
         caption: Catalog seasons, by number
@@ -950,15 +918,15 @@ en:
       steam_taken: This Steam account already belongs to another Gameble account.
     catalog:
       already_numbered: The cards of that season are numbered already, officer.
-      at_edge: That entry cannot move any further that way, officer.
       card_season_not_published: That card is in no published season, so it has no preview
         image.
+      duplicate_row: That row appears twice in the roadmap, officer.
       empty_season: The draft season holds no card yet, officer. Run an import first.
       empty_tier: The draft season is too small to fill all five rarities, officer.
         Import more games first.
       invalid_card: 'The scribes cannot enter that card in the ledger: its particulars
         are incomplete or out of order.'
-      invalid_direction: An entry of the roadmap moves only up or down, officer.
+      invalid_roadmap: Some rows of the roadmap need fixing, officer. Nothing was saved.
       invalid_share_image: The preview image of that card is not a PNG of a card, in
         one of the Brotherhood's tongues.
       invalid_status: That status is not one of the roadmap's, officer.
@@ -975,13 +943,13 @@ en:
         pass completes.
       no_draft: There is no draft season to publish, officer.
       no_published_season: No published season bears that number, officer.
+      row_not_found: A milestone or a story of this form is no longer on the roadmap, officer. Reload the page and look again.
       staged_batch_waiting: Staged cards wait beside the draft season, officer. Promote
         them or discard them before publishing.
       stale_draft: That draft is no longer the one in the ledgers, officer. Reload
         the page and look again.
       stale_render: That card changed while its preview image was drawn, so that image
         was not kept.
-      story_not_found: That story is no longer on the roadmap, officer.
       ufo_share_over_limit: The UFOs hold %{share} of the draft season's cards, officer,
         above the %{limit} allowed. Attach more tags to themes on the themes page
         and rescore the latest import, then publish.

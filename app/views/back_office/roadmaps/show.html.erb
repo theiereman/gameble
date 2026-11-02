@@ -1,0 +1,62 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <%= form_with url: back_office_save_roadmap_path, method: :post, class: "stack roadmap-editor",
+        data: { controller: "roadmap-editor", roadmap_editor_milestone_key_value: RoadmapEditorHelper::MILESTONE_KEY,
+          roadmap_editor_story_key_value: RoadmapEditorHelper::STORY_KEY, action: "input->roadmap-editor#changed change->roadmap-editor#changed" } do %>
+    <% if @failure %>
+      <ul class="ledger-errors" role="alert">
+        <li data-roadmap-failure><%= @failure %></li>
+      </ul>
+    <% end %>
+
+    <section class="stack roadmap-editor__preview" aria-labelledby="roadmap-preview-heading">
+      <h2 id="roadmap-preview-heading"><%= t(".preview_heading") %></h2>
+      <p class="ban-form__hint"><%= t(".preview_hint") %></p>
+      <fieldset class="roadmap-editor__locales">
+        <legend><%= t(".preview_language") %></legend>
+        <% I18n.available_locales.map(&:to_s).each do |locale| %>
+          <label>
+            <%= radio_button_tag :preview_locale, locale, locale == @preview_locale, id: "roadmap-preview-#{locale}" %>
+            <%= t(".locales.#{locale}") %>
+          </label>
+        <% end %>
+      </fieldset>
+      <div id="<%= BackOffice::RoadmapsController::PREVIEW_ID %>" data-roadmap-preview>
+        <%= render RoadmapPreviewComponent.new(draft: @draft, locale: @preview_locale) %>
+      </div>
+    </section>
+
+    <section class="stack" aria-labelledby="roadmap-milestones-heading">
+      <h2 id="roadmap-milestones-heading"><%= t(".milestones_heading") %></h2>
+      <ol class="roadmap-editor__list" data-roadmap-editor-target="milestones" data-roadmap-list="milestone">
+        <% @draft.milestones.each do |entry| %>
+          <%= render "back_office/roadmaps/milestone", entry:, failures: @row_failures || {} %>
+        <% end %>
+      </ol>
+      <p>
+        <button type="button" class="button button--secondary" data-action="roadmap-editor#addMilestone"><%= t(".add_milestone") %></button>
+      </p>
+    </section>
+
+    <p class="roadmap-editor__save">
+      <%= render ButtonComponent.new(variant: :primary, type: :submit) do %><%= t(".save") %><% end %>
+      <button type="submit" hidden class="roadmap-editor__refresh" formaction="<%= preview_back_office_roadmap_path %>" formnovalidate
+        data-roadmap-editor-target="previewButton"></button>
+    </p>
+
+    <template data-roadmap-editor-target="milestoneTemplate">
+      <%= render "back_office/roadmaps/milestone", entry: blank_roadmap_entry(RoadmapEditorHelper::MILESTONE_KEY), failures: {} %>
+    </template>
+    <template data-roadmap-editor-target="storyTemplate">
+      <%= render "back_office/roadmaps/story", entry: blank_roadmap_entry(RoadmapEditorHelper::STORY_KEY),
+            milestone_key: RoadmapEditorHelper::MILESTONE_KEY, failures: {} %>
+    </template>
+  <% end %>
+</div>

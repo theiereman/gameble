@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_02_130100) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_02_140100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -169,7 +169,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130100) do
 
   create_table "catalog_roadmap_milestones", force: :cascade do |t|
     t.string "token", null: false
-    t.string "epic_slug", null: false
+    t.string "epic_slug"
     t.string "wording_fr", null: false
     t.string "wording_en", null: false
     t.string "status", default: "to_come", null: false
@@ -177,7 +177,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130100) do
     t.integer "position", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["epic_slug"], name: "index_catalog_roadmap_milestones_on_epic_slug", unique: true
     t.index ["token"], name: "index_catalog_roadmap_milestones_on_token", unique: true
     t.check_constraint "status::text = 'done'::text OR status::text = 'in_progress'::text OR status::text = 'to_come'::text", name: "catalog_roadmap_milestones_status_check"
   end

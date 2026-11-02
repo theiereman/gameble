@@ -1,0 +1,9 @@
+<%# locals: (up:, down:, remove:, remove_confirm:) %>
+<div class="roadmap-row__actions">
+  <button type="button" class="button button--secondary button--small" data-action="roadmap-editor#move"
+    data-roadmap-editor-direction-param="up" data-roadmap-move="up"><%= up %></button>
+  <button type="button" class="button button--secondary button--small" data-action="roadmap-editor#move"
+    data-roadmap-editor-direction-param="down" data-roadmap-move="down"><%= down %></button>
+  <button type="button" class="button button--danger button--small" data-action="roadmap-editor#remove"
+    data-roadmap-editor-confirm-param="<%= remove_confirm %>"><%= remove %></button>
+</div>

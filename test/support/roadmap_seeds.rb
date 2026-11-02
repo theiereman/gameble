@@ -1,15 +1,18 @@
 module RoadmapSeeds
-  def create_roadmap_milestones(*slugs)
-    epics = slugs.map { Catalog::InitiativeEpics::Epic.new(slug: it, title: it.titleize) }
-    Catalog::CreateRoadmapMilestones.new.call(epics:).value!
+  def create_roadmap_milestones(*names)
+    names.map do |name|
+      Catalog::RoadmapMilestone.create!(wording_fr: "Étape #{name}", wording_en: "Step #{name}", status: "to_come", shown: false,
+        position: Catalog::RoadmapMilestone.maximum(:position).to_i + 1)
+    end
   end
 
   def show_roadmap_milestone(milestone, status: "to_come", shown: true)
-    Catalog::UpdateRoadmapMilestone.new.call(milestone:, wording_fr: "Étape #{milestone.epic_slug}", wording_en: "Step #{milestone.epic_slug}", status:, shown:).value!
+    milestone.update!(status:, shown:)
   end
 
   def add_roadmap_story(milestone, name, status: "to_come", shown: true)
-    Catalog::CreateRoadmapStory.new.call(milestone:, wording_fr: "Récit #{name}", wording_en: "Story #{name}", status:, shown:).value!
+    Catalog::RoadmapStory.create!(milestone:, wording_fr: "Récit #{name}", wording_en: "Story #{name}", status:, shown:,
+      position: Catalog::RoadmapStory.where(milestone:).maximum(:position).to_i + 1)
   end
 
   def seed_roadmap(stories:)

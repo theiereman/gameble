@@ -733,33 +733,43 @@ fr:
         published: "La saison %{number} est publiée, officier. Ses cartes sont prêtes pour le tirage."
         import_active: "Un import Steam n'est pas fini, officier. Laisse-le finir ou reprends-le, ou abandonne-le s'il s'est interrompu, avant de publier la saison."
         import_awaiting_promotion: "Un import Steam terminé t'attend, officier. Ouvre-le et promeus ses cartes dans le brouillon, ou jette-les, avant de publier la saison."
-    roadmap:
-      statuses:
-        done: "Fait"
-        in_progress: "En cours"
-        to_come: "À venir"
-      visibility:
-        shown: "Affiché"
-        hidden: "Masqué"
-      columns:
-        position: "Rang"
-        wording_fr: "Français"
-        wording_en: "Anglais"
-        status: "État"
-        shown: "Accueil"
-        order: "Ordre"
-        actions: "Actions"
+    roadmaps:
+      show:
+        heading: "La feuille de route"
+        intro: "Chaque étape de la feuille de route de l'accueil et les histoires dessous, dans un seul formulaire. Modifie, ajoute, déplace et retire des lignes, puis enregistre le tout d'un coup ; rien ne change sur le site avant. L'ordre des lignes est l'ordre sur l'accueil et sur la page de la feuille de route."
+        preview_heading: "Sur la page d'accueil"
+        preview_hint: "Ce que la feuille de route de l'accueil montrerait avec les lignes telles qu'elles sont ci-dessous, enregistrées ou non. Les lignes masquées n'y figurent pas, et l'accueil ne garde que ses premières étapes et histoires."
+        preview_language: "Langue de l'aperçu"
+        locales:
+          fr: "Français"
+          en: "Anglais"
+        milestones_heading: "Étapes et histoires"
+        add_milestone: "Ajouter une étape"
+        save: "Enregistrer la feuille de route"
+      milestone:
+        legend: "Étape"
+        up: "Monter l'étape"
+        down: "Descendre l'étape"
+        remove: "Retirer l'étape"
+        remove_confirm: "Retirer cette étape et toutes ses histoires ? Elles sont supprimées à l'enregistrement."
+        add_story: "Ajouter une histoire"
+      story:
+        legend: "Histoire"
+        up: "Monter l'histoire"
+        down: "Descendre l'histoire"
+        remove: "Retirer l'histoire"
+        remove_confirm: "Retirer cette histoire ? Elle est supprimée à l'enregistrement."
       fields:
         wording_fr: "Libellé français"
         wording_en: "Libellé anglais"
         status: "État"
         shown: "Affiché sur l'accueil"
-      move:
-        up: "Monter"
-        down: "Descendre"
-        up_label: "Monter « %{wording} »"
-        down_label: "Descendre « %{wording} »"
-      back_to_milestone: "Retour à l'étape"
+      statuses:
+        done: "Fait"
+        in_progress: "En cours"
+        to_come: "À venir"
+      update:
+        saved: "La feuille de route est enregistrée, officier."
     themes:
       index:
         heading: "Les thèmes"
@@ -819,49 +829,6 @@ fr:
           zero: "%{count} tag est marqué comme n'étant pas un thème, officier."
           one: "%{count} tag est marqué comme n'étant pas un thème, officier."
           other: "%{count} tags sont marqués comme n'étant pas un thème, officier."
-    roadmap_milestones:
-      index:
-        heading: "La feuille de route"
-        intro: "La feuille de route que montre l'accueil. Chaque déploiement donne à chaque nouvel epic de l'initiative son étape, masquée et à venir, au titre de l'epic : formule-la dans les deux langues avant de l'afficher. Les étapes ne se créent ni ne se suppriment ici ; masque celle dont l'epic n'est plus."
-        empty: "Aucune étape pour l'instant. Le prochain déploiement en crée une pour chaque epic de l'initiative."
-        caption: "Étapes de la feuille de route, dans l'ordre"
-        epic: "Epic"
-        stories: "Histoires"
-        edit: "Modifier"
-        edit_label: "Modifier « %{wording} »"
-      edit:
-        heading: "Étape « %{wording} »"
-        intro: "Créée pour l'epic %{epic}. Son libellé, son état et son affichage t'appartiennent ; les prochains déploiements les laissent tels quels."
-        save: "Enregistrer l'étape"
-        stories: "Ses histoires"
-        stories_caption: "Histoires de l'étape, dans l'ordre"
-        no_stories: "Aucune histoire sous cette étape pour l'instant."
-        add_story: "Ajouter une histoire"
-        edit_story: "Modifier"
-        edit_story_label: "Modifier « %{wording} »"
-        delete: "Supprimer"
-        delete_label: "Supprimer « %{wording} »"
-        delete_confirm: "Supprimer l'histoire « %{wording} » ? Elle ne pourra pas revenir."
-        all_milestones: "Toute la feuille de route"
-      update:
-        updated: "L'étape est enregistrée, officier."
-      move:
-        moved: "L'étape a changé de place, officier."
-    roadmap_stories:
-      new:
-        heading: "Une nouvelle histoire pour « %{milestone} »"
-        save: "Ajouter l'histoire"
-      edit:
-        heading: "Une histoire de « %{milestone} »"
-        save: "Enregistrer l'histoire"
-      create:
-        created: "L'histoire est ajoutée, officier."
-      update:
-        updated: "L'histoire est enregistrée, officier."
-      move:
-        moved: "L'histoire a changé de place, officier."
-      destroy:
-        deleted: "L'histoire est supprimée, officier."
   pack_reveals:
     create:
       throttled: "Trop de requêtes en une minute. Réessayez dans un instant."
@@ -2481,9 +2448,9 @@ fr:
       ufo_share_over_limit: "Les OVNI pèsent %{share} des cartes du brouillon, officier, au-dessus des %{limit} permis. Rattache d'autres tags à des thèmes sur la page des thèmes et recalcule le dernier import, puis publie."
       invalid_wording: "Chaque libellé demande du texte, en français et en anglais, de %{limit} caractères au plus, officier."
       invalid_status: "Cet état n'est pas un de ceux de la feuille de route, officier."
-      invalid_direction: "Une entrée de la feuille de route ne fait que monter ou descendre, officier."
-      at_edge: "Cette entrée ne peut pas aller plus loin dans ce sens, officier."
-      story_not_found: "Cette histoire n'est plus sur la feuille de route, officier."
+      invalid_roadmap: "Des lignes de la feuille de route sont à corriger, officier. Rien n'a été enregistré."
+      duplicate_row: "Cette ligne figure deux fois dans la feuille de route, officier."
+      row_not_found: "Une étape ou une histoire de ce formulaire n'est plus sur la feuille de route, officier. Recharge la page et regarde à nouveau."
       card_season_not_published: "Cette carte n'est dans aucune saison publiée : elle n'a pas d'image d'aperçu."
       invalid_share_image: "L'image d'aperçu de cette carte n'est pas un PNG de carte, dans une des langues de la Confrérie."
       stale_render: "Cette carte a changé pendant que son image d'aperçu était dessinée : cette image n'a pas été gardée."

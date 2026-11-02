@@ -12,7 +12,7 @@ class RoadmapPageTest < ApplicationSystemTestCase
     Rails.cache.clear
     create_roadmap_milestones("alpha", "beta", "gamma").zip(%w[done in_progress to_come]).each do |milestone, status|
       show_roadmap_milestone(milestone, status:)
-      add_roadmap_story(milestone, milestone.epic_slug, status:)
+      add_roadmap_story(milestone, milestone.wording_en.delete_prefix("Step "), status:)
     end
   end
 
