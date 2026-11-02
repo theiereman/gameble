@@ -65,7 +65,7 @@ gem "http_accept_language", "~> 2.1.1"
 gem "pagy", "~> 43.8.1"
 
 # Sign in with Steam over OpenID 2.0, POST-only and CSRF-protected (AD-14) [https://github.com/omniauth/omniauth]
-gem "omniauth", "~> 2.1.4"
+gem "omniauth", "~> 2.3.1"
 gem "omniauth-openid", "~> 2.0.2"
 gem "omniauth-rails_csrf_protection", "~> 2.0.1"
 # ruby-openid needs REXML, which Ruby 4 no longer bundles
