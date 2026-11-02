@@ -19,78 +19,69 @@ module Game
 
     REPOSTS_SQL = "SELECT COUNT(*) FROM game_feed_entries WHERE player_id = :player_id AND kind = 'repost'".freeze
 
+    OPENED_PACKS = "game_packs.player_id = :player_id AND game_packs.opened_at IS NOT NULL".freeze
+    OPENED_REGULAR_PACKS = "#{OPENED_PACKS} AND game_packs.kind = 'regular'".freeze
+    DRAWN_CARD_SEASONS = <<~SQL.squish.freeze
+      unnest(game_packs.card_season_ids) AS drawn(card_season_id)
+        JOIN catalog_card_seasons ON catalog_card_seasons.id = drawn.card_season_id
+    SQL
+    DRAWN_CARDS = "#{DRAWN_CARD_SEASONS} JOIN catalog_cards ON catalog_cards.id = catalog_card_seasons.card_id".freeze
+
     TWO_RARE_OR_BETTER_SQL = format(<<~SQL.squish, Catalog::Rarity::TIERS.key(:rare)).freeze
       SELECT COUNT(*) FROM game_packs
-       WHERE game_packs.player_id = :player_id AND game_packs.kind = 'regular' AND game_packs.opened_at IS NOT NULL
-         AND (SELECT COUNT(*) FROM unnest(game_packs.card_season_ids) AS drawn(card_season_id)
-                JOIN catalog_card_seasons ON catalog_card_seasons.id = drawn.card_season_id
-               WHERE catalog_card_seasons.rarity >= %d) >= 2
+       WHERE #{OPENED_REGULAR_PACKS}
+         AND (SELECT COUNT(*) FROM #{DRAWN_CARD_SEASONS} WHERE catalog_card_seasons.rarity >= %d) >= 2
     SQL
 
     REPEATED_GAME_SQL = <<~SQL.squish.freeze
       SELECT COUNT(*) FROM game_packs
-       WHERE game_packs.player_id = :player_id AND game_packs.opened_at IS NOT NULL
-         AND (SELECT COUNT(*) - COUNT(DISTINCT catalog_card_seasons.card_id) FROM unnest(game_packs.card_season_ids) AS drawn(card_season_id)
-                JOIN catalog_card_seasons ON catalog_card_seasons.id = drawn.card_season_id) > 0
+       WHERE #{OPENED_PACKS}
+         AND (SELECT COUNT(*) - COUNT(DISTINCT catalog_card_seasons.card_id) FROM #{DRAWN_CARD_SEASONS}) > 0
     SQL
 
     ALL_COMMON_SQL = format(<<~SQL.squish, Catalog::Rarity::TIERS.key(:common), Pack::SIZE).freeze
       SELECT COUNT(*) FROM game_packs
-       WHERE game_packs.player_id = :player_id AND game_packs.kind = 'regular' AND game_packs.opened_at IS NOT NULL
-         AND (SELECT COUNT(*) FROM unnest(game_packs.card_season_ids) AS drawn(card_season_id)
-                JOIN catalog_card_seasons ON catalog_card_seasons.id = drawn.card_season_id
-               WHERE catalog_card_seasons.rarity = %d) >= %d
+       WHERE #{OPENED_REGULAR_PACKS}
+         AND (SELECT COUNT(*) FROM #{DRAWN_CARD_SEASONS} WHERE catalog_card_seasons.rarity = %d) >= %d
     SQL
 
     OLD_AND_NEW_SQL = <<~SQL.squish.freeze
       SELECT COUNT(*) FROM game_packs
-       WHERE game_packs.player_id = :player_id AND game_packs.opened_at IS NOT NULL
-         AND EXISTS (SELECT 1 FROM unnest(game_packs.card_season_ids) AS drawn(card_season_id)
-                       JOIN catalog_card_seasons ON catalog_card_seasons.id = drawn.card_season_id
-                       JOIN catalog_cards ON catalog_cards.id = catalog_card_seasons.card_id
-                      WHERE catalog_cards.release_date < DATE '2000-01-01')
-         AND EXISTS (SELECT 1 FROM unnest(game_packs.card_season_ids) AS drawn(card_season_id)
-                       JOIN catalog_card_seasons ON catalog_card_seasons.id = drawn.card_season_id
-                       JOIN catalog_cards ON catalog_cards.id = catalog_card_seasons.card_id
-                      WHERE catalog_cards.release_date >= DATE '2025-01-01')
+       WHERE #{OPENED_PACKS}
+         AND EXISTS (SELECT 1 FROM #{DRAWN_CARDS} WHERE catalog_cards.release_date < DATE '2000-01-01')
+         AND EXISTS (SELECT 1 FROM #{DRAWN_CARDS} WHERE catalog_cards.release_date >= DATE '2025-01-01')
     SQL
 
-    CAPSULES_WITHOUT_RARE_STREAK_SQL = format(<<~SQL.squish, Catalog::Rarity::TIERS.key(:rare)).freeze
-      SELECT COALESCE(MAX(run_length), 0) FROM (
-        SELECT COUNT(*) AS run_length FROM (
-          SELECT lucky, ROW_NUMBER() OVER (ORDER BY opened_at, id) - ROW_NUMBER() OVER (PARTITION BY lucky ORDER BY opened_at, id) AS run
-            FROM (SELECT id, opened_at,
-                         EXISTS (SELECT 1 FROM unnest(game_packs.card_season_ids) AS drawn(card_season_id)
-                                   JOIN catalog_card_seasons ON catalog_card_seasons.id = drawn.card_season_id
-                                  WHERE catalog_card_seasons.rarity >= %d) AS lucky
-                    FROM game_packs
-                   WHERE game_packs.player_id = :player_id AND game_packs.kind = 'regular' AND game_packs.opened_at IS NOT NULL) AS capsules
-        ) AS numbered
-        WHERE NOT lucky GROUP BY run
-      ) AS runs
+    # Longest run of consecutive rows sharing a value, by the gaps-and-islands difference of two row numbers.
+    def self.longest_run_sql(numbered, only: nil)
+      <<~SQL.squish
+        SELECT COALESCE(MAX(run_length), 0) FROM (
+          SELECT COUNT(*) AS run_length FROM (#{numbered}) AS numbered
+          #{"WHERE #{only}" if only} GROUP BY run
+        ) AS runs
+      SQL
+    end
+
+    def self.pack_run_sql(flag_sql, packs, only:)
+      order = "ORDER BY opened_at, id"
+      numbered = <<~SQL.squish
+        SELECT flag, ROW_NUMBER() OVER (#{order}) - ROW_NUMBER() OVER (PARTITION BY flag #{order}) AS run
+          FROM (SELECT id, opened_at, #{flag_sql} AS flag FROM game_packs WHERE #{packs}) AS capsules
+      SQL
+      longest_run_sql(numbered, only:)
+    end
+
+    CAPSULES_WITHOUT_RARE_STREAK_SQL = pack_run_sql(
+      format("EXISTS (SELECT 1 FROM #{DRAWN_CARD_SEASONS} WHERE catalog_card_seasons.rarity >= %d)", Catalog::Rarity::TIERS.key(:rare)),
+      OPENED_REGULAR_PACKS, only: "NOT flag"
+    ).freeze
+
+    DAILY_BONUS_STREAK_SQL = longest_run_sql(<<~SQL.squish).freeze
+      SELECT day - CAST(ROW_NUMBER() OVER (ORDER BY day) AS integer) AS run
+        FROM game_daily_bonus_claims WHERE player_id = :player_id
     SQL
 
-    DAILY_BONUS_STREAK_SQL = <<~SQL.squish.freeze
-      SELECT COALESCE(MAX(run_length), 0) FROM (
-        SELECT COUNT(*) AS run_length FROM (
-          SELECT day - CAST(ROW_NUMBER() OVER (ORDER BY day) AS integer) AS run
-            FROM game_daily_bonus_claims WHERE player_id = :player_id
-        ) AS numbered
-        GROUP BY run
-      ) AS runs
-    SQL
-
-    REVEAL_STREAK_SQL = <<~SQL.squish.freeze
-      SELECT COALESCE(MAX(run_length), 0) FROM (
-        SELECT COUNT(*) AS run_length FROM (
-          SELECT revealed, ROW_NUMBER() OVER (ORDER BY opened_at, id) - ROW_NUMBER() OVER (PARTITION BY revealed ORDER BY opened_at, id) AS run
-            FROM (SELECT id, opened_at, COALESCE(reveal_mode = '%s', FALSE) AS revealed
-                    FROM game_packs
-                   WHERE game_packs.player_id = :player_id AND game_packs.opened_at IS NOT NULL) AS capsules
-        ) AS numbered
-        WHERE revealed GROUP BY run
-      ) AS runs
-    SQL
+    REVEAL_STREAK_SQL = pack_run_sql("COALESCE(reveal_mode = '%s', FALSE)", OPENED_PACKS, only: "flag").freeze
 
     MOST_COPIES_OF_A_GAME_SQL = <<~SQL.squish.freeze
       SELECT COALESCE(MAX(copies), 0) FROM (
@@ -175,6 +166,6 @@ module Game
 
     def self.sanitized(sql, player) = Pack.sanitize_sql_array([ sql, { player_id: player.id } ])
 
-    private_class_method :sql_metrics, :most_games_of_a_studio, :sanitized
+    private_class_method :sql_metrics, :most_games_of_a_studio, :sanitized, :longest_run_sql, :pack_run_sql
   end
 end

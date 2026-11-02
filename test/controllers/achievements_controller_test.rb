@@ -38,13 +38,13 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select "header.top-bar[data-screen-label=Succès]"
     assert_select ".top-bar__title", "Succès"
     assert_select "main h1", "Succès"
-    assert_select ".achievements__count[aria-hidden=true]", "3 / 23"
-    assert_select ".achievements__head .visually-hidden", "3 succès obtenus sur 23"
+    assert_select ".achievements__count[aria-hidden=true]", "3 / #{total_achievements}"
+    assert_select ".achievements__head .visually-hidden", "3 succès obtenus sur #{total_achievements}"
     assert_select ".achievements__label", "Succès obtenus"
-    assert_select ".achievements__gauge[aria-hidden=true] .achievements__segment", 23
+    assert_select ".achievements__gauge[aria-hidden=true] .achievements__segment", total_achievements
     assert_select ".achievements__segment--lit", 3
     assert_select "h2#achievements-earned", "Obtenus · 3"
-    assert_select "h2#achievements-to_earn", "À obtenir · 20"
+    assert_select "h2#achievements-to_earn", "À obtenir · #{total_achievements - 3}"
     assert_equal [ "Première acquisition approuvée", "A surpassé les attentes", "Période d'essai validée" ], group_names(:earned)
     assert_equal [ "Nous n'en demandions pas autant", "Dossier complété", "Entraide mutuelle", "Historique de consommation exemplaire",
       "Loyauté au-delà du raisonnable", "Excellence administrative", "Contribution non rémunérée", "Non-conformité statistique",
@@ -74,12 +74,12 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
 
     get achievements_path(locale: :en)
 
-    assert_select ".achievements__count", "0 / 23"
-    assert_select ".achievements__head .visually-hidden", "0 achievements earned out of 23"
+    assert_select ".achievements__count", "0 / #{total_achievements}"
+    assert_select ".achievements__head .visually-hidden", "0 achievements earned out of #{total_achievements}"
     assert_select ".achievements__label", "Achievements earned"
     assert_select ".achievements__segment--lit", 0
     assert_select "#achievements-earned", false
-    assert_select "h2#achievements-to_earn", "To earn · 23"
+    assert_select "h2#achievements-to_earn", "To earn · #{total_achievements}"
     assert_equal [ [ "0", "10" ], [ "0", "100" ], [ "0", "500" ], [ "0", "3" ], [ "0", "10" ], [ "0", "7" ], [ "0", "10" ], [ "0", "10" ], [ "0", "5" ], [ "0", "10" ], [ "0", "3" ] ],
       css_select("progress.achievement__bar").map { [ it["value"], it["max"] ] }
     assert_equal [ "0 / 10", "0 / 100", "0 / 500", "0 / 3", "0 / 10", "0 / 7", "0 / 10", "0 / 10", "0 / 5", "0 / 10", "0 / 3" ], css_select(".achievement__progress").map(&:text)
@@ -93,9 +93,9 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
 
     get achievements_path(locale: :en)
 
-    assert_select ".achievements__count", "23 / 23"
-    assert_select ".achievements__segment--lit", 23
-    assert_select "h2#achievements-earned", "Earned · 23"
+    assert_select ".achievements__count", "#{total_achievements} / #{total_achievements}"
+    assert_select ".achievements__segment--lit", total_achievements
+    assert_select "h2#achievements-earned", "Earned · #{total_achievements}"
     assert_select "#achievements-to_earn", false
     assert_select "progress", false
   end
@@ -296,12 +296,14 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :fr)
     assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='7']" do
       assert_select ".menu-item__label", "Succès"
-      assert_select ".menu-item__meta[aria-hidden=true]", "3/23"
-      assert_select ".visually-hidden", "3 succès obtenus sur 23"
+      assert_select ".menu-item__meta[aria-hidden=true]", "3/#{total_achievements}"
+      assert_select ".visually-hidden", "3 succès obtenus sur #{total_achievements}"
     end
     get home_path(locale: :en)
-    assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of 23"
+    assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of #{total_achievements}"
     get more_path(locale: :fr)
     assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
   end
+
+  def total_achievements = Game::Achievements::CATALOGUE.size
 end
