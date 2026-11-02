@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { STREAM_EVENT_ACTION, registerStreamActions, streamSignal } from "./stream_actions"
+import { STREAM_EVENT_ACTION, STREAM_FOCUS_ACTION, registerStreamActions, streamSignal } from "./stream_actions"
 import type { StreamAction } from "./turbo"
 
 function streamElement(attributes: Record<string, string>): Element {
@@ -49,5 +49,27 @@ describe("the gameble-event stream action", () => {
     action.call(streamElement({}))
 
     expect(seen).toEqual([])
+  })
+})
+
+describe("the gameble-focus stream action", () => {
+  it("focuses its target without scrolling", () => {
+    const turbo = { StreamActions: {} as Record<string, StreamAction> }
+    registerStreamActions(turbo, new EventTarget())
+    const calls: unknown[] = []
+    const element = { targetElements: [{ focus: (options: unknown) => calls.push(options) }] } as unknown as Element
+
+    turbo.StreamActions[STREAM_FOCUS_ACTION]?.call(element)
+
+    expect(calls).toEqual([{ preventScroll: true }])
+  })
+
+  it("does nothing when the target is gone", () => {
+    const turbo = { StreamActions: {} as Record<string, StreamAction> }
+    registerStreamActions(turbo, new EventTarget())
+
+    expect(() =>
+      turbo.StreamActions[STREAM_FOCUS_ACTION]?.call({ targetElements: [] } as unknown as Element),
+    ).not.toThrow()
   })
 })

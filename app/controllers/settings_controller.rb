@@ -54,11 +54,14 @@ class SettingsController < ApplicationController
   def sync_steam_library
     authorize :settings, :sync_steam_library?
 
-    if syncs_library?
-      CreateSteamLibrarySetJob.perform_later(current_player.id, first_sync: true)
-      redirect_to settings_path, notice: t("settings.sync_library.started"), status: :see_other
-    else
-      redirect_to settings_path, alert: t("settings.sync_library.unavailable"), status: :see_other
+    started = syncs_library?
+    CreateSteamLibrarySetJob.perform_later(current_player.id, first_sync: true) if started
+    tone = started ? :notice : :alert
+    message = t(started ? "settings.sync_library.started" : "settings.sync_library.unavailable")
+
+    respond_to do |format|
+      format.turbo_stream { render turbo_stream: turbo_stream.append("toasts", html: ToastComponent.new(message:, tone:).render_in(view_context)) }
+      format.html { redirect_to settings_path, tone => message, status: :see_other }
     end
   end
 

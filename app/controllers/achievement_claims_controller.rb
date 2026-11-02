@@ -5,10 +5,17 @@ class AchievementClaimsController < ApplicationController
     authorize :achievement_claim, :create?
 
     result = Game::ClaimAchievement.new.call(player: current_player, achievement: params[:achievement].to_s)
-    if result.success?
-      redirect_to achievements_path, notice: t("achievement_claims.create.claimed"), status: :see_other
-    else
-      redirect_to achievements_path, alert: Game::ClaimAchievement.failure_message(result.failure), status: :see_other
+    tone = result.success? ? :notice : :alert
+    message = result.success? ? t("achievement_claims.create.claimed") : Game::ClaimAchievement.failure_message(result.failure)
+
+    respond_to do |format|
+      format.turbo_stream do
+        @tile = Game::AchievementBoard.call(current_player).find { it.key.to_s == params[:achievement].to_s }
+        @unclaimed = Game::UnclaimedAchievements.count(current_player)
+        @message = message
+        @tone = tone
+      end
+      format.html { redirect_to achievements_path, tone => message, status: :see_other }
     end
   end
 end

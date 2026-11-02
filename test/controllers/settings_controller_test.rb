@@ -744,6 +744,30 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, enqueued_jobs.count { it["job_class"] == "CreateSteamLibrarySetJob" }
   end
 
+  test "Sync now answers a Turbo Stream with a toast and enqueues one sync, without a redirect" do
+    sign_in(@player)
+    clear_enqueued_jobs
+
+    post settings_steam_library_sync_path(locale: :en), as: :turbo_stream
+
+    assert_response :success
+    assert_equal Mime[:turbo_stream], response.media_type
+    assert_select "turbo-stream[action=append][target=toasts]", text: /The sync of your Steam library has started/
+    assert_equal 1, enqueued_jobs.count { it["job_class"] == "CreateSteamLibrarySetJob" }
+  end
+
+  test "Sync now with the sync off answers a Turbo Stream alert and enqueues nothing" do
+    @player.update_column(:steam_library_sync, false)
+    sign_in(@player)
+    clear_enqueued_jobs
+
+    assert_no_enqueued_jobs(only: CreateSteamLibrarySetJob) do
+      post settings_steam_library_sync_path(locale: :en), as: :turbo_stream
+    end
+
+    assert_select "turbo-stream[action=append][target=toasts]", text: /Turn on the Steam games sync first/
+  end
+
   test "a second Sync now within the delay is refused with a message and enqueues nothing more" do
     sign_in(@player)
     clear_enqueued_jobs

@@ -1,5 +1,5 @@
 <%# locals: (tile:) %>
-<li class="<%= class_names("achievement", "achievement--locked": !tile.earned) %>">
+<li id="achievement-<%= tile.key %>" tabindex="-1" class="<%= class_names("achievement", "achievement--locked": !tile.earned) %>">
   <span class="achievement__icon"><%= achievement_icon(tile) %></span>
   <div class="achievement__text">
     <h3 class="achievement__name"><%= t("achievements.names.#{tile.key}") %></h3>
