@@ -77,6 +77,25 @@ module ShellHelper
     ME_TAB_CONTROLLERS.include?(controller_path) || (controller_path == "pages" && %w[me how_it_works].include?(action_name))
   end
 
+  def shell_tabs
+    return visitor_tabs unless current_player
+
+    [
+      [ :booster, "tab-capsule", booster_path, %w[boosters packs].include?(controller_path) ],
+      [ :sets, "tab-sets", library_path, %w[library cards custom_sets].include?(controller_path) ],
+      [ :social, "tab-social", social_path, social_tab_current? ],
+      [ :me, "tab-me", me_path, me_tab_current? ]
+    ]
+  end
+
+  def visitor_tabs
+    on_all_cards = (controller_path == "library" && action_name == "cards") || controller_path == "cards"
+    [
+      [ :landing, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
+      [ :all_cards, "tab-collection", library_cards_path, on_all_cards ]
+    ]
+  end
+
   def shell_home_label
     current_player ? t("shell.top_bar.home") : t("shell.top_bar.landing")
   end
