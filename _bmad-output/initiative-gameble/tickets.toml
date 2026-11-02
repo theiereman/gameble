@@ -236,3 +236,11 @@ slug = "epic-feed-pagination"
 title = "Unlimited feed"
 covers = []
 after = []
+
+[[epic]]
+id = 32
+release = "1.1.0"
+slug = "epic-polish-1-1-0"
+title = "Staging fixes of 1.1.0"
+covers = []
+after = []

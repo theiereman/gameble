@@ -128,3 +128,14 @@ covers = []
 after = []
 hitl = false
 risk = "medium"
+
+[[entry]]
+id = 12
+type = "story"
+title = "A suggestion has no send button: opening it prepares the proposal"
+description = "Author on staging, 2026-11-02: remove the SEND (ENVOYER) button from the suggestion row; the player only presses the suggestion, which opens the trade board prefilled, and sends from there like any trade. Remove the quick-send path that only the row button used (route, controller action, operation call, strings, focus-after-send handling) and keep the opener, the draft logic, the declined-never-returns rule and the focus behaviour of the opener. Tests and strings in en.yml and fr.yml follow."
+verify = "A suggestion row shows one control, the opener; no row has a send button; no route, action, string or test of the quick send remains; the board opened from a suggestion is prefilled as before; the suggestion tests pass."
+covers = []
+after = [11]
+hitl = false
+risk = "low"

@@ -1,0 +1,12 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "bug"
+title = "The hub jumps slightly when a player returns to it with the Gameble button from a submenu"
+description = "Author on staging (v1.1.0-rc.3), 2026-11-02: from a submenu, pressing the Gameble button back to the hub makes the screen jump slightly while it paints. Reproduce with a headless browser (system test with screenshots or layout measurements before and after the page settles), find what shifts (a block rendered from a cached Turbo preview then replaced, a counter or timer, a font swap, a late image or a live-updated badge, the new achievements badge of the menu among the suspects), and fix it so the hub does not move once shown. Check desktop and phone. Related recent change: the booster page fix that stopped serving a cached page when going back after opening capsules."
+verify = "A system test records the vertical and horizontal position of the hub's blocks right after navigation and after it settles, from a submenu and from the booster, and they are equal; no layout shift on desktop and phone."
+covers = []
+after = []
+hitl = false
+risk = "medium"
