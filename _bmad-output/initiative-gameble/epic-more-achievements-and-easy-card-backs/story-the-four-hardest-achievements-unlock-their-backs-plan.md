@@ -3,7 +3,7 @@ title: 'The four hardest achievements unlock their backs'
 type: 'feature'
 ticket: '11'
 created: '2026-11-02'
-status: 'built'
+status: built
 baseline_revision: '28d15f8c59a13270fa9eae008871d1a90d775082'
 route: 'oneshot'
 route_source: 'auto'

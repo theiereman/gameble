@@ -3,7 +3,7 @@ title: 'Three community achievements'
 type: 'feature'
 ticket: '9'
 created: '2026-11-02'
-status: 'built'
+status: built
 baseline_revision: '0c4e5b2d7912f4ebe2166737d03c528e3afcd987'
 route: 'oneshot'
 route_source: 'auto'
