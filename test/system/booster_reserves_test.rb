@@ -48,6 +48,20 @@ class BoosterReservesTest < ApplicationSystemTestCase
     assert_selector "#{tab(:standard)}[aria-selected=true]"
   end
 
+  test "going back from the capsule screen shows the reserve left after opening, not the one cached before" do
+    2.times { create_pack(@player, available_at: 3.hours.ago) }
+    visit feed_path(locale: :en)
+    assert_selector ".top-bar .packs-chip__count", text: "2"
+    find(".top-bar a.packs-chip", match: :first).click
+    find(".booster-canister").click
+    assert_selector ".booster-card[data-dealt]", count: 5, wait: 10
+
+    page.go_back
+
+    assert_current_path feed_path(locale: :en)
+    assert_selector ".top-bar .packs-chip__count", text: "1", wait: 0
+  end
+
   test "each origin's canister wears its look on the special tab and the standard tab drops it" do
     create_pack(@player, available_at: 3.hours.ago)
     create_pack(@player, kind: :reward, available_at: 2.hours.ago)

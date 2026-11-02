@@ -1,3 +1,4 @@
+import "./turbo"
 import { revealModeReached, revealingOpening, type BoosterState } from "./booster"
 import type { BoosterCountdown } from "./booster_countdown"
 import { csrfToken } from "./booster_page"
@@ -17,6 +18,7 @@ export function reflectChange(
   if (after.bank !== before.bank) {
     const { available, special, reserveFull, nextAvailableAt, serverTime } = after.bank
     dispatchGameble("gameble:bank-changed", { available, special, reserveFull, nextAvailableAt, serverTime })
+    window.Turbo.cache.clear()
     countdown?.set(nextAvailableAt, serverTime)
   }
   const revealing = revealingOpening(after.status)
