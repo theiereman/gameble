@@ -1068,6 +1068,26 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité
 - **Header:** the count in `{typography.count-large}` ("12 / 40") beside a segmented gauge, one segment per achievement, under "SUCCÈS OBTENUS".
 - **Achievement tile:** grouped under "OBTENUS · 12" and "À OBTENIR · 28"; a 44px pixel icon in an accent-bordered well, the name in JetBrains Mono, the condition in JetBrains Mono, a 4px progress bar and "64 / 100" when in progress, and, when it unlocks a card back, a tiny image of that card back labeled "DOS". Locked tiles are sunken, their icon gray. One column on the phone.
 
+#### Achievement glyphs
+
+The thirteen new achievements wear a 44px pixel icon in the accent-bordered well of the achievement tile, drawn on the same grid as the existing ten, one or two accent colors, a crisp 1px edge, no text. Concepts approved by the author on 2026-11-02; the pixel art itself is drawn when the icons are exported.
+
+| # | Achievement | Glyph |
+|---|---|---|
+| 11 | Packaging Irregularity | Two identical cards stacked, a "!" label on the front one |
+| 12 | Excellence in Mediocrity | Five gray tokens in a row |
+| 13 | Statistical Non-Compliance | A bell curve with one dot far outside it |
+| 14 | Historical Asset Management | An hourglass beside a digital clock |
+| 15 | Luck Is a Marketing Concept | A wilted clover, as on the Trèfle fané back |
+| 16 | Leave Request Denied | A calendar page under a "REFUSÉ" stamp |
+| 17 | Streamlined Opening Procedure | Double forward arrows |
+| 18 | Diligence Beyond the Call of Duty | One card turned face up under a hand |
+| 19 | Diversified Portfolio | Five cards fanned out |
+| 20 | Market Concentration | One office tower among small buildings |
+| 21 | First Claim, All Rights Reserved | A flag planted on a card |
+| 22 | A Discovery of Ours | A card under a magnifying glass, with a star |
+| 23 | A Strictly Professional Relationship | Two clasped hands, a tie |
+
 #### Profile and settings
 
 - **Public profile summary:** avatar, name, card count, "VITRINE" with the chosen showcase cards (absent when none is chosen; author, 2026-10-15), and the visibility line: "Visible par tous les joueurs", "Visible par vos amis seulement" or "Profil privé : vous seul le voyez" ("Vous seul le voyez" on the phone).

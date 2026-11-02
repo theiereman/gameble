@@ -317,6 +317,36 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Repost action | "REPOSTER" on a card the player owns, in three places: the card detail (its main action, the one filled button, first among the actions; author, 2026-10-24), a revealed card at the end of a capsule opening (desktop under the revealed row's card, phone in the card zoom), and the hub showcase under the best card. Any rarity, no limit, no message, reactions or comments. The action posts the repost and confirms with the repost toast; the button stays available (a card can be reposted again). Absent for a card not owned and for a visitor. |
 | Achievement tile | Earned or to earn, with progress where countable, and the card back it unlocks if any. No flavor text (author, 2026-10-31). |
 
+#### Achievement titles and conditions
+
+Final copy of the twenty-three achievements, approved by the author on 2026-11-02 (titles 1 to 10 reworded and 21 changed by the author; the English titles are those of `../spec-gameble/achievements.md`). A title never addresses the player and there is no flavor text; N is 10 for 17 and 18. French is the source copy, English keeps the intent. The "Back" column names the card back the achievement unlocks.
+
+| # | Titre | Condition | Title | Condition (EN) | Back |
+|---|---|---|---|---|---|
+| 1 | Première acquisition approuvée | Ouvrir une capsule | Your First Authorized Acquisition | Open a capsule |  |
+| 2 | A surpassé les attentes | Obtenir une carte Épique | Noted Above Expectations | Get an Epic card |  |
+| 3 | Nous n'en demandions pas autant | Obtenir une carte Légendaire | An Exceptional Administrative Incident | Get a Legendary card |  |
+| 4 | Dossier complété | Compléter un set | File Closed in Full | Complete a set |  |
+| 5 | Entraide mutuelle | Conclure un échange | Approved Mutual Assistance | Complete a trade |  |
+| 6 | Période d'essai validée | Ouvrir 10 capsules | Probation Period Completed | Open 10 capsules |  |
+| 7 | Historique de consommation exemplaire | Ouvrir 100 capsules | Outstanding Consumption Record | Open 100 capsules |  |
+| 8 | Loyauté au-delà du raisonnable | Ouvrir 500 capsules | Loyalty Beyond Reasonable Limits | Open 500 capsules |  |
+| 9 | Excellence administrative | Compléter 3 sets | Archival Excellence | Complete 3 sets |  |
+| 10 | Contribution non rémunérée | Reposter une carte | Unpaid Promotion | Repost a card |  |
+| 11 | Irrégularité de conditionnement | Deux exemplaires du même jeu dans une capsule | Packaging Irregularity | Two copies of the same game in one capsule |  |
+| 12 | L'excellence dans la médiocrité | Cinq cartes Communes dans une capsule standard | Excellence in Mediocrity | Five Common cards in one standard capsule |  |
+| 13 | Non-conformité statistique | Deux cartes Rares ou mieux dans une capsule standard | Statistical Non-Compliance | Two Rare or better cards in one standard capsule |  |
+| 14 | Gestion du patrimoine historique | Un jeu sorti avant 2000 et un jeu sorti en 2025 ou après dans une même capsule | Historical Asset Management | A game released before 2000 and one released in 2025 or later in one capsule |  |
+| 15 | La chance est un concept marketing | 10 capsules standard de suite sans carte Rare ou mieux | Luck Is a Marketing Concept | 10 standard capsules in a row with no Rare or better card | Trèfle fané |
+| 16 | Demande de congé refusée | Récupérer le bonus quotidien 7 jours de suite (jours UTC) | Leave Request Denied | Collect the daily bonus 7 days in a row (UTC days) | Assidu |
+| 17 | Procédure d'ouverture simplifiée | 10 capsules de suite ouvertes avec « Tout révéler » | Streamlined Opening Procedure | 10 capsules in a row opened with "Reveal all" |  |
+| 18 | Zèle au-delà des obligations | 10 capsules de suite dont chaque carte est révélée une à une | Diligence Beyond the Call of Duty | 10 capsules in a row with every card revealed one by one |  |
+| 19 | Portefeuille diversifié | Détenir cinq exemplaires d'un même jeu en même temps | Diversified Portfolio | Hold five copies of the same game at once |  |
+| 20 | Concentration du marché | Détenir 10 jeux différents d'un même studio en même temps | Market Concentration | Hold 10 different games of the same studio at once | Siège social |
+| 21 | Premier arrivé, premier servi | Être le pionnier d'une carte dans une saison | First Claim, All Rights Reserved | Be the pioneer of a card in a season |  |
+| 22 | Une découverte qui nous appartient | Reposter une carte dont vous êtes le pionnier | A Discovery of Ours | Repost a card you pioneered |  |
+| 23 | Une relation strictement professionnelle | Conclure trois échanges avec le même joueur | A Strictly Professional Relationship | Complete three trades with the same player | Contrat |
+
 ### Profil et paramètres
 
 | Component | Behavioral rules |
@@ -747,7 +777,7 @@ Build rules found while prototyping and reviewing; they bind the build. Architec
 
 Non-blockers, left open.
 
-- **Achievements:** the mock's 40 are illustrative; which exist, and which unlock card backs (four are settled, author, 2026-10-31: see Card backs).
+- **Achievements:** settled on 2026-11-02: the twenty-three of the copy table under Fil d'activité and Succès; the mock's 40 are illustrative.
 - **Card backs:** beyond one per theme or hall of fame set at its back tier, which ship, and whether every accomplished weekly mission grants one; each set back's design.
 - **Ticker and feed thresholds**; hourly totals in the ticker.
 - **Special capsules:** whether the daily and mission capsules look different in the reserve, and whether a mission reward can exceed 10.

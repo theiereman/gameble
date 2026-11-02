@@ -26,6 +26,7 @@ Settled by the author in conversation on 2026-11-02.
 - Trade suggestions copy: the accessible names, the focus after ENVOYER (next suggestion's opener, else the sent trade's row) and the opener/ENVOYER order are approved. The definition of a "spared" card in `mockups/trade-suggestions.html` is rejected; the replacement is still to give.
 - A suggestion the friend declined never comes back. A suggestion opened and left unsent stays a suggestion until the board is stored as a draft; then it leaves the suggestions.
 - Personnalisation page and Back picker copy approved; the strip's resting sentence is dropped; the locked set back's sentence names the tier ("Atteignez le palier Maître du set Horreur").
+- Achievements (entry 30.2): the 23 titles and conditions in both languages are approved (titles 1 to 5, 9, 10 and 21 reworded by the author) and the 13 glyph concepts approved; the pixel art itself is drawn at export.
 - Still to build from these decisions: the declined and drafted suggestions leaving the list (epic 29), the tier sentence and the dropped strip sentence (epic 30).
 
 ## Settled on 2026-11-01
