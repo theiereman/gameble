@@ -1,9 +1,12 @@
 class PagesController < ApplicationController
   include SeasonAllocationGate
+  include MarkdownNegotiation
 
+  negotiates_markdown only: %i[home legal how_it_works credits]
   before_action :lead_to_season_allocation, only: :home
 
   def home
+    return show_landing_markdown if current_player.nil? && markdown_requested?
     return show_landing if visitor_landing?
 
     authorize :page, :play?
@@ -28,14 +31,17 @@ class PagesController < ApplicationController
   def legal
     authorize :page, :show?
     @legal = Rails.configuration.x.legal
+    render_markdown if markdown_requested?
   end
 
   def how_it_works
     authorize :page, :show?
+    render_markdown if markdown_requested?
   end
 
   def credits
     authorize :page, :show?
+    render_markdown if markdown_requested?
   end
 
   private
@@ -57,6 +63,27 @@ class PagesController < ApplicationController
       @season_facts = readable { Game::LandingSeasonFacts.call(locale: I18n.locale) }
       @goal = readable { Game::LandingGoal.call(locale: I18n.locale) }
       render "landings/show", formats: :html
+    end
+
+    def show_landing_markdown
+      authorize :landing, :show?
+      send_markdown(LandingMarkdown.new(
+        samples: Catalog::LandingSampleCards.call(locale: I18n.locale),
+        odds: helpers.odds_rows(Game::DrawOdds::REGULAR),
+        roadmap: Catalog::LandingRoadmap.call(locale: I18n.locale),
+        season_facts: readable { Game::LandingSeasonFacts.call(locale: I18n.locale) },
+        links: landing_markdown_links
+      ).to_s)
+    end
+
+    def landing_markdown_links
+      [ [ t("landings.show.hero.embark"), sign_in_url ],
+        [ t("landings.show.footer.how_it_works"), how_it_works_url ],
+        [ t("landings.show.footer.legal"), legal_url ],
+        [ t("landings.show.footer.credits"), credits_url ],
+        [ t("landings.show.roadmap.all"), roadmap_url ],
+        [ t("landings.show.footer.support"), ExternalLinksHelper::DONATION_URL ],
+        [ t("landings.show.footer.source"), ExternalLinksHelper::SOURCE_CODE_URL ] ]
     end
 
     def readable
