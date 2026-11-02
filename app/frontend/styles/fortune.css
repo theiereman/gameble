@@ -172,6 +172,7 @@
 }
 
 .player-row {
+  position: relative;
   display: grid;
   grid-template-columns: subgrid;
   grid-column: 1 / -1;
@@ -207,7 +208,6 @@
   border: 0;
   background: none;
   text-align: left;
-  text-decoration: underline;
   cursor: pointer;
   color: var(--color-text-bright);
   font: var(--font-card-title-m);
@@ -215,8 +215,26 @@
   white-space: nowrap;
 }
 
+.player-row__name::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.player-row:has(.player-row__name:hover) {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.player-row:has(.player-row__name:focus-visible) {
+  outline: var(--space-unit) solid var(--color-accent);
+  outline-offset: var(--space-unit);
+}
+
+.player-row__name:focus-visible {
+  outline: none;
+}
+
 .player-row__name--hidden {
-  text-decoration: none;
   cursor: default;
   color: var(--color-muted);
 }
