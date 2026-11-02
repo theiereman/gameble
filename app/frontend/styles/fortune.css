@@ -171,15 +171,8 @@
   container-type: inline-size;
 }
 
-.player-entry {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-
 .player-row {
   display: flex;
-  flex: 1;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3) var(--space-5);
@@ -293,33 +286,32 @@
   color: var(--color-rarity-legendaire);
 }
 
-.player-entry__luck {
+.player-row__luck {
   display: flex;
   flex: none;
   align-items: center;
+  align-self: stretch;
   justify-content: space-between;
   gap: var(--space-2);
-  width: 5.5ch;
+  width: calc(5.5ch + var(--space-5));
+  padding-left: var(--space-5);
+  box-shadow: inset var(--space-unit) 0 0 0 var(--color-line-soft);
   font: var(--font-count-large);
   letter-spacing: var(--tracking-count-large);
 }
 
-.player-entry__clover {
+.player-row__clover {
   display: block;
   flex: none;
 }
 
 @container (max-width: 719px) {
-  .player-entry {
-    gap: var(--space-2);
-  }
-
   .player-row {
     display: grid;
     grid-template-areas:
-      "avatar who"
-      "figures figures";
-    grid-template-columns: auto minmax(0, 1fr);
+      "avatar who luck"
+      "figures figures luck";
+    grid-template-columns: auto minmax(0, 1fr) auto;
     gap: var(--space-1) var(--space-3);
     padding: var(--space-2) var(--space-3);
   }
@@ -346,7 +338,10 @@
     padding-left: var(--space-2);
   }
 
-  .player-entry__luck {
+  .player-row__luck {
+    grid-area: luck;
+    width: calc(5.5ch + var(--space-3));
+    padding-left: var(--space-3);
     gap: var(--space-1);
     font: var(--font-count-large-phone);
   }

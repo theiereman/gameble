@@ -32,8 +32,7 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".register__summary .profile-figure", text: /Capsules this week\s*3/
     assert_select ".register__summary .profile-figure", text: %r{Privileged\s*1/2}
     assert_select ".player-row", 2
-    assert_select ".player-entry:nth-child(1)" do
-      assert_select ".player-row--privileged"
+    assert_select ".player-row:nth-child(1).player-row--privileged" do
       assert_select "a.player-row__name[href=?]", brother_path(locale: :en, token: @player.token), "Hugo"
       assert_select ".player-row__who .fortune__privileged", "PRIVILEGED"
       assert_select ".player-row__label", false
@@ -46,12 +45,10 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
       assert_select ".player-row__rarity--1 dd", "1"
       assert_select ".player-row__rarity--5 dd", "1"
       assert_select ".player-row__rarity--5 dt .visually-hidden", "Legendary"
-      assert_select ".player-row ~ .player-entry__luck.fortune-index--up", /\+500/
-      assert_select ".player-entry__luck svg.player-entry__clover"
-      assert_select ":last-child.player-entry__luck"
-      assert_select ".player-entry__rank", false
+      assert_select ":last-child.player-row__luck.fortune-index--up", /\+500/
+      assert_select ".player-row__luck svg.player-row__clover"
     end
-    assert_select ".player-entry:nth-child(2)" do
+    assert_select ".player-row:nth-child(2)" do
       assert_select ".player-row__name--hidden", "Private member"
       assert_select ".fortune__privileged", false
       assert_select ".player-row__label"
