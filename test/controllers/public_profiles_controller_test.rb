@@ -98,7 +98,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#profile-achievements-heading ~ .achievements__head .visually-hidden", "5 achievements earned out of 11"
     assert_select "#profile-achievements-heading ~ .achievements__head .achievements__segment--lit", 5
     assert_select ".profile-section__label", "Latest earned"
-    assert_equal [ "First complete set", "10 capsules", "First trade", "First Epic" ],
+    assert_equal [ "File Closed in Full", "Probation Period Completed", "Approved Mutual Assistance", "Noted Above Expectations" ],
       css_select(".profile-achievements .achievement__name").map(&:text)
     assert_select ".profile-achievements .achievement--locked, .profile-achievements .achievement__bar", false
 
@@ -135,7 +135,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get brother_path(locale: :en, token: @owner.token)
 
-    assert_equal [ "First Epic", "First capsule" ], css_select(".profile-achievements .achievement__name").map(&:text)
+    assert_equal [ "Noted Above Expectations", "Your First Authorized Acquisition" ], css_select(".profile-achievements .achievement__name").map(&:text)
   end
 
   test "the owner's figures, never the viewer's" do

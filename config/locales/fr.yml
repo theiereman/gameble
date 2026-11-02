@@ -1619,16 +1619,16 @@ fr:
     unlocked:
       title: "Succès débloqué"
     names:
-      first_booster: "Première capsule"
-      first_epic: "Première Épique"
-      first_legendary: "Première Légendaire"
-      first_complete_set: "Premier set complet"
-      first_trade: "Premier échange"
-      boosters_10: "10 capsules"
-      boosters_100: "100 capsules"
-      boosters_500: "500 capsules"
-      three_complete_sets: "Trois sets complets"
-      first_repost: "Premier repost"
+      first_booster: "Première acquisition approuvée"
+      first_epic: "A surpassé les attentes"
+      first_legendary: "Nous n'en demandions pas autant"
+      first_complete_set: "Dossier complété"
+      first_trade: "Entraide mutuelle"
+      boosters_10: "Période d'essai validée"
+      boosters_100: "Historique de consommation exemplaire"
+      boosters_500: "Loyauté au-delà du raisonnable"
+      three_complete_sets: "Excellence administrative"
+      first_repost: "Contribution non rémunérée"
       statistical_non_compliance: "Non-conformité statistique"
     show:
       title: "Succès"
@@ -1653,7 +1653,7 @@ fr:
       boosters_500: "Ouvrir 500 capsules"
       three_complete_sets: "Compléter 3 sets"
       first_repost: "Reposter une carte"
-      statistical_non_compliance: "Deux cartes Rare ou mieux dans une capsule standard"
+      statistical_non_compliance: "Deux cartes Rares ou mieux dans une capsule standard"
   invite_links:
     show:
       title: "%{name} vous invite"
@@ -2154,11 +2154,11 @@ fr:
             reward: "Chaque participant a reçu une capsule avec au moins une Épique."
           achievements:
             title: "Succès"
-            text: "Première capsule, première Épique, première Légendaire, premier set complet, premier échange…"
-            first_pack: "Première capsule"
-            first_trade: "Premier échange"
-            first_legendary: "Première Légendaire"
-            first_set: "Premier set complet"
+            text: "Première acquisition approuvée, A surpassé les attentes, Dossier complété, Entraide mutuelle…"
+            first_pack: "Première acquisition approuvée"
+            first_trade: "Entraide mutuelle"
+            first_legendary: "Nous n'en demandions pas autant"
+            first_set: "Dossier complété"
             to_earn: "À obtenir"
           backs:
             title: "Dos de cartes"

@@ -34,20 +34,20 @@ en:
       first_legendary: Get a Legendary card
       first_repost: Repost a card
       first_trade: Complete a trade
-      statistical_non_compliance: Two cards of Rare or better in one standard capsule
+      statistical_non_compliance: Two Rare or better cards in one standard capsule
       three_complete_sets: Complete 3 sets
     names:
-      boosters_10: 10 capsules
-      boosters_100: 100 capsules
-      boosters_500: 500 capsules
-      first_booster: First capsule
-      first_complete_set: First complete set
-      first_epic: First Epic
-      first_legendary: First Legendary
-      first_repost: First repost
-      first_trade: First trade
+      boosters_10: Probation Period Completed
+      boosters_100: Outstanding Consumption Record
+      boosters_500: Loyalty Beyond Reasonable Limits
+      first_booster: Your First Authorized Acquisition
+      first_complete_set: File Closed in Full
+      first_epic: Noted Above Expectations
+      first_legendary: An Exceptional Administrative Incident
+      first_repost: Unpaid Promotion
+      first_trade: Approved Mutual Assistance
       statistical_non_compliance: Statistical Non-Compliance
-      three_complete_sets: Three complete sets
+      three_complete_sets: Archival Excellence
     show:
       earned_label: Achievements earned
       groups:
@@ -1443,12 +1443,12 @@ en:
         subtitle: Sets to complete, friends to trade with, a shared mission every week.
         tiles:
           achievements:
-            first_legendary: First Legendary
-            first_pack: First capsule
-            first_set: First complete set
-            first_trade: First trade
-            text: First capsule, first Epic, first Legendary, first complete set,
-              first trade…
+            first_legendary: An Exceptional Administrative Incident
+            first_pack: Your First Authorized Acquisition
+            first_set: File Closed in Full
+            first_trade: Approved Mutual Assistance
+            text: Your First Authorized Acquisition, Noted Above Expectations, File Closed
+              in Full, Approved Mutual Assistance…
             title: Achievements
             to_earn: To earn
           backs:
