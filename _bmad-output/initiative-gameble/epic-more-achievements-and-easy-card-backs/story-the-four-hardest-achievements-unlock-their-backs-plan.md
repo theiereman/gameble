@@ -3,7 +3,7 @@ title: 'The four hardest achievements unlock their backs'
 type: 'feature'
 ticket: '11'
 created: '2026-11-02'
-status: 'in-review'
+status: 'built'
 baseline_revision: '28d15f8c59a13270fa9eae008871d1a90d775082'
 route: 'oneshot'
 route_source: 'auto'
@@ -40,6 +40,13 @@ Oneshot: the grant path (handler, job, shelf, tile helper, picker) is already dr
 ## Plan Change Log
 
 ## Review Triage Log
+
+### 2026-11-02 — Review pass
+- verdicts: 3 findings — high 0, medium 0, low 0, false 3, maybe-false 0
+- findings:
+  - `[false]` `[reject]` size check does not cover .mjs — not a rule break; the new file is 176 lines.
+  - `[false]` `[reject]` French titles in the art script — same as existing BACK_DESIGNS entries, which are file titles, not UI text.
+  - `[false]` `[reject]` picker test assumes the moderator fixture holds none of the four backs — fixtures hold no card back unlocks; grant tests use it as a clean player.
 
 ## Verification
 
