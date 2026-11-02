@@ -168,6 +168,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  container-type: inline-size;
 }
 
 .player-row {
@@ -221,6 +222,10 @@
 
 .player-row__name--hidden {
   color: var(--color-muted);
+}
+
+.player-row__badge {
+  align-self: flex-start;
 }
 
 .player-row__label {
@@ -289,8 +294,49 @@
 
 .player-row__luck {
   flex: none;
+  margin-left: auto;
   min-width: 5ch;
   font: var(--font-count-large);
   letter-spacing: var(--tracking-count-large);
   text-align: right;
+}
+
+@container (max-width: 719px) {
+  .player-row {
+    display: grid;
+    grid-template-areas:
+      "rank avatar who luck"
+      "figures figures figures figures";
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+  }
+
+  .player-row__rank {
+    grid-area: rank;
+  }
+
+  .player-row__avatar {
+    grid-area: avatar;
+  }
+
+  .player-row__who {
+    grid-area: who;
+  }
+
+  .player-row__figures {
+    justify-content: space-between;
+    grid-area: figures;
+    gap: var(--space-2);
+  }
+
+  .player-row__figure {
+    min-width: 0;
+  }
+
+  .player-row__capsules {
+    padding-right: var(--space-2);
+  }
+
+  .player-row__luck {
+    grid-area: luck;
+  }
 }

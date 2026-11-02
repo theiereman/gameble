@@ -9,11 +9,15 @@
     <% else %>
       <span class="player-row__name player-row__name--hidden"><%= t("fortune_registers.show.hidden_player") %></span>
     <% end %>
-    <span class="player-row__label"><%= fortune_label_title(row.index) %></span>
+    <% if row.privileged %>
+      <span class="fortune__privileged player-row__badge"><%= t("fortunes.privileged") %></span>
+    <% else %>
+      <span class="player-row__label"><%= fortune_label_title(row.index) %></span>
+    <% end %>
   </span>
   <dl class="player-row__figures">
     <div class="player-row__figure player-row__capsules">
-      <dt><%= t("fortune_registers.show.row.capsules") %></dt>
+      <dt><%= pixel_icon("canister-small", class: "player-row__icon") %><span class="visually-hidden"><%= t("fortune_registers.show.row.capsules") %></span></dt>
       <dd><%= number_with_delimiter(row.packs_opened) %></dd>
     </div>
     <% Catalog::Rarity::TIERS.each do |tier, rarity| %>
@@ -23,7 +27,6 @@
       </div>
     <% end %>
   </dl>
-  <% if row.privileged %><span class="fortune__privileged player-row__badge"><%= t("fortunes.privileged") %></span><% end %>
   <span class="<%= class_names("player-row__luck", "fortune-index", fortune_index_tone(row.index)) %>">
     <span class="visually-hidden"><%= t("fortune_registers.show.row.luck") %></span><%= fortune_index_text(row.index) %>
   </span>

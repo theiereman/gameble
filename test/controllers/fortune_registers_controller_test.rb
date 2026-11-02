@@ -18,7 +18,7 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     Game::OpenPack.new.call(player:).value!
   end
 
-  test "the week's dashboard has one row per player: capsules, a count per rarity and the luck last; a private one shows only its luck" do
+  test "the week's dashboard has one row per player: Privileged in place of the label, capsules, a count per rarity and the luck last" do
     hidden = Accounts::Player.create!(steam_id: "76561197960400101", persona_name: "Secret", visibility: :private)
     open_cards(@player, 5)
     open_cards(@player, 1)
@@ -35,19 +35,22 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".player-row:nth-child(1).player-row--privileged" do
       assert_select "a.player-row__name[href=?]", brother_path(locale: :en, token: @player.token), "Hugo"
       assert_select ".player-row__rank", "#1"
-      assert_select ".player-row__label", "Indecently Lucky"
+      assert_select ".player-row__who .fortune__privileged", "PRIVILEGED"
+      assert_select ".player-row__label", false
+      assert_select ".player-row__capsules dt svg.player-row__icon"
+      assert_select ".player-row__capsules dt .visually-hidden", "Capsules"
       assert_select ".player-row__capsules dd", "2"
       assert_select ".player-row__rarity svg.player-row__icon", 5
       assert_select ".player-row__rarity--1 dd", "1"
       assert_select ".player-row__rarity--5 dd", "1"
       assert_select ".player-row__rarity--5 dt .visually-hidden", "Legendary"
-      assert_select ".fortune__privileged", "PRIVILEGED"
       assert_select ".player-row__luck.fortune-index--up", /\+500/
       assert_select ":last-child.player-row__luck"
     end
     assert_select ".player-row:nth-child(2)" do
       assert_select ".player-row__name--hidden", "Private member"
       assert_select ".fortune__privileged", false
+      assert_select ".player-row__label"
       assert_select ".player-row__rarity dd", text: "–", count: 5
     end
     assert_no_match "Secret", response.body
