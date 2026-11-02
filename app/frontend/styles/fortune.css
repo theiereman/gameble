@@ -171,8 +171,24 @@
   container-type: inline-size;
 }
 
+.player-entry {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.player-entry__rank {
+  flex: none;
+  min-width: 4ch;
+  color: var(--color-muted);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+  text-align: right;
+}
+
 .player-row {
   display: flex;
+  flex: 1;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3) var(--space-5);
@@ -188,15 +204,6 @@
 
 .player-row--own {
   background: var(--color-panel-raised);
-}
-
-.player-row__rank {
-  flex: none;
-  min-width: 4ch;
-  color: var(--color-muted);
-  font: var(--font-number);
-  letter-spacing: var(--tracking-number);
-  text-align: right;
 }
 
 .player-row__avatar {
@@ -267,8 +274,8 @@
 }
 
 .player-row__capsules {
-  padding-right: var(--space-5);
-  box-shadow: inset calc(-1 * var(--space-unit)) 0 0 0 var(--color-line-soft);
+  padding-left: var(--space-5);
+  box-shadow: inset var(--space-unit) 0 0 0 var(--color-line-soft);
 }
 
 .player-row__icon {
@@ -305,16 +312,22 @@
 }
 
 @container (max-width: 719px) {
+  .player-entry {
+    gap: var(--space-2);
+  }
+
+  .player-entry__rank {
+    min-width: 3ch;
+  }
+
   .player-row {
     display: grid;
     grid-template-areas:
-      "rank avatar who luck"
-      "figures figures figures figures";
-    grid-template-columns: auto auto minmax(0, 1fr) auto;
-  }
-
-  .player-row__rank {
-    grid-area: rank;
+      "avatar who luck"
+      "figures figures figures";
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-3);
+    padding: var(--space-2) var(--space-3);
   }
 
   .player-row__avatar {
@@ -336,10 +349,11 @@
   }
 
   .player-row__capsules {
-    padding-right: var(--space-2);
+    padding-left: var(--space-2);
   }
 
   .player-row__luck {
     grid-area: luck;
+    font: var(--font-count-large-phone);
   }
 }

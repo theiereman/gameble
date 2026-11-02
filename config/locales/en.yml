@@ -1177,64 +1177,57 @@ en:
         privileged: Privileged
         rank: "#%{rank}"
         you: Your luck
-      title: Register of the Privileged
+      title: The Flukeometer
   fortunes:
     labels:
-      black_cat_owner:
+      aggressively_average:
+        text: "Your pulls match the forecast exactly. The Brotherhood thanks you for your compliance."
+        title: "Aggressively Average"
+      black_cat_friend:
         text: "Statistically, you have walked under several ladders this week."
-        title: "Black Cat Owner"
-      chosen_by_the_rng:
-        text: "The random number generator has stopped being random for you. An inquiry has been opened."
-        title: "Chosen by the RNG"
-      enemy_of_meritocracy:
-        text: Your results exceed what merit alone can explain. Management has been
-          informed.
-        title: Enemy of Meritocracy
-      favored_by_probability:
-        text: Probability leans your way. The Brotherhood sees no cause for concern
-          at this stage.
-        title: Favored by Probability
-      indecently_lucky:
-        text: Your pulls defy statistical expectations. The Brotherhood is watching
-          you.
-        title: Indecently Lucky
-      mildly_inconvenienced:
-        text: "A Common where an Uncommon was owed. Nothing the Brotherhood would call a pattern."
-        title: "Mildly Inconvenienced"
-      on_a_good_streak:
-        text: "Things are going well. The Brotherhood advises against telling anyone."
-        title: "On a Good Streak"
-      overlooked_by_fortune:
-        text: Your results are slightly below forecast. Perseverance remains your best
-          asset.
-        title: Overlooked by Fortune
-      patron_saint_of_commons:
-        text: "Your misfortune balances the books for the whole Brotherhood. Thank you for your service."
-        title: "Patron Saint of Commons"
-      seven_years_of_commons:
+        title: "Black Cat Friend"
+      broke_a_mirror:
         text: "A mirror was broken somewhere, and the bill was sent to you."
-        title: "Seven Years of Commons"
-      shunned_by_the_odds:
-        text: The odds have been unkind. The Brotherhood reminds you that every capsule
-          is a new opportunity.
-        title: Shunned by the Odds
-      statistically_cursed:
-        text: Even probability itself seems to have abandoned you.
-        title: Statistically Cursed
-      statistically_ordinary:
-        text: Your pulls match the forecast exactly. The Brotherhood thanks you for
-          your compliance.
-        title: Statistically Ordinary Citizen
-      suspected_of_rigging:
+        title: "Broke a Mirror"
+      cursed_by_excel:
+        text: "Even the spreadsheet that computes your luck has started to pity you."
+        title: "Cursed by Excel"
+      enemy_of_merit:
+        text: "Your results exceed what merit alone can explain. Management has been informed."
+        title: "Enemy of Merit"
+      ghosted_by_luck:
+        text: "Luck has seen your capsules and chosen not to reply."
+        title: "Ghosted by Luck"
+      human_horseshoe:
+        text: "Fellow members now rub your sleeve before opening a capsule."
+        title: "Human Horseshoe"
+      indecently_lucky:
+        text: "Your pulls defy statistical expectations. The Brotherhood is watching you."
+        title: "Indecently Lucky"
+      main_character:
+        text: "The plot seems to revolve around you this week. The Brotherhood asks you to stay humble."
+        title: "Main Character"
+      mildly_annoyed:
+        text: "A Common where an Uncommon was owed. Nothing the Brotherhood would call a pattern."
+        title: "Mildly Annoyed"
+      probably_cheating:
         text: "Your capsules are under review by the audit department. Please keep your hands visible."
-        title: "Suspected of Rigging"
-      suspiciously_fortunate:
-        text: Your capsules perform above forecast. The Brotherhood congratulates you,
-          cautiously.
-        title: Suspiciously Fortunate
-      walking_lucky_charm:
-        text: "Your fellow members now touch your sleeve before opening a capsule."
-        title: "Walking Lucky Charm"
+        title: "Probably Cheating"
+      punching_bag:
+        text: "The odds practise on you. The Brotherhood admires your resilience."
+        title: "RNG Punching Bag"
+      rngs_favourite:
+        text: "The random number generator has stopped being random for you. An inquiry has been opened."
+        title: "RNG's Favourite"
+      saint_of_commons:
+        text: "Your misfortune balances the books for the whole Brotherhood. Thank you for your service."
+        title: "Saint of Commons"
+      smiled_upon:
+        text: "Probability leans your way. The Brotherhood sees no cause for concern at this stage."
+        title: "Smiled Upon"
+      suspiciously_lucky:
+        text: "Your capsules perform above forecast. The Brotherhood congratulates you, cautiously."
+        title: "Suspiciously Lucky"
     periods:
       all_time: All time
       week: This week
@@ -2280,7 +2273,7 @@ en:
       updated: 'Last updated: 1 November 2026'
     more:
       personalization: Personalization
-      register: Register of the Privileged
+      register: The Flukeometer
       settings: Profile and settings
       subtitle: The rest of the ship
       title: More

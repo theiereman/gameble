@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# The Register of the Privileged, a dashboard of every ranked player, and
+# The The Flukeometer, a dashboard of every ranked player, and
 # the Fortune section of a profile, both readable without an account.
 class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
@@ -27,27 +27,30 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     get fortune_register_path(locale: :en)
 
     assert_response :success
-    assert_select "h1", "Register of the Privileged"
+    assert_select "h1", "The Flukeometer"
     assert_select ".register__summary .profile-figure", text: /Active this week\s*2/
     assert_select ".register__summary .profile-figure", text: /Capsules this week\s*3/
     assert_select ".register__summary .profile-figure", text: %r{Privileged\s*1/2}
     assert_select ".player-row", 2
-    assert_select ".player-row:nth-child(1).player-row--privileged" do
+    assert_select ".player-entry:nth-child(1)" do
+      assert_select ".player-entry__rank", "#1"
+      assert_select ".player-row--privileged"
       assert_select "a.player-row__name[href=?]", brother_path(locale: :en, token: @player.token), "Hugo"
-      assert_select ".player-row__rank", "#1"
       assert_select ".player-row__who .fortune__privileged", "PRIVILEGED"
       assert_select ".player-row__label", false
       assert_select ".player-row__capsules dt svg.player-row__icon"
       assert_select ".player-row__capsules dt .visually-hidden", "Capsules"
       assert_select ".player-row__capsules dd", "2"
       assert_select ".player-row__rarity svg.player-row__icon", 5
+      assert_select ".player-row__figure:first-child.player-row__rarity--5"
+      assert_select ".player-row__figure:last-child.player-row__capsules"
       assert_select ".player-row__rarity--1 dd", "1"
       assert_select ".player-row__rarity--5 dd", "1"
       assert_select ".player-row__rarity--5 dt .visually-hidden", "Legendary"
       assert_select ".player-row__luck.fortune-index--up", /\+500/
       assert_select ":last-child.player-row__luck"
     end
-    assert_select ".player-row:nth-child(2)" do
+    assert_select ".player-entry:nth-child(2)" do
       assert_select ".player-row__name--hidden", "Private member"
       assert_select ".fortune__privileged", false
       assert_select ".player-row__label"
@@ -85,7 +88,7 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
       assert_select "h2", "Fortune"
       assert_select ".fortune__tabs a[aria-current=true]", "This week"
       assert_select ".fortune-index__value", "+500"
-      assert_select ".fortune__label", /Chosen by the RNG/
+      assert_select ".fortune__label", /RNG's Favourite/
       assert_select ".fortune__privileged", "PRIVILEGED"
       assert_select ".fortune__rank a[href=?]", fortune_register_path(locale: :en), "Rank 1 of 1"
       assert_select ".profile-figure", text: /Points earned\s*500/
