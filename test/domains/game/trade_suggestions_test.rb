@@ -237,7 +237,7 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
   test "a mutual suggestion comes before a one-sided friend who spares more, with the player's spares on the give side" do
     befriend(@lea)
     befriend(@max)
-    goal(@portal.id, @depths.id)
+    goal(@portal.id, @depths.id, @hills.id)
     spare(@player, @soldier.id)
     spare(@lea, @portal.id)
     spare(@max, @portal.id, @depths.id)
@@ -255,10 +255,10 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
 
   test "a friend's goal on a custom set never makes a suggestion mutual" do
     befriend(@lea)
-    goal(@portal.id, @depths.id)
+    goal(@portal.id, @depths.id, @hills.id)
     spare(@player, @soldier.id)
     spare(@lea, @portal.id)
-    card_ids = Catalog::CardSeason.where(id: @soldier.id).pluck(:card_id)
+    card_ids = Catalog::CardSeason.where(id: [ @soldier.id, *unheld_cards(2) ]).pluck(:card_id)
     Game::AddGoal.new.call(player: @lea, custom_set: create_custom_set(@lea, name: "Private", card_ids:).token).value!
 
     suggestion = suggestions.sole
@@ -269,7 +269,7 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
 
   test "a game the friend already holds is not given" do
     befriend(@lea)
-    goal(@portal.id, @depths.id)
+    goal(@portal.id, @depths.id, @hills.id)
     spare(@player, @soldier.id)
     spare(@lea, @portal.id)
     hold(@lea, @soldier.id)
@@ -280,7 +280,7 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
 
   test "the give side holds up to four spares, ranked on the friend's goals" do
     befriend(@lea)
-    goal(@portal.id, @depths.id)
+    goal(@portal.id, @depths.id, @hills.id)
     spare(@lea, @portal.id)
     cards = unheld_cards(5)
     cards.each { hold(@player, it, 2) }
