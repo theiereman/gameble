@@ -1,0 +1,45 @@
+<%# locals: (row:, cards:) %>
+<% shown = row.shown_to?(current_player) %>
+<% strings = CardStrings.new %>
+<%= tag.li class: class_names("player-tile", "player-tile--privileged": row.privileged, "player-tile--own": row.player == current_player) do %>
+  <div class="player-tile__head">
+    <span class="player-tile__rank"><%= t("fortune_registers.show.tile.rank", rank: number_with_delimiter(row.rank)) %></span>
+    <%= pixel_icon("avatar-default", class: "player-tile__avatar") %>
+    <span class="player-tile__who">
+      <% if shown %>
+        <%= link_to public_profile_title(row.player), brother_path(token: row.player.token), class: "player-tile__name" %>
+      <% else %>
+        <span class="player-tile__name player-tile__name--hidden"><%= t("fortune_registers.show.hidden_player") %></span>
+      <% end %>
+      <span class="player-tile__label"><%= fortune_label_title(row.index) %></span>
+    </span>
+  </div>
+  <dl class="player-tile__figures">
+    <div class="profile-figure">
+      <dt class="profile-figure__label"><%= t("fortune_registers.show.tile.luck") %></dt>
+      <dd class="<%= class_names("profile-figure__value", "fortune-index", fortune_index_tone(row.index)) %>"><%= fortune_index_text(row.index) %></dd>
+    </div>
+    <%= render "public_profiles/figure", label: t("fortune_registers.show.tile.capsules"), value: row.packs_opened %>
+    <% if row.privileged %><div class="player-tile__badge"><dt class="visually-hidden"><%= t("fortune_registers.show.tile.status") %></dt><dd class="fortune__privileged"><%= t("fortunes.privileged") %></dd></div><% end %>
+  </dl>
+  <% if shown %>
+    <dl class="player-tile__rarities">
+      <% row.rarities.sort.each do |tier, count| %>
+        <%= render "public_profiles/figure", label: t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(tier)}"), value: count,
+          modifier: "rarity-#{tier}", icon: pixel_icon("rarity-#{tier}", class: "profile-figure__icon") %>
+      <% end %>
+    </dl>
+    <% showcase = row.showcase_ids.filter_map { cards[it] } %>
+    <% if showcase.any? %>
+      <ul class="player-tile__showcase" aria-label="<%= t("fortune_registers.show.tile.showcase") %>">
+        <% showcase.each do |card| %>
+          <li><%= link_to_card_detail(card, strings:, context: { brother: row.player.token }) do %><%= render CardComponent.new(card:, size: :s) %><% end %></li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="player-tile__no-showcase"><%= t("fortune_registers.show.tile.no_showcase") %></p>
+    <% end %>
+  <% else %>
+    <p class="player-tile__no-showcase"><%= t("fortune_registers.show.tile.private") %></p>
+  <% end %>
+<% end %>

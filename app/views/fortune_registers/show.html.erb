@@ -8,31 +8,50 @@
     <% end %>
   <% end %>
 <% end %>
+<% period_param = (FortunePeriod::ALL_TIME if @period == :all_time) %>
+<% sort_param = ("capsules" if @sort == :capsules) %>
 <section class="register" aria-labelledby="register-heading">
   <h1 id="register-heading" class="register__title"><%= t(".title") %></h1>
   <p class="register__intro"><%= t(".intro") %></p>
-  <nav class="register__tabs" aria-label="<%= t("fortunes.periods_label") %>">
-    <% Game::FortuneStanding::PERIODS.each do |period| %>
-      <%= link_to fortune_register_path(period: (FortunePeriod::ALL_TIME if period == :all_time)), class: "filter-chip",
-            aria: { current: ("true" if period == @period) } do %>
-        <span class="filter-chip__text"><%= t("fortunes.periods.#{period}") %></span>
-      <% end %>
+  <%= render PanelComponent.new(tag: :dl, class: "register__summary") do %>
+    <%= render "public_profiles/figure", label: t(".summary.members.#{@period}"), value: @summary.ranked_count %>
+    <%= render "public_profiles/figure", label: t(".summary.capsules.#{@period}"), value: @summary.packs_opened %>
+    <%= render "public_profiles/figure", label: t(".summary.privileged"), value: @summary.privileged_count, total: @summary.active_count %>
+    <% if @mine&.opened? %>
+      <div class="profile-figure register__mine">
+        <dt class="profile-figure__label"><%= t(".summary.you") %></dt>
+        <dd class="<%= class_names("profile-figure__value", "fortune-index", fortune_index_tone(@mine.index)) %>">
+          <%= fortune_index_text(@mine.index) %><span class="profile-figure__total"><%= t(".summary.rank", rank: number_with_delimiter(@mine.rank)) %></span>
+        </dd>
+      </div>
     <% end %>
-  </nav>
-  <p class="register__privileged-count">
-    <%= t(".privileged_count", count: @board.privileged_count, players: number_with_delimiter(@board.active_count)) %>
-  </p>
-  <% if @board.rows.empty? %>
+  <% end %>
+  <div class="register__controls">
+    <nav class="register__tabs" aria-label="<%= t("fortunes.periods_label") %>">
+      <% Game::FortuneStanding::PERIODS.each do |period| %>
+        <%= link_to fortune_register_path(period: (FortunePeriod::ALL_TIME if period == :all_time), sort: sort_param), class: "filter-chip",
+              aria: { current: ("true" if period == @period) } do %>
+          <span class="filter-chip__text"><%= t("fortunes.periods.#{period}") %></span>
+        <% end %>
+      <% end %>
+    </nav>
+    <nav class="register__tabs register__sorts" aria-label="<%= t(".sorts_label") %>">
+      <% Game::FortuneBoard::SORTS.each do |sort| %>
+        <%= link_to fortune_register_path(period: period_param, sort: ("capsules" if sort == :capsules)), class: "filter-chip",
+              aria: { current: ("true" if sort == @sort) } do %>
+          <span class="filter-chip__text"><%= t(".sorts.#{sort}") %></span>
+        <% end %>
+      <% end %>
+    </nav>
+  </div>
+  <% if @rows.empty? %>
     <%= render PanelComponent.new(tag: :p, class: "register__empty") do %><%= t(".empty.#{@period}") %><% end %>
   <% else %>
-    <ol class="register__list">
-      <%= render partial: "fortune_registers/row", collection: @board.rows, as: :row %>
+    <ol class="register__grid">
+      <%= render partial: "fortune_registers/tile", collection: @rows, as: :row, locals: { cards: @cards } %>
     </ol>
-    <% if @board.own %>
-      <p class="register__own-label"><%= t(".your_place") %></p>
-      <ol class="register__list register__list--own">
-        <%= render "fortune_registers/row", row: @board.own %>
-      </ol>
+    <% if @pagy.last > 1 %>
+      <nav class="register__pages" aria-label="<%= t(".pages_label") %>"><%= @pagy.series_nav.html_safe %></nav>
     <% end %>
   <% end %>
 </section>

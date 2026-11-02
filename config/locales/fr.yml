@@ -1533,15 +1533,33 @@ fr:
       title: "Registre des Privilégiés"
       more: "Plus"
       intro: "La Confrérie classe ses membres selon la chance de leurs capsules : ce que leurs cartes ont rapporté face à ce que les capsules promettent. Chaque semaine, les 10 % les plus chanceux sont Privilégiés."
-      privileged_count:
-        zero: "Aucun Privilégié pour l'instant cette semaine"
-        one: "%{count} Privilégié parmi %{players} membres ayant ouvert une capsule cette semaine"
-        other: "%{count} Privilégiés parmi %{players} membres ayant ouvert une capsule cette semaine"
       empty:
         week: "Aucun membre n'a encore ouvert de capsule cette semaine."
         all_time: "Aucun membre n'a encore ouvert de capsule."
       hidden_player: "Membre discret"
-      your_place: "Votre place"
+      pages_label: "Pages"
+      sorts_label: "Ordre"
+      sorts:
+        luck: "Les plus chanceux"
+        capsules: "Le plus de capsules"
+      summary:
+        members:
+          week: "Actifs cette semaine"
+          all_time: "Membres classés"
+        capsules:
+          week: "Capsules cette semaine"
+          all_time: "Capsules ouvertes"
+        privileged: "Privilégiés"
+        you: "Votre chance"
+        rank: "n° %{rank}"
+      tile:
+        rank: "n° %{rank}"
+        luck: "Chance"
+        capsules: "Capsules"
+        showcase: "Vitrine"
+        status: "Statut"
+        no_showcase: "Aucune carte en vitrine pour l'instant."
+        private: "Ce membre garde sa collection privée."
   fortunes:
     periods_label: "Période"
     periods:

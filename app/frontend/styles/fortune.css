@@ -85,8 +85,7 @@
 .fortune__empty,
 .fortune__explainer,
 .register__intro,
-.register__privileged-count,
-.register__own-label {
+.player-tile__no-showcase {
   margin: 0;
   color: var(--color-text);
   font: var(--font-body);
@@ -144,59 +143,78 @@
   min-width: 0;
 }
 
-.register__privileged-count,
-.register__own-label {
-  color: var(--color-muted);
+.register__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5) var(--space-8);
+  margin: 0;
+  padding: var(--space-6) var(--space-7);
 }
 
-.register__list {
+.register__controls {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.register__sorts {
+  padding-left: var(--space-4);
+  box-shadow: inset var(--space-unit) 0 0 0 var(--color-line-deep);
+}
+
+.register__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.register-row {
+.player-tile {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-4);
-  padding: var(--space-3) var(--space-5);
+  min-width: 0;
+  padding: var(--space-5);
   background: var(--color-panel);
   box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
 }
 
-.register-row--privileged {
+.player-tile--privileged {
   box-shadow: inset 0 0 0 var(--space-unit) var(--color-gold);
 }
 
-.register-row--own {
+.player-tile--own {
   background: var(--color-panel-raised);
 }
 
-.register-row__rank {
+.player-tile__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.player-tile__rank {
   flex: none;
-  min-width: 3ch;
   color: var(--color-muted);
   font: var(--font-number);
   letter-spacing: var(--tracking-number);
-  text-align: right;
 }
 
-.register-row__avatar {
+.player-tile__avatar {
   display: block;
   flex: none;
 }
 
-.register-row__who {
+.player-tile__who {
   display: flex;
   flex: 1;
   flex-direction: column;
   min-width: 0;
 }
 
-.register-row__name {
+.player-tile__name {
   overflow: hidden;
   color: var(--color-text-bright);
   font: var(--font-menu);
@@ -205,18 +223,60 @@
   white-space: nowrap;
 }
 
-.register-row__name--hidden {
+.player-tile__name--hidden {
   color: var(--color-muted);
 }
 
-.register-row__label {
+.player-tile__label {
   color: var(--color-muted);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
 }
 
-.register-row__index {
-  flex: none;
+.player-tile__figures {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-8);
+  margin: 0;
+}
+
+.player-tile__rarities {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.player-tile__rarities .profile-figure__value {
   font: var(--font-number);
   letter-spacing: var(--tracking-number);
+}
+
+.player-tile__rarities .profile-figure__label {
+  font-size: 0;
+}
+
+.player-tile__showcase {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0 0 var(--space-2);
+  overflow-x: auto;
+  list-style: none;
+}
+
+.player-tile__showcase > li {
+  flex: none;
+}
+
+.player-tile__no-showcase {
+  color: var(--color-muted);
+}
+
+.player-tile__badge {
+  margin-left: auto;
+}
+
+.player-tile__badge .fortune__privileged {
+  margin: 0;
 }

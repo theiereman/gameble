@@ -12,8 +12,4 @@ module FortunesHelper
     elsif index.negative? then "fortune-index--down"
     end
   end
-
-  def fortune_row_named?(row)
-    row.player == current_player || row.player.visibility_public?
-  end
 end

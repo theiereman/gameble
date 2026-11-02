@@ -1157,14 +1157,30 @@ en:
         their cards scored against what the capsules promise. Each week, the luckiest
         10% are Privileged.'
       more: More
-      privileged_count:
-        one: "%{count} Privileged among %{players} members who opened a capsule this
-          week"
-        other: "%{count} Privileged among %{players} members who opened a capsule this
-          week"
-        zero: No Privileged member yet this week
+      pages_label: Pages
+      sorts:
+        capsules: Most capsules
+        luck: Luckiest
+      sorts_label: Order
+      summary:
+        capsules:
+          all_time: Capsules opened
+          week: Capsules this week
+        members:
+          all_time: Members ranked
+          week: Active this week
+        privileged: Privileged
+        rank: "#%{rank}"
+        you: Your luck
+      tile:
+        capsules: Capsules
+        luck: Luck
+        no_showcase: No card in the showcase yet.
+        private: This member keeps their collection private.
+        rank: "#%{rank}"
+        showcase: Showcase
+        status: Status
       title: Register of the Privileged
-      your_place: Your place
   fortunes:
     labels:
       enemy_of_meritocracy:
