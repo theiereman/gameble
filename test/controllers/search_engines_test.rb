@@ -90,6 +90,7 @@ class SearchEnginesTest < ActionDispatch::IntegrationTest
       assert_not_includes lines, "Disallow: /*/#{page}"
     end
     assert_not_includes lines, "Disallow: /"
+    assert_includes lines, "Content-Signal: ai-train=no, search=yes, ai-input=no"
   end
 
   test "the crawler files are open to a visitor on any browser" do
@@ -122,7 +123,7 @@ class SearchEnginesTest < ActionDispatch::IntegrationTest
     Rails.configuration.x.search_indexing = false
 
     get "/robots.txt"
-    assert_equal "User-agent: *\nDisallow: /\n", response.body
+    assert_equal "User-agent: *\nContent-Signal: ai-train=no, search=no, ai-input=no\nDisallow: /\n", response.body
 
     get "/sitemap.xml"
     assert_response :not_found
