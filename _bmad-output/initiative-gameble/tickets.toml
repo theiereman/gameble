@@ -244,3 +244,11 @@ slug = "epic-polish-1-1-0"
 title = "Staging fixes of 1.1.0"
 covers = []
 after = []
+
+[[epic]]
+id = 33
+release = "1.2.0"
+slug = "epic-phone-first-web"
+title = "A phone-first web experience"
+covers = []
+after = [{ epic = 28, needs = "the active goals" }, { epic = 29, needs = "the friends who hold a missing card" }]
