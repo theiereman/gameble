@@ -24,6 +24,22 @@ module Game
       rows.to_h { |card_id, rarity| [ card_id.to_i, rarity&.to_i ] }
     end
 
+    AMONG_PLAYERS = <<~SQL.squish.freeze
+      SELECT DISTINCT game_holdings.player_id, catalog_card_seasons.card_id
+        FROM game_holdings
+        JOIN catalog_card_seasons ON catalog_card_seasons.id = game_holdings.card_season_id
+       WHERE game_holdings.player_id IN (:player_ids) AND game_holdings.quantity > 0
+         AND catalog_card_seasons.card_id IN (:card_ids)
+    SQL
+
+    def self.among_players(player_ids, card_ids:)
+      return {} if card_ids.empty?
+
+      sql = Holding.sanitize_sql_array([ AMONG_PLAYERS, { player_ids:, card_ids: } ])
+      Holding.connection.select_rows(sql, "Game::HeldGames.among_players")
+        .each_with_object({}) { |(player_id, card_id), held| (held[player_id.to_i] ||= Set.new) << card_id.to_i }
+    end
+
     def self.count(player)
       return 0 if player.nil?
 
