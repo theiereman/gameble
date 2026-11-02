@@ -278,7 +278,7 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
     assert_not_predicate suggestions.sole, :mutual?
   end
 
-  test "the give side holds up to four spares, ranked on the friend's goals then rarity then slug" do
+  test "the give side holds up to four spares, ranked on the friend's goals" do
     befriend(@lea)
     goal(@portal.id, @depths.id)
     spare(@lea, @portal.id)

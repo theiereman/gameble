@@ -122,8 +122,6 @@ module Game
       spares.map { Line.new(card_season_id: it.edition.card_season_id, card_id: it.card_id, goal_positions: it.goal_positions) }
     end
 
-    # What the player spares that a friend's goals on game sets miss, per friend,
-    # ranked on the friend's goals; the lines never carry those goals.
     def self.gives_by_friend(player, friend_ids, now)
       return {} if friend_ids.empty?
 

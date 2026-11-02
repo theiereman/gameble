@@ -1,7 +1,4 @@
 module Game
-  # The games the goals on game sets of many players still miss, read in a
-  # fixed number of queries whatever the number of players. Goals on custom
-  # sets are left out: only their owner sees them.
   module GameSetGaps
     HELD = <<~SQL.squish.freeze
       SELECT DISTINCT game_holdings.player_id, catalog_card_seasons.card_id
@@ -11,7 +8,6 @@ module Game
          AND catalog_card_seasons.card_id IN (:card_ids)
     SQL
 
-    # { player id => { card id => positions of the goals that miss it } }
     def self.call(player_ids)
       return {} if player_ids.empty?
 

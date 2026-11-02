@@ -157,7 +157,10 @@ class TradeSuggestionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.trade-suggestion__opener[href*=?]", "give"
 
     assert_difference -> { Game::Trade.count }, 1 do
-      send_suggestion(take: { "blue-depths--s1" => 1, "green-hills--s1" => 1 }, position: 0)
+      post suggestions_trades_path(locale: :fr), params: { friend: @bob.token, position: 0, give: { "portal--s1" => 1 },
+        take: { "blue-depths--s1" => 1, "green-hills--s1" => 1 } }
     end
+
+    assert_includes items(Game::Trade.last), [ "offer", portal, 1 ]
   end
 end
