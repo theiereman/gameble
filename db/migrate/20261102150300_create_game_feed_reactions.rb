@@ -9,7 +9,7 @@ class CreateGameFeedReactions < ActiveRecord::Migration[8.1]
       t.timestamps
 
       t.index %i[player_id feed_entry_id], unique: true
-      t.check_constraint "kind IN ('thumb', 'heart', 'gg', 'wow', 'middle_finger')", name: "game_feed_reactions_kind_check"
+      t.check_constraint "kind = 'thumb' OR kind = 'heart' OR kind = 'gg' OR kind = 'wow' OR kind = 'middle_finger'", name: "game_feed_reactions_kind_check"
     end
   end
 end

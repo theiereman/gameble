@@ -412,7 +412,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_150400) do
     t.datetime "updated_at", null: false
     t.index ["feed_entry_id", "kind"], name: "index_game_feed_reactions_on_feed_entry_id_and_kind"
     t.index ["player_id", "feed_entry_id"], name: "index_game_feed_reactions_on_player_id_and_feed_entry_id", unique: true
-    t.check_constraint "kind::text = ANY (ARRAY['thumb'::character varying, 'heart'::character varying, 'gg'::character varying, 'wow'::character varying, 'middle_finger'::character varying]::text[])", name: "game_feed_reactions_kind_check"
+    t.check_constraint "kind::text = ANY (ARRAY['thumb'::character varying::text, 'heart'::character varying::text, 'gg'::character varying::text, 'wow'::character varying::text, 'middle_finger'::character varying::text])", name: "game_feed_reactions_kind_check"
   end
 
   create_table "game_first_discoveries", force: :cascade do |t|
