@@ -27,8 +27,7 @@ module Game
       rows = sets.order(:id).pluck(:id, :token, :name, :kind, :synced_at, :library_private_since)
       return [] if rows.empty?
 
-      games = CustomSetGame.where(custom_set_id: rows.map(&:first)).order(:id).pluck(:custom_set_id, :card_id)
-        .group_by(&:first).transform_values { |pairs| pairs.map(&:last) }
+      games = CustomSetCardIds.call(rows.map(&:first))
       held = HeldGames.call(player.id, card_ids: games.values.flatten.uniq)
       rows.map do |id, token, name, kind, synced_at, library_private_since|
         card_ids = games.fetch(id, [])

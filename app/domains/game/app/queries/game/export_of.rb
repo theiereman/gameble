@@ -128,7 +128,7 @@ module Game
 
     def self.custom_sets(player)
       rows = CustomSet.custom.where(player_id: player.id).order(:id).pluck(:id, :token, :name, :kind, :created_at)
-      games = card_ids_by_set(rows.map(&:first))
+      games = CustomSetCardIds.call(rows.map(&:first))
       rows.map do |id, token, name, kind, created_at|
         CustomSetRow.new(token:, name:, kind:, created_at:, card_ids: games.fetch(id, []))
       end
@@ -139,12 +139,7 @@ module Game
         .pick(:id, :token, :created_at, :synced_at, :library_private_since)
       return unless id
 
-      LibraryRow.new(token:, created_at:, synced_at:, library_private_since:, card_ids: card_ids_by_set([ id ]).fetch(id, []))
-    end
-
-    def self.card_ids_by_set(custom_set_ids)
-      CustomSetGame.where(custom_set_id: custom_set_ids).order(:id).pluck(:custom_set_id, :card_id)
-        .group_by(&:first).transform_values { |pairs| pairs.map(&:last) }
+      LibraryRow.new(token:, created_at:, synced_at:, library_private_since:, card_ids: CustomSetCardIds.call([ id ]).fetch(id, []))
     end
 
     def self.goals(player)
