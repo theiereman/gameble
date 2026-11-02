@@ -7,7 +7,7 @@ module Game
       transaction do
         step lock_bank(player)
         step reached(player, achievement)
-        step unlock(player, achievement)
+        step unlock(player, achievement, retroactive)
         step publish(AchievementUnlocked.new(data: event_data(player, achievement, retroactive)), stream_name: stream_name(player.id))
         achievement
       end
@@ -24,8 +24,12 @@ module Game
       achievement.met?(AchievementProgress.call(player, [ achievement.metric ])) ? Success() : Failure(:not_reached)
     end
 
-    def unlock(player, achievement)
-      AchievementUnlock.record(player.id, achievement.key, Time.current) ? Success() : Failure(:already_unlocked)
+    def unlock(player, achievement, retroactive)
+      AchievementUnlock.record(player.id, achievement.key, Time.current, claimed: nothing_to_claim?(achievement, retroactive)) ? Success() : Failure(:already_unlocked)
+    end
+
+    def nothing_to_claim?(achievement, retroactive)
+      retroactive || CardBacks.for_achievement(achievement.key).nil?
     end
 
     def event_data(player, achievement, retroactive)

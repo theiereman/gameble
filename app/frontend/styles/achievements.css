@@ -153,6 +153,11 @@
   text-align: right;
 }
 
+.achievement__claim-form {
+  flex: none;
+  margin: 0;
+}
+
 .achievement__back-image {
   display: block;
   flex: none;

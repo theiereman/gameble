@@ -7,9 +7,13 @@
   </div>
   <% back_reward = achievement_back_reward(tile) %>
   <% counting = !tile.earned && tile.countable? %>
-  <% if back_reward || counting %>
+  <% if back_reward || counting || tile.claimable %>
   <div class="achievement__side">
     <%= back_reward %>
+    <% if tile.claimable %>
+      <%= button_to t("achievements.claim.button"), claim_achievement_path(tile.key), class: "button button--primary button--small achievement__claim",
+            form: { class: "achievement__claim-form" }, aria: { label: t("achievements.claim.label", name: t("achievements.names.#{tile.key}")) } %>
+    <% end %>
     <% if counting %>
       <div class="achievement__count" aria-hidden="true">
         <progress class="achievement__bar" value="<%= tile.progress %>" max="<%= tile.threshold %>"></progress>

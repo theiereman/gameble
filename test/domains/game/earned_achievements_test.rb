@@ -7,7 +7,7 @@ class Game::EarnedAchievementsTest < ActiveSupport::TestCase
   end
 
   def unlock(key, at, player: @player)
-    Game::AchievementUnlock.create!(player_id: player.id, achievement: key, unlocked_at: at)
+    Game::AchievementUnlock.create!(player_id: player.id, achievement: key, unlocked_at: at, claimed_at: at)
   end
 
   test "the count over the catalogue and the four latest earned, newest first, a tie by key, in one query" do

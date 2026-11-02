@@ -5,6 +5,7 @@
     <span class="menu-item__label"><%= t("pages.home.menu.achievements") %></span>
     <span class="menu-item__meta" aria-hidden="true"><%= achievements[:earned] %>/<%= achievements[:total] %></span>
     <span class="visually-hidden"><%= t("pages.home.menu.achievements_meta", count: achievements[:earned], earned: achievements[:earned], total: achievements[:total]) %></span>
+    <span id="menu-achievements-badge" class="stream-slot"><%= render "pages/menu_achievements_badge", unclaimed: shell_achievements_unclaimed %></span>
     <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
   <% end %>
 </li>

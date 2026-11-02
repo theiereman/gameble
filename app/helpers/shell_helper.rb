@@ -103,6 +103,12 @@ module ShellHelper
     @shell_invitations_waiting = current_player && Game::InvitationsWaiting.call(current_player)
   end
 
+  def shell_achievements_unclaimed
+    return @shell_achievements_unclaimed if defined?(@shell_achievements_unclaimed)
+
+    @shell_achievements_unclaimed = Game::UnclaimedAchievements.count(current_player)
+  end
+
   def player_stream_tag
     return if current_player.nil? || back_office_page?
 

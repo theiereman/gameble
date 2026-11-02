@@ -28,6 +28,7 @@
     <li>
       <%= link_to achievements_path, class: "menu-item menu-item--plus", data: { turbo_prefetch: false } do %>
         <span class="menu-item__label"><%= t("pages.home.menu.achievements") %></span>
+        <span id="plus-achievements-badge" class="stream-slot"><%= render "pages/menu_achievements_badge", unclaimed: shell_achievements_unclaimed %></span>
         <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
       <% end %>
     </li>

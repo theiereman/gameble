@@ -11,7 +11,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
   end
 
   def unlock(*keys)
-    keys.each { |key| Game::AchievementUnlock.create!(player_id: @player.id, achievement: key, unlocked_at: Time.current) }
+    keys.each { |key| Game::AchievementUnlock.create!(player_id: @player.id, achievement: key, unlocked_at: Time.current, claimed_at: Time.current) }
   end
 
   def opened_packs(count)

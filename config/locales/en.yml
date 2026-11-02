@@ -22,8 +22,15 @@ en:
       submit: Delete for good
       title: Delete my account
       word: DELETE
+  achievement_claims:
+    create:
+      claimed: Reward claimed.
+      throttled: Too many attempts in a minute. Try again in a moment.
   achievements:
     back_reward: Unlocks the %{back} card back
+    claim:
+      button: Claim
+      label: Claim the reward of %{name}
     conditions:
       boosters_10: Open 10 capsules
       boosters_100: Open 100 capsules
@@ -990,6 +997,8 @@ en:
         Published, they would land in the UFOs and leave the franchise, studio and
         hall of fame sets short, unseen. Run steam:fill_card_sources, then publish.'
     game:
+      achievement_already_claimed: You have already claimed this reward.
+      achievement_not_earned: You have not earned this achievement.
       already_collected: You have already collected today's capsule. The next one
         will be ready on %{time}.
       already_friends: You are already friends.
@@ -1061,6 +1070,7 @@ en:
       trade_not_open: That trade is already closed.
       trade_side_empty: 'Nothing to receive yet: choose what you want from %{name}''s
         collection, then send it back.'
+      unknown_achievement: That achievement does not exist.
       unknown_back: That card back does not exist.
       unknown_code: No player has that code.
       unknown_direction: Unknown direction.
@@ -1800,6 +1810,9 @@ en:
           one: "%{number} capsule in reserve"
           other: "%{number} capsules in reserve"
         reserve_empty: Reserve empty
+        rewards_waiting:
+          one: "%{number} reward to claim"
+          other: "%{number} rewards to claim"
         special:
           one: "%{number} special capsule"
           other: "%{number} special capsules"

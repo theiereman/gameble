@@ -11,6 +11,7 @@ class PlayerStreamJob < ApplicationJob
         waiting: (Game::TradesWaiting.call(player) if topics.include?("trades")),
         invitations: (Game::InvitationsWaiting.call(player) if topics.include?("friends")),
         friends: announceable_friends(own.filter_map { it[:friend_id] }),
+        unclaimed: (Game::UnclaimedAchievements.count(player) if own.any? { it[:achievement] || it[:claimed] }),
         achievements: own.filter_map { it[:achievement] }.uniq,
         card_backs: own.filter_map { it[:card_back] }.uniq,
         signals: topics.map { "#{it}-updated" }

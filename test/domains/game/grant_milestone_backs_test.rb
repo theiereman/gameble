@@ -25,7 +25,7 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
   end
 
   def record_achievement(key, player: @player)
-    Game::AchievementUnlock.create!(player_id: player.id, achievement: key, unlocked_at: Time.current)
+    Game::AchievementUnlock.create!(player_id: player.id, achievement: key, unlocked_at: Time.current, claimed_at: Time.current)
   end
 
   def achievement_event(key, retroactive: false)
@@ -120,12 +120,16 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
     assert unlock_events.sole.data[:retroactive]
   end
 
-  test "granting the achievement itself grants its back through the subscribed handler" do
+  test "granting the achievement leaves its back to the claim, which grants it through the subscribed handler" do
     progress = Hash.new(0).merge(legendaries_obtained: 1)
     original = Game::AchievementProgress.method(:call)
     Game::AchievementProgress.define_singleton_method(:call) { |_player, _metrics| progress }
 
     perform_enqueued_jobs { Game::GrantAchievement.new.call(player: @player, achievement: "first_legendary").value! }
+
+    assert_empty unlocked
+
+    perform_enqueued_jobs { Game::ClaimAchievement.new.call(player: @player, achievement: "first_legendary").value! }
 
     assert_equal [ "etoile-dor" ], unlocked
   ensure

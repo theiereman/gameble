@@ -175,6 +175,10 @@ fr:
           zero: "%{earned} succès obtenu sur %{total}"
           one: "%{earned} succès obtenu sur %{total}"
           other: "%{earned} succès obtenus sur %{total}"
+        rewards_waiting:
+          zero: "%{number} récompense à récupérer"
+          one: "%{number} récompense à récupérer"
+          other: "%{number} récompenses à récupérer"
         how_it_works: "Comment ça marche"
         support: "Soutenir"
       showcase:
@@ -1628,7 +1632,14 @@ fr:
     new_friend:
       title: "Nouvel ami"
       text: "%{name} fait maintenant partie de vos amis."
+  achievement_claims:
+    create:
+      claimed: "Récompense récupérée."
+      throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   achievements:
+    claim:
+      button: "Récupérer"
+      label: "Récupérer la récompense de %{name}"
     back_reward: "Débloque le dos %{back}"
     unlocked:
       title: "Succès débloqué"
@@ -2480,6 +2491,9 @@ fr:
       invalid_share_image: "L'image d'aperçu de cette carte n'est pas un PNG de carte, dans une des langues de la Confrérie."
       stale_render: "Cette carte a changé pendant que son image d'aperçu était dessinée : cette image n'a pas été gardée."
     game:
+      achievement_already_claimed: "Vous avez déjà récupéré cette récompense."
+      achievement_not_earned: "Vous n'avez pas obtenu ce succès."
+      unknown_achievement: "Ce succès n'existe pas."
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       invalid_time: "L'heure envoyée n'a pas pu être lue. Rechargez la page."
       no_pack_available: "Votre réserve est vide. La prochaine capsule arrive bientôt."
