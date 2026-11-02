@@ -65,21 +65,20 @@
 }
 
 .achievements__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .achievement {
-  display: flex;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-4);
-  min-width: 0;
-  min-height: 76px;
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4);
   background: var(--color-panel);
   box-shadow: var(--panel-border);
 }
@@ -91,11 +90,10 @@
 
 .achievement__icon {
   display: flex;
-  flex: none;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   background: var(--color-on-accent);
   box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
 }
@@ -111,7 +109,6 @@
 
 .achievement__text {
   display: flex;
-  flex: 1;
   flex-direction: column;
   gap: var(--space-1);
   min-width: 0;
@@ -120,10 +117,9 @@
 .achievement__name {
   margin: 0;
   color: var(--color-text-max);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
+  font: var(--font-card-title-xl);
+  letter-spacing: var(--tracking-card-title-xl);
+  text-wrap: balance;
 }
 
 .achievement--locked .achievement__name {
@@ -138,14 +134,23 @@
   letter-spacing: var(--tracking-body-small);
 }
 
+.achievement__side {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  min-width: 160px;
+}
+
 .achievement__back {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin: var(--space-1) 0 0;
+  margin: 0;
   color: var(--color-text-max);
   font: var(--font-body-small);
   letter-spacing: var(--tracking-body-small);
+  text-align: right;
 }
 
 .achievement__back-image {
@@ -162,11 +167,17 @@
   opacity: 0.55;
 }
 
+.achievement__count {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 72px;
+}
+
 .achievement__bar {
   display: block;
   width: 100%;
   height: 4px;
-  margin-top: var(--space-2);
   border: 0;
   background: var(--color-panel-raised);
   color: var(--color-line-deep);
@@ -198,7 +209,23 @@
     letter-spacing: var(--tracking-count-large-phone);
   }
 
-  .achievements__grid {
-    grid-template-columns: minmax(0, 1fr);
+  .achievement {
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: var(--space-3) var(--space-4);
+  }
+
+  .achievement__icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .achievement__side {
+    grid-column: 2;
+    justify-content: flex-start;
+    min-width: 0;
+  }
+
+  .achievement__back {
+    text-align: left;
   }
 }

@@ -4,11 +4,19 @@
   <div class="achievement__text">
     <h3 class="achievement__name"><%= t("achievements.names.#{tile.key}") %></h3>
     <p class="achievement__condition"><%= t("achievements.conditions.#{tile.key}") %></p>
-    <%= achievement_back_reward(tile) %>
-    <% if !tile.earned && tile.countable? %>
-      <progress class="achievement__bar" value="<%= tile.progress %>" max="<%= tile.threshold %>" aria-hidden="true"></progress>
-      <p class="achievement__progress" aria-hidden="true"><%= number_with_delimiter(tile.progress) %> / <%= number_with_delimiter(tile.threshold) %></p>
+  </div>
+  <% back_reward = achievement_back_reward(tile) %>
+  <% counting = !tile.earned && tile.countable? %>
+  <% if back_reward || counting %>
+  <div class="achievement__side">
+    <%= back_reward %>
+    <% if counting %>
+      <div class="achievement__count" aria-hidden="true">
+        <progress class="achievement__bar" value="<%= tile.progress %>" max="<%= tile.threshold %>"></progress>
+        <p class="achievement__progress"><%= number_with_delimiter(tile.progress) %> / <%= number_with_delimiter(tile.threshold) %></p>
+      </div>
       <p class="visually-hidden"><%= t("achievements.show.progress", progress: number_with_delimiter(tile.progress), threshold: number_with_delimiter(tile.threshold)) %></p>
     <% end %>
   </div>
+  <% end %>
 </li>

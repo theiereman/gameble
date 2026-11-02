@@ -343,6 +343,7 @@ body:has(> .ticker) .app-version {
   font: var(--font-body);
   letter-spacing: var(--tracking-body);
   overflow-wrap: anywhere;
+  text-wrap: pretty;
 }
 
 .toast__action {
