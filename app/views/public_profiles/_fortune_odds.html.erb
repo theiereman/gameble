@@ -1,0 +1,41 @@
+<%# locals: (fortune:) %>
+<section class="fortune-odds" aria-labelledby="fortune-odds-heading">
+  <h3 id="fortune-odds-heading" class="fortune-odds__title"><%= t("fortunes.odds.title") %></h3>
+  <p class="fortune-odds__intro"><%= t("fortunes.odds.intro") %></p>
+  <div class="fortune-odds__scroll">
+    <table class="fortune-odds__table">
+      <thead>
+        <tr>
+          <th scope="col"><%= t("fortunes.odds.capsule") %></th>
+          <th scope="col"><%= t("fortunes.odds.opened") %></th>
+          <th scope="col"><%= t("fortunes.odds.expected_each") %></th>
+          <th scope="col"><%= t("fortunes.odds.variance_each") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% fortune.packs.each do |kind, count| %>
+          <% expectation = Game::LuckOdds.of(kind) %>
+          <tr>
+            <th scope="row"><%= t("fortunes.profile.packs.#{kind}") %></th>
+            <td><%= number_with_delimiter(count) %></td>
+            <td><%= number_with_precision(expectation.points, precision: 2) %></td>
+            <td><%= number_with_precision(expectation.variance, precision: 1) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row"><%= t("fortunes.odds.total") %></th>
+          <td><%= number_with_delimiter(fortune.packs_opened) %></td>
+          <td><%= number_with_precision(fortune.expected_points, precision: 1) %></td>
+          <td><%= number_with_precision(fortune.variance, precision: 1) %></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <p class="fortune-odds__formula">
+    <%= t("fortunes.odds.formula", actual: number_with_delimiter(fortune.actual_points),
+          expected: number_with_precision(fortune.expected_points, precision: 1),
+          variance: number_with_precision(fortune.variance, precision: 1), z: number_with_precision(fortune.z_score, precision: 2)) %>
+  </p>
+</section>

@@ -50,6 +50,9 @@
     <ol class="register__rows">
       <%= render partial: "fortune_registers/row", collection: @rows, as: :row %>
     </ol>
+    <% @rows.select { it.shown_to?(current_player) }.each do |row| %>
+      <%= render "fortune_registers/player_dialog", player: row.player %>
+    <% end %>
     <% if @pagy.last > 1 %>
       <nav class="register__pages" aria-label="<%= t(".pages_label") %>"><%= @pagy.series_nav.html_safe %></nav>
     <% end %>

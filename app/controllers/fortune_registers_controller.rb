@@ -10,8 +10,8 @@ class FortuneRegistersController < ApplicationController
     @sort = params[:sort] == "capsules" ? :capsules : :luck
     @pagy, fortunes = pagy(:offset, Game::FortuneBoard.ranked(@period, sort: @sort), limit: Game::FortuneBoard::PAGE_SIZE,
       page: params[:page].to_s.to_i.clamp(1, MAX_PAGE))
-    @rows = Game::FortuneBoard.rows(fortunes.to_a)
     @summary = Game::FortuneBoard.summary(@period)
+    @rows = Game::FortuneBoard.rows(fortunes.to_a, ranked_count: @summary.ranked_count)
     @mine = Game::FortuneStanding.call(current_player, period: @period) if current_player
   end
 end

@@ -23,6 +23,13 @@ class PublicProfilesController < ApplicationController
     load_relation
   end
 
+  def summary
+    @owner_title = Game::ActiveProfileTitle.call(@owner)
+    @fortune = Game::FortuneStanding.call(@owner, period: :week)
+    @rarities = Game::HeldGames.by_rarity(@owner)
+    load_relation
+  end
+
   def set
     load_set_album(Catalog::PublishedSeason.call, owner: @owner, with_new: false)
   end

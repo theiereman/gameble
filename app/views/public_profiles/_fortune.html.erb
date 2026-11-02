@@ -19,6 +19,9 @@
           <span class="fortune-index__scale"><%= t("fortunes.scale", limit: Game::FortuneIndex::LIMIT) %></span>
         </p>
         <div class="fortune__words">
+          <% if fortune.shareable? %>
+            <p class="fortune__standing"><%= fortune_share_tag(fortune, class_name: "fortune__share") %></p>
+          <% end %>
           <p class="fortune__label">
             <%= fortune_label_title(fortune.index) %>
             <% if fortune.privileged %><span class="fortune__privileged"><%= t("fortunes.privileged") %></span><% end %>
@@ -47,6 +50,7 @@
         </dl>
         <p class="fortune__explainer"><%= t("fortunes.profile.explainer") %></p>
       </details>
+      <%= render "public_profiles/fortune_odds", fortune: %>
     <% else %>
       <p class="fortune__empty"><%= t("fortunes.profile.empty.#{fortune.period}") %></p>
     <% end %>

@@ -69,6 +69,8 @@ Rails.application.routes.draw do
     # Inviting a player from their profile, or accepting their invitation.
     post "brothers/:token/invitation" => "brother_invitations#create", as: :brother_invitation,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    get "brothers/:token/summary" => "public_profiles#summary", as: :brother_summary,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     get "brothers/:token/library" => "public_profiles#collection", as: :brother_collection,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     get "brothers/:token/library/:kind/:key" => "public_profiles#set", as: :brother_set,

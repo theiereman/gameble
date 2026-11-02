@@ -491,22 +491,6 @@ const ICONS = {
       ".oooooo.",
     ],
   },
-  // A four-leaf clover beside a player's luck (9 × 9): two greens and a
-  // dark vein.
-  clover: {
-    legend: { g: "#3ec46d", l: "#a8f0b0", d: "#1e7a43" },
-    grid: [
-      ".gg...gg.",
-      "glgg.glgg",
-      "ggggdgggd",
-      ".gggdggd.",
-      "...ddd...",
-      ".gggdggg.",
-      "glggdgggd",
-      "ggggdgggd",
-      ".gd...gd.",
-    ],
-  },
   // The player's portrait until avatars exist (16 × 16).
   "avatar-default": {
     legend: { k: "#1b2838", h: "#66c0f4", s: "#2a6f9a", e: "#0b1520" },
@@ -1358,7 +1342,6 @@ const DESCRIPTIONS = {
   "external.svg": "↗ external link (text colour)",
   "hourglass.svg": "⧗ hourglass for expiry and pending (text colour)",
   "canister-small.svg": "The packs chip's small canister, 8 × 11",
-  "clover.svg": "Four-leaf clover beside a player's luck, 9 × 9",
   "avatar-default.svg": "The player's portrait in the shell, 16 × 16",
   "tab-hub.svg": "Phone tab bar icon: PONT (text colour)",
   "tab-booster.svg": "Phone tab bar icon: BOOSTER (text colour)",

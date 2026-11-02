@@ -4,7 +4,9 @@
   <%= pixel_icon("avatar-default", class: "player-row__avatar") %>
   <span class="player-row__who">
     <% if shown %>
-      <%= link_to public_profile_title(row.player), brother_path(token: row.player.token), class: "player-row__name" %>
+      <% name = public_profile_title(row.player) %>
+      <%= tag.button name, type: :button, class: "player-row__name",
+            **dialog_opener_attributes(player_card_dialog_id(row.player.token), label: t("fortune_registers.show.row.open_card", name:)) %>
     <% else %>
       <span class="player-row__name player-row__name--hidden"><%= t("fortune_registers.show.hidden_player") %></span>
     <% end %>
@@ -26,8 +28,7 @@
       <dd><%= number_with_delimiter(row.packs_opened) %></dd>
     </div>
   </dl>
-  <span class="<%= class_names("player-row__luck", "fortune-index", fortune_index_tone(row.index)) %>">
-    <span class="player-row__luck-value"><span class="visually-hidden"><%= t("fortune_registers.show.row.luck") %></span><%= fortune_index_text(row.index) %></span>
-    <%= pixel_icon("clover", class: "player-row__clover") %>
-  </span>
+  <%= tag.span class: class_names("player-row__luck", "fortune-index", fortune_index_tone(row.index)), title: fortune_index_text(row.index) do %>
+    <span class="visually-hidden"><%= t("fortune_registers.show.row.luck") %></span><%= fortune_share_tag(row, class_name: "player-row__share") %>
+  <% end %>
 <% end %>

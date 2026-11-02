@@ -1,0 +1,15 @@
+<%# locals: (player:) %>
+<dialog id="<%= player_card_dialog_id(player.token) %>" class="modal" aria-label="<%= public_profile_title(player) %>" data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p class="modal__title"><%= t("friends.profile_dialog.title") %></p>
+      <button type="button" class="modal__close" aria-label="<%= t("friends.profile_dialog.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= turbo_frame_tag player_card_frame_id(player.token), src: brother_summary_path(token: player.token), loading: :lazy, target: "_top" do %>
+      <p class="player-card__loading" role="status"><%= t("friends.profile_dialog.loading") %></p>
+    <% end %>
+  <% end %>
+</dialog>

@@ -1,0 +1,30 @@
+<% title = public_profile_title(@owner) %>
+<% content_for :title, title %>
+<% content_for :head do %><meta name="robots" content="noindex"><% end %>
+<%= turbo_frame_tag player_card_frame_id(@owner.token), target: "_top" do %>
+  <section class="player-card" aria-labelledby="player-card-name-<%= @owner.token %>">
+    <div class="player-card__head">
+      <%= pixel_icon("avatar-default", class: "player-card__avatar") %>
+      <div class="player-card__who">
+        <h2 id="player-card-name-<%= @owner.token %>" class="player-card__name"><%= title %></h2>
+        <%= active_title_tag(@owner_title, class_name: "player-card__title") %>
+        <%= render "public_profiles/action", owner: @owner, title:, relation: @relation %>
+      </div>
+    </div>
+    <% if @fortune.opened? %>
+      <div class="player-card__luck">
+        <%= fortune_share_tag(@fortune, class_name: "player-card__share") if @fortune.shareable? %>
+        <span class="player-card__label"><%= t("public_profiles.card.this_week") %> · <%= fortune_label_title(@fortune.index) %></span>
+      </div>
+    <% end %>
+    <dl class="player-card__rarities">
+      <% @rarities.sort.reverse_each do |tier, count| %>
+        <div class="<%= class_names("player-card__rarity", "player-row__rarity--#{tier}") %>">
+          <dt><%= pixel_icon("rarity-#{tier}", class: "player-card__icon") %><span class="visually-hidden"><%= t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(tier)}") %></span></dt>
+          <dd><%= number_with_delimiter(count) %></dd>
+        </div>
+      <% end %>
+    </dl>
+    <%= link_to t("public_profiles.card.full_profile"), brother_path(token: @owner.token), class: "player-card__more" %>
+  </section>
+<% end %>

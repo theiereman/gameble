@@ -13,7 +13,10 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     end)
   end
 
-  def board(period = :week, sort: :luck) = Game::FortuneBoard.rows(Game::FortuneBoard.ranked(period, now: NOW, sort:).to_a, now: NOW)
+  def board(period = :week, sort: :luck)
+    fortunes = Game::FortuneBoard.ranked(period, now: NOW, sort:).to_a
+    Game::FortuneBoard.rows(fortunes, ranked_count: fortunes.size, now: NOW)
+  end
 
   test "players rank by the unrounded Z-score, a tie going to the earlier account, and the board shows each index" do
     close, closer, tied, last = Array.new(4) { player(it) }
@@ -27,6 +30,7 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
 
     assert_equal [ closer, close, tied, last ], rows.map(&:player)
     assert_equal [ 1, 2, 3, 4 ], rows.map(&:rank)
+    assert_equal [ [ true, 25 ], [ true, 50 ], [ false, 50 ], [ false, 25 ] ], rows.map { [ it.top_half?, it.share_of_half ] }
     assert_equal [ 457, 453, 453, -381 ], rows.map(&:index)
     assert_equal [ 4, 4, 1, 4 ], [ summary.ranked_count, summary.active_count, summary.privileged_count, summary.packs_opened ]
     assert_equal [ true, false, false, false ], rows.map(&:privileged)

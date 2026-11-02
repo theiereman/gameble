@@ -4,7 +4,9 @@ module Game
 
     SORTS = %i[luck capsules].freeze
 
-    Row = Data.define(:rank, :player, :index, :privileged, :packs_opened, :rarities) do
+    Row = Data.define(:rank, :ranked_count, :player, :index, :privileged, :packs_opened, :rarities) do
+      include LuckShare
+
       def label = FortuneIndex.label(index)
       def shown_to?(viewer) = player == viewer || player.visibility_public?
     end
@@ -22,13 +24,13 @@ module Game
       sort == :capsules ? board.order(Arel.sql("#{PACKS} DESC"), :luck_rank) : board.order(:luck_rank)
     end
 
-    def self.rows(fortunes, now: Time.current)
+    def self.rows(fortunes, ranked_count:, now: Time.current)
       ids = fortunes.map(&:player_id)
       players = Accounts::Player.where(id: ids).index_by(&:id)
       privileged = Privileged.ids(now:)
       rarities = HeldGames.by_rarity_among(ids)
       fortunes.map do |fortune|
-        Row.new(rank: fortune.luck_rank, player: players.fetch(fortune.player_id), index: FortuneIndex.of(fortune.z_score),
+        Row.new(rank: fortune.luck_rank, ranked_count:, player: players.fetch(fortune.player_id), index: FortuneIndex.of(fortune.z_score),
           privileged: privileged.include?(fortune.player_id), packs_opened: fortune.packs_by_kind.values.sum,
           rarities: rarities.fetch(fortune.player_id))
       end

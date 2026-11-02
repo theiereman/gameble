@@ -1187,6 +1187,9 @@ fr:
       title: "Titre retiré"
     title: "%{rank} · %{set}"
   public_profiles:
+    card:
+      this_week: "Cette semaine"
+      full_profile: "Voir le profil complet"
     title: "%{name}"
     fallback_title: "Joueur %{code}"
     show:
@@ -1554,6 +1557,7 @@ fr:
         rank: "n° %{rank}"
       row:
         luck: "Chance"
+        open_card: "Voir la carte de %{name}"
         capsules: "Capsules"
         hidden: "–"
   fortunes:
@@ -1563,6 +1567,19 @@ fr:
       all_time: "Depuis toujours"
     privileged: "PRIVILÉGIÉ"
     scale: "/ ±%{limit}"
+    odds:
+      title: "Derrière la chance"
+      intro: "Chaque capsule promet un score moyen et un écart habituel autour de lui. Votre chance mesure de combien vos points s'éloignent de cette promesse, en nombre d'écarts."
+      capsule: "Capsule"
+      opened: "Ouvertes"
+      expected_each: "Points attendus par capsule"
+      variance_each: "Écart² par capsule"
+      total: "Total"
+      formula: "Score de chance : (%{actual} obtenus − %{expected} attendus) ÷ √%{variance} = %{z}"
+    share:
+      top: "Top"
+      bottom: "Derniers"
+      percent: "%{percent} %"
     profile:
       title: "Fortune"
       rank: "Rang %{rank} sur %{count}"
