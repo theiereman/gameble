@@ -46,7 +46,7 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
       assert_select ".player-row__rarity--5 dd", "1"
       assert_select ".player-row__rarity--5 dt .visually-hidden", "Legendary"
       assert_select ":last-child.player-row__luck.fortune-index--up", /\+500/
-      assert_select ".player-row__luck svg.player-row__clover"
+      assert_select ".player-row__luck svg:last-child.player-row__clover"
     end
     assert_select ".player-row:nth-child(2)" do
       assert_select ".player-row__name--hidden", "Private member"
