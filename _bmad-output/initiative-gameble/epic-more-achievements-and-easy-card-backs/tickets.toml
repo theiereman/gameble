@@ -157,3 +157,25 @@ covers = []
 after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 14
+type = "story"
+title = "The achievement tiles read cleanly and are not squashed"
+description = "Staging feedback, 2026-11-02 (author): the new achievements are right but the display is not: the tiles are too squashed, the texts are not clean and the information is too packed (title in uppercase over two lines, condition, and the unlocked back with its thumbnail all in one small tile). Redesign the tile of the Achievements page: give it room, a clear hierarchy (glyph, title, condition), the earned back shown apart from the condition, titles that never wrap awkwardly, on desktop and phone. Check the same titles on the landing tile and in the toasts. A design pass first: the author approves the layout before the build."
+verify = "On staging at desktop and phone widths, no tile clips, squashes or wraps a title over more than two lines; the back unlocked by an achievement is readable beside it; the achievements system tests pass."
+covers = []
+after = []
+hitl = true
+risk = "low"
+
+[[entry]]
+id = 15
+type = "story"
+title = "The Personalization page shows the card back picker before the title picker, and the title picker takes less room"
+description = "Staging feedback, 2026-11-02 (author): the new back picker is right but must come before the title selection, and the title selection must be revised and simplified to take less space. Reorder the Personalization page (backs first, then titles) and compact the title picker (for instance a single select or a short list instead of a long grid of choices); keep every way a title is earned stated. A design pass first: the author approves the layout before the build."
+verify = "The back picker appears above the title picker; the title picker is visibly shorter at desktop and phone widths and still lets a player choose and clear a title; the personalization system tests pass."
+covers = []
+after = []
+hitl = true
+risk = "low"

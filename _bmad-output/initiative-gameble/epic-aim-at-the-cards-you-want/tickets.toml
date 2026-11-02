@@ -173,3 +173,25 @@ covers = []
 after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 16
+type = "story"
+title = "A player starts the Steam library sync now from the settings"
+description = "Staging feedback, 2026-11-02 (author): the author wants to launch the Steam library sync to see the result. Today it runs once a day (5 am) or when the sync is turned on. Add a 'Sync now' action on the settings row of the Steam library, a POST that enqueues CreateSteamLibrarySetJob for the signed-in player, limited to once per few minutes, with a flash saying it started and the date of the last sync shown. A hitl check: the author runs it on staging."
+verify = "Pressing the action enqueues one sync job for the player, a second press within the delay is refused with a message, and the set shows the owned games once the job ran."
+covers = []
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 17
+type = "story"
+title = "The Steam library set can be marked as an active goal and is called My Steam library"
+description = "Staging feedback, 2026-11-02 (author): the Steam library set can be marked as an active goal, like a game set, and is renamed 'Ma bibliothèque Steam' in French ('My Steam library' in English), in the settings, the collection, the goals picker, the profile and the data export wording. Check how the goal rules of the active goals (game sets only, three games at least, bookmarks, profile) treat the Steam library set, whose members are the owned catalog games and change at each sync, and keep the goal consistent after a sync (a game that leaves the list leaves the goal's missing cards). Strings in en.yml and fr.yml."
+verify = "A player with a Steam library set picks it as one of the five goals, sees its bookmarks and its place on the profile, the name reads 'Ma bibliothèque Steam' in French and 'My Steam library' in English everywhere, and a sync that changes the list updates the goal without error; turning the sync off removes the goal with the set."
+covers = []
+after = []
+hitl = false
+risk = "medium"

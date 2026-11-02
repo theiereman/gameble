@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Succès et Personnalisation, mise en page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;family=VT323&amp;display=swap" rel="stylesheet">
+<style>
+/* =====================================================================
+   gameble · Achievements tile and Personalization page, layout directions (working mock, 2026-11-02)
+   Answers the author's staging feedback on release 1.1.0: the achievement tiles are squashed and
+   too packed, the card back picker must come before the title picker, and the title picker must
+   take less room. Two directions for each. Static page, no script (the open select is drawn).
+   Names and texts are the shipped ones; layouts are proposals.
+   ===================================================================== */
+:root{
+  --backdrop:#05070a;--ground:#0b0f15;--pn:#121a24;--pn2:#0e141b;--pn3:#1b2838;
+  --line:#2a475e;--line2:#1f3346;--acc:#66c0f4;--on-acc:#0b1520;
+  --txt:#c7d5e0;--txt-b:#e6eef5;--wht:#fff;--mut:#8f98a0;--dim:#5d6b78;--ink:#06090d;--gold:#f4c542;
+  --fv:'VT323',monospace;--fs:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--backdrop);color:var(--txt);font-family:var(--fs)}
+h1,h2,h3,p,ul{margin:0;padding:0}
+ul{list-style:none}
+.doc-h{max-width:1240px;margin:0 auto;padding:28px 16px 8px}
+.doc-h h1{font-family:var(--fv);font-size:38px;line-height:40px;color:var(--wht);letter-spacing:1px;font-weight:400}
+.doc-h p{max-width:980px;margin-top:8px;font-size:12px;line-height:18px;color:var(--mut)}
+.doc-h b{color:var(--txt-b)}
+.block{max-width:1240px;margin:0 auto;padding:24px 16px}
+.block>h2{font-family:var(--fv);font-size:28px;color:var(--acc);font-weight:400;letter-spacing:1px;margin-bottom:4px}
+.block>.note{font-size:12px;line-height:18px;color:var(--mut);max-width:980px;margin-bottom:16px}
+.opt{margin-top:20px}
+.opt>h3{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.opt>.why{font-size:12px;line-height:18px;color:var(--mut);max-width:900px;margin-bottom:12px}
+.stage{background:var(--ground);padding:20px;box-shadow:inset 0 0 0 2px var(--line2)}
+.phone{width:360px;max-width:100%;background:var(--ground);padding:16px;box-shadow:inset 0 0 0 2px var(--line2)}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+
+/* ---------- achievements: today (for comparison) ---------- */
+.today-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.today{display:flex;align-items:center;gap:12px;min-height:76px;padding:12px;background:var(--pn);box-shadow:inset 0 0 0 2px var(--line)}
+.today .ic{flex:none;width:44px;height:44px;background:var(--on-acc);box-shadow:inset 0 0 0 2px var(--acc)}
+.today .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.today .nm{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--wht);overflow-wrap:anywhere}
+.today .cd{font-size:12px;line-height:18px;font-weight:700;color:var(--mut)}
+.today .bk{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--wht)}
+
+/* ---------- achievements, option A: roomy card ---------- */
+.a-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.a{display:flex;flex-direction:column;gap:12px;padding:16px;background:var(--pn);box-shadow:inset 0 0 0 2px var(--line)}
+.a.lock{background:var(--pn2);box-shadow:inset 0 0 0 2px var(--line2)}
+.a .top{display:flex;gap:12px;align-items:flex-start}
+.a .ic{flex:none;width:48px;height:48px;background:var(--on-acc);box-shadow:inset 0 0 0 2px var(--acc)}
+.a.lock .ic{box-shadow:inset 0 0 0 2px var(--line2);opacity:.55}
+.a .nm{font-family:var(--fv);font-size:22px;line-height:22px;letter-spacing:.5px;color:var(--wht);font-weight:400;text-wrap:balance}
+.a.lock .nm{color:var(--mut)}
+.a .cd{margin-top:4px;font-size:12px;line-height:18px;color:var(--mut);font-weight:700}
+.a .reward{display:flex;align-items:center;gap:10px;padding-top:12px;box-shadow:0 -2px 0 0 var(--line2)}
+.a .reward .th{flex:none;width:28px;height:42px;background:#1b2838;box-shadow:inset 0 0 0 2px var(--gold)}
+.a .reward .k{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.a .reward .v{display:block;font-size:12px;color:var(--txt-b);font-weight:700}
+.a .bar{height:4px;background:var(--pn3)}
+.a .bar i{display:block;height:100%;background:var(--line);}
+.a .pr{font-size:11px;color:var(--mut);font-weight:700}
+
+/* ---------- achievements, option B: rows ---------- */
+.b-list{display:flex;flex-direction:column;gap:6px}
+.b{display:grid;grid-template-columns:48px 1fr auto;gap:16px;align-items:center;padding:12px 16px;background:var(--pn);box-shadow:inset 0 0 0 2px var(--line)}
+.b.lock{background:var(--pn2);box-shadow:inset 0 0 0 2px var(--line2)}
+.b .ic{width:48px;height:48px;background:var(--on-acc);box-shadow:inset 0 0 0 2px var(--acc)}
+.b.lock .ic{box-shadow:inset 0 0 0 2px var(--line2);opacity:.55}
+.b .nm{font-family:var(--fv);font-size:22px;line-height:22px;letter-spacing:.5px;color:var(--wht);font-weight:400}
+.b.lock .nm{color:var(--mut)}
+.b .cd{margin-top:2px;font-size:12px;line-height:18px;color:var(--mut);font-weight:700}
+.b .side{display:flex;align-items:center;gap:10px;min-width:150px;justify-content:flex-end}
+.b .side .th{width:28px;height:42px;background:#1b2838;box-shadow:inset 0 0 0 2px var(--gold)}
+.b .side .v{font-size:11px;color:var(--txt-b);font-weight:700;text-align:right}
+.b .side .pr{font-size:11px;color:var(--mut);font-weight:700}
+.b.ph{grid-template-columns:44px 1fr}
+.b.ph .side{grid-column:2;justify-content:flex-start}
+
+/* ---------- personalization ---------- */
+.pz{display:flex;flex-direction:column;gap:20px}
+.sec{background:var(--pn);box-shadow:inset 0 0 0 2px var(--line);padding:20px 24px;display:flex;flex-direction:column;gap:14px}
+.sec h2{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);font-weight:700}
+.sec .why{font-size:12px;line-height:18px;color:var(--txt);font-weight:700}
+.sec .head{display:flex;justify-content:space-between;gap:16px;padding-bottom:12px;box-shadow:0 2px 0 0 var(--line2)}
+.sec .meta{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);font-weight:700;white-space:nowrap}
+.backs{display:flex;gap:10px;flex-wrap:wrap}
+.back{width:56px;height:84px;background:var(--pn3);box-shadow:inset 0 0 0 2px var(--line)}
+.back.on{box-shadow:inset 0 0 0 2px var(--acc),0 0 0 2px var(--acc)}
+.back.lock{opacity:.4}
+.cur{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mut);font-weight:700}
+.cur b{color:var(--txt-b)}
+.sel{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;max-width:420px;min-height:44px;padding:0 12px;background:var(--on-acc);color:var(--txt-b);font-size:13px;font-weight:700;box-shadow:inset 0 0 0 2px var(--line)}
+.menu{max-width:420px;background:#0b1015;box-shadow:inset 0 0 0 2px var(--acc)}
+.menu .g{padding:8px 12px 2px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.menu .o{display:flex;align-items:center;min-height:36px;padding:0 12px;font-size:13px;color:var(--txt);font-weight:700}
+.menu .o.on{color:var(--acc)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;font-size:12px;font-weight:700;color:var(--txt);background:var(--pn2);box-shadow:inset 0 0 0 2px var(--line2)}
+.chip.on{color:var(--on-acc);background:var(--acc);box-shadow:none}
+.rank{display:flex;gap:12px;align-items:flex-start}
+.rank .rk{flex:none;width:84px;padding-top:10px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.tag{display:inline-block;margin-top:6px;font-size:11px;color:var(--mut);font-weight:700}
+.cap{font-size:11px;line-height:17px;color:var(--mut);max-width:820px;margin-top:8px}
+@media (max-width:760px){.a-grid,.today-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="doc-h">
+  <h1>Succès et Personnalisation, mise en page</h1>
+  <p>Retours du <b>2 novembre 2026</b> sur staging (1.1.0). <b>Succès</b> : les tuiles sont écrasées, les textes pas propres, trop d'informations dans un petit rectangle. <b>Personnalisation</b> : le choix du dos doit venir <b>avant</b> celui du titre, et le choix du titre doit prendre moins de place. Deux directions pour chaque écran ; textes et noms sont ceux de l'application, seule la mise en page change.</p>
+</header>
+
+<!-- ============================ ACHIEVEMENTS ============================ -->
+<section class="block">
+  <h2>Succès · tuile</h2>
+  <p class="note">Ce qui ne va pas aujourd'hui : quatre colonnes à 1600 px donnent des tuiles de ~370 px où le titre capitales de 11 px passe sur deux lignes, la condition sur trois, et le dos débloqué s'ajoute dessous. Tout a le même poids, rien ne guide l'œil. Propositions : moins de colonnes, le titre dans la police des titres (VT323, plus lisible, en casse normale), la condition en gris dessous, le dos débloqué <b>séparé</b> par un filet dans un pied de tuile, la barre de progression en pied aussi.</p>
+
+  <div class="opt">
+    <h3>Aujourd'hui (pour comparer)</h3>
+    <div class="stage"><div class="today-grid">
+      <div class="today"><span class="ic"></span><div class="tx"><span class="nm">Gestion du patrimoine historique</span><span class="cd">Un jeu sorti avant 2000 et un jeu sorti en 2025 ou après dans une même capsule</span></div></div>
+      <div class="today"><span class="ic"></span><div class="tx"><span class="nm">Nous n'en demandions pas autant</span><span class="cd">Obtenir une carte Légendaire</span><span class="bk">▮ Débloque le dos Étoile d'or</span></div></div>
+      <div class="today"><span class="ic"></span><div class="tx"><span class="nm">Une relation strictement professionnelle</span><span class="cd">Conclure trois échanges avec le même joueur</span></div></div>
+      <div class="today"><span class="ic"></span><div class="tx"><span class="nm">Entraide mutuelle</span><span class="cd">Conclure un échange</span></div></div>
+    </div></div>
+  </div>
+
+  <div class="opt">
+    <h3>Option A · tuile aérée, trois colonnes</h3>
+    <p class="why">Trois colonnes au lieu de quatre (deux sur tablette, une sur téléphone). Titre en VT323 22 px, casse normale, deux lignes au plus, équilibré. Condition en gris. Le dos et la progression passent en pied de tuile, séparés par un filet.</p>
+    <div class="stage"><div class="a-grid">
+      <div class="a"><div class="top"><span class="ic"></span><div><h3 class="nm">Gestion du patrimoine historique</h3><p class="cd">Un jeu sorti avant 2000 et un jeu sorti en 2025 ou après dans une même capsule</p></div></div></div>
+      <div class="a"><div class="top"><span class="ic"></span><div><h3 class="nm">Nous n'en demandions pas autant</h3><p class="cd">Obtenir une carte Légendaire</p></div></div>
+        <div class="reward"><span class="th"></span><span><span class="k">Dos débloqué</span><span class="v">Étoile d'or</span></span></div></div>
+      <div class="a"><div class="top"><span class="ic"></span><div><h3 class="nm">Une relation strictement professionnelle</h3><p class="cd">Conclure trois échanges avec le même joueur</p></div></div>
+        <div class="reward"><span class="th"></span><span><span class="k">Dos débloqué</span><span class="v">Contrat</span></span></div></div>
+      <div class="a lock"><div class="top"><span class="ic"></span><div><h3 class="nm">Période d'essai validée</h3><p class="cd">Ouvrir 10 capsules</p></div></div><div class="bar"><i style="width:60%"></i></div><p class="pr">6 / 10</p></div>
+      <div class="a lock"><div class="top"><span class="ic"></span><div><h3 class="nm">Historique de consommation exemplaire</h3><p class="cd">Ouvrir 100 capsules</p></div></div>
+        <div class="reward"><span class="th" style="opacity:.5"></span><span><span class="k">Dos à débloquer</span><span class="v">Centurion</span></span></div><div class="bar"><i style="width:6%"></i></div><p class="pr">6 / 100</p></div>
+      <div class="a"><div class="top"><span class="ic"></span><div><h3 class="nm">Entraide mutuelle</h3><p class="cd">Conclure un échange</p></div></div></div>
+    </div></div>
+  </div>
+
+  <div class="opt">
+    <h3>Option B · une ligne par succès</h3>
+    <p class="why">Une colonne, une ligne par succès : icône, puis titre et condition sur toute la largeur, et à droite le dos débloqué ou la progression. Se lit comme un journal de bord, sans retour à la ligne forcé ; sur téléphone la zone de droite passe sous le texte. Plus long à parcourir (23 lignes), mais chaque succès respire.</p>
+    <div class="row">
+      <div class="stage" style="flex:1;min-width:560px"><div class="b-list">
+        <div class="b"><span class="ic"></span><div><h3 class="nm">Gestion du patrimoine historique</h3><p class="cd">Un jeu sorti avant 2000 et un jeu sorti en 2025 ou après dans une même capsule</p></div><div class="side"></div></div>
+        <div class="b"><span class="ic"></span><div><h3 class="nm">Nous n'en demandions pas autant</h3><p class="cd">Obtenir une carte Légendaire</p></div><div class="side"><span class="v">Dos<br>Étoile d'or</span><span class="th"></span></div></div>
+        <div class="b lock"><span class="ic"></span><div><h3 class="nm">Historique de consommation exemplaire</h3><p class="cd">Ouvrir 100 capsules</p></div><div class="side"><span class="pr">6 / 100</span><span class="v">Dos<br>Centurion</span><span class="th" style="opacity:.5"></span></div></div>
+        <div class="b lock"><span class="ic"></span><div><h3 class="nm">Période d'essai validée</h3><p class="cd">Ouvrir 10 capsules</p></div><div class="side"><span class="pr">6 / 10</span></div></div>
+      </div></div>
+      <div class="phone"><div class="b-list">
+        <div class="b ph"><span class="ic" style="width:44px;height:44px"></span><div><h3 class="nm">Nous n'en demandions pas autant</h3><p class="cd">Obtenir une carte Légendaire</p></div><div class="side"><span class="th"></span><span class="v">Dos Étoile d'or</span></div></div>
+        <div class="b ph lock"><span class="ic" style="width:44px;height:44px"></span><div><h3 class="nm">Historique de consommation exemplaire</h3><p class="cd">Ouvrir 100 capsules</p></div><div class="side"><span class="pr">6 / 100</span></div></div>
+      </div></div>
+    </div>
+  </div>
+  <p class="cap">À vérifier dans les deux cas : les mêmes titres dans la tuile de la landing et dans les toasts (plus longs que la place). Recommandation : <b>option A</b>, qui garde la grille et la vue d'ensemble des 23 succès.</p>
+</section>
+
+<!-- ============================ PERSONALIZATION ============================ -->
+<section class="block">
+  <h2>Personnalisation · ordre et titre</h2>
+  <p class="note">Nouvel ordre : <b>dos de carte d'abord</b>, puis titre. La vitrine reste où elle est (je ne l'ai pas redessinée ici). Le titre n'est plus une liste de boutons radio de tout ce qu'on a gagné : on voit le titre <b>actuel</b> et on change dans un contrôle compact.</p>
+
+  <div class="opt">
+    <h3>Option A · un seul menu déroulant, titres groupés par rang</h3>
+    <p class="why">Le titre actif tient sur une ligne ; un clic ouvre la liste groupée par rang (même contenu qu'aujourd'hui, mais fermée tant qu'on ne la demande pas). La section passe de plusieurs dizaines de lignes à une seule. Un vrai <code>&lt;select&gt;</code> ou un menu accessible, au choix du build.</p>
+    <div class="row">
+      <div class="stage" style="flex:1;min-width:560px"><div class="pz">
+        <div class="sec"><div class="head"><div><h2>Dos de carte</h2><p class="why">Le dos de toutes tes cartes, vu de tes amis.</p></div><span class="meta">6 / 12 obtenus</span></div>
+          <div class="backs"><span class="back on"></span><span class="back"></span><span class="back"></span><span class="back"></span><span class="back lock"></span><span class="back lock"></span></div>
+          <p class="cur">Dos actuel : <b>Étoile d'or</b></p></div>
+        <div class="sec"><div class="head"><div><h2>Titre de profil</h2><p class="why">Le titre affiché sous ton nom.</p></div><span class="meta">9 titres</span></div>
+          <div class="sel"><span>Maître du set Horreur</span><span aria-hidden="true">▾</span></div>
+          <div class="menu"><div class="g">Aucun</div><div class="o">Aucun titre</div><div class="g">Maître</div><div class="o on">Maître du set Horreur</div><div class="o">Maître du set Aventure</div><div class="g">Expert</div><div class="o">Expert du set Horreur</div></div>
+        </div>
+      </div></div>
+      <div class="phone"><div class="pz">
+        <div class="sec" style="padding:16px"><div class="head"><div><h2>Dos de carte</h2></div><span class="meta">6 / 12</span></div><div class="backs"><span class="back on"></span><span class="back"></span><span class="back"></span><span class="back lock"></span></div></div>
+        <div class="sec" style="padding:16px"><div class="head"><div><h2>Titre de profil</h2></div><span class="meta">9</span></div><div class="sel"><span>Maître du set Horreur</span><span>▾</span></div></div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="opt">
+    <h3>Option B · puces compactes, une rangée par rang</h3>
+    <p class="why">Tous les titres restent visibles mais en puces serrées, une rangée par rang (le rang à gauche), la puce choisie en bleu. Pas de menu à ouvrir, un seul coup d'œil, mais plus haut que l'option A dès qu'on a beaucoup de titres. Chaque puce garde une cible de 44 px sur téléphone.</p>
+    <div class="stage"><div class="pz">
+      <div class="sec"><div class="head"><div><h2>Titre de profil</h2><p class="why">Le titre affiché sous ton nom.</p></div><span class="meta">9 titres</span></div>
+        <div class="rank"><span class="rk">Aucun</span><div class="chips"><span class="chip">Aucun titre</span></div></div>
+        <div class="rank"><span class="rk">Maître</span><div class="chips"><span class="chip on">Horreur</span><span class="chip">Aventure</span><span class="chip">Course</span></div></div>
+        <div class="rank"><span class="rk">Expert</span><div class="chips"><span class="chip">Horreur</span><span class="chip">Aventure</span></div></div>
+        <div class="rank"><span class="rk">Adepte</span><div class="chips"><span class="chip">Horreur</span></div></div>
+      </div>
+    </div></div>
+  </div>
+  <p class="cap">Recommandation : <b>option A</b> pour la place gagnée (une ligne). Dans les deux cas, le titre actif reste annoncé à la sélection (statut vocal) et le moyen d'obtenir chaque titre reste écrit.</p>
+</section>
+
+</body>
+</html>
