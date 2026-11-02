@@ -90,7 +90,7 @@ class SearchEnginesTest < ActionDispatch::IntegrationTest
       assert_not_includes lines, "Disallow: /*/#{page}"
     end
     assert_not_includes lines, "Disallow: /"
-    assert_includes lines, "Content-Signal: ai-train=no, search=yes, ai-input=no"
+    assert_includes lines, "Content-Signal: ai-train=no, search=yes, ai-input=yes"
   end
 
   test "the crawler files are open to a visitor on any browser" do

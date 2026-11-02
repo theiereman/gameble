@@ -12,7 +12,7 @@ class RobotsController < ApplicationController
     render plain: Rails.configuration.x.search_indexing ? robots : closed_robots
   end
 
-  CONTENT_SIGNAL = "Content-Signal: ai-train=no, search=yes, ai-input=no".freeze
+  CONTENT_SIGNAL = "Content-Signal: ai-train=no, search=yes, ai-input=yes".freeze
   CLOSED_CONTENT_SIGNAL = "Content-Signal: ai-train=no, search=no, ai-input=no".freeze
 
   private
