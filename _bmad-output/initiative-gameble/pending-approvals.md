@@ -19,6 +19,15 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
   - The render has run only against the development and CI builds of libvips, never inside the Docker image: on staging, open a card page, wait a few seconds, reload, and check the page carries `og:image` and the image shows the card's title in VT323 and a pixelated art. A missing text or palette feature in the image's libvips shows as a Sentry report from `CardShareImageJob` or as unquantised art.
   - The images are stored by Active Storage on the `local` service, under `/rails/storage` (the `gameble_storage` volume): a lost volume with the database kept leaves each stored image's tags pointing at a missing file until the `catalog_share_images` rows are cleared or `CardShareImage::RENDER_VERSION` is bumped, after which each card page enqueues its render again.
 
+## Settled on 2026-11-02
+
+Settled by the author in conversation on 2026-11-02.
+
+- Trade suggestions copy: the accessible names, the focus after ENVOYER (next suggestion's opener, else the sent trade's row) and the opener/ENVOYER order are approved. The definition of a "spared" card in `mockups/trade-suggestions.html` is rejected; the replacement is still to give.
+- A suggestion the friend declined never comes back. A suggestion opened and left unsent stays a suggestion until the board is stored as a draft; then it leaves the suggestions.
+- Personnalisation page and Back picker copy approved; the strip's resting sentence is dropped; the locked set back's sentence names the tier ("Atteignez le palier Maître du set Horreur").
+- Still to build from these decisions: the declined and drafted suggestions leaving the list (epic 29), the tier sentence and the dropped strip sentence (epic 30).
+
 ## Settled on 2026-11-01
 
 Settled by the author in conversation on 2026-11-01.
