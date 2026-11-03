@@ -1418,7 +1418,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".set-search a.button--primary[href='/fr/library/cards']", "Toutes les cartes"
     assert_select "section#goals + .set-search + turbo-frame#set-search-results + section.custom-sets + turbo-frame#set-entry-in-progress[src='/fr/library/in-progress']"
     assert_select "#goals p.goals__empty", "Aucun objectif. Ouvrez l'album d'un set et marquez-le comme objectif."
-    assert_select "#goals .goal-suggestions, #goals .goal-tiles", false
+    assert_select "#goals .goal-suggestions, #goals .goals__list", false
 
     get_in_progress(locale: :fr)
     assert_select "#set-entry-in-progress-title, .set-tile", false

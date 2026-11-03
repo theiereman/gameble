@@ -2,7 +2,7 @@ class LibraryController < ApplicationController
   include PublicRead
   include CollectionGridLoading
   include SetBoardLoading
-  include GoalTileLoading
+  include GoalSuggestionLoading
   include SetAlbumLoading
   include GoalControlLoading
 
@@ -67,10 +67,7 @@ class LibraryController < ApplicationController
 
     def load_goals
       @goals = goal_marks.needs
-      return @goal_tiles = @goal_suggestions = [] if turbo_frame_request?
-
-      @goal_tiles = goal_tiles(@goals)
-      @goal_suggestions = @goals.empty? ? goal_suggestions(current_player, season: @season) : []
+      @goal_suggestions = @goals.empty? && !turbo_frame_request? ? goal_suggestions(current_player, season: @season) : []
     end
 
     def load_unique_cards

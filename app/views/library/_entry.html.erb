@@ -1,6 +1,6 @@
 <% status = query.present? ? t("library.entry.found", count: results_count) : "" %>
 <div class="set-entry" data-controller="last-album" data-action="turbo:frame-load->last-album#mark">
-  <%= render("library/goals", goals:, tiles: goal_tiles, suggestions: goal_suggestions) %>
+  <%= render("library/goals", goals:, suggestions: goal_suggestions) %>
   <%= render "library/set_search", query:, status:, search_url:, all_cards_url: %>
   <%= render("library/set_results", results:, query:, status:, goals:) %>
   <%= render("library/custom_sets", tiles: custom_set_tiles, goals:) %>

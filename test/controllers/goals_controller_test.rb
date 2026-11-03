@@ -116,8 +116,8 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_response :see_other
     assert_equal [ [ 1, "theme", "roguelike", nil ] ], goals
     follow_redirect!
-    assert_equal [ "1" ], css_select("#goals .goal-tile a.goal-tile__link > .goal-bookmark").map(&:text)
-    assert_equal "/fr/library/theme/roguelike", css_select("#goals .goal-tile a.goal-tile__link").first["href"]
+    assert_equal [ "1" ], css_select("#goals a.goal-row > .goal-bookmark").map(&:text)
+    assert_equal "/fr/library/theme/roguelike", css_select("#goals a.goal-row").first["href"]
 
     post library_goals_path(locale: :fr), params: { kind: "theme", key: "roguelike", from: "sets" }
     assert_redirected_to "/fr/library"

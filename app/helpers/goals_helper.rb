@@ -5,12 +5,8 @@ module GoalsHelper
     target.steam_library? ? t("custom_sets.library.name") : target.custom_set_name
   end
 
-  def goal_album_path(target, **query)
-    target.custom? ? custom_set_path(token: target.custom_set_token, **query) : library_set_path(kind: target.kind, key: target.key, **query)
-  end
-
-  def goal_missing_cards_path(target)
-    goal_album_path(target, state: [ "missing" ])
+  def goal_album_path(target)
+    target.custom? ? custom_set_path(token: target.custom_set_token) : library_set_path(kind: target.kind, key: target.key)
   end
 
   def goal_aim_params(target)

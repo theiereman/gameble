@@ -28,4 +28,12 @@ class BottomSheetComponentTest < ViewComponent::TestCase
     render_inline(BottomSheetComponent.new(id: "pick", title: "Pick", open: true)) { "Choices" }
     assert_selector "dialog#pick[open][data-controller=bottom-sheet]", visible: :all
   end
+
+  test "a wide sheet takes the wide modal's width where there is room" do
+    render_inline(BottomSheetComponent.new(id: "pick", title: "Pick", wide: true)) { "Choices" }
+    assert_selector "dialog#pick.modal.bottom-sheet.bottom-sheet--wide", visible: :all
+
+    render_inline(BottomSheetComponent.new(id: "pick", title: "Pick")) { "Choices" }
+    assert_no_selector ".bottom-sheet--wide", visible: :all
+  end
 end

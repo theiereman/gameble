@@ -1553,12 +1553,6 @@ en:
         free:
           one: One free goal · mark a set from its album
           other: "%{count} free goals · mark a set from its album"
-        missing_label: Cards missing from %{set}
-        more: "+%{more}"
-        more_label:
-          one: 1 more missing card, in the album of %{set}
-          other: "%{more} more missing cards, in the album of %{set}"
-          zero: No more missing card, in the album of %{set}
         next: "%{missing} more for %{tier}"
         next_complete: "%{missing} more for the complete set"
         row: 'Goal %{number}: %{set}, %{kind}, %{count}, %{next}'

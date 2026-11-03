@@ -1,4 +1,4 @@
-<%# locals: (goals:, tiles: [], suggestions: []) %>
+<%# locals: (goals:, suggestions: []) %>
 <% free = goal_free_slot(goals) %>
 <section id="goals" class="set-entry__section goals" aria-labelledby="goals-title">
   <div class="goals__head">
@@ -6,10 +6,10 @@
     <span class="goals__count"><%= t("library.entry.goals.count_html", count: goals.size, max: Game::Goal::POSITIONS.max) %></span>
   </div>
   <%= render PanelComponent.new(brackets: true, class: "goals__panel") do %>
-    <% if tiles.any? %>
-      <ol class="goal-tiles">
-        <% tiles.each do |tile| %>
-          <li><%= render "library/goal_tile", tile: %></li>
+    <% if goals.any? %>
+      <ol class="goals__list">
+        <% goals.each do |need| %>
+          <li><%= render "goals/row", need:, href: goal_album_path(need), sentence: goal_row_sentence(need), bookmark: true %></li>
         <% end %>
       </ol>
       <% if free %>

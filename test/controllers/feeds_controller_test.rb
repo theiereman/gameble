@@ -237,18 +237,20 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[Hugo Léa Sam], names
   end
 
-  test "the tabs and one chip naming the type in force share the controls; the five types wait in a bottom sheet" do
+  test "the tabs, the five types inline and one chip naming the type in force share the controls; the types also wait in a bottom sheet" do
     get feed_path(locale: :en, filter: "trades")
 
     assert_select ".feed__controls", 1
-    assert_select ".feed__controls > nav", 1
+    assert_select ".feed__controls > nav", 2
     assert_select ".feed__controls > nav:first-child.feed__tabs"
-    assert_select ".feed__controls a.filter-chip", 3
+    assert_select ".feed__controls > nav.feed__tabs + nav.feed__filters.feed__filters--inline[aria-label=?]", "Filter by type"
+    assert_equal %w[Everything Pulls Discoveries Trades Reposts], css_select(".feed__controls .feed__filter").map { it.text.strip }
+    assert_select ".feed__controls a.filter-chip", 8
     assert_select ".feed__controls > a.filter-chip.feed__type-opener:last-child[href='#feed-types'][aria-haspopup=dialog][aria-controls=feed-types]" \
       "[data-bottom-sheet-opens=feed-types] > .filter-chip__text", "Type: Trades"
-    assert_select ".feed__controls .filter-chip[aria-current=true]", 1
+    assert_select ".feed__controls .filter-chip[aria-current=true]", 2
     assert_select ".feed__tab.filter-chip[aria-current=true]", "All"
-    assert_select ".feed__controls .feed__filters, .feed__controls .feed__filter", false
+    assert_select ".feed__controls .feed__filter[aria-current=true]", "Trades"
     assert_select "dialog#feed-types.bottom-sheet[aria-labelledby=feed-types-title]" do
       assert_select "#feed-types-title", "Filter by type"
       assert_select "nav.feed__filters[aria-label=?]", "Filter by type"

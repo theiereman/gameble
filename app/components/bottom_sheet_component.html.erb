@@ -1,4 +1,4 @@
-<dialog id="<%= id %>"<%= " open" if open? %> class="modal bottom-sheet" aria-labelledby="<%= title_id %>" data-controller="bottom-sheet" data-action="<%= ACTIONS %>">
+<dialog id="<%= id %>"<%= " open" if open? %> class="<%= classes %>" aria-labelledby="<%= title_id %>" data-controller="bottom-sheet" data-action="<%= ACTIONS %>">
   <%= render PanelComponent.new(brackets: true, class: "modal__panel bottom-sheet__panel", data: { bottom_sheet_target: "panel" }) do %>
     <div class="bottom-sheet__grip" data-action="pointerdown->bottom-sheet#grab">
       <span class="modal__handle" aria-hidden="true"></span>

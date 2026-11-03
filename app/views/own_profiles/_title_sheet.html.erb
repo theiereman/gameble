@@ -1,5 +1,5 @@
 <%# locals: (titles:, active:) %>
-<%= render BottomSheetComponent.new(id: "me-title-sheet", title: t("personalizations.show.profile_title.heading")) do %>
+<%= render BottomSheetComponent.new(id: "me-title-sheet", title: t("personalizations.show.profile_title.heading"), wide: true) do %>
   <div class="me-sheet">
     <p class="me-sheet__intro"><%= t("personalizations.show.profile_title.intro") %></p>
     <ul class="me-choices">

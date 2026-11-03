@@ -1,0 +1,6 @@
+<%# locals: (filter:, tab:, classes:) %>
+<nav class="<%= classes %>" aria-label="<%= t("feeds.show.filters_label") %>">
+  <% [ nil, *FeedsController::FILTERS.keys ].each do |choice| %>
+    <%= feed_chip_link t("feeds.show.filters.#{choice || "all"}"), feed_path(tab:, filter: choice), current: choice == filter, classes: "feed__filter" %>
+  <% end %>
+</nav>

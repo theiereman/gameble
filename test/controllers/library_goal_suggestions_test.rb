@@ -5,11 +5,10 @@ require_relative "../support/game_sets"
 require_relative "../support/library_requests"
 require_relative "../support/steam_sign_in"
 
-# OBJECTIFS at the head of the collection entry: a tile per goal, linking its
-# album, its missing cards as thumbnails opening their detail; with no goal,
-# the three started sets closest to complete, each one tap from being a
-# goal. EN COURS leaves the goal sets out.
-class LibraryGoalTilesTest < ActionDispatch::IntegrationTest
+# OBJECTIFS at the head of the collection entry: with no goal, the three
+# started sets closest to complete, each one tap from being a goal. EN COURS
+# leaves the goal sets out.
+class LibraryGoalSuggestionsTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include CustomSets
   include GameSets
@@ -31,22 +30,12 @@ class LibraryGoalTilesTest < ActionDispatch::IntegrationTest
 
   def card_ids(card_season_ids) = Catalog::CardSeason.where(id: card_season_ids).in_order_of(:id, card_season_ids).pluck(:card_id)
 
-  def detail_paths(card_season_ids)
-    slugs = Catalog::CardSeason.where(id: card_season_ids).joins(:card).pluck(:id, "catalog_cards.slug").to_h
-    card_season_ids.map { "/en/cards/#{slugs.fetch(it)}/seasons/#{@season.number}" }
+  def goal_rows = css_select(".set-entry > section#goals ol.goals__list > li > a.goal-row")
+
+  # The rows as [ bookmark, name, kind, "held/total" ].
+  def goal_row_texts
+    goal_rows.map { |row| [ row.at_css("> .goal-bookmark").text, row.at_css(".goal-row__name b").text, row.at_css(".goal-row__kind").text, row.at_css(".goal-row__count").text ] }
   end
-
-  def goal_tiles = css_select(".set-entry > section#goals ol.goal-tiles > li > .goal-tile")
-
-  # The tiles as [ bookmark, name, kind, "held/total" ].
-  def goal_tile_rows
-    goal_tiles.map do |tile|
-      link = tile.at_css("> a.goal-tile__link")
-      [ link.at_css("> .goal-bookmark").text, link.at_css(".goal-tile__name b").text, link.at_css(".goal-tile__kind").text, link.at_css(".goal-tile__count").text ]
-    end
-  end
-
-  def thumbs(tile) = tile.css("> ul.goal-tile__missing > li.goal-tile__thumb > a.card-link")
 
   def suggestions = css_select("#goals ul.goal-suggestions > li > .goal-suggestion")
 
@@ -65,81 +54,6 @@ class LibraryGoalTilesTest < ActionDispatch::IntegrationTest
     queries
   end
 
-  test "OBJECTIFS leads the entry with a tile per goal in number order, each linking its album, its missing cards opening their detail" do
-    roguelike = theme("roguelike", 12)
-    theme("horror", 10)
-    halo = named("franchise", "Halo", 4)
-    hold_all(@player, roguelike.first(3) + halo.first(1))
-    add(kind: "theme", key: "roguelike")
-    add(kind: "theme", key: "horror")
-    add(kind: "franchise", key: "halo")
-    Game::RemoveGoal.new.call(player: @player, kind: "theme", key: "horror").value!
-    sign_in(@player)
-
-    get library_path(locale: :en)
-
-    assert_response :success
-    assert_equal [ "Goals", "Find a set", "My sets" ], css_select(".set-entry h2").map(&:text)
-    assert_select ".set-entry > section#goals:first-child + section.set-search"
-    assert_select "#goals .goals__count", "2 / 5"
-    assert_equal [ [ "1", "Roguelike", "Theme", "3/12" ], [ "3", "Halo", "Franchise", "1/4" ] ], goal_tile_rows
-    assert_equal [ "goal-tone--1", "goal-tone--3" ], goal_tiles.map { it["class"][/goal-tone--\d/] }
-    assert_equal [ "/en/library/theme/roguelike", "/en/library/franchise/halo" ], goal_tiles.map { it.at_css("> a.goal-tile__link")["href"] }
-    assert_match(/\AGoal 1: Roguelike, theme, 3 cards out of 12, 3 more for gold\z/i, goal_tiles.first.at_css("a.goal-tile__link > .visually-hidden").text)
-    assert_equal "Only 3 more for Gold", goal_tiles.first.at_css(".goal-tile__next").text.squish
-    assert_equal 3, goal_tiles.first.css(".goal-tile__track .set-row__tick").size
-    assert_empty goal_tiles.last.css(".set-row__tick")
-
-    roguelike_thumbs = thumbs(goal_tiles.first)
-    assert_equal detail_paths(roguelike[3, 5]), roguelike_thumbs.map { it["href"] }
-    assert roguelike_thumbs.all? { it.at_css("> .card.card--s.card--not-owned") }
-    assert_match(/, not owned\z/, roguelike_thumbs.first["aria-label"])
-    assert_equal "Cards missing from Roguelike", goal_tiles.first.at_css("> ul.goal-tile__missing")["aria-label"]
-    more = goal_tiles.first.at_css("li.goal-tile__thumb > a.goal-tile__more")
-    assert_equal [ "+4", "4 more missing cards, in the album of Roguelike", "/en/library/theme/roguelike?state%5B%5D=missing" ],
-      [ more.text.squish, more["aria-label"], more["href"] ]
-    assert_equal detail_paths(halo.drop(1)), thumbs(goal_tiles.last).map { it["href"] }
-    assert_select goal_tiles.last, "a.goal-tile__more", false
-
-    assert_equal "3 free goals · mark a set from its album", css_select("#goals p.goals__free > span:last-child").sole.text
-    assert_select "#goals .goal-suggestions, #goals .goals__empty, #goals .goal-row", false
-    assert_select "#goals a.goal-tile__link a, #goals [style]", false
-  end
-
-  test "a goal missing thirty cards shows five of them, then +25 to its album filtered on the missing cards" do
-    big = theme("big", 35)
-    hold_all(@player, big.first(5))
-    add(kind: "theme", key: "big")
-    sign_in(@player)
-
-    get library_path(locale: :fr)
-
-    tile = goal_tiles.sole
-    assert_equal 5, thumbs(tile).size
-    assert_equal detail_paths(big[5, 5]).map { it.sub("/en/", "/fr/") }, thumbs(tile).map { it["href"] }
-    more = tile.at_css("a.goal-tile__more")
-    assert_equal [ "+25", "25 autres cartes manquantes, dans l'album de Big", "/fr/library/theme/big?state%5B%5D=missing" ],
-      [ more.text.squish, more["aria-label"], more["href"] ]
-  end
-
-  test "a custom set goal is a tile of owned over total with no ticks, its missing games as thumbnails, a game with no published edition counted in +N" do
-    members = take(4)
-    custom_set = create_custom_set(@player, name: "Mes favoris", card_ids: card_ids(members))
-    hold_all(@player, members.first(1))
-    Catalog::CardSeason.where(id: members[1]).update_all(rarity: nil)
-    add(custom_set: custom_set.token)
-    sign_in(@player)
-
-    get library_path(locale: :en)
-
-    assert_equal [ [ "1", "Mes favoris", "Custom set", "1/4" ] ], goal_tile_rows
-    tile = goal_tiles.sole
-    assert_equal "/en/library/custom-sets/#{custom_set.token}", tile.at_css("a.goal-tile__link")["href"]
-    assert_select tile, ".set-row__tick", false
-    assert_equal detail_paths(members.drop(2)), thumbs(tile).map { it["href"] }
-    assert_equal "+1", tile.at_css("a.goal-tile__more").text.squish
-  end
-
   test "with no goal, OBJECTIFS suggests the three started sets fewest cards from complete, each one tap from being a goal" do
     far = theme("far", 12)
     near = theme("near", 12)
@@ -153,7 +67,7 @@ class LibraryGoalTilesTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en)
 
     assert_select "#goals .goals__count", "0 / 5"
-    assert_select "#goals .goal-tiles, #goals .goals__free", false
+    assert_select "#goals .goals__list, #goals .goals__free", false
     assert_equal "No goal yet. The sets you are closest to completing:", css_select("#goals p.goals__empty--suggesting > span:last-child").sole.text
     assert_equal [ [ "Halo", "Franchise", "3/4", "1 card left to complete" ], [ "Near", "Theme", "10/12", "2 cards left to complete" ],
       [ "Supergiant", "Studio", "1/3", "2 cards left to complete" ] ],
@@ -177,7 +91,7 @@ class LibraryGoalTilesTest < ActionDispatch::IntegrationTest
     get library_path(locale: :fr)
 
     assert_select "#goals p.goals__empty:not(.goals__empty--suggesting)", "Aucun objectif. Ouvrez l'album d'un set et marquez-le comme objectif."
-    assert_select "#goals .goal-suggestions, #goals .goal-tiles", false
+    assert_select "#goals .goal-suggestions, #goals .goals__list", false
   end
 
   test "EN COURS groups its sets by kind, the goal sets left out; a search keeps OBJECTIFS above its results" do
@@ -203,7 +117,7 @@ class LibraryGoalTilesTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en, q: "horror")
 
     assert_equal [ "Goals", "Find a set", "Results", "My sets" ], css_select(".set-entry h2").map(&:text)
-    assert_equal [ [ "1", "Horror", "Theme", "4/10" ] ], goal_tile_rows
+    assert_equal [ [ "1", "Horror", "Theme", "4/10" ] ], goal_row_texts
     assert_select "#set-results-title ~ ul.set-tiles a.set-tile.set-tile--goal.goal-tone--1[href='/en/library/theme/horror']"
   end
 
@@ -253,11 +167,10 @@ class LibraryGoalTilesTest < ActionDispatch::IntegrationTest
 
     add(kind: "theme", key: "theme-1")
     one = count_queries { get library_path(locale: :en) }
-    assert_equal 1, goal_tiles.size
+    assert_equal 1, goal_rows.size
     (2..5).each { add(kind: "theme", key: "theme-#{it}") }
     five = count_queries { get library_path(locale: :en) }
-    assert_equal 5, goal_tiles.size
+    assert_equal 5, goal_rows.size
     assert_equal one, five
-    assert_equal [ 5 ] * 5, goal_tiles.map { thumbs(it).size }
   end
 end

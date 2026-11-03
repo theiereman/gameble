@@ -30,6 +30,12 @@
   overscroll-behavior: contain;
 }
 
+@media (min-width: 720px) {
+  .bottom-sheet--wide {
+    width: min(var(--modal-width-wide), calc(100vw - 2 * var(--space-gutter-phone)));
+  }
+}
+
 @media (max-width: 719px) {
   .bottom-sheet__panel {
     max-height: 85dvh;

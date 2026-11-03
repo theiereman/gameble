@@ -22,16 +22,13 @@
         <% end %>
       <% end %>
     </nav>
+    <%= render "feeds/filters", filter: @filter, tab: @tab, classes: "feed__filters feed__filters--inline" %>
     <%= tag.a(**bottom_sheet_opener(feed_types_sheet_id), class: "filter-chip feed__type-opener") do %>
       <span class="filter-chip__text"><%= t(".filters_opener", type: t(".filters.#{@filter || "all"}")) %></span>
     <% end %>
   </div>
   <%= render BottomSheetComponent.new(id: feed_types_sheet_id, title: t(".filters_label")) do %>
-    <nav class="feed__filters" aria-label="<%= t(".filters_label") %>">
-      <% [ nil, *FeedsController::FILTERS.keys ].each do |filter| %>
-        <%= feed_chip_link t(".filters.#{filter || "all"}"), feed_path(tab: @tab, filter:), current: filter == @filter, classes: "feed__filter" %>
-      <% end %>
-    </nav>
+    <%= render "feeds/filters", filter: @filter, tab: @tab, classes: "feed__filters" %>
   <% end %>
   <% if @no_friends %>
     <%= render PanelComponent.new(class: "feed__no-friends") do %>

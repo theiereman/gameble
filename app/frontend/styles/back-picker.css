@@ -13,14 +13,19 @@
   gap: var(--space-6);
 }
 
+/* The strip keeps one height whatever back it names, so the mosaic under
+   it never moves while the pointer travels it. */
 .back-picker__strip {
   z-index: 3;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: var(--space-6) auto;
+  grid-template-areas:
+    "chip name tail"
+    "sentence sentence sentence";
   align-items: center;
-  gap: var(--space-3) calc(var(--space-4) + var(--space-1));
-  min-height: 64px;
-  padding: var(--space-4) calc(var(--space-5) + var(--space-1));
+  gap: var(--space-2) calc(var(--space-4) + var(--space-1));
+  padding: calc(var(--space-3) + var(--space-1)) calc(var(--space-5) + var(--space-1));
   background: var(--color-panel-sunken);
   box-shadow: var(--panel-soft-border);
 }
@@ -35,6 +40,7 @@
 }
 
 .back-picker__chip {
+  grid-area: chip;
   display: inline-flex;
   flex: none;
   align-items: center;
@@ -65,25 +71,35 @@
 }
 
 .back-picker__name {
+  grid-area: name;
+  overflow: hidden;
   color: var(--color-text-max);
   font: var(--font-button);
   letter-spacing: var(--tracking-button);
   text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .back-picker__sentence {
-  flex: 1 1 16rem;
+  display: -webkit-box;
+  grid-area: sentence;
+  height: 2lh;
   min-width: 0;
+  overflow: hidden;
   color: var(--color-text);
   font: var(--font-menu);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .back-picker__strip[data-showing="failed"] .back-picker__sentence {
+  grid-row: 1 / -1;
   color: var(--color-alert);
 }
 
 .back-picker__tail {
-  flex: none;
+  grid-area: tail;
   color: var(--color-muted);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
@@ -292,6 +308,14 @@ html[data-motion="reduced"] .back-picker__tile .back-picker__back:hover .back-pi
   transform: none;
 }
 
+/* Where there is room, the sheet keeps one height as the strip and the
+   mosaic change. */
+@media (min-width: 720px) {
+  .bottom-sheet__panel:has(.back-picker) {
+    height: min(760px, calc(100dvh - 2 * var(--space-8)));
+  }
+}
+
 /* While the viewport is tall enough, the strip sticks at the top and the
    backs scroll clear of it. */
 @media (min-height: 560px) {
@@ -308,19 +332,12 @@ html[data-motion="reduced"] .back-picker__tile .back-picker__back:hover .back-pi
 
 @media (max-width: 719px) {
   .back-picker__strip {
-    gap: var(--space-2) calc(var(--space-3) + var(--space-1));
-    min-height: 96px;
+    column-gap: calc(var(--space-3) + var(--space-1));
     padding: calc(var(--space-3) + var(--space-1)) var(--space-4);
   }
 
   .back-picker__sentence {
-    flex-basis: 100%;
-    order: 3;
     font: var(--font-body-small);
-  }
-
-  .back-picker__tail {
-    order: 4;
   }
 
   .back-picker__row {
