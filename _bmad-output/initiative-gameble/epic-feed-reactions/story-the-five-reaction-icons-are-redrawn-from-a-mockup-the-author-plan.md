@@ -5,7 +5,7 @@ ticket: 3
 created: '2026-11-03'
 status: blocked
 baseline_revision: '0f181fa47dcdbce6950e6aadc08413d33efbf527'
-route: 'oneshot'
+route: 'full'
 route_source: 'auto'
 review: ''
 review_source: ''
@@ -13,7 +13,7 @@ lenses_ran: []
 review_loop_iteration: 0
 followup_review_recommended: false
 context: []
-warnings: []
+warnings: [oversized]
 deferred: []
 blocked_at: "2026-11-03"
 blocked_reason: "waiting for the author to pick the icons in ux-gameble/mockups/reaction-icons.html"
@@ -23,45 +23,80 @@ blocked_reason: "waiting for the author to pick the icons in ux-gameble/mockups/
 
 ## Intent
 
-**Problem:** The author found the five feed reaction icons (thumb, heart, GG, wow, middle finger) very poor on staging. Two causes: the drawings themselves (a thumb with no knuckles or cuff, 1px-stroke GG and WOW lettering two rows shorter than the hands, a finger that is a stick on a blob), and the bar's stylesheet, which squeezes every icon to `height: 1.25em` of an 11px label (13.75px), so an 11-row icon gets 1.25 CSS px per art pixel, a 9-row one 1.53, a 7-row one 1.96: blurred, uneven pixels at three scales, against DESIGN's rule that one art pixel is 2 CSS px.
+**Problem:** The author found the five feed reaction icons (thumb, heart, GG, wow, middle finger) very poor on staging. Two rounds of hand-drawn pixel grids did not satisfy him either. The bar's stylesheet also squeezes every icon to `height: 1.25em` (13.75px), so no grid lands on whole pixels.
 
-**Approach:** Draw new candidates in `ux-gameble/mockups/reaction-icons.html` (exact grids, resting, hover and lit, on a feed entry desktop and phone, beside the tab, rarity and trade icons); the author picks one per reaction. Then replace the five grids in `script/pixel_art/export.mjs` under the same keys, regenerate with the export, and let the SVGs render at their exported size (2 CSS px per art pixel, at most 9 rows, so 18px at most).
+**Approach:** Author decision of 2026-11-03: the five icons leave the hand-drawn pixel set. Each is a precise vector drawing inspired by the emoji, in flat colour. A reproducible script rasterises it and runs it through pixelcrush, the filter that pixelates the card art. The app serves the resulting PNGs at a whole number of CSS px per pixel, under the same reaction keys, so the counts, the controller and the operation do not change. The author picks the drawings and the size in `ux-gameble/mockups/reaction-icons.html`, round 3.
+
+## Boundaries & Constraints
+
+**Always:** keep the keys `thumb`, `heart`, `gg`, `wow`, `middle_finger`. The output is deterministic, and `--check` compares decoded pixels, like `script/pixel_art/export.mjs`. Every icon renders at its exported size (no `height: 1.25em`), with `image-rendering: pixelated`. The vector sources are drawn by hand: no icon library, no vendor emoji artwork.
+
+**Never:** hand-edit `app/frontend/images/pixel/` or the generated PNGs. Never type the emoji characters into the page: they render differently per OS, and 🖕 may be missing. Never change the reactions controller, operation or counts.
 
 </intent-contract>
 
-## Implementation Notes
+## Code Map
 
-Oneshot: five grids in `export.mjs` (`ICONS["reaction-*"]`, and their sizes in `DESCRIPTIONS`), the five regenerated SVGs, and one CSS rule, well under 100 lines.
+- `script/pixel_art/export.mjs` -- the five `ICONS["reaction-*"]` grids and their `DESCRIPTIONS` entries are removed. Its `encodePng`, `decodePng` and `upToDate` are the model for the new script's `--check`.
+- `app/frontend/images/pixel/reaction-*.svg` -- the five outputs whose grids are removed. The pixel export's `--check` reports them as "not exported" until they are deleted from version control.
+- `app/views/reactions/_bar.html.erb` -- renders `pixel_icon("reaction-#{kind.dasherize}", class: "feed__reaction-icon")`; that call becomes the new image.
+- `app/frontend/styles/feed-reactions.css` -- `.feed__reaction-icon { height: 1.25em; width: auto }` goes; it gets `image-rendering: pixelated`.
+- `test/helpers/shell_helper_test.rb` -- "each feed reaction has its pixel icon" asserts `pixel_icon("reaction-#{kind}")`; it moves to the new icon.
+- `node_modules/pixelcrush` 0.2.1 -- `filter(pixels, { width, height, colors, crop: "none" })`, binary alpha, median cut; already used by `app/frontend/lib/card_art/worker_job.ts`.
 
-**Round 2 (after the author's review of 2026-11-03), recommended set**: at most 9 rows, one-pixel strokes; grids in the mockup's "Grid for the export" blocks.
-- **T4** thumb, 9 × 9: classic thumbs-up as a one-pixel line, a pointed thumb, two finger lines, the cuff a solid two-pixel band.
-- **H4** heart, 9 × 8: H1's solid shape scaled down.
-- **G3** GG, 11 × 7: G1's two G in one-pixel strokes.
-- **W4** wow, 9 × 9: W1 as a one-pixel ring face, two tall eyes, an open O mouth.
-- **F3** middle finger, 8 × 9: a two-pixel finger four rows above two-pixel knuckles on both sides, the rest of the fist a one-pixel line.
+## Tasks & Acceptance
 
-**Round 2 alternatives:** T5 (square-tipped line thumb), T6 (solid silhouette); H5 (7 × 6); G4 (two-pixel stems, 12 × 7); W5 (W1 scaled down, solid); F4 (solid fist, the heaviest), F5 (solid, index on one side, ring and lower pinky on the other, thumb cut, 9 × 9).
+**Execution:**
+- [ ] `script/reaction_icons/sources/{thumb,heart,gg,wow,middle-finger}.svg` -- the picked vector sources, 32-unit viewBox, copied from the mockup's round 3 -- the art lives as reviewable SVG.
+- [ ] `script/reaction_icons/export.mjs` -- rasterise each source at 16 times the target with `@resvg/resvg-js` (a new pinned devDependency; node has no rasteriser installed). Then run `filter` at the picked size and colours, and write `app/frontend/images/reactions/<key>.png`. `--check` exits 1 on a differing or stray file -- reproducible like the pixel export.
+- [ ] `script/pixel_art/export.mjs`, and delete the five `pixel/reaction-*.svg` -- removes the old icons, so the pixel export's `--check` passes.
+- [ ] `app/views/reactions/_bar.html.erb` -- `image_tag vite_asset_path("images/reactions/#{kind.dasherize}.png"), alt: "", width: 16, height: 16, class: "feed__reaction-icon"`; the visually hidden name stays.
+- [ ] `app/frontend/styles/feed-reactions.css` -- the sizing change above.
+- [ ] `test/helpers/shell_helper_test.rb` or a view test -- each kind's PNG exists and the bar renders five images. Add the new `--check` to `bin/ci` and the CI workflow beside the pixel export's.
 
-**Round 1 (superseded, kept collapsed in the mockup):** T1, H1, G1, W1, F1 at 11 rows (22px), solid. The author found them too big and too heavy, T1 deformed and the middle finger not good. H1 and G1 were good ideas, and round 2 keeps them.
+**Acceptance Criteria:**
+- Given a feed entry, when the bar renders, then each reaction shows its pixelcrush PNG at 16 × 16 CSS px, crisp, beside its count, on desktop and on touch.
+- Given the viewer's own reaction, when the bar renders, then that button keeps its accent fill and the icon keeps its colours.
+- Given a clean checkout, when `node script/reaction_icons/export.mjs --check` and `node script/pixel_art/export.mjs --check` run, then both exit 0.
 
-**Size:** the rule is a whole number of CSS px per art pixel, so the size is 2 CSS px per art pixel, as DESIGN gives it. At 1 CSS px a 9-row icon is 9px tall, the height of the count's digits, and its one-pixel strokes become 1px hairlines of muted grey that vanish on an ordinary screen. The mockup shows that row. At 2 CSS px the icons are 14 to 18px tall in the 34px button (44px on touch), a little taller than the 11px label's capitals, with 2px strokes like every other icon in the app.
+## Design Notes
 
-**CSS decision for the author with the pick:** unchanged by the new size. `.feed__reaction-icon` in `app/frontend/styles/feed-reactions.css` must drop `height: 1.25em; width: auto` (keeping `flex: none`) so each SVG keeps the width and height the export writes. At 13.75px no grid lands on whole pixels. The ticket asked for no other code; this is one declaration. Every icon height is even (14, 16 or 18px), so centring in the 34px or 44px button lands on whole pixels. At 360px the five buttons need about 240px against a 228px text column, so the fifth wraps to a second line (round 1 needed about 270px). From a 390px screen up they fit on one line.
+**Author decision, 2026-11-03:** first "no pixel art, something precise inspired by emoji", then "generate an image and apply the pixelcrush filter". The icons are therefore pixel art made by the filter, matching the pixelated card art, not grids drawn by hand.
 
-**After the pick:** replace the five `reaction-*` grids in `script/pixel_art/export.mjs` (keys unchanged), update their sizes in `DESCRIPTIONS`, run `node script/pixel_art/export.mjs`, and apply the CSS change if approved. Never hand-edit `app/frontend/images/pixel/`. The mockup's renderer is the export's (`rowRuns`), so the grids paste as they are.
+This departs from DESIGN.md for these five icons only. The line to amend is DESIGN.md › Brand & Style, "Fine pixel art over high-quality material": "One art pixel is 2 CSS px (`{components.art-pixel.size}`) for everything drawn: … icons …". It needs an exception: the feed reaction icons are vector drawings pixelated by pixelcrush and shown at 1 CSS px per pixel. DESIGN.md › Shapes ("Round and angled forms appear only as pixel art") still holds for the pixelcrush output. It needs amending only if the plain vector alternative is picked.
+
+**Round 3 recommendation:** five vector sources, each pixelcrushed to **16 × 16 in 8 colours and shown at 1 CSS px per pixel (16px)**:
+- **T7**, thumb: side fist with a cuff.
+- **H7**, heart: plump, with a highlight.
+- **G5**, GG: in a purple speech bubble.
+- **W6**, wow: open-mouthed face.
+- **F7**, middle finger: the finger raised over three knuckles.
+
+At 2 CSS px (DESIGN's art pixel) the image would be 9 pixels, and pixelcrush leaves a smudge. 20 pixels holds more detail but is heavier beside the 11px count. 4 colours lose the thumb's outline.
+
+**Alternatives:**
+- **Other drawings:** T8 (no cuff), H6 (flat), G6 (tag without a tail), W7 (raised brows and white eyes, muddy at 16), F6 (thumb across, busier). Any of them can also be taken at 20 × 20 or with 4 colours.
+- **Plain vectors,** in colour or in monochrome through `currentColor`. These would be SVG files in `app/frontend/images/reactions/`, inlined by a helper like `pixel_icon`.
+- **Rounds 1 and 2:** hand-drawn grids, at 22px and then at most 18px. They are collapsed in the mockup.
+
+**Lit state:** colour icons keep their colours on the bar's accent fill, and their dark outline holds them on the blue. The purple GG reads least there; the mockup also shows the alternative, a raised panel with an accent ring and the count in accent. Monochrome lit turns dark on the blue, as today. At 360px the fifth button still wraps to a second line.
+
+**How the mockup was generated:** with throwaway scripts kept outside the repo. A page run in headless Chromium (`--allow-file-access-from-files`) imports pixelcrush from `node_modules`, draws each colour SVG on a canvas at 16 times the target, and runs `filter` at 9, 16 and 20 pixels with 4 and 8 colours. A node script then embeds the outputs in the mockup as PNG data URIs. The real build should use resvg rather than Chromium, so that `--check` does not depend on a browser version.
 
 ## Verification
 
 **Commands:**
-- `node script/pixel_art/export.mjs --check` -- expected: exit 0 after the export ran.
-- `bin/rails test test/helpers` and the feed reaction system test (`bin/rails test test/system/<feed reactions file>.rb`) -- expected: green; keys unchanged so `pixel_icon` still resolves.
-- `npm run lint:css` -- expected: clean if the CSS rule changes.
+- `node script/reaction_icons/export.mjs --check` and `node script/pixel_art/export.mjs --check` -- expected: exit 0.
+- `bin/rails test test/helpers test/controllers/reactions_controller_test.rb` and `bin/rails test test/system/feed_reactions_test.rb` -- expected: green.
+- `npm run lint:css`, `npm run format:check`, `script/check_file_sizes` -- expected: clean.
 
 **Manual checks (if no CLI):**
-- The author approves the drawings in `ux-gameble/mockups/reaction-icons.html`, then sees them on the feed on staging, desktop and phone, crisp at 14 to 18px, the lit one dark on blue.
+- The author picks in `ux-gameble/mockups/reaction-icons.html` (round 3), then sees the icons on the feed on staging, desktop and phone, crisp at 16px.
 
 ## Auto Run Result
 
-Status: blocked (human checkpoint). Mockup written at `_bmad-output/initiative-gameble/ux-gameble/mockups/reaction-icons.html`; recommended set T1, H1, G1, W1, F1, plus the CSS sizing decision above. No change to `export.mjs`, the exported SVGs or application code. Resume once the author has picked one drawing per reaction and answered the CSS question.
+Status: blocked (human checkpoint). Mockup written at `_bmad-output/initiative-gameble/ux-gameble/mockups/reaction-icons.html`. Its first recommended set was T1, H1, G1, W1, F1, with the CSS sizing decision. No change to `export.mjs`, the exported SVGs or application code. Resume once the author has picked one drawing per reaction and answered the CSS question.
 
-Round 2 (2026-11-03): the mockup redrawn after the author's review; recommended set T4, H4, G3, W4, F3 at most 9 rows at 2 CSS px. Round 1 is collapsed in the mockup. Still blocked until the author picks.
+Round 2 (2026-11-03): the mockup was redrawn after the author's review. Recommended set T4, H4, G3, W4, F3, at most 9 rows at 2 CSS px. Round 1 is collapsed in the mockup. Still blocked until the author picks.
+
+Round 3 (2026-11-03): the author's change of direction is recorded as a decision. The icons are vector drawings inspired by emoji and pixelated by pixelcrush. Recommended T7, H7, G5, W6, F7 at 16 × 16, 8 colours, 1 CSS px per pixel. The route moves to full. Rounds 1 and 2 are collapsed in the mockup. Still blocked until the author picks.
