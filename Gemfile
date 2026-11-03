@@ -56,7 +56,7 @@ gem "dry-operation", "~> 1.1.0"
 gem "rails_event_store", "~> 3.2.0"
 
 # Build the shared view parts as tested components (AD-16) [https://viewcomponent.org]
-gem "view_component", "~> 4.16.0"
+gem "view_component", "~> 4.19.0"
 
 # Pick the first-visit locale from the browser's Accept-Language (AD-18) [https://github.com/iain/http_accept_language]
 gem "http_accept_language", "~> 2.1.1"
