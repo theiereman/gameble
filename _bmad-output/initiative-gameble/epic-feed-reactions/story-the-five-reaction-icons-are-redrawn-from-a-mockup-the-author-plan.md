@@ -3,7 +3,7 @@ title: 'The five reaction icons are redrawn from a mockup the author approves'
 type: 'feature'
 ticket: 3
 created: '2026-11-03'
-status: built
+status: done
 baseline_revision: 'b3b5259a98d97178b903d379ea2562c80d5fb293'
 route: 'full'
 route_source: 'auto'
