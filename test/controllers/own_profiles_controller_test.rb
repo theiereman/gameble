@@ -42,7 +42,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_nil flash[:alert]
   end
 
-  test "Me is the player's own profile, with an opener for the title, the card back and the showcase, then how it works and the settings" do
+  test "Me is the player's own profile, a customize panel opening the title and the card back, the showcase, then how it works and the settings" do
     choose(:portal_one)
     sign_in(@player)
 
@@ -53,26 +53,27 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", /\AMe/
     assert_select "main .me[data-controller=me][data-me-back-value=standard][data-action='back-picker:equipped->me#wear'] section.profile"
     assert_select "main h1#profile-heading", "Gabe the Brave"
-    assert_select ".profile-band a.me-title-opener[href='#me-title-sheet'][aria-haspopup=dialog][aria-controls=me-title-sheet][data-bottom-sheet-opens=me-title-sheet]" do
+    assert_select "header.profile-band + section.me-customize h2#me-customize-heading", "Customize"
+    assert_select ".me-customize a.me-opener[href='#me-title-sheet'][aria-haspopup=dialog][aria-controls=me-title-sheet][data-bottom-sheet-opens=me-title-sheet]" do
+      assert_select ".me-opener__kicker", "Title"
       assert_select ".me-opener__value", "Choose a title"
       assert_select ".me-opener__cue", "Change"
     end
-    assert_select ".profile-band a.me-back-opener[href='#me-back-sheet'][data-bottom-sheet-opens=me-back-sheet]" do
-      assert_select "[data-me-target=preview] .me-back-opener__name", "Standard"
+    assert_select ".me-customize a.me-back-opener[href='#me-back-sheet'][data-bottom-sheet-opens=me-back-sheet]" do
+      assert_select "[data-me-target=preview] .me-opener__value", "Standard"
       assert_select "[data-me-target=preview] img.back-picker__image[alt='']"
-      assert_select ".me-back-opener__scope", "Card back · only you"
+      assert_select ".me-opener__kicker", "Card back · only you"
       assert_select ".me-opener__cue", "Change"
     end
-    assert_select ".profile-band .button", false
-    assert_select ".profile-showcase__head a.me-showcase-opener[href='#me-showcase-sheet']", "Edit"
-    assert_select "#profile-achievements-heading ~ a.me-achievements__all[href='/en/achievements'] #plus-achievements-badge.stream-slot"
+    assert_select ".profile-band .button, .profile-band .me-opener", false
+    assert_select ".me-customize + section#showcase h2#profile-showcase-heading", "Showcase"
+    assert_select ".me-showcase-opener, #me-showcase-sheet", false
+    assert_select "#profile-achievements-heading + a.me-achievements__all[href='/en/achievements'] #plus-achievements-badge.stream-slot"
     assert_equal [ "/en/how-it-works", "/en/settings" ], css_select("main nav.me-links .plus__list a.menu-item").map { it["href"] }
     assert_select "dialog#me-title-sheet:not([open]).bottom-sheet", 1
     assert_select "dialog#me-back-sheet:not([open]).bottom-sheet .back-picker", 1
-    assert_select "dialog#me-showcase-sheet:not([open]).bottom-sheet", 1
     assert_select "#me-title-sheet-title", "Profile title"
     assert_select "#me-back-sheet-title", "Card back"
-    assert_select "#me-showcase-sheet-title", "Showcase"
     assert_select "#me-back-sheet .me-sheet__intro", "Only you see it, on your face-down cards when you open a capsule."
     assert_select "[style]", false
   end
@@ -105,7 +106,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal %w[set-theme-rpg standard], css_select("template[data-me-target=back]").map { it["data-key"] }.sort
     rpg = css_select("template[data-me-target=back][data-key='set-theme-rpg']").sole
-    assert_equal "RPG", rpg.at_css(".me-back-opener__name").text
+    assert_equal "RPG", rpg.at_css(".me-opener__value").text
   end
 
   test "the title sheet offers no title, then the earned titles grouped by rank, the worn one current, each a form" do
@@ -115,7 +116,8 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get me_path(locale: :fr)
 
-    assert_select ".profile-band .me-title-opener .me-opener__value.profile-title", "Adepte · Valve"
+    assert_select ".profile-band .profile-band__title", "Adepte · Valve"
+    assert_select ".me-customize a[href='#me-title-sheet'] .me-opener__value.profile-title", "Adepte · Valve"
     assert_select "#me-title-sheet .me-sheet__intro", "Votre titre s'affiche sur votre profil, dans le fil d'activité et dans vos échanges."
     assert_equal [ "Adepte", "Novice" ], css_select("#me-title-sheet .me-sheet__heading").map(&:text)
     assert_equal [ "Aucun titre", "Adepte · Valve", "Novice · Valve" ], css_select("#me-title-sheet button.filter-chip").map { it.text.strip }
@@ -146,31 +148,26 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to me_path(locale: :en)
     follow_redirect!
     assert_select ".toast", /Title equipped/
-    assert_select ".me-title-opener[autofocus] .me-opener__value", "Adept · Valve"
+    assert_select "a[href='#me-title-sheet'][autofocus] .me-opener__value", "Adept · Valve"
     assert_select "[autofocus]", 1
   end
 
-  test "the showcase sheet lists the chosen cards, each with its remove button, says how to add one and links to the card list" do
+  test "the showcase offers a cross on each card, says how to add one, and no showcase sheet" do
     choose(:portal_one, :common_card_one)
     sign_in(@player)
 
     get me_path(locale: :en)
 
-    titles = css_select(".profile-showcase__slot").map { it.at_css(".card-link")["aria-label"] }
-    assert_equal 2, titles.size
-    assert_select "#me-showcase-sheet .me-sheet__intro", "Up to five cards, at the top of your public profile."
-    assert_select "#me-showcase-sheet .me-showcase-row", 2
-    assert_select "#me-showcase-sheet .me-showcase-row .card.card--s", 2
-    assert_equal %w[delete delete], css_select("#me-showcase-sheet .me-showcase-row form input[name=_method]").map { it["value"] }
+    assert_equal 2, css_select(".profile-showcase__slot").size
+    assert_select ".profile-showcase__slot button.profile-showcase__remove[aria-label^='Remove '][aria-label$=' from the showcase']", 2
     assert_equal [ "/en/cards/portal/seasons/1/showcase", "/en/cards/tin-soldier/seasons/1/showcase" ],
-      css_select("#me-showcase-sheet .me-showcase-row form").map { it["action"] }
-    assert_select "#me-showcase-sheet .me-showcase-row button[aria-label^='Remove '][aria-label$=' from the showcase']", 2
-    assert_select "#me-showcase-sheet .me-sheet__note", "Add a card from its page, with “Add to showcase”. Drag the cards on your profile to change their order."
-    assert_select "#me-showcase-sheet a.me-sheet__link[href='/en/library/cards']", "See the card list"
-    assert_select "#me-showcase-sheet [autofocus]", false
+      css_select("dialog .showcase-removal__form").map { it["action"] }
+    assert_select ".profile-showcase__info-text", "Up to five cards. Drag them to change their order, and add one from its page with “Add to showcase”."
+    assert_select "#me-showcase-sheet", false
+    assert_select "[autofocus]", false
   end
 
-  test "a card removed from the showcase sheet sends the sheet open with the focus on the next card's remove button" do
+  test "a card removed from the showcase comes back to Me with the focus on the next card's cross" do
     choose(:portal_one, :common_card_one, :uncommon_card_one)
     sign_in(@player)
 
@@ -180,12 +177,11 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_select "#toasts .toast__title", "Removed from showcase"
     assert_equal %w[tin-soldier green-hills], showcase_slugs
-    assert_select "dialog#me-showcase-sheet[open]"
-    assert_select "dialog#me-showcase-sheet .me-showcase-row:first-child button[autofocus][aria-label^=Remove]"
+    assert_select ".profile-showcase__slot:first-child button.profile-showcase__remove[autofocus][aria-label^=Remove]"
     assert_select "[autofocus]", 1
   end
 
-  test "the last card removed leaves an empty showcase section on Me and the sheet open on the card list link" do
+  test "the last card removed leaves an empty showcase section on Me with the focus on the card list link" do
     choose(:portal_one)
     sign_in(@player)
 
@@ -195,24 +191,40 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-showcase", false
     assert_select "section h2#profile-showcase-heading", "Showcase"
     assert_select "section[aria-labelledby=profile-showcase-heading] > .profile-section__aside", /Your best card/
-    assert_select "dialog#me-showcase-sheet[open] .me-showcase-row", false
-    assert_select "dialog#me-showcase-sheet[open] a.me-sheet__link[autofocus]"
+    assert_select "section#showcase a.profile-showcase__browse[href='/en/library/cards'][autofocus]", "See the card list"
     assert_select "[autofocus]", 1
   end
 
-  test "an owner with no chosen card sees the empty showcase section with its opener, a visitor sees no showcase" do
+  test "an owner with no chosen card sees the empty showcase section with the card list link, a visitor sees no showcase" do
     sign_in(@player)
 
     get me_path(locale: :en)
 
     assert_select "#profile-showcase-heading", "Showcase"
-    assert_select ".profile-showcase__head a.me-showcase-opener"
+    assert_select "section#showcase a.profile-showcase__browse[href='/en/library/cards']"
     assert_select ".profile-section__aside", /Your best card/
 
     delete session_path(locale: :en)
     get brother_path(locale: :en, token: @player.token)
 
     assert_select "#profile-showcase-heading, .profile-showcase", false
+  end
+
+  test "Me opened from a card offers a way back to that card; an unknown card offers none" do
+    choose(:portal_one)
+    sign_in(@player)
+
+    get me_path(locale: :en, card: "portal", edition: 1)
+    assert_select ".profile-showcase__head a.profile-showcase__return[href=?]", "/en/cards/portal/seasons/1", "Back to the card"
+
+    get me_path(locale: :fr, card: "portal", edition: 1)
+    assert_select "a.profile-showcase__return", "Retour à la carte"
+
+    [ { card: "nowhere", edition: 1 }, { card: "portal", edition: 99 }, { card: "portal", edition: "one" }, { card: "portal" } ].each do |params|
+      get me_path(locale: :en, **params)
+      assert_response :success
+      assert_select "a.profile-showcase__return", false
+    end
   end
 
   test "a visitor of the owner's profile sees the same name, title and showcase order, with no opener, back or sheet" do
@@ -222,7 +234,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     Game::MoveShowcaseCard.new.call(player: @player, card_season_id: catalog_card_seasons(:common_card_one).id, direction: "earlier").value!
     sign_in(@player)
     get me_path(locale: :en)
-    mine = [ css_select("h1#profile-heading").text, css_select(".me-title-opener .profile-title").text, showcase_slugs ]
+    mine = [ css_select("h1#profile-heading").text, css_select(".profile-band__title").text, showcase_slugs ]
 
     sign_in(accounts_players(:moderator))
     get brother_path(locale: :en, token: @player.token)
@@ -264,18 +276,17 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     get me_path(locale: :fr)
 
     assert_select "title", /\AMoi/
-    assert_select ".me-title-opener .me-opener__value", "Choisir un titre"
-    assert_select ".me-title-opener .me-opener__cue", "Modifier"
-    assert_select ".me-back-opener .me-back-opener__scope", "Dos de carte · vous seul"
-    assert_select ".me-showcase-opener", "Modifier"
-    assert_select ".me-achievements__all .menu-item__label", "Voir tous les succès"
+    assert_select "#me-customize-heading", "Personnalisation"
+    assert_select "a[href='#me-title-sheet'] .me-opener__kicker", "Titre"
+    assert_select "a[href='#me-title-sheet'] .me-opener__value", "Choisir un titre"
+    assert_select "a[href='#me-title-sheet'] .me-opener__cue", "Modifier"
+    assert_select ".me-back-opener .me-opener__kicker", "Dos de carte · vous seul"
+    assert_select ".me-achievements__all", /Tout voir/
     assert_equal [ "Comment ça marche", "Paramètres" ], css_select(".me-links .menu-item__label").map(&:text)
     assert_select "nav.me-links[aria-label=?]", "Aide et paramètres"
     assert_select "#me-title-sheet-title", "Titre de profil"
     assert_select "#me-back-sheet-title", "Dos de carte"
-    assert_select "#me-showcase-sheet-title", "Vitrine"
-    assert_select "#me-showcase-sheet a.me-sheet__link", "Voir la liste des cartes"
-    assert_select "#me-showcase-sheet button[aria-label^=Retirer]", 1
+    assert_select "button.profile-showcase__remove[aria-label^=Retirer]", 1
   end
 
   test "no database id in the openers, the sheets' forms or the templates" do
@@ -286,8 +297,8 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     get me_path(locale: :en)
 
     ids = [ @player.id, catalog_card_seasons(:portal_one).id, catalog_card_seasons(:rare_card_one).id ]
-    markup = css_select(".me-opener, .me-back-opener, dialog.bottom-sheet, template[data-me-target]").map(&:to_html).join
-      .gsub(/name="authenticity_token" value="[^"]*"/, "").gsub(%r{/seasons/\d+|-(xs|s|m)-[^"]*\.png|\b(19|20)\d\d\b}, "")
+    markup = css_select(".me-opener, dialog.bottom-sheet, dialog.modal, template[data-me-target]").map(&:to_html).join
+      .gsub(/name="authenticity_token" value="[^"]*"/, "").gsub(%r{/seasons/\d+|-(xs|s|m)-[^"]*\.png|\b(19|20)\d\d\b|showcase-remove-[a-z0-9-]+}, "")
     ids.each { assert_no_match(/\b#{it}\b/, markup) }
   end
 end

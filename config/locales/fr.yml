@@ -1183,19 +1183,17 @@ fr:
         none: "Aucun titre"
         empty: "Aucun titre pour l'instant. Atteignez un palier d'un set, ou complétez-le, pour en gagner un."
       showcase:
-        title: "Vitrine"
         empty: "Votre plus belle carte s'affichera ici, une fois choisie depuis la fiche d'une carte."
-        why: "Jusqu'à cinq cartes, en tête de votre profil public."
   own_profiles:
     show:
       title: "Moi"
       change: "Modifier"
       choose_title: "Choisir un titre"
       card_back: "Dos de carte · vous seul"
-      edit_showcase: "Modifier"
-      add_hint: "Ajoutez une carte depuis sa fiche, avec « %{add} ». Faites glisser les cartes de votre profil pour changer leur ordre."
+      customize: "Personnalisation"
+      title_label: "Titre"
       card_list: "Voir la liste des cartes"
-      all_achievements: "Voir tous les succès"
+      all_achievements: "Tout voir"
       links: "Aide et paramètres"
       how_it_works: "Comment ça marche"
       settings: "Paramètres"
@@ -1238,10 +1236,15 @@ fr:
         achievements: "Succès"
       showcase:
         title: "Vitrine"
-        move_left: "Déplacer %{title} vers la gauche"
-        move_right: "Déplacer %{title} vers la droite"
-        info_label: "Comment changer l'ordre"
-        info: "Faites glisser les cartes pour changer leur ordre, ou déplacez une carte d'une place avec les flèches sous elle."
+        info_label: "Comment marche la vitrine"
+        info: "Jusqu'à cinq cartes. Faites-les glisser pour changer leur ordre, et ajoutez-en une depuis sa fiche avec « %{add} »."
+        return: "Retour à la carte"
+        removal:
+          title: "Retirer de la vitrine ?"
+          text: "%{title} quitte votre vitrine. Vous gardez la carte."
+          confirm: "Retirer"
+          cancel: "La garder"
+          close: "Fermer"
         moved: "%{title} est maintenant à la place %{position} sur %{count}."
         move_failed: "Le nouvel ordre n'a pas pu être enregistré."
         remove: Retirer %{title} de la vitrine
@@ -2010,6 +2013,7 @@ fr:
       text: "%{title} n'est plus dans votre vitrine."
     full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
     not_found: "Cette carte n'existe pas."
+    open: "Ouvrir ma vitrine"
   reactions:
     add: "Ajouter une réaction"
     choose: "Choisir une réaction"

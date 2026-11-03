@@ -258,34 +258,69 @@
   height: calc(1.5 * 100cqi);
 }
 
-/* The owner's ◀ ▶ under each card, below its ground shadow, each column
-   kept when one of them is absent; a touch-sized square at any width. */
-.profile-showcase__moves {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 28px;
-}
+/* The owner's cross at the top right of each card, a touch-sized target
+   around a small square, asking before the card leaves the showcase. */
+.profile-showcase__remove {
+  --remove-size: 28px;
 
-.profile-showcase__move {
-  display: block;
+  position: absolute;
+  z-index: 1;
+  top: calc((var(--space-touch-min) - var(--remove-size)) / -2 - 6px);
+  right: calc((var(--space-touch-min) - var(--remove-size)) / -2 - 6px);
+  display: grid;
+  place-items: center;
   width: var(--space-touch-min);
-  margin: 0;
+  height: var(--space-touch-min);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-bright);
+  cursor: pointer;
 }
 
-.profile-showcase__move-button {
-  width: var(--space-touch-min);
-  min-width: var(--space-touch-min);
-  min-height: var(--space-touch-min);
-  margin: 0;
-  padding-inline: 0;
+.profile-showcase__remove::before {
+  content: "";
+  position: absolute;
+  inset: calc((var(--space-touch-min) - var(--remove-size)) / 2);
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
 }
 
-/* The edge card's absent button keeps its column; the showcase-order
-   controller shows it again once the card is dragged off the edge. */
-.profile-showcase__move[hidden] {
-  display: block;
+.profile-showcase__remove:hover {
+  color: var(--color-alert);
+}
+
+.profile-showcase__remove:focus-visible {
+  outline: none;
+}
+
+.profile-showcase__remove:focus-visible::before {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.profile-showcase__remove-icon {
+  position: relative;
+  width: 14px;
+  height: 14px;
+}
+
+.profile-showcase__slot[data-dragging] .profile-showcase__remove {
   visibility: hidden;
+}
+
+.profile-showcase-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.profile-showcase__return {
+  margin-left: auto;
+}
+
+.profile-showcase__browse {
+  align-self: flex-start;
 }
 
 /* The heading and, for the owner, the "i" mark that opens a short note
@@ -396,6 +431,10 @@ html[data-motion="reduced"] .profile-showcase--sortable .profile-showcase__slot 
 
   .profile-showcase__slot {
     width: 100px;
+  }
+
+  .profile-showcase__remove {
+    --remove-size: 22px;
   }
 
   .profile-showcase__slot > .card-link::after {

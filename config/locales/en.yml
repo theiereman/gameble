@@ -2216,17 +2216,17 @@ en:
         yours: Your turn
   own_profiles:
     show:
-      add_hint: Add a card from its page, with “%{add}”. Drag the cards on your profile to change their order.
-      all_achievements: See all achievements
+      all_achievements: See all
       card_back: Card back · only you
       card_list: See the card list
       change: Change
       choose_title: Choose a title
-      edit_showcase: Edit
+      customize: Customize
       how_it_works: How it works
       links: Help and settings
       settings: Settings
       title: Me
+      title_label: Title
   personalizations:
     show:
       card_back:
@@ -2298,8 +2298,6 @@ en:
         none: No title
       showcase:
         empty: Your best card will show here once you choose it from a card's page.
-        title: Showcase
-        why: Up to five cards, at the top of your public profile.
   profile_titles:
     chosen:
       title: Title equipped
@@ -2351,14 +2349,19 @@ en:
           other: "%{count} sets started"
         title: Sets
       showcase:
-        info: Drag the cards to change their order, or move a card one place with
-          the arrows under it.
-        info_label: How to change the order
+        info: Up to five cards. Drag them to change their order, and add one from
+          its page with “%{add}”.
+        info_label: How the showcase works
         move_failed: The new order could not be saved.
-        move_left: Move %{title} left
-        move_right: Move %{title} right
         moved: "%{title} is now in place %{position} of %{count}."
+        removal:
+          cancel: Keep it
+          close: Close
+          confirm: Remove
+          text: "%{title} leaves your showcase. You keep the card."
+          title: Remove from showcase?
         remove: Remove %{title} from the showcase
+        return: Back to the card
         title: Showcase
       stats:
         activity: Activity
@@ -2701,6 +2704,7 @@ en:
     add_edition: Add S%{season} to showcase
     full: 'Showcase full: remove a card to add another.'
     not_found: This card does not exist.
+    open: Open my showcase
     remove: Remove from showcase
     remove_edition: Remove S%{season} from showcase
     removed:

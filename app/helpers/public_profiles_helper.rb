@@ -7,4 +7,6 @@ module PublicProfilesHelper
       t("public_profiles.fallback_title", code: Accounts::PublicProfile.code(player.token))
     end
   end
+
+  def showcase_removal_dialog_id(card) = "showcase-remove-#{card.id}-#{card.season_number}"
 end

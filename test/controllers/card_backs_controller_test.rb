@@ -34,7 +34,7 @@ class CardBacksControllerTest < ActionDispatch::IntegrationTest
     end
     assert_equal [ "De base et événements", "Succès", "Mission de la Confrérie", "Sets · Thèmes", "Sets · Palmarès" ], css_select(".back-picker__group-name").map(&:text)
     assert_select "#me-back-sheet .me-sheet__count .visually-hidden", "2 sur #{Game::CardBacks::KEYS.size} débloqués"
-    assert_select ".me-back-opener__scope", "Dos de carte · vous seul"
+    assert_select ".me-back-opener .me-opener__kicker", "Dos de carte · vous seul"
     assert_select ".back-picker__tile--active", 1
     assert_select ".back-picker__tile--active button[aria-label=?]", "Standard, actif. Offert à tous les joueurs, à l'inscription."
     assert_select ".back-picker__tile--locked", Game::CardBacks::KEYS.size - 2
@@ -78,7 +78,7 @@ class CardBacksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".toast", text: /equipped/i, count: 0
     assert_select ".back-picker__strip .back-picker__name", "RPG"
     assert_select "dialog#me-back-sheet[open] .back-picker__tile--active[data-key='set-theme-rpg'] button[autofocus]"
-    assert_select ".me-back-opener [data-me-target=preview] .me-back-opener__name", "RPG"
+    assert_select ".me-back-opener [data-me-target=preview] .me-opener__value", "RPG"
     assert_select "dialog[open]", 1
     assert_select "[autofocus]", 1
   end

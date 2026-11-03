@@ -1,52 +1,54 @@
-<%# locals: (cards:, context:, movable: false, moved: nil, editing: false) %>
+<%# locals: (cards:, context:, owned: false, removed: nil, return_card: nil) %>
 <% strings = CardStrings.new %>
-<% movable &&= cards.size > 1 %>
+<% movable = owned && cards.size > 1 %>
+<% focus = removed if owned && removed.is_a?(Hash) %>
 <% order = { controller: "showcase-order", showcase_order_announcement_value: t("public_profiles.show.showcase.moved"), showcase_order_failed_value: t("public_profiles.show.showcase.move_failed") } if movable %>
-<%= tag.section class: "profile-section", aria: { labelledby: "profile-showcase-heading" }, data: order do %>
+<%= render PanelComponent.new(tag: :section, id: "showcase", class: "profile-showcase-panel", aria: { labelledby: "profile-showcase-heading" }, data: order) do %>
   <div class="profile-showcase__head">
     <%= tag.h2 t("public_profiles.show.showcase.title"), id: "profile-showcase-heading", class: "profile-section__title" %>
-    <% if movable %>
+    <% if owned %>
       <details class="profile-showcase__info">
         <summary class="profile-showcase__info-mark">
           <%= pixel_icon("info", class: "profile-showcase__info-icon") %>
           <span class="visually-hidden"><%= t("public_profiles.show.showcase.info_label") %></span>
         </summary>
-        <p class="profile-showcase__info-text"><%= t("public_profiles.show.showcase.info") %></p>
+        <p class="profile-showcase__info-text"><%= t("public_profiles.show.showcase.info", add: t("showcases.add")) %></p>
       </details>
-    <% end %>
-    <% if editing %>
-      <%= tag.a(**bottom_sheet_opener("me-showcase-sheet"), class: "me-opener me-showcase-opener") do %>
-        <span class="me-opener__cue"><%= t("own_profiles.show.edit_showcase") %></span>
+      <% if return_card %>
+        <%= link_to return_card, class: "button button--secondary button--small profile-showcase__return", data: { turbo_prefetch: false } do %>
+          <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t("public_profiles.show.showcase.return") %></span>
+        <% end %>
       <% end %>
     <% end %>
   </div>
   <% if cards.empty? %>
     <p class="profile-section__aside"><%= t("personalizations.show.showcase.empty") %></p>
+    <% if owned %>
+      <%= link_to t("own_profiles.show.card_list"), library_cards_path, class: "button button--secondary button--small profile-showcase__browse",
+            autofocus: focus.present? %>
+    <% end %>
   <% else %>
     <%= tag.ul class: [ "profile-showcase", ("profile-showcase--sortable" if movable) ], data: ({ showcase_order_target: "list" } if movable) do %>
-      <% cards.each_with_index do |card, index| %>
+      <% cards.each do |card| %>
         <% place = card_showcase_path(slug: card.id, number: card.season_number) %>
+        <% dialog_id = showcase_removal_dialog_id(card) %>
         <% slot = { showcase_order_target: "slot", url: place, title: card.title, action: "pointerdown->showcase-order#press dragstart->showcase-order#stopNativeDrag contextmenu->showcase-order#stopMenu" } if movable %>
         <%= tag.li class: "profile-showcase__slot", data: slot do %>
           <%= link_to_card_detail(card, strings:, context:) do %>
             <%= render CardComponent.new(card:, size: :grid) %>
           <% end %>
-          <% if movable %>
-            <div class="profile-showcase__moves">
-              <% directions = { "earlier" => index.positive?, "later" => index < cards.size - 1 }.select { |_, present| present }.keys %>
-              <% was_moved = moved.is_a?(Hash) && moved["slug"] == card.id && moved["number"].to_s == card.season_number.to_s %>
-              <% focused = (directions.include?(moved["direction"]) ? moved["direction"] : directions.first) if was_moved %>
-              <% { "earlier" => [ "arrow-left", "move_left" ], "later" => [ "arrow-right", "move_right" ] }.each do |direction, (icon, label)| %>
-                <%= button_to place, method: :patch, params: { direction: },
-                      class: "button button--secondary button--small profile-showcase__move-button",
-                      form: { class: "profile-showcase__move", hidden: !directions.include?(direction), data: { direction: } },
-                      aria: { label: t("public_profiles.show.showcase.#{label}", title: card.title) }, autofocus: focused == direction do %>
-                  <%= pixel_icon(icon, class: "button__icon") %>
-                <% end %>
-              <% end %>
-            </div>
+          <% if owned %>
+            <%= tag.button type: :button, class: "profile-showcase__remove", autofocus: focus && focus["slug"] == card.id && focus["number"].to_s == card.season_number.to_s,
+                  **dialog_opener_attributes(dialog_id, label: t("public_profiles.show.showcase.remove", title: card.title)) do %>
+              <%= pixel_icon("close", class: "profile-showcase__remove-icon") %>
+            <% end %>
           <% end %>
         <% end %>
+      <% end %>
+    <% end %>
+    <% if owned %>
+      <% cards.each do |card| %>
+        <%= render "public_profiles/showcase_removal", card:, dialog_id: showcase_removal_dialog_id(card) %>
       <% end %>
     <% end %>
   <% end %>

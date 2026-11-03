@@ -183,7 +183,10 @@
             <% end %>
           </div>
           <% if showcase.action == :full %>
-            <p class="card-detail__showcase-full"><%= t("showcases.full") %></p>
+            <p class="card-detail__showcase-full">
+              <%= t("showcases.full") %>
+              <%= link_to t("showcases.open"), me_path(card: view.id, edition: view.season_number, anchor: "showcase"), class: "card-detail__showcase-open", data: { turbo_prefetch: false } %>
+            </p>
           <% end %>
         <% end %>
       </div>

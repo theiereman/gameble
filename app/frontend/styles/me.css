@@ -11,22 +11,85 @@
   min-width: 0;
 }
 
+/* What only the owner changes, under the band visitors see: the title
+   and the card back, each a tile that opens its sheet. */
+.me-customize {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.me-customize__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .me-opener {
-  display: inline-flex;
+  display: grid;
+  grid-template: "look kicker cue" auto "look value cue" auto / auto minmax(0, 1fr) auto;
   align-items: center;
-  align-self: flex-start;
-  gap: var(--space-3);
-  max-width: 100%;
+  gap: var(--space-1) var(--space-4);
+  height: 100%;
   min-height: var(--space-touch-min);
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-3);
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
   color: var(--color-text);
   text-decoration: none;
 }
 
+.me-opener:hover {
+  background: var(--color-panel-raised);
+}
+
+.me-opener:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.me-opener__look {
+  display: grid;
+  grid-area: look;
+  place-items: center;
+  width: 50px;
+  height: 75px;
+}
+
+.me-opener__look .back-picker__image {
+  width: 50px;
+  height: 75px;
+}
+
+.me-opener__icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-accent);
+}
+
+.me-back-opener__look {
+  display: contents;
+}
+
+.me-opener__kicker {
+  grid-area: kicker;
+  align-self: end;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
 .me-opener__value {
+  grid-area: value;
+  align-self: start;
   min-width: 0;
-  color: var(--color-text);
-  font: var(--font-body-small);
-  letter-spacing: var(--tracking-body-small);
+  color: var(--color-text-bright);
+  font: var(--font-button);
   overflow-wrap: anywhere;
 }
 
@@ -35,11 +98,13 @@
 }
 
 .me-opener__cue {
-  flex: none;
+  display: inline-flex;
+  grid-area: cue;
+  align-items: center;
+  gap: var(--space-1);
   color: var(--color-accent);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
-  text-decoration: underline;
   text-transform: uppercase;
 }
 
@@ -47,70 +112,49 @@
   color: var(--color-text-max);
 }
 
-.me-opener:focus-visible {
+.me-opener__arrow {
+  width: 12px;
+  height: 12px;
+}
+
+/* "See all" sits quietly at the end of the achievements heading. */
+.me-achievements__all {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--space-touch-min);
+  margin-block: calc((var(--space-touch-min) - 1em) / -2);
+  margin-left: auto;
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-decoration: underline;
+  text-transform: uppercase;
+}
+
+.me-achievements__all:hover {
+  color: var(--color-text-max);
+}
+
+.me-achievements__all:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
 
-/* The worn back: its art beside its name, over who sees it. */
-.me-back-opener {
-  display: inline-grid;
-  grid-template: "art name cue" auto "art scope cue" auto / auto minmax(0, 1fr) auto;
-  gap: 0 var(--space-4);
-  margin-top: var(--space-3);
-  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
-  box-shadow: var(--control-border);
+.me-achievements__all .menu-item__badge {
+  text-decoration: none;
 }
 
-.me-back-opener__look {
-  display: contents;
-}
-
-.me-back-opener__art {
-  grid-area: art;
-  align-self: center;
-}
-
-.me-back-opener__art .back-picker__image {
-  width: 50px;
-  height: 75px;
-}
-
-.me-back-opener__name {
-  grid-area: name;
-  align-self: end;
-  color: var(--color-text-bright);
-  font: var(--font-button);
-  overflow-wrap: anywhere;
-}
-
-.me-back-opener__scope {
-  grid-area: scope;
-  align-self: start;
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-}
-
-.me-back-opener .me-opener__cue {
-  grid-area: cue;
-  align-self: center;
-}
-
-.me-showcase-opener {
-  margin-left: auto;
-  padding: 0 var(--space-3);
-}
-
-.me-achievements__all {
-  align-self: flex-start;
-  width: auto;
-  min-width: min(100%, 320px);
-}
-
+/* The tab bar's Me page alone leads to help and settings; wider screens
+   reach them from the home menu and the player menu. */
 .me-links {
   min-width: 0;
+}
+
+@media (min-width: 720px) {
+  .me-links {
+    display: none;
+  }
 }
 
 /* Inside a sheet: what it is for, then its choices. */
@@ -168,41 +212,21 @@
   min-height: var(--space-touch-min);
 }
 
-.me-showcase-rows {
+/* The owner confirms before a card leaves the showcase. */
+.showcase-removal__form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-5);
+}
+
+.showcase-removal__text {
   margin: 0;
-  padding: 0;
-  list-style: none;
+  color: var(--color-text);
+  font: var(--font-body);
 }
 
-.me-showcase-row {
+.showcase-removal__actions {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-4);
-  min-width: 0;
-  padding: var(--space-2);
-  box-shadow: var(--control-border);
-}
-
-.me-showcase-row__face {
-  flex: none;
-}
-
-.me-showcase-row__title {
-  flex: 1;
-  min-width: 0;
-  color: var(--color-text-bright);
-  font: var(--font-button);
-  overflow-wrap: anywhere;
-}
-
-.me-showcase-row__form {
-  flex: none;
-}
-
-.me-showcase-row__remove {
-  min-width: var(--space-touch-min);
-  min-height: var(--space-touch-min);
 }

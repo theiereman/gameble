@@ -59,7 +59,8 @@ class ProfileTitlesControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[studio valve novice], stored
     follow_redirect!
     assert_select ".toast", /Title equipped/
-    assert_select ".profile-band a.me-title-opener[autofocus] .profile-title", "Novice · Valve"
+    assert_select ".profile-band .profile-band__title", "Novice · Valve"
+    assert_select ".me-customize a[href='#me-title-sheet'][autofocus] .profile-title", "Novice · Valve"
     assert_select "#me-title-sheet button[type=button][aria-current=true]", "Novice · Valve"
   end
 

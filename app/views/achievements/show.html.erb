@@ -10,7 +10,7 @@
 <section class="achievements" aria-labelledby="achievements-heading">
   <h1 id="achievements-heading" class="achievements__title"><%= t(".title") %></h1>
   <%= render "achievements/header", earned: earned.size, total: @tiles.size %>
-  <% [ [ :earned, earned ], [ :to_earn, to_earn ] ].each do |group, tiles| %>
+  <% [ [ :to_earn, to_earn ], [ :earned, earned ] ].each do |group, tiles| %>
     <% next if tiles.empty? %>
     <section class="achievements__group" aria-labelledby="achievements-<%= group %>">
       <h2 id="achievements-<%= group %>" class="achievements__heading"><%= t(".groups.#{group}", count: tiles.size) %></h2>

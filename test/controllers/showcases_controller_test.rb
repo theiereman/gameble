@@ -156,7 +156,7 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_select "#toasts .toast__title", "Retiré de la vitrine"
     assert_equal %w[tin-soldier green-hills], showcase_slugs
-    assert_select "#me-showcase-sheet .me-showcase-row:nth-child(1) button[autofocus][aria-label^=Retirer]"
+    assert_select ".profile-showcase__slot:nth-child(1) button.profile-showcase__remove[autofocus][aria-label^=Retirer]"
     assert_select "[autofocus]", 1
   end
 
@@ -167,11 +167,11 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     delete showcase_path(slug: "tin-soldier"), headers: { "HTTP_REFERER" => me_path(locale: :en) }
     follow_redirect!
     assert_select "#toasts .toast__title", "Removed from showcase"
-    assert_select "#me-showcase-sheet .me-showcase-row:nth-child(1) button[autofocus][aria-label^=Remove]"
+    assert_select ".profile-showcase__slot:nth-child(1) button.profile-showcase__remove[autofocus][aria-label^=Remove]"
 
     delete showcase_path(slug: "portal"), headers: { "HTTP_REFERER" => me_path(locale: :en) }
     follow_redirect!
-    assert_select "#me-showcase-sheet a.me-sheet__link[autofocus]"
+    assert_select "a.profile-showcase__browse[autofocus]"
     assert_select ".profile-showcase", false
   end
 

@@ -1,8 +1,12 @@
-<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:, started_set_count:, showcase:, relation:, context:, goals: [], owner_title: nil, editing: false, worn_back: nil) %>
+<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:, started_set_count:, showcase:, relation:, context:, goals: [], owner_title: nil, editing: false, worn_back: nil, return_card: nil) %>
+<% owned = current_player.present? && current_player == owner %>
 <section class="profile" aria-labelledby="profile-heading">
-  <%= render "public_profiles/summary", owner:, title:, season:, summary:, card_total:, achievements:, relation:, owner_title:, editing:, worn_back: worn_back %>
+  <%= render "public_profiles/summary", owner:, title:, season:, summary:, card_total:, achievements:, relation:, owner_title:, editing: editing %>
+  <% if editing %>
+    <%= render "own_profiles/customize", owner_title:, worn_back: worn_back %>
+  <% end %>
   <% if editing || showcase.any? %>
-    <%= render "public_profiles/showcase", cards: showcase, context:, movable: current_player.present? && current_player == owner, moved: flash[:moved_showcase_card], editing: editing %>
+    <%= render "public_profiles/showcase", cards: showcase, context:, owned:, removed: flash[:removed_showcase_card], return_card: return_card %>
   <% end %>
   <% if season.nil? %>
     <%= render PanelComponent.new(tag: :p, class: "profile__no-season") do %><%= t("public_profiles.show.no_season") %><% end %>

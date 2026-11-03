@@ -3,19 +3,19 @@ require_relative "../support/catalog_seeds"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
-# The Me page: the player's own profile, its title, card back and showcase
-# each changed in a bottom sheet opened by touching them, the result shown
-# on the profile at once.
+# The Me page: the player's own profile, its title and card back each changed
+# in a bottom sheet opened from the customize panel, its showcase cards
+# removed by their cross once confirmed, the result shown at once.
 class MePageTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GameSets
   include SteamSignIn
 
   PHONE = [ 390, 844 ].freeze
+  TITLE_OPENER = "a.me-opener[href='#me-title-sheet']"
   OPENERS = {
-    "a.me-title-opener" => [ "me-title-sheet", "Profile title" ],
-    "a.me-back-opener" => [ "me-back-sheet", "Card back" ],
-    "a.me-showcase-opener" => [ "me-showcase-sheet", "Showcase" ]
+    TITLE_OPENER => [ "me-title-sheet", "Profile title" ],
+    "a.me-back-opener" => [ "me-back-sheet", "Card back" ]
   }.freeze
 
   setup do
@@ -78,7 +78,7 @@ class MePageTest < ApplicationSystemTestCase
     JS
   end
 
-  test "on a phone the title, the back preview and the showcase Edit each open their sheet as a modal named by its title, Escape giving the focus back" do
+  test "on a phone the title and the back preview each open their sheet as a modal named by its title, Escape giving the focus back" do
     resize_to(*PHONE)
     sign_in_to_me
 
@@ -93,15 +93,27 @@ class MePageTest < ApplicationSystemTestCase
     end
   end
 
-  test "a card is moved from the keyboard on Me, the focus staying on the moved card's button" do
+  test "a card's cross asks before removing it from the showcase; keeping it changes nothing" do
     choose_two_cards
     sign_in_to_me
-    labels = all(".profile-showcase__slot .card-link").map { it[:"aria-label"] }
+    first, second = all(".profile-showcase__slot").map { it[:"data-title"] }
+    cross = ".profile-showcase__slot:first-child button.profile-showcase__remove"
+    dialog = find(cross)["data-dialog-opener-dialog-value"]
 
-    find(".profile-showcase__slot:first-child form[data-direction='later'] button").send_keys(:enter)
+    find(cross).click
+    assert_modal(dialog)
+    assert_selector "##{dialog} .showcase-removal__text", text: "#{first} leaves your showcase. You keep the card."
+    within("##{dialog}") { click_on "Keep it" }
+    assert_no_selector "dialog##{dialog}", visible: true
+    assert_selector ".profile-showcase__slot", count: 2
 
-    assert_selector ".profile-showcase__slot:first-child .card-link[aria-label=\"#{labels.last}\"]"
-    assert_selector ".profile-showcase__slot:last-child form[data-direction='earlier'] button:focus"
+    find(cross).click
+    assert_modal(dialog)
+    within("##{dialog}") { click_on "Remove" }
+
+    assert_selector "#toasts .toast", text: /#{Regexp.escape(first)} is no longer in your showcase/
+    assert_selector ".profile-showcase__slot", count: 1
+    assert_focused "button.profile-showcase__remove[aria-label='Remove #{second} from the showcase']"
   end
 
   test "a card dragged on Me is announced once the new order is saved, and kept after a reload" do
@@ -120,27 +132,27 @@ class MePageTest < ApplicationSystemTestCase
   test "a title chosen in its sheet shows in the band with its toast, and no title removes it" do
     earn_titles
     sign_in_to_me
-    assert_selector ".me-title-opener .me-opener__value", text: "Choose a title"
+    assert_selector "#{TITLE_OPENER} .me-opener__value", text: "Choose a title"
 
-    open_sheet("a.me-title-opener", "me-title-sheet")
+    open_sheet(TITLE_OPENER, "me-title-sheet")
     within("#me-title-sheet") { click_on "Adept · Valve" }
 
     assert_selector ".toast", text: "TITLE EQUIPPED"
-    assert_selector ".profile-band .me-title-opener .profile-title", text: "Adept · Valve"
+    assert_selector ".profile-band .profile-band__title", text: "Adept · Valve"
     assert_no_selector "dialog#me-title-sheet", visible: true
 
-    open_sheet("a.me-title-opener", "me-title-sheet")
+    open_sheet(TITLE_OPENER, "me-title-sheet")
     assert_selector "#me-title-sheet button[aria-current=true]", text: /\AAdept · Valve\z/i
     within("#me-title-sheet") { click_on "No title" }
 
     assert_selector ".toast", text: "TITLE REMOVED"
-    assert_selector ".me-title-opener .me-opener__value", text: "Choose a title"
+    assert_selector "#{TITLE_OPENER} .me-opener__value", text: "Choose a title"
   end
 
   test "a back equipped in its sheet shows in the band's preview at once, the page kept" do
     Game::CardBackUnlock.record(@player.id, "set-theme-rpg", Time.current)
     sign_in_to_me
-    assert_selector ".me-back-opener [data-me-target=preview] .me-back-opener__name", text: "Standard"
+    assert_selector ".me-back-opener [data-me-target=preview] .me-opener__value", text: "Standard"
     execute_script("window.stayedOnPage = true")
 
     open_sheet("a.me-back-opener", "me-back-sheet")
@@ -148,15 +160,15 @@ class MePageTest < ApplicationSystemTestCase
 
     assert_selector ".back-picker__tile--active[data-key='set-theme-rpg']"
     assert_selector "p[role=status]", text: "Card back equipped. RPG will show on your face-down cards.", visible: :all
-    assert_selector ".me-back-opener [data-me-target=preview] .me-back-opener__name", text: "RPG", visible: :all
+    assert_selector ".me-back-opener [data-me-target=preview] .me-opener__value", text: "RPG", visible: :all
     assert_selector ".me[data-worn-back='set-theme-rpg']"
     assert evaluate_script("window.stayedOnPage")
     assert_equal "set-theme-rpg", Game::PlayerState.where(player_id: @player.id).pick(:active_card_back)
 
     page.send_keys(:escape)
-    assert_selector ".me-back-opener .me-back-opener__name", text: "RPG"
+    assert_selector ".me-back-opener .me-opener__value", text: "RPG"
     visit me_path(locale: :en)
-    assert_selector ".me-back-opener .me-back-opener__name", text: "RPG"
+    assert_selector ".me-back-opener .me-opener__value", text: "RPG"
   end
 
   test "a back equipped on Me stays in the preview once the page is restored from the cache by Back, and equipping goes on from there" do
@@ -164,7 +176,7 @@ class MePageTest < ApplicationSystemTestCase
     sign_in_to_me
     open_sheet("a.me-back-opener", "me-back-sheet")
     find("[data-key='set-theme-rpg'] .back-picker__back").click
-    assert_selector ".me-back-opener .me-back-opener__name", text: "RPG", visible: :all
+    assert_selector ".me-back-opener .me-opener__value", text: "RPG", visible: :all
     execute_script("document.querySelector('.me').dataset.restored = 'from-cache'")
 
     execute_script("Turbo.visit('#{home_path(locale: :en)}')")
@@ -172,29 +184,14 @@ class MePageTest < ApplicationSystemTestCase
     go_back
 
     assert_selector ".me[data-restored=from-cache][data-worn-back='set-theme-rpg']"
-    assert_selector ".me-back-opener .me-back-opener__name", text: "RPG"
+    assert_selector ".me-back-opener .me-opener__value", text: "RPG"
     open_sheet("a.me-back-opener", "me-back-sheet")
     find("[data-key=standard] .back-picker__back").click
     assert_selector ".back-picker__tile--active[data-key=standard]"
-    assert_selector ".me-back-opener .me-back-opener__name", text: "Standard", visible: :all
+    assert_selector ".me-back-opener .me-opener__value", text: "Standard", visible: :all
     find("[data-key='set-theme-rpg'] .back-picker__back").click
-    assert_selector ".me-back-opener .me-back-opener__name", text: "RPG", visible: :all
+    assert_selector ".me-back-opener .me-opener__value", text: "RPG", visible: :all
     assert_equal "set-theme-rpg", Game::PlayerState.where(player_id: @player.id).pick(:active_card_back)
-  end
-
-  test "a card removed from the showcase sheet leaves the profile, the sheet sent open with the focus on the next card's remove button" do
-    choose_two_cards
-    sign_in_to_me
-    first, second = all(".profile-showcase__slot").map { it[:"data-title"] }
-
-    open_sheet("a.me-showcase-opener", "me-showcase-sheet")
-    find("#me-showcase-sheet button[aria-label='Remove #{first} from the showcase']").click
-
-    assert_selector "#toasts .toast", text: /#{Regexp.escape(first)} is no longer in your showcase/
-    assert_modal("me-showcase-sheet")
-    assert_focused "#me-showcase-sheet button[aria-label='Remove #{second} from the showcase']"
-    assert_selector ".profile-showcase__slot", count: 1
-    assert_equal [ second ], all("#me-showcase-sheet .me-showcase-row__title").map(&:text)
   end
 
   test "on a phone the settings are one tap from Me" do

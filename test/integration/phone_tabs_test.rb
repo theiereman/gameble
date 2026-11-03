@@ -50,7 +50,7 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     %w[/en/trades /en/friends /en/feed].each { assert_select ".social a.social__more[href='#{it}']" }
 
     get me_path(locale: :en)
-    assert_select "main a.menu-item[href='/en/achievements']"
+    assert_select "main a.me-achievements__all[href='/en/achievements']"
     assert_select ".plus__list > li", 2
     %w[/en/how-it-works /en/settings].each { assert_select ".plus__list a.menu-item[href='#{it}']" }
   end

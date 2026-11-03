@@ -33,10 +33,6 @@ export function moveItem<T>(items: readonly T[], from: number, to: number): T[] 
   return moved
 }
 
-export function edgeButtons(index: number, count: number): { earlier: boolean; later: boolean } {
-  return { earlier: index > 0, later: index < count - 1 }
-}
-
 export type PlacementResult = { kind: "placed" } | { kind: "refused"; message: string } | { kind: "failed" }
 
 export type SendPlacement = {

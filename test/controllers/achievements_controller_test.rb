@@ -45,6 +45,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".achievements__segment--lit", 3
     assert_select "h2#achievements-earned", "Obtenus · 3"
     assert_select "h2#achievements-to_earn", "À obtenir · #{total_achievements - 3}"
+    assert_equal %w[achievements-to_earn achievements-earned], css_select(".achievements__group h2").map { it["id"] }
     assert_equal [ "Première acquisition approuvée", "A surpassé les attentes", "Période d'essai validée" ], group_names(:earned)
     assert_equal [ "Nous n'en demandions pas autant", "Dossier complété", "Entraide mutuelle", "Historique de consommation exemplaire",
       "Loyauté au-delà du raisonnable", "Excellence administrative", "Contribution non rémunérée", "Non-conformité statistique",
@@ -194,7 +195,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
     assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of #{total_achievements}"
     get me_path(locale: :fr)
-    assert_select "a.me-achievements__all[href='/fr/achievements']", /Voir tous les succès/
+    assert_select "a.me-achievements__all[href='/fr/achievements']", /Tout voir/
   end
 
   def total_achievements = Game::Achievements::CATALOGUE.size
