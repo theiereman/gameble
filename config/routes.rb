@@ -39,6 +39,8 @@ Rails.application.routes.draw do
     # What an empty reserve proposes, loaded in a frame once the reserve runs out.
     get "booster/next-steps" => "booster_next_steps#show", as: :booster_next_steps
     resource :packs_chip, path: "packs-chip", only: :show
+    # What is new for the player, the lines of the header's bell, in a frame.
+    resource :bell, only: :show
 
     # The collection, reached from the hub's menu: its entry, the player's
     # sets; the grid of every card of the season.

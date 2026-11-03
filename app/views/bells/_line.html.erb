@@ -1,0 +1,7 @@
+<%# locals: (line:) %>
+<%= tag.li id: line.dom_id, class: "bell__line", data: { bell_target: "item", bell_key: line.key, bell_path: line.path, bell_lasting: line.lasting } do %>
+  <%= link_to line.href, class: "bell__link", data: { action: "bell#follow", bell_key_param: line.key, turbo_prefetch: false } do %>
+    <span class="bell__sentence"><%= line.sentence %></span>
+    <span class="bell__action"><%= line.action %><%= pixel_icon("arrow-small-right", class: "bell__arrow") %></span>
+  <% end %>
+<% end %>

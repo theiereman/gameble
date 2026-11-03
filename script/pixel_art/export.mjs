@@ -636,6 +636,22 @@ const ICONS = {
       "...........",
     ],
   },
+  // The header's bell, beside the player chip (11 × 11).
+  bell: {
+    grid: [
+      ".....c.....",
+      "...ccccc...",
+      "..c.....c..",
+      "..c.....c..",
+      "..c.....c..",
+      "..c.....c..",
+      ".c.......c.",
+      "c.........c",
+      "ccccccccccc",
+      "...........",
+      "....ccc....",
+    ],
+  },
 }
 
 // One run-length path per fill: each row's runs of a symbol, `top` rows down.
@@ -1174,6 +1190,7 @@ const DESCRIPTIONS = {
   "tab-sets.svg": "Phone tab bar icon: SETS, four tiles (text colour)",
   "tab-social.svg": "Phone tab bar icon: SOCIAL, two heads and shoulders (text colour)",
   "tab-me.svg": "Phone tab bar icon: ME, one head and shoulders (text colour)",
+  "bell.svg": "The header's bell, what is new for the player, 11 × 11 (text colour)",
   "starfield.svg": "Star field tile, 480 × 480 CSS px, repeated under the content",
   ...Object.fromEntries([STANDARD_BACK, ...NAMED_BACK_DESIGNS].flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${name}-${size}.png`, `${title} back for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),

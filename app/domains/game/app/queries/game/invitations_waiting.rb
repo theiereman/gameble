@@ -3,10 +3,13 @@ module Game
     def self.call(player)
       return 0 unless player
 
+      relation(player).count
+    end
+
+    def self.relation(player)
       Invitation.pending
         .where(recipient_id: player.id)
         .where(sender_id: Accounts::Player.in_good_standing.select(:id))
-        .count
     end
   end
 end

@@ -2586,6 +2586,22 @@ en:
       open: Open a capsule
       special: Special
       standard: Capsules
+    bell:
+      answer: Answer
+      collect: Collect
+      daily: Your daily capsule is ready.
+      empty: Nothing new for now.
+      invitation: "%{name} invites you to be friends."
+      label:
+        zero: What is new, all seen
+        one: What is new, %{count} unseen
+        other: What is new, %{count} unseen
+      mission: "This week's mission: open %{target} capsules together."
+      mission_reached: "This week's mission is accomplished: %{target} capsules opened together."
+      mission_reward: 'The weekly mission is accomplished: a rare capsule awaits you.'
+      see: See
+      title: What is new
+      trade: "%{name} awaits your answer to a trade."
     live:
       marker: Live
     packs:

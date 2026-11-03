@@ -48,6 +48,22 @@ fr:
       open: "Ouvrir une capsule"
       special: "Spéciales"
       standard: "Capsules"
+    bell:
+      title: "Nouveautés"
+      label:
+        zero: "Nouveautés, tout est vu"
+        one: "Nouveautés, %{count} non vue"
+        other: "Nouveautés, %{count} non vues"
+      empty: "Rien de nouveau pour l'instant."
+      trade: "%{name} attend votre réponse à un échange."
+      invitation: "%{name} vous invite à devenir amis."
+      daily: "Votre capsule du jour est prête."
+      mission: "Mission de la semaine : ouvrir %{target} capsules ensemble."
+      mission_reached: "La mission de la semaine est accomplie : %{target} capsules ouvertes ensemble."
+      mission_reward: "La mission hebdo est accomplie : une capsule rare vous attend."
+      answer: "Répondre"
+      see: "Voir"
+      collect: "Récupérer"
     live:
       marker: "Live"
     top_bar:

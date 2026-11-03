@@ -1,0 +1,7 @@
+<% lines = bell_lines(@items) %>
+<turbo-frame id="bell-items" target="_top">
+  <ul class="bell__list">
+    <%= render partial: "bells/line", collection: lines, as: :line %>
+  </ul>
+  <%= tag.p t("shell.bell.empty"), class: "bell__empty", hidden: lines.any?, data: { bell_target: "empty" } %>
+</turbo-frame>

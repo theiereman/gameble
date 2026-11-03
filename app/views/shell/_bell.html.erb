@@ -1,0 +1,13 @@
+<%= tag.div class: "bell", data: { controller: "bell", action: "turbo:morph@document->bell#show turbo:before-cache@document->bell#reloadWhenRestored",
+      bell_labels_value: t("shell.bell.label").to_json, bell_owner_value: current_player.token } do %>
+  <button type="button" class="bell__button" popovertarget="bell-panel">
+    <%= pixel_icon("bell", class: "bell__icon") %>
+    <span class="visually-hidden" data-bell-target="label"><%= t("shell.bell.title") %></span>
+    <span class="bell__count" data-bell-target="count" aria-hidden="true" hidden></span>
+  </button>
+  <div id="bell-panel" class="bell__panel shell-popover" popover aria-labelledby="bell-title">
+    <p id="bell-title" class="shell-popover__title"><%= t("shell.bell.title") %></p>
+    <turbo-frame id="bell-items" src="<%= bell_path %>" target="_top" refresh="morph" data-bell-target="frame"
+      data-action="turbo:frame-render->bell#show turbo:frame-missing->bell#keep"></turbo-frame>
+  </div>
+<% end %>

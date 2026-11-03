@@ -93,6 +93,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--standard", "9"
       assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--special", "1"
       assert_select "turbo-stream[action=replace][target=hub-showcase-actions] template #hub-showcase-actions"
+      assert_select "turbo-stream[action=remove][target=bell-daily]"
       assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__message",
         "A capsule joins your reserve. The next one will be ready on 2026-10-03 00:00 UTC."
       assert_select "turbo-stream[action=append][target=toasts] template .toast__message time[datetime='2026-10-03T00:00:00Z'][data-controller=local-time]"

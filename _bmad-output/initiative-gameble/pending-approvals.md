@@ -49,6 +49,11 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
   - A goal tile shows at most five missing cards, then a "+N" link to its album filtered on the missing cards.
   - Suggestions show only to a player with no goal: at most three started, incomplete game sets; a player with neither goal nor started set keeps today's empty line.
 
+- Entry 10, "A bell with what is new" (epic phone-first web, built 2026-11-03): built with conservative choices that the author confirms or changes:
+  - The weekly mission's line (the entry's open unknown): while the player has an uncollected mission reward, "La mission hebdo est accomplie : une capsule rare vous attend." / "The weekly mission is accomplished: a rare capsule awaits you." with "Récupérer" / "Collect"; otherwise one line a week, "Mission de la semaine : ouvrir %{target} capsules ensemble." / "This week's mission: open %{target} capsules together." with "Voir" / "See". Both lead to the mission panel on Social.
+  - "A line clears when its target is opened" is remembered by the browser, per device: the server only computes the lines from current state (a GET writes nothing), and the browser hides a line once its target page was opened, by the line or any other way. A line comes back when its state changes (a trade's new turn, a new week). The set is kept per player on a shared browser. A line opened on the phone still shows on the computer; entry 11's server-side marker could later carry this for every line. Two lines are exceptions and stay until their state ends: the daily capsule (until collected, the next day's line replacing it) and the mission reward (until collected), since the capsule screen where a player lands would otherwise hide the daily line at once. Opening the friends page clears every friend-request line together.
+  - At most five trade lines and five friend-request lines; the daily line's link opens the capsule screen, where the daily slot is collected, rather than collecting from the bell.
+
 ## Settled on 2026-11-02
 
 Settled by the author in conversation on 2026-11-02.

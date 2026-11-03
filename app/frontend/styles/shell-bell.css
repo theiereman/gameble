@@ -1,0 +1,121 @@
+/*
+ * The header's bell: a chip with the bell and the count of lines not yet
+ * seen, opening a native popover of what is new, one link per line.
+ * Imported after shell-header-phone.css, whose phone header it joins.
+ */
+
+.bell {
+  display: flex;
+}
+
+.bell__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--space-chip-height);
+  margin: 0;
+  padding: var(--space-1) var(--space-4);
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.bell__button:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.bell__button:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.bell__icon {
+  width: 22px;
+  height: 22px;
+}
+
+.bell__count {
+  color: var(--color-alert);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+  font-variant-numeric: tabular-nums;
+}
+
+.bell__count[hidden] {
+  display: none;
+}
+
+.bell__panel {
+  width: min(360px, calc(100vw - 2 * var(--space-gutter-phone)));
+  max-height: calc(100dvh - var(--topbar-height) - 2 * var(--space-3));
+  overflow-y: auto;
+}
+
+.bell__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bell__line[hidden] {
+  display: none;
+}
+
+.bell__link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: var(--space-touch-min);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+  text-decoration: none;
+}
+
+.bell__link:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.bell__link:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.bell__action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.bell__empty {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+@media (max-width: 719px) {
+  .bell {
+    display: none;
+  }
+
+  .top-bar--top-level .bell {
+    display: flex;
+  }
+
+  .top-bar--top-level .bell__button {
+    min-width: var(--space-touch-min);
+    min-height: var(--space-chip-height-touch);
+    justify-content: center;
+  }
+}

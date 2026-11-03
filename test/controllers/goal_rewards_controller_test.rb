@@ -69,6 +69,7 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_select "turbo-stream[action=replace][target=goal-reward] template #goal-reward.hub-goal__claim--collected .hub-goal__claim-state", "Collected"
+    assert_select "turbo-stream[action=remove][target=bell-mission-reward]"
     assert_select "turbo-stream[action=replace][target=packs-chip] template div#packs-chip .packs-chip__special-count", "1"
     assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--special", "1"
     assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--standard", false
