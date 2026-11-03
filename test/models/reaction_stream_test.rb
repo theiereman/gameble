@@ -18,8 +18,8 @@ class ReactionStreamTest < ActiveSupport::TestCase
 
   def jobs = enqueued_jobs.select { it[:job] == ReactionCountsJob }
 
-  def received
-    Nokogiri::HTML5.fragment(ActiveSupport::JSON.decode(broadcasts("reactions").sole))
+  def received(locale = :en)
+    Nokogiri::HTML5.fragment(ActiveSupport::JSON.decode(broadcasts("reactions:#{locale}").sole))
   end
 
   def count_update(fragment, kind)
@@ -30,8 +30,18 @@ class ReactionStreamTest < ActiveSupport::TestCase
     fragment.at_css("turbo-stream[action=update][targets='#{ReactionStream.names_targets(@entry.token, kind)}'] template")&.text&.squish
   end
 
-  test "the stream has a fixed name with no id" do
-    assert_equal [ "reactions" ], ReactionStream.streamables
+  test "the stream has a fixed name per locale, with no id" do
+    assert_equal [ "reactions", "en" ], ReactionStream.streamables
+    assert_equal [ "reactions", "fr" ], ReactionStream.streamables(:fr)
+  end
+
+  test "the job sends each locale its own words" do
+    react(@reader, @entry, "heart")
+
+    ReactionCountsJob.perform_now([ @entry.id ])
+
+    assert_equal "Heart · 1 Sam", names_update(received(:en), "heart")
+    assert_equal "Cœur · 1 Sam", names_update(received(:fr), "heart")
   end
 
   test "a reaction enqueues one job after its commit, naming the entry" do

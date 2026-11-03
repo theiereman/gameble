@@ -167,7 +167,7 @@ class FeedTest < ApplicationSystemTestCase
     earn_title(@player)
     visit feed_path(locale: :en)
 
-    assert_selector ".feed__sentence .profile-title", text: /\A#{ACTIVE_TITLE_TEXT}\z/i, minimum: 1
+    assert_selector ".feed__sentence .profile-title", text: /\A#{ACTIVE_TITLE_TEXT}\z/i, normalize_ws: true, minimum: 1
   end
 
   private

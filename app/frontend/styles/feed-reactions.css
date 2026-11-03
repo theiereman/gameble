@@ -22,11 +22,7 @@
 
 /* A kind nobody used takes no place, nor the player's own kind, shown last. */
 .feed__reaction-pill:has(.feed__reaction-count:empty),
-.feed__reactions[data-reaction-mine="thumb"] [data-reaction-pill="thumb"],
-.feed__reactions[data-reaction-mine="heart"] [data-reaction-pill="heart"],
-.feed__reactions[data-reaction-mine="gg"] [data-reaction-pill="gg"],
-.feed__reactions[data-reaction-mine="wow"] [data-reaction-pill="wow"],
-.feed__reactions[data-reaction-mine="middle_finger"] [data-reaction-pill="middle_finger"] {
+.feed__reaction-pill--mine {
   display: none;
 }
 
