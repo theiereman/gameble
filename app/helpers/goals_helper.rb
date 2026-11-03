@@ -1,6 +1,8 @@
 module GoalsHelper
   def goal_set_name(target)
-    target.custom? ? target.custom_set_name : SetLabel.for(target.set)
+    return SetLabel.for(target.set) unless target.custom?
+
+    target.steam_library? ? t("custom_sets.library.name") : target.custom_set_name
   end
 
   def goal_album_path(target)

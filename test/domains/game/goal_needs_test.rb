@@ -60,6 +60,20 @@ class Game::GoalNeedsTest < ActiveSupport::TestCase
     assert favourites.aims_at?(custom_set: custom_set.token)
   end
 
+  test "a goal on the Steam library set says so, carrying no stored name; a custom set's and a game set's goals do not" do
+    library_set = create_library_set(@player)
+    add(custom_set: library_set.token)
+    add(custom_set: create_custom_set(@player).token)
+    add(kind: "studio", key: "valve")
+
+    library, favourites, valve = Game::GoalNeeds.call(@player)
+
+    assert_equal [ true, true, nil, 3 ], [ library.custom?, library.steam_library?, library.custom_set_name, library.total ]
+    assert_equal [ true, false ], [ favourites.custom?, favourites.steam_library? ]
+    assert_not valve.steam_library?
+    assert Game::GoalNeeds.targets(@player).first.steam_library?
+  end
+
   test "on game sets reads the game set goals alone, in number order, without reading a custom set" do
     add(custom_set: create_custom_set(@player).token)
     insert_set(unheld_cards(3), { complete: 3 }, key: "roguelike", params: { "theme" => "roguelike" })
