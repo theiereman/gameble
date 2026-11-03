@@ -61,6 +61,8 @@ The **Deploy to staging** workflow then runs:
 
 A release that is not a pre-release, or whose tag is not on `develop`, deploys nothing to staging.
 
+Before the new web container answers `/up`, its entrypoint (`bin/docker-entrypoint`) runs `bin/rails db:prepare game:backfill_achievements`: the migrations, then the achievement backfill. The backfill grants every achievement a player in good standing already meets from their history, without a toast, so an achievement a release adds reaches the players who earned it before the new code takes traffic and no live grant announces it as new. It is idempotent: a boot with nothing new to grant grants nothing. A player whose grant fails is reported to Sentry and the others still get their grants; a failure of either step as a whole stops the boot, so the container never answers and the version before keeps serving. Both steps count inside Kamal's wait for `/up`: `deploy_timeout`, unset in `config/deploy.yml` and so Kamal's default of 30 seconds, and a boot that runs past it fails the deploy. The import worker runs neither, and production runs the same steps with the same image.
+
 ## 2. Accept the candidate
 
 Walk through staging at https://test.gameble.net, on a phone and on a desktop, in French and in English:
@@ -75,6 +77,7 @@ Walk through staging at https://test.gameble.net, on a phone and on a desktop, i
 - [ ] the settings change visibility and language;
 - [ ] staff: the back-office opens, and the report queue and a player search work;
 - [ ] what this release changed, read from the release notes, works as its tickets say;
+- [ ] for a release that adds achievements: `bin/kamal app logs -d staging -g game:backfill_achievements` shows `game:backfill_achievements: done`, a player whose history meets a new one holds it with no toast, a second boot (`bin/kamal app boot -d staging`) grants nothing more, and the time the boot took before `/up` answered is noted;
 - [ ] Sentry shows no new `staging` issue for this candidate;
 - [ ] the browser console shows no CSP violation.
 
