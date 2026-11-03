@@ -2,11 +2,14 @@
 // unlocks. Each is drawn on the set backs' anatomy (set_backs.mjs) with the
 // prestige frame, so every back but the standard one shares one look. A design
 // follows the set designs' format (see set_back_designs.mjs) and adds the file
-// name and the title the review sheet shows.
+// name and the title the review sheet shows. Its lettering is the GAMEBLE of
+// the standard back, not a word of its own.
+const LETTERING = "GAMEBLE"
+
 export const NAMED_BACK_DESIGNS = [
   {
-    kind: "named", name: "saison-1", title: "Saison 1", word: "SAISON", primary: "#4a7fd6", secondary: "#f4c542",
-    look: "an engraved 1, SAISON",
+    kind: "named", name: "saison-1", title: "Saison 1", primary: "#4a7fd6", secondary: "#f4c542",
+    look: "an engraved 1",
     motif: [
       ".................",
       ".................",
@@ -28,8 +31,8 @@ export const NAMED_BACK_DESIGNS = [
     ],
   },
   {
-    kind: "named", name: "confrere", title: "Confrère", word: "CONFRERE", primary: "#e8833a", secondary: "#fff3c4",
-    look: "a pennant crowned by five stars, CONFRERE",
+    kind: "named", name: "confrere", title: "Confrère", primary: "#e8833a", secondary: "#fff3c4",
+    look: "a pennant crowned by five stars",
     motif: [
       "........b........",
       "..b..b..b..b..b..",
@@ -51,8 +54,8 @@ export const NAMED_BACK_DESIGNS = [
     ],
   },
   {
-    kind: "named", name: "etoile-dor", title: "Étoile d'or", word: "LEGENDE", primary: "#f4c542", secondary: "#fff3c4",
-    look: "a five-point star with a bright heart, LEGENDE",
+    kind: "named", name: "etoile-dor", title: "Étoile d'or", primary: "#f4c542", secondary: "#fff3c4",
+    look: "a five-point star with a bright heart",
     motif: [
       "........l........",
       "........l........",
@@ -74,8 +77,8 @@ export const NAMED_BACK_DESIGNS = [
     ],
   },
   {
-    kind: "named", name: "aurore", title: "Aurore", word: "AURORE", primary: "#ff9a6a", secondary: "#fff3c4",
-    look: "the sun rising over a horizon, its light on the water, AURORE",
+    kind: "named", name: "aurore", title: "Aurore", primary: "#ff9a6a", secondary: "#fff3c4",
+    look: "the sun rising over a horizon, its light on the water",
     motif: [
       "........y........",
       "...y....y....y...",
@@ -97,8 +100,8 @@ export const NAMED_BACK_DESIGNS = [
     ],
   },
   {
-    kind: "named", name: "millesime-2017", title: "Millésime 2017", word: "MILLESIME", primary: "#c4945e", secondary: "#f4c542",
-    look: "a laurel wreath of leaf pairs round 17 over a blue ribbon, MILLESIME",
+    kind: "named", name: "millesime-2017", title: "Millésime 2017", primary: "#c4945e", secondary: "#f4c542",
+    look: "a laurel wreath of leaf pairs round 17 over a blue ribbon",
     motif: [
       ".......m.m.......",
       "....m..M.M..m....",
@@ -120,8 +123,8 @@ export const NAMED_BACK_DESIGNS = [
     ],
   },
   {
-    kind: "named", name: "centurion", title: "Centurion", word: "CENTURION", primary: "#e06a3a", secondary: "#ffd2a0",
-    look: "a plumed legionary helmet, CENTURION",
+    kind: "named", name: "centurion", title: "Centurion", primary: "#e06a3a", secondary: "#ffd2a0",
+    look: "a plumed legionary helmet",
     motif: [
       ".....rrrrrrr.....",
       "...rrrrrrrrrrr...",
@@ -143,8 +146,8 @@ export const NAMED_BACK_DESIGNS = [
     ],
   },
   {
-    kind: "named", name: "soldes-hiver", title: "Soldes d'hiver", word: "HIVER", primary: "#8fcff5", secondary: "#e6eef5",
-    look: "a six-branch snowflake, HIVER",
+    kind: "named", name: "soldes-hiver", title: "Soldes d'hiver", primary: "#8fcff5", secondary: "#e6eef5",
+    look: "a six-branch snowflake",
     motif: [
       ".................",
       "........w........",
@@ -166,8 +169,8 @@ export const NAMED_BACK_DESIGNS = [
     ],
   },
   {
-    kind: "named", name: "trefle-fane", title: "Trèfle fané", word: "TREFLE", primary: "#9aa86a", secondary: "#e6d9a0",
-    look: "a limp four-leaf clover, one leaf drooping, one fallen, TREFLE",
+    kind: "named", name: "trefle-fane", title: "Trèfle fané", primary: "#9aa86a", secondary: "#e6d9a0",
+    look: "a limp four-leaf clover, one leaf drooping, one fallen",
     motif: [
       "....lll.lll......",
       "...lxxxlxxxl.....",
@@ -189,8 +192,8 @@ export const NAMED_BACK_DESIGNS = [
     ],
   },
   {
-    kind: "named", name: "assidu", title: "Assidu", word: "ASSIDU", primary: "#a8c83a", secondary: "#e8ff9a",
-    look: "a full week ticked, the check spilling out of its box, ASSIDU",
+    kind: "named", name: "assidu", title: "Assidu", primary: "#a8c83a", secondary: "#e8ff9a",
+    look: "a full week ticked, the check spilling out of its box",
     motif: [
       ".................",
       ".................",
@@ -212,8 +215,8 @@ export const NAMED_BACK_DESIGNS = [
     ],
   },
   {
-    kind: "named", name: "siege-social", title: "Siège social", word: "SIEGE", primary: "#c4703a", secondary: "#ffd27a",
-    look: "one lit tower over low buildings, SIEGE",
+    kind: "named", name: "siege-social", title: "Siège social", primary: "#c4703a", secondary: "#ffd27a",
+    look: "one lit tower over low buildings",
     motif: [
       "........r........",
       "........g........",
@@ -235,8 +238,8 @@ export const NAMED_BACK_DESIGNS = [
     ],
   },
   {
-    kind: "named", name: "contrat", title: "Contrat", word: "PACTE", primary: "#a8907a", secondary: "#e6dcc4",
-    look: "a signed sheet closed with a green wax seal, PACTE",
+    kind: "named", name: "contrat", title: "Contrat", primary: "#a8907a", secondary: "#e6dcc4",
+    look: "a signed sheet closed with a green wax seal",
     motif: [
       ".................",
       "...wwwwwwwwwg....",
@@ -257,4 +260,4 @@ export const NAMED_BACK_DESIGNS = [
       "...........MMM...",
     ],
   },
-]
+].map((design) => ({ ...design, word: LETTERING }))
