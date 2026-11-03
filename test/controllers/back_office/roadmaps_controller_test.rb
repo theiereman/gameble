@@ -54,7 +54,8 @@ module BackOffice
       assert_select "[data-roadmap-preview] .landing-roadmap__milestone", 1
       assert_select "[data-roadmap-preview] .landing-roadmap__name", "Step alpha"
       assert_select "[style]", 0
-      assert_select "form [value='#{@alpha.id}'], form [name*='[#{@alpha.id}]'], form [id*='#{@alpha.id}'], form [data-key='#{@alpha.id}']", 0
+      assert_select "form [data-key='#{@alpha.id}'], form [name^='milestones[#{@alpha.id}]'], form [id^='roadmap-milestone-#{@alpha.id}-'], " \
+                    "form [name$='[token]'][value='#{@alpha.id}']", 0
     end
 
     test "saving updates, reorders, adds and deletes in one go and redirects with a notice" do
