@@ -40,6 +40,15 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
   - The QUICK FILTERS chip and its sheet of preset links are retired; the pastilles take their place.
   - The search and the pastille row are not pinned while the list scrolls.
 
+- Entry 5, "Sets that open on your goals" (epic phone-first web, built 2026-11-03): built with conservative choices that the author confirms or changes:
+  - ALL CARDS ▸ stays the way to the all-cards view, since the two-segment switch was removed on 2026-11-02.
+  - OBJECTIFS leads; the search, MES SETS and the Steam library keep their place before the grouped sets in progress.
+  - A typed search no longer hides OBJECTIFS, which sits above it, but still replaces everything below it.
+  - "Closest to completion" means the fewest cards missing to complete, then the larger share held, then the set's id.
+  - EN COURS keeps today's membership minus the goal sets, split into one group per set kind in kind order (themes, franchises, studios, hall of fame, UFOs), each loading six at a time; the gold frame stays on the set closest to its next tier across all the groups.
+  - A goal tile shows at most five missing cards, then a "+N" link to its album filtered on the missing cards.
+  - Suggestions show only to a player with no goal: at most three started, incomplete game sets; a player with neither goal nor started set keeps today's empty line.
+
 ## Settled on 2026-11-02
 
 Settled by the author in conversation on 2026-11-02.

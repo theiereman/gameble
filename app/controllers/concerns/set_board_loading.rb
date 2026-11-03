@@ -15,7 +15,8 @@ module SetBoardLoading
   TilePage = Data.define(:tiles, :next_offset)
 
   TILES_PER_PAGE = 6
-  BOARD_SECTIONS = %w[in_progress completed].freeze
+  COMPLETED = "completed".freeze
+  BOARD_SECTIONS = [ *Catalog::SetKind::ALL, COMPLETED ].freeze
 
   NO_SHOWCASE = Game::SetShowcases::Showcase.new(slots: [], others: 0, last_gained: nil)
 
@@ -38,20 +39,33 @@ module SetBoardLoading
       own_sets.map { OwnSetTile.new(own_set: it, showcase: showcases.fetch(it.token, NO_SHOWCASE)) }
     end
 
-    def load_set_tiles(season, owner:, section: nil, offset: 0)
+    def load_set_tiles(season, owner:, section: nil, offset: 0, goals: [])
       board = Game::SetBoard.call(owner, season:)
       sets = Catalog::SetsById.call((board.in_progress + board.complete).map(&:set_id))
-      in_progress = set_rows(board.in_progress, sets)
-      lists = { "in_progress" => in_progress, "completed" => set_rows(board.complete, sets) }
-      shown = section ? [ section ] : BOARD_SECTIONS
+      groups = kind_groups(set_rows(board.in_progress, sets).reject { aimed_at?(it.set, goals) })
+      lists = groups.merge(COMPLETED => set_rows(board.complete, sets))
+      shown = section ? [ section ] : lists.keys
       start = section ? offset : 0
-      windows = shown.to_h { [ it, lists.fetch(it).drop(start).first(TILES_PER_PAGE) ] }
-      tiles = set_tiles(windows.values.flatten(1), owner:, season:, closest: closest_to_next_tier(in_progress))
+      windows = shown.to_h { [ it, lists.fetch(it, []).drop(start).first(TILES_PER_PAGE) ] }
+      tiles = set_tiles(windows.values.flatten(1), owner:, season:, closest: closest_to_next_tier(groups.values.flatten(1)))
       pages = windows.to_h do |name, rows|
-        [ name, TilePage.new(tiles: tiles.shift(rows.size), next_offset: next_offset(start, lists.fetch(name).size)) ]
+        [ name, TilePage.new(tiles: tiles.shift(rows.size), next_offset: next_offset(start, lists.fetch(name, []).size)) ]
       end
-      @in_progress_page = pages["in_progress"]
-      @completed_page = pages["completed"]
+      @completed_page = pages.delete(COMPLETED)
+      @group_pages = pages
+    end
+
+    def kind_groups(rows)
+      Catalog::SetKind::ALL.to_h { |kind| [ kind, rows.select { it.set.kind == kind }.sort_by { completion_order(it.standing) } ] }
+        .reject { |_kind, group| group.empty? }
+    end
+
+    def completion_order(standing)
+      [ standing.total - standing.held, -standing.share, standing.set_id ]
+    end
+
+    def aimed_at?(set, goals)
+      goals.any? { it.aims_at?(kind: set.kind, key: set.key) }
     end
 
     def next_offset(start, total)

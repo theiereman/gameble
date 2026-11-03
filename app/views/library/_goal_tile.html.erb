@@ -1,0 +1,38 @@
+<%# locals: (tile:) %>
+<% need = tile.need %>
+<% standing = need.to_set_standing %>
+<% name = goal_set_name(need) %>
+<% strings = CardStrings.new %>
+<div class="goal-tile goal-tone--<%= need.position %>">
+  <%= link_to goal_album_path(need), class: "goal-tile__link", data: { turbo_prefetch: false } do %>
+    <%= goal_bookmark(need.position, size: :large) %>
+    <span class="goal-tile__name" aria-hidden="true">
+      <b><%= name %></b>
+      <span class="goal-tile__kind"><%= goal_kind_name(need) %></span>
+    </span>
+    <span class="goal-tile__count" aria-hidden="true"><b><%= number_with_delimiter(standing.held) %></b>/<%= number_with_delimiter(standing.total) %></span>
+    <span class="goal-tile__track" aria-hidden="true" data-controller="tier-ticks">
+      <progress class="set-row__bar goal-tile__bar" value="<%= [ standing.held, standing.total ].min %>" max="<%= [ standing.total, 1 ].max %>"></progress>
+      <%= set_tier_ticks(standing) %>
+    </span>
+    <span class="goal-tile__next" aria-hidden="true"><%= set_goal_line(standing) %></span>
+    <span class="visually-hidden"><%= goal_row_sentence(need) %></span>
+  <% end %>
+  <% if tile.missing_cards.any? || tile.more_missing.positive? %>
+    <ul class="goal-tile__missing" aria-label="<%= t("library.entry.goals.missing_label", set: name) %>">
+      <% tile.missing_cards.each do |card| %>
+        <li class="goal-tile__thumb">
+          <%= link_to_card_detail(card, strings:, owned: false) do %><%= render CardComponent.new(card:, size: :s, owned: false) %><% end %>
+        </li>
+      <% end %>
+      <% if tile.more_missing.positive? %>
+        <li class="goal-tile__thumb">
+          <%= link_to goal_missing_cards_path(need), class: "goal-tile__more", data: { turbo_prefetch: false },
+            aria: { label: t("library.entry.goals.more_label", count: tile.more_missing, more: number_with_delimiter(tile.more_missing), set: name) } do %>
+            <%= t("library.entry.goals.more", more: number_with_delimiter(tile.more_missing)) %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

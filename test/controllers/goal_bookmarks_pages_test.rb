@@ -9,7 +9,8 @@ require_relative "../support/steam_sign_in"
 # goal's set, owned or not, on their own pages only: the grid and its
 # OBJECTIFS filter, the albums (a goal's own album leaves its bookmark
 # off), the card detail and its OBJECTIFS row, the opened capsule and the
-# goal sets' tiles. Never on another player's pages or for a visitor.
+# goal sets' tiles of MES SETS and the search, EN COURS leaving them out.
+# Never on another player's pages or for a visitor.
 class GoalBookmarksPagesTest < ActionDispatch::IntegrationTest
   include CustomSets
   include GamePacks
@@ -261,13 +262,12 @@ class GoalBookmarksPagesTest < ActionDispatch::IntegrationTest
     assert_equal "Mes favoris, set perso, objectif 1, 1 carte sur 3", tile.css("> .visually-hidden").text
 
     get library_in_progress_path(locale: :fr), headers: { "Turbo-Frame" => "set-entry-in-progress" }
-    tiles = css_select("#set-entry-in-progress-title ~ ul.set-tiles a.set-tile, #set-entry-completed-title ~ ul.set-tiles a.set-tile")
-    assert_equal [ "goal-tone--2", nil ], tiles.map { it["class"][/goal-tone--\d/] }
-    roguelike_tile = tiles.find { it.at_css(".set-tile__name").text == "Roguelike" }
-    assert_match(/\ARoguelike, thème, objectif 2, 2 cartes sur 3/, roguelike_tile.css("> .visually-hidden").text)
+    assert_select "a.set-tile[href='/fr/library/theme/roguelike']", false
 
     get library_path(locale: :fr, q: "rogue")
-    assert_select "#set-results-title ~ ul.set-tiles a.set-tile.set-tile--goal.goal-tone--2"
+    roguelike_tile = css_select("#set-results-title ~ ul.set-tiles a.set-tile.set-tile--goal.goal-tone--2").sole
+    assert_equal [ "2", "2" ], roguelike_tile.css(".set-tile__face .set-tile__head > .set-tile__goal > .goal-bookmark.goal-bookmark--large").map(&:text)
+    assert_match(/\ARoguelike, thème, objectif 2, 2 cartes sur 3/, roguelike_tile.css("> .visually-hidden").text)
 
     Game::RemoveGoal.new.call(player: @player, custom_set: custom_set.token).value!
     get library_path(locale: :fr)

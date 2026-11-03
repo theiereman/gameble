@@ -76,6 +76,26 @@
   text-transform: uppercase;
 }
 
+/* EN COURS: one group of tiles per set kind. */
+.set-groups {
+  gap: var(--space-6);
+}
+
+.set-entry__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.set-entry__group-title {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
 .set-search__row {
   display: flex;
   align-items: center;

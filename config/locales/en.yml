@@ -1553,13 +1553,32 @@ en:
         free:
           one: One free goal · mark a set from its album
           other: "%{count} free goals · mark a set from its album"
+        missing_label: Cards missing from %{set}
+        more: "+%{more}"
+        more_label:
+          one: 1 more missing card, in the album of %{set}
+          other: "%{more} more missing cards, in the album of %{set}"
+          zero: No more missing card, in the album of %{set}
         next: "%{missing} more for %{tier}"
         next_complete: "%{missing} more for the complete set"
         row: 'Goal %{number}: %{set}, %{kind}, %{count}, %{next}'
+        suggestion_add_label: "Mark as goal: %{set}"
+        suggestion_left:
+          one: 1 card left to complete
+          other: "%{missing} cards left to complete"
+          zero: No card left to complete
+        suggestions: 'No goal yet. The sets you are closest to completing:'
         title: Goals
       in_progress: In progress
+      kinds:
+        franchise: Franchises
+        hall_of_fame: Hall of fame
+        studio: Studios
+        theme: Themes
+        ufo: UFOs
       load_more: Load more
       loading: Loading the sets in progress…
+      no_other_progress: No other set in progress. Find one above.
       no_progress: No set in progress yet. Find one above.
       none: No set found for “%{query}”.
       results: Results

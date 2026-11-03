@@ -1,0 +1,20 @@
+<%# locals: (suggestion:) %>
+<% set = suggestion.set %>
+<% standing = suggestion.standing %>
+<% name = SetLabel.for(set) %>
+<% left = standing.total - standing.held %>
+<div class="goal-suggestion">
+  <%= link_to library_set_path(kind: set.kind, key: set.key), class: "goal-suggestion__link", data: { turbo_prefetch: false } do %>
+    <span class="goal-suggestion__name" aria-hidden="true">
+      <b><%= name %></b>
+      <span class="goal-suggestion__kind"><%= set_kind_name(set.kind) %></span>
+    </span>
+    <span class="goal-suggestion__count" aria-hidden="true"><b><%= number_with_delimiter(standing.held) %></b>/<%= number_with_delimiter(standing.total) %></span>
+    <progress class="set-row__bar goal-suggestion__bar" aria-hidden="true" value="<%= standing.held %>" max="<%= [ standing.total, 1 ].max %>"></progress>
+    <span class="goal-suggestion__left" aria-hidden="true"><%= t("library.entry.goals.suggestion_left", count: left, missing: number_with_delimiter(left)) %></span>
+    <span class="visually-hidden"><%= goal_suggestion_sentence(set, standing) %></span>
+  <% end %>
+  <%= button_to t("goals.button.add"), library_goals_path, method: :post, params: { kind: set.kind, key: set.key, from: "sets" },
+    class: "button button--secondary goal-suggestion__button", form_class: "button-form",
+    aria: { label: t("library.entry.goals.suggestion_add_label", set: name) } %>
+</div>

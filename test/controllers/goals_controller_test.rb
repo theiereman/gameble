@@ -6,7 +6,8 @@ require_relative "../support/steam_sign_in"
 
 # Marking and unmarking goals from an album: a Turbo Stream answer redraws
 # the goal control alone, a refusal at five goals is written under it, and
-# a plain form goes back to the album.
+# a plain form goes back to the album. Marked from the Sets tab's
+# suggestions, either answer goes back to the Sets tab.
 class GoalsControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
   include CustomSets
@@ -105,6 +106,42 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("errors.game.custom_set_not_found", locale: :fr), flash[:alert]
   end
 
+  test "a goal marked from the Sets tab goes back to it, by either format, as goal 1 at the head of OBJECTIFS" do
+    theme("roguelike")
+    sign_in(@player)
+
+    post library_goals_path(locale: :fr), params: { kind: "theme", key: "roguelike", from: "sets" }, headers: STREAM
+
+    assert_redirected_to "/fr/library"
+    assert_response :see_other
+    assert_equal [ [ 1, "theme", "roguelike", nil ] ], goals
+    follow_redirect!
+    assert_equal [ "1" ], css_select("#goals .goal-tile a.goal-tile__link > .goal-bookmark").map(&:text)
+    assert_equal "/fr/library/theme/roguelike", css_select("#goals .goal-tile a.goal-tile__link").first["href"]
+
+    post library_goals_path(locale: :fr), params: { kind: "theme", key: "roguelike", from: "sets" }
+    assert_redirected_to "/fr/library"
+    assert_equal 1, goals.size
+  end
+
+  test "a refusal from the Sets tab goes back to it with the alert toast, the full goals included" do
+    %w[a1 a2 a3 a4 a5 a6].each { theme(it) }
+    %w[a1 a2 a3 a4 a5].each { Game::AddGoal.new.call(player: @player, kind: "theme", key: it).value! }
+    sign_in(@player)
+
+    assert_no_difference -> { writes } do
+      post library_goals_path(locale: :fr), params: { kind: "theme", key: "a6", from: "sets" }, headers: STREAM
+    end
+    assert_redirected_to "/fr/library"
+    assert_equal I18n.t("errors.game.too_many_goals", locale: :fr), flash[:alert]
+    assert_nil flash[:goal_refused]
+
+    post library_goals_path(locale: :en), params: { kind: "theme", key: "pirates", from: "sets" }
+    assert_redirected_to "/en/library"
+    assert_response :see_other
+    assert_equal I18n.t("errors.game.goal_set_not_found", locale: :en), flash[:alert]
+  end
+
   test "a visitor is sent to the landing and nothing is written" do
     assert_no_difference -> { writes } do
       post library_goals_path(locale: :en), params: { kind: "studio", key: "valve" }
@@ -137,6 +174,9 @@ class GoalsControllerTest < ActionDispatch::IntegrationTest
         post library_goals_path(locale: :fr), params: { kind: "studio", key: "valve" }
       end
       assert_redirected_to "/fr/library/studio/valve"
+      assert_equal I18n.t("goals.throttled", locale: :fr), flash[:alert]
+      post library_goals_path(locale: :fr), params: { kind: "studio", key: "valve", from: "sets" }
+      assert_redirected_to "/fr/library"
       assert_equal I18n.t("goals.throttled", locale: :fr), flash[:alert]
     end
   end

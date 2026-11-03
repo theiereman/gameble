@@ -4,11 +4,11 @@ require_relative "../support/game_packs"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
-# The collection: EN COURS loads more and a set search finds any set; the
-# grid of every card narrows from its filter row and search without losing
-# focus, appends its pages, moves its focus by arrow keys and comes back
-# from a card on its appended cards; the cards of a pack just opened are new
-# until a grid has shown them.
+# The collection: EN COURS loads more of a kind and a set search finds any
+# set; the grid of every card narrows from its filter row and search without
+# losing focus, appends its pages, moves its focus by arrow keys and comes
+# back from a card on its appended cards; the cards of a pack just opened
+# are new until a grid has shown them.
 class LibraryTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GamePacks
@@ -51,14 +51,14 @@ class LibraryTest < ApplicationSystemTestCase
     end
   end
 
-  test "EN COURS shows six sets, Load more adds the next ones, and the search finds any set as tiles in place of the lists" do
+  test "EN COURS shows six sets of a kind, Load more adds the next ones, and the search finds any set as tiles in place of the lists, under OBJECTIFS" do
     start_more_sets(8)
     assert_equal 12, Game::SetBoard.call(@player, season: @season).in_progress.size
     sign_in
     visit library_path(locale: :en)
 
-    assert_selector "#set-entry-in-progress-title ~ .set-tiles a.set-tile", count: 6
-    find("turbo-frame.set-more a.button", text: /load more/i).click
+    assert_selector "#set-entry-theme-title ~ .set-tiles a.set-tile", count: 6
+    find("#set-entry-theme-title ~ turbo-frame.set-more a.button", text: /load more/i).click
     assert_selector ".set-tiles a.set-tile", count: 12
     assert_no_selector "turbo-frame.set-more a.button"
     assert_selector ".set-tiles a.set-tile:focus"
@@ -68,6 +68,7 @@ class LibraryTest < ApplicationSystemTestCase
     assert_selector ".set-results .set-tiles a.set-tile[href='#{library_set_path(locale: :en, kind: "theme", key: "rpg")}']"
     assert_selector ".set-results .set-chip--none", text: /NO TIER/i
     assert_no_selector "#set-entry-in-progress-title"
+    assert_selector ".set-entry > #goals:first-child + .set-search"
 
     fill_in "set-search-field", with: ""
     assert_no_selector "#set-results-title"

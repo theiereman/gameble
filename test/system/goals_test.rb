@@ -4,9 +4,10 @@ require_relative "../support/game_packs"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
-# A player marks sets as goals from their albums, follows them under
-# OBJECTIFS on the collection, and sees a goal leave with a toast once a
-# capsule completes its set, after the cards are shown.
+# A player marks sets as goals from their albums or from the suggestions
+# under OBJECTIFS, follows them there as tiles whose missing cards open
+# their detail, and sees a goal leave with a toast once a capsule completes
+# its set, after the cards are shown.
 class GoalsTest < ApplicationSystemTestCase
   include CustomSets
   include GamePacks
@@ -57,11 +58,11 @@ class GoalsTest < ApplicationSystemTestCase
     visit library_path(locale: :en)
     within("#goals") do
       assert_selector ".goals__count", text: "2 / 5"
-      assert_selector ".goal-row", count: 2
-      names = all(".goal-row .goal-row__name b").map(&:text)
+      assert_selector ".goal-tile", count: 2
+      names = all(".goal-tile .goal-tile__name b").map(&:text)
       assert_equal [ "Roguelike", "Mes favoris" ], names
-      assert_selector ".goal-row", text: /0\/3/, count: 2
-      assert_selector ".goal-row__next", text: /Only 3 more for/i, count: 2
+      assert_selector ".goal-tile__count", text: "0/3", count: 2
+      assert_selector ".goal-tile__next", text: /Only 3 more for/i, count: 2
       assert_selector ".goals__free", text: "3 free goals · mark a set from its album"
     end
 
@@ -96,6 +97,33 @@ class GoalsTest < ApplicationSystemTestCase
     page.driver.browser.execute_cdp("Emulation.setEmulatedMedia", features: [ { name: "prefers-reduced-motion", value: "" } ])
     visit library_path(locale: :en)
     assert_selector "#goals .goals__count", text: "0 / 5"
-    assert_no_selector "#goals .goal-row"
+    assert_no_selector "#goals .goal-tile"
+  end
+
+  test "on a phone, a player without a goal marks a suggested set in one tap, sees it lead OBJECTIFS and opens a missing card from its tile" do
+    members = unheld_cards(3)
+    insert_set(members, { complete: 3 }, key: "roguelike", params: { "theme" => "roguelike" })
+    Game::Holding.create!(player_id: @player.id, card_season_id: members.first, quantity: 1)
+    missing = Catalog::CardSeason.find(members.second)
+    sign_in(@player)
+    resize_to(390, 844)
+
+    visit library_path(locale: :en)
+    within("#goals") do
+      assert_selector ".goal-suggestion", text: /Roguelike/
+      find(".goal-suggestion__button[aria-label='Mark as goal: Roguelike']").click
+    end
+
+    assert_selector "#goals .goal-tile .goal-tile__name b", text: "Roguelike"
+    assert_current_path library_path(locale: :en)
+    within("#goals") do
+      assert_no_selector ".goal-suggestion"
+      assert_selector ".goal-tile .goal-bookmark", text: "1"
+      assert_selector ".goal-tile__thumb a.card-link", count: 2
+      find(".goal-tile__thumb a.card-link[href='#{card_season_path(locale: :en, slug: missing.card.slug, number: 1)}']").click
+    end
+
+    assert_current_path card_season_path(locale: :en, slug: missing.card.slug, number: 1)
+    assert_selector ".card-detail h1", text: Catalog::CardText.find_by!(card_id: missing.card_id, locale: "en").title
   end
 end

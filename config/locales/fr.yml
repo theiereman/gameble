@@ -876,7 +876,25 @@ fr:
           one: "Un objectif libre · marquez un set depuis son album"
           other: "%{count} objectifs libres · marquez un set depuis son album"
         empty: "Aucun objectif. Ouvrez l'album d'un set et marquez-le comme objectif."
+        missing_label: "Cartes manquantes de %{set}"
+        more: "+%{more}"
+        more_label:
+          zero: "Aucune autre carte manquante, dans l'album de %{set}"
+          one: "1 autre carte manquante, dans l'album de %{set}"
+          other: "%{more} autres cartes manquantes, dans l'album de %{set}"
+        suggestions: "Aucun objectif pour l'instant. Les sets que vous êtes le plus près de compléter :"
+        suggestion_left:
+          zero: "Plus aucune carte pour compléter"
+          one: "Plus qu'une carte pour compléter"
+          other: "Plus que %{missing} cartes pour compléter"
+        suggestion_add_label: "Marquer comme objectif : %{set}"
       in_progress: "En cours"
+      kinds:
+        theme: "Thèmes"
+        franchise: "Franchises"
+        studio: "Studios"
+        hall_of_fame: "Palmarès"
+        ufo: "OVNI"
       completed: "Complétés"
       custom_sets:
         count: "Visibles par vous seul · %{sets} / %{max}"
@@ -893,6 +911,7 @@ fr:
           one: "et 1 autre set · Tout voir"
           other: "et %{count} autres sets · Tout voir"
       no_progress: "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
+      no_other_progress: "Aucun autre set en cours. Cherchez-en un ci-dessus."
       search: "Chercher un set"
       all_cards: "Toutes les cartes"
       results: "Résultats"

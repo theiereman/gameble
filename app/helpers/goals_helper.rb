@@ -5,8 +5,12 @@ module GoalsHelper
     target.steam_library? ? t("custom_sets.library.name") : target.custom_set_name
   end
 
-  def goal_album_path(target)
-    target.custom? ? custom_set_path(token: target.custom_set_token) : library_set_path(kind: target.kind, key: target.key)
+  def goal_album_path(target, **query)
+    target.custom? ? custom_set_path(token: target.custom_set_token, **query) : library_set_path(kind: target.kind, key: target.key, **query)
+  end
+
+  def goal_missing_cards_path(target)
+    goal_album_path(target, state: [ "missing" ])
   end
 
   def goal_aim_params(target)
@@ -36,6 +40,11 @@ module GoalsHelper
 
   def goal_row_sentence(need)
     t("library.entry.goals.row", number: need.position, **goal_row_words(need))
+  end
+
+  def goal_suggestion_sentence(set, standing)
+    left = standing.total - standing.held
+    [ set_progress_sentence(set, standing), t("library.entry.goals.suggestion_left", count: left, missing: number_with_delimiter(left)) ].join(", ")
   end
 
   def profile_goal_row_sentence(need)

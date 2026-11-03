@@ -516,3 +516,12 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-card-list-that-scrolls-without-end-plan.md`
   summary: The system tests of the filter row and the bottom sheet were written but not run, at the author's request; the release's full system run covers them.
   evidence: `test/system/bottom_sheet_test.rb`, `test/system/library_test.rb` (the phone row, the filter row flow, arriving filtered, the state fallback) and `test/system/goal_bookmarks_test.rb` moved to the pastille sheets.
+
+## Deferred from: build of story-sets-that-open-on-your-goals-plan (2026-11-03)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-sets-that-open-on-your-goals-plan.md`
+  summary: Back from a goal's album, nothing on the Sets tab carries the last-opened mark any more.
+  evidence: `app/frontend/controllers/last_album_controller.ts` marks only `a.set-row, a.set-tile`; a goal set was marked through its EN COURS tile, which this story leaves out of EN COURS, and `a.goal-tile__link` has neither the mark nor a style for it.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-sets-that-open-on-your-goals-plan.md`
+  summary: No test renders the Hall of fame or UFO group headings of EN COURS.
+  evidence: the heading is the same `library.entry.kinds.<kind>` call tested for themes, franchises and studios, and both locales hold the keys; no test seeds a set of those kinds into EN COURS.
