@@ -36,6 +36,14 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_no_match(/fonts\.googleapis|fonts\.gstatic/, response.body)
   end
 
+  test "a deploy reloads the page on the next visit instead of starting a second copy of the scripts beside the first" do
+    sign_in(accounts_players(:player))
+    get home_path(locale: :fr)
+
+    assert_select "head script[type=module][src*='/application-'][data-turbo-track=reload]"
+    assert_select "head link[rel=stylesheet][href*='/application-'][data-turbo-track=reload]"
+  end
+
   test "no style attribute anywhere in the shell" do
     player = accounts_players(:player)
     create_pack(player, available_at: 5.minutes.from_now)
