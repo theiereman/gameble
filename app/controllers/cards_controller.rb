@@ -22,11 +22,16 @@ class CardsController < ApplicationController
     @browse = named || profile || set_browse(@detail.sets.first) unless @public
     @goals = goal_marks.goals_for(@detail.card_id) unless @public
     @showcase = showcase_state
+    @trade_holders = trade_holders unless @public || @copies
     @pioneer = pioneer_line
     @set_url = set_url
   end
 
   private
+    def trade_holders
+      Game::FriendsHolding.call(current_player, card_id: @detail.card_id, card_season_id: @detail.card_season_id)
+    end
+
     def pioneer_line
       pioneer = Game::PioneerOf.call(@detail.card_season_id)
       return if pioneer.nil?

@@ -776,6 +776,14 @@ en:
       other: "%{percent} positive · %{reviews} reviews"
     store: See on Steam
     swipe: swipe to browse
+    trade:
+      asked: Already asked
+      button: Trade
+      copies:
+        one: "%{count} copy"
+        other: "%{count} copies"
+      intro: Ask a friend who holds this card. They choose what they want from your collection in return.
+      title: Trade for this card
   cards:
     face:
       image_missing: Image unavailable

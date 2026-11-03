@@ -208,9 +208,4 @@ class TradesController < ApplicationController
       end
       redirect_to trade_path(token: trade.token), status: :see_other
     end
-
-    def toast_sent(friend, offer)
-      name = helpers.friend_name(friend)
-      toast t("trades.sent.title"), offer.empty? ? t("trades.sent.open_text", name:) : t("trades.sent.text", name:)
-    end
 end

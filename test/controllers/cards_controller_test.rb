@@ -887,17 +887,17 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     pack = create_pack(player, cards: fixture_tier_ids, opened_at: 1.minute.ago)
     sign_in(player)
 
-    # The twelve, the set's neighbours replaced by the pack and its two
+    # The twelve and the friends of a missing card, the set's neighbours replaced by the pack and its two
     # neighbours' cards.
-    assert_request_queries(16) { get pack_detail("blue-depths", pack, slot: 3) }
+    assert_request_queries(17) { get pack_detail("blue-depths", pack, slot: 3) }
     assert_equal "S1 · #3 · 3 / 5 · swipe to browse", position
 
     # The set's neighbours replaced by the published season, the grid's
     # genres, the grid's cards in order and its two neighbours' cards,
     # whether a state is asked or not.
-    assert_request_queries(18) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "" }) }
+    assert_request_queries(19) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "" }) }
     assert_select ".card-detail__nav", 2
-    assert_request_queries(18) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "", state: %w[all] }) }
+    assert_request_queries(19) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "", state: %w[all] }) }
   end
 
   # The row of a card whose fixture pioneer is the banned player.

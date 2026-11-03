@@ -1,0 +1,28 @@
+<%# locals: (view:, holders:) %>
+<%= render BottomSheetComponent.new(id: "card-trade-sheet", title: t("card_details.trade.title")) do %>
+  <div class="card-trade">
+    <p class="card-trade__intro"><%= t("card_details.trade.intro") %></p>
+    <ul class="card-trade__friends">
+      <% holders.each do |holder| %>
+        <% friend = holder.friend %>
+        <% name = friend_name(holder.player) %>
+        <% face = capture do %>
+          <%= pixel_icon("avatar-default", class: "card-trade__avatar") %>
+          <span class="card-trade__text">
+            <span class="card-trade__name"><%= name %></span>
+            <%= render "friends/presence", presence: friend %>
+          </span>
+          <span class="card-trade__copies"><%= holder.asked ? t("card_details.trade.asked") : t("card_details.trade.copies", count: holder.copies) %></span>
+        <% end %>
+        <li>
+          <% if holder.asked %>
+            <span class="card-trade__friend card-trade__friend--asked"><%= face %></span>
+          <% else %>
+            <%= button_to card_trade_path(slug: view.id, number: view.season_number), params: { friend: holder.player.token },
+              class: "card-trade__friend", form_class: "card-trade__form" do %><%= face %><% end %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

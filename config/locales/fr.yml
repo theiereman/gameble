@@ -2369,6 +2369,15 @@ fr:
     previous: "Carte précédente"
     next: "Carte suivante"
     store: "Voir sur Steam"
+    trade:
+      asked: "Déjà demandée"
+      button: "Échanger"
+      copies:
+        zero: "%{count} exemplaire"
+        one: "%{count} exemplaire"
+        other: "%{count} exemplaires"
+      intro: "Demandez-la à un ami qui la possède. Il choisira ce qui lui plaît dans votre collection en retour."
+      title: "Échanger pour cette carte"
     preview:
       title: "%{title} — %{rarity}"
       description: "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous : dix capsules vous attendent."

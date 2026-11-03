@@ -1,0 +1,80 @@
+.card-trade {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.card-trade__intro {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-menu);
+}
+
+.card-trade__friends {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card-trade__form {
+  display: contents;
+}
+
+.card-trade__friend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--space-touch-min);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-line-soft);
+  background: var(--color-panel);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.card-trade__friend:hover {
+  border-color: var(--color-accent);
+}
+
+.card-trade__friend--asked {
+  color: var(--color-muted);
+  cursor: default;
+}
+
+.card-trade__friend--asked:hover {
+  border-color: var(--color-line-soft);
+}
+
+.card-trade__avatar {
+  flex: none;
+  width: 32px;
+  height: 32px;
+}
+
+.card-trade__text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.card-trade__name {
+  overflow: hidden;
+  color: var(--color-text-bright);
+  font: var(--font-menu);
+  text-overflow: ellipsis;
+}
+
+.card-trade__copies {
+  flex: none;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}

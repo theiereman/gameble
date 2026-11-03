@@ -54,6 +54,13 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
   - "A line clears when its target is opened" is remembered by the browser, per device: the server only computes the lines from current state (a GET writes nothing), and the browser hides a line once its target page was opened, by the line or any other way. A line comes back when its state changes (a trade's new turn, a new week). The set is kept per player on a shared browser. A line opened on the phone still shows on the computer; entry 11's server-side marker could later carry this for every line. Two lines are exceptions and stay until their state ends: the daily capsule (until collected, the next day's line replacing it) and the mission reward (until collected), since the capsule screen where a player lands would otherwise hide the daily line at once. Opening the friends page clears every friend-request line together.
   - At most five trade lines and five friend-request lines; the daily line's link opens the capsule screen, where the daily slot is collected, rather than collecting from the bell.
 
+- Entry 9, "Trade from a missing card" (epic phone-first web, built 2026-11-03): built with conservative choices that the author confirms or changes:
+  - The Trade button shows on the detail of a card the player holds no copy of, and only when at least one friend has a free copy (a single copy included, a copy reserved in a trade not counting); it is hidden when the player's own profile is private.
+  - The friends in the sheet are ranked: those not yet asked first, then more free copies first, then token; the suggestions' mutual-first ranking does not apply since the player's side stays empty.
+  - The edition requested is the shown one when the friend has a free copy of it, else the friend's edition with the most free copies.
+  - A friend who already has an open request from the player for the same card shows in the sheet as "Already asked", not as a button; any other open trade with that friend does not block it, as on the trade board today.
+  - The sent trade lands on the trade board with the usual "sent" toast; the sheet's friends are not limited to the goals' cards.
+
 ## Settled on 2026-11-02
 
 Settled by the author in conversation on 2026-11-02.
