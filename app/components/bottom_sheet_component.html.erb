@@ -1,0 +1,14 @@
+<dialog id="<%= id %>" class="modal bottom-sheet" aria-labelledby="<%= title_id %>" data-controller="bottom-sheet" data-action="<%= ACTIONS %>">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel bottom-sheet__panel", data: { bottom_sheet_target: "panel" }) do %>
+    <div class="bottom-sheet__grip" data-action="pointerdown->bottom-sheet#grab">
+      <span class="modal__handle" aria-hidden="true"></span>
+      <div class="modal__head">
+        <p id="<%= title_id %>" class="modal__title"><%= title %></p>
+        <button type="button" class="modal__close" aria-label="<%= t("bottom_sheet.close") %>" data-bottom-sheet-target="close" data-action="bottom-sheet#close">
+          <%= helpers.pixel_icon("close", class: "modal__close-icon") %>
+        </button>
+      </div>
+    </div>
+    <div class="bottom-sheet__body" data-bottom-sheet-target="body"><%= content %></div>
+  <% end %>
+</dialog>

@@ -1,5 +1,6 @@
 <% next_page_data = local_assigns.fetch(:scroll_pages, false) ? { controller: "next-page", action: "focusout->next-page#focusLeft" } : {} %>
 <% goals = local_assigns.fetch(:goals, GoalMarks::NONE) %>
+<% quick_filters = local_assigns.fetch(:quick_filters, false) %>
 <div class="<%= class_names("collection", "collection--visitor": !set_apart) %>">
   <h1 class="visually-hidden"><%= heading %></h1>
   <% if set_apart %>
@@ -10,7 +11,10 @@
   <section class="collection__main" aria-label="<%= heading %>">
     <% state_choices = set_apart ? Game::CollectionStates::STATES - (local_assigns.fetch(:with_new, true) ? [] : [ "new" ]) : [] %>
     <%= render "library/filters", filters: grid, state_choices:, states:, states_asked:, query:, set_filter: set_filter, clear_path: clear_path,
-      goals:, goals_chosen: local_assigns.fetch(:goals_chosen, []) %>
+      goals:, goals_chosen: local_assigns.fetch(:goals_chosen, []), quick_filters: %>
+    <% if quick_filters %>
+      <%= render "library/quick_filters", context:, goals:, state_choices: %>
+    <% end %>
     <%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace", **next_page_data } do %>
       <p id="collection-results-status" class="visually-hidden" role="status"><%= t("library.grid.result", count: pagy.count) %></p>
       <%= render "library/grid", context:, slots:, set_apart:, pagy: pagy, new_badge: !context.key?(:brother), goals: %>

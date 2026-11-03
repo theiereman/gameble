@@ -1,0 +1,35 @@
+<%= render BottomSheetComponent.new(id: quick_filters_sheet_id, title: t("library.quick_filters.title")) do %>
+  <div class="quick-filters">
+    <ul class="quick-filters__choices">
+      <li><%= quick_filter_link(context) { t("library.quick_filters.every_card") } %></li>
+    </ul>
+    <% if goals.any? %>
+      <div class="quick-filters__group" role="group" aria-labelledby="quick-filters-goals">
+        <p id="quick-filters-goals" class="quick-filters__legend"><%= t("library.filters.groups.goals") %></p>
+        <ul class="quick-filters__choices">
+          <% goals.needs.each do |goal| %>
+            <li><%= quick_filter_link(context, { goals: [ GoalMarks.filter_value(goal) ] }, label: goal_name(goal), goal: true) { goal_bookmark(goal.position, size: :small) + goal_set_name(goal) } %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <% if state_choices.any? %>
+      <div class="quick-filters__group" role="group" aria-labelledby="quick-filters-state">
+        <p id="quick-filters-state" class="quick-filters__legend"><%= t("library.filters.groups.state") %></p>
+        <ul class="quick-filters__choices">
+          <% (state_choices - [ Game::CollectionStates::DEFAULT ]).each do |state| %>
+            <li><%= quick_filter_link(context, { state: [ state ] }) { t("library.filters.states.#{state}") } %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <div class="quick-filters__group" role="group" aria-labelledby="quick-filters-rarity">
+      <p id="quick-filters-rarity" class="quick-filters__legend"><%= t("library.filters.groups.rarity") %></p>
+      <ul class="quick-filters__choices">
+        <% Catalog::Rarity::TIERS.each_value do |rarity| %>
+          <li><%= quick_filter_link(context, { rarity: [ rarity.to_s ] }) { t("catalog.rarity.#{rarity}") } %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,47 @@
+/* The bottom sheet: a modal that keeps the dialog's look, its body
+   scrolling under a fixed head. A finger on the grip pulls it down by
+   `--sheet-drag`; let go short of the line, it springs back. */
+.bottom-sheet {
+  translate: 0 var(--sheet-drag, 0);
+  transition: translate 180ms var(--ease-out);
+}
+
+.bottom-sheet[data-dragging] {
+  transition: none;
+}
+
+.bottom-sheet__panel {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 2 * var(--space-8));
+}
+
+.bottom-sheet__grip {
+  flex: none;
+  touch-action: none;
+}
+
+.bottom-sheet__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: calc(-1 * var(--space-2));
+  padding: var(--space-2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 719px) {
+  .bottom-sheet__panel {
+    max-height: 85dvh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .bottom-sheet {
+    transition: none;
+  }
+}
+
+html[data-motion="reduced"] .bottom-sheet {
+  transition: none;
+}

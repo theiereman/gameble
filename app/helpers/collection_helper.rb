@@ -12,4 +12,19 @@ module CollectionHelper
     chosen = filters.chosen_rarities.size + filters.chosen_sets.size + filters.chosen_genres.size + goals.size
     chosen + (states_asked && states != [ Game::CollectionStates::DEFAULT ] ? states.size : 0)
   end
+
+  QUICK_FILTER_IGNORED = %i[seen brother].freeze
+
+  def quick_filters_sheet_id = "quick-filters"
+
+  def quick_filter_current?(context, filter)
+    context.except(*QUICK_FILTER_IGNORED).compact_blank == filter
+  end
+
+  def quick_filter_link(context, filter = {}, label: nil, goal: false, &text)
+    link_to library_cards_path(filter), class: class_names("filter-chip", "filter-chip--goal": goal), data: { turbo_frame: "_top" },
+      aria: { current: ("true" if quick_filter_current?(context, filter)), label: } do
+      tag.span(class: "filter-chip__text", &text)
+    end
+  end
 end

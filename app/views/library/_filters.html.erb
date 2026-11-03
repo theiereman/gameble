@@ -1,16 +1,20 @@
 <% set_filter = local_assigns[:set_filter] %>
 <% goals = local_assigns.fetch(:goals, GoalMarks::NONE) %>
 <% goals_chosen = local_assigns.fetch(:goals_chosen, []) %>
+<% quick_filters = local_assigns.fetch(:quick_filters, false) %>
 <% count = collection_filter_count(filters:, states:, states_asked:, goals: goals_chosen) %>
 <%= form_with url: request.path, method: :get, class: "filters", html: { role: "search" }, data: {
   controller: "collection-filters", turbo_frame: "collection-results",
   action: "input->collection-filters#typed compositionend->collection-filters#typed change->collection-filters#changed " \
     "submit->collection-filters#submitted turbo:frame-load->collection-filters#setsLoaded"
 } do %>
-  <div class="filters__search">
+  <div class="<%= class_names("filters__search", "filters__search--menu": quick_filters) %>">
     <label class="visually-hidden" for="collection-search"><%= local_assigns.fetch(:search_label) { t("library.filters.search.label") } %></label>
     <%= search_field_tag "q", query, id: "collection-search", class: "filters__search-field", autocomplete: "off", maxlength: Catalog::CollectionGrid::MAX_QUERY,
       placeholder: local_assigns.fetch(:search_placeholder) { t("library.filters.search.placeholder") }, data: { collection_filters_target: "search" } %>
+    <% if quick_filters %>
+      <%= tag.a(**bottom_sheet_opener(quick_filters_sheet_id), class: "filter-chip quick-filters__opener") do %><span class="filter-chip__text"><%= t("library.quick_filters.open") %></span><% end %>
+    <% end %>
   </div>
   <details class="filters__zone" <%= "open" if count.positive? %>>
     <summary class="filters__summary">

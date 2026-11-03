@@ -682,6 +682,8 @@ en:
   boosters:
     show:
       title: Capsule opening
+  bottom_sheet:
+    close: Close
   card_backs:
     conditions:
       achievement: Unlock the matching achievement.
@@ -1608,6 +1610,10 @@ en:
         one: 1 card shown.
         other: "%{count} cards shown."
         zero: No card shown.
+    quick_filters:
+      every_card: Every card
+      open: Quick filters
+      title: Quick filters
     report:
       copies: Total cards
       copies_count:

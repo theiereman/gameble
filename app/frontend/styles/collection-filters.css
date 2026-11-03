@@ -79,6 +79,52 @@
   box-shadow: var(--focus-ring-gap), var(--control-border);
 }
 
+/* The card list's search shares its row with the QUICK FILTERS chip, which
+   opens a sheet of one-tap filters, each a link to the list it gives. */
+.filters__search--menu {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-3);
+}
+
+.filters__search--menu .filters__search-field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.quick-filters__opener {
+  flex: none;
+}
+
+.quick-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.quick-filters__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.quick-filters__legend {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.quick-filters__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .filters__zone {
   background: var(--color-panel);
   box-shadow: var(--panel-border);

@@ -1007,6 +1007,10 @@ fr:
         missing: "Manquantes"
         new: "Nouvelles"
         duplicates: "Doublons"
+    quick_filters:
+      open: "Filtres rapides"
+      title: "Filtres rapides"
+      every_card: "Toutes les cartes"
     grid:
       label: "Cartes"
       empty: "Aucune carte ne correspond à ces filtres."
@@ -1227,6 +1231,8 @@ fr:
     unavailable:
       title: "Profil indisponible"
       body: "Ce profil n'est pas disponible. Le lien ne mène nulle part, ou son propriétaire ne le montre plus."
+  bottom_sheet:
+    close: "Fermer"
   boosters:
     show:
       title: "Ouverture de capsule"

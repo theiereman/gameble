@@ -750,8 +750,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en)
 
     assert_select ".collection [data-id]", false
-    assert_equal %w[collection-report-title collection-search collection-set-search collection-set-options collection-results collection-results-status
-      collection-slots collection-pages],
+    assert_equal %w[collection-report-title collection-search collection-set-search collection-set-options quick-filters quick-filters-title
+      quick-filters-state quick-filters-rarity collection-results collection-results-status collection-slots collection-pages],
       css_select(".collection [id]").map { it["id"] }
     html = css_select(".collection").sole.to_html
     ids.each do |id|
