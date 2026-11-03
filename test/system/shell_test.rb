@@ -537,15 +537,15 @@ class ShellTest < ApplicationSystemTestCase
     assert_no_selector PREVIOUS
   end
 
-  test "on a phone, a top-level screen shows the G button, a drill-down keeps the contextual back, never the GAMEBLE link nor the desktop back" do
+  test "on a phone, a top-level screen shows the wordmark home button, a drill-down keeps the contextual back, never the GAMEBLE link nor the desktop back" do
     resize_to(*PHONES["390"])
     sign_in_with_three_cards
-    assert_selector ".top-bar__start > .top-bar__g-home", visible: true
+    assert_selector ".top-bar__start > .top-bar__phone-home", visible: true
     assert_no_selector ".top-bar__start > p.top-bar__brand", visible: true
 
     find(".tab-bar a.tab-bar__tab[href='/en/library']").click
     assert_current_path library_path(locale: :en)
-    assert_selector ".top-bar__start > a.top-bar__g-home", visible: true
+    assert_selector ".top-bar__start > a.top-bar__phone-home", visible: true
     assert_no_selector ".top-bar__bridge, .top-bar__home, .top-bar__divider", visible: true
 
     open_first_card_of_the_set

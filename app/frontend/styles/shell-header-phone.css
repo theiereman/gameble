@@ -1,11 +1,11 @@
 /*
- * The phone header: a sticky bar that hides on scroll down, a G home button
- * and one merged capsule counter on the top-level screens, small texts
+ * The phone header: a sticky bar that hides on scroll down, the wordmark as
+ * home button and one merged capsule counter on the top-level screens, small texts
  * raised, and the version line in the page flow. Imported after
  * shell-screens.css, whose phone block it builds on.
  */
 
-.top-bar__g-home,
+.top-bar__phone-home,
 .bank-counter {
   display: none;
 }
@@ -115,7 +115,7 @@
     transform: translateY(-100%);
   }
 
-  .top-bar--top-level .top-bar__start > :not(.top-bar__g-home, .top-bar__title) {
+  .top-bar--top-level .top-bar__start > :not(.top-bar__phone-home, .top-bar__title) {
     display: none;
   }
 
@@ -128,21 +128,15 @@
     white-space: nowrap;
   }
 
-  .top-bar--top-level .top-bar__g-home {
+  .top-bar--top-level .top-bar__phone-home {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     min-width: var(--space-touch-min);
     min-height: var(--space-touch-min);
     text-decoration: none;
   }
 
-  .top-bar__g {
-    width: 24px;
-    height: auto;
-  }
-
-  .top-bar__g-home:focus-visible {
+  .top-bar__phone-home:focus-visible {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
     outline-offset: var(--focus-ring-offset);
   }

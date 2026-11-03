@@ -64,5 +64,6 @@ The web app's shell, lists, capsule screen, Social, bell and Me page at phone wi
 - Decision (2026-11-02, author): entry 9 lists every friend holding the missing card, a friend with a single copy included, and any missing card qualifies, not only a goal card.
 - Decision (2026-11-02, author): the trade board's card picker stays the advanced picker it is today; it does not move to the bottom sheet.
 - Decision (2026-11-02, author): the tracer path is entries 1, 2 and 6, with the bottom sheet (3) and the bell (10) as separate lanes.
+- Decision (2026-11-03, author): the phone header keeps the classic gameble wordmark as its home button; the gold G is dropped as unattractive.
 - Assumption: entry 13 precedes the sweep because it can reorder fixes.
 - Waits on epic 28 and epic 29 because: goals and the suggestions of friends who hold a missing card already exist there.

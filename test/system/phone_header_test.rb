@@ -2,7 +2,7 @@ require "application_system_test_case"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# The top-level header on a 390 px phone: a G home button and one merged
+# The top-level header on a 390 px phone: the wordmark home button and one merged
 # capsule counter, a bar that hides while scrolling down, and a version line
 # that sits in the page flow.
 class PhoneHeaderTest < ApplicationSystemTestCase
@@ -19,15 +19,15 @@ class PhoneHeaderTest < ApplicationSystemTestCase
     mock_steam_sign_in(@player.steam_id)
     visit home_path(locale: :en)
     click_steam_sign_in
-    assert_selector ".top-bar--top-level .top-bar__g-home", visible: true
+    assert_selector ".top-bar--top-level .top-bar__phone-home", visible: true
   end
 
-  test "the header holds the G home button and one capsule counter, each at least 44 px, and clips nothing" do
+  test "the header holds the wordmark home button and one capsule counter, each at least 44 px, and clips nothing" do
     assert_no_selector ".top-bar .player-chip", visible: true
     assert_no_selector ".top-bar .packs-chip", visible: true
     assert_selector ".top-bar .bank-counter__item", count: 2
-    assert_operator box(".top-bar__g-home")["height"], :>=, TOUCH_MIN
-    assert_operator box(".top-bar__g-home")["width"], :>=, TOUCH_MIN
+    assert_operator box(".top-bar__phone-home")["height"], :>=, TOUCH_MIN
+    assert_operator box(".top-bar__phone-home")["width"], :>=, TOUCH_MIN
     assert_operator box(".bank-counter__button")["height"], :>=, TOUCH_MIN
     assert page.evaluate_script("document.querySelector('.top-bar__inner').scrollWidth <= window.innerWidth"), "the header should not overflow"
     assert_selector ".top-bar__title, h1", text: /./, visible: :all

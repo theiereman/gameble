@@ -491,21 +491,6 @@ const ICONS = {
       ".oooooo.",
     ],
   },
-  // The phone header's home button: a gold G (8 × 9).
-  "brand-g": {
-    legend: { g: "#f4c542", d: "#b8902a" },
-    grid: [
-      ".gggggg.",
-      "gggggggg",
-      "ggg.....",
-      "ggg.....",
-      "ggg.gggg",
-      "ggg.gddg",
-      "gggg..gg",
-      "gggggggg",
-      ".gggggg.",
-    ],
-  },
   // The merged counter's standard capsule: a round-ended pill, blue (7 × 11).
   "capsule-standard": {
     legend: { o: OUTLINE, a: "#66c0f4", b: "#2f4f6c" },
@@ -1405,7 +1390,6 @@ const DESCRIPTIONS = {
   "hourglass.svg": "⧗ hourglass for expiry and pending (text colour)",
   "canister-small.svg": "The packs chip's small canister, 8 × 11",
   "avatar-default.svg": "The player's portrait in the shell, 16 × 16",
-  "brand-g.svg": "The phone header's home button: a gold G, 8 × 9",
   "capsule-standard.svg": "The merged counter's standard capsule: a blue pill, 7 × 11",
   "capsule-special.svg": "The merged counter's special capsule: a lime diamond, 9 × 9",
   "tab-hub.svg": "Phone tab bar icon: PONT (text colour)",
