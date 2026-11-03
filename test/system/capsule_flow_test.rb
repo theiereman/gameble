@@ -59,7 +59,7 @@ class CapsuleFlowTest < ApplicationSystemTestCase
       assert_selector "h2", text: /what next\?/i
       assert_selector ".booster-next-steps__link", count: 3, wait: 10
       links = all(".booster-next-steps__link")
-      assert_equal [ library_path(locale: :en), social_path(locale: :en), me_path(locale: :en) ], links.map { URI(it[:href]).path }
+      assert_equal [ library_path(locale: :en), friends_path(locale: :en), me_path(locale: :en) ], links.map { URI(it[:href]).path }
       links.zip(hooks).each { |link, hook| assert_match hook, link.text }
     end
   end
@@ -112,7 +112,7 @@ class CapsuleFlowTest < ApplicationSystemTestCase
     assert_next_steps(hooks)
 
     follow_next_step(/your sets/i, library_path(locale: :en))
-    follow_next_step(/your friends/i, social_path(locale: :en))
+    follow_next_step(/your friends/i, friends_path(locale: :en))
     follow_next_step(/your profile/i, me_path(locale: :en))
   end
 

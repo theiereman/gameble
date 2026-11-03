@@ -58,7 +58,7 @@ class BoosterNextStepsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_equal "#booster [data-controller~='booster-next-steps']", css_select("section#booster").sole["data-booster-booster-next-steps-outlet"]
     assert_equal [ [ "/en/library", "Your sets", "#{SetLabel.for(@set)} · 2 more for Bronze" ],
-                   [ "/en/social", "Your friends", "Léa has a card one of your goals needs" ],
+                   [ "/en/friends", "Your friends", "Léa has a card one of your goals needs" ],
                    [ "/en/me", "Your profile", "1 reward to claim" ] ], links
     assert_select "#{PANEL} .booster-next-steps__daily", 0
     assert_select "[style]", 0
@@ -69,7 +69,7 @@ class BoosterNextStepsControllerTest < ActionDispatch::IntegrationTest
 
     get booster_path(locale: :en)
 
-    assert_equal [ [ "/en/library", "Your sets", nil ], [ "/en/social", "Your friends", nil ], [ "/en/me", "Your profile", nil ] ], links
+    assert_equal [ [ "/en/library", "Your sets", nil ], [ "/en/friends", "Your friends", nil ], [ "/en/me", "Your profile", nil ] ], links
   end
 
   test "once today's daily capsule is collected, the panel says when the next one comes" do

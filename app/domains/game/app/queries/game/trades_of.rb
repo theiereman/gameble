@@ -1,7 +1,7 @@
 module Game
   module TradesOf
     RECENT = 14.days
-    RECENT_LIMIT = 20
+    RECENT_LIMIT = 10
 
     Line = Data.define(:card_season_id, :quantity)
 

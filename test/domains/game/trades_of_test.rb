@@ -73,6 +73,17 @@ class Game::TradesOfTest < ActiveSupport::TestCase
     assert_equal declined.token, Game::TradesOf.find(@alice, declined.token).token, "an old trade is still found by its token"
   end
 
+  test "only the ten newest finished trades are recent" do
+    cancelled = 11.times.map do
+      trade = propose(@alice, @bob, offer: { @one => 1 }, request: { @three => 1 })
+      travel 1.minute
+      Game::CancelTrade.new.call(player: @alice, trade_id: trade.id).value!
+      trade
+    end
+
+    assert_equal cancelled.last(10).reverse.map(&:token), Game::TradesOf.call(@alice).recent.map(&:token)
+  end
+
   test "an open trade past its expiry reads as expired and waits for nobody" do
     trade = propose(@carol, @alice, offer: { @three => 1 }, request: { @one => 1 })
     assert_equal 1, Game::TradesWaiting.call(@alice)

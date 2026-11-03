@@ -4,7 +4,7 @@ module BoosterNextStepsHelper
   def booster_next_steps(steps)
     [
       NextStep.new(key: :sets, icon: "tab-sets", path: library_path, hook: steps.closest_set&.then { booster_set_hook(it) }),
-      NextStep.new(key: :social, icon: "tab-social", path: social_path, hook: steps.friend&.then { booster_friend_hook(it) }),
+      NextStep.new(key: :social, icon: "tab-social", path: friends_path, hook: steps.friend&.then { booster_friend_hook(it) }),
       NextStep.new(key: :me, icon: "tab-me", path: me_path, hook: (booster_rewards_hook(steps.rewards) if steps.rewards.positive?))
     ]
   end

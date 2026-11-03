@@ -134,10 +134,7 @@ html[data-sub-view-step] .main {
   }
 
   .ticker__inner {
-    max-width: var(--space-phone-column-max);
     height: var(--space-ticker-height-phone);
-    margin: 0 auto;
-    padding: 0 var(--space-gutter-phone);
   }
 
   /* A drill-down header on the phone is its back button alone. */

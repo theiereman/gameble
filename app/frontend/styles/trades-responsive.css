@@ -9,6 +9,10 @@
   .trades__layout {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .trades__list {
+    order: 1;
+  }
 }
 
 @media (max-width: 719px) {
