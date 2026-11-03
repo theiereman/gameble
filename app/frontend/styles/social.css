@@ -2,7 +2,7 @@
  * The Social home: trades first, then friends, the community goal and the
  * feed, each section under a kicker heading with a link to its own screen;
  * Add a friend and New trade close the column, held above the tab bar on a
- * phone. A trade row reuses the trade list's look; an ended one goes quiet.
+ * phone, where the community goal moves to the top. A trade row reuses the trade list's look; an ended one goes quiet.
  */
 
 .social {
@@ -189,6 +189,10 @@
 }
 
 @media (max-width: 719px) {
+  .social > .hub-goal {
+    order: -1;
+  }
+
   .social__actions {
     position: sticky;
     bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
