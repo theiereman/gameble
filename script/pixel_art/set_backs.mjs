@@ -1,6 +1,7 @@
 // The anatomy shared by the 47 set backs: a frame, a field, an inner line,
 // corner brackets, a ring with the set's motif and its one-word lettering.
-// A hall of fame back adds a second inner line and lightens its frame. The
+// A prestige back (a hall of fame set or a named back) adds a second inner
+// line and lightens its frame. The
 // colours come from the design's two colours; the motif is scaled by the
 // largest whole number that keeps it inside the ring and centred on it.
 import { SET_BACK_DESIGNS } from "./set_back_designs.mjs"
@@ -11,6 +12,7 @@ const GROUND = "#0b0f15"
 const OUTLINE = "#06090d"
 const FRAME_WIDTH = 5
 const LETTERING_MARGIN = 16
+const PRESTIGE_KINDS = new Set(["hall_of_fame", "named"])
 
 const MOTIF_COLOURS = {
   r: "#d6403a", R: "#8e2420", o: "#e8833a", y: "#fff09a", Y: "#f4c542", w: "#e6eef5", g: "#8f98a0", G: "#4a5560",
@@ -32,7 +34,7 @@ function motifLayout(motif, ringRadius) {
 
 export function drawSetBack(g, width, height, design, { mixc, ptext, ptw }) {
   const { kind, word, primary, secondary, motif } = design
-  const hallOfFame = kind === "hall_of_fame"
+  const prestige = PRESTIGE_KINDS.has(kind)
   const fill = (x, y, w, h, colour) => { g.fillStyle = colour; g.fillRect(x, y, w, h) }
   const plot = (x, y, colour) => fill(Math.round(x), Math.round(y), 1, 1, colour)
   const frameLine = (inset, colour) => {
@@ -53,7 +55,7 @@ export function drawSetBack(g, width, height, design, { mixc, ptext, ptw }) {
   const centreY = top + motifHeight / 2 - 0.5
 
   const edge = mixc(primary, GROUND, 0.55)
-  const lit = mixc(primary, "#ffffff", hallOfFame ? 0.35 : 0.1)
+  const lit = mixc(primary, "#ffffff", prestige ? 0.35 : 0.1)
   const shade = mixc(primary, GROUND, 0.85)
   const band = mixc(primary, GROUND, 0.72)
   const well = mixc(primary, GROUND, 0.92)
@@ -75,10 +77,10 @@ export function drawSetBack(g, width, height, design, { mixc, ptext, ptw }) {
   }
   const line = mixc(primary, GROUND, 0.7)
   frameLine(FRAME_WIDTH, line)
-  if (hallOfFame) frameLine(FRAME_WIDTH + 2, primary)
+  if (prestige) frameLine(FRAME_WIDTH + 2, primary)
 
   const bracketLength = Math.max(4, Math.round(width * 0.08))
-  const corner = FRAME_WIDTH + 2 + (hallOfFame ? 2 : 0)
+  const corner = FRAME_WIDTH + 2 + (prestige ? 2 : 0)
   for (const [x, y, dx, dy] of [[corner, corner, 1, 1], [width - corner - 1, corner, -1, 1], [corner, height - corner - 1, 1, -1], [width - corner - 1, height - corner - 1, -1, -1]]) {
     for (let i = 0; i < bracketLength; i++) {
       plot(x + i * dx, y, secondary)

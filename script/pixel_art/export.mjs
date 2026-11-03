@@ -30,7 +30,7 @@ import { dirname, join, relative, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { deflateSync, inflateSync } from "node:zlib"
 import { SET_BACK_DESIGNS, drawSetBack, setBackName } from "./set_backs.mjs"
-import { ACHIEVEMENT_BACK_DESIGNS, drawAchievementBack } from "./achievement_backs.mjs"
+import { NAMED_BACK_DESIGNS } from "./named_backs.mjs"
 import { EMBLEM_SIZE, ORIGIN_LOOKS, drawEmblem, originBodyFile } from "./origin_canisters.mjs"
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..")
@@ -796,18 +796,6 @@ function ptext(g, str, x, y, col) {
   return cx
 }
 const ptw = (s) => s.length * 6 - 1
-function ptextS(g, str, x, y, col, s) {
-  g.fillStyle = col
-  let cx = x
-  for (const ch of str) {
-    const gl = FONT[ch] || FONT[" "]
-    for (let r = 0; r < 7; r++) {
-      const row = B32.indexOf(gl[r] || "0")
-      for (let c = 0; c < 5; c++) if (row & (1 << (4 - c))) g.fillRect(cx + c * s, y + r * s, s, s)
-    }
-    cx += 6 * s
-  }
-}
 const MONOGRAM = goldColours(setLetters("G"))
 const MONOGRAM_WIDTH = MONOGRAM[0].length
 const MONOGRAM_HEIGHT = MONOGRAM.length
@@ -828,20 +816,13 @@ function faviconPng() {
   return g
 }
 
-// Card backs (card backs). `id` is the prototype's id: its length
-// seeds the stars and the snow, so it is kept as is.
-function backCanvas(id, w, h) {
+// The standard back, the one every player starts with; the set backs'
+// anatomy is drawn after it.
+function standardBack(w, h) {
   const g = canvas(w, h)
   const P = (x, y, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), 1, 1) }
   const F = (x, y, ww, hh, col) => { g.fillStyle = col; g.fillRect(x, y, ww, hh) }
   const b = 5, cx = (w - 1) / 2, cy = (h - 1) / 2
-  const frame = (o, hi, lo, band, well) => {
-    F(0, 0, w, h, o); F(0, 0, w, 1, hi); F(0, 0, 1, h, hi); F(0, h - 1, w, 1, lo); F(w - 1, 0, 1, h, lo)
-    F(1, 1, w - 2, h - 2, band); F(2, 2, w - 4, h - 4, well)
-  }
-  const field = (fn) => {
-    for (let y = 3; y < h - 3; y++) for (let x = 3; x < w - 3; x++) { const col = fn(x, y); if (col) P(x, y, col) }
-  }
   const inner = (col) => { F(b, b, w - 2 * b, 1, col); F(b, h - b - 1, w - 2 * b, 1, col); F(b, b, 1, h - 2 * b, col); F(w - b - 1, b, 1, h - 2 * b, col) }
   const brackets = (col) => {
     const L = Math.max(4, Math.round(w * 0.08)), q = b + 2
@@ -849,226 +830,33 @@ function backCanvas(id, w, h) {
       for (let i = 0; i < L; i++) { P(x + i * sx, y, col); P(x, y + i * sy, col) }
     }
   }
-  const word = (s, col, sh, yy) => {
-    if (ptw(s) > w - 16) return
-    const tx = Math.round((w - ptw(s)) / 2)
-    if (sh) ptext(g, s, tx, yy + 1, sh)
-    ptext(g, s, tx, yy, col)
-  }
-  const big = (s, col, sh, yy, k) => {
-    const tw = (s.length * 6 - 1) * k, tx = Math.round((w - tw) / 2)
-    if (sh) ptextS(g, s, tx + 1, yy + 1, sh, k)
-    ptextS(g, s, tx, yy, col, k)
-  }
-  let sd = w * 131 + id.length * 977
-  const rr = () => (sd = (sd * 16807) % 2147483647) / 2147483647
-  switch (id) {
-    case "s1": { // Saison 1: Steam blueprint grid, a big engraved "1"
-      frame("#2a475e", "#66c0f4", "#142636", "#1b2838", "#0b1520")
-      field((x, y) => ((x - 3) % 16 === 0 || (y - 3) % 16 === 0) ? "#1f4a6a" : ((x - 3) % 4 === 0 || (y - 3) % 4 === 0) ? "#132b40" : "#0e2133")
-      const k = w >= 100 ? 4 : w >= 70 ? 3 : 2, gw = 5 * k, gh = 7 * k
-      const x0 = Math.round(cx - gw / 2 + k / 2), y0 = Math.round(cy - gh / 2 - h * 0.03), gl = "4c4444e"
-      for (let r = 0; r < 7; r++) {
-        const row = B32.indexOf(gl[r])
-        for (let q = 0; q < 5; q++) {
-          if (row & (1 << (4 - q))) {
-            F(x0 + q * k + 1, y0 + r * k + 1, k, k, "#06090d")
-            F(x0 + q * k, y0 + r * k, k, k, "#66c0f4")
-            F(x0 + q * k, y0 + r * k, k, 1, "#b5e2ff")
-          }
-        }
-      }
-      for (let i = 0; i < 24; i++) {
-        const a = i / 24 * Math.PI * 2, R0 = w * 0.36
-        P(cx + Math.cos(a) * R0, cy - h * 0.03 + Math.sin(a) * R0, i % 6 ? "#2a6f9a" : "#f4c542")
-      }
-      inner("#2a475e"); brackets("#66c0f4"); word("SAISON", "#66c0f4", "#06090d", b + 5); word("GAMEBLE", "#3d6c8c", "#06090d", h - b - 12)
-      break
-    }
-    case "conf": { // Confrère: community goal pennant, ring crowned by five stars, hazard band
-      frame("#2a475e", "#66c0f4", "#142636", "#1b2838", "#0b1015")
-      field((x, y) => ((x - y + 999) % 5 === 0) ? "#152230" : "#0f1822")
-      const pw = Math.round(w * 0.25), top = Math.round(h * 0.15), bot = Math.round(h * 0.66), nt = Math.round(h * 0.08)
-      const inP = (x, y) => { const dx = Math.abs(x - cx); return dx <= pw && y >= top && y <= bot + nt * (dx / pw) }
-      for (let y = top - 1; y <= bot + nt + 1; y++) {
-        for (let x = Math.floor(cx - pw - 1); x <= Math.ceil(cx + pw + 1); x++) {
-          if (!inP(x, y)) continue
-          const edge = !inP(x - 1, y) || !inP(x + 1, y) || !inP(x, y - 1) || !inP(x, y + 1)
-          P(x, y, edge ? "#f4c542" : mixc("#22364b", "#16222f", (y - top) / (bot - top)))
-        }
-      }
-      const ry = h * 0.42, R0 = w * 0.13
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const d = Math.hypot(x - cx, y - ry)
-          if (Math.abs(d - R0) < 0.6) P(x, y, "#f4c542"); else if (d < R0 * 0.45) P(x, y, "#66c0f4")
-        }
-      }
-      for (let i = -2; i <= 2; i++) {
-        const a = -Math.PI / 2 + i * 0.42, x = cx + Math.cos(a) * w * 0.22, y = ry + Math.sin(a) * w * 0.22
-        P(x, y, "#fff3c4")
-        if (w >= 70) { P(x - 1, y, "#f4c542"); P(x + 1, y, "#f4c542"); P(x, y - 1, "#f4c542"); P(x, y + 1, "#f4c542") }
-      }
-      const hy = Math.round(h * 0.82)
-      for (let y = hy; y < hy + 3; y++) for (let x = b + 1; x < w - b - 1; x++) P(x, y, ((x + y) >> 1) % 3 === 0 ? "#e8833a" : "#0b1015")
-      inner("#2a475e"); brackets("#f4c542"); word("CONFRERE", "#8fa3b5", "#06090d", h - b - 11)
-      break
-    }
-    case "gold": { // Étoile d'or: gold sunburst and a big shaded star
-      frame("#8f5e0a", "#fff3c4", "#4a3005", "#c99a2e", "#120d05")
-      const sy = cy - h * 0.04
-      field((x, y) => {
-        const a = Math.atan2(y - sy, x - cx), k = Math.floor((a + Math.PI) / (Math.PI * 2) * 24) & 1, d = Math.hypot(x - cx, y - sy) / h
-        return mixc(k ? "#33270b" : "#1d1607", "#0c0903", clamp(d * 1.7, 0, 1))
-      })
-      const Rs = w * 0.3
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const u = (x - cx) / Rs, v = (y - sy) / Rs, a = Math.atan2(v, u) + Math.PI / 2, r = Math.hypot(u, v)
-          const kk = ((a / (Math.PI * 2 / 5)) % 1 + 1) % 1, t = Math.abs(kk - 0.5) * 2, lim = 0.42 + t * t * 0.58
-          if (r <= lim) P(x, y, r < lim * 0.35 ? "#fff8dc" : mixc("#fff3c4", "#b8902a", clamp((v + 1) / 2, 0, 1)))
-          else if (r <= lim + 1.4 / Rs) P(x, y, "#4a3005")
-        }
-      }
-      for (let i = 0; i < 8; i++) {
-        const a = i / 8 * Math.PI * 2 + 0.3, x = cx + Math.cos(a) * w * 0.41, y = sy + Math.sin(a) * w * 0.47
-        P(x, y, "#fff3c4")
-        if (i % 2 === 0 && w >= 70) { P(x - 1, y, "#f4c542"); P(x + 1, y, "#f4c542"); P(x, y - 1, "#f4c542"); P(x, y + 1, "#f4c542") }
-      }
-      inner("#8f5e0a"); brackets("#fff3c4"); word("LEGENDE", "#f4c542", "#120d05", h - b - 12)
-      break
-    }
-    case "aur": { // Aurore: aurora curtains over a night sky and a mountain line
-      frame("#1f4a44", "#4fa08a", "#0c2420", "#16352f", "#06100f")
-      const bands = [
-        { c: "#3fcf8e", y: 0.24, a: 0.06, f: 0.17, ph: 0, L: 0.17 },
-        { c: "#66c0f4", y: 0.34, a: 0.05, f: 0.23, ph: 2, L: 0.12 },
-        { c: "#b47cff", y: 0.17, a: 0.035, f: 0.12, ph: 4, L: 0.1 },
-      ]
-      field((x, y) => {
-        let col = mixc("#0d2030", "#060c14", y / h)
-        for (const B of bands) {
-          const yc = h * B.y + Math.sin(x * B.f + B.ph) * h * B.a, d = y - yc, L = h * B.L
-          if (d >= 0 && d < L) col = mixc(B.c, col, clamp(d / L * 1.05 + 0.12 + ((x + y) % 2) * 0.04, 0, 1))
-          else if (d < 0 && d > -1.5) col = mixc(B.c, col, 0.45)
-        }
-        return col
-      })
-      for (let i = 0; i < w * h / 80; i++) { const x = 4 + rr() * (w - 8), y = 4 + rr() * (h * 0.5); P(x, y, rr() < 0.3 ? "#e6eef5" : "#5f7d94") }
-      for (let x = 3; x < w - 3; x++) {
-        const mh = h * 0.11 + Math.abs(Math.sin(x * 0.09 + 1)) * h * 0.07 + ((x >> 2) % 3 === 0 ? 1 : 0)
-        for (let y = Math.round(h - 3 - mh); y < h - 3; y++) P(x, y, y < h - 2 - mh ? "#1f4a44" : "#07131a")
-      }
-      inner("#2f6a60"); brackets("#b2f7d4"); word("AURORE", "#b2f7d4", "#06100f", h - b - 12)
-      break
-    }
-    case "b17": { // Millésime 2017: laurel wreath, the year, a ribbon
-      frame("#6b4a12", "#f4d27a", "#2a1d06", "#4a3410", "#0a0805")
-      field((x, y) => { const base = mixc("#141c2a", "#0a0f18", y / h); return x % 6 === 0 ? mixc(base, "#1d2739", 0.6) : base })
-      const wy = cy - h * 0.05, R0 = w * 0.33
-      for (const sx of [-1, 1]) {
-        for (let deg = 105; deg <= 255; deg += 3) {
-          const a = deg * Math.PI / 180, x = cx + sx * Math.cos(a) * -1 * R0, y = wy + Math.sin(a) * R0 * 1.12
-          P(x, y, "#8f6a18")
-          if (deg % 15 === 0) {
-            const o = Math.cos(a), q = Math.sin(a)
-            for (let k = 1; k <= 3; k++) {
-              P(x + sx * -o * k * 0.9 + (k > 1 ? sx * 0.5 : 0), y + q * k * 0.6 - k * 0.7, k === 3 ? "#fff3c4" : "#f4c542")
-              P(x - sx * -o * k * 0.7, y - q * k * 0.5 - k * 0.5, "#c9a03a")
-            }
-          }
-        }
-      }
-      big("2017", "#fff3c4", "#4a3005", Math.round(wy - 3.5 * (w >= 100 ? 2 : 1)), w >= 100 ? 2 : 1)
-      const ry = Math.round(wy + R0 * 1.12 + 4), rw = Math.round(w * 0.28)
-      F(Math.round(cx - rw), ry, rw * 2, 3, "#2a6f9a"); F(Math.round(cx - rw), ry, rw * 2, 1, "#66c0f4")
-      for (const sx of [-1, 1]) {
-        const ex = Math.round(cx + sx * rw)
-        for (let k = 0; k < 4; k++) { P(ex + sx * k, ry + k, "#1f5a80"); P(ex + sx * k, ry + k + 1, "#2a6f9a") }
-      }
-      inner("#6b4a12"); brackets("#f4c542"); word("TOP 10", "#c9a03a", "#0a0805", h - b - 12)
-      break
-    }
-    case "cent": { // Centurion: riveted metal plate, orange core, "100"
-      frame("#3a424b", "#8c97a3", "#14181c", "#2a3139", "#0b0e11")
-      field((x, y) => (((x >> 2) + (y >> 2)) & 1) ? "#1d2228" : "#232a31")
-      for (let y = b + 5; y < h - b - 4; y += 8) for (let x = b + 5; x < w - b - 4; x += 8) { P(x, y, "#8c97a3"); P(x + 1, y + 1, "#0b0e11") }
-      const Rc = w * 0.27, oy = cy - h * 0.05
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const u = Math.abs(x - cx), v = Math.abs(y - oy), d = Math.max(u, v, (u + v) / 1.38)
-          if (d < Rc - 2) P(x, y, mixc("#ffb15c", "#3a1a08", d / (Rc - 2))); else if (d < Rc) P(x, y, "#e8833a"); else if (d < Rc + 1.2) P(x, y, "#0b0e11")
-        }
-      }
-      const k = w >= 100 ? 2 : 1
-      big("100", "#fff1d8", "#3a1a08", Math.round(oy - 3.5 * k), k)
-      const hy = Math.round(h * 0.8)
-      for (let y = hy; y < hy + 3; y++) for (let x = b + 1; x < w - b - 1; x++) P(x, y, ((x + y) >> 1) % 3 === 0 ? "#e8833a" : "#14181c")
-      inner("#3a424b"); brackets("#e8833a"); word("CENTURION", "#8c97a3", "#0b0e11", h - b - 12)
-      break
-    }
-    case "snow": { // Soldes d'hiver: a big snowflake, falling snow, snowy pines
-      frame("#4f86a8", "#d6efff", "#1f3a52", "#2f5a78", "#0a1622")
-      field((x, y) => mixc("#1d3a58", "#0c1a2a", y / h))
-      const fy = h * 0.38, Rf = w * 0.22
-      for (let i = 0; i < 6; i++) {
-        const a = i * Math.PI / 3 - Math.PI / 2
-        for (let r = 0; r <= Rf; r += 0.5) P(cx + Math.cos(a) * r, fy + Math.sin(a) * r, "#e6f4ff")
-        for (const fr of [0.45, 0.75]) {
-          const bx = cx + Math.cos(a) * Rf * fr, by = fy + Math.sin(a) * Rf * fr, L = Rf * 0.26
-          for (const s of [-1, 1]) {
-            const a2 = a + s * Math.PI / 4
-            for (let r = 0; r <= L; r += 0.5) P(bx + Math.cos(a2) * r, by + Math.sin(a2) * r, "#b5e2ff")
-          }
-        }
-      }
-      P(cx, fy, "#ffffff")
-      for (let i = 0; i < w * h / 55; i++) {
-        const x = 4 + rr() * (w - 8), y = 4 + rr() * (h * 0.74)
-        if (Math.hypot(x - cx, y - fy) < Rf + 3) continue
-        P(x, y, rr() < 0.5 ? "#e6eef5" : "#7fa6c4")
-      }
-      const gb = h - b - 3
-      for (const [px, ph] of [[w * 0.2, h * 0.2], [w * 0.4, h * 0.14], [w * 0.63, h * 0.18], [w * 0.82, h * 0.24]]) {
-        for (let k = 0; k < ph; k++) {
-          const half = Math.floor(k * 0.34) + (k % 4 === 3 ? 1 : 0), y = Math.round(gb - ph + k)
-          for (let x = -half; x <= half; x++) P(px + x, y, (k < 2 || (Math.abs(x) === half && k % 4 === 0)) ? "#c7d5e0" : "#0b1a26")
-        }
-      }
-      F(3, gb, w - 6, h - 3 - gb, "#c7d5e0"); F(3, gb, w - 6, 1, "#e6f4ff")
-      inner("#4f86a8"); brackets("#e6f4ff"); word("HIVER", "#e6f4ff", "#0a1622", b + 5)
-      break
-    }
-    default: { // Standard
-      F(0, 0, w, h, "#2a475e"); F(0, 0, w, 1, "#3d6c8c"); F(0, 0, 1, h, "#3d6c8c"); F(0, h - 1, w, 1, "#142636"); F(w - 1, 0, 1, h, "#142636")
-      F(1, 1, w - 2, h - 2, "#1b2838"); F(2, 2, w - 4, h - 4, "#0e141b")
-      for (let y = 3; y < h - 3; y++) {
-        for (let x = 3; x < w - 3; x++) {
-          const t = y / h, base = mixc("#152131", "#0d141d", t), alt = mixc("#1a2738", "#111a25", t)
-          P(x, y, ((x + y) >> 1) % 3 === 0 ? alt : base)
-        }
-      }
-      inner("#1f3346"); brackets("#66c0f4")
-      const sy = cy - h * 0.04, Rr = w * 0.3
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const d = Math.hypot(x - cx, y - sy)
-          if (d < Rr - 1.2) P(x, y, mixc("#183048", "#0b1119", d / Rr))
-          else if (Math.abs(d - Rr) < 0.62) P(x, y, "#66c0f4")
-          else if (Math.abs(d - (Rr + 5)) < 0.5 && ((x + y) & 1)) P(x, y, "#2a475e")
-        }
-      }
-      for (let i = 0; i < 32; i++) {
-        const a = i / 32 * Math.PI * 2, bg = i % 8 === 0, r0 = Rr + 2, r1 = Rr + (bg ? 4.2 : 3)
-        for (let r = r0; r <= r1; r += 0.5) P(cx + Math.cos(a) * r, sy + Math.sin(a) * r, bg ? "#f4c542" : "#3d6c8c")
-      }
-      const k = Math.max(1, Math.round(Rr / 11.5))
-      drawMonogram(g, Math.round(cx - (MONOGRAM_WIDTH * k - 1) / 2), Math.round(sy - (MONOGRAM_HEIGHT * k - 1) / 2), k)
-      const ty = h - b - 12
-      if (w >= 50) { const tx = Math.round((w - ptw("GAMEBLE")) / 2); ptext(g, "GAMEBLE", tx, ty + 1, "#06090d"); ptext(g, "GAMEBLE", tx, ty, "#3d6c8c") }
-      for (let x = b + 4; x < w - b - 4; x += 3) P(x, ty - 4, "#1f3346")
+  F(0, 0, w, h, "#2a475e"); F(0, 0, w, 1, "#3d6c8c"); F(0, 0, 1, h, "#3d6c8c"); F(0, h - 1, w, 1, "#142636"); F(w - 1, 0, 1, h, "#142636")
+  F(1, 1, w - 2, h - 2, "#1b2838"); F(2, 2, w - 4, h - 4, "#0e141b")
+  for (let y = 3; y < h - 3; y++) {
+    for (let x = 3; x < w - 3; x++) {
+      const t = y / h, base = mixc("#152131", "#0d141d", t), alt = mixc("#1a2738", "#111a25", t)
+      P(x, y, ((x + y) >> 1) % 3 === 0 ? alt : base)
     }
   }
+  inner("#1f3346"); brackets("#66c0f4")
+  const sy = cy - h * 0.04, Rr = w * 0.3
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const d = Math.hypot(x - cx, y - sy)
+      if (d < Rr - 1.2) P(x, y, mixc("#183048", "#0b1119", d / Rr))
+      else if (Math.abs(d - Rr) < 0.62) P(x, y, "#66c0f4")
+      else if (Math.abs(d - (Rr + 5)) < 0.5 && ((x + y) & 1)) P(x, y, "#2a475e")
+    }
+  }
+  for (let i = 0; i < 32; i++) {
+    const a = i / 32 * Math.PI * 2, bg = i % 8 === 0, r0 = Rr + 2, r1 = Rr + (bg ? 4.2 : 3)
+    for (let r = r0; r <= r1; r += 0.5) P(cx + Math.cos(a) * r, sy + Math.sin(a) * r, bg ? "#f4c542" : "#3d6c8c")
+  }
+  const k = Math.max(1, Math.round(Rr / 11.5))
+  drawMonogram(g, Math.round(cx - (MONOGRAM_WIDTH * k - 1) / 2), Math.round(sy - (MONOGRAM_HEIGHT * k - 1) / 2), k)
+  const ty = h - b - 12
+  if (w >= 50) { const tx = Math.round((w - ptw("GAMEBLE")) / 2); ptext(g, "GAMEBLE", tx, ty + 1, "#06090d"); ptext(g, "GAMEBLE", tx, ty, "#3d6c8c") }
+  for (let x = b + 4; x < w - b - 4; x += 3) P(x, ty - 4, "#1f3346")
   return g
 }
 
@@ -1226,20 +1014,10 @@ function avatarCanvas(k) {
   return g
 }
 
-// The eight backs of the prototype (card backs), under their file
-// names, and the card sizes they are drawn for: half of each DESIGN card size,
-// since one art pixel is 2 CSS px. The drawing depends on the size, so each
-// size is its own file.
-const BACK_DESIGNS = [
-  { name: "standard", id: "std", title: "Standard", look: "slate frame, diagonal weave, blue ring with gold ticks, the gold G monogram, GAMEBLE" },
-  { name: "saison-1", id: "s1", title: "Saison 1", look: "blueprint grid, engraved 1 in a ring of blue and gold dots, SAISON, GAMEBLE" },
-  { name: "confrere", id: "conf", title: "Confrère", look: "gold-edged pennant, gold ring crowned by five stars, orange hazard band, CONFRERE" },
-  { name: "etoile-dor", id: "gold", title: "Étoile d'or", look: "gold frame, gold sunburst, large shaded gold star, sparkles, LEGENDE" },
-  { name: "aurore", id: "aur", title: "Aurore", look: "night sky, jade, blue and violet aurora, stars, dark mountain line, AURORE" },
-  { name: "millesime-2017", id: "b17", title: "Millésime 2017", look: "bronze-gold frame, laurel wreath around 2017, blue ribbon, TOP 10" },
-  { name: "centurion", id: "cent", title: "Centurion", look: "riveted gunmetal plate, orange octagonal core with 100, orange hazard band, CENTURION" },
-  { name: "soldes-hiver", id: "snow", title: "Soldes d'hiver", look: "icy blue frame, large snowflake, falling snow, snowy pines, HIVER" },
-]
+// The standard back, drawn for each card size: half of each DESIGN card
+// size, since one art pixel is 2 CSS px. The drawing depends on the size, so
+// each size is its own file. The named and set backs share these sizes.
+const STANDARD_BACK = { name: "standard", title: "Standard", look: "slate frame, diagonal weave, blue ring with gold ticks, the gold G monogram, GAMEBLE" }
 const CARD_SIZES = { xs: [100, 150], s: [112, 168], m: [160, 240], l: [208, 312], xl: [240, 360] }
 const AVATARS = { hugo: "blue", lea: "pink", max: "gold", ines: "jade", tom: "orange", sam: "lavender", x1: "grey", x2: "violet" }
 
@@ -1329,13 +1107,11 @@ function decodePng(buf) {
 const files = new Map(Object.entries(ICONS).map(([name, icon]) => [`${name}.svg`, iconSvg(name, icon)]))
 files.set("wordmark-sweep.svg", wordmarkSweepSvg())
 files.set("starfield.svg", starfieldSvg())
-for (const { name, id } of BACK_DESIGNS) {
-  for (const [size, [w, h]] of Object.entries(CARD_SIZES)) files.set(`back-${name}-${size}.png`, backCanvas(id, w / 2 | 0, h / 2 | 0))
-}
-for (const design of ACHIEVEMENT_BACK_DESIGNS) {
+for (const [size, [w, h]] of Object.entries(CARD_SIZES)) files.set(`back-${STANDARD_BACK.name}-${size}.png`, standardBack(w / 2 | 0, h / 2 | 0))
+for (const design of NAMED_BACK_DESIGNS) {
   for (const [size, [w, h]] of Object.entries(CARD_SIZES)) {
     const g = canvas(w / 2 | 0, h / 2 | 0)
-    drawAchievementBack(g, g.width, g.height, design, { mixc, ptext, ptw })
+    drawSetBack(g, g.width, g.height, design, { mixc, ptext, ptw })
     files.set(`back-${design.name}-${size}.png`, g)
   }
 }
@@ -1399,9 +1175,7 @@ const DESCRIPTIONS = {
   "tab-social.svg": "Phone tab bar icon: SOCIAL, two heads and shoulders (text colour)",
   "tab-me.svg": "Phone tab bar icon: ME, one head and shoulders (text colour)",
   "starfield.svg": "Star field tile, 480 × 480 CSS px, repeated under the content",
-  ...Object.fromEntries(BACK_DESIGNS.flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
-    [`back-${name}-${size}.png`, `${title} back for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
-  ...Object.fromEntries(ACHIEVEMENT_BACK_DESIGNS.flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
+  ...Object.fromEntries([STANDARD_BACK, ...NAMED_BACK_DESIGNS].flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${name}-${size}.png`, `${title} back for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
   ...Object.fromEntries(SET_BACK_DESIGNS.flatMap((design) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${setBackName(design)}-${size}.png`, `${design.word} back of the ${design.key} ${design.kind.replace(/_/g, " ")} set for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
@@ -1490,9 +1264,7 @@ function sheetHtml() {
   const item = (file) => `<figure><div class="art">${image(file)}</div><figcaption><code>${escape(file)}</code><span>${escape(DESCRIPTIONS[file])}</span></figcaption></figure>`
   const svgs = [...files.keys()].filter((file) => file.endsWith(".svg"))
   const sizes = Object.keys(CARD_SIZES)
-  const backRows = BACK_DESIGNS.map(({ name, title, look }) =>
-    `<tr><th scope="row"><b>${escape(title)}</b><span>${escape(look)}</span></th>${sizes.map((size) => `<td>${item(`back-${name}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
-  const achievementBackRows = ACHIEVEMENT_BACK_DESIGNS.map(({ name, title, look }) =>
+  const backRows = [STANDARD_BACK, ...NAMED_BACK_DESIGNS].map(({ name, title, look }) =>
     `<tr><th scope="row"><b>${escape(title)}</b><span>${escape(look)}</span></th>${sizes.map((size) => `<td>${item(`back-${name}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
   const setBackRows = SET_BACK_DESIGNS.map((design) =>
     `<tr><th scope="row"><b>${escape(design.word)}</b><span>${escape(`${design.key}, ${design.kind.replace(/_/g, " ")} set`)}</span></th>${sizes.map((size) => `<td>${item(`back-${setBackName(design)}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
@@ -1541,7 +1313,6 @@ ${svgs.map(item).join("\n")}
 <thead><tr><th></th>${sizes.map((size) => `<th scope="col">card-${size}</th>`).join("")}</tr></thead>
 <tbody>
 ${backRows}
-${achievementBackRows}
 </tbody>
 </table></div>
 
