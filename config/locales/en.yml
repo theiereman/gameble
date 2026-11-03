@@ -2030,7 +2030,8 @@ en:
             the log of game actions keeps each decision''s date and the accounts concerned,
             without the reason;'
           reactions: 'your reactions to feed entries: as long as the account exists and the
-            entry stays in the feed; other players only see how many reacted, never who;'
+            entry stays in the feed; other players see how many reacted and, if your profile
+            is public, your name among the latest who reacted;'
           reports: 'a report: until a moderator handles it, then one year; if it targets
             an account deleted before it was handled, one year after the deletion;'
           steam_library: 'the list of your Steam library''s games: as long as the account
@@ -2332,6 +2333,8 @@ en:
     reading_throttled: Too many pages read in a minute. Try again in a moment.
     throttled: Too many sign-in attempts. Try again in a minute.
   reactions:
+    add: Add a reaction
+    choose: Choose a reaction
     group: Reactions
     names:
       gg: GG
@@ -2340,8 +2343,17 @@ en:
       thumb: Thumb up
       wow: Wow
     reacted: 'Reaction sent: %{reaction}.'
+    remove: 'Remove your reaction: %{reaction}'
     removed: Reaction removed.
     throttled: Too many reactions in a minute. Try again in a moment.
+    who:
+      and: " and "
+      and_others:
+        one: "%{names} and %{count} other"
+        other: "%{names} and %{count} others"
+      players:
+        one: "%{count} player"
+        other: "%{count} players"
   reports:
     create:
       sent: Thank you. The moderation team will review this profile. The player will

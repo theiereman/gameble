@@ -3,15 +3,22 @@ import { PressedFocus } from "../lib/reaction_focus"
 
 const pressed = new PressedFocus()
 
-// A reaction bar is replaced by the server's answer: the button pressed gets the focus back.
+// A bar replaced by the server's answer gives the focus back to the button holding or adding the reaction.
 export default class extends Controller<HTMLElement> {
   connect(): void {
-    const kind = pressed.take(this.element.id, Date.now())
-    if (kind) this.element.querySelector<HTMLElement>(`[data-reaction-kind="${kind}"]`)?.focus()
+    if (pressed.take(this.element.id, Date.now()))
+      this.element.querySelector<HTMLElement>("[data-reaction-return]")?.focus()
   }
 
   press(event: Event): void {
-    const button = event.target instanceof Element ? event.target.closest<HTMLElement>("[data-reaction-kind]") : null
+    const target = event.target instanceof Element ? event.target : null
+    const toggle = target?.closest<HTMLElement>("[data-reaction-toggle]")
+    if (toggle) {
+      toggle.setAttribute("aria-expanded", toggle.getAttribute("aria-expanded") === "true" ? "false" : "true")
+      return
+    }
+
+    const button = target?.closest<HTMLElement>("[data-reaction-kind]")
     if (button?.dataset.reactionKind) pressed.remember(this.element.id, button.dataset.reactionKind, Date.now())
   }
 }

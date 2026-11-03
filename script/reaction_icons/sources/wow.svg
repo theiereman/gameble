@@ -1,4 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <path d="M2.5 16a13.5 13.5 0 1 0 27 0a13.5 13.5 0 1 0 -27 0Z" fill="#f4c542" stroke="#6b4206" stroke-width="2" stroke-linejoin="round"/>
-  <path d="M9.6 12.8a1.9 2.7 0 1 0 3.8 0a1.9 2.7 0 1 0 -3.8 0ZM18.6 12.8a1.9 2.7 0 1 0 3.8 0a1.9 2.7 0 1 0 -3.8 0ZM12.9 21.6a3.1 3.7 0 1 0 6.2 0a3.1 3.7 0 1 0 -6.2 0Z" fill="#3a2303"/>
+  <defs>
+    <circle id="f" cx="16" cy="16" r="13.5"/>
+    <clipPath id="c"><use href="#f"/></clipPath>
+  </defs>
+  <use href="#f" fill="#c9821f"/>
+  <g clip-path="url(#c)">
+    <use href="#f" fill="#f7c948" transform="translate(-3.4 -3.4)"/>
+    <ellipse cx="9.4" cy="8.6" rx="4.4" ry="2.8" fill="#fff3b0" transform="rotate(-35 9.4 8.6)"/>
+  </g>
+  <ellipse cx="11.4" cy="13.4" rx="2" ry="2.8" fill="#2b1602"/>
+  <ellipse cx="20.6" cy="13.4" rx="2" ry="2.8" fill="#2b1602"/>
+  <rect x="10.4" y="11.6" width="1.4" height="1.4" fill="#ffffff"/>
+  <rect x="19.6" y="11.6" width="1.4" height="1.4" fill="#ffffff"/>
+  <ellipse cx="16" cy="22" rx="3.2" ry="3.9" fill="#2b1602"/>
+  <use href="#f" fill="none" stroke="#7a3e05" stroke-width="2"/>
 </svg>

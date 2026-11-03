@@ -566,7 +566,7 @@ The look comes from the author's own canvas, *Steam TCG — Concepts UI* (`impor
 
 Three ideas hold it together:
 
-- **Fine pixel art over high-quality material.** It should feel as if a 16-bit filter sat over truly detailed assets, in the spirit of Balatro or Dead Cells. One art pixel is 2 CSS px (`{components.art-pixel.size}`) for everything drawn: covers, card backs, the canister, icons, the planet, particles. Never chunky. One exception, approved by the author on 2026-11-03: the five feed reaction icons are emoji-inspired vector drawings pixelated by pixelcrush to 16 × 16 in 8 colours and shown at 1 CSS px per pixel, so they sit crisp beside the reaction count; their sources are in `script/reaction_icons/`.
+- **Fine pixel art over high-quality material.** It should feel as if a 16-bit filter sat over truly detailed assets, in the spirit of Balatro or Dead Cells. One art pixel is 2 CSS px (`{components.art-pixel.size}`) for everything drawn: covers, card backs, the canister, icons, the planet, particles. Never chunky. One exception, approved by the author on 2026-11-03: the five feed reaction icons are emoji-inspired vector drawings drawn with a lit and a shaded side and a tinted outline, pixelated by pixelcrush to 20 × 20 in 14 colours (redrawn and enlarged on 2026-11-03) and shown at 1 CSS px per pixel, so they sit crisp beside the reaction count; their sources are in `script/reaction_icons/`.
 - **A terminal, lightly.** Corner brackets, hazard stripes, segmented gauges, status lights, a faint scanline and a vignette. Each is used sparingly; a screen never stacks them all.
 - **"Plus la carte est rare, plus elle prend vie."** Common cards are calm. Effects grow with rarity.
 

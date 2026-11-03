@@ -1,5 +1,6 @@
-<% counts.each do |token, per_kind| %>
-  <% per_kind.each do |kind, count| %>
-    <%= turbo_stream.update ReactionStream.count_id(token, kind), count.to_s %>
+<% summaries.each do |token, summary| %>
+  <% summary.counts.each do |kind, count| %>
+    <%= turbo_stream.update_all ReactionStream.count_targets(token, kind), reaction_count_text(count) %>
+    <%= turbo_stream.update_all ReactionStream.names_targets(token, kind) do %><%= render "reactions/who", kind:, count:, names: summary.names.fetch(kind) %><% end %>
   <% end %>
 <% end %>

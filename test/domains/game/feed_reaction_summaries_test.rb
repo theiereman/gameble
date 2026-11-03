@@ -17,6 +17,7 @@ class Game::FeedReactionSummariesTest < ActiveSupport::TestCase
     assert_equal({ "thumb" => 0, "heart" => 0, "gg" => 0, "wow" => 0, "middle_finger" => 0 }, summary.counts)
     assert_nil summary.mine
     assert_equal 0, summary.total
+    assert(summary.names.values.all?(&:empty?))
   end
 
   test "counts per kind and the viewer's own kind" do
@@ -58,9 +59,32 @@ class Game::FeedReactionSummariesTest < ActiveSupport::TestCase
     assert_queries_count(0) { assert_equal({}, Game::FeedReactionSummaries.call([])) }
   end
 
-  test "the summary names no player" do
+  test "each kind names its latest public players, three at most, in the same query" do
+    others = Array.new(3) { |index| Accounts::Player.create!(steam_id: "7656119796029#{index}010", persona_name: "Fan #{index}") }
+    @first.update!(persona_name: "Sam")
+    @second.update!(persona_name: "Lea")
     react(@first, @entry, "heart")
+    others.each { react(it, @entry, "heart") }
+    react(@second, @entry, "gg")
 
-    assert_equal %i[counts mine], reaction_counts(@entry, viewer: @first).to_h.keys
+    summary = nil
+    assert_queries_count(1) { summary = reaction_counts(@entry) }
+
+    assert_equal [ "Fan 2", "Fan 1", "Fan 0" ], summary.names["heart"]
+    assert_equal 4, summary.counts["heart"]
+    assert_equal [ "Lea" ], summary.names["gg"]
+    assert_equal [], summary.names["wow"]
+  end
+
+  test "a player whose profile is not public, or who has no name, is counted but never named" do
+    @first.update!(persona_name: "Sam", visibility: "friends_only")
+    @second.update!(persona_name: nil)
+    react(@first, @entry, "wow")
+    react(@second, @entry, "wow")
+
+    summary = reaction_counts(@entry)
+
+    assert_equal 2, summary.counts["wow"]
+    assert_equal [], summary.names["wow"]
   end
 end

@@ -1,0 +1,34 @@
+<%# locals: token, summary %>
+<% mine = summary.mine %>
+<span class="feed__reaction-add">
+  <% if mine %>
+    <%= button_to feed_entry_reaction_path(token:), method: :delete, class: "feed__reaction feed__reaction--mine", form_class: "feed__reaction-form",
+          form: { data: { turbo_frame: "_top" } }, data: { reaction_kind: mine, reaction_return: true }, aria: { pressed: true } do %>
+      <%= reaction_icon(mine) %>
+      <span class="visually-hidden"><%= t("reactions.remove", reaction: t("reactions.names.#{mine}")) %></span>
+      <span class="feed__reaction-count" data-reaction-count="<%= ReactionStream.slot(token, mine) %>"><%= reaction_count_text(summary.counts.fetch(mine)) %></span>
+    <% end %>
+  <% else %>
+    <button type="button" class="feed__reaction-plus" aria-expanded="false" aria-label="<%= t("reactions.add") %>" data-reaction-toggle data-reaction-return>
+      <%= pixel_icon("plus", class: "feed__reaction-plus-icon") %>
+    </button>
+  <% end %>
+  <span class="feed__reaction-picker">
+    <span class="feed__reaction-panel" role="group" aria-label="<%= t("reactions.choose") %>">
+    <% if mine %>
+      <span class="feed__reaction-picker-who" data-reaction-names="<%= ReactionStream.slot(token, mine) %>"><%= render "reactions/who", kind: mine, count: summary.counts.fetch(mine), names: summary.names.fetch(mine) %></span>
+    <% end %>
+    <span class="feed__reaction-choices">
+      <% Game::FeedReaction::KINDS.each do |kind| %>
+        <% chosen = kind == mine %>
+        <%= button_to feed_entry_reaction_path(token:), method: (chosen ? :delete : :post), params: ({ kind: } unless chosen),
+              class: "feed__reaction-choice", form_class: "feed__reaction-form", form: { data: { turbo_frame: "_top" } },
+              data: { reaction_kind: kind }, aria: { pressed: chosen }, title: t("reactions.names.#{kind}") do %>
+          <%= reaction_icon(kind, class_name: "feed__reaction-choice-icon") %>
+          <span class="visually-hidden"><%= t("reactions.names.#{kind}") %></span>
+        <% end %>
+      <% end %>
+    </span>
+    </span>
+  </span>
+</span>

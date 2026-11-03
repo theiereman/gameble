@@ -60,9 +60,9 @@ class ReactionIconsExportTest < ActiveSupport::TestCase
     end
   end
 
-  test "each feed reaction has its icon, 16 × 16" do
+  test "each feed reaction has its icon, 20 × 20" do
     Game::FeedReaction::KINDS.each do |kind|
-      assert_equal [ 16, 16 ], png_size("#{kind.dasherize}.png"), kind
+      assert_equal [ 20, 20 ], png_size("#{kind.dasherize}.png"), kind
     end
     assert_equal Game::FeedReaction::KINDS.size, Dir.children(ICON_DIR).size
   end

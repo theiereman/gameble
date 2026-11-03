@@ -18,7 +18,10 @@
     <% end %>
   <% end %>
   <div class="feed__body">
-    <p class="feed__sentence"><%= feed_sentence(item, card, partner_card, set, titles: true) %></p>
+    <div class="feed__head">
+      <p class="feed__sentence"><%= feed_sentence(item, card, partner_card, set, titles: true) %></p>
+      <%= local_time_tag(item.entry.occurred_at, class: "feed__time") %>
+    </div>
     <div class="feed__meta">
       <% if set_entry %>
         <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") %>
@@ -36,11 +39,10 @@
         </span>
       <% end %>
       <% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span><% end %>
-      <%= local_time_tag(item.entry.occurred_at, class: "feed__time") %>
+      <% if local_assigns[:reactions] %>
+        <% lazy = local_assigns.fetch(:lazy, false) %>
+        <%= render "reactions/bar", token: item.entry.token, summary: reactions.fetch(item.entry.id), interactive: !lazy && current_player.present?, lazy: %>
+      <% end %>
     </div>
-    <% if local_assigns[:reactions] %>
-      <% lazy = local_assigns.fetch(:lazy, false) %>
-      <%= render "reactions/bar", token: item.entry.token, summary: reactions.fetch(item.entry.id), interactive: !lazy && current_player.present?, lazy: %>
-    <% end %>
   </div>
 </li>
