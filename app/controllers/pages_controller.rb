@@ -2,6 +2,8 @@ class PagesController < ApplicationController
   include SeasonAllocationGate
   include MarkdownNegotiation
 
+  SOCIAL_RECENT_TRADES = 5
+
   negotiates_markdown only: %i[home legal how_it_works credits]
   before_action :lead_to_season_allocation, only: :home
 
@@ -30,6 +32,13 @@ class PagesController < ApplicationController
 
   def social
     authorize :page, :play?
+    @trades = Game::TradesOf.call(current_player)
+    @recent_trades = @trades.recent.first(SOCIAL_RECENT_TRADES)
+    shown = @trades.yours + @trades.theirs + @recent_trades
+    @cards = Catalog::CardViews.call(shown.flat_map(&:card_season_ids), locale: I18n.locale)
+    @friends = Game::FriendsPresence.call(current_player)
+    @goal = Game::CurrentGoal.call
+    @goal_reward = Game::GoalRewardStatus.call(current_player)
   end
 
   def legal

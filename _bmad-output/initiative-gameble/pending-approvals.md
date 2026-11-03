@@ -15,6 +15,13 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
 
 - The bottom sheet's first user, the card list's quick-filter menu (epic phone-first web, entry 3, built 2026-11-03): read conservatively as a menu of preset links. A QUICK FILTERS chip beside the search opens a sheet of one-tap filters (every card, each goal, each state but All, each rarity), each a link to the card list with that filter alone, the one in force marked current. The FILTRES zone stays as it is, and the sheet is not a moved copy of the filter form; entry 4 replaces the zone with the three pastilles. To confirm, or to say the menu should instead combine filters in the sheet.
 
+- Social opens on trades and friends (epic phone-first web, entry 8, built 2026-11-03): five decisions taken conservatively, to confirm or change:
+  - The trade board's own list (`trades/_list`) keeps its current rows (what for what, expiry); only the Social rows take the new shape (friend, turn chip, highest rarity).
+  - The feed's section on Social is a link to the feed with one line, not embedded entries.
+  - The weekly community goal shows on Social and also stays on the hub.
+  - The feed's toggle keeps its "All" / "Tous" wording beside "Friends" / "Amis".
+  - Social shows at most the five most recent ended trades (of the 14 days the trade list keeps).
+
 - Shared card link previews with a generated image (backlog story `story-a-shared-card-link-previews-with-a-generated-image`), before it reaches production:
   - Steam's terms on reusing store art: the image shows the card's Steam cover, pixelated in the card frame. The author checks the Steam terms allow it.
   - Crawler reach of `/share-images/<token>.png`: the image sits outside the locale scope, served signed out with `Cache-Control: public, max-age=31536000, immutable`. Cloudflare must let Discordbot, Twitterbot, WhatsApp and facebookexternalhit fetch it as it lets them fetch the card page. While `SEARCH_INDEXING` is off, `robots.txt` answers `Disallow: /`, which Twitterbot obeys for images too: check an X preview on staging.

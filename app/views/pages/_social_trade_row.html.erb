@@ -1,0 +1,21 @@
+<%# locals: (row:, cards:) %>
+<% tone, chip = social_trade_chip(row) %>
+<% rarity = trade_top_rarity(row, cards) %>
+<li>
+  <%= link_to trade_path(token: row.token), class: class_names("trade-row social-trade", "social-trade--quiet": !row.open?),
+        data: { turbo_prefetch: false } do %>
+    <%= pixel_icon("avatar-default", class: "trade-row__avatar") %>
+    <span class="trade-row__text">
+      <span class="trade-row__name social-trade__name"><%= friend_name(row.friend) %></span>
+      <% unless row.open? %><span class="trade-row__when"><%= trade_outcome_age(row) %></span><% end %>
+    </span>
+    <% if rarity %>
+      <span class="social-trade__rarity social-trade__rarity--<%= rarity %>">
+        <%= pixel_icon("rarity-#{rarity_tier(rarity)}", class: "social-trade__rarity-icon") %>
+        <span class="visually-hidden"><%= t("pages.social.trades.top_rarity") %></span>
+        <span class="social-trade__rarity-label"><%= t("catalog.rarity.#{rarity}") %></span>
+      </span>
+    <% end %>
+    <span class="trade-chip trade-chip--<%= tone %>"><%= chip %></span>
+  <% end %>
+</li>

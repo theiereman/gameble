@@ -253,12 +253,12 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__entry", 0
   end
 
-  test "menu 06 and the Social row link to the feed" do
+  test "menu 06 and the Social home link to the feed" do
     get home_path(locale: :en)
     assert_select "a.menu-item[href=?]", feed_path(locale: :en), /Activity feed/
 
     get social_path(locale: :en)
-    assert_select "a.menu-item--plus[href=?]", feed_path(locale: :en)
+    assert_select ".social a[href=?]", feed_path(locale: :en), /See the feed/
   end
 
   test "All shows everyone's entries, current, beside Friends" do
@@ -273,18 +273,45 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[Hugo Léa Sam], names
   end
 
-  test "the tabs, then the type filters, are one zone of filter chips, the current one of each marked" do
+  test "the tabs and one chip naming the type in force share the controls; the five types wait in a bottom sheet" do
     get feed_path(locale: :en, filter: "trades")
 
     assert_select ".feed__controls", 1
-    assert_select ".feed__controls > nav", 2
+    assert_select ".feed__controls > nav", 1
     assert_select ".feed__controls > nav:first-child.feed__tabs"
-    assert_select ".feed__controls > nav:last-child.feed__filters[aria-label=?]", "Filter by type"
-    assert_select ".feed__controls a.filter-chip > .filter-chip__text", 7
-    assert_select ".feed__controls .filter-chip[aria-current=true]", 2
+    assert_select ".feed__controls a.filter-chip", 3
+    assert_select ".feed__controls > a.filter-chip.feed__type-opener:last-child[href='#feed-types'][aria-haspopup=dialog][aria-controls=feed-types]" \
+      "[data-bottom-sheet-opens=feed-types] > .filter-chip__text", "Type: Trades"
+    assert_select ".feed__controls .filter-chip[aria-current=true]", 1
     assert_select ".feed__tab.filter-chip[aria-current=true]", "All"
-    assert_select ".feed__filter.filter-chip[aria-current=true]", "Trades"
+    assert_select ".feed__controls .feed__filters, .feed__controls .feed__filter", false
+    assert_select "dialog#feed-types.bottom-sheet[aria-labelledby=feed-types-title]" do
+      assert_select "#feed-types-title", "Filter by type"
+      assert_select "nav.feed__filters[aria-label=?]", "Filter by type"
+      assert_equal %w[Everything Pulls Discoveries Trades Reposts], css_select("dialog#feed-types .feed__filter").map { it.text.strip }
+      assert_select "a.feed__filter.filter-chip > .filter-chip__text", 5
+      assert_select ".feed__filter[aria-current=true]", count: 1, text: "Trades"
+    end
     assert_select ".feed__controls .segmented, .feed__controls .segmented__option", false
+    assert_select "[data-controller~=current-chips]", false
+    assert_select "[style]", 0
+  end
+
+  test "the type sheet's links keep the tab and the tabs keep the type, the opener naming the type in French" do
+    friends_and_strangers
+
+    get feed_path(locale: :fr, tab: "friends", filter: "reposts")
+
+    assert_select ".feed__type-opener .filter-chip__text", "Type\u202f: Reposts"
+    assert_select "dialog#feed-types a.feed__filter[href=?]", feed_path(locale: :fr, tab: "friends"), text: "Tout"
+    %w[pulls discoveries trades reposts].each do |filter|
+      assert_select "dialog#feed-types a.feed__filter[href=?]", feed_path(locale: :fr, tab: "friends", filter:)
+    end
+    assert_select "a.feed__tab[href=?]", feed_path(locale: :fr, filter: "reposts"), text: "Tous"
+    assert_select "a.feed__tab[href=?][aria-current=true]", feed_path(locale: :fr, tab: "friends", filter: "reposts"), text: "Amis"
+
+    get feed_path(locale: :fr)
+    assert_select ".feed__type-opener .filter-chip__text", "Type\u202f: Tout"
   end
 
   test "Friends shows only the friends' entries, not the player's own nor a stranger's" do
@@ -398,7 +425,8 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href$='/friends']", false
     assert_select ".feed__no-friends", false
     assert_select ".feed__entry", 5
-    assert_select ".feed__filter[href=?]", feed_path(locale: :fr, filter: "trades")
+    assert_select "dialog#feed-types .feed__filter[href=?]", feed_path(locale: :fr, filter: "trades")
+    assert_select ".feed__controls a.feed__type-opener[href='#feed-types']", "Type\u202f: Tirages"
   end
 
   test "a visitor's back leads to the landing, not to Social; a player's leads to Social" do

@@ -410,12 +410,12 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to home_path(locale: :fr)
   end
 
-  test "menu 05 and the Social row lead a player to Amis" do
+  test "menu 05 and the Social home lead a player to Amis" do
     sign_in(@player)
 
     get home_path(locale: :fr)
     assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='5']"
     get social_path(locale: :fr)
-    assert_select ".plus__list a.menu-item[href='/fr/friends']", /Amis/
+    assert_select ".social a.social__more[href='/fr/friends']", /Tous les amis/
   end
 end

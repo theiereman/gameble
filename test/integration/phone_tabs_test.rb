@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
 
-# The phone's four tabs, the Social and Me menus behind two of them, and the
+# The phone's four tabs, the Social home and the Me menu behind two of them, and the
 # Sets | All cards switch.
 class PhoneTabsTest < ActionDispatch::IntegrationTest
   include SteamSignIn
@@ -44,10 +44,10 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     assert_empty FORMER_MORE_DESTINATIONS - reachable
   end
 
-  test "the Social menu lists trades, friends and the feed; the Me menu settings, personalization, achievements, how it works and support" do
+  test "the Social home links trades, friends and the feed; the Me menu settings, personalization, achievements, how it works and support" do
     get social_path(locale: :en)
-    assert_select ".plus__list > li a.menu-item", 3
-    %w[/en/trades /en/friends /en/feed].each { assert_select ".plus__list a.menu-item[href='#{it}']" }
+    assert_select ".plus__list", false
+    %w[/en/trades /en/friends /en/feed].each { assert_select ".social a.social__more[href='#{it}']" }
 
     get me_path(locale: :en)
     assert_select ".plus__list > li", 5

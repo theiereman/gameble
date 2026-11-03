@@ -11,7 +11,7 @@
 <%= tag.section class: "feed", aria: { labelledby: "feed-heading" },
       data: ({ controller: "feed-announcer", feed_announcer_templates_value: t(".announcement").to_json } if @live) do %>
   <h1 id="feed-heading" class="feed__title"><%= t(".title") %></h1>
-  <div class="feed__controls" data-controller="current-chips">
+  <div class="feed__controls">
     <nav class="feed__tabs" aria-label="<%= t(".tabs_label") %>">
       <%= feed_chip_link t(".tabs.all"), feed_path(filter: @filter), current: @tab.nil?, classes: "feed__tab" %>
       <% if current_player %>
@@ -22,12 +22,17 @@
         <% end %>
       <% end %>
     </nav>
+    <%= tag.a(**bottom_sheet_opener(feed_types_sheet_id), class: "filter-chip feed__type-opener") do %>
+      <span class="filter-chip__text"><%= t(".filters_opener", type: t(".filters.#{@filter || "all"}")) %></span>
+    <% end %>
+  </div>
+  <%= render BottomSheetComponent.new(id: feed_types_sheet_id, title: t(".filters_label")) do %>
     <nav class="feed__filters" aria-label="<%= t(".filters_label") %>">
       <% [ nil, *FeedsController::FILTERS.keys ].each do |filter| %>
         <%= feed_chip_link t(".filters.#{filter || "all"}"), feed_path(tab: @tab, filter:), current: filter == @filter, classes: "feed__filter" %>
       <% end %>
     </nav>
-  </div>
+  <% end %>
   <% if @no_friends %>
     <%= render PanelComponent.new(class: "feed__no-friends") do %>
       <p class="feed__no-friends-text"><%= t(".no_friends") %></p>

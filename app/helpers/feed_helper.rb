@@ -13,6 +13,8 @@ module FeedHelper
     end
   end
 
+  def feed_types_sheet_id = "feed-types"
+
   def feed_chip_link(label, path, current:, classes:)
     link_to path, class: [ classes, "filter-chip" ], aria: { current: ("true" if current) } do
       tag.span(label, class: "filter-chip__text")

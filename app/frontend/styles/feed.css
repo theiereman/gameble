@@ -1,6 +1,7 @@
 /*
- * The activity feed: the All and Friends tabs and the type filters on one
- * line of the catalog's filter chips, then one row per entry across
+ * The activity feed: the All and Friends tabs and one chip naming the type
+ * in force, which opens the bottom sheet of type filters, all the catalog's
+ * filter chips; then one row per entry across
  * the shell's content width, at least 68px tall, a first discovery behind
  * its gold chip. Hard edges, no animation, no opacity to dim a filler.
  */
@@ -23,24 +24,29 @@
   --feed-controls-ring: calc(var(--focus-ring-width) + var(--focus-ring-offset));
 
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-4);
   margin: calc(-1 * var(--feed-controls-ring));
   padding: var(--feed-controls-ring);
-  overflow-x: auto;
-  scrollbar-width: thin;
 }
 
-.feed__tabs,
-.feed__filters {
+.feed__tabs {
   display: flex;
   flex: none;
   gap: var(--space-2);
 }
 
-.feed__filters {
+.feed__controls > .feed__type-opener {
+  flex: none;
   padding-left: var(--space-4);
   box-shadow: inset var(--space-unit) 0 0 0 var(--color-line-deep);
+}
+
+.feed__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 .feed__list {
@@ -332,6 +338,11 @@ html .feed__thumb > .card.card--s[data-tilt] {
   .feed__tabs,
   .feed__filters {
     gap: var(--space-touch-gap);
+  }
+
+  .feed__controls .filter-chip__text,
+  .feed__filters .filter-chip__text {
+    min-height: var(--space-chip-height-touch);
   }
 
   .feed__name,

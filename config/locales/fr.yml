@@ -234,7 +234,25 @@ fr:
       personalization: "Personnalisation"
     social:
       title: "Social"
-      subtitle: "Échanges, amis et activité"
+      trades:
+        title: "Échanges"
+        all: "Tous les échanges"
+        empty: "Aucun échange en cours."
+        recent: "Récemment"
+        yours: "À vous"
+        theirs: "À son tour"
+        top_rarity: "Rareté la plus haute :"
+      friends:
+        title: "Amis"
+        all: "Tous les amis"
+        empty: "Pas encore d'ami. Ajoutez-en un avec le bouton ci-dessous."
+      feed:
+        title: "Fil d'activité"
+        open: "Voir le fil"
+        line: "Tirages, découvertes, échanges et reposts, de tous les joueurs ou de vos seuls amis."
+      actions:
+        add_friend: "Ajouter un ami"
+        new_trade: "Nouvel échange"
     credits:
       title: "Crédits"
       intro: "Gameble s'inspire des œuvres ci-dessous. Ce sont des inspirations, jamais des affiliations : aucune n'a de lien avec Gameble ni ne le cautionne."
@@ -1480,6 +1498,7 @@ fr:
         next: "Entrées plus anciennes"
       add_friends: "Ajouter des amis"
       filters_label: "Filtrer par type"
+      filters_opener: "Type : %{type}"
       filters:
         all: "Tout"
         pulls: "Tirages"

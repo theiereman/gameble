@@ -163,11 +163,12 @@ class TradesTest < ApplicationSystemTestCase
 
     assert_selector ".tab-bar a.tab-bar__tab .tab-bar__badge--alert", text: "1"
     find(".tab-bar a.tab-bar__tab[href='/en/social']").click
-    find(".plus a[href='/en/trades']").click
-    assert_selector ".trade-row", visible: true
+    find(".social a.social__more[href='/en/trades']").click
+    assert_current_path trades_path(locale: :en)
+    assert_selector ".trades__list .trade-row", visible: true
     assert_no_selector ".trade-board", visible: true
 
-    find(".trade-row", text: /LEA/i).click
+    find(".trades__list .trade-row", text: /LEA/i).click
     assert_current_path trade_path(token: trade.token, locale: :en)
     assert_selector ".trade-board", visible: true
     assert_no_selector ".trades__list", visible: true

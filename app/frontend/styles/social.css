@@ -1,0 +1,213 @@
+/*
+ * The Social home: trades first, then friends, the community goal and the
+ * feed, each section under a kicker heading with a link to its own screen;
+ * Add a friend and New trade close the column, held above the tab bar on a
+ * phone. A trade row reuses the trade list's look; an ended one goes quiet.
+ */
+
+.social {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.social__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.social__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.social__heading,
+.social__subheading {
+  margin: 0;
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.social__heading {
+  color: var(--color-accent);
+}
+
+.social__subheading {
+  margin-top: var(--space-2);
+  color: var(--color-muted);
+}
+
+.social__more {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--space-touch-min);
+  color: var(--color-text);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.social__more:hover {
+  color: var(--color-accent);
+}
+
+.social__more:focus-visible {
+  box-shadow: var(--focus-ring-gap);
+}
+
+.social__more-arrow {
+  width: 16px;
+  height: 16px;
+}
+
+.social__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.social__empty,
+.social__line {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.social-trade {
+  min-height: var(--space-touch-min);
+}
+
+.social-trade__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trade-row.social-trade--quiet {
+  background: var(--color-panel-sunken);
+  color: var(--color-muted);
+}
+
+.trade-row.social-trade--quiet:hover {
+  box-shadow: inset 0 0 0 2px var(--color-line);
+}
+
+.social-trade--quiet .trade-row__name {
+  color: var(--color-muted);
+}
+
+.social-trade__rarity {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.social-trade__rarity-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.social-trade__rarity--common {
+  color: var(--color-rarity-commune);
+}
+
+.social-trade__rarity--uncommon {
+  color: var(--color-rarity-peu-commune);
+}
+
+.social-trade__rarity--rare {
+  color: var(--color-rarity-rare);
+}
+
+.social-trade__rarity--epic {
+  color: var(--color-rarity-epique);
+}
+
+.social-trade__rarity--legendary {
+  color: var(--color-rarity-legendaire);
+}
+
+.social-friend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--space-touch-min);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel);
+  box-shadow: inset 0 0 0 2px var(--color-line-soft);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.social-friend--link:hover {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.social-friend--link:focus-visible {
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 2px var(--color-line-soft);
+}
+
+.social-friend__avatar {
+  width: 32px;
+  height: 32px;
+}
+
+.social-friend__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-max);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.social__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+@media (max-width: 719px) {
+  .social__actions {
+    position: sticky;
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+    z-index: 3;
+    padding: var(--space-4) 0;
+    background: var(--color-ground);
+  }
+
+  .social__actions > * {
+    flex: 1;
+    min-height: var(--space-touch-min);
+  }
+
+  .social-trade__rarity-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

@@ -193,12 +193,12 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     assert not_reloaded?
   end
 
-  test "on a phone, an invitation lights the Social tab and the Friends row in French without a reload, and answering it clears them" do
+  test "on a phone, an invitation lights the Social tab and the link to friends in French without a reload, and answering it clears them" do
     original = page.driver.browser.manage.window.size
     page.driver.browser.manage.window.resize_to(*PHONE)
     sign_in @hugo
     visit social_path(locale: :fr)
-    assert_selector ".plus a.menu-item #plus-friends-badge", visible: :all
+    assert_selector ".social a.social__more #plus-friends-badge", visible: :all
     assert_no_selector "#plus-friends-badge .menu-item__badge", visible: :all
     assert_no_selector "#tab-invitations-badge .tab-bar__badge"
     listening
@@ -208,7 +208,7 @@ class LiveUpdatesTest < ApplicationSystemTestCase
 
     assert_selector ".tab-bar a.tab-bar__tab #tab-invitations-badge .tab-bar__badge--alert", text: "1"
     assert_selector "#tab-invitations-badge .visually-hidden", text: "1 invitation en attente de votre réponse", visible: :all
-    assert_selector ".plus a.menu-item #plus-friends-badge .menu-item__badge--alert", text: "1"
+    assert_selector ".social a.social__more #plus-friends-badge .menu-item__badge--alert", text: "1"
     assert_selector "#plus-friends-badge .visually-hidden", text: "1 invitation en attente de votre réponse", visible: :all
     assert not_reloaded?
 

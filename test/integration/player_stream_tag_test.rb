@@ -44,7 +44,7 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
     assert_select "turbo-cable-stream-source", 0
   end
 
-  test "menu 04, the Social list's Trades row and the tab hold the badge slots the stream fills, empty at zero" do
+  test "menu 04, the Social home's link to all trades and the tab hold the badge slots the stream fills, empty at zero" do
     sign_in @player
 
     get home_path(locale: :en)
@@ -56,11 +56,11 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
 
     get social_path(locale: :en)
 
-    assert_select ".plus a.menu-item[href='/en/trades'] #plus-trades-badge.stream-slot", 1
+    assert_select ".social a.social__more[href='/en/trades'] #plus-trades-badge.stream-slot", 1
     assert_select "#plus-trades-badge .menu-item__badge, #plus-trades-badge .visually-hidden", 0
   end
 
-  test "menu 05, the Social list's Friends row and the Social tab hold the invitations badge slots" do
+  test "menu 05, the Social home's link to friends and the Social tab hold the invitations badge slots" do
     Game::Invitation.create!(sender_id: accounts_players(:moderator).id, recipient_id: @player.id)
     Game::Invitation.create!(sender_id: @player.id, recipient_id: accounts_players(:administrator).id)
     sign_in @player
@@ -74,11 +74,11 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
 
     get social_path(locale: :fr)
 
-    assert_select ".plus a.menu-item[href='/fr/friends'] #plus-friends-badge.stream-slot .menu-item__badge--alert", "1"
+    assert_select ".social a.social__more[href='/fr/friends'] #plus-friends-badge.stream-slot .menu-item__badge--alert", "1"
     assert_select "#plus-friends-badge .visually-hidden", "1 invitation en attente de votre réponse"
   end
 
-  test "a player with no invitation to answer sees no count on menu 05, the Social list or the Social tab" do
+  test "a player with no invitation to answer sees no count on menu 05, the Social home or the Social tab" do
     Game::Invitation.create!(sender_id: @player.id, recipient_id: accounts_players(:moderator).id)
     sign_in @player
 

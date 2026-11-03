@@ -1093,6 +1093,7 @@ en:
         reposts: Reposts
         trades: Trades
       filters_label: Filter by type
+      filters_opener: 'Type: %{type}'
       first_discovery: First discovery
       nameless: Nameless player
       no_friends: Add friends to follow their pulls.
@@ -2166,8 +2167,26 @@ en:
       subtitle: Your profile, rewards and help
       title: Me
     social:
-      subtitle: Trades, friends and activity
+      actions:
+        add_friend: Add a friend
+        new_trade: New trade
+      feed:
+        line: Pulls, discoveries, trades and reposts, from every player or only your friends.
+        open: See the feed
+        title: Activity feed
+      friends:
+        all: All friends
+        empty: No friends yet. Add one with the button below.
+        title: Friends
       title: Social
+      trades:
+        all: All trades
+        empty: No trade in progress.
+        recent: Recently
+        theirs: Their turn
+        title: Trades
+        top_rarity: 'Highest rarity:'
+        yours: Your turn
   personalizations:
     show:
       card_back:

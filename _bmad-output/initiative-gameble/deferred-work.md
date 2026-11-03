@@ -492,3 +492,15 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-open-every-capsule-from-one-thumb-plan.md`
   summary: No code review pass was run on this story, and the system tests were not rerun after the author dropped them; the orchestrator's review and the release's full system run cover it.
   evidence: the author asked for the story to be committed and reported at once (2026-11-03).
+
+## Deferred from: build of story-social-opens-on-trades-and-friends-plan (2026-11-03)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-social-opens-on-trades-and-friends-plan.md`
+  summary: Keyboard focus on a trade row is nearly invisible; `.trade-row:focus-visible` sets `outline: none` and keeps only the near-black focus gap, on the trade list and, by reuse, on the Social rows.
+  evidence: `app/frontend/styles/trades.css:126` overrides the global white ring of `shell.css` `:focus-visible`; predates this story.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-social-opens-on-trades-and-friends-plan.md`
+  summary: `BackOffice::RoadmapsControllerTest` "an administrator reads every milestone" can fail at random; its `form [id*='7']`-style selectors match unrelated attributes when the record id is a single digit.
+  evidence: failed in two full runs during the build (matching '8', then '7') and passed alone and in the orchestrator's bin/ci; `test/controllers/back_office/roadmaps_controller_test.rb:57`, untouched by this story.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-social-opens-on-trades-and-friends-plan.md`
+  summary: The system tests written or changed by this story (`social_test`, `feed_test`, `trades_test`, `live_updates_test`) were not run, at the author's request.
+  evidence: the author asked that no system test be run (2026-11-03); the release's full system run covers them.

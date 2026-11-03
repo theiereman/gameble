@@ -1,0 +1,14 @@
+<%# locals: (friend:) %>
+<% player = friend.player %>
+<% face = capture do %>
+  <%= pixel_icon("avatar-default", class: "social-friend__avatar") %>
+  <span class="social-friend__name"><%= friend_name(player) %></span>
+  <%= render "friends/presence", presence: friend %>
+<% end %>
+<li>
+  <% if Game::Visibility.open_to_friends?(player) %>
+    <%= link_to face, friend_profile_path(token: player.token), class: "social-friend social-friend--link", data: { turbo_prefetch: false } %>
+  <% else %>
+    <span class="social-friend"><%= face %></span>
+  <% end %>
+</li>
