@@ -2,6 +2,7 @@ import type { CardView, HandView } from "../controllers/booster_stage_controller
 import {
   bannerEnded,
   controls,
+  nextStepsShown,
   onTable,
   shownCelebration,
   type BoosterState,
@@ -50,6 +51,7 @@ export class BoosterRenderer {
     this.renderTray(state, view)
     this.renderZoom(state, view)
     renderCelebrations(this.host, state, view)
+    this.host.outlets().nextSteps?.render({ shown: nextStepsShown(state) })
   }
 
   private get strings() {

@@ -1,4 +1,4 @@
-<%# locals: (bank:, season:, next_pack_size:, opened_pack:, opened_cards:, reserve:, opened_goals: GoalMarks::NONE) %>
+<%# locals: (bank:, season:, next_pack_size:, opened_pack:, opened_cards:, reserve:, opened_goals: GoalMarks::NONE, next_steps: nil) %>
 <% size = opened_cards&.size || next_pack_size || Game::Pack::SIZE %>
 <%= tag.section id: "booster", class: "booster", aria: { labelledby: "booster-panel-title" }, data: booster_root_data(bank:, season:, next_pack_size:, reserve:) do %>
   <%= render("boosters/strip", season:, bank:) %>
@@ -7,6 +7,7 @@
   <%= render("boosters/info", season:, bank:, size:, reserve:) %>
   <%= render "boosters/stage", season:, available: booster_reserve_size(bank, reserve), reserve:, origin: booster_origin(bank, reserve), next_size: next_pack_size || Game::Pack::SIZE %>
   <div class="booster__phone-actions" data-booster-target="phoneActions"></div>
+  <%= render "boosters/next_steps", bank:, next_steps: %>
   <%= render("boosters/zoom", season:) %>
   <div class="visually-hidden" role="status" aria-live="polite" data-booster-target="live"></div>
   <template data-booster-target="announcement"><span></span></template>

@@ -1,0 +1,9 @@
+<%# locals: (bank:, next_steps:) %>
+<%= tag.section class: "booster-next-steps", hidden: next_steps.nil?, aria: { labelledby: "booster-next-steps-title" },
+      data: { controller: "booster-next-steps", booster_next_steps_url_value: booster_next_steps_path } do %>
+  <h2 id="booster-next-steps-title" class="booster-next-steps__title"><%= t("booster.next_steps.title") %></h2>
+  <%= turbo_frame_tag "booster-next-steps-frame", target: "_top",
+        data: { booster_next_steps_target: "frame", action: "turbo:frame-missing->booster-next-steps#keep" } do %>
+    <%= render("boosters/next_steps_list", bank:, next_steps:) if next_steps %>
+  <% end %>
+<% end %>

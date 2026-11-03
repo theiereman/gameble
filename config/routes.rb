@@ -36,6 +36,8 @@ Rails.application.routes.draw do
     # The booster screen, where a pack is opened: its root controller sends the
     # opening exchange to packs#create.
     resource :booster, only: :show
+    # What an empty reserve proposes, loaded in a frame once the reserve runs out.
+    get "booster/next-steps" => "booster_next_steps#show", as: :booster_next_steps
     resource :packs_chip, path: "packs-chip", only: :show
 
     # The collection, reached from the hub's menu: its entry, the player's

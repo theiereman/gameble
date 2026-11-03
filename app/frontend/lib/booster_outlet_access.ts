@@ -5,6 +5,7 @@ import type BoosterActionsController from "../controllers/booster_actions_contro
 import type BoosterCanisterController from "../controllers/booster_canister_controller"
 import type BoosterCelebrationController from "../controllers/booster_celebration_controller"
 import type BoosterInfoController from "../controllers/booster_info_controller"
+import type BoosterNextStepsController from "../controllers/booster_next_steps_controller"
 import type BoosterReservesController from "../controllers/booster_reserves_controller"
 import type BoosterPlateController from "../controllers/booster_plate_controller"
 import type BoosterStageController from "../controllers/booster_stage_controller"
@@ -28,6 +29,8 @@ export type OutletSource = Readonly<{
   hasBoosterZoomOutlet: boolean
   boosterZoomOutlet: BoosterZoomController
   boosterCelebrationOutlets: BoosterCelebrationController[]
+  hasBoosterNextStepsOutlet: boolean
+  boosterNextStepsOutlet: BoosterNextStepsController
 }>
 
 export const outletsOf = (source: OutletSource): BoosterOutlets => ({
@@ -40,6 +43,7 @@ export const outletsOf = (source: OutletSource): BoosterOutlets => ({
   tray: source.hasBoosterTrayOutlet ? source.boosterTrayOutlet : null,
   zoom: source.hasBoosterZoomOutlet ? source.boosterZoomOutlet : null,
   celebrations: source.boosterCelebrationOutlets,
+  nextSteps: source.hasBoosterNextStepsOutlet ? source.boosterNextStepsOutlet : null,
 })
 
 export type StageCore = Pick<BoosterStageHost, "current" | "timers" | "apply" | "announce" | "phoneLayout">

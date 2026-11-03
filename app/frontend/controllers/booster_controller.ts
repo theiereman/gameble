@@ -37,20 +37,19 @@ import {
   type Reserve,
 } from "../lib/booster"
 import { screenTimers, type ScreenTimers } from "../lib/screen_timers"
-import { cloneFirstElement } from "../lib/templates"
+import { announceIn } from "../lib/booster_live"
 import type { Intent } from "../lib/screen"
 import type BoosterActionsController from "./booster_actions_controller"
 import type BoosterCanisterController from "./booster_canister_controller"
 import type BoosterCelebrationController from "./booster_celebration_controller"
 import type BoosterInfoController from "./booster_info_controller"
+import type BoosterNextStepsController from "./booster_next_steps_controller"
 import type BoosterReservesController from "./booster_reserves_controller"
 import type BoosterPlateController from "./booster_plate_controller"
 import type BoosterStageController from "./booster_stage_controller"
 import type { CardIntent } from "./booster_stage_controller"
 import type BoosterTrayController from "./booster_tray_controller"
 import type BoosterZoomController from "./booster_zoom_controller"
-
-const ANNOUNCEMENTS_KEPT = 5
 
 export class BoosterController extends Controller<HTMLElement> {
   static targets = [
@@ -87,6 +86,7 @@ export class BoosterController extends Controller<HTMLElement> {
     "booster-tray",
     "booster-zoom",
     "booster-celebration",
+    "booster-next-steps",
   ]
 
   declare readonly panelActionsTarget: HTMLElement
@@ -125,6 +125,8 @@ export class BoosterController extends Controller<HTMLElement> {
   declare readonly hasBoosterZoomOutlet: boolean
   declare readonly boosterZoomOutlet: BoosterZoomController
   declare readonly boosterCelebrationOutlets: BoosterCelebrationController[]
+  declare readonly hasBoosterNextStepsOutlet: boolean
+  declare readonly boosterNextStepsOutlet: BoosterNextStepsController
 
   private state?: BoosterState
   private timers: ScreenTimers = screenTimers()
@@ -195,6 +197,7 @@ export class BoosterController extends Controller<HTMLElement> {
   boosterTrayOutletConnected = (): void => this.render()
   boosterZoomOutletConnected = (): void => this.render()
   boosterCelebrationOutletConnected = (): void => this.render()
+  boosterNextStepsOutletConnected = (): void => this.render()
   dailyCollectedTargetConnected = (): void => void this.bankRefresh?.dailyCollected()
   selectReserve = ({ detail: { reserve } }: Intent<{ reserve: Reserve }>): void =>
     void this.apply((s) => reserveSelected(s, reserve))
@@ -303,11 +306,7 @@ export class BoosterController extends Controller<HTMLElement> {
   }
 
   private announce(text: string): void {
-    const span = cloneFirstElement(this.announcementTarget)
-    if (!span) return
-    span.textContent = text
-    this.liveTarget.append(span)
-    while (this.liveTarget.children.length > ANNOUNCEMENTS_KEPT) this.liveTarget.firstElementChild?.remove()
+    announceIn(this.liveTarget, this.announcementTarget, text)
   }
 
   private render(): void {

@@ -1270,6 +1270,18 @@ fr:
       waiting: "En attente"
     reserve: "Réserve"
     next_in: "+1 dans"
+    next_steps:
+      title: "Et maintenant ?"
+      daily: "Prochaine capsule quotidienne : %{time}"
+      sets: "Vos sets"
+      set_hook: "%{set} · %{next}"
+      social: "Vos amis"
+      social_hook: "%{name} a une carte qu'un de vos objectifs attend"
+      me: "Votre profil"
+      me_hook:
+        zero: "%{number} récompense à récupérer"
+        one: "%{number} récompense à récupérer"
+        other: "%{number} récompenses à récupérer"
     reserve_full: "Réserve pleine"
     open: "Ouvrir la capsule"
     open_next: "Ouvrir la suivante"
