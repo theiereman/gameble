@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reaction icons</title>
+<style>
+/* =====================================================================
+   gameble — the five feed reaction icons, redrawn (proposal, waiting for the author's pick).
+   Governing sections: DESIGN.md Visual principles (one art pixel is 2 CSS px, never chunky),
+   Iconography. The feed's reaction bar is reproduced from app/frontend/styles/feed-reactions.css.
+   Every drawing below is the exact character grid the pixel export takes ("c" = text colour),
+   rendered the way script/pixel_art/export.mjs renders it: one <path> of row runs, crisp edges.
+   Fonts: the app's own woff2 files, loaded from the repo by relative path (nothing from the network).
+   ===================================================================== */
+@font-face{font-family:'VT323';font-weight:400;font-display:swap;
+  src:url('../../../../app/frontend/fonts/vt323-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:400;font-display:swap;
+  src:url('../../../../app/frontend/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:700;font-display:swap;
+  src:url('../../../../app/frontend/fonts/jetbrains-mono-latin-700-normal.woff2') format('woff2')}
+
+:root{
+  --color-backdrop:#05070a;
+  --color-ground:#0b0f15;
+  --color-panel:#121a24;
+  --color-panel-sunken:#0e141b;
+  --color-panel-raised:#1b2838;
+  --color-line:#2a475e;
+  --color-line-soft:#1f3346;
+  --color-line-deep:#2a6f9a;
+  --color-accent:#66c0f4;
+  --color-on-accent:#0b1520;
+  --color-text:#c7d5e0;
+  --color-text-bright:#e6eef5;
+  --color-text-max:#fff;
+  --color-muted:#8f98a0;
+  --color-dim:#5d6b78;
+  --color-outline:#06090d;
+  --color-gold:#f4c542;
+  --color-on-gold:#120d05;
+  --color-lime:#a4d007;
+  --color-rarity-rare:#66c0f4;
+  --space-unit:2px;--space-1:2px;--space-2:4px;--space-3:8px;--space-4:12px;--space-5:16px;
+  --space-button-height-sm:34px;--space-touch-min:44px;
+  --control-border:inset 0 0 0 2px #2a6f9a;
+  --font-label:700 0.6875rem/normal 'JetBrains Mono',monospace;
+  --font-body:400 0.875rem/1.3125rem 'JetBrains Mono',monospace;
+  --font-body-small:700 0.75rem/1.125rem 'JetBrains Mono',monospace;
+  --fv:'VT323',monospace;
+  --fs:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--color-backdrop);color:var(--color-text);font-family:var(--fs)}
+button,select{font:inherit}
+code{font-size:11px;color:var(--color-text-bright)}
+
+/* ---------- presentation sheet (outside the product) ---------- */
+.sheet{max-width:1280px;margin:0 auto;padding:28px 20px 80px}
+.doc-h h1{margin:0 0 8px;font:400 40px/40px var(--fv);color:var(--color-text-max);letter-spacing:2px}
+.doc-h p{max-width:940px;margin:0 0 8px;font-size:12px;line-height:19px;color:var(--color-muted)}
+.doc-h p b,.why b{color:var(--color-text-bright)}
+.controls{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:16px -20px 24px;padding:10px 20px;background:rgba(5,7,10,.94);box-shadow:0 2px 0 var(--color-line-soft)}
+.tg{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:12px;color:var(--color-text-bright);cursor:pointer}
+.tg input{width:18px;height:18px;accent-color:#66c0f4}
+.controls .note{font-size:11px;color:var(--color-dim)}
+.dir{margin:0 0 56px}
+.dir-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;margin-bottom:6px}
+.dir-h h2{margin:0;font:400 34px/34px var(--fv);color:var(--color-text-max);letter-spacing:2px}
+.dir-h .pers{font-size:11px;letter-spacing:1.5px;color:var(--color-accent);text-transform:uppercase}
+.why{max-width:940px;margin:6px 0 14px;font-size:12px;line-height:19px;color:var(--color-text)}
+.kick{display:block;margin:0 0 8px;font-size:10px;letter-spacing:1.5px;color:var(--color-accent);text-transform:uppercase}
+.row{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+
+/* A variant: its zoomed grid, then the real size in the three states of the bar. */
+.variants{display:flex;flex-wrap:wrap;gap:20px}
+.variant{display:flex;flex-direction:column;gap:12px;width:300px;padding:14px;background:var(--color-ground);box-shadow:inset 0 0 0 2px var(--color-line-soft)}
+.variant--pick{box-shadow:inset 0 0 0 2px var(--color-accent)}
+.variant h3{display:flex;align-items:baseline;gap:10px;margin:0;font:400 26px/26px var(--fv);color:var(--color-text-max);letter-spacing:1px}
+.variant h3 .badge{padding:2px 6px;background:var(--color-accent);color:var(--color-on-accent);font:700 10px/14px var(--fs);letter-spacing:1px}
+.variant h3 .size{margin-left:auto;font:700 10px/14px var(--fs);color:var(--color-dim);letter-spacing:.5px}
+.variant p{margin:0;font-size:11px;line-height:17px;color:var(--color-muted)}
+.zoom{align-self:flex-start;padding:10px;background:var(--color-panel);color:var(--color-muted)}
+.zoom .grid{position:relative;display:block;line-height:0}
+.zoom .grid::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(to right,rgba(42,71,94,.55) 1px,transparent 1px),linear-gradient(to bottom,rgba(42,71,94,.55) 1px,transparent 1px);
+  background-size:var(--z) var(--z)}
+.states{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);padding:10px;background:var(--color-panel)}
+.states .lbl{width:100%;font-size:9px;letter-spacing:1px;color:var(--color-dim);text-transform:uppercase}
+details{font-size:11px;color:var(--color-dim)}
+details pre{margin:6px 0 0;padding:8px;background:var(--color-backdrop);color:var(--color-text);font:400 11px/13px var(--fs);overflow-x:auto}
+
+/* ---------- the product, reproduced ---------- */
+.feed__list{display:flex;flex-direction:column;gap:var(--space-3);margin:0;padding:0;list-style:none}
+.feed__entry{display:flex;align-items:center;gap:var(--space-4);min-height:68px;padding:var(--space-3) var(--space-4);background:var(--color-panel)}
+.feed__thumb{display:block;flex:none;width:56px;height:84px;background:linear-gradient(160deg,#3a5a7a,#16242f 60%,#0b1015);box-shadow:inset 0 0 0 2px var(--color-outline);outline:2px solid var(--color-rarity-rare);outline-offset:2px}
+.feed__body{display:flex;flex:1;flex-direction:column;gap:var(--space-2);min-width:0}
+.feed__sentence{margin:0;font:var(--font-body)}
+.feed__sentence .n{color:var(--color-accent);font-weight:700}
+.feed__sentence .g{color:var(--color-text-max);font-weight:700}
+.feed__meta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3)}
+.feed__tag{display:inline-flex;align-items:center;gap:var(--space-2);font:var(--font-label);letter-spacing:.5px;text-transform:uppercase;color:var(--color-rarity-rare)}
+.feed__chip{display:inline-block;padding:2px var(--space-2);background:var(--color-gold);color:var(--color-on-gold);font:var(--font-label);letter-spacing:.5px;text-transform:uppercase}
+.feed__time{margin-left:auto;color:var(--color-muted);font:var(--font-body-small)}
+
+.feed__reactions{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+.feed__reaction{display:inline-flex;align-items:center;gap:var(--space-2);min-height:var(--space-button-height-sm);padding:var(--space-1) var(--space-3);border:0;background:var(--color-panel);box-shadow:var(--control-border);color:var(--color-muted);font:var(--font-label);cursor:pointer}
+.feed__reaction:hover,.feed__reaction.is-hover{box-shadow:inset 0 0 0 var(--space-unit) var(--color-accent);color:var(--color-text-max)}
+.feed__reaction:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.feed__reaction[aria-pressed="true"]{background:var(--color-accent);box-shadow:inset 0 calc(-2 * var(--space-unit)) 0 0 var(--color-line-deep);color:var(--color-on-accent)}
+.feed__reaction-count{min-width:1ch;font-variant-numeric:tabular-nums}
+.pixel-icon{display:inline-block;flex:none;vertical-align:middle}
+/* What staging does today: every icon squeezed to 1.25em of an 11px label, 13.75px tall. */
+.today .feed__reaction-icon{height:1.25em;width:auto}
+.touch .feed__reaction{min-height:var(--space-touch-min)}
+
+.desk{width:760px;max-width:100%}
+.phone{width:360px;padding:20px;background:var(--color-ground);box-shadow:inset 0 0 0 2px var(--color-line-soft)}
+.scale{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:10px 12px;background:var(--color-panel);color:var(--color-muted);font:var(--font-label)}
+.scale span{display:inline-flex;align-items:center;gap:6px}
+.scale .sep{width:2px;height:22px;background:var(--color-line-soft)}
+
+.composer{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 16px}
+.composer label{display:flex;flex-direction:column;gap:4px;font-size:10px;letter-spacing:1px;color:var(--color-accent);text-transform:uppercase}
+.composer select{min-height:34px;padding:0 8px;border:0;background:var(--color-panel-raised);color:var(--color-text-bright);box-shadow:var(--control-border)}
+
+.loupe .zoomable{zoom:2}
+.compare{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;align-items:center}
+.compare .kick{margin:0}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header class="doc-h">
+    <h1>Reaction icons</h1>
+    <p>The five feed reactions — <b>pouce levé, cœur, GG, wow, doigt d'honneur</b> — redrawn after the author found the first drawing very poor (staging, 2026-11-03). For each reaction, two or three drawings, each shown as its exact pixel grid (×8), then at its real size in the reaction bar: <b>resting</b>, <b>hover</b> and <b>lit</b> (the player's own reaction). The recommended set is framed in blue; the composer at the bottom puts any mix on a feed entry, desktop and phone, beside the icons the feed already uses.</p>
+    <p><b>Half the defect is the size, not the drawing.</b> The bar's stylesheet forces every icon to <code>height: 1.25em</code> of an 11px label, 13.75px: an 11-row icon then gets 1.25 CSS px per art pixel, a 7-row one 1.96, a 9-row one 1.53. Pixels come out 1 or 2 px at random, the five icons sit at three different scales, and DESIGN's rule (one art pixel is 2 CSS px, never chunky) breaks. Every new drawing here is <b>11 art pixels tall at 2 CSS px, 22px</b> — the size of the phone tab bar's icons — and needs that one declaration dropped so the SVG keeps the size the export gives it. Without it, no drawing can come out crisp.</p>
+  </header>
+  <div class="controls">
+    <label class="tg"><input type="checkbox" id="loupe"> Loupe ×2 on the feed mocks</label>
+    <span class="note">Click a reaction in a feed mock to light it, as the app does: one per player per entry, a second click removes it.</span>
+  </div>
+
+  <section class="dir">
+    <div class="dir-h"><h2>Today</h2><span class="pers">the first drawing, as staging shows it, then at its own size</span></div>
+    <p class="why">Top: the bar as it renders on staging, every icon squeezed to 13.75px. Bottom: the same five grids at 2 CSS px per art pixel. Even crisp, the thumb has no wrist or knuckles, GG and WOW are 1px-stroke lettering two rows shorter than the hands, and the finger is a stick on a blob.</p>
+    <div class="compare">
+      <span class="kick">Staging</span><div class="feed__reactions today" data-bar="today"></div>
+      <span class="kick">Own size</span><div class="feed__reactions" data-bar="today-native"></div>
+    </div>
+  </section>
+
+  <div data-mount-variants></div>
+
+  <section class="dir">
+    <div class="dir-h"><h2>On the feed</h2><span class="pers">compose a set · desktop and phone · beside the icons already there</span></div>
+    <p class="why">Pick one drawing per reaction; both feeds follow. The desktop entry is the feed at full width; the phone entry has the touch height (44px) and shows how the bar wraps on a 360px screen: at 22px the five buttons need about 270px, more than the entry's text column, so the last one goes to a second line, which the bar already allows. The strip below each puts the new icons beside the tab bar's icons (11 × 11), the rarity tag's diamond (7 × 7) and the trade tag's arrows, at their real sizes.</p>
+    <div class="composer" data-composer></div>
+    <div class="row zoomable">
+      <div class="desk">
+        <span class="kick">Desktop · the viewer reacted with a thumb</span>
+        <ul class="feed__list" data-feed="desk"></ul>
+        <span class="kick" style="margin-top:16px">Scale · same row</span>
+        <div class="scale" data-scale></div>
+      </div>
+      <div class="phone touch">
+        <span class="kick">Phone · 360px · touch height</span>
+        <ul class="feed__list" data-feed="phone"></ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// The first drawing, copied from script/pixel_art/export.mjs.
+const TODAY = {
+  thumb: [".....cc....","....ccc....","....cc.....","....cc.....","cc.cccccc..","cc.ccccccc.","cc.ccccccc.","cc.ccccccc.","cc.ccccccc.","cc..cccccc.","cc....cccc."],
+  heart: [".ccc...ccc.","ccccc.ccccc","ccccccccccc","ccccccccccc",".ccccccccc.","..ccccccc..","...ccccc...","....ccc....",".....c....."],
+  gg: [".ccc...ccc.","c...c.c...c","c.....c....","c.ccc.c.ccc","c...c.c...c","c...c.c...c",".ccc...ccc."],
+  wow: ["c...c..ccc..c...c","c...c.c...c.c...c","c...c.c...c.c...c","c.c.c.c...c.c.c.c","c.c.c.c...c.c.c.c","cc.cc.c...c.cc.cc","c...c..ccc..c...c"],
+  middle_finger: ["....ccc....","....ccc....","....ccc....","....ccc....",".cc.ccc.cc.",".ccccccccc.",".ccccccccc.",".ccccccccc.","..ccccccc..","..ccccccc..","...ccccc..."],
+}
+
+// The new drawings. Every one is 11 rows (22px) except the text WOW, 7 rows like a label.
+const REACTIONS = [
+  { kind: "thumb", name: "Pouce levé", variants: [
+    { id: "T1", pick: true, note: "A fist seen from the side: the thumb rises from the index knuckle, three fingers folded under it, notched where they meet, and a cuff behind the wrist so the hand never reads as a glove.",
+      grid: [".....cc.....","....cccc....","....ccc.....","...cccc.....","cc.ccccccccc","cc.cccccccc.","cc.ccc......","cc.cccccccc.","cc.ccc......","cc.ccccccc..","cc..cccccc.."] },
+    { id: "T2", note: "Heavier: a thumb three pixels wide and fingers as full bands, the cuff closed at the bottom. Reads from further away, but the bands start to look like a stack of bars.",
+      grid: ["....ccc.....","....ccc.....","...ccc......","...ccc......","ccccccccccc.","cc.ccccccccc","cc.cccc.....","cc.cccccccc.","cc.cccc.....","cc.ccccccc..","ccccccccc..."] },
+    { id: "T3", note: "No cuff: a rounder fist alone, one pixel narrower. Friendlier, but without the wrist it can tip over into a pointing hand.",
+      grid: ["....cc.....","...cccc....","...ccc.....","..cccc.....",".cccccccccc","ccccccccccc","cccc.......","cccccccccc.","cccc.......",".ccccccccc.","..ccccccc.."] },
+  ] },
+  { kind: "heart", name: "Cœur", variants: [
+    { id: "H1", pick: true, note: "The plain solid heart, two round lobes and a one-pixel point: the shape everyone reads at any size. Ten rows, one empty row on top so it sits on the same baseline as the hands.",
+      grid: ["...........",".ccc...ccc.","ccccc.ccccc","ccccccccccc","ccccccccccc","ccccccccccc",".ccccccccc.","..ccccccc..","...ccccc...","....ccc....",".....c....."] },
+    { id: "H2", note: "Outline only. Lighter, but at rest it is a thin grey line next to four solid icons, and lit it nearly vanishes into the blue.",
+      grid: ["...........",".ccc...ccc.","c...c.c...c","c....c....c","c.........c","c.........c",".c.......c.","..c.....c..","...c...c...","....c.c....",".....c....."] },
+    { id: "H3", note: "H1 with one pixel of shine cut into the left lobe: a touch of pixel-art life, at the risk of reading as a speck at 22px.",
+      grid: ["...........",".ccc...ccc.","ccccc.ccccc","cc.cccccccc","ccccccccccc","ccccccccccc",".ccccccccc.","..ccccccc..","...ccccc...","....ccc....",".....c....."] },
+  ] },
+  { kind: "gg", name: "GG", variants: [
+    { id: "G1", pick: true, note: "Two bold G, strokes two pixels thick, nine rows tall inside the 11-row box: the letters of the card titles' weight, legible at a glance, no frame.",
+      grid: [".............",".cccc...cccc.","cccccc.cccccc","cc.....cc....","cc.....cc....","cc.ccc.cc.ccc","cc..cc.cc..cc","cc..cc.cc..cc","cccccc.cccccc",".cccc...cccc.","............."] },
+    { id: "G2", note: "GG cut out of a solid tag: a block as heavy as the hands, the letters in the panel's colour. Strong silhouette, but the 1px letters inside are the hardest part to read.",
+      grid: [".ccccccccccccc.","ccccccccccccccc","ccc...ccc...ccc","cc.ccc.c.ccc.cc","cc.cccccc.ccccc","cc.c...c.c...cc","cc.ccc.c.ccc.cc","cc.ccc.c.ccc.cc","ccc...ccc...ccc","ccccccccccccccc",".ccccccccccccc."] },
+  ] },
+  { kind: "wow", name: "Wow", variants: [
+    { id: "W1", pick: true, note: "An astonished face: a solid disc, two tall eyes and a round O mouth cut out low, two rows under the eyes so it reads as a gasp and not a skull. One silhouette, no lettering, the same footprint as the heart.",
+      grid: ["...ccccc...",".ccccccccc.",".ccccccccc.","ccc.ccc.ccc","ccc.ccc.ccc","ccccccccccc","ccccccccccc","cccc...cccc",".ccc.c.ccc.",".ccc...ccc.","...ccccc..."] },
+    { id: "W2", note: "The same face as a line drawing. Clearer features, lighter weight, like H2.",
+      grid: ["...ccccc...",".cc.....cc.",".c.......c.","c..c...c..c","c..c...c..c","c.........c","c...ccc...c","c...c.c...c",".c..ccc..c.",".cc.....cc.","...ccccc..."] },
+    { id: "W3", note: "Keep the word, but bold: WOW in two-pixel strokes, seven rows like a label. Unmistakable, but 42px wide, which wraps the bar sooner on a phone.",
+      grid: ["cc...cc..ccc..cc...cc","cc...cc.cc.cc.cc...cc","cc...cc.cc.cc.cc...cc","cc.c.cc.cc.cc.cc.c.cc","ccccccc.cc.cc.ccccccc","ccc.ccc.cc.cc.ccc.ccc","cc...cc..ccc..cc...cc"] },
+  ] },
+  { kind: "middle_finger", name: "Doigt d'honneur", variants: [
+    { id: "F1", pick: true, note: "The back of the hand: a two-pixel middle finger, the index and ring knuckles folded beside it, the pinky lower, the thumb across the front marked by a cut. Narrow (9 wide), so the raised finger is a third of the width.",
+      grid: ["...cc....","...cc....","...cc....","...cc....",".c.cc.c..","cc.cc.cc.","cc.cc.ccc","ccccccccc","c...ccccc",".ccccccc.","..ccccc.."] },
+    { id: "F2", note: "The same gesture eleven wide, the finger three pixels: bolder, but the finger is a smaller share of the shape and drifts back toward the first drawing's stick on a blob.",
+      grid: ["....ccc....","....ccc....","....ccc....","....ccc....",".cc.ccc.cc.",".cc.ccc.ccc","ccccccccccc","cc....ccccc",".cccccccccc","..cccccccc.","..cccccc..."] },
+  ] },
+]
+
+// Icons the feed already shows, for scale (copied from the export).
+const EXISTING = {
+  "tab-hub": { grid: ["...........","ccccccccccc","c.........c","c.ccc.....c","c.........c","c.c.c.c.c.c","c.........c","ccccccccccc","....ccc....","....ccc....","..ccccccc.."] },
+  "tab-social": { grid: ["...........",".ccc...ccc.",".c.c...c.c.",".ccc...ccc.","...........","ccccc.ccccc","c...c.c...c","c...c.c...c","c...c.c...c","ccccc.ccccc","..........."] },
+  "tab-sets": { grid: ["ccccc.ccccc","c...c.c...c","c...c.c...c","c...c.c...c","ccccc.ccccc","...........","ccccc.ccccc","c...c.c...c","c...c.c...c","c...c.c...c","ccccc.ccccc"] },
+  swap: { grid: ["......c..","cccccccc.","......c..",".........","..c......",".cccccccc","..c......"] },
+  "rarity-3": { legend: { b: "#66c0f4", h: "#d2efff", l: "#2a6f9a" }, grid: ["...h...","..hbb..",".hbbbb.","hbbbbbl",".bbbbl.","..bbl..","...l..."] },
+}
+
+// The export's renderer: one path per colour, a run per row and colour.
+function svg(grid, scale = 2, legend = {}, cls = "pixel-icon feed__reaction-icon") {
+  const w = grid[0].length, h = grid.length, paths = new Map()
+  grid.forEach((row, y) => {
+    if (row.length !== w) throw new Error(`row ${y} is ${row.length} wide, not ${w}`)
+    let x = 0
+    while (x < w) {
+      const ch = row[x]; let end = x + 1
+      while (end < w && row[end] === ch) end++
+      if (ch !== ".") {
+        const fill = ch === "c" ? "currentColor" : legend[ch]
+        if (!paths.has(fill)) paths.set(fill, [])
+        paths.get(fill).push(`M${x} ${y}h${end - x}v1h-${end - x}z`)
+      }
+      x = end
+    }
+  })
+  const body = [...paths].map(([f, d]) => `<path fill="${f}" d="${d.join("")}"/>`).join("")
+  return `<svg class="${cls}" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w * scale}" height="${h * scale}" shape-rendering="crispEdges">${body}</svg>`
+}
+
+function button(grid, name, count, { pressed = false, hover = false } = {}) {
+  return `<button type="button" class="feed__reaction${hover ? " is-hover" : ""}" aria-pressed="${pressed}" aria-label="${name}">${svg(grid)}<span class="feed__reaction-count">${count}</span></button>`
+}
+
+const COUNTS = { thumb: 3, heart: 12, gg: 1, wow: 0, middle_finger: 2 }
+
+// Today's bars.
+document.querySelectorAll('[data-bar^="today"]').forEach((bar) => {
+  bar.innerHTML = REACTIONS.map((r) => button(TODAY[r.kind], r.name, COUNTS[r.kind], { pressed: r.kind === "thumb" })).join("")
+})
+
+// One section per reaction.
+const Z = 8
+document.querySelector("[data-mount-variants]").innerHTML = REACTIONS.map((r) => `
+  <section class="dir">
+    <div class="dir-h"><h2>${r.name}</h2><span class="pers">${r.variants.length} drawings · today's beside them</span></div>
+    <div class="variants">
+      ${r.variants.map((v) => `
+        <article class="variant${v.pick ? " variant--pick" : ""}">
+          <h3>${v.id}${v.pick ? '<span class="badge">RECOMMANDÉ</span>' : ""}<span class="size">${v.grid[0].length} × ${v.grid.length} · ${v.grid[0].length * 2} × ${v.grid.length * 2}px</span></h3>
+          <div class="zoom"><span class="grid" style="--z:${Z}px">${svg(v.grid, Z, {}, "pixel-icon")}</span></div>
+          <div class="states">
+            <span class="lbl">Resting · hover · lit · first drawing for comparison</span>
+            ${button(v.grid, r.name, COUNTS[r.kind])}
+            ${button(v.grid, r.name, COUNTS[r.kind], { hover: true })}
+            ${button(v.grid, r.name, COUNTS[r.kind] + 1, { pressed: true })}
+            ${button(TODAY[r.kind], r.name, COUNTS[r.kind])}
+          </div>
+          <p>${v.note}</p>
+          <details><summary>Grid for the export</summary><pre>${v.grid.map((row) => `"${row}",`).join("\n")}</pre></details>
+        </article>`).join("")}
+    </div>
+  </section>`).join("")
+
+// The composer and the feed mocks.
+const choice = Object.fromEntries(REACTIONS.map((r) => [r.kind, r.variants.find((v) => v.pick).id]))
+const mine = { desk: "thumb", phone: null }
+const counts = { desk: { ...COUNTS }, phone: { thumb: 0, heart: 4, gg: 2, wow: 7, middle_finger: 0 } }
+
+document.querySelector("[data-composer]").innerHTML = REACTIONS.map((r) => `
+  <label>${r.name}<select data-kind="${r.kind}">${r.variants.map((v) => `<option value="${v.id}"${v.pick ? " selected" : ""}>${v.id}${v.pick ? " · recommandé" : ""}</option>`).join("")}</select></label>`).join("")
+document.querySelectorAll("[data-composer] select").forEach((s) => s.addEventListener("change", () => { choice[s.dataset.kind] = s.value; renderFeeds() }))
+
+const gridOf = (kind) => REACTIONS.find((r) => r.kind === kind).variants.find((v) => v.id === choice[kind]).grid
+
+function entry(where, sentence, time) {
+  const bar = REACTIONS.map((r) => {
+    const pressed = mine[where] === r.kind
+    return `<button type="button" class="feed__reaction" data-where="${where}" data-kind="${r.kind}" aria-pressed="${pressed}" aria-label="${r.name}">${svg(gridOf(r.kind))}<span class="feed__reaction-count">${counts[where][r.kind]}</span></button>`
+  }).join("")
+  return `<li class="feed__entry"><span class="feed__thumb"></span><div class="feed__body">
+    <p class="feed__sentence">${sentence}</p>
+    <div class="feed__meta"><span class="feed__tag">${svg(EXISTING["rarity-3"].grid, 2, EXISTING["rarity-3"].legend, "pixel-icon")}<span>Rare</span></span><span class="feed__chip">Première découverte</span><span class="feed__time">${time}</span></div>
+    <div class="feed__reactions" role="group" aria-label="Réactions">${bar}</div>
+  </div></li>`
+}
+
+function renderFeeds() {
+  document.querySelector('[data-feed="desk"]').innerHTML =
+    entry("desk", '<span class="n">léa</span> a tiré <span class="g">Hollow Knight</span>', "14:32")
+  document.querySelector('[data-feed="phone"]').innerHTML =
+    entry("phone", '<span class="n">max</span> a tiré <span class="g">Outer Wilds</span>', "14:28")
+  document.querySelector("[data-scale]").innerHTML =
+    REACTIONS.map((r) => `<span>${svg(gridOf(r.kind))}</span>`).join("") +
+    '<i class="sep"></i>' +
+    ["tab-hub", "tab-sets", "tab-social"].map((k) => `<span>${svg(EXISTING[k].grid)}</span>`).join("") +
+    '<i class="sep"></i>' +
+    `<span style="color:var(--color-rarity-rare)">${svg(EXISTING["rarity-3"].grid, 2, EXISTING["rarity-3"].legend, "pixel-icon")} RARE</span>` +
+    `<span style="color:var(--color-accent)">${svg(EXISTING.swap.grid)} ÉCHANGE</span>`
+}
+
+document.addEventListener("click", (event) => {
+  const b = event.target.closest("button[data-where]")
+  if (!b) return
+  const { where, kind } = b.dataset
+  if (mine[where]) counts[where][mine[where]]--
+  mine[where] = mine[where] === kind ? null : kind
+  if (mine[where]) counts[where][mine[where]]++
+  renderFeeds()
+  document.querySelector(`button[data-where="${where}"][data-kind="${kind}"]`).focus()
+})
+
+document.getElementById("loupe").addEventListener("change", (e) => document.body.classList.toggle("loupe", e.target.checked))
+renderFeeds()
+</script>
+</body>
+</html>
