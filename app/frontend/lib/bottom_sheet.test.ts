@@ -1,5 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { DISMISS_DISTANCE, dismisses, dragOffset, focusWrapTarget } from "./bottom_sheet"
+import { DISMISS_DISTANCE, dismisses, dragOffset, focusWrapTarget, visitLeavesPage } from "./bottom_sheet"
+
+describe("visitLeavesPage", () => {
+  it("is left by a visit that renders a page, kept by one that only follows a frame", () => {
+    expect(visitLeavesPage({ willRender: true })).toBe(true)
+    expect(visitLeavesPage({ willRender: false })).toBe(false)
+  })
+
+  it("counts as left when no visit tells otherwise", () => {
+    expect(visitLeavesPage(undefined)).toBe(true)
+    expect(visitLeavesPage({})).toBe(true)
+  })
+})
 
 describe("dragOffset", () => {
   it("follows a finger moving down", () => {

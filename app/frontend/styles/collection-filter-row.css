@@ -1,0 +1,47 @@
+/* The card list's filter row: under the search, a pastille per group of
+   filters, each opening a sheet of that group's chips, the number of its
+   chips on written beside its name. */
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Tighter than a chip, so the four pastilles and their counts share one
+   row on a phone. */
+.filter-row__pastille .filter-chip__text {
+  gap: var(--space-2);
+  padding-inline: var(--space-3);
+}
+
+.filter-row__count {
+  padding: 0 var(--space-2);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.filter-row__count[hidden] {
+  display: none;
+}
+
+.filter-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.filter-sheet__status {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+@media (max-width: 719px) {
+  .filter-row {
+    gap: var(--space-touch-gap);
+  }
+}

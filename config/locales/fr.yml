@@ -1025,10 +1025,9 @@ fr:
         missing: "Manquantes"
         new: "Nouvelles"
         duplicates: "Doublons"
-    quick_filters:
-      open: "Filtres rapides"
-      title: "Filtres rapides"
-      every_card: "Toutes les cartes"
+    filter_row:
+      more: "Plus"
+      more_title: "Autres filtres"
     grid:
       label: "Cartes"
       empty: "Aucune carte ne correspond à ces filtres."

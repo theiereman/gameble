@@ -1,4 +1,6 @@
 module CollectionHelper
+  FILTER_ROW = { goals: %i[goals], rarity: %i[rarity], state: %i[state], more: %i[sets genre] }.freeze
+
   def collection_pages(pagy)
     current = pagy.page.clamp(1, pagy.last)
     pages = [ 1, current - 1, current, current + 1, pagy.last ].select { |page| page.between?(1, pagy.last) }.uniq.sort
@@ -8,23 +10,28 @@ module CollectionHelper
     end
   end
 
-  def collection_filter_count(filters:, states:, states_asked:, goals: [])
-    chosen = filters.chosen_rarities.size + filters.chosen_sets.size + filters.chosen_genres.size + goals.size
-    chosen + (states_asked && states != [ Game::CollectionStates::DEFAULT ] ? states.size : 0)
+  def collection_filter_counts(filters:, states:, states_asked:, goals: [])
+    {
+      state: states_asked && states != [ Game::CollectionStates::DEFAULT ] ? states.size : 0,
+      goals: goals.size,
+      rarity: filters.chosen_rarities.size,
+      sets: filters.chosen_sets.size,
+      genre: filters.chosen_genres.size
+    }
   end
 
-  QUICK_FILTER_IGNORED = %i[seen brother].freeze
-
-  def quick_filters_sheet_id = "quick-filters"
-
-  def quick_filter_current?(context, filter)
-    context.except(*QUICK_FILTER_IGNORED).compact_blank == filter
+  def filter_row_pastilles(goals:, state_choices:, sets_offered:, genres:)
+    offered = { goals: goals.any?, rarity: true, state: state_choices.any?, more: sets_offered || genres.any? }
+    FILTER_ROW.keys.select { offered.fetch(it) }
   end
 
-  def quick_filter_link(context, filter = {}, label: nil, goal: false, &text)
-    link_to library_cards_path(filter), class: class_names("filter-chip", "filter-chip--goal": goal), data: { turbo_frame: "_top" },
-      aria: { current: ("true" if quick_filter_current?(context, filter)), label: } do
-      tag.span(class: "filter-chip__text", &text)
-    end
-  end
+  def filter_row_count(counts, pastille) = FILTER_ROW.fetch(pastille).sum { counts.fetch(it) }
+
+  def filter_row_groups(pastille) = FILTER_ROW.fetch(pastille).join(" ")
+
+  def filter_sheet_id(pastille) = "filters-#{pastille}"
+
+  def filter_row_label(pastille) = pastille == :more ? t("library.filter_row.more") : t("library.filters.groups.#{pastille}")
+
+  def filter_sheet_title(pastille) = pastille == :more ? t("library.filter_row.more_title") : t("library.filters.groups.#{pastille}")
 end

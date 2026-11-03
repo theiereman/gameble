@@ -1,16 +1,42 @@
 import { Controller } from "@hotwired/stimulus"
-import { reloadOnChange, reloadsSets, SET_OPTIONS_FRAME, submitToFrame } from "../lib/collection_filters"
+import {
+  type ChipGroup,
+  countOf,
+  countsByGroup,
+  groupNames,
+  reloadOnChange,
+  reloadsSets,
+  RESULTS_FRAME,
+  RESULTS_STATUS,
+  SET_OPTIONS_FRAME,
+  submitToFrame,
+  totalOf,
+} from "../lib/collection_filters"
 import { Debounce, summaryOf } from "../lib/set_search"
 
 const TYPING_PAUSE_MS = 250
 const ALL_STATE = "all"
 
 export default class extends Controller<HTMLFormElement> {
-  static targets = ["search", "count", "number", "group", "clear", "setQuery", "setStatus"]
+  static targets = [
+    "search",
+    "count",
+    "number",
+    "group",
+    "clear",
+    "setQuery",
+    "setStatus",
+    "pastilleCount",
+    "sheetStatus",
+  ]
 
   declare readonly searchTarget: HTMLInputElement
   declare readonly countTarget: HTMLElement
+  declare readonly hasCountTarget: boolean
   declare readonly numberTarget: HTMLElement
+  declare readonly hasNumberTarget: boolean
+  declare readonly pastilleCountTargets: HTMLElement[]
+  declare readonly sheetStatusTargets: HTMLElement[]
   declare readonly clearTarget: HTMLElement
   declare readonly groupTargets: HTMLElement[]
   declare readonly hasSearchTarget: boolean
@@ -81,6 +107,13 @@ export default class extends Controller<HTMLFormElement> {
     this.setStatusTarget.textContent = summaryOf(frame.querySelector("[data-set-filter-summary]")?.textContent)
   }
 
+  resultsLoaded(event: Event): void {
+    if (!(event.target instanceof HTMLElement) || event.target.id !== RESULTS_FRAME) return
+
+    const results = document.getElementById(RESULTS_STATUS)?.textContent ?? ""
+    for (const status of this.sheetStatusTargets) status.textContent = results
+  }
+
   private submit(): void {
     window.clearTimeout(this.timer)
     this.element.requestSubmit()
@@ -95,21 +128,25 @@ export default class extends Controller<HTMLFormElement> {
     return Array.from(group.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'))
   }
 
+  private chipGroup(group: HTMLElement): ChipGroup {
+    const name = group.dataset.group ?? ""
+    const checked = this.boxes(group)
+      .filter((b) => b.checked)
+      .map((b) => b.value)
+    return name === "state" ? { name, checked, fallback: group.dataset.default ?? ALL_STATE } : { name, checked }
+  }
+
   private refresh(): void {
-    let count = 0
-    for (const group of this.groupTargets) {
-      const checked = this.boxes(group)
-        .filter((b) => b.checked)
-        .map((b) => b.value)
-      if (group.dataset.group === "state") {
-        const fallback = group.dataset.default ?? ALL_STATE
-        if (!(checked.length === 1 && checked[0] === fallback)) count += checked.length
-      } else {
-        count += checked.length
-      }
+    const counts = countsByGroup(this.groupTargets.map((group) => this.chipGroup(group)))
+    const count = totalOf(counts)
+    if (this.hasNumberTarget) this.numberTarget.textContent = String(count)
+    if (this.hasCountTarget) this.countTarget.hidden = count === 0
+    for (const badge of this.pastilleCountTargets) {
+      const chosen = countOf(counts, groupNames(badge.dataset.groups))
+      const number = badge.querySelector("[data-pastille-number]")
+      if (number) number.textContent = String(chosen)
+      badge.hidden = chosen === 0
     }
-    this.numberTarget.textContent = String(count)
-    this.countTarget.hidden = count === 0
     const searching = this.hasSearchTarget && this.searchTarget.value.trim() !== ""
     this.clearTarget.hidden = count === 0 && !searching
   }

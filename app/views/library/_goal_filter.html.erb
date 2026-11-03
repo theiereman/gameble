@@ -1,0 +1,9 @@
+<fieldset class="filters__group" data-collection-filters-target="group" data-group="goals">
+  <legend class="<%= class_names("filters__legend", "visually-hidden": local_assigns.fetch(:titled, false)) %>"><%= t("library.filters.groups.goals") %></legend>
+  <% goals.needs.each do |goal| %>
+    <label class="filter-chip filter-chip--goal">
+      <%= check_box_tag "goals[]", GoalMarks.filter_value(goal), goals_chosen.include?(goal), id: nil, class: "filter-chip__box", aria: { label: goal_name(goal) } %>
+      <span class="filter-chip__text"><%= goal_bookmark(goal.position, size: :small) %><%= goal_set_name(goal) %></span>
+    </label>
+  <% end %>
+</fieldset>

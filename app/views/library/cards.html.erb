@@ -12,6 +12,6 @@
   <% end %>
   <%= render "library/collection", heading: t("library.cards.heading"), grid: @grid, slots: @slots, pagy: @grid_pagy, context: @grid_context, set_apart: current_player.present?,
     unique: @unique, games_by_rarity: @games_by_rarity, tier_counts: @tier_counts, seen_up_to: @seen_up_to, states: @states, states_asked: @states_asked, query: @query,
-    clear_path: library_cards_path, scroll_pages: true, quick_filters: true, goals: @grid_goals, goals_chosen: @goals_chosen,
+    clear_path: library_cards_path, scroll_pages: true, filter_row: true, goals: @grid_goals, goals_chosen: @goals_chosen,
     set_filter: { kinds: @set_kinds, kind: @set_kind, query: @set_query, options: @set_options, found: @set_found } %>
 <% end %>

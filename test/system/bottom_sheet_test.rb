@@ -3,23 +3,23 @@ require_relative "../support/catalog_seeds"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
-# The bottom sheet, through the card list's QUICK FILTERS on a 390 × 844
+# The bottom sheet, through the card list's Rarity pastille on a 390 × 844
 # phone: opened by a tap or the keyboard as a modal dialog named by its
 # title, its focus kept inside, closed by a drag on its grip, its ✕, the
-# scrim or Escape with the focus back on its link; a choice reloads the list
-# with that filter. On a desktop the same sheet opens centred; under reduced
-# motion it only crossfades.
+# scrim or Escape with the focus back on its pastille. On a desktop the same
+# sheet opens centred; under reduced motion it only crossfades.
 class BottomSheetTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GameSets
   include SteamSignIn
 
   PHONE = [ 390, 844 ].freeze
-  OPENER = "a.quick-filters__opener"
-  SHEET = "dialog#quick-filters"
+  OPENER = "a.filter-row__pastille[href='#filters-rarity']"
+  SHEET = "dialog#filters-rarity"
+  RARITIES = %w[COMMON UNCOMMON RARE EPIC LEGENDARY].freeze
 
   setup do
-    publish_sets_draft
+    @season = publish_sets_draft
     @player = accounts_players(:player)
     mock_steam_sign_in(@player.steam_id)
   end
@@ -106,17 +106,16 @@ class BottomSheetTest < ApplicationSystemTestCase
     find(OPENER).click
 
     assert_open
-    assert_focused "#{SHEET} .bottom-sheet__body a.filter-chip"
-    assert_equal "Every card", evaluate_script("document.activeElement.textContent").strip
-    eventually("a screen reader should meet a dialog named Quick filters") { dialogs_in_accessibility_tree.map(&:downcase) == [ "quick filters" ] }
+    assert_focused "#{SHEET} .bottom-sheet__body input.filter-chip__box[value=common]"
+    eventually("a screen reader should meet a dialog named Rarity") { dialogs_in_accessibility_tree.map(&:downcase) == [ "rarity" ] }
     width, height = viewport
     eventually("the sheet should sit full width on the bottom edge") { sheet_box.values_at(0, 2, 3) == [ 0, width, height ] }
     assert evaluate_script("document.elementFromPoint(10, 10) === document.querySelector('#{SHEET}')"), "a tap above the sheet should land on its scrim"
     assert evaluate_script("(() => { const search = document.querySelector('#collection-search'); search.focus(); return document.activeElement !== search })()"),
       "the page behind the sheet should take no focus"
     within(SHEET) do
-      assert_equal [ nil, "STATE", "RARITY" ], all(".quick-filters > *").map { it.first(".quick-filters__legend", minimum: 0)&.text }
-      assert all("a.filter-chip").all? { it.evaluate_script("this.getBoundingClientRect().height") >= 44 }, "every choice should be a 44px target"
+      assert_equal RARITIES, all(".filter-chip__text").map(&:text)
+      assert all(".filter-chip__text").all? { it.evaluate_script("this.getBoundingClientRect().height") >= 44 }, "every choice should be a 44px target"
     end
   end
 
@@ -128,13 +127,12 @@ class BottomSheetTest < ApplicationSystemTestCase
     find(OPENER).send_keys(:enter)
 
     assert_open
-    assert_focused "#{SHEET} .bottom-sheet__body a.filter-chip"
-    execute_script("Array.from(document.querySelectorAll('#{SHEET} a.filter-chip')).at(-1).focus()")
+    assert_focused "#{SHEET} .bottom-sheet__body input.filter-chip__box[value=common]"
+    execute_script("Array.from(document.querySelectorAll('#{SHEET} input.filter-chip__box')).at(-1).focus()")
     page.send_keys(:tab)
     assert_focused "#{SHEET} button.modal__close"
     page.send_keys([ :shift, :tab ])
-    assert_focused "#{SHEET} li:last-child > a.filter-chip"
-    assert_equal "Legendary", evaluate_script("document.activeElement.textContent").strip
+    assert_focused "#{SHEET} input.filter-chip__box[value=legendary]"
 
     page.send_keys(:escape)
 
@@ -175,24 +173,54 @@ class BottomSheetTest < ApplicationSystemTestCase
     assert_focused OPENER
   end
 
-  test "a choice reloads the card list with that filter alone, marked current the next time" do
+  test "a chip ticked in the sheet reloads the grid behind it, its pastille and the sheet's status following" do
     resize_to(*PHONE)
     sign_in
     visit_cards
+    rare = Catalog::CardSeason.where(season_id: @season.id, rarity: "rare").count
 
     find(OPENER).click
     assert_open
-    within(SHEET) { click_on "Missing" }
+    within(SHEET) { find(".filter-chip__text", text: /\ARare\z/i).click }
 
-    assert_current_path library_cards_path(locale: :en, state: %w[missing])
-    assert_selector "input[name='state[]'][value=missing]:checked", visible: :all
+    assert_selector "#{SHEET} p.filter-sheet__status[role=status]", text: "#{rare} cards shown."
+    assert_selector ".collection-grid > li:nth-child(#{[ rare, 60 ].min})", visible: :all
+    assert_no_selector ".collection-grid > li:nth-child(#{[ rare, 60 ].min + 1})", visible: :all
+    assert_open
+    assert_selector "#{SHEET} input[value=rare]:checked", visible: :all
+    assert_selector "#{OPENER} .filter-row__count", text: "1", visible: :all
+    assert_selector ".filters__clear:not([hidden])", visible: :all
+    assert_current_path(/rarity%5B%5D=rare|rarity\[\]=rare/)
+    page.send_keys(:escape)
     assert_closed
+    assert_selector "#{OPENER} .filter-row__count", text: "1"
+    assert_selector ".filters__clear", visible: true
+  end
+
+  test "a page cached with a sheet the player opened comes back by history with no sheet open" do
+    resize_to(*PHONE)
+    sign_in
+    visit_cards
+    find(".tab-bar a.tab-bar__tab", text: /SETS/i).click
+    assert_current_path library_path(locale: :en)
+    click_on "All cards"
+    assert_current_path library_cards_path(locale: :en)
+
     find(OPENER).click
     assert_open
-    within(SHEET) do
-      assert_selector "a.filter-chip[aria-current=true]", count: 1, text: "MISSING"
-      assert_selector "a.filter-chip:not([aria-current])", text: "EVERY CARD"
-    end
+    within(SHEET) { find(".filter-chip__text", text: /\ARare\z/i).click }
+    assert_selector "#{OPENER} .filter-row__count", text: "1", visible: :all
+    assert_open
+    page.send_keys(:escape)
+    assert_closed
+
+    page.go_back
+    assert_current_path library_path(locale: :en)
+    page.go_back
+    assert_current_path library_cards_path(locale: :en)
+    assert_selector ".collection-grid > li", minimum: 1
+    assert_no_selector "dialog.bottom-sheet[open]", visible: :all
+    eventually("no sheet should be a modal dialog") { evaluate_script("document.querySelectorAll('dialog.bottom-sheet:modal').length") == 0 }
   end
 
   test "on a desktop the same sheet opens centred" do
@@ -209,17 +237,15 @@ class BottomSheetTest < ApplicationSystemTestCase
     end
   end
 
-  test "a visitor's sheet offers every card and the rarities alone" do
+  test "a visitor's row offers Rarity and More alone" do
     resize_to(*PHONE)
     visit_cards
 
+    assert_equal %w[RARITY MORE], all("a.filter-row__pastille").map { it.text.strip }
     find(OPENER).click
 
     assert_open
-    within(SHEET) do
-      assert_equal [ nil, "RARITY" ], all(".quick-filters > *").map { it.first(".quick-filters__legend", minimum: 0)&.text }
-      assert_selector "a.filter-chip[aria-current=true]", text: "EVERY CARD"
-    end
+    within(SHEET) { assert_equal RARITIES, all(".filter-chip__text").map(&:text) }
   end
 
   test "under reduced motion the sheet only crossfades, opening and springing back" do

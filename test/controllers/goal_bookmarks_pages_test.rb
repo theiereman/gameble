@@ -44,7 +44,9 @@ class GoalBookmarksPagesTest < ActionDispatch::IntegrationTest
 
   def goal_chips = css_select("fieldset[data-group=goals] .filter-chip")
 
-  def filter_count = css_select(".filters__count [data-collection-filters-target=number]").sole.text
+  def goals_pastille = "a.filter-row__pastille[href='#filters-goals']"
+
+  def filter_count = css_select("#{goals_pastille} .filter-row__count:not([hidden]) [data-pastille-number]").sole.text
 
   test "the grid marks every card of a goal's set, owned or not, from the top of its art, numbers in order and at full colour" do
     roguelike
@@ -66,7 +68,7 @@ class GoalBookmarksPagesTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "OBJECTIFS sits between state and rarity, a chip per goal named by its number and set; checking one keeps its set's cards, owned and missing" do
+  test "OBJECTIFS leads the filter row, its sheet a chip per goal named by its number and set; checking one keeps its set's cards, owned and missing" do
     roguelike
     custom_set = create_custom_set(@player)
     add(kind: "studio", key: "valve")
@@ -75,7 +77,9 @@ class GoalBookmarksPagesTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get library_cards_path(locale: :fr)
-    assert_select "fieldset[data-group=state] + fieldset.filters__group[data-group=goals][data-collection-filters-target=group] + fieldset[data-group=rarity]"
+    assert_equal [ "#filters-goals", "#filters-rarity", "#filters-state", "#filters-more" ], css_select("a.filter-row__pastille").map { it["href"] }
+    assert_select "#{goals_pastille} .filter-chip__text", /Objectifs/
+    assert_select "dialog#filters-goals fieldset.filters__group[data-group=goals][data-collection-filters-target=group]"
     assert_select "fieldset[data-group=goals] > legend", "Objectifs"
     assert_equal [ "studio:valve", custom_set.token, "theme:roguelike" ], goal_chips.map { it.at_css("input[name='goals[]']")["value"] }
     assert_equal [ "Objectif 1 : Valve", "Objectif 2 : Mes favoris", "Objectif 3 : Roguelike" ],
@@ -86,7 +90,6 @@ class GoalBookmarksPagesTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en, goals: [ "theme:roguelike" ])
     assert_equal [ "Portal", card_title(@common) ].sort, marked_slots.map(&:first).sort
     assert_equal "1", filter_count
-    assert_select "details.filters__zone[open]"
     assert_equal [ "theme:roguelike" ], css_select("fieldset[data-group=goals] input[checked]").map { it["value"] }
     grid = Rack::Utils.parse_nested_query(URI(css_select(".collection-grid a.card-link").first["href"]).query)["grid"]
     assert_equal [ "theme:roguelike" ], grid["goals"]
@@ -105,12 +108,12 @@ class GoalBookmarksPagesTest < ActionDispatch::IntegrationTest
 
     get library_cards_path(locale: :en, goals: [ "theme:gone", other.token, "1", "theme:roguelike:x" ])
     assert_equal 5, marked_slots.size
-    assert_select ".filters__count[hidden]"
+    assert_select "#{goals_pastille} .filter-row__count[hidden]"
     assert_select "fieldset[data-group=goals] input[checked]", false
 
     Game::RemoveGoal.new.call(player: @player, kind: "theme", key: "roguelike").value!
     get library_cards_path(locale: :en)
-    assert_select "fieldset[data-group=goals]", false
+    assert_select "fieldset[data-group=goals], #{goals_pastille}", false
     assert_select ".card__goals", false
 
     delete session_path(locale: :en)

@@ -8,6 +8,10 @@ export function dismisses(offset: number, sheetHeight: number): boolean {
   return offset > 0 && offset >= Math.min(DISMISS_DISTANCE, sheetHeight / 3)
 }
 
+export function visitLeavesPage(visit: unknown): boolean {
+  return !(typeof visit === "object" && visit !== null && "willRender" in visit && visit.willRender === false)
+}
+
 export function focusWrapTarget<T>(focusables: readonly T[], active: T | null, backwards: boolean): T | undefined {
   const first = focusables[0]
   const last = focusables[focusables.length - 1]

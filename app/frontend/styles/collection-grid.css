@@ -440,7 +440,6 @@
   }
 
   .filters__group:not(.set-filter),
-  .quick-filters__choices,
   .set-filter__kinds,
   .set-filter__options {
     gap: var(--space-touch-gap);

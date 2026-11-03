@@ -9,12 +9,15 @@ class CardArtTest < ApplicationSystemTestCase
 
   SAMPLE_CARD = "[data-specimen=common-s] .card__art".freeze
 
+  PINNED_TO_THE_TOP = "position: fixed; inset: 0 auto auto 0; z-index: 1000; display: flex; flex-wrap: wrap".freeze
+
   # Adds one card-art element per URL, at the small art size, pinned to the
-  # top of the window so each nears the viewport at once.
+  # top of the window so each nears the viewport at once, unless the host is
+  # placed otherwise.
   ADD_ARTS = <<~JS.freeze
-    (urls) => {
+    (urls, hostStyle) => {
       const host = document.createElement("div")
-      host.style.cssText = "position: fixed; inset: 0 auto auto 0; z-index: 1000; display: flex; flex-wrap: wrap"
+      host.style.cssText = hostStyle
       urls.forEach((url, index) => {
         const art = document.createElement("span")
         art.style.display = "inline-block"
@@ -48,9 +51,11 @@ class CardArtTest < ApplicationSystemTestCase
     find(SAMPLE_CARD, visible: :all)["data-card-art-url-value"]
   end
 
-  def add_arts(urls)
-    page.execute_script("(#{ADD_ARTS})(#{urls.to_json})")
+  def add_arts(urls, host_style: PINNED_TO_THE_TOP)
+    page.execute_script("(#{ADD_ARTS})(#{urls.to_json}, #{host_style.to_json})")
   end
+
+  def scroll_to(y) = page.execute_script("window.scrollTo(0, #{y})")
 
   test "thirty covers are filtered in the worker, each in at most 32 colours" do
     urls = (1..30).map { |n| "#{sample_path}?copy=#{n}" }
@@ -116,5 +121,22 @@ class CardArtTest < ApplicationSystemTestCase
     add_arts([ grayscale ])
 
     assert_selector "[data-test-art][data-art=drawn] canvas:not([hidden])", visible: :all
+  end
+
+  test "arts passed by a fast scroll before they draw are drawn once scrolled back to" do
+    urls = (1..24).map { |n| "#{sample_path}?passed=#{n}" }
+    add_arts(urls, host_style: "position: absolute; top: 3000px; left: 0; width: 100%; z-index: 1000; display: flex; flex-wrap: wrap; padding-bottom: 6000px")
+    assert_no_selector "[data-test-art][data-art]", visible: :all
+
+    arts_top = page.evaluate_script("document.querySelector('[data-test-art]').getBoundingClientRect().top + window.scrollY").round
+    page.evaluate_async_script(<<~JS, arts_top)
+      const [ top, done ] = arguments
+      const frame = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+      window.scrollTo(0, top)
+      frame().then(() => { window.scrollTo(0, top + 2000); return frame() }).then(() => { window.scrollTo(0, top + 5000); return frame() }).then(done)
+    JS
+    scroll_to(arts_top)
+
+    assert_selector "[data-test-art][data-art=drawn] canvas:not([hidden])", count: 24, visible: :all
   end
 end

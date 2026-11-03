@@ -12,28 +12,26 @@ class CollectionHelperTest < ActionView::TestCase
     assert_equal [ 1, :gap, 8, 9 ], collection_pages(Page.new(page: 12, last: 9))
   end
 
-  test "the filter count adds the chosen chips, and the states only when they are not the default" do
-    grid = Grid.new(chosen_rarities: %w[rare], chosen_sets: [ :roguelike, :halo ], chosen_genres: [])
+  test "the filter row counts each group apart: goals, rarity, state, then set and genre under More" do
+    grid = Grid.new(chosen_rarities: %w[rare], chosen_sets: [ :roguelike, :halo ], chosen_genres: %w[rpg])
+    counts = collection_filter_counts(filters: grid, states: %w[missing], states_asked: true, goals: [ :valve ])
 
-    assert_equal 3, collection_filter_count(filters: grid, states: [ Game::CollectionStates::DEFAULT ], states_asked: true)
-    assert_equal 5, collection_filter_count(filters: grid, states: %w[owned new], states_asked: true)
-    assert_equal 3, collection_filter_count(filters: grid, states: %w[owned], states_asked: false)
+    assert_equal({ state: 1, goals: 1, rarity: 1, sets: 2, genre: 1 }, counts)
+    assert_equal [ 1, 1, 1, 3 ], %i[goals rarity state more].map { filter_row_count(counts, it) }
+    assert_equal 0, collection_filter_counts(filters: grid, states: [ Game::CollectionStates::DEFAULT ], states_asked: true)[:state]
+    assert_equal 0, collection_filter_counts(filters: grid, states: %w[owned], states_asked: false)[:state]
+    assert_equal "sets genre", filter_row_groups(:more)
+    assert_equal "filters-more", filter_sheet_id(:more)
   end
 
-  test "a quick filter is current when the list's filters are exactly that one, the search left empty" do
-    assert quick_filter_current?({ state: %w[missing], q: "" }, { state: %w[missing] })
-    assert quick_filter_current?({ q: "", seen: "2026-11-03T00:00:00.000000Z" }, {})
-    assert quick_filter_current?({ rarity: %w[rare], q: "", brother: "token" }, { rarity: %w[rare] })
-    assert_not quick_filter_current?({ state: %w[missing], rarity: %w[rare], q: "" }, { state: %w[missing] })
-    assert_not quick_filter_current?({ state: %w[missing], q: "portal" }, { state: %w[missing] })
-    assert_not quick_filter_current?({ state: %w[owned missing], q: "" }, { state: %w[missing] })
-  end
+  test "the filter row offers a pastille only for a group the list has" do
+    goals = Data.define(:any?).new(any?: true)
+    none = Data.define(:any?).new(any?: false)
 
-  test "a quick filter links to the card list with that filter alone, outside the results frame" do
-    link = Nokogiri::HTML5.fragment(quick_filter_link({ q: "" }, { rarity: %w[rare] }) { "Rare" }).at_css("a")
-
-    assert_equal "/en/library/cards?rarity%5B%5D=rare", link["href"]
-    assert_equal [ "filter-chip", "_top", nil ], [ link["class"], link["data-turbo-frame"], link["aria-current"] ]
-    assert_equal "Rare", link.at_css("span.filter-chip__text").text
+    assert_equal %i[goals rarity state more], filter_row_pastilles(goals:, state_choices: %w[all], sets_offered: true, genres: [])
+    assert_equal %i[rarity state more], filter_row_pastilles(goals: none, state_choices: %w[all], sets_offered: false, genres: %w[rpg])
+    assert_equal %i[rarity], filter_row_pastilles(goals: none, state_choices: [], sets_offered: false, genres: [])
+    assert_equal [ "Goals", "Rarity", "State", "More" ], %i[goals rarity state more].map { filter_row_label(it) }
+    assert_equal [ "Rarity", "More filters" ], %i[rarity more].map { filter_sheet_title(it) }
   end
 end

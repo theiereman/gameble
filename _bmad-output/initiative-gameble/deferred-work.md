@@ -504,3 +504,15 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-social-opens-on-trades-and-friends-plan.md`
   summary: The system tests written or changed by this story (`social_test`, `feed_test`, `trades_test`, `live_updates_test`) were not run, at the author's request.
   evidence: the author asked that no system test be run (2026-11-03); the release's full system run covers them.
+
+## Deferred from: build of story-a-card-list-that-scrolls-without-end-plan (2026-11-03)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-card-list-that-scrolls-without-end-plan.md`
+  summary: Without JavaScript the card list's pastilles open nothing: each is a link to its sheet, a closed `<dialog>`, so its chips cannot be reached; only the search and the APPLY button remain. The set album and the public profile collection keep the FILTRES zone, which works without script.
+  evidence: `bottom_sheet_opener` gives the pastille an `href` to the dialog's id, and a closed dialog does not open on its fragment. A page rule such as `.bottom-sheet:target` showing the dialog in place, with the noscript APPLY button, is the cheap way back; still waiting on the author.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-card-list-that-scrolls-without-end-plan.md`
+  summary: In an open filter sheet, CLEAR ALL sits behind the modal, and the sheet has no done or per-group clear button; it closes only by its ✕, its scrim or a drag.
+  evidence: `_filter_row.html.erb` puts each group, then its status line, in the sheet; the form's clear link stays below the pastille row. A done button or a per-group clear is a UX choice for the author.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-card-list-that-scrolls-without-end-plan.md`
+  summary: The system tests of the filter row and the bottom sheet were written but not run, at the author's request; the release's full system run covers them.
+  evidence: `test/system/bottom_sheet_test.rb`, `test/system/library_test.rb` (the phone row, the filter row flow, arriving filtered, the state fallback) and `test/system/goal_bookmarks_test.rb` moved to the pastille sheets.

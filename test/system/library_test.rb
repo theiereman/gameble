@@ -7,7 +7,7 @@ require_relative "../support/steam_sign_in"
 # The collection: a player reaches its entry from the hub's menu 02 or the
 # phone's COLLECTION tab, picks a set and sees its progress, their faces with
 # their copies and the missing cards not owned, on a desktop and a 390 × 844 phone
-# without sideways scroll; the grid of every card, with its FILTRES zone and
+# without sideways scroll; the grid of every card, with its filter row and
 # search, narrows without losing focus; the cards of a pack just opened are
 # new until a grid has shown them; a visitor reads the grid in plain faces.
 class LibraryTest < ApplicationSystemTestCase
@@ -249,13 +249,13 @@ class LibraryTest < ApplicationSystemTestCase
   test "a player who unticks the only state chip keeps every slot, as the form without JavaScript" do
     sign_in
     visit library_cards_path(locale: :en)
-    find(".filters__summary").click
+    open_filter_sheet(:state)
     assert_slots 60
-    find(".filter-chip__text", text: /\AAll\z/i).click
+    within(filter_sheet(:state)) { find(".filter-chip__text", text: /\AAll\z/i).click }
     assert_slots 60
     assert_equal [ "ALL" ], all("[data-group=state] .filter-chip__box:checked", visible: :all).map { it.find(:xpath, "..").text.strip }
-    assert_selector ".filters__count", visible: :hidden
-    assert_selector "[role=status]", text: "150 cards shown.", visible: :all
+    assert_selector "#{pastille(:state)} .filter-row__count", visible: :hidden
+    assert_selector "#{filter_sheet(:state)} p.filter-sheet__status", text: "150 cards shown."
   end
 
   test "on a 390 × 844 phone the tab leads here: the sets a column of tiles, then the grid with the RAPPORT folded, two cards a row" do
@@ -302,43 +302,80 @@ class LibraryTest < ApplicationSystemTestCase
     take_screenshot
   end
 
-  test "the FILTRES zone: chips narrow the grid, the zone keeps focus, the count follows, a search narrows as it is typed" do
+  test "on a 390 × 844 phone the search is the first row and the pastilles the second, one row, nothing else above the grid" do
+    Game::AddGoal.new.call(player: @player, kind: "theme", key: "horror").value!
+    resize_to(390, 844)
     sign_in
     visit library_cards_path(locale: :en)
     assert_slots 60
-    assert_no_selector ".filters__zone[open]"
-    assert_no_selector ".filters__count", visible: true
 
-    find(".filters__summary").click
-    find(".filter-chip__text", text: /\AOwned\z/i).click
-    assert_slots 3
-    assert_selector ".filters__count", text: "1"
-    assert_selector ".filters__clear", visible: true
-    find(".filter-chip__text", text: /\AMissing\z/i).click
+    assert_equal %w[GOALS RARITY STATE MORE], all("a.filter-row__pastille").map { it.text.strip }
+    rows = page.evaluate_script(<<~JS)
+      (() => {
+        const top = (selector) => Math.round(document.querySelector(selector).getBoundingClientRect().top)
+        const pastilles = [ ...document.querySelectorAll("a.filter-row__pastille") ].map((pastille) => Math.round(pastille.getBoundingClientRect().top))
+        const heights = [ ...document.querySelectorAll("a.filter-row__pastille .filter-chip__text") ].map((text) => text.getBoundingClientRect().height)
+        return { search: top("#collection-search"), pastilles, heights, grid: top(".collection-grid"), row: top(".filter-row") }
+      })()
+    JS
+    assert_equal 1, rows["pastilles"].uniq.size, "the pastilles should stand in one row"
+    assert_operator rows["row"], :>, rows["search"]
+    assert_operator rows["grid"], :>, rows["row"]
+    assert rows["heights"].all? { it >= 44 }, "every pastille should be a 44px target"
+    assert_no_selector ".filters__zone, .filters__clear", visible: true
+    assert_no_sideways_scroll
+    take_screenshot
+  end
+
+  test "the filter row: a chip ticked in a sheet narrows the grid behind it, each pastille counting its own, a search narrows as it is typed" do
+    sign_in
+    visit library_cards_path(locale: :en)
     assert_slots 60
-    assert_selector ".collection-slot__copies", count: 3
-    assert_selector ".filters__count", text: "2"
-    find(".filter-chip__text", text: /\AOwned\z/i).click
-    assert_selector ".collection-grid .card--not-owned", count: 57, visible: :all
-    assert_no_selector ".collection-slot__copies"
-    assert_selector ".filters__count", text: "1"
+    assert_no_selector ".filter-row__count", visible: true
 
-    # Back to the owned cards, then a genre none of them has.
-    find(".filter-chip__text", text: /\AOwned\z/i).click
-    find(".filter-chip__text", text: /\AMissing\z/i).click
+    open_filter_sheet(:state)
+    within(filter_sheet(:state)) { find(".filter-chip__text", text: /\AOwned\z/i).click }
     assert_slots 3
-    assert_selector ".filters__count", text: "1"
-    within("[data-group=genre]") do
-      find(".filter-chip__text", text: /\ARPG\z/i).click
+    assert_selector "#{filter_sheet(:state)} p.filter-sheet__status", text: "3 cards shown."
+    assert_selector "#{pastille(:state)} .filter-row__count", text: "1", visible: :all
+    within(filter_sheet(:state)) { find(".filter-chip__text", text: /\AMissing\z/i).click }
+    assert_slots 60
+    assert_selector ".collection-slot__copies", count: 3, visible: :all
+    assert_selector "#{pastille(:state)} .filter-row__count", text: "2", visible: :all
+    within(filter_sheet(:state)) { find(".filter-chip__text", text: /\AOwned\z/i).click }
+    assert_selector ".collection-grid .card--not-owned", count: 57, visible: :all
+    assert_selector "#{pastille(:state)} .filter-row__count", text: "1", visible: :all
+
+    # Back to the owned cards, then a rarity, then a genre none of them has.
+    within(filter_sheet(:state)) do
+      find(".filter-chip__text", text: /\AOwned\z/i).click
+      find(".filter-chip__text", text: /\AMissing\z/i).click
     end
-    assert_selector ".collection-grid__empty", text: "Nothing matches these filters."
+    assert_slots 3
+    close_filter_sheet(:state)
+    assert_selector "#{pastille(:state)} .filter-row__count", text: "1"
+    assert_selector ".filters__clear", visible: true
+
+    held = Catalog::CardSeason.where(id: @theme.first(3)).pluck(:rarity)
+    open_filter_sheet(:rarity)
+    within(filter_sheet(:rarity)) { find(".filter-chip__text", text: /\A#{held.first}\z/i).click }
+    assert_slots held.count(held.first)
+    close_filter_sheet(:rarity)
+    assert_selector "#{pastille(:rarity)} .filter-row__count", text: "1"
+    assert_selector "#{pastille(:state)} .filter-row__count", text: "1"
+
+    open_filter_sheet(:more)
+    within("#{filter_sheet(:more)} [data-group=genre]") { find(".filter-chip__text", text: /\ARPG\z/i).click }
+    assert_selector ".collection-grid__empty", text: "Nothing matches these filters.", visible: :all
     assert_equal "RPG", page.evaluate_script("document.activeElement.parentElement.textContent.trim()")
-    assert_selector ".filters__count", text: "2"
+    assert_selector "#{filter_sheet(:more)} p.filter-sheet__status", text: "No card shown."
+    assert_selector "#{pastille(:more)} .filter-row__count", text: "1", visible: :all
+    close_filter_sheet(:more)
 
     # The search narrows as it is typed, and keeps the focus in the field.
     find(".filters__clear").click
     assert_slots 60
-    assert_no_selector ".filters__count", visible: true
+    assert_no_selector ".filter-row__count", visible: true
     title = Catalog::CardSeason.find(@theme.first).card.texts.find_by!(locale: "en").title
     field = find("#collection-search")
     field.click
@@ -350,6 +387,19 @@ class LibraryTest < ApplicationSystemTestCase
     assert_equal "collection-search", page.evaluate_script("document.activeElement.id")
     assert_no_sideways_scroll
     take_screenshot
+  end
+
+  test "arriving filtered, each pastille shows its count and its sheet its chips ticked" do
+    sign_in
+    visit library_cards_path(locale: :en, rarity: %w[rare], state: %w[missing])
+
+    assert_selector "#{pastille(:rarity)} .filter-row__count", text: "1"
+    assert_selector "#{pastille(:state)} .filter-row__count", text: "1"
+    open_filter_sheet(:rarity)
+    assert_equal [ "rare" ], all("#{filter_sheet(:rarity)} .filter-chip__box:checked", visible: :all).map(&:value)
+    close_filter_sheet(:rarity)
+    open_filter_sheet(:state)
+    assert_equal [ "missing" ], all("#{filter_sheet(:state)} .filter-chip__box:checked", visible: :all).map(&:value)
   end
 
   test "the cards of a pack just opened are new; once the grid has shown them, the next visit shows them no longer" do
@@ -496,6 +546,21 @@ class LibraryTest < ApplicationSystemTestCase
     def assert_slots(count)
       assert_selector ".collection-grid > li:nth-child(#{count})", visible: :all
       assert_no_selector ".collection-grid > li:nth-child(#{count + 1})", visible: :all
+    end
+
+    def pastille(group) = "a.filter-row__pastille[href='#filters-#{group}']"
+
+    def filter_sheet(group) = "dialog#filters-#{group}"
+
+    def open_filter_sheet(group)
+      find(pastille(group)).click
+      assert_selector filter_sheet(group), visible: true
+      eventually("the #{group} sheet should be a modal dialog") { evaluate_script("document.querySelector('#{filter_sheet(group)}').matches(':modal')") }
+    end
+
+    def close_filter_sheet(group)
+      within(filter_sheet(group)) { find("button.modal__close").click }
+      assert_no_selector filter_sheet(group), visible: true
     end
 
     def scroll_to_pages

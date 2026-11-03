@@ -49,6 +49,14 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
   def set_status = css_select("[data-group=sets] p.set-filter__status[role=status]").sole.text
 
+  # The filter row's pastilles with chips on, as { name => count }.
+  def pastille_counts
+    css_select("a.filter-row__pastille").filter_map do |pastille|
+      count = pastille.at_css(".filter-row__count")
+      [ pastille.at_css(".filter-chip__text").children.first.text.strip, count.at_css("[data-pastille-number]").text.to_i ] unless count.key?("hidden")
+    end.to_h
+  end
+
   # The grid's slots: [ :owned, title, "xn", "New" | nil ], [ :not_owned,
   # title, year ] (a player's card not held) or [ :plain, title, year ] (a
   # visitor's).
@@ -580,7 +588,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal "3 sets found", set_status
     assert_equal 60, slots.size
     assert_select "turbo-frame#collection-results p[role=status]", "150 cards shown."
-    assert_select ".filters__count[hidden]"
+    assert_empty pastille_counts
     assert_select ".filters__clear[hidden]"
     assert_select ".collection-grid a.card-link[href*=set_]", false
 
@@ -605,8 +613,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en, sets: %w[theme:roguelike], set_kind: "franchise", set_q: "dark")
 
     assert_equal [ [ "Roguelike", "theme:roguelike", true ], [ "Dark Souls", "franchise:dark-souls", false ] ], set_chips
-    assert_select ".filters__count:not([hidden])", /1/
-    assert_select "details.filters__zone[open]"
+    assert_equal({ "More" => 1 }, pastille_counts)
     assert_select ".filters__clear:not([hidden])[href=?]", "/en/library/cards"
     hrefs = css_select(".collection-grid a.card-link").map { Rack::Utils.parse_nested_query(URI(it["href"]).query).fetch("grid") }
     assert_equal [ { "sets" => [ "theme:roguelike" ], "q" => "" } ], hrefs.uniq
@@ -680,7 +687,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     [ "strategy", [ "strategy" ] ].each do |genre|
       get library_cards_path(locale: :en), params: { genre: }
       assert_response :success
-      assert_select ".filters__count[hidden]"
+      assert_empty pastille_counts
       assert_equal 60, slots.size
     end
   end
@@ -750,8 +757,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en)
 
     assert_select ".collection [data-id]", false
-    assert_equal %w[collection-report-title collection-search collection-set-search collection-set-options quick-filters quick-filters-title
-      quick-filters-state quick-filters-rarity collection-results collection-results-status collection-slots collection-pages],
+    assert_equal %w[collection-report-title collection-search filters-rarity filters-rarity-title filters-state filters-state-title
+      filters-more filters-more-title collection-set-search collection-set-options collection-results collection-results-status collection-slots collection-pages],
       css_select(".collection [id]").map { it["id"] }
     html = css_select(".collection").sole.to_html
     ids.each do |id|
@@ -781,7 +788,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_request_queries(8) { get library_cards_path(locale: :en) }
   end
 
-  test "the collection opens on every slot, the owned cards first, newest gained first, FILTRES folded with no count" do
+  test "the collection opens on every slot, the owned cards first, newest gained first, the filter row with no count" do
     season = publish_sets_draft
     player = accounts_players(:player)
     first, second, third = season_cards(season).first(3)
@@ -795,8 +802,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ second, first, third ].map { [ :owned, title(it), nil ] }, slots.first(3).map { [ it[0], it[1], nil ] }
     assert_equal [ :not_owned ] * 57, slots.drop(3).map(&:first)
     assert_select "form.filters[method=get][data-controller=collection-filters][data-turbo-frame=collection-results]"
-    assert_select "details.filters__zone:not([open]) summary", /Filters/
-    assert_select ".filters__count[hidden]"
+    assert_select "form.filters > .filters__search + ul.filter-row[aria-label=Filters]"
+    assert_empty pastille_counts
     assert_select ".filters__clear[hidden]"
     assert_select "turbo-frame#collection-results[target=_top] .collection-grid"
     assert_select "input[type=search][name=q]#collection-search"
@@ -817,7 +824,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal [ second, first ].map { title(it) }, slots.map(&:second)
     assert_equal [ "Owned" ], css_select("[data-group=state] .filter-chip__box[checked]").map { it.parent.text.strip }
-    assert_select ".filters__count:not([hidden])", /1/
+    assert_equal({ "State" => 1 }, pastille_counts)
   end
 
   test "the missing state shows the faces not owned; owned plus missing is every slot" do
@@ -829,14 +836,13 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_cards_path(locale: :en, state: %w[missing])
     assert_equal cards.drop(1).first(60).map { [ :not_owned, title(it), year(it) ] }, slots
-    assert_select ".filters__count:not([hidden])", /1/
-    assert_select "details.filters__zone[open]"
+    assert_equal({ "State" => 1 }, pastille_counts)
     assert_select ".filters__clear:not([hidden])[href=?]", "/en/library/cards"
 
     get library_cards_path(locale: :en, state: %w[owned missing])
     assert_equal :owned, slots.first.first
     assert_equal 60, slots.size
-    assert_select ".filters__count", /2/
+    assert_equal({ "State" => 2 }, pastille_counts)
   end
 
   test "new and duplicates states; an unknown state is ignored" do
@@ -884,7 +890,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en, genre: %w[rpg roguelike], rarity: [ rarity ])
     assert_equal both, owned_slots.size
     assert_operator both, :<, sample.size
-    assert_select ".filters__count", /3/
+    assert_equal({ "Rarity" => 1, "More" => 2 }, pastille_counts)
   end
 
   test "the set chips filter the whole season's cards, OR within the group" do
@@ -942,7 +948,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en)
     assert_equal 60, slots.size
     assert_select "[data-group=state]", false
-    assert_select ".filters__count[hidden]"
+    assert_empty pastille_counts
     assert_select "form.filters[role=search]"
     assert_select "turbo-frame#collection-results p[role=status]", "150 cards shown."
 
@@ -950,7 +956,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       get library_cards_path(locale: :en, state: [ state ])
       assert_equal season_cards(season).first(60).map { [ :plain, title(it), year(it) ] }, slots
       assert_select "turbo-frame#collection-results p[role=status]", "150 cards shown."
-      assert_select ".filters__count[hidden]"
+      assert_empty pastille_counts
       assert_select ".filters__clear[hidden]"
       assert css_select(".collection-grid a.card-link").none? { it["href"].include?("state") }
       assert css_select(".collection-pages a").none? { it["href"].include?("state") }
@@ -964,7 +970,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     # Asking "all" explicitly is the default of this viewer: no filter on.
     get library_cards_path(locale: :en, state: %w[all])
-    assert_select ".filters__count[hidden]"
+    assert_empty pastille_counts
     assert_select ".filters__clear[hidden]"
 
     get library_cards_path(locale: :en, state: %w[owned])
@@ -984,7 +990,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_cards_path(locale: :en, rarity: %w[rare])
     assert_equal season_cards(season).select { it.in?(rare) }.first(60).map { title(it) }, slots.map(&:second)
-    assert_select ".filters__count:not([hidden])", /1/
+    assert_equal({ "Rarity" => 1 }, pastille_counts)
 
     get library_cards_path(locale: :en, sets: %w[theme:roguelike], rarity: %w[epic])
     assert_equal epic_roguelike.map { title(it) }.sort, slots.map(&:second).sort

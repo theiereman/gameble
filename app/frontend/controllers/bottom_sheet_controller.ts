@@ -1,10 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
 import { openDialog, takeOpener } from "../lib/dialog"
-import { dismisses, dragOffset, focusWrapTarget } from "../lib/bottom_sheet"
+import { dismisses, dragOffset, focusWrapTarget, visitLeavesPage } from "../lib/bottom_sheet"
+import "../lib/turbo"
 
 const FOCUSABLE =
   "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"
 const DRAG_PROPERTY = "--sheet-drag"
+const OPENED_HERE = "bottomSheetOpenedHere"
 
 type Drag = { pointerId: number; startY: number }
 
@@ -25,12 +27,13 @@ export default class extends Controller<HTMLDialogElement> {
 
   private readonly closed = (): void => {
     this.endDrag()
+    delete this.element.dataset[OPENED_HERE]
     const opener = takeOpener(this.element)
     if (opener?.isConnected) opener.focus()
   }
 
   private readonly beforeCache = (): void => {
-    this.close()
+    if (visitLeavesPage(window.Turbo.navigator.currentVisit)) this.close()
   }
 
   connect(): void {
@@ -53,6 +56,7 @@ export default class extends Controller<HTMLDialogElement> {
       event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("a[data-bottom-sheet-opens]") : null
     if (!opener || opener.dataset.bottomSheetOpens !== this.element.id) return
     event.preventDefault()
+    this.element.dataset[OPENED_HERE] = ""
     openDialog(this.element, opener)
     this.focusFirstChoice()
   }
@@ -121,8 +125,11 @@ export default class extends Controller<HTMLDialogElement> {
   }
 
   private showSentOpenAsModal(): void {
-    if (!this.element.open || this.element.matches(":modal")) return
+    if (this.element.matches(":modal")) return
+    const openedHere = OPENED_HERE in this.element.dataset
+    delete this.element.dataset[OPENED_HERE]
+    if (!this.element.open) return
     this.element.close()
-    this.element.showModal()
+    if (!openedHere && !document.documentElement.hasAttribute("data-turbo-preview")) this.element.showModal()
   }
 }

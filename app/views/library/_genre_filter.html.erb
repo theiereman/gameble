@@ -1,0 +1,9 @@
+<fieldset class="filters__group" data-collection-filters-target="group" data-group="genre">
+  <legend class="filters__legend"><%= t("library.filters.groups.genre") %></legend>
+  <% genres.each do |genre| %>
+    <label class="filter-chip">
+      <%= check_box_tag "genre[]", genre, chosen.include?(genre), id: nil, class: "filter-chip__box" %>
+      <span class="filter-chip__text"><%= SetLabel.genre(genre) %></span>
+    </label>
+  <% end %>
+</fieldset>

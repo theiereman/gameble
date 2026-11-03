@@ -60,10 +60,11 @@ class GoalBookmarksTest < ApplicationSystemTestCase
     assert_equal "1", portal.find(".card__goals").evaluate_script("getComputedStyle(this).opacity")
     assert_equal "none", portal.find(".card__goals").evaluate_script("getComputedStyle(this).filter")
 
-    find(".filters__summary").click
-    within("fieldset[data-group=goals]") { find(".filter-chip", text: "ROGUELIKE").click }
+    find("a.filter-row__pastille[href='#filters-goals']").click
+    assert_selector "dialog#filters-goals", visible: true
+    within("dialog#filters-goals fieldset[data-group=goals]") { find(".filter-chip", text: "ROGUELIKE").click }
     assert_selector ".collection-grid > li.collection-slot", count: 2
-    assert_selector ".filters__count:not([hidden]) [data-collection-filters-target=number]", text: "1"
+    assert_selector "a.filter-row__pastille[href='#filters-goals'] .filter-row__count:not([hidden]) [data-pastille-number]", text: "1"
     assert_current_path(/goals%5B%5D=theme%3Aroguelike|goals\[\]=theme:roguelike/)
 
     Game::RemoveGoal.new.call(player: @player, kind: "studio", key: "valve").value!

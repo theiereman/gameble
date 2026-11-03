@@ -34,6 +34,12 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
   - Collecting the daily capsule on the capsule screen selects the SPÉCIALES tab when the standard reserve is empty; any other capsule arriving while the screen is open still leaves the selected tab unchanged, as `EXPERIENCE.md` says.
   - Warming the next capsule's art: built as sending the next opening as soon as "OUVRIR LA SUIVANTE" is pressed, while the previous hand sinks away. Rendering the next capsule's art before the player presses would send that capsule's cards to the browser before it is opened (a player could read them in the network panel) and `OpenPack` may still redraw them; build it only if the author accepts that.
 
+- Entry 4, "A card list that scrolls without end" (epic phone-first web, built 2026-11-03): built with conservative choices that the author confirms or changes:
+  - The card list's sheets combine choices as the FILTRES zone did: each pastille's sheet holds its group's chips, still fields of the one filter form (OR within a group, AND across groups, the grid reloading behind the open sheet). The question on entry 3's menu (preset links or combined filters) stays open above; this build answers it the combining way for the card list.
+  - Set and genre, outside the three named pastilles (Goals, Rarity, State), moved to a fourth More pastille ("Plus", sheet "Autres filtres") rather than being dropped from the card list.
+  - The QUICK FILTERS chip and its sheet of preset links are retired; the pastilles take their place.
+  - The search and the pastille row are not pinned while the list scrolls.
+
 ## Settled on 2026-11-02
 
 Settled by the author in conversation on 2026-11-02.
