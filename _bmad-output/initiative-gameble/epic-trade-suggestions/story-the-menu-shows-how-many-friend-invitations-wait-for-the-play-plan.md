@@ -3,7 +3,7 @@ title: 'The menu shows how many friend invitations wait for the player''s answer
 type: 'feature'
 ticket: '10'
 created: '2026-11-01'
-status: 'built'
+status: done
 baseline_revision: 'cbe76d29acc02919220c5c2f29b7db5d1b56de62'
 route: 'full'
 route_source: 'auto'

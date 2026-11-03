@@ -3,7 +3,7 @@ title: "The Steam library sync line sits in the collection's design"
 type: 'bugfix'
 ticket: '3'
 created: '2026-11-03'
-status: built
+status: done
 baseline_revision: 'adb132ada9d1b686706889077885565bf29f59be'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: "The menu's trade and friend invitation counts are hidden at zero"
 type: 'bugfix'
 ticket: '4'
 created: '2026-11-03'
-status: 'built'
+status: done
 baseline_revision: '0f181fa47dcdbce6950e6aadc08413d33efbf527'
 route: 'oneshot'
 route_source: 'auto'
