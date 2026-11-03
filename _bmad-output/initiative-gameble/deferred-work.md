@@ -525,3 +525,9 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-sets-that-open-on-your-goals-plan.md`
   summary: No test renders the Hall of fame or UFO group headings of EN COURS.
   evidence: the heading is the same `library.entry.kinds.<kind>` call tested for themes, franchises and studios, and both locales hold the keys; no test seeds a set of those kinds into EN COURS.
+
+## Deferred from: build of story-a-trade-updated-since-you-last-looked-plan (2026-11-03)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-trade-updated-since-you-last-looked-plan.md`
+  summary: The player data export does not list the trade-seen markers.
+  evidence: `Game::ExportOf` exports feed reactions and the daily claims; `game_trade_views` rows hold only a timestamp per trade and the deletion dialog names them, so the export was left unchanged.

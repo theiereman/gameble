@@ -170,6 +170,8 @@ Rails.application.routes.draw do
         post :cancel
       end
     end
+    post "trades/:token/seen" => "trade_seens#create", as: :trade_seen,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # The phone's Social tab opens this menu; its Me tab the player's own profile.
     get "social" => "pages#social", as: :social
     get "me" => "own_profiles#show", as: :me

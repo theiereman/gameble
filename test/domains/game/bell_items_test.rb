@@ -117,4 +117,25 @@ class Game::BellItemsTest < ActiveSupport::TestCase
     reward.update_columns(pack_id: create_pack(@hugo, kind: :reward).id)
     assert_not items.goal.reward_ready
   end
+
+  test "an answered proposal is a line with its friend, its outcome and its closing time, until the trade is opened" do
+    answered = trade(@hugo, @max, status: "declined")
+    answered.update!(closed_at: NOW - 1.hour)
+
+    line = items.updates.sole
+
+    assert_equal [ answered.token, @max, "declined", answered.closed_at ], [ line.token, line.player, line.outcome, line.closed_at ]
+
+    Game::MarkTradeSeen.new.call(player: @hugo, trade_token: answered.token, now: NOW)
+
+    assert_empty items.updates
+  end
+
+  test "a trade the friend answered is no update for the friend, and one countered back stays a waiting line" do
+    trade(@max, @hugo, status: "accepted").update!(closed_at: NOW - 1.hour)
+    trade(@max, @hugo)
+
+    assert_empty items.updates
+    assert_equal 1, items.trades.size
+  end
 end

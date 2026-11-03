@@ -61,6 +61,12 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
   - A friend who already has an open request from the player for the same card shows in the sheet as "Already asked", not as a button; any other open trade with that friend does not block it, as on the trade board today.
   - The sent trade lands on the trade board with the usual "sent" toast; the sheet's friends are not limited to the goals' cards.
 
+- Entry 11, "A trade updated since you last looked" (epic phone-first web, built 2026-11-03): built with conservative choices that the author confirms or changes:
+  - The last-seen marker is a table row (`game_trade_views`, one per player and trade), not a column on the trade (both players of a trade have one) and not browser storage (it must follow the player across devices).
+  - It is written by a POST the trade board fires when it renders an answer the player has not seen, not by a job and never by the trade page's GET. Opening the trade by any path (bell line, list, the trades index showing the first trade) writes it.
+  - Only an accepted or declined proposal counts as an update, for 7 days at most, at most five lines, never for a friend who is banned or gone. A counter-offer stays a waiting line; a cancelled or expired trade is not an answer.
+  - Deleting an account deletes its markers; the deletion dialog and the privacy page now name them.
+
 ## Settled on 2026-11-02
 
 Settled by the author in conversation on 2026-11-02.

@@ -79,6 +79,36 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".trade-board .trade-board__title", "Échange avec Lea"
   end
 
+  test "the board of a trade the friend answered carries a seen beacon until the player has opened it; the GET writes nothing" do
+    trade = propose(@alice, @bob, offer: { @portal => 1 }, request: { @depths => 1 })
+    assert Game::DeclineTrade.new.call(player: @bob, trade_id: trade.id, revision: revision(trade)[:revision]).success?
+    sign_in @alice
+
+    assert_no_difference -> { Game::TradeView.count + Rails.configuration.event_store.read.count } do
+      get trade_path(token: trade.token, locale: :en)
+    end
+
+    assert_response :success
+    assert_select "[data-controller=trade-seen][data-trade-seen-url-value=?]", trade_seen_path(token: trade.token, locale: :en)
+
+    Game::MarkTradeSeen.new.call(player: @alice, trade_token: trade.token)
+    get trade_path(token: trade.token, locale: :en)
+
+    assert_select "[data-controller=trade-seen]", 0
+  end
+
+  test "no beacon on an open trade or on the board of the player who answered" do
+    waiting = from_lea
+    sign_in @alice
+
+    get trade_path(token: waiting.token, locale: :en)
+    assert_select "[data-controller=trade-seen]", 0
+
+    Game::DeclineTrade.new.call(player: @alice, trade_id: waiting.id, revision: revision(waiting)[:revision])
+    get trade_path(token: waiting.token, locale: :en)
+    assert_select "[data-controller=trade-seen]", 0
+  end
+
   test "the board of a trade waiting for the player: its line, expiry, reserved copies and three actions" do
     trade = from_lea
     sign_in @alice

@@ -39,6 +39,12 @@ class PlayerStreamTest < ActiveSupport::TestCase
     end
   end
 
+  test "opening a trade tells only the player who opened it" do
+    data = { player_id: @alice.id, trade_id: 1 }
+
+    assert_equal [ { player_id: @alice.id, topic: "trades" } ], PlayerStream.notices(Game::TradeSeen.new(data:))
+  end
+
   test "an invitation and its cancelling tell both players, and its acceptance names the accepting friend to the sender" do
     data = { invitation_id: 1, sender_id: @alice.id, recipient_id: @bob.id }
 

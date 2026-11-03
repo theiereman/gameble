@@ -76,6 +76,9 @@
       <%= render "trades/undo_dialog", trade: %>
     <% end %>
   </div>
+  <% if trade_answer_unseen?(trade) %>
+    <%= render "trades/seen_beacon", trade: %>
+  <% end %>
   <% if editor %>
     <%= render "trades/picker", editor:, friend: trade.friend %>
     <%= render "trades/faces", views: editor[:faces] %>

@@ -49,6 +49,23 @@ class BellsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{FRAME} p.bell__empty[data-bell-target=empty][hidden]", "Nothing new for now."
   end
 
+  test "an answered proposal is a line to its trade, keyed by token and closing time, in the request's locale" do
+    low, high = [ @hugo.id, @max.id ].minmax
+    answered = Game::Trade.create!(low_player_id: low, high_player_id: high, proposer_id: @hugo.id, recipient_id: @max.id, status: "declined",
+      proposed_at: 2.hours.ago, expires_at: 1.day.from_now, closed_at: 1.hour.ago)
+    sign_in(@hugo)
+
+    assert_no_difference -> { Game::TradeView.count } do
+      get_bell
+    end
+
+    assert_includes line_keys, "trade-update:#{answered.token}:#{answered.closed_at.utc.iso8601(6)}"
+    assert_select "#{FRAME} li[data-bell-path='/en/trades/#{answered.token}']", text: /#{@max.persona_name} declined your trade\./
+
+    get_bell(locale: :fr)
+    assert_select "#{FRAME} li[data-bell-path='/fr/trades/#{answered.token}']", text: /#{@max.persona_name} a refusé votre échange\./
+  end
+
   test "an unclaimed mission reward replaces the week's line, in the request's locale" do
     Game::GoalReward.create!(player_id: @hugo.id, week_start: Date.new(2026, 9, 28))
     sign_in(@hugo)

@@ -66,6 +66,10 @@ module TradesHelper
     [ tone, t("trades.chip.#{row.state}") ]
   end
 
+  def trade_answer_unseen?(row)
+    !row.open? && Game::TradeUpdates.unseen?(current_player, row.token)
+  end
+
   def trade_days_left(row, now: Time.current)
     [ ((row.expires_at - now) / 1.day).ceil, 1 ].max
   end

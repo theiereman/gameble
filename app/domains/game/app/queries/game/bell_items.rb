@@ -5,15 +5,18 @@ module Game
     TradeLine = Data.define(:token, :player, :revision)
     InvitationLine = Data.define(:token, :player)
     GoalLine = Data.define(:week_start, :reward_ready, :target, :reached)
-    Result = Data.define(:trades, :invitations, :daily, :goal)
+    UpdateLine = Data.define(:token, :player, :outcome, :closed_at)
+    Result = Data.define(:trades, :updates, :invitations, :daily, :goal)
 
     def self.call(player, now: Time.current)
       trades = trades_waiting(player, now).to_a
+      updates = TradeUpdates.call(player, now:)
       invitations = invitations_waiting(player).to_a
-      senders = Accounts::Player.where(id: trades.map(&:proposer_id) | invitations.map(&:sender_id)).index_by(&:id)
+      senders = Accounts::Player.where(id: trades.map(&:proposer_id) | invitations.map(&:sender_id) | updates.map(&:recipient_id)).index_by(&:id)
 
       Result.new(
         trades: trades.map { TradeLine.new(token: it.token, player: senders[it.proposer_id], revision: it.revision) },
+        updates: updates.map { UpdateLine.new(token: it.token, player: senders[it.recipient_id], outcome: it.status, closed_at: it.closed_at) },
         invitations: invitations.map { InvitationLine.new(token: it.token, player: senders[it.sender_id]) },
         daily: daily(player, now),
         goal: goal(player, now)

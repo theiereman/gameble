@@ -6,6 +6,7 @@ module BellHelper
   def bell_lines(items)
     [
       *items.trades.map { bell_trade_line(it) },
+      *items.updates.map { bell_trade_update_line(it) },
       *items.invitations.map { bell_invitation_line(it) },
       (bell_daily_line(items.daily) if items.daily),
       bell_goal_line(items.goal)
@@ -16,6 +17,12 @@ module BellHelper
     path = trade_path(token: trade.token)
     BellLine.new(key: "trade:#{trade.token}:#{trade.revision}", path:, href: path,
       sentence: t("shell.bell.trade", name: friend_name(trade.player)), action: t("shell.bell.answer"))
+  end
+
+  def bell_trade_update_line(update)
+    path = trade_path(token: update.token)
+    BellLine.new(key: "trade-update:#{update.token}:#{update.closed_at.utc.iso8601(6)}", path:, href: path,
+      sentence: t("shell.bell.trade_#{update.outcome}", name: friend_name(update.player)), action: t("shell.bell.see"))
   end
 
   def bell_invitation_line(invitation)
