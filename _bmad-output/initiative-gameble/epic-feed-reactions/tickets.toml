@@ -21,3 +21,15 @@ covers = []
 after = [1]
 hitl = false
 risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "The five reaction icons are redrawn from a mockup the author approves"
+description = "Author on staging (v1.1.0-rc.6), 2026-11-03: the five reaction icons are very poor and must be redone from a mockup. First draw the thumb up, heart, GG, wow and raised middle finger as a mockup in ux-gameble/mockups/, at the sizes the feed's reaction bar uses, resting and lit, beside the existing pixel icons for scale, and get the author's approval; then redraw them in the pixel art export (never by hand) under the same keys, so the reaction bar changes with no other code."
+verify = "The author approves the mockup, then sees the new icons on the feed on staging, desktop and phone; `node script/pixel_art/export.mjs --check` passes."
+covers = []
+after = [1]
+hitl = true
+risk = "low"
+notes = ["The author's approval of the mockup is the hitl step; replaces the drawing of entry 1, whose keys stay."]

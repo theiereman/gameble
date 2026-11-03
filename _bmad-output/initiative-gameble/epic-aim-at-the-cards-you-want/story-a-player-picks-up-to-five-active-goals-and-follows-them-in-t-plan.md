@@ -3,7 +3,7 @@ title: 'A player picks up to five active goals and follows them in the collectio
 type: 'feature'
 ticket: 9
 created: '2026-11-01'
-status: 'built'
+status: done
 baseline_revision: 'ded021fb11ba64766b8b94ed5924bd3ab41808de'
 route: 'full'
 route_source: 'auto'

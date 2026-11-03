@@ -1,12 +1,36 @@
 # tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
 
 [[entry]]
-id = 1
+id = 2
 type = "bug"
-title = "The hub jumps slightly when a player returns to it with the Gameble button from a submenu"
-description = "Author on staging (v1.1.0-rc.3), 2026-11-02: from a submenu, pressing the Gameble button back to the hub makes the screen jump slightly while it paints. Reproduce with a headless browser (system test with screenshots or layout measurements before and after the page settles), find what shifts (a block rendered from a cached Turbo preview then replaced, a counter or timer, a font swap, a late image or a live-updated badge, the new achievements badge of the menu among the suspects), and fix it so the hub does not move once shown. Check desktop and phone. Related recent change: the booster page fix that stopped serving a cached page when going back after opening capsules."
-verify = "A system test records the vertical and horizontal position of the hub's blocks right after navigation and after it settles, from a submenu and from the booster, and they are equal; no layout shift on desktop and phone."
+title = "A goal on the Steam library set shows its name"
+description = "Author on staging (v1.1.0-rc.6), 2026-11-03: once the Steam library set is marked as an active goal, the goal shows no name, so nothing says the goal is the Steam library. Reproduction: sign in as a player with a synced Steam library set, mark it as an active goal, open the collection: the goal row has a bookmark, a gauge and a count but an empty name. Cause hypothesis: the goal's set name is read from the custom set's stored name, which the Steam library set does not carry; its displayed name (My Steam library / Ma bibliothèque Steam) comes from elsewhere. Every place a goal is named must show it: the collection's goal rows, the goal bookmark's words on cards, the grid's goal filter, the trade boards' bookmarks and the accessible sentences, in both languages."
+verify = "With the Steam library set as an active goal, the collection's goal row, the card bookmark words, the goal filter and a trade board name it My Steam library in English and Ma bibliothèque Steam in French; a helper or view test covers the Steam library goal and a game-set and custom-set goal still show their own names."
 covers = []
 after = []
 hitl = false
-risk = "medium"
+risk = "low"
+severity = "P2"
+
+[[entry]]
+id = 3
+type = "story"
+title = "The Steam library sync line sits in the collection's design"
+description = "Author on staging (v1.1.0-rc.6), 2026-11-03: in the collection, the line « Synchronisée avec Steam le 3 novembre 2026. » above the Steam library set is not well integrated in the interface; it reads as a stray banner. Rework how the MY STEAM LIBRARY section shows when the library was last synced and that Steam does not share it, so it belongs to the section like the other sets' secondary lines, following DESIGN.md, desktop and phone, both languages, the private-library message included."
+verify = "On staging the author finds the sync date and the private-library message part of the Steam library section on desktop and phone; the existing collection tests still show both texts."
+covers = []
+after = []
+hitl = true
+risk = "low"
+notes = ["Open question: the target look. The builder proposes one in the plan (for example the date as the tile's secondary line, without the lit indicator) and the author approves it before the build; that approval is the hitl step."]
+
+[[entry]]
+id = 4
+type = "story"
+title = "The menu's trade and friend invitation counts are hidden at zero"
+description = "Author on staging (v1.1.0-rc.6), 2026-11-03: the counts of trades waiting for the player and of friend invitations show a greyed 0 in the menus when nothing waits. Show no count at zero, as the phone tab bar already does: on the hub menu, on the Social landing and wherever the same counts appear, also when the player stream updates a count to zero or back from zero; the accessible text says nothing waits or is absent at zero."
+verify = "With no trade and no invitation waiting, the hub menu and the Social landing show no count; a waiting invitation shows 1 and accepting it removes the count live; view and player stream job tests cover zero and one."
+covers = []
+after = []
+hitl = false
+risk = "low"

@@ -20,7 +20,7 @@ Defects the author finds while walking release 1.1.0 on staging, outside the epi
 
 ## Outcome
 
-For the players: no visual glitch of the shell ships with 1.1.0.
+For the players: no defect the author finds on staging ships with 1.1.0.
 
 ## Requirements
 
@@ -41,3 +41,5 @@ Defects only; new behaviour goes to an epic of its own.
 ## Notes
 
 - Opened 2026-11-02 (author, on v1.1.0-rc.3).
+- Dropped (author, 2026-11-03): entry 1, the hub jumping slightly when the Gameble button brings the player back from a submenu.
+- Entries 2 to 4 added from the author's walk of v1.1.0-rc.6 (2026-11-03).

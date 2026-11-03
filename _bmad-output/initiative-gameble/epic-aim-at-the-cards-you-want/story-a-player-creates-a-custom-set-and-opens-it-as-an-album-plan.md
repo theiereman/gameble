@@ -3,7 +3,7 @@ title: 'A player creates a custom set and opens it as an album'
 type: 'feature'
 ticket: 3
 created: '2026-10-31'
-status: 'built'
+status: done
 baseline_revision: '0070ff8893b8adf32c7d5632d55d3fc21d99c11d'
 route: 'full'
 route_source: 'auto'

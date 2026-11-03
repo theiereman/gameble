@@ -3,7 +3,7 @@ title: 'The goal bookmark marks every card of a goal''s set, and the grid filter
 type: 'feature'
 ticket: 10
 created: '2026-11-01'
-status: 'built'
+status: done
 baseline_revision: '877f7fc9705a15955f60e69a18009cc7af1157f4'
 route: 'full'
 route_source: 'auto'
