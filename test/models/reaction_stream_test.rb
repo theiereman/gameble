@@ -1,8 +1,9 @@
 require "test_helper"
 require_relative "../support/feed_reactions"
 
-# The counters kept current in every open feed: a reaction sends the counts
-# of its entry through a job once it commits, never a name.
+# The reactions kept current in every open feed: a reaction sends the counts
+# of its entry and the names of public profiles through a job once it
+# commits, never a token or a database id.
 class ReactionStreamTest < ActiveSupport::TestCase
   include ActionCable::TestHelper
   include ActiveJob::TestHelper
@@ -17,16 +18,30 @@ class ReactionStreamTest < ActiveSupport::TestCase
 
   def jobs = enqueued_jobs.select { it[:job] == ReactionCountsJob }
 
-  def received
-    Nokogiri::HTML5.fragment(ActiveSupport::JSON.decode(broadcasts("reactions").sole))
+  def received(locale = :en)
+    Nokogiri::HTML5.fragment(ActiveSupport::JSON.decode(broadcasts("reactions:#{locale}").sole))
   end
 
   def count_update(fragment, kind)
-    fragment.at_css("turbo-stream[action=update][target='#{ReactionStream.count_id(@entry.token, kind)}'] template")&.text
+    fragment.at_css("turbo-stream[action=update][targets='#{ReactionStream.count_targets(@entry.token, kind)}'] template")&.text
   end
 
-  test "the stream has a fixed name with no id" do
-    assert_equal [ "reactions" ], ReactionStream.streamables
+  def names_update(fragment, kind)
+    fragment.at_css("turbo-stream[action=update][targets='#{ReactionStream.names_targets(@entry.token, kind)}'] template")&.text&.squish
+  end
+
+  test "the stream has a fixed name per locale, with no id" do
+    assert_equal [ "reactions", "en" ], ReactionStream.streamables
+    assert_equal [ "reactions", "fr" ], ReactionStream.streamables(:fr)
+  end
+
+  test "the job sends each locale its own words" do
+    react(@reader, @entry, "heart")
+
+    ReactionCountsJob.perform_now([ @entry.id ])
+
+    assert_equal "Heart · 1 Sam", names_update(received(:en), "heart")
+    assert_equal "Cœur · 1 Sam", names_update(received(:fr), "heart")
   end
 
   test "a reaction enqueues one job after its commit, naming the entry" do
@@ -57,17 +72,29 @@ class ReactionStreamTest < ActiveSupport::TestCase
     end
   end
 
-  test "the job sends the five counts of the entry to the public stream, in numbers only" do
+  test "the job sends the five counts of the entry to the public stream, an unused kind with no count" do
     react(@reader, @entry, "heart")
-    react(@author, @entry, "heart")
     react(@author, @entry, "wow")
 
     ReactionCountsJob.perform_now([ @entry.id ])
 
     sent = received
-    assert_equal({ "thumb" => "0", "heart" => "1", "gg" => "0", "wow" => "1", "middle_finger" => "0" },
+    assert_equal({ "thumb" => "", "heart" => "1", "gg" => "", "wow" => "1", "middle_finger" => "" },
       Game::FeedReaction::KINDS.index_with { count_update(sent, it) })
-    assert_no_match(/Sam|#{@reader.token}|#{@author.token}/, sent.to_html)
+    assert_no_match(/#{@reader.token}|#{@author.token}/, sent.to_html)
+  end
+
+  test "the job names the public players who reacted, and only counts the others" do
+    react(@reader, @entry, "heart")
+    react(@author, @entry, "wow")
+    @author.update!(persona_name: "Hugo", visibility: "private")
+
+    ReactionCountsJob.perform_now([ @entry.id ])
+
+    sent = received
+    assert_equal "Heart · 1 Sam", names_update(sent, "heart")
+    assert_equal "Wow · 1 1 player", names_update(sent, "wow")
+    assert_no_match(/Hugo/, sent.to_html)
   end
 
   test "a banned player's reaction is not counted in what is sent" do
@@ -76,7 +103,7 @@ class ReactionStreamTest < ActiveSupport::TestCase
 
     ReactionCountsJob.perform_now([ @entry.id ])
 
-    assert_equal "0", count_update(received, "heart")
+    assert_equal "", count_update(received, "heart")
   end
 
   test "an entry that no longer exists sends nothing to update" do

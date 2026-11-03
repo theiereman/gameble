@@ -1,23 +1,39 @@
-/* ---- The reaction bar under a feed entry: one counter per reaction, never a name ---- */
+/* ---- The reactions of a feed entry, on the right of its tags: a button per kind
+   someone used, then the player's own reaction or the button that adds one.
+   Hovering a kind names who reacted; hovering the last button opens the choice. ---- */
 
 .feed__reactions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  margin-left: auto;
 }
 
 .feed__reaction-form {
   display: contents;
 }
 
+.feed__reaction-pill {
+  position: relative;
+  display: inline-flex;
+}
+
+/* A kind nobody used takes no place, nor the player's own kind, shown last. */
+.feed__reaction-pill:has(.feed__reaction-count:empty),
+.feed__reaction-pill--mine {
+  display: none;
+}
+
 .feed__reaction {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: var(--space-button-height-sm);
-  padding: var(--space-1) var(--space-3);
-  background: var(--color-panel);
-  box-shadow: var(--control-border);
+  height: 24px;
+  padding: 0 calc(3 * var(--space-unit)) 0 var(--space-1);
+  border: 0;
+  background: transparent;
   color: var(--color-muted);
   font: var(--font-label);
   cursor: pointer;
@@ -27,24 +43,21 @@
   cursor: default;
 }
 
-button.feed__reaction:hover {
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+.feed__reaction-pill:hover .feed__reaction {
+  background: var(--color-panel-raised);
   color: var(--color-text-max);
 }
 
-button.feed__reaction:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
-
-/* A reaction made is told by its fill and its underline, not by colour alone. */
-.feed__reaction[aria-pressed="true"] {
+/* The player's reaction is told by its fill, which also changes its lightness. */
+.feed__reaction--mine,
+.feed__reaction-add:hover .feed__reaction--mine {
   background: var(--color-accent);
-  box-shadow: inset 0 calc(-2 * var(--space-unit)) 0 0 var(--color-line-deep);
   color: var(--color-on-accent);
 }
 
-.feed__reaction-icon {
+.feed__reaction-icon,
+.feed__reaction-choice-icon {
+  display: block;
   flex: none;
   image-rendering: pixelated;
 }
@@ -54,8 +67,143 @@ button.feed__reaction:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 
+.feed__reaction-who {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--space-2));
+  z-index: 5;
+  display: none;
+  flex-direction: column;
+  width: max-content;
+  max-width: 280px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel-sunken);
+  box-shadow:
+    inset 0 0 0 var(--space-unit) var(--color-line),
+    0 3px 0 var(--color-outline);
+  color: var(--color-text);
+  font: var(--font-body-small);
+  pointer-events: none;
+}
+
+.feed__reaction-pill:hover .feed__reaction-who,
+.feed__reaction-pill:has(:focus-visible) .feed__reaction-who {
+  display: flex;
+}
+
+.feed__reaction-who-head {
+  color: var(--color-text-max);
+}
+
+.feed__reaction-add {
+  position: relative;
+  display: inline-flex;
+  margin-left: var(--space-2);
+}
+
+.feed__reaction-plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--color-line);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.feed__reaction-plus-icon {
+  width: 8px;
+  height: 8px;
+}
+
+.feed__reaction-add:hover .feed__reaction-plus,
+.feed__reaction-plus[aria-expanded="true"] {
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+  color: var(--color-text-max);
+}
+
+/* Its bottom padding bridges the gap to the button, so the pointer can reach it. */
+.feed__reaction-picker {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  z-index: 6;
+  display: none;
+  padding-bottom: calc(3 * var(--space-unit));
+}
+
+.feed__reaction-add:hover .feed__reaction-picker,
+.feed__reaction-add:has(:focus-visible) .feed__reaction-picker,
+.feed__reaction-add:has([aria-expanded="true"]) .feed__reaction-picker {
+  display: flex;
+}
+
+.feed__reaction-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: var(--color-panel-raised);
+  box-shadow:
+    var(--control-border),
+    0 4px 0 var(--color-outline);
+}
+
+.feed__reaction-picker-who {
+  padding: var(--space-1) var(--space-2) 0;
+  color: var(--color-text);
+  font: var(--font-body-small);
+  white-space: nowrap;
+}
+
+.feed__reaction-choices {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.feed__reaction-choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.feed__reaction-choice:hover {
+  background: var(--color-line);
+}
+
+.feed__reaction-choice:hover .feed__reaction-choice-icon {
+  transform: translateY(-2px) scale(1.5);
+}
+
+.feed__reaction-choice[aria-pressed="true"] {
+  background: var(--color-accent);
+}
+
+:is(.feed__reaction, .feed__reaction-plus, .feed__reaction-choice):focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
 @media (pointer: coarse) {
-  .feed__reaction {
+  .feed__reaction,
+  .feed__reaction-plus {
+    min-height: var(--space-touch-min);
+  }
+
+  .feed__reaction-plus,
+  .feed__reaction-choice {
+    min-width: var(--space-touch-min);
     min-height: var(--space-touch-min);
   }
 }

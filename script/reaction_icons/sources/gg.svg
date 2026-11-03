@@ -1,4 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <path d="M6 3H26C28.8 3 31 5.2 31 8V19C31 21.8 28.8 24 26 24H15L8.5 29.5L9 24H6C3.2 24 1 21.8 1 19V8C1 5.2 3.2 3 6 3Z" fill="#b47cff" stroke="#3b1f6b" stroke-width="2" stroke-linejoin="round"/>
-  <path d="M14.03 10.29A5 5 0 1 0 15.2 13.8H10.6M25.63 10.29A5 5 0 1 0 26.8 13.8H22.2" fill="none" stroke="#ffffff" stroke-width="3.2"/>
+  <defs>
+    <path id="b" d="M6 3H26C28.8 3 31 5.2 31 8V19C31 21.8 28.8 24 26 24H15L8.5 29.5L9 24H6C3.2 24 1 21.8 1 19V8C1 5.2 3.2 3 6 3Z"/>
+    <clipPath id="c"><use href="#b"/></clipPath>
+    <path id="g" d="M14 8.4H7V18.6H14V13.6H10.8M25.4 8.4H18.4V18.6H25.4V13.6H22.2" fill="none" stroke-width="2.6" stroke-linejoin="miter" stroke-linecap="square"/>
+  </defs>
+  <use href="#b" fill="#5a2fb0"/>
+  <g clip-path="url(#c)">
+    <use href="#b" fill="#9a66ff" transform="translate(-2.8 -3.2)"/>
+    <rect x="3" y="5" width="2" height="12" fill="#c9a8ff"/>
+  </g>
+  <use href="#g" stroke="#2a1059" transform="translate(1.2 1.4)"/>
+  <use href="#g" stroke="#ffffff"/>
+  <use href="#b" fill="none" stroke="#34148a" stroke-width="2" stroke-linejoin="round"/>
 </svg>

@@ -41,7 +41,7 @@ class LiveFeedJobTest < ActiveSupport::TestCase
     assert_equal "/en/feed/entries/#{token}/reactions", frame["src"]
     assert_equal 5, frame.css(".feed__reaction--static").size
     assert_empty frame.css("button, form")
-    assert_equal %w[0 0 0 0 0], frame.css(".feed__reaction-count").map(&:text)
+    assert_equal [ "" ] * 5, frame.css(".feed__reaction-count").map(&:text)
   end
 
   test "an opening's entries go to the feed, the ticker and the strip, rendered once per locale" do

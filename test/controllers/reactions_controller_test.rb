@@ -32,9 +32,10 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal [ [ @reader.id, "heart" ] ], reactions.pluck(:player_id, :kind)
     assert_select "turbo-stream[action=replace][target=reactions-#{@entry.token}] template turbo-frame#reactions-#{@entry.token}"
-    assert_select "button[data-reaction-kind=heart][aria-pressed=true]"
-    assert_select "button[aria-pressed=true]", 1
-    assert_select "##{ReactionStream.count_id(@entry.token, "heart")}", "1"
+    assert_select ".feed__reaction--mine[data-reaction-kind=heart][aria-pressed=true]", 1
+    assert_select ".feed__reaction-choice[aria-pressed=true]", 1
+    assert_select ".feed__reaction-choice[data-reaction-kind=heart][aria-pressed=true]"
+    assert_select "[data-reaction-count='#{ReactionStream.slot(@entry.token, "heart")}']", count: 2, text: "1"
     assert_select "turbo-stream[action=update][target=reaction-status] template", "Réaction envoyée\u202f: Cœur."
 
     post reaction_path, params: { kind: "wow" }, as: :turbo_stream
@@ -42,16 +43,19 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-stream[action=update][target=reaction-status] template", "Reaction sent: Wow."
   end
 
-  test "the pressed reaction posts its removal, the others post themselves" do
+  test "the own reaction, held in place of the +, and its choice post its removal; the others post themselves" do
     sign_in(@reader)
     post reaction_path, params: { kind: "gg" }, as: :turbo_stream
 
-    assert_select "form[action='#{reaction_path}'] input[name=_method][value=delete]", 1
-    assert_select "button[data-reaction-kind=gg]" do |buttons|
-      assert_equal "true", buttons.first["aria-pressed"]
-    end
-    assert_select "button[data-reaction-kind=heart][aria-pressed=false]"
-    assert_select "form:has(button[data-reaction-kind=heart]) input[name=kind][value=heart]"
+    assert_select "form[action='#{reaction_path}'] input[name=_method][value=delete]", 2
+    assert_select "form:has(.feed__reaction--mine[data-reaction-kind=gg]) input[name=_method][value=delete]"
+    assert_select "form:has(.feed__reaction-choice[data-reaction-kind=gg]) input[name=_method][value=delete]"
+    assert_select "button[data-reaction-toggle]", 0
+    assert_select ".feed__reaction-pill--mine", 1
+    assert_select ".feed__reaction-pill--mine[data-reaction-pill=gg]"
+    assert_select ".feed__reaction-choice[data-reaction-kind=heart][aria-pressed=false]"
+    assert_select "form:has(.feed__reaction-choice[data-reaction-kind=heart]) input[name=kind][value=heart]"
+    assert_select "[data-reaction-pill=heart] form input[name=kind][value=heart]"
   end
 
   test "a reaction is changed, then removed" do
@@ -66,6 +70,7 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_empty reactions
     assert_select "button[aria-pressed=true]", 0
+    assert_select "button[data-reaction-toggle][aria-expanded=false][aria-label='Add a reaction']", 1
     assert_select "turbo-stream[action=update][target=reaction-status] template", "Reaction removed."
   end
 
@@ -124,12 +129,14 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "the answer carries no name and no database id" do
+  test "the answer names only the public players who reacted, and carries no database id" do
+    react(accounts_players(:administrator).tap { it.update!(persona_name: "Léa", visibility: :friends_only) }, @entry, "heart")
     sign_in(@reader)
 
     post reaction_path, params: { kind: "heart" }, as: :turbo_stream
 
-    assert_no_match(/Hugo|Sam/, response.body)
+    assert_select ".feed__reaction-who-names", "Sam and 1 other"
+    assert_no_match(/Hugo|Léa/, response.body)
     assert_no_match(%r{entries/#{@entry.id}/}, response.body)
     assert_no_match(/player/i, response.body)
   end
@@ -142,23 +149,26 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "turbo-frame#reactions-#{@entry.token} .feed__reaction--static", 5
     assert_select "turbo-frame button", 0
-    assert_select "##{ReactionStream.count_id(@entry.token, "thumb")}", "1"
+    assert_select "[data-reaction-count='#{ReactionStream.slot(@entry.token, "thumb")}']", "1"
+    assert_select "[data-reaction-count='#{ReactionStream.slot(@entry.token, "heart")}']", ""
 
     sign_in(@reader)
     get feed_entry_reactions_path(locale: :en, token: @entry.token)
 
-    assert_select "turbo-frame#reactions-#{@entry.token} button", 5
-    assert_select "button[aria-pressed=true]", 1
-    assert_select "button[data-reaction-kind=thumb][aria-pressed=true]"
+    assert_select "turbo-frame#reactions-#{@entry.token} .feed__reaction-pill button", 5
+    assert_select "turbo-frame#reactions-#{@entry.token} .feed__reaction-choice", 5
+    assert_select ".feed__reaction--mine[data-reaction-kind=thumb][aria-pressed=true]", 1
+    assert_select ".feed__reaction-choice[aria-pressed=true]", 1
   end
 
-  test "each reaction shows its exported icon at 16 × 16, decorative beside its hidden name" do
+  test "each reaction shows its exported icon at 20 × 20, decorative beside its hidden name" do
     sign_in(@reader)
     get feed_entry_reactions_path(locale: :en, token: @entry.token)
 
-    assert_select "button[data-reaction-kind=middle_finger] img.feed__reaction-icon[src*='middle-finger'][alt=''][width='16'][height='16']"
-    assert_select "button[data-reaction-kind=middle_finger] .visually-hidden", "Middle finger"
-    assert_select "img.feed__reaction-icon[width='16'][height='16']", 5
+    assert_select ".feed__reaction-pill button[data-reaction-kind=middle_finger] img.feed__reaction-icon[src*='middle-finger'][alt=''][width='20'][height='20']"
+    assert_select ".feed__reaction-pill button[data-reaction-kind=middle_finger] .visually-hidden", "Middle finger"
+    assert_select ".feed__reaction-choice[data-reaction-kind=middle_finger] img[src*='middle-finger'][alt=''][width='20'][height='20']"
+    assert_select "img.feed__reaction-icon[width='20'][height='20']", 5
   end
 
   test "the bar of an entry the viewer may not see is not found" do

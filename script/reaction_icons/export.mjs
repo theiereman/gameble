@@ -3,7 +3,8 @@
 // finger) as PNGs in app/frontend/images/reactions/.
 //
 // Each icon is a vector drawing in sources/<name>.svg, inspired by its emoji
-// and drawn by hand in flat colour with a dark outline. The script renders it
+// and drawn by hand: a lit side, a shaded side and an outline tinted from its
+// colour. The script renders it
 // with resvg at SUPERSAMPLE times the icon's size, then pixelates it with
 // pixelcrush, the filter of the card art, to SIZE × SIZE in COLOURS colours.
 // The app shows each pixel at 1 CSS px.
@@ -25,9 +26,9 @@ import { filter } from "pixelcrush"
 const here = dirname(fileURLToPath(import.meta.url))
 const root = join(here, "../..")
 const SOURCES = join(here, "sources")
-const SIZE = 16
+const SIZE = 20
 const SUPERSAMPLE = 16
-const COLOURS = 8
+const COLOURS = 14
 
 // ---------------------------------------------------------------------------
 // Rendering.

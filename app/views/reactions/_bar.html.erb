@@ -3,18 +3,9 @@
 <%= turbo_frame_tag "reactions-#{token}", class: "feed__reactions", role: "group", aria: { label: t("reactions.group") },
       data: { controller: "reaction-bar", action: "click->reaction-bar#press" }, **lazy_options do %>
   <% Game::FeedReaction::KINDS.each do |kind| %>
-    <% selected = summary.mine == kind %>
-    <% face = capture do %>
-      <%= image_tag vite_asset_path("images/reactions/#{kind.dasherize}.png"), alt: "", width: 16, height: 16, class: "feed__reaction-icon" %>
-      <span class="visually-hidden"><%= t("reactions.names.#{kind}") %></span>
-      <span class="feed__reaction-count" id="<%= ReactionStream.count_id(token, kind) %>"><%= summary.counts[kind] %></span>
-    <% end %>
-    <% if interactive %>
-      <%= button_to feed_entry_reaction_path(token:), method: (selected ? :delete : :post), params: ({ kind: } unless selected),
-            class: "feed__reaction", form_class: "feed__reaction-form", form: { data: { turbo_frame: "_top" } },
-            data: { reaction_kind: kind }, aria: { pressed: selected } do %><%= face %><% end %>
-    <% else %>
-      <span class="feed__reaction feed__reaction--static"><%= face %></span>
-    <% end %>
+    <%= render "reactions/pill", token:, kind:, summary:, interactive: %>
+  <% end %>
+  <% if interactive %>
+    <%= render "reactions/add", token:, summary: %>
   <% end %>
 <% end %>

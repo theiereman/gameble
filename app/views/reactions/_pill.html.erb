@@ -1,0 +1,17 @@
+<%# locals: token, kind, summary, interactive %>
+<% count = summary.counts.fetch(kind) %>
+<% slot = ReactionStream.slot(token, kind) %>
+<% face = capture do %>
+  <%= reaction_icon(kind) %>
+  <span class="visually-hidden"><%= t("reactions.names.#{kind}") %></span>
+  <span class="feed__reaction-count" data-reaction-count="<%= slot %>"><%= reaction_count_text(count) %></span>
+<% end %>
+<span class="<%= class_names("feed__reaction-pill", "feed__reaction-pill--mine": interactive && kind == summary.mine) %>" data-reaction-pill="<%= kind %>">
+  <% if interactive %>
+    <%= button_to feed_entry_reaction_path(token:), params: { kind: }, class: "feed__reaction", form_class: "feed__reaction-form",
+          form: { data: { turbo_frame: "_top" } }, data: { reaction_kind: kind }, aria: { describedby: "reaction-who-#{slot}" } do %><%= face %><% end %>
+  <% else %>
+    <span class="feed__reaction feed__reaction--static" aria-describedby="reaction-who-<%= slot %>"><%= face %></span>
+  <% end %>
+  <span class="feed__reaction-who" id="reaction-who-<%= slot %>" role="tooltip" data-reaction-names="<%= slot %>"><%= render "reactions/who", kind:, count:, names: summary.names.fetch(kind) %></span>
+</span>
