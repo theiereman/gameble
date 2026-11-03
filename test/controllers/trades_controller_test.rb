@@ -162,7 +162,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-trade-board-swap-value]", 0
 
     get home_path(locale: :fr)
-    assert_select ".hub-menu a.menu-item[href='/fr/trades'] .menu-item__badge--zero", "0"
+    assert_select ".hub-menu a.menu-item[href='/fr/trades'] .menu-item__badge", 0
     assert_select ".tab-bar__badge", 0
   end
 

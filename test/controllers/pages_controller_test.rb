@@ -159,16 +159,16 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Soutenir", "(nouvel onglet)" ], [ support.at_css(".menu-item__label").text, support.at_css(".visually-hidden").text.strip ]
     assert support.at_css("svg.menu-item__external")
     assert_nil support["data-action"]
-    # 04: the trades screen, the waiting count greyed at zero.
+    # 04: the trades screen, no count when nothing waits.
     assert_select ".hub-menu a.menu-item[href='/fr/trades'][aria-keyshortcuts='4']" do
       assert_select ".menu-item__label", "Échanges"
-      assert_select ".menu-item__badge.menu-item__badge--alert.menu-item__badge--zero", "0"
-      assert_select ".visually-hidden", "0 échange en attente de vous"
+      assert_select "#menu-trades-badge.stream-slot", 1
+      assert_select ".menu-item__badge, .visually-hidden", 0
     end
-    # 05: the Friends screen, the invitations waiting greyed at zero.
+    # 05: the Friends screen, no count when no invitation waits.
     assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='5']" do
-      assert_select ".menu-item__badge.menu-item__badge--alert.menu-item__badge--zero", "0"
-      assert_select ".visually-hidden", "0 invitation en attente de votre réponse"
+      assert_select "#menu-friends-badge.stream-slot", 1
+      assert_select ".menu-item__badge, .visually-hidden", 0
     end
     # 07: the achievements screen, none earned yet.
     assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='7'][data-hub-menu-target=item][data-turbo-prefetch=false]" do

@@ -42,7 +42,9 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     assert_equal "1 échange en attente de vous", template(streams(french, "update", "menu-trades-badge").sole).at_css(".visually-hidden").text
 
     lea = received(@lea, :en)
-    assert_equal "0", template(streams(lea, "update", "menu-trades-badge").sole).at_css(".menu-item__badge--zero").text
+    %w[menu-trades-badge plus-trades-badge].each do |target|
+      assert_empty template(streams(lea, "update", target).sole).children, "#{target} hidden at zero"
+    end
     assert_nil template(streams(lea, "update", "tab-trades-badge").sole).at_css(".tab-bar__badge"), "hidden at zero"
   end
 
@@ -69,7 +71,7 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     english = received(@hugo, :en)
     %w[menu-friends-badge plus-friends-badge].each do |target|
       menu = template(streams(english, "update", target).sole)
-      assert_equal "1", menu.at_css(".menu-item__badge.menu-item__badge--alert:not(.menu-item__badge--zero)").text, target
+      assert_equal "1", menu.at_css(".menu-item__badge.menu-item__badge--alert").text, target
       assert_equal "1 invitation waiting for your answer", menu.at_css(".visually-hidden").text, target
     end
     tab = template(streams(english, "update", "tab-invitations-badge").sole)
@@ -82,8 +84,9 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     assert_equal "1 invitation en attente de votre réponse", template(streams(french, "update", "tab-invitations-badge").sole).at_css(".visually-hidden").text
 
     sender = received(max, :fr)
-    assert_equal "0", template(streams(sender, "update", "menu-friends-badge").sole).at_css(".menu-item__badge--zero").text
-    assert_equal "0 invitation en attente de votre réponse", template(streams(sender, "update", "menu-friends-badge").sole).at_css(".visually-hidden").text
+    %w[menu-friends-badge plus-friends-badge].each do |target|
+      assert_empty template(streams(sender, "update", target).sole).children, "#{target} hidden at zero"
+    end
     assert_nil template(streams(sender, "update", "tab-invitations-badge").sole).at_css(".tab-bar__badge"), "hidden at zero"
   end
 
@@ -153,6 +156,6 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
 
     english = received(@hugo, :en)
     assert_empty streams(english, "append")
-    assert_equal "0", template(streams(english, "update", "menu-trades-badge").sole).at_css(".menu-item__badge--zero").text
+    assert_empty template(streams(english, "update", "menu-trades-badge").sole).children, "hidden at zero"
   end
 end

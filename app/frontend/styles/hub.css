@@ -124,7 +124,7 @@
   min-width: 0;
 }
 
-/* The count badges: lime, greyed at zero; steady. The capsule entry's standard one is in the accent and shows no zero. */
+/* The count badges: lime, steady, and absent at zero. The capsule entry's standard one is in the accent. */
 .menu-item__badge {
   flex: none;
   min-width: 26px;
@@ -214,8 +214,7 @@ button.menu-item:focus-visible:hover {
   color: var(--color-disabled-text);
 }
 
-.menu-item[aria-disabled="true"] .menu-item__badge,
-.menu-item__badge--zero {
+.menu-item[aria-disabled="true"] .menu-item__badge {
   background: var(--color-disabled-bg);
   box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
   color: var(--color-disabled-text);

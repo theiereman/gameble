@@ -129,7 +129,8 @@ class TradesTest < ApplicationSystemTestCase
     assert_selector ".trade-board .trade-chip--accent", text: /WAITING/i
 
     visit home_path(locale: :en)
-    assert_selector ".hub-menu a.menu-item .menu-item__badge--zero", text: "0"
+    assert_selector ".hub-menu a.menu-item #menu-trades-badge", visible: :all
+    assert_no_selector "#menu-trades-badge .menu-item__badge", visible: :all
     assert_equal "accepted", Game::Trade.find(from_lea.id).status
   end
 
