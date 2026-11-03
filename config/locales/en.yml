@@ -1551,10 +1551,10 @@ en:
           one: Steam · %{games} catalog game
           other: Steam · %{games} catalog games
           zero: Steam · %{games} catalog games
-        last_sync: 'Last sync: %{date}.'
+        last_sync_html: 'Last sync: <b>%{date}</b>'
         not_shared: Steam does not share your library. Make the game details of your
           Steam profile public.
-        synced: Synced with Steam on %{date}.
+        synced_html: Synced with Steam on <b>%{date}</b>
         title: My Steam library
     filters:
       active: 'Active filters:'

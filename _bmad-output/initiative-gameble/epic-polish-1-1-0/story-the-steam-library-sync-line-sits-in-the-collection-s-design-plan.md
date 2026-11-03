@@ -3,21 +3,19 @@ title: "The Steam library sync line sits in the collection's design"
 type: 'bugfix'
 ticket: '3'
 created: '2026-11-03'
-status: blocked
-baseline_revision: ''
+status: built
+baseline_revision: 'adb132ada9d1b686706889077885565bf29f59be'
 route: 'full'
 route_source: 'auto'
-review: ''
-review_source: ''
-lenses_ran: []
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: [quick]
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
   - '{project-root}/_bmad-output/initiative-gameble/ux-gameble/mockups/steam-library-sync-line.html'
 warnings: []
 deferred: []
-blocked_at: "2026-11-03"
-blocked_reason: "waiting for the author to pick a look in ux-gameble/mockups/steam-library-sync-line.html"
 ---
 
 <intent-contract>
@@ -26,7 +24,7 @@ blocked_reason: "waiting for the author to pick a look in ux-gameble/mockups/ste
 
 **Problem:** On the collection entry, MA BIBLIOTHÈQUE STEAM shows its sync date (or that Steam does not share the library) in a full-width sunken box with a muted light, between the kicker and a tile that fills only one of the grid's two columns. No other section has a box there, so it reads as a stray banner (author, staging v1.1.0-rc.6).
 
-**Approach (proposal A, recommended, pending the author's pick in `ux-gameble/mockups/steam-library-sync-line.html`):** put the date in the section head, right of the kicker, as MES SETS's note and OBJECTIFS's count already do: muted label, the date itself bright. When Steam does not share the library, the head carries the last sync date and the not-shared sentence sits under the head as plain muted text, like the set search's status line. No box, no light, the tile untouched.
+**Approach (proposal A of `ux-gameble/mockups/steam-library-sync-line.html`, chosen by the author on 2026-11-03):** put the date in the section head, right of the kicker, as MES SETS's note and OBJECTIFS's count already do: muted label, the date itself bright. When Steam does not share the library, the head carries the last sync date and the not-shared sentence sits under the head as plain muted text, like the set search's status line. No box, no light, the tile untouched.
 
 ## Boundaries & Constraints
 
@@ -58,12 +56,12 @@ blocked_reason: "waiting for the author to pick a look in ux-gameble/mockups/ste
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `app/helpers/custom_sets_helper.rb` -- replace `steam_library_sync_lines` with a head note (synced date, or last sync when private and synced, else nil) and a not-shared predicate or line -- the view renders two places instead of one box.
-- [ ] `app/views/library/_steam_library.html.erb` -- head wrapper holding the h2 and the note; the not-shared line under it; drop the light -- matches the sibling sections.
-- [ ] `app/frontend/styles/collection-custom-sets.css` -- remove `.steam-library__sync/__light/__lines`; add the head, note (`b` bright) and muted line rules, sharing the custom sets' head rules where a shared selector reads better -- one look for the player's sections.
-- [ ] `config/locales/fr.yml`, `config/locales/en.yml` -- `synced_html`, `last_sync_html` with `<b>%{date}</b>`, no final period -- the head notes of the other sections end without one.
-- [ ] `test/controllers/library_controller_test.rb`, `test/system/steam_library_test.rb` -- assert the head note, the not-shared line, no line for a synced library, no note for a never-synced private one, both languages -- the matrix above.
-- [ ] `DESIGN.md`, `EXPERIENCE.md` -- describe the head note and the plain not-shared line; reference the mockup -- the spines rule over the code.
+- [x] `app/helpers/custom_sets_helper.rb` -- replace `steam_library_sync_lines` with a head note (synced date, or last sync when private and synced, else nil) and a not-shared predicate or line -- the view renders two places instead of one box.
+- [x] `app/views/library/_steam_library.html.erb` -- head wrapper holding the h2 and the note; the not-shared line under it; drop the light -- matches the sibling sections.
+- [x] `app/frontend/styles/collection-custom-sets.css` -- remove `.steam-library__sync/__light/__lines`; add the head, note (`b` bright) and muted line rules, sharing the custom sets' head rules where a shared selector reads better -- one look for the player's sections.
+- [x] `config/locales/fr.yml`, `config/locales/en.yml` -- `synced_html`, `last_sync_html` with `<b>%{date}</b>`, no final period -- the head notes of the other sections end without one.
+- [x] `test/controllers/library_controller_test.rb`, `test/system/steam_library_test.rb` -- assert the head note, the not-shared line, no line for a synced library, no note for a never-synced private one, both languages -- the matrix above.
+- [x] `DESIGN.md`, `EXPERIENCE.md` -- describe the head note and the plain not-shared line; reference the mockup -- the spines rule over the code.
 
 **Acceptance Criteria:**
 - Given a synced library, when the player opens the collection on desktop, then the date sits right of MA BIBLIOTHÈQUE STEAM on the kicker's line and nothing stands between the head and the tile.
@@ -72,19 +70,29 @@ blocked_reason: "waiting for the author to pick a look in ux-gameble/mockups/ste
 
 ## Implementation Notes
 
+- `steam_library_sync_lines` became `steam_library_head_note`: nil before any sync, the last sync note when private, else the synced note; the view shows `p.steam-library__not-shared` exactly when the library is private.
+- `.steam-library__head` shares the `.custom-sets__head` rule, so the phone wrap comes for free; the old box comment went with the box.
+- The French assertion on the note uses `.strip`, not `.squish`, which would turn the narrow no-break space before the colon into a plain space.
+- The date stays bright inside the muted note, as in the approved mockup and OBJECTIFS's count.
+
 ## Plan Change Log
 
 ## Review Triage Log
 
+### 2026-11-03 — Review pass
+- verdicts: 0 findings — high 0, medium 0, low 0, false 0, maybe-false 0
+- findings: none; the quick lens checked the three acceptance criteria, the matrix rows, both locales and the AGENTS.md rules against the diff.
+
 ## Design Notes
 
-The author picks the look first (ticket note: the approval is the hitl step). The mockup `ux-gameble/mockups/steam-library-sync-line.html` shows today's box and three proposals, each synced and not shared, desktop 1280 px and phone 390 px, in French with the project's tokens:
+**Author decision (2026-11-03): proposal A.** In the author's words (translated from French): the sentence « Synchronisée avec Steam le 3 novembre 2026. » just needs to sit better in the UI, for example next to the title, faded. B and C are rejected.
+
+The mockup `ux-gameble/mockups/steam-library-sync-line.html` shows today's box and three proposals, each synced and not shared, desktop 1280 px and phone 390 px, in French with the project's tokens:
 
 - **A, recommended: date in the section head.** Reuses the head-note pattern MES SETS and OBJECTIFS already show right above, so the player's three sections read alike. Smallest change, no effect on the tile, its accessible name or search results; a plain-text note is read naturally by a screen reader.
 - **B: date as the tile's second secondary line** (the ticket's example). Under the kind line, recto and verso; the not-shared sentence under the grid. Costs: the fixed 280 px tile loses card room, the faces are `aria-hidden` so the date must join the tile's accessible sentence, the shared tile partial and the search results change too, and the desktop grid keeps its empty right cell.
 - **C: a sync block in the empty grid cell beside the tile** (under it on the phone). Fills the desktop hole and has room to explain the private case, but a 280 px block for two lines of information outweighs it, it looks like a tile without being one, and on the phone it becomes a box again.
 
-If the author picks B or C, rewrite Code Map and Tasks for it before building: B touches `_set_progress_tile.html.erb`, `set_tile_label` and a new kind-line key; C adds a block to the section's tile list and two new copy keys.
 
 ## Verification
 
@@ -102,3 +110,21 @@ If the author picks B or C, rewrite Code Map and Tasks for it before building: B
 Status: blocked
 Blocking condition: waiting for the author to pick a look in ux-gameble/mockups/steam-library-sync-line.html
 Planning only: the mockup shows today's box and proposals A (recommended), B and C, synced and not shared, desktop and phone. No application code changed. Once the author picks one, record the choice here, rewrite Code Map and Tasks if it is not A, and set the plan to ready-for-dev.
+
+Unblocked 2026-11-03: the author picked proposal A; the build follows.
+
+### Build result (2026-11-03)
+
+Status: built
+Summary: the Steam library section shows its sync date in its head, right of the kicker, muted with the date bright; when Steam does not share the library the head gives the last sync date and the not-shared sentence sits under the head as plain muted text. The sunken box and its light are gone; the tile is untouched.
+Files:
+- `app/helpers/custom_sets_helper.rb` -- `steam_library_head_note` replaces `steam_library_sync_lines`.
+- `app/views/library/_steam_library.html.erb` -- head with the note, the not-shared line under it, no box or light.
+- `app/frontend/styles/collection-custom-sets.css` -- head shares the custom sets' head rule; note and not-shared styles; box and light removed.
+- `config/locales/en.yml`, `config/locales/fr.yml` -- `synced_html`, `last_sync_html` with the date in bold, no final period.
+- `test/controllers/library_controller_test.rb`, `test/system/steam_library_test.rb` -- assert the head note, the not-shared line and their places, both languages.
+- `ux-gameble/DESIGN.md`, `ux-gameble/EXPERIENCE.md` -- the head note and the plain line, the mockup cited as chosen.
+Review: quick lens, 0 findings; no patch, nothing deferred, nothing rejected.
+Follow-up review recommended: false (no patched entry).
+Verification: library controller tests 77 runs 0 failures; steam library system tests 3 runs 0 failures; `npm run lint:css`, `npm run format:check`, `script/check_file_sizes`, `script/check_planning_references`, `bin/rails zeitwerk:check`, `bundle exec packwerk check`, `i18n-tasks missing`, rubocop on the touched Ruby files all clean. `i18n-tasks health` reports 42 unused keys, one inconsistent interpolation and normalization, all present before this change and none on these keys.
+Residual risks: none known; erb_lint is not in the bundle, so the view went through the tests only.

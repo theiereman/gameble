@@ -898,9 +898,9 @@ fr:
           zero: "Steam · %{games} jeu du catalogue"
           one: "Steam · %{games} jeu du catalogue"
           other: "Steam · %{games} jeux du catalogue"
-        synced: "Synchronisée avec Steam le %{date}."
+        synced_html: "Synchronisée avec Steam le <b>%{date}</b>"
         not_shared: "Steam ne partage pas votre bibliothèque. Rendez publics les détails de jeux de votre profil Steam."
-        last_sync: "Dernière synchronisation : %{date}."
+        last_sync_html: "Dernière synchronisation : <b>%{date}</b>"
     set_kinds:
       theme: "Thème"
       franchise: "Franchise"

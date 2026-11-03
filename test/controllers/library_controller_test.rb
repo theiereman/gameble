@@ -1790,7 +1790,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
   def steam_library_section = css_select("section.steam-library").sole
 
-  test "a synced Steam library set has its section after MES SETS: the sync date, then its tile with its kind line, owned over total and no tier" do
+  test "a synced Steam library set has its section after MES SETS: the sync date in its head, then its tile with its kind line, owned over total and no tier" do
     player = accounts_players(:player)
     library = create_library_set(player, card_ids: fixture_card_ids.first(3), synced_at: Time.zone.local(2026, 10, 29, 5))
     hold_all(player, [ catalog_card_seasons(:common_card_one).id ])
@@ -1803,9 +1803,12 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Chercher un set", "Objectifs", "Mes sets", "Ma bibliothèque Steam" ], css_select(".set-entry h2").map(&:text)
     assert_equal 1, css_select(".custom-sets a.set-tile").size
     within_section = steam_library_section
-    assert_equal "Synchronisée avec Steam le 29 octobre 2026.", within_section.at_css("p.steam-library__sync").text.squish
-    assert_nil within_section.at_css("p.steam-library__sync b")
-    tile = within_section.at_css("p.steam-library__sync + ul.set-tiles > li > a.set-tile[href='/fr/library/custom-sets/#{library.token}']")
+    head = within_section.at_css("> div.steam-library__head")
+    assert_equal "Ma bibliothèque Steam", head.at_css("> h2#steam-library-title").text
+    assert_equal "Synchronisée avec Steam le 29 octobre 2026", head.at_css("> p.steam-library__note").text.squish
+    assert_equal "29 octobre 2026", head.at_css("p.steam-library__note b").text
+    assert_nil within_section.at_css(".steam-library__not-shared")
+    tile = within_section.at_css("div.steam-library__head + ul.set-tiles > li > a.set-tile[href='/fr/library/custom-sets/#{library.token}']")
     recto = tile.at_css(".set-tile__face--recto")
     assert_equal "Ma bibliothèque Steam", recto.at_css(".set-tile__name").text
     assert_equal "Steam · 3 jeux du catalogue", recto.at_css(".set-tile__kind").text
@@ -1825,17 +1828,21 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :en)
 
-    sync = steam_library_section.at_css("p.steam-library__sync")
-    lines = sync.at_css(".steam-library__lines").children
-    assert_equal [ "Steam does not share your library. Make the game details of your Steam profile public.", "br", "Last sync: October 1, 2026." ],
-      lines.map { it.name == "br" ? "br" : it.text }
+    assert_equal "Last sync: October 1, 2026", steam_library_section.at_css(".steam-library__head > p.steam-library__note").text.squish
+    assert_equal "October 1, 2026", steam_library_section.at_css("p.steam-library__note b").text
+    assert_equal "Steam does not share your library. Make the game details of your Steam profile public.",
+      steam_library_section.at_css("div.steam-library__head + p.steam-library__not-shared").text.squish
+    assert steam_library_section.at_css("p.steam-library__not-shared + ul.set-tiles")
     assert_equal "My Steam library, 0 cards out of 3", steam_library_section.at_css("a.set-tile > .visually-hidden").text
 
     get library_path(locale: :fr)
-    assert_equal "Dernière synchronisation\u202F: 1er octobre 2026.", steam_library_section.at_css("p.steam-library__sync b").text
+    assert_equal "Dernière synchronisation\u202F: 1er octobre 2026", steam_library_section.at_css("p.steam-library__note").text.strip
+    assert_equal "1er octobre 2026", steam_library_section.at_css("p.steam-library__note b").text
+    assert_equal "Steam ne partage pas votre bibliothèque. Rendez publics les détails de jeux de votre profil Steam.",
+      steam_library_section.at_css("p.steam-library__not-shared").text.squish
   end
 
-  test "a library private at its first sync shows the not-shared line without a last sync" do
+  test "a library private at its first sync shows the not-shared line and no head note" do
     player = accounts_players(:player)
     create_library_set(player, card_ids: [], synced_at: nil, library_private_since: 1.day.ago)
     sign_in(player)
@@ -1843,7 +1850,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en)
 
     assert_equal "Steam does not share your library. Make the game details of your Steam profile public.",
-      steam_library_section.at_css("p.steam-library__sync").text.squish
+      steam_library_section.at_css("div.steam-library__head + p.steam-library__not-shared").text.squish
+    assert_nil steam_library_section.at_css(".steam-library__note")
     assert_equal "Steam · 0 catalog games", steam_library_section.at_css(".set-tile__face--recto .set-tile__kind").text
   end
 

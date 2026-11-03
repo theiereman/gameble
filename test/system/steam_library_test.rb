@@ -63,7 +63,9 @@ class SteamLibraryTest < ApplicationSystemTestCase
 
     within("section.steam-library") do
       assert_selector "h2", text: "MY STEAM LIBRARY"
-      assert_text "Synced with Steam on #{today}."
+      assert_selector ".steam-library__head .steam-library__note", text: "Synced with Steam on #{today}"
+      assert_selector ".steam-library__note b", text: today
+      assert_no_selector ".steam-library__not-shared"
       assert_link class: "set-tile", text: /My Steam library/
       assert_selector ".set-tile__face--recto .set-tile__kind", text: "STEAM · 2 CATALOG GAMES"
       assert_selector ".set-tile__face--recto .set-tile__count", text: "1/2"
@@ -97,8 +99,9 @@ class SteamLibraryTest < ApplicationSystemTestCase
     visit library_path(locale: :en)
 
     within("section.steam-library") do
-      assert_text "Steam does not share your library. Make the game details of your Steam profile public."
-      assert_selector "b", text: "Last sync: #{today}."
+      assert_selector ".steam-library__not-shared", text: "Steam does not share your library. Make the game details of your Steam profile public."
+      assert_selector ".steam-library__head .steam-library__note", text: "Last sync: #{today}"
+      assert_selector ".steam-library__note b", text: today
       assert_selector ".set-tile__face--recto .set-tile__count", text: "0/2"
     end
 
