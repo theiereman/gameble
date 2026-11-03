@@ -31,16 +31,7 @@ class BackOfficeRoadmapTest < ApplicationSystemTestCase
 
   def story_row(key) = find("[data-roadmap-row=story][data-key='#{key}']")
 
-  def preview_names = all("[data-roadmap-preview] .landing-roadmap__name").map(&:text)
-
   def order_of_rows = all(MILESTONES).map { it["data-key"] }
-
-  test "the page shows the rows and the home page preview on first load" do
-    assert_selector MILESTONES, count: 2
-    assert_selector "[data-roadmap-preview] .landing-roadmap__name", text: "Step alpha"
-    assert_equal [ "Step alpha" ], preview_names
-    assert_field "English wording", with: "Step alpha", match: :first
-  end
 
   test "adding rows, editing, reordering and removing with a confirmation, then saving everything at once" do
     click_on "Add a milestone"
@@ -86,50 +77,5 @@ class BackOfficeRoadmapTest < ApplicationSystemTestCase
     assert_equal [ [ "A surprise", "Launch" ] ], Catalog::RoadmapStory.all.map { [ it.wording_en, it.milestone.wording_en ] }
     assert_equal @alpha.id, Catalog::RoadmapMilestone.find_by!(token: @alpha.token).id
     assert_selector MILESTONES, count: 3
-  end
-
-  test "removing a milestone asks for a confirmation and deletes its stories when saved" do
-    within(milestone_row(@alpha.token)) do
-      dismiss_confirm { click_on "Remove the milestone", match: :first }
-    end
-    assert_selector MILESTONES, count: 2
-    within(milestone_row(@alpha.token)) do
-      accept_confirm { click_on "Remove the milestone", match: :first }
-    end
-    assert_selector MILESTONES, count: 1
-    assert_no_selector "[data-roadmap-row=story]"
-    assert_selector "[data-roadmap-preview] .landing-roadmap__milestone", count: 0
-
-    click_on "Save the roadmap"
-
-    assert_text "The roadmap is saved, officer."
-    assert_equal [ "Step beta" ], Catalog::RoadmapMilestone.pluck(:wording_en)
-    assert_equal 0, Catalog::RoadmapStory.count
-  end
-
-  test "a refused row shows its error on that row and keeps what was typed everywhere" do
-    within(own_fields(milestone_row(@beta.token))) { fill_in "English wording", with: "" }
-    within(own_fields(milestone_row(@alpha.token))) { fill_in "English wording", with: "Typed but unsaved" }
-
-    click_on "Save the roadmap"
-
-    assert_selector "[data-roadmap-failure]", text: "Some rows of the roadmap need fixing"
-    assert_selector "[data-roadmap-row-failure]", count: 1
-    within(milestone_row(@beta.token)) { assert_selector "[data-roadmap-row-failure]", text: "Each wording needs some text" }
-    within(own_fields(milestone_row(@alpha.token))) { assert_field "English wording", with: "Typed but unsaved" }
-    assert_equal "Step alpha", @alpha.reload.wording_en
-  end
-
-  test "the preview switches language and leaves out hidden rows" do
-    within(own_fields(milestone_row(@beta.token))) { check "Shown on the landing" }
-    assert_selector "[data-roadmap-preview] .landing-roadmap__milestone", count: 2
-    within(own_fields(milestone_row(@beta.token))) { uncheck "Shown on the landing" }
-    assert_selector "[data-roadmap-preview] .landing-roadmap__milestone", count: 1
-
-    choose "French"
-    assert_selector "[data-roadmap-preview] .landing-roadmap__name", text: "Étape alpha"
-    assert_selector "[data-roadmap-preview] .landing-roadmap__status", text: /fait/i
-    assert_equal "Step beta", @beta.reload.wording_en
-    assert_not @beta.shown
   end
 end

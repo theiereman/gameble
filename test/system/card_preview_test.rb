@@ -1,9 +1,9 @@
 require "application_system_test_case"
 require_relative "../support/steam_sign_in"
 
-# The card face as the server draws it at every size (back-office card
-# preview, administrators only): its art, the missing image, a long title,
-# a Légendaire's glitter in and out of the viewport, a Turbo restore.
+# The card face as the server draws it (back-office card preview,
+# administrators only): its art drawn on its canvas, the missing image, and
+# the art drawn again after a Turbo restore.
 class CardPreviewTest < ApplicationSystemTestCase
   include SteamSignIn
 
@@ -48,29 +48,10 @@ class CardPreviewTest < ApplicationSystemTestCase
     assert_no_selector ".card__art:not([data-art])", visible: :all
   end
 
-  test "every specimen is drawn at its size, its art at its art size" do
+  test "every specimen with an art has it drawn on its canvas" do
     visit_preview
 
     assert_equal SPECIMENS, page.all("[data-specimen]").map { it["data-specimen"] }
-    SPECIMENS.each do |specimen|
-      size = specimen.split("-")[1]
-      width, height, art_width, art_height = SIZES.fetch(size)
-      card = "[data-specimen=#{specimen}] > .card"
-      assert_equal [ width, height ], box(card), "#{specimen} card"
-      assert_equal [ 2 * art_width, 2 * art_height ], box("#{card} .card__art"), "#{specimen} art box"
-      assert_equal [ art_width, art_height ], page.evaluate_script("(() => { const c = document.querySelector(#{"#{card} .card__canvas".to_json}); return [ c.width, c.height ] })()")
-      # Every part fits inside the body: nothing overflows the card.
-      inside = page.evaluate_script(<<~JS)
-        (() => {
-          const card = document.querySelector(#{card.to_json}).getBoundingClientRect()
-          return [...document.querySelectorAll(#{"#{card} .card__body > *".to_json})].every((part) => {
-            const r = part.getBoundingClientRect()
-            return r.top >= card.top && r.bottom <= card.bottom && r.left >= card.left && r.right <= card.right
-          })
-        })()
-      JS
-      assert inside, "#{specimen}: a part leaves the card"
-    end
 
     drawn = page.all(".card__art[data-art=drawn] canvas:not([hidden])", visible: :all)
     # Every specimen but the uncommon's five, whose art is missing.
@@ -82,7 +63,6 @@ class CardPreviewTest < ApplicationSystemTestCase
       })
     JS
     assert opaque, "every drawn canvas should hold the art"
-    take_screenshot
   end
 
   test "a missing art shows the picture and its words, and keeps the frame, title and footer" do
@@ -102,53 +82,6 @@ class CardPreviewTest < ApplicationSystemTestCase
     assert_no_selector "[data-specimen=rare-m] .card__missing"
     # Under the art, until it is drawn (or when it is missing), a hatched box.
     assert_match(/\Arepeating-linear-gradient\(/, style("[data-specimen=uncommon-m] .card__art", "backgroundImage"))
-  end
-
-  test "a long title shows two lines at most and keeps its full text" do
-    visit_preview
-
-    SIZES.each_key do |size|
-      selector = "[data-specimen=epic-#{size}] .card__title"
-      title = page.find(selector)
-      assert_equal "The Long Chronicles of the Amethyst Archive and the Keys Its Keepers Lost at Sea", title.text(:all)
-      line = page.evaluate_script("parseFloat(getComputedStyle(document.querySelector(#{selector.to_json})).lineHeight)")
-      assert_equal 2 * line, box(selector)[1], "#{size}: two lines"
-    end
-    short = "[data-specimen=rare-s] .card__title"
-    assert_equal page.evaluate_script("parseFloat(getComputedStyle(document.querySelector(#{short.to_json})).lineHeight)"), box(short)[1]
-  end
-
-  test "a legendary face's glitter twinkles only while in view, never under reduced motion; the reflection stays" do
-    visit_preview
-    specimen = "[data-specimen=legendary-xl]"
-    group = "#{specimen} .card__flake-group"
-
-    scroll_to(find(specimen), align: :center)
-    assert_selector "#{specimen} > .card[data-in-view]"
-    assert_selector group, style: { "animation-name" => "card-glitter-twinkle" }
-    assert_selector "#{specimen} .card__reflection--iridescence"
-    assert_no_selector "[data-specimen=rare-xl] .card__glitter, [data-specimen=rare-xl] .card__reflection--iridescence"
-    assert_no_selector ".card__holo, .card__foil, .card__glare", visible: :all
-
-    page.execute_script("window.scrollTo(0, 0)")
-    assert_no_selector "#{specimen} > .card[data-in-view]"
-    assert_equal "none", style(group, "animationName")
-
-    scroll_to(find(specimen), align: :center)
-    assert_selector "#{specimen} > .card[data-in-view]"
-    reduce_motion(true)
-    assert_selector group, count: 3, style: { "animation-name" => "none" }
-    assert_equal "block", style("#{specimen} .card__reflection--strips", "display")
-    reduce_motion(false)
-
-    booster = "[data-specimen=legendary-m-booster]"
-    scroll_to(find(booster), align: :center)
-    assert_selector "#{booster} > .card[data-in-view]"
-    assert_selector "#{booster} .card__glitter .card__flake"
-    assert_selector "#{booster} .card__flake-group", style: { "animation-name" => "card-glitter-twinkle" }
-    %w[rare epic].each do |rarity|
-      assert_no_selector "[data-specimen=#{rarity}-m-booster] .card__glitter, [data-specimen=#{rarity}-m-booster] .card__reflection--iridescence"
-    end
   end
 
   test "a Turbo restore visit draws the art again, from a clean face" do

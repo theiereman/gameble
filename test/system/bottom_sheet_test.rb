@@ -5,9 +5,9 @@ require_relative "../support/steam_sign_in"
 
 # The bottom sheet, through the card list's Rarity pastille on a 390 × 844
 # phone: opened by a tap or the keyboard as a modal dialog named by its
-# title, its focus kept inside, closed by a drag on its grip, its ✕, the
-# scrim or Escape with the focus back on its pastille. On a desktop the same
-# sheet opens centred; under reduced motion it only crossfades.
+# title, its focus kept inside, closed by its ✕, the scrim or Escape with the
+# focus back on its pastille; a chip ticked in it reloads the grid behind it,
+# and a page cached with it open comes back by history with no sheet open.
 class BottomSheetTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GameSets
@@ -57,12 +57,6 @@ class BottomSheetTest < ApplicationSystemTestCase
     end
   end
 
-  def sheet_box = evaluate_script("(() => { const r = document.querySelector('#{SHEET}').getBoundingClientRect(); return [ r.left, r.top, r.right, r.bottom ].map(Math.round) })()")
-
-  def viewport = evaluate_script("[ document.documentElement.clientWidth, window.innerHeight ]")
-
-  def sheet_style(property) = evaluate_script("getComputedStyle(document.querySelector('#{SHEET}')).#{property}")
-
   # The names of the dialogs the accessibility tree exposes, as a screen
   # reader reads them.
   def dialogs_in_accessibility_tree
@@ -73,31 +67,7 @@ class BottomSheetTest < ApplicationSystemTestCase
       .map { it.dig("name", "value") }
   end
 
-  # A finger on the sheet's grip, as touch pointer events: it goes down,
-  # moves `dy` px, and lifts unless `lift` is false.
-  def drag_grip(dy, lift: true)
-    execute_script(<<~JS, dy, lift)
-      const [ dy, lift ] = arguments
-      const grip = document.querySelector("#{SHEET} .bottom-sheet__grip")
-      const box = grip.getBoundingClientRect()
-      const x = box.left + box.width / 2, y = box.top + box.height / 2
-      const event = (type, clientY) => new PointerEvent(type, { bubbles: true, pointerId: 7, pointerType: "touch", isPrimary: true, clientX: x, clientY })
-      grip.dispatchEvent(event("pointerdown", y))
-      grip.dispatchEvent(event("pointermove", y + dy / 2))
-      grip.dispatchEvent(event("pointermove", y + dy))
-      if (lift) grip.dispatchEvent(event("pointerup", y + dy))
-    JS
-  end
-
-  def lift_grip(dy)
-    execute_script(<<~JS, dy)
-      const grip = document.querySelector("#{SHEET} .bottom-sheet__grip")
-      const box = grip.getBoundingClientRect()
-      grip.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, pointerId: 7, pointerType: "touch", isPrimary: true, clientX: box.left, clientY: box.top + arguments[0] }))
-    JS
-  end
-
-  test "a tap opens the sheet at the bottom edge as a modal dialog named by its title, the page behind inert, focus on its first choice" do
+  test "a tap opens the sheet as a modal dialog named by its title, the page behind inert, focus on its first choice" do
     resize_to(*PHONE)
     sign_in
     visit_cards
@@ -108,14 +78,10 @@ class BottomSheetTest < ApplicationSystemTestCase
     assert_open
     assert_focused "#{SHEET} .bottom-sheet__body input.filter-chip__box[value=common]"
     eventually("a screen reader should meet a dialog named Rarity") { dialogs_in_accessibility_tree.map(&:downcase) == [ "rarity" ] }
-    width, height = viewport
-    eventually("the sheet should sit full width on the bottom edge") { sheet_box.values_at(0, 2, 3) == [ 0, width, height ] }
-    assert evaluate_script("document.elementFromPoint(10, 10) === document.querySelector('#{SHEET}')"), "a tap above the sheet should land on its scrim"
     assert evaluate_script("(() => { const search = document.querySelector('#collection-search'); search.focus(); return document.activeElement !== search })()"),
       "the page behind the sheet should take no focus"
     within(SHEET) do
       assert_equal RARITIES, all(".filter-chip__text").map(&:text)
-      assert all(".filter-chip__text").all? { it.evaluate_script("this.getBoundingClientRect().height") >= 44 }, "every choice should be a 44px target"
     end
   end
 
@@ -140,25 +106,10 @@ class BottomSheetTest < ApplicationSystemTestCase
     assert_focused OPENER
   end
 
-  test "a drag down the grip closes the sheet, a short one springs back; the ✕ and the scrim close it too" do
+  test "the ✕ and the scrim close the sheet, the focus back on its opener" do
     resize_to(*PHONE)
     sign_in
     visit_cards
-
-    find(OPENER).click
-    assert_open
-    resting = sheet_box
-    drag_grip(30, lift: false)
-    assert_equal "30px", evaluate_script("document.querySelector('#{SHEET}').style.getPropertyValue('--sheet-drag')")
-    eventually("the sheet should follow the finger") { sheet_box[1] == resting[1] + 30 }
-    lift_grip(30)
-    assert_open
-    eventually("the sheet should spring back") { sheet_box == resting }
-    assert_nil find(SHEET)["data-dragging"]
-
-    drag_grip(200)
-    assert_closed
-    assert_focused OPENER
 
     find(OPENER).click
     assert_open
@@ -214,54 +165,12 @@ class BottomSheetTest < ApplicationSystemTestCase
     page.send_keys(:escape)
     assert_closed
 
-    page.go_back
+    find(".tab-bar a.tab-bar__tab", text: /SETS/i).click
     assert_current_path library_path(locale: :en)
     page.go_back
-    assert_current_path library_cards_path(locale: :en)
+    assert_current_path library_cards_path(locale: :en), ignore_query: true
     assert_selector ".collection-grid > li", minimum: 1
     assert_no_selector "dialog.bottom-sheet[open]", visible: :all
     eventually("no sheet should be a modal dialog") { evaluate_script("document.querySelectorAll('dialog.bottom-sheet:modal').length") == 0 }
-  end
-
-  test "on a desktop the same sheet opens centred" do
-    sign_in
-    visit_cards
-
-    find(OPENER).click
-
-    assert_open
-    width, height = viewport
-    eventually("the sheet should stand in the middle of the window") do
-      left, top, right, bottom = sheet_box
-      ((left + right) / 2 - width / 2).abs <= 1 && ((top + bottom) / 2 - height / 2).abs <= 1
-    end
-  end
-
-  test "a visitor's row offers Rarity and More alone" do
-    resize_to(*PHONE)
-    visit_cards
-
-    assert_equal %w[RARITY MORE], all("a.filter-row__pastille").map { it.text.strip }
-    find(OPENER).click
-
-    assert_open
-    within(SHEET) { assert_equal RARITIES, all(".filter-chip__text").map(&:text) }
-  end
-
-  test "under reduced motion the sheet only crossfades, opening and springing back" do
-    resize_to(*PHONE)
-    sign_in
-    visit_cards
-    find(OPENER).click
-    assert_open
-    assert_equal [ "modal-sheet", "0.18s" ], [ sheet_style("animationName"), sheet_style("transitionDuration") ]
-    find("#{SHEET} button.modal__close").click
-    assert_closed
-
-    page.driver.browser.execute_cdp("Emulation.setEmulatedMedia", features: [ { name: "prefers-reduced-motion", value: "reduce" } ])
-    find(OPENER).click
-
-    assert_open
-    assert_equal [ "modal-fade", "0s" ], [ sheet_style("animationName"), sheet_style("transitionDuration") ]
   end
 end

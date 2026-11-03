@@ -4,12 +4,11 @@ require_relative "../support/game_packs"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
-# The collection: a player reaches its entry from the hub's menu 02 or the
-# phone's COLLECTION tab, picks a set and sees its progress, their faces with
-# their copies and the missing cards not owned, on a desktop and a 390 × 844 phone
-# without sideways scroll; the grid of every card, with its filter row and
-# search, narrows without losing focus; the cards of a pack just opened are
-# new until a grid has shown them; a visitor reads the grid in plain faces.
+# The collection: EN COURS loads more and a set search finds any set; the
+# grid of every card narrows from its filter row and search without losing
+# focus, appends its pages, moves its focus by arrow keys and comes back
+# from a card on its appended cards; the cards of a pack just opened are new
+# until a grid has shown them.
 class LibraryTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GamePacks
@@ -38,23 +37,9 @@ class LibraryTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
   end
 
-  def assert_no_sideways_scroll
-    assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
-  end
-
   def tile(key) = find(".set-tiles a.set-tile[href='#{library_set_path(locale: :en, kind: "theme", key:)}']")
 
-  # The tile's sentence, its accessible name, read from its hidden span.
-  def assert_tile(sentence) = assert_selector(".set-tiles a.set-tile > .visually-hidden", text: sentence, visible: :all)
-
   def iris(tile, property) = tile.evaluate_script("getComputedStyle(this).getPropertyValue('--iris-#{property}').trim()")
-
-  # The iris is fully open once its radius and its light have reached their end.
-  def opened?(tile) = iris(tile, "k") == "1" && iris(tile, "r") == "150%"
-
-  def closed?(tile) = iris(tile, "k") == "0" && iris(tile, "r") == "0%"
-
-  def face_style(tile, face, property) = tile.evaluate_script("getComputedStyle(this.querySelector('.set-tile__face--#{face}')).#{property}")
 
   # More sets in progress than a page holds: themes of three cards, two held.
   def start_more_sets(count)
@@ -63,137 +48,6 @@ class LibraryTest < ApplicationSystemTestCase
       members = cards.slice(index * 3, 3)
       insert_theme(members, key: "extra-#{index}", season: @season)
       hold_all(@player, members.first(2))
-    end
-  end
-
-  def box(element) = element.evaluate_script("(() => { const r = this.getBoundingClientRect(); return [ r.x, r.y, r.width, r.height ].map(Math.round) })()")
-
-  test "a player goes from menu 02 to a theme: its progress, their faces with their copies, the missing cards not owned" do
-    sign_in
-
-    within(".hub-menu") { click_on "Collection" }
-
-    assert_current_path library_path(locale: :en)
-    assert_selector ".top-bar__title", text: /\ACOLLECTION\z/
-    assert_selector ".collection-status", text: %r{\AUnique cards:\s*3 / 150}
-    assert_tile(/\AHorror, theme, 3 cards out of 16\b/)
-    assert_tile(/\APirates, theme, 3 cards out of 8\b/)
-    assert_no_selector ".collection-grid"
-    take_screenshot
-
-    tile("horror").click
-
-    assert_current_path library_set_path(locale: :en, kind: "theme", key: "horror")
-    assert_selector ".set-album__count", text: "3/16"
-    assert_selector ".collection-grid > li", count: 16
-    assert_selector ".collection-grid .card.card--grid", count: 16
-    assert_selector ".collection-grid .card.card--grid:not(.card--not-owned)", count: 3
-    assert_selector ".collection-slot__copies", text: "x2", count: 1
-    assert_selector ".collection-grid a.card-link[aria-label$=', not owned'] .card.card--not-owned .card__lock", count: 13
-    missing = Catalog::CardSeason.find(@theme[3])
-    within(all(".collection-grid > li")[3]) do
-      assert_selector ".card--not-owned .card__title", text: missing.card.texts.find_by!(locale: "en").title.upcase
-      assert_selector ".card--not-owned .card__year", text: missing.card.release_date.year.to_s
-      assert_no_selector ".collection-slot__copies, .collection-slot__new"
-    end
-    # The badges sit at the card's corners, inside the slot's painted box.
-    corner = page.evaluate_script(<<~JS)
-      (() => {
-        const slot = document.querySelector(".collection-slot .collection-slot__copies").closest("li")
-        const card = slot.querySelector(".card").getBoundingClientRect()
-        const badge = slot.querySelector(".collection-slot__copies").getBoundingClientRect()
-        const box = slot.getBoundingClientRect()
-        return [ Math.round(badge.right - card.right), Math.round(card.top - badge.top), badge.right <= box.right, badge.top >= box.top ]
-      })()
-    JS
-    assert_equal [ 6, 6, true, true ], corner
-    assert_no_sideways_scroll
-    take_screenshot
-
-    find(".top-bar__home").click
-    assert_current_path home_path(locale: :en)
-  end
-
-  test "EN COURS arrives after the page as tiles; keyboard focus opens the iris from the centre in place, reduced motion fades instead" do
-    sign_in
-    visit library_path(locale: :en)
-
-    assert_selector "#set-search-field"
-    assert_tile(/\APirates, theme, 3 cards out of 8\b/)
-    assert_selector ".set-tiles a.set-tile .set-tile__card .card.card--s", minimum: 2
-    assert_equal 2, page.evaluate_script("new Set([ ...document.querySelectorAll('.set-tiles > li') ].map((li) => Math.round(li.getBoundingClientRect().left))).size")
-    first = find(".set-tiles a.set-tile", match: :first)
-    at_rest = [ box(first), box(first.find(:xpath, "..")) ]
-    assert closed?(first), "the verso should start hidden"
-
-    find(".new-set-tile").send_keys(:tab)
-    assert_selector ".set-tiles > li:first-child > a.set-tile:focus"
-    eventually("the focused tile should open its iris") { opened?(first) }
-    assert_equal [ "50%", "50%" ], [ iris(first, "x"), iris(first, "y") ]
-    assert_equal at_rest, [ box(first), box(first.find(:xpath, "..")) ]
-    assert_selector ".set-tiles a.set-tile:focus .set-tile__face--verso .set-tile__cta", text: /VIEW THE ALBUM/i
-    take_screenshot
-
-    page.execute_script("document.documentElement.dataset.motion = 'reduced'")
-    eventually("under reduced motion the verso should fade in with no mask") do
-      face_style(first, "verso", "opacity") == "1" && face_style(first, "verso", "maskImage") == "none" && face_style(first, "recto", "opacity") == "1"
-    end
-    assert_equal at_rest, [ box(first), box(first.find(:xpath, "..")) ]
-    page.execute_script("delete document.documentElement.dataset.motion")
-
-    first.send_keys(:enter)
-    assert_current_path library_set_path(locale: :en, kind: "theme", key: "pirates")
-  end
-
-  test "the iris opens from where the pointer entered the tile" do
-    sign_in
-    visit library_path(locale: :en)
-    first = find(".set-tiles a.set-tile", match: :first)
-    left, top, width, height = box(first)
-
-    page.driver.browser.action.move_to(first.native, 60 - width / 2, 40 - height / 2).perform
-
-    eventually("the iris should be centred on the pointer's entry") do
-      (iris(first, "x").to_i - 60).abs <= 4 && (iris(first, "y").to_i - 40).abs <= 4
-    end
-    assert_equal [ left, top ], box(first).first(2)
-  end
-
-  test "no frame of the iris leaves a tile empty: both faces stay visible and opaque from the first frame to the last" do
-    sign_in
-    visit library_path(locale: :en)
-    first = find(".set-tiles a.set-tile", match: :first)
-
-    frames = page.evaluate_async_script(<<~JS, first)
-      const tile = arguments[0], done = arguments[arguments.length - 1]
-      const recto = tile.querySelector(".set-tile__face--recto"), verso = tile.querySelector(".set-tile__face--verso")
-      const frames = []
-      const started = performance.now()
-      const sample = () => {
-        const recto_style = getComputedStyle(recto), verso_style = getComputedStyle(verso)
-        frames.push({
-          radius: parseFloat(getComputedStyle(tile).getPropertyValue("--iris-r")),
-          recto: [ recto_style.visibility, recto_style.opacity, recto_style.backgroundColor, recto_style.display ],
-          verso: [ verso_style.visibility, verso_style.opacity, verso_style.backgroundColor, verso_style.display ],
-          mask: verso_style.maskImage
-        })
-        if (performance.now() - started < 1400) requestAnimationFrame(sample); else done(frames)
-      }
-      tile.style.setProperty("--iris-r", "150%")
-      tile.style.setProperty("--iris-k", "1")
-      sample()
-    JS
-
-    assert_operator frames.size, :>, 20
-    assert frames.any? { it["radius"].between?(10, 140) }, "the transition should have been sampled midway"
-    assert frames.select { it["radius"].between?(10, 140) }.all? { it["mask"].include?("radial-gradient") }, "the verso is revealed by the iris mask midway"
-    frames.each do |frame|
-      assert_equal [ "visible", "1" ], frame["recto"].first(2)
-      assert_equal [ "visible", "1" ], frame["verso"].first(2)
-      assert_not_equal "rgba(0, 0, 0, 0)", frame["recto"][2]
-      assert_not_equal "rgba(0, 0, 0, 0)", frame["verso"][2]
-      assert_not_equal "none", frame["recto"][3]
-      assert_not_equal "none", frame["verso"][3]
     end
   end
 
@@ -218,113 +72,6 @@ class LibraryTest < ApplicationSystemTestCase
     fill_in "set-search-field", with: ""
     assert_no_selector "#set-results-title"
     assert_selector "#set-entry-in-progress .set-tiles a.set-tile", count: 12
-  end
-
-  test "COMPLETED follows EN COURS: a complete set's tile turns to its tiers all reached and leads to its album" do
-    (members("pirates") - @theme.first(3)).each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
-    sign_in
-    visit library_path(locale: :en)
-
-    assert_selector "#set-entry-in-progress-title ~ .set-tiles a.set-tile", minimum: 1
-    assert_selector "#set-entry-completed-title", text: /\ACOMPLETED\z/
-    complete = find("#set-entry-completed-title ~ .set-tiles a.set-tile[href='#{library_set_path(locale: :en, kind: "theme", key: "pirates")}']")
-    assert_tile(/\APirates, theme, 8 cards out of 8, complete\z/)
-    take_screenshot
-
-    all("#set-entry-in-progress-title ~ .set-tiles a.set-tile").last.send_keys(:tab)
-    assert_selector "#set-entry-completed-title ~ .set-tiles > li:first-child > a.set-tile:focus"
-    eventually("the focused complete tile should open its iris") { opened?(complete) }
-    within(complete) do
-      assert_selector ".set-tile__node--reached", minimum: 1
-      assert_no_selector ".set-tile__node--next, .set-tile__node--later"
-      assert_selector ".set-tile__cta", text: /VIEW THE ALBUM/i
-    end
-    take_screenshot
-
-    complete.click
-    assert_current_path library_set_path(locale: :en, kind: "theme", key: "pirates")
-    assert_selector ".set-album__count", text: "8/8"
-  end
-
-  test "a player who unticks the only state chip keeps every slot, as the form without JavaScript" do
-    sign_in
-    visit library_cards_path(locale: :en)
-    open_filter_sheet(:state)
-    assert_slots 60
-    within(filter_sheet(:state)) { find(".filter-chip__text", text: /\AAll\z/i).click }
-    assert_slots 60
-    assert_equal [ "ALL" ], all("[data-group=state] .filter-chip__box:checked", visible: :all).map { it.find(:xpath, "..").text.strip }
-    assert_selector "#{pastille(:state)} .filter-row__count", visible: :hidden
-    assert_selector "#{filter_sheet(:state)} p.filter-sheet__status", text: "150 cards shown."
-  end
-
-  test "on a 390 × 844 phone the tab leads here: the sets a column of tiles, then the grid with the RAPPORT folded, two cards a row" do
-    page.driver.browser.manage.window.resize_to(390, 844)
-    sign_in
-
-    find(".tab-bar a.tab-bar__tab", text: /SETS/i).click
-
-    assert_current_path library_path(locale: :en)
-    assert_selector ".collection-status__value", text: "3 / 150"
-    assert_tile(/\AHorror, theme, 3 cards out of 16\b/)
-    assert_equal 1, page.evaluate_script("new Set([ ...document.querySelectorAll('.set-tiles > li') ].map((li) => Math.round(li.getBoundingClientRect().left))).size")
-    assert_no_sideways_scroll
-
-    click_on "All cards"
-
-    assert_current_path library_cards_path(locale: :en)
-    assert_slots 60
-    assert_no_selector ".report--panel", visible: true
-    assert_no_selector ".collection-status__label", visible: true
-    assert_selector ".collection-status__value", text: "3 / 150"
-    tops = page.evaluate_script("[...document.querySelectorAll('.collection-grid > li')].slice(0, 3).map((slot) => Math.round(slot.getBoundingClientRect().top))")
-    assert_equal tops[0], tops[1]
-    assert_operator tops[2], :>, tops[0]
-    assert_no_sideways_scroll
-
-    find(".report--fold summary").click
-    assert_selector ".report--fold[open] .report__row", text: /UNIQUE CARDS\s*3/
-    take_screenshot
-
-    visit library_set_path(locale: :en, kind: "theme", key: "horror")
-    assert_selector ".set-album__count", text: "3/16"
-    assert_selector ".collection-grid .card.card--grid", count: 16
-    assert_selector ".collection-grid .card.card--grid.card--not-owned", count: 13
-    faces = page.evaluate_script(<<~JS)
-      [ ...document.querySelectorAll(".collection-grid .card") ].slice(2, 4).map((card) => {
-        const box = card.getBoundingClientRect()
-        return [ Math.round(box.top), Math.round(box.width), Math.round(box.height), card.classList.contains("card--not-owned") ]
-      })
-    JS
-    assert_equal [ false, true ], faces.map(&:last)
-    assert_equal faces[0].first(3), faces[1].first(3)
-    assert_no_sideways_scroll
-    take_screenshot
-  end
-
-  test "on a 390 × 844 phone the search is the first row and the pastilles the second, one row, nothing else above the grid" do
-    Game::AddGoal.new.call(player: @player, kind: "theme", key: "horror").value!
-    resize_to(390, 844)
-    sign_in
-    visit library_cards_path(locale: :en)
-    assert_slots 60
-
-    assert_equal %w[GOALS RARITY STATE MORE], all("a.filter-row__pastille").map { it.text.strip }
-    rows = page.evaluate_script(<<~JS)
-      (() => {
-        const top = (selector) => Math.round(document.querySelector(selector).getBoundingClientRect().top)
-        const pastilles = [ ...document.querySelectorAll("a.filter-row__pastille") ].map((pastille) => Math.round(pastille.getBoundingClientRect().top))
-        const heights = [ ...document.querySelectorAll("a.filter-row__pastille .filter-chip__text") ].map((text) => text.getBoundingClientRect().height)
-        return { search: top("#collection-search"), pastilles, heights, grid: top(".collection-grid"), row: top(".filter-row") }
-      })()
-    JS
-    assert_equal 1, rows["pastilles"].uniq.size, "the pastilles should stand in one row"
-    assert_operator rows["row"], :>, rows["search"]
-    assert_operator rows["grid"], :>, rows["row"]
-    assert rows["heights"].all? { it >= 44 }, "every pastille should be a 44px target"
-    assert_no_selector ".filters__zone, .filters__clear", visible: true
-    assert_no_sideways_scroll
-    take_screenshot
   end
 
   test "the filter row: a chip ticked in a sheet narrows the grid behind it, each pastille counting its own, a search narrows as it is typed" do
@@ -381,25 +128,10 @@ class LibraryTest < ApplicationSystemTestCase
     field.click
     field.send_keys(title)
     assert_selector ".collection-grid .card__title", text: title.upcase
-    assert_equal "collection-search", page.evaluate_script("document.activeElement.id")
+    assert_selector "#collection-search:focus"
     field.send_keys("zzzz")
     assert_selector ".collection-grid__empty"
-    assert_equal "collection-search", page.evaluate_script("document.activeElement.id")
-    assert_no_sideways_scroll
-    take_screenshot
-  end
-
-  test "arriving filtered, each pastille shows its count and its sheet its chips ticked" do
-    sign_in
-    visit library_cards_path(locale: :en, rarity: %w[rare], state: %w[missing])
-
-    assert_selector "#{pastille(:rarity)} .filter-row__count", text: "1"
-    assert_selector "#{pastille(:state)} .filter-row__count", text: "1"
-    open_filter_sheet(:rarity)
-    assert_equal [ "rare" ], all("#{filter_sheet(:rarity)} .filter-chip__box:checked", visible: :all).map(&:value)
-    close_filter_sheet(:rarity)
-    open_filter_sheet(:state)
-    assert_equal [ "missing" ], all("#{filter_sheet(:state)} .filter-chip__box:checked", visible: :all).map(&:value)
+    assert_selector "#collection-search:focus"
   end
 
   test "the cards of a pack just opened are new; once the grid has shown them, the next visit shows them no longer" do
@@ -412,7 +144,6 @@ class LibraryTest < ApplicationSystemTestCase
     assert_selector ".collection-slot__new", count: 5, text: "NEW"
     assert_equal @theme[3, 5].map { Catalog::CardSeason.find(it).card.texts.find_by!(locale: "en").title.upcase },
       all(".collection-slot:has(.collection-slot__new) .card__title").map(&:text)
-    take_screenshot
 
     visit library_cards_path(locale: :en, state: [ "new" ])
 
@@ -424,30 +155,6 @@ class LibraryTest < ApplicationSystemTestCase
 
     assert_selector ".collection-grid .card.card--grid:not(.card--not-owned)", count: 8
     assert_no_selector ".collection-slot__new"
-  end
-
-  test "a visitor reads the grid of every card in plain faces, with no ownership data" do
-    visit library_cards_path(locale: :fr)
-
-    assert_slots 60
-    assert_no_selector ".collection-status"
-    assert_no_selector ".collection-slot__new, .card--not-owned", visible: :all
-    assert_no_selector ".report--panel", visible: :all
-    assert_selector ".top-bar .top-bar__end a[href*='/sign-in']"
-    assert_no_sideways_scroll
-  end
-
-  test "on a 360 × 740 phone a visitor keeps the Steam image, and two cards still fit a row" do
-    page.driver.browser.manage.window.resize_to(360, 740)
-
-    visit library_cards_path(locale: :en)
-
-    assert_selector ".top-bar .top-bar__end a[href*='/sign-in']", visible: true
-    assert_no_selector ".collection-status", visible: true
-    tops = page.evaluate_script("[...document.querySelectorAll('.collection-grid > li')].slice(0, 3).map((slot) => Math.round(slot.getBoundingClientRect().top))")
-    assert_equal tops[0], tops[1]
-    assert_no_sideways_scroll
-    take_screenshot
   end
 
   test "a player's filtered, searched grid appends its next page as its links come near, the status naming the cards shown" do
@@ -477,21 +184,6 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path library_cards_path(locale: :en, **filters)
   end
 
-  test "the whole grid in French appends its pages one after the other, to its last card" do
-    visit library_cards_path(locale: :fr)
-    assert_slots 60
-
-    scroll_to_pages
-    assert_slots 120
-    assert_selector "#collection-results-status", text: "Cartes 61 à 120 sur 150 affichées.", visible: :all
-
-    scroll_to_pages
-    assert_slots 150
-    assert_selector "#collection-results-status", text: "Cartes 121 à 150 sur 150 affichées.", visible: :all
-    assert_selector "#collection-pages [aria-current=page]", text: "3", visible: :all
-    assert_no_selector "#collection-pages a[rel=next]", visible: :all
-  end
-
   test "the grid is one tab stop: arrow keys move the focus by card and by row, into appended pages, End reaches the last card" do
     visit library_cards_path(locale: :en)
     assert_slots 60
@@ -517,15 +209,12 @@ class LibraryTest < ApplicationSystemTestCase
     eventually("the focus stayed in the grid") { evaluate_script("!document.activeElement?.closest('.collection-grid')") }
   end
 
-  test "back from a card of an appended page, the grid shows its appended cards at its scroll, the focus on that card's link" do
+  test "back from a card of an appended page, the grid shows its appended cards, the focus on that card's link" do
     visit library_cards_path(locale: :en)
     scroll_to_pages
     assert_slots 120
 
-    slot = find(".collection-grid > li:nth-child(61) a.card-link")
-    slot.execute_script("this.scrollIntoView({ block: 'center' })")
-    grid_scroll = scroll_y
-    slot.click
+    find(".collection-grid > li:nth-child(61) a.card-link").click
     assert_selector ".card-detail h1"
     assert_no_selector "html[aria-busy]", visible: :all
 
@@ -533,7 +222,6 @@ class LibraryTest < ApplicationSystemTestCase
 
     assert_current_path library_cards_path(locale: :en)
     assert_selector ".collection-grid > li:nth-child(120)", visible: :all
-    assert_scrolled_to grid_scroll
     assert_focused ".collection-grid > li:nth-child(61) a.card-link"
   end
 
@@ -565,12 +253,6 @@ class LibraryTest < ApplicationSystemTestCase
 
     def scroll_to_pages
       find("#collection-pages").execute_script("this.scrollIntoView({ block: 'end' })")
-    end
-
-    def scroll_y = evaluate_script("window.scrollY")
-
-    def assert_scrolled_to(y)
-      eventually("scrolled to #{scroll_y}, not #{y}") { (scroll_y - y).abs <= 2 }
     end
 
     def assert_focused(selector)

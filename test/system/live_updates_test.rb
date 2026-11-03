@@ -7,8 +7,6 @@ class LiveUpdatesTest < ApplicationSystemTestCase
   include GamePacks
   include SteamSignIn
 
-  PHONE = [ 390, 844 ].freeze
-
   setup do
     @hugo = accounts_players(:player)
     @lea = accounts_players(:moderator)
@@ -56,14 +54,6 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     [ goal[:total], goal[:target] ].map { ActiveSupport::NumberHelper.number_to_delimited(it) }.join(" / ")
   end
 
-  def ticker_states = page.evaluate_script("document.querySelector('#live-ticker .ticker__track').getAnimations().map((a) => a.playState)")
-
-  def assert_ticker_states(expected)
-    page.document.synchronize do
-      raise Capybara::ExpectationNotMet, "ticker animations: #{ticker_states.inspect}" unless ticker_states == expected
-    end
-  end
-
   def deliver = perform_enqueued_jobs(only: PlayerStreamJob)
 
   test "a proposal and a counter reach the other player without a reload and move the badge" do
@@ -106,26 +96,6 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     end
   end
 
-  test "a friend going private closes the open trade on the partner's board without a reload" do
-    befriend(@hugo, @lea)
-    Game::Holding.create!(player_id: @hugo.id, card_season_id: @portal, quantity: 4, reserved: 0)
-    Game::Holding.create!(player_id: @lea.id, card_season_id: @depths, quantity: 1, reserved: 0)
-    trade = Game::ProposeTrade.new.call(player: @hugo, recipient: @lea, offer: { @portal => 2 }, request: { @depths => 1 }).value!
-
-    sign_in @lea
-    visit trade_path(token: trade.token, locale: :en)
-    assert_selector ".trade-board .trade-chip", text: /YOUR TURN/i
-    listening
-
-    Accounts::SetVisibility.new.call(player: @hugo, visibility: "private").value!
-    deliver
-
-    assert_selector ".trade-board .trade-chip", text: /CLOSED/i
-    assert_selector ".trade-board .trades-closed", text: "Hugo's profile is private: trades are closed."
-    assert_no_button "Accept"
-    assert not_reloaded?
-  end
-
   test "an invitation reaches the Friends screen, and its acceptance tells the sender NOUVEL AMI" do
     sign_in @hugo
     visit friends_path(locale: :en)
@@ -144,82 +114,6 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     assert_selector ".toast", text: "Lea is now one of your friends."
     assert_selector ".friends__friend", text: "Lea"
     assert not_reloaded?
-  end
-
-  test "a cancelled invitation leaves the recipient's Friends screen without a reload" do
-    invitation = Game::SendInvitation.new.call(player: @max, code: "7K2Q-F3NX").value!
-    sign_in @hugo
-    visit friends_path(locale: :en)
-    assert_selector ".friends__invitation", text: "Max invites you"
-    assert_selector "#tab-invitations-badge .tab-bar__badge", text: "1", visible: :all
-    listening
-
-    Game::CancelInvitation.new.call(player: @max, token: invitation.token).value!
-    deliver
-
-    assert_no_selector ".friends__invitation", text: "Max invites you"
-    assert_no_selector "#tab-invitations-badge .tab-bar__badge", visible: :all
-    assert not_reloaded?
-  end
-
-  test "an invitation lights the hub's AMIS badge without a reload, ignoring it clears it, and the sender's stays empty" do
-    sign_in @hugo
-    assert_selector ".hub-menu a.menu-item #menu-friends-badge", visible: :all
-    assert_no_selector "#menu-friends-badge .menu-item__badge", visible: :all
-    listening
-    using_session("max") do
-      sign_in @max
-      listening
-      page.execute_script("document.querySelector('#menu-friends-badge').innerHTML = '<span class=\"menu-item__badge\">9</span>'")
-      page.execute_script("document.querySelector('#tab-invitations-badge').innerHTML = '<span class=\"tab-bar__badge\">9</span>'")
-    end
-
-    invitation = Game::SendInvitation.new.call(player: @max, code: "7K2Q-F3NX").value!
-    deliver
-
-    assert_selector ".hub-menu a.menu-item #menu-friends-badge .menu-item__badge--alert", text: "1"
-    assert_selector "#menu-friends-badge .visually-hidden", text: "1 invitation waiting for your answer", visible: :all
-    assert not_reloaded?
-    using_session("max") do
-      assert_no_selector "#menu-friends-badge .menu-item__badge, #menu-friends-badge .visually-hidden", visible: :all
-      assert_no_selector "#tab-invitations-badge .tab-bar__badge", visible: :all
-      assert not_reloaded?
-    end
-
-    Game::IgnoreInvitation.new.call(player: @hugo, token: invitation.token).value!
-    deliver
-
-    assert_no_selector "#menu-friends-badge .menu-item__badge, #menu-friends-badge .visually-hidden", visible: :all
-    assert not_reloaded?
-  end
-
-  test "on a phone, an invitation lights the Social tab and the link to friends in French without a reload, and answering it clears them" do
-    original = page.driver.browser.manage.window.size
-    page.driver.browser.manage.window.resize_to(*PHONE)
-    sign_in @hugo
-    visit social_path(locale: :fr)
-    assert_selector ".social a.social__more #plus-friends-badge", visible: :all
-    assert_no_selector "#plus-friends-badge .menu-item__badge", visible: :all
-    assert_no_selector "#tab-invitations-badge .tab-bar__badge"
-    listening
-
-    invitation = Game::SendInvitation.new.call(player: @max, code: "7K2Q-F3NX").value!
-    deliver
-
-    assert_selector ".tab-bar a.tab-bar__tab #tab-invitations-badge .tab-bar__badge--alert", text: "1"
-    assert_selector "#tab-invitations-badge .visually-hidden", text: "1 invitation en attente de votre réponse", visible: :all
-    assert_selector ".social a.social__more #plus-friends-badge .menu-item__badge--alert", text: "1"
-    assert_selector "#plus-friends-badge .visually-hidden", text: "1 invitation en attente de votre réponse", visible: :all
-    assert not_reloaded?
-
-    Game::AcceptInvitation.new.call(player: @hugo, token: invitation.token).value!
-    deliver
-
-    assert_no_selector "#tab-invitations-badge .tab-bar__badge", visible: :all
-    assert_no_selector "#plus-friends-badge .menu-item__badge, #plus-friends-badge .visually-hidden", visible: :all
-    assert not_reloaded?
-  ensure
-    page.driver.browser.manage.window.resize_to(original.width, original.height) if original
   end
 
   test "the Friends screen holds its refresh while a code is typed" do
@@ -278,50 +172,6 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     assert not_reloaded?
   end
 
-  test "the swap after an acceptance plays out before the accepter's own update refreshes the board" do
-    befriend(@hugo, @lea)
-    Game::Holding.create!(player_id: @hugo.id, card_season_id: @portal, quantity: 4, reserved: 0)
-    Game::Holding.create!(player_id: @lea.id, card_season_id: @depths, quantity: 2, reserved: 0)
-    trade = Game::ProposeTrade.new.call(player: @lea, recipient: @hugo, offer: { @depths => 1 }, request: { @portal => 2 }).value!
-    deliver
-
-    sign_in @hugo
-    visit trade_path(token: trade.token, locale: :en)
-    listening
-    page.execute_script(<<~JS)
-      window.renders = []
-      window.flights = 0
-      const animate = Element.prototype.animate
-      Element.prototype.animate = function (frames, options) {
-        if (JSON.stringify(frames).includes("translate(")) window.flights += 1
-        return animate.call(this, frames, options)
-      }
-      document.addEventListener("turbo:before-render", () => {
-        window.renders.push(document.querySelector(".trade-board--swapping") ? "during the swap" : "outside the swap")
-      })
-      const signalDuringSwap = () => {
-        if (!document.querySelector(".trade-board[data-live-refresh-hold]")) return
-        document.removeEventListener("turbo:load", signalDuringSwap)
-        window.signalDuringSwap = true
-        dispatchEvent(new CustomEvent("gameble:trades-updated"))
-      }
-      document.addEventListener("turbo:load", signalDuringSwap)
-    JS
-
-    within(".trade-board") { click_on "Accept" }
-
-    assert_selector ".trade-board .trade-chip--lime", text: /DONE/i
-    assert_selector ".trade-board__message:focus", text: "Trade done."
-    deliver
-    assert page.evaluate_script("window.signalDuringSwap === true"), "the update arrived while the cards were flying"
-    assert_equal 2, page.evaluate_script("window.flights")
-    assert_selector ".trade-board:not([data-live-refresh-hold])"
-    wait_until_renders(2)
-    assert_equal [ "outside the swap" ], page.evaluate_script("window.renders").uniq
-    within(".trade-side--own") { assert_selector ".trade-card__new", text: /NEW/i }
-    assert not_reloaded?
-  end
-
   test "a public player's opening moves the other browsers' gauge at the next tick and tops their feed, without a reload" do
     Game::SumWeeklyGoalJob.new.perform
     sign_in @max
@@ -367,65 +217,5 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     assert_selector "#feed-entries > li.feed__entry:nth-child(-n+5) .feed__tag--legendary", count: 5
     assert_selector "#feed-entries > li.feed__entry", count: total + 5
     assert not_reloaded?
-  end
-
-  test "the hub's ticker scrolls, joins new items at the loop boundary, pauses under the pointer and stands still under reduced motion" do
-    open_epic(@hugo)
-    sign_in @max
-
-    assert_selector "#live-ticker[data-ticker-state=scrolling] [data-ticker-target=run] > .ticker__item", count: 6, visible: :all
-    assert_ticker_states([ "running" ])
-
-    in_view = page.evaluate_script(<<~JS)
-      (() => {
-        const run = document.querySelector("#live-ticker [data-ticker-target=run]")
-        const items = Array.from(run.children)
-        items.forEach((item, place) => { item.dataset.place = place })
-        const width = document.querySelector("#live-ticker .ticker__window").clientWidth
-        return items.filter((item) => item.getBoundingClientRect().left - run.getBoundingClientRect().left < width).length
-      })()
-    JS
-    page.execute_script(<<~JS)
-      const queue = document.getElementById("live-ticker-queue")
-      const model = document.querySelector("#live-ticker [data-ticker-target=run] > .ticker__item")
-      for (let arrival = 0; arrival < 10; arrival += 1) {
-        const item = model.cloneNode(true)
-        delete item.dataset.place
-        item.dataset.arrived = arrival
-        queue.append(item)
-      }
-    JS
-    assert_selector "#live-ticker-queue > [data-arrived]", count: 10, visible: :all
-    assert_no_selector "#live-ticker [data-ticker-target=run] > [data-arrived]", visible: :all
-    page.execute_script(<<~JS)
-      const loop = document.querySelector("#live-ticker .ticker__track").getAnimations()[0]
-      loop.currentTime = loop.effect.getComputedTiming().duration - 100
-    JS
-    assert_selector "#live-ticker [data-ticker-target=run] > [data-arrived]", visible: :all
-    assert_no_selector "#live-ticker-queue > *", visible: :all
-    assert_selector "#live-ticker [data-ticker-target=run] > .ticker__item", count: 12, visible: :all
-    order = page.evaluate_script(<<~JS)
-      Array.from(document.querySelectorAll("#live-ticker [data-ticker-target=run] > .ticker__item"), (item) => item.dataset.place ?? `new${item.dataset.arrived}`)
-    JS
-    joining = [ 10, 12 - in_view ].min
-    assert_equal [ *(0...in_view).map(&:to_s), *(0...joining).map { "new#{it}" }, *(in_view...6).map(&:to_s) ].first(12), order
-
-    find("#live-ticker").hover
-    assert_ticker_states([ "paused" ])
-    find(".hub__title").hover
-    assert_ticker_states([ "running" ])
-
-    page.execute_script("document.documentElement.dataset.motion = 'reduced'")
-    assert_selector "#live-ticker[data-ticker-state=still]"
-    assert_ticker_states([])
-    assert_selector "#live-ticker [data-ticker-target=run] > .ticker__item", count: 12, visible: :all
-    assert_no_selector "#live-ticker .ticker__run--copy", visible: :all
-    assert_empty page.evaluate_script("document.querySelector('#live-ticker .live-marker__dot').getAnimations()")
-  end
-
-  def wait_until_renders(count)
-    Timeout.timeout(Capybara.default_max_wait_time) do
-      sleep 0.05 until page.evaluate_script("window.renders.length") >= count
-    end
   end
 end

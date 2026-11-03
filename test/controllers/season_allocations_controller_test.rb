@@ -41,6 +41,7 @@ class SeasonAllocationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", "ALLOCATION · SEASON 2"
+    assert_select "h1#allocation-heading[autofocus][tabindex='-1']"
     assert_select ".allocation-section__title", text: "Your tiers in the next season"
     assert_select ".allocation-row", 3
     assert_select ".allocation__title + p", 0

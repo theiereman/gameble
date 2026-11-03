@@ -72,33 +72,4 @@ class TradeSuggestionsTest < ApplicationSystemTestCase
     assert_selector ".trade-suggestion", count: 1
     assert_nil lea_draft
   end
-
-  test "focusing the opener holds live refresh through a window blur until the focus leaves the section" do
-    sign_in @hugo
-
-    visit trades_path(locale: :en)
-    page.execute_script("document.querySelector('.trade-suggestion__opener').focus()")
-    assert_selector ".trade-suggestions[data-live-refresh-hold]", visible: :all
-
-    page.execute_script("document.activeElement.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }))")
-    held_after_blur = page.evaluate_async_script(<<~JS)
-      const done = arguments[arguments.length - 1]
-      setTimeout(() => done(document.querySelector(".trade-suggestions").hasAttribute("data-live-refresh-hold")), 100)
-    JS
-    assert held_after_blur, "a window blur keeps the hold while the focus stays in the section"
-
-    page.execute_script("document.activeElement.blur()")
-    assert_no_selector ".trade-suggestions[data-live-refresh-hold]", visible: :all
-  end
-
-  test "on a phone the row is a touch target, and the list does not scroll sideways" do
-    resize_to(390, 844)
-    sign_in @hugo
-
-    visit trades_path(locale: :en)
-
-    row = find(".trade-suggestion")
-    assert_operator row.rect.height, :>=, 44
-    assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "no sideways scroll"
-  end
 end

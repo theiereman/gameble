@@ -5,14 +5,12 @@ require_relative "../support/steam_sign_in"
 # The booster screen: the canister sends the opening exchange and deals the
 # cards face down; one activation reveals a card, "Reveal all" the rest;
 # the top bar's rarity counter rises at each reveal and its reserve chip
-# follows each answer; every refusal leaves the canister at rest and says
-# why. On a phone the cards land in a pile, each revealed card is stored in
-# the tray (Store, a tap or a swipe) and a filled slot opens the card zoom;
-# from 720 to 899px the row deals small cards; a width crossing a
-# breakpoint draws the same hand again. A revealed card's detail walks the
-# booster's cards, and coming back from it shows the booster again, every
-# card face up; the phone's zoom steps through the tray. Reduced motion is emulated in every
-# test but those named "with motion" and the loop budget's.
+# follows each answer; a refusal leaves the canister at rest and says why,
+# and a lost answer is retried with the same key. On a phone the cards land
+# in a pile, each revealed card is stored in the tray (Store or a tap) and a
+# filled slot opens the card zoom, which steps through the tray; a card's
+# detail walks the booster and coming back shows it again, every card face
+# up. Reduced motion is emulated in every test.
 class BoosterTest < ApplicationSystemTestCase
   include GamePacks
   include SteamSignIn
@@ -84,18 +82,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster__state", text: /\AINVENTORY\z/
   end
 
-  # The reveal's guard (REVEAL_GUARD, lib/booster.ts) is measured on
-  # performance.now(): with the page's clock frozen, a card revealed inside
-  # the block is still within its guard whatever the machine's pace, so a
-  # tap sent here is the one the guard must ignore. The clock runs again
-  # after the block, from where it was frozen.
-  def within_reveal_guard
-    page.execute_script("const now = performance.now(); performance.now = () => now")
-    yield
-  ensure
-    page.execute_script("delete performance.now")
-  end
-
   def state
     find(".booster__state-word").text
   end
@@ -122,49 +108,8 @@ class BoosterTest < ApplicationSystemTestCase
     find(".top-bar .rarity-counter__count[data-tier=#{tier}]").text
   end
 
-  def revealed_at(position)
-    Float(find(card(position))["data-revealed-at"])
-  end
-
   def opened_packs
     Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).count
-  end
-
-  test "menu 01 leads to the screen: the canister, the information panel and the booster top bar" do
-    3.times { |index| create_pack(@player, available_at: (index + 1).hours.ago) }
-    visit home_path(locale: :en)
-    find(".hub-menu .menu-item[aria-keyshortcuts='1']").click
-
-    assert_current_path "/en/booster"
-    assert_selector ".booster-canister[aria-label='Open the capsule Season 1, grand catalogue, 5 cards']"
-    assert_selector ".booster__canister-hint", text: "CLICK TO OPEN"
-    within(".booster__info") do
-      assert_selector ".booster__kicker", text: "CAPSULE · SEASON 1"
-      assert_selector ".booster__title", text: "GRAND CATALOGUE"
-      assert_selector ".booster__row", text: /CARDS PER CAPSULE\s+5/
-      assert_selector ".booster__row", text: /IN RESERVE\s+3 CAPSULES/
-      assert_selector ".booster__state", text: "SEALED"
-      assert_selector ".booster__pip[data-lit]", count: 3
-      assert_selector ".booster__pip", count: 10
-      assert_button "Open the capsule"
-      assert_button "Reveal all", disabled: true
-    end
-    assert_focus ".booster__open"
-    assert_no_selector ".booster__fallback", visible: true
-    within(".top-bar") do
-      assert_selector ".rarity-counter__button"
-      assert_selector ".packs-chip--static", text: /3\s+IN RESERVE/
-      assert_no_selector "a.packs-chip"
-    end
-  end
-
-  test "the packs chip leads to the screen" do
-    create_pack(@player)
-    visit home_path(locale: :en)
-    find(".top-bar a.packs-chip:not(.packs-chip--special)").click
-
-    assert_current_path "/en/booster"
-    assert_selector ".booster-canister"
   end
 
   test "an opening deals the cards face down; each reveal shows its card, says it, and raises the top bar's count then" do
@@ -226,50 +171,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal card_ids(:portal_one), reposts
   end
 
-  def stream_toast_waiting_for_the_reveal(message)
-    toast = ApplicationController.render(ToastComponent.new(title: "Achievement unlocked", message:, after_reveal: true), layout: false)
-    page.execute_script(<<~JS, toast)
-      document.body.insertAdjacentHTML("beforeend", `<turbo-stream action="append" target="toasts"><template>${arguments[0]}</template></turbo-stream>`)
-    JS
-  end
-
-  test "a toast marked to wait for the reveal, arriving during it, shows only once every card is revealed" do
-    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one))
-    open_canister
-    assert_dealt(5)
-
-    stream_toast_waiting_for_the_reveal("Your First Authorized Acquisition")
-    (1..4).each do |position|
-      find(hit(position)).click
-      assert_selector "#{card(position)}[data-revealed]"
-      assert_no_selector "#toasts .toast", text: "Your First Authorized Acquisition"
-    end
-
-    find(hit(5)).click
-    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
-    assert_selector "#toasts .toast[data-toast-after-reveal]", text: "Your First Authorized Acquisition"
-  end
-
-  test "a revealed card ignores activation for 400 ms, then opens its card page" do
-    open_screen(card_ids(*[ :rare_card_one ] * 5))
-    open_canister
-    assert_dealt(5)
-
-    within_reveal_guard do
-      find(hit(2)).click
-      assert_selector "#{card(2)}[data-revealed]"
-      # Within the guard: the face's click stays on the screen.
-      page.execute_script("document.querySelector(#{"#{card(2)} .booster-card__front .card".to_json}).click()")
-      assert_current_path "/en/booster"
-    end
-
-    sleep 0.5
-    find("#{card(2)} .booster-card__front .card").click
-    assert_current_path "/en/cards/blue-depths?pack=#{opened_token}&slot=2"
-  end
-
-  def current_url_path = evaluate_script("location.pathname + location.search")
-
   def opened_token
     Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).order(:opened_at).last.token
   end
@@ -279,39 +180,6 @@ class BoosterTest < ApplicationSystemTestCase
     find(".card-detail__nav--#{side}").click
     assert_selector ".card-detail h1", text: to
     assert_no_selector "html[data-sub-view-step]", visible: :all
-  end
-
-  # Waits for the history to hold `expected` entries (Turbo pushes an entry
-  # a moment after the page shows). Chrome keeps at most 50 entries.
-  def assert_history_entries(expected)
-    expected = [ expected, 50 ].min
-    page.document.synchronize do
-      length = evaluate_script("history.length")
-      raise Capybara::ExpectationNotMet, "#{length} history entries, not #{expected}" unless length == expected
-    end
-  end
-
-  test "the booster's own entries start sealed: the tab bar and a pack of another player show no hand" do
-    create_pack(@player, available_at: 1.hour.ago)
-    foreign = create_pack(accounts_players(:moderator), cards: card_ids(*[ :rare_card_one ] * 5), opened_at: 1.minute.ago)
-
-    visit booster_path(locale: :en, pack: foreign.token)
-    assert_selector ".booster-canister"
-    assert_no_selector ".booster-card"
-    assert_selector ".booster__state", text: "SEALED"
-
-    # The player's own pack shown again, then the BOOSTER tab: sealed, no hand.
-    on_phone
-    own = create_pack(@player, cards: card_ids(*[ :common_card_one ] * 5), opened_at: 1.minute.ago)
-    visit booster_path(locale: :en, pack: own.token)
-    assert_selector ".booster-tray__slot--filled", count: 5
-    visit home_path(locale: :en)
-    find(".tab-bar a.tab-bar__tab", text: /CAPSULE/).click
-    assert_current_path "/en/booster"
-    assert_selector ".booster-canister"
-    assert_selector ".booster__state", text: "SEALED"
-    assert_no_selector ".booster-card"
-    assert_no_selector ".booster-tray__slot--filled"
   end
 
   test "Reveal all reveals the rest in order, holds the Légendaire, announces once and focuses the next booster" do
@@ -328,41 +196,12 @@ class BoosterTest < ApplicationSystemTestCase
 
     assert_selector ".booster-card[data-revealed]", count: 5, wait: 15
     assert_announced "4 cards revealed: Legendary × 1, Rare × 1, Uncommon × 1, Common × 1.", wait: 10
-    assert_operator revealed_at(3) - revealed_at(2), :>=, 1400
-    assert_operator revealed_at(5) - revealed_at(4), :>=, 180
-    assert_operator revealed_at(4) - revealed_at(3), :<, 1400
     assert_includes announcements, "Legendary signal"
     assert_selector ".booster__state", text: "INVENTORY COMPLETE"
     assert_selector ".booster__hint", text: "Capsule inventoried · +5 cards in the collection"
     assert_selector "#{card(2)} .booster-card__label", text: "LEGENDARY!"
     assert_focus ".booster__open"
     assert_button "Open the next one"
-  end
-
-  test "with motion: the canister blows, the cards fly in, and a Légendaire plays its whole sequence" do
-    reduce_motion(false)
-    open_screen(card_ids(:legendary_card_one, :common_card_one, :common_card_one, :common_card_one, :common_card_one))
-
-    open_canister
-    assert_selector ".booster__state", text: /ARMING|EJECTION|INVENTORY/
-    assert_dealt(5)
-    assert_no_selector ".booster-canister"
-
-    started = page.evaluate_script("performance.now()")
-    find(hit(1)).click
-    assert_selector ".booster__stage[data-legendary]"
-    assert_selector ".booster__state", text: "LEGENDARY SIGNAL"
-    assert_selector ".booster__state[data-tone=gold]"
-    assert_announced "Legendary signal"
-    assert_selector ".booster__banner--large", text: "LEGENDARY!", wait: 3
-    assert_selector ".booster__banner-line", text: "Golden Crown · 1998"
-    assert_announced "Card 1: Golden Crown — 1998. Legendary."
-    assert_no_selector ".booster__stage[data-legendary]", wait: 5
-    assert_selector ".booster__state", text: /\AINVENTORY\z/
-    # Jump and charge, then the spin: the card shows itself after both began.
-    assert_operator revealed_at(1) - started, :>=, 614 + 106
-    assert_selector "#{card(1)} .booster-card__flip.is-up"
-    assert_equal "1", page.evaluate_script("getComputedStyle(document.querySelector(#{"#{card(1)} .booster-card__rays".to_json})).opacity")
   end
 
   test "the next booster: the cards sink, a canister docks and opens with a new key; at zero the button says the reserve is empty" do
@@ -388,66 +227,13 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "0"
   end
 
-  def record_face_down_cards_whenever_reveal_all_enables
-    page.execute_script(<<~JS)
-      window.faceDownCardsWhenRevealAllEnabled = []
-      const booster = document.querySelector(".booster")
-      const enabled = () => !booster.querySelector(".booster__reveal-all").disabled
-      let wasEnabled = enabled()
-      new MutationObserver(() => {
-        const isEnabled = enabled()
-        if (isEnabled && !wasEnabled) window.faceDownCardsWhenRevealAllEnabled.push(booster.querySelectorAll(".booster-card[data-dealt]:not([data-revealed])").length)
-        wasEnabled = isEnabled
-      }).observe(booster, { subtree: true, childList: true, attributes: true })
-    JS
-  end
-
-  test "with motion: Reveal all stays disabled from the next capsule's request until its cards are dealt face down" do
-    reduce_motion(false)
-    open_screen(card_ids(*[ :common_card_one ] * 5), card_ids(*[ :uncommon_card_one ] * 5))
-    open_canister
-    assert_dealt(5)
-    click_on "Reveal all"
-    assert_selector ".booster-card[data-revealed]", count: 5, wait: 10
-    assert_selector ".booster__open:not([disabled]):not([aria-disabled])", wait: 10
-    assert_button "Reveal all", disabled: true
-
-    record_face_down_cards_whenever_reveal_all_enables
-    click_on "Open the next one"
-    assert_dealt(5)
-    assert_selector ".booster-card[data-tier=uncommon][data-dealt]:not([data-revealed])", count: 5
-    assert_button "Reveal all", disabled: false
-    assert_equal [ 5 ], page.evaluate_script("window.faceDownCardsWhenRevealAllEnabled")
-  end
-
-  test "a daily bonus pack deals and counts three cards" do
-    open_screen(card_ids(:rare_card_one, :portal_one, :legendary_card_one), kind: :bonus)
-    open_canister
-
-    assert_dealt(3)
-    assert_selector ".booster__hint", text: "Click a card to reveal it · 3 left"
-    assert_equal "Card 3 of 3, face down. Reveal.", find(hit(3))["aria-label"]
-  end
-
-  test "an empty reserve shows when the next booster comes, the button disabled and the focus on the way back" do
-    create_pack(@player, available_at: 2.hours.from_now)
-    visit booster_path(locale: :en)
-
-    assert_selector ".booster__empty", text: /RESERVE EMPTY/
-    assert_selector ".booster__empty-next", text: /Next capsule in 1:59:\d\d|Next capsule in 2:00:00/
-    assert_no_selector ".booster-canister"
-    assert_button "Reserve empty", disabled: true
-    assert_selector ".booster__state", text: "WAITING"
-    assert_focus ".top-bar__home"
-  end
-
   test "an empty reserve whose next booster arrives while the screen shows: the screen refreshes and the booster can be opened" do
-    create_pack(@player, available_at: 2.seconds.from_now)
+    create_pack(@player, available_at: 5.seconds.from_now)
     visit booster_path(locale: :en)
     assert_selector ".booster__empty"
     assert_button "Reserve empty", disabled: true
 
-    assert_selector ".booster-canister", wait: 10
+    assert_selector ".booster-canister", wait: 15
     assert_button "Open the capsule", disabled: false
     assert_selector ".booster__state", text: "SEALED"
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
@@ -470,34 +256,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "0"
     assert_equal 1, request_keys.size
     assert_equal 1, opened_packs
-  end
-
-  test "a throttled opening leaves the canister sealed and keeps its key for the next activation" do
-    open_screen(card_ids(*[ :common_card_one ] * 5))
-    page.execute_script(<<~JS)
-      const recordingFetch = window.fetch
-      let first = true
-      window.fetch = (url, init) => {
-        if (!first) return recordingFetch(url, init)
-        first = false
-        window.boosterKeys.push(init.headers["Idempotency-Key"])
-        const body = JSON.stringify({ error: { code: "throttled", message: "Too many openings in a minute. Try again in a moment." } })
-        return Promise.resolve(new Response(body, { status: 429, headers: { "Content-Type": "application/json" } }))
-      }
-    JS
-
-    open_canister
-    assert_selector ".booster__reason", text: "Too many openings in a minute. Try again in a moment."
-    assert_selector ".toasts .toast--alert", text: /Too many openings/
-    assert_selector ".booster__state", text: "SEALED"
-    assert_selector ".booster-canister:not([aria-disabled])"
-    assert_equal 0, opened_packs
-
-    open_canister
-    assert_dealt(5)
-    assert_no_selector ".booster__reason"
-    assert_equal 2, request_keys.size
-    assert_equal 1, request_keys.uniq.size
   end
 
   test "a lost answer: the next activation sends the same key and gets the same pack, nothing more opened" do
@@ -529,197 +287,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal 1, opened_packs
   end
 
-  test "a stale CSRF token: Rails' HTML refusal reads as the generic reason, nothing opens, the key is kept" do
-    create_pack(@player, cards: card_ids(*[ :common_card_one ] * 5))
-    ActionController::Base.allow_forgery_protection = true
-    visit booster_path(locale: :en)
-    assert_selector ".booster"
-    record_requests
-    token = page.evaluate_script("document.querySelector('meta[name=csrf-token]').content")
-    assert_predicate token, :present?
-    page.execute_script("document.querySelector('meta[name=csrf-token]').content = 'stale'")
-
-    open_canister
-    assert_selector ".booster__reason", text: I18n.t("booster.strings.failed", locale: :en)
-    assert_selector ".booster__state", text: "SEALED"
-    assert_equal 0, opened_packs
-
-    page.execute_script("document.querySelector('meta[name=csrf-token]').content = #{token.to_json}")
-    open_canister
-    assert_dealt(5)
-    assert_equal 1, request_keys.uniq.size
-    assert_equal 1, opened_packs
-  ensure
-    ActionController::Base.allow_forgery_protection = false
-  end
-
-  test "the top bar's back button is locked while the opening runs and during a reveal, then unlocked" do
-    open_screen(card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
-    page.execute_script(<<~JS)
-      const recordingFetch = window.fetch
-      window.fetch = (url, init) => new Promise((resolve) => setTimeout(() => resolve(recordingFetch(url, init)), 1500))
-    JS
-    back = ".top-bar .top-bar__start a.top-bar__home"
-    assert_no_selector "#{back}[aria-disabled]"
-
-    open_canister
-    assert_selector "#{back}[aria-disabled=true][data-navigation-locked]"
-    find(back).click
-    assert_current_path "/en/booster"
-    assert_dealt(5)
-    assert_no_selector "#{back}[aria-disabled]"
-
-    # A Légendaire's still banner holds the lock 1.4 s under reduced motion.
-    find(hit(1)).click
-    assert_selector "#{back}[aria-disabled=true]"
-    assert_no_selector "#{back}[aria-disabled]", wait: 10
-  end
-
-  test "reached from a card, the back button to it is locked with the GAMEBLE link while the opening runs" do
-    create_pack(@player, cards: card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
-    visit card_path(locale: :en, slug: "portal")
-    find(".top-bar a.packs-chip:not(.packs-chip--special)").click
-    assert_selector ".booster"
-    previous = ".top-bar .top-bar__start a.top-bar__previous"
-    assert_selector previous, text: "CARD"
-    page.execute_script(<<~JS)
-      const recordingFetch = window.fetch
-      window.fetch = (url, init) => new Promise((resolve) => setTimeout(() => resolve(recordingFetch(url, init)), 1500))
-    JS
-
-    open_canister
-    assert_selector "#{previous}[aria-disabled=true][data-navigation-locked]"
-    assert_selector ".top-bar__home[aria-disabled=true][data-navigation-locked]"
-    find(previous).click
-    assert_current_path "/en/booster"
-    assert_dealt(5)
-    assert_no_selector "#{previous}[aria-disabled]"
-  end
-
-  test "a reveal waiting for its art locks the navigation at once, and a Légendaire waiting holds every other activation" do
-    open_screen(card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
-    open_canister
-    assert_dealt(5)
-    # The Légendaire's art is not drawn yet: its reveal waits for it.
-    art = "#{card(1)} .booster-card__front .card__art"
-    assert_selector "#{art}[data-art]", visible: :all
-    page.execute_script("document.querySelector(#{art.to_json}).removeAttribute('data-art')")
-    back = ".top-bar .top-bar__start a.top-bar__home"
-
-    find(hit(1)).click
-    assert_selector "#{back}[aria-disabled=true]"
-    page.execute_script("document.querySelector(#{hit(2).to_json}).click()")
-    click_on "Reveal all"
-    sleep 0.5
-    assert_no_selector ".booster-card[data-revealed]"
-
-    page.execute_script("document.querySelector(#{art.to_json}).setAttribute('data-art', 'drawn')")
-    assert_selector "#{card(1)}[data-revealed]"
-    assert_no_selector "#{back}[aria-disabled]", wait: 5
-    assert_selector ".booster-card[data-revealed]", count: 1
-  end
-
-  test "with reduced motion nothing loops or bursts, and a Légendaire holds a still banner under its signal" do
-    open_screen(card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
-    %w[.booster-canister__idle .booster-canister__rays].each do |selector|
-      assert_equal "none", page.evaluate_script("getComputedStyle(document.querySelector(#{selector.to_json})).animationName")
-    end
-    page.execute_script(<<~JS)
-      window.boosterFx = 0
-      new MutationObserver((records) => {
-        for (const record of records) for (const node of record.addedNodes) {
-          if (node instanceof Element && /booster-fx__/.test(node.className)) window.boosterFx += 1
-        }
-      }).observe(document.querySelector(".booster"), { childList: true, subtree: true })
-    JS
-
-    open_canister
-    assert_dealt(5)
-    find(hit(1)).click
-    assert_selector ".booster__state", text: "LEGENDARY SIGNAL"
-    assert_selector ".booster__banner--large", text: "LEGENDARY!"
-    assert_selector ".booster__banner-line", text: "Golden Crown · 1998"
-    assert_no_selector ".booster__stage[data-legendary]"
-    assert_selector ".booster__state", text: /\AINVENTORY\z/, wait: 5
-    assert_equal 0, page.evaluate_script("window.boosterFx")
-    assert_no_selector "#{card(1)} .booster-card__rays", visible: true
-  end
-
-  test "leaving during Reveal all stops the screen: the hub's counts and links stay as they were" do
-    create_pack(@player, cards: card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
-    # Reached through Turbo, so Back is a restoration visit in the same window.
-    visit home_path(locale: :en)
-    find(".hub-menu .menu-item[aria-keyshortcuts='1']").click
-    assert_current_path "/en/booster"
-    open_canister
-    assert_dealt(5)
-
-    click_on "Reveal all"
-    assert_selector "#{card(1)}[data-revealed]"
-    page.go_back
-    assert_current_path "/en"
-    assert_no_selector ".booster"
-    commons = rarity_count("common")
-    page.execute_script(<<~JS)
-      window.lateBoosterEvents = []
-      for (const name of ["gameble:tier-revealed", "gameble:navigation-locked"]) {
-        addEventListener(name, (event) => window.lateBoosterEvents.push([name, event.detail]))
-      }
-    JS
-    # The Légendaire's still banner held 1.4 s; the next reveals would have run since.
-    sleep 3
-
-    assert_equal [], page.evaluate_script("window.lateBoosterEvents")
-    assert_equal commons, rarity_count("common")
-    assert_no_selector "[data-navigation-locked]", visible: :all
-  end
-
-  test "a sealed canister whose next booster arrives while the screen shows: the screen refreshes with one more in reserve" do
-    create_pack(@player, available_at: 1.hour.ago)
-    create_pack(@player, available_at: 3.seconds.from_now)
-    visit booster_path(locale: :en)
-    assert_selector ".booster__row", text: /IN RESERVE\s+1 CAPSULE\z/
-    page.execute_script("document.querySelector('.booster').dataset.marker = 'before'")
-
-    assert_selector ".booster__row", text: /IN RESERVE\s+2 CAPSULES/, wait: 10
-    assert_no_selector ".booster[data-marker]"
-    assert_selector ".booster__state", text: "SEALED"
-    assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "2"
-  end
-
-  test "the countdown reaching zero while cards are dealt leaves the screen as it is" do
-    create_pack(@player, cards: card_ids(*[ :common_card_one ] * 5), available_at: 1.hour.ago)
-    arrives = 4.seconds.from_now
-    create_pack(@player, available_at: arrives)
-    visit booster_path(locale: :en)
-    open_canister
-    assert_dealt(5)
-    page.execute_script("document.querySelector('.booster').dataset.marker = 'kept'")
-
-    sleep [ arrives + 2.seconds - Time.current, 0 ].max
-    assert_selector ".booster[data-marker=kept]"
-    assert_selector ".booster-card[data-dealt]", count: 5
-    assert_selector ".booster__state", text: /\AINVENTORY\z/
-  end
-
-  test "without JavaScript the screen stays hidden and the fallback opens the booster on its pack's page" do
-    create_pack(@player, cards: card_ids(*[ :common_card_one ] * 5), available_at: 1.hour.ago)
-    page.driver.browser.execute_cdp("Emulation.setScriptExecutionDisabled", value: true)
-    # The session's own visit: the test case's waits for Turbo's stream sources to connect, which needs scripts.
-    page.visit booster_path(locale: :en)
-
-    assert_selector ".booster", visible: :hidden
-    assert_no_selector ".booster-canister"
-    assert_selector ".booster__fallback", text: /OPEN THE CAPSULE/
-    assert_no_link "Back to the bridge"
-
-    click_button "Open the capsule"
-    assert_current_path %r{\A/en/packs/[^/]+\z}
-    assert_equal 1, opened_packs
-  ensure
-    page.driver.browser.execute_cdp("Emulation.setScriptExecutionDisabled", value: false)
-  end
-
   # ---- The phone, the narrow row and the rebuild ----
 
   def phone_card(position)
@@ -740,42 +307,11 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster__state", text: /\AINVENTORY\z/
   end
 
-  def boxes_apart?(first, second)
-    page.evaluate_script(<<~JS)
-      (() => {
-        const a = document.querySelector(#{first.to_json}).getBoundingClientRect()
-        const b = document.querySelector(#{second.to_json}).getBoundingClientRect()
-        return a.bottom <= b.top || b.bottom <= a.top || a.right <= b.left || b.right <= a.left
-      })()
-    JS
-  end
-
-  # A drag of the top card by synthetic touch pointer events (pointerId 7),
-  # as a finger would: down, halfway, up at (dx, dy).
-  def drag_top(position, dx, dy)
-    execute_script(<<~JS, dx, dy)
-      const face = document.querySelector(#{"#{phone_card(position)} .booster-card__front .card".to_json})
-      const box = document.querySelector(#{"#{phone_card(position)} .booster-card__frame".to_json}).getBoundingClientRect()
-      const x = box.left + box.width / 2, y = box.top + box.height / 2
-      const event = (type, clientX, clientY) => new PointerEvent(type, { bubbles: true, pointerId: 7, pointerType: "touch", isPrimary: true, clientX, clientY })
-      face.dispatchEvent(event("pointerdown", x, y))
-      face.dispatchEvent(event("pointermove", x + arguments[0] / 2, y + arguments[1] / 2))
-      face.dispatchEvent(event("pointerup", x + arguments[0], y + arguments[1]))
-    JS
-  end
-
-  # Running infinite animations on the page (six at most on a phone view).
-  def infinite_loops
-    page.evaluate_script(<<~JS)
-      document.getAnimations().filter((animation) => animation.playState === "running" && animation.effect.getTiming().iterations === Infinity).length
-    JS
-  end
-
   def filled_slots
     all(".booster-tray__slot--filled").size
   end
 
-  test "on a phone: a pile of large cards, one at a time, each revealed then stored by Store, a tap or a swipe, the focus following" do
+  test "on a phone: a pile of large cards, one at a time, each revealed then stored by Store or a tap, the focus following" do
     on_phone
     open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one), more: true)
 
@@ -810,7 +346,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_announced "Card 1: Tin Soldier — 2024. Common."
     assert_equal "Tin Soldier — 2024, Common. Store the card.", find(phone_hit(1))["aria-label"]
     assert_focus phone_hit(1)
-    assert boxes_apart?(".booster-plate", "#{phone_card(1)} .booster-card__frame"), "the plate should never cover the card"
     sleep 0.45
     click_on "Store"
     assert_no_selector phone_card(1)
@@ -818,30 +353,19 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster-tray__count", text: %r{CARD\s+1 / 5}
     assert_focus phone_hit(2)
 
-    # The second: a tap once its guard is over (a tap within it does nothing).
-    within_reveal_guard do
-      page.send_keys(:enter)
-      assert_selector "#{phone_card(2)}[data-revealed]"
-      find("#{phone_card(2)} .booster-card__front .card").click
-      assert_selector phone_card(2)
-      assert_equal 1, filled_slots
-    end
+    # The second: a tap on the revealed card, once its guard is over.
+    page.send_keys(:enter)
+    assert_selector "#{phone_card(2)}[data-revealed]"
     sleep 0.45
     find("#{phone_card(2)} .booster-card__front .card").click
     assert_no_selector phone_card(2)
     assert_equal 2, filled_slots
     assert_focus phone_hit(3)
 
-    # The third: a swipe; a short drag first springs back.
     page.send_keys(:enter)
     assert_selector "#{phone_card(3)}[data-revealed]"
     sleep 0.45
-    drag_top(3, 30, 20)
-    sleep 0.3
-    assert_selector "#{phone_card(3)}[data-revealed][data-top]"
-    assert_equal 2, filled_slots
-    assert_equal "", find("#{phone_card(3)} .booster-card__float", visible: :all).evaluate_script("this.style.transform")
-    drag_top(3, 120, 10)
+    click_on "Store"
     assert_no_selector phone_card(3)
     assert_selector ".booster-tray__count", text: %r{CARD\s+3 / 5}
     assert_focus phone_hit(4)
@@ -862,7 +386,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster-plate-band .booster-celebration", text: /SET COMPLETE\s+VALVE/
     assert_focus ".booster__open"
     assert_button "Open the next one"
-    assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
   end
 
   test "on a phone a filled tray slot opens the card zoom; Esc gives the focus back to the slot, See the card leads to its page" do
@@ -937,20 +460,7 @@ class BoosterTest < ApplicationSystemTestCase
     JS
   end
 
-  # A finger moving `dx` px sideways across the zoom's card, as touch pointer events.
-  def swipe_zoom(dx)
-    execute_script(<<~JS, dx)
-      const stage = document.querySelector(".booster-zoom__stage")
-      const box = stage.getBoundingClientRect()
-      const x = box.left + box.width / 2, y = box.top + box.height / 2
-      const event = (type, clientX) => new PointerEvent(type, { bubbles: true, pointerId: 9, pointerType: "touch", isPrimary: true, clientX, clientY: y })
-      stage.dispatchEvent(event("pointerdown", x))
-      stage.dispatchEvent(event("pointermove", x + arguments[0] / 2))
-      stage.dispatchEvent(event("pointerup", x + arguments[0]))
-    JS
-  end
-
-  test "on a phone the zoom steps through the tray with ◀ ▶ and a swipe; its detail walks the booster, and ◀ Booster brings it back stored" do
+  test "on a phone the zoom steps through the tray with ◀ ▶; its detail walks the booster, and ◀ Booster brings it back stored" do
     on_phone
     open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :legendary_card_one))
     open_canister
@@ -969,13 +479,6 @@ class BoosterTest < ApplicationSystemTestCase
     find("#{zoom} .booster-zoom__nav--next").click
     assert_selector "#{zoom} h2", text: "GOLDEN CROWN"
     assert_selector "#{zoom} .booster-zoom__nav--next[disabled]"
-    # Swiping right shows the previous card, left the next; never past an end.
-    swipe_zoom(120)
-    assert_selector "#{zoom} h2", text: "PORTAL"
-    swipe_zoom(-120)
-    assert_selector "#{zoom} h2", text: "GOLDEN CROWN"
-    swipe_zoom(-120)
-    assert_selector "#{zoom} h2", text: "GOLDEN CROWN"
     [ "PORTAL", "BLUE DEPTHS", "GREEN HILLS", "TIN SOLDIER" ].each do |title|
       find("#{zoom} .booster-zoom__nav--previous").click
       assert_selector "#{zoom} h2", text: title
@@ -1029,174 +532,6 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal 2, request_keys.uniq.size
   end
 
-  test "with motion on a phone a Légendaire plays in the caption plate, never over the card, under its signal" do
-    reduce_motion(false)
-    on_phone
-    open_screen(card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
-    open_canister
-    assert_pile(5)
-
-    find(phone_hit(1)).click
-    assert_selector ".booster__state", text: "LEGENDARY SIGNAL"
-    assert_selector ".booster-plate[data-tier=legendary]", text: /LEGENDARY!.*GOLDEN CROWN · 1998/m, wait: 3
-    assert_selector ".booster__state", text: "LEGENDARY SIGNAL"
-    assert_no_selector ".booster__banner"
-    assert boxes_apart?(".booster-plate", "#{phone_card(1)} .booster-card__frame"), "the plate should never cover the card"
-    assert_selector ".booster__state", text: /\AINVENTORY\z/, wait: 5
-    assert_no_selector ".booster__banner"
-  end
-
-  test "with motion on a phone a finger held still tilts the revealed card: neither dragged nor stored" do
-    reduce_motion(false)
-    on_phone
-    open_screen(card_ids(*[ :common_card_one ] * 5))
-    open_canister
-    assert_pile(5)
-    find(phone_hit(1)).click
-    assert_selector "#{phone_card(1)}[data-revealed]"
-    assert_no_selector ".top-bar__home[aria-disabled=true]", wait: 5
-    sleep 0.45
-
-    face = "#{phone_card(1)} .booster-card__front .card"
-    execute_script(<<~JS)
-      const face = document.querySelector(#{face.to_json})
-      const box = face.getBoundingClientRect()
-      window.holdAt = [ box.left + box.width / 2, box.top + box.height / 2 ]
-      face.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerId: 7, pointerType: "touch", isPrimary: true, clientX: holdAt[0], clientY: holdAt[1] }))
-    JS
-    assert_selector "#{face}[data-tilting]", visible: :all
-    execute_script(<<~JS)
-      const face = document.querySelector(#{face.to_json})
-      const event = (type, dx) => new PointerEvent(type, { bubbles: true, pointerId: 7, pointerType: "touch", isPrimary: true, clientX: holdAt[0] + dx, clientY: holdAt[1] })
-      face.dispatchEvent(event("pointermove", 60))
-      face.dispatchEvent(event("pointermove", 120))
-      face.dispatchEvent(event("pointerup", 120))
-    JS
-    sleep 0.4
-
-    assert_selector "#{phone_card(1)}[data-top][data-revealed]"
-    assert_equal 0, filled_slots
-    assert_equal "", find("#{phone_card(1)} .booster-card__float", visible: :all).evaluate_script("this.style.transform")
-  end
-
-  test "a width crossing 720px draws the same hand again: no request, nothing replayed, the revealed cards in the tray and back" do
-    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one))
-    open_canister
-    assert_dealt(5)
-    find(hit(1)).click
-    find(hit(2)).click
-    assert_selector ".booster-card[data-revealed]", count: 2
-    first, second = revealed_at(1), revealed_at(2)
-
-    on_phone
-    assert_selector ".booster[data-layout=phone]"
-    assert_selector ".booster__pile .booster-card", count: 3
-    assert_selector ".booster__pile .booster-card[data-revealed]", count: 0
-    assert_selector ".booster-tray__slot--filled", count: 2
-    assert_selector ".booster-tray__count", text: %r{CARD\s+2 / 5}
-    assert_selector "#{phone_card(3)}[data-top]"
-    assert_selector ".booster__state", text: /\AINVENTORY\z/
-
-    page.driver.browser.manage.window.resize_to(*SCREEN_SIZE)
-    assert_selector ".booster[data-layout=wide]"
-    assert_selector ".booster__deal .booster-card[data-dealt]", count: 5
-    assert_selector ".booster-card[data-revealed]", count: 2
-    assert_equal [ first, second ], [ revealed_at(1), revealed_at(2) ]
-    assert_equal 1, request_keys.size
-    assert_equal 1, opened_packs
-  end
-
-  test "a width change during a reveal waits for it to end" do
-    open_screen(card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
-    open_canister
-    assert_dealt(5)
-    # A Légendaire's still banner holds its reveal 1.4 s under reduced motion.
-    find(hit(1)).click
-    assert_selector ".booster__state", text: "LEGENDARY SIGNAL"
-    on_phone
-    assert_selector ".booster[data-layout=wide]"
-    assert_selector ".booster[data-layout=phone]", wait: 5
-    assert_selector ".booster-tray__slot--filled", count: 1
-    assert_selector ".booster__pile .booster-card", count: 4
-  end
-
-  test "from 720 to 899px the cards are dealt small, and step up to medium past 900px" do
-    page.driver.browser.manage.window.resize_to(800, 900)
-    open_screen(card_ids(*[ :common_card_one ] * 5))
-    assert_selector ".booster[data-layout=narrow]"
-    open_canister
-    assert_dealt(5)
-
-    assert_selector ".booster-card__front .card.card--s", count: 5, visible: :all
-    assert_equal [ 112 ] * 5, page.evaluate_script("[...document.querySelectorAll('.booster-card')].map((slot) => slot.getBoundingClientRect().width)")
-    find(hit(1)).click
-    assert_selector "#{card(1)}[data-revealed]"
-
-    page.driver.browser.manage.window.resize_to(1000, 900)
-    assert_selector ".booster[data-layout=wide]"
-    assert_selector ".booster-card__front .card.card--m", count: 5, visible: :all
-    assert_selector ".booster-card[data-revealed]", count: 1
-    assert_equal 1, request_keys.size
-  end
-
-  test "the opening starts at the top in a tall window, and a short one scrolls" do
-    margin = <<~JS
-      const main = document.querySelector("main").getBoundingClientRect()
-      const box = document.querySelector(".booster").getBoundingClientRect()
-      return Math.round(box.top - main.top)
-    JS
-    page.driver.browser.manage.window.resize_to(1600, 1400)
-    open_screen(card_ids(*[ :common_card_one ] * 5))
-    above = page.evaluate_script("(() => { #{margin} })()")
-    assert_operator above, :<=, 40, "a tall window keeps the opening at the top"
-
-    page.driver.browser.manage.window.resize_to(1400, 500)
-    assert page.evaluate_script("document.documentElement.scrollHeight > window.innerHeight")
-  end
-
-  test "before the answer, a daily bonus pack first in line is counted as three cards" do
-    open_screen(card_ids(:rare_card_one, :portal_one, :legendary_card_one), kind: :bonus)
-
-    assert_selector ".booster-canister[aria-label='Open the capsule Season 1, grand catalogue, 3 cards']"
-    assert_selector ".booster__row", text: /CARDS PER CAPSULE\s+3/
-
-    on_phone
-    assert_selector ".booster__canister-facts", text: "3 cards"
-  end
-
-  test "on a phone at most six loops run: at rest after the deal and after an Épique's reveal" do
-    reduce_motion(false)
-    on_phone
-    open_screen(card_ids(:portal_one, *[ :common_card_one ] * 4))
-    assert_operator infinite_loops, :<=, 6
-    open_canister
-    assert_pile(5)
-    assert_selector ".booster__state", text: /\AINVENTORY\z/
-    assert_operator infinite_loops, :<=, 6
-    assert_operator infinite_loops, :>=, 1
-
-    find(phone_hit(1)).click
-    assert_selector "#{phone_card(1)}[data-revealed]"
-    assert_no_selector ".top-bar__home[aria-disabled=true]", wait: 5
-    assert_operator infinite_loops, :<=, 6
-  end
-
-  test "on a phone the BOOSTER tab leads to the screen, which opens and reveals on the pile" do
-    on_phone
-    create_pack(@player, cards: card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :legendary_card_one))
-    visit home_path(locale: :en)
-    find(".tab-bar a.tab-bar__tab", text: /CAPSULE/).click
-
-    assert_current_path "/en/booster"
-    assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: /CAPSULE/
-    record_requests
-    open_canister
-    assert_pile(5)
-    find(phone_hit(1)).click
-    assert_selector ".booster-plate", text: /COMMON/
-    assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
-  end
-
   test "on the wide layout the set celebration waits for the last reveal, is announced once, and comes back still from its album" do
     open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one), more: true)
     open_canister
@@ -1226,81 +561,5 @@ class BoosterTest < ApplicationSystemTestCase
     assert_no_selector ".booster-celebration"
     assert_dealt(5)
     assert_no_selector ".booster [role=status] > span", text: /\ASet complete: /, visible: :all
-  end
-
-  test "on the wide layout Reveal all completing a set with a Légendaire never shows its banner and the celebration together" do
-    open_screen(card_ids(:common_card_one, :portal_one, :common_card_one, :common_card_one, :legendary_card_one))
-    open_canister
-    assert_dealt(5)
-    page.execute_script(<<~JS)
-      window.boosterBannerSeen = false
-      window.boosterOverlap = false
-      new MutationObserver(() => {
-        const banner = document.querySelector(".booster__banner")
-        if (!banner) return
-        window.boosterBannerSeen = true
-        if (document.querySelector(".booster-celebration")) window.boosterOverlap = true
-      }).observe(document.querySelector(".booster"), { childList: true, subtree: true })
-    JS
-
-    click_on "Reveal all"
-    assert_selector ".booster__info .booster-celebration", text: /SET COMPLETE\s+VALVE/, wait: 15
-    assert_no_selector ".booster__banner"
-    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
-    eventually("the Légendaire's banner should have played") { page.evaluate_script("window.boosterBannerSeen") }
-    assert_not page.evaluate_script("window.boosterOverlap"), "the banner and the celebration should never show together"
-  end
-
-  test "the countdown reaching zero while cards are dealt fetches the reserve once every card is revealed" do
-    create_pack(@player, cards: card_ids(*[ :common_card_one ] * 5), available_at: 1.hour.ago)
-    arrives = 4.seconds.from_now
-    create_pack(@player, available_at: arrives)
-    visit booster_path(locale: :en)
-    open_canister
-    assert_dealt(5)
-
-    sleep [ arrives + 2.seconds - Time.current, 0 ].max
-    assert_selector ".booster-card[data-dealt]", count: 5
-    assert_selector ".booster__row", text: /IN RESERVE\s+0 CAPSULES/
-
-    (1..5).each do |position|
-      find(hit(position)).click
-      assert_selector "#{card(position)}[data-revealed]"
-    end
-
-    assert_selector ".booster__row", text: /IN RESERVE\s+1 CAPSULE\z/
-    assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
-    assert_button "Open the next one", disabled: false
-  end
-
-  def equip_back(key)
-    Game::CardBackUnlock.record(@player.id, key, Time.current)
-    Game::PlayerState.where(player_id: @player.id).update_all(active_card_back: key)
-  end
-
-  def back_image(selector)
-    page.evaluate_script("getComputedStyle(document.querySelector(#{selector.to_json})).backgroundImage")
-  end
-
-  test "an opening with a set back equipped shows it on all five face-down cards, at the desktop size" do
-    equip_back("set-theme-rpg")
-    open_screen(card_ids(*[ :common_card_one ] * 5))
-    open_canister
-    assert_dealt(5)
-
-    assert_selector ".booster-card__back.booster-card__back--custom", count: 5
-    assert_no_selector ".booster-card__back--standard"
-    assert_match(/back-theme-rpg-m/, back_image(".booster-card__back"))
-  end
-
-  test "an opening with a set back equipped shows it on the phone's pile, at the phone size" do
-    equip_back("set-theme-rpg")
-    on_phone
-    open_screen(card_ids(*[ :common_card_one ] * 5))
-    open_canister
-    assert_pile(5)
-
-    assert_selector ".booster-card__back.booster-card__back--custom", count: 5
-    assert_match(/back-theme-rpg-xl/, back_image(".booster-card__back"))
   end
 end

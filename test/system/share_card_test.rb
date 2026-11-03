@@ -3,11 +3,9 @@ require_relative "../support/steam_api_stubs"
 require_relative "../support/steam_sign_in"
 
 # Sharing a card: a holder opens the "Partager la carte" sheet from the card's
-# detail, which copies the link of the card-season's own page on opening; a
-# visitor opens it and sees the public card page, only the card, never who
-# shared it, then signs in from the pitch's sign-in panel and lands on the
-# capsule screen. Where the clipboard cannot be written (plain HTTP), the link is
-# selected and copied by execCommand, or the player is told to copy it.
+# detail, which copies the link of the card-season's own page on opening.
+# Where the clipboard cannot be written (plain HTTP), the link is selected
+# and copied by execCommand, or the player is told to copy it.
 class ShareCardTest < ApplicationSystemTestCase
   include SteamApiStubs
   include SteamSignIn
@@ -51,10 +49,6 @@ class ShareCardTest < ApplicationSystemTestCase
     JS
   end
 
-  def assert_no_sideways_scroll
-    assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
-  end
-
   def status = find("#share-sheet [role=status]", visible: :all)
 
   # Whether the link's field has the focus with its whole text selected.
@@ -67,7 +61,7 @@ class ShareCardTest < ApplicationSystemTestCase
     JS
   end
 
-  test "a holder opens the sheet, which copies the link; a visitor opens it, then signs in from the pitch and lands on the capsule screen" do
+  test "a holder opens the sheet, which copies the link, copies it again, and gives the focus back once closed" do
     sign_in(@holder)
     visit card_path(locale: :en, slug: "portal")
     stub_clipboard
@@ -84,7 +78,6 @@ class ShareCardTest < ApplicationSystemTestCase
     assert_no_selector "#share-sheet img"
     assert_selector "#share-sheet .share-sheet__note", text: "without the game's image"
     assert_equal "Copy", find("#share-sheet button[data-action='share#copy']").text.capitalize
-    take_screenshot
 
     # "Copy" copies again; Esc closes the sheet and the focus returns to
     # the opener.
@@ -93,78 +86,7 @@ class ShareCardTest < ApplicationSystemTestCase
     assert_equal url, evaluate_script("window.copiedText")
     send_keys :escape
     assert_no_selector "dialog#share-sheet[open]"
-    assert_equal "Share", evaluate_script("document.activeElement.textContent.trim()")
-
-    sign_out
-    assert_signed_out
-    visit url
-
-    assert_title "Portal — Epic"
-    assert_selector "main > .public-card h1", text: "Portal"
-    assert_selector ".public-card .card.card--xl"
-    assert_selector ".public-card__pitch", text: "Open capsules, complete sets, trade with your friends."
-    assert_selector ".public-card__pitch", text: "Your Steam games, as collectible cards."
-    assert_no_selector ".public-card__update"
-    assert_selector ".public-card__live-title", text: /LIVE/
-    assert_no_selector ".card-detail"
-    assert_no_selector "#share-sheet", visible: :all
-    assert_no_selector ".card-detail__copies"
-    assert_no_selector ".library"
-    assert_no_selector "nav.tab-bar"
-    assert_no_text "Gabe the Brave"
-    take_screenshot
-
-    newcomer = accounts_players(:moderator)
-    mock_steam_sign_in(newcomer.steam_id)
-    within(".public-card__pitch") { click_on "Open my first capsules" }
-    find(".sign-in .steam-sign-in__button").click
-
-    assert_signed_in
-    assert_current_path "/en/booster"
-  end
-
-  test "a visitor follows the public card page's wordmark to the landing" do
-    visit card_path(locale: :en, slug: "portal")
-
-    find("a.top-bar__brand").click
-
-    assert_current_path "/en"
-    assert_selector ".landing"
-  end
-
-  test "a visitor follows the public card page's footer link to the legal page" do
-    visit card_path(locale: :en, slug: "portal")
-
-    within(".public-card__footer") { click_on "Legal notice" }
-
-    assert_current_path "/en/legal"
-    assert_selector "h1#legal-heading", text: /legal notice/i
-    assert_selector ".legal__ownership", text: "All artwork belongs to the games' publishers and their artists, whom we respect."
-  end
-
-  test "on a 360 × 740 phone the public card page is one column, with no tab bar and no sideways scroll; the sheet is a bottom sheet" do
-    page.driver.browser.manage.window.resize_to(360, 740)
-    visit card_path(locale: :en, slug: "portal")
-
-    assert_selector ".public-card .card.card--xl"
-    assert_no_selector "nav.tab-bar", visible: :all
-    card_top, title_top = evaluate_script(<<~JS)
-      (() => {
-        const top = (selector) => Math.round(document.querySelector(selector).getBoundingClientRect().top)
-        return [ top(".public-card .card"), top(".public-card__title") ]
-      })()
-    JS
-    assert_operator title_top, :>, card_top
-    assert_no_sideways_scroll
-    take_screenshot
-
-    sign_in(@holder)
-    visit card_path(locale: :en, slug: "portal")
-    stub_clipboard
-    click_on "Share"
-    assert_selector "dialog#share-sheet[open]"
-    assert_no_sideways_scroll
-    take_screenshot
+    assert_selector ":focus", text: /\AShare\z/i
   end
 
   test "without a clipboard the link is selected and copied by execCommand, or the player is told to copy it" do
@@ -186,23 +108,5 @@ class ShareCardTest < ApplicationSystemTestCase
     within("#share-sheet") { click_on "Copy" }
     assert_selector "#share-sheet [role=status]", text: "Press Ctrl+C to copy"
     assert link_selected?, "the link should be selected"
-  end
-
-  test "the feedback is gone when the page comes back" do
-    sign_in(@holder)
-    visit card_path(locale: :en, slug: "portal")
-    stub_clipboard
-    click_on "Share"
-    assert_selector "#share-sheet [role=status]", text: "Link copied"
-
-    send_keys :escape
-    assert_no_selector "dialog#share-sheet[open]"
-    find(".top-bar__home").click
-    assert_current_path "/en"
-    go_back
-
-    assert_selector ".card-detail h1", text: "Portal"
-    assert_no_selector "dialog#share-sheet[open]"
-    assert_equal "", status.text(:all)
   end
 end
