@@ -293,7 +293,3 @@ body:has(.landing) .atmosphere__twinkle {
 .atmosphere__vignette {
   box-shadow: var(--vignette-desktop);
 }
-
-.turbo-progress-bar {
-  display: none;
-}
