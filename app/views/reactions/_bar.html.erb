@@ -5,7 +5,7 @@
   <% Game::FeedReaction::KINDS.each do |kind| %>
     <% selected = summary.mine == kind %>
     <% face = capture do %>
-      <%= pixel_icon("reaction-#{kind.dasherize}", class: "feed__reaction-icon") %>
+      <%= image_tag vite_asset_path("images/reactions/#{kind.dasherize}.png"), alt: "", width: 16, height: 16, class: "feed__reaction-icon" %>
       <span class="visually-hidden"><%= t("reactions.names.#{kind}") %></span>
       <span class="feed__reaction-count" id="<%= ReactionStream.count_id(token, kind) %>"><%= summary.counts[kind] %></span>
     <% end %>

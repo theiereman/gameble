@@ -61,7 +61,7 @@ The rules behind these, and their reasons, are in [docs/architecture.md](docs/ar
 - **Migrations** are expand/contract (strong_migrations): a concurrent index in its own migration, a check added then validated in a second one.
 - **Code reads without comments**: carry intent in names and extracted methods; comment only an external constraint the code cannot state, in one line.
 - **English everywhere** in the repository, except `config/locales/fr.yml`.
-- **Generated files**: never hand-edit `app/frontend/images/pixel/`; run `node script/pixel_art/export.mjs` (`--check` verifies).
+- **Generated files**: never hand-edit `app/frontend/images/pixel/` or `app/frontend/images/reactions/`; run `node script/pixel_art/export.mjs` or `node script/reaction_icons/export.mjs` (`--check` verifies each).
 
 ## Read the codebase
 

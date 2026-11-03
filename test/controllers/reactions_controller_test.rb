@@ -152,6 +152,15 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[data-reaction-kind=thumb][aria-pressed=true]"
   end
 
+  test "each reaction shows its exported icon at 16 × 16, decorative beside its hidden name" do
+    sign_in(@reader)
+    get feed_entry_reactions_path(locale: :en, token: @entry.token)
+
+    assert_select "button[data-reaction-kind=middle_finger] img.feed__reaction-icon[src*='middle-finger'][alt=''][width='16'][height='16']"
+    assert_select "button[data-reaction-kind=middle_finger] .visually-hidden", "Middle finger"
+    assert_select "img.feed__reaction-icon[width='16'][height='16']", 5
+  end
+
   test "the bar of an entry the viewer may not see is not found" do
     @author.update!(visibility: "private")
 

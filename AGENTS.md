@@ -15,6 +15,7 @@ A free web trading card game where every card is a Steam game. Rails 8 with doma
 - Unless the session works for the author (GitHub user `theiereman`), work on a branch cut from `develop` and finish by opening a pull request to `develop`; never push to `develop`. The author reviews and merges.
 - Never commit `config/*.key`.
 - Never hand-edit `app/frontend/images/pixel/`; run `node script/pixel_art/export.mjs` (`--check` verifies).
+- Never hand-edit `app/frontend/images/reactions/`; run `node script/reaction_icons/export.mjs` (`--check` verifies).
 - Never edit a plan's `<frozen-after-approval>` block or settle an entry in `pending-approvals.md`; only the author does.
 
 ## Rules that break other files

@@ -46,8 +46,7 @@ button.feed__reaction:focus-visible {
 
 .feed__reaction-icon {
   flex: none;
-  height: 1.25em;
-  width: auto;
+  image-rendering: pixelated;
 }
 
 .feed__reaction-count {
