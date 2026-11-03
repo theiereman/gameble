@@ -3,7 +3,7 @@ title: 'The Personalization page picks a back in one step and says how each back
 type: 'feature'
 ticket: '12'
 created: '2026-11-01'
-status: 'built'
+status: done
 baseline_revision: 'ded021fb11ba64766b8b94ed5924bd3ab41808de'
 route: 'full'
 route_source: 'auto'

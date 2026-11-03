@@ -3,7 +3,7 @@ title: 'A capsule with two Rare-or-better cards earns Statistical Non-Compliance
 type: 'feature'
 ticket: '1'
 created: '2026-11-01'
-status: 'built'
+status: done
 baseline_revision: 'ded021fb11ba64766b8b94ed5924bd3ab41808de'
 route: 'full'
 route_source: 'auto'

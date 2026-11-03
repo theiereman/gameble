@@ -3,7 +3,7 @@ title: 'Lazy Opener and Hardworking from the reveal streaks'
 type: 'feature'
 ticket: '10'
 created: '2026-11-02'
-status: built
+status: done
 baseline_revision: '28d15f8c59a13270fa9eae008871d1a90d775082'
 route: 'oneshot'
 route_source: 'auto'

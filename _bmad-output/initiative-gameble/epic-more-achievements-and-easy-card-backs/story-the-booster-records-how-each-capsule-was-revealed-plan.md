@@ -3,7 +3,7 @@ title: 'The booster records how each capsule was revealed'
 type: 'feature'
 ticket: '3'
 created: '2026-11-01'
-status: 'built'
+status: done
 baseline_revision: 'ded021fb11ba64766b8b94ed5924bd3ab41808de'
 route: 'full'
 route_source: 'auto'

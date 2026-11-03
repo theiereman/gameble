@@ -3,7 +3,7 @@ title: 'A trade started from a suggestion follows the trade rules'
 type: 'feature'
 ticket: '4'
 created: '2026-11-01'
-status: 'built'
+status: done
 baseline_revision: 'c0c7ca4672bda64f2d74f31f1b372ea205f62a24'
 route: 'full'
 route_source: 'auto'
