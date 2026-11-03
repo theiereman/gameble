@@ -1,12 +1,22 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
 
-# "/" sends a visitor to the landing, a player to the hub, in the browser's locale.
+# "/" sends a visitor to the landing, a player to the capsule screen, in the browser's locale.
 class LocalesControllerTest < ActionDispatch::IntegrationTest
   include SteamSignIn
 
-  test "a signed-in player goes to the hub" do
+  test "a signed-in player goes to the capsule screen" do
     sign_in(accounts_players(:player))
+
+    get "/", headers: { "Accept-Language" => "fr-FR,fr;q=0.9,en;q=0.8" }
+
+    assert_redirected_to "/fr/booster"
+  end
+
+  test "a signed-in player still awaiting the welcome goes to the hub" do
+    player = accounts_players(:player)
+    player.update!(welcome_pending: true)
+    sign_in(player)
 
     get "/", headers: { "Accept-Language" => "fr-FR,fr;q=0.9,en;q=0.8" }
 

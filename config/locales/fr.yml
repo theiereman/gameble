@@ -1265,6 +1265,11 @@ fr:
       empty_standard: "Aucune capsule standard pour le moment"
       empty_special: "Aucune capsule spéciale pour le moment"
     reserve_empty: "Réserve vide"
+    skip: "Passer"
+    daily:
+      title: "Capsule quotidienne"
+      ready: "Prête"
+      collect: "Récupérer"
     reveal_all: "Tout révéler"
     canister_hint: "Cliquez pour ouvrir"
     canister_season: "Saison %{number}"

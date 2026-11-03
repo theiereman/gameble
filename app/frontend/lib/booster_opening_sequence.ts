@@ -59,6 +59,7 @@ import { sendOpening, type OpeningAnswer } from "./opening"
 
 export type OpeningSequenceHost = BoosterStageHost &
   Readonly<{
+    root: HTMLElement
     openUrl: string
     reserve: () => string
     failedMessage: string
@@ -68,6 +69,10 @@ export type OpeningSequenceHost = BoosterStageHost &
   }>
 
 export class OpeningSequence {
+  private skipping = false
+  private skipped: Promise<void> = new Promise(() => {})
+  private skipNow = (): void => {}
+
   constructor(private readonly host: OpeningSequenceHost) {}
 
   async open(): Promise<void> {
@@ -75,17 +80,16 @@ export class OpeningSequence {
     const before = host.current()
     if (host.apply(openingStarted) === before) return
     host.apply(lock)
+    this.armSkip()
+    const key = host.current().pendingKey ?? newKey()
+    const request = sendOpening({ url: host.openUrl, reserve: host.reserve(), key, csrfToken: csrfToken() })
     if (before.phase === "dealt") await this.retract()
     rememberPack(null)
 
-    const key = host.current().pendingKey ?? newKey()
     host.apply((s) => arming(s, key))
     const reduced = motionReduced()
     if (!reduced) animate(host.canister()?.move, armKeyframes(), { duration: ARM_MS, fill: "forwards" })
-    const [result] = await Promise.all([
-      sendOpening({ url: host.openUrl, reserve: host.reserve(), key, csrfToken: csrfToken() }),
-      host.timers().wait(reduced ? 0 : ARM_MS),
-    ])
+    const [result] = await Promise.all([request, this.pause(reduced ? 0 : ARM_MS)])
     if (host.timers().disposed) return
     if (result.kind !== "opened") {
       this.refuse(result)
@@ -101,6 +105,28 @@ export class OpeningSequence {
 
     host.apply(openingEnded)
     host.apply(unlock)
+  }
+
+  skip(): void {
+    if (this.skipping || this.host.current().phase !== "opening") return
+    this.skipping = true
+    this.skipNow()
+  }
+
+  private armSkip(): void {
+    this.skipping = false
+    this.skipped = new Promise((resolve) => (this.skipNow = resolve))
+  }
+
+  private async pause(ms: number): Promise<void> {
+    await Promise.race([this.host.timers().wait(ms), this.skipped])
+    if (this.skipping) this.finishAnimations()
+  }
+
+  private finishAnimations(): void {
+    for (const animation of this.host.root.getAnimations?.({ subtree: true }) ?? []) {
+      if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) animation.finish()
+    }
   }
 
   private refuse(result: OpeningRefusal): void {
@@ -145,7 +171,7 @@ export class OpeningSequence {
 
   private async blowAndDeal(count: number): Promise<void> {
     const { host } = this
-    const { wait, later } = host.timers()
+    const { later } = host.timers()
     const parts = host.canister()
     host.apply(ejecting)
     animate(parts?.capTop, capTopKeyframes(), {
@@ -163,7 +189,7 @@ export class OpeningSequence {
     blast(host.fx(), parts?.button)
     stageFlash(host.flash(), "warm", 0.35, FLASH_MS)
     stageShake(host.shake(), 5, SHAKE_MS)
-    await wait(HEAD_DELAY)
+    await this.pause(HEAD_DELAY)
     host.apply(resultHeadShown)
 
     const origin = host.canister()?.button?.getBoundingClientRect()
@@ -186,10 +212,12 @@ export class OpeningSequence {
         fill: "backwards",
         easing: "linear",
       })
-      later(delay + DEAL_MS * DEAL_LAND_AT, () => stageShake(host.shake(), 1.5, LAND_SHAKE_MS))
+      later(delay + DEAL_MS * DEAL_LAND_AT, () => {
+        if (!this.skipping) stageShake(host.shake(), 1.5, LAND_SHAKE_MS)
+      })
       end = Math.max(end, delay + DEAL_MS)
     })
-    await wait(end)
+    await this.pause(end)
   }
 
   private async fadeAndDeal(count: number): Promise<void> {
@@ -204,6 +232,6 @@ export class OpeningSequence {
         fill: "backwards",
       })
     }
-    await host.timers().wait(Math.max(RM_CANISTER_FADE, RM_CARD_FADE + (count - 1) * RM_FADE_STAGGER))
+    await this.pause(Math.max(RM_CANISTER_FADE, RM_CARD_FADE + (count - 1) * RM_FADE_STAGGER))
   }
 }

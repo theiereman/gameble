@@ -8,6 +8,8 @@ class BridgeCacheTest < ApplicationSystemTestCase
     mock_steam_sign_in(accounts_players(:player).steam_id)
     visit home_path(locale: :en)
     click_steam_sign_in
+    assert_signed_in
+    visit home_path(locale: :en)
     assert_selector ".hub"
     find(".hub-menu .menu-item[aria-keyshortcuts='2']").click
     assert_current_path library_path(locale: :en)

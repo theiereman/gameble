@@ -36,7 +36,7 @@ class SessionsController < ApplicationController
     if (invite = invite_origin)
       redirect_to invite, notice: t(".welcome")
     else
-      redirect_to home_path, notice: (t(".welcome") unless player.welcome_pending), flash: { signed_in: true }
+      redirect_to landing_path_for(player), notice: (t(".welcome") unless player.welcome_pending), flash: { signed_in: true }
     end
   end
 

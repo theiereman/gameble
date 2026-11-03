@@ -28,7 +28,7 @@ export default class BoosterActionsController extends Controller<HTMLElement> {
     this.busy = busy
     this.openTarget.dataset.open = open
     this.openTarget.disabled = openDisabled
-    writeFlag(this.openTarget, "aria-disabled", !openDisabled && busy)
+    writeFlag(this.openTarget, "aria-disabled", !openDisabled && busy && open !== "skip")
     this.revealAllTarget.disabled = revealAllDisabled
     this.reasonTarget.hidden = reason === null
     writeText(this.reasonTarget, reason ?? "")
@@ -44,7 +44,8 @@ export default class BoosterActionsController extends Controller<HTMLElement> {
   }
 
   open(): void {
-    if (!this.busy) this.dispatch("open")
+    if (this.openTarget.dataset.open === "skip") this.dispatch("skip")
+    else if (!this.busy) this.dispatch("open")
   }
 
   revealAll(): void {

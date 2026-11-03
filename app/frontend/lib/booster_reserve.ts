@@ -10,6 +10,12 @@ export function reserveSelected(state: BoosterState, reserve: Reserve): BoosterS
   return { ...state, reserve, phase: "sealed", status: "sealed", reason: null }
 }
 
+export function dailyCapsuleChosen(state: BoosterState): BoosterState {
+  const resting = state.phase === "sealed" || state.phase === "empty"
+  if (!resting || reserveCount(state.bank, state.reserve) > 0) return state
+  return reserveSelected(state, "special")
+}
+
 export function reservesUnlocked(before: BoosterBank, after: BoosterBank): readonly Reserve[] {
   return RESERVES.filter((reserve) => reserveCount(before, reserve) === 0 && reserveCount(after, reserve) > 0)
 }

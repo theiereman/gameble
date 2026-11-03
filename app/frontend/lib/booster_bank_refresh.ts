@@ -1,4 +1,11 @@
-import { bankFetchOwed, bankFetched, countdownAtZero, reservesUnlocked, type BoosterState } from "./booster"
+import {
+  bankFetchOwed,
+  bankFetched,
+  countdownAtZero,
+  dailyCapsuleChosen,
+  reservesUnlocked,
+  type BoosterState,
+} from "./booster"
 import { fetchBank } from "./booster_bank"
 import type { Transition } from "./booster_host"
 import { refreshPage } from "./booster_page"
@@ -23,6 +30,11 @@ export class BankRefresh {
     const before = this.host.current().bank
     const after = this.host.apply((s) => bankFetched(s, fresh, generation))
     if (after.bank === fresh) reservesUnlocked(before, fresh).forEach((reserve) => this.host.announce(reserve))
+  }
+
+  async dailyCollected(): Promise<void> {
+    await this.refresh()
+    if (!this.host.disposed()) this.host.apply(dailyCapsuleChosen)
   }
 
   atZero(): void {

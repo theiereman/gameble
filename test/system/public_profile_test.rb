@@ -37,6 +37,7 @@ class PublicProfileTest < ApplicationSystemTestCase
     click_steam_sign_in
     assert_signed_in
     assert_equal "Gabe the Brave", @player.reload.persona_name
+    visit home_path(locale: :en)
 
     within(".hub-menu") { click_on "Collection" }
     assert_current_path library_path(locale: :en)

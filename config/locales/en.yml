@@ -548,6 +548,10 @@ en:
     card_label: "%{title} — %{details}"
     cards_per_pack: Cards per capsule
     close: Close
+    daily:
+      collect: Collect
+      ready: Ready
+      title: Daily capsule
     hint_swipe: Swipe the card to store it · or tap it
     hint_tap: Tap the card to reveal it
     in_reserve: In reserve
@@ -572,6 +576,7 @@ en:
     result: Capsule result
     reveal_all: Reveal all
     see_card: See the card
+    skip: Skip
     state: State
     states:
       arming: Arming

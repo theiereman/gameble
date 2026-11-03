@@ -53,7 +53,18 @@ import type BoosterZoomController from "./booster_zoom_controller"
 const ANNOUNCEMENTS_KEPT = 5
 
 export class BoosterController extends Controller<HTMLElement> {
-  static targets = ["panelActions", "phoneActions", "live", "announcement", "rarity", "pack", "card", "face", "setTier"]
+  static targets = [
+    "panelActions",
+    "phoneActions",
+    "live",
+    "announcement",
+    "rarity",
+    "pack",
+    "card",
+    "face",
+    "setTier",
+    "dailyCollected",
+  ]
   static values = {
     openUrl: String,
     reserve: String,
@@ -128,7 +139,7 @@ export class BoosterController extends Controller<HTMLElement> {
     timers: () => this.timers,
     apply: (transition) => this.apply(transition),
     announce: (text) => this.announce(text),
-    phoneLayout: () => this.phoneLayout(),
+    phoneLayout: () => this.current.layout === "phone",
   })
 
   private renderer?: BoosterRenderer
@@ -139,11 +150,6 @@ export class BoosterController extends Controller<HTMLElement> {
   private gameplay?: Gameplay
 
   private readonly visibilityChanged = (): void => this.countdown?.visibilityChanged()
-
-  private readonly face = (index: number): DocumentFragment | null => {
-    const size = this.state ? faceSize(this.state.layout) : "m"
-    return this.faces.faceFragment(index, size)
-  }
 
   connect(): void {
     this.timers = screenTimers()
@@ -189,11 +195,16 @@ export class BoosterController extends Controller<HTMLElement> {
   boosterTrayOutletConnected = (): void => this.render()
   boosterZoomOutletConnected = (): void => this.render()
   boosterCelebrationOutletConnected = (): void => this.render()
+  dailyCollectedTargetConnected = (): void => void this.bankRefresh?.dailyCollected()
   selectReserve = ({ detail: { reserve } }: Intent<{ reserve: Reserve }>): void =>
     void this.apply((s) => reserveSelected(s, reserve))
 
   open(): void {
     void this.opening?.open()
+  }
+
+  skip(): void {
+    this.opening?.skip()
   }
 
   revealAll(): void {
@@ -278,10 +289,6 @@ export class BoosterController extends Controller<HTMLElement> {
     return this.state!
   }
 
-  private get strings(): BoosterStrings {
-    return this.stringsValue
-  }
-
   private apply(transition: Transition): BoosterState {
     const before = this.state
     if (!before || this.timers.disposed) return before!
@@ -289,7 +296,7 @@ export class BoosterController extends Controller<HTMLElement> {
     if (after === before) return before
     this.state = after
     this.render()
-    reflectChange(before, after, this.countdown, this.strings.goalReached, () => {
+    reflectChange(before, after, this.countdown, this.stringsValue.goalReached, () => {
       if (!this.timers.disposed) this.whenIdle()
     })
     return after
@@ -317,14 +324,15 @@ export class BoosterController extends Controller<HTMLElement> {
       bankUrl: this.bankUrlValue,
       disposed: () => this.timers.disposed,
       apply: (transition) => this.apply(transition),
-      announce: (r) => this.announce(r === "special" ? this.strings.specialArrived : this.strings.standardReady),
+      announce: (r) => this.announce(this.stringsValue[r === "special" ? "specialArrived" : "standardReady"]),
     })
     this.opening = new OpeningSequence({
       ...this.stageHost,
+      root: this.element,
       openUrl: this.openUrlValue,
       reserve: () => this.current.reserve,
-      failedMessage: this.strings.failed,
-      refusedTitle: this.strings.refusedTitle,
+      failedMessage: this.stringsValue.failed,
+      refusedTitle: this.stringsValue.refusedTitle,
       keepFaces: (answer) => this.faces.keepFaces(answer),
       refreshBank: () => this.bankRefresh!.refresh(),
     })
@@ -334,7 +342,7 @@ export class BoosterController extends Controller<HTMLElement> {
       apply: (transition) => this.apply(transition),
       announce: (text) => this.announce(text),
       focusElement: (target) => this.access.focusElement(target),
-      celebrationStrings: this.strings.celebration,
+      celebrationStrings: this.stringsValue.celebration,
       delimiter: this.delimiterValue,
     })
     this.layoutWatch = new LayoutWatch({
@@ -343,7 +351,7 @@ export class BoosterController extends Controller<HTMLElement> {
     })
     this.gameplay = gameplayFor({
       stage: this.stageHost,
-      strings: this.strings,
+      strings: this.stringsValue,
       delimiter: this.delimiterValue,
       cardUrl: this.cardUrlValue,
       repostUrl: this.repostUrlValue,
@@ -355,7 +363,7 @@ export class BoosterController extends Controller<HTMLElement> {
       element: this.element,
       panelActions: this.panelActionsTarget,
       phoneActions: this.phoneActionsTarget,
-      strings: this.strings,
+      strings: this.stringsValue,
       delimiter: this.delimiterValue,
       packSize: this.packSizeValue,
       season: this.seasonValue,
@@ -366,19 +374,11 @@ export class BoosterController extends Controller<HTMLElement> {
       outlets: () => outletsOf(this),
       apply: (transition) => this.apply(transition),
       tierLabel: (tier) => this.faces.tierLabel(tier),
-      number: (value) => this.number(value),
-      face: this.face,
+      number: (value) => formatNumber(value, this.delimiterValue),
+      face: (index) => this.faces.faceFragment(index, this.state ? faceSize(this.state.layout) : "m"),
       faceFragment: (index, size) => this.faces.faceFragment(index, size),
       icon: (tier) => this.faces.icon(tier),
     })
-  }
-
-  private number(value: number): string {
-    return formatNumber(value, this.delimiterValue)
-  }
-
-  private phoneLayout(): boolean {
-    return this.current.layout === "phone"
   }
 
   private whenIdle(): void {

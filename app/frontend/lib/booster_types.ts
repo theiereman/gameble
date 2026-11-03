@@ -102,7 +102,7 @@ export type OpeningRefusal = Exclude<OpeningResult, { kind: "opened" }>
 
 export type Activation = "reveal" | "store" | "leave" | "none"
 
-export type OpenVariant = "open" | "next" | "empty"
+export type OpenVariant = "open" | "next" | "empty" | "skip"
 
 export type StatusTone = "alert" | "gold" | "done" | "rest"
 

@@ -24,6 +24,7 @@ class DailyBonusTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
+    visit home_path(locale: :en)
     assert_selector BADGE, text: "9", wait: 10
     take_screenshot
 
@@ -57,6 +58,7 @@ class DailyBonusTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
+    visit home_path(locale: :en)
     assert_selector BADGE, text: "9", wait: 10
   end
 
@@ -124,6 +126,7 @@ class DailyBonusTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
+    visit home_path(locale: :en)
     assert_selector BADGE, text: "10", wait: 10
 
     within(".daily-booster") { click_on "Collect" }

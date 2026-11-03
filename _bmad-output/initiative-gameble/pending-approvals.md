@@ -21,6 +21,12 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
   - The render has run only against the development and CI builds of libvips, never inside the Docker image: on staging, open a card page, wait a few seconds, reload, and check the page carries `og:image` and the image shows the card's title in VT323 and a pixelated art. A missing text or palette feature in the image's libvips shows as a Sentry report from `CardShareImageJob` or as unquantised art.
   - The images are stored by Active Storage on the `local` service, under `/rails/storage` (the `gameble_storage` volume): a lost volume with the database kept leaves each stored image's tags pointing at a missing file until the `catalog_share_images` rows are cleared or `CardShareImage::RENDER_VERSION` is bumped, after which each card page enqueues its render again.
 
+- Entry 33.6, "Open every capsule from one thumb" (2026-11-03): built with conservative choices that the author confirms or changes:
+  - The capsule screen is where a signed-in player arrives (the bare `/`, the installed app's start, a sign-in with no specific origin), but the hub still exists at `/<locale>` behind the G button. Should the hub go entirely (its welcome dialog, showcase, weekly mission panel, sets in progress and LIVE ticker then need another home)?
+  - A player whose welcome is still pending lands on the hub, not the capsule screen, so the welcome dialog shows once as today.
+  - Collecting the daily capsule on the capsule screen selects the SPÉCIALES tab when the standard reserve is empty; any other capsule arriving while the screen is open still leaves the selected tab unchanged, as `EXPERIENCE.md` says.
+  - Warming the next capsule's art: built as sending the next opening as soon as "OUVRIR LA SUIVANTE" is pressed, while the previous hand sinks away. Rendering the next capsule's art before the player presses would send that capsule's cards to the browser before it is opened (a player could read them in the network panel) and `OpenPack` may still redraw them; build it only if the author accepts that.
+
 ## Settled on 2026-11-02
 
 Settled by the author in conversation on 2026-11-02.

@@ -140,11 +140,19 @@ describe("controls", () => {
     expect(controls(startWith({ bank: bank(0) }))).toMatchObject({ open: "empty", openDisabled: true })
     const opening = arming(openingStarted(startWith({ bank: bank(1) })), "key")
     expect(controls({ ...opening, bank: bank(0) })).toMatchObject({
-      open: "open",
+      open: "skip",
       openDisabled: false,
       busy: true,
       tone: "alert",
     })
+  })
+
+  it("offers to skip the animation, enabled, from arming until the cards are dealt", () => {
+    const opening = arming(lock(openingStarted(startWith())), "key")
+    expect(controls(opening)).toMatchObject({ open: "skip", openDisabled: false })
+    expect(controls(ejecting(opening))).toMatchObject({ open: "skip", openDisabled: false })
+    expect(controls(revealedAll(dealt()))).toMatchObject({ open: "next", openDisabled: false })
+    expect(controls(openingStarted(revealedAll(dealt())))).toMatchObject({ open: "next" })
   })
 
   it("holds the next one until every card is shown, and counts what is left", () => {

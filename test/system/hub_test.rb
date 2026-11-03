@@ -4,8 +4,8 @@ require_relative "../support/steam_sign_in"
 
 # The hub, "Pont de commandement": its layout on a desktop, on two columns
 # and on two phones, signed in and out; the sign-in panel and its focus; the
-# menu's number keys and the item focused on the way back; landing on the hub
-# after signing in and out.
+# menu's number keys and the item focused on the way back; landing on the
+# capsule screen after signing in, on the landing after signing out.
 class HubTest < ApplicationSystemTestCase
   include GamePacks
   include SteamSignIn
@@ -26,14 +26,12 @@ class HubTest < ApplicationSystemTestCase
     page.evaluate_script("document.activeElement.getAttribute('aria-keyshortcuts')")
   end
 
-  def focused?(selector)
-    page.evaluate_script("document.activeElement.matches(#{selector.to_json})")
-  end
-
   def sign_in
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
+    assert_current_path booster_path(locale: :en)
+    visit home_path(locale: :en)
   end
 
   def item(key)
@@ -190,8 +188,8 @@ class HubTest < ApplicationSystemTestCase
       create_pack(@player)
       click_steam_sign_in
       assert_signed_in
-      # The menu is hidden: the heading takes the focus a sign-in asks for.
-      assert focused?("h1.hub__title"), "the heading should hold the focus"
+      assert_current_path booster_path(locale: :en)
+      visit home_path(locale: :en)
       order = %w[.hub__kicker .hub-showcase #community-goal .daily-booster .hub-sets].map do |selector|
         page.evaluate_script("document.querySelector(#{selector.to_json}).getBoundingClientRect().top")
       end
@@ -235,7 +233,7 @@ class HubTest < ApplicationSystemTestCase
     assert_selector "h1#legal-heading", text: /LEGAL NOTICE AND PRIVACY/i
   end
 
-  test "signing in from a card page's pitch lands on the hub" do
+  test "signing in from a card page's pitch lands on the capsule screen" do
     create_pack(@player)
     visit card_path(locale: :en, slug: "portal")
 
@@ -243,15 +241,12 @@ class HubTest < ApplicationSystemTestCase
     find(".sign-in .steam-sign-in__button").click
 
     assert_signed_in
-    assert_current_path home_path(locale: :en)
-    assert_equal "1", focused_item
+    assert_current_path booster_path(locale: :en)
   end
 
   test "number keys act only inside the menu, never on a disabled item; the item used is focused on the way back" do
     create_pack(@player)
     sign_in
-    # Signing in focuses menu 01.
-    assert_equal "1", focused_item
     take_screenshot
 
     item("1").send_keys("0")
@@ -289,7 +284,7 @@ class HubTest < ApplicationSystemTestCase
     assert_equal "1", focused_item
   end
 
-  test "a sign-in focuses menu 01 even when another item was used before it" do
+  test "a sign-in lands on the capsule screen even when a hub item was used before it" do
     create_pack(@player)
     sign_in
     item("2").click
@@ -300,9 +295,7 @@ class HubTest < ApplicationSystemTestCase
 
     click_steam_sign_in
     assert_signed_in
-    assert_current_path home_path(locale: :en)
-    assert_equal "1", focused_item
-    assert_nil page.evaluate_script("sessionStorage.getItem('gameble:hub-menu-item')"), "the stored item is consumed"
+    assert_current_path booster_path(locale: :en)
   end
 
   test "signing out is a full page load that lands on the landing" do

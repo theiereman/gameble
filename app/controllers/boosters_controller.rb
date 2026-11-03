@@ -7,7 +7,7 @@ class BoostersController < ApplicationController
 
   def show
     authorize :booster, :show?
-    @bank = Game::BankSummary.reserve(current_player)
+    @bank = Game::BankSummary.call(current_player)
     @reserve = initial_reserve
     @next_pack_size = Game::NextPackSize.call(current_player)
     respond_to do |format|

@@ -480,3 +480,15 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-header-that-fits-on-a-phone-plan.md`
   summary: On phone, screens with a top_bar_status (the collection) show the G but no merged capsule counter.
   evidence: the status replaces the header counters in the template; the author decides whether the counter joins the status or replaces it.
+
+## Deferred from: build of story-open-every-capsule-from-one-thumb-plan (2026-11-03)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-open-every-capsule-from-one-thumb-plan.md`
+  summary: Collecting the daily capsule on the capsule screen selects the special tab only while no hand is on the table; right after the last standard capsule (hand still dealt) the empty standard tab stays selected until the player taps SPÉCIALES.
+  evidence: `dailyCapsuleChosen` in `app/frontend/lib/booster_reserve.ts` acts only in the sealed and empty phases; extending it to a fully revealed hand is a small change if the author wants it.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-open-every-capsule-from-one-thumb-plan.md`
+  summary: Warming the next capsule's art before the player presses the button is not built; the next opening is sent while the previous hand sinks away instead.
+  evidence: the next capsule's cards reach the browser only in its opening answer, and `OpenPack` may redraw them; rendering them earlier would show an unopened capsule's cards in the network panel. Waits on the author (pending-approvals, entry 33.6).
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-open-every-capsule-from-one-thumb-plan.md`
+  summary: No code review pass was run on this story, and the system tests were not rerun after the author dropped them; the orchestrator's review and the release's full system run cover it.
+  evidence: the author asked for the story to be committed and reported at once (2026-11-03).

@@ -1,5 +1,6 @@
 module OpensPlayerSession
   extend ActiveSupport::Concern
+  include PlayerLanding
 
   CLERK_SESSION_COOKIE = "__session".freeze
 
@@ -32,7 +33,7 @@ module OpensPlayerSession
       if (invite = invite_target(origin))
         redirect_to invite, notice: t("sessions.create.welcome"), status: :see_other
       else
-        redirect_to origin || home_path, notice: (t("sessions.create.welcome") unless player.welcome_pending), flash: { signed_in: true }, status: :see_other
+        redirect_to landing_path_for(player, origin), notice: (t("sessions.create.welcome") unless player.welcome_pending), flash: { signed_in: true }, status: :see_other
       end
     end
 

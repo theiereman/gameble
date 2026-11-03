@@ -25,6 +25,7 @@ class ShellTest < ApplicationSystemTestCase
     visit home_path(locale:)
     click_steam_sign_in
     assert_selector ".top-bar .player-chip", visible: :all
+    visit home_path(locale:)
   end
 
   def assert_no_sideways_scroll
@@ -402,7 +403,6 @@ class ShellTest < ApplicationSystemTestCase
     Game::FillBank.new.call(player:).value!
     Game::OpenPack.new.call(player:).value!
     sign_in(player)
-    find(".toasts .toast__close").click
     assert_no_selector ".toasts .toast"
     page.execute_script(<<~JS)
       for (const message of ["One toast already on screen.", "Another toast already on screen."]) {

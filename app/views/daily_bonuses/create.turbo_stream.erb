@@ -3,6 +3,7 @@
     <%= render "pages/daily_booster", bank: @bank, primary: false, arc: @collected %>
   <% end %>
 <% end %>
+<%= turbo_stream.replace "booster-daily", partial: "boosters/daily", locals: { bank: @bank } %>
 <%= turbo_stream.replace "packs-chip", partial: "shell/packs_chip", locals: { bank: @bank, refresh: true } %>
 <%= turbo_stream.replace "hub-menu-booster", partial: "pages/menu_booster", locals: { bank: @bank } %>
 <%= turbo_stream.replace "hub-showcase-actions", partial: "pages/showcase_actions", locals: { bank: @bank } %>

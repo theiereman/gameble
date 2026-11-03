@@ -35,6 +35,7 @@ class LibraryTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
+    visit home_path(locale: :en)
   end
 
   def assert_no_sideways_scroll

@@ -4,7 +4,7 @@ module BoostersHelper
                legendarySignal: "legendary_signal", complete: "complete", waiting: "waiting" }.freeze
   BOOSTER_CHILDREN = %w[booster-info].freeze
   BOOSTER_ACTIONS = {
-    "booster-actions" => { open: :open, reveal: :revealAll, back: :guardBack },
+    "booster-actions" => { open: :open, skip: :skip, reveal: :revealAll, back: :guardBack },
     "booster-reserves" => { select: :selectReserve },
     "booster-canister" => { open: :open },
     "booster-stage" => { activate: :activateCard, repost: :repostCard, press: :pressCard, release: :releaseCard },

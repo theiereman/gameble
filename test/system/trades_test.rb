@@ -37,6 +37,7 @@ class TradesTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
+    visit home_path(locale: :en)
   end
 
   def assert_screen_change

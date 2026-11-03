@@ -3,6 +3,7 @@
 <%= tag.section id: "booster", class: "booster", aria: { labelledby: "booster-panel-title" }, data: booster_root_data(bank:, season:, next_pack_size:, reserve:) do %>
   <%= render("boosters/strip", season:, bank:) %>
   <%= render("boosters/reserves", bank:, reserve:) %>
+  <%= render("boosters/daily", bank:) if bank[:bonus_collectable] %>
   <%= render("boosters/info", season:, bank:, size:, reserve:) %>
   <%= render "boosters/stage", season:, available: booster_reserve_size(bank, reserve), reserve:, origin: booster_origin(bank, reserve), next_size: next_pack_size || Game::Pack::SIZE %>
   <div class="booster__phone-actions" data-booster-target="phoneActions"></div>

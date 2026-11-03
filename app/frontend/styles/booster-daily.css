@@ -1,0 +1,43 @@
+/* The ready daily capsule on the capsule screen: one line and its collect button. */
+.booster-daily {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
+}
+
+.booster-daily__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.booster-daily__title {
+  color: var(--color-text);
+}
+
+.booster-daily__dot {
+  color: var(--color-muted);
+}
+
+.booster-daily__state {
+  color: var(--color-lime);
+}
+
+.booster-daily .button {
+  min-height: 44px;
+}
+
+.booster[data-layout="phone"] .booster-daily {
+  margin-top: var(--space-2);
+}

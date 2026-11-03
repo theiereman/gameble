@@ -128,7 +128,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
       assert_select ".booster__state-word span[data-status=legendarySignal]", "Legendary signal"
     end
     assert_select "#{ROOT} .booster-strip h2#booster-title", "Season 1 · Grand catalogue"
-    assert_select "#{ROOT} .booster__actions button.booster__open", "Open the capsuleOpen the next oneReserve empty"
+    assert_select "#{ROOT} .booster__actions button.booster__open", "Open the capsuleOpen the next oneReserve emptySkip"
     assert_select "#{ROOT} .booster__actions button.booster__reveal-all[disabled]", "Reveal all"
     assert_select "#{ROOT} .booster__actions a", 0
 

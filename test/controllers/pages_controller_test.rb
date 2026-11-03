@@ -686,7 +686,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert ids.none? { |id| body.match?(/["\/=]#{id}["\/&]/) }, "no database id in the hub"
   end
 
-  test "a sign-in lands on the hub, asking it to focus the first menu item" do
+  test "a sign-in awaiting the welcome lands on the hub, asking it to focus the first menu item" do
+    @player.update!(welcome_pending: true)
     sign_in(@player, origin: "/fr/library")
 
     assert_redirected_to "/fr"

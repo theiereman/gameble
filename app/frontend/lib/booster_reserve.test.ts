@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { bank, startWith } from "./booster_fixtures"
-import { bankFetched, canOpen, reserveSelected, reservesUnlocked } from "./booster"
+import { bankFetched, canOpen, dailyCapsuleChosen, reserveSelected, reservesUnlocked } from "./booster"
 
 const BOTH = bank(3, { special: 2, openable: 5 })
 
@@ -53,5 +53,36 @@ describe("a reserve unlocking on the page", () => {
     const fetched = bankFetched(state, bank(1), state.bankGeneration)
 
     expect(fetched.phase).toBe("sealed")
+  })
+})
+
+describe("the daily capsule collected on the page", () => {
+  const DAILY = bank(0, { special: 1, openable: 1 })
+
+  it("selects the special reserve, sealed, when the standard one is empty", () => {
+    const state = startWith({ bank: bank(0), reserve: "standard" })
+    const chosen = dailyCapsuleChosen(bankFetched(state, DAILY, state.bankGeneration))
+
+    expect(chosen.reserve).toBe("special")
+    expect(chosen.phase).toBe("sealed")
+    expect(canOpen(chosen)).toBe(true)
+  })
+
+  it("keeps the standard reserve while it still holds a capsule", () => {
+    const state = startWith({ bank: bank(2, { special: 1, openable: 3 }), reserve: "standard" })
+
+    expect(dailyCapsuleChosen(state)).toBe(state)
+  })
+
+  it("leaves a capsule being opened alone", () => {
+    const state = { ...startWith({ bank: DAILY, reserve: "standard" }), phase: "opening" as const }
+
+    expect(dailyCapsuleChosen(state)).toBe(state)
+  })
+
+  it("changes nothing when no special capsule came", () => {
+    const state = startWith({ bank: bank(0), reserve: "standard" })
+
+    expect(dailyCapsuleChosen(state)).toBe(state)
   })
 })

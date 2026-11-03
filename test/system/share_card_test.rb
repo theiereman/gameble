@@ -6,7 +6,7 @@ require_relative "../support/steam_sign_in"
 # detail, which copies the link of the card-season's own page on opening; a
 # visitor opens it and sees the public card page, only the card, never who
 # shared it, then signs in from the pitch's sign-in panel and lands on the
-# hub. Where the clipboard cannot be written (plain HTTP), the link is
+# capsule screen. Where the clipboard cannot be written (plain HTTP), the link is
 # selected and copied by execCommand, or the player is told to copy it.
 class ShareCardTest < ApplicationSystemTestCase
   include SteamApiStubs
@@ -67,7 +67,7 @@ class ShareCardTest < ApplicationSystemTestCase
     JS
   end
 
-  test "a holder opens the sheet, which copies the link; a visitor opens it, then signs in from the pitch and lands on the hub" do
+  test "a holder opens the sheet, which copies the link; a visitor opens it, then signs in from the pitch and lands on the capsule screen" do
     sign_in(@holder)
     visit card_path(locale: :en, slug: "portal")
     stub_clipboard
@@ -120,8 +120,7 @@ class ShareCardTest < ApplicationSystemTestCase
     find(".sign-in .steam-sign-in__button").click
 
     assert_signed_in
-    assert_current_path "/en"
-    assert_selector ".hub__title", text: "COMMAND BRIDGE"
+    assert_current_path "/en/booster"
   end
 
   test "a visitor follows the public card page's wordmark to the landing" do

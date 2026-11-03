@@ -10,6 +10,7 @@ import {
   type Controls,
   type Hint,
   type Layout,
+  type OpenVariant,
   type StatusTone,
 } from "./booster_types"
 
@@ -77,6 +78,12 @@ function hintOf(state: BoosterState, total: number, revealedCount: number, top: 
   return remaining > 0 ? { kind: "remaining", count: remaining } : { kind: "done", count: total }
 }
 
+function openVariant(state: BoosterState, reserveEmpty: boolean): OpenVariant {
+  if (state.phase === "opening") return "skip"
+  if (reserveEmpty) return "empty"
+  return state.phase === "dealt" ? "next" : "open"
+}
+
 export function controls(state: BoosterState): Controls {
   const total = state.answer?.cards.length ?? 0
   const revealedCount = state.revealed.filter(Boolean).length
@@ -87,7 +94,7 @@ export function controls(state: BoosterState): Controls {
   const isLocked = locked(state)
   const { zoom } = state
   return {
-    open: reserveEmpty ? "empty" : state.phase === "dealt" ? "next" : "open",
+    open: openVariant(state, reserveEmpty),
     openDisabled: reserveEmpty || (state.phase === "dealt" && !everyRevealed),
     busy: state.phase === "opening" || state.revealingAll || isLocked || state.storing,
     revealAllDisabled: !handOnTable || everyRevealed || state.revealingAll || state.storing || state.legendary !== null,
