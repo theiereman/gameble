@@ -16,7 +16,7 @@ class CardsController < ApplicationController
     @share_url = share_url
     @share_image_token = CardShareImage.current_token(card_season_id: @detail.card_season_id, view: @detail.view, locale: I18n.locale)
     named = pack_browse || grid_browse || named_set_browse
-    profile = profile_browse || personalization_browse unless named
+    profile = profile_browse || me_browse unless named
     @public = current_player.nil? && named.nil? && profile.nil?
     @live_strip = LiveStream.strip_items if @public
     @browse = named || profile || set_browse(@detail.sets.first) unless @public
@@ -131,10 +131,10 @@ class CardsController < ApplicationController
       browse ? browse.with(back:) : Browse.new(position: 1, total: 1, previous: nil, next: nil, back:)
     end
 
-    def personalization_browse
-      return unless current_player && params[:from] == "personalization"
+    def me_browse
+      return unless current_player && params[:from] == "me"
 
-      back = Back.new(label: t("shell.player.personalization"), path: personalization_path)
+      back = Back.new(label: t("shell.tabs.me"), path: me_path)
       Browse.new(position: 1, total: 1, previous: nil, next: nil, back:)
     end
 

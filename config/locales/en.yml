@@ -2172,11 +2172,6 @@ en:
         title: Terms of use
       title: Legal notice and privacy
       updated: 'Last updated: 1 November 2026'
-    me:
-      personalization: Personalization
-      settings: Profile and settings
-      subtitle: Your profile, rewards and help
-      title: Me
     social:
       actions:
         add_friend: Add a friend
@@ -2198,6 +2193,19 @@ en:
         title: Trades
         top_rarity: 'Highest rarity:'
         yours: Your turn
+  own_profiles:
+    show:
+      add_hint: Add a card from its page, with “%{add}”. Drag the cards on your profile to change their order.
+      all_achievements: See all achievements
+      card_back: Card back · only you
+      card_list: See the card list
+      change: Change
+      choose_title: Choose a title
+      edit_showcase: Edit
+      how_it_works: How it works
+      links: Help and settings
+      settings: Settings
+      title: Me
   personalizations:
     show:
       card_back:
@@ -2263,24 +2271,14 @@ en:
           other: unlocked
       fraction: "%{count} of %{total}"
       profile_title:
-        apply: Apply
-        count_html:
-          one: "<b>%{count}</b> title earned"
-          other: "<b>%{count}</b> titles earned"
-          zero: No title earned
         empty: No title yet. Reach a tier of a set, or complete it, to earn one.
         heading: Profile title
         intro: Your title shows on your profile, in the activity feed and in your trades.
         none: No title
-      scope:
-        private: Only you
-        public: Visible to all
       showcase:
         empty: Your best card will show here once you choose it from a card's page.
-        hint: Add a card from its page, with “%{add}”. Drag the cards to change their order.
         title: Showcase
         why: Up to five cards, at the top of your public profile.
-      title: Personalization
   profile_titles:
     chosen:
       title: Title equipped
@@ -2335,9 +2333,6 @@ en:
         info: Drag the cards to change their order, or move a card one place with
           the arrows under it.
         info_label: How to change the order
-        info_movable_removable: Drag the cards to change their order, move a card one
-          place with the arrows under it, or take it out with the cross.
-        info_removable: Take a card out of the showcase with the cross under it.
         move_failed: The new order could not be saved.
         move_left: Move %{title} left
         move_right: Move %{title} right
@@ -2596,8 +2591,7 @@ en:
       back_office: Back-office
       fallback_name: Player
       menu: Player menu
-      personalization: Personalization
-      profile: My public profile
+      profile: My profile
       settings: Settings
       sign_out: Sign out
     rarity:

@@ -1,0 +1,9 @@
+<%# locals: (owner_title:, focused: false) %>
+<%= tag.a(**bottom_sheet_opener("me-title-sheet"), class: "me-opener me-title-opener", autofocus: focused) do %>
+  <% if owner_title %>
+    <%= active_title_tag(owner_title, class_name: "me-opener__value") %>
+  <% else %>
+    <span class="me-opener__value me-opener__value--empty"><%= t("own_profiles.show.choose_title") %></span>
+  <% end %>
+  <span class="me-opener__cue"><%= t("own_profiles.show.change") %></span>
+<% end %>

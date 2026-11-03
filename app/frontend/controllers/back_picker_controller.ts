@@ -91,6 +91,7 @@ export default class extends Controller<HTMLElement> {
     this.saving = false
     if (result.kind === "chosen" && this.tileFor(result.back)) {
       this.equip(result.back, result.season)
+      this.dispatch("equipped", { detail: { back: result.back, season: result.season } })
       this.update(this.strip, true)
       this.announce(result.announcement)
     } else {

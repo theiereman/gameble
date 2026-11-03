@@ -24,42 +24,43 @@ class ProfileTitlesControllerTest < ActionDispatch::IntegrationTest
     assert_nil stored.compact.presence
   end
 
-  test "the page offers the earned titles in one menu grouped by rank with a no title option, the active one selected" do
+  test "the Me page's title sheet offers the earned titles grouped by rank after a no title choice, the worn one current" do
     Game::ChooseProfileTitle.new.call(player: @player, rank: "adept", kind: "studio", key: "valve").value!
     sign_in(@player)
 
-    get personalization_path(locale: :fr)
+    get me_path(locale: :fr)
 
-    assert_select "section h2#personalization-title-heading", "Titre de profil"
-    assert_select "select.title-picker__select[name=title][aria-labelledby=personalization-title-heading]", 1
-    assert_equal [ "Aucun titre", "Adepte · Valve", "Novice · Valve" ], css_select(".title-picker__select option").map { it.text.strip }
-    assert_equal [ "Adepte", "Novice" ], css_select(".title-picker__select optgroup").map { it["label"] }
-    assert_select ".title-picker__select option[selected]", 1
-    assert_select ".title-picker__select option[value='adept:studio:valve'][selected]"
+    assert_select "#me-title-sheet-title", "Titre de profil"
+    assert_equal [ "Aucun titre", "Adepte · Valve", "Novice · Valve" ], css_select("#me-title-sheet button.filter-chip").map { it.text.strip }
+    assert_equal [ "Adepte", "Novice" ], css_select("#me-title-sheet .me-sheet__heading").map(&:text)
+    assert_select "#me-title-sheet button[aria-current=true]", 1
+    assert_select "#me-title-sheet button[type=button][aria-current=true]", "Adepte · Valve"
+    assert_select "#me-title-sheet input[name=title][value='adept:studio:valve']", false
     assert_select "[style]", false
   end
 
-  test "a player with no earned title sees how to earn one and only the no title row" do
+  test "a player with no earned title sees how to earn one and only the no title choice" do
     Game::SetTier.where(player_id: @player.id).delete_all
     sign_in(@player)
 
-    get personalization_path(locale: :en)
+    get me_path(locale: :en)
 
-    assert_select ".title-picker__select option", 1
-    assert_select ".title-picker__select optgroup", 0
-    assert_select ".personalization-section__empty", /Reach a tier of a set/
+    assert_select "#me-title-sheet button.filter-chip", 1
+    assert_select "#me-title-sheet .me-sheet__heading", 0
+    assert_select "#me-title-sheet .me-sheet__note", /Reach a tier of a set/
   end
 
-  test "choosing an earned title stores it and shows the toast on the page" do
+  test "choosing an earned title stores it and shows the toast on the Me page, the title in the band" do
     sign_in(@player)
 
     patch personalization_title_path(locale: :en), params: { title: "novice:studio:valve" }
 
-    assert_redirected_to personalization_path(locale: :en)
+    assert_redirected_to me_path(locale: :en)
     assert_equal %w[studio valve novice], stored
     follow_redirect!
     assert_select ".toast", /Title equipped/
-    assert_select "select.title-picker__select[autofocus] option[value='novice:studio:valve'][selected]"
+    assert_select ".profile-band a.me-title-opener[autofocus] .profile-title", "Novice · Valve"
+    assert_select "#me-title-sheet button[type=button][aria-current=true]", "Novice · Valve"
   end
 
   test "the empty value removes the title with its own toast" do

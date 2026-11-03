@@ -1,13 +1,13 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
 
-# The phone's four tabs, the Social home and the Me menu behind two of them, and the
+# The phone's four tabs, the Social home and the Me page behind two of them, and the
 # Sets | All cards switch.
 class PhoneTabsTest < ActionDispatch::IntegrationTest
   include SteamSignIn
 
   FORMER_MORE_DESTINATIONS = %w[
-    /en/library/cards /en/trades /en/friends /en/feed /en/achievements /en/settings /en/personalization /en/how-it-works
+    /en/library/cards /en/trades /en/friends /en/feed /en/achievements /en/settings /en/how-it-works
   ].freeze
 
   setup do
@@ -15,7 +15,7 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     sign_in(@player)
   end
 
-  test "the old More address redirects for good to the Me menu in the same locale" do
+  test "the old More address redirects for good to the Me page in the same locale" do
     get more_path(locale: :en)
 
     assert_redirected_to "/en/me"
@@ -26,7 +26,7 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     { library_path(locale: :en) => "/en/library", library_cards_path(locale: :en) => "/en/library",
       social_path(locale: :en) => "/en/social", trades_path(locale: :en) => "/en/social", friends_path(locale: :en) => "/en/social",
       feed_path(locale: :en) => "/en/social", me_path(locale: :en) => "/en/me", settings_path(locale: :en) => "/en/me",
-      personalization_path(locale: :en) => "/en/me", achievements_path(locale: :en) => "/en/me", how_it_works_path(locale: :en) => "/en/me" }.each do |path, tab|
+      achievements_path(locale: :en) => "/en/me", how_it_works_path(locale: :en) => "/en/me" }.each do |path, tab|
       get path
       assert_response :success
       assert_select "a.tab-bar__tab[aria-current=page]", 1, path
@@ -44,14 +44,15 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     assert_empty FORMER_MORE_DESTINATIONS - reachable
   end
 
-  test "the Social home links trades, friends and the feed; the Me menu settings, personalization, achievements, how it works and support" do
+  test "the Social home links trades, friends and the feed; the Me page the achievements, how it works and the settings" do
     get social_path(locale: :en)
     assert_select ".plus__list", false
     %w[/en/trades /en/friends /en/feed].each { assert_select ".social a.social__more[href='#{it}']" }
 
     get me_path(locale: :en)
-    assert_select ".plus__list > li", 5
-    %w[/en/settings /en/personalization /en/achievements /en/how-it-works].each { assert_select ".plus__list a.menu-item[href='#{it}']" }
+    assert_select "main a.menu-item[href='/en/achievements']"
+    assert_select ".plus__list > li", 2
+    %w[/en/how-it-works /en/settings].each { assert_select ".plus__list a.menu-item[href='#{it}']" }
   end
 
   test "the Social tab holds the trades and invitations badge slots, the Me tab the achievements one" do

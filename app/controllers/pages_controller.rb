@@ -26,10 +26,6 @@ class PagesController < ApplicationController
     @sets = @season ? set_rows : []
   end
 
-  def me
-    authorize :page, :play?
-  end
-
   def social
     authorize :page, :play?
     @trades = Game::TradesOf.call(current_player)

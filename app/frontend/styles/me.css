@@ -1,0 +1,208 @@
+/*
+ * The Me page: the player's own profile, whose title, card back and
+ * showcase each open a bottom sheet to change them, then the help and
+ * settings rows. Every opener is a touch target of at least 44px.
+ */
+
+.me {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-8) + var(--space-3));
+  min-width: 0;
+}
+
+.me-opener {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--space-3);
+  max-width: 100%;
+  min-height: var(--space-touch-min);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.me-opener__value {
+  min-width: 0;
+  color: var(--color-text);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  overflow-wrap: anywhere;
+}
+
+.me-opener__value--empty {
+  color: var(--color-muted);
+}
+
+.me-opener__cue {
+  flex: none;
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-decoration: underline;
+  text-transform: uppercase;
+}
+
+.me-opener:hover .me-opener__cue {
+  color: var(--color-text-max);
+}
+
+.me-opener:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* The worn back: its art beside its name, over who sees it. */
+.me-back-opener {
+  display: inline-grid;
+  grid-template: "art name cue" auto "art scope cue" auto / auto minmax(0, 1fr) auto;
+  gap: 0 var(--space-4);
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
+  box-shadow: var(--control-border);
+}
+
+.me-back-opener__look {
+  display: contents;
+}
+
+.me-back-opener__art {
+  grid-area: art;
+  align-self: center;
+}
+
+.me-back-opener__art .back-picker__image {
+  width: 50px;
+  height: 75px;
+}
+
+.me-back-opener__name {
+  grid-area: name;
+  align-self: end;
+  color: var(--color-text-bright);
+  font: var(--font-button);
+  overflow-wrap: anywhere;
+}
+
+.me-back-opener__scope {
+  grid-area: scope;
+  align-self: start;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.me-back-opener .me-opener__cue {
+  grid-area: cue;
+  align-self: center;
+}
+
+.me-showcase-opener {
+  margin-left: auto;
+  padding: 0 var(--space-3);
+}
+
+.me-achievements__all {
+  align-self: flex-start;
+  width: auto;
+  min-width: min(100%, 320px);
+}
+
+.me-links {
+  min-width: 0;
+}
+
+/* Inside a sheet: what it is for, then its choices. */
+.me-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.me-sheet__intro {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-menu);
+}
+
+.me-sheet__count,
+.me-sheet__note {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.me-sheet__count b {
+  color: var(--color-text-bright);
+}
+
+.me-sheet__heading {
+  margin: 0 0 calc(-1 * var(--space-3));
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.me-sheet__link {
+  align-self: flex-start;
+}
+
+.me-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.me-choices__form {
+  display: contents;
+}
+
+.me-choices .filter-chip .filter-chip__text {
+  min-height: var(--space-touch-min);
+}
+
+.me-showcase-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.me-showcase-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-2);
+  box-shadow: var(--control-border);
+}
+
+.me-showcase-row__face {
+  flex: none;
+}
+
+.me-showcase-row__title {
+  flex: 1;
+  min-width: 0;
+  color: var(--color-text-bright);
+  font: var(--font-button);
+  overflow-wrap: anywhere;
+}
+
+.me-showcase-row__form {
+  flex: none;
+}
+
+.me-showcase-row__remove {
+  min-width: var(--space-touch-min);
+  min-height: var(--space-touch-min);
+}

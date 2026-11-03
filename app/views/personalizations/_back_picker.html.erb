@@ -1,27 +1,23 @@
 <%# locals: (shelf:, chosen: nil) %>
 <% active = shelf.find(&:active?) %>
 <% groups = shelf.group_by(&:group) %>
-<% unlocked = shelf.count { !it.locked? } %>
 <% actions = "pointerover->back-picker#hover pointerout->back-picker#unhover focusin->back-picker#focus focusout->back-picker#blur click->back-picker#tap submit->back-picker#choose" %>
-<%= render "personalizations/section", id: "personalization-back", heading: t("personalizations.show.card_back.heading"), why: t("personalizations.show.card_back.intro"),
-      count: personalization_fraction(unlocked, shelf.size, suffix: t("personalizations.show.card_back.unlocked", count: unlocked)), scope: :private do %>
-  <%= tag.div class: "back-picker", data: { controller: "back-picker", back_picker_active_value: active.key, back_picker_season_value: active.season, action: actions } do %>
-    <div class="back-picker__strip" aria-hidden="true" data-back-picker-target="strip" data-showing="active">
-      <%= render "personalizations/back_chip", state: :active %>
-      <%= render "personalizations/back_detail", row: active %>
-    </div>
-    <template data-back-picker-target="activeChip"><%= render "personalizations/back_chip", state: :active %></template>
-    <template data-back-picker-target="unlockedChip"><%= render "personalizations/back_chip", state: :unlocked %></template>
-    <template data-back-picker-target="lockedChip"><%= render "personalizations/back_chip", state: :locked %></template>
-    <template data-back-picker-target="failure"><span class="back-picker__sentence"><%= t("personalizations.show.card_back.failed") %></span></template>
-    <div class="back-picker__row">
-      <% (Game::CardBackShelf::GROUPS - Game::CardBackShelf::SET_GROUPS).each do |group| %>
-        <%= render "personalizations/back_group", group:, rows: groups.fetch(group, []), chosen: %>
-      <% end %>
-    </div>
-    <% Game::CardBackShelf::SET_GROUPS.each do |group| %>
+<%= tag.div class: "back-picker", data: { controller: "back-picker", back_picker_active_value: active.key, back_picker_season_value: active.season, action: actions } do %>
+  <div class="back-picker__strip" aria-hidden="true" data-back-picker-target="strip" data-showing="active">
+    <%= render "personalizations/back_chip", state: :active %>
+    <%= render "personalizations/back_detail", row: active %>
+  </div>
+  <template data-back-picker-target="activeChip"><%= render "personalizations/back_chip", state: :active %></template>
+  <template data-back-picker-target="unlockedChip"><%= render "personalizations/back_chip", state: :unlocked %></template>
+  <template data-back-picker-target="lockedChip"><%= render "personalizations/back_chip", state: :locked %></template>
+  <template data-back-picker-target="failure"><span class="back-picker__sentence"><%= t("personalizations.show.card_back.failed") %></span></template>
+  <div class="back-picker__row">
+    <% (Game::CardBackShelf::GROUPS - Game::CardBackShelf::SET_GROUPS).each do |group| %>
       <%= render "personalizations/back_group", group:, rows: groups.fetch(group, []), chosen: %>
     <% end %>
-    <p class="visually-hidden" role="status" data-back-picker-target="status"></p>
+  </div>
+  <% Game::CardBackShelf::SET_GROUPS.each do |group| %>
+    <%= render "personalizations/back_group", group:, rows: groups.fetch(group, []), chosen: %>
   <% end %>
+  <p class="visually-hidden" role="status" data-back-picker-target="status"></p>
 <% end %>

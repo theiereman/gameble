@@ -1,4 +1,4 @@
-<%# locals: (achievements:) %>
+<%# locals: (achievements:, editing: false) %>
 <section class="profile-section" aria-labelledby="profile-achievements-heading">
   <h2 id="profile-achievements-heading" class="profile-section__title"><%= t("public_profiles.show.achievements.title") %></h2>
   <%= render "achievements/header", earned: achievements.count, total: achievements.total %>
@@ -7,5 +7,12 @@
     <ul class="achievements__grid profile-achievements">
       <%= render partial: "achievements/tile", collection: achievements.latest, as: :tile %>
     </ul>
+  <% end %>
+  <% if editing %>
+    <%= link_to achievements_path, class: "menu-item menu-item--plus me-achievements__all", data: { turbo_prefetch: false } do %>
+      <span class="menu-item__label"><%= t("own_profiles.show.all_achievements") %></span>
+      <span id="plus-achievements-badge" class="stream-slot"><%= render "pages/menu_achievements_badge", unclaimed: shell_achievements_unclaimed %></span>
+      <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
+    <% end %>
   <% end %>
 </section>

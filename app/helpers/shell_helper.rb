@@ -56,25 +56,25 @@ module ShellHelper
     "achievements" => :achievements,
     "pages#legal" => :legal,
     "pages#how_it_works" => :how_it_works,
-    "pages#me" => :me,
+    "own_profiles" => :me,
     "pages#social" => :social
   }.freeze
 
   def shell_top_level_screen?
     return false if current_player.nil? || back_office_page? || content_for?(:phone_back)
 
-    controller_path == "boosters" || %w[pages#home pages#me pages#social library#show library#cards].include?("#{controller_path}##{action_name}")
+    controller_path == "boosters" || %w[pages#home own_profiles#show pages#social library#show library#cards].include?("#{controller_path}##{action_name}")
   end
 
   SOCIAL_TAB_CONTROLLERS = %w[trades friends friend_profiles feeds].freeze
-  ME_TAB_CONTROLLERS = %w[settings personalizations achievements].freeze
+  ME_TAB_CONTROLLERS = %w[own_profiles settings achievements].freeze
 
   def social_tab_current?
     SOCIAL_TAB_CONTROLLERS.include?(controller_path) || (controller_path == "pages" && action_name == "social")
   end
 
   def me_tab_current?
-    ME_TAB_CONTROLLERS.include?(controller_path) || (controller_path == "pages" && %w[me how_it_works].include?(action_name))
+    ME_TAB_CONTROLLERS.include?(controller_path) || (controller_path == "pages" && action_name == "how_it_works")
   end
 
   def shell_tabs

@@ -181,7 +181,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
   end
 
-  test "menu 07 and the Me row lead a player to the achievements, with the count earned" do
+  test "menu 07 and the Me page lead a player to the achievements, with the count earned" do
     unlock("first_booster", "first_trade", "first_repost")
     sign_in(@player)
 
@@ -194,7 +194,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
     assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of #{total_achievements}"
     get me_path(locale: :fr)
-    assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
+    assert_select "a.me-achievements__all[href='/fr/achievements']", /Voir tous les succès/
   end
 
   def total_achievements = Game::Achievements::CATALOGUE.size

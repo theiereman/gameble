@@ -105,9 +105,8 @@ fr:
     player:
       menu: "Menu du joueur"
       fallback_name: "Joueur"
-      profile: "Mon profil public"
+      profile: "Mon profil"
       settings: "Paramètres"
-      personalization: "Personnalisation"
       back_office: "Back-office"
       sign_out: "Se déconnecter"
     tabs:
@@ -227,11 +226,6 @@ fr:
         collection: "Il ne vous reste plus qu'à constituer votre collection."
         wishes: "La Confrérie vous souhaite d'excellents tirages."
         close: "Fermer"
-    me:
-      title: "Moi"
-      subtitle: "Votre profil, vos récompenses et l'aide"
-      settings: "Profil et paramètres"
-      personalization: "Personnalisation"
     social:
       title: "Social"
       trades:
@@ -1151,26 +1145,29 @@ fr:
         equipped_with_season: "Dos équipé. « %{name} », marque de la saison %{season}, apparaîtra sur vos cartes face cachée."
         failed: "Le dos n'a pas pu être équipé. Réessayez."
         season_label: "Équiper %{name} avec la marque de la saison %{season}"
-      title: "Personnalisation"
       fraction: "%{count} sur %{total}"
-      scope:
-        public: "Visible par tous"
-        private: "Vous seul"
       profile_title:
         heading: "Titre de profil"
         intro: "Votre titre s'affiche sur votre profil, dans le fil d'activité et dans vos échanges."
         none: "Aucun titre"
         empty: "Aucun titre pour l'instant. Atteignez un palier d'un set, ou complétez-le, pour en gagner un."
-        apply: "Appliquer"
-        count_html:
-          zero: "Aucun titre gagné"
-          one: "<b>%{count}</b> titre gagné"
-          other: "<b>%{count}</b> titres gagnés"
       showcase:
         title: "Vitrine"
         empty: "Votre plus belle carte s'affichera ici, une fois choisie depuis la fiche d'une carte."
         why: "Jusqu'à cinq cartes, en tête de votre profil public."
-        hint: "Ajoutez une carte depuis sa fiche, avec « %{add} ». Faites glisser les cartes pour changer leur ordre."
+  own_profiles:
+    show:
+      title: "Moi"
+      change: "Modifier"
+      choose_title: "Choisir un titre"
+      card_back: "Dos de carte · vous seul"
+      edit_showcase: "Modifier"
+      add_hint: "Ajoutez une carte depuis sa fiche, avec « %{add} ». Faites glisser les cartes de votre profil pour changer leur ordre."
+      card_list: "Voir la liste des cartes"
+      all_achievements: "Voir tous les succès"
+      links: "Aide et paramètres"
+      how_it_works: "Comment ça marche"
+      settings: "Paramètres"
   profile_titles:
     chosen:
       title: "Titre équipé"
@@ -1213,8 +1210,6 @@ fr:
         move_left: "Déplacer %{title} vers la gauche"
         move_right: "Déplacer %{title} vers la droite"
         info_label: "Comment changer l'ordre"
-        info_movable_removable: "Faites glisser les cartes pour changer leur ordre, déplacez une carte d'une place avec les flèches sous elle, ou retirez-la avec la croix."
-        info_removable: "Retirez une carte de la vitrine avec la croix sous elle."
         info: "Faites glisser les cartes pour changer leur ordre, ou déplacez une carte d'une place avec les flèches sous elle."
         moved: "%{title} est maintenant à la place %{position} sur %{count}."
         move_failed: "Le nouvel ordre n'a pas pu être enregistré."

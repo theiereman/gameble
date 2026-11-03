@@ -128,14 +128,14 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
   end
 
   [ :en, :fr ].each do |locale|
-    test "a new order is read on the Personalization page, the public profile and the hub in #{locale}" do
+    test "a new order is read on the Me page, the public profile and the hub in #{locale}" do
       choose(:portal_one, :common_card_one, :uncommon_card_one)
       sign_in(@player)
 
       patch showcase_path(slug: "green-hills", locale:), params: { direction: "earlier" }
       patch showcase_path(slug: "green-hills", locale:), params: { direction: "earlier" }
 
-      [ personalization_path(locale:), brother_path(locale:, token: @player.token) ].each do |path|
+      [ me_path(locale:), brother_path(locale:, token: @player.token) ].each do |path|
         get path
         assert_equal %w[green-hills portal tin-soldier], showcase_slugs, path
       end
@@ -148,32 +148,30 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     choose(:portal_one, :common_card_one, :uncommon_card_one)
     sign_in(@player)
 
-    delete showcase_path(slug: "portal", locale: :fr), headers: { "HTTP_REFERER" => personalization_path(locale: :fr) }
+    delete showcase_path(slug: "portal", locale: :fr), headers: { "HTTP_REFERER" => me_path(locale: :fr) }
 
-    assert_redirected_to personalization_path(locale: :fr)
+    assert_redirected_to me_path(locale: :fr)
     assert_equal "Retiré de la vitrine", flash[:toast_title]
     assert_match(/n'est plus dans votre vitrine/, flash[:notice])
     follow_redirect!
     assert_select "#toasts .toast__title", "Retiré de la vitrine"
     assert_equal %w[tin-soldier green-hills], showcase_slugs
-    assert_select ".profile-showcase__slot:nth-child(1) button[autofocus][aria-label^=Retirer]"
+    assert_select "#me-showcase-sheet .me-showcase-row:nth-child(1) button[autofocus][aria-label^=Retirer]"
     assert_select "[autofocus]", 1
   end
 
-  test "the focus goes to the previous card after the last one, and to the heading after the only one" do
+  test "the focus goes to the previous card after the last one, and to the card list link after the only one" do
     choose(:portal_one, :common_card_one)
     sign_in(@player)
 
-    delete showcase_path(slug: "tin-soldier"), headers: { "HTTP_REFERER" => personalization_path(locale: :en) }
+    delete showcase_path(slug: "tin-soldier"), headers: { "HTTP_REFERER" => me_path(locale: :en) }
     follow_redirect!
     assert_select "#toasts .toast__title", "Removed from showcase"
-    assert_select ".profile-showcase__slot:nth-child(1) button[autofocus][aria-label^=Remove]"
-    assert_select ".profile-showcase__info-text", /cross/
-    assert_select ".profile-showcase__info-text", { text: /Drag/, count: 0 }
+    assert_select "#me-showcase-sheet .me-showcase-row:nth-child(1) button[autofocus][aria-label^=Remove]"
 
-    delete showcase_path(slug: "portal"), headers: { "HTTP_REFERER" => personalization_path(locale: :en) }
+    delete showcase_path(slug: "portal"), headers: { "HTTP_REFERER" => me_path(locale: :en) }
     follow_redirect!
-    assert_select "h2.personalization-section__title[autofocus][tabindex='-1']", "Showcase"
+    assert_select "#me-showcase-sheet a.me-sheet__link[autofocus]"
     assert_select ".profile-showcase", false
   end
 
@@ -188,24 +186,24 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     assert_nil flash[:toast_title]
   end
 
-  test "the cards of the Personalization page lead to a detail that goes back to it" do
+  test "the cards of the Me page lead to a detail that goes back to it" do
     choose(:portal_one, :common_card_one)
     sign_in(@player)
 
-    get personalization_path(locale: :en)
+    get me_path(locale: :en)
     hrefs = css_select(".profile-showcase__slot > a.card-link").map { it["href"] }
-    assert_equal [ card_season_path(locale: :en, slug: "portal", number: 1, from: "personalization"),
-                   card_season_path(locale: :en, slug: "tin-soldier", number: 1, from: "personalization") ], hrefs
+    assert_equal [ card_season_path(locale: :en, slug: "portal", number: 1, from: "me"),
+                   card_season_path(locale: :en, slug: "tin-soldier", number: 1, from: "me") ], hrefs
 
     get hrefs.first
     assert_response :success
-    assert_select ".top-bar__phone-back[href=?]", personalization_path(locale: :en)
+    assert_select ".top-bar__phone-back[href=?]", me_path(locale: :en)
   end
 
-  test "the profile's own links keep their own context and the personalization context is ignored without a session" do
+  test "the profile's own links keep their own context and the Me context is ignored without a session" do
     choose(:portal_one)
-    get card_season_path(locale: :en, slug: "portal", number: 1, from: "personalization")
-    assert_select ".top-bar__phone-back[href=?]", personalization_path(locale: :en), false
+    get card_season_path(locale: :en, slug: "portal", number: 1, from: "me")
+    assert_select ".top-bar__phone-back[href=?]", me_path(locale: :en), false
 
     sign_in(@player)
     get brother_path(locale: :en, token: @player.token)

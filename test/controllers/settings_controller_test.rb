@@ -488,6 +488,28 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.tab-bar__tab[href='/en/me']", /Me/
   end
 
+  test "the Me screen ends on how it works, then the settings" do
+    sign_in(@player)
+
+    get me_path(locale: :fr)
+
+    assert_response :success
+    assert_select ".plus__list > li", 2
+    assert_select ".plus__list > li:first-child a.menu-item[href='/fr/how-it-works']", /Comment ça marche/
+    assert_select ".plus__list > li:last-child a.menu-item[href='/fr/settings']", /Paramètres/
+    assert_select ".plus__list .menu-item[aria-disabled]", false
+    assert_select "a.tab-bar__tab[href='/fr/me'][aria-current=page]"
+  end
+
+  test "the settings still hold the support link the Me screen let go" do
+    sign_in(@player)
+
+    get settings_path(locale: :fr)
+
+    assert_select "#settings-support"
+    assert_select "a.settings-row__support[href='https://buymeacoffee.com/theiereman'][target=_blank]"
+  end
+
   test "the settings screen is under the Me tab, with a contextual phone back" do
     sign_in(@player)
 

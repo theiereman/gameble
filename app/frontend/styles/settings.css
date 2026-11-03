@@ -188,12 +188,6 @@
   box-shadow: var(--focus-ring-gap), var(--control-border);
 }
 
-.plus {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-}
-
 .plus__list {
   display: flex;
   flex-direction: column;

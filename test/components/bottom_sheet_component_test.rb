@@ -20,4 +20,12 @@ class BottomSheetComponentTest < ViewComponent::TestCase
       page.find("dialog#pick", visible: :all)["data-action"].split
     assert_selector "button.modal__close[aria-label=Close]", visible: :all
   end
+
+  test "a sheet renders closed, unless it is sent open for its controller to raise as a modal" do
+    render_inline(BottomSheetComponent.new(id: "pick", title: "Pick")) { "Choices" }
+    assert_selector "dialog#pick:not([open])", visible: :all
+
+    render_inline(BottomSheetComponent.new(id: "pick", title: "Pick", open: true)) { "Choices" }
+    assert_selector "dialog#pick[open][data-controller=bottom-sheet]", visible: :all
+  end
 end

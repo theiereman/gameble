@@ -111,8 +111,8 @@ Rails.application.routes.draw do
     # The player's settings: language, reduced motion and sign-out. GET
     # reads; PATCH writes.
     resource :settings, only: %i[show update]
-    # The page where the player dresses and shows their collecting.
-    resource :personalization, only: :show
+    # The player's dressing once had its own page; the Me page now holds it.
+    get "personalization", to: redirect("/%{locale}/me", status: 301), as: :personalization
     patch "personalization/title" => "profile_titles#update", as: :personalization_title
     patch "personalization/back" => "card_backs#update", as: :personalization_back
     # The profile visibility row of the settings.
@@ -167,10 +167,10 @@ Rails.application.routes.draw do
         post :cancel
       end
     end
-    # The phone's Social and Me tabs open these two menus.
+    # The phone's Social tab opens this menu; its Me tab the player's own profile.
     get "social" => "pages#social", as: :social
-    get "me" => "pages#me", as: :me
-    # The phone's fifth tab once lived here; its links lead to the Me menu.
+    get "me" => "own_profiles#show", as: :me
+    # The phone's fifth tab once lived here; its links lead to the Me page.
     get "more", to: redirect("/%{locale}/me", status: 301), as: :more
     get "legal" => "pages#legal", as: :legal
     get "credits" => "pages#credits", as: :credits

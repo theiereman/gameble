@@ -28,7 +28,7 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
     reach(@second, reached_by: "allocation")
     patch personalization_back_path(locale: :en), params: { back: BACK, season: 1 }
 
-    get personalization_path(locale: :en)
+    get me_path(locale: :en)
 
     assert_equal [ BACK, 1 ], stored
     assert_select ".back-picker__tile--active[data-key='#{BACK}']" do
@@ -49,7 +49,7 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
 
     patch personalization_back_path(locale: :en), params: { back: BACK, season: 2 }
 
-    assert_redirected_to personalization_path
+    assert_redirected_to me_path
     assert_equal [ BACK, 2 ], stored
   end
 
@@ -57,7 +57,7 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
     reach(@first)
     patch personalization_back_path(locale: :en), params: { back: BACK }
 
-    get personalization_path(locale: :en)
+    get me_path(locale: :en)
 
     assert_equal [ BACK, nil ], stored
     assert_select ".back-picker__seasons", false
