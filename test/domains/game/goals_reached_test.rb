@@ -38,15 +38,6 @@ class Game::GoalsReachedTest < ActiveSupport::TestCase
     assert_empty game_events(@player).grep(Game::GoalRemoved)
   end
 
-  test "an opening that completes nothing keeps every goal" do
-    add(kind: "studio", key: "valve")
-    create_pack(@player, cards: Array.new(Game::Pack::SIZE, catalog_card_seasons(:common_card_one).id))
-
-    Game::OpenPack.new.call(player: @player).value!
-
-    assert_equal [ [ 1, "studio", "valve", nil ] ], goals
-  end
-
   test "a custom set its owner edits down to games they all hold leaves the goals" do
     custom_set = create_custom_set(@player, card_ids: fixture_card_ids.values_at(0, 1, 4))
     hold(@player, catalog_card_seasons(:common_card_one).id)

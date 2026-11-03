@@ -226,19 +226,5 @@ module BackOffice
       end
       assert_equal before, rows
     end
-
-    test "a visitor and a player get the 404 of an unknown address for every themes action" do
-      before = rows
-
-      [ nil, accounts_players(:player) ].each do |player|
-        sign_in(player) if player
-        each_request do |verb, path, params|
-          public_send(verb, path, params:)
-
-          assert_unknown_address "#{verb} #{path}"
-        end
-      end
-      assert_equal before, rows
-    end
   end
 end

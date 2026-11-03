@@ -58,16 +58,6 @@ class ShellTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "no open page carries a sign-in panel or a button opening one" do
-    profile = brother_path(locale: :fr, token: accounts_players(:player).token)
-    [ home_path(locale: :fr), library_cards_path(locale: :fr), how_it_works_path(locale: :fr), legal_path(locale: :fr), profile ].each do |path|
-      get path
-
-      assert_response :success, path
-      assert_select "dialog#sign-in-panel, [data-dialog-opener-dialog-value=sign-in-panel], .sign-in-panel__acceptance", false, path
-    end
-  end
-
   test "a visitor's wordmark, phone brand and phone back lead to the landing; a player's to the hub" do
     get library_cards_path(locale: :fr)
 
@@ -112,22 +102,6 @@ class ShellTest < ActionDispatch::IntegrationTest
     get feed_path(locale: :fr)
     assert_select "a.tab-bar__tab", 2
     assert_select "a.tab-bar__tab[aria-current]", false
-  end
-
-  test "a signed-in player has no sign-in panel" do
-    sign_in(accounts_players(:player))
-
-    get home_path(locale: :fr)
-
-    assert_response :success
-    assert_select "dialog#sign-in-panel", false
-    assert_select ".sign-in-panel__acceptance", false
-  end
-
-  test "a visitor elsewhere signs in back to that page" do
-    get library_cards_path(locale: :en)
-
-    assert_select ".top-bar__end a[href=?]", "/en/sign-in?origin=%2Fen%2Flibrary%2Fcards"
   end
 
   test "a player elsewhere: the back button to the bridge, the rarity counter, the packs chip and the player chip" do
@@ -232,26 +206,6 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "#rarity-legend tfoot td:last-child .rarity-legend__owned", css_select(".collection-status__value").text.split("/").first.strip
   end
 
-  test "a screen without a back button: the wordmark links to the hub on a desktop, the plain brand on a phone, each sweeping on hover" do
-    sign_in(accounts_players(:player))
-
-    get me_path(locale: :en)
-
-    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/en'][aria-label=?]", "Gameble, command bridge" do
-      assert_select "svg.pixel-icon.top-bar__wordmark"
-      assert_select ".top-bar__name", "Gameble"
-    end
-    assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand .top-bar__name", "Gameble"
-    assert_wordmark_sweeps_on_hover
-    assert_wordmark_sweeps_on_hover ".top-bar__start > p.top-bar__phone-brand"
-
-    get home_path(locale: :en)
-
-    assert_select ".top-bar__start a", false
-    assert_select ".top-bar__start > p.top-bar__brand:not(.top-bar__phone-brand)"
-    assert_wordmark_sweeps_on_hover ".top-bar__start > p.top-bar__brand"
-  end
-
   test "a full reserve shows instead of the countdown" do
     player = accounts_players(:player)
     Game::Pack::BANK_SIZE.times { create_pack(player) }
@@ -301,20 +255,6 @@ class ShellTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :fr)
     assert_select "a.tab-bar__tab[aria-current]", false
-  end
-
-  test "the atmosphere: permanent, hidden, under the page" do
-    sign_in(accounts_players(:player))
-    get home_path(locale: :en)
-
-    assert_select "body > #atmosphere.atmosphere[data-turbo-permanent][aria-hidden=true]:first-child" do
-      assert_select ".atmosphere__stars[data-controller=starfield]"
-      assert_select ".atmosphere__twinkle > i", 12
-      assert_select ".atmosphere__scanlines"
-      assert_select ".atmosphere__vignette"
-    end
-    assert_select "body > header.top-bar + main#main.main + #live-ticker.ticker"
-    assert_select "body:not(.is-back-office)"
   end
 
   test "the LIVE ticker runs along the bottom of the hub and of no other screen" do

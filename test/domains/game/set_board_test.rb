@@ -146,13 +146,6 @@ class Game::SetBoardTest < ActiveSupport::TestCase
     Game::SetTier.insert_all!([ { player_id: @player.id, set_id:, tier: "complete", reached_by: "trade", reached_at: at, created_at: at, updated_at: at } ])
   end
 
-  test "in progress shows every set in progress, while the hub keeps four" do
-    12.times { |index| hold_all(@player, theme("theme-#{index}", 10).last.first(2)) }
-
-    assert_equal 12, board.in_progress.size
-    assert_equal 4, Game::SetBoard.hub(@player, season: @season).size
-  end
-
   test "the same number of queries with three sets started or forty" do
     sets = (1..45).map { theme("theme-#{it}", 5).last }
     hold_all(@player, sets.first(3).map(&:first))

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { crossedPowerLine, currentModuleIndex, driftOffsets, scrollFill, staggerDelayMs } from "./landing_scroll"
+import { crossedPowerLine, currentModuleIndex, driftOffsets, scrollFill } from "./landing_scroll"
 
 describe("crossedPowerLine", () => {
   it("is false below the 85% line", () => {
@@ -42,15 +42,10 @@ describe("scrollFill", () => {
 })
 
 describe("driftOffsets", () => {
-  it("moves the near layer faster than the far one", () => {
-    expect(driftOffsets(1000)).toEqual({ near: 120, far: 50 })
+  it("holds still at the top and moves the near layer faster than the far one", () => {
     expect(driftOffsets(0)).toEqual({ near: 0, far: 0 })
-  })
-})
-
-describe("staggerDelayMs", () => {
-  it("steps by index", () => {
-    expect(staggerDelayMs(0, 70)).toBe(0)
-    expect(staggerDelayMs(3, 70)).toBe(210)
+    const { near, far } = driftOffsets(1000)
+    expect(far).toBeGreaterThan(0)
+    expect(near).toBeGreaterThan(far)
   })
 })

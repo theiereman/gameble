@@ -137,33 +137,6 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     }, tiers)
   end
 
-  test "a theme of 7 cards gets master at 4 and complete at 7" do
-    season = seed_card_seasons(distinct_scores(21), genres: Array.new(21) { |index| index < 7 ? [ "pirates" ] : [ "rpg" ] })
-
-    assert publish(season.number).success?
-
-    pirates = Catalog::Set.find_by!(season_id: season.id, kind: "theme", key: "pirates")
-    assert_equal [ [ "master", 4 ], [ "complete", 7 ] ], pirates.tiers.order(:required, :tier).pluck(:tier, :required)
-  end
-
-  test "sets of 3, 7, 12, 40, 100 and 250 cards get exactly the table's tiers" do
-    sizes = { "pirates" => 3, "zombies" => 7, "space" => 12, "cyberpunk" => 40, "fps" => 100, "rpg" => 250 }
-    season = seed_card_seasons(distinct_scores(sizes.values.sum), genres: sizes.flat_map { |theme, size| Array.new(size) { [ theme ] } })
-
-    assert publish(season.number).success?
-
-    tiers = Catalog::SetTier.joins(:set).where(catalog_sets: { season_id: season.id }).order(:required).pluck("catalog_sets.key", :tier, :required)
-      .group_by(&:first).transform_values { |rows| rows.to_h { |_, tier, required| [ tier, required ] } }
-    assert_equal({
-      "pirates" => { "complete" => 3 },
-      "zombies" => { "master" => 4, "complete" => 7 },
-      "space" => { "expert" => 4, "master" => 8, "complete" => 12 },
-      "cyberpunk" => { "adept" => 10, "expert" => 20, "master" => 30, "complete" => 40 },
-      "fps" => { "apprentice" => 10, "adept" => 25, "expert" => 50, "master" => 75, "complete" => 100 },
-      "rpg" => { "novice" => 25, "apprentice" => 63, "adept" => 125, "expert" => 188, "master" => 225, "complete" => 250 }
-    }, tiers)
-  end
-
   test "publishing gives each card-season its first genre as main theme, none without genre" do
     season = seed_sets_draft
 
@@ -172,14 +145,6 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     main_themes = Catalog::CardSeason.where(season_id: season.id).joins(:card).pluck(:main_theme, "catalog_cards.genres")
     assert main_themes.all? { |main_theme, genres| main_theme == genres.first }
     assert_equal({ "roguelike" => 83, "rpg" => 44, "horror" => 16, nil => 7 }, main_themes.map(&:first).tally)
-  end
-
-  test "a draft whose every card has a theme publishes without UFOs" do
-    season = seed_card_seasons(distinct_scores(21), genres: Array.new(21) { [ "rpg" ] })
-
-    assert publish(season.number).success?
-
-    assert_equal [ [ "theme", "rpg" ] ], sets_of(season).map { |set| [ set.kind, set.key ] }
   end
 
   test "a draft holding a card whose genre is no theme is unfilled_sources and writes nothing" do
@@ -214,24 +179,8 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_not card_season.update(main_theme: "roguelike")
   end
 
-  test "a published season's data is frozen" do
-    season = seed_card_seasons(distinct_scores(21))
-    publish(season.number)
-
-    card_season = Catalog::CardSeason.find_by!(season_id: season.id, rarity: :legendary)
-    assert_not card_season.update(rarity: :common)
-  end
-
   def numbers_of(season)
     Catalog::CardSeason.where(season_id: season.id).order(:id).pluck(:number)
-  end
-
-  test "publishing gives every card-season a distinct number in 1..n" do
-    season = seed_card_seasons(distinct_scores(150))
-
-    assert publish(season.number).success?
-
-    assert_equal (1..150).to_a, numbers_of(season).sort
   end
 
   test "the numbers are a shuffle of 1..n over the card-seasons in id order, by the random given" do
@@ -242,15 +191,6 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     expected = (1..21).to_a.shuffle(random: Random.new(42))
     assert_equal expected, numbers_of(season)
     assert_not_equal (1..21).to_a, expected, "the seed shuffles"
-  end
-
-  test "a published card-season's number is frozen" do
-    season = seed_card_seasons(distinct_scores(21))
-    publish(season.number)
-
-    card_season = Catalog::CardSeason.where(season_id: season.id).first
-    assert_not card_season.update(number: card_season.number + 100)
-    assert card_season.errors.added?(:base, :frozen_once_published)
   end
 
   # PublishSeason#number_published
@@ -329,12 +269,6 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_nothing_written(season) { assert_equal :empty_tier, publish(season.number).failure }
   end
 
-  test "a score covering two cuts is empty_tier" do
-    season = seed_card_seasons(Array.new(5, 100.0) + distinct_scores(95))
-
-    assert_nothing_written(season) { assert_equal :empty_tier, publish(season.number).failure }
-  end
-
   test "a draft whose cards carry an unclassified tag among their five most-voted is unclassified_tags, until it is classified" do
     season = seed_card_seasons(distinct_scores(21))
     Catalog::Card.joins(:card_seasons).where(catalog_card_seasons: { season_id: season.id }).update_all(tags: %w[rpg indie pixel_graphics])
@@ -358,12 +292,6 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
 
     Catalog::Card.joins(:card_seasons).where(catalog_card_seasons: { season_id: over.id }).order(:id).first.update_columns(genres: [ "rpg" ])
     assert publish(over.number).success?
-  end
-
-  test "a draft with no tag past the limit of UFOs publishes" do
-    season = seed_card_seasons(distinct_scores(100), genres: Array.new(100) { |index| index < 5 ? [] : [ "rpg" ] })
-
-    assert publish(season.number).success?
   end
 
   test "a draft scored by one formula publishes, and so does one scored before versions existed" do

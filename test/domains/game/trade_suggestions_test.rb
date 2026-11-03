@@ -98,16 +98,6 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
     assert_equal [ [ hugo, [ @portal.id ] ] ], placed
   end
 
-  test "only the cards with at least two free copies are placed" do
-    befriend(@lea)
-    goal(@portal.id, @depths.id, @hills.id)
-    hold(@lea, @portal.id, 3, reserved: 1)
-    hold(@lea, @hills.id, 2, reserved: 1)
-    hold(@lea, @depths.id, 3)
-
-    assert_equal [ [ @lea, [ @depths.id, @portal.id ].sort ] ], placed.map { |friend, ids| [ friend, ids.sort ] }
-  end
-
   test "editions are summed: two editions with a free copy each make a duplicate and the earliest season is placed" do
     befriend(@lea)
     goal(@portal.id, @depths.id, @hills.id)

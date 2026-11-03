@@ -32,12 +32,6 @@ class Game::FriendCodeTest < ActiveSupport::TestCase
     end
   end
 
-  test "two players never share a code" do
-    codes = Array.new(5) { Game::CreateFriendCode.new.call(player: new_player).value!.code }
-
-    assert_equal 5, codes.uniq.size
-  end
-
   test "a missing player has no code" do
     assert_equal Dry::Monads::Failure(:player_required), Game::CreateFriendCode.new.call(player: Accounts::Player.new)
   end

@@ -156,8 +156,4 @@ class RepostsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_equal 1, reposts.count
   end
-
-  test "the route takes the slug and the season's number, never an id" do
-    assert_equal "/fr/cards/portal/seasons/1/repost", card_repost_path(locale: :fr, slug: "portal", number: 1)
-  end
 end

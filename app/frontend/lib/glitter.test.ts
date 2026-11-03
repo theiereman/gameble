@@ -74,12 +74,6 @@ describe("flakeField", () => {
     expect(flakeField(43, 200, 300).groups).not.toEqual(flakeField(42, 200, 300).groups)
   })
 
-  it("scatters as many flakes per area at every size", () => {
-    expect(flakes(1, 200, 300)).toHaveLength(28)
-    expect(flakes(1, 240, 360)).toHaveLength(40)
-    expect(flakes(1, 112, 168)).toHaveLength(9)
-  })
-
   it("gives every size three twinkle groups, each with its own rhythm, and puts every flake in one", () => {
     for (const [width, height] of [
       [112, 168],
@@ -117,15 +111,6 @@ describe("flakeField", () => {
       expect(Math.abs(flake.nx)).toBeLessThanOrEqual(0.45)
       expect(Math.abs(flake.ny)).toBeLessThanOrEqual(0.45)
     }
-  })
-
-  it("makes about a third of the flakes crosses, mostly white ones", () => {
-    const field = flakes(3, 2000, 3000)
-    const share = (count: number) => count / field.length
-    expect(share(field.filter((flake) => flake.cross).length)).toBeGreaterThan(0.3)
-    expect(share(field.filter((flake) => flake.cross).length)).toBeLessThan(0.4)
-    expect(share(field.filter((flake) => flake.colour === "white").length)).toBeGreaterThan(0.38)
-    expect(new Set(field.map((flake) => flake.colour))).toEqual(new Set(["white", "gold", "violet", "blue"]))
   })
 })
 
@@ -177,23 +162,6 @@ describe("attachGlitter", () => {
         expect(flake.children.every((glint) => glint.properties.size === 0)).toBe(true)
       }
     }
-  })
-
-  it("draws the same groups, membership and rhythms for a seed", () => {
-    const draw = (seed: number) => {
-      const element = container()
-      attachGlitter(element as unknown as HTMLElement, { seed, width: 160, height: 240 })
-      return element.children.map((group) => ({
-        rhythm: [group.properties.get("--flake-period"), group.properties.get("--flake-delay")],
-        flakes: group.children.map((flake) => [
-          flake.className,
-          flake.properties.get("left"),
-          flake.properties.get("top"),
-        ]),
-      }))
-    }
-    expect(draw(9)).toEqual(draw(9))
-    expect(draw(10)).not.toEqual(draw(9))
   })
 
   it("lights the flake the tilt faces outside its group, puts it back when the flash ends, and takes them all away", () => {

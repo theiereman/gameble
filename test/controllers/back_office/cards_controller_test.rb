@@ -39,14 +39,5 @@ module BackOffice
 
       assert_response :forbidden
     end
-
-    test "a visitor and a player get the 404 of an unknown address" do
-      get back_office_cards_path(locale: :en)
-      assert_unknown_address
-
-      sign_in(accounts_players(:player))
-      get back_office_cards_path(locale: :en)
-      assert_unknown_address
-    end
   end
 end

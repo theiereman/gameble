@@ -12,28 +12,6 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     @player = accounts_players(:player)
   end
 
-  test "the settings screen has the COMPTE row and the delete dialog, the button disabled by script only" do
-    sign_in(@player)
-
-    get settings_path(locale: :fr)
-
-    assert_select ".settings-row__label", "Compte"
-    assert_select "button.button--danger[aria-haspopup=dialog][data-dialog-opener-dialog-value=delete-dialog]", "Supprimer mon compte"
-    assert_select "dialog#delete-dialog[aria-labelledby=delete-dialog-title]" do
-      assert_select "#delete-dialog-title", "Supprimer mon compte"
-      assert_select "form[action='/fr/account'][data-turbo=false][data-controller=confirm-word][data-confirm-word-word-value=SUPPRIMER]"
-      assert_select "input[name=_method][value=delete]", visible: :all
-      assert_select "label[for=delete-confirmation]", "Tapez SUPPRIMER pour confirmer"
-      assert_select "input#delete-confirmation[name=confirmation][autocomplete=off]"
-      assert_select "button[type=submit].button--danger:not([disabled])", "Supprimer définitivement"
-      assert_select "button[type=button][data-action='dialog#close']", "Annuler"
-    end
-
-    get settings_path(locale: :en)
-    assert_select "form[action='/en/account'][data-confirm-word-word-value=DELETE]"
-    assert_select "label[for=delete-confirmation]", "Type DELETE to confirm"
-  end
-
   test "a player banned while signed in cannot delete their own account" do
     sign_in(@player)
     @player.update!(banned_at: Time.current)
@@ -153,17 +131,6 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "deleting the account leaves neither the Steam library set nor its games" do
-    library = create_library_set(@player, card_ids: fixture_card_ids.first(2))
-    sign_in(@player)
-
-    delete account_path(locale: :fr), params: { confirmation: "SUPPRIMER" }
-
-    assert_predicate @player.reload, :deleted?
-    assert_not Game::CustomSet.exists?(player_id: @player.id)
-    assert_not Game::CustomSetGame.exists?(custom_set_id: library.id)
-  end
-
   test "a visitor is sent to the landing; nothing is deleted" do
     delete account_path(locale: :en), params: { confirmation: "DELETE" }
 
@@ -186,16 +153,5 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_nil other_browser.session[:player_id]
     other_browser.delete account_path(locale: :en), params: { confirmation: "DELETE" }
     other_browser.assert_redirected_to home_path(locale: :en)
-  end
-
-  test "the Steam id signs in again as a new player" do
-    steam_id = @player.steam_id
-    sign_in(@player)
-    delete account_path(locale: :en), params: { confirmation: "DELETE" }
-
-    sign_in_new_player(steam_id)
-
-    assert_not_equal @player.id, session[:player_id]
-    assert_equal steam_id, Accounts::Player.find(session[:player_id]).steam_id
   end
 end

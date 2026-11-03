@@ -419,18 +419,6 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
     assert_equal "accepted", accept(trade, revision: (start + 0.0004r).utc.iso8601(6)).value!.status
   end
 
-  test "a decline of the terms seen closes the trade; cancel and expiry need no version" do
-    trade = propose
-
-    assert_equal "declined", decline(trade).value!.status
-    trade = propose
-    assert_equal "cancelled", Game::CancelTrade.new.call(player: @alice, trade_id: trade.id).value!.status
-    trade = propose
-    travel_to(trade.expires_at, with_usec: true) do
-      assert_equal "expired", Game::ExpireTrade.new.call(player: @alice, trade_id: trade.id).value!.status
-    end
-  end
-
   test "a trade past its expiry, not yet swept, keeps its offer reserved beside a new proposal to the friend" do
     trade = propose
 

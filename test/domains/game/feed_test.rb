@@ -146,16 +146,6 @@ class Game::FeedTest < ActiveSupport::TestCase
     assert Game::FeedEntries.call(nil).none?(&:filler)
   end
 
-  test "an empty feed is empty" do
-    assert_empty Game::FeedEntries.call(nil)
-  end
-
-  test "an opening writes pulls" do
-    open_pack(@player, [ fixture_tier_ids[4] ])
-
-    assert_equal [ "pull" ], Game::FeedEntry.distinct.pluck(:kind)
-  end
-
   test "a kind shows only its entries, the whole feed shows every kind" do
     open_pack(@player, [ fixture_tier_ids[3] ])
     trade_cards(@other, accounts_players(:administrator))

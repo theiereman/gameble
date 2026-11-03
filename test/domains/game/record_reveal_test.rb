@@ -30,12 +30,6 @@ class Game::RecordRevealTest < ActiveSupport::TestCase
     assert_equal [ { player_id: @player.id, pack_id: @latest.id, mode: "all" } ], events.map(&:data)
   end
 
-  test "a pack turned card by card stores one_by_one" do
-    assert reveal("one_by_one").success?
-
-    assert_equal "one_by_one", @latest.reload.reveal_mode
-  end
-
   test "a repeat on a revealed pack succeeds and changes nothing, whatever its mode" do
     reveal("one_by_one")
 

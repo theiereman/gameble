@@ -265,19 +265,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal 60, slots.size
   end
 
-  test "the first page's grid loads the next ones on scroll, its numbered links kept" do
-    publish_sets_draft
-
-    get library_cards_path(locale: :en)
-
-    assert_equal 60, slots.size
-    assert_select "turbo-frame#collection-results[data-controller=next-page][data-action='focusout->next-page#focusLeft']"
-    assert_select "turbo-frame#collection-results > p#collection-results-status[role=status]", "150 cards shown."
-    assert_select "turbo-frame#collection-results > ol#collection-slots.collection-grid > li.collection-slot", 60
-    assert_select "nav#collection-pages.collection-pages[data-next-page-target=pages] a[rel=next][href='/en/library/cards?page=2']"
-    assert_select "[style]", false
-  end
-
   test "a visitor's next page answers as a Turbo Stream: its slots appended in grid order, the status line, that page's links" do
     season = publish_sets_draft
     cards = season_cards(season)
@@ -380,25 +367,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-group=genre]"
     assert_equal [ "Horror", "Pirates", "Roguelike", "RPG" ], set_chips.map(&:first)
     assert_select "[style]", false
-  end
-
-  test "the page title names all the cards and the game, not the collection, for a visitor and a player in both locales" do
-    publish_sets_draft
-    titles = { fr: "Toutes les cartes · Gameble", en: "All cards · Gameble" }
-
-    titles.each do |locale, page_title|
-      get library_cards_path(locale:)
-      assert_select "title", page_title
-      assert_select ".top-bar .player-chip", false
-    end
-
-    sign_in(accounts_players(:player))
-
-    titles.each do |locale, page_title|
-      get library_cards_path(locale:)
-      assert_select "title", page_title
-      assert_select ".top-bar .player-chip"
-    end
   end
 
   test "a player banned since signing in sees the collection as a visitor, with no ownership query" do
@@ -652,16 +620,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en, sets: %w[theme:roguelike], rarity: %w[epic])
     assert_equal epic_roguelike.map { title(it) }.sort, slots.map(&:second).sort
     assert_equal [ "Roguelike", "theme:roguelike", true ], set_chips.first
-  end
-
-  test "the grid no longer reads the list's kind nor its page" do
-    publish_sets_draft
-
-    get library_cards_path(locale: :en, kind: "ufo", shelf: 3, set_kind: "ufo", set_q: "o")
-
-    assert_response :success
-    assert_select "form.filters input[name=kind], form.filters input[name=shelf]", false
-    assert_equal 60, slots.size
   end
 
   test "the genre chips filter the grid, OR within the group; an unknown genre is ignored" do

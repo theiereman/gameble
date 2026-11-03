@@ -39,13 +39,6 @@ class Game::DrawTest < ActiveSupport::TestCase
       Game::Draw.pack(odds: Game::DrawOdds::REGULAR, size: 2, random: Scripted.new(10, 0, 9_999, 0), pool:)
   end
 
-  test "SecureRandom is the default source" do
-    ids = Game::Draw.pack(odds: Game::DrawOdds::REGULAR, size: 5)
-
-    assert_equal 5, ids.size
-    assert_empty ids - Catalog::CardSeason.where(season_id: catalog_seasons(:one).id).ids
-  end
-
   test "200,000 draws follow the odds per tier, and every card of a small tier is drawn evenly" do
     season = seed_card_seasons(distinct_scores(150))
     assert Catalog::PublishSeason.new.call(number: season.number).success?

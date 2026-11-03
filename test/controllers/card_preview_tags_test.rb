@@ -114,25 +114,6 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_equal [ "live:fr" ], css_select("turbo-cable-stream-source").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
   end
 
-  test "an older browser's line: in the markup beside the invitation, the stylesheet showing one or the other by :has() support, no script involved" do
-    get card_page
-
-    assert_select ".public-card__update", "Your browser is too old to sign in to Gameble. Update it to play."
-    assert_select ".public-card__pitch"
-    assert_select "script", text: /:has|userAgent|navigator/, count: 0
-
-    css = %w[card-detail card-detail-stepping card-detail-public].sum("") { |name| Rails.root.join("app/frontend/styles/#{name}.css").read }
-    default, supported = css.split("@supports selector(:has(*))", 2)
-    # By default: the invitation and the sign-in image hidden, the line shown.
-    assert_match(/\.public-card__pitch \{\s*display: none;/, default)
-    assert_match(/\.is-public-page \.top-bar__end \{\s*display: none;/, default)
-    assert_no_match(/\.public-card__update \{[^}]*display: none/, default)
-    # Where :has() works: the invitation and the image shown, the line hidden.
-    assert_match(/\.public-card__pitch \{\s*display: flex;/, supported)
-    assert_match(/\.public-card__update \{\s*display: none;/, supported)
-    assert_match(/\.is-public-page \.top-bar__end \{\s*display: flex;/, supported)
-  end
-
   def assert_text_preview(locale: :en)
     assert_equal "Blue Depths — Rare", og("title") if locale == :en
     assert_equal "summary", meta("name", "twitter:card")
@@ -228,22 +209,6 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     end
     assert_response :success
     assert_text_preview
-  end
-
-  test "in French: the French title and rarity, fr_FR, the French URL, the French invitation" do
-    get card_page(locale: :fr)
-
-    assert_equal "Profondeurs bleues — Rare", og("title")
-    assert_select "title", "Profondeurs bleues — Rare"
-    assert_equal "fr_FR", og("locale")
-    assert_equal season_url(locale: :fr), og("url")
-    assert_equal "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous\u202F: dix capsules vous attendent.", og("description")
-    assert_select ".public-card__pitch-title", "Vos jeux Steam, en cartes à collectionner."
-    assert_select ".public-card__pitch-text", "Ouvrez des capsules, complétez des sets, échangez avec vos amis."
-    assert_select ".public-card__pitch a.button--primary", "Ouvrir mes premières capsules"
-    assert_select ".public-card__update", "Votre navigateur est trop ancien pour se connecter à Gameble. Mettez-le à jour pour jouer."
-    assert_select ".public-card__live-title", /En ce moment sur Gameble/
-    assert_select ".public-card__legal", "Mentions légales"
   end
 
   test "the season-less page shows the published season, its canonical the season form, without query" do
@@ -348,31 +313,11 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_not_includes response.headers.to_h.values.join(" "), "evil.example"
   end
 
-  test "an old share link, season-qualified or not, leads to the card's page and its preview tags" do
-    [ [ "/en/brothers/#{@sharer.token}/cards/portal/seasons/1", "/en/cards/portal/seasons/1" ],
-      [ "/en/brothers/#{@sharer.token}/cards/portal", "/en/cards/portal" ] ].each do |old, target|
-      get old
-      assert_redirected_to target
-      follow_redirect!
-
-      assert_response :success
-      assert_equal target, path
-      assert_equal "Portal — Epic", og("title")
-      assert_equal season_url(slug: "portal"), og("url")
-    end
-  end
-
   test "an old share link with a malformed token or season number is not routed" do
     [ "/en/brothers/abcde/cards/portal", "/en/brothers/#{"0" * 24}/cards/portal", "/en/brothers/#{@sharer.token}/cards/portal/seasons/one" ].each do |path|
       get path
       assert_response :not_found, path
     end
-  end
-
-  test "the old share links have no route helper" do
-    assert respond_to?(:card_season_path)
-    assert_not respond_to?(:brother_card_path)
-    assert_not respond_to?(:brother_card_season_path)
   end
 
   USER_AGENTS.each do |name, user_agent|

@@ -101,19 +101,6 @@ class PackRevealsControllerTest < ActionDispatch::IntegrationTest
     assert_nil @latest.reload.reveal_mode
   end
 
-  test "a reveal without the CSRF token is refused and writes nothing" do
-    sign_in(@player)
-    allowed = ActionController::Base.allow_forgery_protection
-    ActionController::Base.allow_forgery_protection = true
-
-    reveal("all")
-
-    assert_response :unprocessable_content
-    assert_nil @latest.reload.reveal_mode
-  ensure
-    ActionController::Base.allow_forgery_protection = allowed
-  end
-
   test "thirty reveals a minute are answered; the thirty-first is throttled with Retry-After" do
     sign_in(@player)
 

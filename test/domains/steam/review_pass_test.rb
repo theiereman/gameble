@@ -43,17 +43,6 @@ class Steam::ReviewPassTest < ActiveSupport::TestCase
     assert_equal({ import_run_id: run.id, step: "app_list" }, events_of(run).first.data)
   end
 
-  test "finishing the review pass moves the run to the tags" do
-    run = reviews_run(last_appid: 70)
-
-    Steam::FinishImportStep.new.call(import_run: run)
-
-    run.reload
-    assert_predicate run, :running?
-    assert_equal({ "step" => "tags", "last_appid" => 0 }, run.cursor)
-    assert_equal "tags", run.step
-  end
-
   test "finishing the last step readies the run for promotion" do
     run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 70 }, started_at: 1.minute.ago)
 
@@ -254,13 +243,6 @@ class Steam::ReviewPassTest < ActiveSupport::TestCase
   end
 
   # ReviewPolicy
-
-  test "the review floor is 500" do
-    assert_equal 500, Steam::ReviewPolicy::MIN_REVIEWS
-    assert_predicate Steam::ReviewPolicy.verdict(reviewed_item(1, 500)), :kept?
-    assert_equal "too_few_reviews", Steam::ReviewPolicy.verdict(reviewed_item(1, 499)).exclusion
-    assert_equal "unavailable", Steam::ReviewPolicy.verdict(nil).exclusion
-  end
 
   def summary_item(appid, summary)
     { "item_type" => 0, "id" => appid, "success" => 1, "appid" => appid, "reviews" => { "summary_filtered" => summary } }

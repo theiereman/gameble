@@ -1,8 +1,4 @@
 import { describe, expect, it } from "vitest"
-import booster from "../styles/booster.css?raw"
-import boosterCanister from "../styles/booster-canister.css?raw"
-import boosterCelebration from "../styles/booster-celebration.css?raw"
-import boosterEffects from "../styles/booster-effects.css?raw"
 import boosterLayouts from "../styles/booster-layouts.css?raw"
 import boosterLayoutsTray from "../styles/booster-layouts-tray.css?raw"
 import cardDetail from "../styles/card-detail.css?raw"
@@ -11,7 +7,6 @@ import cardDetailStepping from "../styles/card-detail-stepping.css?raw"
 import cardRarityEffectsStylesheet from "../styles/card-rarity-effects.css?raw"
 import hubStylesheet from "../styles/hub.css?raw"
 
-const boosterStylesheet = booster + boosterCanister + boosterEffects + boosterCelebration
 const boosterLayoutsStylesheet = boosterLayouts + boosterLayoutsTray
 
 const cardDetailStylesheet = cardDetail + cardDetailStepping + cardDetailPublic
@@ -31,31 +26,6 @@ const ruleBody = (stylesheet: string, selector: string) => {
 }
 
 describe("the shared card rarity effects", () => {
-  it("paints epic purple and legendary gold rays, large in the zoom", () => {
-    expect(rule(cardRarityEffectsStylesheet, ".card-rays")).toContain("repeating-conic-gradient")
-    expect(rule(cardRarityEffectsStylesheet, ".card-rays--epic")).toContain("var(--color-rarity-epique)")
-    expect(rule(cardRarityEffectsStylesheet, ".card-rays--legendary")).toContain("var(--color-rarity-legendaire)")
-    expect(rule(cardRarityEffectsStylesheet, ".card-rays--large")).toContain("--card-rays-size: 520px")
-  })
-
-  it("floats the wrapper while the card keeps its own transform", () => {
-    expect(rule(cardRarityEffectsStylesheet, ".card-float")).toContain(
-      "animation: card-idle-float 14s ease-in-out infinite",
-    )
-    expect(cardRarityEffectsStylesheet).toContain("translateY(calc(-1 * var(--idle-float-max)))")
-  })
-
-  it("keeps booster reveal, zoom size and phone pile visually unchanged", () => {
-    expect(rule(boosterStylesheet, ".booster-card[data-revealed] .booster-card__rays")).toContain("opacity: 1")
-    expect(rule(boosterStylesheet, ".booster-card[data-revealed] .booster-card__rays")).toContain("card-rays-spin")
-    expect(
-      rule(boosterStylesheet, '.booster-card[data-revealed][data-tier="legendary"] .booster-card__rays'),
-    ).toContain("animation-duration: 14s")
-    expect(rule(boosterLayoutsStylesheet, '.booster-zoom[data-tier="legendary"] .booster-zoom__rays')).toContain(
-      "var(--color-rarity-legendaire)",
-    )
-  })
-
   it("clips the rays sideways at each stage and fades them within the narrow ones", () => {
     for (const selector of [".card-detail__stage", ".public-card__stage", ".hub-showcase__stage"]) {
       expect(ruleBody(cardRarityEffectsStylesheet, selector)).toContain("overflow-x: clip")

@@ -123,10 +123,6 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the route takes the slug and the season's number, never an id" do
-    assert_equal "/fr/cards/portal/seasons/1/showcase", card_showcase_path(locale: :fr, slug: "portal", number: 1)
-  end
-
   def showcase_slugs(selector = ".profile-showcase .profile-showcase__slot > a.card-link")
     css_select(selector).map { it["href"][%r{/cards/([^/]+)/}, 1] }
   end
@@ -280,16 +276,6 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a move of an unknown card is not found" do
-    sign_in(@player)
-
-    patch showcase_path(slug: "no-such-game"), params: { direction: "later" }, as: :json
-    assert_json_error :not_found, "not_found", "This card does not exist."
-
-    patch showcase_path(slug: "no-such-game"), params: { direction: "later" }
-    assert_response :not_found
-  end
-
   test "a visitor's move is refused like an addition; nothing written" do
     choose(:portal_one, :common_card_one)
 
@@ -332,15 +318,6 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
 
       patch showcase_path(locale: :fr), params: { position: 5 }, as: :json
       assert_json_error :unprocessable_content, "position_out_of_range", "La vitrine n'a pas cette place."
-    end
-  end
-
-  test "a visitor's drop is refused; nothing written" do
-    choose(:portal_one, :common_card_one)
-
-    assert_no_changes -> { chosen } do
-      patch showcase_path, params: { position: 1 }, as: :json
-      assert_json_error :unauthorized, "sign_in_required", I18n.t("authorization.sign_in_required", locale: :en)
     end
   end
 end

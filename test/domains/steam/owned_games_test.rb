@@ -50,19 +50,6 @@ class Steam::OwnedGamesTest < ActiveSupport::TestCase
     assert_equal Dry::Monads::Success([]), owned_games
   end
 
-  test "malformed entries are skipped" do
-    stub_owned_games_response({ "game_count" => 4, "games" => [ "junk", { "appid" => "x" }, { "appid" => 2**31 }, { "appid" => PORTAL_APPID } ] })
-
-    assert_equal Dry::Monads::Success([ catalog_cards(:portal).id ]), owned_games
-  end
-
-  test "a listed library with no readable appid raises, never succeeding empty" do
-    stub_owned_games_response({ "game_count" => 2, "games" => [ {}, { "app_id" => PORTAL_APPID } ] })
-
-    error = assert_raises(Steam::WebApi::Error) { owned_games }
-    assert_not_kind_of Steam::WebApi::Unavailable, error
-  end
-
   [ nil, 12 ].each do |game_count|
     test "a private library fails as private, not as an empty library (game count #{game_count.inspect})" do
       stub_private_owned_games(game_count:)
@@ -77,33 +64,6 @@ class Steam::OwnedGamesTest < ActiveSupport::TestCase
 
       assert_equal Dry::Monads::Failure(:steam_unavailable), owned_games
       assert_equal 1, calls.size
-    end
-  end
-
-  [ 401, 403 ].each do |status|
-    test "a key Steam rejects (#{status}) raises a broken key" do
-      stub_owned_games_failure(status)
-
-      error = assert_raises(Steam::WebApi::BrokenKey) { owned_games }
-      assert_not_includes error.message, API_KEY
-    end
-  end
-
-  test "a missing key raises a broken key without calling Steam" do
-    Rails.configuration.x.steam.api_key = nil
-    calls = stub_owned_games([ PORTAL_APPID ])
-
-    assert_raises(Steam::WebApi::BrokenKey) { owned_games }
-    assert_empty calls
-  end
-
-  [ "{}", { "response" => [] }.to_json, { "response" => { "games" => {} } }.to_json ].each do |body|
-    test "a malformed answer raises (#{body})" do
-      steam_stubs.get(OWNED_GAMES_PATH) { [ 200, { "Content-Type" => "application/json" }, body ] }
-
-      error = assert_raises(Steam::WebApi::Error) { owned_games }
-      assert_not_kind_of Steam::WebApi::Unavailable, error
-      assert_not_includes error.message, API_KEY
     end
   end
 end

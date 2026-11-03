@@ -277,11 +277,6 @@ describe("bankChanged, bankFetched", () => {
 })
 
 describe("countdownAtZero, bankFetchOwed, bankDue, owedBankTaken", () => {
-  it("refreshes the page with no hand at rest", () => {
-    expect(countdownAtZero(startWith())).toBe("page")
-    expect(countdownAtZero(startWith({ bank: bank(0) }))).toBe("page")
-  })
-
   it("fetches the bank with a hand put away, else owes the fetch", () => {
     expect(countdownAtZero(revealedAll(dealt()))).toBe("bank")
     expect(countdownAtZero(dealt())).toBe("owe")

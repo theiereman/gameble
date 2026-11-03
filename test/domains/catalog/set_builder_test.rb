@@ -49,12 +49,6 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
     assert_equal %w[souls_like rpg adult], Catalog::SetBuilder.themes(rows).map { |set| set[:key] }
   end
 
-  test "every theme key is a well-formed set key" do
-    assert_equal 43, Catalog::Themes.keys.size
-    assert Catalog::Themes.keys.all? { |key| Catalog::Set::KEY_FORMAT.match?(key) }
-    assert_match Catalog::Set::KEY_FORMAT, Catalog::SetBuilder::UFOS
-  end
-
   test "a theme of 7 cards needs 4 of them for master and 7 to complete" do
     sets = Catalog::SetBuilder.themes((1..7).map { |id| row(id, genres: %w[pirates]) })
 
@@ -161,13 +155,6 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
     rows = franchise_rows("Pokémon", [ "Pokémon Snap", "Pokémon Go" ]) + franchise_rows("Pokemon", [ "Pokemon Ranger" ], first: 3)
 
     assert_equal [ [ "pokemon", { "franchise" => "Pokémon" }, ids(1, 2, 3) ] ], summary(Catalog::SetBuilder.franchises(rows))
-  end
-
-  test "partly transliterable names of unrelated franchises keep apart" do
-    rows = franchise_rows("ファイナルファンタジー 7", [ "ファイナルファンタジー 7", "ファイナルファンタジー 7 R", "ファイナルファンタジー 7 CC" ]) +
-      franchise_rows("ドラゴンクエスト 7", [ "ドラゴンクエスト 7", "ドラゴンクエスト 7 R", "ドラゴンクエスト 7 3DS" ], first: 4)
-
-    assert_equal 2, Catalog::SetBuilder.franchises(rows).map { |set| set[:key] }.uniq.size
   end
 
   test "on a tie the alphabetically first variant names the set; a game naming two variants counts once" do

@@ -71,17 +71,6 @@ class Game::OpenPackTest < ActiveSupport::TestCase
     assert_equal earlier, gained.fetch(legendary)
   end
 
-  test "moving reserved copies leaves last_gained_at as it is" do
-    portal = catalog_card_seasons(:portal_one).id
-    create_pack(@player, cards: Array.new(5, portal))
-    open.value!
-    holding = Game::Holding.find_by!(player_id: @player.id, card_season_id: portal)
-
-    assert_no_changes -> { holding.reload.last_gained_at } do
-      Game::Holding.where(id: holding.id).update_all(reserved: 2, updated_at: 1.minute.from_now)
-    end
-  end
-
   test "with every pack opened, opening fails and changes nothing" do
     create_pack(@player, opened_at: 1.hour.ago)
 

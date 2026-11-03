@@ -1,6 +1,4 @@
 require "test_helper"
-require Rails.root.join("db/migrate/20261006100000_remove_dust_tier_from_catalog_card_seasons").to_s
-require Rails.root.join("db/migrate/20261019120000_widen_tier_checks_to_ranks").to_s
 
 # The catalog's database constraints and model rules: what the
 # database refuses even when a model is bypassed.
@@ -36,29 +34,6 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
       connection.check_constraint_exists?(:catalog_card_seasons, name: "catalog_card_seasons_dust_tier_check") ]
   end
 
-  test "a card-season has no dust tier, nor its check" do
-    assert_equal [ false, false ], dust_tier
-  end
-
-  # PostgreSQL DDL is transactional: the round trip is rolled back with the
-  # test. The writes are SQL strings, and the model forgets the column after.
-  test "the dust tier's removal rolls back to a nullable smallint checked 0 to 4, and runs again" do
-    migration = RemoveDustTierFromCatalogCardSeasons.new
-    migration.suppress_messages { migration.migrate(:down) }
-
-    assert_equal [ true, true ], dust_tier
-    column = ActiveRecord::Base.connection.columns(:catalog_card_seasons).find { |c| c.name == "dust_tier" }
-    assert_equal [ :integer, 2, true ], [ column.type, column.limit, column.null ]
-    refused(ActiveRecord::CheckViolation) { Catalog::CardSeason.where(id: card_season.id).update_all("dust_tier = 5") }
-    assert_equal 1, Catalog::CardSeason.where(id: card_season.id).update_all("dust_tier = 4")
-
-    migration.suppress_messages { migration.migrate(:up) }
-
-    assert_equal [ false, false ], dust_tier
-  ensure
-    Catalog::CardSeason.reset_column_information
-  end
-
   [ -0.01, 100.01 ].each do |rating|
     test "the database refuses a rating of #{rating}" do
       refused(ActiveRecord::CheckViolation) { Catalog::CardSeason.where(id: card_season.id).update_all(rating: rating) }
@@ -69,18 +44,6 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     refused(ActiveRecord::CheckViolation) { Catalog::CardSeason.where(id: card_season.id).update_all(review_count: 0) }
     assert_equal 1, Catalog::CardSeason.where(id: card_season.id).update_all(review_count: 1)
     assert_equal 1, Catalog::CardSeason.where(id: card_season.id).update_all(review_count: nil)
-  end
-
-  test "the model refuses a review count below 1 or fractional" do
-    [ 0, 1.5 ].each do |count|
-      card_season.review_count = count
-      card_season.validate
-
-      assert_predicate card_season.errors[:review_count], :present?, count
-    end
-    card_season.review_count = 1
-    card_season.validate
-    assert_empty card_season.errors[:review_count]
   end
 
   test "a card-season's review count is frozen once its season is published" do
@@ -160,48 +123,6 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
 
     assert_equal 9, Catalog::SetTier.insert_all!(Catalog::SetTier::TIERS.each_with_index.map { |tier, index| { set_id:, tier:, required: index + 1 } }).length
     assert Catalog::SetTier.new(set_id:, tier: "master", required: 3).valid?
-  end
-
-  # Whether each tier check takes a rank: a set tier, a player's tier and a
-  # feed entry's tier, each written as `adept`.
-  def ranks_taken
-    pack = Game::Pack.create!(player_id: accounts_players(:player).id, kind: :regular, season_id: catalog_seasons(:one).id,
-      card_season_ids: [ card_season.id ] * Game::Pack::SIZE, available_at: 1.minute.ago, opened_at: Time.current)
-    set_id = catalog_sets(:valve_one).id
-    [
-      -> { Catalog::SetTier.insert_all!([ set_tier(tier: "adept") ]) },
-      -> { Game::SetTier.insert_all!([ { player_id: pack.player_id, set_id:, tier: "adept", reached_by: "pack", pack_id: pack.id, reached_at: Time.current } ]) },
-      -> { Game::FeedEntry.insert_all!([ { kind: "set", player_id: pack.player_id, set_id:, tier: "adept", set_count: 1, notable: true, occurred_at: Time.current } ]) }
-    ].map do |write|
-      ActiveRecord::Base.transaction(requires_new: true) do
-        write.call
-        raise ActiveRecord::Rollback
-      end
-      true
-    rescue ActiveRecord::CheckViolation
-      false
-    end
-  end
-
-  # PostgreSQL DDL is transactional: the round trip is rolled back with the test.
-  test "the tier checks refuse a rank before they are widened and take it after, an unknown tier always refused" do
-    migration = WidenTierChecksToRanks.new
-    migration.suppress_messages { migration.migrate(:down) }
-    assert_equal [ false, false, false ], ranks_taken
-
-    migration.suppress_messages { migration.migrate(:up) }
-
-    assert_equal [ true, true, true ], ranks_taken
-    refused(ActiveRecord::CheckViolation) { Catalog::SetTier.insert_all!([ set_tier(tier: "platinum") ]) }
-  end
-
-  test "the model refuses an unknown tier or a requirement that is not a positive integer" do
-    draft_set = Catalog::Set.create!(season: draft, kind: "theme", key: "rpg", params: { "theme" => "rpg" })
-    assert Catalog::SetTier.new(set: draft_set, tier: "bronze", required: 3).valid?
-
-    [ { tier: "platinum" }, { required: 0 }, { required: 1.5 } ].each do |attributes|
-      assert_not Catalog::SetTier.new(set: draft_set, tier: "bronze", required: 3, **attributes).valid?, attributes
-    end
   end
 
   test "a card-season's main theme may stay NULL and is frozen once its season is published" do

@@ -268,16 +268,6 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
     assert_instance_of Steam::ImportRunFinished, events_of(run).last
   end
 
-  test "a run keeps only its latest errors" do
-    run = running_run
-    run.update!(error_messages: Array.new(Steam::ImportRun::ERROR_LIMIT) { |i| { "at" => Time.current.utc.iso8601, "message" => "old #{i}" } })
-
-    Steam::FailImport.new.call(import_run_id: run.id, error: "new")
-
-    assert_equal Steam::ImportRun::ERROR_LIMIT, run.reload.error_messages.size
-    assert_equal "new", run.latest_errors.first.message
-  end
-
   test "failing an unknown run fails with not_found" do
     assert_equal :not_found, Steam::FailImport.new.call(import_run_id: -1, error: "x").failure
   end

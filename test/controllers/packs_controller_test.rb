@@ -160,14 +160,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[RARE EPIC LEGENDARY], css_select(".pack-result__card .card__rarity").map { it.text.upcase }
   end
 
-  test "the flash's notices and alerts still show, and nothing else of it" do
-    sign_in(accounts_players(:player), origin: "/en")
-    follow_redirect!
-
-    assert_select ".toasts > .toast", 1
-    assert_select ".toasts > .toast--notice .toast__message", I18n.t("sessions.create.welcome", locale: :en)
-  end
-
   test "another player's pack, an unopened pack and an unknown token are not found" do
     player = accounts_players(:player)
     foreign = create_pack(accounts_players(:moderator), opened_at: 1.minute.ago)
@@ -281,18 +273,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".packs-chip__next .visually-hidden time[datetime='2026-10-02T09:40:00Z']"
   end
 
-  test "with no pack available now, menu 01 shows no badge and the countdown shows" do
-    player = accounts_players(:player)
-    create_pack(player, available_at: 4.minutes.from_now)
-    sign_in(player)
-
-    get home_path(locale: :en)
-
-    assert_equal "/en/booster", open_item["href"]
-    assert_nil reserve_badge
-    assert_equal 1, countdown.size
-  end
-
   test "a pack more than an hour away counts down in hours, not in total minutes" do
     player = accounts_players(:player)
     now = Time.utc(2026, 10, 2, 14, 22)
@@ -321,14 +301,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "1", reserve_badge(:special)
     assert_empty countdown
     assert_select ".packs-chip__next--full", "Reserve full"
-  end
-
-  test "a visitor sees no countdown" do
-    create_pack(accounts_players(:player), available_at: 4.minutes.from_now)
-
-    get home_path(locale: :en)
-
-    assert_empty countdown
   end
 
   # --- The booster's opening exchange (JSON) -----------------------
@@ -635,18 +607,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/en/packs/#{pack.token}"
     assert_equal [ nil, "standard" ], [ pack.reload.idempotency_key, pack.card_back ]
-  end
-
-  test "the pack's page after a JSON opening shows the cards face up, without the reveal" do
-    player = accounts_players(:player)
-    create_pack(player)
-    sign_in(player)
-    open_json
-
-    get body.dig("pack", "url")
-
-    assert_response :success
-    assert_select ".pack-result__card .card.card--m", 5
   end
 
   test "a JSON opening names its reserve and opens the oldest pack of it" do

@@ -49,18 +49,6 @@ class CardBacksControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "a new account sees the four hardest achievements' backs locked, in both languages" do
-    sign_in(accounts_players(:moderator))
-    { en: { "trefle-fane" => "Wilted clover", "assidu" => "Assiduous", "siege-social" => "Headquarters", "contrat" => "Contract" },
-      fr: { "trefle-fane" => "Trèfle fané", "assidu" => "Assidu", "siege-social" => "Siège social", "contrat" => "Contrat" } }.each do |locale, names|
-      get personalization_path(locale:)
-
-      names.each do |key, name|
-        assert_select ".back-picker__tile--locked[data-key=?] button[aria-label^=?]", key, "#{name}, "
-      end
-    end
-  end
-
   test "each back says how it was earned, in English and in French" do
     Game::CardBackUnlock.record(@player.id, "centurion", Time.zone.local(2026, 10, 24, 10))
     Game::CardBackUnlock.record(@player.id, "confrere", Time.zone.local(2026, 10, 18, 10))

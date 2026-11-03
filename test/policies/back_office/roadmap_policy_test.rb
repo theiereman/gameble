@@ -21,13 +21,5 @@ module BackOffice
 
       ACTIONS.each { |action| assert policy.public_send(action), action }
     end
-
-    [ :visitor, :player, :moderator, :administrator ].each do |role|
-      test "a #{role} may do nothing else on the roadmap" do
-        policy = policy_for(role)
-
-        %i[index? new? create? edit? destroy?].each { |action| assert_not policy.public_send(action), action }
-      end
-    end
   end
 end

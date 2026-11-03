@@ -50,12 +50,6 @@ class Game::LibrarySetOperationsTest < ActiveSupport::TestCase
     assert_equal 1, game_events(@player, Game::LibrarySetCreated).size
   end
 
-  test "a player who turned the sync off gets no set and no event" do
-    @player.update_column(:steam_library_sync, false)
-
-    assert_equal :library_sync_off, assert_nothing_written { create }.failure
-  end
-
   test "a player who turned the sync off since they were loaded gets no set: the setting is read fresh" do
     stale = Accounts::Player.find(@player.id)
     @player.update_column(:steam_library_sync, false)

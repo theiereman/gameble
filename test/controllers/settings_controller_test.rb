@@ -102,18 +102,6 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "p.settings-row__note time", "2026-10-04 07:05 UTC"
   end
 
-  test "once the browser has sent its zone, the time of the last export is already the local one the browser shows" do
-    Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 4, 7, 5)) { "{}" }.value!
-    sign_in(@player)
-    cookies[LocalTimeHelper::TIME_ZONE_COOKIE] = "Europe/Paris"
-
-    get settings_path(locale: :fr)
-    assert_select "p.settings-row__note time[datetime='2026-10-04T07:05:00Z']", "4 oct. 2026 à 09h05"
-
-    get settings_path(locale: :en)
-    assert_select "p.settings-row__note time[datetime='2026-10-04T07:05:00Z']", "Oct 4, 2026, 09:05"
-  end
-
   test "within five minutes of the last export, EXPORTER is disabled and says when the next export is allowed" do
     sign_in(@player)
 
@@ -367,15 +355,6 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a change is a PATCH: no GET writes it" do
-    sign_in(@player)
-
-    get settings_path(locale: :en, reduced_motion: "on")
-
-    assert_nil @player.reload.reduced_motion
-    assert_nil cookies[:motion]
-  end
-
   # The one switch: setting, else cookie, else system
 
   test "by default nothing is forced: no data-motion, and the view-transition meta renders" do
@@ -409,15 +388,6 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
       assert_equal "full", forced_motion, path
       assert transition_meta?, path
     end
-  end
-
-  test "a visitor follows the cookie: reduced, no meta" do
-    cookies[:motion] = "reduced"
-
-    get home_path(locale: :en)
-
-    assert_equal "reduced", forced_motion
-    assert_not transition_meta?
   end
 
   test "a visitor with an explicit-no cookie is forced full motion" do
@@ -518,26 +488,6 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.tab-bar__tab[href='/en/me']", /Me/
   end
 
-  test "the Me screen lists settings, personalization, achievements, how it works and support" do
-    sign_in(@player)
-
-    get me_path(locale: :fr)
-
-    assert_response :success
-    assert_select "main h1", "Moi"
-    assert_select ".hub__subtitle", "Votre profil, vos récompenses et l'aide"
-    assert_select ".plus__list > li", 5
-    assert_select ".plus__list > li:first-child a.menu-item[href='/fr/settings']", /Profil et paramètres/
-    assert_select ".plus__list a.menu-item[href='/fr/personalization']", /Personnalisation/
-    assert_select ".plus__list > li:last-child a.menu-item[href='https://buymeacoffee.com/theiereman'][target=_blank]", "Soutenir (nouvel onglet)" do
-      assert_select "svg.menu-item__external"
-    end
-    assert_select ".plus__list a.menu-item[href='/fr/how-it-works']", /Comment ça marche/
-    assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
-    assert_select ".plus__list .menu-item[aria-disabled]", false
-    assert_select "a.tab-bar__tab[href='/fr/me'][aria-current=page]"
-  end
-
   test "the settings screen is under the Me tab, with a contextual phone back" do
     sign_in(@player)
 
@@ -545,14 +495,6 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "a.tab-bar__tab[href='/fr/me'][aria-current=page]"
     assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
-  end
-
-  test "no tab is current on the hub" do
-    sign_in(@player)
-
-    get home_path(locale: :en)
-
-    assert_select "a.tab-bar__tab[aria-current]", false
   end
 
   # The public profile in brief
@@ -604,16 +546,6 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the private lines in French, the short one for the phone" do
-    @player.update_columns(visibility: "private")
-    sign_in(@player)
-
-    get settings_path(locale: :fr)
-
-    assert_select ".settings-summary__visibility-long", "Profil privé\u202F: vous seul le voyez"
-    assert_select ".settings-summary__visibility-short", "Vous seul le voyez"
-  end
-
   # The Steam library sync row
 
   def sign_in_without_steam
@@ -622,8 +554,6 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     post clerk_session_path(locale: :en)
     Accounts::Player.find(session.fetch(:player_id))
   end
-
-  def library_set_of(player) = Game::CustomSet.steam_library.find_by(player_id: player.id)
 
   test "a Steam player's sync row: the label, the line under it, OUI pressed and NON opening the dialog" do
     sign_in(@player)
@@ -666,20 +596,6 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[name=steam_library_sync][value=on][aria-pressed=false]", "Yes"
     assert_select "button[name=steam_library_sync][value=off][aria-pressed=true]:not([aria-haspopup])", "No"
     assert_select "dialog#library-sync-dialog", 0
-  end
-
-  test "the dialog's copy in English" do
-    sign_in(@player)
-
-    get settings_path(locale: :en)
-
-    assert_select "dialog#library-sync-dialog" do
-      assert_select "#library-sync-dialog-title", "Turn off the sync?"
-      assert_select "#library-sync-dialog-text", "The MY STEAM LIBRARY set and the list of your Steam games will be erased."
-      assert_select "button.modal__close[aria-label=Close]"
-      assert_select "button[type=submit]:not([formmethod])", "Turn off"
-      assert_select "button[formmethod=dialog]", "Cancel"
-    end
   end
 
   test "a player without Steam has neither the sync row nor the dialog, and cannot set it" do

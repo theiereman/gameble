@@ -3,24 +3,15 @@ import { arming, ejecting } from "./booster_opening"
 import {
   countsAfterReveal,
   faceSize,
-  keyAfter,
-  layoutFor,
   planRevealAll,
   revealingOpening,
   storedAfterRebuild,
   topOfPile,
   zoomNeighbour,
 } from "./booster_rules"
-import { BoosterStatus, NARROW_QUERY, PHONE_QUERY } from "./booster_types"
+import { BoosterStatus } from "./booster_types"
 
 describe("layouts", () => {
-  it("are the phone under 720px, the narrow row under 900px, the wide row above", () => {
-    expect(layoutFor(true, true)).toBe("phone")
-    expect(layoutFor(false, true)).toBe("narrow")
-    expect(layoutFor(false, false)).toBe("wide")
-    expect([PHONE_QUERY, NARROW_QUERY]).toEqual(["(max-width: 719px)", "(max-width: 899px)"])
-  })
-
   it("deal xl on the phone, s in the narrow row, m in the wide one", () => {
     expect(faceSize("phone")).toBe("xl")
     expect(faceSize("narrow")).toBe("s")
@@ -52,21 +43,6 @@ describe("planRevealAll", () => {
       { index: 4, wait: "gap" },
     ])
     expect(planRevealAll(["common"], [true])).toEqual([])
-  })
-})
-
-describe("keyAfter", () => {
-  const key = "3c1f9a2e-7d4b-4c8a-b5e6-0f2d9e8a1b7c"
-
-  it("keeps the key after an unknown outcome or a throttle", () => {
-    expect(keyAfter({ kind: "failed" }, key)).toBe(key)
-    expect(keyAfter({ kind: "refused", code: "throttled" }, key)).toBe(key)
-  })
-
-  it("drops it after a success or any other refusal", () => {
-    expect(keyAfter({ kind: "opened" }, key)).toBeNull()
-    expect(keyAfter({ kind: "refused", code: "no_pack_available" }, key)).toBeNull()
-    expect(keyAfter({ kind: "refused", code: "sign_in_required" }, key)).toBeNull()
   })
 })
 

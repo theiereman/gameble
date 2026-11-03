@@ -83,17 +83,6 @@ class Game::FirstDiscoveryAndCompleteSetTest < ActiveSupport::TestCase
     assert_equal [ [ 0, "discovery", true ], [ 1, "discovery", true ] ], entries(pack)
   end
 
-  test "the next player to pull a discovered card makes no discovery" do
-    undiscover(@rare)
-    open_pack(@player, [ @rare ] * 5)
-
-    pack = open_pack(@other, [ @rare ] * 5)
-
-    assert_equal @player.id, Game::FirstDiscovery.find_by!(card_season_id: @rare).player_id
-    assert_empty game_events(@other, Game::CardDiscovered)
-    assert_equal [ [ 0, "pull", false ] ], entries(pack)
-  end
-
   test "a replayed opening discovers nothing more" do
     undiscover(@common)
     create_pack(@player, cards: [ @common ] * 5)

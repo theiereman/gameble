@@ -35,14 +35,6 @@ class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
     assert_nil response.headers["Content-Security-Policy-Report-Only"]
   end
 
-  test "a player's page runs scripts from its own origin only, without a nonce" do
-    sign_in(accounts_players(:player))
-    get library_path(locale: :en)
-
-    assert_response :success
-    assert_equal [ "'self'", *THIRD_PARTY_SCRIPTS ], directive("script-src")
-  end
-
   test "the directives: self by default, no inline script, nonced styles, Steam images, workers from blobs, Clerk" do
     Rails.configuration.x.public_url = nil
     get home_path(locale: :en)

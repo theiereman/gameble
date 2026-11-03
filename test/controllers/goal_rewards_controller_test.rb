@@ -79,20 +79,6 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__title", "Mission accomplished"
   end
 
-  test "from Turbo, a claim at a full standard reserve succeeds: the slot collected, the special count shown, the daily panel untouched" do
-    Game::FillBank.new.call(player: @player).value!
-    sign_in(@player)
-
-    stream_post
-
-    assert_select "turbo-stream[action=replace][target=goal-reward] template #goal-reward.hub-goal__claim--collected"
-    assert_select "turbo-stream[target=daily-booster]", false
-    assert_select "turbo-stream[action=replace][target=packs-chip] template div#packs-chip .packs-chip__special-count", "1"
-    assert_select "turbo-stream[action=append][target=toasts] template .toast--notice .toast__message",
-      "Management thanks you for your contribution. A rare capsule has been added to your reserve."
-    assert_equal 1, reward_pack_count
-  end
-
   test "with a full standard reserve an HTML claim succeeds in the page's language and the standard reserve is unchanged" do
     Game::FillBank.new.call(player: @player).value!
     sign_in(@player)

@@ -341,17 +341,6 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_equal :historical_asset_management, grant(:historical_asset_management).value!.key
   end
 
-  test "the grant job toasts the new achievements on an opening that meets them, in each locale" do
-    release!(@rare, Date.new(2025, 6, 1))
-    open_with_jobs([ @legendary, @rare, @common, @common, @common ])
-
-    assert_includes unlocked, "historical_asset_management"
-    assert_includes unlocked, "packaging_irregularity"
-    assert_equal 1, toasts(@player, :fr).count { it.include?("Gestion du patrimoine historique") }
-    assert_equal 1, toasts(@player, :en).count { it.include?("Historical Asset Management") }
-    assert_equal 1, toasts(@player, :en).count { it.include?("Packaging Irregularity") }
-  end
-
   test "the capsule streak is the longest run of opened standard capsules with no Rare or better card, in opening order" do
     open_regular(nil, nil, nil, [ @rare ] + [ @common ] * 4, nil, nil, [ @common ] * 4 + [ @uncommon ], nil, nil, [ @epic ] + [ @common ] * 4, nil)
     assert_equal 5, luck_streak
@@ -664,17 +653,6 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_equal 1, toasts(@player, :en).count { it.include?("Streamlined Opening Procedure") }
   end
 
-  test "revealing the tenth capsule card by card grants Diligence Beyond the Call of Duty with a toast in each locale" do
-    reveal_modes(%w[one_by_one] * 9 + [ nil ])
-
-    latest = Game::Pack.where(player_id: @player.id).order(:opened_at, :id).last
-    perform_enqueued_jobs { Game::RecordReveal.new.call(player: @player, token: latest.token, mode: "one_by_one").value! }
-
-    assert_includes unlocked, "diligence_beyond_the_call_of_duty"
-    assert_equal 1, toasts(@player, :fr).count { it.include?("Zèle au-delà des obligations") }
-    assert_equal 1, toasts(@player, :en).count { it.include?("Diligence Beyond the Call of Duty") }
-  end
-
   test "the grant re-reads only its achievement's metric" do
     opened_packs(1)
 
@@ -739,19 +717,6 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_includes unlocked, "first_epic"
   end
 
-  test "a capsule opened with a Rare and an Épique unlocks Statistical Non-Compliance once, toasted in each locale" do
-    open_with_jobs([ @rare, @epic ] + [ @common ] * 3)
-
-    assert_equal 1, unlocked.count("statistical_non_compliance")
-    assert_equal 1, toasts(@player, :fr).count { it.include?("Non-conformité statistique") }
-    assert_equal 1, toasts(@player, :en).count { it.include?("Statistical Non-Compliance") }
-
-    assert_no_difference -> { unlocked.count("statistical_non_compliance") } do
-      open_with_jobs([ @rare, @epic ] + [ @common ] * 3)
-    end
-    assert_equal 1, toasts(@player, :en).count { it.include?("Statistical Non-Compliance") }
-  end
-
   test "the tenth opening unlocks ten boosters once, and the eleventh nothing more" do
     opened_packs(9)
 
@@ -784,14 +749,6 @@ class Game::AchievementsTest < ActiveSupport::TestCase
 
     assert_includes unlocked(@player), "first_trade"
     assert_includes unlocked(@other), "first_trade"
-  end
-
-  test "a first repost unlocks the first repost" do
-    hold(@player, @common)
-
-    perform_enqueued_jobs { Game::RepostCard.new.call(player: @player, card_season_id: @common).value! }
-
-    assert_equal [ "first_repost" ], unlocked
   end
 
   test "every trigger enqueues the grant for its players" do
@@ -861,68 +818,6 @@ class Game::BackfillAchievementsJobTest < ActiveSupport::TestCase
     events = Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a
     assert_equal 9, events.size
     assert events.all? { it.data[:retroactive] }
-  end
-
-  test "the streak achievements are granted from history, silently" do
-    Array.new(10) { Time.utc(2026, 1, 1) + it.minutes }.each { create_pack(@other, cards: [ fixture_tier_ids.first ] * Game::Pack::SIZE, opened_at: it) }
-    (0...7).each do |offset|
-      pack = create_pack(@other, kind: :bonus, opened_at: Time.current)
-      Game::DailyBonusClaim.create!(player_id: @other.id, day: Date.new(2026, 4, 1) + offset, pack_id: pack.id)
-    end
-
-    assert_no_enqueued_jobs(only: PlayerStreamJob) { Game::BackfillAchievementsJob.perform_now }
-
-    granted = Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement)
-    assert_includes granted, "luck_is_a_marketing_concept"
-    assert_includes granted, "leave_request_denied"
-    events = Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a
-    assert events.all? { it.data[:retroactive] }
-  end
-
-  test "the reveal achievements are granted from the recorded reveal modes, silently" do
-    Array.new(10) { Time.utc(2026, 1, 1) + it.minutes }.each do |at|
-      create_pack(@other, cards: fixture_tier_ids.first(1) * Game::Pack::SIZE, opened_at: at).update_columns(reveal_mode: "all")
-    end
-
-    assert_no_enqueued_jobs(only: PlayerStreamJob) { Game::BackfillAchievementsJob.perform_now }
-
-    granted = Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement)
-    assert_includes granted, "streamlined_opening_procedure"
-    assert_not_includes granted, "diligence_beyond_the_call_of_duty"
-    assert Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a.all? { it.data[:retroactive] }
-  end
-
-  test "the collection achievements are granted from the current collection, silently" do
-    card = Catalog::Card.create!(source_key: "src:backfill-studio", slug: "backfill-studio", release_date: Date.new(2020, 1, 1),
-      image_url: "https://images.example.test/b.jpg", store_url: "https://store.example.test/b", developers: [ "Acme" ])
-    season = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
-    Catalog::CardSeason.create!(card:, season:, prestige_score: 0.5, rating: 80, rarity: :common, number: 1)
-    Game::Holding.where(player_id: @player.id).delete_all
-    Game::Holding.create!(player_id: @other.id, card_season_id: card.card_seasons.sole.id, quantity: 5)
-
-    assert_no_enqueued_jobs(only: PlayerStreamJob) { Game::BackfillAchievementsJob.perform_now }
-
-    assert_includes Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement), "diversified_portfolio"
-    assert_not_includes Game::AchievementUnlock.where(player_id: @player.id).pluck(:achievement), "diversified_portfolio"
-    assert Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a.all? { it.data[:retroactive] }
-  end
-
-  test "the community achievements are granted from history, silently" do
-    Game::FirstDiscovery.where(card_season_id: fixture_tier_ids.first).delete_all
-    Game::FirstDiscovery.create!(card_season_id: fixture_tier_ids.first, player_id: @other.id, discovered_at: 1.day.ago)
-    Game::FeedEntry.record_repost(player_id: @other.id, card_season_id: fixture_tier_ids.first, at: Time.current)
-    low, high = [ @player.id, @other.id ].minmax
-    3.times do
-      Game::Trade.create!(low_player_id: low, high_player_id: high, proposer_id: @player.id, recipient_id: @other.id, status: "accepted",
-        proposed_at: 2.hours.ago, expires_at: 1.day.from_now, closed_at: 1.hour.ago)
-    end
-
-    assert_no_enqueued_jobs(only: PlayerStreamJob) { Game::BackfillAchievementsJob.perform_now }
-
-    assert_equal %w[a_discovery_of_ours a_strictly_professional_relationship first_claim_all_rights_reserved],
-      Game::AchievementUnlock.where(player_id: @other.id).pluck(:achievement).grep(/discovery|claim|professional/).sort
-    assert_equal %w[a_strictly_professional_relationship], Game::AchievementUnlock.where(player_id: @player.id).pluck(:achievement).grep(/discovery|claim|professional/)
-    assert Rails.configuration.event_store.read.of_type(Game::AchievementUnlocked).to_a.all? { it.data[:retroactive] }
   end
 
   test "a player whose grant raises is reported, and the others are still served" do

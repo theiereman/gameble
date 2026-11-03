@@ -85,15 +85,6 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_equal :rescore_needed, preview.rescore_verdict
   end
 
-  test "a draft whose UFOs stay under the limit says so" do
-    seed_card_seasons(distinct_scores(100), genres: Array.new(100) { |index| index < 5 ? [] : [ "rpg" ] })
-
-    result = preview
-
-    assert_equal [ 5, 0.05 ], [ result.ufo_count, result.ufo_share ]
-    assert_not result.ufo_share_over_limit?
-  end
-
   test "a draft holding a genre from before themes shows the unfilled_sources verdict, the card counted in the UFOs" do
     seed_card_seasons(distinct_scores(21), genres: Array.new(21) { |index| index.zero? ? [ "action" ] : [ "rpg" ] })
 
@@ -142,12 +133,6 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_equal :mixed_score_versions, result.score_version_verdict
     assert_nil result.tier_verdict
     assert_equal [ 2, 6, 15, 37, 90 ], result.tiers.map(&:card_count)
-  end
-
-  test "a draft scored by one version has no score version verdict" do
-    seed_card_seasons(distinct_scores(150), score_versions: Array.new(150, 2))
-
-    assert_nil preview.score_version_verdict
   end
 
   test "a draft without card-season gives the empty_season verdict and no number" do

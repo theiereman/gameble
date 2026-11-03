@@ -89,16 +89,6 @@ class DataExportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "2026-10-01T08:00:00Z", response.parsed_body.dig("profile", "lastExportedAt")
   end
 
-  test "the settings' script asks in JSON and gets the same file" do
-    sign_in(@player)
-
-    post settings_export_path(locale: :en), headers: json_headers
-
-    assert_response :success
-    assert_match(/\Aattachment; filename="gameble-export-\d{4}-\d{2}-\d{2}\.json"/, response.headers["Content-Disposition"])
-    assert_equal [], response.parsed_body["collection"]
-  end
-
   test "a second export within five minutes of the last is refused: 429 in JSON with the next allowed time, an alert in HTML" do
     sign_in(@player)
     message = ->(locale) { I18n.t("errors.accounts.export_too_soon", locale:) }

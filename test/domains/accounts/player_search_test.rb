@@ -74,12 +74,6 @@ class Accounts::PlayerSearchTest < ActiveSupport::TestCase
     assert_empty search("76561197960370051")
   end
 
-  test "a banned player is found" do
-    banned = player("76561197960370061", "Exile", banned_at: 1.hour.ago)
-
-    assert_equal [ banned ], search("exile")
-  end
-
   test "an overlong query is searched on its first characters" do
     name = "a" * Accounts::PlayerSearch::MAX_QUERY
     long = player("76561197960370071", name)

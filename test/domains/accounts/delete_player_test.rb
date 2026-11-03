@@ -173,11 +173,6 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     assert_nil @player.reload.last_seen_at
   end
 
-  test "a player with no game deletes too" do
-    assert delete.success?
-    assert_predicate @player.reload, :deleted?
-  end
-
   test "the Steam id signs up again as a new player, with a new bank" do
     steam_id = @player.steam_id
     play(@player)

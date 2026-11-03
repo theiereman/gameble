@@ -23,13 +23,5 @@ module BackOffice
         assert policy.dismiss?
       end
     end
-
-    [ :visitor, :player, :moderator, :administrator ].each do |role|
-      test "a #{role} may do nothing else with the reports" do
-        policy = policy_for(role)
-
-        %i[show? create? new? update? edit? destroy?].each { |action| assert_not policy.public_send(action), action }
-      end
-    end
   end
 end

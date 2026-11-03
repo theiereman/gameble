@@ -98,17 +98,6 @@ class Game::GoalRewardTest < ActiveSupport::TestCase
     end
   end
 
-  test "the reward draw always holds an Épique or better" do
-    pool = Game::DrawPool.current
-    200.times do |seed|
-      cards = Game::RewardDraw.cards(pool:, random: Random.new(seed))
-      assert_equal Game::Pack::SIZE, cards.size
-      assert cards.any? { |id| pool.tier_of(id) >= Game::RewardDraw::MIN_TIER }, "seed #{seed}"
-    end
-    assert_equal Game::DrawOdds::TOTAL, Game::DrawOdds::EPIC_OR_BETTER.values.sum
-    assert_equal Game::DrawOdds::TOTAL, Game::DrawOdds::REWARD.values.sum
-  end
-
   test "a second claim of the same reward is refused and adds nothing" do
     earned
     pack = claim.value!

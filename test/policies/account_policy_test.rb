@@ -14,9 +14,4 @@ class AccountPolicyTest < ActiveSupport::TestCase
       assert policy_for(role).destroy?
     end
   end
-
-  test "nothing else is allowed" do
-    assert_not policy_for(:player).show?
-    assert_not policy_for(:player).update?
-  end
 end

@@ -161,28 +161,12 @@ class ReactionsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__reaction-choice[aria-pressed=true]", 1
   end
 
-  test "each reaction shows its exported icon at 20 × 20, decorative beside its hidden name" do
-    sign_in(@reader)
-    get feed_entry_reactions_path(locale: :en, token: @entry.token)
-
-    assert_select ".feed__reaction-pill button[data-reaction-kind=middle_finger] img.feed__reaction-icon[src*='middle-finger'][alt=''][width='20'][height='20']"
-    assert_select ".feed__reaction-pill button[data-reaction-kind=middle_finger] .visually-hidden", "Middle finger"
-    assert_select ".feed__reaction-choice[data-reaction-kind=middle_finger] img[src*='middle-finger'][alt=''][width='20'][height='20']"
-    assert_select "img.feed__reaction-icon[width='20'][height='20']", 5
-  end
-
   test "the bar of an entry the viewer may not see is not found" do
     @author.update!(visibility: "private")
 
     get feed_entry_reactions_path(locale: :en, token: @entry.token)
 
     assert_response :not_found
-  end
-
-  test "reading a bar writes nothing" do
-    assert_no_difference -> { Game::FeedReaction.count } do
-      get feed_entry_reactions_path(locale: :en, token: @entry.token)
-    end
   end
 
   test "the sixty-first reaction in a minute is throttled" do

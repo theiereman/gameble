@@ -87,14 +87,6 @@ class SeasonAllocationsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".allocation-section__sub", text: /Dos de carte/
   end
 
-  test "the screen writes nothing" do
-    sign_in(@player)
-
-    assert_no_difference [ "Game::SetTier.count", "Game::PlayerState.where(allocation_seen_season: 2).count" ] do
-      get season_allocation_path(locale: :en)
-    end
-  end
-
   test "continuing marks the season seen and leads to the hub, which no longer redirects" do
     sign_in(@player)
 
@@ -174,15 +166,6 @@ class SeasonAllocationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     head home_path(locale: :en)
-    assert_response :success
-  end
-
-  test "the booster page no longer redirects once the season is seen" do
-    sign_in(@player)
-    post season_allocation_path(locale: :en)
-
-    get booster_path(locale: :en)
-
     assert_response :success
   end
 

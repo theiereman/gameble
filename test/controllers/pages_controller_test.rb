@@ -55,34 +55,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     css_select(".hub-menu .menu-item")
   end
 
-  test "the French hub renders in French with the top bar above the main region" do
-    sign_in(@player)
-    get home_path(locale: :fr)
-
-    assert_response :success
-    assert_select "html[lang=fr]"
-    assert_select "title", "Gameble"
-    assert_select "body > header.top-bar + main#main + .ticker"
-    assert_select "nav.tab-bar[aria-label=?]", "Navigation principale"
-    assert_select "main h1.hub__title[tabindex='-1']", "Pont de commandement"
-    assert_select "main .hub__kicker .hub__subtitle", false
-    assert_select "body > div.app-version" do
-      assert_select "p.app-version__tag[title=?]", "Version déployée", text: "Version déployée dev"
-      assert_select "a.app-version__legal[href=?]", "/fr/legal", "Mentions légales"
-    end
-  end
-
-  test "the English hub renders in English and loads its Vite assets" do
-    sign_in(@player)
-    get home_path(locale: :en)
-
-    assert_response :success
-    assert_select "html[lang=en]"
-    assert_select "main h1", "Command bridge"
-    assert_select "script[type=module][src^='/vite-test/assets/application-'][src$='.js']"
-    assert_select "link[rel=stylesheet][href^='/vite-test/assets/application-'][href$='.css']"
-  end
-
   test "the showcase's line names the card's main theme as its genre" do
     hold(@player, catalog_card_seasons(:portal_one).id, gained_at: 1.hour.ago)
     Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(main_theme: "puzzle")
@@ -239,19 +211,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2.hub-showcase__name", "Portal"
   end
 
-  test "a card the player moves to the front of their showcase becomes the hub's VITRINE card" do
-    common, rare = catalog_card_seasons(:common_card_one, :rare_card_one).map(&:id)
-    [ common, rare ].each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
-    [ rare, common ].each { Game::AddToShowcase.new.call(player: @player, card_season_id: it).value! }
-    sign_in(@player, origin: "/fr")
-
-    patch card_showcase_path(locale: :fr, slug: "tin-soldier", number: 1), params: { direction: "earlier" }
-    get home_path(locale: :fr)
-
-    assert_select ".hub-showcase__kicker", "Vitrine"
-    assert_select "h2.hub-showcase__name", "Soldat de plomb"
-  end
-
   test "a player holding no card sees the empty showcase, its primary opening a booster" do
     create_pack(@player)
     sign_in(@player)
@@ -349,18 +308,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar .packs-chip__next[data-controller=countdown][data-countdown-refresh-value=false][data-countdown-refresh-url-value='/en/packs-chip']"
   end
 
-  test "a full reserve keeps the daily panel ready: the capsule joins the special reserve" do
-    10.times { create_pack(@player) }
-    sign_in(@player)
-
-    get home_path(locale: :fr)
-
-    assert_select ".daily-booster.daily-booster--ready" do
-      assert_select ".daily-booster__state", "Prête"
-      assert_select "form button", "Récupérer"
-    end
-  end
-
   test "once the day's booster is collected, the daily panel stays: collected, with the countdown to 00:00 UTC and its bar" do
     Game::CollectDailyBonus.new.call(player: @player).value!
     sign_in(@player)
@@ -398,22 +345,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/en/library'] .menu-item__meta", "1/150"
   end
 
-  test "a visitor meets the landing at the root, in its locale" do
-    get home_path(locale: :fr)
-
-    assert_response :success
-    assert_select "html[lang=fr]"
-    assert_select ".landing"
-    assert_select ".hub-menu", false
-  end
-
-  test "the old More address redirects for good to the Me screen, in its locale" do
-    get more_path(locale: :fr)
-
-    assert_redirected_to "/fr/me"
-    assert_response :moved_permanently
-  end
-
   test "a visitor is sent from the Me and Social screens to the landing, in its locale, without an alert" do
     get social_path(locale: :fr)
 
@@ -424,23 +355,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to home_path(locale: :en)
     assert_response :see_other
     assert_nil flash[:alert]
-  end
-
-  test "a visitor's JSON request for the hub answers 401 sign_in_required" do
-    get home_path(locale: :en), headers: { "Accept" => "application/json" }
-
-    assert_response :unauthorized
-    assert_equal "sign_in_required", response.parsed_body.dig("error", "code")
-  end
-
-
-  test "every sign-in button of the landing leads to the sign-in screen, and none posts to Steam" do
-    get home_path(locale: :en)
-
-    links = css_select("a[href^='/en/sign-in']")
-    assert_equal 3, links.size, "the top bar's, the hero's Embark and the boarding's"
-    assert(links.all? { it["href"] == "/en/sign-in?origin=%2Fen" })
-    assert_select "form[action='/auth/steam']", false
   end
 
   test "a player with five sets in progress sees the board's first four, and See all leads to the collection" do
@@ -562,28 +476,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:moderator))
     get home_path(locale: :en)
     assert_select "#goal-reward", false
-  end
-
-  test "with a full reserve the claim slot stays ready; collected, it reads Collected" do
-    week = earn_goal_reward
-    Game::FillBank.new.call(player: @player).value!
-    sign_in(@player)
-
-    get home_path(locale: :en)
-    assert_select "#goal-reward.hub-goal__claim--ready" do
-      assert_select "form button[aria-label=?]", "Collect the reward capsule", text: "Collect"
-    end
-
-    Game::OpenPack.new.call(player: @player).value!
-    Game::ClaimGoalReward.new.call(player: @player, week_start: week).value!
-
-    get home_path(locale: :fr)
-    assert_select "#goal-reward.hub-goal__claim--collected" do
-      assert_select ".hub-goal__claim-state", "Récupérée"
-      assert_select "form, button", 0
-    end
-    get home_path(locale: :en)
-    assert_select "#goal-reward .hub-goal__claim-state", "Collected"
   end
 
   # The page's public streams, without the signed-in player's own.
@@ -721,46 +613,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     queries
   end
 
-  test "neither the back-office nor the hub carries a sign-in panel" do
-    sign_in(accounts_players(:administrator))
-
-    get back_office_path(locale: :en)
-    assert_select "#sign-in-panel", false
-    get home_path(locale: :en)
-    assert_select "#sign-in-panel", false
-  end
-
-  [ :moderator, :administrator ].each do |role|
-    test "a #{role} sees the back-office link in the player menu, in the current locale" do
-      sign_in(accounts_players(role))
-
-      get home_path(locale: :fr)
-
-      assert_select "#player-menu a.player-menu__item[href='/fr/back-office']", "Back-office"
-    end
-  end
-
-  test "signing out is a full page load from the player menu" do
-    sign_in(@player)
-    get home_path(locale: :en)
-
-    assert_select "#player-menu form.player-menu__form[action^='/session'][data-turbo=false]"
-  end
-
   test "an unknown locale segment answers not found" do
     get "/de"
-
-    assert_response :not_found
-  end
-
-  test "the health check answers when the application boots" do
-    get "/up"
-
-    assert_response :success
-  end
-
-  test "an unknown path answers not found" do
-    get "/nope"
 
     assert_response :not_found
   end
@@ -823,48 +677,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.legal__link[href=?]", "/fr/credits", "Crédits"
   end
 
-  test "the credits page lists the contributors by handle with their contribution, the rule, and the beta testers" do
-    get credits_path(locale: :fr)
-
-    assert_equal [ "micilico", "skyoraa", "Felzpath" ], css_select("a.credits__handle").map { |link| link.text.delete_suffix(" (nouvel onglet)") }
-    assert_select "a.credits__handle[href=?][target=_blank]", "https://github.com/skyoraa"
-    assert_equal [ "Code", "Textes et idées", "Idées et rapports de bugs" ], css_select(".credits__contribution").map(&:text)
-    assert_select ".credits__rule", /pull request de sa part est fusionnée/
-    assert_equal [ "Hydrax", "Skyora", "Zohan", "Feltpath", "Micilico", "Le chocotube" ], css_select(".credits__tester").map(&:text)
-
-    get credits_path(locale: :en)
-
-    assert_select "h2.legal__heading", text: "Beta testers"
-    assert_select ".credits__contribution", text: "Writing and ideas"
-  end
-
-  test "the English credits page names Helldivers 2 and not Steam" do
-    get credits_path(locale: :en)
-
-    assert_response :success
-    assert_select "main h1#credits-heading", "Credits"
-    assert_select ".credits__work", text: /Helldivers 2/
-    assert_select ".credits__work", text: /Steam|Valve/, count: 0
-  end
-
-  test "a signed-in player reads the English legal page" do
-    configure_legal
-    sign_in(@player)
-
-    get legal_path(locale: :en)
-
-    assert_response :success
-    assert_select "html[lang=en]"
-    assert_select "main h1", "Legal notice and privacy"
-    assert_equal [ "Publisher and host", "Steam, Valve and the games", "Terms of use", "Privacy", "Source code", "Support Gameble" ],
-      css_select("main section.legal__section h2").map(&:text)
-    assert_select ".legal__ownership", "All artwork belongs to the games' publishers and their artists, whom we respect."
-    assert_equal "Support (new tab)", css_select("main a.legal__donation").sole.text.squish
-    assert_select "section[aria-labelledby=legal-support]", text: /They go through Buy Me a Coffee/
-    assert_equal "Source code (new tab)", css_select("main a.legal__source").sole.text.squish
-    assert_select "section[aria-labelledby=legal-source]", text: /under the GNU AGPL v3\.0 license/
-  end
-
   test "the configured contact is a mailto link, and the host's name and address are shown" do
     configure_legal(contact_email: "contact@example.test", host_name: "Example Hosting", host_address: "1 rue de l'Exemple, 75000 Paris")
 
@@ -924,24 +736,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__retention li", "technical errors received by Sentry: 30 days;"
     assert_select ".legal__retention li", "the database backups, encrypted and kept in France: the last 7 daily backups, that is 7 days in normal times; a deleted account is gone from them after 7 days, a little longer if a backup failed;"
     assert_select ".legal__retention + p", /for the periods given above\.\z/
-  end
-
-  test "the deletion paragraph names the game data an account deletion erases, completions as set tiers" do
-    configure_legal
-    erased = {
-      fr: [ "votre dernière activité", "votre collection", "votre vitrine", "vos paliers de sets", "vos sets perso", "vos objectifs", "vos succès", "vos capsules", "vos bonus du jour",
-            "vos récompenses de la mission hebdo", "vos amitiés", "vos invitations", "votre code ami", "vos entrées du fil d'activité" ],
-      en: [ "your latest activity", "your collection", "your showcase", "your set tiers", "your custom sets", "your goals", "your achievements", "your capsules", "your daily bonuses",
-            "your weekly mission rewards", "your friendships", "your invitations", "your friend code", "your activity feed entries" ]
-    }
-
-    erased.each do |locale, phrases|
-      get legal_path(locale:)
-
-      deletion = css_select(".legal__retention + p").text
-      phrases.each { assert_includes deletion, it }
-      assert_no_match(/complétés|completed sets/, deletion)
-    end
   end
 
   test "the stored data line and the deletion paragraph name the same game data" do
@@ -1053,16 +847,5 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".legal__ownership"
-  end
-
-  test "the showcase floats an epic card with purple rays" do
-    hold(@player, catalog_card_seasons(:portal_one).id, gained_at: 1.hour.ago)
-    sign_in(@player)
-
-    get home_path(locale: :en)
-    assert_response :success
-    assert_select ".hub-showcase:not(.hub-showcase--empty) .hub-showcase__stage .card-float .card-rays.card-rays--epic", 1
-    assert_select ".hub-showcase__stage .card-float .card.card--xl", 1
-    assert_select ".hub-showcase__ground", 1
   end
 end

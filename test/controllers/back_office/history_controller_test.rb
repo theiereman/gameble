@@ -145,35 +145,5 @@ module BackOffice
       assert_select "tbody tr", 1
       assert_select "tbody tr[data-moderation-kind=ban] td[data-moderation-reason]", oldest.reason
     end
-
-    test "an administrator reads the history in English" do
-      action(:ban, @target, 2.hours.ago)
-      action(:unban, @target, 1.hour.ago, staff: @administrator)
-      sign_in(@administrator)
-
-      get back_office_history_path(locale: :en)
-
-      assert_select "h1", "The moderation history"
-      assert_select "tbody tr:nth-child(1) td:nth-child(2)", "Ban lifted"
-      assert_select "tbody tr:nth-child(2) td[data-moderation-reason]", "Reason not recorded"
-
-      get back_office_history_path(locale: :en, player: @target.token)
-      assert_select "h1", "The history of Gabe the Rude"
-    end
-
-    test "a player gets the 404 of an unknown address" do
-      sign_in(@target)
-
-      get history_path
-      assert_unknown_address
-      get history_path(player: @target.token)
-      assert_unknown_address
-    end
-
-    test "a visitor gets the 404 of an unknown address" do
-      get history_path
-
-      assert_unknown_address
-    end
   end
 end

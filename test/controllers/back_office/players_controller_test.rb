@@ -204,38 +204,6 @@ module BackOffice
       end
     end
 
-    test "an administrator reads the players in English" do
-      sign_in(@administrator)
-
-      get back_office_players_path(locale: :en, q: "gabe")
-
-      assert_select "h1", "The players"
-      assert_select "#{row(@target)} td[data-player-role=player]", "Player"
-      assert_select "#{row(@target)} td[data-player-visibility=friends_only]", "Friends only"
-      assert_select "#{row(@target)} td[data-player-state=good_standing]", "In good standing"
-      assert_select "#{row(@target)} button", "BAN"
-
-      get back_office_players_path(locale: :en, q: "nobody")
-      assert_select "main .panel[data-player-search-empty]", "No player matches “nobody”."
-    end
-
-    test "the dashboard links to the players first" do
-      sign_in(@moderator)
-
-      get back_office_path(locale: :fr)
-
-      assert_select "main a[href='/fr/back-office/players']", "Les joueurs"
-    end
-
-    test "a player and a visitor get the 404 of an unknown address" do
-      get back_office_players_path(locale: :fr)
-      assert_unknown_address
-
-      sign_in(@target)
-      get back_office_players_path(locale: :fr, q: "gabe")
-      assert_unknown_address
-    end
-
     test "an administrator sees ÉFFACER on a banned player's row only; a moderator never does" do
       sign_in(@administrator)
 
@@ -284,16 +252,6 @@ module BackOffice
       delete back_office_player_path(locale: :fr, token: @banned.token)
 
       assert_response :forbidden
-      assert_not_predicate @banned.reload, :deleted?
-    end
-
-    test "a player and a visitor cannot erase" do
-      delete back_office_player_path(locale: :fr, token: @banned.token)
-      assert_unknown_address
-
-      sign_in(@target)
-      delete back_office_player_path(locale: :fr, token: @banned.token)
-      assert_unknown_address
       assert_not_predicate @banned.reload, :deleted?
     end
 

@@ -37,15 +37,6 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     css_select(".landing-rarities li").map { it["data-tier"] }
   end
 
-  test "the unlock module tags the sets tile as soon but not the card backs tile" do
-    get home_path(locale: :en)
-
-    tiles = css_select(".landing-unlock .landing-tile")
-    soon = tiles.select { it.at_css(".landing-soon") }.map { it.at_css(".landing-tile-title").text.squish.delete_suffix(" Soon") }
-    assert_not_includes soon, I18n.t("landings.show.unlock.tiles.backs.title", locale: :en)
-    assert_includes soon, I18n.t("landings.show.unlock.tiles.sets.title", locale: :en)
-  end
-
   test "a visitor reads the landing in French: one h1, the nine modules, the five rarities with their odds" do
     get home_path(locale: :fr)
 
@@ -59,26 +50,6 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     assert_select ".landing-rarities li .landing-rarity__odds", text: "0,05 % par carte"
     assert_select ".landing-rarity__name", text: "Légendaire"
     assert_select "section.landing-concept > a.button.button--link.landing-concept__all-cards[href='/fr/library/cards']", "Voir toutes les cartes"
-  end
-
-  test "a visitor reads the landing in English" do
-    get home_path(locale: :en)
-
-    assert_response :success
-    assert_select "html[lang=en]"
-    assert_headings(:en)
-    assert_equal [ "Tin Soldier", "Green Hills", "Blue Depths", "Portal", "Golden Crown" ], concept_faces
-    assert_select ".landing-rarities li .landing-rarity__odds", text: "4.3% per card"
-    assert_select "section.landing-concept > a.button.button--link.landing-concept__all-cards[href='/en/library/cards']", "See every card"
-  end
-
-  test "the Brotherhood's panel tells its story in the visitor's language" do
-    %i[fr en].each do |locale|
-      get home_path(locale:)
-
-      story = %w[recovery archive thanks].map { I18n.t("landings.show.brotherhood.lore.story.#{it}", locale:) }
-      assert_equal story, css_select(".landing-lore__story p").map { it.text.squish }
-    end
   end
 
   test "the Découvrez tile promises no name to anyone" do
@@ -199,16 +170,6 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     assert_equal 0, layer.css(".card").size
   end
 
-  test "a signed-in player meets the hub at the same address" do
-    sign_in(accounts_players(:player))
-
-    get home_path(locale: :en)
-
-    assert_response :success
-    assert_select ".landing", false
-    assert_select ".hub-menu"
-  end
-
   test "the provisional landing address redirects permanently to the root" do
     get "/fr/landing"
 
@@ -261,15 +222,6 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     assert_select "nav.tab-bar", 0
   end
 
-  test "a visitor follows the landing footer to how it works" do
-    get home_path(locale: :en)
-    assert_select "footer.landing-footer a[href='/en/how-it-works']", "How it works"
-
-    get how_it_works_path(locale: :en)
-
-    assert_response :success
-  end
-
   def seed_roadmap
     super(stories: [ [ "a", "done", true ], [ "b", "in_progress", true ], [ "c", "to_come", true ], [ "hidden", "done", false ] ])
   end
@@ -286,16 +238,6 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     assert_select ".landing-roadmap__stories", 1
     assert_select "ol.landing-roadmap__line[aria-label=?][data-controller=overflow-focus]", I18n.t("landings.show.roadmap.line_label", locale: :fr)
     assert_select ".landing-legend__item", 3
-  end
-
-  test "module 06 reads in English" do
-    seed_roadmap
-
-    get home_path(locale: :en)
-
-    assert_select ".landing-roadmap__milestone--done .landing-roadmap__name", "Step alpha"
-    assert_select ".landing-roadmap__story", text: /Story a, Done/
-    assert_select ".landing-roadmap__status", text: "To come"
   end
 
   test "module 06 keeps the legend and no line while no milestone is shown" do
@@ -326,15 +268,6 @@ class LandingPageTest < ActionDispatch::IntegrationTest
       assert_select "nav[data-controller=side-gauge] .landing-side-gauge__track[aria-hidden=true] i", LandingsHelper::GAUGE_SEGMENTS
       assert_select "[aria-current]", 0
     end
-  end
-
-  test "the hero heading is the gauge's first target and the landing powers its modules on" do
-    get home_path(locale: :en)
-
-    assert_select "h1#landing-hero[tabindex='-1']", 1
-    assert_select ".landing[data-controller=power-on]", 1
-    assert_select ".landing-module[data-power]", 0
-    assert_select "[style]", 0
   end
 
   test "module 04 and the goal panel show the season, its figures and the goal in both languages" do

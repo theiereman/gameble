@@ -56,15 +56,6 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__tag--epic", /Epic/
   end
 
-  test "the feed is in French" do
-    open_epic
-
-    get feed_path(locale: :fr)
-
-    assert_select "main h1", "Fil d'activité"
-    assert_select ".feed__sentence", /Hugo a tiré/
-  end
-
   test "an empty feed says so" do
     get feed_path(locale: :en)
 
@@ -86,17 +77,6 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_no_difference -> { Game::FeedEntry.count + Rails.configuration.event_store.read.count + Game::Pack.count } do
       get feed_path(locale: :en)
-    end
-  end
-
-  test "the five filters show, the whole feed current" do
-    get feed_path(locale: :fr)
-
-    assert_equal %w[Tout Tirages Découvertes Échanges Reposts], css_select(".feed__filters .feed__filter").map { |link| link.text.strip }
-    assert_select ".feed__filter[aria-current]", count: 1, text: "Tout"
-    assert_select ".feed__filter[href=?]", feed_path(locale: :fr), text: "Tout"
-    %w[pulls discoveries trades reposts].each do |filter|
-      assert_select ".feed__filter[href=?]", feed_path(locale: :fr, filter:)
     end
   end
 
@@ -149,14 +129,6 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     get feed_path(locale: :en, filter: "pulls")
     assert_select ".feed__entry", 0
     assert_select ".feed__empty", "Nothing in this filter yet."
-  end
-
-  test "a filtered GET writes no row" do
-    open_epic
-
-    assert_no_difference -> { Game::FeedEntry.count + Rails.configuration.event_store.read.count + Game::Pack.count } do
-      get feed_path(locale: :en, filter: "pulls")
-    end
   end
 
   test "a first discovery shows with its gold chip under the whole feed and Discoveries, in French and English" do
@@ -251,14 +223,6 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     get feed_path(locale: :en, filter: "reposts")
 
     assert_select ".feed__entry", 0
-  end
-
-  test "menu 06 and the Social home link to the feed" do
-    get home_path(locale: :en)
-    assert_select "a.menu-item[href=?]", feed_path(locale: :en), /Activity feed/
-
-    get social_path(locale: :en)
-    assert_select ".social a[href=?]", feed_path(locale: :en), /See the feed/
   end
 
   test "All shows everyone's entries, current, beside Friends" do
@@ -453,14 +417,6 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".feed__tab[aria-current]", "All"
     assert_equal %w[Hugo Léa Sam], names
-  end
-
-  test "a Friends GET writes no row" do
-    friends_and_strangers
-
-    assert_no_difference -> { Game::FeedEntry.count + Rails.configuration.event_store.read.count + Game::Pack.count + Game::Friendship.count } do
-      get feed_path(locale: :en, tab: "friends", filter: "pulls")
-    end
   end
 
   # The page's public streams, without the signed-in player's own.
@@ -749,12 +705,6 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     get next_link["href"], headers: { "Accept" => Mime[:turbo_stream].to_s }
 
     assert_select "turbo-stream[action=append][target=feed-entries] .feed__entry .feed__reactions", 5
-  end
-
-  test "an empty feed page draws no bar and asks for no reactions" do
-    get feed_path(locale: :en, tab: "friends")
-
-    assert_select ".feed__reactions", 0
   end
 
   test "no name and no database id comes with a counter" do

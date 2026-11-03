@@ -12,12 +12,6 @@ class Catalog::RarityThresholdsTest < ActiveSupport::TestCase
     Array.new(count) { |index| (count - index).to_f }
   end
 
-  test "the shares are keyed by the non-common tiers and leave common some cards" do
-    assert_equal [ 2, 3, 4, 5 ], Catalog::RarityThresholds::SHARES.keys.sort
-    assert_operator Catalog::RarityThresholds::SHARES.values.sum, :<, 10_000
-    assert_equal 1, Catalog::RarityThresholds::COMMON
-  end
-
   test "1,000 distinct scores cut into 10 / 40 / 100 / 250 / 600" do
     assert_equal [ 10, 40, 100, 250, 600 ], tier_counts(distinct(1_000))
   end

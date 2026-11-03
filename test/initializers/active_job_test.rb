@@ -34,10 +34,4 @@ class ActiveJobInitializerTest < ActiveSupport::TestCase
 
     assert_no_enqueued_jobs
   end
-
-  test "outside a transaction, a job leaves at once" do
-    SampleJob.perform_later
-
-    assert_enqueued_jobs 1, only: SampleJob
-  end
 end

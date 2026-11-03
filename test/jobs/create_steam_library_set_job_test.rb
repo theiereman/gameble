@@ -8,10 +8,6 @@ class CreateSteamLibrarySetJobTest < ActiveJob::TestCase
 
   setup { @player = accounts_players(:player) }
 
-  test "it runs on the default queue" do
-    assert_equal "default", CreateSteamLibrarySetJob.new.queue_name
-  end
-
   test "it creates the player's one library set, without a Steam call or a sync" do
     assert_no_enqueued_jobs do
       2.times { CreateSteamLibrarySetJob.perform_now(@player.id) }

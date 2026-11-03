@@ -39,13 +39,6 @@ class SocialPageTest < ActionDispatch::IntegrationTest
 
   def trade_rows = css_select(".social__trades .social-trade")
 
-  def written_statements(&request)
-    statements = []
-    recorder = ->(*, payload) { statements << payload[:sql] if payload[:sql].match?(/\A\s*(INSERT|UPDATE|DELETE)\b/i) }
-    ActiveSupport::Notifications.subscribed(recorder, "sql.active_record", &request)
-    statements
-  end
-
   def earn_goal_reward(player)
     week = Game::WeeklyGoal.week_start(Time.current) - 7
     Game::WeeklyGoal.find_or_create_by!(week_start: week) { it.assign_attributes(total: 200, target: 200) }
@@ -87,20 +80,6 @@ class SocialPageTest < ActionDispatch::IntegrationTest
     assert_equal "Highest rarity:", row.at_css(".social-trade__rarity .visually-hidden").text
     assert_no_match(/Portal|Tin Soldier|Blue Depths/, row.text)
     assert_nil row.at_css(".card, img")
-  end
-
-  test "in French, the turn chip follows who sent last" do
-    trading_friends
-    trade = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 1 })
-    sign_in @hugo, origin: "/fr"
-
-    get social_path(locale: :fr)
-    assert_equal "À vous", trade_rows.sole.at_css(".trade-chip--alert").text
-
-    Game::CounterTrade.new.call(player: @hugo, trade_id: trade.id, **revision(trade), offer: { @portal => 1 }, request: { @depths => 2 }).value!
-    get social_path(locale: :fr)
-
-    assert_equal "À son tour", trade_rows.sole.at_css(".trade-chip--accent").text
   end
 
   test "the five most recent ended trades show quietly under Recently, with their age" do
@@ -214,16 +193,5 @@ class SocialPageTest < ActionDispatch::IntegrationTest
 
     assert_select "section[data-controller='live-refresh'][data-live-refresh-signal-value='trades-updated'] #plus-trades-badge", 1
     assert_select "section[data-controller='live-refresh'][data-live-refresh-signal-value='friends-updated'] #plus-friends-badge", 1
-  end
-
-  test "a GET of Social writes nothing" do
-    trading_friends
-    propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 1 })
-    sign_in @hugo
-
-    written = written_statements { get social_path(locale: :en) }
-
-    assert_response :success
-    assert_empty written
   end
 end

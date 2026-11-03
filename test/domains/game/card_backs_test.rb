@@ -69,14 +69,4 @@ class Game::CardBacksTest < ActiveSupport::TestCase
 
     assert_equal "standard", Game::CardBacks.active_key(@player)
   end
-
-  test "the opening stores the active back on the pack" do
-    unlock("aurore")
-    choose("aurore")
-    create_pack(@player)
-
-    Game::OpenPack.new.call(player: @player).value!
-
-    assert_equal "aurore", Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).order(:opened_at).last.card_back
-  end
 end

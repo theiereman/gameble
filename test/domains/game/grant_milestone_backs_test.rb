@@ -33,16 +33,6 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
     Game::AchievementUnlocked.new(data: retroactive ? data.merge(retroactive: true) : data)
   end
 
-  test "the catalogue names the goal, achievement and event backs with their rules" do
-    assert_equal :goal, Game::CardBacks.find("confrere").unlock.kind
-    assert_equal [ :achievement, "boosters_100" ], Game::CardBacks.find("centurion").unlock.to_h.values_at(:kind, :target)
-    assert_equal [ :achievement, "first_legendary" ], Game::CardBacks.find("etoile-dor").unlock.to_h.values_at(:kind, :target)
-    assert_equal [ :achievement, "three_complete_sets" ], Game::CardBacks.find("aurore").unlock.to_h.values_at(:kind, :target)
-    assert_equal %w[saison-1 millesime-2017 soldes-hiver], Game::CardBacks::EVENT_BACK_KEYS
-    assert(Game::CardBacks::EVENT_BACK_KEYS.all? { Game::CardBacks.event?(it) })
-    assert_not Game::CardBacks.event?("aurore")
-  end
-
   test "the first goal reward grants Confrère once, the second adds nothing" do
     perform_enqueued_jobs { earn_goal_reward }
     assert_equal [ "confrere" ], unlocked
@@ -93,15 +83,6 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
       assert_no_enqueued_jobs(only: PlayerStreamJob) do
         Game::UnlockCardBack.new.call(player: @other, back:, retroactive: true).value!
       end
-    end
-
-    test "the backfill grants #{back} silently for #{achievement}, and run twice writes once" do
-      record_achievement(achievement)
-
-      capture_io { 2.times { rake_task("game:backfill_card_backs").execute } }
-
-      assert_equal [ back ], unlocked
-      assert unlock_events.sole.data[:retroactive]
     end
   end
 

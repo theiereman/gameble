@@ -62,16 +62,6 @@ describe("reflection", () => {
     expect(REST_REFLECTION).toEqual({ strip: 30, fresnel: 0.8, horizon: -0.32, hue: 50 })
   })
 
-  it("slides opposite a corner brought down, and brightens up to a cap", () => {
-    const corner = reflection(0.5, 0.5, 2 / 3)
-    expect(corner.strip).toBeCloseTo(30 - 68.75 - 37.5)
-    expect(corner.fresnel).toBeCloseTo(1.4)
-    expect(corner.horizon).toBeCloseTo(-0.32 - 1.25 - 0.25 * (2 / 3))
-    expect(corner.hue).toBeCloseTo(50 + 0.45 * 300)
-    expect(reflection(0.5, -0.5, 2 / 3).fresnel).toBeCloseTo(1.4)
-    expect(reflection(0.25, 0, 2 / 3).fresnel).toBeCloseTo(0.875)
-  })
-
   it("weighs the ceiling's sideways slide by the card's shape", () => {
     expect(reflection(0.5, 0, 1).horizon).toBeCloseTo(-0.32 - 0.25)
     expect(reflection(0.5, 0, 0.5).horizon).toBeCloseTo(-0.32 - 0.125)

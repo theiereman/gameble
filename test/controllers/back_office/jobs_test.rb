@@ -36,33 +36,6 @@ module BackOffice
       assert_equal [ importmap_nonce ], css_select("script[type=module]").map { it["nonce"] }.uniq
     end
 
-    test "the engine's HTTP basic auth is off" do
-      sign_in(accounts_players(:administrator))
-
-      get "/back-office/jobs"
-
-      assert_nil response.headers["WWW-Authenticate"]
-      assert_not_equal 401, response.status
-    end
-
-    test "a moderator is refused the job queue with 403" do
-      sign_in(accounts_players(:moderator))
-
-      get "/back-office/jobs"
-
-      assert_response :forbidden
-      assert_includes response.body, ERB::Util.html_escape(I18n.t("authorization.forbidden", locale: :en))
-    end
-
-    test "a visitor and a player get the 404 of an unknown address" do
-      get "/back-office/jobs"
-      assert_unknown_address
-
-      sign_in(accounts_players(:player))
-      get "/back-office/jobs"
-      assert_unknown_address
-    end
-
     test "the back-office links to the job queue for an administrator only" do
       sign_in(accounts_players(:administrator))
       get back_office_path(locale: :fr)

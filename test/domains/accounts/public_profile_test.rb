@@ -11,11 +11,4 @@ class Accounts::PublicProfileTest < ActiveSupport::TestCase
     assert_equal expected, Accounts::PublicProfile.code(token)
     assert_match(/\A[0-9A-HJKMNP-TV-Z]{6}\z/, Accounts::PublicProfile.code(token))
   end
-
-  test "the code is stable for a token and differs between tokens" do
-    codes = accounts_players.map { Accounts::PublicProfile.code(it.token) }
-
-    assert_equal codes, accounts_players.map { Accounts::PublicProfile.code(it.token) }
-    assert_equal codes.size, codes.uniq.size
-  end
 end

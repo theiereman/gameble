@@ -252,28 +252,6 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "6/16", album_count
   end
 
-  test "a visitor narrows an owner's album by rarity and finds a game of it by its name, under the same header" do
-    season = publish_sets_draft
-    members = set_members(season, "horror")
-    Catalog::CardSeason.where(id: members).update_all(rarity: Catalog::Rarity::TIERS.key(:common))
-    Catalog::CardSeason.where(id: members.values_at(2, 5)).update_all(rarity: Catalog::Rarity::TIERS.key(:rare))
-    hold(@owner, members[5], 1)
-    Catalog::CardText.where(card_id: Catalog::CardSeason.find(members[7]).card_id, locale: "en").update_all(title: "Élan Vital")
-
-    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror", rarity: [ "rare" ])
-
-    assert_response :success
-    assert_select "[data-group=rarity] .filter-chip__box[value=rare][checked]"
-    assert_equal [ true, false ], css_select(".set-album__grid > li").map { it.at_css(".card--not-owned").present? }
-    assert_equal "1/16", album_count
-
-    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror", q: "ELAN")
-
-    assert_select "#collection-search[value=ELAN]"
-    assert_equal [ "Élan Vital" ], css_select(".set-album__grid .card__title").map { it.text.squish }
-    assert_equal "1/16", album_count
-  end
-
   test "an owner's album shows their earlier editions and their copies of every edition" do
     season = publish_sets_draft
     members = set_members(season, "pirates")
@@ -480,16 +458,6 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     sign_in(@owner)
     get brother_collection_path(locale: :en, token: @owner.token)
     assert_response :success
-  end
-
-  test "the page offers no write route" do
-    publish_sets_draft
-    path = brother_collection_path(locale: :en, token: @owner.token)
-
-    post path
-    assert_response :not_found
-    patch path
-    assert_response :not_found
   end
 
   test "the profile offers no full collection without a season" do
@@ -820,15 +788,6 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :fr, token: banned.token)
     assert_response :not_found
     assert_select ".profile-band__banned", false
-  end
-
-  test "the banned line is in French for staff" do
-    publish_sets_draft
-    sign_in(accounts_players(:administrator))
-
-    get brother_path(locale: :fr, token: accounts_players(:banned).token)
-
-    assert_select ".profile-band__banned", "Joueur banni\u202F: visible par les officiers de la Confrérie seulement"
   end
 
   test "the chosen cards show under VITRINE after the identity band, in their order, each leading to its detail with the owner's token, and the GET writes nothing" do

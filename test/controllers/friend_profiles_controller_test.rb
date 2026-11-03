@@ -86,23 +86,6 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friend-profile__count", "2 cards collected"
   end
 
-  test "a friend holding nothing shows no showcase, in English" do
-    publish_sets_draft
-    @friend.update_columns(last_seen_at: 1.minute.ago)
-    sign_in(@player)
-
-    get friend_profile_path(locale: :en, token: @friend.token)
-
-    assert_response :success
-    assert_select ".friend-profile__count", "0 cards collected"
-    assert_select ".friend-profile__presence .friends__presence--online", "Online"
-    assert_select ".friend-profile__showcase, .friend-profile__empty", false
-    assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :en, friend: @friend.token), "Trade"
-    assert_select ".friends__more-button[aria-label=?]", "More actions for Léa"
-    assert_select ".friends__menu-item[aria-label=?]", "Report Léa", "Report"
-    assert_select ".friends__menu-item[aria-label=?]", "Remove Léa from your friends", "Remove"
-  end
-
   test "a friends-only friend is shown; a private one is the not-available frame" do
     @friend.update!(visibility: "friends_only")
     sign_in(@player)

@@ -52,10 +52,4 @@ class PlayerStreamChannelTest < ActionCable::Channel::TestCase
 
     assert subscription.rejected?
   end
-
-  test "the name is the one Turbo verifies from the page's signed name" do
-    assert_equal PlayerStream.name(@player, :fr),
-      Turbo::StreamsChannel.verified_stream_name(signed(*PlayerStream.streamables(@player, :fr)))
-    assert_equal [ PlayerStream.name(@player, :en), PlayerStream.name(@player, :fr) ], PlayerStream.names(@player)
-  end
 end

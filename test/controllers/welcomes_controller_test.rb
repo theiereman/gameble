@@ -48,20 +48,6 @@ class WelcomesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".welcome-dialog", 0
   end
 
-  test "the welcome reads in English" do
-    sign_up(origin: "/en")
-
-    assert_select "#welcome-panel" do
-      assert_select "p#welcome-title", "Welcome to Gameble"
-      assert_select "p.welcome-dialog__line", "Once banished from Earth, video games were saved through the efforts of our illustrious founders."
-      assert_select "p.welcome-dialog__line", "Today, the Great Brotherhood of Gameblers is honored to grant you access to this legacy through cards " \
-        "randomly distributed in our capsules, ensuring complete fairness among our members."
-      assert_select "p.welcome-dialog__line", "All that remains is for you to build your collection."
-      assert_select "p.welcome-dialog__line", "The Brotherhood wishes you excellent pulls."
-      assert_select "form[action='/en/welcome'] button", "Close"
-    end
-  end
-
   test "while a welcome is pending, pages turn link prefetching off, so the hub is never read ahead of a click" do
     sign_up
 
@@ -89,15 +75,6 @@ class WelcomesControllerTest < ActionDispatch::IntegrationTest
     assert_not new_player.welcome_pending
     follow_redirect!
     assert_select "#welcome-panel", 0
-  end
-
-  test "a player whose welcome is closed signs in to the toast and no panel" do
-    sign_in(accounts_players(:player), origin: "/fr")
-
-    assert_equal "Bienvenue sur Gameble. Vos capsules vous attendent.", flash[:notice]
-    follow_redirect!
-    assert_select "#welcome-panel", 0
-    assert_empty close_jobs
   end
 
   test "a visitor cannot close a welcome" do

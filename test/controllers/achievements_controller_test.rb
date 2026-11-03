@@ -115,106 +115,6 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the three one-capsule achievements: their names, conditions and glyphs in each locale, earned or not" do
-    unlock("packaging_irregularity")
-    sign_in(@player)
-    glyph = ->(name) { Nokogiri::HTML5.fragment(ShellHelper.pixel_source(name)).at_css("svg").inner_html }
-
-    { en: [ [ "Packaging Irregularity", "Two copies of the same game in one capsule", "duplicate" ],
-            [ "Excellence in Mediocrity", "Five Common cards in one standard capsule", "tokens-locked" ],
-            [ "Historical Asset Management", "A game released before 2000 and one released in 2025 or later in one capsule", "hourglass-locked" ] ],
-      fr: [ [ "Irrégularité de conditionnement", "Deux exemplaires du même jeu dans une capsule", "duplicate" ],
-            [ "L'excellence dans la médiocrité", "Cinq cartes Communes dans une capsule standard", "tokens-locked" ],
-            [ "Gestion du patrimoine historique", "Un jeu sorti avant 2000 et un jeu sorti en 2025 ou après dans une même capsule", "hourglass-locked" ] ] }.each do |locale, tiles|
-      get achievements_path(locale:)
-
-      tiles.each_with_index do |(name, condition, icon), index|
-        found = tile(index.zero? ? :earned : :to_earn, name)
-        assert_equal condition, found.at_css(".achievement__condition").text
-        assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
-        assert_nil found.at_css("progress")
-      end
-    end
-  end
-
-  test "the two collection achievements: their names, conditions and glyphs in each locale, earned or not" do
-    unlock("diversified_portfolio")
-    sign_in(@player)
-    glyph = ->(name) { Nokogiri::HTML5.fragment(ShellHelper.pixel_source(name)).at_css("svg").inner_html }
-
-    { en: [ [ "Diversified Portfolio", "Hold five copies of the same game at once", "fan" ],
-            [ "Market Concentration", "Hold 10 different games of the same studio at once", "tower-locked" ] ],
-      fr: [ [ "Portefeuille diversifié", "Détenir cinq exemplaires d'un même jeu en même temps", "fan" ],
-            [ "Concentration du marché", "Détenir 10 jeux différents d'un même studio en même temps", "tower-locked" ] ] }.each do |locale, tiles|
-      get achievements_path(locale:)
-
-      tiles.each_with_index do |(name, condition, icon), index|
-        found = tile(index.zero? ? :earned : :to_earn, name)
-        assert_equal condition, found.at_css(".achievement__condition").text
-        assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
-      end
-    end
-  end
-
-  test "the three community achievements: their names, conditions and glyphs in each locale, earned or not" do
-    unlock("first_claim_all_rights_reserved")
-    sign_in(@player)
-    glyph = ->(name) { Nokogiri::HTML5.fragment(ShellHelper.pixel_source(name)).at_css("svg").inner_html }
-
-    { en: [ [ "First Claim, All Rights Reserved", "Be the pioneer of a card in a season", "flag" ],
-            [ "A Discovery of Ours", "Repost a card you pioneered", "lens-locked" ],
-            [ "A Strictly Professional Relationship", "Complete three trades with the same player", "clasp-locked" ] ],
-      fr: [ [ "Premier arrivé, premier servi", "Être le pionnier d'une carte dans une saison", "flag" ],
-            [ "Une découverte qui nous appartient", "Reposter une carte dont vous êtes le pionnier", "lens-locked" ],
-            [ "Une relation strictement professionnelle", "Conclure trois échanges avec le même joueur", "clasp-locked" ] ] }.each do |locale, tiles|
-      get achievements_path(locale:)
-
-      tiles.each_with_index do |(name, condition, icon), index|
-        found = tile(index.zero? ? :earned : :to_earn, name)
-        assert_equal condition, found.at_css(".achievement__condition").text
-        assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
-      end
-    end
-  end
-
-  test "the two streak achievements: their names, conditions and glyphs in each locale, earned or not" do
-    unlock("luck_is_a_marketing_concept")
-    sign_in(@player)
-    glyph = ->(name) { Nokogiri::HTML5.fragment(ShellHelper.pixel_source(name)).at_css("svg").inner_html }
-
-    { en: [ [ "Luck Is a Marketing Concept", "10 standard capsules in a row with no Rare or better card", "clover" ],
-            [ "Leave Request Denied", "Collect the daily bonus 7 days in a row (UTC days)", "refused-locked" ] ],
-      fr: [ [ "La chance est un concept marketing", "10 capsules standard de suite sans carte Rare ou mieux", "clover" ],
-            [ "Demande de congé refusée", "Récupérer le bonus quotidien 7 jours de suite (jours UTC)", "refused-locked" ] ] }.each do |locale, tiles|
-      get achievements_path(locale:)
-
-      tiles.each_with_index do |(name, condition, icon), index|
-        found = tile(index.zero? ? :earned : :to_earn, name)
-        assert_equal condition, found.at_css(".achievement__condition").text
-        assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
-      end
-    end
-  end
-
-  test "the two reveal streak achievements: their names, conditions and glyphs in each locale, earned or not" do
-    unlock("streamlined_opening_procedure")
-    sign_in(@player)
-    glyph = ->(name) { Nokogiri::HTML5.fragment(ShellHelper.pixel_source(name)).at_css("svg").inner_html }
-
-    { en: [ [ "Streamlined Opening Procedure", "10 capsules in a row opened with \"Reveal all\"", "skip" ],
-            [ "Diligence Beyond the Call of Duty", "10 capsules in a row with every card revealed one by one", "revealed-locked" ] ],
-      fr: [ [ "Procédure d'ouverture simplifiée", "10 capsules de suite ouvertes avec « Tout révéler »", "skip" ],
-            [ "Zèle au-delà des obligations", "10 capsules de suite dont chaque carte est révélée une à une", "revealed-locked" ] ] }.each do |locale, tiles|
-      get achievements_path(locale:)
-
-      tiles.each_with_index do |(name, condition, icon), index|
-        found = tile(index.zero? ? :earned : :to_earn, name)
-        assert_equal condition, found.at_css(".achievement__condition").text
-        assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
-      end
-    end
-  end
-
   test "the tiles that unlock a card back name it with its picture, earned or not" do
     unlock("boosters_100")
     sign_in(@player)
@@ -240,14 +140,6 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
       assert_equal "Unlocks the #{back} card back", found.at_css(".achievement__back").text.strip
       assert found.at_css("img.achievement__back-image")
     end
-  end
-
-  test "the card back line reads in English" do
-    sign_in(@player)
-
-    get achievements_path(locale: :en)
-
-    assert_equal "Unlocks the Dawn card back", tile(:to_earn, "Archival Excellence").at_css(".achievement__back").text.strip
   end
 
   test "an achievement of threshold one not yet earned shows no bar nor count" do

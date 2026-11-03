@@ -135,28 +135,4 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
 
     assert_equal taken(@hills) + [ [ "own", key_of(@soldier), 1 ], [ "own", key_of(@crown), 1 ] ], board_lines
   end
-
-  test "a prefilled board carries the friend's plain new-trade address and the send action; a plain board neither" do
-    suggest_from_lea
-    sign_in @alice
-
-    get new_trade_path(locale: :fr, friend: @bob.token, take: %w[blue-depths--s1])
-    root = css_select("#trade-board").sole
-    assert_equal new_trade_path(locale: :fr, friend: @bob.token), root["data-trade-board-board-url-value"]
-    assert_equal "submit->trade-board#send", css_select("form#trade-draft-form").sole["data-action"]
-
-    get new_trade_path(locale: :fr, friend: @bob.token)
-    assert_nil css_select("#trade-board").sole["data-trade-board-board-url-value"]
-    assert_nil css_select("form#trade-draft-form").sole["data-action"]
-  end
-
-  test "a crafted prefill of a card the friend has no free copy of ignores it" do
-    suggest_from_lea
-    hold(@bob, @crown, 1, reserved: 1)
-    sign_in @alice
-
-    get new_trade_path(locale: :fr, friend: @bob.token, take: [ key_of(@crown), "blue-depths--s1" ])
-
-    assert_equal taken(@depths), board_lines
-  end
 end

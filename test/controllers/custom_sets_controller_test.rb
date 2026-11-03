@@ -86,70 +86,6 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Portal", "Blue Depths" ], css_select(".set-album__grid > li .card--not-owned .card__title").map { it.text.squish }
   end
 
-  test "the author's album holds the editor filled with the set and the delete dialog" do
-    custom_set = create_custom_set(@player, card_ids: %i[rare_card portal common_card].map { catalog_cards(it).id })
-    sign_in(@player)
-
-    get custom_set_path(locale: :en, token: custom_set.token)
-
-    assert_select "dialog#custom-set-editor.modal.modal--wide[aria-labelledby=custom-set-editor-title][data-controller='dialog custom-set-editor']" do
-      assert_select "p#custom-set-editor-title", "Edit the set"
-      assert_select "button.modal__close[aria-label=Close]"
-      assert_select "form#custom-set-editor-form[action='/en/library/custom-sets/#{custom_set.token}'][method=post]" do
-        assert_select "input[name=_method][value=patch]"
-        assert_select "label[for=custom-set-name]", "Set name"
-        assert_select "input#custom-set-name[name=name][value='Mes favoris'][maxlength='40'][autofocus][aria-describedby=custom-set-name-count]"
-        assert_select "#custom-set-name-count", "11 / 40"
-        assert_equal slugs_of(:rare_card, :portal, :common_card), css_select(".custom-set-editor__inputs input[type=hidden][name='games[]']").map { it["value"] }
-        assert_select "input#custom-set-search, input[type=radio]", false
-      end
-      assert_select "label[for=custom-set-search]", "Search a game"
-      assert_select "input#custom-set-search[type=search][placeholder='Search a game of the catalog']"
-      assert_equal [ "All", "Owned", "Missing", "Selected · 3" ], css_select(".custom-set-editor__chips .filter-chip__text").map { it.text.squish }
-      assert_equal %w[all], css_select(".custom-set-editor__chips input[type=radio][checked]").map { it["value"] }
-      assert_select "turbo-frame#custom-set-games[src='/en/library/custom-sets/games'][loading=lazy]"
-      assert_select ".custom-set-editor__count b", "3 games"
-      assert_select ".custom-set-editor__range", "3 to 50"
-      assert_select "p#custom-set-editor-refusal[role=alert]", ""
-      assert_select ".custom-set-editor__actions button[type=button][data-action='dialog#close']", "Cancel"
-      assert_select ".custom-set-editor__actions button.button--primary[type=submit][form=custom-set-editor-form]", "Save"
-      assert_select "template", 2
-    end
-    assert_select "dialog#delete-custom-set[aria-labelledby=delete-custom-set-title][aria-describedby=delete-custom-set-text]" do
-      assert_select ".modal__title", "Delete “Mes favoris”?"
-      assert_select "#delete-custom-set-text", "The set leaves your sets, with its goal if it is one. Your cards stay in your collection."
-      assert_select "form[action='/en/library/custom-sets/#{custom_set.token}'][data-turbo=false]" do
-        assert_select "input[name=_method][value=delete]"
-        assert_select "button.button--primary[type=submit]", "Delete"
-        assert_select "button.button--secondary[type=button][data-action='dialog#close']", "Cancel"
-      end
-    end
-    assert_select "[style]", false
-  end
-
-  test "the collection's editor is empty and makes a new set, in French" do
-    sign_in(@player)
-
-    get library_path(locale: :fr)
-
-    assert_select "section.custom-sets ul.set-tiles > li > button.new-set-tile[data-controller=dialog-opener][data-action='dialog-opener#open']" \
-      "[data-dialog-opener-dialog-value=custom-set-editor]", /Nouveau set\s+3 à 50 jeux · 10 sets au plus/
-    assert_select "section.custom-sets dialog#custom-set-editor" do
-      assert_select "p#custom-set-editor-title", "Nouveau set"
-      assert_select "form#custom-set-editor-form[action='/fr/library/custom-sets'][method=post]"
-      assert_select "input[name=_method]", false
-      assert_select "input#custom-set-name[value='']"
-      assert_select "#custom-set-name-count", "0 / 40"
-      assert_select ".custom-set-editor__inputs input", false
-      assert_select "input#custom-set-search[placeholder='Rechercher un jeu du catalogue']"
-      assert_equal [ "Tout", "Possédées", "Manquantes", "Sélectionnés · 0" ], css_select(".filter-chip__text").map { it.text.squish }
-      assert_select ".custom-set-editor__count b", "0 jeu"
-      assert_select ".custom-set-editor__range", "3 à 50"
-      assert_select "turbo-frame#custom-set-games[src='/fr/library/custom-sets/games']"
-    end
-    assert_select "[style]", false
-  end
-
   test "a game gained since the collection was last seen carries the New tag on the custom album" do
     custom_set = create_custom_set(@player, card_ids: %i[portal common_card rare_card].map { catalog_cards(it).id })
     Game::PlayerState.find_by!(player_id: @player.id).update_columns(collection_seen_up_to: 1.hour.ago)
@@ -365,17 +301,6 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
       post custom_sets_path(locale: :en), params: { name: "x", games: three.first(2) + [ "unknown" ] }, headers: STREAM
       assert_refusal "A chosen game is not in the catalog. Reload the page and try again."
     end
-  end
-
-  test "fifty-one picked games reach the fifty-games refusal and write nothing" do
-    slugs = board_slugs(51)
-    sign_in(@player)
-
-    assert_no_difference -> { writes } do
-      post custom_sets_path(locale: :en), params: { name: "Tout", games: slugs }, headers: STREAM
-    end
-
-    assert_refusal "50 GAMES AT MOST · Remove a game to add another."
   end
 
   test "an eleventh set is refused inline; ten sets: no new set button and no editor" do

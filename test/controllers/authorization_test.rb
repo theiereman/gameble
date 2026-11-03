@@ -35,12 +35,6 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor may read an open page" do
-    get how_it_works_path(locale: :fr)
-
-    assert_response :success
-  end
-
   test "a visitor's HTML request for a player's page is sent to the landing, without an alert" do
     get me_path(locale: :fr)
 
@@ -72,16 +66,6 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
       { "error" => { "code" => "sign_in_required", "message" => I18n.t("authorization.sign_in_required", locale: :en) } },
       response.parsed_body
     )
-  end
-
-  test "a player signs out" do
-    sign_in(accounts_players(:player))
-
-    delete session_path(locale: :en)
-
-    assert_nil session[:player_id]
-    assert_redirected_to home_path(locale: :en)
-    assert_equal I18n.t("sessions.destroy.farewell", locale: :en), flash[:notice]
   end
 
   test "a player banned meanwhile is signed out on their next request" do

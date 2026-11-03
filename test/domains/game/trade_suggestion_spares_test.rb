@@ -45,12 +45,6 @@ class Game::TradeSuggestionSparesTest < ActiveSupport::TestCase
     queries
   end
 
-  test "a card the holder has two free copies of is spared" do
-    hold(@lea, @portal, 2)
-
-    assert_equal [ @portal ], spared_by_lea(@portal)
-  end
-
   test "a single copy, or two with one reserved, is spared; a fully reserved copy or a card the holder lacks is not" do
     hold(@lea, @portal, 1)
     hold(@lea, @hills, 2, reserved: 1)

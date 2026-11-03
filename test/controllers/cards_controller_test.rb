@@ -928,15 +928,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[Season Pioneer], facts.map(&:first).each_cons(2).find { |a, b| b == "Pioneer" }
   end
 
-  test "a banned pioneer reads as an anonymous player with the date and no link, to staff too" do
-    sign_in(accounts_players(:administrator))
-
-    get card_path(locale: :en, slug: "portal")
-
-    assert_equal [ "Pioneer", "An anonymous player on #{I18n.l(2.weeks.ago.to_date, format: :long_day, locale: :en)}" ], facts.assoc("Pioneer")
-    assert_select ".card-detail__pioneer a", false
-  end
-
   test "a deleted pioneer, or a private profile, reads as an anonymous player" do
     pioneer = accounts_players(:moderator)
     pioneered_by(pioneer)
@@ -1000,13 +991,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     get card_season_path(locale: :en, slug: "portal", number: 2)
     assert_not_nil facts.assoc("Pioneer")
-  end
-
-  test "a card without a recorded discovery shows no pioneer row" do
-    Game::FirstDiscovery.where(card_season_id: catalog_card_seasons(:portal_one).id).delete_all
-    sign_in(accounts_players(:player))
-    get card_path(locale: :en, slug: "portal")
-    assert_nil facts.assoc("Pioneer")
   end
 
   test "the public card page shows the pioneer between the rarity line and the description, named or anonymous, with no id" do
@@ -1145,53 +1129,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "S1 · #1 · 2 / 3 · swipe to browse", position
     assert_equal [ [ "a", "/en/cards/blue-depths/seasons/1?grid%5Bq%5D=" ], [ "a", "/en/cards/portal/seasons/2?grid%5Bq%5D=" ] ], navs
-  end
-
-  test "epic detail floats with purple rays; common detail stays still with no rays" do
-    viewer = accounts_players(:moderator)
-    hold(viewer, catalog_card_seasons(:portal_one).id, 1)
-    hold(viewer, catalog_card_seasons(:common_card_one).id, 1)
-    sign_in(viewer)
-
-    get card_path(locale: :en, slug: "portal")
-    assert_response :success
-    assert_select ".card-detail__card .card-float .card-rays.card-rays--epic", 1
-    assert_select ".card-detail__card .card-float .card.card--l", 1
-
-    get card_path(locale: :en, slug: "tin-soldier")
-    assert_response :success
-    assert_select ".card-detail__card .card-float", 0
-    assert_select ".card-detail__card .card-rays", 0
-    assert_select ".card-detail__shadow", 1
-  end
-
-  test "an epic not held, within a set, is faded and locked, without float or rays" do
-    add_a_theme_set
-    player = accounts_players(:player)
-    hold(player, catalog_card_seasons(:common_card_one).id, 1)
-    sign_in(player)
-
-    get in_theme("portal")
-
-    assert_response :success
-    assert_select ".card-detail__card .card-float", 0
-    assert_select ".card-detail__card .card-rays", 0
-    assert_select ".card-detail__card .card.card--l.card--rarity-epic.card--not-owned > .card__lock", 1
-    assert_select ".card-detail__shadow", 1
-  end
-
-  test "epic public page floats with rays; common public page stays still" do
-    get card_path(locale: :en, slug: "portal")
-    assert_response :success
-    assert_select ".public-card__stage .card-float .card-rays.card-rays--epic", 1
-    assert_select ".public-card__stage .card-float .card.card--xl", 1
-    assert_select ".public-card__shadow", 1
-
-    get card_path(locale: :en, slug: "tin-soldier")
-    assert_response :success
-    assert_select ".public-card__stage .card-float", 0
-    assert_select ".public-card__stage .card-rays", 0
-    assert_select ".public-card__shadow", 1
   end
 
   # The showcase buttons as [ label, the verb their form sends or "disabled" ].

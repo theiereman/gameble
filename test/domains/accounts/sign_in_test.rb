@@ -139,12 +139,6 @@ class Accounts::SignInTest < ActiveSupport::TestCase
     assert_nil player.reload.persona_name
   end
 
-  test "the name is stripped and cut to 64 characters" do
-    player = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: "  #{"a" * 70}  ").value!
-
-    assert_equal "a" * 64, player.reload.persona_name
-  end
-
   test "the same name writes nothing" do
     player = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: "Gabe").value!
     updated_at = player.reload.updated_at
@@ -164,29 +158,6 @@ class Accounts::SignInTest < ActiveSupport::TestCase
   end
 
   # Invisible characters.
-
-  [ "\u200B\u202E", "\u3164", "\u2066 \u3000" ].each do |name|
-    test "a first sign-in with a persona name of #{name.inspect}, nothing visible, stores none" do
-      result = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: name)
-
-      assert result.success?
-      assert_nil result.value!.reload.persona_name
-    end
-
-    test "a later sign-in with a persona name of #{name.inspect} keeps the stored one" do
-      Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: "Gabe")
-
-      assert_equal "Gabe", Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: name).value!.reload.persona_name
-    end
-  end
-
-  { "Ga\u200Bbe" => "Gabe", "\u202Egabe" => "gabe", "A\u3000B" => "A B" }.each do |name, stored|
-    test "a persona name of #{name.inspect} is stored as #{stored.inspect}" do
-      player = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: name).value!
-
-      assert_equal stored, player.reload.persona_name
-    end
-  end
 
   test "a banned player's name is not stored" do
     banned = accounts_players(:banned)

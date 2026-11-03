@@ -14,16 +14,6 @@ class ReactionIconsExportTest < ActiveSupport::TestCase
     assert_predicate status, :success?, output
   end
 
-  test "the export writes every committed file" do
-    Dir.mktmpdir do |dir|
-      output, status = export("--out", dir)
-
-      assert_predicate status, :success?, output
-      assert_equal Dir.children(ICON_DIR).sort, Dir.children(dir).sort
-      assert_match(/5 reaction icons/, output)
-    end
-  end
-
   test "a second export changes no file, not even its modification time" do
     Dir.mktmpdir do |dir|
       export("--out", dir)

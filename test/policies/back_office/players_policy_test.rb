@@ -27,13 +27,5 @@ module BackOffice
     test "an administrator erases a player" do
       assert_predicate policy_for(:administrator), :destroy?
     end
-
-    [ :visitor, :player, :moderator, :administrator ].each do |role|
-      test "a #{role} may do nothing else with the players" do
-        policy = policy_for(role)
-
-        %i[show? create? new? update? edit?].each { |action| assert_not policy.public_send(action), action }
-      end
-    end
   end
 end

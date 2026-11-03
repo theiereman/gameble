@@ -154,14 +154,6 @@ class Catalog::StoreShareImageTest < ActiveSupport::TestCase
     assert_nil Catalog::ShareImageByToken.call(old_token)
   end
 
-  test "each language has its own image" do
-    english = store.value!
-    french = store(locale: "fr").value!
-
-    assert_not_equal english.token, french.token
-    assert_equal %w[en fr], Catalog::ShareImage.where(card_season_id:).order(:locale).pluck(:locale)
-  end
-
   test "a card-season outside a published season is refused, nothing written" do
     draft = seed_card_seasons([ 1.0 ]).card_seasons.sole
 

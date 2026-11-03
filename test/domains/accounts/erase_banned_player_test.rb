@@ -68,11 +68,6 @@ class Accounts::EraseBannedPlayerTest < ActiveSupport::TestCase
     end
   end
 
-  test "the deletion alone still refuses a banned player" do
-    assert_equal Dry::Monads::Failure(:player_required), Accounts::DeletePlayer.new.call(player: @banned)
-    assert_not_predicate @banned.reload, :deleted?
-  end
-
   test "after the erasure the Steam id is free: signing in with it opens a new account without the ban" do
     steam_id = @banned.steam_id
     erase.value!

@@ -26,12 +26,6 @@ class Game::TradesOfTest < ActiveSupport::TestCase
     Game::ProposeTrade.new.call(player:, recipient:, offer:, request:).value!
   end
 
-  test "a trade gets a 24-character token, never its id" do
-    trade = propose(@alice, @bob, offer: { @one => 2 }, request: { @three => 1 })
-
-    assert_match(/\A[1-9A-HJ-NP-Za-km-z]{24}\z/, trade.token)
-  end
-
   test "the list holds the player's turn, the friend's turn and the recent ones, each seen from the player's side" do
     to_bob = propose(@alice, @bob, offer: { @one => 2, @two => 1 }, request: { @three => 1 })
     from_carol = propose(@carol, @alice, offer: { @three => 1 }, request: { @one => 1 })

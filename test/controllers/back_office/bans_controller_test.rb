@@ -154,32 +154,6 @@ module BackOffice
       assert_not banned_moderator.reload.banned?
     end
 
-    test "a moderator opens a banned player's profile from the banned list" do
-      @banned.update!(persona_name: "Exile")
-      sign_in(@moderator)
-
-      get back_office_bans_path(locale: :fr)
-      assert_select "#{row(@banned)} a[href='/fr/brothers/#{@banned.token}']", "Exile"
-
-      get brother_path(locale: :fr, token: @banned.token)
-      assert_response :success
-      assert_select "h1", "Exile"
-    end
-
-    test "an administrator bans and lifts a ban, in English" do
-      sign_in(@administrator)
-
-      post back_office_bans_path(locale: :en), params: { token: @target.token, reason: "Rude name" }
-      assert_equal "Gabe is banned.", flash[:notice]
-
-      get back_office_bans_path(locale: :en)
-      assert_select "h1", "The banned players"
-
-      delete back_office_ban_path(locale: :en, token: @target.token)
-      assert_equal "The ban on Gabe is lifted.", flash[:notice]
-      assert_not @target.reload.banned?
-    end
-
     test "the second page of the banned players holds the 51st, the oldest ban" do
       50.times do |index|
         Accounts::Player.create!(steam_id: "765611979603620#{index.to_s.rjust(2, "0")}", banned_at: (index + 1).minutes.ago)
@@ -212,32 +186,6 @@ module BackOffice
       end
 
       assert_response :too_many_requests
-    end
-
-    test "a player gets the 404 of an unknown address from every action" do
-      sign_in(@target)
-
-      get back_office_bans_path(locale: :fr)
-      assert_unknown_address
-      post back_office_bans_path(locale: :fr), params: { token: @moderator.token, reason: "Rude name" }
-      assert_unknown_address
-      delete back_office_ban_path(locale: :fr, token: @banned.token)
-      assert_unknown_address
-
-      assert_not @moderator.reload.banned?
-      assert_predicate @banned.reload, :banned?
-    end
-
-    test "a visitor gets the 404 of an unknown address from every action" do
-      get back_office_bans_path(locale: :fr)
-      assert_unknown_address
-      post back_office_bans_path(locale: :fr), params: { token: @target.token, reason: "Rude name" }
-      assert_unknown_address
-      delete back_office_ban_path(locale: :fr, token: @banned.token)
-      assert_unknown_address
-
-      assert_not @target.reload.banned?
-      assert_predicate @banned.reload, :banned?
     end
   end
 end

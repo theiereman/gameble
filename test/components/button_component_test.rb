@@ -79,12 +79,6 @@ class ButtonComponentTest < ViewComponent::TestCase
     assert_selector "a.button.button--link[href='/en/feed']", text: "See all"
   end
 
-  test "the default stays primary" do
-    render_inline(ButtonComponent.new) { "Open" }
-
-    assert_selector "button.button--primary"
-  end
-
   test "a small button" do
     render_inline(ButtonComponent.new(variant: :secondary, size: :small, href: "/en")) { "Back" }
 

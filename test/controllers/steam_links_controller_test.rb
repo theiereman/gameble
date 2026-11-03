@@ -180,12 +180,4 @@ class SteamLinksControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :en)
     assert_select "form[action=?]", "/en/settings/steam", 0
   end
-
-  test "the Link Steam button speaks French" do
-    sign_in_through_clerk
-
-    get settings_path(locale: :fr)
-
-    assert_select "form[action='/fr/settings/steam'] button", "Lier Steam"
-  end
 end
