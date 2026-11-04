@@ -22,7 +22,7 @@ module PacksHelper
     {
       pack: { token: pack.token, kind: pack.kind, cardBack: pack_card_back(pack), url: pack_path(pack.token),
               revealUrl: pack_reveal_path(pack.token) },
-      cards: cards.map { pack_card_json(it, goals.goals_for(it.card_id)) },
+      cards: cards.zip(Game::FirstCopies.call(player, pack)).map { |card, first_copy| pack_card_json(card, goals.goals_for(card.card_id), first_copy:) },
       bank: { available: counts.standard, special: counts.special, openable: counts.openable, reserveFull: Game::Reserve.full?(counts.standard),
               nextAvailableAt: scheduled.first, scheduledAt: scheduled, nextPackSize: Game::NextPackSize.call(player, now:),
               nextSpecialKind: counts.next_special_kind },
@@ -33,13 +33,13 @@ module PacksHelper
     }
   end
 
-  def pack_card_json(card, goals)
-    pack_card_fields(card, goals:).merge(faces: pack_faces(card, goals:))
+  def pack_card_json(card, goals, first_copy: false)
+    pack_card_fields(card, goals:, first_copy:).merge(faces: pack_faces(card, goals:))
   end
 
-  def pack_card_fields(card, goals: [])
+  def pack_card_fields(card, goals: [], first_copy: false)
     { slug: card.id, season: card.season_number, tier: card.rarity, coverUrl: card.image_url, title: card.title, year: card.year,
-      label: pack_card_label(card), goals: goal_card_words(goals) }
+      label: pack_card_label(card), goals: goal_card_words(goals), firstCopy: first_copy }
   end
 
   def pack_set_tiers(pack)

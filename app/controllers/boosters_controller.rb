@@ -15,6 +15,7 @@ class BoostersController < ApplicationController
         @season = Catalog::PublishedSeason.call
         @opened_pack = Game::OpenedPackByToken.call(current_player, params[:pack])
         @opened_cards = @opened_pack && cards_of(@opened_pack)
+        @opened_first_copies = @opened_pack ? Game::FirstCopies.call(current_player, @opened_pack) : []
         @opened_goals = @opened_pack ? goal_marks : GoalMarks::NONE
         @next_steps = Game::NextSteps.call(current_player, season: @season) if reserve_run_out?
       end

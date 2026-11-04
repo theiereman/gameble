@@ -397,8 +397,9 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal cards.map { [ it.id, it.season_number, it.rarity, it.image_url, it.title, it.year ] },
       body["cards"].map { it.values_at("slug", "season", "tier", "coverUrl", "title", "year") }
     body["cards"].zip(cards).each do |card, view|
-      assert_equal %w[slug season tier coverUrl title year label goals faces], card.keys
+      assert_equal %w[slug season tier coverUrl title year label goals firstCopy faces], card.keys
       assert_equal "", card["goals"]
+      assert_includes [ true, false ], card["firstCopy"]
       assert_equal %w[s m xl], card["faces"].keys
       card["faces"].each do |size, html|
         face = Nokogiri::HTML5.fragment(html)

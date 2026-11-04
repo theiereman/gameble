@@ -211,6 +211,7 @@ export class BoosterRenderer {
         legendary: state.legendary === index,
         name: cardName(card, index),
         tierLabel: this.host.tierLabel(card.tier),
+        firstCopy: card.firstCopy,
         repostName: t(this.strings.repostCard, { card: card.title }),
         depth: phone ? pileDepth(index, state.stored) : null,
       })

@@ -1,8 +1,8 @@
-<%# locals: (pack:, cards:, goals: GoalMarks::NONE) %>
+<%# locals: (pack:, cards:, first_copies:, goals: GoalMarks::NONE) %>
 <%= tag.template data: { booster_target: "pack", token: pack.token, kind: pack.kind, url: pack_path(pack.token), **pack_card_back_data(pack) } %>
 <% cards.each_with_index do |card, index| %>
   <% marks = goals.goals_for(card.card_id) %>
-  <%= tag.template data: booster_opened_card_data(card, index, goals: marks) %>
+  <%= tag.template data: booster_opened_card_data(card, index, goals: marks, first_copy: first_copies[index]) %>
   <% PacksHelper::REVEAL_SIZES.each do |size| %>
     <%= tag.template render(CardComponent.new(card:, size:, booster: true, goals: marks.map(&:position))), data: { booster_target: "face", index:, size: } %>
   <% end %>

@@ -1,0 +1,26 @@
+/* The marks a revealed card carries above its face: they turn with the face,
+   so they show only once the card is up. */
+.booster-card__marks {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+/* "Nouveau": the card's first copy, a small lime box at its top-left. */
+.booster-card__new {
+  position: absolute;
+  top: calc(-3 * var(--space-1));
+  left: calc(-3 * var(--space-1));
+  display: flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 var(--space-2);
+  background: var(--color-lime);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-outline);
+  color: var(--color-on-lime);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-card-meta);
+  text-transform: uppercase;
+}

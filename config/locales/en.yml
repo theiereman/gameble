@@ -581,6 +581,7 @@ en:
       empty_standard: No standard capsule yet
       label: Capsule reserves
     repost: Repost
+    first_copy: New
     reserve: Reserve
     reserve_empty: Reserve empty
     reserve_full: Reserve full

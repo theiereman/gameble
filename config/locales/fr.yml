@@ -1363,6 +1363,7 @@ fr:
     zoom_previous: "Carte précédente"
     zoom_next: "Carte suivante"
     repost: "Reposter"
+    first_copy: "Nouveau"
     strings:
       origin_bonus: "CAPSULE QUOTIDIENNE"
       origin_opening: "EN OUVERTURE · %{origin}"

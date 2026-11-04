@@ -33,6 +33,7 @@ export const cardOf = (tier: Rarity, slug: string = tier): OpeningCard => ({
   year: 2020,
   label: slug,
   goals: "",
+  firstCopy: false,
   faces: { s: "", m: "", xl: "" },
 })
 

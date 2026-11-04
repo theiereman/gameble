@@ -15,6 +15,7 @@ const answer = {
       year: 2007,
       label: "Portal — Valve, 2007",
       goals: "goal 1: Valve",
+      firstCopy: true,
       faces: { s: "<span></span>", m: "<span></span>", xl: "<span></span>" },
     },
   ],
@@ -138,6 +139,8 @@ describe("sendOpening", () => {
       // A card without its goal words, or with goals named by something else than words.
       fake(json(200, { ...answer, cards: [{ ...answer.cards[0], goals: undefined }] })),
       fake(json(200, { ...answer, cards: [{ ...answer.cards[0], goals: [1] }] })),
+      // A card that does not say whether it is the player's first copy.
+      fake(json(200, { ...answer, cards: [{ ...answer.cards[0], firstCopy: undefined }] })),
       // No set tiers, one of another shape, or one without its album.
       fake(json(200, { ...answer, setTiers: undefined })),
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], tier: "platinum" }] })),

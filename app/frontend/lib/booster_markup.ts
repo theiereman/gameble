@@ -72,6 +72,7 @@ export function cardFrom(data: Dataset): OpeningCard {
     year: data.year ? whole(data.year) : null,
     label: data.label ?? data.title ?? "",
     goals: data.goals ?? "",
+    firstCopy: data.firstCopy === "true",
     faces: { s: "", m: "", xl: "" },
   }
 }

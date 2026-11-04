@@ -9,6 +9,7 @@ export type OpeningCard = {
   year: number | null
   label: string
   goals: string
+  firstCopy: boolean
   faces: { s: string; m: string; xl: string }
 }
 
@@ -123,6 +124,7 @@ function isCard(value: unknown): value is OpeningCard {
     typeof value.title === "string" &&
     typeof value.label === "string" &&
     typeof value.goals === "string" &&
+    typeof value.firstCopy === "boolean" &&
     isRecord(value.faces) &&
     FACE_SIZES.every((size) => typeof (value.faces as Record<string, unknown>)[size] === "string")
   )

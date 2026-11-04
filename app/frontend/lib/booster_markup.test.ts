@@ -35,8 +35,15 @@ describe("cardFrom", () => {
       year: "2007",
       label: "Portal — Valve, 2007",
       goals: "goal 2: Valve",
+      firstCopy: "true",
     }
-    expect(cardFrom(data)).toEqual({ ...data, season: 1, year: 2007, faces: { s: "", m: "", xl: "" } })
+    expect(cardFrom(data)).toEqual({
+      ...data,
+      season: 1,
+      year: 2007,
+      firstCopy: true,
+      faces: { s: "", m: "", xl: "" },
+    })
     expect(cardFrom({ slug: "x", tier: "bogus", title: "X" })).toMatchObject({
       season: 0,
       tier: "common",
@@ -44,6 +51,7 @@ describe("cardFrom", () => {
       label: "X",
       coverUrl: "",
       goals: "",
+      firstCopy: false,
     })
   })
 })
