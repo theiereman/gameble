@@ -38,6 +38,10 @@ export function linesSeenHere(lines: BellLine[], pathname: string): string[] {
   return lines.filter((line) => !line.lasting && opensTarget(line.path, pathname)).map((line) => line.key)
 }
 
+export function dismissibleKeys(lines: BellLine[]): string[] {
+  return lines.filter((line) => !line.lasting).map((line) => line.key)
+}
+
 export function hiddenLines(lines: BellLine[], seen: Set<string>): Set<string> {
   return new Set(lines.filter((line) => !line.lasting && seen.has(line.key)).map((line) => line.key))
 }

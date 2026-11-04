@@ -1,5 +1,13 @@
 import { Controller } from "@hotwired/stimulus"
-import { bellStorage, hiddenLines, linesSeenHere, markSeen, readSeen, type BellLine } from "../lib/bell"
+import {
+  bellStorage,
+  dismissibleKeys,
+  hiddenLines,
+  linesSeenHere,
+  markSeen,
+  readSeen,
+  type BellLine,
+} from "../lib/bell"
 import { writeText } from "../lib/dom_writes"
 import { onGameble } from "../lib/events"
 import { t, type Template } from "../lib/i18n"
@@ -7,7 +15,7 @@ import { t, type Template } from "../lib/i18n"
 type FrameElement = HTMLElement & { reload(): void }
 
 export default class extends Controller<HTMLElement> {
-  static targets = ["item", "empty", "count", "label", "frame"]
+  static targets = ["item", "empty", "count", "label", "frame", "readAll"]
   static values = { labels: Object, owner: String }
 
   declare readonly itemTargets: HTMLElement[]
@@ -16,6 +24,7 @@ export default class extends Controller<HTMLElement> {
   declare readonly countTarget: HTMLElement
   declare readonly labelTarget: HTMLElement
   declare readonly frameTarget: FrameElement
+  declare readonly readAllTarget: HTMLElement
   declare readonly labelsValue: Template
   declare readonly ownerValue: string
 
@@ -52,6 +61,11 @@ export default class extends Controller<HTMLElement> {
     this.show()
   }
 
+  readAll(): void {
+    markSeen(dismissibleKeys(this.lines()), this.storage, this.ownerValue)
+    this.show()
+  }
+
   keep(event: Event): void {
     event.preventDefault()
   }
@@ -67,6 +81,7 @@ export default class extends Controller<HTMLElement> {
     const hidden = hiddenLines(lines, readSeen(this.storage, this.ownerValue))
     for (const item of this.itemTargets) item.hidden = hidden.has(item.dataset.bellKey ?? "")
     const unseen = lines.length - hidden.size
+    this.readAllTarget.hidden = dismissibleKeys(lines).every((key) => hidden.has(key))
 
     if (this.hasEmptyTarget) this.emptyTarget.hidden = unseen > 0
     this.countTarget.hidden = unseen === 0

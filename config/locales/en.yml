@@ -2625,6 +2625,7 @@ en:
       mission: "This week's mission: open %{target} capsules together."
       mission_reached: "This week's mission is accomplished: %{target} capsules opened together."
       mission_reward: 'The weekly mission is accomplished: a rare capsule awaits you.'
+      read_all: Mark all as read
       see: See
       title: What is new
       trade: "%{name} awaits your answer to a trade."

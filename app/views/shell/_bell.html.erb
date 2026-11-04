@@ -9,5 +9,8 @@
     <p id="bell-title" class="shell-popover__title"><%= t("shell.bell.title") %></p>
     <turbo-frame id="bell-items" src="<%= bell_path %>" target="_top" refresh="morph" data-bell-target="frame"
       data-action="turbo:frame-render->bell#show turbo:frame-missing->bell#keep"></turbo-frame>
+    <button type="button" class="button button--small bell__read-all" data-bell-target="readAll" data-action="bell#readAll" hidden>
+      <%= t("shell.bell.read_all") %>
+    </button>
   </div>
 <% end %>

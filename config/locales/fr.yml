@@ -56,6 +56,7 @@ fr:
         one: "Nouveautés, %{count} non vue"
         other: "Nouveautés, %{count} non vues"
       empty: "Rien de nouveau pour l'instant."
+      read_all: "Tout marquer comme lu"
       trade: "%{name} attend votre réponse à un échange."
       trade_accepted: "%{name} a accepté votre échange."
       trade_declined: "%{name} a refusé votre échange."

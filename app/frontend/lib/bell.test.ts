@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   BELL_SEEN_CAP,
+  dismissibleKeys,
   hiddenLines,
   linesSeenHere,
   markSeen,
@@ -105,5 +106,17 @@ describe("bell lines", () => {
     expect(hiddenLines([trade, invitation, daily], seen)).toEqual(new Set(["trade:abc:1"]))
     expect(hiddenLines([trade, invitation], new Set(["trade:abc:1", "invitation:def"])).size).toBe(2)
     expect(hiddenLines([], seen).size).toBe(0)
+  })
+})
+
+describe("dismissibleKeys", () => {
+  it("lists the lines that can be seen away, not the lasting ones", () => {
+    const lines: BellLine[] = [
+      { key: "trade:abc:1", path: "/en/trades/abc", lasting: false },
+      { key: "daily:2026-11-04", path: "/en/booster", lasting: true },
+    ]
+
+    expect(dismissibleKeys(lines)).toEqual(["trade:abc:1"])
+    expect(dismissibleKeys([])).toEqual([])
   })
 })
