@@ -1,10 +1,3 @@
-/*
- * The phone header: a sticky bar that hides on scroll down, the wordmark as
- * home button and one merged capsule counter on the top-level screens, small texts
- * raised, and the version line in the page flow. Imported after
- * shell-screens.css, whose phone block it builds on.
- */
-
 .top-bar__phone-home,
 .bank-counter {
   display: none;

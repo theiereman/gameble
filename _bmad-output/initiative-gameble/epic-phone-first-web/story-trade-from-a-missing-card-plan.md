@@ -105,3 +105,17 @@ deferred: []
 - **Follow-up review recommended:** false - one medium patched, no high.
 - **Verification:** `bin/ci` passed (3979 runs, 0 failures); system `card_trade_test.rb` passed; vitest, prettier, stylelint, zeitwerk, packwerk, i18n-tasks missing, planning references and file sizes pass.
 - **Residual risks:** the conservative readings in `pending-approvals.md`; the 44px height of the Trade button rests on the shared button styles.
+
+## Code Review
+
+### 2026-11-04 — 0 decision-needed, 1 patch, 3 defer, 3 rejected
+
+- [x] [Review][Patch] Pin that an expired request, a closed one or one for another card does not mark the friend as asked [test/domains/game/friends_holding_test.rb]
+- [x] [Review][Defer] The Trade button shows when every holder is already asked, and holders are computed on every missing-card view — deferred: low, fold into the next touch of the card detail
+- [x] [Review][Defer] A forged POST for an owned card, two concurrent POSTs and an unpublished edition are accepted by the controller — deferred: ProposeTrade is the real guard, verify there
+- [x] [Review][Defer] A private player's card page has no test that the button is absent — deferred: low
+
+**Rejected**
+- Nil player with a browse context raises: false, open_to_friends? returns false and the query returns an empty list.
+- Missing error keys: false, the refusal keys exist in en.yml.
+- Avatar, 44 px target, naming and plan hygiene: low or edits the plan.

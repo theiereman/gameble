@@ -175,7 +175,6 @@ Rails.application.routes.draw do
     # The phone's Social tab opens this menu; its Me tab the player's own profile.
     get "social" => "pages#social", as: :social
     get "me" => "own_profiles#show", as: :me
-    # The phone's fifth tab once lived here; its links lead to the Me page.
     get "more", to: redirect("/%{locale}/me", status: 301), as: :more
     get "legal" => "pages#legal", as: :legal
     get "credits" => "pages#credits", as: :credits

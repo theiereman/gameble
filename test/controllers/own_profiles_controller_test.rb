@@ -35,6 +35,17 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
 
   def showcase_slugs = css_select(".profile-showcase__slot > a.card-link").map { it["href"][%r{/cards/([^/]+)/}, 1] }
 
+  test "with no season published Me still links to the achievements and says there is no season" do
+    catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
+    sign_in(@player)
+
+    get me_path(locale: :en)
+
+    assert_response :success
+    assert_select ".profile__no-season"
+    assert_select "a.me-achievements__all[href='/en/achievements']"
+  end
+
   test "a visitor is sent to the landing in its locale, without an alert" do
     get me_path(locale: :fr)
 

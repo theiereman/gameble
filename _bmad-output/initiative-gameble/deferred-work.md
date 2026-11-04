@@ -531,3 +531,81 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-trade-updated-since-you-last-looked-plan.md`
   summary: The player data export does not list the trade-seen markers.
   evidence: `Game::ExportOf` exports feed reactions and the daily claims; `game_trade_views` rows hold only a timestamp per trade and the deletion dialog names them, so the export was left unchanged.
+
+## Deferred from: code review of story-a-header-that-fits-on-a-phone-plan (2026-11-04)
+
+- iOS rubber-band scroll at the page bottom may reveal the header, the header stays pinned after keyboard focus, and toasts sit at the header offset while it is hidden. Settle on a real iPhone.
+- The bank detail's countdown is rendered once and does not follow a bank change (low, cosmetic).
+- The collection screen showed the G button without a capsule counter; the build already recorded it and the screen list has grown since, so re-check on the iPhone pass.
+
+## Deferred from: code review of story-four-tabs-and-no-more-plan (2026-11-04)
+
+- Tab-current state for the pack and custom-set screens is not pinned by a test — deferred: low, needs fixtures with tokens; add to the phone tabs table on the next touch
+- Orphan pixel icons tab-hub and tab-collection may remain in the export script — deferred: check usage, then remove through the pixel export
+
+## Deferred from: code review of story-a-bottom-sheet-for-every-choice-plan (2026-11-04)
+
+- No flick dismissal: a short fast swipe down leaves the sheet open (distance only) — deferred: a behaviour choice for the author, settle on the iPhone pass
+- A pen pointer released outside the dialog mid-drag, or a press that ends on the scrim, may leave a drag or close the sheet — deferred: unverified, settle on a real device
+- Closing on Turbo cache, the Turbo restore of an open sheet and reduced-motion spring-back have no browser test — deferred: system tests are run once before release
+
+## Deferred from: code review of story-a-card-list-that-scrolls-without-end-plan (2026-11-04)
+
+- The card-art system test passes without the give-up behaviour; strengthen it to fail on the old code (no art drawn while away, queue released) — deferred: needs a browser run, do it with the system tests before release
+- The filter sheets' client glue (pastille counts, sheet status, cache restore) is covered only by system tests that bin/rails test skips — deferred: run them once in the main tree before release
+- Desktop loses the inline filters and no-JavaScript players lose filtering — deferred: a decision for the author, recorded with the pending approvals
+- A sheet has no done or clear control and shows no result count button — deferred: a UX choice for the author
+- The row may wrap in French with four counts at 390 px — deferred: check on the iPhone pass
+
+## Deferred from: code review of story-sets-that-open-on-your-goals-plan (2026-11-04)
+
+- The edition lookup behind the goal thumbnails scales with the missing cards of every goal — deferred: low until a goal on the Steam library or a very large set is slow
+- The last-opened mark is lost after returning from a goal's album — deferred: already recorded, goal sets left EN COURS
+- Nothing announces a successful Mark as goal and focus does not move to the new tile — deferred: accessibility polish, settle with the author
+
+## Deferred from: code review of story-open-every-capsule-from-one-thumb-plan (2026-11-04)
+
+- The hub's focus-on-sign-in lost its browser test and the daily-collect wiring (BankRefresh.dailyCollected) has no unit test — deferred: add a welcome-pending hub focus test and a BankRefresh vitest, then run the system tests once before release
+- Skip is ignored while the previous hand sinks away, and finishAnimations finishes every finite animation under the booster root — deferred: behaviour choices, settle on the iPhone pass
+- The opening request is sent before the retract, so a failure or disposal in between loses the answer — deferred: low odds, check on the iPhone pass
+- A bare locale origin with a query string lands on the hub instead of the capsule screen — deferred: low, rare sign-in origin
+
+## Deferred from: code review of story-an-empty-reserve-proposes-what-to-do-next-plan (2026-11-04)
+
+- Hooks fail as a whole when one query raises, and the frame can run for a non-empty reserve or a nil season — deferred: low odds today, isolate each hook if the panel grows
+- The panel's appearance is not announced and a failed fetch leaves a bare heading — deferred: accessibility and retry polish for the author
+- The weak no-hook-read test greps SQL log names — deferred: replace by a stubbed NextSteps when the file is next touched
+
+## Deferred from: code review of story-social-opens-on-trades-and-friends-plan (2026-11-04)
+
+- Live refresh of the Social sections is asserted only as attributes — deferred: one system test next to the Social badge test, run before release
+- Open trades and friends are uncapped on Social — deferred: add a see-all cap when a player has dozens
+- Keyboard focus ring on quiet trade rows under hover, the wrapped feed opener at 320 px and the screen-reader reading of the rarity badge — deferred: settle on the iPhone pass
+
+## Deferred from: code review of story-trade-from-a-missing-card-plan (2026-11-04)
+
+- The Trade button shows when every holder is already asked, and holders are computed on every missing-card view — deferred: low, fold into the next touch of the card detail
+- A forged POST for an owned card, two concurrent POSTs and an unpublished edition are accepted by the controller — deferred: ProposeTrade is the real guard, verify there
+- A private player's card page has no test that the button is absent — deferred: low
+
+## Deferred from: code review of story-a-bell-with-what-is-new-plan (2026-11-04)
+
+- The lasting-line removal streams are pinned only for the success case — deferred: add the failed-collect and other-reward negative assertions
+- Cache restore, morph and frame-missing reloads of the bell are asserted only as attribute strings — deferred: browser history system tests, run before release
+- A middle click marks nothing and a click on a failed navigation marks the line seen; bursts of signals reload the frame many times — deferred: minor, settle with the author
+- The counter never reaches zero while the daily or mission line stands — deferred: already an open question for the author
+
+## Deferred from: code review of story-a-trade-updated-since-you-last-looked-plan (2026-11-04)
+
+- The trade seen marker is missing from the player data export while the deletion text lists it — deferred: add it to the export or say so on the privacy page
+- A reconnecting trade-seen controller posts again and each post publishes an event; a failed post is ignored — deferred: low until noticed, publish only when the marker changes
+- An answer older than seven days leaves the bell unseen, against the commit title — deferred: the window is the plan's decision, confirm with the author
+- The trade_id foreign key has no index of its own — deferred: add with the next migration touching the table
+
+## Deferred from: code review of story-a-me-page-that-is-your-profile-edited-live-plan (2026-11-04)
+
+- The owner has no link to the public profile visitors see, since the desktop menu entry became My profile — deferred: a UX choice for the author
+- Me no longer opts out of the Turbo cache: a stale achievements badge and a dialog restored open after Back — deferred: already recorded, settle on the iPhone pass
+- A showcase removal with no Referer lands on the card page instead of Me — deferred: low, pass a Me fallback if reported
+- Naming still points at the removed Personalization page (partials, locale keys, routes) — deferred: a rename for the refactor sweep
+- Desktop layout of the Me page and the sheets' accessibility names were not checked — deferred: iPhone and desktop pass

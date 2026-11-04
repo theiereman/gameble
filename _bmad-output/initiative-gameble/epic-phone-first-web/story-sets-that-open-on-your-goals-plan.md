@@ -196,3 +196,19 @@ Work only in `/home/teyermann/projets/gameble/.claude/worktrees/agent-ad35a3254d
 **Verification:** `bin/ci` passed; the seven touched controller test files 143 runs, 0 failures; system `goals_test.rb` and `library_test.rb` 9 runs, 0 failures; `npm run test:js` 866 passed; `format:check`, `lint:css`, `check_planning_references`, `check_file_sizes`, `packwerk check`, `zeitwerk:check`, `i18n-tasks missing` pass.
 
 **Residual risks:** a Load more pressed on a page opened before the deploy shows Turbo's missing-content frame until reloaded; the conservative readings in `pending-approvals.md` still wait on the author.
+
+## Code Review
+
+### 2026-11-04 — 0 decision-needed, 1 patch, 3 defer, 5 rejected
+
+- [x] [Review][Patch] Pin that Load more pages past the goal sets with none returning, skipped or repeated [test/controllers/library_goal_suggestions_test.rb]
+- [x] [Review][Defer] The edition lookup behind the goal thumbnails scales with the missing cards of every goal — deferred: low until a goal on the Steam library or a very large set is slow
+- [x] [Review][Defer] The last-opened mark is lost after returning from a goal's album — deferred: already recorded, goal sets left EN COURS
+- [x] [Review][Defer] Nothing announces a successful Mark as goal and focus does not move to the new tile — deferred: accessibility polish, settle with the author
+
+**Rejected**
+- Gold frame excludes goal sets: by design, a plan note only.
+- Suggested set the operation then refuses, failure message missing, from=sets on other actions: low, same behaviour as the album path.
+- French colon: false, the narrow no-break space is already used.
+- Kinds outside the known list, negative missing counts, stale Load more link, empty group frame: low, unreachable today.
+- Absolute worktree paths in the plan, plan status: edits the plan.

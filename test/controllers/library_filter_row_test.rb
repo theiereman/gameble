@@ -4,11 +4,6 @@ require_relative "../support/game_sets"
 require_relative "../support/library_requests"
 require_relative "../support/steam_sign_in"
 
-# The card list's filter row: under the search, a pastille per group of
-# filters (goals, rarity, state, then set and genre under More), each opening
-# a bottom sheet that holds that group's chips, still fields of the one
-# filter form; each pastille writes how many of its chips are on. A public
-# profile's collection and a set album keep their folded FILTRES zone.
 class LibraryFilterRowTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include GameSets
@@ -106,8 +101,6 @@ class LibraryFilterRowTest < ActionDispatch::IntegrationTest
     add_goal(kind: "theme", key: "horror")
     sign_in(@player)
 
-    # The card list's twenty-two queries with a goal, as before the row: it
-    # reads the goals and the filters the page already holds.
     assert_request_queries(22) { get cards_path }
     assert_select "#{sheet(:goals)} .filter-chip--goal", 1
 

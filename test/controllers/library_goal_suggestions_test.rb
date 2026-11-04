@@ -94,6 +94,23 @@ class LibraryGoalSuggestionsTest < ActionDispatch::IntegrationTest
     assert_select "#goals .goal-suggestions, #goals .goals__list", false
   end
 
+  test "Load more pages past the goal sets: none comes back, none is skipped or repeated" do
+    keys = (1..8).map { "theme-#{it}" }
+    keys.each { |key| hold_all(@player, theme(key, 20).first(2)) }
+    add(kind: "theme", key: "theme-3")
+    sign_in(@player)
+
+    get library_in_progress_path(locale: :en), headers: { "Turbo-Frame" => "set-entry-in-progress" }
+    first_page = css_select("a.set-tile").map { it["href"] }
+    get library_in_progress_path(locale: :en, section: "theme", offset: 6), headers: { "Turbo-Frame" => "set-more-theme-6" }
+    second_page = css_select("a.set-tile").map { it["href"] }
+
+    assert_equal 6, first_page.size
+    assert_equal 1, second_page.size
+    assert_equal 7, (first_page + second_page).uniq.size
+    assert_not_includes first_page + second_page, "/en/library/theme/theme-3"
+  end
+
   test "EN COURS groups its sets by kind, the goal sets left out; a search keeps OBJECTIFS above its results" do
     roguelike = theme("roguelike", 12)
     horror = theme("horror", 10)

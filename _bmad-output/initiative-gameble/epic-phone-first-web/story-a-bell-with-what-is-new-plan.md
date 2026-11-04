@@ -287,3 +287,17 @@ deferred:
   - `bell_test.rb` and `me_page_test.rb`: 12 runs green, and the new test fails when the lasting rule is removed;
   - vitest 847, format, CSS lint, pixel `--check`, file sizes, planning references, packwerk and zeitwerk: all pass;
   - `bin/ci` with `PARALLEL_WORKERS=4`.
+
+## Code Review
+
+### 2026-11-04 — 0 decision-needed, 0 patch, 4 defer, 3 rejected
+
+- [x] [Review][Defer] The lasting-line removal streams are pinned only for the success case — deferred: add the failed-collect and other-reward negative assertions
+- [x] [Review][Defer] Cache restore, morph and frame-missing reloads of the bell are asserted only as attribute strings — deferred: browser history system tests, run before release
+- [x] [Review][Defer] A middle click marks nothing and a click on a failed navigation marks the line seen; bursts of signals reload the frame many times — deferred: minor, settle with the author
+- [x] [Review][Defer] The counter never reaches zero while the daily or mission line stands — deferred: already an open question for the author
+
+**Rejected**
+- Wording, plural, fr key order, CSS tokens and dead classes: low.
+- Extra GET per page on hidden phone drill-downs: already deferred by the build.
+- Plan counts and one flaky shell test mentioned in the plan: process notes, edits the plan.

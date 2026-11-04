@@ -111,3 +111,17 @@ Results (2026-11-03): `bin/rails test` 4265 runs, 0 failures; `npm run test:js` 
 - `bin/rails test test/system/capsule_flow_test.rb test/system/daily_bonus_test.rb test/system/hub_test.rb test/system/booster_screen_test.rb test/system/booster_reserves_test.rb` -- expected: pass
 - `npm run test:js && npm run format:check && npm run lint:css` -- expected: pass
 - `bin/ci`, `bin/rails zeitwerk:check`, `bundle exec packwerk check`, `script/check_file_sizes`, `script/check_planning_references`, `bundle exec i18n-tasks missing` -- expected: pass
+
+## Code Review
+
+### 2026-11-04 — 0 decision-needed, 0 patch, 4 defer, 3 rejected
+
+- [x] [Review][Defer] The hub's focus-on-sign-in lost its browser test and the daily-collect wiring (BankRefresh.dailyCollected) has no unit test — deferred: add a welcome-pending hub focus test and a BankRefresh vitest, then run the system tests once before release
+- [x] [Review][Defer] Skip is ignored while the previous hand sinks away, and finishAnimations finishes every finite animation under the booster root — deferred: behaviour choices, settle on the iPhone pass
+- [x] [Review][Defer] The opening request is sent before the retract, so a failure or disposal in between loses the answer — deferred: low odds, check on the iPhone pass
+- [x] [Review][Defer] A bare locale origin with a query string lands on the hub instead of the capsule screen — deferred: low, rare sign-in origin
+
+**Rejected**
+- Daily collected marker before bankRefresh exists: false, the marker only arrives through a stream after connect.
+- French button names in pending-approvals and deferred-work: low, quotes of interface labels.
+- Planning ids and plan hygiene, 400/500-line files at the limit, indirect landing logic, redirect_back guard: low or edits the plan.

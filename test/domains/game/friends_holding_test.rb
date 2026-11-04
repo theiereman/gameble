@@ -67,6 +67,24 @@ class Game::FriendsHoldingTest < ActiveSupport::TestCase
     assert_equal [ false, true ], holders.map(&:asked)
   end
 
+  test "an expired request, a closed one, or one for another card does not mark the friend as asked" do
+    hold(@lea, @portal.id, 2)
+    other = catalog_card_seasons(:common_card_one)
+    hold(@lea, other.id, 2)
+    Game::ProposeTrade.new.call(player: @player, recipient: @lea, offer: {}, request: { other.id => 1 }).value!
+    assert_equal [ false ], holders.map(&:asked)
+
+    trade = Game::ProposeTrade.new.call(player: @player, recipient: @lea, offer: {}, request: { @portal.id => 1 }).value!
+    trade = trade.respond_to?(:update_columns) ? trade : Game::Trade.order(:id).last
+    assert_equal [ true ], holders.map(&:asked)
+
+    trade.update_columns(expires_at: 1.day.ago)
+    assert_equal [ false ], holders.map(&:asked)
+
+    trade.update_columns(expires_at: 1.day.from_now, status: "declined")
+    assert_equal [ false ], holders.map(&:asked)
+  end
+
   test "a stranger who holds the card is not listed" do
     stranger = accounts_players(:banned)
     hold(stranger, @portal.id, 2)

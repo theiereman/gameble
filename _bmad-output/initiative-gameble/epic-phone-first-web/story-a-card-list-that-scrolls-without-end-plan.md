@@ -198,3 +198,18 @@ Work only in `/home/teyermann/projets/gameble/.claude/worktrees/agent-a5b588d90a
 **Verification:** `npm run test:js` 866 passed; `format:check`, `lint:css`, `script/check_file_sizes` and `script/check_planning_references` pass; `bin/ci` passed (4280 runs, 0 failures); `bin/rails zeitwerk:check`, `bundle exec packwerk check` and `bundle exec i18n-tasks missing` pass. System tests were not run, at the author's request. Measure (390x844, DPR 3, CPU 4x, 498 cards, visitor, median of 3), baseline / old code re-measured on a busier machine / after: art settled after a fling 15249 / 16554 / 3872 ms; first screen art 1238 / - / 1227 ms; fling 7305 / 7581 / 7419 ms; long tasks 2369 / 2916 / 2454 ms; back from card 400 at the same scroll 1140 / 1292 / 1248 ms; its screen's art 3936 / 4437 / 4538 ms (not improved); focus on card 400 every run.
 
 **Residual risks:** the row and sheets' browser flows are checked only by unrun system tests and one manual smoke run; the sheets rely on Turbo's `willRender`; without JavaScript the pastilles open nothing.
+
+## Code Review
+
+### 2026-11-04 — 0 decision-needed, 1 patch, 5 defer, 2 rejected
+
+- [x] [Review][Patch] Delete the explanatory comments [app/frontend/styles/collection-filter-row.css], [test/controllers/library_filter_row_test.rb]
+- [x] [Review][Defer] The card-art system test passes without the give-up behaviour; strengthen it to fail on the old code (no art drawn while away, queue released) — deferred: needs a browser run, do it with the system tests before release
+- [x] [Review][Defer] The filter sheets' client glue (pastille counts, sheet status, cache restore) is covered only by system tests that bin/rails test skips — deferred: run them once in the main tree before release
+- [x] [Review][Defer] Desktop loses the inline filters and no-JavaScript players lose filtering — deferred: a decision for the author, recorded with the pending approvals
+- [x] [Review][Defer] A sheet has no done or clear control and shows no result count button — deferred: a UX choice for the author
+- [x] [Review][Defer] The row may wrap in French with four counts at 390 px — deferred: check on the iPhone pass
+
+**Rejected**
+- Unhandled rejection of the card art draw, Turbo undefined at before-cache, stale sheet status after a failed frame, count drift after a set search: low, no reachable path shown.
+- Naming of pastille, duplicated test readers, absolute paths and one-off measure notes in the plan: low or edits the plan.

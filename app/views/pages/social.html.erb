@@ -14,7 +14,7 @@
         <%= pixel_icon("arrow-small-right", class: "social__more-arrow") %>
       <% end %>
     </header>
-    <% if open_trades.empty? && @recent_trades.empty? %>
+    <% if open_trades.empty? %>
       <p class="social__empty"><%= t(".trades.empty") %></p>
     <% end %>
     <% if open_trades.any? %>

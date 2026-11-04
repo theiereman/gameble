@@ -1,8 +1,6 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
 
-# The phone's four tabs, the Social home and the Me page behind two of them, and the
-# Sets | All cards switch.
 class PhoneTabsTest < ActionDispatch::IntegrationTest
   include SteamSignIn
 

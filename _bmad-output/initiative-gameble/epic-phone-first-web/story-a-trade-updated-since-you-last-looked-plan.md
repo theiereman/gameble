@@ -154,3 +154,16 @@ Environment for the implementer: this is a git worktree; never touch `/home/teye
 - The marker is written when the board renders in a browser that runs scripts; a failed POST leaves the line until the next render.
 - Repeated POSTs publish one event each (rare: the beacon renders only while unseen).
 - The table plus page-fired POST, the 7-day window and the accept/decline-only meaning are queued for the author in `pending-approvals.md`.
+
+## Code Review
+
+### 2026-11-04 — 0 decision-needed, 0 patch, 4 defer, 2 rejected
+
+- [x] [Review][Defer] The trade seen marker is missing from the player data export while the deletion text lists it — deferred: add it to the export or say so on the privacy page
+- [x] [Review][Defer] A reconnecting trade-seen controller posts again and each post publishes an event; a failed post is ignored — deferred: low until noticed, publish only when the marker changes
+- [x] [Review][Defer] An answer older than seven days leaves the bell unseen, against the commit title — deferred: the window is the plan's decision, confirm with the author
+- [x] [Review][Defer] The trade_id foreign key has no index of its own — deferred: add with the next migration touching the table
+
+**Rejected**
+- Unfriended or banned friend in the line, clock skew, open trade marker: low, unreachable or harmless.
+- Plan hygiene, session paths in the plan, unreachable 422 branch: low or edits the plan.

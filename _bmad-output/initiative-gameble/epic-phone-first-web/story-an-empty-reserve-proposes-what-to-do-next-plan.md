@@ -153,3 +153,15 @@ export const nextStepsShown = (state: BoosterState): boolean =>
 **Verification:** `bin/ci` (`PARALLEL_WORKERS=1`, own test database): every step green except one Rails failure, the French typography test (missing U+202F before "?" and ":" in the new French copy), fixed and rerun green; 3922 runs otherwise passing. `bin/setup` inside `bin/ci` renamed the lockfile's package to the worktree's name; restored. `npm run test:js` 831 passing; typecheck, prettier, stylelint, packwerk, zeitwerk, i18n-tasks, file sizes and planning references clean. System: `capsule_flow_test.rb` + `booster_reserves_test.rb` 5 runs green, `capsule_flow_test.rb` green again on a second run.
 
 **Residual risks:** on a desktop the panel sits below the left info column, taller than the empty stage, so it starts low on the page; `test/system/booster_test.rb` (oversize, not named) was not run; the hooks reading (rewards to claim, first trade suggestion, links to the tabs) awaits the author's confirmation.
+
+## Code Review
+
+### 2026-11-04 — 0 decision-needed, 0 patch, 3 defer, 2 rejected
+
+- [x] [Review][Defer] Hooks fail as a whole when one query raises, and the frame can run for a non-empty reserve or a nil season — deferred: low odds today, isolate each hook if the panel grows
+- [x] [Review][Defer] The panel's appearance is not announced and a failed fetch leaves a bare heading — deferred: accessibility and retry polish for the author
+- [x] [Review][Defer] The weak no-hook-read test greps SQL log names — deferred: replace by a stubbed NextSteps when the file is next touched
+
+**Rejected**
+- Daily line with a nil next bonus time: low, the claim always schedules the next one.
+- Closest-set selection duplicated with the board concern, CSS literals, duplicated test setup: low.

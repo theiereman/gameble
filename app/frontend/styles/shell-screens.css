@@ -137,7 +137,6 @@ html[data-sub-view-step] .main {
     height: var(--space-ticker-height-phone);
   }
 
-  /* A drill-down header on the phone is its back button alone. */
   .top-bar__title {
     position: absolute;
     width: 1px;

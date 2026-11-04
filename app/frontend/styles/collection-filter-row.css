@@ -1,6 +1,3 @@
-/* The card list's filter row: under the search, a pastille per group of
-   filters, each opening a sheet of that group's chips, the number of its
-   chips on written beside its name. */
 .filter-row {
   display: flex;
   flex-wrap: wrap;

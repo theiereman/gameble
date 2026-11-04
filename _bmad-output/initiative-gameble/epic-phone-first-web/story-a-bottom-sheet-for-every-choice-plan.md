@@ -100,3 +100,18 @@ deferred: []
 - `bin/rails test test/system/bottom_sheet_test.rb test/system/library_test.rb` -- expected: pass
 - `bin/ci && bin/rails zeitwerk:check && bundle exec packwerk check && bundle exec i18n-tasks missing` -- expected: pass
 - `script/check_file_sizes && script/check_planning_references` -- expected: pass
+
+## Code Review
+
+### 2026-11-04 — 0 decision-needed, 1 patch, 3 defer, 4 rejected
+
+- [x] [Review][Patch] Delete the explanatory block comments [app/frontend/styles/bottom-sheet.css]
+- [x] [Review][Defer] No flick dismissal: a short fast swipe down leaves the sheet open (distance only) — deferred: a behaviour choice for the author, settle on the iPhone pass
+- [x] [Review][Defer] A pen pointer released outside the dialog mid-drag, or a press that ends on the scrim, may leave a drag or close the sheet — deferred: unverified, settle on a real device
+- [x] [Review][Defer] Closing on Turbo cache, the Turbo restore of an open sheet and reduced-motion spring-back have no browser test — deferred: system tests are run once before release
+
+**Rejected**
+- Quick-filter findings (current mark, goals list, state chip, search dropped): the quick-filter sheet was retired by the card list story.
+- No-JavaScript opener: already deferred with the filter row.
+- Mouse drag ignored: intended, desktop closes by button, scrim or Escape.
+- Build-process notes (status, lenses_ran, unrun suites), wording of the plan, fr.yml key order, FOCUSABLE selector: low or edits the plan.

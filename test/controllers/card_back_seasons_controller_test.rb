@@ -42,6 +42,19 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
+  test "an active back worn with no season mark stamps none, even once earned in two seasons" do
+    reach(@first)
+    reach(@second, reached_by: "allocation")
+    patch personalization_back_path(locale: :en), params: { back: BACK }
+    Game::PlayerState.where(player_id: @player.id).update_all(active_card_back_season: nil)
+
+    get me_path(locale: :en)
+
+    assert_nil stored.last
+    assert_select ".back-picker__season[aria-pressed=true]", false
+    assert_select ".back-picker__stamp:not([hidden])", false
+  end
+
   test "choosing another season of the active back changes the mark" do
     reach(@first)
     reach(@second, reached_by: "allocation")

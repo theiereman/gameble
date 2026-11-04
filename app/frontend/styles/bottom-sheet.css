@@ -1,6 +1,3 @@
-/* The bottom sheet: a modal that keeps the dialog's look, its body
-   scrolling under a fixed head. A finger on the grip pulls it down by
-   `--sheet-drag`; let go short of the line, it springs back. */
 .bottom-sheet {
   translate: 0 var(--sheet-drag, 0);
   transition: translate 180ms var(--ease-out);

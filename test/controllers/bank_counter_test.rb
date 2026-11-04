@@ -30,4 +30,27 @@ class BankCounterTest < ActionDispatch::IntegrationTest
     assert_select "header.top-bar--top-level", false
     assert_select "a.top-bar__phone-home", false
   end
+
+  test "the social screen carries the top-level header" do
+    sign_in(accounts_players(:player))
+
+    get social_path(locale: :en)
+
+    assert_select "header.top-bar--top-level"
+  end
+
+  test "a trade sub-screen that offers a way back drops the top-level header" do
+    player = accounts_players(:player)
+    sign_in(player)
+
+    get new_trade_path(locale: :en)
+
+    assert_select "header.top-bar--top-level", false
+  end
+
+  test "a visitor gets no top-level header" do
+    get home_path(locale: :en)
+
+    assert_select "header.top-bar--top-level", false
+  end
 end

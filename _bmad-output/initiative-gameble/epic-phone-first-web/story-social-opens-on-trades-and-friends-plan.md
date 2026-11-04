@@ -149,3 +149,17 @@ Do not run any system test (the author asked); write and update them, and record
 - **Review:** 5 findings; 4 patched (medium 3, low 1), 1 low rejected (hover outranking focus on a quiet row, rare and adds a branch); 2 items deferred (pre-existing trade-row focus ring, pre-existing flaky back-office roadmap test). Follow-up review recommended: false (no high patched; the medium patches are test hygiene and a removed `outline: none`, each verified by reading the patched file).
 - **Verification:** the plan's Rails test set 241 runs, 0 failures; `npm run test:js` 854 passed; `format:check`, `lint:css`, `zeitwerk:check`, `packwerk check`, `i18n-tasks missing`, `check_file_sizes`, `check_planning_references` pass; `bin/ci` passed every step (4296 Rails runs, 0 failures). After the review patches (CSS and system tests only): `format:check`, `lint:css`, rubocop, file sizes and planning references pass again. No system test was run, at the author's request.
 - **Residual risks:** the system tests written or changed here (`social_test`, `feed_test`, `trades_test`, `live_updates_test`) have never run; the Social page's two live-refresh sections are untested in a browser; the phone layout of the Social page is unverified on a device.
+
+## Code Review
+
+### 2026-11-04 — 0 decision-needed, 1 patch, 3 defer, 3 rejected
+
+- [x] [Review][Patch] Show the no-trade line whenever nothing is in progress, even with recent ended trades [app/views/pages/social.html.erb]
+- [x] [Review][Defer] Live refresh of the Social sections is asserted only as attributes — deferred: one system test next to the Social badge test, run before release
+- [x] [Review][Defer] Open trades and friends are uncapped on Social — deferred: add a see-all cap when a player has dozens
+- [x] [Review][Defer] Keyboard focus ring on quiet trade rows under hover, the wrapped feed opener at 320 px and the screen-reader reading of the rarity badge — deferred: settle on the iPhone pass
+
+**Rejected**
+- Unknown open state or unknown rarity raises: low, no such state or rarity exists today.
+- Nil current goal on Social: low, the hub shares the same guard-free partial.
+- Default avatar on rows, comment inconsistency, plan paths and credentials in the plan: low or edits the plan.

@@ -157,3 +157,20 @@ Run every Rails command from this worktree with `DATABASE_URL=postgres://postgre
 
 **Residual risks:** desktop-width layout of the band openers was not looked at, only 390px; the full system suite was not run; the draft branch `profile-settings-rework` edits the same views and controllers with a different shape (own profile at `/brothers/:token` with dialogs, name moved out of settings), so merging both will conflict.
 
+## Code Review
+
+### 2026-11-04 — 0 decision-needed, 2 patch, 5 defer, 4 rejected
+
+- [x] [Review][Patch] Pin that Me with no published season still links to the achievements and shows the no-season line [test/controllers/own_profiles_controller_test.rb]
+- [x] [Review][Patch] Pin that a back worn with no season mark stamps none even earned in two seasons [test/controllers/card_back_seasons_controller_test.rb]
+- [x] [Review][Defer] The owner has no link to the public profile visitors see, since the desktop menu entry became My profile — deferred: a UX choice for the author
+- [x] [Review][Defer] Me no longer opts out of the Turbo cache: a stale achievements badge and a dialog restored open after Back — deferred: already recorded, settle on the iPhone pass
+- [x] [Review][Defer] A showcase removal with no Referer lands on the card page instead of Me — deferred: low, pass a Me fallback if reported
+- [x] [Review][Defer] Naming still points at the removed Personalization page (partials, locale keys, routes) — deferred: a rename for the refactor sweep
+- [x] [Review][Defer] Desktop layout of the Me page and the sheets' accessibility names were not checked — deferred: iPhone and desktop pass
+
+**Rejected**
+- Old from=personalization links lose their back button: low, no live link uses it.
+- The redirect from /personalization drops query strings: by design.
+- A nil worn back raises: low, the shelf always has an active row.
+- Magic numbers in me.css, duplicate strings, plan hygiene, session paths in the plan: low or edits the plan.

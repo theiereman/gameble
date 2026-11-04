@@ -85,3 +85,20 @@ Write the tests but do not run the suites; the orchestrator runs them once in th
 - `npm run test:js && npm run format:check && npm run lint:css` -- expected: pass
 - `script/check_file_sizes && script/check_planning_references && node script/pixel_art/export.mjs --check && bundle exec i18n-tasks missing` -- expected: pass
 - system tests touching the tab bar -- expected: pass
+
+## Code Review
+
+### 2026-11-04 — 0 decision-needed, 4 patch, 2 defer, 4 rejected
+
+- [x] [Review][Patch] Pin the robots.txt disallow of the new Me and Social screens [test/controllers/search_engines_test.rb]
+- [x] [Review][Patch] Pin the Me tab badge update in the reward claim stream [test/controllers/achievement_claims_controller_test.rb]
+- [x] [Review][Patch] Pin that a visitor on How it works gets no phone back link [test/controllers/how_it_works_test.rb]
+- [x] [Review][Patch] Delete the comments that narrate history or restate names [config/routes.rb], [app/frontend/styles/shell-screens.css], [test/integration/phone_tabs_test.rb]
+- [x] [Review][Defer] Tab-current state for the pack and custom-set screens is not pinned by a test — deferred: low, needs fixtures with tokens; add to the phone tabs table on the next touch
+- [x] [Review][Defer] Orphan pixel icons tab-hub and tab-collection may remain in the export script — deferred: check usage, then remove through the pixel export
+
+**Rejected**
+- Header title hidden too broadly: false, top-level screens keep the title as a visually hidden heading by design.
+- Trades without phone_back, other drill-downs without a current tab: low, no such screen found.
+- Redirect target hard-coded, two-step redirect for visitors: low, already rejected in the plan.
+- Badge collision at 360 px, i18n unused keys, switch focus styling, plan file inconsistencies: low or edits the plan.

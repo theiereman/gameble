@@ -87,3 +87,26 @@ Write the tests but do not run the suites; the orchestrator runs them once in th
 
 **Manual checks (if no CLI):**
 - 390x844 capture of hub, collection, trades: reduced header, no overlap.
+
+## Code Review
+
+### 2026-11-04 — 0 decision-needed, 2 patch, 3 defer, 17 rejected
+
+- [x] [Review][Patch] The top-level screen predicate is untested beyond the hub and settings: add cases for trades, a screen setting `phone_back`, a signed-out visit and a back-office page [test/controllers/bank_counter_test.rb]
+- [x] [Review][Patch] Nothing pins the live update of the merged counter after `gameble:bank-changed` (both counts, button and detail, standard and special): add a vitest for the reserve-chip controller or extend the phone header system test [app/frontend/controllers/reserve_chip_controller.ts]
+- [x] [Review][Patch] Behaviour comments break the repo policy: delete them in [app/frontend/lib/top_bar_scroll.ts], [app/frontend/styles/shell-header-phone.css:1] and the class comment of [test/system/phone_header_test.rb]
+- [x] [Review][Defer] iOS rubber-band scroll at the page bottom may reveal the header; the header may stay pinned after keyboard focus (`:focus-visible` hold); toasts sit at the header offset while it is hidden — deferred: settle on a real iPhone (the iPhone ticket)
+- [x] [Review][Defer] The bank detail's countdown is rendered once and does not follow a bank change — deferred: low, cosmetic, only the counts are live
+- [x] [Review][Defer] The collection screen showed the G button without a counter — deferred: already recorded by the build; the screen list has since grown, re-check on the iPhone pass
+
+**Rejected**
+- Ticker offset removed: false, `shell-header-phone.css` re-adds the ticker and version offsets.
+- Duplicate `#bank-detail` id and nested `reserve-chip` controller: false, `_top_bar` renders either the reserve chip or the packs chip, never both, and the inner controller owns its own targets and listens to the bank event.
+- Top-level screens missing (More, Me, Social): false, the predicate now lists own profile, social and library screens.
+- `trades` matches every action; `phone_previous` without `phone_back`: false, `phone_back` is set on the trade sub-screens and `phone_previous` only on set pages, outside the list.
+- Font tokens raised without overflow check: low, covered by the iPhone ticket and the 390 px capture.
+- Unsupported `:popover-open`/`:focus-visible` throws: low, the popover API is required anyway.
+- Resize across the breakpoint leaves `data-hidden`: low, no real use.
+- Plan inconsistencies (unchecked tasks, "Do not commit"), deferred-work entry shape: edits the plan or negligible.
+- `bank-counter__icon` without a rule, popover anchoring, weakened `assert_signed_in`, missing tests for empty reserve/fr/logged-out: low, not worth added complexity.
+- Intent Alignment divergences: descriptive only, covered by the deferrals above.
