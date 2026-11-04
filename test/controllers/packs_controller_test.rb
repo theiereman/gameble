@@ -17,7 +17,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
   # Menu 01 of the hub: the link to the booster screen.
   def open_item
-    css_select(".hub-menu .menu-item[aria-keyshortcuts='1']").sole
+    css_select("#hub-menu-booster .menu-item").sole
   end
 
   def reserve_badge(kind = :standard)

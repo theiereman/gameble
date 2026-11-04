@@ -262,7 +262,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select ".hub-menu .menu-item[aria-keyshortcuts='1']" do
+    assert_select "#hub-menu-booster .menu-item" do
       assert_select ".menu-item__badge--standard", "2"
       assert_select ".menu-item__badge--special", "2"
       assert_select ".visually-hidden", text: "2 special capsules"
@@ -290,8 +290,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge--standard", false
-    assert_select ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge--special", "1"
+    assert_select "#hub-menu-booster .menu-item .menu-item__badge--standard", false
+    assert_select "#hub-menu-booster .menu-item .menu-item__badge--special", "1"
     assert_select "div#packs-chip .packs-chip__special-count", "1"
     assert_select "div#packs-chip .packs-chip__count", "0"
   end
