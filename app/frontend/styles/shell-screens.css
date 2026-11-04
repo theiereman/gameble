@@ -269,12 +269,14 @@ html[data-sub-view-step] .main {
 /* ---- Reduced motion: the player's setting (html[data-motion=reduced],
    motion.ts) or, unless the setting asks for full motion
    (html[data-motion=full]), the system's preference stops the star
-   twinkle, the screen slides, the toast rise, the wordmark's sweep and
-   the ticker, which shows its latest items still; the LIVE marker stays
-   lit. ---- */
+   field's drift, twinkle and glints, the screen slides, the toast rise,
+   the wordmark's sweep and the ticker, which shows its latest items
+   still; the LIVE marker stays lit. ---- */
 
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-motion="full"]) .atmosphere__twinkle > i {
+  html:not([data-motion="full"]) :is(.atmosphere__stars, .atmosphere__twinkle, .atmosphere__twinkle > i),
+  html:not([data-motion="full"]) .atmosphere__twinkle > i::before,
+  html:not([data-motion="full"]) .atmosphere__twinkle > i::after {
     animation: none;
   }
 
@@ -312,7 +314,9 @@ html[data-sub-view-step] .main {
   }
 }
 
-html[data-motion="reduced"] .atmosphere__twinkle > i {
+html[data-motion="reduced"] :is(.atmosphere__stars, .atmosphere__twinkle, .atmosphere__twinkle > i),
+html[data-motion="reduced"] .atmosphere__twinkle > i::before,
+html[data-motion="reduced"] .atmosphere__twinkle > i::after {
   animation: none;
 }
 

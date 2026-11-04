@@ -147,21 +147,27 @@ turbo-cable-stream-source {
   inset: 0;
 }
 
-/* A still field: it does not move at a screen change. */
+/* Two layers drift up slowly and smoothly, the twinkling stars at half the
+   speed of the field; a whole tile later the pattern lines up again, so the
+   loop has no seam. Only translate and opacity move, on the compositor. */
 .atmosphere__stars {
-  bottom: calc(-1 * var(--starfield-tile));
+  bottom: calc(-2 * var(--starfield-tile));
   background: url("../images/pixel/starfield.svg") repeat;
+  animation: starfield-drift 240s linear infinite;
+  will-change: translate;
 }
 
 body:has(.landing) .atmosphere__stars {
   transform: translate3d(0, calc(-1 * mod(var(--landing-drift-near, 0px), var(--starfield-tile))), 0);
 }
 
-/* A dozen stars twinkle softly: a slow stepped fade, periods of 3 s or more
-   (below blink-max-rate), each star on its own delay. */
+/* A dozen stars, each repeated down the screen one tile apart, stay lit and
+   now and then fade out and back in, each on its own period and delay. */
 .atmosphere__twinkle {
   position: absolute;
   inset: 0;
+  animation: starfield-drift 480s linear infinite;
+  will-change: translate;
 }
 
 body:has(.landing) .atmosphere__twinkle {
@@ -174,115 +180,211 @@ body:has(.landing) .atmosphere__twinkle {
   top: var(--y);
   width: var(--size, 2px);
   height: var(--size, 2px);
-  background: #c7d5e0;
-  opacity: 0.1;
-  animation: star-twinkle var(--period, 4s) steps(6, end) var(--delay, 0s) infinite alternate;
+  color: #c7d5e0;
+  background: currentColor;
+  box-shadow:
+    0 var(--starfield-tile) currentColor,
+    0 calc(2 * var(--starfield-tile)) currentColor,
+    0 calc(3 * var(--starfield-tile)) currentColor,
+    0 calc(4 * var(--starfield-tile)) currentColor,
+    0 calc(5 * var(--starfield-tile)) currentColor;
+  opacity: 0.75;
+  animation: star-twinkle var(--period, 10s) ease-in-out var(--delay, 0s) infinite;
+}
+
+/* The four larger stars flare instead: now and then they brighten and a
+   small cross of light with a soft halo opens around them. */
+.atmosphere__twinkle > i:nth-child(3n + 2) {
+  --period-flare: calc(3 * var(--period, 10s));
+
+  animation-name: star-flare;
+  animation-duration: var(--period-flare);
+}
+
+.atmosphere__twinkle > i:nth-child(3n + 2)::before,
+.atmosphere__twinkle > i:nth-child(3n + 2)::after {
+  --glint-halo: rgb(199 213 224 / 25%);
+
+  position: absolute;
+  content: "";
+  background: #eef4f8;
+  box-shadow:
+    0 0 4px 1px var(--glint-halo),
+    0 var(--starfield-tile) #eef4f8,
+    0 var(--starfield-tile) 4px 1px var(--glint-halo),
+    0 calc(2 * var(--starfield-tile)) #eef4f8,
+    0 calc(2 * var(--starfield-tile)) 4px 1px var(--glint-halo),
+    0 calc(3 * var(--starfield-tile)) #eef4f8,
+    0 calc(3 * var(--starfield-tile)) 4px 1px var(--glint-halo),
+    0 calc(4 * var(--starfield-tile)) #eef4f8,
+    0 calc(4 * var(--starfield-tile)) 4px 1px var(--glint-halo),
+    0 calc(5 * var(--starfield-tile)) #eef4f8,
+    0 calc(5 * var(--starfield-tile)) 4px 1px var(--glint-halo);
+  opacity: 0;
+  animation: star-glint var(--period-flare) ease-in-out var(--delay, 0s) infinite;
+}
+
+.atmosphere__twinkle > i:nth-child(3n + 2)::before {
+  top: calc(50% - 1px);
+  left: calc(50% - 5px);
+  width: 10px;
+  height: 2px;
+}
+
+.atmosphere__twinkle > i:nth-child(3n + 2)::after {
+  top: calc(50% - 5px);
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 10px;
 }
 
 /* Places (x y), sizes, delays and periods of the twelve. */
 .atmosphere__twinkle > i:nth-child(1) {
   --x: 8%;
-  --y: 12%;
+  --y: 58px;
   --delay: 0s;
-  --period: 4s;
+  --period: 9s;
 }
 
 .atmosphere__twinkle > i:nth-child(2) {
   --x: 21%;
-  --y: 64%;
+  --y: 308px;
   --size: 4px;
-  --delay: 2s;
-  --period: 5s;
+  --delay: 3s;
+  --period: 11s;
 }
 
 .atmosphere__twinkle > i:nth-child(3) {
   --x: 33%;
-  --y: 28%;
-  --delay: 4s;
-  --period: 3s;
+  --y: 134px;
+  --delay: 6s;
+  --period: 8s;
 }
 
 .atmosphere__twinkle > i:nth-child(4) {
   --x: 47%;
-  --y: 82%;
+  --y: 394px;
   --delay: 1s;
-  --period: 6s;
+  --period: 12s;
 }
 
 .atmosphere__twinkle > i:nth-child(5) {
   --x: 58%;
-  --y: 9%;
+  --y: 44px;
   --size: 4px;
-  --delay: 5s;
-  --period: 4s;
+  --delay: 7s;
+  --period: 10s;
 }
 
 .atmosphere__twinkle > i:nth-child(6) {
   --x: 66%;
-  --y: 47%;
-  --delay: 3s;
-  --period: 5s;
+  --y: 226px;
+  --delay: 4s;
+  --period: 9s;
 }
 
 .atmosphere__twinkle > i:nth-child(7) {
   --x: 74%;
-  --y: 71%;
-  --delay: 0s;
-  --period: 3s;
+  --y: 340px;
+  --delay: 2s;
+  --period: 11s;
 }
 
 .atmosphere__twinkle > i:nth-child(8) {
   --x: 83%;
-  --y: 22%;
+  --y: 106px;
   --size: 4px;
-  --delay: 6s;
-  --period: 6s;
+  --delay: 8s;
+  --period: 12s;
 }
 
 .atmosphere__twinkle > i:nth-child(9) {
   --x: 91%;
-  --y: 55%;
-  --delay: 2s;
-  --period: 4s;
+  --y: 264px;
+  --delay: 5s;
+  --period: 10s;
 }
 
 .atmosphere__twinkle > i:nth-child(10) {
   --x: 14%;
-  --y: 88%;
-  --delay: 4s;
-  --period: 5s;
+  --y: 422px;
+  --delay: 9s;
+  --period: 8s;
 }
 
 .atmosphere__twinkle > i:nth-child(11) {
   --x: 39%;
-  --y: 52%;
+  --y: 250px;
   --size: 4px;
   --delay: 1s;
-  --period: 3s;
+  --period: 11s;
 }
 
 .atmosphere__twinkle > i:nth-child(12) {
   --x: 96%;
-  --y: 91%;
-  --delay: 5s;
-  --period: 6s;
+  --y: 436px;
+  --delay: 6s;
+  --period: 9s;
 }
 
 /* At most six infinite animations show at once on a phone view, the
-   booster's own among them, so only three stars twinkle there. */
+   booster's own among them, so there only the field drifts and two stars
+   twinkle, without a glint. */
 @media (max-width: 719px) {
-  .atmosphere__twinkle > i:nth-child(n + 4) {
+  .atmosphere__twinkle {
+    animation: none;
+  }
+
+  .atmosphere__twinkle > i:nth-child(n + 3) {
+    display: none;
+  }
+
+  .atmosphere__twinkle > i::before,
+  .atmosphere__twinkle > i::after {
     display: none;
   }
 }
 
+@keyframes starfield-drift {
+  to {
+    translate: 0 calc(-1 * var(--starfield-tile));
+  }
+}
+
 @keyframes star-twinkle {
-  from {
-    opacity: 0.1;
+  0%,
+  76%,
+  100% {
+    opacity: 0.75;
   }
 
-  to {
-    opacity: 0.7;
+  88% {
+    opacity: 0.05;
+  }
+}
+
+@keyframes star-flare {
+  0%,
+  86%,
+  100% {
+    opacity: 0.75;
+  }
+
+  93% {
+    opacity: 0.95;
+  }
+}
+
+@keyframes star-glint {
+  0%,
+  87%,
+  99%,
+  100% {
+    opacity: 0;
+  }
+
+  93% {
+    opacity: 0.5;
   }
 }
 

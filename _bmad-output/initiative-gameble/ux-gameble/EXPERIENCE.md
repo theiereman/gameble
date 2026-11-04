@@ -550,7 +550,7 @@ Movement is fluid at 60fps (transforms and opacity only; continuous loops never 
 | Moment | Duration | What happens |
 |---|---|---|
 | App start | 340ms, once per session | A brief power-on brightening of the screen (overshoot capped at 1.1). |
-| Screen change | about 300ms | The old screen slides 32px away and fades (170ms); the new one slides in from 48px (260ms, 40ms later); the star field does not move (it only twinkles, a few stars at a time). Panels lock into place with a short overshoot, staggered over 400ms at most. |
+| Screen change | about 300ms | The old screen slides 32px away and fades (170ms); the new one slides in from 48px (260ms, 40ms later); the star field keeps its slow ambient drift and does not react to the change. Panels lock into place with a short overshoot, staggered over 400ms at most. |
 | Phone sub-view | 260ms in, 200ms out | Slides over its screen. |
 | Phone sheet | 240ms | Rises from 60px. |
 | Canister at rest | loop | Breathes 2px over 6s; a light band sweeps across it; rays turn slowly behind it. |
