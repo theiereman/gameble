@@ -18,6 +18,8 @@ class ApplicationController < ActionController::Base
 
   PRESENCE_MARK = :seen_at
 
+  CLOSED_ANNOUNCEMENT_COOKIE = :closed_announcement
+
   helper_method :current_player, :forced_motion, :motion_reduced?
 
   def self.throttle_player(to:, only:, path:, alert:, within: 1.minute)
@@ -92,6 +94,10 @@ class ApplicationController < ActionController::Base
       else
         cookies[MOTION_COOKIE] = { value: FORCED_MOTIONS.key(setting), expires: 1.year.from_now, httponly: true, same_site: :lax }
       end
+    end
+
+    def write_closed_announcement_cookie(token)
+      cookies[CLOSED_ANNOUNCEMENT_COOKIE] = { value: token, expires: 1.year.from_now, httponly: true, same_site: :lax }
     end
 
     def set_sentry_user

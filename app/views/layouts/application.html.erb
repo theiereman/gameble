@@ -7,6 +7,7 @@
   <body class="<%= class_names("is-back-office": back_office_page?, "is-public-page": content_for?(:public_page)) %>">
     <%= render "shell/atmosphere" unless back_office_page? %>
     <%= render "shell/top_bar" %>
+    <%= render "shell/announcement" %>
 
     <main id="main" class="main">
       <%= yield %>

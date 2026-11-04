@@ -107,6 +107,9 @@ Rails.application.routes.draw do
     resource :daily_bonus, path: "daily-bonus", only: :create
     post "goal-rewards/:week" => "goal_rewards#create", as: :goal_reward, constraints: { week: /\d{4}-\d{2}-\d{2}/ }
     resource :welcome, only: :destroy
+    # Closing the red announcement banner: remembered for the player, or in a cookie for a visitor.
+    post "announcements/:token/dismissal" => "announcement_dismissals#create", as: :announcement_dismissal,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # The screen shown once before the hub after a season is published; its
     # POST receives the allocation if pending and marks it seen.
     resource :season_allocation, path: "season-allocation", only: %i[show create]
@@ -213,6 +216,14 @@ Rails.application.routes.draw do
         constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
         post :attach, on: :collection
         post :dismiss, on: :collection
+      end
+
+      # The announcements shown to every player on a red banner, administrators
+      # only: written in both languages, at most one shown at a time.
+      resources :announcements, param: :token, only: %i[index create update],
+        constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
+        post :publish, on: :member
+        post :withdraw, on: :member
       end
 
       # The card preview, both renderers side by side, administrators only.

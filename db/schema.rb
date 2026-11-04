@@ -10,9 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_04_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "accounts_announcement_dismissals", force: :cascade do |t|
+    t.bigint "announcement_id", null: false
+    t.bigint "player_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["announcement_id", "player_id"], name: "index_accounts_announcement_dismissals_uniqueness", unique: true
+    t.index ["player_id"], name: "index_accounts_announcement_dismissals_on_player_id"
+  end
+
+  create_table "accounts_announcements", force: :cascade do |t|
+    t.string "token", null: false
+    t.text "message_fr", null: false
+    t.text "message_en", null: false
+    t.boolean "shown", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shown"], name: "index_accounts_announcements_one_shown", unique: true, where: "shown"
+    t.index ["token"], name: "index_accounts_announcements_on_token", unique: true
+    t.check_constraint "char_length(message_fr) >= 1 AND char_length(message_fr) <= 280 AND char_length(message_en) >= 1 AND char_length(message_en) <= 280", name: "accounts_announcements_message_length_check"
+  end
 
   create_table "accounts_data_exports", force: :cascade do |t|
     t.bigint "player_id", null: false
@@ -708,6 +728,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_04_120000) do
     t.index ["tagid"], name: "index_steam_tags_on_tagid", unique: true
   end
 
+  add_foreign_key "accounts_announcement_dismissals", "accounts_announcements", column: "announcement_id", on_delete: :cascade
+  add_foreign_key "accounts_announcement_dismissals", "accounts_players", column: "player_id"
   add_foreign_key "accounts_data_exports", "accounts_players", column: "player_id"
   add_foreign_key "accounts_identities", "accounts_players", column: "player_id"
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "player_id"

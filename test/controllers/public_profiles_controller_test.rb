@@ -276,15 +276,15 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     # Owner by token, published season; the album: its set, members and
     # tiers, the owner's editions, the page's card views; the themes' names.
-    assert_request_queries(8) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
+    assert_request_queries(9) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
-    assert_request_queries(8) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg", rarity: [ "common" ], q: "seed") }
+    assert_request_queries(9) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg", rarity: [ "common" ], q: "seed") }
     assert_response :success
 
     sign_in(accounts_players(:moderator))
     # The same, the viewer's lookup, the top bar's four and the trades and
     # invitations waiting.
-    assert_request_queries(16) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
+    assert_request_queries(17) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
   end
 
@@ -308,10 +308,10 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "an unknown token shows the unavailable page with a 404, after one lookup" do
+  test "an unknown token shows the unavailable page with a 404, after one lookup and the announcement banner's" do
     publish_sets_draft
 
-    assert_request_queries(1) { get brother_path(locale: :en, token: "A" * 24) }
+    assert_request_queries(2) { get brother_path(locale: :en, token: "A" * 24) }
 
     assert_response :not_found
     assert_select "title", "Profile not available"
@@ -716,14 +716,14 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # activity, the owner's started sets, those sets, their cards and the
     # faces of those shown; the themes' names; the owner's game set goals;
     # the owner's earned titles and their chosen one.
-    assert_request_queries(16) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(17) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
     assert_select ".profile-sets .set-tile", minimum: 1
 
     hold_started_sets(season)
     open_packs(season, 3)
     %w[first_epic first_trade boosters_10 first_repost].each { unlock(it, 1.hour.ago) }
-    assert_request_queries(16) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(17) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-sets .set-tile", 5
     assert_select ".profile-achievements .achievement", 4
 
@@ -731,18 +731,18 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # The same, the viewer's lookup and the top bar's four (reserve count,
     # next pack, copies per tier, rarity legend), the tab bar's trades and
     # invitations waiting, and the viewer's friendship and invitations with the owner.
-    assert_request_queries(26) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(27) { get brother_path(locale: :en, token: @owner.token) }
 
     # The chosen cards' views, however many.
     held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)
     held.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
-    assert_request_queries(27) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(28) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase .card", held.size
     assert_response :success
 
     # The owner's remove crosses cost nothing more.
     sign_in(@owner)
-    assert_request_queries(25) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(26) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase__remove", held.size
   end
 

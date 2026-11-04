@@ -101,11 +101,11 @@ class LibraryFilterRowTest < ActionDispatch::IntegrationTest
     add_goal(kind: "theme", key: "horror")
     sign_in(@player)
 
-    assert_request_queries(22) { get cards_path }
+    assert_request_queries(23) { get cards_path }
     assert_select "#{sheet(:goals)} .filter-chip--goal", 1
 
     delete session_path(locale: :en)
-    assert_request_queries(8) { get cards_path }
+    assert_request_queries(9) { get cards_path }
     assert_select "#{sheet(:rarity)} .filter-chip", Catalog::Rarity::TIERS.size
   end
 end
