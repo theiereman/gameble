@@ -144,12 +144,38 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     get trade_path(token: waiting.token, locale: :fr)
     assert_select ".trade-side--own .trade-card__quantity:not(.trade-card__quantity--all)", text: /×2\/3/
     assert_select ".trade-side--own .trade-card__quantity--all", text: /×1\/1/
-    assert_select ".trade-side--friend .trade-card__quantity:not(.trade-card__quantity--all)", text: /×1\/2/
+    assert_select ".trade-side--friend .trade-card__quantity", count: 0
+    assert_select ".trade-side--friend .trade-card__new", text: "Nouveau"
 
     all_copies = propose(@alice, @carol, offer: { @portal => 3 }, request: { @depths => 1 })
     get trade_path(token: all_copies.token, locale: :en)
     assert_select ".trade-side--own .trade-card__quantity--all", text: /×3\/3/
-    assert_select ".trade-side--friend .trade-card__quantity--all", text: /×1\/1/
+    assert_select ".trade-side--friend .trade-card__quantity--all", count: 0
+  end
+
+  test "a card of an open trade links to its detail, which links back to the trade" do
+    sign_in @alice
+    trade = propose(@bob, @alice, offer: { @depths => 1 }, request: { @soldier => 1 })
+
+    get trade_path(token: trade.token, locale: :en)
+    link = css_select(".trade-side--friend a.card-link").first
+    assert_includes link["href"], "trade=#{trade.token}"
+
+    get link["href"]
+    assert_response :success
+    assert_select "a.top-bar__phone-back[href=?]", trade_path(token: trade.token, locale: :en), text: "Trade"
+  end
+
+  test "the cards the friend gives say whether the player already owns them instead of showing the friend's stock" do
+    sign_in @alice
+    hold(@bob, @portal, 1)
+
+    trade = propose(@bob, @alice, offer: { @depths => 1, @portal => 1 }, request: { @soldier => 1 })
+    get trade_path(token: trade.token, locale: :en)
+
+    assert_select ".trade-side--friend .trade-card__new:not(.trade-card__owned)", text: "New", count: 1
+    assert_select ".trade-side--friend .trade-card__owned", text: "Owned ×3", count: 1
+    assert_select ".trade-side--friend .trade-card__quantity", text: %r{/}, count: 0
   end
 
   test "the proposer sees their reserved copies and cancels; the copies are released" do

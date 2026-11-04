@@ -15,7 +15,7 @@ class CardsController < ApplicationController
     @copies = @editions.sum(&:last).nonzero?
     @share_url = share_url
     @share_image_token = CardShareImage.current_token(card_season_id: @detail.card_season_id, view: @detail.view, locale: I18n.locale)
-    named = pack_browse || grid_browse || named_set_browse
+    named = pack_browse || grid_browse || trade_browse || named_set_browse
     profile = profile_browse || me_browse unless named
     @public = current_player.nil? && named.nil? && profile.nil?
     @live_strip = LiveStream.strip_items if @public
@@ -65,6 +65,14 @@ class CardsController < ApplicationController
 
       back = Back.new(label: t("cards.show.booster"), path: booster_path(pack: pack.token))
       neighbours(ids, index, back:) { |at| { pack: pack.token, slot: at + 1 } }
+    end
+
+    def trade_browse
+      token = params[:trade]
+      return unless current_player && token.is_a?(String) && Game::TradesOf.find(current_player, token)
+
+      back = Back.new(label: t("cards.show.trade"), path: trade_path(token:))
+      Browse.new(position: 1, total: 1, previous: nil, next: nil, back:)
     end
 
     def pack_index(ids, slot)

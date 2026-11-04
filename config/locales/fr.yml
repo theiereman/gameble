@@ -1938,6 +1938,7 @@ fr:
       you_received: "Vous avez reçu"
       for_friend_to_choose: "À choisir par %{name}"
       yours_to_choose: "À vous de choisir"
+      already_owned: "Possédée ×%{count}"
       copies_label: "Exemplaires :"
       of_collection: "dans votre collection (%{total})"
       reserved:
@@ -2426,6 +2427,7 @@ fr:
       grid: "Grille"
       booster: "Capsule"
       profile: "Profil"
+      trade: "Échange"
       live:
         title: "En ce moment sur Gameble"
       legal: "Mentions légales"
