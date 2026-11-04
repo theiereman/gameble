@@ -182,12 +182,12 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
   end
 
-  test "menu 07 and the Me page lead a player to the achievements, with the count earned" do
+  test "menu 05 and the Me page lead a player to the achievements, with the count earned" do
     unlock("first_booster", "first_trade", "first_repost")
     sign_in(@player)
 
     get home_path(locale: :fr)
-    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='6']" do
+    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='5']" do
       assert_select ".menu-item__label", "Succès"
       assert_select ".menu-item__meta[aria-hidden=true]", "3/#{total_achievements}"
       assert_select ".visually-hidden", "3 succès obtenus sur #{total_achievements}"

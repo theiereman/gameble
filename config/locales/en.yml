@@ -1806,11 +1806,13 @@ en:
         achievements_meta:
           one: "%{earned} achievement earned out of %{total}"
           other: "%{earned} achievements earned out of %{total}"
-        all_cards: All cards
         collection: Collection
         collection_meta:
           one: "%{owned} unique card out of %{total}"
           other: "%{owned} unique cards out of %{total}"
+        extras: Extras
+        extras_back: Back to the menu
+        extras_label: Extras
         feed: Activity feed
         friends_online:
           one: "%{number} online"
@@ -1829,6 +1831,7 @@ en:
           one: "%{number} reward to claim"
           other: "%{number} rewards to claim"
         social: Social
+        source_code: GitHub
         special:
           one: "%{number} special capsule"
           other: "%{number} special capsules"

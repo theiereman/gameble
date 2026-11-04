@@ -173,7 +173,6 @@ fr:
         title: "Pont de commandement"
       menu:
         label: "Menu du pont"
-        all_cards: "Toutes les cartes"
         open_booster: "Ouvrir une capsule"
         reserve:
           zero: "%{number} capsule en réserve"
@@ -213,8 +212,12 @@ fr:
           zero: "%{number} récompense à récupérer"
           one: "%{number} récompense à récupérer"
           other: "%{number} récompenses à récupérer"
+        extras: "Extras"
+        extras_back: "Retour au menu"
+        extras_label: "Extras"
         how_it_works: "Comment ça marche"
         support: "Soutenir"
+        source_code: "GitHub"
       showcase:
         kicker: "Dernière obtention"
         chosen_kicker: "Vitrine"

@@ -16,17 +16,25 @@ module ExternalLinksHelper
     external_link_to(name, DONATION_URL, button: true, **options)
   end
 
-  def donation_menu_item_to(name, number: nil, **options)
+  def donation_menu_item_to(name, **options)
+    external_menu_item_to(name, DONATION_URL, **options)
+  end
+
+  def source_code_menu_item_to(name, **options)
+    external_menu_item_to(name, SOURCE_CODE_URL, **options)
+  end
+
+  private
+
+  def external_menu_item_to(name, url, number: nil, **options)
     content = safe_join([
       (tag.span(number, class: "menu-item__number", aria: { hidden: true }) if number),
       tag.span(name, class: "menu-item__label"),
       new_tab_hint,
       pixel_icon("external", class: "menu-item__external")
     ].compact)
-    link_to content, DONATION_URL, **NEW_TAB, **options
+    link_to content, url, **NEW_TAB, **options
   end
-
-  private
 
   def new_tab_hint(hint = nil)
     tag.span(" #{hint || t("external_links.new_tab")}", class: "visually-hidden")

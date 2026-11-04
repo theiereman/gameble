@@ -91,6 +91,10 @@
   list-style: none;
 }
 
+.hub-menu__list[hidden] {
+  display: none;
+}
+
 .menu-item {
   display: flex;
   align-items: center;
@@ -164,6 +168,17 @@
   width: 6px;
   height: 10px;
   visibility: hidden;
+}
+
+.menu-item__back {
+  flex: none;
+  width: 8px;
+  height: 14px;
+  color: var(--color-accent);
+}
+
+button.menu-item:hover .menu-item__back {
+  color: var(--color-on-accent);
 }
 
 .menu-item__external {
