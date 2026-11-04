@@ -1813,6 +1813,7 @@ en:
         collection_meta:
           one: "%{owned} unique card out of %{total}"
           other: "%{owned} unique cards out of %{total}"
+        feed: Activity feed
         friends_online:
           one: "%{number} online"
           other: "%{number} online"

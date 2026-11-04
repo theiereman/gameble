@@ -190,6 +190,7 @@ fr:
           one: "%{owned} carte unique sur %{total}"
           other: "%{owned} cartes uniques sur %{total}"
         social: "Social"
+        feed: "Fil d'activité"
         trades_waiting:
           zero: "%{number} échange en attente de vous"
           one: "%{number} échange en attente de vous"

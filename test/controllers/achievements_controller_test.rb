@@ -187,7 +187,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get home_path(locale: :fr)
-    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='5']" do
+    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='6']" do
       assert_select ".menu-item__label", "Succès"
       assert_select ".menu-item__meta[aria-hidden=true]", "3/#{total_achievements}"
       assert_select ".visually-hidden", "3 succès obtenus sur #{total_achievements}"
