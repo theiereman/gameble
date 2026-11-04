@@ -1,0 +1,49 @@
+name: Mobile release build
+
+# Builds the signed Android bundle for a release candidate or a release, and uploads it as a workflow artifact.
+# Signing secrets: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD.
+on:
+  release:
+    types: [ prereleased, released ]
+  workflow_dispatch:
+    inputs:
+      root_url:
+        description: The server the app loads
+        default: https://gameble.net
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ROOT_URL: ${{ inputs.root_url || (github.event.release.prerelease && 'https://test.gameble.net') || 'https://gameble.net' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Decode the keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$KEYSTORE_BASE64" || { echo "ANDROID_KEYSTORE_BASE64 is not set"; exit 1; }
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+          echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+
+      - name: Build the signed bundle
+        working-directory: mobile/android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          JAVA_HOME="$JAVA_HOME_17_X64" ./gradlew --no-daemon bundleRelease \
+            -PgamebleRootUrl="$ROOT_URL" \
+            -PgamebleVersionCode="$GITHUB_RUN_NUMBER" \
+            -PgamebleVersionName="$(echo "${GITHUB_REF_NAME#v}" | sed 's/-.*//')"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: gameble-android-bundle
+          path: mobile/android/app/build/outputs/bundle/release/*.aab

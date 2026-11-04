@@ -10,6 +10,8 @@ if (file("google-services.json").exists()) {
 }
 
 val debugRootUrl = (findProperty("gamebleRootUrl") as String?) ?: "http://10.0.2.2:3000"
+val releaseRootUrl = (findProperty("gamebleRootUrl") as String?) ?: "https://gameble.net"
+val releaseKeystore = System.getenv("ANDROID_KEYSTORE_FILE")
 
 android {
     namespace = "net.gameble.app"
@@ -19,8 +21,19 @@ android {
         applicationId = "net.gameble.app"
         minSdk = 28
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = (findProperty("gamebleVersionCode") as String?)?.toInt() ?: 1
+        versionName = (findProperty("gamebleVersionName") as String?) ?: "1.0"
+    }
+
+    signingConfigs {
+        if (releaseKeystore != null) {
+            create("release") {
+                storeFile = file(releaseKeystore)
+                storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
@@ -29,9 +42,10 @@ android {
             manifestPlaceholders["usesCleartextTraffic"] = debugRootUrl.startsWith("http:")
         }
         release {
-            buildConfigField("String", "ROOT_URL", "\"https://gameble.net\"")
+            buildConfigField("String", "ROOT_URL", "\"$releaseRootUrl\"")
             manifestPlaceholders["usesCleartextTraffic"] = false
             isMinifyEnabled = false
+            if (releaseKeystore != null) signingConfig = signingConfigs.getByName("release")
         }
     }
 
