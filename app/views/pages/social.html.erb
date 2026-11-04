@@ -60,10 +60,13 @@
   <section class="social__section" aria-labelledby="social-feed-heading">
     <header class="social__head">
       <h2 id="social-feed-heading" class="social__heading"><%= t(".feed.title") %></h2>
-      <%= link_to feed_path, class: "social__more", data: { turbo_prefetch: false } do %>
-        <span class="social__more-label"><%= t(".feed.open") %></span>
-        <%= pixel_icon("arrow-small-right", class: "social__more-arrow") %>
-      <% end %>
+      <div class="social__head-end">
+        <%= render "shell/live_marker" %>
+        <%= link_to feed_path, class: "social__more", data: { turbo_prefetch: false } do %>
+          <span class="social__more-label"><%= t(".feed.open") %></span>
+          <%= pixel_icon("arrow-small-right", class: "social__more-arrow") %>
+        <% end %>
+      </div>
     </header>
     <p class="social__line"><%= t(".feed.line") %></p>
   </section>

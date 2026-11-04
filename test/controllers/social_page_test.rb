@@ -67,7 +67,7 @@ class SocialPageTest < ActionDispatch::IntegrationTest
     assert_match(/Max/, rows[1].text)
   end
 
-  test "a row shows the friend, the turn and the highest rarity among a common, a rare and an epic, never a card" do
+  test "a row shows the friend, the turn and a pip per card on each side, labelled with who gives, never a card" do
     trading_friends
     propose(@hugo, @lea, offer: { @soldier => 1, @portal => 1 }, request: { @depths => 1 })
     sign_in @hugo
@@ -76,8 +76,12 @@ class SocialPageTest < ActionDispatch::IntegrationTest
 
     row = trade_rows.sole
     assert_match(/Lea/, row.text)
-    assert_equal "Epic", row.at_css(".social-trade__rarity--epic .social-trade__rarity-label").text
-    assert_equal "Highest rarity:", row.at_css(".social-trade__rarity .visually-hidden").text
+    sides = row.css(".social-trade__side")
+    assert_equal [ "You", "Lea" ], sides.map { it.at_css(".social-trade__who").text }
+    assert_equal [ "2", "1" ], sides.map { it.at_css(".social-trade__count").text }
+    assert_equal %w[social-trade__pip--epic social-trade__pip--common], sides.first.css(".social-trade__pip").map { it["class"].split.last }
+    assert_equal [ "social-trade__pip--rare" ], sides.last.css(".social-trade__pip").map { it["class"].split.last }
+    assert_includes row.at_css(".social-trade__sides .visually-hidden").text, "You give 2 cards"
     assert_no_match(/Portal|Tin Soldier|Blue Depths/, row.text)
     assert_nil row.at_css(".card, img")
   end

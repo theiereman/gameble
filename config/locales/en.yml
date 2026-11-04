@@ -2217,7 +2217,15 @@ en:
         recent: Recently
         theirs: Their turn
         title: Trades
-        top_rarity: 'Highest rarity:'
+        you: You
+        you_give:
+          zero: You give nothing.
+          one: 'You give 1 card, the best one %{rarity}.'
+          other: 'You give %{count} cards, the best one %{rarity}.'
+        friend_gives:
+          zero: '%{name} gives nothing.'
+          one: '%{name} gives 1 card, the best one %{rarity}.'
+          other: '%{name} gives %{count} cards, the best one %{rarity}.'
         yours: Your turn
   own_profiles:
     show:

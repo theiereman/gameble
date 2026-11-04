@@ -1,6 +1,7 @@
 <%# locals: (row:, cards:) %>
 <% tone, chip = social_trade_chip(row) %>
-<% rarity = trade_top_rarity(row, cards) %>
+<% own = trade_side(row.own_side, cards) %>
+<% theirs = trade_side(row.friend_side, cards) %>
 <li>
   <%= link_to trade_path(token: row.token), class: class_names("trade-row social-trade", "social-trade--quiet": !row.open?),
         data: { turbo_prefetch: false } do %>
@@ -9,13 +10,12 @@
       <span class="trade-row__name social-trade__name"><%= friend_name(row.friend) %></span>
       <% unless row.open? %><span class="trade-row__when"><%= trade_outcome_age(row) %></span><% end %>
     </span>
-    <% if rarity %>
-      <span class="social-trade__rarity social-trade__rarity--<%= rarity %>">
-        <%= pixel_icon("rarity-#{rarity_tier(rarity)}", class: "social-trade__rarity-icon") %>
-        <span class="visually-hidden"><%= t("pages.social.trades.top_rarity") %></span>
-        <span class="social-trade__rarity-label"><%= t("catalog.rarity.#{rarity}") %></span>
-      </span>
-    <% end %>
+    <span class="social-trade__sides">
+      <span class="visually-hidden"><%= trade_side_sentence(:you_give, own) %> <%= trade_side_sentence(:friend_gives, theirs, name: friend_name(row.friend)) %></span>
+      <%= render "pages/social_trade_side", side: own, label: t("pages.social.trades.you") %>
+      <span class="social-trade__swap" aria-hidden="true">⇄</span>
+      <%= render "pages/social_trade_side", side: theirs, label: friend_name(row.friend), mirrored: true %>
+    </span>
     <span class="trade-chip trade-chip--<%= tone %>"><%= chip %></span>
   <% end %>
 </li>

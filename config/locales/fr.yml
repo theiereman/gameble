@@ -254,7 +254,15 @@ fr:
         recent: "Récemment"
         yours: "À vous"
         theirs: "À son tour"
-        top_rarity: "Rareté la plus haute :"
+        you: "Vous"
+        you_give:
+          zero: "Vous ne donnez rien."
+          one: "Vous donnez 1 carte, la meilleure : %{rarity}."
+          other: "Vous donnez %{count} cartes, la meilleure : %{rarity}."
+        friend_gives:
+          zero: "%{name} ne donne rien."
+          one: "%{name} donne 1 carte, la meilleure : %{rarity}."
+          other: "%{name} donne %{count} cartes, la meilleure : %{rarity}."
       friends:
         title: "Amis"
         all: "Tous les amis"
