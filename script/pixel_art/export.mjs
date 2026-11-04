@@ -32,6 +32,7 @@ import { deflateSync, inflateSync } from "node:zlib"
 import { SET_BACK_DESIGNS, drawSetBack, setBackName } from "./set_backs.mjs"
 import { NAMED_BACK_DESIGNS } from "./named_backs.mjs"
 import { EMBLEM_SIZE, ORIGIN_LOOKS, drawEmblem, originBodyFile } from "./origin_canisters.mjs"
+import { NEBULA_HEIGHT, NEBULA_WIDTH, drawNebula } from "./nebula.mjs"
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..")
 const ART_PIXEL = 2
@@ -1121,6 +1122,7 @@ function decodePng(buf) {
 const files = new Map(Object.entries(ICONS).map(([name, icon]) => [`${name}.svg`, iconSvg(name, icon)]))
 files.set("wordmark-sweep.svg", wordmarkSweepSvg())
 files.set("starfield.svg", starfieldSvg())
+files.set("nebula.png", drawNebula())
 for (const [size, [w, h]] of Object.entries(CARD_SIZES)) files.set(`back-${STANDARD_BACK.name}-${size}.png`, standardBack(w / 2 | 0, h / 2 | 0))
 for (const design of NAMED_BACK_DESIGNS) {
   for (const [size, [w, h]] of Object.entries(CARD_SIZES)) {
@@ -1190,6 +1192,7 @@ const DESCRIPTIONS = {
   "tab-me.svg": "Phone tab bar icon: ME, one head and shoulders (text colour)",
   "bell.svg": "The header's bell, what is new for the player, 7 × 8",
   "starfield.svg": "Star field tile, 480 × 480 CSS px, repeated under the content",
+  "nebula.png": `Nebula tile behind the star field: faint blue and violet clouds and a pale band of the galaxy, ${NEBULA_WIDTH} × ${NEBULA_HEIGHT}, drawn at 4 CSS px per pixel`,
   ...Object.fromEntries([STANDARD_BACK, ...NAMED_BACK_DESIGNS].flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${name}-${size}.png`, `${title} back for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
   ...Object.fromEntries(SET_BACK_DESIGNS.flatMap((design) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>

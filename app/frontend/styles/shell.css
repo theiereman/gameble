@@ -140,6 +140,7 @@ turbo-cable-stream-source {
   pointer-events: none;
 }
 
+.atmosphere__nebula,
 .atmosphere__stars,
 .atmosphere__scanlines,
 .atmosphere__vignette {
@@ -147,27 +148,29 @@ turbo-cable-stream-source {
   inset: 0;
 }
 
-/* Two layers drift up slowly and smoothly, the twinkling stars at half the
-   speed of the field; a whole tile later the pattern lines up again, so the
-   loop has no seam. Only translate and opacity move, on the compositor. */
+/* Behind the stars, faint nebula clouds and the galaxy's band. */
+.atmosphere__nebula {
+  background: url("../images/pixel/nebula.png") repeat;
+  background-size: var(--nebula-tile-width) var(--nebula-tile-height);
+  image-rendering: pixelated;
+}
+
+/* A still field: it does not move at a screen change. */
 .atmosphere__stars {
-  bottom: calc(-2 * var(--starfield-tile));
+  bottom: calc(-1 * var(--starfield-tile));
   background: url("../images/pixel/starfield.svg") repeat;
-  animation: starfield-drift 240s linear infinite;
-  will-change: translate;
 }
 
 body:has(.landing) .atmosphere__stars {
   transform: translate3d(0, calc(-1 * mod(var(--landing-drift-near, 0px), var(--starfield-tile))), 0);
 }
 
-/* A dozen stars, each repeated down the screen one tile apart, stay lit and
-   now and then fade out and back in, each on its own period and delay. */
+/* A dozen stars, each repeated down the screen one tile apart so the
+   landing's scroll drift never runs out of them, stay lit and now and then
+   fade out and back in, each on its own period and delay. */
 .atmosphere__twinkle {
   position: absolute;
   inset: 0;
-  animation: starfield-drift 480s linear infinite;
-  will-change: translate;
 }
 
 body:has(.landing) .atmosphere__twinkle {
@@ -328,26 +331,16 @@ body:has(.landing) .atmosphere__twinkle {
 }
 
 /* At most six infinite animations show at once on a phone view, the
-   booster's own among them, so there only the field drifts and two stars
-   twinkle, without a glint. */
+   booster's own among them, so only three stars twinkle there, without a
+   glint. */
 @media (max-width: 719px) {
-  .atmosphere__twinkle {
-    animation: none;
-  }
-
-  .atmosphere__twinkle > i:nth-child(n + 3) {
+  .atmosphere__twinkle > i:nth-child(n + 4) {
     display: none;
   }
 
   .atmosphere__twinkle > i::before,
   .atmosphere__twinkle > i::after {
     display: none;
-  }
-}
-
-@keyframes starfield-drift {
-  to {
-    translate: 0 calc(-1 * var(--starfield-tile));
   }
 }
 
