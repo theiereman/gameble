@@ -11,31 +11,25 @@
         android:layout_weight="1">
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/bridge_host"
-            android:name="dev.hotwire.navigation.navigator.NavigatorHost"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/capsule_host"
             android:name="dev.hotwire.navigation.navigator.NavigatorHost"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/collection_host"
+            android:id="@+id/sets_host"
             android:name="dev.hotwire.navigation.navigator.NavigatorHost"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/trades_host"
+            android:id="@+id/social_host"
             android:name="dev.hotwire.navigation.navigator.NavigatorHost"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/more_host"
+            android:id="@+id/me_host"
             android:name="dev.hotwire.navigation.navigator.NavigatorHost"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="tab_bridge">Pont</string>
-    <string name="tab_capsule">Capsule</string>
-    <string name="tab_collection">Collection</string>
-    <string name="tab_trades">Échanges</string>
-    <string name="tab_more">Plus</string>
     <string name="notification_channel">Échanges et amis</string>
     <string name="debug_log_hide">Masquer</string>
     <string name="debug_log_copy">Copier</string>
+    <string name="tab_capsule">Capsule</string>
+    <string name="tab_sets">Sets</string>
+    <string name="tab_social">Social</string>
+    <string name="tab_me">Moi</string>
 </resources>
