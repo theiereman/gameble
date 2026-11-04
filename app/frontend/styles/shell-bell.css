@@ -31,8 +31,8 @@
 }
 
 .bell__icon {
-  width: 22px;
-  height: 22px;
+  width: 14px;
+  height: 16px;
 }
 
 .bell__count {
@@ -50,6 +50,20 @@
   width: min(360px, calc(100vw - 2 * var(--space-gutter-phone)));
   max-height: calc(100dvh - var(--topbar-height) - 2 * var(--space-3));
   overflow-y: auto;
+}
+
+/* Right under the bell, its end edge on the bell's, as the rarity legend does. */
+@supports (position-area: block-end) {
+  .bell__button {
+    anchor-name: --bell;
+  }
+
+  .bell__panel {
+    inset: auto;
+    margin: var(--space-3) 0 0;
+    position-anchor: --bell;
+    position-area: block-end span-inline-start;
+  }
 }
 
 .bell__list {
