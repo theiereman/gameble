@@ -1,6 +1,7 @@
 <% content_for :back_button, true %>
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".title") %>
+<% content_for :head, render("layouts/language_links", route: :credits_path) if Rails.configuration.x.search_indexing %>
 <article class="legal credits" aria-labelledby="credits-heading">
   <h1 id="credits-heading" class="legal__title"><%= t(".title") %></h1>
 

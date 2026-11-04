@@ -139,6 +139,22 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_equal 0, Catalog::ShareImage.count
   end
 
+  test "the card page carries structured data naming the game and, once rendered, its image" do
+    get card_page
+    data = JSON.parse(css_select("script[type='application/ld+json']").sole.text)
+    assert_equal "WebPage", data["@type"]
+    assert_equal season_url, data["url"]
+    assert_equal "Blue Depths — Rare", data["name"]
+    assert_equal "VideoGame", data["about"]["@type"]
+    assert_nil data["primaryImageOfPage"]
+
+    token = store_share_image(rare_card_season_id, "en").token
+    get card_page
+    image = JSON.parse(css_select("script[type='application/ld+json']").sole.text)["primaryImageOfPage"]
+    assert_equal "http://www.example.com/share-images/#{token}.png", image["url"]
+    assert_equal [ 1200, 630 ], [ image["width"], image["height"] ]
+  end
+
   test "a current image: its absolute URL by token, its size, type and alt, a large card; the other tags unchanged" do
     token = store_share_image(rare_card_season_id, "en").token
     image_url = "http://www.example.com/share-images/#{token}.png"

@@ -17,8 +17,26 @@ module SearchTagsHelper
     OG_LOCALES.fetch(locale, locale)
   end
 
+  def default_meta_description
+    return unless Rails.configuration.x.search_indexing
+    return if description_already_set?
+
+    tag.meta name: "description", content: t("layouts.application.description")
+  end
+
   def default_language_url
     public_url_for("/")
+  end
+
+  def card_structured_data(view, title:, url:, image:)
+    page = { "@type" => "WebPage", "@id" => "#{url}#webpage", "url" => url, "name" => title,
+             "description" => t("card_details.preview.description"), "inLanguage" => I18n.locale.to_s,
+             "isPartOf" => { "@type" => "WebSite", "name" => t("layouts.application.application_name"),
+                             "url" => public_url_for(home_path) },
+             "about" => { "@type" => "VideoGame", "name" => view.title } }
+    page["primaryImageOfPage"] = { "@type" => "ImageObject", "url" => image[:url], "width" => CardShareImage::WIDTH,
+                                   "height" => CardShareImage::HEIGHT, "caption" => image[:alt] } if image
+    ERB::Util.json_escape(JSON.generate({ "@context" => "https://schema.org", **page }))
   end
 
   def landing_structured_data
@@ -35,4 +53,9 @@ module SearchTagsHelper
     ]
     ERB::Util.json_escape(JSON.generate({ "@context" => "https://schema.org", "@graph" => graph }))
   end
+
+  private
+    def description_already_set?
+      content_for(:head).to_s.include?('name="description"')
+    end
 end

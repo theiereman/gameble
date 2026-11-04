@@ -1360,6 +1360,8 @@ en:
       description: Every card is a Steam game. Open capsules, complete sets, trade
         with friends and join the Brotherhood in its search for lost games. Free to
         play.
+      share_image_alt: 'Gameble in golden pixel letters over a starry sky, with a collectible
+        card and a ringed planet: every card is a Steam game.'
       footer:
         credits: Credits
         how_it_works: How it works
@@ -1519,6 +1521,9 @@ en:
   layouts:
     application:
       application_name: Gameble
+      description: Every card is a Steam game. Open capsules, complete sets, trade
+        with friends and join the Brotherhood in its search for lost games. Free to
+        play.
       title: Gameble
   library:
     album:

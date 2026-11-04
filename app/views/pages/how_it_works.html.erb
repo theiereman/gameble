@@ -1,6 +1,7 @@
 <% content_for :back_button, true %>
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".title") %>
+<% content_for :head, render("layouts/language_links", route: :how_it_works_path) if Rails.configuration.x.search_indexing %>
 <% if current_player %>
   <% content_for :phone_back do %>
     <%= link_to me_path, class: "button button--secondary button--small top-bar__phone-back" do %>
