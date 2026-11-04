@@ -155,15 +155,17 @@
   text-align: center;
 }
 
-/* A slot reaches past its card by --slot-bleed on every side (a negative
-   margin keeps the grid's gaps): far from the viewport it skips its
-   rendering, at its known size. The intrinsic size is the content box's
+/* A slot reaches past its card by --slot-bleed on every side, and further
+   on top where the "new" badge rises (a negative margin keeps the grid's
+   gaps): far from the viewport it skips its rendering, at its known size. The intrinsic size is the content box's
    (the padding comes on top), so a slot not rendered yet, as on a Turbo
    restore, takes the card's own size and nothing shifts once it renders. */
 .collection-slot {
+  --slot-bleed-top: calc(var(--slot-bleed) + 4 * var(--space-1));
+
   position: relative;
-  margin: calc(-1 * var(--slot-bleed));
-  padding: var(--slot-bleed);
+  margin: calc(-1 * var(--slot-bleed-top)) calc(-1 * var(--slot-bleed)) calc(-1 * var(--slot-bleed));
+  padding: var(--slot-bleed-top) var(--slot-bleed) var(--slot-bleed);
   content-visibility: auto;
   contain-intrinsic-size: auto var(--card-m-width) auto var(--card-m-height);
 }
@@ -195,7 +197,7 @@
 /* "x3": copies owned, a small accent box at the card's top-right. */
 .collection-slot__copies {
   position: absolute;
-  top: calc(var(--slot-bleed) - 3 * var(--space-1));
+  top: calc(var(--slot-bleed-top) - 3 * var(--space-1));
   right: calc(var(--slot-bleed) - 3 * var(--space-1));
   z-index: 2;
   display: flex;
@@ -214,7 +216,7 @@
 
 .collection-slot__editions {
   position: absolute;
-  top: calc(var(--slot-bleed) - 3 * var(--space-1) + 20px + 2 * var(--space-unit));
+  top: calc(var(--slot-bleed-top) - 3 * var(--space-1) + 20px + 2 * var(--space-unit));
   right: calc(var(--slot-bleed) - 3 * var(--space-1));
   z-index: 2;
   display: flex;
@@ -235,7 +237,7 @@
 /* "Nouveau": a small lime box above the card's top-left, clear of its title. */
 .collection-slot__new {
   position: absolute;
-  top: calc(var(--slot-bleed) - 8 * var(--space-1));
+  top: calc(var(--slot-bleed-top) - 8 * var(--space-1));
   left: calc(var(--slot-bleed) - 3 * var(--space-1));
   z-index: 2;
   display: flex;
