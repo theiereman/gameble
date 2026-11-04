@@ -1355,6 +1355,11 @@ ${canisterParts.map(item).join("\n")}
 ${item("planet.png")}
 </div>
 
+<h2>Nebula</h2>
+<div class="grid">
+${item("nebula.png")}
+</div>
+
 <h2>Avatars</h2>
 <div class="grid">
 ${Object.values(AVATARS).map((colour) => item(`avatar-${colour}.png`)).join("\n")}
