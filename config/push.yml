@@ -1,5 +1,3 @@
-# The push services of the mobile apps. A platform without its key is left
-# out: PushNotices sends nothing to its devices.
 shared:
   apple:
     key_id: <%= ENV["APNS_KEY_ID"] %>

@@ -1,7 +1,3 @@
-# The hop that signs the Hotwire Native apps in: the app opens the sign-in in
-# the system browser, where Steam and Clerk's OAuth work, and the browser hands
-# a short-lived ticket back to the app through its URL scheme. The app proves
-# it started the hop by sending back the state it chose.
 module NativeSignIn
   STATE = /[A-Za-z0-9_-]{32,128}/
   PATH = %r{\A/(?:#{I18n.available_locales.join("|")})/native/sign-in/#{STATE.source}\z}

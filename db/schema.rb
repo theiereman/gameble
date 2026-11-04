@@ -96,6 +96,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_130000) do
     t.check_constraint "visibility::text = 'public'::text OR visibility::text = 'friends_only'::text OR visibility::text = 'private'::text", name: "accounts_players_visibility_check"
   end
 
+  create_table "accounts_push_devices", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.string "platform", null: false
+    t.string "token", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id"], name: "index_accounts_push_devices_on_player_id"
+    t.index ["token"], name: "index_accounts_push_devices_on_token", unique: true
+    t.check_constraint "char_length(token::text) <= 4096", name: "accounts_push_devices_token_length_check"
+    t.check_constraint "platform::text ~ '^(apple|google)$'::text", name: "accounts_push_devices_platform_check"
+  end
+
   create_table "accounts_reports", force: :cascade do |t|
     t.bigint "reporter_id", null: false
     t.bigint "reported_id", null: false
@@ -736,6 +749,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_130000) do
   add_foreign_key "accounts_identities", "accounts_players", column: "player_id"
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "player_id"
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "staff_id"
+  add_foreign_key "accounts_push_devices", "accounts_players", column: "player_id"
   add_foreign_key "accounts_reports", "accounts_players", column: "reported_id"
   add_foreign_key "accounts_reports", "accounts_players", column: "reporter_id"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

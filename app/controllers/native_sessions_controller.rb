@@ -1,7 +1,7 @@
 class NativeSessionsController < ApplicationController
   include OpensPlayerSession
 
-  # The app posts from outside any web view, so it holds no authenticity token: the ticket and its state stand in for it.
+  # The app posts from outside any web view, so it holds no authenticity token.
   skip_forgery_protection only: :create
 
   def create

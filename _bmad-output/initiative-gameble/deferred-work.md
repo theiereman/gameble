@@ -613,3 +613,15 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-social-on-every-width-plan.md`
   summary: No system test at 390px and 1440px pins that a trade board keeps only "◀ LISTE" on the phone and that desktop hides the trail button beside "◀ SOCIAL".
   evidence: only markup is asserted in social_page_test; the outcome depends on two CSS rules in shell-screens.css and shell-top-bar.css. A system test at both widths would settle it.
+
+## Deferred from: build of story-bring-the-rails-side-of-the-native-apps-onto-develop-plan (2026-11-04)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-hotwire-native-apps/story-bring-the-rails-side-of-the-native-apps-onto-develop-plan.md`
+  summary: A native sign-in ticket is not single-use: anyone holding its URL and state can open a session several times within two minutes.
+  evidence: `NativeSignIn.player_for` only verifies the signed ticket; nothing records it as redeemed; settle with the sign-in hand-off hardening (app links instead of a custom scheme).
+- source_plan: `_bmad-output/initiative-gameble/epic-hotwire-native-apps/story-bring-the-rails-side-of-the-native-apps-onto-develop-plan.md`
+  summary: A push device stays linked to the last player who registered it after the session ends, and the shell does not register again after a new sign-in.
+  evidence: the device token is remembered in the session and forgotten only on sign-out; settle in the shells story and the push story on real devices.
+- source_plan: `_bmad-output/initiative-gameble/epic-hotwire-native-apps/story-bring-the-rails-side-of-the-native-apps-onto-develop-plan.md`
+  summary: `FrenchTypographyTest` fails on develop: `fr.landings.show.share_image_alt` has a plain space before a colon.
+  evidence: the failure is identical on the baseline commit; the key comes from the landing's share-image commit.

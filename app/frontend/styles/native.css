@@ -1,4 +1,3 @@
-/* Inside the mobile apps: their native tab and navigation bars take the place of the web ones. */
 :root[data-native-app] {
   --tabbar-height: 0;
 }
