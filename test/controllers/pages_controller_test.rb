@@ -380,14 +380,14 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
     assert_select "#community-goal .hub-goal__meter > .hub-goal__figures:first-child", text: "100 / 50,000"
-    assert_select "#community-goal .hub-goal__line", text: "Together, open 50,000 capsules this week."
+    assert_select "#community-goal .hub-goal__line", text: "Open 50,000 capsules this week."
     assert_select "#community-goal .hub-goal__reward", text: "Reward: a rare capsule per contributor"
     assert_select "#community-goal .hub-goal__status", false
     assert_select "#community-goal .hub-goal__segment", count: 24
     assert_select "#community-goal .hub-goal__segment--lit", count: 0
 
     get home_path(locale: :fr)
-    assert_select "#community-goal .hub-goal__line", text: /\AEnsemble, ouvrez 50[\s\u00a0\u202f]000 capsules cette semaine\.\z/
+    assert_select "#community-goal .hub-goal__line", text: /\AOuvrez 50[\s\u00a0\u202f]000 capsules cette semaine\.\z/
     assert_select "#community-goal .hub-goal__reward", text: "Récompense\u202F: une capsule rare par contributeur"
   end
 

@@ -1788,7 +1788,7 @@ en:
         collect: Collect
         collect_label: Collect the reward capsule
         collected: Collected
-        line: Together, open %{target} capsules this week.
+        line: Open %{target} capsules this week.
         previous_missed: 'Last week: %{total} / %{target}, missed'
         previous_reached: 'Last week: %{total} / %{target}, accomplished'
         progress: "%{total} contributions of %{target} this week"

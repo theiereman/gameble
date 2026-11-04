@@ -234,7 +234,7 @@ fr:
         next_at: "Prochaine capsule : %{time}"
       goal:
         title: "Mission hebdo"
-        line: "Ensemble, ouvrez %{target} capsules cette semaine."
+        line: "Ouvrez %{target} capsules cette semaine."
         progress: "%{total} contributions sur %{target} cette semaine"
         reward: "Récompense : %{reward}"
         reward_text: "une capsule rare par contributeur"
