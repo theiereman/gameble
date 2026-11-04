@@ -2155,7 +2155,7 @@ fr:
     show:
       title: "Gameble, un jeu de cartes gratuit de jeux Steam"
       description: "Chaque carte est un jeu Steam. Ouvrez des capsules, complétez des sets, échangez avec vos amis et rejoignez la Confrérie à la recherche des jeux perdus. Gratuit."
-      share_image_alt: "Gameble en lettres pixel dorées sur un ciel étoilé, avec une carte à collectionner et une planète à anneau : chaque carte est un jeu Steam."
+      share_image_alt: "Gameble en lettres pixel dorées sur un ciel étoilé, avec une carte à collectionner et une planète à anneau : chaque carte est un jeu Steam."
       structured_data:
         genre: "Jeu de cartes à collectionner"
       unknown: "—"

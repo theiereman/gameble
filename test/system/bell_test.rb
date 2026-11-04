@@ -127,16 +127,17 @@ class BellTest < ApplicationSystemTestCase
     assert_selector "#bell-items a[href='/en/feed']", text: /Lea reacted to your post/, visible: :all
   end
 
-  test "marking all as read clears every line that can be seen away and leaves the lasting ones" do
+  test "marking all as read clears every line that can be seen away and leaves the lasting daily line" do
     sign_in
     assert_count 3
 
     open_bell
     within("#bell-panel") { click_on "Mark all as read" }
 
-    assert_count 2
+    assert_count 1
     within("#bell-panel") do
-      assert_selector ".bell__line", count: 2
+      assert_selector ".bell__line", count: 1
+      assert_link href: "/en/booster", text: /Your daily capsule is ready/
       assert_no_link href: "/en/friends"
       assert_no_button "Mark all as read"
     end
