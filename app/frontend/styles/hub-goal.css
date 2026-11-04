@@ -12,10 +12,7 @@
 /* The public part the goal stream replaces lays its children out in the
    panel itself, so the count sits beside the heading and the player's claim
    slot follows last week's result. */
-.hub-goal__progress,
-.hub-goal__about,
-.hub-goal__meter,
-.hub-goal__prize {
+.hub-goal__progress {
   display: contents;
 }
 

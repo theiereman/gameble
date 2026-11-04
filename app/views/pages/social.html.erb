@@ -7,8 +7,6 @@
     <%= render ButtonComponent.new(href: new_trade_path) do %><%= t(".actions.new_trade") %><% end %>
   </div>
 
-  <%= render "pages/goal", goal: @goal, reward: @goal_reward %>
-
   <%= tag.section class: "social__section social__trades-section", aria: { labelledby: "social-trades-heading" },
         data: { controller: "live-refresh", live_refresh_signal_value: "trades-updated" } do %>
     <header class="social__head">
@@ -88,5 +86,4 @@
 
   <p id="reaction-status" class="visually-hidden" role="status"></p>
 </div>
-<%= turbo_stream_from(*LiveStream.goal_streamables) %>
 <%= turbo_stream_from(*ReactionStream.streamables) %>

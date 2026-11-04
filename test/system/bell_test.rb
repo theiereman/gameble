@@ -79,7 +79,7 @@ class BellTest < ApplicationSystemTestCase
     within("#bell-panel") do
       assert_selector ".bell__line", count: 5
       assert_link href: "/en/booster", text: /Your daily capsule is ready/
-      assert_link href: "/en/social#community-goal", text: /This week's mission/
+      assert_link href: "/en#community-goal", text: /This week's mission/
       click_link href: "/en/trades/#{trade.token}", text: /Lea awaits your answer to a trade/
     end
     assert_current_path "/en/trades/#{trade.token}"
@@ -179,7 +179,9 @@ class BellTest < ApplicationSystemTestCase
 
     visit friends_path(locale: :en)
     assert_count 1
-    visit social_path(locale: :en)
+    open_bell
+    within("#bell-panel") { click_link href: "/en#community-goal" }
+    assert_current_path "/en"
     assert_no_selector ".bell__count"
     assert_selector ".bell__button .visually-hidden", exact_text: "What is new, all seen", visible: :all
     open_bell

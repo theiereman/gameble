@@ -46,13 +46,13 @@ module BellHelper
   end
 
   def bell_goal_line(goal)
-    href = social_path(anchor: "community-goal")
+    href = home_path(anchor: "community-goal")
     if goal.reward_ready
-      BellLine.new(key: "mission-reward:#{goal.week_start.iso8601}", path: social_path, href:,
+      BellLine.new(key: "mission-reward:#{goal.week_start.iso8601}", path: nil, href:,
         sentence: t("shell.bell.mission_reward"), action: t("shell.bell.collect"), lasting: true, dom_id: "bell-mission-reward")
     else
       sentence = t(goal.reached ? "shell.bell.mission_reached" : "shell.bell.mission", target: number_with_delimiter(goal.target))
-      BellLine.new(key: "mission:#{goal.week_start.iso8601}", path: social_path, href:, sentence:, action: t("shell.bell.see"))
+      BellLine.new(key: "mission:#{goal.week_start.iso8601}", path: nil, href:, sentence:, action: t("shell.bell.see"))
     end
   end
 end

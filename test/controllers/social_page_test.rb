@@ -3,7 +3,7 @@ require_relative "../support/steam_sign_in"
 require_relative "../support/holdings"
 require_relative "../support/game_packs"
 
-# The Social screen: the community goal, the trades in progress, waiting on
+# The Social screen: the trades in progress, waiting on
 # the player first (never an ended one), the friends with their
 # presence and the feed's latest entries; Add a friend and New trade follow the
 # heading, shown last on a phone.
@@ -156,20 +156,14 @@ class SocialPageTest < ActionDispatch::IntegrationTest
     assert_equal [ "Échanges", "Amis", "Fil d'activité" ], css_select(".social__heading").map { it.text.strip }
   end
 
-  test "the community goal shows with its progress, and its collect button when a reward waits" do
+  test "the weekly mission stays on the hub, not on the Social screen" do
     sign_in @hugo
+    earn_goal_reward(@hugo)
 
     get social_path(locale: :en)
-    assert_select "#community-goal #community-goal-progress"
-    assert_select "#goal-reward", false
-    assert_includes css_select("turbo-cable-stream-source:not([channel=PlayerStreamChannel])")
+    assert_select "#community-goal, #goal-reward", false
+    assert_not_includes css_select("turbo-cable-stream-source:not([channel=PlayerStreamChannel])")
       .map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }, LiveStream.goal_streamables(:en).join(":")
-
-    week = earn_goal_reward(@hugo)
-    get social_path(locale: :en)
-
-    assert_select "#community-goal #goal-reward.hub-goal__claim--ready form[action=?] button", goal_reward_path(locale: :en, week: week.iso8601),
-      text: "Collect"
   end
 
   test "the feed is a link away, and the links to all trades and to friends carry the badge slots" do
@@ -198,14 +192,13 @@ class SocialPageTest < ActionDispatch::IntegrationTest
     Game::OpenPack.new.call(player:).value!
   end
 
-  test "the screen opens on its heading and the two actions, then the goal, the trades, the friends and the feed" do
+  test "the screen opens on its heading and the two actions, then the trades, the friends and the feed" do
     sign_in @hugo
 
     get social_path(locale: :en)
 
-    assert_select ".social > h1.social__title:first-child + .social__actions + .hub-goal + .social__trades-section " \
+    assert_select ".social > h1.social__title:first-child + .social__actions + .social__trades-section " \
       "+ .social__friends-section + .social__feed + #reaction-status:last-child"
-    assert_select ".social > .hub-goal#community-goal .hub-goal__about + .hub-goal__meter + .hub-goal__prize"
   end
 
   test "the feed preview shows the three latest entries with their reactions, on the live feed's own stream and list" do

@@ -394,7 +394,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:moderator))
 
     get home_path(locale: :en)
-    assert_select "#community-goal .hub-goal__meter > .hub-goal__figures:first-child", text: "100 / 50,000"
+    assert_select "#community-goal .hub-goal__title + .hub-goal__figures", text: "100 / 50,000"
     assert_select "#community-goal .hub-goal__line", text: "Open 50,000 capsules this week."
     assert_select "#community-goal .hub-goal__reward", text: "Reward: a rare capsule per contributor"
     assert_select "#community-goal .hub-goal__status", false

@@ -29,8 +29,6 @@ class PagesController < ApplicationController
     @open_trades = SocialRows.trades(Game::TradesOf.call(current_player))
     @cards = Catalog::CardViews.call(@open_trades.rows.flat_map(&:card_season_ids), locale: I18n.locale)
     @friends = SocialRows.friends(Game::FriendsPresence.call(current_player))
-    @goal = Game::CurrentGoal.call
-    @goal_reward = Game::GoalRewardStatus.call(current_player)
     @feed = FeedItems.call(LiveStream.social_preview_entries)
     @feed_reactions = Game::FeedReactionSummaries.call(@feed.map { |item, *| item.entry.id }, viewer: current_player)
   end

@@ -46,7 +46,7 @@ class BellsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{FRAME} li[data-bell-path='/en/friends'] a[href='/en/friends']", text: /#{@eve.persona_name} invites you to be friends\.\s+See/
     assert_select "#{FRAME} li#bell-daily[data-bell-lasting=true][data-bell-path='/en/booster'] a[href='/en/booster']", text: /Your daily capsule is ready\.\s+Collect/
     assert_select "#{FRAME} li[data-bell-lasting=false]", 3
-    assert_select "#{FRAME} li[data-bell-path='/en/social'] a[href='/en/social#community-goal']",
+    assert_select "#{FRAME} li:not([data-bell-path]) a[href='/en#community-goal']",
       text: /This week's mission: open 1,500 capsules together\.\s+See/
     assert_select "#{FRAME} p.bell__empty[data-bell-target=empty][hidden]", "Nothing new for now."
   end
@@ -99,7 +99,7 @@ class BellsControllerTest < ActionDispatch::IntegrationTest
 
     assert_includes line_keys, "mission-reward:2026-09-28"
     assert_select "#{FRAME} li#bell-mission-reward[data-bell-lasting=true]"
-    assert_select "#{FRAME} li[data-bell-path='/fr/social'] a[href='/fr/social#community-goal']",
+    assert_select "#{FRAME} li:not([data-bell-path]) a[href='/fr#community-goal']",
       text: /La mission hebdo est accomplie ?\s?: une capsule rare vous attend\.\s+Récupérer/
   end
 
@@ -109,7 +109,7 @@ class BellsControllerTest < ActionDispatch::IntegrationTest
 
     get_bell
 
-    assert_select "#{FRAME} li[data-bell-path='/en/social'][data-bell-lasting=false] a",
+    assert_select "#{FRAME} li:not([data-bell-path])[data-bell-lasting=false] a",
       text: /This week's mission is accomplished: 1,500 capsules opened together\.\s+See/
   end
 
