@@ -1,7 +1,10 @@
 name: Mobile release build
 
-# Builds the signed Android bundle for a release candidate or a release, and uploads it as a workflow artifact.
-# Signing secrets: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD.
+# Builds the signed Android bundle and the signed iOS archive for a release candidate (staging server) or a release
+# (production server), then sends them to the Google Play internal track and to TestFlight.
+# Android secrets: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD,
+# GOOGLE_PLAY_SERVICE_ACCOUNT_JSON. iOS secrets: APP_STORE_CONNECT_KEY_ID, APP_STORE_CONNECT_ISSUER_ID,
+# APP_STORE_CONNECT_KEY_BASE64 (the .p8), APPLE_TEAM_ID.
 on:
   release:
     types: [ prereleased, released ]
@@ -47,3 +50,60 @@ jobs:
         with:
           name: gameble-android-bundle
           path: mobile/android/app/build/outputs/bundle/release/*.aab
+
+      - name: Send the bundle to the Google Play internal track
+        env:
+          PLAY_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          test -n "$PLAY_JSON" || { echo "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON is not set"; exit 1; }
+          echo "$PLAY_JSON" > "$RUNNER_TEMP/play.json"
+          sudo gem install fastlane --no-document
+          fastlane supply --aab mobile/android/app/build/outputs/bundle/release/app-release.aab \
+            --json_key "$RUNNER_TEMP/play.json" --package_name net.gameble.app --track internal --release_status draft
+
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 45
+    env:
+      ROOT_URL: ${{ inputs.root_url || (github.event.release.prerelease && 'https://test.gameble.net') || 'https://gameble.net' }}
+      APS_ENV: ${{ (github.event.release.prerelease && 'development') || 'production' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Write the App Store Connect key
+        env:
+          KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        run: |
+          test -n "$KEY_BASE64" || { echo "APP_STORE_CONNECT_KEY_BASE64 is not set"; exit 1; }
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$KEY_BASE64" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8
+
+      - name: Generate the project and archive it
+        working-directory: mobile/ios
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          brew install xcodegen
+          xcodegen generate
+          VERSION="$(echo "${GITHUB_REF_NAME#v}" | sed 's/-.*//')"
+          xcodebuild archive -project Gameble.xcodeproj -scheme Gameble -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Gameble.xcarchive" \
+            -allowProvisioningUpdates -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8 \
+            -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER_ID" \
+            DEVELOPMENT_TEAM="$TEAM_ID" GAMEBLE_ROOT_URL="$ROOT_URL" APS_ENVIRONMENT="$APS_ENV" \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER"
+          cat > "$RUNNER_TEMP/export.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+            <key>destination</key><string>upload</string>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Gameble.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+            -exportPath "$RUNNER_TEMP/export" -allowProvisioningUpdates \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8 \
+            -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER_ID"
