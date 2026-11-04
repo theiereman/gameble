@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Social on every width</title>
+<style>
+/* =====================================================================
+   gameble · Social on every width (working mock, 2026-11-04)
+   Governs: EXPERIENCE.md Information Architecture (screen list, Desktop navigation,
+   Phone navigation), Component Patterns (Back button, Hub menu), the Social screen.
+   Decisions (memlog 2026-11-04): no phone-only route; 04 ÉCHANGES, 05 AMIS and
+   06 FIL D'ACTIVITÉ merge into one SOCIAL entry; the weekly mission stays on the hub
+   and also shows in Social; Social opens with a feed preview and a "Voir plus" button.
+   Layout directions A and B are proposals for the author to pick. Static, no script.
+   Strings are the shipped fr.yml ones unless marked as new.
+   ===================================================================== */
+:root{
+  --backdrop:#05070a;--ground:#0b0f15;--pn:#121a24;--pn2:#0e141b;--pn3:#1b2838;
+  --line:#2a475e;--line2:#1f3346;--deep:#2a6f9a;--acc:#66c0f4;--on-acc:#0b1520;
+  --txt:#c7d5e0;--txt-b:#e6eef5;--wht:#fff;--mut:#8f98a0;--dim:#5d6b78;--gold:#f4c542;
+  --lime:#a4d007;--on-lime:#10180a;--alert:#e8833a;--on-alert:#1a0d03;
+  --r-com:#8f98a0;--r-unc:#3fcf8e;--r-rare:#66c0f4;--r-epic:#b47cff;--r-leg:#f4c542;
+  --fv:'VT323',ui-monospace,monospace;--fs:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--backdrop);color:var(--txt);font-family:var(--fs)}
+h1,h2,h3,p,ul,ol{margin:0;padding:0}
+ul,ol{list-style:none}
+.doc-h{max-width:1320px;margin:0 auto;padding:28px 16px 8px}
+.doc-h h1{font-family:var(--fv);font-size:38px;line-height:40px;color:var(--wht);font-weight:400;letter-spacing:1px}
+.doc-h p{max-width:1000px;margin-top:8px;font-size:12px;line-height:18px;color:var(--mut)}
+.doc-h b,.note b,.why b,.cap b{color:var(--txt-b)}
+.block{max-width:1320px;margin:0 auto;padding:24px 16px}
+.block>h2{font-family:var(--fv);font-size:28px;color:var(--acc);font-weight:400;letter-spacing:1px;margin-bottom:4px}
+.note,.why,.cap{font-size:12px;line-height:18px;color:var(--mut);max-width:1000px}
+.note{margin-bottom:16px}
+.opt{margin-top:24px}
+.opt>h3{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.why{margin-bottom:12px}
+.cap{margin-top:10px}
+.row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.new{color:var(--gold);font-weight:700}
+
+/* ---------- browser frame and top bar ---------- */
+.browser{background:var(--ground);box-shadow:0 0 0 2px var(--line2)}
+.chrome{display:flex;align-items:center;gap:8px;height:28px;padding:0 12px;background:#070a0e;font-size:10px;color:var(--dim)}
+.chrome i{width:8px;height:8px;background:var(--line2)}
+.chrome span{margin-left:12px}
+.topbar{display:flex;align-items:center;gap:16px;height:56px;padding:0 24px;box-shadow:inset 0 -2px 0 var(--line2)}
+.wordmark{font-family:var(--fv);font-size:28px;color:var(--gold);letter-spacing:2px}
+.screen-title{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--txt-b);text-transform:uppercase}
+.topbar .sp{flex:1}
+.bell{width:28px;height:28px;box-shadow:inset 0 0 0 2px var(--gold);position:relative}
+.bell b{position:absolute;top:-6px;right:-8px;min-width:16px;padding:0 3px;background:var(--alert);color:var(--on-alert);font-size:10px;text-align:center}
+.chip{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--txt-b)}
+.av{flex:none;width:28px;height:28px;background:var(--pn3);box-shadow:inset 0 0 0 2px var(--line)}
+.back{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--txt);box-shadow:inset 0 0 0 2px var(--line)}
+.page{padding:28px 32px 40px}
+
+/* ---------- hub menu ---------- */
+.menu{width:340px;display:flex;flex-direction:column;gap:2px}
+.mi{display:flex;align-items:center;gap:14px;min-height:44px;padding:0 14px;background:var(--pn);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-b)}
+.mi .n{color:var(--acc);font-size:11px}
+.mi .l{flex:1}
+.mi .meta{color:var(--mut);font-size:12px;letter-spacing:0;text-transform:none}
+.mi .bd{min-width:22px;padding:2px 6px;font-size:12px;text-align:center;background:var(--alert);color:var(--on-alert)}
+.mi .bd.std{background:var(--acc);color:var(--on-acc)}
+.mi.gone{background:var(--pn2);color:var(--dim);text-decoration:line-through}
+.mi.gone .n{color:var(--dim)}
+.mi.hot{box-shadow:inset 0 0 0 2px var(--gold)}
+
+/* ---------- social sections ---------- */
+.s-head{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:32px}
+.s-h{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--acc);text-transform:uppercase}
+.s-sub{margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--mut);text-transform:uppercase}
+.more{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--txt)}
+.more .bd{padding:1px 6px;background:var(--alert);color:var(--on-alert)}
+.more::after{content:"▸";color:var(--acc)}
+.sec{display:flex;flex-direction:column;gap:10px}
+.rows{display:flex;flex-direction:column;gap:8px}
+
+/* feed rows, as the shipped feed__entry */
+.fe{display:flex;gap:14px;min-height:68px;padding:10px 14px;background:var(--pn)}
+.th{flex:none;width:36px;height:52px;background:var(--pn3);box-shadow:inset 0 0 0 2px var(--c,var(--line))}
+.ths{display:flex;gap:4px}
+.fb{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:6px}
+.fh{display:flex;gap:14px}
+.fs{flex:1;font-size:13px;line-height:20px;color:var(--txt)}
+.fs b{color:var(--wht)}
+.fs em{font-style:normal;color:var(--c,var(--txt-b));font-weight:700}
+.ft{flex:none;font-size:12px;font-weight:700;color:var(--mut)}
+.fm{display:flex;gap:10px;align-items:center;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.tag{color:var(--c,var(--mut))}
+.disc{padding:1px 6px;box-shadow:inset 0 0 0 2px var(--gold);color:var(--gold)}
+.react{color:var(--dim);letter-spacing:0}
+.see-more{align-self:center;display:inline-flex;align-items:center;min-height:32px;padding:0 14px;background:var(--pn);box-shadow:inset 0 0 0 2px var(--line);font-size:12px;font-weight:700;color:var(--txt)}
+
+/* feed tiles (direction B) */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{display:flex;gap:12px;padding:12px;background:var(--pn);min-height:96px}
+.tile .fs{font-size:12px;line-height:18px}
+
+/* trade rows, as the shipped trade-row */
+.tr{display:flex;align-items:center;gap:14px;min-height:48px;padding:8px 14px;background:var(--pn);box-shadow:inset 0 0 0 2px var(--line2)}
+.tr.quiet{background:var(--pn2)}
+.tr .nm{flex:1;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--wht)}
+.tr.quiet .nm{color:var(--mut)}
+.tr .when{display:block;margin-top:2px;font-size:11px;letter-spacing:0;text-transform:none;color:var(--dim)}
+.rar{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+.tc{padding:3px 8px;box-shadow:inset 0 0 0 2px currentColor;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;flex:none}
+.tc.alert{color:var(--alert)}.tc.acc{color:var(--acc)}.tc.lime{color:var(--lime)}.tc.mut{color:var(--mut)}
+
+/* friends */
+.fr{display:flex;align-items:center;gap:14px;min-height:44px;padding:8px 14px;background:var(--pn);box-shadow:inset 0 0 0 2px var(--line2)}
+.fr .nm{flex:1;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--wht)}
+.pres{font-size:11px;font-weight:700;color:var(--mut)}
+.pres.on{color:var(--lime)}
+.pres.on::before{content:"■ ";}
+
+/* mission panel, as the shipped hub-goal */
+.goal{position:relative;padding:18px;background:var(--pn);box-shadow:inset 0 0 0 2px var(--line)}
+.goal::before,.goal::after{content:"";position:absolute;width:10px;height:10px;border:2px solid var(--acc)}
+.goal::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+.goal::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.goal h3{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--acc);text-transform:uppercase}
+.goal .ln{margin-top:8px;font-size:12px;line-height:18px;color:var(--txt)}
+.goal .lab{margin-top:12px;font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
+.goal .fig{font-family:var(--fv);font-size:30px;color:var(--wht)}
+.gauge{display:grid;grid-template-columns:repeat(24,1fr);gap:2px;margin-top:6px}
+.gauge i{height:10px;background:var(--pn3)}
+.gauge i.lit{background:var(--acc)}
+.goal .rw{margin-top:8px;font-size:12px;font-weight:700;color:var(--txt-b)}
+.goal.band{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 40px;align-items:end;margin-bottom:32px}
+.goal.band .lab:first-child{margin-top:0}
+.goal.band .side .lab{margin-top:0}
+
+/* buttons */
+.btns{display:flex;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;font-size:12px;font-weight:700;letter-spacing:.06em;background:var(--acc);color:var(--on-acc)}
+.btn.sec2{background:var(--pn);color:var(--txt-b);box-shadow:inset 0 0 0 2px var(--line)}
+
+/* page head */
+.ph{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px}
+.ph h1{font-family:var(--fv);font-size:40px;line-height:40px;font-weight:400;color:var(--wht);letter-spacing:1px}
+
+/* layouts */
+.a-grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:32px;margin-top:32px;align-items:start}
+.col{display:flex;flex-direction:column;gap:32px}
+.b-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;margin-top:32px;align-items:start}
+
+/* phone */
+.phone{width:360px;flex:none;background:var(--ground);box-shadow:0 0 0 2px var(--line2)}
+.phone .topbar{height:52px;padding:0 16px}
+.phone .page{padding:16px 16px 0;display:flex;flex-direction:column;gap:24px}
+.phone .fe{padding:10px 12px}
+.phone .th{width:30px;height:44px}
+.phone .tr{gap:10px;padding:8px 10px}
+.phone .tr>.av{display:none}
+.phone .tr .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.phone .tr .sides{gap:6px;font-size:11px}
+.phone .tr .side{gap:4px}
+.phone .tr .pips i{width:5px;height:9px}
+.phone .who{max-width:7ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.phone .fs{font-size:12px;line-height:18px}
+.tabbar{display:grid;grid-template-columns:repeat(4,1fr);margin-top:16px;box-shadow:inset 0 2px 0 var(--line2)}
+.tabbar span{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 12px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.tabbar span::before{content:"";width:20px;height:20px;background:var(--pn3)}
+.tabbar span.on{color:var(--acc)}
+.tabbar span.on::before{background:var(--acc)}
+.sticky{position:relative;padding:12px 0;background:var(--ground)}
+.sticky .btns>*{flex:1}
+
+/* compare strips */
+.strip{display:flex;align-items:center;gap:16px;height:56px;padding:0 20px;background:var(--ground);box-shadow:0 0 0 2px var(--line2);margin-bottom:8px}
+.strip .lbl{width:120px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.q{margin-top:10px;padding:14px 16px;background:var(--pn2);box-shadow:inset 3px 0 0 var(--gold);font-size:12px;line-height:18px;color:var(--txt)}
+.q b{color:var(--gold)}
+
+/* ---------- trade quick rows: card counts per side ---------- */
+.v-grid{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.v-desk{flex:1;min-width:560px;max-width:760px;display:flex;flex-direction:column;gap:8px;padding:16px;background:var(--ground);box-shadow:0 0 0 2px var(--line2)}
+.v-ph{width:360px;flex:none;display:flex;flex-direction:column;gap:8px;padding:16px;background:var(--ground);box-shadow:0 0 0 2px var(--line2)}
+.v-ph .tr{flex-wrap:wrap;row-gap:6px}
+.v-ph .tr .sides{order:3;flex-basis:100%;padding-left:42px}
+.sides{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;color:var(--txt-b);font-variant-numeric:tabular-nums}
+.sides .sw{color:var(--dim);font-size:12px}
+.side{display:flex;align-items:center;gap:6px}
+.who{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+/* V1 pips */
+.pips{display:flex;gap:2px}
+.pips i{width:6px;height:10px;background:var(--c)}
+.pips .plus{width:auto;height:auto;background:none;font-style:normal;font-size:10px;color:var(--mut);margin-left:2px}
+/* V2 top rarity */
+.dia{color:var(--c);font-size:11px}
+/* V3 card stacks */
+.stack{position:relative;width:30px;height:28px}
+.stack i{position:absolute;bottom:0;width:16px;height:24px;background:var(--pn3);box-shadow:inset 0 0 0 2px var(--c)}
+.stack i:nth-child(1){left:0}
+.stack i:nth-child(2){left:5px}
+.stack i:nth-child(3){left:10px}
+.stack b{position:absolute;right:-4px;top:-4px;min-width:14px;padding:0 3px;background:var(--txt-b);color:var(--ground);font-size:10px;line-height:14px;text-align:center}
+/* V4 bars */
+.bars{display:flex;flex-direction:column;gap:3px;width:140px}
+.bar{display:flex;align-items:center;gap:6px}
+.bar .seg{display:flex;gap:2px;flex:1}
+.bar .seg i{height:6px;flex:none;width:14px;background:var(--c)}
+.bar span{width:40px;font-size:10px;color:var(--mut);text-align:right}
+
+.live{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;background:var(--acc);color:var(--on-acc);font-size:11px;font-weight:700;letter-spacing:.14em}
+.live i{width:6px;height:6px;background:var(--on-acc);animation:blink 1s steps(1,end) infinite}
+@keyframes blink{50%{opacity:0}}
+.head-end{display:flex;align-items:center;gap:12px}
+
+/* ---------- compact phone trade rows ---------- */
+.cp{width:360px;flex:none;display:flex;flex-direction:column;gap:6px;padding:16px;background:var(--ground);box-shadow:0 0 0 2px var(--line2)}
+.cp .tc{white-space:nowrap}
+.cr{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 10px;background:var(--pn);box-shadow:inset 0 0 0 2px var(--line2)}
+.cr.quiet{background:var(--pn2)}
+.cr .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--wht)}
+.cr.quiet .nm{color:var(--mut)}
+.cr .sides{gap:6px;font-size:11px}
+.cr .side{gap:4px}
+.cr .pips i{width:5px;height:9px}
+.cr2{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:8px 10px;background:var(--pn);box-shadow:inset 0 0 0 2px var(--line2)}
+.cr2.quiet{background:var(--pn2)}
+.cr2 .nm{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--wht);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cr2.quiet .nm{color:var(--mut)}
+.cr2 .sides{grid-column:1 / -1;font-size:11px;gap:8px}
+.cr2 .pips i{width:5px;height:9px}
+.cr3{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 10px 6px 12px;background:var(--pn);box-shadow:inset 3px 0 0 var(--tone,var(--line2))}
+.cr3.quiet{background:var(--pn2)}
+.cr3 .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.cr3 .nm{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--wht);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cr3.quiet .nm{color:var(--mut)}
+.cr3 .turn{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tone,var(--mut))}
+.cr3 .sides{gap:6px;font-size:11px}
+.cr3 .pips i{width:5px;height:9px}
+.cp .who{max-width:7ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<header class="doc-h">
+  <h1>Social, on every width</h1>
+  <p>Working mock, <b>2026-11-04</b>. The bell's weekly-mission line led a desktop player to the Social screen, which only the phone was meant to show. Decision: <b>no route is phone-only</b>, only the layout changes. Social becomes a desktop screen too; the hub's three social entries merge into one; the weekly mission stays on the hub and also opens Social, at the <b>very top</b> of the page; a <b>preview of the activity feed</b> with a <b>Voir le fil</b> link comes right under it, on desktop and phone alike. Strings are the shipped ones; those in <span class="new">gold</span> are new.</p>
+</header>
+
+<!-- ============================ HUB MENU ============================ -->
+<section class="block">
+  <h2>1 · Hub menu, desktop</h2>
+  <p class="note">The menu goes from nine entries to seven. <b>04 SOCIAL</b> carries what its three entries carried: the friends-online count, then two orange badges side by side, the trades waiting for the player and the invitations waiting for an answer, each absent at zero. Keys 1 to 7 follow the new numbers.</p>
+  <div class="row">
+    <div>
+      <p class="why"><b>Today</b></p>
+      <ol class="menu">
+        <li class="mi"><span class="n">01</span><span class="l">Ouvrir une capsule</span><span class="bd std">3</span></li>
+        <li class="mi"><span class="n">02</span><span class="l">Collection</span><span class="meta">412/1 248</span></li>
+        <li class="mi"><span class="n">03</span><span class="l">Toutes les cartes</span></li>
+        <li class="mi gone"><span class="n">04</span><span class="l">Échanges</span></li>
+        <li class="mi gone"><span class="n">05</span><span class="l">Amis</span></li>
+        <li class="mi gone"><span class="n">06</span><span class="l">Fil d'activité</span></li>
+        <li class="mi"><span class="n">07</span><span class="l">Succès</span><span class="meta">9/23</span></li>
+        <li class="mi"><span class="n">08</span><span class="l">Comment ça marche</span></li>
+        <li class="mi"><span class="n">09</span><span class="l">Soutenir</span></li>
+      </ol>
+    </div>
+    <div>
+      <p class="why"><b>Proposed</b></p>
+      <ol class="menu">
+        <li class="mi"><span class="n">01</span><span class="l">Ouvrir une capsule</span><span class="bd std">3</span></li>
+        <li class="mi"><span class="n">02</span><span class="l">Collection</span><span class="meta">412/1 248</span></li>
+        <li class="mi"><span class="n">03</span><span class="l">Toutes les cartes</span></li>
+        <li class="mi hot"><span class="n">04</span><span class="l">Social</span><span class="meta">3 en ligne</span><span class="bd">1</span><span class="bd">1</span></li>
+        <li class="mi"><span class="n">05</span><span class="l">Succès</span><span class="meta">9/23</span></li>
+        <li class="mi"><span class="n">06</span><span class="l">Comment ça marche</span></li>
+        <li class="mi"><span class="n">07</span><span class="l">Soutenir</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ DIRECTION A ============================ -->
+<section class="block">
+  <h2>2 · Social screen, desktop</h2>
+  <p class="note">The page heading carries the two actions (on the phone they stay held above the tab bar). The weekly mission opens the screen as a wide band, its text on the left and its count and gauge on the right; the feed preview follows; then trades and friends, each section keeping its link to its own full screen.</p>
+
+  <div class="opt">
+    <h3>Chosen · direction A: mission band, feed rows, then two columns</h3>
+    <p class="why">Under the mission, the feed preview shows its <b>three</b> latest entries as full rows, the same rows as the feed, with <b>Voir le fil</b> and the LIVE marker in the section head, like "Tous les échanges": it opens the feed screen, it never expands in place. Below, trades in the wide column and friends in a 380px column. It reads top to bottom like the phone's screen.</p>
+    <div class="browser">
+      <div class="chrome"><i></i><i></i><i></i><span>gameble.gg/fr/social</span></div>
+      <div class="topbar"><span class="wordmark">GAMEBLE</span><span class="screen-title">Social</span><span class="sp"></span><span class="bell"><b>2</b></span><span class="chip"><span class="av"></span>THOMAS</span></div>
+      <div class="page">
+        <div class="ph">
+          <h1>Social</h1>
+          <div class="btns"><span class="btn sec2">Ajouter un ami</span><span class="btn">Nouvel échange</span></div>
+        </div>
+        <section class="goal band">
+          <div>
+            <h3>Mission hebdo</h3>
+            <p class="ln">La Confrérie invite ses membres à unir leurs efforts pour ouvrir 50 000 capsules cette semaine.</p>
+            <p class="lab">Récompense</p>
+            <p class="rw">Une capsule rare pour chaque contributeur</p>
+          </div>
+          <div class="side">
+            <p class="lab">Tous les joueurs</p>
+            <p class="fig">31 240 / 50 000</p>
+            <div class="gauge"><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+        </section>
+
+        <section class="sec">
+          <div class="s-head"><h2 class="s-h">Fil d'activité</h2><span class="head-end"><span class="live">LIVE<i></i></span><span class="more">Voir le fil</span></span></div>
+          <ul class="rows">
+            <li class="fe"><span class="th" style="--c:var(--r-leg)"></span><div class="fb"><div class="fh"><p class="fs"><b>Léa</b> a tiré <em style="--c:var(--r-leg)">Hades</em></p><span class="ft">il y a 2 min</span></div><div class="fm"><span class="tag" style="--c:var(--r-leg)">◆ Légendaire</span><span class="react">♥ 4 · 😮 2</span></div></div></li>
+            <li class="fe"><span class="ths"><span class="th" style="--c:var(--r-rare)"></span><span class="th" style="--c:var(--r-epic)"></span></span><div class="fb"><div class="fh"><p class="fs"><b>Malik</b> et <b>Inès</b> ont échangé <em style="--c:var(--r-rare)">Celeste</em> contre <em style="--c:var(--r-epic)">Outer Wilds</em></p><span class="ft">il y a 9 min</span></div><div class="fm"><span class="tag">⇄ Échange</span><span class="react">♥ 1</span></div></div></li>
+            <li class="fe"><span class="th" style="--c:var(--r-unc)"></span><div class="fb"><div class="fh"><p class="fs"><em style="--c:var(--r-unc)">Return of the Obra Dinn</em>, trouvée par <b>Sam</b> pour la première fois dans la communauté</p><span class="ft">il y a 14 min</span></div><div class="fm"><span class="tag" style="--c:var(--r-unc)">◆ Peu commune</span><span class="disc">Première découverte</span></div></div></li>
+          </ul>
+        </section>
+
+        <div class="a-grid">
+          <div class="col">
+            <section class="sec">
+              <div class="s-head"><h2 class="s-h">Échanges</h2><span class="more">Tous les échanges <span class="bd">1</span></span></div>
+              <ul class="rows">
+                <li class="tr"><span class="av"></span><span class="nm">Léa</span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-epic)"></i><i style="--c:var(--r-rare)"></i><i style="--c:var(--r-com)"></i></span><span>3</span></span><span class="sw">⇄</span><span class="side"><span>2</span><span class="pips"><i style="--c:var(--r-leg)"></i><i style="--c:var(--r-unc)"></i></span><span class="who">Léa</span></span></span><span class="tc alert">À vous</span></li>
+                <li class="tr"><span class="av"></span><span class="nm">Malik</span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-rare)"></i></span><span>1</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-rare)"></i></span><span class="who">Malik</span></span></span><span class="tc acc">À son tour</span></li>
+              </ul>
+              <h3 class="s-sub">Récemment</h3>
+              <ul class="rows">
+                <li class="tr quiet"><span class="av"></span><span class="nm">Inès<span class="when">hier</span></span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-com)"></i><i style="--c:var(--r-com)"></i></span><span>2</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-leg)"></i></span><span class="who">Inès</span></span></span><span class="tc mut">Accepté</span></li>
+                <li class="tr quiet"><span class="av"></span><span class="nm">Sam<span class="when">il y a 3 jours</span></span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-unc)"></i></span><span>1</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-com)"></i></span><span class="who">Sam</span></span></span><span class="tc mut">Refusé</span></li>
+              </ul>
+            </section>
+          </div>
+          <div class="col">
+            <section class="sec">
+              <div class="s-head"><h2 class="s-h">Amis</h2><span class="more">Tous les amis <span class="bd">1</span></span></div>
+              <ul class="rows">
+                <li class="fr"><span class="av"></span><span class="nm">Léa</span><span class="pres on">En ligne</span></li>
+                <li class="fr"><span class="av"></span><span class="nm">Malik</span><span class="pres on">En ligne</span></li>
+                <li class="fr"><span class="av"></span><span class="nm">Inès</span><span class="pres on">En ligne</span></li>
+                <li class="fr"><span class="av"></span><span class="nm">Sam</span><span class="pres">Vu il y a 2 h</span></li>
+              </ul>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="cap">The feed preview updates live like the feed and keeps its reaction bar; an empty feed shows "Rien pour l'instant.". Under 1180px the screen falls back to one column, in the phone's order. Direction B (three feed tiles, author 2026-11-04) is rejected.</p>
+</section>
+
+<!-- ============================ PHONE ============================ -->
+<section class="block">
+  <h2>3 · Social screen, phone</h2>
+  <p class="note">The same screen and the same order, in one column: the mission first, as shipped on 2026-11-03, then the feed preview, then trades and friends.</p>
+  <div class="row">
+    <div>
+      <p class="why"><b>Mission, feed preview, trades, friends</b></p>
+      <div class="phone">
+        <div class="topbar"><span class="wordmark" style="font-size:24px">GAMEBLE</span><span class="sp"></span><span class="bell"><b>2</b></span></div>
+        <div class="page">
+          <section class="goal">
+            <h3>Mission hebdo</h3>
+            <p class="fig">31 240 / 50 000</p>
+            <div class="gauge"><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i class="lit"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </section>
+          <section class="sec">
+            <div class="s-head"><h2 class="s-h">Fil d'activité</h2><span class="head-end"><span class="live">LIVE<i></i></span><span class="more">Voir le fil</span></span></div>
+            <ul class="rows">
+              <li class="fe"><span class="th" style="--c:var(--r-leg)"></span><div class="fb"><div class="fh"><p class="fs"><b>Léa</b> a tiré <em style="--c:var(--r-leg)">Hades</em></p><span class="ft">2 min</span></div><div class="fm"><span class="tag" style="--c:var(--r-leg)">◆ Légendaire</span></div></div></li>
+              <li class="fe"><span class="ths"><span class="th" style="--c:var(--r-rare)"></span><span class="th" style="--c:var(--r-epic)"></span></span><div class="fb"><div class="fh"><p class="fs"><b>Malik</b> et <b>Inès</b> ont échangé <em style="--c:var(--r-rare)">Celeste</em> contre <em style="--c:var(--r-epic)">Outer Wilds</em></p><span class="ft">9 min</span></div><div class="fm"><span class="tag">⇄ Échange</span></div></div></li>
+            </ul>
+          </section>
+          <section class="sec">
+            <div class="s-head"><h2 class="s-h">Échanges</h2><span class="more">Tous <span class="bd">1</span></span></div>
+            <ul class="rows"><li class="cr3" style="--tone:var(--alert)"><span class="tx"><span class="nm">Léa</span><span class="turn">À vous</span></span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-epic)"></i><i style="--c:var(--r-rare)"></i><i style="--c:var(--r-com)"></i></span><span>3</span></span><span class="sw">⇄</span><span class="side"><span>2</span><span class="pips"><i style="--c:var(--r-leg)"></i><i style="--c:var(--r-unc)"></i></span><span class="who">Léa</span></span></span></li></ul>
+          </section>
+          <div class="sticky"><div class="btns"><span class="btn sec2">Ajouter un ami</span><span class="btn">Nouvel échange</span></div></div>
+        </div>
+        <div class="tabbar"><span>Capsule</span><span>Sets</span><span class="on">Social</span><span>Moi</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="cap">On the phone the preview shows <b>two</b> entries, not three, so the trades stay in the first screen height.</p>
+</section>
+
+<!-- ============================ BACK BUTTONS ============================ -->
+<section class="block">
+  <h2>4 · Back buttons and links</h2>
+  <p class="note">Échanges, Amis and the feed become children of Social at every width. At every width their back button names Social, their parent, as it already does on the phone, even when the screen was opened from the bell or the hub. The bell's links stay as they are: the mission line opens Social's mission, trades and invitations their own screens. Each of those screens now exists on desktop too.</p>
+  <div class="strip"><span class="lbl">/fr/trades</span><span class="wordmark" style="font-size:24px">GAMEBLE</span><span class="back">◀ SOCIAL</span><span class="screen-title">Échanges</span></div>
+  <div class="strip"><span class="lbl">/fr/friends</span><span class="wordmark" style="font-size:24px">GAMEBLE</span><span class="back">◀ SOCIAL</span><span class="screen-title">Amis</span></div>
+  <div class="strip"><span class="lbl">/fr/feed</span><span class="wordmark" style="font-size:24px">GAMEBLE</span><span class="back">◀ SOCIAL</span><span class="screen-title">Fil d'activité</span></div>
+  <div class="strip"><span class="lbl">/fr/trades/…</span><span class="wordmark" style="font-size:24px">GAMEBLE</span><span class="back">◀ SOCIAL</span><span class="screen-title">Échange avec Léa</span><span class="cap" style="margin:0">opened from the bell, too</span></div>
+  <div class="strip"><span class="lbl">/fr/social</span><span class="wordmark" style="font-size:24px">GAMEBLE</span><span class="screen-title">Social</span><span class="cap" style="margin:0">no back: the previous screen is the hub, which the GAMEBLE link opens</span></div>
+</section>
+
+<!-- ============================ TRADE ROWS ============================ -->
+<section class="block">
+  <h2>5 · Trade quick rows: cards on each side</h2>
+  <p class="note">Each row of Échanges in Social shows how many cards each side puts in, with a small rarity mark. On the left, the cards <b>you</b> give; on the right, the cards the friend gives. The mark replaces today's "◆ Épique" top-rarity label. On the phone the mark moves under the name, so the name keeps its width. Sample rows: Léa, you give a commune, a rare and an épique for a peu commune and a légendaire; Malik, one rare for one rare; Inès, two communes for an épique.</p>
+  <div class="opt">
+    <h3>Chosen · idea 1, with each side named as in idea 2</h3>
+    <p class="why">One small bar per card, highest rarity first, and the count beside it. Reads at a glance, both the size and the value of each side. Past 6 cards a side shows six pips and "+n".</p>
+    <div class="v-grid"><ul class="v-desk"><li class="tr"><span class="av"></span><span class="nm">Léa</span><span class="sides"><span class="side"><span class="pips"><i style="--c:var(--r-epic)"></i><i style="--c:var(--r-rare)"></i><i style="--c:var(--r-com)"></i></span><span>3</span></span><span class="sw">⇄</span><span class="side"><span>2</span><span class="pips"><i style="--c:var(--r-leg)"></i><i style="--c:var(--r-unc)"></i></span></span></span><span class="tc alert">À vous</span></li><li class="tr"><span class="av"></span><span class="nm">Malik</span><span class="sides"><span class="side"><span class="pips"><i style="--c:var(--r-rare)"></i></span><span>1</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-rare)"></i></span></span></span><span class="tc acc">À son tour</span></li><li class="tr quiet"><span class="av"></span><span class="nm">Inès<span class="when">hier</span></span><span class="sides"><span class="side"><span class="pips"><i style="--c:var(--r-com)"></i><i style="--c:var(--r-com)"></i></span><span>2</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-epic)"></i></span></span></span><span class="tc mut">Accepté</span></li></ul><ul class="v-ph"><li class="tr"><span class="av"></span><span class="nm">Léa</span><span class="sides"><span class="side"><span class="pips"><i style="--c:var(--r-epic)"></i><i style="--c:var(--r-rare)"></i><i style="--c:var(--r-com)"></i></span><span>3</span></span><span class="sw">⇄</span><span class="side"><span>2</span><span class="pips"><i style="--c:var(--r-leg)"></i><i style="--c:var(--r-unc)"></i></span></span></span><span class="tc alert">À vous</span></li><li class="tr"><span class="av"></span><span class="nm">Malik</span><span class="sides"><span class="side"><span class="pips"><i style="--c:var(--r-rare)"></i></span><span>1</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-rare)"></i></span></span></span><span class="tc acc">À son tour</span></li><li class="tr quiet"><span class="av"></span><span class="nm">Inès<span class="when">hier</span></span><span class="sides"><span class="side"><span class="pips"><i style="--c:var(--r-com)"></i><i style="--c:var(--r-com)"></i></span><span>2</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-epic)"></i></span></span></span><span class="tc mut">Accepté</span></li></ul></div>
+  </div>
+  <div class="opt">
+    <h3>Idea 2 · count and the side's top rarity</h3>
+    <p class="why">The count and one diamond in the colour of the side's best card, with "VOUS" and the friend's name as labels. The quietest form; it says what each side is worth at most, not what it holds.</p>
+    <div class="v-grid"><ul class="v-desk"><li class="tr"><span class="av"></span><span class="nm">Léa</span><span class="sides"><span class="side"><span class="who">Vous</span><span>3</span><span class="dia" style="--c:var(--r-epic)">◆</span></span><span class="sw">⇄</span><span class="side"><span class="dia" style="--c:var(--r-leg)">◆</span><span>2</span><span class="who">Léa</span></span></span><span class="tc alert">À vous</span></li><li class="tr"><span class="av"></span><span class="nm">Malik</span><span class="sides"><span class="side"><span class="who">Vous</span><span>1</span><span class="dia" style="--c:var(--r-rare)">◆</span></span><span class="sw">⇄</span><span class="side"><span class="dia" style="--c:var(--r-rare)">◆</span><span>1</span><span class="who">Malik</span></span></span><span class="tc acc">À son tour</span></li><li class="tr quiet"><span class="av"></span><span class="nm">Inès<span class="when">hier</span></span><span class="sides"><span class="side"><span class="who">Vous</span><span>2</span><span class="dia" style="--c:var(--r-com)">◆</span></span><span class="sw">⇄</span><span class="side"><span class="dia" style="--c:var(--r-epic)">◆</span><span>1</span><span class="who">Inès</span></span></span><span class="tc mut">Accepté</span></li></ul><ul class="v-ph"><li class="tr"><span class="av"></span><span class="nm">Léa</span><span class="sides"><span class="side"><span class="who">Vous</span><span>3</span><span class="dia" style="--c:var(--r-epic)">◆</span></span><span class="sw">⇄</span><span class="side"><span class="dia" style="--c:var(--r-leg)">◆</span><span>2</span><span class="who">Léa</span></span></span><span class="tc alert">À vous</span></li><li class="tr"><span class="av"></span><span class="nm">Malik</span><span class="sides"><span class="side"><span class="who">Vous</span><span>1</span><span class="dia" style="--c:var(--r-rare)">◆</span></span><span class="sw">⇄</span><span class="side"><span class="dia" style="--c:var(--r-rare)">◆</span><span>1</span><span class="who">Malik</span></span></span><span class="tc acc">À son tour</span></li><li class="tr quiet"><span class="av"></span><span class="nm">Inès<span class="when">hier</span></span><span class="sides"><span class="side"><span class="who">Vous</span><span>2</span><span class="dia" style="--c:var(--r-com)">◆</span></span><span class="sw">⇄</span><span class="side"><span class="dia" style="--c:var(--r-epic)">◆</span><span>1</span><span class="who">Inès</span></span></span><span class="tc mut">Accepté</span></li></ul></div>
+  </div>
+  <div class="opt">
+    <h3>Idea 3 · a small stack of cards per side</h3>
+    <p class="why">A fanned stack of up to three card outlines, framed in their rarities, with the count in a corner tag. The most "card game", but the busiest, and harder to read at 16px wide.</p>
+    <div class="v-grid"><ul class="v-desk"><li class="tr"><span class="av"></span><span class="nm">Léa</span><span class="sides"><span class="stack"><i style="--c:var(--r-com)"></i><i style="--c:var(--r-rare)"></i><i style="--c:var(--r-epic)"></i><b>3</b></span><span class="sw">⇄</span><span class="stack"><i style="--c:var(--r-unc)"></i><i style="--c:var(--r-leg)"></i><b>2</b></span></span><span class="tc alert">À vous</span></li><li class="tr"><span class="av"></span><span class="nm">Malik</span><span class="sides"><span class="stack"><i style="--c:var(--r-rare)"></i><b>1</b></span><span class="sw">⇄</span><span class="stack"><i style="--c:var(--r-rare)"></i><b>1</b></span></span><span class="tc acc">À son tour</span></li><li class="tr quiet"><span class="av"></span><span class="nm">Inès<span class="when">hier</span></span><span class="sides"><span class="stack"><i style="--c:var(--r-com)"></i><i style="--c:var(--r-com)"></i><b>2</b></span><span class="sw">⇄</span><span class="stack"><i style="--c:var(--r-epic)"></i><b>1</b></span></span><span class="tc mut">Accepté</span></li></ul><ul class="v-ph"><li class="tr"><span class="av"></span><span class="nm">Léa</span><span class="sides"><span class="stack"><i style="--c:var(--r-com)"></i><i style="--c:var(--r-rare)"></i><i style="--c:var(--r-epic)"></i><b>3</b></span><span class="sw">⇄</span><span class="stack"><i style="--c:var(--r-unc)"></i><i style="--c:var(--r-leg)"></i><b>2</b></span></span><span class="tc alert">À vous</span></li><li class="tr"><span class="av"></span><span class="nm">Malik</span><span class="sides"><span class="stack"><i style="--c:var(--r-rare)"></i><b>1</b></span><span class="sw">⇄</span><span class="stack"><i style="--c:var(--r-rare)"></i><b>1</b></span></span><span class="tc acc">À son tour</span></li><li class="tr quiet"><span class="av"></span><span class="nm">Inès<span class="when">hier</span></span><span class="sides"><span class="stack"><i style="--c:var(--r-com)"></i><i style="--c:var(--r-com)"></i><b>2</b></span><span class="sw">⇄</span><span class="stack"><i style="--c:var(--r-epic)"></i><b>1</b></span></span><span class="tc mut">Accepté</span></li></ul></div>
+  </div>
+  <div class="opt">
+    <h3>Idea 4 · two rarity strips, you above the friend</h3>
+    <p class="why">Two short strips stacked, one segment per card: yours on top, the friend's below. Compares the two sides by length; the counts are not written, so it leans on the accessible name.</p>
+    <div class="v-grid"><ul class="v-desk"><li class="tr"><span class="av"></span><span class="nm">Léa</span><span class="sides"><span class="bars"><span class="bar"><span>Vous</span><span class="seg"><i style="--c:var(--r-epic)"></i><i style="--c:var(--r-rare)"></i><i style="--c:var(--r-com)"></i></span></span><span class="bar"><span>Léa</span><span class="seg"><i style="--c:var(--r-leg)"></i><i style="--c:var(--r-unc)"></i></span></span></span></span><span class="tc alert">À vous</span></li><li class="tr"><span class="av"></span><span class="nm">Malik</span><span class="sides"><span class="bars"><span class="bar"><span>Vous</span><span class="seg"><i style="--c:var(--r-rare)"></i></span></span><span class="bar"><span>Malik</span><span class="seg"><i style="--c:var(--r-rare)"></i></span></span></span></span><span class="tc acc">À son tour</span></li><li class="tr quiet"><span class="av"></span><span class="nm">Inès<span class="when">hier</span></span><span class="sides"><span class="bars"><span class="bar"><span>Vous</span><span class="seg"><i style="--c:var(--r-com)"></i><i style="--c:var(--r-com)"></i></span></span><span class="bar"><span>Inès</span><span class="seg"><i style="--c:var(--r-epic)"></i></span></span></span></span><span class="tc mut">Accepté</span></li></ul><ul class="v-ph"><li class="tr"><span class="av"></span><span class="nm">Léa</span><span class="sides"><span class="bars"><span class="bar"><span>Vous</span><span class="seg"><i style="--c:var(--r-epic)"></i><i style="--c:var(--r-rare)"></i><i style="--c:var(--r-com)"></i></span></span><span class="bar"><span>Léa</span><span class="seg"><i style="--c:var(--r-leg)"></i><i style="--c:var(--r-unc)"></i></span></span></span></span><span class="tc alert">À vous</span></li><li class="tr"><span class="av"></span><span class="nm">Malik</span><span class="sides"><span class="bars"><span class="bar"><span>Vous</span><span class="seg"><i style="--c:var(--r-rare)"></i></span></span><span class="bar"><span>Malik</span><span class="seg"><i style="--c:var(--r-rare)"></i></span></span></span></span><span class="tc acc">À son tour</span></li><li class="tr quiet"><span class="av"></span><span class="nm">Inès<span class="when">hier</span></span><span class="sides"><span class="bars"><span class="bar"><span>Vous</span><span class="seg"><i style="--c:var(--r-com)"></i><i style="--c:var(--r-com)"></i></span></span><span class="bar"><span>Inès</span><span class="seg"><i style="--c:var(--r-epic)"></i></span></span></span></span><span class="tc mut">Accepté</span></li></ul></div>
+  </div>
+  <p class="q"><b>For every idea:</b> the marks are hidden from assistive technology and the row's accessible name says it in words: "Léa, à vous. Vous donnez 3 cartes, dont 1 épique ; Léa donne 2 cartes, dont 1 légendaire." Chosen (author, 2026-11-04): <b>idea 1</b>, each side named as in idea 2 ("VOUS" on the left, the friend on the right, mirrored), as now drawn in sections 2 and 3. Ideas 3 and 4 are rejected.</p>
+</section>
+
+<!-- ============================ COMPACT PHONE ROWS ============================ -->
+<section class="block">
+  <h2>6 · Trade quick rows, compact on the phone</h2>
+  <p class="note">At 360px, the one-line row (avatar, name, both sides, chip) leaves the chip no room: "À VOUS" breaks on two lines. Three ways to make it compact. All three drop the 32px avatar on the phone (the name already says who), keep a 44px touch target, and cut a long name with an ellipsis ("Maximilien" is the long-name sample).</p>
+  <div class="row">
+    <div><p class="why"><b>Compact 1 · two short lines</b><br>Name and chip on top, both sides below, labelled. Everything stays, about 56px a row.</p><ul class="cp"><li class="cr2"><span class="nm">Léa</span><span class="tc alert">À vous</span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-epic)"></i><i style="--c:var(--r-rare)"></i><i style="--c:var(--r-com)"></i></span><span>3</span></span><span class="sw">⇄</span><span class="side"><span>2</span><span class="pips"><i style="--c:var(--r-leg)"></i><i style="--c:var(--r-unc)"></i></span><span class="who">Léa</span></span></span></li><li class="cr2"><span class="nm">Maximilien</span><span class="tc acc">À son tour</span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-rare)"></i></span><span>1</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-rare)"></i></span><span class="who">Maximilien</span></span></span></li><li class="cr2 quiet"><span class="nm">Inès</span><span class="tc mut">Accepté</span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-com)"></i><i style="--c:var(--r-com)"></i></span><span>2</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-leg)"></i></span><span class="who">Inès</span></span></span></li></ul></div>
+    <div><p class="why"><b>Compact 2 · one line, the friend's label dropped</b><br>The row's name already names the friend, so only "VOUS" is written; the right side is the friend's by elimination. 44px a row, the tightest.</p><ul class="cp"><li class="cr"><span class="nm">Léa</span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-epic)"></i><i style="--c:var(--r-rare)"></i><i style="--c:var(--r-com)"></i></span><span>3</span></span><span class="sw">⇄</span><span class="side"><span>2</span><span class="pips"><i style="--c:var(--r-leg)"></i><i style="--c:var(--r-unc)"></i></span></span></span><span class="tc alert">À vous</span></li><li class="cr"><span class="nm">Maximilien</span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-rare)"></i></span><span>1</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-rare)"></i></span></span></span><span class="tc acc">À son tour</span></li><li class="cr quiet"><span class="nm">Inès</span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-com)"></i><i style="--c:var(--r-com)"></i></span><span>2</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-leg)"></i></span></span></span><span class="tc mut">Accepté</span></li></ul></div>
+    <div><p class="why"><b>Compact 3 · the turn moves under the name</b><br>No chip box: the turn is written small under the name in its colour, with a 3px edge on the left in the same colour. Both sides stay labelled, on one line. About 48px a row.</p><ul class="cp"><li class="cr3" style="--tone:var(--alert)"><span class="tx"><span class="nm">Léa</span><span class="turn">À vous</span></span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-epic)"></i><i style="--c:var(--r-rare)"></i><i style="--c:var(--r-com)"></i></span><span>3</span></span><span class="sw">⇄</span><span class="side"><span>2</span><span class="pips"><i style="--c:var(--r-leg)"></i><i style="--c:var(--r-unc)"></i></span><span class="who">Léa</span></span></span></li><li class="cr3" style="--tone:var(--acc)"><span class="tx"><span class="nm">Maximilien</span><span class="turn">À son tour</span></span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-rare)"></i></span><span>1</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-rare)"></i></span><span class="who">Maximilien</span></span></span></li><li class="cr3 quiet" style="--tone:var(--line2)"><span class="tx"><span class="nm">Inès</span><span class="turn">Accepté</span></span><span class="sides"><span class="side"><span class="who">Vous</span><span class="pips"><i style="--c:var(--r-com)"></i><i style="--c:var(--r-com)"></i></span><span>2</span></span><span class="sw">⇄</span><span class="side"><span>1</span><span class="pips"><i style="--c:var(--r-leg)"></i></span><span class="who">Inès</span></span></span></li></ul></div>
+  </div>
+  <p class="cap">Chosen (author, 2026-11-04): <b>compact 3</b>, now drawn in section 3. It keeps "who gives what" written on both sides, as decided, and stays one line, at the cost of the chip's box, which the colour and the left edge take over. Compact 2 is the shortest if the friend's label can go.</p>
+</section>
+
+</body>
+</html>

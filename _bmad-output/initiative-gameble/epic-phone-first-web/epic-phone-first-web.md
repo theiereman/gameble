@@ -30,6 +30,7 @@ A player on a phone reaches every screen in at most two taps and opens a day's c
 - R4: Social opens on trades in progress and friends; a trade row shows the person, whose turn it is and the highest rarity; a trade starts from a missing card, sent with the player's own side empty; add-friend and new-trade stay at the bottom; the feed is secondary. (intent, section Social and trades)
 - R5: A bell opens a dropdown of what is new: a trade updated, a friend request, the daily and community goal; each line is one sentence and one action and clears when its target is opened; it shows on desktop too. (intent, section Bell)
 - R6: The Me tab is the public profile merged with the personalization page, edited in place through bottom sheets with the result shown live; the account settings keep their own page, linked once. (intent, section Me page)
+- R7: Every screen exists at every width, the layout alone changing: Social is a desktop screen too, reached from one Social entry in the hub menu, opening on the weekly mission and a preview of the feed, and its children name it in their back button. (author, 2026-11-04; design, EXPERIENCE.md section Social)
 
 ## Done when
 
@@ -42,7 +43,7 @@ A player on a phone reaches every screen in at most two taps and opens a day's c
 
 ## Boundaries
 
-The web app's shell, lists, capsule screen, Social, bell and Me page at phone width, with desktop gaining the shared pieces (bottom sheet, empty-capsule state, bell). Not a native app (a later epic, after the phone web experience), not new trade rules, not vibration or sound on rare cards, not achievements in the bell.
+The web app's shell, lists, capsule screen, Social, bell and Me page at phone width, with desktop gaining the shared pieces (bottom sheet, empty-capsule state, bell) and the Social screen (R7). Not a native app (a later epic, after the phone web experience), not new trade rules, not vibration or sound on rare cards, not achievements in the bell.
 
 ## References
 
@@ -50,6 +51,7 @@ The web app's shell, lists, capsule screen, Social, bell and Me page at phone wi
 - intent — _bmad-output/initiative-gameble/brainstorm-mobile-web-ux/brainstorm-mobile-web-ux.md, sections 2 to 5
 - evidence — _bmad-output/initiative-gameble/audit-mobile-web/audit-mobile-web.md, section Findings
 - design — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md and DESIGN.md
+- design — _bmad-output/initiative-gameble/ux-gameble/mockups/social.html, Social at every width
 - architecture — _bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md
 - prior work — _bmad-output/initiative-gameble/epic-trade-suggestions/epic-trade-suggestions.md and epic-aim-at-the-cards-you-want/epic-aim-at-the-cards-you-want.md
 
@@ -58,6 +60,7 @@ The web app's shell, lists, capsule screen, Social, bell and Me page at phone wi
 - Decision (2026-11-02, author): one epic for the whole phone experience, past the usual size; the author chose it over two.
 - Decision (2026-11-02, author): release 1.2.0, the mobile version; the native app (issue 332) comes after it.
 - Decision (2026-11-02, author): tickets stay local, no tracker.
+- Decision (2026-11-04, author): no route is phone-only; the bell's weekly-mission line had led a desktop player to the phone-only Social screen. Social becomes a desktop screen (R7, entry 15) rather than the bell pointing elsewhere.
 - Open question: whether the reserve count also shows as a badge on the Capsule tab; the author only chose the merged header counter.
 - Unknown: the storage of the last-seen marker for trades and how it respects the rule that a GET never writes; entry 11 waits on it.
 - Unknown: how the bell, the sheets and the tabs map onto the native shell later; not decided here.

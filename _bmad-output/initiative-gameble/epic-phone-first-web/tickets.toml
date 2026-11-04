@@ -138,13 +138,24 @@ hitl = false
 risk = "medium"
 
 [[entry]]
+id = 15
+type = "story"
+title = "Social on every width"
+description = "Social becomes one screen at every width: on desktop the hub menu merges Trades, Friends and Feed into one Social entry (seven entries, keys 1 to 7, the friends-online count and the trades and invitations badges side by side), and Social opens with the weekly mission as a band at the top (it stays on the hub), then a preview of the feed's latest entries with the live marker and its link to the feed in the section head, then trades in a wide column and friends beside them, the add-friend and new-trade actions in the page heading; on the phone the same order in one column, two feed entries, and a compact trade row without avatar whose turn sits under the name in its colour with a left edge; Trades, Friends, the feed and a trade name Social in their back button at every width."
+verify = "On desktop the hub menu shows seven entries with Social and its two badges, keys 1 to 7 open them, and Social shows the mission band, three feed entries, the trades and the friends as in the mock; at 390 by 844 the same screen shows the mission first, two feed entries and one-line compact trade rows; Trades, Friends, the feed and a trade opened from the bell show a back to Social; a GET of Social writes nothing."
+covers = ["R4", "R7"]
+after = [2, 8, 10]
+hitl = false
+risk = "medium"
+
+[[entry]]
 id = 13
 type = "story"
 title = "The path checked on a real iPhone"
 description = "A person walks the phone path on a real iPhone in Safari: safe areas, the retracting address bar, the keyboard on the search and trade fields, and the capsule reveal, and records what must be fixed."
 verify = "A written list of what was seen on the device, each item fixed or deferred with the author's say, then the phone experience is released in 1.2.0."
-covers = ["R1", "R2", "R3", "R4", "R5", "R6"]
-after = [5, 7, 9, 11, 12]
+covers = ["R1", "R2", "R3", "R4", "R5", "R6", "R7"]
+after = [5, 7, 9, 11, 12, 15]
 hitl = true
 risk = "low"
 
@@ -155,6 +166,6 @@ title = "Refactor sweep"
 description = "Cleanup only, with its scope set when it starts from the build records and the review findings deferred during the epic."
 verify = "The cleanup items listed at its start are done and the suite stays green."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 13]
 hitl = false
 risk = "low"
