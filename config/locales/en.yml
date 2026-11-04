@@ -1788,15 +1788,13 @@ en:
         collect: Collect
         collect_label: Collect the reward capsule
         collected: Collected
-        line: The Brotherhood invites its members to join forces and open %{target}
-          capsules this week.
-        players: All players
-        previous_missed: 'Last week: %{total} / %{target} · mission missed'
-        previous_reached: 'Last week: %{total} / %{target} · mission accomplished'
+        line: Together, open %{target} capsules this week.
+        previous_missed: 'Last week: %{total} / %{target}, missed'
+        previous_reached: 'Last week: %{total} / %{target}, accomplished'
         progress: "%{total} contributions of %{target} this week"
-        reached: Mission accomplished
-        reward: Reward
-        reward_text: A rare capsule for every contributor
+        reached: Accomplished
+        reward: 'Reward: %{reward}'
+        reward_text: a rare capsule per contributor
         title: Weekly mission
       goals:
         see_all: See all

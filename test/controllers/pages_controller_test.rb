@@ -379,29 +379,34 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:moderator))
 
     get home_path(locale: :en)
-    assert_select "#community-goal .hub-goal__line", text: "The Brotherhood invites its members to join forces and open 50,000 capsules this week."
-    assert_select "#community-goal .hub-goal__figures", text: "100 / 50,000"
+    assert_select "#community-goal .hub-goal__meter > .hub-goal__figures:first-child", text: "100 / 50,000"
+    assert_select "#community-goal .hub-goal__line", text: "Together, open 50,000 capsules this week."
+    assert_select "#community-goal .hub-goal__reward", text: "Reward: a rare capsule per contributor"
+    assert_select "#community-goal .hub-goal__status", false
     assert_select "#community-goal .hub-goal__segment", count: 24
     assert_select "#community-goal .hub-goal__segment--lit", count: 0
 
     get home_path(locale: :fr)
-    assert_select "#community-goal .hub-goal__line", text: /\ALa Confrérie invite ses membres à unir leurs efforts pour ouvrir 50[\s\u00a0\u202f]000 capsules cette semaine\.\z/
+    assert_select "#community-goal .hub-goal__line", text: /\AEnsemble, ouvrez 50[\s\u00a0\u202f]000 capsules cette semaine\.\z/
+    assert_select "#community-goal .hub-goal__reward", text: "Récompense\u202F: une capsule rare par contributeur"
   end
 
-  test "a reached goal reads Mission accomplie with a full gauge, in both languages" do
+  test "a reached goal reads Accomplie on its reward line with a full lime gauge, in both languages" do
     week = Game::WeeklyGoal.week_start(Time.current)
     Game::WeeklyGoal.create!(week_start: week, total: 210, target: 200)
     sign_in(accounts_players(:moderator))
 
     get home_path(locale: :en)
-    assert_select "#community-goal .hub-goal__status", text: "Mission accomplished"
+    assert_select "#community-goal .hub-goal__progress--reached .hub-goal__reward", text: "Accomplished · a rare capsule per contributor" do
+      assert_select ".hub-goal__status", text: "Accomplished"
+    end
     assert_select "#community-goal .hub-goal__figures", text: "210 / 200"
     assert_select "#community-goal .hub-goal__segment--lit", count: 24
     assert_select "#community-goal .hub-goal__previous", false
 
     sign_in(@player, origin: "/fr")
     get home_path(locale: :fr)
-    assert_select "#community-goal .hub-goal__status", text: "Mission accomplie"
+    assert_select "#community-goal .hub-goal__reward", text: "Accomplie · une capsule rare par contributeur"
     assert_select "#community-goal .hub-goal__segment--lit", count: 24
   end
 
@@ -415,11 +420,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#community-goal .hub-goal__status", false
     assert_select "#community-goal .hub-goal__figures", text: "0 / 250"
     assert_select "#community-goal .hub-goal__segment--lit", count: 0
-    assert_select "#community-goal .hub-goal__previous", text: "Semaine dernière\u202F: 180 / 200 · mission manquée"
+    assert_select "#community-goal .hub-goal__previous", text: "Semaine dernière\u202F: 180 / 200, manquée"
 
     Game::WeeklyGoal.where(week_start: week - 7).update_all(total: 260)
     get home_path(locale: :en)
-    assert_select "#community-goal .hub-goal__previous", text: "Last week: 260 / 200 · mission accomplished"
+    assert_select "#community-goal .hub-goal__previous", text: "Last week: 260 / 200, accomplished"
   end
 
   def earn_goal_reward(player = @player)
@@ -445,7 +450,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
                     "[aria-label=?]", "Récupérer la capsule de récompense", text: "Récupérer"
     end
     assert_select "#community-goal-progress #goal-reward", false
-    assert_select "#community-goal-progress .hub-goal__previous"
+    assert_select "#community-goal-progress .hub-goal__previous", text: "Semaine dernière\u202F: 200 / 200, accomplie"
     assert_select "#toasts .toast[data-toast-once]", false
     assert_select "[style]", 0
 

@@ -1,13 +1,33 @@
-/* ---- Community goal panel: the key panel, in progress, reached, and the
-   previous week's result after the rollover ---- */
+/* ---- Community goal panel: the heading with the count beside it, the
+   line, the gauge, the reward, then last week's result beside the player's
+   claim ---- */
 
 .hub-goal {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+/* The public part the goal stream replaces lays its children out in the
+   panel itself, so the count sits beside the heading and the player's claim
+   slot shares last week's row. */
+.hub-goal__progress,
+.hub-goal__about,
+.hub-goal__meter,
+.hub-goal__prize {
+  display: contents;
+}
+
+.hub-goal__line,
+.hub-goal__gauge,
+.hub-goal__reward {
+  grid-column: 1 / -1;
 }
 
 .hub-goal__title {
+  grid-row: 1;
+  grid-column: 1;
   margin: 0;
   color: var(--color-accent);
   font: var(--font-label);
@@ -15,42 +35,17 @@
   text-transform: uppercase;
 }
 
-.hub-goal__line {
+.hub-goal__figures {
+  grid-row: 1;
+  grid-column: 2;
   margin: 0;
   color: var(--color-text-bright);
-  font: var(--font-body-large);
+  font: var(--font-body);
   letter-spacing: var(--tracking-body);
+  white-space: nowrap;
 }
 
-.hub-goal__count {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-
-.hub-goal__label,
-.hub-goal__reward-label {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-}
-
-.hub-goal__reward-label {
-  color: var(--color-lime);
-}
-
-.hub-goal__status {
-  margin: 0;
-  color: var(--color-lime);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-}
-
-.hub-goal__figures {
+.hub-goal__line {
   margin: 0;
   color: var(--color-text-bright);
   font: var(--font-body);
@@ -72,40 +67,33 @@
   background: var(--color-accent);
 }
 
-.hub-goal__reward {
-  margin: 0;
-  color: var(--color-text-bright);
-  font: var(--font-body);
-  letter-spacing: var(--tracking-body);
+.hub-goal__progress--reached .hub-goal__segment--lit {
+  background: var(--color-lime);
 }
 
+.hub-goal__reward,
 .hub-goal__previous {
-  order: 1;
   margin: 0;
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-line-soft);
   color: var(--color-muted);
   font: var(--font-body);
   letter-spacing: var(--tracking-body);
 }
 
-/* The public part the goal stream replaces lays its children out in the
-   panel itself, so the player's claim slot sits under the reward line and
-   the previous week's count stays last. */
-.hub-goal__progress,
-.hub-goal__about,
-.hub-goal__meter,
-.hub-goal__prize {
-  display: contents;
+.hub-goal__status {
+  color: var(--color-lime);
 }
 
-/* A contributor's reward claim: the small button, disabled with the orange
-   line saying why while the reserve is full, then the lime state word. */
+.hub-goal__previous {
+  order: 1;
+  grid-column: 1;
+}
+
+/* A contributor's reward claim, always for a finished week: the small
+   button, then the lime state word. */
 .hub-goal__claim {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-2);
+  order: 1;
+  grid-column: 2;
+  justify-self: end;
 }
 
 .hub-goal__claim .button,
@@ -116,7 +104,6 @@
 .hub-goal__claim-state {
   margin: 0;
   color: var(--color-lime);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
 }

@@ -304,12 +304,12 @@
     align-self: end;
   }
 
-  .social .hub-goal__claim {
-    grid-column: 1;
+  .social .hub-goal__figures {
+    align-self: flex-end;
   }
 
   .social .hub-goal__previous {
-    grid-column: 1 / -1;
+    grid-column: 1;
   }
 }
 
