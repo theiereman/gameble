@@ -260,3 +260,11 @@ slug = "epic-feed-reactions"
 title = "Reactions on the feed"
 covers = []
 after = []
+
+[[epic]]
+id = 35
+release = "1.2.x"
+slug = "epic-hotwire-native-apps"
+title = "Hotwire Native apps"
+covers = []
+after = [{ epic = 33, needs = "the phone's four tabs, its header and its bottom actions" }]

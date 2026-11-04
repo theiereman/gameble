@@ -1,0 +1,114 @@
+# tickets.toml — the stories of the Hotwire Native apps epic, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Bring the Rails side of the native apps onto develop"
+description = "Brings the sign-in hand-off, the push devices, the trade and friend notifications, the bridge components and the app detection from the branch hotwire-native-v1 onto develop with their commits and authorship, reconciles routes, layout, locales and the schema, and removes what the repository rules forbid."
+verify = "The native sign-in, native session, push device, push notice and Hotwire Native tests pass on develop, the web pages render as before in a normal browser, and the repository checks pass."
+covers = ["E1", "E2", "E3"]
+after = []
+hitl = false
+risk = "medium"
+unknown = "Which files of the branch have moved on develop since 29 October."
+
+[[entry]]
+id = 2
+type = "story"
+title = "Native layout on the phone-first web"
+description = "In an app, the pages carry no web tab bar and no doubled header, the bottom actions sit at the bottom edge without the tab bar's height, the safe areas hold, and the view transition stays off."
+verify = "A system test with the Hotwire Native user agent at 390 by 844 finds no tab bar, one header and the Social actions at the bottom edge."
+covers = ["E1"]
+after = [1, "33.1", "33.15"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Bring the iOS and Android shells onto develop"
+description = "Brings the two shells with their sign-in, haptics, share and push components, and gives each the four tabs of the phone web, in French and English, pointing at the local server in debug builds."
+verify = "The iOS shell in the simulator and the Android shell in the emulator open the signed-in hub against a local server and show the four tabs."
+covers = ["E1", "E2", "E4"]
+after = [1, 2, "33.2"]
+hitl = true
+risk = "high"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Sign in with Apple"
+description = "Adds Apple as a sign-in method on the web and in the apps, with a new player created from Apple and Steam linkable later in the settings."
+verify = "A new player signs in with Apple in the iOS app and on the web, and links Steam from the settings."
+covers = ["E2"]
+after = [1]
+hitl = true
+risk = "high"
+unknown = "How Clerk's Apple provider behaves in the system browser sheet of the shell."
+
+[[entry]]
+id = 5
+type = "story"
+title = "Push notifications on real devices"
+description = "Sets the APNs and FCM keys as secrets for staging and production and checks the notifications on real devices, including the language and the page each one opens."
+verify = "A trade proposal on staging shows a notification on a real iPhone and a real Android phone that opens the trade."
+covers = ["E3"]
+after = [1, 3]
+hitl = true
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Icons, launch screens and build identity"
+description = "Gives each app its icon, launch screen and name, sets the push environment and the version per build configuration, and adds the privacy answers the stores read from the build."
+verify = "A debug and a release build of each app show the icon and the launch screen, and the release build carries the production push environment and the release version."
+covers = ["E4", "E5"]
+after = [3]
+hitl = true
+risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Signed builds and store tracks in CI"
+description = "Builds and signs the iOS archive and the Android bundle in GitHub Actions on a release tag, sends them to TestFlight and the Google Play internal track, one for staging and one for production, with the version taken from the release."
+verify = "Pushing a test tag produces a signed build in TestFlight and one on the Play internal track for staging, and the same for production."
+covers = ["E5"]
+after = [3, 6]
+hitl = true
+risk = "high"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Store submission pack"
+description = "Prepares what each store asks for: the review notes, a demo path past Steam Guard, the account deletion link, the age and data answers, the 12 testers for 14 days that Google asks of a personal account, and the written answer on the game cover art."
+verify = "Both store consoles accept the submission for review with every questionnaire answered and the cover-art answer attached."
+covers = ["E6"]
+after = [4, 5, 7]
+hitl = true
+risk = "high"
+unknown = "Whether Valve or the publishers answer a permission request for the cover art."
+
+[[entry]]
+id = 9
+type = "story"
+title = "Check the apps on real devices"
+description = "Walks the apps on a real iPhone and a real Android phone: sign-in, the four tabs, haptics, sharing, notifications and the web screens inside the shells."
+verify = "The author walks the checklist on both devices and every item passes or is recorded."
+covers = ["E1", "E2", "E3", "E4"]
+after = [5, 7]
+hitl = true
+risk = "medium"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Refactor sweep"
+description = "Cleans up what the build records and the review findings of this epic deferred, and nothing new."
+verify = "Every item in the sweep's scope from the build records is closed or recorded as dropped, and the repository checks pass."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+hitl = false
+risk = "low"
