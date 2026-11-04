@@ -18,8 +18,6 @@ module LiveStream
 
     def goal_streamables(locale = I18n.locale) = [ "goal", locale.to_s ]
 
-    def social_feed_streamables(locale = I18n.locale) = [ "social-feed", locale.to_s ]
-
     def call(event)
       BATCH.add(notices(event))
     end

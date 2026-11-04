@@ -89,5 +89,4 @@
   <p id="reaction-status" class="visually-hidden" role="status"></p>
 </div>
 <%= turbo_stream_from(*LiveStream.goal_streamables) %>
-<%= turbo_stream_from(*LiveStream.social_feed_streamables) %>
 <%= turbo_stream_from(*ReactionStream.streamables) %>

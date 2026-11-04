@@ -1,12 +1,11 @@
-<%# locals: (items:, reactions:, lazy: false) %>
-<div id="social-feed-preview" class="social-feed">
-  <% if items.any? %>
-    <ul class="feed__list social-feed__list" aria-labelledby="social-feed-heading">
-      <% items.each do |item, card, partner_card, set| %>
-        <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions:, lazy: %>
-      <% end %>
-    </ul>
-  <% else %>
-    <p class="social__empty"><%= t("feeds.show.empty") %></p>
-  <% end %>
-</div>
+<%# locals: (items:, reactions:) %>
+<%= tag.div id: "social-feed-preview", class: "social-feed",
+      data: { controller: "live-feed-preview", live_feed_preview_limit_value: LiveStream::SOCIAL_PREVIEW_SIZE } do %>
+  <ul id="feed-entries" class="feed__list social-feed__list" aria-labelledby="social-feed-heading">
+    <% items.each do |item, card, partner_card, set| %>
+      <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions: %>
+    <% end %>
+  </ul>
+  <p class="social__empty social-feed__empty"><%= t("feeds.show.empty") %></p>
+  <%= turbo_stream_from(*LiveStream.feed_streamables) %>
+<% end %>

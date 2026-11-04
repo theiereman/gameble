@@ -327,10 +327,10 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     assert_select "ul#feed-entries.landing-live__list > li.feed__entry", count: LiveStream::LANDING_SIZE
     assert_select "#feed-entries .feed__sentence", text: "Hugo pulled Portal", minimum: 1
     assert_select "ul#feed-entries[aria-live], ul#feed-entries [role=status]", 0
-    assert_select "section.landing-live[data-controller=landing-feed][data-landing-feed-limit-value='#{LiveStream::LANDING_SIZE}']"
-    assert_select "template[data-landing-feed-target=source]", 1
+    assert_select "section.landing-live[data-controller=live-feed-preview][data-live-feed-preview-limit-value='#{LiveStream::LANDING_SIZE}']"
+    assert_select "template[data-live-feed-preview-target=source]", 1
     assert_equal 1, response.body.scan("<turbo-cable-stream-source").size
-    assert_match(/<template data-landing-feed-target="source"><turbo-cable-stream-source/, response.body)
+    assert_match(/<template data-live-feed-preview-target="source"><turbo-cable-stream-source/, response.body)
   end
 
   test "the live module without any activity keeps the no-activity line and an empty list" do

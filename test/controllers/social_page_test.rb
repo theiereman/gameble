@@ -208,29 +208,29 @@ class SocialPageTest < ActionDispatch::IntegrationTest
     assert_select ".social > .hub-goal#community-goal .hub-goal__about + .hub-goal__meter + .hub-goal__prize"
   end
 
-  test "the feed preview shows the three latest entries with their reactions, live under its own id" do
+  test "the feed preview shows the three latest entries with their reactions, on the live feed's own stream and list" do
     open_public_pack(@lea)
     sign_in @hugo
 
     get social_path(locale: :en)
 
     assert_select ".social__feed .social__head .live-marker"
-    assert_select ".social__feed #social-feed-preview ul.social-feed__list > li.feed__entry", 3 do |entries|
+    assert_select ".social__feed #social-feed-preview[data-controller=live-feed-preview]" \
+                  "[data-live-feed-preview-limit-value='#{LiveStream::SOCIAL_PREVIEW_SIZE}']"
+    assert_select ".social__feed #social-feed-preview ul#feed-entries.social-feed__list > li.feed__entry", 3 do |entries|
       entries.each { assert_select it, "turbo-frame.feed__reactions", 1 }
     end
-    assert_select "#feed-entries", false
     streams = css_select("turbo-cable-stream-source").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
-    assert_includes streams, LiveStream.social_feed_streamables(:en).join(":")
-    assert_not_includes streams, LiveStream.feed_streamables(:en).join(":")
+    assert_includes streams, LiveStream.feed_streamables(:en).join(":")
   end
 
-  test "with no feed entry yet, the preview says so" do
+  test "with no feed entry yet, the preview says so and keeps its list for the live entries" do
     sign_in @hugo
 
     get social_path(locale: :fr)
 
-    assert_select "#social-feed-preview .social__empty", "Rien pour l'instant."
-    assert_select "#social-feed-preview li", 0
+    assert_select "#social-feed-preview .social-feed__empty", "Rien pour l'instant."
+    assert_select "#social-feed-preview ul#feed-entries li", 0
   end
 
   test "Social at full width carries no style attribute and its GET writes nothing" do

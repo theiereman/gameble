@@ -87,6 +87,10 @@
   letter-spacing: var(--tracking-body-small);
 }
 
+.social-feed__list:has(> li) ~ .social-feed__empty {
+  display: none;
+}
+
 .social-trade {
   min-height: var(--space-touch-min);
 }
