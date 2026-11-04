@@ -8,10 +8,11 @@
   pointer-events: none;
 }
 
-/* "Nouveau": the card's first copy, a small lime box at its top-left. */
+/* "Nouveau": the card's first copy, a small lime box above its top-left, clear
+   of its title. */
 .booster-card__new {
   position: absolute;
-  top: calc(-3 * var(--space-1));
+  top: calc(-8 * var(--space-1));
   left: calc(-3 * var(--space-1));
   display: flex;
   align-items: center;
