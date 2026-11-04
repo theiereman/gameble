@@ -15,6 +15,7 @@ import {
   edit,
   filterCards,
   filtering,
+  moreChips,
   gridMove,
   initialLines,
   moveActive,
@@ -34,8 +35,10 @@ import {
   sideCount,
   start,
   toggleFold,
+  toggleMoreFold,
   togglePick,
   toggledFold,
+  toggledMoreFold,
   withFilter,
   type BoardState,
   type Line,
@@ -99,14 +102,15 @@ describe("columnsOf", () => {
 })
 
 describe("filterCards", () => {
-  const card = (key: string, title: string, rarity: Rarity, copies = 1, otherCopies = 0, max = 1) => ({
-    key,
-    title,
-    rarity,
-    copies,
-    otherCopies,
-    max,
-  })
+  const card = (
+    key: string,
+    title: string,
+    rarity: Rarity,
+    copies = 1,
+    otherCopies = 0,
+    max = 1,
+    { genre = "", goals = [] }: { genre?: string; goals?: string[] } = {},
+  ) => ({ key, title, rarity, copies, otherCopies, max, genre, goals })
   const cards = [
     card("a", "Café Owner", "common"),
     card("b", "Portal", "rare"),
@@ -193,6 +197,33 @@ describe("filterCards", () => {
       expect(filterCards(friend, by({ chips: ["missing", "shared"] }))).toEqual([])
     })
   })
+
+  describe("genres and goals", () => {
+    const sorted = [
+      card("doom", "Doom", "rare", 1, 0, 1, { genre: "fps", goals: ["theme:fps"] }),
+      card("stardew", "Stardew Valley", "epic", 1, 0, 1, { genre: "farming", goals: ["theme:farming", "token1"] }),
+      card("portal", "Portal", "rare", 1, 0, 1, { genre: "puzzle", goals: ["token1"] }),
+      card("limbo", "Limbo", "common", 1, 0, 1, { genre: "", goals: [] }),
+    ]
+
+    it("keeps a card of any chosen genre", () => {
+      expect(keys(filterCards(sorted, by({ genres: ["fps"] })))).toEqual(["doom"])
+      expect(keys(filterCards(sorted, by({ genres: ["fps", "puzzle"] })))).toEqual(["doom", "portal"])
+    })
+
+    it("keeps a card of any chosen goal", () => {
+      expect(keys(filterCards(sorted, by({ goals: ["token1"] })))).toEqual(["stardew", "portal"])
+      expect(keys(filterCards(sorted, by({ goals: ["theme:fps", "theme:farming"] })))).toEqual(["doom", "stardew"])
+    })
+
+    it("requires a chosen genre and a chosen goal together with the other filters", () => {
+      expect(keys(filterCards(sorted, by({ genres: ["puzzle", "farming"], goals: ["token1"] })))).toEqual([
+        "stardew",
+        "portal",
+      ])
+      expect(keys(filterCards(sorted, by({ genres: ["farming"], goals: ["token1"], rarities: ["rare"] })))).toEqual([])
+    })
+  })
 })
 
 describe("filtering", () => {
@@ -202,32 +233,52 @@ describe("filtering", () => {
     expect(filtering({ ...EMPTY_FILTER, query: "hades" })).toBe(true)
     expect(filtering({ ...EMPTY_FILTER, rarities: ["rare"] })).toBe(true)
     expect(filtering({ ...EMPTY_FILTER, chips: ["available"] })).toBe(true)
+    expect(filtering({ ...EMPTY_FILTER, genres: ["fps"] })).toBe(true)
+    expect(filtering({ ...EMPTY_FILTER, goals: ["token1"] })).toBe(true)
   })
 })
 
 describe("activeChips", () => {
-  it("counts the rarities and chips on, not the search", () => {
+  it("counts the rarities, chips, genres and goals on, not the search", () => {
     expect(activeChips(EMPTY_FILTER)).toBe(0)
-    expect(activeChips({ query: "hades", rarities: [], chips: [] })).toBe(0)
-    expect(activeChips({ query: "", rarities: ["rare"], chips: ["duplicates"] })).toBe(2)
-    expect(activeChips({ query: "", rarities: ["rare", "epic"], chips: ["missing"] })).toBe(3)
+    expect(activeChips({ ...EMPTY_FILTER, query: "hades" })).toBe(0)
+    expect(activeChips({ ...EMPTY_FILTER, rarities: ["rare"], chips: ["duplicates"] })).toBe(2)
+    expect(activeChips({ ...EMPTY_FILTER, rarities: ["rare", "epic"], chips: ["missing"] })).toBe(3)
+    expect(activeChips({ ...EMPTY_FILTER, rarities: ["rare"], genres: ["fps"], goals: ["token1"] })).toBe(3)
+  })
+})
+
+describe("moreChips", () => {
+  it("counts only the genres and goals on", () => {
+    expect(moreChips({ ...EMPTY_FILTER, rarities: ["rare"], chips: ["missing"] })).toBe(0)
+    expect(moreChips({ ...EMPTY_FILTER, genres: ["fps", "puzzle"], goals: ["token1"] })).toBe(3)
   })
 })
 
 describe("picker filters", () => {
   const filtered: PickerFilters = {
-    filter: { query: "hades", rarities: ["rare"], chips: ["duplicates"] },
+    filter: { ...EMPTY_FILTER, query: "hades", rarities: ["rare"], chips: ["duplicates"], genres: ["fps"] },
     folded: false,
+    moreFolded: false,
   }
 
-  it("changes the filter and keeps the fold", () => {
-    const filter = { query: "", rarities: ["epic"] as Rarity[], chips: [] }
-    expect(withFilter(filtered, filter)).toEqual({ filter, folded: false })
+  it("changes the filter and keeps the folds", () => {
+    const filter = { ...EMPTY_FILTER, rarities: ["epic"] as Rarity[] }
+    expect(withFilter(filtered, filter)).toEqual({ filter, folded: false, moreFolded: false })
   })
 
-  it("clears the filter and keeps the fold", () => {
-    expect(clearedFilters(filtered)).toEqual({ filter: EMPTY_FILTER, folded: false })
-    expect(clearedFilters({ ...filtered, folded: true })).toEqual({ filter: EMPTY_FILTER, folded: true })
+  it("clears the filter and keeps the folds", () => {
+    expect(clearedFilters(filtered)).toEqual({ filter: EMPTY_FILTER, folded: false, moreFolded: false })
+    expect(clearedFilters({ ...filtered, folded: true, moreFolded: true })).toEqual({
+      filter: EMPTY_FILTER,
+      folded: true,
+      moreFolded: true,
+    })
+  })
+
+  it("toggles the more filters fold alone", () => {
+    expect(toggledMoreFold(filtered)).toEqual({ ...filtered, moreFolded: true })
+    expect(toggledMoreFold(toggledMoreFold(filtered))).toEqual(filtered)
   })
 
   it("toggles the fold and keeps the filter", () => {
@@ -246,6 +297,8 @@ describe("the board", () => {
     max,
     copies: 1,
     otherCopies: 0,
+    genre: "",
+    goals: [],
     ...extra,
   })
   const catalogue = {
@@ -276,7 +329,7 @@ describe("the board", () => {
 
     it("keeps the given filters, for a board rebuilt after a refresh", () => {
       const filters = {
-        friend: { filter: { ...EMPTY_FILTER, query: "hills" }, folded: false },
+        friend: { filter: { ...EMPTY_FILTER, query: "hills" }, folded: false, moreFolded: true },
         own: FRESH_PICKER_FILTERS,
       }
       expect(board({ filters }).filters).toBe(filters)
@@ -334,7 +387,7 @@ describe("the board", () => {
     it("keeps the lines, the picker and the filters, and starts from an empty board", () => {
       const filters = {
         friend: FRESH_PICKER_FILTERS,
-        own: { filter: { ...EMPTY_FILTER, query: "portal" }, folded: false },
+        own: { filter: { ...EMPTY_FILTER, query: "portal" }, folded: false, moreFolded: true },
       }
       const state = openPicker(edit(board({ filters })), "own")
       const taken = adopted(state)
@@ -468,6 +521,15 @@ describe("the board", () => {
     it("folds and unfolds the filters", () => {
       expect(pickerView(toggleFold(picking()))!.folded).toBe(false)
       expect(toggleFold(board())).toEqual(board())
+    })
+
+    it("folds and unfolds the more filters apart, counting their genres and goals", () => {
+      const unfolded = toggleMoreFold(picking())
+      expect(pickerView(picking())).toMatchObject({ folded: true, moreFolded: true, moreOn: 0 })
+      expect(pickerView(unfolded)).toMatchObject({ folded: true, moreFolded: false })
+      expect(toggleMoreFold(board())).toEqual(board())
+      const sorted = setFilter(unfolded, { ...EMPTY_FILTER, rarities: ["common"], genres: ["fps"], goals: ["token1"] })
+      expect(pickerView(sorted)).toMatchObject({ chipsOn: 3, moreOn: 2, moreFolded: false })
     })
 
     it("shows the cards a page at a time", () => {

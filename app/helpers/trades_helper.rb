@@ -8,7 +8,7 @@ module TradesHelper
   BOARD_ACTIONS = {
     "trade-board-side" => { add: :openPicker, remove: :removeLine, quantity: :setLineQuantity },
     "trade-board-picker" => { toggle: :togglePick, quantity: :setPickQuantity, filter: :setFilter, fold: :toggleFold,
-                              clear: :clearFilters, more: :showMore, move: :moveActive, place: :place, close: :closePicker }
+                              foldMore: :toggleMoreFold, clear: :clearFilters, more: :showMore, move: :moveActive, place: :place, close: :closePicker }
   }.freeze
 
   BoardPick = Data.define(:key, :view, :owned, :reserved, :max, :copies, :other_copies) do
@@ -190,6 +190,19 @@ module TradesHelper
       (t("trade_board.reserved_elsewhere", count: pick.reserved) if pick.reserved.positive?),
       (t("trade_board.unavailable") if pick.unavailable?),
       (goal_card_words(goals) if goals.any?) ].compact.join(", ")
+  end
+
+  def trade_pick_goals(pick)
+    goal_marks.goals_for(pick.view.card_id).map { GoalMarks.filter_value(it) }.join(" ")
+  end
+
+  def trade_picker_extra_offers(editor)
+    editor.slice(:friend, :own).transform_values do |board_side|
+      picks = board_side[:picks]
+      card_ids = picks.to_set { it.view.card_id }
+      { genres: picks.filter_map { it.view.genre }.uniq.sort_by { SetLabel.genre(it) },
+        goals: goal_marks.needs.select { |need| need.card_ids.any? { card_ids.include?(it) } } }
+    end
   end
 
   def trade_picker_none(side, friend)

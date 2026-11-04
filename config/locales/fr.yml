@@ -1827,6 +1827,7 @@ fr:
         available: "Disponibles"
     clear_filters: "Effacer les filtres"
     filters_title: "Filtres"
+    more_filters: "Plus de filtres"
     filters_active: "Filtres actifs :"
     no_match: "Aucune carte ne correspond à ces filtres. Effacez-les pour revoir toutes les cartes."
     strings:

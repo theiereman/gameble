@@ -750,6 +750,34 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/card_season_id|style=/, css_select("#trade-board").sole.to_html)
   end
 
+  test "the picker hides each side's goals and genres under more filters, and each card carries its own" do
+    sign_in @alice
+    get new_trade_path(locale: :fr, friend: @bob.token)
+    assert_select ".trade-picker__extra", 0
+
+    Catalog::CardSeason.where(id: @portal).update_all(main_theme: "puzzle")
+    Catalog::CardSeason.where(id: @depths).update_all(main_theme: "horror")
+    goal_on(@portal, @depths)
+    token = Game::GoalNeeds.targets(@alice).sole.custom_set_token
+
+    get new_trade_path(locale: :fr, friend: @bob.token)
+
+    assert_select ".trade-picker__groups .trade-picker__extra-fold[aria-expanded=false][aria-controls=trade-picker-extra-groups] .filters__title",
+      "Plus de filtres"
+    assert_select "#trade-picker-extra-groups[hidden]"
+    chips = ->(side, target) { css_select("#trade-picker-extra-groups input[data-trade-board-picker-target=#{target}][data-for=#{side}]").map { it["value"] } }
+    assert_equal [ "horror" ], chips.call(:friend, :genre)
+    assert_equal [ "puzzle" ], chips.call(:own, :genre)
+    assert_equal [ token ], chips.call(:friend, :goal)
+    assert_equal [ token ], chips.call(:own, :goal)
+    assert_select "#trade-picker-extra-groups fieldset[data-for=own] legend", "Objectifs"
+    assert_select "#trade-picker-extra-groups fieldset[data-for=own] legend", "Genre"
+    cards = css_select(".trade-picker [data-trade-board-target='card']").to_h { [ it["data-key"], it.attributes.slice("data-genre", "data-goals").transform_values(&:value) ] }
+    assert_equal({ "data-genre" => "puzzle", "data-goals" => token }, cards.fetch("portal--s1"))
+    assert_equal({ "data-genre" => "horror", "data-goals" => token }, cards.fetch("blue-depths--s1"))
+    assert_equal({ "data-goals" => "" }, cards.fetch("tin-soldier--s1"))
+  end
+
   test "a draft for someone who is not a friend is refused and leads back to the trades" do
     sign_in @alice
     befriend(@alice, accounts_players(:banned))

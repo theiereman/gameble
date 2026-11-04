@@ -42,6 +42,39 @@ class TradeBoardTest < ApplicationSystemTestCase
     end
   end
 
+  test "the picker's more filters narrow the friend's cards to a genre or to a goal" do
+    soldier = catalog_card_seasons(:common_card_one)
+    Game::Holding.create!(player_id: @lea.id, card_season_id: soldier.id, quantity: 1, reserved: 0)
+    Catalog::CardSeason.where(id: @depths).update_all(main_theme: "horror")
+    Catalog::CardSeason.where(id: soldier.id).update_all(main_theme: "puzzle")
+    goal_cards = [ soldier, catalog_card_seasons(:uncommon_card_one), catalog_card_seasons(:legendary_card_one) ].map(&:card_id)
+    custom_set = Game::CreateCustomSet.new.call(player: @hugo, name: "Puzzles", card_ids: goal_cards).value!
+    Game::AddGoal.new.call(player: @hugo, custom_set: custom_set.token).value!
+    sign_in_hugo
+    visit new_trade_path(locale: :en, friend: @lea.token)
+
+    find(".trade-side--friend .trade-add").click
+    within(".trade-picker") do
+      assert_selector ".trade-pick", count: 2
+      assert_no_selector ".trade-picker__extra-groups", visible: true
+
+      click_on "More filters"
+      check "Horror", allow_label_click: true
+      assert_selector ".trade-pick", count: 1
+      assert_selector ".trade-pick__toggle[aria-label^='Blue Depths,']"
+      assert_selector ".trade-picker__extra-fold .filters__count", text: "1"
+
+      uncheck "Horror", allow_label_click: true
+      find("#trade-picker-extra-groups fieldset[data-for=friend] .filter-chip--goal").click
+      assert_selector ".trade-pick", count: 1
+      assert_selector ".trade-pick__toggle[aria-label^='Tin Soldier,']"
+
+      click_on "Clear filters"
+      assert_selector ".trade-pick", count: 2
+      assert_no_selector ".trade-picker__extra-fold .filters__count", visible: true
+    end
+  end
+
   test "a board a live refresh turns to the player's turn counters the friend's terms in place" do
     %i[common_card_one legendary_card_one].each do |card|
       Game::Holding.create!(player_id: @hugo.id, card_season_id: catalog_card_seasons(card).id, quantity: 1, reserved: 0)

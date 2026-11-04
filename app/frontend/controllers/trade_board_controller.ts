@@ -31,6 +31,7 @@ import {
   showMore,
   start,
   toggleFold,
+  toggleMoreFold,
   togglePick,
   type BoardState,
   type PickerFilters,
@@ -226,6 +227,10 @@ export class TradeBoardController extends Controller<HTMLElement> {
 
   toggleFold(): void {
     if (this.state) this.apply(toggleFold(this.state))
+  }
+
+  toggleMoreFold(): void {
+    if (this.state) this.apply(toggleMoreFold(this.state))
   }
 
   clearFilters(): void {

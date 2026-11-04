@@ -12,8 +12,18 @@ describe("cardFrom", () => {
       max: "2",
       copies: "4",
       otherCopies: "5",
+      genre: "puzzle",
+      goals: "theme:puzzle  token1",
     }
-    expect(cardFrom(data)).toEqual({ ...data, owned: 3, reserved: 1, max: 2, copies: 4, otherCopies: 5 })
+    expect(cardFrom(data)).toEqual({
+      ...data,
+      owned: 3,
+      reserved: 1,
+      max: 2,
+      copies: 4,
+      otherCopies: 5,
+      goals: ["theme:puzzle", "token1"],
+    })
   })
 
   it("falls back to empty words, the common tier and zeros", () => {
@@ -26,6 +36,8 @@ describe("cardFrom", () => {
       max: 0,
       copies: 0,
       otherCopies: 0,
+      genre: "",
+      goals: [],
     })
   })
 })

@@ -40,7 +40,8 @@
   }
 
   .trade-picker__clear,
-  .trade-picker__fold {
+  .trade-picker__fold,
+  .trade-picker__extra-fold {
     min-height: var(--space-touch-min);
   }
 

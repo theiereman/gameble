@@ -13,6 +13,8 @@ export function cardFrom({
   max,
   copies,
   otherCopies,
+  genre = "",
+  goals = "",
 }: Dataset): TradeCard {
   return {
     key,
@@ -23,6 +25,8 @@ export function cardFrom({
     max: number(max),
     copies: number(copies),
     otherCopies: number(otherCopies),
+    genre,
+    goals: goals.split(" ").filter(Boolean),
   }
 }
 

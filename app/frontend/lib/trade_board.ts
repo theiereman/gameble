@@ -1,6 +1,21 @@
-import type { Rarity } from "./card_types"
 import { sameLines, type DraftField, type DraftSides } from "./trade_board_draft"
 import { PICKER_PAGE, nextPage, shownFor } from "./trade_board_faces"
+import {
+  FRESH_PICKER_FILTERS,
+  activeChips,
+  clearedFilters,
+  filterCards,
+  filtering,
+  moreChips,
+  toggledFold,
+  toggledMoreFold,
+  withFilter,
+  type FilterableCard,
+  type PickerFilters,
+  type SideFilter,
+} from "./trade_board_filter"
+
+export * from "./trade_board_filter"
 
 export type Line = { key: string; quantity: number }
 
@@ -81,67 +96,6 @@ export function columnsOf(tops: readonly number[]): number {
   return columns === -1 ? tops.length : columns
 }
 
-function fold(text: string): string {
-  return text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim()
-}
-
-export const CHIPS = {
-  friend: ["duplicates", "missing", "shared"],
-  own: ["duplicates", "missing", "available"],
-} as const satisfies Record<Side, readonly string[]>
-
-export type Chip = (typeof CHIPS)[Side][number]
-
-export type FilterableCard = { title: string; rarity: Rarity; copies: number; otherCopies: number; max: number }
-
-const CHIP_MATCHES: Record<Chip, (card: FilterableCard) => boolean> = {
-  duplicates: (card) => card.copies >= 2,
-  missing: (card) => card.otherCopies === 0,
-  shared: (card) => card.otherCopies > 0,
-  available: (card) => card.max >= 1,
-}
-
-export type SideFilter = { query: string; rarities: readonly Rarity[]; chips: readonly Chip[] }
-
-export const EMPTY_FILTER: SideFilter = { query: "", rarities: [], chips: [] }
-
-export function filtering({ query, rarities, chips }: SideFilter): boolean {
-  return query.trim() !== "" || rarities.length > 0 || chips.length > 0
-}
-
-export function activeChips({ rarities, chips }: SideFilter): number {
-  return rarities.length + chips.length
-}
-
-export type PickerFilters = { filter: SideFilter; folded: boolean }
-
-export const FRESH_PICKER_FILTERS: PickerFilters = { filter: EMPTY_FILTER, folded: true }
-
-export function withFilter(state: PickerFilters, filter: SideFilter): PickerFilters {
-  return { ...state, filter }
-}
-
-export function clearedFilters(state: PickerFilters): PickerFilters {
-  return withFilter(state, EMPTY_FILTER)
-}
-
-export function toggledFold(state: PickerFilters): PickerFilters {
-  return { ...state, folded: !state.folded }
-}
-
-export function filterCards<Card extends FilterableCard>(
-  cards: readonly Card[],
-  { query, rarities, chips }: SideFilter,
-): Card[] {
-  const needle = fold(query)
-  return cards.filter(
-    (card) =>
-      (rarities.length === 0 || rarities.includes(card.rarity)) &&
-      chips.every((chip) => CHIP_MATCHES[chip](card)) &&
-      fold(card.title).includes(needle),
-  )
-}
-
 export type TradeCard = FilterableCard & { key: string; owned: number; reserved: number }
 
 export const SIDES: readonly Side[] = ["friend", "own"]
@@ -190,7 +144,9 @@ export type PickerView = Readonly<{
   refused: boolean
   filter: SideFilter
   folded: boolean
+  moreFolded: boolean
   chipsOn: number
+  moreOn: number
   filtering: boolean
 }>
 
@@ -299,10 +255,18 @@ export function clearFilters(state: BoardState): BoardState {
   return withFilters(state, clearedFilters)
 }
 
-export function toggleFold(state: BoardState): BoardState {
+function withFolds(state: BoardState, change: (filters: PickerFilters) => PickerFilters): BoardState {
   const { picker } = state
   if (!picker) return state
-  return { ...state, filters: { ...state.filters, [picker.side]: toggledFold(state.filters[picker.side]) } }
+  return { ...state, filters: { ...state.filters, [picker.side]: change(state.filters[picker.side]) } }
+}
+
+export function toggleFold(state: BoardState): BoardState {
+  return withFolds(state, toggledFold)
+}
+
+export function toggleMoreFold(state: BoardState): BoardState {
+  return withFolds(state, toggledMoreFold)
 }
 
 export function showMore(state: BoardState): BoardState {
@@ -356,7 +320,7 @@ export function pickerView(state: BoardState): PickerView | null {
   const { picker } = state
   if (!picker) return null
   const cards = state.catalogue[picker.side]
-  const { filter, folded } = state.filters[picker.side]
+  const { filter, folded, moreFolded } = state.filters[picker.side]
   const visible = visibleCards(state, picker.side)
   return {
     side: picker.side,
@@ -371,7 +335,9 @@ export function pickerView(state: BoardState): PickerView | null {
     refused: picker.refused,
     filter,
     folded,
+    moreFolded,
     chipsOn: activeChips(filter),
+    moreOn: moreChips(filter),
     filtering: filtering(filter),
   }
 }
