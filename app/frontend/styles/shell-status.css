@@ -41,6 +41,21 @@ body:has(> .ticker) .app-version {
   }
 }
 
+.ticker__open {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.ticker__open:hover {
+  background: var(--color-line-deep);
+  opacity: 0.25;
+}
+
+.ticker__open:focus-visible {
+  box-shadow: var(--focus-ring-gap);
+}
+
 .ticker__inner {
   display: flex;
   height: var(--space-ticker-height);

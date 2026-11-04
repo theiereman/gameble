@@ -272,6 +272,8 @@ class ShellTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:player))
     get home_path(locale: :en)
     assert_select "body > main#main + #live-ticker.ticker", 1
+    assert_select "#live-ticker > a.ticker__open[href='/en/feed']", 1
+    assert_select "#live-ticker > .ticker__inner[aria-hidden=true]", 1
     [ library_path(locale: :en), feed_path(locale: :en), trades_path(locale: :en), friends_path(locale: :en),
       settings_path(locale: :en), me_path(locale: :en) ].each do |path|
       get path
