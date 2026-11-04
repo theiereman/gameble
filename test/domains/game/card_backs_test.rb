@@ -29,7 +29,7 @@ class Game::CardBacksTest < ActiveSupport::TestCase
     assert_equal "back-hall_of_fame-mal-aimes", back.asset
     assert_equal :set_tier, back.unlock.kind
     assert_equal [ "hall_of_fame", "mal-aimes" ], back.unlock.target
-    assert_equal 1 + 43 + 4 + 8 + 3, Game::CardBacks::KEYS.size
+    assert_equal 1 + 43 + 4 + 7 + 3, Game::CardBacks::KEYS.size
   end
 
   test "every back has its image in the five card sizes" do
@@ -61,6 +61,14 @@ class Game::CardBacksTest < ActiveSupport::TestCase
     choose("aurore")
 
     assert_equal "standard", Game::CardBacks.active_key(@player)
+  end
+
+  test "a chosen back since retired from the catalogue falls back to Standard, its unlock kept" do
+    unlock("retired")
+    choose("retired")
+
+    assert_equal "standard", Game::CardBacks.active_key(@player)
+    assert_equal :active, Game::CardBackShelf.call(@player).find { it.key == "standard" }.state
   end
 
   test "another player's unlock does not make a back active" do

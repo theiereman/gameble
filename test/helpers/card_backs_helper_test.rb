@@ -1,9 +1,9 @@
 require "test_helper"
 
 class CardBacksHelperTest < ActionView::TestCase
-  def row(key, state: :unlocked, unlocked_at: nil, seasons: [], tier: nil, week: nil, progress: nil, season: nil)
+  def row(key, state: :unlocked, unlocked_at: nil, seasons: [], tier: nil, progress: nil, season: nil)
     back = Game::CardBacks.find(key)
-    Game::CardBackShelf::Row.new(back:, state:, season:, seasons:, unlocked_at:, tier:, week:, progress:, group: :base)
+    Game::CardBackShelf::Row.new(back:, state:, season:, seasons:, unlocked_at:, tier:, progress:, group: :base)
   end
 
   def progress(held, total, required) = Game::SetBackProgress::Progress.new(held:, total:, required:)
@@ -49,18 +49,6 @@ class CardBacksHelperTest < ActionView::TestCase
     I18n.with_locale(:en) do
       assert_equal "Earned with the achievement #{achievement(:boosters_100)}", card_back_sentence(row("centurion", unlocked_at:))
       assert_equal "Unlock the achievement #{achievement(:first_legendary)}", card_back_sentence(row("etoile-dor", state: :locked))
-    end
-  end
-
-  test "the goal back names the week of its mission, or any mission when none is on record" do
-    I18n.with_locale(:fr) do
-      assert_equal "Gagné en accomplissant la mission de la semaine du 12 octobre", card_back_sentence(row("confrere", week: Date.new(2026, 10, 12)))
-      assert_equal "Gagné en accomplissant la mission de la semaine du 1er juin", card_back_sentence(row("confrere", week: Date.new(2026, 6, 1)))
-      assert_equal "Gagné en accomplissant une mission de la Confrérie", card_back_sentence(row("confrere"))
-      assert_equal "Accomplissez une mission de la Confrérie", card_back_sentence(row("confrere", state: :locked))
-    end
-    I18n.with_locale(:en) do
-      assert_equal "Earned by completing the mission of the week of October 12", card_back_sentence(row("confrere", week: Date.new(2026, 10, 12)))
     end
   end
 

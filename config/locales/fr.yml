@@ -1116,13 +1116,11 @@ fr:
       achievement: "Débloquez le succès correspondant."
       always: "Tous les joueurs l'ont."
       event: "Offert à celles et ceux qui ont participé à l'événement."
-      goal: "Participez à la mission hebdo."
       set_tier: "Réunissez la moitié du set %{set}."
     names:
       assidu: "Assidu"
       aurore: "Aurore"
       centurion: "Centurion"
-      confrere: "Confrère"
       contrat: "Contrat"
       etoile-dor: "Étoile d'or"
       millesime-2017: "Millésime 2017"
@@ -1146,7 +1144,6 @@ fr:
         groups:
           base: "De base et événements"
           achievement: "Succès"
-          goal: "Mission de la Confrérie"
           theme: "Sets · Thèmes"
           hall_of_fame: "Sets · Palmarès"
         chips:
@@ -1167,13 +1164,10 @@ fr:
             millesime-2017: "Offert aux participants du Millésime 2017"
             soldes-hiver: "Offert aux participants des Soldes d'hiver"
           achievement: "Gagné avec le succès %{name} · %{condition}"
-          goal: "Gagné en accomplissant la mission de la semaine du %{week}"
-          goal_any: "Gagné en accomplissant une mission de la Confrérie"
           set: "Gagné au palier %{tier} du set %{set} · %{seasons}"
           set_any: "Gagné avec le set %{set}"
         to_earn:
           achievement: "Débloquez le succès %{name} · %{condition}"
-          goal: "Accomplissez une mission de la Confrérie"
           set: "Atteignez la moitié du set %{set}"
           set_absent: "Set absent de la saison en cours"
           event: "Événement terminé"
@@ -2301,7 +2295,7 @@ fr:
             to_earn: "À obtenir"
           backs:
             title: "Dos de cartes"
-            text: "Vos cartes face cachée portent le dos de votre choix. Accomplissez des missions pour en débloquer de nouveaux."
+            text: "Vos cartes face cachée portent le dos de votre choix. Débloquez des succès et remplissez vos sets pour en gagner de nouveaux."
           collection:
             title: "Collection"
             text: "Voyez en un coup d'œil les cartes qui vous manquent pour compléter votre collection."

@@ -33,23 +33,10 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
     Game::AchievementUnlocked.new(data: retroactive ? data.merge(retroactive: true) : data)
   end
 
-  test "the first goal reward grants Confrère once, the second adds nothing" do
+  test "a goal reward grants no card back" do
     perform_enqueued_jobs { earn_goal_reward }
-    assert_equal [ "confrere" ], unlocked
 
-    perform_enqueued_jobs { earn_goal_reward(week: WEEK + 7) }
-    assert_equal [ "confrere" ], unlocked
-    assert_equal 1, unlock_events.size
-    assert_not unlock_events.sole.data[:retroactive]
-  end
-
-  test "the back comes with the reward, not with its claim" do
-    perform_enqueued_jobs { earn_goal_reward }
-    assert_equal [ "confrere" ], unlocked
-
-    perform_enqueued_jobs { Game::ClaimGoalReward.new.call(player: @player, week_start: WEEK) }
-    assert_equal [ "confrere" ], unlocked
-    assert_equal 1, unlock_events.size
+    assert_empty unlocked
   end
 
   {
@@ -117,29 +104,30 @@ class Game::GrantMilestoneBacksTest < ActiveSupport::TestCase
     Game::AchievementProgress.define_singleton_method(:call, original)
   end
 
-  test "another player's reward grants nothing to this player" do
-    perform_enqueued_jobs { earn_goal_reward(@other) }
+  test "another player's achievement grants nothing to this player" do
+    record_achievement("boosters_100", player: @other)
+    perform_enqueued_jobs { Game::GrantCardBacksJob.perform_now(@other.id) }
 
     assert_empty unlocked
-    assert_equal [ "confrere" ], unlocked(@other)
+    assert_equal [ "centurion" ], unlocked(@other)
   end
 
   test "a banned player is granted nothing" do
-    earn_goal_reward
+    record_achievement("boosters_100")
     @player.update!(banned_at: Time.current)
-    perform_enqueued_jobs
+    perform_enqueued_jobs { Game::GrantCardBacksJob.perform_now(@player.id) }
 
     assert_empty unlocked
   end
 
-  test "the backfill grants the goal and achievement backs earned before, silently, and run twice writes once" do
-    earn_goal_reward
+  test "the backfill grants the achievement backs earned before, silently, and run twice writes once" do
     record_achievement("boosters_100")
+    record_achievement("three_complete_sets")
     record_achievement("first_booster")
 
     capture_io { 2.times { rake_task("game:backfill_card_backs").execute } }
 
-    assert_equal %w[centurion confrere], unlocked.sort
+    assert_equal %w[aurore centurion], unlocked.sort
     assert_equal 2, unlock_events.size
     assert(unlock_events.all? { it.data[:retroactive] })
   end

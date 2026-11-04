@@ -69,7 +69,7 @@ class SeasonAllocationsControllerTest < ActionDispatch::IntegrationTest
     Catalog::Season.find_by!(number: 1).update!(published_at: 10.days.ago)
     @season.update!(published_at: 1.hour.ago)
     Game::CardBackUnlock.record(@player.id, Game::CardBacks.set_key("theme", "horror"), 3.days.ago)
-    Game::CardBackUnlock.record(@player.id, Game::CardBacks::GOAL_BACK, 20.days.ago)
+    Game::CardBackUnlock.record(@player.id, "centurion", 20.days.ago)
     sign_in(@player)
 
     get season_allocation_path(locale: :en)

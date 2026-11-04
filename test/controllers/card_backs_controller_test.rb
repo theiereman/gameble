@@ -32,7 +32,7 @@ class CardBacksControllerTest < ActionDispatch::IntegrationTest
       assert_select ".back-picker__sentence", "Offert à tous les joueurs"
       assert_select ".back-picker__tail", "à l'inscription"
     end
-    assert_equal [ "De base et événements", "Succès", "Mission de la Confrérie", "Sets · Thèmes", "Sets · Palmarès" ], css_select(".back-picker__group-name").map(&:text)
+    assert_equal [ "De base et événements", "Succès", "Sets · Thèmes", "Sets · Palmarès" ], css_select(".back-picker__group-name").map(&:text)
     assert_select "#me-back-sheet .me-sheet__count .visually-hidden", "2 sur #{Game::CardBacks::KEYS.size} débloqués"
     assert_select ".me-back-opener .me-opener__kicker", "Dos de carte · vous seul"
     assert_select ".back-picker__tile--active", 1
@@ -51,20 +51,16 @@ class CardBacksControllerTest < ActionDispatch::IntegrationTest
 
   test "each back says how it was earned, in English and in French" do
     Game::CardBackUnlock.record(@player.id, "centurion", Time.zone.local(2026, 10, 24, 10))
-    Game::CardBackUnlock.record(@player.id, "confrere", Time.zone.local(2026, 10, 18, 10))
-    Game::GoalReward.create!(player_id: @player.id, week_start: Date.new(2026, 10, 12))
     sign_in(@player)
 
     get me_path(locale: :en)
 
     assert_select "[data-key=centurion] button[aria-label=?]", "Centurion, unlocked. Earned with the achievement #{achievement(:boosters_100, :en)}, on October 24, 2026. Equip."
-    assert_select "[data-key=confrere] button[aria-label=?]", "Confrère, unlocked. Earned by completing the mission of the week of October 12, on October 18, 2026. Equip."
     assert_select "[data-key=etoile-dor] button[aria-label=?]", "Golden star, locked. Unlock the achievement #{achievement(:first_legendary, :en)}."
 
     get me_path(locale: :fr)
 
     assert_select "[data-key=centurion] template.back-picker__detail", text: /Gagné avec le succès #{Regexp.escape(achievement(:boosters_100, :fr))}\s+le 24 octobre 2026/
-    assert_select "[data-key=confrere] button[aria-label=?]", "Confrère, débloqué. Gagné en accomplissant la mission de la semaine du 12 octobre, le 18 octobre 2026. Équiper."
   end
 
   test "choosing an unlocked back without script stores it and sends its sheet open with the focus back on it, with no toast" do

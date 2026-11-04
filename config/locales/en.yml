@@ -706,13 +706,11 @@ en:
       achievement: Unlock the matching achievement.
       always: Every player has it.
       event: Given to those who took part in the event.
-      goal: Take part in the weekly mission.
       set_tier: Collect half of the %{set} set.
     names:
       assidu: Assiduous
       aurore: Dawn
       centurion: Centurion
-      confrere: Confrère
       contrat: Contract
       etoile-dor: Golden star
       millesime-2017: Vintage 2017
@@ -1492,8 +1490,8 @@ en:
             title: Achievements
             to_earn: To earn
           backs:
-            text: Your face-down cards wear the back of your choice. Complete missions to
-              unlock new ones.
+            text: Your face-down cards wear the back of your choice. Unlock achievements
+              and fill your sets to earn new ones.
             title: Card backs
           collection:
             text: See at a glance the cards you are missing to complete your collection.
@@ -2258,8 +2256,6 @@ en:
             millesime-2017: Given to those who took part in Vintage 2017
             saison-1: Given to the players of season 1
             soldes-hiver: Given to those who took part in the Winter sales
-          goal: Earned by completing the mission of the week of %{week}
-          goal_any: Earned by completing a Brotherhood mission
           set: Earned at the %{tier} tier of the %{set} set · %{seasons}
           set_any: Earned with the %{set} set
         equipped: Card back equipped. %{name} will show on your face-down cards.
@@ -2269,7 +2265,6 @@ en:
         groups:
           achievement: Achievements
           base: Basic and events
-          goal: Brotherhood mission
           hall_of_fame: Sets · Hall of fame
           theme: Sets · Themes
         heading: Card back
@@ -2301,7 +2296,6 @@ en:
         to_earn:
           achievement: Unlock the achievement %{name} · %{condition}
           event: Event over
-          goal: Complete a Brotherhood mission
           set: Reach half of the %{set} set
           set_absent: Set not in the current season
         unlocked:
