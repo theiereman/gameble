@@ -95,12 +95,12 @@ Pass 1 (quick): high 0, medium 2, low 0, false 0, maybe-false 0.
 | Verdict | Route | Finding | Evidence / action |
 |---|---|---|---|
 | medium | patch | Key `reaction:<token>:<notice count>` can regress to a seen value after ReleasePlayer deletes a reactor's notices | `noticed_entries` counts rows that `release_player.rb` deletes; `bell.ts` keeps seen keys. Patched: key on the latest notice time. |
-| medium | patch | Reactions given before deploy have no notice, so their first kind change or toggle notifies once | Handler inserts when no row exists; nothing backfills. Patched: backfill migration. |
+| medium | patch | Reactions given before deploy have no notice, so their first kind change or toggle notifies once | Handler inserts when no row exists; nothing backfills. Patched with a backfill migration, then dropped at the author's call (2026-11-04). |
 | (pre-existing) | — | `BellTest` "marking all as read" and `FrenchTypographyTest` (`landings.show.share_image_alt`) fail | Both fail on baseline 5143c731 too; not caused by this change. |
 
 ## Design Notes
 
-The key carries the latest notice time, which a removal never changes (notices outlive reactions) and a new reactor always moves forward, so un-react/re-react restores an already-seen key; reactions predating the table are backfilled as notices. Kind changes and removals publish the same event; the handler ignores `kind: nil` and the unique index swallows repeats. The ReactionsController rate limit (60/min) still bounds the event rate.
+The key carries the latest notice time, which a removal never changes (notices outlive reactions) and a new reactor always moves forward, so un-react/re-react restores an already-seen key; reactions predating the table are not backfilled (author, 2026-11-04): each may notify once on its first change. Kind changes and removals publish the same event; the handler ignores `kind: nil` and the unique index swallows repeats. The ReactionsController rate limit (60/min) still bounds the event rate.
 
 ## Verification
 
