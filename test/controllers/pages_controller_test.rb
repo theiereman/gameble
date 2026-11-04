@@ -420,11 +420,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#community-goal .hub-goal__status", false
     assert_select "#community-goal .hub-goal__figures", text: "0 / 250"
     assert_select "#community-goal .hub-goal__segment--lit", count: 0
-    assert_select "#community-goal .hub-goal__previous", text: "Semaine dernière\u202F: 180 / 200, manquée"
+    assert_select "#community-goal .hub-goal__previous", text: "Semaine dernière\u202F: 180\u00A0/\u00A0200, manquée"
 
     Game::WeeklyGoal.where(week_start: week - 7).update_all(total: 260)
     get home_path(locale: :en)
-    assert_select "#community-goal .hub-goal__previous", text: "Last week: 260 / 200, accomplished"
+    assert_select "#community-goal .hub-goal__previous", text: "Last week: 260\u00A0/\u00A0200, accomplished"
   end
 
   def earn_goal_reward(player = @player)
@@ -450,7 +450,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
                     "[aria-label=?]", "Récupérer la capsule de récompense", text: "Récupérer"
     end
     assert_select "#community-goal-progress #goal-reward", false
-    assert_select "#community-goal-progress .hub-goal__previous", text: "Semaine dernière\u202F: 200 / 200, accomplie"
+    assert_select "#community-goal-progress .hub-goal__previous", text: "Semaine dernière\u202F: 200\u00A0/\u00A0200, accomplie"
     assert_select "#toasts .toast[data-toast-once]", false
     assert_select "[style]", 0
 

@@ -311,6 +311,11 @@
   .social .hub-goal__previous {
     grid-column: 1;
   }
+
+  .social .hub-goal__claim {
+    grid-column: 2;
+    justify-self: end;
+  }
 }
 
 @media (min-width: 1180px) {

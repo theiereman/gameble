@@ -1,5 +1,5 @@
 /* ---- Community goal panel: the heading with the count beside it, the
-   line, the gauge, the reward, then last week's result beside the player's
+   line, the gauge, the reward, then last week's result and the player's
    claim ---- */
 
 .hub-goal {
@@ -11,7 +11,7 @@
 
 /* The public part the goal stream replaces lays its children out in the
    panel itself, so the count sits beside the heading and the player's claim
-   slot shares last week's row. */
+   slot follows last week's result. */
 .hub-goal__progress,
 .hub-goal__about,
 .hub-goal__meter,
@@ -85,15 +85,15 @@
 
 .hub-goal__previous {
   order: 1;
-  grid-column: 1;
+  grid-column: 1 / -1;
 }
 
 /* A contributor's reward claim, always for a finished week: the small
    button, then the lime state word. */
 .hub-goal__claim {
   order: 1;
-  grid-column: 2;
-  justify-self: end;
+  grid-column: 1 / -1;
+  justify-self: start;
 }
 
 .hub-goal__claim .button,

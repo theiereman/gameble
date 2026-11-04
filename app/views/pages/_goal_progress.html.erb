@@ -21,7 +21,7 @@
     <% end %>
   </div>
   <% if (previous = goal[:previous]) %>
-    <% previous_figures = { total: number_with_delimiter(previous[:total]), target: number_with_delimiter(previous[:target]) } %>
-    <p class="hub-goal__previous"><%= previous[:reached] ? t("pages.home.goal.previous_reached", **previous_figures) : t("pages.home.goal.previous_missed", **previous_figures) %></p>
+    <% previous_figures = "#{number_with_delimiter(previous[:total])}\u00a0/\u00a0#{number_with_delimiter(previous[:target])}" %>
+    <p class="hub-goal__previous"><%= t(previous[:reached] ? "pages.home.goal.previous_reached" : "pages.home.goal.previous_missed", figures: previous_figures) %></p>
   <% end %>
 </div>
