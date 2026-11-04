@@ -33,7 +33,7 @@
             <% if slot.copies %>
               <%= link_to_card_detail(slot.card, strings:, context:, number: slot.number, goals: marks) do %><%= render CardComponent.new(card: slot.card, size: :grid, goals: marks.map(&:position)) %><% end %>
               <% if slot.copies > 1 %>
-                <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(slot.copies) %></span>
+                <span class="collection-slot__counts"><span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(slot.copies) %></span></span>
               <% end %>
               <span class="visually-hidden"><%= t("library.grid.copies", count: slot.copies, number: number_with_delimiter(slot.copies)) %></span>
               <% if slot.new %>
