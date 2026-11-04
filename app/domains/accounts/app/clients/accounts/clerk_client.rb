@@ -7,7 +7,7 @@ module Accounts
     JWKS_LIFETIME = 1.hour
     JWKS_REFETCH_COOLDOWN = 30.seconds
     LEEWAY = 5
-    PROVIDERS = { "oauth_discord" => "discord", "oauth_google" => "google" }.freeze
+    PROVIDERS = { "oauth_apple" => "apple", "oauth_discord" => "discord", "oauth_google" => "google" }.freeze
     LOCAL_ORIGINS = %w[http://localhost:3000 http://127.0.0.1:3000 http://localhost:3036 http://127.0.0.1:3036].freeze
 
     class Error < StandardError; end

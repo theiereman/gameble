@@ -68,6 +68,16 @@ describe("startOAuth", () => {
     })
   })
 
+  it("redirects through the callback with Apple", async () => {
+    const { signIn, driver } = buildFake()
+    expect(await driver.startOAuth("oauth_apple")).toEqual({ kind: "redirecting" })
+    expect(signIn.authenticateWithRedirect).toHaveBeenCalledWith({
+      strategy: "oauth_apple",
+      redirectUrl: config.callbackUrl,
+      redirectUrlComplete: config.completeUrl,
+    })
+  })
+
   it("maps a failure to a message key", async () => {
     const { signIn, driver } = buildFake()
     signIn.authenticateWithRedirect.mockRejectedValue(clerkError("captcha_invalid"))

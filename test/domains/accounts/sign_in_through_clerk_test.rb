@@ -6,6 +6,7 @@ class Accounts::SignInThroughClerkTest < ActiveSupport::TestCase
 
   setup do
     ClerkFake.install(users: {
+      "user_apple" => ClerkFake.api_user("user_apple", email: "relay@privaterelay.appleid.com", accounts: [ { provider: "apple", uid: "a-1", email: "relay@privaterelay.appleid.com" } ]),
       "user_discord" => ClerkFake.api_user("user_discord", email: "gabe@example.com", accounts: [ { provider: "discord", uid: "d-1", email: "gabe@example.com" } ]),
       "user_other" => ClerkFake.api_user("user_other", email: "other@example.com", accounts: [ { provider: "discord", uid: "d-1" } ]),
       "user_code" => ClerkFake.api_user("user_code", email: "code@example.com"),
@@ -31,6 +32,14 @@ class Accounts::SignInThroughClerkTest < ActiveSupport::TestCase
     assert_nil player.steam_id
     assert_not_nil player.reload.last_seen_at
     assert_equal 1, registered_events.size
+  end
+
+  test "a new Apple user registers a player with an apple identity" do
+    player = sign_in("user_apple").value!
+
+    identity = player.identities.sole
+    assert_equal [ "apple", "a-1", "user_apple" ], [ identity.provider, identity.uid, identity.clerk_user_id ]
+    assert_nil player.steam_id
   end
 
   test "the same user signs in the same player again, without a second registration" do

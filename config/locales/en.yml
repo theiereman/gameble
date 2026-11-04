@@ -989,6 +989,7 @@ en:
       cannot_dismiss_self: You cannot dismiss the reports against you, officer.
       cannot_report_self: You cannot report your own profile.
       clerk_unavailable: The sign-in service is not answering. Try again in a moment.
+      email_known_apple: An account already exists with this email through Apple. Sign in with Apple, then add this sign-in from the settings.
       email_known_discord: An account already exists with this email through Discord. Sign in with Discord, then add this sign-in from the settings.
       email_known_email: An account already exists with this email through an email code. Sign in with your email, then add this sign-in from the settings.
       email_known_google: An account already exists with this email through Google. Sign in with Google, then add this sign-in from the settings.
@@ -1502,7 +1503,7 @@ en:
           title: Grow your collection
         join:
           badge: New member
-          text: Sign in with Steam, Discord, Google or an email code and your account is created automatically.
+          text: Sign in with Steam, Apple, Discord, Google or an email code and your account is created automatically.
           title: Join it
         label: 03 · How it works
         subtitle: Open, reveal, collect, trade. These four gestures are all you need
@@ -2137,7 +2138,7 @@ en:
             from them after 7 days, a little longer if a backup failed;'
           banned_steam_id: 'the Steam id of a suspended account: as long as the suspension
             lasts, to refuse a new sign-up;'
-          clerk: 'the Clerk user created for a Discord, Google or email code sign-in, with
+          clerk: 'the Clerk user created for an Apple, Discord, Google or email code sign-in, with
             your email address and its sessions: as long as the account exists; it is
             deleted from Clerk when you delete your account;'
           errors: 'technical errors received by Sentry: 30 days;'
@@ -2183,9 +2184,9 @@ en:
           rectification_html: 'rectification: a Steam profile name is read again at each
             Steam sign-in; for anything else, write to %{contact};'
         services:
-          clerk: 'Clerk, Inc. handles sign-in through Discord, Google or an email code,
+          clerk: 'Clerk, Inc. handles sign-in through Apple, Discord, Google or an email code,
             as our processor: it holds the Clerk user created for you (your email address,
-            the identifier Discord or Google gives for you, and your sign-in sessions),
+            the identifier Apple, Discord or Google gives for you, and your sign-in sessions),
             and may process it in the United States among other places. Your browser
             contacts it directly on the sign-in screen and in the settings. Gameble
             keeps only the Clerk user''s identifier and a one-way hash of your verified
@@ -2213,7 +2214,7 @@ en:
             card back unlocks and active card back, capsules, daily bonuses, weekly
             mission rewards, trades, friendships, invitations, friend code, activity feed
             entries, your reactions to feed entries and latest activity;'
-          identities: 'your sign-in methods: Steam, Discord, Google or an email code, each
+          identities: 'your sign-in methods: Steam, Apple, Discord, Google or an email code, each
             with its identifier at that provider, the date it was added and, for the
             last three, a one-way hash of your verified email address, never the address
             itself;'
@@ -2641,10 +2642,11 @@ en:
     clerk:
       back: Use another address
       code_label: Code received by email
+      apple: Apple
       discord: Discord
       email_label: Email address
       google: Google
-      javascript_needed: Discord, Google and email codes need JavaScript.
+      javascript_needed: Apple, Discord, Google and email codes need JavaScript.
       messages:
         captcha: The security check did not complete. Try again.
         code_expired: That code expired. Ask for a new one.
@@ -2660,13 +2662,14 @@ en:
       send_code: Send me a code
       verify: Confirm
     providers:
+      apple: Apple
       discord: Discord
       email: Email code
       google: Google
       steam: Steam
     show:
       native_continue: Sign in in the browser
-      native_line: Sign in with Steam, Discord, Google or an email code in your phone's browser, then come back here.
+      native_line: Sign in with Steam, Apple, Discord, Google or an email code in your phone's browser, then come back here.
       heading: Sign in
       line: Choose how you want to come aboard.
       separator: or

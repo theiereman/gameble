@@ -11,7 +11,7 @@
                 clerk_sign_in_messages_value: messages } do %>
     <% if mode == "start" %>
       <ul class="clerk-sign-in__providers">
-        <% { "oauth_discord" => t(".discord"), "oauth_google" => t(".google") }.each do |strategy, label| %>
+        <% { "oauth_apple" => t(".apple"), "oauth_discord" => t(".discord"), "oauth_google" => t(".google") }.each do |strategy, label| %>
           <li>
             <%= tag.button label, type: :button, class: "button button--secondary clerk-sign-in__provider",
                   data: { clerk_sign_in_target: "provider", action: "clerk-sign-in#start", clerk_sign_in_strategy_param: strategy } %>
