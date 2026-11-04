@@ -5,12 +5,12 @@ require_relative "../support/steam_sign_in"
 class LocalesControllerTest < ActionDispatch::IntegrationTest
   include SteamSignIn
 
-  test "a signed-in player goes to the capsule screen" do
+  test "a signed-in player goes to the hub, not the capsule screen" do
     sign_in(accounts_players(:player))
 
     get "/", headers: { "Accept-Language" => "fr-FR,fr;q=0.9,en;q=0.8" }
 
-    assert_redirected_to "/fr/booster"
+    assert_redirected_to "/fr"
   end
 
   test "a signed-in player still awaiting the welcome goes to the hub" do

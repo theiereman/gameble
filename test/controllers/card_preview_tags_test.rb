@@ -263,7 +263,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select "#share-sheet input[value=?]", season_url
   end
 
-  test "a visitor signing in from the pitch lands on the capsule screen" do
+  test "a visitor signing in from the pitch lands on the hub" do
     get card_page
     link = css_select(".public-card__pitch a[href^='/en/sign-in']").sole
     get link["href"]
@@ -276,7 +276,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     post form["action"], params: { origin: }
     follow_redirect!
 
-    assert_redirected_to "/en/booster"
+    assert_redirected_to "/en"
     assert_equal newcomer.id, session[:player_id]
   end
 

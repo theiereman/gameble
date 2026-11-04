@@ -34,7 +34,8 @@ class CapsuleFlowTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
-    assert_current_path booster_path(locale: :en)
+    assert_current_path home_path(locale: :en)
+    visit booster_path(locale: :en)
     assert_selector ".booster[data-layout]"
   end
 

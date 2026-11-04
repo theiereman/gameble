@@ -3,8 +3,8 @@ require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 require_relative "../support/clerk_fake"
 
-# A signed-in player arrives on the capsule screen, which offers the daily
-# capsule while it waits; a player still awaiting the welcome lands on the hub.
+# The capsule screen offers the daily capsule while it waits; signing in lands
+# on the hub, never on this screen.
 class CapsuleLandingTest < ActionDispatch::IntegrationTest
   include ClerkFake
   include GamePacks
@@ -16,7 +16,7 @@ class CapsuleLandingTest < ActionDispatch::IntegrationTest
     @player = accounts_players(:player)
   end
 
-  test "a Clerk sign-in from the hub or from nowhere lands on the capsule screen once the welcome is behind" do
+  test "a Clerk sign-in from the hub or from nowhere lands on the hub, welcome or not" do
     ClerkFake.install(users: { "user_mail" => ClerkFake.api_user("user_mail", accounts: [], email: "mail@example.com") })
     cookies["__session"] = ClerkFake.session_token(user_id: "user_mail")
     post clerk_session_path(locale: :en)
@@ -26,7 +26,7 @@ class CapsuleLandingTest < ActionDispatch::IntegrationTest
     delete session_path(locale: :en)
     cookies["__session"] = ClerkFake.session_token(user_id: "user_mail")
     post clerk_session_path(locale: :fr), params: { origin: "/fr" }
-    assert_redirected_to "/fr/booster"
+    assert_redirected_to "/fr"
   end
 
   test "the capsule screen offers a ready daily capsule with its collect button" do

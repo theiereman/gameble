@@ -290,11 +290,11 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   [ "/fr/some/page", "/fr/library", "/fr/cards/portal", "/fr" ].each do |origin|
-    test "a sign-in started on #{origin} lands on the capsule screen in its locale" do
+    test "a sign-in started on #{origin} lands on the hub in its locale" do
       Accounts::Player.create!(steam_id: STEAM_ID)
       sign_in_with_steam(origin:)
 
-      assert_redirected_to booster_path(locale: :fr)
+      assert_redirected_to home_path(locale: :fr)
       assert_equal I18n.t("sessions.create.welcome", locale: :fr), flash[:notice]
     end
   end
