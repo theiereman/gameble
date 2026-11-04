@@ -1,8 +1,10 @@
 require "test_helper"
+require_relative "../support/feed_reactions"
 
 class PlayerStreamTest < ActiveSupport::TestCase
   include ActionCable::TestHelper
   include ActiveJob::TestHelper
+  include FeedReactions
 
   setup do
     @alice = accounts_players(:player)
@@ -249,5 +251,33 @@ class PlayerStreamTest < ActiveSupport::TestCase
       end
     end
     assert_not Game::Friendship.of(@alice.id).exists?
+  end
+
+  test "a new player's first reaction to an entry tells its owner once it commits; reacting again, changing or withdrawing tells no one" do
+    entry = feed_entry_of(@alice)
+
+    assert_enqueued_with(job: PlayerStreamJob, args: [ [ { player_id: @alice.id, topic: "reactions" } ] ]) do
+      react(@bob, entry, "heart").value!
+    end
+    assert_empty batches
+
+    assert_no_enqueued_jobs(only: PlayerStreamJob) do
+      react(@bob, entry, "wow").value!
+      react(@bob, entry, nil).value!
+      react(@bob, entry, "heart").value!
+      react(@alice, entry, "gg").value!
+    end
+  end
+
+  test "the reactions of one transaction tell each owner once" do
+    first = feed_entry_of(@alice)
+    second = feed_entry_of(@alice)
+
+    ApplicationRecord.transaction do
+      react(@bob, first, "heart").value!
+      react(@bob, second, "heart").value!
+    end
+
+    assert_equal 1, stream_jobs.size
   end
 end

@@ -61,6 +61,14 @@ fr:
       trade_accepted: "%{name} a accepté votre échange."
       trade_declined: "%{name} a refusé votre échange."
       invitation: "%{name} vous invite à devenir amis."
+      reaction_named:
+        zero: "%{name} a réagi à votre publication."
+        one: "%{name} et %{count} autre ont réagi à votre publication."
+        other: "%{name} et %{count} autres ont réagi à votre publication."
+      reaction_anonymous:
+        zero: "%{count} joueur a réagi à votre publication."
+        one: "%{count} joueur a réagi à votre publication."
+        other: "%{count} joueurs ont réagi à votre publication."
       daily: "Votre capsule du jour est prête."
       mission: "Mission de la semaine : ouvrir %{target} capsules ensemble."
       mission_reached: "La mission de la semaine est accomplie : %{target} capsules ouvertes ensemble."

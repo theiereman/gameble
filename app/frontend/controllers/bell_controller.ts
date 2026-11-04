@@ -35,6 +35,7 @@ export default class extends Controller<HTMLElement> {
     this.stopListening = [
       onGameble("gameble:trades-updated", () => this.reload()),
       onGameble("gameble:friends-updated", () => this.reload()),
+      onGameble("gameble:reactions-updated", () => this.reload()),
     ]
   }
 

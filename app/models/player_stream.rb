@@ -30,6 +30,10 @@ module PlayerStream
       BATCH.add(notices(event))
     end
 
+    def reacted(owner_ids)
+      BATCH.add(owner_ids.map { reactions_notice(it) })
+    end
+
     def notices(event)
       data = event.data
       case event
@@ -65,6 +69,8 @@ module PlayerStream
     def trades_notice(player_id) = { player_id:, topic: "trades" }
 
     def friends_notice(player_id) = { player_id:, topic: "friends" }
+
+    def reactions_notice(player_id) = { player_id:, topic: "reactions" }
 
     def former_friends_notices(data)
       pair = [ data[:player_id], data[:friend_id] ]

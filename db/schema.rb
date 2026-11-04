@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_184200) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_120100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -546,6 +546,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_184200) do
     t.check_constraint "(active_title_kind IS NULL) = (active_title_key IS NULL) AND (active_title_key IS NULL) = (active_title_rank IS NULL)", name: "game_player_states_active_title_whole_check"
   end
 
+  create_table "game_reaction_notices", force: :cascade do |t|
+    t.bigint "feed_entry_id", null: false
+    t.bigint "reactor_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feed_entry_id", "reactor_id"], name: "index_game_reaction_notices_on_feed_entry_id_and_reactor_id", unique: true
+    t.index ["reactor_id"], name: "index_game_reaction_notices_on_reactor_id"
+  end
+
   create_table "game_set_tiers", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.bigint "set_id", null: false
@@ -748,6 +757,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_184200) do
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
   add_foreign_key "game_player_states", "accounts_players", column: "player_id"
+  add_foreign_key "game_reaction_notices", "accounts_players", column: "reactor_id"
+  add_foreign_key "game_reaction_notices", "game_feed_entries", column: "feed_entry_id", on_delete: :cascade
   add_foreign_key "game_set_tiers", "accounts_players", column: "player_id"
   add_foreign_key "game_set_tiers", "game_packs", column: "pack_id", on_delete: :cascade
   add_foreign_key "game_showcase_entries", "accounts_players", column: "player_id"

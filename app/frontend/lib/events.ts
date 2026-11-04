@@ -33,6 +33,7 @@ export interface GamebleEventMap {
   "gameble:opening-revealing": OpeningRevealingDetail
   "gameble:trades-updated": StreamUpdatedDetail
   "gameble:friends-updated": StreamUpdatedDetail
+  "gameble:reactions-updated": StreamUpdatedDetail
 }
 
 export type GamebleEventName = keyof GamebleEventMap

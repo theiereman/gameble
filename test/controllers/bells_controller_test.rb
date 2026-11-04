@@ -1,8 +1,10 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
+require_relative "../support/feed_reactions"
 
 class BellsControllerTest < ActionDispatch::IntegrationTest
   include SteamSignIn
+  include FeedReactions
 
   FRAME = "turbo-frame#bell-items[target=_top]".freeze
 
@@ -64,6 +66,29 @@ class BellsControllerTest < ActionDispatch::IntegrationTest
 
     get_bell(locale: :fr)
     assert_select "#{FRAME} li[data-bell-path='/fr/trades/#{answered.token}']", text: /#{@max.persona_name} a refusé votre échange\./
+  end
+
+  test "an entry others reacted to is a line to the feed after the invitations, keyed by token and latest notice, in the request's locale" do
+    invitation = Game::Invitation.create!(sender_id: @eve.id, recipient_id: @hugo.id, status: "pending")
+    @max.update!(persona_name: "Max")
+    entry = feed_entry_of(@hugo)
+    react(@max, entry, "heart").value!
+    react(@eve, entry, "wow").value!
+    @eve.update!(visibility: "private")
+    sign_in(@hugo)
+
+    get_bell
+
+    assert_equal [ "invitation:#{invitation.token}", "reaction:#{entry.token}:#{Game::ReactionNotice.where(feed_entry_id: entry.id).maximum(:created_at).utc.iso8601(6)}" ], line_keys.first(2)
+    assert_select "#{FRAME} li[data-bell-path='/en/feed'][data-bell-lasting=false] a[href='/en/feed']",
+      text: /Max and 1 other reacted to your post\.\s+See/
+
+    get_bell(locale: :fr)
+    assert_select "#{FRAME} li[data-bell-path='/fr/feed']", text: /Max et 1 autre ont réagi à votre publication\./
+
+    @max.update!(visibility: "private")
+    get_bell
+    assert_select "#{FRAME} li[data-bell-path='/en/feed']", text: /2 players reacted to your post\./
   end
 
   test "an unclaimed mission reward replaces the week's line, in the request's locale" do

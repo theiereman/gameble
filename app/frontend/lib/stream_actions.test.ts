@@ -18,6 +18,7 @@ describe("streamSignal", () => {
   it("names the listed signals only", () => {
     expect(streamSignal("trades-updated")).toBe("trades-updated")
     expect(streamSignal("friends-updated")).toBe("friends-updated")
+    expect(streamSignal("reactions-updated")).toBe("reactions-updated")
     expect(streamSignal("toast")).toBeNull()
     expect(streamSignal("")).toBeNull()
     expect(streamSignal(null)).toBeNull()
@@ -31,12 +32,14 @@ describe("the gameble-event stream action", () => {
     const seen: string[] = []
     target.addEventListener("gameble:trades-updated", (event) => seen.push(event.type))
     target.addEventListener("gameble:friends-updated", (event) => seen.push(event.type))
+    target.addEventListener("gameble:reactions-updated", (event) => seen.push(event.type))
     const action = registered(target)
 
     action.call(streamElement({ event: "trades-updated" }))
     action.call(streamElement({ event: "friends-updated" }))
+    action.call(streamElement({ event: "reactions-updated" }))
 
-    expect(seen).toEqual(["gameble:trades-updated", "gameble:friends-updated"])
+    expect(seen).toEqual(["gameble:trades-updated", "gameble:friends-updated", "gameble:reactions-updated"])
   })
 
   it("raises nothing for an unknown or missing signal", () => {

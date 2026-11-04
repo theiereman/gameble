@@ -6,7 +6,8 @@ module Game
     InvitationLine = Data.define(:token, :player)
     GoalLine = Data.define(:week_start, :reward_ready, :target, :reached)
     UpdateLine = Data.define(:token, :player, :outcome, :closed_at)
-    Result = Data.define(:trades, :updates, :invitations, :daily, :goal)
+    ReactionLine = Data.define(:token, :name, :others, :count, :noticed_at)
+    Result = Data.define(:trades, :updates, :invitations, :reactions, :daily, :goal)
 
     def self.call(player, now: Time.current)
       trades = trades_waiting(player, now).to_a
@@ -18,6 +19,7 @@ module Game
         trades: trades.map { TradeLine.new(token: it.token, player: senders[it.proposer_id], revision: it.revision) },
         updates: updates.map { UpdateLine.new(token: it.token, player: senders[it.recipient_id], outcome: it.status, closed_at: it.closed_at) },
         invitations: invitations.map { InvitationLine.new(token: it.token, player: senders[it.sender_id]) },
+        reactions: ReactionUpdates.call(player, now:).map { reaction_line(it) },
         daily: daily(player, now),
         goal: goal(player, now)
       )
@@ -38,6 +40,12 @@ module Game
         .select(:id, :token, :sender_id)
     end
     private_class_method :invitations_waiting
+
+    def self.reaction_line(update)
+      ReactionLine.new(token: update.token, name: update.name, others: update.name ? update.reactors - 1 : 0, count: update.reactors,
+        noticed_at: update.noticed_at)
+    end
+    private_class_method :reaction_line
 
     def self.daily(player, now)
       day = DailyBonusClaim.day_of(now)

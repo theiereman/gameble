@@ -36,6 +36,8 @@ Rails.configuration.to_prepare do
   event_store.subscribe(LiveStream, to: LiveStream::EVENTS)
   event_store.subscribe(ReactionStream, to: ReactionStream::EVENTS)
   event_store.subscribe(Game::Handlers::PlayerActivity, to: Game::Handlers::PlayerActivity::EVENTS.keys)
+  # A player's first reaction to an entry is recorded once, and only then do the entry's owners hear of it.
+  event_store.subscribe(->(event) { PlayerStream.reacted(Game::Handlers::ReactionNotices.call(event)) }, to: [ Game::FeedEntryReacted ])
 
   event_store.subscribe(PlayerStream, to: PlayerStream::EVENTS)
 

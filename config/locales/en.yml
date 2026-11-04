@@ -2627,6 +2627,13 @@ en:
       mission: "This week's mission: open %{target} capsules together."
       mission_reached: "This week's mission is accomplished: %{target} capsules opened together."
       mission_reward: 'The weekly mission is accomplished: a rare capsule awaits you.'
+      reaction_anonymous:
+        one: "%{count} player reacted to your post."
+        other: "%{count} players reacted to your post."
+      reaction_named:
+        zero: "%{name} reacted to your post."
+        one: "%{name} and %{count} other reacted to your post."
+        other: "%{name} and %{count} others reacted to your post."
       read_all: Mark all as read
       see: See
       title: What is new

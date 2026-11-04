@@ -4,7 +4,8 @@ require_relative "../support/steam_sign_in"
 
 # The header's bell: its count of lines not yet seen, raised live by a new
 # trade or friend request, and lowered for good once a line's target page is
-# opened, through the line or any other way; the same bell in the phone's
+# opened, through the line or any other way; a line for an entry others
+# reacted to, raised live by a new reactor only; the same bell in the phone's
 # top-level header; the empty panel once everything is seen.
 class BellTest < ApplicationSystemTestCase
   include ActiveJob::TestHelper
@@ -100,6 +101,30 @@ class BellTest < ApplicationSystemTestCase
     assert_selector "#bell-items .bell__line", text: /Maxime invites you/, visible: :all
     within("#bell-panel") { assert_selector ".bell__line", count: 2 }
     assert_count 2
+  end
+
+  test "a new reactor to the player's entry raises the count live; the line clears on the feed and a reaction given again keeps it cleared" do
+    entry = Game::FeedEntry.record_repost(player_id: @hugo.id, card_season_id: catalog_card_seasons(:portal_one).id, at: Time.current)
+    react = ->(kind) { Game::ReactToFeedEntry.new.call(player: @lea, entry_token: entry.token, kind:).value! }
+    sign_in
+    assert_count 3
+    assert_selector "turbo-cable-stream-source[connected]", visible: :all
+
+    react.("heart")
+    perform_enqueued_jobs(only: PlayerStreamJob)
+    assert_count 4
+
+    open_bell
+    within("#bell-panel") { click_link href: "/en/feed", text: /Lea reacted to your post/ }
+    assert_current_path "/en/feed"
+    assert_count 3
+
+    react.(nil)
+    react.("wow")
+    perform_enqueued_jobs(only: PlayerStreamJob)
+    visit library_path(locale: :en)
+    assert_count 3
+    assert_selector "#bell-items a[href='/en/feed']", text: /Lea reacted to your post/, visible: :all
   end
 
   test "marking all as read clears every line that can be seen away and leaves the lasting ones" do

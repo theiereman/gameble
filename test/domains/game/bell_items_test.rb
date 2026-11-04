@@ -1,11 +1,14 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/feed_reactions"
 
 # The bell's lines, from current state: the friend requests received, the
 # trades waiting on the player, the daily capsule while collectable, and the
-# weekly mission, its reward line while a reward waits.
+# weekly mission, its reward line while a reward waits, and the player's
+# feed entries that others reacted to.
 class Game::BellItemsTest < ActiveSupport::TestCase
   include GamePacks
+  include FeedReactions
 
   NOW = Time.utc(2026, 10, 7, 15, 0)
 
@@ -137,5 +140,112 @@ class Game::BellItemsTest < ActiveSupport::TestCase
 
     assert_empty items.updates
     assert_equal 1, items.trades.size
+  end
+
+  def reactions(player = @hugo) = Game::BellItems.call(player).reactions
+
+  def noticed_at(entry) = Game::ReactionNotice.where(feed_entry_id: entry.id).maximum(:created_at)
+
+  def notice_age(entry, reactor, age)
+    Game::ReactionNotice.where(feed_entry_id: entry.id, reactor_id: reactor.id).update_all(created_at: age.ago)
+  end
+
+  test "an entry another player reacted to is a line naming the latest public reactor, keyed by its latest notice" do
+    @max.update!(persona_name: "Max")
+    @eve.update!(persona_name: "Eve")
+    entry = feed_entry_of(@hugo)
+    react(@max, entry, "heart")
+    react(@eve, entry, "middle_finger")
+
+    line = reactions.sole
+
+    assert_equal [ entry.token, "Eve", 1, 2, noticed_at(entry) ], [ line.token, line.name, line.others, line.count, line.noticed_at ]
+  end
+
+  test "a withdrawn reaction keeps its notice: the line counts the players reacting now and keeps its latest notice" do
+    @max.update!(persona_name: "Max")
+    @eve.update!(persona_name: "Eve")
+    entry = feed_entry_of(@hugo)
+    react(@max, entry, "heart")
+    react(@eve, entry, "wow")
+    react(@eve, entry, nil)
+
+    line = reactions.sole
+
+    assert_equal [ "Max", 0, 1, noticed_at(entry) ], [ line.name, line.others, line.count, line.noticed_at ]
+  end
+
+  test "a new reactor after a released one moves the line's time forward" do
+    entry = feed_entry_of(@hugo)
+    react(@max, entry, "heart")
+    react(@eve, entry, "gg")
+    notice_age(entry, @max, 2.hours)
+    notice_age(entry, @eve, 1.hour)
+    before = reactions.sole.noticed_at
+
+    Game::ReleasePlayer.new.call(player: @eve).value!
+    react(Accounts::Player.create!(steam_id: "76561198000001234"), entry, "wow")
+
+    assert_operator reactions.sole.noticed_at, :>, before
+  end
+
+  test "an entry whose every reaction was withdrawn is no line" do
+    entry = feed_entry_of(@hugo)
+    react(@max, entry, "heart")
+    react(@max, entry, nil)
+
+    assert_empty reactions
+  end
+
+  test "a reactor whose profile is not public is counted, not named" do
+    @max.update!(persona_name: "Max", visibility: "friends_only")
+    entry = feed_entry_of(@hugo)
+    react(@max, entry, "heart")
+
+    line = reactions.sole
+
+    assert_nil line.name
+    assert_equal [ 0, 1 ], [ line.others, line.count ]
+  end
+
+  test "a banned reactor no longer counts" do
+    @max.update!(persona_name: "Max")
+    entry = feed_entry_of(@hugo)
+    react(@max, entry, "heart")
+    react(@eve, entry, "gg")
+
+    @max.update_columns(banned_at: Time.current)
+
+    line = reactions.sole
+    assert_nil line.name
+    assert_equal [ 1, noticed_at(entry) ], [ line.count, line.noticed_at ]
+  end
+
+  test "the player's own reaction and reactions to others' entries are no line" do
+    react(@hugo, feed_entry_of(@hugo), "heart")
+    react(@hugo, feed_entry_of(@max), "heart")
+
+    assert_empty reactions
+  end
+
+  test "a line lasts 7 days after the latest first reaction" do
+    entry = feed_entry_of(@hugo)
+    react(@max, entry, "heart")
+    notice_age(entry, @max, 8.days)
+
+    assert_empty reactions
+
+    react(@eve, entry, "heart")
+    assert_equal 2, reactions.sole.count
+  end
+
+  test "five entries at most, the most recently reacted to first" do
+    entries = Array.new(6) { feed_entry_of(@hugo) }
+    entries.each_with_index do |entry, index|
+      react(@max, entry, "heart")
+      notice_age(entry, @max, (6 - index).hours)
+    end
+
+    assert_equal entries.reverse.first(5).map(&:token), reactions.map(&:token)
   end
 end

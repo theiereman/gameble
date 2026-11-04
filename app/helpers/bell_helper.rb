@@ -8,6 +8,7 @@ module BellHelper
       *items.trades.map { bell_trade_line(it) },
       *items.updates.map { bell_trade_update_line(it) },
       *items.invitations.map { bell_invitation_line(it) },
+      *items.reactions.map { bell_reaction_line(it) },
       (bell_daily_line(items.daily) if items.daily),
       bell_goal_line(items.goal)
     ].compact
@@ -28,6 +29,15 @@ module BellHelper
   def bell_invitation_line(invitation)
     BellLine.new(key: "invitation:#{invitation.token}", path: friends_path, href: friends_path,
       sentence: t("shell.bell.invitation", name: friend_name(invitation.player)), action: t("shell.bell.see"))
+  end
+
+  def bell_reaction_line(reaction)
+    sentence = if reaction.name
+      t("shell.bell.reaction_named", name: reaction.name, count: reaction.others)
+    else
+      t("shell.bell.reaction_anonymous", count: reaction.count)
+    end
+    BellLine.new(key: "reaction:#{reaction.token}:#{reaction.noticed_at.utc.iso8601(6)}", path: feed_path, href: feed_path, sentence:, action: t("shell.bell.see"))
   end
 
   def bell_daily_line(day)
