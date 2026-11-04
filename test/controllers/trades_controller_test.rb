@@ -124,12 +124,10 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".trade-board__expiry", /Expire dans\s+7 j/
       assert_select ".trade-board__message", "Lea vous propose cet échange."
       assert_select ".trade-side--friend .trade-side__label", "Lea donne"
-      assert_select ".trade-side--friend .trade-card__reserved", "Réservée"
       assert_select ".trade-side--friend .card", 1
       assert_select ".trade-side--own .trade-side__label", "Vous donnez"
       assert_select ".trade-side--own .trade-card__quantity", /×2/
       assert_select ".trade-side--own .trade-side__count", "1 carte · 2 ex."
-      assert_select ".trade-side--own .trade-card__reserved", 0
       assert_select "form[action=?] button", accept_trade_path(token: trade.token, locale: :fr), "Accepter"
       assert_select "form[action=?] input[type=hidden][name=revision][value=?]", accept_trade_path(token: trade.token, locale: :fr), revision(trade)[:revision]
       assert_select "form[action=?] input[type=hidden][name=revision][value=?]", decline_trade_path(token: trade.token, locale: :fr), revision(trade)[:revision]
@@ -139,6 +137,21 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/trade[_-]id|\svalue="#{trade.id}"/, response.body)
   end
 
+  test "the cards the player gives show the copies given out of the copies held, red when it is all of them, on a trade waiting for them and on one they proposed" do
+    sign_in @alice
+
+    waiting = propose(@bob, @alice, offer: { @depths => 1 }, request: { @portal => 2, @soldier => 1 })
+    get trade_path(token: waiting.token, locale: :fr)
+    assert_select ".trade-side--own .trade-card__quantity:not(.trade-card__quantity--all)", text: /×2\/3/
+    assert_select ".trade-side--own .trade-card__quantity--all", text: /×1\/1/
+    assert_select ".trade-side--friend .trade-card__quantity:not(.trade-card__quantity--all)", text: /×1\/2/
+
+    all_copies = propose(@alice, @carol, offer: { @portal => 3 }, request: { @depths => 1 })
+    get trade_path(token: all_copies.token, locale: :en)
+    assert_select ".trade-side--own .trade-card__quantity--all", text: /×3\/3/
+    assert_select ".trade-side--friend .trade-card__quantity--all", text: /×1\/1/
+  end
+
   test "the proposer sees their reserved copies and cancels; the copies are released" do
     trade = propose(@alice, @bob, offer: { @portal => 2 }, request: { @depths => 1 })
     sign_in @alice
@@ -146,7 +159,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     get trade_path(token: trade.token, locale: :fr)
     assert_select ".trade-chip--accent", "En attente"
     assert_select ".trade-board__message", "En attente de la réponse de Lea."
-    assert_select ".trade-side--own .trade-card__reserved", "2 réservées"
+    assert_select ".trade-side--own .trade-card__quantity", /×2\/3/
     assert_select ".trade-board__actions form button", 1
 
     post cancel_trade_path(token: trade.token, locale: :fr)
@@ -855,7 +868,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".toast", /Proposition envoyée.*Lea a 7 jours pour répondre\./m
     assert_select ".trade-chip--accent", "En attente"
     assert_select ".trade-board[data-trade-board-forget-value=?]", "#{@alice.token}:#{@bob.token}"
-    assert_select ".trade-side--own .trade-card__reserved", "2 réservées"
+    assert_select ".trade-side--own .trade-card__quantity", /×2\/3/
   end
 
   test "sending a draft with only the friend's side proposes an open request: nothing reserved, left for the friend to choose" do
@@ -875,7 +888,6 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".trade-side__count", 0
       assert_select ".trade-card", 0
     end
-    assert_select ".trade-card__reserved", 0
     assert_select ".trade-row__what", "Profondeurs bleues contre À choisir"
   end
 

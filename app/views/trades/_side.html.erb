@@ -1,5 +1,6 @@
 <% size = lines.size == 1 ? :m : :s %>
 <% fresh = local_assigns[:fresh] || [] %>
+<% held = local_assigns[:held] %>
 <% blank = lines.empty? && local_assigns[:empty_label].present? %>
 <div class="<%= class_names("trade-side", "trade-side--#{side}", "trade-board__read-only": local_assigns[:read_only]) %>">
   <p class="trade-side__header">
@@ -16,11 +17,11 @@
         <%= tag.li class: class_names("trade-card", "trade-card--stack": line.quantity > 1),
               data: ({ trade_board_target: "line", side:, key: trade_card_key(view), quantity: line.quantity } if local_assigns[:received]) do %>
           <%= trade_card_face(view, size:) %>
-          <% if line.quantity > 1 %>
-            <span class="trade-card__quantity"><span class="visually-hidden"><%= t("trades.side.copies_label") %></span>×<%= line.quantity %></span>
-          <% end %>
-          <% if reserved %>
-            <span class="trade-card__reserved"><%= t("trades.side.reserved", count: line.quantity) %></span>
+          <% owned = held && held[line.card_season_id]&.quantity %>
+          <% if line.quantity > 1 || owned %>
+            <span class="<%= class_names("trade-card__quantity", "trade-card__quantity--all": owned && line.quantity >= owned) %>">
+              <span class="visually-hidden"><%= t("trades.side.copies_label") %></span>×<%= line.quantity %><% if owned %>/<%= owned %><span class="visually-hidden"> <%= t("trades.side.of_collection", total: owned) %></span><% end %>
+            </span>
           <% end %>
           <% if fresh.include?(line.card_season_id) %>
             <span class="trade-card__new"><%= t("trades.side.new") %></span>

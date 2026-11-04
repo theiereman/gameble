@@ -251,6 +251,11 @@
   text-transform: uppercase;
 }
 
+.trade-card__quantity--all {
+  background: var(--color-live-red);
+  color: var(--color-text-max);
+}
+
 .trade-card__new {
   padding: var(--space-1) var(--space-3);
   background: var(--color-lime);

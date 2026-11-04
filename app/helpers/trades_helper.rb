@@ -149,7 +149,7 @@ module TradesHelper
     return {} unless trade
 
     editor = (trade_board_editor(trade.friend_side, trade.own_side, own_held:, friend_held:, picks:) if trade.state == :yours && own_held && friend_held && picks)
-    locals.merge(editing:, editor:)
+    locals.merge(editing:, editor:, own_held:, friend_held:)
   end
 
   def trade_draft_editor(own_held:, friend_held:, picks:, prefill: nil)

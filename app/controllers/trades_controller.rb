@@ -179,6 +179,9 @@ class TradesController < ApplicationController
       @cards = card_views(trade)
       case trade&.state
       when :yours then load_holdings(trade.friend)
+      when :theirs
+        @own_cards = Game::HeldCopies.call(current_player)
+        @friend_cards = Game::HeldCopies.call(trade.friend)
       when :concluded
         received = trade.friend_side.map(&:card_season_id)
         @new_cards = Game::CollectionSlots.call(current_player, received).select { |_, slot| slot.new }.keys

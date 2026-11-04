@@ -2884,6 +2884,7 @@ en:
       title: Proposal sent
     side:
       copies_label: 'Copies:'
+      of_collection: in your collection (%{total})
       for_friend_to_choose: For %{name} to choose
       friend_gives: "%{name} gives"
       friend_offered: "%{name} offered"

@@ -1924,6 +1924,7 @@ fr:
       for_friend_to_choose: "À choisir par %{name}"
       yours_to_choose: "À vous de choisir"
       copies_label: "Exemplaires :"
+      of_collection: "dans votre collection (%{total})"
       reserved:
         zero: "Réservée"
         one: "Réservée"
