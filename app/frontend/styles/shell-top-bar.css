@@ -49,6 +49,16 @@
   display: none;
 }
 
+/* Social's children name it as their parent at every width, in place of
+   the previous-screen button. */
+.top-bar__start > .top-bar__social-back {
+  display: inline-flex;
+}
+
+.top-bar__start:has(> .top-bar__social-back) > .top-bar__previous {
+  display: none;
+}
+
 a.top-bar__home {
   text-decoration: none;
 }

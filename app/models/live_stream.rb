@@ -6,6 +6,8 @@ module LiveStream
 
   STRIP_SIZE = 3
 
+  SOCIAL_PREVIEW_SIZE = 3
+
   LANDING_SIZE = 4
 
   BATCHES = :live_stream_batches
@@ -15,6 +17,8 @@ module LiveStream
     def feed_streamables(locale = I18n.locale) = [ "live", locale.to_s ]
 
     def goal_streamables(locale = I18n.locale) = [ "goal", locale.to_s ]
+
+    def social_feed_streamables(locale = I18n.locale) = [ "social-feed", locale.to_s ]
 
     def call(event)
       BATCH.add(notices(event))
@@ -52,6 +56,10 @@ module LiveStream
 
     def strip_items(locale: I18n.locale)
       FeedItems.call(Game::FeedEntries.call(nil).first(STRIP_SIZE), locale:)
+    end
+
+    def social_preview_entries
+      Game::FeedEntries.call(nil).first(SOCIAL_PREVIEW_SIZE)
     end
   end
 end

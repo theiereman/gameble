@@ -94,9 +94,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".hub[data-controller=hub-menu]"
-    assert_select "nav.hub-menu[aria-label=?] ol.hub-menu__list > li", "Menu du pont", count: 9
-    assert_equal %w[1 2 3 4 5 6 7 8 9], menu_items.map { it["aria-keyshortcuts"] }
-    assert_equal %w[01 02 03 04 05 06 07 08 09], css_select(".hub-menu .menu-item__number").map(&:text)
+    assert_select "nav.hub-menu[aria-label=?] ol.hub-menu__list > li", "Menu du pont", count: 7
+    assert_equal %w[1 2 3 4 5 6 7], menu_items.map { it["aria-keyshortcuts"] }
+    assert_equal %w[01 02 03 04 05 06 07], css_select(".hub-menu .menu-item__number").map(&:text)
 
     # 01: the booster screen, its reserve in a lime badge.
     assert_select ".hub-menu a.menu-item[href='/fr/booster'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
@@ -115,35 +115,28 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/fr/library/cards'][aria-keyshortcuts='3'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Toutes les cartes"
     end
-    # 06: the public feed.
-    assert_select ".hub-menu a.menu-item[href='/fr/feed'][aria-keyshortcuts='6']" do
-      assert_select ".menu-item__label", "Fil d'activité"
-    end
-    # 08: the rules of the game.
-    assert_select ".hub-menu a.menu-item[href='/fr/how-it-works'][aria-keyshortcuts='8'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+    # 06: the rules of the game.
+    assert_select ".hub-menu a.menu-item[href='/fr/how-it-works'][aria-keyshortcuts='6'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Comment ça marche"
     end
-    # 09: the donation page, in a new tab, last.
+    # 07: the donation page, in a new tab, last.
     support = menu_items.last
-    assert_equal [ "9", "item", "https://buymeacoffee.com/theiereman", "_blank" ],
+    assert_equal [ "7", "item", "https://buymeacoffee.com/theiereman", "_blank" ],
       [ support["aria-keyshortcuts"], support["data-hub-menu-target"], support["href"], support["target"] ]
     assert_equal %w[noopener noreferrer external], support["rel"].split
     assert_equal [ "Soutenir", "(nouvel onglet)" ], [ support.at_css(".menu-item__label").text, support.at_css(".visually-hidden").text.strip ]
     assert support.at_css("svg.menu-item__external")
     assert_nil support["data-action"]
-    # 04: the trades screen, no count when nothing waits.
-    assert_select ".hub-menu a.menu-item[href='/fr/trades'][aria-keyshortcuts='4']" do
-      assert_select ".menu-item__label", "Échanges"
-      assert_select "#menu-trades-badge.stream-slot", 1
+    # 04: Social, the trades badge then the invitations badge, neither shown when nothing waits.
+    assert_select ".hub-menu a.menu-item[href='/fr/social'][aria-keyshortcuts='4'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+      assert_select ".menu-item__label", "Social"
+      assert_select ".menu-item__meta", "0 en ligne"
+      assert_select "#menu-trades-badge.stream-slot + #menu-friends-badge.stream-slot", 1
       assert_select ".menu-item__badge, .visually-hidden", 0
     end
-    # 05: the Friends screen, no count when no invitation waits.
-    assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='5']" do
-      assert_select "#menu-friends-badge.stream-slot", 1
-      assert_select ".menu-item__badge, .visually-hidden", 0
-    end
-    # 07: the achievements screen, none earned yet.
-    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='7'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+    assert_select ".hub-menu a.menu-item[href='/fr/trades'], .hub-menu a.menu-item[href='/fr/friends'], .hub-menu a.menu-item[href='/fr/feed']", 0
+    # 05: the achievements screen, none earned yet.
+    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='5'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Succès"
       assert_select ".menu-item__meta[aria-hidden=true]", "0/23"
       assert_select ".visually-hidden", "0 succès obtenu sur 23"
@@ -503,7 +496,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select "body > main#main + #live-ticker.ticker[aria-hidden=true][data-turbo-permanent][data-controller=ticker]" do
+    assert_select "body > main#main + #live-ticker.ticker[data-turbo-permanent][data-controller=ticker]:has(> .ticker__inner[aria-hidden=true])" do
       assert_select ".live-marker .live-marker__text", "Live"
       assert_select ".ticker__run .ticker__item", 8
       assert_select ".ticker__item .ticker__separator"
@@ -519,7 +512,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".ticker__item", text: /reposted/, count: 0
       assert_select ".ticker__item", text: /Quiet/, count: 0
       assert_select "#live-ticker-queue[hidden]"
-      assert_select "a, button, [tabindex]", 0
+      assert_select "a.ticker__open[href=?]", feed_path(locale: :en)
+      assert_select ".ticker__inner a, .ticker__inner button, .ticker__inner [tabindex]", 0
     end
     assert_select "[style]", 0
     assert_equal %w[goal:en live:en], stream_names

@@ -92,7 +92,10 @@
 /* The public part the goal stream replaces lays its children out in the
    panel itself, so the player's claim slot sits under the reward line and
    the previous week's count stays last. */
-.hub-goal__progress {
+.hub-goal__progress,
+.hub-goal__about,
+.hub-goal__meter,
+.hub-goal__prize {
   display: contents;
 }
 

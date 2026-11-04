@@ -1,6 +1,7 @@
 module SocialHelper
   TURN_TONES = { yours: "alert", theirs: "accent" }.freeze
   PIPS_SHOWN = 6
+  NAMED_AT_MOST = 3
 
   TradeSide = Data.define(:count, :pips, :overflow, :best)
 
@@ -13,9 +14,18 @@ module SocialHelper
   def rarity_tier(rarity) = Catalog::Rarity::TIERS.key(rarity.to_sym) || 0
 
   def social_trade_chip(row)
-    return [ "muted", t("trades.chip.#{row.state}") ] unless row.open?
-
     [ TURN_TONES.fetch(row.state), t("pages.social.trades.#{row.state}") ]
+  end
+
+  def social_others_chip(rows) = social_trade_chip(rows.find { it.state == :yours } || rows.first)
+
+  def names_and_others(names)
+    shown = names.first(NAMED_AT_MOST)
+    rest = names.size - shown.size
+    return t("pages.social.others.more", names: shown.join(", "), count: rest) if rest.positive?
+    return shown.join if shown.size < 2
+
+    t("pages.social.others.all", names: shown[0..-2].join(", "), last: shown.last)
   end
 
   def trade_side_sentence(key, side, name: nil)

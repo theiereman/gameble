@@ -579,7 +579,7 @@
 ## Deferred from: code review of story-social-opens-on-trades-and-friends-plan (2026-11-04)
 
 - Live refresh of the Social sections is asserted only as attributes — deferred: one system test next to the Social badge test, run before release
-- Open trades and friends are uncapped on Social — deferred: add a see-all cap when a player has dozens
+- ~~Open trades and friends are uncapped on Social~~ — resolved by story-social-on-every-width: five rows each, the fifth naming the rest
 - Keyboard focus ring on quiet trade rows under hover, the wrapped feed opener at 320 px and the screen-reader reading of the rarity badge — deferred: settle on the iPhone pass
 
 ## Deferred from: code review of story-trade-from-a-missing-card-plan (2026-11-04)
@@ -609,3 +609,7 @@
 - A showcase removal with no Referer lands on the card page instead of Me — deferred: low, pass a Me fallback if reported
 - Naming still points at the removed Personalization page (partials, locale keys, routes) — deferred: a rename for the refactor sweep
 - Desktop layout of the Me page and the sheets' accessibility names were not checked — deferred: iPhone and desktop pass
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-social-on-every-width-plan.md`
+  summary: No system test at 390px and 1440px pins that a trade board keeps only "◀ LISTE" on the phone and that desktop hides the trail button beside "◀ SOCIAL".
+  evidence: only markup is asserted in social_page_test; the outcome depends on two CSS rules in shell-screens.css and shell-top-bar.css. A system test at both widths would settle it.

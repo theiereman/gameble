@@ -1810,8 +1810,6 @@ en:
         collection_meta:
           one: "%{owned} unique card out of %{total}"
           other: "%{owned} unique cards out of %{total}"
-        feed: Activity feed
-        friends: Friends
         friends_online:
           one: "%{number} online"
           other: "%{number} online"
@@ -1828,11 +1826,11 @@ en:
         rewards_waiting:
           one: "%{number} reward to claim"
           other: "%{number} rewards to claim"
+        social: Social
         special:
           one: "%{number} special capsule"
           other: "%{number} special capsules"
         support: Support
-        trades: Trades
         trades_waiting:
           one: "%{number} trade waiting for you"
           other: "%{number} trades waiting for you"
@@ -2203,18 +2201,22 @@ en:
         add_friend: Add a friend
         new_trade: New trade
       feed:
-        line: Pulls, discoveries, trades and reposts, from every player or only your friends.
         open: See the feed
         title: Activity feed
       friends:
         all: All friends
         empty: No friends yet. Add one with the button below.
+        others_online: "%{names} online"
         title: Friends
+      others:
+        all: "%{names} and %{last}"
+        more:
+          one: "%{names} and %{count} other"
+          other: "%{names} and %{count} others"
       title: Social
       trades:
         all: All trades
         empty: No trade in progress.
-        recent: Recently
         theirs: Their turn
         title: Trades
         you: You

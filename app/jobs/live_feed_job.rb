@@ -7,9 +7,14 @@ class LiveFeedJob < ApplicationJob
       sets: notices.select { it.key?(:set_id) })
     return if entries.empty?
 
-    latest = Game::FeedEntries.call(nil).first(LiveStream::STRIP_SIZE)
-    reactions = Game::FeedReactionSummaries.call(entries.map { it.entry.id })
-    I18n.available_locales.each { broadcast(it, entries, reactions, latest) }
+    latest = Game::FeedEntries.call(nil)
+    strip = latest.first(LiveStream::STRIP_SIZE)
+    preview = latest.first(LiveStream::SOCIAL_PREVIEW_SIZE)
+    reactions = Game::FeedReactionSummaries.call((entries + preview).map { it.entry.id }.uniq)
+    I18n.available_locales.each do |locale|
+      broadcast(locale, entries, reactions, strip)
+      broadcast_social_preview(locale, preview, reactions)
+    end
   end
 
   private
@@ -21,5 +26,13 @@ class LiveFeedJob < ApplicationJob
       ApplicationController.render(partial: "live_streams/feed", formats: [ :turbo_stream ], locals:)
     end
     Turbo::StreamsChannel.broadcast_stream_to(*LiveStream.feed_streamables(locale), content:)
+  end
+
+  def broadcast_social_preview(locale, preview, reactions)
+    locals = { items: FeedItems.call(preview, locale:), reactions:, lazy: true }
+    content = I18n.with_locale(locale) do
+      ApplicationController.render(partial: "live_streams/social_feed", formats: [ :turbo_stream ], locals:)
+    end
+    Turbo::StreamsChannel.broadcast_stream_to(*LiveStream.social_feed_streamables(locale), content:)
   end
 end

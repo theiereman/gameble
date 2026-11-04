@@ -6,10 +6,9 @@
     <%= link_to trades_path, class: "button button--secondary button--small top-bar__phone-back" do %>
       <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t("trades.list.back") %></span>
     <% end %>
+    <%= render "shell/social_back", phone: false %>
   <% else %>
-    <%= link_to social_path, class: "button button--secondary button--small top-bar__phone-back" do %>
-      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t("shell.tabs.social") %></span>
-    <% end %>
+    <%= render "shell/social_back" %>
   <% end %>
 <% end %>
 <%= tag.section class: "trades trades--#{view}", aria: { labelledby: "trades-heading" },

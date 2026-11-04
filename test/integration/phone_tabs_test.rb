@@ -60,7 +60,7 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
 
     assert_select ".tab-bar a.tab-bar__tab[href='/en/social'] #tab-trades-badge.stream-slot", 1
-    assert_select ".tab-bar a.tab-bar__tab[href='/en/social'] #tab-invitations-badge.stream-slot .tab-bar__badge--alert", "1"
+    assert_select ".tab-bar a.tab-bar__tab[href='/en/social'] #tab-invitations-badge.stream-slot .tab-bar__badge--friends", "1"
     assert_select ".tab-bar a.tab-bar__tab[href='/en/me'] #tab-me-badge.stream-slot .tab-bar__badge--alert", "1"
     assert_select "#tab-me-badge .visually-hidden", "1 reward to claim"
   end

@@ -1,8 +1,11 @@
 /*
- * The Social home: trades first, then friends, the community goal and the
- * feed, each section under a kicker heading with a link to its own screen;
- * Add a friend and New trade close the column, held above the tab bar on a
- * phone, where the community goal moves to the top. A trade row reuses the trade list's look; an ended one goes quiet.
+ * The Social screen, one at every width: the weekly mission, the trades,
+ * the friends, then the feed's latest entries, each section under a
+ * kicker heading with a link to its own screen. From 720px the page heading
+ * holds Add a friend and New trade and the mission is a band; from 1180px
+ * the trades and the friends share the width in two equal columns. On a phone the actions
+ * are held above the tab bar and a trade row is compact. A trade row reuses
+ * the trade list's look.
  */
 
 .social {
@@ -24,8 +27,7 @@
   gap: var(--space-4);
 }
 
-.social__heading,
-.social__subheading {
+.social__heading {
   margin: 0;
   font: var(--font-kicker);
   letter-spacing: var(--tracking-kicker);
@@ -34,11 +36,6 @@
 
 .social__heading {
   color: var(--color-accent);
-}
-
-.social__subheading {
-  margin-top: var(--space-2);
-  color: var(--color-muted);
 }
 
 .social__head-end {
@@ -100,17 +97,16 @@
   white-space: nowrap;
 }
 
-.trade-row.social-trade--quiet {
-  background: var(--color-panel-sunken);
-  color: var(--color-muted);
+.social-trade--alert {
+  --social-trade-tone: var(--color-alert);
 }
 
-.trade-row.social-trade--quiet:hover {
-  box-shadow: inset 0 0 0 2px var(--color-line);
+.social-trade--accent {
+  --social-trade-tone: var(--color-accent);
 }
 
-.social-trade--quiet .trade-row__name {
-  color: var(--color-muted);
+.social-trade__turn {
+  display: none;
 }
 
 .social-trade__sides {
@@ -190,6 +186,31 @@
   box-shadow: inset 0 0 0 2px var(--color-accent);
 }
 
+.trade-row.social-trade.social-trade--others,
+.social-friend--others {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--color-line);
+}
+
+.trade-row.social-trade.social-trade--others:hover {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.trade-row.social-trade.social-trade--others:focus-visible {
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 2px var(--color-line);
+}
+
+.social-trade--others .social-trade__name,
+.social-friend--others .social-friend__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
 .social-friend--link:focus-visible {
   box-shadow:
     var(--focus-ring-gap),
@@ -219,12 +240,113 @@
   gap: var(--space-3);
 }
 
-@media (max-width: 719px) {
+.social__title {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-banner-small);
+}
+
+@media (min-width: 720px) {
+  .social {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-8);
+    align-items: start;
+  }
+
+  .social > * {
+    grid-column: 1 / -1;
+  }
+
+  .social > .social__title {
+    grid-row: 1;
+    grid-column: 1;
+    align-self: end;
+  }
+
+  .social > .social__actions {
+    grid-row: 1;
+    grid-column: 2;
+    align-self: end;
+  }
+
   .social > .hub-goal {
-    order: -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3) var(--space-8);
+  }
+
+  .social .hub-goal__about,
+  .social .hub-goal__meter,
+  .social .hub-goal__prize {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .social .hub-goal__about {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .social .hub-goal__prize {
+    grid-row: 2;
+    grid-column: 1;
+  }
+
+  .social .hub-goal__meter {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    align-self: end;
+  }
+
+  .social .hub-goal__claim {
+    grid-column: 1;
+  }
+
+  .social .hub-goal__previous {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1180px) {
+  .social {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .social > .social__trades-section {
+    grid-column: 1;
+  }
+
+  .social > .social__friends-section {
+    grid-column: 2;
+  }
+
+  .social > .social__feed {
+    grid-column: 1 / -1;
+  }
+
+  .social > .social__actions {
+    justify-self: end;
+  }
+}
+
+@media (max-width: 719px) {
+  .social__title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .social-feed__list > li:nth-child(n + 3) {
+    display: none;
   }
 
   .social__actions {
+    order: 1;
     position: sticky;
     bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
     z-index: 3;
@@ -237,22 +359,36 @@
     min-height: var(--space-touch-min);
   }
 
-  .social-trade {
-    gap: var(--space-3);
+  .trade-row.social-trade {
+    gap: var(--space-4);
+    min-height: 48px;
+    padding: var(--space-3) var(--space-4) var(--space-3) var(--space-5);
+    box-shadow: inset 3px 0 0 var(--social-trade-tone);
   }
 
-  .social-trade__name,
-  .trade-row__text:not(:has(.trade-row__when)) {
+  .social-trade .trade-row__avatar,
+  .social-trade__chip {
     display: none;
   }
 
-  .social-trade__sides {
-    flex: 1;
-    min-width: 0;
-    justify-content: space-between;
+  .social-trade__turn {
+    display: block;
+    color: var(--social-trade-tone);
+    font: var(--font-kicker-phone);
+    letter-spacing: var(--tracking-kicker-phone);
+    text-transform: uppercase;
   }
 
-  .social-trade__who {
-    max-width: 5ch;
+  .social-trade__sides {
+    gap: var(--space-3);
+  }
+
+  .social-trade__side {
+    gap: var(--space-2);
+  }
+
+  .social-trade__pip {
+    width: 5px;
+    height: 9px;
   }
 }

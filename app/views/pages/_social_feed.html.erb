@@ -1,0 +1,12 @@
+<%# locals: (items:, reactions:, lazy: false) %>
+<div id="social-feed-preview" class="social-feed">
+  <% if items.any? %>
+    <ul class="feed__list social-feed__list" aria-labelledby="social-feed-heading">
+      <% items.each do |item, card, partner_card, set| %>
+        <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions:, lazy: %>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="social__empty"><%= t("feeds.show.empty") %></p>
+  <% end %>
+</div>

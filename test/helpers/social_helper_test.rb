@@ -35,14 +35,28 @@ class SocialHelperTest < ActionView::TestCase
     assert_equal [ 0, [], 0, nil ], [ side.count, side.pips, side.overflow, side.best ]
   end
 
-  test "an open trade reads whose turn it is; an ended one a muted outcome" do
+  test "an open trade reads whose turn it is" do
     I18n.with_locale(:fr) do
       assert_equal [ "alert", "À vous" ], social_trade_chip(row(:yours))
       assert_equal [ "accent", "À son tour" ], social_trade_chip(row(:theirs))
     end
+  end
+
+  test "the hidden names read up to three, then and n others" do
+    I18n.with_locale(:fr) do
+      assert_equal "Sam", names_and_others(%w[Sam])
+      assert_equal "Sam et Zoé", names_and_others(%w[Sam Zoé])
+      assert_equal "Sam, Zoé et Hugo", names_and_others(%w[Sam Zoé Hugo])
+      assert_equal "Sam, Zoé, Hugo et 1 autre", names_and_others(%w[Sam Zoé Hugo Léa])
+      assert_equal "Sam, Zoé, Hugo et 2 autres", names_and_others(%w[Sam Zoé Hugo Léa Max])
+    end
+    I18n.with_locale(:en) { assert_equal "Sam, Zoé, Hugo and 2 others", names_and_others(%w[Sam Zoé Hugo Léa Max]) }
+  end
+
+  test "the line for the rest reads the player's turn when any hidden trade waits on them" do
     I18n.with_locale(:en) do
-      assert_equal [ "muted", "Done" ], social_trade_chip(row(:concluded))
-      assert_equal [ "muted", "Closed" ], social_trade_chip(row(:closed))
+      assert_equal [ "alert", "Your turn" ], social_others_chip([ row(:theirs), row(:yours) ])
+      assert_equal [ "accent", "Their turn" ], social_others_chip([ row(:theirs), row(:theirs) ])
     end
   end
 end

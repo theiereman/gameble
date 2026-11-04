@@ -1,10 +1,15 @@
 <% content_for :title, t(".title") %>
 <% turbo_exempts_page_from_cache %>
-<% open_trades = @trades.yours + @trades.theirs %>
 <div class="social">
-  <h1 class="visually-hidden"><%= t(".title") %></h1>
+  <h1 class="social__title"><%= t(".title") %></h1>
+  <div class="social__actions">
+    <%= render ButtonComponent.new(variant: :secondary, href: friends_path(anchor: "friends-invite")) do %><%= t(".actions.add_friend") %><% end %>
+    <%= render ButtonComponent.new(href: new_trade_path) do %><%= t(".actions.new_trade") %><% end %>
+  </div>
 
-  <%= tag.section class: "social__section", aria: { labelledby: "social-trades-heading" },
+  <%= render "pages/goal", goal: @goal, reward: @goal_reward %>
+
+  <%= tag.section class: "social__section social__trades-section", aria: { labelledby: "social-trades-heading" },
         data: { controller: "live-refresh", live_refresh_signal_value: "trades-updated" } do %>
     <header class="social__head">
       <h2 id="social-trades-heading" class="social__heading"><%= t(".trades.title") %></h2>
@@ -14,27 +19,31 @@
         <%= pixel_icon("arrow-small-right", class: "social__more-arrow") %>
       <% end %>
     </header>
-    <% if open_trades.empty? %>
+    <% if @open_trades.empty? %>
       <p class="social__empty"><%= t(".trades.empty") %></p>
     <% end %>
-    <% if open_trades.any? %>
+    <% unless @open_trades.empty? %>
       <ul class="social__rows social__trades" aria-labelledby="social-trades-heading">
-        <% open_trades.each do |row| %>
+        <% @open_trades.rows.each do |row| %>
           <%= render "pages/social_trade_row", row:, cards: @cards %>
         <% end %>
-      </ul>
-    <% end %>
-    <% if @recent_trades.any? %>
-      <h3 id="social-recent-heading" class="social__subheading"><%= t(".trades.recent") %></h3>
-      <ul class="social__rows social__recent" aria-labelledby="social-recent-heading">
-        <% @recent_trades.each do |row| %>
-          <%= render "pages/social_trade_row", row:, cards: @cards %>
+        <% if @open_trades.hidden.any? %>
+          <% tone, turn = social_others_chip(@open_trades.hidden) %>
+          <li>
+            <%= link_to trades_path, class: "trade-row social-trade social-trade--others", data: { turbo_prefetch: false } do %>
+              <span class="trade-row__text">
+                <span class="trade-row__name social-trade__name"><%= names_and_others(@open_trades.hidden.map { friend_name(it.friend) }.uniq) %></span>
+              </span>
+              <span class="trade-chip trade-chip--<%= tone %>"><%= turn %></span>
+              <%= pixel_icon("arrow-small-right", class: "social__more-arrow") %>
+            <% end %>
+          </li>
         <% end %>
       </ul>
     <% end %>
   <% end %>
 
-  <%= tag.section class: "social__section", aria: { labelledby: "social-friends-heading" },
+  <%= tag.section class: "social__section social__friends-section", aria: { labelledby: "social-friends-heading" },
         data: { controller: "live-refresh", live_refresh_signal_value: "friends-updated" } do %>
     <header class="social__head">
       <h2 id="social-friends-heading" class="social__heading"><%= t(".friends.title") %></h2>
@@ -48,16 +57,22 @@
       <p class="social__empty"><%= t(".friends.empty") %></p>
     <% else %>
       <ul class="social__rows social__friends" aria-labelledby="social-friends-heading">
-        <% @friends.each do |friend| %>
+        <% @friends.rows.each do |friend| %>
           <%= render "pages/social_friend", friend: %>
+        <% end %>
+        <% if @friends.hidden.any? %>
+          <li>
+            <%= link_to friends_path, class: "social-friend social-friend--link social-friend--others", data: { turbo_prefetch: false } do %>
+              <span class="social-friend__name"><%= t(".friends.others_online", names: names_and_others(@friends.hidden.map { friend_name(it.player) })) %></span>
+              <%= pixel_icon("arrow-small-right", class: "social__more-arrow") %>
+            <% end %>
+          </li>
         <% end %>
       </ul>
     <% end %>
   <% end %>
 
-  <%= render "pages/goal", goal: @goal, reward: @goal_reward %>
-
-  <section class="social__section" aria-labelledby="social-feed-heading">
+  <section class="social__section social__feed" aria-labelledby="social-feed-heading">
     <header class="social__head">
       <h2 id="social-feed-heading" class="social__heading"><%= t(".feed.title") %></h2>
       <div class="social__head-end">
@@ -68,12 +83,11 @@
         <% end %>
       </div>
     </header>
-    <p class="social__line"><%= t(".feed.line") %></p>
+    <%= render "pages/social_feed", items: @feed, reactions: @feed_reactions %>
   </section>
 
-  <div class="social__actions">
-    <%= render ButtonComponent.new(variant: :secondary, href: friends_path(anchor: "friends-invite")) do %><%= t(".actions.add_friend") %><% end %>
-    <%= render ButtonComponent.new(href: new_trade_path) do %><%= t(".actions.new_trade") %><% end %>
-  </div>
+  <p id="reaction-status" class="visually-hidden" role="status"></p>
 </div>
 <%= turbo_stream_from(*LiveStream.goal_streamables) %>
+<%= turbo_stream_from(*LiveStream.social_feed_streamables) %>
+<%= turbo_stream_from(*ReactionStream.streamables) %>

@@ -71,11 +71,11 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     english = received(@hugo, :en)
     %w[menu-friends-badge plus-friends-badge].each do |target|
       menu = template(streams(english, "update", target).sole)
-      assert_equal "1", menu.at_css(".menu-item__badge.menu-item__badge--alert").text, target
+      assert_equal "1", menu.at_css(".menu-item__badge.menu-item__badge--friends").text, target
       assert_equal "1 invitation waiting for your answer", menu.at_css(".visually-hidden").text, target
     end
     tab = template(streams(english, "update", "tab-invitations-badge").sole)
-    assert_equal "1", tab.at_css(".tab-bar__badge--alert").text
+    assert_equal "1", tab.at_css(".tab-bar__badge--friends").text
     assert_equal "1 invitation waiting for your answer", tab.at_css(".visually-hidden").text
     assert_empty streams(english, "update", "menu-trades-badge")
 

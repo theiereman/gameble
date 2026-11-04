@@ -73,6 +73,22 @@ class LiveFeedJobTest < ActiveSupport::TestCase
     assert_equal "Épique", template(french, "prepend", "live-ticker-queue").at_css(".ticker__rarity").text
   end
 
+  test "Social's feed preview is replaced on its own stream with the three latest entries, each with a lazy reaction frame" do
+    pack = open_pack
+
+    LiveFeedJob.perform_now([ { pack_id: pack.id } ])
+
+    english = Nokogiri::HTML5.fragment(ActiveSupport::JSON.decode(broadcasts(LiveStream.social_feed_streamables(:en).join(":")).sole))
+    preview = template(english, "replace", "social-feed-preview")
+    entries = preview.css("#social-feed-preview ul.social-feed__list > li.feed__entry")
+    assert_equal 3, entries.size
+    assert_equal [ "lazy" ] * 3, entries.map { it.at_css("turbo-frame.feed__reactions")["loading"] }
+    assert_empty english.css("[style]")
+    assert_empty template(received(:en), "prepend", "feed-entries").css("#social-feed-preview")
+    french = Nokogiri::HTML5.fragment(ActiveSupport::JSON.decode(broadcasts(LiveStream.social_feed_streamables(:fr).join(":")).sole))
+    assert_includes template(french, "replace", "social-feed-preview").css(".feed__sentence").map(&:text), "Hugo a tiré Portal"
+  end
+
   test "a first discovery joins the ticker behind its words" do
     common = fixture_tier_ids[0]
     Game::FirstDiscovery.where(card_season_id: common).delete_all
@@ -93,6 +109,7 @@ class LiveFeedJobTest < ActiveSupport::TestCase
 
     assert_no_broadcasts LiveStream.feed_streamables(:en).join(":")
     assert_no_broadcasts LiveStream.feed_streamables(:fr).join(":")
+    assert_no_broadcasts LiveStream.social_feed_streamables(:en).join(":")
   end
 
   # The notices the opening's events leave for the job.

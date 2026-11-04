@@ -15,17 +15,8 @@
       <% end %>
     </li>
     <%= render "pages/menu_all_cards" %>
-    <% [ [ :trades, 4 ], [ :friends, 5 ], [ :feed, 6 ], [ :achievements, 7 ] ].each do |item, position| %>
-      <% if item == :trades %>
-        <%= render "pages/menu_trades", waiting: shell_trades_waiting %>
-      <% elsif item == :friends %>
-        <%= render "pages/menu_friends", online: friends_online, invitations: shell_invitations_waiting %>
-      <% elsif item == :feed %>
-        <%= render "pages/menu_feed" %>
-      <% else %>
-        <%= render "pages/menu_achievements", achievements: %>
-      <% end %>
-    <% end %>
+    <%= render "pages/menu_social", online: friends_online, waiting: shell_trades_waiting, invitations: shell_invitations_waiting %>
+    <%= render "pages/menu_achievements", achievements: achievements %>
     <%= render "pages/menu_how_it_works" %>
     <%= render "pages/menu_support" %>
   </ol>

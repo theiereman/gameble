@@ -49,7 +49,7 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select ".hub-menu a.menu-item[href='/en/trades'] #menu-trades-badge.stream-slot", 1
+    assert_select ".hub-menu a.menu-item[href='/en/social'] #menu-trades-badge.stream-slot", 1
     assert_select "#menu-trades-badge .menu-item__badge, #menu-trades-badge .visually-hidden", 0
     assert_select ".tab-bar a.tab-bar__tab[href='/en/social'] #tab-trades-badge.stream-slot", 1
     assert_select "#tab-trades-badge .tab-bar__badge", 0
@@ -67,14 +67,14 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select ".hub-menu a.menu-item[href='/en/friends'] #menu-friends-badge.stream-slot .menu-item__badge--alert[aria-hidden=true]", "1"
+    assert_select ".hub-menu a.menu-item[href='/en/social'] #menu-friends-badge.stream-slot .menu-item__badge--friends[aria-hidden=true]", "1"
     assert_select "#menu-friends-badge .visually-hidden", "1 invitation waiting for your answer"
-    assert_select ".tab-bar a.tab-bar__tab[href='/en/social'] #tab-invitations-badge.stream-slot .tab-bar__badge--alert[aria-hidden=true]", "1"
+    assert_select ".tab-bar a.tab-bar__tab[href='/en/social'] #tab-invitations-badge.stream-slot .tab-bar__badge--friends[aria-hidden=true]", "1"
     assert_select "#tab-invitations-badge .visually-hidden", "1 invitation waiting for your answer"
 
     get social_path(locale: :fr)
 
-    assert_select ".social a.social__more[href='/fr/friends'] #plus-friends-badge.stream-slot .menu-item__badge--alert", "1"
+    assert_select ".social a.social__more[href='/fr/friends'] #plus-friends-badge.stream-slot .menu-item__badge--friends", "1"
     assert_select "#plus-friends-badge .visually-hidden", "1 invitation en attente de votre réponse"
   end
 

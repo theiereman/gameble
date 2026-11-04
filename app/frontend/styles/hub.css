@@ -141,6 +141,11 @@
   color: var(--color-on-accent);
 }
 
+.menu-item__badge--friends {
+  background: var(--color-goal-3);
+  color: var(--color-on-goal);
+}
+
 .menu-item__badge--alert {
   background: var(--color-alert);
   color: var(--color-on-alert);

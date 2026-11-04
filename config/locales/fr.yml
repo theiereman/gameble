@@ -180,7 +180,7 @@ fr:
           zero: "%{owned} carte unique sur %{total}"
           one: "%{owned} carte unique sur %{total}"
           other: "%{owned} cartes uniques sur %{total}"
-        trades: "Échanges"
+        social: "Social"
         trades_waiting:
           zero: "%{number} échange en attente de vous"
           one: "%{number} échange en attente de vous"
@@ -189,13 +189,11 @@ fr:
           zero: "%{number} invitation en attente de votre réponse"
           one: "%{number} invitation en attente de votre réponse"
           other: "%{number} invitations en attente de votre réponse"
-        friends: "Amis"
         # French keeps the singular for 0, which the plural rule here does not.
         friends_online:
           zero: "%{number} en ligne"
           one: "%{number} en ligne"
           other: "%{number} en ligne"
-        feed: "Fil d'activité"
         achievements: "Succès"
         achievements_meta:
           zero: "%{earned} succès obtenu sur %{total}"
@@ -249,11 +247,16 @@ fr:
         close: "Fermer"
     social:
       title: "Social"
+      others:
+        all: "%{names} et %{last}"
+        more:
+          zero: "%{names} et %{count} autre"
+          one: "%{names} et %{count} autre"
+          other: "%{names} et %{count} autres"
       trades:
         title: "Échanges"
         all: "Tous les échanges"
         empty: "Aucun échange en cours."
-        recent: "Récemment"
         yours: "À vous"
         theirs: "À son tour"
         you: "Vous"
@@ -269,10 +272,10 @@ fr:
         title: "Amis"
         all: "Tous les amis"
         empty: "Pas encore d'ami. Ajoutez-en un avec le bouton ci-dessous."
+        others_online: "%{names} en ligne"
       feed:
         title: "Fil d'activité"
         open: "Voir le fil"
-        line: "Tirages, découvertes, échanges et reposts, de tous les joueurs ou de vos seuls amis."
       actions:
         add_friend: "Ajouter un ami"
         new_trade: "Nouvel échange"

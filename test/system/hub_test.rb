@@ -51,4 +51,14 @@ class HubTest < ApplicationSystemTestCase
     assert_selector ".hub-menu"
     assert_nil focused_item
   end
+
+  test "key 4 in the menu opens Social, with its mission and feed preview" do
+    sign_in
+
+    item("1").send_keys("4")
+    assert_current_path social_path(locale: :en)
+    assert_selector ".social h1.social__title", text: /SOCIAL/i
+    assert_selector "#community-goal"
+    assert_selector "#social-feed-preview"
+  end
 end
