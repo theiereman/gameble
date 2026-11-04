@@ -7,7 +7,7 @@ require_relative "../support/steam_sign_in"
 class BellSlotTest < ActionDispatch::IntegrationTest
   include SteamSignIn
 
-  BELL = ".top-bar__end > .bell[data-controller=bell] + .player-chip".freeze
+  BELL = ".top-bar__end > .bell[data-controller=bell] + .phone-menu + .player-chip".freeze
 
   def assert_bell(locale: :en)
     assert_select ".top-bar__end > .bell[data-controller=bell]", 1 do

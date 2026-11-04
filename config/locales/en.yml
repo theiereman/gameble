@@ -2274,9 +2274,6 @@ en:
       change: Change
       choose_title: Choose a title
       customize: Customize
-      how_it_works: How it works
-      links: Help and settings
-      settings: Settings
       title: Me
       title_label: Title
   personalizations:
@@ -2688,6 +2685,11 @@ en:
         one: special
         other: special
       special_none: No special capsule
+    phone_menu:
+      how_it_works: How it works
+      label: Menu
+      source_code: GitHub
+      support: Support
     player:
       back_office: Back-office
       fallback_name: Player
@@ -2732,6 +2734,7 @@ en:
     tabs:
       all_cards: All cards
       booster: Capsule
+      hub: Bridge
       invitations_waiting:
         one: "%{number} invitation waiting for your answer"
         other: "%{number} invitations waiting for your answer"

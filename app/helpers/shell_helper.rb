@@ -67,24 +67,19 @@ module ShellHelper
   end
 
   SOCIAL_TAB_CONTROLLERS = %w[trades friends friend_profiles feeds].freeze
-  ME_TAB_CONTROLLERS = %w[own_profiles settings achievements].freeze
 
   def social_tab_current?
     SOCIAL_TAB_CONTROLLERS.include?(controller_path) || (controller_path == "pages" && action_name == "social")
-  end
-
-  def me_tab_current?
-    ME_TAB_CONTROLLERS.include?(controller_path) || (controller_path == "pages" && action_name == "how_it_works")
   end
 
   def shell_tabs
     return visitor_tabs unless current_player
 
     [
+      [ :hub, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
       [ :booster, "tab-capsule", booster_path, %w[boosters packs].include?(controller_path) ],
       [ :sets, "tab-sets", library_path, %w[library cards custom_sets].include?(controller_path) ],
-      [ :social, "tab-social", social_path, social_tab_current? ],
-      [ :me, "tab-me", me_path, me_tab_current? ]
+      [ :social, "tab-social", social_path, social_tab_current? ]
     ]
   end
 

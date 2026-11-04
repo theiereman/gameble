@@ -12,9 +12,6 @@
             <span id="tab-trades-badge" class="stream-slot"><%= render("shell/tab_trades_badge", waiting:) %></span>
             <span id="tab-invitations-badge" class="stream-slot tab-bar__slot--start"><%= render("shell/tab_invitations_badge", invitations:) %></span>
           <% end %>
-          <% if key == :me %>
-            <span id="tab-me-badge" class="stream-slot"><%= render "shell/tab_achievements_badge", unclaimed: shell_achievements_unclaimed %></span>
-          <% end %>
         <% end %>
       </li>
     <% end %>

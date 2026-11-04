@@ -11,7 +11,7 @@
 <% unless unclaimed.nil? %>
   <%= turbo_stream.update "menu-achievements-badge", partial: "pages/menu_achievements_badge", locals: { unclaimed: } %>
   <%= turbo_stream.update "plus-achievements-badge", partial: "pages/menu_achievements_badge", locals: { unclaimed: } %>
-  <%= turbo_stream.update "tab-me-badge", partial: "shell/tab_achievements_badge", locals: { unclaimed: } %>
+  <%= turbo_stream.update "phone-menu-badge", partial: "shell/phone_menu_badge", locals: { unclaimed: } %>
 <% end %>
 <% friends.each do |friend| %>
   <%= turbo_stream.append "toasts", ToastComponent.new(title: t("invitations.new_friend.title"),

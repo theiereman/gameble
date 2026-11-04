@@ -178,12 +178,11 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /heure locale/, count: 0
   end
 
-  test "the screen sits under the Me tab, its phone back to Me" do
+  test "the screen sits under no tab, its phone back to the profile" do
     sign_in(accounts_players(:player))
     get how_it_works_path(locale: :fr)
 
-    assert_select "a.tab-bar__tab[href='/fr/me'][aria-current=page]", /Moi/
-    assert_select "a.tab-bar__tab[href='/fr'][aria-current]", false
+    assert_select "a.tab-bar__tab[aria-current]", false
     assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
   end
 

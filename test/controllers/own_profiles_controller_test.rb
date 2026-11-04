@@ -80,7 +80,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".me-customize + section#showcase h2#profile-showcase-heading", "Showcase"
     assert_select ".me-showcase-opener, #me-showcase-sheet", false
     assert_select "#profile-achievements-heading + a.me-achievements__all[href='/en/achievements'] #plus-achievements-badge.stream-slot"
-    assert_equal [ "/en/how-it-works", "/en/settings" ], css_select("main nav.me-links .plus__list a.menu-item").map { it["href"] }
+    assert_select "main a[href='/en/how-it-works'], main a[href='/en/settings']", false
     assert_select "dialog#me-title-sheet:not([open]).bottom-sheet", 1
     assert_select "dialog#me-back-sheet:not([open]).bottom-sheet .back-picker", 1
     assert_select "#me-title-sheet-title", "Profile title"
@@ -89,22 +89,23 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "exactly one link in the page leads to the settings, and none to a former Me screen" do
+  test "the settings are one tap away in the header menu, and no link leads to a former Me screen" do
     sign_in(@player)
 
     get me_path(locale: :en)
 
-    assert_equal 1, css_select("main a[href='/en/settings']").size
+    assert_select "#phone-menu-panel a[href='/en/settings']", 1
     assert_select "main a[href='/en/personalization']", false
     assert_select "main a[href^='https://buymeacoffee.com']", false
   end
 
-  test "the Me tab is current and the phone header is the top-level one" do
+  test "no tab leads to the profile any more, and its phone header is the top-level one" do
     sign_in(@player)
 
     get me_path(locale: :fr)
 
-    assert_select "a.tab-bar__tab[href='/fr/me'][aria-current=page]", /Moi/
+    assert_select "a.tab-bar__tab[href='/fr/me']", false
+    assert_select "a.tab-bar__tab[aria-current]", false
     assert_select ".top-bar a.top-bar__phone-back", false
     assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand"
   end
@@ -293,8 +294,6 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#me-title-sheet'] .me-opener__cue", "Modifier"
     assert_select ".me-back-opener .me-opener__kicker", "Dos de carte · vous seul"
     assert_select ".me-achievements__all", /Tout voir/
-    assert_equal [ "Comment ça marche", "Paramètres" ], css_select(".me-links .menu-item__label").map(&:text)
-    assert_select "nav.me-links[aria-label=?]", "Aide et paramètres"
     assert_select "#me-title-sheet-title", "Titre de profil"
     assert_select "#me-back-sheet-title", "Dos de carte"
     assert_select "button.profile-showcase__remove[aria-label^=Retirer]", 1

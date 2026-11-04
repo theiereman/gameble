@@ -145,18 +145,6 @@
   text-decoration: none;
 }
 
-/* The tab bar's Me page alone leads to help and settings; wider screens
-   reach them from the home menu and the player menu. */
-.me-links {
-  min-width: 0;
-}
-
-@media (min-width: 720px) {
-  .me-links {
-    display: none;
-  }
-}
-
 /* Inside a sheet: what it is for, then its choices. */
 .me-sheet {
   display: flex;

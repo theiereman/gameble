@@ -135,6 +135,11 @@ fr:
         zero: "%{number} en réserve"
         one: "%{number} en réserve"
         other: "%{number} en réserve"
+    phone_menu:
+      label: "Menu"
+      how_it_works: "Comment ça marche"
+      support: "Soutenir"
+      source_code: "GitHub"
     player:
       menu: "Menu du joueur"
       fallback_name: "Joueur"
@@ -144,6 +149,7 @@ fr:
       sign_out: "Se déconnecter"
     tabs:
       label: "Navigation principale"
+      hub: "Pont"
       booster: "Capsule"
       sets: "Sets"
       social: "Social"
@@ -1248,9 +1254,6 @@ fr:
       title_label: "Titre"
       card_list: "Voir la liste des cartes"
       all_achievements: "Tout voir"
-      links: "Aide et paramètres"
-      how_it_works: "Comment ça marche"
-      settings: "Paramètres"
   profile_titles:
     chosen:
       title: "Titre équipé"

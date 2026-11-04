@@ -1,0 +1,83 @@
+/*
+ * The phone header's menu, beside the bell: the profile, the rules, the
+ * settings, support and the source code, in a native popover. Wider screens
+ * reach them from the player menu and the bridge's extras instead.
+ */
+
+.phone-menu {
+  display: none;
+}
+
+.phone-menu__button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--space-touch-min);
+  min-height: var(--space-chip-height-touch);
+  margin: 0;
+  padding: var(--space-1) var(--space-4);
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.phone-menu__button:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.phone-menu__button:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.phone-menu__icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Achievement rewards waiting, on the corner of the button. */
+.phone-menu__badge {
+  position: absolute;
+  top: calc(-1 * var(--space-2));
+  right: calc(-1 * var(--space-2));
+  min-width: 18px;
+  padding: 0 var(--space-1);
+  background: var(--color-alert);
+  color: var(--color-on-alert);
+  font: var(--font-button-sm);
+  letter-spacing: 0;
+  line-height: 16px;
+  text-align: center;
+}
+
+.phone-menu__panel .menu-item__label {
+  flex: 1;
+}
+
+.phone-menu__panel .menu-item__external {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+/* Right under the button, its end edge on the button's, as the bell does. */
+@supports (position-area: block-end) {
+  .phone-menu__button {
+    anchor-name: --phone-menu;
+  }
+
+  .phone-menu__panel {
+    inset: auto;
+    margin: var(--space-3) 0 0;
+    position-anchor: --phone-menu;
+    position-area: block-end span-inline-start;
+  }
+}
+
+@media (max-width: 719px) {
+  .top-bar--top-level .phone-menu {
+    display: flex;
+  }
+}

@@ -246,23 +246,24 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "#player-menu a.player-menu__item[href='/fr/back-office']", "Back-office"
   end
 
-  test "the phone tab bar: four tabs, the screens as links, locked during an opening" do
+  test "the phone tab bar: four tabs from the bridge, the screens as links, locked during an opening" do
     sign_in(accounts_players(:player))
     get library_path(locale: :fr)
 
     assert_select "nav.tab-bar[aria-label=?] ul.tab-bar__list > li.tab-bar__item", "Navigation principale", 4
-    assert_equal [ "Capsule", "Sets", "Social", "Moi" ], css_select(".tab-bar__label").map(&:text)
+    assert_equal [ "Pont", "Capsule", "Sets", "Social" ], css_select(".tab-bar__label").map(&:text)
+    assert_select "a.tab-bar__tab[href='/fr']:not([aria-current])", /Pont/
     assert_select "a.tab-bar__tab[href='/fr/booster']:not([aria-current])", /Capsule/
     assert_select "a.tab-bar__tab[href='/fr/library'][aria-current=page]", /Sets/
     assert_select "a.tab-bar__tab[href='/fr/social']:not([aria-current])", /Social/
-    assert_select "a.tab-bar__tab[href='/fr/me']:not([aria-current])", /Moi/
     assert_select "span.tab-bar__tab[aria-disabled=true], button.tab-bar__tab, .tab-bar__list--visitor", 0
     assert_select "nav.tab-bar[data-controller=navigation-lock]"
     assert_select ".top-bar__start[data-controller=navigation-lock]"
     assert_select ".tab-bar__tab svg.pixel-icon.tab-bar__icon", 4
 
     get home_path(locale: :fr)
-    assert_select "a.tab-bar__tab[aria-current]", false
+    assert_select "a.tab-bar__tab[aria-current]", 1
+    assert_select "a.tab-bar__tab[href='/fr'][aria-current=page]", /Pont/
   end
 
   test "the LIVE ticker runs along the bottom of the hub and of no other screen" do

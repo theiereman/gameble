@@ -637,6 +637,18 @@ const ICONS = {
       "...........",
     ],
   },
+  // The phone header's menu, beside the bell: three bars (text colour).
+  menu: {
+    grid: [
+      "ccccccc",
+      ".......",
+      ".......",
+      "ccccccc",
+      ".......",
+      ".......",
+      "ccccccc",
+    ],
+  },
   // The header's bell, beside the player chip (7 × 8): a dome flaring to its rim, b body, h lit edge, l shaded edge.
   bell: {
     legend: RARITY[5],
@@ -1191,6 +1203,7 @@ const DESCRIPTIONS = {
   "tab-social.svg": "Phone tab bar icon: SOCIAL, two heads and shoulders (text colour)",
   "tab-me.svg": "Phone tab bar icon: ME, one head and shoulders (text colour)",
   "bell.svg": "The header's bell, what is new for the player, 7 × 8",
+  "menu.svg": "The phone header's menu: profile, settings and the extras (text colour)",
   "starfield.svg": "Star field tile, 480 × 480 CSS px, repeated under the content",
   "nebula.png": `Nebula tile behind the star field: faint blue and violet clouds and a pale band of the galaxy, ${NEBULA_WIDTH} × ${NEBULA_HEIGHT}, drawn at 4 CSS px per pixel`,
   ...Object.fromEntries([STANDARD_BACK, ...NAMED_BACK_DESIGNS].flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>

@@ -479,26 +479,13 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_nil forced_motion
   end
 
-  test "the player menu links to the settings, and the tab bar's Me opens the rest of the ship" do
+  test "the player menu and the phone header menu both link to the settings" do
     sign_in(@player)
 
     get home_path(locale: :en)
 
     assert_select "#player-menu a.player-menu__item[href='/en/settings']", "Settings"
-    assert_select "a.tab-bar__tab[href='/en/me']", /Me/
-  end
-
-  test "the Me screen ends on how it works, then the settings" do
-    sign_in(@player)
-
-    get me_path(locale: :fr)
-
-    assert_response :success
-    assert_select ".plus__list > li", 2
-    assert_select ".plus__list > li:first-child a.menu-item[href='/fr/how-it-works']", /Comment ça marche/
-    assert_select ".plus__list > li:last-child a.menu-item[href='/fr/settings']", /Paramètres/
-    assert_select ".plus__list .menu-item[aria-disabled]", false
-    assert_select "a.tab-bar__tab[href='/fr/me'][aria-current=page]"
+    assert_select "#phone-menu-panel a.player-menu__item[href='/en/settings']", "Settings"
   end
 
   test "the settings still hold the support link the Me screen let go" do
@@ -510,12 +497,12 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.settings-row__support[href='https://buymeacoffee.com/theiereman'][target=_blank]"
   end
 
-  test "the settings screen is under the Me tab, with a contextual phone back" do
+  test "the settings screen is under no tab, with a contextual phone back" do
     sign_in(@player)
 
     get settings_path(locale: :fr)
 
-    assert_select "a.tab-bar__tab[href='/fr/me'][aria-current=page]"
+    assert_select "a.tab-bar__tab[aria-current]", false
     assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
   end
 

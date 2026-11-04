@@ -66,6 +66,7 @@
           <% end %>
         <% end %>
         <%= render "shell/bell" unless back_office_page? %>
+        <%= render "shell/phone_menu" unless back_office_page? %>
         <%= render "shell/player_chip", player: current_player %>
       <% else %>
         <% if controller_path == "pages" && action_name == "home" %>
