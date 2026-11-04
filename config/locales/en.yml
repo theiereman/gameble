@@ -1798,6 +1798,9 @@ en:
         reward: Reward
         reward_text: A rare capsule for every contributor
         title: Weekly mission
+      goals:
+        see_all: See all
+        title: Goals in progress
       kicker:
         title: Command bridge
       menu:
@@ -1834,9 +1837,6 @@ en:
         trades_waiting:
           one: "%{number} trade waiting for you"
           other: "%{number} trades waiting for you"
-      sets:
-        see_all: See all
-        title: Sets in progress
       showcase:
         chosen_kicker: Showcase
         empty:

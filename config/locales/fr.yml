@@ -244,8 +244,8 @@ fr:
         collect: "Récupérer"
         collect_label: "Récupérer la capsule de récompense"
         collected: "Récupérée"
-      sets:
-        title: "Sets en cours"
+      goals:
+        title: "Objectifs en cours"
         see_all: "Tout voir"
       welcome:
         title: "Bienvenue sur Gameble"

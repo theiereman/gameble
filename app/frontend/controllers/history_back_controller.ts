@@ -33,7 +33,7 @@ window.addEventListener("pageshow", (event) => {
 function focusReturnLink(): void {
   const pathname = entryAfter(currentIndex(), storage)
   if (!pathname) return
-  const link = Array.from(document.querySelectorAll<HTMLAnchorElement>("a.card-link, a.set-row")).find(
+  const link = Array.from(document.querySelectorAll<HTMLAnchorElement>("a.card-link, a.goal-row")).find(
     (anchor) => new URL(anchor.href, location.href).pathname === pathname,
   )
   link?.focus({ preventScroll: true })

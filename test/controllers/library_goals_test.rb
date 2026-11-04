@@ -8,7 +8,7 @@ require_relative "../support/steam_sign_in"
 # entry, one row per goal in number order, then the free slot or the empty
 # line; the goal button in the header of their own album of a game set or a
 # custom set, never elsewhere. A public profile shows only the game set goals,
-# without their bookmark.
+# without their bookmark. The hub lists them all under its menu.
 class LibraryGoalsTest < ActionDispatch::IntegrationTest
   include CustomSets
   include GameSets
@@ -144,7 +144,7 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
     assert_select "#set-album-goal input[name=custom_set][value='#{library.token}']"
   end
 
-  test "another player's album of the same set and the hub show no goal; a public profile no bookmark nor custom set goal" do
+  test "another player's album of the same set shows no goal; a public profile no bookmark nor custom set goal; the hub every goal" do
     add(custom_set: create_custom_set(@player).token)
     add(kind: "studio", key: "valve")
     sign_in(@player)
@@ -159,6 +159,7 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "Mes favoris"
 
     get home_path(locale: :en)
-    assert_select "#goals, .goal-bookmark, .goal-row", false
+    assert_select "#goals", false
+    assert_select ".hub-goals .goal-row .goal-bookmark", 2
   end
 end

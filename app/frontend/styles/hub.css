@@ -17,7 +17,7 @@
   grid-template-areas:
     "kicker showcase aside"
     "menu showcase aside"
-    "sets showcase aside"
+    "goals showcase aside"
     ". showcase aside";
   gap: var(--space-6) var(--space-column-gap-wide);
   align-items: start;
@@ -35,8 +35,8 @@
   grid-area: showcase;
 }
 
-.hub-sets {
-  grid-area: sets;
+.hub-goals {
+  grid-area: goals;
 }
 
 .hub__aside {

@@ -20,6 +20,6 @@
     <%= render "pages/daily_booster", bank: @bank, primary: @showcase.present? if @bank[:bonus_collectable] || @bank[:bonus_collected] %>
   </div>
 
-  <%= render "pages/set_progress", sets: @sets if @sets.any? %>
+  <%= render "pages/goals_in_progress", goals: @goals if @goals.any? %>
 </div>
 <%= turbo_stream_from(*LiveStream.goal_streamables) %>

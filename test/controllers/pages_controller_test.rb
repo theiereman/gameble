@@ -16,7 +16,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   include GameTrades
   include SteamSignIn
 
-  PLAYER_HUB_QUERIES = 23
+  PLAYER_HUB_QUERIES = 22
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -82,7 +82,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-showcase form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
   end
 
-  test "a player's hub: the menu, the latest card held, the daily panel and the sets in progress" do
+  test "a player's hub: the menu, the latest card held and the daily panel; without a goal, no goals block at all" do
     gained = 1.hour.ago.change(usec: 0)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2, last_gained_at: gained)
     Game::SetTier.insert_all!([ { player_id: @player.id, set_id: catalog_sets(:valve_one).id, tier: "complete", reached_by: "trade",
@@ -164,20 +164,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select "main .button--primary", 1
 
-    # The sets in progress: the season's one set, completed by the latest
-    # gain, owned out of its size.
-    assert_select ".hub-sets h2", "Sets en cours"
-    assert_select ".hub-sets a.set-row.set-row--progress[href='/fr/library/studio/valve']" do
-      assert_select ".set-row__name[aria-hidden=true]", "Valve"
-      assert_select ".set-row__kind", "Studio"
-      assert_select ".set-tier--complete .set-tier__stamp"
-      assert_select ".set-tier--complete", "Complet"
-      assert_select ".set-row__count", "1/1"
-      assert_select ".visually-hidden", "Valve, studio, 1 carte sur 1, complet"
-      assert_select ".set-row__track[aria-hidden=true] progress.set-row__bar[value='1'][max='1']"
-      assert_select ".set-row__tick", false
-    end
-    assert_select ".hub-sets a.button--link[href='/fr/library']", "Tout voir"
+    # No goal: neither the goals block nor its title.
+    assert_select ".hub-goals", false
 
     # A player has no sign-in panel; the page carries no inline style.
     assert_select "#sign-in-panel", false
@@ -350,40 +338,31 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_nil flash[:alert]
   end
 
-  test "a player with five sets in progress sees the board's first four, and See all leads to the collection" do
-    season, cards = published_cards(60)
-    [ 3, 2, 5, 9, 4 ].each_with_index do |held, index|
-      members = cards.shift(12)
-      insert_theme(members, key: %w[roguelike rpg horror cosy pirates][index], season:)
-      hold_all(@player, members.first(held))
-    end
+  test "a player's goals in progress, in number order, each row one link to its album, and See all leads to the collection's goals" do
+    season, cards = published_cards(24)
+    roguelike, horror = cards.each_slice(12).to_a
+    insert_theme(roguelike, key: "roguelike", season:)
+    insert_theme(horror, key: "horror", season:)
+    hold_all(@player, roguelike.first(3) + horror.first(1))
+    [ "horror", "roguelike" ].each { Game::AddGoal.new.call(player: @player, kind: "theme", key: it).value! }
     sign_in(@player)
 
     get home_path(locale: :en)
 
-    expected = Game::SetBoard.call(@player, season:).in_progress.first(4).map { Catalog::Set.find(it.set_id) }
-    assert_equal 4, expected.size
-    assert_select ".hub-sets h2", "Sets in progress"
-    assert_equal expected.map { "/en/library/#{it.kind}/#{it.key}" }, css_select(".hub-sets a.set-row").map { it["href"] }
-    assert_equal [ "Horror", "RPG", "Pirates", "Cosy" ], css_select(".hub-sets .set-row__name").map(&:text)
-    assert_select ".hub-sets a.button--link[href='/en/library']", "See all"
+    assert_select ".hub-goals[aria-labelledby=hub-goals-title][data-controller=last-album] h2#hub-goals-title", "Goals in progress"
+    rows = css_select(".hub-goals .goal-row")
+    assert_equal [ "/en/library/theme/horror", "/en/library/theme/roguelike" ], rows.map { it["href"] }
+    assert_equal [ "1", "2" ], rows.map { it.at_css(".goal-bookmark").text.squish }
+    assert_equal [ "1/12", "3/12" ], rows.map { it.at_css(".goal-row__count").text.squish }
+    assert_select ".hub-goals a.button--link[href='/en/library#goals']", "See all"
   end
 
-  test "a set completed before the latest gain leaves the hub's sets in progress; none left, no panel" do
-    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
-    sign_in(@player)
-
-    get home_path(locale: :en)
-
-    assert_select ".hub-sets", false
-  end
-
-  test "no published season: no set rows and no collection meta" do
+  test "no published season: no goals block and no collection meta" do
     catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
 
     sign_in(@player)
     get home_path(locale: :en)
-    assert_select ".hub-sets", false
+    assert_select ".hub-goals", false
     assert_select ".hub-menu .menu-item__meta", count: 1, text: "0 online"
     assert_select ".daily-booster", false
     assert_select ".hub-showcase--empty"
@@ -543,9 +522,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # marker), the weekly goal (one read once the job
     # has created the week's row), bank (count, next pack, daily claim), the
     # goal reward's claim slot,
-    # showcase (cards chosen, card held, card view), collection (owned, total), sets (the
-    # player's standings, the popular fill, which finds no other set here, so no figures
-    # and no set to name),
+    # showcase (cards chosen, card held, card view), collection (owned, total), the
+    # player's goals (none here, so nothing to measure),
     # the top bar's copies per tier and rarity legend, menu 05's friends online, menu 07's
     # achievements earned and the rewards waiting to be claimed, the trades
     # waiting (menu 04 and the tab bar share one count), the invitations waiting

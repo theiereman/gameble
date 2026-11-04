@@ -21,7 +21,7 @@ class PagesController < ApplicationController
     @welcome = current_player.welcome_pending
     Accounts::CloseWelcomeJob.perform_later(current_player.id) if @welcome
     @collection = collection if @season
-    @sets = @season ? set_rows : []
+    @goals = Game::GoalNeeds.call(current_player)
   end
 
   def social
@@ -110,11 +110,5 @@ class PagesController < ApplicationController
     def collection
       { owned: Game::HeldGames.count(current_player),
         total: Catalog::CardCount.call(@season) }
-    end
-
-    def set_rows
-      standings = Game::SetBoard.hub(current_player, season: @season)
-      sets = Catalog::SetsById.call(standings.map(&:set_id))
-      standings.filter_map { |standing| SetBoardLoading::SetRow.new(set: sets[standing.set_id], standing:) if sets.key?(standing.set_id) }
     end
 end

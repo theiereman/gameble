@@ -553,7 +553,8 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en)
     assert_select "header.top-bar[data-screen-label=Collection]"
 
+    Game::AddGoal.new.call(player:, kind: "theme", key: "horror").value!
     get home_path(locale: :en)
-    assert_select ".hub-sets[data-controller=last-album] a.set-row"
+    assert_select ".hub-goals[data-controller=last-album] a.goal-row[href='/en/library/theme/horror']"
   end
 end
