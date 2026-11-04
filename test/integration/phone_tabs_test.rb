@@ -20,10 +20,24 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     assert_response :moved_permanently
   end
 
+  test "the old Social address redirects to the Friends screen in the same locale" do
+    get social_path(locale: :fr)
+
+    assert_redirected_to "/fr/friends"
+  end
+
+  test "the tabs read Bridge, Capsule, Sets, Friends and Trades, and the Me tab is gone" do
+    get home_path(locale: :en)
+
+    assert_equal %w[/en /en/booster /en/library /en/friends /en/trades], css_select(".tab-bar a.tab-bar__tab").pluck("href")
+    assert_equal %w[Bridge Capsule Sets Friends Trades], css_select(".tab-bar .tab-bar__label").map(&:text)
+    assert_select ".tab-bar a.tab-bar__tab[href='/en'][aria-current=page]"
+  end
+
   test "every tab is current on its own screens and on their drill-downs" do
     { home_path(locale: :en) => "/en", library_path(locale: :en) => "/en/library", library_cards_path(locale: :en) => "/en/library",
-      social_path(locale: :en) => "/en/social", trades_path(locale: :en) => "/en/social", friends_path(locale: :en) => "/en/social",
-      feed_path(locale: :en) => "/en/social" }.each do |path, tab|
+      trades_path(locale: :en) => "/en/trades", friends_path(locale: :en) => "/en/friends",
+      feed_path(locale: :en) => "/en/friends" }.each do |path, tab|
       get path
       assert_response :success
       assert_select "a.tab-bar__tab[aria-current=page]", 1, path
@@ -31,18 +45,10 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the tabs start on the bridge, and the Me tab is gone" do
+  test "every former More destination is a tab, or one tap from Friends, the Me page, the Sets switch or the header menu" do
     get home_path(locale: :en)
-
-    assert_equal %w[/en /en/booster /en/library /en/social], css_select(".tab-bar a.tab-bar__tab").pluck("href")
-    assert_select ".tab-bar a.tab-bar__tab[href='/en'][aria-current=page] .tab-bar__label", "Bridge"
-    assert_select ".tab-bar a.tab-bar__tab[href='/en/me']", false
-  end
-
-  test "every former More destination is one tap from Social, the Me page, the Sets switch or the header menu" do
-    get home_path(locale: :en)
-    reachable = css_select("#phone-menu-panel a[href]").pluck("href")
-    [ social_path(locale: :en), me_path(locale: :en), library_path(locale: :en) ].each do |path|
+    reachable = css_select("#phone-menu-panel a[href], .tab-bar a[href]").pluck("href")
+    [ friends_path(locale: :en), me_path(locale: :en), library_path(locale: :en) ].each do |path|
       get path
       reachable.concat(css_select("main a[href]").pluck("href"))
     end
@@ -50,9 +56,20 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     assert_empty FORMER_MORE_DESTINATIONS - reachable
   end
 
-  test "the Social home links trades, friends and the feed; the Me page the achievements" do
-    get social_path(locale: :en)
-    %w[/en/trades /en/friends /en/feed].each { assert_select ".social a.social__more[href='#{it}']" }
+  test "Trades and Friends are tab roots with no back button, the feed goes back to Friends on the phone" do
+    [ trades_path(locale: :en), friends_path(locale: :en) ].each do |path|
+      get path
+      assert_select ".top-bar__phone-back", 0, path
+    end
+
+    get feed_path(locale: :en)
+    back = css_select(".top-bar__start > a.top-bar__phone-back").sole
+    assert_equal [ "/en/friends", "Friends" ], [ back["href"], back.at_css(".button__label").text ]
+  end
+
+  test "the Friends screen links the activity feed; the Me page the achievements" do
+    get friends_path(locale: :fr)
+    assert_select ".friends__feed a[href='/fr/feed']", "Fil d'activité"
 
     get me_path(locale: :en)
     assert_select "main a.me-achievements__all[href='/en/achievements']"
@@ -75,14 +92,14 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the Social tab holds the trades and invitations badge slots, the header menu the achievements one" do
+  test "the Trades tab holds the trades badge slot, the Friends tab the invitations one, the header menu the achievements one" do
     Game::Invitation.create!(sender_id: accounts_players(:moderator).id, recipient_id: @player.id)
     Game::AchievementUnlock.record(@player.id, "boosters_100", Time.current, claimed: false)
 
     get home_path(locale: :en)
 
-    assert_select ".tab-bar a.tab-bar__tab[href='/en/social'] #tab-trades-badge.stream-slot", 1
-    assert_select ".tab-bar a.tab-bar__tab[href='/en/social'] #tab-invitations-badge.stream-slot .tab-bar__badge--friends", "1"
+    assert_select ".tab-bar a.tab-bar__tab[href='/en/trades'] #tab-trades-badge.stream-slot", 1
+    assert_select ".tab-bar a.tab-bar__tab[href='/en/friends'] #tab-invitations-badge.stream-slot .tab-bar__badge--friends", "1"
     assert_select ".phone-menu__button #phone-menu-badge.stream-slot .phone-menu__badge", "1"
     assert_select "#phone-menu-badge .visually-hidden", "1 reward to claim"
   end

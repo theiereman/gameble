@@ -1,11 +1,9 @@
 <% unless waiting.nil? %>
   <%= turbo_stream.update "menu-trades-badge", partial: "pages/menu_trades_badge", locals: { waiting: } %>
-  <%= turbo_stream.update "plus-trades-badge", partial: "pages/menu_trades_badge", locals: { waiting: } %>
   <%= turbo_stream.update "tab-trades-badge", partial: "shell/tab_trades_badge", locals: { waiting: } %>
 <% end %>
 <% unless invitations.nil? %>
   <%= turbo_stream.update "menu-friends-badge", partial: "pages/menu_invitations_badge", locals: { invitations: } %>
-  <%= turbo_stream.update "plus-friends-badge", partial: "pages/menu_invitations_badge", locals: { invitations: } %>
   <%= turbo_stream.update "tab-invitations-badge", partial: "shell/tab_invitations_badge", locals: { invitations: } %>
 <% end %>
 <% unless unclaimed.nil? %>

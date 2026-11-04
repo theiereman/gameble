@@ -56,21 +56,17 @@ module ShellHelper
     "achievements" => :achievements,
     "pages#legal" => :legal,
     "pages#how_it_works" => :how_it_works,
-    "own_profiles" => :me,
-    "pages#social" => :social
+    "own_profiles" => :me
   }.freeze
 
   def shell_top_level_screen?
     return false if current_player.nil? || back_office_page? || content_for?(:phone_back)
 
-    controller_path == "boosters" || %w[pages#home own_profiles#show pages#social library#show library#cards].include?("#{controller_path}##{action_name}")
+    %w[boosters trades].include?(controller_path) ||
+      %w[pages#home own_profiles#show friends#show library#show library#cards].include?("#{controller_path}##{action_name}")
   end
 
-  SOCIAL_TAB_CONTROLLERS = %w[trades friends friend_profiles feeds].freeze
-
-  def social_tab_current?
-    SOCIAL_TAB_CONTROLLERS.include?(controller_path) || (controller_path == "pages" && action_name == "social")
-  end
+  FRIENDS_TAB_CONTROLLERS = %w[friends friend_profiles feeds].freeze
 
   def shell_tabs
     return visitor_tabs unless current_player
@@ -79,7 +75,8 @@ module ShellHelper
       [ :hub, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
       [ :booster, "tab-capsule", booster_path, %w[boosters packs].include?(controller_path) ],
       [ :sets, "tab-sets", library_path, %w[library cards custom_sets].include?(controller_path) ],
-      [ :social, "tab-social", social_path, social_tab_current? ]
+      [ :friends, "tab-friends", friends_path, FRIENDS_TAB_CONTROLLERS.include?(controller_path) ],
+      [ :trades, "tab-trades", trades_path, controller_path == "trades" ]
     ]
   end
 

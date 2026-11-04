@@ -1242,6 +1242,7 @@ en:
       copy: Copy
       empty: No friends yet.
       empty_invite: Invite one with your link or your code.
+      feed: Activity feed
       friends: Friends
       ignore: Ignore
       invitations: Invitations
@@ -1848,6 +1849,7 @@ en:
         extras_back: Back to the menu
         extras_label: Extras
         feed: Activity feed
+        friends: Friends
         friends_online:
           one: "%{number} online"
           other: "%{number} online"
@@ -1864,12 +1866,12 @@ en:
         rewards_waiting:
           one: "%{number} reward to claim"
           other: "%{number} rewards to claim"
-        social: Social
         source_code: GitHub
         special:
           one: "%{number} special capsule"
           other: "%{number} special capsules"
         support: Support
+        trades: Trades
         trades_waiting:
           one: "%{number} trade waiting for you"
           other: "%{number} trades waiting for you"
@@ -2233,39 +2235,6 @@ en:
         title: Terms of use
       title: Legal notice and privacy
       updated: 'Last updated: 1 November 2026'
-    social:
-      actions:
-        add_friend: Add a friend
-        new_trade: New trade
-      feed:
-        open: See the feed
-        title: Activity feed
-      friends:
-        all: All friends
-        empty: No friends yet. Add one with the button below.
-        others_online: "%{names} online"
-        title: Friends
-      others:
-        all: "%{names} and %{last}"
-        more:
-          one: "%{names} and %{count} other"
-          other: "%{names} and %{count} others"
-      title: Social
-      trades:
-        all: All trades
-        empty: No trade in progress.
-        theirs: Their turn
-        title: Trades
-        you: You
-        you_give:
-          zero: You give nothing.
-          one: 'You give 1 card, the best one %{rarity}.'
-          other: 'You give %{count} cards, the best one %{rarity}.'
-        friend_gives:
-          zero: '%{name} gives nothing.'
-          one: '%{name} gives 1 card, the best one %{rarity}.'
-          other: '%{name} gives %{count} cards, the best one %{rarity}.'
-        yours: Your turn
   own_profiles:
     show:
       all_achievements: See all
@@ -2723,7 +2692,6 @@ en:
       set: Set
       sets: Sets
       sign_in: Sign in
-      social: Social
       trades: Trades
     sign_in:
       acceptance_html: By signing in you accept the %{terms} and acknowledge the %{privacy}.
@@ -2734,6 +2702,7 @@ en:
     tabs:
       all_cards: All cards
       booster: Capsule
+      friends: Friends
       hub: Bridge
       invitations_waiting:
         one: "%{number} invitation waiting for your answer"
@@ -2742,7 +2711,7 @@ en:
       landing: Home
       me: Me
       sets: Sets
-      social: Social
+      trades: Trades
       trades_waiting:
         one: "%{number} trade waiting for you"
         other: "%{number} trades waiting for you"

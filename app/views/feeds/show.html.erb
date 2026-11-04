@@ -3,7 +3,9 @@
 <% content_for :screen_title, t(".title") %>
 <% if current_player %>
   <% content_for :phone_back do %>
-    <%= render "shell/social_back" %>
+    <%= link_to friends_path, class: "button button--secondary button--small top-bar__phone-back" do %>
+      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t("shell.tabs.friends") %></span>
+    <% end %>
   <% end %>
 <% end %>
 <%= tag.section class: "feed", aria: { labelledby: "feed-heading" },

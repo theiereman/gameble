@@ -47,8 +47,7 @@ class TradesTest < ApplicationSystemTestCase
 
     assert_selector ".hub-menu a.menu-item .menu-item__badge--alert", text: "2"
     find(".hub-menu a.menu-item[aria-keyshortcuts='3']").click
-    assert_current_path social_path(locale: :en)
-    find(".social a.social__more[href='#{trades_path(locale: :en)}']").click
+    assert_current_path trades_path(locale: :en)
 
     assert_selector ".trades__group", text: /WAITING FOR YOU/i
     assert_selector ".trade-row", count: 2

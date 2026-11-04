@@ -218,28 +218,4 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     assert_selector "#feed-entries > li.feed__entry", count: total + 5
     assert not_reloaded?
   end
-
-  test "an opening tops Social's feed preview and the live feed alike, the preview keeping three, without a reload" do
-    sign_in @max
-    visit social_path(locale: :en)
-    assert_selector "#social-feed-preview .social-feed__empty", text: "Nothing here yet."
-    page.execute_script("document.getElementById('social-feed-preview').scrollIntoView()")
-    listening_to_all
-    using_session("feed") do
-      visit feed_path(locale: :en)
-      listening_to_all
-    end
-
-    open_epic(@hugo)
-    perform_enqueued_jobs(only: LiveFeedJob)
-
-    assert_selector "#social-feed-preview #feed-entries > li.feed__entry", count: LiveStream::SOCIAL_PREVIEW_SIZE
-    assert_no_selector "#social-feed-preview .social-feed__empty"
-    preview = all("#social-feed-preview #feed-entries > li .feed__sentence").map(&:text)
-    assert not_reloaded?
-    using_session("feed") do
-      assert_selector "#feed-entries > li.feed__entry", count: 6
-      assert_equal preview, all("#feed-entries > li .feed__sentence").first(LiveStream::SOCIAL_PREVIEW_SIZE).map(&:text)
-    end
-  end
 end

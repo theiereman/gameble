@@ -48,7 +48,7 @@ class BellSlotTest < ActionDispatch::IntegrationTest
   test "a drill-down page carries it too, in the page's locale" do
     sign_in(accounts_players(:player))
 
-    get friends_path(locale: :fr)
+    get feed_path(locale: :fr)
 
     assert_select "header.top-bar--top-level", false
     assert_bell(locale: :fr)

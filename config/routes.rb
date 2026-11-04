@@ -175,9 +175,10 @@ Rails.application.routes.draw do
     end
     post "trades/:token/seen" => "trade_seens#create", as: :trade_seen,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
-    # The phone's Social tab opens this menu; its Me tab the player's own profile.
-    get "social" => "pages#social", as: :social
+    # The phone's Me tab opens the player's own profile.
     get "me" => "own_profiles#show", as: :me
+    # Trades, friends and the feed once shared one screen here; its links lead to the friends.
+    get "social", to: redirect("/%{locale}/friends"), as: :social
     get "more", to: redirect("/%{locale}/me", status: 301), as: :more
     get "legal" => "pages#legal", as: :legal
     get "credits" => "pages#credits", as: :credits

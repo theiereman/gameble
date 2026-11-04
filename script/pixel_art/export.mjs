@@ -607,7 +607,22 @@ const ICONS = {
       "ccccc.ccccc",
     ],
   },
-  "tab-social": {
+  "tab-trades": {
+    grid: [
+      "........c..",
+      "........cc.",
+      "ccccccccccc",
+      "........cc.",
+      "........c..",
+      "...........",
+      "..c........",
+      ".cc........",
+      "ccccccccccc",
+      ".cc........",
+      "..c........",
+    ],
+  },
+  "tab-friends": {
     grid: [
       "...........",
       ".ccc...ccc.",
@@ -1200,7 +1215,8 @@ const DESCRIPTIONS = {
   "tab-collection.svg": "Phone tab bar icon: COLLECTION (text colour)",
   "tab-capsule.svg": "Phone tab bar icon: CAPSULE, a vertical pill (text colour)",
   "tab-sets.svg": "Phone tab bar icon: SETS, four tiles (text colour)",
-  "tab-social.svg": "Phone tab bar icon: SOCIAL, two heads and shoulders (text colour)",
+  "tab-trades.svg": "Phone tab bar icon: ÉCHANGES, two opposed arrows (text colour)",
+  "tab-friends.svg": "Phone tab bar icon: AMIS, two heads and shoulders (text colour)",
   "tab-me.svg": "Phone tab bar icon: ME, one head and shoulders (text colour)",
   "bell.svg": "The header's bell, what is new for the player, 7 × 8",
   "menu.svg": "The phone header's menu: profile, settings and the extras (text colour)",

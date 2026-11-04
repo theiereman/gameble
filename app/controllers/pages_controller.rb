@@ -24,15 +24,6 @@ class PagesController < ApplicationController
     @goals = Game::GoalNeeds.call(current_player)
   end
 
-  def social
-    authorize :page, :play?
-    @open_trades = SocialRows.trades(Game::TradesOf.call(current_player))
-    @cards = Catalog::CardViews.call(@open_trades.rows.flat_map(&:card_season_ids), locale: I18n.locale)
-    @friends = SocialRows.friends(Game::FriendsPresence.call(current_player))
-    @feed = FeedItems.call(LiveStream.social_preview_entries)
-    @feed_reactions = Game::FeedReactionSummaries.call(@feed.map { |item, *| item.entry.id }, viewer: current_player)
-  end
-
   def legal
     authorize :page, :show?
     @legal = Rails.configuration.x.legal

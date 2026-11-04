@@ -181,7 +181,7 @@ body:has(> .ticker) .app-version {
 
 .tab-bar__list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   max-width: var(--space-phone-column-max);
   height: var(--tabbar-height);
   margin: 0 auto;
@@ -224,11 +224,6 @@ body:has(> .ticker) .app-version {
   letter-spacing: 0;
   line-height: 16px;
   text-align: center;
-}
-
-.tab-bar__slot--start .tab-bar__badge {
-  right: calc(50% + 6px);
-  left: auto;
 }
 
 .tab-bar__badge--friends {

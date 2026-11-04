@@ -1,9 +1,0 @@
-<%# locals: (side:, label:, mirrored: false) %>
-<span class="<%= class_names("social-trade__side", "social-trade__side--mirrored": mirrored) %>" aria-hidden="true">
-  <span class="social-trade__who"><%= label %></span>
-  <span class="social-trade__pips">
-    <% side.pips.each do |rarity| %><i class="social-trade__pip social-trade__pip--<%= rarity %>"></i><% end %>
-    <% if side.overflow.positive? %><span class="social-trade__more">+<%= side.overflow %></span><% end %>
-  </span>
-  <span class="social-trade__count"><%= side.count %></span>
-</span>

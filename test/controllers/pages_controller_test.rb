@@ -120,9 +120,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".hub[data-controller=hub-menu]"
-    assert_select "nav.hub-menu[aria-label=?] > ol.hub-menu__list:not([hidden]) > li", "Menu du pont", count: 6
-    assert_equal %w[1 2 3 4 5 6], main_menu_items.map { it["aria-keyshortcuts"] }
-    assert_equal %w[01 02 03 04 05 06], css_select(".hub-menu > ol:not([hidden]) .menu-item__number").map(&:text)
+    assert_select "nav.hub-menu[aria-label=?] > ol.hub-menu__list:not([hidden]) > li", "Menu du pont", count: 7
+    assert_equal %w[1 2 3 4 5 6 7], main_menu_items.map { it["aria-keyshortcuts"] }
+    assert_equal %w[01 02 03 04 05 06 07], css_select(".hub-menu > ol:not([hidden]) .menu-item__number").map(&:text)
 
     # 01: the booster screen, its reserve in a lime badge.
     assert_select ".hub-menu a.menu-item[href='/fr/booster'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
@@ -138,26 +138,31 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".visually-hidden", "1 carte unique sur 5"
     end
     assert_select ".hub-menu a.menu-item[href='/fr/library/cards']", 0
-    # 03: Social, the trades badge then the invitations badge, neither shown when nothing waits.
-    assert_select ".hub-menu a.menu-item[href='/fr/social'][aria-keyshortcuts='3'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
-      assert_select ".menu-item__label", "Social"
-      assert_select ".menu-item__meta", "0 en ligne"
-      assert_select "#menu-trades-badge.stream-slot + #menu-friends-badge.stream-slot", 1
+    # 03: the trades, their badge hidden when nothing waits.
+    assert_select ".hub-menu a.menu-item[href='/fr/trades'][aria-keyshortcuts='3'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+      assert_select ".menu-item__label", "Échanges"
+      assert_select "#menu-trades-badge.stream-slot", 1
       assert_select ".menu-item__badge, .visually-hidden", 0
     end
-    assert_select ".hub-menu a.menu-item[href='/fr/trades'], .hub-menu a.menu-item[href='/fr/friends']", 0
-    # 04: the activity feed, straight from the hub.
-    assert_select ".hub-menu a.menu-item[href='/fr/feed'][aria-keyshortcuts='4'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+    # 04: the friends, how many are online, the invitations badge hidden when none waits.
+    assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='4'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+      assert_select ".menu-item__label", "Amis"
+      assert_select ".menu-item__meta", "0 en ligne"
+      assert_select "#menu-friends-badge.stream-slot", 1
+      assert_select ".menu-item__badge, .visually-hidden", 0
+    end
+    # 05: the activity feed.
+    assert_select ".hub-menu a.menu-item[href='/fr/feed'][aria-keyshortcuts='5'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Fil d'activité"
     end
-    # 05: the achievements screen, none earned yet.
-    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='5'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+    # 06: the achievements screen, none earned yet.
+    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='6'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Succès"
       assert_select ".menu-item__meta[aria-hidden=true]", "0/23"
       assert_select ".visually-hidden", "0 succès obtenu sur 23"
     end
-    # 06: the extras, a button that swaps the list in place for the hidden one.
-    assert_select ".hub-menu button.menu-item[type=button][aria-keyshortcuts='6'][aria-expanded=false][aria-controls=hub-menu-extras][data-hub-menu-target~=extrasEntry][data-action='hub-menu#openExtras']" do
+    # 07: the extras, a button that swaps the list in place for the hidden one.
+    assert_select ".hub-menu button.menu-item[type=button][aria-keyshortcuts='7'][aria-expanded=false][aria-controls=hub-menu-extras][data-hub-menu-target~=extrasEntry][data-action='hub-menu#openExtras']" do
       assert_select ".menu-item__label", "Extras"
     end
     assert_select ".hub-menu [aria-disabled]", false
@@ -345,11 +350,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/en/library'] .menu-item__meta", "1/150"
   end
 
-  test "a visitor is sent from the Me and Social screens to the landing, in its locale, without an alert" do
-    get social_path(locale: :fr)
-
-    assert_redirected_to home_path(locale: :fr)
-
+  test "a visitor is sent from the Me screen to the landing, in its locale, without an alert" do
     get me_path(locale: :en)
 
     assert_redirected_to home_path(locale: :en)
@@ -548,10 +549,10 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # goal reward's claim slot,
     # showcase (cards chosen, card held, card view), collection (owned, total), the
     # player's goals (none here, so nothing to measure),
-    # the top bar's copies per tier and rarity legend, menu 05's friends online, menu 07's
+    # the top bar's copies per tier and rarity legend, menu 04's friends online, menu 06's
     # achievements earned and the rewards waiting to be claimed, the trades
-    # waiting (menu 04 and the tab bar share one count), the invitations waiting
-    # (menu 05 and the Social tab share one count) and the LIVE ticker's
+    # waiting (menu 03 and the Trades tab share one count), the invitations waiting
+    # (menu 04 and the Friends tab share one count) and the LIVE ticker's
     # entries (none here, so no players or cards).
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"

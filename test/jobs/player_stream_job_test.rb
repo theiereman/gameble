@@ -42,9 +42,7 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     assert_equal "1 échange en attente de vous", template(streams(french, "update", "menu-trades-badge").sole).at_css(".visually-hidden").text
 
     lea = received(@lea, :en)
-    %w[menu-trades-badge plus-trades-badge].each do |target|
-      assert_empty template(streams(lea, "update", target).sole).children, "#{target} hidden at zero"
-    end
+    assert_empty template(streams(lea, "update", "menu-trades-badge").sole).children, "hidden at zero"
     assert_nil template(streams(lea, "update", "tab-trades-badge").sole).at_css(".tab-bar__badge"), "hidden at zero"
   end
 
@@ -71,31 +69,27 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     assert_empty streams(received(@lea, :en), "append"), "the accepting player has their own toast already"
   end
 
-  test "a friends notice sends the invitations badge to the hub menu, the Social list and the Social tab, in each locale" do
+  test "a friends notice sends the invitations badge to the hub menu and the Friends tab, in each locale" do
     max = accounts_players(:administrator)
     Game::Invitation.create!(sender_id: max.id, recipient_id: @hugo.id)
 
     PlayerStreamJob.perform_now([ { player_id: @hugo.id, topic: "friends" }, { player_id: max.id, topic: "friends" } ])
 
     english = received(@hugo, :en)
-    %w[menu-friends-badge plus-friends-badge].each do |target|
-      menu = template(streams(english, "update", target).sole)
-      assert_equal "1", menu.at_css(".menu-item__badge.menu-item__badge--friends").text, target
-      assert_equal "1 invitation waiting for your answer", menu.at_css(".visually-hidden").text, target
-    end
+    menu = template(streams(english, "update", "menu-friends-badge").sole)
+    assert_equal "1", menu.at_css(".menu-item__badge.menu-item__badge--friends").text
+    assert_equal "1 invitation waiting for your answer", menu.at_css(".visually-hidden").text
     tab = template(streams(english, "update", "tab-invitations-badge").sole)
     assert_equal "1", tab.at_css(".tab-bar__badge--friends").text
     assert_equal "1 invitation waiting for your answer", tab.at_css(".visually-hidden").text
     assert_empty streams(english, "update", "menu-trades-badge")
 
     french = received(@hugo, :fr)
-    assert_equal "1 invitation en attente de votre réponse", template(streams(french, "update", "plus-friends-badge").sole).at_css(".visually-hidden").text
+    assert_equal "1 invitation en attente de votre réponse", template(streams(french, "update", "menu-friends-badge").sole).at_css(".visually-hidden").text
     assert_equal "1 invitation en attente de votre réponse", template(streams(french, "update", "tab-invitations-badge").sole).at_css(".visually-hidden").text
 
     sender = received(max, :fr)
-    %w[menu-friends-badge plus-friends-badge].each do |target|
-      assert_empty template(streams(sender, "update", target).sole).children, "#{target} hidden at zero"
-    end
+    assert_empty template(streams(sender, "update", "menu-friends-badge").sole).children, "hidden at zero"
     assert_nil template(streams(sender, "update", "tab-invitations-badge").sole).at_css(".tab-bar__badge"), "hidden at zero"
   end
 

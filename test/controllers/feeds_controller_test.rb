@@ -395,19 +395,19 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__controls a.feed__type-opener[href='#feed-types']", "Type\u202f: Tirages"
   end
 
-  test "a visitor's back leads to the landing, not to Social; a player's leads to Social" do
+  test "a visitor's back leads to the landing, not to Friends; a player's leads to Friends" do
     reset!
 
     get feed_path(locale: :fr)
 
     assert_select ".top-bar__phone-back", false
     assert_select ".top-bar__start > a.top-bar__bridge[href='/fr']"
-    assert_select "a[href='/fr/social']", false
+    assert_select "a.top-bar__phone-back", false
 
     sign_in(@player)
     get feed_path(locale: :fr)
 
-    assert_select "a.top-bar__phone-back[href='/fr/social']"
+    assert_select "a.top-bar__phone-back[href='/fr/friends']", /Amis/
     assert_select "a.feed__tab[href=?]", feed_path(locale: :fr, tab: "friends"), text: "Amis"
     assert_select "button.feed__tab", false
   end

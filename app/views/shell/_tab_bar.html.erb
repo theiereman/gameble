@@ -8,9 +8,11 @@
         <%= link_to path, class: "tab-bar__tab", aria: { current: ("page" if current) }, data: { turbo_prefetch: false } do %>
           <%= pixel_icon(icon, class: "tab-bar__icon") %>
           <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
-          <% if key == :social %>
+          <% if key == :trades %>
             <span id="tab-trades-badge" class="stream-slot"><%= render("shell/tab_trades_badge", waiting:) %></span>
-            <span id="tab-invitations-badge" class="stream-slot tab-bar__slot--start"><%= render("shell/tab_invitations_badge", invitations:) %></span>
+          <% end %>
+          <% if key == :friends %>
+            <span id="tab-invitations-badge" class="stream-slot"><%= render("shell/tab_invitations_badge", invitations:) %></span>
           <% end %>
         <% end %>
       </li>
