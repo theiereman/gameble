@@ -49,10 +49,6 @@
   height: var(--space-back-g-height);
 }
 
-:root[data-native-app] .top-bar__start > .top-bar__previous :is(.button__icon, .button__label) {
-  display: none;
-}
-
 /* The capsule screen fills the space between the top bar and the native tabs, without a scroll,
    its canister centred in the stage and its rays running out to the screen's edges. */
 :root[data-native-app] body:has(.booster[data-layout="phone"]) {

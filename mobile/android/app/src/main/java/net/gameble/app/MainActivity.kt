@@ -79,13 +79,17 @@ class MainActivity : HotwireActivity() {
     private fun isInside(view: View, ancestor: View): Boolean =
         generateSequence(view) { it.parent as? View }.any { it === ancestor }
 
+    fun goBack(): Boolean {
+        val navigator = delegate.currentNavigator ?: return false
+        if (navigator.isAtStartDestination()) return false
+        leaveScreen(forward = false)
+        navigator.pop()
+        return true
+    }
+
     private val backWithTransition = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            val navigator = delegate.currentNavigator
-            if (navigator != null && !navigator.isAtStartDestination()) {
-                leaveScreen(forward = false)
-                navigator.pop()
-            } else {
+            if (!goBack()) {
                 isEnabled = false
                 onBackPressedDispatcher.onBackPressed()
                 isEnabled = true

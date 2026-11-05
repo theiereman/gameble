@@ -11,6 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             .server(Gameble.rootURL.appending(path: "configurations/ios_v1.json"))
         ])
         Hotwire.registerBridgeComponents([
+            BackComponent.self,
             SignInComponent.self,
             PushPermissionComponent.self,
             ShareComponent.self,
