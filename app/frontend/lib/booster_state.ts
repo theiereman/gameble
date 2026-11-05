@@ -179,6 +179,10 @@ export function celebrationStepped(state: BoosterState): BoosterState {
     : state
 }
 
+export function celebrationDismissed(state: BoosterState): BoosterState {
+  return state.celebration === null ? state : { ...state, celebration: null, focus: "open" }
+}
+
 export function shownResult(state: BoosterState): number {
   const count = state.celebration?.length ?? 0
   return count > 0 ? state.celebrationSteps % count : 0

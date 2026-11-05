@@ -610,6 +610,7 @@ en:
     card_label: "%{title} — %{details}"
     cards_per_pack: Cards per capsule
     close: Close
+    continue: Continue
     daily:
       collect: Collect
       ready: Ready

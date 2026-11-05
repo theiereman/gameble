@@ -18,7 +18,11 @@ export const onTable = (state: BoosterState): boolean =>
   state.layout === "phone" && state.dealt && (state.answer?.cards.length ?? 0) > 0
 
 export const nextCapsuleWaiting = (state: BoosterState): boolean =>
-  state.layout === "phone" && state.phase === "dealt" && handDone(state) && reserveCount(state.bank, state.reserve) > 0
+  state.layout === "phone" &&
+  state.phase === "dealt" &&
+  handDone(state) &&
+  state.celebration === null &&
+  reserveCount(state.bank, state.reserve) > 0
 
 export const canisterDocks = (state: BoosterState): number => state.docks + (nextCapsuleWaiting(state) ? 1 : 0)
 

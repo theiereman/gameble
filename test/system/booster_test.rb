@@ -386,6 +386,13 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster-plate-band .booster-celebration", text: /SET COMPLETE\s+VALVE/
     assert_focus ".booster__open"
     assert_button "Open the next one"
+
+    # The set result holds the stage alone; Continue lets the next capsule dock there.
+    assert_no_selector ".booster-canister"
+    click_on "Continue"
+    assert_no_selector ".booster-celebration"
+    assert_selector ".booster-canister"
+    assert_focus ".booster__open"
   end
 
   test "on a phone a filled tray slot opens the card zoom; Esc gives the focus back to the slot, See the card leads to its page" do

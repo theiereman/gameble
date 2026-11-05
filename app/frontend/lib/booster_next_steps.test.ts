@@ -9,10 +9,10 @@ import {
   resultHeadShown,
   retracted,
 } from "./booster_opening"
-import { bankChanged, lock, unlock } from "./booster_state"
+import { bankChanged, celebrate, celebrationDismissed, lock, unlock } from "./booster_state"
 import type { Layout } from "./booster_types"
 import { canisterDocks, nextCapsuleWaiting, nextStepsShown } from "./booster_view"
-import { FIVE, answerOf, bank, revealedAll, startWith } from "./booster_fixtures"
+import { FIVE, VALVE, answerOf, bank, revealedAll, startWith } from "./booster_fixtures"
 
 const opened = (layout: Layout = "wide") => arming(lock(openingStarted(startWith({ bank: bank(1), layout }))), "key-1")
 
@@ -61,6 +61,18 @@ describe("nextCapsuleWaiting", () => {
 
     expect(nextCapsuleWaiting(hand)).toBe(false)
     expect(nextCapsuleWaiting(storedAll(hand))).toBe(true)
+  })
+
+  it("waits for a set result reached by the hand to be dismissed, which hands the focus to the open button", () => {
+    const opened = arming(lock(openingStarted(startWith({ bank: bank(2), layout: "phone" }))), "key-1")
+    const hand = unlock(openingEnded(cardsDealt(resultHeadShown(openingAnswered(opened, answerOf(FIVE, [VALVE], 1))))))
+    const stored = storedAll(celebrate(revealedAll(hand)))
+
+    expect(stored.celebration).not.toBeNull()
+    expect(nextCapsuleWaiting(stored)).toBe(false)
+    const dismissed = celebrationDismissed(stored)
+    expect(nextCapsuleWaiting(dismissed)).toBe(true)
+    expect(dismissed.focus).toBe("open")
   })
 
   it("brings none back once the reserve is empty, nor where the hand stays on the table", () => {

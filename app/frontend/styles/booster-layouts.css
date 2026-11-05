@@ -175,17 +175,6 @@
   padding: 0 0 6%;
 }
 
-/* Once the hand is stored, the next capsule waits in the pile's place,
-   above the hint and the tray. */
-.booster[data-layout="phone"][data-phase="dealt"] .booster__shake > .booster__zone {
-  grid-area: 1 / 1;
-  padding: 0;
-}
-
-.booster[data-layout="phone"][data-phase="dealt"] .booster__canister-facts {
-  display: none;
-}
-
 .booster[data-layout="phone"] .booster-canister {
   touch-action: none;
 }

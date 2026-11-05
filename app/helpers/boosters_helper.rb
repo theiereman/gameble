@@ -11,7 +11,7 @@ module BoostersHelper
     "booster-plate" => { store: :storeTop },
     "booster-tray" => { zoom: :openZoom },
     "booster-zoom" => { step: :stepZoom, see: :seeZoomed, repost: :repostZoomed, close: :closeZoom },
-    "booster-celebration" => { leave: :leaveForAlbum, step: :stepCelebration }
+    "booster-celebration" => { leave: :leaveForAlbum, step: :stepCelebration, dismiss: :dismissCelebration }
   }.freeze
 
   def booster_root_data(bank:, season:, next_pack_size:, reserve:)

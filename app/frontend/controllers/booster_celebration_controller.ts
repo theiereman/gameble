@@ -58,6 +58,7 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
     "stamp",
     "check",
     "rank",
+    "dismiss",
   ]
   static values = { phone: Boolean }
 
@@ -74,6 +75,8 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
   declare readonly checkTarget: HTMLTemplateElement
   declare readonly rankTargets: HTMLTemplateElement[]
   declare readonly phoneValue: boolean
+  declare readonly hasDismissTarget: boolean
+  declare readonly dismissTarget: HTMLButtonElement
 
   private shown: CelebrationView | null = null
   private container: HTMLElement | null = null
@@ -84,6 +87,7 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
 
   render(view: CelebrationView | null): void {
     const before = this.shown
+    if (this.hasDismissTarget) this.dismissTarget.hidden = view === null
     if (view === null) {
       this.clear()
       return
@@ -97,7 +101,7 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
     this.clear()
     this.shown = view
     this.container = this.build(view)
-    this.element.append(this.container)
+    this.element.prepend(this.container)
   }
 
   leave(event: MouseEvent): void {
@@ -107,6 +111,10 @@ export default class BoosterCelebrationController extends Controller<HTMLElement
 
   step(): void {
     this.dispatch("step")
+  }
+
+  dismiss(): void {
+    this.dispatch("dismiss")
   }
 
   private showStep(view: CelebrationView): void {

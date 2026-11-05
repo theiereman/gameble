@@ -1402,6 +1402,7 @@ fr:
     tray_label: "Carte"
     see_card: "Voir la fiche"
     close: "Fermer"
+    continue: "Continuer"
     zoom_tip: "Maintenez la carte pour l'incliner"
     zoom_previous: "Carte précédente"
     zoom_next: "Carte suivante"

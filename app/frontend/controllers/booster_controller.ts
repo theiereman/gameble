@@ -22,6 +22,7 @@ import {
   activation,
   bankDue,
   canStore,
+  celebrationDismissed,
   celebrationStepped,
   faceSize,
   layoutApplied,
@@ -284,9 +285,8 @@ export class BoosterController extends Controller<HTMLElement> {
     if (answer) rememberPack(answer.pack.token, true)
   }
 
-  stepCelebration(): void {
-    this.apply(celebrationStepped)
-  }
+  stepCelebration = (): void => void this.apply(celebrationStepped)
+  dismissCelebration = (): void => void this.apply(celebrationDismissed)
 
   private get current(): BoosterState {
     return this.state!
