@@ -3,7 +3,7 @@ title: 'A trade updated since you last looked'
 type: 'feature'
 ticket: '11'
 created: '2026-11-03'
-status: 'built'
+status: done
 baseline_revision: 'b53ec114d603e9d216b8863a5f52844620e1f774'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'A Me page that is your profile, edited live'
 type: 'feature'
 ticket: '12'
 created: '2026-11-03'
-status: 'built'
+status: done
 baseline_revision: '7339ea8efe1beb012b274b658d0e012f5f53abb6'
 route: 'full'
 route_source: 'auto'

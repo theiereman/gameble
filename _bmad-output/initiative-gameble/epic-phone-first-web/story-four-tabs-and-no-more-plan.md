@@ -3,7 +3,7 @@ title: 'Four tabs and no More'
 type: 'feature'
 ticket: '2'
 created: '2026-11-02'
-status: 'built'
+status: done
 baseline_revision: '41d33ee00aef56aa9a486a9ec24207804dcbf2a6'
 route: 'full'
 route_source: 'auto'

@@ -10,6 +10,7 @@ assignee: ""
 risk: medium
 estimate: ""
 estimate_basis: "envelope"
+status: done
 ---
 
 # More achievements, and card backs easy to pick

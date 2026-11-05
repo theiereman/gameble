@@ -3,7 +3,7 @@ title: 'A foreign key violation on holdings fails the full suite at random'
 type: 'bugfix'
 ticket: 'bug-a-foreign-key-violation-on-holdings-fails-the-full-suite-at-random'
 created: '2026-10-30'
-status: 'built'
+status: done
 baseline_revision: '0a00ddafa1f61c609855cfc57c276e75b64c3758'
 route: 'oneshot'
 route_source: 'auto'

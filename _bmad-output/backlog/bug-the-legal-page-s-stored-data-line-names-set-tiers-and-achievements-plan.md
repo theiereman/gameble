@@ -3,7 +3,7 @@ title: "The legal page's stored data line names set tiers and achievements"
 type: 'bugfix'
 ticket: 'bug-the-legal-page-s-stored-data-line-names-set-tiers-and-achievements'
 created: '2026-10-30'
-status: 'built'
+status: done
 baseline_revision: '0a00ddafa1f61c609855cfc57c276e75b64c3758'
 route: 'oneshot'
 route_source: 'auto'

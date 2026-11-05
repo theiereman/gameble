@@ -3,7 +3,7 @@ title: 'Return to the previous screen without reverting the selected language'
 type: 'bugfix'
 ticket: 'bug-return-to-the-previous-screen-reverts-the-selected-language'
 created: '2026-10-19'
-status: 'built'
+status: done
 baseline_revision: '273ecdd51d160c6c3c60984649574fe556f7565a'
 route: 'full'
 route_source: 'pinned'

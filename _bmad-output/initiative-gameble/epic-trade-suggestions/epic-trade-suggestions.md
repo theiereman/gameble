@@ -10,6 +10,7 @@ assignee: ""
 risk: high
 estimate: ""
 estimate_basis: "envelope"
+status: done
 ---
 
 # Trade suggestions

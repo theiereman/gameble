@@ -3,7 +3,7 @@ title: 'A leaner hub: goals in progress, the activity feed entry and a shorter w
 type: 'feature'
 ticket: 'story-a-leaner-hub-with-goals-in-progress-and-the-weekly-mission'
 created: '2026-11-04'
-status: 'built'
+status: done
 baseline_revision: '8ed5908f05f5c40e6be88cb00700dd7c34c0642d'
 ---
 

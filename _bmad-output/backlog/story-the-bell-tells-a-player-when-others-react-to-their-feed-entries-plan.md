@@ -3,7 +3,7 @@ title: 'The bell tells a player when others react to their feed entries, without
 type: 'feature'
 ticket: 'story-the-bell-tells-a-player-when-others-react-to-their-feed-entries'
 created: '2026-11-04'
-status: 'built'
+status: done
 baseline_revision: '5143c7316c218744c7d13047e4f1d427639eec83'
 route: 'full'
 route_source: 'auto'

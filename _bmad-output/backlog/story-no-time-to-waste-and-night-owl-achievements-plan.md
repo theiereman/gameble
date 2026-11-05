@@ -3,7 +3,7 @@ title: 'The No Time to Waste and Night Owl achievements'
 type: 'feature'
 ticket: 'story-no-time-to-waste-and-night-owl-achievements'
 created: '2026-11-05'
-status: 'built'
+status: done
 baseline_revision: '0d8544ddec5326a3b6465d9f0aaf0319c1bcd871'
 ---
 

@@ -3,7 +3,7 @@ title: 'A bottom sheet for every choice'
 type: 'feature'
 ticket: '3'
 created: '2026-11-03'
-status: 'built'
+status: done
 baseline_revision: '92d15445a3c9770a0d6de28ea3d112c4efca9892'
 route: 'full'
 route_source: 'auto'

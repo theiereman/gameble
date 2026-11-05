@@ -9,6 +9,7 @@ assignee: ""
 risk: medium
 estimate: ""
 estimate_basis: ""
+status: in-progress
 ---
 
 # Exotic cards: a tribute to the beta testers

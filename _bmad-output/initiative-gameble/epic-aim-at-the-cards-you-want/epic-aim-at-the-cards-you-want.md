@@ -10,6 +10,7 @@ assignee: ""
 risk: medium
 estimate: ""
 estimate_basis: "envelope"
+status: done
 ---
 
 # Aim at the cards you want

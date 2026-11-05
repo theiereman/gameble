@@ -3,7 +3,7 @@ title: 'A header that fits on a phone'
 type: 'feature'
 ticket: '1'
 created: '2026-11-02'
-status: 'built'
+status: done
 baseline_revision: 'a311d4a8dccb7b7e899b133bd05a06ab0db8a60c'
 route: 'full'
 route_source: 'auto'

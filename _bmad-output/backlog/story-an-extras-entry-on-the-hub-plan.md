@@ -3,7 +3,7 @@ title: 'An Extras entry on the hub for how it works, support, GitHub and Discord
 type: 'feature'
 ticket: 'story-an-extras-entry-on-the-hub'
 created: '2026-11-04'
-status: 'built'
+status: done
 baseline_revision: '5b154fae1fd9dd6af91d292cf3aab14134402fd2'
 ---
 

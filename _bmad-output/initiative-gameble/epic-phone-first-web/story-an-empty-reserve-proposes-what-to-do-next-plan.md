@@ -3,7 +3,7 @@ title: 'An empty reserve proposes what to do next'
 type: 'feature'
 ticket: '7'
 created: '2026-11-03'
-status: 'built'
+status: done
 baseline_revision: '7351a8fe5e0fe6100d20a9eabf874c6805fa2d50'
 route: 'full'
 route_source: 'auto'

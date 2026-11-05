@@ -3,7 +3,7 @@ title: 'Card detail lists the friends who own the card'
 type: 'feature'
 ticket: 'story-the-card-detail-lists-the-friends-who-own-the-card'
 created: '2026-11-05'
-status: 'built'
+status: done
 baseline_revision: 'a0dc3e9f282d5998355e116e7537fd5c2c87bf69'
 route: 'full'
 route_source: 'auto'

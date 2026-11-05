@@ -10,6 +10,7 @@ assignee: ""
 risk: low
 estimate: ""
 estimate_basis: ""
+status: done
 ---
 
 # Cleanup for 1.2.0

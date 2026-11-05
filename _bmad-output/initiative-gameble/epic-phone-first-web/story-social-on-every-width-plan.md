@@ -3,7 +3,7 @@ title: 'Social on every width'
 type: 'feature'
 ticket: '15'
 created: '2026-11-04'
-status: 'built'
+status: done
 baseline_revision: '092972dce0f0dc4fefda3f623e0dc9d3e33c0b21'
 route: 'full'
 route_source: 'auto'

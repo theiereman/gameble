@@ -3,7 +3,7 @@ title: 'Arrow keys move focus within the collection grid'
 type: 'bugfix'
 ticket: 'bug-arrow-keys-do-not-move-focus-within-the-collection-grid'
 created: '2026-10-29'
-status: 'built'
+status: done
 baseline_revision: '5bc6f527fe329e7e2e63518b017b14b9b2c22bd1'
 route: 'oneshot'
 route_source: 'auto'

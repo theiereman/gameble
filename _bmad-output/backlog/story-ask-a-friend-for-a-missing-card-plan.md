@@ -3,7 +3,7 @@ title: "A missing card's page lists the friends to ask, and asking opens a prefi
 type: 'feature'
 ticket: 'story-ask-a-friend-for-a-missing-card'
 created: '2026-11-05'
-status: 'built'
+status: done
 baseline_revision: 'c5bd474e68c54af8ece33370fabdb8cfa87b5327'
 ---
 

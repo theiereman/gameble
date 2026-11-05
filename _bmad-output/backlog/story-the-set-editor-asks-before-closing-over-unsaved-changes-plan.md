@@ -3,7 +3,7 @@ title: 'The set editor asks before closing over unsaved changes'
 type: 'feature'
 ticket: 'story-the-set-editor-asks-before-closing-over-unsaved-changes'
 created: '2026-11-05'
-status: 'built'
+status: done
 baseline_revision: 'e53655a5f042c74469a4b1da517447a819661b9d'
 ---
 

@@ -3,7 +3,7 @@ title: 'The trade card picker folds its filters under More filters, scrolling wi
 type: 'feature'
 ticket: 'story-the-trade-card-picker-folds-its-filters-under-more-filters'
 created: '2026-11-04'
-status: 'built'
+status: done
 baseline_revision: 'e770550e4542a336e3a987d2659a69e2d522ca9a'
 ---
 

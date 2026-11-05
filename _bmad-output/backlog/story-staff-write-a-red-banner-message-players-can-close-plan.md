@@ -3,7 +3,7 @@ title: 'Staff write a red banner message players can close'
 type: 'feature'
 ticket: 'story-staff-write-a-red-banner-message-players-can-close'
 created: '2026-11-04'
-status: 'built'
+status: done
 baseline_revision: 'a7f7e5ef7a629ad8e6a64eeca8c374e7a2f6ba27'
 ---
 

@@ -3,7 +3,7 @@ title: 'Social opens on trades and friends'
 type: 'feature'
 ticket: '8'
 created: '2026-11-03'
-status: 'built'
+status: done
 baseline_revision: 'cde8806c2c85b67249abd94401d398135c98f2a0'
 route: 'full'
 route_source: 'auto'

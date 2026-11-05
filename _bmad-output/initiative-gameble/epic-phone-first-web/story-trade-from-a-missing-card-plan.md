@@ -3,7 +3,7 @@ title: 'Trade from a missing card'
 type: 'feature'
 ticket: '9'
 created: '2026-11-03'
-status: 'built'
+status: done
 baseline_revision: '6bd3e054028f0cde891e0529b87cf8326265a7ec'
 route: 'full'
 route_source: 'auto'

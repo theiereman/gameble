@@ -3,7 +3,7 @@ title: 'The rarity legend counts distinct games in its overall figures'
 type: 'feature'
 ticket: 'story-the-rarity-legend-counts-distinct-games-in-its-overall-figures'
 created: '2026-10-30'
-status: 'built'
+status: done
 baseline_revision: '34295feb856778c2606ad48fa4be5bc033e5e1eb'
 route: 'oneshot'
 route_source: 'auto'

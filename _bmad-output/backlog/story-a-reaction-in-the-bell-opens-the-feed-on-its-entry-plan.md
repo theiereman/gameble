@@ -3,7 +3,7 @@ title: 'A reaction in the bell names its reactions and post, and opens the feed 
 type: 'feature'
 ticket: 'story-a-reaction-in-the-bell-opens-the-feed-on-its-entry'
 created: '2026-11-05'
-status: 'built'
+status: done
 baseline_revision: '12d1c318e69aad58f6e66b9bf260e23db636763e'
 ---
 

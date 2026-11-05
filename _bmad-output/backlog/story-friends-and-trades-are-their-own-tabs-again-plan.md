@@ -3,7 +3,7 @@ title: 'Friends and Trades are their own tabs again, and the Social screen goes'
 type: 'feature'
 ticket: 'story-friends-and-trades-are-their-own-tabs-again'
 created: '2026-11-04'
-status: 'built'
+status: done
 baseline_revision: 'b2117678b26053b35d9d63f4dc2a4ec3c384bc5a'
 ---
 
