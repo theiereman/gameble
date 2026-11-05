@@ -2,15 +2,15 @@
 
 What each store asks for, and where the answer lives. Items marked **person** need the author's accounts.
 
-## Where we stand (2026-11-04)
+## Where we stand (2026-11-05)
 
 Do not merge `feature/hotwire-native` into `develop` until everything below is validated: a merge would put its features in the next production release.
 
 - [x] Android keystore secrets (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`)
 - [x] Apple credentials filled in Clerk (Services ID, key, Team ID, Key ID)
-- [ ] Apple sign-in tried on a server: the button exists only on this branch, so it needs a deploy of the branch
-- [ ] `APPLE_TEAM_ID` secret (Team ID: developer.apple.com/account, Membership details)
-- [ ] App Store Connect API key and its three secrets
+- [x] Apple sign-in tried on a server (the branch deployed to staging)
+- [x] `APPLE_TEAM_ID` secret (Team ID: developer.apple.com/account, Membership details)
+- [x] App Store Connect API key and its three secrets
 - [ ] Push: APNs key, Firebase project, `google-services.json`, server variables
 - [ ] Google Play account validated, app created, service account JSON in `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`
 - [ ] Closed test with 12 testers for 14 days
