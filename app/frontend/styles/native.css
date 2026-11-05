@@ -126,6 +126,19 @@
   grid-column: 1 / -1;
 }
 
+/* A trade's actions close its board, scrolled to like the rest of it rather than pinned over the cards. */
+@media (max-width: 719px) {
+  :root[data-native-app] .trade-board__actions {
+    position: static;
+    padding: var(--space-4) 0 0;
+    background: none;
+  }
+
+  :root[data-native-app] .trade-board__actions .button {
+    flex: 1;
+  }
+}
+
 /* Where the app can share a link natively, its unreadable address gives way to the buttons. */
 :root[data-native-app] .friends__row-field:has([data-controller~="bridge--share"]:not([hidden])) .friends__input {
   display: none;
