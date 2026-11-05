@@ -1718,11 +1718,16 @@ fr:
   avatars:
     names:
       archivist: "Archiviste"
+      botanist: "Botaniste"
+      cartographer: "Cartographe"
       default: "Classique"
       grand_master: "Grand Maître"
       guardian: "Gardien"
+      mechanic: "Mécanicienne"
       novice: "Novice"
       oracle: "Oracle"
+      pilot: "Pilote"
+      streamer: "Streameuse"
   achievement_claims:
     create:
       claimed: "Récompense récupérée."

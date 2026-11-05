@@ -56,13 +56,20 @@ class Game::ChooseAvatarTest < ActiveSupport::TestCase
     assert_equal({ @player.id => "novice", @other.id => "default" }, avatars.transform_values(&:key))
   end
 
-  test "the shelf lists every avatar, locked until its achievement is earned" do
+  test "the free avatars need no achievement" do
+    other = choose("botanist", player: @other)
+
+    assert other.success?
+    assert_equal "botanist", Game::ActiveAvatar.call(@other).key
+  end
+
+  test "the shelf lists every avatar, the free ones open and the others locked until their achievement is earned" do
     choose("novice")
 
     rows = Game::AvatarShelf.call(@player)
 
-    assert_equal %w[default novice archivist guardian oracle grand_master], rows.map(&:key)
-    assert_equal %w[default novice], rows.reject(&:locked?).map(&:key)
+    assert_equal %w[default mechanic pilot cartographer botanist streamer novice archivist guardian oracle grand_master], rows.map(&:key)
+    assert_equal %w[default mechanic pilot cartographer botanist streamer novice], rows.reject(&:locked?).map(&:key)
     assert_equal %w[novice], rows.select(&:active).map(&:key)
   end
 end

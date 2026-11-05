@@ -21,7 +21,7 @@ module Game
     end
 
     def unlocked(player, avatar)
-      return Success() if avatar.default?
+      return Success() if avatar.free?
 
       AchievementUnlock.exists?(player_id: player.id, achievement: avatar.achievement) ? Success() : Failure(:avatar_locked)
     end

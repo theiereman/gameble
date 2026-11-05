@@ -6,7 +6,11 @@ module Game
       def icon = "avatar-#{key.dasherize}"
 
       def default? = key == DEFAULT
+
+      def free? = achievement.nil?
     end
+
+    FREE = %w[mechanic pilot cartographer botanist streamer].freeze
 
     UNLOCKING_ACHIEVEMENTS = {
       "novice" => "first_booster",
@@ -18,6 +22,7 @@ module Game
 
     CATALOGUE = [
       Avatar.new(key: DEFAULT, achievement: nil),
+      *FREE.map { |key| Avatar.new(key:, achievement: nil) },
       *UNLOCKING_ACHIEVEMENTS.map { |key, achievement| Avatar.new(key:, achievement:) }
     ].freeze
 

@@ -25,11 +25,16 @@ en:
   avatars:
     names:
       archivist: Archivist
+      botanist: Botanist
+      cartographer: Cartographer
       default: Classic
       grand_master: Grand Master
       guardian: Guardian
+      mechanic: Mechanic
       novice: Novice
       oracle: Oracle
+      pilot: Pilot
+      streamer: Streamer
   achievement_claims:
     create:
       claimed: Reward claimed.

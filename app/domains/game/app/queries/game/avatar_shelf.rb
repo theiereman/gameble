@@ -10,7 +10,7 @@ module Game
       earned = AchievementUnlock.where(player_id: player.id).pluck(:achievement).to_set
       active = ActiveAvatar.call(player)
       Avatars::CATALOGUE.map do |avatar|
-        Row.new(avatar:, unlocked: avatar.default? || earned.include?(avatar.achievement), active: avatar == active)
+        Row.new(avatar:, unlocked: avatar.free? || earned.include?(avatar.achievement), active: avatar == active)
       end
     end
   end
