@@ -253,7 +253,7 @@ fr:
         reward: "Récompense : %{reward}"
         reward_text: "une capsule rare par contributeur"
         reached: "Accomplie"
-        previous_reached: "Semaine dernière : %{figures}, accomplie"
+        previous_reached: "Semaine dernière : %{figures}"
         previous_missed: "Semaine dernière : %{figures}, manquée"
         collect: "Récupérer"
         collect_label: "Récupérer la capsule de récompense"
