@@ -70,3 +70,4 @@ The web app's shell, lists, capsule screen, Social, bell and Me page at phone wi
 - Decision (2026-11-03, author): the phone header keeps the classic gameble wordmark as its home button; the gold G is dropped as unattractive.
 - Assumption: entry 13 precedes the sweep because it can reorder fixes.
 - Waits on epic 28 and epic 29 because: goals and the suggestions of friends who hold a missing card already exist there.
+- Since 1.1.3 (b44cb382, e4eebdfe, on develop 2026-11-04): Friends and Trades are their own tabs again and the Social screen built by entries 8 and 15 is gone, and the Bridge tab replaces the Me tab of entries 2 and 12; the backlog story `story-friends-and-trades-are-their-own-tabs-again` records it. Entry 13 walks the new tabs.

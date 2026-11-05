@@ -1,7 +1,7 @@
 ---
 title: 'Keep card tilt active during a collection grid long press'
 type: 'bugfix'
-ticket: ''
+ticket: 'bug-a-long-press-on-a-collection-card-selects-text-on-an-iphone'
 created: '2026-10-16'
 status: 'in-progress'
 baseline_revision: '7e6b6570113952a90fb6fb4ef0fbc8d8ee4140f0'

@@ -1,7 +1,7 @@
 ---
 title: 'Shared rarity rays and idle float outside the booster'
 type: 'feature'
-ticket: ''
+ticket: 'story-rarity-rays-and-an-idle-float-outside-the-booster'
 created: '2026-10-16'
 status: 'in-progress'
 baseline_revision: '7e6b6570113952a90fb6fb4ef0fbc8d8ee4140f0'
