@@ -6,6 +6,11 @@ final class SheetComponent: BridgeComponent {
 
     override func onReceive(message: Message) {
         guard let viewController = delegate?.destination as? UIViewController else { return }
-        viewController.tabBarController?.tabBar.isHidden = message.event == "shown"
+        switch message.event {
+        case "close":
+            viewController.dismiss(animated: true)
+        default:
+            viewController.tabBarController?.tabBar.isHidden = message.event == "shown"
+        }
     }
 }

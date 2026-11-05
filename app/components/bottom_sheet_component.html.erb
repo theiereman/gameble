@@ -3,7 +3,7 @@
     <span class="modal__handle" aria-hidden="true"></span>
     <div class="modal__head">
       <h1 id="<%= title_id %>" class="modal__title"><%= title %></h1>
-      <a href="<%= helpers.turbo_recede_historical_location_path(locale: nil) %>" class="modal__close" aria-label="<%= t("bottom_sheet.close") %>">
+      <a href="<%= helpers.turbo_recede_historical_location_path(locale: nil) %>" class="modal__close" aria-label="<%= t("bottom_sheet.close") %>" data-controller="bridge--sheet-close" data-action="bridge--sheet-close#close">
         <%= helpers.pixel_icon("close", class: "modal__close-icon") %>
       </a>
     </div>

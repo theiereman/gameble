@@ -1,5 +1,6 @@
 package net.gameble.app.bridge
 
+import androidx.fragment.app.DialogFragment
 import dev.hotwire.core.bridge.BridgeComponent
 import dev.hotwire.core.bridge.BridgeDelegate
 import dev.hotwire.core.bridge.Message
@@ -10,10 +11,11 @@ class SheetComponent(name: String, private val delegate: BridgeDelegate<HotwireD
     BridgeComponent<HotwireDestination>(name, delegate) {
 
     override fun onReceive(message: Message) {
-        val activity = delegate.destination.fragment.activity as? MainActivity ?: return
+        val fragment = delegate.destination.fragment
         when (message.event) {
-            "shown" -> activity.showTabs(false)
-            "hidden" -> activity.showTabs(true)
+            "shown" -> (fragment.activity as? MainActivity)?.showTabs(false)
+            "hidden" -> (fragment.activity as? MainActivity)?.showTabs(true)
+            "close" -> (fragment as? DialogFragment)?.dismiss()
         }
     }
 }
