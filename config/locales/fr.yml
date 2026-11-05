@@ -2412,7 +2412,7 @@ fr:
         zero: "%{count} exemplaire"
         one: "%{count} exemplaire"
         other: "%{count} exemplaires"
-      intro: "Demandez-la à un ami qui la possède. Il choisira ce qui lui plaît dans votre collection en retour."
+      intro: "Choisissez un ami qui la possède. L'échange s'ouvre avec cette carte déjà demandée, et vous pouvez modifier les cartes avant de l'envoyer."
       title: "Échanger pour cette carte"
     preview:
       title: "%{title} — %{rarity}"

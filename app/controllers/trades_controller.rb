@@ -160,15 +160,19 @@ class TradesController < ApplicationController
     end
 
     def board_prefill(friend)
-      return unless params.key?(:take) || params.key?(:give)
+      return unless %i[take give ask].any? { params.key?(it) }
 
-      keys = { take: prefill_keys(params[:take]), give: prefill_keys(params[:give]) }
+      keys = { take: prefill_keys(params[:take]), give: prefill_keys(params[:give]), ask: prefill_keys([ params[:ask] ]) }
       ids = Catalog::PublishedCardSeasonIds.call(keys.values.flatten.filter_map { helpers.trade_card_key_parts(it) })
       sides = keys.transform_values { |side| side.filter_map { (parts = helpers.trade_card_key_parts(it)) && ids[parts] } }
       TradeSuggestionsHelper::Prefill.new(friend:,
-        take: Game::TradeSuggestions.still_spared(sides[:take], holder: friend, other: current_player,
-          minimum_copies: Game::TradeSuggestions::DUPLICATE_COPIES),
+        take: (spared_duplicates(sides[:take], friend) | Game::TradeSuggestions.still_spared(sides[:ask], holder: friend, other: current_player)),
         give: Game::TradeSuggestions.still_spared(sides[:give], holder: current_player, other: friend))
+    end
+
+    def spared_duplicates(card_season_ids, friend)
+      Game::TradeSuggestions.still_spared(card_season_ids, holder: friend, other: current_player,
+        minimum_copies: Game::TradeSuggestions::DUPLICATE_COPIES)
     end
 
     def prefill_keys(keys)

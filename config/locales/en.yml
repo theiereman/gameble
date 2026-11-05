@@ -812,7 +812,7 @@ en:
       copies:
         one: "%{count} copy"
         other: "%{count} copies"
-      intro: Ask a friend who holds this card. They choose what they want from your collection in return.
+      intro: Pick a friend who holds this card. The trade opens with it already asked for, and you can change the cards before you send it.
       title: Trade for this card
   cards:
     face:

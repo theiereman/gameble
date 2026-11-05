@@ -124,6 +124,10 @@ module TradesHelper
     "#{view.id}--s#{view.season_number}"
   end
 
+  def trade_edition_key(edition)
+    "#{edition.slug}--s#{edition.season_number}"
+  end
+
   def trade_card_key_parts(key)
     match = CARD_KEY.match(key) or return
     [ match[1], match[2].to_i ]

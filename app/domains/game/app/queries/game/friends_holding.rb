@@ -1,7 +1,8 @@
 module Game
   module FriendsHolding
-    Holder = Data.define(:friend, :card_season_id, :copies, :asked) do
+    Holder = Data.define(:friend, :edition, :copies, :asked) do
       def player = friend.player
+      def card_season_id = edition.card_season_id
     end
 
     def self.call(player, card_id:, card_season_id:, now: Time.current)
@@ -18,7 +19,7 @@ module Game
         next if held.empty?
 
         edition = held.find { it.card_season_id == card_season_id } || TradeSuggestions::FreeEditions.placed(held)
-        Holder.new(friend:, card_season_id: edition.card_season_id, copies: held.sum(&:free), asked: asked.include?(friend.player.id))
+        Holder.new(friend:, edition:, copies: held.sum(&:free), asked: asked.include?(friend.player.id))
       end
       holders.sort_by { [ holder_asked(it), -it.copies, it.player.token ] }
     end

@@ -1,4 +1,4 @@
-<%# locals: (view:, holders:) %>
+<%# locals: (holders:) %>
 <%= render BottomSheetComponent.new(id: "card-trade-sheet", title: t("card_details.trade.title")) do %>
   <div class="card-trade">
     <p class="card-trade__intro"><%= t("card_details.trade.intro") %></p>
@@ -18,8 +18,8 @@
           <% if holder.asked %>
             <span class="card-trade__friend card-trade__friend--asked"><%= face %></span>
           <% else %>
-            <%= button_to card_trade_path(slug: view.id, number: view.season_number), params: { friend: holder.player.token },
-              class: "card-trade__friend", form_class: "card-trade__form" do %><%= face %><% end %>
+            <%= link_to new_trade_path(friend: holder.player.token, ask: trade_edition_key(holder.edition)),
+              class: "card-trade__friend" do %><%= face %><% end %>
           <% end %>
         </li>
       <% end %>

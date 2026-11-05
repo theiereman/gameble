@@ -101,7 +101,6 @@ Rails.application.routes.draw do
     post "cards/:slug/seasons/:number/showcase" => "showcases#create", as: :card_showcase
     patch "cards/:slug/seasons/:number/showcase" => "showcases#update"
     delete "cards/:slug/seasons/:number/showcase" => "showcases#destroy"
-    post "cards/:slug/seasons/:number/trade" => "card_trades#create", as: :card_trade, constraints: { number: /\d+/ }
 
     # Collecting the daily bonus from the hub.
     resource :daily_bonus, path: "daily-bonus", only: :create

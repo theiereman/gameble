@@ -20,7 +20,7 @@ class CardTradeTest < ApplicationSystemTestCase
     mock_steam_sign_in(@hugo.steam_id)
   end
 
-  test "on a phone a player asks a friend for a missing card" do
+  test "on a phone a player opens a trade asking a friend for a missing card, then sends it" do
     window = page.driver.browser.manage.window
     original = window.size
     window.resize_to(*PHONE)
@@ -36,6 +36,10 @@ class CardTradeTest < ApplicationSystemTestCase
     find("#card-trade-sheet .card-trade__friend", text: "Lea").click
 
     assert_selector ".trade-board__title", text: "Trade with Lea"
+    assert_selector ".trade-side--friend li[data-key]", count: 1
+    assert_equal 0, Game::Trade.count
+
+    click_on "Send the proposal"
     assert_text "Lea has 7 days to choose what they want in return."
     trade = Game::Trade.order(:id).last
     assert_equal [ @hugo.id, @lea.id ], [ trade.proposer_id, trade.recipient_id ]
