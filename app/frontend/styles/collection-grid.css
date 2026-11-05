@@ -199,7 +199,7 @@
    title. */
 .collection-slot__counts {
   position: absolute;
-  top: calc(var(--slot-bleed-top) - 4 * var(--space-1));
+  top: calc(var(--slot-bleed-top) - 6 * var(--space-1));
   right: calc(var(--slot-bleed) - 3 * var(--space-1));
   z-index: 2;
   display: flex;
@@ -235,7 +235,7 @@
 /* "Nouveau": a small lime box astride the card's top-left edge. */
 .collection-slot__new {
   position: absolute;
-  top: calc(var(--slot-bleed-top) - 4 * var(--space-1));
+  top: calc(var(--slot-bleed-top) - 6 * var(--space-1));
   left: calc(var(--slot-bleed) - 3 * var(--space-1));
   z-index: 2;
   display: flex;
