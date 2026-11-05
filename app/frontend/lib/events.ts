@@ -25,6 +25,8 @@ export type OpeningRevealingDetail = { revealing: boolean }
 
 export type StreamUpdatedDetail = Record<string, never>
 
+export type SheetShownDetail = { shown: boolean }
+
 export interface GamebleEventMap {
   "gameble:toast": ToastDetail
   "gameble:tier-revealed": TierRevealedDetail
@@ -34,6 +36,7 @@ export interface GamebleEventMap {
   "gameble:trades-updated": StreamUpdatedDetail
   "gameble:friends-updated": StreamUpdatedDetail
   "gameble:reactions-updated": StreamUpdatedDetail
+  "gameble:sheet-shown": SheetShownDetail
 }
 
 export type GamebleEventName = keyof GamebleEventMap

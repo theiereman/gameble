@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { openDialog, takeOpener } from "../lib/dialog"
 import { dismisses, dragOffset, focusWrapTarget, visitLeavesPage } from "../lib/bottom_sheet"
+import { dispatchGameble } from "../lib/events"
 import "../lib/turbo"
 
 const FOCUSABLE =
@@ -26,6 +27,7 @@ export default class extends Controller<HTMLDialogElement> {
   private drag: Drag | undefined
 
   private readonly closed = (): void => {
+    dispatchGameble("gameble:sheet-shown", { shown: false })
     this.endDrag()
     delete this.element.dataset[OPENED_HERE]
     const opener = takeOpener(this.element)
@@ -46,7 +48,10 @@ export default class extends Controller<HTMLDialogElement> {
     this.element.removeEventListener("close", this.closed)
     document.removeEventListener("turbo:before-cache", this.beforeCache)
     this.endDrag()
-    if (this.element.open) this.element.close()
+    if (this.element.open) {
+      this.element.close()
+      dispatchGameble("gameble:sheet-shown", { shown: false })
+    }
     takeOpener(this.element)
   }
 
@@ -58,6 +63,7 @@ export default class extends Controller<HTMLDialogElement> {
     event.preventDefault()
     this.element.dataset[OPENED_HERE] = ""
     openDialog(this.element, opener)
+    dispatchGameble("gameble:sheet-shown", { shown: true })
     this.focusFirstChoice()
   }
 
@@ -130,6 +136,8 @@ export default class extends Controller<HTMLDialogElement> {
     delete this.element.dataset[OPENED_HERE]
     if (!this.element.open) return
     this.element.close()
-    if (!openedHere && !document.documentElement.hasAttribute("data-turbo-preview")) this.element.showModal()
+    if (openedHere || document.documentElement.hasAttribute("data-turbo-preview")) return
+    this.element.showModal()
+    dispatchGameble("gameble:sheet-shown", { shown: true })
   }
 }

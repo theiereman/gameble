@@ -20,6 +20,6 @@
     <%= render "shell/toasts" %>
     <%= render "shell/version" %>
     <%= player_stream_tag %>
-    <% if hotwire_native_app? %><div hidden data-controller="bridge--haptics"></div><% end %>
+    <% if hotwire_native_app? %><div hidden data-controller="bridge--haptics bridge--sheet"></div><% end %>
   </body>
 </html>

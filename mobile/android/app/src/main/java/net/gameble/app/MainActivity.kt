@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.messaging.FirebaseMessaging
 import dev.hotwire.navigation.activities.HotwireActivity
@@ -51,6 +52,10 @@ class MainActivity : HotwireActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         openNotificationPath(intent)
+    }
+
+    fun showTabs(shown: Boolean) {
+        findViewById<BottomNavigationView>(R.id.bottom_navigation).isVisible = shown
     }
 
     fun showNativeSignIn() {

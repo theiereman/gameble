@@ -13,6 +13,7 @@ import dev.hotwire.navigation.fragments.HotwireWebBottomSheetFragment
 import net.gameble.app.bridge.HapticsComponent
 import net.gameble.app.bridge.PushPermissionComponent
 import net.gameble.app.bridge.ShareComponent
+import net.gameble.app.bridge.SheetComponent
 import net.gameble.app.bridge.SignInComponent
 
 class GamebleApplication : Application() {
@@ -38,7 +39,8 @@ class GamebleApplication : Application() {
             BridgeComponentFactory("sign-in", ::SignInComponent),
             BridgeComponentFactory("push-permission", ::PushPermissionComponent),
             BridgeComponentFactory("share", ::ShareComponent),
-            BridgeComponentFactory("haptics", ::HapticsComponent)
+            BridgeComponentFactory("haptics", ::HapticsComponent),
+            BridgeComponentFactory("sheet", ::SheetComponent)
         )
         PushService.createChannel(this)
     }
