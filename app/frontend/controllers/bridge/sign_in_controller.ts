@@ -5,7 +5,7 @@ export default class extends BridgeComponent {
 
   connect(): void {
     super.connect()
-    this.start()
+    this.send("shown")
   }
 
   start(): void {

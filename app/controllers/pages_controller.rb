@@ -7,6 +7,7 @@ class PagesController < ApplicationController
 
   def home
     return show_landing_markdown if current_player.nil? && markdown_requested?
+    return lead_app_visitor_to_sign_in if visitor_landing? && hotwire_native_app?
     return show_landing if visitor_landing?
 
     authorize :page, :play?
@@ -50,6 +51,11 @@ class PagesController < ApplicationController
     # Not Mime::Type#html?: false for */*, true for turbo-stream.
     def visitor_landing?
       current_player.nil? && request.formats.any? { it == Mime[:html] || it == Mime::ALL }
+    end
+
+    def lead_app_visitor_to_sign_in
+      authorize :landing, :show?
+      redirect_to sign_in_path, status: :see_other
     end
 
     def show_landing

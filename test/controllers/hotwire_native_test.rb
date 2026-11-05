@@ -18,6 +18,16 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=view-transition]", 0
   end
 
+  test "a visitor in the app is led straight to sign in instead of the landing; a browser's visitor sees the landing" do
+    delete session_path
+
+    get home_path(locale: :en), headers: { "User-Agent" => APP }
+    assert_redirected_to sign_in_path(locale: :en)
+
+    get home_path(locale: :en)
+    assert_response :ok
+  end
+
   test "in a browser, the page keeps its web chrome" do
     get home_path(locale: :en)
 
