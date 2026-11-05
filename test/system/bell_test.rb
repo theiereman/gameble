@@ -114,9 +114,10 @@ class BellTest < ApplicationSystemTestCase
     perform_enqueued_jobs(only: PlayerStreamJob)
     assert_count 4
 
+    entry_href = "/en/feed?entry=#{entry.token}#entry-#{entry.token}"
     open_bell
-    within("#bell-panel") { click_link href: "/en/feed", text: /Lea reacted to your post/ }
-    assert_current_path "/en/feed"
+    within("#bell-panel") { click_link href: entry_href, text: /Lea reacted to your post/ }
+    assert_current_path "/en/feed?entry=#{entry.token}"
     assert_count 3
 
     react.(nil)
@@ -124,7 +125,7 @@ class BellTest < ApplicationSystemTestCase
     perform_enqueued_jobs(only: PlayerStreamJob)
     visit library_path(locale: :en)
     assert_count 3
-    assert_selector "#bell-items a[href='/en/feed']", text: /Lea reacted to your post/, visible: :all
+    assert_selector "#bell-items a[href='#{entry_href}']", text: /Lea reacted to your post/, visible: :all
   end
 
   test "marking all as read clears every line that can be seen away and leaves the lasting daily line" do

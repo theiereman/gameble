@@ -166,7 +166,7 @@ class CustomSetsTest < ApplicationSystemTestCase
       fill_in "Set name", with: "Autre chose"
       page.driver.browser.action.move_to_location(5, 5).click.perform
       within("dialog#custom-set-discard[open]") do
-        assert_text "Leave without saving?"
+        assert_selector "#custom-set-discard-title", text: /\Aleave without saving\?\z/i
         click_on "Keep editing"
       end
       assert_no_selector "dialog#custom-set-discard[open]"
