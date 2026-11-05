@@ -29,7 +29,9 @@
   height: var(--space-back-g-height);
 }
 
-:root[data-native-app] .top-bar__start:has(> .top-bar__previous:not([hidden])) > :is(.top-bar__bridge, .top-bar__phone-back) {
+:root[data-native-app]
+  .top-bar__start:has(> .top-bar__previous:not([hidden]))
+  > :is(.top-bar__bridge, .top-bar__phone-back) {
   display: none;
 }
 
