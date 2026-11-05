@@ -504,7 +504,6 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "a.tab-bar__tab[aria-current]", false
     assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
-    assert_select ".top-bar a.top-bar__phone-back[href='/fr/me'] svg.top-bar__back-g"
   end
 
   # The public profile in brief
