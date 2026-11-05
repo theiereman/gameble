@@ -3,6 +3,10 @@
     <string name="notification_channel">Échanges et amis</string>
     <string name="debug_log_hide">Masquer</string>
     <string name="debug_log_copy">Copier</string>
+    <string name="sign_in_tagline">Un jeu de cartes gratuit de jeux Steam</string>
+    <string name="sign_in_button">Se connecter</string>
+    <string name="sign_in_methods">Steam, Apple, Discord, Google ou un code par e-mail</string>
+    <string name="sign_in_acceptance">En vous connectant, vous acceptez les &lt;a href=\"%1$s\"&gt;conditions d\'utilisation&lt;/a&gt; et prenez connaissance de la &lt;a href=\"%2$s\"&gt;politique de confidentialité&lt;/a&gt;.</string>
     <string name="tab_hub">Pont</string>
     <string name="tab_capsule">Capsule</string>
     <string name="tab_sets">Sets</string>

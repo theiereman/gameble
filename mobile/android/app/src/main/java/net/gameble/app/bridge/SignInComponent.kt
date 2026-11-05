@@ -13,7 +13,7 @@ class SignInComponent(name: String, private val delegate: BridgeDelegate<Hotwire
     override fun onReceive(message: Message) {
         val fragment = delegate.destination.fragment
         when (message.event) {
-            "shown" -> (fragment.activity as? MainActivity)?.hideTabsWhileSignedOut()
+            "shown" -> (fragment.activity as? MainActivity)?.showNativeSignIn()
             "start" -> SignIn.start(fragment.requireContext())
         }
     }

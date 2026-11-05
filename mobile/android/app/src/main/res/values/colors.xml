@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="ground">#0B0F15</color>
     <color name="steam_bar">#171A21</color>
+    <color name="primary">#7AA60A</color>
+    <color name="primary_pressed">#5F8108</color>
+    <color name="primary_shade">#4A6506</color>
+    <color name="on_primary">#0F1A03</color>
+    <color name="dim">#5D6B78</color>
     <color name="panel_raised">#1B2838</color>
     <color name="line">#2A475E</color>
     <color name="accent">#66C0F4</color>

@@ -4,6 +4,10 @@
     <string name="notification_channel">Trades and friends</string>
     <string name="debug_log_hide">Hide</string>
     <string name="debug_log_copy">Copy</string>
+    <string name="sign_in_tagline">A free trading card game of Steam games</string>
+    <string name="sign_in_button">Sign in</string>
+    <string name="sign_in_methods">Steam, Apple, Discord, Google or an email code</string>
+    <string name="sign_in_acceptance">By signing in you accept the &lt;a href=\"%1$s\"&gt;terms of use&lt;/a&gt; and acknowledge the &lt;a href=\"%2$s\"&gt;privacy notice&lt;/a&gt;.</string>
     <string name="tab_hub">Bridge</string>
     <string name="tab_capsule">Capsule</string>
     <string name="tab_sets">Sets</string>

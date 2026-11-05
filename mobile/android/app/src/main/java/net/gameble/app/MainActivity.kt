@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
-import android.view.View
 import android.widget.FrameLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -31,6 +30,7 @@ class MainActivity : HotwireActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!PlayerSession.probablySignedIn(this)) return showNativeSignIn()
         setContentView(R.layout.activity_main)
         fitScreensBetweenStatusBarAndTabs()
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
@@ -53,8 +53,9 @@ class MainActivity : HotwireActivity() {
         openNotificationPath(intent)
     }
 
-    fun hideTabsWhileSignedOut() {
-        findViewById<BottomNavigationView>(R.id.bottom_navigation).visibility = View.GONE
+    fun showNativeSignIn() {
+        SignInActivity.open(this)
+        finish()
     }
 
     fun requestPush(grant: (String?) -> Unit) {
