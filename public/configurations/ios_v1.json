@@ -7,16 +7,6 @@
       ],
       "properties": {
         "context": "default",
-        "pull_to_refresh_enabled": true
-      }
-    },
-    {
-      "patterns": [
-        "^/(en|fr)/booster$",
-        "^/(en|fr)/trades/new$",
-        "^/(en|fr)/trades/[^/]+/counter$"
-      ],
-      "properties": {
         "pull_to_refresh_enabled": false
       }
     }
