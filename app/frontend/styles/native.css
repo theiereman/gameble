@@ -1,8 +1,47 @@
 :root[data-native-app] {
   --tabbar-height: 0px;
   --space-tabbar-height: 0px;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
-:root[data-native-app] .top-bar__bridge {
+:root[data-native-app] body {
+  user-select: none;
+}
+
+:root[data-native-app] :is(input, textarea, [contenteditable]) {
+  user-select: text;
+}
+
+:root[data-native-app] :is(a, button, summary, label, [role="button"]):active {
+  filter: brightness(0.82);
+}
+
+:root[data-native-app] :is(.top-bar__bridge, .app-version) {
   display: none;
+}
+
+/* The capsule screen fills the space between the top bar and the native tabs, without a scroll. */
+:root[data-native-app] body:has(.booster[data-layout="phone"]) {
+  height: 100dvh;
+}
+
+:root[data-native-app] body:has(.booster[data-layout="phone"]) > .main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  padding-bottom: var(--space-3);
+}
+
+:root[data-native-app] .booster[data-layout="phone"] {
+  flex: 1;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  min-height: 0;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] :is(.booster__stage, .booster__shake) {
+  min-height: 0;
 }
