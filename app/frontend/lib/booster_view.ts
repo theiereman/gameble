@@ -20,6 +20,8 @@ export const onTable = (state: BoosterState): boolean =>
 export const nextCapsuleWaiting = (state: BoosterState): boolean =>
   state.layout === "phone" && state.phase === "dealt" && handDone(state) && reserveCount(state.bank, state.reserve) > 0
 
+export const canisterDocks = (state: BoosterState): number => state.docks + (nextCapsuleWaiting(state) ? 1 : 0)
+
 export const nextStepsShown = (state: BoosterState): boolean =>
   state.bank.available + state.bank.special === 0 &&
   (state.phase === "empty" || (state.phase === "dealt" && handDone(state)))

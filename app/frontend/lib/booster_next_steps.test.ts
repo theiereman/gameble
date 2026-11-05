@@ -7,10 +7,11 @@ import {
   openingEnded,
   openingStarted,
   resultHeadShown,
+  retracted,
 } from "./booster_opening"
 import { bankChanged, lock, unlock } from "./booster_state"
 import type { Layout } from "./booster_types"
-import { nextCapsuleWaiting, nextStepsShown } from "./booster_view"
+import { canisterDocks, nextCapsuleWaiting, nextStepsShown } from "./booster_view"
 import { FIVE, answerOf, bank, revealedAll, startWith } from "./booster_fixtures"
 
 const opened = (layout: Layout = "wide") => arming(lock(openingStarted(startWith({ bank: bank(1), layout }))), "key-1")
@@ -65,5 +66,15 @@ describe("nextCapsuleWaiting", () => {
   it("brings none back once the reserve is empty, nor where the hand stays on the table", () => {
     expect(nextCapsuleWaiting(bankChanged(storedAll(revealedAll(lastDealt("phone"))), bank(0)))).toBe(false)
     expect(nextCapsuleWaiting(bankChanged(revealedAll(lastDealt()), bank(2)))).toBe(false)
+  })
+})
+
+describe("canisterDocks", () => {
+  it("docks a fresh capsule when the next one comes back, and none again when it is opened", () => {
+    const hand = bankChanged(revealedAll(lastDealt("phone")), bank(2))
+    const waiting = storedAll(hand)
+
+    expect(canisterDocks(waiting)).toBe(canisterDocks(hand) + 1)
+    expect(canisterDocks(retracted(waiting))).toBe(canisterDocks(waiting))
   })
 })

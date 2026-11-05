@@ -1,6 +1,7 @@
 import type { CardView, HandView } from "../controllers/booster_stage_controller"
 import {
   bannerEnded,
+  canisterDocks,
   controls,
   nextCapsuleWaiting,
   nextStepsShown,
@@ -171,7 +172,7 @@ export class BoosterRenderer {
       armed: state.armed,
       hintHidden: state.phase !== "sealed" && !waiting,
       facts: t(this.strings.canisterFacts, { count: nextSize, n: this.host.number(nextSize) }),
-      docks: state.docks,
+      docks: canisterDocks(state),
       origin: this.originName(state),
     })
   }
