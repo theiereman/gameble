@@ -85,8 +85,8 @@
   min-height: 0;
 }
 
-/* The revealed card speaks for itself and a swipe or a tap stores it: no caption plate repeats it,
-   only the hint's one line sits between the pile and the tray. */
+/* The scene speaks for itself: the revealed card needs no caption plate (a swipe or a tap stores it),
+   the capsule's state no chip over the reserve's clock, and only a short hint sits above the tray. */
 :root[data-native-app] .booster[data-layout="phone"] .booster__shake {
   grid-template-rows: minmax(0, 1fr) auto auto;
 }
@@ -106,7 +106,11 @@
   font: var(--font-body-small);
   font-weight: var(--font-weight-regular);
   letter-spacing: 0;
-  white-space: nowrap;
+  text-wrap: balance;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] .booster-strip__state {
+  display: none;
 }
 
 /* Where the app can share a link natively, its unreadable address gives way to the buttons. */

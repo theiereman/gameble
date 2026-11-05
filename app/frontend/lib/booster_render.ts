@@ -2,6 +2,7 @@ import type { CardView, HandView } from "../controllers/booster_stage_controller
 import {
   bannerEnded,
   controls,
+  nextCapsuleWaiting,
   nextStepsShown,
   onTable,
   shownCelebration,
@@ -151,8 +152,9 @@ export class BoosterRenderer {
     const clock = this.nextClock()
     const { nextAvailableAt } = state.bank
     const season = this.host.season
+    const waiting = nextCapsuleWaiting(state)
     canister.render({
-      away: state.canisterAway,
+      away: state.canisterAway && !waiting,
       empty: state.phase === "empty",
       next:
         clock !== null && nextAvailableAt
@@ -167,7 +169,7 @@ export class BoosterRenderer {
           : t(this.strings.canisterLabelPlain, { count: nextSize }),
       busy: state.phase !== "sealed" && state.phase !== "dealt",
       armed: state.armed,
-      hintHidden: state.phase !== "sealed",
+      hintHidden: state.phase !== "sealed" && !waiting,
       facts: t(this.strings.canisterFacts, { count: nextSize, n: this.host.number(nextSize) }),
       docks: state.docks,
       origin: this.originName(state),

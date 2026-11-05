@@ -10,7 +10,7 @@ import {
 } from "./booster_opening"
 import { bankChanged, lock, unlock } from "./booster_state"
 import type { Layout } from "./booster_types"
-import { nextStepsShown } from "./booster_view"
+import { nextCapsuleWaiting, nextStepsShown } from "./booster_view"
 import { FIVE, answerOf, bank, revealedAll, startWith } from "./booster_fixtures"
 
 const opened = (layout: Layout = "wide") => arming(lock(openingStarted(startWith({ bank: bank(1), layout }))), "key-1")
@@ -51,5 +51,19 @@ describe("nextStepsShown", () => {
     const done = revealedAll(lastDealt())
     expect(nextStepsShown(bankChanged(done, bank(1)))).toBe(false)
     expect(nextStepsShown(bankChanged(done, bank(0, { special: 1, openable: 1 })))).toBe(false)
+  })
+})
+
+describe("nextCapsuleWaiting", () => {
+  it("brings the next capsule back on the phone once the hand is stored and a capsule is left", () => {
+    const hand = bankChanged(revealedAll(lastDealt("phone")), bank(2))
+
+    expect(nextCapsuleWaiting(hand)).toBe(false)
+    expect(nextCapsuleWaiting(storedAll(hand))).toBe(true)
+  })
+
+  it("brings none back once the reserve is empty, nor where the hand stays on the table", () => {
+    expect(nextCapsuleWaiting(bankChanged(storedAll(revealedAll(lastDealt("phone"))), bank(0)))).toBe(false)
+    expect(nextCapsuleWaiting(bankChanged(revealedAll(lastDealt()), bank(2)))).toBe(false)
   })
 })

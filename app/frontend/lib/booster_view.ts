@@ -17,6 +17,9 @@ import {
 export const onTable = (state: BoosterState): boolean =>
   state.layout === "phone" && state.dealt && (state.answer?.cards.length ?? 0) > 0
 
+export const nextCapsuleWaiting = (state: BoosterState): boolean =>
+  state.layout === "phone" && state.phase === "dealt" && handDone(state) && reserveCount(state.bank, state.reserve) > 0
+
 export const nextStepsShown = (state: BoosterState): boolean =>
   state.bank.available + state.bank.special === 0 &&
   (state.phase === "empty" || (state.phase === "dealt" && handDone(state)))
