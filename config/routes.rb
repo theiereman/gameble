@@ -99,6 +99,8 @@ Rails.application.routes.draw do
     # or in the season numbered (the form a share link takes).
     get "cards/:slug" => "cards#show", as: :card
     get "cards/:slug/seasons/:number" => "cards#show", as: :card_season, constraints: { number: /\d+/ }
+    # The friends holding a card, on their own, which the app opens as a native sheet.
+    get "cards/:slug/seasons/:number/holders" => "card_holder_sheets#show", as: :card_holders, constraints: { number: /\d+/ }
     post "cards/:slug/seasons/:number/repost" => "reposts#create", as: :card_repost
     # Adding a held card to the player's profile showcase, taking it out, or
     # moving it one place earlier or later.
@@ -146,6 +148,8 @@ Rails.application.routes.draw do
 
     # The activity feed: public, read only.
     get "feed" => "feeds#show", as: :feed
+    # The feed's type choice on its own, which the app opens as a native sheet.
+    get "feed/types" => "feed_type_sheets#show", as: :feed_types
     # An entry's reactions, by its token: the bar a lazy frame loads, a player's reaction and its removal.
     get "feed/entries/:token/reactions" => "reactions#show", as: :feed_entry_reactions,
       constraints: { token: /\h{8}-\h{4}-\h{4}-\h{4}-\h{12}/ }

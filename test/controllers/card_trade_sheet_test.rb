@@ -6,6 +6,8 @@ class CardTradeSheetTest < ActionDispatch::IntegrationTest
   include Holdings
   include SteamSignIn
 
+  APP = "Gameble Android; Hotwire Native Android; Turbo Native Android; bridge-components: [sign-in share haptics]".freeze
+
   def sign_in_origin = "/en"
 
   setup do
@@ -87,6 +89,30 @@ class CardTradeSheetTest < ActionDispatch::IntegrationTest
 
     get card_path(locale: :fr)
     assert_select ".card-trade-section__more", "Afficher 1 ami de plus"
+  end
+
+  test "in the app the rest of the friends open on their own page, every friend listed with a way to propose" do
+    hold(@lea, @portal.id, 5)
+    hold(@max, @portal.id, 4)
+    others = [ 3, 2 ].map.with_index { |copies, index| befriend_new("Friend #{index}").tap { hold(it, @portal.id, copies) } }
+    sign_in @player
+    holders = card_holders_path(slug: catalog_cards(:portal).slug, number: @portal.season.number, locale: :en)
+
+    get card_path, headers: { "User-Agent" => APP }
+    assert_select ".card-trade-section a.card-trade-section__more[href='#{holders}']", "Show 1 more friend"
+
+    get holders, headers: { "User-Agent" => APP }
+    assert_response :success
+    assert_select "body.sheet-body section#card-trade-sheet.sheet-page h1", "Trade for this card"
+    assert_equal [ "Lea", "Max", "Friend 0", "Friend 1" ], css_select(".card-trade__name").map { it.text.strip }
+    assert_includes css_select(".card-trade__row a.button").map { it["href"] }, opener_for(others.last)
+    assert_select "header.top-bar", 0
+  end
+
+  test "a visitor is led to sign in instead of the friends holding a card" do
+    get card_holders_path(slug: catalog_cards(:portal).slug, number: @portal.season.number, locale: :en)
+
+    assert_response :see_other
   end
 
   test "a friend holding only another edition is listed with that edition, and the trade asks for it" do

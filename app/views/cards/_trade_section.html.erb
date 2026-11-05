@@ -7,13 +7,9 @@
   </header>
   <%= render "cards/trade_holders", holders: shown, view:, strings: %>
   <% if folded.any? %>
-    <%= tag.a t("card_details.trade.show_more", count: folded.size), **bottom_sheet_opener("card-trade-sheet"), class: "card-trade-section__more" %>
+    <%= tag.a t("card_details.trade.show_more", count: folded.size), **bottom_sheet_opener("card-trade-sheet", page: card_holders_path(slug: view.id, number: view.season_number)), class: "card-trade-section__more" %>
   <% end %>
 <% end %>
 <% if folded.any? %>
-  <%= render BottomSheetComponent.new(id: "card-trade-sheet", title: t("card_details.trade.title")) do %>
-    <div class="card-trade">
-      <%= render "cards/trade_holders", holders:, view:, strings: %>
-    </div>
-  <% end %>
+  <%= render "cards/trade_sheet", holders:, view:, strings: %>
 <% end %>

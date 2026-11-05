@@ -21,13 +21,11 @@
       <% end %>
     </nav>
     <%= render "feeds/filters", filter: @filter, tab: @tab, classes: "feed__filters feed__filters--inline" %>
-    <%= tag.a(**bottom_sheet_opener(feed_types_sheet_id), class: "filter-chip feed__type-opener") do %>
+    <%= tag.a(**bottom_sheet_opener(feed_types_sheet_id, page: feed_types_path(tab: @tab, filter: @filter)), class: "filter-chip feed__type-opener") do %>
       <span class="filter-chip__text"><%= t(".filters_opener", type: t(".filters.#{@filter || "all"}")) %></span>
     <% end %>
   </div>
-  <%= render BottomSheetComponent.new(id: feed_types_sheet_id, title: t(".filters_label")) do %>
-    <%= render "feeds/filters", filter: @filter, tab: @tab, classes: "feed__filters" %>
-  <% end %>
+  <%= render "feeds/types_sheet", filter: @filter, tab: @tab %>
   <% if @no_friends %>
     <%= render PanelComponent.new(class: "feed__no-friends") do %>
       <p class="feed__no-friends-text"><%= t(".no_friends") %></p>

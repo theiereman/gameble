@@ -13,7 +13,9 @@
     },
     {
       "patterns": [
-        "^/(en|fr)/me/sheets/"
+        "^/(en|fr)/me/sheets/",
+        "^/(en|fr)/feed/types",
+        "^/(en|fr)/cards/[^/]+/seasons/\\d+/holders"
       ],
       "properties": {
         "context": "modal",
