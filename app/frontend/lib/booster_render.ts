@@ -12,14 +12,16 @@ import {
   type Hint,
 } from "./booster"
 import { reserveCount } from "./booster_bank"
-import { bannerKeyframes } from "./booster_keyframes"
-import { bannerDuration, pileDepth } from "./booster_motion"
+import { animate } from "./booster_effects"
+import { bannerKeyframes, dockKeyframes } from "./booster_keyframes"
+import { DOCK, STORE_MS, bannerDuration, pileDepth } from "./booster_motion"
 import { formatClock } from "./booster_clock"
 import { cardHref } from "./booster_page"
 import type { BoosterRenderHost } from "./booster_render_host"
 import { renderCelebrations } from "./booster_render_celebration"
 import { t } from "./i18n"
 import { formatLocalTime } from "./local_time"
+import { motionReduced } from "./motion"
 import type { OpeningCard } from "./opening"
 
 type Clock = Readonly<{ clock: string; spoken: string }>
@@ -29,6 +31,7 @@ const localTime = (iso: string): string =>
 
 export class BoosterRenderer {
   private bannerKey: number | null = null
+  private capsuleWaiting = false
 
   constructor(private readonly host: BoosterRenderHost) {}
 
@@ -175,6 +178,15 @@ export class BoosterRenderer {
       docks: canisterDocks(state),
       origin: this.originName(state),
     })
+    if (waiting && !this.capsuleWaiting && !motionReduced()) {
+      animate(canister.element, dockKeyframes(), {
+        duration: DOCK,
+        delay: STORE_MS,
+        easing: "cubic-bezier(.2,.9,.3,1)",
+        fill: "backwards",
+      })
+    }
+    this.capsuleWaiting = waiting
   }
 
   private hintText(hint: Hint): string {

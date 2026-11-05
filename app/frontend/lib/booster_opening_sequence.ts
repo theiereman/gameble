@@ -3,6 +3,7 @@ import {
   cardsDealt,
   ejecting,
   lock,
+  nextCapsuleWaiting,
   openingAnswered,
   openingEnded,
   openingRefused,
@@ -143,6 +144,7 @@ export class OpeningSequence {
     const { host } = this
     const { wait } = host.timers()
     const count = host.current().answer?.cards.length ?? 0
+    const alreadyDocked = nextCapsuleWaiting(host.current())
     host.apply(retracting)
     if (!motionReduced()) {
       for (let index = 0; index < count; index++) {
@@ -159,7 +161,7 @@ export class OpeningSequence {
       await wait(SINK + (count - 1) * SINK_STAGGER)
     }
     host.apply(retracted)
-    if (!motionReduced()) {
+    if (!motionReduced() && !alreadyDocked) {
       animate(host.canister()?.wrap, dockKeyframes(), {
         duration: DOCK,
         easing: "cubic-bezier(.2,.9,.3,1)",
