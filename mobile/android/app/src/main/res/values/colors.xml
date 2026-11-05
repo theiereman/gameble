@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ground">#0B0F15</color>
+    <color name="panel">#121A24</color>
     <color name="steam_bar">#171A21</color>
     <color name="primary">#7AA60A</color>
     <color name="primary_pressed">#5F8108</color>

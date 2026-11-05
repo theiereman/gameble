@@ -19,7 +19,7 @@
       ],
       "properties": {
         "context": "modal",
-        "uri": "hotwire://fragment/web/modal/sheet",
+        "uri": "hotwire://fragment/gameble/sheet",
         "pull_to_refresh_enabled": false
       }
     }

@@ -9,12 +9,12 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
 
   setup { sign_in(accounts_players(:player)) }
 
-  test "in the app, the native tab bar takes the web one's place and the haptics bridge listens" do
+  test "in the app, the native tab bar takes the web one's place and the haptics and sheet bridges listen" do
     get home_path(locale: :en), headers: { "User-Agent" => APP }
 
     assert_select "html[data-native-app]"
     assert_select "nav.tab-bar", 0
-    assert_select "[data-controller='bridge--haptics']"
+    assert_select "[data-controller~='bridge--haptics'][data-controller~='bridge--sheet']"
     assert_select "meta[name=view-transition]", 0
   end
 
@@ -33,7 +33,7 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
 
     assert_select "html[data-native-app]", 0
     assert_select "nav.tab-bar"
-    assert_select "[data-controller='bridge--haptics']", 0
+    assert_select "[data-controller~='bridge--haptics']", 0
   end
 
   test "the app's settings offer its notifications, hidden until the bridge shows them; a browser's do not" do

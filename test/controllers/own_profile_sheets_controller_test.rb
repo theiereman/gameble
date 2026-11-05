@@ -13,7 +13,7 @@ class OwnProfileSheetsControllerTest < ActionDispatch::IntegrationTest
       get me_sheet_path(sheet, locale: :en), headers: { "User-Agent" => APP }
 
       assert_response :ok
-      assert_select "body.sheet-body section##{id}.sheet-page h1.sheet-page__title"
+      assert_select "body.sheet-body section##{id}.sheet-page h1.modal__title"
       assert_select "dialog", 0
       assert_select "header.top-bar", 0
     end

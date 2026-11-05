@@ -12,7 +12,7 @@ class FeedTypeSheetsControllerTest < ActionDispatch::IntegrationTest
     get feed_types_path(tab: "friends", filter: "pulls", locale: :en), headers: { "User-Agent" => APP }
 
     assert_response :success
-    assert_select "body.sheet-body section#feed-types.sheet-page h1.sheet-page__title"
+    assert_select "body.sheet-body section#feed-types.sheet-page h1.modal__title"
     assert_select "a.feed__filter[href='#{feed_path(tab: "friends", filter: "trades", locale: :en)}']"
     assert_select "a.feed__filter[aria-current=true][href='#{feed_path(tab: "friends", filter: "pulls", locale: :en)}']"
     assert_select "header.top-bar", 0

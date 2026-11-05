@@ -5,6 +5,24 @@
         <item name="colorSurface">@color/steam_bar</item>
     </style>
 
+    <!-- A sheet wears the web panel's colour and square corners. -->
+    <style name="ThemeOverlay.Gameble.Sheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="android:colorBackground">@color/panel</item>
+        <item name="colorSurface">@color/panel</item>
+        <item name="android:navigationBarColor">@color/panel</item>
+        <item name="bottomSheetStyle">@style/Widget.Gameble.Sheet</item>
+    </style>
+
+    <style name="Widget.Gameble.Sheet" parent="Widget.Material3.BottomSheet">
+        <item name="backgroundTint">@color/panel</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Gameble.Square</item>
+    </style>
+
+    <style name="ShapeAppearance.Gameble.Square" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">0dp</item>
+    </style>
+
     <style name="TextAppearance.Gameble.Tab" parent="TextAppearance.Material3.LabelMedium">
         <item name="fontFamily">@font/jetbrains_mono_bold</item>
         <item name="android:fontFamily">@font/jetbrains_mono_bold</item>

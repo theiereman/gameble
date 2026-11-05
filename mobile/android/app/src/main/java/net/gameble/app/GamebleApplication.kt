@@ -9,7 +9,6 @@ import dev.hotwire.core.turbo.config.PathConfiguration
 import dev.hotwire.navigation.config.defaultFragmentDestination
 import dev.hotwire.navigation.config.registerBridgeComponents
 import dev.hotwire.navigation.config.registerFragmentDestinations
-import dev.hotwire.navigation.fragments.HotwireWebBottomSheetFragment
 import net.gameble.app.bridge.HapticsComponent
 import net.gameble.app.bridge.PushPermissionComponent
 import net.gameble.app.bridge.ShareComponent
@@ -34,7 +33,7 @@ class GamebleApplication : Application() {
             )
         )
         Hotwire.defaultFragmentDestination = GamebleWebFragment::class
-        Hotwire.registerFragmentDestinations(GamebleWebFragment::class, HotwireWebBottomSheetFragment::class)
+        Hotwire.registerFragmentDestinations(GamebleWebFragment::class, GamebleSheetFragment::class)
         Hotwire.registerBridgeComponents(
             BridgeComponentFactory("sign-in", ::SignInComponent),
             BridgeComponentFactory("push-permission", ::PushPermissionComponent),

@@ -3,6 +3,7 @@ package net.gameble.app
 import android.os.Bundle
 import android.view.View
 import com.google.android.material.appbar.AppBarLayout
+import dev.hotwire.navigation.destinations.HotwireDestination
 import dev.hotwire.navigation.destinations.HotwireDestinationDeepLink
 import dev.hotwire.navigation.fragments.HotwireWebFragment
 
@@ -12,9 +13,9 @@ class GamebleWebFragment : HotwireWebFragment() {
         super.onViewCreated(view, savedInstanceState)
         hideAppBar()
     }
+}
 
-    private fun hideAppBar() {
-        val toolbar = toolbarForNavigation() ?: return
-        (toolbar.parent as? AppBarLayout ?: toolbar).visibility = View.GONE
-    }
+internal fun HotwireDestination.hideAppBar() {
+    val toolbar = toolbarForNavigation() ?: return
+    (toolbar.parent as? AppBarLayout ?: toolbar).visibility = View.GONE
 }
