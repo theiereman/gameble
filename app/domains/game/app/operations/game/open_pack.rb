@@ -12,7 +12,7 @@ module Game
       @random = random
     end
 
-    def call(player:, idempotency_key: nil, reserve: nil)
+    def call(player:, idempotency_key: nil, reserve: nil, time_zone: nil)
       player = step require_player(player)
       step check_key(idempotency_key)
       step check_reserve(reserve)
@@ -28,7 +28,8 @@ module Game
         pack = step next_pack(player, now, reserve)
         pool = DrawPool.of(season)
         card_back, card_back_season = CardBacks.active_with_season(player)
-        pack.update!(opened_at: now, idempotency_key:, card_back:, card_back_season:, **drawn_in_published_season(pack, pool))
+        pack.update!(opened_at: now, opened_local_hour: time_zone && now.in_time_zone(time_zone).hour, idempotency_key:, card_back:,
+          card_back_season:, **drawn_in_published_season(pack, pool))
         step credit(player, pack, now)
         discovered = FirstDiscovery.record(pack, now)
         reached = tiers_reached(player, pack, season, now)

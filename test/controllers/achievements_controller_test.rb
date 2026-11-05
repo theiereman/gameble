@@ -52,7 +52,8 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
       "Irrégularité de conditionnement", "L'excellence dans la médiocrité", "Gestion du patrimoine historique",
       "La chance est un concept marketing", "Demande de congé refusée", "Procédure d'ouverture simplifiée",
       "Zèle au-delà des obligations", "Portefeuille diversifié", "Concentration du marché", "Premier arrivé, premier servi",
-      "Une découverte qui nous appartient", "Une relation strictement professionnelle" ], group_names(:to_earn)
+      "Une découverte qui nous appartient", "Une relation strictement professionnelle", "Pas de temps à perdre", "Oiseau de nuit" ],
+      group_names(:to_earn)
 
     hundred = tile(:to_earn, "Historique de consommation exemplaire")
     assert_equal "Ouvrir 100 capsules", hundred.at_css(".achievement__condition").text

@@ -1739,6 +1739,8 @@ fr:
       first_claim_all_rights_reserved: "Premier arrivé, premier servi"
       a_discovery_of_ours: "Une découverte qui nous appartient"
       a_strictly_professional_relationship: "Une relation strictement professionnelle"
+      no_time_to_waste: "Pas de temps à perdre"
+      night_owl: "Oiseau de nuit"
     show:
       title: "Succès"
       summary:
@@ -1774,6 +1776,8 @@ fr:
       first_claim_all_rights_reserved: "Être le pionnier d'une carte dans une saison"
       a_discovery_of_ours: "Reposter une carte dont vous êtes le pionnier"
       a_strictly_professional_relationship: "Conclure trois échanges avec le même joueur"
+      no_time_to_waste: "Ouvrir 10 capsules en moins de 30 secondes"
+      night_owl: "Ouvrir une capsule entre 1 h et 4 h du matin, heure locale"
   invite_links:
     show:
       title: "%{name} vous invite"

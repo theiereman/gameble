@@ -201,6 +201,20 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, Game::Holding.where(player_id: player.id).count
   end
 
+  test "an opening records its hour in the reader's time zone cookie, and none for an unknown zone" do
+    freeze_time
+    sign_in_new_player(NEW_STEAM_ID)
+    player = Accounts::Player.find_by!(steam_id: NEW_STEAM_ID)
+
+    cookies[LocalTimeHelper::TIME_ZONE_COOKIE] = "Asia/Tokyo"
+    post packs_path(locale: :en)
+    cookies[LocalTimeHelper::TIME_ZONE_COOKIE] = "Nowhere/Atlantis"
+    post packs_path(locale: :en)
+
+    assert_equal({ Time.current.in_time_zone("Asia/Tokyo").hour => 1, nil => 1 },
+      Game::Pack.where(player_id: player.id).where.not(opened_at: nil).pluck(:opened_local_hour).tally)
+  end
+
   test "a visitor's opening is refused; nothing changes" do
     assert_no_difference [ -> { Game::Pack.count }, -> { Game::Pack.where.not(opened_at: nil).count }, -> { Game::Holding.count } ] do
       post packs_path(locale: :en)

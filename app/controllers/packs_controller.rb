@@ -40,7 +40,7 @@ class PacksController < ApplicationController
   private
 
   def open_from_form
-    result, reached = tracking_goals_reached(current_player) { Game::OpenPack.new.call(player: current_player, reserve: params[:reserve]) }
+    result, reached = tracking_goals_reached(current_player) { Game::OpenPack.new.call(player: current_player, reserve: params[:reserve], time_zone: reader_time_zone) }
     if result.success?
       toast_goals_reached(reached)
       redirect_to pack_path(result.value!.token), status: :see_other
@@ -55,7 +55,7 @@ class PacksController < ApplicationController
 
     marks_before_opening = goal_marks
     result, reached = tracking_goals_reached(current_player) do
-      Game::OpenPack.new.call(player: current_player, idempotency_key: key, reserve: params[:reserve])
+      Game::OpenPack.new.call(player: current_player, idempotency_key: key, reserve: params[:reserve], time_zone: reader_time_zone)
     end
     if result.success?
       pack = result.value!
@@ -74,6 +74,10 @@ class PacksController < ApplicationController
 
   def render_json_error(status, code, message)
     render json: { error: { code:, message: } }, status:
+  end
+
+  def reader_time_zone
+    ActiveSupport::TimeZone[cookies[LocalTimeHelper::TIME_ZONE_COOKIE].to_s]
   end
 
   def idempotency_key

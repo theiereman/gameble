@@ -159,8 +159,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # 06: the achievements screen, none earned yet.
     assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='6'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Succès"
-      assert_select ".menu-item__meta[aria-hidden=true]", "0/23"
-      assert_select ".visually-hidden", "0 succès obtenu sur 23"
+      assert_select ".menu-item__meta[aria-hidden=true]", "0/25"
+      assert_select ".visually-hidden", "0 succès obtenu sur 25"
     end
     # 07: the extras, a button that swaps the list in place for the hidden one.
     assert_select ".hub-menu button.menu-item[type=button][aria-keyshortcuts='7'][aria-expanded=false][aria-controls=hub-menu-extras][data-hub-menu-target~=extrasEntry][data-action='hub-menu#openExtras']" do

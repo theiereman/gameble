@@ -51,6 +51,8 @@ en:
       leave_request_denied: Collect the daily bonus 7 days in a row (UTC days)
       luck_is_a_marketing_concept: 10 standard capsules in a row with no Rare or better card
       market_concentration: Hold 10 different games of the same studio at once
+      night_owl: Open a capsule between 1 and 4 AM, your local time
+      no_time_to_waste: Open 10 capsules in under 30 seconds
       packaging_irregularity: Two copies of the same game in one capsule
       statistical_non_compliance: Two Rare or better cards in one standard capsule
       streamlined_opening_procedure: 10 capsules in a row opened with "Reveal all"
@@ -75,6 +77,8 @@ en:
       leave_request_denied: Leave Request Denied
       luck_is_a_marketing_concept: Luck Is a Marketing Concept
       market_concentration: Market Concentration
+      night_owl: Night Owl
+      no_time_to_waste: No Time to Waste
       packaging_irregularity: Packaging Irregularity
       statistical_non_compliance: Statistical Non-Compliance
       streamlined_opening_procedure: Streamlined Opening Procedure
