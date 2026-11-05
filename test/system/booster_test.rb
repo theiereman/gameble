@@ -4,8 +4,9 @@ require_relative "../support/steam_sign_in"
 
 # The booster screen: the canister sends the opening exchange and deals the
 # cards face down; one activation reveals a card, "Reveal all" the rest;
-# the top bar's reserve chip follows each answer; a refusal leaves the
-# canister at rest and says why, and a lost answer is retried with the same key. On a phone the cards land
+# the top bar's rarity counter rises at each reveal and its reserve chip
+# follows each answer; a refusal leaves the canister at rest and says why,
+# and a lost answer is retried with the same key. On a phone the cards land
 # in a pile, each revealed card is stored in the tray (Store or a tap) and a
 # filled slot opens the card zoom, which steps through the tray; a card's
 # detail walks the booster and coming back shows it again, every card face
@@ -103,12 +104,17 @@ class BoosterTest < ApplicationSystemTestCase
     end
   end
 
+  def rarity_count(tier)
+    find(".top-bar .rarity-counter__count[data-tier=#{tier}]").text
+  end
+
   def opened_packs
     Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).count
   end
 
-  test "an opening deals the cards face down; each reveal shows its card and says it" do
+  test "an opening deals the cards face down; each reveal shows its card, says it, and raises the top bar's count then" do
     open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one), more: true)
+    commons = Integer(rarity_count("common"))
 
     open_canister
     assert_dealt(5)
@@ -120,9 +126,10 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector "#{card(1)} .booster-card__label", text: "? ? ?"
     assert_equal "Card 1 of 5, face down. Reveal.", find(hit(1))["aria-label"]
     assert_focus hit(1)
-    # The reserve follows the answer.
+    # The reserve follows the answer; the counts wait for the reveals.
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
     assert_selector ".booster__pip[data-lit]", count: 1
+    assert_equal commons, Integer(rarity_count("common"))
     assert_selector ".booster__hint", text: "Click a card to reveal it · 5 left"
     assert_button "Open the next one", disabled: true
 
@@ -130,12 +137,14 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector "#{card(1)}[data-revealed]"
     assert_selector "#{card(1)} .booster-card__label", text: "COMMON"
     assert_announced "Card 1: Tin Soldier — 2024. Common."
+    assert_equal commons + 1, Integer(rarity_count("common"))
     assert_equal "Tin Soldier — 2024, Common. See the card.", find(hit(1))["aria-label"]
     assert_focus hit(1)
 
     find(hit(4)).click
     assert_selector "#{card(4)}[data-revealed] .booster-card__label", text: "EPIC"
     assert_announced "Card 4: Portal — Valve, 2007. Epic."
+    assert_equal commons + 1, Integer(rarity_count("common"))
     assert_selector "#{card(4)} .booster-card__front .card.card--m.card--booster.card--rarity-epic"
   end
 

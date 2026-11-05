@@ -112,7 +112,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "a.tab-bar__tab[aria-current]", false
   end
 
-  test "a player elsewhere: the back button to the bridge, the packs chip and the player chip, no rarity counter" do
+  test "a player elsewhere: the back button to the bridge, the rarity counter, the packs chip and the player chip" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:common_card_one).id, 3)
     hold(player, catalog_card_seasons(:portal_one).id, 1)
@@ -139,7 +139,13 @@ class ShellTest < ActionDispatch::IntegrationTest
       assert_select ".button__label[data-previous-screen-target=label]", ""
     end
 
-    assert_select ".top-bar .rarity-counter, #rarity-legend", false
+    assert_select ".rarity-counter button.rarity-counter__button[type=button][popovertarget=rarity-legend]" do
+      assert_select ".rarity-counter__item", 5
+      assert_select ".rarity-counter__item svg.pixel-icon", 5
+      assert_equal %w[3 0 0 1 0], css_select(".rarity-counter__count").map { it.text.strip }
+      assert_select ".visually-hidden", /Rarities/
+    end
+    assert_rarity_legend(names: [ "Common", "Uncommon", "Rare", "Epic", "Legendary", "Total" ], locale: :en)
 
     assert_select ".top-bar__end a.packs-chip[href='/en/booster'][data-turbo-prefetch=false]" do
       assert_select "svg.pixel-icon.packs-chip__icon"
@@ -192,12 +198,6 @@ class ShellTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select ".rarity-counter button.rarity-counter__button[type=button][popovertarget=rarity-legend]" do
-      assert_select ".rarity-counter__item", 5
-      assert_select ".rarity-counter__item svg.pixel-icon", 5
-      assert_equal %w[3 0 0 1 0], css_select(".rarity-counter__count").map { it.text.strip }
-      assert_select ".visually-hidden", /Rarities/
-    end
     assert_select ".rarity-counter button.rarity-counter__button[popovertarget=rarity-legend] + #rarity-legend"
     assert_rarity_legend(names: [ "Common", "Uncommon", "Rare", "Epic", "Legendary", "Total" ], locale: :en)
     assert_equal [ "Rarity", "This season", "All seasons" ], css_select("#rarity-legend thead th").map { it.text.strip }
@@ -233,9 +233,8 @@ class ShellTest < ActionDispatch::IntegrationTest
     newer = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
     newer.update!(status: :published, published_at: Time.current)
     sign_in(player)
-    post season_allocation_path(locale: :en)
 
-    get home_path(locale: :en)
+    get me_path(locale: :en)
 
     assert_equal %w[3 0 0 0 0], css_select(".rarity-counter__count").map { it.text.strip }
   end
