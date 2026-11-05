@@ -25,10 +25,10 @@ class ProfileAvatarsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".profile-band__portrait .profile-band__avatar"
     assert_select ".profile-band__portrait a.profile-band__avatar-edit[href='#me-avatar-sheet'][aria-label=?]", "Changer d'avatar"
-    assert_select "#me-avatar-sheet .me-avatar", 11
+    assert_select "#me-avatar-sheet .me-avatar", 20
     assert_select "#me-avatar-sheet button[type=button][aria-current=true]", /Classique/
     assert_select "#me-avatar-sheet form input[name=avatar][value=novice]"
-    %w[mechanic pilot cartographer botanist streamer].each { assert_select "#me-avatar-sheet form input[name=avatar][value=#{it}]" }
+    %w[mechanic pilot cartographer botanist streamer elder astronaut punk chef robot cat alien slime owl].each { assert_select "#me-avatar-sheet form input[name=avatar][value=#{it}]" }
     assert_select "#me-avatar-sheet .me-avatar__name", "Mécanicienne"
     assert_select "#me-avatar-sheet .me-avatar--locked", 4
     assert_select "#me-avatar-sheet .me-avatar--locked .me-avatar__unlock", /Oiseau de nuit/

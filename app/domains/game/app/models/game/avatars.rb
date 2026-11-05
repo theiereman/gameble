@@ -10,7 +10,10 @@ module Game
       def free? = achievement.nil?
     end
 
-    FREE = %w[mechanic pilot cartographer botanist streamer].freeze
+    FREE = %w[
+      mechanic pilot cartographer botanist streamer elder astronaut punk chef
+      robot cat alien slime owl
+    ].freeze
 
     UNLOCKING_ACHIEVEMENTS = {
       "novice" => "first_booster",

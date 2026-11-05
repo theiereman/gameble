@@ -68,8 +68,8 @@ class Game::ChooseAvatarTest < ActiveSupport::TestCase
 
     rows = Game::AvatarShelf.call(@player)
 
-    assert_equal %w[default mechanic pilot cartographer botanist streamer novice archivist guardian oracle grand_master], rows.map(&:key)
-    assert_equal %w[default mechanic pilot cartographer botanist streamer novice], rows.reject(&:locked?).map(&:key)
+    assert_equal %w[default mechanic pilot cartographer botanist streamer elder astronaut punk chef robot cat alien slime owl novice archivist guardian oracle grand_master], rows.map(&:key)
+    assert_equal %w[default mechanic pilot cartographer botanist streamer elder astronaut punk chef robot cat alien slime owl novice], rows.reject(&:locked?).map(&:key)
     assert_equal %w[novice], rows.select(&:active).map(&:key)
   end
 end

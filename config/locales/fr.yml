@@ -1717,16 +1717,25 @@ fr:
       text: "%{name} fait maintenant partie de vos amis."
   avatars:
     names:
+      alien: "Alien"
       archivist: "Archiviste"
+      astronaut: "Astronaute"
       botanist: "Botaniste"
       cartographer: "Cartographe"
+      cat: "Chat"
+      chef: "Cheffe"
       default: "Classique"
+      elder: "Doyenne"
       grand_master: "Grand Maître"
       guardian: "Gardien"
       mechanic: "Mécanicienne"
       novice: "Novice"
       oracle: "Oracle"
+      owl: "Hibou"
       pilot: "Pilote"
+      punk: "Punk"
+      robot: "Robot"
+      slime: "Slime"
       streamer: "Streameuse"
   achievement_claims:
     create:
