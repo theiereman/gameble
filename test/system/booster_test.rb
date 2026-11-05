@@ -297,6 +297,10 @@ class BoosterTest < ApplicationSystemTestCase
     "#{phone_card(position)} .booster-card__hit"
   end
 
+  def canister_top
+    evaluate_script("Math.round(document.querySelector('.booster-canister').getBoundingClientRect().top - document.querySelector('.booster__stage').getBoundingClientRect().top)")
+  end
+
   def on_phone
     page.driver.browser.manage.window.resize_to(*PHONE)
   end
@@ -542,6 +546,7 @@ class BoosterTest < ApplicationSystemTestCase
   test "on a phone the next capsule waits on the stage once the hand is stored, and a tap on it opens it" do
     on_phone
     open_screen(card_ids(*[ :common_card_one ] * 5), card_ids(*[ :uncommon_card_one ] * 5))
+    sealed_at = canister_top
     open_canister
     assert_pile(5)
     assert_no_selector ".booster-canister"
@@ -549,6 +554,8 @@ class BoosterTest < ApplicationSystemTestCase
     click_on "Reveal all"
     assert_selector ".booster-tray__slot--filled", count: 5, wait: 20
     assert_selector ".booster-canister"
+    # It waits exactly where a sealed capsule sits, so opening it does not make it jump.
+    page.document.synchronize { raise Capybara::ExpectationNotMet, "the capsule sits at #{canister_top}, not #{sealed_at}" unless canister_top == sealed_at }
 
     find(".booster-canister").click
     assert_selector ".booster-card[data-tier=uncommon]", count: 5, wait: 10
