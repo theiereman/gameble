@@ -4,6 +4,7 @@ import {
   clearRefusal,
   gameLabel,
   gamesUrl,
+  hasChanges,
   initialState,
   isFilter,
   isPicked,
@@ -46,6 +47,7 @@ export default class CustomSetEditorController extends Controller<HTMLDialogElem
     "refusal",
     "inputTemplate",
     "limitTemplate",
+    "discard",
   ]
   static values = { gamesUrl: String, max: Number, nameLimit: Number, strings: Object }
 
@@ -64,6 +66,7 @@ export default class CustomSetEditorController extends Controller<HTMLDialogElem
   declare readonly refusalTarget: HTMLElement
   declare readonly inputTemplateTarget: HTMLTemplateElement
   declare readonly limitTemplateTarget: HTMLTemplateElement
+  declare readonly discardTarget: HTMLDialogElement
   declare readonly gamesUrlValue: string
   declare readonly maxValue: number
   declare readonly nameLimitValue: number
@@ -149,7 +152,28 @@ export default class CustomSetEditorController extends Controller<HTMLDialogElem
     items[keys.indexOf(next)]?.querySelector<HTMLElement>(TOGGLE)?.focus()
   }
 
+  requestClose(): void {
+    if (this.unsaved()) this.discardTarget.showModal()
+    else this.element.close()
+  }
+
+  closeOnScrim(event: MouseEvent): void {
+    if (event.target === this.element) this.requestClose()
+  }
+
+  cancel(event: Event): void {
+    if (event.target !== this.element || !this.unsaved()) return
+    event.preventDefault()
+    this.discardTarget.showModal()
+  }
+
+  discard(): void {
+    this.discardTarget.close()
+    this.element.close()
+  }
+
   closed(): void {
+    if (this.discardTarget.open) this.discardTarget.close()
     this.debounce.cancel()
     this.state = reset(this.state)
     this.nameTarget.value = this.state.openedWith.name
@@ -159,6 +183,10 @@ export default class CustomSetEditorController extends Controller<HTMLDialogElem
     this.renderPicks()
     this.renderRefusal()
     this.load()
+  }
+
+  private unsaved(): boolean {
+    return hasChanges(this.state, this.nameTarget.value)
   }
 
   private load(): void {

@@ -867,6 +867,12 @@ en:
         missing: Missing
         owned: Owned
       close: Close
+      discard:
+        close: Close
+        confirm: Leave without saving
+        keep: Keep editing
+        text: Your changes to this set will be lost.
+        title: Leave without saving?
       edit_title: Edit the set
       empty: No game to show.
       filters: Show

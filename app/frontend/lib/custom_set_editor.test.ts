@@ -4,6 +4,7 @@ import {
   clearRefusal,
   gameLabel,
   gamesUrl,
+  hasChanges,
   initialState,
   isFilter,
   move,
@@ -59,6 +60,25 @@ describe("reset", () => {
     state = setQuery(setFilter(state, "picked"), "seed")
     state = reset(state)
     expect(state).toEqual(initialState("Mes favoris", ["portal"]))
+  })
+})
+
+describe("hasChanges", () => {
+  const opened = initialState("Mes favoris", ["portal", "doom"])
+
+  it("sees nothing to lose when only the search and the chip moved", () => {
+    expect(hasChanges(setQuery(setFilter(opened, "owned"), "seed"), "Mes favoris")).toBe(false)
+  })
+
+  it("sees a renamed set", () => {
+    expect(hasChanges(opened, "Autre chose")).toBe(true)
+  })
+
+  it("sees a game added or removed, not the same games picked back", () => {
+    expect(hasChanges(toggle(opened, "hades", 50).state, "Mes favoris")).toBe(true)
+    const removed = toggle(opened, "portal", 50).state
+    expect(hasChanges(removed, "Mes favoris")).toBe(true)
+    expect(hasChanges(toggle(removed, "portal", 50).state, "Mes favoris")).toBe(false)
   })
 })
 

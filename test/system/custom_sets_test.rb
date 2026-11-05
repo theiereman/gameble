@@ -4,8 +4,8 @@ require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
 # A player's own set: the editor from the collection and from the album, its
-# search, chips, picks and limit; ANNULER discarding; MES SETS unfolding on
-# the phone.
+# search, chips, picks and limit; ANNULER discarding, closing over unsaved
+# changes asking first; MES SETS unfolding on the phone.
 class CustomSetsTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GameSets
@@ -120,7 +120,12 @@ class CustomSetsTest < ApplicationSystemTestCase
     sign_in(@player)
     visit custom_set_path(locale: :en, token: custom_set.token)
 
-    [ -> { click_on "Cancel" }, -> { find(".modal__close").click }, -> { find_field("Set name").send_keys(:escape) } ].each do |discard|
+    leave = -> { within("dialog#custom-set-discard[open]") { click_on "Leave without saving" } }
+    [
+      -> { click_on "Cancel" },
+      -> { find(".custom-set-editor__panel .modal__close").click; leave.call },
+      -> { find_field("Set name").send_keys(:escape); leave.call }
+    ].each do |discard|
       click_on "Edit"
       within(editor) do
         fill_in "Set name", with: "Autre chose"
@@ -145,6 +150,29 @@ class CustomSetsTest < ApplicationSystemTestCase
       end
     end
     assert_equal "Mes favoris", custom_set.reload.name
+  end
+
+  test "closing the editor over unsaved changes asks first; keeping on editing keeps them, an untouched editor closes at once" do
+    custom_set = create_set
+    sign_in(@player)
+    visit custom_set_path(locale: :en, token: custom_set.token)
+
+    click_on "Edit"
+    within(editor) { find(".custom-set-editor__panel .modal__close").click }
+    assert_no_selector "dialog[open]"
+
+    click_on "Edit"
+    within(editor) do
+      fill_in "Set name", with: "Autre chose"
+      page.driver.browser.action.move_to_location(5, 5).click.perform
+      within("dialog#custom-set-discard[open]") do
+        assert_text "Leave without saving?"
+        click_on "Keep editing"
+      end
+      assert_no_selector "dialog#custom-set-discard[open]"
+      assert_field "Set name", with: "Autre chose"
+    end
+    assert_selector "dialog#custom-set-editor[open]"
   end
 
   test "at fifty games one more is refused in the editor: nothing is added and the refusal shows" do

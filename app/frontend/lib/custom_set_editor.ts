@@ -26,6 +26,12 @@ export function reset(state: EditorState): EditorState {
   return initialState(state.openedWith.name, state.openedWith.picks)
 }
 
+export function hasChanges(state: EditorState, name: string): boolean {
+  const { openedWith } = state
+  if (name !== openedWith.name || state.picks.length !== openedWith.picks.length) return true
+  return state.picks.some((pick) => !openedWith.picks.includes(pick))
+}
+
 export function isFilter(value: string): value is GameFilter {
   return (GAME_FILTERS as readonly string[]).includes(value)
 }
