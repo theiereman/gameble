@@ -1182,6 +1182,7 @@ en:
       pulled_html: "%{name} pulled %{card}"
       repost_tag: Repost
       reposted_html: "%{name} reposted %{card}."
+      screen_title: Activity feed
       set_reached:
         adept_html: "%{name} reaches the Adept tier in the %{set} set."
         apprentice_html: "%{name} reaches the Apprentice tier in the %{set} set."

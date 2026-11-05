@@ -364,6 +364,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "main h1", "Fil d'activité"
+    assert_select ".top-bar__title", "Activité"
     assert_equal %w[Hugo], names
     assert_select ".feed__tab[aria-current]", "Tous"
     assert_equal %w[live:fr], stream_names

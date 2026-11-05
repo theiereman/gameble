@@ -1563,6 +1563,7 @@ fr:
   feeds:
     show:
       title: "Fil d'activité"
+      screen_title: "Activité"
       empty: "Rien pour l'instant."
       empty_filter: "Rien pour l'instant dans ce filtre."
       tabs_label: "Événements de"
