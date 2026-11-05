@@ -33,8 +33,13 @@
   display: none;
 }
 
+/* A sub-screen's way back: an arrow before the G, shown once the app says a screen lies behind. */
+:root[data-native-app] .top-bar__start > .top-bar__previous:not([hidden]) {
+  display: inline-flex;
+}
+
 :root[data-native-app] .top-bar__start > .top-bar__previous {
-  gap: 0;
+  gap: var(--space-1);
   min-width: var(--space-touch-min);
   min-height: var(--space-touch-min);
   margin-left: calc(-1 * var(--space-2));

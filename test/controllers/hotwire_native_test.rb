@@ -22,7 +22,7 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
     get card_season_path(slug: catalog_cards(:portal).slug, number: catalog_card_seasons(:portal_one).season.number, locale: :en), headers: { "User-Agent" => APP }
 
     assert_select ".top-bar__start > button.top-bar__previous[type=button][hidden][data-controller='bridge--back'][data-action='bridge--back#back']" do
-      assert_select "svg.top-bar__back-g"
+      assert_select "svg.button__icon + svg.top-bar__back-g"
       assert_select ".visually-hidden", "Back:"
     end
     assert_select "[data-controller~='previous-screen']", 0
