@@ -102,8 +102,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", 0
     assert_select ".card-detail__description", "A puzzle game of portals."
     assert_equal [ [ "Publisher", "Valve" ], [ "Rarity", "Epic" ], [ "Genre", "Puzzle" ], [ "Year", "2007" ], [ "Season", "Season 1" ],
-      fixture_pioneer, [ "Sets", "Puzzle | Valve" ], [ "Copies", "None" ], [ "Editions", "None" ],
-      [ "Owned by", "None of your friends owns it" ] ], facts
+      fixture_pioneer, [ "Sets", "Puzzle | Valve" ], [ "Copies", "None" ], [ "Editions", "None" ] ], facts
     assert_select ".card-detail__rarity.card-detail__rarity--epic svg.card-detail__rarity-icon[aria-hidden=true]"
     assert_equal [ [ "Puzzle", "/en/library/theme/puzzle" ], [ "Valve", "/en/library/studio/valve" ] ],
       css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
@@ -158,8 +157,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail h1", "Soldat de plomb"
     assert_select "title", "Soldat de plomb — Commune"
     assert_select ".card-detail__kicker", "Fiche de la carte"
-    assert_equal [ [ "Rareté", "Commune" ], [ "Genre", "Horreur" ], [ "Année", "2024" ], [ "Saison", "Saison 1" ], fixture_pioneer(locale: :fr), [ "Sets", "Réflexion" ], [ "Exemplaires", "Aucun" ], [ "Éditions", "Aucune" ],
-      [ "Possédée par", "Aucun de vos amis ne la possède" ] ], facts
+    assert_equal [ [ "Rareté", "Commune" ], [ "Genre", "Horreur" ], [ "Année", "2024" ], [ "Saison", "Saison 1" ], fixture_pioneer(locale: :fr), [ "Sets", "Réflexion" ], [ "Exemplaires", "Aucun" ], [ "Éditions", "Aucune" ] ], facts
     assert_equal [ "Voir sur Steam (nouvel onglet)", "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=french" ],
       store_link.then { [ it.text.squish, it["href"] ] }
     assert_equal [ "Carte précédente", "Carte suivante" ], css_select(".card-detail__nav").map { it["aria-label"] }
@@ -168,7 +166,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :fr, slug: "portal")
     assert_select ".card-detail__description", "Un jeu de casse-tête à portails."
     assert_equal "https://store.example.test/400?l=french", store_link["href"]
-    assert_equal [ "Éditeur", "Rareté", "Genre", "Année", "Saison", "Pionnier", "Sets", "Exemplaires", "Éditions", "Possédée par" ], facts.map(&:first)
+    assert_equal [ "Éditeur", "Rareté", "Genre", "Année", "Saison", "Pionnier", "Sets", "Exemplaires", "Éditions" ], facts.map(&:first)
   end
 
   test "a card without publisher, description, genre or set leaves those rows out, without ◀ ▶ or position line" do
@@ -176,7 +174,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :en, slug: "tin-soldier")
 
     assert_response :success
-    assert_equal [ "Rarity", "Year", "Season", "Pioneer", "Copies", "Editions", "Owned by" ], facts.map(&:first)
+    assert_equal [ "Rarity", "Year", "Season", "Pioneer", "Copies", "Editions" ], facts.map(&:first)
     assert_select ".card-detail__description", false
     assert_select ".card-detail__sets", false
     assert_select ".card-detail__nav", false
@@ -398,7 +396,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail h1", "Tin Soldier"
     # A card-season without a main theme shows no genre.
     assert_equal [ [ "Rarity", "Common" ], [ "Year", "2024" ], [ "Season", "Season 1" ], fixture_pioneer, [ "Sets", "Puzzle" ], [ "Copies", "None" ],
-      [ "Editions", "None" ], [ "Owned by", "None of your friends owns it" ] ], facts
+      [ "Editions", "None" ] ], facts
     assert_select ".card-detail[data-controller~=share]"
     assert_select ".card-detail__share-button", "Share"
     assert_select "#share-sheet input[value=?]", "http://www.example.com/en/cards/tin-soldier/seasons/1"
@@ -468,7 +466,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_season_path(locale: :en, slug: "tin-soldier", number: 1)
 
     assert_response :success
-    assert_equal [ "Rarity", "Year", "Season", "Pioneer", "Copies", "Editions", "Owned by" ], facts.map(&:first)
+    assert_equal [ "Rarity", "Year", "Season", "Pioneer", "Copies", "Editions" ], facts.map(&:first)
     assert_equal "Season 1", facts.to_h["Season"]
     assert_select ".card-detail__sets", false
     assert_select ".card-detail__nav", false
@@ -861,7 +859,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__phone-back", false
   end
 
-  test "a player's request costs sixteen queries, a visitor's six; a frame visit (◀ ▶) skips the top bar's" do
+  test "a player's request costs seventeen queries, a visitor's six; a frame visit (◀ ▶) skips the top bar's" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 2)
     sign_in(player)
@@ -869,11 +867,11 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, card detail, sets, neighbours, quantities, the
     # holder's showcase, the pioneer, the friends owning it, the share image, the player's goals, and the top bar's four
     # (reserve count, next pack, copies per tier, rarity legend), and the tab bar's trades and invitations waiting.
-    assert_request_queries(18) { get card_path(locale: :en, slug: "portal") }
+    assert_request_queries(17) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
     assert_equal [ "Copies", "2 copies" ], facts.to_h.assoc("Copies")
     assert_select "#share-sheet"
-    assert_request_queries(10) { get card_path(locale: :en, slug: "portal"), headers: { "Turbo-Frame" => "card-detail" } }
+    assert_request_queries(9) { get card_path(locale: :en, slug: "portal"), headers: { "Turbo-Frame" => "card-detail" } }
     assert_select "turbo-frame#card-detail .card-detail h1", "Portal"
 
     delete session_path(locale: :en)
@@ -1204,73 +1202,5 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     owner.update!(visibility: :private)
     get card_season_path(locale: :en, slug: "portal", number: 1, brother: owner.token)
     assert_select ".public-card"
-  end
-
-  def befriend(viewer, name, visibility: :public)
-    friend = Accounts::Player.create!(steam_id: "765611980001#{(Accounts::Player.count + 1).to_s.rjust(5, "0")}", persona_name: name, visibility:)
-    low, high = [ viewer.id, friend.id ].minmax
-    Game::Friendship.create!(low_player_id: low, high_player_id: high)
-    friend
-  end
-
-  # The lines of an owners list, as [ name, profile path, the rest of the line ].
-  def owner_lines(list)
-    css_select("#{list} > li").map do |line|
-      link = line.at_css("a.card-detail__owner-name")
-      [ link.text, link["href"], line.text.gsub(/\s+/, " ").strip.delete_prefix(link.text).strip ]
-    end
-  end
-
-  test "the friends owning the card: those holding this edition linked to their profile with its copies, then those holding another edition with theirs" do
-    viewer = accounts_players(:player)
-    sam = befriend(viewer, "Sam")
-    ada = befriend(viewer, "Ada")
-    lea = befriend(viewer, "Léa")
-    hidden = befriend(viewer, "Hidden", visibility: :private)
-    hold(sam, catalog_card_seasons(:portal_one).id, 2)
-    hold(ada, portal_edition(2, rarity: "rare"), 1)
-    hold(lea, catalog_card_seasons(:portal_one).id, 1)
-    hold(lea, portal_edition(3, rarity: "legendary"), 1)
-    hold(hidden, catalog_card_seasons(:portal_one).id, 1)
-    hold(accounts_players(:moderator), catalog_card_seasons(:portal_one).id, 3)
-    sign_in(viewer)
-
-    get card_season_path(locale: :en, slug: "portal", number: 1)
-    assert_equal "Owned by", css_select(".card-detail__fact--owners dt").sole.text
-    assert_equal [ [ "Sam", "/en/brothers/#{sam.token}", "×2" ], [ "Léa", "/en/brothers/#{lea.token}", "×1" ] ], owner_lines(".card-detail__owners > .card-detail__owners-list:first-child")
-    assert_select ".card-detail__owners > .card-detail__owners-list + .card-detail__owners-heading + .card-detail__owners-list"
-    assert_select ".card-detail__owners-heading", "They own another edition"
-    assert_equal [ [ "Ada", "/en/brothers/#{ada.token}", "×1 Rare: S2" ] ], owner_lines(".card-detail__owners-heading ~ .card-detail__owners-list")
-    assert_no_match(/Hidden|#{hidden.token}|#{accounts_players(:moderator).token}/, css_select(".card-detail").sole.to_html)
-    assert_select ".card-detail__owners .card-detail__editions-fold", false
-    assert_select "[style]", 0
-
-    get card_season_path(locale: :fr, slug: "portal", number: 1)
-    assert_select ".card-detail__fact--owners dt", "Possédée par"
-    assert_select ".card-detail__owners-heading", "Ils possèdent une autre édition"
-    assert_equal [ [ "Ada", "/fr/brothers/#{ada.token}", "×1 Rare\u202F: S2" ] ], owner_lines(".card-detail__owners-heading ~ .card-detail__owners-list")
-  end
-
-  test "past three friends a section folds the rest under how many more; a card no friend owns says so; the public page has no owners" do
-    viewer = accounts_players(:player)
-    5.times { |index| hold(befriend(viewer, "Friend #{index}"), catalog_card_seasons(:portal_one).id, 5 - index) }
-    sign_in(viewer)
-
-    get card_season_path(locale: :en, slug: "portal", number: 1)
-    assert_equal %w[×5 ×4 ×3], owner_lines(".card-detail__owners > .card-detail__owners-list").map(&:last)
-    assert_select ".card-detail__owners > details.card-detail__editions-fold:not([open]) > summary.card-detail__editions-more", "+2 more"
-    assert_equal [ "Friend 3", "Friend 4" ], owner_lines(".card-detail__owners details > .card-detail__owners-list").map(&:first)
-    assert_select ".card-detail__owners-heading", false
-
-    get card_season_path(locale: :fr, slug: "portal", number: 1)
-    assert_select ".card-detail__owners summary", "+2 autres"
-
-    get card_season_path(locale: :en, slug: "tin-soldier", number: 1)
-    assert_equal [ "Owned by", "None of your friends owns it" ], facts.assoc("Owned by")
-
-    delete session_path(locale: :en)
-    get card_path(locale: :en, slug: "portal")
-    assert_select ".public-card"
-    assert_no_match(/Owned by|card-detail__owners|Friend 0/, response.body)
   end
 end

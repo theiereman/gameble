@@ -7,7 +7,6 @@
 <% pioneer = local_assigns.fetch(:pioneer, nil) %>
 <% goals = local_assigns.fetch(:goals, []) %>
 <% trade_holders = local_assigns.fetch(:trade_holders, nil) || [] %>
-<% friend_owners = local_assigns.fetch(:friend_owners, nil) || Game::FriendsOwning::NONE %>
 <% goal_numbers = goals.map(&:position) %>
 <% repostable = share_url && editions.any? { |_, season_number, _| season_number == detail.view.season_number } %>
 <% view = detail.view %>
@@ -153,7 +152,6 @@
                   <dd><%= t("card_details.no_editions") %></dd>
                 <% end %>
               </div>
-              <%= render "cards/friend_owners", owners: friend_owners, strings: %>
             <% end %>
             <% if detail.steam_reviews %>
               <div class="card-detail__fact">
@@ -165,6 +163,9 @@
         </div>
       </div>
     </div>
+  <% end %>
+  <% if trade_holders.any? %>
+    <%= render "cards/trade_section", holders: trade_holders, view:, strings: %>
   <% end %>
   <div class="card-detail__actions">
     <% if repostable || showcase %>
@@ -194,9 +195,6 @@
       </div>
     <% end %>
     <div class="card-detail__card-links">
-      <% if trade_holders.any? %>
-        <%= tag.a t("card_details.trade.button"), **bottom_sheet_opener("card-trade-sheet"), class: "button card-detail__trade" %>
-      <% end %>
       <% if share_url %>
         <button type="button" class="button button--secondary card-detail__share-button" aria-haspopup="dialog"
           data-controller="dialog-opener" data-dialog-opener-dialog-value="share-sheet"
@@ -208,8 +206,5 @@
   </div>
   <% if share_url %>
     <%= render "cards/share_sheet", view:, share_url:, strings: %>
-  <% end %>
-  <% if trade_holders.any? %>
-    <%= render "cards/trade_sheet", holders: trade_holders %>
   <% end %>
 <% end %>

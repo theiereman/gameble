@@ -39,7 +39,22 @@ class CardTradeSheetTest < ActionDispatch::IntegrationTest
       .reverse_merge("offer" => {}, "request" => {})
   end
 
-  test "a missing card offers every friend who holds it, a single copy included" do
+  def section_names = css_select(".card-trade-section .card-trade__name").map { it.text.strip }
+
+  def proposals = css_select(".card-trade-section .card-trade__row a.button").map { it["href"] }
+
+  def befriend_new(name)
+    Accounts::Player.create!(steam_id: "765611980002#{(Accounts::Player.count + 1).to_s.rjust(5, "0")}", persona_name: name).tap { befriend(it) }
+  end
+
+  def portal_edition(number, rarity:)
+    season = Catalog::Season.create!(status: :draft, number:)
+    season.update!(status: :published, published_at: Time.current)
+    Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.5, rating: 90, rarity:, number: 1 } ],
+      returning: :id).rows.flatten.sole
+  end
+
+  test "a missing card lists every friend who holds it in its own section, a single copy included, each with a way to propose" do
     hold(@lea, @portal.id, 1)
     hold(@max, @portal.id, 3)
     sign_in @player
@@ -47,14 +62,46 @@ class CardTradeSheetTest < ActionDispatch::IntegrationTest
     get card_path
 
     assert_response :success
-    assert_select "a.card-detail__trade[href='#card-trade-sheet'][aria-haspopup=dialog]", text: /Trade/
-    assert_select "dialog#card-trade-sheet[aria-labelledby]"
-    assert_equal [ "Max", "Lea" ], css_select("#card-trade-sheet .card-trade__name").map { it.text.strip }
-    assert_equal [ opener_for(@max), opener_for(@lea) ], css_select("#card-trade-sheet a.card-trade__friend").map { it["href"] }
-    assert_no_match(/\b#{@lea.id}\b/, css_select("#card-trade-sheet").to_s)
+    assert_select "section.card-trade-section[aria-labelledby=card-trade-heading] h2#card-trade-heading", "Trade for this card"
+    assert_equal [ "Max", "Lea" ], section_names
+    assert_equal [ opener_for(@max), opener_for(@lea) ], proposals
+    assert_select ".card-trade-section .card-trade__copies", text: "3 copies"
+    assert_select "#card-trade-sheet", 0
+    assert_select ".card-detail__fact--owners", 0
+    assert_no_match(/\b#{@lea.id}\b/, css_select(".card-trade-section").to_s)
+    assert_select "[style]", 0
   end
 
-  test "a card the player owns has no trade button" do
+  test "past three friends the section shows the first three and opens the rest in a sheet" do
+    hold(@lea, @portal.id, 5)
+    hold(@max, @portal.id, 4)
+    others = [ 3, 2 ].map.with_index { |copies, index| befriend_new("Friend #{index}").tap { hold(it, @portal.id, copies) } }
+    sign_in @player
+
+    get card_path
+
+    assert_equal [ "Lea", "Max", "Friend 0" ], section_names
+    assert_select ".card-trade-section a.card-trade-section__more[href='#card-trade-sheet'][aria-haspopup=dialog]", "Show 1 more friend"
+    assert_equal [ "Lea", "Max", "Friend 0", "Friend 1" ], css_select("#card-trade-sheet .card-trade__name").map { it.text.strip }
+    assert_includes css_select("#card-trade-sheet .card-trade__row a.button").map { it["href"] }, opener_for(others.last)
+
+    get card_path(locale: :fr)
+    assert_select ".card-trade-section__more", "Afficher 1 ami de plus"
+  end
+
+  test "a friend holding only another edition is listed with that edition, and the trade asks for it" do
+    other = portal_edition(2, rarity: "rare")
+    hold(@lea, other, 1)
+    sign_in @player
+
+    get card_path
+
+    assert_equal [ "Lea" ], section_names
+    assert_select ".card-trade-section .card-trade__edition", "Rare: S2"
+    assert_equal [ new_trade_path(friend: @lea.token, ask: "#{catalog_cards(:portal).slug}--s2", locale: :en) ], proposals
+  end
+
+  test "a card the player owns has no trade section" do
     hold(@player, @portal.id, 1)
     hold(@lea, @portal.id, 2)
     sign_in @player
@@ -62,25 +109,23 @@ class CardTradeSheetTest < ActionDispatch::IntegrationTest
     get card_path
 
     assert_response :success
-    assert_select "a.card-detail__trade", 0
-    assert_select "#card-trade-sheet", 0
+    assert_select ".card-trade-section", 0
   end
 
-  test "no friend holding the card, no button" do
+  test "no friend holding the card, no section" do
     sign_in @player
 
     get card_path
 
-    assert_select "a.card-detail__trade", 0
+    assert_select ".card-trade-section", 0
   end
 
-  test "a visitor sees no trade button" do
+  test "a visitor sees no trade section" do
     hold(@lea, @portal.id, 2)
 
     get card_path
 
-    assert_select "a.card-detail__trade", 0
-    assert_select "#card-trade-sheet", 0
+    assert_select ".card-trade-section", 0
   end
 
   test "a private friend and a reserved copy are not offered" do
@@ -91,10 +136,10 @@ class CardTradeSheetTest < ActionDispatch::IntegrationTest
 
     get card_path
 
-    assert_select "a.card-detail__trade", 0
+    assert_select ".card-trade-section", 0
   end
 
-  test "a friend already asked shows as plain text" do
+  test "a friend already asked shows without a way to propose" do
     hold(@lea, @portal.id, 2)
     hold(@max, @portal.id, 1)
     ask(@lea)
@@ -102,8 +147,8 @@ class CardTradeSheetTest < ActionDispatch::IntegrationTest
 
     get card_path
 
-    assert_select "#card-trade-sheet a.card-trade__friend", 1
-    assert_select "#card-trade-sheet .card-trade__friend--asked", text: /Lea.*Already asked/m
+    assert_equal [ opener_for(@max) ], proposals
+    assert_select ".card-trade-section .card-trade__row--asked", text: /Lea.*Already asked/m
   end
 
   test "reading the card writes nothing" do
@@ -119,7 +164,7 @@ class CardTradeSheetTest < ActionDispatch::IntegrationTest
     hold(@lea, @portal.id, 1)
     sign_in @player
     get card_path
-    opener = css_select("#card-trade-sheet a.card-trade__friend").sole["href"]
+    opener = proposals.sole
 
     assert_no_difference -> { Game::Trade.count } do
       get opener
@@ -155,13 +200,14 @@ class CardTradeSheetTest < ActionDispatch::IntegrationTest
     assert_equal({ "offer" => {}, "request" => { @portal.id => 1 } }, trade_sides(trade))
   end
 
-  test "the sheet speaks French" do
+  test "the section speaks French" do
     hold(@lea, @portal.id, 2)
     sign_in @player
 
     get card_path(locale: :fr)
 
-    assert_select "a.card-detail__trade", text: /Échanger/
-    assert_select "#card-trade-sheet .card-trade__copies", text: "2 exemplaires"
+    assert_select "#card-trade-heading", "Échanger pour cette carte"
+    assert_select ".card-trade-section .card-trade__copies", text: "2 exemplaires"
+    assert_select ".card-trade-section a.button", "Proposer"
   end
 end

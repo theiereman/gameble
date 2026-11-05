@@ -1,0 +1,23 @@
+<%# locals: (holders:, view:, strings:) %>
+<ul class="card-trade__friends">
+  <% holders.each do |holder| %>
+    <li class="card-trade__row<%= " card-trade__row--asked" if holder.asked %>">
+      <%= pixel_icon("avatar-default", class: "card-trade__avatar") %>
+      <span class="card-trade__text">
+        <span class="card-trade__name"><%= friend_name(holder.player) %></span>
+        <span class="card-trade__meta">
+          <%= render "friends/presence", presence: holder.friend %>
+          <span class="card-trade__copies"><%= t("card_details.trade.copies", count: holder.copies) %></span>
+          <% if holder.edition.season_number != view.season_number %>
+            <span class="card-trade__edition"><%= card_trade_edition_line(holder.edition, strings) %></span>
+          <% end %>
+        </span>
+      </span>
+      <% if holder.asked %>
+        <span class="card-trade__asked"><%= t("card_details.trade.asked") %></span>
+      <% else %>
+        <%= render ButtonComponent.new(size: :small, href: new_trade_path(friend: holder.player.token, ask: trade_edition_key(holder.edition))) do %><%= t("card_details.trade.propose") %><% end %>
+      <% end %>
+    </li>
+  <% end %>
+</ul>

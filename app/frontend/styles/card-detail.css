@@ -270,8 +270,7 @@
   list-style: none;
 }
 
-.card-detail__pioneer,
-.card-detail__owner {
+.card-detail__pioneer {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -279,16 +278,12 @@
   gap: var(--space-1) var(--space-3);
 }
 
-.card-detail__pioneer-date,
-.card-detail__owner-copies,
-.card-detail__owner-editions {
+.card-detail__pioneer-date {
   color: var(--color-text);
   font-weight: 400;
 }
 
-.card-detail__editions,
-.card-detail__owners,
-.card-detail__owners-list {
+.card-detail__editions {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -298,8 +293,7 @@
   list-style: none;
 }
 
-.card-detail__editions-fold > .card-detail__editions,
-.card-detail__editions-fold > .card-detail__owners-list {
+.card-detail__editions-fold > .card-detail__editions {
   margin-top: var(--space-1);
 }
 
@@ -312,16 +306,6 @@
 
 .card-detail__editions-more::-webkit-details-marker {
   display: none;
-}
-
-/* The friends who own the card: under their heading, those holding another
-   edition. */
-.card-detail__owners-heading {
-  margin: var(--space-2) 0 0;
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
 }
 
 /* The share sheet, "PARTAGER LA CARTE": a modal opened by "Partager",

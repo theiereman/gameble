@@ -2379,7 +2379,6 @@ fr:
       sets: "Sets"
       goals: "Objectifs"
       copies: "Exemplaires"
-      owners: "Possédée par"
       editions: "Éditions"
       steam_reviews: "Avis Steam"
     season_number: "Saison %{number}"
@@ -2402,17 +2401,6 @@ fr:
       other: "%{count} exemplaires"
     no_copies: "Aucun"
     no_editions: "Aucune"
-    owners:
-      another_edition: "Ils possèdent une autre édition"
-      copies:
-        zero: "×%{count}"
-        one: "×%{count}"
-        other: "×%{count}"
-      more:
-        zero: "+%{count} autre"
-        one: "+%{count} autre"
-        other: "+%{count} autres"
-      none: "Aucun de vos amis ne la possède"
     position: "%{position} / %{total}"
     swipe: "glissez pour parcourir"
     previous: "Carte précédente"
@@ -2420,12 +2408,16 @@ fr:
     store: "Voir sur Steam"
     trade:
       asked: "Déjà demandée"
-      button: "Échanger"
       copies:
         zero: "%{count} exemplaire"
         one: "%{count} exemplaire"
         other: "%{count} exemplaires"
-      intro: "Choisissez un ami qui la possède. L'échange s'ouvre avec cette carte déjà demandée, et vous pouvez modifier les cartes avant de l'envoyer."
+      intro: "Ces amis ont un exemplaire libre. L'échange s'ouvre avec cette carte déjà demandée : vous pouvez ajouter ou changer des cartes avant de l'envoyer."
+      propose: "Proposer"
+      show_more:
+        zero: "Afficher %{count} ami de plus"
+        one: "Afficher %{count} ami de plus"
+        other: "Afficher %{count} amis de plus"
       title: "Échanger pour cette carte"
     preview:
       title: "%{title} — %{rarity}"

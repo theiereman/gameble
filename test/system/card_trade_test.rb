@@ -29,11 +29,7 @@ class CardTradeTest < ApplicationSystemTestCase
     assert_signed_in
     visit card_season_path(slug: catalog_cards(:portal).slug, number: @portal.season.number, locale: :en)
 
-    find("a.card-detail__trade").click
-    assert_selector "dialog#card-trade-sheet", visible: true
-    eventually("the sheet should be a modal dialog") { evaluate_script("document.getElementById('card-trade-sheet').matches(':modal')") }
-    within("#card-trade-sheet") { assert_selector ".card-trade__name", text: "Lea" }
-    find("#card-trade-sheet .card-trade__friend", text: "Lea").click
+    within(".card-trade-section .card-trade__row", text: "Lea") { click_on "Propose" }
 
     assert_selector ".trade-board__title", text: "Trade with Lea"
     assert_selector ".trade-side--friend li[data-key]", count: 1

@@ -1,0 +1,19 @@
+<%# locals: (holders:, view:, strings:) %>
+<% shown, folded = holders.first(CardDetailsHelper::TRADE_HOLDERS_SHOWN), holders.drop(CardDetailsHelper::TRADE_HOLDERS_SHOWN) %>
+<%= render PanelComponent.new(tag: :section, class: "card-trade-section", aria: { labelledby: "card-trade-heading" }) do %>
+  <header class="card-trade-section__header">
+    <h2 id="card-trade-heading" class="card-trade-section__title"><%= t("card_details.trade.title") %></h2>
+    <p class="card-trade__intro"><%= t("card_details.trade.intro") %></p>
+  </header>
+  <%= render "cards/trade_holders", holders: shown, view:, strings: %>
+  <% if folded.any? %>
+    <%= tag.a t("card_details.trade.show_more", count: folded.size), **bottom_sheet_opener("card-trade-sheet"), class: "card-trade-section__more" %>
+  <% end %>
+<% end %>
+<% if folded.any? %>
+  <%= render BottomSheetComponent.new(id: "card-trade-sheet", title: t("card_details.trade.title")) do %>
+    <div class="card-trade">
+      <%= render "cards/trade_holders", holders:, view:, strings: %>
+    </div>
+  <% end %>
+<% end %>

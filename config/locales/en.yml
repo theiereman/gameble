@@ -765,7 +765,6 @@ en:
       editions: Editions
       genre: Genre
       goals: Goals
-      owners: Owned by
       pioneer: Pioneer
       publisher: Publisher
       rarity: Rarity
@@ -779,15 +778,6 @@ en:
     no_editions: None
     open: "%{title}, %{year}, %{rarity}, season %{season}"
     open_not_owned: "%{title}, %{year}, %{rarity}, season %{season}, not owned"
-    owners:
-      another_edition: They own another edition
-      copies:
-        one: "×%{count}"
-        other: "×%{count}"
-      more:
-        one: "+%{count} more"
-        other: "+%{count} more"
-      none: None of your friends owns it
     pioneer:
       anonymous: An anonymous player
       dated: on %{date}
@@ -818,11 +808,14 @@ en:
     swipe: swipe to browse
     trade:
       asked: Already asked
-      button: Trade
       copies:
         one: "%{count} copy"
         other: "%{count} copies"
-      intro: Pick a friend who holds this card. The trade opens with it already asked for, and you can change the cards before you send it.
+      intro: These friends have a free copy. The trade opens with this card already asked for, and you can add or change cards before you send it.
+      propose: Propose
+      show_more:
+        one: Show %{count} more friend
+        other: Show %{count} more friends
       title: Trade for this card
   cards:
     face:
