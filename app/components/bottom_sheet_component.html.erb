@@ -1,3 +1,9 @@
+<% if page? %>
+  <section id="<%= id %>" class="sheet-page" aria-labelledby="<%= title_id %>">
+    <h1 id="<%= title_id %>" class="modal__title sheet-page__title"><%= title %></h1>
+    <div class="sheet-page__body"><%= content %></div>
+  </section>
+<% else %>
 <dialog id="<%= id %>"<%= " open" if open? %> class="<%= classes %>" aria-labelledby="<%= title_id %>" data-controller="bottom-sheet" data-action="<%= ACTIONS %>">
   <%= render PanelComponent.new(brackets: true, class: "modal__panel bottom-sheet__panel", data: { bottom_sheet_target: "panel" }) do %>
     <div class="bottom-sheet__grip" data-action="pointerdown->bottom-sheet#grab">
@@ -12,3 +18,4 @@
     <div class="bottom-sheet__body" data-bottom-sheet-target="body"><%= content %></div>
   <% end %>
 </dialog>
+<% end %>

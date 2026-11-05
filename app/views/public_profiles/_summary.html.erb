@@ -4,7 +4,7 @@
     <% if editing %>
       <span class="profile-band__portrait">
         <%= player_avatar(owner, class_name: "profile-band__avatar") %>
-        <%= tag.a(**bottom_sheet_opener("me-avatar-sheet").deep_merge(aria: { label: t("own_profiles.show.change_avatar") }),
+        <%= tag.a(**bottom_sheet_opener("me-avatar-sheet", page: me_sheet_path(:avatar)).deep_merge(aria: { label: t("own_profiles.show.change_avatar") }),
               class: "profile-band__avatar-edit", autofocus: flash[:chosen_avatar].present?) do %>
           <%= pixel_icon("pencil", class: "profile-band__avatar-pencil") %>
         <% end %>

@@ -8,17 +8,20 @@ class BottomSheetComponent < ViewComponent::Base
     "pointercancel->bottom-sheet#cancelDrag"
   ].join(" ").freeze
 
-  def initialize(id:, title:, open: false, wide: false)
+  def initialize(id:, title:, open: false, wide: false, page: false)
     @id = id
     @title = title
     @open = open
     @wide = wide
+    @page = page
   end
 
   private
     attr_reader :id, :title
 
     def open? = @open
+
+    def page? = @page
 
     def classes = helpers.class_names("modal bottom-sheet", "bottom-sheet--wide": @wide)
 

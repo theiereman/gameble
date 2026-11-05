@@ -58,6 +58,8 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
 
       assert_equal [ ".*" ], rules.first.fetch("patterns"), name
       assert rules.none? { |rule| rule.dig("properties", "pull_to_refresh_enabled") }, name
+      sheet = rules.reverse.find { |rule| rule["patterns"].any? { Regexp.new(it).match?("/fr/me/sheets/title") } }
+      assert_equal "modal", sheet.dig("properties", "context"), name
     end
   end
 end

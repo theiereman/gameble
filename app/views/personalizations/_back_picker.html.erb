@@ -1,7 +1,8 @@
-<%# locals: (shelf:, chosen: nil) %>
+<%# locals: (shelf:, chosen: nil, page: false) %>
 <% active = shelf.find(&:active?) %>
 <% groups = shelf.group_by(&:group) %>
-<% actions = "pointerover->back-picker#hover pointerout->back-picker#unhover focusin->back-picker#focus focusout->back-picker#blur click->back-picker#tap submit->back-picker#choose" %>
+<% actions = "pointerover->back-picker#hover pointerout->back-picker#unhover focusin->back-picker#focus focusout->back-picker#blur click->back-picker#tap" %>
+<% actions += " submit->back-picker#choose" unless page %>
 <%= tag.div class: "back-picker", data: { controller: "back-picker", back_picker_active_value: active.key, back_picker_season_value: active.season, action: actions } do %>
   <div class="back-picker__strip" aria-hidden="true" data-back-picker-target="strip" data-showing="active">
     <%= render "personalizations/back_chip", state: :active %>

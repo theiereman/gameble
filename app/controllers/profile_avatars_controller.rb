@@ -9,7 +9,7 @@ class ProfileAvatarsController < ApplicationController
       flash[:chosen_avatar] = "yes"
       flash[:toast_title] = t("profile_avatars.chosen.title")
       flash[:notice] = t("profile_avatars.chosen.text", name: t("avatars.names.#{result.value!.key}"))
-      redirect_to me_path, status: :see_other
+      refresh_or_redirect_to me_path, status: :see_other
     else
       personalization_refused(Game::ChooseAvatar.failure_message(result.failure), code: result.failure.to_s)
     end

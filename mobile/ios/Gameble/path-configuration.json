@@ -9,6 +9,16 @@
         "context": "default",
         "pull_to_refresh_enabled": false
       }
+    },
+    {
+      "patterns": [
+        "^/(en|fr)/me/sheets/"
+      ],
+      "properties": {
+        "context": "modal",
+        "modal_style": "large",
+        "pull_to_refresh_enabled": false
+      }
     }
   ]
 }

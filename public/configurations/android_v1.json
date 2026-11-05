@@ -10,6 +10,16 @@
         "uri": "hotwire://fragment/web",
         "pull_to_refresh_enabled": false
       }
+    },
+    {
+      "patterns": [
+        "^/(en|fr)/me/sheets/"
+      ],
+      "properties": {
+        "context": "modal",
+        "uri": "hotwire://fragment/web/modal/sheet",
+        "pull_to_refresh_enabled": false
+      }
     }
   ]
 }

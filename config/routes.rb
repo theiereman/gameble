@@ -181,6 +181,8 @@ Rails.application.routes.draw do
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # The phone's Me tab opens the player's own profile.
     get "me" => "own_profiles#show", as: :me
+    # One of the profile's choice sheets on its own, which the app opens as a native sheet.
+    get "me/sheets/:sheet" => "own_profile_sheets#show", as: :me_sheet, constraints: { sheet: /title|avatar|back/ }
     # Trades, friends and the feed once shared one screen here; its links lead to the friends.
     get "social", to: redirect("/%{locale}/friends"), as: :social
     get "more", to: redirect("/%{locale}/me", status: 301), as: :more

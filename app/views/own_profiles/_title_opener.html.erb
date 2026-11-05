@@ -1,5 +1,5 @@
 <%# locals: (owner_title:, focused: false) %>
-<%= tag.a(**bottom_sheet_opener("me-title-sheet"), class: "me-opener", autofocus: focused) do %>
+<%= tag.a(**bottom_sheet_opener("me-title-sheet", page: me_sheet_path(:title)), class: "me-opener", autofocus: focused) do %>
   <span class="me-opener__look me-opener__look--title" aria-hidden="true"><%= pixel_icon("achievement-flag", class: "me-opener__icon") %></span>
   <span class="me-opener__kicker"><%= t("own_profiles.show.title_label") %></span>
   <% if owner_title %>

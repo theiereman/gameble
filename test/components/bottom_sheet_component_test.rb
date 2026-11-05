@@ -36,4 +36,13 @@ class BottomSheetComponentTest < ViewComponent::TestCase
     render_inline(BottomSheetComponent.new(id: "pick", title: "Pick")) { "Choices" }
     assert_no_selector ".bottom-sheet--wide", visible: :all
   end
+
+  test "a sheet served on its own page is its titled body, without the dialog, the grip or the close button" do
+    render_inline(BottomSheetComponent.new(id: "pick", title: "Pick", page: true)) { "Choices" }
+
+    assert_selector "section#pick.sheet-page[aria-labelledby=pick-title] > h1#pick-title.sheet-page__title", text: "Pick"
+    assert_selector ".sheet-page > .sheet-page__body", text: "Choices"
+    assert_no_selector "dialog"
+    assert_no_selector ".modal__close"
+  end
 end
