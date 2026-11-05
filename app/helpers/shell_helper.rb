@@ -36,6 +36,10 @@ module ShellHelper
     controller_path.start_with?("back_office/")
   end
 
+  def hub_page?
+    controller_path == "pages" && action_name == "home"
+  end
+
   SCREEN_LABELS = {
     "library#show" => :sets,
     "library#cards" => :collection,
@@ -72,7 +76,7 @@ module ShellHelper
     return visitor_tabs unless current_player
 
     [
-      [ :hub, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
+      [ :hub, "tab-hub", home_path, hub_page? ],
       [ :booster, "tab-capsule", booster_path, %w[boosters packs].include?(controller_path) ],
       [ :sets, "tab-sets", library_path, %w[library cards custom_sets].include?(controller_path) ],
       [ :friends, "tab-friends", friends_path, FRIENDS_TAB_CONTROLLERS.include?(controller_path) ],
@@ -83,7 +87,7 @@ module ShellHelper
   def visitor_tabs
     on_all_cards = (controller_path == "library" && action_name == "cards") || controller_path == "cards"
     [
-      [ :landing, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
+      [ :landing, "tab-hub", home_path, hub_page? ],
       [ :all_cards, "tab-collection", library_cards_path, on_all_cards ]
     ]
   end

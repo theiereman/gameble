@@ -183,13 +183,9 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "%{tier} tier reached: %{set}, %{owned} cards out of %{total}.", strings.dig("celebration", "announceTier")
     assert_equal I18n.t("booster.strings", locale: :en).keys.map { it.to_s.camelize(:lower) }.sort, strings.keys.sort
 
-    # The top bar: back, title, rarity counter and the static reserve chip, no packs chip link.
+    # The top bar: back, title and the static reserve chip, no rarity counter, no packs chip link.
     assert_select ".top-bar .top-bar__start[data-controller=navigation-lock] a.button[href='/en']"
-    assert_select ".top-bar .rarity-counter[data-controller=rarity-counter][data-rarity-counter-delimiter-value=',']"
-    assert_select ".top-bar .rarity-counter__count[data-rarity-counter-target=count][data-tier]", 5
-    assert_equal %w[common uncommon rare epic legendary], css_select(".top-bar .rarity-counter__count").map { it["data-tier"] }
-    assert_select ".top-bar #rarity-legend tbody tr", 5
-    assert_select ".top-bar #rarity-legend [data-rarity-counter-target]", false
+    assert_select ".top-bar .rarity-counter, .top-bar #rarity-legend", false
     assert_select ".top-bar .packs-chips[data-controller=reserve-chip] p.packs-chip--static" do
       assert_select ".packs-chip__count[data-reserve-chip-target=count]", "9"
       assert_select ".packs-chip__label[data-reserve-chip-target=label]", "in reserve"

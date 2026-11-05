@@ -58,7 +58,7 @@
       <%= yield :top_bar_status if content_for?(:top_bar_status) %>
       <% if current_player %>
         <% unless back_office_page? || content_for?(:top_bar_status) %>
-          <%= render "shell/rarity_counter", counts: shell_tier_counts %>
+          <%= render "shell/rarity_counter", counts: shell_tier_counts if hub_page? %>
           <% if content_for?(:booster_top_bar) %>
             <%= render "shell/reserve_chip", bank: shell_bank %>
           <% else %>
