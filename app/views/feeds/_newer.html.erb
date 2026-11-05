@@ -1,0 +1,9 @@
+<%# locals: (newer_cursor:, filter:, tab:) %>
+<% if newer_cursor %>
+  <nav id="feed-newer" class="feed__pages feed__pages--newer" aria-label="<%= t("feeds.show.pages.label") %>" data-feed-newer-target="pages">
+    <%= link_to t("feeds.show.pages.newer"), feed_path(filter:, tab:, newer: newer_cursor), class: "feed__more",
+      rel: "prev", data: { turbo_prefetch: false } %>
+  </nav>
+<% else %>
+  <div id="feed-newer" hidden></div>
+<% end %>

@@ -37,10 +37,16 @@
     <% end %>
   <% else %>
     <% if @live || @items.any? %>
-      <%= tag.div data: { controller: "next-page", action: "focusout->next-page#focusLeft" } do %>
+      <%= tag.div data: { controller: "next-page feed-newer", action: "focusout->next-page#focusLeft", feed_newer_live_value: @live } do %>
+        <div class="feed__newest" data-feed-newer-target="newest" hidden>
+          <%= link_to feed_path(filter: @filter, tab: @tab), class: "feed__newest-pill", data: { action: "feed-newer#newest", turbo_prefetch: false } do %>
+            <%= pixel_icon("arrow-left", class: "feed__newest-icon") %><span><%= t(".pages.newest") %></span>
+          <% end %>
+        </div>
+        <%= render "feeds/newer", newer_cursor: @newer_cursor, filter: @filter, tab: @tab %>
         <%= tag.ul class: "feed__list", id: "feed-entries", data: ({ feed_announcer_target: "list" } if @live) do %>
           <% @items.each do |item, card, partner_card, set| %>
-            <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions: @reactions %>
+            <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions: @reactions, target: @target %>
           <% end %>
         <% end %>
         <%= render "feeds/pages", next_cursor: @next_cursor, filter: @filter, tab: @tab %>

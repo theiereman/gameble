@@ -11,23 +11,45 @@ module Game
     PASSES = 10
 
     Page = Data.define(:items, :more) do
-      def cursor = more ? [ items.last.entry.occurred_at, items.last.entry.id ] : nil
+      def cursor = more ? FeedEntries.position(items.last.entry) : nil
+    end
+
+    NewerPage = Data.define(:items, :more) do
+      def cursor = more ? FeedEntries.position(items.first.entry) : nil
+    end
+
+    Bound = Data.define(:position, :comparison) do
+      def newer? = comparison == ">"
     end
 
     def self.call(viewer, kind: nil, players: nil)
       page(viewer, kind:, players:).items
     end
 
-    def self.page(viewer, kind: nil, players: nil, after: nil)
-      found = listed(viewer, kind:, players:, after:)
+    def self.position(entry) = [ entry.occurred_at, entry.id ]
+
+    def self.page(viewer, kind: nil, players: nil, after: nil, from: nil)
+      bound = Bound.new(after, "<") if after
+      bound = Bound.new(from, "<=") if from
+      found = listed(viewer, kind:, players:, bound:)
       Page.new(items: titled(found.first(LIMIT)), more: found.size > LIMIT)
     end
 
-    def self.listed(viewer, kind:, players:, after:)
+    def self.newer(viewer, before:, kind: nil, players: nil)
+      found = visible(notable(kind:, players:), viewer, LIMIT + 1, filler: false, bound: Bound.new(before, ">"))
+      NewerPage.new(items: titled(found.first(LIMIT).reverse), more: found.size > LIMIT)
+    end
+
+    def self.notable(kind:, players:)
       entries = players ? FeedEntry.where(player_id: players).or(FeedEntry.where(partner_id: players)) : FeedEntry.all
-      scope = kind ? entries.where(kind:) : entries
-      notable = visible(scope.where(notable: true), viewer, LIMIT + 1, filler: false, after:)
-      return notable if after || notable.size >= MIN || !(kind.nil? || kind == "pull")
+      (kind ? entries.where(kind:) : entries).where(notable: true)
+    end
+    private_class_method :notable
+
+    def self.listed(viewer, kind:, players:, bound:)
+      entries = players ? FeedEntry.where(player_id: players).or(FeedEntry.where(partner_id: players)) : FeedEntry.all
+      notable = visible(notable(kind:, players:), viewer, LIMIT + 1, filler: false, bound:)
+      return notable if bound || notable.size >= MIN || !(kind.nil? || kind == "pull")
 
       fillers = visible(entries.where(kind: "pull", notable: false), viewer, MIN - notable.size, filler: true)
       (notable + fillers).sort_by { |item| [ item.entry.occurred_at, item.entry.id ] }.reverse
@@ -41,14 +63,14 @@ module Game
     end
     private_class_method :titled
 
-    def self.visible(scope, viewer, limit, filler:, after: nil)
+    def self.visible(scope, viewer, limit, filler:, bound: nil)
       found = []
       players = {}
       shown = Hash.new { |seen, id| seen[id] = Visibility.visible?(viewer, players[id], staff_sees_all: false) }
-      cursor = after
+      cursor = bound
       PASSES.times do
-        page = scope.newest_first
-        page = page.where("(game_feed_entries.occurred_at, game_feed_entries.id) < (?, ?)", *cursor) if cursor
+        page = bound&.newer? ? scope.order(occurred_at: :asc, id: :asc) : scope.newest_first
+        page = page.where("(game_feed_entries.occurred_at, game_feed_entries.id) #{cursor.comparison} (?, ?)", *cursor.position) if cursor
         entries = page.limit(WINDOW).to_a
         missing = entries.flat_map { [ it.player_id, it.partner_id ] }.compact.uniq - players.keys
         players.merge!(Accounts::Player.where(id: missing).index_by(&:id)) if missing.any?
@@ -59,7 +81,7 @@ module Game
         end
         break if found.size >= limit || entries.size < WINDOW
 
-        cursor = [ entries.last.occurred_at, entries.last.id ]
+        cursor = Bound.new(position(entries.last), bound&.newer? ? ">" : "<")
       end
       found.first(limit)
     end

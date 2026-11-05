@@ -1561,6 +1561,8 @@ fr:
       no_friends: "Ajoutez des amis pour suivre leurs tirages."
       pages:
         label: "Pages du fil"
+        newer: "Entrées plus récentes"
+        newest: "Plus récentes"
         next: "Entrées plus anciennes"
       add_friends: "Ajouter des amis"
       filters_label: "Filtrer par type"

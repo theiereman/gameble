@@ -80,7 +80,7 @@ class BellsControllerTest < ActionDispatch::IntegrationTest
     get_bell
 
     assert_equal [ "invitation:#{invitation.token}", "reaction:#{entry.token}:#{Game::ReactionNotice.where(feed_entry_id: entry.id).maximum(:created_at).utc.iso8601(6)}" ], line_keys.first(2)
-    assert_select "#{FRAME} li[data-bell-path='/en/feed'][data-bell-lasting=false] a[href='/en/feed']",
+    assert_select "#{FRAME} li[data-bell-path='/en/feed'][data-bell-lasting=false] a[href='/en/feed?entry=#{entry.token}#entry-#{entry.token}']",
       text: /Max and 1 other reacted to your post\.\s+Heart\s+1\s+Wow\s+1\s+Portal\s+See/
     assert_select "#{FRAME} li[data-bell-path='/en/feed'] .bell__reaction img[src*='heart']"
 

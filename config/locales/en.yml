@@ -1161,6 +1161,8 @@ en:
       no_friends: Add friends to follow their pulls.
       pages:
         label: Pages of the feed
+        newer: Newer entries
+        newest: Newest
         next: Older entries
       pulled_html: "%{name} pulled %{card}"
       repost_tag: Repost

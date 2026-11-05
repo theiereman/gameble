@@ -631,6 +631,59 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-stream[action=replace][target=feed-pages]"
   end
 
+  def newer_link = css_select("#feed-newer a[rel=prev]").first
+
+  def entry_ids = css_select(".feed__entry").map { it["id"] }
+
+  test "an entry on the first page opens the live feed as it is, that entry marked" do
+    add_pulls(5)
+    target = Game::FeedEntry.newest_first.second
+
+    get feed_path(locale: :en, entry: target.token)
+
+    assert_select ".feed__entry", 5
+    assert_select "#entry-#{target.token}.feed__entry--target[aria-current=true]"
+    assert_select ".feed__entry--target", 1
+    assert_select "#feed-newer[hidden]"
+    assert_select "section.feed[data-controller=feed-announcer]"
+  end
+
+  test "an entry deeper down opens the feed around it: a page of newer entries above, the older below, read at render" do
+    add_pulls(Game::FeedEntries::LIMIT * 3)
+    ordered = Game::FeedEntry.newest_first.to_a
+    target = ordered[Game::FeedEntries::LIMIT * 2]
+
+    get feed_path(locale: :en, entry: target.token)
+
+    expected = ordered[Game::FeedEntries::LIMIT, Game::FeedEntries::LIMIT * 2].map { "entry-#{it.token}" }
+    assert_equal expected, entry_ids
+    assert_select "#entry-#{target.token}.feed__entry--target"
+    assert_select "section.feed[data-controller=feed-announcer]", 0
+    assert_select ".feed__newest[hidden] a.feed__newest-pill[href='/en/feed']", text: /Newest/
+    assert_includes newer_link["href"], "newer="
+    assert_nil next_link
+
+    get newer_link["href"], headers: { "Accept" => Mime[:turbo_stream].to_s }
+    assert_select "turbo-stream[action=prepend][target=feed-entries] .feed__entry", Game::FeedEntries::LIMIT
+    assert_select "turbo-stream[action=prepend][target=feed-entries] #entry-#{ordered.first.token}"
+    assert_select "turbo-stream[action=replace][target=feed-newer] template div#feed-newer[hidden]"
+  end
+
+  test "an entry nobody may see opens the feed's first page" do
+    add_pulls(Game::FeedEntries::LIMIT + 5)
+    target = Game::FeedEntry.newest_first.last
+    @player.update!(visibility: :private)
+    open_epic(accounts_players(:moderator))
+
+    get feed_path(locale: :fr, entry: target.token)
+
+    assert_response :success
+    assert_select ".feed__entry--target", 0
+    assert_nil newer_link
+    get feed_path(locale: :fr, entry: "unknown")
+    assert_select ".feed__entry--target", 0
+  end
+
   test "the cursor keeps the filter" do
     add_pulls(Game::FeedEntries::LIMIT + 5)
 

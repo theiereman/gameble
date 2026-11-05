@@ -1,7 +1,9 @@
 <% repost = item.entry.kind == "repost" %>
 <% trade = item.entry.kind == "trade" %>
 <% set_entry = item.entry.kind == "set" %>
-<li class="<%= class_names("feed__entry", "feed__entry--filler": item.filler, "feed__entry--set": set_entry) %>">
+<% target = local_assigns[:target]&.id == item.entry.id %>
+<%= tag.li id: "entry-#{item.entry.token}", class: class_names("feed__entry", "feed__entry--filler": item.filler, "feed__entry--set": set_entry, "feed__entry--target": target),
+      aria: { current: ("true" if target) } do %>
   <% if trade %>
     <span class="feed__thumbs">
       <% [ card, partner_card ].each do |traded| %>
@@ -45,4 +47,4 @@
       <% end %>
     </div>
   </div>
-</li>
+<% end %>
