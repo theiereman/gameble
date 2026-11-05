@@ -20,6 +20,14 @@ module Game
 
     Bound = Data.define(:position, :comparison) do
       def newer? = comparison == ">"
+
+      def condition
+        case comparison
+        when "<" then "(game_feed_entries.occurred_at, game_feed_entries.id) < (?, ?)"
+        when "<=" then "(game_feed_entries.occurred_at, game_feed_entries.id) <= (?, ?)"
+        when ">" then "(game_feed_entries.occurred_at, game_feed_entries.id) > (?, ?)"
+        end
+      end
     end
 
     def self.call(viewer, kind: nil, players: nil)
@@ -70,7 +78,7 @@ module Game
       cursor = bound
       PASSES.times do
         page = bound&.newer? ? scope.order(occurred_at: :asc, id: :asc) : scope.newest_first
-        page = page.where("(game_feed_entries.occurred_at, game_feed_entries.id) #{cursor.comparison} (?, ?)", *cursor.position) if cursor
+        page = page.where(cursor.condition, *cursor.position) if cursor
         entries = page.limit(WINDOW).to_a
         missing = entries.flat_map { [ it.player_id, it.partner_id ] }.compact.uniq - players.keys
         players.merge!(Accounts::Player.where(id: missing).index_by(&:id)) if missing.any?
