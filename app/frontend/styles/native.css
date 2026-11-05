@@ -85,6 +85,30 @@
   min-height: 0;
 }
 
+/* The revealed card speaks for itself and a swipe or a tap stores it: no caption plate repeats it,
+   only the hint's one line sits between the pile and the tray. */
+:root[data-native-app] .booster[data-layout="phone"] .booster__shake {
+  grid-template-rows: minmax(0, 1fr) auto auto;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] .booster__pile-area {
+  align-self: center;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] .booster-plate {
+  display: none;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] .booster-plate-band__hint {
+  position: static;
+  padding: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
 /* Where the app can share a link natively, its unreadable address gives way to the buttons. */
 :root[data-native-app] .friends__row-field:has([data-controller~="bridge--share"]:not([hidden])) .friends__input {
   display: none;
