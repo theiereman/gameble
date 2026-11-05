@@ -156,9 +156,7 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
   scrollToResults(): void {
     const body = this.bodyTarget
     const filtersEnd =
-      getComputedStyle(this.filtersTarget).position === "sticky"
-        ? 0
-        : this.filtersTarget.getBoundingClientRect().bottom - body.getBoundingClientRect().top + body.scrollTop
+      this.filtersTarget.getBoundingClientRect().bottom - body.getBoundingClientRect().top + body.scrollTop
     body.scrollTop = Math.min(body.scrollTop, filtersEnd)
   }
 
