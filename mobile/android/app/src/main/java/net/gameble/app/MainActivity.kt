@@ -31,7 +31,7 @@ class MainActivity : HotwireActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        keepScreensBelowStatusBar()
+        fitScreensBetweenStatusBarAndTabs()
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.isItemActiveIndicatorEnabled = false
         bottomNavigation = HotwireBottomNavigationController(this, bottomNavigationView)
@@ -69,12 +69,13 @@ class MainActivity : HotwireActivity() {
         pendingGrant = null
     }
 
-    private fun keepScreensBelowStatusBar() {
+    private fun fitScreensBetweenStatusBarAndTabs() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.screens)) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, bars.top, 0, 0)
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            view.setPadding(bars.left, bars.top, bars.right, 0)
             WindowInsetsCompat.Builder(insets)
-                .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.of(bars.left, 0, bars.right, bars.bottom))
+                .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.NONE)
+                .setInsets(WindowInsetsCompat.Type.displayCutout(), Insets.NONE)
                 .build()
         }
     }
