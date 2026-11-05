@@ -532,6 +532,23 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal 2, request_keys.uniq.size
   end
 
+  test "on a phone the next capsule waits on the stage once the hand is stored, and a tap on it opens it" do
+    on_phone
+    open_screen(card_ids(*[ :common_card_one ] * 5), card_ids(*[ :uncommon_card_one ] * 5))
+    open_canister
+    assert_pile(5)
+    assert_no_selector ".booster-canister"
+
+    click_on "Reveal all"
+    assert_selector ".booster-tray__slot--filled", count: 5, wait: 20
+    assert_selector ".booster-canister"
+
+    find(".booster-canister").click
+    assert_selector ".booster-card[data-tier=uncommon]", count: 5, wait: 10
+    assert_selector ".booster-tray__slot--filled", count: 0
+    assert_equal 2, request_keys.uniq.size
+  end
+
   test "on the wide layout the set celebration waits for the last reveal, is announced once, and comes back still from its album" do
     open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one), more: true)
     open_canister
