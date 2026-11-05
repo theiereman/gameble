@@ -33,11 +33,20 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: 0 var(--space-4);
+  padding: var(--space-2) 0 var(--space-5);
+  background: var(--color-panel);
 }
 
 .trade-picker__filters[hidden] {
   display: none;
+}
+
+@media (min-width: 720px) and (min-height: 900px) {
+  .trade-picker__filters {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
 }
 
 .trade-picker__fold {
@@ -130,7 +139,8 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: var(--space-4) var(--space-4) 0;
+  overscroll-behavior: contain;
+  padding: 0 var(--space-4);
 }
 
 .trade-picker__grid {

@@ -153,6 +153,15 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     this.bodyTarget.scrollTop = 0
   }
 
+  scrollToResults(): void {
+    const body = this.bodyTarget
+    const filtersEnd =
+      getComputedStyle(this.filtersTarget).position === "sticky"
+        ? 0
+        : this.filtersTarget.getBoundingClientRect().bottom - body.getBoundingClientRect().top + body.scrollTop
+    body.scrollTop = Math.min(body.scrollTop, filtersEnd)
+  }
+
   toggle(event: Event): void {
     const key = this.keyOf(event)
     if (key) this.dispatch("toggle", { detail: { key } })

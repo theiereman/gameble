@@ -222,7 +222,7 @@ export class TradeBoardController extends Controller<HTMLElement> {
   }
 
   setFilter({ detail }: Intent<SideFilter>): void {
-    if (this.state) this.apply(setFilter(this.state, detail), () => this.picker()?.scrollToTop())
+    if (this.state) this.apply(setFilter(this.state, detail), () => this.picker()?.scrollToResults())
   }
 
   toggleFold(): void {

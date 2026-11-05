@@ -39,6 +39,10 @@
     margin: 0 auto;
   }
 
+  html:has(.trade-picker[open]) {
+    overflow: hidden;
+  }
+
   .trade-picker__clear,
   .trade-picker__fold,
   .trade-picker__extra-fold {
