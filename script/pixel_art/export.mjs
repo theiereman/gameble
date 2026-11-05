@@ -783,20 +783,20 @@ const ICONS = {
       "utttttuttutttttu",
     ],
   },
-  // Botanist: a teal hijab draped over an ochre top, a leaf pinned on the chest (16 × 16).
+  // Botanist: a teal hijab draped over an ochre top, lashes, rosy cheeks and red lips, a leaf pinned on the chest (16 × 16).
   "avatar-botanist": {
-    legend: { k: "#1b2838", h: "#2fb5a8", s: "#17675f", f: "#d9a066", n: "#a8733f", e: "#0b1520", m: "#8a4a2a", y: "#e0a43a", v: "#9a6a1e", l: "#a4d007", d: "#5c7a0c" },
+    legend: { k: "#1b2838", h: "#2fb5a8", s: "#17675f", f: "#d9a066", n: "#a8733f", e: "#0b1520", r: "#e0887a", p: "#c8405a", y: "#e0a43a", v: "#9a6a1e", l: "#a4d007", d: "#5c7a0c" },
     grid: [
       "kkkkkkkkkkkkkkkk",
       "kkkkkhhhhhhkkkkk",
       "kkkkhhhhhhhhkkkk",
       "kkkhhhhhhhhhhkkk",
       "kkhhhsssssshhhkk",
-      "kkhhsffffffshhkk",
+      "kkhhseffffeshhkk",
       "kkhhsfeffefshhkk",
-      "kkhhsffffffshhkk",
-      "kkhhsnfmmfnshhkk",
-      "kkhhhsnffnshhhkk",
+      "kkhhsrffffrshhkk",
+      "kkhhsffppffshhkk",
+      "kkhhhsffffshhhkk",
       "kkhhhhsssshhhhkk",
       "kkhhhhhhhhhhhhkk",
       "khhldhhhhhhhhhhk",
