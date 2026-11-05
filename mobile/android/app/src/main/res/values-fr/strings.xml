@@ -3,8 +3,9 @@
     <string name="notification_channel">Échanges et amis</string>
     <string name="debug_log_hide">Masquer</string>
     <string name="debug_log_copy">Copier</string>
+    <string name="tab_hub">Pont</string>
     <string name="tab_capsule">Capsule</string>
     <string name="tab_sets">Sets</string>
-    <string name="tab_social">Social</string>
-    <string name="tab_me">Moi</string>
+    <string name="tab_friends">Amis</string>
+    <string name="tab_trades">Échanges</string>
 </resources>

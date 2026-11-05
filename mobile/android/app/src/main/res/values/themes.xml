@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Gameble" parent="Theme.Material3.Dark.NoActionBar" />
+    <style name="Theme.Gameble" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:windowBackground">@color/steam_bar</item>
+        <item name="colorSurface">@color/steam_bar</item>
+    </style>
+
+    <style name="TextAppearance.Gameble.Tab" parent="TextAppearance.Material3.LabelMedium">
+        <item name="fontFamily">@font/jetbrains_mono_bold</item>
+        <item name="android:fontFamily">@font/jetbrains_mono_bold</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
 </resources>

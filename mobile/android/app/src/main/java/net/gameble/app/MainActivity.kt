@@ -32,7 +32,9 @@ class MainActivity : HotwireActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         keepScreensBelowStatusBar()
-        bottomNavigation = HotwireBottomNavigationController(this, findViewById<BottomNavigationView>(R.id.bottom_navigation))
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.isItemActiveIndicatorEnabled = false
+        bottomNavigation = HotwireBottomNavigationController(this, bottomNavigationView)
         bottomNavigation.load(tabs)
         debugLog?.attachTo(findViewById<FrameLayout>(R.id.screens))
         openNotificationPath(intent)

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="steam_bar">#171A21</color>
+    <color name="panel_raised">#1B2838</color>
+    <color name="line">#2A475E</color>
+    <color name="accent">#66C0F4</color>
+    <color name="muted">#8F98A0</color>
+</resources>
