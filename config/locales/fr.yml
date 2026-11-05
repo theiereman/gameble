@@ -226,6 +226,7 @@ fr:
         extras: "Extras"
         extras_back: "Retour au menu"
         extras_label: "Extras"
+        community: "Discord"
         how_it_works: "Comment ça marche"
         support: "Soutenir"
         source_code: "GitHub"

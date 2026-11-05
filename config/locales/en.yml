@@ -1856,6 +1856,7 @@ en:
         collection_meta:
           one: "%{owned} unique card out of %{total}"
           other: "%{owned} unique cards out of %{total}"
+        community: Discord
         extras: Extras
         extras_back: Back to the menu
         extras_label: Extras

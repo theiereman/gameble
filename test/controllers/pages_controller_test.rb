@@ -82,7 +82,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-showcase form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
   end
 
-  test "the hub's extras list, hidden behind its back button: how it works, then support and GitHub in a new tab" do
+  test "the hub's extras list, hidden behind its back button: how it works, then support, GitHub and Discord in a new tab" do
     sign_in(@player)
 
     get home_path(locale: :fr)
@@ -98,7 +98,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       end
     end
     external = css_select("#hub-menu-extras a.menu-item[target=_blank]")
-    assert_equal [ [ "2", "02", "Soutenir", "https://buymeacoffee.com/theiereman" ], [ "3", "03", "GitHub", "https://github.com/theiereman/gameble" ] ],
+    assert_equal [ [ "2", "02", "Soutenir", "https://buymeacoffee.com/theiereman" ], [ "3", "03", "GitHub", "https://github.com/theiereman/gameble" ],
+      [ "4", "04", "Discord", "https://discord.gg/B5utMfwEN" ] ],
       external.map { [ it["aria-keyshortcuts"], it.at_css(".menu-item__number").text, it.at_css(".menu-item__label").text, it["href"] ] }
     external.each do |link|
       assert_equal %w[noopener noreferrer external], link["rel"].split

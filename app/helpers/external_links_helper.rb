@@ -1,6 +1,7 @@
 module ExternalLinksHelper
   DONATION_URL = "https://buymeacoffee.com/theiereman".freeze
   SOURCE_CODE_URL = "https://github.com/theiereman/gameble".freeze
+  COMMUNITY_URL = "https://discord.gg/B5utMfwEN".freeze
   NEW_TAB = { rel: "noopener noreferrer external", target: "_blank" }.freeze
 
   def external_link_to(name, url, button: false, hint: nil, **options)
@@ -22,6 +23,10 @@ module ExternalLinksHelper
 
   def source_code_menu_item_to(name, **options)
     external_menu_item_to(name, SOURCE_CODE_URL, **options)
+  end
+
+  def community_menu_item_to(name, **options)
+    external_menu_item_to(name, COMMUNITY_URL, **options)
   end
 
   private
