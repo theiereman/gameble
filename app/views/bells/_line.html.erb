@@ -2,6 +2,18 @@
 <%= tag.li id: line.dom_id, class: "bell__line", data: { bell_target: "item", bell_key: line.key, bell_path: line.path, bell_lasting: line.lasting } do %>
   <%= link_to line.href, class: "bell__link", data: { action: "bell#follow", bell_key_param: line.key, turbo_prefetch: false } do %>
     <span class="bell__sentence"><%= line.sentence %></span>
+    <% if line.reactions.any? || line.subject %>
+      <span class="bell__detail">
+        <% line.reactions.each do |kind, count| %>
+          <span class="bell__reaction">
+            <%= reaction_icon(kind, class_name: "bell__reaction-icon") %>
+            <span class="visually-hidden"><%= t("reactions.names.#{kind}") %></span>
+            <span class="bell__reaction-count"><%= count %></span>
+          </span>
+        <% end %>
+        <% if line.subject %><span class="bell__subject"><%= line.subject %></span><% end %>
+      </span>
+    <% end %>
     <span class="bell__action"><%= line.action %><%= pixel_icon("arrow-small-right", class: "bell__arrow") %></span>
   <% end %>
 <% end %>

@@ -162,6 +162,19 @@ class Game::BellItemsTest < ActiveSupport::TestCase
     assert_equal [ entry.token, "Eve", 1, 2, noticed_at(entry) ], [ line.token, line.name, line.others, line.count, line.noticed_at ]
   end
 
+  test "a line tells the kinds chosen, most chosen first, and what the entry shows" do
+    entry = feed_entry_of(@hugo)
+    react(@max, entry, "wow")
+    react(@eve, entry, "heart")
+    react(Accounts::Player.create!(steam_id: "76561198000001234"), entry, "heart")
+
+    line = reactions.sole
+
+    assert_equal({ "heart" => 2, "wow" => 1 }, line.kinds)
+    assert_equal [ "heart", "wow" ], line.kinds.keys
+    assert_equal [ "Portal", nil, nil ], [ line.subject.card, line.subject.partner_card, line.subject.set ]
+  end
+
   test "a withdrawn reaction keeps its notice: the line counts the players reacting now and keeps its latest notice" do
     @max.update!(persona_name: "Max")
     @eve.update!(persona_name: "Eve")

@@ -68,6 +68,7 @@ fr:
         zero: "%{name} a réagi à votre publication."
         one: "%{name} et %{count} autre ont réagi à votre publication."
         other: "%{name} et %{count} autres ont réagi à votre publication."
+      reaction_trade: "%{card} contre %{partner_card}"
       reaction_anonymous:
         zero: "%{count} joueur a réagi à votre publication."
         one: "%{count} joueur a réagi à votre publication."

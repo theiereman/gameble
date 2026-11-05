@@ -2644,6 +2644,7 @@ en:
         zero: "%{name} reacted to your post."
         one: "%{name} and %{count} other reacted to your post."
         other: "%{name} and %{count} others reacted to your post."
+      reaction_trade: "%{card} for %{partner_card}"
       read_all: Mark all as read
       see: See
       title: What is new

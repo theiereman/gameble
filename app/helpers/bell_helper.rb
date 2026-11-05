@@ -1,6 +1,6 @@
 module BellHelper
-  BellLine = Data.define(:key, :path, :href, :sentence, :action, :lasting, :dom_id) do
-    def initialize(lasting: false, dom_id: nil, **line) = super(lasting:, dom_id:, **line)
+  BellLine = Data.define(:key, :path, :href, :sentence, :action, :lasting, :dom_id, :reactions, :subject) do
+    def initialize(lasting: false, dom_id: nil, reactions: {}, subject: nil, **line) = super(lasting:, dom_id:, reactions:, subject:, **line)
   end
 
   def bell_lines(items)
@@ -37,7 +37,15 @@ module BellHelper
     else
       t("shell.bell.reaction_anonymous", count: reaction.count)
     end
-    BellLine.new(key: "reaction:#{reaction.token}:#{reaction.noticed_at.utc.iso8601(6)}", path: feed_path, href: feed_path, sentence:, action: t("shell.bell.see"))
+    BellLine.new(key: "reaction:#{reaction.token}:#{reaction.noticed_at.utc.iso8601(6)}", path: feed_path, href: feed_path, sentence:,
+      action: t("shell.bell.see"), reactions: reaction.kinds, subject: bell_reaction_subject(reaction.subject))
+  end
+
+  def bell_reaction_subject(subject)
+    if subject.set then SetLabel.for(subject.set)
+    elsif subject.card && subject.partner_card then t("shell.bell.reaction_trade", card: subject.card, partner_card: subject.partner_card)
+    else subject.card
+    end
   end
 
   def bell_daily_line(day)
