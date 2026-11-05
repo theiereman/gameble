@@ -23,7 +23,7 @@
         <% if hotwire_native_app? %>
           <button type="button" class="button button--secondary button--small top-bar__previous" hidden
             data-controller="bridge--back" data-action="bridge--back#back">
-            <%= pixel_icon("arrow-left", class: "button__icon") %><%= pixel_icon("back-g", class: "top-bar__back-g") %><span class="visually-hidden"><%= t("shell.top_bar.previous") %></span>
+            <%= pixel_icon("arrow-left", class: "button__icon") %><span class="visually-hidden"><%= t("shell.top_bar.previous") %> </span><span class="button__label" data-bridge--back-target="label"><%= t("shell.top_bar.previous_fallback") %></span>
           </button>
         <% else %>
           <a class="button button--secondary button--small top-bar__previous" hidden

@@ -18,12 +18,13 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=view-transition]", 0
   end
 
-  test "in the app, a sub-screen's way back is the app's own, shown once the app says there is a screen to go back to" do
+  test "in the app, a sub-screen's way back is the app's own, named and shown once the app says which screen lies behind" do
     get card_season_path(slug: catalog_cards(:portal).slug, number: catalog_card_seasons(:portal_one).season.number, locale: :en), headers: { "User-Agent" => APP }
 
     assert_select ".top-bar__start > button.top-bar__previous[type=button][hidden][data-controller='bridge--back'][data-action='bridge--back#back']" do
-      assert_select "svg.button__icon + svg.top-bar__back-g"
+      assert_select "svg.button__icon"
       assert_select ".visually-hidden", "Back:"
+      assert_select ".button__label[data-bridge--back-target=label]", "Back"
     end
     assert_select "[data-controller~='previous-screen']", 0
   end

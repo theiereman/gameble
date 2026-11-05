@@ -113,6 +113,7 @@ fr:
       home: "Gameble, pont de commandement"
       landing: "Gameble, page d'accueil"
       previous: "Retour :"
+      previous_fallback: "Retour"
       motion_switch: "Animations réduites"
       sign_in: "Se connecter"
     screens:

@@ -33,25 +33,9 @@
   display: none;
 }
 
-/* A sub-screen's way back: an arrow before the G, shown once the app says a screen lies behind. */
+/* A sub-screen's way back names the screen behind it, shown once the app says there is one. */
 :root[data-native-app] .top-bar__start > .top-bar__previous:not([hidden]) {
   display: inline-flex;
-}
-
-:root[data-native-app] .top-bar__start > .top-bar__previous {
-  gap: var(--space-1);
-  min-width: var(--space-touch-min);
-  min-height: var(--space-touch-min);
-  margin-left: calc(-1 * var(--space-2));
-  padding: 0 var(--space-2);
-  background: none;
-  box-shadow: none;
-}
-
-:root[data-native-app] .top-bar__start > .top-bar__previous .top-bar__back-g {
-  display: block;
-  width: auto;
-  height: var(--space-back-g-height);
 }
 
 /* The capsule screen fills the space between the top bar and the native tabs, without a scroll,
