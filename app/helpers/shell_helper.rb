@@ -111,6 +111,10 @@ module ShellHelper
     t("shell.screens.#{key}") if key
   end
 
+  def native_screen_label
+    controller_path == "pages" && action_name == "home" ? t("shell.top_bar.back") : shell_screen_label
+  end
+
   def shell_screen_labels
     key = screen_label_key
     I18n.available_locales.to_h { |locale| [ locale.to_s, t("shell.screens.#{key}", locale: locale) ] } if key

@@ -12,22 +12,21 @@ class BackComponent(name: String, private val delegate: BridgeDelegate<HotwireDe
 
     override fun onReceive(message: Message) {
         when (message.event) {
-            "connect" -> connect(message)
+            "screen" -> message.data<ScreenData>()?.let { screenLabels[delegate.destination.location] = it.label }
+            "connect" -> connect()
             "back" -> (delegate.destination.fragment.activity as? MainActivity)?.goBack()
         }
     }
 
-    private fun connect(message: Message) {
-        val destination = delegate.destination
-        message.data<ConnectData>()?.label?.let { screenLabels[destination.location] = it }
-        val navigator = destination.navigator
+    private fun connect() {
+        val navigator = delegate.destination.navigator
         val canGoBack = !navigator.isAtStartDestination()
         val previousLabel = if (canGoBack) navigator.previousLocation?.let { screenLabels[it] } else null
         replyTo("connect", Reply(canGoBack, previousLabel))
     }
 
     @Serializable
-    data class ConnectData(val label: String? = null)
+    data class ScreenData(val label: String)
 
     @Serializable
     data class Reply(val canGoBack: Boolean, val previousLabel: String?)

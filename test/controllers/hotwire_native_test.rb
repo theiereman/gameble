@@ -27,6 +27,10 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
       assert_select ".button__label[data-bridge--back-target=label]", "Back"
     end
     assert_select "[data-controller~='previous-screen']", 0
+    assert_select "div[hidden][data-controller~='bridge--screen'][data-bridge--screen-label-value=Card]"
+
+    get home_path(locale: :fr), headers: { "User-Agent" => APP }
+    assert_select "div[hidden][data-controller~='bridge--screen'][data-bridge--screen-label-value=Pont]"
   end
 
   test "a visitor in the app is led straight to sign in instead of the landing; a browser's visitor sees the landing" do

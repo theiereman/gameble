@@ -1,7 +1,5 @@
 import { BridgeComponent } from "@hotwired/hotwire-native-bridge"
 
-import { currentScreenLabel } from "../../lib/history_trail"
-
 export default class extends BridgeComponent {
   static component = "back"
   static targets = ["label"]
@@ -10,7 +8,7 @@ export default class extends BridgeComponent {
 
   connect(): void {
     super.connect()
-    this.send("connect", { label: currentScreenLabel() }, ({ data }) => {
+    this.send("connect", {}, ({ data }) => {
       if (typeof data.previousLabel === "string" && data.previousLabel !== "") {
         this.labelTarget.textContent = data.previousLabel
       }
