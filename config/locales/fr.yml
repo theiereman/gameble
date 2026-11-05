@@ -2378,6 +2378,7 @@ fr:
       sets: "Sets"
       goals: "Objectifs"
       copies: "Exemplaires"
+      owners: "Possédée par"
       editions: "Éditions"
       steam_reviews: "Avis Steam"
     season_number: "Saison %{number}"
@@ -2400,6 +2401,17 @@ fr:
       other: "%{count} exemplaires"
     no_copies: "Aucun"
     no_editions: "Aucune"
+    owners:
+      another_edition: "Ils possèdent une autre édition"
+      copies:
+        zero: "×%{count}"
+        one: "×%{count}"
+        other: "×%{count}"
+      more:
+        zero: "+%{count} autre"
+        one: "+%{count} autre"
+        other: "+%{count} autres"
+      none: "Aucun de vos amis ne la possède"
     position: "%{position} / %{total}"
     swipe: "glissez pour parcourir"
     previous: "Carte précédente"

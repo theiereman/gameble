@@ -1,0 +1,8 @@
+<% shown, folded = owners.first(3), owners.drop(3) %>
+<%= render "cards/friend_owner_items", owners: shown, strings:, editions: %>
+<% if folded.any? %>
+  <details class="card-detail__editions-fold">
+    <summary class="card-detail__editions-more"><%= t("card_details.owners.more", count: folded.size) %></summary>
+    <%= render "cards/friend_owner_items", owners: folded, strings:, editions: %>
+  </details>
+<% end %>

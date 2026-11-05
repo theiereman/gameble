@@ -1,0 +1,16 @@
+<div class="card-detail__fact card-detail__fact--owners">
+  <dt><%= t("card_details.facts.owners") %></dt>
+  <% if owners.none? %>
+    <dd><%= t("card_details.owners.none") %></dd>
+  <% else %>
+    <dd class="card-detail__owners">
+      <% if owners.same.any? %>
+        <%= render "cards/friend_owner_list", owners: owners.same, strings:, editions: false %>
+      <% end %>
+      <% if owners.other.any? %>
+        <p class="card-detail__owners-heading"><%= t("card_details.owners.another_edition") %></p>
+        <%= render "cards/friend_owner_list", owners: owners.other, strings:, editions: true %>
+      <% end %>
+    </dd>
+  <% end %>
+</div>

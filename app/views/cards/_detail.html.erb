@@ -7,6 +7,7 @@
 <% pioneer = local_assigns.fetch(:pioneer, nil) %>
 <% goals = local_assigns.fetch(:goals, []) %>
 <% trade_holders = local_assigns.fetch(:trade_holders, nil) || [] %>
+<% friend_owners = local_assigns.fetch(:friend_owners, nil) || Game::FriendsOwning::NONE %>
 <% goal_numbers = goals.map(&:position) %>
 <% repostable = share_url && editions.any? { |_, season_number, _| season_number == detail.view.season_number } %>
 <% view = detail.view %>
@@ -152,6 +153,7 @@
                   <dd><%= t("card_details.no_editions") %></dd>
                 <% end %>
               </div>
+              <%= render "cards/friend_owners", owners: friend_owners, strings: %>
             <% end %>
             <% if detail.steam_reviews %>
               <div class="card-detail__fact">

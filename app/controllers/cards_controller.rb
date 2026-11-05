@@ -24,10 +24,15 @@ class CardsController < ApplicationController
     @showcase = showcase_state
     @trade_holders = trade_holders unless @public || @copies
     @pioneer = pioneer_line
+    @friend_owners = friend_owners unless @public
     @set_url = set_url
   end
 
   private
+    def friend_owners
+      Game::FriendsOwning.call(current_player, card_id: @detail.card_id, card_season_id: @detail.card_season_id)
+    end
+
     def trade_holders
       Game::FriendsHolding.call(current_player, card_id: @detail.card_id, card_season_id: @detail.card_season_id)
     end

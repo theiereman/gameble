@@ -765,6 +765,7 @@ en:
       editions: Editions
       genre: Genre
       goals: Goals
+      owners: Owned by
       pioneer: Pioneer
       publisher: Publisher
       rarity: Rarity
@@ -778,6 +779,15 @@ en:
     no_editions: None
     open: "%{title}, %{year}, %{rarity}, season %{season}"
     open_not_owned: "%{title}, %{year}, %{rarity}, season %{season}, not owned"
+    owners:
+      another_edition: They own another edition
+      copies:
+        one: "×%{count}"
+        other: "×%{count}"
+      more:
+        one: "+%{count} more"
+        other: "+%{count} more"
+      none: None of your friends owns it
     pioneer:
       anonymous: An anonymous player
       dated: on %{date}
