@@ -52,11 +52,12 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
     assert_select ".steam-sign-in", 0
   end
 
-  test "each app's path configuration covers every page and never pulls to refresh, which would fight the game's drags" do
+  test "each app's path configuration covers every page, swaps a page for itself with other parameters, and never pulls to refresh" do
     %w[ios_v1 android_v1].each do |name|
       rules = JSON.parse(Rails.public_path.join("configurations/#{name}.json").read).fetch("rules")
 
       assert_equal [ ".*" ], rules.first.fetch("patterns"), name
+      assert_equal "replace", rules.first.dig("properties", "query_string_presentation"), name
       assert rules.none? { |rule| rule.dig("properties", "pull_to_refresh_enabled") }, name
       %w[/fr/me/sheets/title /en/feed/types /fr/cards/portal/seasons/1/holders].each do |sheet_path|
         rule = rules.reverse.find { |candidate| candidate["patterns"].any? { Regexp.new(it).match?(sheet_path) } }

@@ -8,6 +8,7 @@ import androidx.navigation.navOptions
 import com.google.android.material.appbar.AppBarLayout
 import dev.hotwire.core.turbo.errors.VisitError
 import dev.hotwire.core.turbo.visit.VisitAction
+import dev.hotwire.core.turbo.webview.HotwireWebView
 import dev.hotwire.navigation.destinations.HotwireDestination
 import dev.hotwire.navigation.destinations.HotwireDestinationDeepLink
 import dev.hotwire.navigation.fragments.HotwireWebFragment
@@ -17,6 +18,12 @@ class GamebleWebFragment : HotwireWebFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         hideAppBar()
+    }
+
+    // A WebView rasters only what is on screen; a tab sliding in would otherwise paint itself as it arrives.
+    override fun onWebViewAttached(webView: HotwireWebView) {
+        super.onWebViewAttached(webView)
+        webView.settings.offscreenPreRaster = true
     }
 
     override fun onVisitRendered(location: String) {
