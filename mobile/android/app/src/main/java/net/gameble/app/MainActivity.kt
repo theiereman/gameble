@@ -14,11 +14,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.messaging.FirebaseMessaging
 import dev.hotwire.navigation.activities.HotwireActivity
 import dev.hotwire.navigation.tabs.HotwireBottomNavigationController
+import dev.hotwire.navigation.tabs.HotwireBottomNavigationController.Visibility
 import dev.hotwire.navigation.tabs.navigatorConfigurations
 
 class MainActivity : HotwireActivity() {
@@ -28,6 +28,7 @@ class MainActivity : HotwireActivity() {
     private var pendingGrant: ((String?) -> Unit)? = null
     private val tabSlide = TabSlide()
     private lateinit var screenTransition: ScreenTransition
+    private var tabsShown = true
 
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) fetchPushToken() else finishGrant(null)
@@ -98,7 +99,9 @@ class MainActivity : HotwireActivity() {
     }
 
     fun showTabs(shown: Boolean) {
-        findViewById<BottomNavigationView>(R.id.bottom_navigation).isVisible = shown
+        tabsShown = shown
+        bottomNavigation.visibility = if (shown) Visibility.DEFAULT else Visibility.HIDDEN
+        ViewCompat.requestApplyInsets(findViewById(R.id.screens))
     }
 
     fun showNativeSignIn() {
@@ -126,7 +129,7 @@ class MainActivity : HotwireActivity() {
     private fun fitScreensBetweenStatusBarAndTabs() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.screens)) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
-            view.setPadding(bars.left, bars.top, bars.right, 0)
+            view.setPadding(bars.left, bars.top, bars.right, if (tabsShown) 0 else bars.bottom)
             WindowInsetsCompat.Builder(insets)
                 .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.NONE)
                 .setInsets(WindowInsetsCompat.Type.displayCutout(), Insets.NONE)
