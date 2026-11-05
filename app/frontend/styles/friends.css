@@ -23,12 +23,6 @@
   container: friends-main / inline-size;
 }
 
-.friends__feed {
-  display: flex;
-  justify-content: flex-end;
-  margin: 0 0 var(--space-5);
-}
-
 @media (max-width: 1179px) {
   .friends__layout {
     grid-template-columns: clamp(300px, 30vw, 360px) minmax(0, 1fr);

@@ -1,9 +1,9 @@
-<div id="live-strip" class="public-card__live-body">
+<div id="live-strip" class="live-strip__body">
   <% if items.any? %>
-    <ul class="public-card__live-list">
+    <ul class="live-strip__list">
       <% items.each do |item, card, partner_card, set| %>
-        <li class="<%= class_names("public-card__live-entry", "public-card__live-entry--filler": item.filler) %>">
-          <p class="public-card__live-sentence"><% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span> <% end %><%= feed_sentence(item, card, partner_card, set, links: false) %></p>
+        <li class="<%= class_names("live-strip__entry", "live-strip__entry--filler": item.filler) %>">
+          <p class="live-strip__sentence"><% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span> <% end %><%= feed_sentence(item, card, partner_card, set, links: false) %></p>
           <% if item.entry.kind == "set" %>
             <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") %>
           <% elsif item.entry.kind == "repost" %>
@@ -17,6 +17,6 @@
       <% end %>
     </ul>
   <% else %>
-    <p class="public-card__live-empty"><%= t("feeds.show.empty") %></p>
+    <p class="live-strip__empty"><%= t("feeds.show.empty") %></p>
   <% end %>
 </div>

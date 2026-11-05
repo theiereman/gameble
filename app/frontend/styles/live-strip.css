@@ -1,0 +1,87 @@
+/* The feed's latest entries, kept live, on the public card page and the bridge. */
+.live-strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.live-strip__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.live-strip__list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.live-strip--stacked .live-strip__list {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.live-strip__entry {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 68px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel);
+  box-shadow: var(--panel-soft-border);
+}
+
+.live-strip--stacked .live-strip__entry {
+  flex-direction: row;
+  align-items: center;
+  min-height: 0;
+}
+
+.live-strip__entry--filler {
+  background: var(--color-panel-sunken);
+}
+
+.live-strip__sentence {
+  margin: 0;
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.live-strip--stacked .live-strip__sentence {
+  flex: 1;
+}
+
+.live-strip__sentence strong {
+  color: var(--color-text-max);
+  font-weight: inherit;
+}
+
+.live-strip__empty {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.live-strip__open {
+  display: flex;
+  margin: 0;
+}
+
+@media (max-width: 719px) {
+  .live-strip__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .live-strip__open .button {
+    flex: 1;
+  }
+}

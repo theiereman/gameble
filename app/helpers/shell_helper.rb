@@ -66,13 +66,13 @@ module ShellHelper
       %w[pages#home own_profiles#show friends#show library#show library#cards].include?("#{controller_path}##{action_name}")
   end
 
-  FRIENDS_TAB_CONTROLLERS = %w[friends friend_profiles feeds].freeze
+  FRIENDS_TAB_CONTROLLERS = %w[friends friend_profiles].freeze
 
   def shell_tabs
     return visitor_tabs unless current_player
 
     [
-      [ :hub, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
+      [ :hub, "tab-hub", home_path, (controller_path == "pages" && action_name == "home") || controller_path == "feeds" ],
       [ :booster, "tab-capsule", booster_path, %w[boosters packs].include?(controller_path) ],
       [ :sets, "tab-sets", library_path, %w[library cards custom_sets].include?(controller_path) ],
       [ :friends, "tab-friends", friends_path, FRIENDS_TAB_CONTROLLERS.include?(controller_path) ],

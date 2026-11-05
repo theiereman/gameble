@@ -84,8 +84,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__end a[href^='/en/sign-in']"
     assert_select "nav.tab-bar", false
     assert_select "main a[href^='/en/sign-in']", 1
-    assert_select ".public-card__live-title", /Live\s+·\s+Right now on Gameble/
-    assert_select "#live-strip .public-card__live-empty", "Nothing here yet."
+    assert_select ".live-strip__title", /Live\s+·\s+Right now on Gameble/
+    assert_select "#live-strip .live-strip__empty", "Nothing here yet."
     assert_select ".public-card__footer a.public-card__legal[href=?]", "/en/legal", "Legal notice"
     assert_select ".library, .profile", false
     assert_not_includes response.body, "Gabe the Brave"
@@ -105,8 +105,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
     get card_page(locale: :fr)
 
-    assert_select "#live-strip .public-card__live-list > li.public-card__live-entry", 3 do |entries|
-      entries.each { |entry| assert_equal "Hugo a tiré Portal", entry.at_css(".public-card__live-sentence").text }
+    assert_select "#live-strip .live-strip__list > li.live-strip__entry", 3 do |entries|
+      entries.each { |entry| assert_equal "Hugo a tiré Portal", entry.at_css(".live-strip__sentence").text }
     end
     assert_select "#live-strip .feed__tag--epic", count: 3, text: "Épique"
     assert_select "#live-strip", text: /Hidden/, count: 0

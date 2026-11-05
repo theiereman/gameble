@@ -50,15 +50,7 @@
     </div>
   </div>
 
-  <section class="public-card__live" aria-labelledby="public-card-live">
-    <h2 id="public-card-live" class="public-card__live-title">
-      <%= render "shell/live_marker" %>
-      <span aria-hidden="true">·</span>
-      <%= t("cards.show.live.title") %>
-    </h2>
-    <%= render "cards/live_strip", items: live %>
-    <%= turbo_stream_from(*LiveStream.feed_streamables) %>
-  </section>
+  <%= render "shell/live_strip", items: live, title: t("cards.show.live.title"), id: "public-card-live" %>
 
   <footer class="public-card__footer">
     <%= link_to t("cards.show.legal"), legal_path, class: "public-card__legal" %>

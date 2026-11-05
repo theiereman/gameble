@@ -1292,7 +1292,6 @@ en:
       copy: Copy
       empty: No friends yet.
       empty_invite: Invite one with your link or your code.
-      feed: Activity feed
       friends: Friends
       ignore: Ignore
       invitations: Invitations
@@ -1886,6 +1885,9 @@ en:
         title: Goals in progress
       kicker:
         title: Command bridge
+      live:
+        open: Open the feed
+        title: Activity feed
       menu:
         achievements: Achievements
         achievements_meta:

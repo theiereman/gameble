@@ -23,6 +23,7 @@ class PagesController < ApplicationController
     Accounts::CloseWelcomeJob.perform_later(current_player.id) if @welcome
     @collection = collection if @season
     @goals = Game::GoalNeeds.call(current_player)
+    @live_strip = LiveStream.strip_items
   end
 
   def legal

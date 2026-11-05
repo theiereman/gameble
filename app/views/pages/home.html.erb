@@ -18,6 +18,8 @@
   <div class="hub__aside">
     <%= render "pages/goal", goal: @goal, reward: @goal_reward, bank: @bank %>
     <%= render "pages/daily_booster", bank: @bank, primary: @showcase.present? if @bank[:bonus_collectable] || @bank[:bonus_collected] %>
+    <%= render "shell/live_strip", items: @live_strip, title: t(".live.title"), id: "hub-live", stacked: true, subscribe: false,
+          open_label: t(".live.open") %>
   </div>
 
   <%= render "pages/goals_in_progress", goals: @goals if @goals.any? %>

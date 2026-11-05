@@ -202,6 +202,9 @@ fr:
       legal: "Mentions légales"
   pages:
     home:
+      live:
+        open: "Ouvrir le fil"
+        title: "Fil d'activité"
       kicker:
         title: "Pont de commandement"
       menu:
@@ -1665,7 +1668,6 @@ fr:
       code_label: "Votre code ami"
       empty: "Aucun ami pour l'instant."
       empty_invite: "Invitez-en un avec votre lien ou votre code."
-      feed: "Fil d'activité"
       nameless: "Joueur sans nom"
       invite: "Inviter un ami"
       by_link: "Par lien"

@@ -192,65 +192,6 @@
   }
 }
 
-/* ---- LIVE strip of the public card page ---- */
-
-.public-card__live {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.public-card__live-title {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  color: var(--color-text-bright);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-}
-
-.public-card__live-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.public-card__live-entry {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: var(--space-3);
-  min-height: 68px;
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-panel);
-  box-shadow: var(--panel-soft-border);
-}
-
-.public-card__live-entry--filler {
-  background: var(--color-panel-sunken);
-}
-
-.public-card__live-sentence {
-  margin: 0;
-  font: var(--font-body-small);
-  letter-spacing: var(--tracking-body-small);
-}
-
-.public-card__live-sentence strong {
-  color: var(--color-text-max);
-  font-weight: inherit;
-}
-
-.public-card__live-empty {
-  margin: 0;
-  color: var(--color-muted);
-}
-
 .public-card__footer {
   padding-top: var(--space-4);
   border-top: var(--space-unit) solid var(--color-line-soft);
@@ -295,10 +236,6 @@
   .public-card__pitch .button {
     width: 100%;
     min-height: var(--space-button-height-phone);
-  }
-
-  .public-card__live-list {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   /* No tab bar on this page: the main's bottom padding is the plain one. */

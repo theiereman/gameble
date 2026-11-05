@@ -37,7 +37,7 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
   test "every tab is current on its own screens and on their drill-downs" do
     { home_path(locale: :en) => "/en", library_path(locale: :en) => "/en/library", library_cards_path(locale: :en) => "/en/library",
       trades_path(locale: :en) => "/en/trades", friends_path(locale: :en) => "/en/friends",
-      feed_path(locale: :en) => "/en/friends" }.each do |path, tab|
+      feed_path(locale: :en) => "/en" }.each do |path, tab|
       get path
       assert_response :success
       assert_select "a.tab-bar__tab[aria-current=page]", 1, path
@@ -45,10 +45,10 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "every former More destination is a tab, or one tap from Friends, the Me page, the Sets switch or the header menu" do
+  test "every former More destination is a tab, or one tap from the bridge, Friends, the Me page, the Sets switch or the header menu" do
     get home_path(locale: :en)
     reachable = css_select("#phone-menu-panel a[href], .tab-bar a[href]").pluck("href")
-    [ friends_path(locale: :en), me_path(locale: :en), library_path(locale: :en) ].each do |path|
+    [ home_path(locale: :en), friends_path(locale: :en), me_path(locale: :en), library_path(locale: :en) ].each do |path|
       get path
       reachable.concat(css_select("main a[href]").pluck("href"))
     end
@@ -56,7 +56,7 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     assert_empty FORMER_MORE_DESTINATIONS - reachable
   end
 
-  test "Trades and Friends are tab roots with no back button, the feed goes back to Friends on the phone" do
+  test "Trades and Friends are tab roots with no back button, the feed goes back to the bridge on the phone" do
     [ trades_path(locale: :en), friends_path(locale: :en) ].each do |path|
       get path
       assert_select ".top-bar__phone-back", 0, path
@@ -64,12 +64,20 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
 
     get feed_path(locale: :en)
     back = css_select(".top-bar__start > a.top-bar__phone-back").sole
-    assert_equal [ "/en/friends", "Friends" ], [ back["href"], back.at_css(".button__label").text ]
+    assert_equal [ "/en", "Bridge" ], [ back["href"], back.at_css(".button__label").text ]
   end
 
-  test "the Friends screen links the activity feed; the Me page the achievements" do
+  test "the bridge previews the activity feed and opens it, Friends no longer does; the Me page links the achievements" do
+    get home_path(locale: :fr)
+    assert_select ".hub__aside .live-strip.live-strip--stacked[aria-labelledby=hub-live]" do
+      assert_select "#hub-live", /Fil d'activité/
+      assert_select "#live-strip"
+      assert_select ".live-strip__open a.button[href='/fr/feed']", "Ouvrir le fil"
+    end
+    assert_select ".hub__aside turbo-cable-stream-source", 0
+
     get friends_path(locale: :fr)
-    assert_select ".friends__feed a[href='/fr/feed']", "Fil d'activité"
+    assert_select "main a[href='/fr/feed']", 0
 
     get me_path(locale: :en)
     assert_select "main a.me-achievements__all[href='/en/achievements']"

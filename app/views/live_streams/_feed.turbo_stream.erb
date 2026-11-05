@@ -12,4 +12,4 @@
     <% end %>
   <% end %>
 <% end %>
-<%= turbo_stream.replace "live-strip", partial: "cards/live_strip", locals: { items: strip } %>
+<%= turbo_stream.replace "live-strip", partial: "shell/live_strip_body", locals: { items: strip } %>

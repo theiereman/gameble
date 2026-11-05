@@ -5,9 +5,6 @@
 <% invite_url = public_url_for(invite_link_path(token: current_player.token)) %>
 <section class="friends" aria-labelledby="friends-heading" data-controller="live-refresh" data-live-refresh-signal-value="friends-updated">
   <h1 id="friends-heading" class="visually-hidden"><%= t(".title") %></h1>
-  <p class="friends__feed">
-    <%= render ButtonComponent.new(variant: :secondary, size: :small, href: feed_path) do %><%= t(".feed") %><% end %>
-  </p>
   <div class="friends__layout">
     <div class="friends__side">
       <%= render PanelComponent.new(brackets: true, class: "friends__panel", id: "friends-invite") do %>

@@ -59,7 +59,7 @@ class LiveFeedJobTest < ActiveSupport::TestCase
     assert_empty ticker.css(".ticker__sentence a")
     assert_equal "Epic", ticker.at_css(".ticker__rarity.ticker__rarity--epic").text
     strip = template(english, "replace", "live-strip")
-    assert_equal 3, strip.css("#live-strip li.public-card__live-entry").size
+    assert_equal 3, strip.css("#live-strip li.live-strip__entry").size
     assert_empty english.css("[style]")
 
     assert_equal "/en/cards/portal", feed.at_css("a.feed__thumb")["href"]
