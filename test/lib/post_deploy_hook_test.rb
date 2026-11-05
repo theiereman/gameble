@@ -5,7 +5,7 @@ require "tmpdir"
 
 # The Kamal deploy hooks: pre-deploy refuses a deploy of an untagged commit
 # (a destination is deployed from a published release only), and in
-# production of anything but a release on main's head; post-deploy
+# production of anything but a release on main's head or ahead of it; post-deploy
 # (.kamal/hooks/post-deploy) posts a simplified changelog of the commits since
 # the version last deployed (the tag deployed/<destination>, moved and pushed
 # after each announcement) to the Discord webhook of
@@ -70,7 +70,7 @@ class PostDeployHookTest < ActiveSupport::TestCase
     assert_match(/uncommitted changes/, output)
   end
 
-  test "pre-deploy lets production run a release on origin/main only, and a rollback to anything" do
+  test "pre-deploy lets production run a release on origin/main or ahead of it only, and a rollback to anything" do
     git("remote", "set-url", "origin", @origin)
     git("push", "--quiet", "origin", "#{@versions[5]}:refs/heads/main")
     git("tag", "v0.9.0", @versions[4])
@@ -84,9 +84,12 @@ class PostDeployHookTest < ActiveSupport::TestCase
     git("tag", "v1.0.0", @versions[5])
     assert_predicate pre_deploy(version: @versions[5], destination: "production"), :success?
 
+    git("tag", "v1.1.0", @versions[6])
+    assert_predicate pre_deploy(version: @versions[6], destination: "production"), :success?, "main fast-forwards to it after the deploy"
+
     output, status = pre_deploy(version: @versions[4], destination: "production", output: true)
     assert_not_predicate status, :success?
-    assert_match(/production runs main's head only, and #{@versions[4]} is not origin\/main/, output)
+    assert_match(/production runs main's head or a fast-forward of it, and #{@versions[4]} is neither/, output)
 
     assert_predicate pre_deploy(version: @versions[3], destination: "production", command: "rollback"), :success?
   end
@@ -95,10 +98,10 @@ class PostDeployHookTest < ActiveSupport::TestCase
     git("tag", "v0.9.0", @versions[4])
     git("tag", "v1.0.0", @versions[5])
     git("remote", "set-url", "origin", File.join(@dir, "missing.git"))
-    git("update-ref", "refs/remotes/origin/main", @versions[4])
+    git("update-ref", "refs/remotes/origin/main", @versions[5])
 
-    assert_predicate pre_deploy(version: @versions[4], destination: "production"), :success?
-    assert_not_predicate pre_deploy(version: @versions[5], destination: "production"), :success?
+    assert_predicate pre_deploy(version: @versions[5], destination: "production"), :success?
+    assert_not_predicate pre_deploy(version: @versions[4], destination: "production"), :success?
   end
 
   test "the deploy config names the version by the commit's release tag, over its candidate, else its short sha" do

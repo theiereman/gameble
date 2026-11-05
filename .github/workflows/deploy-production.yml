@@ -1,24 +1,24 @@
 name: Deploy to production
 
-# Production runs releases only (RELEASING.md); a pre-release never starts
-# this workflow. Publishing a release vX.Y.Z, which bin/promote does on the
-# commit of an accepted candidate, checks that the commit is main's head and
-# runs on staging, copies the image staging ran to the release package, then
-# waits for the author's approval in the environment `production` before
-# deploying that image to https://gameble.net.
+# Production runs releases only (RELEASING.md). Run by hand from an accepted
+# candidate's tag vX.Y.Z-rc.N (Actions → Run workflow → Use workflow from the
+# tag, or bin/promote), it promotes that candidate: it checks the candidate
+# ran on staging and main fast-forwards to it, runs the browser tests, copies
+# the image staging ran to the release package, then waits for the author's approval in the environment `production` before
+# deploying that image to https://gameble.net. Only once the deploy succeeded
+# does it fast-forward main to the candidate and publish the release vX.Y.Z on
+# it: a failed or rejected run leaves main and the releases as they were.
 # Nothing is built here; before the first deploy, the database accessory is
 # booted by hand (RELEASING.md, Setup).
 #
-# Run by hand with `rollback to` a release, it starts that release's container
-# again, after the same approval.
+# Run from main with `rollback to` a release, it starts that release's
+# container again, after the same approval.
 on:
-  release:
-    types: [ released ]
   workflow_dispatch:
     inputs:
       rollback_to:
-        description: The release to roll back to (vX.Y.Z)
-        required: true
+        description: To roll back, the release to go back to (vX.Y.Z), run from main; empty to promote the candidate tag chosen above
+        required: false
         type: string
 
 concurrency:
@@ -30,47 +30,55 @@ env:
   RELEASE_IMAGE: ghcr.io/theiereman/gameble-releases
 
 jobs:
-  # The browser tests of the release's commit, before anything is copied or
-  # approved: a failure stops the release here.
-  system-tests:
-    if: github.event_name == 'release' && !github.event.release.prerelease
-    uses: ./.github/workflows/system-tests.yml
-
-  # Before the approval, so a rejected run still leaves the release image.
-  release-image:
-    needs: system-tests
-    if: github.event_name == 'release' && !github.event.release.prerelease
+  # Before anything is copied, tested or approved: a candidate that may not
+  # become a release stops here.
+  release-check:
+    if: inputs.rollback_to == ''
     runs-on: ubuntu-latest
     permissions:
       contents: read
       statuses: read
-      packages: write   # the release package is created and written here
     outputs:
-      sha: ${{ steps.release.outputs.sha }}
+      sha: ${{ steps.check.outputs.sha }}
+      release: ${{ steps.check.outputs.release }}
+      previous: ${{ steps.check.outputs.previous }}
     env:
-      TAG: ${{ github.event.release.tag_name }}
+      CANDIDATE: ${{ github.ref_name }}
 
     steps:
-      - name: Checkout the release
+      - name: Checkout the candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ github.ref }}
           fetch-depth: 0
+          fetch-tags: true
 
-      - name: Check the release is main's head and runs on staging
-        id: release
+      - name: Check the candidate may become the release
+        id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if ! printf '%s\n' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::$TAG is not a release tag (vX.Y.Z): nothing deployed to production."
+          if ! printf '%s\n' "$CANDIDATE" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$'; then
+            echo "::error::$CANDIDATE is not a release candidate (vX.Y.Z-rc.N): use workflow from the candidate's tag, or give rollback to from main."
             exit 1
           fi
-          sha=$(git rev-parse "refs/tags/$TAG^{commit}")
-          git fetch --quiet origin main
-          main=$(git rev-parse origin/main)
-          if [ "$sha" != "$main" ]; then
-            echo "::error::$TAG is on $sha, and main's head is $main: promote a candidate with bin/promote."
+          if [ "$GITHUB_REF" != "refs/tags/$CANDIDATE" ]; then
+            echo "::error::The run starts from the branch $CANDIDATE: to promote, use workflow from the candidate's tag."
+            exit 1
+          fi
+          release="${CANDIDATE%-rc.*}"
+          sha=$(git rev-parse "refs/tags/$CANDIDATE^{commit}")
+          git fetch --quiet origin main develop
+          if ! git merge-base --is-ancestor "$sha" origin/develop; then
+            echo "::error::$CANDIDATE is not on develop."
+            exit 1
+          fi
+          if git rev-parse --verify --quiet "refs/tags/$release" > /dev/null || gh release view "$release" > /dev/null 2>&1; then
+            echo "::error::$release already exists."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor origin/main "$sha"; then
+            echo "::error::main is not an ancestor of $CANDIDATE: a commit reached main outside a promotion."
             exit 1
           fi
           staging=$(gh api "repos/$GITHUB_REPOSITORY/commits/$sha/status" \
@@ -79,8 +87,27 @@ jobs:
             echo "::error::$sha has no successful staging status ($staging): it never ran on staging."
             exit 1
           fi
-          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          previous=$(git tag --list 'v*' --merged "$sha" --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)
+          {
+            echo "sha=$sha"
+            echo "release=$release"
+            echo "previous=$previous"
+          } >> "$GITHUB_OUTPUT"
 
+  # The browser tests of the candidate's commit: a failure stops the release here.
+  system-tests:
+    needs: release-check
+    uses: ./.github/workflows/system-tests.yml
+
+  # Before the approval, so a rejected run still leaves the release image.
+  release-image:
+    needs: [ release-check, system-tests ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write   # the release package is created and written here
+
+    steps:
       - name: Log in to the container registry
         uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
@@ -93,11 +120,11 @@ jobs:
 
       - name: Copy the staging image to the release package
         env:
-          SHA: ${{ steps.release.outputs.sha }}
+          SHA: ${{ needs.release-check.outputs.sha }}
         run: docker buildx imagetools create --tag "$RELEASE_IMAGE:$SHA" "$STAGING_IMAGE:$SHA"
 
   deploy:
-    needs: release-image
+    needs: [ release-check, release-image ]
     runs-on: ubuntu-latest
     environment: production
     permissions:
@@ -109,7 +136,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # The commit checked before the approval, even if the tag moved since.
-          ref: ${{ needs.release-image.outputs.sha }}
+          ref: ${{ needs.release-check.outputs.sha }}
           # The changelog reads the commits since the deployed/production tag.
           fetch-depth: 0
           fetch-tags: true
@@ -161,14 +188,56 @@ jobs:
           printf '%s' "$DISCORD_WEBHOOK_PRODUCTION" > config/discord_webhook.production.key
           printf '%s' "$REGISTRY_PASSWORD" > config/registry_password.key
 
+      # Local only: the shown version, the pre-deploy hook and the announcement
+      # read the release tag; it reaches origin with the release, once deployed.
+      - name: Tag the release in the checkout
+        env:
+          RELEASE: ${{ needs.release-check.outputs.release }}
+          SHA: ${{ needs.release-check.outputs.sha }}
+        run: git tag "$RELEASE" "$SHA"
+
       - name: Deploy the release image
         env:
           TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.CLOUDFLARE_ACCESS_CLIENT_ID }}
           TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CLOUDFLARE_ACCESS_CLIENT_SECRET }}
         run: bin/kamal deploy -d production --skip-push
 
+  # Its own job, so a failed publish is re-run alone, without deploying again.
+  # Pushing main needs GitHub Actions among the bypass actors of main's ruleset.
+  publish:
+    needs: [ release-check, deploy ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # main is pushed and the release published here
+    env:
+      RELEASE: ${{ needs.release-check.outputs.release }}
+      SHA: ${{ needs.release-check.outputs.sha }}
+      PREVIOUS: ${{ needs.release-check.outputs.previous }}
+
+    steps:
+      - name: Checkout the release
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release-check.outputs.sha }}
+          fetch-depth: 0
+
+      - name: Fast-forward main to the release
+        run: git push origin "$SHA:refs/heads/main"
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "$RELEASE" > /dev/null 2>&1; then
+            echo "$RELEASE is already published."
+            exit 0
+          fi
+          set -- release create "$RELEASE" --target "$SHA" --title "$RELEASE" --latest --generate-notes
+          if [ -n "$PREVIOUS" ]; then set -- "$@" --notes-start-tag "$PREVIOUS"; fi
+          gh "$@"
+
   rollback-target:
-    if: github.event_name == 'workflow_dispatch'
+    if: inputs.rollback_to != ''
     runs-on: ubuntu-latest
     permissions:
       contents: read

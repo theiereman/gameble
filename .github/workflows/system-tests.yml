@@ -1,7 +1,7 @@
 name: System tests
 
 # The browser tests run once, before a release candidate goes to production:
-# deploy-production.yml calls this workflow on the release's commit and
+# deploy-production.yml calls this workflow on the candidate's commit and
 # deploys only when it passes. Never on a push or a pull request, where their
 # minutes are not worth the signal. Run by hand to check a branch.
 on:

@@ -1,26 +1,27 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Promotes an accepted release candidate to a release (RELEASING.md):
-# fast-forwards main to the candidate's commit and publishes the release
-# vX.Y.Z on that same commit, with notes since the previous release. That
-# release starts .github/workflows/deploy-production.yml.
+# Promotes an accepted release candidate to a release (RELEASING.md): starts
+# .github/workflows/deploy-production.yml from the candidate's tag, as Run
+# workflow does on GitHub. That run deploys
+# it once approved, and only then fast-forwards main to the candidate's commit
+# and publishes the release vX.Y.Z on it; a run that fails or is rejected
+# leaves main and the releases as they were.
 #
-#   bin/promote v1.0.0-rc.2         # asks before pushing anything
+#   bin/promote v1.0.0-rc.2         # asks before starting anything
 #   bin/promote --yes v1.0.0-rc.2
 #
-# It refuses, and pushes nothing, unless the tag is a candidate on develop
+# It refuses, and starts nothing, unless the tag is a candidate on develop
 # whose commit has a successful `staging` status, the release does not exist
-# yet, and main is an ancestor of the candidate. A run whose push went
-# through but whose release failed is finished by running it again.
+# yet, and main is an ancestor of the candidate.
 
 require "json"
 require "open3"
 
 module Promotion
   CANDIDATE = /\A(?<release>v\d+\.\d+\.\d+)-rc\.\d+\z/
-  RELEASE = /\Av\d+\.\d+\.\d+\z/
   STAGING_CONTEXT = "staging"
+  WORKFLOW = "deploy-production.yml"
 
   class Refusal < StandardError; end
 
@@ -44,12 +45,11 @@ module Promotion
       refuse("#{@candidate} (#{short(sha)}) has no successful #{STAGING_CONTEXT} status: it never ran on staging") unless ran_on_staging?(sha)
       refuse("main is not an ancestor of #{@candidate}: a commit reached main outside a promotion") unless ancestor?("refs/remotes/origin/main", sha)
 
-      previous = previous_release(sha)
-      return cancelled unless confirmed?(release, sha, previous)
+      return cancelled unless confirmed?(release, sha)
 
-      push_main(sha)
-      create_release(release, sha, previous)
-      @out.puts "promote: #{release} published on #{short(sha)}; approve its production deploy in GitHub Actions."
+      start_production_run
+      @out.puts "promote: the production run of #{@candidate} started; approve it in GitHub Actions. " \
+        "main moves to #{short(sha)} and #{release} is published once the deploy succeeds."
       true
     rescue Refusal => refusal
       @err.puts "promote: #{refusal.message}"
@@ -97,15 +97,10 @@ module Promotion
         refuse("the statuses of #{short(sha)} are not JSON")
       end
 
-      def previous_release(sha)
-        output, = git("tag", "--list", "v*", "--merged", sha, "--sort=-version:refname")
-        output.lines(chomp: true).find { |tag| tag.match?(RELEASE) }
-      end
-
-      def confirmed?(release, sha, previous)
+      def confirmed?(release, sha)
         @out.puts "Promote #{@candidate} (#{short(sha)}) to #{release}:"
-        @out.puts "  main moves to #{short(sha)}, by fast-forward;"
-        @out.puts "  release #{release} is published on it, notes since #{previous || 'the start'}."
+        @out.puts "  the production run starts on it and waits for your approval;"
+        @out.puts "  once deployed, main moves to #{short(sha)} by fast-forward and #{release} is published on it."
         return true if @yes
 
         @out.print "Proceed? [y/N] "
@@ -113,20 +108,13 @@ module Promotion
       end
 
       def cancelled
-        @out.puts "promote: nothing pushed."
+        @out.puts "promote: nothing started."
         false
       end
 
-      def push_main(sha)
-        output, status = git("push", "origin", "#{sha}:refs/heads/main")
-        refuse("main was not pushed: #{output.strip}") unless status.success?
-      end
-
-      def create_release(release, sha, previous)
-        args = [ "release", "create", release, "--target", sha, "--title", release, "--latest", "--generate-notes" ]
-        args += [ "--notes-start-tag", previous ] if previous
-        output, status = gh(*args)
-        refuse("main is on #{short(sha)}, and the release was not published (run bin/promote again): #{output.strip}") unless status.success?
+      def start_production_run
+        output, status = gh("workflow", "run", WORKFLOW, "--ref", @candidate)
+        refuse("the production run did not start: #{output.strip}") unless status.success?
       end
 
       def refuse(reason)
