@@ -18,7 +18,38 @@
   filter: brightness(0.82);
 }
 
-:root[data-native-app] :is(.top-bar__bridge, .app-version) {
+:root[data-native-app] .app-version {
+  display: none;
+}
+
+/* In the app the gold G alone heads every screen: the tab root's mark, a sub-screen's way back. */
+:root[data-native-app] .top-bar__home-g {
+  display: block;
+  width: auto;
+  height: var(--space-back-g-height);
+}
+
+:root[data-native-app] .top-bar__start:has(> .top-bar__previous:not([hidden])) > .top-bar__bridge {
+  display: none;
+}
+
+:root[data-native-app] .top-bar__start > .top-bar__previous {
+  gap: 0;
+  min-width: var(--space-touch-min);
+  min-height: var(--space-touch-min);
+  margin-left: calc(-1 * var(--space-2));
+  padding: 0 var(--space-2);
+  background: none;
+  box-shadow: none;
+}
+
+:root[data-native-app] .top-bar__start > .top-bar__previous .top-bar__back-g {
+  display: block;
+  width: auto;
+  height: var(--space-back-g-height);
+}
+
+:root[data-native-app] .top-bar__start > .top-bar__previous :is(.button__icon, .button__label) {
   display: none;
 }
 
@@ -44,4 +75,14 @@
 
 :root[data-native-app] .booster[data-layout="phone"] :is(.booster__stage, .booster__shake) {
   min-height: 0;
+}
+
+/* Where the app can share a link natively, its unreadable address gives way to the buttons. */
+:root[data-native-app] .friends__row-field:has([data-controller~="bridge--share"]:not([hidden])) .friends__input {
+  display: none;
+}
+
+:root[data-native-app] .friends__row-field:has([data-controller~="bridge--share"]:not([hidden])) .button {
+  flex: 1;
+  margin: 0;
 }
