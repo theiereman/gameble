@@ -65,13 +65,13 @@ export type RevealHost = BoosterStageHost &
 export class RevealSequence {
   constructor(private readonly host: RevealHost) {}
 
-  async reveal(index: number, fromAll: boolean, { awaitArt = true } = {}): Promise<void> {
+  async reveal(index: number, fromAll: boolean, { artWait = ART_WAIT_MAX } = {}): Promise<void> {
     const { host } = this
     const before = host.current()
     const card = before.answer?.cards[index]
     if (!card || host.apply((s) => revealStarted(s, index, fromAll)) === before) return
     host.apply(lock)
-    if (awaitArt) await this.artReady(index)
+    if (artWait > 0) await this.artReady(index, artWait)
     if (host.timers().disposed) return
     if (motionReduced()) await this.revealStill(index, card.tier, fromAll)
     else if (card.tier === "legendary") await this.revealLegendary(index, fromAll)
@@ -80,12 +80,12 @@ export class RevealSequence {
     host.apply(unlock)
   }
 
-  private async artReady(index: number): Promise<void> {
+  private async artReady(index: number, limit: number): Promise<void> {
     const { host } = this
     const started = performance.now()
     while (
       !host.slot(index)?.querySelector(".booster-card__front .card__art[data-art]") &&
-      performance.now() - started < ART_WAIT_MAX
+      performance.now() - started < limit
     ) {
       await host.timers().wait(ART_POLL)
     }

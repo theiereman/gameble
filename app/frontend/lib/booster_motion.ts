@@ -60,6 +60,7 @@ export function bannerDuration({ reduced, large }: { reduced: boolean; large: bo
 }
 
 export const ART_WAIT_MAX = 6000
+export const ART_WAIT_ALL_MAX = 800
 export const ART_POLL = 50
 
 export function tierIndex(tier: Rarity): number {
