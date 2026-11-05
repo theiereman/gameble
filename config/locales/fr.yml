@@ -2111,7 +2111,7 @@ fr:
       save: "Enregistrer"
       close: "Fermer"
       discard:
-        title: "Quitter sans enregistrer ?"
+        title: "Quitter sans enregistrer ?"
         text: "Vos modifications de ce set seront perdues."
         keep: "Continuer l'édition"
         confirm: "Quitter sans enregistrer"
