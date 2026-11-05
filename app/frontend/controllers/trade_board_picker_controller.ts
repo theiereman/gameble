@@ -31,10 +31,7 @@ export type PickerScreen = {
   count: string
   refused: boolean
   filter: SideFilter
-  folded: boolean
-  moreFolded: boolean
   chipsOn: number
-  moreOn: number
   filtering: boolean
 }
 
@@ -59,12 +56,6 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     "chip",
     "genre",
     "goal",
-    "fold",
-    "groups",
-    "moreFold",
-    "moreGroups",
-    "moreCount",
-    "moreChipCount",
     "filterCount",
     "chipCount",
     "results",
@@ -87,16 +78,9 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
   declare readonly chipTargets: HTMLInputElement[]
   declare readonly genreTargets: HTMLInputElement[]
   declare readonly goalTargets: HTMLInputElement[]
-  declare readonly foldTarget: HTMLButtonElement
-  declare readonly groupsTarget: HTMLElement
-  declare readonly hasMoreFoldTarget: boolean
-  declare readonly moreFoldTarget: HTMLButtonElement
-  declare readonly moreGroupsTarget: HTMLElement
-  declare readonly moreCountTarget: HTMLElement
-  declare readonly moreChipCountTarget: HTMLElement
   declare readonly filterCountTarget: HTMLElement
   declare readonly chipCountTarget: HTMLElement
-  declare readonly resultsTarget: HTMLElement
+  declare readonly resultsTargets: HTMLElement[]
   declare readonly clearTarget: HTMLElement
   declare readonly emptyTargets: HTMLElement[]
   declare readonly refusalTarget: HTMLElement
@@ -197,14 +181,6 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     this.dispatch("filter", { detail: filter })
   }
 
-  fold(): void {
-    this.dispatch("fold")
-  }
-
-  foldMore(): void {
-    this.dispatch("foldMore")
-  }
-
   clear(): void {
     this.dispatch("clear")
   }
@@ -233,7 +209,7 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
   }
 
   private reflectFilters(view: PickerScreen): void {
-    const { side, hasCards, filter, folded, chipsOn, filtering, results } = view
+    const { side, hasCards, filter, chipsOn, filtering, results } = view
     this.filtersTarget.hidden = !hasCards
     if (this.searchTarget.value !== filter.query) this.searchTarget.value = filter.query
     for (const box of this.rarityTargets) box.checked = filter.rarities.includes(box.value as Rarity)
@@ -241,21 +217,10 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
       box.checked = box.dataset.for === side && filter.chips.includes(box.value as Chip)
     for (const box of this.genreTargets) box.checked = box.dataset.for === side && filter.genres.includes(box.value)
     for (const box of this.goalTargets) box.checked = box.dataset.for === side && filter.goals.includes(box.value)
-    this.foldTarget.setAttribute("aria-expanded", String(!folded))
-    this.groupsTarget.classList.toggle("trade-picker__groups--folded", folded)
     this.filterCountTarget.hidden = chipsOn === 0
     writeText(this.chipCountTarget, String(chipsOn))
-    writeText(this.resultsTarget, results)
+    for (const line of this.resultsTargets) writeText(line, results)
     this.clearTarget.hidden = !filtering
-    this.reflectMore(view)
-  }
-
-  private reflectMore({ moreFolded, moreOn }: PickerScreen): void {
-    if (!this.hasMoreFoldTarget) return
-    this.moreFoldTarget.setAttribute("aria-expanded", String(!moreFolded))
-    this.moreGroupsTarget.hidden = moreFolded
-    this.moreCountTarget.hidden = moreOn === 0
-    writeText(this.moreChipCountTarget, String(moreOn))
   }
 
   private reflectPicks({ side, picks }: PickerScreen, faceFor: FaceFor): void {

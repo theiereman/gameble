@@ -79,6 +79,15 @@ class TradesTest < ApplicationSystemTestCase
 
   def pick_toggle(title) = find(".trade-picker .trade-pick__toggle[aria-label^='#{title},']")
 
+  def choose_rarities(*rarities, choose: true)
+    within(".trade-picker") { click_on "Filters" }
+    within("#trade-picker-filter-sheet") do
+      rarities.each { choose ? check(it, allow_label_click: true) : uncheck(it, allow_label_click: true) }
+      find(".modal__close").click
+    end
+    assert_no_selector "#trade-picker-filter-sheet", visible: true
+  end
+
   def place_picks
     within(".trade-picker") { click_on "Place", exact: true }
     assert_no_selector ".trade-picker", visible: true
@@ -162,8 +171,7 @@ class TradesTest < ApplicationSystemTestCase
     assert_selector ".trade-picker__count", text: "2 cards · 2 copies (4 cards at most)"
 
     fill_in "Search by title", with: ""
-    check "Legendary", allow_label_click: true
-    check "Common", allow_label_click: true
+    choose_rarities "Legendary", "Common"
     assert_selector ".trade-pick", count: 2
     assert_selector ".trade-pick__toggle[aria-label^='Golden Crown,']"
     assert_selector ".trade-pick__toggle[aria-label^='Tin Soldier,'][aria-pressed='true']"
@@ -180,15 +188,14 @@ class TradesTest < ApplicationSystemTestCase
     assert_selector ".trade-picker input[type=search]:focus"
     assert_no_selector ".trade-picker__clear"
 
-    check "Legendary", allow_label_click: true
-    check "Common", allow_label_click: true
+    choose_rarities "Legendary", "Common"
     assert_selector ".trade-pick", count: 2
     pick_toggle("Tin Soldier").send_keys(:arrow_right, :arrow_left)
     assert_selector ".trade-pick__toggle:focus[aria-label^='Tin Soldier,']"
     page.active_element.send_keys(:end)
     assert_selector ".trade-pick:last-child .trade-pick__toggle[tabindex='0']"
-    uncheck "Legendary", allow_label_click: true
-    uncheck "Common", allow_label_click: true
+    choose_rarities "Legendary", "Common", choose: false
+    assert_selector ".trade-pick", count: 5
     place_picks
     within(".trade-side--friend") { assert_selector ".trade-card__remove[aria-label='Remove Tin Soldier']" }
   end

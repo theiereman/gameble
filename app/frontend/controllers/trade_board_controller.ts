@@ -30,8 +30,6 @@ import {
   setPickQuantity,
   showMore,
   start,
-  toggleFold,
-  toggleMoreFold,
   togglePick,
   type BoardState,
   type PickerFilters,
@@ -223,14 +221,6 @@ export class TradeBoardController extends Controller<HTMLElement> {
 
   setFilter({ detail }: Intent<SideFilter>): void {
     if (this.state) this.apply(setFilter(this.state, detail), () => this.picker()?.scrollToResults())
-  }
-
-  toggleFold(): void {
-    if (this.state) this.apply(toggleFold(this.state))
-  }
-
-  toggleMoreFold(): void {
-    if (this.state) this.apply(toggleMoreFold(this.state))
   }
 
   clearFilters(): void {

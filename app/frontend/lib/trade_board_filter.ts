@@ -39,21 +39,17 @@ export type SideFilter = {
 
 export const EMPTY_FILTER: SideFilter = { query: "", rarities: [], chips: [], genres: [], goals: [] }
 
-export function moreChips({ genres, goals }: SideFilter): number {
-  return genres.length + goals.length
-}
-
-export function activeChips(filter: SideFilter): number {
-  return filter.rarities.length + filter.chips.length + moreChips(filter)
+export function activeChips({ rarities, chips, genres, goals }: SideFilter): number {
+  return rarities.length + chips.length + genres.length + goals.length
 }
 
 export function filtering(filter: SideFilter): boolean {
   return filter.query.trim() !== "" || activeChips(filter) > 0
 }
 
-export type PickerFilters = { filter: SideFilter; folded: boolean; moreFolded: boolean }
+export type PickerFilters = { filter: SideFilter }
 
-export const FRESH_PICKER_FILTERS: PickerFilters = { filter: EMPTY_FILTER, folded: true, moreFolded: true }
+export const FRESH_PICKER_FILTERS: PickerFilters = { filter: EMPTY_FILTER }
 
 export function withFilter(state: PickerFilters, filter: SideFilter): PickerFilters {
   return { ...state, filter }
@@ -61,14 +57,6 @@ export function withFilter(state: PickerFilters, filter: SideFilter): PickerFilt
 
 export function clearedFilters(state: PickerFilters): PickerFilters {
   return withFilter(state, EMPTY_FILTER)
-}
-
-export function toggledFold(state: PickerFilters): PickerFilters {
-  return { ...state, folded: !state.folded }
-}
-
-export function toggledMoreFold(state: PickerFilters): PickerFilters {
-  return { ...state, moreFolded: !state.moreFolded }
 }
 
 const anyOf = <Value>(chosen: readonly Value[], matches: (value: Value) => boolean): boolean =>

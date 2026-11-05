@@ -42,7 +42,7 @@ class TradeBoardTest < ApplicationSystemTestCase
     end
   end
 
-  test "the picker's more filters narrow the friend's cards to a genre or to a goal" do
+  test "the picker's filter sheet narrows the friend's cards to a genre or to a goal, its pastille counting them" do
     soldier = catalog_card_seasons(:common_card_one)
     Game::Holding.create!(player_id: @lea.id, card_season_id: soldier.id, quantity: 1, reserved: 0)
     Catalog::CardSeason.where(id: @depths).update_all(main_theme: "horror")
@@ -56,22 +56,27 @@ class TradeBoardTest < ApplicationSystemTestCase
     find(".trade-side--friend .trade-add").click
     within(".trade-picker") do
       assert_selector ".trade-pick", count: 2
-      assert_no_selector ".trade-picker__extra-groups", visible: true
 
-      click_on "More filters"
-      check "Horror", allow_label_click: true
+      click_on "Filters"
+      within("#trade-picker-filter-sheet") do
+        check "Horror", allow_label_click: true
+        assert_selector ".filter-sheet__status", text: "1 card shown."
+      end
       assert_selector ".trade-pick", count: 1
       assert_selector ".trade-pick__toggle[aria-label^='Blue Depths,']"
-      assert_selector ".trade-picker__extra-fold .filters__count", text: "1"
+      assert_selector ".filter-row__pastille .filter-row__count", text: "1"
 
-      uncheck "Horror", allow_label_click: true
-      find("#trade-picker-extra-groups fieldset[data-for=friend] .filter-chip--goal").click
+      within("#trade-picker-filter-sheet") do
+        uncheck "Horror", allow_label_click: true
+        find("fieldset[data-for=friend] .filter-chip--goal").click
+        find(".modal__close").click
+      end
       assert_selector ".trade-pick", count: 1
       assert_selector ".trade-pick__toggle[aria-label^='Tin Soldier,']"
 
       click_on "Clear filters"
       assert_selector ".trade-pick", count: 2
-      assert_no_selector ".trade-picker__extra-fold .filters__count", visible: true
+      assert_no_selector ".filter-row__pastille .filter-row__count", visible: true
     end
   end
 

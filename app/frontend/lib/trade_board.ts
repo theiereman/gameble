@@ -6,9 +6,6 @@ import {
   clearedFilters,
   filterCards,
   filtering,
-  moreChips,
-  toggledFold,
-  toggledMoreFold,
   withFilter,
   type FilterableCard,
   type PickerFilters,
@@ -143,10 +140,7 @@ export type PickerView = Readonly<{
   count: SideCount
   refused: boolean
   filter: SideFilter
-  folded: boolean
-  moreFolded: boolean
   chipsOn: number
-  moreOn: number
   filtering: boolean
 }>
 
@@ -255,20 +249,6 @@ export function clearFilters(state: BoardState): BoardState {
   return withFilters(state, clearedFilters)
 }
 
-function withFolds(state: BoardState, change: (filters: PickerFilters) => PickerFilters): BoardState {
-  const { picker } = state
-  if (!picker) return state
-  return { ...state, filters: { ...state.filters, [picker.side]: change(state.filters[picker.side]) } }
-}
-
-export function toggleFold(state: BoardState): BoardState {
-  return withFolds(state, toggledFold)
-}
-
-export function toggleMoreFold(state: BoardState): BoardState {
-  return withFolds(state, toggledMoreFold)
-}
-
 export function showMore(state: BoardState): BoardState {
   const { picker } = state
   if (!picker || picker.shown >= visibleCards(state, picker.side).length) return state
@@ -320,7 +300,7 @@ export function pickerView(state: BoardState): PickerView | null {
   const { picker } = state
   if (!picker) return null
   const cards = state.catalogue[picker.side]
-  const { filter, folded, moreFolded } = state.filters[picker.side]
+  const { filter } = state.filters[picker.side]
   const visible = visibleCards(state, picker.side)
   return {
     side: picker.side,
@@ -334,10 +314,7 @@ export function pickerView(state: BoardState): PickerView | null {
     count: sideCount(picker.selection),
     refused: picker.refused,
     filter,
-    folded,
-    moreFolded,
     chipsOn: activeChips(filter),
-    moreOn: moreChips(filter),
     filtering: filtering(filter),
   }
 }

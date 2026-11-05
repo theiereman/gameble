@@ -1,39 +1,26 @@
-<% offers = trade_picker_extra_offers(editor) %>
-<% if offers.values.any? { it[:genres].any? || it[:goals].any? } %>
-  <div class="trade-picker__extra">
-    <button type="button" class="trade-picker__extra-fold" aria-expanded="false" aria-controls="trade-picker-extra-groups"
-            data-trade-board-picker-target="moreFold" data-action="trade-board-picker#foldMore">
-      <span class="trade-picker__chevron" aria-hidden="true"><%= pixel_icon("arrow-small-right", class: "filters__chevron") %></span>
-      <span class="filters__title"><%= t("trade_board.more_filters") %></span>
-      <span class="filters__count" data-trade-board-picker-target="moreCount" hidden><span class="visually-hidden"><%= t("trade_board.filters_active") %></span> <span data-trade-board-picker-target="moreChipCount">0</span></span>
-    </button>
-    <div id="trade-picker-extra-groups" class="trade-picker__groups trade-picker__extra-groups" data-trade-board-picker-target="moreGroups" hidden>
-      <% offers.each do |side, offer| %>
-        <% if offer[:goals].any? %>
-          <fieldset class="filters__group" data-for="<%= side %>">
-            <legend class="filters__legend"><%= t("library.filters.groups.goals") %></legend>
-            <% offer[:goals].each do |goal| %>
-              <label class="filter-chip filter-chip--goal">
-                <input type="checkbox" class="filter-chip__box" value="<%= GoalMarks.filter_value(goal) %>" data-for="<%= side %>" aria-label="<%= goal_name(goal) %>"
-                       data-trade-board-picker-target="goal" data-action="change->trade-board-picker#filter">
-                <span class="filter-chip__text"><%= goal_bookmark(goal.position, size: :small) %><%= goal_set_name(goal) %></span>
-              </label>
-            <% end %>
-          </fieldset>
-        <% end %>
-        <% if offer[:genres].any? %>
-          <fieldset class="filters__group" data-for="<%= side %>">
-            <legend class="filters__legend"><%= t("library.filters.groups.genre") %></legend>
-            <% offer[:genres].each do |genre| %>
-              <label class="filter-chip">
-                <input type="checkbox" class="filter-chip__box" value="<%= genre %>" data-for="<%= side %>"
-                       data-trade-board-picker-target="genre" data-action="change->trade-board-picker#filter">
-                <span class="filter-chip__text"><%= SetLabel.genre(genre) %></span>
-              </label>
-            <% end %>
-          </fieldset>
-        <% end %>
+<% trade_picker_extra_offers(editor).each do |side, offer| %>
+  <% if offer[:goals].any? %>
+    <fieldset class="filters__group" data-for="<%= side %>">
+      <legend class="filters__legend"><%= t("library.filters.groups.goals") %></legend>
+      <% offer[:goals].each do |goal| %>
+        <label class="filter-chip filter-chip--goal">
+          <input type="checkbox" class="filter-chip__box" value="<%= GoalMarks.filter_value(goal) %>" data-for="<%= side %>" aria-label="<%= goal_name(goal) %>"
+                 data-trade-board-picker-target="goal" data-action="change->trade-board-picker#filter">
+          <span class="filter-chip__text"><%= goal_bookmark(goal.position, size: :small) %><%= goal_set_name(goal) %></span>
+        </label>
       <% end %>
-    </div>
-  </div>
+    </fieldset>
+  <% end %>
+  <% if offer[:genres].any? %>
+    <fieldset class="filters__group" data-for="<%= side %>">
+      <legend class="filters__legend"><%= t("library.filters.groups.genre") %></legend>
+      <% offer[:genres].each do |genre| %>
+        <label class="filter-chip">
+          <input type="checkbox" class="filter-chip__box" value="<%= genre %>" data-for="<%= side %>"
+                 data-trade-board-picker-target="genre" data-action="change->trade-board-picker#filter">
+          <span class="filter-chip__text"><%= SetLabel.genre(genre) %></span>
+        </label>
+      <% end %>
+    </fieldset>
+  <% end %>
 <% end %>

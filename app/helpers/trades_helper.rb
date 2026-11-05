@@ -7,8 +7,8 @@ module TradesHelper
   BOARD_CHILDREN = %w[trade-board-send].freeze
   BOARD_ACTIONS = {
     "trade-board-side" => { add: :openPicker, remove: :removeLine, quantity: :setLineQuantity },
-    "trade-board-picker" => { toggle: :togglePick, quantity: :setPickQuantity, filter: :setFilter, fold: :toggleFold,
-                              foldMore: :toggleMoreFold, clear: :clearFilters, more: :showMore, move: :moveActive, place: :place, close: :closePicker }
+    "trade-board-picker" => { toggle: :togglePick, quantity: :setPickQuantity, filter: :setFilter,
+                              clear: :clearFilters, more: :showMore, move: :moveActive, place: :place, close: :closePicker }
   }.freeze
 
   BoardPick = Data.define(:key, :view, :owned, :reserved, :max, :copies, :other_copies) do

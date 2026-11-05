@@ -744,16 +744,16 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ "duplicates" => "Ses doublons", "missing" => "Absentes de ma collection", "shared" => "En commun" }, chips.call(:friend))
     assert_equal({ "duplicates" => "Mes doublons", "missing" => "Absentes de sa collection", "available" => "Disponibles" }, chips.call(:own))
     assert_select ".trade-picker__compare legend", "Collections"
-    assert_select ".trade-picker__fold .filters__title", "Filtres"
-    assert_select ".trade-picker__fold .filters__count[hidden] .visually-hidden", "Filtres actifs\u202F:"
-    assert_select ".trade-picker__fold svg.pixel-icon.filters__chevron"
+    assert_select "a.filter-row__pastille[href='#trade-picker-filter-sheet'][data-bottom-sheet-opens=trade-picker-filter-sheet]", /Filtres/
+    assert_select ".filter-row__pastille .filter-row__count[hidden] .visually-hidden", "Filtres actifs\u202F:"
+    assert_select "#trade-picker-filter-sheet.bottom-sheet .trade-picker__compare"
     assert_no_match(/card_season_id|style=/, css_select("#trade-board").sole.to_html)
   end
 
-  test "the picker hides each side's goals and genres under more filters, and each card carries its own" do
+  test "the picker's filter sheet offers each side's goals and genres, and each card carries its own" do
     sign_in @alice
     get new_trade_path(locale: :fr, friend: @bob.token)
-    assert_select ".trade-picker__extra", 0
+    assert_select "#trade-picker-filter-sheet input[data-trade-board-picker-target=genre]", 0
 
     Catalog::CardSeason.where(id: @portal).update_all(main_theme: "puzzle")
     Catalog::CardSeason.where(id: @depths).update_all(main_theme: "horror")
@@ -762,16 +762,13 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
     get new_trade_path(locale: :fr, friend: @bob.token)
 
-    assert_select ".trade-picker__groups .trade-picker__extra-fold[aria-expanded=false][aria-controls=trade-picker-extra-groups] .filters__title",
-      "Plus de filtres"
-    assert_select "#trade-picker-extra-groups[hidden]"
-    chips = ->(side, target) { css_select("#trade-picker-extra-groups input[data-trade-board-picker-target=#{target}][data-for=#{side}]").map { it["value"] } }
+    chips = ->(side, target) { css_select("#trade-picker-filter-sheet input[data-trade-board-picker-target=#{target}][data-for=#{side}]").map { it["value"] } }
     assert_equal [ "horror" ], chips.call(:friend, :genre)
     assert_equal [ "puzzle" ], chips.call(:own, :genre)
     assert_equal [ token ], chips.call(:friend, :goal)
     assert_equal [ token ], chips.call(:own, :goal)
-    assert_select "#trade-picker-extra-groups fieldset[data-for=own] legend", "Objectifs"
-    assert_select "#trade-picker-extra-groups fieldset[data-for=own] legend", "Genre"
+    assert_select "#trade-picker-filter-sheet fieldset[data-for=own] legend", "Objectifs"
+    assert_select "#trade-picker-filter-sheet fieldset[data-for=own] legend", "Genre"
     cards = css_select(".trade-picker [data-trade-board-target='card']").to_h { [ it["data-key"], it.attributes.slice("data-genre", "data-goals").transform_values(&:value) ] }
     assert_equal({ "data-genre" => "puzzle", "data-goals" => token }, cards.fetch("portal--s1"))
     assert_equal({ "data-genre" => "horror", "data-goals" => token }, cards.fetch("blue-depths--s1"))

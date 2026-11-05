@@ -40,66 +40,6 @@
   display: none;
 }
 
-.trade-picker__fold {
-  display: none;
-  align-items: center;
-  gap: var(--space-4);
-  min-height: var(--space-chip-height);
-  padding: var(--space-2) 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.trade-picker__fold:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
-
-.trade-picker__chevron {
-  display: flex;
-}
-
-.trade-picker__fold[aria-expanded="true"] .filters__chevron {
-  transform: rotate(90deg);
-}
-
-.trade-picker__groups {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.trade-picker__extra {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.trade-picker__extra-fold {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  min-height: var(--space-chip-height);
-  padding: var(--space-2) 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.trade-picker__extra-fold:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
-
-.trade-picker__extra-fold[aria-expanded="true"] .filters__chevron {
-  transform: rotate(90deg);
-}
-
-.trade-picker__extra-groups[hidden] {
-  display: none;
-}
-
 .trade-picker__filter-foot {
   display: flex;
   flex-wrap: wrap;

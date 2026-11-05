@@ -2850,7 +2850,6 @@ en:
     limit_text: Remove a card before placing another.
     limit_title: 4 cards at most
     more: One more copy
-    more_filters: More filters
     no_match: No card matches these filters. Clear them to see every card again.
     note:
       friend: Choose the cards, then how many copies to ask %{name} for.
