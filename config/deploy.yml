@@ -39,6 +39,8 @@ env:
     - APNS_KEY_ID
     - APNS_ENCRYPTION_KEY
     - APNS_TEAM_ID
+    - FCM_PROJECT_ID
+    - FCM_SERVICE_ACCOUNT
   clear:
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
