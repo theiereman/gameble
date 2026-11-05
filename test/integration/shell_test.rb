@@ -131,9 +131,11 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__home + .top-bar__divider[aria-hidden=true]"
     assert_select ".top-bar__start > a.button.button--secondary.button--small.top-bar__bridge[href='/en']" do
       assert_select "svg.pixel-icon.button__icon[aria-hidden=true]"
+      assert_select "svg.pixel-icon.top-bar__back-g[aria-hidden=true]"
       assert_select ".button__label", "Bridge"
     end
     assert_select ".top-bar__start > a.top-bar__previous[hidden][data-controller=previous-screen]:not([href])" do
+      assert_select "svg.pixel-icon.top-bar__back-g[aria-hidden=true]"
       assert_select ".visually-hidden", "Back:"
       assert_select ".button__label[data-previous-screen-target=label]", ""
     end

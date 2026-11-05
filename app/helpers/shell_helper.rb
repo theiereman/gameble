@@ -96,6 +96,16 @@ module ShellHelper
     current_player ? t("shell.top_bar.back") : t("shell.top_bar.back_landing")
   end
 
+  def top_bar_back_mark
+    safe_join([ pixel_icon("arrow-left", class: "button__icon"), pixel_icon("back-g", class: "top-bar__back-g") ])
+  end
+
+  def phone_back_link(label, path, **options)
+    link_to path, class: "button button--secondary button--small top-bar__phone-back", **options do
+      safe_join([ top_bar_back_mark, tag.span(label, class: "button__label") ])
+    end
+  end
+
   def sign_in_button(label, origin:, class:, aria_label: nil)
     link_to label, sign_in_path(origin:), class:, aria: { label: aria_label }.compact
   end

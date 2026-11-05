@@ -1,0 +1,60 @@
+/* The phone's way back: no labelled button, the gold G behind a ◀, the
+   destination left to screen readers. */
+.top-bar__back-g {
+  display: none;
+}
+
+@media (max-width: 719px) {
+  .top-bar__start > .top-bar__bridge,
+  .top-bar__start > .top-bar__phone-back,
+  .top-bar__start > .top-bar__previous {
+    gap: var(--space-2);
+    min-width: var(--space-touch-min);
+    min-height: var(--space-touch-min);
+    margin-left: calc(-1 * var(--space-2));
+    padding: 0 var(--space-2);
+    background: none;
+    box-shadow: none;
+    color: var(--color-text-bright);
+  }
+
+  .top-bar__start > .top-bar__bridge:hover,
+  .top-bar__start > .top-bar__phone-back:hover,
+  .top-bar__start > .top-bar__previous:hover {
+    background: none;
+    color: var(--color-accent);
+    transform: none;
+  }
+
+  .top-bar__start > .top-bar__bridge:active,
+  .top-bar__start > .top-bar__phone-back:active,
+  .top-bar__start > .top-bar__previous:active {
+    box-shadow: none;
+    transform: translateX(-2px);
+  }
+
+  .top-bar__start > .top-bar__bridge:focus-visible,
+  .top-bar__start > .top-bar__phone-back:focus-visible,
+  .top-bar__start > .top-bar__previous:focus-visible {
+    box-shadow: none;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: calc(-1 * var(--focus-ring-width));
+  }
+
+  .top-bar__start > .button .top-bar__back-g {
+    display: block;
+    width: auto;
+    height: var(--space-back-g-height);
+  }
+
+  .top-bar__start > .top-bar__bridge .button__label,
+  .top-bar__start > .top-bar__phone-back .button__label,
+  .top-bar__start > .top-bar__previous .button__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

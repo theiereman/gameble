@@ -15,12 +15,12 @@
         <% end %>
         <span class="top-bar__divider" aria-hidden="true"></span>
         <%= link_to home_path, class: "button button--secondary button--small top-bar__bridge" do %>
-          <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= shell_back_label %></span>
+          <%= top_bar_back_mark %><span class="button__label"><%= shell_back_label %></span>
         <% end %>
         <%= yield :phone_back %>
         <a class="button button--secondary button--small top-bar__previous" hidden
           data-controller="previous-screen" data-action="previous-screen#back turbo:morph@document->previous-screen#sync" data-turbo-prefetch="false">
-          <%= pixel_icon("arrow-left", class: "button__icon") %><span class="visually-hidden"><%= t("shell.top_bar.previous") %> </span><span class="button__label" data-previous-screen-target="label"></span>
+          <%= top_bar_back_mark %><span class="visually-hidden"><%= t("shell.top_bar.previous") %> </span><span class="button__label" data-previous-screen-target="label"></span>
         </a>
         <% if content_for?(:screen_title) %>
           <p class="top-bar__title"><%= yield :screen_title %></p>

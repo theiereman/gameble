@@ -9,10 +9,7 @@
 <% end %>
 <% if @browse&.back %>
   <% content_for :phone_back do %>
-    <%= link_to @browse.back.path, class: "button button--secondary button--small top-bar__phone-back",
-      data: { controller: "history-back", action: "history-back#back" } do %>
-      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= @browse.back.label %></span>
-    <% end %>
+    <%= phone_back_link @browse.back.label, @browse.back.path, data: { controller: "history-back", action: "history-back#back" } %>
   <% end %>
 <% end %>
 <% if @public %>

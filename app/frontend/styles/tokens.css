@@ -190,6 +190,9 @@
   --space-gutter-phone: 20px;
   --space-panel-padding: 20px 24px;
   --space-topbar-height: 56px;
+
+  /* Two thirds of the back G's 50 art pixels: two device pixels each on a 3x phone. */
+  --space-back-g-height: calc(100px / 3);
   --space-ticker-height: 32px;
   --space-ticker-height-phone: 30px;
   --space-tabbar-height: 58px;

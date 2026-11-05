@@ -4,9 +4,7 @@
 <% content_for :head, render("layouts/language_links", route: :how_it_works_path) if Rails.configuration.x.search_indexing %>
 <% if current_player %>
   <% content_for :phone_back do %>
-    <%= link_to me_path, class: "button button--secondary button--small top-bar__phone-back" do %>
-      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t("shell.tabs.me") %></span>
-    <% end %>
+    <%= phone_back_link t("shell.tabs.me"), me_path %>
   <% end %>
 <% end %>
 <% rarity = ->(tier) { t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(tier)}") } %>
