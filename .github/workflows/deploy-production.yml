@@ -203,7 +203,8 @@ jobs:
         run: bin/kamal deploy -d production --skip-push
 
   # Its own job, so a failed publish is re-run alone, without deploying again.
-  # Pushing main needs GitHub Actions among the bypass actors of main's ruleset.
+  # main is pushed with the deploy key MAIN_PUSH_KEY, the bypass actor of
+  # main's ruleset; GitHub Actions cannot be one on a personal repository.
   publish:
     needs: [ release-check, deploy ]
     runs-on: ubuntu-latest
@@ -220,6 +221,7 @@ jobs:
         with:
           ref: ${{ needs.release-check.outputs.sha }}
           fetch-depth: 0
+          ssh-key: ${{ secrets.MAIN_PUSH_KEY }}
 
       - name: Fast-forward main to the release
         run: git push origin "$SHA:refs/heads/main"

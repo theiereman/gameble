@@ -142,7 +142,7 @@ To refuse a deploy, use **Reject** in the same review. Nothing has changed on th
 
 **The production deploy fails before switching.** Kamal keeps the old version serving: players see nothing, and `main` and the releases are untouched. Read the run's log, fix the cause and re-run the failed job from the same run. If the cause is in the code, it is a new candidate of the same version.
 
-**The deploy succeeded but `publish` failed.** Production runs the candidate, but `main` and the release lag behind. Re-run the failed `publish` job alone: it pushes `main` and publishes the release, skipping what is already done. A `main` push refused by its ruleset means GitHub Actions is missing from its bypass actors (Setup, once).
+**The deploy succeeded but `publish` failed.** Production runs the candidate, but `main` and the release lag behind. Re-run the failed `publish` job alone: it pushes `main` and publishes the release, skipping what is already done. A `main` push refused by its ruleset means the deploy key or its bypass is missing (Setup, once).
 
 **A release in production is broken.** Roll back first, then fix.
 
@@ -216,7 +216,14 @@ Before the first production deploy:
 
    Then approve the run: the deploy starts kamal-proxy and the app, whose `db:prepare` creates the other three databases. Every later release goes through the workflow alone.
 
-5. **`main`'s ruleset** lets GitHub Actions push: **Settings → Rules → Rulesets → main → Bypass list → Add bypass → GitHub Actions**, always. The `publish` job fast-forwards `main` with the run's `GITHUB_TOKEN`; the ruleset still refuses a force push or a deletion.
+5. **The key that pushes `main`.** The `publish` job fast-forwards `main` over SSH with a deploy key, since GitHub Actions cannot bypass a ruleset on a personal repository. The key is a deploy key with write access (**Settings → Deploy keys**, `github-actions publish main`), its private half is the repository secret `MAIN_PUSH_KEY`, and **Deploy keys** are in the bypass list of `main`'s ruleset (**Settings → Rules → Rulesets → main**), so no other deploy key may exist. The ruleset still refuses a force push or a deletion. To replace it:
+
+   ```sh
+   ssh-keygen -t ed25519 -N '' -C 'github-actions publish main' -f /tmp/gameble_main_push
+   gh repo deploy-key add /tmp/gameble_main_push.pub --allow-write --title 'github-actions publish main'
+   gh secret set MAIN_PUSH_KEY < /tmp/gameble_main_push
+   rm /tmp/gameble_main_push /tmp/gameble_main_push.pub
+   ```
 
 6. **The Cloudflare Tunnel** must already route https://gameble.net to the LXC (`cloudflared` running there, its published application `gameble.net` → `http://localhost:80`): see `config/deploy.production.yml`.
 
