@@ -4,7 +4,7 @@
   <%= link_to "", trade_suggestion_opener_path(suggestion, cards), class: "trade-suggestion__opener",
         aria: { label: trade_suggestion_opener_name(suggestion, cards, goals), current: ("true" if current) }, data: { turbo_prefetch: false } %>
   <div class="trade-suggestion__head">
-    <%= pixel_icon("avatar-default", class: "trade-suggestion__avatar") %>
+    <%= player_avatar(suggestion.player, class_name: "trade-suggestion__avatar") %>
     <span class="trade-suggestion__who" aria-hidden="true">
       <span class="trade-suggestion__name"><%= friend_name(suggestion.player) %></span>
       <%= render "friends/presence", presence: suggestion.friend %>

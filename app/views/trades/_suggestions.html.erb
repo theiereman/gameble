@@ -13,6 +13,7 @@
     <% end %>
   </p>
   <ul class="trade-suggestions__rows">
+    <% preload_avatars(suggestions.suggestions.map(&:player)) %>
     <% suggestions.suggestions.each do |suggestion| %>
       <%= render "trades/suggestion", suggestion:, cards:, goals: suggestions.goals, current: trade_suggestion_current?(suggestion, prefill) %>
     <% end %>

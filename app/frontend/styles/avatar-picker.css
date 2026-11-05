@@ -1,0 +1,157 @@
+/* The owner's portrait carries a pencil that opens the avatar sheet. */
+.profile-band__portrait {
+  position: relative;
+  flex: none;
+  line-height: 0;
+}
+
+.profile-band__avatar-edit {
+  display: grid;
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  background: var(--color-panel-raised);
+  box-shadow: var(--pixel-outline-3);
+  color: var(--color-accent);
+}
+
+.profile-band__avatar-edit:hover {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.profile-band__avatar-edit:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.profile-band__avatar-pencil {
+  width: 16px;
+  height: 16px;
+}
+
+/* The avatar sheet: every avatar, the worn one marked, the locked ones dimmed
+   with the achievement that unlocks them. */
+.me-avatars {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.me-avatar__face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  height: 100%;
+  padding: var(--space-4) var(--space-3);
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text);
+  font: var(--font-menu);
+  text-align: center;
+}
+
+button.me-avatar__face {
+  cursor: pointer;
+}
+
+button.me-avatar__face:hover {
+  background: var(--color-panel-raised);
+}
+
+button.me-avatar__face:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.me-avatar__face[aria-current="true"] {
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+.me-avatar__image {
+  width: 64px;
+  height: 64px;
+  box-shadow: var(--pixel-outline-3);
+}
+
+.me-avatar__name {
+  color: var(--color-text-bright);
+}
+
+.me-avatar__state {
+  color: var(--color-accent);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.me-avatar__unlock {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.me-avatar__lock {
+  margin-right: var(--space-1);
+  vertical-align: -1px;
+  width: 10px;
+  height: 12px;
+}
+
+.me-avatar--locked .me-avatar__image {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+.me-avatar--locked .me-avatar__name {
+  color: var(--color-muted);
+}
+
+.achievement__avatar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  text-align: right;
+}
+
+.achievement--locked .achievement__avatar {
+  color: var(--color-muted);
+}
+
+.achievement__avatar-image {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  box-shadow: var(--pixel-outline-3);
+}
+
+.achievement--locked .achievement__avatar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  text-align: right;
+}
+
+.achievement--locked .achievement__avatar {
+  color: var(--color-muted);
+}
+
+.achievement__avatar-image {
+  opacity: 0.55;
+}

@@ -132,6 +132,19 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_nil tile(:to_earn, "Entraide mutuelle").at_css(".achievement__back")
   end
 
+  test "the tiles that unlock an avatar name it with its portrait, earned or not" do
+    unlock("first_booster")
+    sign_in(@player)
+
+    get achievements_path(locale: :fr)
+
+    novice = tile(:earned, "Première acquisition approuvée")
+    assert_equal "Débloque l'avatar Novice", novice.at_css(".achievement__avatar").text.strip
+    assert novice.at_css("svg.achievement__avatar-image")
+    assert_equal "Débloque l'avatar Grand Maître", tile(:to_earn, "Loyauté au-delà du raisonnable").at_css(".achievement__avatar").text.strip
+    assert_nil tile(:to_earn, "Entraide mutuelle").at_css(".achievement__avatar")
+  end
+
   test "the four hardest achievements show the back they unlock, with its picture" do
     sign_in(@player)
     { "luck_is_a_marketing_concept" => "Wilted clover", "leave_request_denied" => "Assiduous",

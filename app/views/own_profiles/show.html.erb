@@ -8,5 +8,6 @@
     <template data-me-target="back" data-key="<%= row.key %>"><%= render "own_profiles/back_look", back: row.back %></template>
   <% end %>
   <%= render "own_profiles/title_sheet", titles: @titles, active: @owner_title %>
+  <%= render "own_profiles/avatar_sheet", shelf: @avatars %>
   <%= render "own_profiles/back_sheet", shelf: @card_backs, chosen: flash[:chosen_back] %>
 <% end %>

@@ -1,8 +1,9 @@
 <%# locals: (holders:, view:, strings:) %>
 <ul class="card-trade__friends">
+  <% preload_avatars(holders.map(&:player)) %>
   <% holders.each do |holder| %>
     <li class="card-trade__row<%= " card-trade__row--asked" if holder.asked %>">
-      <%= pixel_icon("avatar-default", class: "card-trade__avatar") %>
+      <%= player_avatar(holder.player, class_name: "card-trade__avatar") %>
       <span class="card-trade__text">
         <span class="card-trade__name"><%= friend_name(holder.player) %></span>
         <span class="card-trade__meta">

@@ -22,12 +22,21 @@ en:
       submit: Delete for good
       title: Delete my account
       word: DELETE
+  avatars:
+    names:
+      archivist: Archivist
+      default: Classic
+      grand_master: Grand Master
+      guardian: Guardian
+      novice: Novice
+      oracle: Oracle
   achievement_claims:
     create:
       claimed: Reward claimed.
       throttled: Too many attempts in a minute. Try again in a moment.
   achievements:
     back_reward: Unlocks the %{back} card back
+    avatar_reward: Unlocks the %{avatar} avatar
     claim:
       button: Claim
       label: Claim the reward of %{name}
@@ -1045,6 +1054,8 @@ en:
       already_reposted: You reposted this card today. Try again tomorrow.
       already_sent: Invitation already sent.
       back_locked: This card back is still locked.
+      avatar_locked: This avatar is still locked.
+      unknown_avatar: This avatar does not exist.
       card_already_showcased: This card is already in your showcase.
       card_not_owned: You do not own this card.
       card_not_showcased: This card is not in your showcase.
@@ -2252,8 +2263,14 @@ en:
       title: Legal notice and privacy
       updated: 'Last updated: 1 November 2026'
   own_profiles:
+    avatar_sheet:
+      heading: Avatar
+      intro: Your portrait on your profile, in trades and beside your name.
+      unlock: 'Achievement: %{achievement}'
+      worn: Worn
     show:
       all_achievements: See all
+      change_avatar: Change avatar
       card_back: Card back · only you
       card_list: See the card list
       change: Change
@@ -2328,6 +2345,10 @@ en:
         none: No title
       showcase:
         empty: Your best card will show here once you choose it from a card's page.
+  profile_avatars:
+    chosen:
+      text: "%{name} is now your portrait."
+      title: Avatar changed
   profile_titles:
     chosen:
       title: Title equipped

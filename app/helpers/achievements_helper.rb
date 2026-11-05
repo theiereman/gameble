@@ -26,4 +26,12 @@ module AchievementsHelper
     image = image_tag(vite_asset_path("images/pixel/#{back.asset}-xs.png"), alt: "", width: 25, height: 38, class: "achievement__back-image")
     tag.p(safe_join([ image, t("achievements.back_reward", back: t("card_backs.names.#{back.key}")) ], " "), class: "achievement__back")
   end
+
+  def achievement_avatar_reward(tile)
+    avatar = Game::Avatars.for_achievement(tile.key)
+    return unless avatar
+
+    image = pixel_icon(avatar.icon, class: "achievement__avatar-image")
+    tag.p(safe_join([ image, t("achievements.avatar_reward", avatar: t("avatars.names.#{avatar.key}")) ], " "), class: "achievement__avatar")
+  end
 end

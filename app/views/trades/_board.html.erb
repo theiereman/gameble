@@ -13,7 +13,7 @@
       aria: { labelledby: "trade-board-heading" }, data: data.merge(editing: (true if editing))) do %>
   <div class="trade-board__form">
     <header class="trade-board__header">
-      <%= pixel_icon("avatar-default", class: "trade-board__avatar") %>
+      <%= player_avatar(trade.friend, class_name: "trade-board__avatar") %>
       <h2 id="trade-board-heading" class="trade-board__title" tabindex="-1" data-trade-board-target="heading"><%= t("trades.board.heading", name: friend_name(trade.friend)) %></h2>
       <%= tag.span chip, class: class_names("trade-chip", "trade-chip--#{tone}", "trade-board__read-only": editor) %>
       <% if editor %>

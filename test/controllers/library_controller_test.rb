@@ -224,7 +224,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     # The seventeen of a player's grid, the state asked sparing the count
     # read again from the query cache and adding the watermark.
-    assert_request_queries(20) { get library_cards_path(locale: :en, state: %w[new duplicates]) }
+    assert_request_queries(21) { get library_cards_path(locale: :en, state: %w[new duplicates]) }
     seen = css_select(".collection-grid a.card-link").map { Rack::Utils.parse_nested_query(URI(it["href"]).query).dig("grid", "seen") }
     assert_equal [ "2026-10-08T09:30:15.123456Z" ] * 2, seen
 
@@ -738,7 +738,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # season holds, the sets of the kind shown; the tab bar's trades and
     # invitations waiting; the themes' names; the player's goals. No set per
     # card: the links carry the grid, which the detail reads itself.
-    assert_request_queries(19) { get library_cards_path(locale: :en) }
+    assert_request_queries(20) { get library_cards_path(locale: :en) }
 
     delete session_path(locale: :en)
     # The same without the lookup, the player's editions, the figures, the
@@ -1397,14 +1397,14 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, season, unique cards and the season's count, the
     # rarity legend; the search's sets, the standings, the figures of those
     # not started and the faces of those shown; the tab bar's trades and
-    # invitations waiting; the themes' names; the player's own sets, read once
+    # invitations waiting and the player's avatar; the themes' names; the player's own sets, read once
     # with their Steam library set, and goals; with no goal, the sets
     # suggested, their standings those of the search.
-    assert_equal 18, forty
+    assert_equal 19, forty
     assert_equal 9, count_queries { get library_path(locale: :en, q: "theme", offset: 6), headers: { "Turbo-Frame" => "set-more-results-6" } }
     # No search: neither the search's sets nor its figures and faces; the
     # standings and the themes' names for the sets suggested.
-    assert_equal 14, count_queries { get library_path(locale: :en) }
+    assert_equal 15, count_queries { get library_path(locale: :en) }
   end
 
   test "a player who holds no card sees the search, the way to all the cards and a line pointing to the search; a visitor is sent to the landing" do
@@ -1660,7 +1660,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     epic, = two_editions(season, player)
     sign_in(player)
 
-    assert_request_queries(19) { get library_cards_path(locale: :en, state: %w[owned]) }
+    assert_request_queries(20) { get library_cards_path(locale: :en, state: %w[owned]) }
 
     assert_equal [ [ :owned, title(epic), "x2", nil ] ], slots
     assert_equal [ "/seasons/#{season.number}" ], tile_hrefs

@@ -119,6 +119,7 @@ Rails.application.routes.draw do
     # The player's dressing once had its own page; the Me page now holds it.
     get "personalization", to: redirect("/%{locale}/me", status: 301), as: :personalization
     patch "personalization/title" => "profile_titles#update", as: :personalization_title
+    patch "personalization/avatar" => "profile_avatars#update", as: :personalization_avatar
     patch "personalization/back" => "card_backs#update", as: :personalization_back
     # The profile visibility row of the settings.
     patch "settings/visibility" => "settings#visibility", as: :settings_visibility

@@ -1214,6 +1214,11 @@ fr:
       showcase:
         empty: "Votre plus belle carte s'affichera ici, une fois choisie depuis la fiche d'une carte."
   own_profiles:
+    avatar_sheet:
+      heading: "Avatar"
+      intro: "Votre portrait sur votre profil, dans les échanges et à côté de votre nom."
+      unlock: "Succès : %{achievement}"
+      worn: "Porté"
     show:
       title: "Moi"
       change: "Modifier"
@@ -1223,6 +1228,11 @@ fr:
       title_label: "Titre"
       card_list: "Voir la liste des cartes"
       all_achievements: "Tout voir"
+      change_avatar: "Changer d'avatar"
+  profile_avatars:
+    chosen:
+      text: "%{name} est maintenant votre portrait."
+      title: "Avatar changé"
   profile_titles:
     chosen:
       title: "Titre équipé"
@@ -1704,6 +1714,14 @@ fr:
     new_friend:
       title: "Nouvel ami"
       text: "%{name} fait maintenant partie de vos amis."
+  avatars:
+    names:
+      archivist: "Archiviste"
+      default: "Classique"
+      grand_master: "Grand Maître"
+      guardian: "Gardien"
+      novice: "Novice"
+      oracle: "Oracle"
   achievement_claims:
     create:
       claimed: "Récompense récupérée."
@@ -1713,6 +1731,7 @@ fr:
       button: "Récupérer"
       label: "Récupérer la récompense de %{name}"
     back_reward: "Débloque le dos %{back}"
+    avatar_reward: "Débloque l'avatar %{avatar}"
     unlocked:
       title: "Succès débloqué"
     names:
@@ -2681,6 +2700,8 @@ fr:
       showcase_full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
       title_not_earned: "Vous n'avez pas gagné ce titre."
       back_locked: "Ce dos de carte est encore verrouillé."
+      avatar_locked: "Cet avatar est encore verrouillé."
+      unknown_avatar: "Cet avatar n'existe pas."
       unknown_back: "Ce dos de carte n'existe pas."
       unknown_season: "Vous n'avez pas obtenu ce dos de carte pendant cette saison."
       showcase_edge: "Cette carte ne peut pas aller plus loin."

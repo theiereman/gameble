@@ -347,16 +347,16 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     # tiers, the player's editions, the page's card views; the top bar's
     # unique cards, season's cards and rarity legend; the tab bar's trades
     # and invitations waiting; the themes' names; the player's goals.
-    assert_request_queries(16) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
+    assert_request_queries(17) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
     assert_response :success
     assert_select ".set-album__grid > li", 60
     assert_select ".collection-pages"
     assert_equal "400/752", count
 
-    assert_request_queries(16) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
+    assert_request_queries(17) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
     assert_equal "1/3", count
 
-    assert_request_queries(16) { get library_set_path(locale: :en, kind: "theme", key: "roguelike", state: [ "missing" ], rarity: [ "common" ], q: "seed") }
+    assert_request_queries(17) { get library_set_path(locale: :en, kind: "theme", key: "roguelike", state: [ "missing" ], rarity: [ "common" ], q: "seed") }
     assert_response :success
     assert_select ".set-album__grid > li", 60
     assert_equal "400/752", count

@@ -1,0 +1,25 @@
+<%# locals: (row:) %>
+<% name = t("avatars.names.#{row.key}") %>
+<li class="<%= class_names("me-avatar", "me-avatar--locked": row.locked?) %>">
+  <% if row.locked? %>
+    <div class="me-avatar__face">
+      <%= pixel_icon(row.avatar.icon, class: "me-avatar__image") %>
+      <span class="me-avatar__name"><%= name %></span>
+      <span class="me-avatar__unlock">
+        <%= pixel_icon("lock", class: "me-avatar__lock") %>
+        <%= t("own_profiles.avatar_sheet.unlock", achievement: t("achievements.names.#{row.avatar.achievement}")) %>
+      </span>
+    </div>
+  <% elsif row.active %>
+    <button type="button" class="me-avatar__face" aria-current="true" data-action="bottom-sheet#close">
+      <%= pixel_icon(row.avatar.icon, class: "me-avatar__image") %>
+      <span class="me-avatar__name"><%= name %></span>
+      <span class="me-avatar__state"><%= t("own_profiles.avatar_sheet.worn") %></span>
+    </button>
+  <% else %>
+    <%= button_to personalization_avatar_path, method: :patch, params: { avatar: row.key }, class: "me-avatar__face", form_class: "me-choices__form" do %>
+      <%= pixel_icon(row.avatar.icon, class: "me-avatar__image") %>
+      <span class="me-avatar__name"><%= name %></span>
+    <% end %>
+  <% end %>
+</li>

@@ -1,7 +1,17 @@
 <%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, relation:, owner_title: nil, editing: false) %>
 <%= render PanelComponent.new(tag: :header, brackets: true, class: "profile-band") do %>
   <div class="profile-band__who">
-    <%= pixel_icon("avatar-default", class: "profile-band__avatar") %>
+    <% if editing %>
+      <span class="profile-band__portrait">
+        <%= player_avatar(owner, class_name: "profile-band__avatar") %>
+        <%= tag.a(**bottom_sheet_opener("me-avatar-sheet").deep_merge(aria: { label: t("own_profiles.show.change_avatar") }),
+              class: "profile-band__avatar-edit", autofocus: flash[:chosen_avatar].present?) do %>
+          <%= pixel_icon("pencil", class: "profile-band__avatar-pencil") %>
+        <% end %>
+      </span>
+    <% else %>
+      <%= player_avatar(owner, class_name: "profile-band__avatar") %>
+    <% end %>
     <div class="profile-band__identity">
       <%= content_tag :h1, title, id: "profile-heading", class: "profile-band__name" %>
       <%= active_title_tag(owner_title, class_name: "profile-band__title") %>

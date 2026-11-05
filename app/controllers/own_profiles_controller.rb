@@ -6,6 +6,7 @@ class OwnProfilesController < ApplicationController
     load_profile(current_player)
     @card_backs = Game::CardBackShelf.call(current_player)
     @titles = Game::ProfileTitles.call(current_player)
+    @avatars = Game::AvatarShelf.call(current_player)
     @owner_title = Game::ActiveProfileTitle.call(current_player, titles: @titles)
     @return_card = card_to_return_to
   end

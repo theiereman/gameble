@@ -2,7 +2,7 @@
 <%= render PanelComponent.new(tag: :section, class: "settings-summary", aria: { labelledby: "settings-summary-heading" }) do %>
   <h2 id="settings-summary-heading" class="settings-summary__title"><%= t("settings.show.summary.title") %></h2>
   <div class="settings-summary__who">
-    <%= pixel_icon("avatar-default", class: "settings-summary__avatar") %>
+    <%= player_avatar(player, class_name: "settings-summary__avatar") %>
     <div class="settings-summary__identity">
       <%= link_to Accounts::PersonaName.clean(player.persona_name) || t("shell.player.fallback_name"), brother_path(token: player.token), class: "settings-summary__name" %>
       <%= active_title_tag(title, class_name: "settings-summary__active-title") %>
