@@ -2,6 +2,7 @@ require "test_helper"
 
 class NativeSessionsControllerTest < ActionDispatch::IntegrationTest
   STATE = "s" * 43
+  SESSION_COOKIE = "_gameble_session".freeze
 
   setup do
     @player = accounts_players(:player)
@@ -19,6 +20,20 @@ class NativeSessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :no_content
     assert_equal @player.id, session[:player_id]
+  end
+
+  test "pages the app loads side by side right after signing in accept each other's authenticity token" do
+    redeem(ticket)
+    signed_in_cookie = cookies[SESSION_COOKIE]
+
+    get booster_path(locale: :fr)
+    first_page_token = css_select("meta[name=csrf-token]").first["content"]
+    cookies[SESSION_COOKIE] = signed_in_cookie
+    get booster_path(locale: :fr)
+
+    post packs_path(locale: :fr, reserve: "standard"), headers: { "X-CSRF-Token" => first_page_token, "Accept" => "application/json" }
+
+    assert_response :bad_request
   end
 
   test "a ticket with another state, a forged or expired one, or a banned player's opens nothing" do
