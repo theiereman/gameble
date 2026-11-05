@@ -174,6 +174,9 @@ jobs:
           DATABASE_APP_PASSWORD: ${{ secrets.DATABASE_APP_PASSWORD }}
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          APNS_KEY_ID: ${{ secrets.APNS_KEY_ID }}
+          APNS_ENCRYPTION_KEY: ${{ secrets.APNS_ENCRYPTION_KEY }}
+          APNS_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           DISCORD_WEBHOOK_PRODUCTION: ${{ secrets.DISCORD_WEBHOOK_PRODUCTION }}
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -185,6 +188,9 @@ jobs:
           printf '%s' "$DATABASE_APP_PASSWORD" > config/database_app_password.production.key
           printf '%s' "$STEAM_API_KEY" > config/steam_api.key
           printf '%s' "$CLERK_SECRET_KEY" > config/clerk_secret.key
+          printf '%s' "$APNS_KEY_ID" > config/apns_key_id.key
+          printf '%s' "$APNS_ENCRYPTION_KEY" > config/apns_encryption.key
+          printf '%s' "$APNS_TEAM_ID" > config/apns_team_id.key
           printf '%s' "$DISCORD_WEBHOOK_PRODUCTION" > config/discord_webhook.production.key
           printf '%s' "$REGISTRY_PASSWORD" > config/registry_password.key
 
@@ -318,6 +324,9 @@ jobs:
           DATABASE_APP_PASSWORD: ${{ secrets.DATABASE_APP_PASSWORD }}
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          APNS_KEY_ID: ${{ secrets.APNS_KEY_ID }}
+          APNS_ENCRYPTION_KEY: ${{ secrets.APNS_ENCRYPTION_KEY }}
+          APNS_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           DISCORD_WEBHOOK_PRODUCTION: ${{ secrets.DISCORD_WEBHOOK_PRODUCTION }}
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -329,6 +338,9 @@ jobs:
           printf '%s' "$DATABASE_APP_PASSWORD" > config/database_app_password.production.key
           printf '%s' "$STEAM_API_KEY" > config/steam_api.key
           printf '%s' "$CLERK_SECRET_KEY" > config/clerk_secret.key
+          printf '%s' "$APNS_KEY_ID" > config/apns_key_id.key
+          printf '%s' "$APNS_ENCRYPTION_KEY" > config/apns_encryption.key
+          printf '%s' "$APNS_TEAM_ID" > config/apns_team_id.key
           printf '%s' "$DISCORD_WEBHOOK_PRODUCTION" > config/discord_webhook.production.key
           printf '%s' "$REGISTRY_PASSWORD" > config/registry_password.key
 
