@@ -6,7 +6,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
+import android.view.View
 import android.widget.FrameLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.Insets
@@ -24,6 +26,8 @@ class MainActivity : HotwireActivity() {
     private lateinit var bottomNavigation: HotwireBottomNavigationController
     private val debugLog by lazy { if (BuildConfig.DEBUG) DebugLogPanel(this) else null }
     private var pendingGrant: ((String?) -> Unit)? = null
+    private val tabSlide = TabSlide()
+    private lateinit var screenTransition: ScreenTransition
 
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) fetchPushToken() else finishGrant(null)
@@ -36,9 +40,17 @@ class MainActivity : HotwireActivity() {
         fitScreensBetweenStatusBarAndTabs()
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.isItemActiveIndicatorEnabled = false
-        bottomNavigation = HotwireBottomNavigationController(this, bottomNavigationView)
+        bottomNavigation = HotwireBottomNavigationController(this, bottomNavigationView, lazyLoadTabs = false)
         bottomNavigation.load(tabs)
+        screenTransition = ScreenTransition(findViewById(R.id.screens))
+        bottomNavigation.setOnTabSelectedListener { index, tab ->
+            screenTransition.drop()
+            tabSlide.switched(findViewById(tab.configuration.navigatorHostId), index)
+        }
+        val start = bottomNavigation.currentTab
+        tabSlide.switched(findViewById(start.configuration.navigatorHostId), tabs.indexOf(start))
         debugLog?.attachTo(findViewById<FrameLayout>(R.id.screens))
+        onBackPressedDispatcher.addCallback(this, backWithTransition)
         openNotificationPath(intent)
     }
 
@@ -52,6 +64,33 @@ class MainActivity : HotwireActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         openNotificationPath(intent)
+    }
+
+    fun leaveScreen(forward: Boolean) {
+        screenTransition.leave(window, currentScreen(), forward)
+    }
+
+    fun screenArrived(page: View) {
+        if (page.parent != null && isInside(page, currentScreen())) screenTransition.arrived(page)
+    }
+
+    private fun currentScreen(): View = findViewById(bottomNavigation.currentTab.configuration.navigatorHostId)
+
+    private fun isInside(view: View, ancestor: View): Boolean =
+        generateSequence(view) { it.parent as? View }.any { it === ancestor }
+
+    private val backWithTransition = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            val navigator = delegate.currentNavigator
+            if (navigator != null && !navigator.isAtStartDestination()) {
+                leaveScreen(forward = false)
+                navigator.pop()
+            } else {
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                isEnabled = true
+            }
+        }
     }
 
     fun showTabs(shown: Boolean) {
@@ -96,4 +135,5 @@ class MainActivity : HotwireActivity() {
         intent.removeExtra(PushService.PATH_EXTRA)
         delegate.currentNavigator?.route("${Gameble.ROOT_URL}$path")
     }
+
 }
