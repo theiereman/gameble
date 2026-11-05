@@ -57,9 +57,10 @@
    its canister centred in the stage and its rays running out to the screen's edges. */
 :root[data-native-app] body:has(.booster[data-layout="phone"]) {
   height: 100dvh;
-  overflow-x: clip;
 }
 
+/* Clipped on the main rather than the body, whose overflow passes to the viewport: the WebView
+   would widen its layout to the rays and zoom the whole screen out. */
 :root[data-native-app] body:has(.booster[data-layout="phone"]) > .main {
   display: flex;
   flex: 1;
@@ -67,6 +68,7 @@
   width: 100%;
   min-height: 0;
   padding-bottom: var(--space-3);
+  overflow-x: clip;
 }
 
 :root[data-native-app] .booster[data-layout="phone"] {
@@ -111,6 +113,32 @@
 
 :root[data-native-app] .booster[data-layout="phone"] .booster-strip__state {
   display: none;
+}
+
+/* A stored card's zoom: the card alone over a near-opaque scrim, its name and rarity read by assistive
+   technology only, its actions on one even grid. */
+:root[data-native-app] .booster-zoom::backdrop {
+  background: rgb(4 7 10 / 97%);
+}
+
+:root[data-native-app] :is(.booster-zoom__title, .booster-zoom__line) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+:root[data-native-app] .booster-zoom__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  margin-top: var(--space-5);
+}
+
+:root[data-native-app] .booster-zoom__actions > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
 }
 
 /* Where the app can share a link natively, its unreadable address gives way to the buttons. */
