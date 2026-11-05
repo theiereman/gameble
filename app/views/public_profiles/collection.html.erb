@@ -1,5 +1,6 @@
 <% name = public_profile_title(@owner) %>
 <% content_for :back_button, true %>
+<% content_for :phone_back do %><%= phone_back_link t("shell.screens.profile"), brother_path(token: @owner.token) %><% end %>
 <% content_for :screen_title, t("library.collection.title") %>
 <% content_for :title, t("public_profiles.collection.title", name:) %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>

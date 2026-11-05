@@ -67,7 +67,8 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select "h1#set-album-heading.set-album__name[tabindex='-1'][data-set-album-target=heading]", "Horror"
     assert_select "header.set-album__header.panel--brackets"
     assert_select "p.top-bar__title", "Collection"
-    assert_select "header.top-bar[data-screen-label=Set] .top-bar__start.top-bar__start--phone-previous > a.top-bar__previous[data-controller=previous-screen]"
+    assert_select "header.top-bar[data-screen-label=Set] .top-bar__start > a.top-bar__previous[data-controller=previous-screen]"
+    assert_select ".top-bar__start.top-bar__start--phone-back > a.top-bar__phone-back[href='/en/library']", /Sets/
     assert_select ".collection-status__value", "6 / 150"
     assert_select ".set-album__kind, .set-album__facts, .set-album__gauge", false
     assert_equal [ "set-album__name", "set-album__count", "set-album__actions" ], title_line
@@ -545,7 +546,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :en)
     assert_select "header.top-bar[data-screen-label=Sets]"
-    assert_select ".top-bar__start--phone-previous", false
+    assert_select ".top-bar__phone-back", false
     assert_select ".set-entry[data-controller=last-album][data-action='turbo:frame-load->last-album#mark'] turbo-frame#set-entry-in-progress"
     get library_in_progress_path(locale: :en), headers: { "Turbo-Frame" => "set-entry-in-progress" }
     assert_select "a.set-tile[href='/en/library/theme/horror']"

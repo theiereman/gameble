@@ -1,4 +1,5 @@
 <% content_for :back_button, true %>
+<% content_for :phone_back do %><%= phone_back_link t("shell.screens.friends"), friends_path %><% end %>
 <% content_for :title, friend_name(@owner) %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
 <%= turbo_frame_tag friend_profile_frame_id(@owner.token), target: "_top" do %>

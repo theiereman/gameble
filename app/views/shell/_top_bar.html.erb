@@ -2,7 +2,7 @@
 <% top_level = shell_top_level_screen? %>
 <header class="<%= class_names("top-bar", "top-bar--status": content_for?(:top_bar_status), "top-bar--top-level": top_level) %>" <%= tag.attributes(data: { controller: ("top-bar-scroll" if top_level), screen_label: shell_screen_label, screen_labels: shell_screen_labels&.to_json }) %>>
   <div class="top-bar__inner">
-    <div class="<%= class_names("top-bar__start", "top-bar__start--phone-back": content_for?(:phone_back), "top-bar__start--phone-previous": content_for?(:phone_previous)) %>" data-controller="navigation-lock">
+    <div class="<%= class_names("top-bar__start", "top-bar__start--phone-back": content_for?(:phone_back)) %>" data-controller="navigation-lock">
       <% if top_level %>
         <%= link_to_unless_current pixel_icon("wordmark-sweep", class: "top-bar__wordmark"), home_path, class: "top-bar__brand top-bar__phone-home", aria: { label: shell_home_label }, data: wordmark_shine do %>
           <span class="top-bar__brand top-bar__phone-home" role="img" aria-label="<%= shell_home_label %>" <%= tag.attributes(data: wordmark_shine) %>><%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %></span>
