@@ -74,8 +74,9 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "1/3", css_select(".set-album__count").sole.text.squish
     assert_select "progress.set-album__bar[value='1'][max='3'][aria-valuetext='1 card out of 3']"
     assert_select ".set-album__ticks, .set-album__stamp, .set-album__header--tiered", false
-    assert_equal [ [ :missing, "/en/cards/#{slug(:portal)}/seasons/2" ], [ :owned, "/en/cards/#{slug(:common_card)}/seasons/1" ],
-      [ :missing, "/en/cards/#{slug(:rare_card)}/seasons/2" ] ], slots
+    in_set = "?custom_set=#{custom_set.token}"
+    assert_equal [ [ :missing, "/en/cards/#{slug(:portal)}/seasons/2#{in_set}" ], [ :owned, "/en/cards/#{slug(:common_card)}/seasons/1#{in_set}" ],
+      [ :missing, "/en/cards/#{slug(:rare_card)}/seasons/2#{in_set}" ] ], slots
     assert_select ".set-album__title .set-album__actions" do
       assert_select "button.button[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=custom-set-editor]", "Edit"
       assert_select "button.button[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=delete-custom-set]", "Delete"
@@ -465,7 +466,7 @@ class CustomSetsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "1/3", css_select(".set-album__count").sole.text.squish
 
     get custom_set_path(locale: :en, token: custom_set.token, q: "portal")
-    assert_equal [ [ :missing, "/en/cards/#{slug(:portal)}/seasons/1" ] ], slots
+    assert_equal [ [ :missing, "/en/cards/#{slug(:portal)}/seasons/1?custom_set=#{custom_set.token}" ] ], slots
   end
 
   test "a deletion that finds the set gone returns to the collection with its refusal" do

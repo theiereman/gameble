@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../support/catalog_seeds"
+require_relative "../support/custom_sets"
 require_relative "../support/library_requests"
 require_relative "../support/game_packs"
 require_relative "../support/game_sets"
@@ -17,6 +18,7 @@ require_relative "../support/steam_sign_in"
 # covered in card_preview_tags_test.rb.
 class CardsControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
+  include CustomSets
   include LibraryRequests
   include GamePacks
   include GameSets
@@ -318,6 +320,38 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get detail.(cards[60])
     assert_equal "61 / 70", position[%r{\d+ / \d+}]
     assert_equal "/en/library/theme/roguelike?page=2", css_select(".top-bar__phone-back").sole["href"]
+  end
+
+  test "a card opened from the player's own set walks it in the set's order, its ends disabled; the way back is that set's album" do
+    names = %i[rare_card portal common_card]
+    player = accounts_players(:player)
+    custom_set = create_custom_set(player, card_ids: names.map { catalog_cards(it).id })
+    in_custom_set = ->(name) { card_season_path(locale: :en, slug: catalog_cards(name).slug, number: 1, custom_set: custom_set.token) }
+    sign_in(player)
+
+    get in_custom_set.(:portal)
+    assert_equal [ [ "a", in_custom_set.(:rare_card) ], [ "a", in_custom_set.(:common_card) ] ], navs
+    assert_equal "2 / 3", position[%r{\d+ / \d+}]
+    assert_equal "/en/library/custom-sets/#{custom_set.token}", css_select(".top-bar__phone-back").sole["href"]
+
+    get in_custom_set.(:rare_card)
+    assert_equal [ [ "button", "disabled" ], [ "a", in_custom_set.(:portal) ] ], navs
+
+    get in_custom_set.(:common_card)
+    assert_equal [ [ "a", in_custom_set.(:portal) ], [ "button", "disabled" ] ], navs
+  end
+
+  test "another player's set, an unknown token, or a set without the card is ignored: the card's first set" do
+    add_a_theme_set
+    player = accounts_players(:player)
+    theirs = create_custom_set(accounts_players(:moderator), card_ids: %i[portal rare_card common_card].map { catalog_cards(it).id })
+    without_portal = create_custom_set(player, card_ids: %i[rare_card common_card uncommon_card].map { catalog_cards(it).id })
+    sign_in(player)
+
+    [ theirs.token, "nope", without_portal.token, [ theirs.token ] ].each do |token|
+      get card_season_path(locale: :en, slug: "portal", number: 1, custom_set: token)
+      assert_equal [ [ "a", in_theme("tin-soldier") ], [ "a", in_theme("blue-depths") ] ], navs, token.inspect
+    end
   end
 
   test "a card opened from a player's album browses it, leads back to that album, links its sets to that player's albums and shows the face of a card that player does not hold" do

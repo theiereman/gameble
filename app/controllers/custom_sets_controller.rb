@@ -3,6 +3,7 @@ class CustomSetsController < ApplicationController
   include CustomSetEditing
   include GoalControlLoading
   include GoalMarksLoading
+  include CustomSetFaces
 
   helper_method :goal_marks
 
@@ -19,7 +20,7 @@ class CustomSetsController < ApplicationController
     @standing = @custom_set.to_set_standing
     @picks = editor_picks(@custom_set.card_ids) if @custom_set.custom?
     editions = Game::HeldGames.editions(current_player, card_ids: @custom_set.card_ids, season: @season)
-    load_album_slots(album_members(@custom_set.card_ids, editions), editions, with_new: true)
+    load_album_slots(custom_set_members(@custom_set.card_ids, editions), editions, with_new: true)
     load_goal_control({ custom_set: @custom_set.token }, targets: goal_marks.targets)
     @unique = Game::HeldGames.count(current_player)
     @season_cards = Catalog::CardCount.call(@season)
@@ -74,10 +75,5 @@ class CustomSetsController < ApplicationController
       raise ActiveRecord::RecordNotFound unless custom_set.custom?
 
       custom_set
-    end
-
-    def album_members(card_ids, editions)
-      faces = Catalog::LatestPublishedCardSeasons.call(card_ids)
-      card_ids.filter_map { |card_id| [ faces[card_id], card_id ] if faces.key?(card_id) || editions.key?(card_id) }
     end
 end
