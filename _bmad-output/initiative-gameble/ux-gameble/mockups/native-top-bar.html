@@ -1,0 +1,193 @@
+<title>Barre du haut Gameble</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: the prototype phone beside what to try; one shared bar above every screen. */
+:root{color-scheme:dark;--ground:#0b0f15;--steam:#171a21;--panel:#121a24;--sunken:#0d131b;--raised:#1b2838;--line:#2a475e;--accent:#66c0f4;--text:#c7d5e0;--bright:#ffffff;--muted:#8f98a0;--dim:#5d6b78;--lime:#a4d007;--danger:#e8743b;
+--mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;--bar:58px;--status:47px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--text);font:14px/1.5 var(--mono);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px}
+.page{display:flex;flex-wrap:wrap;gap:32px;justify-content:center;align-items:flex-start;max-width:1040px;margin:auto}
+.phone{--w:390px;width:min(var(--w),100%);height:min(844px,88svh);min-height:600px;flex:none;position:relative;overflow:hidden;background:var(--ground);border:2px solid var(--line);isolation:isolate}
+.status{position:absolute;inset:0 0 auto;height:var(--status);background:var(--steam);z-index:30;display:flex;align-items:center;justify-content:space-between;padding:10px 26px 0;color:var(--bright);font-weight:700;font-size:13px}
+.bar{position:absolute;top:var(--status);left:0;right:0;height:var(--bar);z-index:20;background:var(--steam);border-bottom:2px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 10px;transition:transform .2s ease-out}
+.bar.hidden{transform:translateY(-100%)}
+.start{min-width:0;flex:0 1 auto;display:flex;align-items:center}
+.end{flex:none;display:flex;align-items:center;gap:6px}
+.home{width:40px;height:40px;display:flex;align-items:center;justify-content:flex-start}
+.home img{height:30px;display:block;image-rendering:pixelated}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.back{display:flex;align-items:center;gap:7px;min-width:0;height:40px;padding:0 10px;background:var(--raised);border:2px solid var(--line);color:var(--bright);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;max-width:100%}
+.back img{height:12px;flex:none;image-rendering:pixelated;filter:brightness(0) invert(1)}
+.back span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip{height:40px;min-width:40px;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 7px;background:var(--sunken);border:2px solid var(--line);color:var(--bright);font-weight:700;font-size:13px;position:relative;font-variant-numeric:tabular-nums}
+.chip img{height:18px;image-rendering:pixelated;display:block}
+.chip.zero{opacity:.55}
+.chip .sep{width:2px;height:18px;background:var(--line);margin:0 2px}
+.badge{position:absolute;top:-6px;right:-6px;min-width:17px;height:17px;padding:0 3px;background:var(--danger);color:#180a02;font-size:11px;line-height:17px;text-align:center;font-weight:700}
+.avatar{padding:0;overflow:hidden}
+.avatar img{height:36px;width:36px;object-fit:cover}
+.stage{position:absolute;inset:var(--status) 0 0 0;z-index:1;overflow:hidden}
+.screen{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;padding:calc(var(--bar) + 14px) 14px 112px;background:var(--ground);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.layered .screen{padding-bottom:40px}
+.enter-forward{animation:forward .24s cubic-bezier(.2,.8,.3,1)}
+.enter-back{animation:backward .24s cubic-bezier(.2,.8,.3,1)}
+.enter-tab{animation:fade .16s ease-out}
+.enter-layer{animation:rise .26s cubic-bezier(.2,.8,.3,1)}
+@keyframes forward{from{transform:translateX(38px);opacity:0}}
+@keyframes backward{from{transform:translateX(-38px);opacity:0}}
+@keyframes fade{from{opacity:0}}
+@keyframes rise{from{transform:translateY(36px);opacity:0}}
+.tabs{position:absolute;left:12px;right:12px;bottom:14px;height:74px;z-index:25;background:rgba(23,26,33,.94);border:1px solid #3a4655;border-radius:37px;display:flex;align-items:center;padding:4px;transition:transform .2s ease-out}
+.layered .tabs{transform:translateY(130%)}
+.tab{flex:1;height:64px;border-radius:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--bright);font-size:11px;min-width:0}
+.tab i{width:24px;height:24px;background:currentColor;-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat}
+.tab[aria-current]{background:#2a333e;color:var(--accent)}
+.pop{position:absolute;z-index:40;top:calc(var(--status) + var(--bar) + 6px);right:10px;width:min(290px,calc(100% - 20px));background:var(--panel);border:2px solid var(--line);box-shadow:0 12px 26px rgba(0,0,0,.6)}
+.pop h3{margin:0;padding:10px 12px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border-bottom:2px solid var(--line)}
+.pop button{display:block;width:100%;text-align:left;padding:13px 12px;border-bottom:1px solid #1d2a38;color:var(--bright);font-size:13px}
+.pop button small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.pop .quiet{color:var(--muted);text-align:center;font-size:12px}
+.kicker{font-size:12px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;margin:0 0 12px;font-weight:700}
+.row{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:15px 12px;background:var(--panel);border:2px solid var(--line);margin-bottom:10px;color:var(--bright)}
+.row small{color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{display:block;width:100%;text-align:left;background:var(--raised);border:3px solid #7d8a96;padding:7px;color:var(--bright);font-size:12px;font-weight:700}
+.card u{display:block;text-decoration:none;font-weight:400;color:var(--muted);font-size:11px;margin-bottom:6px}
+.card em{display:block;aspect-ratio:3/4;background:linear-gradient(145deg,var(--a),var(--b));image-rendering:pixelated;margin-bottom:6px}
+.card s{text-decoration:none;display:block;color:var(--muted);font-weight:400;font-size:11px}
+.hero{aspect-ratio:3/4;max-height:340px;margin:0 auto 14px;background:linear-gradient(145deg,var(--a),var(--b));border:3px solid #7d8a96}
+.capsule{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;min-height:100%;text-align:center}
+.capsule img{height:150px;image-rendering:pixelated}
+.primary{padding:15px 30px;background:#7aa60a;color:#0f1a03;font-weight:700;letter-spacing:.08em;box-shadow:inset 0 -4px 0 #4a6506}
+.primary:disabled{opacity:.45;cursor:default}
+.notes{flex:1 1 340px;min-width:0;max-width:520px}
+h1{font-size:24px;line-height:1.25;color:var(--bright);margin:0 0 8px;text-wrap:balance}
+.lead{margin:0 0 22px;color:var(--text)}
+h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:24px 0 10px}
+.try{margin:0;padding:0;list-style:none}
+.try li{padding:9px 0;border-top:1px solid #1d2a38}
+.try b{color:var(--bright)}
+.option{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.option button{padding:9px 12px;border:2px solid var(--line);background:var(--panel);font-size:12px}
+.option button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#07131c;font-weight:700}
+.hint{color:var(--muted);font-size:12px;margin:0 0 14px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<div class="page">
+  <div class="phone" id="phone">
+    <div class="status"><span>14:31</span><span>5G</span></div>
+    <header class="bar" id="bar"><div class="start" id="start"></div><div class="end" id="end"></div></header>
+    <div id="pop"></div>
+    <main class="stage" id="stage"></main>
+    <nav class="tabs" id="tabs" aria-label="Onglets"></nav>
+  </div>
+  <section class="notes">
+    <h1>Une seule barre, qui ne bouge plus</h1>
+    <p class="lead">Prototype de tes choix. Les contenus sont des exemples ; seuls la barre et son comportement comptent.</p>
+    <h2>À essayer</h2>
+    <ul class="try">
+      <li><b>Change d'onglet.</b> La barre ne bouge pas, seul le contenu change.</li>
+      <li><b>Ouvre une carte dans Sets, puis change d'onglet et reviens.</b> Chaque onglet garde sa position et son retour.</li>
+      <li><b>Fais défiler une grille.</b> La barre se masque en descendant et revient en remontant.</li>
+      <li><b>Touche le compteur de capsules.</b> Tu arrives sur l'onglet Capsule. Ouvre une capsule : le compteur baisse partout.</li>
+      <li><b>Touche la cloche.</b> Chaque ligne t'emmène sur le bon onglet, et le badge baisse partout.</li>
+      <li><b>Touche l'avatar, puis Mon profil.</b> L'écran passe par-dessus les onglets, qui se retirent. Le retour te ramène où tu étais.</li>
+    </ul>
+    <h2>Réglages</h2>
+    <p class="hint">Compteur de capsules : le compteur double est retenu.</p>
+    <div class="option" id="count">
+      <button data-v="two">Deux compteurs</button><button data-v="one">Un compteur double</button><button data-v="auto">Spéciales si &gt; 0</button>
+    </div>
+    <p class="hint">Largeur d'écran, pour voir le cas le plus serré.</p>
+    <div class="option" id="width">
+      <button data-v="390">iPhone 390</button><button data-v="360">Petit écran 360</button>
+    </div>
+    <p class="hint">Un nom long comme « Comment ça marche » se coupe : ouvre l'avatar, Comment ça marche, puis Crédits.</p>
+  </section>
+</div>
+<script>
+const ICON={"back-g": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNyA1MCIgd2lkdGg9Ijc0IiBoZWlnaHQ9IjEwMCIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj48cGF0aCBmaWxsPSIjMTIwZDA1IiBkPSJNNSAwaDMydjFoLTMyek01IDFoMXYxaC0xek0zNiAxaDF2MWgtMXpNNSAyaDF2MWgtMXpNMzYgMmgxdjFoLTF6TTM2IDNoMXYxaC0xek01IDRoMXYxaC0xek0zNiA0aDF2MWgtMXpNMCA1aDN2MWgtM3pNNCA1aDJ2MWgtMnpNMzYgNWgxdjFoLTF6TTAgNmgxdjFoLTF6TTM2IDZoMXYxaC0xek0wIDdoMXYxaC0xek0zNiA3aDF2MWgtMXpNMCA4aDF2MWgtMXpNMzYgOGgxdjFoLTF6TTAgOWgxdjFoLTF6TTM2IDloMXYxaC0xek0wIDEwaDF2MWgtMXpNMzYgMTBoMXYxaC0xek0wIDExaDF2MWgtMXpNMTEgMTFoMjZ2MWgtMjZ6TTAgMTJoMXYxaC0xek0xMSAxMmgxdjFoLTF6TTAgMTNoMXYxaC0xek0xMSAxM2gxdjFoLTF6TTAgMTRoMXYxaC0xek0xMSAxNGgxdjFoLTF6TTAgMTVoMXYxaC0xek0xMSAxNWgxdjFoLTF6TTAgMTZoMXYxaC0xek0xMSAxNmgxdjFoLTF6TTAgMTdoMXYxaC0xek0xMSAxN2gxdjFoLTF6TTAgMThoMXYxaC0xek0xMSAxOGgxdjFoLTF6TTAgMTloMXYxaC0xek0xMSAxOWgxdjFoLTF6TTAgMjBoMXYxaC0xek0xMSAyMGgxdjFoLTF6TTIwIDIwaDE3djFoLTE3ek0wIDIxaDF2MWgtMXpNMTEgMjFoMXYxaC0xek0yMCAyMWgxdjFoLTF6TTM2IDIxaDF2MWgtMXpNMCAyMmgxdjFoLTF6TTExIDIyaDF2MWgtMXpNMjAgMjJoMXYxaC0xek0zNiAyMmgxdjFoLTF6TTAgMjNoMXYxaC0xek0xMSAyM2gxdjFoLTF6TTIwIDIzaDF2MWgtMXpNMzYgMjNoMXYxaC0xek0wIDI0aDF2MWgtMXpNMTEgMjRoMXYxaC0xek0yMCAyNGgxdjFoLTF6TTM2IDI0aDF2MWgtMXpNMCAyNWgxdjFoLTF6TTExIDI1aDF2MWgtMXpNMjAgMjVoMXYxaC0xek0zNiAyNWgxdjFoLTF6TTAgMjZoMXYxaC0xek0xMSAyNmgxdjFoLTF6TTIwIDI2aDF2MWgtMXpNMzYgMjZoMXYxaC0xek0wIDI3aDF2MWgtMXpNMTEgMjdoMXYxaC0xek0yMCAyN2gxdjFoLTF6TTM2IDI3aDF2MWgtMXpNMCAyOGgxdjFoLTF6TTExIDI4aDF2MWgtMXpNMjAgMjhoMXYxaC0xek0zNiAyOGgxdjFoLTF6TTAgMjloMXYxaC0xek0xMSAyOWgxdjFoLTF6TTIwIDI5aDF2MWgtMXpNMzYgMjloMXYxaC0xek0wIDMwaDF2MWgtMXpNMTEgMzBoMXYxaC0xek0yMCAzMGgxdjFoLTF6TTM2IDMwaDF2MWgtMXpNMCAzMWgxdjFoLTF6TTExIDMxaDF2MWgtMXpNMjAgMzFoNnYxaC02ek0zNiAzMWgxdjFoLTF6TTAgMzJoMXYxaC0xek0xMSAzMmgxdjFoLTF6TTI1IDMyaDF2MWgtMXpNMzYgMzJoMXYxaC0xek0wIDMzaDF2MWgtMXpNMTEgMzNoMXYxaC0xek0yNSAzM2gxdjFoLTF6TTM2IDMzaDF2MWgtMXpNMCAzNGgxdjFoLTF6TTExIDM0aDF2MWgtMXpNMjUgMzRoMXYxaC0xek0zNiAzNGgxdjFoLTF6TTAgMzVoMXYxaC0xek0xMSAzNWgxNXYxaC0xNXpNMzYgMzVoMXYxaC0xek0wIDM2aDF2MWgtMXpNMzYgMzZoMXYxaC0xek0wIDM3aDF2MWgtMXpNMzYgMzdoMXYxaC0xek0wIDM4aDF2MWgtMXpNMzYgMzhoMXYxaC0xek0wIDM5aDF2MWgtMXpNMzYgMzloMXYxaC0xek0wIDQwaDF2MWgtMXpNMzYgNDBoMXYxaC0xek0wIDQxaDZ2MWgtNnpNMzYgNDFoMXYxaC0xek01IDQyaDF2MWgtMXpNMzYgNDJoMXYxaC0xek01IDQzaDF2MWgtMXpNMzYgNDNoMXYxaC0xek01IDQ0aDF2MWgtMXpNMzYgNDRoMXYxaC0xek01IDQ1aDF2MWgtMXpNMzYgNDVoMXYxaC0xek01IDQ2aDMydjFoLTMyeiIvPjxwYXRoIGZpbGw9IiNmZmYzYzQiIGQ9Ik0zIDFoMXYxaC0xek02IDFoMzB2MWgtMzB6TTIgMmgxdjFoLTF6TTQgMmgxdjFoLTF6TTYgMmgzMHYxaC0zMHpNMSAzaDF2MWgtMXpNNSAzaDMxdjFoLTMxek0yIDRoMXYxaC0xek00IDRoMXYxaC0xek02IDRoMzB2MWgtMzB6TTMgNWgxdjFoLTF6TTYgNWgzMHYxaC0zMHpNMSA2aDM1djFoLTM1ek0xIDdoMzV2MWgtMzV6TTEgOGgzNXYxaC0zNXpNMSA5aDM1djFoLTM1ek0yMSAyMWgxNXYxaC0xNXpNMTEgMzZoMTV2MWgtMTV6Ii8+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTMgMmgxdjFoLTF6TTIgM2gzdjFoLTN6TTMgNGgxdjFoLTF6Ii8+PHBhdGggZmlsbD0iI2Y0YzU0MiIgZD0iTTEgMTBoMzV2MWgtMzV6TTEgMTFoMTB2MWgtMTB6TTEgMTJoMTB2MWgtMTB6TTEgMTNoMTB2MWgtMTB6TTEgMTRoMTB2MWgtMTB6TTEgMTVoMTB2MWgtMTB6TTEgMTZoMTB2MWgtMTB6TTEgMTdoMTB2MWgtMTB6TTEgMThoMTB2MWgtMTB6TTEgMTloMTB2MWgtMTB6TTEgMjBoMTB2MWgtMTB6TTEgMjFoMTB2MWgtMTB6TTEgMjJoMTB2MWgtMTB6TTIxIDIyaDE1djFoLTE1ek0xIDIzaDEwdjFoLTEwek0yMSAyM2gxNXYxaC0xNXpNMSAyNGgxMHYxaC0xMHpNMjEgMjRoMTV2MWgtMTV6Ii8+PHBhdGggZmlsbD0iIzRhMzEwNSIgZD0iTTEyIDEyaDI1djFoLTI1ek0xMiAxM2gyNXYxaC0yNXpNMTIgMTRoMjV2MWgtMjV6TTIwIDMyaDV2MWgtNXpNMjAgMzNoNXYxaC01ek0yMCAzNGg1djFoLTV6TTAgNDJoNXYxaC01ek0wIDQzaDV2MWgtNXpNMCA0NGg1djFoLTV6TTUgNDdoMzJ2MWgtMzJ6TTUgNDhoMzJ2MWgtMzJ6TTUgNDloMzJ2MWgtMzJ6Ii8+PHBhdGggZmlsbD0iI2Q5OWExZiIgZD0iTTEgMjVoMTB2MWgtMTB6TTIxIDI1aDE1djFoLTE1ek0xIDI2aDEwdjFoLTEwek0yMSAyNmgxNXYxaC0xNXpNMSAyN2gxMHYxaC0xMHpNMjEgMjdoMTV2MWgtMTV6TTEgMjhoMTB2MWgtMTB6TTIxIDI4aDE1djFoLTE1ek0xIDI5aDEwdjFoLTEwek0yMSAyOWgxNHYxaC0xNHpNMSAzMGgxMHYxaC0xMHpNMjEgMzBoMTN2MWgtMTN6TTEgMzFoMTB2MWgtMTB6TTI2IDMxaDd2MWgtN3pNMSAzMmgxMHYxaC0xMHpNMjYgMzJoNnYxaC02ek0xIDMzaDEwdjFoLTEwek0yNiAzM2g1djFoLTV6TTEgMzRoMTB2MWgtMTB6TTI2IDM0aDR2MWgtNHpNMSAzNWgxMHYxaC0xMHpNMjYgMzVoM3YxaC0zek0xIDM2aDEwdjFoLTEwek0yNiAzNmgydjFoLTJ6TTI3IDM3aDh2MWgtOHpNMjYgMzhoOHYxaC04ek0yNSAzOWg4djFoLTh6TTM1IDM5aDF2MWgtMXpNMjQgNDBoOHYxaC04ek0zNCA0MGgydjFoLTJ6TTIzIDQxaDh2MWgtOHpNMzMgNDFoMnYxaC0yek0yMiA0Mmg4djFoLTh6TTMyIDQyaDJ2MWgtMnpNMjEgNDNoOHYxaC04ek0zMSA0M2gydjFoLTJ6TTIwIDQ0aDh2MWgtOHpNMzAgNDRoMnYxaC0yek0xOSA0NWg4djFoLTh6TTI5IDQ1aDJ2MWgtMnoiLz48cGF0aCBmaWxsPSIjZmZlMDhhIiBkPSJNMzUgMjloMXYxaC0xek0zNCAzMGgydjFoLTJ6TTMzIDMxaDN2MWgtM3pNMzIgMzJoNHYxaC00ek0zMSAzM2g1djFoLTV6TTMwIDM0aDZ2MWgtNnpNMjkgMzVoN3YxaC03ek0yOCAzNmg4djFoLTh6Ii8+PHBhdGggZmlsbD0iIzhmNWUwYSIgZD0iTTEgMzdoMjZ2MWgtMjZ6TTM1IDM3aDF2MWgtMXpNMSAzOGgyNXYxaC0yNXpNMzQgMzhoMnYxaC0yek0xIDM5aDI0djFoLTI0ek0zMyAzOWgydjFoLTJ6TTEgNDBoMjN2MWgtMjN6TTMyIDQwaDJ2MWgtMnpNNiA0MWgxN3YxaC0xN3pNMzEgNDFoMnYxaC0yek0zNSA0MWgxdjFoLTF6TTYgNDJoMTZ2MWgtMTZ6TTMwIDQyaDJ2MWgtMnpNMzQgNDJoMnYxaC0yek02IDQzaDE1djFoLTE1ek0yOSA0M2gydjFoLTJ6TTMzIDQzaDN2MWgtM3pNNiA0NGgxNHYxaC0xNHpNMjggNDRoMnYxaC0yek0zMiA0NGg0djFoLTR6TTYgNDVoMTN2MWgtMTN6TTI3IDQ1aDJ2MWgtMnpNMzEgNDVoNXYxaC01eiIvPjwvc3ZnPgo=", "bell": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3IDgiIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNiIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj48cGF0aCBmaWxsPSIjZmZmM2M0IiBkPSJNMiAwaDF2MWgtMXpNMSAxaDF2MWgtMXpNMSAyaDF2MWgtMXpNMSAzaDF2MWgtMXpNMCA0aDF2MWgtMXpNMiA3aDF2MWgtMXoiLz48cGF0aCBmaWxsPSIjZjRjNTQyIiBkPSJNMyAwaDF2MWgtMXpNMiAxaDN2MWgtM3pNMiAyaDN2MWgtM3pNMiAzaDN2MWgtM3pNMSA0aDV2MWgtNXpNMyA3aDF2MWgtMXoiLz48cGF0aCBmaWxsPSIjOGY1ZTBhIiBkPSJNNCAwaDF2MWgtMXpNNSAxaDF2MWgtMXpNNSAyaDF2MWgtMXpNNSAzaDF2MWgtMXpNNiA0aDF2MWgtMXpNMCA1aDd2MWgtN3pNNCA3aDF2MWgtMXoiLz48L3N2Zz4K", "arrow-left": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0IDciIHdpZHRoPSI4IiBoZWlnaHQ9IjE0IiBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTMgMGgxdjFoLTF6TTIgMWgydjFoLTJ6TTEgMmgzdjFoLTN6TTAgM2g0djFoLTR6TTEgNGgzdjFoLTN6TTIgNWgydjFoLTJ6TTMgNmgxdjFoLTF6Ii8+PC9zdmc+Cg==", "capsule-standard": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3IDExIiB3aWR0aD0iMTQiIGhlaWdodD0iMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHBhdGggZmlsbD0iIzA2MDkwZCIgZD0iTTIgMGgzdjFoLTN6TTEgMWgxdjFoLTF6TTUgMWgxdjFoLTF6TTAgMmgxdjFoLTF6TTYgMmgxdjFoLTF6TTAgM2gxdjFoLTF6TTYgM2gxdjFoLTF6TTAgNGgxdjFoLTF6TTYgNGgxdjFoLTF6TTAgNWgxdjFoLTF6TTYgNWgxdjFoLTF6TTAgNmgxdjFoLTF6TTYgNmgxdjFoLTF6TTAgN2gxdjFoLTF6TTYgN2gxdjFoLTF6TTAgOGgxdjFoLTF6TTYgOGgxdjFoLTF6TTEgOWgxdjFoLTF6TTUgOWgxdjFoLTF6TTIgMTBoM3YxaC0zeiIvPjxwYXRoIGZpbGw9IiM2NmMwZjQiIGQ9Ik0yIDFoM3YxaC0zek0xIDJoNXYxaC01ek0xIDNoNXYxaC01ek0xIDRoNXYxaC01eiIvPjxwYXRoIGZpbGw9IiMyZjRmNmMiIGQ9Ik0xIDVoNXYxaC01ek0xIDZoNXYxaC01ek0xIDdoNXYxaC01ek0xIDhoNXYxaC01ek0yIDloM3YxaC0zeiIvPjwvc3ZnPgo=", "capsule-special": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5IDkiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj48cGF0aCBmaWxsPSIjMDYwOTBkIiBkPSJNNCAwaDF2MWgtMXpNMyAxaDF2MWgtMXpNNSAxaDF2MWgtMXpNMiAyaDF2MWgtMXpNNiAyaDF2MWgtMXpNMSAzaDF2MWgtMXpNNyAzaDF2MWgtMXpNMCA0aDF2MWgtMXpNOCA0aDF2MWgtMXpNMSA1aDF2MWgtMXpNNyA1aDF2MWgtMXpNMiA2aDF2MWgtMXpNNiA2aDF2MWgtMXpNMyA3aDF2MWgtMXpNNSA3aDF2MWgtMXpNNCA4aDF2MWgtMXoiLz48cGF0aCBmaWxsPSIjYTRkMDA3IiBkPSJNNCAxaDF2MWgtMXpNMyAyaDN2MWgtM3pNMiAzaDV2MWgtNXpNMSA0aDd2MWgtN3pNMyA1aDN2MWgtM3pNNSA2aDF2MWgtMXoiLz48cGF0aCBmaWxsPSIjNWM3YTBjIiBkPSJNMiA1aDF2MWgtMXpNNiA1aDF2MWgtMXpNMyA2aDJ2MWgtMnpNNCA3aDF2MWgtMXoiLz48L3N2Zz4K", "canister-small": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4IDExIiB3aWR0aD0iMTYiIGhlaWdodD0iMjIiIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHBhdGggZmlsbD0iIzA2MDkwZCIgZD0iTTEgMGg2djFoLTZ6TTAgMWgxdjFoLTF6TTcgMWgxdjFoLTF6TTAgMmgxdjFoLTF6TTcgMmgxdjFoLTF6TTAgM2gxdjFoLTF6TTcgM2gxdjFoLTF6TTAgNGgxdjFoLTF6TTcgNGgxdjFoLTF6TTAgNWgxdjFoLTF6TTcgNWgxdjFoLTF6TTAgNmgxdjFoLTF6TTcgNmgxdjFoLTF6TTAgN2gxdjFoLTF6TTcgN2gxdjFoLTF6TTAgOGgxdjFoLTF6TTcgOGgxdjFoLTF6TTAgOWgxdjFoLTF6TTcgOWgxdjFoLTF6TTEgMTBoNnYxaC02eiIvPjxwYXRoIGZpbGw9IiNkZmU2ZWMiIGQ9Ik0xIDFoNnYxaC02ek0xIDhoNnYxaC02eiIvPjxwYXRoIGZpbGw9IiM1ZDZiN2MiIGQ9Ik0xIDJoNnYxaC02ek0xIDloNnYxaC02eiIvPjxwYXRoIGZpbGw9IiMyZjRmNmMiIGQ9Ik0xIDNoNXYxaC01ek0xIDVoMnYxaC0yek00IDVoMnYxaC0yek0xIDdoNXYxaC01eiIvPjxwYXRoIGZpbGw9IiMxYjI4MzgiIGQ9Ik02IDNoMXYxaC0xek02IDVoMXYxaC0xek02IDdoMXYxaC0xeiIvPjxwYXRoIGZpbGw9IiM2NmMwZjQiIGQ9Ik0xIDRoNnYxaC02ek0xIDZoNnYxaC02eiIvPjxwYXRoIGZpbGw9IiNmNGM1NDIiIGQ9Ik0zIDVoMXYxaC0xeiIvPjwvc3ZnPgo=", "avatar": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxwYXRoIGZpbGw9IiMxYjI4MzgiIGQ9Ik0wIDBoNXYxaC01ek02IDBoNHYxaC00ek0xMSAwaDV2MWgtNXpNMCAxaDV2MWgtNXpNNiAxaDR2MWgtNHpNMTEgMWg1djFoLTV6TTAgMmg0djFoLTR6TTEyIDJoNHYxaC00ek0wIDNoM3YxaC0zek0xMyAzaDN2MWgtM3pNMCA0aDJ2MWgtMnpNMTQgNGgydjFoLTJ6TTAgNWgxdjFoLTF6TTE1IDVoMXYxaC0xek0wIDZoMXYxaC0xek0xNSA2aDF2MWgtMXpNMCA3aDF2MWgtMXpNMTUgN2gxdjFoLTF6TTAgOGgxdjFoLTF6TTE1IDhoMXYxaC0xek0wIDloMXYxaC0xek0xNSA5aDF2MWgtMXpNMCAxMGgydjFoLTJ6TTE0IDEwaDJ2MWgtMnpNMCAxMWgxdjFoLTF6TTE1IDExaDF2MWgtMXpNMCAxMmgxdjFoLTF6TTE1IDEyaDF2MWgtMXpNMCAxM2gxdjFoLTF6TTIgMTNoMXYxaC0xek01IDEzaDF2MWgtMXpNMTAgMTNoMXYxaC0xek0xMyAxM2gxdjFoLTF6TTE1IDEzaDF2MWgtMXpNMCAxNGgxdjFoLTF6TTIgMTRoMXYxaC0xek01IDE0aDF2MWgtMXpNMTAgMTRoMXYxaC0xek0xMyAxNGgxdjFoLTF6TTE1IDE0aDF2MWgtMXpNMCAxNWgxdjFoLTF6TTIgMTVoMXYxaC0xek00IDE1aDJ2MWgtMnpNNyAxNWgydjFoLTJ6TTEwIDE1aDJ2MWgtMnpNMTMgMTVoMXYxaC0xek0xNSAxNWgxdjFoLTF6Ii8+PHBhdGggZmlsbD0iI2IyZjdkNCIgZD0iTTUgMGgxdjFoLTF6TTEwIDBoMXYxaC0xeiIvPjxwYXRoIGZpbGw9IiMxNjY4NGEiIGQ9Ik01IDFoMXYxaC0xek0xMCAxaDF2MWgtMXpNNSA4aDF2MWgtMXpNMTAgOGgxdjFoLTF6TTYgOWg0djFoLTR6TTIgMTJoMXYxaC0xek01IDEyaDF2MWgtMXpNMTAgMTJoMXYxaC0xek0xMyAxMmgxdjFoLTF6TTQgMTRoMXYxaC0xek0xMSAxNGgxdjFoLTF6Ii8+PHBhdGggZmlsbD0iIzNmY2Y4ZSIgZD0iTTQgMmg4djFoLTh6TTMgM2gxMHYxaC0xMHpNMiA0aDEydjFoLTEyek0xIDVoMnYxaC0yek01IDVoMXYxaC0xek0xMCA1aDF2MWgtMXpNMTMgNWgydjFoLTJ6TTEgNmgydjFoLTJ6TTUgNmgxdjFoLTF6TTEwIDZoMXYxaC0xek0xMyA2aDJ2MWgtMnpNMSA3aDE0djFoLTE0ek0xIDhoNHYxaC00ek02IDhoNHYxaC00ek0xMSA4aDR2MWgtNHpNMSA5aDV2MWgtNXpNMTAgOWg1djFoLTV6TTIgMTBoMTJ2MWgtMTJ6TTEgMTFoMTR2MWgtMTR6TTEgMTJoMXYxaC0xek0zIDEyaDJ2MWgtMnpNNiAxMmg0djFoLTR6TTExIDEyaDJ2MWgtMnpNMTQgMTJoMXYxaC0xek0xIDEzaDF2MWgtMXpNMyAxM2gydjFoLTJ6TTYgMTNoNHYxaC00ek0xMSAxM2gydjFoLTJ6TTE0IDEzaDF2MWgtMXpNMSAxNGgxdjFoLTF6TTMgMTRoMXYxaC0xek02IDE0aDR2MWgtNHpNMTIgMTRoMXYxaC0xek0xNCAxNGgxdjFoLTF6TTEgMTVoMXYxaC0xek0zIDE1aDF2MWgtMXpNNiAxNWgxdjFoLTF6TTkgMTVoMXYxaC0xek0xMiAxNWgxdjFoLTF6TTE0IDE1aDF2MWgtMXoiLz48cGF0aCBmaWxsPSIjZjRmMWU4IiBkPSJNMyA1aDJ2MWgtMnpNNiA1aDR2MWgtNHpNMTEgNWgydjFoLTJ6TTQgNmgxdjFoLTF6TTcgNmgydjFoLTJ6TTExIDZoMXYxaC0xeiIvPjxwYXRoIGZpbGw9IiMwYjE1MjAiIGQ9Ik0zIDZoMXYxaC0xek02IDZoMXYxaC0xek05IDZoMXYxaC0xek0xMiA2aDF2MWgtMXoiLz48L3N2Zz4K"}, TAB={"hub": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDExIDExIiBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0wIDFoMTF2MWgtMTF6TTAgMmgxdjFoLTF6TTEwIDJoMXYxaC0xek0wIDNoMXYxaC0xek0yIDNoM3YxaC0zek0xMCAzaDF2MWgtMXpNMCA0aDF2MWgtMXpNMTAgNGgxdjFoLTF6TTAgNWgxdjFoLTF6TTIgNWgxdjFoLTF6TTQgNWgxdjFoLTF6TTYgNWgxdjFoLTF6TTggNWgxdjFoLTF6TTEwIDVoMXYxaC0xek0wIDZoMXYxaC0xek0xMCA2aDF2MWgtMXpNMCA3aDExdjFoLTExek00IDhoM3YxaC0zek00IDloM3YxaC0zek0yIDEwaDd2MWgtN3oiLz48L3N2Zz4K", "capsule": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDExIDExIiBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0zIDFoNXYxaC01ek0yIDJoMXYxaC0xek04IDJoMXYxaC0xek0yIDNoMXYxaC0xek04IDNoMXYxaC0xek0yIDRoMXYxaC0xek04IDRoMXYxaC0xek0yIDVoN3YxaC03ek0yIDZoN3YxaC03ek0yIDdoMXYxaC0xek04IDdoMXYxaC0xek0yIDhoMXYxaC0xek04IDhoMXYxaC0xek0zIDloNXYxaC01eiIvPjwvc3ZnPgo=", "sets": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDExIDExIiBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0wIDBoNXYxaC01ek02IDBoNXYxaC01ek0wIDFoMXYxaC0xek00IDFoMXYxaC0xek02IDFoMXYxaC0xek0xMCAxaDF2MWgtMXpNMCAyaDF2MWgtMXpNNCAyaDF2MWgtMXpNNiAyaDF2MWgtMXpNMTAgMmgxdjFoLTF6TTAgM2gxdjFoLTF6TTQgM2gxdjFoLTF6TTYgM2gxdjFoLTF6TTEwIDNoMXYxaC0xek0wIDRoNXYxaC01ek02IDRoNXYxaC01ek0wIDZoNXYxaC01ek02IDZoNXYxaC01ek0wIDdoMXYxaC0xek00IDdoMXYxaC0xek02IDdoMXYxaC0xek0xMCA3aDF2MWgtMXpNMCA4aDF2MWgtMXpNNCA4aDF2MWgtMXpNNiA4aDF2MWgtMXpNMTAgOGgxdjFoLTF6TTAgOWgxdjFoLTF6TTQgOWgxdjFoLTF6TTYgOWgxdjFoLTF6TTEwIDloMXYxaC0xek0wIDEwaDV2MWgtNXpNNiAxMGg1djFoLTV6Ii8+PC9zdmc+Cg==", "friends": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDExIDExIiBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0xIDFoM3YxaC0zek03IDFoM3YxaC0zek0xIDJoMXYxaC0xek0zIDJoMXYxaC0xek03IDJoMXYxaC0xek05IDJoMXYxaC0xek0xIDNoM3YxaC0zek03IDNoM3YxaC0zek0wIDVoNXYxaC01ek02IDVoNXYxaC01ek0wIDZoMXYxaC0xek00IDZoMXYxaC0xek02IDZoMXYxaC0xek0xMCA2aDF2MWgtMXpNMCA3aDF2MWgtMXpNNCA3aDF2MWgtMXpNNiA3aDF2MWgtMXpNMTAgN2gxdjFoLTF6TTAgOGgxdjFoLTF6TTQgOGgxdjFoLTF6TTYgOGgxdjFoLTF6TTEwIDhoMXYxaC0xek0wIDloNXYxaC01ek02IDloNXYxaC01eiIvPjwvc3ZnPgo=", "trades": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgdmlld0JveD0iMCAwIDExIDExIiBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik04IDBoMXYxaC0xek04IDFoMnYxaC0yek0wIDJoMTF2MWgtMTF6TTggM2gydjFoLTJ6TTggNGgxdjFoLTF6TTIgNmgxdjFoLTF6TTEgN2gydjFoLTJ6TTAgOGgxMXYxaC0xMXpNMSA5aDJ2MWgtMnpNMiAxMGgxdjFoLTF6Ii8+PC9zdmc+Cg=="};
+const TABS=[["hub","Pont","hub"],["capsule","Capsule","capsule"],["sets","Sets","sets"],["friends","Amis","friends"],["trades","Échanges","trades"]];
+const GAMES=[["Foretales","Dear Villagers","#6a4b8f","#1f2a44"],["Windjammers 2","Dotemu","#f0b541","#c8352b"],["Birth","Madison Karrh","#8a8f95","#35393e"],["Bounty Train","Daedalic","#7a6a55","#2c241c"],["Astronomics","Numizmatic","#2b6ea3","#10233a"],["Scrutinized","Reflect Studios","#5b4a44","#0b0f15"],["World of Warships: Legends","Wargaming","#4a6a5a","#1b2a26"],["Havoc","Raktwo Games","#b8ae55","#233244"]];
+const cards=()=>Array.from({length:24},(_,i)=>{const g=GAMES[i%GAMES.length];return `<button class="card" data-go="card:${i%GAMES.length}"><span>${g[0]}</span><u>${g[1]}</u><em style="--a:${g[2]};--b:${g[3]}"></em><s>COMMUNE · #${(i+1)*187}</s></button>`}).join("");
+const rows=(list)=>list.map(([t,s,go])=>`<button class="row" data-go="${go}"><span>${t}</span><small>${s}</small></button>`).join("");
+const SCREENS={
+ hub:()=>({label:"Pont",html:`<p class="kicker">Pont de commandement</p>`+rows([["Le fil en direct","12 nouveautés","feed"],["Mes objectifs","2 en cours","goals"]])+Array.from({length:9},(_,i)=>`<div class="row"><span>Module ${i+1}</span><small>exemple</small></div>`).join("")}),
+ capsule:()=>({label:"Capsule",fixed:true,html:`<div class="capsule"><img src="${ICON["capsule-standard"]}" alt=""><p>Capsule standard, 5 cartes</p><button class="primary" data-act="open">OUVRIR</button></div>`}),
+ sets:()=>({label:"Sets",html:`<p class="kicker">Toutes les cartes</p><div class="grid">${cards()}</div>`}),
+ friends:()=>({label:"Amis",html:`<p class="kicker">Amis</p>`+rows([["Mara","en ligne","friend"],["Théo","hier","friend"],["Ines","il y a 3 jours","friend"]])}),
+ trades:()=>({label:"Échanges",html:`<p class="kicker">Échanges</p>`+rows([["Avec Mara","à toi de répondre","trade"],["Avec Théo","en attente","trade"]])}),
+ friend:()=>({label:"Collection",html:`<p class="kicker">Collection de Mara</p><div class="grid">${cards()}</div>`}),
+ trade:()=>({label:"Échange",html:`<p class="kicker">Échange avec Mara</p><div class="row"><span>Tu donnes</span><small>Havoc</small></div><div class="row"><span>Tu reçois</span><small>Birth</small></div>`}),
+ feed:()=>({label:"En direct",html:`<p class="kicker">Le fil en direct</p>`+Array.from({length:20},(_,i)=>`<div class="row"><span>Une carte tirée</span><small>il y a ${i+1} min</small></div>`).join("")}),
+ goals:()=>({label:"Objectifs",html:`<p class="kicker">Mes objectifs</p><div class="row"><span>Set du moment</span><small>12 / 30</small></div>`}),
+ me:()=>({label:"Profil",html:`<p class="kicker">Mon profil</p><div class="row"><span>Teyermann</span><small>4 070 cartes</small></div>`+rows([["Mes succès","3 à réclamer","goals"]])}),
+ howto:()=>({label:"Comment ça marche",html:`<p class="kicker">Comment ça marche</p><p>Chaque carte est un jeu Steam. Ouvre des capsules, complète des sets, échange avec tes amis.</p>`+rows([["Crédits","","credits"]])}),
+ settings:()=>({label:"Réglages",html:`<p class="kicker">Réglages</p><div class="row"><span>Langue</span><small>Français</small></div><div class="row"><span>Notifications</span><small>activées</small></div>`}),
+ credits:()=>({label:"Crédits",html:`<p class="kicker">Crédits</p><p>Écran d'exemple pour voir un nom long dans le retour.</p>`}),
+};
+const card=(i)=>{const g=GAMES[i];return {label:"Fiche",html:`<div class="hero" style="--a:${g[2]};--b:${g[3]}"></div><p class="kicker">${g[0]}</p><div class="row"><span>Éditeur</span><small>${g[1]}</small></div>`+rows([["Détenteurs","Mara et 3 autres","friend"]])}};
+const def=(id)=>id.startsWith("card:")?card(+id.split(":")[1]):SCREENS[id]();
+const LINES=[{t:"Mara attend ta réponse",s:"Échange",tab:"trades",push:"trade"},{t:"Une capsule de plus",s:"Capsule du jour",tab:"capsule"},{t:"Théo veut être ton ami",s:"Amis",tab:"friends"}];
+const state={tab:"sets",stacks:Object.fromEntries(TABS.map(([id])=>[id,[{id,el:null}]])),layer:null,standard:10,special:0,unread:[...LINES],pop:null,count:"one",width:"390"};
+const $=(id)=>document.getElementById(id);
+const current=()=>state.layer??state.stacks[state.tab];
+const topScreen=()=>current()[current().length-1];
+function mount(entry,how){
+  if(!entry.el){const d=def(entry.id);entry.label=d.label;const el=document.createElement("div");el.className="screen";el.innerHTML=d.html;if(d.fixed)el.style.overflow="hidden";el.addEventListener("scroll",onScroll,{passive:true});el.dataset.last=0;$("stage").append(el);entry.el=el}
+  document.querySelectorAll(".screen").forEach(s=>{s.hidden=s!==entry.el;s.classList.remove("enter-forward","enter-back","enter-tab","enter-layer")});
+  if(how){void entry.el.offsetWidth;entry.el.classList.add("enter-"+how)}
+  setBar(false);renderBar();
+}
+function backLabel(){const s=current();if(s.length>1)return s[s.length-2].label;if(state.layer){const t=state.stacks[state.tab];return t[t.length-1].label}return null}
+function renderBar(){
+  const label=backLabel();
+  $("start").innerHTML=label?`<button class="back" data-act="back" aria-label="Retour à ${label}"><img src="${ICON["arrow-left"]}" alt=""><span>${label}</span></button>`:`<span class="home"><img src="${ICON["back-g"]}" alt="Gameble"></span>`;
+  const std=`<img src="${ICON["capsule-standard"]}" alt="">`,sp=`<img src="${ICON["capsule-special"]}" alt="">`;
+  let caps;
+  if(state.count==="one")caps=`<button class="chip" data-act="capsules" aria-label="${state.standard} standard, ${state.special} spéciales">${std}${state.standard}<i class="sep"></i>${sp}${state.special}</button>`;
+  else{caps=`<button class="chip" data-act="capsules" aria-label="${state.standard} capsules standard">${std}${state.standard}</button>`;if(state.count==="two"||state.special>0)caps+=`<button class="chip${state.special?"":" zero"}" data-act="capsules" aria-label="${state.special} capsules spéciales">${sp}${state.special}</button>`}
+  const n=state.unread.length;
+  $("end").innerHTML=caps+`<button class="chip" data-act="bell" aria-label="Nouveautés, ${n} non lues"><img src="${ICON.bell}" alt="">${n?`<span class="badge">${n}</span>`:""}</button><button class="chip avatar" data-act="menu" aria-label="Menu"><img src="${ICON.avatar}" alt=""></button>`;
+  $("tabs").innerHTML=TABS.map(([id,t,k])=>`<button class="tab" data-tab="${id}"${id===state.tab&&!state.layer?' aria-current="page"':""}><i style="--m:url('${TAB[k]}')"></i>${t}</button>`).join("");
+  $("phone").classList.toggle("layered",!!state.layer);
+  renderPop();
+}
+function renderPop(){
+  const p=$("pop");
+  if(state.pop==="bell")p.innerHTML=`<div class="pop"><h3>Nouveautés</h3>${state.unread.length?state.unread.map((l,i)=>`<button data-line="${i}">${l.t}<small>${l.s}</small></button>`).join(""):`<button class="quiet" disabled>Rien de nouveau</button>`}</div>`;
+  else if(state.pop==="menu")p.innerHTML=`<div class="pop"><button data-layer="me">Mon profil</button><button data-layer="howto">Comment ça marche</button><button data-layer="settings">Réglages</button></div>`;
+  else p.innerHTML="";
+}
+function setBar(hidden){$("bar").classList.toggle("hidden",hidden)}
+function onScroll(e){const s=e.target,y=s.scrollTop,l=+s.dataset.last;if(state.pop){state.pop=null;renderPop()}if(y<16)setBar(false);else if(y-l>4)setBar(true);else if(l-y>4)setBar(false);s.dataset.last=y}
+function selectTab(id){state.layer?.forEach(e=>e.el?.remove());state.layer=null;const same=id===state.tab;state.tab=id;if(same){const s=state.stacks[id];while(s.length>1)s.pop().el?.remove()}mount(topScreen(),"tab")}
+function push(id){current().push({id,el:null});mount(topScreen(),"forward")}
+function back(){const s=current();if(s.length>1){s.pop().el?.remove();mount(topScreen(),"back")}else if(state.layer){state.layer.forEach(e=>e.el?.remove());state.layer=null;mount(topScreen(),"tab")}}
+function openLayer(id){if(state.layer){push(id);return}state.layer=[{id,el:null}];mount(topScreen(),"layer")}
+document.addEventListener("click",(e)=>{
+  const t=e.target.closest("[data-tab],[data-go],[data-act],[data-line],[data-layer]");
+  const insidePop=e.target.closest(".pop");
+  if(!t){if(state.pop&&!insidePop){state.pop=null;renderPop()}return}
+  const had=state.pop;state.pop=null;
+  if(t.dataset.tab)selectTab(t.dataset.tab);
+  else if(t.dataset.go)push(t.dataset.go);
+  else if(t.dataset.layer)openLayer(t.dataset.layer);
+  else if(t.dataset.line){const l=state.unread.splice(+t.dataset.line,1)[0];selectTab(l.tab);if(l.push)push(l.push)}
+  else switch(t.dataset.act){
+    case"back":back();break;
+    case"capsules":selectTab("capsule");break;
+    case"bell":state.pop=had==="bell"?null:"bell";renderPop();renderBar();break;
+    case"menu":state.pop=had==="menu"?null:"menu";renderPop();renderBar();break;
+    case"open":if(state.standard>0){state.standard--;renderBar();if(!state.standard)t.disabled=true}break;
+  }
+  renderPop();
+});
+function group(id,key,apply){const g=$(id);const sync=()=>g.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===state[key])));g.addEventListener("click",(e)=>{const b=e.target.closest("button");if(!b)return;state[key]=b.dataset.v;sync();apply()});sync()}
+group("count","count",renderBar);
+group("width","width",()=>$("phone").style.setProperty("--w",state.width+"px"));
+mount(topScreen());
+</script>

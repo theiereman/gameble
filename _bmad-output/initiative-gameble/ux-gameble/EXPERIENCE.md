@@ -2,7 +2,7 @@
 name: gameble
 status: final
 created: 2026-10-01
-updated: '2026-11-04'
+updated: '2026-11-06'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/catalog-and-rarity.md
@@ -17,7 +17,7 @@ sources:
 
 ## Foundation
 
-A responsive web game for desktop and phone (portrait only), in French and English. Every flow works on both form factors; the layouts differ: a hub with a numbered menu on desktop, a bottom tab bar on the phone. This document names no UI component library: the stack renders pages on the server and embeds interactive components for the capsule opening and the trade board (see the spec's architecture and `ux-gameble.md`, For the architecture). `DESIGN.md` is the visual identity reference; this document is the experience. Tokens are referenced by name, for example `{colors.accent}`; component names are the same in both documents.
+A responsive web game for desktop and phone (portrait only), in French and English, also carried by iOS and Android apps that wrap its screens (see Responsive & Platform, Native apps). Every flow works on both form factors; the layouts differ: a hub with a numbered menu on desktop, a bottom tab bar on the phone. This document names no UI component library: the stack renders pages on the server and embeds interactive components for the capsule opening and the trade board (see the spec's architecture and `ux-gameble.md`, For the architecture). `DESIGN.md` is the visual identity reference; this document is the experience. Tokens are referenced by name, for example `{colors.accent}`; component names are the same in both documents.
 
 Visual references: [mockups/key-screens.html](mockups/key-screens.html) (desktop prototype: every screen, the chosen "Explosion A" opening on the capsule screen, the signed-out public card page), [mockups/mobile.html](mockups/mobile.html) (phone prototype), [mockups/key-roadmap-page.html](mockups/key-roadmap-page.html) (the roadmap page), [mockups/key-card-detail-pioneer.html](mockups/key-card-detail-pioneer.html) (the card detail's pioneer row) and [mockups/landing.html](mockups/landing.html) (the visitor landing, desktop and phone, with its motion and reduced-motion form; its REVUE toolbar and note pins are a review aid, not part of the design). Goals, custom sets and the Steam library set (author, 2026-10-30): [mockups/collection-goals-and-custom-sets.html](mockups/collection-goals-and-custom-sets.html) (the Collection entry, approved), [mockups/custom-set-editor.html](mockups/custom-set-editor.html) (option B, chosen; option A is rejected), [mockups/goal-markers.html](mockups/goal-markers.html) (album button, grid and OBJECTIFS filter, capsule, card detail; its « ENTRE DANS VOTRE OBJECTIF » line is dropped) and [mockups/goals-palettes.html](mockups/goals-palettes.html) (palette A chosen). Trade suggestions, the Personnalisation page and four achievement backs (author, 2026-10-31): [mockups/trade-suggestions.html](mockups/trade-suggestions.html) (variant 2 of the suggestion row retained; variant 1 is kept for the record; its blue outline around a focused row and its `href="#"` openers are not to be copied), [mockups/personalization.html](mockups/personalization.html) (the chosen page, variant A; the focus ring it draws on a tapped back is dropped, and its at-rest strip, exposed to assistive technology there, is hidden as Accessibility Floor, Back picker says) and [mockups/achievement-backs.html](mockups/achievement-backs.html) (chosen: Luck Is a Marketing Concept A, Leave Request Denied A, Market Concentration C, A Strictly Professional Relationship B; the other candidates are rejected, and so is every name or word the mock shows that the spines do not). DESIGN.md and EXPERIENCE.md take precedence over any mock when they conflict. The mocks are a reference for look and timing, never source code. Their sample data (a 16 480-card season, three-hour timers, demo odds, a scripted first capsule) is illustrative; the spec's numbers rule.
 
@@ -682,6 +682,35 @@ The layout rules (no scaling, page scroll, breakpoints at 720 and 1180px, conten
 - **Landing on desktop:** moving cards only with a fine hovering pointer and where both gutters can hold them (a touch tablet or a zoomed window gets none); the side gauge from `{spacing.breakpoint-landing-gauge}`; the lamp follows a fine hovering pointer and sweeps on its own for touch.
 - **Landing on the phone:** no moving cards; the lamp sweeps on its own and is visible on the first screen (the field sits behind and around the hero text, never opening behind the copy, see `DESIGN.md`, Landing, Lamp field); no motion switch in the top bar, the wordmark and the Steam image only (motion follows the system setting; a signed-in player sets it in Profil et paramètres, author, 2026-10-24); the 01 card row and the roadmap scroll sideways; no side gauge; sign-in through the top bar's Steam image and the final call.
 - **Browsers:** the modern-browser floor of the architecture (AD-27); the public pages a link opens also serve older browsers. Native store apps stay possible later.
+
+### Native apps
+
+The iOS and Android apps show the web screens under their own native tab bar and top bar; everything not stated here follows the phone's rules. The apps have five tabs: PONT · CAPSULE · SETS · AMIS · ÉCHANGES. Where this section differs from Phone navigation or from the Bell row, this section holds for the apps and those stay true for a phone browser. Reference: [mockups/native-top-bar.html](mockups/native-top-bar.html) (author, 2026-11-06).
+
+**The top bar is one bar.** It lives above every screen, outside the pages, and looks the same everywhere but for its left side. Moving between screens or tabs leaves it still; only the content below and its left button change.
+
+| Part | Behavior |
+|------|----------|
+| Left, on a tab's root | The gold G, not a link: the PONT tab opens the hub |
+| Left, on a sub-screen | The back button: "◀" and the previous screen's short title ("◀ SETS", "◀ AMIS"). It shows the moment the screen opens, never after the page has loaded. Each tab keeps its own back. A name too long for the room left is cut with an ellipsis; the other parts never move for it |
+| Double capsule counter | One control holding the standard and the special counts. A tap goes straight to the CAPSULE tab |
+| Bell | Between the counter and the avatar, with its badge, on every screen. Its panel behaves as in Bell; a line's target follows Leaving the current tab |
+| Avatar | Opens the menu as a small panel under it: Mon profil, Comment ça marche, Réglages, the support and source links |
+
+The rarity counter and the player's name do not appear in the apps' top bar.
+
+**Scrolling.** The bar hides on the way down and returns on the way up, its back button with it; the edge swipe or the system's back still go back while it is hidden. At the top of a screen it is always shown. A screen that does not scroll, such as the capsule screen, keeps it.
+
+**Staying in step.** The counts and the bell's badge are the same on every tab and change as soon as they change, whichever tab caused it.
+
+**Leaving the current tab.** A destination reached from the top bar never stacks in the current tab:
+
+| Destination | What happens |
+|-------------|--------------|
+| Belongs to a tab (a trade, an invitation, the capsules) | That tab is selected and shows the destination |
+| Belongs to no tab (Mon profil, Comment ça marche, Réglages) | It opens above the tabs, which withdraw while the top bar stays. The back button reads the screen the player left and returns them there, as they left it |
+
+Links inside a page keep the current tab's stack.
 
 ## Inspiration & Anti-patterns
 

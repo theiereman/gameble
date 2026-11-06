@@ -3,7 +3,7 @@ name: gameble
 description: Pixel-art trading card game of Steam games, presented as an elegant space terminal in Steam's colors. Real Steam covers under a fine pixel filter, sober panels, small effects that tick in steps.
 status: final
 created: 2026-10-01
-updated: '2026-10-31'
+updated: '2026-11-06'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../brief-gameble/brief-gameble.md
@@ -921,6 +921,10 @@ The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}
 #### PLUS rows (phone)
 
 Menu-item rows of `{spacing.plus-row-height}` without numbers: TOUTES LES CARTES, AMIS, FIL D'ACTIVITÉ, SUCCÈS, COMMENT ÇA MARCHE, PROFIL ET PARAMÈTRES, SOUTENIR (with the external icon), under the kicker "PONT DE COMMANDEMENT" and the subtitle "Le reste du vaisseau".
+
+### Native apps' top bar
+
+The apps' bar wears the phone top bar's look (`{components.top-bar}`: `{colors.steam-bar}` with its `{colors.line}` rule) and its controls: the gold G, the back button, the sunken square controls. The double capsule counter is one sunken control holding the standard capsule's icon and count, a `{colors.line}` divider, then the special capsule's icon and count, muted at zero. Five parts must fit on a 360px wide screen: the back button's label gives way first, with an ellipsis. Reference: [mockups/native-top-bar.html](mockups/native-top-bar.html). Behavior lives in EXPERIENCE.md, Responsive & Platform, Native apps.
 
 ### Screens
 
