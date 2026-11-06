@@ -5,7 +5,10 @@ name: Mobile release build
 # Android secrets: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD,
 # GOOGLE_PLAY_SERVICE_ACCOUNT_JSON. iOS secrets: APP_STORE_CONNECT_KEY_ID, APP_STORE_CONNECT_ISSUER_ID,
 # APP_STORE_CONNECT_KEY_BASE64 (the .p8), APPLE_TEAM_ID.
+# A tag android-v1.2.0-1 or ios-v1.2.0-1 builds that one platform for the staging server, from any branch.
 on:
+  push:
+    tags: [ "android-v*", "ios-v*" ]
   release:
     types: [ prereleased, released ]
   workflow_dispatch:
@@ -19,10 +22,11 @@ permissions:
 
 jobs:
   android:
+    if: github.event_name != 'push' || startsWith(github.ref_name, 'android-v')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      ROOT_URL: ${{ inputs.root_url || (github.event.release.prerelease && 'https://test.gameble.net') || 'https://gameble.net' }}
+      ROOT_URL: ${{ inputs.root_url || ((github.event_name == 'push' || github.event.release.prerelease) && 'https://test.gameble.net') || 'https://gameble.net' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -51,7 +55,7 @@ jobs:
           JAVA_HOME="$JAVA_HOME_17_X64" ./gradlew --no-daemon bundleRelease \
             -PgamebleRootUrl="$ROOT_URL" \
             -PgamebleVersionCode="$GITHUB_RUN_NUMBER" \
-            -PgamebleVersionName="$(echo "${GITHUB_REF_NAME#v}" | sed 's/-.*//')"
+            -PgamebleVersionName="$(echo "$GITHUB_REF_NAME" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -69,10 +73,11 @@ jobs:
             --json_key "$RUNNER_TEMP/play.json" --package_name net.gameble.app --track internal --release_status draft
 
   ios:
+    if: github.event_name != 'push' || startsWith(github.ref_name, 'ios-v')
     runs-on: macos-15
     timeout-minutes: 45
     env:
-      ROOT_URL: ${{ inputs.root_url || (github.event.release.prerelease && 'https://test.gameble.net') || 'https://gameble.net' }}
+      ROOT_URL: ${{ inputs.root_url || ((github.event_name == 'push' || github.event.release.prerelease) && 'https://test.gameble.net') || 'https://gameble.net' }}
       APS_ENV: ${{ (github.event.release.prerelease && 'development') || 'production' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -95,7 +100,7 @@ jobs:
         run: |
           brew install xcodegen
           xcodegen generate
-          VERSION="$(echo "${GITHUB_REF_NAME#v}" | sed 's/-.*//')"
+          VERSION="$(echo "$GITHUB_REF_NAME" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
           xcodebuild archive -project Gameble.xcodeproj -scheme Gameble -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Gameble.xcarchive" \
             -allowProvisioningUpdates -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8 \
