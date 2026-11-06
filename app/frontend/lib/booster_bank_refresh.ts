@@ -10,7 +10,6 @@ import {
 } from "./booster"
 import { fetchBank } from "./booster_bank"
 import type { Transition } from "./booster_host"
-import { refreshPage } from "./booster_page"
 import type { Reserve } from "./booster_types"
 
 export type BankRefreshHost = Readonly<{
@@ -23,12 +22,37 @@ export type BankRefreshHost = Readonly<{
 }>
 
 export class BankRefresh {
+  private retryOwed = false
+  private readonly retry = (): void => {
+    if (!this.retryOwed) return
+    this.retryOwed = false
+    this.whenDue()
+  }
+  private readonly visibilityChanged = (): void => {
+    if (document.visibilityState === "visible") this.retry()
+  }
+
   constructor(private readonly host: BankRefreshHost) {}
 
+  start(): void {
+    window.addEventListener("online", this.retry)
+    document.addEventListener("visibilitychange", this.visibilityChanged)
+  }
+
+  stop(): void {
+    window.removeEventListener("online", this.retry)
+    document.removeEventListener("visibilitychange", this.visibilityChanged)
+  }
+
   async refresh(): Promise<void> {
+    this.retryOwed = false
     const generation = this.host.current().bankGeneration
     const fresh = await fetchBank({ url: this.host.bankUrl })
-    if (!fresh || this.host.disposed()) return
+    if (this.host.disposed()) return
+    if (!fresh) {
+      this.retryOwed = true
+      return
+    }
     const before = this.host.current()
     const after = this.host.apply((s) => bankFetched(s, fresh.bank, generation, fresh.held))
     if (after !== before) reservesUnlocked(before.bank, after.bank).forEach((reserve) => this.host.announce(reserve))
@@ -47,11 +71,13 @@ export class BankRefresh {
   }
 
   atZero(): void {
+    this.whenDue()
+  }
+
+  private whenDue(): void {
     const state = this.host.state()
     if (this.host.disposed() || !state) return
-    const action = countdownAtZero(state)
-    if (action === "page") refreshPage()
-    else if (action === "bank") void this.refresh()
+    if (countdownAtZero(state) === "bank") void this.refresh()
     else this.host.apply(bankFetchOwed)
   }
 }

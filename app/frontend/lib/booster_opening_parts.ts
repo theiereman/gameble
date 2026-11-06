@@ -24,6 +24,8 @@ export type OpeningParts = Readonly<{
   opening: OpeningSequence
   confirmations: OpeningConfirmations
   artPrefetch: ArtPrefetch
+  start: () => void
+  stop: () => void
 }>
 
 export function openingPartsFor({
@@ -76,5 +78,14 @@ export function openingPartsFor({
       return current !== undefined && idle(current)
     },
   })
-  return { bankRefresh, opening, confirmations, artPrefetch }
+  const start = (): void => {
+    bankRefresh.start()
+    confirmations.start()
+  }
+  const stop = (): void => {
+    bankRefresh.stop()
+    confirmations.stop()
+    artPrefetch.stop()
+  }
+  return { bankRefresh, opening, confirmations, artPrefetch, start, stop }
 }

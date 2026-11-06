@@ -176,7 +176,7 @@ export class BoosterController extends Controller<HTMLElement> {
     this.render()
     dispatchGameble("gameble:opening-revealing", { revealing: revealingOpening(this.state.status) })
     this.layoutWatch?.start()
-    this.openings?.confirmations.start()
+    this.openings?.start()
     this.afterRender?.queue()
   }
 
@@ -186,8 +186,7 @@ export class BoosterController extends Controller<HTMLElement> {
     this.countdown = undefined
     document.removeEventListener("visibilitychange", this.visibilityChanged)
     this.layoutWatch?.stop()
-    this.openings?.confirmations.stop()
-    this.openings?.artPrefetch.stop()
+    this.openings?.stop()
     const before = this.state
     if (before && before.lockDepth > 0) dispatchGameble("gameble:navigation-locked", { locked: false })
     if (before) this.state = lockReleased(before)

@@ -229,7 +229,7 @@ export function bankFetched(
   return { ...changed, phase, status: phase === "sealed" ? "sealed" : "waiting", reason: null }
 }
 
-export function countdownAtZero(state: BoosterState): "page" | "bank" | "owe" {
+export function countdownAtZero(state: BoosterState): "bank" | "owe" {
   return atZero(moment(state))
 }
 

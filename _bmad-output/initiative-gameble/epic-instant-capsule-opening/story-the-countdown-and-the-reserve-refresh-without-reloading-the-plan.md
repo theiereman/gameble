@@ -3,13 +3,13 @@ title: 'The countdown and the reserve refresh without reloading the screen'
 type: 'feature'
 ticket: '5'
 created: '2026-11-06'
-status: 'ready-for-dev'
-baseline_revision: ''
+status: 'built'
+baseline_revision: 'ee136f34d9990bda775d5500c2e4a8934d5eb4ef'
 route: 'full'
 route_source: 'auto'
-review: ''
-review_source: ''
-lenses_ran: []
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: [quick]
 review_loop_iteration: 0
 context: ['{project-root}/AGENTS.md']
 ---
@@ -51,9 +51,9 @@ context: ['{project-root}/AGENTS.md']
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `booster_bank_refresh.ts` / `booster_bank.ts` -- zero reads JSON; retry on online/visible
-- [ ] empty-state parts follow the phase without a reload
-- [ ] tests for every matrix row
+- [x] `booster_bank_refresh.ts` / `booster_bank.ts` -- zero reads JSON; retry on online/visible
+- [x] empty-state parts follow the phase without a reload
+- [x] tests for every matrix row
 
 **Acceptance Criteria:**
 - Given the empty screen, when a capsule arrives at zero, then the canister appears without any page visit.
@@ -63,3 +63,17 @@ context: ['{project-root}/AGENTS.md']
 **Commands:**
 - `npm run test:js && npm run typecheck && npm run format:check` -- expected: green
 - `script/check_file_sizes && script/check_planning_references` -- expected: clean
+
+## Implementation Notes
+
+- `atZero` now answers `"bank"` or `"owe"`; `refreshPage` is gone. `BankRefresh` owns `start()`/`stop()` listeners for `online` and visible, and any failed bank read (countdown, daily capsule, refused opening) is retried once on either, through the same rest-or-owe rule.
+- The empty screen's server parts already follow the phase client-side (next-steps panel, canister, pips, origin); the daily block does not depend on it.
+- The edited system test (empty reserve whose next capsule arrives) has NOT been run: no browser driver in this container.
+
+## Review Triage Log
+
+Pass 1 (quick): 3 low, all patched (tests only).
+
+- low, patch — the "only once" retry test never exercised a failed read: split in two, a failed read followed by both events now expects exactly two reads.
+- low, patch — the system test's final deal also passed through the waiting path: the network is cut before the touch, so only the kept held capsule can deal.
+- low, patch — the hidden next-steps assertion could pass without the panel ever showing: it is asserted visible on the empty screen first.

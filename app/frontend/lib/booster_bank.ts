@@ -131,9 +131,9 @@ export type ScreenMoment = {
   handPutAway: boolean
 }
 
-export function atZero({ phase, idle, handPutAway }: ScreenMoment): "page" | "bank" | "owe" {
+export function atZero({ phase, idle, handPutAway }: ScreenMoment): "bank" | "owe" {
   if (!idle) return "owe"
-  if (phase === "sealed" || phase === "empty") return "page"
+  if (phase === "sealed" || phase === "empty") return "bank"
   if (phase === "dealt" && handPutAway) return "bank"
   return "owe"
 }

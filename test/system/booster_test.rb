@@ -229,16 +229,24 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "0"
   end
 
-  test "an empty reserve whose next booster arrives while the screen shows: the screen refreshes and the booster can be opened" do
+  test "an empty reserve whose next booster arrives while the screen shows: the canister appears without a page visit and opens at once" do
     create_pack(@player, available_at: 5.seconds.from_now)
     visit booster_path(locale: :en)
     assert_selector ".booster__empty"
     assert_button "Reserve empty", disabled: true
+    assert_selector ".booster-next-steps"
+    page.execute_script("document.querySelector('.booster').dataset.kept = '1'")
 
     assert_selector ".booster-canister", wait: 15
     assert_button "Open the capsule", disabled: false
     assert_selector ".booster__state", text: "SEALED"
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
+    assert_selector ".booster-next-steps", visible: :hidden
+    assert_selector ".booster[data-kept]"
+
+    cut_network
+    open_canister
+    assert_dealt(5)
   end
 
   # The screen as drawn with no held capsule: the root controller reconnects

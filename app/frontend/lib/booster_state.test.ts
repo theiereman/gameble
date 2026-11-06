@@ -283,6 +283,11 @@ describe("countdownAtZero, bankFetchOwed, bankDue, owedBankTaken", () => {
     expect(countdownAtZero(lock(startWith()))).toBe("owe")
   })
 
+  it("reads the bank on a sealed or an empty screen at rest", () => {
+    expect(countdownAtZero(startWith())).toBe("bank")
+    expect(countdownAtZero(startWith({ bank: bank(0) }))).toBe("bank")
+  })
+
   it("makes an owed fetch once nothing runs and the hand is put away", () => {
     const owed = bankFetchOwed(dealt())
     expect(bankFetchOwed(owed)).toBe(owed)

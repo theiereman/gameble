@@ -52,16 +52,10 @@ export function csrfToken(): string | null {
   return document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content || null
 }
 
-type TurboVisit = { visit(location: string, options?: { action?: "advance" | "replace" }): void }
+type TurboVisit = { visit(location: string): void }
 
 export function visit(url: string): void {
   const turbo = (window as unknown as { Turbo?: TurboVisit }).Turbo
   if (turbo) turbo.visit(url)
   else window.location.assign(url)
-}
-
-export function refreshPage(): void {
-  const turbo = (window as unknown as { Turbo?: TurboVisit }).Turbo
-  if (turbo) turbo.visit(location.href, { action: "replace" })
-  else location.reload()
 }

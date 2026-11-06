@@ -111,9 +111,9 @@ describe("handPutAway", () => {
 })
 
 describe("atZero", () => {
-  it("refreshes the page at rest with no hand", () => {
+  it("reads the bank at rest with no hand", () => {
     for (const phase of ["sealed", "empty"] as BoosterPhase[])
-      expect(atZero({ phase, idle: true, handPutAway: false })).toBe("page")
+      expect(atZero({ phase, idle: true, handPutAway: false })).toBe("bank")
   })
 
   it("owes the bank while a dealt hand is not put away", () => {
@@ -124,7 +124,7 @@ describe("atZero", () => {
     expect(atZero({ phase: "dealt", idle: true, handPutAway: true })).toBe("bank")
   })
 
-  it("owes the bank during an opening or while anything runs, never refreshing the page", () => {
+  it("owes the bank during an opening or while anything runs", () => {
     expect(atZero({ phase: "opening", idle: false, handPutAway: false })).toBe("owe")
     expect(atZero({ phase: "opening", idle: true, handPutAway: false })).toBe("owe")
     for (const phase of ["sealed", "empty", "dealt"] as BoosterPhase[]) {
