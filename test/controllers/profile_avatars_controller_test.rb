@@ -25,14 +25,15 @@ class ProfileAvatarsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".profile-band__portrait .profile-band__avatar"
     assert_select ".profile-band__portrait a.profile-band__avatar-edit[href='#me-avatar-sheet'][aria-label=?]", "Changer d'avatar"
-    assert_select "#me-avatar-sheet .me-avatar", 20
+    assert_select "#me-avatar-sheet .me-avatar", 19
     assert_select "#me-avatar-sheet button[type=button][aria-current=true]", /Classique/
     assert_select "#me-avatar-sheet form input[name=avatar][value=novice]"
     %w[mechanic pilot cartographer botanist streamer elder astronaut punk chef robot cat alien slime owl].each { assert_select "#me-avatar-sheet form input[name=avatar][value=#{it}]" }
     assert_select "#me-avatar-sheet .me-avatar__name", "Mécanicienne"
-    assert_select "#me-avatar-sheet .me-avatar--locked", 4
+    assert_select "#me-avatar-sheet .me-avatar--locked", 3
     assert_select "#me-avatar-sheet .me-avatar--locked .me-avatar__unlock", /Oiseau de nuit/
     assert_select "#me-avatar-sheet input[name=avatar][value=guardian]", false
+    assert_select "#me-avatar-sheet .me-avatar__name", text: "Grand Maître", count: 0
     assert_select "[style]", false
   end
 
@@ -56,7 +57,7 @@ class ProfileAvatarsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     assert_no_difference -> { Rails.configuration.event_store.read.count } do
-      patch personalization_avatar_path(locale: :en, format: :json), params: { avatar: "grand_master" }
+      patch personalization_avatar_path(locale: :en, format: :json), params: { avatar: "oracle" }
     end
 
     assert_response :unprocessable_content

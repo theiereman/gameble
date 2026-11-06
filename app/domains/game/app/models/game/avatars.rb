@@ -2,17 +2,19 @@ module Game
   module Avatars
     DEFAULT = "default".freeze
 
-    Avatar = Data.define(:key, :achievement) do
+    Avatar = Data.define(:key, :achievement, :administrator_only) do
+      def initialize(key:, achievement: nil, administrator_only: false) = super
+
       def icon = "avatar-#{key.dasherize}"
 
       def default? = key == DEFAULT
 
-      def free? = achievement.nil?
+      def free? = achievement.nil? && !administrator_only
 
-      def granted_to_administrators? = ADMINISTRATOR_AVATARS.include?(key)
+      def available_to?(player) = !administrator_only || player.administrator?
 
       def open_to?(player, earned_achievements)
-        free? || earned_achievements.include?(achievement) || (granted_to_administrators? && player.administrator?)
+        available_to?(player) && (achievement.nil? || earned_achievements.include?(achievement))
       end
     end
 
@@ -25,16 +27,16 @@ module Game
       "novice" => "first_booster",
       "archivist" => "first_complete_set",
       "guardian" => "night_owl",
-      "oracle" => "first_epic",
-      "grand_master" => "boosters_500"
+      "oracle" => "first_epic"
     }.freeze
 
-    ADMINISTRATOR_AVATARS = %w[grand_master].freeze
+    ADMINISTRATOR_ONLY = %w[grand_master].freeze
 
     CATALOGUE = [
-      Avatar.new(key: DEFAULT, achievement: nil),
-      *FREE.map { |key| Avatar.new(key:, achievement: nil) },
-      *UNLOCKING_ACHIEVEMENTS.map { |key, achievement| Avatar.new(key:, achievement:) }
+      Avatar.new(key: DEFAULT),
+      *FREE.map { |key| Avatar.new(key:) },
+      *UNLOCKING_ACHIEVEMENTS.map { |key, achievement| Avatar.new(key:, achievement:) },
+      *ADMINISTRATOR_ONLY.map { |key| Avatar.new(key:, administrator_only: true) }
     ].freeze
 
     BY_KEY = CATALOGUE.index_by(&:key).freeze
@@ -49,6 +51,10 @@ module Game
 
     def self.for_achievement(achievement)
       CATALOGUE.find { it.achievement == achievement.to_s }
+    end
+
+    def self.available_to(player)
+      CATALOGUE.select { it.available_to?(player) }
     end
   end
 end
