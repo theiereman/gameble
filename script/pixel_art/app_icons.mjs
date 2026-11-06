@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 // Draws the iOS and Android app icons from the gold G of the phone's back
-// button, written by export.mjs, on the apps' dark ground.
+// button, written by export.mjs, on the apps' dark ground, and gives iOS the
+// tab icons and the wordmark that Android draws as vectors.
 //
 //   node script/pixel_art/app_icons.mjs
 //
 // The output is deterministic: running it again changes no file.
 
-import { readFileSync, writeFileSync } from "node:fs"
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { deflateSync } from "node:zlib"
@@ -121,6 +122,29 @@ ${shapes}
 `
 }
 
+function iosVectorImage(name, androidDrawable, renderingIntent) {
+  const vector = readFileSync(join(root, "mobile/android/app/src/main/res/drawable", `${androidDrawable}.xml`), "utf8")
+  const attribute = (key) => vector.match(new RegExp(`android:${key}="([^"]+)"`))[1]
+  const shapes = [...vector.matchAll(/android:fillColor="#FF([0-9A-Fa-f]{6})"\s+android:pathData="([^"]+)"/g)]
+    .map(([, colour, data]) => `<path fill="#${colour.toLowerCase()}" d="${data}"/>`)
+    .join("")
+  const size = (key) => parseInt(attribute(key), 10)
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size("width")}" height="${size("height")}" ` +
+    `viewBox="0 0 ${attribute("viewportWidth")} ${attribute("viewportHeight")}" shape-rendering="crispEdges">${shapes}</svg>\n`
+  const contents = {
+    images: [{ filename: `${name}.svg`, idiom: "universal" }],
+    info: { author: "xcode", version: 1 },
+    properties: { "preserves-vector-representation": true, "template-rendering-intent": renderingIntent },
+  }
+  const folder = join(root, "mobile/ios/Gameble/Assets.xcassets", `${name}.imageset`)
+  mkdirSync(folder, { recursive: true })
+  writeFileSync(join(folder, `${name}.svg`), svg)
+  writeFileSync(join(folder, "Contents.json"), `${JSON.stringify(contents, null, 2)}\n`)
+}
+
 const paths = colourRuns()
 writeFileSync(join(root, IOS_ICON), opaquePng(IOS_SIDE, iosPixels(paths)))
 writeFileSync(join(root, ANDROID_ICON), androidVector(paths))
+for (const tab of ["hub", "capsule", "sets", "friends", "trades"]) iosVectorImage(`tab-${tab}`, `ic_tab_${tab}`, "template")
+iosVectorImage("wordmark", "wordmark", "original")

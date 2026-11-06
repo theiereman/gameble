@@ -46,6 +46,10 @@
   height: 100dvh;
 }
 
+:root[data-native-app]:has(.booster[data-layout="phone"]) {
+  overscroll-behavior: none;
+}
+
 /* Clipped on the main rather than the body, whose overflow passes to the viewport: the WebView
    would widen its layout to the rays and zoom the whole screen out. */
 :root[data-native-app] body:has(.booster[data-layout="phone"]) > .main {

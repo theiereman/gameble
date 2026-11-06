@@ -10,7 +10,7 @@ final class SheetComponent: BridgeComponent {
         case "close":
             viewController.dismiss(animated: true)
         default:
-            viewController.tabBarController?.tabBar.isHidden = message.event == "shown"
+            (viewController as? GamebleWebViewController)?.showTabs(message.event != "shown")
         }
     }
 }

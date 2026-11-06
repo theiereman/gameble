@@ -7,6 +7,7 @@ final class SignIn: NSObject, ASWebAuthenticationPresentationContextProviding {
     static let shared = SignIn()
 
     var onSignedIn: (() -> Void)?
+    var onSignInNeeded: (() -> Void)?
 
     private var session: ASWebAuthenticationSession?
 

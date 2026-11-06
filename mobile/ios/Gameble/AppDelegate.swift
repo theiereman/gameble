@@ -5,7 +5,10 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         Hotwire.config.applicationUserAgentPrefix = "Gameble iOS;"
-        Hotwire.config.showDoneButtonOnModals = true
+        Hotwire.config.defaultViewController = { GamebleWebViewController(url: $0) }
+        Hotwire.config.defaultNavigationController = { GamebleNavigationController() }
+        UITabBar.appearance().tintColor = Palette.accent
+        UITabBar.appearance().unselectedItemTintColor = Palette.muted
         Hotwire.loadPathConfiguration(from: [
             .file(Bundle.main.url(forResource: "path-configuration", withExtension: "json")!),
             .server(Gameble.rootURL.appending(path: "configurations/ios_v1.json"))

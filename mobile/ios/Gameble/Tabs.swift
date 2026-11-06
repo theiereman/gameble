@@ -4,15 +4,11 @@ import UIKit
 enum Tabs {
     static var all: [HotwireTab] {
         [
-            HotwireTab(title: label("Bridge", "Pont"), image: UIImage(systemName: "circle.grid.cross")!, url: Gameble.url("")),
-            HotwireTab(title: label("Capsule", "Capsule"), image: UIImage(systemName: "sparkles.rectangle.stack")!, url: Gameble.url("/booster")),
-            HotwireTab(title: label("Sets", "Sets"), image: UIImage(systemName: "square.grid.3x3")!, url: Gameble.url("/library")),
-            HotwireTab(title: label("Friends", "Amis"), image: UIImage(systemName: "person.2")!, url: Gameble.url("/friends")),
-            HotwireTab(title: label("Trades", "Échanges"), image: UIImage(systemName: "arrow.left.arrow.right")!, url: Gameble.url("/trades"))
+            HotwireTab(title: Gameble.text("Bridge", "Pont"), image: UIImage(named: "tab-hub"), url: Gameble.url("")),
+            HotwireTab(title: Gameble.text("Capsule", "Capsule"), image: UIImage(named: "tab-capsule"), url: Gameble.url("/booster")),
+            HotwireTab(title: Gameble.text("Sets", "Sets"), image: UIImage(named: "tab-sets"), url: Gameble.url("/library")),
+            HotwireTab(title: Gameble.text("Friends", "Amis"), image: UIImage(named: "tab-friends"), url: Gameble.url("/friends")),
+            HotwireTab(title: Gameble.text("Trades", "Échanges"), image: UIImage(named: "tab-trades"), url: Gameble.url("/trades"))
         ]
-    }
-
-    private static func label(_ english: String, _ french: String) -> String {
-        Gameble.locale == "fr" ? french : english
     }
 }

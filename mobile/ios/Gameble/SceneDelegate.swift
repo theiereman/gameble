@@ -10,11 +10,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = scene as? UIWindowScene else { return }
 
         window = UIWindow(windowScene: windowScene)
+        window?.backgroundColor = Palette.ground
         window?.makeKeyAndVisible()
-        reloadTabs()
 
-        SignIn.shared.onSignedIn = { [weak self] in self?.reloadTabs() }
+        SignIn.shared.onSignedIn = { [weak self] in
+            PlayerSession.signedIn()
+            self?.reloadTabs()
+        }
+        SignIn.shared.onSignInNeeded = { [weak self] in self?.showSignIn() }
         PushNotifications.shared.onOpen = { [weak self] path in self?.open(path) }
+
+        if PlayerSession.probablySignedIn {
+            reloadTabs()
+        } else {
+            showSignIn()
+        }
     }
 
     func reloadTabs() {
@@ -22,6 +32,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         tabBarController.load(Tabs.all)
         window?.rootViewController = tabBarController
         self.tabBarController = tabBarController
+    }
+
+    private func showSignIn() {
+        PlayerSession.signedOut()
+        guard !(window?.rootViewController is SignInViewController) else { return }
+        tabBarController = nil
+        window?.rootViewController = SignInViewController()
     }
 
     private func open(_ path: String) {

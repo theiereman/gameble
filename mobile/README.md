@@ -10,7 +10,7 @@ sheet and haptics.
 - **App detection.** The apps' user agent contains `Hotwire Native`, so
   `hotwire_native_app?` is true. The layout then marks `<html data-native-app>`,
   and leaves out the web tab bar. The web header and its back buttons stay;
-  the Android app hides its native app bar so the header is not doubled.
+  both apps hide their native app bar so the header is not doubled.
 - **Path configuration.** `public/configurations/ios_v1.json` and
   `android_v1.json` say how each URL is shown. Each app also bundles a minimal
   copy for its first launch.
@@ -70,7 +70,8 @@ sends nothing.
 ## App icons
 
 `node script/pixel_art/app_icons.mjs` draws both apps' icons from the gold G of
-the pixel art export, on the apps' dark ground.
+the pixel art export, on the apps' dark ground. It also gives iOS the tab icons
+and the wordmark from Android's vector drawables.
 
 ## Not done yet
 

@@ -27,6 +27,8 @@ targets:
         GamebleRootURL: $(GAMEBLE_ROOT_URL)
         ITSAppUsesNonExemptEncryption: false
         UILaunchScreen: {}
+        UIUserInterfaceStyle: Dark
+        UIAppFonts: [jetbrains_mono.ttf, jetbrains_mono_bold.ttf]
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
           UISceneConfigurations:

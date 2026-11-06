@@ -7,15 +7,11 @@ final class SignInComponent: BridgeComponent {
     override func onReceive(message: Message) {
         switch message.event {
         case "shown":
-            viewController?.tabBarController?.tabBar.isHidden = true
+            DispatchQueue.main.async { SignIn.shared.onSignInNeeded?() }
         case "start":
             SignIn.shared.start()
         default:
             break
         }
-    }
-
-    private var viewController: UIViewController? {
-        delegate?.destination as? UIViewController
     }
 }
