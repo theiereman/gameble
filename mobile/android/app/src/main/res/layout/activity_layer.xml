@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/screens"
-    android:background="@color/ground"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/layer_host"
-        android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+    <FrameLayout
+        android:id="@+id/screens"
+        android:background="@color/ground"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/layer_host"
+            android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <net.gameble.app.TopBarView
+        android:id="@+id/top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View
+        android:id="@+id/status_backdrop"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/steam_bar"
+        android:clickable="true" />
 </FrameLayout>

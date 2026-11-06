@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="<%= I18n.locale %>"<% if forced_motion %> data-motion="<%= forced_motion %>"<% end %><% if hotwire_native_app? %> data-native-app<% end %>>
+<html lang="<%= I18n.locale %>"<% if forced_motion %> data-motion="<%= forced_motion %>"<% end %><% if hotwire_native_app? %> data-native-app<% end %><% if native_top_bar? %> data-native-bar<% end %>>
   <head>
     <%= render "layouts/head" %>
   </head>
@@ -10,6 +10,7 @@
     <%= render "shell/announcement" %>
 
     <main id="main" class="main">
+      <% if native_top_bar? && content_for?(:top_bar_status) %><div class="native-status"><%= yield :top_bar_status %></div><% end %>
       <%= yield %>
     </main>
     <%= yield :page_aside if content_for?(:page_aside) %>

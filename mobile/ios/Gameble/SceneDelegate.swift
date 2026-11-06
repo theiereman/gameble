@@ -4,7 +4,7 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
-    private var tabBarController: HotwireTabBarController?
+    private var shell: ShellViewController?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
@@ -28,23 +28,27 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func reloadTabs() {
-        let tabBarController = HotwireTabBarController()
-        tabBarController.load(Tabs.all)
-        window?.rootViewController = tabBarController
-        self.tabBarController = tabBarController
-        TopBarNavigation.shared.tabBarController = tabBarController
+        let tabs = HotwireTabBarController()
+        tabs.load(Tabs.all)
+        let shell = ShellViewController(tabs: tabs)
+        self.shell = shell
+        TopBarNavigation.shared.shell = shell
+        window?.rootViewController = shell
     }
 
     private func showSignIn() {
         PlayerSession.signedOut()
+        TopBarStore.shared.clear()
         guard !(window?.rootViewController is SignInViewController) else { return }
         TopBarNavigation.shared.closeLayer(animated: false)
-        tabBarController = nil
+        shell = nil
         window?.rootViewController = SignInViewController()
     }
 
     private func open(_ path: String) {
         guard let url = URL(string: path, relativeTo: Gameble.rootURL) else { return }
-        tabBarController?.activeNavigator.route(url)
+        TopBarNavigation.shared.closeLayer(animated: false) { [weak self] in
+            self?.shell?.tabs.activeNavigator.route(url)
+        }
     }
 }

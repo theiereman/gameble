@@ -13,4 +13,12 @@
     <string name="tab_sets">Sets</string>
     <string name="tab_friends">Friends</string>
     <string name="tab_trades">Trades</string>
+    <string name="top_bar_back">Back</string>
+    <string name="top_bar_back_to">Back to %1$s</string>
+    <string name="top_bar_capsules">Capsules</string>
+    <string name="top_bar_capsules_counts">Capsules, standard: %1$s, special: %2$s</string>
+    <string name="top_bar_bell">What\'s new</string>
+    <string name="top_bar_bell_unread">What\'s new, unread: %1$s</string>
+    <string name="top_bar_menu">Menu</string>
+    <string name="top_bar_menu_rewards">Menu, rewards waiting: %1$s</string>
 </resources>

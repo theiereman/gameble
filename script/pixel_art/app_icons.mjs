@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Draws the iOS and Android app icons from the gold G of the phone's back
-// button, written by export.mjs, on the apps' dark ground, and gives iOS the
-// tab icons and the wordmark that Android draws as vectors.
+// button, written by export.mjs, on the apps' dark ground, gives iOS the tab
+// icons and the wordmark that Android draws as vectors, and gives both apps
+// the icons of their native top bar from the game's pixel art.
 //
 //   node script/pixel_art/app_icons.mjs
 //
@@ -25,14 +26,27 @@ const IOS_ICON = "mobile/ios/Gameble/Assets.xcassets/AppIcon.appiconset/AppIcon.
 // An adaptive icon is drawn on 108 units, of which launchers always show the
 // centred circle of 66; one art pixel per unit keeps the whole G inside it.
 const ANDROID_SIDE = 108
-const ANDROID_ICON = "mobile/android/app/src/main/res/drawable/ic_launcher_foreground.xml"
+const ANDROID_DRAWABLES = "mobile/android/app/src/main/res/drawable"
+const ANDROID_ICON = `${ANDROID_DRAWABLES}/ic_launcher_foreground.xml`
 
-function colourRuns() {
-  const svg = readFileSync(join(root, "app/frontend/images/pixel/back-g.svg"), "utf8")
-  return [...svg.matchAll(/<path\b[^>]*>/g)].map(([tag]) => ({
-    fill: tag.match(/fill="(#[0-9a-fA-F]{6})"/)[1],
+const BAR_ICONS = {
+  g: "back-g",
+  bell: "bell",
+  arrow: "arrow-left",
+  "capsule-standard": "capsule-standard",
+  "capsule-special": "capsule-special",
+}
+// The arrow takes the colour of the button it sits in; on the bar, that is white.
+const CURRENT_COLOUR = "#ffffff"
+
+function pixelArt(name) {
+  const svg = readFileSync(join(root, `app/frontend/images/pixel/${name}.svg`), "utf8")
+  const [, width, height] = svg.match(/viewBox="0 0 (\d+) (\d+)"/)
+  const paths = [...svg.matchAll(/<path\b[^>]*>/g)].map(([tag]) => ({
+    fill: tag.match(/fill="(#[0-9a-fA-F]{6}|currentColor)"/)[1].replace("currentColor", CURRENT_COLOUR),
     data: tag.match(/\bd="([^"]+)"/)[1],
   }))
+  return { width: Number(width), height: Number(height), paths }
 }
 
 const rgb = (hex) => [1, 3, 5].map((start) => parseInt(hex.slice(start, start + 2), 16))
@@ -99,14 +113,17 @@ function opaquePng(side, pixels) {
   ])
 }
 
-function androidVector(paths) {
-  const shapes = paths
+const vectorPaths = (paths, indent) =>
+  paths
     .map(
-      ({ fill, data }) => `        <path
-            android:fillColor="#FF${fill.slice(1).toUpperCase()}"
-            android:pathData="${data}" />`,
+      ({ fill, data }) => `${indent}<path
+${indent}    android:fillColor="#FF${fill.slice(1).toUpperCase()}"
+${indent}    android:pathData="${data}" />`,
     )
     .join("\n")
+
+function androidVector(paths) {
+  const shapes = vectorPaths(paths, "        ")
   return `<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="${ANDROID_SIDE}dp"
@@ -122,8 +139,20 @@ ${shapes}
 `
 }
 
+function barVector({ width, height, paths }) {
+  return `<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="${width * 2}dp"
+    android:height="${height * 2}dp"
+    android:viewportWidth="${width}"
+    android:viewportHeight="${height}">
+${vectorPaths(paths, "    ")}
+</vector>
+`
+}
+
 function iosVectorImage(name, androidDrawable, renderingIntent) {
-  const vector = readFileSync(join(root, "mobile/android/app/src/main/res/drawable", `${androidDrawable}.xml`), "utf8")
+  const vector = readFileSync(join(root, ANDROID_DRAWABLES, `${androidDrawable}.xml`), "utf8")
   const attribute = (key) => vector.match(new RegExp(`android:${key}="([^"]+)"`))[1]
   const shapes = [...vector.matchAll(/android:fillColor="#FF([0-9A-Fa-f]{6})"\s+android:pathData="([^"]+)"/g)]
     .map(([, colour, data]) => `<path fill="#${colour.toLowerCase()}" d="${data}"/>`)
@@ -143,8 +172,14 @@ function iosVectorImage(name, androidDrawable, renderingIntent) {
   writeFileSync(join(folder, "Contents.json"), `${JSON.stringify(contents, null, 2)}\n`)
 }
 
-const paths = colourRuns()
+const { paths } = pixelArt("back-g")
 writeFileSync(join(root, IOS_ICON), opaquePng(IOS_SIDE, iosPixels(paths)))
 writeFileSync(join(root, ANDROID_ICON), androidVector(paths))
-for (const tab of ["hub", "capsule", "sets", "friends", "trades"]) iosVectorImage(`tab-${tab}`, `ic_tab_${tab}`, "template")
+for (const tab of ["hub", "capsule", "sets", "friends", "trades"])
+  iosVectorImage(`tab-${tab}`, `ic_tab_${tab}`, "template")
 iosVectorImage("wordmark", "wordmark", "original")
+for (const [name, pixel] of Object.entries(BAR_ICONS)) {
+  const drawable = `ic_bar_${name.replaceAll("-", "_")}`
+  writeFileSync(join(root, ANDROID_DRAWABLES, `${drawable}.xml`), barVector(pixelArt(pixel)))
+  iosVectorImage(`bar-${name}`, drawable, "original")
+}

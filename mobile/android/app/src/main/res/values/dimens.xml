@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="loading_thickness">3dp</dimen>
+    <dimen name="top_bar_height">56dp</dimen>
+    <dimen name="top_bar_rule">2dp</dimen>
+    <dimen name="top_bar_touch">44dp</dimen>
 </resources>

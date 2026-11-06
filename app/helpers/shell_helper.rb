@@ -96,8 +96,16 @@ module ShellHelper
     current_player ? t("shell.top_bar.back") : t("shell.top_bar.back_landing")
   end
 
+  def native_top_bar?
+    hotwire_native_app? && current_player.present? && !back_office_page? && app_bridge_components.include?("top-bar")
+  end
+
+  def app_bridge_components
+    request.user_agent.to_s[/bridge-components: \[([^\]]*)\]/, 1].to_s.split
+  end
+
   def native_top_bar_data
-    return {} unless hotwire_native_app? && current_player
+    return {} unless native_top_bar?
 
     { controller: "bridge--top-bar", action: "click->bridge--top-bar#navigate", "bridge--top-bar-url-value": top_bar_path }
   end

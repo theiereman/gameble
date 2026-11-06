@@ -25,6 +25,31 @@
         <item name="cornerSize">0dp</item>
     </style>
 
+    <style name="TextAppearance.Gameble.TopBarBack" parent="">
+        <item name="android:fontFamily">@font/jetbrains_mono_bold</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:letterSpacing">0.06</item>
+    </style>
+
+    <style name="TextAppearance.Gameble.TopBarCount" parent="">
+        <item name="android:fontFamily">@font/jetbrains_mono_bold</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="TextAppearance.Gameble.TopBarBadge" parent="">
+        <item name="android:fontFamily">@font/jetbrains_mono_bold</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/on_alert</item>
+        <item name="android:background">@color/alert</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minWidth">17dp</item>
+        <item name="android:paddingHorizontal">3dp</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
     <style name="TextAppearance.Gameble.Tab" parent="TextAppearance.Material3.LabelMedium">
         <item name="fontFamily">@font/jetbrains_mono_bold</item>
         <item name="android:fontFamily">@font/jetbrains_mono_bold</item>

@@ -16,6 +16,16 @@ class TopBarsControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-stream[action=update][target=phone-menu-badge] template"
   end
 
+  test "an app with the native bar reads the values it reports from the same refresh" do
+    sign_in accounts_players(:player)
+
+    get top_bar_path(locale: :en), as: :turbo_stream, headers: { "User-Agent" => "Hotwire Native iOS; bridge-components: [top-bar]" }
+
+    assert_response :success
+    assert_select "turbo-stream[action=replace][target=packs-chip] template"
+    assert_select "turbo-stream[action=update][target=phone-menu-badge] template"
+  end
+
   test "a visitor is refused" do
     get top_bar_path(locale: :en), as: :turbo_stream
 

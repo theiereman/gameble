@@ -33,6 +33,13 @@ enum Palette {
     static let dim = UIColor(hex: 0x5D6B78)
     static let accent = UIColor(hex: 0x66C0F4)
     static let muted = UIColor(hex: 0x8F98A0)
+    static let steamBar = UIColor(hex: 0x171A21)
+    static let line = UIColor(hex: 0x2A475E)
+    static let raised = UIColor(hex: 0x1B2838)
+    static let sunken = UIColor(hex: 0x0E141B)
+    static let controlBorder = UIColor(hex: 0x2A6F9A)
+    static let alert = UIColor(hex: 0xE8833A)
+    static let onAlert = UIColor(hex: 0x1D0F03)
 }
 
 enum Typeface {

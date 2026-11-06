@@ -30,6 +30,7 @@ class MainActivity : GamebleActivity() {
         bottomNavigation.setOnTabSelectedListener { index, tab ->
             dropScreenTransition()
             tabSlide.switched(findViewById(tab.configuration.navigatorHostId), index)
+            delegate.currentNavigator?.let { screenOnView(it) }
             bottomNavigationView.post { announceScreenShown() }
         }
         val start = bottomNavigation.currentTab
@@ -60,8 +61,12 @@ class MainActivity : GamebleActivity() {
 
     override fun openFromTopBar(path: String) {
         val destination = Tabs.destination(path)
-        val tab = destination.tab ?: return LayerActivity.open(this, Gameble.location(path))
+        val tab = destination.tab ?: return openAboveTabs(path)
         showTab(tab, Gameble.location(path).takeUnless { destination.atRoot })
+    }
+
+    private fun openAboveTabs(path: String) {
+        LayerActivity.open(this, Gameble.location(path), TopBarState.label(delegate.currentNavigator?.location))
     }
 
     private fun showTab(index: Int, location: String?) {

@@ -3,9 +3,18 @@ import UIKit
 import WebKit
 
 final class GamebleWebViewController: HotwireWebViewController {
+    private(set) var pageIsReady = false
+
     private var tabsShown = true
+    private var dialogOpen = false
+    private var topBarScroll = TopBarScroll()
+    private var scrollObservation: NSKeyValueObservation?
     private lazy var aboveTabs = visitableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
     private lazy var toScreenEdge = visitableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+
+    private var isSheet: Bool {
+        tabBarController == nil && !TopBarNavigation.shared.isLayer(navigationController)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,9 +27,13 @@ final class GamebleWebViewController: HotwireWebViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let isSheet = tabBarController == nil && !TopBarNavigation.shared.isLayer(navigationController)
         view.backgroundColor = isSheet ? Palette.panel : Palette.ground
         fitBottom()
+        if !isSheet { tellBarAboutThisScreen() }
+        // A cancelled edge swipe leaves this screen covered again by the one it was revealing.
+        transitionCoordinator?.animate(alongsideTransition: nil) { context in
+            if context.isCancelled { TopBarNavigation.shared.shell?.refreshLeftSide() }
+        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -28,21 +41,65 @@ final class GamebleWebViewController: HotwireWebViewController {
         announceShown(on: visitableView.webView)
     }
 
+    override func visitableDidRender() {
+        super.visitableDidRender()
+        pageIsReady = true
+    }
+
     override func visitableDidActivateWebView(_ webView: WKWebView) {
         super.visitableDidActivateWebView(webView)
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.scrollView.alwaysBounceVertical = false
+        scrollObservation = webView.scrollView.observe(\.contentOffset) { [weak self] scrollView, _ in
+            self?.scrolled(scrollView)
+        }
         if view.window != nil { announceShown(on: webView) }
     }
 
-    private func announceShown(on webView: WKWebView?) {
-        webView?.evaluateJavaScript("window.dispatchEvent(new CustomEvent('gameble:screen-shown'))")
+    override func visitableDidDeactivateWebView() {
+        scrollObservation = nil
+        super.visitableDidDeactivateWebView()
+    }
+
+    func revealed() {
+        tellBarAboutThisScreen()
+        announceShown(on: visitableView.webView)
     }
 
     func showTabs(_ shown: Bool) {
         tabsShown = shown
         tabBarController?.tabBar.isHidden = !shown
         fitBottom()
+    }
+
+    func dialogChanged(open: Bool) {
+        dialogOpen = open
+        guard !isSheet, TopBarNavigation.shared.isOnView(self) else { return }
+        TopBarNavigation.shared.shell?.setBarDimmed(open)
+    }
+
+    private func tellBarAboutThisScreen() {
+        let shell = TopBarNavigation.shared.shell
+        shell?.screenWillAppear(self)
+        shell?.setBarDimmed(dialogOpen)
+        topBarScroll.reset(at: visitableView.webView?.scrollView.contentOffset.y ?? 0)
+    }
+
+    private func scrolled(_ scrollView: UIScrollView) {
+        guard !isSheet, TopBarNavigation.shared.isOnView(self) else { return }
+        let position = scrollView.contentOffset.y
+        guard scrollView.isTracking || scrollView.isDragging || scrollView.isDecelerating else {
+            topBarScroll.reset(at: position)
+            return
+        }
+        let furthest = scrollView.contentSize.height - scrollView.bounds.height
+        if let shown = topBarScroll.barShownAfterMoving(to: position, furthest: furthest) {
+            TopBarNavigation.shared.shell?.setBarShown(shown)
+        }
+    }
+
+    private func announceShown(on webView: WKWebView?) {
+        webView?.evaluateJavaScript("window.dispatchEvent(new CustomEvent('gameble:screen-shown'))")
     }
 
     private func fitBottom() {

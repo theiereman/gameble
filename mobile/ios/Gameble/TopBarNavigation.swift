@@ -1,11 +1,20 @@
 import HotwireNative
 import UIKit
+import WebKit
 
 final class TopBarNavigation {
     static let shared = TopBarNavigation()
 
-    weak var tabBarController: HotwireTabBarController?
+    weak var shell: ShellViewController?
     private var layer: Navigator?
+
+    var layerStack: UINavigationController? {
+        layer?.rootViewController
+    }
+
+    var layerWebView: WKWebView? {
+        layer?.activeWebView
+    }
 
     func open(_ path: String) {
         guard let url = URL(string: path, relativeTo: Gameble.rootURL)?.absoluteURL else { return }
@@ -20,13 +29,19 @@ final class TopBarNavigation {
         viewController != nil && viewController === layer?.rootViewController
     }
 
+    // A screen under the layer is still in the window, yet not on view.
+    func isOnView(_ viewController: UIViewController) -> Bool {
+        guard viewController.viewIfLoaded?.window != nil else { return false }
+        return layer == nil || isLayer(viewController.navigationController)
+    }
+
     func closeLayer(animated: Bool = true, then finished: (() -> Void)? = nil) {
         guard let layer else {
             finished?()
             return
         }
         self.layer = nil
-        layer.rootViewController.dismiss(animated: animated, completion: finished)
+        shell?.hideLayer(layer.rootViewController, animated: animated, finished: finished)
     }
 
     private func openAboveTabs(_ url: URL) {
@@ -35,16 +50,15 @@ final class TopBarNavigation {
             return
         }
         let navigator = Navigator(configuration: .init(name: "layer", startLocation: url))
-        navigator.rootViewController.modalPresentationStyle = .fullScreen
         navigator.start()
         layer = navigator
-        tabBarController?.present(navigator.rootViewController, animated: true)
+        shell?.showLayer(navigator.rootViewController)
     }
 
     private func show(tab: Int, visiting url: URL?) {
-        guard let tabBarController else { return }
-        tabBarController.selectedIndex = tab
-        let navigator = tabBarController.activeNavigator
+        guard let tabs = shell?.tabs else { return }
+        tabs.selectedIndex = tab
+        let navigator = tabs.activeNavigator
         navigator.clearAll()
         if let url { navigator.route(url) }
     }

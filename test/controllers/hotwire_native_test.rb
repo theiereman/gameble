@@ -7,6 +7,8 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
   APP = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 " \
     "Hotwire Native iOS; Turbo Native iOS; bridge-components: [haptics push-permission share]".freeze
 
+  APP_WITH_BAR = APP.sub("share]", "share top-bar]").freeze
+
   setup { sign_in(accounts_players(:player)) }
 
   test "in the app, the native tab bar takes the web one's place and the haptics and sheet bridges listen" do
@@ -18,19 +20,79 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=view-transition]", 0
   end
 
-  test "in the app, a sub-screen's way back is the app's own, named and shown once the app says which screen lies behind" do
-    get card_season_path(slug: catalog_cards(:portal).slug, number: catalog_card_seasons(:portal_one).season.number, locale: :en), headers: { "User-Agent" => APP }
+  test "in the app, a screen names itself to the app and carries no way back of its own" do
+    get card_season_path(slug: catalog_cards(:portal).slug, number: catalog_card_seasons(:portal_one).season.number, locale: :en), headers: { "User-Agent" => APP_WITH_BAR }
 
-    assert_select ".top-bar__start > button.top-bar__previous[type=button][hidden][data-controller='bridge--back'][data-action='bridge--back#back']" do
-      assert_select "svg.button__icon"
-      assert_select ".visually-hidden", "Back:"
-      assert_select ".button__label[data-bridge--back-target=label]", "Back"
-    end
+    assert_select "[data-controller~='bridge--back']", 0
     assert_select "[data-controller~='previous-screen']", 0
+    assert_select ".top-bar__previous, .top-bar__phone-back, .top-bar__bridge", 0
     assert_select "div[hidden][data-controller~='bridge--screen'][data-bridge--screen-label-value=Card]"
 
-    get home_path(locale: :fr), headers: { "User-Agent" => APP }
+    get home_path(locale: :fr), headers: { "User-Agent" => APP_WITH_BAR }
     assert_select "div[hidden][data-controller~='bridge--screen'][data-bridge--screen-label-value=Pont]"
+  end
+
+  test "an app with the native bar gets the same counts, bell and menu on every screen, without a page bar of its own" do
+    [ home_path(locale: :en), library_path(locale: :en), booster_path(locale: :en), me_path(locale: :en) ].each do |path|
+      get path, headers: { "User-Agent" => APP_WITH_BAR }
+
+      assert_select "html[data-native-app][data-native-bar]"
+      assert_select ".top-bar__start", 0
+      assert_select "header.top-bar[data-controller~='top-bar-scroll']", 0
+      assert_select ".rarity-counter", 0
+      assert_select ".top-bar__end[data-controller='bridge--top-bar'][data-action='click->bridge--top-bar#navigate']" do
+        assert_select ".bank-counter__item:not(.bank-counter__item--special) .bank-counter__count", 1, path
+        assert_select ".bank-counter__item--special .bank-counter__count", 1, path
+        assert_select "#bell-panel[popover]"
+        assert_select "#phone-menu-panel[popover]"
+        assert_select "#phone-menu-badge"
+        assert_select "svg.player-chip__avatar"
+      end
+    end
+  end
+
+  test "with the native bar, the collection's progress moves from the bar to the top of the page" do
+    get library_path(locale: :en), headers: { "User-Agent" => APP_WITH_BAR }
+
+    assert_select ".top-bar__end .collection-status", 0
+    assert_select "main > .native-status:first-child .collection-status[popovertarget=rarity-legend]"
+    assert_select "#rarity-legend", 1
+  end
+
+  test "an app that does not declare the native bar keeps its page bar" do
+    get library_path(locale: :en), headers: { "User-Agent" => APP }
+
+    assert_select "html[data-native-app]"
+    assert_select "html[data-native-bar]", 0
+    assert_select ".top-bar__start"
+    assert_select ".top-bar__end .collection-status"
+    assert_select ".native-status", 0
+    assert_select "[data-controller~='bridge--top-bar']", 0
+  end
+
+  test "a browser keeps its page bar" do
+    get library_path(locale: :en)
+
+    assert_select "html[data-native-bar]", 0
+    assert_select ".top-bar__start > a.top-bar__previous[data-controller=previous-screen]"
+    assert_select ".top-bar__end .collection-status"
+    assert_select ".native-status", 0
+  end
+
+  test "a visitor in an app with the native bar has no native bar to lean on" do
+    delete session_path
+
+    get sign_in_path(locale: :en), headers: { "User-Agent" => APP_WITH_BAR }
+
+    assert_select "html[data-native-bar]", 0
+  end
+
+  test "a sheet served on its own has neither the bar's room nor a header" do
+    get me_sheet_path(sheet: :title, locale: :en), headers: { "User-Agent" => APP_WITH_BAR }
+
+    assert_response :success
+    assert_select "html[data-native-bar]", 0
+    assert_select "header.top-bar", 0
   end
 
   test "in the app, the daily capsule is collected on the bridge: the capsule screen does not offer it and the bell leads there" do

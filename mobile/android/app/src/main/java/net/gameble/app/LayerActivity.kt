@@ -1,13 +1,14 @@
 package net.gameble.app
 
-import android.content.Context
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import dev.hotwire.navigation.navigator.NavigatorConfiguration
 
 class LayerActivity : GamebleActivity() {
-    override val rootHasWayBack: Boolean get() = true
+    override val rootBackLabel: String
+        get() = intent.getStringExtra(PREVIOUS_LABEL) ?: getString(R.string.top_bar_back)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,19 +31,31 @@ class LayerActivity : GamebleActivity() {
         return true
     }
 
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(0, 0)
+    }
+
     override fun openFromTopBar(path: String) {
         if (Tabs.destination(path).tab == null) {
             delegate.currentNavigator?.route(Gameble.location(path))
         } else {
             startActivity(Intent(this, MainActivity::class.java).putExtra(MainActivity.TOP_BAR_PATH, path))
+            overridePendingTransition(0, 0)
         }
     }
 
     companion object {
         private const val LOCATION = "location"
+        private const val PREVIOUS_LABEL = "previous_label"
 
-        fun open(context: Context, location: String) {
-            context.startActivity(Intent(context, LayerActivity::class.java).putExtra(LOCATION, location))
+        fun open(activity: Activity, location: String, previousLabel: String?) {
+            activity.startActivity(
+                Intent(activity, LayerActivity::class.java)
+                    .putExtra(LOCATION, location)
+                    .putExtra(PREVIOUS_LABEL, previousLabel)
+            )
+            activity.overridePendingTransition(0, 0)
         }
     }
 }

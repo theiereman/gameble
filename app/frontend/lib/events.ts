@@ -27,6 +27,10 @@ export type StreamUpdatedDetail = Record<string, never>
 
 export type SheetShownDetail = { shown: boolean }
 
+export type TopBarPanel = "bell" | "menu"
+
+export type TopBarPanelDetail = { panel: TopBarPanel | null }
+
 export interface GamebleEventMap {
   "gameble:toast": ToastDetail
   "gameble:tier-revealed": TierRevealedDetail
@@ -39,6 +43,7 @@ export interface GamebleEventMap {
   "gameble:bank-updated": StreamUpdatedDetail
   "gameble:sheet-shown": SheetShownDetail
   "gameble:screen-shown": null
+  "gameble:top-bar-panel": TopBarPanelDetail
 }
 
 export type GamebleEventName = keyof GamebleEventMap

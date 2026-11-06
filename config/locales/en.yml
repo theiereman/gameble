@@ -2817,7 +2817,6 @@ en:
       motion_switch: Reduced motion
       sign_in: Sign in
       previous: 'Back:'
-      previous_fallback: Back
     version:
       label: Deployed version
       legal: Legal notice

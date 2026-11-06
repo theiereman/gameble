@@ -1,11 +1,12 @@
 <% wordmark_shine = { controller: "wordmark-shine", action: "pointerenter->wordmark-shine#sweep animationend->wordmark-shine#end animationcancel->wordmark-shine#end" } %>
 <% top_level = shell_top_level_screen? %>
-<header class="<%= class_names("top-bar", "top-bar--status": content_for?(:top_bar_status), "top-bar--top-level": top_level) %>" <%= tag.attributes(data: { controller: ("top-bar-scroll" if top_level), screen_label: shell_screen_label, screen_labels: shell_screen_labels&.to_json }) %>>
+<% status_in_bar = content_for?(:top_bar_status) && !native_top_bar? %>
+<header class="<%= class_names("top-bar", "top-bar--status": status_in_bar, "top-bar--top-level": top_level) %>" <%= tag.attributes(data: { controller: ("top-bar-scroll" if top_level && !native_top_bar?), screen_label: shell_screen_label, screen_labels: shell_screen_labels&.to_json }) %>>
   <div class="top-bar__inner">
+    <% unless native_top_bar? %>
     <div class="<%= class_names("top-bar__start", "top-bar__start--phone-back": content_for?(:phone_back)) %>" data-controller="navigation-lock">
       <% if top_level && hotwire_native_app? %>
         <span class="top-bar__brand top-bar__phone-home" role="img" aria-label="<%= t("shell.top_bar.brand") %>"><%= pixel_icon("back-g", class: "top-bar__home-g") %></span>
-        <%= render "shell/native_previous" unless content_for?(:back_button) %>
       <% elsif top_level %>
         <%= link_to_unless_current pixel_icon("wordmark-sweep", class: "top-bar__wordmark"), home_path, class: "top-bar__brand top-bar__phone-home", aria: { label: shell_home_label }, data: wordmark_shine do %>
           <span class="top-bar__brand top-bar__phone-home" role="img" aria-label="<%= shell_home_label %>" <%= tag.attributes(data: wordmark_shine) %>><%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %></span>
@@ -21,9 +22,7 @@
           <%= pixel_icon("arrow-left", class: "button__icon") %><%= pixel_icon("back-g", class: "top-bar__back-g") %><span class="button__label"><%= shell_back_label %></span>
         <% end %>
         <%= yield :phone_back %>
-        <% if hotwire_native_app? %>
-          <%= render "shell/native_previous" %>
-        <% else %>
+        <% unless hotwire_native_app? %>
           <a class="button button--secondary button--small top-bar__previous" hidden
             data-controller="previous-screen" data-action="previous-screen#back turbo:morph@document->previous-screen#sync" data-turbo-prefetch="false">
             <%= pixel_icon("arrow-left", class: "button__icon") %><span class="visually-hidden"><%= t("shell.top_bar.previous") %> </span><span class="button__label" data-previous-screen-target="label"></span>
@@ -60,12 +59,13 @@
         <% end %>
       <% end %>
     </div>
+    <% end %>
 
     <div class="top-bar__end" <%= tag.attributes(data: native_top_bar_data) %>>
-      <%= yield :top_bar_status if content_for?(:top_bar_status) %>
+      <%= yield :top_bar_status if status_in_bar %>
       <% if current_player %>
-        <% unless back_office_page? || content_for?(:top_bar_status) %>
-          <%= render "shell/rarity_counter", counts: shell_tier_counts %>
+        <% unless back_office_page? || status_in_bar %>
+          <%= render "shell/rarity_counter", counts: shell_tier_counts unless native_top_bar? %>
           <% if content_for?(:booster_top_bar) %>
             <%= render "shell/reserve_chip", bank: shell_bank %>
           <% else %>

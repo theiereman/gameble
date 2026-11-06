@@ -2,6 +2,7 @@ package net.gameble.app
 
 import android.net.Uri
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import androidx.navigation.NavOptions
 import androidx.navigation.navOptions
@@ -15,25 +16,56 @@ import dev.hotwire.navigation.fragments.HotwireWebFragment
 
 @HotwireDestinationDeepLink(uri = "hotwire://fragment/web")
 class GamebleWebFragment : HotwireWebFragment() {
+    var pageReady = false
+        private set
+
+    var dialogOpen = false
+        private set
+
+    private val host: GamebleActivity?
+        get() = activity as? GamebleActivity
+
+    fun dialogChanged(open: Boolean) {
+        dialogOpen = open
+        host?.screenDialogChanged(navigator, open)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         hideAppBar()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        host?.screenOnView(navigator, dialogOpen)
     }
 
     // A WebView rasters only what is on screen; a tab sliding in would otherwise paint itself as it arrives.
     override fun onWebViewAttached(webView: HotwireWebView) {
         super.onWebViewAttached(webView)
         webView.settings.offscreenPreRaster = true
+        webView.setOnScrollChangeListener { _, _, scrollY, _, _ -> host?.screenScrolled(navigator, scrollY) }
+        webView.setOnTouchListener { _, event ->
+            if (event.actionMasked == MotionEvent.ACTION_DOWN) host?.screenTouched(navigator)
+            false
+        }
+    }
+
+    override fun onWebViewDetached(webView: HotwireWebView) {
+        webView.setOnScrollChangeListener(null)
+        webView.setOnTouchListener(null)
+        super.onWebViewDetached(webView)
     }
 
     override fun onVisitRendered(location: String) {
         super.onVisitRendered(location)
-        (activity as? GamebleActivity)?.screenArrived(requireView())
+        pageReady = true
+        host?.screenArrived(requireView())
     }
 
     override fun onVisitErrorReceived(location: String, error: VisitError) {
         super.onVisitErrorReceived(location, error)
-        (activity as? GamebleActivity)?.screenArrived(requireView())
+        host?.screenArrived(requireView())
     }
 
     // The same screen with other parameters (a filter chosen in a sheet) swaps in place, as Turbo does on the web;
@@ -45,7 +77,7 @@ class GamebleWebFragment : HotwireWebFragment() {
     ): NavOptions? {
         if (newPathProperties["context"] == "modal") return null
         val inPlace = action == VisitAction.REPLACE || Uri.parse(newLocation).path == Uri.parse(location).path
-        if (!inPlace) (activity as? GamebleActivity)?.leaveScreen(forward = newLocation != navigator.previousLocation)
+        if (!inPlace) host?.leaveScreen(forward = newLocation != navigator.previousLocation)
         return navOptions {}
     }
 }

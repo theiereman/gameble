@@ -29,17 +29,6 @@
   height: var(--space-back-g-height);
 }
 
-:root[data-native-app]
-  .top-bar__start:has(> .top-bar__previous:not([hidden]))
-  > :is(.top-bar__bridge, .top-bar__phone-back, .top-bar__phone-home) {
-  display: none;
-}
-
-/* A sub-screen's way back names the screen behind it, shown once the app says there is one. */
-:root[data-native-app] .top-bar__start > .top-bar__previous:not([hidden]) {
-  display: inline-flex;
-}
-
 /* The capsule screen fills the space between the top bar and the native tabs, without a scroll,
    its canister centred in the stage and its rays running out to the screen's edges. */
 :root[data-native-app] body:has(.booster[data-layout="phone"]) {
@@ -157,4 +146,68 @@
 :root[data-native-app] .friends__row-field:has([data-controller~="bridge--share"]:not([hidden])) .button {
   flex: 1;
   margin: 0;
+}
+
+:root[data-native-bar] {
+  scroll-padding-top: var(--topbar-height);
+}
+
+:root[data-native-bar] body {
+  padding-top: var(--topbar-height);
+}
+
+:root[data-native-bar] .top-bar {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+:root[data-native-bar] .phone-menu {
+  display: flex;
+}
+
+:root[data-native-bar] .shell-popover {
+  visibility: visible;
+}
+
+:root[data-native-bar] :is(.bell__panel, .phone-menu__panel) {
+  top: calc(var(--topbar-height) + var(--space-3));
+  right: var(--space-3);
+  margin: 0;
+  position-anchor: auto;
+  position-area: none;
+}
+
+:root[data-native-bar] .feed__newest {
+  top: calc(var(--topbar-height) + var(--space-3));
+}
+
+:root[data-native-bar] .booster-zoom {
+  padding-top: calc(var(--topbar-height) + var(--space-5));
+}
+
+@media (max-width: 719px) {
+  :root[data-native-bar] :is(.trade-picker, .custom-set-editor) {
+    height: calc(100dvh - var(--topbar-height));
+    margin-top: var(--topbar-height);
+  }
+}
+
+.native-status {
+  margin-bottom: var(--space-4);
+}
+
+:root[data-native-bar] .native-status .collection-status {
+  display: flex;
+  width: 100%;
+  min-height: var(--space-chip-height-touch);
+  padding-inline: 0;
+}
+
+:root[data-native-bar] .native-status .collection-status__bar {
+  flex: 1;
+  width: auto;
+  min-width: 0;
 }
