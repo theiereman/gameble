@@ -10,6 +10,10 @@ export const IMPACTS: Record<Rarity, ImpactStyle> = {
   legendary: "heavy",
 }
 
+export const TOUCH_IMPACT: ImpactStyle = "light"
+
+export const DEAL_IMPACT: ImpactStyle = "light"
+
 export type PushGrant = { token: string; platform: string }
 
 export function pushGrant(data: Record<string, unknown>): PushGrant | null {

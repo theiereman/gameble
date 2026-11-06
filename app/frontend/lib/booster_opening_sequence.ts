@@ -71,6 +71,7 @@ export type OpeningSequenceHost = BoosterStageHost &
 
 export class OpeningSequence {
   private skipping = false
+  private deal = 0
   private skipped: Promise<void> = new Promise(() => {})
   private skipNow = (): void => {}
 
@@ -81,6 +82,7 @@ export class OpeningSequence {
     const before = host.current()
     if (host.apply(openingStarted) === before) return
     host.apply(lock)
+    dispatchGameble("gameble:capsule-touched", null)
     this.armSkip()
     const key = host.current().pendingKey ?? newKey()
     const request = sendOpening({ url: host.openUrl, reserve: host.reserve(), key, csrfToken: csrfToken() })
@@ -115,6 +117,7 @@ export class OpeningSequence {
   }
 
   private armSkip(): void {
+    this.deal++
     this.skipping = false
     this.skipped = new Promise((resolve) => (this.skipNow = resolve))
   }
@@ -173,7 +176,6 @@ export class OpeningSequence {
 
   private async blowAndDeal(count: number): Promise<void> {
     const { host } = this
-    const { later } = host.timers()
     const parts = host.canister()
     host.apply(ejecting)
     animate(parts?.capTop, capTopKeyframes(), {
@@ -200,13 +202,14 @@ export class OpeningSequence {
     host.apply(cardsDealt)
     let end = 0
     ;(phone ? pileOrder(count) : dealOrder(count)).forEach((index, position) => {
+      const delay = position * stagger
+      this.tapWhenDealt(index, delay)
       const slot = host.slot(index)
       const travel = host.part(index, "travel")
       if (!slot || !travel || !origin) return
       const rect = slot.querySelector(".booster-card__frame")?.getBoundingClientRect() ?? slot.getBoundingClientRect()
       const dx = origin.left + origin.width / 2 - (rect.left + rect.width / 2)
       const dy = origin.top + origin.height / 2 - (rect.top + rect.height / 2)
-      const delay = position * stagger
       const rest = phone ? pilePose(pileDepth(index, host.current().stored)) : undefined
       animate(travel, dealKeyframes(dx, dy, dealRotation(index, count), rest), {
         duration: DEAL_MS,
@@ -214,12 +217,21 @@ export class OpeningSequence {
         fill: "backwards",
         easing: "linear",
       })
-      later(delay + DEAL_MS * DEAL_LAND_AT, () => {
-        if (!this.skipping) stageShake(host.shake(), 1.5, LAND_SHAKE_MS)
-      })
+      this.laterInThisDeal(delay + DEAL_MS * DEAL_LAND_AT, () => stageShake(host.shake(), 1.5, LAND_SHAKE_MS))
       end = Math.max(end, delay + DEAL_MS)
     })
     await this.pause(end)
+  }
+
+  private tapWhenDealt(index: number, delay: number): void {
+    this.laterInThisDeal(delay, () => dispatchGameble("gameble:card-dealt", { index }))
+  }
+
+  private laterInThisDeal(delay: number, action: () => void): void {
+    const deal = this.deal
+    this.host.timers().later(delay, () => {
+      if (deal === this.deal && !this.skipping) action()
+    })
   }
 
   private async fadeAndDeal(count: number): Promise<void> {
@@ -228,6 +240,7 @@ export class OpeningSequence {
     host.apply(resultHeadShown)
     host.apply(cardsDealt)
     for (let index = 0; index < count; index++) {
+      this.tapWhenDealt(index, index * RM_FADE_STAGGER)
       animate(host.part(index, "travel"), fadeKeyframes(0, 1), {
         duration: RM_CARD_FADE,
         delay: index * RM_FADE_STAGGER,
