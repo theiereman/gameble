@@ -41,7 +41,7 @@ class Game::ChooseAvatarTest < ActiveSupport::TestCase
 
   test "an avatar whose achievement is not earned is refused and writes nothing" do
     assert_no_difference -> { Rails.configuration.event_store.read.count } do
-      assert_equal :avatar_locked, choose("grand_master").failure
+      assert_equal :avatar_locked, choose("oracle").failure
       assert_equal :unknown_avatar, choose("dragon").failure
     end
 
@@ -56,13 +56,41 @@ class Game::ChooseAvatarTest < ActiveSupport::TestCase
     assert_equal({ @player.id => "novice", @other.id => "default" }, avatars.transform_values(&:key))
   end
 
-  test "the shelf lists every avatar, locked until its achievement is earned" do
+  test "the free avatars need no achievement" do
+    other = choose("botanist", player: @other)
+
+    assert other.success?
+    assert_equal "botanist", Game::ActiveAvatar.call(@other).key
+  end
+
+  test "the shelf lists every avatar, the free ones open and the others locked until their achievement is earned" do
     choose("novice")
 
     rows = Game::AvatarShelf.call(@player)
 
-    assert_equal %w[default novice archivist guardian oracle grand_master], rows.map(&:key)
-    assert_equal %w[default novice], rows.reject(&:locked?).map(&:key)
+    assert_equal %w[default mechanic pilot cartographer botanist streamer elder astronaut punk chef robot cat alien slime owl novice archivist guardian oracle], rows.map(&:key)
+    assert_equal %w[default mechanic pilot cartographer botanist streamer elder astronaut punk chef robot cat alien slime owl novice], rows.reject(&:locked?).map(&:key)
     assert_equal %w[novice], rows.select(&:active).map(&:key)
+  end
+
+  test "only an administrator can wear the grand master avatar, and nobody else sees it" do
+    administrator = accounts_players(:administrator)
+    Game::AchievementUnlock.record(@player.id, "boosters_500", Time.current)
+
+    assert choose("grand_master", player: administrator).success?
+    assert_equal "grand_master", Game::ActiveAvatar.call(administrator).key
+    assert_equal :avatar_locked, choose("oracle", player: administrator).failure
+    assert_equal :unknown_avatar, choose("grand_master").failure
+    assert_equal :unknown_avatar, choose("grand_master", player: @other).failure
+    assert_not_includes Game::AvatarShelf.call(@player).map(&:key), "grand_master"
+    assert_includes Game::AvatarShelf.call(administrator).reject(&:locked?).map(&:key), "grand_master"
+  end
+
+  test "a grand master avatar stored for a player who is no longer an administrator shows the default" do
+    administrator = accounts_players(:administrator)
+    choose("grand_master", player: administrator)
+    administrator.update!(role: :player)
+
+    assert Game::ActiveAvatar.call(administrator).default?
   end
 end

@@ -141,7 +141,8 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     novice = tile(:earned, "Première acquisition approuvée")
     assert_equal "Débloque l'avatar Novice", novice.at_css(".achievement__avatar").text.strip
     assert novice.at_css("svg.achievement__avatar-image")
-    assert_equal "Débloque l'avatar Grand Maître", tile(:to_earn, "Loyauté au-delà du raisonnable").at_css(".achievement__avatar").text.strip
+    assert_equal "Débloque l'avatar Oracle", tile(:to_earn, "A surpassé les attentes").at_css(".achievement__avatar").text.strip
+    assert_nil tile(:to_earn, "Loyauté au-delà du raisonnable").at_css(".achievement__avatar")
     assert_nil tile(:to_earn, "Entraide mutuelle").at_css(".achievement__avatar")
   end
 

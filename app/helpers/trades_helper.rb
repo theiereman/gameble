@@ -215,8 +215,8 @@ module TradesHelper
 
   private
     def trade_board_side(side, held:, other_held:, picks:, received:)
-      copies = trade_game_copies(held, picks)
-      other_copies = trade_game_copies(other_held, picks)
+      copies = trade_game_copies(held, picks, count: side == :own ? :free : :quantity)
+      other_copies = trade_game_copies(other_held, picks, count: :quantity)
       views = held.keys.filter_map { |id| picks[id] && [ id, picks[id] ] }
       views.sort_by! { |_, view| [ view.season_number, view.number ? 0 : 1, view.number.to_i, view.title ] }
       by_id = views.to_h do |id, view|
@@ -236,10 +236,10 @@ module TradesHelper
       end
     end
 
-    def trade_game_copies(held, picks)
+    def trade_game_copies(held, picks, count:)
       held.each_with_object(Hash.new(0)) do |(id, row), games|
         view = picks[id] or next
-        games[view.id] += row.quantity
+        games[view.id] += row.public_send(count)
       end
     end
 end

@@ -489,7 +489,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".trade-picker__empty[data-reason='reserved']", /#{Regexp.escape(I18n.t("trades.side.none.all_reserved", locale: :fr))}/
       assert_select "template[data-trade-board-picker-target='stepperTemplate'] .stepper[role=spinbutton]"
     end
-    assert_equal [ [ "tin-soldier--s1", 1, 0, 1, 1, 3 ], [ "portal--s1", 3, 1, 2, 3, 0 ] ], board_cards(:own)
+    assert_equal [ [ "tin-soldier--s1", 1, 0, 1, 1, 3 ], [ "portal--s1", 3, 1, 2, 2, 0 ] ], board_cards(:own)
     assert_equal [ [ "tin-soldier--s1", 3, 0, 3, 3, 1 ], [ "blue-depths--s1", 2, 0, 2, 2, 0 ] ], board_cards(:friend)
     assert_select ".trade-pick[data-side='own'][data-key='portal--s1'] .trade-pick__toggle[aria-pressed='false'][aria-label=?]",
       "Portal, 3 exemplaires, 1 réservé ailleurs"
@@ -748,6 +748,17 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".filter-row__pastille .filter-row__count[hidden] .visually-hidden", "Filtres actifs\u202F:"
     assert_select "#trade-picker-filter-sheet.bottom-sheet .trade-picker__compare"
     assert_no_match(/card_season_id|style=/, css_select("#trade-board").sole.to_html)
+  end
+
+  test "the player's copies already given in another trade no longer count toward their duplicates" do
+    holding(@alice, @soldier).update!(quantity: 2)
+    propose(@alice, @carol, offer: { @soldier => 1, @portal => 1 }, request: { @depths => 1 })
+    sign_in @alice
+
+    get new_trade_path(locale: :fr, friend: @bob.token)
+
+    assert_equal [ [ "tin-soldier--s1", 2, 1, 1, 1 ], [ "portal--s1", 3, 1, 2, 2 ] ],
+      board_cards(:own).map { it.values_at(0, 1, 2, 3, 4) }
   end
 
   test "the picker's filter sheet offers each side's goals and genres, and each card carries its own" do

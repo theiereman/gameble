@@ -42,12 +42,26 @@ en:
       word: DELETE
   avatars:
     names:
+      alien: Alien
       archivist: Archivist
+      astronaut: Astronaut
+      botanist: Botanist
+      cartographer: Cartographer
+      cat: Cat
+      chef: Chef
       default: Classic
+      elder: Elder
       grand_master: Grand Master
       guardian: Guardian
+      mechanic: Mechanic
       novice: Novice
       oracle: Oracle
+      owl: Owl
+      pilot: Pilot
+      punk: Punk
+      robot: Robot
+      slime: Slime
+      streamer: Streamer
   achievement_claims:
     create:
       claimed: Reward claimed.
