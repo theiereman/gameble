@@ -5,6 +5,8 @@ import WebKit
 final class GamebleWebViewController: HotwireWebViewController {
     private(set) var pageIsReady = false
 
+    private var reloadingBlankPage = false
+
     private var tabsShown = true
     private var dialogOpen = false
     private var topBarScroll = TopBarScroll()
@@ -39,11 +41,13 @@ final class GamebleWebViewController: HotwireWebViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         announceShown(on: visitableView.webView)
+        reloadIfBlank()
     }
 
     override func visitableDidRender() {
         super.visitableDidRender()
         pageIsReady = true
+        reloadingBlankPage = false
     }
 
     override func visitableDidActivateWebView(_ webView: WKWebView) {
@@ -64,6 +68,7 @@ final class GamebleWebViewController: HotwireWebViewController {
     func revealed() {
         tellBarAboutThisScreen()
         announceShown(on: visitableView.webView)
+        reloadIfBlank()
     }
 
     func showTabs(_ shown: Bool) {
@@ -100,6 +105,17 @@ final class GamebleWebViewController: HotwireWebViewController {
 
     private func announceShown(on webView: WKWebView?) {
         webView?.evaluateJavaScript("window.dispatchEvent(new CustomEvent('gameble:screen-shown'))")
+    }
+
+    // iOS ends the web process of a screen off view under memory pressure, and nothing reloads it when that screen comes back.
+    private func reloadIfBlank() {
+        guard pageIsReady, !reloadingBlankPage, let webView = visitableView.webView else { return }
+        webView.evaluateJavaScript("document.body?.childElementCount ?? 0") { [weak self] elements, error in
+            guard let self, self.visitableView.webView === webView, !self.reloadingBlankPage else { return }
+            guard error != nil || (elements as? Int) == 0 else { return }
+            self.reloadingBlankPage = true
+            self.reloadVisitable()
+        }
     }
 
     private func fitBottom() {
