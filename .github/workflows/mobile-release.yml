@@ -101,21 +101,27 @@ jobs:
           brew install xcodegen
           xcodegen generate
           VERSION="$(echo "$GITHUB_REF_NAME" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+          # Signing at archive time needs a registered device; only the export needs to sign, for the App Store.
           xcodebuild archive -project Gameble.xcodeproj -scheme Gameble -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Gameble.xcarchive" \
-            -allowProvisioningUpdates -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8 \
-            -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER_ID" \
-            DEVELOPMENT_TEAM="$TEAM_ID" GAMEBLE_ROOT_URL="$ROOT_URL" APS_ENVIRONMENT="$APS_ENV" \
+            DEVELOPMENT_TEAM="$TEAM_ID" CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO \
+            GAMEBLE_ROOT_URL="$ROOT_URL" APS_ENVIRONMENT="$APS_ENV" \
             MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER"
-          cat > "$RUNNER_TEMP/export.plist" <<PLIST
+          export_to() {
+            cat > "$RUNNER_TEMP/export.plist" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <plist version="1.0"><dict>
             <key>method</key><string>app-store-connect</string>
             <key>teamID</key><string>$TEAM_ID</string>
-            <key>destination</key><string>upload</string>
+            <key>destination</key><string>$1</string>
           </dict></plist>
           PLIST
-          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Gameble.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
-            -exportPath "$RUNNER_TEMP/export" -allowProvisioningUpdates \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8 \
-            -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER_ID"
+            xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Gameble.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+              -exportPath "$RUNNER_TEMP/$1" -allowProvisioningUpdates \
+              -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8 \
+              -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER_ID"
+          }
+          export_to export
+          unzip -q "$RUNNER_TEMP/export/Gameble.ipa" -d "$RUNNER_TEMP/ipa"
+          codesign -d --entitlements :- "$RUNNER_TEMP/ipa/Payload/Gameble.app" | grep -q aps-environment
+          export_to upload
