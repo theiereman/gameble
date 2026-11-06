@@ -80,7 +80,7 @@ gem "pundit", "~> 2.5.2"
 gem "friendly_id", "~> 5.7.0"
 
 # Report production errors, without personal data (AD-21) [https://github.com/getsentry/sentry-ruby]
-gem "sentry-rails", "~> 7.1.0"
+gem "sentry-rails", "~> 7.2.0"
 
 # Watch and retry jobs from the back-office, administrators only [https://github.com/rails/mission_control-jobs]
 gem "mission_control-jobs", "~> 1.3.1"
