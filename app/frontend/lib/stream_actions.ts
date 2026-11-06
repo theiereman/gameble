@@ -4,7 +4,7 @@ import type { TurboGlobal } from "./turbo"
 export const STREAM_EVENT_ACTION = "gameble-event"
 export const STREAM_FOCUS_ACTION = "gameble-focus"
 
-export const STREAM_SIGNALS = ["trades-updated", "friends-updated", "reactions-updated"] as const
+export const STREAM_SIGNALS = ["trades-updated", "friends-updated", "reactions-updated", "bank-updated"] as const
 
 export type StreamSignal = (typeof STREAM_SIGNALS)[number]
 

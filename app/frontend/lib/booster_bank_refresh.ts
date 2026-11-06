@@ -1,8 +1,10 @@
 import {
+  bankDue,
   bankFetchOwed,
   bankFetched,
   countdownAtZero,
   dailyCapsuleChosen,
+  owedBankTaken,
   reservesUnlocked,
   type BoosterState,
 } from "./booster"
@@ -35,6 +37,13 @@ export class BankRefresh {
   async dailyCollected(): Promise<void> {
     await this.refresh()
     if (!this.host.disposed()) this.host.apply(dailyCapsuleChosen)
+  }
+
+  changedElsewhere(): void {
+    if (this.host.disposed() || !this.host.state()) return
+    if (!bankDue(this.host.apply(bankFetchOwed))) return
+    this.host.apply(owedBankTaken)
+    void this.dailyCollected()
   }
 
   atZero(): void {

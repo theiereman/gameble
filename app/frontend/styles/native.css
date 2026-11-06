@@ -102,6 +102,10 @@
   display: none;
 }
 
+:root[data-native-app] .booster[data-layout="phone"] .booster-plate-band__hint[data-shows="done"] {
+  display: none;
+}
+
 /* A stored card's zoom: the card alone over a near-opaque scrim, its name and rarity read by assistive
    technology only, its actions on one even grid. */
 :root[data-native-app] .booster-zoom::backdrop {

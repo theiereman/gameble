@@ -200,6 +200,7 @@ export class BoosterController extends Controller<HTMLElement> {
   boosterCelebrationOutletConnected = (): void => this.render()
   boosterNextStepsOutletConnected = (): void => this.render()
   dailyCollectedTargetConnected = (): void => void this.bankRefresh?.dailyCollected()
+  bankUpdated = (): void => this.bankRefresh?.changedElsewhere()
   selectReserve = ({ detail: { reserve } }: Intent<{ reserve: Reserve }>): void =>
     void this.apply((s) => reserveSelected(s, reserve))
 

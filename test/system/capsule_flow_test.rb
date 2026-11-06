@@ -8,6 +8,7 @@ require_relative "../support/steam_sign_in"
 # The daily capsule collected on the capsule screen, then opened by the same
 # button; an empty reserve proposes the sets, the friends and the profile.
 class CapsuleFlowTest < ApplicationSystemTestCase
+  include ActiveJob::TestHelper
   include CustomSets
   include GamePacks
   include GameSets
@@ -95,6 +96,22 @@ class CapsuleFlowTest < ApplicationSystemTestCase
 
     assert_selector ".booster-card[data-dealt]", count: Game::Pack::BONUS_SIZE, wait: 10
     eventually("the daily capsule should be opened") { opened_packs.where(kind: "bonus").count == 1 }
+  end
+
+  test "a daily capsule collected elsewhere reaches an open capsule screen without a reload" do
+    reduce_motion(true)
+    create_pack(@player, opened_at: 1.minute.ago)
+    sign_in_to_capsules
+    assert_selector "#{OPEN}[data-open=empty]"
+    assert_selector "turbo-cable-stream-source[connected]", visible: :all
+    page.execute_script("window.liveMark = true")
+
+    Game::CollectDailyBonus.new.call(player: @player).value!
+    perform_enqueued_jobs(only: PlayerStreamJob)
+
+    assert_selector ".booster-reserves__tab[data-reserve=special][aria-selected=true]", wait: 10
+    assert_selector ".booster[data-reserve=special][data-phase=sealed]"
+    assert page.evaluate_script("window.liveMark === true")
   end
 
   test "an empty reserve proposes the sets, the friends and the profile, on a phone and on a desktop" do

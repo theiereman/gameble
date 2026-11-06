@@ -17,7 +17,7 @@ module BoostersHelper
   def booster_root_data(bank:, season:, next_pack_size:, reserve:)
     values = booster_bank(bank:, next_pack_size:)
     {
-      controller: "booster", action: screen_actions("booster", BOOSTER_ACTIONS),
+      controller: "booster", action: "#{screen_actions("booster", BOOSTER_ACTIONS)} gameble:bank-updated@window->booster#bankUpdated",
       booster_open_url_value: packs_path, booster_card_url_value: card_path(slug: "SLUG"),
       booster_repost_url_value: season ? card_repost_path(slug: "SLUG", number: "NUMBER") : "",
       booster_bank_url_value: booster_path(format: :json), booster_delimiter_value: t("number.format.delimiter"),

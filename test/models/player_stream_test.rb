@@ -41,6 +41,11 @@ class PlayerStreamTest < ActiveSupport::TestCase
     end
   end
 
+  test "a daily capsule collected tells its collector's open screens" do
+    assert_equal [ { player_id: @alice.id, topic: "bank" } ], PlayerStream.notices(Game::DailyBonusCollected.new(data: { player_id: @alice.id, pack_id: 1 }))
+    assert_includes PlayerStream::EVENTS, Game::DailyBonusCollected
+  end
+
   test "opening a trade tells only the player who opened it" do
     data = { player_id: @alice.id, trade_id: 1 }
 

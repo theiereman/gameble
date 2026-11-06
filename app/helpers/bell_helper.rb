@@ -50,7 +50,8 @@ module BellHelper
   end
 
   def bell_daily_line(day)
-    BellLine.new(key: "daily:#{day.iso8601}", path: booster_path, href: booster_path,
+    path = hotwire_native_app? ? home_path : booster_path
+    BellLine.new(key: "daily:#{day.iso8601}", path:, href: path,
       sentence: t("shell.bell.daily"), action: t("shell.bell.collect"), lasting: true, dom_id: "bell-daily")
   end
 

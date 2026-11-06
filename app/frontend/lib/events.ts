@@ -36,6 +36,7 @@ export interface GamebleEventMap {
   "gameble:trades-updated": StreamUpdatedDetail
   "gameble:friends-updated": StreamUpdatedDetail
   "gameble:reactions-updated": StreamUpdatedDetail
+  "gameble:bank-updated": StreamUpdatedDetail
   "gameble:sheet-shown": SheetShownDetail
 }
 

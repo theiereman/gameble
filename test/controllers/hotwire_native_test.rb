@@ -33,6 +33,18 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
     assert_select "div[hidden][data-controller~='bridge--screen'][data-bridge--screen-label-value=Pont]"
   end
 
+  test "in the app, the daily capsule is collected on the bridge: the capsule screen does not offer it and the bell leads there" do
+    get booster_path(locale: :en), headers: { "User-Agent" => APP }
+    assert_select "section#booster"
+    assert_select "#booster-daily", 0
+
+    get home_path(locale: :en), headers: { "User-Agent" => APP }
+    assert_select "#daily-booster form[action='/en/daily-bonus']"
+
+    get bell_path(locale: :en), headers: { "User-Agent" => APP, "Turbo-Frame" => "bell-items" }
+    assert_select "li#bell-daily[data-bell-lasting=true][data-bell-path='/en'] a[href='/en']"
+  end
+
   test "a visitor in the app is led straight to sign in instead of the landing; a browser's visitor sees the landing" do
     delete session_path
 
