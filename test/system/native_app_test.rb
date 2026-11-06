@@ -104,6 +104,18 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     assert_no_selector "#bell-panel:popover-open"
   end
 
+  test "the native bar's bell and menu open their panels on a sub-screen too" do
+    visit settings_path(locale: :en)
+    assert_no_selector "header.top-bar.top-bar--top-level", visible: :all
+    connect_as_the_app
+
+    tap_on_the_bar "bell"
+    assert_selector "#bell-panel:popover-open"
+
+    tap_on_the_bar "menu"
+    assert_selector "#phone-menu-panel:popover-open"
+  end
+
   test "the avatar's menu opens under the native bar, trades places with the bell, and closes when the bar hides" do
     visit friends_path(locale: :en)
     connect_as_the_app

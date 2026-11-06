@@ -164,7 +164,7 @@
   visibility: hidden;
 }
 
-:root[data-native-bar] .phone-menu {
+:root[data-native-bar] :is(.bell, .phone-menu) {
   display: flex;
 }
 
