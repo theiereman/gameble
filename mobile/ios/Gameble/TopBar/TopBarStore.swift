@@ -5,7 +5,26 @@ struct TopBarState: Codable, Equatable {
     var special = ""
     var bell = ""
     var menuBadge = ""
+    var capsules = ""
+    var friends = ""
+    var trades = ""
     var avatar = ""
+
+    init() {}
+
+    // A page served before the tab badges, or a state saved by an older app, lacks some keys.
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        func text(_ key: CodingKeys) -> String { (try? values.decodeIfPresent(String.self, forKey: key)) ?? "" }
+        standard = text(.standard)
+        special = text(.special)
+        bell = text(.bell)
+        menuBadge = text(.menuBadge)
+        capsules = text(.capsules)
+        friends = text(.friends)
+        trades = text(.trades)
+        avatar = text(.avatar)
+    }
 }
 
 final class TopBarStore {

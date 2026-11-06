@@ -24,6 +24,16 @@ class TopBarsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "turbo-stream[action=replace][target=packs-chip] template"
     assert_select "turbo-stream[action=update][target=phone-menu-badge] template"
+    assert_select "turbo-stream[action=update][target=tab-trades-badge] template"
+    assert_select "turbo-stream[action=update][target=tab-invitations-badge] template"
+  end
+
+  test "a page without the native bar has no tab badges to refresh" do
+    sign_in accounts_players(:player)
+
+    get top_bar_path(locale: :en), as: :turbo_stream
+
+    assert_select "turbo-stream[target=tab-trades-badge], turbo-stream[target=tab-invitations-badge]", 0
   end
 
   test "a visitor is refused" do

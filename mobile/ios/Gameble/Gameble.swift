@@ -40,6 +40,8 @@ enum Palette {
     static let controlBorder = UIColor(hex: 0x2A6F9A)
     static let alert = UIColor(hex: 0xE8833A)
     static let onAlert = UIColor(hex: 0x1D0F03)
+    static let friends = UIColor(hex: 0x8AA0FF)
+    static let onFriends = UIColor(hex: 0x06090D)
 }
 
 enum Typeface {

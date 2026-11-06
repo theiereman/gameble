@@ -8,6 +8,9 @@ enum Tabs {
     }
 
     private static let paths = ["", "/booster", "/library", "/friends", "/trades"]
+    private static let capsule = 1
+    private static let friends = 3
+    private static let trades = 4
 
     static func destination(of path: String) -> Destination {
         let location = path.replacingOccurrences(of: #"^/(en|fr)(?=[/?#]|$)"#, with: "", options: .regularExpression)
@@ -28,5 +31,24 @@ enum Tabs {
             HotwireTab(title: Gameble.text("Friends", "Amis"), image: UIImage(named: "tab-friends"), url: Gameble.url("/friends")),
             HotwireTab(title: Gameble.text("Trades", "Échanges"), image: UIImage(named: "tab-trades"), url: Gameble.url("/trades"))
         ]
+    }
+
+    static func showBadges(of state: TopBarState, on tabBar: UITabBar) {
+        badge(state.capsules, on: tabBar, at: capsule, color: Palette.primary, text: Palette.onPrimary)
+        badge(state.friends, on: tabBar, at: friends, color: Palette.friends, text: Palette.onFriends)
+        badge(state.trades, on: tabBar, at: trades, color: Palette.alert, text: Palette.onAlert)
+    }
+
+    private static func badge(_ value: String, on tabBar: UITabBar, at index: Int, color: UIColor, text: UIColor) {
+        guard let item = tabBar.items?[safe: index] else { return }
+        item.badgeColor = color
+        item.setBadgeTextAttributes([.foregroundColor: text, .font: Typeface.bold(11)], for: .normal)
+        item.badgeValue = value.isEmpty ? nil : value
+    }
+}
+
+private extension Array {
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
     }
 }

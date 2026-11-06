@@ -75,6 +75,7 @@
         <%= render "shell/bell" unless back_office_page? %>
         <%= render "shell/phone_menu" unless back_office_page? %>
         <%= render "shell/player_chip", player: current_player %>
+        <%= render "shell/native_tab_badges" if native_top_bar? %>
       <% else %>
         <% if controller_path == "pages" && action_name == "home" %>
           <%= button_to motion_path, params: { reduced: motion_reduced? ? "off" : "on" }, class: "motion-switch", form_class: "motion-switch__form", form: { data: { turbo: false } },

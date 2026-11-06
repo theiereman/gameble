@@ -48,8 +48,13 @@ final class ShellViewController: UIViewController {
         topBar.onCapsules = { TopBarNavigation.shared.open("/booster") }
         topBar.onBell = { [weak self] in self?.togglePanel("bell") }
         topBar.onMenu = { [weak self] in self?.togglePanel("menu") }
-        topBar.render(TopBarStore.shared.state)
-        TopBarStore.shared.onChange = { [weak self] state in self?.topBar.render(state) }
+        render(TopBarStore.shared.state)
+        TopBarStore.shared.onChange = { [weak self] state in self?.render(state) }
+    }
+
+    private func render(_ state: TopBarState) {
+        topBar.render(state)
+        Tabs.showBadges(of: state, on: tabs.tabBar)
     }
 
     func screenWillAppear(_ screen: UIViewController) {

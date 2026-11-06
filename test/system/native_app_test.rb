@@ -154,6 +154,10 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     assert_match(/\A\d+\z/, report["special"])
     assert report.key?("bell")
     assert report.key?("menuBadge")
+    capsules = report["standard"].delete(",").to_i + report["special"].to_i
+    assert_equal (capsules.positive? ? capsules.to_s : ""), report["capsules"]
+    assert report.key?("friends")
+    assert report.key?("trades")
     assert_match %r{\Adata:image/png;base64,}, report["avatar"]
     size = page.evaluate_script(<<~JS, report["avatar"])
       new Promise((resolve) => {

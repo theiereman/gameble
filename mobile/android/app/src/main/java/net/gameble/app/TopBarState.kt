@@ -9,6 +9,9 @@ data class TopBarReport(
     val special: String = "",
     val bell: String = "",
     val menuBadge: String = "",
+    val capsules: String = "",
+    val friends: String = "",
+    val trades: String = "",
     val avatar: String = ""
 )
 
@@ -57,6 +60,9 @@ object TopBarState {
             special = saved.getString("special", "").orEmpty(),
             bell = saved.getString("bell", "").orEmpty(),
             menuBadge = saved.getString("menu_badge", "").orEmpty(),
+            capsules = saved.getString("capsules", "").orEmpty(),
+            friends = saved.getString("friends", "").orEmpty(),
+            trades = saved.getString("trades", "").orEmpty(),
             avatar = saved.getString("avatar", "").orEmpty()
         )
     }
@@ -67,6 +73,9 @@ object TopBarState {
             .putString("special", state.special)
             .putString("bell", state.bell)
             .putString("menu_badge", state.menuBadge)
+            .putString("capsules", state.capsules)
+            .putString("friends", state.friends)
+            .putString("trades", state.trades)
             .putString("avatar", state.avatar)
             .apply()
     }

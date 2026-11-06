@@ -35,6 +35,9 @@ const state: TopBarState = {
   special: "0",
   bell: "2",
   menuBadge: "",
+  capsules: "10",
+  friends: "",
+  trades: "1",
   avatar: "data:image/png;base64,AA",
 }
 
@@ -46,10 +49,31 @@ describe("readCounts", () => {
         ".bank-counter__item--special .bank-counter__count": { textContent: "3" },
         "[data-bell-target=count]": { textContent: "12", hidden: false },
         "#phone-menu-badge .phone-menu__badge": { textContent: "4" },
+        "#tab-invitations-badge .tab-bar__badge": { textContent: "2" },
+        "#tab-trades-badge .tab-bar__badge": { textContent: " 5 " },
       }),
     )
 
-    expect(counts).toEqual({ standard: "1,204", special: "3", bell: "12", menuBadge: "4" })
+    expect(counts).toEqual({
+      standard: "1,204",
+      special: "3",
+      bell: "12",
+      menuBadge: "4",
+      capsules: "1207",
+      friends: "2",
+      trades: "5",
+    })
+  })
+
+  it("leaves the capsule tab without a badge when no capsule waits", () => {
+    const counts = readCounts(
+      root({
+        ".bank-counter__item:not(.bank-counter__item--special) .bank-counter__count": { textContent: "0" },
+        ".bank-counter__item--special .bank-counter__count": { textContent: "0" },
+      }),
+    )
+
+    expect(counts.capsules).toBe("")
   })
 
   it("leaves the bell empty while its count is hidden", () => {
@@ -57,7 +81,15 @@ describe("readCounts", () => {
   })
 
   it("reads an absent control as empty", () => {
-    expect(readCounts(root({}))).toEqual({ standard: "", special: "", bell: "", menuBadge: "" })
+    expect(readCounts(root({}))).toEqual({
+      standard: "",
+      special: "",
+      bell: "",
+      menuBadge: "",
+      capsules: "",
+      friends: "",
+      trades: "",
+    })
   })
 })
 

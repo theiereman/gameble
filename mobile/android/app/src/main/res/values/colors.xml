@@ -13,6 +13,8 @@
     <color name="control_border">#2A6F9A</color>
     <color name="alert">#E8833A</color>
     <color name="on_alert">#1D0F03</color>
+    <color name="friends">#8AA0FF</color>
+    <color name="on_friends">#06090D</color>
     <color name="line">#2A475E</color>
     <color name="accent">#66C0F4</color>
     <color name="muted">#8F98A0</color>

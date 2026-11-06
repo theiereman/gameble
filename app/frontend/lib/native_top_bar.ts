@@ -5,6 +5,9 @@ export type TopBarState = {
   special: string
   bell: string
   menuBadge: string
+  capsules: string
+  friends: string
+  trades: string
   avatar: string
 }
 
@@ -17,13 +20,25 @@ const PANELS: Record<TopBarPanel, string> = { bell: "#bell-panel", menu: "#phone
 
 const textOf = (root: Readable, selector: string): string => root.querySelector(selector)?.textContent?.trim() ?? ""
 
+const countOf = (text: string): number => Number(text.replace(/\D/g, ""))
+
+function capsulesBadge(standard: string, special: string): string {
+  const capsules = countOf(standard) + countOf(special)
+  return capsules > 0 ? String(capsules) : ""
+}
+
 export function readCounts(root: Readable): Omit<TopBarState, "avatar"> {
   const bell = root.querySelector<HTMLElement>("[data-bell-target=count]")
+  const standard = textOf(root, ".bank-counter__item:not(.bank-counter__item--special) .bank-counter__count")
+  const special = textOf(root, ".bank-counter__item--special .bank-counter__count")
   return {
-    standard: textOf(root, ".bank-counter__item:not(.bank-counter__item--special) .bank-counter__count"),
-    special: textOf(root, ".bank-counter__item--special .bank-counter__count"),
+    standard,
+    special,
     bell: bell && !bell.hidden ? (bell.textContent?.trim() ?? "") : "",
     menuBadge: textOf(root, "#phone-menu-badge .phone-menu__badge"),
+    capsules: capsulesBadge(standard, special),
+    friends: textOf(root, "#tab-invitations-badge .tab-bar__badge"),
+    trades: textOf(root, "#tab-trades-badge .tab-bar__badge"),
   }
 }
 

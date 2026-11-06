@@ -39,6 +39,18 @@ class MainActivity : GamebleActivity() {
         openPathFrom(intent)
     }
 
+    private val renderTabBadges: (TopBarReport) -> Unit = { report -> Tabs.showBadges(report, bottomNavigation.view) }
+
+    override fun onStart() {
+        super.onStart()
+        if (::bottomNavigation.isInitialized) TopBarState.listen(this, renderTabBadges)
+    }
+
+    override fun onStop() {
+        TopBarState.stopListening(renderTabBadges)
+        super.onStop()
+    }
+
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         debugLog?.onTouch(event)
         return super.dispatchTouchEvent(event)

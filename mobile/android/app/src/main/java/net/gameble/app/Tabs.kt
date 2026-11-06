@@ -1,6 +1,8 @@
 package net.gameble.app
 
 import android.content.Context
+import androidx.core.content.ContextCompat
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import dev.hotwire.navigation.navigator.NavigatorConfiguration
 import dev.hotwire.navigation.tabs.HotwireBottomTab
 
@@ -9,6 +11,9 @@ object Tabs {
 
     private val NAMES = listOf("hub", "capsule", "sets", "friends", "trades")
     private val PATHS = listOf("", "/booster", "/library", "/friends", "/trades")
+    private const val CAPSULE = 1
+    private const val FRIENDS = 3
+    private const val TRADES = 4
     private val LOCALE = Regex("^/(en|fr)(?=[/?#]|$)")
 
     fun destination(path: String): Destination {
@@ -33,4 +38,21 @@ object Tabs {
         iconResId = icon,
         configuration = NavigatorConfiguration(name = NAMES[index], startLocation = Gameble.url(PATHS[index]), navigatorHostId = host)
     )
+
+    fun showBadges(report: TopBarReport, bar: BottomNavigationView) {
+        badge(bar, CAPSULE, report.capsules, R.color.primary, R.color.on_primary)
+        badge(bar, FRIENDS, report.friends, R.color.friends, R.color.on_friends)
+        badge(bar, TRADES, report.trades, R.color.alert, R.color.on_alert)
+    }
+
+    private fun badge(bar: BottomNavigationView, index: Int, value: String, background: Int, text: Int) {
+        if (index >= bar.menu.size()) return
+        val item = bar.menu.getItem(index).itemId
+        val count = value.filter(Char::isDigit).toIntOrNull()?.takeIf { it > 0 } ?: return bar.removeBadge(item)
+        bar.getOrCreateBadge(item).apply {
+            backgroundColor = ContextCompat.getColor(bar.context, background)
+            badgeTextColor = ContextCompat.getColor(bar.context, text)
+            number = count
+        }
+    }
 }
