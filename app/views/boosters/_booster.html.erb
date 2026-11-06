@@ -6,7 +6,7 @@
   <%= render("boosters/reserves", bank:, reserve:) %>
   <%= render("boosters/daily", bank:) if bank[:bonus_collectable] && !hotwire_native_app? %>
   <%= render("boosters/info", season:, bank:, size:, reserve:) %>
-  <%= render "boosters/stage", season:, available: booster_reserve_size(bank, reserve), reserve:, origin: booster_origin(bank, reserve), next_size: %>
+  <%= render("boosters/stage", season:, available: booster_reserve_size(bank, reserve), reserve:, origin: booster_origin(bank, reserve), next_size:) %>
   <div class="booster__phone-actions" data-booster-target="phoneActions"></div>
   <%= render "boosters/next_steps", bank:, next_steps: %>
   <%= render("boosters/zoom", season:) %>
