@@ -12,4 +12,6 @@ object Gameble {
     fun url(path: String = ""): String = "$ROOT_URL/$locale$path"
 
     fun location(path: String): String = "$ROOT_URL$path"
+
+    fun pathOf(location: String): String? = location.takeIf { it.startsWith("$ROOT_URL/") }?.removePrefix(ROOT_URL)
 }

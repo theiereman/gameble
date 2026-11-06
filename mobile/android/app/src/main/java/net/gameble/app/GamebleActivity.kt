@@ -31,7 +31,7 @@ abstract class GamebleActivity : HotwireActivity() {
 
     protected open val rootBackLabel: String? get() = null
 
-    abstract fun openFromTopBar(path: String)
+    abstract fun openDestination(path: String)
 
     protected abstract fun currentScreen(): View
 
@@ -42,7 +42,7 @@ abstract class GamebleActivity : HotwireActivity() {
     protected fun setUpScreens() {
         topBar = findViewById<TopBarView>(R.id.top_bar).apply {
             onBack = { goBack() }
-            onCapsules = { openFromTopBar(CAPSULES_PATH) }
+            onCapsules = { openDestination(CAPSULES_PATH) }
             onBell = { togglePanel("bell") }
             onMenu = { togglePanel("menu") }
         }

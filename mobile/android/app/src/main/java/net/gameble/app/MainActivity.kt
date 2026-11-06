@@ -59,7 +59,7 @@ class MainActivity : GamebleActivity() {
         ViewCompat.requestApplyInsets(findViewById(R.id.screens))
     }
 
-    override fun openFromTopBar(path: String) {
+    override fun openDestination(path: String) {
         val destination = Tabs.destination(path)
         val tab = destination.tab ?: return openAboveTabs(path)
         showTab(tab, Gameble.location(path).takeUnless { destination.atRoot })
@@ -81,7 +81,7 @@ class MainActivity : GamebleActivity() {
     private fun openPathFrom(intent: Intent?) {
         intent?.getStringExtra(TOP_BAR_PATH)?.let { path ->
             intent.removeExtra(TOP_BAR_PATH)
-            openFromTopBar(path)
+            openDestination(path)
         }
         val path = intent?.getStringExtra(PushService.PATH_EXTRA) ?: return
         intent.removeExtra(PushService.PATH_EXTRA)

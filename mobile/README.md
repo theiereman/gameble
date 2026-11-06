@@ -15,6 +15,9 @@ sheet and haptics.
   that belongs to a tab selects that tab, any other opens in a full-screen layer
   above the tabs, with a way back that closes it. Every screen coming back into
   view reads the header's values again.
+- A link inside a screen to a destination that belongs to another tab selects
+  that tab at its root (then opens the destination there) instead of stacking
+  it in the current tab, so a tab never shows another tab's screen.
 - **Path configuration.** `public/configurations/ios_v1.json` and
   `android_v1.json` say how each URL is shown. Each app also bundles a minimal
   copy for its first launch.

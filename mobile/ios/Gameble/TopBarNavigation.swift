@@ -49,7 +49,7 @@ final class TopBarNavigation {
             layer.route(url)
             return
         }
-        let navigator = Navigator(configuration: .init(name: "layer", startLocation: url))
+        let navigator = Navigator(configuration: .init(name: "layer", startLocation: url), delegate: TabRouting.shared)
         navigator.start()
         layer = navigator
         shell?.showLayer(navigator.rootViewController)

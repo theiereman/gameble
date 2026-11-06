@@ -7,6 +7,7 @@ import dev.hotwire.navigation.tabs.HotwireBottomTab
 object Tabs {
     class Destination(val tab: Int?, val atRoot: Boolean)
 
+    private val NAMES = listOf("hub", "capsule", "sets", "friends", "trades")
     private val PATHS = listOf("", "/booster", "/library", "/friends", "/trades")
     private val LOCALE = Regex("^/(en|fr)(?=[/?#]|$)")
 
@@ -17,17 +18,19 @@ object Tabs {
         return Destination(tab, atRoot = tab != null && location.trimEnd('/') == PATHS[tab])
     }
 
+    fun index(navigatorName: String): Int? = NAMES.indexOf(navigatorName).takeIf { it >= 0 }
+
     fun all(context: Context): List<HotwireBottomTab> = listOf(
-        tab(context, "hub", R.string.tab_hub, R.drawable.ic_tab_hub, "", R.id.hub_host),
-        tab(context, "capsule", R.string.tab_capsule, R.drawable.ic_tab_capsule, "/booster", R.id.capsule_host),
-        tab(context, "sets", R.string.tab_sets, R.drawable.ic_tab_sets, "/library", R.id.sets_host),
-        tab(context, "friends", R.string.tab_friends, R.drawable.ic_tab_friends, "/friends", R.id.friends_host),
-        tab(context, "trades", R.string.tab_trades, R.drawable.ic_tab_trades, "/trades", R.id.trades_host)
+        tab(context, 0, R.string.tab_hub, R.drawable.ic_tab_hub, R.id.hub_host),
+        tab(context, 1, R.string.tab_capsule, R.drawable.ic_tab_capsule, R.id.capsule_host),
+        tab(context, 2, R.string.tab_sets, R.drawable.ic_tab_sets, R.id.sets_host),
+        tab(context, 3, R.string.tab_friends, R.drawable.ic_tab_friends, R.id.friends_host),
+        tab(context, 4, R.string.tab_trades, R.drawable.ic_tab_trades, R.id.trades_host)
     )
 
-    private fun tab(context: Context, name: String, title: Int, icon: Int, path: String, host: Int) = HotwireBottomTab(
+    private fun tab(context: Context, index: Int, title: Int, icon: Int, host: Int) = HotwireBottomTab(
         title = context.getString(title),
         iconResId = icon,
-        configuration = NavigatorConfiguration(name = name, startLocation = Gameble.url(path), navigatorHostId = host)
+        configuration = NavigatorConfiguration(name = NAMES[index], startLocation = Gameble.url(PATHS[index]), navigatorHostId = host)
     )
 }

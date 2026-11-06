@@ -28,7 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func reloadTabs() {
-        let tabs = HotwireTabBarController()
+        let tabs = HotwireTabBarController(navigatorDelegate: TabRouting.shared)
         tabs.load(Tabs.all)
         let shell = ShellViewController(tabs: tabs)
         self.shell = shell

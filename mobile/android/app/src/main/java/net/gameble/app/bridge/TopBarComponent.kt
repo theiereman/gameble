@@ -17,7 +17,7 @@ class TopBarComponent(name: String, private val delegate: BridgeDelegate<Hotwire
 
     override fun onReceive(message: Message) {
         when (message.event) {
-            "navigate" -> message.data<Destination>()?.let { host?.openFromTopBar(it.path) }
+            "navigate" -> message.data<Destination>()?.let { host?.openDestination(it.path) }
             "state" -> message.data<TopBarReport>()?.let { host?.topBarReported(delegate.destination.navigator, it) }
             "dialog" -> message.data<DialogState>()?.let { (delegate.destination.fragment as? GamebleWebFragment)?.dialogChanged(it.open) }
         }

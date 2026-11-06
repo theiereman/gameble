@@ -9,10 +9,12 @@ import androidx.navigation.navOptions
 import com.google.android.material.appbar.AppBarLayout
 import dev.hotwire.core.turbo.errors.VisitError
 import dev.hotwire.core.turbo.visit.VisitAction
+import dev.hotwire.core.turbo.visit.VisitProposal
 import dev.hotwire.core.turbo.webview.HotwireWebView
 import dev.hotwire.navigation.destinations.HotwireDestination
 import dev.hotwire.navigation.destinations.HotwireDestinationDeepLink
 import dev.hotwire.navigation.fragments.HotwireWebFragment
+import dev.hotwire.navigation.routing.Router
 
 @HotwireDestinationDeepLink(uri = "hotwire://fragment/web")
 class GamebleWebFragment : HotwireWebFragment() {
@@ -66,6 +68,15 @@ class GamebleWebFragment : HotwireWebFragment() {
     override fun onVisitErrorReceived(location: String, error: VisitError) {
         super.onVisitErrorReceived(location, error)
         host?.screenArrived(requireView())
+    }
+
+    override fun customRouteDecision(proposal: VisitProposal): Router.Decision? {
+        val path = Gameble.pathOf(proposal.location) ?: return null
+        val tab = Tabs.destination(path).tab ?: return null
+        val shell = host ?: return null
+        if (tab == Tabs.index(navigator.configuration.name)) return null
+        requireView().post { shell.openDestination(path) }
+        return Router.Decision.CANCEL
     }
 
     // The same screen with other parameters (a filter chosen in a sheet) swaps in place, as Turbo does on the web;

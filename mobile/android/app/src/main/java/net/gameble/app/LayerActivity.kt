@@ -36,7 +36,7 @@ class LayerActivity : GamebleActivity() {
         overridePendingTransition(0, 0)
     }
 
-    override fun openFromTopBar(path: String) {
+    override fun openDestination(path: String) {
         if (Tabs.destination(path).tab == null) {
             delegate.currentNavigator?.route(Gameble.location(path))
         } else {
