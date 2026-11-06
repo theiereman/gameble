@@ -1446,7 +1446,7 @@ fr:
       summary_tier: "%{rarity} × %{n}"
       banner_line: "%{title} · %{year}"
       refused_title: "Ouverture annulée"
-      failed: "L'ouverture n'a pas abouti. Vérifiez votre connexion ou rechargez la page, puis réessayez."
+      failed: "Pas de connexion. Votre capsule est intacte. Réessayez."
       goal_reached: "Objectif atteint"
       canister_facts:
         zero: "%{n} carte"

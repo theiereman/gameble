@@ -29,9 +29,9 @@ export class BankRefresh {
     const generation = this.host.current().bankGeneration
     const fresh = await fetchBank({ url: this.host.bankUrl })
     if (!fresh || this.host.disposed()) return
-    const before = this.host.current().bank
-    const after = this.host.apply((s) => bankFetched(s, fresh, generation))
-    if (after.bank === fresh) reservesUnlocked(before, fresh).forEach((reserve) => this.host.announce(reserve))
+    const before = this.host.current()
+    const after = this.host.apply((s) => bankFetched(s, fresh.bank, generation, fresh.held))
+    if (after !== before) reservesUnlocked(before.bank, after.bank).forEach((reserve) => this.host.announce(reserve))
   }
 
   async dailyCollected(): Promise<void> {

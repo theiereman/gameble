@@ -6,7 +6,9 @@ import {
   countsAfterReveal,
   handDone,
   keyAfter,
+  owedRevealOf,
   planRevealAll,
+  revealModeOf,
   topOfPile,
 } from "./booster_rules"
 import {
@@ -38,9 +40,12 @@ export function retracting(state: BoosterState): BoosterState {
 }
 
 export function retracted(state: BoosterState): BoosterState {
+  const owed = state.provisional ? owedRevealOf(state) : null
   return {
     ...state,
     answer: null,
+    provisional: false,
+    revealsOwed: owed ? [...state.revealsOwed, owed] : state.revealsOwed,
     revealed: [],
     revealedAt: [],
     stored: [],
@@ -53,7 +58,7 @@ export function retracted(state: BoosterState): BoosterState {
   }
 }
 
-export function arming(state: BoosterState, freshKey: string): BoosterState {
+export function arming(state: BoosterState, freshKey: string | null): BoosterState {
   return { ...state, phase: "opening", status: "arming", pendingKey: state.pendingKey ?? freshKey }
 }
 
@@ -99,10 +104,10 @@ function reserveAfterOpening({ bank, reserve }: BoosterState): BoosterState["res
     : reserve
 }
 
-export function openingAnswered(state: BoosterState, answer: OpeningAnswer): BoosterState {
+export function bankOfAnswer(answer: OpeningAnswer): BoosterBank {
   const { available, special, openable, reserveFull, nextSpecialKind, nextAvailableAt, nextPackSize, nextSpecialSize } =
     answer.bank
-  const bank: BoosterBank = {
+  return {
     available,
     special,
     openable,
@@ -113,10 +118,22 @@ export function openingAnswered(state: BoosterState, answer: OpeningAnswer): Boo
     nextPackSize: nextPackSize ?? null,
     nextSpecialSize: nextSpecialSize ?? null,
   }
+}
+
+export function openingAnswered(state: BoosterState, answer: OpeningAnswer): BoosterState {
+  return handOpened(
+    { ...state, held: { ...state.held, [state.reserve]: answer.next ?? null } },
+    answer,
+    bankOfAnswer(answer),
+  )
+}
+
+export function handOpened(state: BoosterState, answer: OpeningAnswer, bank: BoosterBank): BoosterState {
   const changed = bankChanged(state, bank)
   return {
     ...changed,
     reserve: reserveAfterOpening(changed),
+    provisional: false,
     pendingKey: keyFor(state, { kind: "opened" }),
     counts: { ...answer.tierCountsBefore },
     celebrationPending: answer.setTiers,
@@ -202,9 +219,9 @@ export function revealAllStarted(state: BoosterState): BoosterState {
 }
 
 export function revealModeReached(before: BoosterState, after: BoosterState): RevealMode | null {
-  if (!after.answer || after.answer !== before.answer) return null
+  if (!after.answer || after.answer !== before.answer || after.provisional) return null
   if (allRevealed(before) || !allRevealed(after)) return null
-  return after.revealAllUsed ? "all" : "one_by_one"
+  return revealModeOf(after)
 }
 
 export function revealAllEnded(state: BoosterState): BoosterState {

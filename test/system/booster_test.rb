@@ -5,8 +5,10 @@ require_relative "../support/steam_sign_in"
 # The booster screen: the canister sends the opening exchange and deals the
 # cards face down; one activation reveals a card, "Reveal all" the rest;
 # the top bar's rarity counter rises at each reveal and its reserve chip
-# follows each answer; a refusal leaves the canister at rest and says why,
-# and a lost answer is retried with the same key. On a phone the cards land
+# follows each answer. A held capsule opens at once and is confirmed in the
+# background, even across a cut network or a reload; with none held, a
+# refusal leaves the canister at rest and says why, and a lost answer is
+# retried with the same key. On a phone the cards land
 # in a pile, each revealed card is stored in the tray (Store or a tap) and a
 # filled slot opens the card zoom, which steps through the tray; a card's
 # detail walks the booster and coming back shows it again, every card face
@@ -218,7 +220,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster-card[data-tier=uncommon][data-dealt]", count: 5, wait: 10
     assert_selector ".booster-card[data-tier=common]", count: 0
     assert_equal 2, request_keys.uniq.size
-    assert_equal 2, opened_packs
+    eventually("both capsules should be opened") { opened_packs == 2 }
 
     click_on "Reveal all"
     assert_selector ".booster-card[data-revealed]", count: 5, wait: 10
@@ -239,8 +241,106 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
   end
 
-  test "a refusal (the reserve emptied elsewhere) deals nothing and says why, inline, in a toast and aloud" do
+  # The screen as drawn with no held capsule: the root controller reconnects
+  # reading none, so an opening takes the waiting path.
+  def without_held_capsules
+    page.evaluate_async_script(<<~JS)
+      const done = arguments[0]
+      const root = document.querySelector(".booster")
+      root.dataset.boosterHeldValue = "{}"
+      root.removeAttribute("data-controller")
+      setTimeout(() => {
+        root.dataset.controller = "booster"
+        setTimeout(done, 0)
+      }, 0)
+    JS
+  end
+
+  # Every opening request fails as if the network were cut, until `online`.
+  def cut_network
+    page.execute_script(<<~JS)
+      window.networkCut = true
+      const reachingFetch = window.fetch
+      window.fetch = (url, init) => {
+        if (window.networkCut && init && init.method === "POST") return Promise.reject(new TypeError("Failed to fetch"))
+        return reachingFetch(url, init)
+      }
+    JS
+  end
+
+  def restore_network
+    page.execute_script("window.networkCut = false; window.dispatchEvent(new Event('online'))")
+  end
+
+  test "with the network cut, a held capsule deals and reveals its cards; it is confirmed once the network returns, nothing more opened" do
+    open_screen(card_ids(*[ :rare_card_one ] * 5))
+    cut_network
+
+    open_canister
+    assert_dealt(5)
+    assert_selector ".booster-card[data-tier=rare]", count: 5
+    click_on "Reveal all"
+    assert_selector ".booster-card[data-revealed]", count: 5, wait: 10
+    assert_selector "#{card(1)} .booster-card__front .card--rarity-rare"
+    assert_no_selector ".toasts .toast"
+    assert_no_selector ".booster__reason"
+    assert_equal 0, opened_packs
+
+    restore_network
+    eventually("the held capsule should be opened once") { opened_packs == 1 }
+    assert_equal 1, request_keys.uniq.size
+    assert_opened_once(@player)
+  end
+
+  test "a capsule queued offline is not offered again after a reload: the queue confirms it, then the next capsule opens" do
+    open_screen(card_ids(*[ :rare_card_one ] * 5), card_ids(*[ :uncommon_card_one ] * 5))
+    cut_network
+    open_canister
+    assert_dealt(5)
+    assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
+
+    visit booster_path(locale: :en)
+    eventually("the queued capsule should be confirmed after the reload") { opened_packs == 1 }
+    assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
+
+    open_canister
+    assert_dealt(5)
+    assert_selector ".booster-card[data-tier=uncommon]", count: 5
+    eventually("the next capsule should be opened") { opened_packs == 2 }
+    assert_opened_once(@player)
+  end
+
+  test "a held capsule no longer in the reserve: its hand stays, the refusal is said aloud without a toast, and the reserve refreshes" do
     open_screen(card_ids(*[ :common_card_one ] * 5))
+    Game::Pack.where(player_id: @player.id).update_all(available_at: 1.day.from_now)
+    message = I18n.t("errors.game.pack_not_available", locale: :en)
+
+    open_canister
+
+    assert_dealt(5)
+    assert_announced message
+    assert_no_selector ".toasts .toast"
+    assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "0"
+    assert_equal 1, request_keys.size
+    assert_equal 0, opened_packs
+  end
+
+  test "a capsule already opened elsewhere deals that same capsule, nothing opened twice" do
+    open_screen(card_ids(*[ :rare_card_one ] * 5), more: true)
+    Game::OpenPack.new.call(player: @player).value!
+
+    open_canister
+
+    assert_dealt(5)
+    assert_selector ".booster-card[data-tier=rare]", count: 5
+    assert_no_selector ".toasts .toast"
+    eventually("the confirmation should land") { request_keys.size == 1 }
+    assert_equal 1, opened_packs
+  end
+
+  test "with no held capsule, a refusal (the reserve emptied elsewhere) deals nothing and says why, inline, in a toast and aloud" do
+    open_screen(card_ids(*[ :common_card_one ] * 5))
+    without_held_capsules
     Game::OpenPack.new.call(player: @player).value!
     message = I18n.t("errors.game.no_pack_available", locale: :en)
 
@@ -258,8 +358,9 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal 1, opened_packs
   end
 
-  test "a lost answer: the next activation sends the same key and gets the same pack, nothing more opened" do
+  test "with no held capsule, a lost answer says the capsule is safe; the next activation sends the same key and gets the same pack" do
     open_screen(card_ids(*[ :rare_card_one ] * 5), card_ids(*[ :common_card_one ] * 5))
+    without_held_capsules
     page.execute_script(<<~JS)
       const recordingFetch = window.fetch
       let first = true
@@ -273,8 +374,10 @@ class BoosterTest < ApplicationSystemTestCase
     JS
 
     open_canister
-    assert_selector ".booster__reason", text: I18n.t("booster.strings.failed", locale: :en)
-    assert_selector ".toasts .toast--alert", text: /OPENING CANCELLED/
+    failed = I18n.t("booster.strings.failed", locale: :en)
+    assert_selector ".booster__reason", text: failed
+    assert_selector ".toasts .toast--alert", text: failed
+    assert_no_selector ".toasts .toast--alert", text: /OPENING CANCELLED/
     assert_selector ".booster__state", text: "SEALED"
     assert_no_selector ".booster-card"
     assert_equal 1, opened_packs

@@ -625,3 +625,12 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-hotwire-native-apps/story-bring-the-rails-side-of-the-native-apps-onto-develop-plan.md`
   summary: `FrenchTypographyTest` fails on develop: `fr.landings.show.share_image_alt` has a plain space before a colon.
   evidence: the failure is identical on the baseline commit; the key comes from the landing's share-image commit.
+- source_plan: `_bmad-output/initiative-gameble/epic-instant-capsule-opening/story-a-capsule-opens-and-reveals-at-once-while-its-confirmation-g-plan.md`
+  summary: A confirmation that lands once its hand is off the screen (reload before confirmation, hand put away or reserve switched first) drops the set celebration; goal toasts still play.
+  evidence: `openingConfirmed` in `app/frontend/lib/booster_held.ts` copies only `goalsReached` when the hand on screen is not the confirmed one; online the confirmation lands well before a hand is put away, so it bites mostly offline.
+- source_plan: `_bmad-output/initiative-gameble/epic-instant-capsule-opening/story-a-capsule-opens-and-reveals-at-once-while-its-confirmation-g-plan.md`
+  summary: Leaving an unconfirmed (offline) hand for a card's detail loses the hand on return, since the booster page only restores an opened capsule by token.
+  evidence: `CardExit.leaveFor` calls `rememberPack(token)` and `BoostersController#show` reads `OpenedPackByToken`, which finds nothing for an unopened capsule.
+- source_plan: `_bmad-output/initiative-gameble/epic-instant-capsule-opening/story-a-capsule-opens-and-reveals-at-once-while-its-confirmation-g-plan.md`
+  summary: The opening confirmation queue in localStorage is not tied to a player; after another account signs in on the same browser, the first player's queued token is sent, refused and dropped (nothing is lost on the server, the capsule stays unopened).
+  evidence: `QUEUE_STORAGE_KEY` in `app/frontend/lib/opening_queue.ts` is a single key; clearing it on sign-out belongs with the offline-screen story's sign-out cleanup.

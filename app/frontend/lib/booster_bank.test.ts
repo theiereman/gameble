@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { atZero, fetchBank, handPutAway, owedBankDue, phaseForBank } from "./booster_bank"
+import { atZero, fetchBank, handPutAway, heldFrom, owedBankDue, phaseForBank } from "./booster_bank"
+import { heldOf } from "./booster_fixtures"
 import type { BoosterPhase } from "./booster_types"
 
 const bank = {
@@ -31,7 +32,7 @@ describe("fetchBank", () => {
   it("gets the screen in JSON with the session's cookies, and reads the bank", async () => {
     const { calls, send } = fake(json(200, { bank }))
 
-    expect(await fetchBank({ url: "/fr/booster.json", fetch: send })).toEqual(bank)
+    expect(await fetchBank({ url: "/fr/booster.json", fetch: send })).toEqual({ bank, held: null })
     expect(calls).toHaveLength(1)
     expect(calls[0].url).toBe("/fr/booster.json")
     expect(calls[0].init).toEqual({
@@ -54,7 +55,7 @@ describe("fetchBank", () => {
       nextSpecialSize: null,
     }
     const { send } = fake(json(200, { bank: { ...full, extra: "ignored" } }))
-    expect(await fetchBank({ url: "/en/booster.json", fetch: send })).toEqual(full)
+    expect(await fetchBank({ url: "/en/booster.json", fetch: send })).toEqual({ bank: full, held: null })
   })
 
   it("reads nothing without an answer, on a refusal, a server error, an HTML page or an answer of another shape", async () => {
@@ -72,6 +73,23 @@ describe("fetchBank", () => {
       fake(json(200, { bank: { ...bank, nextPackSize: "5" } })),
     ]
     for (const { send } of outcomes) expect(await fetchBank({ url: "/en/booster.json", fetch: send })).toBeNull()
+  })
+})
+
+describe("the held capsules", () => {
+  it("are read from the bank answer, each reserve's on its own", async () => {
+    const standard = heldOf()
+    const { send } = fake(json(200, { bank, held: { standard, special: { pack: {} } } }))
+    expect(await fetchBank({ url: "/en/booster.json", fetch: send })).toEqual({
+      bank,
+      held: { standard, special: null },
+    })
+  })
+
+  it("are none from a value of another shape", () => {
+    expect(heldFrom(undefined)).toEqual({ standard: null, special: null })
+    expect(heldFrom({})).toEqual({ standard: null, special: null })
+    expect(heldFrom({ standard: "x", special: heldOf() })).toEqual({ standard: null, special: heldOf() })
   })
 })
 

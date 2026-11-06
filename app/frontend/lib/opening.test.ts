@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { sendOpening } from "./opening"
+import { isHeld, sendOpening } from "./opening"
 
 const KEY = "3c1f9a2e-7d4b-4c8a-b5e6-0f2d9e8a1b7c"
 
@@ -171,5 +171,45 @@ describe("sendOpening", () => {
       ).toEqual({
         kind: "failed",
       })
+  })
+})
+
+const held = { pack: answer.pack, cards: answer.cards, tierCountsBefore: answer.tierCountsBefore }
+
+describe("sendOpening of a named capsule", () => {
+  it("names the capsule's token before the reserve", async () => {
+    const { calls, send } = fake(json(200, answer))
+    await sendOpening({ url: "/fr/packs", reserve: "special", key: KEY, csrfToken: null, pack: "abc", fetch: send })
+    expect(calls[0].url).toBe("/fr/packs?pack=abc&reserve=special")
+  })
+
+  it("reads the next held capsule of the reserve, and drops one of another shape", async () => {
+    const next = { ...held, pack: { ...held.pack, token: "def" } }
+    const read = async (body: unknown) =>
+      sendOpening({
+        url: "/fr/packs",
+        reserve: "standard",
+        key: KEY,
+        csrfToken: null,
+        fetch: fake(json(200, body)).send,
+      })
+
+    expect(await read({ ...answer, next })).toEqual({ kind: "opened", answer: { ...answer, next } })
+    expect(await read({ ...answer, next: null })).toEqual({ kind: "opened", answer: { ...answer, next: null } })
+    expect(await read({ ...answer, next: { pack: {} } })).toEqual({ kind: "opened", answer: { ...answer, next: null } })
+  })
+})
+
+describe("isHeld", () => {
+  it("accepts the head of an opening answer: pack with its token, cards with faces, counts before", () => {
+    expect(isHeld(held)).toBe(true)
+  })
+
+  it("refuses a capsule without a token, cards or counts", () => {
+    expect(isHeld(null)).toBe(false)
+    expect(isHeld({ ...held, pack: { ...held.pack, token: "" } })).toBe(false)
+    expect(isHeld({ ...held, cards: [] })).toBe(false)
+    expect(isHeld({ ...held, cards: [{ ...held.cards[0], faces: {} }] })).toBe(false)
+    expect(isHeld({ ...held, tierCountsBefore: { common: 1 } })).toBe(false)
   })
 })

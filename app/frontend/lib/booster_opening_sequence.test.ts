@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { BoosterState } from "./booster"
-import { answerOf, dealt, revealedAll, startWith } from "./booster_fixtures"
+import { openingConfirmed } from "./booster"
+import { FIVE, answerOf, bank, confirmationOf, dealt, heldOf, revealedAll, startWith } from "./booster_fixtures"
 import type { Transition } from "./booster_host"
 import { OpeningSequence } from "./booster_opening_sequence"
 import { onGameble } from "./events"
@@ -38,8 +39,13 @@ function heldTimers(): Timers {
   }
 }
 
-function sequenceFrom(initial: BoosterState, timers: Timers) {
+type Confirming = { landed?: Promise<boolean> }
+
+function sequenceFrom(initial: BoosterState, timers: Timers, confirming: Confirming = {}) {
   let state = initial
+  const confirm = vi.fn()
+  const awaitConfirmation = vi.fn(() => confirming.landed ?? Promise.resolve(true))
+  const announce = vi.fn()
   const finish = vi.fn()
   const animation = { finish, effect: { getComputedTiming: () => ({ endTime: 300 }) } }
   const endless = { finish: vi.fn(), effect: { getComputedTiming: () => ({ endTime: Infinity }) } }
@@ -49,7 +55,7 @@ function sequenceFrom(initial: BoosterState, timers: Timers) {
     current: () => state,
     timers: () => timers,
     apply: (transition: Transition) => (state = transition(state)),
-    announce: () => {},
+    announce,
     part: () => null,
     slot: () => null,
     traySlot: () => null,
@@ -64,8 +70,11 @@ function sequenceFrom(initial: BoosterState, timers: Timers) {
     refusedTitle: "refused",
     keepFaces: () => {},
     refreshBank: async () => {},
+    confirm,
+    awaitConfirmation,
   })
-  return { sequence, state: () => state, finish, endless }
+  const apply = (transition: Transition) => (state = transition(state))
+  return { sequence, state: () => state, apply, finish, endless, confirm, awaitConfirmation, announce }
 }
 
 const settled = () => new Promise((resolve) => setTimeout(resolve, 0))
@@ -182,5 +191,120 @@ describe("OpeningSequence", () => {
     stop()
 
     expect(taps).toEqual([])
+  })
+})
+
+describe("OpeningSequence with a held capsule", () => {
+  const HELD = heldOf(FIVE, "held-1")
+  const NEXT = heldOf(["rare", "rare", "rare"], "held-2")
+  const withHeld = () => startWith({ bank: bank(2), held: { standard: HELD, special: null } })
+  const pendingOnly = () =>
+    startWith({ bank: bank(2), confirming: [{ token: "held-0", key: "k0", reserve: "standard" }] })
+
+  beforeEach(() => {
+    vi.mocked(sendOpening).mockReset()
+    vi.mocked(sendOpening).mockResolvedValue({ kind: "failed" })
+  })
+
+  function toasts() {
+    const shown: Array<{ title?: string; message: string }> = []
+    const stop = onGameble("gameble:toast", (detail) => shown.push(detail))
+    return { shown, stop }
+  }
+
+  it("blasts and deals its cards with no network wait, and queues its confirmation once", async () => {
+    const timers = heldTimers()
+    const { sequence, state, confirm, awaitConfirmation } = sequenceFrom(withHeld(), timers)
+    const { shown, stop } = toasts()
+
+    const opened = sequence.open()
+    await settled()
+    timers.flush()
+    await settled()
+
+    expect(state().status).toBe("ejecting")
+    expect(state().answer?.cards).toBe(HELD.cards)
+    expect(state().provisional).toBe(true)
+    expect(confirm).toHaveBeenCalledOnce()
+    expect(confirm).toHaveBeenCalledWith({ token: "held-1", key: expect.any(String), reserve: "standard" })
+    expect(sendOpening).not.toHaveBeenCalled()
+    expect(awaitConfirmation).not.toHaveBeenCalled()
+
+    sequence.skip()
+    await opened
+    stop()
+    expect(state()).toMatchObject({ phase: "dealt", opening: false, lockDepth: 0 })
+    expect(shown).toEqual([])
+  })
+
+  it("waits for a reserve's pending confirmation, then opens the capsule it names next, never sending a token-less opening", async () => {
+    const timers = heldTimers()
+    let land: (landed: boolean) => void = () => {}
+    const landed = new Promise<boolean>((resolve) => (land = resolve))
+    const { sequence, state, apply, confirm, awaitConfirmation } = sequenceFrom(pendingOnly(), timers, { landed })
+
+    const opened = sequence.open()
+    await settled()
+    timers.flush()
+    await settled()
+    expect(awaitConfirmation).toHaveBeenCalledWith("standard")
+    expect(state().status).toBe("arming")
+
+    apply((s) => openingConfirmed(s, "held-0", confirmationOf(heldOf(FIVE, "held-0"), { available: 2, next: NEXT })))
+    land(true)
+    await settled()
+    sequence.skip()
+    await opened
+
+    expect(state().answer?.pack.token).toBe("held-2")
+    expect(confirm).toHaveBeenCalledWith({ token: "held-2", key: expect.any(String), reserve: "standard" })
+    expect(sendOpening).not.toHaveBeenCalled()
+  })
+
+  it("rests the capsule with the no-connection copy, no cancellation title, when the pending confirmation cannot land", async () => {
+    const timers = heldTimers()
+    const { sequence, state, announce } = sequenceFrom(pendingOnly(), timers, { landed: Promise.resolve(false) })
+    const { shown, stop } = toasts()
+
+    const opened = sequence.open()
+    await settled()
+    timers.flush()
+    await opened
+    stop()
+
+    expect(state()).toMatchObject({ phase: "sealed", opening: false, reason: "failed", lockDepth: 0 })
+    expect(announce).toHaveBeenCalledWith("failed")
+    expect(shown).toEqual([{ message: "failed", tone: "alert" }])
+    expect(sendOpening).not.toHaveBeenCalled()
+  })
+})
+
+describe("OpeningSequence with no held capsule", () => {
+  beforeEach(() => vi.mocked(sendOpening).mockReset())
+
+  async function openedWith(result: OpeningResult) {
+    vi.mocked(sendOpening).mockResolvedValue(result)
+    const timers = heldTimers()
+    const { sequence, state } = sequenceFrom(startWith(), timers)
+    const shown: Array<{ title?: string; message: string }> = []
+    const stop = onGameble("gameble:toast", (detail) => shown.push(detail))
+    const opened = sequence.open()
+    await settled()
+    timers.flush()
+    await opened
+    stop()
+    return { state, shown }
+  }
+
+  it("says a lost answer without the cancellation title", async () => {
+    const { state, shown } = await openedWith({ kind: "failed" })
+    expect(sendOpening).toHaveBeenCalledWith(expect.not.objectContaining({ pack: expect.anything() }))
+    expect(state().reason).toBe("failed")
+    expect(shown).toEqual([{ message: "failed", tone: "alert" }])
+  })
+
+  it("keeps the cancellation title for a refusal", async () => {
+    const { shown } = await openedWith({ kind: "refused", code: "no_pack_available", message: "None left." })
+    expect(shown).toEqual([{ title: "refused", message: "None left.", tone: "alert" }])
   })
 })

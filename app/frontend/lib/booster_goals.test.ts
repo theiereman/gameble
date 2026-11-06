@@ -64,6 +64,8 @@ describe("goals reached by an opening", () => {
     const reopened = start({
       bank: bank(1),
       reserve: "standard",
+      held: { standard: null, special: null },
+      confirming: [],
       opened: answerOf(FIVE, [], 1, ["Roguelike"]),
       layout: "wide",
       now: 1000,

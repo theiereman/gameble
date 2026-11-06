@@ -1,4 +1,4 @@
-import { atZero, owedBankDue, phaseForBank, reserveCount, type ScreenMoment } from "./booster_bank"
+import { atZero, heldSkippingQueued, owedBankDue, phaseForBank, reserveCount, type ScreenMoment } from "./booster_bank"
 import { handDone, storedAfterRebuild, topOfPile } from "./booster_rules"
 import {
   REVEAL_GUARD,
@@ -7,18 +7,22 @@ import {
   type BoosterStart,
   type BoosterState,
   type FocusTarget,
+  type HeldCapsules,
 } from "./booster_types"
 import { celebrationResults, restoredCelebration, type CelebrationResult } from "./celebration"
 
 export function start({
-  bank,
+  bank: serverBank,
   reserve,
+  held: serverHeld,
+  confirming,
   opened,
   layout,
   now,
   celebrationRemembered,
   preview,
 }: BoosterStart): BoosterState {
+  const { bank, held } = heldSkippingQueued({ bank: serverBank, held: serverHeld }, confirming)
   const sealed = reserveCount(bank, reserve) > 0
   const fresh: BoosterState = {
     bank,
@@ -29,7 +33,12 @@ export function start({
     status: sealed ? "sealed" : "waiting",
     opening: false,
     pendingKey: null,
+    held,
+    confirming,
     answer: null,
+    provisional: false,
+    revealsOwed: [],
+    revealDue: null,
     revealed: [],
     revealedAt: [],
     revealing: [],
@@ -204,9 +213,17 @@ export function bankChanged(state: BoosterState, bank: BoosterBank): BoosterStat
   return { ...state, bank, bankGeneration: state.bankGeneration + 1 }
 }
 
-export function bankFetched(state: BoosterState, bank: BoosterBank, generation: number): BoosterState {
+export function bankFetched(
+  state: BoosterState,
+  serverBank: BoosterBank,
+  generation: number,
+  serverHeld: HeldCapsules | null = null,
+): BoosterState {
   if (generation !== state.bankGeneration) return state
-  const changed = bankChanged(state, bank)
+  const { bank, held } = serverHeld
+    ? heldSkippingQueued({ bank: serverBank, held: serverHeld }, state.confirming)
+    : { bank: serverBank, held: state.held }
+  const changed = { ...bankChanged(state, bank), held }
   const phase = phaseForBank(state.phase, reserveCount(bank, state.reserve))
   if (phase === state.phase) return changed
   return { ...changed, phase, status: phase === "sealed" ? "sealed" : "waiting", reason: null }

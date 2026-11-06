@@ -35,4 +35,6 @@ function recordReveal(before: BoosterState, after: BoosterState): void {
   const mode = revealModeReached(before, after)
   const url = after.answer?.pack.revealUrl
   if (mode && url) void sendReveal({ url, mode, csrfToken: csrfToken() })
+  const due = after.revealDue
+  if (due && due !== before.revealDue) void sendReveal({ url: due.url, mode: due.mode, csrfToken: csrfToken() })
 }

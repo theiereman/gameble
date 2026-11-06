@@ -1,12 +1,17 @@
 import type { Rarity } from "./card_types"
 import type { CelebrationResult } from "./celebration"
-import type { OpeningAnswer, OpeningResult, OpeningSetTier } from "./opening"
+import type { HeldCapsule, OpeningAnswer, OpeningResult, OpeningSetTier } from "./opening"
+import type { QueuedOpening } from "./opening_queue"
 
 export type BoosterPhase = "sealed" | "empty" | "opening" | "dealt"
 
 export type BoosterStatus = "sealed" | "arming" | "ejecting" | "inventory" | "legendarySignal" | "complete" | "waiting"
 
 export type Reserve = "standard" | "special"
+
+export type HeldCapsules = Readonly<Record<Reserve, HeldCapsule | null>>
+
+export const NO_HELD: HeldCapsules = { standard: null, special: null }
 
 export type BoosterBank = {
   available: number
@@ -34,6 +39,8 @@ export type RevealAllStep = { index: number; wait: "full" | "gap" }
 
 export type RevealMode = "all" | "one_by_one"
 
+export type OwedReveal = Readonly<{ token: string; url: string; mode: RevealMode }>
+
 export type OpeningOutcome = { kind: "opened" } | { kind: "refused"; code: string } | { kind: "failed" }
 
 export type TierCounts = Record<Rarity, number>
@@ -55,7 +62,12 @@ export type BoosterState = Readonly<{
   status: BoosterStatus
   opening: boolean
   pendingKey: string | null
+  held: HeldCapsules
+  confirming: readonly QueuedOpening[]
   answer: OpeningAnswer | null
+  provisional: boolean
+  revealsOwed: readonly OwedReveal[]
+  revealDue: OwedReveal | null
   revealed: readonly boolean[]
   revealedAt: readonly (number | undefined)[]
   revealing: readonly number[]
@@ -92,6 +104,8 @@ export type BoosterState = Readonly<{
 export type BoosterStart = {
   bank: BoosterBank
   reserve: Reserve
+  held: HeldCapsules
+  confirming: readonly QueuedOpening[]
   opened: OpeningAnswer | null
   layout: Layout
   now: number

@@ -39,7 +39,7 @@ class BoosterReservesTest < ApplicationSystemTestCase
     find(".booster-canister").click
 
     assert_selector ".booster-card[data-dealt]", count: 3, wait: 10
-    assert_predicate special.reload, :opened?
+    eventually("the special capsule should be opened") { special.reload.opened? }
     assert_not_predicate standard.reload, :opened?
     assert_selector tab(:special) + "[disabled]", text: /SPECIAL · 0/
     assert_selector "#{tab(:standard)}[aria-selected=true]"
@@ -72,8 +72,7 @@ class BoosterReservesTest < ApplicationSystemTestCase
     assert_selector ".booster-canister[aria-label*='3 cards']"
     find("button.booster__open").click
 
-    eventually("the special capsule should be opened") { special.reload.opened? }
-    assert_predicate standard.reload, :opened?
+    eventually("the special capsule should be opened") { special.reload.opened? && standard.reload.opened? }
     assert_not_predicate spare.reload, :opened?
   end
 

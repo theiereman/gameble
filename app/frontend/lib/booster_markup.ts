@@ -65,6 +65,30 @@ export function bankFrom({
   }
 }
 
+export function bankValuesOf({
+  available,
+  special,
+  openable,
+  reserveFull,
+  nextSpecialKind,
+  nextAvailableAt,
+  serverTime,
+  nextPackSize,
+  nextSpecialSize,
+}: BoosterBank): BankValues {
+  return {
+    available,
+    special,
+    openable,
+    reserveFull,
+    nextSpecialKind: nextSpecialKind ?? "",
+    nextAvailableAt: nextAvailableAt ?? "",
+    serverTime,
+    nextPackSize: nextPackSize ?? 0,
+    nextSpecialSize: nextSpecialSize ?? 0,
+  }
+}
+
 export function cardFrom(data: Dataset): OpeningCard {
   return {
     slug: data.slug ?? "",

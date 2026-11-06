@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { bankFrom, cardFrom, openedFrom, setTierFrom, thresholdsFrom } from "./booster_markup"
+import { bankFrom, bankValuesOf, cardFrom, openedFrom, setTierFrom, thresholdsFrom } from "./booster_markup"
 
 const BANK = {
   available: 2,
@@ -23,6 +23,14 @@ describe("bankFrom", () => {
       nextPackSize: null,
       nextSpecialSize: null,
     })
+  })
+})
+
+describe("bankValuesOf", () => {
+  it("writes the bank back as the root's values, so a restored page starts from it", () => {
+    expect(bankValuesOf(bankFrom(BANK))).toEqual(BANK)
+    const none = { ...BANK, nextSpecialKind: "", nextAvailableAt: "", nextPackSize: 0, nextSpecialSize: 0 }
+    expect(bankValuesOf(bankFrom(none))).toEqual(none)
   })
 })
 

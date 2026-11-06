@@ -731,8 +731,7 @@ en:
       face_up_goals: "%{card}, %{rarity}, %{goals}. See the card."
       face_up_store: "%{card}, %{rarity}. Store the card."
       face_up_store_goals: "%{card}, %{rarity}, %{goals}. Store the card."
-      failed: The opening did not go through. Check your connection or reload the
-        page, then try again.
+      failed: No connection. Your capsule is safe. Try again.
       goal_reached: Goal reached
       hint_done:
         one: Capsule inventoried · +%{n} card in the collection

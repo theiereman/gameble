@@ -2,17 +2,23 @@ import {
   arming,
   cardsDealt,
   ejecting,
+  heldEntry,
+  heldFor,
+  heldOpened,
   lock,
   nextCapsuleWaiting,
   openingAnswered,
   openingEnded,
   openingRefused,
+  openingRoute,
   openingStarted,
   resultHeadShown,
   retracted,
   retracting,
   unlock,
+  type BoosterState,
   type OpeningRefusal,
+  type Reserve,
 } from "./booster"
 import { animate, blast, settle, stageFlash, stageShake } from "./booster_effects"
 import type { BoosterStageHost } from "./booster_host"
@@ -56,7 +62,8 @@ import {
 import { csrfToken, newKey, rememberPack } from "./booster_page"
 import { dispatchGameble } from "./events"
 import { motionReduced } from "./motion"
-import { sendOpening, type OpeningAnswer } from "./opening"
+import { sendOpening, type OpeningAnswer, type OpeningResult } from "./opening"
+import type { QueuedOpening } from "./opening_queue"
 
 export type OpeningSequenceHost = BoosterStageHost &
   Readonly<{
@@ -67,6 +74,8 @@ export type OpeningSequenceHost = BoosterStageHost &
     refusedTitle: string
     keepFaces: (answer: OpeningAnswer) => void
     refreshBank: () => Promise<void>
+    confirm: (entry: QueuedOpening) => void
+    awaitConfirmation: (reserve: Reserve) => Promise<boolean>
   }>
 
 export class OpeningSequence {
@@ -84,36 +93,83 @@ export class OpeningSequence {
     host.apply(lock)
     dispatchGameble("gameble:capsule-touched", null)
     this.armSkip()
-    const key = host.current().pendingKey ?? newKey()
-    const request = sendOpening({ url: host.openUrl, reserve: host.reserve(), key, csrfToken: csrfToken() })
-    if (before.phase === "dealt") await this.retract()
-    rememberPack(null)
-
-    host.apply((s) => arming(s, key))
-    const reduced = motionReduced()
-    if (!reduced) animate(host.canister()?.move, armKeyframes(), { duration: ARM_MS, fill: "forwards" })
-    const [result] = await Promise.all([request, this.pause(reduced ? 0 : ARM_MS)])
-    if (host.timers().disposed) return
-    if (result.kind !== "opened") {
-      this.refuse(result)
-      return
-    }
-
-    const answer = result.answer
-    host.keepFaces(answer)
-    host.apply((s) => openingAnswered(s, answer))
-
-    if (motionReduced()) await this.fadeAndDeal(answer.cards.length)
-    else await this.blowAndDeal(answer.cards.length)
-
-    host.apply(openingEnded)
-    host.apply(unlock)
+    if (openingRoute(host.current()) === "send") await this.openBySending(before)
+    else await this.openHeld(before)
   }
 
   skip(): void {
     if (this.skipping || this.host.current().phase !== "opening") return
     this.skipping = true
     this.skipNow()
+  }
+
+  private async openHeld(before: BoosterState): Promise<void> {
+    const { host } = this
+    if (before.phase === "dealt") await this.retract()
+    rememberPack(null)
+    host.apply((s) => arming(s, null))
+    const reduced = this.arm()
+    const awaited = heldFor(host.current()) ? true : host.awaitConfirmation(host.current().reserve)
+    const [landed] = await Promise.all([awaited, this.pause(reduced ? 0 : ARM_MS)])
+    if (host.timers().disposed) return
+    const entry = heldEntry(host.current(), newKey())
+    if (!entry) {
+      if (landed) await this.answered(await this.send(this.armedKey()))
+      else this.refuse({ kind: "failed" })
+      return
+    }
+    const answer = host.apply((s) => heldOpened(s, entry)).answer!
+    host.keepFaces(answer)
+    host.confirm(entry)
+    await this.dealHand(answer.cards.length)
+  }
+
+  private async openBySending(before: BoosterState): Promise<void> {
+    const { host } = this
+    const key = host.current().pendingKey ?? newKey()
+    const request = this.send(key)
+    if (before.phase === "dealt") await this.retract()
+    rememberPack(null)
+    host.apply((s) => arming(s, key))
+    const reduced = this.arm()
+    const [result] = await Promise.all([request, this.pause(reduced ? 0 : ARM_MS)])
+    await this.answered(result)
+  }
+
+  private armedKey(): string {
+    const key = this.host.current().pendingKey ?? newKey()
+    this.host.apply((s) => arming(s, key))
+    return key
+  }
+
+  private send(key: string): Promise<OpeningResult> {
+    return sendOpening({ url: this.host.openUrl, reserve: this.host.reserve(), key, csrfToken: csrfToken() })
+  }
+
+  private arm(): boolean {
+    const reduced = motionReduced()
+    if (!reduced) animate(this.host.canister()?.move, armKeyframes(), { duration: ARM_MS, fill: "forwards" })
+    return reduced
+  }
+
+  private async answered(result: OpeningResult): Promise<void> {
+    const { host } = this
+    if (host.timers().disposed) return
+    if (result.kind !== "opened") {
+      this.refuse(result)
+      return
+    }
+    const answer = result.answer
+    host.keepFaces(answer)
+    host.apply((s) => openingAnswered(s, answer))
+    await this.dealHand(answer.cards.length)
+  }
+
+  private async dealHand(count: number): Promise<void> {
+    if (motionReduced()) await this.fadeAndDeal(count)
+    else await this.blowAndDeal(count)
+    this.host.apply(openingEnded)
+    this.host.apply(unlock)
   }
 
   private armSkip(): void {
@@ -138,9 +194,13 @@ export class OpeningSequence {
     settle(host.canister()?.move)
     const message = host.apply((s) => openingRefused(s, result, host.failedMessage)).reason ?? host.failedMessage
     host.announce(message)
-    dispatchGameble("gameble:toast", { title: host.refusedTitle, message, tone: "alert" })
+    const refused = result.kind === "refused"
+    dispatchGameble(
+      "gameble:toast",
+      refused ? { title: host.refusedTitle, message, tone: "alert" } : { message, tone: "alert" },
+    )
     host.apply(unlock)
-    if (result.kind === "refused") void host.refreshBank()
+    if (refused) void host.refreshBank()
   }
 
   private async retract(): Promise<void> {
