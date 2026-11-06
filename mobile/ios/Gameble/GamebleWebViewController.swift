@@ -38,5 +38,13 @@ final class GamebleWebViewController: HotwireWebViewController {
         let keepsClearOfTabs = tabBarController != nil && tabsShown
         toScreenEdge.isActive = !keepsClearOfTabs
         aboveTabs.isActive = keepsClearOfTabs
+        additionalSafeAreaInsets.bottom = tabBarController != nil && !tabsShown ? -hiddenTabsInset : 0
+    }
+
+    // UIKit keeps a hidden tab bar's height in its children's safe area, which the page would pad as empty space.
+    private var hiddenTabsInset: CGFloat {
+        let screenEdgeInset = view.window?.safeAreaInsets.bottom ?? 0
+        let inheritedInset = view.safeAreaInsets.bottom - additionalSafeAreaInsets.bottom
+        return max(0, inheritedInset - screenEdgeInset)
     }
 }
