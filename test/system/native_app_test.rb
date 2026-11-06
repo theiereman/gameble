@@ -33,13 +33,14 @@ class NativeAppSystemTest < ApplicationSystemTestCase
 
   test "a sheet's content scrolls down to the bottom edge of a screen with a home indicator" do
     page.driver.browser.execute_cdp("Emulation.setSafeAreaInsetsOverride", insets: { top: 47, bottom: 34, left: 0, right: 0 })
-    visit library_path(locale: :en)
+    visit library_cards_path(locale: :en)
     first("[data-bottom-sheet-opens]").click
     assert_selector ".bottom-sheet[open] .bottom-sheet__body"
 
     gap, room = page.evaluate_script(<<~JS)
-      (() => {
+      (async () => {
         const body = document.querySelector(".bottom-sheet[open] .bottom-sheet__body")
+        await Promise.all(body.closest("dialog").getAnimations({ subtree: true }).map((animation) => animation.finished))
         return [window.innerHeight - body.getBoundingClientRect().bottom, parseFloat(getComputedStyle(body).paddingBottom)]
       })()
     JS
