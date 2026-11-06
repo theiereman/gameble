@@ -31,6 +31,24 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     assert_equal "0px", page.evaluate_script("getComputedStyle(document.documentElement).getPropertyValue('--tabbar-height').trim()")
   end
 
+  test "a sheet's content scrolls down to the bottom edge of a screen with a home indicator" do
+    page.driver.browser.execute_cdp("Emulation.setSafeAreaInsetsOverride", insets: { top: 47, bottom: 34, left: 0, right: 0 })
+    visit library_path(locale: :en)
+    first("[data-bottom-sheet-opens]").click
+    assert_selector ".bottom-sheet[open] .bottom-sheet__body"
+
+    gap, room = page.evaluate_script(<<~JS)
+      (() => {
+        const body = document.querySelector(".bottom-sheet[open] .bottom-sheet__body")
+        return [window.innerHeight - body.getBoundingClientRect().bottom, parseFloat(getComputedStyle(body).paddingBottom)]
+      })()
+    JS
+    assert_in_delta 0, gap, 1
+    assert_operator room, :>=, 34
+  ensure
+    page.driver.browser.execute_cdp("Emulation.setSafeAreaInsetsOverride", insets: { top: 0, bottom: 0, left: 0, right: 0 })
+  end
+
   test "in the app a sub-screen keeps its way back" do
     visit feed_path(locale: :en)
 

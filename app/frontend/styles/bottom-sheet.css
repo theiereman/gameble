@@ -33,9 +33,17 @@
   }
 }
 
+/* The room under the content, home indicator included, belongs to the scrolling body: as the panel's own
+   padding it would cut the content off above an empty strip. */
 @media (max-width: 719px) {
-  .bottom-sheet__panel {
+  .modal__panel.bottom-sheet__panel {
     max-height: 85dvh;
+    padding-bottom: 0;
+  }
+
+  .bottom-sheet__body {
+    margin-bottom: 0;
+    padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
   }
 }
 
