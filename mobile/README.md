@@ -67,11 +67,16 @@ sends nothing.
 4. In debug builds, five quick taps in the top-left corner show a panel with
    the Hotwire and WebView logs, which can be copied.
 
+## App icons
+
+`node script/pixel_art/app_icons.mjs` draws both apps' icons from the gold G of
+the pixel art export, on the apps' dark ground.
+
 ## Not done yet
 
-- App icons and launch screens. The Android app uses a system icon for now.
+- Launch screens.
 - Linking another sign-in method from the settings still runs Clerk inside
   the web view, where Google refuses it.
 - A rotated FCM token is only sent again when the player turns notifications
   on again.
-- Neither shell has been built in CI yet.
+- The iOS shell has not run on a device yet.

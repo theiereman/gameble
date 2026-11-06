@@ -14,7 +14,8 @@ Do not merge `feature/hotwire-native` into `develop` until everything below is v
 - [ ] Push: APNs key, Firebase project, `google-services.json`, server variables
 - [ ] Google Play account validated, app created, service account JSON in `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`
 - [ ] Closed test with 12 testers for 14 days
-- [ ] Icons and launch screens
+- [x] Icons
+- [ ] Launch screens
 - [ ] Release candidate build, real-device check, store listing, cover-art answer
 
 ## Accounts and secrets (person)
