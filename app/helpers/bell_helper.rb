@@ -38,7 +38,7 @@ module BellHelper
       t("shell.bell.reaction_anonymous", count: reaction.count)
     end
     href = feed_path(entry: reaction.token, anchor: "entry-#{reaction.token}")
-    BellLine.new(key: "reaction:#{reaction.token}:#{reaction.noticed_at.utc.iso8601(6)}", path: feed_path, href:, sentence:,
+    BellLine.new(key: "reaction:#{reaction.token}:#{reaction.noticed_at.utc.iso8601(6)}", path: nil, href:, sentence:,
       action: t("shell.bell.see"), reactions: reaction.kinds, subject: bell_reaction_subject(reaction.subject))
   end
 

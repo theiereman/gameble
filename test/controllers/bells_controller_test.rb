@@ -80,16 +80,16 @@ class BellsControllerTest < ActionDispatch::IntegrationTest
     get_bell
 
     assert_equal [ "invitation:#{invitation.token}", "reaction:#{entry.token}:#{Game::ReactionNotice.where(feed_entry_id: entry.id).maximum(:created_at).utc.iso8601(6)}" ], line_keys.first(2)
-    assert_select "#{FRAME} li[data-bell-path='/en/feed'][data-bell-lasting=false] a[href='/en/feed?entry=#{entry.token}#entry-#{entry.token}']",
+    assert_select "#{FRAME} li:not([data-bell-path])[data-bell-lasting=false] a[href='/en/feed?entry=#{entry.token}#entry-#{entry.token}']",
       text: /Max and 1 other reacted to your post\.\s+Heart\s+1\s+Wow\s+1\s+Portal\s+See/
-    assert_select "#{FRAME} li[data-bell-path='/en/feed'] .bell__reaction img[src*='heart']"
+    assert_select "#{FRAME} li:not([data-bell-path]) .bell__reaction img[src*='heart']"
 
     get_bell(locale: :fr)
-    assert_select "#{FRAME} li[data-bell-path='/fr/feed']", text: /Max et 1 autre ont réagi à votre publication\.\s+Cœur\s+1\s+Wow\s+1\s+Portal/
+    assert_select "#{FRAME} li:not([data-bell-path])", text: /Max et 1 autre ont réagi à votre publication\.\s+Cœur\s+1\s+Wow\s+1\s+Portal/
 
     @max.update!(visibility: "private")
     get_bell
-    assert_select "#{FRAME} li[data-bell-path='/en/feed']", text: /2 players reacted to your post\./
+    assert_select "#{FRAME} li:not([data-bell-path])", text: /2 players reacted to your post\./
   end
 
   test "an unclaimed mission reward replaces the week's line, in the request's locale" do

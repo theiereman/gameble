@@ -103,7 +103,7 @@ class BellTest < ApplicationSystemTestCase
     assert_count 2
   end
 
-  test "a new reactor to the player's entry raises the count live; the line clears on the feed and a reaction given again keeps it cleared" do
+  test "a new reactor to the player's entry raises the count live; the line clears once followed and a reaction given again keeps it cleared" do
     entry = Game::FeedEntry.record_repost(player_id: @hugo.id, card_season_id: catalog_card_seasons(:portal_one).id, at: Time.current)
     react = ->(kind) { Game::ReactToFeedEntry.new.call(player: @lea, entry_token: entry.token, kind:).value! }
     sign_in
@@ -126,6 +126,31 @@ class BellTest < ApplicationSystemTestCase
     visit library_path(locale: :en)
     assert_count 3
     assert_selector "#bell-items a[href='#{entry_href}']", text: /Lea reacted to your post/, visible: :all
+  end
+
+  test "following one reaction line leaves the others, and arriving on the feed clears none" do
+    entries = %i[portal_one rare_card_one].map do
+      Game::FeedEntry.record_repost(player_id: @hugo.id, card_season_id: catalog_card_seasons(it).id, at: Time.current)
+    end
+    entries.each { Game::ReactToFeedEntry.new.call(player: @lea, entry_token: it.token, kind: "heart").value! }
+    href = ->(entry) { "/en/feed?entry=#{entry.token}#entry-#{entry.token}" }
+    sign_in
+    assert_count 5
+
+    visit feed_path(locale: :en)
+    assert_count 5
+
+    open_bell
+    within("#bell-panel") { click_link href: href.(entries.first) }
+    assert_current_path "/en/feed?entry=#{entries.first.token}"
+    assert_count 4
+    open_bell
+    within("#bell-panel") do
+      assert_no_link href: href.(entries.first)
+      assert_link href: href.(entries.last)
+      click_on "Mark all as read"
+      assert_no_link href: href.(entries.last)
+    end
   end
 
   test "marking all as read clears every line that can be seen away and leaves the lasting daily line" do
