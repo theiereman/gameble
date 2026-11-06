@@ -74,9 +74,9 @@ class LiveFeedJobTest < ActiveSupport::TestCase
   end
 
   test "a first discovery joins the ticker behind its words" do
-    common = fixture_tier_ids[0]
-    Game::FirstDiscovery.where(card_season_id: common).delete_all
-    pack = open_pack(cards: [ common ] * 5)
+    rare = fixture_tier_ids[2]
+    Game::FirstDiscovery.where(card_season_id: rare).delete_all
+    pack = open_pack(cards: [ rare ] * 5)
 
     LiveFeedJob.perform_now([ { pack_id: pack.id } ])
 

@@ -3,6 +3,7 @@ module Game
     self.table_name = "game_feed_entries"
 
     NOTABLE_TIER = 4
+    DISCOVERY_TIER = 3
 
     KINDS = %w[pull discovery trade repost set].freeze
 
@@ -40,7 +41,7 @@ module Game
 
     def self.record_pack(pack, rarities, now, discovered: [])
       cards = pack.card_season_ids.each_with_index.filter_map { |id, position| [ id, position, rarities[id] ] if rarities[id] }
-      firsts = discovered.filter_map { |id| cards.find { |card_id, _, _| card_id == id }&.at(1) }
+      firsts = discovered.filter_map { |id| cards.find { |card_id, _, tier| card_id == id && tier >= DISCOVERY_TIER }&.at(1) }
       chosen = cards.filter_map do |id, position, tier|
         if firsts.include?(position) then [ id, position, tier, "discovery" ]
         elsif tier >= NOTABLE_TIER then [ id, position, tier, "pull" ]

@@ -491,8 +491,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     quiet = accounts_players(:moderator).tap { it.update!(persona_name: "Quiet") }
     open_pack_of(quiet, catalog_card_seasons(:rare_card_one).id)
     open_pack_of(@player, fixture_tier_ids[3])
-    Game::FirstDiscovery.where(card_season_id: fixture_tier_ids[0]).delete_all
-    open_pack_of(@player, fixture_tier_ids[0])
+    Game::FirstDiscovery.where(card_season_id: fixture_tier_ids[2]).delete_all
+    open_pack_of(@player, fixture_tier_ids[2])
     partner = accounts_players(:administrator).tap { it.update!(persona_name: "Léa") }
     conclude_trade(@player, partner, offer: { fixture_tier_ids[2] => 1 }, request: { fixture_tier_ids[1] => 1 })
     Game::Holding.create!(player_id: @player.id, card_season_id: fixture_tier_ids[4], quantity: 1)
