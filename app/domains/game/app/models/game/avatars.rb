@@ -8,6 +8,12 @@ module Game
       def default? = key == DEFAULT
 
       def free? = achievement.nil?
+
+      def granted_to_administrators? = ADMINISTRATOR_AVATARS.include?(key)
+
+      def open_to?(player, earned_achievements)
+        free? || earned_achievements.include?(achievement) || (granted_to_administrators? && player.administrator?)
+      end
     end
 
     FREE = %w[
@@ -22,6 +28,8 @@ module Game
       "oracle" => "first_epic",
       "grand_master" => "boosters_500"
     }.freeze
+
+    ADMINISTRATOR_AVATARS = %w[grand_master].freeze
 
     CATALOGUE = [
       Avatar.new(key: DEFAULT, achievement: nil),

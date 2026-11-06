@@ -72,4 +72,20 @@ class Game::ChooseAvatarTest < ActiveSupport::TestCase
     assert_equal %w[default mechanic pilot cartographer botanist streamer elder astronaut punk chef robot cat alien slime owl novice], rows.reject(&:locked?).map(&:key)
     assert_equal %w[novice], rows.select(&:active).map(&:key)
   end
+
+  test "an administrator can wear the grand master avatar without its achievement" do
+    administrator = accounts_players(:administrator)
+
+    assert choose("grand_master", player: administrator).success?
+    assert_equal "grand_master", Game::ActiveAvatar.call(administrator).key
+    assert_equal :avatar_locked, choose("oracle", player: administrator).failure
+    assert_equal :avatar_locked, choose("grand_master", player: @other).failure
+  end
+
+  test "the administrator's shelf opens the grand master avatar" do
+    rows = Game::AvatarShelf.call(accounts_players(:administrator))
+
+    assert_includes rows.reject(&:locked?).map(&:key), "grand_master"
+    assert_not_includes rows.reject(&:locked?).map(&:key), "oracle"
+  end
 end

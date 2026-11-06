@@ -21,9 +21,8 @@ module Game
     end
 
     def unlocked(player, avatar)
-      return Success() if avatar.free?
-
-      AchievementUnlock.exists?(player_id: player.id, achievement: avatar.achievement) ? Success() : Failure(:avatar_locked)
+      earned = AchievementUnlock.where(player_id: player.id, achievement: avatar.achievement).pluck(:achievement)
+      avatar.open_to?(player, earned) ? Success() : Failure(:avatar_locked)
     end
 
     def store(player, avatar)
