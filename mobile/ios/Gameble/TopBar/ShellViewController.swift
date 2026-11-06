@@ -67,7 +67,7 @@ final class ShellViewController: UIViewController {
         barShown = shown
         if !shown { sendPanel(nil) }
         let move = { [topBar] in
-            topBar.transform = shown ? .identity : CGAffineTransform(translationY: -TopBarView.height)
+            topBar.transform = shown ? .identity : CGAffineTransform(translationX: 0, y: -TopBarView.height)
         }
         if UIAccessibility.isReduceMotionEnabled {
             move()
@@ -86,7 +86,7 @@ final class ShellViewController: UIViewController {
         view.insertSubview(layer.view, belowSubview: topBar)
         pinToEdges(layer.view)
         view.layoutIfNeeded()
-        layer.view.transform = CGAffineTransform(translationY: view.bounds.height)
+        layer.view.transform = CGAffineTransform(translationX: 0, y: view.bounds.height)
         UIView.animate(withDuration: Self.layerDuration, delay: 0, options: .curveEaseOut) {
             layer.view.transform = .identity
         } completion: { _ in
@@ -104,7 +104,7 @@ final class ShellViewController: UIViewController {
         revealTabs()
         guard animated else { return remove() }
         UIView.animate(withDuration: Self.layerDuration, delay: 0, options: .curveEaseIn) {
-            layer.view.transform = CGAffineTransform(translationY: self.view.bounds.height)
+            layer.view.transform = CGAffineTransform(translationX: 0, y: self.view.bounds.height)
         } completion: { _ in
             remove()
         }
