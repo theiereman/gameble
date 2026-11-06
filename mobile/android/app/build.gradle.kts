@@ -15,12 +15,12 @@ val releaseKeystore = System.getenv("ANDROID_KEYSTORE_FILE")
 
 android {
     namespace = "net.gameble.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "net.gameble.app"
         minSdk = 28
-        targetSdk = 35
+        targetSdk = 36
         versionCode = (findProperty("gamebleVersionCode") as String?)?.toInt() ?: 1
         versionName = (findProperty("gamebleVersionName") as String?) ?: "1.0"
     }

@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 40
     env:
       ROOT_URL: ${{ inputs.root_url || 'https://test.gameble.net' }}
-      IMAGE: system-images;android-34;google_apis;x86_64
+      IMAGE: system-images;android-36;google_apis;x86_64
       ANDROID_AVD_HOME: /home/runner/.android/avd
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
