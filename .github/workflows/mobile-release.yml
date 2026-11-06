@@ -74,7 +74,7 @@ jobs:
 
   ios:
     if: github.event_name != 'push' || startsWith(github.ref_name, 'ios-v')
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 45
     env:
       ROOT_URL: ${{ inputs.root_url || ((github.event_name == 'push' || github.event.release.prerelease) && 'https://test.gameble.net') || 'https://gameble.net' }}
