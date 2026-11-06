@@ -187,6 +187,7 @@ export class BoosterController extends Controller<HTMLElement> {
     document.removeEventListener("visibilitychange", this.visibilityChanged)
     this.layoutWatch?.stop()
     this.openings?.confirmations.stop()
+    this.openings?.artPrefetch.stop()
     const before = this.state
     if (before && before.lockDepth > 0) dispatchGameble("gameble:navigation-locked", { locked: false })
     if (before) this.state = lockReleased(before)
@@ -320,6 +321,7 @@ export class BoosterController extends Controller<HTMLElement> {
     if (!state || !this.renderer) return
     this.renderer.render(state)
     this.afterRender?.queue()
+    this.openings?.artPrefetch.consider()
   }
 
   private assembleCollaborators(): void {

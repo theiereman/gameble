@@ -1,3 +1,5 @@
+import { ArtPrefetch, heldCapsulesOf } from "./art_prefetch"
+import { idle } from "./booster_state"
 import { BankRefresh } from "./booster_bank_refresh"
 import { OpeningConfirmations } from "./booster_confirmations"
 import type { BoosterFaces } from "./booster_faces"
@@ -21,6 +23,7 @@ export type OpeningParts = Readonly<{
   bankRefresh: BankRefresh
   opening: OpeningSequence
   confirmations: OpeningConfirmations
+  artPrefetch: ArtPrefetch
 }>
 
 export function openingPartsFor({
@@ -63,5 +66,15 @@ export function openingPartsFor({
     confirm: (entry) => confirmations.confirm(entry),
     awaitConfirmation: (reserve) => confirmations.awaitConfirmation(reserve),
   })
-  return { bankRefresh, opening, confirmations }
+  const artPrefetch = new ArtPrefetch({
+    capsules: () => {
+      const current = state()
+      return current ? heldCapsulesOf(current) : []
+    },
+    calm: () => {
+      const current = state()
+      return current !== undefined && idle(current)
+    },
+  })
+  return { bankRefresh, opening, confirmations, artPrefetch }
 }
