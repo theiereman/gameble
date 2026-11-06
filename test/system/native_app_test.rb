@@ -22,19 +22,17 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     page.driver.browser.execute_cdp("Emulation.setUserAgentOverride", userAgent: "")
   end
 
-  test "in the app a screen has one header, no web tab bar and its bottom actions on the bottom edge" do
-    visit social_path(locale: :en)
+  test "in the app a screen has one header and gives no height to a web tab bar" do
+    visit friends_path(locale: :en)
 
     assert_selector "html[data-native-app]", visible: :all
     assert_no_selector ".tab-bar", visible: :all
     assert_selector "header.top-bar", count: 1
-    assert_selector ".social__actions"
-    gap = page.evaluate_script("window.innerHeight - document.querySelector('.social__actions').getBoundingClientRect().bottom")
-    assert_operator gap, :<=, 2
+    assert_equal "0px", page.evaluate_script("getComputedStyle(document.documentElement).getPropertyValue('--tabbar-height').trim()")
   end
 
   test "in the app a sub-screen keeps its way back" do
-    visit trades_path(locale: :en)
+    visit feed_path(locale: :en)
 
     assert_selector "header.top-bar .top-bar__phone-back"
   end
