@@ -1,19 +1,43 @@
 import UIKit
 
+private final class BadgeLabel: UILabel {
+    private static let sidePadding: CGFloat = 3
+
+    override var intrinsicContentSize: CGSize {
+        let size = super.intrinsicContentSize
+        return CGSize(width: size.width + Self.sidePadding * 2, height: size.height)
+    }
+}
+
 final class TopBarControl: UIControl {
     static let height: CGFloat = 40
 
     private static let touchSide: CGFloat = 44
 
-    private let badge = UILabel()
+    private let badge = BadgeLabel()
 
     init(background: UIColor) {
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = background
-        layer.borderWidth = 2
-        layer.borderColor = Palette.controlBorder.cgColor
         heightAnchor.constraint(equalToConstant: Self.height).isActive = true
+        addOutline()
+    }
+
+    // A layer's own border draws above its sublayers, so it would cross the badge.
+    private func addOutline() {
+        let outline = UIView()
+        outline.translatesAutoresizingMaskIntoConstraints = false
+        outline.isUserInteractionEnabled = false
+        outline.layer.borderWidth = 2
+        outline.layer.borderColor = Palette.controlBorder.cgColor
+        addSubview(outline)
+        NSLayoutConstraint.activate([
+            outline.topAnchor.constraint(equalTo: topAnchor),
+            outline.bottomAnchor.constraint(equalTo: bottomAnchor),
+            outline.leadingAnchor.constraint(equalTo: leadingAnchor),
+            outline.trailingAnchor.constraint(equalTo: trailingAnchor)
+        ])
     }
 
     @available(*, unavailable)
@@ -48,7 +72,7 @@ final class TopBarControl: UIControl {
     }
 
     func showBadge(_ text: String) {
-        badge.text = text.isEmpty ? nil : " \(text) "
+        badge.text = text.isEmpty ? nil : text
         badge.isHidden = text.isEmpty
     }
 
