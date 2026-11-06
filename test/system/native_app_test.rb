@@ -82,6 +82,14 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     assert_selector ".bank-counter__count", text: (count + 1).to_s
   end
 
+  test "in the app a screen has a single way back, whichever kind of screen it is" do
+    [ library_cards_path(locale: :en), friends_path(locale: :en), me_path(locale: :en) ].each do |path|
+      visit path
+
+      assert_selector ".top-bar__previous", count: 1, visible: :all
+    end
+  end
+
   test "in the app a sub-screen keeps its way back" do
     visit feed_path(locale: :en)
 
