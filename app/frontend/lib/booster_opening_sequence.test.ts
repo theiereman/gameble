@@ -115,6 +115,39 @@ describe("OpeningSequence", () => {
     expect(endless.finish).not.toHaveBeenCalled()
   })
 
+  it("marks the touch and the blast of the capsule it opens", async () => {
+    const clock = vi.spyOn(performance, "now")
+    clock.mockReturnValueOnce(1000).mockReturnValue(1800)
+    const { sequence, state } = sequenceFrom(startWith(), heldTimers())
+
+    const opened = sequence.open()
+    await settled()
+    sequence.skip()
+    await opened
+
+    expect(state().marks).toEqual({ touchedAt: 1000, blastAt: 1800 })
+    clock.mockRestore()
+  })
+
+  it("marks the touch only once the hand on the table is put away, so its owed reveal keeps its own timings", async () => {
+    const clock = vi.spyOn(performance, "now").mockReturnValue(5000)
+    const timers = heldTimers()
+    const { sequence, state, apply } = sequenceFrom(revealedAll(dealt()), timers)
+    apply((s) => ({ ...s, marks: { touchedAt: 100, blastAt: 900 } }))
+
+    void sequence.open()
+    await settled()
+
+    expect(state().marks).toEqual({ touchedAt: 100, blastAt: 900 })
+    const sinkThenDock = 2
+    for (let pause = 0; pause < sinkThenDock; pause++) {
+      timers.flush()
+      await settled()
+    }
+    expect(state().marks.touchedAt).toBe(5000)
+    clock.mockRestore()
+  })
+
   it("waits out every pause when nobody skips", async () => {
     const timers = heldTimers()
     const { sequence, state, finish } = sequenceFrom(startWith(), timers)

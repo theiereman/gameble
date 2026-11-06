@@ -3,12 +3,16 @@ import { answerOf } from "./booster_fixtures"
 import type { OpeningResult } from "./opening"
 import {
   OpeningQueue,
+  OPENED_REMEMBERED,
+  OPENED_STORAGE_KEY,
   QUEUE_STORAGE_KEY,
   RETRY_DELAYS,
   SEND_TIMEOUT_MS,
   dequeueStored,
   enqueueStored,
+  loadOpened,
   loadQueue,
+  rememberOpened,
   retryDelay,
   settledOpening,
   withQueued,
@@ -74,6 +78,28 @@ describe("the stored queue", () => {
     expect(loadQueue(memoryStorage({ [QUEUE_STORAGE_KEY]: '{"token":"t"}' }))).toEqual([])
     const mixed = JSON.stringify([ENTRY, { token: "t", key: "k", reserve: "gold" }, { token: "", key: "k" }])
     expect(loadQueue(memoryStorage({ [QUEUE_STORAGE_KEY]: mixed }))).toEqual([ENTRY])
+  })
+})
+
+describe("the opened capsules remembered", () => {
+  it("keeps the latest confirmed tokens once each, so a stored page never reopens one", () => {
+    const storage = memoryStorage()
+    rememberOpened("t1", storage)
+    rememberOpened("t2", storage)
+    rememberOpened("t1", storage)
+    expect(loadOpened(storage)).toEqual(["t2", "t1"])
+
+    for (let index = 0; index < OPENED_REMEMBERED; index++) rememberOpened(`n${index}`, storage)
+    expect(loadOpened(storage)).toHaveLength(OPENED_REMEMBERED)
+    expect(loadOpened(storage)).not.toContain("t1")
+  })
+
+  it("works without storage, blocked storage or a stored value of another shape", () => {
+    expect(loadOpened(null)).toEqual([])
+    expect(loadOpened(brokenStorage)).toEqual([])
+    expect(() => rememberOpened("t1", brokenStorage)).not.toThrow()
+    expect(loadOpened(memoryStorage({ [OPENED_STORAGE_KEY]: "{oops" }))).toEqual([])
+    expect(loadOpened(memoryStorage({ [OPENED_STORAGE_KEY]: '["t1", 2, ""]' }))).toEqual(["t1"])
   })
 })
 

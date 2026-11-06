@@ -7,7 +7,8 @@ Rails.application.routes.draw do
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  # The worker that keeps the booster screen for offline visits, served at the root so its scope is the whole site.
+  get "service-worker" => "service_workers#show", as: :pwa_service_worker, constraints: { format: "js" }
 
   # Every page lives under its locale, the first segment of the URL.
   scope ":locale", locale: /en|fr/ do

@@ -30,6 +30,15 @@ describe("sendReveal", () => {
     })
   })
 
+  it("adds the opening's timings to the body", async () => {
+    const { calls, send } = fake(new Response(null, { status: 204 }))
+    const timings = { touch_to_blast: 812, touch_to_first_face: 1900, layout: "phone" } as const
+
+    await sendReveal({ url: REVEAL_URL, mode: "all", timings, csrfToken: null, fetch: send })
+
+    expect(JSON.parse(calls[0].init.body as string)).toEqual({ mode: "all", ...timings })
+  })
+
   it("sends no CSRF header without a token", async () => {
     const { calls, send } = fake(new Response(null, { status: 204 }))
     await sendReveal({ url: REVEAL_URL, mode: "all", csrfToken: null, fetch: send })

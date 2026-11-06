@@ -2,7 +2,7 @@ import { start, type BoosterState, type Reserve } from "./booster"
 import { heldFrom } from "./booster_bank"
 import { bankFrom, openedFrom, type BankValues, type Dataset } from "./booster_markup"
 import { celebrationRemembered, readLayout } from "./booster_page"
-import { loadQueue } from "./opening_queue"
+import { loadOpened, loadQueue } from "./opening_queue"
 
 export type ServerMarkup = Readonly<{
   bank: BankValues
@@ -20,6 +20,7 @@ export function startingState({ bank: bankValues, reserve, held, pack, cards, se
     reserve,
     held: heldFrom(held),
     confirming: loadQueue(),
+    openedTokens: loadOpened(),
     opened: openedFrom({ pack, cards, setTiers, bank }),
     layout: readLayout(),
     now: performance.now(),

@@ -17,8 +17,18 @@ class PackRevealsControllerTest < ActionDispatch::IntegrationTest
     @latest = create_pack(@player, opened_at: 1.minute.ago)
   end
 
-  def reveal(mode, pack: @latest, token: pack.token, locale: :en)
-    post pack_reveal_path(token, locale:), params: { mode: }.compact, as: :json
+  def reveal(mode, pack: @latest, token: pack.token, locale: :en, **timings)
+    post pack_reveal_path(token, locale:), params: { mode:, **timings }.compact, as: :json
+  end
+
+  def logged
+    log = StringIO.new
+    logger = Rails.logger
+    Rails.logger = ActiveSupport::Logger.new(log)
+    yield
+    log.string.lines.grep(/Booster opening timings/)
+  ensure
+    Rails.logger = logger
   end
 
   def modes = Game::Pack.where(player_id: @player.id).order(:id).pluck(:reveal_mode)
@@ -37,6 +47,44 @@ class PackRevealsControllerTest < ActionDispatch::IntegrationTest
     assert_empty response.body
     assert_equal "one_by_one", @latest.reload.reveal_mode
     assert_equal [ "one_by_one" ], game_events(@player, Game::PackRevealed).map { it.data[:mode] }
+  end
+
+  test "the opening's timings are logged in one line, never stored" do
+    sign_in(@player)
+
+    lines = logged { reveal("all", touch_to_blast: 812, touch_to_first_face: 1904, layout: "phone") }
+
+    assert_response :no_content
+    assert_equal [ "Booster opening timings: mode=all touch_to_blast=812 touch_to_first_face=1904 layout=phone\n" ], lines
+    assert_equal "all", @latest.reload.reveal_mode
+  end
+
+  test "bad timings are left out of the log and the reveal still answers 204" do
+    sign_in(@player)
+
+    lines = logged do
+      reveal("all", touch_to_blast: -1, touch_to_first_face: 60_000, layout: "tablet")
+      reveal("all", touch_to_blast: 12.5, touch_to_first_face: "900", layout: "wide")
+      reveal("all", touch_to_blast: [ 1 ], touch_to_first_face: 59_999, layout: { "name" => "wide" })
+    end
+
+    assert_response :no_content
+    assert_equal [ "Booster opening timings: mode=all touch_to_first_face=59999\n" ], lines
+    assert_equal "all", @latest.reload.reveal_mode
+  end
+
+  test "a reveal without timings logs none" do
+    sign_in(@player)
+
+    assert_empty logged { reveal("one_by_one", layout: "wide") }
+    assert_response :no_content
+  end
+
+  test "a refused reveal logs no timings" do
+    sign_in(@player)
+
+    assert_empty logged { reveal("all", pack: @older, touch_to_blast: 812) }
+    assert_response :unprocessable_content
   end
 
   test "a repeat answers 204 and changes nothing" do

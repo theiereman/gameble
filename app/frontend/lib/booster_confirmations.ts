@@ -1,8 +1,16 @@
 import { confirmationRefused, openingConfirmed, type BoosterState, type Reserve } from "./booster"
 import type { Transition } from "./booster_host"
 import { csrfToken } from "./booster_page"
+import { dispatchGameble } from "./events"
 import { sendOpening, type OpeningAnswer } from "./opening"
-import { OpeningQueue, dequeueStored, enqueueStored, type QueuedOpening, type SettledOpening } from "./opening_queue"
+import {
+  OpeningQueue,
+  dequeueStored,
+  enqueueStored,
+  rememberOpened,
+  type QueuedOpening,
+  type SettledOpening,
+} from "./opening_queue"
 import type { ScreenTimers } from "./screen_timers"
 
 export type ConfirmationsHost = Readonly<{
@@ -63,7 +71,9 @@ export class OpeningConfirmations {
       return
     }
     const { answer } = settled
+    rememberOpened(entry.token)
     if (openingConfirmed(host.current(), entry.token, answer).answer === answer) host.keepFaces(answer)
     host.apply((s) => openingConfirmed(s, entry.token, answer))
+    dispatchGameble("gameble:booster-changed", null)
   }
 }

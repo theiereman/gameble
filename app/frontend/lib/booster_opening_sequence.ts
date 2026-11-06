@@ -1,5 +1,6 @@
 import {
   arming,
+  blastMarked,
   cardsDealt,
   ejecting,
   heldEntry,
@@ -15,6 +16,7 @@ import {
   resultHeadShown,
   retracted,
   retracting,
+  touchMarked,
   unlock,
   type BoosterState,
   type OpeningRefusal,
@@ -88,13 +90,14 @@ export class OpeningSequence {
 
   async open(): Promise<void> {
     const { host } = this
+    const touchedAt = performance.now()
     const before = host.current()
     if (host.apply(openingStarted) === before) return
     host.apply(lock)
     dispatchGameble("gameble:capsule-touched", null)
     this.armSkip()
-    if (openingRoute(host.current()) === "send") await this.openBySending(before)
-    else await this.openHeld(before)
+    if (openingRoute(host.current()) === "send") await this.openBySending(before, touchedAt)
+    else await this.openHeld(before, touchedAt)
   }
 
   skip(): void {
@@ -103,11 +106,11 @@ export class OpeningSequence {
     this.skipNow()
   }
 
-  private async openHeld(before: BoosterState): Promise<void> {
+  private async openHeld(before: BoosterState, touchedAt: number): Promise<void> {
     const { host } = this
     if (before.phase === "dealt") await this.retract()
     rememberPack(null)
-    host.apply((s) => arming(s, null))
+    host.apply((s) => touchMarked(arming(s, null), touchedAt))
     const reduced = this.arm()
     const awaited = heldFor(host.current()) ? true : host.awaitConfirmation(host.current().reserve)
     const [landed] = await Promise.all([awaited, this.pause(reduced ? 0 : ARM_MS)])
@@ -124,13 +127,13 @@ export class OpeningSequence {
     await this.dealHand(answer.cards.length)
   }
 
-  private async openBySending(before: BoosterState): Promise<void> {
+  private async openBySending(before: BoosterState, touchedAt: number): Promise<void> {
     const { host } = this
     const key = host.current().pendingKey ?? newKey()
     const request = this.send(key)
     if (before.phase === "dealt") await this.retract()
     rememberPack(null)
-    host.apply((s) => arming(s, key))
+    host.apply((s) => touchMarked(arming(s, key), touchedAt))
     const reduced = this.arm()
     const [result] = await Promise.all([request, this.pause(reduced ? 0 : ARM_MS)])
     await this.answered(result)
@@ -166,6 +169,7 @@ export class OpeningSequence {
   }
 
   private async dealHand(count: number): Promise<void> {
+    this.host.apply((s) => blastMarked(s, performance.now()))
     if (motionReduced()) await this.fadeAndDeal(count)
     else await this.blowAndDeal(count)
     this.host.apply(openingEnded)

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   arming,
   bankFetched,
+  blastMarked,
   cardsDealt,
   confirmationRefused,
   heldEntry,
@@ -18,6 +19,7 @@ import {
   revealEnded,
   revealMarked,
   revealModeReached,
+  touchMarked,
   unlock,
   type BoosterState,
 } from "./booster"
@@ -39,8 +41,12 @@ function openedHeld(state: BoosterState = withHeld()): BoosterState {
 const dealtHeld = (state: BoosterState = withHeld()): BoosterState =>
   unlock(openingEnded(cardsDealt(resultHeadShown(openedHeld(state)))))
 
-const revealedOneByOne = (state: BoosterState): BoosterState =>
-  state.revealed.reduce((next, _, index) => revealEnded(revealMarked(next, index, 0), index, false), state)
+const revealedOneByOne = (state: BoosterState, at = 0): BoosterState =>
+  state.revealed.reduce((next, _, index) => revealEnded(revealMarked(next, index, at + index), index, false), state)
+
+const timedHand = (): BoosterState => blastMarked(touchMarked(dealtHeld(), 100), 912.4)
+
+const TIMINGS = { touch_to_blast: 812, touch_to_first_face: 1900, layout: "wide" }
 
 describe("a held capsule", () => {
   it("opens without the network: its cards and faces, one capsule less in its reserve, its confirmation queued", () => {
@@ -191,18 +197,25 @@ describe("openingConfirmed", () => {
 
 describe("the reveal mode of a held capsule", () => {
   it("waits for the confirmation, then is due once", () => {
-    const hand = dealtHeld()
-    const done = revealedOneByOne(hand)
+    const hand = timedHand()
+    const done = revealedOneByOne(hand, 2000)
     expect(revealModeReached(hand, done)).toBeNull()
     expect(done.revealDue).toBeNull()
 
     const confirmed = openingConfirmed(done, "held-1", confirmationOf(HELD))
-    expect(confirmed.revealDue).toEqual({ token: "held-1", url: "/pack/held-1/reveal", mode: "one_by_one" })
+    expect(confirmed.revealDue).toEqual({
+      token: "held-1",
+      url: "/pack/held-1/reveal",
+      mode: "one_by_one",
+      timings: TIMINGS,
+    })
   })
 
   it("is owed by a hand put away before its confirmation, and due when it lands", () => {
-    const away = retracted(retracting(revealedOneByOne(dealtHeld())))
-    expect(away.revealsOwed).toEqual([{ token: "held-1", url: "/pack/held-1/reveal", mode: "one_by_one" }])
+    const away = retracted(retracting(revealedOneByOne(timedHand(), 2000)))
+    expect(away.revealsOwed).toEqual([
+      { token: "held-1", url: "/pack/held-1/reveal", mode: "one_by_one", timings: TIMINGS },
+    ])
 
     const confirmed = openingConfirmed(away, "held-1", confirmationOf(HELD))
     expect(confirmed.revealsOwed).toEqual([])
@@ -265,6 +278,21 @@ describe("a capsule queued but not yet confirmed", () => {
   it("keeps the held capsules when the bank answer carries none", () => {
     const state = withHeld()
     expect(bankFetched(state, bank(3), state.bankGeneration).held).toBe(state.held)
+  })
+})
+
+describe("a capsule already opened and confirmed, on a stored page that still holds it", () => {
+  it("is not shown as held again, and its reserve counts one less", () => {
+    const stale = withHeld({ openedTokens: ["held-1"] })
+    expect(stale.held.standard).toBeNull()
+    expect(stale.bank).toMatchObject({ available: 1, openable: 1 })
+    expect(openingRoute(stale)).toBe("send")
+  })
+
+  it("leaves a fresh page's next capsule held", () => {
+    const fresh = withHeld({ openedTokens: ["held-1"] }, NEXT)
+    expect(fresh.held.standard).toBe(NEXT)
+    expect(fresh.bank).toMatchObject({ available: 2 })
   })
 })
 

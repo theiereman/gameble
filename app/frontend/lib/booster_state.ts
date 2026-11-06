@@ -9,6 +9,7 @@ import {
   type FocusTarget,
   type HeldCapsules,
 } from "./booster_types"
+import { NO_MARKS } from "./opening_timings"
 import { celebrationResults, restoredCelebration, type CelebrationResult } from "./celebration"
 
 export function start({
@@ -16,13 +17,15 @@ export function start({
   reserve,
   held: serverHeld,
   confirming,
+  openedTokens,
   opened,
   layout,
   now,
   celebrationRemembered,
   preview,
 }: BoosterStart): BoosterState {
-  const { bank, held } = heldSkippingQueued({ bank: serverBank, held: serverHeld }, confirming)
+  const alreadyOpened = openedTokens.map((token) => ({ token }))
+  const { bank, held } = heldSkippingQueued({ bank: serverBank, held: serverHeld }, [...confirming, ...alreadyOpened])
   const sealed = reserveCount(bank, reserve) > 0
   const fresh: BoosterState = {
     bank,
@@ -41,6 +44,7 @@ export function start({
     revealDue: null,
     revealed: [],
     revealedAt: [],
+    marks: NO_MARKS,
     revealing: [],
     legendary: null,
     legendaryRunning: false,

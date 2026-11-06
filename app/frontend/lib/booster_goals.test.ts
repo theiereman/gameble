@@ -66,6 +66,7 @@ describe("goals reached by an opening", () => {
       reserve: "standard",
       held: { standard: null, special: null },
       confirming: [],
+      openedTokens: [],
       opened: answerOf(FIVE, [], 1, ["Roguelike"]),
       layout: "wide",
       now: 1000,

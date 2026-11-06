@@ -81,6 +81,7 @@ export const startWith = (overrides: Partial<BoosterStart> = {}): BoosterState =
     reserve: "standard",
     held: NO_HELD,
     confirming: [],
+    openedTokens: [],
     opened: null,
     layout: "wide",
     now: 1000,

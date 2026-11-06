@@ -146,6 +146,14 @@ export function handOpened(state: BoosterState, answer: OpeningAnswer, bank: Boo
   }
 }
 
+export function touchMarked(state: BoosterState, touchedAt: number): BoosterState {
+  return { ...state, marks: { touchedAt, blastAt: null } }
+}
+
+export function blastMarked(state: BoosterState, blastAt: number): BoosterState {
+  return { ...state, marks: { ...state.marks, blastAt } }
+}
+
 export function ejecting(state: BoosterState): BoosterState {
   return { ...state, armed: true, status: "ejecting" }
 }

@@ -1,6 +1,7 @@
 import type { Rarity } from "./card_types"
 import type { CelebrationResult } from "./celebration"
 import type { HeldCapsule, OpeningAnswer, OpeningResult, OpeningSetTier } from "./opening"
+import type { OpeningMarks, OpeningTimings } from "./opening_timings"
 import type { QueuedOpening } from "./opening_queue"
 
 export type BoosterPhase = "sealed" | "empty" | "opening" | "dealt"
@@ -39,7 +40,7 @@ export type RevealAllStep = { index: number; wait: "full" | "gap" }
 
 export type RevealMode = "all" | "one_by_one"
 
-export type OwedReveal = Readonly<{ token: string; url: string; mode: RevealMode }>
+export type OwedReveal = Readonly<{ token: string; url: string; mode: RevealMode; timings: OpeningTimings }>
 
 export type OpeningOutcome = { kind: "opened" } | { kind: "refused"; code: string } | { kind: "failed" }
 
@@ -70,6 +71,7 @@ export type BoosterState = Readonly<{
   revealDue: OwedReveal | null
   revealed: readonly boolean[]
   revealedAt: readonly (number | undefined)[]
+  marks: OpeningMarks
   revealing: readonly number[]
   legendary: number | null
   legendaryRunning: boolean
@@ -106,6 +108,7 @@ export type BoosterStart = {
   reserve: Reserve
   held: HeldCapsules
   confirming: readonly QueuedOpening[]
+  openedTokens: readonly string[]
   opened: OpeningAnswer | null
   layout: Layout
   now: number

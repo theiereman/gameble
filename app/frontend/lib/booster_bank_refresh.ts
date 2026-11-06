@@ -11,6 +11,7 @@ import {
 import { fetchBank } from "./booster_bank"
 import type { Transition } from "./booster_host"
 import type { Reserve } from "./booster_types"
+import { dispatchGameble } from "./events"
 
 export type BankRefreshHost = Readonly<{
   state: () => BoosterState | undefined
@@ -55,6 +56,7 @@ export class BankRefresh {
     }
     const before = this.host.current()
     const after = this.host.apply((s) => bankFetched(s, fresh.bank, generation, fresh.held))
+    dispatchGameble("gameble:booster-changed", null)
     if (after !== before) reservesUnlocked(before.bank, after.bank).forEach((reserve) => this.host.announce(reserve))
   }
 

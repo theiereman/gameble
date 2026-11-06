@@ -19,7 +19,7 @@ import type { Transition } from "./booster_host"
 import { reflectChange } from "./booster_reflect"
 import { onGameble } from "./events"
 import { sendOpening, type OpeningResult } from "./opening"
-import { QUEUE_STORAGE_KEY, loadQueue } from "./opening_queue"
+import { QUEUE_STORAGE_KEY, loadOpened, loadQueue } from "./opening_queue"
 import { sendReveal } from "./reveal"
 import type { ScreenTimers } from "./screen_timers"
 
@@ -76,10 +76,14 @@ describe("OpeningConfirmations", () => {
   it("sends the opening once, naming the capsule's token with its key, and adopts the server's answer", async () => {
     vi.mocked(sendOpening).mockResolvedValue({ kind: "opened", answer: confirmationOf(HELD, { next: NEXT }) })
     const { confirmations, host, state } = confirmationsFrom(dealtHeld())
+    const changed = vi.fn()
+    const stop = onGameble("gameble:booster-changed", changed)
 
     confirmations.confirm(state().confirming[0])
     expect(loadQueue()).toEqual([{ token: "held-1", key: "key-1", reserve: "standard" }])
     await settled()
+    stop()
+    expect(changed).toHaveBeenCalledOnce()
 
     expect(sendOpening).toHaveBeenCalledOnce()
     expect(sendOpening).toHaveBeenCalledWith(
@@ -89,6 +93,7 @@ describe("OpeningConfirmations", () => {
     expect(state().held.standard).toBe(NEXT)
     expect(host.keepFaces).not.toHaveBeenCalled()
     expect(localStorage.getItem(QUEUE_STORAGE_KEY)).toBeNull()
+    expect(loadOpened()).toEqual(["held-1"])
   })
 
   it("gives the hand the server's faces when the server answers other cards", async () => {
@@ -159,6 +164,7 @@ describe("OpeningConfirmations", () => {
     expect(host.refreshBank).toHaveBeenCalledOnce()
     expect(toasts).toEqual([])
     expect(loadQueue()).toEqual([])
+    expect(loadOpened()).toEqual([])
   })
 })
 
@@ -184,6 +190,11 @@ describe("the reveal mode of a held capsule", () => {
     reflectChange(state(), state(), undefined, "", () => {})
 
     expect(sendReveal).toHaveBeenCalledOnce()
-    expect(sendReveal).toHaveBeenCalledWith({ url: "/pack/held-1/reveal", mode: "one_by_one", csrfToken: null })
+    expect(sendReveal).toHaveBeenCalledWith({
+      url: "/pack/held-1/reveal",
+      mode: "one_by_one",
+      timings: {},
+      csrfToken: null,
+    })
   })
 })

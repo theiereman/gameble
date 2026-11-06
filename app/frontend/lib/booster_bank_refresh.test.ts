@@ -5,6 +5,7 @@ import { fetchBank, type BankAnswer } from "./booster_bank"
 import { BankRefresh } from "./booster_bank_refresh"
 import { bank, dealt, heldOf, startWith } from "./booster_fixtures"
 import type { Transition } from "./booster_host"
+import { onGameble } from "./events"
 
 vi.mock("./booster_bank", async (original) => ({
   ...(await original<typeof import("./booster_bank")>()),
@@ -66,15 +67,19 @@ describe("BankRefresh at zero", () => {
     expect(visitPage).not.toHaveBeenCalled()
   })
 
-  it("updates the counts of a sealed screen without a page visit", async () => {
+  it("updates the counts of a sealed screen without a page visit, and says the booster changed", async () => {
     fetched.mockResolvedValue({ bank: bank(3), held: null })
     const { refresh, state } = screen(startWith())
+    const changed = vi.fn()
+    const stop = onGameble("gameble:booster-changed", changed)
 
     refresh.atZero()
     await settle()
+    stop()
 
     expect(state()).toMatchObject({ phase: "sealed", bank: { available: 3, openable: 3 } })
     expect(visitPage).not.toHaveBeenCalled()
+    expect(changed).toHaveBeenCalledOnce()
   })
 
   it("owes the bank while a hand is not put away", async () => {
@@ -94,9 +99,13 @@ describe("BankRefresh after a failed read", () => {
     const initial = startWith({ bank: bank(0) })
     const { refresh, state } = screen(initial)
 
+    const changed = vi.fn()
+    const stop = onGameble("gameble:booster-changed", changed)
     refresh.atZero()
     await settle()
+    stop()
     expect(state()).toBe(initial)
+    expect(changed).not.toHaveBeenCalled()
 
     window.dispatchEvent(new Event("online"))
     await settle()

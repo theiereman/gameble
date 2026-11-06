@@ -31,13 +31,13 @@ export type HeldBank = Readonly<{ bank: BoosterBank; held: HeldCapsules }>
 
 export function heldSkippingQueued(
   { bank, held }: HeldBank,
-  confirming: readonly QueuedOpening[],
+  skipped: readonly Pick<QueuedOpening, "token">[],
   reserves: readonly Reserve[] = RESERVES,
 ): HeldBank {
   return reserves.reduce<HeldBank>(
     (after, reserve) => {
       const capsule = after.held[reserve]
-      if (!capsule || !confirming.some(({ token }) => token === capsule.pack.token)) return after
+      if (!capsule || !skipped.some(({ token }) => token === capsule.pack.token)) return after
       return { bank: bankAfterHeld(after.bank, reserve), held: { ...after.held, [reserve]: null } }
     },
     { bank, held },

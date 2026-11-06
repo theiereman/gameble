@@ -47,6 +47,7 @@ export interface GamebleEventMap {
   "gameble:bank-updated": StreamUpdatedDetail
   "gameble:sheet-shown": SheetShownDetail
   "gameble:screen-shown": null
+  "gameble:booster-changed": null
   "gameble:top-bar-panel": TopBarPanelDetail
 }
 

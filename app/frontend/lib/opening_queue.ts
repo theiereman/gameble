@@ -8,6 +8,10 @@ export type SettledOpening = Exclude<OpeningResult, { kind: "failed" }>
 
 export const QUEUE_STORAGE_KEY = "gameble:opening-queue"
 
+export const OPENED_STORAGE_KEY = "gameble:opened-capsules"
+
+export const OPENED_REMEMBERED = 8
+
 export const RETRY_DELAYS = [2000, 5000, 15000, 30000] as const
 
 export const SEND_TIMEOUT_MS = 15000
@@ -75,6 +79,25 @@ export function dequeueStored(token: string, storage: QueueStorage | null = brow
   const entries = loadQueue(storage)
   const after = withoutQueued(entries, token)
   if (after !== entries) saveQueue(after, storage)
+}
+
+export function loadOpened(storage: QueueStorage | null = browserStorage()): string[] {
+  try {
+    const stored: unknown = JSON.parse(storage?.getItem(OPENED_STORAGE_KEY) ?? "[]")
+    if (!Array.isArray(stored)) return []
+    return stored.filter((token): token is string => typeof token === "string" && token !== "")
+  } catch {
+    return []
+  }
+}
+
+export function rememberOpened(token: string, storage: QueueStorage | null = browserStorage()): void {
+  const tokens = [...loadOpened(storage).filter((opened) => opened !== token), token].slice(-OPENED_REMEMBERED)
+  try {
+    storage?.setItem(OPENED_STORAGE_KEY, JSON.stringify(tokens))
+  } catch {
+    return
+  }
 }
 
 export function settledOpening(result: OpeningResult): SettledOpening | null {
