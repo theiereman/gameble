@@ -14,7 +14,7 @@ module BoostersHelper
     "booster-celebration" => { leave: :leaveForAlbum, step: :stepCelebration, dismiss: :dismissCelebration }
   }.freeze
 
-  def booster_root_data(bank:, season:, next_pack_sizes:, reserve:)
+  def booster_root_data(bank:, season:, next_pack_sizes:, reserve:, held:)
     values = booster_bank(bank:, next_pack_sizes:)
     {
       controller: "booster", action: "#{screen_actions("booster", BOOSTER_ACTIONS)} gameble:bank-updated@window->booster#bankUpdated",
@@ -22,7 +22,7 @@ module BoostersHelper
       booster_repost_url_value: season ? card_repost_path(slug: "SLUG", number: "NUMBER") : "",
       booster_bank_url_value: booster_path(format: :json), booster_delimiter_value: t("number.format.delimiter"),
       booster_pack_size_value: Game::Pack::SIZE, booster_season_value: season&.number || 0,
-      booster_bank_value: booster_bank_values(values), booster_reserve_value: reserve,
+      booster_bank_value: booster_bank_values(values), booster_reserve_value: reserve, booster_held_value: held,
       booster_strings_value: screen_strings("booster.strings"), origin: booster_origin_kind(bank, reserve)
     }.merge(screen_outlets("booster", BOOSTER_ACTIONS.keys + BOOSTER_CHILDREN))
   end

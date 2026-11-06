@@ -1133,6 +1133,7 @@ en:
       own_code: That is your own code.
       own_link: That is your own link.
       own_profile_private: 'Your profile is private: trades are closed.'
+      pack_not_available: This capsule is no longer in your reserve.
       pack_not_found: That capsule could not be found.
       player_required: Sign in with an active account to do that.
       entry_not_found: That feed entry could not be found.

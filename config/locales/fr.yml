@@ -2691,6 +2691,7 @@ fr:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       invalid_time: "L'heure envoyée n'a pas pu être lue. Rechargez la page."
       no_pack_available: "Votre réserve est vide. La prochaine capsule arrive bientôt."
+      pack_not_available: "Cette capsule n'est plus dans votre réserve."
       already_collected: "Vous avez déjà récupéré la capsule du jour. La prochaine sera prête le %{time}."
       no_season: "Aucune saison de cartes n'est encore ouverte. Revenez plus tard pour la capsule du jour."
       reward_already_claimed: "Vous avez déjà récupéré cette capsule rare."

@@ -10,6 +10,8 @@ class BoostersController < ApplicationController
     @bank = Game::BankSummary.call(current_player)
     @reserve = initial_reserve
     @next_pack_sizes = Game::NextPackSize.call(current_player)
+    held = Game::HeldPacks.call(current_player)
+    @held = helpers.held_packs_json(held, player: current_player, goals: held.values.any? ? goal_marks : GoalMarks::NONE)
     respond_to do |format|
       format.html do
         @season = Catalog::PublishedSeason.call
@@ -19,7 +21,7 @@ class BoostersController < ApplicationController
         @opened_goals = @opened_pack ? goal_marks : GoalMarks::NONE
         @next_steps = Game::NextSteps.call(current_player, season: @season) if reserve_run_out?
       end
-      format.json { render json: { bank: helpers.booster_bank(bank: @bank, next_pack_sizes: @next_pack_sizes) } }
+      format.json { render json: { bank: helpers.booster_bank(bank: @bank, next_pack_sizes: @next_pack_sizes), held: @held } }
     end
   end
 

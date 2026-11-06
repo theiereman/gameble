@@ -392,7 +392,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "standard", pack.card_back
     assert_equal [ pack.id ], game_events(player, Game::PackOpened).map { it.data[:pack_id] }
 
-    assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers goalsReached], body.keys
+    assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers goalsReached next], body.keys
     assert_equal [], body["goalsReached"]
     assert_equal %w[token kind cardBack url revealUrl], body["pack"].keys
     assert_equal [ pack.token, "regular", "/en/packs/#{pack.token}", "/en/packs/#{pack.token}/reveal" ],
@@ -426,7 +426,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     # No database id: no id key, and the only integers are counts.
     assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
     assert_equal [ *Array.new(5) { %w[cards.[].season cards.[].year] }.flatten, "bank.available", "bank.special", "bank.openable", "bank.nextPackSize", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" },
-      *Array.new(body["setTiers"].size) { %w[setTiers.[].required setTiers.[].held setTiers.[].total] }.flatten ],
+      *Array.new(body["setTiers"].size) { %w[setTiers.[].required setTiers.[].held setTiers.[].total] }.flatten,
+      *Array.new(5) { %w[next.cards.[].season next.cards.[].year] }.flatten, *%w[common uncommon rare epic legendary].map { "next.tierCountsBefore.#{it}" } ],
       json_integers(body).map(&:first)
   end
 
@@ -687,5 +688,81 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_select "#toasts .toast", /Objectif atteint.*Valve/m
+  end
+
+  # --- Opening the capsule the screen holds ------------------------
+
+  def open_pack_json(token, key = KEY)
+    post packs_path(locale: :en), params: { pack: token }, headers: { "Accept" => "application/json", "Idempotency-Key" => key }
+  end
+
+  test "a JSON opening by token opens that capsule and answers the next held capsule of the same reserve, shaped like its own head" do
+    player = accounts_players(:player)
+    following = create_pack(player, available_at: 3.minutes.ago)
+    chosen = create_pack(player, cards: fixture_tier_ids, available_at: 2.minutes.ago)
+    create_pack(player, available_at: 1.minute.ago)
+    create_pack(player, kind: :bonus, available_at: 4.minutes.ago)
+    sign_in(player)
+
+    open_pack_json(chosen.token)
+
+    assert_response :ok
+    assert_predicate chosen.reload, :opened?
+    assert_equal chosen.token, body.dig("pack", "token")
+    held = body["next"]
+    assert_equal %w[pack cards tierCountsBefore], held.keys
+    assert_equal %w[token kind cardBack url revealUrl], held["pack"].keys
+    assert_equal [ following.token, "regular", "/en/packs/#{following.token}", "/en/packs/#{following.token}/reveal", "standard" ],
+      held["pack"].values_at("token", "kind", "url", "revealUrl") + [ held.dig("pack", "cardBack", "key") ]
+    assert_equal body["cards"].first.keys, held["cards"].first.keys
+    assert_equal [ "portal" ] * 5, held["cards"].map { it["slug"] }
+    assert_equal [ false ] * 5, held["cards"].map { it["firstCopy"] }
+    assert_equal Game::TierCounts.call(player).transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }, held["tierCountsBefore"]
+    assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
+  end
+
+  test "the next held capsule is null once the reserve opened is empty, and an opening with no token answers it too" do
+    player = accounts_players(:player)
+    create_pack(player, available_at: 2.minutes.ago)
+    special = create_pack(player, kind: :bonus, available_at: 1.minute.ago)
+    sign_in(player)
+
+    open_json
+
+    assert_response :ok
+    assert_nil body["next"]
+    open_pack_json(special.token, SecureRandom.uuid)
+    assert_equal special.token, body.dig("pack", "token")
+    assert_nil body["next"]
+  end
+
+  test "a token of a capsule already opened answers it again with a new key, nothing credited nor published" do
+    player = accounts_players(:player)
+    first = create_pack(player, cards: fixture_tier_ids, available_at: 2.minutes.ago)
+    create_pack(player)
+    sign_in(player)
+    open_pack_json(first.token)
+    answer = body
+
+    assert_no_changes -> { written(player) } do
+      open_pack_json(first.token, SecureRandom.uuid)
+    end
+    assert_response :ok
+    assert_equal answer.slice("pack", "cards", "tierCountsBefore", "setTiers", "next"), body.slice("pack", "cards", "tierCountsBefore", "setTiers", "next")
+  end
+
+  test "an unknown token, another player's or one not yet available is refused with pack_not_available" do
+    player = accounts_players(:player)
+    create_pack(player)
+    later = create_pack(player, available_at: 1.hour.from_now)
+    theirs = create_pack(accounts_players(:moderator))
+    sign_in(player)
+
+    [ "unknown", theirs.token, later.token, [ "a", "b" ] ].each do |token|
+      assert_no_changes -> { written(player) } do
+        open_pack_json(token, SecureRandom.uuid)
+      end
+      assert_json_error :unprocessable_content, "pack_not_available", I18n.t("errors.game.pack_not_available", locale: :en)
+    end
   end
 end

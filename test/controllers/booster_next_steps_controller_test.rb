@@ -98,7 +98,7 @@ class BoosterNextStepsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{PANEL}[hidden]" do
       assert_select "#{FRAME} *", 0
     end
-    assert_empty queries.grep(/json_object_agg\(tiers\.tier|Game::TradeSuggestions|game_goals/)
+    assert_empty queries.grep(/json_object_agg\(tiers\.tier|Game::TradeSuggestions/)
   end
 
   test "the frame brings the proposals with their hooks" do
