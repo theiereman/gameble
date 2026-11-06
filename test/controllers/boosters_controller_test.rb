@@ -219,7 +219,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "application/json", response.media_type
     assert_equal({ "bank" => { "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextSpecialKind" => nil, "nextAvailableAt" => "2026-10-06T14:32:00.000Z",
-      "serverTime" => "2026-10-06T14:26:00.000Z", "nextPackSize" => 5 } }, response.parsed_body)
+      "serverTime" => "2026-10-06T14:26:00.000Z", "nextPackSize" => 5, "nextSpecialSize" => nil } }, response.parsed_body)
     assert_empty json_keys(response.parsed_body).grep(/\Aid\z|Id\z/)
   end
 
@@ -271,7 +271,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".packs-chip--static .packs-chip__label", "en réserve"
   end
 
-  test "a daily bonus pack first in line: the screen is told the next booster holds three cards" do
+  test "each reserve tells the size of its own next capsule, the older daily one not counting for the standard reserve" do
     create_pack(@player, kind: :bonus, available_at: 2.hours.ago)
     create_pack(@player, available_at: 1.hour.ago)
     sign_in(@player)
@@ -279,7 +279,11 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     get booster_path(locale: :en)
 
     assert_response :success
-    assert_equal [ 3, "5" ], [ bank_value("nextPackSize"), value("pack-size") ]
+    assert_equal [ 5, 3, "5" ], [ bank_value("nextPackSize"), bank_value("nextSpecialSize"), value("pack-size") ]
+    assert_select "#{ROOT} .booster__canister-facts", "5 cards"
+
+    get booster_path(locale: :en, reserve: :special)
+
     assert_select "#{ROOT} .booster__value", "3"
     assert_select "#{ROOT} .booster__canister-facts", "3 cards"
   end

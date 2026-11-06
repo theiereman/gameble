@@ -11,6 +11,7 @@ const bank = {
   nextAvailableAt: "2026-10-06T14:32:00.000Z",
   serverTime: "2026-10-06T14:22:00.000Z",
   nextPackSize: 5,
+  nextSpecialSize: 3,
 }
 
 const json = (status: number, body: unknown) =>
@@ -50,6 +51,7 @@ describe("fetchBank", () => {
       nextAvailableAt: null,
       serverTime: bank.serverTime,
       nextPackSize: null,
+      nextSpecialSize: null,
     }
     const { send } = fake(json(200, { bank: { ...full, extra: "ignored" } }))
     expect(await fetchBank({ url: "/en/booster.json", fetch: send })).toEqual(full)

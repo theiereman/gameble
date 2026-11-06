@@ -21,6 +21,7 @@ export type BankValues = {
   nextAvailableAt: string
   serverTime: string
   nextPackSize: number
+  nextSpecialSize: number
 }
 
 export type OpenedMarkup = {
@@ -49,6 +50,7 @@ export function bankFrom({
   nextAvailableAt,
   serverTime,
   nextPackSize,
+  nextSpecialSize,
 }: BankValues): BoosterBank {
   return {
     available,
@@ -59,6 +61,7 @@ export function bankFrom({
     nextAvailableAt: nextAvailableAt || null,
     serverTime,
     nextPackSize: nextPackSize > 0 ? nextPackSize : null,
+    nextSpecialSize: nextSpecialSize > 0 ? nextSpecialSize : null,
   }
 }
 
@@ -125,6 +128,7 @@ export function openedFrom({ pack, cards, setTiers, bank }: OpenedMarkup): Openi
       nextAvailableAt: bank.nextAvailableAt,
       scheduledAt: [],
       nextPackSize: bank.nextPackSize,
+      nextSpecialSize: bank.nextSpecialSize,
     },
     serverTime: bank.serverTime,
     tierCountsBefore: { ...NO_COUNTS },

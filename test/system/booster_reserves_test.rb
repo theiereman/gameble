@@ -53,16 +53,23 @@ class BoosterReservesTest < ApplicationSystemTestCase
     special = create_pack(@player, kind: :bonus, available_at: 1.hour.ago)
     visit booster_path(locale: :en)
     assert_selector ".booster[data-layout=phone]"
+    assert_selector ".booster__canister-facts", text: "5 cards"
+    find(tab(:special)).click
+    assert_selector ".booster__canister-facts", text: "3 cards"
+    find(tab(:standard)).click
+    assert_selector ".booster__canister-facts", text: "5 cards"
 
     find(".booster-canister").click
     assert_selector ".booster-tray__slot", count: 5, wait: 10
     click_on "Reveal all"
     assert_selector ".booster[data-status=complete]", wait: 15
     assert_no_selector ".booster[data-origin]"
+    assert_selector ".booster-canister[aria-label*='5 cards']"
 
     find(tab(:special)).click
     assert_selector "#{tab(:special)}[aria-selected=true]"
     assert_selector ".booster[data-reserve=special][data-origin=bonus]"
+    assert_selector ".booster-canister[aria-label*='3 cards']"
     find("button.booster__open").click
 
     eventually("the special capsule should be opened") { special.reload.opened? }

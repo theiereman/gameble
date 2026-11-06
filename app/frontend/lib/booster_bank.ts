@@ -28,9 +28,28 @@ export async function fetchBank({ url, fetch: send = globalThis.fetch }: FetchBa
     return null
   }
   if (!isRecord(body) || !isBank(body.bank)) return null
-  const { available, special, openable, reserveFull, nextSpecialKind, nextAvailableAt, serverTime, nextPackSize } =
-    body.bank
-  return { available, special, openable, reserveFull, nextSpecialKind, nextAvailableAt, serverTime, nextPackSize }
+  const {
+    available,
+    special,
+    openable,
+    reserveFull,
+    nextSpecialKind,
+    nextAvailableAt,
+    serverTime,
+    nextPackSize,
+    nextSpecialSize,
+  } = body.bank
+  return {
+    available,
+    special,
+    openable,
+    reserveFull,
+    nextSpecialKind,
+    nextAvailableAt,
+    serverTime,
+    nextPackSize,
+    nextSpecialSize,
+  }
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -46,7 +65,8 @@ function isBank(value: unknown): value is BoosterBank {
     (value.nextSpecialKind === null || typeof value.nextSpecialKind === "string") &&
     (value.nextAvailableAt === null || typeof value.nextAvailableAt === "string") &&
     typeof value.serverTime === "string" &&
-    (value.nextPackSize === null || typeof value.nextPackSize === "number")
+    (value.nextPackSize === null || typeof value.nextPackSize === "number") &&
+    (value.nextSpecialSize === null || typeof value.nextSpecialSize === "number")
   )
 }
 

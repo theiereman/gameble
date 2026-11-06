@@ -10,16 +10,18 @@ const BANK = {
   nextAvailableAt: "2026-10-26T12:00:00.000Z",
   serverTime: "2026-10-26T11:00:00.000Z",
   nextPackSize: 5,
+  nextSpecialSize: 3,
 }
 
 describe("bankFrom", () => {
   it("reads the bank from the root's values, an empty time and a zero size as none", () => {
     expect(bankFrom(BANK)).toEqual(BANK)
-    expect(bankFrom({ ...BANK, available: 0, nextAvailableAt: "", nextPackSize: 0 })).toEqual({
+    expect(bankFrom({ ...BANK, available: 0, nextAvailableAt: "", nextPackSize: 0, nextSpecialSize: 0 })).toEqual({
       ...BANK,
       available: 0,
       nextAvailableAt: null,
       nextPackSize: null,
+      nextSpecialSize: null,
     })
   })
 })
@@ -119,6 +121,7 @@ describe("openedFrom", () => {
       nextAvailableAt: BANK.nextAvailableAt,
       scheduledAt: [],
       nextPackSize: 5,
+      nextSpecialSize: 3,
     })
     expect(opened?.serverTime).toBe(BANK.serverTime)
   })

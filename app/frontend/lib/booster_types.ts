@@ -17,6 +17,7 @@ export type BoosterBank = {
   nextAvailableAt: string | null
   serverTime: string
   nextPackSize: number | null
+  nextSpecialSize: number | null
 }
 
 export const REVEAL_GUARD = 400

@@ -21,6 +21,7 @@ export const bank = (available: number, extra: Partial<BoosterBank> = {}): Boost
   nextAvailableAt: "2026-10-26T12:00:00.000Z",
   serverTime: "2026-10-26T11:00:00.000Z",
   nextPackSize: available > 0 ? 5 : null,
+  nextSpecialSize: null,
   ...extra,
 })
 
@@ -66,6 +67,7 @@ export const answerOf = (
     nextAvailableAt: null,
     scheduledAt: [],
     nextPackSize: available > 0 ? 5 : null,
+    nextSpecialSize: null,
   },
   serverTime: "2026-10-26T11:00:01.000Z",
   tierCountsBefore: { common: 3, uncommon: 0, rare: 0, epic: 0, legendary: 0 },

@@ -400,7 +400,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "standard", body["pack"]["cardBack"]["key"]
     assert_equal %w[s m xl], body["pack"]["cardBack"]["urls"].keys
     scheduled = (now + 10.minutes).iso8601(3)
-    assert_equal({ "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ], "nextPackSize" => 5, "nextSpecialKind" => nil },
+    assert_equal({ "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ], "nextPackSize" => 5, "nextSpecialSize" => nil, "nextSpecialKind" => nil },
       body["bank"])
     assert_equal "2026-10-06T14:22:00.000Z", body["serverTime"]
     assert_equal counts_before.transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }, body["tierCountsBefore"]
@@ -479,7 +479,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :ok
     assert_equal bonus.token, body.dig("pack", "token")
-    assert_equal({ "available" => 10, "special" => 0, "openable" => 10, "reserveFull" => true, "nextAvailableAt" => nil, "scheduledAt" => [], "nextPackSize" => 5, "nextSpecialKind" => nil }, body["bank"])
+    assert_equal({ "available" => 10, "special" => 0, "openable" => 10, "reserveFull" => true, "nextAvailableAt" => nil, "scheduledAt" => [], "nextPackSize" => 5, "nextSpecialSize" => nil, "nextSpecialKind" => nil }, body["bank"])
   end
 
   test "the same key again replays the same answer, with nothing opened, even once the reserve is empty" do
@@ -607,6 +607,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Blue Depths — 2014", "Portal — Valve, 2007, Puzzle", "Golden Crown — 1998" ], body["cards"].map { it["label"] }
     # Nothing left to open: no next pack size.
     assert_nil body.dig("bank", "nextPackSize")
+    assert_nil body.dig("bank", "nextSpecialSize")
     body["cards"].each do |card|
       assert_equal %w[s m xl], card["faces"].keys
       card["faces"].each { |size, html| assert_equal 1, Nokogiri::HTML5.fragment(html).css(".card.card--#{size}.card--booster").size }

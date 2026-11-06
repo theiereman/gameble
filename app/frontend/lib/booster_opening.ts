@@ -88,7 +88,8 @@ function withoutReserve({ bank, reserve }: BoosterState): BoosterBank {
     special,
     openable: standard + special,
     reserveFull: false,
-    nextPackSize: null,
+    nextPackSize: reserve === "standard" ? null : bank.nextPackSize,
+    nextSpecialSize: reserve === "special" ? null : bank.nextSpecialSize,
   }
 }
 
@@ -99,7 +100,8 @@ function reserveAfterOpening({ bank, reserve }: BoosterState): BoosterState["res
 }
 
 export function openingAnswered(state: BoosterState, answer: OpeningAnswer): BoosterState {
-  const { available, special, openable, reserveFull, nextSpecialKind, nextAvailableAt, nextPackSize } = answer.bank
+  const { available, special, openable, reserveFull, nextSpecialKind, nextAvailableAt, nextPackSize, nextSpecialSize } =
+    answer.bank
   const bank: BoosterBank = {
     available,
     special,
@@ -109,6 +111,7 @@ export function openingAnswered(state: BoosterState, answer: OpeningAnswer): Boo
     nextAvailableAt,
     serverTime: answer.serverTime,
     nextPackSize: nextPackSize ?? null,
+    nextSpecialSize: nextSpecialSize ?? null,
   }
   const changed = bankChanged(state, bank)
   return {

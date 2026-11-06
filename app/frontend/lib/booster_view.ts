@@ -14,6 +14,9 @@ import {
   type StatusTone,
 } from "./booster_types"
 
+export const nextCapsuleSize = ({ bank, reserve }: BoosterState): number | null =>
+  reserve === "special" ? bank.nextSpecialSize : bank.nextPackSize
+
 export function originKind(state: BoosterState): string | null {
   if (state.reserve !== "special") return null
   const showsHand = state.phase === "dealt" && !nextCapsuleWaiting(state)

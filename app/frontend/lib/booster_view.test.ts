@@ -16,6 +16,7 @@ import {
   controls,
   layoutApplied,
   layoutAsked,
+  nextCapsuleSize,
   onTable,
   originKind,
   zoomClosed,
@@ -191,6 +192,13 @@ describe("controls", () => {
     expect(controls(shown)).toMatchObject({ top: 0, plate: 0, hint: { kind: "swipe" } })
     const away = cardStored(cardStored(revealMarked(shown, 1, 0), 0), 1)
     expect(controls(away)).toMatchObject({ top: null, plate: null, storedCount: 2, hint: { kind: "done", count: 2 } })
+  })
+
+  it("counts the cards of the capsule ahead in the reserve chosen", () => {
+    const both = bank(1, { special: 1, nextPackSize: 5, nextSpecialSize: 3 })
+
+    expect(nextCapsuleSize({ ...startWith(), bank: both })).toBe(5)
+    expect(nextCapsuleSize({ ...startWith(), bank: both, reserve: "special" })).toBe(3)
   })
 
   it("names the special capsule ahead once a phone's hand is put away, and the hand's own kind until then", () => {

@@ -4,7 +4,7 @@
 <% content_for :booster_top_bar, true %>
 <% turbo_exempts_page_from_cache %>
 <h1 class="visually-hidden"><%= t(".title") %></h1>
-<%= render "boosters/booster", bank: @bank, season: @season, next_pack_size: @next_pack_size, opened_pack: @opened_pack, opened_cards: @opened_cards, reserve: @reserve, opened_first_copies: @opened_first_copies,
+<%= render "boosters/booster", bank: @bank, season: @season, next_pack_sizes: @next_pack_sizes, opened_pack: @opened_pack, opened_cards: @opened_cards, reserve: @reserve, opened_first_copies: @opened_first_copies,
   opened_goals: @opened_goals, next_steps: @next_steps %>
 <div class="booster__fallback">
   <% if @bank[:openable].positive? %>

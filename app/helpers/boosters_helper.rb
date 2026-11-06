@@ -14,8 +14,8 @@ module BoostersHelper
     "booster-celebration" => { leave: :leaveForAlbum, step: :stepCelebration, dismiss: :dismissCelebration }
   }.freeze
 
-  def booster_root_data(bank:, season:, next_pack_size:, reserve:)
-    values = booster_bank(bank:, next_pack_size:)
+  def booster_root_data(bank:, season:, next_pack_sizes:, reserve:)
+    values = booster_bank(bank:, next_pack_sizes:)
     {
       controller: "booster", action: "#{screen_actions("booster", BOOSTER_ACTIONS)} gameble:bank-updated@window->booster#bankUpdated",
       booster_open_url_value: packs_path, booster_card_url_value: card_path(slug: "SLUG"),
@@ -30,10 +30,10 @@ module BoostersHelper
   def booster_bank_values(values)
     values.slice(:available, :special, :openable, :reserveFull, :serverTime)
       .merge(nextAvailableAt: values[:nextAvailableAt] || "", nextPackSize: values[:nextPackSize] || 0,
-        nextSpecialKind: values[:nextSpecialKind] || "")
+        nextSpecialSize: values[:nextSpecialSize] || 0, nextSpecialKind: values[:nextSpecialKind] || "")
   end
 
-  def booster_bank(bank:, next_pack_size:)
+  def booster_bank(bank:, next_pack_sizes:)
     {
       available: bank[:available],
       special: bank[:special],
@@ -42,7 +42,8 @@ module BoostersHelper
       nextSpecialKind: bank[:next_special_kind],
       nextAvailableAt: bank[:next_available_at] && opening_time(bank[:next_available_at]),
       serverTime: opening_time(Time.current),
-      nextPackSize: next_pack_size
+      nextPackSize: next_pack_sizes["standard"],
+      nextSpecialSize: next_pack_sizes["special"]
     }
   end
 

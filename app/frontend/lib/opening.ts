@@ -22,6 +22,7 @@ export type OpeningBank = {
   nextAvailableAt: string | null
   scheduledAt: string[]
   nextPackSize: number | null
+  nextSpecialSize: number | null
 }
 
 export const SET_TIERS = [

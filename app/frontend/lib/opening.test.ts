@@ -28,6 +28,7 @@ const answer = {
     nextAvailableAt: null,
     scheduledAt: [],
     nextPackSize: 5,
+    nextSpecialSize: null,
   },
   serverTime: "2026-10-06T14:22:00.000Z",
   tierCountsBefore: { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0 },

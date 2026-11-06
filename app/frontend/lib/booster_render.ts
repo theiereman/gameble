@@ -3,6 +3,7 @@ import {
   bannerEnded,
   canisterDocks,
   controls,
+  nextCapsuleSize,
   nextCapsuleWaiting,
   nextStepsShown,
   onTable,
@@ -77,7 +78,7 @@ export class BoosterRenderer {
   }
 
   private nextSize(state: BoosterState): number {
-    return state.bank.nextPackSize ?? this.host.packSize
+    return nextCapsuleSize(state) ?? this.host.packSize
   }
 
   private originName(state: BoosterState): string | null {

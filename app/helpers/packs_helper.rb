@@ -19,13 +19,14 @@ module PacksHelper
   def pack_opening_json(pack, cards:, player:, now:, goals_reached: [], goals: GoalMarks::NONE)
     counts = Game::Reserve.counts(player.id, now:)
     scheduled = Game::BankSchedule.call(player, now:).map { opening_time(it) }
+    sizes = Game::NextPackSize.call(player, now:)
     {
       pack: { token: pack.token, kind: pack.kind, cardBack: pack_card_back(pack), url: pack_path(pack.token),
               revealUrl: pack_reveal_path(pack.token) },
       cards: cards.zip(Game::FirstCopies.call(player, pack)).map { |card, first_copy| pack_card_json(card, goals.goals_for(card.card_id), first_copy:) },
       bank: { available: counts.standard, special: counts.special, openable: counts.openable, reserveFull: Game::Reserve.full?(counts.standard),
-              nextAvailableAt: scheduled.first, scheduledAt: scheduled, nextPackSize: Game::NextPackSize.call(player, now:),
-              nextSpecialKind: counts.next_special_kind },
+              nextAvailableAt: scheduled.first, scheduledAt: scheduled, nextPackSize: sizes["standard"],
+              nextSpecialSize: sizes["special"], nextSpecialKind: counts.next_special_kind },
       serverTime: opening_time(now),
       tierCountsBefore: Game::TierCounts.before_opening(player, pack).transform_keys { Catalog::Rarity::TIERS.fetch(it) },
       setTiers: pack_set_tiers(pack),
