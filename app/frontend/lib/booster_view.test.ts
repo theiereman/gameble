@@ -17,6 +17,7 @@ import {
   layoutApplied,
   layoutAsked,
   onTable,
+  originKind,
   zoomClosed,
   zoomOpened,
   zoomStepped,
@@ -190,6 +191,18 @@ describe("controls", () => {
     expect(controls(shown)).toMatchObject({ top: 0, plate: 0, hint: { kind: "swipe" } })
     const away = cardStored(cardStored(revealMarked(shown, 1, 0), 0), 1)
     expect(controls(away)).toMatchObject({ top: null, plate: null, storedCount: 2, hint: { kind: "done", count: 2 } })
+  })
+
+  it("names the special capsule ahead once a phone's hand is put away, and the hand's own kind until then", () => {
+    const special = { reserve: "special" as const, bank: bank(1, { special: 1, nextSpecialKind: "bonus" }) }
+    const pile = { ...dealt(["common"], { layout: "phone" }), ...special }
+    const handKind = pile.answer?.pack.kind ?? null
+
+    expect(originKind(pile)).toBe(handKind)
+    expect(originKind(cardStored(revealMarked(pile, 0, 0), 0))).toBe("bonus")
+    expect(originKind({ ...cardStored(revealMarked(pile, 0, 0), 0), reserve: "standard" })).toBeNull()
+    expect(originKind(revealMarked({ ...dealt(["common"]), ...special }, 0, 0))).toBe(handKind)
+    expect(originKind({ ...startWith(), ...special })).toBe("bonus")
   })
 
   it("enables the zoom's steps toward filled neighbours", () => {

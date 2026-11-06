@@ -6,6 +6,7 @@ import {
   nextCapsuleWaiting,
   nextStepsShown,
   onTable,
+  originKind,
   shownCelebration,
   type BoosterState,
   type Controls,
@@ -79,13 +80,8 @@ export class BoosterRenderer {
     return state.bank.nextPackSize ?? this.host.packSize
   }
 
-  private originKind(state: BoosterState): string | null {
-    if (state.reserve !== "special") return null
-    return (state.phase === "dealt" ? state.answer?.pack.kind : state.bank.nextSpecialKind) || null
-  }
-
   private originName(state: BoosterState): string | null {
-    const kind = this.originKind(state)
+    const kind = originKind(state)
     const names: Record<string, string> = {
       bonus: this.strings.originBonus,
       reward: this.strings.originReward,
@@ -95,7 +91,7 @@ export class BoosterRenderer {
 
   private renderOriginLook(state: BoosterState): void {
     const { element } = this.host
-    const kind = this.originKind(state)
+    const kind = originKind(state)
     if (kind) element.dataset.origin = kind
     else delete element.dataset.origin
   }

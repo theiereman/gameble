@@ -45,6 +45,31 @@ class BoosterReservesTest < ApplicationSystemTestCase
     assert_selector "#{tab(:standard)}[aria-selected=true]"
   end
 
+  test "on a phone, choosing the special tab after a standard hand shows the special capsule ahead and opens it" do
+    resize_to(390, 844)
+    cards = Array.new(Game::Pack::SIZE, catalog_card_seasons(:common_card_one).id)
+    standard = create_pack(@player, cards:, available_at: 3.hours.ago)
+    spare = create_pack(@player, cards:, available_at: 2.hours.ago)
+    special = create_pack(@player, kind: :bonus, available_at: 1.hour.ago)
+    visit booster_path(locale: :en)
+    assert_selector ".booster[data-layout=phone]"
+
+    find(".booster-canister").click
+    assert_selector ".booster-tray__slot", count: 5, wait: 10
+    click_on "Reveal all"
+    assert_selector ".booster[data-status=complete]", wait: 15
+    assert_no_selector ".booster[data-origin]"
+
+    find(tab(:special)).click
+    assert_selector "#{tab(:special)}[aria-selected=true]"
+    assert_selector ".booster[data-reserve=special][data-origin=bonus]"
+    find("button.booster__open").click
+
+    eventually("the special capsule should be opened") { special.reload.opened? }
+    assert_predicate standard.reload, :opened?
+    assert_not_predicate spare.reload, :opened?
+  end
+
   test "going back from the capsule screen shows the reserve left after opening, not the one cached before" do
     2.times { create_pack(@player, available_at: 3.hours.ago) }
     visit feed_path(locale: :en)

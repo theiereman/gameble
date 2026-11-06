@@ -14,6 +14,12 @@ import {
   type StatusTone,
 } from "./booster_types"
 
+export function originKind(state: BoosterState): string | null {
+  if (state.reserve !== "special") return null
+  const showsHand = state.phase === "dealt" && !nextCapsuleWaiting(state)
+  return (showsHand ? state.answer?.pack.kind : state.bank.nextSpecialKind) || null
+}
+
 export const onTable = (state: BoosterState): boolean =>
   state.layout === "phone" && state.dealt && (state.answer?.cards.length ?? 0) > 0
 
