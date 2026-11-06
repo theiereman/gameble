@@ -268,3 +268,11 @@ slug = "epic-hotwire-native-apps"
 title = "Hotwire Native apps"
 covers = []
 after = [{ epic = 33, needs = "the phone's four tabs, its header and its bottom actions" }]
+
+[[epic]]
+id = 36
+release = "1.3.0"
+slug = "epic-instant-capsule-opening"
+title = "Instant capsule opening"
+covers = []
+after = []
