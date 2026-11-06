@@ -132,9 +132,9 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a first discovery shows with its gold chip under the whole feed and Discoveries, in French and English" do
-    common = fixture_tier_ids[0]
-    Game::FirstDiscovery.where(card_season_id: common).delete_all
-    create_pack(@player, cards: [ common ] * 5)
+    rare = fixture_tier_ids[2]
+    Game::FirstDiscovery.where(card_season_id: rare).delete_all
+    create_pack(@player, cards: [ rare ] * 5)
     Game::OpenPack.new.call(player: @player).value!
 
     get feed_path(locale: :fr)
