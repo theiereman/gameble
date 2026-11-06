@@ -10,4 +10,6 @@ object Gameble {
         get() = if (Locale.getDefault().language == "fr") "fr" else "en"
 
     fun url(path: String = ""): String = "$ROOT_URL/$locale$path"
+
+    fun location(path: String): String = "$ROOT_URL$path"
 }

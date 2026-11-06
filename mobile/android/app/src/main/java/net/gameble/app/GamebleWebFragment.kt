@@ -28,12 +28,12 @@ class GamebleWebFragment : HotwireWebFragment() {
 
     override fun onVisitRendered(location: String) {
         super.onVisitRendered(location)
-        (activity as? MainActivity)?.screenArrived(requireView())
+        (activity as? GamebleActivity)?.screenArrived(requireView())
     }
 
     override fun onVisitErrorReceived(location: String, error: VisitError) {
         super.onVisitErrorReceived(location, error)
-        (activity as? MainActivity)?.screenArrived(requireView())
+        (activity as? GamebleActivity)?.screenArrived(requireView())
     }
 
     // The same screen with other parameters (a filter chosen in a sheet) swaps in place, as Turbo does on the web;
@@ -45,7 +45,7 @@ class GamebleWebFragment : HotwireWebFragment() {
     ): NavOptions? {
         if (newPathProperties["context"] == "modal") return null
         val inPlace = action == VisitAction.REPLACE || Uri.parse(newLocation).path == Uri.parse(location).path
-        if (!inPlace) (activity as? MainActivity)?.leaveScreen(forward = newLocation != navigator.previousLocation)
+        if (!inPlace) (activity as? GamebleActivity)?.leaveScreen(forward = newLocation != navigator.previousLocation)
         return navOptions {}
     }
 }

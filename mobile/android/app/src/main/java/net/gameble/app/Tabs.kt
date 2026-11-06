@@ -5,6 +5,18 @@ import dev.hotwire.navigation.navigator.NavigatorConfiguration
 import dev.hotwire.navigation.tabs.HotwireBottomTab
 
 object Tabs {
+    class Destination(val tab: Int?, val atRoot: Boolean)
+
+    private val PATHS = listOf("", "/booster", "/library", "/friends", "/trades")
+    private val LOCALE = Regex("^/(en|fr)(?=[/?#]|$)")
+
+    fun destination(path: String): Destination {
+        val location = path.replace(LOCALE, "")
+        val bare = location.substringBefore('?').substringBefore('#').trimEnd('/')
+        val tab = PATHS.indexOfFirst { bare == it || (it.isNotEmpty() && bare.startsWith("$it/")) }.takeIf { it >= 0 }
+        return Destination(tab, atRoot = tab != null && location.trimEnd('/') == PATHS[tab])
+    }
+
     fun all(context: Context): List<HotwireBottomTab> = listOf(
         tab(context, "hub", R.string.tab_hub, R.drawable.ic_tab_hub, "", R.id.hub_host),
         tab(context, "capsule", R.string.tab_capsule, R.drawable.ic_tab_capsule, "/booster", R.id.capsule_host),

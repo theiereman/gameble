@@ -14,6 +14,7 @@ import net.gameble.app.bridge.HapticsComponent
 import net.gameble.app.bridge.PushPermissionComponent
 import net.gameble.app.bridge.ShareComponent
 import net.gameble.app.bridge.SheetComponent
+import net.gameble.app.bridge.TopBarComponent
 import net.gameble.app.bridge.SignInComponent
 
 class GamebleApplication : Application() {
@@ -41,7 +42,8 @@ class GamebleApplication : Application() {
             BridgeComponentFactory("push-permission", ::PushPermissionComponent),
             BridgeComponentFactory("share", ::ShareComponent),
             BridgeComponentFactory("haptics", ::HapticsComponent),
-            BridgeComponentFactory("sheet", ::SheetComponent)
+            BridgeComponentFactory("sheet", ::SheetComponent),
+            BridgeComponentFactory("top-bar", ::TopBarComponent)
         )
         PushService.createChannel(this)
     }

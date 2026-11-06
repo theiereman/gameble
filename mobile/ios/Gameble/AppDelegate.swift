@@ -19,7 +19,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             PushPermissionComponent.self,
             ShareComponent.self,
             HapticsComponent.self,
-            SheetComponent.self
+            SheetComponent.self,
+            TopBarComponent.self
         ])
         PushNotifications.shared.start()
         return true

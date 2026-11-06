@@ -31,7 +31,7 @@
 
 :root[data-native-app]
   .top-bar__start:has(> .top-bar__previous:not([hidden]))
-  > :is(.top-bar__bridge, .top-bar__phone-back) {
+  > :is(.top-bar__bridge, .top-bar__phone-back, .top-bar__phone-home) {
   display: none;
 }
 

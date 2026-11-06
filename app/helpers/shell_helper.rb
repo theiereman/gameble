@@ -96,6 +96,12 @@ module ShellHelper
     current_player ? t("shell.top_bar.back") : t("shell.top_bar.back_landing")
   end
 
+  def native_top_bar_data
+    return {} unless hotwire_native_app? && current_player
+
+    { controller: "bridge--top-bar", action: "click->bridge--top-bar#navigate", "bridge--top-bar-url-value": top_bar_path }
+  end
+
   def phone_back_link(label, path, **options)
     link_to path, class: "button button--secondary button--small top-bar__phone-back", **options do
       safe_join([ pixel_icon("arrow-left", class: "button__icon"), tag.span(label, class: "button__label") ])

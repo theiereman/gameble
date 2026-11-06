@@ -38,6 +38,7 @@ export interface GamebleEventMap {
   "gameble:reactions-updated": StreamUpdatedDetail
   "gameble:bank-updated": StreamUpdatedDetail
   "gameble:sheet-shown": SheetShownDetail
+  "gameble:screen-shown": null
 }
 
 export type GamebleEventName = keyof GamebleEventMap

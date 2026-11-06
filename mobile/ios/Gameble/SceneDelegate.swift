@@ -32,11 +32,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         tabBarController.load(Tabs.all)
         window?.rootViewController = tabBarController
         self.tabBarController = tabBarController
+        TopBarNavigation.shared.tabBarController = tabBarController
     }
 
     private func showSignIn() {
         PlayerSession.signedOut()
         guard !(window?.rootViewController is SignInViewController) else { return }
+        TopBarNavigation.shared.closeLayer(animated: false)
         tabBarController = nil
         window?.rootViewController = SignInViewController()
     }

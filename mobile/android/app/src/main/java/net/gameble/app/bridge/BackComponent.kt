@@ -5,7 +5,7 @@ import dev.hotwire.core.bridge.BridgeDelegate
 import dev.hotwire.core.bridge.Message
 import dev.hotwire.navigation.destinations.HotwireDestination
 import kotlinx.serialization.Serializable
-import net.gameble.app.MainActivity
+import net.gameble.app.GamebleActivity
 
 class BackComponent(name: String, private val delegate: BridgeDelegate<HotwireDestination>) :
     BridgeComponent<HotwireDestination>(name, delegate) {
@@ -14,15 +14,18 @@ class BackComponent(name: String, private val delegate: BridgeDelegate<HotwireDe
         when (message.event) {
             "screen" -> message.data<ScreenData>()?.let { screenLabels[delegate.destination.location] = it.label }
             "connect" -> connect()
-            "back" -> (delegate.destination.fragment.activity as? MainActivity)?.goBack()
+            "back" -> host?.goBack()
         }
     }
 
+    private val host: GamebleActivity?
+        get() = delegate.destination.fragment.activity as? GamebleActivity
+
     private fun connect() {
         val navigator = delegate.destination.navigator
-        val canGoBack = !navigator.isAtStartDestination()
-        val previousLabel = if (canGoBack) navigator.previousLocation?.let { screenLabels[it] } else null
-        replyTo("connect", Reply(canGoBack, previousLabel))
+        val atRoot = navigator.isAtStartDestination()
+        val previousLabel = if (atRoot) null else navigator.previousLocation?.let { screenLabels[it] }
+        replyTo("connect", Reply(canGoBack = !atRoot || host?.rootHasWayBack == true, previousLabel))
     }
 
     @Serializable

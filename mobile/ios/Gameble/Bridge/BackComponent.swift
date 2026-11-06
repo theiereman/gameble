@@ -16,7 +16,11 @@ final class BackComponent: BridgeComponent {
         case "connect":
             connect(from: viewController)
         case "back":
-            viewController.navigationController?.popViewController(animated: true)
+            if (viewController.navigationController?.viewControllers.count ?? 0) > 1 {
+                viewController.navigationController?.popViewController(animated: true)
+            } else {
+                TopBarNavigation.shared.closeLayer()
+            }
         default:
             break
         }
@@ -26,7 +30,10 @@ final class BackComponent: BridgeComponent {
         let stack = viewController.navigationController?.viewControllers ?? []
         let previous = stack.count > 1 ? stack[stack.count - 2] as? Visitable : nil
         let previousLabel = previous.flatMap { Self.screenLabels[$0.currentVisitableURL] }
-        reply(to: "connect", with: Reply(canGoBack: stack.count > 1, previousLabel: previousLabel))
+        reply(to: "connect", with: Reply(
+            canGoBack: stack.count > 1 || TopBarNavigation.shared.isLayer(viewController.navigationController),
+            previousLabel: previousLabel
+        ))
     }
 
     private struct ScreenData: Decodable {

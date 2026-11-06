@@ -4,7 +4,7 @@ import dev.hotwire.core.bridge.BridgeComponent
 import dev.hotwire.core.bridge.BridgeDelegate
 import dev.hotwire.core.bridge.Message
 import dev.hotwire.navigation.destinations.HotwireDestination
-import net.gameble.app.MainActivity
+import net.gameble.app.GamebleActivity
 import net.gameble.app.SignIn
 
 class SignInComponent(name: String, private val delegate: BridgeDelegate<HotwireDestination>) :
@@ -13,7 +13,7 @@ class SignInComponent(name: String, private val delegate: BridgeDelegate<Hotwire
     override fun onReceive(message: Message) {
         val fragment = delegate.destination.fragment
         when (message.event) {
-            "shown" -> (fragment.activity as? MainActivity)?.showNativeSignIn()
+            "shown" -> (fragment.activity as? GamebleActivity)?.showNativeSignIn()
             "start" -> SignIn.start(fragment.requireContext())
         }
     }

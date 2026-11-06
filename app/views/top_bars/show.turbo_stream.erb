@@ -1,0 +1,3 @@
+<%= turbo_stream.replace "packs-chip", partial: "shell/packs_chip", locals: { bank: @bank, refresh: false } %>
+<%= turbo_stream.replace "rarity-counter", partial: "shell/rarity_counter", locals: { counts: shell_tier_counts } %>
+<%= turbo_stream.update "phone-menu-badge", partial: "shell/phone_menu_badge", locals: { unclaimed: shell_achievements_unclaimed } %>

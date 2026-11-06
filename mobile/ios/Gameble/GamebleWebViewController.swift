@@ -18,14 +18,25 @@ final class GamebleWebViewController: HotwireWebViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        view.backgroundColor = tabBarController == nil ? Palette.panel : Palette.ground
+        let isSheet = tabBarController == nil && !TopBarNavigation.shared.isLayer(navigationController)
+        view.backgroundColor = isSheet ? Palette.panel : Palette.ground
         fitBottom()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        announceShown(on: visitableView.webView)
     }
 
     override func visitableDidActivateWebView(_ webView: WKWebView) {
         super.visitableDidActivateWebView(webView)
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.scrollView.alwaysBounceVertical = false
+        if view.window != nil { announceShown(on: webView) }
+    }
+
+    private func announceShown(on webView: WKWebView?) {
+        webView?.evaluateJavaScript("window.dispatchEvent(new CustomEvent('gameble:screen-shown'))")
     }
 
     func showTabs(_ shown: Bool) {

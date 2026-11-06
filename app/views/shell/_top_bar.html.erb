@@ -5,6 +5,7 @@
     <div class="<%= class_names("top-bar__start", "top-bar__start--phone-back": content_for?(:phone_back)) %>" data-controller="navigation-lock">
       <% if top_level && hotwire_native_app? %>
         <span class="top-bar__brand top-bar__phone-home" role="img" aria-label="<%= t("shell.top_bar.brand") %>"><%= pixel_icon("back-g", class: "top-bar__home-g") %></span>
+        <%= render "shell/native_previous" %>
       <% elsif top_level %>
         <%= link_to_unless_current pixel_icon("wordmark-sweep", class: "top-bar__wordmark"), home_path, class: "top-bar__brand top-bar__phone-home", aria: { label: shell_home_label }, data: wordmark_shine do %>
           <span class="top-bar__brand top-bar__phone-home" role="img" aria-label="<%= shell_home_label %>" <%= tag.attributes(data: wordmark_shine) %>><%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %></span>
@@ -21,10 +22,7 @@
         <% end %>
         <%= yield :phone_back %>
         <% if hotwire_native_app? %>
-          <button type="button" class="button button--secondary button--small top-bar__previous" hidden
-            data-controller="bridge--back" data-action="bridge--back#back">
-            <%= pixel_icon("arrow-left", class: "button__icon") %><span class="visually-hidden"><%= t("shell.top_bar.previous") %> </span><span class="button__label" data-bridge--back-target="label"><%= t("shell.top_bar.previous_fallback") %></span>
-          </button>
+          <%= render "shell/native_previous" %>
         <% else %>
           <a class="button button--secondary button--small top-bar__previous" hidden
             data-controller="previous-screen" data-action="previous-screen#back turbo:morph@document->previous-screen#sync" data-turbo-prefetch="false">
@@ -63,7 +61,7 @@
       <% end %>
     </div>
 
-    <div class="top-bar__end">
+    <div class="top-bar__end" <%= tag.attributes(data: native_top_bar_data) %>>
       <%= yield :top_bar_status if content_for?(:top_bar_status) %>
       <% if current_player %>
         <% unless back_office_page? || content_for?(:top_bar_status) %>

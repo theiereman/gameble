@@ -11,6 +11,10 @@ sheet and haptics.
   `hotwire_native_app?` is true. The layout then marks `<html data-native-app>`,
   and leaves out the web tab bar. The web header and its back buttons stay;
   both apps hide their native app bar so the header is not doubled.
+- The links at the right of the web header leave the current tab: a destination
+  that belongs to a tab selects that tab, any other opens in a full-screen layer
+  above the tabs, with a way back that closes it. Every screen coming back into
+  view reads the header's values again.
 - **Path configuration.** `public/configurations/ios_v1.json` and
   `android_v1.json` say how each URL is shown. Each app also bundles a minimal
   copy for its first launch.
