@@ -282,6 +282,13 @@ Rails.application.routes.draw do
   get "llms.txt" => "llms#show", format: false
   get "sitemap.xml" => "sitemaps#show", defaults: { format: :xml }, format: false
 
+  # Development only: "/" signs in as a fake player and opens the starting
+  # screen (DEV_START_PATH), with no Steam or Clerk; see DevSignInsController.
+  if Rails.env.development?
+    get "dev/sign-in" => "dev_sign_ins#show", as: :dev_sign_in
+    root "dev_sign_ins#show", as: :dev_root
+  end
+
   # "/" sends a first visit to the locale its browser prefers.
   root "locales#redirect"
 end
