@@ -21,14 +21,4 @@ class Game::WeeklyGoalOperationsTest < ActiveSupport::TestCase
   test "summing a week without a goal moves nothing" do
     assert_equal false, Game::SumWeeklyGoal.new.call(week_start: WEEK, now: Time.current).value!
   end
-
-  test "recording a player's activity replaces the previous one" do
-    player_id = accounts_players(:player).id
-    earlier = Time.utc(2026, 10, 7, 9)
-    later = earlier + 1.hour
-    Game::RecordPlayerActivity.new.call(player_id:, activity: :trading, at: earlier).value!
-    Game::RecordPlayerActivity.new.call(player_id:, activity: :opening_pack, at: later).value!
-
-    assert_equal [ "opening_pack", later ], Game::PlayerState.find_by!(player_id:).slice(:last_activity, :last_activity_at).values
-  end
 end

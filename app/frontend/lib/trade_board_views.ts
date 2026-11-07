@@ -98,7 +98,6 @@ export function pickerScreenOf(state: BoardState, strings: BoardStrings): Picker
     }),
     refused: view.refused,
     filter: view.filter,
-    folded: view.folded,
     chipsOn: view.chipsOn,
     filtering: view.filtering,
   }

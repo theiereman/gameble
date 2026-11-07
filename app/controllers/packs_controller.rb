@@ -11,7 +11,8 @@ class PacksController < ApplicationController
     invalid_idempotency_key: [ :bad_request, "invalid_idempotency_key" ],
     player_required: [ :unauthorized, "sign_in_required" ],
     no_pack_available: [ :unprocessable_content, "no_pack_available" ],
-    invalid_reserve: [ :bad_request, "invalid_reserve" ]
+    invalid_reserve: [ :bad_request, "invalid_reserve" ],
+    pack_not_available: [ :unprocessable_content, "pack_not_available" ]
   }.freeze
 
   rate_limit to: 30, within: RATE_LIMIT_WINDOW, only: :create,
@@ -40,7 +41,7 @@ class PacksController < ApplicationController
   private
 
   def open_from_form
-    result, reached = tracking_goals_reached(current_player) { Game::OpenPack.new.call(player: current_player, reserve: params[:reserve]) }
+    result, reached = tracking_goals_reached(current_player) { Game::OpenPack.new.call(player: current_player, reserve: params[:reserve], time_zone: reader_time_zone) }
     if result.success?
       toast_goals_reached(reached)
       redirect_to pack_path(result.value!.token), status: :see_other
@@ -52,10 +53,11 @@ class PacksController < ApplicationController
   def open_from_booster
     key = idempotency_key
     return render_failure(:invalid_idempotency_key) if key.blank?
+    return render_failure(:pack_not_available) if unreadable_pack_token?
 
     marks_before_opening = goal_marks
     result, reached = tracking_goals_reached(current_player) do
-      Game::OpenPack.new.call(player: current_player, idempotency_key: key, reserve: params[:reserve])
+      Game::OpenPack.new.call(player: current_player, idempotency_key: key, reserve: params[:reserve], time_zone: reader_time_zone, token: chosen_pack_token)
     end
     if result.success?
       pack = result.value!
@@ -74,6 +76,18 @@ class PacksController < ApplicationController
 
   def render_json_error(status, code, message)
     render json: { error: { code:, message: } }, status:
+  end
+
+  def reader_time_zone
+    ActiveSupport::TimeZone[cookies[LocalTimeHelper::TIME_ZONE_COOKIE].to_s]
+  end
+
+  def chosen_pack_token
+    params[:pack].presence if params[:pack].is_a?(String)
+  end
+
+  def unreadable_pack_token?
+    params.key?(:pack) && !params[:pack].is_a?(String)
   end
 
   def idempotency_key

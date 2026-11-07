@@ -157,3 +157,47 @@ covers = []
 after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 14
+type = "story"
+title = "The achievement tiles read cleanly and are not squashed"
+description = "Staging feedback, 2026-11-02 (author): the new achievements are right but the display is not: the tiles are too squashed, the texts are not clean and the information is too packed (title in uppercase over two lines, condition, and the unlocked back with its thumbnail all in one small tile). Redesign the tile of the Achievements page: give it room, a clear hierarchy (glyph, title, condition), the earned back shown apart from the condition, titles that never wrap awkwardly, on desktop and phone. Check the same titles on the landing tile and in the toasts. Decided 2026-11-02 (author), from the mockup ux-gameble/mockups/achievements-and-personalization-layout.html: option B, one row per achievement (glyph, title in the title font with the condition beneath, the earned or unlockable back and the progress on the right, below the text on a phone)."
+verify = "On staging at desktop and phone widths, no tile clips, squashes or wraps a title over more than two lines; the back unlocked by an achievement is readable beside it; the achievements system tests pass."
+covers = []
+after = []
+hitl = true
+risk = "low"
+
+[[entry]]
+id = 15
+type = "story"
+title = "The Personalization page shows the card back picker before the title picker, and the title picker takes less room"
+description = "Staging feedback, 2026-11-02 (author): the new back picker is right but must come before the title selection, and the title selection must be revised and simplified to take less space. Reorder the Personalization page (backs first, then titles) and compact the title picker (for instance a single select or a short list instead of a long grid of choices); keep every way a title is earned stated. Decided 2026-11-02 (author), from the mockup ux-gameble/mockups/achievements-and-personalization-layout.html: option A, one menu listing the titles grouped by rank under a line showing the current title; the back picker section comes first."
+verify = "The back picker appears above the title picker; the title picker is visibly shorter at desktop and phone widths and still lets a player choose and clear a title; the personalization system tests pass."
+covers = []
+after = []
+hitl = true
+risk = "low"
+
+[[entry]]
+id = 16
+type = "story"
+title = "An achievement that unlocks a card back is claimed by the player, and the menu flags a reward waiting"
+description = "Staging feedback, 2026-11-02 (author): when an achievement unlocks something, the player must press a Claim button, and the Achievements entry shows an indicator while a reward waits for the player's interaction to be added to the list on the profile. Scope: every achievement that unlocks something (today a card back). Earning the achievement still happens as today; the back joins the player's backs (the Personalization shelf and the profile) only when claimed, through a POST operation that writes the claim and publishes its event. The Achievements row shows a Claim button on an earned achievement with an unclaimed back, then the usual 'back unlocked' state; the Achievements entry of the menu (desktop and phone) shows a count badge of unclaimed rewards, as the friend invitation count does. Decided 2026-11-02 (author): (1) the claim applies to every achievement that unlocks something, today the card backs, and any reward added later goes through the same claim; (2) what a player already holds stays claimed, with no action and no badge. Build after the achievement rows redesign, which owns the same row."
+verify = "An achievement with a back earned but not claimed shows a Claim button and counts in the menu badge; claiming adds the back to the Personalization shelf and clears the badge when none is left; a back held before the release shows no Claim button; a GET never writes; the claim is refused for another player's achievement or one not earned."
+covers = []
+after = [14]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 17
+type = "story"
+title = "Claiming an achievement updates the page in place, keeping the scroll"
+description = "Author on staging, 2026-11-02: actions such as claiming an achievement must keep the scroll position and not reload the whole page. Answer the claim POST with a Turbo Stream (HTML redirect stays as the fallback without JavaScript): replace the claimed row (its Claim button gives way to the unlocked back state), update the Achievements menu badge on desktop and phone (and remove it at zero), update the earned and to-earn counts and the gauge of the page head, and send a toast or announce the result in a polite status for screen readers; keep focus on a sensible element (the row or the next Claim button). Check the other one-click actions of the Achievements and Personalization pages and of the settings sync button: where one redirects and loses the scroll, give it the same stream answer, within the same story if small, else list it in the plan."
+verify = "On a long Achievements page, claiming a row far down leaves the scroll where it was, updates the row, the counts and the menu badge without a full reload (the page's navigation timing shows no new document), and still works without JavaScript through the redirect; the claim tests cover both formats."
+covers = []
+after = [16]
+hitl = false
+risk = "low"

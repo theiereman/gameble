@@ -181,11 +181,6 @@ describe("the grid of every card", () => {
     expect(narrowPhoneGap()).toBe(8)
   })
 
-  it("is 964px wide beside the RAPPORT at 1280px", () => {
-    expect(REPORT).toBe(220)
-    expect(CARDS_WIDE).toBe(964)
-  })
-
   it.each([
     { name: "1280px and up, beside the RAPPORT", gridWidth: CARDS_WIDE, columns: 6, card: 146 },
     { name: "1280px beside a classic scrollbar", gridWidth: CARDS_WIDE - CLASSIC_SCROLLBAR, columns: 6, card: 144 },

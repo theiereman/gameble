@@ -17,7 +17,7 @@
   grid-template-areas:
     "kicker showcase aside"
     "menu showcase aside"
-    "sets showcase aside"
+    "goals showcase aside"
     ". showcase aside";
   gap: var(--space-6) var(--space-column-gap-wide);
   align-items: start;
@@ -35,8 +35,8 @@
   grid-area: showcase;
 }
 
-.hub-sets {
-  grid-area: sets;
+.hub-goals {
+  grid-area: goals;
 }
 
 .hub__aside {
@@ -91,6 +91,10 @@
   list-style: none;
 }
 
+.hub-menu__list[hidden] {
+  display: none;
+}
+
 .menu-item {
   display: flex;
   align-items: center;
@@ -124,7 +128,7 @@
   min-width: 0;
 }
 
-/* The count badges: lime, greyed at zero; steady. The capsule entry's standard one is in the accent and shows no zero. */
+/* The count badges: lime, steady, and absent at zero. The capsule entry's standard one is in the accent. */
 .menu-item__badge {
   flex: none;
   min-width: 26px;
@@ -139,6 +143,11 @@
 .menu-item__badge--standard {
   background: var(--color-accent);
   color: var(--color-on-accent);
+}
+
+.menu-item__badge--friends {
+  background: var(--color-goal-3);
+  color: var(--color-on-goal);
 }
 
 .menu-item__badge--alert {
@@ -159,6 +168,17 @@
   width: 6px;
   height: 10px;
   visibility: hidden;
+}
+
+.menu-item__back {
+  flex: none;
+  width: 8px;
+  height: 14px;
+  color: var(--color-accent);
+}
+
+button.menu-item:hover .menu-item__back {
+  color: var(--color-on-accent);
 }
 
 .menu-item__external {
@@ -214,8 +234,7 @@ button.menu-item:focus-visible:hover {
   color: var(--color-disabled-text);
 }
 
-.menu-item[aria-disabled="true"] .menu-item__badge,
-.menu-item__badge--zero {
+.menu-item[aria-disabled="true"] .menu-item__badge {
   background: var(--color-disabled-bg);
   box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
   color: var(--color-disabled-text);

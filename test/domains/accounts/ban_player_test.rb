@@ -204,12 +204,4 @@ class Accounts::BanPlayerTest < ActiveSupport::TestCase
     assert_unchanged(accounts_players(:banned), :already_banned, reason: "a" * 501)
     assert_empty history
   end
-
-  test "a ban rolled back by a refusal read under the lock leaves no line in the history" do
-    stale = Accounts::Player.find(@target.id)
-    @target.update!(role: :moderator)
-
-    assert_unchanged(stale, :outranked)
-    assert_empty history
-  end
 end

@@ -21,6 +21,7 @@ export type BankValues = {
   nextAvailableAt: string
   serverTime: string
   nextPackSize: number
+  nextSpecialSize: number
 }
 
 export type OpenedMarkup = {
@@ -49,6 +50,7 @@ export function bankFrom({
   nextAvailableAt,
   serverTime,
   nextPackSize,
+  nextSpecialSize,
 }: BankValues): BoosterBank {
   return {
     available,
@@ -59,6 +61,31 @@ export function bankFrom({
     nextAvailableAt: nextAvailableAt || null,
     serverTime,
     nextPackSize: nextPackSize > 0 ? nextPackSize : null,
+    nextSpecialSize: nextSpecialSize > 0 ? nextSpecialSize : null,
+  }
+}
+
+export function bankValuesOf({
+  available,
+  special,
+  openable,
+  reserveFull,
+  nextSpecialKind,
+  nextAvailableAt,
+  serverTime,
+  nextPackSize,
+  nextSpecialSize,
+}: BoosterBank): BankValues {
+  return {
+    available,
+    special,
+    openable,
+    reserveFull,
+    nextSpecialKind: nextSpecialKind ?? "",
+    nextAvailableAt: nextAvailableAt ?? "",
+    serverTime,
+    nextPackSize: nextPackSize ?? 0,
+    nextSpecialSize: nextSpecialSize ?? 0,
   }
 }
 
@@ -72,6 +99,7 @@ export function cardFrom(data: Dataset): OpeningCard {
     year: data.year ? whole(data.year) : null,
     label: data.label ?? data.title ?? "",
     goals: data.goals ?? "",
+    firstCopy: data.firstCopy === "true",
     faces: { s: "", m: "", xl: "" },
   }
 }
@@ -124,6 +152,7 @@ export function openedFrom({ pack, cards, setTiers, bank }: OpenedMarkup): Openi
       nextAvailableAt: bank.nextAvailableAt,
       scheduledAt: [],
       nextPackSize: bank.nextPackSize,
+      nextSpecialSize: bank.nextSpecialSize,
     },
     serverTime: bank.serverTime,
     tierCountsBefore: { ...NO_COUNTS },

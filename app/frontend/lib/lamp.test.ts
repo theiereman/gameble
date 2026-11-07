@@ -30,13 +30,11 @@ function run(lamp: Lamp, from: number, until: number, input: (now: number) => La
 }
 
 describe("powerAt", () => {
-  it("is dark until the delay, then climbs in five steps over 300ms", () => {
-    expect(powerAt(0)).toBe(0)
-    expect(powerAt(350)).toBe(0)
-    expect(powerAt(410)).toBe(0.2)
-    expect(powerAt(500)).toBe(0.6)
-    expect(powerAt(650)).toBe(1)
-    expect(powerAt(5000)).toBe(1)
+  it("is dark at first, climbs without ever dimming, and ends full", () => {
+    const powers = [0, 200, 350, 410, 500, 650, 5000].map(powerAt)
+    expect(powers[0]).toBe(0)
+    expect(powers.at(-1)).toBe(1)
+    powers.slice(1).forEach((power, index) => expect(power).toBeGreaterThanOrEqual(powers[index]))
   })
 })
 

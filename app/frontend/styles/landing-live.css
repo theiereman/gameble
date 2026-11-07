@@ -32,6 +32,14 @@
   flex-wrap: nowrap;
 }
 
+.landing-live__list .feed__head {
+  display: contents;
+}
+
+.landing-live__list .feed__time {
+  order: 1;
+}
+
 .landing-live__list :is(.feed__name, .feed__game):focus-visible {
   outline-offset: -2px;
 }

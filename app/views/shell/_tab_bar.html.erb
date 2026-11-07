@@ -1,19 +1,6 @@
 <% waiting = shell_trades_waiting %>
 <% invitations = shell_invitations_waiting %>
-<% tabs = if current_player
-     [
-       [ :hub, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
-       [ :booster, "tab-booster", booster_path, controller_path == "boosters" ],
-       [ :collection, "tab-collection", library_path, %w[library cards].include?(controller_path) ],
-       [ :trades, "tab-trades", trades_path, controller_path == "trades" ],
-       [ :more, "tab-more", more_path, (controller_path == "pages" && %w[more how_it_works].include?(action_name)) || %w[settings personalizations friends feeds achievements fortune_registers].include?(controller_path) ]
-     ]
-   else
-     [
-       [ :landing, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
-       [ :all_cards, "tab-collection", library_cards_path, (controller_path == "library" && action_name == "cards") || controller_path == "cards" ]
-     ]
-   end %>
+<% tabs = shell_tabs %>
 <nav class="tab-bar" aria-label="<%= t("shell.tabs.label") %>" data-controller="navigation-lock">
   <%= tag.ul class: [ "tab-bar__list", ("tab-bar__list--visitor" unless current_player) ] do %>
     <% tabs.each do |key, icon, path, current| %>
@@ -22,10 +9,10 @@
           <%= pixel_icon(icon, class: "tab-bar__icon") %>
           <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
           <% if key == :trades %>
-            <span id="tab-trades-badge" class="stream-slot"><%= render "shell/tab_trades_badge", waiting: %></span>
+            <span id="tab-trades-badge" class="stream-slot"><%= render("shell/tab_trades_badge", waiting:) %></span>
           <% end %>
-          <% if key == :more %>
-            <span id="tab-more-badge" class="stream-slot"><%= render "shell/tab_invitations_badge", invitations: %></span>
+          <% if key == :friends %>
+            <span id="tab-invitations-badge" class="stream-slot"><%= render("shell/tab_invitations_badge", invitations:) %></span>
           <% end %>
         <% end %>
       </li>

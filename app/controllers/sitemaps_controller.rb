@@ -1,7 +1,7 @@
 class SitemapsController < ApplicationController
   include PublicRead
 
-  PAGES = %i[home_path legal_path].freeze
+  PAGES = %i[home_path how_it_works_path roadmap_path credits_path legal_path].freeze
 
   def show
     authorize :page, :show?

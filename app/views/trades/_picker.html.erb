@@ -16,48 +16,52 @@
     </div>
     <p class="trade-picker__note" data-for="friend"><%= t("trade_board.note.friend", name:) %></p>
     <p class="trade-picker__note" data-for="own"><%= t("trade_board.note.own") %></p>
-    <div class="trade-picker__filters" role="search" data-trade-board-picker-target="filters">
-      <label class="visually-hidden" for="trade-picker-search"><%= t("trade_board.search_label") %></label>
-      <input id="trade-picker-search" type="search" class="filters__search-field" autocomplete="off"
-             placeholder="<%= t("trade_board.search_placeholder") %>"
-             data-trade-board-picker-target="search" data-action="input->trade-board-picker#filter">
-      <button type="button" class="trade-picker__fold" aria-expanded="false" aria-controls="trade-picker-groups"
-              data-trade-board-picker-target="fold" data-action="trade-board-picker#fold">
-        <span class="trade-picker__chevron" aria-hidden="true"><%= pixel_icon("arrow-small-right", class: "filters__chevron") %></span>
-        <span class="filters__title"><%= t("trade_board.filters_title") %></span>
-        <span class="filters__count" data-trade-board-picker-target="filterCount" hidden><span class="visually-hidden"><%= t("trade_board.filters_active") %></span> <span data-trade-board-picker-target="chipCount">0</span></span>
-      </button>
-      <div id="trade-picker-groups" class="trade-picker__groups trade-picker__groups--folded" data-trade-board-picker-target="groups">
-        <fieldset class="filters__group trade-picker__rarities">
-          <legend class="filters__legend"><%= t("trade_board.rarities_legend") %></legend>
-          <% Catalog::Rarity::TIERS.each_value do |rarity| %>
-            <label class="filter-chip">
-              <input type="checkbox" class="filter-chip__box" value="<%= rarity %>"
-                     data-trade-board-picker-target="rarity" data-action="change->trade-board-picker#filter">
-              <span class="filter-chip__text"><%= t("catalog.rarity.#{rarity}") %></span>
-            </label>
-          <% end %>
-        </fieldset>
-        <fieldset class="filters__group trade-picker__compare">
-          <legend class="filters__legend"><%= t("trade_board.compare_legend") %></legend>
-          <% TradesHelper::PICKER_CHIPS.each do |side, keys| %>
-            <% keys.each do |chip| %>
-              <label class="filter-chip" data-for="<%= side %>">
-                <input type="checkbox" class="filter-chip__box" value="<%= chip %>" data-for="<%= side %>"
-                       data-trade-board-picker-target="chip" data-action="change->trade-board-picker#filter">
-                <span class="filter-chip__text"><%= t("trade_board.chips.#{side}.#{chip}") %></span>
-              </label>
-            <% end %>
-          <% end %>
-        </fieldset>
-      </div>
-      <div class="trade-picker__filter-foot">
-        <p class="trade-picker__results" aria-live="polite" data-trade-board-picker-target="results"></p>
-        <button type="button" class="filters__clear trade-picker__clear" data-trade-board-picker-target="clear"
-                data-action="trade-board-picker#clear" hidden><%= t("trade_board.clear_filters") %></button>
-      </div>
-    </div>
     <div class="trade-picker__body" data-trade-board-picker-target="body">
+      <div class="trade-picker__filters" role="search" data-trade-board-picker-target="filters">
+        <label class="visually-hidden" for="trade-picker-search"><%= t("trade_board.search_label") %></label>
+        <input id="trade-picker-search" type="search" class="filters__search-field" autocomplete="off"
+               placeholder="<%= t("trade_board.search_placeholder") %>"
+               data-trade-board-picker-target="search" data-action="input->trade-board-picker#filter">
+        <div class="trade-picker__filter-foot">
+          <%= tag.a(**bottom_sheet_opener("trade-picker-filter-sheet"), class: "filter-chip filter-row__pastille") do %>
+            <span class="filter-chip__text">
+              <%= t("trade_board.filters_title") %>
+              <span class="filter-row__count" data-trade-board-picker-target="filterCount" hidden><span class="visually-hidden"><%= t("trade_board.filters_active") %></span> <span data-trade-board-picker-target="chipCount">0</span></span>
+            </span>
+          <% end %>
+          <p class="trade-picker__results" aria-live="polite" data-trade-board-picker-target="results"></p>
+          <button type="button" class="filters__clear trade-picker__clear" data-trade-board-picker-target="clear"
+                  data-action="trade-board-picker#clear" hidden><%= t("trade_board.clear_filters") %></button>
+        </div>
+        <%= render BottomSheetComponent.new(id: "trade-picker-filter-sheet", title: t("trade_board.filters_title")) do %>
+          <div class="filter-sheet">
+            <fieldset class="filters__group trade-picker__rarities">
+              <legend class="filters__legend"><%= t("trade_board.rarities_legend") %></legend>
+              <% Catalog::Rarity::TIERS.each_value do |rarity| %>
+                <label class="filter-chip">
+                  <input type="checkbox" class="filter-chip__box" value="<%= rarity %>"
+                         data-trade-board-picker-target="rarity" data-action="change->trade-board-picker#filter">
+                  <span class="filter-chip__text"><%= t("catalog.rarity.#{rarity}") %></span>
+                </label>
+              <% end %>
+            </fieldset>
+            <fieldset class="filters__group trade-picker__compare">
+              <legend class="filters__legend"><%= t("trade_board.compare_legend") %></legend>
+              <% TradesHelper::PICKER_CHIPS.each do |side, keys| %>
+                <% keys.each do |chip| %>
+                  <label class="filter-chip" data-for="<%= side %>">
+                    <input type="checkbox" class="filter-chip__box" value="<%= chip %>" data-for="<%= side %>"
+                           data-trade-board-picker-target="chip" data-action="change->trade-board-picker#filter">
+                    <span class="filter-chip__text"><%= t("trade_board.chips.#{side}.#{chip}") %></span>
+                  </label>
+                <% end %>
+              <% end %>
+            </fieldset>
+            <%= render "trades/picker_extra", editor: %>
+            <p class="filter-sheet__status" role="status" data-trade-board-picker-target="results"></p>
+          </div>
+        <% end %>
+      </div>
       <p class="trade-picker__empty" data-trade-board-picker-target="empty" data-reason="none" hidden>
         <b class="trade-picker__empty-title"><%= t("trades.side.none.title") %></b>
         <span data-for="friend"><%= trade_picker_none(:friend, friend) %></span><span data-for="own"><%= trade_picker_none(:own, friend) %></span>

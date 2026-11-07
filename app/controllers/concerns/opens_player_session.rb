@@ -14,7 +14,12 @@ module OpensPlayerSession
       player = carry_visitor_motion_switch(player)
       reset_session
       session[:player_id] = player.id
+      share_one_authenticity_token_with_pages_loaded_side_by_side
       player
+    end
+
+    def share_one_authenticity_token_with_pages_loaded_side_by_side
+      form_authenticity_token
     end
 
     def safe_origin_path(origin)

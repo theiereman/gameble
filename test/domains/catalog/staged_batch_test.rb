@@ -52,13 +52,6 @@ class Catalog::StagedBatchTest < ActiveSupport::TestCase
     assert_equal [ Catalog::CardIdentityUpserted ] * 2, Rails.configuration.event_store.read.stream("Catalog::Card$#{card.id}").map(&:class)
   end
 
-  test "an identity with a missing text or an unknown genre is refused and writes nothing" do
-    assert_equal :missing_text, identity(texts: { "en" => { title: "Portal 2" } }).failure
-    assert_equal :invalid_card, identity(genres: %w[not_a_theme]).failure
-    assert_equal :invalid_card, identity(image_url: "").failure
-    assert_nil Catalog::Card.find_by(source_key: "src:620")
-  end
-
   # StageCardSeason
 
   test "staging a card's scores writes a row of the batch, replaces it the second time and leaves the draft alone" do

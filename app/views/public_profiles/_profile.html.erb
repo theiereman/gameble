@@ -1,13 +1,20 @@
-<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:, started_set_count:, goals: [], showcase:, relation:, owner_title: nil, fortune: nil) %>
+<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:, started_set_count:, showcase:, relation:, context:, goals: [], owner_title: nil, fortune: nil, editing: false, worn_back: nil, return_card: nil) %>
+<% owned = current_player.present? && current_player == owner %>
 <section class="profile" aria-labelledby="profile-heading">
-  <%= render "public_profiles/summary", owner:, title:, season:, summary:, card_total:, achievements: achievements, relation: relation, owner_title: owner_title %>
-  <%= render "public_profiles/showcase", owner:, cards: showcase, movable: current_player.present? && current_player == owner, moved: flash[:moved_showcase_card] if showcase.any? %>
+  <%= render "public_profiles/summary", owner:, title:, season:, summary:, card_total:, achievements:, relation:, owner_title:, editing: editing %>
+  <% if editing %>
+    <%= render "own_profiles/customize", owner_title:, worn_back: worn_back %>
+  <% end %>
+  <% if editing || showcase.any? %>
+    <%= render "public_profiles/showcase", cards: showcase, context:, owned:, removed: flash[:removed_showcase_card], return_card: return_card %>
+  <% end %>
   <% if season.nil? %>
     <%= render PanelComponent.new(tag: :p, class: "profile__no-season") do %><%= t("public_profiles.show.no_season") %><% end %>
+    <%= render "public_profiles/achievements", achievements:, editing: true if editing %>
   <% else %>
     <%= render "public_profiles/stats", rarities:, activity: activity %>
     <%= render "public_profiles/fortune", owner:, fortune: fortune if fortune %>
-    <%= render "public_profiles/achievements", achievements: achievements %>
+    <%= render "public_profiles/achievements", achievements:, editing: editing %>
     <%= render "public_profiles/goals", owner:, goals: goals if goals.any? %>
     <%= render "public_profiles/sets", owner:, started_sets:, started_set_count: %>
   <% end %>

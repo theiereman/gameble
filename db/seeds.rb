@@ -66,19 +66,17 @@ end
 
 # Development only: a few generic roadmap milestones with stories, all three
 # statuses, shown and hidden, so the landing's roadmap module and the roadmap
-# page have something to show. Their epic slugs start with "seed-", so the
-# automatic creation from the initiative's epics never meets them. A
-# milestone already there is left as staff edited it.
-if Rails.env.development?
+# page have something to show. A roadmap staff already started is left alone.
+if Rails.env.development? && Catalog::RoadmapMilestone.none?
   roadmap = [
-    { slug: "seed-foundations", status: "done", shown: true,
+    { status: "done", shown: true,
       fr: "Les fondations du jeu", en: "Game foundations",
       stories: [
         [ "done", true, "Un menu principal et des réglages", "A main menu and settings" ],
         [ "done", true, "Une sauvegarde de la progression", "Saving the player's progress" ],
         [ "done", false, "Un écran de chargement provisoire", "A placeholder loading screen" ]
       ] },
-    { slug: "seed-exploration", status: "in_progress", shown: true,
+    { status: "in_progress", shown: true,
       fr: "L'exploration des niveaux", en: "Level exploration",
       stories: [
         [ "done", true, "Un déplacement fluide du personnage", "Smooth character movement" ],
@@ -86,37 +84,31 @@ if Rails.env.development?
         [ "to_come", true, "Une carte du monde à débloquer", "A world map to unlock" ],
         [ "to_come", false, "Un mode photo", "A photo mode" ]
       ] },
-    { slug: "seed-multiplayer", status: "in_progress", shown: true,
+    { status: "in_progress", shown: true,
       fr: "Le jeu à plusieurs", en: "Playing together",
       stories: [
         [ "in_progress", true, "Un salon pour inviter ses amis", "A lobby to invite friends" ],
         [ "to_come", true, "Des classements hebdomadaires", "Weekly leaderboards" ]
       ] },
-    { slug: "seed-community", status: "to_come", shown: true,
+    { status: "to_come", shown: true,
       fr: "Les outils de la communauté", en: "Community tools",
       stories: [
         [ "to_come", true, "Un éditeur de niveaux partagés", "A shared level editor" ],
         [ "to_come", true, "Des défis créés par les joueurs", "Player-made challenges" ]
       ] },
-    { slug: "seed-experiments", status: "to_come", shown: false,
+    { status: "to_come", shown: false,
       fr: "Des expériences à l'étude", en: "Experiments under study",
       stories: [
         [ "to_come", true, "Un mode narratif ramifié", "A branching story mode" ]
       ] }
   ]
 
-  epics = roadmap.map { Catalog::InitiativeEpics::Epic.new(slug: it[:slug], title: it[:en]) }
-  created = Catalog::CreateRoadmapMilestones.new.call(epics:).value!
-
-  created.each do |milestone|
-    entry = roadmap.find { it[:slug] == milestone.epic_slug }
-    Catalog::UpdateRoadmapMilestone.new.call(
-      milestone:, wording_fr: entry[:fr], wording_en: entry[:en], status: entry[:status], shown: entry[:shown]
-    ).value!
-
-    entry[:stories].each do |status, shown, fr, en|
-      Catalog::CreateRoadmapStory.new.call(milestone:, wording_fr: fr, wording_en: en, status:, shown:).value!
+  sent = roadmap.each_with_index.to_h do |entry, index|
+    stories = entry[:stories].each_with_index.to_h do |(status, shown, fr, en), story_index|
+      [ "new-#{story_index}", { "wording_fr" => fr, "wording_en" => en, "status" => status, "shown" => shown ? "1" : "0" } ]
     end
+    [ "new-#{index}", { "wording_fr" => entry[:fr], "wording_en" => entry[:en], "status" => entry[:status], "shown" => entry[:shown] ? "1" : "0", "stories" => stories } ]
   end
-  puts "Seeded #{created.size} roadmap milestones." if created.any?
+  saved = Catalog::SaveRoadmap.new.call(draft: Catalog::RoadmapDraft.from_form(sent)).value!
+  puts "Seeded #{saved.size} roadmap milestones."
 end

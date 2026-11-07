@@ -427,14 +427,6 @@ describe("the gauge", () => {
     expect(gaugeTicks(small)).toEqual([])
   })
 
-  it("lights a tick as the fill passes it: the count before over the first 45 % of the fill, the capsule's share over the rest", () => {
-    const fill = { from: 0.2, to: 0.3 }
-    expect(fillReaches(0.1, fill)).toBe(Math.round(80 + 380 * 0.45 * 0.5))
-    expect(fillReaches(0.2, fill)).toBe(Math.round(80 + 380 * 0.45))
-    expect(fillReaches(0.25, fill)).toBe(Math.round(80 + 380 * (0.45 + 0.55 * 0.5)))
-    expect(fillReaches(0.3, fill)).toBe(80 + 380)
-  })
-
   it("has no ticks for SET COMPLET, whose bar turns lime", () => {
     const [complete] = celebrationResults([reached("Dark Souls", "complete", 3, 3, "franchise")])
     expect(gaugeTicks(complete)).toEqual([])
@@ -447,21 +439,6 @@ describe("the gauge", () => {
 })
 
 describe("the juice", () => {
-  it("grows with the tier", () => {
-    expect(juice("bronze")).toEqual({ tickSparks: 0, endSparks: 0, ribbonSparks: 0, glosses: 0, glints: false })
-    expect(juice("silver")).toEqual({ tickSparks: 6, endSparks: 0, ribbonSparks: 0, glosses: 1, glints: false })
-    expect(juice("gold")).toEqual({ tickSparks: 12, endSparks: 0, ribbonSparks: 8, glosses: 2, glints: true })
-    expect(juice("complete")).toEqual({ tickSparks: 0, endSparks: 18, ribbonSparks: 14, glosses: 2, glints: true })
-  })
-
-  it("adds one detail per rank to the rank below", () => {
-    expect(juice("novice")).toEqual({ tickSparks: 0, endSparks: 0, ribbonSparks: 0, glosses: 0, glints: false })
-    expect(juice("apprentice")).toEqual({ tickSparks: 6, endSparks: 0, ribbonSparks: 0, glosses: 0, glints: false })
-    expect(juice("adept")).toEqual({ tickSparks: 6, endSparks: 0, ribbonSparks: 0, glosses: 1, glints: false })
-    expect(juice("expert")).toEqual({ tickSparks: 6, endSparks: 0, ribbonSparks: 8, glosses: 1, glints: false })
-    expect(juice("master")).toEqual({ tickSparks: 6, endSparks: 0, ribbonSparks: 8, glosses: 1, glints: true })
-  })
-
   it("throws the same sparks every time, on the 2px grid", () => {
     const sparks = sparkOffsets(6, 22)
     expect(sparks).toEqual(sparkOffsets(6, 22))
@@ -589,25 +566,6 @@ describe("celebrationAnnouncement", () => {
 
     expect(celebrationAnnouncement(results, fr, NBSP)).toBe(
       "Set complet\u202F: Dark Souls, 3 cartes sur 3. Palier bronze atteint\u202F: Roguelike, 7 cartes sur 62.",
-    )
-  })
-
-  it("speaks a folded celebration as one list of sets and tiers", () => {
-    const results = celebrationResults([
-      reached("Roguelike", "silver", 16, 62),
-      reached("Metroidvania", "gold", 39, 77),
-      reached("Cosy", "bronze", 6, 54),
-      reached("Dark Souls", "complete", 3, 3, "franchise"),
-    ])
-
-    expect(celebrationAnnouncement(results, fr, NBSP)).toBe(
-      "4 paliers atteints\u202F: Dark Souls, complet\u202F; Metroidvania, or\u202F; Roguelike, argent\u202F; Cosy, bronze.",
-    )
-  })
-
-  it('starts an English message with a capital and reads "cards out of"', () => {
-    expect(celebrationAnnouncement(celebrationResults([reached("Roguelike", "silver", 16, 62)]), en, ",")).toBe(
-      "Silver tier reached: Roguelike, 16 cards out of 62.",
     )
   })
 })

@@ -1,0 +1,6 @@
+<%# locals: (holders:, view:, strings:, page: false) %>
+<%= render BottomSheetComponent.new(id: "card-trade-sheet", title: t("card_details.trade.title"), page:) do %>
+  <div class="card-trade">
+    <%= render "cards/trade_holders", holders:, view:, strings: %>
+  </div>
+<% end %>

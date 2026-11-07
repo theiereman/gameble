@@ -188,25 +188,6 @@
   box-shadow: var(--focus-ring-gap), var(--control-border);
 }
 
-.plus {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
-}
-
-.plus__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.menu-item--plus {
-  min-height: var(--space-plus-row-height);
-}
-
 @media (max-width: 719px) {
   .segmented__option {
     min-height: var(--space-chip-height-touch);

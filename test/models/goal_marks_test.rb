@@ -3,7 +3,7 @@ require "test_helper"
 class GoalMarksTest < ActiveSupport::TestCase
   def target(position, kind: "theme", key: "roguelike", token: nil)
     Game::GoalNeeds::Target.new(goal_id: position * 10, position:, kind: (kind unless token), key: (key unless token),
-      custom_set_token: token, custom_set_name: ("Mes favoris" if token), set: nil)
+      custom_set_token: token, custom_set_kind: ("custom" if token), custom_set_name: ("Mes favoris" if token), set: nil)
   end
 
   def need(target, card_ids) = Game::GoalNeeds::Need.new(target:, card_ids:, held_card_ids: [], tiers: {})

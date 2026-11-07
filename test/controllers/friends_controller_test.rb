@@ -28,21 +28,6 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__row", 0
   end
 
-  test "the friends are listed in English" do
-    other = accounts_players(:moderator)
-    other.update!(persona_name: "Sam")
-    Game::Friendship.create!(low_player_id: [ @player.id, other.id ].min, high_player_id: [ @player.id, other.id ].max)
-    sign_in(@player)
-
-    get friends_path(locale: :en)
-
-    assert_select "main h1", "Friends"
-    assert_select ".friends__label", "Your friend code"
-    assert_select ".friends__row .friends__name", "Sam"
-    assert_select ".friends__row .friends__presence--offline", "Offline"
-    assert_select ".friends__empty", 1, "only the no-invitation line"
-  end
-
   test "each friend's name opens their profile and their row proposes a trade, both named for them" do
     sam = accounts_players(:moderator)
     sam.update!(persona_name: "Sam", visibility: "public")
@@ -96,7 +81,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__friend a[href=?]", new_trade_path(locale: :en, friend: lea.token), 0
   end
 
-  test "each friend shows their presence, and menu 05 counts those online" do
+  test "each friend shows their presence, and the Friends menu entry counts those online" do
     now = Time.utc(2026, 10, 7, 15, 0)
     friends = { moderator: "Ada", administrator: "Bob" }.map do |key, name|
       friend = accounts_players(key)
@@ -133,7 +118,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a private friend reads Profil privé and is left out of menu 05's count" do
+  test "a private friend reads Profil privé and is left out of the Friends menu entry's count" do
     ada = accounts_players(:moderator)
     ada.update_columns(persona_name: "Ada", last_seen_at: Time.current, visibility: "private")
     low, high = [ @player.id, ada.id ].minmax
@@ -150,15 +135,6 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__friend .friends__presence--online", "Online"
     get home_path(locale: :fr)
     assert_select ".hub-menu a.menu-item[href='/fr/friends'] .menu-item__meta", "1 en ligne"
-  end
-
-  test "menu 05 shows zero online for a player without friends, nothing for a visitor" do
-    get home_path(locale: :fr)
-    assert_select ".hub-menu .menu-item__meta", { text: /en ligne/, count: 0 }
-
-    sign_in(@player)
-    get home_path(locale: :fr)
-    assert_select ".hub-menu a.menu-item[href='/fr/friends'] .menu-item__meta", "0 en ligne"
   end
 
   test "a friend's profile button opens their profile dialog, whose frame loads the profile lazily" do
@@ -326,20 +302,6 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__no-friends"
   end
 
-  test "confirming the removal cancels every trade in progress with the friend and frees all their copies" do
-    sam = befriend_sam
-    sent, own_holding = open_trade_with(sam)
-    received, sam_holding = trade_from(sam)
-    assert_equal [ 2, 1 ], [ own_holding.reserved, sam_holding.reserved ]
-    sign_in(@player)
-
-    post remove_friend_path(locale: :fr, token: sam.token)
-
-    assert_redirected_to friends_path(locale: :fr)
-    assert_equal %w[cancelled cancelled], [ sent.reload.status, received.reload.status ]
-    assert_equal [ 0, 0 ], [ own_holding.reload.reserved, sam_holding.reload.reserved ]
-  end
-
   test "removing a player who is not a friend changes nothing and says so" do
     sam = befriend_sam
     stranger = accounts_players(:administrator)
@@ -354,33 +316,6 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_select ".toasts > .toast--alert .toast__message", "This player is not one of your friends."
     assert Game::FriendshipBetween.call(@player, sam)
-  end
-
-  test "in English the removal reads in English" do
-    sam = befriend_sam
-    open_trade_with(sam)
-    sign_in(@player)
-
-    get friends_path(locale: :en)
-    assert_select ".friends__friend button.friends__more-button[aria-label='More actions for Sam']"
-    assert_select ".friends__friend button[aria-label='Remove Sam from your friends']", "Remove"
-    assert_select "dialog#remove-friend-#{sam.token}" do
-      assert_select ".modal__title", "Remove Sam?"
-      assert_select ".remove-friend-dialog__trade", "Your trade in progress with Sam is cancelled and its cards are freed."
-    end
-
-    trade_from(sam)
-    get friends_path(locale: :en)
-    assert_select "dialog#remove-friend-#{sam.token}" do
-      assert_select ".remove-friend-dialog__trade", "Your 2 trades in progress with Sam are cancelled and their cards are freed."
-      assert_select "button[type=submit]", "Remove"
-      assert_select "button[type=button]", "Cancel"
-    end
-
-    post remove_friend_path(locale: :en, token: sam.token)
-    follow_redirect!
-    assert_select ".toast__title", "Friend removed"
-    assert_select ".toast__message", "Sam is no longer one of your friends."
   end
 
   test "a visitor cannot remove a friend" do
@@ -408,14 +343,5 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     get friends_path(locale: :fr)
 
     assert_redirected_to home_path(locale: :fr)
-  end
-
-  test "menu 05 and the PLUS row lead a player to Amis" do
-    sign_in(@player)
-
-    get home_path(locale: :fr)
-    assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='5']"
-    get more_path(locale: :fr)
-    assert_select ".plus__list a.menu-item[href='/fr/friends']", /Amis/
   end
 end

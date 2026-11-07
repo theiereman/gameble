@@ -1,8 +1,10 @@
 require "test_helper"
+require_relative "../support/feed_reactions"
 
 class PlayerStreamTest < ActiveSupport::TestCase
   include ActionCable::TestHelper
   include ActiveJob::TestHelper
+  include FeedReactions
 
   setup do
     @alice = accounts_players(:player)
@@ -37,6 +39,17 @@ class PlayerStreamTest < ActiveSupport::TestCase
     PlayerStream::TRADE_EVENTS.each do |type|
       assert_equal trades_for(@alice, @bob), PlayerStream.notices(type.new(data:)), type.name
     end
+  end
+
+  test "a daily capsule collected tells its collector's open screens" do
+    assert_equal [ { player_id: @alice.id, topic: "bank" } ], PlayerStream.notices(Game::DailyBonusCollected.new(data: { player_id: @alice.id, pack_id: 1 }))
+    assert_includes PlayerStream::EVENTS, Game::DailyBonusCollected
+  end
+
+  test "opening a trade tells only the player who opened it" do
+    data = { player_id: @alice.id, trade_id: 1 }
+
+    assert_equal [ { player_id: @alice.id, topic: "trades" } ], PlayerStream.notices(Game::TradeSeen.new(data:))
   end
 
   test "an invitation and its cancelling tell both players, and its acceptance names the accepting friend to the sender" do
@@ -84,18 +97,18 @@ class PlayerStreamTest < ActiveSupport::TestCase
   end
 
   test "an unlocked card back tells its player alone; a retroactive one tells no one" do
-    data = { player_id: @alice.id, back: "confrere" }
+    data = { player_id: @alice.id, back: "aurore" }
 
-    assert_equal [ { player_id: @alice.id, card_back: "confrere" } ], PlayerStream.notices(Game::CardBackUnlocked.new(data:))
+    assert_equal [ { player_id: @alice.id, card_back: "aurore" } ], PlayerStream.notices(Game::CardBackUnlocked.new(data:))
     assert_empty PlayerStream.notices(Game::CardBackUnlocked.new(data: data.merge(retroactive: true)))
   end
 
   test "a card back unlock enqueues its notice once it commits; a retroactive one, and a second unlock, enqueue nothing" do
-    assert_enqueued_with(job: PlayerStreamJob, args: [ [ { player_id: @alice.id, card_back: "confrere" } ] ]) do
-      Game::UnlockCardBack.new.call(player: @alice, back: "confrere").value!
+    assert_enqueued_with(job: PlayerStreamJob, args: [ [ { player_id: @alice.id, card_back: "aurore" } ] ]) do
+      Game::UnlockCardBack.new.call(player: @alice, back: "aurore").value!
     end
     assert_no_enqueued_jobs(only: PlayerStreamJob) do
-      Game::UnlockCardBack.new.call(player: @alice, back: "confrere")
+      Game::UnlockCardBack.new.call(player: @alice, back: "aurore")
       Game::UnlockCardBack.new.call(player: @alice, back: "centurion", retroactive: true).value!
     end
   end
@@ -243,5 +256,33 @@ class PlayerStreamTest < ActiveSupport::TestCase
       end
     end
     assert_not Game::Friendship.of(@alice.id).exists?
+  end
+
+  test "a new player's first reaction to an entry tells its owner once it commits; reacting again, changing or withdrawing tells no one" do
+    entry = feed_entry_of(@alice)
+
+    assert_enqueued_with(job: PlayerStreamJob, args: [ [ { player_id: @alice.id, topic: "reactions" } ] ]) do
+      react(@bob, entry, "heart").value!
+    end
+    assert_empty batches
+
+    assert_no_enqueued_jobs(only: PlayerStreamJob) do
+      react(@bob, entry, "wow").value!
+      react(@bob, entry, nil).value!
+      react(@bob, entry, "heart").value!
+      react(@alice, entry, "gg").value!
+    end
+  end
+
+  test "the reactions of one transaction tell each owner once" do
+    first = feed_entry_of(@alice)
+    second = feed_entry_of(@alice)
+
+    ApplicationRecord.transaction do
+      react(@bob, first, "heart").value!
+      react(@bob, second, "heart").value!
+    end
+
+    assert_equal 1, stream_jobs.size
   end
 end

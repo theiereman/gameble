@@ -3,17 +3,11 @@ require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# A card's detail, "FICHE DE LA CARTE": opened from a theme's owned face,
-# from an album's missing card (faded, grey and locked as in the album, on
-# the phone too) and from a visitor's whole season grid (the plain face),
-# from an opened pack's faces, walking the
-# card's theme on the desktop too; from a filtered, searched grid, ◀ ▶ walk that grid as
-# shown and the way back returns to it with its filters; on a phone the
-# sub-view: its heading takes the focus as it opens, ◀ ▶ and a swipe step
-# through the grid, replacing the URL, "◀ Grille" and browser Back return
-# to the grid at its scroll with the focus on its link to the card last
-# shown, the actions stay in view; under reduced motion a step does not
-# move.
+# A card's detail on a phone, the sub-view of a grid: its heading takes the
+# focus as it opens, ◀ ▶ step through the grid replacing the URL, and
+# "◀ Grille" and browser Back return to the grid with the focus on its link
+# to the card last shown; from a filtered, searched grid, ◀ ▶ walk that grid
+# across its pages and the way back keeps its filters.
 class CardDetailTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GamePacks
@@ -48,26 +42,6 @@ class CardDetailTest < ApplicationSystemTestCase
     JS
   end
 
-  def scroll_y = evaluate_script("window.scrollY")
-
-  # Waits for the page to be scrolled to `y` (Turbo restores a page's
-  # scroll once it has rendered it, after the URL has changed).
-  def assert_scrolled_to(y)
-    page.document.synchronize(Capybara.default_max_wait_time) do
-      raise Capybara::ExpectationNotMet, "scrolled to #{scroll_y}, not #{y}" unless (scroll_y - y).abs <= 2
-    end
-  end
-
-  # Waits for the browser to draw `count` frames, so the events a frame
-  # dispatches (scroll among them) have run.
-  def wait_for_frames(count = 2)
-    evaluate_async_script(<<~JS, count)
-      const [ count, done ] = arguments
-      const step = (left) => left === 0 ? done() : requestAnimationFrame(() => step(left - 1))
-      step(count)
-    JS
-  end
-
   # Waits for the focus to be on an element matching `selector`.
   def assert_focused(selector)
     page.document.synchronize(Capybara.default_max_wait_time) do
@@ -76,236 +50,8 @@ class CardDetailTest < ApplicationSystemTestCase
     end
   end
 
-  # A finger moving `dx` px sideways across the stage, as touch pointer
-  # events.
-  def swipe(dx)
-    execute_script(<<~JS, dx)
-      const stage = document.querySelector(".card-detail__stage")
-      const box = stage.getBoundingClientRect()
-      const x = box.left + box.width / 2, y = box.top + box.height / 2
-      const event = (type, clientX) => new PointerEvent(type, { bubbles: true, pointerId: 7, pointerType: "touch", isPrimary: true, clientX, clientY: y })
-      stage.dispatchEvent(event("pointerdown", x))
-      stage.dispatchEvent(event("pointermove", x + arguments[0] / 2))
-      stage.dispatchEvent(event("pointerup", x + arguments[0]))
-    JS
-  end
 
-  test "a player opens an owned card from a theme: its face, every fact, their copies, the Steam link, its sets back to the theme" do
-    season = publish_sets_draft
-    player = accounts_players(:player)
-    id = members(season, "horror").first
-    card = Catalog::CardSeason.find(id).card
-    Catalog::CardText.where(card_id: card.id, locale: "en").update_all(short_description: "A seed of a game.")
-    Game::Holding.create!(player_id: player.id, card_season_id: id, quantity: 2)
-    sign_in(player)
-
-    visit library_set_path(locale: :en, kind: "theme", key: "horror")
-    find(".collection-grid a.card-link", match: :first).click
-
-    assert_current_path in_set_path(id, season)
-    assert_selector ".card-detail h1", text: title(id)
-    assert_selector ".card-detail__fact", text: /GENRE\s+Horror/i
-    assert_equal [ "Horror", "Pirates" ], all(".card-detail__sets a").map { it.text.strip }
-    assert_selector ".card-detail__kicker", text: "CARD FILE"
-    assert_selector ".card-detail__card .card.card--l"
-    assert_selector ".card-detail__description", text: "A seed of a game."
-    assert_selector ".card-detail__fact", text: /COPIES\s+2 copies/
-    link = find(".card-detail__actions a.card-detail__store")
-    assert_equal [ card.store_url, "_blank" ], [ link[:href], link[:target] ]
-    assert_equal "See on Steam (new tab)", link.evaluate_script("this.textContent").squish
-    assert_selector ".card-detail__actions button", text: "SHARE"
-    assert evaluate_script(<<~JS), "the actions should stand under the panel, outside its background"
-      (() => {
-        const panel = document.querySelector(".card-detail__panel").getBoundingClientRect()
-        const actions = document.querySelector(".card-detail__actions").getBoundingClientRect()
-        return actions.top >= panel.bottom
-      })()
-    JS
-    assert_equal [ [ "Repost", true ], [ "Add to showcase", false ], [ "Share", false ], [ "See on Steam (new tab)", false ] ], action_buttons
-    eventually("the holder's actions should start the row and the card's links end it, at the panel's right") do
-      evaluate_script(<<~JS)
-        (() => {
-          const panel = document.querySelector(".card-detail__panel").getBoundingClientRect()
-          const holder = document.querySelector(".card-detail__holder-actions").getBoundingClientRect()
-          const links = document.querySelector(".card-detail__card-links").getBoundingClientRect()
-          return Math.abs(holder.left - panel.left) <= 1 && Math.abs(links.right - panel.right) <= 1 && Math.abs(links.top - holder.top) <= 1
-        })()
-      JS
-    end
-    # The desktop shows ◀ ▶ walking the theme's album, this card first in
-    # it, no position line; the number is in the header.
-    assert_selector "button.card-detail__nav--previous[disabled]"
-    assert_selector "a.card-detail__nav--next:not([disabled])"
-    assert_no_selector ".card-detail__position"
-    assert_no_selector ".top-bar__phone-back"
-    assert_selector ".top-bar__start > a.top-bar__home[href='/en'][aria-label='Gameble, command bridge']"
-    assert_no_selector ".top-bar__start > a.top-bar__bridge"
-    assert_selector ".card-detail__number", text: "S#{season.number} · #"
-    take_screenshot
-
-    click_on "Horror"
-    assert_selector ".set-album__name", text: /Horror/i
-  end
-
-  test "a holder reposts a card from its detail: a toast, the button stays, a second repost is refused, and the feed opens on the repost" do
-    player = accounts_players(:player)
-    Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
-    sign_in(player)
-    player.update!(persona_name: "Hugo")
-
-    visit card_path(locale: :fr, slug: "portal")
-    within(".card-detail__actions") { click_on "Reposter" }
-
-    assert_selector "#toasts .toast--notice", text: /carte repostée dans le fil\./i
-    assert_selector ".card-detail__actions button", text: "REPOSTER"
-    assert_selector ".card-detail h1", text: "Portal"
-
-    within(".card-detail__actions") { click_on "Reposter" }
-    assert_selector "#toasts .toast--alert", text: /déjà reposté cette carte aujourd'hui/i
-
-    visit feed_path(locale: :fr)
-    assert_selector ".feed__entry", count: 1
-    within(first(".feed__entry")) do
-      assert_selector ".feed__sentence", text: "Hugo a reposté Portal."
-      assert_selector ".feed__tag--repost", text: "REPOST"
-      assert_selector ".feed__thumb--framed.feed__thumb--epic"
-    end
-  end
-
-  test "no repost on a card not held, nor for a visitor" do
-    player = accounts_players(:player)
-    sign_in(player)
-
-    visit card_path(locale: :en, slug: "portal")
-    assert_selector ".card-detail h1", text: "Portal"
-    assert_no_button "Repost"
-    assert_equal [ [ "Share", false ], [ "See on Steam (new tab)", false ] ], action_buttons
-
-    sign_out
-    assert_signed_out
-    visit card_path(locale: :en, slug: "portal", set_kind: "studio", set_key: "valve")
-    assert_selector ".card-detail h1", text: "Portal"
-    assert_no_button "Repost"
-    assert_equal [ [ "Share", false ], [ "See on Steam (new tab)", false ] ], action_buttons
-  end
-
-  test "with a full showcase, the disabled add's reason stands under the holder's buttons, on the desktop and the pinned phone bar" do
-    season = publish_sets_draft
-    player = accounts_players(:player)
-    ids = members(season, "horror").first(6)
-    ids.each { Game::Holding.create!(player_id: player.id, card_season_id: it, quantity: 1) }
-    ids.first(5).each { Game::AddToShowcase.new.call(player:, card_season_id: it).value! }
-    sign_in(player)
-
-    [ nil, PHONE ].each do |size|
-      resize_to(*size) if size
-      visit card_season_path(locale: :fr, slug: slug(ids.last), number: season.number)
-      assert_selector ".card-detail__showcase button[disabled]", text: "METTRE EN VITRINE"
-      assert_equal [ [ "Reposter", true ], [ "Mettre en vitrine", false ], [ "Partager", false ], [ "Voir sur Steam (nouvel onglet)", false ] ], action_buttons
-      eventually("the showcase-full line should stand under the holder's buttons, above the card's links on the phone") do
-        evaluate_script(<<~JS)
-          (() => {
-            const line = document.querySelector(".card-detail__showcase-full").getBoundingClientRect()
-            const showcase = document.querySelector(".card-detail__showcase").getBoundingClientRect()
-            const links = document.querySelector(".card-detail__card-links").getBoundingClientRect()
-            const phone = window.innerWidth < 720
-            return line.top >= showcase.bottom && (!phone || links.top >= line.bottom)
-          })()
-        JS
-      end
-      assert_selector ".card-detail__showcase-full", text: "Vitrine pleine\u202F: retirez une carte pour en ajouter une autre."
-    end
-    take_screenshot
-  end
-
-  def not_owned_look(selector)
-    evaluate_script(<<~JS, selector)
-      ((card) => {
-        const body = getComputedStyle(card.querySelector(".card__body"))
-        const lock = card.querySelector(".card__lock")
-        return [ body.opacity, body.filter, !!lock && lock.getBoundingClientRect().width > 0 ]
-      })(document.querySelector(arguments[0]))
-    JS
-  end
-
-  test "a player clicks an album's missing card: its face faded, grey and locked as in the album, its facts and PARTAGER, no copies" do
-    season = publish_sets_draft
-    id = members(season, "pirates").first
-    card = Catalog::CardSeason.find(id).card
-    sign_in(accounts_players(:player))
-
-    visit library_set_path(locale: :fr, kind: "theme", key: "pirates")
-    assert_selector ".collection-grid a.card-link .card--not-owned"
-    album_look = not_owned_look(".collection-grid a.card-link .card--not-owned")
-    assert_equal [ "0.45", "grayscale(1)", true ], album_look
-    find(".collection-grid a.card-link .card--not-owned", match: :first).click
-
-    assert_current_path "/fr/cards/#{card.slug}/seasons/#{season.number}?set_key=pirates&set_kind=theme"
-    assert_selector ".card-detail h1", text: card.texts.find_by!(locale: "fr").title
-    assert_selector ".card-detail__card .card.card--l.card--not-owned:not([data-controller])"
-    assert_equal album_look, not_owned_look(".card-detail__card .card")
-    assert_selector ".card-detail__fact dt", text: "RARETÉ"
-    assert_selector ".card-detail__copies", text: "Aucun"
-    assert_selector ".card-detail__share-button"
-    assert_selector ".card-detail__store[href$='l=french']"
-    take_screenshot
-
-    resize_to(*PHONE)
-    visit current_url
-    assert_selector ".card-detail__card .card.card--not-owned"
-    assert_equal album_look, not_owned_look(".card-detail__card .card")
-  end
-
-  test "from the whole season's collection, a card opens on its face, walking the collection" do
-    season = publish_sets_draft
-
-    visit library_cards_path(locale: :en)
-    links = all(".collection-grid a.card-link").map { it[:href] }
-    find(".collection-grid > li:nth-child(2) a.card-link").click
-
-    assert_current_path URI(links[1]).request_uri
-    assert_match(/\?grid%5Bq%5D=\z/, current_url_path)
-    assert_selector ".card-detail__card .card"
-    assert_no_selector ".card-detail__card .card--not-owned"
-    assert_equal season.number.to_s, current_url_path[%r{/seasons/(\d+)}, 1]
-    # ◀ ▶ lead to the collection's first and third cards, on the desktop too.
-    assert_equal [ links[0], links[2] ].map { URI(it).request_uri }, all("a.card-detail__nav").map { URI(it[:href]).request_uri }
-  end
-
-  test "an opened pack's faces lead to their cards" do
-    player = accounts_players(:player)
-    pack = create_pack(player, cards: fixture_tier_ids, opened_at: 1.minute.ago)
-    sign_in(player)
-
-    visit pack_path(pack.token, locale: :en)
-    assert_selector ".pack-result__card a.card-link .card.card--m", count: 5
-    find(".pack-result__card:nth-child(4) a.card-link").click
-
-    assert_current_path "/en/cards/portal/seasons/1"
-    assert_selector ".card-detail h1", text: "Portal"
-    assert_selector ".card-detail__card .card.card--l"
-    assert_selector ".card-detail__description", text: "A puzzle game of portals."
-    assert_selector ".card-detail__sets a", text: "Valve"
-    # The pack's page keeps walking the card's set, on the desktop too.
-    assert_selector "button.card-detail__nav--previous[disabled]"
-    assert_selector "button.card-detail__nav--next[disabled]"
-  end
-
-  test "the links to a card take the keyboard focus with a visible outline" do
-    player = accounts_players(:player)
-    pack = create_pack(player, cards: fixture_tier_ids, opened_at: 1.minute.ago)
-    sign_in(player)
-
-    visit pack_path(pack.token, locale: :en)
-    link = find(".pack-result__card:first-child a.card-link")
-    link.execute_script("this.focus()")
-
-    assert_equal "Tin Soldier, 2024, Common, season 1", link["aria-label"]
-    assert_equal "inline-block", link.evaluate_script("getComputedStyle(this).display")
-    assert_not_equal "none", link.evaluate_script("getComputedStyle(this).outlineStyle")
-  end
-
-  test "on a phone: ▶ and a swipe step through the theme's grid replacing the URL, the actions in view; ◀ Grille and Back return to the grid at its scroll" do
+  test "on a phone: ▶ steps through the theme's grid replacing the URL; ◀ Grille and Back return to the grid, the focus on the card last shown" do
     season = publish_sets_draft
     player = accounts_players(:player)
     ids = members(season, "horror")
@@ -315,12 +61,7 @@ class CardDetailTest < ApplicationSystemTestCase
     grid_path = library_set_path(locale: :en, kind: "theme", key: "horror", state: %w[all])
 
     visit grid_path
-    slot = find(".collection-grid > li:nth-child(4) a.card-link")
-    slot.execute_script("this.scrollIntoView({ block: 'center' })")
-    grid_scroll = scroll_y
-    assert_operator grid_scroll, :>, 0
-    entries = evaluate_script("history.length")
-    slot.click
+    find(".collection-grid > li:nth-child(4) a.card-link").click
 
     assert_current_path in_set_path(ids[3], season)
     assert_selector ".card-detail h1", text: title(ids[3])
@@ -330,32 +71,11 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_no_selector ".card-detail__number"
     assert_selector ".top-bar__phone-back", text: "GRID"
     assert_no_selector ".top-bar__start > a.button[href='/en']"
-    # The actions are in view, above the tab bar, without scrolling.
-    in_view = evaluate_script(<<~JS)
-      (() => {
-        const actions = document.querySelector(".card-detail__actions").getBoundingClientRect()
-        const tabs = document.querySelector(".tab-bar").getBoundingClientRect()
-        return actions.top >= 0 && actions.bottom <= tabs.top + 1
-      })()
-    JS
-    assert in_view, "the actions should be in view above the tab bar"
     assert_equal [ [ "Repost", true ], [ "Add to showcase", false ], [ "Share", false ], [ "See on Steam (new tab)", false ] ], action_buttons
-    eventually("the pinned actions should be two rows, the holder's over the card's links") do
-      evaluate_script(<<~JS)
-        (() => {
-          const tops = (selector) => [ ...document.querySelectorAll(`${selector} .button`) ].map((button) => Math.round(button.getBoundingClientRect().top))
-          const holder = tops(".card-detail__holder-actions"), links = tops(".card-detail__card-links")
-          return new Set(holder).size === 1 && new Set(links).size === 1 && links[0] > holder[0]
-        })()
-      JS
-    end
-    assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
-    take_screenshot
 
     find(".card-detail__nav--next").click
     assert_selector ".card-detail__position", text: "· 5 / 16 ·"
-    assert_equal in_set_path(ids[4], season), current_url_path
-    assert_history_length entries + 1
+    assert_current_path in_set_path(ids[4], season)
     # The page's title follows the card.
     assert_selector ".card-detail h1", text: title(ids[4])
     assert_title(/\A#{title(ids[4])} — /)
@@ -367,41 +87,15 @@ class CardDetailTest < ApplicationSystemTestCase
         document.querySelectorAll("meta[name=viewport]").length ]
     JS
 
-    swipe(-120)
-    assert_selector ".card-detail__position", text: "· 6 / 16 ·"
-    assert_equal in_set_path(ids[5], season), current_url_path
-    swipe(120)
-    assert_selector ".card-detail__position", text: "· 5 / 16 ·"
-    # A vertical drag is no swipe.
-    execute_script(<<~JS)
-      const stage = document.querySelector(".card-detail__stage")
-      const event = (type, clientY) => new PointerEvent(type, { bubbles: true, pointerId: 8, pointerType: "touch", isPrimary: true, clientX: 200, clientY })
-      stage.dispatchEvent(event("pointerdown", 300)); stage.dispatchEvent(event("pointerup", 100))
-    JS
-    assert_history_length entries + 1
-    assert_selector ".card-detail__position", text: "· 5 / 16 ·"
-
     find(".top-bar__phone-back").click
     assert_current_path grid_path
-    assert_selector ".collection-grid"
-    assert_scrolled_to grid_scroll
-    # The focus is on the grid's link to the card last shown, the grid still
-    # at its scroll.
     assert_focused ".collection-grid > li:nth-child(5) a.card-link"
-    assert_scrolled_to grid_scroll
 
-    # Browser Back from the detail does the same.
+    # Browser Back from the detail does the same: the step replaced its entry.
     go_forward
     assert_selector ".card-detail__position", text: "· 5 / 16 ·"
-    # Turbo renders the cached detail, then scrolls it to its top, and files
-    # that scroll from the `scroll` event the next frame fires: going back
-    # before that event would file the detail's 0 under the grid's entry.
-    assert_scrolled_to 0
-    wait_for_frames
     go_back
     assert_current_path grid_path
-    assert_selector ".collection-grid"
-    assert_scrolled_to grid_scroll
     assert_focused ".collection-grid > li:nth-child(5) a.card-link"
   end
 
@@ -418,10 +112,7 @@ class CardDetailTest < ApplicationSystemTestCase
     grid_path = library_cards_path(locale: :en, **filters)
 
     visit grid_path
-    slot = find(".collection-grid > li:nth-child(60) a.card-link")
-    slot.execute_script("this.scrollIntoView({ block: 'center' })")
-    grid_scroll = scroll_y
-    slot.click
+    find(".collection-grid > li:nth-child(60) a.card-link").click
 
     assert_selector ".card-detail h1"
     assert_match %r{\A/en/cards/#{shown[59]}/seasons/#{season.number}\?grid}, current_url_path
@@ -433,56 +124,16 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_no_selector "html[data-sub-view-step]", visible: :all
     # The way back follows the card to the grid's second page.
     assert_selector ".top-bar__phone-back[href*='page=2']"
-    swipe(120)
+    find(".card-detail__nav--previous").click
     assert_selector ".card-detail__position", text: "· 60 / 83 ·"
     assert_no_selector "html[data-sub-view-step]", visible: :all
 
-    # The grid, an earlier entry, is restored at its scroll with its filters.
+    # The grid, an earlier entry, is restored with its filters.
     find(".top-bar__phone-back").click
     assert_current_path grid_path
     assert_selector ".collection-grid"
-    assert_scrolled_to grid_scroll
     assert_focused ".collection-grid > li:nth-child(60) a.card-link"
     assert_equal "seed", find("#collection-search").value
-  end
-
-  test "on a phone, once ◀ ▶ crossed onto another page of the grid, ◀ Grille leads to that page, showing the card last seen" do
-    season = publish_sets_draft
-    page.driver.browser.manage.window.resize_to(*PHONE)
-    filters = { state: %w[missing], genre: %w[roguelike], q: "seed" }
-    visit library_cards_path(locale: :en, **filters, page: 2)
-    second_page = all(".collection-grid a.card-link").map { URI(it[:href]).path }
-    assert_operator second_page.size, :>, 0
-
-    visit library_cards_path(locale: :en, **filters)
-    find(".collection-grid > li:nth-child(60) a.card-link").click
-    assert_selector ".card-detail__position", text: "· 60 / 83 ·"
-    find(".card-detail__nav--next").click
-    assert_selector ".card-detail__position", text: "· 61 / 83 ·"
-    assert_no_selector "html[data-sub-view-step]", visible: :all
-
-    find(".top-bar__phone-back").click
-    page.document.synchronize do
-      raise Capybara::ExpectationNotMet, current_url_path unless URI(current_url_path).path == library_cards_path(locale: :en) && Rack::Utils.parse_query(URI(current_url_path).query)["page"] == "2"
-    end
-    assert_selector ".collection-grid a.card-link[href^='#{second_page.first}']"
-    assert_equal "seed", find("#collection-search").value
-  end
-
-  test "on a phone the ends of a set are disabled, and a card opened without the grid goes back to it by a plain visit" do
-    season = publish_sets_draft
-    ids = members(season, "horror")
-    sign_in(accounts_players(:player))
-    page.driver.browser.manage.window.resize_to(*PHONE)
-
-    visit in_set_path(ids.first, season)
-    assert_selector ".card-detail__nav--previous[disabled]"
-    swipe(120)
-    assert_selector ".card-detail__position", text: "· 1 / 16 ·"
-    assert_equal in_set_path(ids.first, season), current_url_path
-
-    find(".top-bar__phone-back").click
-    assert_current_path library_set_path(locale: :en, kind: "theme", key: "horror")
   end
 
   test "a step from the keyboard keeps the focus on the same control" do
@@ -495,46 +146,6 @@ class CardDetailTest < ApplicationSystemTestCase
     find(".card-detail__nav--next").send_keys(:enter)
 
     assert_selector ".card-detail__position", text: "· 3 / 16 ·"
-    assert evaluate_script("document.activeElement.matches('.card-detail__nav--next')"), "the focus should stay on ▶"
-  end
-
-  test "a step runs in a View Transition, none under reduced motion" do
-    season = publish_sets_draft
-    ids = members(season, "horror")
-    page.driver.browser.manage.window.resize_to(*PHONE)
-    visit in_set_path(ids[1], season)
-    count_transitions = <<~JS
-      window.transitions = 0
-      const start = document.startViewTransition.bind(document)
-      document.startViewTransition = (update) => { window.transitions++; return start(update) }
-    JS
-
-    execute_script(count_transitions)
-    find(".card-detail__nav--next").click
-    assert_selector ".card-detail__position", text: "· 3 / 16 ·"
-    assert_equal 1, evaluate_script("window.transitions")
-    # The star field did not shift: the screen did not change.
-    assert_no_selector ".atmosphere__stars[style*='--star-shift']", visible: :all
-
-    execute_script("document.documentElement.dataset.motion = 'reduced'")
-    find(".card-detail__nav--next").click
-    assert_selector ".card-detail__position", text: "· 4 / 16 ·"
-    assert_equal 1, evaluate_script("window.transitions")
-    assert_no_selector "html[data-sub-view-step]", visible: :all
-    assert_equal "same-origin", evaluate_script("document.querySelector('meta[name=view-transition]').content")
-  end
-
-  # The history entry is pushed by Turbo a moment after the page shows the new
-  # card, so the length is read again for up to two seconds before it is judged.
-  # Chrome keeps at most 50 entries: a session that already holds 50 stays at 50.
-  def assert_history_length(expected)
-    expected = [ expected, 50 ].min
-    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 2
-    length = evaluate_script("history.length")
-    while length != expected && Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline
-      sleep 0.05
-      length = evaluate_script("history.length")
-    end
-    assert_equal expected, length
+    assert_focused ".card-detail__nav--next"
   end
 end

@@ -13,6 +13,8 @@ module FeedHelper
     end
   end
 
+  def feed_types_sheet_id = "feed-types"
+
   def feed_chip_link(label, path, current:, classes:)
     link_to path, class: [ classes, "filter-chip" ], aria: { current: ("true" if current) } do
       tag.span(label, class: "filter-chip__text")
@@ -58,7 +60,18 @@ module FeedHelper
     elsif links then link_to(name, brother_path(token: player.token), class: "feed__name", data: { turbo_prefetch: false })
     else tag.strong(name)
     end
-    titles ? safe_join([ shown, active_title_tag(title, class_name: "feed__title") ].compact, " ") : shown
+    titles ? safe_join([ shown, feed_rank(title) ].compact, " ") : shown
+  end
+
+  def feed_rank(title)
+    return unless title
+
+    rank = tag.span(class: "feed__rank-name") do
+      safe_join([ (rank_mark(title.rank, class: "feed__rank-mark") if rank_tier?(title.rank)), t("profile_titles.ranks.#{title.rank}") ].compact)
+    end
+    tag.span(class: [ "profile-title", "feed__rank", "feed__rank--#{title.rank}" ]) do
+      safe_join([ rank, tag.span("·", class: "feed__rank-dot"), tag.span(SetLabel.for(title), class: "feed__rank-set") ], " ")
+    end
   end
 
   def feed_game(card, links:)

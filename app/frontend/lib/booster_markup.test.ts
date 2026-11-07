@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { bankFrom, cardFrom, openedFrom, setTierFrom, thresholdsFrom } from "./booster_markup"
+import { bankFrom, bankValuesOf, cardFrom, openedFrom, setTierFrom, thresholdsFrom } from "./booster_markup"
 
 const BANK = {
   available: 2,
@@ -10,17 +10,27 @@ const BANK = {
   nextAvailableAt: "2026-10-26T12:00:00.000Z",
   serverTime: "2026-10-26T11:00:00.000Z",
   nextPackSize: 5,
+  nextSpecialSize: 3,
 }
 
 describe("bankFrom", () => {
   it("reads the bank from the root's values, an empty time and a zero size as none", () => {
     expect(bankFrom(BANK)).toEqual(BANK)
-    expect(bankFrom({ ...BANK, available: 0, nextAvailableAt: "", nextPackSize: 0 })).toEqual({
+    expect(bankFrom({ ...BANK, available: 0, nextAvailableAt: "", nextPackSize: 0, nextSpecialSize: 0 })).toEqual({
       ...BANK,
       available: 0,
       nextAvailableAt: null,
       nextPackSize: null,
+      nextSpecialSize: null,
     })
+  })
+})
+
+describe("bankValuesOf", () => {
+  it("writes the bank back as the root's values, so a restored page starts from it", () => {
+    expect(bankValuesOf(bankFrom(BANK))).toEqual(BANK)
+    const none = { ...BANK, nextSpecialKind: "", nextAvailableAt: "", nextPackSize: 0, nextSpecialSize: 0 }
+    expect(bankValuesOf(bankFrom(none))).toEqual(none)
   })
 })
 
@@ -35,8 +45,15 @@ describe("cardFrom", () => {
       year: "2007",
       label: "Portal — Valve, 2007",
       goals: "goal 2: Valve",
+      firstCopy: "true",
     }
-    expect(cardFrom(data)).toEqual({ ...data, season: 1, year: 2007, faces: { s: "", m: "", xl: "" } })
+    expect(cardFrom(data)).toEqual({
+      ...data,
+      season: 1,
+      year: 2007,
+      firstCopy: true,
+      faces: { s: "", m: "", xl: "" },
+    })
     expect(cardFrom({ slug: "x", tier: "bogus", title: "X" })).toMatchObject({
       season: 0,
       tier: "common",
@@ -44,6 +61,7 @@ describe("cardFrom", () => {
       label: "X",
       coverUrl: "",
       goals: "",
+      firstCopy: false,
     })
   })
 })
@@ -111,6 +129,7 @@ describe("openedFrom", () => {
       nextAvailableAt: BANK.nextAvailableAt,
       scheduledAt: [],
       nextPackSize: 5,
+      nextSpecialSize: 3,
     })
     expect(opened?.serverTime).toBe(BANK.serverTime)
   })

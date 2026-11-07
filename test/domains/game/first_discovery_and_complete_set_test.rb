@@ -45,15 +45,24 @@ class Game::FirstDiscoveryAndCompleteSetTest < ActiveSupport::TestCase
   # First discoveries
 
   test "a card nobody had pulled is recorded once, published after the opening and enters the feed as a discovery" do
-    undiscover(@common)
+    undiscover(@rare)
 
     pack = open_pack(@player, [ @common, @uncommon, @rare, @uncommon, @common ])
 
-    discovery = Game::FirstDiscovery.find_by!(card_season_id: @common)
+    discovery = Game::FirstDiscovery.find_by!(card_season_id: @rare)
     assert_equal [ @player.id, pack.id, pack.opened_at ], [ discovery.player_id, discovery.pack_id, discovery.discovered_at ]
     assert_equal [ Game::PackOpened, Game::CardDiscovered ], game_events(@player).last(2).map(&:class)
-    assert_equal({ player_id: @player.id, card_season_id: @common, pack_id: pack.id }, game_events(@player, Game::CardDiscovered).sole.data)
-    assert_equal [ [ 0, "discovery", true ] ], entries(pack), "the first copy only; no filler beside a discovery"
+    assert_equal({ player_id: @player.id, card_season_id: @rare, pack_id: pack.id }, game_events(@player, Game::CardDiscovered).sole.data)
+    assert_equal [ [ 2, "discovery", true ] ], entries(pack), "the first copy only; no filler beside a discovery"
+  end
+
+  test "a common or uncommon card discovered is recorded but stays out of the feed, the pack leaves its filler" do
+    undiscover(@common, @uncommon)
+
+    pack = open_pack(@player, [ @common, @uncommon, @rare, @uncommon, @common ])
+
+    assert_equal [ @common, @uncommon ], game_events(@player, Game::CardDiscovered).map { it.data[:card_season_id] }
+    assert_equal [ [ 2, "pull", false ] ], entries(pack)
   end
 
   test "a card already discovered records nothing, publishes nothing and stays a pull" do
@@ -80,18 +89,7 @@ class Game::FirstDiscoveryAndCompleteSetTest < ActiveSupport::TestCase
 
     assert_equal [ @common, @rare ], game_events(@player, Game::CardDiscovered).map { it.data[:card_season_id] }
     assert_equal [ pack.id ], Game::FirstDiscovery.where(card_season_id: [ @common, @rare ]).distinct.pluck(:pack_id)
-    assert_equal [ [ 0, "discovery", true ], [ 1, "discovery", true ] ], entries(pack)
-  end
-
-  test "the next player to pull a discovered card makes no discovery" do
-    undiscover(@rare)
-    open_pack(@player, [ @rare ] * 5)
-
-    pack = open_pack(@other, [ @rare ] * 5)
-
-    assert_equal @player.id, Game::FirstDiscovery.find_by!(card_season_id: @rare).player_id
-    assert_empty game_events(@other, Game::CardDiscovered)
-    assert_equal [ [ 0, "pull", false ] ], entries(pack)
+    assert_equal [ [ 0, "discovery", true ] ], entries(pack), "the common discovered stays out of the feed"
   end
 
   test "a replayed opening discovers nothing more" do
@@ -106,8 +104,8 @@ class Game::FirstDiscoveryAndCompleteSetTest < ActiveSupport::TestCase
   end
 
   test "discoveries show under the whole feed and DÉCOUVERTES, not under the pulls" do
-    undiscover(@common)
-    open_pack(@player, [ @common ] * 5)
+    undiscover(@rare)
+    open_pack(@player, [ @rare ] * 5)
 
     assert_equal [ "discovery" ], Game::FeedEntries.call(nil).map { it.entry.kind }
     assert_equal [ "discovery" ], Game::FeedEntries.call(nil, kind: "discovery").map { it.entry.kind }

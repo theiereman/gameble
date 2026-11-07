@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>"<% if forced_motion %> data-motion="<%= forced_motion %>"<% end %><% if hotwire_native_app? %> data-native-app<% end %>>
+  <head>
+    <%= render "layouts/head" %>
+  </head>
+
+  <body class="sheet-body">
+    <main id="main" class="sheet-main">
+      <%= yield %>
+    </main>
+    <%= render "shell/toasts" %>
+    <% if hotwire_native_app? %><div hidden data-controller="bridge--haptics"></div><% end %>
+  </body>
+</html>

@@ -4,15 +4,12 @@
 <% content_for :public_page, true if @public %>
 <% content_for :title, title %>
 <% content_for :head do %>
-  <%= render "cards/share_tags", title:, url: card_public_url(view),
+  <%= render "cards/share_tags", view:, title:, url: card_public_url(view),
     image: @share_image_token && { url: card_share_image_url(@share_image_token), alt: card_share_image_alt(view) } %>
 <% end %>
 <% if @browse&.back %>
   <% content_for :phone_back do %>
-    <%= link_to @browse.back.path, class: "button button--secondary button--small top-bar__phone-back",
-      data: { controller: "history-back", action: "history-back#back" } do %>
-      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= @browse.back.label %></span>
-    <% end %>
+    <%= phone_back_link @browse.back.label, @browse.back.path, data: { controller: "history-back", action: "history-back#back" } %>
   <% end %>
 <% end %>
 <% if @public %>
@@ -20,6 +17,6 @@
 <% else %>
   <%= turbo_frame_tag "card-detail", target: "_top" do %>
     <%= render "cards/detail", detail: @detail, copies: @copies, editions: @editions, signed_in: current_player.present?, share_url: @share_url,
-      set_url: @set_url, browse: @browse, showcase: @showcase, pioneer: @pioneer, goals: @goals %>
+      set_url: @set_url, browse: @browse, showcase: @showcase, pioneer: @pioneer, goals: @goals, trade_holders: @trade_holders %>
   <% end %>
 <% end %>

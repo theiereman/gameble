@@ -117,3 +117,25 @@ covers = ["E1", "E2", "E3", "E4", "E5"]
 after = [6]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 11
+type = "story"
+title = "Suggestions stay few: only friends who hold the missing card as a duplicate, capped per goal"
+description = "Staging feedback, 2026-11-02 (author): suggestions take too much room, above all when a goal's set is large (an adventure set with many missing cards), and risk dominating the page. Narrow Game::TradeSuggestions: a friend is suggested only for a card they hold as a duplicate (more than one copy), so a single free copy no longer counts (this reverses the earlier reading where any free copy counted); cap the suggestions per goal so one large set cannot fill the list, and keep the list of three. Ranking, mutual-first and the declined-never-returns rule stay. Decided 2026-11-02 (author): at most one suggestion per goal, and a friend holding only a single copy of the card is never suggested."
+verify = "A goal with fifty missing cards gives at most one suggestion and never more than three in all; a friend whose only copy is the one they use is not suggested; the existing tests are updated to the duplicate rule and pass."
+covers = []
+after = []
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 12
+type = "story"
+title = "A suggestion has no send button: opening it prepares the proposal"
+description = "Author on staging, 2026-11-02: remove the SEND (ENVOYER) button from the suggestion row; the player only presses the suggestion, which opens the trade board prefilled, and sends from there like any trade. Remove the quick-send path that only the row button used (route, controller action, operation call, strings, focus-after-send handling) and keep the opener, the draft logic, the declined-never-returns rule and the focus behaviour of the opener. Tests and strings in en.yml and fr.yml follow."
+verify = "A suggestion row shows one control, the opener; no row has a send button; no route, action, string or test of the quick send remains; the board opened from a suggestion is prefilled as before; the suggestion tests pass."
+covers = []
+after = [11]
+hitl = false
+risk = "low"

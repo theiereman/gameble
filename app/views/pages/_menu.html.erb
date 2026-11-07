@@ -1,6 +1,6 @@
-<nav class="hub-menu" aria-label="<%= t("pages.home.menu.label") %>" data-hub-menu-target="menu" data-action="keydown->hub-menu#press">
+<nav class="hub-menu" aria-label="<%= t("pages.home.menu.label") %>" data-hub-menu-target="menu" data-action="keydown->hub-menu#press turbo:before-morph-attribute->hub-menu#keepShownList">
   <% arrow = pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
-  <ol class="hub-menu__list">
+  <ol class="hub-menu__list" data-hub-menu-target="main">
     <%= render "pages/menu_booster", bank: bank %>
     <li class="hub-menu__entry">
       <%= link_to library_path, class: "menu-item", aria: { keyshortcuts: "2" },
@@ -14,19 +14,11 @@
         <%= arrow %>
       <% end %>
     </li>
-    <%= render "pages/menu_all_cards" %>
-    <% [ [ :trades, 4 ], [ :friends, 5 ], [ :feed, 6 ], [ :achievements, 7 ] ].each do |item, position| %>
-      <% if item == :trades %>
-        <%= render "pages/menu_trades", waiting: shell_trades_waiting %>
-      <% elsif item == :friends %>
-        <%= render "pages/menu_friends", online: friends_online, invitations: shell_invitations_waiting %>
-      <% elsif item == :feed %>
-        <%= render "pages/menu_feed" %>
-      <% else %>
-        <%= render "pages/menu_achievements", achievements: %>
-      <% end %>
-    <% end %>
-    <%= render "pages/menu_how_it_works" %>
-    <%= render "pages/menu_support" %>
+    <%= render "pages/menu_trades", waiting: shell_trades_waiting %>
+    <%= render "pages/menu_friends", online: friends_online, invitations: shell_invitations_waiting %>
+    <%= render "pages/menu_feed" %>
+    <%= render "pages/menu_achievements", achievements: achievements %>
+    <%= render "pages/menu_extras_entry" %>
   </ol>
+  <%= render "pages/menu_extras" %>
 </nav>

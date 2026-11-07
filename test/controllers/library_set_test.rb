@@ -67,7 +67,8 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select "h1#set-album-heading.set-album__name[tabindex='-1'][data-set-album-target=heading]", "Horror"
     assert_select "header.set-album__header.panel--brackets"
     assert_select "p.top-bar__title", "Collection"
-    assert_select "header.top-bar[data-screen-label=Set] .top-bar__start.top-bar__start--phone-previous > a.top-bar__previous[data-controller=previous-screen]"
+    assert_select "header.top-bar[data-screen-label=Set] .top-bar__start > a.top-bar__previous[data-controller=previous-screen]"
+    assert_select ".top-bar__start.top-bar__start--phone-back > a.top-bar__phone-back[href='/en/library']", /Sets/
     assert_select ".collection-status__value", "6 / 150"
     assert_select ".set-album__kind, .set-album__facts, .set-album__gauge", false
     assert_equal [ "set-album__name", "set-album__count", "set-album__actions" ], title_line
@@ -335,7 +336,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".collection-pages a[rel=prev][href=?]", "/fr/library/theme/roguelike?page=3"
   end
 
-  test "an album of 752 cards costs the same queries as one of three: fourteen for a player" do
+  test "an album of 752 cards costs the same queries as one of three: fifteen for a player" do
     season, cards = published_cards(755)
     insert_theme(cards.first(752), key: "roguelike", season:)
     insert_theme(cards.last(3), key: "horror", season:)
@@ -347,16 +348,16 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     # tiers, the player's editions, the page's card views; the top bar's
     # unique cards, season's cards and rarity legend; the tab bar's trades
     # and invitations waiting; the themes' names; the player's goals.
-    assert_request_queries(14) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
+    assert_request_queries(17) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
     assert_response :success
     assert_select ".set-album__grid > li", 60
     assert_select ".collection-pages"
     assert_equal "400/752", count
 
-    assert_request_queries(14) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
+    assert_request_queries(17) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
     assert_equal "1/3", count
 
-    assert_request_queries(14) { get library_set_path(locale: :en, kind: "theme", key: "roguelike", state: [ "missing" ], rarity: [ "common" ], q: "seed") }
+    assert_request_queries(17) { get library_set_path(locale: :en, kind: "theme", key: "roguelike", state: [ "missing" ], rarity: [ "common" ], q: "seed") }
     assert_response :success
     assert_select ".set-album__grid > li", 60
     assert_equal "400/752", count
@@ -545,7 +546,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :en)
     assert_select "header.top-bar[data-screen-label=Sets]"
-    assert_select ".top-bar__start--phone-previous", false
+    assert_select ".top-bar__phone-back", false
     assert_select ".set-entry[data-controller=last-album][data-action='turbo:frame-load->last-album#mark'] turbo-frame#set-entry-in-progress"
     get library_in_progress_path(locale: :en), headers: { "Turbo-Frame" => "set-entry-in-progress" }
     assert_select "a.set-tile[href='/en/library/theme/horror']"
@@ -553,7 +554,8 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en)
     assert_select "header.top-bar[data-screen-label=Collection]"
 
+    Game::AddGoal.new.call(player:, kind: "theme", key: "horror").value!
     get home_path(locale: :en)
-    assert_select ".hub-sets[data-controller=last-album] a.set-row"
+    assert_select ".hub-goals[data-controller=last-album] a.goal-row[href='/en/library/theme/horror']"
   end
 end

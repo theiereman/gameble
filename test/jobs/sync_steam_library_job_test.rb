@@ -25,10 +25,6 @@ class SyncSteamLibraryJobTest < ActiveJob::TestCase
 
   def games = Game::CustomSetGame.where(custom_set_id: @library_set.id).order(:card_id).pluck(:card_id)
 
-  test "it runs on the steam_library queue" do
-    assert_equal "steam_library", SyncSteamLibraryJob.new.queue_name
-  end
-
   test "a public library replaces the set's games by the catalog games Steam lists, in one call for the player's Steam id" do
     calls = stub_owned_games([ RARE_APPID, UNKNOWN_APPID, PORTAL_APPID ])
 

@@ -42,6 +42,20 @@ class SearchEnginesTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=robots]", false
   end
 
+  test "the landing shares a large preview image in its own language, as an absolute address" do
+    %w[en fr].each do |locale|
+      get home_path(locale:)
+
+      image = css_select("meta[property='og:image']").sole["content"]
+      assert_match(%r{\A#{BASE}/.+landing-#{locale}.+\.png\z}, image)
+      assert_select "meta[property='og:image:alt'][content=?]", I18n.t("landings.show.share_image_alt", locale:)
+      assert_select "meta[property='og:image:width'][content=1200]"
+      assert_select "meta[property='og:image:height'][content=630]"
+      assert_select "meta[name='twitter:card'][content=summary_large_image]"
+      assert_select "meta[name='twitter:image'][content=?]", image
+    end
+  end
+
   test "the landing carries valid structured data for the game, outside the script policy" do
     get home_path(locale: :en)
 
@@ -62,17 +76,47 @@ class SearchEnginesTest < ActionDispatch::IntegrationTest
     assert_select "link[rel=alternate][hreflang=fr][href=?]", "#{BASE}/fr/legal"
   end
 
-  test "the sitemap lists the landing and the legal page in both languages, with their alternates, and no private page" do
+  test "the sitemap lists the public pages in both languages, with their alternates, and no private page" do
     get "/sitemap.xml"
 
     assert_response :success
     assert_equal "application/xml", response.media_type
     document = Nokogiri::XML(response.body)
     document.remove_namespaces!
-    assert_equal %W[#{BASE}/en #{BASE}/fr #{BASE}/en/legal #{BASE}/fr/legal].sort, document.xpath("//url/loc").map(&:text).sort
+    expected = %w[/en /fr /en/how-it-works /fr/how-it-works /en/roadmap /fr/roadmap /en/credits /fr/credits /en/legal /fr/legal]
+    assert_equal expected.map { "#{BASE}#{it}" }.sort, document.xpath("//url/loc").map(&:text).sort
     first = document.at_xpath("//url[loc='#{BASE}/fr']")
     assert_equal %w[en fr], first.xpath("link[@rel='alternate']/@hreflang").map(&:value).sort
     assert_no_match(/back-office|settings|booster|trades|brothers|cards/, response.body)
+  end
+
+  test "the roadmap, how it works and credits pages link their canonical address and alternates" do
+    %w[roadmap how-it-works credits].each do |slug|
+      get "/fr/#{slug}"
+
+      assert_select "link[rel=canonical][href=?]", "#{BASE}/fr/#{slug}"
+      assert_select "link[rel=alternate][hreflang=en][href=?]", "#{BASE}/en/#{slug}"
+    end
+  end
+
+  test "a page with no description of its own carries the default one, in its language" do
+    get legal_path(locale: :fr)
+    assert_select "meta[name=description][content=?]", I18n.t("layouts.application.description", locale: :fr)
+
+    get home_path(locale: :fr)
+    assert_select "meta[name=description]", 1
+  end
+
+  test "llms.txt presents the game and links its public pages in English" do
+    get "/llms.txt"
+
+    assert_response :success
+    assert_equal "text/plain", response.media_type
+    assert_match(/\A# Gameble\n\n> Every card is a Steam game/, response.body)
+    [ "/en", "/en/how-it-works", "/en/roadmap", "/en/credits", "/en/legal", "/sitemap.xml" ].each do |path|
+      assert_includes response.body, "(#{BASE}#{path})"
+    end
+    assert_no_match(/back-office|settings|booster|trades/, response.body)
   end
 
   test "robots.txt points to the sitemap and disallows the back-office and private screens" do
@@ -83,7 +127,7 @@ class SearchEnginesTest < ActionDispatch::IntegrationTest
     assert_equal "text/plain", response.media_type
     lines = response.body.lines.map(&:chomp)
     assert_includes lines, "Sitemap: #{BASE}/sitemap.xml"
-    [ "/back-office", "/auth/", "/*/back-office", "/*/settings", "/*/booster", "/*/trades", "/*/friends" ].each do |path|
+    [ "/back-office", "/auth/", "/*/back-office", "/*/settings", "/*/booster", "/*/trades", "/*/friends", "/*/me", "/*/social" ].each do |path|
       assert_includes lines, "Disallow: #{path}"
     end
     %w[cards brothers library roadmap legal feed].each do |page|
@@ -126,6 +170,9 @@ class SearchEnginesTest < ActionDispatch::IntegrationTest
     assert_equal "User-agent: *\nContent-Signal: ai-train=no, search=no, ai-input=no\nDisallow: /\n", response.body
 
     get "/sitemap.xml"
+    assert_response :not_found
+
+    get "/llms.txt"
     assert_response :not_found
   end
 

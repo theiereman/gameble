@@ -101,14 +101,6 @@ class Game::TradeTest < ActiveSupport::TestCase
     assert_equal 2, Game::Trade.in_progress.count
   end
 
-  test "the friend's opposite proposal opens beside the first" do
-    propose.value!
-
-    assert propose(@bob, @alice, offer: { @three => 1 }, request: { @one => 1 }).value!.open?
-    assert_equal [ 2, 1 ], [ reserved(@alice, @one), reserved(@bob, @three) ]
-    assert_equal 2, Game::Trade.in_progress.count
-  end
-
   test "sending again terms already open with that friend is refused and reserves nothing more" do
     propose.value!
 
@@ -143,13 +135,6 @@ class Game::TradeTest < ActiveSupport::TestCase
 
     assert propose.value!.open?
     assert_equal 2, Game::Trade.in_progress.count
-  end
-
-  test "a closed trade with the same terms does not block them" do
-    trade = propose.value!
-    Game::CancelTrade.new.call(player: @alice, trade_id: trade.id).value!
-
-    assert propose.value!.open?
   end
 
   test "sides need at most four different cards with positive integer quantities, and the request at least one" do

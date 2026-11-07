@@ -56,8 +56,37 @@ module ShellHelper
     "achievements" => :achievements,
     "pages#legal" => :legal,
     "pages#how_it_works" => :how_it_works,
-    "pages#more" => :more
+    "own_profiles" => :me
   }.freeze
+
+  def shell_top_level_screen?
+    return false if current_player.nil? || back_office_page? || content_for?(:phone_back)
+
+    %w[boosters trades].include?(controller_path) ||
+      %w[pages#home own_profiles#show friends#show library#show library#cards].include?("#{controller_path}##{action_name}")
+  end
+
+  FRIENDS_TAB_CONTROLLERS = %w[friends friend_profiles].freeze
+
+  def shell_tabs
+    return visitor_tabs unless current_player
+
+    [
+      [ :hub, "tab-hub", home_path, (controller_path == "pages" && action_name == "home") || controller_path == "feeds" ],
+      [ :booster, "tab-capsule", booster_path, %w[boosters packs].include?(controller_path) ],
+      [ :sets, "tab-sets", library_path, %w[library cards custom_sets].include?(controller_path) ],
+      [ :friends, "tab-friends", friends_path, FRIENDS_TAB_CONTROLLERS.include?(controller_path) ],
+      [ :trades, "tab-trades", trades_path, controller_path == "trades" ]
+    ]
+  end
+
+  def visitor_tabs
+    on_all_cards = (controller_path == "library" && action_name == "cards") || controller_path == "cards"
+    [
+      [ :landing, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
+      [ :all_cards, "tab-collection", library_cards_path, on_all_cards ]
+    ]
+  end
 
   def shell_home_label
     current_player ? t("shell.top_bar.home") : t("shell.top_bar.landing")
@@ -67,6 +96,26 @@ module ShellHelper
     current_player ? t("shell.top_bar.back") : t("shell.top_bar.back_landing")
   end
 
+  def native_top_bar?
+    hotwire_native_app? && current_player.present? && !back_office_page? && app_bridge_components.include?("top-bar")
+  end
+
+  def app_bridge_components
+    request.user_agent.to_s[/bridge-components: \[([^\]]*)\]/, 1].to_s.split
+  end
+
+  def native_top_bar_data
+    return {} unless native_top_bar?
+
+    { controller: "bridge--top-bar", action: "click->bridge--top-bar#navigate", "bridge--top-bar-url-value": top_bar_path }
+  end
+
+  def phone_back_link(label, path, **options)
+    link_to path, class: "button button--secondary button--small top-bar__phone-back", **options do
+      safe_join([ pixel_icon("arrow-left", class: "button__icon"), tag.span(label, class: "button__label") ])
+    end
+  end
+
   def sign_in_button(label, origin:, class:, aria_label: nil)
     link_to label, sign_in_path(origin:), class:, aria: { label: aria_label }.compact
   end
@@ -74,6 +123,10 @@ module ShellHelper
   def shell_screen_label
     key = screen_label_key
     t("shell.screens.#{key}") if key
+  end
+
+  def native_screen_label
+    controller_path == "pages" && action_name == "home" ? t("shell.top_bar.back") : shell_screen_label
   end
 
   def shell_screen_labels
@@ -101,6 +154,12 @@ module ShellHelper
     return @shell_invitations_waiting if defined?(@shell_invitations_waiting)
 
     @shell_invitations_waiting = current_player && Game::InvitationsWaiting.call(current_player)
+  end
+
+  def shell_achievements_unclaimed
+    return @shell_achievements_unclaimed if defined?(@shell_achievements_unclaimed)
+
+    @shell_achievements_unclaimed = Game::UnclaimedAchievements.count(current_player)
   end
 
   def player_stream_tag

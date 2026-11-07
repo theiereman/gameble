@@ -1,0 +1,220 @@
+/*
+ * The Me page: the player's own profile, whose title, card back and
+ * showcase each open a bottom sheet to change them, then the help and
+ * settings rows. Every opener is a touch target of at least 44px.
+ */
+
+.me {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-8) + var(--space-3));
+  min-width: 0;
+}
+
+/* What only the owner changes, under the band visitors see: the title
+   and the card back, each a tile that opens its sheet. */
+.me-customize {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.me-customize__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.me-opener {
+  display: grid;
+  grid-template: "look kicker cue" auto "look value cue" auto / auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  height: 100%;
+  min-height: var(--space-touch-min);
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-3);
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.me-opener:hover {
+  background: var(--color-panel-raised);
+}
+
+.me-opener:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.me-opener__look {
+  display: grid;
+  grid-area: look;
+  place-items: center;
+  width: 50px;
+  height: 75px;
+}
+
+.me-opener__look .back-picker__image {
+  width: 50px;
+  height: 75px;
+}
+
+.me-opener__icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-accent);
+}
+
+.me-back-opener__look {
+  display: contents;
+}
+
+.me-opener__kicker {
+  grid-area: kicker;
+  align-self: end;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.me-opener__value {
+  grid-area: value;
+  align-self: start;
+  min-width: 0;
+  color: var(--color-text-bright);
+  font: var(--font-button);
+  overflow-wrap: anywhere;
+}
+
+.me-opener__value--empty {
+  color: var(--color-muted);
+}
+
+.me-opener__cue {
+  display: inline-flex;
+  grid-area: cue;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.me-opener:hover .me-opener__cue {
+  color: var(--color-text-max);
+}
+
+.me-opener__arrow {
+  width: 12px;
+  height: 12px;
+}
+
+/* "See all" sits quietly at the end of the achievements heading. */
+.me-achievements__all {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--space-touch-min);
+  margin-block: calc((var(--space-touch-min) - 1em) / -2);
+  margin-left: auto;
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-decoration: underline;
+  text-transform: uppercase;
+}
+
+.me-achievements__all:hover {
+  color: var(--color-text-max);
+}
+
+.me-achievements__all:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.me-achievements__all .menu-item__badge {
+  text-decoration: none;
+}
+
+/* Inside a sheet: what it is for, then its choices. */
+.me-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.me-sheet__intro {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-menu);
+}
+
+.me-sheet__count,
+.me-sheet__note {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.me-sheet__count b {
+  color: var(--color-text-bright);
+}
+
+.me-sheet__heading {
+  margin: 0 0 calc(-1 * var(--space-3));
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.me-sheet__link {
+  align-self: flex-start;
+}
+
+.me-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.me-choices__form {
+  display: contents;
+}
+
+.me-choices .filter-chip .filter-chip__text {
+  min-height: var(--space-touch-min);
+}
+
+/* The owner confirms before a card leaves the showcase. */
+.showcase-removal__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.showcase-removal__text {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.showcase-removal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}

@@ -2,11 +2,6 @@
 <% turbo_exempts_page_from_cache %>
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".title") %>
-<% content_for :phone_back do %>
-  <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
-    <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
-  <% end %>
-<% end %>
 <% invite_url = public_url_for(invite_link_path(token: current_player.token)) %>
 <section class="friends" aria-labelledby="friends-heading" data-controller="live-refresh" data-live-refresh-signal-value="friends-updated">
   <h1 id="friends-heading" class="visually-hidden"><%= t(".title") %></h1>
@@ -19,6 +14,8 @@
           <div class="friends__row-field">
             <input type="text" id="invite-link" class="friends__input" value="<%= invite_url %>" readonly data-share-target="url">
             <button type="button" class="button button--secondary button--small" data-action="share#copy"><%= t(".copy") %></button>
+            <button type="button" class="button button--secondary button--small" hidden data-action="bridge--share#share"
+              <%= tag.attributes(data: { controller: "bridge--share", bridge__share_url_value: invite_url, bridge__share_text_value: t(".share_text") }) %>><%= t(".share") %></button>
           </div>
           <p class="friends__status" role="status" data-share-target="status"></p>
         </div>

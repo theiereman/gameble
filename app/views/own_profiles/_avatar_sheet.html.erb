@@ -1,0 +1,11 @@
+<%# locals: (shelf:, page: false) %>
+<%= render BottomSheetComponent.new(id: "me-avatar-sheet", title: t("own_profiles.avatar_sheet.heading"), wide: true, page:) do %>
+  <div class="me-sheet">
+    <p class="me-sheet__intro"><%= t("own_profiles.avatar_sheet.intro") %></p>
+    <ul class="me-avatars">
+      <% shelf.each do |row| %>
+        <%= render "own_profiles/avatar_choice", row: %>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

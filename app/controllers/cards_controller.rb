@@ -2,6 +2,7 @@ class CardsController < ApplicationController
   include PublicRead
   include CardDetailLoading
   include CollectionGridLoading
+  include CustomSetFaces
 
   Browse = Data.define(:position, :total, :previous, :next, :back)
   Back = Data.define(:label, :path)
@@ -15,18 +16,23 @@ class CardsController < ApplicationController
     @copies = @editions.sum(&:last).nonzero?
     @share_url = share_url
     @share_image_token = CardShareImage.current_token(card_season_id: @detail.card_season_id, view: @detail.view, locale: I18n.locale)
-    named = pack_browse || grid_browse || named_set_browse
-    profile = profile_browse || personalization_browse unless named
+    named = pack_browse || grid_browse || trade_browse || custom_set_browse || named_set_browse
+    profile = profile_browse || me_browse unless named
     @public = current_player.nil? && named.nil? && profile.nil?
     @live_strip = LiveStream.strip_items if @public
     @browse = named || profile || set_browse(@detail.sets.first) unless @public
     @goals = goal_marks.goals_for(@detail.card_id) unless @public
     @showcase = showcase_state
+    @trade_holders = trade_holders unless @public || @copies
     @pioneer = pioneer_line
     @set_url = set_url
   end
 
   private
+    def trade_holders
+      Game::FriendsHolding.call(current_player, card_id: @detail.card_id, card_season_id: @detail.card_season_id)
+    end
+
     def pioneer_line
       pioneer = Game::PioneerOf.call(@detail.card_season_id)
       return if pioneer.nil?
@@ -60,6 +66,35 @@ class CardsController < ApplicationController
 
       back = Back.new(label: t("cards.show.booster"), path: booster_path(pack: pack.token))
       neighbours(ids, index, back:) { |at| { pack: pack.token, slot: at + 1 } }
+    end
+
+    def trade_browse
+      token = params[:trade]
+      return unless current_player && token.is_a?(String) && Game::TradesOf.find(current_player, token)
+
+      back = Back.new(label: t("cards.show.trade"), path: trade_path(token:))
+      Browse.new(position: 1, total: 1, previous: nil, next: nil, back:)
+    end
+
+    def custom_set_browse
+      token = params[:custom_set]
+      return unless token.is_a?(String)
+
+      custom_set = Game::CustomSetStandings.call(current_player, tokens: [ token ]).first
+      return if custom_set.nil?
+
+      editions = Game::HeldGames.editions(current_player, card_ids: custom_set.card_ids, season: Catalog::PublishedSeason.call)
+      members = custom_set_members(custom_set.card_ids, editions)
+      index = members.index { |_card_season_id, card_id| card_id == @detail.card_id }
+      return if index.nil?
+
+      back = Back.new(label: t("cards.show.grid"), path: custom_set_album_path(custom_set.token, index))
+      neighbours(custom_set_shown_ids(members, editions), index, back:) { { custom_set: custom_set.token } }
+    end
+
+    def custom_set_album_path(token, index)
+      page = (index / SetAlbumLoading::ALBUM_SIZE) + 1
+      custom_set_path(token:, page: (page if page > 1))
     end
 
     def pack_index(ids, slot)
@@ -131,10 +166,10 @@ class CardsController < ApplicationController
       browse ? browse.with(back:) : Browse.new(position: 1, total: 1, previous: nil, next: nil, back:)
     end
 
-    def personalization_browse
-      return unless current_player && params[:from] == "personalization"
+    def me_browse
+      return unless current_player && params[:from] == "me"
 
-      back = Back.new(label: t("shell.player.personalization"), path: personalization_path)
+      back = Back.new(label: t("shell.tabs.me"), path: me_path)
       Browse.new(position: 1, total: 1, previous: nil, next: nil, back:)
     end
 

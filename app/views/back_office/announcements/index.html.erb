@@ -1,0 +1,61 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro", length: Accounts::Announcement::MESSAGE_LENGTH) %>
+  <% end %>
+
+  <section class="stack" aria-labelledby="announcement-new-heading">
+    <h2 id="announcement-new-heading"><%= t(".new_heading") %></h2>
+    <%= form_with url: back_office_announcements_path, method: :post, class: "announcement-editor", data: { announcement_new: "" } do %>
+      <%= render "back_office/announcements/fields", dom: "announcement-new" %>
+      <p class="announcement-editor__field announcement-editor__field--inline">
+        <%= hidden_field_tag :shown, "0", id: nil %>
+        <%= check_box_tag :shown, "1", true, id: "announcement-new-shown" %>
+        <label for="announcement-new-shown"><%= t(".show_now") %></label>
+      </p>
+      <p class="announcement-editor__actions">
+        <%= render ButtonComponent.new(type: :submit) do %><%= t(".create") %><% end %>
+      </p>
+    <% end %>
+  </section>
+
+  <section class="stack" aria-labelledby="announcement-list-heading">
+    <h2 id="announcement-list-heading"><%= t(".list_heading") %></h2>
+
+    <% if @announcements.empty? %>
+      <%= render PanelComponent.new(tag: :p) do %>
+        <%= t(".empty") %>
+      <% end %>
+    <% else %>
+      <ol class="announcement-list">
+        <% @announcements.each do |announcement| %>
+          <% dom = "announcement-#{announcement.token}" %>
+          <li class="<%= class_names("announcement-editor", "announcement-editor--shown": announcement.shown?) %>"
+              data-announcement-token="<%= announcement.token %>" data-announcement-state="<%= announcement.shown? ? "shown" : "hidden" %>">
+            <p class="announcement-editor__status">
+              <span class="announcement-editor__state"><%= t(".states.#{announcement.shown? ? "shown" : "hidden"}") %></span>
+              <%= render "back_office/import_runs/time", time: announcement.created_at %>
+              · <span data-announcement-dismissals><%= t(".dismissals", count: @dismissal_counts.fetch(announcement.id, 0)) %></span>
+            </p>
+            <%= form_with url: back_office_announcement_path(token: announcement.token), method: :patch, class: "stack" do %>
+              <%= render "back_office/announcements/fields", dom:, message_fr: announcement.message_fr, message_en: announcement.message_en %>
+              <p class="announcement-editor__actions">
+                <%= render ButtonComponent.new(variant: :secondary, size: :small, type: :submit) do %><%= t(".save") %><% end %>
+              </p>
+            <% end %>
+            <p class="announcement-editor__actions">
+              <% if announcement.shown? %>
+                <%= render ButtonComponent.new(variant: :danger, size: :small, method: :post, href: withdraw_back_office_announcement_path(token: announcement.token)) do %><%= t(".withdraw") %><% end %>
+              <% else %>
+                <%= render ButtonComponent.new(variant: :secondary, size: :small, method: :post, href: publish_back_office_announcement_path(token: announcement.token)) do %><%= t(".publish") %><% end %>
+              <% end %>
+            </p>
+          </li>
+        <% end %>
+      </ol>
+    <% end %>
+  </section>
+</div>

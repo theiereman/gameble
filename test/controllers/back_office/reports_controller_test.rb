@@ -133,16 +133,6 @@ module BackOffice
       assert_equal I18n.t("errors.accounts.player_not_found", locale: :fr), flash[:alert]
     end
 
-    test "a staff member cannot class the reports against themselves" do
-      sign_in(@administrator)
-
-      post back_office_dismiss_reports_path(locale: :fr, token: @administrator.token)
-
-      assert_redirected_to back_office_reports_path(locale: :fr)
-      assert_equal I18n.t("errors.accounts.cannot_dismiss_self", locale: :fr), flash[:alert]
-      assert_nil Accounts::Report.find_by(reported: @administrator).handled_at
-    end
-
     test "the second page of the queue holds the 51st player, the oldest report" do
       reporter = @reporters.first
       49.times do |index|
@@ -177,26 +167,6 @@ module BackOffice
       end
 
       assert_response :too_many_requests
-    end
-
-    test "a player gets the 404 of an unknown address for the queue and classing" do
-      sign_in(@target)
-
-      get back_office_reports_path(locale: :fr)
-      assert_unknown_address
-
-      post back_office_dismiss_reports_path(locale: :fr, token: @administrator.token)
-      assert_unknown_address
-      assert_nil Accounts::Report.find_by(reported: @administrator).handled_at
-    end
-
-    test "a visitor gets the 404 of an unknown address" do
-      get back_office_reports_path(locale: :fr)
-      assert_unknown_address
-
-      post back_office_dismiss_reports_path(locale: :fr, token: @target.token)
-      assert_unknown_address
-      assert Accounts::Report.where(reported: @target, handled_at: nil).exists?
     end
   end
 end

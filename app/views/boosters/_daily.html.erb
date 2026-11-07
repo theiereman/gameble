@@ -1,0 +1,13 @@
+<%# locals: (bank:) %>
+<% if bank[:bonus_collectable] %>
+  <%= tag.section id: "booster-daily", class: "booster-daily", aria: { labelledby: "booster-daily-title" } do %>
+    <p class="booster-daily__head">
+      <span id="booster-daily-title" class="booster-daily__title"><%= t("booster.daily.title") %></span>
+      <span class="booster-daily__dot" aria-hidden="true">·</span>
+      <span class="booster-daily__state"><%= t("booster.daily.ready") %></span>
+    </p>
+    <%= render ButtonComponent.new(variant: :primary, size: :small, href: daily_bonus_path, method: :post) do %><%= t("booster.daily.collect") %><% end %>
+  <% end %>
+<% else %>
+  <%= tag.div id: "booster-daily", hidden: true, data: { booster_target: "dailyCollected" } %>
+<% end %>

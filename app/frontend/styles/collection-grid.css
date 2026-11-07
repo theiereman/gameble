@@ -155,15 +155,17 @@
   text-align: center;
 }
 
-/* A slot reaches past its card by --slot-bleed on every side (a negative
-   margin keeps the grid's gaps): far from the viewport it skips its
-   rendering, at its known size. The intrinsic size is the content box's
+/* A slot reaches past its card by --slot-bleed on every side, and further
+   on top where the "new" badge rises (a negative margin keeps the grid's
+   gaps): far from the viewport it skips its rendering, at its known size. The intrinsic size is the content box's
    (the padding comes on top), so a slot not rendered yet, as on a Turbo
    restore, takes the card's own size and nothing shifts once it renders. */
 .collection-slot {
+  --slot-bleed-top: calc(var(--slot-bleed) + 4 * var(--space-1));
+
   position: relative;
-  margin: calc(-1 * var(--slot-bleed));
-  padding: var(--slot-bleed);
+  margin: calc(-1 * var(--slot-bleed-top)) calc(-1 * var(--slot-bleed)) calc(-1 * var(--slot-bleed));
+  padding: var(--slot-bleed-top) var(--slot-bleed) var(--slot-bleed);
   content-visibility: auto;
   contain-intrinsic-size: auto var(--card-m-width) auto var(--card-m-height);
 }
@@ -192,31 +194,30 @@
   height: calc(1.5 * 100cqi);
 }
 
-/* "x3": copies owned, a small accent box at the card's top-right. */
-.collection-slot__copies {
+/* "x3", copies owned, and "2 ed.", editions: small accent boxes astride the
+   card's top-right, level with "Nouveau", in one row so they only graze the
+   title. */
+.collection-slot__counts {
   position: absolute;
-  top: calc(var(--slot-bleed) - 3 * var(--space-1));
+  top: calc(var(--slot-bleed-top) - 7 * var(--space-1));
   right: calc(var(--slot-bleed) - 3 * var(--space-1));
   z-index: 2;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 26px;
-  height: 20px;
-  padding: 0 var(--space-2);
-  background: var(--color-accent);
-  box-shadow: 0 0 0 var(--space-unit) var(--color-outline);
-  color: var(--color-on-accent);
-  font: var(--font-label);
-  letter-spacing: 0;
+  flex-direction: row-reverse;
+  gap: var(--space-2);
   pointer-events: none;
 }
 
+/* Too narrow for one row beside "Nouveau": the editions go under the copies. */
+@container (width < 130px) {
+  .collection-slot__counts {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}
+
+.collection-slot__copies,
 .collection-slot__editions {
-  position: absolute;
-  top: calc(var(--slot-bleed) - 3 * var(--space-1) + 20px + 2 * var(--space-unit));
-  right: calc(var(--slot-bleed) - 3 * var(--space-1));
-  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -229,13 +230,12 @@
   font: var(--font-label);
   letter-spacing: 0;
   white-space: nowrap;
-  pointer-events: none;
 }
 
-/* "Nouveau": a small lime box at the card's top-left. */
+/* "Nouveau": a small lime box astride the card's top-left edge. */
 .collection-slot__new {
   position: absolute;
-  top: calc(var(--slot-bleed) - 3 * var(--space-1));
+  top: calc(var(--slot-bleed-top) - 7 * var(--space-1));
   left: calc(var(--slot-bleed) - 3 * var(--space-1));
   z-index: 2;
   display: flex;
@@ -411,8 +411,8 @@
   }
 }
 
-/* Under 900px the status label gives way to its value. */
-@media (max-width: 899px) {
+/* Under 960px the status label gives way to its value. */
+@media (max-width: 959px) {
   .collection-status__label {
     display: none;
   }
@@ -425,8 +425,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  /* The phone's top bar: the back button, the title and the status, as
-     mocked. */
+  /* The phone's top bar: the back button and the title. */
   .top-bar--status .player-chip {
     display: none;
   }
@@ -435,8 +434,9 @@
     gap: var(--space-5);
   }
 
-  .collection-status__bar {
-    width: 48px;
+  /* The phone's top bar has no room for the status beside the wordmark. */
+  .collection-status {
+    display: none;
   }
 
   .filters__group:not(.set-filter),

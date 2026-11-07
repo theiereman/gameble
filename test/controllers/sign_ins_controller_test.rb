@@ -49,7 +49,10 @@ class SignInsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/en/library"
 
     get sign_in_path(locale: :en)
-    assert_redirected_to home_path(locale: :en)
+    assert_redirected_to home_path
+
+    get sign_in_path(locale: :en, origin: "/en")
+    assert_redirected_to "/en"
   end
 
   test "Discord, Google and the email code sit beside Steam when Clerk is configured" do

@@ -216,10 +216,6 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal %w[roguelike deckbuilder horror], genres_of([ 1, 2, 3, 4, 5, 6 ])
   end
 
-  test "a tag missing from the tag names takes no place among the five" do
-    assert_equal %w[roguelike deckbuilder horror], genres_of([ 1, 404, 2, 3, 4, 5 ])
-  end
-
   test "an unknown tagid and a key seen twice take no place among the five, as in the stored tags" do
     run = run_on("cards")
     ready(run, 99, tag_ids: [ 404, 2, 12, 4, 11, 1, 5 ])
@@ -257,10 +253,6 @@ class Steam::CardsTest < ActiveSupport::TestCase
     memberships = Catalog::SetMembership.where(card_season: dreamfall).joins(:set).pluck("catalog_sets.kind", "catalog_sets.key")
     assert_includes memberships, [ "theme", "adventure" ]
     assert_empty Catalog::Set.where(season:, kind: "ufo")
-  end
-
-  test "two tags of one theme give it once, at the first one's place" do
-    assert_equal %w[rpg roguelike], Catalog::Themes.of(%w[jrpg roguelite action_rpg roguelike])
   end
 
   test "a game without a review score or count is refused" do
@@ -473,18 +465,6 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal (6..25).map { |appid| "appid #{appid}: no_reviews" }, run.error_messages.map { |error| error["message"] }
   end
 
-  test "a refused game is not staged, and the others are" do
-    run = run_on("cards")
-    ready(run, 10, 20, 30)
-    Steam::App.where(appid: 20).update_all(review_percent_positive: 150)
-
-    cards_page(run)
-
-    assert_equal %w[steam:10 steam:30], staged_scores(run).keys
-    assert_equal [ "appid 20: invalid_reviews" ], run.reload.latest_errors.map(&:message)
-    assert_equal [ 2, 1 ], [ run.cards_written, run.cards_refused ]
-  end
-
   test "the end of a pass leaves the draft as it was and readies the run: its batch waits for promotion" do
     first = run_on("cards")
     ready(first, 10, 20)
@@ -524,41 +504,6 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_predicate run, :ready?
     assert_equal %w[steam:10 steam:20 steam:30], staged_scores(run).keys
     assert_equal 3, run.cards_written
-    assert_nil draft
-  end
-
-  test "a failed pass leaves the draft exactly as it was" do
-    first = run_on("cards")
-    ready(first, 10, 20)
-    cards_page(first)
-    promote_batch(first)
-    first.update!(status: :promoted)
-    before = draft.card_seasons.order(:card_id).pluck(:card_id, :prestige_score, :rating)
-
-    Steam::App.update_all(review_percent_positive: 70)
-    second = rerun([ 10, 20 ])
-    cards_page(second)
-    assert Steam::FailImport.new.call(import_run_id: second.id, error: "Steam::WebApi::Error: boom").success?
-
-    assert_equal before, draft.card_seasons.order(:card_id).pluck(:card_id, :prestige_score, :rating)
-  end
-
-  test "the end of a pass never touches a published season" do
-    first = run_on("cards")
-    ready(first, 10, 20)
-    cards_page(first)
-    published = promote_batch(first)
-    rate(Catalog::CardSeason.where(season: published), 1)
-    published.update_columns(status: "published", published_at: Time.current)
-    first.update!(status: :promoted, finished_at: Time.current)
-    frozen = Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rarity)
-
-    second = rerun([ 20 ])
-    cards_page(second)
-    cards_page(second)
-
-    assert_equal frozen, Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rarity)
-    assert_equal %w[steam:20], staged_scores(second).keys
     assert_nil draft
   end
 

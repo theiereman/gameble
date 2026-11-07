@@ -45,15 +45,6 @@ module SetRowsHelper
     [ count, tier ].compact.join(", ")
   end
 
-  def set_tier_mark(standing)
-    if standing.complete?
-      tag.span(class: "set-tier set-tier--complete") { tag.span(class: "set-tier__stamp") + tag.span(set_tier_name("complete")) }
-    elsif before_completion?(standing.reached_tier)
-      tier = standing.reached_tier
-      tag.span(class: "set-tier set-tier--#{tier}") { safe_join([ *reached_rank_lead(tier), metal_notches(tier), tag.span(set_tier_name(tier)) ].compact) }
-    end
-  end
-
   def set_tier_ticks?(standing)
     !standing.complete? && tick_thresholds(standing).any?
   end
@@ -145,14 +136,6 @@ module SetRowsHelper
 
     def tier_tick_mark(tier)
       rank_tier?(tier) ? rank_mark(tier) : set_notches(NOTCHES.fetch(tier))
-    end
-
-    def reached_rank_lead(tier)
-      [ pixel_icon("check", class: "set-tier__check"), rank_mark(tier) ] if rank_tier?(tier)
-    end
-
-    def metal_notches(tier)
-      set_notches(NOTCHES.fetch(tier)) if NOTCHES.key?(tier)
     end
 
     def tier_words(standing)

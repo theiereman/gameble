@@ -1,26 +1,49 @@
 # Interface copy in French, in the Brotherhood tone (brotherhood-tone.md).
 # Every key here has its twin in en.yml; CI fails on a key missing in either.
 fr:
+  native_sign_ins:
+    show:
+      back_to_app: "Revenir à l'appli"
+      line: "Vous êtes connecté en tant que %{name}. Revenez dans l'appli Gameble pour continuer à jouer."
+      title: "Connexion à l'appli"
+  push_notices:
+    invitation_sent:
+      body: "%{name} veut devenir votre ami."
+      title: "Demande d'ami"
+    trade_accepted:
+      body: "%{name} a accepté votre échange."
+      title: "Échange accepté"
+    trade_countered:
+      body: "%{name} a répondu à votre échange par une contre-offre."
+      title: "Contre-offre"
+    trade_proposed:
+      body: "%{name} vous propose un échange."
+      title: "Nouvelle offre d'échange"
   layouts:
     application:
       title: "Gameble"
       application_name: "Gameble"
+      description: "Chaque carte est un jeu Steam. Ouvrez des capsules, complétez des sets, échangez avec vos amis et rejoignez la Confrérie à la recherche des jeux perdus. Gratuit."
   sign_in_methods:
     create:
       added: "La connexion est ajoutée à votre compte."
       already_added: "Cette connexion est déjà celle de votre compte."
   sign_ins:
     show:
+      native_continue: "Se connecter dans le navigateur"
+      native_line: "Connectez-vous avec Steam, Apple, Discord, Google ou un code par e-mail dans le navigateur du téléphone, puis revenez ici."
       heading: "Se connecter"
       line: "Choisissez comment embarquer."
       separator: "ou"
       title: "Se connecter"
     providers:
       steam: "Steam"
+      apple: "Apple"
       discord: "Discord"
       google: "Google"
       email: "Code par e-mail"
     clerk:
+      apple: "Apple"
       discord: "Discord"
       google: "Google"
       email_label: "Adresse e-mail"
@@ -29,7 +52,7 @@ fr:
       verify: "Confirmer"
       back: "Utiliser une autre adresse"
       retry: "Retour à l'écran de connexion"
-      javascript_needed: "Discord, Google et les codes par e-mail demandent JavaScript."
+      javascript_needed: "Apple, Discord, Google et les codes par e-mail demandent JavaScript."
       messages:
         generic: "La connexion n'a pas abouti. Réessayez."
         network: "Le service de connexion est injoignable. Vérifiez votre connexion, puis réessayez."
@@ -42,8 +65,47 @@ fr:
         loading: "Chargement des options de connexion…"
         signing_in: "Connexion en cours…"
   shell:
+    announcement:
+      close: "Fermer l'annonce"
+      label: "Annonce"
+    bank:
+      label: "Réserve de capsules"
+      next_in: "Prochaine capsule dans"
+      open: "Ouvrir une capsule"
+      special: "Spéciales"
+      standard: "Capsules"
+    bell:
+      title: "Nouveautés"
+      label:
+        zero: "Nouveautés, tout est vu"
+        one: "Nouveautés, %{count} non vue"
+        other: "Nouveautés, %{count} non vues"
+      empty: "Rien de nouveau pour l'instant."
+      read_all: "Tout marquer comme lu"
+      trade: "%{name} attend votre réponse à un échange."
+      trade_accepted: "%{name} a accepté votre échange."
+      trade_declined: "%{name} a refusé votre échange."
+      invitation: "%{name} vous invite à devenir amis."
+      reaction_named:
+        zero: "%{name} a réagi à votre publication."
+        one: "%{name} et %{count} autre ont réagi à votre publication."
+        other: "%{name} et %{count} autres ont réagi à votre publication."
+      reaction_trade: "%{card} contre %{partner_card}"
+      reaction_anonymous:
+        zero: "%{count} joueur a réagi à votre publication."
+        one: "%{count} joueur a réagi à votre publication."
+        other: "%{count} joueurs ont réagi à votre publication."
+      daily: "Votre capsule du jour est prête."
+      mission: "Mission de la semaine : ouvrir %{target} capsules ensemble."
+      mission_reached: "La mission de la semaine est accomplie : %{target} capsules ouvertes ensemble."
+      mission_reward: "La mission hebdo est accomplie : une capsule rare vous attend."
+      answer: "Répondre"
+      see: "Voir"
+      collect: "Récupérer"
     live:
       marker: "Live"
+    ticker:
+      open: "Ouvrir le fil d'activité"
     top_bar:
       brand: "Gameble"
       back: "Pont"
@@ -66,7 +128,7 @@ fr:
       achievements: "Succès"
       sign_in: "Connexion"
       legal: "Mentions légales"
-      more: "Plus"
+      me: "Moi"
       how_it_works: "Comment ça marche"
       back_office: "Back-office"
     rarity:
@@ -95,21 +157,26 @@ fr:
         zero: "%{number} en réserve"
         one: "%{number} en réserve"
         other: "%{number} en réserve"
+    phone_menu:
+      label: "Menu"
+      how_it_works: "Comment ça marche"
+      support: "Soutenir"
+      source_code: "GitHub"
     player:
       menu: "Menu du joueur"
       fallback_name: "Joueur"
-      profile: "Mon profil public"
+      profile: "Mon profil"
       settings: "Paramètres"
-      personalization: "Personnalisation"
       back_office: "Back-office"
       sign_out: "Se déconnecter"
     tabs:
       label: "Navigation principale"
       hub: "Pont"
       booster: "Capsule"
-      collection: "Collection"
+      sets: "Sets"
+      friends: "Amis"
       trades: "Échanges"
-      more: "Plus"
+      me: "Moi"
       landing: "Accueil"
       all_cards: "Toutes les cartes"
       trades_waiting:
@@ -134,11 +201,13 @@ fr:
       legal: "Mentions légales"
   pages:
     home:
+      live:
+        open: "Ouvrir le fil"
+        title: "Fil d'activité"
       kicker:
         title: "Pont de commandement"
       menu:
         label: "Menu du pont"
-        all_cards: "Toutes les cartes"
         open_booster: "Ouvrir une capsule"
         reserve:
           zero: "%{number} capsule en réserve"
@@ -155,6 +224,8 @@ fr:
           one: "%{owned} carte unique sur %{total}"
           other: "%{owned} cartes uniques sur %{total}"
         trades: "Échanges"
+        friends: "Amis"
+        feed: "Fil d'activité"
         trades_waiting:
           zero: "%{number} échange en attente de vous"
           one: "%{number} échange en attente de vous"
@@ -163,20 +234,28 @@ fr:
           zero: "%{number} invitation en attente de votre réponse"
           one: "%{number} invitation en attente de votre réponse"
           other: "%{number} invitations en attente de votre réponse"
-        friends: "Amis"
         # French keeps the singular for 0, which the plural rule here does not.
         friends_online:
           zero: "%{number} en ligne"
           one: "%{number} en ligne"
           other: "%{number} en ligne"
-        feed: "Fil d'activité"
         achievements: "Succès"
         achievements_meta:
           zero: "%{earned} succès obtenu sur %{total}"
           one: "%{earned} succès obtenu sur %{total}"
           other: "%{earned} succès obtenus sur %{total}"
+        rewards_waiting:
+          zero: "%{number} récompense à récupérer"
+          one: "%{number} récompense à récupérer"
+          other: "%{number} récompenses à récupérer"
+        extras: "Extras"
+        extras_back: "Retour au menu"
+        extras_label: "Extras"
+        community: "Discord"
         how_it_works: "Comment ça marche"
         support: "Soutenir"
+        register: "Le Chattomètre"
+        source_code: "GitHub"
       showcase:
         kicker: "Dernière obtention"
         chosen_kicker: "Vitrine"
@@ -196,19 +275,18 @@ fr:
         next_at: "Prochaine capsule : %{time}"
       goal:
         title: "Mission hebdo"
-        line: "La Confrérie invite ses membres à unir leurs efforts pour ouvrir %{target} capsules cette semaine."
-        players: "Tous les joueurs"
+        line: "Ouvrez %{target} capsules cette semaine."
         progress: "%{total} contributions sur %{target} cette semaine"
-        reward: "Récompense"
-        reward_text: "Une capsule rare pour chaque contributeur"
-        reached: "Mission accomplie"
-        previous_reached: "Semaine dernière : %{total} / %{target} · mission accomplie"
-        previous_missed: "Semaine dernière : %{total} / %{target} · mission manquée"
+        reward: "Récompense : %{reward}"
+        reward_text: "une capsule rare par contributeur"
+        reached: "Accomplie"
+        previous_reached: "Semaine dernière : %{figures}"
+        previous_missed: "Semaine dernière : %{figures}, manquée"
         collect: "Récupérer"
         collect_label: "Récupérer la capsule de récompense"
         collected: "Récupérée"
-      sets:
-        title: "Sets en cours"
+      goals:
+        title: "Objectifs en cours"
         see_all: "Tout voir"
       welcome:
         title: "Bienvenue sur Gameble"
@@ -217,12 +295,6 @@ fr:
         collection: "Il ne vous reste plus qu'à constituer votre collection."
         wishes: "La Confrérie vous souhaite d'excellents tirages."
         close: "Fermer"
-    more:
-      title: "Plus"
-      subtitle: "Le reste du vaisseau"
-      settings: "Profil et paramètres"
-      personalization: "Personnalisation"
-      register: "Le Chattomètre"
     credits:
       title: "Crédits"
       intro: "Gameble s'inspire des œuvres ci-dessous. Ce sont des inspirations, jamais des affiliations : aucune n'a de lien avec Gameble ni ne le cautionne."
@@ -281,9 +353,9 @@ fr:
         stored:
           intro: "Pour faire fonctionner le jeu, Gameble conserve :"
           steam: "votre identifiant Steam et votre nom de profil Steam ;"
-          steam_library: "si vous vous connectez avec Steam et laissez « Synchroniser mes jeux Steam » activé dans les paramètres : la liste des jeux du catalogue que contient votre bibliothèque Steam, lue chez Steam une fois par jour pour votre set « Ma ludothèque Steam », avec la date de sa dernière synchronisation et, quand Steam ne partage plus votre bibliothèque, depuis quand ;"
-          identities: "vos modes de connexion : Steam, Discord, Google ou code par e-mail, chacun avec son identifiant chez ce fournisseur, la date de son ajout et, pour les trois derniers, une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
-          activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, sets perso, objectifs, succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de la mission hebdo, échanges, amitiés, invitations, code ami, entrées du fil d'activité et dernière activité ;"
+          steam_library: "si vous vous connectez avec Steam et laissez « Synchroniser mes jeux Steam » activé dans les paramètres : la liste des jeux du catalogue que contient votre bibliothèque Steam, lue chez Steam une fois par jour pour votre set « Ma bibliothèque Steam », avec la date de sa dernière synchronisation et, quand Steam ne partage plus votre bibliothèque, depuis quand ;"
+          identities: "vos modes de connexion : Steam, Apple, Discord, Google ou code par e-mail, chacun avec son identifiant chez ce fournisseur, la date de son ajout et, pour les trois derniers, une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
+          activity: "votre activité de jeu : collection de cartes, vitrine, paliers de sets, sets perso, objectifs, succès, dos de carte débloqués et dos de carte actif, capsules, bonus du jour, récompenses de la mission hebdo, échanges, amitiés, invitations, code ami, entrées du fil d'activité, vos réactions aux entrées du fil et dernière activité ;"
           moderation: "les signalements que vous faites, ceux qui visent votre profil (leur auteur ne vous est pas communiqué) et les décisions de modération qui vous concernent, avec leur motif ;"
           settings: "vos réglages (visibilité du profil, animations réduites, synchronisation des jeux Steam) ;"
           last_seen: "la date de création de votre compte, l'heure de votre dernière visite, et votre dernier export de données (son fichier et son heure), gardé jusqu'à l'export suivant ;"
@@ -296,13 +368,13 @@ fr:
           requests: "répondre à vos messages et à vos demandes sur vos données : obligation légale (art. 6.1.c)."
           no_automation: "Aucune décision vous concernant n'est prise de façon automatisée."
         visibility: "Votre profil est public par défaut : votre nom de profil, votre collection et vos entrées du fil d'activité sont visibles de tous, y compris des visiteurs non connectés. Vous pouvez le réserver à vos amis ou le rendre privé dans les paramètres. Les modérateurs de Gameble peuvent consulter tout profil, quel que soit son réglage."
-        cookies: "Gameble n'utilise que des cookies strictement nécessaires, exemptés de consentement : celui de la session, qui protège les formulaires et vous garde connecté pendant 30 jours après votre dernière visite, ou jusqu'à la déconnexion, et celui qui retient votre choix d'animations réduites, pendant un an. Cloudflare peut y ajouter un cookie de sécurité qui filtre les robots. Le stockage de votre navigateur garde aussi vos brouillons d'échange et l'état de l'interface, sur votre appareil seulement. Aucun traceur publicitaire ni de mesure d'audience."
+        cookies: "Gameble n'utilise que des cookies strictement nécessaires, exemptés de consentement : celui de la session, qui protège les formulaires et vous garde connecté pendant 30 jours après votre dernière visite, ou jusqu'à la déconnexion, celui qui retient votre choix d'animations réduites, pendant un an, et, si vous n'êtes pas connecté, celui qui retient l'annonce que vous avez fermée, pendant un an. Cloudflare peut y ajouter un cookie de sécurité qui filtre les robots. Le stockage de votre navigateur garde aussi vos brouillons d'échange et l'état de l'interface, sur votre appareil seulement. Aucun traceur publicitaire ni de mesure d'audience."
         nothing_else: "Pas de mesure d'audience, pas de publicité, pas d'argent réel. Vos données ne sont ni vendues ni cédées."
         services:
           intro: "Quelques services extérieurs interviennent :"
           host: "Le site tourne sur des serveurs exploités par %{name}, en %{address} ;"
           steam: "Steam (Valve) gère la connexion et fournit votre nom de profil et, une fois par jour tant que la synchronisation est activée, les jeux de votre bibliothèque Steam ;"
-          clerk: "Clerk, Inc. gère la connexion par Discord, Google ou code par e-mail, en tant que sous-traitant : il conserve l'utilisateur Clerk créé pour vous (votre adresse e-mail, l'identifiant que Discord ou Google donne pour vous, et vos sessions de connexion) et peut le traiter notamment aux États-Unis. Votre navigateur le contacte directement sur l'écran de connexion et dans les paramètres. Gameble ne garde que l'identifiant de cet utilisateur Clerk et une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
+          clerk: "Clerk, Inc. gère la connexion par Apple, Discord, Google ou code par e-mail, en tant que sous-traitant : il conserve l'utilisateur Clerk créé pour vous (votre adresse e-mail, l'identifiant que Discord ou Google donne pour vous, et vos sessions de connexion) et peut le traiter notamment aux États-Unis. Votre navigateur le contacte directement sur l'écran de connexion et dans les paramètres. Gameble ne garde que l'identifiant de cet utilisateur Clerk et une empreinte irréversible de votre adresse e-mail vérifiée, jamais l'adresse elle-même ;"
           sentry: "Sentry (Functional Software, Inc.) reçoit les erreurs techniques : l'adresse de la page et celle d'où vous venez, le navigateur utilisé et sa langue, et votre identifiant interne de joueur, jamais votre nom ni votre identifiant Steam. Votre navigateur lui envoie aussi directement les rapports de sécurité de la page, avec votre adresse IP. Données hébergées dans l'Union européenne ;"
           cloudflare: "Cloudflare, Inc. se place devant le site pour le protéger et l'accélérer : il voit passer ses requêtes, dont votre adresse IP, et les traite notamment aux États-Unis. Ce transfert repose sur la décision d'adéquation de la Commission européenne du 10 juillet 2023 (Data Privacy Framework), à laquelle Cloudflare adhère ;"
           ovh: "OVH SAS conserve les sauvegardes de la base de données, chiffrées avant de quitter le serveur : il ne peut pas les lire. Données hébergées en France ;"
@@ -311,15 +383,16 @@ fr:
           intro: "Combien de temps vos données sont conservées :"
           account: "votre compte, votre activité de jeu et vos réglages : tant que le compte existe ; un compte sans aucune visite connectée depuis trois ans est supprimé comme si vous l'aviez supprimé vous-même, sauf ceux des modérateurs et des administrateurs ;"
           steam_library: "la liste des jeux de votre bibliothèque Steam : tant que le compte existe et que la synchronisation est activée ; elle est effacée aussitôt que vous désactivez « Synchroniser mes jeux Steam » dans les paramètres ou supprimez votre compte ;"
+          reactions: "vos réactions aux entrées du fil : tant que le compte existe et que l'entrée reste dans le fil ; les autres joueurs voient combien ont réagi et, si votre profil est public, votre nom parmi les derniers à avoir réagi ;"
           reports: "un signalement : jusqu'à ce qu'un modérateur le traite, puis un an ; s'il vise un compte supprimé avant d'être traité, un an après la suppression ;"
           moderation: "l'historique de modération, motifs compris : une suspension tant qu'elle dure, puis un an après sa levée ; un classement de signalements, un an ; l'historique d'un compte supprimé, jusqu'à un an après la suppression ; le journal des actions du jeu garde la date de chaque décision et les comptes concernés, sans le motif ;"
           banned_steam_id: "l'identifiant Steam d'un compte suspendu : tant que la suspension dure, pour refuser une nouvelle inscription ;"
-          clerk: "l'utilisateur Clerk créé pour une connexion par Discord, Google ou code par e-mail, avec votre adresse e-mail et ses sessions : tant que le compte existe ; il est supprimé chez Clerk quand vous supprimez votre compte ;"
+          clerk: "l'utilisateur Clerk créé pour une connexion par Apple, Discord, Google ou code par e-mail, avec votre adresse e-mail et ses sessions : tant que le compte existe ; il est supprimé chez Clerk quand vous supprimez votre compte ;"
           logs: "les journaux du serveur : 30 jours ;"
           errors: "les erreurs techniques reçues par Sentry : 30 jours ;"
           backups: "les sauvegardes de la base de données, chiffrées et conservées en France : les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal ; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué ;"
           leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à la mission hebdo, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
-        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, la liste de votre bibliothèque Steam, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos scores de chance, vos bonus du jour, vos récompenses de la mission hebdo, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à la mission hebdo, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
+        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, la liste de votre bibliothèque Steam, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos scores de chance, vos bonus du jour, vos récompenses de la mission hebdo, vos amitiés, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos entrées du fil d'activité et vos réactions sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à la mission hebdo, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
         rights:
           intro: "Vous pouvez accéder à vos données, les faire rectifier ou effacer, en limiter le traitement, vous opposer à un traitement fondé sur l'intérêt légitime et en recevoir une copie réutilisable. Vous pouvez aussi indiquer ce que deviennent vos données après votre décès. Nous répondons sous un mois."
           access: "accès : depuis les paramètres, avec « Exporter » dans « Mes données », qui télécharge une copie de vos données dans un fichier réutilisable, vos modes de connexion et la liste de votre bibliothèque Steam compris ;"
@@ -341,7 +414,6 @@ fr:
         link: "Soutenir"
     how_it_works:
       title: "Comment ça marche"
-      more: "Plus"
       intro: "Les règles du jeu, telles qu'il les applique."
       local_time: ", heure locale"
       # French keeps the singular for 0, which the plural rule here does not.
@@ -446,8 +518,39 @@ fr:
         rule: "Un set est complet quand vous possédez en même temps toutes ses cartes. Les doubles ne comptent qu'une fois, et une carte compte dans chaque set où elle figure."
         once: "Une complétion n'est enregistrée qu'une fois : une carte échangée puis récupérée ne complète rien de nouveau. Votre profil compte les sets que vous possédez complets en ce moment."
   back_office:
+    announcements:
+      create:
+        created: "L'annonce est enregistrée."
+      fields:
+        message_en: "Message en anglais"
+        message_fr: "Message en français"
+      index:
+        create: "Enregistrer l'annonce"
+        dismissals:
+          one: "fermée par un joueur"
+          other: "fermée par %{count} joueurs"
+          zero: "fermée par aucun joueur"
+        empty: "Aucune annonce pour l'instant."
+        heading: "Les annonces"
+        intro: "Un message montré à chaque joueur et visiteur sur un bandeau rouge sous la barre du haut, dans sa langue, %{length} caractères au plus. Une annonce à la fois ; chaque joueur la ferme pour de bon. Une nouvelle annonce réapparaît pour tout le monde."
+        list_heading: "Toutes les annonces, la plus récente d'abord"
+        new_heading: "Une nouvelle annonce"
+        publish: "Afficher sur le bandeau"
+        save: "Enregistrer le texte"
+        show_now: "L'afficher sur le bandeau maintenant"
+        states:
+          hidden: "Non affichée"
+          shown: "Sur le bandeau"
+        withdraw: "Retirer du bandeau"
+      publish:
+        published: "L'annonce est sur le bandeau. Toute autre annonce l'a quitté."
+      update:
+        updated: "L'annonce est modifiée."
+      withdraw:
+        withdrawn: "L'annonce a quitté le bandeau."
     dashboard:
       show:
+        announcements: "Les annonces"
         heading: "Le back-office de la Confrérie"
         queue:
           zero: "Aucun joueur signalé n'attend les officiers."
@@ -730,33 +833,43 @@ fr:
         published: "La saison %{number} est publiée, officier. Ses cartes sont prêtes pour le tirage."
         import_active: "Un import Steam n'est pas fini, officier. Laisse-le finir ou reprends-le, ou abandonne-le s'il s'est interrompu, avant de publier la saison."
         import_awaiting_promotion: "Un import Steam terminé t'attend, officier. Ouvre-le et promeus ses cartes dans le brouillon, ou jette-les, avant de publier la saison."
-    roadmap:
-      statuses:
-        done: "Fait"
-        in_progress: "En cours"
-        to_come: "À venir"
-      visibility:
-        shown: "Affiché"
-        hidden: "Masqué"
-      columns:
-        position: "Rang"
-        wording_fr: "Français"
-        wording_en: "Anglais"
-        status: "État"
-        shown: "Accueil"
-        order: "Ordre"
-        actions: "Actions"
+    roadmaps:
+      show:
+        heading: "La feuille de route"
+        intro: "Chaque étape de la feuille de route de l'accueil et les histoires dessous, dans un seul formulaire. Modifie, ajoute, déplace et retire des lignes, puis enregistre le tout d'un coup ; rien ne change sur le site avant. L'ordre des lignes est l'ordre sur l'accueil et sur la page de la feuille de route."
+        preview_heading: "Sur la page d'accueil"
+        preview_hint: "Ce que la feuille de route de l'accueil montrerait avec les lignes telles qu'elles sont ci-dessous, enregistrées ou non. Les lignes masquées n'y figurent pas, et l'accueil ne garde que ses premières étapes et histoires."
+        preview_language: "Langue de l'aperçu"
+        locales:
+          fr: "Français"
+          en: "Anglais"
+        milestones_heading: "Étapes et histoires"
+        add_milestone: "Ajouter une étape"
+        save: "Enregistrer la feuille de route"
+      milestone:
+        legend: "Étape"
+        up: "Monter l'étape"
+        down: "Descendre l'étape"
+        remove: "Retirer l'étape"
+        remove_confirm: "Retirer cette étape et toutes ses histoires ? Elles sont supprimées à l'enregistrement."
+        add_story: "Ajouter une histoire"
+      story:
+        legend: "Histoire"
+        up: "Monter l'histoire"
+        down: "Descendre l'histoire"
+        remove: "Retirer l'histoire"
+        remove_confirm: "Retirer cette histoire ? Elle est supprimée à l'enregistrement."
       fields:
         wording_fr: "Libellé français"
         wording_en: "Libellé anglais"
         status: "État"
         shown: "Affiché sur l'accueil"
-      move:
-        up: "Monter"
-        down: "Descendre"
-        up_label: "Monter « %{wording} »"
-        down_label: "Descendre « %{wording} »"
-      back_to_milestone: "Retour à l'étape"
+      statuses:
+        done: "Fait"
+        in_progress: "En cours"
+        to_come: "À venir"
+      update:
+        saved: "La feuille de route est enregistrée, officier."
     themes:
       index:
         heading: "Les thèmes"
@@ -816,49 +929,6 @@ fr:
           zero: "%{count} tag est marqué comme n'étant pas un thème, officier."
           one: "%{count} tag est marqué comme n'étant pas un thème, officier."
           other: "%{count} tags sont marqués comme n'étant pas un thème, officier."
-    roadmap_milestones:
-      index:
-        heading: "La feuille de route"
-        intro: "La feuille de route que montre l'accueil. Chaque déploiement donne à chaque nouvel epic de l'initiative son étape, masquée et à venir, au titre de l'epic : formule-la dans les deux langues avant de l'afficher. Les étapes ne se créent ni ne se suppriment ici ; masque celle dont l'epic n'est plus."
-        empty: "Aucune étape pour l'instant. Le prochain déploiement en crée une pour chaque epic de l'initiative."
-        caption: "Étapes de la feuille de route, dans l'ordre"
-        epic: "Epic"
-        stories: "Histoires"
-        edit: "Modifier"
-        edit_label: "Modifier « %{wording} »"
-      edit:
-        heading: "Étape « %{wording} »"
-        intro: "Créée pour l'epic %{epic}. Son libellé, son état et son affichage t'appartiennent ; les prochains déploiements les laissent tels quels."
-        save: "Enregistrer l'étape"
-        stories: "Ses histoires"
-        stories_caption: "Histoires de l'étape, dans l'ordre"
-        no_stories: "Aucune histoire sous cette étape pour l'instant."
-        add_story: "Ajouter une histoire"
-        edit_story: "Modifier"
-        edit_story_label: "Modifier « %{wording} »"
-        delete: "Supprimer"
-        delete_label: "Supprimer « %{wording} »"
-        delete_confirm: "Supprimer l'histoire « %{wording} » ? Elle ne pourra pas revenir."
-        all_milestones: "Toute la feuille de route"
-      update:
-        updated: "L'étape est enregistrée, officier."
-      move:
-        moved: "L'étape a changé de place, officier."
-    roadmap_stories:
-      new:
-        heading: "Une nouvelle histoire pour « %{milestone} »"
-        save: "Ajouter l'histoire"
-      edit:
-        heading: "Une histoire de « %{milestone} »"
-        save: "Enregistrer l'histoire"
-      create:
-        created: "L'histoire est ajoutée, officier."
-      update:
-        updated: "L'histoire est enregistrée, officier."
-      move:
-        moved: "L'histoire a changé de place, officier."
-      destroy:
-        deleted: "L'histoire est supprimée, officier."
   pack_reveals:
     create:
       throttled: "Trop de requêtes en une minute. Réessayez dans un instant."
@@ -885,7 +955,19 @@ fr:
           one: "Un objectif libre · marquez un set depuis son album"
           other: "%{count} objectifs libres · marquez un set depuis son album"
         empty: "Aucun objectif. Ouvrez l'album d'un set et marquez-le comme objectif."
+        suggestions: "Aucun objectif pour l'instant. Les sets que vous êtes le plus près de compléter :"
+        suggestion_left:
+          zero: "Plus aucune carte pour compléter"
+          one: "Plus qu'une carte pour compléter"
+          other: "Plus que %{missing} cartes pour compléter"
+        suggestion_add_label: "Marquer comme objectif : %{set}"
       in_progress: "En cours"
+      kinds:
+        theme: "Thèmes"
+        franchise: "Franchises"
+        studio: "Studios"
+        hall_of_fame: "Palmarès"
+        ufo: "OVNI"
       completed: "Complétés"
       custom_sets:
         count: "Visibles par vous seul · %{sets} / %{max}"
@@ -902,6 +984,7 @@ fr:
           one: "et 1 autre set · Tout voir"
           other: "et %{count} autres sets · Tout voir"
       no_progress: "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
+      no_other_progress: "Aucun autre set en cours. Cherchez-en un ci-dessus."
       search: "Chercher un set"
       all_cards: "Toutes les cartes"
       results: "Résultats"
@@ -914,14 +997,14 @@ fr:
         other: "%{count} sets trouvés"
       none: "Aucun set trouvé pour « %{query} »."
       steam_library:
-        title: "Ma ludothèque Steam"
+        title: "Ma bibliothèque Steam"
         kind:
           zero: "Steam · %{games} jeu du catalogue"
           one: "Steam · %{games} jeu du catalogue"
           other: "Steam · %{games} jeux du catalogue"
-        synced: "Synchronisée avec Steam le %{date}."
+        synced_html: "Synchronisée avec Steam le <b>%{date}</b>"
         not_shared: "Steam ne partage pas votre bibliothèque. Rendez publics les détails de jeux de votre profil Steam."
-        last_sync: "Dernière synchronisation : %{date}."
+        last_sync_html: "Dernière synchronisation : <b>%{date}</b>"
     set_kinds:
       theme: "Thème"
       franchise: "Franchise"
@@ -1028,6 +1111,9 @@ fr:
         missing: "Manquantes"
         new: "Nouvelles"
         duplicates: "Doublons"
+    filter_row:
+      more: "Plus"
+      more_title: "Autres filtres"
     grid:
       label: "Cartes"
       empty: "Aucune carte ne correspond à ces filtres."
@@ -1068,13 +1154,11 @@ fr:
       achievement: "Débloquez le succès correspondant."
       always: "Tous les joueurs l'ont."
       event: "Offert à celles et ceux qui ont participé à l'événement."
-      goal: "Participez à la mission hebdo."
       set_tier: "Réunissez la moitié du set %{set}."
     names:
       assidu: "Assidu"
       aurore: "Aurore"
       centurion: "Centurion"
-      confrere: "Confrère"
       contrat: "Contrat"
       etoile-dor: "Étoile d'or"
       millesime-2017: "Millésime 2017"
@@ -1098,7 +1182,6 @@ fr:
         groups:
           base: "De base et événements"
           achievement: "Succès"
-          goal: "Mission de la Confrérie"
           theme: "Sets · Thèmes"
           hall_of_fame: "Sets · Palmarès"
         chips:
@@ -1119,13 +1202,10 @@ fr:
             millesime-2017: "Offert aux participants du Millésime 2017"
             soldes-hiver: "Offert aux participants des Soldes d'hiver"
           achievement: "Gagné avec le succès %{name} · %{condition}"
-          goal: "Gagné en accomplissant la mission de la semaine du %{week}"
-          goal_any: "Gagné en accomplissant une mission de la Confrérie"
           set: "Gagné au palier %{tier} du set %{set} · %{seasons}"
           set_any: "Gagné avec le set %{set}"
         to_earn:
           achievement: "Débloquez le succès %{name} · %{condition}"
-          goal: "Accomplissez une mission de la Confrérie"
           set: "Atteignez la moitié du set %{set}"
           set_absent: "Set absent de la saison en cours"
           event: "Événement terminé"
@@ -1151,27 +1231,34 @@ fr:
         equipped_with_season: "Dos équipé. « %{name} », marque de la saison %{season}, apparaîtra sur vos cartes face cachée."
         failed: "Le dos n'a pas pu être équipé. Réessayez."
         season_label: "Équiper %{name} avec la marque de la saison %{season}"
-      title: "Personnalisation"
-      more: "Plus"
       fraction: "%{count} sur %{total}"
-      scope:
-        public: "Visible par tous"
-        private: "Vous seul"
       profile_title:
         heading: "Titre de profil"
         intro: "Votre titre s'affiche sur votre profil, dans le fil d'activité et dans vos échanges."
         none: "Aucun titre"
         empty: "Aucun titre pour l'instant. Atteignez un palier d'un set, ou complétez-le, pour en gagner un."
-        apply: "Appliquer"
-        count_html:
-          zero: "Aucun titre gagné"
-          one: "<b>%{count}</b> titre gagné"
-          other: "<b>%{count}</b> titres gagnés"
       showcase:
-        title: "Vitrine"
         empty: "Votre plus belle carte s'affichera ici, une fois choisie depuis la fiche d'une carte."
-        why: "Jusqu'à cinq cartes, en tête de votre profil public."
-        hint: "Ajoutez une carte depuis sa fiche, avec « %{add} ». Faites glisser les cartes pour changer leur ordre."
+  own_profiles:
+    avatar_sheet:
+      heading: "Avatar"
+      intro: "Votre portrait sur votre profil, dans les échanges et à côté de votre nom."
+      unlock: "Succès : %{achievement}"
+      worn: "Porté"
+    show:
+      title: "Moi"
+      change: "Modifier"
+      choose_title: "Choisir un titre"
+      card_back: "Dos de carte · vous seul"
+      customize: "Personnalisation"
+      title_label: "Titre"
+      card_list: "Voir la liste des cartes"
+      all_achievements: "Tout voir"
+      change_avatar: "Changer d'avatar"
+  profile_avatars:
+    chosen:
+      text: "%{name} est maintenant votre portrait."
+      title: "Avatar changé"
   profile_titles:
     chosen:
       title: "Titre équipé"
@@ -1214,12 +1301,15 @@ fr:
         achievements: "Succès"
       showcase:
         title: "Vitrine"
-        move_left: "Déplacer %{title} vers la gauche"
-        move_right: "Déplacer %{title} vers la droite"
-        info_label: "Comment changer l'ordre"
-        info_movable_removable: "Faites glisser les cartes pour changer leur ordre, déplacez une carte d'une place avec les flèches sous elle, ou retirez-la avec la croix."
-        info_removable: "Retirez une carte de la vitrine avec la croix sous elle."
-        info: "Faites glisser les cartes pour changer leur ordre, ou déplacez une carte d'une place avec les flèches sous elle."
+        info_label: "Comment marche la vitrine"
+        info: "Jusqu'à cinq cartes. Faites-les glisser pour changer leur ordre, et ajoutez-en une depuis sa fiche avec « %{add} »."
+        return: "Retour à la carte"
+        removal:
+          title: "Retirer de la vitrine ?"
+          text: "%{title} quitte votre vitrine. Vous gardez la carte."
+          confirm: "Retirer"
+          cancel: "La garder"
+          close: "Fermer"
         moved: "%{title} est maintenant à la place %{position} sur %{count}."
         move_failed: "Le nouvel ordre n'a pas pu être enregistré."
         remove: Retirer %{title} de la vitrine
@@ -1252,6 +1342,8 @@ fr:
     unavailable:
       title: "Profil indisponible"
       body: "Ce profil n'est pas disponible. Le lien ne mène nulle part, ou son propriétaire ne le montre plus."
+  bottom_sheet:
+    close: "Fermer"
   boosters:
     show:
       title: "Ouverture de capsule"
@@ -1272,6 +1364,18 @@ fr:
       waiting: "En attente"
     reserve: "Réserve"
     next_in: "+1 dans"
+    next_steps:
+      title: "Et maintenant ?"
+      daily: "Prochaine capsule quotidienne : %{time}"
+      sets: "Vos sets"
+      set_hook: "%{set} · %{next}"
+      social: "Vos amis"
+      social_hook: "%{name} a une carte qu'un de vos objectifs attend"
+      me: "Votre profil"
+      me_hook:
+        zero: "%{number} récompense à récupérer"
+        one: "%{number} récompense à récupérer"
+        other: "%{number} récompenses à récupérer"
     reserve_full: "Réserve pleine"
     open: "Ouvrir la capsule"
     open_next: "Ouvrir la suivante"
@@ -1284,6 +1388,11 @@ fr:
       empty_standard: "Aucune capsule standard pour le moment"
       empty_special: "Aucune capsule spéciale pour le moment"
     reserve_empty: "Réserve vide"
+    skip: "Passer"
+    daily:
+      title: "Capsule quotidienne"
+      ready: "Prête"
+      collect: "Récupérer"
     reveal_all: "Tout révéler"
     canister_hint: "Cliquez pour ouvrir"
     canister_season: "Saison %{number}"
@@ -1300,10 +1409,12 @@ fr:
     tray_label: "Carte"
     see_card: "Voir la fiche"
     close: "Fermer"
+    continue: "Continuer"
     zoom_tip: "Maintenez la carte pour l'incliner"
     zoom_previous: "Carte précédente"
     zoom_next: "Carte suivante"
     repost: "Reposter"
+    first_copy: "Nouveau"
     strings:
       origin_bonus: "CAPSULE QUOTIDIENNE"
       origin_opening: "EN OUVERTURE · %{origin}"
@@ -1339,7 +1450,7 @@ fr:
       summary_tier: "%{rarity} × %{n}"
       banner_line: "%{title} · %{year}"
       refused_title: "Ouverture annulée"
-      failed: "L'ouverture n'a pas abouti. Vérifiez votre connexion ou rechargez la page, puis réessayez."
+      failed: "Pas de connexion. Votre capsule est intacte. Réessayez."
       goal_reached: "Objectif atteint"
       canister_facts:
         zero: "%{n} carte"
@@ -1401,8 +1512,13 @@ fr:
     title: "Saison %{season}"
   settings:
     show:
+      notifications:
+        denied: "Les notifications sont coupées. Activez-les dans les réglages du téléphone."
+        failed: "Les notifications n'ont pas pu être activées. Réessayez dans un instant."
+        granted: "Les notifications sont activées sur ce téléphone."
+        label: "Notifications"
+        turn_on: "Activer"
       title: "Profil et paramètres"
-      more: "Plus"
       language:
         label: "Langue"
       visibility:
@@ -1417,9 +1533,12 @@ fr:
         "off": "Non"
       steam_library:
         label: "Synchroniser mes jeux Steam"
-        hint: "Gameble lit les jeux de votre compte Steam une fois par jour pour votre set MA LUDOTHÈQUE STEAM."
+        hint: "Gameble lit les jeux de votre compte Steam une fois par jour pour votre set MA BIBLIOTHÈQUE STEAM."
         "on": "Oui"
         "off": "Non"
+        last_sync: "Dernière synchronisation :"
+        never_synced: "Pas encore synchronisée."
+        sync_now: "Synchroniser maintenant"
       session:
         label: "Session"
         sign_out: "Se déconnecter"
@@ -1467,16 +1586,20 @@ fr:
       confirm: "Passer en privé"
       cancel: "Annuler"
       close: "Fermer"
+    sync_library:
+      started: "La synchronisation de votre bibliothèque Steam a démarré."
+      throttled: "La synchronisation vient d'être lancée. Réessayez dans quelques minutes."
+      unavailable: "Activez d'abord la synchronisation de vos jeux Steam."
     library_sync_dialog:
       title: "Désactiver la synchronisation ?"
-      text: "Le set MA LUDOTHÈQUE STEAM et la liste de vos jeux Steam seront effacés."
+      text: "Le set MA BIBLIOTHÈQUE STEAM et la liste de vos jeux Steam seront effacés."
       confirm: "Désactiver"
       cancel: "Annuler"
       close: "Fermer"
   feeds:
     show:
       title: "Fil d'activité"
-      more: "Plus"
+      screen_title: "Activité"
       empty: "Rien pour l'instant."
       empty_filter: "Rien pour l'instant dans ce filtre."
       tabs_label: "Événements de"
@@ -1486,9 +1609,12 @@ fr:
       no_friends: "Ajoutez des amis pour suivre leurs tirages."
       pages:
         label: "Pages du fil"
+        newer: "Entrées plus récentes"
+        newest: "Plus récentes"
         next: "Entrées plus anciennes"
       add_friends: "Ajouter des amis"
       filters_label: "Filtrer par type"
+      filters_opener: "Type : %{type}"
       filters:
         all: "Tout"
         pulls: "Tirages"
@@ -1651,8 +1777,9 @@ fr:
       label: "Voir la collection"
       named: "Voir la collection de %{name}"
     show:
+      share: "Partager"
+      share_text: "Rejoins-moi sur Gameble, le jeu de cartes à échanger où chaque carte est un jeu Steam."
       title: "Amis"
-      more: "Plus"
       code_label: "Votre code ami"
       empty: "Aucun ami pour l'instant."
       empty_invite: "Invitez-en un avec votre lien ou votre code."
@@ -1737,8 +1864,38 @@ fr:
     new_friend:
       title: "Nouvel ami"
       text: "%{name} fait maintenant partie de vos amis."
+  avatars:
+    names:
+      alien: "Alien"
+      archivist: "Archiviste"
+      astronaut: "Astronaute"
+      botanist: "Botaniste"
+      cartographer: "Cartographe"
+      cat: "Chat"
+      chef: "Cheffe"
+      default: "Classique"
+      elder: "Doyenne"
+      grand_master: "Grand Maître"
+      guardian: "Gardien"
+      mechanic: "Mécanicienne"
+      novice: "Novice"
+      oracle: "Oracle"
+      owl: "Hibou"
+      pilot: "Pilote"
+      punk: "Punk"
+      robot: "Robot"
+      slime: "Slime"
+      streamer: "Streameuse"
+  achievement_claims:
+    create:
+      claimed: "Récompense récupérée."
+      throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   achievements:
+    claim:
+      button: "Récupérer"
+      label: "Récupérer la récompense de %{name}"
     back_reward: "Débloque le dos %{back}"
+    avatar_reward: "Débloque l'avatar %{avatar}"
     unlocked:
       title: "Succès débloqué"
     names:
@@ -1765,9 +1922,10 @@ fr:
       first_claim_all_rights_reserved: "Premier arrivé, premier servi"
       a_discovery_of_ours: "Une découverte qui nous appartient"
       a_strictly_professional_relationship: "Une relation strictement professionnelle"
+      no_time_to_waste: "Pas de temps à perdre"
+      night_owl: "Oiseau de nuit"
     show:
       title: "Succès"
-      more: "Plus"
       summary:
         zero: "%{earned} succès obtenu sur %{total}"
         one: "%{earned} succès obtenu sur %{total}"
@@ -1801,6 +1959,8 @@ fr:
       first_claim_all_rights_reserved: "Être le pionnier d'une carte dans une saison"
       a_discovery_of_ours: "Reposter une carte dont vous êtes le pionnier"
       a_strictly_professional_relationship: "Conclure trois échanges avec le même joueur"
+      no_time_to_waste: "Ouvrir 10 capsules en moins de 30 secondes"
+      night_owl: "Ouvrir une capsule entre 1 h et 4 h du matin, heure locale"
   invite_links:
     show:
       title: "%{name} vous invite"
@@ -1980,7 +2140,9 @@ fr:
       you_received: "Vous avez reçu"
       for_friend_to_choose: "À choisir par %{name}"
       yours_to_choose: "À vous de choisir"
+      already_owned: "Possédée ×%{count}"
       copies_label: "Exemplaires :"
+      of_collection: "dans votre collection (%{total})"
       reserved:
         zero: "Réservée"
         one: "Réservée"
@@ -2030,14 +2192,11 @@ fr:
       card: "%{title} (%{goals})"
       label_mutual: "Suggestion de %{name} : %{cards} contre %{given}. %{presence}."
       label_open: "Suggestion de %{name} : %{cards}, %{name} choisit en retour. %{presence}."
-      send: "Envoyer"
-      send_label: "Envoyer la suggestion à %{name}"
-      sent: "Proposition transmise"
   accounts:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos scores de chance, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), les téléphones où vont vos notifications, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos scores de chance, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos réactions aux entrées du fil et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
       kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à la mission hebdo, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
@@ -2073,6 +2232,31 @@ fr:
       text: "%{title} n'est plus dans votre vitrine."
     full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
     not_found: "Cette carte n'existe pas."
+    open: "Ouvrir ma vitrine"
+  reactions:
+    add: "Ajouter une réaction"
+    choose: "Choisir une réaction"
+    group: "Réactions"
+    names:
+      gg: "GG"
+      heart: "Cœur"
+      middle_finger: "Doigt d'honneur"
+      thumb: "Pouce levé"
+      wow: "Wow"
+    reacted: "Réaction envoyée : %{reaction}."
+    remove: "Retirer votre réaction : %{reaction}"
+    removed: "Réaction retirée."
+    throttled: "Trop de réactions en une minute. Réessayez dans un instant."
+    who:
+      and: " et "
+      and_others:
+        zero: "%{names} et %{count} autre"
+        one: "%{names} et %{count} autre"
+        other: "%{names} et %{count} autres"
+      players:
+        zero: "%{count} joueur"
+        one: "%{count} joueur"
+        other: "%{count} joueurs"
   reposts:
     button: "Reposter"
     create:
@@ -2113,6 +2297,12 @@ fr:
       cancel: "Annuler"
       save: "Enregistrer"
       close: "Fermer"
+      discard:
+        title: "Quitter sans enregistrer ?"
+        text: "Vos modifications de ce set seront perdues."
+        keep: "Continuer l'édition"
+        confirm: "Quitter sans enregistrer"
+        close: "Fermer"
       strings:
         games:
           zero: "%{count} jeu"
@@ -2122,7 +2312,7 @@ fr:
         name_count: "%{count} / %{max}"
         picked: "Sélectionnés · %{count}"
     library:
-      name: "Ma ludothèque Steam"
+      name: "Ma bibliothèque Steam"
     throttled: "Trop de modifications de vos sets en une minute. Réessayez dans un instant."
   daily_bonuses:
     create:
@@ -2164,6 +2354,7 @@ fr:
     show:
       title: "Gameble, un jeu de cartes gratuit de jeux Steam"
       description: "Chaque carte est un jeu Steam. Ouvrez des capsules, complétez des sets, échangez avec vos amis et rejoignez la Confrérie à la recherche des jeux perdus. Gratuit."
+      share_image_alt: "Gameble en lettres pixel dorées sur un ciel étoilé, avec une carte à collectionner et une planète à anneau : chaque carte est un jeu Steam."
       structured_data:
         genre: "Jeu de cartes à collectionner"
       unknown: "—"
@@ -2247,7 +2438,7 @@ fr:
         subtitle: "Ouvrir, révéler, collectionner, échanger. Ces quatre gestes vous suffiront à faire progresser la mission de la Confrérie."
         join:
           title: "Rejoignez-la"
-          text: "Connectez-vous avec Steam, Discord, Google ou un code par e-mail : votre compte est créé automatiquement."
+          text: "Connectez-vous avec Steam, Apple, Discord, Google ou un code par e-mail : votre compte est créé automatiquement."
           badge: "Nouveau membre"
         accumulate:
           title: "Accumulez des capsules"
@@ -2309,7 +2500,7 @@ fr:
             to_earn: "À obtenir"
           backs:
             title: "Dos de cartes"
-            text: "Vos cartes face cachée portent le dos de votre choix. Accomplissez des missions pour en débloquer de nouveaux."
+            text: "Vos cartes face cachée portent le dos de votre choix. Débloquez des succès et remplissez vos sets pour en gagner de nouveaux."
           collection:
             title: "Collection"
             text: "Voyez en un coup d'œil les cartes qui vous manquent pour compléter votre collection."
@@ -2410,6 +2601,19 @@ fr:
     previous: "Carte précédente"
     next: "Carte suivante"
     store: "Voir sur Steam"
+    trade:
+      asked: "Déjà demandée"
+      copies:
+        zero: "%{count} exemplaire"
+        one: "%{count} exemplaire"
+        other: "%{count} exemplaires"
+      intro: "Ces amis ont un exemplaire libre. L'échange s'ouvre avec cette carte déjà demandée : vous pouvez ajouter ou changer des cartes avant de l'envoyer."
+      propose: "Proposer"
+      show_more:
+        zero: "Afficher %{count} ami de plus"
+        one: "Afficher %{count} ami de plus"
+        other: "Afficher %{count} amis de plus"
+      title: "Échanger pour cette carte"
     preview:
       title: "%{title} — %{rarity}"
       description: "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous : dix capsules vous attendent."
@@ -2435,6 +2639,7 @@ fr:
       grid: "Grille"
       booster: "Capsule"
       profile: "Profil"
+      trade: "Échange"
       live:
         title: "En ce moment sur Gameble"
       legal: "Mentions légales"
@@ -2528,12 +2733,17 @@ fr:
         other_season: "appartient à une autre saison"
   errors:
     accounts:
+      announcement_not_found: "Cette annonce est introuvable."
+      announcement_not_shown: "Cette annonce n'est plus sur le bandeau."
+      invalid_announcement: "Écrivez l'annonce dans les deux langues, 280 caractères au plus chacune."
+      invalid_push_device: "Cet appareil n'a pas pu être inscrit aux notifications. Réessayez."
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       export_too_soon: "Un export toutes les 5 minutes au plus. Réessayez dans quelques minutes."
       no_longer_idle: "Ce joueur n'est plus inactif : son compte n'est pas supprimé."
       invalid_name: "Ce nom ne peut pas être utilisé. Saisissez au moins un caractère visible."
       invalid_setting: "Ce réglage n'a pas pu être enregistré. Rechargez la page et réessayez."
       name_from_steam: "Votre nom vient de Steam et est actualisé à chaque connexion."
+      email_known_apple: "Un compte existe déjà avec cet e-mail via Apple. Connectez-vous avec Apple, puis ajoutez cette connexion depuis les réglages."
       email_known_discord: "Un compte existe déjà avec cet e-mail via Discord. Connectez-vous avec Discord, puis ajoutez cette connexion depuis les réglages."
       email_known_email: "Un compte existe déjà avec cet e-mail via un code par e-mail. Connectez-vous avec votre e-mail, puis ajoutez cette connexion depuis les réglages."
       email_known_google: "Un compte existe déjà avec cet e-mail via Google. Connectez-vous avec Google, puis ajoutez cette connexion depuis les réglages."
@@ -2582,16 +2792,22 @@ fr:
       ufo_share_over_limit: "Les OVNI pèsent %{share} des cartes du brouillon, officier, au-dessus des %{limit} permis. Rattache d'autres tags à des thèmes sur la page des thèmes et recalcule le dernier import, puis publie."
       invalid_wording: "Chaque libellé demande du texte, en français et en anglais, de %{limit} caractères au plus, officier."
       invalid_status: "Cet état n'est pas un de ceux de la feuille de route, officier."
-      invalid_direction: "Une entrée de la feuille de route ne fait que monter ou descendre, officier."
-      at_edge: "Cette entrée ne peut pas aller plus loin dans ce sens, officier."
-      story_not_found: "Cette histoire n'est plus sur la feuille de route, officier."
+      invalid_roadmap: "Des lignes de la feuille de route sont à corriger, officier. Rien n'a été enregistré."
+      duplicate_row: "Cette ligne figure deux fois dans la feuille de route, officier."
+      row_not_found: "Une étape ou une histoire de ce formulaire n'est plus sur la feuille de route, officier. Recharge la page et regarde à nouveau."
       card_season_not_published: "Cette carte n'est dans aucune saison publiée : elle n'a pas d'image d'aperçu."
       invalid_share_image: "L'image d'aperçu de cette carte n'est pas un PNG de carte, dans une des langues de la Confrérie."
       stale_render: "Cette carte a changé pendant que son image d'aperçu était dessinée : cette image n'a pas été gardée."
     game:
+      achievement_already_claimed: "Vous avez déjà récupéré cette récompense."
+      achievement_not_earned: "Vous n'avez pas obtenu ce succès."
+      unknown_achievement: "Ce succès n'existe pas."
+      unknown_reaction: "Cette réaction n'existe pas."
+      entry_not_found: "Cette entrée du fil est introuvable."
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       invalid_time: "L'heure envoyée n'a pas pu être lue. Rechargez la page."
       no_pack_available: "Votre réserve est vide. La prochaine capsule arrive bientôt."
+      pack_not_available: "Cette capsule n'est plus dans votre réserve."
       already_collected: "Vous avez déjà récupéré la capsule du jour. La prochaine sera prête le %{time}."
       no_season: "Aucune saison de cartes n'est encore ouverte. Revenez plus tard pour la capsule du jour."
       reward_already_claimed: "Vous avez déjà récupéré cette capsule rare."
@@ -2635,6 +2851,7 @@ fr:
       custom_set_not_found: "Ce set n'existe pas ou n'est pas à vous."
       goal_set_not_found: "Ce set ne fait pas partie de la saison publiée."
       goal_set_complete: "Ce set est déjà complet."
+      library_set_empty: "Votre bibliothèque Steam ne contient encore aucun jeu du catalogue."
       too_many_goals: "5 objectifs au plus. Retirez un objectif pour en ajouter un autre."
       game_not_in_catalog: "Un jeu choisi n'est pas dans le catalogue. Rechargez la page et réessayez."
       name_required: "NOM REQUIS · Donnez un nom à votre set."
@@ -2649,6 +2866,8 @@ fr:
       showcase_full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
       title_not_earned: "Vous n'avez pas gagné ce titre."
       back_locked: "Ce dos de carte est encore verrouillé."
+      avatar_locked: "Cet avatar est encore verrouillé."
+      unknown_avatar: "Cet avatar n'existe pas."
       unknown_back: "Ce dos de carte n'existe pas."
       unknown_season: "Vous n'avez pas obtenu ce dos de carte pendant cette saison."
       showcase_edge: "Cette carte ne peut pas aller plus loin."

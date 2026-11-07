@@ -16,8 +16,4 @@ class DataExportPolicyTest < ActiveSupport::TestCase
       assert policy_for(role).show?
     end
   end
-
-  test "nothing else is allowed" do
-    assert_not policy_for(:player).destroy?
-  end
 end

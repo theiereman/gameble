@@ -3,7 +3,7 @@ class GoalsController < ApplicationController
 
   CUSTOM_SET_TOKEN = /\A[1-9A-HJ-NP-Za-km-z]{24}\z/
 
-  throttle_player to: 20, only: %i[create destroy], path: -> { album_path }, alert: "goals.throttled"
+  throttle_player to: 20, only: %i[create destroy], path: -> { return_path }, alert: "goals.throttled"
 
   def create
     authorize :goal, :create?
@@ -25,6 +25,8 @@ class GoalsController < ApplicationController
     end
 
     def answer(operation, result)
+      return answer_on_sets(operation, result) if from_sets?
+
       refused = result.failure? && result.failure == :too_many_goals
       message = operation.failure_message(result.failure) if result.failure? && !refused
       respond_to do |format|
@@ -36,6 +38,15 @@ class GoalsController < ApplicationController
         end
       end
     end
+
+    def answer_on_sets(operation, result)
+      flash[:alert] = operation.failure_message(result.failure) if result.failure?
+      redirect_to library_path, status: :see_other
+    end
+
+    def from_sets? = params[:from] == "sets"
+
+    def return_path = from_sets? ? library_path : album_path
 
     def control_stream(refused, message)
       return turbo_stream.append("toasts", ToastComponent.new(message:, tone: :alert)) if message

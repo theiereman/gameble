@@ -1,7 +1,7 @@
 /* ---- The custom set editor: a wide modal over the collection, a full-height
    sheet on the phone; the name, the search and its chips, the grid of the
    catalog's games and the foot with the counter, the refusal and the buttons.
-   Then the delete-set dialog. ---- */
+   Then the discard confirmation and the delete-set dialog. ---- */
 
 .custom-set-editor__panel {
   display: flex;
@@ -246,19 +246,22 @@ html[data-motion="reduced"] .custom-set-game--refused .custom-set-game__card::be
   gap: var(--space-4);
 }
 
-.delete-custom-set__form {
+.delete-custom-set__form,
+.custom-set-discard {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
 }
 
-.delete-custom-set__text {
+.delete-custom-set__text,
+.custom-set-discard__text {
   margin: 0;
   color: var(--color-text);
   font: var(--font-body);
 }
 
-.delete-custom-set__actions {
+.delete-custom-set__actions,
+.custom-set-discard__actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);

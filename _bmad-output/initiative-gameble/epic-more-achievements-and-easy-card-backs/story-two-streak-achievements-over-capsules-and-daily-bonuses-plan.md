@@ -3,7 +3,7 @@ title: 'Two streak achievements over capsules and daily bonuses'
 type: 'feature'
 ticket: '7'
 created: '2026-11-02'
-status: 'built'
+status: done
 baseline_revision: '298782326899162e0b4209282a23c90f4e373f73'
 route: 'oneshot'
 route_source: 'auto'

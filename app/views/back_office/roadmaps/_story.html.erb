@@ -1,0 +1,9 @@
+<%# locals: (entry:, milestone_key:, failures:) %>
+<li class="roadmap-row roadmap-row--story" data-roadmap-row="story" data-key="<%= entry.key %>">
+  <fieldset class="roadmap-row__body">
+    <legend class="roadmap-row__legend"><%= t(".legend") %></legend>
+    <%= render "back_office/roadmaps/fields", entry:, name: "milestones[#{milestone_key}][stories][#{entry.key}]", dom: "roadmap-story-#{entry.key}",
+          failure: failures[entry.key] %>
+  </fieldset>
+  <%= render "back_office/roadmaps/actions", up: t(".up"), down: t(".down"), remove: t(".remove"), remove_confirm: t(".remove_confirm") %>
+</li>

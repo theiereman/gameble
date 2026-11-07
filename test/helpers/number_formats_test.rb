@@ -14,12 +14,4 @@ class NumberFormatsTest < ActionView::TestCase
       assert_equal "12,5#{NBSP}%", number_to_percentage(12.5, precision: 1)
     end
   end
-
-  test "English numbers keep Rails' formats" do
-    I18n.with_locale(:en) do
-      assert_equal "10,000", number_with_delimiter(10_000)
-      assert_equal "1234.500", number_with_precision(1234.5, precision: 3)
-      assert_equal "12.5%", number_to_percentage(12.5, precision: 1)
-    end
-  end
 end

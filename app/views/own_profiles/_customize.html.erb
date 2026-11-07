@@ -1,0 +1,8 @@
+<%# locals: (owner_title:, worn_back:) %>
+<%= render PanelComponent.new(tag: :section, class: "me-customize", aria: { labelledby: "me-customize-heading" }) do %>
+  <h2 id="me-customize-heading" class="profile-section__title"><%= t("own_profiles.show.customize") %></h2>
+  <ul class="me-customize__list">
+    <li><%= render "own_profiles/title_opener", owner_title:, focused: flash[:chosen_title].present? %></li>
+    <li><%= render "own_profiles/back_opener", row: worn_back %></li>
+  </ul>
+<% end %>

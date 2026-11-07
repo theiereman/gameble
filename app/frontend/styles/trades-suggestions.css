@@ -131,12 +131,6 @@
   text-transform: uppercase;
 }
 
-.trade-suggestion__send {
-  position: relative;
-  z-index: 2;
-  flex: none;
-}
-
 .trade-suggestion__marks {
   display: flex;
   flex-wrap: wrap;

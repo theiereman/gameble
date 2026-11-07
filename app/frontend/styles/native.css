@@ -1,0 +1,213 @@
+:root[data-native-app] {
+  --tabbar-height: 0px;
+  --space-tabbar-height: 0px;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+:root[data-native-app] body {
+  user-select: none;
+}
+
+:root[data-native-app] :is(input, textarea, [contenteditable]) {
+  user-select: text;
+}
+
+:root[data-native-app] :is(a, button, summary, label, [role="button"]):active {
+  filter: brightness(0.82);
+}
+
+:root[data-native-app] .app-version {
+  display: none;
+}
+
+/* In the app the gold G alone heads every screen: the tab root's mark, a sub-screen's way back. */
+:root[data-native-app] .top-bar__home-g {
+  display: block;
+  width: auto;
+  height: var(--space-back-g-height);
+}
+
+/* The capsule screen fills the space between the top bar and the native tabs, without a scroll,
+   its canister centred in the stage and its rays running out to the screen's edges. */
+:root[data-native-app] body:has(.booster[data-layout="phone"]) {
+  height: 100dvh;
+}
+
+:root[data-native-app]:has(.booster[data-layout="phone"]) {
+  overscroll-behavior: none;
+}
+
+/* Clipped on the main rather than the body, whose overflow passes to the viewport: the WebView
+   would widen its layout to the rays and zoom the whole screen out. */
+:root[data-native-app] body:has(.booster[data-layout="phone"]) > .main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  padding-bottom: var(--space-3);
+  overflow-x: clip;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] {
+  flex: 1;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  align-items: stretch;
+  min-height: 0;
+  overflow-x: visible;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] .booster__stage {
+  display: grid;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] :is(.booster__stage, .booster__shake) {
+  min-height: 0;
+}
+
+/* The scene speaks for itself: the revealed card needs no caption plate (a swipe or a tap stores it),
+   the capsule's state no chip over the reserve's clock, and only a short hint sits above the tray. */
+:root[data-native-app] .booster[data-layout="phone"] .booster__shake {
+  grid-template-rows: minmax(0, 1fr) auto auto;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] .booster__pile-area {
+  align-self: center;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] .booster-plate {
+  display: none;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] .booster-plate-band__hint {
+  position: static;
+  padding: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] .booster-strip__state {
+  display: none;
+}
+
+:root[data-native-app] .booster[data-layout="phone"] .booster-plate-band__hint[data-shows="done"] {
+  display: none;
+}
+
+/* A stored card's zoom: the card alone over a near-opaque scrim, its name and rarity read by assistive
+   technology only, its actions on one even grid. */
+:root[data-native-app] .booster-zoom::backdrop {
+  background: rgb(4 7 10 / 97%);
+}
+
+:root[data-native-app] :is(.booster-zoom__title, .booster-zoom__line) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+:root[data-native-app] .booster-zoom__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  margin-top: var(--space-5);
+}
+
+:root[data-native-app] .booster-zoom__actions > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+/* A trade's actions close its board, scrolled to like the rest of it rather than pinned over the cards. */
+@media (max-width: 719px) {
+  :root[data-native-app] .trade-board__actions {
+    position: static;
+    padding: var(--space-4) 0 0;
+    background: none;
+  }
+
+  :root[data-native-app] .trade-board__actions .button {
+    flex: 1;
+  }
+}
+
+/* Where the app can share a link natively, its unreadable address gives way to the buttons. */
+:root[data-native-app] .friends__row-field:has([data-controller~="bridge--share"]:not([hidden])) .friends__input {
+  display: none;
+}
+
+:root[data-native-app] .friends__row-field:has([data-controller~="bridge--share"]:not([hidden])) .button {
+  flex: 1;
+  margin: 0;
+}
+
+:root[data-native-bar] {
+  scroll-padding-top: var(--topbar-height);
+}
+
+:root[data-native-bar] body {
+  padding-top: var(--topbar-height);
+}
+
+:root[data-native-bar] .top-bar {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+:root[data-native-bar] :is(.bell, .phone-menu) {
+  display: flex;
+}
+
+:root[data-native-bar] .shell-popover {
+  visibility: visible;
+}
+
+:root[data-native-bar] :is(.bell__panel, .phone-menu__panel) {
+  top: calc(var(--topbar-height) + var(--space-3));
+  right: var(--space-3);
+  margin: 0;
+  position-anchor: auto;
+  position-area: none;
+}
+
+:root[data-native-bar] .feed__newest {
+  top: calc(var(--topbar-height) + var(--space-3));
+}
+
+:root[data-native-bar] .booster-zoom {
+  padding-top: calc(var(--topbar-height) + var(--space-5));
+}
+
+@media (max-width: 719px) {
+  :root[data-native-bar] :is(.trade-picker, .custom-set-editor) {
+    height: calc(100dvh - var(--topbar-height));
+    margin-top: var(--topbar-height);
+  }
+}
+
+.native-status {
+  margin-bottom: var(--space-4);
+}
+
+:root[data-native-bar] .native-status .collection-status {
+  display: flex;
+  width: 100%;
+  min-height: var(--space-chip-height-touch);
+  padding-inline: 0;
+}
+
+:root[data-native-bar] .native-status .collection-status__bar {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}

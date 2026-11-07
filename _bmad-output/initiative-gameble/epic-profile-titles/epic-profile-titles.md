@@ -10,6 +10,7 @@ assignee: ""
 risk: low
 estimate: ""
 estimate_basis: ""
+status: done
 ---
 
 # Profile titles

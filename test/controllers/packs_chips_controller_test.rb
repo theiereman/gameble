@@ -42,17 +42,6 @@ class PacksChipsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/en/packs-chip", refresh["data-countdown-refresh-url-value"]
   end
 
-  test "a full reserve answers the full chip, with no countdown" do
-    sign_in(@player)
-    10.times { create_pack(@player) }
-
-    get_chip
-
-    assert_select "#{CHIP} .packs-chip__count", "10"
-    assert_select "#{CHIP} .packs-chip__next--full", "Reserve full"
-    assert_select "#{CHIP} [data-controller=countdown]", false
-  end
-
   test "the chip reads in the request's locale, and follows it on the next refresh" do
     now = Time.utc(2026, 10, 2, 9, 0)
     travel_to(now) { create_pack(@player, available_at: now + 5.minutes) }

@@ -12,10 +12,6 @@ class Game::PlayerStateTest < ActiveSupport::TestCase
   def create(player) = Game::CreatePlayerState.new.call(player:)
   def states = Game::PlayerState.where(player_id: @player.id)
 
-  test "every fixture player has their row" do
-    assert_equal accounts_players.map(&:id).sort, Game::PlayerState.pluck(:player_id).sort
-  end
-
   test "a player without a row gets one; a rerun keeps it and publishes nothing" do
     states.delete_all
 

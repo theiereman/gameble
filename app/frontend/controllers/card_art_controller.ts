@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { drawCardArt } from "../lib/card_art"
+import { type Approach, drawSettled, nearNow, sighted } from "../lib/card_art/approach"
 import { type ArtSize, artPixels, sameArtSize, type Settle, settle } from "../lib/card_art/fluid_size"
 
 const NEAR_VIEWPORT = "300px"
@@ -30,10 +31,12 @@ export default class extends Controller<HTMLElement> {
   private resizeObserver?: ResizeObserver
   private resize?: Settle
   private drawn?: ArtSize
+  private approach: Approach = "far"
 
   connect(): void {
     this.abort = new AbortController()
     this.drawn = undefined
+    this.approach = "far"
     if (this.fluidValue) this.watchResizes()
     if (typeof IntersectionObserver === "undefined") {
       this.draw()
@@ -41,9 +44,8 @@ export default class extends Controller<HTMLElement> {
     }
     this.observer = new IntersectionObserver(
       (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return
-        this.stopWatching()
-        this.draw()
+        const near = nearNow(entries)
+        if (near !== undefined) this.sighted(near)
       },
       { rootMargin: NEAR_VIEWPORT },
     )
@@ -56,16 +58,37 @@ export default class extends Controller<HTMLElement> {
     this.abort?.abort()
   }
 
+  private sighted(near: boolean): void {
+    const step = sighted(this.approach, near)
+    this.approach = step.approach
+    if (step.act === "draw") this.draw()
+    if (step.act === "give-up") this.giveUpDraw()
+  }
+
   private draw(): void {
     if (!this.abort) return
     const size = this.artSize()
+    const signal = this.abort.signal
     this.drawn = size
     void drawCardArt(this.element, this.canvasTarget, this.urlValue, {
       ...size,
       paletteWidth: this.paletteWidthValue || this.widthValue,
       paletteHeight: this.paletteHeightValue || this.heightValue,
-      signal: this.abort.signal,
+      signal,
+    }).then(() => {
+      if (!signal.aborted) this.settled()
     })
+  }
+
+  private settled(): void {
+    this.approach = drawSettled(this.approach)
+    if (this.approach === "settled") this.stopWatching()
+  }
+
+  private giveUpDraw(): void {
+    this.abort?.abort()
+    this.abort = new AbortController()
+    this.drawn = undefined
   }
 
   private redrawAtNewSize(): void {

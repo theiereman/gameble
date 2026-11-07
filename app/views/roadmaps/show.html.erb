@@ -2,6 +2,7 @@
 <% content_for :title, t("roadmaps.show.title") %>
 <% content_for :head do %>
   <%= tag.meta name: "description", content: t("roadmaps.show.description") %>
+  <%= render "layouts/language_links", route: :roadmap_path if Rails.configuration.x.search_indexing %>
 <% end %>
 <% content_for :page_footer do %>
   <%= render "landings/footer" %>

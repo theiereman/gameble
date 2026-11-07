@@ -28,11 +28,15 @@ module CustomSetsHelper
     [ custom_set_display_name(library), set_album_value_text(library.to_set_standing) ].join(", ")
   end
 
-  def steam_library_sync_lines(library)
-    return [ t("library.entry.steam_library.synced", date: steam_library_date(library.synced_at)) ] unless library.library_private?
+  def steam_library_head_note(library)
+    return unless library.synced_at
 
-    [ t("library.entry.steam_library.not_shared"),
-      (t("library.entry.steam_library.last_sync", date: steam_library_date(library.synced_at)) if library.synced_at) ].compact
+    date = steam_library_date(library.synced_at)
+    if library.library_private?
+      t("library.entry.steam_library.last_sync_html", date:)
+    else
+      t("library.entry.steam_library.synced_html", date:)
+    end
   end
 
   private

@@ -3,7 +3,7 @@ title: 'A player sees which friends spare their goals'' missing cards and starts
 type: 'feature'
 ticket: '2'
 created: '2026-11-01'
-status: 'built'
+status: done
 baseline_revision: '438ef8b0c978b4abbe848030ccb12bc6f32e4314'
 route: 'full'
 route_source: 'auto'

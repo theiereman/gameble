@@ -10,6 +10,7 @@ module Game
     Entry = Data.define(:kind, :card_season_id, :occurred_at, :set, :tier, :set_count) do
       def initialize(kind:, card_season_id:, occurred_at:, set: nil, tier: nil, set_count: nil) = super
     end
+    ReactionRow = Data.define(:kind, :entry_token, :entry_kind, :reacted_at)
     Unlock = Data.define(:achievement, :unlocked_at)
     BackUnlock = Data.define(:back, :unlocked_at)
     CardBackChoice = Data.define(:active, :active_season, :unlocks)
@@ -21,7 +22,7 @@ module Game
     GoalRow = Data.define(:position, :set_kind, :set_key, :custom_set_token, :created_at)
 
     Result = Data.define(:friend_code, :held_cards, :showcase, :packs, :daily_bonus_days, :goal_reward_weeks, :contributions,
-      :set_tiers, :discoveries, :feed_entries, :unlocks, :card_backs, :friend_count, :invitations, :trades, :custom_sets, :steam_library, :goals) do
+      :set_tiers, :discoveries, :feed_entries, :reactions, :unlocks, :card_backs, :friend_count, :invitations, :trades, :custom_sets, :steam_library, :goals) do
       def card_season_ids
         (held_cards.map(&:card_season_id) + showcase.map(&:card_season_id) + packs.flat_map(&:card_season_ids) + discoveries.map(&:card_season_id) +
           feed_entries.filter_map(&:card_season_id) + trades.flat_map { |trade| trade.offered.map(&:card_season_id) }).uniq
@@ -43,6 +44,7 @@ module Game
         discoveries: FirstDiscovery.where(player_id: player.id).order(:discovered_at, :card_season_id)
           .pluck(:card_season_id, :discovered_at).map { |id, at| Discovery.new(card_season_id: id, discovered_at: at) },
         feed_entries: feed_entries(player),
+        reactions: reactions(player),
         unlocks: AchievementUnlock.where(player_id: player.id).order(:unlocked_at, :achievement)
           .pluck(:achievement, :unlocked_at).map { |achievement, unlocked_at| Unlock.new(achievement:, unlocked_at:) },
         card_backs: card_backs(player),
@@ -107,6 +109,12 @@ module Game
       end
     end
 
+    def self.reactions(player)
+      FeedReaction.where(player_id: player.id).joins(:feed_entry).order(:created_at, :id)
+        .pluck(:kind, "game_feed_entries.token", "game_feed_entries.kind", :created_at)
+        .map { |kind, entry_token, entry_kind, reacted_at| ReactionRow.new(kind:, entry_token:, entry_kind:, reacted_at:) }
+    end
+
     def self.set_refs(set_ids)
       return {} if set_ids.empty?
 
@@ -148,6 +156,6 @@ module Game
         .map { |position, set_kind, set_key, custom_set_token, created_at| GoalRow.new(position:, set_kind:, set_key:, custom_set_token:, created_at:) }
     end
 
-    private_class_method :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :set_refs, :trades, :custom_sets, :steam_library, :goals
+    private_class_method :held_cards, :showcase, :packs, :set_tiers, :card_backs, :feed_entries, :reactions, :set_refs, :trades, :custom_sets, :steam_library, :goals
   end
 end

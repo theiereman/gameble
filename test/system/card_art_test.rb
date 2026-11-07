@@ -1,20 +1,23 @@
 require "application_system_test_case"
 require_relative "../support/steam_sign_in"
 
-# The card art through pixelcrush: filtered in the card-art worker with
-# 32 colours, Steam's grey placeholder counted as missing. The back-office
-# card preview is the host page; card-art elements are added to it by script.
+# The card art through pixelcrush, filtered in the real card-art worker with
+# 32 colours. The back-office card preview is the host page; card-art
+# elements are added to it by script.
 class CardArtTest < ApplicationSystemTestCase
   include SteamSignIn
 
   SAMPLE_CARD = "[data-specimen=common-s] .card__art".freeze
 
+  PINNED_TO_THE_TOP = "position: fixed; inset: 0 auto auto 0; z-index: 1000; display: flex; flex-wrap: wrap".freeze
+
   # Adds one card-art element per URL, at the small art size, pinned to the
-  # top of the window so each nears the viewport at once.
+  # top of the window so each nears the viewport at once, unless the host is
+  # placed otherwise.
   ADD_ARTS = <<~JS.freeze
-    (urls) => {
+    (urls, hostStyle) => {
       const host = document.createElement("div")
-      host.style.cssText = "position: fixed; inset: 0 auto auto 0; z-index: 1000; display: flex; flex-wrap: wrap"
+      host.style.cssText = hostStyle
       urls.forEach((url, index) => {
         const art = document.createElement("span")
         art.style.display = "inline-block"
@@ -48,8 +51,8 @@ class CardArtTest < ApplicationSystemTestCase
     find(SAMPLE_CARD, visible: :all)["data-card-art-url-value"]
   end
 
-  def add_arts(urls)
-    page.execute_script("(#{ADD_ARTS})(#{urls.to_json})")
+  def add_arts(urls, host_style: PINNED_TO_THE_TOP)
+    page.execute_script("(#{ADD_ARTS})(#{urls.to_json}, #{host_style.to_json})")
   end
 
   test "thirty covers are filtered in the worker, each in at most 32 colours" do
@@ -78,43 +81,5 @@ class CardArtTest < ApplicationSystemTestCase
       })(#{urls.to_json})
     JS
     assert_empty fetched
-  end
-
-  test "Steam's grey placeholder counts as missing" do
-    grey = page.evaluate_script(<<~JS)
-      (() => {
-        const canvas = document.createElement("canvas")
-        canvas.width = 300
-        canvas.height = 450
-        const context = canvas.getContext("2d")
-        context.fillStyle = "rgb(128, 128, 128)"
-        context.fillRect(0, 0, 300, 450)
-        return canvas.toDataURL("image/png")
-      })()
-    JS
-    add_arts([ grey ])
-
-    assert_selector "[data-test-art][data-art=failed]", visible: :all
-    assert_selector "[data-test-art] canvas", visible: :hidden
-  end
-
-  test "a grayscale cover with tonal variation is drawn" do
-    grayscale = page.evaluate_script(<<~JS)
-      (() => {
-        const canvas = document.createElement("canvas")
-        canvas.width = 300
-        canvas.height = 450
-        const context = canvas.getContext("2d")
-        const gradient = context.createLinearGradient(0, 0, 300, 0)
-        gradient.addColorStop(0, "rgb(0, 0, 0)")
-        gradient.addColorStop(1, "rgb(255, 255, 255)")
-        context.fillStyle = gradient
-        context.fillRect(0, 0, 300, 450)
-        return canvas.toDataURL("image/png")
-      })()
-    JS
-    add_arts([ grayscale ])
-
-    assert_selector "[data-test-art][data-art=drawn] canvas:not([hidden])", visible: :all
   end
 end

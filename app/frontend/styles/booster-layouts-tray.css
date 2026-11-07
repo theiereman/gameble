@@ -112,6 +112,33 @@
 
 /* ---- The card zoom (phone): a modal dialog over a dark scrim ---- */
 
+/* ---- The hand stored: a set result, then the next capsule ---- */
+
+/* Once the hand is stored, the next capsule waits where it is opened from,
+   its card count left to the hint above the tray but its room kept, so a
+   tap opens it without a jump. */
+.booster[data-layout="phone"][data-phase="dealt"] .booster__canister-facts {
+  visibility: hidden;
+}
+
+/* A set result reached by the stored hand takes the stage on its own,
+   until Continue lets the next capsule dock there. */
+.booster[data-layout="phone"] .booster-plate-band:has(.booster-celebration) {
+  grid-area: 1 / 1;
+  align-self: center;
+}
+
+.booster[data-layout="phone"] .booster-plate-band .booster__celebration-host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.booster-celebration__dismiss {
+  align-self: center;
+  margin: 0;
+}
+
 .booster-zoom {
   position: fixed;
   inset: 0;

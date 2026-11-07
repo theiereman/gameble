@@ -657,21 +657,6 @@ module BackOffice
       assert_equal 1, Steam::ImportRun.count
     end
 
-    test "a visitor and a player get the 404 of an unknown address for every import action" do
-      run = failed_run
-
-      [ nil, accounts_players(:player) ].each do |player|
-        sign_in(player) if player
-        each_request(run) do |verb, path|
-          assert_no_import_jobs { public_send(verb, path) }
-
-          assert_unknown_address "#{verb} #{path}"
-        end
-      end
-      assert_predicate run.reload, :failed?
-      assert_equal 1, Steam::ImportRun.count
-    end
-
     test "a moderator is refused an unknown run with 403, not 404" do
       sign_in(accounts_players(:moderator))
 

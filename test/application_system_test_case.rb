@@ -7,6 +7,9 @@ require_relative "support/chromedriver_stale_nodes"
 Capybara.default_max_wait_time = 5
 
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
+  # Each worker drives its own headless Chrome: more than two saturate a development machine.
+  parallelize(workers: 2)
+
   # Headless Chrome. CHROME_BIN points at another Chrome-compatible browser, such as Chromium locally.
   # The browser window size. One browser serves every test of a worker, so a
   # test that resizes the window (a phone layout) is followed by one that
@@ -60,7 +63,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   end
 
   def assert_signed_in
-    assert_selector ".top-bar .player-chip"
+    assert_selector ".top-bar .player-chip", visible: :all
   end
 
   def sign_out

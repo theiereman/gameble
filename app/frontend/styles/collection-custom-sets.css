@@ -6,7 +6,8 @@
   display: none;
 }
 
-.custom-sets__head {
+.custom-sets__head,
+.steam-library__head {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -125,30 +126,22 @@
   }
 }
 
-/* The sync line is information, never an alert: muted, with a muted light. */
-.steam-library__sync {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
+.steam-library__note {
   margin: 0;
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-panel-sunken);
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.steam-library__note b {
+  color: var(--color-text-bright);
+}
+
+.steam-library__not-shared {
+  margin: 0;
   color: var(--color-muted);
   font: var(--font-body-small);
   letter-spacing: var(--tracking-body-small);
-}
-
-.steam-library__light {
-  flex: none;
-  width: 8px;
-  height: 8px;
-  margin-top: 5px;
-  background: var(--color-muted);
-}
-
-.steam-library__lines b {
-  color: var(--color-text);
 }
 
 .set-album__actions {

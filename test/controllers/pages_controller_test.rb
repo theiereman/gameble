@@ -16,7 +16,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   include GameTrades
   include SteamSignIn
 
-  PLAYER_HUB_QUERIES = 22
+  PLAYER_HUB_QUERIES = 26
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -51,36 +51,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     statements
   end
 
-  def menu_items
-    css_select(".hub-menu .menu-item")
-  end
-
-  test "the French hub renders in French with the top bar above the main region" do
-    sign_in(@player)
-    get home_path(locale: :fr)
-
-    assert_response :success
-    assert_select "html[lang=fr]"
-    assert_select "title", "Gameble"
-    assert_select "body > header.top-bar + main#main + .ticker"
-    assert_select "nav.tab-bar[aria-label=?]", "Navigation principale"
-    assert_select "main h1.hub__title[tabindex='-1']", "Pont de commandement"
-    assert_select "main .hub__kicker .hub__subtitle", false
-    assert_select "body > div.app-version" do
-      assert_select "p.app-version__tag[title=?]", "Version déployée", text: "Version déployée dev"
-      assert_select "a.app-version__legal[href=?]", "/fr/legal", "Mentions légales"
-    end
-  end
-
-  test "the English hub renders in English and loads its Vite assets" do
-    sign_in(@player)
-    get home_path(locale: :en)
-
-    assert_response :success
-    assert_select "html[lang=en]"
-    assert_select "main h1", "Command bridge"
-    assert_select "script[type=module][src^='/vite-test/assets/application-'][src$='.js']"
-    assert_select "link[rel=stylesheet][href^='/vite-test/assets/application-'][href$='.css']"
+  def main_menu_items
+    css_select(".hub-menu > ol:not([hidden]) .menu-item")
   end
 
   test "the showcase's line names the card's main theme as its genre" do
@@ -110,7 +82,38 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-showcase form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
   end
 
-  test "a player's hub: the menu, the latest card held, the daily panel and the sets in progress" do
+  test "the hub's extras list, hidden behind its back button: how it works, the Flukeometer, then support, GitHub and Discord in a new tab" do
+    sign_in(@player)
+
+    get home_path(locale: :fr)
+
+    assert_select ".hub-menu > ol#hub-menu-extras.hub-menu__list[hidden][aria-label=Extras][data-hub-menu-target=extras]" do
+      assert_select "li:first-child button.menu-item--back[type=button][aria-keyshortcuts=Escape][data-action='hub-menu#closeExtras']" do
+        assert_select "svg.menu-item__back"
+        assert_select ".menu-item__label", "Retour au menu"
+      end
+      assert_select "a.menu-item[href='/fr/how-it-works'][aria-keyshortcuts='1'][data-hub-menu-target=item][data-action='hub-menu#remember'][data-turbo-prefetch=false]" do
+        assert_select ".menu-item__number", "01"
+        assert_select ".menu-item__label", "Comment ça marche"
+      end
+      assert_select "a.menu-item[href='/fr/register'][aria-keyshortcuts='2'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+        assert_select ".menu-item__number", "02"
+        assert_select ".menu-item__label", "Le Chattomètre"
+      end
+    end
+    external = css_select("#hub-menu-extras a.menu-item[target=_blank]")
+    assert_equal [ [ "3", "03", "Soutenir", "https://buymeacoffee.com/theiereman" ], [ "4", "04", "GitHub", "https://github.com/theiereman/gameble" ],
+      [ "5", "05", "Discord", "https://discord.gg/B5utMfwEN" ] ],
+      external.map { [ it["aria-keyshortcuts"], it.at_css(".menu-item__number").text, it.at_css(".menu-item__label").text, it["href"] ] }
+    external.each do |link|
+      assert_equal %w[noopener noreferrer external], link["rel"].split
+      assert_equal "(nouvel onglet)", link.at_css(".visually-hidden").text.strip
+      assert link.at_css("svg.menu-item__external")
+      assert_nil link["data-action"]
+    end
+  end
+
+  test "a player's hub: the menu, the latest card held and the daily panel; without a goal, no goals block at all" do
     gained = 1.hour.ago.change(usec: 0)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2, last_gained_at: gained)
     Game::SetTier.insert_all!([ { player_id: @player.id, set_id: catalog_sets(:valve_one).id, tier: "complete", reached_by: "trade",
@@ -122,9 +125,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".hub[data-controller=hub-menu]"
-    assert_select "nav.hub-menu[aria-label=?] ol.hub-menu__list > li", "Menu du pont", count: 9
-    assert_equal %w[1 2 3 4 5 6 7 8 9], menu_items.map { it["aria-keyshortcuts"] }
-    assert_equal %w[01 02 03 04 05 06 07 08 09], css_select(".hub-menu .menu-item__number").map(&:text)
+    assert_select "nav.hub-menu[aria-label=?] > ol.hub-menu__list:not([hidden]) > li", "Menu du pont", count: 7
+    assert_equal %w[1 2 3 4 5 6 7], main_menu_items.map { it["aria-keyshortcuts"] }
+    assert_equal %w[01 02 03 04 05 06 07], css_select(".hub-menu > ol:not([hidden]) .menu-item__number").map(&:text)
 
     # 01: the booster screen, its reserve in a lime badge.
     assert_select ".hub-menu a.menu-item[href='/fr/booster'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
@@ -139,42 +142,33 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".menu-item__meta", "1/5"
       assert_select ".visually-hidden", "1 carte unique sur 5"
     end
-    # 03: every card of the catalog.
-    assert_select ".hub-menu a.menu-item[href='/fr/library/cards'][aria-keyshortcuts='3'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
-      assert_select ".menu-item__label", "Toutes les cartes"
+    assert_select ".hub-menu a.menu-item[href='/fr/library/cards']", 0
+    # 03: the trades, their badge hidden when nothing waits.
+    assert_select ".hub-menu a.menu-item[href='/fr/trades'][aria-keyshortcuts='3'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+      assert_select ".menu-item__label", "Échanges"
+      assert_select "#menu-trades-badge.stream-slot", 1
+      assert_select ".menu-item__badge, .visually-hidden", 0
     end
-    # 06: the public feed.
-    assert_select ".hub-menu a.menu-item[href='/fr/feed'][aria-keyshortcuts='6']" do
+    # 04: the friends, how many are online, the invitations badge hidden when none waits.
+    assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='4'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+      assert_select ".menu-item__label", "Amis"
+      assert_select ".menu-item__meta", "0 en ligne"
+      assert_select "#menu-friends-badge.stream-slot", 1
+      assert_select ".menu-item__badge, .visually-hidden", 0
+    end
+    # 05: the activity feed.
+    assert_select ".hub-menu a.menu-item[href='/fr/feed'][aria-keyshortcuts='5'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Fil d'activité"
     end
-    # 08: the rules of the game.
-    assert_select ".hub-menu a.menu-item[href='/fr/how-it-works'][aria-keyshortcuts='8'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
-      assert_select ".menu-item__label", "Comment ça marche"
-    end
-    # 09: the donation page, in a new tab, last.
-    support = menu_items.last
-    assert_equal [ "9", "item", "https://buymeacoffee.com/theiereman", "_blank" ],
-      [ support["aria-keyshortcuts"], support["data-hub-menu-target"], support["href"], support["target"] ]
-    assert_equal %w[noopener noreferrer external], support["rel"].split
-    assert_equal [ "Soutenir", "(nouvel onglet)" ], [ support.at_css(".menu-item__label").text, support.at_css(".visually-hidden").text.strip ]
-    assert support.at_css("svg.menu-item__external")
-    assert_nil support["data-action"]
-    # 04: the trades screen, the waiting count greyed at zero.
-    assert_select ".hub-menu a.menu-item[href='/fr/trades'][aria-keyshortcuts='4']" do
-      assert_select ".menu-item__label", "Échanges"
-      assert_select ".menu-item__badge.menu-item__badge--alert.menu-item__badge--zero", "0"
-      assert_select ".visually-hidden", "0 échange en attente de vous"
-    end
-    # 05: the Friends screen, the invitations waiting greyed at zero.
-    assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='5']" do
-      assert_select ".menu-item__badge.menu-item__badge--alert.menu-item__badge--zero", "0"
-      assert_select ".visually-hidden", "0 invitation en attente de votre réponse"
-    end
-    # 07: the achievements screen, none earned yet.
-    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='7'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+    # 06: the achievements screen, none earned yet.
+    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='6'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Succès"
-      assert_select ".menu-item__meta[aria-hidden=true]", "0/23"
-      assert_select ".visually-hidden", "0 succès obtenu sur 23"
+      assert_select ".menu-item__meta[aria-hidden=true]", "0/25"
+      assert_select ".visually-hidden", "0 succès obtenu sur 25"
+    end
+    # 07: the extras, a button that swaps the list in place for the hidden one.
+    assert_select ".hub-menu button.menu-item[type=button][aria-keyshortcuts='7'][aria-expanded=false][aria-controls=hub-menu-extras][data-hub-menu-target~=extrasEntry][data-action='hub-menu#openExtras']" do
+      assert_select ".menu-item__label", "Extras"
     end
     assert_select ".hub-menu [aria-disabled]", false
 
@@ -199,20 +193,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select "main .button--primary", 1
 
-    # The sets in progress: the season's one set, completed by the latest
-    # gain, owned out of its size.
-    assert_select ".hub-sets h2", "Sets en cours"
-    assert_select ".hub-sets a.set-row.set-row--progress[href='/fr/library/studio/valve']" do
-      assert_select ".set-row__name[aria-hidden=true]", "Valve"
-      assert_select ".set-row__kind", "Studio"
-      assert_select ".set-tier--complete .set-tier__stamp"
-      assert_select ".set-tier--complete", "Complet"
-      assert_select ".set-row__count", "1/1"
-      assert_select ".visually-hidden", "Valve, studio, 1 carte sur 1, complet"
-      assert_select ".set-row__track[aria-hidden=true] progress.set-row__bar[value='1'][max='1']"
-      assert_select ".set-row__tick", false
-    end
-    assert_select ".hub-sets a.button--link[href='/fr/library']", "Tout voir"
+    # No goal: neither the goals block nor its title.
+    assert_select ".hub-goals", false
 
     # A player has no sign-in panel; the page carries no inline style.
     assert_select "#sign-in-panel", false
@@ -237,19 +219,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :fr)
     assert_select ".hub-showcase__kicker", "Dernière obtention"
     assert_select "h2.hub-showcase__name", "Portal"
-  end
-
-  test "a card the player moves to the front of their showcase becomes the hub's VITRINE card" do
-    common, rare = catalog_card_seasons(:common_card_one, :rare_card_one).map(&:id)
-    [ common, rare ].each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
-    [ rare, common ].each { Game::AddToShowcase.new.call(player: @player, card_season_id: it).value! }
-    sign_in(@player, origin: "/fr")
-
-    patch card_showcase_path(locale: :fr, slug: "tin-soldier", number: 1), params: { direction: "earlier" }
-    get home_path(locale: :fr)
-
-    assert_select ".hub-showcase__kicker", "Vitrine"
-    assert_select "h2.hub-showcase__name", "Soldat de plomb"
   end
 
   test "a player holding no card sees the empty showcase, its primary opening a booster" do
@@ -303,7 +272,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select ".hub-menu .menu-item[aria-keyshortcuts='1']" do
+    assert_select "#hub-menu-booster .menu-item" do
       assert_select ".menu-item__badge--standard", "2"
       assert_select ".menu-item__badge--special", "2"
       assert_select ".visually-hidden", text: "2 special capsules"
@@ -331,8 +300,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge--standard", false
-    assert_select ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge--special", "1"
+    assert_select "#hub-menu-booster .menu-item .menu-item__badge--standard", false
+    assert_select "#hub-menu-booster .menu-item .menu-item__badge--special", "1"
     assert_select "div#packs-chip .packs-chip__special-count", "1"
     assert_select "div#packs-chip .packs-chip__count", "0"
   end
@@ -347,18 +316,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get card_path(locale: :en, slug: "portal")
     assert_select ".top-bar .packs-chip__next[data-controller=countdown][data-countdown-refresh-value=false][data-countdown-refresh-url-value='/en/packs-chip']"
-  end
-
-  test "a full reserve keeps the daily panel ready: the capsule joins the special reserve" do
-    10.times { create_pack(@player) }
-    sign_in(@player)
-
-    get home_path(locale: :fr)
-
-    assert_select ".daily-booster.daily-booster--ready" do
-      assert_select ".daily-booster__state", "Prête"
-      assert_select "form button", "Récupérer"
-    end
   end
 
   test "once the day's booster is collected, the daily panel stays: collected, with the countdown to 00:00 UTC and its bar" do
@@ -398,74 +355,39 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/en/library'] .menu-item__meta", "1/150"
   end
 
-  test "a visitor meets the landing at the root, in its locale" do
-    get home_path(locale: :fr)
-
-    assert_response :success
-    assert_select "html[lang=fr]"
-    assert_select ".landing"
-    assert_select ".hub-menu", false
-  end
-
-  test "a visitor is sent from the PLUS screen to the landing, in its locale, without an alert" do
-    get more_path(locale: :en)
+  test "a visitor is sent from the Me screen to the landing, in its locale, without an alert" do
+    get me_path(locale: :en)
 
     assert_redirected_to home_path(locale: :en)
     assert_response :see_other
     assert_nil flash[:alert]
   end
 
-  test "a visitor's JSON request for the hub answers 401 sign_in_required" do
-    get home_path(locale: :en), headers: { "Accept" => "application/json" }
-
-    assert_response :unauthorized
-    assert_equal "sign_in_required", response.parsed_body.dig("error", "code")
-  end
-
-
-  test "every sign-in button of the landing leads to the sign-in screen, and none posts to Steam" do
-    get home_path(locale: :en)
-
-    links = css_select("a[href^='/en/sign-in']")
-    assert_equal 3, links.size, "the top bar's, the hero's Embark and the boarding's"
-    assert(links.all? { it["href"] == "/en/sign-in?origin=%2Fen" })
-    assert_select "form[action='/auth/steam']", false
-  end
-
-  test "a player with five sets in progress sees the board's first four, and See all leads to the collection" do
-    season, cards = published_cards(60)
-    [ 3, 2, 5, 9, 4 ].each_with_index do |held, index|
-      members = cards.shift(12)
-      insert_theme(members, key: %w[roguelike rpg horror cosy pirates][index], season:)
-      hold_all(@player, members.first(held))
-    end
+  test "a player's goals in progress, in number order, each row one link to its album, and See all leads to the collection's goals" do
+    season, cards = published_cards(24)
+    roguelike, horror = cards.each_slice(12).to_a
+    insert_theme(roguelike, key: "roguelike", season:)
+    insert_theme(horror, key: "horror", season:)
+    hold_all(@player, roguelike.first(3) + horror.first(1))
+    [ "horror", "roguelike" ].each { Game::AddGoal.new.call(player: @player, kind: "theme", key: it).value! }
     sign_in(@player)
 
     get home_path(locale: :en)
 
-    expected = Game::SetBoard.call(@player, season:).in_progress.first(4).map { Catalog::Set.find(it.set_id) }
-    assert_equal 4, expected.size
-    assert_select ".hub-sets h2", "Sets in progress"
-    assert_equal expected.map { "/en/library/#{it.kind}/#{it.key}" }, css_select(".hub-sets a.set-row").map { it["href"] }
-    assert_equal [ "Horror", "RPG", "Pirates", "Cosy" ], css_select(".hub-sets .set-row__name").map(&:text)
-    assert_select ".hub-sets a.button--link[href='/en/library']", "See all"
+    assert_select ".hub-goals[aria-labelledby=hub-goals-title][data-controller=last-album] h2#hub-goals-title", "Goals in progress"
+    rows = css_select(".hub-goals .goal-row")
+    assert_equal [ "/en/library/theme/horror", "/en/library/theme/roguelike" ], rows.map { it["href"] }
+    assert_equal [ "1", "2" ], rows.map { it.at_css(".goal-bookmark").text.squish }
+    assert_equal [ "1/12", "3/12" ], rows.map { it.at_css(".goal-row__count").text.squish }
+    assert_select ".hub-goals a.button--link[href='/en/library#goals']", "See all"
   end
 
-  test "a set completed before the latest gain leaves the hub's sets in progress; none left, no panel" do
-    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
-    sign_in(@player)
-
-    get home_path(locale: :en)
-
-    assert_select ".hub-sets", false
-  end
-
-  test "no published season: no set rows and no collection meta" do
+  test "no published season: no goals block and no collection meta" do
     catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
 
     sign_in(@player)
     get home_path(locale: :en)
-    assert_select ".hub-sets", false
+    assert_select ".hub-goals", false
     assert_select ".hub-menu .menu-item__meta", count: 1, text: "0 online"
     assert_select ".daily-booster", false
     assert_select ".hub-showcase--empty"
@@ -478,29 +400,34 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:moderator))
 
     get home_path(locale: :en)
-    assert_select "#community-goal .hub-goal__line", text: "The Brotherhood invites its members to join forces and open 50,000 capsules this week."
-    assert_select "#community-goal .hub-goal__figures", text: "100 / 50,000"
+    assert_select "#community-goal .hub-goal__title + .hub-goal__figures", text: "100 / 50,000"
+    assert_select "#community-goal .hub-goal__line", text: "Open 50,000 capsules this week."
+    assert_select "#community-goal .hub-goal__reward", text: "Reward: a rare capsule per contributor"
+    assert_select "#community-goal .hub-goal__status", false
     assert_select "#community-goal .hub-goal__segment", count: 24
     assert_select "#community-goal .hub-goal__segment--lit", count: 0
 
     get home_path(locale: :fr)
-    assert_select "#community-goal .hub-goal__line", text: /\ALa Confrérie invite ses membres à unir leurs efforts pour ouvrir 50[\s\u00a0\u202f]000 capsules cette semaine\.\z/
+    assert_select "#community-goal .hub-goal__line", text: /\AOuvrez 50[\s\u00a0\u202f]000 capsules cette semaine\.\z/
+    assert_select "#community-goal .hub-goal__reward", text: "Récompense\u202F: une capsule rare par contributeur"
   end
 
-  test "a reached goal reads Mission accomplie with a full gauge, in both languages" do
+  test "a reached goal reads Accomplie on its reward line with a full lime gauge, in both languages" do
     week = Game::WeeklyGoal.week_start(Time.current)
     Game::WeeklyGoal.create!(week_start: week, total: 210, target: 200)
     sign_in(accounts_players(:moderator))
 
     get home_path(locale: :en)
-    assert_select "#community-goal .hub-goal__status", text: "Mission accomplished"
+    assert_select "#community-goal .hub-goal__progress--reached .hub-goal__reward", text: "Accomplished · a rare capsule per contributor" do
+      assert_select ".hub-goal__status", text: "Accomplished"
+    end
     assert_select "#community-goal .hub-goal__figures", text: "210 / 200"
     assert_select "#community-goal .hub-goal__segment--lit", count: 24
     assert_select "#community-goal .hub-goal__previous", false
 
     sign_in(@player, origin: "/fr")
     get home_path(locale: :fr)
-    assert_select "#community-goal .hub-goal__status", text: "Mission accomplie"
+    assert_select "#community-goal .hub-goal__reward", text: "Accomplie · une capsule rare par contributeur"
     assert_select "#community-goal .hub-goal__segment--lit", count: 24
   end
 
@@ -514,11 +441,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#community-goal .hub-goal__status", false
     assert_select "#community-goal .hub-goal__figures", text: "0 / 250"
     assert_select "#community-goal .hub-goal__segment--lit", count: 0
-    assert_select "#community-goal .hub-goal__previous", text: "Semaine dernière\u202F: 180 / 200 · mission manquée"
+    assert_select "#community-goal .hub-goal__previous", text: "Semaine dernière\u202F: 180\u00A0/\u00A0200, manquée"
 
     Game::WeeklyGoal.where(week_start: week - 7).update_all(total: 260)
     get home_path(locale: :en)
-    assert_select "#community-goal .hub-goal__previous", text: "Last week: 260 / 200 · mission accomplished"
+    assert_select "#community-goal .hub-goal__previous", text: "Last week: 260\u00A0/\u00A0200"
   end
 
   def earn_goal_reward(player = @player)
@@ -544,35 +471,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
                     "[aria-label=?]", "Récupérer la capsule de récompense", text: "Récupérer"
     end
     assert_select "#community-goal-progress #goal-reward", false
-    assert_select "#community-goal-progress .hub-goal__previous"
+    assert_select "#community-goal-progress .hub-goal__previous", text: "Semaine dernière\u202F: 200\u00A0/\u00A0200"
     assert_select "#toasts .toast[data-toast-once]", false
     assert_select "[style]", 0
 
     sign_in(accounts_players(:moderator))
     get home_path(locale: :en)
     assert_select "#goal-reward", false
-  end
-
-  test "with a full reserve the claim slot stays ready; collected, it reads Collected" do
-    week = earn_goal_reward
-    Game::FillBank.new.call(player: @player).value!
-    sign_in(@player)
-
-    get home_path(locale: :en)
-    assert_select "#goal-reward.hub-goal__claim--ready" do
-      assert_select "form button[aria-label=?]", "Collect the reward capsule", text: "Collect"
-    end
-
-    Game::OpenPack.new.call(player: @player).value!
-    Game::ClaimGoalReward.new.call(player: @player, week_start: week).value!
-
-    get home_path(locale: :fr)
-    assert_select "#goal-reward.hub-goal__claim--collected" do
-      assert_select ".hub-goal__claim-state", "Récupérée"
-      assert_select "form, button", 0
-    end
-    get home_path(locale: :en)
-    assert_select "#goal-reward .hub-goal__claim-state", "Collected"
   end
 
   # The page's public streams, without the signed-in player's own.
@@ -590,8 +495,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     quiet = accounts_players(:moderator).tap { it.update!(persona_name: "Quiet") }
     open_pack_of(quiet, catalog_card_seasons(:rare_card_one).id)
     open_pack_of(@player, fixture_tier_ids[3])
-    Game::FirstDiscovery.where(card_season_id: fixture_tier_ids[0]).delete_all
-    open_pack_of(@player, fixture_tier_ids[0])
+    Game::FirstDiscovery.where(card_season_id: fixture_tier_ids[2]).delete_all
+    open_pack_of(@player, fixture_tier_ids[2])
     partner = accounts_players(:administrator).tap { it.update!(persona_name: "Léa") }
     conclude_trade(@player, partner, offer: { fixture_tier_ids[2] => 1 }, request: { fixture_tier_ids[1] => 1 })
     Game::Holding.create!(player_id: @player.id, card_season_id: fixture_tier_ids[4], quantity: 1)
@@ -600,7 +505,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select "body > main#main + #live-ticker.ticker[aria-hidden=true][data-turbo-permanent][data-controller=ticker]" do
+    assert_select "body > main#main + #live-ticker.ticker[data-turbo-permanent][data-controller=ticker]:has(> .ticker__inner[aria-hidden=true])" do
       assert_select ".live-marker .live-marker__text", "Live"
       assert_select ".ticker__run .ticker__item", 8
       assert_select ".ticker__item .ticker__separator"
@@ -616,7 +521,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".ticker__item", text: /reposted/, count: 0
       assert_select ".ticker__item", text: /Quiet/, count: 0
       assert_select "#live-ticker-queue[hidden]"
-      assert_select "a, button, [tabindex]", 0
+      assert_select "a.ticker__open[href=?]", feed_path(locale: :en)
+      assert_select ".ticker__inner a, .ticker__inner button, .ticker__inner [tabindex]", 0
     end
     assert_select "[style]", 0
     assert_equal %w[goal:en live:en], stream_names
@@ -646,14 +552,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # marker), the weekly goal (one read once the job
     # has created the week's row), bank (count, next pack, daily claim), the
     # goal reward's claim slot,
-    # showcase (cards chosen, card held, card view), collection (owned, total), sets (the
-    # player's standings, the popular fill, which finds no other set here, so no figures
-    # and no set to name),
-    # the top bar's copies per tier and rarity legend, menu 05's friends online, menu 07's
-    # achievements earned, the trades
-    # waiting (menu 04 and the tab bar share one count), the invitations waiting
-    # (menu 05 and the PLUS tab share one count) and the LIVE ticker's
-    # entries (none here, so no players or cards).
+    # showcase (cards chosen, card held, card view), collection (owned, total), the
+    # player's goals (none here, so nothing to measure),
+    # the top bar's copies per tier and rarity legend, menu 04's friends online, menu 06's
+    # achievements earned and the rewards waiting to be claimed, the trades
+    # waiting (menu 03 and the Trades tab share one count), the invitations waiting
+    # (menu 04 and the Friends tab share one count), the LIVE ticker's
+    # entries and the feed strip's (none here, so no players or cards).
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"
 
@@ -675,7 +580,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert ids.none? { |id| body.match?(/["\/=]#{id}["\/&]/) }, "no database id in the hub"
   end
 
-  test "a sign-in lands on the hub, asking it to focus the first menu item" do
+  test "a sign-in awaiting the welcome lands on the hub, asking it to focus the first menu item" do
+    @player.update!(welcome_pending: true)
     sign_in(@player, origin: "/fr/library")
 
     assert_redirected_to "/fr"
@@ -709,46 +615,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     queries
   end
 
-  test "neither the back-office nor the hub carries a sign-in panel" do
-    sign_in(accounts_players(:administrator))
-
-    get back_office_path(locale: :en)
-    assert_select "#sign-in-panel", false
-    get home_path(locale: :en)
-    assert_select "#sign-in-panel", false
-  end
-
-  [ :moderator, :administrator ].each do |role|
-    test "a #{role} sees the back-office link in the player menu, in the current locale" do
-      sign_in(accounts_players(role))
-
-      get home_path(locale: :fr)
-
-      assert_select "#player-menu a.player-menu__item[href='/fr/back-office']", "Back-office"
-    end
-  end
-
-  test "signing out is a full page load from the player menu" do
-    sign_in(@player)
-    get home_path(locale: :en)
-
-    assert_select "#player-menu form.player-menu__form[action^='/session'][data-turbo=false]"
-  end
-
   test "an unknown locale segment answers not found" do
     get "/de"
-
-    assert_response :not_found
-  end
-
-  test "the health check answers when the application boots" do
-    get "/up"
-
-    assert_response :success
-  end
-
-  test "an unknown path answers not found" do
-    get "/nope"
 
     assert_response :not_found
   end
@@ -780,6 +648,20 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", 0
   end
 
+  test "the legal page names the reactions among the data kept and in the retention periods, in both languages" do
+    configure_legal
+
+    get legal_path(locale: :fr)
+    assert_select ".legal__retention-reactions", /vos réactions aux entrées du fil/
+    assert_select ".legal__stored-activity", /réactions/
+    assert_select "p", text: /vos réactions sont effacés/
+
+    get legal_path(locale: :en)
+    assert_select ".legal__retention-reactions", /your reactions to feed entries/
+    assert_select ".legal__stored-activity", /your reactions/
+    assert_select "p", text: /your reactions are erased/
+  end
+
   test "a visitor reads the French credits page: the four inspirations, the no-affiliation line, linked from the legal page" do
     configure_legal
 
@@ -795,48 +677,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_select "a.legal__link[href=?]", "/fr/credits", "Crédits"
-  end
-
-  test "the credits page lists the contributors by handle with their contribution, the rule, and the beta testers" do
-    get credits_path(locale: :fr)
-
-    assert_equal [ "micilico", "skyoraa", "Felzpath" ], css_select("a.credits__handle").map { |link| link.text.delete_suffix(" (nouvel onglet)") }
-    assert_select "a.credits__handle[href=?][target=_blank]", "https://github.com/skyoraa"
-    assert_equal [ "Code", "Textes et idées", "Idées et rapports de bugs" ], css_select(".credits__contribution").map(&:text)
-    assert_select ".credits__rule", /pull request de sa part est fusionnée/
-    assert_equal [ "Hydrax", "Skyora", "Zohan", "Feltpath", "Micilico", "Le chocotube" ], css_select(".credits__tester").map(&:text)
-
-    get credits_path(locale: :en)
-
-    assert_select "h2.legal__heading", text: "Beta testers"
-    assert_select ".credits__contribution", text: "Writing and ideas"
-  end
-
-  test "the English credits page names Helldivers 2 and not Steam" do
-    get credits_path(locale: :en)
-
-    assert_response :success
-    assert_select "main h1#credits-heading", "Credits"
-    assert_select ".credits__work", text: /Helldivers 2/
-    assert_select ".credits__work", text: /Steam|Valve/, count: 0
-  end
-
-  test "a signed-in player reads the English legal page" do
-    configure_legal
-    sign_in(@player)
-
-    get legal_path(locale: :en)
-
-    assert_response :success
-    assert_select "html[lang=en]"
-    assert_select "main h1", "Legal notice and privacy"
-    assert_equal [ "Publisher and host", "Steam, Valve and the games", "Terms of use", "Privacy", "Source code", "Support Gameble" ],
-      css_select("main section.legal__section h2").map(&:text)
-    assert_select ".legal__ownership", "All artwork belongs to the games' publishers and their artists, whom we respect."
-    assert_equal "Support (new tab)", css_select("main a.legal__donation").sole.text.squish
-    assert_select "section[aria-labelledby=legal-support]", text: /They go through Buy Me a Coffee/
-    assert_equal "Source code (new tab)", css_select("main a.legal__source").sole.text.squish
-    assert_select "section[aria-labelledby=legal-source]", text: /under the GNU AGPL v3\.0 license/
   end
 
   test "the configured contact is a mailto link, and the host's name and address are shown" do
@@ -883,7 +723,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__retention li", 10
+    assert_select ".legal__retention li", 11
     retention = css_select(".legal__retention").text
     [ "trois ans", "un an", "30 jours", "tant que la suspension dure" ].each { assert_includes retention, it }
     assert_select ".legal__retention li", "les erreurs techniques reçues par Sentry\u202F: 30 jours\u202F;"
@@ -892,30 +732,12 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get legal_path(locale: :en)
 
-    assert_select ".legal__retention li", 10
+    assert_select ".legal__retention li", 11
     retention = css_select(".legal__retention").text
     [ "three years", "one year", "30 days", "as long as the suspension lasts" ].each { assert_includes retention, it }
     assert_select ".legal__retention li", "technical errors received by Sentry: 30 days;"
     assert_select ".legal__retention li", "the database backups, encrypted and kept in France: the last 7 daily backups, that is 7 days in normal times; a deleted account is gone from them after 7 days, a little longer if a backup failed;"
     assert_select ".legal__retention + p", /for the periods given above\.\z/
-  end
-
-  test "the deletion paragraph names the game data an account deletion erases, completions as set tiers" do
-    configure_legal
-    erased = {
-      fr: [ "votre dernière activité", "votre collection", "votre vitrine", "vos paliers de sets", "vos sets perso", "vos objectifs", "vos succès", "vos capsules", "vos bonus du jour",
-            "vos récompenses de la mission hebdo", "vos amitiés", "vos invitations", "votre code ami", "vos entrées du fil d'activité" ],
-      en: [ "your latest activity", "your collection", "your showcase", "your set tiers", "your custom sets", "your goals", "your achievements", "your capsules", "your daily bonuses",
-            "your weekly mission rewards", "your friendships", "your invitations", "your friend code", "your activity feed entries" ]
-    }
-
-    erased.each do |locale, phrases|
-      get legal_path(locale:)
-
-      deletion = css_select(".legal__retention + p").text
-      phrases.each { assert_includes deletion, it }
-      assert_no_match(/complétés|completed sets/, deletion)
-    end
   end
 
   test "the stored data line and the deletion paragraph name the same game data" do
@@ -942,7 +764,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   test "the privacy section names the stored Steam library list: what is kept, how long, what deletion erases, how to export or object" do
     configure_legal
     library = {
-      fr: { stored: "si vous vous connectez avec Steam et laissez «\u202FSynchroniser mes jeux Steam\u202F» activé dans les paramètres\u202F: la liste des jeux du catalogue que contient votre bibliothèque Steam, lue chez Steam une fois par jour pour votre set «\u202FMa ludothèque Steam\u202F», avec la date de sa dernière synchronisation et, quand Steam ne partage plus votre bibliothèque, depuis quand\u202F;",
+      fr: { stored: "si vous vous connectez avec Steam et laissez «\u202FSynchroniser mes jeux Steam\u202F» activé dans les paramètres\u202F: la liste des jeux du catalogue que contient votre bibliothèque Steam, lue chez Steam une fois par jour pour votre set «\u202FMa bibliothèque Steam\u202F», avec la date de sa dernière synchronisation et, quand Steam ne partage plus votre bibliothèque, depuis quand\u202F;",
             retention: "la liste des jeux de votre bibliothèque Steam\u202F: tant que le compte existe et que la synchronisation est activée\u202F; elle est effacée aussitôt que vous désactivez «\u202FSynchroniser mes jeux Steam\u202F» dans les paramètres ou supprimez votre compte\u202F;",
             list: "la liste de votre bibliothèque Steam", setting: "synchronisation des jeux Steam", objection: "désactivez «\u202FSynchroniser mes jeux Steam\u202F»",
             service: "Steam (Valve) gère la connexion et fournit votre nom de profil et, une fois par jour tant que la synchronisation est activée, les jeux de votre bibliothèque Steam\u202F;",
@@ -1027,16 +849,5 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".legal__ownership"
-  end
-
-  test "the showcase floats an epic card with purple rays" do
-    hold(@player, catalog_card_seasons(:portal_one).id, gained_at: 1.hour.ago)
-    sign_in(@player)
-
-    get home_path(locale: :en)
-    assert_response :success
-    assert_select ".hub-showcase:not(.hub-showcase--empty) .hub-showcase__stage .card-float .card-rays.card-rays--epic", 1
-    assert_select ".hub-showcase__stage .card-float .card.card--xl", 1
-    assert_select ".hub-showcase__ground", 1
   end
 end

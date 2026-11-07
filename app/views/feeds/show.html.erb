@@ -1,17 +1,15 @@
 <% content_for :back_button, true %>
 <% content_for :title, t(".title") %>
-<% content_for :screen_title, t(".title") %>
+<% content_for :screen_title, t(".screen_title") %>
 <% if current_player %>
   <% content_for :phone_back do %>
-    <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
-      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
-    <% end %>
+    <%= phone_back_link t("shell.tabs.hub"), home_path %>
   <% end %>
 <% end %>
 <%= tag.section class: "feed", aria: { labelledby: "feed-heading" },
       data: ({ controller: "feed-announcer", feed_announcer_templates_value: t(".announcement").to_json } if @live) do %>
   <h1 id="feed-heading" class="feed__title"><%= t(".title") %></h1>
-  <div class="feed__controls" data-controller="current-chips">
+  <div class="feed__controls">
     <nav class="feed__tabs" aria-label="<%= t(".tabs_label") %>">
       <%= feed_chip_link t(".tabs.all"), feed_path(filter: @filter), current: @tab.nil?, classes: "feed__tab" %>
       <% if current_player %>
@@ -22,12 +20,12 @@
         <% end %>
       <% end %>
     </nav>
-    <nav class="feed__filters" aria-label="<%= t(".filters_label") %>">
-      <% [ nil, *FeedsController::FILTERS.keys ].each do |filter| %>
-        <%= feed_chip_link t(".filters.#{filter || "all"}"), feed_path(tab: @tab, filter:), current: filter == @filter, classes: "feed__filter" %>
-      <% end %>
-    </nav>
+    <%= render "feeds/filters", filter: @filter, tab: @tab, classes: "feed__filters feed__filters--inline" %>
+    <%= tag.a(**bottom_sheet_opener(feed_types_sheet_id, page: feed_types_path(tab: @tab, filter: @filter)), class: "filter-chip feed__type-opener") do %>
+      <span class="filter-chip__text"><%= t(".filters_opener", type: t(".filters.#{@filter || "all"}")) %></span>
+    <% end %>
   </div>
+  <%= render "feeds/types_sheet", filter: @filter, tab: @tab %>
   <% if @no_friends %>
     <%= render PanelComponent.new(class: "feed__no-friends") do %>
       <p class="feed__no-friends-text"><%= t(".no_friends") %></p>
@@ -35,10 +33,16 @@
     <% end %>
   <% else %>
     <% if @live || @items.any? %>
-      <%= tag.div data: { controller: "next-page", action: "focusout->next-page#focusLeft" } do %>
+      <%= tag.div data: { controller: "next-page feed-newer", action: "focusout->next-page#focusLeft", feed_newer_live_value: @live } do %>
+        <div class="feed__newest" data-feed-newer-target="newest" hidden>
+          <%= link_to feed_path(filter: @filter, tab: @tab), class: "feed__newest-pill", data: { action: "feed-newer#newest", turbo_prefetch: false } do %>
+            <%= pixel_icon("arrow-left", class: "feed__newest-icon") %><span><%= t(".pages.newest") %></span>
+          <% end %>
+        </div>
+        <%= render "feeds/newer", newer_cursor: @newer_cursor, filter: @filter, tab: @tab %>
         <%= tag.ul class: "feed__list", id: "feed-entries", data: ({ feed_announcer_target: "list" } if @live) do %>
           <% @items.each do |item, card, partner_card, set| %>
-            <%= render "feeds/entry", item:, card:, partner_card:, set: %>
+            <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions: @reactions, target: @target %>
           <% end %>
         <% end %>
         <%= render "feeds/pages", next_cursor: @next_cursor, filter: @filter, tab: @tab %>
@@ -48,6 +52,8 @@
       <%= render PanelComponent.new(tag: :p, class: "feed__empty") do %><%= @filter ? t(".empty_filter") : t(".empty") %><% end %>
     <% end %>
   <% end %>
+  <p id="reaction-status" class="visually-hidden" role="status"></p>
+  <%= turbo_stream_from(*ReactionStream.streamables) %>
   <% if @live %>
     <p class="visually-hidden" role="status" data-feed-announcer-target="status"></p>
     <%= turbo_stream_from(*LiveStream.feed_streamables) %>

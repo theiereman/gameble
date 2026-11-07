@@ -128,7 +128,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
       assert_select ".booster__state-word span[data-status=legendarySignal]", "Legendary signal"
     end
     assert_select "#{ROOT} .booster-strip h2#booster-title", "Season 1 · Grand catalogue"
-    assert_select "#{ROOT} .booster__actions button.booster__open", "Open the capsuleOpen the next oneReserve empty"
+    assert_select "#{ROOT} .booster__actions button.booster__open", "Open the capsuleOpen the next oneReserve emptySkip"
     assert_select "#{ROOT} .booster__actions button.booster__reveal-all[disabled]", "Reveal all"
     assert_select "#{ROOT} .booster__actions a", 0
 
@@ -218,8 +218,11 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal "application/json", response.media_type
-    assert_equal({ "bank" => { "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextSpecialKind" => nil, "nextAvailableAt" => "2026-10-06T14:32:00.000Z",
-      "serverTime" => "2026-10-06T14:26:00.000Z", "nextPackSize" => 5 } }, response.parsed_body)
+    assert_equal %w[bank held], response.parsed_body.keys
+    assert_equal({ "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextSpecialKind" => nil, "nextAvailableAt" => "2026-10-06T14:32:00.000Z",
+      "serverTime" => "2026-10-06T14:26:00.000Z", "nextPackSize" => 5, "nextSpecialSize" => nil }, response.parsed_body["bank"])
+    assert_equal Game::Reserve.available(@player.id, "standard", now:).first.token, response.parsed_body.dig("held", "standard", "pack", "token")
+    assert_nil response.parsed_body.dig("held", "special")
     assert_empty json_keys(response.parsed_body).grep(/\Aid\z|Id\z/)
   end
 
@@ -271,7 +274,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".packs-chip--static .packs-chip__label", "en réserve"
   end
 
-  test "a daily bonus pack first in line: the screen is told the next booster holds three cards" do
+  test "each reserve tells the size of its own next capsule, the older daily one not counting for the standard reserve" do
     create_pack(@player, kind: :bonus, available_at: 2.hours.ago)
     create_pack(@player, available_at: 1.hour.ago)
     sign_in(@player)
@@ -279,7 +282,11 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     get booster_path(locale: :en)
 
     assert_response :success
-    assert_equal [ 3, "5" ], [ bank_value("nextPackSize"), value("pack-size") ]
+    assert_equal [ 5, 3, "5" ], [ bank_value("nextPackSize"), bank_value("nextSpecialSize"), value("pack-size") ]
+    assert_select "#{ROOT} .booster__canister-facts", "5 cards"
+
+    get booster_path(locale: :en, reserve: :special)
+
     assert_select "#{ROOT} .booster__value", "3"
     assert_select "#{ROOT} .booster__canister-facts", "3 cards"
   end
@@ -399,28 +406,72 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{ROOT} [role=tab][data-reserve=special][disabled]", text: /No special capsule yet/
   end
 
-  test "each special origin is told to the screen so the canister wears its own look" do
-    create_pack(@player, kind: :bonus, available_at: 1.hour.ago)
+  # --- The capsule each reserve holds ------------------------------
+
+  def held_value = JSON.parse(value("held"))
+
+  test "the screen and its JSON carry the held capsule of each reserve: the equipped back, the cards with their faces, the counts now" do
+    common, portal = %i[common_card_one portal_one].map { catalog_card_seasons(it).id }
+    Game::Holding.create!(player_id: @player.id, card_season_id: portal, quantity: 2)
+    Game::CardBackUnlock.record(@player.id, "set-theme-rpg", Time.current)
+    Game::PlayerState.where(player_id: @player.id).update_all(active_card_back: "set-theme-rpg")
+    standard = create_pack(@player, cards: [ common, portal, common, portal, portal ], available_at: 2.minutes.ago)
+    create_pack(@player, available_at: 1.minute.ago)
+    special = create_pack(@player, kind: :bonus, cards: fixture_tier_ids.last(3))
     sign_in(@player)
 
-    get booster_path(locale: :en)
-    assert_select "#{ROOT}[data-origin=bonus]"
+    assert_no_difference -> { Game::Pack.where(player_id: @player.id, opened_at: nil).count } do
+      get booster_path(locale: :en)
+    end
 
-    Game::Pack.where(player_id: @player.id).delete_all
-    create_pack(@player, kind: :reward, available_at: 1.hour.ago)
+    assert_response :success
+    held = held_value
+    assert_equal %w[standard special], held.keys
+    assert_equal [ standard.token, special.token ], held.values.map { it.dig("pack", "token") }
+    assert_equal %w[regular bonus], held.values.map { it.dig("pack", "kind") }
+    assert_equal %w[pack cards tierCountsBefore], held["standard"].keys
+    assert_equal "/en/packs/#{standard.token}/reveal", held.dig("standard", "pack", "revealUrl")
+    assert_equal [ "set-theme-rpg" ] * 2, held.values.map { it.dig("pack", "cardBack", "key") }
+    cards = held.dig("standard", "cards")
+    assert_equal %w[tin-soldier portal tin-soldier portal portal], cards.map { it["slug"] }
+    assert_equal [ true, false, false, false, false ], cards.map { it["firstCopy"] }
+    assert_equal [ "" ] * 5, cards.map { it["goals"] }
+    assert_equal [ %w[s m xl] ] * 5, cards.map { it["faces"].keys }
+    assert_equal 1, Nokogiri::HTML5.fragment(cards.first.dig("faces", "m")).css(".card.card--m.card--booster").size
+    counts = Game::TierCounts.call(@player).transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }
+    assert_equal 2, counts.values.sum
+    assert_equal [ counts ] * 2, held.values.map { it["tierCountsBefore"] }
+    assert_empty json_keys(held).grep(/\Aid\z|Id\z/)
 
-    get booster_path(locale: :en)
-    assert_select "#{ROOT}[data-origin=reward]"
+    get booster_path(locale: :en, format: :json)
+    assert_equal held, response.parsed_body["held"]
   end
 
-  test "the standard reserve carries no origin look, even with a special capsule waiting" do
-    create_pack(@player, available_at: 1.hour.ago)
-    create_pack(@player, kind: :bonus, available_at: 1.hour.ago)
+  test "an empty reserve or a capsule of an earlier season holds nothing" do
+    create_pack(@player, available_at: 1.hour.from_now)
     sign_in(@player)
 
     get booster_path(locale: :en)
+    assert_equal({ "standard" => nil, "special" => nil }, held_value)
 
-    assert_equal "standard", value("reserve")
-    assert_select "#{ROOT}[data-origin]", 0
+    create_pack(@player)
+    publish_sets_draft
+    Game::DrawPool.reset!
+    get booster_path(locale: :en, format: :json)
+    assert_equal({ "standard" => nil, "special" => nil }, response.parsed_body["held"])
+  end
+
+  test "the held capsule carries what its opening answers for the same cards" do
+    create_pack(@player, cards: fixture_tier_ids, available_at: 2.minutes.ago)
+    create_pack(@player)
+    sign_in(@player)
+    get booster_path(locale: :en, format: :json)
+    held = response.parsed_body.dig("held", "standard")
+
+    post packs_path(locale: :en), params: { pack: held.dig("pack", "token") },
+      headers: { "Accept" => "application/json", "Idempotency-Key" => "3c1f9a2e-7d4b-4c8a-b5e6-0f2d9e8a1b7c" }
+
+    assert_response :ok
+    assert_equal held, response.parsed_body.slice("pack", "cards", "tierCountsBefore")
   end
 end

@@ -1,0 +1,171 @@
+# tickets.toml — the stories of the phone-first web epic, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "A header that fits on a phone"
+description = "The top-level header shows the G home button, one merged capsule counter and the bell slot, hiding on scroll down and returning on scroll up on long lists, with the page title kept as a visually hidden heading; the merged counter tells standard and special capsules apart by shape as well as colour and opens a small detail on tap; the version and legal line stops covering content and the audit's small text and tap targets are raised."
+verify = "At 390 by 844 on every top-level screen the header shows no clipped title, the merged counter opens its detail, the version and legal line overlaps nothing, and a script check finds no tap target under 44 px on the touched screens."
+covers = ["R1"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Four tabs and no More"
+description = "The bottom bar holds Capsule, Sets, Social and Me; every former More destination moves under one of them, all cards becomes a view of Sets, and drill-down screens shrink the header to a back button; the four tab icons are drawn in the pixel-art source and exported."
+verify = "From the four tabs a player reaches every destination of the former More within two taps; a drill-down screen shows only a back button; the old More screen is gone and its routes redirect; the pixel export check passes."
+covers = ["R1"]
+after = [1]
+hitl = false
+risk = "medium"
+unknown = "which tab receives achievements, how to play and support until the Me page entry lands"
+
+[[entry]]
+id = 3
+type = "story"
+title = "A bottom sheet for every choice"
+description = "A shared bottom sheet that rises over the view, is opened by a server-rendered link, closes by gesture, button or escape, traps focus and honours reduced motion, driven by one Stimulus controller and used first by a quick-filter menu; it also works on desktop."
+verify = "A system test at phone width opens, closes and refocuses the sheet by touch and keyboard, and a screen reader announces it as a dialog; on desktop the same sheet opens centred."
+covers = ["R3"]
+after = []
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "A card list that scrolls without end"
+description = "The card list paginates without end with server-rendered pages appended on demand, returns to the same position after a card detail, and offers a top search and three pastilles (goal, rarity, state) that each open the bottom sheet; the stacked search and filter rows are replaced by this one row."
+verify = "With 100 or more cards a player scrolls through every page, opens a card, goes back and lands on the same card; each pastille narrows the list; a performance measure is recorded before and after at phone width."
+covers = ["R3"]
+after = [2, 3, "28.9"]
+hitl = false
+risk = "high"
+unknown = "how scroll position is restored with appended pages, and the cost of the art pixelation while scrolling"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Sets that open on your goals"
+description = "The Sets tab opens on the player's goals (up to five) as compact tiles with progress and the missing cards as thumbnails that open the missing card's detail (where the trade button lands), suggests the closest-to-complete sets with a one-tap goal when there is none, then lists the other sets by closeness to completion, grouped by type, with a search and a switch to the all-cards view."
+verify = "A player with goals sees them first with progress and missing cards; a player with none sees suggestions and sets one goal in a tap; the other sets are searched, sorted and grouped by type."
+covers = ["R3"]
+after = [2, 4, "28.9"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Open every capsule from one thumb"
+description = "The capsule screen is the landing screen with the next capsule preselected and one primary button that opens it and then moves to the next, chaining until the reserve is empty; the daily capsule shows as a ready slot collected with a tap; a short animation can be skipped and honours reduced motion; the next capsule's art is warmed during the current reveal; the end of a capsule shows all its cards."
+verify = "A player with several capsules opens them in a row with one button, collects the daily capsule with a tap, sees all cards of a capsule at its end, and the next capsule starts without a visible wait."
+covers = ["R2"]
+after = [2]
+hitl = false
+risk = "medium"
+unknown = "whether warming the next capsule's art fits the filter's two to four jobs"
+
+[[entry]]
+id = 7
+type = "story"
+title = "An empty reserve proposes what to do next"
+description = "With no capsule left the capsule screen proposes, in order, sets, friends and trades, then personalization and achievements, each with one live hook (sets close to complete, a friend holding a card you need, something new to unlock), and shows the next daily capsule time; the same state shows on desktop."
+verify = "A player with an empty reserve sees the three proposals with their hooks on phone and desktop, each leading to the right screen; with no hook data the proposal still shows without it."
+covers = ["R2"]
+after = [6, "28.9", "29.2"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Social opens on trades and friends"
+description = "The Social tab shows trades in progress first with those waiting on the player on top, then the friends list, with the feed as a secondary section, and add-friend and new-trade actions at the bottom; a trade row shows the person, whose turn it is (derived from who sent last) and the highest rarity among its cards, with expired or accepted trades shown quietly; the weekly community goal shows here; the feed has a single Friends or Everyone toggle with its type filters in a bottom sheet, which fixes the cut-off filter chips."
+verify = "A player with open trades sees the ones waiting on them first, each row showing person, turn and highest rarity; the friends list and the two bottom actions work; the feed is reachable and a GET writes nothing."
+covers = ["R4"]
+after = [2, 3]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 9
+type = "story"
+title = "Trade from a missing card"
+description = "On the detail of a card the player does not own, a Trade button opens a bottom sheet of every friend who holds it, a single copy included, for any missing card, and choosing one sends a trade with the player's own side left empty and the friend's side filled, reusing ProposeTrade, the open request and the friend ranking of the trade suggestions; the player then waits for the answer."
+verify = "From a missing card a player picks a friend in the sheet and the trade is sent with their side empty; the friend sees the invitation to choose; a private friend or one with an open trade is refused as today."
+covers = ["R4"]
+after = [3, 5, 8, "29.2"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 10
+type = "story"
+title = "A bell with what is new"
+description = "A pixel bell in the header (drawn in the pixel-art source and exported) opens a dropdown from the top listing a friend request, a trade waiting on the player, the daily capsule and the community goal, computed from current state, one sentence and one action per line, an item clearing when its target is opened and the daily item replacing itself; it also appears on desktop."
+verify = "With a pending request, a trade waiting on the player and a ready daily capsule the bell shows a counter and a line each leading to its target; opening a target clears its line; desktop shows the same bell; the pixel export check passes."
+covers = ["R5"]
+after = [1]
+hitl = false
+risk = "high"
+unknown = "the community goal's line and its wording"
+
+[[entry]]
+id = 11
+type = "story"
+title = "A trade updated since you last looked"
+description = "A last-seen marker per player and trade, written behind a POST or a job and never by a GET, adds the line that tells the bell a trade changed since the player last opened it and links straight to it."
+verify = "A trade answered by the friend shows in the bell until its owner opens it, then no more; opening it writes the marker through a POST or a job, and a GET of the trade writes nothing."
+covers = ["R5"]
+after = [10]
+hitl = false
+risk = "high"
+unknown = "where the marker is stored and how it fits the rule that a GET never writes"
+
+[[entry]]
+id = 12
+type = "story"
+title = "A Me page that is your profile, edited live"
+description = "The Me tab shows the public profile with the card back, the showcase and the title editable by touching them through bottom sheets and the result shown at once, with inline previews of the achievements and one link to the settings page; the separate personalization page goes."
+verify = "A player changes a card back and the showcase from the Me page and sees them change immediately; a visitor sees the same profile; the settings page is one tap away and still holds language, sign-ins, data, deletion, support and legal."
+covers = ["R6"]
+after = [2, 3]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 15
+type = "story"
+title = "Social on every width"
+description = "Social becomes one screen at every width: on desktop the hub menu merges Trades, Friends and Feed into one Social entry (seven entries, keys 1 to 7, the friends-online count and the trades and invitations badges side by side), and Social opens with the weekly mission as a band at the top (it stays on the hub), then a preview of the feed's latest entries with the live marker and its link to the feed in the section head, then trades in a wide column and friends beside them, the add-friend and new-trade actions in the page heading; on the phone the same order in one column, two feed entries, and a compact trade row without avatar whose turn sits under the name in its colour with a left edge; Trades, Friends, the feed and a trade name Social in their back button at every width."
+verify = "On desktop the hub menu shows seven entries with Social and its two badges, keys 1 to 7 open them, and Social shows the mission band, three feed entries, the trades and the friends as in the mock; at 390 by 844 the same screen shows the mission first, two feed entries and one-line compact trade rows; Trades, Friends, the feed and a trade opened from the bell show a back to Social; a GET of Social writes nothing."
+covers = ["R4", "R7"]
+after = [2, 8, 10]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 13
+type = "story"
+title = "The path checked on a real iPhone"
+description = "A person walks the phone path on a real iPhone in Safari: safe areas, the retracting address bar, the keyboard on the search and trade fields, and the capsule reveal, and records what must be fixed."
+verify = "A written list of what was seen on the device, each item fixed or deferred with the author's say, then the phone experience is released in 1.2.0."
+covers = ["R1", "R2", "R3", "R4", "R5", "R6", "R7"]
+after = [5, 7, 9, 11, 12, 15]
+hitl = true
+risk = "low"
+
+[[entry]]
+id = 14
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, with its scope set when it starts from the build records and the review findings deferred during the epic."
+verify = "The cleanup items listed at its start are done and the suite stays green."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 13]
+hitl = false
+risk = "low"

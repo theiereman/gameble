@@ -473,3 +473,164 @@
 ## Deferred from: build of story-the-community-weekly-goal-is-called-the-weekly-mission-every-plan (2026-10-31)
 
 - The roadmap's milestones and stories are stored data the author writes in the back office (French and English wording per story), so the rename left them untouched. If one of them names "l'objectif communautaire" / "the community goal", the author rewords it to the weekly mission ("la mission hebdo" / "the weekly mission") from the back office's roadmap pages.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-header-that-fits-on-a-phone-plan.md`
+  summary: Raising the phone font tokens (label, kicker, button-sm) to 12px is not checked for overflow on fixed-width chips, tab labels and hub kickers.
+  evidence: maybe-false, medium if true; a 390px capture of the hub, collection and trades settles it.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-header-that-fits-on-a-phone-plan.md`
+  summary: On phone, screens with a top_bar_status (the collection) show the G but no merged capsule counter.
+  evidence: the status replaces the header counters in the template; the author decides whether the counter joins the status or replaces it.
+
+## Deferred from: build of story-open-every-capsule-from-one-thumb-plan (2026-11-03)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-open-every-capsule-from-one-thumb-plan.md`
+  summary: Collecting the daily capsule on the capsule screen selects the special tab only while no hand is on the table; right after the last standard capsule (hand still dealt) the empty standard tab stays selected until the player taps SPÉCIALES.
+  evidence: `dailyCapsuleChosen` in `app/frontend/lib/booster_reserve.ts` acts only in the sealed and empty phases; extending it to a fully revealed hand is a small change if the author wants it.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-open-every-capsule-from-one-thumb-plan.md`
+  summary: Warming the next capsule's art before the player presses the button is not built; the next opening is sent while the previous hand sinks away instead.
+  evidence: the next capsule's cards reach the browser only in its opening answer, and `OpenPack` may redraw them; rendering them earlier would show an unopened capsule's cards in the network panel. Waits on the author (pending-approvals, entry 33.6).
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-open-every-capsule-from-one-thumb-plan.md`
+  summary: No code review pass was run on this story, and the system tests were not rerun after the author dropped them; the orchestrator's review and the release's full system run cover it.
+  evidence: the author asked for the story to be committed and reported at once (2026-11-03).
+
+## Deferred from: build of story-social-opens-on-trades-and-friends-plan (2026-11-03)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-social-opens-on-trades-and-friends-plan.md`
+  summary: Keyboard focus on a trade row is nearly invisible; `.trade-row:focus-visible` sets `outline: none` and keeps only the near-black focus gap, on the trade list and, by reuse, on the Social rows.
+  evidence: `app/frontend/styles/trades.css:126` overrides the global white ring of `shell.css` `:focus-visible`; predates this story.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-social-opens-on-trades-and-friends-plan.md`
+  summary: `BackOffice::RoadmapsControllerTest` "an administrator reads every milestone" can fail at random; its `form [id*='7']`-style selectors match unrelated attributes when the record id is a single digit.
+  evidence: failed in two full runs during the build (matching '8', then '7') and passed alone and in the orchestrator's bin/ci; `test/controllers/back_office/roadmaps_controller_test.rb:57`, untouched by this story.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-social-opens-on-trades-and-friends-plan.md`
+  summary: The system tests written or changed by this story (`social_test`, `feed_test`, `trades_test`, `live_updates_test`) were not run, at the author's request.
+  evidence: the author asked that no system test be run (2026-11-03); the release's full system run covers them.
+
+## Deferred from: build of story-a-card-list-that-scrolls-without-end-plan (2026-11-03)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-card-list-that-scrolls-without-end-plan.md`
+  summary: Without JavaScript the card list's pastilles open nothing: each is a link to its sheet, a closed `<dialog>`, so its chips cannot be reached; only the search and the APPLY button remain. The set album and the public profile collection keep the FILTRES zone, which works without script.
+  evidence: `bottom_sheet_opener` gives the pastille an `href` to the dialog's id, and a closed dialog does not open on its fragment. A page rule such as `.bottom-sheet:target` showing the dialog in place, with the noscript APPLY button, is the cheap way back; still waiting on the author.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-card-list-that-scrolls-without-end-plan.md`
+  summary: In an open filter sheet, CLEAR ALL sits behind the modal, and the sheet has no done or per-group clear button; it closes only by its ✕, its scrim or a drag.
+  evidence: `_filter_row.html.erb` puts each group, then its status line, in the sheet; the form's clear link stays below the pastille row. A done button or a per-group clear is a UX choice for the author.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-card-list-that-scrolls-without-end-plan.md`
+  summary: The system tests of the filter row and the bottom sheet were written but not run, at the author's request; the release's full system run covers them.
+  evidence: `test/system/bottom_sheet_test.rb`, `test/system/library_test.rb` (the phone row, the filter row flow, arriving filtered, the state fallback) and `test/system/goal_bookmarks_test.rb` moved to the pastille sheets.
+
+## Deferred from: build of story-sets-that-open-on-your-goals-plan (2026-11-03)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-sets-that-open-on-your-goals-plan.md`
+  summary: Back from a goal's album, nothing on the Sets tab carries the last-opened mark any more.
+  evidence: `app/frontend/controllers/last_album_controller.ts` marks only `a.set-row, a.set-tile`; a goal set was marked through its EN COURS tile, which this story leaves out of EN COURS, and `a.goal-tile__link` has neither the mark nor a style for it.
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-sets-that-open-on-your-goals-plan.md`
+  summary: No test renders the Hall of fame or UFO group headings of EN COURS.
+  evidence: the heading is the same `library.entry.kinds.<kind>` call tested for themes, franchises and studios, and both locales hold the keys; no test seeds a set of those kinds into EN COURS.
+
+## Deferred from: build of story-a-trade-updated-since-you-last-looked-plan (2026-11-03)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-a-trade-updated-since-you-last-looked-plan.md`
+  summary: The player data export does not list the trade-seen markers.
+  evidence: `Game::ExportOf` exports feed reactions and the daily claims; `game_trade_views` rows hold only a timestamp per trade and the deletion dialog names them, so the export was left unchanged.
+
+## Deferred from: code review of story-a-header-that-fits-on-a-phone-plan (2026-11-04)
+
+- iOS rubber-band scroll at the page bottom may reveal the header, the header stays pinned after keyboard focus, and toasts sit at the header offset while it is hidden. Settle on a real iPhone.
+- The bank detail's countdown is rendered once and does not follow a bank change (low, cosmetic).
+- The collection screen showed the G button without a capsule counter; the build already recorded it and the screen list has grown since, so re-check on the iPhone pass.
+
+## Deferred from: code review of story-four-tabs-and-no-more-plan (2026-11-04)
+
+- Tab-current state for the pack and custom-set screens is not pinned by a test — deferred: low, needs fixtures with tokens; add to the phone tabs table on the next touch
+- Orphan pixel icons tab-hub and tab-collection may remain in the export script — deferred: check usage, then remove through the pixel export
+
+## Deferred from: code review of story-a-bottom-sheet-for-every-choice-plan (2026-11-04)
+
+- No flick dismissal: a short fast swipe down leaves the sheet open (distance only) — deferred: a behaviour choice for the author, settle on the iPhone pass
+- A pen pointer released outside the dialog mid-drag, or a press that ends on the scrim, may leave a drag or close the sheet — deferred: unverified, settle on a real device
+- Closing on Turbo cache, the Turbo restore of an open sheet and reduced-motion spring-back have no browser test — deferred: system tests are run once before release
+
+## Deferred from: code review of story-a-card-list-that-scrolls-without-end-plan (2026-11-04)
+
+- The card-art system test passes without the give-up behaviour; strengthen it to fail on the old code (no art drawn while away, queue released) — deferred: needs a browser run, do it with the system tests before release
+- The filter sheets' client glue (pastille counts, sheet status, cache restore) is covered only by system tests that bin/rails test skips — deferred: run them once in the main tree before release
+- Desktop loses the inline filters and no-JavaScript players lose filtering — deferred: a decision for the author, recorded with the pending approvals
+- A sheet has no done or clear control and shows no result count button — deferred: a UX choice for the author
+- The row may wrap in French with four counts at 390 px — deferred: check on the iPhone pass
+
+## Deferred from: code review of story-sets-that-open-on-your-goals-plan (2026-11-04)
+
+- The edition lookup behind the goal thumbnails scales with the missing cards of every goal — deferred: low until a goal on the Steam library or a very large set is slow
+- The last-opened mark is lost after returning from a goal's album — deferred: already recorded, goal sets left EN COURS
+- Nothing announces a successful Mark as goal and focus does not move to the new tile — deferred: accessibility polish, settle with the author
+
+## Deferred from: code review of story-open-every-capsule-from-one-thumb-plan (2026-11-04)
+
+- The hub's focus-on-sign-in lost its browser test and the daily-collect wiring (BankRefresh.dailyCollected) has no unit test — deferred: add a welcome-pending hub focus test and a BankRefresh vitest, then run the system tests once before release
+- Skip is ignored while the previous hand sinks away, and finishAnimations finishes every finite animation under the booster root — deferred: behaviour choices, settle on the iPhone pass
+- The opening request is sent before the retract, so a failure or disposal in between loses the answer — deferred: low odds, check on the iPhone pass
+- A bare locale origin with a query string lands on the hub instead of the capsule screen — deferred: low, rare sign-in origin
+
+## Deferred from: code review of story-an-empty-reserve-proposes-what-to-do-next-plan (2026-11-04)
+
+- Hooks fail as a whole when one query raises, and the frame can run for a non-empty reserve or a nil season — deferred: low odds today, isolate each hook if the panel grows
+- The panel's appearance is not announced and a failed fetch leaves a bare heading — deferred: accessibility and retry polish for the author
+- The weak no-hook-read test greps SQL log names — deferred: replace by a stubbed NextSteps when the file is next touched
+
+## Deferred from: code review of story-social-opens-on-trades-and-friends-plan (2026-11-04)
+
+- Live refresh of the Social sections is asserted only as attributes — deferred: one system test next to the Social badge test, run before release
+- ~~Open trades and friends are uncapped on Social~~ — resolved by story-social-on-every-width: five rows each, the fifth naming the rest
+- Keyboard focus ring on quiet trade rows under hover, the wrapped feed opener at 320 px and the screen-reader reading of the rarity badge — deferred: settle on the iPhone pass
+
+## Deferred from: code review of story-trade-from-a-missing-card-plan (2026-11-04)
+
+- The Trade button shows when every holder is already asked, and holders are computed on every missing-card view — deferred: low, fold into the next touch of the card detail
+- A forged POST for an owned card, two concurrent POSTs and an unpublished edition are accepted by the controller — deferred: ProposeTrade is the real guard, verify there
+- A private player's card page has no test that the button is absent — deferred: low
+
+## Deferred from: code review of story-a-bell-with-what-is-new-plan (2026-11-04)
+
+- The lasting-line removal streams are pinned only for the success case — deferred: add the failed-collect and other-reward negative assertions
+- Cache restore, morph and frame-missing reloads of the bell are asserted only as attribute strings — deferred: browser history system tests, run before release
+- A middle click marks nothing and a click on a failed navigation marks the line seen; bursts of signals reload the frame many times — deferred: minor, settle with the author
+- The counter never reaches zero while the daily or mission line stands — deferred: already an open question for the author
+
+## Deferred from: code review of story-a-trade-updated-since-you-last-looked-plan (2026-11-04)
+
+- The trade seen marker is missing from the player data export while the deletion text lists it — deferred: add it to the export or say so on the privacy page
+- A reconnecting trade-seen controller posts again and each post publishes an event; a failed post is ignored — deferred: low until noticed, publish only when the marker changes
+- An answer older than seven days leaves the bell unseen, against the commit title — deferred: the window is the plan's decision, confirm with the author
+- The trade_id foreign key has no index of its own — deferred: add with the next migration touching the table
+
+## Deferred from: code review of story-a-me-page-that-is-your-profile-edited-live-plan (2026-11-04)
+
+- The owner has no link to the public profile visitors see, since the desktop menu entry became My profile — deferred: a UX choice for the author
+- Me no longer opts out of the Turbo cache: a stale achievements badge and a dialog restored open after Back — deferred: already recorded, settle on the iPhone pass
+- A showcase removal with no Referer lands on the card page instead of Me — deferred: low, pass a Me fallback if reported
+- Naming still points at the removed Personalization page (partials, locale keys, routes) — deferred: a rename for the refactor sweep
+- Desktop layout of the Me page and the sheets' accessibility names were not checked — deferred: iPhone and desktop pass
+
+- source_plan: `_bmad-output/initiative-gameble/epic-phone-first-web/story-social-on-every-width-plan.md`
+  summary: No system test at 390px and 1440px pins that a trade board keeps only "◀ LISTE" on the phone and that desktop hides the trail button beside "◀ SOCIAL".
+  evidence: only markup is asserted in social_page_test; the outcome depends on two CSS rules in shell-screens.css and shell-top-bar.css. A system test at both widths would settle it.
+
+## Deferred from: build of story-bring-the-rails-side-of-the-native-apps-onto-develop-plan (2026-11-04)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-hotwire-native-apps/story-bring-the-rails-side-of-the-native-apps-onto-develop-plan.md`
+  summary: A native sign-in ticket is not single-use: anyone holding its URL and state can open a session several times within two minutes.
+  evidence: `NativeSignIn.player_for` only verifies the signed ticket; nothing records it as redeemed; settle with the sign-in hand-off hardening (app links instead of a custom scheme).
+- source_plan: `_bmad-output/initiative-gameble/epic-hotwire-native-apps/story-bring-the-rails-side-of-the-native-apps-onto-develop-plan.md`
+  summary: A push device stays linked to the last player who registered it after the session ends, and the shell does not register again after a new sign-in.
+  evidence: the device token is remembered in the session and forgotten only on sign-out; settle in the shells story and the push story on real devices.
+- source_plan: `_bmad-output/initiative-gameble/epic-hotwire-native-apps/story-bring-the-rails-side-of-the-native-apps-onto-develop-plan.md`
+  summary: `FrenchTypographyTest` fails on develop: `fr.landings.show.share_image_alt` has a plain space before a colon.
+  evidence: the failure is identical on the baseline commit; the key comes from the landing's share-image commit.
+- source_plan: `_bmad-output/initiative-gameble/epic-instant-capsule-opening/story-a-capsule-opens-and-reveals-at-once-while-its-confirmation-g-plan.md`
+  summary: A confirmation that lands once its hand is off the screen (reload before confirmation, hand put away or reserve switched first) drops the set celebration; goal toasts still play.
+  evidence: `openingConfirmed` in `app/frontend/lib/booster_held.ts` copies only `goalsReached` when the hand on screen is not the confirmed one; online the confirmation lands well before a hand is put away, so it bites mostly offline.
+- source_plan: `_bmad-output/initiative-gameble/epic-instant-capsule-opening/story-a-capsule-opens-and-reveals-at-once-while-its-confirmation-g-plan.md`
+  summary: Leaving an unconfirmed (offline) hand for a card's detail loses the hand on return, since the booster page only restores an opened capsule by token.
+  evidence: `CardExit.leaveFor` calls `rememberPack(token)` and `BoostersController#show` reads `OpenedPackByToken`, which finds nothing for an unopened capsule.
+- source_plan: `_bmad-output/initiative-gameble/epic-instant-capsule-opening/story-a-capsule-opens-and-reveals-at-once-while-its-confirmation-g-plan.md`
+  summary: The opening confirmation queue in localStorage is not tied to a player; after another account signs in on the same browser, the first player's queued token is sent, refused and dropped (nothing is lost on the server, the capsule stays unopened).
+  evidence: `QUEUE_STORAGE_KEY` in `app/frontend/lib/opening_queue.ts` is a single key; clearing it on sign-out belongs with the offline-screen story's sign-out cleanup.

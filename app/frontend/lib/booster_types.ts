@@ -1,12 +1,18 @@
 import type { Rarity } from "./card_types"
 import type { CelebrationResult } from "./celebration"
-import type { OpeningAnswer, OpeningResult, OpeningSetTier } from "./opening"
+import type { HeldCapsule, OpeningAnswer, OpeningResult, OpeningSetTier } from "./opening"
+import type { OpeningMarks, OpeningTimings } from "./opening_timings"
+import type { QueuedOpening } from "./opening_queue"
 
 export type BoosterPhase = "sealed" | "empty" | "opening" | "dealt"
 
 export type BoosterStatus = "sealed" | "arming" | "ejecting" | "inventory" | "legendarySignal" | "complete" | "waiting"
 
 export type Reserve = "standard" | "special"
+
+export type HeldCapsules = Readonly<Record<Reserve, HeldCapsule | null>>
+
+export const NO_HELD: HeldCapsules = { standard: null, special: null }
 
 export type BoosterBank = {
   available: number
@@ -17,6 +23,7 @@ export type BoosterBank = {
   nextAvailableAt: string | null
   serverTime: string
   nextPackSize: number | null
+  nextSpecialSize: number | null
 }
 
 export const REVEAL_GUARD = 400
@@ -32,6 +39,8 @@ export const NARROW_QUERY = "(max-width: 899px)"
 export type RevealAllStep = { index: number; wait: "full" | "gap" }
 
 export type RevealMode = "all" | "one_by_one"
+
+export type OwedReveal = Readonly<{ token: string; url: string; mode: RevealMode; timings: OpeningTimings }>
 
 export type OpeningOutcome = { kind: "opened" } | { kind: "refused"; code: string } | { kind: "failed" }
 
@@ -54,9 +63,15 @@ export type BoosterState = Readonly<{
   status: BoosterStatus
   opening: boolean
   pendingKey: string | null
+  held: HeldCapsules
+  confirming: readonly QueuedOpening[]
   answer: OpeningAnswer | null
+  provisional: boolean
+  revealsOwed: readonly OwedReveal[]
+  revealDue: OwedReveal | null
   revealed: readonly boolean[]
   revealedAt: readonly (number | undefined)[]
+  marks: OpeningMarks
   revealing: readonly number[]
   legendary: number | null
   legendaryRunning: boolean
@@ -91,6 +106,9 @@ export type BoosterState = Readonly<{
 export type BoosterStart = {
   bank: BoosterBank
   reserve: Reserve
+  held: HeldCapsules
+  confirming: readonly QueuedOpening[]
+  openedTokens: readonly string[]
   opened: OpeningAnswer | null
   layout: Layout
   now: number
@@ -102,7 +120,7 @@ export type OpeningRefusal = Exclude<OpeningResult, { kind: "opened" }>
 
 export type Activation = "reveal" | "store" | "leave" | "none"
 
-export type OpenVariant = "open" | "next" | "empty"
+export type OpenVariant = "open" | "next" | "empty" | "skip"
 
 export type StatusTone = "alert" | "gold" | "done" | "rest"
 

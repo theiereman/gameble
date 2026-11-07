@@ -2,7 +2,7 @@ module Accounts
   class Identity < ApplicationRecord
     self.table_name = "accounts_identities"
 
-    PROVIDERS = %w[steam discord google email].freeze
+    PROVIDERS = %w[steam apple discord google email].freeze
 
     belongs_to :player, class_name: "Accounts::Player", inverse_of: :identities
 

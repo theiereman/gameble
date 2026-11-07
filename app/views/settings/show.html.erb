@@ -2,9 +2,7 @@
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".title") %>
 <% content_for :phone_back do %>
-  <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
-    <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
-  <% end %>
+  <%= phone_back_link t("shell.tabs.me"), me_path %>
 <% end %>
 <section class="settings" aria-labelledby="settings-heading">
   <h1 id="settings-heading" class="settings__title"><%= t(".title") %></h1>
@@ -67,6 +65,16 @@
               <div class="settings-row__heading">
                 <p id="settings-steam-library" class="settings-row__label"><%= t(".steam_library.label") %></p>
                 <p id="settings-steam-library-hint" class="settings-row__hint"><%= t(".steam_library.hint") %></p>
+                <% if @library_sync %>
+                  <p id="settings-steam-library-last-sync" class="settings-row__hint">
+                    <% if @library_synced_at %>
+                      <%= t(".steam_library.last_sync") %> <%= local_time_tag(@library_synced_at, :date_time_year) %>
+                    <% else %>
+                      <%= t(".steam_library.never_synced") %>
+                    <% end %>
+                  </p>
+                  <%= render ButtonComponent.new(variant: :secondary, size: :small, href: settings_steam_library_sync_path, method: :post) do %><%= t(".steam_library.sync_now") %><% end %>
+                <% end %>
               </div>
               <%= form_with url: settings_steam_library_path, method: :patch, class: "settings-row__form", data: { turbo: false } do %>
                 <div class="segmented" role="group" aria-labelledby="settings-steam-library" aria-describedby="settings-steam-library-hint">
@@ -79,6 +87,19 @@
                 </div>
               <% end %>
             </li>
+          <% end %>
+
+          <% if hotwire_native_app? %>
+          <li class="settings-row" hidden <%= tag.attributes(data: { controller: "bridge--push-permission", bridge__push_permission_url_value: push_devices_path,
+                bridge__push_permission_granted_value: t(".notifications.granted"), bridge__push_permission_denied_value: t(".notifications.denied"),
+                bridge__push_permission_failed_value: t(".notifications.failed") }) %>>
+            <p id="settings-notifications" class="settings-row__label"><%= t(".notifications.label") %></p>
+            <div class="settings-row__actions">
+              <button type="button" class="button button--secondary button--small" aria-describedby="settings-notifications"
+                data-bridge--push-permission-target="button" data-action="bridge--push-permission#request"><%= t(".notifications.turn_on") %></button>
+              <p class="settings-row__note" role="status" data-bridge--push-permission-target="status"></p>
+            </div>
+          </li>
           <% end %>
 
           <li class="settings-row">

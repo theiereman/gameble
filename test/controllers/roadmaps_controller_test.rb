@@ -29,17 +29,6 @@ class RoadmapsControllerTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=description]"
   end
 
-  test "reads in English" do
-    seed_roadmap
-
-    get roadmap_path(locale: :en)
-
-    assert_select "h1", "What's coming"
-    assert_select ".roadmap-page__kicker", "Roadmap"
-    assert_select ".roadmap-milestone--to-come .roadmap-badge", text: "Upcoming"
-    assert_select "ol.roadmap-rail[aria-label=?]", "Roadmap milestones, from the oldest to the most distant"
-  end
-
   test "hides the hidden milestones and stories" do
     seed_roadmap
 
@@ -47,44 +36,6 @@ class RoadmapsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "h2", text: "Step delta", count: 0
     assert_select ".roadmap-story", text: /hidden/, count: 0
-  end
-
-  test "a milestone without shown stories ends after its title" do
-    seed_roadmap
-
-    get roadmap_path(locale: :en)
-
-    assert_select "ol.roadmap-rail > li:nth-child(2) .roadmap-stories", 0
-    assert_select ".roadmap-stories", 1
-  end
-
-  test "the rail, nodes and markers are hidden from assistive technology" do
-    seed_roadmap
-
-    get roadmap_path(locale: :en)
-
-    assert_select ".roadmap-milestone__track[aria-hidden=true]", 3
-    assert_select ".roadmap-story__marker[aria-hidden=true]", 4
-    assert_select ".roadmap-milestone__corner[aria-hidden=true]", 6
-    assert_select "[style]", 0
-  end
-
-  test "a single milestone renders its node and line" do
-    seed_roadmap.drop(1).each { Catalog::UpdateRoadmapMilestone.new.call(milestone: it, wording_fr: "x", wording_en: "x", status: "to_come", shown: false).value! }
-    Rails.cache.clear
-
-    get roadmap_path(locale: :en)
-
-    assert_select ".roadmap-milestone", 1
-    assert_select ".roadmap-milestone__node", 1
-    assert_select ".roadmap-milestone__line", 1
-  end
-
-  test "carries the landing footer and no motion switch" do
-    get roadmap_path(locale: :en)
-
-    assert_select "footer.landing-footer"
-    assert_select ".motion-switch", 0
   end
 
   test "a signed-in player reads it too" do

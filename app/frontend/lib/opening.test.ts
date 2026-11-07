@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { sendOpening } from "./opening"
+import { isHeld, sendOpening } from "./opening"
 
 const KEY = "3c1f9a2e-7d4b-4c8a-b5e6-0f2d9e8a1b7c"
 
@@ -15,6 +15,7 @@ const answer = {
       year: 2007,
       label: "Portal — Valve, 2007",
       goals: "goal 1: Valve",
+      firstCopy: true,
       faces: { s: "<span></span>", m: "<span></span>", xl: "<span></span>" },
     },
   ],
@@ -27,6 +28,7 @@ const answer = {
     nextAvailableAt: null,
     scheduledAt: [],
     nextPackSize: 5,
+    nextSpecialSize: null,
   },
   serverTime: "2026-10-06T14:22:00.000Z",
   tierCountsBefore: { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0 },
@@ -138,6 +140,8 @@ describe("sendOpening", () => {
       // A card without its goal words, or with goals named by something else than words.
       fake(json(200, { ...answer, cards: [{ ...answer.cards[0], goals: undefined }] })),
       fake(json(200, { ...answer, cards: [{ ...answer.cards[0], goals: [1] }] })),
+      // A card that does not say whether it is the player's first copy.
+      fake(json(200, { ...answer, cards: [{ ...answer.cards[0], firstCopy: undefined }] })),
       // No set tiers, one of another shape, or one without its album.
       fake(json(200, { ...answer, setTiers: undefined })),
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], tier: "platinum" }] })),
@@ -167,5 +171,45 @@ describe("sendOpening", () => {
       ).toEqual({
         kind: "failed",
       })
+  })
+})
+
+const held = { pack: answer.pack, cards: answer.cards, tierCountsBefore: answer.tierCountsBefore }
+
+describe("sendOpening of a named capsule", () => {
+  it("names the capsule's token before the reserve", async () => {
+    const { calls, send } = fake(json(200, answer))
+    await sendOpening({ url: "/fr/packs", reserve: "special", key: KEY, csrfToken: null, pack: "abc", fetch: send })
+    expect(calls[0].url).toBe("/fr/packs?pack=abc&reserve=special")
+  })
+
+  it("reads the next held capsule of the reserve, and drops one of another shape", async () => {
+    const next = { ...held, pack: { ...held.pack, token: "def" } }
+    const read = async (body: unknown) =>
+      sendOpening({
+        url: "/fr/packs",
+        reserve: "standard",
+        key: KEY,
+        csrfToken: null,
+        fetch: fake(json(200, body)).send,
+      })
+
+    expect(await read({ ...answer, next })).toEqual({ kind: "opened", answer: { ...answer, next } })
+    expect(await read({ ...answer, next: null })).toEqual({ kind: "opened", answer: { ...answer, next: null } })
+    expect(await read({ ...answer, next: { pack: {} } })).toEqual({ kind: "opened", answer: { ...answer, next: null } })
+  })
+})
+
+describe("isHeld", () => {
+  it("accepts the head of an opening answer: pack with its token, cards with faces, counts before", () => {
+    expect(isHeld(held)).toBe(true)
+  })
+
+  it("refuses a capsule without a token, cards or counts", () => {
+    expect(isHeld(null)).toBe(false)
+    expect(isHeld({ ...held, pack: { ...held.pack, token: "" } })).toBe(false)
+    expect(isHeld({ ...held, cards: [] })).toBe(false)
+    expect(isHeld({ ...held, cards: [{ ...held.cards[0], faces: {} }] })).toBe(false)
+    expect(isHeld({ ...held, tierCountsBefore: { common: 1 } })).toBe(false)
   })
 })

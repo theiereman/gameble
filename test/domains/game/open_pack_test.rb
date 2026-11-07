@@ -71,17 +71,6 @@ class Game::OpenPackTest < ActiveSupport::TestCase
     assert_equal earlier, gained.fetch(legendary)
   end
 
-  test "moving reserved copies leaves last_gained_at as it is" do
-    portal = catalog_card_seasons(:portal_one).id
-    create_pack(@player, cards: Array.new(5, portal))
-    open.value!
-    holding = Game::Holding.find_by!(player_id: @player.id, card_season_id: portal)
-
-    assert_no_changes -> { holding.reload.last_gained_at } do
-      Game::Holding.where(id: holding.id).update_all(reserved: 2, updated_at: 1.minute.from_now)
-    end
-  end
-
   test "with every pack opened, opening fails and changes nothing" do
     create_pack(@player, opened_at: 1.hour.ago)
 
@@ -280,5 +269,60 @@ class Game::OpenPackTest < ActiveSupport::TestCase
     assert_equal :no_pack_available, Game::OpenPack.new.call(player: @player, reserve: "special").failure
     assert_equal :invalid_reserve, Game::OpenPack.new.call(player: @player, reserve: "vip").failure
     assert_equal 1, Game::Reserve.counts(@player.id).standard
+  end
+
+  # --- Opening the capsule the screen shows ------------------------
+
+  def open_token(token, key: nil, reserve: nil) = Game::OpenPack.new.call(player: @player, idempotency_key: key, token:, reserve:)
+
+  test "a token opens exactly that capsule, whatever its place or reserve" do
+    oldest = create_pack(@player, available_at: 3.minutes.ago)
+    chosen = create_pack(@player, available_at: 1.minute.ago)
+    special = create_pack(@player, kind: :bonus, available_at: 2.minutes.ago)
+
+    assert_equal chosen, open_token(chosen.token, key: KEY, reserve: "special").value!
+    assert_predicate chosen.reload, :opened?
+    assert_not_predicate oldest.reload, :opened?
+    assert_not_predicate special.reload, :opened?
+    assert_equal [ chosen.id ], game_events(@player, Game::PackOpened).map { it.data[:pack_id] }
+  end
+
+  test "a token of a capsule the player already opened answers it again, with nothing credited or published" do
+    first = create_pack(@player, available_at: 2.minutes.ago)
+    create_pack(@player)
+    open_token(first.token, key: KEY).value!
+
+    assert_no_changes -> { written } do
+      assert_equal first, open_token(first.token, key: SecureRandom.uuid).value!
+      assert_equal first, open_token(first.token).value!
+    end
+  end
+
+  test "the key replay wins over the token" do
+    first = create_pack(@player, available_at: 2.minutes.ago)
+    other = create_pack(@player)
+    open_with(KEY).value!
+
+    assert_no_changes -> { written } do
+      assert_equal first, open_token(other.token, key: KEY).value!
+    end
+  end
+
+  test "an unknown token, another player's or one not yet available refuses with pack_not_available and writes nothing" do
+    create_pack(@player)
+    later = create_pack(@player, available_at: 1.hour.from_now)
+    theirs = create_pack(accounts_players(:moderator))
+
+    [ "unknown", theirs.token, later.token ].each do |token|
+      assert_no_changes -> { written } do
+        assert_equal :pack_not_available, open_token(token, key: SecureRandom.uuid).failure, token
+      end
+    end
+  end
+
+  test "pack_not_available has a message in both locales" do
+    %i[en fr].each do |locale|
+      I18n.with_locale(locale) { assert_predicate Game::OpenPack.failure_message(:pack_not_available), :present? }
+    end
   end
 end

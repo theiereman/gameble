@@ -30,8 +30,9 @@ import { dirname, join, relative, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { deflateSync, inflateSync } from "node:zlib"
 import { SET_BACK_DESIGNS, drawSetBack, setBackName } from "./set_backs.mjs"
-import { ACHIEVEMENT_BACK_DESIGNS, drawAchievementBack } from "./achievement_backs.mjs"
+import { NAMED_BACK_DESIGNS } from "./named_backs.mjs"
 import { EMBLEM_SIZE, ORIGIN_LOOKS, drawEmblem, originBodyFile } from "./origin_canisters.mjs"
+import { NEBULA_HEIGHT, NEBULA_WIDTH, drawNebula } from "./nebula.mjs"
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..")
 const ART_PIXEL = 2
@@ -228,6 +229,64 @@ function faviconIcon() {
   }
 }
 
+// The phone's back button: the gold G drawn for the Discord server, larger
+// than the favicon's, outlined in near-black with a sparkle and a shine.
+const BACK_G = {
+  legend: { o: "#120d05", s: "#4a3105", w: "#ffffff", 1: "#fff3c4", l: "#ffe08a", 2: "#f4c542", 3: "#d99a1f", 4: "#8f5e0a" },
+  grid: [
+    ".....oooooooooooooooooooooooooooooooo",
+    "...1.o111111111111111111111111111111o",
+    "..1w1o111111111111111111111111111111o",
+    ".1www1111111111111111111111111111111o",
+    "..1w1o111111111111111111111111111111o",
+    "ooo1oo111111111111111111111111111111o",
+    "o11111111111111111111111111111111111o",
+    "o11111111111111111111111111111111111o",
+    "o11111111111111111111111111111111111o",
+    "o11111111111111111111111111111111111o",
+    "o22222222222222222222222222222222222o",
+    "o2222222222oooooooooooooooooooooooooo",
+    "o2222222222osssssssssssssssssssssssss",
+    "o2222222222osssssssssssssssssssssssss",
+    "o2222222222osssssssssssssssssssssssss",
+    "o2222222222o.........................",
+    "o2222222222o.........................",
+    "o2222222222o.........................",
+    "o2222222222o.........................",
+    "o2222222222o.........................",
+    "o2222222222o........ooooooooooooooooo",
+    "o2222222222o........o111111111111111o",
+    "o2222222222o........o222222222222222o",
+    "o2222222222o........o222222222222222o",
+    "o2222222222o........o222222222222222o",
+    "o3333333333o........o333333333333333o",
+    "o3333333333o........o333333333333333o",
+    "o3333333333o........o333333333333333o",
+    "o3333333333o........o333333333333333o",
+    "o3333333333o........o33333333333333lo",
+    "o3333333333o........o3333333333333llo",
+    "o3333333333o........oooooo3333333lllo",
+    "o3333333333o........ssssso333333llllo",
+    "o3333333333o........ssssso33333lllllo",
+    "o3333333333o........ssssso3333llllllo",
+    "o3333333333ooooooooooooooo333lllllllo",
+    "o333333333311111111111111133llllllllo",
+    "o44444444444444444444444444333333334o",
+    "o44444444444444444444444443333333344o",
+    "o44444444444444444444444433333333443o",
+    "o44444444444444444444444333333334433o",
+    "oooooo444444444444444443333333344334o",
+    "ssssso444444444444444433333333443344o",
+    "ssssso444444444444444333333334433444o",
+    "ssssso444444444444443333333344334444o",
+    ".....o444444444444433333333443344444o",
+    ".....oooooooooooooooooooooooooooooooo",
+    ".....ssssssssssssssssssssssssssssssss",
+    ".....ssssssssssssssssssssssssssssssss",
+    ".....ssssssssssssssssssssssssssssssss",
+  ],
+}
+
 const ACHIEVEMENT_GLYPHS = {
   pack: [".#####.", "#######", "#.....#", "#.###.#", "#.#.#.#", "#.....#", "#######"],
   gem: ["...#...", "..###..", ".#####.", "#######", ".#####.", "..###..", "...#..."],
@@ -248,6 +307,8 @@ const ACHIEVEMENT_GLYPHS = {
   flag: [".####..", ".###...", ".#.....", ".#.....", "#######", "#.....#", "#######"],
   lens: [".###...", "#.#.#..", "#####..", "#.#.#..", ".###.#.", "......#", "......."],
   clasp: ["...#...", "..###..", "...#...", "..###..", ".#####.", "#######", ".#.#.#."],
+  stopwatch: ["..###..", "...#..#", ".#####.", "##.#.##", "#..#..#", "##...##", ".#####."],
+  moon: ["..####.", ".###...", "###...#", "###....", "###.#..", ".###...", "..####."],
 }
 const ACHIEVEMENT_EARNED = { h: "#d2efff", b: "#66c0f4", s: "#2a6f9a" }
 const ACHIEVEMENT_LOCKED = { h: "#8f98a0", b: "#5d6b78", s: "#3d4a57" }
@@ -289,6 +350,7 @@ const ICONS = {
   wordmark: wordmarkIcon(),
   ...Object.fromEntries(Object.entries(RANK_MARKS).map(([rank, grid]) => [`rank-${rank}`, { grid }])),
   favicon: faviconIcon(),
+  "back-g": BACK_G,
   ...Object.fromEntries(Object.entries(RARITY_SHAPES).map(([tier, grid]) => [`rarity-${tier}`, { legend: RARITY[tier], grid }])),
   ...Object.fromEntries(Object.entries(RARITY_COMPACT_SHAPES).map(([tier, grid]) => [`rarity-compact-${tier}`, { legend: RARITY[tier], grid }])),
   ...achievementIcons(),
@@ -491,7 +553,39 @@ const ICONS = {
       ".oooooo.",
     ],
   },
-  // The player's portrait until avatars exist (16 × 16).
+  // The merged counter's standard capsule: a round-ended pill, blue (7 × 11).
+  "capsule-standard": {
+    legend: { o: OUTLINE, a: "#66c0f4", b: "#2f4f6c" },
+    grid: [
+      "..ooo..",
+      ".oaaao.",
+      "oaaaaao",
+      "oaaaaao",
+      "oaaaaao",
+      "obbbbbo",
+      "obbbbbo",
+      "obbbbbo",
+      "obbbbbo",
+      ".obbbo.",
+      "..ooo..",
+    ],
+  },
+  // The merged counter's special capsule: a lime diamond (9 × 9).
+  "capsule-special": {
+    legend: { o: OUTLINE, l: "#a4d007", d: "#5c7a0c" },
+    grid: [
+      "....o....",
+      "...olo...",
+      "..olllo..",
+      ".olllllo.",
+      "olllllllo",
+      ".odllldo.",
+      "..oddlo..",
+      "...odo...",
+      "....o....",
+    ],
+  },
+  // The player's portrait until they choose an avatar (16 × 16).
   "avatar-default": {
     legend: { k: "#1b2838", h: "#66c0f4", s: "#2a6f9a", e: "#0b1520" },
     grid: [
@@ -513,6 +607,437 @@ const ICONS = {
       "kssssssssssssssk",
     ],
   },
+  // Novice: a blue hood, the face in shadow, two pale eyes, a gold clasp (16 × 16).
+  "avatar-novice": {
+    legend: { k: "#1b2838", h: "#66c0f4", s: "#2a6f9a", d: "#14324a", e: "#0b1520", w: "#d2efff", g: "#f4c542" },
+    grid: [
+      "kkkkkkkkkkkkkkkk",
+      "kkkkkkkhhkkkkkkk",
+      "kkkkkkhhhhkkkkkk",
+      "kkkkkhhhhhhkkkkk",
+      "kkkkhhhsshhhkkkk",
+      "kkkhhhseeshhhkkk",
+      "kkkhhseeeeshhkkk",
+      "kkkhhsweewshhkkk",
+      "kkkhhseeeeshhkkk",
+      "kkkhhhseeshhhkkk",
+      "kkhhhhhsshhhhhkk",
+      "kshhhhhhhhhhhhsk",
+      "sshhhhhgghhhhhss",
+      "ssshhhsddshhhsss",
+      "sssshhsddshhssss",
+      "sssshhsddshhssss",
+    ],
+  },
+  // Archivist: a green hood, a face with brass spectacles (16 × 16).
+  "avatar-archivist": {
+    legend: { k: "#1b2838", h: "#3fcf8e", s: "#16684a", d: "#0d3f2d", f: "#f2c9a0", n: "#c08a62", e: "#0b1520", o: "#d2efff", y: "#8f5e0a" },
+    grid: [
+      "kkkkkkkkkkkkkkkk",
+      "kkkkkhhhhhhkkkkk",
+      "kkkkhhhhhhhhkkkk",
+      "kkkhhhsssshhhkkk",
+      "kkkhhsnffnshhkkk",
+      "kkhhsnffffnshhkk",
+      "kkhhsyyffyyshhkk",
+      "kkhhyeoyyoeyhhkk",
+      "kkhhsyyffyyshhkk",
+      "kkhhsnffffnshhkk",
+      "kkkhhsnnnnshhkkk",
+      "kkhhhhsssshhhhkk",
+      "khhhhhhhhhhhhhhk",
+      "shhhhhhddhhhhhhs",
+      "sshhhhhddhhhhhss",
+      "sshhhhhddhhhhhss",
+    ],
+  },
+  // Guardian: a steel helm with a red crest and a T visor, pauldrons, a gold emblem on the chest (16 × 16).
+  "avatar-guardian": {
+    legend: { k: "#1b2838", h: "#dfe6ec", m: "#8f98a0", s: "#4d5866", e: "#0b1520", r: "#e05a4f", g: "#f4c542", y: "#8f5e0a" },
+    grid: [
+      "kkkkkkkrrkkkkkkk",
+      "kkkkkkrrrrkkkkkk",
+      "kkkkkmmhhmmkkkkk",
+      "kkkkmmhhhhmmkkkk",
+      "kkkmmhhhhhhmmkkk",
+      "kkkmmhhhhhhmmkkk",
+      "kkkmmeeeeeemmkkk",
+      "kkkmmhheehhmmkkk",
+      "kkkmmhheehhmmkkk",
+      "kkkkmmheehmmkkkk",
+      "kkkkkmmmmmmkkkkk",
+      "kmmhkksssskkhmmk",
+      "mmhhhsggggshhhmm",
+      "mhhhssgyygsshhhm",
+      "mmhhssyggysshhmm",
+      "smmhsssssssshmms",
+    ],
+  },
+  // Oracle: a violet hood with a green gem, the face in shadow, two pale eyes (16 × 16).
+  "avatar-oracle": {
+    legend: { k: "#1b2838", h: "#b47cff", s: "#55308f", d: "#2c1850", e: "#0b1520", w: "#ead9ff", j: "#3fcf8e", l: "#b2f7d4" },
+    grid: [
+      "kkkkkkkkkkkkkkkk",
+      "kkkkkkhhhhkkkkkk",
+      "kkkkkhhhhhhkkkkk",
+      "kkkkhhhljhhhkkkk",
+      "kkkhhhhjjhhhhkkk",
+      "kkkhhsseesshhkkk",
+      "kkhhseeeeeeshhkk",
+      "kkhhseweeweshhkk",
+      "kkhhseeeeeeshhkk",
+      "kkhhsseeeesshhkk",
+      "kkhhhsseesshhhkk",
+      "khhhhhsssshhhhhk",
+      "hhhhhhhsshhhhhhh",
+      "shhhhhhsshhhhhhs",
+      "sshhhhhddhhhhhss",
+      "dshhhhhddhhhhhsd",
+    ],
+  },
+  // Grand master: a red hood, a gold crown, a white beard, a gold stole (16 × 16).
+  "avatar-grand-master": {
+    legend: { k: "#1b2838", h: "#e05a4f", s: "#8a2a24", d: "#4a1412", g: "#f4c542", y: "#8f5e0a", f: "#f2c9a0", e: "#0b1520", b: "#f4f1e8", q: "#c7c2b4" },
+    grid: [
+      "kkkkkkkggkkkkkkk",
+      "kkkkkgkggkgkkkkk",
+      "kkkkkggggggkkkkk",
+      "kkkkhyyyyyyhkkkk",
+      "kkkhhgggggghhkkk",
+      "kkkhhsffffshhkkk",
+      "kkhhsffffffshhkk",
+      "kkhhsfeffefshhkk",
+      "kkhhsffffffshhkk",
+      "kkhhsbbbbbbshhkk",
+      "kkhhsbqbbqbshhkk",
+      "khhhhsbbbbshhhhk",
+      "hhhhhhsbbshhhhhh",
+      "shhhhhgggghhhhhs",
+      "sshhhhgyyghhhhss",
+      "dshhhhgyyghhhhsd",
+    ],
+  },
+  // Mechanic: a round afro, gold earrings, orange overalls over a white tee (16 × 16).
+  "avatar-mechanic": {
+    legend: { k: "#1b2838", a: "#3a2620", b: "#5c3d2e", f: "#7a4a2b", n: "#5a3420", e: "#0b1520", m: "#c0604a", g: "#f4c542", o: "#f08a3c", p: "#a8521c", t: "#dfe6ec" },
+    grid: [
+      "kkkkkaaaaaakkkkk",
+      "kkkaaaaaaaaaakkk",
+      "kkaaabaaaabaaakk",
+      "kaabaaaaaaaabaak",
+      "kaaaaaffffaaaaak",
+      "kaaaffffffffaaak",
+      "kaaafeffffefaaak",
+      "kaaaffffffffaaak",
+      "kaaanffmmffnaaak",
+      "kkagnffffffngakk",
+      "kkkkknffffnkkkkk",
+      "kkkoottnnttookkk",
+      "kooooptootpooook",
+      "ooooppooooppoooo",
+      "oooopoooooopoooo",
+      "pooopoooooopooop",
+    ],
+  },
+  // Pilot: red hair, freckles, flight goggles on the forehead, a leather jacket with a fleece collar (16 × 16).
+  "avatar-pilot": {
+    legend: { k: "#1b2838", r: "#d9662b", q: "#9a3f17", f: "#f7d7b8", n: "#d9a582", z: "#c0704a", e: "#0b1520", g: "#4a3326", l: "#66c0f4", m: "#b06a50", j: "#8a5a32", i: "#5c3a1e", c: "#f4f1e8" },
+    grid: [
+      "kkkkkkkkkkkkkkkk",
+      "kkkkrrrrrrrrkkkk",
+      "kkkrrrrrrrrrrkkk",
+      "kkrrrqrrrrqrrrkk",
+      "kkggllggggllggkk",
+      "kkrrffffffffrrkk",
+      "kkrrfeffffefrrkk",
+      "kkkrnzffffznrkkk",
+      "kkkknffmmffnkkkk",
+      "kkkkknffffnkkkkk",
+      "kkkkkkffffkkkkkk",
+      "kkjjccffffccjjkk",
+      "kjjjccjjjjccjjjk",
+      "jjjjjcijjicjjjjj",
+      "jjjjjcijjicjjjjj",
+      "ijjjjcijjicjjjji",
+    ],
+  },
+  // Cartographer: bald, a full grey beard down to the chest, a violet turtleneck (16 × 16).
+  "avatar-cartographer": {
+    legend: { k: "#1b2838", f: "#b5784a", n: "#8a5530", y: "#d39a6c", b: "#c7c2b4", w: "#f4f1e8", e: "#0b1520", t: "#b47cff", u: "#55308f" },
+    grid: [
+      "kkkkkkkkkkkkkkkk",
+      "kkkkkkkkkkkkkkkk",
+      "kkkkkffyfffkkkkk",
+      "kkkkffyfffffkkkk",
+      "kkkffffffffffkkk",
+      "kkknffffffffnkkk",
+      "kknnfeffffefnnkk",
+      "kkknffffffffnkkk",
+      "kkkbbfwwwwfbbkkk",
+      "kkkbbbbeebbbbkkk",
+      "kkkbbwbbbbwbbkkk",
+      "kkkbbbbwwbbbbkkk",
+      "kkkubbwbbwbbukkk",
+      "kkttubbwwbbuttkk",
+      "tttttubwwbuttttt",
+      "uttttuuuuuuttttu",
+    ],
+  },
+  // Botanist: a loose rose hijab with soft folds, closed under the chin, lashes, rosy cheeks, red lips, a leaf pinned on her green top (16 × 16).
+  "avatar-botanist": {
+    legend: { k: "#1b2838", h: "#c9607e", s: "#7f2f4a", u: "#e897ad", f: "#d9a066", e: "#0b1520", r: "#e0887a", p: "#b8344e", y: "#6fa83a", v: "#3f6b1e", l: "#a4d007", d: "#5c7a0c" },
+    grid: [
+      "kkkkkkkkkkkkkkkk",
+      "kkkkkhhhhhhkkkkk",
+      "kkkkhhuhhuhhkkkk",
+      "kkkhhuhhhhuhhkkk",
+      "kkkhhsssssshhkkk",
+      "kkkhseffffeshkkk",
+      "kkhhsfeffefshhkk",
+      "kkhhsrffffrshhkk",
+      "kkhhsffppffshhkk",
+      "kkhhhsffffshhhkk",
+      "kkhuhhsssshhuhkk",
+      "khhhuhhhhhhuhhhk",
+      "ldhhhuhhhhuhhhhk",
+      "ylshhhuhhuhhhshy",
+      "yyhshhhhhhhhshhy",
+      "yyyhshhhhhhssyhh",
+    ],
+  },
+  // Streamer: a black bob with a pink streak, a headset with a mic, a pink hoodie (16 × 16).
+  "avatar-streamer": {
+    legend: { k: "#1b2838", a: "#0b0f16", r: "#ff6fae", c: "#dfe6ec", x: "#8f98a0", f: "#e8b98a", n: "#b98556", e: "#0b1520", m: "#b0605a", p: "#ff6fae", q: "#b23a76" },
+    grid: [
+      "kkkkkkkkkkkkkkkk",
+      "kkkkaaaaaaaakkkk",
+      "kkkcccccccccckkk",
+      "kkcaaaaaaaarackk",
+      "kkaaaaaaaaaarakk",
+      "kccaaffffffaacck",
+      "kccaafeffefaacck",
+      "kccaaffffffaacck",
+      "kccaaffmmffaacck",
+      "kkkxaanffnaaakkk",
+      "kkkkxxnffnkkkkkk",
+      "kkppppqqqqppppkk",
+      "kpppppqppqpppppk",
+      "ppppppqppqpppppp",
+      "ppppppqppqpppppp",
+      "qppppppppppppppq",
+    ],
+  },
+  // Elder: white hair in a bun, a pearl necklace, a lavender cardigan (16 × 16).
+  "avatar-elder": {
+    legend: { k: "#1b2838", w: "#e6e6ea", g: "#a9adb5", f: "#c68a5a", n: "#9a6438", e: "#0b1520", m: "#a04848", c: "#c9a6ff", d: "#7d5bb8", p: "#f4f1e8" },
+    grid: [
+      "kkkkkkwwwwkkkkkk",
+      "kkkkkwwwwwwkkkkk",
+      "kkkkkkggggkkkkkk",
+      "kkkkwwwwwwwwkkkk",
+      "kkkwwwwwwwwwwkkk",
+      "kkkwwffffffwwkkk",
+      "kkkwfeffffefwkkk",
+      "kkkwnffffffnwkkk",
+      "kkkknffmmffnkkkk",
+      "kkkkknffffnkkkkk",
+      "kkkkkknffnkkkkkk",
+      "kkcccpffffpccckk",
+      "kcccccppppccccck",
+      "cccccccddccccccc",
+      "dccccccddccccccd",
+      "dccccccddccccccd",
+    ],
+  },
+  // Astronaut: a white space helmet, the face behind the open visor, a suit with a mission patch (16 × 16).
+  "avatar-astronaut": {
+    legend: { k: "#1b2838", h: "#dfe6ec", m: "#8f98a0", r: "#4d5866", f: "#5e3a22", n: "#43281a", e: "#0b1520", o: "#2a1610", l: "#d2efff", s: "#2a6f9a", b: "#66c0f4", q: "#f08a3c" },
+    grid: [
+      "kkkkkkkkkkkkkkkk",
+      "kkkkkhhhhhhkkkkk",
+      "kkkhhhhhhhhhhkkk",
+      "kkhhhhhhhhhhhhkk",
+      "kkhmrrrrrrrrmhkk",
+      "khhrffffffflrhhk",
+      "khhrfeffffeflhhk",
+      "khhrffffffffrhhk",
+      "khhrfffoofffrhhk",
+      "khhrrrrrrrrrrhhk",
+      "kmhhhhhhhhhhhhmk",
+      "kkmssssssssssmkk",
+      "khhhhhhhhhhhhhhk",
+      "hhhbbhhhhhhhhhhh",
+      "hhhqbhhhhhhmhhhh",
+      "mhhhmhhhhhhmhhhm",
+    ],
+  },
+  // Punk: a green mohawk, shaved sides, piercings, a studded jacket over a red tee (16 × 16).
+  "avatar-punk": {
+    legend: { k: "#1b2838", g: "#a4d007", d: "#5c7a0c", s: "#d9a582", f: "#f2c9a0", n: "#c08a62", e: "#0b1520", m: "#b06a50", j: "#3a4150", q: "#6b7684", r: "#e05a4f", t: "#dfe6ec" },
+    grid: [
+      "kkkkkkkggkkkkkkk",
+      "kkkkkkggggkkkkkk",
+      "kkkkkdggggdkkkkk",
+      "kkkkssggggsskkkk",
+      "kkksssggggssskkk",
+      "kkkstffffffsskkk",
+      "kkksfeffffefskkk",
+      "kkksffffffftskkk",
+      "kkkknffmmffnkkkk",
+      "kkkkknffffnkkkkk",
+      "kkkkkknffnkkkkkk",
+      "kkjjjrrrrrrjjjkk",
+      "kttjqrrrrrrqjttk",
+      "jjjjqrrrrrrqjjjj",
+      "jjjjjqrrrrqjjjjj",
+      "jjjjjqrrrrqjjjjj",
+    ],
+  },
+  // Chef: a white toque, a braid over the shoulder, a red neckerchief, a white jacket (16 × 16).
+  "avatar-chef": {
+    legend: { k: "#1b2838", w: "#f4f1e8", q: "#c7c2b4", a: "#2a1d18", f: "#9a6440", n: "#74472b", e: "#0b1520", m: "#5a2a1e", r: "#e05a4f", b: "#f4c542" },
+    grid: [
+      "kkkkwwwwwwwwkkkk",
+      "kkkwwwwwwwwwwkkk",
+      "kkkwwwqwwqwwwkkk",
+      "kkkwwwwwwwwwwkkk",
+      "kkkkqqqqqqqqkkkk",
+      "kkkaaffffffaakkk",
+      "kkkafeffffefakkk",
+      "kkkaffffffffakkk",
+      "kkkafffmmfffakkk",
+      "kkkaanffffnaakkk",
+      "kkkkknffffnakkkk",
+      "kkwwrrrrrrrawwkk",
+      "kwwwwrrwwrrwawwk",
+      "wwwwwwqwwqwwawww",
+      "wwwwqwwwwwwqbwww",
+      "qwwwwwwwwwwwawwq",
+    ],
+  },
+  // Robot: a steel head with an antenna, green screen eyes, a grille mouth, lights on the chest (16 × 16).
+  "avatar-robot": {
+    legend: { k: "#1b2838", m: "#8f98a0", h: "#dfe6ec", s: "#4d5866", e: "#0b1520", c: "#3fcf8e", r: "#e05a4f", y: "#f4c542" },
+    grid: [
+      "kkkkkkkrkkkkkkkk",
+      "kkkkkkkskkkkkkkk",
+      "kkkhhhhhhhhhhkkk",
+      "kkhmmmmmmmmmmhkk",
+      "kkhmeeeeeeeemhkk",
+      "kshmecceeccemhsk",
+      "kshmecceeccemhsk",
+      "kkhmeeeeeeeemhkk",
+      "kkhmmmmmmmmmmhkk",
+      "kkhmsmsmmsmsmhkk",
+      "kkkhmmmmmmmmhkkk",
+      "kkkkksssssskkkkk",
+      "kkmhhhhhhhhhhmkk",
+      "kmhhhsyrscshhhmk",
+      "mhhhhssscsshhhhm",
+      "smhhhhhhhhhhhhms",
+    ],
+  },
+  // Cat: a ginger tabby, green eyes, a pink nose, white whiskers and chest (16 × 16).
+  "avatar-cat": {
+    legend: { k: "#1b2838", o: "#f08a3c", d: "#a8521c", w: "#f4f1e8", e: "#0b1520", g: "#a4d007", p: "#ff9ab8" },
+    grid: [
+      "kkkkkkkkkkkkkkkk",
+      "kkdkkkkkkkkkkdkk",
+      "kkodkkkkkkkkdokk",
+      "kkopokkkkkkopokk",
+      "kkooooooooooookk",
+      "kooooooddooooook",
+      "koogeooooooegook",
+      "kooooowwwwoooook",
+      "wkoowwwppwwwookw",
+      "kwoowwwwwwwwoowk",
+      "kkooowwwwwwoookk",
+      "kkkooooooooookkk",
+      "kkooowwwwwwoookk",
+      "koooowwwwwwooook",
+      "ooooowwwwwwooooo",
+      "doooowwwwwwooood",
+    ],
+  },
+  // Alien: a green tentacled creature with three eyes and two antennae (16 × 16).
+  "avatar-alien": {
+    legend: { k: "#1b2838", g: "#3fcf8e", d: "#16684a", l: "#b2f7d4", e: "#0b1520", w: "#f4f1e8" },
+    grid: [
+      "kkkkklkkkklkkkkk",
+      "kkkkkdkkkkdkkkkk",
+      "kkkkggggggggkkkk",
+      "kkkggggggggggkkk",
+      "kkggggggggggggkk",
+      "kggwwgwwwwgwwggk",
+      "kggewgewwegweggk",
+      "kggggggggggggggk",
+      "kggggdggggdggggk",
+      "kgggggddddgggggk",
+      "kkggggggggggggkk",
+      "kggggggggggggggk",
+      "kgdggdggggdggdgk",
+      "kgkggkggggkggkgk",
+      "kgkgdkggggkdgkgk",
+      "kgkgkkgkkgkkgkgk",
+    ],
+  },
+  // Slime: a violet blob with a shine, pink cheeks and a small mouth (16 × 16).
+  "avatar-slime": {
+    legend: { k: "#1b2838", b: "#b47cff", s: "#55308f", l: "#ead9ff", e: "#0b1520", p: "#ff9ab8" },
+    grid: [
+      "kkkkkkkkkkkkkkkk",
+      "kkkkkkkkkkkkkkkk",
+      "kkkkkkbbbbkkkkkk",
+      "kkkkkbbbbbbkkkkk",
+      "kkkkblbbbbbbkkkk",
+      "kkkblbbbbbbbbkkk",
+      "kkblbbbbbbbbbbkk",
+      "kbbbebbbbbbebbbk",
+      "kbbbebbbbbbebbbk",
+      "bbbpbbbbbbbbpbbb",
+      "bbbbbbbssbbbbbbb",
+      "bbbbbbbbbbbbbbbb",
+      "sbbbbbbbbbbbbbbs",
+      "ssbbbbbbbbbbbbss",
+      "sssbbbbbbbbbbsss",
+      "kssssssssssssssk",
+    ],
+  },
+  // Owl: brown with ear tufts, round yellow eyes, an orange beak, a speckled chest (16 × 16).
+  "avatar-owl": {
+    legend: { k: "#1b2838", b: "#8a5a32", d: "#5c3a1e", c: "#d9b48a", y: "#f4c542", e: "#0b1520", o: "#f08a3c" },
+    grid: [
+      "kkkkkkkkkkkkkkkk",
+      "kkdkkkkkkkkkkdkk",
+      "kkbdkkkkkkkkdbkk",
+      "kkbbbbbbbbbbbbkk",
+      "kbbbccccccccbbbk",
+      "kbyyyccccccyyybk",
+      "kbyeyccccccyeybk",
+      "kbyyyccooccyyybk",
+      "kbbccccooccccbbk",
+      "kbbbccbbbbccbbbk",
+      "kbbbbbbbbbbbbbbk",
+      "kbbbbcbccbcbbbbk",
+      "kbbbcbcbbcbcbbbk",
+      "kdbbbcbccbcbbbdk",
+      "kdbbcbcbbcbcbbdk",
+      "kkdbbybyybybbdkk",
+    ],
+  },
+  // The pencil on the player's own portrait, which opens the avatar choice (8 × 8, text colour).
+  pencil: {
+    grid: [
+      "......c.",
+      ".....ccc",
+      "....ccc.",
+      "...ccc..",
+      "..ccc...",
+      ".ccc....",
+      ".cc.....",
+      "c.......",
+    ],
+  },
   // Phone tab bar (11 × 11).
   "tab-hub": {
     grid: [
@@ -526,21 +1051,6 @@ const ICONS = {
       "ccccccccccc",
       "....ccc....",
       "....ccc....",
-      "..ccccccc..",
-    ],
-  },
-  "tab-booster": {
-    grid: [
-      "..ccccccc..",
-      ".ccccccccc.",
-      ".c.......c.",
-      ".ccccccccc.",
-      ".c.......c.",
-      ".c.ccccc.c.",
-      ".c.......c.",
-      ".ccccccccc.",
-      ".c.......c.",
-      ".ccccccccc.",
       "..ccccccc..",
     ],
   },
@@ -559,6 +1069,36 @@ const ICONS = {
       "cccccccc...",
     ],
   },
+  "tab-capsule": {
+    grid: [
+      "...........",
+      "...ccccc...",
+      "..c.....c..",
+      "..c.....c..",
+      "..c.....c..",
+      "..ccccccc..",
+      "..ccccccc..",
+      "..c.....c..",
+      "..c.....c..",
+      "...ccccc...",
+      "...........",
+    ],
+  },
+  "tab-sets": {
+    grid: [
+      "ccccc.ccccc",
+      "c...c.c...c",
+      "c...c.c...c",
+      "c...c.c...c",
+      "ccccc.ccccc",
+      "...........",
+      "ccccc.ccccc",
+      "c...c.c...c",
+      "c...c.c...c",
+      "c...c.c...c",
+      "ccccc.ccccc",
+    ],
+  },
   "tab-trades": {
     grid: [
       "........c..",
@@ -574,19 +1114,60 @@ const ICONS = {
       "..c........",
     ],
   },
-  "tab-more": {
+  "tab-friends": {
     grid: [
-      "cccc...cccc",
-      "c..c...c..c",
-      "c..c...c..c",
-      "cccc...cccc",
       "...........",
+      ".ccc...ccc.",
+      ".c.c...c.c.",
+      ".ccc...ccc.",
       "...........",
+      "ccccc.ccccc",
+      "c...c.c...c",
+      "c...c.c...c",
+      "c...c.c...c",
+      "ccccc.ccccc",
       "...........",
-      "cccc...cccc",
-      "c..c...c..c",
-      "c..c...c..c",
-      "cccc...cccc",
+    ],
+  },
+  "tab-me": {
+    grid: [
+      "...ccccc...",
+      "...c...c...",
+      "...c...c...",
+      "...ccccc...",
+      "...........",
+      ".ccccccccc.",
+      ".c.......c.",
+      ".c.......c.",
+      ".c.......c.",
+      ".ccccccccc.",
+      "...........",
+    ],
+  },
+  // The phone header's menu, beside the bell: three bars (text colour).
+  menu: {
+    grid: [
+      "ccccccc",
+      ".......",
+      ".......",
+      "ccccccc",
+      ".......",
+      ".......",
+      "ccccccc",
+    ],
+  },
+  // The header's bell, beside the player chip (7 × 8): a dome flaring to its rim, b body, h lit edge, l shaded edge.
+  bell: {
+    legend: RARITY[5],
+    grid: [
+      "..hbl..",
+      ".hbbbl.",
+      ".hbbbl.",
+      ".hbbbl.",
+      "hbbbbbl",
+      "lllllll",
+      ".......",
+      "..hbl..",
     ],
   },
 }
@@ -749,18 +1330,6 @@ function ptext(g, str, x, y, col) {
   return cx
 }
 const ptw = (s) => s.length * 6 - 1
-function ptextS(g, str, x, y, col, s) {
-  g.fillStyle = col
-  let cx = x
-  for (const ch of str) {
-    const gl = FONT[ch] || FONT[" "]
-    for (let r = 0; r < 7; r++) {
-      const row = B32.indexOf(gl[r] || "0")
-      for (let c = 0; c < 5; c++) if (row & (1 << (4 - c))) g.fillRect(cx + c * s, y + r * s, s, s)
-    }
-    cx += 6 * s
-  }
-}
 const MONOGRAM = goldColours(setLetters("G"))
 const MONOGRAM_WIDTH = MONOGRAM[0].length
 const MONOGRAM_HEIGHT = MONOGRAM.length
@@ -781,20 +1350,13 @@ function faviconPng() {
   return g
 }
 
-// Card backs (card backs). `id` is the prototype's id: its length
-// seeds the stars and the snow, so it is kept as is.
-function backCanvas(id, w, h) {
+// The standard back, the one every player starts with; the set backs'
+// anatomy is drawn after it.
+function standardBack(w, h) {
   const g = canvas(w, h)
   const P = (x, y, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), 1, 1) }
   const F = (x, y, ww, hh, col) => { g.fillStyle = col; g.fillRect(x, y, ww, hh) }
   const b = 5, cx = (w - 1) / 2, cy = (h - 1) / 2
-  const frame = (o, hi, lo, band, well) => {
-    F(0, 0, w, h, o); F(0, 0, w, 1, hi); F(0, 0, 1, h, hi); F(0, h - 1, w, 1, lo); F(w - 1, 0, 1, h, lo)
-    F(1, 1, w - 2, h - 2, band); F(2, 2, w - 4, h - 4, well)
-  }
-  const field = (fn) => {
-    for (let y = 3; y < h - 3; y++) for (let x = 3; x < w - 3; x++) { const col = fn(x, y); if (col) P(x, y, col) }
-  }
   const inner = (col) => { F(b, b, w - 2 * b, 1, col); F(b, h - b - 1, w - 2 * b, 1, col); F(b, b, 1, h - 2 * b, col); F(w - b - 1, b, 1, h - 2 * b, col) }
   const brackets = (col) => {
     const L = Math.max(4, Math.round(w * 0.08)), q = b + 2
@@ -802,226 +1364,33 @@ function backCanvas(id, w, h) {
       for (let i = 0; i < L; i++) { P(x + i * sx, y, col); P(x, y + i * sy, col) }
     }
   }
-  const word = (s, col, sh, yy) => {
-    if (ptw(s) > w - 16) return
-    const tx = Math.round((w - ptw(s)) / 2)
-    if (sh) ptext(g, s, tx, yy + 1, sh)
-    ptext(g, s, tx, yy, col)
-  }
-  const big = (s, col, sh, yy, k) => {
-    const tw = (s.length * 6 - 1) * k, tx = Math.round((w - tw) / 2)
-    if (sh) ptextS(g, s, tx + 1, yy + 1, sh, k)
-    ptextS(g, s, tx, yy, col, k)
-  }
-  let sd = w * 131 + id.length * 977
-  const rr = () => (sd = (sd * 16807) % 2147483647) / 2147483647
-  switch (id) {
-    case "s1": { // Saison 1: Steam blueprint grid, a big engraved "1"
-      frame("#2a475e", "#66c0f4", "#142636", "#1b2838", "#0b1520")
-      field((x, y) => ((x - 3) % 16 === 0 || (y - 3) % 16 === 0) ? "#1f4a6a" : ((x - 3) % 4 === 0 || (y - 3) % 4 === 0) ? "#132b40" : "#0e2133")
-      const k = w >= 100 ? 4 : w >= 70 ? 3 : 2, gw = 5 * k, gh = 7 * k
-      const x0 = Math.round(cx - gw / 2 + k / 2), y0 = Math.round(cy - gh / 2 - h * 0.03), gl = "4c4444e"
-      for (let r = 0; r < 7; r++) {
-        const row = B32.indexOf(gl[r])
-        for (let q = 0; q < 5; q++) {
-          if (row & (1 << (4 - q))) {
-            F(x0 + q * k + 1, y0 + r * k + 1, k, k, "#06090d")
-            F(x0 + q * k, y0 + r * k, k, k, "#66c0f4")
-            F(x0 + q * k, y0 + r * k, k, 1, "#b5e2ff")
-          }
-        }
-      }
-      for (let i = 0; i < 24; i++) {
-        const a = i / 24 * Math.PI * 2, R0 = w * 0.36
-        P(cx + Math.cos(a) * R0, cy - h * 0.03 + Math.sin(a) * R0, i % 6 ? "#2a6f9a" : "#f4c542")
-      }
-      inner("#2a475e"); brackets("#66c0f4"); word("SAISON", "#66c0f4", "#06090d", b + 5); word("GAMEBLE", "#3d6c8c", "#06090d", h - b - 12)
-      break
-    }
-    case "conf": { // Confrère: community goal pennant, ring crowned by five stars, hazard band
-      frame("#2a475e", "#66c0f4", "#142636", "#1b2838", "#0b1015")
-      field((x, y) => ((x - y + 999) % 5 === 0) ? "#152230" : "#0f1822")
-      const pw = Math.round(w * 0.25), top = Math.round(h * 0.15), bot = Math.round(h * 0.66), nt = Math.round(h * 0.08)
-      const inP = (x, y) => { const dx = Math.abs(x - cx); return dx <= pw && y >= top && y <= bot + nt * (dx / pw) }
-      for (let y = top - 1; y <= bot + nt + 1; y++) {
-        for (let x = Math.floor(cx - pw - 1); x <= Math.ceil(cx + pw + 1); x++) {
-          if (!inP(x, y)) continue
-          const edge = !inP(x - 1, y) || !inP(x + 1, y) || !inP(x, y - 1) || !inP(x, y + 1)
-          P(x, y, edge ? "#f4c542" : mixc("#22364b", "#16222f", (y - top) / (bot - top)))
-        }
-      }
-      const ry = h * 0.42, R0 = w * 0.13
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const d = Math.hypot(x - cx, y - ry)
-          if (Math.abs(d - R0) < 0.6) P(x, y, "#f4c542"); else if (d < R0 * 0.45) P(x, y, "#66c0f4")
-        }
-      }
-      for (let i = -2; i <= 2; i++) {
-        const a = -Math.PI / 2 + i * 0.42, x = cx + Math.cos(a) * w * 0.22, y = ry + Math.sin(a) * w * 0.22
-        P(x, y, "#fff3c4")
-        if (w >= 70) { P(x - 1, y, "#f4c542"); P(x + 1, y, "#f4c542"); P(x, y - 1, "#f4c542"); P(x, y + 1, "#f4c542") }
-      }
-      const hy = Math.round(h * 0.82)
-      for (let y = hy; y < hy + 3; y++) for (let x = b + 1; x < w - b - 1; x++) P(x, y, ((x + y) >> 1) % 3 === 0 ? "#e8833a" : "#0b1015")
-      inner("#2a475e"); brackets("#f4c542"); word("CONFRERE", "#8fa3b5", "#06090d", h - b - 11)
-      break
-    }
-    case "gold": { // Étoile d'or: gold sunburst and a big shaded star
-      frame("#8f5e0a", "#fff3c4", "#4a3005", "#c99a2e", "#120d05")
-      const sy = cy - h * 0.04
-      field((x, y) => {
-        const a = Math.atan2(y - sy, x - cx), k = Math.floor((a + Math.PI) / (Math.PI * 2) * 24) & 1, d = Math.hypot(x - cx, y - sy) / h
-        return mixc(k ? "#33270b" : "#1d1607", "#0c0903", clamp(d * 1.7, 0, 1))
-      })
-      const Rs = w * 0.3
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const u = (x - cx) / Rs, v = (y - sy) / Rs, a = Math.atan2(v, u) + Math.PI / 2, r = Math.hypot(u, v)
-          const kk = ((a / (Math.PI * 2 / 5)) % 1 + 1) % 1, t = Math.abs(kk - 0.5) * 2, lim = 0.42 + t * t * 0.58
-          if (r <= lim) P(x, y, r < lim * 0.35 ? "#fff8dc" : mixc("#fff3c4", "#b8902a", clamp((v + 1) / 2, 0, 1)))
-          else if (r <= lim + 1.4 / Rs) P(x, y, "#4a3005")
-        }
-      }
-      for (let i = 0; i < 8; i++) {
-        const a = i / 8 * Math.PI * 2 + 0.3, x = cx + Math.cos(a) * w * 0.41, y = sy + Math.sin(a) * w * 0.47
-        P(x, y, "#fff3c4")
-        if (i % 2 === 0 && w >= 70) { P(x - 1, y, "#f4c542"); P(x + 1, y, "#f4c542"); P(x, y - 1, "#f4c542"); P(x, y + 1, "#f4c542") }
-      }
-      inner("#8f5e0a"); brackets("#fff3c4"); word("LEGENDE", "#f4c542", "#120d05", h - b - 12)
-      break
-    }
-    case "aur": { // Aurore: aurora curtains over a night sky and a mountain line
-      frame("#1f4a44", "#4fa08a", "#0c2420", "#16352f", "#06100f")
-      const bands = [
-        { c: "#3fcf8e", y: 0.24, a: 0.06, f: 0.17, ph: 0, L: 0.17 },
-        { c: "#66c0f4", y: 0.34, a: 0.05, f: 0.23, ph: 2, L: 0.12 },
-        { c: "#b47cff", y: 0.17, a: 0.035, f: 0.12, ph: 4, L: 0.1 },
-      ]
-      field((x, y) => {
-        let col = mixc("#0d2030", "#060c14", y / h)
-        for (const B of bands) {
-          const yc = h * B.y + Math.sin(x * B.f + B.ph) * h * B.a, d = y - yc, L = h * B.L
-          if (d >= 0 && d < L) col = mixc(B.c, col, clamp(d / L * 1.05 + 0.12 + ((x + y) % 2) * 0.04, 0, 1))
-          else if (d < 0 && d > -1.5) col = mixc(B.c, col, 0.45)
-        }
-        return col
-      })
-      for (let i = 0; i < w * h / 80; i++) { const x = 4 + rr() * (w - 8), y = 4 + rr() * (h * 0.5); P(x, y, rr() < 0.3 ? "#e6eef5" : "#5f7d94") }
-      for (let x = 3; x < w - 3; x++) {
-        const mh = h * 0.11 + Math.abs(Math.sin(x * 0.09 + 1)) * h * 0.07 + ((x >> 2) % 3 === 0 ? 1 : 0)
-        for (let y = Math.round(h - 3 - mh); y < h - 3; y++) P(x, y, y < h - 2 - mh ? "#1f4a44" : "#07131a")
-      }
-      inner("#2f6a60"); brackets("#b2f7d4"); word("AURORE", "#b2f7d4", "#06100f", h - b - 12)
-      break
-    }
-    case "b17": { // Millésime 2017: laurel wreath, the year, a ribbon
-      frame("#6b4a12", "#f4d27a", "#2a1d06", "#4a3410", "#0a0805")
-      field((x, y) => { const base = mixc("#141c2a", "#0a0f18", y / h); return x % 6 === 0 ? mixc(base, "#1d2739", 0.6) : base })
-      const wy = cy - h * 0.05, R0 = w * 0.33
-      for (const sx of [-1, 1]) {
-        for (let deg = 105; deg <= 255; deg += 3) {
-          const a = deg * Math.PI / 180, x = cx + sx * Math.cos(a) * -1 * R0, y = wy + Math.sin(a) * R0 * 1.12
-          P(x, y, "#8f6a18")
-          if (deg % 15 === 0) {
-            const o = Math.cos(a), q = Math.sin(a)
-            for (let k = 1; k <= 3; k++) {
-              P(x + sx * -o * k * 0.9 + (k > 1 ? sx * 0.5 : 0), y + q * k * 0.6 - k * 0.7, k === 3 ? "#fff3c4" : "#f4c542")
-              P(x - sx * -o * k * 0.7, y - q * k * 0.5 - k * 0.5, "#c9a03a")
-            }
-          }
-        }
-      }
-      big("2017", "#fff3c4", "#4a3005", Math.round(wy - 3.5 * (w >= 100 ? 2 : 1)), w >= 100 ? 2 : 1)
-      const ry = Math.round(wy + R0 * 1.12 + 4), rw = Math.round(w * 0.28)
-      F(Math.round(cx - rw), ry, rw * 2, 3, "#2a6f9a"); F(Math.round(cx - rw), ry, rw * 2, 1, "#66c0f4")
-      for (const sx of [-1, 1]) {
-        const ex = Math.round(cx + sx * rw)
-        for (let k = 0; k < 4; k++) { P(ex + sx * k, ry + k, "#1f5a80"); P(ex + sx * k, ry + k + 1, "#2a6f9a") }
-      }
-      inner("#6b4a12"); brackets("#f4c542"); word("TOP 10", "#c9a03a", "#0a0805", h - b - 12)
-      break
-    }
-    case "cent": { // Centurion: riveted metal plate, orange core, "100"
-      frame("#3a424b", "#8c97a3", "#14181c", "#2a3139", "#0b0e11")
-      field((x, y) => (((x >> 2) + (y >> 2)) & 1) ? "#1d2228" : "#232a31")
-      for (let y = b + 5; y < h - b - 4; y += 8) for (let x = b + 5; x < w - b - 4; x += 8) { P(x, y, "#8c97a3"); P(x + 1, y + 1, "#0b0e11") }
-      const Rc = w * 0.27, oy = cy - h * 0.05
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const u = Math.abs(x - cx), v = Math.abs(y - oy), d = Math.max(u, v, (u + v) / 1.38)
-          if (d < Rc - 2) P(x, y, mixc("#ffb15c", "#3a1a08", d / (Rc - 2))); else if (d < Rc) P(x, y, "#e8833a"); else if (d < Rc + 1.2) P(x, y, "#0b0e11")
-        }
-      }
-      const k = w >= 100 ? 2 : 1
-      big("100", "#fff1d8", "#3a1a08", Math.round(oy - 3.5 * k), k)
-      const hy = Math.round(h * 0.8)
-      for (let y = hy; y < hy + 3; y++) for (let x = b + 1; x < w - b - 1; x++) P(x, y, ((x + y) >> 1) % 3 === 0 ? "#e8833a" : "#14181c")
-      inner("#3a424b"); brackets("#e8833a"); word("CENTURION", "#8c97a3", "#0b0e11", h - b - 12)
-      break
-    }
-    case "snow": { // Soldes d'hiver: a big snowflake, falling snow, snowy pines
-      frame("#4f86a8", "#d6efff", "#1f3a52", "#2f5a78", "#0a1622")
-      field((x, y) => mixc("#1d3a58", "#0c1a2a", y / h))
-      const fy = h * 0.38, Rf = w * 0.22
-      for (let i = 0; i < 6; i++) {
-        const a = i * Math.PI / 3 - Math.PI / 2
-        for (let r = 0; r <= Rf; r += 0.5) P(cx + Math.cos(a) * r, fy + Math.sin(a) * r, "#e6f4ff")
-        for (const fr of [0.45, 0.75]) {
-          const bx = cx + Math.cos(a) * Rf * fr, by = fy + Math.sin(a) * Rf * fr, L = Rf * 0.26
-          for (const s of [-1, 1]) {
-            const a2 = a + s * Math.PI / 4
-            for (let r = 0; r <= L; r += 0.5) P(bx + Math.cos(a2) * r, by + Math.sin(a2) * r, "#b5e2ff")
-          }
-        }
-      }
-      P(cx, fy, "#ffffff")
-      for (let i = 0; i < w * h / 55; i++) {
-        const x = 4 + rr() * (w - 8), y = 4 + rr() * (h * 0.74)
-        if (Math.hypot(x - cx, y - fy) < Rf + 3) continue
-        P(x, y, rr() < 0.5 ? "#e6eef5" : "#7fa6c4")
-      }
-      const gb = h - b - 3
-      for (const [px, ph] of [[w * 0.2, h * 0.2], [w * 0.4, h * 0.14], [w * 0.63, h * 0.18], [w * 0.82, h * 0.24]]) {
-        for (let k = 0; k < ph; k++) {
-          const half = Math.floor(k * 0.34) + (k % 4 === 3 ? 1 : 0), y = Math.round(gb - ph + k)
-          for (let x = -half; x <= half; x++) P(px + x, y, (k < 2 || (Math.abs(x) === half && k % 4 === 0)) ? "#c7d5e0" : "#0b1a26")
-        }
-      }
-      F(3, gb, w - 6, h - 3 - gb, "#c7d5e0"); F(3, gb, w - 6, 1, "#e6f4ff")
-      inner("#4f86a8"); brackets("#e6f4ff"); word("HIVER", "#e6f4ff", "#0a1622", b + 5)
-      break
-    }
-    default: { // Standard
-      F(0, 0, w, h, "#2a475e"); F(0, 0, w, 1, "#3d6c8c"); F(0, 0, 1, h, "#3d6c8c"); F(0, h - 1, w, 1, "#142636"); F(w - 1, 0, 1, h, "#142636")
-      F(1, 1, w - 2, h - 2, "#1b2838"); F(2, 2, w - 4, h - 4, "#0e141b")
-      for (let y = 3; y < h - 3; y++) {
-        for (let x = 3; x < w - 3; x++) {
-          const t = y / h, base = mixc("#152131", "#0d141d", t), alt = mixc("#1a2738", "#111a25", t)
-          P(x, y, ((x + y) >> 1) % 3 === 0 ? alt : base)
-        }
-      }
-      inner("#1f3346"); brackets("#66c0f4")
-      const sy = cy - h * 0.04, Rr = w * 0.3
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const d = Math.hypot(x - cx, y - sy)
-          if (d < Rr - 1.2) P(x, y, mixc("#183048", "#0b1119", d / Rr))
-          else if (Math.abs(d - Rr) < 0.62) P(x, y, "#66c0f4")
-          else if (Math.abs(d - (Rr + 5)) < 0.5 && ((x + y) & 1)) P(x, y, "#2a475e")
-        }
-      }
-      for (let i = 0; i < 32; i++) {
-        const a = i / 32 * Math.PI * 2, bg = i % 8 === 0, r0 = Rr + 2, r1 = Rr + (bg ? 4.2 : 3)
-        for (let r = r0; r <= r1; r += 0.5) P(cx + Math.cos(a) * r, sy + Math.sin(a) * r, bg ? "#f4c542" : "#3d6c8c")
-      }
-      const k = Math.max(1, Math.round(Rr / 11.5))
-      drawMonogram(g, Math.round(cx - (MONOGRAM_WIDTH * k - 1) / 2), Math.round(sy - (MONOGRAM_HEIGHT * k - 1) / 2), k)
-      const ty = h - b - 12
-      if (w >= 50) { const tx = Math.round((w - ptw("GAMEBLE")) / 2); ptext(g, "GAMEBLE", tx, ty + 1, "#06090d"); ptext(g, "GAMEBLE", tx, ty, "#3d6c8c") }
-      for (let x = b + 4; x < w - b - 4; x += 3) P(x, ty - 4, "#1f3346")
+  F(0, 0, w, h, "#2a475e"); F(0, 0, w, 1, "#3d6c8c"); F(0, 0, 1, h, "#3d6c8c"); F(0, h - 1, w, 1, "#142636"); F(w - 1, 0, 1, h, "#142636")
+  F(1, 1, w - 2, h - 2, "#1b2838"); F(2, 2, w - 4, h - 4, "#0e141b")
+  for (let y = 3; y < h - 3; y++) {
+    for (let x = 3; x < w - 3; x++) {
+      const t = y / h, base = mixc("#152131", "#0d141d", t), alt = mixc("#1a2738", "#111a25", t)
+      P(x, y, ((x + y) >> 1) % 3 === 0 ? alt : base)
     }
   }
+  inner("#1f3346"); brackets("#66c0f4")
+  const sy = cy - h * 0.04, Rr = w * 0.3
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const d = Math.hypot(x - cx, y - sy)
+      if (d < Rr - 1.2) P(x, y, mixc("#183048", "#0b1119", d / Rr))
+      else if (Math.abs(d - Rr) < 0.62) P(x, y, "#66c0f4")
+      else if (Math.abs(d - (Rr + 5)) < 0.5 && ((x + y) & 1)) P(x, y, "#2a475e")
+    }
+  }
+  for (let i = 0; i < 32; i++) {
+    const a = i / 32 * Math.PI * 2, bg = i % 8 === 0, r0 = Rr + 2, r1 = Rr + (bg ? 4.2 : 3)
+    for (let r = r0; r <= r1; r += 0.5) P(cx + Math.cos(a) * r, sy + Math.sin(a) * r, bg ? "#f4c542" : "#3d6c8c")
+  }
+  const k = Math.max(1, Math.round(Rr / 11.5))
+  drawMonogram(g, Math.round(cx - (MONOGRAM_WIDTH * k - 1) / 2), Math.round(sy - (MONOGRAM_HEIGHT * k - 1) / 2), k)
+  const ty = h - b - 12
+  if (w >= 50) { const tx = Math.round((w - ptw("GAMEBLE")) / 2); ptext(g, "GAMEBLE", tx, ty + 1, "#06090d"); ptext(g, "GAMEBLE", tx, ty, "#3d6c8c") }
+  for (let x = b + 4; x < w - b - 4; x += 3) P(x, ty - 4, "#1f3346")
   return g
 }
 
@@ -1179,20 +1548,10 @@ function avatarCanvas(k) {
   return g
 }
 
-// The eight backs of the prototype (card backs), under their file
-// names, and the card sizes they are drawn for: half of each DESIGN card size,
-// since one art pixel is 2 CSS px. The drawing depends on the size, so each
-// size is its own file.
-const BACK_DESIGNS = [
-  { name: "standard", id: "std", title: "Standard", look: "slate frame, diagonal weave, blue ring with gold ticks, the gold G monogram, GAMEBLE" },
-  { name: "saison-1", id: "s1", title: "Saison 1", look: "blueprint grid, engraved 1 in a ring of blue and gold dots, SAISON, GAMEBLE" },
-  { name: "confrere", id: "conf", title: "Confrère", look: "gold-edged pennant, gold ring crowned by five stars, orange hazard band, CONFRERE" },
-  { name: "etoile-dor", id: "gold", title: "Étoile d'or", look: "gold frame, gold sunburst, large shaded gold star, sparkles, LEGENDE" },
-  { name: "aurore", id: "aur", title: "Aurore", look: "night sky, jade, blue and violet aurora, stars, dark mountain line, AURORE" },
-  { name: "millesime-2017", id: "b17", title: "Millésime 2017", look: "bronze-gold frame, laurel wreath around 2017, blue ribbon, TOP 10" },
-  { name: "centurion", id: "cent", title: "Centurion", look: "riveted gunmetal plate, orange octagonal core with 100, orange hazard band, CENTURION" },
-  { name: "soldes-hiver", id: "snow", title: "Soldes d'hiver", look: "icy blue frame, large snowflake, falling snow, snowy pines, HIVER" },
-]
+// The standard back, drawn for each card size: half of each DESIGN card
+// size, since one art pixel is 2 CSS px. The drawing depends on the size, so
+// each size is its own file. The named and set backs share these sizes.
+const STANDARD_BACK = { name: "standard", title: "Standard", look: "slate frame, diagonal weave, blue ring with gold ticks, the gold G monogram, GAMEBLE" }
 const CARD_SIZES = { xs: [100, 150], s: [112, 168], m: [160, 240], l: [208, 312], xl: [240, 360] }
 const AVATARS = { hugo: "blue", lea: "pink", max: "gold", ines: "jade", tom: "orange", sam: "lavender", x1: "grey", x2: "violet" }
 
@@ -1282,13 +1641,12 @@ function decodePng(buf) {
 const files = new Map(Object.entries(ICONS).map(([name, icon]) => [`${name}.svg`, iconSvg(name, icon)]))
 files.set("wordmark-sweep.svg", wordmarkSweepSvg())
 files.set("starfield.svg", starfieldSvg())
-for (const { name, id } of BACK_DESIGNS) {
-  for (const [size, [w, h]] of Object.entries(CARD_SIZES)) files.set(`back-${name}-${size}.png`, backCanvas(id, w / 2 | 0, h / 2 | 0))
-}
-for (const design of ACHIEVEMENT_BACK_DESIGNS) {
+files.set("nebula.png", drawNebula())
+for (const [size, [w, h]] of Object.entries(CARD_SIZES)) files.set(`back-${STANDARD_BACK.name}-${size}.png`, standardBack(w / 2 | 0, h / 2 | 0))
+for (const design of NAMED_BACK_DESIGNS) {
   for (const [size, [w, h]] of Object.entries(CARD_SIZES)) {
     const g = canvas(w / 2 | 0, h / 2 | 0)
-    drawAchievementBack(g, g.width, g.height, design, { mixc, ptext, ptw })
+    drawSetBack(g, g.width, g.height, design, { mixc, ptext, ptw })
     files.set(`back-${design.name}-${size}.png`, g)
   }
 }
@@ -1315,6 +1673,7 @@ const DESCRIPTIONS = {
   "wordmark.svg": "The gameble wordmark: flat gold GAMEBLE with a lit top edge and a diagonal shine, 66 × 9",
   "wordmark-sweep.svg": "The top bar's wordmark under a hovering mouse: the wordmark without shine and a strip of 23 shine frames, the rest shine then the 22-step sweep, 66 × 9",
   "favicon.svg": "Favicon: the wordmark's gold G, 9 × 9",
+  "back-g.svg": "The phone's back button: the Discord server's gold G, outlined, with a sparkle, 37 × 50",
   ...Object.fromEntries(TIER_NAMES.map((tier, i) => [`rarity-${i + 1}.svg`, `${tier} rarity icon, ${TIER_SHAPES[i]}, 7 × 7`])),
   ...Object.fromEntries(TIER_NAMES.map((tier, i) => [`rarity-compact-${i + 1}.svg`, `${tier} rarity icon for card faces, ${TIER_SHAPES[i]}, 5 × 5`])),
   ...Object.fromEntries(Object.entries(ACHIEVEMENT_GLYPHS).flatMap(([glyph]) => [
@@ -1342,16 +1701,41 @@ const DESCRIPTIONS = {
   "external.svg": "↗ external link (text colour)",
   "hourglass.svg": "⧗ hourglass for expiry and pending (text colour)",
   "canister-small.svg": "The packs chip's small canister, 8 × 11",
-  "avatar-default.svg": "The player's portrait in the shell, 16 × 16",
+  "avatar-default.svg": "The player's portrait until they choose an avatar, 16 × 16",
+  "avatar-novice.svg": "Avatar: the novice, a blue hood, the face in shadow, a gold clasp, 16 × 16",
+  "avatar-archivist.svg": "Avatar: the archivist, a green hood, brass spectacles, 16 × 16",
+  "avatar-guardian.svg": "Avatar: the guardian, a steel helm with a red crest, a gold emblem, 16 × 16",
+  "avatar-oracle.svg": "Avatar: the oracle, a violet hood with a green gem, the face in shadow, 16 × 16",
+  "avatar-grand-master.svg": "Avatar: the grand master, a red hood, a gold crown, a white beard, 16 × 16",
+  "avatar-mechanic.svg": "Avatar: the mechanic, a round afro, gold earrings, orange overalls, 16 × 16",
+  "avatar-pilot.svg": "Avatar: the pilot, red hair, freckles, flight goggles, a leather jacket, 16 × 16",
+  "avatar-cartographer.svg": "Avatar: the cartographer, bald, a full grey beard, a violet turtleneck, 16 × 16",
+  "avatar-botanist.svg": "Avatar: the botanist, a loose rose hijab, red lips, a leaf pinned on her top, 16 × 16",
+  "avatar-streamer.svg": "Avatar: the streamer, a black bob with a pink streak, a headset, a pink hoodie, 16 × 16",
+  "avatar-elder.svg": "Avatar: the elder, white hair in a bun, a pearl necklace, a lavender cardigan, 16 × 16",
+  "avatar-astronaut.svg": "Avatar: the astronaut, a white space helmet, a suit with a mission patch, 16 × 16",
+  "avatar-punk.svg": "Avatar: the punk, a green mohawk, piercings, a studded jacket, 16 × 16",
+  "avatar-chef.svg": "Avatar: the chef, a white toque, a braid, a red neckerchief, 16 × 16",
+  "avatar-robot.svg": "Avatar: the robot, a steel head, green screen eyes, an antenna, 16 × 16",
+  "avatar-cat.svg": "Avatar: the cat, a ginger tabby with green eyes, 16 × 16",
+  "avatar-alien.svg": "Avatar: the alien, green, tentacled, three eyes, 16 × 16",
+  "avatar-slime.svg": "Avatar: the slime, a violet blob with pink cheeks, 16 × 16",
+  "avatar-owl.svg": "Avatar: the owl, brown with ear tufts and round yellow eyes, 16 × 16",
+  "pencil.svg": "✎ pencil on the player's own portrait, choose an avatar, 8 × 8 (text colour)",
+  "capsule-standard.svg": "The merged counter's standard capsule: a blue pill, 7 × 11",
+  "capsule-special.svg": "The merged counter's special capsule: a lime diamond, 9 × 9",
   "tab-hub.svg": "Phone tab bar icon: PONT (text colour)",
-  "tab-booster.svg": "Phone tab bar icon: BOOSTER (text colour)",
   "tab-collection.svg": "Phone tab bar icon: COLLECTION (text colour)",
-  "tab-trades.svg": "Phone tab bar icon: ÉCHANGES (text colour)",
-  "tab-more.svg": "Phone tab bar icon: PLUS (text colour)",
+  "tab-capsule.svg": "Phone tab bar icon: CAPSULE, a vertical pill (text colour)",
+  "tab-sets.svg": "Phone tab bar icon: SETS, four tiles (text colour)",
+  "tab-trades.svg": "Phone tab bar icon: ÉCHANGES, two opposed arrows (text colour)",
+  "tab-friends.svg": "Phone tab bar icon: AMIS, two heads and shoulders (text colour)",
+  "tab-me.svg": "Phone tab bar icon: ME, one head and shoulders (text colour)",
+  "bell.svg": "The header's bell, what is new for the player, 7 × 8",
+  "menu.svg": "The phone header's menu: profile, settings and the extras (text colour)",
   "starfield.svg": "Star field tile, 480 × 480 CSS px, repeated under the content",
-  ...Object.fromEntries(BACK_DESIGNS.flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
-    [`back-${name}-${size}.png`, `${title} back for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
-  ...Object.fromEntries(ACHIEVEMENT_BACK_DESIGNS.flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
+  "nebula.png": `Nebula tile behind the star field: faint blue and violet clouds and a pale band of the galaxy, ${NEBULA_WIDTH} × ${NEBULA_HEIGHT}, drawn at 4 CSS px per pixel`,
+  ...Object.fromEntries([STANDARD_BACK, ...NAMED_BACK_DESIGNS].flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${name}-${size}.png`, `${title} back for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
   ...Object.fromEntries(SET_BACK_DESIGNS.flatMap((design) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${setBackName(design)}-${size}.png`, `${design.word} back of the ${design.key} ${design.kind.replace(/_/g, " ")} set for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
@@ -1440,9 +1824,7 @@ function sheetHtml() {
   const item = (file) => `<figure><div class="art">${image(file)}</div><figcaption><code>${escape(file)}</code><span>${escape(DESCRIPTIONS[file])}</span></figcaption></figure>`
   const svgs = [...files.keys()].filter((file) => file.endsWith(".svg"))
   const sizes = Object.keys(CARD_SIZES)
-  const backRows = BACK_DESIGNS.map(({ name, title, look }) =>
-    `<tr><th scope="row"><b>${escape(title)}</b><span>${escape(look)}</span></th>${sizes.map((size) => `<td>${item(`back-${name}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
-  const achievementBackRows = ACHIEVEMENT_BACK_DESIGNS.map(({ name, title, look }) =>
+  const backRows = [STANDARD_BACK, ...NAMED_BACK_DESIGNS].map(({ name, title, look }) =>
     `<tr><th scope="row"><b>${escape(title)}</b><span>${escape(look)}</span></th>${sizes.map((size) => `<td>${item(`back-${name}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
   const setBackRows = SET_BACK_DESIGNS.map((design) =>
     `<tr><th scope="row"><b>${escape(design.word)}</b><span>${escape(`${design.key}, ${design.kind.replace(/_/g, " ")} set`)}</span></th>${sizes.map((size) => `<td>${item(`back-${setBackName(design)}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
@@ -1491,7 +1873,6 @@ ${svgs.map(item).join("\n")}
 <thead><tr><th></th>${sizes.map((size) => `<th scope="col">card-${size}</th>`).join("")}</tr></thead>
 <tbody>
 ${backRows}
-${achievementBackRows}
 </tbody>
 </table></div>
 
@@ -1514,6 +1895,11 @@ ${canisterParts.map(item).join("\n")}
 <h2>Planet</h2>
 <div class="grid">
 ${item("planet.png")}
+</div>
+
+<h2>Nebula</h2>
+<div class="grid">
+${item("nebula.png")}
 </div>
 
 <h2>Avatars</h2>

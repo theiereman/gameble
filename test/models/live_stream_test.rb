@@ -128,7 +128,7 @@ class LiveStreamTest < ActiveSupport::TestCase
     english = received(:en)
     assert_equal [ "Hugo completes the Valve set." ], template(english, "feed-entries").css(".feed__entry--set .feed__sentence").map(&:text)
     assert_equal [ "Hugo completes the Valve set." ], template(english, "live-ticker-queue").css(".ticker__sentence").map(&:text).grep(/Valve/)
-    assert_equal "Hugo completes the Valve set.", template(english, "live-strip").at_css(".public-card__live-sentence").text
+    assert_equal "Hugo completes the Valve set.", template(english, "live-strip").at_css(".live-strip__sentence").text
   end
 
   test "other events tell nothing" do
@@ -166,7 +166,7 @@ class LiveStreamTest < ActiveSupport::TestCase
     assert_equal sentence, ticker.at_css(".ticker__sentence").text
     assert_equal "Trade", ticker.at_css(".ticker__trade").text.strip
     assert_empty ticker.css(".ticker__rarity")
-    assert_equal sentence, template(english, "live-strip").at_css(".public-card__live-sentence").text
+    assert_equal sentence, template(english, "live-strip").at_css(".live-strip__sentence").text
     assert_equal "Hugo et Sam ont échangé Portal contre Profondeurs bleues",
       template(received(:fr), "feed-entries").at_css(".feed__sentence").text
   end

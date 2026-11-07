@@ -134,8 +134,8 @@ class LibraryOwnSetsTest < ActionDispatch::IntegrationTest
     own_set("Mes jeux", take(3))
     sign_in(@player)
 
-    get library_path(locale: :fr, q: "ludo")
-    assert_equal [ "Ma ludothèque Steam" ], result_names
+    get library_path(locale: :fr, q: "biblio")
+    assert_equal [ "Ma bibliothèque Steam" ], result_names
     assert_equal "Steam · 3 jeux du catalogue", result_tiles.sole.at_css(".set-tile__kind").text
 
     get library_path(locale: :en, q: "steam")
@@ -147,7 +147,7 @@ class LibraryOwnSetsTest < ActionDispatch::IntegrationTest
     assert_equal [ "Steamworks" ], result_names
 
     Game::CustomSet.where(player_id: @player.id, kind: Game::CustomSet::STEAM_LIBRARY).update_all(synced_at: nil)
-    get library_path(locale: :fr, q: "ludo")
+    get library_path(locale: :fr, q: "biblio")
     assert_equal "Aucun set trouvé", found
   end
 

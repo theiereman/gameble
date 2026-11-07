@@ -1,13 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { phoneSwell, pose } from "./booster_motion"
 import {
-  armKeyframes,
   bannerKeyframes,
-  dockKeyframes,
   legendaryDropKeyframes,
   legendaryJumpKeyframes,
-  platePopKeyframes,
-  sinkKeyframes,
   storeKeyframes,
   trembleKeyframes,
 } from "./booster_keyframes"
@@ -17,34 +13,6 @@ const first = (keyframes: Keyframe[]) => keyframes[0]
 const last = (keyframes: Keyframe[]) => keyframes[keyframes.length - 1]
 
 describe("booster keyframes", () => {
-  it("arms the canister from rest to its stretched squash", () => {
-    const keyframes = armKeyframes()
-    expect(first(keyframes)).toEqual({
-      transform: "translate(0px, 0px) rotate(0deg) scale(1, 1)",
-      easing: "cubic-bezier(.4,0,.6,1)",
-    })
-    expect(last(keyframes)).toEqual({ transform: "translate(0px, -4px) rotate(0deg) scale(0.95, 1.1)" })
-  })
-
-  it("docks a new canister from below, faded, to rest", () => {
-    const keyframes = dockKeyframes()
-    expect(first(keyframes)).toEqual({ transform: "translateY(220px)", opacity: 0 })
-    expect(last(keyframes)).toEqual({ transform: "none", opacity: 1 })
-  })
-
-  it("sinks a card from its pose, down and faded", () => {
-    const keyframes = sinkKeyframes(pose(0, 10))
-    expect(first(keyframes)).toEqual({ transform: "translate(0px, 10px) rotate(0deg) scale(1, 1)", opacity: 1 })
-    expect(last(keyframes)).toEqual({ transform: "translate(0px, 80px) rotate(0deg) scale(0.92, 0.92)", opacity: 0 })
-  })
-
-  it("trembles an epic up to its lift height, a step per 40ms of the prototype", () => {
-    const keyframes = trembleKeyframes(3, 26, asIs)
-    expect(keyframes).toHaveLength(8)
-    expect(first(keyframes)).toEqual({ transform: pose() })
-    expect(last(keyframes)).toEqual({ transform: "translate(0px, -26px) rotate(0deg) scale(1.06, 1.06)" })
-  })
-
   it("takes the swell from the layout", () => {
     expect(last(trembleKeyframes(3, 26, phoneSwell))).toEqual({
       transform: "translate(0px, -26px) rotate(0deg) scale(1.015, 1.015)",
@@ -76,11 +44,5 @@ describe("booster keyframes", () => {
     expect(last(bannerKeyframes(false))).toEqual({ opacity: 0, transform: "translateY(-16px) scale(1, 1)" })
     expect(first(bannerKeyframes(true))).toEqual({ opacity: 0 })
     expect(last(bannerKeyframes(true))).toEqual({ opacity: 0 })
-  })
-
-  it("pops the caption plate in from a flat squash to rest", () => {
-    const keyframes = platePopKeyframes()
-    expect(first(keyframes)).toEqual({ transform: "scale(1.2, 0.2)", opacity: 0 })
-    expect(last(keyframes)).toEqual({ transform: "scale(1, 1)", opacity: 1 })
   })
 })

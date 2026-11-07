@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="<%= I18n.locale %>"<% if forced_motion %> data-motion="<%= forced_motion %>"<% end %>>
+<html lang="<%= I18n.locale %>"<% if forced_motion %> data-motion="<%= forced_motion %>"<% end %><% if hotwire_native_app? %> data-native-app<% end %><% if native_top_bar? %> data-native-bar<% end %>>
   <head>
     <%= render "layouts/head" %>
   </head>
@@ -7,17 +7,20 @@
   <body class="<%= class_names("is-back-office": back_office_page?, "is-public-page": content_for?(:public_page)) %>">
     <%= render "shell/atmosphere" unless back_office_page? %>
     <%= render "shell/top_bar" %>
+    <%= render "shell/announcement" %>
 
     <main id="main" class="main">
+      <% if native_top_bar? && content_for?(:top_bar_status) %><div class="native-status"><%= yield :top_bar_status %></div><% end %>
       <%= yield %>
     </main>
     <%= yield :page_aside if content_for?(:page_aside) %>
     <%= yield :page_footer if content_for?(:page_footer) %>
     <%= yield :ticker if content_for?(:ticker) %>
 
-    <%= render "shell/tab_bar" unless back_office_page? || content_for?(:public_page) %>
+    <%= render "shell/tab_bar" unless back_office_page? || content_for?(:public_page) || hotwire_native_app? %>
     <%= render "shell/toasts" %>
     <%= render "shell/version" %>
     <%= player_stream_tag %>
+    <% if hotwire_native_app? %><div hidden data-controller="bridge--haptics bridge--sheet bridge--screen" data-bridge--screen-label-value="<%= native_screen_label %>"></div><% end %>
   </body>
 </html>

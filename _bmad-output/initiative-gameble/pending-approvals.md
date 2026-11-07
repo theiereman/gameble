@@ -13,11 +13,59 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
     - `bmad-architecture`: done on 2026-11-01 (AD-8 without the per-pair limit, with an identical-proposal refusal `trade_already_sent`, two kinds of browser drafts and the Costs of the change, including dropping the per-pair unique index concurrently; AD-10's lock order gains trade rows; AD-38 with the CAP-11 suggestion rules, a full tie-break order, a game in an open trade between the pair never suggested again, and a suggestion opener that renders a prefill without writing it, so an opened but unsent suggestion stays a suggestion). Two facilitator defaults to confirm: a friend's side reads only their game-set goals (also the spec's open question), and suggestions are filled in friend order so no game or copy is placed twice across them.
     - `bmad-ticket`: done on 2026-11-01, epics 29 and 30 recorded in their `tickets.toml` (see Settled on 2026-11-01).
 
+- The bottom sheet's first user, the card list's quick-filter menu (epic phone-first web, entry 3, built 2026-11-03): read conservatively as a menu of preset links. A QUICK FILTERS chip beside the search opens a sheet of one-tap filters (every card, each goal, each state but All, each rarity), each a link to the card list with that filter alone, the one in force marked current. The FILTRES zone stays as it is, and the sheet is not a moved copy of the filter form; entry 4 replaces the zone with the three pastilles. To confirm, or to say the menu should instead combine filters in the sheet.
+
+- Social opens on trades and friends (epic phone-first web, entry 8, built 2026-11-03): five decisions taken conservatively, to confirm or change:
+  - The trade board's own list (`trades/_list`) keeps its current rows (what for what, expiry); only the Social rows take the new shape (friend, turn chip, highest rarity).
+  - The feed's section on Social is a link to the feed with one line, not embedded entries.
+  - The weekly community goal shows on Social and also stays on the hub.
+  - The feed's toggle keeps its "All" / "Tous" wording beside "Friends" / "Amis".
+  - Social shows at most the five most recent ended trades (of the 14 days the trade list keeps).
+
 - Shared card link previews with a generated image (backlog story `story-a-shared-card-link-previews-with-a-generated-image`), before it reaches production:
   - Steam's terms on reusing store art: the image shows the card's Steam cover, pixelated in the card frame. The author checks the Steam terms allow it.
   - Crawler reach of `/share-images/<token>.png`: the image sits outside the locale scope, served signed out with `Cache-Control: public, max-age=31536000, immutable`. Cloudflare must let Discordbot, Twitterbot, WhatsApp and facebookexternalhit fetch it as it lets them fetch the card page. While `SEARCH_INDEXING` is off, `robots.txt` answers `Disallow: /`, which Twitterbot obeys for images too: check an X preview on staging.
   - The render has run only against the development and CI builds of libvips, never inside the Docker image: on staging, open a card page, wait a few seconds, reload, and check the page carries `og:image` and the image shows the card's title in VT323 and a pixelated art. A missing text or palette feature in the image's libvips shows as a Sentry report from `CardShareImageJob` or as unquantised art.
   - The images are stored by Active Storage on the `local` service, under `/rails/storage` (the `gameble_storage` volume): a lost volume with the database kept leaves each stored image's tags pointing at a missing file until the `catalog_share_images` rows are cleared or `CardShareImage::RENDER_VERSION` is bumped, after which each card page enqueues its render again.
+
+- Entry 33.6, "Open every capsule from one thumb" (2026-11-03): built with conservative choices that the author confirms or changes:
+  - The capsule screen is where a signed-in player arrives (the bare `/`, the installed app's start, a sign-in with no specific origin), but the hub still exists at `/<locale>` behind the G button. Should the hub go entirely (its welcome dialog, showcase, weekly mission panel, sets in progress and LIVE ticker then need another home)?
+  - A player whose welcome is still pending lands on the hub, not the capsule screen, so the welcome dialog shows once as today.
+  - Collecting the daily capsule on the capsule screen selects the SPÉCIALES tab when the standard reserve is empty; any other capsule arriving while the screen is open still leaves the selected tab unchanged, as `EXPERIENCE.md` says.
+  - Warming the next capsule's art: built as sending the next opening as soon as "OUVRIR LA SUIVANTE" is pressed, while the previous hand sinks away. Rendering the next capsule's art before the player presses would send that capsule's cards to the browser before it is opened (a player could read them in the network panel) and `OpenPack` may still redraw them; build it only if the author accepts that.
+
+- Entry 4, "A card list that scrolls without end" (epic phone-first web, built 2026-11-03): built with conservative choices that the author confirms or changes:
+  - The card list's sheets combine choices as the FILTRES zone did: each pastille's sheet holds its group's chips, still fields of the one filter form (OR within a group, AND across groups, the grid reloading behind the open sheet). The question on entry 3's menu (preset links or combined filters) stays open above; this build answers it the combining way for the card list.
+  - Set and genre, outside the three named pastilles (Goals, Rarity, State), moved to a fourth More pastille ("Plus", sheet "Autres filtres") rather than being dropped from the card list.
+  - The QUICK FILTERS chip and its sheet of preset links are retired; the pastilles take their place.
+  - The search and the pastille row are not pinned while the list scrolls.
+
+- Entry 5, "Sets that open on your goals" (epic phone-first web, built 2026-11-03): built with conservative choices that the author confirms or changes:
+  - ALL CARDS ▸ stays the way to the all-cards view, since the two-segment switch was removed on 2026-11-02.
+  - OBJECTIFS leads; the search, MES SETS and the Steam library keep their place before the grouped sets in progress.
+  - A typed search no longer hides OBJECTIFS, which sits above it, but still replaces everything below it.
+  - "Closest to completion" means the fewest cards missing to complete, then the larger share held, then the set's id.
+  - EN COURS keeps today's membership minus the goal sets, split into one group per set kind in kind order (themes, franchises, studios, hall of fame, UFOs), each loading six at a time; the gold frame stays on the set closest to its next tier across all the groups.
+  - A goal tile shows at most five missing cards, then a "+N" link to its album filtered on the missing cards.
+  - Suggestions show only to a player with no goal: at most three started, incomplete game sets; a player with neither goal nor started set keeps today's empty line.
+
+- Entry 10, "A bell with what is new" (epic phone-first web, built 2026-11-03): built with conservative choices that the author confirms or changes:
+  - The weekly mission's line (the entry's open unknown): while the player has an uncollected mission reward, "La mission hebdo est accomplie : une capsule rare vous attend." / "The weekly mission is accomplished: a rare capsule awaits you." with "Récupérer" / "Collect"; otherwise one line a week, "Mission de la semaine : ouvrir %{target} capsules ensemble." / "This week's mission: open %{target} capsules together." with "Voir" / "See". Both lead to the mission panel on Social.
+  - "A line clears when its target is opened" is remembered by the browser, per device: the server only computes the lines from current state (a GET writes nothing), and the browser hides a line once its target page was opened, by the line or any other way. A line comes back when its state changes (a trade's new turn, a new week). The set is kept per player on a shared browser. A line opened on the phone still shows on the computer; entry 11's server-side marker could later carry this for every line. Two lines are exceptions and stay until their state ends: the daily capsule (until collected, the next day's line replacing it) and the mission reward (until collected), since the capsule screen where a player lands would otherwise hide the daily line at once. Opening the friends page clears every friend-request line together.
+  - At most five trade lines and five friend-request lines; the daily line's link opens the capsule screen, where the daily slot is collected, rather than collecting from the bell.
+
+- Entry 9, "Trade from a missing card" (epic phone-first web, built 2026-11-03): built with conservative choices that the author confirms or changes:
+  - The Trade button shows on the detail of a card the player holds no copy of, and only when at least one friend has a free copy (a single copy included, a copy reserved in a trade not counting); it is hidden when the player's own profile is private.
+  - The friends in the sheet are ranked: those not yet asked first, then more free copies first, then token; the suggestions' mutual-first ranking does not apply since the player's side stays empty.
+  - The edition requested is the shown one when the friend has a free copy of it, else the friend's edition with the most free copies.
+  - A friend who already has an open request from the player for the same card shows in the sheet as "Already asked", not as a button; any other open trade with that friend does not block it, as on the trade board today.
+  - The sent trade lands on the trade board with the usual "sent" toast; the sheet's friends are not limited to the goals' cards.
+
+- Entry 11, "A trade updated since you last looked" (epic phone-first web, built 2026-11-03): built with conservative choices that the author confirms or changes:
+  - The last-seen marker is a table row (`game_trade_views`, one per player and trade), not a column on the trade (both players of a trade have one) and not browser storage (it must follow the player across devices).
+  - It is written by a POST the trade board fires when it renders an answer the player has not seen, not by a job and never by the trade page's GET. Opening the trade by any path (bell line, list, the trades index showing the first trade) writes it.
+  - Only an accepted or declined proposal counts as an update, for 7 days at most, at most five lines, never for a friend who is banned or gone. A counter-offer stays a waiting line; a cancelled or expired trade is not an answer.
+  - Deleting an account deletes its markers; the deletion dialog and the privacy page now name them.
 
 ## Settled on 2026-11-02
 

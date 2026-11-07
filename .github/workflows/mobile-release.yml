@@ -1,0 +1,131 @@
+name: Mobile release build
+
+# Builds the signed Android bundle and the signed iOS archive for a release candidate (staging server) or a release
+# (production server), then sends them to the Google Play internal track and to TestFlight.
+# Android secrets: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD,
+# GOOGLE_PLAY_SERVICE_ACCOUNT_JSON. iOS secrets: APP_STORE_CONNECT_KEY_ID, APP_STORE_CONNECT_ISSUER_ID,
+# APP_STORE_CONNECT_KEY_BASE64 (the .p8), APPLE_TEAM_ID.
+# A tag android-v1.2.0-1 or ios-v1.2.0-1 builds that one platform for the staging server, from any branch.
+on:
+  push:
+    tags: [ "android-v*", "ios-v*" ]
+  release:
+    types: [ prereleased, released ]
+  workflow_dispatch:
+    inputs:
+      root_url:
+        description: The server the app loads
+        default: https://gameble.net
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    if: github.event_name != 'push' || startsWith(github.ref_name, 'android-v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ROOT_URL: ${{ inputs.root_url || ((github.event_name == 'push' || github.event.release.prerelease) && 'https://test.gameble.net') || 'https://gameble.net' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Decode the keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$KEYSTORE_BASE64" || { echo "ANDROID_KEYSTORE_BASE64 is not set"; exit 1; }
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+          echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+
+      - name: Write the Firebase config the push notifications need
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          test -n "$GOOGLE_SERVICES_JSON" || { echo "GOOGLE_SERVICES_JSON is not set"; exit 1; }
+          printf '%s' "$GOOGLE_SERVICES_JSON" > mobile/android/app/google-services.json
+
+      - name: Build the signed bundle
+        working-directory: mobile/android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          JAVA_HOME="$JAVA_HOME_17_X64" ./gradlew --no-daemon bundleRelease \
+            -PgamebleRootUrl="$ROOT_URL" \
+            -PgamebleVersionCode="$GITHUB_RUN_NUMBER" \
+            -PgamebleVersionName="$(echo "$GITHUB_REF_NAME" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: gameble-android-bundle
+          path: mobile/android/app/build/outputs/bundle/release/*.aab
+
+      - name: Send the bundle to the Google Play internal track
+        env:
+          PLAY_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          test -n "$PLAY_JSON" || { echo "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON is not set"; exit 1; }
+          echo "$PLAY_JSON" > "$RUNNER_TEMP/play.json"
+          sudo gem install fastlane --no-document
+          fastlane supply --aab mobile/android/app/build/outputs/bundle/release/app-release.aab \
+            --json_key "$RUNNER_TEMP/play.json" --package_name net.gameble.app --track internal --release_status draft
+
+  ios:
+    if: github.event_name != 'push' || startsWith(github.ref_name, 'ios-v')
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      ROOT_URL: ${{ inputs.root_url || ((github.event_name == 'push' || github.event.release.prerelease) && 'https://test.gameble.net') || 'https://gameble.net' }}
+      APS_ENV: ${{ (github.event.release.prerelease && 'development') || 'production' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Write the App Store Connect key
+        env:
+          KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        run: |
+          test -n "$KEY_BASE64" || { echo "APP_STORE_CONNECT_KEY_BASE64 is not set"; exit 1; }
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$KEY_BASE64" | base64 -d > ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8
+
+      - name: Generate the project and archive it
+        working-directory: mobile/ios
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          brew install xcodegen
+          xcodegen generate
+          VERSION="$(echo "$GITHUB_REF_NAME" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
+          # Signing at archive time needs a registered device; only the export needs to sign, for the App Store.
+          xcodebuild archive -project Gameble.xcodeproj -scheme Gameble -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Gameble.xcarchive" \
+            DEVELOPMENT_TEAM="$TEAM_ID" CODE_SIGNING_ALLOWED=NO \
+            GAMEBLE_ROOT_URL="$ROOT_URL" APS_ENVIRONMENT="$APS_ENV" \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER"
+          # The export keeps the entitlements of the signature it replaces, and an unsigned archive has none.
+          sed "s/\$(APS_ENVIRONMENT)/$APS_ENV/" Gameble/Gameble.entitlements > "$RUNNER_TEMP/app.entitlements"
+          codesign --force --sign - --entitlements "$RUNNER_TEMP/app.entitlements" \
+            "$RUNNER_TEMP/Gameble.xcarchive/Products/Applications/Gameble.app"
+          export_to() {
+            cat > "$RUNNER_TEMP/export.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+            <key>destination</key><string>$1</string>
+          </dict></plist>
+          PLIST
+            xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Gameble.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+              -exportPath "$RUNNER_TEMP/$1" -allowProvisioningUpdates \
+              -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_$KEY_ID.p8 \
+              -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER_ID"
+          }
+          export_to export
+          unzip -q "$RUNNER_TEMP/export/Gameble.ipa" -d "$RUNNER_TEMP/ipa"
+          codesign -d --entitlements :- "$RUNNER_TEMP/ipa/Payload/Gameble.app" | grep -q aps-environment
+          export_to upload

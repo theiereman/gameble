@@ -11,7 +11,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
   end
 
   def unlock(*keys)
-    keys.each { |key| Game::AchievementUnlock.create!(player_id: @player.id, achievement: key, unlocked_at: Time.current) }
+    keys.each { |key| Game::AchievementUnlock.create!(player_id: @player.id, achievement: key, unlocked_at: Time.current, claimed_at: Time.current) }
   end
 
   def opened_packs(count)
@@ -45,19 +45,21 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".achievements__segment--lit", 3
     assert_select "h2#achievements-earned", "Obtenus · 3"
     assert_select "h2#achievements-to_earn", "À obtenir · #{total_achievements - 3}"
+    assert_equal %w[achievements-to_earn achievements-earned], css_select(".achievements__group h2").map { it["id"] }
     assert_equal [ "Première acquisition approuvée", "A surpassé les attentes", "Période d'essai validée" ], group_names(:earned)
     assert_equal [ "Nous n'en demandions pas autant", "Dossier complété", "Entraide mutuelle", "Historique de consommation exemplaire",
       "Loyauté au-delà du raisonnable", "Excellence administrative", "Contribution non rémunérée", "Non-conformité statistique",
       "Irrégularité de conditionnement", "L'excellence dans la médiocrité", "Gestion du patrimoine historique",
       "La chance est un concept marketing", "Demande de congé refusée", "Procédure d'ouverture simplifiée",
       "Zèle au-delà des obligations", "Portefeuille diversifié", "Concentration du marché", "Premier arrivé, premier servi",
-      "Une découverte qui nous appartient", "Une relation strictement professionnelle" ], group_names(:to_earn)
+      "Une découverte qui nous appartient", "Une relation strictement professionnelle", "Pas de temps à perdre", "Oiseau de nuit" ],
+      group_names(:to_earn)
 
     hundred = tile(:to_earn, "Historique de consommation exemplaire")
     assert_equal "Ouvrir 100 capsules", hundred.at_css(".achievement__condition").text
-    bar = hundred.at_css("progress.achievement__bar[aria-hidden=true]")
+    bar = hundred.at_css("[aria-hidden=true] progress.achievement__bar")
     assert_equal [ "64", "100" ], [ bar["value"], bar["max"] ]
-    assert_equal "64 / 100", hundred.at_css(".achievement__progress[aria-hidden=true]").text
+    assert_equal "64 / 100", hundred.at_css("[aria-hidden=true] .achievement__progress").text
     assert_equal "64 sur 100", hundred.at_css(".visually-hidden").text
     assert_equal "Ouvrir 500 capsules", tile(:to_earn, "Loyauté au-delà du raisonnable").at_css(".achievement__condition").text
 
@@ -115,106 +117,6 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the three one-capsule achievements: their names, conditions and glyphs in each locale, earned or not" do
-    unlock("packaging_irregularity")
-    sign_in(@player)
-    glyph = ->(name) { Nokogiri::HTML5.fragment(ShellHelper.pixel_source(name)).at_css("svg").inner_html }
-
-    { en: [ [ "Packaging Irregularity", "Two copies of the same game in one capsule", "duplicate" ],
-            [ "Excellence in Mediocrity", "Five Common cards in one standard capsule", "tokens-locked" ],
-            [ "Historical Asset Management", "A game released before 2000 and one released in 2025 or later in one capsule", "hourglass-locked" ] ],
-      fr: [ [ "Irrégularité de conditionnement", "Deux exemplaires du même jeu dans une capsule", "duplicate" ],
-            [ "L'excellence dans la médiocrité", "Cinq cartes Communes dans une capsule standard", "tokens-locked" ],
-            [ "Gestion du patrimoine historique", "Un jeu sorti avant 2000 et un jeu sorti en 2025 ou après dans une même capsule", "hourglass-locked" ] ] }.each do |locale, tiles|
-      get achievements_path(locale:)
-
-      tiles.each_with_index do |(name, condition, icon), index|
-        found = tile(index.zero? ? :earned : :to_earn, name)
-        assert_equal condition, found.at_css(".achievement__condition").text
-        assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
-        assert_nil found.at_css("progress")
-      end
-    end
-  end
-
-  test "the two collection achievements: their names, conditions and glyphs in each locale, earned or not" do
-    unlock("diversified_portfolio")
-    sign_in(@player)
-    glyph = ->(name) { Nokogiri::HTML5.fragment(ShellHelper.pixel_source(name)).at_css("svg").inner_html }
-
-    { en: [ [ "Diversified Portfolio", "Hold five copies of the same game at once", "fan" ],
-            [ "Market Concentration", "Hold 10 different games of the same studio at once", "tower-locked" ] ],
-      fr: [ [ "Portefeuille diversifié", "Détenir cinq exemplaires d'un même jeu en même temps", "fan" ],
-            [ "Concentration du marché", "Détenir 10 jeux différents d'un même studio en même temps", "tower-locked" ] ] }.each do |locale, tiles|
-      get achievements_path(locale:)
-
-      tiles.each_with_index do |(name, condition, icon), index|
-        found = tile(index.zero? ? :earned : :to_earn, name)
-        assert_equal condition, found.at_css(".achievement__condition").text
-        assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
-      end
-    end
-  end
-
-  test "the three community achievements: their names, conditions and glyphs in each locale, earned or not" do
-    unlock("first_claim_all_rights_reserved")
-    sign_in(@player)
-    glyph = ->(name) { Nokogiri::HTML5.fragment(ShellHelper.pixel_source(name)).at_css("svg").inner_html }
-
-    { en: [ [ "First Claim, All Rights Reserved", "Be the pioneer of a card in a season", "flag" ],
-            [ "A Discovery of Ours", "Repost a card you pioneered", "lens-locked" ],
-            [ "A Strictly Professional Relationship", "Complete three trades with the same player", "clasp-locked" ] ],
-      fr: [ [ "Premier arrivé, premier servi", "Être le pionnier d'une carte dans une saison", "flag" ],
-            [ "Une découverte qui nous appartient", "Reposter une carte dont vous êtes le pionnier", "lens-locked" ],
-            [ "Une relation strictement professionnelle", "Conclure trois échanges avec le même joueur", "clasp-locked" ] ] }.each do |locale, tiles|
-      get achievements_path(locale:)
-
-      tiles.each_with_index do |(name, condition, icon), index|
-        found = tile(index.zero? ? :earned : :to_earn, name)
-        assert_equal condition, found.at_css(".achievement__condition").text
-        assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
-      end
-    end
-  end
-
-  test "the two streak achievements: their names, conditions and glyphs in each locale, earned or not" do
-    unlock("luck_is_a_marketing_concept")
-    sign_in(@player)
-    glyph = ->(name) { Nokogiri::HTML5.fragment(ShellHelper.pixel_source(name)).at_css("svg").inner_html }
-
-    { en: [ [ "Luck Is a Marketing Concept", "10 standard capsules in a row with no Rare or better card", "clover" ],
-            [ "Leave Request Denied", "Collect the daily bonus 7 days in a row (UTC days)", "refused-locked" ] ],
-      fr: [ [ "La chance est un concept marketing", "10 capsules standard de suite sans carte Rare ou mieux", "clover" ],
-            [ "Demande de congé refusée", "Récupérer le bonus quotidien 7 jours de suite (jours UTC)", "refused-locked" ] ] }.each do |locale, tiles|
-      get achievements_path(locale:)
-
-      tiles.each_with_index do |(name, condition, icon), index|
-        found = tile(index.zero? ? :earned : :to_earn, name)
-        assert_equal condition, found.at_css(".achievement__condition").text
-        assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
-      end
-    end
-  end
-
-  test "the two reveal streak achievements: their names, conditions and glyphs in each locale, earned or not" do
-    unlock("streamlined_opening_procedure")
-    sign_in(@player)
-    glyph = ->(name) { Nokogiri::HTML5.fragment(ShellHelper.pixel_source(name)).at_css("svg").inner_html }
-
-    { en: [ [ "Streamlined Opening Procedure", "10 capsules in a row opened with \"Reveal all\"", "skip" ],
-            [ "Diligence Beyond the Call of Duty", "10 capsules in a row with every card revealed one by one", "revealed-locked" ] ],
-      fr: [ [ "Procédure d'ouverture simplifiée", "10 capsules de suite ouvertes avec « Tout révéler »", "skip" ],
-            [ "Zèle au-delà des obligations", "10 capsules de suite dont chaque carte est révélée une à une", "revealed-locked" ] ] }.each do |locale, tiles|
-      get achievements_path(locale:)
-
-      tiles.each_with_index do |(name, condition, icon), index|
-        found = tile(index.zero? ? :earned : :to_earn, name)
-        assert_equal condition, found.at_css(".achievement__condition").text
-        assert_equal glyph.call("achievement-#{icon}"), found.at_css("svg.achievement__glyph").inner_html
-      end
-    end
-  end
-
   test "the tiles that unlock a card back name it with its picture, earned or not" do
     unlock("boosters_100")
     sign_in(@player)
@@ -230,6 +132,20 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_nil tile(:to_earn, "Entraide mutuelle").at_css(".achievement__back")
   end
 
+  test "the tiles that unlock an avatar name it with its portrait, earned or not" do
+    unlock("first_booster")
+    sign_in(@player)
+
+    get achievements_path(locale: :fr)
+
+    novice = tile(:earned, "Première acquisition approuvée")
+    assert_equal "Débloque l'avatar Novice", novice.at_css(".achievement__avatar").text.strip
+    assert novice.at_css("svg.achievement__avatar-image")
+    assert_equal "Débloque l'avatar Oracle", tile(:to_earn, "A surpassé les attentes").at_css(".achievement__avatar").text.strip
+    assert_nil tile(:to_earn, "Loyauté au-delà du raisonnable").at_css(".achievement__avatar")
+    assert_nil tile(:to_earn, "Entraide mutuelle").at_css(".achievement__avatar")
+  end
+
   test "the four hardest achievements show the back they unlock, with its picture" do
     sign_in(@player)
     { "luck_is_a_marketing_concept" => "Wilted clover", "leave_request_denied" => "Assiduous",
@@ -240,14 +156,6 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
       assert_equal "Unlocks the #{back} card back", found.at_css(".achievement__back").text.strip
       assert found.at_css("img.achievement__back-image")
     end
-  end
-
-  test "the card back line reads in English" do
-    sign_in(@player)
-
-    get achievements_path(locale: :en)
-
-    assert_equal "Unlocks the Dawn card back", tile(:to_earn, "Archival Excellence").at_css(".achievement__back").text.strip
   end
 
   test "an achievement of threshold one not yet earned shows no bar nor count" do
@@ -280,29 +188,29 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_nil flash[:alert]
   end
 
-  test "on the phone the screen sits under the PLUS tab, with a way back to it" do
+  test "on the phone the screen sits under no tab, with a way back to the profile" do
     sign_in(@player)
 
     get achievements_path(locale: :fr)
 
-    assert_select "a.tab-bar__tab[href='/fr/more'][aria-current=page]", /Plus/
-    assert_select ".top-bar a.top-bar__phone-back[href='/fr/more']", /Plus/
+    assert_select "a.tab-bar__tab[aria-current]", false
+    assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
   end
 
-  test "menu 07 and the PLUS row lead a player to the achievements, with the count earned" do
+  test "menu 05 and the Me page lead a player to the achievements, with the count earned" do
     unlock("first_booster", "first_trade", "first_repost")
     sign_in(@player)
 
     get home_path(locale: :fr)
-    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='7']" do
+    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='6']" do
       assert_select ".menu-item__label", "Succès"
       assert_select ".menu-item__meta[aria-hidden=true]", "3/#{total_achievements}"
       assert_select ".visually-hidden", "3 succès obtenus sur #{total_achievements}"
     end
     get home_path(locale: :en)
     assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of #{total_achievements}"
-    get more_path(locale: :fr)
-    assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
+    get me_path(locale: :fr)
+    assert_select "a.me-achievements__all[href='/fr/achievements']", /Tout voir/
   end
 
   def total_achievements = Game::Achievements::CATALOGUE.size

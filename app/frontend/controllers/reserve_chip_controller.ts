@@ -7,14 +7,12 @@ export default class extends Controller<HTMLElement> {
   static targets = ["count", "label", "special", "specialCount", "specialLabel", "specialReason"]
   static values = { delimiter: { type: String, default: "," }, templates: Object, specialTemplates: Object }
 
-  declare readonly hasCountTarget: boolean
-  declare readonly countTarget: HTMLElement
+  declare readonly countTargets: HTMLElement[]
   declare readonly hasLabelTarget: boolean
   declare readonly labelTarget: HTMLElement
   declare readonly hasSpecialTarget: boolean
   declare readonly specialTarget: HTMLElement
-  declare readonly hasSpecialCountTarget: boolean
-  declare readonly specialCountTarget: HTMLElement
+  declare readonly specialCountTargets: HTMLElement[]
   declare readonly hasSpecialLabelTarget: boolean
   declare readonly specialLabelTarget: HTMLElement
   declare readonly hasSpecialReasonTarget: boolean
@@ -38,14 +36,14 @@ export default class extends Controller<HTMLElement> {
   }
 
   private showStandard(available: number): void {
-    if (this.hasCountTarget) writeText(this.countTarget, formatNumber(available, this.delimiterValue))
+    for (const count of this.countTargets) writeText(count, formatNumber(available, this.delimiterValue))
     if (this.hasLabelTarget && this.templatesValue)
       writeText(this.labelTarget, t(this.templatesValue, { count: available, number: "" }).trim())
   }
 
   private showSpecial(special: number): void {
     const none = special === 0
-    if (this.hasSpecialCountTarget) writeText(this.specialCountTarget, formatNumber(special, this.delimiterValue))
+    for (const count of this.specialCountTargets) writeText(count, formatNumber(special, this.delimiterValue))
     if (this.hasSpecialLabelTarget && this.specialTemplatesValue)
       writeText(this.specialLabelTarget, t(this.specialTemplatesValue, { count: special }))
     if (this.hasSpecialReasonTarget) this.specialReasonTarget.hidden = !none

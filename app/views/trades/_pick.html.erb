@@ -1,6 +1,6 @@
 <%= tag.li class: "trade-pick",
       data: { trade_board_target: "card", trade_board_picker_target: "pick", side:, key: pick.key, title: pick.view.title,
-              rarity: pick.view.rarity, owned: pick.owned, reserved: pick.reserved, max: pick.max, copies: pick.copies,
+              rarity: pick.view.rarity, genre: pick.view.genre, goals: trade_pick_goals(pick), owned: pick.owned, reserved: pick.reserved, max: pick.max, copies: pick.copies,
               other_copies: pick.other_copies } do %>
   <%= tag.div class: class_names("trade-pick__card", "trade-pick__card--unavailable": pick.unavailable?) do %>
     <div class="trade-pick__face trade-pick__face--pending" aria-hidden="true"></div>

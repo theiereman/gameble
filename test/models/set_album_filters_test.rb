@@ -46,12 +46,4 @@ class SetAlbumFiltersTest < ActiveSupport::TestCase
     assert_not chosen.shows_card?(Card.new(title: "Portal", rarity: "rare"))
     assert_equal 100, filters(q: "x" * 300).query.size
   end
-
-  test "it answers the FILTRES zone with no set or genre group" do
-    none = filters
-
-    assert_empty none.chosen_sets
-    assert_empty none.chosen_genres
-    assert_empty none.genres
-  end
 end

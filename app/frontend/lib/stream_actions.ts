@@ -2,8 +2,9 @@ import { dispatchGameble } from "./events"
 import type { TurboGlobal } from "./turbo"
 
 export const STREAM_EVENT_ACTION = "gameble-event"
+export const STREAM_FOCUS_ACTION = "gameble-focus"
 
-export const STREAM_SIGNALS = ["trades-updated", "friends-updated"] as const
+export const STREAM_SIGNALS = ["trades-updated", "friends-updated", "reactions-updated", "bank-updated"] as const
 
 export type StreamSignal = (typeof STREAM_SIGNALS)[number]
 
@@ -15,5 +16,8 @@ export function registerStreamActions(turbo: Pick<TurboGlobal, "StreamActions">,
   turbo.StreamActions[STREAM_EVENT_ACTION] = function (this: Element): void {
     const signal = streamSignal(this.getAttribute("event"))
     if (signal) dispatchGameble(`gameble:${signal}`, {}, target)
+  }
+  turbo.StreamActions[STREAM_FOCUS_ACTION] = function (this: Element & { targetElements?: HTMLElement[] }): void {
+    this.targetElements?.[0]?.focus({ preventScroll: true })
   }
 }

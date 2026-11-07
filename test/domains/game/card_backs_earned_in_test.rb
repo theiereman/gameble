@@ -17,32 +17,32 @@ class Game::CardBacksEarnedInTest < ActiveSupport::TestCase
   end
 
   test "the backs unlocked during the season come in unlock order, with their unlock time" do
-    Game::CardBackUnlock.record(@player.id, Game::CardBacks::GOAL_BACK, 3.days.ago)
+    Game::CardBackUnlock.record(@player.id, "centurion", 3.days.ago)
     Game::CardBackUnlock.record(@player.id, Game::CardBacks.set_key("theme", "horror"), 5.days.ago)
 
     earned = Game::CardBacksEarnedIn.call(@player, @first, before: @second.published_at)
 
-    assert_equal [ Game::CardBacks.set_key("theme", "horror"), Game::CardBacks::GOAL_BACK ], earned.map { it.back.key }
+    assert_equal [ Game::CardBacks.set_key("theme", "horror"), "centurion" ], earned.map { it.back.key }
     assert_in_delta 5.days.ago, earned.first.unlocked_at, 5
   end
 
   test "a back unlocked before the season began or after it ended is left out" do
-    Game::CardBackUnlock.record(@player.id, Game::CardBacks::GOAL_BACK, 20.days.ago)
+    Game::CardBackUnlock.record(@player.id, "centurion", 20.days.ago)
     Game::CardBackUnlock.record(@player.id, Game::CardBacks.set_key("theme", "horror"), 30.minutes.ago)
 
     assert_empty earned_keys
   end
 
   test "another player's unlocks and keys outside the catalogue are left out" do
-    Game::CardBackUnlock.record(accounts_players(:administrator).id, Game::CardBacks::GOAL_BACK, 3.days.ago)
+    Game::CardBackUnlock.record(accounts_players(:administrator).id, "centurion", 3.days.ago)
     Game::CardBackUnlock.record(@player.id, "retired-back", 3.days.ago)
 
     assert_empty earned_keys
   end
 
   test "the recap carries the backs earned in the ended season" do
-    Game::CardBackUnlock.record(@player.id, Game::CardBacks::GOAL_BACK, 3.days.ago)
+    Game::CardBackUnlock.record(@player.id, "centurion", 3.days.ago)
 
-    assert_equal [ Game::CardBacks::GOAL_BACK ], Game::SeasonAllocationRecap.call(@player).backs.map { it.back.key }
+    assert_equal [ "centurion" ], Game::SeasonAllocationRecap.call(@player).backs.map { it.back.key }
   end
 end

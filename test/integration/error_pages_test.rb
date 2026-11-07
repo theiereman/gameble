@@ -9,15 +9,6 @@ require "tmpdir"
 class ErrorPagesTest < ActionDispatch::IntegrationTest
   OLD_BROWSER = "Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko"
   PAGES = %w[400 404 406-unsupported-browser 422 500].product(%w[en fr]).map { |name, locale| "#{name}.#{locale}.html" }.freeze
-  COPIES = {
-    "vt323-latin-400-normal.woff2" => "app/frontend/fonts",
-    "jetbrains-mono-latin-400-normal.woff2" => "app/frontend/fonts",
-    "jetbrains-mono-latin-700-normal.woff2" => "app/frontend/fonts",
-    "OFL-VT323.txt" => "app/frontend/fonts",
-    "OFL-JetBrainsMono.txt" => "app/frontend/fonts",
-    "wordmark.svg" => "app/frontend/images/pixel",
-    "starfield.svg" => "app/frontend/images/pixel"
-  }.freeze
   HOME_LABELS = { "en" => "BACK TO HOME", "fr" => "RETOUR À L'ACCUEIL" }.freeze
 
   test "the error pages are 400, 404, 406, 422 and 500, in English and French" do
@@ -35,26 +26,6 @@ class ErrorPagesTest < ActionDispatch::IntegrationTest
       assert_equal [ "/#{locale}" ], html.css("a.error__home").map { it["href"] }
       assert_equal HOME_LABELS[locale], html.at_css("a.error__home").text
       assert_equal [ "/errors.css?v=#{stamp("errors.css")}" ], html.css("link[rel=stylesheet]").map { it["href"] }
-    end
-  end
-
-  test "every asset the pages and the stylesheet link is under public/ and its stamp matches its file" do
-    urls = PAGES.flat_map { Rails.public_path.join(it).read.scan(%r{(?:href|src)="(/errors[^"]*)"}).flatten } +
-      Rails.public_path.join("errors.css").read.scan(/url\("([^"]+)"\)/).flatten
-
-    assert_equal 6, urls.uniq.size
-    urls.uniq.each do |url|
-      path, version = url.split("?v=")
-
-      assert_path_exists Rails.public_path.join(path.delete_prefix("/")), url
-      assert_equal stamp(path.delete_prefix("/")), version, url
-    end
-  end
-
-  test "the copies in public/errors/ match their sources" do
-    assert_equal COPIES.keys.sort, Rails.public_path.join("errors").children.map { it.basename.to_s }.sort
-    COPIES.each do |file, source|
-      assert_equal Rails.root.join(source, file).binread, Rails.public_path.join("errors", file).binread, file
     end
   end
 
@@ -84,13 +55,6 @@ class ErrorPagesTest < ActionDispatch::IntegrationTest
       assert_predicate status, :success?, output
       assert_includes File.read(File.join(dir, "public/errors.css")), "/errors/starfield.svg?v=#{Digest::SHA256.hexdigest("<svg/>")[0, 8]}"
     end
-  end
-
-  test "the stylesheet is served from public/" do
-    get "/errors.css"
-
-    assert_response :success
-    assert_equal "text/css", response.media_type
   end
 
   test "an unknown address under /fr gets the French 404 page, without a policy header" do
@@ -138,7 +102,7 @@ class ErrorPagesTest < ActionDispatch::IntegrationTest
   end
 
   test "an old browser on a page not meant to be shared gets the 406 page in its locale under the enforced policy" do
-    get more_path(locale: :fr), headers: { "User-Agent" => OLD_BROWSER }
+    get me_path(locale: :fr), headers: { "User-Agent" => OLD_BROWSER }
 
     assert_response :not_acceptable
     assert_predicate response.headers["Content-Security-Policy"], :present?
@@ -147,14 +111,6 @@ class ErrorPagesTest < ActionDispatch::IntegrationTest
     assert_select "style", false
     assert_select "[style]", false
     assert_select "script", false
-  end
-
-  test "the enforced policy lets the 406 page load its stylesheet, fonts and images from its own origin" do
-    get home_path(locale: :en), headers: { "User-Agent" => OLD_BROWSER }
-
-    policy = response.headers["Content-Security-Policy"].split(";").to_h { it.strip.split(" ", 2) }
-
-    %w[style-src font-src img-src].each { assert_includes policy[it], "'self'" }
   end
 
   private

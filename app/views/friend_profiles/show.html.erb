@@ -1,10 +1,11 @@
 <% content_for :back_button, true %>
+<% content_for :phone_back do %><%= phone_back_link t("shell.screens.friends"), friends_path %><% end %>
 <% content_for :title, friend_name(@owner) %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
 <%= turbo_frame_tag friend_profile_frame_id(@owner.token), target: "_top" do %>
   <section class="friend-profile" aria-labelledby="friend-profile-name-<%= @owner.token %>">
     <div class="friend-profile__head">
-      <%= pixel_icon("avatar-default", class: "friend-profile__avatar") %>
+      <%= player_avatar(@owner, class_name: "friend-profile__avatar") %>
       <div class="friend-profile__who">
         <h2 id="friend-profile-name-<%= @owner.token %>" class="friend-profile__name"><%= friend_name(@owner) %></h2>
         <%= active_title_tag(@owner_title, class_name: "friend-profile__title") %>

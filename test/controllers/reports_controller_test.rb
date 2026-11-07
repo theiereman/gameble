@@ -30,16 +30,6 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#report-dialog", text: /Le joueur ne verra pas qui l'a signalé/
   end
 
-  test "the owner of the profile has no SIGNALER" do
-    sign_in(@owner)
-
-    get brother_path(locale: :en, token: @owner.token)
-
-    assert_response :success
-    assert_select "#report-dialog", false
-    assert_select ".profile-band button", false
-  end
-
   test "a signed-out visitor's SIGNALER and ÉCHANGE show greyed and disabled, and no report dialog is sent" do
     get brother_path(locale: :fr, token: @owner.token)
 

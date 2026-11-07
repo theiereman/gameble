@@ -133,20 +133,17 @@ html[data-sub-view-step] .main {
     padding-bottom: var(--space-7);
   }
 
-  body:has(.tab-bar) > .ticker {
-    margin-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
-  }
-
   .ticker__inner {
-    max-width: var(--space-phone-column-max);
     height: var(--space-ticker-height-phone);
-    margin: 0 auto;
-    padding: 0 var(--space-gutter-phone);
   }
 
   .top-bar__title {
-    font: var(--font-screen-title-phone);
-    letter-spacing: var(--tracking-screen-title-phone);
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .rarity-counter,
@@ -174,14 +171,6 @@ html[data-sub-view-step] .main {
 
   .top-bar__start--phone-back > .top-bar__phone-back {
     display: inline-flex;
-  }
-
-  .top-bar__start--phone-previous.top-bar__start--has-previous > .top-bar__previous {
-    display: inline-flex;
-  }
-
-  .top-bar__start--phone-previous.top-bar__start--has-previous > .top-bar__bridge {
-    display: none;
   }
 
   .button {
@@ -257,20 +246,6 @@ html[data-sub-view-step] .main {
     bottom: auto;
   }
 
-  .app-version {
-    left: var(--space-gutter-phone);
-  }
-
-  body:has(.tab-bar) .app-version {
-    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-2));
-  }
-
-  body:has(.tab-bar):has(> .ticker) .app-version {
-    bottom: calc(
-      var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-ticker-height-phone) + var(--space-2)
-    );
-  }
-
   .toast {
     animation-name: toast-drop;
   }
@@ -286,12 +261,14 @@ html[data-sub-view-step] .main {
 /* ---- Reduced motion: the player's setting (html[data-motion=reduced],
    motion.ts) or, unless the setting asks for full motion
    (html[data-motion=full]), the system's preference stops the star
-   twinkle, the screen slides, the toast rise, the wordmark's sweep and
-   the ticker, which shows its latest items still; the LIVE marker stays
-   lit. ---- */
+   twinkle and glints, the screen slides, the toast rise,
+   the wordmark's sweep and the ticker, which shows its latest items
+   still; the LIVE marker stays lit. ---- */
 
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-motion="full"]) .atmosphere__twinkle > i {
+  html:not([data-motion="full"]) .atmosphere__twinkle > i,
+  html:not([data-motion="full"]) .atmosphere__twinkle > i::before,
+  html:not([data-motion="full"]) .atmosphere__twinkle > i::after {
     animation: none;
   }
 
@@ -329,7 +306,9 @@ html[data-sub-view-step] .main {
   }
 }
 
-html[data-motion="reduced"] .atmosphere__twinkle > i {
+html[data-motion="reduced"] .atmosphere__twinkle > i,
+html[data-motion="reduced"] .atmosphere__twinkle > i::before,
+html[data-motion="reduced"] .atmosphere__twinkle > i::after {
   animation: none;
 }
 

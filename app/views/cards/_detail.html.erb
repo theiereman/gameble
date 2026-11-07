@@ -6,6 +6,7 @@
 <% showcase = local_assigns.fetch(:showcase, nil) %>
 <% pioneer = local_assigns.fetch(:pioneer, nil) %>
 <% goals = local_assigns.fetch(:goals, []) %>
+<% trade_holders = local_assigns.fetch(:trade_holders, nil) || [] %>
 <% goal_numbers = goals.map(&:position) %>
 <% repostable = share_url && editions.any? { |_, season_number, _| season_number == detail.view.season_number } %>
 <% view = detail.view %>
@@ -163,6 +164,9 @@
       </div>
     </div>
   <% end %>
+  <% if trade_holders.any? %>
+    <%= render "cards/trade_section", holders: trade_holders, view:, strings: %>
+  <% end %>
   <div class="card-detail__actions">
     <% if repostable || showcase %>
       <div class="card-detail__holder-actions">
@@ -182,7 +186,10 @@
             <% end %>
           </div>
           <% if showcase.action == :full %>
-            <p class="card-detail__showcase-full"><%= t("showcases.full") %></p>
+            <p class="card-detail__showcase-full">
+              <%= t("showcases.full") %>
+              <%= link_to t("showcases.open"), me_path(card: view.id, edition: view.season_number, anchor: "showcase"), class: "card-detail__showcase-open", data: { turbo_prefetch: false } %>
+            </p>
           <% end %>
         <% end %>
       </div>

@@ -1,0 +1,68 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Each card leaving the capsule gives a haptic tap"
+description = "In the native apps, the touch on a capsule gives a light haptic impact, and each card dealt out of the capsule gives a light impact as it leaves, in the deal's cascade (five taps for a five-card capsule, three for a bonus capsule), through the existing haptics bridge component and a new gameble event; reduced motion keeps the taps but they follow the fade; the web is unchanged."
+verify = "Vitest covers the event per dealt card and the bridge component's impact per event; a dealt five-card capsule sends five card impacts after the touch impact."
+covers = []
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "The capsule screen carries the next capsule of each reserve and opening names it"
+description = "The booster page (HTML and its bank JSON) carries, for each reserve with an available capsule, the capsule that opening would take next: its token, kind, card back and cards with faces and first-copy flags, read through a Game query (a GET never writes). The JSON opening POST accepts that capsule's token: Game::OpenPack opens exactly that capsule when it is available to the player, answers the replay when the key was already used, and refuses with a code when the token names a capsule already opened or not the player's; the opening's answer also carries the next capsule of the same reserve, so openings chain."
+verify = "Operation and controller tests: the page and the JSON carry the next capsule per reserve without writing; opening by token opens that capsule; a used token is refused with its code; a replayed key answers the same capsule; the answer carries the following capsule."
+covers = []
+after = []
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "A capsule opens and reveals at once while its confirmation goes in the background"
+description = "The booster client opens the capsule it already holds: the touch blasts the capsule and deals its cards with no network wait, the cards reveal from the held faces, and the opening POST (token and idempotency key) goes in the background; a pending confirmation is kept in local storage and sent again on failure, on a return online, on the app coming back to the foreground and on the next visit, until the server answers; the confirmation's bank, set tiers, goals, first copies and celebration are applied when it lands, and when it answers other cards the hand follows the server; arming the next capsule overlaps the previous hand's retreat; the toast 'Ouverture annulée' and the advice to reload disappear."
+verify = "Vitest on the state module and the confirmation queue (sent, failed then retried online, replayed after reload, other cards adopted); the booster system tests that open a capsule still pass, and an opening with the network refused deals and reveals the cards then confirms when the network returns."
+covers = []
+after = [2]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 4
+type = "story"
+title = "The next capsule's art is ready before the touch"
+description = "When the screen holds a next capsule, the art of its cards is fetched and rendered by the card art worker while the screen is idle, so a reveal never waits for a cover and works offline once prepared; a card whose art cannot be prepared falls back as today."
+verify = "Vitest: holding a next capsule schedules its art preparation in idle time, once per capsule; the reveal uses the prepared art."
+covers = []
+after = [3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "The countdown and the reserve refresh without reloading the screen"
+description = "At zero the countdown reads the bank JSON (reserve and next capsules) instead of reloading the booster page; a failed read is tried again when the browser comes back online or the screen comes back into view, and a refresh never replaces the screen with an error page."
+verify = "Vitest on the countdown's zero path and the retry on 'online'; a system test where the countdown reaches zero shows the arrived capsule without a page visit."
+covers = []
+after = [2]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 6
+type = "story"
+title = "The capsule screen opens offline and opening times are measured"
+description = "A service worker caches the booster page last seen and the assets it uses, so the capsule screen opens offline with the last known reserve and its held capsule, cleared on sign-out; the native apps fall back on it when their web view supports service workers, else on a Gameble offline view; the client marks touch, blast and first face and reports the timings with the confirmation, logged by the server for reading on real phones."
+verify = "A system or request test serves the cached booster page offline; signing out clears it; the confirmation POST logs the reported timings."
+covers = []
+after = [3, 5]
+hitl = false
+risk = "medium"
+unknown = "Whether WKWebView in the iOS app runs service workers without app-bound domains; the plan settles it and falls back on a native offline view."

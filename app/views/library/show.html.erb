@@ -11,6 +11,7 @@
   <div class="set-entry-page">
     <h1 class="visually-hidden"><%= t("library.collection.title") %></h1>
     <%= render "library/entry", results: @results, results_count: @results_count, query: @query, custom_set_tiles: @custom_set_tiles, goals: @goals,
-      steam_library_tile: @steam_library_tile, search_url: library_path, in_progress_url: library_in_progress_path, all_cards_url: library_cards_path %>
+      goal_suggestions: @goal_suggestions, steam_library_tile: @steam_library_tile,
+      search_url: library_path, in_progress_url: library_in_progress_path, all_cards_url: library_cards_path %>
   </div>
 <% end %>

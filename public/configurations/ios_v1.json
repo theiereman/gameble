@@ -1,0 +1,27 @@
+{
+  "settings": {},
+  "rules": [
+    {
+      "patterns": [
+        ".*"
+      ],
+      "properties": {
+        "context": "default",
+        "pull_to_refresh_enabled": false,
+        "query_string_presentation": "replace"
+      }
+    },
+    {
+      "patterns": [
+        "^/(en|fr)/me/sheets/",
+        "^/(en|fr)/feed/types",
+        "^/(en|fr)/cards/[^/]+/seasons/\\d+/holders"
+      ],
+      "properties": {
+        "context": "modal",
+        "modal_style": "large",
+        "pull_to_refresh_enabled": false
+      }
+    }
+  ]
+}

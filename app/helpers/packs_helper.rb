@@ -7,8 +7,16 @@ module PacksHelper
   end
 
   def pack_card_back(pack)
-    back = Game::CardBacks.find(pack.card_back_key) || Game::CardBacks.find(Game::CardBacks::STANDARD)
-    { key: back.key, season: pack.card_back_season, urls: BACK_SIZES.to_h { |size| [ size, vite_asset_path("images/pixel/#{back.asset}-#{size}.png") ] } }
+    card_back_json(pack.card_back_key, pack.card_back_season)
+  end
+
+  def card_back_json(key, season)
+    back = Game::CardBacks.find(key) || Game::CardBacks.find(Game::CardBacks::STANDARD)
+    { key: back.key, season:, urls: BACK_SIZES.to_h { |size| [ size, vite_asset_path("images/pixel/#{back.asset}-#{size}.png") ] } }
+  end
+
+  def pack_head_json(pack, card_back:)
+    { token: pack.token, kind: pack.kind, cardBack: card_back, url: pack_path(pack.token), revealUrl: pack_reveal_path(pack.token) }
   end
 
   def pack_card_back_data(pack)
@@ -19,27 +27,36 @@ module PacksHelper
   def pack_opening_json(pack, cards:, player:, now:, goals_reached: [], goals: GoalMarks::NONE)
     counts = Game::Reserve.counts(player.id, now:)
     scheduled = Game::BankSchedule.call(player, now:).map { opening_time(it) }
+    sizes = Game::NextPackSize.call(player, now:)
     {
-      pack: { token: pack.token, kind: pack.kind, cardBack: pack_card_back(pack), url: pack_path(pack.token),
-              revealUrl: pack_reveal_path(pack.token) },
-      cards: cards.map { pack_card_json(it, goals.goals_for(it.card_id)) },
+      pack: pack_head_json(pack, card_back: pack_card_back(pack)),
+      cards: pack_cards_json(cards, Game::FirstCopies.call(player, pack), goals:),
       bank: { available: counts.standard, special: counts.special, openable: counts.openable, reserveFull: Game::Reserve.full?(counts.standard),
-              nextAvailableAt: scheduled.first, scheduledAt: scheduled, nextPackSize: Game::NextPackSize.call(player, now:),
-              nextSpecialKind: counts.next_special_kind },
+              nextAvailableAt: scheduled.first, scheduledAt: scheduled, nextPackSize: sizes["standard"],
+              nextSpecialSize: sizes["special"], nextSpecialKind: counts.next_special_kind },
       serverTime: opening_time(now),
-      tierCountsBefore: Game::TierCounts.before_opening(player, pack).transform_keys { Catalog::Rarity::TIERS.fetch(it) },
+      tierCountsBefore: tier_counts_json(Game::TierCounts.before_opening(player, pack)),
       setTiers: pack_set_tiers(pack),
-      goalsReached: goals_reached
+      goalsReached: goals_reached,
+      next: held_pack_after_json(pack, player:, now:)
     }
   end
 
-  def pack_card_json(card, goals)
-    pack_card_fields(card, goals:).merge(faces: pack_faces(card, goals:))
+  def pack_cards_json(cards, first_copies, goals:)
+    cards.zip(first_copies).map { |card, first_copy| pack_card_json(card, goals.goals_for(card.card_id), first_copy:) }
   end
 
-  def pack_card_fields(card, goals: [])
+  def tier_counts_json(counts)
+    counts.transform_keys { Catalog::Rarity::TIERS.fetch(it) }
+  end
+
+  def pack_card_json(card, goals, first_copy: false)
+    pack_card_fields(card, goals:, first_copy:).merge(faces: pack_faces(card, goals:))
+  end
+
+  def pack_card_fields(card, goals: [], first_copy: false)
     { slug: card.id, season: card.season_number, tier: card.rarity, coverUrl: card.image_url, title: card.title, year: card.year,
-      label: pack_card_label(card), goals: goal_card_words(goals) }
+      label: pack_card_label(card), goals: goal_card_words(goals), firstCopy: first_copy }
   end
 
   def pack_set_tiers(pack)

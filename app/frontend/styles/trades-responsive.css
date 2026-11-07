@@ -9,6 +9,10 @@
   .trades__layout {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .trades__list {
+    order: 1;
+  }
 }
 
 @media (max-width: 719px) {
@@ -35,17 +39,12 @@
     margin: 0 auto;
   }
 
-  .trade-picker__clear,
-  .trade-picker__fold {
+  html:has(.trade-picker[open]) {
+    overflow: hidden;
+  }
+
+  .trade-picker__clear {
     min-height: var(--space-touch-min);
-  }
-
-  .trade-picker__fold {
-    display: flex;
-  }
-
-  .trade-picker__groups--folded {
-    display: none;
   }
 
   .trade-picker__panel {

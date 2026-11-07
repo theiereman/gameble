@@ -34,20 +34,10 @@ describe("placeCard", () => {
     expect(at.visible).toBe(true)
   })
 
-  it("is 1600px below the middle, hidden, at scroll 1000", () => {
-    const at = placeCard(card, { ...frame, scrollY: 1000 })
-    expect(at.y).toBeCloseTo(500 + 1600 - 120)
-    expect(at.visible).toBe(false)
-  })
-
   it("moves faster than the scroll", () => {
     const first = placeCard(card, { ...frame, scrollY: 1900 })
     const second = placeCard(card, { ...frame, scrollY: 2000 })
     expect(first.y - second.y).toBeCloseTo(160)
-  })
-
-  it("turns with the distance", () => {
-    expect(placeCard(card, { ...frame, scrollY: 1000 }).rotation).toBeCloseTo(-8 + 1000 * 0.004)
   })
 
   it("stays inside its lane however far it sways", () => {

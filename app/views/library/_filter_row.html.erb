@@ -1,0 +1,36 @@
+<% pastilles = filter_row_pastilles(goals:, state_choices:, sets_offered:, genres: filters.genres) %>
+<ul class="filter-row" aria-label="<%= t("library.filters.title") %>">
+  <% pastilles.each do |pastille| %>
+    <% count = filter_row_count(counts, pastille) %>
+    <li>
+      <%= tag.a(**bottom_sheet_opener(filter_sheet_id(pastille)), class: "filter-chip filter-row__pastille") do %>
+        <span class="filter-chip__text">
+          <%= filter_row_label(pastille) %>
+          <span class="filter-row__count" data-collection-filters-target="pastilleCount" data-groups="<%= filter_row_groups(pastille) %>" <%= "hidden" if count.zero? %>><span class="visually-hidden"><%= t("library.filters.active") %></span> <span data-pastille-number><%= count %></span></span>
+        </span>
+      <% end %>
+    </li>
+  <% end %>
+</ul>
+<% pastilles.each do |pastille| %>
+  <%= render BottomSheetComponent.new(id: filter_sheet_id(pastille), title: filter_sheet_title(pastille)) do %>
+    <div class="filter-sheet">
+      <% case pastille %>
+      <% when :goals %>
+        <%= render "library/goal_filter", goals:, goals_chosen:, titled: true %>
+      <% when :rarity %>
+        <%= render "library/rarity_filter", chosen: filters.chosen_rarities, titled: true %>
+      <% when :state %>
+        <%= render "library/state_filter", state_choices:, states:, titled: true %>
+      <% when :more %>
+        <% if sets_offered %>
+          <%= render "library/set_filter", **set_filter, chosen: filters.chosen_sets %>
+        <% end %>
+        <% if filters.genres.any? %>
+          <%= render "library/genre_filter", genres: filters.genres, chosen: filters.chosen_genres %>
+        <% end %>
+      <% end %>
+      <p class="filter-sheet__status" role="status" data-collection-filters-target="sheetStatus"><%= t("library.grid.result", count: results_count) %></p>
+    </div>
+  <% end %>
+<% end %>

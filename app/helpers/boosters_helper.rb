@@ -2,27 +2,27 @@ module BoostersHelper
   RESERVE_PIPS = 10
   STATUSES = { sealed: "sealed", arming: "arming", ejecting: "ejecting", inventory: "inventory",
                legendarySignal: "legendary_signal", complete: "complete", waiting: "waiting" }.freeze
-  BOOSTER_CHILDREN = %w[booster-info].freeze
+  BOOSTER_CHILDREN = %w[booster-info booster-next-steps].freeze
   BOOSTER_ACTIONS = {
-    "booster-actions" => { open: :open, reveal: :revealAll, back: :guardBack },
+    "booster-actions" => { open: :open, skip: :skip, reveal: :revealAll, back: :guardBack },
     "booster-reserves" => { select: :selectReserve },
     "booster-canister" => { open: :open },
     "booster-stage" => { activate: :activateCard, repost: :repostCard, press: :pressCard, release: :releaseCard },
     "booster-plate" => { store: :storeTop },
     "booster-tray" => { zoom: :openZoom },
     "booster-zoom" => { step: :stepZoom, see: :seeZoomed, repost: :repostZoomed, close: :closeZoom },
-    "booster-celebration" => { leave: :leaveForAlbum, step: :stepCelebration }
+    "booster-celebration" => { leave: :leaveForAlbum, step: :stepCelebration, dismiss: :dismissCelebration }
   }.freeze
 
-  def booster_root_data(bank:, season:, next_pack_size:, reserve:)
-    values = booster_bank(bank:, next_pack_size:)
+  def booster_root_data(bank:, season:, next_pack_sizes:, reserve:, held:)
+    values = booster_bank(bank:, next_pack_sizes:)
     {
-      controller: "booster", action: screen_actions("booster", BOOSTER_ACTIONS),
+      controller: "booster", action: "#{screen_actions("booster", BOOSTER_ACTIONS)} gameble:bank-updated@window->booster#bankUpdated",
       booster_open_url_value: packs_path, booster_card_url_value: card_path(slug: "SLUG"),
       booster_repost_url_value: season ? card_repost_path(slug: "SLUG", number: "NUMBER") : "",
       booster_bank_url_value: booster_path(format: :json), booster_delimiter_value: t("number.format.delimiter"),
       booster_pack_size_value: Game::Pack::SIZE, booster_season_value: season&.number || 0,
-      booster_bank_value: booster_bank_values(values), booster_reserve_value: reserve,
+      booster_bank_value: booster_bank_values(values), booster_reserve_value: reserve, booster_held_value: held,
       booster_strings_value: screen_strings("booster.strings"), origin: booster_origin_kind(bank, reserve)
     }.merge(screen_outlets("booster", BOOSTER_ACTIONS.keys + BOOSTER_CHILDREN))
   end
@@ -30,10 +30,10 @@ module BoostersHelper
   def booster_bank_values(values)
     values.slice(:available, :special, :openable, :reserveFull, :serverTime)
       .merge(nextAvailableAt: values[:nextAvailableAt] || "", nextPackSize: values[:nextPackSize] || 0,
-        nextSpecialKind: values[:nextSpecialKind] || "")
+        nextSpecialSize: values[:nextSpecialSize] || 0, nextSpecialKind: values[:nextSpecialKind] || "")
   end
 
-  def booster_bank(bank:, next_pack_size:)
+  def booster_bank(bank:, next_pack_sizes:)
     {
       available: bank[:available],
       special: bank[:special],
@@ -42,7 +42,8 @@ module BoostersHelper
       nextSpecialKind: bank[:next_special_kind],
       nextAvailableAt: bank[:next_available_at] && opening_time(bank[:next_available_at]),
       serverTime: opening_time(Time.current),
-      nextPackSize: next_pack_size
+      nextPackSize: next_pack_sizes["standard"],
+      nextSpecialSize: next_pack_sizes["special"]
     }
   end
 
@@ -89,8 +90,8 @@ module BoostersHelper
     end
   end
 
-  def booster_opened_card_data(card, index, goals: [])
-    { booster_target: "card", index: }.merge(pack_card_fields(card, goals:).transform_keys { it.to_s.underscore })
+  def booster_opened_card_data(card, index, goals: [], first_copy: false)
+    { booster_target: "card", index: }.merge(pack_card_fields(card, goals:, first_copy:).transform_keys { it.to_s.underscore })
   end
 
   def booster_set_tier_data(row)

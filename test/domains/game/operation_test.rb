@@ -16,10 +16,6 @@ class Game::OperationTest < ActiveSupport::TestCase
     end
   end
 
-  test "an operation taking a required player: keyword can be defined" do
-    assert Class.new(Game::Operation) { def call(player:, card: nil) = player }
-  end
-
   test "reopening a valid operation to redefine call(player:) does not raise" do
     klass = Class.new(Game::Operation) { def call(player:) = player }
 

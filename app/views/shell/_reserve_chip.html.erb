@@ -9,4 +9,5 @@
     <span class="packs-chip__label" data-reserve-chip-target="label"><%= t("shell.packs.in_reserve", count: bank[:available], number: "").strip %></span>
   </p>
   <%= render "shell/special_chip", bank:, link: false %>
+  <%= render "shell/bank_counter", bank: %>
 </div>

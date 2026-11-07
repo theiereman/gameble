@@ -37,7 +37,7 @@ export default class extends Controller<HTMLElement> {
     const rows = this.rowTargets
     const drafted = draftedKeys(rows.map((row) => row.dataset.draftKey ?? ""))
     const hidden = rows.map((row) => drafted.has(row.dataset.draftKey ?? ""))
-    const focused = rows.findIndex((row) => row.contains(document.activeElement) || row.querySelector("[autofocus]"))
+    const focused = rows.findIndex((row) => row.contains(document.activeElement))
     rows.forEach((row, index) => (row.hidden = hidden[index]))
     this.element.hidden = hidden.every(Boolean)
     if (focused !== -1 && hidden[focused]) {

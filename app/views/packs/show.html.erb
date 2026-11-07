@@ -1,4 +1,5 @@
 <% content_for :back_button, true %>
+<% content_for :phone_back do %><%= phone_back_link t("shell.screens.booster"), booster_path %><% end %>
 <section class="pack-result" aria-labelledby="pack-result-heading">
   <h1 id="pack-result-heading"><%= @pack.bonus? ? t(".heading_bonus") : t(".heading") %></h1>
   <ol class="pack-result__cards" aria-label="<%= t(".cards") %>">

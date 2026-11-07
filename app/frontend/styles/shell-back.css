@@ -1,0 +1,52 @@
+/* The phone's way back to the hub: no label and no arrow, only the gold G,
+   the destination left to screen readers. */
+.top-bar__back-g {
+  display: none;
+}
+
+@media (max-width: 719px) {
+  .top-bar__start > .top-bar__bridge {
+    gap: 0;
+    min-width: var(--space-touch-min);
+    min-height: var(--space-touch-min);
+    margin-left: calc(-1 * var(--space-2));
+    padding: 0 var(--space-2);
+    background: none;
+    box-shadow: none;
+  }
+
+  .top-bar__start > .top-bar__bridge:hover {
+    background: none;
+    transform: none;
+  }
+
+  .top-bar__start > .top-bar__bridge:active {
+    box-shadow: none;
+    transform: translateY(2px);
+  }
+
+  .top-bar__start > .top-bar__bridge:focus-visible {
+    box-shadow: none;
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: calc(-1 * var(--focus-ring-width));
+  }
+
+  .top-bar__start > .top-bar__bridge .button__icon {
+    display: none;
+  }
+
+  .top-bar__start > .top-bar__bridge .top-bar__back-g {
+    display: block;
+    width: auto;
+    height: var(--space-back-g-height);
+  }
+
+  .top-bar__start > .top-bar__bridge .button__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

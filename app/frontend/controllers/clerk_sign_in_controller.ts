@@ -55,7 +55,7 @@ export default class extends Controller<HTMLElement> {
   async start(event: Event & { params: { strategy?: string } }): Promise<void> {
     event.preventDefault()
     const strategy = event.params.strategy
-    if (strategy !== "oauth_discord" && strategy !== "oauth_google") return
+    if (strategy !== "oauth_apple" && strategy !== "oauth_discord" && strategy !== "oauth_google") return
     await this.run((signIn) => signIn.startOAuth(strategy))
   }
 

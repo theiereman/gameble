@@ -3,7 +3,7 @@ title: 'The custom set editor picks 3 to 50 published games, at most 10 sets'
 type: 'feature'
 ticket: 4
 created: '2026-11-01'
-status: 'built'
+status: done
 baseline_revision: 'ded021fb11ba64766b8b94ed5924bd3ab41808de'
 route: 'full'
 route_source: 'auto'

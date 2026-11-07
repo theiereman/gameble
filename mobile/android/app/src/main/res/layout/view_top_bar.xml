@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:id="@+id/top_bar_content"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_bar_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingBottom="@dimen/top_bar_rule">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/top_bar_home"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="2dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/ic_bar_g" />
+
+            <LinearLayout
+                android:id="@+id/top_bar_back"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/top_bar_touch"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/top_bar_back"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="12dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="7dp"
+                    android:layout_height="12dp"
+                    android:layout_marginEnd="7dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_bar_arrow" />
+
+                <TextView
+                    android:id="@+id/top_bar_back_label"
+                    style="@style/TextAppearance.Gameble.TopBarBack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/top_bar_capsules"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/top_bar_touch"
+            android:layout_marginEnd="2dp"
+            android:background="@drawable/top_bar_control"
+            android:clickable="true"
+            android:contentDescription="@string/top_bar_capsules"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:layout_marginEnd="4dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_bar_capsule_standard" />
+
+            <TextView
+                android:id="@+id/top_bar_standard"
+                style="@style/TextAppearance.Gameble.TopBarCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <View
+                android:layout_width="2dp"
+                android:layout_height="18dp"
+                android:layout_marginHorizontal="6dp"
+                android:background="@color/line" />
+
+            <ImageView
+                android:id="@+id/top_bar_special_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:layout_marginEnd="4dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_bar_capsule_special" />
+
+            <TextView
+                android:id="@+id/top_bar_special"
+                style="@style/TextAppearance.Gameble.TopBarCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/top_bar_bell"
+            android:layout_width="@dimen/top_bar_touch"
+            android:layout_height="@dimen/top_bar_touch"
+            android:layout_marginEnd="2dp"
+            android:background="@drawable/top_bar_control"
+            android:clickable="true"
+            android:contentDescription="@string/top_bar_bell"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_bar_bell" />
+
+            <TextView
+                android:id="@+id/top_bar_bell_badge"
+                style="@style/TextAppearance.Gameble.TopBarBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/top_bar_menu"
+            android:layout_width="@dimen/top_bar_touch"
+            android:layout_height="@dimen/top_bar_touch"
+            android:background="@drawable/top_bar_control"
+            android:clickable="true"
+            android:contentDescription="@string/top_bar_menu"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/top_bar_avatar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:id="@+id/top_bar_menu_badge"
+                style="@style/TextAppearance.Gameble.TopBarBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:visibility="gone" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_bar_rule"
+        android:layout_gravity="bottom"
+        android:background="@color/line" />
+</merge>

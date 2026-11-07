@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <FrameLayout
+            android:id="@+id/screens"
+            android:background="@color/ground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/hub_host"
+                android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/capsule_host"
+                android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/sets_host"
+                android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/friends_host"
+                android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/trades_host"
+                android:name="dev.hotwire.navigation.navigator.NavigatorHost"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+
+        <net.gameble.app.TopBarView
+            android:id="@+id/top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <View
+            android:id="@+id/status_backdrop"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/steam_bar"
+            android:clickable="true" />
+    </FrameLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="58dp"
+        android:background="@drawable/tab_bar_background"
+        app:labelVisibilityMode="labeled"
+        app:itemIconSize="22dp"
+        app:itemIconTint="@color/tab_item"
+        app:itemTextColor="@color/tab_item"
+        app:itemBackground="@drawable/tab_item_background"
+        app:itemRippleColor="@android:color/transparent"
+        app:itemPaddingTop="10dp"
+        app:itemPaddingBottom="8dp"
+        app:itemTextAppearanceActive="@style/TextAppearance.Gameble.Tab"
+        app:itemTextAppearanceInactive="@style/TextAppearance.Gameble.Tab"
+        app:itemTextAppearanceActiveBoldEnabled="false"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+</LinearLayout>

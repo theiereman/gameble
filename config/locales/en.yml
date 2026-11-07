@@ -1,5 +1,23 @@
 ---
 en:
+  native_sign_ins:
+    show:
+      back_to_app: Back to the app
+      line: You are signed in as %{name}. Go back to the Gameble app to keep playing there.
+      title: Sign in to the app
+  push_notices:
+    invitation_sent:
+      body: "%{name} wants to be your friend."
+      title: Friend request
+    trade_accepted:
+      body: "%{name} accepted your trade."
+      title: Trade accepted
+    trade_countered:
+      body: "%{name} answered your trade with a counter-offer."
+      title: Counter-offer
+    trade_proposed:
+      body: "%{name} sent you a trade offer."
+      title: New trade offer
   accounts:
     destroy:
       deleted: Your account has been deleted. Thank you for playing.
@@ -12,18 +30,48 @@ en:
         discoveries, your contributions to the weekly mission, reports, the moderation
         history and the log of game actions. This cannot be undone.'
       label: Type %{word} to confirm
-      note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), your name, your profile and its link,
-        the time of your last visit, your last data export and your latest activity,
+      note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), the phones your notifications go to, your name, your profile and its link,
+        the time of your last visit, your last data export, the announcements you closed and your latest activity,
         your collection, your showcase, your set tiers, your custom sets, your goals, your achievements, your
         card back unlocks and your active card back, your capsules, opened or not, your luck scores, your daily bonuses and your weekly mission rewards,
-        your friends, your invitations and your friend code, and your activity feed
+        your friends, your invitations, your friend code, when you last opened each of your trades, your reactions to feed entries and your activity feed
         entries: pulls, discoveries, reposts and every trade that names you. Your
         open trades will be cancelled.'
       submit: Delete for good
       title: Delete my account
       word: DELETE
+  avatars:
+    names:
+      alien: Alien
+      archivist: Archivist
+      astronaut: Astronaut
+      botanist: Botanist
+      cartographer: Cartographer
+      cat: Cat
+      chef: Chef
+      default: Classic
+      elder: Elder
+      grand_master: Grand Master
+      guardian: Guardian
+      mechanic: Mechanic
+      novice: Novice
+      oracle: Oracle
+      owl: Owl
+      pilot: Pilot
+      punk: Punk
+      robot: Robot
+      slime: Slime
+      streamer: Streamer
+  achievement_claims:
+    create:
+      claimed: Reward claimed.
+      throttled: Too many attempts in a minute. Try again in a moment.
   achievements:
     back_reward: Unlocks the %{back} card back
+    avatar_reward: Unlocks the %{avatar} avatar
+    claim:
+      button: Claim
+      label: Claim the reward of %{name}
     conditions:
       boosters_10: Open 10 capsules
       boosters_100: Open 100 capsules
@@ -44,6 +92,8 @@ en:
       leave_request_denied: Collect the daily bonus 7 days in a row (UTC days)
       luck_is_a_marketing_concept: 10 standard capsules in a row with no Rare or better card
       market_concentration: Hold 10 different games of the same studio at once
+      night_owl: Open a capsule between 1 and 4 AM, your local time
+      no_time_to_waste: Open 10 capsules in under 30 seconds
       packaging_irregularity: Two copies of the same game in one capsule
       statistical_non_compliance: Two Rare or better cards in one standard capsule
       streamlined_opening_procedure: 10 capsules in a row opened with "Reveal all"
@@ -68,6 +118,8 @@ en:
       leave_request_denied: Leave Request Denied
       luck_is_a_marketing_concept: Luck Is a Marketing Concept
       market_concentration: Market Concentration
+      night_owl: Night Owl
+      no_time_to_waste: No Time to Waste
       packaging_irregularity: Packaging Irregularity
       statistical_non_compliance: Statistical Non-Compliance
       streamlined_opening_procedure: Streamlined Opening Procedure
@@ -77,7 +129,6 @@ en:
       groups:
         earned: Earned · %{count}
         to_earn: To earn · %{count}
-      more: More
       progress: "%{progress} of %{threshold}"
       summary:
         one: "%{earned} achievement earned out of %{total}"
@@ -94,6 +145,36 @@ en:
     forbidden: Your account has no access to this page.
     sign_in_required: Sign in to do that.
   back_office:
+    announcements:
+      create:
+        created: "The announcement is saved."
+      fields:
+        message_en: "Message in English"
+        message_fr: "Message in French"
+      index:
+        create: "Save the announcement"
+        dismissals:
+          one: "closed by one player"
+          other: "closed by %{count} players"
+          zero: "closed by no player"
+        empty: "No announcement yet."
+        heading: "The announcements"
+        intro: "A message shown to every player and visitor on a red banner under the top bar, in their language, %{length} characters at most. One announcement at a time; each player closes it for good. A new announcement shows again to everyone."
+        list_heading: "Every announcement, newest first"
+        new_heading: "A new announcement"
+        publish: "Show on the banner"
+        save: "Save the wording"
+        show_now: "Show it on the banner now"
+        states:
+          hidden: "Not shown"
+          shown: "On the banner"
+        withdraw: "Take off the banner"
+      publish:
+        published: "The announcement is on the banner. Any other announcement left it."
+      update:
+        updated: "The announcement is updated."
+      withdraw:
+        withdrawn: "The announcement left the banner."
     bans:
       actions:
         ban: BAN
@@ -143,6 +224,7 @@ en:
           xl: size XL
     dashboard:
       show:
+        announcements: "The announcements"
         bans: The banned players
         cards: The card press
         heading: The Brotherhood's back-office
@@ -342,81 +424,49 @@ en:
         latest_at: Latest report
         player: Player
         total: Total
-    roadmap:
-      back_to_milestone: Back to the milestone
-      columns:
-        actions: Actions
-        order: Order
-        position: Place
-        shown: Landing
-        status: Status
-        wording_en: English
-        wording_fr: French
+    roadmaps:
       fields:
         shown: Shown on the landing
         status: Status
         wording_en: English wording
         wording_fr: French wording
-      move:
-        down: Down
-        down_label: Move “%{wording}” down
-        up: Up
-        up_label: Move “%{wording}” up
+      milestone:
+        add_story: Add a story
+        down: Move the milestone down
+        legend: Milestone
+        remove: Remove the milestone
+        remove_confirm: Remove this milestone and all its stories? They are deleted
+          when you save.
+        up: Move the milestone up
+      show:
+        add_milestone: Add a milestone
+        heading: The roadmap
+        intro: Every milestone of the landing's roadmap and the stories under it, in
+          one form. Edit, add, move and remove rows, then save everything at once;
+          nothing changes on the site before that. The order of the rows is the order
+          on the landing and on the roadmap page.
+        locales:
+          en: English
+          fr: French
+        milestones_heading: Milestones and stories
+        preview_heading: On the home page
+        preview_hint: What the landing's roadmap would show with the rows as they
+          stand below, saved or not. Hidden rows stay out of it, and the landing keeps
+          only its first milestones and stories.
+        preview_language: Language of the preview
+        save: Save the roadmap
       statuses:
         done: Done
         in_progress: In progress
         to_come: To come
-      visibility:
-        hidden: Hidden
-        shown: Shown
-    roadmap_milestones:
-      edit:
-        add_story: Add a story
-        all_milestones: The whole roadmap
-        delete: Delete
-        delete_confirm: Delete the story “%{wording}”? It cannot be brought back.
-        delete_label: Delete “%{wording}”
-        edit_story: Edit
-        edit_story_label: Edit “%{wording}”
-        heading: Milestone “%{wording}”
-        intro: Created for the epic %{epic}. Its wording, status and visibility are
-          yours; the next deploys leave them as they are.
-        no_stories: No story under this milestone yet.
-        save: Save the milestone
-        stories: Its stories
-        stories_caption: Stories of the milestone, in order
-      index:
-        caption: Roadmap milestones, in order
-        edit: Edit
-        edit_label: Edit “%{wording}”
-        empty: No milestone yet. The next deploy creates one for each epic of the
-          initiative.
-        epic: Epic
-        heading: The roadmap
-        intro: 'The roadmap the landing shows. Every deploy gives each new epic of
-          the initiative its milestone, hidden and to come, worded with the epic''s
-          title: word it in both languages before you show it. Milestones are never
-          created or deleted here; hide the one whose epic is gone.'
-        stories: Stories
-      move:
-        moved: The milestone has moved, officer.
+      story:
+        down: Move the story down
+        legend: Story
+        remove: Remove the story
+        remove_confirm: Remove this story? It is deleted when you save.
+        up: Move the story up
       update:
-        updated: The milestone is saved, officer.
-    roadmap_stories:
-      create:
-        created: The story is added, officer.
-      destroy:
-        deleted: The story is deleted, officer.
-      edit:
-        heading: A story of “%{milestone}”
-        save: Save the story
-      move:
-        moved: The story has moved, officer.
-      new:
-        heading: A new story for “%{milestone}”
-        save: Add the story
-      update:
-        updated: The story is saved, officer.
+        saved: The roadmap is saved, officer.
     seasons:
       index:
         caption: Catalog seasons, by number
@@ -574,6 +624,11 @@ en:
     card_label: "%{title} — %{details}"
     cards_per_pack: Cards per capsule
     close: Close
+    continue: Continue
+    daily:
+      collect: Collect
+      ready: Ready
+      title: Daily capsule
     hint_swipe: Swipe the card to store it · or tap it
     hint_tap: Tap the card to reveal it
     in_reserve: In reserve
@@ -581,6 +636,17 @@ en:
     kicker_plain: Capsule
     legendary_banner: "%{rarity}!"
     next_in: "+1 in"
+    next_steps:
+      daily: 'Next daily capsule: %{time}'
+      me: Your profile
+      me_hook:
+        one: "%{number} reward to claim"
+        other: "%{number} rewards to claim"
+      set_hook: "%{set} · %{next}"
+      sets: Your sets
+      social: Your friends
+      social_hook: "%{name} has a card one of your goals needs"
+      title: What next?
     open: Open the capsule
     open_next: Open the next one
     origin:
@@ -592,12 +658,14 @@ en:
       empty_standard: No standard capsule yet
       label: Capsule reserves
     repost: Repost
+    first_copy: New
     reserve: Reserve
     reserve_empty: Reserve empty
     reserve_full: Reserve full
     result: Capsule result
     reveal_all: Reveal all
     see_card: See the card
+    skip: Skip
     state: State
     states:
       arming: Arming
@@ -663,8 +731,7 @@ en:
       face_up_goals: "%{card}, %{rarity}, %{goals}. See the card."
       face_up_store: "%{card}, %{rarity}. Store the card."
       face_up_store_goals: "%{card}, %{rarity}, %{goals}. Store the card."
-      failed: The opening did not go through. Check your connection or reload the
-        page, then try again.
+      failed: No connection. Your capsule is safe. Try again.
       goal_reached: Goal reached
       hint_done:
         one: Capsule inventoried · +%{n} card in the collection
@@ -708,18 +775,18 @@ en:
   boosters:
     show:
       title: Capsule opening
+  bottom_sheet:
+    close: Close
   card_backs:
     conditions:
       achievement: Unlock the matching achievement.
       always: Every player has it.
       event: Given to those who took part in the event.
-      goal: Take part in the weekly mission.
       set_tier: Collect half of the %{set} set.
     names:
       assidu: Assiduous
       aurore: Dawn
       centurion: Centurion
-      confrere: Confrère
       contrat: Contract
       etoile-dor: Golden star
       millesime-2017: Vintage 2017
@@ -784,6 +851,17 @@ en:
       other: "%{percent} positive · %{reviews} reviews"
     store: See on Steam
     swipe: swipe to browse
+    trade:
+      asked: Already asked
+      copies:
+        one: "%{count} copy"
+        other: "%{count} copies"
+      intro: These friends have a free copy. The trade opens with this card already asked for, and you can add or change cards before you send it.
+      propose: Propose
+      show_more:
+        one: Show %{count} more friend
+        other: Show %{count} more friends
+      title: Trade for this card
   cards:
     face:
       image_missing: Image unavailable
@@ -797,6 +875,7 @@ en:
       pitch_title: Your Steam games, as collectible cards.
       profile: Profile
       sign_in: Open my first capsules
+      trade: Trade
       update_browser: Your browser is too old to sign in to Gameble. Update it to
         play.
   catalog:
@@ -833,6 +912,12 @@ en:
         missing: Missing
         owned: Owned
       close: Close
+      discard:
+        close: Close
+        confirm: Leave without saving
+        keep: Keep editing
+        text: Your changes to this set will be lost.
+        title: Leave without saving?
       edit_title: Edit the set
       empty: No game to show.
       filters: Show
@@ -907,6 +992,10 @@ en:
     - December
   errors:
     accounts:
+      announcement_not_found: "That announcement could not be found."
+      announcement_not_shown: "That announcement is no longer on the banner."
+      invalid_announcement: "Write the announcement in both languages, 280 characters at most each."
+      invalid_push_device: That device could not be registered for notifications. Try again.
       administrator_required: Only an administrator can do that, officer.
       already_banned: That player is already banned, officer.
       banned: This account has been suspended. You can no longer sign in.
@@ -914,6 +1003,7 @@ en:
       cannot_dismiss_self: You cannot dismiss the reports against you, officer.
       cannot_report_self: You cannot report your own profile.
       clerk_unavailable: The sign-in service is not answering. Try again in a moment.
+      email_known_apple: An account already exists with this email through Apple. Sign in with Apple, then add this sign-in from the settings.
       email_known_discord: An account already exists with this email through Discord. Sign in with Discord, then add this sign-in from the settings.
       email_known_email: An account already exists with this email through an email code. Sign in with your email, then add this sign-in from the settings.
       email_known_google: An account already exists with this email through Google. Sign in with Google, then add this sign-in from the settings.
@@ -943,15 +1033,15 @@ en:
       steam_taken: This Steam account already belongs to another Gameble account.
     catalog:
       already_numbered: The cards of that season are numbered already, officer.
-      at_edge: That entry cannot move any further that way, officer.
       card_season_not_published: That card is in no published season, so it has no preview
         image.
+      duplicate_row: That row appears twice in the roadmap, officer.
       empty_season: The draft season holds no card yet, officer. Run an import first.
       empty_tier: The draft season is too small to fill all five rarities, officer.
         Import more games first.
       invalid_card: 'The scribes cannot enter that card in the ledger: its particulars
         are incomplete or out of order.'
-      invalid_direction: An entry of the roadmap moves only up or down, officer.
+      invalid_roadmap: Some rows of the roadmap need fixing, officer. Nothing was saved.
       invalid_share_image: The preview image of that card is not a PNG of a card, in
         one of the Brotherhood's tongues.
       invalid_status: That status is not one of the roadmap's, officer.
@@ -968,13 +1058,13 @@ en:
         pass completes.
       no_draft: There is no draft season to publish, officer.
       no_published_season: No published season bears that number, officer.
+      row_not_found: A milestone or a story of this form is no longer on the roadmap, officer. Reload the page and look again.
       staged_batch_waiting: Staged cards wait beside the draft season, officer. Promote
         them or discard them before publishing.
       stale_draft: That draft is no longer the one in the ledgers, officer. Reload
         the page and look again.
       stale_render: That card changed while its preview image was drawn, so that image
         was not kept.
-      story_not_found: That story is no longer on the roadmap, officer.
       ufo_share_over_limit: The UFOs hold %{share} of the draft season's cards, officer,
         above the %{limit} allowed. Attach more tags to themes on the themes page
         and rescore the latest import, then publish.
@@ -990,17 +1080,22 @@ en:
         Published, they would land in the UFOs and leave the franchise, studio and
         hall of fame sets short, unseen. Run steam:fill_card_sources, then publish.'
     game:
+      achievement_already_claimed: You have already claimed this reward.
+      achievement_not_earned: You have not earned this achievement.
       already_collected: You have already collected today's capsule. The next one
         will be ready on %{time}.
       already_friends: You are already friends.
       already_reposted: You reposted this card today. Try again tomorrow.
       already_sent: Invitation already sent.
       back_locked: This card back is still locked.
+      avatar_locked: This avatar is still locked.
+      unknown_avatar: This avatar does not exist.
       card_already_showcased: This card is already in your showcase.
       card_not_owned: You do not own this card.
       card_not_showcased: This card is not in your showcase.
       custom_set_not_found: That set does not exist or is not yours.
       goal_set_complete: This set is already complete.
+      library_set_empty: Your Steam library holds no catalog game yet.
       goal_set_not_found: This set is not in the published season.
       game_not_in_catalog: A chosen game is not in the catalog. Reload the page and try again.
       name_required: NAME REQUIRED · Give your set a name.
@@ -1037,8 +1132,10 @@ en:
       own_code: That is your own code.
       own_link: That is your own link.
       own_profile_private: 'Your profile is private: trades are closed.'
+      pack_not_available: This capsule is no longer in your reserve.
       pack_not_found: That capsule could not be found.
       player_required: Sign in with an active account to do that.
+      entry_not_found: That feed entry could not be found.
       position_out_of_range: The showcase has no such place.
       repost_limit_reached: You have reposted a lot this past hour. Try again later.
       request_exceeds_holdings: Your friend does not hold that many copies of a card
@@ -1060,9 +1157,11 @@ en:
       trade_not_open: That trade is already closed.
       trade_side_empty: 'Nothing to receive yet: choose what you want from %{name}''s
         collection, then send it back.'
+      unknown_achievement: That achievement does not exist.
       unknown_back: That card back does not exist.
       unknown_code: No player has that code.
       unknown_direction: Unknown direction.
+      unknown_reaction: That reaction does not exist.
       unknown_season: You did not earn this card back in that season.
       unknown_player: This invitation link is not valid.
     steam:
@@ -1106,16 +1205,19 @@ en:
         reposts: Reposts
         trades: Trades
       filters_label: Filter by type
+      filters_opener: 'Type: %{type}'
       first_discovery: First discovery
-      more: More
       nameless: Nameless player
       no_friends: Add friends to follow their pulls.
       pages:
         label: Pages of the feed
+        newer: Newer entries
+        newest: Newest
         next: Older entries
       pulled_html: "%{name} pulled %{card}"
       repost_tag: Repost
       reposted_html: "%{name} reposted %{card}."
+      screen_title: Activity feed
       set_reached:
         adept_html: "%{name} reaches the Adept tier in the %{set} set."
         apprentice_html: "%{name} reaches the Apprentice tier in the %{set} set."
@@ -1309,6 +1411,8 @@ en:
       text: "%{name} is no longer one of your friends."
       title: Friend removed
     show:
+      share: Share
+      share_text: Join me on Gameble, the trading card game where every card is a Steam game.
       accept: Accept
       add: Add
       add_by_code: Add with a code
@@ -1326,7 +1430,6 @@ en:
       invite: Invite a friend
       invites_you: "%{name} invites you"
       manual: Copy the link by hand.
-      more: More
       nameless: Nameless player
       no_invitations: No invitation pending.
       pending: Pending
@@ -1473,6 +1576,8 @@ en:
       description: Every card is a Steam game. Open capsules, complete sets, trade
         with friends and join the Brotherhood in its search for lost games. Free to
         play.
+      share_image_alt: 'Gameble in golden pixel letters over a starry sky, with a collectible
+        card and a ringed planet: every card is a Steam game.'
       footer:
         credits: Credits
         how_it_works: How it works
@@ -1530,7 +1635,7 @@ en:
           title: Grow your collection
         join:
           badge: New member
-          text: Sign in with Steam, Discord, Google or an email code and your account is created automatically.
+          text: Sign in with Steam, Apple, Discord, Google or an email code and your account is created automatically.
           title: Join it
         label: 03 · How it works
         subtitle: Open, reveal, collect, trade. These four gestures are all you need
@@ -1601,8 +1706,8 @@ en:
             title: Achievements
             to_earn: To earn
           backs:
-            text: Your face-down cards wear the back of your choice. Complete missions to
-              unlock new ones.
+            text: Your face-down cards wear the back of your choice. Unlock achievements
+              and fill your sets to earn new ones.
             title: Card backs
           collection:
             text: See at a glance the cards you are missing to complete your collection.
@@ -1632,6 +1737,9 @@ en:
   layouts:
     application:
       application_name: Gameble
+      description: Every card is a Steam game. Open capsules, complete sets, trade
+        with friends and join the Brotherhood in its search for lost games. Free to
+        play.
       title: Gameble
   library:
     album:
@@ -1677,10 +1785,23 @@ en:
         next: "%{missing} more for %{tier}"
         next_complete: "%{missing} more for the complete set"
         row: 'Goal %{number}: %{set}, %{kind}, %{count}, %{next}'
+        suggestion_add_label: "Mark as goal: %{set}"
+        suggestion_left:
+          one: 1 card left to complete
+          other: "%{missing} cards left to complete"
+          zero: No card left to complete
+        suggestions: 'No goal yet. The sets you are closest to completing:'
         title: Goals
       in_progress: In progress
+      kinds:
+        franchise: Franchises
+        hall_of_fame: Hall of fame
+        studio: Studios
+        theme: Themes
+        ufo: UFOs
       load_more: Load more
       loading: Loading the sets in progress…
+      no_other_progress: No other set in progress. Find one above.
       no_progress: No set in progress yet. Find one above.
       none: No set found for “%{query}”.
       results: Results
@@ -1691,10 +1812,10 @@ en:
           one: Steam · %{games} catalog game
           other: Steam · %{games} catalog games
           zero: Steam · %{games} catalog games
-        last_sync: 'Last sync: %{date}.'
+        last_sync_html: 'Last sync: <b>%{date}</b>'
         not_shared: Steam does not share your library. Make the game details of your
           Steam profile public.
-        synced: Synced with Steam on %{date}.
+        synced_html: Synced with Steam on <b>%{date}</b>
         title: My Steam library
     filters:
       active: 'Active filters:'
@@ -1719,6 +1840,9 @@ en:
         new: New
         owned: Owned
       title: Filters
+    filter_row:
+      more: More
+      more_title: More filters
     grid:
       copies:
         one: "%{number} copy"
@@ -1880,28 +2004,35 @@ en:
         collect: Collect
         collect_label: Collect the reward capsule
         collected: Collected
-        line: The Brotherhood invites its members to join forces and open %{target}
-          capsules this week.
-        players: All players
-        previous_missed: 'Last week: %{total} / %{target} · mission missed'
-        previous_reached: 'Last week: %{total} / %{target} · mission accomplished'
+        line: Open %{target} capsules this week.
+        previous_missed: 'Last week: %{figures}, missed'
+        previous_reached: 'Last week: %{figures}'
         progress: "%{total} contributions of %{target} this week"
-        reached: Mission accomplished
-        reward: Reward
-        reward_text: A rare capsule for every contributor
+        reached: Accomplished
+        reward: 'Reward: %{reward}'
+        reward_text: a rare capsule per contributor
         title: Weekly mission
+      goals:
+        see_all: See all
+        title: Goals in progress
       kicker:
         title: Command bridge
+      live:
+        open: Open the feed
+        title: Activity feed
       menu:
         achievements: Achievements
         achievements_meta:
           one: "%{earned} achievement earned out of %{total}"
           other: "%{earned} achievements earned out of %{total}"
-        all_cards: All cards
         collection: Collection
         collection_meta:
           one: "%{owned} unique card out of %{total}"
           other: "%{owned} unique cards out of %{total}"
+        community: Discord
+        extras: Extras
+        extras_back: Back to the menu
+        extras_label: Extras
         feed: Activity feed
         friends: Friends
         friends_online:
@@ -1912,11 +2043,16 @@ en:
           one: "%{number} invitation waiting for your answer"
           other: "%{number} invitations waiting for your answer"
         label: Bridge menu
+        register: The Flukeometer
         open_booster: Open a capsule
         reserve:
           one: "%{number} capsule in reserve"
           other: "%{number} capsules in reserve"
         reserve_empty: Reserve empty
+        rewards_waiting:
+          one: "%{number} reward to claim"
+          other: "%{number} rewards to claim"
+        source_code: GitHub
         special:
           one: "%{number} special capsule"
           other: "%{number} special capsules"
@@ -1925,9 +2061,6 @@ en:
         trades_waiting:
           one: "%{number} trade waiting for you"
           other: "%{number} trades waiting for you"
-      sets:
-        see_all: See all
-        title: Sets in progress
       showcase:
         chosen_kicker: Showcase
         empty:
@@ -1984,7 +2117,6 @@ en:
       minutes:
         one: "%{count} minute"
         other: "%{count} minutes"
-      more: More
       packs:
         bonus: 'The daily capsule has better odds and never holds a %{common} card:'
         chance: Chance per card
@@ -2100,16 +2232,17 @@ en:
           of Gameble, reachable at %{contact}.
         cookies: 'Gameble only uses strictly necessary cookies, exempt from consent:
           the session cookie, which protects forms and keeps you signed in for 30
-          days after your last visit, or until you sign out, and the one that remembers
-          your reduced motion choice, for one year. Cloudflare may add a security
+          days after your last visit, or until you sign out, the one that remembers
+          your reduced motion choice, for one year, and, when you are not signed in, the one
+          that remembers the announcement you closed, for one year. Cloudflare may add a security
           cookie that filters out bots. Your browser''s storage also keeps your trade
           drafts and the interface''s state, on your device only. No advertising or
           audience measurement trackers.'
         deletion: When you delete your account, your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address, which is deleted there too), your profile name,
-          the time of your last visit, your last data export, your latest activity,
+          the time of your last visit, your last data export, the announcements you closed, your latest activity,
           your collection, your showcase, your set tiers, your custom sets, your Steam library list, your goals, your achievements, your
           card back unlocks and your choice of active card back, your capsules, your luck scores, your daily bonuses, your weekly mission rewards, your friendships,
-          your invitations, your friend code and your activity feed entries are erased,
+          your invitations, your friend code, when you last opened each trade, your activity feed entries and your reactions are erased,
           your open trades are cancelled and your profile disappears. What also concerns
           other players, the community or moderation (past trades, first discoveries,
           contributions to the weekly mission, reports, moderation history, the log
@@ -2141,7 +2274,7 @@ en:
             from them after 7 days, a little longer if a backup failed;'
           banned_steam_id: 'the Steam id of a suspended account: as long as the suspension
             lasts, to refuse a new sign-up;'
-          clerk: 'the Clerk user created for a Discord, Google or email code sign-in, with
+          clerk: 'the Clerk user created for an Apple, Discord, Google or email code sign-in, with
             your email address and its sessions: as long as the account exists; it is
             deleted from Clerk when you delete your account;'
           errors: 'technical errors received by Sentry: 30 days;'
@@ -2156,6 +2289,9 @@ en:
             year; the history of a deleted account, until one year after the deletion;
             the log of game actions keeps each decision''s date and the accounts concerned,
             without the reason;'
+          reactions: 'your reactions to feed entries: as long as the account exists and the
+            entry stays in the feed; other players see how many reacted and, if your profile
+            is public, your name among the latest who reacted;'
           reports: 'a report: until a moderator handles it, then one year; if it targets
             an account deleted before it was handled, one year after the deletion;'
           steam_library: 'the list of your Steam library''s games: as long as the account
@@ -2184,9 +2320,9 @@ en:
           rectification_html: 'rectification: a Steam profile name is read again at each
             Steam sign-in; for anything else, write to %{contact};'
         services:
-          clerk: 'Clerk, Inc. handles sign-in through Discord, Google or an email code,
+          clerk: 'Clerk, Inc. handles sign-in through Apple, Discord, Google or an email code,
             as our processor: it holds the Clerk user created for you (your email address,
-            the identifier Discord or Google gives for you, and your sign-in sessions),
+            the identifier Apple, Discord or Google gives for you, and your sign-in sessions),
             and may process it in the United States among other places. Your browser
             contacts it directly on the sign-in screen and in the settings. Gameble
             keeps only the Clerk user''s identifier and a one-way hash of your verified
@@ -2213,8 +2349,8 @@ en:
           activity: 'your game activity: card collection, showcase, set tiers, custom sets, goals, achievements,
             card back unlocks and active card back, capsules, daily bonuses, weekly
             mission rewards, trades, friendships, invitations, friend code, activity feed
-            entries and latest activity;'
-          identities: 'your sign-in methods: Steam, Discord, Google or an email code, each
+            entries, your reactions to feed entries and latest activity;'
+          identities: 'your sign-in methods: Steam, Apple, Discord, Google or an email code, each
             with its identifier at that provider, the date it was added and, for the
             last three, a one-way hash of your verified email address, never the address
             itself;'
@@ -2285,12 +2421,22 @@ en:
         title: Terms of use
       title: Legal notice and privacy
       updated: 'Last updated: 1 November 2026'
-    more:
-      personalization: Personalization
-      register: The Flukeometer
-      settings: Profile and settings
-      subtitle: The rest of the ship
-      title: More
+  own_profiles:
+    avatar_sheet:
+      heading: Avatar
+      intro: Your portrait on your profile, in trades and beside your name.
+      unlock: 'Achievement: %{achievement}'
+      worn: Worn
+    show:
+      all_achievements: See all
+      change_avatar: Change avatar
+      card_back: Card back · only you
+      card_list: See the card list
+      change: Change
+      choose_title: Choose a title
+      customize: Customize
+      title: Me
+      title_label: Title
   personalizations:
     show:
       card_back:
@@ -2305,8 +2451,6 @@ en:
             millesime-2017: Given to those who took part in Vintage 2017
             saison-1: Given to the players of season 1
             soldes-hiver: Given to those who took part in the Winter sales
-          goal: Earned by completing the mission of the week of %{week}
-          goal_any: Earned by completing a Brotherhood mission
           set: Earned at the %{tier} tier of the %{set} set · %{seasons}
           set_any: Earned with the %{set} set
         equipped: Card back equipped. %{name} will show on your face-down cards.
@@ -2316,7 +2460,6 @@ en:
         groups:
           achievement: Achievements
           base: Basic and events
-          goal: Brotherhood mission
           hall_of_fame: Sets · Hall of fame
           theme: Sets · Themes
         heading: Card back
@@ -2348,33 +2491,23 @@ en:
         to_earn:
           achievement: Unlock the achievement %{name} · %{condition}
           event: Event over
-          goal: Complete a Brotherhood mission
           set: Reach half of the %{set} set
           set_absent: Set not in the current season
         unlocked:
           one: unlocked
           other: unlocked
       fraction: "%{count} of %{total}"
-      more: More
       profile_title:
-        apply: Apply
-        count_html:
-          one: "<b>%{count}</b> title earned"
-          other: "<b>%{count}</b> titles earned"
-          zero: No title earned
         empty: No title yet. Reach a tier of a set, or complete it, to earn one.
         heading: Profile title
         intro: Your title shows on your profile, in the activity feed and in your trades.
         none: No title
-      scope:
-        private: Only you
-        public: Visible to all
       showcase:
         empty: Your best card will show here once you choose it from a card's page.
-        hint: Add a card from its page, with “%{add}”. Drag the cards to change their order.
-        title: Showcase
-        why: Up to five cards, at the top of your public profile.
-      title: Personalization
+  profile_avatars:
+    chosen:
+      text: "%{name} is now your portrait."
+      title: Avatar changed
   profile_titles:
     chosen:
       title: Title equipped
@@ -2429,17 +2562,19 @@ en:
           other: "%{count} sets started"
         title: Sets
       showcase:
-        info: Drag the cards to change their order, or move a card one place with
-          the arrows under it.
-        info_label: How to change the order
-        info_movable_removable: Drag the cards to change their order, move a card one
-          place with the arrows under it, or take it out with the cross.
-        info_removable: Take a card out of the showcase with the cross under it.
+        info: Up to five cards. Drag them to change their order, and add one from
+          its page with “%{add}”.
+        info_label: How the showcase works
         move_failed: The new order could not be saved.
-        move_left: Move %{title} left
-        move_right: Move %{title} right
         moved: "%{title} is now in place %{position} of %{count}."
+        removal:
+          cancel: Keep it
+          close: Close
+          confirm: Remove
+          text: "%{title} leaves your showcase. You keep the card."
+          title: Remove from showcase?
         remove: Remove %{title} from the showcase
+        return: Back to the card
         title: Showcase
       stats:
         activity: Activity
@@ -2458,6 +2593,28 @@ en:
   rate_limit:
     reading_throttled: Too many pages read in a minute. Try again in a moment.
     throttled: Too many sign-in attempts. Try again in a minute.
+  reactions:
+    add: Add a reaction
+    choose: Choose a reaction
+    group: Reactions
+    names:
+      gg: GG
+      heart: Heart
+      middle_finger: Middle finger
+      thumb: Thumb up
+      wow: Wow
+    reacted: 'Reaction sent: %{reaction}.'
+    remove: 'Remove your reaction: %{reaction}'
+    removed: Reaction removed.
+    throttled: Too many reactions in a minute. Try again in a moment.
+    who:
+      and: " and "
+      and_others:
+        one: "%{names} and %{count} other"
+        other: "%{names} and %{count} others"
+      players:
+        one: "%{count} player"
+        other: "%{count} players"
   reports:
     create:
       sent: Thank you. The moderation team will review this profile. The player will
@@ -2547,6 +2704,12 @@ en:
         zero: Going private cancels none of your trades.
       title: Go private?
     show:
+      notifications:
+        denied: Notifications are off. Turn them on in your phone's settings.
+        failed: Notifications could not be turned on. Try again in a moment.
+        granted: Notifications are on for this phone.
+        label: Notifications
+        turn_on: Turn on
       account:
         delete: Delete my account
         label: Account
@@ -2564,7 +2727,6 @@ en:
       language:
         label: Language
       legal: Legal notice
-      more: More
       motion:
         label: Reduced motion
         'off': 'No'
@@ -2582,8 +2744,11 @@ en:
       steam_library:
         hint: Gameble reads the games of your Steam account once a day for your MY STEAM LIBRARY set.
         label: Sync my Steam games
+        last_sync: 'Last sync:'
+        never_synced: Not synced yet.
         'off': 'No'
         'on': 'Yes'
+        sync_now: Sync now
       summary:
         cards:
           one: "%{count} card"
@@ -2604,6 +2769,10 @@ en:
         label: Profile visibility
         private: Private
         public: Public
+    sync_library:
+      started: The sync of your Steam library has started.
+      throttled: The sync was just started. Try again in a few minutes.
+      unavailable: Turn on the Steam games sync first.
   sign_in_methods:
     create:
       added: The sign-in is added to your account.
@@ -2612,10 +2781,11 @@ en:
     clerk:
       back: Use another address
       code_label: Code received by email
+      apple: Apple
       discord: Discord
       email_label: Email address
       google: Google
-      javascript_needed: Discord, Google and email codes need JavaScript.
+      javascript_needed: Apple, Discord, Google and email codes need JavaScript.
       messages:
         captcha: The security check did not complete. Try again.
         code_expired: That code expired. Ask for a new one.
@@ -2631,16 +2801,55 @@ en:
       send_code: Send me a code
       verify: Confirm
     providers:
+      apple: Apple
       discord: Discord
       email: Email code
       google: Google
       steam: Steam
     show:
+      native_continue: Sign in in the browser
+      native_line: Sign in with Steam, Apple, Discord, Google or an email code in your phone's browser, then come back here.
       heading: Sign in
       line: Choose how you want to come aboard.
       separator: or
       title: Sign in
   shell:
+    announcement:
+      close: "Close the announcement"
+      label: "Announcement"
+    bank:
+      label: Capsule reserve
+      next_in: Next capsule in
+      open: Open a capsule
+      special: Special
+      standard: Capsules
+    bell:
+      answer: Answer
+      collect: Collect
+      daily: Your daily capsule is ready.
+      empty: Nothing new for now.
+      invitation: "%{name} invites you to be friends."
+      label:
+        zero: What is new, all seen
+        one: What is new, %{count} unseen
+        other: What is new, %{count} unseen
+      mission: "This week's mission: open %{target} capsules together."
+      mission_reached: "This week's mission is accomplished: %{target} capsules opened together."
+      mission_reward: 'The weekly mission is accomplished: a rare capsule awaits you.'
+      reaction_anonymous:
+        one: "%{count} player reacted to your post."
+        other: "%{count} players reacted to your post."
+      reaction_named:
+        zero: "%{name} reacted to your post."
+        one: "%{name} and %{count} other reacted to your post."
+        other: "%{name} and %{count} others reacted to your post."
+      reaction_trade: "%{card} for %{partner_card}"
+      read_all: Mark all as read
+      see: See
+      title: What is new
+      trade: "%{name} awaits your answer to a trade."
+      trade_accepted: "%{name} accepted your trade."
+      trade_declined: "%{name} declined your trade."
     live:
       marker: Live
     packs:
@@ -2655,12 +2864,16 @@ en:
         one: special
         other: special
       special_none: No special capsule
+    phone_menu:
+      how_it_works: How it works
+      label: Menu
+      source_code: GitHub
+      support: Support
     player:
       back_office: Back-office
       fallback_name: Player
       menu: Player menu
-      personalization: Personalization
-      profile: My public profile
+      profile: My profile
       settings: Settings
       sign_out: Sign out
     rarity:
@@ -2684,7 +2897,7 @@ en:
       friends: Friends
       how_it_works: How it works
       legal: Legal notice
-      more: More
+      me: Me
       profile: Profile
       set: Set
       sets: Sets
@@ -2699,18 +2912,21 @@ en:
     tabs:
       all_cards: All cards
       booster: Capsule
-      collection: Collection
+      friends: Friends
       hub: Bridge
       invitations_waiting:
         one: "%{number} invitation waiting for your answer"
         other: "%{number} invitations waiting for your answer"
       label: Main navigation
       landing: Home
-      more: More
+      me: Me
+      sets: Sets
       trades: Trades
       trades_waiting:
         one: "%{number} trade waiting for you"
         other: "%{number} trades waiting for you"
+    ticker:
+      open: Open the activity feed
     toast:
       close: Close
       region: Notifications
@@ -2731,6 +2947,7 @@ en:
     add_edition: Add S%{season} to showcase
     full: 'Showcase full: remove a card to add another.'
     not_found: This card does not exist.
+    open: Open my showcase
     remove: Remove from showcase
     remove_edition: Remove S%{season} from showcase
     removed:
@@ -2909,7 +3126,9 @@ en:
       text: "%{name} has 7 days to answer. Your cards are reserved until then."
       title: Proposal sent
     side:
+      already_owned: "Owned ×%{count}"
       copies_label: 'Copies:'
+      of_collection: in your collection (%{total})
       for_friend_to_choose: For %{name} to choose
       friend_gives: "%{name} gives"
       friend_offered: "%{name} offered"
@@ -2934,9 +3153,6 @@ en:
       label_mutual: 'Suggestion from %{name}: %{cards} against %{given}. %{presence}.'
       label_open: 'Suggestion from %{name}: %{cards}, %{name} chooses in return. %{presence}.'
       line: The Brotherhood has identified opportunities for collaboration among its members.
-      send: Send
-      send_label: Send the suggestion to %{name}
-      sent: Proposal forwarded
       summary_mutual: "%{cards} against %{given}"
       summary_open: "%{cards} · for %{name} to choose in return"
     throttled: Too many actions in one minute. Try again in a moment.

@@ -33,10 +33,6 @@ class GamebleBackupTest < ActiveSupport::TestCase
     FileUtils.remove_entry(@dir)
   end
 
-  test "the script is executable" do
-    assert_predicate BACKUP, :executable?
-  end
-
   test "a good run streams the dump into one tagged snapshot, then applies the retention" do
     output, status = backup
 

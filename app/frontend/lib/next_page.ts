@@ -6,6 +6,16 @@ export function isTurboStream(contentType: string | null | undefined): boolean {
   return (contentType ?? "").split(";")[0].trim().toLowerCase() === TURBO_STREAM
 }
 
+export async function fetchStream(url: string, signal: AbortSignal): Promise<string | null> {
+  try {
+    const response = await fetch(url, { headers: { Accept: TURBO_STREAM }, credentials: "same-origin", signal })
+    if (!response.ok || !isTurboStream(response.headers.get("Content-Type"))) return null
+    return await response.text()
+  } catch {
+    return null
+  }
+}
+
 export type Phase = "waiting" | "loading" | "holding" | "spent"
 
 export type Step = { kind: "none" } | { kind: "fetch"; url: string } | { kind: "render"; answer: string }

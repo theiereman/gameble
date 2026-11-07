@@ -257,14 +257,15 @@
   width: 100%;
 }
 
-/* The open button's label for its variant, among the three. */
+/* The open button's label for its variant. */
 .booster__open-label {
   display: none;
 }
 
 .booster__open[data-open="open"] > [data-variant="open"],
 .booster__open[data-open="next"] > [data-variant="next"],
-.booster__open[data-open="empty"] > [data-variant="empty"] {
+.booster__open[data-open="empty"] > [data-variant="empty"],
+.booster__open[data-open="skip"] > [data-variant="skip"] {
   display: inline;
 }
 

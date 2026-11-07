@@ -1,0 +1,11 @@
+<% case @sheet %>
+<% when "title" %>
+  <% content_for :title, t("personalizations.show.profile_title.heading") %>
+  <%= render "own_profiles/title_sheet", titles: @titles, active: @owner_title, page: true %>
+<% when "avatar" %>
+  <% content_for :title, t("own_profiles.avatar_sheet.heading") %>
+  <%= render "own_profiles/avatar_sheet", shelf: @avatars, page: true %>
+<% when "back" %>
+  <% content_for :title, t("personalizations.show.card_back.heading") %>
+  <%= render "own_profiles/back_sheet", shelf: @card_backs, page: true %>
+<% end %>

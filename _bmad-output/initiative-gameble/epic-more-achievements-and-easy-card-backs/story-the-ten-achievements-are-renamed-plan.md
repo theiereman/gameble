@@ -3,7 +3,7 @@ title: 'The ten achievements are renamed'
 type: 'feature'
 ticket: '5'
 created: '2026-11-02'
-status: 'built'
+status: done
 baseline_revision: 'd5df3bcd189f36b3b8a40937ea696fbcddc4446a'
 route: 'oneshot'
 route_source: 'auto'

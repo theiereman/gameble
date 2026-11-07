@@ -1,0 +1,102 @@
+/* What an empty reserve proposes, across the screen under the stage: the
+   next daily capsule, then Sets, Friends and Me, each with its hook. */
+.booster-next-steps {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-4);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
+}
+
+.booster-next-steps[hidden] {
+  display: none;
+}
+
+.booster-next-steps__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.booster-next-steps__daily {
+  margin: 0 0 var(--space-4);
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.booster-next-steps__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.booster-next-steps__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: 100%;
+  min-height: var(--space-touch-min);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text);
+  text-decoration: none;
+  background: var(--color-panel);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line);
+}
+
+.booster-next-steps__link:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.booster-next-steps__icon {
+  width: 24px;
+  height: 24px;
+}
+
+.booster-next-steps__arrow {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  color: var(--color-accent);
+}
+
+.booster-next-steps__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.booster-next-steps__name {
+  color: var(--color-text-bright);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
+  text-transform: uppercase;
+}
+
+.booster-next-steps__hook {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  overflow-wrap: anywhere;
+}
+
+/* The empty reserve's line needs no canister's room: the stage shrinks so
+   the proposals sit right under it, on a phone too. */
+.booster[data-phase="empty"]:has(.booster-next-steps:not([hidden])) :is(.booster__stage, .booster__shake) {
+  min-height: 0;
+}
+
+.booster[data-phase="empty"]:has(.booster-next-steps:not([hidden])) .booster__shake {
+  grid-template: minmax(200px, auto) / minmax(0, 1fr);
+}
+
+.booster[data-layout="phone"] .booster-next-steps {
+  margin-top: var(--space-5);
+}

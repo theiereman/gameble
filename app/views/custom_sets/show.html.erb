@@ -1,17 +1,17 @@
 <% content_for :back_button, true %>
-<% content_for :phone_previous, true %>
+<% content_for :phone_back do %><%= phone_back_link t("shell.screens.sets"), library_path %><% end %>
 <% content_for :screen_title, t("library.collection.title") %>
 <% content_for :title, t("library.album.title", set: custom_set_display_name(@custom_set)) %>
 <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
 <% actions = capture do %>
+  <%= render "goals/control", aim: @goal_aim, goal: @goal, refused: flash[:goal_refused].present?, complete: @standing.complete? || @standing.total.zero? %>
   <% if @custom_set.custom? %>
-    <%= render "goals/control", aim: @goal_aim, goal: @goal, refused: flash[:goal_refused].present?, complete: @standing.complete? %>
     <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: "custom-set-editor") do %><%= t("custom_sets.album.edit") %><% end %>
     <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: "delete-custom-set") do %><%= t("custom_sets.album.delete") %><% end %>
   <% end %>
 <% end %>
 <%= render "library/album", standing: @standing, heading: custom_set_display_name(@custom_set), slots: @album_slots, pagy: @album_pagy, filters: @album_filters,
-  context: {}, actions: actions.presence, goals: goal_marks.without(@goal) %>
+  context: { custom_set: @custom_set.token }, actions: actions.presence, goals: goal_marks.without(@goal) %>
 <% if @custom_set.custom? %>
   <%= render "custom_sets/editor", custom_set: @custom_set, picks: @picks %>
   <%= render "custom_sets/delete_dialog", custom_set: @custom_set %>

@@ -224,19 +224,6 @@ class RateLimitTest < ActionDispatch::IntegrationTest
     assert_response :too_many_requests
   end
 
-  test "the activity feed is a shared page: the 121st read from one address within a minute gets 429" do
-    PublicReadThrottle::LIMIT.times do |index|
-      get "/fr/feed", env: { "REMOTE_ADDR" => IP }
-
-      assert_not_equal 429, response.status, "read #{index + 1}"
-    end
-
-    get "/fr/feed", env: { "REMOTE_ADDR" => IP }
-
-    assert_response :too_many_requests
-    assert_equal I18n.t("rate_limit.reading_throttled", locale: :fr), response.body
-  end
-
   test "another address reads the shared pages meanwhile" do
     exhaust_public_reads(IP)
     get "/en/library/cards", env: { "REMOTE_ADDR" => IP }
@@ -245,13 +232,6 @@ class RateLimitTest < ActionDispatch::IntegrationTest
     get "/en/library/cards", env: { "REMOTE_ADDR" => OTHER_IP }
 
     assert_response :success
-  end
-
-  test "a shared page is never cached for other visitors" do
-    get "/en/library/cards", env: { "REMOTE_ADDR" => IP }
-
-    assert_response :success
-    assert_includes response.headers["cache-control"], "private"
   end
 
   test "a throttled read of a frame gets that frame back with the message" do

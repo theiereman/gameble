@@ -4,8 +4,8 @@ require_relative "../support/game_sets"
 require_relative "../support/holdings"
 require_relative "../support/steam_sign_in"
 
-# A suggestion's two ways in, the opener's prefilled board and ENVOYER, keep
-# only the cards still spared when they are followed, not when the list was read.
+# A suggestion's opener's prefilled board keeps
+# only the cards still spared when it is followed, not when the list was read.
 class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
   include CustomSets
   include GameSets
@@ -59,10 +59,6 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
   def board_lines = css_select("[data-trade-board-target='line']").map { [ it["data-side"], it["data-key"], it["data-quantity"].to_i ] }
 
   def taken(*ids) = ids.map { [ "friend", key_of(it), 1 ] }
-
-  def send_suggestion(take: { "blue-depths--s1" => 1, "green-hills--s1" => 1 })
-    post suggestions_trades_path(locale: :fr), params: { friend: @bob.token, take:, position: 0 }
-  end
 
   def propose(player, recipient, offer:, request:)
     Game::ProposeTrade.new.call(player:, recipient:, offer:, request:).value!
@@ -118,6 +114,16 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
     assert_equal taken(@depths), board_lines
   end
 
+  test "the opener followed after the friend is left with a single free copy places the rest" do
+    suggest_from_lea
+    sign_in @alice
+    href = opener_href
+
+    Game::Holding.where(player_id: @bob.id, card_season_id: @hills).update_all(quantity: 2, reserved: 1)
+    get href
+    assert_equal taken(@depths), board_lines
+  end
+
   test "the player's give cards no longer spared for the friend are dropped" do
     suggest_from_lea
     hold(@alice, @portal, 3)
@@ -128,65 +134,5 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
     get new_trade_path(locale: :fr, friend: @bob.token, take: %w[green-hills--s1], give: [ key_of(@soldier), key_of(@portal), key_of(@crown) ])
 
     assert_equal taken(@hills) + [ [ "own", key_of(@soldier), 1 ], [ "own", key_of(@crown), 1 ] ], board_lines
-  end
-
-  test "a prefilled board carries the friend's plain new-trade address and the send action; a plain board neither" do
-    suggest_from_lea
-    sign_in @alice
-
-    get new_trade_path(locale: :fr, friend: @bob.token, take: %w[blue-depths--s1])
-    root = css_select("#trade-board").sole
-    assert_equal new_trade_path(locale: :fr, friend: @bob.token), root["data-trade-board-board-url-value"]
-    assert_equal "submit->trade-board#send", css_select("form#trade-draft-form").sole["data-action"]
-
-    get new_trade_path(locale: :fr, friend: @bob.token)
-    assert_nil css_select("#trade-board").sole["data-trade-board-board-url-value"]
-    assert_nil css_select("form#trade-draft-form").sole["data-action"]
-  end
-
-  test "ENVOYER after a card is no longer free requests the rest; with every card gone it is refused and nothing is proposed" do
-    suggest_from_lea
-    sign_in @alice
-    Game::Holding.where(player_id: @bob.id, card_season_id: @hills).update_all("reserved = quantity")
-
-    assert_difference -> { Game::Trade.count }, 1 do
-      send_suggestion
-    end
-    assert_equal [ [ "request", @depths, 1 ] ], Game::Trade.last.items.map { [ it.side, it.card_season_id, it.quantity ] }
-
-    Game::Holding.where(player_id: @bob.id, card_season_id: @depths).update_all("reserved = quantity")
-
-    assert_no_difference -> { Game::Trade.count } do
-      send_suggestion
-    end
-    assert_redirected_to trades_path(locale: :fr)
-    assert_equal "Exemplaires insuffisants : une carte demandée n'est plus disponible. Rien n'a bougé.", flash[:alert]
-    assert_equal "Exemplaires insuffisants", flash[:toast_title]
-    assert_nil flash[:trade_error]
-  end
-
-  test "ENVOYER drops the player's give cards no longer spared for the friend and proposes the rest" do
-    suggest_from_lea
-    hold(@alice, @portal, 3)
-    hold(@alice, @crown, 1, reserved: 1)
-    sign_in @alice
-
-    assert_difference -> { Game::Trade.count }, 1 do
-      post suggestions_trades_path(locale: :fr),
-        params: { friend: @bob.token, take: { "blue-depths--s1" => 1 }, give: { key_of(@crown) => 1, key_of(@portal) => 1 }, position: 0 }
-    end
-
-    assert_equal [ [ "offer", @portal, 1 ], [ "request", @depths, 1 ] ],
-      Game::Trade.last.items.order(:side).map { [ it.side, it.card_season_id, it.quantity ] }
-  end
-
-  test "a crafted prefill of a card the friend has no free copy of ignores it" do
-    suggest_from_lea
-    hold(@bob, @crown, 1, reserved: 1)
-    sign_in @alice
-
-    get new_trade_path(locale: :fr, friend: @bob.token, take: [ key_of(@crown), "blue-depths--s1" ])
-
-    assert_equal taken(@depths), board_lines
   end
 end

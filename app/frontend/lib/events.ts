@@ -23,16 +23,32 @@ export type NavigationLockedDetail = { locked: boolean }
 
 export type OpeningRevealingDetail = { revealing: boolean }
 
+export type CardDealtDetail = { index: number }
+
 export type StreamUpdatedDetail = Record<string, never>
+
+export type SheetShownDetail = { shown: boolean }
+
+export type TopBarPanel = "bell" | "menu"
+
+export type TopBarPanelDetail = { panel: TopBarPanel | null }
 
 export interface GamebleEventMap {
   "gameble:toast": ToastDetail
   "gameble:tier-revealed": TierRevealedDetail
+  "gameble:capsule-touched": null
+  "gameble:card-dealt": CardDealtDetail
   "gameble:bank-changed": BankChangedDetail
   "gameble:navigation-locked": NavigationLockedDetail
   "gameble:opening-revealing": OpeningRevealingDetail
   "gameble:trades-updated": StreamUpdatedDetail
   "gameble:friends-updated": StreamUpdatedDetail
+  "gameble:reactions-updated": StreamUpdatedDetail
+  "gameble:bank-updated": StreamUpdatedDetail
+  "gameble:sheet-shown": SheetShownDetail
+  "gameble:screen-shown": null
+  "gameble:booster-changed": null
+  "gameble:top-bar-panel": TopBarPanelDetail
 }
 
 export type GamebleEventName = keyof GamebleEventMap

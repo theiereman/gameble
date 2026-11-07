@@ -41,7 +41,6 @@ class Game::CardBackShelfTest < ActiveSupport::TestCase
     assert_equal Game::CardBackShelf::GROUPS, groups.keys.sort_by { Game::CardBackShelf::GROUPS.index(it) }
     assert_equal %w[standard saison-1 millesime-2017 soldes-hiver], groups[:base].map(&:key)
     assert_equal %w[centurion etoile-dor aurore trefle-fane assidu siege-social contrat], groups[:achievement].map(&:key)
-    assert_equal %w[confrere], groups[:goal].map(&:key)
     assert_equal Game::CardBacks::THEME_KEYS.map { "set-theme-#{it}" }, groups[:theme].map(&:key)
     assert_equal Game::CardBacks::HALL_OF_FAME_KEYS.map { "set-hall_of_fame-#{it}" }, groups[:hall_of_fame].map(&:key)
   end
@@ -52,14 +51,6 @@ class Game::CardBackShelfTest < ActiveSupport::TestCase
 
     assert_equal unlocked_at, row("centurion").unlocked_at
     assert_nil row("standard").unlocked_at
-  end
-
-  test "the goal back names the week of the player's first goal reward" do
-    Game::CardBackUnlock.record(@player.id, "confrere", Time.current)
-    [ Date.new(2026, 10, 19), Date.new(2026, 10, 12) ].each { Game::GoalReward.create!(player_id: @player.id, week_start: it) }
-
-    assert_equal Date.new(2026, 10, 12), row("confrere").week
-    assert_nil row("centurion").week
   end
 
   test "an earned set back carries every season it was earned in and the back tier of the latest" do

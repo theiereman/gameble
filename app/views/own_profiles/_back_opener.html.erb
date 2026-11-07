@@ -1,0 +1,6 @@
+<%# locals: (row:) %>
+<%= tag.a(**bottom_sheet_opener("me-back-sheet", page: me_sheet_path(:back)), class: "me-opener me-back-opener") do %>
+  <span class="me-back-opener__look" data-me-target="preview"><%= render "own_profiles/back_look", back: row.back %></span>
+  <span class="me-opener__kicker"><%= t("own_profiles.show.card_back") %></span>
+  <span class="me-opener__cue"><%= t("own_profiles.show.change") %><%= pixel_icon("arrow-small-right", class: "me-opener__arrow") %></span>
+<% end %>

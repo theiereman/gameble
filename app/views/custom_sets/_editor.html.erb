@@ -4,14 +4,14 @@
 <% strings = screen_strings("custom_sets.editor.strings") %>
 <% limit = Game::CustomSet::NAME_LIMIT %>
 <%= tag.dialog id: "custom-set-editor", class: "modal modal--wide custom-set-editor", aria: { labelledby: "custom-set-editor-title" },
-      data: { controller: "dialog custom-set-editor", action: "click->dialog#closeOnScrim close->custom-set-editor#closed",
+      data: { controller: "dialog custom-set-editor", action: "click->custom-set-editor#closeOnScrim cancel->custom-set-editor#cancel close->custom-set-editor#closed",
               custom_set_editor_games_url_value: custom_set_games_path, custom_set_editor_max_value: Game::CustomSet::GAMES.max,
               custom_set_editor_name_limit_value: limit, custom_set_editor_strings_value: strings } do %>
   <div class="panel panel--brackets modal__panel custom-set-editor__panel">
     <span class="modal__handle" aria-hidden="true"></span>
     <div class="modal__head">
       <p id="custom-set-editor-title" class="modal__title"><%= editing ? t(".edit_title") : t(".new_title") %></p>
-      <button type="button" class="modal__close" aria-label="<%= t(".close") %>" data-action="dialog#close">
+      <button type="button" class="modal__close" aria-label="<%= t(".close") %>" data-action="custom-set-editor#requestClose">
         <%= pixel_icon("close", class: "modal__close-icon") %>
       </button>
     </div>
@@ -67,6 +67,24 @@
       </div>
     </div>
   </div>
+  <dialog id="custom-set-discard" class="modal" aria-labelledby="custom-set-discard-title" aria-describedby="custom-set-discard-text"
+          data-controller="dialog" data-action="click->dialog#closeOnScrim" data-custom-set-editor-target="discard">
+    <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+      <div class="modal__head">
+        <p id="custom-set-discard-title" class="modal__title"><%= t(".discard.title") %></p>
+        <button type="button" class="modal__close" aria-label="<%= t(".discard.close") %>" data-action="dialog#close">
+          <%= pixel_icon("close", class: "modal__close-icon") %>
+        </button>
+      </div>
+      <div class="custom-set-discard">
+        <p id="custom-set-discard-text" class="custom-set-discard__text"><%= t(".discard.text") %></p>
+        <div class="custom-set-discard__actions">
+          <%= tag.button t(".discard.keep"), type: :button, class: "button button--primary", autofocus: true, data: { action: "dialog#close" } %>
+          <%= tag.button t(".discard.confirm"), type: :button, class: "button button--secondary", data: { action: "custom-set-editor#discard" } %>
+        </div>
+      </div>
+    <% end %>
+  </dialog>
   <template data-custom-set-editor-target="inputTemplate"><%= hidden_field_tag "games[]", "", id: nil %></template>
   <template data-custom-set-editor-target="limitTemplate"><%= Game::CreateCustomSet.failure_message(:too_many_games) %></template>
 <% end %>

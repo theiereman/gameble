@@ -1,0 +1,4 @@
+<%# locals: (filter:, tab:, page: false) %>
+<%= render BottomSheetComponent.new(id: feed_types_sheet_id, title: t("feeds.show.filters_label"), page:) do %>
+  <%= render "feeds/filters", filter:, tab:, classes: "feed__filters" %>
+<% end %>

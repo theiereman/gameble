@@ -31,12 +31,14 @@ export type PickerScreen = {
   count: string
   refused: boolean
   filter: SideFilter
-  folded: boolean
   chipsOn: number
   filtering: boolean
 }
 
 export type MoveIntent = { key: string; columns: number }
+
+const checkedFor = (boxes: readonly HTMLInputElement[], side: string | undefined): string[] =>
+  boxes.filter((box) => box.checked && box.dataset.for === side).map((box) => box.value)
 
 const PENDING_FACE = "trade-pick__face--pending"
 const TOGGLE = ".trade-pick__toggle"
@@ -52,8 +54,8 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     "search",
     "rarity",
     "chip",
-    "fold",
-    "groups",
+    "genre",
+    "goal",
     "filterCount",
     "chipCount",
     "results",
@@ -74,11 +76,11 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
   declare readonly searchTarget: HTMLInputElement
   declare readonly rarityTargets: HTMLInputElement[]
   declare readonly chipTargets: HTMLInputElement[]
-  declare readonly foldTarget: HTMLButtonElement
-  declare readonly groupsTarget: HTMLElement
+  declare readonly genreTargets: HTMLInputElement[]
+  declare readonly goalTargets: HTMLInputElement[]
   declare readonly filterCountTarget: HTMLElement
   declare readonly chipCountTarget: HTMLElement
-  declare readonly resultsTarget: HTMLElement
+  declare readonly resultsTargets: HTMLElement[]
   declare readonly clearTarget: HTMLElement
   declare readonly emptyTargets: HTMLElement[]
   declare readonly refusalTarget: HTMLElement
@@ -135,6 +137,13 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     this.bodyTarget.scrollTop = 0
   }
 
+  scrollToResults(): void {
+    const body = this.bodyTarget
+    const filtersEnd =
+      this.filtersTarget.getBoundingClientRect().bottom - body.getBoundingClientRect().top + body.scrollTop
+    body.scrollTop = Math.min(body.scrollTop, filtersEnd)
+  }
+
   toggle(event: Event): void {
     const key = this.keyOf(event)
     if (key) this.dispatch("toggle", { detail: { key } })
@@ -166,12 +175,10 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
       query: this.searchTarget.value,
       rarities: this.rarityTargets.filter((box) => box.checked).map((box) => box.value as Rarity),
       chips: this.chipTargets.filter((box) => box.checked && box.dataset.for === side).map((box) => box.value as Chip),
+      genres: checkedFor(this.genreTargets, side),
+      goals: checkedFor(this.goalTargets, side),
     }
     this.dispatch("filter", { detail: filter })
-  }
-
-  fold(): void {
-    this.dispatch("fold")
   }
 
   clear(): void {
@@ -201,17 +208,18 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
     if (this.element.open) this.element.close()
   }
 
-  private reflectFilters({ side, hasCards, filter, folded, chipsOn, filtering, results }: PickerScreen): void {
+  private reflectFilters(view: PickerScreen): void {
+    const { side, hasCards, filter, chipsOn, filtering, results } = view
     this.filtersTarget.hidden = !hasCards
     if (this.searchTarget.value !== filter.query) this.searchTarget.value = filter.query
     for (const box of this.rarityTargets) box.checked = filter.rarities.includes(box.value as Rarity)
     for (const box of this.chipTargets)
       box.checked = box.dataset.for === side && filter.chips.includes(box.value as Chip)
-    this.foldTarget.setAttribute("aria-expanded", String(!folded))
-    this.groupsTarget.classList.toggle("trade-picker__groups--folded", folded)
+    for (const box of this.genreTargets) box.checked = box.dataset.for === side && filter.genres.includes(box.value)
+    for (const box of this.goalTargets) box.checked = box.dataset.for === side && filter.goals.includes(box.value)
     this.filterCountTarget.hidden = chipsOn === 0
     writeText(this.chipCountTarget, String(chipsOn))
-    writeText(this.resultsTarget, results)
+    for (const line of this.resultsTargets) writeText(line, results)
     this.clearTarget.hidden = !filtering
   }
 

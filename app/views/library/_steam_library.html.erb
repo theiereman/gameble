@@ -1,11 +1,16 @@
 <%# locals: (tile:) %>
-<% note, last_sync = steam_library_sync_lines(tile.own_set) %>
+<% library = tile.own_set %>
+<% head_note = steam_library_head_note(library) %>
 <section class="set-entry__section steam-library" aria-labelledby="steam-library-title">
-  <h2 id="steam-library-title" class="set-entry__title"><%= t("library.entry.steam_library.title") %></h2>
-  <p class="steam-library__sync">
-    <span class="steam-library__light" aria-hidden="true"></span>
-    <span class="steam-library__lines"><%= note %><% if last_sync %><br><b><%= last_sync %></b><% end %></span>
-  </p>
+  <div class="steam-library__head">
+    <h2 id="steam-library-title" class="set-entry__title"><%= t("library.entry.steam_library.title") %></h2>
+    <% if head_note %>
+      <p class="steam-library__note"><%= head_note %></p>
+    <% end %>
+  </div>
+  <% if library.library_private? %>
+    <p class="steam-library__not-shared"><%= t("library.entry.steam_library.not_shared") %></p>
+  <% end %>
   <ul class="set-tiles">
     <li><%= render "library/set_progress_tile", href: set_tile_path(tile), tile: %></li>
   </ul>

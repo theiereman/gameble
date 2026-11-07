@@ -1,0 +1,12 @@
+<%# locals: (label:, value:, worn:) %>
+<li>
+  <% if worn %>
+    <button type="button" class="filter-chip" aria-current="true" data-action="bottom-sheet#close">
+      <span class="filter-chip__text"><%= label %></span>
+    </button>
+  <% else %>
+    <%= button_to personalization_title_path, method: :patch, params: { title: value }, class: "filter-chip", form_class: "me-choices__form" do %>
+      <span class="filter-chip__text"><%= label %></span>
+    <% end %>
+  <% end %>
+</li>

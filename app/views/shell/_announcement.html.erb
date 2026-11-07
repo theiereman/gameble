@@ -1,0 +1,12 @@
+<% if (announcement = announcement_banner) %>
+  <aside id="<%= AnnouncementsHelper::BANNER_ID %>" class="announcement" aria-label="<%= t("shell.announcement.label") %>" data-turbo-temporary>
+    <div class="announcement__inner">
+      <span class="announcement__light" aria-hidden="true"></span>
+      <p class="announcement__message"><%= announcement.message %></p>
+      <%= button_to announcement_dismissal_path(token: announcement.token), class: "announcement__close", form_class: "announcement__form",
+            aria: { label: t("shell.announcement.close") } do %>
+        <%= pixel_icon("close") %>
+      <% end %>
+    </div>
+  </aside>
+<% end %>

@@ -104,12 +104,6 @@ class Game::CustomSetOperationsTest < ActiveSupport::TestCase
     assert_refused(:too_many_sets) { create(name: "Set 10") }
   end
 
-  test "an eleventh set is refused" do
-    10.times { create(name: "Set #{it}").value! }
-
-    assert_refused(:too_many_sets) { create(name: "Set 10") }
-  end
-
   test "a game unknown, or with no rated card-season in a published season, is refused" do
     draft = Catalog::Season.create!(number: Catalog::Season.next_number)
     unpublished = Catalog::Card.create!(source_key: "src:901", release_date: Date.new(2000, 1, 1),

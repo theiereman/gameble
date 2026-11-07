@@ -1,7 +1,9 @@
 <% repost = item.entry.kind == "repost" %>
 <% trade = item.entry.kind == "trade" %>
 <% set_entry = item.entry.kind == "set" %>
-<li class="<%= class_names("feed__entry", "feed__entry--filler": item.filler, "feed__entry--set": set_entry) %>">
+<% target = local_assigns[:target]&.id == item.entry.id %>
+<%= tag.li id: "entry-#{item.entry.token}", class: class_names("feed__entry", "feed__entry--filler": item.filler, "feed__entry--set": set_entry, "feed__entry--target": target),
+      aria: { current: ("true" if target) } do %>
   <% if trade %>
     <span class="feed__thumbs">
       <% [ card, partner_card ].each do |traded| %>
@@ -18,7 +20,10 @@
     <% end %>
   <% end %>
   <div class="feed__body">
-    <p class="feed__sentence"><%= feed_sentence(item, card, partner_card, set, titles: true) %></p>
+    <div class="feed__head">
+      <p class="feed__sentence"><%= feed_sentence(item, card, partner_card, set, titles: true) %></p>
+      <%= local_time_tag(item.entry.occurred_at, class: "feed__time") %>
+    </div>
     <div class="feed__meta">
       <% if set_entry %>
         <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") %>
@@ -36,7 +41,10 @@
         </span>
       <% end %>
       <% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span><% end %>
-      <%= local_time_tag(item.entry.occurred_at, class: "feed__time") %>
+      <% if local_assigns[:reactions] %>
+        <% lazy = local_assigns.fetch(:lazy, false) %>
+        <%= render "reactions/bar", token: item.entry.token, summary: reactions.fetch(item.entry.id), interactive: !lazy && current_player.present?, lazy: %>
+      <% end %>
     </div>
   </div>
-</li>
+<% end %>

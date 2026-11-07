@@ -1,0 +1,60 @@
+name: Android smoke test
+
+# Opens the debug app in an emulator and prints what Hotwire Native logs while the first page loads.
+on:
+  push:
+    paths: [ "mobile/android/**", ".github/workflows/android-smoke.yml" ]
+  workflow_dispatch:
+    inputs:
+      root_url:
+        description: The server the app loads
+        default: https://test.gameble.net
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      ROOT_URL: ${{ inputs.root_url || 'https://test.gameble.net' }}
+      IMAGE: system-images;android-36;google_apis;x86_64
+      ANDROID_AVD_HOME: /home/runner/.android/avd
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build the debug APK
+        working-directory: mobile/android
+        run: JAVA_HOME="$JAVA_HOME_17_X64" ./gradlew --no-daemon assembleDebug -PgamebleRootUrl="$ROOT_URL"
+
+      - name: Start an emulator
+        timeout-minutes: 15
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "emulator" "platform-tools" "$IMAGE" | tail -3
+          mkdir -p "$ANDROID_AVD_HOME"
+          echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n smoke -k "$IMAGE" --device pixel_6
+          ls "$ANDROID_AVD_HOME"
+          nohup "$ANDROID_HOME/emulator/emulator" -avd smoke -no-window -no-audio -no-boot-anim -no-snapshot -accel on -gpu swiftshader_indirect > emulator.log 2>&1 &
+          for i in $(seq 1 120); do
+            kill -0 $! 2>/dev/null || break
+            [ "$("$ANDROID_HOME/platform-tools/adb" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ] && echo booted && exit 0
+            sleep 5
+          done
+          tail -60 emulator.log
+          exit 1
+
+      - name: Open the app and read its logs
+        run: |
+          adb="$ANDROID_HOME/platform-tools/adb"
+          $adb install mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          $adb logcat -c
+          $adb shell am start -n net.gameble.app/.MainActivity
+          sleep 60
+          $adb logcat -d > logcat.txt
+          grep -iE "Hotwire|Turbo|chromium|console|AndroidRuntime|net.gameble" logcat.txt | tail -400
+          $adb shell uiautomator dump /sdcard/ui.xml > /dev/null && $adb shell cat /sdcard/ui.xml | grep -o 'text="[^"]\+"' | head -60

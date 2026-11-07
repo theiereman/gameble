@@ -1,22 +1,29 @@
 import type { CardView, HandView } from "../controllers/booster_stage_controller"
 import {
   bannerEnded,
+  canisterDocks,
   controls,
+  nextCapsuleSize,
+  nextCapsuleWaiting,
+  nextStepsShown,
   onTable,
+  originKind,
   shownCelebration,
   type BoosterState,
   type Controls,
   type Hint,
 } from "./booster"
 import { reserveCount } from "./booster_bank"
-import { bannerKeyframes } from "./booster_keyframes"
-import { bannerDuration, pileDepth } from "./booster_motion"
+import { animate } from "./booster_effects"
+import { bannerKeyframes, dockKeyframes } from "./booster_keyframes"
+import { DOCK, STORE_MS, bannerDuration, pileDepth } from "./booster_motion"
 import { formatClock } from "./booster_clock"
 import { cardHref } from "./booster_page"
 import type { BoosterRenderHost } from "./booster_render_host"
 import { renderCelebrations } from "./booster_render_celebration"
 import { t } from "./i18n"
 import { formatLocalTime } from "./local_time"
+import { motionReduced } from "./motion"
 import type { OpeningCard } from "./opening"
 
 type Clock = Readonly<{ clock: string; spoken: string }>
@@ -26,6 +33,7 @@ const localTime = (iso: string): string =>
 
 export class BoosterRenderer {
   private bannerKey: number | null = null
+  private capsuleWaiting = false
 
   constructor(private readonly host: BoosterRenderHost) {}
 
@@ -50,6 +58,7 @@ export class BoosterRenderer {
     this.renderTray(state, view)
     this.renderZoom(state, view)
     renderCelebrations(this.host, state, view)
+    this.host.outlets().nextSteps?.render({ shown: nextStepsShown(state) })
   }
 
   private get strings() {
@@ -69,16 +78,11 @@ export class BoosterRenderer {
   }
 
   private nextSize(state: BoosterState): number {
-    return state.bank.nextPackSize ?? this.host.packSize
-  }
-
-  private originKind(state: BoosterState): string | null {
-    if (state.reserve !== "special") return null
-    return (state.phase === "dealt" ? state.answer?.pack.kind : state.bank.nextSpecialKind) || null
+    return nextCapsuleSize(state) ?? this.host.packSize
   }
 
   private originName(state: BoosterState): string | null {
-    const kind = this.originKind(state)
+    const kind = originKind(state)
     const names: Record<string, string> = {
       bonus: this.strings.originBonus,
       reward: this.strings.originReward,
@@ -88,7 +92,7 @@ export class BoosterRenderer {
 
   private renderOriginLook(state: BoosterState): void {
     const { element } = this.host
-    const kind = this.originKind(state)
+    const kind = originKind(state)
     if (kind) element.dataset.origin = kind
     else delete element.dataset.origin
   }
@@ -149,8 +153,9 @@ export class BoosterRenderer {
     const clock = this.nextClock()
     const { nextAvailableAt } = state.bank
     const season = this.host.season
+    const waiting = nextCapsuleWaiting(state)
     canister.render({
-      away: state.canisterAway,
+      away: state.canisterAway && !waiting,
       empty: state.phase === "empty",
       next:
         clock !== null && nextAvailableAt
@@ -165,11 +170,20 @@ export class BoosterRenderer {
           : t(this.strings.canisterLabelPlain, { count: nextSize }),
       busy: state.phase !== "sealed" && state.phase !== "dealt",
       armed: state.armed,
-      hintHidden: state.phase !== "sealed",
+      hintHidden: state.phase !== "sealed" && !waiting,
       facts: t(this.strings.canisterFacts, { count: nextSize, n: this.host.number(nextSize) }),
-      docks: state.docks,
+      docks: canisterDocks(state),
       origin: this.originName(state),
     })
+    if (waiting && !this.capsuleWaiting && !motionReduced()) {
+      animate(canister.element, dockKeyframes(), {
+        duration: DOCK,
+        delay: STORE_MS,
+        easing: "cubic-bezier(.2,.9,.3,1)",
+        fill: "backwards",
+      })
+    }
+    this.capsuleWaiting = waiting
   }
 
   private hintText(hint: Hint): string {
@@ -209,6 +223,7 @@ export class BoosterRenderer {
         legendary: state.legendary === index,
         name: cardName(card, index),
         tierLabel: this.host.tierLabel(card.tier),
+        firstCopy: card.firstCopy,
         repostName: t(this.strings.repostCard, { card: card.title }),
         depth: phone ? pileDepth(index, state.stored) : null,
       })

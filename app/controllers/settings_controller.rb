@@ -2,6 +2,8 @@ class SettingsController < ApplicationController
   MOTION_CHOICES = { "system" => nil, "on" => true, "off" => false }.freeze
   LIBRARY_SYNC_CHOICES = { "on" => true, "off" => false }.freeze
 
+  throttle_player to: 1, within: 5.minutes, only: :sync_steam_library, path: -> { settings_path }, alert: "settings.sync_library.throttled"
+
   def show
     authorize :settings, :show?
     @reduced_motion = current_player.reduced_motion
@@ -16,6 +18,7 @@ class SettingsController < ApplicationController
     steam_linked = @identities.any? { it.provider == "steam" }
     @name_editable = !steam_linked
     @library_sync = current_player.steam_library_sync if steam_linked
+    @library_synced_at = Game::LibrarySyncedAt.call(current_player) if steam_linked
     @asks_to_turn_library_off = flash[:confirm_library_off].present?
     @clerk_mode = params[:add_sign_in].present? ? "callback" : "start"
   end
@@ -45,6 +48,20 @@ class SettingsController < ApplicationController
       redirect_to settings_path, status: :see_other
     else
       redirect_refused Accounts::SetSteamLibrarySync, result, settings_path
+    end
+  end
+
+  def sync_steam_library
+    authorize :settings, :sync_steam_library?
+
+    started = syncs_library?
+    CreateSteamLibrarySetJob.perform_later(current_player.id, first_sync: true) if started
+    tone = started ? :notice : :alert
+    message = t(started ? "settings.sync_library.started" : "settings.sync_library.unavailable")
+
+    respond_to do |format|
+      format.turbo_stream { render turbo_stream: turbo_stream.append("toasts", html: ToastComponent.new(message:, tone:).render_in(view_context)) }
+      format.html { redirect_to settings_path, tone => message, status: :see_other }
     end
   end
 
@@ -80,6 +97,10 @@ class SettingsController < ApplicationController
 
   def turned_on?(player)
     player.saved_change_to_steam_library_sync? && player.steam_library_sync
+  end
+
+  def syncs_library?
+    current_player.steam_library_sync && Accounts::SteamIdOf.call(current_player).present?
   end
 
   def erases_library_unconfirmed?(enabled)

@@ -4,8 +4,8 @@ require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
 # A player's own set: the editor from the collection and from the album, its
-# search, chips, picks and refusals; ANNULER discarding; the delete dialog;
-# MES SETS gives way to a set search and never shows on a public profile.
+# search, chips, picks and limit; ANNULER discarding, closing over unsaved
+# changes asking first; MES SETS unfolding on the phone.
 class CustomSetsTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GameSets
@@ -74,7 +74,6 @@ class CustomSetsTest < ApplicationSystemTestCase
       chip(/selected/i).click
       assert_selector ".custom-set-game", count: 3
       assert_equal [ 0, 1, 2 ].map { title(it).downcase }, shown_titles
-      take_screenshot
       click_on "Save"
     end
 
@@ -85,7 +84,6 @@ class CustomSetsTest < ApplicationSystemTestCase
       assert_selector "li:first-child > a.set-tile .set-tile__face--recto .set-tile__head", text: /Mes favoris\s+custom set · 3 games\s+1\/3/i
       assert_selector "li:last-child > button.new-set-tile"
     end
-    take_screenshot
   end
 
   test "the author edits the set from MODIFIER: takes a game out, adds two, renames it, and lands on its album" do
@@ -122,7 +120,12 @@ class CustomSetsTest < ApplicationSystemTestCase
     sign_in(@player)
     visit custom_set_path(locale: :en, token: custom_set.token)
 
-    [ -> { click_on "Cancel" }, -> { find(".modal__close").click }, -> { find_field("Set name").send_keys(:escape) } ].each do |discard|
+    leave = -> { within("dialog#custom-set-discard[open]") { click_on "Leave without saving" } }
+    [
+      -> { click_on "Cancel" },
+      -> { find(".custom-set-editor__panel .modal__close").click; leave.call },
+      -> { find_field("Set name").send_keys(:escape); leave.call }
+    ].each do |discard|
       click_on "Edit"
       within(editor) do
         fill_in "Set name", with: "Autre chose"
@@ -149,28 +152,27 @@ class CustomSetsTest < ApplicationSystemTestCase
     assert_equal "Mes favoris", custom_set.reload.name
   end
 
-  test "SUPPRIMER asks first: ANNULER keeps the set and returns to the button, SUPPRIMER deletes it with a toast" do
-    custom_set = create_set(name: "Jeux du soir")
+  test "closing the editor over unsaved changes asks first; keeping on editing keeps them, an untouched editor closes at once" do
+    custom_set = create_set
     sign_in(@player)
     visit custom_set_path(locale: :en, token: custom_set.token)
 
-    click_on "Delete"
-    within("dialog#delete-custom-set[open]") do
-      assert_selector ".modal__title", text: /\Adelete “jeux du soir”\?\z/i
-      assert_text "Your cards stay in your collection."
-      click_on "Cancel"
-    end
+    click_on "Edit"
+    within(editor) { find(".custom-set-editor__panel .modal__close").click }
     assert_no_selector "dialog[open]"
-    assert_selector ".set-album__actions button[data-dialog-opener-dialog-value=delete-custom-set]:focus"
 
-    click_on "Delete"
-    within("dialog#delete-custom-set[open]") { click_on "Delete" }
-
-    assert_selector "#toasts .toast", text: /Set deleted/i
-    assert_selector "#toasts .toast", text: "“Jeux du soir” is no longer one of your sets."
-    assert_current_path library_path(locale: :en)
-    assert_no_selector "section.custom-sets a.set-tile"
-    assert_text "Visible to you only · 0 / 10"
+    click_on "Edit"
+    within(editor) do
+      fill_in "Set name", with: "Autre chose"
+      page.driver.browser.action.move_to_location(5, 5).click.perform
+      within("dialog#custom-set-discard[open]") do
+        assert_selector "#custom-set-discard-title", text: /\Aleave without saving\?\z/i
+        click_on "Keep editing"
+      end
+      assert_no_selector "dialog#custom-set-discard[open]"
+      assert_field "Set name", with: "Autre chose"
+    end
+    assert_selector "dialog#custom-set-editor[open]"
   end
 
   test "at fifty games one more is refused in the editor: nothing is added and the refusal shows" do
@@ -188,7 +190,6 @@ class CustomSetsTest < ApplicationSystemTestCase
       assert_refusal(/\A50 games at most · Remove a game to add another\.\z/i)
       assert_selector ".custom-set-game__toggle[aria-label='Portal, not owned'][aria-pressed=false]"
       assert_selector ".custom-set-editor__count b", text: "50 games"
-      take_screenshot
       fill_in "Search a game", with: ""
       chip(/\Aselected · 50\z/i).click
       assert_selector ".custom-set-game", count: 48
@@ -200,107 +201,6 @@ class CustomSetsTest < ApplicationSystemTestCase
       assert_selector ".custom-set-editor__count b", text: "49 games"
       assert_no_refusal
     end
-  end
-
-  test "under three games, with an empty name or at ten sets saved elsewhere, ENREGISTRER shows the refusal and saves nothing" do
-    sign_in(@player)
-    visit library_path(locale: :en)
-
-    find("button.new-set-tile").click
-    within(editor) do
-      fill_in "Set name", with: "Mes favoris"
-      fill_in "Search a game", with: "Seed"
-      assert_selector ".custom-set-game", count: 5
-      toggle_of(title(0)).click
-      toggle_of(title(1)).click
-      click_on "Save"
-      assert_refusal(/\A3 games at least · Add 1 more game to save the set\.\z/i)
-      assert_selector ".custom-set-editor__count b", text: "2 games"
-
-      toggle_of(title(2)).click
-      assert_no_refusal
-      fill_in "Set name", with: " "
-      click_on "Save"
-      assert_refusal(/\Aname required · Give your set a name\.\z/i)
-
-      fill_in "Set name", with: "Mes favoris"
-      10.times { create_set(name: "Ailleurs #{it}") }
-      click_on "Save"
-      assert_refusal(/\A10 sets at most · Remove a set to create another\.\z/i)
-      assert_selector ".custom-set-editor__count b", text: "3 games"
-    end
-    assert_current_path library_path(locale: :en)
-    assert_equal 10, Game::CustomSet.where(player_id: @player.id).count
-  end
-
-  test "on the phone the editor is a full-height sheet, its refusal in French above its two buttons sharing a row" do
-    sign_in(@player)
-    resize_to(390, 844)
-    visit library_path(locale: :fr)
-
-    find("button.new-set-tile").click
-    within(editor) do
-      fill_in "Nom du set", with: "Mes favoris"
-      click_on "Enregistrer"
-      assert_refusal(/\A3 jeux au moins · Ajoutez encore 3 jeux pour enregistrer le set\.\z/i)
-      assert_selector ".custom-set-editor__count b", text: "0 jeu"
-    end
-    eventually("the sheet should fill the screen, the refusal above two 48px buttons on one row") do
-      sheet = page.evaluate_script(<<~JS)
-        (() => {
-          const box = (selector) => document.querySelector(selector).getBoundingClientRect()
-          const [cancel, save] = [...document.querySelectorAll(".custom-set-editor__actions .button")].map((button) => button.getBoundingClientRect())
-          return { height: box("#custom-set-editor").height, viewport: window.innerHeight, refusalBottom: box("#custom-set-editor-refusal").bottom,
-                   buttonsTop: cancel.top, sameRow: Math.abs(cancel.top - save.top) < cancel.height / 2, buttonHeight: save.height,
-                   columns: [...document.querySelectorAll(".custom-set-editor__grid")].map((grid) => getComputedStyle(grid).gridTemplateColumns.split(" ").length)[0] }
-        })()
-      JS
-      sheet["height"] == sheet["viewport"] && sheet["refusalBottom"] <= sheet["buttonsTop"] && sheet["sameRow"] &&
-        sheet["buttonHeight"] == 48 && sheet["columns"] == 2
-    end
-    take_screenshot
-    assert_equal 0, Game::CustomSet.where(player_id: @player.id).count
-  end
-
-  test "a typed set search hides MES SETS as it hides EN COURS; a public profile's collection has no MES SETS" do
-    insert_theme(@cards, key: "roguelike", season: @season)
-    create_set
-    sign_in(@player)
-    visit library_path(locale: :en)
-    assert_selector "section.custom-sets", visible: true
-
-    fill_in "set-search-field", with: "rogue"
-    assert_selector ".set-results"
-    assert_no_selector "section.custom-sets", visible: true
-
-    fill_in "set-search-field", with: ""
-    assert_selector "section.custom-sets", visible: true
-
-    visit brother_collection_path(locale: :en, token: @player.token)
-    assert_selector ".collection .collection-grid"
-    assert_no_selector ".custom-sets"
-    assert_no_text "Mes favoris"
-  end
-
-  test "a typed set search finds a custom set in place of every section, which come back once it is cleared" do
-    insert_theme(@cards, key: "roguelike", season: @season)
-    hold_all(@player, @cards.first(2))
-    create_set
-    sign_in(@player)
-    visit library_path(locale: :en)
-    assert_selector "#set-entry-in-progress a.set-tile"
-
-    fill_in "set-search-field", with: "favo"
-    within(".set-results") do
-      assert_selector "a.set-tile[href='#{custom_set_path(locale: :en, token: Game::CustomSet.sole.token)}']", count: 1
-      assert_selector "a.set-tile .set-tile__face--recto .set-tile__name", text: "Mes favoris"
-    end
-    assert_selector ".set-search__status", text: "1 set found"
-    [ "#goals", "section.custom-sets", "#set-entry-in-progress" ].each { assert_no_selector it, visible: true }
-
-    fill_in "set-search-field", with: ""
-    assert_no_selector ".set-results"
-    [ "#goals", "section.custom-sets", "#set-entry-in-progress" ].each { assert_selector it, visible: true }
   end
 
   test "on the phone MES SETS shows two sets and the new set tile, and Tout voir unfolds the others in place, focusing the third" do
@@ -316,16 +216,6 @@ class CustomSetsTest < ApplicationSystemTestCase
     within("section.custom-sets") do
       assert_selector "a.set-tile", count: 2
       assert_equal [ "Set 0", "Set 1" ], all("a.set-tile .set-tile__face--recto .set-tile__name").map(&:text)
-      eventually("the new set tile should be a 120px row, its 44px square beside its text") do
-        tile = page.evaluate_script(<<~JS)
-          (() => {
-            const box = (selector) => document.querySelector(selector).getBoundingClientRect()
-            return { height: box(".new-set-tile").height, square: box(".new-set-tile__plus").width, besides: box(".new-set-tile__text").left > box(".new-set-tile__plus").right }
-          })()
-        JS
-        tile["height"] == 120 && tile["square"] == 44 && tile["besides"]
-      end
-      take_screenshot
       find(".custom-sets__unfold", text: /\Aet 2 autres sets · tout voir\z/i).click
       assert_selector "a.set-tile", count: 4
       assert_no_selector ".custom-sets__unfold"

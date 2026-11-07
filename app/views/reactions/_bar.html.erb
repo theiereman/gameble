@@ -1,0 +1,11 @@
+<%# locals: token, summary, interactive, lazy %>
+<% lazy_options = lazy ? { src: feed_entry_reactions_path(token:), loading: :lazy } : {} %>
+<%= turbo_frame_tag "reactions-#{token}", class: "feed__reactions", role: "group", aria: { label: t("reactions.group") },
+      data: { controller: "reaction-bar", action: "click->reaction-bar#press" }, **lazy_options do %>
+  <% Game::FeedReaction::KINDS.each do |kind| %>
+    <%= render "reactions/pill", token:, kind:, summary:, interactive: %>
+  <% end %>
+  <% if interactive %>
+    <%= render "reactions/add", token:, summary: %>
+  <% end %>
+<% end %>

@@ -4,11 +4,11 @@ require_relative "../support/game_sets"
 require_relative "../support/library_requests"
 require_relative "../support/steam_sign_in"
 
-# The player's goals in the collection: OBJECTIFS on their own entry, one
-# row per goal in number order, then the free slot or the empty line; the
-# goal button in the header of their own album of a game set or a custom
-# set, never elsewhere. A public profile shows only the game set goals,
-# without their bookmark.
+# The player's goals in the collection: OBJECTIFS at the head of their own
+# entry, one row per goal in number order, then the free slot or the empty
+# line; the goal button in the header of their own album of a game set or a
+# custom set, never elsewhere. A public profile shows only the game set goals,
+# without their bookmark. The hub lists them all under its menu.
 class LibraryGoalsTest < ActionDispatch::IntegrationTest
   include CustomSets
   include GameSets
@@ -36,7 +36,7 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
     queries
   end
 
-  test "OBJECTIFS lists the goals in number order, each row one link named by its sentence, then the free slot" do
+  test "OBJECTIFS leads the entry with the goals in number order, each row one link to its album named by its sentence, then the free slot" do
     roguelike
     custom_set = create_custom_set(@player)
     hold(@player, @common)
@@ -48,7 +48,7 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :fr)
 
-    assert_select ".set-entry > turbo-frame#set-search-results + section#goals.goals[aria-labelledby=goals-title] + section.custom-sets"
+    assert_select ".set-entry > section#goals.goals[aria-labelledby=goals-title]:first-child + section.set-search + turbo-frame#set-search-results + section.custom-sets"
     assert_select "#goals h2#goals-title", "Objectifs"
     assert_select "#goals .goals__count", "2 / 5"
     assert_select "#goals .goals__panel.panel--brackets"
@@ -78,7 +78,7 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
     assert_select "#goals .goals__count", "0 / 5"
     assert_select "#goals .goals__empty > span:not(.goal-bookmark)", "No goal. Open a set's album and mark it as a goal."
     assert_select "#goals .goals__empty .goal-bookmark--hollow", ""
-    assert_select "#goals .goal-row, #goals .goals__free", false
+    assert_select "#goals .goal-row, #goals .goal-suggestion, #goals .goals__free", false
 
     %w[a1 a2 a3 a4 a5].each { insert_set(unheld_cards(3), { complete: 3 }, key: it, params: { "theme" => it }) && add(kind: "theme", key: it) }
     get library_path(locale: :en)
@@ -130,7 +130,7 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
     assert_select "#set-album-goal button", false
   end
 
-  test "a custom set's album holds the goal button beside its own; the Steam library set's has none" do
+  test "a custom set's album holds the goal button beside its own, and the Steam library set's holds it too" do
     custom_set = create_custom_set(@player)
     library = Game::CustomSet.create!(player_id: @player.id, kind: Game::CustomSet::STEAM_LIBRARY)
     Game::CustomSetGame.create!(custom_set_id: library.id, card_id: catalog_cards(:portal).id)
@@ -141,10 +141,10 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
     assert_select "#set-album-goal input[name=custom_set][value='#{custom_set.token}']"
 
     get custom_set_path(locale: :fr, token: library.token)
-    assert_select "#set-album-goal", false
+    assert_select "#set-album-goal input[name=custom_set][value='#{library.token}']"
   end
 
-  test "another player's album of the same set and the hub show no goal; a public profile no bookmark nor custom set goal" do
+  test "another player's album of the same set shows no goal; a public profile no bookmark nor custom set goal; the hub every goal" do
     add(custom_set: create_custom_set(@player).token)
     add(kind: "studio", key: "valve")
     sign_in(@player)
@@ -159,6 +159,7 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "Mes favoris"
 
     get home_path(locale: :en)
-    assert_select "#goals, .goal-bookmark, .goal-row", false
+    assert_select "#goals", false
+    assert_select ".hub-goals .goal-row .goal-bookmark", 2
   end
 end

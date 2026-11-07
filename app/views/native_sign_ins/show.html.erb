@@ -1,0 +1,8 @@
+<% content_for :title, t(".title") %>
+<section class="sign-in" aria-labelledby="native-sign-in-heading">
+  <h1 id="native-sign-in-heading" class="sign-in__title"><%= t(".title") %></h1>
+  <%= render PanelComponent.new(brackets: true, class: "sign-in__panel") do %>
+    <p class="sign-in__line"><%= t(".line", name: Accounts::PersonaName.clean(current_player.persona_name) || t("shell.player.fallback_name")) %></p>
+    <%= render ButtonComponent.new(href: native_sign_in_path(state: @state), method: :post, turbo: false) do %><%= t(".back_to_app") %><% end %>
+  <% end %>
+</section>

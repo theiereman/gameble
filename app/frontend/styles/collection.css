@@ -76,6 +76,26 @@
   text-transform: uppercase;
 }
 
+/* EN COURS: one group of tiles per set kind. */
+.set-groups {
+  gap: var(--space-6);
+}
+
+.set-entry__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.set-entry__group-title {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
 .set-search__row {
   display: flex;
   align-items: center;
@@ -197,33 +217,12 @@
 
 /* ---- Set progress rows ---- */
 
-/* The row of the album last opened: a 5px accent bar on its left, on the
-   raised panel, its count in accent. */
-.set-row[aria-current] {
+/* The goal row of the album last opened: on the raised panel, its album
+   link in accent. */
+.goal-row[aria-current] {
   background: var(--color-panel-raised);
-  box-shadow:
-    inset 5px 0 0 0 var(--color-accent),
-    var(--panel-border);
 }
 
-.set-row[aria-current] .set-row__name {
-  color: var(--color-text-max);
-}
-
-.set-row[aria-current]:not(.set-row--complete) .set-row__count {
+.goal-row[aria-current] .goal-row__album {
   color: var(--color-accent);
-}
-
-.set-row[aria-current]:hover {
-  box-shadow:
-    inset 5px 0 0 0 var(--color-accent),
-    var(--control-border),
-    inset 0 0 0 var(--space-unit) var(--color-accent);
-}
-
-.set-row[aria-current]:focus-visible {
-  box-shadow:
-    var(--focus-ring-gap),
-    inset 5px 0 0 0 var(--color-accent),
-    var(--panel-border);
 }

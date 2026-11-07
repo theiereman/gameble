@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sign_in"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ground"
+    android:orientation="vertical"
+    android:paddingHorizontal="24dp">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <ImageView
+        android:layout_width="264dp"
+        android:layout_height="36dp"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/wordmark" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/jetbrains_mono"
+        android:gravity="center"
+        android:text="@string/sign_in_tagline"
+        android:textColor="@color/muted"
+        android:textSize="14sp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/sign_in_button"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/primary_button"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="@font/jetbrains_mono_bold"
+        android:gravity="center"
+        android:letterSpacing="0.08"
+        android:paddingBottom="4dp"
+        android:text="@string/sign_in_button"
+        android:textAllCaps="true"
+        android:textColor="@color/on_primary"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:fontFamily="@font/jetbrains_mono"
+        android:gravity="center"
+        android:text="@string/sign_in_methods"
+        android:textColor="@color/muted"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/sign_in_acceptance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="@font/jetbrains_mono"
+        android:gravity="center"
+        android:lineSpacingExtra="2dp"
+        android:textColor="@color/dim"
+        android:textColorLink="@color/muted"
+        android:textSize="11sp" />
+</LinearLayout>

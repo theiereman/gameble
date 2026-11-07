@@ -4,7 +4,13 @@
 <section class="sign-in" aria-labelledby="sign-in-heading">
   <h1 id="sign-in-heading" class="sign-in__title"><%= t(".heading") %></h1>
   <%= render PanelComponent.new(brackets: true, class: "sign-in__panel") do %>
-    <% if @mode == "callback" && clerk %>
+    <% if hotwire_native_app? %>
+      <div class="sign-in__native" data-controller="bridge--sign-in">
+        <p class="sign-in__line"><%= t(".native_line") %></p>
+        <button type="button" class="button button--primary" data-action="bridge--sign-in#start"><%= t(".native_continue") %></button>
+        <%= render "shell/sign_in_acceptance" %>
+      </div>
+    <% elsif @mode == "callback" && clerk %>
       <%= render "sign_ins/clerk", mode: "callback", callback_url: @callback_url, form_url: clerk_session_path, origin: @origin || home_path,
             retry_path: sign_in_path(origin: @origin) %>
     <% else %>

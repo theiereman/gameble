@@ -23,7 +23,7 @@ module SignInThrottle
     "GET" => %w[/auth/steam/callback /auth/failure]
   }.freeze
 
-  LOCALIZED_POST_PAGES = %w[auth/clerk settings/sign-ins settings/steam].freeze
+  LOCALIZED_POST_PAGES = %w[auth/clerk settings/sign-ins settings/steam native/session].freeze
 
   def self.sign_in?(request)
     path = RoutedPath.of(request)

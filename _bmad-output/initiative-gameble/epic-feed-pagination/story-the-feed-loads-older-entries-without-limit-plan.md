@@ -3,7 +3,7 @@ title: 'The feed loads older entries without limit'
 type: 'feature'
 ticket: 1
 created: '2026-11-02'
-status: built
+status: done
 baseline_revision: '0f70ac39b4a873f8be6f7983a69829a28a7a728a'
 route: 'full'
 route_source: 'auto'

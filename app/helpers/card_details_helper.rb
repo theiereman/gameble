@@ -1,4 +1,6 @@
 module CardDetailsHelper
+  TRADE_HOLDERS_SHOWN = 3
+
   def card_preview_title(view)
     t("card_details.preview.title", title: view.title, rarity: CardStrings.new.rarity_name(view.rarity))
   end
@@ -41,6 +43,11 @@ module CardDetailsHelper
       seasons = held.map { |_, season_number, _| t("card_details.season_short", number: season_number) }
       t("card_details.editions_line", rarity: strings.rarity_name(rarity), seasons: seasons.join(", "))
     end
+  end
+
+  def card_trade_edition_line(edition, strings)
+    rarity = strings.rarity_name(Catalog::Rarity::TIERS.fetch(edition.rarity))
+    t("card_details.editions_line", rarity:, seasons: t("card_details.season_short", number: edition.season_number))
   end
 
   def card_detail_open_label(view, strings, owned: true, goals: [])

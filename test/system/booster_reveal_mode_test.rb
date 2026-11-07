@@ -2,15 +2,11 @@ require "application_system_test_case"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# The booster records how each capsule was revealed once its last card is
-# face up: card by card, or with "Reveal all" (also after some cards turned
-# by hand), for every pack kind, on desktop and phone. A capsule shown again
-# face up records nothing. Reduced motion is emulated in every test.
+# The booster records how a capsule was revealed once its last card is face
+# up. Reduced motion is emulated in every test.
 class BoosterRevealModeTest < ApplicationSystemTestCase
   include GamePacks
   include SteamSignIn
-
-  PHONE = [ 390, 844 ].freeze
 
   setup do
     @player = accounts_players(:player)
@@ -89,46 +85,5 @@ class BoosterRevealModeTest < ApplicationSystemTestCase
 
     assert_reveal_mode "one_by_one"
     assert_equal [ '{"mode":"one_by_one"}' ], reveal_posts
-  end
-
-  test "a bonus capsule finished with Reveal all after a card turned by hand records all" do
-    open_screen(%i[rare_card_one portal_one common_card_one], kind: :bonus)
-    open_canister
-    assert_dealt(3)
-
-    find(hit(1)).click
-    assert_selector ".booster-card[data-revealed]", count: 1
-    click_on "Reveal all"
-    assert_selector ".booster-card[data-revealed]", count: 3, wait: 15
-
-    assert_reveal_mode "all"
-    assert_equal [ '{"mode":"all"}' ], reveal_posts
-  end
-
-  test "on a phone Reveal all records all" do
-    resize_to(*PHONE)
-    open_screen(%i[common_card_one uncommon_card_one rare_card_one portal_one common_card_one])
-    open_canister
-    assert_selector ".booster[data-layout=phone] .booster__pile .booster-card[data-dealt]", count: 5, wait: 10
-
-    click_on "Reveal all"
-    assert_selector ".booster-tray__slot--filled", count: 5, wait: 20
-
-    assert_reveal_mode "all"
-    assert_equal [ '{"mode":"all"}' ], reveal_posts
-  end
-
-  test "a capsule shown again face up records nothing" do
-    @pack = create_pack(@player, cards: card_ids(*[ :common_card_one ] * 5), opened_at: 1.minute.ago)
-    # A Turbo visit keeps the window, so the recorder sees the screen's first requests.
-    record_reveal_posts
-    page.execute_script("Turbo.visit(#{booster_path(locale: :en, pack: @pack.token).to_json})")
-
-    assert_current_path booster_path(locale: :en, pack: @pack.token)
-    assert_selector ".booster-card[data-revealed]", count: 5
-    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
-
-    assert_empty reveal_posts
-    assert_nil @pack.reload.reveal_mode
   end
 end

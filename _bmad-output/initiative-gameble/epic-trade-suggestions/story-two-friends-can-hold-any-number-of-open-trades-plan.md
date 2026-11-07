@@ -3,7 +3,7 @@ title: 'Two friends can hold any number of open trades'
 type: 'feature'
 ticket: '8'
 created: '2026-11-01'
-status: 'built'
+status: done
 baseline_revision: '573cd786934250bcac8d3c4d12c9ca4c2d8729df'
 route: 'full'
 route_source: 'auto'

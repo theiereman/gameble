@@ -197,6 +197,11 @@
   justify-content: center;
 }
 
+/* An emptied pile lets a tap through to the next capsule waiting under it. */
+.booster__pile-area:not(:has(.booster__pile > *)) {
+  pointer-events: none;
+}
+
 /* The pile: every card in the same box, each at its depth's pose (read
    from the custom properties BoosterCard sets), the pose easing into place
    as the pile closes up. Only the pile takes every gesture. */

@@ -1,0 +1,3 @@
+<%# locals: kind, count, names %>
+<span class="feed__reaction-who-head"><%= t("reactions.names.#{kind}") %> · <%= count %></span>
+<span class="feed__reaction-who-names"><%= reaction_reactors(names, count) if count.positive? %></span>

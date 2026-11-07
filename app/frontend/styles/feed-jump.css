@@ -1,0 +1,78 @@
+/*
+ * The feed opened on one entry from the bell: the entry it points to stands
+ * out, newer entries load above it, and a pill leads back to the newest
+ * once the reader has scrolled.
+ */
+
+.feed__entry--target {
+  background: color-mix(in srgb, var(--color-accent) 10%, var(--color-panel));
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+  scroll-margin-top: var(--space-8);
+  animation: feed-target-pulse 1s ease-out 2;
+}
+
+@keyframes feed-target-pulse {
+  50% {
+    box-shadow:
+      inset 0 0 0 var(--space-unit) var(--color-accent),
+      0 0 0 var(--space-2) color-mix(in srgb, var(--color-accent) 35%, transparent);
+  }
+}
+
+.feed__pages--newer {
+  margin-top: 0;
+  margin-bottom: var(--space-3);
+}
+
+.feed__newest {
+  position: sticky;
+  top: var(--space-3);
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  height: 0;
+  pointer-events: none;
+}
+
+.feed__newest[hidden] {
+  display: none;
+}
+
+.feed__newest-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: fit-content;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 999px;
+  background: var(--color-accent);
+  box-shadow:
+    0 var(--space-1) 0 var(--color-accent-press),
+    0 var(--space-2) var(--space-6) var(--color-backdrop);
+  color: var(--color-on-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-decoration: none;
+  text-transform: uppercase;
+  pointer-events: auto;
+}
+
+.feed__newest-pill:hover {
+  background: var(--color-accent-hi);
+}
+
+.feed__newest-pill:focus-visible {
+  box-shadow: var(--focus-ring-gap);
+}
+
+.feed__newest-icon {
+  width: 12px;
+  height: 12px;
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed__entry--target {
+    animation: none;
+  }
+}

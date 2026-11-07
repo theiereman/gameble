@@ -1,0 +1,20 @@
+<%# locals: (card:, dialog_id:) %>
+<dialog id="<%= dialog_id %>" class="modal" aria-labelledby="<%= dialog_id %>-title" aria-describedby="<%= dialog_id %>-text"
+        data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="<%= dialog_id %>-title" class="modal__title"><%= t("public_profiles.show.showcase.removal.title") %></p>
+      <button type="button" class="modal__close" aria-label="<%= t("public_profiles.show.showcase.removal.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= form_with url: card_showcase_path(slug: card.id, number: card.season_number), method: :delete, class: "showcase-removal__form" do %>
+      <p id="<%= dialog_id %>-text" class="showcase-removal__text"><%= t("public_profiles.show.showcase.removal.text", title: card.title) %></p>
+      <div class="showcase-removal__actions">
+        <%= tag.button t("public_profiles.show.showcase.removal.confirm"), type: :submit, class: "button button--primary" %>
+        <%= tag.button t("public_profiles.show.showcase.removal.cancel"), type: :button, class: "button button--secondary", data: { action: "dialog#close" } %>
+      </div>
+    <% end %>
+  <% end %>
+</dialog>

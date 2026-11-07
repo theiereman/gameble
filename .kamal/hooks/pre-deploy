@@ -5,8 +5,10 @@
 # Discord announcement (post-deploy) is sent once per release, not per push.
 #
 # Production takes a release only (RELEASING.md): the version carries a
-# vX.Y.Z tag and is main's head, which bin/promote moves to a candidate that
-# ran on staging. main is fetched first; offline, the local origin/main is used.
+# vX.Y.Z tag and is main's head or a fast-forward of it. The production
+# workflow tags the release locally before deploying, and moves main and
+# publishes the release only once the deploy succeeded. main is fetched
+# first; offline, the local origin/main is used.
 #
 # A rollback goes back to a version deployed before, tagged or not, and is
 # let through. To deploy a commit without a tag on purpose, skip the hooks:
@@ -46,8 +48,8 @@ if [ "$KAMAL_DESTINATION" = "production" ]; then
   fi
 
   GIT_TERMINAL_PROMPT=0 git fetch --quiet origin main 2>/dev/null
-  if [ "$KAMAL_VERSION" != "$(git rev-parse --verify --quiet refs/remotes/origin/main)" ]; then
-    echo "pre-deploy: production runs main's head only, and $KAMAL_VERSION is not origin/main (bin/promote, RELEASING.md)" >&2
+  if ! git merge-base --is-ancestor refs/remotes/origin/main "$KAMAL_VERSION" 2>/dev/null; then
+    echo "pre-deploy: production runs main's head or a fast-forward of it, and $KAMAL_VERSION is neither (bin/promote, RELEASING.md)" >&2
     exit 1
   fi
 fi

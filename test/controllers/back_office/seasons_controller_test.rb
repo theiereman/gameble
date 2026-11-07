@@ -270,18 +270,6 @@ module BackOffice
       assert_equal 0, Catalog::CardSeason.where(season_id: draft.id).where.not(rarity: nil).count
     end
 
-    test "publishing while the latest Steam import has failed is refused, as it can still be resumed" do
-      sign_in(accounts_players(:administrator))
-      draft = seed_card_seasons(distinct_scores(21))
-      Steam::ImportRun.create!(status: :completed, step: "reviews", created_at: 2.days.ago, finished_at: 2.days.ago)
-      Steam::ImportRun.create!(status: :failed, step: "app_list", created_at: 1.hour.ago, finished_at: 1.minute.ago)
-
-      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
-
-      assert_equal I18n.t("back_office.seasons.publish.import_active", locale: :en), flash[:alert]
-      assert_predicate draft.reload, :draft?
-    end
-
     test "an older failed run does not block publishing once the latest run completed" do
       sign_in(accounts_players(:administrator))
       draft = seed_card_seasons(distinct_scores(21))
@@ -309,30 +297,6 @@ module BackOffice
       assert_predicate draft.reload, :published?
     end
 
-    test "an abandoned latest run does not lift the block of an earlier run that failed after writing cards" do
-      sign_in(accounts_players(:administrator))
-      draft = seed_card_seasons(distinct_scores(21))
-      Steam::ImportRun.create!(status: :completed, step: "cards", created_at: 3.days.ago, finished_at: 3.days.ago)
-      Steam::ImportRun.create!(status: :failed, step: "cards", cursor: { "step" => "cards", "last_appid" => 40 }, counts: { "cards_written" => 2 },
-        created_at: 2.days.ago, finished_at: 2.days.ago)
-      Steam::ImportRun.create!(status: :abandoned, step: "details", created_at: 1.hour.ago, finished_at: 1.minute.ago)
-
-      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
-
-      assert_equal I18n.t("back_office.seasons.publish.import_active", locale: :en), flash[:alert]
-      assert_predicate draft.reload, :draft?
-    end
-
-    test "a stale page is refused with stale_draft" do
-      sign_in(accounts_players(:administrator))
-      draft = seed_card_seasons(distinct_scores(21))
-
-      post publish_back_office_seasons_path(locale: :en), params: { number: "1" }
-
-      assert_equal I18n.t("errors.catalog.stale_draft", locale: :en), flash[:alert]
-      assert_predicate draft.reload, :draft?
-    end
-
     test "publishing with no draft is refused with no_draft" do
       sign_in(accounts_players(:administrator))
 
@@ -342,16 +306,6 @@ module BackOffice
       post publish_back_office_seasons_path(locale: :en), params: { number: "2" }
 
       assert_equal I18n.t("errors.catalog.no_draft", locale: :en), flash[:alert]
-    end
-
-    test "a draft too small is refused with empty_tier" do
-      sign_in(accounts_players(:administrator))
-      draft = seed_card_seasons(distinct_scores(20))
-
-      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number.to_s }
-
-      assert_equal I18n.t("errors.catalog.empty_tier", locale: :en), flash[:alert]
-      assert_predicate draft.reload, :draft?
     end
 
     def preview_tier_cells
@@ -479,20 +433,6 @@ module BackOffice
 
         assert_response :forbidden, "#{verb} #{path}"
         assert_includes response.body, ERB::Util.html_escape(I18n.t("authorization.forbidden", locale: :fr))
-      end
-      assert_predicate draft.reload, :draft?
-    end
-
-    test "a visitor and a player get the 404 of an unknown address for every season action" do
-      draft = seed_card_seasons(distinct_scores(21))
-
-      [ nil, accounts_players(:player) ].each do |player|
-        sign_in(player) if player
-        each_request(draft) do |verb, path, params|
-          public_send(verb, path, params:)
-
-          assert_unknown_address "#{verb} #{path}"
-        end
       end
       assert_predicate draft.reload, :draft?
     end

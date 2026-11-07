@@ -5,7 +5,9 @@ module PlayerStream
   ].freeze
   INVITATION_EVENTS = [ Game::InvitationSent, Game::InvitationAccepted, Game::InvitationCancelled, Game::InvitationIgnored ].freeze
   FRIENDSHIP_EVENTS = [ Game::FriendRemoved ].freeze
-  EVENTS = (TRADE_EVENTS + INVITATION_EVENTS + FRIENDSHIP_EVENTS + [ Game::AchievementUnlocked, Game::CardBackUnlocked ]).freeze
+  SEEN_EVENTS = [ Game::TradeSeen ].freeze
+  EVENTS = (TRADE_EVENTS + SEEN_EVENTS + INVITATION_EVENTS + FRIENDSHIP_EVENTS +
+    [ Game::AchievementUnlocked, Game::AchievementClaimed, Game::CardBackUnlocked, Game::DailyBonusCollected ]).freeze
   CUT_OFF_EVENTS = [ Accounts::PlayerDeleted, Accounts::PlayerBanned ].freeze
   PRIVACY_EVENTS = [ Accounts::VisibilityChanged ].freeze
 
@@ -29,11 +31,17 @@ module PlayerStream
       BATCH.add(notices(event))
     end
 
+    def reacted(owner_ids)
+      BATCH.add(owner_ids.map { reactions_notice(it) })
+    end
+
     def notices(event)
       data = event.data
       case event
       when *TRADE_EVENTS
         [ data[:proposer_id], data[:recipient_id] ].map { trades_notice(it) }
+      when *SEEN_EVENTS
+        [ trades_notice(data[:player_id]) ]
       when Game::InvitationAccepted
         [ friends_notice(data[:sender_id]).merge(friend_id: data[:recipient_id]), friends_notice(data[:recipient_id]) ]
       when Game::InvitationSent, Game::InvitationCancelled
@@ -44,8 +52,12 @@ module PlayerStream
         former_friends_notices(data)
       when Game::AchievementUnlocked
         data[:retroactive] ? [] : [ { player_id: data[:player_id], achievement: data[:achievement] } ]
+      when Game::AchievementClaimed
+        [ { player_id: data[:player_id], claimed: true } ]
       when Game::CardBackUnlocked
         data[:retroactive] ? [] : [ { player_id: data[:player_id], card_back: data[:back] } ]
+      when Game::DailyBonusCollected
+        [ { player_id: data[:player_id], topic: "bank" } ]
       when *CUT_OFF_EVENTS
         counterparts_notices(data[:player_id])
       when Accounts::VisibilityChanged
@@ -60,6 +72,8 @@ module PlayerStream
     def trades_notice(player_id) = { player_id:, topic: "trades" }
 
     def friends_notice(player_id) = { player_id:, topic: "friends" }
+
+    def reactions_notice(player_id) = { player_id:, topic: "reactions" }
 
     def former_friends_notices(data)
       pair = [ data[:player_id], data[:friend_id] ]

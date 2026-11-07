@@ -35,7 +35,8 @@
     );
   }
 
-  /* Pinned above the tab bar while the panel scrolls under them. */
+  /* Pinned above the tab bar while the panel scrolls under them, wide enough
+     to cover the panel's brackets, which hang outside it. */
   .card-detail__actions {
     position: sticky;
     bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
@@ -43,7 +44,8 @@
     flex-direction: column;
     align-items: stretch;
     min-height: var(--card-detail-actions-height);
-    padding: var(--space-4) 0;
+    margin-inline: var(--corner-brackets-offset);
+    padding: var(--space-4) calc(-1 * var(--corner-brackets-offset));
     background: var(--color-ground);
     box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line);
   }

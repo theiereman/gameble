@@ -28,7 +28,7 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
     reach(@second, reached_by: "allocation")
     patch personalization_back_path(locale: :en), params: { back: BACK, season: 1 }
 
-    get personalization_path(locale: :en)
+    get me_path(locale: :en)
 
     assert_equal [ BACK, 1 ], stored
     assert_select ".back-picker__tile--active[data-key='#{BACK}']" do
@@ -42,6 +42,19 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
+  test "an active back worn with no season mark stamps none, even once earned in two seasons" do
+    reach(@first)
+    reach(@second, reached_by: "allocation")
+    patch personalization_back_path(locale: :en), params: { back: BACK }
+    Game::PlayerState.where(player_id: @player.id).update_all(active_card_back_season: nil)
+
+    get me_path(locale: :en)
+
+    assert_nil stored.last
+    assert_select ".back-picker__season[aria-pressed=true]", false
+    assert_select ".back-picker__stamp:not([hidden])", false
+  end
+
   test "choosing another season of the active back changes the mark" do
     reach(@first)
     reach(@second, reached_by: "allocation")
@@ -49,7 +62,7 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
 
     patch personalization_back_path(locale: :en), params: { back: BACK, season: 2 }
 
-    assert_redirected_to personalization_path
+    assert_redirected_to me_path
     assert_equal [ BACK, 2 ], stored
   end
 
@@ -57,7 +70,7 @@ class CardBackSeasonsControllerTest < ActionDispatch::IntegrationTest
     reach(@first)
     patch personalization_back_path(locale: :en), params: { back: BACK }
 
-    get personalization_path(locale: :en)
+    get me_path(locale: :en)
 
     assert_equal [ BACK, nil ], stored
     assert_select ".back-picker__seasons", false

@@ -1,0 +1,18 @@
+<%# locals: (bank:, next_steps:) %>
+<% if bank[:bonus_collected] %>
+  <p class="booster-next-steps__daily"><%= local_time_sentence(bank[:next_bonus_at]) { t("booster.next_steps.daily", time: it) } %></p>
+<% end %>
+<ol class="booster-next-steps__list">
+  <% booster_next_steps(next_steps).each do |step| %>
+    <li class="booster-next-steps__item">
+      <%= link_to step.path, class: "booster-next-steps__link", data: { step: step.key, turbo_prefetch: false } do %>
+        <%= pixel_icon(step.icon, class: "booster-next-steps__icon") %>
+        <span class="booster-next-steps__text">
+          <span class="booster-next-steps__name"><%= t("booster.next_steps.#{step.key}") %></span>
+          <% if step.hook %><span class="booster-next-steps__hook"><%= step.hook %></span><% end %>
+        </span>
+        <%= pixel_icon("arrow-small-right", class: "booster-next-steps__arrow") %>
+      <% end %>
+    </li>
+  <% end %>
+</ol>

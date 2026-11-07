@@ -33,6 +33,7 @@ class PlayerExport
       end,
       firstDiscoveries: game.discoveries.map { { card: card(it.card_season_id), discoveredAt: time(it.discovered_at) } },
       feedEntries: game.feed_entries.map { feed_entry(it) },
+      feedReactions: game.reactions.map { { reaction: it.kind, entry: it.entry_token, entryKind: it.entry_kind, reactedAt: time(it.reacted_at) } },
       achievements: game.unlocks.map { { achievement: it.achievement, unlockedAt: time(it.unlocked_at) } },
       cardBacks: card_backs,
       friends: { count: game.friend_count },

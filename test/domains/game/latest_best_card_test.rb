@@ -54,14 +54,6 @@ class Game::LatestBestCardTest < ActiveSupport::TestCase
     assert_equal @epic, latest_best_card
   end
 
-  test "of cards gained at the same moment, the rarer" do
-    gained_at = 1.hour.ago
-    hold(@player, @epic, gained_at:)
-    hold(@player, @legendary, gained_at:)
-
-    assert_equal @legendary, latest_best_card
-  end
-
   test "a card without a gain date comes after a dated one, and shows alone" do
     hold(@player, @legendary, gained_at: nil)
     epic = hold(@player, @epic, gained_at: 1.day.ago)

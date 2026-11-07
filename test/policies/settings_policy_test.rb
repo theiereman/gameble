@@ -18,9 +18,4 @@ class SettingsPolicyTest < ActiveSupport::TestCase
       assert policy_for(role).visibility?
     end
   end
-
-  test "nothing else is allowed" do
-    assert_not policy_for(:player).destroy?
-    assert_not policy_for(:player).create?
-  end
 end

@@ -8,24 +8,26 @@ develop ──●──●──●────────●──●──▶
         v1.0.0-rc.1   v1.0.0-rc.2      pre-releases: full CI, then staging
               ✗ bug       ✓ accepted
                           │
-main ─────────────────────●            fast-forwarded to the candidate's commit
+                       production      deployed: same commit, same image
                           │
-                       v1.0.0          release: same commit, same image, production
+main ─────────────────────●            then fast-forwarded to the candidate's commit
+                          │
+                       v1.0.0          then the release is published on it
 ```
 
 | Step | Who | Where | What happens |
 |---|---|---|---|
 | 1. Cut a candidate | you | GitHub release, pre-release, on `develop` | full CI, build, staging deploy, Discord |
 | 2. Accept it | you | https://test.gameble.net | the checklist below |
-| 3. Promote it | you | `bin/promote` on your machine | `main` moves to the candidate, release `vX.Y.Z` published |
-| 4. Approve production | you | GitHub Actions, one click | production deploy, Discord |
+| 3. Promote it | you | GitHub Actions, **Run workflow** from the candidate's tag, or `bin/promote` | the production run starts on the candidate |
+| 4. Approve production | you | GitHub Actions, one click | production deploy, Discord, then `main` moves to the candidate and release `vX.Y.Z` is published |
 
 ## Versions
 
 Versions follow [Semantic Versioning](https://semver.org): `vMAJOR.MINOR.PATCH`.
 
 - **Candidate**: `vX.Y.Z-rc.N`, a GitHub **pre-release** whose tag is on `develop`. `N` starts at 1 and grows with each new candidate of the same version.
-- **Release**: `vX.Y.Z`, a GitHub release marked **Latest**, tagged on the exact commit of the accepted candidate. It is never tagged on any other commit.
+- **Release**: `vX.Y.Z`, a GitHub release marked **Latest**, tagged on the exact commit of the accepted candidate once production runs it. It is never tagged on any other commit, and a candidate whose production run failed or was rejected leaves no release behind.
 - Which number goes up:
   - `PATCH` (`v1.0.1`): fixes only;
   - `MINOR` (`v1.1.0`): new features;
@@ -61,6 +63,8 @@ The **Deploy to staging** workflow then runs:
 
 A release that is not a pre-release, or whose tag is not on `develop`, deploys nothing to staging.
 
+Before the new web container answers `/up`, its entrypoint (`bin/docker-entrypoint`) runs `bin/rails db:prepare game:backfill_achievements`: the migrations, then the achievement backfill. The backfill grants every achievement a player in good standing already meets from their history, without a toast, so an achievement a release adds reaches the players who earned it before the new code takes traffic and no live grant announces it as new. It is idempotent: a boot with nothing new to grant grants nothing. A player whose grant fails is reported to Sentry and the others still get their grants; a failure of either step as a whole stops the boot, so the container never answers and the version before keeps serving. Both steps count inside Kamal's wait for `/up`: `deploy_timeout`, unset in `config/deploy.yml` and so Kamal's default of 30 seconds, and a boot that runs past it fails the deploy. The import worker runs neither, and production runs the same steps with the same image.
+
 ## 2. Accept the candidate
 
 Walk through staging at https://test.gameble.net, on a phone and on a desktop, in French and in English:
@@ -75,6 +79,7 @@ Walk through staging at https://test.gameble.net, on a phone and on a desktop, i
 - [ ] the settings change visibility and language;
 - [ ] staff: the back-office opens, and the report queue and a player search work;
 - [ ] what this release changed, read from the release notes, works as its tickets say;
+- [ ] for a release that adds achievements: `bin/kamal app logs -d staging -g game:backfill_achievements` shows `game:backfill_achievements: done`, a player whose history meets a new one holds it with no toast, a second boot (`bin/kamal app boot -d staging`) grants nothing more, and the time the boot took before `/up` answered is noted;
 - [ ] Sentry shows no new `staging` issue for this candidate;
 - [ ] the browser console shows no CSP violation.
 
@@ -82,48 +87,40 @@ A failure is fixed on `develop`, through its own pull request or commit like any
 
 ## 3. Promote the candidate
 
-From an up-to-date checkout:
+On GitHub, from any browser, a phone's too: **Actions → Deploy to production → Run workflow**, pick the candidate's tag `v1.0.0-rc.2` in **Use workflow from** (the **Tags** tab), leave **rollback to** empty, **Run workflow**. The run checks the candidate itself (step 4) and stops before deploying anything if it may not be promoted.
+
+Or from an up-to-date checkout, which checks the same before starting the run, and asks first:
 
 ```sh
 bin/promote v1.0.0-rc.2
 ```
 
-It refuses, and changes nothing, when:
+It refuses, and starts nothing, when:
 
 - the tag is not a candidate (`vX.Y.Z-rc.N`) or is not on `develop`;
 - the candidate's commit has no successful `staging` status;
 - the release `vX.Y.Z` already exists;
-- `main` is not an ancestor of the candidate. Nothing but promotions moves `main`, so this means someone committed to it.
+- `main` is not an ancestor of the candidate. Nothing but production runs moves `main`, so this means someone committed to it.
 
-Otherwise it:
-
-1. fast-forwards `main` to the candidate's commit. There is no merge commit, so `main` holds exactly the tested commit, even if `develop` has moved on since;
-2. publishes the release `v1.0.0` on that commit, marked Latest, with notes generated since the previous release, so they cover every candidate in between.
-
-Done by hand, the same is:
-
-```sh
-git fetch origin --tags
-sha=$(git rev-parse 'v1.0.0-rc.2^{commit}')
-gh api "repos/theiereman/gameble/commits/$sha/status" --jq '.statuses[] | select(.context == "staging") | .state'   # must print success
-git push origin "$sha:refs/heads/main"                     # refused if it is not a fast-forward
-gh release create v1.0.0 --target "$sha" --latest --generate-notes --notes-start-tag <previous release>
-```
+Otherwise it starts the **Deploy to production** workflow from the candidate's tag, as **Run workflow** does: the run follows the workflow that candidate ran on staging. Neither way pushes or publishes anything up front: `main` and the release only change once production runs the candidate (step 4). From a terminal without `bin/promote`, the same is `gh workflow run deploy-production.yml --ref v1.0.0-rc.2`.
 
 Never open a pull request from `develop` to `main` and never merge into `main`. A merge creates a commit staging never ran, so production would build and run an image nobody tested.
 
 ## 4. Approve the production deploy
 
-Publishing `v1.0.0` starts the **Deploy to production** workflow:
+The **Deploy to production** run started from the candidate's tag:
 
-1. Before asking you anything, it checks, and stops at the first failure:
-   - the tag is a release (`vX.Y.Z`);
-   - its commit is `main`'s head;
+1. Before asking you anything, it checks, and stops at the first failure, the same as `bin/promote`:
+   - the tag is a candidate (`vX.Y.Z-rc.N`), on `develop`, and the run starts from it;
+   - the release `vX.Y.Z` does not exist yet;
+   - `main` is an ancestor of the candidate;
    - the commit has the successful `staging` status.
-2. It copies the image staging ran, `ghcr.io/theiereman/gameble:<sha>`, to the release package `ghcr.io/theiereman/gameble-releases:<sha>`, registry-side: nothing is built. The staging package keeps only its last five images; the release package is never cleaned, so every release's image stays.
-3. It waits for you. On GitHub: **Actions → Deploy to production →** the waiting run → **Review deployments → production → Approve and deploy**. Approving says the checklist of step 2 is done.
-4. `bin/kamal deploy -d production --skip-push` pulls the release image and switches once `/up` answers. Its pre-deploy hook checks again that the commit carries `vX.Y.Z` and is `origin/main`.
-5. The Discord message on the production channel lists the changes since the version production ran before.
+2. It runs the browser tests on the candidate's commit. A failure stops the run here.
+3. It copies the image staging ran, `ghcr.io/theiereman/gameble:<sha>`, to the release package `ghcr.io/theiereman/gameble-releases:<sha>`, registry-side: nothing is built. The staging package keeps only its last five images; the release package is never cleaned, so every release's image stays.
+4. It waits for you. On GitHub: **Actions → Deploy to production →** the waiting run → **Review deployments → production → Approve and deploy**. Approving says the checklist of step 2 is done.
+5. It tags `vX.Y.Z` on the commit in its own checkout only, so the bottom-left corner, the pre-deploy hook and the announcement read the release. `bin/kamal deploy -d production --skip-push` pulls the release image and switches once `/up` answers. Its pre-deploy hook checks again that the commit carries `vX.Y.Z` and that `origin/main` fast-forwards to it.
+6. The Discord message on the production channel lists the changes since the version production ran before.
+7. Once the deploy succeeded, the `publish` job fast-forwards `main` to the candidate's commit and publishes the release `vX.Y.Z` on it, marked Latest, with notes generated since the previous release, so they cover every candidate in between.
 
 Then check:
 
@@ -131,7 +128,7 @@ Then check:
 - [ ] Steam sign-in works;
 - [ ] Sentry shows no new `production` issue in the first hour.
 
-To refuse a deploy, use **Reject** in the same review. Nothing has changed on the server, the release image stays in its package, and the release stays published. To deploy that release later, re-run the rejected run from the same run. A release dropped for good stays as it is and is followed by the next patch candidate (`v1.0.1-rc.1`).
+To refuse a deploy, use **Reject** in the same review. Nothing has changed on the server, `main` and the releases are untouched, and the release image stays in its package. To deploy that candidate later, re-run the rejected run from the same run, or promote it again. A candidate dropped for good is followed by the next one (`v1.0.0-rc.3`), under the same version.
 
 ## When something goes wrong
 
@@ -141,7 +138,11 @@ To refuse a deploy, use **Reject** in the same review. Nothing has changed on th
 
 **The staging deploy fails.** Read the run's log. `bin/kamal app logs -d staging` shows the containers. Fix it on `develop` and cut the next candidate.
 
-**The production deploy fails before switching.** Kamal keeps the old version serving: players see nothing. Read the run's log, fix the cause and re-run the failed job from the same run. If the cause is in the code, it is a new candidate and a new patch version.
+**The browser tests fail in the production run.** Nothing is deployed, `main` and the releases are untouched. Fix it on `develop`, cut the next candidate of the same version and promote it.
+
+**The production deploy fails before switching.** Kamal keeps the old version serving: players see nothing, and `main` and the releases are untouched. Read the run's log, fix the cause and re-run the failed job from the same run. If the cause is in the code, it is a new candidate of the same version.
+
+**The deploy succeeded but `publish` failed.** Production runs the candidate, but `main` and the release lag behind. Re-run the failed `publish` job alone: it pushes `main` and publishes the release, skipping what is already done. A `main` push refused by its ruleset means the deploy key or its bypass is missing (Setup, once).
 
 **A release in production is broken.** Roll back first, then fix.
 
@@ -161,7 +162,7 @@ Before the first production deploy:
 
 1. **GitHub environment `production`** (Settings → Environments → New environment):
    - **Required reviewers**: `theiereman`;
-   - **Deployment branches and tags**: selected branches and tags: the tag pattern `v*.*.*`, for the release runs, and the branch `main`, for a rollback run, which starts from a branch;
+   - **Deployment branches and tags**: selected branches and tags: the tag pattern `v*.*.*`, for the runs started from a candidate's tag, and the branch `main`, for a rollback run, which starts from a branch;
    - **Environment secrets**:
 
      | Secret | Value |
@@ -215,11 +216,20 @@ Before the first production deploy:
 
    Then approve the run: the deploy starts kamal-proxy and the app, whose `db:prepare` creates the other three databases. Every later release goes through the workflow alone.
 
-5. **The Cloudflare Tunnel** must already route https://gameble.net to the LXC (`cloudflared` running there, its published application `gameble.net` → `http://localhost:80`): see `config/deploy.production.yml`.
+5. **The key that pushes `main`.** The `publish` job fast-forwards `main` over SSH with a deploy key, since GitHub Actions cannot bypass a ruleset on a personal repository. The key is a deploy key with write access (**Settings → Deploy keys**, `github-actions publish main`), its private half is the repository secret `MAIN_PUSH_KEY`, and **Deploy keys** are in the bypass list of `main`'s ruleset (**Settings → Rules → Rulesets → main**), so no other deploy key may exist. The ruleset still refuses a force push or a deletion. To replace it:
+
+   ```sh
+   ssh-keygen -t ed25519 -N '' -C 'github-actions publish main' -f /tmp/gameble_main_push
+   gh repo deploy-key add /tmp/gameble_main_push.pub --allow-write --title 'github-actions publish main'
+   gh secret set MAIN_PUSH_KEY < /tmp/gameble_main_push
+   rm /tmp/gameble_main_push /tmp/gameble_main_push.pub
+   ```
+
+6. **The Cloudflare Tunnel** must already route https://gameble.net to the LXC (`cloudflared` running there, its published application `gameble.net` → `http://localhost:80`): see `config/deploy.production.yml`.
 
 ## Never
 
-- Never push or merge to `main` other than through `bin/promote`.
+- Never push or merge to `main` other than through a production run started from a candidate's tag.
 - Never tag a release (`vX.Y.Z`) on a commit that no candidate ran on staging.
 - Never move or delete a published tag. A wrong candidate is followed by the next one; a wrong release by a patch.
 - Never deploy production from a machine with `--skip-hooks`. The hooks are what refuses an untested commit.

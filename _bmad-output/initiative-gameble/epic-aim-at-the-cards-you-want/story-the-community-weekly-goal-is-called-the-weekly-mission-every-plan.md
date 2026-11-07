@@ -3,7 +3,7 @@ title: 'The community weekly goal is called the weekly mission everywhere a play
 type: 'chore'
 ticket: '13'
 created: '2026-10-31'
-status: 'built'
+status: done
 baseline_revision: '91b12f35be3494ca24e9a84241dcc7087a6fe87b'
 route: 'oneshot'
 route_source: 'auto'

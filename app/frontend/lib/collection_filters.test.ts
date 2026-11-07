@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest"
 import {
+  chipsOn,
+  countOf,
+  countsByGroup,
+  groupNames,
   reloadOnChange,
   reloadsSets,
   SET_OPTIONS_FRAME,
   submitToFrame,
+  totalOf,
   type FrameSubmitter,
 } from "./collection_filters"
 
@@ -68,5 +73,47 @@ describe("submitToFrame", () => {
 
     expect(() => submitToFrame(form, submitter, SET_OPTIONS_FRAME)).toThrow()
     expect(submitter.removed).toBe(true)
+  })
+})
+
+describe("chipsOn", () => {
+  it("counts the chips checked, the state's fallback alone counting none", () => {
+    expect(chipsOn({ name: "rarity", checked: [] })).toBe(0)
+    expect(chipsOn({ name: "rarity", checked: ["rare", "epic"] })).toBe(2)
+    expect(chipsOn({ name: "state", checked: ["all"], fallback: "all" })).toBe(0)
+    expect(chipsOn({ name: "state", checked: ["missing"], fallback: "all" })).toBe(1)
+    expect(chipsOn({ name: "state", checked: ["owned", "missing"], fallback: "all" })).toBe(2)
+  })
+})
+
+describe("countsByGroup", () => {
+  const counts = countsByGroup([
+    { name: "state", checked: ["missing"], fallback: "all" },
+    { name: "goals", checked: [] },
+    { name: "rarity", checked: ["rare"] },
+    { name: "sets", checked: ["theme:horror", "theme:rpg"] },
+    { name: "genre", checked: ["rpg"] },
+  ])
+
+  it("counts each group apart, and a pastille the groups it names", () => {
+    expect(countOf(counts, ["rarity"])).toBe(1)
+    expect(countOf(counts, ["state"])).toBe(1)
+    expect(countOf(counts, ["goals"])).toBe(0)
+    expect(countOf(counts, ["sets", "genre"])).toBe(3)
+    expect(countOf(counts, ["absent"])).toBe(0)
+  })
+
+  it("sums every group for the whole form", () => {
+    expect(totalOf(counts)).toBe(5)
+    expect(totalOf(countsByGroup([]))).toBe(0)
+  })
+})
+
+describe("groupNames", () => {
+  it("reads the groups a pastille names, space separated", () => {
+    expect(groupNames("sets genre")).toEqual(["sets", "genre"])
+    expect(groupNames("rarity")).toEqual(["rarity"])
+    expect(groupNames("")).toEqual([])
+    expect(groupNames(undefined)).toEqual([])
   })
 })

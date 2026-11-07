@@ -116,6 +116,21 @@ module Game
       ) AS partners
     SQL
 
+    QUICK_BURST_PACKS = 10
+    QUICK_BURST_WINDOW = 30.seconds
+    QUICK_BURST_SQL = format(<<~SQL.squish, QUICK_BURST_PACKS - 1, QUICK_BURST_WINDOW.to_i).freeze
+      SELECT COUNT(*) FROM (
+        SELECT opened_at, LEAD(opened_at, %d) OVER (ORDER BY opened_at, id) AS burst_end
+          FROM game_packs WHERE #{OPENED_PACKS}
+      ) AS bursts
+       WHERE burst_end - opened_at < INTERVAL '%d seconds'
+    SQL
+
+    NIGHT_HOURS = (1...4)
+    NIGHT_CAPSULES_SQL = format(<<~SQL.squish, NIGHT_HOURS.first, NIGHT_HOURS.last).freeze
+      SELECT COUNT(*) FROM game_packs WHERE #{OPENED_PACKS} AND game_packs.opened_local_hour >= %d AND game_packs.opened_local_hour < %d
+    SQL
+
     METRIC_SQL = {
       packs_opened: PACKS_OPENED_SQL,
       epics_obtained: format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:epic)),
@@ -134,7 +149,9 @@ module Game
       most_copies_of_a_game: MOST_COPIES_OF_A_GAME_SQL,
       first_discoveries: FIRST_DISCOVERIES_SQL,
       pioneered_reposts: PIONEERED_REPOSTS_SQL,
-      most_trades_with_a_partner: MOST_TRADES_WITH_A_PARTNER_SQL
+      most_trades_with_a_partner: MOST_TRADES_WITH_A_PARTNER_SQL,
+      quick_capsule_bursts: QUICK_BURST_SQL,
+      night_capsules: NIGHT_CAPSULES_SQL
     }.freeze
 
     STUDIO_METRIC = :most_games_of_a_studio

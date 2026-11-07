@@ -1,11 +1,16 @@
 /*
- * The activity feed: the All and Friends tabs and the type filters on one
- * line of the catalog's filter chips, then one row per entry across
- * the shell's content width, at least 68px tall, a first discovery behind
- * its gold chip. Hard edges, no animation, no opacity to dim a filler.
+ * The activity feed: the All and Friends tabs, then the type filters inline
+ * where they fit, else one chip naming the type in force, which opens the
+ * bottom sheet of type filters; then one row per entry across the shell's content width,
+ * at least 68px tall: the sentence and its time on top, the tags and the
+ * reactions at the bottom, a first discovery behind its gold badge. On a
+ * phone's width the sentence takes the row's whole width, its time beneath
+ * it, and stops after three lines. Hard edges, no animation, no opacity to
+ * dim a filler.
  */
 
 .feed {
+  container: feed / inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -23,24 +28,44 @@
   --feed-controls-ring: calc(var(--focus-ring-width) + var(--focus-ring-offset));
 
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-4);
   margin: calc(-1 * var(--feed-controls-ring));
   padding: var(--feed-controls-ring);
-  overflow-x: auto;
-  scrollbar-width: thin;
 }
 
-.feed__tabs,
-.feed__filters {
+.feed__tabs {
   display: flex;
   flex: none;
   gap: var(--space-2);
 }
 
-.feed__filters {
+.feed__controls > .feed__type-opener,
+.feed__controls > .feed__filters--inline {
+  flex: none;
   padding-left: var(--space-4);
   box-shadow: inset var(--space-unit) 0 0 0 var(--color-line-deep);
+}
+
+.feed__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.feed__controls > .feed__filters--inline {
+  display: none;
+}
+
+@container feed (min-width: 680px) {
+  .feed__controls > .feed__filters--inline {
+    display: flex;
+  }
+
+  .feed__controls > .feed__type-opener {
+    display: none;
+  }
 }
 
 .feed__list {
@@ -81,7 +106,7 @@
 
 .feed__entry {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: var(--space-4);
   min-height: 68px;
   padding: var(--space-3) var(--space-4);
@@ -92,14 +117,23 @@
   display: flex;
   flex: 1;
   flex-direction: column;
+  justify-content: space-between;
   gap: var(--space-2);
   min-width: 0;
 }
 
+.feed__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
 .feed__meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
+  min-height: 24px;
 }
 
 .feed__entry--filler {
@@ -107,14 +141,75 @@
 }
 
 .feed__time {
+  flex: none;
   margin-left: auto;
   color: var(--color-muted);
   font: var(--font-body-small);
+  white-space: nowrap;
 }
 
 .feed__sentence {
+  flex: 1;
+  min-width: 0;
   margin: 0;
   font: var(--font-body);
+}
+
+/* A worn title: the rank's mark and name in its colour, a square dot, the set. */
+.feed__rank {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: var(--space-1);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+
+.feed__rank-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--feed-rank);
+}
+
+.feed__rank-dot {
+  font-size: 0;
+}
+
+.feed__rank-dot::before {
+  content: "";
+  display: block;
+  width: 4px;
+  height: 4px;
+  background: var(--color-line);
+}
+
+.feed__rank--novice {
+  --feed-rank: var(--color-rarity-commune);
+}
+
+.feed__rank--apprentice {
+  --feed-rank: var(--color-rarity-peu-commune);
+}
+
+.feed__rank--adept {
+  --feed-rank: var(--color-rarity-rare);
+}
+
+.feed__rank--expert {
+  --feed-rank: var(--color-rarity-epique);
+}
+
+.feed__rank--master {
+  --feed-rank: var(--color-gold);
+}
+
+.feed__rank--complete {
+  --feed-rank: var(--color-lime);
 }
 
 .feed__sentence strong,
@@ -148,21 +243,39 @@
   outline-offset: var(--focus-ring-offset);
 }
 
-/* A first discovery's chip: gold is kept for what is rare. */
+/* Every badge of an entry: tinted from its colour, framed by a finer line of it.
+   A first discovery's badge is gold, kept for what is rare. */
+.feed__tag,
 .feed__chip {
-  display: inline-block;
-  padding: 2px var(--space-2);
-  background: var(--color-gold);
-  color: var(--color-on-gold);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 20px;
+  padding: 0 calc(3 * var(--space-unit));
+  background: color-mix(in srgb, currentcolor 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentcolor 50%, transparent);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.feed__chip {
+  color: var(--color-gold);
+}
+
+.feed__chip::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: currentcolor;
 }
 
 /* card-s halved by transform: the link keeps the halved box. */
 .feed__thumb {
   display: block;
   flex: none;
+  align-self: center;
   width: calc(var(--card-s-width) / 2);
   height: calc(var(--card-s-height) / 2);
   text-decoration: none;
@@ -172,15 +285,6 @@ html .feed__thumb > .card.card--s,
 html .feed__thumb > .card.card--s[data-tilt] {
   transform: scale(0.5);
   transform-origin: top left;
-}
-
-.feed__tag {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
 }
 
 .feed__tag--common {
@@ -214,6 +318,7 @@ html .feed__thumb > .card.card--s[data-tilt] {
 .feed__thumbs {
   display: flex;
   flex: none;
+  align-self: center;
   gap: var(--space-3);
 }
 
@@ -328,10 +433,39 @@ html .feed__thumb > .card.card--s[data-tilt] {
   margin: 0;
 }
 
+@container feed (max-width: 559px) {
+  .feed__entry {
+    align-items: flex-start;
+  }
+
+  .feed__head {
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .feed__sentence {
+    display: -webkit-box;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+
+  .feed__time {
+    margin-left: 0;
+  }
+}
+
 @media (max-width: 719px) {
   .feed__tabs,
   .feed__filters {
     gap: var(--space-touch-gap);
+  }
+
+  .feed__controls .filter-chip__text,
+  .feed__filters .filter-chip__text {
+    min-height: var(--space-chip-height-touch);
   }
 
   .feed__name,
@@ -346,9 +480,5 @@ html .feed__thumb > .card.card--s[data-tilt] {
     inset: 50% 0 auto;
     height: var(--space-touch-min);
     transform: translateY(-50%);
-  }
-
-  .feed__meta {
-    flex-wrap: wrap;
   }
 }

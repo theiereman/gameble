@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { isTurboStream, NEAR_END_MARGIN, NextPage, renderingWhile, TURBO_STREAM } from "./next_page"
+import { isTurboStream, NextPage, renderingWhile, TURBO_STREAM } from "./next_page"
 
 const URL = "/en/library/cards?q=seed&page=2"
 const ANSWER = "<turbo-stream></turbo-stream>"
@@ -102,12 +102,6 @@ describe("isTurboStream", () => {
     expect(isTurboStream("")).toBe(false)
     expect(isTurboStream(null)).toBe(false)
     expect(isTurboStream(undefined)).toBe(false)
-  })
-})
-
-describe("NEAR_END_MARGIN", () => {
-  it("reaches half a viewport below its bottom edge", () => {
-    expect(NEAR_END_MARGIN).toBe("0px 0px 50% 0px")
   })
 })
 

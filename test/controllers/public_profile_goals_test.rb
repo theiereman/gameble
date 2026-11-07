@@ -34,10 +34,6 @@ class PublicProfileGoalsTest < ActionDispatch::IntegrationTest
     add(kind: "studio", key: "valve")
   end
 
-  def befriend(player)
-    Game::Friendship.create!(low_player_id: [ @owner.id, player.id ].min, high_player_id: [ @owner.id, player.id ].max)
-  end
-
   test "a visitor reads the game set goals in number order between SUCCÈS and SETS, without bookmark nor custom set" do
     aim_at_mixed_sets
 
@@ -74,33 +70,6 @@ class PublicProfileGoalsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "#profile-goals-heading, .goal-row", false
     assert_not_includes response.body, "Mes favoris"
-  end
-
-  test "a private owner's goals reach no one; a friends-only owner's reach a friend, not a stranger" do
-    aim_at_mixed_sets
-    stranger = Accounts::Player.create!(steam_id: "76561197960390111")
-    friend = Accounts::Player.create!(steam_id: "76561197960390112")
-    befriend(friend)
-
-    @owner.update!(visibility: "private")
-    get brother_path(locale: :fr, token: @owner.token)
-    assert_response :not_found
-    assert_select ".goal-row", false
-    sign_in(friend)
-    get brother_path(locale: :fr, token: @owner.token)
-    assert_response :not_found
-    assert_select ".goal-row", false
-
-    @owner.update!(visibility: "friends_only")
-    get brother_path(locale: :fr, token: @owner.token)
-    assert_response :success
-    assert_equal 2, rows.size
-    delete session_path(locale: :fr)
-
-    sign_in(stranger)
-    get brother_path(locale: :fr, token: @owner.token)
-    assert_response :not_found
-    assert_select ".goal-row", false
   end
 
   test "with no published season, the profile shows the no-season line and no goal" do

@@ -1,0 +1,9 @@
+<%# locals: (shelf:, chosen: nil, page: false) %>
+<% unlocked = shelf.count { !it.locked? } %>
+<%= render BottomSheetComponent.new(id: "me-back-sheet", title: t("personalizations.show.card_back.heading"), open: chosen.present?, wide: true, page:) do %>
+  <div class="me-sheet">
+    <p class="me-sheet__intro"><%= t("personalizations.show.card_back.intro") %></p>
+    <p class="me-sheet__count"><%= personalization_fraction(unlocked, shelf.size, suffix: t("personalizations.show.card_back.unlocked", count: unlocked)) %></p>
+    <%= render "personalizations/back_picker", shelf:, chosen:, page: %>
+  </div>
+<% end %>

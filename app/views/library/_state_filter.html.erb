@@ -1,0 +1,9 @@
+<fieldset class="filters__group" data-collection-filters-target="group" data-group="state" data-default="<%= Game::CollectionStates::DEFAULT %>">
+  <legend class="<%= class_names("filters__legend", "visually-hidden": local_assigns.fetch(:titled, false)) %>"><%= t("library.filters.groups.state") %></legend>
+  <% state_choices.each do |state| %>
+    <label class="filter-chip">
+      <%= check_box_tag "state[]", state, states.include?(state), id: nil, class: "filter-chip__box" %>
+      <span class="filter-chip__text"><%= t("library.filters.states.#{state}") %></span>
+    </label>
+  <% end %>
+</fieldset>

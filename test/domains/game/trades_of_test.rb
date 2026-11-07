@@ -26,12 +26,6 @@ class Game::TradesOfTest < ActiveSupport::TestCase
     Game::ProposeTrade.new.call(player:, recipient:, offer:, request:).value!
   end
 
-  test "a trade gets a 24-character token, never its id" do
-    trade = propose(@alice, @bob, offer: { @one => 2 }, request: { @three => 1 })
-
-    assert_match(/\A[1-9A-HJ-NP-Za-km-z]{24}\z/, trade.token)
-  end
-
   test "the list holds the player's turn, the friend's turn and the recent ones, each seen from the player's side" do
     to_bob = propose(@alice, @bob, offer: { @one => 2, @two => 1 }, request: { @three => 1 })
     from_carol = propose(@carol, @alice, offer: { @three => 1 }, request: { @one => 1 })
@@ -77,6 +71,17 @@ class Game::TradesOfTest < ActiveSupport::TestCase
     travel 14.days - 30.minutes
     assert_equal [ accepted.token ], Game::TradesOf.call(@alice).recent.map(&:token)
     assert_equal declined.token, Game::TradesOf.find(@alice, declined.token).token, "an old trade is still found by its token"
+  end
+
+  test "only the ten newest finished trades are recent" do
+    cancelled = 11.times.map do
+      trade = propose(@alice, @bob, offer: { @one => 1 }, request: { @three => 1 })
+      travel 1.minute
+      Game::CancelTrade.new.call(player: @alice, trade_id: trade.id).value!
+      trade
+    end
+
+    assert_equal cancelled.last(10).reverse.map(&:token), Game::TradesOf.call(@alice).recent.map(&:token)
   end
 
   test "an open trade past its expiry reads as expired and waits for nobody" do

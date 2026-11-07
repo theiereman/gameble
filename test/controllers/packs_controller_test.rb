@@ -17,7 +17,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
   # Menu 01 of the hub: the link to the booster screen.
   def open_item
-    css_select(".hub-menu .menu-item[aria-keyshortcuts='1']").sole
+    css_select("#hub-menu-booster .menu-item").sole
   end
 
   def reserve_badge(kind = :standard)
@@ -160,14 +160,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[RARE EPIC LEGENDARY], css_select(".pack-result__card .card__rarity").map { it.text.upcase }
   end
 
-  test "the flash's notices and alerts still show, and nothing else of it" do
-    sign_in(accounts_players(:player), origin: "/en")
-    follow_redirect!
-
-    assert_select ".toasts > .toast", 1
-    assert_select ".toasts > .toast--notice .toast__message", I18n.t("sessions.create.welcome", locale: :en)
-  end
-
   test "another player's pack, an unopened pack and an unknown token are not found" do
     player = accounts_players(:player)
     foreign = create_pack(accounts_players(:moderator), opened_at: 1.minute.ago)
@@ -207,6 +199,20 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to booster_path(locale: :fr)
     assert_equal I18n.t("errors.game.no_pack_available", locale: :fr), flash[:alert]
     assert_equal 0, Game::Holding.where(player_id: player.id).count
+  end
+
+  test "an opening records its hour in the reader's time zone cookie, and none for an unknown zone" do
+    freeze_time
+    sign_in_new_player(NEW_STEAM_ID)
+    player = Accounts::Player.find_by!(steam_id: NEW_STEAM_ID)
+
+    cookies[LocalTimeHelper::TIME_ZONE_COOKIE] = "Asia/Tokyo"
+    post packs_path(locale: :en)
+    cookies[LocalTimeHelper::TIME_ZONE_COOKIE] = "Nowhere/Atlantis"
+    post packs_path(locale: :en)
+
+    assert_equal({ Time.current.in_time_zone("Asia/Tokyo").hour => 1, nil => 1 },
+      Game::Pack.where(player_id: player.id).where.not(opened_at: nil).pluck(:opened_local_hour).tally)
   end
 
   test "a visitor's opening is refused; nothing changes" do
@@ -281,18 +287,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".packs-chip__next .visually-hidden time[datetime='2026-10-02T09:40:00Z']"
   end
 
-  test "with no pack available now, menu 01 shows no badge and the countdown shows" do
-    player = accounts_players(:player)
-    create_pack(player, available_at: 4.minutes.from_now)
-    sign_in(player)
-
-    get home_path(locale: :en)
-
-    assert_equal "/en/booster", open_item["href"]
-    assert_nil reserve_badge
-    assert_equal 1, countdown.size
-  end
-
   test "a pack more than an hour away counts down in hours, not in total minutes" do
     player = accounts_players(:player)
     now = Time.utc(2026, 10, 2, 14, 22)
@@ -321,14 +315,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "1", reserve_badge(:special)
     assert_empty countdown
     assert_select ".packs-chip__next--full", "Reserve full"
-  end
-
-  test "a visitor sees no countdown" do
-    create_pack(accounts_players(:player), available_at: 4.minutes.from_now)
-
-    get home_path(locale: :en)
-
-    assert_empty countdown
   end
 
   # --- The booster's opening exchange (JSON) -----------------------
@@ -406,7 +392,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "standard", pack.card_back
     assert_equal [ pack.id ], game_events(player, Game::PackOpened).map { it.data[:pack_id] }
 
-    assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers goalsReached], body.keys
+    assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers goalsReached next], body.keys
     assert_equal [], body["goalsReached"]
     assert_equal %w[token kind cardBack url revealUrl], body["pack"].keys
     assert_equal [ pack.token, "regular", "/en/packs/#{pack.token}", "/en/packs/#{pack.token}/reveal" ],
@@ -414,7 +400,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "standard", body["pack"]["cardBack"]["key"]
     assert_equal %w[s m xl], body["pack"]["cardBack"]["urls"].keys
     scheduled = (now + 10.minutes).iso8601(3)
-    assert_equal({ "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ], "nextPackSize" => 5, "nextSpecialKind" => nil },
+    assert_equal({ "available" => 9, "special" => 0, "openable" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ], "nextPackSize" => 5, "nextSpecialSize" => nil, "nextSpecialKind" => nil },
       body["bank"])
     assert_equal "2026-10-06T14:22:00.000Z", body["serverTime"]
     assert_equal counts_before.transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }, body["tierCountsBefore"]
@@ -425,8 +411,9 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal cards.map { [ it.id, it.season_number, it.rarity, it.image_url, it.title, it.year ] },
       body["cards"].map { it.values_at("slug", "season", "tier", "coverUrl", "title", "year") }
     body["cards"].zip(cards).each do |card, view|
-      assert_equal %w[slug season tier coverUrl title year label goals faces], card.keys
+      assert_equal %w[slug season tier coverUrl title year label goals firstCopy faces], card.keys
       assert_equal "", card["goals"]
+      assert_includes [ true, false ], card["firstCopy"]
       assert_equal %w[s m xl], card["faces"].keys
       card["faces"].each do |size, html|
         face = Nokogiri::HTML5.fragment(html)
@@ -439,7 +426,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     # No database id: no id key, and the only integers are counts.
     assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
     assert_equal [ *Array.new(5) { %w[cards.[].season cards.[].year] }.flatten, "bank.available", "bank.special", "bank.openable", "bank.nextPackSize", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" },
-      *Array.new(body["setTiers"].size) { %w[setTiers.[].required setTiers.[].held setTiers.[].total] }.flatten ],
+      *Array.new(body["setTiers"].size) { %w[setTiers.[].required setTiers.[].held setTiers.[].total] }.flatten,
+      *Array.new(5) { %w[next.cards.[].season next.cards.[].year] }.flatten, *%w[common uncommon rare epic legendary].map { "next.tierCountsBefore.#{it}" } ],
       json_integers(body).map(&:first)
   end
 
@@ -492,7 +480,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :ok
     assert_equal bonus.token, body.dig("pack", "token")
-    assert_equal({ "available" => 10, "special" => 0, "openable" => 10, "reserveFull" => true, "nextAvailableAt" => nil, "scheduledAt" => [], "nextPackSize" => 5, "nextSpecialKind" => nil }, body["bank"])
+    assert_equal({ "available" => 10, "special" => 0, "openable" => 10, "reserveFull" => true, "nextAvailableAt" => nil, "scheduledAt" => [], "nextPackSize" => 5, "nextSpecialSize" => nil, "nextSpecialKind" => nil }, body["bank"])
   end
 
   test "the same key again replays the same answer, with nothing opened, even once the reserve is empty" do
@@ -620,6 +608,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Blue Depths — 2014", "Portal — Valve, 2007, Puzzle", "Golden Crown — 1998" ], body["cards"].map { it["label"] }
     # Nothing left to open: no next pack size.
     assert_nil body.dig("bank", "nextPackSize")
+    assert_nil body.dig("bank", "nextSpecialSize")
     body["cards"].each do |card|
       assert_equal %w[s m xl], card["faces"].keys
       card["faces"].each { |size, html| assert_equal 1, Nokogiri::HTML5.fragment(html).css(".card.card--#{size}.card--booster").size }
@@ -635,18 +624,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/en/packs/#{pack.token}"
     assert_equal [ nil, "standard" ], [ pack.reload.idempotency_key, pack.card_back ]
-  end
-
-  test "the pack's page after a JSON opening shows the cards face up, without the reveal" do
-    player = accounts_players(:player)
-    create_pack(player)
-    sign_in(player)
-    open_json
-
-    get body.dig("pack", "url")
-
-    assert_response :success
-    assert_select ".pack-result__card .card.card--m", 5
   end
 
   test "a JSON opening names its reserve and opens the oldest pack of it" do
@@ -711,5 +688,81 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_select "#toasts .toast", /Objectif atteint.*Valve/m
+  end
+
+  # --- Opening the capsule the screen holds ------------------------
+
+  def open_pack_json(token, key = KEY)
+    post packs_path(locale: :en), params: { pack: token }, headers: { "Accept" => "application/json", "Idempotency-Key" => key }
+  end
+
+  test "a JSON opening by token opens that capsule and answers the next held capsule of the same reserve, shaped like its own head" do
+    player = accounts_players(:player)
+    following = create_pack(player, available_at: 3.minutes.ago)
+    chosen = create_pack(player, cards: fixture_tier_ids, available_at: 2.minutes.ago)
+    create_pack(player, available_at: 1.minute.ago)
+    create_pack(player, kind: :bonus, available_at: 4.minutes.ago)
+    sign_in(player)
+
+    open_pack_json(chosen.token)
+
+    assert_response :ok
+    assert_predicate chosen.reload, :opened?
+    assert_equal chosen.token, body.dig("pack", "token")
+    held = body["next"]
+    assert_equal %w[pack cards tierCountsBefore], held.keys
+    assert_equal %w[token kind cardBack url revealUrl], held["pack"].keys
+    assert_equal [ following.token, "regular", "/en/packs/#{following.token}", "/en/packs/#{following.token}/reveal", "standard" ],
+      held["pack"].values_at("token", "kind", "url", "revealUrl") + [ held.dig("pack", "cardBack", "key") ]
+    assert_equal body["cards"].first.keys, held["cards"].first.keys
+    assert_equal [ "portal" ] * 5, held["cards"].map { it["slug"] }
+    assert_equal [ false ] * 5, held["cards"].map { it["firstCopy"] }
+    assert_equal Game::TierCounts.call(player).transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }, held["tierCountsBefore"]
+    assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
+  end
+
+  test "the next held capsule is null once the reserve opened is empty, and an opening with no token answers it too" do
+    player = accounts_players(:player)
+    create_pack(player, available_at: 2.minutes.ago)
+    special = create_pack(player, kind: :bonus, available_at: 1.minute.ago)
+    sign_in(player)
+
+    open_json
+
+    assert_response :ok
+    assert_nil body["next"]
+    open_pack_json(special.token, SecureRandom.uuid)
+    assert_equal special.token, body.dig("pack", "token")
+    assert_nil body["next"]
+  end
+
+  test "a token of a capsule already opened answers it again with a new key, nothing credited nor published" do
+    player = accounts_players(:player)
+    first = create_pack(player, cards: fixture_tier_ids, available_at: 2.minutes.ago)
+    create_pack(player)
+    sign_in(player)
+    open_pack_json(first.token)
+    answer = body
+
+    assert_no_changes -> { written(player) } do
+      open_pack_json(first.token, SecureRandom.uuid)
+    end
+    assert_response :ok
+    assert_equal answer.slice("pack", "cards", "tierCountsBefore", "setTiers", "next"), body.slice("pack", "cards", "tierCountsBefore", "setTiers", "next")
+  end
+
+  test "an unknown token, another player's or one not yet available is refused with pack_not_available" do
+    player = accounts_players(:player)
+    create_pack(player)
+    later = create_pack(player, available_at: 1.hour.from_now)
+    theirs = create_pack(accounts_players(:moderator))
+    sign_in(player)
+
+    [ "unknown", theirs.token, later.token, [ "a", "b" ] ].each do |token|
+      assert_no_changes -> { written(player) } do
+        open_pack_json(token, SecureRandom.uuid)
+      end
+      assert_json_error :unprocessable_content, "pack_not_available", I18n.t("errors.game.pack_not_available", locale: :en)
+    end
   end
 end

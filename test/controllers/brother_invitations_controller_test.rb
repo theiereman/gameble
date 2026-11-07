@@ -14,8 +14,6 @@ class BrotherInvitationsControllerTest < ActionDispatch::IntegrationTest
     Game::Friendship.create!(low_player_id: [ first.id, second.id ].min, high_player_id: [ first.id, second.id ].max)
   end
 
-  def action_buttons = css_select(".profile-band__identity .button")
-
   test "a signed-in viewer without relation sees ADD FRIEND posting the invitation" do
     sign_in(@viewer)
     get brother_path(locale: :en, token: @owner.token)
@@ -73,14 +71,6 @@ class BrotherInvitationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".profile-band__identity a.button[href=?]", new_trade_path(locale: :en, friend: @owner.token), "TRADE"
     assert_select "a[href=?]", trade_path(locale: :en, token: trade.token), 0
-  end
-
-  test "friends without a trade link to a new draft" do
-    befriend(@owner, @viewer)
-    sign_in(@viewer)
-    get brother_path(locale: :en, token: @owner.token)
-
-    assert_select ".profile-band__identity a.button[href=?]", new_trade_path(locale: :en, friend: @owner.token), "TRADE"
   end
 
   test "staff get no action on a private profile and cannot invite its owner" do

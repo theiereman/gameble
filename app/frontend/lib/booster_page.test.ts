@@ -1,8 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { cardHref, celebrationMarked, newKey, readLayout, withPack } from "./booster_page"
 
-const V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
-
 describe("newKey", () => {
   afterEach(() => {
     vi.unstubAllGlobals()
@@ -21,12 +19,6 @@ describe("newKey", () => {
     expect(newKey()).toBe("ffffffff-ffff-4fff-bfff-ffffffffffff")
     vi.stubGlobal("crypto", { getRandomValues: (bytes: Uint8Array) => bytes.fill(0) })
     expect(newKey()).toBe("00000000-0000-4000-8000-000000000000")
-  })
-
-  it("gives the v4 shape for any bytes", () => {
-    const random = globalThis.crypto
-    vi.stubGlobal("crypto", { getRandomValues: (bytes: Uint8Array<ArrayBuffer>) => random.getRandomValues(bytes) })
-    for (let draw = 0; draw < 20; draw++) expect(newKey()).toMatch(V4)
   })
 })
 

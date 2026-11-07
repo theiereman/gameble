@@ -1,0 +1,20 @@
+<%# locals: (titles:, active:, page: false) %>
+<%= render BottomSheetComponent.new(id: "me-title-sheet", title: t("personalizations.show.profile_title.heading"), wide: true, page:) do %>
+  <div class="me-sheet">
+    <p class="me-sheet__intro"><%= t("personalizations.show.profile_title.intro") %></p>
+    <ul class="me-choices">
+      <%= render "own_profiles/title_choice", label: t("personalizations.show.profile_title.none"), value: "", worn: active.nil? %>
+    </ul>
+    <% titles.group_by(&:rank).each do |rank, group| %>
+      <h3 class="me-sheet__heading"><%= t("profile_titles.ranks.#{rank}") %></h3>
+      <ul class="me-choices">
+        <% group.each do |title| %>
+          <%= render "own_profiles/title_choice", label: profile_title_text(title), value: "#{title.rank}:#{title.kind}:#{title.key}", worn: title == active %>
+        <% end %>
+      </ul>
+    <% end %>
+    <% if titles.empty? %>
+      <p class="me-sheet__note"><%= t("personalizations.show.profile_title.empty") %></p>
+    <% end %>
+  </div>
+<% end %>

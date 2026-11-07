@@ -1,6 +1,6 @@
 import { canRevealAll, revealAllEnded, revealAllPlan, revealAllStarted } from "./booster"
 import type { BoosterStageHost } from "./booster_host"
-import { ART_POLL, REVEAL_ALL_GAP, phoneAllHold, revealSummary } from "./booster_motion"
+import { ART_POLL, ART_WAIT_ALL_MAX, REVEAL_ALL_GAP, phoneAllHold, revealSummary } from "./booster_motion"
 import type { Rarity } from "./card_types"
 import type { Template } from "./i18n"
 import type { OpeningAnswer } from "./opening"
@@ -11,7 +11,7 @@ export type RevealAllHost = BoosterStageHost &
     summaryTier: string
     delimiter: string
     rarityNames: () => Record<Rarity, string>
-    reveal: (index: number, fromAll: boolean, options?: { awaitArt?: boolean }) => Promise<void>
+    reveal: (index: number, fromAll: boolean, options?: { artWait?: number }) => Promise<void>
     store: (index: number, fromAll: boolean) => Promise<void>
     whenIdle: () => void
   }>
@@ -33,7 +33,7 @@ export class RevealAll {
     host.apply(revealAllStarted)
     const running: Promise<void>[] = []
     for (const { index, wait: hold } of plan) {
-      const done = host.reveal(index, true, { awaitArt: false })
+      const done = host.reveal(index, true, { artWait: 0 })
       running.push(done)
       if (hold === "full") await done
       else await host.timers().wait(REVEAL_ALL_GAP)
@@ -54,7 +54,7 @@ export class RevealAll {
       if (host.timers().disposed || host.current().answer !== answer) return
       if (host.current().stored[index]) continue
       if (!host.current().revealed[index]) {
-        await host.reveal(index, true)
+        await host.reveal(index, true, { artWait: ART_WAIT_ALL_MAX })
         shown.push(answer.cards[index].tier)
       }
       await host.timers().wait(phoneAllHold(answer.cards[index].tier))

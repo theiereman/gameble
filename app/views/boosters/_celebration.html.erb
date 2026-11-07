@@ -3,6 +3,7 @@
   <% if phone %>
     <template data-booster-celebration-target="list"><div class="booster-celebration booster-celebration--phone"></div></template>
     <template data-booster-celebration-target="step"><%= booster_celebration_step %></template>
+    <button type="button" class="button button--secondary booster-celebration__dismiss" data-booster-celebration-target="dismiss" data-action="booster-celebration#dismiss" hidden><%= t("booster.continue") %></button>
   <% else %>
     <template data-booster-celebration-target="list"><ul class="booster-celebration"></ul></template>
     <template data-booster-celebration-target="item"><li></li></template>

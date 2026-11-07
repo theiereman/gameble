@@ -1,0 +1,10 @@
+<%# locals: (goals:) %>
+<section class="hub-goals" aria-labelledby="hub-goals-title" data-controller="last-album">
+  <h2 id="hub-goals-title" class="hub-goals__title"><%= t("pages.home.goals.title") %></h2>
+  <ol class="goals__list">
+    <% goals.each do |need| %>
+      <li><%= render "goals/row", need:, href: goal_album_path(need), sentence: goal_row_sentence(need), bookmark: true %></li>
+    <% end %>
+  </ol>
+  <%= render ButtonComponent.new(variant: :link, href: library_path(anchor: "goals")) do %><%= t("pages.home.goals.see_all") %><% end %>
+</section>

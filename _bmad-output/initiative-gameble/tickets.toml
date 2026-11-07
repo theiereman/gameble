@@ -236,3 +236,43 @@ slug = "epic-feed-pagination"
 title = "Unlimited feed"
 covers = []
 after = []
+
+[[epic]]
+id = 32
+release = "1.1.0"
+slug = "epic-polish-1-1-0"
+title = "Staging fixes of 1.1.0"
+covers = []
+after = []
+
+[[epic]]
+id = 33
+release = "1.2.0"
+slug = "epic-phone-first-web"
+title = "A phone-first web experience"
+covers = []
+after = [{ epic = 28, needs = "the active goals" }, { epic = 29, needs = "the friends who hold a missing card" }]
+
+[[epic]]
+id = 34
+release = "1.1.0"
+slug = "epic-feed-reactions"
+title = "Reactions on the feed"
+covers = []
+after = []
+
+[[epic]]
+id = 35
+release = "1.2.x"
+slug = "epic-hotwire-native-apps"
+title = "Hotwire Native apps"
+covers = []
+after = [{ epic = 33, needs = "the phone's four tabs, its header and its bottom actions" }]
+
+[[epic]]
+id = 36
+release = "1.3.0"
+slug = "epic-instant-capsule-opening"
+title = "Instant capsule opening"
+covers = []
+after = []

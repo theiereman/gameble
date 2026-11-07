@@ -44,53 +44,46 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
     assert_select "turbo-cable-stream-source", 0
   end
 
-  test "menu 04 and the tab hold the badge slots the stream fills" do
+  test "menu 03 and the Trades tab hold the badge slots the stream fills, empty at zero" do
     sign_in @player
 
     get home_path(locale: :en)
 
-    assert_select ".hub-menu a.menu-item[href='/en/trades'] #menu-trades-badge.stream-slot .menu-item__badge--zero", "0"
+    assert_select ".hub-menu a.menu-item[href='/en/trades'] #menu-trades-badge.stream-slot", 1
+    assert_select "#menu-trades-badge .menu-item__badge, #menu-trades-badge .visually-hidden", 0
     assert_select ".tab-bar a.tab-bar__tab[href='/en/trades'] #tab-trades-badge.stream-slot", 1
     assert_select "#tab-trades-badge .tab-bar__badge", 0
   end
 
-  test "menu 05, the PLUS list's Friends row and the PLUS tab hold the invitations badge slots" do
+  test "menu 04 and the Friends tab hold the invitations badge slots" do
     Game::Invitation.create!(sender_id: accounts_players(:moderator).id, recipient_id: @player.id)
     Game::Invitation.create!(sender_id: @player.id, recipient_id: accounts_players(:administrator).id)
     sign_in @player
 
     get home_path(locale: :en)
 
-    assert_select ".hub-menu a.menu-item[href='/en/friends'] #menu-friends-badge.stream-slot .menu-item__badge--alert[aria-hidden=true]", "1"
+    assert_select ".hub-menu a.menu-item[href='/en/friends'] #menu-friends-badge.stream-slot .menu-item__badge--friends[aria-hidden=true]", "1"
     assert_select "#menu-friends-badge .visually-hidden", "1 invitation waiting for your answer"
-    assert_select ".tab-bar a.tab-bar__tab[href='/en/more'] #tab-more-badge.stream-slot .tab-bar__badge--alert[aria-hidden=true]", "1"
-    assert_select "#tab-more-badge .visually-hidden", "1 invitation waiting for your answer"
-
-    get more_path(locale: :fr)
-
-    assert_select ".plus a.menu-item[href='/fr/friends'] #plus-friends-badge.stream-slot .menu-item__badge--alert", "1"
-    assert_select "#plus-friends-badge .visually-hidden", "1 invitation en attente de votre réponse"
+    assert_select ".tab-bar a.tab-bar__tab[href='/en/friends'] #tab-invitations-badge.stream-slot .tab-bar__badge--friends[aria-hidden=true]", "1"
+    assert_select "#tab-invitations-badge .visually-hidden", "1 invitation waiting for your answer"
   end
 
-  test "a player with no invitation to answer sees menu 05 greyed at zero and no badge on the PLUS tab" do
+  test "a player with no invitation to answer sees no count on menu 04 or the Friends tab" do
     Game::Invitation.create!(sender_id: @player.id, recipient_id: accounts_players(:moderator).id)
     sign_in @player
 
     get home_path(locale: :en)
 
-    assert_select "#menu-friends-badge .menu-item__badge--zero", "0"
-    assert_select "#tab-more-badge.stream-slot", 1
-    assert_select "#tab-more-badge .tab-bar__badge", 0
-
-    get more_path(locale: :en)
-
-    assert_select "#plus-friends-badge .menu-item__badge--zero", "0"
+    assert_select "#menu-friends-badge.stream-slot", 1
+    assert_select "#menu-friends-badge .menu-item__badge, #menu-friends-badge .visually-hidden", 0
+    assert_select "#tab-invitations-badge.stream-slot", 1
+    assert_select "#tab-invitations-badge .tab-bar__badge", 0
   end
 
   test "a visitor's page renders no invitations badge slot" do
     get library_cards_path(locale: :en)
 
-    assert_select "#menu-friends-badge, #plus-friends-badge, #tab-more-badge", 0
+    assert_select "#menu-friends-badge, #plus-friends-badge, #tab-invitations-badge", 0
   end
 
   test "the trades and Friends screens refresh on their signal, held back by a board in edition" do

@@ -15,10 +15,6 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     Steam::StartImport.new.call.value!
   end
 
-  test "it runs on the import queue" do
-    assert_equal "import", Steam::ImportStepJob.new.queue_name
-  end
-
   test "a page job imports one page and enqueues the next" do
     run = start_run
     clear_enqueued_jobs

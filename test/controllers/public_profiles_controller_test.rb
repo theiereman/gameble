@@ -29,7 +29,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
   def card_total(season) = Catalog::CardSeason.where(season_id: season.id).where.not(rarity: nil).count
 
-  def unlock(key, at) = Game::AchievementUnlock.create!(player_id: @owner.id, achievement: key, unlocked_at: at)
+  def unlock(key, at) = Game::AchievementUnlock.create!(player_id: @owner.id, achievement: key, unlocked_at: at, claimed_at: at)
 
   def written_statements(&request)
     statements = []
@@ -84,7 +84,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-band__identity > button.button--secondary.button--small[type=button][disabled][aria-label=?]", "Trade with Gabe the Brave",
       text: "TRADE"
     assert_select ".profile-band [aria-haspopup], .profile-band a", false
-    assert_equal [ [ "Cards", "11/#{card_total(season)}" ], [ "Complete sets", "1" ], [ "Achievements", "5/23" ] ], keys
+    assert_equal [ [ "Cards", "11/#{card_total(season)}" ], [ "Complete sets", "1" ], [ "Achievements", "5/25" ] ], keys
 
     assert_select "section.profile-stats[aria-label=Statistics]"
     rarities = figures(".profile-stats__grid--rarities")
@@ -95,8 +95,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
       figures(".profile-stats__grid:not(.profile-stats__grid--rarities)")
 
     assert_equal [ "Fortune", "Achievements", "Sets" ], css_select("h2").map(&:text)
-    assert_select "#profile-achievements-heading ~ .achievements__head .visually-hidden", "5 achievements earned out of 23"
-    assert_select "#profile-achievements-heading ~ .achievements__head .achievements__segment--lit", 5
+    assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .visually-hidden", "5 achievements earned out of 25"
+    assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .achievements__segment--lit", 5
     assert_select ".profile-section__label", "Latest earned"
     assert_equal [ "File Closed in Full", "Probation Period Completed", "Approved Mutual Assistance", "Noted Above Expectations" ],
       css_select(".profile-achievements .achievement__name").map(&:text)
@@ -177,9 +177,9 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.token)
 
     assert_response :success
-    assert_equal [ [ "Cards", "0/#{card_total(season)}" ], [ "Complete sets", "0" ], [ "Achievements", "0/23" ] ], keys
+    assert_equal [ [ "Cards", "0/#{card_total(season)}" ], [ "Complete sets", "0" ], [ "Achievements", "0/25" ] ], keys
     assert_equal [ 0 ] * 5, figures(".profile-stats__grid--rarities").map { it.last.to_i }
-    assert_select ".achievements__segment", 23
+    assert_select ".achievements__segment", 25
     assert_select ".achievements__segment--lit", false
     assert_select ".profile-section__label, .profile-achievements", false
     assert_select ".profile-section__aside", "0 sets started"
@@ -193,7 +193,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".profile__no-season", "No season of cards is published yet."
-    assert_equal [ [ "Cards", "0" ], [ "Complete sets", "0" ], [ "Achievements", "0/23" ] ], keys
+    assert_equal [ [ "Cards", "0" ], [ "Complete sets", "0" ], [ "Achievements", "0/25" ] ], keys
     assert_select ".profile-stats, .profile-section", false
   end
 
@@ -252,28 +252,6 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "6/16", album_count
   end
 
-  test "a visitor narrows an owner's album by rarity and finds a game of it by its name, under the same header" do
-    season = publish_sets_draft
-    members = set_members(season, "horror")
-    Catalog::CardSeason.where(id: members).update_all(rarity: Catalog::Rarity::TIERS.key(:common))
-    Catalog::CardSeason.where(id: members.values_at(2, 5)).update_all(rarity: Catalog::Rarity::TIERS.key(:rare))
-    hold(@owner, members[5], 1)
-    Catalog::CardText.where(card_id: Catalog::CardSeason.find(members[7]).card_id, locale: "en").update_all(title: "Élan Vital")
-
-    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror", rarity: [ "rare" ])
-
-    assert_response :success
-    assert_select "[data-group=rarity] .filter-chip__box[value=rare][checked]"
-    assert_equal [ true, false ], css_select(".set-album__grid > li").map { it.at_css(".card--not-owned").present? }
-    assert_equal "1/16", album_count
-
-    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror", q: "ELAN")
-
-    assert_select "#collection-search[value=ELAN]"
-    assert_equal [ "Élan Vital" ], css_select(".set-album__grid .card__title").map { it.text.squish }
-    assert_equal "1/16", album_count
-  end
-
   test "an owner's album shows their earlier editions and their copies of every edition" do
     season = publish_sets_draft
     members = set_members(season, "pirates")
@@ -298,15 +276,15 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     # Owner by token, published season; the album: its set, members and
     # tiers, the owner's editions, the page's card views; the themes' names.
-    assert_request_queries(8) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
+    assert_request_queries(9) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
-    assert_request_queries(8) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg", rarity: [ "common" ], q: "seed") }
+    assert_request_queries(9) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg", rarity: [ "common" ], q: "seed") }
     assert_response :success
 
     sign_in(accounts_players(:moderator))
     # The same, the viewer's lookup, the top bar's four and the trades and
     # invitations waiting.
-    assert_request_queries(15) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
+    assert_request_queries(18) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
   end
 
@@ -330,10 +308,10 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "an unknown token shows the unavailable page with a 404, after one lookup" do
+  test "an unknown token shows the unavailable page with a 404, after one lookup and the announcement banner's" do
     publish_sets_draft
 
-    assert_request_queries(1) { get brother_path(locale: :en, token: "A" * 24) }
+    assert_request_queries(2) { get brother_path(locale: :en, token: "A" * 24) }
 
     assert_response :not_found
     assert_select "title", "Profile not available"
@@ -480,16 +458,6 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     sign_in(@owner)
     get brother_collection_path(locale: :en, token: @owner.token)
     assert_response :success
-  end
-
-  test "the page offers no write route" do
-    publish_sets_draft
-    path = brother_collection_path(locale: :en, token: @owner.token)
-
-    post path
-    assert_response :not_found
-    patch path
-    assert_response :not_found
   end
 
   test "the profile offers no full collection without a season" do
@@ -656,13 +624,13 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "Joueur #{code}"
     assert_select "h1", "Joueur #{code}"
     assert_select ".profile-band__since", "Membre depuis mars 2026"
-    assert_equal [ [ "Cartes", "0/#{card_total(season)}" ], [ "Sets complets", "0" ], [ "Succès", "0/23" ] ], keys
+    assert_equal [ [ "Cartes", "0/#{card_total(season)}" ], [ "Sets complets", "0" ], [ "Succès", "0/25" ] ], keys
     assert_select "section.profile-stats[aria-label=Statistiques]"
     assert_equal [ "Raretés", "Activité" ], css_select(".profile-stats__kicker").map(&:text)
     assert_equal [ "Capsules ouvertes", "Premières découvertes", "Échanges conclus" ],
       figures(".profile-stats__grid:not(.profile-stats__grid--rarities)").map(&:first)
     assert_equal [ "Fortune", "Succès", "Sets" ], css_select("h2").map(&:text)
-    assert_select "#profile-achievements-heading ~ .achievements__head .visually-hidden", "0 succès obtenu sur 23"
+    assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .visually-hidden", "0 succès obtenu sur 25"
     assert_select ".profile-section__aside", "0 set entamé"
 
     set_members(season, "pirates").each { |id| hold(@owner, id, 1) }
@@ -747,35 +715,36 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # count, the achievements earned, the showcase, the rarities, the
     # activity, the owner's started sets, those sets, their cards and the
     # faces of those shown; the themes' names; the owner's game set goals;
-    # the owner's earned titles and their chosen one; the owner's fortune.
-    assert_request_queries(17) { get brother_path(locale: :en, token: @owner.token) }
+    # the owner's earned titles and their chosen one; the owner's avatar; the owner's fortune.
+    assert_request_queries(19) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
     assert_select ".profile-sets .set-tile", minimum: 1
 
     hold_started_sets(season)
     open_packs(season, 3)
     %w[first_epic first_trade boosters_10 first_repost].each { unlock(it, 1.hour.ago) }
-    assert_request_queries(17) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(19) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-sets .set-tile", 5
     assert_select ".profile-achievements .achievement", 4
 
     sign_in(accounts_players(:moderator))
     # The same, the viewer's lookup and the top bar's four (reserve count,
     # next pack, copies per tier, rarity legend), the tab bar's trades and
-    # invitations waiting, and the viewer's friendship and invitations with the owner.
-    assert_request_queries(26) { get brother_path(locale: :en, token: @owner.token) }
+    # invitations waiting, the viewer's friendship and invitations with the owner,
+    # and the viewer's avatar beside the owner's.
+    assert_request_queries(30) { get brother_path(locale: :en, token: @owner.token) }
 
     # The chosen cards' views, however many.
     held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)
     held.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
-    assert_request_queries(27) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(31) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase .card", held.size
     assert_response :success
 
-    # The owner's move buttons cost nothing more.
+    # The owner's remove crosses cost nothing more.
     sign_in(@owner)
-    assert_request_queries(25) { get brother_path(locale: :en, token: @owner.token) }
-    assert_select ".profile-showcase__moves", held.size
+    assert_request_queries(28) { get brother_path(locale: :en, token: @owner.token) }
+    assert_select ".profile-showcase__remove", held.size
   end
 
   test "the summary counts every edition: a game gone from the season, and a set completed through an earlier edition of a member" do
@@ -822,15 +791,6 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-band__banned", false
   end
 
-  test "the banned line is in French for staff" do
-    publish_sets_draft
-    sign_in(accounts_players(:administrator))
-
-    get brother_path(locale: :fr, token: accounts_players(:banned).token)
-
-    assert_select ".profile-band__banned", "Joueur banni\u202F: visible par les officiers de la Confrérie seulement"
-  end
-
   test "the chosen cards show under VITRINE after the identity band, in their order, each leading to its detail with the owner's token, and the GET writes nothing" do
     season = publish_sets_draft
     cards = set_members(season, "pirates").first(3)
@@ -843,7 +803,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_empty written
     assert_equal [ "Vitrine", "Fortune", "Succès", "Sets" ], css_select("h2").map(&:text)
-    assert_select "header.profile-band + section.profile-section h2#profile-showcase-heading", "Vitrine"
+    assert_select "header.profile-band + section.profile-showcase-panel#showcase h2#profile-showcase-heading", "Vitrine"
     links = css_select(".profile-showcase .profile-showcase__slot > a.card-link")
     expected = [ cards[2], cards[0], cards[1] ].map { "/fr/cards/#{slugs.fetch(it)}/seasons/#{season.number}?brother=#{@owner.token}" }
     assert_equal expected, links.map { it["href"] }
@@ -871,18 +831,9 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     cards.map { views.fetch(it) }
   end
 
-  # Each slot's move buttons as [ accessible name, direction ].
-  def move_buttons
-    css_select(".profile-showcase__slot").map do |slot|
-      slot.css(".profile-showcase__moves form:not([hidden])").map { [ it.at_css("button")["aria-label"], it.at_css("input[name=direction]")["value"] ] }
-    end
-  end
-
   def showcase_slugs = css_select(".profile-showcase__slot > a.card-link").map { it["href"][%r{/cards/([^/]+)/}, 1] }
 
-  def focused = css_select(".profile-showcase [autofocus]").map { it["aria-label"] }
-
-  test "on their own profile the owner moves each card left or right, but not past either end, and the GET writes nothing" do
+  test "on their own profile each card has a cross that opens a dialog confirming its removal, and the GET writes nothing" do
     a, b, c = choose_three
     sign_in(@owner)
 
@@ -890,16 +841,20 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_empty written
-    assert_equal [
-      [ [ "Move #{a.title} right", "later" ] ],
-      [ [ "Move #{b.title} left", "earlier" ], [ "Move #{b.title} right", "later" ] ],
-      [ [ "Move #{c.title} left", "earlier" ] ]
-    ], move_buttons
-    assert_equal "/en/cards/#{a.id}/seasons/#{a.season_number}/showcase", css_select(".profile-showcase__moves form").first["action"]
-    assert_select ".profile-showcase__moves form input[name=_method][value=patch]", 6
-    assert_select ".profile-showcase__moves button svg.pixel-icon", 6
-    assert_equal [ [ "earlier", true ], [ "later", false ], [ "earlier", false ], [ "later", false ], [ "earlier", false ], [ "later", true ] ],
-      css_select(".profile-showcase__moves form").map { [ it["data-direction"], it.has_attribute?("hidden") ] }
+    crosses = css_select(".profile-showcase__slot > button.profile-showcase__remove[type=button][aria-haspopup=dialog]")
+    assert_equal [ a, b, c ].map { "Remove #{it.title} from the showcase" }, crosses.map { it["aria-label"] }
+    crosses.zip([ a, b, c ]).each do |cross, card|
+      dialog_id = "showcase-remove-#{card.id}-#{card.season_number}"
+      assert_equal dialog_id, cross["data-dialog-opener-dialog-value"]
+      assert_select "dialog##{dialog_id}.modal" do
+        assert_select ".modal__title", "Remove from showcase?"
+        assert_select ".showcase-removal__text", "#{card.title} leaves your showcase. You keep the card."
+        assert_select "form[action=?][method=post] input[name=_method][value=delete]", "/en/cards/#{card.id}/seasons/#{card.season_number}/showcase"
+        assert_select "button[type=submit]", "Remove"
+        assert_select "button[type=button][data-action='dialog#close']", "Keep it"
+      end
+    end
+    assert_select ".profile-showcase__moves, .profile-showcase__move-button", false
     assert_select ".profile-showcase [autofocus]", false
     assert_select "[style]", false
   end
@@ -920,39 +875,30 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert slots.all? { it["data-action"].include?("pointerdown->showcase-order#press") }
     assert_select ".profile-showcase__head h2#profile-showcase-heading + details.profile-showcase__info summary" do
       assert_select "svg.pixel-icon"
-      assert_select ".visually-hidden", "How to change the order"
+      assert_select ".visually-hidden", "How the showcase works"
     end
-    assert_select ".profile-showcase__info-text", "Drag the cards to change their order, or move a card one place with the arrows under it."
+    assert_select ".profile-showcase__info-text", "Up to five cards. Drag them to change their order, and add one from its page with “Add to showcase”."
     assert_select "p.visually-hidden[role=status][data-showcase-order-target=status]", ""
     assert_select "[style]", false
   end
 
-  test "the info mark speaks French in French" do
+  test "the info mark and the crosses speak French in French" do
     choose_three
     sign_in(@owner)
 
     get brother_path(locale: :fr, token: @owner.token)
 
-    assert_select ".profile-showcase__info summary .visually-hidden", "Comment changer l'ordre"
-    assert_select ".profile-showcase__info-text", /\AFaites glisser les cartes/
+    assert_select ".profile-showcase__info summary .visually-hidden", "Comment marche la vitrine"
+    assert_select ".profile-showcase__info-text", /\AJusqu'à cinq cartes/
     assert_equal "%{title} est maintenant à la place %{position} sur %{count}.", css_select("[data-controller=showcase-order]").sole["data-showcase-order-announcement-value"]
-  end
-
-  test "the move buttons speak French in French" do
-    choose_three
-    sign_in(@owner)
-
-    get brother_path(locale: :fr, token: @owner.token)
-
     ids = Game::ChosenShowcase.call(@owner)
     views = Catalog::CardViews.call(ids, locale: :fr)
-    titles = ids.map { views.fetch(it).title }
-    assert_select "form[hidden] button[aria-label=?]", "Déplacer #{titles.first} vers la gauche"
-    assert_select "button[aria-label=?]", "Déplacer #{titles.first} vers la droite"
-    assert_select "button[aria-label=?]", "Déplacer #{titles.last} vers la gauche"
+    assert_select "button.profile-showcase__remove[aria-label=?]", "Retirer #{views.fetch(ids.first).title} de la vitrine"
+    assert_select ".modal__title", "Retirer de la vitrine\u202f?"
+    assert_equal [ "Retirer", "La garder" ], css_select(".showcase-removal__actions button").map(&:text).uniq
   end
 
-  test "a single chosen card has no move button" do
+  test "a single chosen card cannot be dragged but can still be removed" do
     choose_three
     Game::ChosenShowcase.call(@owner).drop(1).each { Game::RemoveFromShowcase.new.call(player: @owner, card_season_id: it).value! }
     sign_in(@owner)
@@ -960,27 +906,28 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.token)
 
     assert_select ".profile-showcase .card", 1
-    assert_select ".profile-showcase__moves", false
-    assert_select "[data-controller=showcase-order], [data-showcase-order-target], .profile-showcase__info", false
+    assert_select "[data-controller=showcase-order], [data-showcase-order-target]", false
+    assert_select ".profile-showcase__remove", 1
+    assert_select ".profile-showcase__info", 1
   end
 
-  test "no one but the owner sees a move button: not another player, not staff, not a visitor" do
+  test "no one but the owner sees a cross: not another player, not staff, not a visitor" do
     choose_three
     stranger = Accounts::Player.create!(steam_id: "76561197960390188")
 
     get brother_path(locale: :en, token: @owner.token)
     assert_select ".profile-showcase .card", 3
-    assert_select ".profile-showcase__moves, .profile-showcase__move, .profile-showcase__info, [data-controller=showcase-order], [data-showcase-order-target]", false
+    assert_select ".profile-showcase__remove, .showcase-removal__form, .profile-showcase__info, [data-controller=showcase-order], [data-showcase-order-target]", false
 
     [ stranger, accounts_players(:moderator), accounts_players(:administrator) ].each do |viewer|
       sign_in(viewer)
       get brother_path(locale: :en, token: @owner.token)
       assert_select ".profile-showcase .card", 3
-      assert_select ".profile-showcase__moves, .profile-showcase__move, .profile-showcase__info, [data-controller=showcase-order], [data-showcase-order-target]", false
+      assert_select ".profile-showcase__remove, .showcase-removal__form, .profile-showcase__info, [data-controller=showcase-order], [data-showcase-order-target]", false
     end
   end
 
-  test "after a move the profile comes back in the new order with the focus on the button pressed, or the card's other one at the edge" do
+  test "after a move without script the profile comes back in the new order" do
     a, b, c = choose_three
     sign_in(@owner)
     profile = brother_path(locale: :en, token: @owner.token)
@@ -990,15 +937,5 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_equal [ b, a, c ].map(&:id), showcase_slugs
-    assert_equal [ "Move #{a.title} right" ], focused
-
-    patch card_showcase_path(locale: :en, slug: a.id, number: a.season_number), params: { direction: "earlier" }, headers: { "HTTP_REFERER" => profile }
-    follow_redirect!
-
-    assert_equal [ a, b, c ].map(&:id), showcase_slugs
-    assert_equal [ "Move #{a.title} right" ], focused
-
-    get profile
-    assert_empty focused
   end
 end

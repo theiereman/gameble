@@ -84,8 +84,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__end a[href^='/en/sign-in']"
     assert_select "nav.tab-bar", false
     assert_select "main a[href^='/en/sign-in']", 1
-    assert_select ".public-card__live-title", /Live\s+·\s+Right now on Gameble/
-    assert_select "#live-strip .public-card__live-empty", "Nothing here yet."
+    assert_select ".live-strip__title", /Live\s+·\s+Right now on Gameble/
+    assert_select "#live-strip .live-strip__empty", "Nothing here yet."
     assert_select ".public-card__footer a.public-card__legal[href=?]", "/en/legal", "Legal notice"
     assert_select ".library, .profile", false
     assert_not_includes response.body, "Gabe the Brave"
@@ -105,32 +105,13 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
     get card_page(locale: :fr)
 
-    assert_select "#live-strip .public-card__live-list > li.public-card__live-entry", 3 do |entries|
-      entries.each { |entry| assert_equal "Hugo a tiré Portal", entry.at_css(".public-card__live-sentence").text }
+    assert_select "#live-strip .live-strip__list > li.live-strip__entry", 3 do |entries|
+      entries.each { |entry| assert_equal "Hugo a tiré Portal", entry.at_css(".live-strip__sentence").text }
     end
     assert_select "#live-strip .feed__tag--epic", count: 3, text: "Épique"
     assert_select "#live-strip", text: /Hidden/, count: 0
     assert_select "#live-strip [aria-hidden]", 0
     assert_equal [ "live:fr" ], css_select("turbo-cable-stream-source").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
-  end
-
-  test "an older browser's line: in the markup beside the invitation, the stylesheet showing one or the other by :has() support, no script involved" do
-    get card_page
-
-    assert_select ".public-card__update", "Your browser is too old to sign in to Gameble. Update it to play."
-    assert_select ".public-card__pitch"
-    assert_select "script", text: /:has|userAgent|navigator/, count: 0
-
-    css = %w[card-detail card-detail-stepping card-detail-public].sum("") { |name| Rails.root.join("app/frontend/styles/#{name}.css").read }
-    default, supported = css.split("@supports selector(:has(*))", 2)
-    # By default: the invitation and the sign-in image hidden, the line shown.
-    assert_match(/\.public-card__pitch \{\s*display: none;/, default)
-    assert_match(/\.is-public-page \.top-bar__end \{\s*display: none;/, default)
-    assert_no_match(/\.public-card__update \{[^}]*display: none/, default)
-    # Where :has() works: the invitation and the image shown, the line hidden.
-    assert_match(/\.public-card__pitch \{\s*display: flex;/, supported)
-    assert_match(/\.public-card__update \{\s*display: none;/, supported)
-    assert_match(/\.is-public-page \.top-bar__end \{\s*display: flex;/, supported)
   end
 
   def assert_text_preview(locale: :en)
@@ -156,6 +137,22 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select "head meta[name=robots]", false
     assert_text_preview
     assert_equal 0, Catalog::ShareImage.count
+  end
+
+  test "the card page carries structured data naming the game and, once rendered, its image" do
+    get card_page
+    data = JSON.parse(css_select("script[type='application/ld+json']").sole.text)
+    assert_equal "WebPage", data["@type"]
+    assert_equal season_url, data["url"]
+    assert_equal "Blue Depths — Rare", data["name"]
+    assert_equal "VideoGame", data["about"]["@type"]
+    assert_nil data["primaryImageOfPage"]
+
+    token = store_share_image(rare_card_season_id, "en").token
+    get card_page
+    image = JSON.parse(css_select("script[type='application/ld+json']").sole.text)["primaryImageOfPage"]
+    assert_equal "http://www.example.com/share-images/#{token}.png", image["url"]
+    assert_equal [ 1200, 630 ], [ image["width"], image["height"] ]
   end
 
   test "a current image: its absolute URL by token, its size, type and alt, a large card; the other tags unchanged" do
@@ -228,22 +225,6 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     end
     assert_response :success
     assert_text_preview
-  end
-
-  test "in French: the French title and rarity, fr_FR, the French URL, the French invitation" do
-    get card_page(locale: :fr)
-
-    assert_equal "Profondeurs bleues — Rare", og("title")
-    assert_select "title", "Profondeurs bleues — Rare"
-    assert_equal "fr_FR", og("locale")
-    assert_equal season_url(locale: :fr), og("url")
-    assert_equal "Une carte de Gameble, vos jeux Steam en cartes à collectionner. Connectez-vous\u202F: dix capsules vous attendent.", og("description")
-    assert_select ".public-card__pitch-title", "Vos jeux Steam, en cartes à collectionner."
-    assert_select ".public-card__pitch-text", "Ouvrez des capsules, complétez des sets, échangez avec vos amis."
-    assert_select ".public-card__pitch a.button--primary", "Ouvrir mes premières capsules"
-    assert_select ".public-card__update", "Votre navigateur est trop ancien pour se connecter à Gameble. Mettez-le à jour pour jouer."
-    assert_select ".public-card__live-title", /En ce moment sur Gameble/
-    assert_select ".public-card__legal", "Mentions légales"
   end
 
   test "the season-less page shows the published season, its canonical the season form, without query" do
@@ -348,31 +329,11 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_not_includes response.headers.to_h.values.join(" "), "evil.example"
   end
 
-  test "an old share link, season-qualified or not, leads to the card's page and its preview tags" do
-    [ [ "/en/brothers/#{@sharer.token}/cards/portal/seasons/1", "/en/cards/portal/seasons/1" ],
-      [ "/en/brothers/#{@sharer.token}/cards/portal", "/en/cards/portal" ] ].each do |old, target|
-      get old
-      assert_redirected_to target
-      follow_redirect!
-
-      assert_response :success
-      assert_equal target, path
-      assert_equal "Portal — Epic", og("title")
-      assert_equal season_url(slug: "portal"), og("url")
-    end
-  end
-
   test "an old share link with a malformed token or season number is not routed" do
     [ "/en/brothers/abcde/cards/portal", "/en/brothers/#{"0" * 24}/cards/portal", "/en/brothers/#{@sharer.token}/cards/portal/seasons/one" ].each do |path|
       get path
       assert_response :not_found, path
     end
-  end
-
-  test "the old share links have no route helper" do
-    assert respond_to?(:card_season_path)
-    assert_not respond_to?(:brother_card_path)
-    assert_not respond_to?(:brother_card_season_path)
   end
 
   USER_AGENTS.each do |name, user_agent|
@@ -398,7 +359,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   test "the player's screens and the sessions still turn an old browser away, the landing does not" do
     old = { "User-Agent" => USER_AGENTS[:ios_16_safari] }
 
-    get more_path(locale: :en), headers: old
+    get me_path(locale: :en), headers: old
     assert_response :not_acceptable
 
     get home_path(locale: :en), headers: old

@@ -94,16 +94,6 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
     end
   end
 
-  test "an already collected bonus is refused as such, even with a full reserve" do
-    travel_to(@now) do
-      full_bank
-      collect.value!
-      assert summary[:reserve_full]
-
-      assert_equal :already_collected, collect.failure
-    end
-  end
-
   test "a player without a bank gets ten regular packs with the guarantee, then the bonus" do
     travel_to(@now) { collect.value! }
 

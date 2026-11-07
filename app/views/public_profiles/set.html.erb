@@ -1,7 +1,7 @@
 <% set_name = SetLabel.for(@set) %>
 <% owner_name = public_profile_title(@owner) %>
 <% content_for :back_button, true %>
-<% content_for :phone_previous, true %>
+<% content_for :phone_back do %><%= phone_back_link t("shell.screens.collection"), brother_collection_path(token: @owner.token) %><% end %>
 <% content_for :title, t("public_profiles.set.title", set: set_name, name: owner_name) %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
 <%= render "library/album", standing: @standing, heading: t("public_profiles.set.heading", set: set_name, name: owner_name),

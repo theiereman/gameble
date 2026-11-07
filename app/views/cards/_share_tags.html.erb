@@ -20,3 +20,4 @@
 <% else %>
   <%= tag.meta name: "twitter:card", content: "summary" %>
 <% end %>
+<%= tag.script card_structured_data(view, title:, url:, image:).html_safe, type: "application/ld+json" %>

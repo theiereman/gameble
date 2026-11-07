@@ -1,2 +1,5 @@
-<span class="<%= class_names("menu-item__badge", "menu-item__badge--alert", "menu-item__badge--zero": invitations.zero?) %>" aria-hidden="true"><%= number_with_delimiter(invitations) %></span>
-<span class="visually-hidden"><%= t("pages.home.menu.invitations_waiting", count: invitations, number: number_with_delimiter(invitations)) %></span>
+<%# locals: (invitations:) %>
+<% if invitations.positive? %>
+  <span class="menu-item__badge menu-item__badge--friends" aria-hidden="true"><%= number_with_delimiter(invitations) %></span>
+  <span class="visually-hidden"><%= t("pages.home.menu.invitations_waiting", count: invitations, number: number_with_delimiter(invitations)) %></span>
+<% end %>

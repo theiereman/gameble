@@ -1,0 +1,134 @@
+import HotwireNative
+import UIKit
+import WebKit
+
+final class GamebleWebViewController: HotwireWebViewController {
+    private(set) var pageIsReady = false
+
+    private var reloadingBlankPage = false
+
+    private var tabsShown = true
+    private var dialogOpen = false
+    private var topBarScroll = TopBarScroll()
+    private var scrollObservation: NSKeyValueObservation?
+    private lazy var aboveTabs = visitableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+    private lazy var toScreenEdge = visitableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+
+    private var isSheet: Bool {
+        tabBarController == nil && !TopBarNavigation.shared.isLayer(navigationController)
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        NSLayoutConstraint.deactivate(view.constraints.filter {
+            $0.firstItem === visitableView && [.top, .bottom].contains($0.firstAttribute)
+        })
+        visitableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        fitBottom()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        view.backgroundColor = isSheet ? Palette.panel : Palette.ground
+        fitBottom()
+        if !isSheet { tellBarAboutThisScreen() }
+        // A cancelled edge swipe leaves this screen covered again by the one it was revealing.
+        transitionCoordinator?.animate(alongsideTransition: nil) { context in
+            if context.isCancelled { TopBarNavigation.shared.shell?.refreshLeftSide() }
+        }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        announceShown(on: visitableView.webView)
+        reloadIfBlank()
+    }
+
+    override func visitableDidRender() {
+        super.visitableDidRender()
+        pageIsReady = true
+        reloadingBlankPage = false
+    }
+
+    override func visitableDidActivateWebView(_ webView: WKWebView) {
+        super.visitableDidActivateWebView(webView)
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
+        webView.scrollView.alwaysBounceVertical = false
+        scrollObservation = webView.scrollView.observe(\.contentOffset) { [weak self] scrollView, _ in
+            self?.scrolled(scrollView)
+        }
+        if view.window != nil { announceShown(on: webView) }
+    }
+
+    override func visitableDidDeactivateWebView() {
+        scrollObservation = nil
+        super.visitableDidDeactivateWebView()
+    }
+
+    func revealed() {
+        tellBarAboutThisScreen()
+        announceShown(on: visitableView.webView)
+        reloadIfBlank()
+    }
+
+    func showTabs(_ shown: Bool) {
+        tabsShown = shown
+        tabBarController?.tabBar.isHidden = !shown
+        fitBottom()
+    }
+
+    func dialogChanged(open: Bool) {
+        dialogOpen = open
+        guard !isSheet, TopBarNavigation.shared.isOnView(self) else { return }
+        TopBarNavigation.shared.shell?.setBarDimmed(open)
+    }
+
+    private func tellBarAboutThisScreen() {
+        let shell = TopBarNavigation.shared.shell
+        shell?.screenWillAppear(self)
+        shell?.setBarDimmed(dialogOpen)
+        topBarScroll.reset(at: visitableView.webView?.scrollView.contentOffset.y ?? 0)
+    }
+
+    private func scrolled(_ scrollView: UIScrollView) {
+        guard !isSheet, TopBarNavigation.shared.isOnView(self) else { return }
+        let position = scrollView.contentOffset.y
+        guard scrollView.isTracking || scrollView.isDragging || scrollView.isDecelerating else {
+            topBarScroll.reset(at: position)
+            return
+        }
+        let furthest = scrollView.contentSize.height - scrollView.bounds.height
+        if let shown = topBarScroll.barShownAfterMoving(to: position, furthest: furthest) {
+            TopBarNavigation.shared.shell?.setBarShown(shown)
+        }
+    }
+
+    private func announceShown(on webView: WKWebView?) {
+        webView?.evaluateJavaScript("window.dispatchEvent(new CustomEvent('gameble:screen-shown'))")
+    }
+
+    // iOS ends the web process of a screen off view under memory pressure, and nothing reloads it when that screen comes back.
+    private func reloadIfBlank() {
+        guard pageIsReady, !reloadingBlankPage, let webView = visitableView.webView else { return }
+        webView.evaluateJavaScript("document.body?.childElementCount ?? 0") { [weak self] elements, error in
+            guard let self, self.visitableView.webView === webView, !self.reloadingBlankPage else { return }
+            guard error != nil || (elements as? Int) == 0 else { return }
+            self.reloadingBlankPage = true
+            self.reloadVisitable()
+        }
+    }
+
+    private func fitBottom() {
+        let keepsClearOfTabs = tabBarController != nil && tabsShown
+        toScreenEdge.isActive = !keepsClearOfTabs
+        aboveTabs.isActive = keepsClearOfTabs
+        additionalSafeAreaInsets.bottom = tabBarController != nil && !tabsShown ? -hiddenTabsInset : 0
+    }
+
+    // UIKit keeps a hidden tab bar's height in its children's safe area, which the page would pad as empty space.
+    private var hiddenTabsInset: CGFloat {
+        let screenEdgeInset = view.window?.safeAreaInsets.bottom ?? 0
+        let inheritedInset = view.safeAreaInsets.bottom - additionalSafeAreaInsets.bottom
+        return max(0, inheritedInset - screenEdgeInset)
+    }
+}

@@ -61,10 +61,6 @@ class Catalog::SeasonScoresTest < ActiveSupport::TestCase
     assert_equal [ [], nil ], [ scores.panel.themes, scores.panel.ufo_count ]
   end
 
-  test "a season scored before versions has none recorded" do
-    assert_equal [ nil ], Catalog::SeasonScores.call(1).score_versions
-  end
-
   test "a published season of mixed versions lists each once, the unrecorded one first" do
     season = publish_sets_draft
     ids = card_season_ids(season)

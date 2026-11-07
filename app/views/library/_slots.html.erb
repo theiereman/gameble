@@ -5,12 +5,14 @@
   <li class="collection-slot">
     <% if held %>
       <%= link_to_card_detail(card, strings:, context: { grid: context }, goals: marks) do %><%= render CardComponent.new(card:, size: :grid, goals: marks.map(&:position)) %><% end %>
-      <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(held.copies) %></span>
-      <span class="visually-hidden"><%= t("library.grid.copies", count: held.copies, number: number_with_delimiter(held.copies)) %></span>
-      <% if held.editions > 1 %>
-        <span class="collection-slot__editions" aria-hidden="true"><%= t("library.grid.editions.short", count: held.editions) %></span>
-        <span class="visually-hidden"><%= t("library.grid.editions.full", count: held.editions) %></span>
-      <% end %>
+      <span class="collection-slot__counts">
+        <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(held.copies) %></span>
+        <span class="visually-hidden"><%= t("library.grid.copies", count: held.copies, number: number_with_delimiter(held.copies)) %></span>
+        <% if held.editions > 1 %>
+          <span class="collection-slot__editions" aria-hidden="true"><%= t("library.grid.editions.short", count: held.editions) %></span>
+          <span class="visually-hidden"><%= t("library.grid.editions.full", count: held.editions) %></span>
+        <% end %>
+      </span>
       <% if held.new && new_badge %>
         <span class="collection-slot__new"><%= t("library.grid.new") %></span>
       <% end %>

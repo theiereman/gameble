@@ -1,71 +1,45 @@
 <% set_filter = local_assigns[:set_filter] %>
 <% goals = local_assigns.fetch(:goals, GoalMarks::NONE) %>
 <% goals_chosen = local_assigns.fetch(:goals_chosen, []) %>
-<% count = collection_filter_count(filters:, states:, states_asked:, goals: goals_chosen) %>
+<% sets_offered = set_filter.present? && set_filter[:kinds].any? %>
+<% counts = collection_filter_counts(filters:, states:, states_asked:, goals: goals_chosen) %>
+<% count = counts.values.sum %>
 <%= form_with url: request.path, method: :get, class: "filters", html: { role: "search" }, data: {
   controller: "collection-filters", turbo_frame: "collection-results",
   action: "input->collection-filters#typed compositionend->collection-filters#typed change->collection-filters#changed " \
-    "submit->collection-filters#submitted turbo:frame-load->collection-filters#setsLoaded"
+    "submit->collection-filters#submitted turbo:frame-load->collection-filters#setsLoaded turbo:frame-load@document->collection-filters#resultsLoaded"
 } do %>
   <div class="filters__search">
     <label class="visually-hidden" for="collection-search"><%= local_assigns.fetch(:search_label) { t("library.filters.search.label") } %></label>
     <%= search_field_tag "q", query, id: "collection-search", class: "filters__search-field", autocomplete: "off", maxlength: Catalog::CollectionGrid::MAX_QUERY,
       placeholder: local_assigns.fetch(:search_placeholder) { t("library.filters.search.placeholder") }, data: { collection_filters_target: "search" } %>
   </div>
-  <details class="filters__zone" <%= "open" if count.positive? %>>
-    <summary class="filters__summary">
-      <%= pixel_icon("arrow-small-right", class: "filters__chevron") %>
-      <span class="filters__title"><%= t("library.filters.title") %></span>
-      <span class="filters__count" data-collection-filters-target="count" <%= "hidden" if count.zero? %>><span class="visually-hidden"><%= t("library.filters.active") %></span> <span data-collection-filters-target="number"><%= count %></span></span>
-    </summary>
-    <div class="filters__groups">
-      <% if state_choices.any? %>
-        <fieldset class="filters__group" data-collection-filters-target="group" data-group="state" data-default="<%= Game::CollectionStates::DEFAULT %>">
-          <legend class="filters__legend"><%= t("library.filters.groups.state") %></legend>
-          <% state_choices.each do |state| %>
-            <label class="filter-chip">
-              <%= check_box_tag "state[]", state, states.include?(state), id: nil, class: "filter-chip__box" %>
-              <span class="filter-chip__text"><%= t("library.filters.states.#{state}") %></span>
-            </label>
-          <% end %>
-        </fieldset>
-      <% end %>
-      <% if goals.any? %>
-        <fieldset class="filters__group" data-collection-filters-target="group" data-group="goals">
-          <legend class="filters__legend"><%= t("library.filters.groups.goals") %></legend>
-          <% goals.needs.each do |goal| %>
-            <label class="filter-chip filter-chip--goal">
-              <%= check_box_tag "goals[]", GoalMarks.filter_value(goal), goals_chosen.include?(goal), id: nil, class: "filter-chip__box", aria: { label: goal_name(goal) } %>
-              <span class="filter-chip__text"><%= goal_bookmark(goal.position, size: :small) %><%= goal_set_name(goal) %></span>
-            </label>
-          <% end %>
-        </fieldset>
-      <% end %>
-      <fieldset class="filters__group" data-collection-filters-target="group" data-group="rarity">
-        <legend class="filters__legend"><%= t("library.filters.groups.rarity") %></legend>
-        <% Catalog::Rarity::TIERS.each_value do |rarity| %>
-          <label class="filter-chip">
-            <%= check_box_tag "rarity[]", rarity, filters.chosen_rarities.include?(rarity.to_s), id: nil, class: "filter-chip__box" %>
-            <span class="filter-chip__text"><%= t("catalog.rarity.#{rarity}") %></span>
-          </label>
+  <% if local_assigns.fetch(:filter_row, false) %>
+    <%= render "library/filter_row", filters:, state_choices:, states:, goals:, goals_chosen:, set_filter:, sets_offered:, counts:, results_count: %>
+  <% else %>
+    <details class="filters__zone" <%= "open" if count.positive? %>>
+      <summary class="filters__summary">
+        <%= pixel_icon("arrow-small-right", class: "filters__chevron") %>
+        <span class="filters__title"><%= t("library.filters.title") %></span>
+        <span class="filters__count" data-collection-filters-target="count" <%= "hidden" if count.zero? %>><span class="visually-hidden"><%= t("library.filters.active") %></span> <span data-collection-filters-target="number"><%= count %></span></span>
+      </summary>
+      <div class="filters__groups">
+        <% if state_choices.any? %>
+          <%= render "library/state_filter", state_choices:, states: %>
         <% end %>
-      </fieldset>
-      <% if set_filter && set_filter[:kinds].any? %>
-        <%= render "library/set_filter", **set_filter, chosen: filters.chosen_sets %>
-      <% end %>
-      <% if filters.genres.any? %>
-        <fieldset class="filters__group" data-collection-filters-target="group" data-group="genre">
-          <legend class="filters__legend"><%= t("library.filters.groups.genre") %></legend>
-          <% filters.genres.each do |genre| %>
-            <label class="filter-chip">
-              <%= check_box_tag "genre[]", genre, filters.chosen_genres.include?(genre), id: nil, class: "filter-chip__box" %>
-              <span class="filter-chip__text"><%= SetLabel.genre(genre) %></span>
-            </label>
-          <% end %>
-        </fieldset>
-      <% end %>
-    </div>
-  </details>
+        <% if goals.any? %>
+          <%= render "library/goal_filter", goals:, goals_chosen: %>
+        <% end %>
+        <%= render "library/rarity_filter", chosen: filters.chosen_rarities %>
+        <% if sets_offered %>
+          <%= render "library/set_filter", **set_filter, chosen: filters.chosen_sets %>
+        <% end %>
+        <% if filters.genres.any? %>
+          <%= render "library/genre_filter", genres: filters.genres, chosen: filters.chosen_genres %>
+        <% end %>
+      </div>
+    </details>
+  <% end %>
   <%= link_to t("library.filters.clear"), clear_path, class: "filters__clear", data: { turbo_frame: "_top", turbo_action: local_assigns[:clear_action], collection_filters_target: "clear" }, hidden: (count.zero? && query.blank?) %>
   <noscript><%= submit_tag t("library.filters.apply"), name: nil, class: "filters__apply" %></noscript>
 <% end %>

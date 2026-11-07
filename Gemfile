@@ -44,7 +44,7 @@ gem "turbo-rails", "~> 2.0.23"
 gem "stimulus-rails", "~> 1.3.4"
 
 # Load domain code from app/domains/ [https://github.com/rubyatscale/packs-rails]
-gem "packs-rails", "~> 0.1.0"
+gem "packs-rails", "~> 0.1.1"
 
 # Refuse migrations that would block the database [https://github.com/ankane/strong_migrations]
 gem "strong_migrations", "~> 2.8.0"
@@ -56,7 +56,7 @@ gem "dry-operation", "~> 1.1.0"
 gem "rails_event_store", "~> 3.2.0"
 
 # Build the shared view parts as tested components (AD-16) [https://viewcomponent.org]
-gem "view_component", "~> 4.16.0"
+gem "view_component", "~> 4.19.0"
 
 # Pick the first-visit locale from the browser's Accept-Language (AD-18) [https://github.com/iain/http_accept_language]
 gem "http_accept_language", "~> 2.1.1"
@@ -65,7 +65,7 @@ gem "http_accept_language", "~> 2.1.1"
 gem "pagy", "~> 43.8.1"
 
 # Sign in with Steam over OpenID 2.0, POST-only and CSRF-protected (AD-14) [https://github.com/omniauth/omniauth]
-gem "omniauth", "~> 2.1.4"
+gem "omniauth", "~> 2.3.1"
 gem "omniauth-openid", "~> 2.0.2"
 gem "omniauth-rails_csrf_protection", "~> 2.0.1"
 # ruby-openid needs REXML, which Ruby 4 no longer bundles
@@ -86,7 +86,7 @@ gem "sentry-rails", "~> 7.1.0"
 gem "mission_control-jobs", "~> 1.3.1"
 
 # Call the Steam Web API, retrying 429 and 5xx with backoff (AD-19) [https://github.com/lostisland/faraday]
-gem "faraday", "~> 2.15.0"
+gem "faraday", "~> 2.15.1"
 gem "faraday-retry", "~> 2.4.0"
 
 # Read the initiative's epics from its TOML ticket file to create the roadmap milestones [https://github.com/fbernier/tomlrb]
@@ -94,6 +94,9 @@ gem "tomlrb", "~> 3.0.0"
 
 # Throttle the sign-in endpoints per client IP, before the OmniAuth middleware [https://github.com/rack/rack-attack]
 gem "rack-attack", "~> 6.8.0"
+
+# Push notifications to the Hotwire Native apps, through APNs and FCM [https://github.com/rails/action_push_native]
+gem "action_push_native", "~> 0.3.1"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { edgeButtons, moveItem, nearestIndex, pastThreshold, sendPlacement } from "./showcase_order"
+import { moveItem, nearestIndex, pastThreshold, sendPlacement } from "./showcase_order"
 
 const box = (left: number, top: number) => ({ left, top, width: 100, height: 150 })
 
@@ -51,16 +51,6 @@ describe("moveItem", () => {
     expect(moveItem(["a", "b", "c"], 0, 9)).toEqual(["b", "c", "a"])
     expect(moveItem(["a", "b", "c"], 2, -1)).toEqual(["c", "a", "b"])
     expect(moveItem(["a", "b"], 5, 0)).toEqual(["a", "b"])
-  })
-})
-
-describe("edgeButtons", () => {
-  it("has no ◀ on the first card and no ▶ on the last", () => {
-    expect([0, 1, 2].map((index) => edgeButtons(index, 3))).toEqual([
-      { earlier: false, later: true },
-      { earlier: true, later: true },
-      { earlier: true, later: false },
-    ])
   })
 })
 

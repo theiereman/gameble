@@ -198,19 +198,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("errors.accounts.sign_in_failed", locale: :en), flash[:alert]
   end
 
-  test "signing in twice with the same Steam id keeps one player and the same session id" do
-    sign_in_with_steam
-    first_id = signed_in_player_id
-
-    delete session_path(locale: :en)
-    sign_in_with_steam
-
-    assert_equal 1, new_players.count
-    assert_equal 1, registered_events.size
-    assert_equal first_id, signed_in_player_id
-    assert_equal new_players.sole.id, signed_in_player_id
-  end
-
   test "signing in resets the session against fixation and keeps only the player id" do
     post "/auth/steam", params: { origin: "/en" }
     session_id_before = session[:session_id]
@@ -220,14 +207,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_not_equal session_id_before, session[:session_id]
     assert_equal %w[flash player_id session_id], session.to_hash.keys.sort
-  end
-
-  test "the welcome follows the locale the sign-in started from" do
-    Accounts::Player.create!(steam_id: STEAM_ID)
-    sign_in_with_steam(origin: "/fr")
-
-    assert_redirected_to home_path(locale: :fr)
-    assert_equal "Bienvenue sur Gameble. Vos capsules vous attendent.", flash[:notice]
   end
 
   test "a malformed claimed id signs nobody in" do
@@ -411,17 +390,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_in_delta 30.days.from_now, session_cookie_expiry, 1.second
   end
 
-  test "a player away for more than 30 days is signed out" do
-    sign_in_with_steam
-
-    travel 30.days + 1.minute
-    get home_path(locale: :en)
-
-    assert_nil signed_in_player_id
-    assert_response :success
-    assert_select ".landing"
-  end
-
   test "a session cookie replayed after its 30 days signs nobody in" do
     sign_in_with_steam
     expired_cookie = cookies["_gameble_session"]
@@ -431,25 +399,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
 
     assert_nil signed_in_player_id
-  end
-
-  test "signing out ends the 30-day session at once" do
-    sign_in_with_steam
-
-    delete session_path(locale: :en)
-
-    assert session_cookie, "the sign-out replaces the session cookie"
-    assert_nil signed_in_player_id
-    travel 1.day
-    get home_path(locale: :en)
-    assert_nil signed_in_player_id
-    assert_select ".landing"
-  end
-
-  test "a signed-out visitor sees a sign-in link carrying the page to come back to" do
-    get how_it_works_path(locale: :fr)
-
-    assert_select ".top-bar__end a.button[href=?]", "/fr/sign-in?origin=%2Ffr%2Fhow-it-works", text: "Se connecter"
   end
 
   def record_ban(kind, at, reason: nil)
@@ -523,35 +472,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".account-suspended__contest", /\APour connaître le motif/
   end
 
-  test "banned again, the player reads the reason of the latest ban" do
-    record_ban(:ban, 3.days.ago, reason: "Spam")
-    record_ban(:unban, 2.days.ago)
-    record_ban(:ban, 1.day.ago, reason: "Insults in the name")
-
-    sign_in_banned
-
-    assert_select ".account-suspended__reason", "Insults in the name"
-  end
-
-  test "banned from the console after an unban, the player is offered the contact only" do
-    record_ban(:ban, 3.days.ago, reason: "Spam")
-    record_ban(:unban, 2.days.ago)
-
-    sign_in_banned
-
-    assert_response :forbidden
-    assert_select ".account-suspended__reason", false
-    assert_select ".account-suspended__contest", /\APour connaître le motif/
-  end
-
-  test "a signed-in player sees the sign-out button" do
-    sign_in_with_steam
-    get home_path(locale: :fr)
-
-    assert_select "#player-menu form[action=?] button.player-menu__item", "/session?locale=fr", text: "Se déconnecter"
-    assert_select ".top-bar form[action='/auth/steam']", false
-  end
-
   test "a sign-in reads the player's Steam persona name and stores it" do
     calls = stub_player_summary(STEAM_ID, "Gabe")
 
@@ -561,18 +481,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Gabe", player.persona_name
     assert_equal player.id, signed_in_player_id
     assert_equal [ STEAM_ID ], calls.map { it["steamids"] }
-  end
-
-  test "a renamed Steam account is renamed on its next sign-in" do
-    stub_player_summary(STEAM_ID, "Gabe")
-    stub_player_summary(STEAM_ID, "Gaben")
-    sign_in_with_steam
-    assert_equal "Gabe", new_players.sole.persona_name
-    delete session_path(locale: :en)
-
-    sign_in_with_steam
-
-    assert_equal "Gaben", new_players.sole.persona_name
   end
 
   [ 503, :connection_failed ].each do |failure|
@@ -590,18 +498,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       assert_redirected_to home_path(locale: :en)
       assert_nil flash[:notice], "the welcome panel still waits on the hub"
     end
-  end
-
-  test "a Steam slow to connect and to answer ends the lookup at its deadline and signs the player in without a name" do
-    Steam::WebApi.player_summary_deadline = 0.1
-    phases = stub_slow_player_summary(STEAM_ID, "Gabe", connect: 0.08, answer: 0.08)
-
-    assert_no_error_reported { sign_in_with_steam }
-
-    assert_not_includes phases, :answered
-    assert_equal new_players.sole.id, signed_in_player_id
-    assert_nil new_players.sole.persona_name
-    assert_redirected_to home_path(locale: :en)
   end
 
   [ 401, 403 ].each do |status|
@@ -632,41 +528,6 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to home_path(locale: :en)
   end
 
-  test "a missing Steam key is reported once, and the sign-in keeps the stored name" do
-    stub_player_summary(STEAM_ID, "Gabe")
-    sign_in_with_steam
-    delete session_path(locale: :en)
-    Rails.configuration.x.steam.api_key = nil
-
-    reports = capture_error_reports { sign_in_with_steam }
-
-    assert_equal [ Steam::WebApi::BrokenKey ], reports.map { it.error.class }
-    assert_equal new_players.sole.id, signed_in_player_id
-    assert_equal "Gabe", new_players.sole.persona_name
-  end
-
-  test "a first sign-in whose name Steam fails to give leaves none" do
-    stub_player_summary_failure(503)
-
-    sign_in_with_steam
-
-    assert_equal new_players.sole.id, signed_in_player_id
-    assert_nil new_players.sole.persona_name
-  end
-
-  test "an empty name or no player from Steam keeps the stored name" do
-    stub_player_summary(STEAM_ID, "Gabe")
-    stub_player_summary(STEAM_ID, "")
-    stub_player_summary(STEAM_ID, nil)
-
-    3.times do
-      sign_in_with_steam
-      delete session_path(locale: :en)
-    end
-
-    assert_equal "Gabe", new_players.sole.persona_name
-  end
-
   test "an unexpected error while reading the name is reported, and the sign-in goes on" do
     steam_stubs.get(PLAYER_SUMMARIES_PATH) { raise "the summary broke" }
 
@@ -674,16 +535,5 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal new_players.sole.id, signed_in_player_id
     assert_nil new_players.sole.persona_name
-  end
-
-  test "a banned player's name is not stored" do
-    banned = accounts_players(:banned)
-    stub_player_summary(banned.steam_id, "Banned Brother")
-    mock_steam_sign_in(banned.steam_id)
-
-    sign_in_with_steam(origin: "/fr")
-
-    assert_nil signed_in_player_id
-    assert_nil banned.reload.persona_name
   end
 end

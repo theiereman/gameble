@@ -1,0 +1,11 @@
+<%# locals: (owner_title:, focused: false) %>
+<%= tag.a(**bottom_sheet_opener("me-title-sheet", page: me_sheet_path(:title)), class: "me-opener", autofocus: focused) do %>
+  <span class="me-opener__look me-opener__look--title" aria-hidden="true"><%= pixel_icon("achievement-flag", class: "me-opener__icon") %></span>
+  <span class="me-opener__kicker"><%= t("own_profiles.show.title_label") %></span>
+  <% if owner_title %>
+    <%= active_title_tag(owner_title, class_name: "me-opener__value") %>
+  <% else %>
+    <span class="me-opener__value me-opener__value--empty"><%= t("own_profiles.show.choose_title") %></span>
+  <% end %>
+  <span class="me-opener__cue"><%= t("own_profiles.show.change") %><%= pixel_icon("arrow-small-right", class: "me-opener__arrow") %></span>
+<% end %>

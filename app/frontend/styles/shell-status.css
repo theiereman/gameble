@@ -41,6 +41,21 @@ body:has(> .ticker) .app-version {
   }
 }
 
+.ticker__open {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.ticker__open:hover {
+  background: var(--color-line-deep);
+  opacity: 0.25;
+}
+
+.ticker__open:focus-visible {
+  box-shadow: var(--focus-ring-gap);
+}
+
 .ticker__inner {
   display: flex;
   height: var(--space-ticker-height);
@@ -211,6 +226,11 @@ body:has(> .ticker) .app-version {
   text-align: center;
 }
 
+.tab-bar__badge--friends {
+  background: var(--color-goal-3);
+  color: var(--color-on-goal);
+}
+
 .tab-bar__badge--alert {
   background: var(--color-alert);
   color: var(--color-on-alert);
@@ -222,7 +242,7 @@ body:has(> .ticker) .app-version {
 }
 
 .tab-bar__label {
-  /* No tracking, so "COLLECTION" fits a 72px tab at 360px. */
+  /* No tracking, so a label fits its tab at 360px. */
   max-width: 100%;
   letter-spacing: 0;
   overflow: hidden;
@@ -343,6 +363,7 @@ body:has(> .ticker) .app-version {
   font: var(--font-body);
   letter-spacing: var(--tracking-body);
   overflow-wrap: anywhere;
+  text-wrap: pretty;
 }
 
 .toast__action {

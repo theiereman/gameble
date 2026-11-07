@@ -1,0 +1,28 @@
+{
+  "settings": {},
+  "rules": [
+    {
+      "patterns": [
+        ".*"
+      ],
+      "properties": {
+        "context": "default",
+        "uri": "hotwire://fragment/web",
+        "pull_to_refresh_enabled": false,
+        "query_string_presentation": "replace"
+      }
+    },
+    {
+      "patterns": [
+        "^/(en|fr)/me/sheets/",
+        "^/(en|fr)/feed/types",
+        "^/(en|fr)/cards/[^/]+/seasons/\\d+/holders"
+      ],
+      "properties": {
+        "context": "modal",
+        "uri": "hotwire://fragment/gameble/sheet",
+        "pull_to_refresh_enabled": false
+      }
+    }
+  ]
+}

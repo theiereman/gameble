@@ -8,7 +8,7 @@
       "kicker showcase"
       "menu showcase"
       "aside showcase"
-      "sets showcase"
+      "goals showcase"
       ". showcase";
     column-gap: var(--space-column-gap-medium);
   }
@@ -17,18 +17,6 @@
 /* ---- Phone: one column, the tab bar navigates ---- */
 
 @media (max-width: 719px) {
-  .set-row--progress {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "name count"
-      "meta meta"
-      "track track";
-  }
-
-  .set-row__meta {
-    justify-content: flex-start;
-  }
-
   .hub {
     display: flex;
     flex-direction: column;

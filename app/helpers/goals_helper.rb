@@ -1,6 +1,8 @@
 module GoalsHelper
   def goal_set_name(target)
-    target.custom? ? target.custom_set_name : SetLabel.for(target.set)
+    return SetLabel.for(target.set) unless target.custom?
+
+    target.steam_library? ? t("custom_sets.library.name") : target.custom_set_name
   end
 
   def goal_album_path(target)
@@ -34,6 +36,11 @@ module GoalsHelper
 
   def goal_row_sentence(need)
     t("library.entry.goals.row", number: need.position, **goal_row_words(need))
+  end
+
+  def goal_suggestion_sentence(set, standing)
+    left = standing.total - standing.held
+    [ set_progress_sentence(set, standing), t("library.entry.goals.suggestion_left", count: left, missing: number_with_delimiter(left)) ].join(", ")
   end
 
   def profile_goal_row_sentence(need)

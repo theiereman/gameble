@@ -74,11 +74,6 @@
 
 /* ---- OBJECTIFS ---- */
 
-/* A search takes the place of OBJECTIFS, as of MES SETS. */
-.set-entry:has(.set-results) > .goals {
-  display: none;
-}
-
 .goals__head {
   display: flex;
   align-items: baseline;

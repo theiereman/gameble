@@ -64,7 +64,8 @@
 }
 
 .card-detail__stage .card-rays,
-.public-card__stage .card-rays {
+.public-card__stage .card-rays,
+.hub-showcase__stage .card-rays {
   mask-image: radial-gradient(circle 170px, #000 40%, transparent 100%);
 }
 

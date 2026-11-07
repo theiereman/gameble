@@ -1,28 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
 import "../lib/turbo"
-import {
-  isTurboStream,
-  NEAR_END_MARGIN,
-  NextPage,
-  renderingWhile,
-  TURBO_STREAM,
-  type Step,
-  type StreamRender,
-} from "../lib/next_page"
+import { fetchStream, NEAR_END_MARGIN, NextPage, renderingWhile, type Step, type StreamRender } from "../lib/next_page"
 
 type Request = { links: Element; abort: AbortController }
 
 type StreamRenderDetail = { render: StreamRender<Element> }
-
-async function fetchStream(url: string, signal: AbortSignal): Promise<string | null> {
-  try {
-    const response = await fetch(url, { headers: { Accept: TURBO_STREAM }, credentials: "same-origin", signal })
-    if (!response.ok || !isTurboStream(response.headers.get("Content-Type"))) return null
-    return await response.text()
-  } catch {
-    return null
-  }
-}
 
 export default class extends Controller<HTMLElement> {
   static targets = ["pages"]

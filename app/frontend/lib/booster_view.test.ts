@@ -16,7 +16,9 @@ import {
   controls,
   layoutApplied,
   layoutAsked,
+  nextCapsuleSize,
   onTable,
+  originKind,
   zoomClosed,
   zoomOpened,
   zoomStepped,
@@ -140,11 +142,19 @@ describe("controls", () => {
     expect(controls(startWith({ bank: bank(0) }))).toMatchObject({ open: "empty", openDisabled: true })
     const opening = arming(openingStarted(startWith({ bank: bank(1) })), "key")
     expect(controls({ ...opening, bank: bank(0) })).toMatchObject({
-      open: "open",
+      open: "skip",
       openDisabled: false,
       busy: true,
       tone: "alert",
     })
+  })
+
+  it("offers to skip the animation, enabled, from arming until the cards are dealt", () => {
+    const opening = arming(lock(openingStarted(startWith())), "key")
+    expect(controls(opening)).toMatchObject({ open: "skip", openDisabled: false })
+    expect(controls(ejecting(opening))).toMatchObject({ open: "skip", openDisabled: false })
+    expect(controls(revealedAll(dealt()))).toMatchObject({ open: "next", openDisabled: false })
+    expect(controls(openingStarted(revealedAll(dealt())))).toMatchObject({ open: "next" })
   })
 
   it("holds the next one until every card is shown, and counts what is left", () => {
@@ -182,6 +192,25 @@ describe("controls", () => {
     expect(controls(shown)).toMatchObject({ top: 0, plate: 0, hint: { kind: "swipe" } })
     const away = cardStored(cardStored(revealMarked(shown, 1, 0), 0), 1)
     expect(controls(away)).toMatchObject({ top: null, plate: null, storedCount: 2, hint: { kind: "done", count: 2 } })
+  })
+
+  it("counts the cards of the capsule ahead in the reserve chosen", () => {
+    const both = bank(1, { special: 1, nextPackSize: 5, nextSpecialSize: 3 })
+
+    expect(nextCapsuleSize({ ...startWith(), bank: both })).toBe(5)
+    expect(nextCapsuleSize({ ...startWith(), bank: both, reserve: "special" })).toBe(3)
+  })
+
+  it("names the special capsule ahead once a phone's hand is put away, and the hand's own kind until then", () => {
+    const special = { reserve: "special" as const, bank: bank(1, { special: 1, nextSpecialKind: "bonus" }) }
+    const pile = { ...dealt(["common"], { layout: "phone" }), ...special }
+    const handKind = pile.answer?.pack.kind ?? null
+
+    expect(originKind(pile)).toBe(handKind)
+    expect(originKind(cardStored(revealMarked(pile, 0, 0), 0))).toBe("bonus")
+    expect(originKind({ ...cardStored(revealMarked(pile, 0, 0), 0), reserve: "standard" })).toBeNull()
+    expect(originKind(revealMarked({ ...dealt(["common"]), ...special }, 0, 0))).toBe(handKind)
+    expect(originKind({ ...startWith(), ...special })).toBe("bonus")
   })
 
   it("enables the zoom's steps toward filled neighbours", () => {

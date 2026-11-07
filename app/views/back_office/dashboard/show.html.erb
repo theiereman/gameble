@@ -43,9 +43,15 @@
     </p>
   <% end %>
 
-  <% if policy([ :back_office, :roadmap ]).index? %>
+  <% if policy([ :back_office, :roadmap ]).show? %>
     <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: back_office_roadmap_milestones_path) do %><%= t(".roadmap") %><% end %>
+      <%= render ButtonComponent.new(variant: :secondary, href: back_office_roadmap_path) do %><%= t(".roadmap") %><% end %>
+    </p>
+  <% end %>
+
+  <% if policy([ :back_office, :announcements ]).index? %>
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: back_office_announcements_path) do %><%= t(".announcements") %><% end %>
     </p>
   <% end %>
 

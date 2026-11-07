@@ -3,8 +3,9 @@ require_relative "../../support/custom_sets"
 require_relative "../../support/game_sets"
 require_relative "../../support/holdings"
 
-# Which friends spare the games the player's goals miss: at most three
-# suggestions, one per friend, up to four of the friend's cards each.
+# Which friends hold, as a duplicate, the games the player's goals miss: at
+# most three suggestions, one per friend and at most one per goal, up to four
+# of the friend's cards each.
 class Game::TradeSuggestionsTest < ActiveSupport::TestCase
   include CustomSets
   include GameSets
@@ -31,8 +32,14 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
   end
 
   def goal(*card_season_ids, name: "Mes favoris #{SecureRandom.hex(2)}")
-    card_ids = Catalog::CardSeason.where(id: card_season_ids).pluck(:card_id)
+    card_ids = padded_to_three(Catalog::CardSeason.where(id: card_season_ids).pluck(:card_id))
     Game::AddGoal.new.call(player: @player, custom_set: create_custom_set(@player, name:, card_ids:).token).value!
+  end
+
+  def padded_to_three(card_ids)
+    return card_ids if card_ids.size >= 3
+
+    card_ids + Catalog::CardSeason.where(id: unheld_cards(3 - card_ids.size)).pluck(:card_id)
   end
 
   def spare(friend, *card_season_ids, copies: 2)
@@ -76,27 +83,22 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
     assert_equal [ @depths.id, @portal.id ].sort, result.card_season_ids.sort
   end
 
-  test "a single copy is a spare; a fully reserved copy is not" do
+  test "a single free copy, whether the only one or the one left by a reservation, is never suggested" do
     befriend(@lea)
     befriend(@max)
+    hugo = new_friend(1)
     goal(@portal.id, @depths.id, @hills.id)
     hold(@lea, @portal.id, 1)
-    hold(@max, @portal.id, 2, reserved: 2)
+    hold(@max, @portal.id, 2, reserved: 1)
 
-    assert_equal [ [ @lea, [ @portal.id ] ] ], placed
+    assert_empty suggestions
+
+    hold(hugo, @portal.id, 3, reserved: 1)
+
+    assert_equal [ [ hugo, [ @portal.id ] ] ], placed
   end
 
-  test "a card with several free copies is placed before a single copy" do
-    befriend(@lea)
-    goal(@portal.id, @depths.id, @hills.id)
-    hold(@lea, @portal.id, 1)
-    hold(@lea, @hills.id, 2, reserved: 1)
-    hold(@lea, @depths.id, 3)
-
-    assert_equal [ [ @lea, [ @depths.id, @portal.id, @hills.id ] ] ], placed
-  end
-
-  test "editions are summed: every edition with a free copy counts and the earliest season is placed" do
+  test "editions are summed: two editions with a free copy each make a duplicate and the earliest season is placed" do
     befriend(@lea)
     goal(@portal.id, @depths.id, @hills.id)
     common_portal = second_edition(@portal, rarity: :common)
@@ -123,7 +125,8 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
   test "a game on the friend's side of an open trade between the two is no spare, whoever proposed it, until it expires" do
     befriend(@lea)
     befriend(@max)
-    goal(@portal.id, @depths.id, @hills.id)
+    goal(@portal.id)
+    goal(@depths.id)
     spare(@lea, @portal.id)
     spare(@max, @depths.id, copies: 3)
     requested = Game::ProposeTrade.new.call(player: @player, recipient: @lea, offer: {}, request: { @portal.id => 1 }).value!
@@ -192,7 +195,7 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
     assert_equal({ 1 => 3, 2 => 1 }, suggestion.served_goals)
   end
 
-  test "a game spared by two friends is placed on the higher one only; a friend left with none is dropped" do
+  test "a goal gets one suggestion, from the friend who spares the most; a game spared by two friends is placed on the higher one only" do
     hugo = new_friend(1)
     [ @lea, @max ].each { befriend(it) }
     goal(@portal.id, @depths.id, @hills.id, @crown.id)
@@ -200,14 +203,44 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
     spare(@max, @portal.id, @crown.id)
     spare(hugo, @portal.id)
 
-    assert_equal [ [ @lea, [ @portal.id, @depths.id, @hills.id ].sort ], [ @max, [ @crown.id ] ] ], placed.map { |friend, ids| [ friend, ids.sort ] }
+    assert_equal [ [ @lea, [ @portal.id, @depths.id, @hills.id ].sort ] ], placed.map { |friend, ids| [ friend, ids.sort ] }
+  end
+
+  test "a goal with many missing games still gives one suggestion, and never more than three in all" do
+    wanted = unheld_cards(50)
+    goal(*wanted)
+    4.times { |index| spare(new_friend(index + 1), *wanted.slice(index * 12, 12)) }
+
+    assert_equal 1, suggestions.size
+
+    4.times do |index|
+      other = unheld_cards(2)
+      goal(*other)
+      spare(new_friend(index + 10), other.first)
+    end
+
+    assert_equal 3, suggestions.size
+  end
+
+  test "a game of a goal that already has a suggestion is left out, even when it also serves another goal" do
+    befriend(@lea)
+    befriend(@max)
+    goal(@portal.id)
+    goal(@portal.id, @depths.id)
+    spare(@lea, @portal.id)
+    spare(@max, @depths.id)
+
+    assert_equal [ [ @lea, [ @portal.id ] ] ], placed
   end
 
   test "friends rank by their spare games, then the oldest friendship; three at most" do
     first, second, third = [ 3.days.ago, 1.day.ago, 2.days.ago ].each_with_index.map { |at, index| new_friend(index + 1, at:) }
     befriend(@lea)
     extra = unheld_cards(2)
-    goal(@portal.id, @soldier.id, @hills.id, @depths.id, @crown.id, *extra)
+    goal(@soldier.id, @hills.id, @depths.id)
+    goal(@portal.id, @crown.id)
+    goal(extra.first)
+    goal(extra.last)
     spare(@lea, @soldier.id, @hills.id, @depths.id)
     spare(first, extra.first)
     spare(second, extra.last)
@@ -219,7 +252,8 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
   test "friends level on spares and friendship age rank by token" do
     at = 1.day.ago
     friends = [ new_friend(1, at:), new_friend(2, at:) ]
-    goal(@portal.id, @depths.id, @hills.id)
+    goal(@portal.id)
+    goal(@depths.id)
     spare(friends.first, @portal.id)
     spare(friends.last, @depths.id)
 
@@ -227,7 +261,9 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
   end
 
   test "the reads cost the same with one friend or three" do
-    goal(@portal.id, @depths.id, @hills.id)
+    goal(@portal.id)
+    goal(@depths.id)
+    goal(@hills.id)
     befriend(@lea)
     spare(@lea, @portal.id)
     one = count_queries { assert_equal 1, suggestions.size }
@@ -247,7 +283,8 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
   test "a mutual suggestion comes before a one-sided friend who spares more, with the player's spares on the give side" do
     befriend(@lea)
     befriend(@max)
-    goal(@portal.id, @depths.id, @hills.id)
+    goal(@portal.id)
+    goal(@depths.id, @hills.id)
     spare(@player, @soldier.id)
     spare(@lea, @portal.id)
     spare(@max, @portal.id, @depths.id)
@@ -308,7 +345,9 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
   test "a spare of the player is placed on one give side only, and each friend's cards once" do
     befriend(@lea)
     befriend(@max)
-    goal(@portal.id, @depths.id, @hills.id, @crown.id)
+    goal(@portal.id, @depths.id)
+    goal(@hills.id)
+    goal(@crown.id)
     spare(@player, @soldier.id)
     spare(@lea, @portal.id, @depths.id, @hills.id)
     spare(@max, @portal.id, @depths.id, @crown.id)
@@ -319,13 +358,14 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
 
     assert_equal [ @lea, @max ], result.map(&:player)
     assert_equal [ [ @soldier.id ], [] ], result.map(&:own_card_season_ids)
-    assert_equal [ @portal.id, @depths.id, @hills.id, @crown.id ].sort, result.flat_map(&:card_season_ids).sort
+    assert_equal [ [ @portal.id, @depths.id, @hills.id ].sort, [ @crown.id ] ], result.map { it.card_season_ids.sort }
   end
 
   test "the cards of a trade the friend declined are never suggested again to that friend, on either side, but still to the others" do
     befriend(@lea)
     befriend(@max)
-    goal(@portal.id, @depths.id, @hills.id)
+    goal(@portal.id)
+    goal(@depths.id, @hills.id)
     spare(@player, @soldier.id)
     spare(@lea, @portal.id, @depths.id)
     spare(@max, @portal.id)
@@ -347,7 +387,9 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
     emptied = new_friend(2, at: 2.days.ago)
     mutual = new_friend(3, at: 1.day.ago)
     wanted = unheld_cards(4)
-    goal(*wanted)
+    goal(wanted[0], wanted[1])
+    goal(wanted[2])
+    goal(wanted[3])
     spare(@player, @soldier.id, @crown.id)
     spare(first, wanted[0], wanted[1])
     spare(emptied, wanted[2])
@@ -363,7 +405,9 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
   end
 
   test "the reads cost the same with one mutual friend or thirty" do
-    goal(@portal.id, @depths.id, @hills.id)
+    goal(@portal.id)
+    goal(@depths.id)
+    goal(@hills.id)
     spare(@player, @soldier.id)
     befriend(@lea)
     spare(@lea, @portal.id)

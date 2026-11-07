@@ -4,9 +4,8 @@ name: Deploy to staging
 # pre-release whose tag is on develop runs the full CI on its commit, then
 # deploys it to https://test.gameble.net and sets the commit status
 # `staging` to success, the proof bin/promote and the production deploy
-# require. .kamal/hooks/post-deploy announces it on Discord with the commits
-# since the version last deployed (the tag deployed/staging, which the hook
-# moves and pushes). Only a pre-release starts it; one whose tag is not on
+# require. It writes no Discord webhook, so .kamal/hooks/post-deploy announces
+# nothing for staging. Only a pre-release starts it; one whose tag is not on
 # develop, a tag without a release, or a push to develop deploys nothing here.
 on:
   release:
@@ -104,7 +103,7 @@ jobs:
           echo "$CLOUDFLARED_SHA256  $RUNNER_TEMP/cloudflared" | sha256sum --check --strict
           sudo install -m 755 "$RUNNER_TEMP/cloudflared" /usr/local/bin/cloudflared
 
-      - name: Write the secret files read by .kamal/secrets.staging and the hook
+      - name: Write the secret files read by .kamal/secrets.staging
         env:
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
           SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
@@ -113,7 +112,11 @@ jobs:
           DATABASE_APP_PASSWORD: ${{ secrets.DATABASE_APP_PASSWORD }}
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-          DISCORD_WEBHOOK_STAGING: ${{ secrets.DISCORD_WEBHOOK_STAGING }}
+          APNS_KEY_ID: ${{ secrets.APNS_KEY_ID }}
+          APNS_ENCRYPTION_KEY: ${{ secrets.APNS_ENCRYPTION_KEY }}
+          APNS_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          FCM_PROJECT_ID: ${{ secrets.FCM_PROJECT_ID }}
+          FCM_SERVICE_ACCOUNT: ${{ secrets.FCM_SERVICE_ACCOUNT }}
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
           umask 077
@@ -124,7 +127,11 @@ jobs:
           printf '%s' "$DATABASE_APP_PASSWORD" > config/database_app_password.staging.key
           printf '%s' "$STEAM_API_KEY" > config/steam_api.key
           printf '%s' "$CLERK_SECRET_KEY" > config/clerk_secret.key
-          printf '%s' "$DISCORD_WEBHOOK_STAGING" > config/discord_webhook.staging.key
+          printf '%s' "$APNS_KEY_ID" > config/apns_key_id.key
+          printf '%s' "$APNS_ENCRYPTION_KEY" > config/apns_encryption.key
+          printf '%s' "$APNS_TEAM_ID" > config/apns_team_id.key
+          printf '%s' "$FCM_PROJECT_ID" > config/fcm_project_id.key
+          printf '%s' "$FCM_SERVICE_ACCOUNT" > config/fcm_service_account.key
           printf '%s' "$REGISTRY_PASSWORD" > config/registry_password.key
 
       - name: Deploy

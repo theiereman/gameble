@@ -16,6 +16,7 @@ export type CardView = Readonly<{
   legendary: boolean
   name: string
   tierLabel: string
+  firstCopy: boolean
   repostName: string
   depth: number | null
 }>
@@ -235,6 +236,7 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     const seasonMark = cardBackSeasonMark(hand.cardBack)
     if (back && seasonMark) back.dataset.seasonMark = seasonMark
     slot.querySelector(".booster-card__front")?.replaceChildren(fragments.face(card.index) ?? "")
+    if (!card.firstCopy) slot.querySelector(".booster-card__new")?.remove()
     slot.querySelector(".booster-card__label-icon-box")?.replaceChildren(fragments.icon(card.tier) ?? "")
     const name = slot.querySelector(".booster-card__label-name")
     if (name) name.textContent = card.tierLabel

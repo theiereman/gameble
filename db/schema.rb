@@ -10,9 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_07_070000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "accounts_announcement_dismissals", force: :cascade do |t|
+    t.bigint "announcement_id", null: false
+    t.bigint "player_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["announcement_id", "player_id"], name: "index_accounts_announcement_dismissals_uniqueness", unique: true
+    t.index ["player_id"], name: "index_accounts_announcement_dismissals_on_player_id"
+  end
+
+  create_table "accounts_announcements", force: :cascade do |t|
+    t.string "token", null: false
+    t.text "message_fr", null: false
+    t.text "message_en", null: false
+    t.boolean "shown", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shown"], name: "index_accounts_announcements_one_shown", unique: true, where: "shown"
+    t.index ["token"], name: "index_accounts_announcements_on_token", unique: true
+    t.check_constraint "char_length(message_fr) >= 1 AND char_length(message_fr) <= 280 AND char_length(message_en) >= 1 AND char_length(message_en) <= 280", name: "accounts_announcements_message_length_check"
+  end
 
   create_table "accounts_data_exports", force: :cascade do |t|
     t.bigint "player_id", null: false
@@ -34,7 +54,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
     t.index ["email_hash"], name: "index_accounts_identities_on_email_hash"
     t.index ["player_id"], name: "index_accounts_identities_on_player_id"
     t.index ["provider", "uid"], name: "index_accounts_identities_on_provider_and_uid", unique: true
-    t.check_constraint "provider::text ~ '^(steam|discord|google|email)$'::text", name: "accounts_identities_provider_check"
+    t.check_constraint "provider::text ~ '^(steam|apple|discord|google|email)$'::text", name: "accounts_identities_provider_check"
   end
 
   create_table "accounts_moderation_actions", force: :cascade do |t|
@@ -74,6 +94,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
     t.check_constraint "persona_name IS NULL OR char_length(persona_name::text) <= 512", name: "accounts_players_persona_name_length_check"
     t.check_constraint "role::text = 'player'::text OR role::text = 'moderator'::text OR role::text = 'administrator'::text", name: "accounts_players_role_check"
     t.check_constraint "visibility::text = 'public'::text OR visibility::text = 'friends_only'::text OR visibility::text = 'private'::text", name: "accounts_players_visibility_check"
+  end
+
+  create_table "accounts_push_devices", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.string "platform", null: false
+    t.string "token", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id"], name: "index_accounts_push_devices_on_player_id"
+    t.index ["token"], name: "index_accounts_push_devices_on_token", unique: true
+    t.check_constraint "char_length(token::text) <= 4096", name: "accounts_push_devices_token_length_check"
+    t.check_constraint "platform::text ~ '^(apple|google)$'::text", name: "accounts_push_devices_platform_check"
   end
 
   create_table "accounts_reports", force: :cascade do |t|
@@ -169,7 +202,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
 
   create_table "catalog_roadmap_milestones", force: :cascade do |t|
     t.string "token", null: false
-    t.string "epic_slug", null: false
+    t.string "epic_slug"
     t.string "wording_fr", null: false
     t.string "wording_en", null: false
     t.string "status", default: "to_come", null: false
@@ -177,7 +210,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
     t.integer "position", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["epic_slug"], name: "index_catalog_roadmap_milestones_on_epic_slug", unique: true
     t.index ["token"], name: "index_catalog_roadmap_milestones_on_token", unique: true
     t.check_constraint "status::text = 'done'::text OR status::text = 'in_progress'::text OR status::text = 'to_come'::text", name: "catalog_roadmap_milestones_status_check"
   end
@@ -321,6 +353,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
     t.datetime "unlocked_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "claimed_at"
     t.index ["player_id", "achievement"], name: "index_game_achievement_unlocks_on_player_id_and_achievement", unique: true
   end
 
@@ -387,12 +420,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
     t.bigint "set_id"
     t.string "tier"
     t.integer "set_count"
+    t.uuid "token", default: -> { "gen_random_uuid()" }, null: false
     t.index ["kind", "notable", "occurred_at"], name: "index_game_feed_entries_on_kind_and_notable_and_occurred_at"
     t.index ["notable", "occurred_at", "id"], name: "index_game_feed_entries_on_notable_and_occurred_at_and_id"
     t.index ["pack_id", "position"], name: "index_game_feed_entries_on_pack_id_and_position", unique: true
     t.index ["partner_id"], name: "index_game_feed_entries_on_partner_id"
     t.index ["player_id", "occurred_at"], name: "index_game_feed_entries_one_set_per_operation", unique: true, where: "((kind)::text = 'set'::text)"
     t.index ["player_id"], name: "index_game_feed_entries_on_player_id"
+    t.index ["token"], name: "index_game_feed_entries_on_token", unique: true
     t.index ["trade_id"], name: "index_game_feed_entries_on_trade_id", unique: true, where: "(trade_id IS NOT NULL)"
     t.check_constraint "(kind::text = 'pull'::text OR kind::text = 'discovery'::text) = (pack_id IS NOT NULL AND \"position\" IS NOT NULL)", name: "game_feed_entries_pack_check"
     t.check_constraint "(kind::text = 'set'::text) = (set_id IS NOT NULL AND tier IS NOT NULL AND set_count IS NOT NULL) AND (kind::text = 'set'::text) = (card_season_id IS NULL) AND (kind::text = 'set'::text) = (rarity IS NULL)", name: "game_feed_entries_set_check"
@@ -400,6 +435,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
     t.check_constraint "(tier IS NULL OR tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text) AND (set_count IS NULL OR set_count > 0)", name: "game_feed_entries_tier_check"
     t.check_constraint "kind::text = 'pull'::text OR kind::text = 'discovery'::text OR kind::text = 'trade'::text OR kind::text = 'repost'::text OR kind::text = 'set'::text", name: "game_feed_entries_kind_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
+  end
+
+  create_table "game_feed_reactions", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "feed_entry_id", null: false
+    t.string "kind", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feed_entry_id", "kind"], name: "index_game_feed_reactions_on_feed_entry_id_and_kind"
+    t.index ["player_id", "feed_entry_id"], name: "index_game_feed_reactions_on_player_id_and_feed_entry_id", unique: true
+    t.check_constraint "kind::text = 'thumb'::text OR kind::text = 'heart'::text OR kind::text = 'gg'::text OR kind::text = 'wow'::text OR kind::text = 'middle_finger'::text", name: "game_feed_reactions_kind_check"
   end
 
   create_table "game_first_discoveries", force: :cascade do |t|
@@ -527,6 +573,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
     t.string "card_back"
     t.integer "card_back_season"
     t.string "reveal_mode"
+    t.integer "opened_local_hour", limit: 2
     t.index ["opened_at"], name: "index_game_packs_on_opened_at", where: "(opened_at IS NOT NULL)"
     t.index ["player_id", "available_at", "id"], name: "index_game_packs_unopened", where: "(opened_at IS NULL)"
     t.index ["player_id", "idempotency_key"], name: "index_game_packs_on_player_id_and_idempotency_key", unique: true, where: "(idempotency_key IS NOT NULL)"
@@ -553,8 +600,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
     t.string "active_title_key"
     t.string "active_title_rank"
     t.integer "active_card_back_season"
+    t.string "active_avatar"
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
     t.check_constraint "(active_title_kind IS NULL) = (active_title_key IS NULL) AND (active_title_key IS NULL) = (active_title_rank IS NULL)", name: "game_player_states_active_title_whole_check"
+  end
+
+  create_table "game_reaction_notices", force: :cascade do |t|
+    t.bigint "feed_entry_id", null: false
+    t.bigint "reactor_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feed_entry_id", "reactor_id"], name: "index_game_reaction_notices_on_feed_entry_id_and_reactor_id", unique: true
+    t.index ["reactor_id"], name: "index_game_reaction_notices_on_reactor_id"
   end
 
   create_table "game_set_tiers", force: :cascade do |t|
@@ -596,6 +653,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
     t.index ["trade_id", "side", "card_season_id"], name: "index_game_trade_items_on_trade_id_and_side_and_card_season_id", unique: true
     t.check_constraint "quantity > 0", name: "game_trade_items_quantity_check"
     t.check_constraint "side::text = 'offer'::text OR side::text = 'request'::text", name: "game_trade_items_side_check"
+  end
+
+  create_table "game_trade_views", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "trade_id", null: false
+    t.datetime "seen_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "trade_id"], name: "index_game_trade_views_on_player_id_and_trade_id", unique: true
   end
 
   create_table "game_trades", force: :cascade do |t|
@@ -701,10 +767,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
     t.index ["tagid"], name: "index_steam_tags_on_tagid", unique: true
   end
 
+  add_foreign_key "accounts_announcement_dismissals", "accounts_announcements", column: "announcement_id", on_delete: :cascade
+  add_foreign_key "accounts_announcement_dismissals", "accounts_players", column: "player_id"
   add_foreign_key "accounts_data_exports", "accounts_players", column: "player_id"
   add_foreign_key "accounts_identities", "accounts_players", column: "player_id"
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "player_id"
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "staff_id"
+  add_foreign_key "accounts_push_devices", "accounts_players", column: "player_id"
   add_foreign_key "accounts_reports", "accounts_players", column: "reported_id"
   add_foreign_key "accounts_reports", "accounts_players", column: "reporter_id"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -732,6 +801,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
   add_foreign_key "game_feed_entries", "catalog_card_seasons", column: "partner_card_season_id"
   add_foreign_key "game_feed_entries", "game_packs", column: "pack_id"
   add_foreign_key "game_feed_entries", "game_trades", column: "trade_id"
+  add_foreign_key "game_feed_reactions", "accounts_players", column: "player_id"
+  add_foreign_key "game_feed_reactions", "game_feed_entries", column: "feed_entry_id", on_delete: :cascade
   add_foreign_key "game_first_discoveries", "accounts_players", column: "player_id"
   add_foreign_key "game_first_discoveries", "game_packs", column: "pack_id"
   add_foreign_key "game_fortunes", "accounts_players", column: "player_id"
@@ -749,12 +820,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_130000) do
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
   add_foreign_key "game_player_states", "accounts_players", column: "player_id"
+  add_foreign_key "game_reaction_notices", "accounts_players", column: "reactor_id"
+  add_foreign_key "game_reaction_notices", "game_feed_entries", column: "feed_entry_id", on_delete: :cascade
   add_foreign_key "game_set_tiers", "accounts_players", column: "player_id"
   add_foreign_key "game_set_tiers", "game_packs", column: "pack_id", on_delete: :cascade
   add_foreign_key "game_showcase_entries", "accounts_players", column: "player_id"
   add_foreign_key "game_showcase_entries", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_trade_items", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_trade_items", "game_trades", column: "trade_id"
+  add_foreign_key "game_trade_views", "accounts_players", column: "player_id"
+  add_foreign_key "game_trade_views", "game_trades", column: "trade_id", on_delete: :cascade
   add_foreign_key "game_trades", "accounts_players", column: "high_player_id"
   add_foreign_key "game_trades", "accounts_players", column: "low_player_id"
   add_foreign_key "game_trades", "accounts_players", column: "proposer_id"

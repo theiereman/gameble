@@ -1,0 +1,13 @@
+<% content_for :title, t(".title") %>
+<% worn = @card_backs.find(&:active?) %>
+<%= tag.div class: "me", data: { controller: "me", me_back_value: worn.key, action: "back-picker:equipped->me#wear" } do %>
+  <%= render "public_profiles/profile", owner: current_player, title: public_profile_title(current_player), season: @season, summary: @summary, card_total: @card_total,
+    achievements: @achievements, rarities: @rarities, activity: @activity, started_sets: @started_sets, started_set_count: @started_set_count, goals: @goals,
+    showcase: @showcase, relation: nil, owner_title: @owner_title, fortune: @fortune, context: { from: "me" }, editing: true, worn_back: worn, return_card: @return_card %>
+  <% @card_backs.reject(&:locked?).each do |row| %>
+    <template data-me-target="back" data-key="<%= row.key %>"><%= render "own_profiles/back_look", back: row.back %></template>
+  <% end %>
+  <%= render "own_profiles/title_sheet", titles: @titles, active: @owner_title %>
+  <%= render "own_profiles/avatar_sheet", shelf: @avatars %>
+  <%= render "own_profiles/back_sheet", shelf: @card_backs, chosen: flash[:chosen_back] %>
+<% end %>

@@ -1,0 +1,108 @@
+/* ---- The suggestions of a player without a goal under OBJECTIFS ---- */
+
+.goal-suggestion__kind {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.goal-suggestion__count {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.goal-suggestion__count b {
+  color: var(--color-text-bright);
+  font: 700 0.8125rem / normal var(--font-family-jetbrains-mono);
+}
+
+.goals__empty--suggesting {
+  padding-bottom: 0;
+}
+
+.goal-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.goal-suggestion {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel);
+}
+
+.goal-suggestion__link {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "name count"
+    "bar bar"
+    "left left";
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  min-width: 0;
+  min-height: var(--space-touch-min);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.goal-suggestion__name {
+  grid-area: name;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.goal-suggestion__name b {
+  color: var(--color-text-max);
+  font: 700 0.875rem / 1.2 var(--font-family-jetbrains-mono);
+  overflow-wrap: anywhere;
+}
+
+.goal-suggestion__link:hover .goal-suggestion__name b {
+  text-decoration: underline;
+}
+
+.goal-suggestion__count {
+  grid-area: count;
+}
+
+.goal-suggestion__bar {
+  --bar-height: 6px;
+
+  grid-area: bar;
+}
+
+.goal-suggestion__left {
+  grid-area: left;
+  color: var(--color-text);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.goal-suggestion__button.button {
+  margin: 0;
+}
+
+@media (max-width: 479px) {
+  .goal-suggestion {
+    flex-wrap: wrap;
+  }
+
+  .goal-suggestion > .button-form,
+  .goal-suggestion__button.button {
+    width: 100%;
+  }
+}

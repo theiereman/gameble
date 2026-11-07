@@ -41,6 +41,11 @@ module TradeProposals
       flash[:notice] = text
     end
 
+    def toast_sent(friend, offer)
+      name = helpers.friend_name(friend)
+      toast t("trades.sent.title"), offer.empty? ? t("trades.sent.open_text", name:) : t("trades.sent.text", name:)
+    end
+
     def refused(code, friend = nil)
       message = Game::Operation.failure_message(code, name: (helpers.friend_name(friend) if friend))
       show_refusal message, title: (t("trades.insufficient") if INSUFFICIENT.include?(code))

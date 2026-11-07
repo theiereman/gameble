@@ -1,7 +1,9 @@
 module Game
   module GoalNeeds
-    Target = Data.define(:goal_id, :position, :kind, :key, :custom_set_token, :custom_set_name, :set) do
+    Target = Data.define(:goal_id, :position, :kind, :key, :custom_set_token, :custom_set_kind, :custom_set_name, :set) do
       def custom? = !custom_set_token.nil?
+
+      def steam_library? = custom_set_kind == CustomSet::STEAM_LIBRARY
 
       def aims_at?(kind: nil, key: nil, custom_set: nil)
         custom? ? custom_set_token == custom_set : self.kind == kind.to_s && self.key == key.to_s
@@ -9,7 +11,8 @@ module Game
     end
 
     Need = Data.define(:target, :card_ids, :held_card_ids, :tiers) do
-      delegate :goal_id, :position, :kind, :key, :custom_set_token, :custom_set_name, :set, :custom?, to: :target
+      delegate :goal_id, :position, :kind, :key, :custom_set_token, :custom_set_kind, :custom_set_name, :set, :custom?, :steam_library?,
+        to: :target
 
       def held = held_card_ids.size
 
@@ -55,7 +58,8 @@ module Game
       return [] if player.nil?
 
       goals.where(player_id: player.id).left_joins(:custom_set).order(:position)
-        .pluck(:id, :position, :set_kind, :set_key, Arel.sql("game_custom_sets.token"), Arel.sql("game_custom_sets.name"))
+        .pluck(:id, :position, :set_kind, :set_key, Arel.sql("game_custom_sets.token"), Arel.sql("game_custom_sets.kind"),
+          Arel.sql("game_custom_sets.name"))
     end
 
     def self.game_set_keys(rows)
@@ -67,11 +71,11 @@ module Game
     end
 
     def self.resolve(rows, sets)
-      rows.filter_map do |id, position, kind, key, token, name|
+      rows.filter_map do |id, position, kind, key, token, custom_set_kind, name|
         set = sets[[ kind, key ]] if kind
         next if kind && set.nil?
 
-        Target.new(goal_id: id, position:, kind:, key:, custom_set_token: token, custom_set_name: name, set:)
+        Target.new(goal_id: id, position:, kind:, key:, custom_set_token: token, custom_set_kind:, custom_set_name: name, set:)
       end
     end
 

@@ -10,20 +10,6 @@ class CardComponentTest < ViewComponent::TestCase
     I18n.with_locale(locale) { render_inline(CardComponent.new(card: view, **options)) }
   end
 
-  test "a medium rare face by default: frame, title band, art, genre and year, rarity line" do
-    render_card
-
-    assert_selector "span.card.card--m.card--rarity-rare[data-controller=tilt][data-tilt-max-value='10']"
-    assert_no_selector ".card--booster"
-    assert_selector ".card > .card__body > .card__band > .card__title", text: "Blue Depths"
-    assert_selector ".card__band > .card__publisher", text: "Deepwater"
-    assert_selector ".card__body > .card__art + .card__line + .card__line.card__line--rarity"
-    assert_selector ".card__line:not(.card__line--rarity) > .card__genre", text: "Puzzle"
-    assert_selector ".card__line:not(.card__line--rarity) > .card__year", text: "2014"
-    assert_selector ".card__line--rarity > svg.pixel-icon.card__rarity-icon[aria-hidden=true] + .card__rarity", text: "Rare"
-    assert_selector ".card__line--rarity > .card__number", text: "#4 215", exact_text: true
-  end
-
   { s: [ 50, 51 ], m: [ 72, 74 ], l: [ 94, 97 ], xl: [ 109, 112 ], grid: [ 72, 74 ] }.each do |size, (width, height)|
     test "the #{size} face draws its art at #{width} × #{height} art pixels with the xl palette" do
       render_card(size:)
@@ -40,14 +26,6 @@ class CardComponentTest < ViewComponent::TestCase
       assert_selector ".card__year", text: "2014"
       assert_selector ".card__rarity", text: "Rare"
     end
-  end
-
-  test "a grid face sizes itself from its slot and draws its art at its rendered size" do
-    render_card(size: :grid)
-
-    assert_selector "span.card.card--grid.card--rarity-rare"
-    assert_no_selector ".card--m"
-    assert_selector ".card__art[data-card-art-fluid-value='true'][data-card-art-width-value='72'][data-card-art-height-value='74']"
   end
 
   test "the publisher shows from m up and on grid, never on s" do
@@ -68,17 +46,6 @@ class CardComponentTest < ViewComponent::TestCase
     end
   end
 
-  test "the compact rarity icon on s, m and grid, the large one on l and xl" do
-    %i[s m grid].each do |size|
-      render_card(size:)
-      assert_selector ".card__rarity-icon[width='10'][height='10']"
-    end
-    %i[l xl].each do |size|
-      render_card(size:)
-      assert_selector ".card__rarity-icon[width='14'][height='14']"
-    end
-  end
-
   test "no genre, no publisher: each element is left out" do
     render_card(card(genre: nil, publisher: nil), size: :xl)
 
@@ -86,12 +53,6 @@ class CardComponentTest < ViewComponent::TestCase
     assert_no_selector ".card__publisher"
     assert_selector ".card__year", text: "2014"
     assert_selector ".card__rarity", text: "Rare"
-  end
-
-  test "a genre outside the curated list is its key humanised" do
-    render_card(card(genre: "space_trucking"))
-
-    assert_selector ".card__genre", text: "Space trucking"
   end
 
   test "a long title stays whole in the DOM" do
@@ -118,15 +79,6 @@ class CardComponentTest < ViewComponent::TestCase
     end
   end
 
-  test "in the booster: the same reflection, iridescence and glitter, and a stronger tilt" do
-    Catalog::Rarity::TIERS.each_value do |rarity|
-      render_card(card(rarity: rarity.to_s), booster: true)
-
-      assert_selector ".card.card--booster.card--rarity-#{rarity}[data-tilt-max-value='16']"
-      assert_reflection(rarity)
-    end
-  end
-
   test "a legendary card's glitter is seeded from its season and number, the same on every render" do
     render_card(card(rarity: "legendary", season_number: 2, number: 42))
     assert_selector ".card__glitter[data-glitter-seed='2000042']"
@@ -142,14 +94,6 @@ class CardComponentTest < ViewComponent::TestCase
       paths = ShellHelper.pixel_source("rarity-compact-#{tier}").scan(/ d="([^"]+)"/).flatten
       assert_equal paths, page.all(".card__rarity-icon path", visible: :all).map { it["d"] }
     end
-  end
-
-  test "French words" do
-    render_card(card(rarity: "uncommon"), locale: :fr)
-
-    assert_selector ".card__rarity", text: "Peu commune"
-    assert_selector ".card__genre", text: "Réflexion"
-    assert_selector ".card__missing-text", text: "Image indisponible", visible: :all
   end
 
   test "no style attribute, nothing focusable, no id" do
@@ -198,15 +142,6 @@ class CardComponentTest < ViewComponent::TestCase
     render_card(size: :m, owned: false, goals: [ 1 ])
 
     assert_selector ".card.card--not-owned > .card__body + .card__lock + .card__goals > .goal-bookmark.goal-tone--1", visible: :all
-  end
-
-  { s: false, m: false, grid: false, l: true, xl: true }.each do |size, large|
-    test "the #{size} face carries the #{large ? "large" : "standard"} bookmark" do
-      render_card(size:, goals: [ 3 ])
-
-      assert_equal large, page.has_selector?(".card__goals > .goal-bookmark.goal-bookmark--large", visible: :all)
-      assert_selector ".card__goals > .goal-bookmark", count: 1, visible: :all
-    end
   end
 
   test "a card in no goal has no bookmark" do

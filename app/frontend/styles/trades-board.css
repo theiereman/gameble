@@ -251,6 +251,11 @@
   text-transform: uppercase;
 }
 
+.trade-card__quantity--all {
+  background: var(--color-live-red);
+  color: var(--color-text-max);
+}
+
 .trade-card__new {
   padding: var(--space-1) var(--space-3);
   background: var(--color-lime);
@@ -259,6 +264,12 @@
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
+}
+
+.trade-card__owned {
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 2px var(--color-line-deep);
+  color: var(--color-text);
 }
 
 .trade-card[hidden] {

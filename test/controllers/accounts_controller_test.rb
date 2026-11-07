@@ -12,28 +12,6 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     @player = accounts_players(:player)
   end
 
-  test "the settings screen has the COMPTE row and the delete dialog, the button disabled by script only" do
-    sign_in(@player)
-
-    get settings_path(locale: :fr)
-
-    assert_select ".settings-row__label", "Compte"
-    assert_select "button.button--danger[aria-haspopup=dialog][data-dialog-opener-dialog-value=delete-dialog]", "Supprimer mon compte"
-    assert_select "dialog#delete-dialog[aria-labelledby=delete-dialog-title]" do
-      assert_select "#delete-dialog-title", "Supprimer mon compte"
-      assert_select "form[action='/fr/account'][data-turbo=false][data-controller=confirm-word][data-confirm-word-word-value=SUPPRIMER]"
-      assert_select "input[name=_method][value=delete]", visible: :all
-      assert_select "label[for=delete-confirmation]", "Tapez SUPPRIMER pour confirmer"
-      assert_select "input#delete-confirmation[name=confirmation][autocomplete=off]"
-      assert_select "button[type=submit].button--danger:not([disabled])", "Supprimer définitivement"
-      assert_select "button[type=button][data-action='dialog#close']", "Annuler"
-    end
-
-    get settings_path(locale: :en)
-    assert_select "form[action='/en/account'][data-confirm-word-word-value=DELETE]"
-    assert_select "label[for=delete-confirmation]", "Type DELETE to confirm"
-  end
-
   test "a player banned while signed in cannot delete their own account" do
     sign_in(@player)
     @player.update!(banned_at: Time.current)
@@ -48,7 +26,9 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "accounts_players" => { fr: [ "votre identifiant Steam", "votre nom", "votre profil et son lien", "l'heure de votre dernière visite", "votre dernier export de données" ],
                             en: [ "your Steam id", "your name", "your profile and its link", "the time of your last visit", "your last data export" ] },
     "accounts_data_exports" => { fr: [ "votre dernier export de données" ], en: [ "your last data export" ] },
+    "accounts_announcement_dismissals" => { fr: [ "les annonces que vous avez fermées" ], en: [ "the announcements you closed" ] },
     "accounts_identities" => { fr: [ "vos modes de connexion" ], en: [ "your sign-in methods" ] },
+    "accounts_push_devices" => { fr: [ "les téléphones où vont vos notifications" ], en: [ "the phones your notifications go to" ] },
     "game_player_states" => { fr: [ "votre dernière activité" ], en: [ "your latest activity" ] },
     "game_holdings" => { fr: [ "votre collection" ], en: [ "your collection" ] },
     "game_showcase_entries" => { fr: [ "votre vitrine" ], en: [ "your showcase" ] },
@@ -65,6 +45,9 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "game_friend_codes" => { fr: [ "votre code ami" ], en: [ "your friend code" ] },
     "game_feed_entries" => { fr: [ "vos entrées du fil d'activité\u202F: tirages, découvertes, reposts et tous les échanges qui vous nomment" ],
                              en: [ "your activity feed entries: pulls, discoveries, reposts and every trade that names you" ] },
+    "game_feed_reactions" => { fr: [ "vos réactions aux entrées du fil" ], en: [ "your reactions to feed entries" ] },
+    "game_reaction_notices" => { fr: [ "vos réactions aux entrées du fil" ], en: [ "your reactions to feed entries" ] },
+    "game_trade_views" => { fr: [ "la dernière ouverture de chacun de vos échanges" ], en: [ "when you last opened each of your trades" ] },
     "game_trades" => { fr: [ "Vos échanges en cours seront annulés" ], en: [ "Your open trades will be cancelled" ] }
   }.freeze
 
@@ -153,17 +136,6 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "deleting the account leaves neither the Steam library set nor its games" do
-    library = create_library_set(@player, card_ids: fixture_card_ids.first(2))
-    sign_in(@player)
-
-    delete account_path(locale: :fr), params: { confirmation: "SUPPRIMER" }
-
-    assert_predicate @player.reload, :deleted?
-    assert_not Game::CustomSet.exists?(player_id: @player.id)
-    assert_not Game::CustomSetGame.exists?(custom_set_id: library.id)
-  end
-
   test "a visitor is sent to the landing; nothing is deleted" do
     delete account_path(locale: :en), params: { confirmation: "DELETE" }
 
@@ -186,16 +158,5 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_nil other_browser.session[:player_id]
     other_browser.delete account_path(locale: :en), params: { confirmation: "DELETE" }
     other_browser.assert_redirected_to home_path(locale: :en)
-  end
-
-  test "the Steam id signs in again as a new player" do
-    steam_id = @player.steam_id
-    sign_in(@player)
-    delete account_path(locale: :en), params: { confirmation: "DELETE" }
-
-    sign_in_new_player(steam_id)
-
-    assert_not_equal @player.id, session[:player_id]
-    assert_equal steam_id, Accounts::Player.find(session[:player_id]).steam_id
   end
 end

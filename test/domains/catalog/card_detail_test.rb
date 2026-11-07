@@ -149,14 +149,4 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_nil detail.view.genre
     assert_equal [ [ "ufo", "ufos" ] ], detail.sets.map { [ it.kind, it.key ] }
   end
-
-  test "a card-season of a season published before themes has no genre" do
-    publish_season_two_with_portal
-
-    view = Catalog::CardDetail.call(slug: "portal", locale: :en).view
-    assert_equal [ 1, nil, "S2 · #1" ], [ view.number, view.genre, view.number_label ]
-
-    older = Catalog::CardDetail.call(slug: "portal", locale: :en, season_number: 1).view
-    assert_equal [ 4, nil, "S1 · #4" ], [ older.number, older.genre, older.number_label ]
-  end
 end

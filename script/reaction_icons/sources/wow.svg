@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <circle id="f" cx="16" cy="16" r="13.5"/>
+    <clipPath id="c"><use href="#f"/></clipPath>
+  </defs>
+  <use href="#f" fill="#c9821f"/>
+  <g clip-path="url(#c)">
+    <use href="#f" fill="#f7c948" transform="translate(-3.4 -3.4)"/>
+    <ellipse cx="9.4" cy="8.6" rx="4.4" ry="2.8" fill="#fff3b0" transform="rotate(-35 9.4 8.6)"/>
+  </g>
+  <ellipse cx="11.4" cy="13.4" rx="2" ry="2.8" fill="#2b1602"/>
+  <ellipse cx="20.6" cy="13.4" rx="2" ry="2.8" fill="#2b1602"/>
+  <rect x="10.4" y="11.6" width="1.4" height="1.4" fill="#ffffff"/>
+  <rect x="19.6" y="11.6" width="1.4" height="1.4" fill="#ffffff"/>
+  <ellipse cx="16" cy="22" rx="3.2" ry="3.9" fill="#2b1602"/>
+  <use href="#f" fill="none" stroke="#7a3e05" stroke-width="2"/>
+</svg>

@@ -23,7 +23,6 @@ module Game
       end
     end.freeze
 
-    GOAL_BACK = "confrere".freeze
     ACHIEVEMENT_BACKS = {
       "boosters_100" => "centurion",
       "first_legendary" => "etoile-dor",
@@ -35,10 +34,9 @@ module Game
     }.freeze
     EVENT_BACK_KEYS = %w[saison-1 millesime-2017 soldes-hiver].freeze
 
-    MILESTONE_BACKS = [
-      Back.new(key: GOAL_BACK, asset: "back-#{GOAL_BACK}", unlock: Unlock.new(kind: :goal, target: nil)),
-      *ACHIEVEMENT_BACKS.map { |achievement, key| Back.new(key:, asset: "back-#{key}", unlock: Unlock.new(kind: :achievement, target: achievement)) }
-    ].freeze
+    MILESTONE_BACKS = ACHIEVEMENT_BACKS.map do |achievement, key|
+      Back.new(key:, asset: "back-#{key}", unlock: Unlock.new(kind: :achievement, target: achievement))
+    end.freeze
 
     EVENT_BACKS = EVENT_BACK_KEYS.map { Back.new(key: it, asset: "back-#{it}", unlock: Unlock.new(kind: :event, target: nil)) }.freeze
 
@@ -74,7 +72,7 @@ module Game
     end
 
     def self.active_with_season(player)
-      PlayerState.where(player_id: player.id).joins(ACTIVE_UNLOCKED_SQL).pick(:active_card_back, :active_card_back_season) || [ STANDARD, nil ]
+      PlayerState.where(player_id: player.id, active_card_back: KEYS).joins(ACTIVE_UNLOCKED_SQL).pick(:active_card_back, :active_card_back_season) || [ STANDARD, nil ]
     end
   end
 end

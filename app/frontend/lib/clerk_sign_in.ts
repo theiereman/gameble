@@ -12,7 +12,7 @@ export type MessageKey =
 
 export type Messages = Record<MessageKey, string>
 
-type Strategy = "oauth_discord" | "oauth_google"
+type Strategy = "oauth_apple" | "oauth_discord" | "oauth_google"
 type Flow = "signIn" | "signUp"
 type Step = "email" | "code"
 

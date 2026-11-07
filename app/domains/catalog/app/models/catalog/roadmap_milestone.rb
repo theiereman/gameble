@@ -2,6 +2,8 @@ module Catalog
   class RoadmapMilestone < ApplicationRecord
     self.table_name = "catalog_roadmap_milestones"
 
+    self.ignored_columns += %w[epic_slug]
+
     STATUSES = %w[done in_progress to_come].freeze
 
     include RoadmapWording::Localized

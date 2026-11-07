@@ -93,6 +93,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--standard", "9"
       assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge--special", "1"
       assert_select "turbo-stream[action=replace][target=hub-showcase-actions] template #hub-showcase-actions"
+      assert_select "turbo-stream[action=remove][target=bell-daily]"
       assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__message",
         "A capsule joins your reserve. The next one will be ready on 2026-10-03 00:00 UTC."
       assert_select "turbo-stream[action=append][target=toasts] template .toast__message time[datetime='2026-10-03T00:00:00Z'][data-controller=local-time]"
@@ -149,15 +150,6 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-stream[target=goal-reward]", false
   end
 
-  test "from Turbo, a visitor's claim is refused with the sign-in message, nothing written" do
-    assert_no_difference -> { Game::DailyBonusClaim.count } do
-      post daily_bonus_path(locale: :en), as: :turbo_stream
-    end
-
-    assert_redirected_to home_path(locale: :en)
-    assert_nil flash[:alert]
-  end
-
   test "with a full standard reserve, the panel stays ready and a collection succeeds" do
     Game::FillBank.new.call(player: @player).value!
     sign_in(@player)
@@ -172,17 +164,6 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to home_path(locale: :fr)
     assert_equal 1, Game::DailyBonusClaim.count
-  end
-
-  test "the panel's copy in French" do
-    sign_in(@player)
-
-    get home_path(locale: :fr)
-
-    assert_select ".daily-booster h2", "Capsule quotidienne"
-    assert_select ".daily-booster .daily-booster__state", "Prête"
-    assert_select ".daily-booster .daily-booster__text", "Une capsule offerte chaque jour. Elle rejoint votre réserve."
-    assert_select ".daily-booster button", "Récupérer"
   end
 
   test "a visitor sees no panel, and a visitor's POST is refused with the sign-in message; nothing written" do

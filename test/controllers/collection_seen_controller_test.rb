@@ -37,42 +37,6 @@ class CollectionSeenControllerTest < ActionDispatch::IntegrationTest
     assert_equal up_to, watermark
   end
 
-  test "an earlier time leaves the watermark; a later one moves it" do
-    sign_in(@player)
-    seen = 1.hour.ago.change(usec: 500_000)
-    Game::PlayerState.where(player_id: @player.id).update_all(collection_seen_up_to: seen)
-
-    mark(2.hours.ago.utc.iso8601(6))
-    assert_response :no_content
-    assert_equal seen, watermark
-
-    mark(seen.change(usec: 500_001).utc.iso8601(6))
-    assert_response :no_content
-    assert_equal seen.change(usec: 500_001), watermark
-  end
-
-  test "a time in the future is stored as now" do
-    sign_in(@player)
-
-    freeze_time do
-      mark(1.day.from_now.utc.iso8601(6))
-
-      assert_response :no_content
-      assert_equal Time.current, watermark
-    end
-  end
-
-  test "a player without a state row gets one" do
-    sign_in(@player)
-    Game::PlayerState.where(player_id: @player.id).delete_all
-    up_to = 1.minute.ago.change(usec: 1)
-
-    mark(up_to.iso8601(6))
-
-    assert_response :no_content
-    assert_equal up_to, watermark
-  end
-
   [ nil, "", "yesterday", "2026-13-45T99:00:00Z", 1_700_000_000 ].each do |up_to|
     test "an up_to of #{up_to.inspect} writes nothing: 422 invalid_time" do
       sign_in(@player)

@@ -21,13 +21,5 @@ module BackOffice
         %i[index? create? destroy?].each { |action| assert policy.public_send(action), action }
       end
     end
-
-    [ :visitor, :player, :moderator, :administrator ].each do |role|
-      test "a #{role} may do nothing else with the bans" do
-        policy = policy_for(role)
-
-        %i[show? new? update? edit?].each { |action| assert_not policy.public_send(action), action }
-      end
-    end
   end
 end

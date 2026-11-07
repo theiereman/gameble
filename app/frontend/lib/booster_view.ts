@@ -1,5 +1,5 @@
 import { reserveCount } from "./booster_bank"
-import { allRevealed, storedAfterRebuild, topOfPile, zoomNeighbour } from "./booster_rules"
+import { allRevealed, handDone, storedAfterRebuild, topOfPile, zoomNeighbour } from "./booster_rules"
 import { celebrate, idle, locked } from "./booster_state"
 import {
   CLICK_AFTER_DRAG,
@@ -10,11 +10,34 @@ import {
   type Controls,
   type Hint,
   type Layout,
+  type OpenVariant,
   type StatusTone,
 } from "./booster_types"
 
+export const nextCapsuleSize = ({ bank, reserve }: BoosterState): number | null =>
+  reserve === "special" ? bank.nextSpecialSize : bank.nextPackSize
+
+export function originKind(state: BoosterState): string | null {
+  if (state.reserve !== "special") return null
+  const showsHand = state.phase === "dealt" && !nextCapsuleWaiting(state)
+  return (showsHand ? state.answer?.pack.kind : state.bank.nextSpecialKind) || null
+}
+
 export const onTable = (state: BoosterState): boolean =>
   state.layout === "phone" && state.dealt && (state.answer?.cards.length ?? 0) > 0
+
+export const nextCapsuleWaiting = (state: BoosterState): boolean =>
+  state.layout === "phone" &&
+  state.phase === "dealt" &&
+  handDone(state) &&
+  state.celebration === null &&
+  reserveCount(state.bank, state.reserve) > 0
+
+export const canisterDocks = (state: BoosterState): number => state.docks + (nextCapsuleWaiting(state) ? 1 : 0)
+
+export const nextStepsShown = (state: BoosterState): boolean =>
+  state.bank.available + state.bank.special === 0 &&
+  (state.phase === "empty" || (state.phase === "dealt" && handDone(state)))
 
 export function layoutAsked(state: BoosterState, layout: Layout): BoosterState {
   return state.pendingLayout === layout ? state : { ...state, pendingLayout: layout }
@@ -77,6 +100,12 @@ function hintOf(state: BoosterState, total: number, revealedCount: number, top: 
   return remaining > 0 ? { kind: "remaining", count: remaining } : { kind: "done", count: total }
 }
 
+function openVariant(state: BoosterState, reserveEmpty: boolean): OpenVariant {
+  if (state.phase === "opening") return "skip"
+  if (reserveEmpty) return "empty"
+  return state.phase === "dealt" ? "next" : "open"
+}
+
 export function controls(state: BoosterState): Controls {
   const total = state.answer?.cards.length ?? 0
   const revealedCount = state.revealed.filter(Boolean).length
@@ -87,7 +116,7 @@ export function controls(state: BoosterState): Controls {
   const isLocked = locked(state)
   const { zoom } = state
   return {
-    open: reserveEmpty ? "empty" : state.phase === "dealt" ? "next" : "open",
+    open: openVariant(state, reserveEmpty),
     openDisabled: reserveEmpty || (state.phase === "dealt" && !everyRevealed),
     busy: state.phase === "opening" || state.revealingAll || isLocked || state.storing,
     revealAllDisabled: !handOnTable || everyRevealed || state.revealingAll || state.storing || state.legendary !== null,

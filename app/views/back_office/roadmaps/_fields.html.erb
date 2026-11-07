@@ -1,0 +1,28 @@
+<%# locals: (entry:, name:, dom:, failure:) %>
+<% if entry.token %>
+  <%= hidden_field_tag "#{name}[token]", entry.token, id: nil %>
+<% end %>
+<div class="roadmap-row__fields">
+  <p class="roadmap-row__field">
+    <label for="<%= dom %>-wording-fr"><%= t("back_office.roadmaps.fields.wording_fr") %></label>
+    <%= text_field_tag "#{name}[wording_fr]", entry.wording_fr, id: "#{dom}-wording-fr", class: "ban-form__field", lang: "fr",
+          maxlength: Catalog::RoadmapWording::LENGTH, autocomplete: "off", aria: { invalid: (failure ? "true" : nil) } %>
+  </p>
+  <p class="roadmap-row__field">
+    <label for="<%= dom %>-wording-en"><%= t("back_office.roadmaps.fields.wording_en") %></label>
+    <%= text_field_tag "#{name}[wording_en]", entry.wording_en, id: "#{dom}-wording-en", class: "ban-form__field", lang: "en",
+          maxlength: Catalog::RoadmapWording::LENGTH, autocomplete: "off", aria: { invalid: (failure ? "true" : nil) } %>
+  </p>
+  <p class="roadmap-row__field roadmap-row__field--status">
+    <label for="<%= dom %>-status"><%= t("back_office.roadmaps.fields.status") %></label>
+    <%= select_tag "#{name}[status]", options_for_select(roadmap_status_options, entry.status), id: "#{dom}-status", class: "ban-form__field" %>
+  </p>
+  <p class="roadmap-row__field roadmap-row__field--shown">
+    <%= hidden_field_tag "#{name}[shown]", "0", id: nil %>
+    <%= check_box_tag "#{name}[shown]", "1", entry.shown, id: "#{dom}-shown" %>
+    <label for="<%= dom %>-shown"><%= t("back_office.roadmaps.fields.shown") %></label>
+  </p>
+</div>
+<% if failure %>
+  <p class="ledger-errors" role="alert" data-roadmap-row-failure><%= failure %></p>
+<% end %>

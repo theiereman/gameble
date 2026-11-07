@@ -7,7 +7,7 @@ module TradesHelper
   BOARD_CHILDREN = %w[trade-board-send].freeze
   BOARD_ACTIONS = {
     "trade-board-side" => { add: :openPicker, remove: :removeLine, quantity: :setLineQuantity },
-    "trade-board-picker" => { toggle: :togglePick, quantity: :setPickQuantity, filter: :setFilter, fold: :toggleFold,
+    "trade-board-picker" => { toggle: :togglePick, quantity: :setPickQuantity, filter: :setFilter,
                               clear: :clearFilters, more: :showMore, move: :moveActive, place: :place, close: :closePicker }
   }.freeze
 
@@ -66,6 +66,10 @@ module TradesHelper
     [ tone, t("trades.chip.#{row.state}") ]
   end
 
+  def trade_answer_unseen?(row)
+    !row.open? && Game::TradeUpdates.unseen?(current_player, row.token)
+  end
+
   def trade_days_left(row, now: Time.current)
     [ ((row.expires_at - now) / 1.day).ceil, 1 ].max
   end
@@ -120,6 +124,10 @@ module TradesHelper
     "#{view.id}--s#{view.season_number}"
   end
 
+  def trade_edition_key(edition)
+    "#{edition.slug}--s#{edition.season_number}"
+  end
+
   def trade_card_key_parts(key)
     match = CARD_KEY.match(key) or return
     [ match[1], match[2].to_i ]
@@ -145,7 +153,7 @@ module TradesHelper
     return {} unless trade
 
     editor = (trade_board_editor(trade.friend_side, trade.own_side, own_held:, friend_held:, picks:) if trade.state == :yours && own_held && friend_held && picks)
-    locals.merge(editing:, editor:)
+    locals.merge(editing:, editor:, own_held:, friend_held:)
   end
 
   def trade_draft_editor(own_held:, friend_held:, picks:, prefill: nil)
@@ -188,14 +196,27 @@ module TradesHelper
       (goal_card_words(goals) if goals.any?) ].compact.join(", ")
   end
 
+  def trade_pick_goals(pick)
+    goal_marks.goals_for(pick.view.card_id).map { GoalMarks.filter_value(it) }.join(" ")
+  end
+
+  def trade_picker_extra_offers(editor)
+    editor.slice(:friend, :own).transform_values do |board_side|
+      picks = board_side[:picks]
+      card_ids = picks.to_set { it.view.card_id }
+      { genres: picks.filter_map { it.view.genre }.uniq.sort_by { SetLabel.genre(it) },
+        goals: goal_marks.needs.select { |need| need.card_ids.any? { card_ids.include?(it) } } }
+    end
+  end
+
   def trade_picker_none(side, friend)
     side == :own ? t("trades.side.none.none_owned") : t("trades.side.none.friend_none_owned", name: friend_name(friend))
   end
 
   private
     def trade_board_side(side, held:, other_held:, picks:, received:)
-      copies = trade_game_copies(held, picks)
-      other_copies = trade_game_copies(other_held, picks)
+      copies = trade_game_copies(held, picks, count: side == :own ? :free : :quantity)
+      other_copies = trade_game_copies(other_held, picks, count: :quantity)
       views = held.keys.filter_map { |id| picks[id] && [ id, picks[id] ] }
       views.sort_by! { |_, view| [ view.season_number, view.number ? 0 : 1, view.number.to_i, view.title ] }
       by_id = views.to_h do |id, view|
@@ -215,10 +236,10 @@ module TradesHelper
       end
     end
 
-    def trade_game_copies(held, picks)
+    def trade_game_copies(held, picks, count:)
       held.each_with_object(Hash.new(0)) do |(id, row), games|
         view = picks[id] or next
-        games[view.id] += row.quantity
+        games[view.id] += row.public_send(count)
       end
     end
 end

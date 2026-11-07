@@ -1,0 +1,69 @@
+.bottom-sheet {
+  translate: 0 var(--sheet-drag, 0);
+  transition: translate 180ms var(--ease-out);
+}
+
+.bottom-sheet[data-dragging] {
+  transition: none;
+}
+
+.bottom-sheet__panel {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 2 * var(--space-8));
+}
+
+.bottom-sheet__grip {
+  flex: none;
+  touch-action: none;
+}
+
+.bottom-sheet__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: calc(-1 * var(--space-2));
+  padding: var(--space-2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+@media (min-width: 720px) {
+  .bottom-sheet--wide {
+    width: min(var(--modal-width-wide), calc(100vw - 2 * var(--space-gutter-phone)));
+  }
+}
+
+/* The room under the content, home indicator included, belongs to the scrolling body: as the panel's own
+   padding it would cut the content off above an empty strip. */
+@media (max-width: 719px) {
+  .modal__panel.bottom-sheet__panel {
+    max-height: 85dvh;
+    padding-bottom: 0;
+  }
+
+  .bottom-sheet__body {
+    margin-bottom: 0;
+    padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .bottom-sheet {
+    transition: none;
+  }
+}
+
+html[data-motion="reduced"] .bottom-sheet {
+  transition: none;
+}
+
+/* A sheet served on its own, which the app opens in a native sheet: the web sheet's grip and head over its body. */
+html:has(> .sheet-body),
+.sheet-body {
+  min-height: 100dvh;
+  background: var(--color-panel);
+}
+
+.sheet-main {
+  padding: var(--space-3) var(--space-gutter-phone) var(--space-7);
+}

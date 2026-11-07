@@ -7,6 +7,7 @@ class PagesController < ApplicationController
 
   def home
     return show_landing_markdown if current_player.nil? && markdown_requested?
+    return lead_app_visitor_to_sign_in if visitor_landing? && hotwire_native_app?
     return show_landing if visitor_landing?
 
     authorize :page, :play?
@@ -21,11 +22,8 @@ class PagesController < ApplicationController
     @welcome = current_player.welcome_pending
     Accounts::CloseWelcomeJob.perform_later(current_player.id) if @welcome
     @collection = collection if @season
-    @sets = @season ? set_rows : []
-  end
-
-  def more
-    authorize :page, :play?
+    @goals = Game::GoalNeeds.call(current_player)
+    @live_strip = LiveStream.strip_items
   end
 
   def legal
@@ -54,6 +52,11 @@ class PagesController < ApplicationController
     # Not Mime::Type#html?: false for */*, true for turbo-stream.
     def visitor_landing?
       current_player.nil? && request.formats.any? { it == Mime[:html] || it == Mime::ALL }
+    end
+
+    def lead_app_visitor_to_sign_in
+      authorize :landing, :show?
+      redirect_to sign_in_path, status: :see_other
     end
 
     def show_landing
@@ -103,11 +106,5 @@ class PagesController < ApplicationController
     def collection
       { owned: Game::HeldGames.count(current_player),
         total: Catalog::CardCount.call(@season) }
-    end
-
-    def set_rows
-      standings = Game::SetBoard.hub(current_player, season: @season)
-      sets = Catalog::SetsById.call(standings.map(&:set_id))
-      standings.filter_map { |standing| SetBoardLoading::SetRow.new(set: sets[standing.set_id], standing:) if sets.key?(standing.set_id) }
     end
 end

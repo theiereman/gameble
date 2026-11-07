@@ -9,6 +9,7 @@ export type OpeningCard = {
   year: number | null
   label: string
   goals: string
+  firstCopy: boolean
   faces: { s: string; m: string; xl: string }
 }
 
@@ -21,6 +22,7 @@ export type OpeningBank = {
   nextAvailableAt: string | null
   scheduledAt: string[]
   nextPackSize: number | null
+  nextSpecialSize: number | null
 }
 
 export const SET_TIERS = [
@@ -52,14 +54,23 @@ export type OpeningSetTier = {
 
 export type CardBackView = { key: string; urls: { s: string; m: string; xl: string } | null; season?: number | null }
 
+export type OpeningPack = { token: string; kind: string; cardBack: CardBackView; url: string; revealUrl?: string }
+
+export type HeldCapsule = {
+  pack: OpeningPack
+  cards: OpeningCard[]
+  tierCountsBefore: Record<Rarity, number>
+}
+
 export type OpeningAnswer = {
-  pack: { token: string; kind: string; cardBack: CardBackView; url: string; revealUrl?: string }
+  pack: OpeningPack
   cards: OpeningCard[]
   bank: OpeningBank
   serverTime: string
   tierCountsBefore: Record<Rarity, number>
   setTiers: OpeningSetTier[]
   goalsReached: string[]
+  next?: HeldCapsule | null
 }
 
 export type OpeningResult =
@@ -70,6 +81,8 @@ export type SendOpening = {
   reserve: string
   key: string
   csrfToken: string | null
+  pack?: string
+  signal?: AbortSignal
   fetch?: typeof globalThis.fetch
 }
 
@@ -80,6 +93,8 @@ export async function sendOpening({
   reserve,
   key,
   csrfToken,
+  pack,
+  signal,
   fetch: send = globalThis.fetch,
 }: SendOpening): Promise<OpeningResult> {
   const headers: Record<string, string> = { Accept: "application/json", "Idempotency-Key": key }
@@ -87,10 +102,12 @@ export async function sendOpening({
 
   let response: Response
   try {
-    response = await send(`${url}?${new URLSearchParams({ reserve })}`, {
+    const query = new URLSearchParams(pack === undefined ? { reserve } : { pack, reserve })
+    response = await send(`${url}?${query}`, {
       method: "POST",
       headers,
       credentials: "same-origin",
+      ...(signal ? { signal } : {}),
     })
   } catch {
     return FAILED
@@ -103,7 +120,7 @@ export async function sendOpening({
   } catch {
     return FAILED
   }
-  if (response.ok) return isAnswer(body) ? { kind: "opened", answer: body } : FAILED
+  if (response.ok) return isAnswer(body) ? { kind: "opened", answer: withValidNext(body) } : FAILED
 
   const error = refusal(body)
   return error ? { kind: "refused", ...error } : FAILED
@@ -123,6 +140,7 @@ function isCard(value: unknown): value is OpeningCard {
     typeof value.title === "string" &&
     typeof value.label === "string" &&
     typeof value.goals === "string" &&
+    typeof value.firstCopy === "boolean" &&
     isRecord(value.faces) &&
     FACE_SIZES.every((size) => typeof (value.faces as Record<string, unknown>)[size] === "string")
   )
@@ -153,21 +171,38 @@ function isSetTier(value: unknown): value is OpeningSetTier {
   )
 }
 
+const isTierCounts = (value: unknown): value is Record<Rarity, number> =>
+  isRecord(value) && RARITIES.every((tier) => typeof value[tier] === "number")
+
+const hasCards = (value: Record<string, unknown>): boolean =>
+  Array.isArray(value.cards) && value.cards.length > 0 && value.cards.every(isCard)
+
+export function isHeld(value: unknown): value is HeldCapsule {
+  return (
+    isRecord(value) &&
+    isRecord(value.pack) &&
+    typeof value.pack.token === "string" &&
+    value.pack.token !== "" &&
+    hasCards(value) &&
+    isTierCounts(value.tierCountsBefore)
+  )
+}
+
+const withValidNext = (answer: OpeningAnswer): OpeningAnswer =>
+  "next" in answer && answer.next !== null && !isHeld(answer.next) ? { ...answer, next: null } : answer
+
 function isAnswer(value: unknown): value is OpeningAnswer {
   return (
     isRecord(value) &&
     isRecord(value.pack) &&
-    Array.isArray(value.cards) &&
-    value.cards.length > 0 &&
-    value.cards.every(isCard) &&
+    hasCards(value) &&
     isRecord(value.bank) &&
     typeof value.bank.available === "number" &&
     typeof value.bank.special === "number" &&
     typeof value.bank.openable === "number" &&
     (value.bank.nextSpecialKind === null || typeof value.bank.nextSpecialKind === "string") &&
     typeof value.serverTime === "string" &&
-    isRecord(value.tierCountsBefore) &&
-    RARITIES.every((tier) => typeof (value.tierCountsBefore as Record<string, unknown>)[tier] === "number") &&
+    isTierCounts(value.tierCountsBefore) &&
     Array.isArray(value.setTiers) &&
     value.setTiers.every(isSetTier) &&
     Array.isArray(value.goalsReached) &&

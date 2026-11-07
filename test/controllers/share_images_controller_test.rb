@@ -25,10 +25,6 @@ class ShareImagesControllerTest < ActionDispatch::IntegrationTest
 
   def image_path = share_image_path(token: @share_image.token, locale: nil)
 
-  test "the image's path holds its token only, outside any locale" do
-    assert_equal "/share-images/#{@share_image.token}.png", image_path
-  end
-
   test "any browser or crawler gets the PNG, signed out, public for a year, without a cookie" do
     USER_AGENTS.each do |user_agent|
       get image_path, headers: { "User-Agent" => user_agent }

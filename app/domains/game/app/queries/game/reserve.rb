@@ -19,6 +19,10 @@ module Game
       name.to_s if NAMES.include?(name.to_s)
     end
 
+    def self.name_of(kind)
+      NAMES.find { |name| KINDS.fetch(name).include?(kind.to_s) }
+    end
+
     def self.available(player_id, name, now: Time.current)
       Pack.where(player_id:).available(now).where(kind: KINDS.fetch(name.to_s))
     end

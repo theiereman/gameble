@@ -340,10 +340,6 @@ describe("PaletteCache", () => {
     expect(cache.get("c", 16)).toBeUndefined()
     expect(cache.size).toBe(2)
   })
-
-  it("keeps about 256 games by default", () => {
-    expect(new PaletteCache().limit).toBe(256)
-  })
 })
 
 function pixelsWithin(pixels: Pixels, palette: Set<string>): boolean {

@@ -101,16 +101,39 @@ class Game::GoalOperationsTest < ActiveSupport::TestCase
     assert_refused(:goal_set_not_found) { add(kind: "theme", key: "roguelike") }
   end
 
-  test "a custom set is a goal by its token; another player's or the Steam library set is refused" do
+  test "the Steam library set is a goal once it holds a catalog game, and a sync that changes its list keeps the goal" do
+    empty = create_library_set(@player, card_ids: [])
+
+    assert_refused(:library_set_empty) { add(custom_set: empty.token) }
+
+    Game::CustomSetGame.insert_all!(fixture_card_ids.first(3).map { { custom_set_id: empty.id, card_id: it } })
+    goal = add(custom_set: empty.token).value!
+    assert_equal [ 1, empty.id ], [ goal.position, goal.custom_set_id ]
+
+    Game::SyncLibrarySet.new.call(player: @player, token: empty.token, card_ids: fixture_card_ids.first(2))
+    need = Game::GoalNeeds.call(@player).sole
+    assert_equal [ empty.token, 2 ], [ need.custom_set_token, need.total ]
+
+    assert_equal goal, remove(custom_set: empty.token).value!
+  end
+
+  test "erasing the Steam library set takes its goal with it" do
+    library = create_library_set(@player)
+    add(custom_set: library.token)
+
+    Game::EraseLibrarySet.new.call(player: @player)
+
+    assert_empty Game::Goal.where(player_id: @player.id)
+  end
+
+  test "a custom set is a goal by its token; another player's is refused" do
     mine = create_custom_set(@player)
     theirs = create_custom_set(accounts_players(:moderator))
-    library = Game::CustomSet.create!(player_id: @player.id, kind: Game::CustomSet::STEAM_LIBRARY)
 
     goal = add(custom_set: mine.token).value!
     assert_equal [ 1, mine.id, nil ], [ goal.position, goal.custom_set_id, goal.set_kind ]
 
     assert_refused(:custom_set_not_found) { add(custom_set: theirs.token) }
-    assert_refused(:custom_set_not_found) { add(custom_set: library.token) }
     assert_refused(:custom_set_not_found) { add(custom_set: [ mine.token ]) }
     assert_no_difference -> { writes } do
       assert_nil remove(custom_set: theirs.token).value!

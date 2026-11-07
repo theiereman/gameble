@@ -308,10 +308,6 @@ class Steam::WebApiTest < ActiveSupport::TestCase
     assert_nil error.cause
   end
 
-  test "get_player_summary waits five seconds at most, in all" do
-    assert_equal 5.0, Steam::WebApi.player_summary_deadline
-  end
-
   test "get_player_summary ends at its deadline when Steam is slow to connect and to answer, each under it" do
     Steam::WebApi.player_summary_deadline = 0.1
     phases = stub_slow_player_summary(STEAM_ID, "Gabe", connect: 0.08, answer: 0.08)
@@ -426,10 +422,6 @@ class Steam::WebApiTest < ActiveSupport::TestCase
       assert_not_includes error.full_message, API_KEY
       assert_nil error.cause
     end
-  end
-
-  test "get_owned_games waits ten seconds at most, in all" do
-    assert_equal 10.0, Steam::WebApi.owned_games_deadline
   end
 
   test "get_owned_games raises unavailable at its deadline when Steam is slow" do

@@ -125,16 +125,16 @@
   margin: 0;
 }
 
-/* ---- Set progress: rows with a thin bar, then "Tout voir" ---- */
+/* ---- Goals in progress: compact goal rows, then "Tout voir" ---- */
 
-.hub-sets {
+.hub-goals {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   min-width: 0;
 }
 
-.hub-sets__title {
+.hub-goals__title {
   margin: 0;
   color: var(--color-accent);
   font: var(--font-kicker);
@@ -142,58 +142,26 @@
   text-transform: uppercase;
 }
 
-.hub-sets__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.set-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+.hub-goals .goal-row {
+  grid-template-columns: auto minmax(0, 1fr) auto;
   grid-template-areas:
-    "name count"
-    "bar bar";
-  align-items: center;
-  gap: var(--space-2) var(--space-4);
-  min-height: var(--space-touch-min);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-panel);
-  box-shadow: var(--panel-border);
-  color: var(--color-text-bright);
-  text-decoration: none;
+    "mark name count"
+    "track track track"
+    "next next next";
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-4) var(--space-3) 18px;
 }
 
-.set-row:hover {
-  box-shadow:
-    var(--control-border),
-    inset 0 0 0 var(--space-unit) var(--color-accent);
+.hub-goals .goal-row__album {
+  display: none;
 }
 
-.set-row:focus-visible {
-  box-shadow: var(--focus-ring-gap), var(--panel-border);
+.hub-goals .button--link {
+  align-self: flex-end;
+  margin: 0;
 }
 
-.set-row__name {
-  grid-area: name;
-  overflow: hidden;
-  font: var(--font-button-sm);
-  letter-spacing: var(--tracking-button-sm);
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.set-row__count {
-  grid-area: count;
-  color: var(--color-muted);
-  font: var(--font-body-small);
-  letter-spacing: var(--tracking-body-small);
-  font-variant-numeric: tabular-nums;
-}
+/* ---- Progress bars: a thin bar with tier ticks under it ---- */
 
 /* The thin progress bar: an accent fill on a track edged in line-deep. */
 .set-row__bar {
@@ -222,60 +190,11 @@
   background: var(--color-accent);
 }
 
-.hub-sets .button--link {
-  align-self: flex-end;
-  margin: 0;
-}
-
-.set-row--progress {
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  grid-template-areas:
-    "name meta count"
-    "track track track";
-  align-items: baseline;
-}
-
-.set-row--progress .set-row__name {
-  overflow: visible;
-  overflow-wrap: anywhere;
-  text-overflow: clip;
-  white-space: normal;
-}
-
-.set-row--complete .set-row__count {
-  color: var(--color-lime);
-}
-
-.set-row__meta {
-  grid-area: meta;
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-2) var(--space-4);
-}
-
-.set-row__kind {
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-}
-
 .set-row__track {
   grid-area: track;
   position: relative;
   display: block;
   align-self: start;
-}
-
-.set-row--progress .set-row__bar {
-  grid-area: auto;
-}
-
-/* A tiered row keeps room under its bar for the deepest mark. */
-.set-row--tiered {
-  padding-bottom: 28px;
 }
 
 /* A tier's tick, at its share of the set (placed by the tier-ticks
@@ -356,74 +275,4 @@
   width: 6px;
   background: transparent;
   box-shadow: inset 0 0 0 2px var(--color-line-deep);
-}
-
-.set-tier {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--tier);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-}
-
-.set-tier--bronze {
-  --tier: var(--color-tier-bronze);
-}
-
-.set-tier--silver {
-  --tier: var(--color-tier-silver);
-}
-
-.set-tier--gold {
-  --tier: var(--color-gold);
-}
-
-.set-tier--complete {
-  --tier: var(--color-lime);
-}
-
-.set-tier--novice,
-.set-tier--apprentice,
-.set-tier--adept,
-.set-tier--expert,
-.set-tier--master {
-  --tier: var(--color-text-bright);
-}
-
-.set-tier__check {
-  width: 7px;
-  height: 6px;
-}
-
-.set-tier .set-notches i:nth-child(2) {
-  height: 10px;
-}
-
-.set-tier .set-notches i:nth-child(3) {
-  height: 12px;
-}
-
-.set-tier__stamp {
-  display: block;
-  width: 22px;
-  height: 14px;
-  margin: 0 6px;
-  box-shadow:
-    inset 0 0 0 3px var(--color-lime),
-    0 0 0 var(--space-unit) var(--color-outline);
-  transform: rotate(-6deg);
-}
-
-.hub-sets .set-row--progress {
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    "name count"
-    "meta meta"
-    "track track";
-}
-
-.hub-sets .set-row__meta {
-  justify-content: flex-start;
 }

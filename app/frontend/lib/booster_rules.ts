@@ -1,6 +1,16 @@
 import { handPutAway } from "./booster_bank"
-import type { BoosterState, BoosterStatus, Layout, OpeningOutcome, RevealAllStep, TierCounts } from "./booster_types"
+import type {
+  BoosterState,
+  BoosterStatus,
+  Layout,
+  OpeningOutcome,
+  OwedReveal,
+  RevealAllStep,
+  RevealMode,
+  TierCounts,
+} from "./booster_types"
 import type { Rarity } from "./card_types"
+import { openingTimings, type OpeningTimings } from "./opening_timings"
 
 export function layoutFor(phone: boolean, narrow: boolean): Layout {
   return phone ? "phone" : narrow ? "narrow" : "wide"
@@ -57,5 +67,16 @@ export function storedAfterRebuild(
 }
 
 export const allRevealed = (state: BoosterState): boolean => state.revealed.length > 0 && state.revealed.every(Boolean)
+
+export const revealModeOf = (state: BoosterState): RevealMode => (state.revealAllUsed ? "all" : "one_by_one")
+
+export const revealTimings = (state: BoosterState): OpeningTimings =>
+  openingTimings(state.marks, state.revealedAt, state.layout)
+
+export function owedRevealOf(state: BoosterState): OwedReveal | null {
+  const url = state.answer?.pack.revealUrl
+  if (!state.answer || !url || !allRevealed(state)) return null
+  return { token: state.answer.pack.token, url, mode: revealModeOf(state), timings: revealTimings(state) }
+}
 
 export const handDone = (state: BoosterState): boolean => handPutAway(state.layout, state.revealed, state.stored)

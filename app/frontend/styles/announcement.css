@@ -1,0 +1,163 @@
+/* The red announcement banner under the top bar, closed by each player. */
+.announcement {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  background: var(--color-live-red);
+  box-shadow:
+    inset 0 calc(-1 * var(--space-unit)) 0 var(--color-live-red-deep),
+    inset 0 var(--space-unit) 0 var(--color-live-red-hi);
+  color: var(--color-text-max);
+}
+
+.announcement__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: var(--space-content-max);
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-gutter-desktop);
+}
+
+.announcement__light {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  background: var(--color-text-max);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-live-red-deep);
+  animation: announcement-blink 1.2s steps(1) infinite;
+}
+
+.announcement__message {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font: var(--font-body);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-body);
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+.announcement__form {
+  flex: none;
+  margin: 0;
+}
+
+.announcement__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: var(--color-live-red-deep);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-live-red-hi);
+  color: var(--color-text-max);
+  cursor: pointer;
+}
+
+.announcement__close:hover {
+  background: var(--color-outline);
+}
+
+.announcement__close:focus-visible {
+  outline: 0;
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-text-max);
+}
+
+@keyframes announcement-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+html[data-motion="reduced"] .announcement__light {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .announcement__light {
+    animation: none;
+  }
+}
+
+@media (max-width: 719px) {
+  .announcement__inner {
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-gutter-phone);
+  }
+
+  .announcement__light {
+    margin-top: var(--space-3);
+  }
+
+  .announcement__close {
+    width: var(--space-chip-height-touch);
+    height: var(--space-chip-height-touch);
+    margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-3)) calc(-1 * var(--space-2)) 0;
+  }
+}
+
+/* The back-office editor of the announcements. */
+.announcement-list {
+  display: grid;
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.announcement-editor {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-panel-padding);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+}
+
+.announcement-editor--shown {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-live-red-hi);
+}
+
+.announcement-editor__field {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.announcement-editor__field--inline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.announcement-editor__message {
+  width: 100%;
+  resize: vertical;
+}
+
+.announcement-editor__status,
+.announcement-editor__actions {
+  margin: 0;
+}
+
+.announcement-editor__status {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.announcement-editor__state {
+  margin-right: var(--space-3);
+  color: var(--color-text-bright);
+  text-transform: uppercase;
+}
+
+.announcement-editor--shown .announcement-editor__state {
+  color: var(--color-live-red-hi);
+}

@@ -142,8 +142,17 @@ describe("openingRefused", () => {
       openable: 0,
       reserveFull: false,
       nextPackSize: null,
+      nextSpecialSize: null,
     })
     expect(refused.bankGeneration).toBe(state.bankGeneration + 1)
+  })
+
+  it("keeps the other reserve's next capsule size when one reserve runs out", () => {
+    const both = bank(1, { special: 1, openable: 2, nextPackSize: 5, nextSpecialSize: 3 })
+    const state = ejecting(arming(lock(openingStarted({ ...startWith(), bank: both, reserve: "special" })), "key-1"))
+    const refused = openingRefused(state, { kind: "refused", code: "no_pack_available", message: "None" }, "Failed")
+
+    expect(refused.bank).toMatchObject({ nextPackSize: 5, nextSpecialSize: null })
   })
 
   it("forgets an owed fetch after a refusal, not after a failure", () => {
@@ -167,6 +176,7 @@ describe("openingAnswered, ejecting, resultHeadShown, cardsDealt, openingEnded",
       nextAvailableAt: null,
       serverTime: answer.serverTime,
       nextPackSize: 5,
+      nextSpecialSize: null,
     })
     expect(answered.bankGeneration).toBe(state.bankGeneration + 1)
     expect(answered.counts).toEqual(answer.tierCountsBefore)

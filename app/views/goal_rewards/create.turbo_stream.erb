@@ -5,3 +5,4 @@
 <%= turbo_stream.replace "hub-menu-booster", partial: "pages/menu_booster", locals: { bank: @bank } %>
 <%= turbo_stream.replace "hub-showcase-actions", partial: "pages/showcase_actions", locals: { bank: @bank } %>
 <%= turbo_stream.append "toasts" do %><%= render ToastComponent.new(message: @message, title: @title, tone: @tone) %><% end %>
+<%= turbo_stream.remove "bell-mission-reward" if @reward.nil? || @reward[:claimed] %>

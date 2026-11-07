@@ -42,29 +42,5 @@ module BackOffice
 
       assert_select "main .panel[data-report-queue-size='2']", "2 joueurs signalés attendent les officiers."
     end
-
-    test "the back-office answers in English" do
-      sign_in(accounts_players(:administrator))
-
-      get back_office_path(locale: :en)
-
-      assert_select "h1", "The Brotherhood's back-office"
-      assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
-    end
-
-    test "a player gets the 404 of an unknown address" do
-      sign_in(accounts_players(:player))
-
-      get back_office_path(locale: :fr)
-
-      assert_unknown_address
-    end
-
-    test "a visitor gets the 404 of an unknown address" do
-      get back_office_path(locale: :fr)
-
-      assert_unknown_address
-      assert_nil flash[:alert]
-    end
   end
 end

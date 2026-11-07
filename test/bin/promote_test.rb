@@ -3,8 +3,8 @@ require "open3"
 require "tmpdir"
 
 # bin/promote against a throwaway repository with a bare origin, and a stub
-# gh that logs its calls and answers the candidate's commit statuses from a
-# file.
+# gh that logs its calls, answers the candidate's commit statuses from a file
+# and starts workflow runs.
 class PromoteTest < ActiveSupport::TestCase
   PROMOTE = Rails.root.join("bin/promote")
 
@@ -42,32 +42,33 @@ class PromoteTest < ActiveSupport::TestCase
     assert_predicate PROMOTE, :executable?
   end
 
-  test "a candidate that ran on staging moves main to its commit and is published as the release, notes since the previous one" do
+  test "a candidate that ran on staging starts the production run on it, and leaves main and the releases to that run" do
     out = StringIO.new
 
     assert promote("v1.0.0-rc.1", out: out)
-    assert_equal @candidate, origin_main
+    assert_equal @released, origin_main
     assert_includes gh_calls, "api repos/{owner}/{repo}/commits/#{@candidate}/status"
-    assert_includes gh_calls, "release create v1.0.0 --target #{@candidate} --title v1.0.0 --latest --generate-notes --notes-start-tag v0.9.0"
-    assert_match(/v1\.0\.0 published on #{@candidate[0, 7]}/, out.string)
+    assert_includes gh_calls, "workflow run deploy-production.yml --ref v1.0.0-rc.1"
+    assert_not(gh_calls.any? { |call| call.start_with?("release create") }, "no release is published")
+    assert_match(/production run of v1\.0\.0-rc\.1 started/, out.string)
   end
 
-  test "the first release has no previous release to start its notes from" do
-    git("tag", "--delete", "v0.9.0")
-    git("push", "--quiet", "origin", ":refs/tags/v0.9.0")
+  test "a production run that does not start is reported" do
+    File.write(File.join(@dir, "workflow.fails"), "")
+    err = StringIO.new
 
-    assert promote("v1.0.0-rc.1")
-    assert_includes gh_calls, "release create v1.0.0 --target #{@candidate} --title v1.0.0 --latest --generate-notes"
+    assert_not promote("v1.0.0-rc.1", err: err)
+    assert_match(/the production run did not start/, err.string)
   end
 
-  test "without --yes, only a yes pushes" do
+  test "without --yes, only a yes starts the production run" do
     out = StringIO.new
     assert_not promote("v1.0.0-rc.1", yes: false, input: StringIO.new("\n"), out: out)
     assert_match(/Proceed\? \[y\/N\]/, out.string)
     assert_refused_untouched
 
     assert promote("v1.0.0-rc.1", yes: false, input: StringIO.new("y\n"))
-    assert_equal @candidate, origin_main
+    assert(gh_calls.any? { |call| call.start_with?("workflow run") }, "the production run starts")
   end
 
   test "a tag that is not a candidate is refused" do
@@ -124,7 +125,7 @@ class PromoteTest < ActiveSupport::TestCase
 
     def assert_refused_untouched(main: @released)
       assert_equal main, origin_main
-      assert_not(gh_calls.any? { |call| call.start_with?("release create") }, "no release is published")
+      assert_not(gh_calls.any? { |call| call.start_with?("workflow run") }, "no production run starts")
     end
 
     def git(*args, chdir: @repo)
@@ -161,7 +162,7 @@ class PromoteTest < ActiveSupport::TestCase
         case "$1 $2" in
           "api "*) cat "#{@dir}/status.json" ;;
           "release view") [ -f "#{@dir}/release.published" ] ;;
-          "release create") exit 0 ;;
+          "workflow run") [ ! -f "#{@dir}/workflow.fails" ] ;;
           *) exit 1 ;;
         esac
       SH

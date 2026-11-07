@@ -4,9 +4,9 @@ require_relative "../support/game_packs"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
-# A player marks sets as goals from their albums, follows them under
-# OBJECTIFS on the collection, is refused a sixth, and sees a goal leave
-# with a toast once a capsule completes its set, after the cards are shown.
+# A player marks sets as goals from their albums or from the suggestions
+# under OBJECTIFS, follows them there, and sees a goal leave with a toast once a capsule completes
+# its set, after the cards are shown.
 class GoalsTest < ApplicationSystemTestCase
   include CustomSets
   include GamePacks
@@ -60,7 +60,7 @@ class GoalsTest < ApplicationSystemTestCase
       assert_selector ".goal-row", count: 2
       names = all(".goal-row .goal-row__name b").map(&:text)
       assert_equal [ "Roguelike", "Mes favoris" ], names
-      assert_selector ".goal-row", text: /0\/3/, count: 2
+      assert_selector ".goal-row__count", text: "0/3", count: 2
       assert_selector ".goal-row__next", text: /Only 3 more for/i, count: 2
       assert_selector ".goals__free", text: "3 free goals · mark a set from its album"
     end
@@ -71,33 +71,6 @@ class GoalsTest < ApplicationSystemTestCase
     press_goal_button("GOAL 1 · REMOVE")
     visit custom_set_path(locale: :en, token: custom_set.token)
     assert_selector "#set-album-goal .goal-button", text: "GOAL 2 · REMOVE"
-  end
-
-  test "a sixth goal is refused under the button, with the way to OBJECTIFS; a search hides OBJECTIFS like MES SETS" do
-    %w[a1 a2 a3 a4 a5 a6].each { theme(it) }
-    %w[a1 a2 a3 a4 a5].each { Game::AddGoal.new.call(player: @player, kind: "theme", key: it).value! }
-    sign_in(@player)
-
-    visit library_set_path(locale: :en, kind: "theme", key: "a6")
-    goal_button.click
-    within("#set-album-goal .goal-control__refusal[role=status]") do
-      assert_text "5 GOALS AT MOST · Remove a goal to add another one."
-      assert_link "See my goals", href: "/en/library#goals"
-    end
-    assert_focus_on_goal_button
-    assert_selector "#set-album-goal .goal-button", text: "MARK AS GOAL"
-    assert_equal 5, Game::Goal.where(player_id: @player.id).count
-
-    click_on "See my goals"
-    assert_selector "#goals .goal-row", count: 5
-    assert_no_selector "#goals .goals__free"
-
-    fill_in "set-search-field", with: "a1"
-    assert_selector ".set-results"
-    assert_no_selector "#goals"
-    assert_no_selector ".custom-sets"
-    fill_in "set-search-field", with: ""
-    assert_selector "#goals"
   end
 
   test "a capsule completing a goal's set toasts OBJECTIF ATTEINT after the cards are revealed, and the goal leaves" do
@@ -124,5 +97,29 @@ class GoalsTest < ApplicationSystemTestCase
     visit library_path(locale: :en)
     assert_selector "#goals .goals__count", text: "0 / 5"
     assert_no_selector "#goals .goal-row"
+  end
+
+  test "on a phone, a player without a goal marks a suggested set in one tap, sees it lead OBJECTIFS and opens its album from its row" do
+    members = unheld_cards(3)
+    insert_set(members, { complete: 3 }, key: "roguelike", params: { "theme" => "roguelike" })
+    Game::Holding.create!(player_id: @player.id, card_season_id: members.first, quantity: 1)
+    sign_in(@player)
+    resize_to(390, 844)
+
+    visit library_path(locale: :en)
+    within("#goals") do
+      assert_selector ".goal-suggestion", text: /Roguelike/
+      find(".goal-suggestion__button[aria-label='Mark as goal: Roguelike']").click
+    end
+
+    assert_selector "#goals .goal-row .goal-row__name b", text: "Roguelike"
+    assert_current_path library_path(locale: :en)
+    within("#goals") do
+      assert_no_selector ".goal-suggestion"
+      assert_selector ".goal-row .goal-bookmark", text: "1"
+      find(".goal-row").click
+    end
+
+    assert_current_path library_set_path(locale: :en, kind: "theme", key: "roguelike")
   end
 end

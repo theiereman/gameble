@@ -2,15 +2,13 @@
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".title") %>
 <% content_for :phone_back do %>
-  <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
-    <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
-  <% end %>
+  <%= phone_back_link t("shell.tabs.me"), me_path %>
 <% end %>
 <% earned, to_earn = @tiles.partition(&:earned) %>
 <section class="achievements" aria-labelledby="achievements-heading">
   <h1 id="achievements-heading" class="achievements__title"><%= t(".title") %></h1>
   <%= render "achievements/header", earned: earned.size, total: @tiles.size %>
-  <% [ [ :earned, earned ], [ :to_earn, to_earn ] ].each do |group, tiles| %>
+  <% [ [ :to_earn, to_earn ], [ :earned, earned ] ].each do |group, tiles| %>
     <% next if tiles.empty? %>
     <section class="achievements__group" aria-labelledby="achievements-<%= group %>">
       <h2 id="achievements-<%= group %>" class="achievements__heading"><%= t(".groups.#{group}", count: tiles.size) %></h2>

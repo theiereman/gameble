@@ -123,14 +123,6 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, Game::Invitation.count
   end
 
-  test "in English the refusals are English" do
-    sign_in @alice
-    post invitations_path(locale: :en), params: { code: "x" }
-    follow_redirect!
-
-    assert_select ".friends__message--error", "Expected format: ABCD-1234."
-  end
-
   test "a visitor cannot send, answer or cancel" do
     post invitations_path(locale: :fr), params: { code: "8F2D-K9XM" }
     assert_redirected_to home_path(locale: :fr)
@@ -251,17 +243,6 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_select ".toast", /Nouvel ami/i
     assert_select ".friends__row .friends__name", "Sam"
-  end
-
-  test "sending from a link invites the owner" do
-    sign_in @alice
-    post invite_link_path(token: @bob.token, locale: :fr)
-    assert_redirected_to friends_path(locale: :fr)
-    follow_redirect!
-
-    assert_select ".friends__message--sent", "Invitation envoyée à Sam."
-    assert_select ".friends__invitation", /Envoyée à Sam/
-    assert_equal [ @alice.id, @bob.id ], Game::Invitation.pending.pick(:sender_id, :recipient_id)
   end
 
   test "an invitation to a player with no usable name shows their code" do

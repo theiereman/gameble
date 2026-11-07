@@ -133,6 +133,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "html[lang=fr]"
     assert_select "title", /Comment ça marche/
+    assert_select ".top-bar__phone-back", false
     assert_select "main h1", "Comment ça marche"
     assert_equal FRENCH_HEADINGS, css_select("main section.how-it-works__section > h2").map { it.text.strip }
     css_select("main section.how-it-works__section").each do |section|
@@ -177,13 +178,12 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /heure locale/, count: 0
   end
 
-  test "the screen sits under the PLUS tab, its phone back to PLUS" do
+  test "the screen sits under no tab, its phone back to the profile" do
     sign_in(accounts_players(:player))
     get how_it_works_path(locale: :fr)
 
-    assert_select "a.tab-bar__tab[href='/fr/more'][aria-current=page]", /Plus/
-    assert_select "a.tab-bar__tab[href='/fr'][aria-current]", false
-    assert_select ".top-bar a.top-bar__phone-back[href='/fr/more']", /Plus/
+    assert_select "a.tab-bar__tab[aria-current]", false
+    assert_select ".top-bar a.top-bar__phone-back[href='/fr/me']", /Moi/
   end
 
   test "the screen renders the same with no published season" do

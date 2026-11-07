@@ -18,26 +18,26 @@ describe("stripTarget", () => {
 
   it("names the hovered back, then the focused one", () => {
     expect(stripTarget(hovered(restingStrip, "centurion"), "aurore")).toBe("centurion")
-    expect(stripTarget(focused(restingStrip, "confrere"), "aurore")).toBe("confrere")
+    expect(stripTarget(focused(restingStrip, "contrat"), "aurore")).toBe("contrat")
   })
 
   it("names the latest of a hovered and a focused back", () => {
-    const hoverThenFocus = focused(hovered(restingStrip, "centurion"), "confrere")
-    const focusThenHover = hovered(focused(restingStrip, "confrere"), "centurion")
+    const hoverThenFocus = focused(hovered(restingStrip, "centurion"), "contrat")
+    const focusThenHover = hovered(focused(restingStrip, "contrat"), "centurion")
 
-    expect(stripTarget(hoverThenFocus, "aurore")).toBe("confrere")
+    expect(stripTarget(hoverThenFocus, "aurore")).toBe("contrat")
     expect(stripTarget(focusThenHover, "aurore")).toBe("centurion")
   })
 
   it("goes back to the focused back when the pointer leaves, then to the active one when the focus leaves", () => {
-    const left = unhovered(hovered(focused(restingStrip, "confrere"), "centurion"), "centurion")
+    const left = unhovered(hovered(focused(restingStrip, "contrat"), "centurion"), "centurion")
 
-    expect(stripTarget(left, "aurore")).toBe("confrere")
+    expect(stripTarget(left, "aurore")).toBe("contrat")
     expect(stripTarget(blurred(left), "aurore")).toBe("aurore")
   })
 
   it("keeps the hover when the pointer leaves another back", () => {
-    const state = unhovered(hovered(restingStrip, "centurion"), "confrere")
+    const state = unhovered(hovered(restingStrip, "centurion"), "contrat")
 
     expect(stripTarget(state, "aurore")).toBe("centurion")
   })

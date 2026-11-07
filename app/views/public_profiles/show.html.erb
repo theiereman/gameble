@@ -1,8 +1,11 @@
 <% title = public_profile_title(@owner) %>
 <% content_for :back_button, true %>
+<% if current_player %>
+  <% content_for :phone_back do %><%= phone_back_link t("shell.screens.friends"), friends_path %><% end %>
+<% end %>
 <% content_for :title, title %>
 <% content_for :screen_title, title %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
 <%= render "public_profiles/profile", owner: @owner, title:, season: @season, summary: @summary, card_total: @card_total,
   achievements: @achievements, rarities: @rarities, activity: @activity, started_sets: @started_sets, started_set_count: @started_set_count, goals: @goals,
-  showcase: @showcase, relation: @relation, owner_title: @owner_title, fortune: @fortune %>
+  showcase: @showcase, relation: @relation, owner_title: @owner_title, fortune: @fortune, context: { brother: @owner.token } %>
