@@ -319,10 +319,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "once the day's booster is collected, the daily panel stays: collected, with the countdown to 00:00 UTC and its bar" do
-    Game::CollectDailyBonus.new.call(player: @player).value!
-    sign_in(@player)
-
     travel_to(Time.current.utc.change(hour: 22, min: 30, sec: 15)) do
+      Game::CollectDailyBonus.new.call(player: @player).value!
+      sign_in(@player)
       get home_path(locale: :en)
       next_day = Time.current.utc.tomorrow.beginning_of_day
 
