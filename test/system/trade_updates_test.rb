@@ -42,7 +42,7 @@ class TradeUpdatesTest < ApplicationSystemTestCase
 
     assert_current_path "/en/trades/#{trade.token}"
     assert_no_selector update_line(trade), visible: :all
-    assert_equal 1, Game::TradeView.where(player_id: @hugo.id).count
+    eventually("opening the trade should record one view") { Game::TradeView.where(player_id: @hugo.id).count == 1 }
 
     visit library_path(locale: :en)
     assert_no_selector update_line(trade), visible: :all
