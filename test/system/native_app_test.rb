@@ -18,10 +18,13 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     assert_signed_in
     resize_to(*PHONE)
     page.driver.browser.execute_cdp("Emulation.setUserAgentOverride", userAgent: APP)
+    # The user agent override reaches the page, not the service worker, which would fetch the capsule screen as a browser.
+    page.driver.browser.execute_cdp("Network.setBypassServiceWorker", bypass: true)
   end
 
   teardown do
     page.driver.browser.execute_cdp("Emulation.setUserAgentOverride", userAgent: "")
+    page.driver.browser.execute_cdp("Network.setBypassServiceWorker", bypass: false)
   end
 
   test "in the app a screen has one header, out of sight, and leaves the bar's height free" do
@@ -208,6 +211,7 @@ class NativeAppSystemTest < ApplicationSystemTestCase
   test "the bell's badge is reported empty while hidden" do
     visit friends_path(locale: :en)
     connect_as_the_app
+    assert_selector "turbo-frame#bell-items[complete]", visible: :all
 
     execute_script(<<~JS)
       const count = document.querySelector("[data-bell-target=count]")

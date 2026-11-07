@@ -84,6 +84,10 @@ class BoosterRevealModeTest < ApplicationSystemTestCase
     assert_selector ".booster-card[data-revealed]", count: 5
 
     assert_reveal_mode "one_by_one"
-    assert_equal [ '{"mode":"one_by_one"}' ], reveal_posts
+    assert_equal 1, reveal_posts.size
+    posted = JSON.parse(reveal_posts.first)
+    assert_equal({ "mode" => "one_by_one", "layout" => "wide" }, posted.slice("mode", "layout"))
+    assert_kind_of Integer, posted["touch_to_blast"]
+    assert_kind_of Integer, posted["touch_to_first_face"]
   end
 end

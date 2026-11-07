@@ -121,8 +121,9 @@ export class OpeningSequence {
       else this.refuse({ kind: "failed" })
       return
     }
-    const answer = host.apply((s) => heldOpened(s, entry)).answer!
+    const answer = heldOpened(host.current(), entry).answer!
     host.keepFaces(answer)
+    host.apply((s) => heldOpened(s, entry))
     host.confirm(entry)
     await this.dealHand(answer.cards.length)
   }

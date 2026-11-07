@@ -39,12 +39,12 @@ function heldTimers(): Timers {
   }
 }
 
-type Confirming = { landed?: Promise<boolean> }
+type HostOverrides = { landed?: Promise<boolean>; keepFaces?: () => void }
 
-function sequenceFrom(initial: BoosterState, timers: Timers, confirming: Confirming = {}) {
+function sequenceFrom(initial: BoosterState, timers: Timers, overrides: HostOverrides = {}) {
   let state = initial
   const confirm = vi.fn()
-  const awaitConfirmation = vi.fn(() => confirming.landed ?? Promise.resolve(true))
+  const awaitConfirmation = vi.fn(() => overrides.landed ?? Promise.resolve(true))
   const announce = vi.fn()
   const finish = vi.fn()
   const animation = { finish, effect: { getComputedTiming: () => ({ endTime: 300 }) } }
@@ -68,7 +68,7 @@ function sequenceFrom(initial: BoosterState, timers: Timers, confirming: Confirm
     reserve: () => state.reserve,
     failedMessage: "failed",
     refusedTitle: "refused",
-    keepFaces: () => {},
+    keepFaces: overrides.keepFaces ?? (() => {}),
     refreshBank: async () => {},
     confirm,
     awaitConfirmation,
@@ -244,6 +244,23 @@ describe("OpeningSequence with a held capsule", () => {
     const stop = onGameble("gameble:toast", (detail) => shown.push(detail))
     return { shown, stop }
   }
+
+  it("keeps the held cards' faces before the hand is drawn", async () => {
+    const timers = heldTimers()
+    const handWhenKept: unknown[] = []
+    const { sequence, state } = sequenceFrom(withHeld(), timers, {
+      keepFaces: () => handWhenKept.push(state().answer),
+    })
+
+    const opened = sequence.open()
+    await settled()
+    timers.flush()
+    sequence.skip()
+    await opened
+
+    expect(handWhenKept).toEqual([null])
+    expect(state().answer?.cards).toBe(HELD.cards)
+  })
 
   it("blasts and deals its cards with no network wait, and queues its confirmation once", async () => {
     const timers = heldTimers()
