@@ -4,7 +4,7 @@
 <%= turbo_frame_tag player_card_frame_id(@owner.token), target: "_top" do %>
   <section class="player-card" aria-labelledby="player-card-name-<%= @owner.token %>">
     <div class="player-card__head">
-      <%= pixel_icon("avatar-default", class: "player-card__avatar") %>
+      <%= player_avatar(@owner, class_name: "player-card__avatar") %>
       <div class="player-card__who">
         <h2 id="player-card-name-<%= @owner.token %>" class="player-card__name"><%= title %></h2>
         <%= active_title_tag(@owner_title, class_name: "player-card__title") %>

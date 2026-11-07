@@ -1,7 +1,7 @@
 <%# locals: (row:) %>
 <% shown = row.shown_to?(current_player) %>
 <%= tag.li class: class_names("player-row", "player-row--privileged": row.privileged, "player-row--own": row.player == current_player) do %>
-  <%= pixel_icon("avatar-default", class: "player-row__avatar") %>
+  <%= player_avatar((row.player if shown), class_name: "player-row__avatar") %>
   <span class="player-row__who">
     <% if shown %>
       <% name = public_profile_title(row.player) %>

@@ -48,6 +48,7 @@
     <%= render PanelComponent.new(tag: :p, class: "register__empty") do %><%= t(".empty.#{@period}") %><% end %>
   <% else %>
     <ol class="register__rows">
+      <% preload_avatars(@rows.select { it.shown_to?(current_player) }.map(&:player)) %>
       <%= render partial: "fortune_registers/row", collection: @rows, as: :row %>
     </ol>
     <% @rows.select { it.shown_to?(current_player) }.each do |row| %>
