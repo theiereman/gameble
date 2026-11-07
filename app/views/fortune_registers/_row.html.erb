@@ -1,0 +1,34 @@
+<%# locals: (row:) %>
+<% shown = row.shown_to?(current_player) %>
+<%= tag.li class: class_names("player-row", "player-row--privileged": row.privileged, "player-row--own": row.player == current_player) do %>
+  <%= player_avatar((row.player if shown), class_name: "player-row__avatar") %>
+  <span class="player-row__who">
+    <% if shown %>
+      <% name = public_profile_title(row.player) %>
+      <%= tag.button name, type: :button, class: "player-row__name",
+            **dialog_opener_attributes(player_card_dialog_id(row.player.token), label: t("fortune_registers.show.row.open_card", name:)) %>
+    <% else %>
+      <span class="player-row__name player-row__name--hidden"><%= t("fortune_registers.show.hidden_player") %></span>
+    <% end %>
+    <% if row.privileged %>
+      <span class="fortune__privileged player-row__badge"><%= t("fortunes.privileged") %></span>
+    <% else %>
+      <span class="player-row__label"><%= fortune_label_title(row.index) %></span>
+    <% end %>
+  </span>
+  <dl class="player-row__figures">
+    <% Catalog::Rarity::TIERS.reverse_each do |tier, rarity| %>
+      <div class="<%= class_names("player-row__figure", "player-row__rarity", "player-row__rarity--#{tier}") %>">
+        <dt><%= pixel_icon("rarity-#{tier}", class: "player-row__icon") %><span class="visually-hidden"><%= t("catalog.rarity.#{rarity}") %></span></dt>
+        <dd><%= shown ? number_with_delimiter(row.rarities.fetch(tier)) : t("fortune_registers.show.row.hidden") %></dd>
+      </div>
+    <% end %>
+    <div class="player-row__figure player-row__capsules">
+      <dt><%= pixel_icon("canister-small", class: "player-row__icon") %><span class="visually-hidden"><%= t("fortune_registers.show.row.capsules") %></span></dt>
+      <dd><%= number_with_delimiter(row.packs_opened) %></dd>
+    </div>
+  </dl>
+  <%= tag.span class: class_names("player-row__luck", "fortune-index", fortune_index_tone(row.index)), title: fortune_index_text(row.index) do %>
+    <span class="visually-hidden"><%= t("fortune_registers.show.row.luck") %></span><%= fortune_share_tag(row, class_name: "player-row__share") %>
+  <% end %>
+<% end %>

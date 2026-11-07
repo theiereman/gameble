@@ -3,7 +3,7 @@
 <%= tag.div class: "me", data: { controller: "me", me_back_value: worn.key, action: "back-picker:equipped->me#wear" } do %>
   <%= render "public_profiles/profile", owner: current_player, title: public_profile_title(current_player), season: @season, summary: @summary, card_total: @card_total,
     achievements: @achievements, rarities: @rarities, activity: @activity, started_sets: @started_sets, started_set_count: @started_set_count, goals: @goals,
-    showcase: @showcase, relation: nil, owner_title: @owner_title, context: { from: "me" }, editing: true, worn_back: worn, return_card: @return_card %>
+    showcase: @showcase, relation: nil, owner_title: @owner_title, fortune: @fortune, context: { from: "me" }, editing: true, worn_back: worn, return_card: @return_card %>
   <% @card_backs.reject(&:locked?).each do |row| %>
     <template data-me-target="back" data-key="<%= row.key %>"><%= render "own_profiles/back_look", back: row.back %></template>
   <% end %>

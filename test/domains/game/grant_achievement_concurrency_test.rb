@@ -15,6 +15,7 @@ class Game::GrantAchievementConcurrencyTest < ActiveSupport::TestCase
   teardown do
     Game::AchievementUnlock.where(player_id: @player.id).delete_all
     Game::Pack.where(player_id: @player.id).delete_all
+    Game::Fortune.where(player_id: @player.id).delete_all
     stream = Game::Operation.stream_name(@player.id)
     connection = ActiveRecord::Base.connection
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream = ?", stream ]))
@@ -62,6 +63,7 @@ class Game::GrantAchievementDeletionConcurrencyTest < ActiveSupport::TestCase
   teardown do
     Game::AchievementUnlock.where(player_id: @player.id).delete_all
     Game::Pack.where(player_id: @player.id).delete_all
+    Game::Fortune.where(player_id: @player.id).delete_all
     streams = [ Game::Operation.stream_name(@player.id), "Accounts::Player$#{@player.id}" ]
     connection = ActiveRecord::Base.connection
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))

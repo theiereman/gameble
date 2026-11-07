@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_07_070000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -460,6 +460,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_130000) do
     t.index ["player_id"], name: "index_game_first_discoveries_on_player_id"
   end
 
+  create_table "game_fortunes", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.date "week_start"
+    t.integer "regular_packs", default: 0, null: false
+    t.integer "bonus_packs", default: 0, null: false
+    t.integer "reward_packs", default: 0, null: false
+    t.integer "common_cards", default: 0, null: false
+    t.integer "uncommon_cards", default: 0, null: false
+    t.integer "rare_cards", default: 0, null: false
+    t.integer "epic_cards", default: 0, null: false
+    t.integer "legendary_cards", default: 0, null: false
+    t.integer "actual_points", default: 0, null: false
+    t.float "expected_points", default: 0.0, null: false
+    t.float "variance", default: 0.0, null: false
+    t.virtual "z_score", type: :float, as: "\nCASE\n    WHEN (variance > (0)::double precision) THEN (((actual_points)::double precision - expected_points) / sqrt(variance))\n    ELSE (0)::double precision\nEND", stored: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "week_start"], name: "index_game_fortunes_on_player_id_and_week_start", unique: true, nulls_not_distinct: true
+    t.index ["week_start", "z_score", "player_id"], name: "index_game_fortunes_on_week_start_and_z_score_and_player_id", order: { z_score: :desc }
+    t.check_constraint "regular_packs >= 0 AND bonus_packs >= 0 AND reward_packs >= 0", name: "game_fortunes_packs_check"
+    t.check_constraint "variance >= 0::double precision", name: "game_fortunes_variance_check"
+    t.check_constraint "week_start IS NULL OR EXTRACT(isodow FROM week_start) = 1::numeric", name: "game_fortunes_week_start_monday_check"
+  end
+
   create_table "game_friend_codes", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.string "code", null: false
@@ -781,6 +805,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_130000) do
   add_foreign_key "game_feed_reactions", "game_feed_entries", column: "feed_entry_id", on_delete: :cascade
   add_foreign_key "game_first_discoveries", "accounts_players", column: "player_id"
   add_foreign_key "game_first_discoveries", "game_packs", column: "pack_id"
+  add_foreign_key "game_fortunes", "accounts_players", column: "player_id"
   add_foreign_key "game_friend_codes", "accounts_players", column: "player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "high_player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "low_player_id"

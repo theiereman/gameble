@@ -64,6 +64,27 @@ if Rails.env.development? && Catalog::PublishedSeason.call.nil?
   puts "Seeded and published season #{season_number} with #{card_count} cards."
 end
 
+# Development only: thirty fake players (the ones DevSignInsController signs
+# in as, "Dev Player" first), each with a few opened packs, so the
+# leaderboard and the other players' pages have rows. A fake player who
+# already opened a pack is left alone, so a rerun adds nothing twice.
+if Rails.env.development? && Catalog::PublishedSeason.call
+  players = DevSignInsController::FAKE_PLAYER_COUNT.times.map do |number|
+    Accounts::SignIn.new.call(steam_id: DevSignInsController.steam_id(number),
+      persona_name: DevSignInsController.persona_name(number)).value!
+  end
+  Game::HealBanksJob.perform_now
+
+  already_opened = Game::Pack.where(player_id: players.map(&:id)).where.not(opened_at: nil).distinct.pluck(:player_id)
+  opened = players.each_with_index.sum do |player, number|
+    next 0 if already_opened.include?(player.id)
+
+    (2 + (number * 5) % 9).times.count { Game::OpenPack.new.call(player:).success? }
+  end
+  Game::BackfillFortunesJob.perform_now
+  puts "Seeded #{players.size} fake players who opened #{opened} packs."
+end
+
 # Development only: a few generic roadmap milestones with stories, all three
 # statuses, shown and hidden, so the landing's roadmap module and the roadmap
 # page have something to show. A roadmap staff already started is left alone.

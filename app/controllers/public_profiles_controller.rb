@@ -4,6 +4,7 @@ class PublicProfilesController < ApplicationController
   include SetBoardLoading
   include SetAlbumLoading
   include ProfileLoading
+  include FortunePeriod
 
   before_action :authorize_page
   before_action :load_owner
@@ -11,6 +12,14 @@ class PublicProfilesController < ApplicationController
   def show
     load_profile(@owner)
     @owner_title = Game::ActiveProfileTitle.call(@owner)
+    @fortune = Game::FortuneStanding.call(@owner, period: fortune_period(params[:fortune]))
+    load_relation
+  end
+
+  def summary
+    @owner_title = Game::ActiveProfileTitle.call(@owner)
+    @fortune = Game::FortuneStanding.call(@owner, period: :week)
+    @rarities = Game::HeldGames.by_rarity(@owner)
     load_relation
   end
 

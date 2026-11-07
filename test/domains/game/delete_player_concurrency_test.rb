@@ -31,7 +31,7 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
     Game::Invitation.where(sender_id: players).or(Game::Invitation.where(recipient_id: players)).delete_all
     Game::FirstDiscovery.where(player_id: created).delete_all
     [ Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::SetTier, Game::Pack, Game::Holding,
-      Game::WeeklyContribution ].each { |model| model.where(player_id: players).delete_all }
+      Game::WeeklyContribution, Game::Fortune ].each { |model| model.where(player_id: players).delete_all }
     [ Game::FriendCode, Game::PlayerState ].each { |model| model.where(player_id: created).delete_all }
     connection = ActiveRecord::Base.connection
     streams = players.map { |id| Game::Operation.stream_name(id) } + created.map { |id| "Accounts::Player$#{id}" }

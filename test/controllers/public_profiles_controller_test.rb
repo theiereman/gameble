@@ -94,7 +94,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "Capsules opened", "2" ], [ "First discoveries", "1" ], [ "Trades concluded", "1" ] ],
       figures(".profile-stats__grid:not(.profile-stats__grid--rarities)")
 
-    assert_equal [ "Achievements", "Sets" ], css_select("h2").map(&:text)
+    assert_equal [ "Fortune", "Achievements", "Sets" ], css_select("h2").map(&:text)
     assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .visually-hidden", "5 achievements earned out of 25"
     assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .achievements__segment--lit", 5
     assert_select ".profile-section__label", "Latest earned"
@@ -629,7 +629,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Raretés", "Activité" ], css_select(".profile-stats__kicker").map(&:text)
     assert_equal [ "Capsules ouvertes", "Premières découvertes", "Échanges conclus" ],
       figures(".profile-stats__grid:not(.profile-stats__grid--rarities)").map(&:first)
-    assert_equal [ "Succès", "Sets" ], css_select("h2").map(&:text)
+    assert_equal [ "Fortune", "Succès", "Sets" ], css_select("h2").map(&:text)
     assert_select ".profile-section:has(#profile-achievements-heading) .achievements__head .visually-hidden", "0 succès obtenu sur 25"
     assert_select ".profile-section__aside", "0 set entamé"
 
@@ -706,7 +706,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor's profile costs sixteen queries whatever the owner's history, a signed-in viewer's nine more, a showcase one more" do
+  test "a visitor's profile costs seventeen queries whatever the owner's history, a signed-in viewer's nine more, a showcase one more" do
     season = publish_sets_draft
     set_members(season, "horror").last(2).each { |id| hold(@owner, id, 1) }
     unlock("first_booster", 1.day.ago)
@@ -715,15 +715,15 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # count, the achievements earned, the showcase, the rarities, the
     # activity, the owner's started sets, those sets, their cards and the
     # faces of those shown; the themes' names; the owner's game set goals;
-    # the owner's earned titles and their chosen one; the owner's avatar.
-    assert_request_queries(18) { get brother_path(locale: :en, token: @owner.token) }
+    # the owner's earned titles and their chosen one; the owner's avatar; the owner's fortune.
+    assert_request_queries(19) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
     assert_select ".profile-sets .set-tile", minimum: 1
 
     hold_started_sets(season)
     open_packs(season, 3)
     %w[first_epic first_trade boosters_10 first_repost].each { unlock(it, 1.hour.ago) }
-    assert_request_queries(18) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(19) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-sets .set-tile", 5
     assert_select ".profile-achievements .achievement", 4
 
@@ -732,18 +732,18 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # next pack, copies per tier, rarity legend), the tab bar's trades and
     # invitations waiting, the viewer's friendship and invitations with the owner,
     # and the viewer's avatar beside the owner's.
-    assert_request_queries(29) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(30) { get brother_path(locale: :en, token: @owner.token) }
 
     # The chosen cards' views, however many.
     held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)
     held.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
-    assert_request_queries(30) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(31) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase .card", held.size
     assert_response :success
 
     # The owner's remove crosses cost nothing more.
     sign_in(@owner)
-    assert_request_queries(27) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(28) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase__remove", held.size
   end
 
@@ -802,7 +802,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_empty written
-    assert_equal [ "Vitrine", "Succès", "Sets" ], css_select("h2").map(&:text)
+    assert_equal [ "Vitrine", "Fortune", "Succès", "Sets" ], css_select("h2").map(&:text)
     assert_select "header.profile-band + section.profile-showcase-panel#showcase h2#profile-showcase-heading", "Vitrine"
     links = css_select(".profile-showcase .profile-showcase__slot > a.card-link")
     expected = [ cards[2], cards[0], cards[1] ].map { "/fr/cards/#{slugs.fetch(it)}/seasons/#{season.number}?brother=#{@owner.token}" }
