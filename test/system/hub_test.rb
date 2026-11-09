@@ -52,7 +52,7 @@ class HubTest < ApplicationSystemTestCase
     assert_nil focused_item
   end
 
-  test "keys 3 and 4 in the menu open Trades and Friends" do
+  test "keys 3 and 4 in the menu open Trades and the Market" do
     sign_in
 
     item("1").send_keys("3")
@@ -60,7 +60,7 @@ class HubTest < ApplicationSystemTestCase
 
     find(".top-bar__home").click
     item("3").send_keys("4")
-    assert_current_path friends_path(locale: :en)
+    assert_current_path market_path(locale: :en)
   end
 
   test "key 8 swaps the menu for the extras in place; Escape or the back row brings the menu back" do
