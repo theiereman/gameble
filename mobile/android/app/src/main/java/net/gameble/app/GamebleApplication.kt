@@ -11,6 +11,7 @@ import dev.hotwire.navigation.config.registerBridgeComponents
 import dev.hotwire.navigation.config.registerFragmentDestinations
 import net.gameble.app.bridge.BackComponent
 import net.gameble.app.bridge.HapticsComponent
+import net.gameble.app.bridge.PullToRefreshComponent
 import net.gameble.app.bridge.PushPermissionComponent
 import net.gameble.app.bridge.ShareComponent
 import net.gameble.app.bridge.SheetComponent
@@ -43,6 +44,7 @@ class GamebleApplication : Application() {
             BridgeComponentFactory("share", ::ShareComponent),
             BridgeComponentFactory("haptics", ::HapticsComponent),
             BridgeComponentFactory("sheet", ::SheetComponent),
+            BridgeComponentFactory("pull-to-refresh", ::PullToRefreshComponent),
             BridgeComponentFactory("top-bar", ::TopBarComponent)
         )
         PushService.createChannel(this)

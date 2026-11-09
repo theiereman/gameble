@@ -7,8 +7,16 @@
       ],
       "properties": {
         "context": "default",
-        "pull_to_refresh_enabled": false,
+        "pull_to_refresh_enabled": true,
         "query_string_presentation": "replace"
+      }
+    },
+    {
+      "patterns": [
+        "^/(en|fr)/booster/?$"
+      ],
+      "properties": {
+        "pull_to_refresh_enabled": false
       }
     },
     {

@@ -8,6 +8,7 @@ final class GamebleWebViewController: HotwireWebViewController {
     private var reloadingBlankPage = false
 
     private var tabsShown = true
+    private var pullToRefreshBeforeHold: Bool?
     private var dialogOpen = false
     private var topBarScroll = TopBarScroll()
     private var scrollObservation: NSKeyValueObservation?
@@ -53,7 +54,7 @@ final class GamebleWebViewController: HotwireWebViewController {
     override func visitableDidActivateWebView(_ webView: WKWebView) {
         super.visitableDidActivateWebView(webView)
         webView.scrollView.contentInsetAdjustmentBehavior = .never
-        webView.scrollView.alwaysBounceVertical = false
+        webView.scrollView.alwaysBounceVertical = visitableView.allowsPullToRefresh
         scrollObservation = webView.scrollView.observe(\.contentOffset) { [weak self] scrollView, _ in
             self?.scrolled(scrollView)
         }
@@ -75,6 +76,18 @@ final class GamebleWebViewController: HotwireWebViewController {
         tabsShown = shown
         tabBarController?.tabBar.isHidden = !shown
         fitBottom()
+    }
+
+    func holdPullToRefresh() {
+        guard pullToRefreshBeforeHold == nil, !visitableView.isRefreshing else { return }
+        pullToRefreshBeforeHold = visitableView.allowsPullToRefresh
+        visitableView.allowsPullToRefresh = false
+    }
+
+    func releasePullToRefresh() {
+        guard let allowed = pullToRefreshBeforeHold else { return }
+        pullToRefreshBeforeHold = nil
+        visitableView.allowsPullToRefresh = allowed
     }
 
     func dialogChanged(open: Bool) {

@@ -11,12 +11,12 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
 
   setup { sign_in(accounts_players(:player)) }
 
-  test "in the app, the native tab bar takes the web one's place and the haptics and sheet bridges listen" do
+  test "in the app, the native tab bar takes the web one's place and the haptics, sheet and pull-to-refresh bridges listen" do
     get home_path(locale: :en), headers: { "User-Agent" => APP }
 
     assert_select "html[data-native-app]"
     assert_select "nav.tab-bar", 0
-    assert_select "[data-controller~='bridge--haptics'][data-controller~='bridge--sheet']"
+    assert_select "[data-controller~='bridge--haptics'][data-controller~='bridge--sheet'][data-controller~='bridge--pull-to-refresh']"
     assert_select "meta[name=view-transition]", 0
   end
 
@@ -177,13 +177,14 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
     assert_select ".steam-sign-in", 0
   end
 
-  test "each app's path configuration covers every page, swaps a page for itself with other parameters, and never pulls to refresh" do
+  test "each app's path configuration covers every page, swaps a page for itself with other parameters, and pulls to refresh everywhere but the capsule and the sheets" do
     %w[ios_v1 android_v1].each do |name|
       rules = JSON.parse(Rails.public_path.join("configurations/#{name}.json").read).fetch("rules")
 
       assert_equal [ ".*" ], rules.first.fetch("patterns"), name
       assert_equal "replace", rules.first.dig("properties", "query_string_presentation"), name
-      assert rules.none? { |rule| rule.dig("properties", "pull_to_refresh_enabled") }, name
+      %w[/fr/feed /en/library /fr/brothers/someone /en/trades].each { assert pulls_to_refresh?(rules, it), "#{name} #{it}" }
+      %w[/fr/booster /en/booster /fr/me/sheets/title /en/feed/types].each { assert_not pulls_to_refresh?(rules, it), "#{name} #{it}" }
       %w[/fr/me/sheets/title /en/feed/types /fr/cards/portal/seasons/1/holders].each do |sheet_path|
         rule = rules.reverse.find { |candidate| candidate["patterns"].any? { Regexp.new(it).match?(sheet_path) } }
         assert_equal "modal", rule.dig("properties", "context"), "#{name} #{sheet_path}"
@@ -193,5 +194,12 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
         assert_equal "default", rule.dig("properties", "context"), "#{name} #{screen}"
       end
     end
+  end
+
+  private
+
+  def pulls_to_refresh?(rules, path)
+    matching = rules.select { |rule| rule["patterns"].any? { Regexp.new(it).match?(path) } }
+    matching.reduce({}) { |properties, rule| properties.merge(rule["properties"]) }["pull_to_refresh_enabled"]
   end
 end

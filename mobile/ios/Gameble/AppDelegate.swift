@@ -20,6 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ShareComponent.self,
             HapticsComponent.self,
             SheetComponent.self,
+            PullToRefreshComponent.self,
             TopBarComponent.self
         ])
         PushNotifications.shared.start()

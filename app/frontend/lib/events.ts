@@ -29,6 +29,8 @@ export type StreamUpdatedDetail = Record<string, never>
 
 export type SheetShownDetail = { shown: boolean }
 
+export type TouchHeldDetail = { held: boolean }
+
 export type TopBarPanel = "bell" | "menu"
 
 export type TopBarPanelDetail = { panel: TopBarPanel | null }
@@ -46,6 +48,7 @@ export interface GamebleEventMap {
   "gameble:reactions-updated": StreamUpdatedDetail
   "gameble:bank-updated": StreamUpdatedDetail
   "gameble:sheet-shown": SheetShownDetail
+  "gameble:touch-held": TouchHeldDetail
   "gameble:screen-shown": null
   "gameble:booster-changed": null
   "gameble:top-bar-panel": TopBarPanelDetail
