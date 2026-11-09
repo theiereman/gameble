@@ -16,7 +16,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   include GameTrades
   include SteamSignIn
 
-  PLAYER_HUB_QUERIES = 29
+  PLAYER_HUB_QUERIES = 30
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -554,7 +554,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # waiting (menu 03 and the Trades tab share one count), the invitations waiting
     # (the player menu's), the LIVE ticker's entries and the feed strip's
     # (none here, so no players or cards), and the Flukeometer panel's standing,
-    # distribution and top three.
+    # distribution, Privileged threshold and top three.
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"
 

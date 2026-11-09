@@ -27,38 +27,67 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
   end
 
-  test "the week's dashboard has one row per player: Privileged in place of the label, capsules, a count per rarity and the luck last" do
+  test "the week's board has one line per player: rank, name, Privileged badge and label, a count per rarity, capsules and the luck last" do
     open_cards(@player, 5)
     open_cards(@player, 1)
+    sign_in(@player)
 
     get fortune_register_path(locale: :en)
 
     assert_response :success
     assert_select "h1", "The Flukeometer"
-    assert_select ".register__summary .profile-figure", text: /Active this week\s*1/
-    assert_select ".register__summary .profile-figure", text: /Capsules this week\s*2/
-    assert_select ".register__summary .profile-figure", text: %r{Privileged\s*1/1}
+    assert_select ".register__mine-label", "Your luck · This week"
+    assert_select ".register__mine-index.fortune-index--up", "+500"
+    assert_select ".register__mine-rank .fortune__privileged", "PRIVILEGED"
+    assert_select ".register__mine-rank", /#1 of 1/
+    assert_select ".register__summary .register__figure", text: /Active this week\s*1/
+    assert_select ".register__summary .register__figure", text: /Capsules this week\s*2/
+    assert_select ".register__summary .register__figure", text: /Privileged of 1\s*1/
+    assert_select ".fortune-gauge__column--privileged", minimum: 1
+    assert_select ".fortune-gauge__zone-label", "PRIVILEGED"
+    assert_select ".register__head", 1
     assert_select ".player-row", 1
-    assert_select ".player-row:nth-child(1).player-row--privileged" do
+    assert_select ".register__cut", false
+    assert_select ".player-row:nth-child(1).player-row--privileged.player-row--own" do
+      assert_select ".player-row__rank", "1"
       assert_select "button.player-row__name[aria-haspopup=dialog]", "Hugo"
       assert_select ".player-row__who .fortune__privileged", "PRIVILEGED"
-      assert_select ".player-row__label", false
+      assert_select ".player-row__you", "YOU"
+      assert_select ".player-row__label"
       assert_select ".player-row__capsules dt svg.player-row__icon"
       assert_select ".player-row__capsules dt .visually-hidden", "Capsules"
       assert_select ".player-row__capsules dd", "2"
       assert_select ".player-row__rarity svg.player-row__icon", 5
       assert_select ".player-row__figure:first-child.player-row__rarity--5"
-      assert_select ".player-row__figure:last-child.player-row__capsules"
       assert_select ".player-row__rarity--1 dd", "1"
       assert_select ".player-row__rarity--5 dd", "1"
       assert_select ".player-row__rarity--5 dt .visually-hidden", "Legendary"
-      assert_select ":last-child.player-row__luck.fortune-index--up[title=?]", "+500"
+      assert_select ":last-child.player-row__luck .player-row__index.fortune-index--up", "+500"
       assert_select ".player-row__luck .player-row__share-word", "Top"
       assert_select ".player-row__luck .player-row__share-value", "100%"
     end
     assert_select "dialog#player-card-#{@player.token} turbo-frame[src=?][loading=lazy]", brother_summary_path(locale: :en, token: @player.token)
     assert_select "dialog.modal", 1
     assert_select "[style]", false
+  end
+
+  test "a line marks the Privileged threshold on the week's luck order only" do
+    open_cards(@player, 5)
+    open_cards(stranger("Other"), 1)
+
+    get fortune_register_path(locale: :en)
+
+    assert_select ".register__rows > li", 3
+    assert_select ".register__rows > li:nth-child(2).register__cut", "Privileged threshold · the luckiest 10%"
+
+    get fortune_register_path(locale: :en, sort: "capsules")
+
+    assert_select ".register__cut", false
+
+    get fortune_register_path(locale: :en, period: "all_time")
+
+    assert_select ".register__cut", false
+    assert_select ".fortune-gauge__column--privileged", false
   end
 
   test "a private player has no row and counts nowhere, and sees their own index without a rank" do
@@ -72,7 +101,7 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".player-row", 1
     assert_select "button.player-row__name", "Other"
     assert_select ".player-row--own", false
-    assert_select ".register__summary .profile-figure", text: /Active this week\s*1/
+    assert_select ".register__summary .register__figure", text: /Active this week\s*1/
     assert_select ".register__mine", false
     assert_no_match "Hugo", css_select(".register__rows").text
 

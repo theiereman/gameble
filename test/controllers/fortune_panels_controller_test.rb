@@ -41,6 +41,8 @@ class FortunePanelsControllerTest < ActionDispatch::IntegrationTest
       assert_select ".fortune-gauge__marker", 1
       assert_select ".fortune-gauge__you", "VOUS"
       assert_select ".fortune-panel__row", 3
+      assert_select ".fortune-panel__row .fortune-panel__privileged", 1
+      assert_select ".fortune-gauge__zone-label", "PRIVILÉGIÉS"
       assert_select ".fortune-gauge .visually-hidden", /5 joueurs classés.*Vous êtes à -\d+, rang 5 sur 5\./
       assert_select ".panel .fortune-panel__more", false
       assert_select ".fortune-panel__more a.button--link[href=?]", fortune_register_path(locale: :fr), "Voir tout le classement"
@@ -69,8 +71,11 @@ class FortunePanelsControllerTest < ActionDispatch::IntegrationTest
 
     travel_to(MONDAY) { get fortune_panel_path(locale: :fr) }
 
-    assert_select "h2", "Le Chattomètre a parlé"
+    assert_select "h2", "Le Chattomètre"
+    assert_select ".fortune-panel__period", "Semaine passée"
     assert_select ".fortune-panel__winner", "Player1"
+    assert_select ".fortune-panel__verdict svg.fortune-panel__avatar"
+    assert_select ".fortune-gauge__column--privileged", false
     assert_select ".fortune-gauge__marker", 1
     assert_select ".fortune-panel__more a[href=?]", fortune_register_path(locale: :fr, period: "last_week")
     assert_select ".fortune-panel__name", "Membre discret"

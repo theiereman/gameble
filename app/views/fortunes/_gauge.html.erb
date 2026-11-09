@@ -1,15 +1,20 @@
-<%# locals: (distribution:, standing:) %>
+<%# locals: (distribution:, standing:, privileged_floor: nil) %>
 <% marked_band = (Game::FortuneDistribution.band_of(standing.index) if standing&.rank) %>
+<% privileged_band = (Game::FortuneDistribution.band_of(privileged_floor) if privileged_floor) %>
 <div class="fortune-gauge">
   <p class="visually-hidden" data-fortune-gauge-summary><%= fortune_gauge_text(distribution, standing) %></p>
   <div class="fortune-gauge__plot" aria-hidden="true">
     <% distribution.columns.each_with_index do |column, band| %>
-      <span class="fortune-gauge__column">
+      <%= tag.span class: class_names("fortune-gauge__column", "fortune-gauge__column--privileged": privileged_band && band >= privileged_band,
+            "fortune-gauge__column--mine": band == marked_band) do %>
         <span class="<%= class_names("fortune-gauge__band", "fortune-gauge__band--h#{column.level}", "fortune-gauge__band--#{column.heat}") %>"></span>
         <% if band == marked_band %>
           <span class="<%= class_names("fortune-gauge__marker", "fortune-gauge__marker--start": band < 6, "fortune-gauge__marker--end": band > 42) %>"><span class="fortune-gauge__you"><%= t("fortunes.gauge.you") %></span></span>
         <% end %>
-      </span>
+      <% end %>
+    <% end %>
+    <% if privileged_band %>
+      <span class="fortune-gauge__zone-label"><%= t("fortunes.gauge.privileged") %></span>
     <% end %>
   </div>
   <p class="fortune-gauge__scale" aria-hidden="true">

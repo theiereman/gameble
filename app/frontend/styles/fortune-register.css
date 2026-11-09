@@ -1,0 +1,454 @@
+.register {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.register__intro {
+  max-width: 72ch;
+  color: var(--color-muted);
+}
+
+/* ---- Overview: the viewer's luck, the gauge, the period's figures ---- */
+
+.register__overview {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: var(--space-5) var(--space-8);
+}
+
+.register__mine {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.register__mine-label {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.register__mine-index {
+  font: var(--font-count-large);
+  letter-spacing: var(--tracking-count-large);
+}
+
+.register__mine-rank {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.register__mine-share {
+  color: var(--color-muted);
+}
+
+.register__gauge {
+  grid-column: -2;
+  min-width: 0;
+}
+
+.register__overview:not(:has(.register__mine)) .register__gauge {
+  grid-column: 1 / -1;
+}
+
+.register__summary {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  gap: var(--space-3) var(--space-7);
+  margin: 0;
+  padding-top: var(--space-4);
+  box-shadow: inset 0 var(--space-unit) 0 0 var(--color-line-soft);
+}
+
+.register__figure {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.register__figure-label {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.register__figure-value {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+}
+
+/* ---- Period and order ---- */
+
+.register__controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+/* ---- The board: one panel, one line per member ---- */
+
+.register__board {
+  display: grid;
+  grid-template-columns: var(--space-8) var(--space-8) minmax(0, 1fr) auto auto calc(var(--space-8) * 3);
+  column-gap: var(--space-5);
+  padding: 0;
+}
+
+.register__head,
+.register__rows,
+.player-row {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+}
+
+.register__head {
+  align-items: center;
+  margin: 0;
+  padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4);
+  box-shadow: inset 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line-soft);
+  color: var(--color-dim);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.register__head-rank,
+.register__head-capsules,
+.register__head-luck {
+  text-align: right;
+}
+
+.register__head-member {
+  grid-column: 3;
+}
+
+.register__rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.player-row {
+  position: relative;
+  align-items: center;
+  min-width: 0;
+  padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4);
+  box-shadow: inset 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line-soft);
+}
+
+.player-row:last-child {
+  box-shadow: none;
+}
+
+.player-row--privileged {
+  box-shadow:
+    inset calc(2 * var(--space-unit)) 0 0 0 var(--color-gold),
+    inset 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line-soft);
+}
+
+.player-row--own {
+  background: var(--color-panel-raised);
+}
+
+.player-row__rank {
+  color: var(--color-muted);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+  text-align: right;
+}
+
+.player-row--privileged .player-row__rank {
+  color: var(--color-gold);
+}
+
+.player-row__avatar {
+  display: block;
+}
+
+.player-row__who {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.player-row__line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.player-row__name {
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: none;
+  color: var(--color-text-bright);
+  font: var(--font-card-title-l);
+  letter-spacing: var(--tracking-card-title-l);
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.player-row__name::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.player-row:has(.player-row__name:hover) .player-row__name {
+  color: var(--color-accent);
+}
+
+.player-row:has(.player-row__name:focus-visible) {
+  outline: var(--space-unit) solid var(--color-accent);
+  outline-offset: calc(-1 * var(--space-unit));
+}
+
+.player-row__name:focus-visible {
+  outline: none;
+}
+
+.player-row__name--hidden {
+  color: var(--color-muted);
+  cursor: default;
+}
+
+.player-row__badge {
+  flex: none;
+  font: var(--font-card-meta);
+  letter-spacing: var(--tracking-card-meta);
+}
+
+.player-row__you {
+  flex: none;
+  padding: 0 var(--space-2);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+  color: var(--color-accent);
+  font: var(--font-card-meta);
+  letter-spacing: var(--tracking-card-meta);
+}
+
+.player-row__label {
+  overflow: hidden;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  font-weight: var(--font-weight-regular);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-row__figures,
+.player-row__capsules {
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.player-row__figures {
+  gap: var(--space-4);
+}
+
+.player-row__capsules {
+  justify-content: flex-end;
+}
+
+.player-row__figure {
+  min-width: 5ch;
+}
+
+.player-row__figure,
+.player-row__capsules {
+  gap: var(--space-2);
+}
+
+.player-row__figure,
+.player-row__figure dt,
+.player-row__capsules dt {
+  display: flex;
+  align-items: center;
+}
+
+.player-row__figure dd,
+.player-row__capsules dd {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body-small);
+  font-weight: var(--font-weight-regular);
+}
+
+.player-row__icon {
+  display: block;
+}
+
+.player-row__luck {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+}
+
+.player-row__index {
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+}
+
+.player-row__share {
+  color: var(--color-muted);
+  font: var(--font-card-meta);
+  font-weight: var(--font-weight-regular);
+  white-space: nowrap;
+}
+
+.register__cut {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-5);
+  box-shadow: inset 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line-soft);
+  color: var(--color-gold);
+  font: var(--font-card-meta);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.register__cut::after {
+  flex: 1;
+  border-top: var(--space-unit) dashed var(--color-gold);
+  opacity: 0.4;
+  content: "";
+}
+
+/* The player card's rarity counts keep their rarity colour. */
+.player-row__rarity--1 dd {
+  color: var(--color-rarity-commune);
+}
+
+.player-row__rarity--2 dd {
+  color: var(--color-rarity-peu-commune);
+}
+
+.player-row__rarity--3 dd {
+  color: var(--color-rarity-rare);
+}
+
+.player-row__rarity--4 dd {
+  color: var(--color-rarity-epique);
+}
+
+.player-row__rarity--5 dd {
+  color: var(--color-rarity-legendaire);
+}
+
+.register__rows .player-row__rarity dd {
+  color: var(--color-text);
+}
+
+@container (max-width: 719px) {
+  .register__overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .register__gauge {
+    grid-column: 1;
+  }
+
+  .register__mine-index {
+    font: var(--font-count-large-phone);
+    letter-spacing: var(--tracking-count-large-phone);
+  }
+
+  .register__controls {
+    flex-direction: column;
+  }
+
+  .register__controls .segmented {
+    display: flex;
+  }
+
+  .register__controls .segmented__option {
+    flex: 1;
+    padding-inline: var(--space-2);
+  }
+
+  .register__board {
+    grid-template-columns: var(--space-7) var(--space-8) minmax(0, 1fr) auto;
+    column-gap: var(--space-3);
+  }
+
+  .register__head {
+    display: none;
+  }
+
+  .player-row {
+    grid-template-areas:
+      "rank avatar who luck"
+      ". . figures capsules";
+    row-gap: var(--space-2);
+    padding: var(--space-3) var(--space-4) var(--space-3) var(--space-3);
+  }
+
+  .player-row__rank {
+    grid-area: rank;
+    font: var(--font-label);
+  }
+
+  .player-row__line {
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+  }
+
+  .player-row__avatar {
+    grid-area: avatar;
+  }
+
+  .player-row__who {
+    grid-area: who;
+  }
+
+  .player-row__luck {
+    grid-area: luck;
+  }
+
+  .player-row__figures {
+    flex-wrap: wrap;
+    grid-area: figures;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  .player-row__figure {
+    min-width: 0;
+  }
+
+  .player-row__capsules {
+    grid-area: capsules;
+  }
+
+  .register__cut {
+    padding-inline: var(--space-3);
+  }
+}

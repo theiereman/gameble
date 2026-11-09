@@ -1817,7 +1817,6 @@ fr:
   fortune_panels:
     frame:
       title: "Le Chattomètre"
-      verdict_title: "Le Chattomètre a parlé"
       tabs_label: "Période"
       tabs:
         week: "Semaine"
@@ -1849,9 +1848,14 @@ fr:
           week: "Capsules cette semaine"
           last_week: "Capsules la semaine passée"
           all_time: "Capsules ouvertes"
-        privileged: "Privilégiés"
-        you: "Votre chance"
-        rank: "n° %{rank}"
+        privileged: "Privilégiés sur %{total}"
+      mine:
+        label: "Votre chance · %{period}"
+        rank: "n° %{rank} sur %{total}"
+      head:
+        member: "Membre"
+        rarities: "Raretés tirées"
+      privileged_cut: "Seuil des Privilégiés · les 10 % les plus chanceux"
       row:
         luck: "Chance"
         open_card: "Voir la carte de %{name}"
@@ -1860,6 +1864,7 @@ fr:
   fortunes:
     gauge:
       you: "VOUS"
+      privileged: "PRIVILÉGIÉS"
       empty: "Aucun joueur n'est encore classé pour cette période."
       crowd:
         zero: "Aucun joueur classé sur une échelle de −500 à +500."
@@ -1872,6 +1877,7 @@ fr:
       last_week: "Semaine passée"
       all_time: "Depuis toujours"
     privileged: "PRIVILÉGIÉ"
+    privileged_title: "Privilégié"
     scale: "/ ±%{limit}"
     odds:
       title: "Derrière la chance"

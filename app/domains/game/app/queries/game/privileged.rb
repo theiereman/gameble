@@ -10,5 +10,13 @@ module Game
       week = Fortune.week_of(now).ranked
       week.limit(FortuneIndex.privileged_count(week.count)).pluck(:player_id).to_set
     end
+
+    def self.floor_index(now: Time.current)
+      week = Fortune.week_of(now).ranked
+      count = FortuneIndex.privileged_count(week.count)
+      return if count.zero?
+
+      FortuneIndex.of(week.offset(count - 1).pick(:z_score))
+    end
   end
 end
