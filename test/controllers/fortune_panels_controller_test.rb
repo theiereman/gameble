@@ -82,7 +82,7 @@ class FortunePanelsControllerTest < ActionDispatch::IntegrationTest
 
     travel_to(THURSDAY) { get fortune_panel_path(locale: :en) }
     assert_select ".fortune-gauge__marker", false
-    assert_select ".fortune-panel__headline", /nothing on you/
+    assert_select ".fortune-panel__headline", /No capsule opened/
 
     @player.update!(visibility: :private)
     luck(@player, 1.0, week_start: this_week(THURSDAY))
