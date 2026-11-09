@@ -8,7 +8,7 @@ Context for MVP design decisions that must not block these. Nothing here is buil
 - **Sinks:** both are destroyed and shown before listing. They are the only currency sinks.
   - Listing fee: *Timbre Fiscal du Gamebler* / Gamebler's Tax Stamp.
   - ~10% sale commission: *Effort de la Confrérie* / Brotherhood Effort.
-- **Market gate:** access is gated by gameble seniority (account age or packs opened). The threshold is TBD.
+- **Open to every player (author, 2026-11-09):** the market has no seniority gate; a public teaser screen comes first, and the market takes its address.
 - **Money:** no real money; currency is never purchasable or withdrawable.
 - **Taxes and fees (author, 2026-10-15):** they arrive with the market and the economy, never before. The Brotherhood announces and justifies each one in its tone (`brotherhood-tone.md`): issue #57's examples, such as a contribution on trades or processing fees, are tone samples to draw on then, not commitments.
 - **Average sale price in the collection (author, 2026-10-07):** each card shows its average sale price on the market, and the collection can be filtered and sorted by it, to see what is worth something. The price is the average of that card's most recent sales (the card itself, not its rarity); a card never sold shows "sans vente" ("no sale"); the price is shown per card, and a typical price per rarity may also be shown as an indication (optional). How many sales count is still open, and so is whether the average is per game, per minted rarity or per edition (market liquidity against an edition premium). It needs completed sales, so it waits for the auction house; the price is in the in-game currency, never real money.
