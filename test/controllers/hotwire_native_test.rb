@@ -100,9 +100,9 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
 
     get me_path(locale: :en), headers: { "User-Agent" => APP_WITH_BAR }
 
-    assert_select "#phone-menu-badge .phone-menu__badge", "1"
-    assert_select "#phone-menu-panel a.player-menu__item[href='/en/achievements']", text: /Achievements/ do
-      assert_select "#phone-menu-achievements-badge .menu-item__badge", "1"
+    assert_select "#player-menu-badge .player-chip__badge", "1"
+    assert_select "#player-menu a.player-menu__item[href='/en/me']" do
+      assert_select "#player-menu-achievements-badge .menu-item__badge", "1"
     end
   end
 
