@@ -1253,6 +1253,7 @@ en:
     show:
       empty:
         all_time: No member has opened a capsule yet.
+        last_week: No member opened a capsule last week.
         week: No member has opened a capsule this week yet.
       hidden_player: Private member
       intro: 'The Brotherhood ranks its members by the luck of their capsules: what
@@ -1272,9 +1273,11 @@ en:
       summary:
         capsules:
           all_time: Capsules opened
+          last_week: Capsules last week
           week: Capsules this week
         members:
           all_time: Members ranked
+          last_week: Active last week
           week: Active this week
         privileged: Privileged
         rank: "#%{rank}"
@@ -1342,6 +1345,7 @@ en:
       variance_each: Swing² each
     periods:
       all_time: All time
+      last_week: Last week
       week: This week
     periods_label: Period
     privileged: PRIVILEGED

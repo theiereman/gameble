@@ -10,7 +10,13 @@ module Game
 
     scope :all_time, -> { where(week_start: nil) }
     scope :week_of, ->(time) { where(week_start: WeeklyGoal.week_start(time)) }
-    scope :of_period, ->(period, now) { period == :week ? week_of(now) : all_time }
+    scope :of_period, ->(period, now) do
+      case period
+      when :week then week_of(now)
+      when :last_week then week_of(now - 1.week)
+      else all_time
+      end
+    end
     scope :listed, -> { where(player_id: Accounts::Player.in_good_standing.where.not(visibility: :private).select(:id)) }
     scope :ranked, -> { listed.order(z_score: :desc, player_id: :asc) }
     scope :ahead_of, ->(fortune) { where("z_score > :z OR (z_score = :z AND player_id < :id)", z: fortune.z_score, id: fortune.player_id) }

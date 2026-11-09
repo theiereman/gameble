@@ -1664,6 +1664,7 @@ fr:
       intro: "La Confrérie classe ses membres selon la chance de leurs capsules : ce que leurs cartes ont rapporté face à ce que les capsules promettent. Chaque semaine, les 10 % les plus chanceux sont Privilégiés."
       empty:
         week: "Aucun membre n'a encore ouvert de capsule cette semaine."
+        last_week: "Aucun membre n'a ouvert de capsule la semaine passée."
         all_time: "Aucun membre n'a encore ouvert de capsule."
       hidden_player: "Membre discret"
       pages_label: "Pages"
@@ -1674,9 +1675,11 @@ fr:
       summary:
         members:
           week: "Actifs cette semaine"
+          last_week: "Actifs la semaine passée"
           all_time: "Membres classés"
         capsules:
           week: "Capsules cette semaine"
+          last_week: "Capsules la semaine passée"
           all_time: "Capsules ouvertes"
         privileged: "Privilégiés"
         you: "Votre chance"
@@ -1690,6 +1693,7 @@ fr:
     periods_label: "Période"
     periods:
       week: "Cette semaine"
+      last_week: "Semaine passée"
       all_time: "Depuis toujours"
     privileged: "PRIVILÉGIÉ"
     scale: "/ ±%{limit}"

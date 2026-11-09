@@ -8,7 +8,7 @@
     <% end %>
   <% end %>
 <% end %>
-<% period_param = (FortunePeriod::ALL_TIME if @period == :all_time) %>
+<% period_param = fortune_period_param(@period) %>
 <% sort_param = ("capsules" if @sort == :capsules) %>
 <section class="register" aria-labelledby="register-heading">
   <h1 id="register-heading" class="register__title"><%= t(".title") %></h1>
@@ -29,7 +29,7 @@
   <div class="register__controls">
     <nav class="register__tabs" aria-label="<%= t("fortunes.periods_label") %>">
       <% Game::FortuneStanding::PERIODS.each do |period| %>
-        <%= link_to fortune_register_path(period: (FortunePeriod::ALL_TIME if period == :all_time), sort: sort_param), class: "filter-chip",
+        <%= link_to fortune_register_path(period: fortune_period_param(period), sort: sort_param), class: "filter-chip",
               aria: { current: ("true" if period == @period) } do %>
           <span class="filter-chip__text"><%= t("fortunes.periods.#{period}") %></span>
         <% end %>

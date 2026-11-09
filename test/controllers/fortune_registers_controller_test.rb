@@ -186,6 +186,20 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "the register has a last-week tab, reading the week before, and a profile does not" do
+    travel_to(1.week.ago) { open_cards(@player, 3) }
+
+    get fortune_register_path(locale: :en, period: "last_week")
+
+    assert_select ".register__tabs a[aria-current=true]", "Last week"
+    assert_select ".player-row", 1
+
+    get brother_path(locale: :en, token: @player.token, fortune: "last_week")
+
+    assert_select ".fortune__tabs a", 2
+    assert_select ".fortune__tabs a[aria-current=true]", "This week"
+  end
+
   test "a profile's all-time tab, and a period without any pack" do
     travel_to(2.weeks.ago) { open_cards(@player, 1) }
 

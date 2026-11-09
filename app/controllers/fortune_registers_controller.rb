@@ -7,7 +7,7 @@ class FortuneRegistersController < ApplicationController
 
   def show
     authorize :page, :show?
-    @period = fortune_period(params[:period])
+    @period = register_period(params[:period])
     @sort = params[:sort] == "capsules" ? :capsules : :luck
     now = Time.current
     @pagy, fortunes = pagy(:offset, Game::FortuneBoard.ranked(@period, now:, sort: @sort), limit: Game::FortuneBoard::PAGE_SIZE,
