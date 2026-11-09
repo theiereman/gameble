@@ -312,3 +312,13 @@ html[data-motion="reduced"] .release-note__prompt::after {
 .release-note-editor__screen .release-note-kicker {
   margin-bottom: var(--space-5);
 }
+
+.release-note__mention {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.release-note__mention:hover {
+  color: var(--color-accent-hi);
+  text-decoration: underline;
+}

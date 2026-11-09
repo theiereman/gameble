@@ -65,6 +65,7 @@ fr:
         loading: "Chargement des options de connexion…"
         signing_in: "Connexion en cours…"
   release_notes:
+    credited: "%{change} (merci %{people})"
     close: "Fermer les notes de version"
     done: "Compris"
     kicker: "Mise à jour installée"
@@ -536,7 +537,7 @@ fr:
         skipped: "%{version} n'a pas besoin de note : le rappel a disparu."
       edit:
         body: Texte
-        format_hint: "Une ligne qui commence par « ## » ouvre une section, une ligne qui commence par « - » en est une ligne, toute autre ligne est un paragraphe. %{length} caractères au plus ; rien d'autre n'est lu comme une mise en forme."
+        format_hint: "Une ligne qui commence par « ## » ouvre une section, une ligne qui commence par « - » en est une ligne, toute autre ligne est un paragraphe. %{length} caractères au plus. Un contributeur écrit @login renvoie à son profil GitHub ; rien d'autre n'est lu comme une mise en forme."
         heading: "La note de %{version}"
         intro:
           draft: "Un brouillon : les joueurs ne voient rien. Marquez-la prête une fois écrite dans les deux langues."

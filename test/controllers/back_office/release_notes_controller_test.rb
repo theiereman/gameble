@@ -115,6 +115,18 @@ module BackOffice
       assert_predicate Accounts::ReleaseNotes.by_version("v1.3.1"), :skipped?
     end
 
+    test "a contributor written @login links to their GitHub profile, an email address does not" do
+      sign_in(@administrator)
+
+      post preview_back_office_release_notes_path(locale: :en),
+        params: { title_en: "Thanks", body_en: "- Faster (thanks @micilico, @thoKling)\nMail me@example.com", preview_locale: "en" }, as: :turbo_stream
+
+      assert_equal [ "https://github.com/micilico", "https://github.com/thoKling" ],
+        css_select(".release-note__item a.release-note__mention[target=_blank][rel=noopener]").map { it["href"] }
+      assert_select ".release-note__text", "Mail me@example.com"
+      assert_select ".release-note__text a", 0
+    end
+
     test "the preview renders the texts in the chosen language without saving them" do
       note = write_release_note("v1.3.0", state: "draft")
       sign_in(@administrator)

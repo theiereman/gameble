@@ -2,10 +2,14 @@ require "faraday"
 
 module Accounts
   # Reads a release's commits from the public repository: from the release before it to its own tag,
-  # else to its newest candidate, else to develop when no candidate is cut yet.
+  # else to its newest candidate, else to develop when no candidate is cut yet. A commit credits its
+  # author and co-authors on GitHub, but neither the repository's owner, the coding assistant nor a bot.
   class GithubReleaseChanges
     BASE_URL = "https://api.github.com".freeze
-    REPOSITORY = "theiereman/gameble".freeze
+    OWNER = "theiereman".freeze
+    REPOSITORY = "#{OWNER}/gameble".freeze
+    UNCREDITED = [ OWNER, "claude" ].freeze
+    CO_AUTHOR = /^co-authored-by:.*<(?:\d+\+)?([A-Za-z0-9-]+)@users\.noreply\.github\.com>/i
     TAG_PAGES = 5
     PER_PAGE = 100
 
@@ -22,7 +26,7 @@ module Accounts
 
       head = head_for(version, tags)
       commits = get("/repos/#{REPOSITORY}/compare/#{since}...#{head}").fetch("commits")
-      ReleaseChanges.new(since: since.to_s, head:, subjects: commits.map { it.dig("commit", "message").to_s.lines.first.to_s })
+      ReleaseChanges.new(since: since.to_s, head:, commits: commits.map { commit_of(it) })
     rescue Faraday::Error, KeyError, TypeError, NoMethodError
       nil
     end
@@ -35,6 +39,17 @@ module Accounts
         names.concat(batch)
         break names if batch.size < PER_PAGE
       end
+    end
+
+    def commit_of(commit)
+      message = commit.dig("commit", "message").to_s
+      { subject: message.lines.first.to_s, credits: credits_of(commit, message) }
+    end
+
+    def credits_of(commit, message)
+      author = commit["author"] || {}
+      logins = [ (author["login"] unless author["type"] == "Bot"), *message.scan(CO_AUTHOR).flatten ]
+      logins.compact.uniq(&:downcase).reject { UNCREDITED.include?(it.downcase) || it.end_with?("[bot]") }
     end
 
     def head_for(version, tags)

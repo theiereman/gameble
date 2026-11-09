@@ -16,7 +16,7 @@ class Accounts::GithubReleaseChangesTest < ActiveSupport::TestCase
   end
 
   def compare(range, *subjects)
-    commits = subjects.map { { commit: { message: "#{it}\n\nBody line" } } }
+    commits = subjects.map { it.is_a?(Hash) ? it : { commit: { message: "#{it}\n\nBody line" } } }
     @stubs.get("#{REPOSITORY}/compare/#{range}") { [ 200, { "Content-Type" => "application/json" }, { commits: }.to_json ] }
   end
 
@@ -29,7 +29,23 @@ class Accounts::GithubReleaseChangesTest < ActiveSupport::TestCase
     changes = changes_for("v1.3.0")
 
     assert_equal [ "v1.2.1", "v1.3.0-rc.10" ], [ changes.since, changes.head ]
-    assert_equal [ [ "A capsule opens at once" ], [ "Cards are dealt face up" ] ], [ changes.features, changes.fixes ]
+    assert_equal [ [ "A capsule opens at once" ], [ "Cards are dealt face up" ] ], [ changes.features, changes.fixes ].map { it.map(&:subject) }
+  end
+
+  test "a change credits its author and co-authors, but not the owner, the assistant or a bot" do
+    tags("v1.3.0-rc.1", "v1.2.1")
+    message = "fix: cards are dealt face up\n\nCo-authored-by: Thomas <141121240+theiereman@users.noreply.github.com>\n" \
+      "Co-authored-by: Tho <thoKling@users.noreply.github.com>\nCo-authored-by: Claude <noreply@anthropic.com>"
+    compare("v1.2.1...v1.3.0-rc.1",
+      { author: { login: "micilico", type: "User" }, commit: { message: } },
+      { author: { login: "claude", type: "User" }, commit: { message: "feat: one" } },
+      { author: { login: "dependabot[bot]", type: "Bot" }, commit: { message: "fix: bump" } },
+      { author: { login: "theiereman", type: "User" }, commit: { message: "feat: two\n\nCo-authored-by: M <42+micilico@users.noreply.github.com>" } })
+
+    changes = changes_for("v1.3.0")
+
+    assert_equal [ [], %w[micilico] ], changes.features.map(&:credits)
+    assert_equal [ %w[micilico thoKling], [] ], changes.fixes.map(&:credits)
   end
 
   test "a published release reads up to its own tag, one without a candidate up to develop" do
@@ -41,7 +57,7 @@ class Accounts::GithubReleaseChangesTest < ActiveSupport::TestCase
     Accounts::GithubReleaseChanges.connection_adapter = [ :test, @stubs ]
     tags("v1.3.0", "v1.2.1")
     compare("v1.3.0...develop", "fix: two")
-    assert_equal [ "v1.3.0", "develop", [ "Two" ] ], changes_for("v1.4.0").then { [ it.since, it.head, it.fixes ] }
+    assert_equal [ "v1.3.0", "develop", [ "Two" ] ], changes_for("v1.4.0").then { [ it.since, it.head, it.fixes.map(&:subject) ] }
   end
 
   test "no release before it, or GitHub failing, gives nothing" do

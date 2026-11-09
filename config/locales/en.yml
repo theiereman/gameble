@@ -152,7 +152,7 @@ en:
         skipped: "%{version} needs no note: the reminder is gone."
       edit:
         body: Text
-        format_hint: "A line starting with ## opens a section, a line starting with a dash is one of its items, any other line is a paragraph. %{length} characters at most; nothing else is read as formatting."
+        format_hint: "A line starting with ## opens a section, a line starting with a dash is one of its items, any other line is a paragraph. %{length} characters at most. A contributor written @login links to their GitHub profile; nothing else is read as formatting."
         heading: "The note of %{version}"
         intro:
           draft: "A draft: players see nothing. Mark it ready once it is written in both languages."
@@ -2923,6 +2923,7 @@ en:
       separator: or
       title: Sign in
   release_notes:
+    credited: "%{change} (thanks %{people})"
     close: "Close the release notes"
     done: "Got it"
     kicker: "Update installed"

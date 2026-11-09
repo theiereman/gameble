@@ -121,14 +121,19 @@ class Accounts::ReleaseNotesTest < ActiveSupport::TestCase
     assert_equal [ nil, %w[Loose] ], [ loose.title, loose.items ]
   end
 
-  test "a release's commits draft its features and fixes, leaving maintenance out" do
-    changes = Accounts::ReleaseChanges.new(since: "v1.2.1", head: "v1.3.0-rc.2", subjects: [
-      "feat(booster): a capsule opens at once", "fix: cards are dealt face up", "docs(tickets): file the epic", "Merge develop", "feat!: breaking"
+  test "a release's commits draft its features and fixes, crediting their contributors and leaving maintenance out" do
+    changes = Accounts::ReleaseChanges.new(since: "v1.2.1", head: "v1.3.0-rc.2", commits: [
+      { subject: "feat(booster): a capsule opens at once", credits: [] },
+      { subject: "fix: cards are dealt face up", credits: %w[micilico thoKling micilico] },
+      { subject: "docs(tickets): file the epic", credits: %w[micilico] },
+      { subject: "Merge develop" }, { subject: "feat!: breaking" }
     ])
 
-    assert_equal [ "A capsule opens at once", "Breaking" ], changes.features
-    assert_equal "## Nouveautés\n- A capsule opens at once\n- Breaking\n\n## Corrections\n- Cards are dealt face up", changes.draft_body(:fr)
-    assert_equal "## New\n- A capsule opens at once\n- Breaking\n\n## Fixes\n- Cards are dealt face up", changes.draft_body(:en)
-    assert_predicate Accounts::ReleaseChanges.new(since: "v1", head: "v2", subjects: [ "chore: x" ]), :empty?
+    assert_equal [ "A capsule opens at once", "Breaking" ], changes.features.map(&:subject)
+    assert_equal "## Nouveautés\n- A capsule opens at once\n- Breaking\n\n## Corrections\n- Cards are dealt face up (merci @micilico, @thoKling)",
+      changes.draft_body(:fr)
+    assert_equal "## New\n- A capsule opens at once\n- Breaking\n\n## Fixes\n- Cards are dealt face up (thanks @micilico, @thoKling)",
+      changes.draft_body(:en)
+    assert_predicate Accounts::ReleaseChanges.new(since: "v1", head: "v2", commits: [ { subject: "chore: x" } ]), :empty?
   end
 end
