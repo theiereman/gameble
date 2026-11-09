@@ -3,6 +3,7 @@ module FeedHelper
 
   def feed_sentence(item, card, partner_card = nil, set = nil, links: true, titles: false)
     return feed_set_sentence(item, set, links:, titles:) if item.entry.kind == "set"
+    return feed_verdict_sentence(item, links:, titles:) if item.entry.kind == "verdict"
 
     words = { name: feed_name(item.player, item.player_title, links:, titles:), card: feed_game(card, links:) }
     case item.entry.kind
@@ -48,6 +49,12 @@ module FeedHelper
     else
       t("feeds.show.set_reached.#{tier}_html", **words)
     end
+  end
+
+  def feed_verdict_sentence(item, links:, titles:)
+    label = t("feeds.show.verdict_register")
+    register = links ? link_to(label, fortune_register_path(period: "last_week"), class: "feed__game", data: { turbo_prefetch: false }) : tag.strong(label)
+    t("feeds.show.verdict_html", name: feed_name(item.player, item.player_title, links:, titles:), register:)
   end
 
   def feed_tier_name(tier)

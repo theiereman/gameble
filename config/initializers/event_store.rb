@@ -28,6 +28,7 @@ Rails.configuration.to_prepare do
   # The notable pulls of an opening go to the activity feed.
   event_store.subscribe(Game::Handlers::PackOpenedFeed, to: [ Game::PackOpened ])
   event_store.subscribe(Game::Handlers::CardRepostedFeed, to: [ Game::CardReposted ])
+  event_store.subscribe(Game::Handlers::WeeklyVerdictFeed, to: [ Game::WeeklyVerdictReached ])
   event_store.subscribe(Game::Handlers::TradeAccepted, to: [ Game::TradeAccepted ])
   event_store.subscribe(Game::Handlers::GoalsReached, to: Game::Handlers::GoalsReached::EVENTS)
   event_store.subscribe(Game::Handlers::SetTierFeed, to: Game::Handlers::SetTierFeed::EVENTS)

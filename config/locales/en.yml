@@ -1249,6 +1249,9 @@ en:
       title: Activity feed
       trade_tag: Trade
       traded_html: "%{name} and %{partner} traded %{card} for %{partner_card}"
+      verdict_html: "The Flukeometer has ruled: %{name} is last week's luckiest member. %{register}"
+      verdict_register: See the leaderboard
+      verdict_tag: Verdict
   fortune_panels:
     frame:
       no_standing:

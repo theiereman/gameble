@@ -311,6 +311,10 @@ html .feed__thumb > .card.card--s[data-tilt] {
   color: var(--color-accent);
 }
 
+.feed__tag--verdict {
+  color: var(--color-gold);
+}
+
 .feed__tag--trade {
   color: var(--color-accent);
 }

@@ -1,8 +1,9 @@
 <% repost = item.entry.kind == "repost" %>
 <% trade = item.entry.kind == "trade" %>
 <% set_entry = item.entry.kind == "set" %>
+<% verdict = item.entry.kind == "verdict" %>
 <% target = local_assigns[:target]&.id == item.entry.id %>
-<%= tag.li id: "entry-#{item.entry.token}", class: class_names("feed__entry", "feed__entry--filler": item.filler, "feed__entry--set": set_entry, "feed__entry--target": target),
+<%= tag.li id: "entry-#{item.entry.token}", class: class_names("feed__entry", "feed__entry--filler": item.filler, "feed__entry--set": set_entry || verdict, "feed__entry--target": target),
       aria: { current: ("true" if target) } do %>
   <% if trade %>
     <span class="feed__thumbs">
@@ -13,7 +14,7 @@
         <% end %>
       <% end %>
     </span>
-  <% elsif !set_entry %>
+  <% elsif !set_entry && !verdict %>
     <%= link_to card_path(slug: card.id), class: class_names("feed__thumb", "feed__thumb--framed feed__thumb--#{card.rarity}": repost),
           aria: { label: card.title }, data: { turbo_prefetch: false } do %>
       <%= render CardComponent.new(card:, size: :s) %>
@@ -25,7 +26,9 @@
       <%= local_time_tag(item.entry.occurred_at, class: "feed__time") %>
     </div>
     <div class="feed__meta">
-      <% if set_entry %>
+      <% if verdict %>
+        <span class="feed__tag feed__tag--verdict"><%= t("feeds.show.verdict_tag") %></span>
+      <% elsif set_entry %>
         <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") %>
       <% elsif trade %>
         <span class="feed__tag feed__tag--trade">
@@ -41,7 +44,7 @@
         </span>
       <% end %>
       <% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span><% end %>
-      <% if local_assigns[:reactions] %>
+      <% if local_assigns[:reactions] && !verdict %>
         <% lazy = local_assigns.fetch(:lazy, false) %>
         <%= render "reactions/bar", token: item.entry.token, summary: reactions.fetch(item.entry.id), interactive: !lazy && current_player.present?, lazy: %>
       <% end %>
