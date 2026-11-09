@@ -1,0 +1,17 @@
+/* ---- Segmented gauge: a row of blocks lit from the left, shared by the
+   weekly mission and the daily capsule countdown ---- */
+
+.gauge {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: var(--gauge-gap);
+}
+
+.gauge__segment {
+  height: var(--gauge-segment-height);
+  background: var(--color-line-soft);
+}
+
+.gauge__segment--lit {
+  background: var(--color-accent);
+}

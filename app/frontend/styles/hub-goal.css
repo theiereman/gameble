@@ -49,22 +49,7 @@
   letter-spacing: var(--tracking-body);
 }
 
-.hub-goal__gauge {
-  display: grid;
-  grid-template-columns: repeat(24, 1fr);
-  gap: var(--gauge-gap);
-}
-
-.hub-goal__segment {
-  height: var(--gauge-segment-height);
-  background: var(--color-line-soft);
-}
-
-.hub-goal__segment--lit {
-  background: var(--color-accent);
-}
-
-.hub-goal__progress--reached .hub-goal__segment--lit {
+.hub-goal__progress--reached .gauge__segment--lit {
   background: var(--color-lime);
 }
 

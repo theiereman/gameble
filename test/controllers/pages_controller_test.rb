@@ -328,7 +328,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
         assert_select ".daily-booster__next[data-controller=countdown][data-countdown-seconds-value='5385'][data-countdown-hours-value=true]" do
           assert_select ".daily-booster__next-label", "Next in"
           assert_select ".daily-booster__clock[data-countdown-target=clock]", "01:29:45"
-          assert_select "progress.daily-booster__bar[max='86400'][value='81015']"
+          assert_select ".gauge[aria-hidden=true] .gauge__segment[data-countdown-target=segment]", count: 24
+          assert_select ".gauge__segment--lit", count: 22
           assert_select ".visually-hidden", "Next capsule: #{next_day.strftime("%Y-%m-%d")} 00:00 UTC"
           assert_select ".visually-hidden time[datetime='#{next_day.iso8601}']"
         end
@@ -399,8 +400,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#community-goal .hub-goal__line", text: "Open 50,000 capsules this week."
     assert_select "#community-goal .hub-goal__reward", text: "Reward: a rare capsule per contributor"
     assert_select "#community-goal .hub-goal__status", false
-    assert_select "#community-goal .hub-goal__segment", count: 24
-    assert_select "#community-goal .hub-goal__segment--lit", count: 0
+    assert_select "#community-goal .gauge__segment", count: 24
+    assert_select "#community-goal .gauge__segment--lit", count: 0
 
     get home_path(locale: :fr)
     assert_select "#community-goal .hub-goal__line", text: /\AOuvrez 50[\s\u00a0\u202f]000 capsules cette semaine\.\z/
@@ -417,13 +418,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".hub-goal__status", text: "Accomplished"
     end
     assert_select "#community-goal .hub-goal__figures", text: "210 / 200"
-    assert_select "#community-goal .hub-goal__segment--lit", count: 24
+    assert_select "#community-goal .gauge__segment--lit", count: 24
     assert_select "#community-goal .hub-goal__previous", false
 
     sign_in(@player, origin: "/fr")
     get home_path(locale: :fr)
     assert_select "#community-goal .hub-goal__reward", text: "Accomplie · une capsule rare par contributeur"
-    assert_select "#community-goal .hub-goal__segment--lit", count: 24
+    assert_select "#community-goal .gauge__segment--lit", count: 24
   end
 
   test "after the rollover the panel shows the new week's empty gauge and target, and last week's final count" do
@@ -435,7 +436,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :fr)
     assert_select "#community-goal .hub-goal__status", false
     assert_select "#community-goal .hub-goal__figures", text: "0 / 250"
-    assert_select "#community-goal .hub-goal__segment--lit", count: 0
+    assert_select "#community-goal .gauge__segment--lit", count: 0
     assert_select "#community-goal .hub-goal__previous", text: "Semaine dernière\u202F: 180\u00A0/\u00A0200, manquée"
 
     Game::WeeklyGoal.where(week_start: week - 7).update_all(total: 260)

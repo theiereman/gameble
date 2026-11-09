@@ -1,0 +1,1 @@
+<%= tag.div class: classes, aria: { hidden: true }, **@html_options.except(:class) do %><% @segments.times do |index| %><%= tag.span class: segment_classes(index), data: @segment_data %><% end %><% end %>
