@@ -3,79 +3,14 @@
 <div class="stack">
   <h1><%= t(".heading") %></h1>
 
-  <%= render PanelComponent.new(tag: :p, data: { report_queue_size: @queue_size }) do %>
-    <%= t(".queue", count: @queue_size) %>
-  <% end %>
-
-  <% if policy([ :back_office, :players ]).index? %>
-    <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: back_office_players_path) do %><%= t(".players") %><% end %>
-    </p>
-  <% end %>
-
-  <% if policy([ :back_office, :reports ]).index? %>
-    <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: back_office_reports_path) do %><%= t(".reports") %><% end %>
-    </p>
-  <% end %>
-
-  <% if policy([ :back_office, :bans ]).index? %>
-    <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: back_office_bans_path) do %><%= t(".bans") %><% end %>
-    </p>
-  <% end %>
-
-  <% if policy([ :back_office, :history ]).index? %>
-    <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: back_office_history_path) do %><%= t(".history") %><% end %>
-    </p>
-  <% end %>
-
-  <% if policy([ :back_office, :import_runs ]).index? %>
-    <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: back_office_import_runs_path) do %><%= t(".import_runs") %><% end %>
-    </p>
-  <% end %>
-
-  <% if policy([ :back_office, :seasons ]).index? %>
-    <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: back_office_seasons_path) do %><%= t(".seasons") %><% end %>
-    </p>
-  <% end %>
-
-  <% if policy([ :back_office, :roadmap ]).show? %>
-    <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: back_office_roadmap_path) do %><%= t(".roadmap") %><% end %>
-    </p>
-  <% end %>
-
-  <% if policy([ :back_office, :announcements ]).index? %>
-    <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: back_office_announcements_path) do %><%= t(".announcements") %><% end %>
-    </p>
-  <% end %>
-
-  <% if policy([ :back_office, :release_notes ]).index? %>
-    <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: back_office_release_notes_path) do %><%= t(".release_notes") %><% end %>
-    </p>
-  <% end %>
-
-  <% if policy([ :back_office, :themes ]).index? %>
-    <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: back_office_themes_path) do %><%= t(".themes") %><% end %>
-    </p>
-  <% end %>
-
-  <% if policy([ :back_office, :cards ]).index? %>
-    <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: back_office_cards_path) do %><%= t(".cards") %><% end %>
-    </p>
-  <% end %>
-
-  <% if policy([ :back_office, :jobs ]).show? %>
-    <p>
-      <%= render ButtonComponent.new(variant: :secondary, href: mission_control_jobs.root_path(locale: nil), turbo: false) do %><%= t(".jobs") %><% end %>
-    </p>
+  <% back_office_groups.each do |group, tiles| %>
+    <section class="office-group" aria-labelledby="office-group-<%= group %>">
+      <h2 class="office-group__heading" id="office-group-<%= group %>"><%= t(".groups.#{group}") %></h2>
+      <ul class="office-tiles">
+        <% tiles.each do |tile| %>
+          <li><%= render BackOfficeTileComponent.new(tile:) %></li>
+        <% end %>
+      </ul>
+    </section>
   <% end %>
 </div>

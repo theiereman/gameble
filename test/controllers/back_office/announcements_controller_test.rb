@@ -46,7 +46,7 @@ module BackOffice
 
       get back_office_path(locale: :fr)
 
-      assert_select "a[href='/fr/back-office/announcements']", "Les annonces"
+      assert_select "a[href='/fr/back-office/announcements'] .office-tile__title", "Les annonces"
     end
 
     test "an administrator creates an announcement that goes straight to the banner" do

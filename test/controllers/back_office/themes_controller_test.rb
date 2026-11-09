@@ -198,7 +198,7 @@ module BackOffice
     test "the dashboard links the page to an administrator only" do
       sign_in(accounts_players(:administrator))
       get back_office_path(locale: :en)
-      assert_select "a[href='/en/back-office/themes']", "The themes"
+      assert_select "a[href='/en/back-office/themes'] .office-tile__title", "The themes"
 
       sign_in(accounts_players(:moderator))
       get back_office_path(locale: :en)

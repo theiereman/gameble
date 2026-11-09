@@ -40,7 +40,7 @@ module BackOffice
       sign_in(accounts_players(:administrator))
       get back_office_path(locale: :fr)
 
-      assert_select "main a.button--secondary[href='/back-office/jobs/'][data-turbo=false]", "La file des tâches"
+      assert_select "main a.office-tile[href='/back-office/jobs/'][data-turbo=false] .office-tile__title", "La file des tâches"
 
       sign_in(accounts_players(:moderator))
       get back_office_path(locale: :fr)

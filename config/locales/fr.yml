@@ -616,23 +616,62 @@ fr:
         withdrawn: "L'annonce a quitté le bandeau."
     dashboard:
       show:
-        release_notes: "Les notes de version"
-        announcements: "Les annonces"
         heading: "Le back-office de la Confrérie"
-        queue:
-          zero: "Aucun joueur signalé n'attend les officiers."
-          one: "Un joueur signalé attend les officiers."
-          other: "%{count} joueurs signalés attendent les officiers."
-        players: "Les joueurs"
-        reports: "Les signalements"
-        bans: "Les bannis"
-        history: "L'historique"
-        jobs: "La file des tâches"
-        import_runs: "L'import Steam"
-        seasons: "Les saisons du catalogue"
-        roadmap: "La feuille de route"
-        themes: "Les thèmes"
-        cards: "La presse à cartes"
+        groups:
+          moderation: "Modération"
+          catalog: "Catalogue"
+          communication: "Communication"
+          technical: "Technique"
+        tiles:
+          reports:
+            title: "Les signalements"
+            text: "Les joueurs signalés qui attendent une décision."
+          players:
+            title: "Les joueurs"
+            text: "Chercher un joueur, le bannir ou l'effacer."
+          bans:
+            title: "Les bannis"
+            text: "Les joueurs bannis, et lever un ban."
+          history:
+            title: "L'historique"
+            text: "Chaque ban, levée, rejet et effacement."
+          import_runs:
+            title: "L'import Steam"
+            text: "Lancer un import, relire et promouvoir le lot."
+          seasons:
+            title: "Les saisons"
+            text: "Publier la saison suivante du catalogue."
+          themes:
+            title: "Les thèmes"
+            text: "Ranger les tags Steam dans les thèmes."
+          cards:
+            title: "La presse à cartes"
+            text: "Les deux rendus d'une carte côte à côte."
+          release_notes:
+            title: "Les notes de version"
+            text: "Ce que voit chaque joueur après une mise à jour."
+          announcements:
+            title: "Les annonces"
+            text: "Le bandeau rouge, en français et en anglais."
+          roadmap:
+            title: "La feuille de route"
+            text: "Les jalons et les histoires de la page d'accueil."
+          jobs:
+            title: "La file des tâches"
+            text: "Les tâches en file, en cours et en échec."
+        status:
+          reports:
+            zero: "Aucun en attente"
+            one: "Un en attente"
+            other: "%{count} en attente"
+          themes:
+            zero: "Aucun tag à ranger"
+            one: "Un tag à ranger"
+            other: "%{count} tags à ranger"
+          import_ready: "Lot à relire"
+          import_running: "En cours"
+          release_note_missing: "%{version} sans note"
+          announcement_shown: "En ligne"
     reports:
       index:
         heading: "Les signalements"

@@ -33,6 +33,7 @@ import { SET_BACK_DESIGNS, drawSetBack, setBackName } from "./set_backs.mjs"
 import { NAMED_BACK_DESIGNS } from "./named_backs.mjs"
 import { EMBLEM_SIZE, ORIGIN_LOOKS, drawEmblem, originBodyFile } from "./origin_canisters.mjs"
 import { NEBULA_HEIGHT, NEBULA_WIDTH, drawNebula } from "./nebula.mjs"
+import { BACK_OFFICE_ICONS } from "./back_office_icons.mjs"
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..")
 const ART_PIXEL = 2
@@ -1654,6 +1655,7 @@ function decodePng(buf) {
 // Every exported file: an SVG string or a PNG's pixels ({width, height, rgba}).
 
 const files = new Map(Object.entries(ICONS).map(([name, icon]) => [`${name}.svg`, iconSvg(name, icon)]))
+for (const [name, icon] of Object.entries(BACK_OFFICE_ICONS)) files.set(`office-${name}.svg`, iconSvg(`office-${name}`, icon))
 files.set("wordmark-sweep.svg", wordmarkSweepSvg())
 files.set("starfield.svg", starfieldSvg())
 files.set("nebula.png", drawNebula())
@@ -1748,6 +1750,7 @@ const DESCRIPTIONS = {
   "tab-friends.svg": "Phone tab bar icon: AMIS, two heads and shoulders (text colour)",
   "tab-me.svg": "Phone tab bar icon: ME, one head and shoulders (text colour)",
   "bell.svg": "The header's bell, what is new for the player, 7 × 8",
+  ...Object.fromEntries(Object.entries(BACK_OFFICE_ICONS).map(([name, { look }]) => [`office-${name}.svg`, `Back-office tile icon, ${name.replace("-", " ")}: ${look}, 11 × 11 (text colour)`])),
   "menu.svg": "The phone header's menu: profile, settings and the extras (text colour)",
   "starfield.svg": "Star field tile, 480 × 480 CSS px, repeated under the content",
   "nebula.png": `Nebula tile behind the star field: faint blue and violet clouds and a pale band of the galaxy, ${NEBULA_WIDTH} × ${NEBULA_HEIGHT}, drawn at 4 CSS px per pixel`,

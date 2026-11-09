@@ -36,6 +36,10 @@ ignore_unused:
   - "trade_board.strings.*"
   # Achievement names, looked up by the key an unlock carries (the player stream's toast).
   - "achievements.names.*"
+  # The back-office home's groups, tiles and statuses, looked up by key (BackOfficeDashboardHelper).
+  - "back_office.dashboard.show.groups.*"
+  - "back_office.dashboard.show.tiles.*"
+  - "back_office.dashboard.show.status.*"
   # Achievement conditions, read by catalogue key on the achievements screen.
   - "achievements.conditions.*"
   # The throttled request's 429 message, picked by the matched throttle (rack_attack.rb).

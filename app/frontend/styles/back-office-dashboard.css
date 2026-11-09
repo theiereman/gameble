@@ -1,0 +1,201 @@
+/* ---- Back-office home: the tools as tiles, grouped by theme ---- */
+
+.office-group__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-5) 0 var(--space-4);
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.office-group__heading::after {
+  content: "";
+  flex: 1;
+  height: var(--space-1);
+  background: var(--color-line-soft);
+}
+
+.office-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.office-tiles > li {
+  display: grid;
+}
+
+.office-tile {
+  --office-icon-box: 52px;
+  --office-icon-size: 33px;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr;
+  align-items: start;
+  gap: var(--space-2) var(--space-5);
+  min-height: 104px;
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.office-tile--urgent {
+  box-shadow: inset 0 0 0 2px var(--color-alert);
+}
+
+.office-tile:focus-visible {
+  outline: none;
+}
+
+.office-tile:focus-visible,
+.office-tile:active {
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+@media (hover: hover) {
+  .office-tile:hover {
+    background: var(--color-panel-raised);
+    box-shadow: inset 0 0 0 2px var(--color-accent);
+  }
+}
+
+/* The bracketed corners of a panel, on the tile under the pointer or the focus. */
+.office-tile::before,
+.office-tile::after {
+  content: "";
+  position: absolute;
+  width: var(--corner-brackets-size);
+  height: var(--corner-brackets-size);
+  border: 0 solid var(--color-accent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.office-tile::before {
+  top: var(--corner-brackets-offset);
+  left: var(--corner-brackets-offset);
+  border-top-width: var(--corner-brackets-stroke);
+  border-left-width: var(--corner-brackets-stroke);
+}
+
+.office-tile::after {
+  right: var(--corner-brackets-offset);
+  bottom: var(--corner-brackets-offset);
+  border-right-width: var(--corner-brackets-stroke);
+  border-bottom-width: var(--corner-brackets-stroke);
+}
+
+.office-tile:focus-visible::before,
+.office-tile:focus-visible::after {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .office-tile:hover::before,
+  .office-tile:hover::after {
+    opacity: 1;
+  }
+}
+
+.office-tile__icon {
+  grid-row: 1 / 4;
+  display: grid;
+  place-items: center;
+  width: var(--office-icon-box);
+  height: var(--office-icon-box);
+  background: var(--color-panel-sunken);
+  box-shadow: var(--panel-soft-border);
+  color: var(--color-accent);
+}
+
+.office-tile__icon .pixel-icon {
+  width: var(--office-icon-size);
+  height: var(--office-icon-size);
+}
+
+.office-tile__title {
+  color: var(--color-text-bright);
+  font: var(--font-screen-title-phone);
+  letter-spacing: var(--tracking-screen-title-phone);
+  line-height: 1;
+}
+
+.office-tile__text {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  font-weight: var(--font-weight-regular);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.office-tile__status {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  font: var(--font-card-meta-xl);
+  letter-spacing: var(--tracking-card-meta-xl);
+  text-transform: uppercase;
+}
+
+.office-tile__status--count {
+  background: var(--color-live-red);
+  color: var(--color-text-max);
+}
+
+.office-tile__status--alert {
+  background: var(--color-alert);
+  color: var(--color-on-alert);
+}
+
+.office-tile__status--live {
+  background: var(--color-lime);
+  color: var(--color-on-lime);
+}
+
+@media (max-width: 719px) {
+  .office-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .office-tile {
+    --office-icon-box: 44px;
+    --office-icon-size: 22px;
+
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    align-content: start;
+    gap: var(--space-3);
+    min-height: 0;
+    padding: var(--space-4);
+  }
+
+  .office-tile__icon {
+    grid-row: auto;
+  }
+
+  .office-tile__title {
+    font: var(--font-card-title-xl);
+    letter-spacing: var(--tracking-card-title-xl);
+  }
+
+  .office-tile__text {
+    display: none;
+  }
+
+  .office-tile__status {
+    grid-column: auto;
+    margin-top: 0;
+  }
+}

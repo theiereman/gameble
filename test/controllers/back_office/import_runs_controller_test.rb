@@ -624,7 +624,7 @@ module BackOffice
       sign_in(accounts_players(:administrator))
       get back_office_path(locale: :fr)
 
-      assert_select "main a.button--secondary[href='/fr/back-office/import-runs']", "L'import Steam"
+      assert_select "main a.office-tile[href='/fr/back-office/import-runs'] .office-tile__title", "L'import Steam"
 
       sign_in(accounts_players(:moderator))
       get back_office_path(locale: :fr)

@@ -409,7 +409,7 @@ module BackOffice
       sign_in(accounts_players(:administrator))
       get back_office_path(locale: :fr)
 
-      assert_select "main a.button--secondary[href='/fr/back-office/seasons']", "Les saisons du catalogue"
+      assert_select "main a.office-tile[href='/fr/back-office/seasons'] .office-tile__title", "Les saisons"
 
       sign_in(accounts_players(:moderator))
       get back_office_path(locale: :fr)

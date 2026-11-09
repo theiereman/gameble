@@ -275,23 +275,60 @@ en:
           xl: size XL
     dashboard:
       show:
-        release_notes: "The release notes"
-        announcements: "The announcements"
-        bans: The banned players
-        cards: The card press
         heading: The Brotherhood's back-office
-        history: The history
-        import_runs: The Steam import
-        jobs: The job queue
-        players: The players
-        queue:
-          one: One reported player awaits the officers.
-          other: "%{count} reported players await the officers."
-          zero: No reported player awaits the officers.
-        reports: The reports
-        roadmap: The roadmap
-        seasons: The catalog seasons
-        themes: The themes
+        groups:
+          moderation: Moderation
+          catalog: Catalog
+          communication: Communication
+          technical: Technical
+        tiles:
+          reports:
+            title: The reports
+            text: The reported players awaiting a decision.
+          players:
+            title: The players
+            text: Find a player, ban or erase them.
+          bans:
+            title: The banned players
+            text: The banned players, and lifting a ban.
+          history:
+            title: The history
+            text: Every ban, lifted ban, dismissal and erasure.
+          import_runs:
+            title: The Steam import
+            text: Start an import, review and promote the batch.
+          seasons:
+            title: The seasons
+            text: Publish the catalog's next season.
+          themes:
+            title: The themes
+            text: Sort the Steam tags into themes.
+          cards:
+            title: The card press
+            text: Both renderings of a card side by side.
+          release_notes:
+            title: The release notes
+            text: What every player sees after an update.
+          announcements:
+            title: The announcements
+            text: The red banner, in English and French.
+          roadmap:
+            title: The roadmap
+            text: The landing's milestones and stories.
+          jobs:
+            title: The job queue
+            text: The queued, running and failed jobs.
+        status:
+          reports:
+            one: One waiting
+            other: "%{count} waiting"
+          themes:
+            one: One tag to sort
+            other: "%{count} tags to sort"
+          import_ready: Batch to review
+          import_running: Running
+          release_note_missing: "%{version} without a note"
+          announcement_shown: Live
     history:
       index:
         action: Action

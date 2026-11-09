@@ -1,0 +1,8 @@
+<%= link_to tile.href, class: classes, data: { office_tile: tile.key.to_s.dasherize, turbo: (false unless tile.turbo) } do %>
+  <span class="office-tile__icon"><%= helpers.pixel_icon(icon) %></span>
+  <span class="office-tile__title"><%= text(:title) %></span>
+  <span class="office-tile__text"><%= text(:text) %></span>
+  <% if tile.status %>
+    <span class="office-tile__status office-tile__status--<%= tile.status.tone %>"><%= tile.status.label %></span>
+  <% end %>
+<% end %>
