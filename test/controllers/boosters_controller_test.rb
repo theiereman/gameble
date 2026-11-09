@@ -185,7 +185,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
 
     # The top bar: back, title, rarity counter and the static reserve chip, no packs chip link.
     assert_select ".top-bar .top-bar__start[data-controller=navigation-lock] a.button[href='/en']"
-    assert_select ".top-bar .rarity-counter[data-controller=rarity-counter][data-rarity-counter-delimiter-value=',']"
+    assert_select ".top-bar .rarity-counter[data-controller=rarity-counter][data-rarity-counter-delimiter-value=','][data-rarity-counter-legend-url-value='/en/rarity-legend']"
     assert_select ".top-bar .rarity-counter__count[data-rarity-counter-target=count][data-tier]", 5
     assert_equal %w[common uncommon rare epic legendary], css_select(".top-bar .rarity-counter__count").map { it["data-tier"] }
     assert_select ".top-bar #rarity-legend tbody tr", 5

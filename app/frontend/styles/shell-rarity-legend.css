@@ -89,12 +89,33 @@
 }
 
 .rarity-legend__owned,
-.rarity-legend__total {
+.rarity-legend__total,
+.rarity-legend__copies {
   white-space: nowrap;
 }
 
-.rarity-legend__owned {
+.rarity-legend__owned,
+.rarity-legend__copies {
   color: var(--color-text-max);
+}
+
+@media (max-width: 719px) {
+  .rarity-legend {
+    padding-inline: var(--space-4);
+  }
+
+  .rarity-legend__heading,
+  .rarity-legend__row > * {
+    padding-inline: var(--space-2);
+  }
+
+  .rarity-legend__link {
+    gap: var(--space-2);
+  }
+
+  .rarity-legend__season {
+    display: none;
+  }
 }
 
 /* Right under whichever counter opened it, its end edge on the counter's. */

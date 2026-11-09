@@ -154,6 +154,7 @@ fr:
         rarity: "Rareté"
         season: "Cette saison"
         overall: "Toutes saisons"
+        copies: "Exemplaires"
       totals: "Total"
       figure:
         zero: "%{owned} sur %{total} possédée"

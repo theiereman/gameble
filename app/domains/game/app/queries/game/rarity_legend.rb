@@ -2,7 +2,7 @@ module Game
   module RarityLegend
     Figures = Data.define(:owned, :total)
 
-    Row = Data.define(:rarity, :season, :overall)
+    Row = Data.define(:rarity, :season, :overall, :copies)
 
     Legend = Data.define(:rows, :totals)
 
@@ -30,17 +30,17 @@ module Game
        GROUP BY ROLLUP (rarity)
     SQL
 
-    def self.call(player)
+    def self.call(player, copies: TierCounts.call(player))
       rows = Holding.connection.select_rows(Holding.sanitize_sql_array([ SQL, { player_id: player&.id } ]), "Game::RarityLegend")
       counts = rows.to_h { |tier, *figures| [ tier&.to_i, figures.map(&:to_i) ] }
       Legend.new(
-        rows: Catalog::Rarity::TIERS.map { |tier, rarity| row(rarity, counts.fetch(tier, NO_GAMES)) },
-        totals: row(nil, counts.fetch(EVERY_RARITY, NO_GAMES))
+        rows: Catalog::Rarity::TIERS.map { |tier, rarity| row(rarity, counts.fetch(tier, NO_GAMES), copies.fetch(tier)) },
+        totals: row(nil, counts.fetch(EVERY_RARITY, NO_GAMES), copies.values.sum)
       )
     end
 
-    def self.row(rarity, (season_owned, season_total, owned, total))
-      Row.new(rarity:, season: Figures.new(owned: season_owned, total: season_total), overall: Figures.new(owned:, total:))
+    def self.row(rarity, (season_owned, season_total, owned, total), copies)
+      Row.new(rarity:, season: Figures.new(owned: season_owned, total: season_total), overall: Figures.new(owned:, total:), copies:)
     end
     private_class_method :row
   end

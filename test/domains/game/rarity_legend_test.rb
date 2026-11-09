@@ -72,6 +72,34 @@ class Game::RarityLegendTest < ActiveSupport::TestCase
     assert_equal([ [ 0, 0, 0, 1 ] ] * 5, Game::RarityLegend.call(@player).rows.map { figures(it) })
   end
 
+  test "the copies of a rarity count every duplicate" do
+    hold(@player, catalog_card_seasons(:common_card_one).id, 3)
+
+    row = legend_row(:common)
+
+    assert_equal 1, row.overall.owned
+    assert_equal 3, row.copies
+  end
+
+  test "an edition with no copy left adds no copies" do
+    hold(@player, catalog_card_seasons(:rare_card_one).id, 0)
+
+    assert_equal 0, legend_row(:rare).copies
+  end
+
+  test "the totals' copies are the sum of the rarities', and every figure is the top bar's" do
+    hold(@player, catalog_card_seasons(:common_card_one).id, 3)
+    hold(@player, catalog_card_seasons(:rare_card_one).id, 2)
+    hold(@player, catalog_card_seasons(:portal_one).id)
+
+    legend = Game::RarityLegend.call(@player)
+    bar = Game::TierCounts.call(@player)
+
+    assert_equal bar.values_at(*Catalog::Rarity::TIERS.keys), legend.rows.map(&:copies)
+    assert_equal 6, legend.totals.copies
+    assert_equal legend.rows.sum(&:copies), legend.totals.copies
+  end
+
   test "another player's editions never count" do
     hold(accounts_players(:moderator), catalog_card_seasons(:uncommon_card_one).id)
 
@@ -94,8 +122,9 @@ class Game::RarityLegendTest < ActiveSupport::TestCase
     hold(@player, catalog_card_seasons(:common_card_one).id)
     hold(@player, edition(:rare_card_one, season: season(2), rarity: "legendary"))
 
+    copies = Game::TierCounts.call(@player)
     legend = nil
-    assert_queries_count(1) { legend = Game::RarityLegend.call(@player) }
+    assert_queries_count(1) { legend = Game::RarityLegend.call(@player, copies:) }
 
     assert_equal %i[common uncommon rare epic legendary], legend.rows.map(&:rarity)
     assert_equal [ [ 0, 0, 1, 1 ], [ 0, 0, 0, 1 ], [ 0, 0, 0, 1 ], [ 0, 0, 1, 1 ], [ 1, 1, 1, 2 ] ], legend.rows.map { figures(it) }

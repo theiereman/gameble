@@ -181,7 +181,7 @@ module ShellHelper
   end
 
   def shell_rarity_legend
-    @shell_rarity_legend ||= Game::RarityLegend.call(current_player)
+    @shell_rarity_legend ||= Game::RarityLegend.call(current_player, copies: shell_tier_counts)
   end
 
   def shell_next_pack_in(bank)

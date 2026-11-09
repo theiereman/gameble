@@ -4,8 +4,9 @@
     <thead>
       <tr>
         <th scope="col" class="rarity-legend__heading"><%= t("shell.rarity.columns.rarity") %></th>
-        <th scope="col" class="rarity-legend__heading"><%= t("shell.rarity.columns.season") %></th>
+        <th scope="col" class="rarity-legend__heading rarity-legend__season"><%= t("shell.rarity.columns.season") %></th>
         <th scope="col" class="rarity-legend__heading"><%= t("shell.rarity.columns.overall") %></th>
+        <th scope="col" class="rarity-legend__heading"><%= t("shell.rarity.columns.copies") %></th>
       </tr>
     </thead>
     <tbody>
@@ -18,14 +19,14 @@
               <span class="rarity-legend__name"><%= t("catalog.rarity.#{row.rarity}") %></span>
             <% end %>
           </th>
-          <%= render "shell/rarity_legend_figures", figures: [ row.season, row.overall ] %>
+          <%= render "shell/rarity_legend_figures", row: row %>
         </tr>
       <% end %>
     </tbody>
     <tfoot>
       <tr class="rarity-legend__row rarity-legend__row--totals">
         <th scope="row" class="rarity-legend__rarity"><span class="rarity-legend__name"><%= t("shell.rarity.totals") %></span></th>
-        <%= render "shell/rarity_legend_figures", figures: [ legend.totals.season, legend.totals.overall ] %>
+        <%= render "shell/rarity_legend_figures", row: legend.totals %>
       </tr>
     </tfoot>
   </table>

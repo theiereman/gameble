@@ -117,6 +117,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select ".top-bar__end > .collection-status + #rarity-legend[popover]"
     assert_equal [ "3 / 150", "3 / 155" ], css_select("#rarity-legend tfoot td > [aria-hidden=true]").map { it.text.squish }
+    assert_equal [ "Rarity", "This season", "All seasons", "Copies" ], css_select("#rarity-legend thead th").map { it.text.strip }
+    assert_select "#rarity-legend tfoot td.rarity-legend__copies", "5"
     assert_equal "/en/library/cards?rarity%5B%5D=epic", css_select("#rarity-legend a.rarity-legend__link")[3]["href"]
     assert_select ".top-bar .rarity-counter, .top-bar .packs-chip", false
     assert_select ".top-bar .player-chip"
@@ -1297,11 +1299,12 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     forty = count_queries { get library_path(locale: :en) }
     assert_equal three, forty
     # Player lookup, season, unique cards and the season's count, the latest
-    # cards gained and their faces, the rarity legend, the sets' total; the
-    # tab bar's trades and invitations waiting and the player's avatar; the
-    # player's own sets, read once with their Steam library set, and goals;
-    # with no goal, the sets suggested, their standings and the themes' names.
-    assert_equal 19, forty
+    # cards gained and their faces, the rarity legend and its copies, the sets'
+    # total; the tab bar's trades and invitations waiting and the player's
+    # avatar; the player's own sets, read once with their Steam library set,
+    # and goals; with no goal, the sets suggested, their standings and the
+    # themes' names.
+    assert_equal 20, forty
   end
 
   test "the way to all the cards fans the three cards gained last, the latest on top" do

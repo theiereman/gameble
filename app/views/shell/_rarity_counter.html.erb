@@ -1,4 +1,4 @@
-<div id="rarity-counter" class="rarity-counter" data-controller="rarity-counter" data-rarity-counter-delimiter-value="<%= t("number.format.delimiter") %>">
+<div id="rarity-counter" class="rarity-counter" data-controller="rarity-counter" data-rarity-counter-delimiter-value="<%= t("number.format.delimiter") %>" data-rarity-counter-legend-url-value="<%= rarity_legend_path %>">
   <button type="button" class="rarity-counter__button" popovertarget="rarity-legend">
     <span class="visually-hidden"><%= t("shell.rarity.label") %></span>
     <% Catalog::Rarity::TIERS.each do |tier, code| %>

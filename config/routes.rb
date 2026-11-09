@@ -47,6 +47,7 @@ Rails.application.routes.draw do
     resource :packs_chip, path: "packs-chip", only: :show
     # The top bar's values, read again by the app when a screen comes back into view.
     resource :top_bar, path: "top-bar", only: :show
+    resource :rarity_legend, path: "rarity-legend", only: :show
     # What is new for the player, the lines of the header's bell, in a frame.
     resource :bell, only: :show
 

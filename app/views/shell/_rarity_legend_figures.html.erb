@@ -1,6 +1,7 @@
-<% figures.each do |figure| %>
-  <td class="rarity-legend__figure">
+<% { "rarity-legend__season" => row.season, "rarity-legend__overall" => row.overall }.each do |column, figure| %>
+  <td class="rarity-legend__figure <%= column %>">
     <span aria-hidden="true"><span class="rarity-legend__owned"><%= number_with_delimiter(figure.owned) %></span> <span class="rarity-legend__total">/ <%= number_with_delimiter(figure.total) %></span></span>
     <span class="visually-hidden"><%= t("shell.rarity.figure", count: figure.owned, owned: number_with_delimiter(figure.owned), total: number_with_delimiter(figure.total)) %></span>
   </td>
 <% end %>
+<td class="rarity-legend__figure rarity-legend__copies"><%= number_with_delimiter(row.copies) %></td>

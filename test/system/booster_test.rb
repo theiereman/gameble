@@ -110,6 +110,10 @@ class BoosterTest < ApplicationSystemTestCase
     find(".top-bar .rarity-counter__count[data-tier=#{tier}]").text
   end
 
+  def legend_cell(tier, cell)
+    "#rarity-legend .rarity-legend__row--#{tier} #{cell}"
+  end
+
   def opened_packs
     Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).count
   end
@@ -204,6 +208,25 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector "#{card(2)} .booster-card__label", text: "LEGENDARY!"
     assert_focus ".booster__open"
     assert_button "Open the next one"
+  end
+
+  test "when a reveal ends the rarity legend counts the capsule, in copies and in owned cards, without a visit" do
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one), more: true)
+    commons = Integer(rarity_count("common"))
+    copies = legend_cell(1, ".rarity-legend__copies")
+    assert_selector copies, text: commons.to_s, exact_text: true, visible: :all
+
+    open_canister
+    assert_dealt(5)
+    assert_selector copies, text: commons.to_s, exact_text: true, visible: :all
+
+    click_on "Reveal all"
+    assert_selector ".booster-card[data-revealed]", count: 5, wait: 15
+
+    assert_selector copies, text: (commons + 2).to_s, exact_text: true, visible: :all, wait: 10
+    owned = Game::RarityLegend.call(@player).rows.first.overall.owned
+    assert_selector legend_cell(1, ".rarity-legend__overall .rarity-legend__owned"), text: owned.to_s, exact_text: true, visible: :all
+    assert_equal commons + 2, Integer(rarity_count("common"))
   end
 
   test "the next booster: the cards sink, a canister docks and opens with a new key; at zero the button says the reserve is empty" do
