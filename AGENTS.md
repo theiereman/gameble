@@ -22,7 +22,7 @@ A free web trading card game where every card is a Steam game. Rails 8 with doma
 
 - Write only through an operation (`ApplicationOperation`, named `Domain::VerbNoun`, returning `Success` or `Failure(:code)`); controllers, jobs, handlers and components never write a model, and read through the domain's queries.
 - An operation publishes one event inside its transaction; handlers run in that transaction and never publish.
-- A GET never writes: GET actions run on the reading role with writes prevented (`ApplicationController`); put the write behind a POST or a job.
+- A GET never writes: GET actions run on the reading role with writes prevented (`ApplicationController`); put the write behind a POST or a job. The one exception is `DevSignInsController`, whose routes exist only in development.
 - Jobs are enqueued only after commit; broadcasts go through a job, never inside a transaction.
 - Never expose database ids in URLs, HTML, JSON, DOM ids or stream names; use tokens.
 - Give every controller action a Pundit policy.
@@ -30,6 +30,7 @@ A free web trading card game where every card is a Steam game. Rails 8 with doma
 - Domain dependencies follow the architecture diagram (Game → Catalog, Accounts; Steam → Catalog; no domain → web layer); `bundle exec packwerk check` fails otherwise.
 - Never add React or build markup in script: the server renders HTML, and controllers clone server-rendered `<template>`s. A rich screen has one root controller holding its state module from `app/frontend/lib/<screen>.ts`, children talk to it by `dispatch`, and it drives them through outlets.
 - A screen talks to the page chrome only through the `gameble:*` events declared in `app/frontend/lib/events.ts`; server HTML carries no `style` attribute.
+- An action that opens the rest of a preview (a full list or screen: "see all", "open the feed") is a `ButtonComponent` with `variant: :link`, never a filled button.
 - Make schema changes expand/contract (strong_migrations): a concurrent index in its own migration, a check added then validated in a second one.
 
 ## Running and verifying

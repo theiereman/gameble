@@ -88,6 +88,27 @@ class Game::FortuneTest < ActiveSupport::TestCase
     assert_equal 0, Game::BackfillFortunesJob.players_out_of_tally
   end
 
+  test "the tenth pack after nine without a Rare is expected to hold the first session's guarantee" do
+    9.times { create_pack(@player, cards: ids(*[ :common_card_one ] * 5), opened_at: MONDAY) }
+    create_pack(@player, cards: ids(*[ :rare_card_one ] * 5), opened_at: MONDAY)
+
+    Game::Fortune.rebuild(@player.id, MONDAY)
+
+    regular, guaranteed = Game::LuckOdds.of(:regular), Game::LuckOdds.of(:regular_with_guarantee)
+    assert_in_delta regular.points * 9 + guaranteed.points, tally.expected_points, 1e-6
+    assert_in_delta regular.variance * 9 + guaranteed.variance, tally.variance, 1e-6
+    assert_equal 10, tally.regular_packs
+  end
+
+  test "a Rare among the first nine packs leaves every pack at the ordinary expectation" do
+    8.times { create_pack(@player, cards: ids(*[ :common_card_one ] * 5), opened_at: MONDAY) }
+    2.times { create_pack(@player, cards: ids(*[ :rare_card_one ] * 5), opened_at: MONDAY) }
+
+    Game::Fortune.rebuild(@player.id, MONDAY)
+
+    assert_in_delta Game::LuckOdds.of(:regular).points * 10, tally.expected_points, 1e-6
+  end
+
   test "a released player's tallies go with their packs" do
     create_pack(@player)
     open

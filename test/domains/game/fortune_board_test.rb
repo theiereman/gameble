@@ -89,6 +89,24 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     assert_equal 1, Game::FortuneBoard.summary(:week, now: NOW).active_count
   end
 
+  test "a private player leaves the board, the counts and the Privileged, and keeps an index without a rank" do
+    kept, hidden = player(1), player(2)
+    luck(kept, 1.0)
+    luck(hidden, 3.0)
+    hidden.update!(visibility: :private)
+
+    summary = Game::FortuneBoard.summary(:week, now: NOW)
+    standing = Game::FortuneStanding.call(hidden, period: :week, now: NOW)
+
+    assert_equal [ kept ], board.map(&:player)
+    assert_equal [ 1, 1, 1 ], [ summary.ranked_count, summary.active_count, summary.packs_opened ]
+    assert_equal Set[kept.id], Game::Privileged.ids(now: NOW)
+    assert_equal [ nil, 0, false ], [ standing.rank, standing.ranked_count, standing.privileged ]
+    assert_operator standing.index, :>, 0
+    assert_not_predicate standing, :shareable?
+    assert_equal 1, Game::FortuneStanding.call(kept, period: :week, now: NOW).rank
+  end
+
   test "a player's standing: index, label, rank among the period's players, Privileged, and the figures" do
     lucky, other = player(1), player(2)
     luck(lucky, 3.52)

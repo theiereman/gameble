@@ -27,10 +27,12 @@
             <% if fortune.privileged %><span class="fortune__privileged"><%= t("fortunes.privileged") %></span><% end %>
           </p>
           <p class="fortune__text"><%= fortune_label_text(fortune.index) %></p>
-          <p class="fortune__rank">
-            <%= link_to t("fortunes.profile.rank", rank: number_with_delimiter(fortune.rank), count: number_with_delimiter(fortune.ranked_count)),
-                  fortune_register_path(period: (FortunePeriod::ALL_TIME if fortune.period == :all_time)), data: { turbo_frame: "_top" } %>
-          </p>
+          <% if fortune.rank %>
+            <p class="fortune__rank">
+              <%= link_to t("fortunes.profile.rank", rank: number_with_delimiter(fortune.rank), count: number_with_delimiter(fortune.ranked_count)),
+                    fortune_register_path(period: (FortunePeriod::ALL_TIME if fortune.period == :all_time)), data: { turbo_frame: "_top" } %>
+            </p>
+          <% end %>
         </div>
       </div>
       <details class="fortune__details">

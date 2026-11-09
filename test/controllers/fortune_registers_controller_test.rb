@@ -18,20 +18,27 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     Game::OpenPack.new.call(player:).value!
   end
 
+  def stranger(name)
+    Accounts::Player.create!(steam_id: "76561197960400#{name.sum % 1000}", persona_name: name)
+  end
+
+  def befriend(first, second)
+    low, high = [ first.id, second.id ].minmax
+    Game::Friendship.create!(low_player_id: low, high_player_id: high)
+  end
+
   test "the week's dashboard has one row per player: Privileged in place of the label, capsules, a count per rarity and the luck last" do
-    hidden = Accounts::Player.create!(steam_id: "76561197960400101", persona_name: "Secret", visibility: :private)
     open_cards(@player, 5)
     open_cards(@player, 1)
-    open_cards(hidden, 1)
 
     get fortune_register_path(locale: :en)
 
     assert_response :success
     assert_select "h1", "The Flukeometer"
-    assert_select ".register__summary .profile-figure", text: /Active this week\s*2/
-    assert_select ".register__summary .profile-figure", text: /Capsules this week\s*3/
-    assert_select ".register__summary .profile-figure", text: %r{Privileged\s*1/2}
-    assert_select ".player-row", 2
+    assert_select ".register__summary .profile-figure", text: /Active this week\s*1/
+    assert_select ".register__summary .profile-figure", text: /Capsules this week\s*2/
+    assert_select ".register__summary .profile-figure", text: %r{Privileged\s*1/1}
+    assert_select ".player-row", 1
     assert_select ".player-row:nth-child(1).player-row--privileged" do
       assert_select "button.player-row__name[aria-haspopup=dialog]", "Hugo"
       assert_select ".player-row__who .fortune__privileged", "PRIVILEGED"
@@ -47,18 +54,70 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
       assert_select ".player-row__rarity--5 dt .visually-hidden", "Legendary"
       assert_select ":last-child.player-row__luck.fortune-index--up[title=?]", "+500"
       assert_select ".player-row__luck .player-row__share-word", "Top"
-      assert_select ".player-row__luck .player-row__share-value", "50%"
-    end
-    assert_select ".player-row:nth-child(2)" do
-      assert_select ".player-row__name--hidden", "Private member"
-      assert_select ".fortune__privileged", false
-      assert_select ".player-row__label"
-      assert_select ".player-row__rarity dd", text: "–", count: 5
+      assert_select ".player-row__luck .player-row__share-value", "100%"
     end
     assert_select "dialog#player-card-#{@player.token} turbo-frame[src=?][loading=lazy]", brother_summary_path(locale: :en, token: @player.token)
     assert_select "dialog.modal", 1
-    assert_no_match "Secret", response.body
     assert_select "[style]", false
+  end
+
+  test "a private player has no row and counts nowhere, and sees their own index without a rank" do
+    @player.update!(visibility: :private)
+    open_cards(@player, 5)
+    open_cards(stranger("Other"), 1)
+    sign_in(@player)
+
+    get fortune_register_path(locale: :en)
+
+    assert_select ".player-row", 1
+    assert_select "button.player-row__name", "Other"
+    assert_select ".player-row--own", false
+    assert_select ".register__summary .profile-figure", text: /Active this week\s*1/
+    assert_select ".register__mine", false
+    assert_no_match "Hugo", css_select(".register__rows").text
+
+    get brother_path(locale: :en, token: @player.token)
+
+    assert_select ".fortune-index__value", "+500"
+    assert_select ".fortune__rank", false
+    assert_select ".fortune__standing", false
+    assert_select ".fortune__privileged", false
+  end
+
+  test "a friends-only player is named for a friend and stays an anonymous row for a stranger" do
+    @player.update!(visibility: :friends_only)
+    open_cards(@player, 1)
+    friend = stranger("Friend")
+    befriend(friend, @player)
+
+    get fortune_register_path(locale: :en)
+
+    assert_select ".player-row__name--hidden", "Private member"
+    assert_select ".player-row__rarity dd", text: "–", count: 5
+    assert_select "dialog.modal", false
+
+    sign_in(friend)
+    get fortune_register_path(locale: :en)
+
+    assert_select "button.player-row__name", "Hugo"
+    assert_select "dialog#player-card-#{@player.token}"
+  end
+
+  test "the leaderboard answers a browser too old for the game" do
+    get fortune_register_path(locale: :en), headers: { "User-Agent" => "Mozilla/5.0 (Windows NT 6.1; rv:40.0) Gecko/20100101 Firefox/40.0" }
+
+    assert_response :success
+  end
+
+  test "a period tab renders the Fortune frame alone" do
+    open_cards(@player, 1)
+
+    get brother_path(locale: :en, token: @player.token, fortune: "all_time"), headers: { "Turbo-Frame" => "profile-fortune" }
+
+    assert_response :success
+    assert_select "turbo-frame", 1
+    assert_select "turbo-frame#profile-fortune .fortune__tabs a[aria-current=true]", "All time"
+    assert_select "h1", false
   end
 
   test "the order by capsules, the all-time tab in French, and an empty week" do

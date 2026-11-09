@@ -1,5 +1,5 @@
 <%# locals: (row:) %>
-<% shown = row.shown_to?(current_player) %>
+<% shown = row.shown %>
 <%= tag.li class: class_names("player-row", "player-row--privileged": row.privileged, "player-row--own": row.player == current_player) do %>
   <%= player_avatar((row.player if shown), class_name: "player-row__avatar") %>
   <span class="player-row__who">
@@ -29,6 +29,6 @@
     </div>
   </dl>
   <%= tag.span class: class_names("player-row__luck", "fortune-index", fortune_index_tone(row.index)), title: fortune_index_text(row.index) do %>
-    <span class="visually-hidden"><%= t("fortune_registers.show.row.luck") %></span><%= fortune_share_tag(row, class_name: "player-row__share") %>
+    <span class="visually-hidden"><%= t("fortune_registers.show.row.luck") %></span><%= fortune_share_tag(row, class_name: "player-row__share") if row.shareable? %>
   <% end %>
 <% end %>

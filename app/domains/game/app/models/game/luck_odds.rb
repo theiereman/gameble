@@ -19,24 +19,25 @@ module Game
       Expectation.new(points: mean, variance: square - mean**2)
     end
 
-    def self.reward_with_epic_guarantee
-      below = DrawOdds::REWARD.select { |tier, _| tier < RewardDraw::MIN_TIER }
-      none_epic = (below.values.sum.fdiv(DrawOdds::TOTAL))**Pack::SIZE
-      drawn = card(DrawOdds::REWARD) * Pack::SIZE
+    def self.with_guarantee(odds, min_tier:, floor_odds:)
+      below = odds.select { |tier, _| tier < min_tier }
+      none_at_floor = (below.values.sum.fdiv(DrawOdds::TOTAL))**Pack::SIZE
+      drawn = card(odds) * Pack::SIZE
       all_below = card(below) * Pack::SIZE
-      one_redrawn = card(below) * (Pack::SIZE - 1) + card(DrawOdds::EPIC_OR_BETTER)
+      one_redrawn = card(below) * (Pack::SIZE - 1) + card(floor_odds)
 
-      mean = drawn.points + none_epic * (one_redrawn.points - all_below.points)
-      square = drawn.second_moment + none_epic * (one_redrawn.second_moment - all_below.second_moment)
+      mean = drawn.points + none_at_floor * (one_redrawn.points - all_below.points)
+      square = drawn.second_moment + none_at_floor * (one_redrawn.second_moment - all_below.second_moment)
       Expectation.new(points: mean, variance: square - mean**2)
     end
 
-    private_class_method :card, :reward_with_epic_guarantee
+    private_class_method :card, :with_guarantee
 
     EXPECTATIONS = {
       "regular" => card(DrawOdds::REGULAR) * Pack::SIZE,
       "bonus" => card(DrawOdds::BONUS) * Pack::BONUS_SIZE,
-      "reward" => reward_with_epic_guarantee
+      "reward" => with_guarantee(DrawOdds::REWARD, min_tier: RewardDraw::MIN_TIER, floor_odds: DrawOdds::EPIC_OR_BETTER),
+      "regular_with_guarantee" => with_guarantee(DrawOdds::REGULAR, min_tier: FirstSessionGuarantee::MIN_TIER, floor_odds: DrawOdds::GUARANTEE)
     }.freeze
   end
 end

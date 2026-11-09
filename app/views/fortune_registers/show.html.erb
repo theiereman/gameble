@@ -17,7 +17,7 @@
     <%= render "public_profiles/figure", label: t(".summary.members.#{@period}"), value: @summary.ranked_count %>
     <%= render "public_profiles/figure", label: t(".summary.capsules.#{@period}"), value: @summary.packs_opened %>
     <%= render "public_profiles/figure", label: t(".summary.privileged"), value: @summary.privileged_count, total: @summary.active_count %>
-    <% if @mine&.opened? %>
+    <% if @mine&.opened? && @mine.rank %>
       <div class="profile-figure register__mine">
         <dt class="profile-figure__label"><%= t(".summary.you") %></dt>
         <dd class="<%= class_names("profile-figure__value", "fortune-index", fortune_index_tone(@mine.index)) %>">
@@ -48,10 +48,10 @@
     <%= render PanelComponent.new(tag: :p, class: "register__empty") do %><%= t(".empty.#{@period}") %><% end %>
   <% else %>
     <ol class="register__rows">
-      <% preload_avatars(@rows.select { it.shown_to?(current_player) }.map(&:player)) %>
+      <% preload_avatars(@rows.select(&:shown).map(&:player)) %>
       <%= render partial: "fortune_registers/row", collection: @rows, as: :row %>
     </ol>
-    <% @rows.select { it.shown_to?(current_player) }.each do |row| %>
+    <% @rows.select(&:shown).each do |row| %>
       <%= render "fortune_registers/player_dialog", player: row.player %>
     <% end %>
     <% if @pagy.last > 1 %>

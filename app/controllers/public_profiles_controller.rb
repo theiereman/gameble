@@ -10,9 +10,11 @@ class PublicProfilesController < ApplicationController
   before_action :load_owner
 
   def show
+    @fortune = Game::FortuneStanding.call(@owner, period: fortune_period(params[:fortune]))
+    return render(partial: "public_profiles/fortune", locals: { owner: @owner, fortune: @fortune }) if fortune_tab_request?
+
     load_profile(@owner)
     @owner_title = Game::ActiveProfileTitle.call(@owner)
-    @fortune = Game::FortuneStanding.call(@owner, period: fortune_period(params[:fortune]))
     load_relation
   end
 
@@ -38,6 +40,10 @@ class PublicProfilesController < ApplicationController
   end
 
   private
+    def fortune_tab_request?
+      turbo_frame_request_id == "profile-fortune"
+    end
+
     def grid_owner
       @owner
     end

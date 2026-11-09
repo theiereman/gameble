@@ -28,4 +28,22 @@ class Game::LuckOddsTest < ActiveSupport::TestCase
     assert_in_delta reward.points, mean, 0.25
     assert_in_delta reward.variance, variance, 8
   end
+
+  test "the tenth pack after nine without a Rare promises the first session's guarantee, as the draw itself does" do
+    pool = Game::DrawPool::Snapshot.new(key: nil, season_id: nil, tiers: (1..5).to_h { [ it, [ it ] ] }, tier_by_id: (1..5).to_h { [ it, it ] })
+    random = Random.new(262)
+    rareless = Array.new(Game::FirstSessionGuarantee::PACK - 1) { Array.new(Game::Pack::SIZE, 1) }
+    scores = Array.new(60_000) do
+      tenth = Game::Draw.pack(odds: Game::DrawOdds::REGULAR, size: Game::Pack::SIZE, random:, pool:)
+      Game::FirstSessionGuarantee.apply(rareless + [ tenth ], pool:, random:).last.sum { Game::LuckOdds.points(it) }
+    end
+    mean = scores.sum.fdiv(scores.size)
+    variance = scores.sum { (it - mean)**2 }.fdiv(scores.size)
+    guaranteed = Game::LuckOdds.of(:regular_with_guarantee)
+
+    assert_in_delta 8.883113, guaranteed.points, 0.00001
+    assert_in_delta 115.889017, guaranteed.variance, 0.00001
+    assert_in_delta guaranteed.points, mean, 0.25
+    assert_in_delta guaranteed.variance, variance, 15
+  end
 end
