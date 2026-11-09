@@ -20,6 +20,15 @@ module FortunesHelper
     end
   end
 
+  def fortune_gauge_text(distribution, standing)
+    return t("fortunes.gauge.empty") if distribution.total.zero?
+
+    crowd = t("fortunes.gauge.crowd", count: distribution.total, index: fortune_index_text(distribution.crowded_index))
+    return crowd unless standing&.rank
+
+    "#{crowd} #{t("fortunes.gauge.marked", index: fortune_index_text(standing.index), rank: standing.rank, total: standing.ranked_count)}"
+  end
+
   def fortune_period_param(period) = (period.to_s unless period == :week)
 
   def player_card_dialog_id(token) = "player-card-#{token}"

@@ -32,6 +32,10 @@
     display: none;
   }
 
+  .hub__phone-feed {
+    display: block;
+  }
+
   .hub__title {
     font: var(--font-kicker-phone);
     letter-spacing: var(--tracking-kicker-phone);

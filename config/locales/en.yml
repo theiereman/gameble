@@ -1249,6 +1249,18 @@ en:
       title: Activity feed
       trade_tag: Trade
       traded_html: "%{name} and %{partner} traded %{card} for %{partner_card}"
+  fortune_panels:
+    frame:
+      no_standing:
+        all_time: No capsule opened yet.
+        week: No capsule opened this week. The instrument has nothing on you yet.
+      see_all: See the full leaderboard
+      tabs:
+        all_time: Total
+        week: Week
+      tabs_label: Period
+      title: The Flukeometer
+      verdict_title: The Flukeometer has spoken
   fortune_registers:
     show:
       empty:
@@ -1284,6 +1296,13 @@ en:
         you: Your luck
       title: The Flukeometer
   fortunes:
+    gauge:
+      crowd:
+        one: "%{count} ranked player on a scale from −500 to +500, the largest group near %{index}."
+        other: "%{count} ranked players on a scale from −500 to +500, the largest group near %{index}."
+      empty: No player is ranked for this period yet.
+      marked: You stand at %{index}, rank %{rank} of %{total}.
+      you: YOU
     labels:
       aggressively_average:
         text: "Your pulls match the forecast exactly. The Brotherhood thanks you for your compliance."

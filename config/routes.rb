@@ -164,6 +164,7 @@ Rails.application.routes.draw do
       constraints: { token: /\h{8}-\h{4}-\h{4}-\h{4}-\h{12}/ }
     # The luck leaderboards, this week's and all time's: public, read only.
     get "register" => "fortune_registers#show", as: :fortune_register
+    get "register/panel" => "fortune_panels#show", as: :fortune_panel
     post "friends/invitations" => "invitations#create", as: :invitations
     post "friends/invitations/:token/accept" => "invitations#accept", as: :accept_invitation,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }

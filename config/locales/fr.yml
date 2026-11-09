@@ -1657,6 +1657,18 @@ fr:
         zero: "Aucune nouvelle entrée dans le fil."
         one: "1 nouvelle entrée dans le fil."
         other: "%{count} nouvelles entrées dans le fil."
+  fortune_panels:
+    frame:
+      title: "Le Chattomètre"
+      verdict_title: "Le Chattomètre a parlé"
+      tabs_label: "Période"
+      tabs:
+        week: "Semaine"
+        all_time: "Total"
+      no_standing:
+        week: "Aucune capsule ouverte cette semaine. L'instrument n'a encore rien contre vous."
+        all_time: "Aucune capsule ouverte pour l'instant."
+      see_all: "Voir tout le classement"
   fortune_registers:
     show:
       title: "Le Chattomètre"
@@ -1690,6 +1702,14 @@ fr:
         capsules: "Capsules"
         hidden: "–"
   fortunes:
+    gauge:
+      you: "VOUS"
+      empty: "Aucun joueur n'est encore classé pour cette période."
+      crowd:
+        zero: "Aucun joueur classé sur une échelle de −500 à +500."
+        one: "%{count} joueur classé sur une échelle de −500 à +500, le plus grand groupe autour de %{index}."
+        other: "%{count} joueurs classés sur une échelle de −500 à +500, le plus grand groupe autour de %{index}."
+      marked: "Vous êtes à %{index}, rang %{rank} sur %{total}."
     periods_label: "Période"
     periods:
       week: "Cette semaine"

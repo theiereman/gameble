@@ -39,6 +39,10 @@
   grid-area: goals;
 }
 
+.hub__phone-feed {
+  display: none;
+}
+
 .hub__aside {
   grid-area: aside;
   display: flex;

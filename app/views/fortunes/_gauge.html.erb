@@ -1,0 +1,18 @@
+<%# locals: (distribution:, standing:) %>
+<% marked_band = (Game::FortuneDistribution.band_of(standing.index) if standing&.rank) %>
+<div class="fortune-gauge">
+  <p class="visually-hidden" data-fortune-gauge-summary><%= fortune_gauge_text(distribution, standing) %></p>
+  <div class="fortune-gauge__plot" aria-hidden="true">
+    <% distribution.columns.each_with_index do |column, band| %>
+      <span class="fortune-gauge__column">
+        <span class="<%= class_names("fortune-gauge__band", "fortune-gauge__band--h#{column.level}", "fortune-gauge__band--#{column.heat}") %>"></span>
+        <% if band == marked_band %>
+          <span class="<%= class_names("fortune-gauge__marker", "fortune-gauge__marker--start": band < 6, "fortune-gauge__marker--end": band > 42) %>"><span class="fortune-gauge__you"><%= t("fortunes.gauge.you") %></span></span>
+        <% end %>
+      </span>
+    <% end %>
+  </div>
+  <p class="fortune-gauge__scale" aria-hidden="true">
+    <span><%= fortune_index_text(-Game::FortuneIndex::LIMIT) %></span><span>0</span><span><%= fortune_index_text(Game::FortuneIndex::LIMIT) %></span>
+  </p>
+</div>

@@ -1,0 +1,255 @@
+.fortune-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.fortune-panel__frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.fortune-panel__title {
+  margin: 0;
+  color: var(--color-gold);
+  font: var(--font-screen-title);
+}
+
+.fortune-panel__tabs {
+  margin: 0;
+}
+
+.fortune-panel__headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.fortune-panel__winner {
+  color: var(--color-gold);
+  font: var(--font-count-large);
+}
+
+.fortune-panel__label,
+.fortune-panel__row-label {
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.fortune-panel__rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fortune-panel__row {
+  display: grid;
+  grid-template-columns: var(--space-8) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  box-shadow: inset 0 var(--space-unit) 0 0 var(--color-line-soft);
+}
+
+.fortune-panel__rank {
+  color: var(--color-muted);
+  font: var(--font-body);
+}
+
+.fortune-panel__who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fortune-panel__name {
+  overflow: hidden;
+  color: var(--color-text-bright);
+  font: var(--font-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fortune-panel__row-index {
+  font: var(--font-number);
+}
+
+.fortune-panel__more {
+  display: flex;
+  justify-content: flex-end;
+  margin: var(--space-2) 0 0;
+}
+
+@media (max-width: 719px) {
+  .fortune-panel .segmented__option,
+  .fortune-panel__more .button {
+    min-height: calc(var(--space-2) * 11);
+  }
+
+  .fortune-panel__more .button {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+.fortune-gauge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.fortune-gauge__plot {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-unit);
+  height: calc(var(--space-2) * 23);
+  box-shadow: 0 var(--space-unit) 0 0 var(--color-line-deep);
+}
+
+.fortune-gauge__column {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  min-width: 0;
+}
+
+.fortune-gauge__band {
+  display: block;
+  width: 100%;
+}
+
+.fortune-gauge__band--cold {
+  background: var(--color-line-deep);
+}
+
+.fortune-gauge__band--cool {
+  background: var(--color-accent);
+}
+
+.fortune-gauge__band--warm {
+  background: var(--color-lime);
+}
+
+.fortune-gauge__band--hot {
+  background: var(--color-gold);
+}
+
+.fortune-gauge__band--h0 {
+  height: var(--space-unit);
+}
+
+.fortune-gauge__band--h1 {
+  height: calc(var(--space-2) * 1);
+}
+
+.fortune-gauge__band--h2 {
+  height: calc(var(--space-2) * 2);
+}
+
+.fortune-gauge__band--h3 {
+  height: calc(var(--space-2) * 3);
+}
+
+.fortune-gauge__band--h4 {
+  height: calc(var(--space-2) * 4);
+}
+
+.fortune-gauge__band--h5 {
+  height: calc(var(--space-2) * 5);
+}
+
+.fortune-gauge__band--h6 {
+  height: calc(var(--space-2) * 6);
+}
+
+.fortune-gauge__band--h7 {
+  height: calc(var(--space-2) * 7);
+}
+
+.fortune-gauge__band--h8 {
+  height: calc(var(--space-2) * 8);
+}
+
+.fortune-gauge__band--h9 {
+  height: calc(var(--space-2) * 9);
+}
+
+.fortune-gauge__band--h10 {
+  height: calc(var(--space-2) * 10);
+}
+
+.fortune-gauge__band--h11 {
+  height: calc(var(--space-2) * 11);
+}
+
+.fortune-gauge__band--h12 {
+  height: calc(var(--space-2) * 12);
+}
+
+.fortune-gauge__band--h13 {
+  height: calc(var(--space-2) * 13);
+}
+
+.fortune-gauge__band--h14 {
+  height: calc(var(--space-2) * 14);
+}
+
+.fortune-gauge__band--h15 {
+  height: calc(var(--space-2) * 15);
+}
+
+.fortune-gauge__band--h16 {
+  height: calc(var(--space-2) * 16);
+}
+
+.fortune-gauge__band--h17 {
+  height: calc(var(--space-2) * 17);
+}
+
+.fortune-gauge__band--h18 {
+  height: calc(var(--space-2) * 18);
+}
+
+.fortune-gauge__marker {
+  position: absolute;
+  top: var(--space-5);
+  bottom: 0;
+  left: 50%;
+  width: var(--space-unit);
+  background: var(--color-text-max);
+  transform: translateX(-50%);
+}
+
+.fortune-gauge__you {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  color: var(--color-text-max);
+  font: var(--font-body-small);
+  transform: translateX(-50%);
+}
+
+.fortune-gauge__marker--start .fortune-gauge__you {
+  left: 0;
+  transform: none;
+}
+
+.fortune-gauge__marker--end .fortune-gauge__you {
+  right: 0;
+  left: auto;
+  transform: none;
+}
+
+.fortune-gauge__scale {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
