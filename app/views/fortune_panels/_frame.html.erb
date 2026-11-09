@@ -1,7 +1,7 @@
 <%# locals: (panel:) %>
 <%= turbo_frame_tag "fortune-panel", target: "_top" do %>
   <%= render PanelComponent.new(class: "fortune-panel__frame") do %>
-    <h2 id="fortune-panel-title" class="fortune-panel__title"><%= t(panel.verdict ? ".verdict_title" : ".title") %></h2>
+    <h2 id="fortune-panel-title" class="fortune-panel__title"><%= panel.verdict ? t(".verdict_title") : t(".title") %></h2>
     <%= form_with url: fortune_panel_path, method: :get, class: "fortune-panel__tabs", data: { turbo_frame: "fortune-panel" } do %>
       <div class="segmented" role="group" aria-label="<%= t(".tabs_label") %>">
         <% %i[week all_time].each do |tab| %>

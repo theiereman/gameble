@@ -1,4 +1,0 @@
-<% if invitations.positive? %>
-  <span class="tab-bar__badge tab-bar__badge--friends" aria-hidden="true"><%= number_with_delimiter(invitations) %></span>
-  <span class="visually-hidden"><%= t("shell.tabs.invitations_waiting", count: invitations, number: number_with_delimiter(invitations)) %></span>
-<% end %>

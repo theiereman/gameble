@@ -94,7 +94,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get me_path(locale: :en)
 
-    assert_select "#phone-menu-panel a[href='/en/settings']", 1
+    assert_select "#player-menu a[href='/en/settings']", 1
     assert_select "main a[href='/en/personalization']", false
     assert_select "main a[href^='https://buymeacoffee.com']", false
   end

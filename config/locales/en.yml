@@ -1702,9 +1702,9 @@ en:
         title: Open source and built with AI
       roadmap:
         all: See the whole roadmap
-        market: Visit the market's building site
         label: 06 · Roadmap
         line_label: Roadmap milestones, from the oldest to the most distant
+        market: Visit the market's building site
         statuses:
           done: Done
           in_progress: In progress
@@ -2077,7 +2077,6 @@ en:
         extras_back: Back to the menu
         extras_label: Extras
         feed: Activity feed
-        friends: Friends
         friends_online:
           one: "%{number} online"
           other: "%{number} online"
@@ -2086,6 +2085,7 @@ en:
           one: "%{number} invitation waiting for your answer"
           other: "%{number} invitations waiting for your answer"
         label: Bridge menu
+        market: Market
         register: The Flukeometer
         open_booster: Open a capsule
         reserve:
@@ -2769,7 +2769,9 @@ en:
         retry: Retry
       language:
         label: Language
+      how_it_works: How it works
       legal: Legal notice
+      source_code: Source code
       motion:
         label: Reduced motion
         'off': 'No'
@@ -2907,18 +2909,18 @@ en:
         one: special
         other: special
       special_none: No special capsule
-    phone_menu:
-      how_it_works: How it works
-      label: Menu
-      source_code: GitHub
-      support: Support
     player:
       back_office: Back-office
       fallback_name: Player
+      friends: Friends
       menu: Player menu
-      profile: My profile
+      pending:
+        one: "%{number} thing waiting for you"
+        other: "%{number} things waiting for you"
+      profile: Me
       settings: Settings
       sign_out: Sign out
+      support: Support
     rarity:
       columns:
         overall: All seasons
@@ -2939,8 +2941,8 @@ en:
       feed: Feed
       friends: Friends
       how_it_works: How it works
-      market: Market
       legal: Legal notice
+      market: Market
       me: Me
       profile: Profile
       set: Set
@@ -2956,13 +2958,10 @@ en:
     tabs:
       all_cards: All cards
       booster: Capsule
-      friends: Friends
       hub: Bridge
-      invitations_waiting:
-        one: "%{number} invitation waiting for your answer"
-        other: "%{number} invitations waiting for your answer"
       label: Main navigation
       landing: Home
+      market: Market
       me: Me
       sets: Sets
       trades: Trades

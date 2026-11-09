@@ -62,28 +62,26 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select ".hub-menu a.menu-item[href='/en/friends'] #menu-friends-badge.stream-slot .menu-item__badge--friends[aria-hidden=true]", "1"
-    assert_select "#menu-friends-badge .visually-hidden", "1 invitation waiting for your answer"
-    assert_select ".tab-bar a.tab-bar__tab[href='/en/friends'] #tab-invitations-badge.stream-slot .tab-bar__badge--friends[aria-hidden=true]", "1"
-    assert_select "#tab-invitations-badge .visually-hidden", "1 invitation waiting for your answer"
+    assert_select "#player-menu a[href='/en/friends'] #player-menu-invitations-badge.stream-slot .menu-item__badge--friends[aria-hidden=true]", "1"
+    assert_select "#player-menu-invitations-badge .visually-hidden", "1 invitation waiting for your answer"
+    assert_select ".player-chip__button #player-menu-badge.stream-slot .player-chip__badge[aria-hidden=true]", "1"
   end
 
-  test "a player with no invitation to answer sees no count on menu 04 or the Friends tab" do
+  test "a player with no invitation to answer sees no count in the player menu" do
     Game::Invitation.create!(sender_id: @player.id, recipient_id: accounts_players(:moderator).id)
     sign_in @player
 
     get home_path(locale: :en)
 
-    assert_select "#menu-friends-badge.stream-slot", 1
-    assert_select "#menu-friends-badge .menu-item__badge, #menu-friends-badge .visually-hidden", 0
-    assert_select "#tab-invitations-badge.stream-slot", 1
-    assert_select "#tab-invitations-badge .tab-bar__badge", 0
+    assert_select "#player-menu-invitations-badge.stream-slot", 1
+    assert_select "#player-menu-invitations-badge .menu-item__badge, #player-menu-invitations-badge .visually-hidden", 0
+    assert_select "#player-menu-badge .player-chip__badge", 0
   end
 
   test "a visitor's page renders no invitations badge slot" do
     get library_cards_path(locale: :en)
 
-    assert_select "#menu-friends-badge, #plus-friends-badge, #tab-invitations-badge", 0
+    assert_select "#player-menu-badge, #player-menu-invitations-badge", 0
   end
 
   test "the trades and Friends screens refresh on their signal, held back by a board in edition" do

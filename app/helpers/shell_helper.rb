@@ -63,21 +63,19 @@ module ShellHelper
   def shell_top_level_screen?
     return false if current_player.nil? || back_office_page? || content_for?(:phone_back)
 
-    %w[boosters trades].include?(controller_path) ||
-      %w[pages#home own_profiles#show friends#show library#show library#cards].include?("#{controller_path}##{action_name}")
+    %w[boosters trades markets].include?(controller_path) ||
+      %w[pages#home own_profiles#show library#show library#cards].include?("#{controller_path}##{action_name}")
   end
-
-  FRIENDS_TAB_CONTROLLERS = %w[friends friend_profiles].freeze
 
   def shell_tabs
     return visitor_tabs unless current_player
 
     [
-      [ :hub, "tab-hub", home_path, (controller_path == "pages" && action_name == "home") || controller_path == "feeds" ],
+      [ :hub, "tab-hub", home_path, (controller_path == "pages" && action_name == "home") || %w[feeds fortune_registers].include?(controller_path) ],
       [ :booster, "tab-capsule", booster_path, %w[boosters packs].include?(controller_path) ],
       [ :sets, "tab-sets", library_path, %w[library cards custom_sets].include?(controller_path) ],
-      [ :friends, "tab-friends", friends_path, FRIENDS_TAB_CONTROLLERS.include?(controller_path) ],
-      [ :trades, "tab-trades", trades_path, controller_path == "trades" ]
+      [ :trades, "tab-trades", trades_path, controller_path == "trades" ],
+      [ :market, "tab-market", market_path, controller_path == "markets" ]
     ]
   end
 
@@ -161,6 +159,14 @@ module ShellHelper
     return @shell_achievements_unclaimed if defined?(@shell_achievements_unclaimed)
 
     @shell_achievements_unclaimed = Game::UnclaimedAchievements.count(current_player)
+  end
+
+  def shell_friends_online
+    @shell_friends_online ||= Game::FriendsPresence.online_count(current_player)
+  end
+
+  def shell_player_pending
+    shell_invitations_waiting + shell_achievements_unclaimed
   end
 
   def player_stream_tag

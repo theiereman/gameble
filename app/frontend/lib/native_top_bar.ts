@@ -16,7 +16,7 @@ type PanelHost = Pick<ParentNode, "querySelector" | "querySelectorAll">
 
 const AVATAR_PIXELS = 108
 
-const PANELS: Record<TopBarPanel, string> = { bell: "#bell-panel", menu: "#phone-menu-panel" }
+const PANELS: Record<TopBarPanel, string> = { bell: "#bell-panel", menu: "#player-menu" }
 
 const textOf = (root: Readable, selector: string): string => root.querySelector(selector)?.textContent?.trim() ?? ""
 
@@ -35,9 +35,9 @@ export function readCounts(root: Readable): Omit<TopBarState, "avatar"> {
     standard,
     special,
     bell: bell && !bell.hidden ? (bell.textContent?.trim() ?? "") : "",
-    menuBadge: textOf(root, "#phone-menu-badge .phone-menu__badge"),
+    menuBadge: textOf(root, "#player-menu-badge .player-chip__badge"),
     capsules: capsulesBadge(standard, special),
-    friends: textOf(root, "#tab-invitations-badge .tab-bar__badge"),
+    friends: textOf(root, "#player-menu-invitations-badge .menu-item__badge"),
     trades: textOf(root, "#tab-trades-badge .tab-bar__badge"),
   }
 }

@@ -16,7 +16,6 @@ class PagesController < ApplicationController
     @ticker = LiveStream.ticker_items
     @bank = Game::BankSummary.call(current_player)
     @goal_reward = Game::GoalRewardStatus.call(current_player)
-    @friends_online = Game::FriendsPresence.online_count(current_player)
     @achievements = Game::AchievementBoard.summary(current_player)
     load_showcase if @season
     @welcome = current_player.welcome_pending

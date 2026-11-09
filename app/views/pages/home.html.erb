@@ -10,7 +10,7 @@
 
   <%= render "pages/welcome" if @welcome %>
 
-  <%= render "pages/menu", bank: @bank, collection: @collection, friends_online: @friends_online, achievements: @achievements %>
+  <%= render "pages/menu", bank: @bank, collection: @collection, achievements: @achievements %>
 
   <span hidden data-controller="bonus-arc" data-action="turbo:before-stream-render@document->bonus-arc#render"></span>
 

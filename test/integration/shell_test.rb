@@ -166,7 +166,7 @@ class ShellTest < ActionDispatch::IntegrationTest
       assert_select ".player-chip__dot[aria-hidden=true]"
     end
     assert_select "nav#player-menu[popover][aria-label=?]", "Player menu" do
-      assert_select "a.player-menu__item[href=?]", "/en/me", text: "My profile"
+      assert_select "a.player-menu__item[href=?]", "/en/me", text: "Me"
       assert_select "a[href='/en/back-office']", false
       assert_select "form[action=?] input[name=_method][value=delete]", "/session?locale=en"
       assert_select "form button.player-menu__item", "Sign out"

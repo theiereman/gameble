@@ -1,5 +1,0 @@
-<%# locals: (unclaimed:) %>
-<% if unclaimed.positive? %>
-  <span class="phone-menu__badge" aria-hidden="true"><%= number_with_delimiter(unclaimed) %></span>
-  <span class="visually-hidden"><%= t("pages.home.menu.rewards_waiting", count: unclaimed, number: number_with_delimiter(unclaimed)) %></span>
-<% end %>

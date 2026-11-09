@@ -145,12 +145,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select "#menu-trades-badge.stream-slot", 1
       assert_select ".menu-item__badge, .visually-hidden", 0
     end
-    # 04: the friends, how many are online, the invitations badge hidden when none waits.
-    assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='4'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
-      assert_select ".menu-item__label", "Amis"
-      assert_select ".menu-item__meta", "0 en ligne"
-      assert_select "#menu-friends-badge.stream-slot", 1
-      assert_select ".menu-item__badge, .visually-hidden", 0
+    # 04: the market.
+    assert_select ".hub-menu a.menu-item[href='/fr/market'][aria-keyshortcuts='4'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+      assert_select ".menu-item__label", "Marché"
     end
     # 05: the activity feed.
     assert_select ".hub-menu a.menu-item[href='/fr/feed'][aria-keyshortcuts='5'][data-hub-menu-target=item][data-turbo-prefetch=false]" do

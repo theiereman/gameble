@@ -485,7 +485,6 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
 
     assert_select "#player-menu a.player-menu__item[href='/en/settings']", "Settings"
-    assert_select "#phone-menu-panel a.player-menu__item[href='/en/settings']", "Settings"
   end
 
   test "the settings still hold the support link the Me screen let go" do

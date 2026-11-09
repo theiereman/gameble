@@ -158,16 +158,17 @@ fr:
         zero: "%{number} en réserve"
         one: "%{number} en réserve"
         other: "%{number} en réserve"
-    phone_menu:
-      label: "Menu"
-      how_it_works: "Comment ça marche"
-      support: "Soutenir"
-      source_code: "GitHub"
     player:
       menu: "Menu du joueur"
       fallback_name: "Joueur"
-      profile: "Mon profil"
+      pending:
+        zero: "%{number} élément en attente de vous"
+        one: "%{number} élément en attente de vous"
+        other: "%{number} éléments en attente de vous"
+      profile: "Moi"
+      friends: "Amis"
       settings: "Paramètres"
+      support: "Soutenir"
       back_office: "Back-office"
       sign_out: "Se déconnecter"
     tabs:
@@ -175,8 +176,8 @@ fr:
       hub: "Pont"
       booster: "Capsule"
       sets: "Sets"
-      friends: "Amis"
       trades: "Échanges"
+      market: "Marché"
       me: "Moi"
       landing: "Accueil"
       all_cards: "Toutes les cartes"
@@ -184,10 +185,6 @@ fr:
         zero: "%{number} échange en attente de vous"
         one: "%{number} échange en attente de vous"
         other: "%{number} échanges en attente de vous"
-      invitations_waiting:
-        zero: "%{number} invitation en attente de votre réponse"
-        one: "%{number} invitation en attente de votre réponse"
-        other: "%{number} invitations en attente de votre réponse"
     toast:
       region: "Notifications"
       close: "Fermer"
@@ -225,7 +222,7 @@ fr:
           one: "%{owned} carte unique sur %{total}"
           other: "%{owned} cartes uniques sur %{total}"
         trades: "Échanges"
-        friends: "Amis"
+        market: "Marché"
         feed: "Fil d'activité"
         trades_waiting:
           zero: "%{number} échange en attente de vous"
@@ -1566,6 +1563,8 @@ fr:
       support:
         label: "Soutenir"
         link: "Soutenir"
+      how_it_works: "Comment ça marche"
+      source_code: "Code source"
       legal: "Mentions légales"
       summary:
         title: "Profil public"

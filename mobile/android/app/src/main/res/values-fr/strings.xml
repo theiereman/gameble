@@ -10,8 +10,8 @@
     <string name="tab_hub">Pont</string>
     <string name="tab_capsule">Capsule</string>
     <string name="tab_sets">Sets</string>
-    <string name="tab_friends">Amis</string>
     <string name="tab_trades">Échanges</string>
+    <string name="tab_market">Marché</string>
     <string name="top_bar_back">Retour</string>
     <string name="top_bar_back_to">Retour à %1$s</string>
     <string name="top_bar_capsules">Capsules</string>

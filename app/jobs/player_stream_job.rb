@@ -7,11 +7,14 @@ class PlayerStreamJob < ApplicationJob
       next unless reachable?(player)
 
       topics = own.filter_map { it[:topic] }.uniq
+      invitations_changed = topics.include?("friends")
+      rewards_changed = own.any? { it[:achievement] || it[:claimed] }
       locals = {
         waiting: (Game::TradesWaiting.call(player) if topics.include?("trades")),
-        invitations: (Game::InvitationsWaiting.call(player) if topics.include?("friends")),
+        invitations: (Game::InvitationsWaiting.call(player) if invitations_changed),
         friends: announceable_friends(own.filter_map { it[:friend_id] }),
-        unclaimed: (Game::UnclaimedAchievements.count(player) if own.any? { it[:achievement] || it[:claimed] }),
+        unclaimed: (Game::UnclaimedAchievements.count(player) if rewards_changed),
+        pending: (pending_for(player) if invitations_changed || rewards_changed),
         achievements: own.filter_map { it[:achievement] }.uniq,
         card_backs: own.filter_map { it[:card_back] }.uniq,
         signals: topics.map { "#{it}-updated" }
@@ -21,6 +24,10 @@ class PlayerStreamJob < ApplicationJob
   end
 
   private
+
+  def pending_for(player)
+    Game::InvitationsWaiting.call(player) + Game::UnclaimedAchievements.count(player)
+  end
 
   def reachable?(player)
     player.present? && !player.removed?

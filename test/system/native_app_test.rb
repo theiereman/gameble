@@ -72,9 +72,9 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     connect_as_the_app
 
     tap_on_the_bar "menu"
-    within("#phone-menu-panel") { click_link "Settings" }
+    within("#player-menu") { click_link "Settings" }
 
-    assert_no_selector "#phone-menu-panel:popover-open"
+    assert_no_selector "#player-menu:popover-open"
     assert_current_path trades_path(locale: :en)
     eventually("the app should be asked for the settings") { sent_to_app.include?("/en/settings") }
 
@@ -116,7 +116,7 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     assert_selector "#bell-panel:popover-open"
 
     tap_on_the_bar "menu"
-    assert_selector "#phone-menu-panel:popover-open"
+    assert_selector "#player-menu:popover-open"
   end
 
   test "the avatar's menu opens under the native bar, trades places with the bell, and closes when the bar hides" do
@@ -128,13 +128,13 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     tap_on_the_bar "menu"
 
     assert_no_selector "#bell-panel:popover-open"
-    assert_selector "#phone-menu-panel:popover-open"
+    assert_selector "#player-menu:popover-open"
     assert_link "Settings"
-    assert_operator page.evaluate_script("document.getElementById('phone-menu-panel').getBoundingClientRect().top"), :>=, 56
+    assert_operator page.evaluate_script("document.getElementById('player-menu').getBoundingClientRect().top"), :>=, 56
 
     tap_on_the_bar nil
 
-    assert_no_selector "#phone-menu-panel:popover-open"
+    assert_no_selector "#player-menu:popover-open"
   end
 
   test "a panel closes when its screen comes back on view" do
@@ -142,10 +142,10 @@ class NativeAppSystemTest < ApplicationSystemTestCase
     connect_as_the_app
 
     tap_on_the_bar "menu"
-    assert_selector "#phone-menu-panel:popover-open"
+    assert_selector "#player-menu:popover-open"
     execute_script("window.dispatchEvent(new CustomEvent('gameble:screen-shown'))")
 
-    assert_no_selector "#phone-menu-panel:popover-open"
+    assert_no_selector "#player-menu:popover-open"
   end
 
   test "the page reports the bar's counts, bell and avatar, and again when they change" do

@@ -48,8 +48,8 @@ describe("readCounts", () => {
         ".bank-counter__item:not(.bank-counter__item--special) .bank-counter__count": { textContent: " 1,204 " },
         ".bank-counter__item--special .bank-counter__count": { textContent: "3" },
         "[data-bell-target=count]": { textContent: "12", hidden: false },
-        "#phone-menu-badge .phone-menu__badge": { textContent: "4" },
-        "#tab-invitations-badge .tab-bar__badge": { textContent: "2" },
+        "#player-menu-badge .player-chip__badge": { textContent: "4" },
+        "#player-menu-invitations-badge .menu-item__badge": { textContent: "2" },
         "#tab-trades-badge .tab-bar__badge": { textContent: " 5 " },
       }),
     )
@@ -127,11 +127,11 @@ describe("togglePanel", () => {
   it("trades one panel for the other", () => {
     const { host, shown } = panels(["#bell-panel"])
     togglePanel(host, "menu")
-    expect([...shown]).toEqual(["#phone-menu-panel"])
+    expect([...shown]).toEqual(["#player-menu"])
   })
 
   it("closes whatever is open when no panel is wanted", () => {
-    const { host, shown } = panels(["#phone-menu-panel"])
+    const { host, shown } = panels(["#player-menu"])
     togglePanel(host, null)
     expect([...shown]).toEqual([])
   })
@@ -139,7 +139,7 @@ describe("togglePanel", () => {
 
 describe("closePanels", () => {
   it("closes every open panel", () => {
-    const { host, shown } = panels(["#bell-panel", "#phone-menu-panel"])
+    const { host, shown } = panels(["#bell-panel", "#player-menu"])
     closePanels(host)
     expect(shown.size).toBe(0)
   })

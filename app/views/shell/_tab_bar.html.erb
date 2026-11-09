@@ -1,5 +1,4 @@
 <% waiting = shell_trades_waiting %>
-<% invitations = shell_invitations_waiting %>
 <% tabs = shell_tabs %>
 <nav class="tab-bar" aria-label="<%= t("shell.tabs.label") %>" data-controller="navigation-lock">
   <%= tag.ul class: [ "tab-bar__list", ("tab-bar__list--visitor" unless current_player) ] do %>
@@ -10,9 +9,6 @@
           <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
           <% if key == :trades %>
             <span id="tab-trades-badge" class="stream-slot"><%= render("shell/tab_trades_badge", waiting:) %></span>
-          <% end %>
-          <% if key == :friends %>
-            <span id="tab-invitations-badge" class="stream-slot"><%= render("shell/tab_invitations_badge", invitations:) %></span>
           <% end %>
         <% end %>
       </li>

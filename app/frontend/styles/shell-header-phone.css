@@ -139,7 +139,6 @@
   }
 
   .top-bar--top-level .packs-chips > .packs-chip,
-  .top-bar--top-level .player-chip,
   .top-bar--top-level .rarity-counter {
     display: none;
   }

@@ -7,10 +7,9 @@ enum Tabs {
         let atRoot: Bool
     }
 
-    private static let paths = ["", "/booster", "/library", "/friends", "/trades"]
+    private static let paths = ["", "/booster", "/library", "/trades", "/market"]
     private static let capsule = 1
-    private static let friends = 3
-    private static let trades = 4
+    private static let trades = 3
 
     static func destination(of path: String) -> Destination {
         let location = path.replacingOccurrences(of: #"^/(en|fr)(?=[/?#]|$)"#, with: "", options: .regularExpression)
@@ -28,14 +27,13 @@ enum Tabs {
             HotwireTab(title: Gameble.text("Bridge", "Pont"), image: UIImage(named: "tab-hub"), url: Gameble.url("")),
             HotwireTab(title: Gameble.text("Capsule", "Capsule"), image: UIImage(named: "tab-capsule"), url: Gameble.url("/booster")),
             HotwireTab(title: Gameble.text("Sets", "Sets"), image: UIImage(named: "tab-sets"), url: Gameble.url("/library")),
-            HotwireTab(title: Gameble.text("Friends", "Amis"), image: UIImage(named: "tab-friends"), url: Gameble.url("/friends")),
-            HotwireTab(title: Gameble.text("Trades", "Échanges"), image: UIImage(named: "tab-trades"), url: Gameble.url("/trades"))
+            HotwireTab(title: Gameble.text("Trades", "Échanges"), image: UIImage(named: "tab-trades"), url: Gameble.url("/trades")),
+            HotwireTab(title: Gameble.text("Market", "Marché"), image: UIImage(named: "tab-market"), url: Gameble.url("/market"))
         ]
     }
 
     static func showBadges(of state: TopBarState, on tabBar: UITabBar) {
         badge(state.capsules, on: tabBar, at: capsule, color: Palette.primary, text: Palette.onPrimary)
-        badge(state.friends, on: tabBar, at: friends, color: Palette.friends, text: Palette.onFriends)
         badge(state.trades, on: tabBar, at: trades, color: Palette.alert, text: Palette.onAlert)
     }
 

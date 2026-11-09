@@ -169,6 +169,14 @@
           </li>
 
           <li class="settings-row">
+            <%= render ButtonComponent.new(variant: :link, href: how_it_works_path) do %><%= t(".how_it_works") %><% end %>
+          </li>
+
+          <li class="settings-row">
+            <%= source_code_link_to t(".source_code"), class: "button button--link" %>
+          </li>
+
+          <li class="settings-row">
             <%= render ButtonComponent.new(variant: :link, href: legal_path) do %><%= t(".legal") %><% end %>
           </li>
         </ul>

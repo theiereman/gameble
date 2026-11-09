@@ -289,6 +289,24 @@ a.packs-chip:focus-visible {
   background: var(--color-lime);
 }
 
+.player-chip__button {
+  position: relative;
+}
+
+.player-chip__badge {
+  position: absolute;
+  top: calc(-1 * var(--space-2));
+  right: calc(-1 * var(--space-2));
+  min-width: 18px;
+  padding: 0 var(--space-1);
+  background: var(--color-alert);
+  color: var(--color-on-alert);
+  font: var(--font-button-sm);
+  letter-spacing: 0;
+  line-height: 16px;
+  text-align: center;
+}
+
 /* The legend and the player menu: native popovers under the top bar, at
    the right edge of the content. */
 .shell-popover {
@@ -357,6 +375,34 @@ a.packs-chip:focus-visible {
 
 .player-menu__item:focus-visible {
   box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.player-menu__item {
+  gap: var(--space-3);
+}
+
+.player-menu__label,
+.player-menu .menu-item__label {
+  flex: 1;
+}
+
+.player-menu__meta {
+  flex: none;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  text-transform: none;
+}
+
+.player-menu__item:hover .player-menu__meta,
+.player-menu__item:active .player-menu__meta {
+  color: inherit;
+}
+
+.player-menu .menu-item__external {
+  flex: none;
+  width: 14px;
+  height: 14px;
 }
 
 /* The official Steam image, untouched, in a 44px hit area. */

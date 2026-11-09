@@ -164,7 +164,7 @@
   visibility: hidden;
 }
 
-:root[data-native-bar] :is(.bell, .phone-menu) {
+:root[data-native-bar] :is(.bell, .player-chip) {
   display: flex;
 }
 
@@ -172,7 +172,7 @@
   visibility: visible;
 }
 
-:root[data-native-bar] :is(.bell__panel, .phone-menu__panel) {
+:root[data-native-bar] :is(.bell__panel, .player-menu) {
   top: calc(var(--topbar-height) + var(--space-3));
   right: var(--space-3);
   margin: 0;
