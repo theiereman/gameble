@@ -200,6 +200,21 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".fortune__tabs a[aria-current=true]", "This week"
   end
 
+  test "the gauge heads the register: a marker for a ranked player, none for a visitor, and the way back leads to the bridge" do
+    open_cards(@player, 3)
+
+    get fortune_register_path(locale: :en)
+
+    assert_select ".register__gauge .fortune-gauge__column", 49
+    assert_select ".fortune-gauge__marker", false
+
+    sign_in(@player)
+    get fortune_register_path(locale: :en)
+
+    assert_select ".register__gauge .fortune-gauge__marker", 1
+    assert_select ".top-bar__phone-back[href=?]", home_path(locale: :en)
+  end
+
   test "a profile's all-time tab, and a period without any pack" do
     travel_to(2.weeks.ago) { open_cards(@player, 1) }
 

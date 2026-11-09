@@ -3,8 +3,8 @@
 <% content_for :screen_title, t(".title") %>
 <% if current_player %>
   <% content_for :phone_back do %>
-    <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
-      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
+    <%= link_to home_path, class: "button button--secondary button--small top-bar__phone-back" do %>
+      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t("shell.tabs.hub") %></span>
     <% end %>
   <% end %>
 <% end %>
@@ -13,6 +13,9 @@
 <section class="register" aria-labelledby="register-heading">
   <h1 id="register-heading" class="register__title"><%= t(".title") %></h1>
   <p class="register__intro"><%= t(".intro") %></p>
+  <%= render PanelComponent.new(class: "register__gauge") do %>
+    <%= render "fortunes/gauge", distribution: @distribution, standing: @mine %>
+  <% end %>
   <%= render PanelComponent.new(tag: :dl, class: "register__summary") do %>
     <%= render "public_profiles/figure", label: t(".summary.members.#{@period}"), value: @summary.ranked_count %>
     <%= render "public_profiles/figure", label: t(".summary.capsules.#{@period}"), value: @summary.packs_opened %>

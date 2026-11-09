@@ -253,3 +253,7 @@
   color: var(--color-muted);
   font: var(--font-body-small);
 }
+
+.register__gauge {
+  padding: var(--space-5);
+}

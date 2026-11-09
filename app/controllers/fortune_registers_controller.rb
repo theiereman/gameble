@@ -15,5 +15,6 @@ class FortuneRegistersController < ApplicationController
     @summary = Game::FortuneBoard.summary(@period, now:)
     @rows = Game::FortuneBoard.rows(fortunes.to_a, ranked_count: @summary.ranked_count, viewer: current_player, now:)
     @mine = Game::FortuneStanding.call(current_player, period: @period, now:) if current_player
+    @distribution = Game::FortuneDistribution.call(@period, now:)
   end
 end

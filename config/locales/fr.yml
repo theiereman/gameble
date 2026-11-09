@@ -1672,7 +1672,6 @@ fr:
   fortune_registers:
     show:
       title: "Le Chattomètre"
-      more: "Plus"
       intro: "La Confrérie classe ses membres selon la chance de leurs capsules : ce que leurs cartes ont rapporté face à ce que les capsules promettent. Chaque semaine, les 10 % les plus chanceux sont Privilégiés."
       empty:
         week: "Aucun membre n'a encore ouvert de capsule cette semaine."
