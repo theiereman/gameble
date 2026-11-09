@@ -4,8 +4,8 @@ require_relative "../support/game_packs"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
-# The collection: EN COURS loads more of a kind and a set search finds any
-# set; the grid of every card narrows from its filter row and search without
+# The collection: EN COURS previews six sets and leads to All sets, every set
+# behind a search and a filter row, its pages appended as it scrolls; the grid of every card narrows from its filter row and search without
 # losing focus, appends its pages, moves its focus by arrow keys and comes
 # back from a card on its appended cards; the cards of a pack just opened
 # are new until a grid has shown them.
@@ -43,7 +43,7 @@ class LibraryTest < ApplicationSystemTestCase
 
   # More sets in progress than a page holds: themes of three cards, two held.
   def start_more_sets(count)
-    cards = Catalog::CardSeason.where(season_id: @season.id).order(:id).ids.last(count * 3)
+    cards = Catalog::CardSeason.where(season_id: @season.id).where.not(id: @theme).order(:id).ids.last(count * 3)
     count.times do |index|
       members = cards.slice(index * 3, 3)
       insert_theme(members, key: "extra-#{index}", season: @season)
@@ -51,28 +51,64 @@ class LibraryTest < ApplicationSystemTestCase
     end
   end
 
-  test "EN COURS shows six sets of a kind, Load more adds the next ones, and the search finds any set as tiles in place of the lists, under OBJECTIFS" do
+  test "EN COURS shows six sets, See all opens All sets on the sets in progress, a chip and the search narrow it in place, in the URL, and Back restores them" do
     start_more_sets(8)
-    assert_equal 12, Game::SetBoard.call(@player, season: @season).in_progress.size
     sign_in
     visit library_path(locale: :en)
 
-    assert_selector "#set-entry-theme-title ~ .set-tiles a.set-tile", count: 6
-    find("#set-entry-theme-title ~ turbo-frame.set-more a.button", text: /load more/i).click
-    assert_selector ".set-tiles a.set-tile", count: 12
-    assert_no_selector "turbo-frame.set-more a.button"
-    assert_selector ".set-tiles a.set-tile:focus"
+    assert_selector "#set-entry-in-progress .set-tiles a.set-tile", count: 6
+    assert_no_selector "input#set-search-field"
+    find("#set-entry-in-progress a.button--link", text: /see all/i).click
 
-    fill_in "set-search-field", with: "rpg"
-    assert_selector "#set-results-title", text: /\ARESULTS\z/
-    assert_selector ".set-results .set-tiles a.set-tile[href='#{library_set_path(locale: :en, kind: "theme", key: "rpg")}']"
-    assert_selector ".set-results .set-chip--none", text: /NO TIER/i
-    assert_no_selector "#set-entry-in-progress-title"
-    assert_selector ".set-entry > #goals:first-child ~ .set-search"
+    assert_current_path library_sets_path(locale: :en, state: [ "in_progress" ])
+    assert_selector "#set-browser-tiles a.set-tile", minimum: 7
+    assert_selector "#{pastille(:state)} .filter-row__count", text: "1"
 
-    fill_in "set-search-field", with: ""
-    assert_no_selector "#set-results-title"
-    assert_selector "#set-entry-in-progress .set-tiles a.set-tile", count: 12
+    open_filter_sheet(:kind)
+    within(filter_sheet(:kind)) { find(".filter-chip__text", text: /\ATheme\z/i).click }
+    eventually("the URL should hold the kind chosen") { current_url.match?(/kind(%5B%5D|\[\])=theme/) }
+    close_filter_sheet(:kind)
+    assert_selector "#{pastille(:kind)} .filter-row__count", text: "1"
+    assert_selector ".filters__clear", visible: true
+
+    fill_in "collection-search", with: "horror"
+    assert_selector "#set-browser-tiles a.set-tile[href='#{library_set_path(locale: :en, kind: "theme", key: "horror")}']"
+    assert_selector "#set-browser-tiles a.set-tile", count: 1
+    assert_selector "#collection-search:focus"
+
+    first("#set-browser-tiles a.set-tile").click
+    assert_selector ".set-album__header"
+    page.go_back
+
+    assert_selector "#set-browser-tiles a.set-tile[aria-current=true][href='#{library_set_path(locale: :en, kind: "theme", key: "horror")}']"
+    assert_field "collection-search", with: "horror"
+    eventually("Back should restore the search and the filters in the URL") { current_url.match?(/kind(%5B%5D|\[\])=theme/) && current_url.include?("q=horror") }
+
+    find(".filters__clear").click
+    assert_current_path library_sets_path(locale: :en)
+    assert_selector "#set-browser-tiles a.set-tile", minimum: 7
+  end
+
+  test "All sets appends its next page as the links come near and opens a filter as a bottom sheet on a phone" do
+    start_more_sets(26)
+    sign_in
+    visit library_sets_path(locale: :en, state: [ "in_progress" ])
+
+    assert_selector "#set-browser-tiles > li:nth-child(24)", visible: :all
+    assert_no_selector "#set-browser-tiles > li:nth-child(25)", visible: :all
+    scroll_to_pages
+    assert_selector "#set-browser-tiles > li:nth-child(25)", visible: :all
+    assert_selector "#collection-results-status", text: /Sets 25 to/, visible: :all
+    assert_selector "#collection-pages [aria-current=page]", text: "2", visible: :all
+    assert_current_path library_sets_path(locale: :en, state: [ "in_progress" ])
+
+    resize_to(390, 844)
+    visit library_sets_path(locale: :en)
+    open_filter_sheet(:tier)
+    within(filter_sheet(:tier)) { find(".filter-chip__text", text: /\AMaster\z/i).click }
+    assert_selector "#{pastille(:tier)} .filter-row__count", text: "1", visible: :all
+    close_filter_sheet(:tier)
+    assert_selector "#{pastille(:tier)} .filter-row__count", text: "1"
   end
 
   test "the filter row: a chip ticked in a sheet narrows the grid behind it, each pastille counting its own, a search narrows as it is typed" do

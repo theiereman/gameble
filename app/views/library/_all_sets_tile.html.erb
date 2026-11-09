@@ -1,0 +1,13 @@
+<%# locals: (url:, total:) %>
+<%= link_to url, class: "all-cards-tile" do %>
+  <span class="all-cards-tile__summary">
+    <span class="all-cards-tile__title"><%= pixel_icon("tab-sets", class: "all-cards-tile__icon") %><%= t("library.entry.all_sets_tile.title") %></span>
+    <span class="all-cards-tile__figures">
+      <span class="all-cards-tile__count"><%= number_with_delimiter(total) %></span>
+      <span class="all-cards-tile__unit"><%= t("library.entry.all_sets_tile.unit", count: total) %></span>
+    </span>
+  </span>
+  <span class="all-cards-tile__side" aria-hidden="true">
+    <span class="button button--secondary all-cards-tile__open"><%= t("library.entry.all_sets_tile.open") %><%= pixel_icon("arrow-small-right") %></span>
+  </span>
+<% end %>

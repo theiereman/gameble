@@ -10,12 +10,14 @@ class SetSearchTest < ActiveSupport::TestCase
   include GameSets
 
   setup do
-    @season, = published_cards(1)
+    @season, @cards = published_cards(1)
   end
 
-  def set(kind, key, params) = insert_set([], {}, kind:, key:, params:, season: @season)
+  def set(kind, key, params) = insert_set(@cards, {}, kind:, key:, params:, season: @season)
   def names(query, locale: :en)
-    I18n.with_locale(locale) { SetSearch.call(season: @season, query:, locale:).sets.map { SetLabel.for(it) } }
+    I18n.with_locale(locale) do
+      SetBrowser.new(season: @season, player: accounts_players(:player), own_sets: {}, goals: GoalMarks::NONE, filters: { q: query }).entries.map { SetLabel.for(it.set) }
+    end
   end
 
   test "by name in the locale, accents and case ignored, names starting with the query first, then by name" do
@@ -54,20 +56,7 @@ class SetSearchTest < ActiveSupport::TestCase
     assert_equal [ "Les Pépites" ], names("palmares", locale: :fr)
   end
 
-  test "fifty sets at most, with the count of every match" do
-    60.times { |index| set("studio", "studio-#{index}", { "studio" => format("Studio %02d", index) }) }
-
-    result = SetSearch.call(season: @season, query: "studio", locale: :en)
-    assert_equal 60, result.count
-    assert_equal (0...50).map { format("Studio %02d", it) }, result.sets.map { SetLabel.for(it) }
-  end
-
-  test "a blank query, or no season, finds nothing without a query; a long one is cut to a hundred characters" do
-    set("studio", "long", { "studio" => "#{"a" * 100}b" })
-
-    assert_queries_count(0) { assert_equal SetSearch::NONE, SetSearch.call(season: @season, query: "  ", locale: :en) }
-    assert_queries_count(0) { assert_equal SetSearch::NONE, SetSearch.call(season: nil, query: "a", locale: :en) }
-    assert_queries_count(1) { assert_equal 1, SetSearch.call(season: @season, query: "a" * 100 + "zzz", locale: :en).count }
+  test "a long query is cut to a hundred characters" do
     assert_equal "a" * 100, SetSearch.clean(" #{"a" * 120} ")
   end
 

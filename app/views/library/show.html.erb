@@ -10,8 +10,8 @@
   <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
   <div class="set-entry-page">
     <h1 class="visually-hidden"><%= t("library.collection.title") %></h1>
-    <%= render "library/entry", results: @results, results_count: @results_count, query: @query, custom_set_tiles: @custom_set_tiles, goals: @goals,
-      goal_suggestions: @goal_suggestions, steam_library_tile: @steam_library_tile,
-      search_url: library_path, in_progress_url: library_in_progress_path, all_cards: { url: library_cards_path, unique: @unique, total: @season_cards, cards: @latest_cards } %>
+    <%= render "library/entry", custom_set_tiles: @custom_set_tiles, goals: @goals, goal_suggestions: @goal_suggestions, steam_library_tile: @steam_library_tile,
+      in_progress_url: library_in_progress_path, all_cards: { url: library_cards_path, unique: @unique, total: @season_cards, cards: @latest_cards },
+      all_sets: { url: library_sets_path, total: @sets_total } %>
   </div>
 <% end %>

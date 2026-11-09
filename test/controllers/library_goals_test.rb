@@ -48,7 +48,7 @@ class LibraryGoalsTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :fr)
 
-    assert_select ".set-entry > section#goals.goals[aria-labelledby=goals-title]:first-child + a.all-cards-tile + section.set-search + turbo-frame#set-search-results + section.custom-sets"
+    assert_select ".set-entry > section#goals.goals[aria-labelledby=goals-title]:first-child + a.all-cards-tile + a.all-cards-tile + turbo-frame#set-entry-in-progress + section.custom-sets"
     assert_select "#goals h2#goals-title", "Objectifs"
     assert_select "#goals .goals__count", "2 / 5"
     assert_select "#goals .goals__panel.panel--brackets"

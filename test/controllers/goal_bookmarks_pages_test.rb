@@ -264,8 +264,8 @@ class GoalBookmarksPagesTest < ActionDispatch::IntegrationTest
     get library_in_progress_path(locale: :fr), headers: { "Turbo-Frame" => "set-entry-in-progress" }
     assert_select "a.set-tile[href='/fr/library/theme/roguelike']", false
 
-    get library_path(locale: :fr, q: "rogue")
-    roguelike_tile = css_select("#set-results-title ~ ul.set-tiles a.set-tile.set-tile--goal.goal-tone--2").sole
+    get library_sets_path(locale: :fr, q: "rogue")
+    roguelike_tile = css_select("ul#set-browser-tiles a.set-tile.set-tile--goal.goal-tone--2").sole
     assert_equal [ "2", "2" ], roguelike_tile.css(".set-tile__face .set-tile__head > .set-tile__goal > .goal-bookmark.goal-bookmark--large").map(&:text)
     assert_match(/\ARoguelike, thème, objectif 2, 2 cartes sur 3/, roguelike_tile.css("> .visually-hidden").text)
 

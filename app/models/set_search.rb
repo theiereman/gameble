@@ -1,22 +1,9 @@
 module SetSearch
   MAX_QUERY = 100
-  LIMIT = 50
   KIND_LIMIT = 12
 
   Result = Data.define(:sets, :count)
   NONE = Result.new(sets: [], count: 0)
-
-  def self.call(season:, query:, locale:, own_sets: {})
-    needle = normalize(clean(query))
-    return NONE if season.nil? || needle.empty?
-
-    I18n.with_locale(locale) do
-      game_sets = named(Catalog::SeasonSets.every_kind(season:)).select { |set, name| name.include?(needle) || kind_name(set.kind).include?(needle) }
-      mine = own_sets.map { |own_set, name| [ own_set, normalize(name) ] }.select { |_own_set, name| name.include?(needle) }
-      found = ranked(game_sets + mine, needle)
-      Result.new(sets: found.first(LIMIT), count: found.size)
-    end
-  end
 
   def self.in_kind(season:, kind:, query:, locale:, except: [], limit: KIND_LIMIT)
     return NONE if season.nil?
@@ -49,6 +36,4 @@ module SetSearch
   def self.kind_name(kind)
     normalize(I18n.t("library.set_kinds.#{kind}"))
   end
-
-  private_class_method :named, :ranked, :kind_name
 end

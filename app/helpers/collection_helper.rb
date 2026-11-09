@@ -1,6 +1,8 @@
 module CollectionHelper
   FILTER_ROW = { goals: %i[goals], rarity: %i[rarity], state: %i[state], more: %i[sets genre] }.freeze
 
+  SetFilterChip = Data.define(:value, :label, :chosen)
+
   def collection_pages(pagy)
     current = pagy.page.clamp(1, pagy.last)
     pages = [ 1, current - 1, current, current + 1, pagy.last ].select { |page| page.between?(1, pagy.last) }.uniq.sort
@@ -8,6 +10,15 @@ module CollectionHelper
       series << :gap if series.any? && page > series.last + 1
       series << page
     end
+  end
+
+  def set_filter_groups(browser)
+    groups = {
+      kind: browser.kinds.map { SetFilterChip.new(value: it, label: set_kind_name(it), chosen: browser.chosen_kinds.include?(it)) },
+      state: SetBrowser::STATES.map { SetFilterChip.new(value: it, label: t("library.sets.states.#{it}"), chosen: browser.chosen_states.include?(it)) },
+      tier: SetBrowser::TIERS.map { SetFilterChip.new(value: it, label: set_tier_name(it), chosen: browser.chosen_tiers.include?(it)) }
+    }
+    browser.goals.any? ? groups.merge(goals: []) : groups
   end
 
   def collection_filter_counts(filters:, states:, states_asked:, goals: [])

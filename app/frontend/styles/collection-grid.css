@@ -468,19 +468,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .set-search__row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .set-search__row > .button {
-    width: 100%;
-  }
-
-  .set-search__field {
-    min-height: var(--space-button-height-phone);
-  }
-
   .set-album__name {
     font-size: 2.5rem;
   }

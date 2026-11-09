@@ -1843,7 +1843,13 @@ en:
         open: Open
         title: All my cards
         unique: unique cards
-      completed: Completed
+      all_sets_tile:
+        open: Open
+        title: All sets
+        unit:
+          one: set
+          other: sets
+          zero: sets
       custom_sets:
         count: Visible to you only · %{sets} / %{max}
         count_full: Visible to you only · %{sets} / %{max} · remove a set to create another
@@ -1881,20 +1887,12 @@ en:
         suggestions: 'No goal yet. The sets you are closest to completing:'
         title: Goals
       in_progress: In progress
-      kinds:
-        franchise: Franchises
-        hall_of_fame: Hall of fame
-        studio: Studios
-        theme: Themes
-        ufo: UFOs
-      load_more: Load more
       loading: Loading the sets in progress…
-      no_other_progress: No other set in progress. Find one above.
-      no_progress: No set in progress yet. Find one above.
+      no_other_progress: No other set in progress. Browse all the sets to pick another.
+      no_progress: No set in progress yet. Browse all the sets to pick one.
       none: No set found for “%{query}”.
-      results: Results
-      search: Find a set
-      search_button: Search
+      see_all: See all
+      see_all_label: See all, sets in progress
       steam_library:
         kind:
           one: Steam · %{games} catalog game
@@ -1974,9 +1972,37 @@ en:
       unique: Unique cards
     seen:
       throttled: Too many requests in a minute. Try again in a moment.
+    sets:
+      empty: No set matches these filters.
+      filters:
+        goals: Goals
+        kind: Kind
+        state: State
+        tier: Tier reached
+      heading: All sets
+      pages_label: Pages of sets
+      past_the_end: 'No more sets here: the list ends on an earlier page. Go back
+        to the last page.'
+      result:
+        one: 1 set shown.
+        other: "%{count} sets shown."
+        zero: No set shown.
+      search:
+        label: Search by name or kind
+        placeholder: Search a set by name or kind
+      shown:
+        one: Set %{from} of %{total} shown.
+        other: Sets %{from} to %{to} of %{total} shown.
+        zero: No more sets shown.
+      states:
+        complete: Complete
+        in_progress: In progress
+        not_started: Not started
+      title: All sets · Gameble
     set_kinds:
       franchise: Franchise
       hall_of_fame: Hall of fame
+      mine: My sets
       studio: Studio
       theme: Theme
       ufo: UFO
@@ -3012,6 +3038,7 @@ en:
       totals: Total
     screens:
       achievements: Achievements
+      all_sets: All sets
       back_office: Back-office
       booster: Capsule
       card: Card

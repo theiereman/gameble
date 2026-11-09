@@ -1,0 +1,48 @@
+<%# locals: (browser:, clear_path:, results_count:) %>
+<% counts = browser.filter_counts %>
+<% groups = set_filter_groups(browser) %>
+<%= form_with url: request.path, method: :get, class: "filters", html: { role: "search" }, data: {
+  controller: "collection-filters", turbo_frame: "collection-results",
+  action: "input->collection-filters#typed compositionend->collection-filters#typed change->collection-filters#changed " \
+    "submit->collection-filters#submitted turbo:frame-load@document->collection-filters#resultsLoaded"
+} do %>
+  <div class="filters__search">
+    <label class="visually-hidden" for="collection-search"><%= t("library.sets.search.label") %></label>
+    <%= search_field_tag "q", browser.query, id: "collection-search", class: "filters__search-field", autocomplete: "off", maxlength: SetSearch::MAX_QUERY,
+      placeholder: t("library.sets.search.placeholder"), data: { collection_filters_target: "search" } %>
+  </div>
+  <ul class="filter-row" aria-label="<%= t("library.filters.title") %>">
+    <% groups.each_key do |name| %>
+      <li>
+        <%= tag.a(**bottom_sheet_opener(filter_sheet_id(name)), class: "filter-chip filter-row__pastille") do %>
+          <span class="filter-chip__text">
+            <%= t("library.sets.filters.#{name}") %>
+            <span class="filter-row__count" data-collection-filters-target="pastilleCount" data-groups="<%= name %>" <%= "hidden" if counts.fetch(name).zero? %>><span class="visually-hidden"><%= t("library.filters.active") %></span> <span data-pastille-number><%= counts.fetch(name) %></span></span>
+          </span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+  <% groups.each do |name, chips| %>
+    <%= render BottomSheetComponent.new(id: filter_sheet_id(name), title: t("library.sets.filters.#{name}")) do %>
+      <div class="filter-sheet">
+        <% if name == :goals %>
+          <%= render "library/goal_filter", goals: browser.goals, goals_chosen: browser.chosen_goals, titled: true %>
+        <% else %>
+          <fieldset class="filters__group" data-collection-filters-target="group" data-group="<%= name %>">
+            <legend class="filters__legend visually-hidden"><%= t("library.sets.filters.#{name}") %></legend>
+            <% chips.each do |chip| %>
+              <label class="filter-chip">
+                <%= check_box_tag "#{name}[]", chip.value, chip.chosen, id: nil, class: "filter-chip__box" %>
+                <span class="filter-chip__text"><%= chip.label %></span>
+              </label>
+            <% end %>
+          </fieldset>
+        <% end %>
+        <p class="filter-sheet__status" role="status" data-collection-filters-target="sheetStatus"><%= t("library.sets.result", count: results_count) %></p>
+      </div>
+    <% end %>
+  <% end %>
+  <%= link_to t("library.filters.clear"), clear_path, class: "filters__clear", data: { turbo_frame: "_top", collection_filters_target: "clear" }, hidden: (counts.values.sum.zero? && browser.query.blank?) %>
+  <noscript><%= submit_tag t("library.filters.apply"), name: nil, class: "filters__apply" %></noscript>
+<% end %>

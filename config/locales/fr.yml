@@ -132,6 +132,7 @@ fr:
     screens:
       collection: "Collection"
       sets: "Sets"
+      all_sets: "Tous les sets"
       set: "Set"
       card: "Fiche"
       booster: "Capsule"
@@ -1027,13 +1028,6 @@ fr:
           other: "Plus que %{missing} cartes pour compléter"
         suggestion_add_label: "Marquer comme objectif : %{set}"
       in_progress: "En cours"
-      kinds:
-        theme: "Thèmes"
-        franchise: "Franchises"
-        studio: "Studios"
-        hall_of_fame: "Palmarès"
-        ufo: "OVNI"
-      completed: "Complétés"
       custom_sets:
         count: "Visibles par vous seul · %{sets} / %{max}"
         count_full: "Visibles par vous seul · %{sets} / %{max} · retirez un set pour en créer un autre"
@@ -1048,17 +1042,22 @@ fr:
           zero: "et aucun autre set · Tout voir"
           one: "et 1 autre set · Tout voir"
           other: "et %{count} autres sets · Tout voir"
-      no_progress: "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
-      no_other_progress: "Aucun autre set en cours. Cherchez-en un ci-dessus."
-      search: "Chercher un set"
+      no_progress: "Aucun set en cours pour l'instant. Parcourez tous les sets pour en choisir un."
+      no_other_progress: "Aucun autre set en cours. Parcourez tous les sets pour en choisir un autre."
+      see_all: "Tout voir"
+      see_all_label: "Tout voir, sets en cours"
       all_cards_tile:
         title: "Toutes mes cartes"
         unique: "cartes uniques"
         open: "Ouvrir"
-      results: "Résultats"
-      search_button: "Chercher"
+      all_sets_tile:
+        title: "Tous les sets"
+        open: "Ouvrir"
+        unit:
+          zero: "set"
+          one: "set"
+          other: "sets"
       loading: "Chargement des sets en cours…"
-      load_more: "Charger plus"
       found:
         zero: "Aucun set trouvé"
         one: "1 set trouvé"
@@ -1073,12 +1072,39 @@ fr:
         synced_html: "Synchronisée avec Steam le <b>%{date}</b>"
         not_shared: "Steam ne partage pas votre bibliothèque. Rendez publics les détails de jeux de votre profil Steam."
         last_sync_html: "Dernière synchronisation : <b>%{date}</b>"
+    sets:
+      title: "Tous les sets · Gameble"
+      heading: "Tous les sets"
+      search:
+        label: "Chercher par nom ou par type"
+        placeholder: "Chercher un set par nom ou par type"
+      filters:
+        kind: "Type"
+        state: "État"
+        tier: "Palier atteint"
+        goals: "Objectifs"
+      states:
+        not_started: "Pas commencé"
+        in_progress: "En cours"
+        complete: "Complet"
+      empty: "Aucun set ne correspond à ces filtres."
+      past_the_end: "Plus de sets ici : la liste s'arrête à une page précédente. Revenez à la dernière page."
+      pages_label: "Pages de sets"
+      result:
+        zero: "Aucun set affiché."
+        one: "1 set affiché."
+        other: "%{count} sets affichés."
+      shown:
+        zero: "Plus aucun set affiché."
+        one: "Set %{from} sur %{total} affiché."
+        other: "Sets %{from} à %{to} sur %{total} affichés."
     set_kinds:
       theme: "Thème"
       franchise: "Franchise"
       studio: "Studio"
       hall_of_fame: "Palmarès"
       ufo: "OVNI"
+      mine: "Mes sets"
     set_progress:
       count:
         zero: "%{owned} carte sur %{total}"

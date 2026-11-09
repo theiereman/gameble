@@ -39,6 +39,7 @@ module ShellHelper
   SCREEN_LABELS = {
     "library#show" => :sets,
     "library#cards" => :collection,
+    "library#sets" => :all_sets,
     "library#set" => :set,
     "custom_sets#show" => :set,
     "custom_sets" => :sets,
@@ -64,7 +65,7 @@ module ShellHelper
     return false if current_player.nil? || back_office_page? || content_for?(:phone_back)
 
     %w[boosters trades markets].include?(controller_path) ||
-      %w[pages#home own_profiles#show library#show library#cards].include?("#{controller_path}##{action_name}")
+      %w[pages#home own_profiles#show library#show library#cards library#sets].include?("#{controller_path}##{action_name}")
   end
 
   def shell_tabs

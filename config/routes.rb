@@ -51,10 +51,11 @@ Rails.application.routes.draw do
     resource :bell, only: :show
 
     # The collection, reached from the hub's menu: its entry, the player's
-    # sets; the grid of every card of the season.
+    # sets; the grid of every card of the season; every set behind a search.
     resource :library, controller: :library, only: :show
     get "library/in-progress" => "library#in_progress", as: :library_in_progress
     get "library/cards" => "library#cards", as: :library_cards
+    get "library/sets" => "library#sets", as: :library_sets
     # The sets a player gathers themselves, by token; the editor's games
     # arrive page by page in a frame, searched and filtered.
     get "library/custom-sets/games" => "custom_sets#games", as: :custom_set_games

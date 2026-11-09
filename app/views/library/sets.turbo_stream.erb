@@ -1,0 +1,7 @@
+<% if @season %>
+  <% if @browser_tiles.any? %>
+    <%= turbo_stream.append "set-browser-tiles", partial: "library/set_tile_items", locals: { tiles: @browser_tiles, goals: @browser.goals.needs } %>
+  <% end %>
+  <%= turbo_stream.update "collection-results-status", t("library.sets.shown", count: @browser_tiles.size, from: @browser_pagy.from, to: @browser_pagy.to, total: @browser_pagy.count) %>
+  <%= turbo_stream.replace "collection-pages", partial: "library/pages", locals: { pagy: @browser_pagy, empty: @browser_tiles.empty?, label: t("library.sets.pages_label") } %>
+<% end %>

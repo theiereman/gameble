@@ -1,7 +1,0 @@
-<%# locals: (id:, title:, page:, section:, goals: [], heading: :h2) %>
-<% group = heading != :h2 %>
-<section class="<%= group ? "set-entry__group" : "set-entry__section" %>" aria-labelledby="<%= id %>">
-  <%= content_tag heading, title, id:, class: group ? "set-entry__group-title" : "set-entry__title" %>
-  <%= render "library/set_tile_page", page:, next_href: library_in_progress_path(section:, offset: page.next_offset),
-    next_frame: "set-more-#{section}-#{page.next_offset}", goals: %>
-</section>

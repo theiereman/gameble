@@ -8,7 +8,6 @@ class LibraryController < ApplicationController
 
   helper_method :goal_marks
 
-  MORE_RESULTS_FRAME = "set-more-results-"
   ALL_CARDS_FAN = 3
 
   def show
@@ -16,12 +15,10 @@ class LibraryController < ApplicationController
     @season = Catalog::PublishedSeason.call
     return if @season.nil?
 
-    own_sets = Game::CustomSetStandings.call(current_player).select { it.custom? || it.ever_synced? }
-    load_set_search(@season, owner: current_player, own_sets:, offset: turbo_frame_request? ? tile_offset : 0)
-    return more_results if turbo_frame_request_id.to_s.start_with?(MORE_RESULTS_FRAME)
-
+    own_sets = browsable_own_sets(current_player)
     @custom_set_tiles, library_tiles = own_set_tiles(own_sets, owner: current_player, season: @season).partition { it.own_set.custom? }
     @steam_library_tile = library_tiles.first
+    @sets_total = Catalog::SeasonSets.every_kind(season: @season).count + own_sets.size
     load_goals
     load_unique_cards
     load_latest_cards
@@ -31,10 +28,20 @@ class LibraryController < ApplicationController
     authorize :page, :play?
     return redirect_to library_path unless turbo_frame_request?
 
-    @section = params[:section] if BOARD_SECTIONS.include?(params[:section])
     @goals = Game::GoalNeeds.targets(current_player)
-    load_set_tiles(Catalog::PublishedSeason.call, owner: current_player, section: @section, offset: tile_offset, goals: @goals)
-    render(:more_tiles) if @section
+    load_in_progress_preview(Catalog::PublishedSeason.call, owner: current_player, goals: @goals)
+  end
+
+  def sets
+    authorize :page, :play?
+    @season = Catalog::PublishedSeason.call
+    return if @season.nil?
+
+    load_set_browser(@season, owner: current_player, goals: goal_marks, page: page_param)
+    respond_to do |format|
+      format.html { load_unique_cards }
+      format.turbo_stream
+    end
   end
 
   def cards
@@ -62,14 +69,9 @@ class LibraryController < ApplicationController
   end
 
   private
-    def more_results
-      @goals = Game::GoalNeeds.targets(current_player)
-      render :more_results
-    end
-
     def load_goals
       @goals = goal_marks.needs
-      @goal_suggestions = @goals.empty? && !turbo_frame_request? ? goal_suggestions(current_player, season: @season) : []
+      @goal_suggestions = @goals.empty? ? goal_suggestions(current_player, season: @season) : []
     end
 
     def load_unique_cards

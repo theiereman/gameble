@@ -7,7 +7,7 @@ require_relative "../support/steam_sign_in"
 
 # The player's own sets on the collection entry: MES SETS as set progress
 # tiles without tiers, closed by the new set tile, the Steam library set's
-# tile, and the set search that finds them among the game sets. They stay
+# tile, and the All sets screen that finds them among the game sets. They stay
 # out of EN COURS, COMPLÉTÉS, the hub, the card detail, the grid's set
 # filter and every other player's pages.
 class LibraryOwnSetsTest < ActionDispatch::IntegrationTest
@@ -32,11 +32,11 @@ class LibraryOwnSetsTest < ActionDispatch::IntegrationTest
 
   def mes_sets_tiles = css_select("section.custom-sets ul.custom-sets__tiles > li > a.set-tile")
 
-  def result_tiles = css_select("#set-results-title ~ ul.set-tiles > li > a.set-tile")
+  def result_tiles = css_select("ul#set-browser-tiles > li > a.set-tile")
 
   def result_names = result_tiles.map { it.at_css(".set-tile__face--recto .set-tile__name").text }
 
-  def found = css_select("[data-set-search-summary]").sole.text
+  def found = css_select("#collection-results-status").sole.text
 
   test "a custom set of twenty games, seven held, is a MES SETS tile without tiers, the new set tile after it, and stays out of EN COURS" do
     members = take(20)
@@ -108,47 +108,46 @@ class LibraryOwnSetsTest < ActionDispatch::IntegrationTest
     assert_equal [ "Set 0", "Set 1", "Set 2", "Set 3" ], mes_sets_tiles.map { it.at_css(".set-tile__name").text }
   end
 
-  test "the search ranks the player's custom sets among the game sets it finds, prefix first, counted and paged with them" do
+  test "All sets ranks the player's custom sets among the game sets a search finds, prefix first, counted with them, under the My sets kind" do
     studio("Favorite Studio", 3)
     own_set("Mes favoris", take(3))
     favs = own_set("Favs", take(3))
     sign_in(@player)
 
-    get library_path(locale: :fr, q: "fav")
+    get library_sets_path(locale: :fr, q: "fav")
 
     assert_equal [ "Favorite Studio", "Favs", "Mes favoris" ], result_names
-    assert_equal "3 sets trouvés", found
+    assert_equal "3 sets affichés.", found
     assert_equal "/fr/library/custom-sets/#{favs.token}", result_tiles[1]["href"]
     assert_equal [ "Set perso · 3 jeux", "0/3" ],
       [ result_tiles[1].at_css(".set-tile__kind").text, result_tiles[1].at_css(".set-tile__head > .set-tile__count").text.squish ]
-    assert_select ".set-results .set-chip--rank", 1
+    assert_select "ul#set-browser-tiles .set-chip--rank", 1
 
-    6.times { studio("Fave #{it}", 3) }
-    get library_path(locale: :en, q: "fav", offset: 6), headers: { "Turbo-Frame" => "set-more-results-6" }
-    assert_equal [ "Favs", "Mes favoris" ], css_select("ul.set-tiles > li > a.set-tile .set-tile__face--recto .set-tile__name").map(&:text).last(2)
+    get library_sets_path(locale: :en, kind: [ "mine" ], q: "fav")
+    assert_equal [ "Favs", "Mes favoris" ], result_names
   end
 
-  test "the search finds a synced Steam library by its name in each locale, never an unsynced one, nor a custom set by a kind word" do
+  test "All sets finds a synced Steam library by its name in each locale, never an unsynced one, nor a custom set by a word of its kind line" do
     studio("Steamworks", 3)
     create_library_set(@player, card_ids: card_ids(take(3)))
     own_set("Mes jeux", take(3))
     sign_in(@player)
 
-    get library_path(locale: :fr, q: "biblio")
+    get library_sets_path(locale: :fr, q: "biblio")
     assert_equal [ "Ma bibliothèque Steam" ], result_names
     assert_equal "Steam · 3 jeux du catalogue", result_tiles.sole.at_css(".set-tile__kind").text
 
-    get library_path(locale: :en, q: "steam")
+    get library_sets_path(locale: :en, q: "steam")
     assert_equal [ "Steamworks", "My Steam library" ], result_names
 
-    get library_path(locale: :fr, q: "perso")
-    assert_select ".set-results__none"
-    get library_path(locale: :fr, q: "studio")
+    get library_sets_path(locale: :fr, q: "perso")
+    assert_select "p.collection-grid__empty"
+    get library_sets_path(locale: :fr, q: "studio")
     assert_equal [ "Steamworks" ], result_names
 
     Game::CustomSet.where(player_id: @player.id, kind: Game::CustomSet::STEAM_LIBRARY).update_all(synced_at: nil)
-    get library_path(locale: :fr, q: "biblio")
-    assert_equal "Aucun set trouvé", found
+    get library_sets_path(locale: :fr, q: "biblio")
+    assert_equal "Aucun set affiché.", found
   end
 
   test "another player's own sets never show: not in a search, not on their profile, nor the owner's on the hub, a card or the grid" do
@@ -158,7 +157,7 @@ class LibraryOwnSetsTest < ActionDispatch::IntegrationTest
     hold_all(@player, members.first(1))
     sign_in(@player)
 
-    get library_path(locale: :en, q: "secret")
+    get library_sets_path(locale: :en, q: "secret")
     assert_equal [ "Mes secrets" ], result_names
 
     get brother_path(locale: :en, token: accounts_players(:moderator).token)

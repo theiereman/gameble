@@ -39,11 +39,9 @@ class LibraryGoalSuggestionsTest < ActionDispatch::IntegrationTest
 
   def suggestions = css_select("#goals ul.goal-suggestions > li > .goal-suggestion")
 
-  def in_progress_groups
+  def in_progress_names
     get library_in_progress_path(locale: :en), headers: { "Turbo-Frame" => "set-entry-in-progress" }
-    css_select("#set-entry-in-progress-title ~ section.set-entry__group").map do |group|
-      [ group.at_css("> h3").text, group.css("a.set-tile").map { it.at_css(".set-tile__name").text } ]
-    end
+    css_select("a.set-tile").map { it.at_css(".set-tile__name").text }
   end
 
   def count_queries(&request)
@@ -94,24 +92,21 @@ class LibraryGoalSuggestionsTest < ActionDispatch::IntegrationTest
     assert_select "#goals .goal-suggestions, #goals .goals__list", false
   end
 
-  test "Load more pages past the goal sets: none comes back, none is skipped or repeated" do
+  test "EN COURS leaves the goal sets out, closest first, the preview holding six of the others" do
     keys = (1..8).map { "theme-#{it}" }
     keys.each { |key| hold_all(@player, theme(key, 20).first(2)) }
     add(kind: "theme", key: "theme-3")
     sign_in(@player)
 
     get library_in_progress_path(locale: :en), headers: { "Turbo-Frame" => "set-entry-in-progress" }
-    first_page = css_select("a.set-tile").map { it["href"] }
-    get library_in_progress_path(locale: :en, section: "theme", offset: 6), headers: { "Turbo-Frame" => "set-more-theme-6" }
-    second_page = css_select("a.set-tile").map { it["href"] }
 
-    assert_equal 6, first_page.size
-    assert_equal 1, second_page.size
-    assert_equal 7, (first_page + second_page).uniq.size
-    assert_not_includes first_page + second_page, "/en/library/theme/theme-3"
+    hrefs = css_select("a.set-tile").map { it["href"] }
+    assert_equal 6, hrefs.size
+    assert_not_includes hrefs, "/en/library/theme/theme-3"
+    assert_select "a.button--link[href='/en/library/sets?state%5B%5D=in_progress']"
   end
 
-  test "EN COURS groups its sets by kind, the goal sets left out; a search keeps OBJECTIFS above its results" do
+  test "EN COURS is one list across kinds, the goal sets left out; the All sets screen marks a goal's tile" do
     roguelike = theme("roguelike", 12)
     horror = theme("horror", 10)
     supergiant = named("studio", "Supergiant", 5)
@@ -119,23 +114,18 @@ class LibraryGoalSuggestionsTest < ActionDispatch::IntegrationTest
     add(kind: "theme", key: "horror")
     sign_in(@player)
 
-    assert_equal [ [ "Themes", [ "Roguelike" ] ], [ "Studios", [ "Supergiant" ] ] ], in_progress_groups
+    assert_equal [ "Supergiant", "Roguelike" ], in_progress_names
     assert_select "a.set-tile[href='/en/library/theme/horror']", false
-    # Horror, one card from gold, is the closest; the frame goes to Supergiant, two from complete.
     assert_equal [ "Supergiant" ], css_select("a.set-tile--closest").map { it.at_css(".set-tile__name").text }
+
+    get library_sets_path(locale: :en, q: "horror")
+    assert_select "ul#set-browser-tiles a.set-tile.set-tile--goal.goal-tone--1[href='/en/library/theme/horror']"
 
     add(kind: "theme", key: "roguelike")
     add(kind: "studio", key: "supergiant")
-    assert_empty in_progress_groups
+    assert_empty in_progress_names
     assert_select "#set-entry-in-progress-title", false
-    assert_select "turbo-frame#set-entry-in-progress > p.set-entry__empty", "No other set in progress. Find one above."
-    Game::Goal.where(player_id: @player.id, set_key: %w[roguelike supergiant]).delete_all
-
-    get library_path(locale: :en, q: "horror")
-
-    assert_equal [ "Goals", "Find a set", "Results", "My sets" ], css_select(".set-entry h2").map(&:text)
-    assert_equal [ [ "1", "Horror", "Theme", "4/10" ] ], goal_row_texts
-    assert_select "#set-results-title ~ ul.set-tiles a.set-tile.set-tile--goal.goal-tone--1[href='/en/library/theme/horror']"
+    assert_select "turbo-frame#set-entry-in-progress > p.set-entry__empty", "No other set in progress. Browse all the sets to pick another."
   end
 
   test "a player whose only goal is not started yet, with nothing in progress, reads that no other set is in progress" do
@@ -143,8 +133,8 @@ class LibraryGoalSuggestionsTest < ActionDispatch::IntegrationTest
     add(kind: "theme", key: "roguelike")
     sign_in(@player)
 
-    assert_empty in_progress_groups
-    assert_select "turbo-frame#set-entry-in-progress > p.set-entry__empty", "No other set in progress. Find one above."
+    assert_empty in_progress_names
+    assert_select "turbo-frame#set-entry-in-progress > p.set-entry__empty", "No other set in progress. Browse all the sets to pick another."
   end
 
   test "no database id reaches OBJECTIFS, and its GET writes nothing" do

@@ -1,11 +1,5 @@
 /* ---- The player's own sets: MES SETS and the Steam library on the entry, and the album's actions ---- */
 
-/* A search takes the place of MES SETS and the Steam library, as of the sets under them. */
-.set-entry:has(.set-results) > .custom-sets,
-.set-entry:has(.set-results) > .steam-library {
-  display: none;
-}
-
 .custom-sets__head,
 .steam-library__head {
   display: flex;

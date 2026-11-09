@@ -1,0 +1,4 @@
+<%# locals: (tiles:, goals: []) %>
+<% tiles.each do |tile| %>
+  <li><%= render "library/set_progress_tile", href: set_tile_path(tile), tile:, goal: set_tile_goal(tile, goals) %></li>
+<% end %>

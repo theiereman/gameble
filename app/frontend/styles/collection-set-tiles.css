@@ -6,21 +6,6 @@
   gap: var(--space-8);
 }
 
-/* A search takes the place of the sets under it, which load when it is cleared. */
-.set-entry:has(.set-results) > .set-entry__in-progress {
-  display: none;
-}
-
-.set-more {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.set-more > .button {
-  align-self: center;
-}
-
 .set-entry__loading {
   min-height: 1lh;
   margin: 0;
