@@ -1,0 +1,73 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading", version: @release_note.version) %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro.#{@release_note.state}") %>
+  <% end %>
+
+  <%= form_with url: save_back_office_release_note_path(token: @release_note.token), method: :post, class: "release-note-editor",
+        data: { controller: "release-note-editor", action: "input->release-note-editor#changed change->release-note-editor#changed submit->release-note-editor#submitted" } do %>
+    <% if @failure %>
+      <ul class="ledger-errors" role="alert">
+        <li data-release-note-failure><%= @failure %></li>
+      </ul>
+    <% end %>
+
+    <div class="release-note-editor__texts">
+      <% %w[fr en].each do |locale| %>
+        <fieldset class="release-note-editor__language" lang="<%= locale %>">
+          <legend><%= t(".locales.#{locale}") %></legend>
+          <p class="announcement-editor__field">
+            <label for="release-note-title-<%= locale %>"><%= t(".title") %></label>
+            <%= text_field_tag :"title_#{locale}", @texts[:"title_#{locale}"], id: "release-note-title-#{locale}", class: "ban-form__field",
+                  maxlength: Accounts::ReleaseNote::TITLE_LENGTH %>
+          </p>
+          <p class="announcement-editor__field">
+            <label for="release-note-body-<%= locale %>"><%= t(".body") %></label>
+            <%= text_area_tag :"body_#{locale}", @texts[:"body_#{locale}"], id: "release-note-body-#{locale}",
+                  class: "ban-form__field release-note-editor__body", rows: 14, maxlength: Accounts::ReleaseNote::BODY_LENGTH %>
+          </p>
+        </fieldset>
+      <% end %>
+    </div>
+    <p class="ban-form__hint"><%= t(".format_hint", length: Accounts::ReleaseNote::BODY_LENGTH) %></p>
+
+    <section class="stack release-note-editor__preview" aria-labelledby="release-note-preview-heading">
+      <h2 id="release-note-preview-heading"><%= t(".preview_heading") %></h2>
+      <fieldset class="roadmap-editor__locales">
+        <legend><%= t(".preview_language") %></legend>
+        <% %w[fr en].each do |locale| %>
+          <label>
+            <%= radio_button_tag :preview_locale, locale, locale == @preview_locale, id: "release-note-preview-#{locale}" %>
+            <%= t(".locales.#{locale}") %>
+          </label>
+        <% end %>
+      </fieldset>
+      <div class="release-note-dialog__screen release-note-editor__screen">
+        <%= render "release_notes/kicker", note: @release_note %>
+        <div id="<%= BackOffice::ReleaseNotesController::PREVIEW_ID %>" data-release-note-preview>
+          <%= render ReleaseNoteComponent.new(title: @texts[:"title_#{@preview_locale}"], body: @texts[:"body_#{@preview_locale}"], locale: @preview_locale) %>
+        </div>
+      </div>
+    </section>
+
+    <p class="announcement-editor__actions">
+      <%= render ButtonComponent.new(variant: :primary, type: :submit) do %><%= t(".save") %><% end %>
+      <button type="submit" hidden formaction="<%= preview_back_office_release_notes_path %>" formnovalidate
+        data-release-note-editor-target="previewButton"></button>
+    </p>
+  <% end %>
+
+  <section class="stack" aria-labelledby="release-note-state-heading">
+    <h2 id="release-note-state-heading"><%= t(".state_heading") %></h2>
+    <p class="announcement-editor__actions">
+      <% (Accounts::ReleaseNote.states.keys - [ @release_note.state ]).each do |state| %>
+        <%= render ButtonComponent.new(variant: state == "ready" ? :primary : :secondary, size: :small, method: :post,
+              href: state_back_office_release_note_path(token: @release_note.token), params: { state: }) do %><%= t(".to_#{state}") %><% end %>
+      <% end %>
+    </p>
+    <p class="ban-form__hint"><%= t(".ready_hint") %></p>
+  </section>
+</div>

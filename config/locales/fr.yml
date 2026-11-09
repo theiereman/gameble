@@ -64,7 +64,20 @@ fr:
         code_sent: "Nous vous avons envoyé un code. Saisissez-le ci-dessous."
         loading: "Chargement des options de connexion…"
         signing_in: "Connexion en cours…"
+  release_notes:
+    close: "Fermer les notes de version"
+    done: "Compris"
+    kicker: "Mise à jour installée"
+    prompt: "> journal de bord"
+    sections:
+      features: "Nouveautés"
+      fixes: "Corrections"
   shell:
+    release_reminder:
+      label: "Rappel des notes de version"
+      message: "La production tourne %{version} et les joueurs n'ont aucune note pour elle."
+      skip: "Pas besoin de note"
+      write: "Écrire la note"
     announcement:
       close: "Fermer l'annonce"
       label: "Annonce"
@@ -390,7 +403,7 @@ fr:
           errors: "les erreurs techniques reçues par Sentry : 30 jours ;"
           backups: "les sauvegardes de la base de données, chiffrées et conservées en France : les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal ; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué ;"
           leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à la mission hebdo, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
-        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, la liste de votre bibliothèque Steam, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos scores de chance, vos bonus du jour, vos récompenses de la mission hebdo, vos amitiés, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos entrées du fil d'activité et vos réactions sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à la mission hebdo, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
+        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, les notes de version que vous avez vues, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, la liste de votre bibliothèque Steam, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos scores de chance, vos bonus du jour, vos récompenses de la mission hebdo, vos amitiés, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos entrées du fil d'activité et vos réactions sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à la mission hebdo, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
         rights:
           intro: "Vous pouvez accéder à vos données, les faire rectifier ou effacer, en limiter le traitement, vous opposer à un traitement fondé sur l'intérêt légitime et en recevoir une copie réutilisable. Vous pouvez aussi indiquer ce que deviennent vos données après votre décès. Nous répondons sous un mois."
           access: "accès : depuis les paramètres, avec « Exporter » dans « Mes données », qui télécharge une copie de vos données dans un fichier réutilisable, vos modes de connexion et la liste de votre bibliothèque Steam compris ;"
@@ -516,6 +529,58 @@ fr:
         rule: "Un set est complet quand vous possédez en même temps toutes ses cartes. Les doubles ne comptent qu'une fois, et une carte compte dans chaque set où elle figure."
         once: "Une complétion n'est enregistrée qu'une fois : une carte échangée puis récupérée ne complète rien de nouveau. Votre profil compte les sets que vous possédez complets en ce moment."
   back_office:
+    release_notes:
+      create:
+        created: "La note est créée, préremplie avec %{features} nouveautés et %{fixes} corrections tirées des commits entre %{since} et %{head}. Réécrivez-les pour les joueurs."
+        created_blank: "La note est créée. GitHub n'a pas donné les commits de la version : écrivez-la de zéro."
+        skipped: "%{version} n'a pas besoin de note : le rappel a disparu."
+      edit:
+        body: Texte
+        format_hint: "Une ligne qui commence par « ## » ouvre une section, une ligne qui commence par « - » en est une ligne, toute autre ligne est un paragraphe. %{length} caractères au plus ; rien d'autre n'est lu comme une mise en forme."
+        heading: "La note de %{version}"
+        intro:
+          draft: "Un brouillon : les joueurs ne voient rien. Marquez-la prête une fois écrite dans les deux langues."
+          ready: "Prête : les joueurs la voient une fois, sur le hub, dès que la production tourne cette version ou une suivante sans note à elle. Jamais sur une version candidate."
+          skipped: "Cette version n'a pas besoin de note : les joueurs ne voient rien pour elle."
+        locales:
+          en: English
+          fr: Français
+        preview_heading: "Aperçu"
+        preview_language: "Langue de l'aperçu"
+        ready_hint: "La production montre la note prête la plus récente dont elle tourne la version ou une suivante ; un retour en arrière la retire de lui-même."
+        save: "Enregistrer la note"
+        state_heading: "Son état"
+        title: Titre
+        to_draft: "Repasser en brouillon"
+        to_ready: "Marquer prête"
+        to_skipped: "Pas de note pour cette version"
+      index:
+        create: "Écrire la note"
+        edit: Modifier
+        empty: "Aucune note pour l'instant."
+        heading: "Les notes de version"
+        intro: "Une note par version de production, montrée une fois à chaque joueur sur le hub, dans sa langue, dès que la production la tourne. La production tourne %{running}."
+        list_heading: "Toutes les notes, de la plus récente version à la plus ancienne"
+        new_heading: "Une nouvelle note"
+        no_release: "aucune version"
+        prefill_hint: "La note part des commits de la version sur GitHub : ses nouveautés et ses corrections, à réécrire pour les joueurs."
+        reads:
+          zero: "vue par aucun joueur"
+          one: "vue par %{count} joueur"
+          other: "vue par %{count} joueurs"
+        states:
+          draft: Brouillon
+          live: "Affichée"
+          ready: "Prête"
+          skipped: "Sans note"
+        untitled: "Sans titre"
+        version: Version
+      save:
+        saved: "La note est enregistrée."
+      states_changed:
+        draft: "La note de %{version} repasse en brouillon."
+        ready: "La note de %{version} est prête."
+        skipped: "%{version} n'a pas besoin de note."
     announcements:
       create:
         created: "L'annonce est enregistrée."
@@ -548,6 +613,7 @@ fr:
         withdrawn: "L'annonce a quitté le bandeau."
     dashboard:
       show:
+        release_notes: "Les notes de version"
         announcements: "Les annonces"
         heading: "Le back-office de la Confrérie"
         queue:
@@ -2244,7 +2310,7 @@ fr:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), les téléphones où vont vos notifications, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos scores de chance, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos réactions aux entrées du fil et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), les téléphones où vont vos notifications, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, les notes de version que vous avez vues et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos scores de chance, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos réactions aux entrées du fil et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
       kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à la mission hebdo, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
@@ -2783,6 +2849,12 @@ fr:
         other_season: "appartient à une autre saison"
   errors:
     accounts:
+      incomplete_release_note: "Une note prête a besoin de son titre et de son texte dans les deux langues."
+      invalid_release_note: "Un titre fait 80 caractères au plus, un texte 1500."
+      invalid_release_note_state: "Cet état n'existe pas."
+      invalid_release_version: "Écrivez la version sous la forme vMAJEUR.MINEUR.CORRECTIF, comme v1.3.0."
+      release_note_not_found: "Cette note est introuvable."
+      release_version_taken: "Cette version a déjà une note."
       announcement_not_found: "Cette annonce est introuvable."
       announcement_not_shown: "Cette annonce n'est plus sur le bandeau."
       invalid_announcement: "Écrivez l'annonce dans les deux langues, 280 caractères au plus chacune."

@@ -20,6 +20,7 @@ class PagesController < ApplicationController
     load_showcase if @season
     @welcome = current_player.welcome_pending
     Accounts::CloseWelcomeJob.perform_later(current_player.id) if @welcome
+    load_release_note unless @welcome
     @collection = collection if @season
     @goals = Game::GoalNeeds.call(current_player)
     @live_strip = LiveStream.strip_items
@@ -94,6 +95,12 @@ class PagesController < ApplicationController
     rescue ActiveRecord::ActiveRecordError => error
       Rails.logger.error("landing block unreadable: #{error.class}")
       nil
+    end
+
+    # Shown once: seen as soon as the hub shows it, in a dialog or, in the app, by opening its sheet.
+    def load_release_note
+      @release_note = Accounts::ReleaseNotes.unseen_by(current_player, running: running_release)
+      Accounts::SeeReleaseNoteJob.perform_later(current_player.id, @release_note.id) if @release_note
     end
 
     def load_showcase

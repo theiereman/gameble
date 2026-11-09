@@ -1,0 +1,8 @@
+<% content_for :title, t("release_notes.kicker") %>
+<div class="release-note-sheet">
+  <%= render "release_notes/kicker", note: @release_note %>
+  <%= render ReleaseNoteComponent.of(@release_note) %>
+  <p class="release-note-sheet__foot" data-controller="bridge--sheet-close">
+    <%= link_to t("release_notes.done"), home_path, class: "button button--primary", data: { action: "bridge--sheet-close#close" } %>
+  </p>
+</div>

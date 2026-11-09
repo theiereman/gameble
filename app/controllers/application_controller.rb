@@ -21,7 +21,7 @@ class ApplicationController < ActionController::Base
 
   CLOSED_ANNOUNCEMENT_COOKIE = :closed_announcement
 
-  helper_method :current_player, :forced_motion, :motion_reduced?
+  helper_method :current_player, :forced_motion, :motion_reduced?, :running_release
 
   def self.throttle_player(to:, only:, path:, alert:, within: 1.minute)
     rate_limit to:, within:, only:,
@@ -64,6 +64,12 @@ class ApplicationController < ActionController::Base
 
     def requested_locale
       params[:locale]
+    end
+
+    def running_release
+      return @running_release if defined?(@running_release)
+
+      @running_release = Accounts::ReleaseVersion.parse(ShellHelper.app_version)
     end
 
     def current_player

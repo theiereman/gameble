@@ -8,6 +8,7 @@
     <%= render "shell/atmosphere" unless back_office_page? %>
     <%= render "shell/top_bar" %>
     <%= render "shell/announcement" %>
+    <%= render "shell/release_note_reminder" %>
 
     <main id="main" class="main">
       <% if native_top_bar? && content_for?(:top_bar_status) %><div class="native-status"><%= yield :top_bar_status %></div><% end %>

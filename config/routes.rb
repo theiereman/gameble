@@ -194,6 +194,8 @@ Rails.application.routes.draw do
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # The phone's Me tab opens the player's own profile.
     get "me" => "own_profiles#show", as: :me
+    # The notes of the running release on their own, which the app opens as a native sheet over the hub.
+    get "me/sheets/release-note" => "release_note_sheets#show", as: :release_note_sheet
     # One of the profile's choice sheets on its own, which the app opens as a native sheet.
     get "me/sheets/:sheet" => "own_profile_sheets#show", as: :me_sheet, constraints: { sheet: /title|avatar|back/ }
     # Trades, friends and the feed once shared one screen here; its links lead to the friends.
@@ -244,6 +246,16 @@ Rails.application.routes.draw do
         constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
         post :publish, on: :member
         post :withdraw, on: :member
+      end
+
+      # The notes of each production release, administrators only: written in
+      # both languages from the release's commits, shown once to every player
+      # when production runs that release.
+      resources :release_notes, path: "release-notes", param: :token, only: %i[index create edit],
+        constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
+        post :preview, on: :collection
+        post :save, on: :member
+        post :state, on: :member
       end
 
       # The card preview, both renderers side by side, administrators only.

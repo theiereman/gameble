@@ -27,6 +27,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
                             en: [ "your Steam id", "your name", "your profile and its link", "the time of your last visit", "your last data export" ] },
     "accounts_data_exports" => { fr: [ "votre dernier export de données" ], en: [ "your last data export" ] },
     "accounts_announcement_dismissals" => { fr: [ "les annonces que vous avez fermées" ], en: [ "the announcements you closed" ] },
+    "accounts_release_note_reads" => { fr: [ "les notes de version que vous avez vues" ], en: [ "the release notes you saw" ] },
     "accounts_identities" => { fr: [ "vos modes de connexion" ], en: [ "your sign-in methods" ] },
     "accounts_push_devices" => { fr: [ "les téléphones où vont vos notifications" ], en: [ "the phones your notifications go to" ] },
     "game_player_states" => { fr: [ "votre dernière activité" ], en: [ "your latest activity" ] },
