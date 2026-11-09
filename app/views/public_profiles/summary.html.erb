@@ -25,6 +25,8 @@
         </div>
       <% end %>
     </dl>
-    <%= link_to t("public_profiles.card.full_profile"), brother_path(token: @owner.token), class: "player-card__more" %>
+    <p class="player-card__more">
+      <%= render ButtonComponent.new(variant: :link, href: brother_path(token: @owner.token)) do %><%= t("public_profiles.card.full_profile") %><% end %>
+    </p>
   </section>
 <% end %>

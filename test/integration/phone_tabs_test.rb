@@ -76,7 +76,7 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     assert_select ".hub__aside .live-strip.live-strip--stacked[aria-labelledby=hub-live]" do
       assert_select "#hub-live", /Fil d'activité/
       assert_select "#live-strip"
-      assert_select ".live-strip__open a.button[href='/fr/feed']", "Ouvrir le fil"
+      assert_select ".live-strip__open a.button--link[href='/fr/feed']", "Ouvrir le fil"
     end
     assert_select ".hub__aside turbo-cable-stream-source", 0
 

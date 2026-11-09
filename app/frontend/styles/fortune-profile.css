@@ -150,8 +150,5 @@
 
 .player-card__more {
   align-self: flex-start;
-  color: var(--color-accent);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  margin: 0;
 }

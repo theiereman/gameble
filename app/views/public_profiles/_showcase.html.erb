@@ -24,7 +24,7 @@
   <% if cards.empty? %>
     <p class="profile-section__aside"><%= t("personalizations.show.showcase.empty") %></p>
     <% if owned %>
-      <%= link_to t("own_profiles.show.card_list"), library_cards_path, class: "button button--secondary button--small profile-showcase__browse",
+      <%= link_to t("own_profiles.show.card_list"), library_cards_path, class: "button button--link profile-showcase__browse",
             autofocus: focus.present? %>
     <% end %>
   <% else %>

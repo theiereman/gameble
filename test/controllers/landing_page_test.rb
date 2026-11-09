@@ -49,7 +49,7 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     assert_select ".landing-rarities li .landing-rarity__odds", text: "76 % par carte"
     assert_select ".landing-rarities li .landing-rarity__odds", text: "0,05 % par carte"
     assert_select ".landing-rarity__name", text: "Légendaire"
-    assert_select "section.landing-concept > a.button.button--link.landing-concept__all-cards[href='/fr/library/cards']", "Voir toutes les cartes"
+    assert_select "section.landing-concept > .landing-concept__all-cards a.button.button--link[href='/fr/library/cards']", "Voir toutes les cartes"
   end
 
   test "the Découvrez tile promises no name to anyone" do

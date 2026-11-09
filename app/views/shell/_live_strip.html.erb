@@ -8,7 +8,7 @@
   <%= render "shell/live_strip_body", items: %>
   <% if open_label %>
     <p class="live-strip__open">
-      <%= render ButtonComponent.new(variant: :secondary, size: :small, href: feed_path) do %><%= open_label %><% end %>
+      <%= render ButtonComponent.new(variant: :link, href: feed_path) do %><%= open_label %><% end %>
     </p>
   <% end %>
   <%= turbo_stream_from(*LiveStream.feed_streamables) if subscribe %>

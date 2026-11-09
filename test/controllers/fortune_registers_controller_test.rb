@@ -174,7 +174,7 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
       assert_select ".player-card__share", /Top\s*100%/
       assert_select ".player-card__label", /This week · RNG's Favourite/
       assert_select ".player-card__rarity:first-child.player-row__rarity--5 dd", "1"
-      assert_select "a.player-card__more[href=?]", brother_path(locale: :en, token: @player.token)
+      assert_select ".player-card__more a.button--link[href=?]", brother_path(locale: :en, token: @player.token)
     end
   end
 
