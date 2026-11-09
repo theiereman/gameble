@@ -136,6 +136,7 @@ fr:
       booster: "Capsule"
       trades: "Échanges"
       friends: "Amis"
+      market: "Marché"
       profile: "Profil"
       feed: "Fil"
       achievements: "Succès"
@@ -170,17 +171,17 @@ fr:
         zero: "%{number} en réserve"
         one: "%{number} en réserve"
         other: "%{number} en réserve"
-    phone_menu:
-      label: "Menu"
-      achievements: "Succès"
-      how_it_works: "Comment ça marche"
-      support: "Soutenir"
-      source_code: "GitHub"
     player:
       menu: "Menu du joueur"
       fallback_name: "Joueur"
-      profile: "Mon profil"
+      pending:
+        zero: "%{number} élément en attente de vous"
+        one: "%{number} élément en attente de vous"
+        other: "%{number} éléments en attente de vous"
+      profile: "Moi"
+      friends: "Amis"
       settings: "Paramètres"
+      support: "Soutenir"
       back_office: "Back-office"
       sign_out: "Se déconnecter"
     tabs:
@@ -188,8 +189,8 @@ fr:
       hub: "Pont"
       booster: "Capsule"
       sets: "Sets"
-      friends: "Amis"
       trades: "Échanges"
+      market: "Marché"
       me: "Moi"
       landing: "Accueil"
       all_cards: "Toutes les cartes"
@@ -197,10 +198,6 @@ fr:
         zero: "%{number} échange en attente de vous"
         one: "%{number} échange en attente de vous"
         other: "%{number} échanges en attente de vous"
-      invitations_waiting:
-        zero: "%{number} invitation en attente de votre réponse"
-        one: "%{number} invitation en attente de votre réponse"
-        other: "%{number} invitations en attente de votre réponse"
     toast:
       region: "Notifications"
       close: "Fermer"
@@ -238,7 +235,7 @@ fr:
           one: "%{owned} carte unique sur %{total}"
           other: "%{owned} cartes uniques sur %{total}"
         trades: "Échanges"
-        friends: "Amis"
+        market: "Marché"
         feed: "Fil d'activité"
         trades_waiting:
           zero: "%{number} échange en attente de vous"
@@ -268,6 +265,7 @@ fr:
         community: "Discord"
         how_it_works: "Comment ça marche"
         support: "Soutenir"
+        register: "Le Chattomètre"
         source_code: "GitHub"
       showcase:
         kicker: "Dernière obtention"
@@ -405,7 +403,7 @@ fr:
           errors: "les erreurs techniques reçues par Sentry : 30 jours ;"
           backups: "les sauvegardes de la base de données, chiffrées et conservées en France : les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal ; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué ;"
           leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à la mission hebdo, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
-        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, les notes de version que vous avez vues, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, la liste de votre bibliothèque Steam, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos bonus du jour, vos récompenses de la mission hebdo, vos amitiés, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos entrées du fil d'activité et vos réactions sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à la mission hebdo, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
+        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail, supprimé là aussi), votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, les notes de version que vous avez vues, votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, la liste de votre bibliothèque Steam, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, vos scores de chance, vos bonus du jour, vos récompenses de la mission hebdo, vos amitiés, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos entrées du fil d'activité et vos réactions sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à la mission hebdo, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
         rights:
           intro: "Vous pouvez accéder à vos données, les faire rectifier ou effacer, en limiter le traitement, vous opposer à un traitement fondé sur l'intérêt légitime et en recevoir une copie réutilisable. Vous pouvez aussi indiquer ce que deviennent vos données après votre décès. Nous répondons sous un mois."
           access: "accès : depuis les paramètres, avec « Exporter » dans « Mes données », qui télécharge une copie de vos données dans un fichier réutilisable, vos modes de connexion et la liste de votre bibliothèque Steam compris ;"
@@ -1343,6 +1341,9 @@ fr:
       title: "Titre retiré"
     title: "%{rank} · %{set}"
   public_profiles:
+    card:
+      this_week: "Cette semaine"
+      full_profile: "Voir le profil complet"
     title: "%{name}"
     fallback_title: "Joueur %{code}"
     show:
@@ -1631,6 +1632,8 @@ fr:
       support:
         label: "Soutenir"
         link: "Soutenir"
+      how_it_works: "Comment ça marche"
+      source_code: "Code source"
       legal: "Mentions légales"
       summary:
         title: "Profil public"
@@ -1693,6 +1696,9 @@ fr:
       discovered_html: "%{card}, trouvée par %{name} pour la première fois dans la communauté"
       reposted_html: "%{name} a reposté %{card}."
       repost_tag: "Repost"
+      verdict_html: "Le Chattomètre a rendu son verdict : %{name} est le membre le plus chanceux de la semaine passée. %{register}"
+      verdict_register: "Voir le classement"
+      verdict_tag: "Verdict"
       traded_html: "%{name} et %{partner} ont échangé %{card} contre %{partner_card}"
       trade_tag: "Échange"
       set_reached:
@@ -1723,6 +1729,160 @@ fr:
         zero: "Aucune nouvelle entrée dans le fil."
         one: "1 nouvelle entrée dans le fil."
         other: "%{count} nouvelles entrées dans le fil."
+  markets:
+    show:
+      kicker: "Chantier"
+      heading: "La Confrérie construit le marché"
+      intro: "La Direction a le plaisir de vous informer que les travaux ont commencé. Ce chantier est conduit dans votre seul intérêt."
+      plans:
+        auction:
+          title: "Un hôtel des ventes"
+          text: "Les membres y proposeront leurs cartes aux enchères. Les plus belles changeront enfin de mains à leur juste prix, c'est-à-dire au plus élevé."
+        currency:
+          title: "Une seule monnaie"
+          text: "Elle se gagne uniquement en confiant des cartes à la Confrérie, qui les garde en sécurité dans sa réserve commune, pour le bien de tous. Elle ne s'achète pas et ne se retire pas."
+        fees:
+          title: "Des frais annoncés"
+          text: "Chaque frais sera annoncé à l'avance et justifié par la Direction. La transparence fait partie de nos coûts."
+        open:
+          title: "Ouvert à tous les membres"
+          text: "Aucune ancienneté requise. La Confrérie ne fait aucune différence entre ses membres, pourvu qu'ils enchérissent."
+      closing: "Aucune date n'est communiquée à ce stade. La Direction vous remercie de votre patience, qui reste à ce jour gratuite."
+  fortune_panels:
+    frame:
+      title: "Le Chattomètre"
+      verdict_title: "Le Chattomètre a parlé"
+      tabs_label: "Période"
+      tabs:
+        week: "Semaine"
+        all_time: "Total"
+      no_standing:
+        week: "Aucune capsule ouverte cette semaine."
+        all_time: "Aucune capsule ouverte pour l'instant."
+      see_all: "Voir tout le classement"
+  fortune_registers:
+    show:
+      title: "Le Chattomètre"
+      intro: "La Confrérie classe ses membres selon la chance de leurs capsules : ce que leurs cartes ont rapporté face à ce que les capsules promettent. Chaque semaine, les 10 % les plus chanceux sont Privilégiés."
+      empty:
+        week: "Aucun membre n'a encore ouvert de capsule cette semaine."
+        last_week: "Aucun membre n'a ouvert de capsule la semaine passée."
+        all_time: "Aucun membre n'a encore ouvert de capsule."
+      hidden_player: "Membre discret"
+      pages_label: "Pages"
+      sorts_label: "Ordre"
+      sorts:
+        luck: "Les plus chanceux"
+        capsules: "Le plus de capsules"
+      summary:
+        members:
+          week: "Actifs cette semaine"
+          last_week: "Actifs la semaine passée"
+          all_time: "Membres classés"
+        capsules:
+          week: "Capsules cette semaine"
+          last_week: "Capsules la semaine passée"
+          all_time: "Capsules ouvertes"
+        privileged: "Privilégiés"
+        you: "Votre chance"
+        rank: "n° %{rank}"
+      row:
+        luck: "Chance"
+        open_card: "Voir la carte de %{name}"
+        capsules: "Capsules"
+        hidden: "–"
+  fortunes:
+    gauge:
+      you: "VOUS"
+      empty: "Aucun joueur n'est encore classé pour cette période."
+      crowd:
+        zero: "Aucun joueur classé sur une échelle de −500 à +500."
+        one: "%{count} joueur classé sur une échelle de −500 à +500, le plus grand groupe autour de %{index}."
+        other: "%{count} joueurs classés sur une échelle de −500 à +500, le plus grand groupe autour de %{index}."
+      marked: "Vous êtes à %{index}, rang %{rank} sur %{total}."
+    periods_label: "Période"
+    periods:
+      week: "Cette semaine"
+      last_week: "Semaine passée"
+      all_time: "Depuis toujours"
+    privileged: "PRIVILÉGIÉ"
+    scale: "/ ±%{limit}"
+    odds:
+      title: "Derrière la chance"
+      intro: "Chaque capsule promet un score moyen et un écart habituel autour de lui. Votre chance mesure de combien vos points s'éloignent de cette promesse, en nombre d'écarts."
+      capsule: "Capsule"
+      opened: "Ouvertes"
+      expected_each: "Points attendus par capsule"
+      variance_each: "Écart² par capsule"
+      total: "Total"
+      formula: "Score de chance : (%{actual} obtenus − %{expected} attendus) ÷ √%{variance} = %{z}"
+    share:
+      top: "Top"
+      bottom: "Derniers"
+      percent: "%{percent} %"
+    profile:
+      title: "Fortune"
+      rank: "Rang %{rank} sur %{count}"
+      details: "Détails"
+      actual_points: "Points obtenus"
+      expected_points: "Points attendus"
+      packs:
+        regular: "Capsules standard"
+        bonus: "Capsules quotidiennes"
+        reward: "Récompenses de mission"
+      empty:
+        week: "Aucune capsule ouverte cette semaine."
+        all_time: "Aucune capsule ouverte pour l'instant."
+      explainer: "Chaque carte rapporte selon sa rareté, doublons compris : 0 pour une Commune, 1 pour une Peu commune, 5 pour une Rare, 20 pour une Épique, 100 pour une Légendaire. L'indice compare les points obtenus à ce que les capsules promettent en moyenne : 0 correspond exactement à la moyenne, et seule une chance extraordinaire le rapproche de +500 ou de -500."
+    labels:
+      rngs_favourite:
+        title: "Chouchou du RNG"
+        text: "Le générateur aléatoire a cessé de l'être pour vous. Une enquête est ouverte."
+      indecently_lucky:
+        title: "Indécemment veinard"
+        text: "Vos tirages défient les prévisions statistiques. La Confrérie vous observe."
+      probably_cheating:
+        title: "Tricheur présumé"
+        text: "Vos capsules sont examinées par le service d'audit. Gardez les mains bien visibles."
+      enemy_of_merit:
+        title: "Ennemi du mérite"
+        text: "Vos résultats dépassent ce que le seul mérite peut expliquer. La Direction a été informée."
+      human_horseshoe:
+        title: "Fer à cheval humain"
+        text: "Vos confrères frottent désormais votre manche avant d'ouvrir une capsule."
+      suspiciously_lucky:
+        title: "Louchement chanceux"
+        text: "Vos capsules dépassent les prévisions. La Confrérie vous félicite, avec prudence."
+      main_character:
+        title: "Héros de l'histoire"
+        text: "L'intrigue semble tourner autour de vous cette semaine. La Confrérie vous prie de rester humble."
+      smiled_upon:
+        title: "Béni des stats"
+        text: "Les probabilités penchent de votre côté. La Confrérie ne voit à ce stade aucun motif d'inquiétude."
+      aggressively_average:
+        title: "Moyen à en pleurer"
+        text: "Vos tirages correspondent exactement aux prévisions. La Confrérie vous remercie de votre conformité."
+      mildly_annoyed:
+        title: "Légèrement agacé"
+        text: "Une Commune là où une Peu commune était due. Rien que la Confrérie qualifierait de tendance."
+      ghosted_by_luck:
+        title: "Ghosté par la chance"
+        text: "La chance a vu vos capsules et a choisi de ne pas répondre."
+      black_cat_friend:
+        title: "Ami des chats noirs"
+        text: "Statistiquement, vous êtes passé sous plusieurs échelles cette semaine."
+      punching_bag:
+        title: "Punching-ball du RNG"
+        text: "Les probabilités s'entraînent sur vous. La Confrérie admire votre résilience."
+      broke_a_mirror:
+        title: "A cassé un miroir"
+        text: "Un miroir a été brisé quelque part, et la facture vous a été adressée."
+      cursed_by_excel:
+        title: "Maudit par Excel"
+        text: "Même le tableur qui calcule votre chance a commencé à vous plaindre."
+      saint_of_commons:
+        title: "Saint des Communes"
+        text: "Votre malchance équilibre les comptes de toute la Confrérie. Merci pour votre service."
   friends:
     public_profile:
       label: "Voir le profil"
@@ -2150,7 +2310,7 @@ fr:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), les téléphones où vont vos notifications, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, les notes de version que vous avez vues et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos réactions aux entrées du fil et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), les téléphones où vont vos notifications, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, les notes de version que vous avez vues et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos scores de chance, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos réactions aux entrées du fil et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
       kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à la mission hebdo, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
@@ -2415,6 +2575,7 @@ fr:
         feed: "Fil d'activité"
         empty: "Aucune activité pour l'instant."
         open_feed: "Ouvrir le fil d'activité"
+        open_register: "Voir Le Chattomètre"
         season: "Saison en cours"
         season_name: "Saison %{number} · Grand catalogue"
         facts:
@@ -2469,6 +2630,7 @@ fr:
           in_progress: "En cours"
           to_come: "À venir"
         all: "Voir toute la feuille de route"
+        market: "Visiter le chantier du marché"
       open_source:
         label: "07 · Open source et contributions"
         title: "Open source et développé avec l'IA"

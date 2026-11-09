@@ -13,6 +13,28 @@ class Game::FirstSessionGuaranteeTest < ActiveSupport::TestCase
 
   def rare?(cards) = cards.any? { |id| @pool.tier_of(id) >= 3 }
 
+  def new_player_with_packs(*cards)
+    Accounts::Player.create!(steam_id: "76561197960400201").tap do |player|
+      cards.each { |card| create_pack(player, cards: Array.new(5, card)) }
+    end
+  end
+
+  test "the tenth pack is the guaranteed one when the nine before it hold no Rare" do
+    player = new_player_with_packs(*Array.new(9, @common), @rare)
+
+    assert_equal Game::Pack.where(player_id: player.id).maximum(:id), Game::FirstSessionGuarantee.guaranteed_pack_id(player.id)
+  end
+
+  test "no pack is the guaranteed one when a Rare came among the first nine" do
+    player = new_player_with_packs(*Array.new(4, @common), @rare, *Array.new(5, @common))
+
+    assert_nil Game::FirstSessionGuarantee.guaranteed_pack_id(player.id)
+  end
+
+  test "no pack is the guaranteed one before the tenth exists" do
+    assert_nil Game::FirstSessionGuarantee.guaranteed_pack_id(new_player_with_packs(*Array.new(9, @common)).id)
+  end
+
   test "the guarantee odds sum to the total" do
     assert_equal Game::DrawOdds::TOTAL, Game::DrawOdds::GUARANTEE.values.sum
   end

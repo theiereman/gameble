@@ -12,6 +12,15 @@ module Game
       packs.dup.tap { |result| result[PACK - 1] = tenth }
     end
 
+    def self.guaranteed_pack_id(player_id)
+      packs = Pack.regular.where(player_id:).order(:id).limit(PACK).pluck(:id, :card_season_ids)
+      return if packs.size < PACK
+
+      earlier_cards = packs.first(PACK - 1).flat_map(&:last)
+      tiers = Catalog::CardSeasonTiers.call(earlier_cards)
+      packs.last.first if earlier_cards.none? { |id| tiers.fetch(id, 1) >= MIN_TIER }
+    end
+
     def self.holds_rare_or_better?(cards, pool)
       cards.any? { |id| pool.tier_of(id) >= MIN_TIER }
     end

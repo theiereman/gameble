@@ -3,14 +3,15 @@
   <%= turbo_stream.update "tab-trades-badge", partial: "shell/tab_trades_badge", locals: { waiting: } %>
 <% end %>
 <% unless invitations.nil? %>
-  <%= turbo_stream.update "menu-friends-badge", partial: "pages/menu_invitations_badge", locals: { invitations: } %>
-  <%= turbo_stream.update "tab-invitations-badge", partial: "shell/tab_invitations_badge", locals: { invitations: } %>
+  <%= turbo_stream.update "player-menu-invitations-badge", partial: "pages/menu_invitations_badge", locals: { invitations: } %>
 <% end %>
 <% unless unclaimed.nil? %>
   <%= turbo_stream.update "menu-achievements-badge", partial: "pages/menu_achievements_badge", locals: { unclaimed: } %>
   <%= turbo_stream.update "plus-achievements-badge", partial: "pages/menu_achievements_badge", locals: { unclaimed: } %>
-  <%= turbo_stream.update "phone-menu-badge", partial: "shell/phone_menu_badge", locals: { unclaimed: } %>
-  <%= turbo_stream.update "phone-menu-achievements-badge", partial: "pages/menu_achievements_badge", locals: { unclaimed: } %>
+  <%= turbo_stream.update "player-menu-achievements-badge", partial: "pages/menu_achievements_badge", locals: { unclaimed: } %>
+<% end %>
+<% unless pending.nil? %>
+  <%= turbo_stream.update "player-menu-badge", partial: "shell/player_menu_badge", locals: { pending: } %>
 <% end %>
 <% friends.each do |friend| %>
   <%= turbo_stream.append "toasts", ToastComponent.new(title: t("invitations.new_friend.title"),

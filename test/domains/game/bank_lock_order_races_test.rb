@@ -49,7 +49,7 @@ class Game::BankLockOrderRacesTest < ActiveSupport::TestCase
     trades.delete_all
     Game::Friendship.where(low_player_id: created).or(Game::Friendship.where(high_player_id: created)).delete_all
     Game::FirstDiscovery.where(pack_id: Game::Pack.where(player_id: players).select(:id)).delete_all
-    [ Game::DailyBonusClaim, Game::GoalReward, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::SetTier,
+    [ Game::DailyBonusClaim, Game::GoalReward, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::Fortune, Game::SetTier,
       Game::Pack ].each { |model| model.where(player_id: players).delete_all }
     [ Game::PlayerState, Game::FriendCode ].each { |model| model.where(player_id: created).delete_all }
     streams = players.map { |id| Game::Operation.stream_name(id) } + created.map { |id| "Accounts::Player$#{id}" }

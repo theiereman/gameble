@@ -1,0 +1,5 @@
+<%# locals: (pending:) %>
+<% if pending.positive? %>
+  <span class="player-chip__badge" aria-hidden="true"><%= number_with_delimiter(pending) %></span>
+  <span class="visually-hidden"><%= t("shell.player.pending", count: pending, number: number_with_delimiter(pending)) %></span>
+<% end %>

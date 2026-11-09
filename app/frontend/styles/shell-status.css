@@ -226,11 +226,6 @@ body:has(> .ticker) .app-version {
   text-align: center;
 }
 
-.tab-bar__badge--friends {
-  background: var(--color-goal-3);
-  color: var(--color-on-goal);
-}
-
 .tab-bar__badge--alert {
   background: var(--color-alert);
   color: var(--color-on-alert);

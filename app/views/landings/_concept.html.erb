@@ -30,5 +30,7 @@
       <% end %>
     </ul>
   <% end %>
-  <%= link_to t("landings.show.concept.all_cards"), library_cards_path, class: "button button--link landing-concept__all-cards" %>
+  <p class="landing-concept__all-cards">
+    <%= render ButtonComponent.new(variant: :link, href: library_cards_path) do %><%= t("landings.show.concept.all_cards") %><% end %>
+  </p>
 </section>

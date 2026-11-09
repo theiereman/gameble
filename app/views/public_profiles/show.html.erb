@@ -8,4 +8,4 @@
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
 <%= render "public_profiles/profile", owner: @owner, title:, season: @season, summary: @summary, card_total: @card_total,
   achievements: @achievements, rarities: @rarities, activity: @activity, started_sets: @started_sets, started_set_count: @started_set_count, goals: @goals,
-  showcase: @showcase, relation: @relation, owner_title: @owner_title, context: { brother: @owner.token } %>
+  showcase: @showcase, relation: @relation, owner_title: @owner_title, fortune: @fortune, context: { brother: @owner.token } %>

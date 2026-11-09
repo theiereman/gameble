@@ -1,0 +1,154 @@
+.fortune__standing {
+  margin: 0;
+}
+
+.fortune__share,
+.player-card__share {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3em;
+  font: var(--font-banner-small);
+}
+
+.fortune-odds {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  box-shadow: inset 0 var(--space-unit) 0 0 var(--color-line-soft);
+}
+
+.fortune-odds__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.fortune-odds__intro,
+.fortune-odds__formula {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.fortune-odds__formula {
+  color: var(--color-text-bright);
+}
+
+.fortune-odds__scroll {
+  overflow-x: auto;
+}
+
+.fortune-odds__table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--font-body-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.fortune-odds__table th,
+.fortune-odds__table td {
+  padding: var(--space-2) var(--space-3);
+  text-align: right;
+  box-shadow: inset 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line-soft);
+}
+
+.fortune-odds__table th:first-child {
+  text-align: left;
+}
+
+.fortune-odds__table thead th {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.fortune-odds__table tfoot th,
+.fortune-odds__table tfoot td {
+  color: var(--color-text-max);
+}
+
+.player-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.player-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.player-card__avatar {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  box-shadow: var(--pixel-outline-3);
+}
+
+.player-card__who {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.player-card__name {
+  margin: 0;
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
+  overflow-wrap: anywhere;
+}
+
+.player-card__luck {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+}
+
+.player-card__label {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.player-card__rarities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  margin: 0;
+}
+
+.player-card__rarity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.player-card__rarity dd {
+  margin: 0;
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+}
+
+.player-card__icon {
+  display: block;
+}
+
+.player-card__loading {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body);
+}
+
+.player-card__more {
+  align-self: flex-start;
+  margin: 0;
+}

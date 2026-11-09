@@ -47,7 +47,7 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     # First discoveries made by this test's packs (the fixture ones have none).
     Game::FirstDiscovery.where(pack_id: Game::Pack.where(player_id: players).select(:id)).delete_all
     Game::WeeklyGoal.where(week_start: GOAL_WEEK).delete_all
-    [ Game::GoalReward, Game::DailyBonusClaim, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::SetTier, Game::Pack ].each do |model|
+    [ Game::GoalReward, Game::DailyBonusClaim, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::Fortune, Game::SetTier, Game::Pack ].each do |model|
       model.where(player_id: players).delete_all
     end
     Game::PlayerState.where(player_id: @created).delete_all

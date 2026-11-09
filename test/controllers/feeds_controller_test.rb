@@ -80,8 +80,8 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "each kind of entry but the sets has its filter" do
-    assert_equal Game::FeedEntry::KINDS - %w[set], FeedsController::FILTERS.values
+  test "each kind of entry but the sets and the verdict has its filter" do
+    assert_equal Game::FeedEntry::KINDS - %w[set verdict], FeedsController::FILTERS.values
   end
 
   test "pulls shows the pulls under the chosen filter and keeps the tab" do
@@ -772,5 +772,18 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     bars = css_select(".feed__reactions").map(&:to_html).join
     assert_no_match(/Sam|moderator|8fRbREJutTNEvhJdRHHihZ78/, bars)
     assert_no_match(%r{entries/#{entry.id}/}, bars)
+  end
+
+  test "the weekly verdict names its player and links to last week's register, with no card and no reactions" do
+    Game::FeedEntry.record_verdict(player_id: @player.id, week_start: Date.new(2026, 11, 2), now: Time.utc(2026, 11, 2))
+
+    get feed_path(locale: :fr)
+
+    assert_response :success
+    assert_select ".feed__entry .feed__sentence", /Le Chattomètre a rendu son verdict/ do
+      assert_select "a[href=?]", fortune_register_path(locale: :fr, period: "last_week"), "Voir le classement"
+    end
+    assert_select ".feed__tag--verdict", "Verdict"
+    assert_select ".feed__entry:has(.feed__tag--verdict) .feed__thumb, .feed__entry:has(.feed__tag--verdict) .reactions", false
   end
 end

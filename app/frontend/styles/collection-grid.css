@@ -426,7 +426,7 @@
   }
 
   /* The phone's top bar: the back button and the title. */
-  .top-bar--status .player-chip {
+  .top-bar--status:not(.top-bar--top-level) .player-chip {
     display: none;
   }
 

@@ -68,7 +68,7 @@ class LibraryTest < ApplicationSystemTestCase
     assert_selector ".set-results .set-tiles a.set-tile[href='#{library_set_path(locale: :en, kind: "theme", key: "rpg")}']"
     assert_selector ".set-results .set-chip--none", text: /NO TIER/i
     assert_no_selector "#set-entry-in-progress-title"
-    assert_selector ".set-entry > #goals:first-child + .set-search"
+    assert_selector ".set-entry > #goals:first-child ~ .set-search"
 
     fill_in "set-search-field", with: ""
     assert_no_selector "#set-results-title"

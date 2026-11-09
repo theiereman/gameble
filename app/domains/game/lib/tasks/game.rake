@@ -27,6 +27,15 @@ namespace :game do
     puts "game:backfill_friend_codes: every player has their friend code"
   end
 
+  desc "Runs Game::BackfillFortunesJob now: every player's luck tallies rebuilt from their opened packs, banned included; idempotent"
+  task backfill_fortunes: :environment do
+    Game::BackfillFortunesJob.perform_now
+    behind = Game::BackfillFortunesJob.players_out_of_tally
+    abort "game:backfill_fortunes: #{behind} player(s) whose tally misses packs (failures reported to the error tracker); rerun" if behind.positive?
+
+    puts "game:backfill_fortunes: every opened pack is in its player's tallies"
+  end
+
   desc "Runs Game::BackfillAchievementsJob now: every achievement a player in good standing already met is granted, without a toast; idempotent"
   task backfill_achievements: :environment do
     Game::BackfillAchievementsJob.perform_now

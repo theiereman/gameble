@@ -31,6 +31,7 @@ Rails.application.routes.draw do
     post "settings/steam" => "steam_links#create", as: :settings_steam
     # The public roadmap, every milestone and story staff chose to show.
     get "roadmap" => "roadmaps#show", as: :roadmap
+    get "market" => "markets#show", as: :market
     # The visitor's motion switch, written into the motion cookie.
     post "motion" => "motions#create", as: :motion
 
@@ -79,6 +80,8 @@ Rails.application.routes.draw do
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # Inviting a player from their profile, or accepting their invitation.
     post "brothers/:token/invitation" => "brother_invitations#create", as: :brother_invitation,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    get "brothers/:token/summary" => "public_profiles#summary", as: :brother_summary,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     get "brothers/:token/library" => "public_profiles#collection", as: :brother_collection,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
@@ -160,6 +163,9 @@ Rails.application.routes.draw do
       constraints: { token: /\h{8}-\h{4}-\h{4}-\h{4}-\h{12}/ }
     delete "feed/entries/:token/reaction" => "reactions#destroy",
       constraints: { token: /\h{8}-\h{4}-\h{4}-\h{4}-\h{12}/ }
+    # The luck leaderboards, this week's and all time's: public, read only.
+    get "register" => "fortune_registers#show", as: :fortune_register
+    get "register/panel" => "fortune_panels#show", as: :fortune_panel
     post "friends/invitations" => "invitations#create", as: :invitations
     post "friends/invitations/:token/accept" => "invitations#accept", as: :accept_invitation,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
@@ -289,6 +295,13 @@ Rails.application.routes.draw do
   get "robots.txt" => "robots#show", format: false
   get "llms.txt" => "llms#show", format: false
   get "sitemap.xml" => "sitemaps#show", defaults: { format: :xml }, format: false
+
+  # Development only: "/" signs in as a fake player and opens the starting
+  # screen (DEV_START_PATH), with no Steam or Clerk; see DevSignInsController.
+  if Rails.env.development?
+    get "dev/sign-in" => "dev_sign_ins#show", as: :dev_sign_in
+    root "dev_sign_ins#show", as: :dev_root
+  end
 
   # "/" sends a first visit to the locale its browser prefers.
   root "locales#redirect"

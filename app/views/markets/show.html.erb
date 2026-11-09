@@ -1,0 +1,28 @@
+<% content_for :public_page, true unless current_player %>
+<% content_for :title, t(".heading") %>
+<% content_for :head do %>
+  <%= tag.meta name: "description", content: t(".intro") %>
+<% end %>
+<% unless current_player %>
+  <% content_for :page_footer do %>
+    <%= render "landings/footer" %>
+  <% end %>
+<% end %>
+<section class="market-teaser" aria-labelledby="market-teaser-heading">
+  <header class="market-teaser__header">
+    <p class="market-teaser__kicker"><%= t(".kicker") %></p>
+    <h1 id="market-teaser-heading" class="market-teaser__title"><%= t(".heading") %></h1>
+    <p class="market-teaser__intro"><%= t(".intro") %></p>
+  </header>
+  <%= render PanelComponent.new(brackets: true, class: "market-teaser__panel") do %>
+    <ul class="market-teaser__plans">
+      <% %w[auction currency fees open].each do |plan| %>
+        <li class="market-teaser__plan">
+          <h2 class="market-teaser__plan-title"><%= t(".plans.#{plan}.title") %></h2>
+          <p class="market-teaser__plan-text"><%= t(".plans.#{plan}.text") %></p>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+  <p class="market-teaser__closing"><%= t(".closing") %></p>
+</section>

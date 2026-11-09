@@ -18,6 +18,7 @@ class Game::OpenPackConcurrencyTest < ActiveSupport::TestCase
     Game::SetTier.where(player_id: @player.id).delete_all
     Game::FirstDiscovery.where(player_id: @player.id).delete_all
     Game::Pack.where(player_id: @player.id).delete_all
+    Game::Fortune.where(player_id: @player.id).delete_all
     stream = Game::Operation.stream_name(@player.id)
     connection = ActiveRecord::Base.connection
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream = ?", stream ]))

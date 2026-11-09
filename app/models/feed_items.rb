@@ -3,6 +3,8 @@ module FeedItems
     cards = Catalog::CardViews.call(entries.flat_map { [ it.entry.card_season_id, it.entry.partner_card_season_id ] }.compact, locale:)
     sets = Catalog::SetsById.call(entries.filter_map { it.entry.set_id })
     entries.filter_map do |item|
+      next [ item, nil, nil, nil ] if item.entry.kind == "verdict"
+
       if item.entry.set_id
         set = sets[item.entry.set_id]
         [ item, nil, nil, set ] if set

@@ -1,0 +1,5 @@
+<%# locals: (panel:) %>
+<section class="fortune-panel" aria-labelledby="fortune-panel-title" data-controller="fortune-panel" data-action="turbo:frame-load->fortune-panel#tabChanged">
+  <p class="visually-hidden" role="status" data-fortune-panel-target="status"></p>
+  <%= render "fortune_panels/frame", panel: %>
+</section>

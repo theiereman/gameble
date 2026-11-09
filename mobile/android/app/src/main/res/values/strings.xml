@@ -11,8 +11,8 @@
     <string name="tab_hub">Bridge</string>
     <string name="tab_capsule">Capsule</string>
     <string name="tab_sets">Sets</string>
-    <string name="tab_friends">Friends</string>
     <string name="tab_trades">Trades</string>
+    <string name="tab_market">Market</string>
     <string name="top_bar_back">Back</string>
     <string name="top_bar_back_to">Back to %1$s</string>
     <string name="top_bar_capsules">Capsules</string>

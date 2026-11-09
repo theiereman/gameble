@@ -130,7 +130,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_120000) do
     t.index ["token"], name: "index_accounts_release_notes_on_token", unique: true
     t.index ["version"], name: "index_accounts_release_notes_on_version", unique: true
     t.check_constraint "char_length(title_fr::text) <= 80 AND char_length(title_en::text) <= 80 AND char_length(body_fr) <= 1500 AND char_length(body_en) <= 1500", name: "accounts_release_notes_length_check"
-    t.check_constraint "state::text = ANY (ARRAY['draft'::character varying, 'ready'::character varying, 'skipped'::character varying]::text[])", name: "accounts_release_notes_state_check"
+    t.check_constraint "state::text = 'draft'::text OR state::text = 'ready'::text OR state::text = 'skipped'::text", name: "accounts_release_notes_state_check"
     t.check_constraint "version::text ~ '^v[0-9]+\\.[0-9]+\\.[0-9]+$'::text", name: "accounts_release_notes_version_check"
   end
 
@@ -448,6 +448,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_120000) do
     t.uuid "token", default: -> { "gen_random_uuid()" }, null: false
     t.index ["kind", "notable", "occurred_at"], name: "index_game_feed_entries_on_kind_and_notable_and_occurred_at"
     t.index ["notable", "occurred_at", "id"], name: "index_game_feed_entries_on_notable_and_occurred_at_and_id"
+    t.index ["occurred_at"], name: "index_game_feed_entries_one_verdict_per_week", unique: true, where: "((kind)::text = 'verdict'::text)"
     t.index ["pack_id", "position"], name: "index_game_feed_entries_on_pack_id_and_position", unique: true
     t.index ["partner_id"], name: "index_game_feed_entries_on_partner_id"
     t.index ["player_id", "occurred_at"], name: "index_game_feed_entries_one_set_per_operation", unique: true, where: "((kind)::text = 'set'::text)"
@@ -455,10 +456,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_120000) do
     t.index ["token"], name: "index_game_feed_entries_on_token", unique: true
     t.index ["trade_id"], name: "index_game_feed_entries_on_trade_id", unique: true, where: "(trade_id IS NOT NULL)"
     t.check_constraint "(kind::text = 'pull'::text OR kind::text = 'discovery'::text) = (pack_id IS NOT NULL AND \"position\" IS NOT NULL)", name: "game_feed_entries_pack_check"
-    t.check_constraint "(kind::text = 'set'::text) = (set_id IS NOT NULL AND tier IS NOT NULL AND set_count IS NOT NULL) AND (kind::text = 'set'::text) = (card_season_id IS NULL) AND (kind::text = 'set'::text) = (rarity IS NULL)", name: "game_feed_entries_set_check"
+    t.check_constraint "(kind::text = 'set'::text) = (set_id IS NOT NULL AND tier IS NOT NULL AND set_count IS NOT NULL) AND (kind::text = 'set'::text OR kind::text = 'verdict'::text) = (card_season_id IS NULL) AND (kind::text = 'set'::text OR kind::text = 'verdict'::text) = (rarity IS NULL)", name: "game_feed_entries_set_check"
     t.check_constraint "(kind::text = 'trade'::text) = (trade_id IS NOT NULL AND partner_id IS NOT NULL AND partner_card_season_id IS NOT NULL)", name: "game_feed_entries_trade_check"
     t.check_constraint "(tier IS NULL OR tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text) AND (set_count IS NULL OR set_count > 0)", name: "game_feed_entries_tier_check"
-    t.check_constraint "kind::text = 'pull'::text OR kind::text = 'discovery'::text OR kind::text = 'trade'::text OR kind::text = 'repost'::text OR kind::text = 'set'::text", name: "game_feed_entries_kind_check"
+    t.check_constraint "kind::text = 'pull'::text OR kind::text = 'discovery'::text OR kind::text = 'trade'::text OR kind::text = 'repost'::text OR kind::text = 'set'::text OR kind::text = 'verdict'::text", name: "game_feed_entries_kind_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
   end
 
@@ -483,6 +484,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_120000) do
     t.index ["card_season_id"], name: "index_game_first_discoveries_on_card_season_id", unique: true
     t.index ["pack_id"], name: "index_game_first_discoveries_on_pack_id"
     t.index ["player_id"], name: "index_game_first_discoveries_on_player_id"
+  end
+
+  create_table "game_fortunes", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.date "week_start"
+    t.integer "regular_packs", default: 0, null: false
+    t.integer "bonus_packs", default: 0, null: false
+    t.integer "reward_packs", default: 0, null: false
+    t.integer "common_cards", default: 0, null: false
+    t.integer "uncommon_cards", default: 0, null: false
+    t.integer "rare_cards", default: 0, null: false
+    t.integer "epic_cards", default: 0, null: false
+    t.integer "legendary_cards", default: 0, null: false
+    t.integer "actual_points", default: 0, null: false
+    t.float "expected_points", default: 0.0, null: false
+    t.float "variance", default: 0.0, null: false
+    t.virtual "z_score", type: :float, as: "\nCASE\n    WHEN (variance > (0)::double precision) THEN (((actual_points)::double precision - expected_points) / sqrt(variance))\n    ELSE (0)::double precision\nEND", stored: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "week_start"], name: "index_game_fortunes_on_player_id_and_week_start", unique: true, nulls_not_distinct: true
+    t.index ["week_start", "z_score", "player_id"], name: "index_game_fortunes_on_week_start_and_z_score_and_player_id", order: { z_score: :desc }
+    t.check_constraint "regular_packs >= 0 AND bonus_packs >= 0 AND reward_packs >= 0", name: "game_fortunes_packs_check"
+    t.check_constraint "variance >= 0::double precision", name: "game_fortunes_variance_check"
+    t.check_constraint "week_start IS NULL OR EXTRACT(isodow FROM week_start) = 1::numeric", name: "game_fortunes_week_start_monday_check"
   end
 
   create_table "game_friend_codes", force: :cascade do |t|
@@ -808,6 +833,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_120000) do
   add_foreign_key "game_feed_reactions", "game_feed_entries", column: "feed_entry_id", on_delete: :cascade
   add_foreign_key "game_first_discoveries", "accounts_players", column: "player_id"
   add_foreign_key "game_first_discoveries", "game_packs", column: "pack_id"
+  add_foreign_key "game_fortunes", "accounts_players", column: "player_id"
   add_foreign_key "game_friend_codes", "accounts_players", column: "player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "high_player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "low_player_id"

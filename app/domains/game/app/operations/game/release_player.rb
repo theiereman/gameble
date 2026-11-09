@@ -15,6 +15,7 @@ module Game
         FirstDiscovery.where(player_id: player.id).update_all(pack_id: nil, updated_at: Time.current)
         SetTier.where(player_id: player.id).delete_all
         Pack.where(player_id: player.id).delete_all
+        Fortune.where(player_id: player.id).delete_all
         ShowcaseEntry.where(player_id: player.id).delete_all
         Goal.where(player_id: player.id).delete_all
         CustomSet.where(player_id: player.id).delete_all

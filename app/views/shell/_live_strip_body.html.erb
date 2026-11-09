@@ -4,7 +4,9 @@
       <% items.each do |item, card, partner_card, set| %>
         <li class="<%= class_names("live-strip__entry", "live-strip__entry--filler": item.filler) %>">
           <p class="live-strip__sentence"><% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span> <% end %><%= feed_sentence(item, card, partner_card, set, links: false) %></p>
-          <% if item.entry.kind == "set" %>
+          <% if item.entry.kind == "verdict" %>
+            <span class="feed__tag feed__tag--verdict"><%= t("feeds.show.verdict_tag") %></span>
+          <% elsif item.entry.kind == "set" %>
             <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") %>
           <% elsif item.entry.kind == "repost" %>
             <span class="feed__tag feed__tag--repost"><%= t("feeds.show.repost_tag") %></span>

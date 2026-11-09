@@ -8,6 +8,7 @@ class OwnProfilesController < ApplicationController
     @titles = Game::ProfileTitles.call(current_player)
     @avatars = Game::AvatarShelf.call(current_player)
     @owner_title = Game::ActiveProfileTitle.call(current_player, titles: @titles)
+    @fortune = Game::FortuneStanding.call(current_player, period: :week)
     @return_card = card_to_return_to
   end
 

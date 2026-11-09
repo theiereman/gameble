@@ -198,8 +198,8 @@ class MePageTest < ApplicationSystemTestCase
     resize_to(*PHONE)
     sign_in_to_me
 
-    find(".phone-menu__button").click
-    within("#phone-menu-panel") { click_link href: "/en/settings" }
+    find(".player-chip__button").click
+    within("#player-menu") { click_link href: "/en/settings" }
 
     assert_current_path settings_path(locale: :en)
   end

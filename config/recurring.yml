@@ -33,6 +33,12 @@ expire_trades: &expire_trades
   queue: default
   schedule: every minute
 
+# The week's Flukeometer verdict goes to the feed once the week has closed.
+publish_weekly_verdict: &publish_weekly_verdict
+  class: Game::PublishWeeklyVerdictJob
+  queue: default
+  schedule: every monday at 12:05am
+
 # Personal data is kept no longer than the privacy notice says.
 apply_retention: &apply_retention
   class: Accounts::ApplyRetentionJob
@@ -50,6 +56,7 @@ development:
   sum_weekly_goal: *sum_weekly_goal
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
+  publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
 
@@ -58,6 +65,7 @@ production:
   sum_weekly_goal: *sum_weekly_goal
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
+  publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
   clear_solid_queue_finished_jobs:

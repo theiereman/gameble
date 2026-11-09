@@ -3,11 +3,25 @@
     <%= player_avatar(player, class_name: "player-chip__avatar") %>
     <span class="player-chip__name"><%= Accounts::PersonaName.clean(player.persona_name) || t("shell.player.fallback_name") %></span>
     <span class="player-chip__dot" aria-hidden="true"></span>
+    <span id="player-menu-badge" class="stream-slot"><%= render "shell/player_menu_badge", pending: shell_player_pending %></span>
   </button>
   <nav id="player-menu" class="player-menu shell-popover" popover aria-label="<%= t("shell.player.menu") %>">
     <ul class="player-menu__list">
+      <li>
+        <%= link_to me_path, class: "player-menu__item", data: { turbo_prefetch: false } do %>
+          <span class="player-menu__label"><%= t("shell.player.profile") %></span>
+          <span id="player-menu-achievements-badge" class="stream-slot"><%= render "pages/menu_achievements_badge", unclaimed: shell_achievements_unclaimed %></span>
+        <% end %>
+      </li>
+      <li>
+        <%= link_to friends_path, class: "player-menu__item", data: { turbo_prefetch: false } do %>
+          <span class="player-menu__label"><%= t("shell.player.friends") %></span>
+          <span class="player-menu__meta"><%= t("pages.home.menu.friends_online", count: shell_friends_online, number: number_with_delimiter(shell_friends_online)) %></span>
+          <span id="player-menu-invitations-badge" class="stream-slot"><%= render "pages/menu_invitations_badge", invitations: shell_invitations_waiting %></span>
+        <% end %>
+      </li>
       <li><%= link_to t("shell.player.settings"), settings_path, class: "player-menu__item", data: { turbo_prefetch: false } %></li>
-      <li><%= link_to t("shell.player.profile"), me_path, class: "player-menu__item", data: { turbo_prefetch: false } %></li>
+      <li><%= donation_menu_item_to t("shell.player.support"), class: "player-menu__item" %></li>
       <% if policy([ :back_office, :dashboard ]).show? && !current_page?(back_office_path) %>
         <li><%= link_to t("shell.player.back_office"), back_office_path, class: "player-menu__item" %></li>
       <% end %>

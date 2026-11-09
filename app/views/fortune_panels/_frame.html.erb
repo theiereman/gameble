@@ -1,0 +1,48 @@
+<%# locals: (panel:) %>
+<%= turbo_frame_tag "fortune-panel", target: "_top" do %>
+  <%= render PanelComponent.new(class: "fortune-panel__frame") do %>
+    <h2 id="fortune-panel-title" class="fortune-panel__title"><%= panel.verdict ? t(".verdict_title") : t(".title") %></h2>
+    <%= form_with url: fortune_panel_path, method: :get, class: "fortune-panel__tabs", data: { turbo_frame: "fortune-panel" } do %>
+      <div class="segmented" role="group" aria-label="<%= t(".tabs_label") %>">
+        <% %i[week all_time].each do |tab| %>
+          <%= tag.button t(".tabs.#{tab}"), type: :submit, name: "tab", value: tab, class: "segmented__option", aria: { pressed: (panel.tab == tab).to_s } %>
+        <% end %>
+      </div>
+    <% end %>
+    <% if panel.verdict %>
+      <p class="fortune-panel__headline">
+        <span class="fortune-panel__winner"><%= public_profile_title(panel.verdict.player) %></span>
+        <span class="fortune-panel__label"><%= fortune_label_title(panel.verdict.index) %></span>
+      </p>
+    <% elsif panel.standing.opened? %>
+      <p class="fortune-panel__headline">
+        <span class="<%= class_names("fortune-index", "fortune-index__value", fortune_index_tone(panel.standing.index)) %>"><%= fortune_index_text(panel.standing.index) %></span>
+        <span class="fortune-panel__label"><%= fortune_label_title(panel.standing.index) %></span>
+      </p>
+    <% else %>
+      <p class="fortune-panel__headline fortune-panel__label"><%= t(".no_standing.#{panel.period}") %></p>
+    <% end %>
+    <%= render "fortunes/gauge", distribution: panel.distribution, standing: panel.standing %>
+    <% if panel.top.any? %>
+      <ol class="fortune-panel__rows">
+        <% panel.top.each do |row| %>
+          <li class="fortune-panel__row">
+            <span class="fortune-panel__rank"><%= row.rank %></span>
+            <span class="fortune-panel__who">
+              <span class="fortune-panel__name"><%= row.shown ? public_profile_title(row.player) : t("fortune_registers.show.hidden_player") %></span>
+              <% if row.privileged %>
+                <span class="fortune__privileged"><%= t("fortunes.privileged") %></span>
+              <% else %>
+                <span class="fortune-panel__row-label"><%= fortune_label_title(row.index) %></span>
+              <% end %>
+            </span>
+            <span class="<%= class_names("fortune-panel__row-index", "fortune-index", fortune_index_tone(row.index)) %>"><%= fortune_index_text(row.index) %></span>
+          </li>
+        <% end %>
+      </ol>
+    <% end %>
+  <% end %>
+  <p class="fortune-panel__more">
+    <%= render ButtonComponent.new(variant: :link, href: fortune_register_path(period: fortune_period_param(panel.period))) do %><%= t(".see_all") %><% end %>
+  </p>
+<% end %>

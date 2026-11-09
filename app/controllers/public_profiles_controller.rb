@@ -4,13 +4,24 @@ class PublicProfilesController < ApplicationController
   include SetBoardLoading
   include SetAlbumLoading
   include ProfileLoading
+  include FortunePeriod
 
   before_action :authorize_page
   before_action :load_owner
 
   def show
+    @fortune = Game::FortuneStanding.call(@owner, period: fortune_period(params[:fortune]))
+    return render(partial: "public_profiles/fortune", locals: { owner: @owner, fortune: @fortune }) if fortune_tab_request?
+
     load_profile(@owner)
     @owner_title = Game::ActiveProfileTitle.call(@owner)
+    load_relation
+  end
+
+  def summary
+    @owner_title = Game::ActiveProfileTitle.call(@owner)
+    @fortune = Game::FortuneStanding.call(@owner, period: :week)
+    @rarities = Game::HeldGames.by_rarity(@owner)
     load_relation
   end
 
@@ -29,6 +40,10 @@ class PublicProfilesController < ApplicationController
   end
 
   private
+    def fortune_tab_request?
+      turbo_frame_request_id == "profile-fortune"
+    end
+
     def grid_owner
       @owner
     end

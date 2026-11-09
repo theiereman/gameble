@@ -25,6 +25,10 @@ module ExternalLinksHelper
     external_menu_item_to(name, SOURCE_CODE_URL, **options)
   end
 
+  def source_code_link_to(name, **options)
+    external_link_to(name, SOURCE_CODE_URL, button: true, **options)
+  end
+
   def community_menu_item_to(name, **options)
     external_menu_item_to(name, COMMUNITY_URL, **options)
   end

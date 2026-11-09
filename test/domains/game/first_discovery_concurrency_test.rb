@@ -28,6 +28,7 @@ class Game::FirstDiscoveryConcurrencyTest < ActiveSupport::TestCase
     Game::WeeklyContribution.where(player_id: ids).delete_all
     Game::SetTier.where(player_id: ids).delete_all
     Game::Pack.where(player_id: ids).delete_all
+    Game::Fortune.where(player_id: ids).delete_all
     streams = ids.map { |id| Game::Operation.stream_name(id) }
     connection = ActiveRecord::Base.connection
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))

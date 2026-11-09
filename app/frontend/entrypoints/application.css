@@ -10,7 +10,6 @@
 @import "../styles/shell-header-phone.css";
 @import "../styles/shell-back.css";
 @import "../styles/shell-bell.css";
-@import "../styles/shell-phone-menu.css";
 @import "../styles/announcement.css";
 @import "../styles/release-note.css";
 @import "../styles/bottom-sheet.css";
@@ -52,6 +51,10 @@
 @import "../styles/feed-reactions.css";
 @import "../styles/feed-jump.css";
 @import "../styles/achievements.css";
+@import "../styles/fortune.css";
+@import "../styles/fortune-profile.css";
+@import "../styles/fortune-panel.css";
+@import "../styles/market-teaser.css";
 @import "../styles/landing-base.css";
 @import "../styles/landing-hero.css";
 @import "../styles/landing-concept.css";

@@ -33,7 +33,7 @@ en:
       note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), the phones your notifications go to, your name, your profile and its link,
         the time of your last visit, your last data export, the announcements you closed, the release notes you saw and your latest activity,
         your collection, your showcase, your set tiers, your custom sets, your goals, your achievements, your
-        card back unlocks and your active card back, your capsules, opened or not, your daily bonuses and your weekly mission rewards,
+        card back unlocks and your active card back, your capsules, opened or not, your luck scores, your daily bonuses and your weekly mission rewards,
         your friends, your invitations, your friend code, when you last opened each of your trades, your reactions to feed entries and your activity feed
         entries: pulls, discoveries, reposts and every trade that names you. Your
         open trades will be cancelled.'
@@ -1307,6 +1307,149 @@ en:
       title: Activity feed
       trade_tag: Trade
       traded_html: "%{name} and %{partner} traded %{card} for %{partner_card}"
+      verdict_html: "The Flukeometer has ruled: %{name} is last week's luckiest member. %{register}"
+      verdict_register: See the leaderboard
+      verdict_tag: Verdict
+  fortune_panels:
+    frame:
+      no_standing:
+        all_time: No capsule opened yet.
+        week: No capsule opened this week.
+      see_all: See the full leaderboard
+      tabs:
+        all_time: Total
+        week: Week
+      tabs_label: Period
+      title: The Flukeometer
+      verdict_title: The Flukeometer has spoken
+  fortune_registers:
+    show:
+      empty:
+        all_time: No member has opened a capsule yet.
+        last_week: No member opened a capsule last week.
+        week: No member has opened a capsule this week yet.
+      hidden_player: Private member
+      intro: 'The Brotherhood ranks its members by the luck of their capsules: what
+        their cards scored against what the capsules promise. Each week, the luckiest
+        10% are Privileged.'
+      pages_label: Pages
+      row:
+        capsules: Capsules
+        hidden: "–"
+        luck: Luck
+        open_card: See %{name}'s card
+      sorts:
+        capsules: Most capsules
+        luck: Luckiest
+      sorts_label: Order
+      summary:
+        capsules:
+          all_time: Capsules opened
+          last_week: Capsules last week
+          week: Capsules this week
+        members:
+          all_time: Members ranked
+          last_week: Active last week
+          week: Active this week
+        privileged: Privileged
+        rank: "#%{rank}"
+        you: Your luck
+      title: The Flukeometer
+  fortunes:
+    gauge:
+      crowd:
+        one: "%{count} ranked player on a scale from −500 to +500, the largest group near %{index}."
+        other: "%{count} ranked players on a scale from −500 to +500, the largest group near %{index}."
+      empty: No player is ranked for this period yet.
+      marked: You stand at %{index}, rank %{rank} of %{total}.
+      you: YOU
+    labels:
+      aggressively_average:
+        text: "Your pulls match the forecast exactly. The Brotherhood thanks you for your compliance."
+        title: "Aggressively Average"
+      black_cat_friend:
+        text: "Statistically, you have walked under several ladders this week."
+        title: "Black Cat Friend"
+      broke_a_mirror:
+        text: "A mirror was broken somewhere, and the bill was sent to you."
+        title: "Broke a Mirror"
+      cursed_by_excel:
+        text: "Even the spreadsheet that computes your luck has started to pity you."
+        title: "Cursed by Excel"
+      enemy_of_merit:
+        text: "Your results exceed what merit alone can explain. Management has been informed."
+        title: "Enemy of Merit"
+      ghosted_by_luck:
+        text: "Luck has seen your capsules and chosen not to reply."
+        title: "Ghosted by Luck"
+      human_horseshoe:
+        text: "Fellow members now rub your sleeve before opening a capsule."
+        title: "Human Horseshoe"
+      indecently_lucky:
+        text: "Your pulls defy statistical expectations. The Brotherhood is watching you."
+        title: "Indecently Lucky"
+      main_character:
+        text: "The plot seems to revolve around you this week. The Brotherhood asks you to stay humble."
+        title: "Main Character"
+      mildly_annoyed:
+        text: "A Common where an Uncommon was owed. Nothing the Brotherhood would call a pattern."
+        title: "Mildly Annoyed"
+      probably_cheating:
+        text: "Your capsules are under review by the audit department. Please keep your hands visible."
+        title: "Probably Cheating"
+      punching_bag:
+        text: "The odds practise on you. The Brotherhood admires your resilience."
+        title: "RNG Punching Bag"
+      rngs_favourite:
+        text: "The random number generator has stopped being random for you. An inquiry has been opened."
+        title: "RNG's Favourite"
+      saint_of_commons:
+        text: "Your misfortune balances the books for the whole Brotherhood. Thank you for your service."
+        title: "Saint of Commons"
+      smiled_upon:
+        text: "Probability leans your way. The Brotherhood sees no cause for concern at this stage."
+        title: "Smiled Upon"
+      suspiciously_lucky:
+        text: "Your capsules perform above forecast. The Brotherhood congratulates you, cautiously."
+        title: "Suspiciously Lucky"
+    odds:
+      capsule: Capsule
+      expected_each: Points expected each
+      formula: "Luck score: (%{actual} earned − %{expected} expected) ÷ √%{variance} = %{z}"
+      intro: Every capsule promises an average score and a usual swing around it. Your
+        luck is how far your points land from that promise, measured in swings.
+      opened: Opened
+      title: Behind the luck
+      total: Total
+      variance_each: Swing² each
+    periods:
+      all_time: All time
+      last_week: Last week
+      week: This week
+    periods_label: Period
+    privileged: PRIVILEGED
+    profile:
+      actual_points: Points earned
+      details: Details
+      empty:
+        all_time: No capsule opened yet.
+        week: No capsule opened this week yet.
+      expected_points: Points expected
+      explainer: 'Each card scores by rarity, duplicates included: 0 for a Common, 1 for
+        an Uncommon, 5 for a Rare, 20 for an Epic, 100 for a Legendary. The index compares
+        the points earned with what the capsules promise on average: 0 is exactly average,
+        and only extraordinary luck brings it near +500 or -500.'
+      packs:
+        bonus: Daily capsules
+        regular: Standard capsules
+        reward: Mission rewards
+      rank: Rank %{rank} of %{count}
+      title: Fortune
+    scale: "/ ±%{limit}"
+    share:
+      bottom: Bottom
+      percent: "%{percent}%"
+      top: Top
   friend_profiles:
     show:
       trade: Trade
@@ -1590,6 +1733,7 @@ en:
         feed: Activity feed
         label: 04 · Live
         open_feed: Open the activity feed
+        open_register: See The Flukeometer
         season: Current season
         season_name: Season %{number} · Grand catalogue
         subtitle: The latest entries of the activity feed, and the current season.
@@ -1621,6 +1765,7 @@ en:
         all: See the whole roadmap
         label: 06 · Roadmap
         line_label: Roadmap milestones, from the oldest to the most distant
+        market: Visit the market's building site
         statuses:
           done: Done
           in_progress: In progress
@@ -1882,6 +2027,25 @@ en:
       progress:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
+  markets:
+    show:
+      closing: No date is being communicated at this stage. Management thanks you for your patience, which remains free of charge to this day.
+      heading: The Brotherhood is building the market
+      intro: Management is pleased to inform you that work has begun. This project is being carried out solely in your interest.
+      kicker: Building site
+      plans:
+        auction:
+          text: Members will put their cards up for auction. The finest will at last change hands at their fair price, which is to say the highest.
+          title: An auction house
+        currency:
+          text: It is earned only by entrusting cards to the Brotherhood, which keeps them safe in its common reserve, for the good of all. It cannot be bought or withdrawn.
+          title: A single currency
+        fees:
+          text: Every fee will be announced in advance and justified by Management. Transparency is one of our costs.
+          title: Fees, announced
+        open:
+          text: No seniority required. The Brotherhood draws no distinction between its members, provided they bid.
+          title: Open to every member
   number:
     format:
       delimiter: ","
@@ -1977,7 +2141,6 @@ en:
         extras_back: Back to the menu
         extras_label: Extras
         feed: Activity feed
-        friends: Friends
         friends_online:
           one: "%{number} online"
           other: "%{number} online"
@@ -1986,6 +2149,8 @@ en:
           one: "%{number} invitation waiting for your answer"
           other: "%{number} invitations waiting for your answer"
         label: Bridge menu
+        market: Market
+        register: The Flukeometer
         open_booster: Open a capsule
         reserve:
           one: "%{number} capsule in reserve"
@@ -2183,7 +2348,7 @@ en:
         deletion: When you delete your account, your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address, which is deleted there too), your profile name,
           the time of your last visit, your last data export, the announcements you closed, the release notes you saw, your latest activity,
           your collection, your showcase, your set tiers, your custom sets, your Steam library list, your goals, your achievements, your
-          card back unlocks and your choice of active card back, your capsules, your daily bonuses, your weekly mission rewards, your friendships,
+          card back unlocks and your choice of active card back, your capsules, your luck scores, your daily bonuses, your weekly mission rewards, your friendships,
           your invitations, your friend code, when you last opened each trade, your activity feed entries and your reactions are erased,
           your open trades are cancelled and your profile disappears. What also concerns
           other players, the community or moderation (past trades, first discoveries,
@@ -2465,6 +2630,9 @@ en:
       title: Title removed
     title: "%{rank} · %{set}"
   public_profiles:
+    card:
+      full_profile: See the full profile
+      this_week: This week
     collection:
       heading: Collection · %{name}
       title: Collection · %{name} · Gameble
@@ -2665,7 +2833,9 @@ en:
         retry: Retry
       language:
         label: Language
+      how_it_works: How it works
       legal: Legal notice
+      source_code: Source code
       motion:
         label: Reduced motion
         'off': 'No'
@@ -2816,19 +2986,18 @@ en:
         one: special
         other: special
       special_none: No special capsule
-    phone_menu:
-      achievements: Achievements
-      how_it_works: How it works
-      label: Menu
-      source_code: GitHub
-      support: Support
     player:
       back_office: Back-office
       fallback_name: Player
+      friends: Friends
       menu: Player menu
-      profile: My profile
+      pending:
+        one: "%{number} thing waiting for you"
+        other: "%{number} things waiting for you"
+      profile: Me
       settings: Settings
       sign_out: Sign out
+      support: Support
     rarity:
       columns:
         overall: All seasons
@@ -2850,6 +3019,7 @@ en:
       friends: Friends
       how_it_works: How it works
       legal: Legal notice
+      market: Market
       me: Me
       profile: Profile
       set: Set
@@ -2865,13 +3035,10 @@ en:
     tabs:
       all_cards: All cards
       booster: Capsule
-      friends: Friends
       hub: Bridge
-      invitations_waiting:
-        one: "%{number} invitation waiting for your answer"
-        other: "%{number} invitations waiting for your answer"
       label: Main navigation
       landing: Home
+      market: Market
       me: Me
       sets: Sets
       trades: Trades

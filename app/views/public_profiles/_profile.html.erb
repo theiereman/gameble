@@ -1,4 +1,4 @@
-<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:, started_set_count:, showcase:, relation:, context:, goals: [], owner_title: nil, editing: false, worn_back: nil, return_card: nil) %>
+<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:, started_set_count:, showcase:, relation:, context:, goals: [], owner_title: nil, fortune: nil, editing: false, worn_back: nil, return_card: nil) %>
 <% owned = current_player.present? && current_player == owner %>
 <section class="profile" aria-labelledby="profile-heading">
   <%= render "public_profiles/summary", owner:, title:, season:, summary:, card_total:, achievements:, relation:, owner_title:, editing: editing %>
@@ -13,6 +13,7 @@
     <%= render "public_profiles/achievements", achievements:, editing: true if editing %>
   <% else %>
     <%= render "public_profiles/stats", rarities:, activity: activity %>
+    <%= render "public_profiles/fortune", owner:, fortune: fortune if fortune %>
     <%= render "public_profiles/achievements", achievements:, editing: editing %>
     <%= render "public_profiles/goals", owner:, goals: goals if goals.any? %>
     <%= render "public_profiles/sets", owner:, started_sets:, started_set_count: %>

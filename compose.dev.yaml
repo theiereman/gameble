@@ -1,0 +1,28 @@
+# The whole app in Docker, with nothing but Docker on the host:
+#   docker compose -f compose.yaml -f compose.dev.yaml up --build
+# then open http://localhost:3000. The code is mounted, so edits show up live.
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: bin/setup
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      BINDING: 0.0.0.0
+      # The screen http://localhost:3000/ opens, signed in as a fake player.
+      DEV_START_PATH: /en/register
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - .:/rails
+      - bundle:/usr/local/bundle
+      - node_modules:/rails/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  bundle:
+  node_modules:

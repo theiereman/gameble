@@ -52,7 +52,7 @@ class HubTest < ApplicationSystemTestCase
     assert_nil focused_item
   end
 
-  test "keys 3 and 4 in the menu open Trades and Friends" do
+  test "keys 3 and 4 in the menu open Trades and the Market" do
     sign_in
 
     item("1").send_keys("3")
@@ -60,13 +60,13 @@ class HubTest < ApplicationSystemTestCase
 
     find(".top-bar__home").click
     item("3").send_keys("4")
-    assert_current_path friends_path(locale: :en)
+    assert_current_path market_path(locale: :en)
   end
 
-  test "key 7 swaps the menu for the extras in place; Escape or the back row brings the menu back" do
+  test "key 8 swaps the menu for the extras in place; Escape or the back row brings the menu back" do
     sign_in
 
-    item("1").send_keys("7")
+    item("1").send_keys("8")
     assert_selector "#hub-menu-extras .menu-item--back:focus"
     assert_no_selector ".hub-menu .menu-item", text: /OPEN A CAPSULE/i
     assert_selector "#hub-menu-extras a.menu-item[href='https://github.com/theiereman/gameble'][target=_blank]", text: /GITHUB/i
@@ -75,11 +75,11 @@ class HubTest < ApplicationSystemTestCase
     assert_no_selector "#hub-menu-extras"
     assert_selector ".hub-menu button.menu-item[aria-expanded=false]:focus", text: /EXTRAS/i
 
-    find(".hub-menu button.menu-item[aria-keyshortcuts='7']").click
+    find(".hub-menu button.menu-item[aria-keyshortcuts='8']").click
     find("#hub-menu-extras .menu-item--back").click
     assert_selector ".hub-menu .menu-item", text: /OPEN A CAPSULE/i
 
-    item("7").send_keys("7")
+    item("8").send_keys("8")
     find("#hub-menu-extras .menu-item--back").send_keys("1")
     assert_current_path how_it_works_path(locale: :en)
 

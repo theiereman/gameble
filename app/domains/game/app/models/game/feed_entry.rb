@@ -5,7 +5,7 @@ module Game
     NOTABLE_TIER = 4
     DISCOVERY_TIER = 3
 
-    KINDS = %w[pull discovery trade repost set].freeze
+    KINDS = %w[pull discovery trade repost set verdict].freeze
 
     RECORD_SETS_SQL = <<~SQL.squish.freeze
       WITH reached AS (
@@ -78,6 +78,13 @@ module Game
     def self.record_sets(player_id:, set_id:, tier:, now:)
       binds = { player_id:, set_id:, tier:, now:, tiers: SetTier::TIERS }
       connection.exec_update(sanitize_sql_array([ RECORD_SETS_SQL, binds ]), "Game::FeedEntry Record Sets")
+    end
+
+    def self.verdict_of?(week_start) = exists?(kind: "verdict", occurred_at: week_start.to_time(:utc))
+
+    def self.record_verdict(player_id:, week_start:, now:)
+      row = { kind: "verdict", player_id:, notable: true, occurred_at: week_start.to_time(:utc), created_at: now, updated_at: now }
+      insert_all([ row ], unique_by: :index_game_feed_entries_one_verdict_per_week, record_timestamps: false)
     end
 
     def self.best_card(card_season_ids, rarities)
