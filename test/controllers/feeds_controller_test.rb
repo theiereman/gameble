@@ -80,8 +80,8 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "each kind of entry but the sets has its filter" do
-    assert_equal Game::FeedEntry::KINDS - %w[set], FeedsController::FILTERS.values
+  test "each kind of entry but the sets and the verdict has its filter" do
+    assert_equal Game::FeedEntry::KINDS - %w[set verdict], FeedsController::FILTERS.values
   end
 
   test "pulls shows the pulls under the chosen filter and keeps the tab" do

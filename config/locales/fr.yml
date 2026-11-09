@@ -1627,7 +1627,7 @@ fr:
       discovered_html: "%{card}, trouvée par %{name} pour la première fois dans la communauté"
       reposted_html: "%{name} a reposté %{card}."
       repost_tag: "Repost"
-      verdict_html: "Le Chattomètre a rendu son verdict : %{name} est le membre le plus chanceux de la semaine passée. %{register}"
+      verdict_html: "Le Chattomètre a rendu son verdict : %{name} est le membre le plus chanceux de la semaine passée. %{register}"
       verdict_register: "Voir le classement"
       verdict_tag: "Verdict"
       traded_html: "%{name} et %{partner} ont échangé %{card} contre %{partner_card}"

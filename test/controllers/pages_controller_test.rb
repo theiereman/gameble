@@ -16,7 +16,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   include GameTrades
   include SteamSignIn
 
-  PLAYER_HUB_QUERIES = 26
+  PLAYER_HUB_QUERIES = 29
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -384,7 +384,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
     get home_path(locale: :en)
     assert_select ".hub-goals", false
-    assert_select ".hub-menu .menu-item__meta", count: 1, text: "0 online"
+    assert_select "#player-menu .player-menu__meta", "0 online"
     assert_select ".daily-booster", false
     assert_select ".hub-showcase--empty"
   end
@@ -539,6 +539,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a hub load costs a fixed number of queries, however long the player's history" do
+    travel_to Time.current.utc.next_occurring(:thursday).change(hour: 12)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2)
     sign_in(@player)
     earn_goal_reward
@@ -550,11 +551,12 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # goal reward's claim slot,
     # showcase (cards chosen, card held, card view), collection (owned, total), the
     # player's goals (none here, so nothing to measure),
-    # the top bar's copies per tier and rarity legend, menu 04's friends online, menu 06's
+    # the top bar's copies per tier and rarity legend, the player menu's friends online, menu 06's
     # achievements earned and the rewards waiting to be claimed, the trades
     # waiting (menu 03 and the Trades tab share one count), the invitations waiting
-    # (menu 04 and the Friends tab share one count), the LIVE ticker's
-    # entries and the feed strip's (none here, so no players or cards).
+    # (the player menu's), the LIVE ticker's entries and the feed strip's
+    # (none here, so no players or cards), and the Flukeometer panel's standing,
+    # distribution and top three.
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"
 

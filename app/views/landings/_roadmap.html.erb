@@ -37,6 +37,6 @@
   </ul>
   <p class="landing-roadmap__links">
     <%= render ButtonComponent.new(variant: :link, href: roadmap_path) do %><%= t("landings.show.roadmap.all") %><% end %>
-    <%= render ButtonComponent.new(variant: :link, href: market_path) do %><%= t("landings.show.roadmap.market") %><% end %>
+    <%= render ButtonComponent.new(variant: :link, href: market_path(locale: I18n.locale)) do %><%= t("landings.show.roadmap.market") %><% end %>
   </p>
 </section>

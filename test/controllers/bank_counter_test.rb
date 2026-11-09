@@ -31,10 +31,10 @@ class BankCounterTest < ActionDispatch::IntegrationTest
     assert_select "a.top-bar__phone-home", false
   end
 
-  test "the trades and friends screens carry the top-level header" do
+  test "the trades and market screens carry the top-level header" do
     sign_in(accounts_players(:player))
 
-    [ trades_path(locale: :en), friends_path(locale: :en) ].each do |path|
+    [ trades_path(locale: :en), market_path(locale: :en) ].each do |path|
       get path
       assert_select "header.top-bar--top-level", 1, path
     end
