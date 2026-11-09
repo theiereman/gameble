@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forge Report: Market Economy</title>
+<style>
+:root{--bg:#f6f1e7;--panel:#fffaf0;--ink:#2a241c;--muted:#6d6252;--line:#ddd2bd;--seal:#8f2f24;--accent:#6b4a12;--ok:#2f6b45}
+@media (prefers-color-scheme:dark){:root{--bg:#191612;--panel:#231f19;--ink:#efe7d8;--muted:#b0a48f;--line:#40382b;--seal:#d4685a;--accent:#dcb56c;--ok:#7cc497}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Georgia,"Times New Roman",serif}
+main{max-width:920px;margin:0 auto;padding:40px 16px 72px}
+header{display:flex;gap:28px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-bottom:2px solid var(--line);padding-bottom:24px}
+h1{font-size:2.1rem;line-height:1.15;margin:0 0 8px}
+h2{font-size:1.3rem;margin:40px 0 12px;color:var(--accent)}
+p{margin:0 0 12px}
+.kicker{font:600 .78rem/1 ui-monospace,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.muted{color:var(--muted)}
+.seal{width:164px;height:164px;flex:none;color:var(--seal);transform:rotate(-8deg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.card h3{margin:0 0 4px;font-size:1rem}
+.card p{margin:0;font-size:.94rem}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:var(--panel);font-size:.94rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:600}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+ul{margin:0;padding-left:20px}
+li{margin-bottom:8px}
+.persona{display:flex;gap:12px}
+.persona span{font-size:1.5rem;line-height:1.2}
+.persona b{display:block}
+.persona small{color:var(--muted);display:block;margin-bottom:4px}
+.persona q{font-style:italic;font-size:.94rem}
+footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.88rem}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div>
+    <p class="kicker">Gameble forge report · 2026-11-09</p>
+    <h1>Market and economy (V2)</h1>
+    <p class="muted">An auction house whose only money is earned by entrusting cards to the Brotherhood, tuned for a standard player opening 40 to 50 capsules a day.</p>
+  </div>
+  <svg class="seal" viewBox="0 0 200 200" role="img" aria-label="Seal: hardened">
+    <path fill="currentColor" d="M100 6l14 12 18-6 9 16 19 0 3 19 18 6-3 19 15 12-9 16 9 16-15 12 3 19-18 6-3 19-19 0-9 16-18-6-14 12-14-12-18 6-9-16-19 0-3-19-18-6 3-19-15-12 9-16-9-16 15-12-3-19 18-6 3-19 19 0 9-16 18 6z"/>
+    <circle cx="100" cy="100" r="68" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="2"/>
+    <text x="100" y="94" text-anchor="middle" fill="#fff" font-family="ui-monospace,Menlo,monospace" font-size="19" font-weight="700" letter-spacing="1">HARDENED</text>
+    <text x="100" y="118" text-anchor="middle" fill="#fff" fill-opacity=".85" font-family="Georgia,serif" font-size="13">forged &amp; tested</text>
+  </svg>
+</header>
+
+<h2>Outcome</h2>
+<p>The idea survived and is specific enough to plan. The simulation (365 days, about 2,000 players, assumed behaviour) checked the money and the prices. It does not model the sale format, so the auction rules rest on research and judgment.</p>
+
+<h2>Targets and starting values</h2>
+<p class="muted">Prices are promised in days of play, for a standard player. All values are adjustable from the back-office.</p>
+<div class="scroll"><table>
+<thead><tr><th></th><th class="num">Common</th><th class="num">Uncommon</th><th class="num">Rare</th><th class="num">Epic</th><th class="num">Legendary</th></tr></thead>
+<tbody>
+<tr><th>Entrustment pays</th><td class="num">1,000</td><td class="num">2,000</td><td class="num">5,000</td><td class="num">15,000</td><td class="num">100,000</td></tr>
+<tr><th>Listing stamp</th><td class="num">100</td><td class="num">1,000</td><td class="num">2,000</td><td class="num">5,000</td><td class="num">10,000</td></tr>
+<tr><th>Target cost</th><td class="num">minutes</td><td class="num">minutes</td><td class="num">a few hours</td><td class="num">1–2 days</td><td class="num">about 40 days</td></tr>
+</tbody></table></div>
+
+<h2>Locked decisions</h2>
+<div class="grid">
+  <div class="card"><h3>Money</h3><p>The PiCoin, minted by the 100-6-Tron, Réacteur des Briétés, only when a card is entrusted to the Archives. Never bought or withdrawn. Sinks: listing stamp and 10% commission. Amounts are integers shown compact (1.2M), with no euro sign.</p></div>
+  <div class="card"><h3>Entrusting</h3><p>Any copy, by multi-select batch, one validation. Recap flags only copies from Rare up, without blocking. About 1.2M a day per account.</p></div>
+  <div class="card"><h3>Selling</h3><p>Any copy, any edition. Minimum price per rarity, never a sale at a loss. Legendary minimum starts at 7M.</p></div>
+  <div class="card"><h3>Friend trades</h3><p>Free of stamp, commission, floor and levy, always.</p></div>
+  <div class="card"><h3>Format</h3><p>Auction with optional buy-now, lasting 12h, 24h or 3 days. Soft close of 3 minutes when the price or leader changes.</p></div>
+  <div class="card"><h3>My maximum</h3><p>Displayed price is the second-highest maximum plus a 5% increment, computed once per bid. Never a chain of automatic bids.</p></div>
+  <div class="card"><h3>Escrow</h3><p>The whole maximum is held until outbid. The winner pays the final price and gets the surplus back.</p></div>
+  <div class="card"><h3>Bid history</h3><p>Player names always visible, one line per bid. The leader's maximum stays secret.</p></div>
+  <div class="card"><h3>Average price</h3><p>Per exact edition. Last 5 sales in 90 days, highest and lowest dropped.</p></div>
+  <div class="card"><h3>Alt accounts</h3><p>Back-office detection plus the daily cap. No seniority gate, no limit on trades.</p></div>
+  <div class="card"><h3>Back-office control</h3><p>Every setting editable with no deployment: bounded, traced, new listings only, announced by the Brotherhood.</p></div>
+  <div class="card"><h3>Regulation</h3><p>Manual with alerts. Each indicator explains itself in plain language and proposes an action for the author to validate.</p></div>
+</div>
+
+<h2>Rejected, and why</h2>
+<div class="scroll"><table>
+<thead><tr><th>Rejected</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Auction only, or fixed price only</td><td>Long waits on common cards, or a seller guessing with no thrill</td></tr>
+<tr><td>One duration, or free duration</td><td>One day for a Legendary, or an unreadable market</td></tr>
+<tr><td>Holding only the current bid, or nothing</td><td>A maximum silently stops counting, or empty accounts inflate auctions</td></tr>
+<tr><td>Average per game, or per game and rarity</td><td>Mixes rarities, or erases the value of an old edition</td></tr>
+<tr><td>Current-season-only market</td><td>Listings lose their goods at each season change</td></tr>
+<tr><td>Automatic regulator at launch</td><td>Overshoots (Legendary at 11 days) on thresholds no real data has validated</td></tr>
+<tr><td>Daily cap of 150 or below</td><td>Sits at a normal player's income and starves the money supply</td></tr>
+<tr><td>Proportional listing stamp</td><td>Money burned falls from 0.88 to 0.36 of money created</td></tr>
+<tr><td>Welcome bonus</td><td>Barely helps newcomers and alt accounts can farm it</td></tr>
+<tr><td>Anonymous bidders</td><td>The author prefers visible rivalry</td></tr>
+</tbody></table></div>
+
+<h2>Weak points that survived</h2>
+<ul>
+<li><b>Unsold Legendaries:</b> about 1,800 listings waiting at 30% resellers, 3 months of sales. Accepted, since higher minimums clog the market.</li>
+<li><b>The Legendary price depends on resale:</b> 25 days with no minimum and 30% resellers, about 4 days at 60%.</li>
+<li><b>Epic resellers</b> were not simulated. Watch the indicators.</li>
+<li><b>The alert threshold</b> around 40% is a guess until real data exists.</li>
+<li><b>Alt accounts:</b> no study measures how well any countermeasure works. A seller's alt can probe the leader's maximum, at the cost of commission and stamp if it wins.</li>
+<li><b>Visible names</b> let anyone follow a player's purchases and let friends avoid bidding against each other.</li>
+<li><b>Legal:</b> ban real-money trading, publish odds, sell nothing affecting capsules, currency or auctions.</li>
+</ul>
+
+<h2>Who pressed on it</h2>
+<div class="grid">
+  <div class="card persona"><span>📋</span><div><b>John</b><small>Product manager</small><q>Three buttons, no more.</q></div></div>
+  <div class="card persona"><span>🧮</span><div><b>Ingrid</b><small>Former MMO economist</small><q>Express your prices in play time, never in money.</q></div></div>
+  <div class="card persona"><span>🎨</span><div><b>Sally</b><small>UX designer</small><q>Current price and your maximum must be impossible to confuse.</q></div></div>
+  <div class="card persona"><span>🎰</span><div><b>Théo</b><small>Regular player</small><q>Seeing who sniped my Legendary is what brings me back.</q></div></div>
+  <div class="card persona"><span>🏗️</span><div><b>Winston</b><small>Architect</small><q>A listing keeps the conditions of the moment it was created.</q></div></div>
+  <div class="card persona"><span>📈</span><div><b>Margot</b><small>Guild treasurer</small><q>I want to know exactly what I own.</q></div></div>
+  <div class="card persona"><span>🕵️</span><div><b>Mary</b><small>Analyst</small><q>An organisation that buys your cards for a pittance, in the public interest. That is its satire.</q></div></div>
+  <div class="card persona"><span>🃏</span><div><b>Grumbal</b><small>Collector</small><q>My season 1 Legendary is precisely the card everyone wants.</q></div></div>
+  <div class="card persona"><span>🚢</span><div><b>Dana</b><small>Delivery realist</small><q>You are alone on this project. Monthly curve-watching will be forgotten.</q></div></div>
+  <div class="card persona"><span>🛡️</span><div><b>Vex</b><small>Abuser in residence</small><q>My second account walks your auction up to find your maximum.</q></div></div>
+  <div class="card persona"><span>🤝</span><div><b>Hugo</b><small>Honest player</small><q>If I get blocked for receiving a card, trades lose their advantage.</q></div></div>
+</div>
+
+<footer>Forged idea: <code>forge-market-economy.md</code>. Evidence: <code>simulate_economy.py</code> and <code>simulation-results*.txt</code>.</footer>
+</main>
+</body>
+</html>

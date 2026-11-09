@@ -23,6 +23,6 @@ Reference: GitHub issue theiereman/gameble#57 (lore guidelines), adopted by the 
 
 - **Capsules:** what a player opens is a capsule recovered and distributed by the Brotherhood. The interface says "capsule" (CAP-4, CAP-5).
 - **Archive cards:** the Brotherhood copies each recovered game onto an archive card (*carte d'archive* / *archive card*), drawn from its archives, in its own proprietary format that only its authorized readers can play: one more face of the monopoly. Cards reach players sealed in capsules. The interface keeps "carte" / "card" and the current card look.
-- **Taxes and fees:** none before the market and the economy (`later-roadmap.md`, V2). #57's examples illustrate the tone; they are neither copy nor mechanics.
+- **Taxes and fees:** none before the market and the economy (`market-economy.md`). #57's examples illustrate the tone; they are neither copy nor mechanics.
 - The space-terminal look of the screens is the Brotherhood's own equipment: an authorized archive card reader.
 - The landing (CAP-24) is the lore's first place in the interface; its text is written in a dedicated session, in French and English, and the landing waits for it.

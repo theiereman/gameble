@@ -1,0 +1,83 @@
+
+=== CAND base: deposit 1/2/5/15/100, proportional stamp, legendary minimum 420
+d 30 players=   466 money/active=       19 median income/day=    0.4 newcomer=   0.8 burn/faucet=0.16 inactive=0.13 top1%=1.00 archive-burn=0.00
+     price [    1.4     4.3    13.5    76.8 14657.5]  days-of-income [    3.5    11.5    39.3   198.  34659.9]  newcomer-days [    1.6     5.8    21.    104.4 16051.3]
+d 90 players=   924 money/active=      131 median income/day=    3.0 newcomer=   1.0 burn/faucet=0.23 inactive=0.18 top1%=0.95 archive-burn=0.00
+     price [    2.1     3.7    17.4   598.7 50052.9]  days-of-income [    0.7     1.2     5.4   186.4 15582.6]  newcomer-days [    2.9     3.8    17.    562.9 47061. ]
+d180 players=  1422 money/active=      391 median income/day=    6.9 newcomer=   0.7 burn/faucet=0.32 inactive=0.23 top1%=0.87 archive-burn=0.00
+     price [   2.2    5.1    9.6  796.8 4833.4]  days-of-income [  0.5   0.8   2.4 110.2 812.2]  newcomer-days [   3.7    8.4   19.4  998.1 8116.9]
+d365 players=  2044 money/active=     1132 median income/day=   16.6 newcomer=   1.2 burn/faucet=0.36 inactive=0.36 top1%=0.71 archive-burn=0.00
+     price [   1.4    3.6    7.6  914.3 6435.7]  days-of-income [  0.1   0.3   0.6  53.  412.3]  newcomer-days [   1.2    4.5    8.3  748.5 5825.8]
+
+=== CAND archive shop x5 commons and uncommons
+d 30 players=   457 money/active=       15 median income/day=    0.3 newcomer=   0.7 burn/faucet=0.30 inactive=0.23 top1%=1.00 archive-burn=0.49
+     price [    1.4     2.9     8.4    66.  14657.5]  days-of-income [    4.1     9.3    40.2   250.9 39255.9]  newcomer-days [    2.      4.4    18.    114.1 19678.6]
+d 90 players=   916 money/active=      113 median income/day=    3.1 newcomer=   1.2 burn/faucet=0.33 inactive=0.26 top1%=0.94 archive-burn=0.53
+     price [     1.4      3.      13.4    535.  323397.1]  days-of-income [     0.5      1.1      5.     174.6 105187.3]  newcomer-days [     1.2      2.8     12.9    452.  244021.4]
+d180 players=  1435 money/active=      348 median income/day=    7.0 newcomer=   0.9 burn/faucet=0.42 inactive=0.25 top1%=0.89 archive-burn=0.42
+     price [    1.4     4.4    11.4   693.4 40635.3]  days-of-income [   0.3    0.5    2.2   99.6 4702.1]  newcomer-days [    1.8     3.2    14.9   759.7 43720.9]
+d365 players=  2046 money/active=     1061 median income/day=   18.5 newcomer=   1.7 burn/faucet=0.44 inactive=0.33 top1%=0.74 archive-burn=0.33
+     price [   1.3   41.6   19.2  772.8 6424.1]  days-of-income [  0.1   2.3   1.1  43.3 349.7]  newcomer-days [   0.7   24.3   14.7  466.4 3636.6]
+
+=== CAND newcomers give up first commons (half of them)
+d 30 players=   466 money/active=       72 median income/day=    2.7 newcomer=   3.6 burn/faucet=0.26 inactive=0.39 top1%=0.99 archive-burn=0.00
+     price [    2.      3.2   109.9   362.3 14657.5]  days-of-income [   0.8    1.4   39.9  124.2 5405.9]  newcomer-days [   0.5    0.8   28.    89.7 3730.8]
+d 90 players=   924 money/active=      306 median income/day=   10.6 newcomer=  13.0 burn/faucet=0.26 inactive=0.37 top1%=0.80 archive-burn=0.00
+     price [     1.3      3.1     60.4    909.1 602872.6]  days-of-income [    0.1     0.3     6.3    84.1 53779.8]  newcomer-days [    0.2     0.3     6.     75.5 44472.8]
+d180 players=  1422 money/active=      522 median income/day=    9.8 newcomer=   3.7 burn/faucet=0.33 inactive=0.41 top1%=0.73 archive-burn=0.00
+     price [    1.6     6.     14.7   991.7 22059. ]  days-of-income [   0.2    0.6    1.6   96.4 2353.5]  newcomer-days [   0.5    1.6    3.9  268.5 5978.3]
+d365 players=  2044 money/active=     1093 median income/day=   13.6 newcomer=   6.7 burn/faucet=0.36 inactive=0.48 top1%=0.59 archive-burn=0.00
+     price [   2.9    6.4   12.6  857.3 6331.2]  days-of-income [  0.3   0.5   1.   70.5 520.4]  newcomer-days [   0.8    1.     2.9  140.4 1011.7]
+
+=== CAND welcome rate x3 for 30 days
+d 30 players=   466 money/active=       34 median income/day=    0.8 newcomer=   1.7 burn/faucet=0.12 inactive=0.16 top1%=1.00 archive-burn=0.00
+     price [    2.1     2.9    29.6   205.2 14657.5]  days-of-income [    5.5     3.6    36.4   244.1 17983.6]  newcomer-days [   2.6    1.7   19.5  120.  8628.1]
+d 90 players=   924 money/active=      173 median income/day=    5.0 newcomer=   2.5 burn/faucet=0.21 inactive=0.26 top1%=0.93 archive-burn=0.00
+     price [     1.4      5.8     18.1    615.2 542776.4]  days-of-income [     0.3      1.5      4.5    125.5 123177. ]  newcomer-days [     0.6      4.5      8.6    256.9 313796.3]
+d180 players=  1422 money/active=      469 median income/day=    7.6 newcomer=   1.6 burn/faucet=0.30 inactive=0.27 top1%=0.84 archive-burn=0.00
+     price [    1.5     2.9    19.3   915.6 20874.1]  days-of-income [   0.2    0.4    2.6  115.1 3175.6]  newcomer-days [    0.9     1.8    12.8   463.4 27734.1]
+d365 players=  2044 money/active=     1132 median income/day=   15.1 newcomer=   1.6 burn/faucet=0.36 inactive=0.39 top1%=0.66 archive-burn=0.00
+     price [   1.9    3.2   38.   966.2 6436.9]  days-of-income [  0.2   0.3   1.5  66.6 425.4]  newcomer-days [   2.3    2.9   13.1  587.1 4527.2]
+
+=== CAND first 10 deposited each day paid double
+d 30 players=   466 money/active=       24 median income/day=    0.6 newcomer=   1.5 burn/faucet=0.13 inactive=0.18 top1%=0.99 archive-burn=0.00
+     price [    1.4     3.2    23.7   117.1 14657.5]  days-of-income [    3.5     5.4    36.8   176.9 22266.2]  newcomer-days [   1.6    2.6   18.4   89.4 9552.7]
+d 90 players=   924 money/active=      167 median income/day=    4.8 newcomer=   1.8 burn/faucet=0.19 inactive=0.20 top1%=0.93 archive-burn=0.00
+     price [     1.9      3.4     28.1    691.5 270585.5]  days-of-income [    0.4     0.7     6.2   136.5 50900.1]  newcomer-days [     1.8      2.8     18.3    378.9 132594.8]
+d180 players=  1422 money/active=      483 median income/day=   12.8 newcomer=   1.8 burn/faucet=0.30 inactive=0.22 top1%=0.83 archive-burn=0.00
+     price [    1.3     3.7    24.8   804.5 10694.2]  days-of-income [   0.1    0.3    4.6   58.7 1226.9]  newcomer-days [    0.7     1.8    30.    417.4 12216. ]
+d365 players=  2044 money/active=     1259 median income/day=   20.8 newcomer=   1.4 burn/faucet=0.35 inactive=0.37 top1%=0.66 archive-burn=0.00
+     price [   1.8   14.9   11.5 1121.  7000.7]  days-of-income [  0.1   0.9   0.6  53.9 346.7]  newcomer-days [   1.4   13.6    7.1  657.5 4826.2]
+
+=== CAND welcome x3 with alts, no regulator
+d 30 players=   450 money/active=      444 median income/day=    3.1 newcomer=   5.3 burn/faucet=0.09 inactive=0.26 top1%=1.00 archive-burn=0.00
+     price [    1.8     3.2   338.7  3239.8 13325. ]  days-of-income [   0.9    1.4  124.7 1160.8 4345.7]  newcomer-days [   0.4    0.6   57.5  568.8 2561.3]
+d 90 players=   904 money/active=     1047 median income/day=   12.0 newcomer=   4.4 burn/faucet=0.11 inactive=0.21 top1%=0.96 archive-burn=0.00
+     price [     2.1      3.5     90.8   4346.1 510046.1]  days-of-income [    0.2     0.3     8.8   362.5 51781. ]  newcomer-days [     0.7      0.8     23.7   1080.5 138514.4]
+d180 players=  1447 money/active=     1719 median income/day=   20.3 newcomer=   3.9 burn/faucet=0.14 inactive=0.19 top1%=0.85 archive-burn=0.00
+     price [    2.5     6.5    20.3  3956.8 45677.1]  days-of-income [   0.2    0.5    1.1  186.5 2282.1]  newcomer-days [    0.9     2.3     5.6   992.4 12296.9]
+d365 players=  2019 money/active=     2906 median income/day=   28.4 newcomer=   2.8 burn/faucet=0.15 inactive=0.18 top1%=0.62 archive-burn=0.00
+     price [    2.2     3.1    10.4  2415.6 14618. ]  days-of-income [  0.1   0.1   0.4  85.  536.3]  newcomer-days [   1.     1.2    2.9  898.  5773.4]
+     rare-or-better bought: alt-running main 40 vs honest hardcore 82
+
+=== CAND welcome x3 with alts and regulator
+d 30 players=   450 money/active=      444 median income/day=    3.1 newcomer=   5.3 burn/faucet=0.09 inactive=0.26 top1%=1.00 archive-burn=0.00
+     price [    1.8     3.2   338.7  3239.8 13325. ]  days-of-income [   0.9    1.4  124.7 1160.8 4345.7]  newcomer-days [   0.4    0.6   57.5  568.8 2561.3]
+d 90 players=   904 money/active=      864 median income/day=    9.7 newcomer=   3.2 burn/faucet=0.12 inactive=0.21 top1%=0.96 archive-burn=0.00
+     price [     1.4      3.3     76.    3790.  504866. ]  days-of-income [    0.2     0.3     7.9   392.3 62714.4]  newcomer-days [     0.5      0.9     20.     889.6 159424.3]
+d180 players=  1447 money/active=     1056 median income/day=   15.1 newcomer=   3.4 burn/faucet=0.17 inactive=0.17 top1%=0.84 archive-burn=0.00
+     price [    1.9     3.2    14.   2238.3 41397.1]  days-of-income [   0.2    0.2    0.9  150.3 2813.9]  newcomer-days [    0.6     1.      4.    650.5 12031.3]
+d365 players=  2019 money/active=      315 median income/day=   13.9 newcomer=   2.3 burn/faucet=0.28 inactive=0.16 top1%=0.65 archive-burn=0.00
+     price [   1.5    3.9   13.7  269.7 1548. ]  days-of-income [  0.2   0.4   1.1  19.5 111.7]  newcomer-days [  1.4   2.6   6.7 122.2 645.9]
+     rare-or-better bought: alt-running main 39 vs honest hardcore 77
+
+=== CAND all: welcome x3, shop x5, regulator, alts, 30% flippers
+d 30 players=   483 money/active=      428 median income/day=    3.8 newcomer=   6.5 burn/faucet=0.11 inactive=0.19 top1%=1.00 archive-burn=0.16
+     price [   1.4    2.9  261.2 3098.2  561.2]  days-of-income [  0.4   0.8 109.3 870.8 172.8]  newcomer-days [  0.2   0.4  50.5 445.2  86.8]
+d 90 players=   923 money/active=      819 median income/day=   10.0 newcomer=   3.6 burn/faucet=0.16 inactive=0.20 top1%=0.95 archive-burn=0.19
+     price [   2.2    4.4   84.1 3055.9 1954. ]  days-of-income [  0.3   0.4   6.6 283.6 148.1]  newcomer-days [  1.    1.4  23.6 850.5 444. ]
+d180 players=  1442 money/active=      823 median income/day=   14.4 newcomer=   2.8 burn/faucet=0.21 inactive=0.18 top1%=0.78 archive-burn=0.17
+     price [   1.6    2.9   16.8 1497.6 1484.1]  days-of-income [  0.2   0.3   1.2 140.  132.8]  newcomer-days [  0.8   1.3   5.9 656.8 605.8]
+d365 players=  2070 money/active=      232 median income/day=   10.6 newcomer=   1.1 burn/faucet=0.30 inactive=0.16 top1%=0.67 archive-burn=0.16
+     price [  2.2   2.8   8.2 181.1 420. ]  days-of-income [ 0.2  0.3  1.  16.8 39.8]  newcomer-days [  1.6   2.4  11.2 165.6 379.6]
+     rare-or-better bought: alt-running main 41 vs honest hardcore 79

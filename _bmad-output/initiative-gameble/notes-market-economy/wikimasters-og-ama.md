@@ -46,7 +46,7 @@
 12. **Average sale price per variant**: an iridescent or exotic copy and an edition from an earlier season each get their own price line. Otherwise rare variants pull the average away from what a plain copy is worth. This is an input to the open question in the roadmap.
 
 ### Abuse and access
-13. **Keep the seniority gate.** It also blocks waves of new accounts used for alt-account farming, wash trading or trolling.
+13. **Keep the seniority gate.** It also blocks waves of new accounts used for alt-account farming, wash trading or trolling. *Superseded (author, 2026-11-09): the market has no seniority gate; alt accounts are handled by back-office detection and a daily entrustment cap (`spec-gameble/market-economy.md`).*
 14. **Watch for transfers between a player's own accounts**: repeated sales at the minimum price between the same two accounts. The back office should be able to list them.
 
 ## Not relevant here

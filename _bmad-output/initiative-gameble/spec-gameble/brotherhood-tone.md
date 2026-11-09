@@ -27,7 +27,7 @@ Referenced by Constraints, CAP-11, CAP-12, CAP-13, CAP-17, CAP-23, CAP-24, CAP-2
   - No real company names in the copy. Publisher names appear only as card credits and set names; Steam and Valve appear in the no-affiliation notice (legal page, landing footer) and Valve's sign-in image.
   - No terms, slogans or elements from other games or fictional universes (for example Helldivers: "Ordre majeur", "Super Earth", "Managed Democracy", stratagem arrow codes).
   - No "players are shareholders" theme.
-  - No tax or fee before the market (`later-roadmap.md`); #57's examples are tone samples, not copy.
+  - No tax or fee before the market (`market-economy.md`); #57's examples are tone samples, not copy.
 - **Achievements (CAP-17, #66):** each title speaks as the Brotherhood; achievements carry no flavor text (author, 2026-10-31); the list is in `achievements.md`.
 - **Trade suggestions (CAP-11, #64):** the Brotherhood presents itself as a helpful go-between connecting collectors.
 - **Example lines (weekly goal, #61):** "La Confrérie invite ses membres à unir leurs efforts pour ouvrir 50 000 capsules cette semaine." (the number is the week's target); to contributors once it is reached: "La Direction vous remercie pour votre participation."

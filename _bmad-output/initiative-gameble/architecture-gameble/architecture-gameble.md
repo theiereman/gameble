@@ -4,13 +4,14 @@ type: architecture-spine
 purpose: build-substrate
 altitude: initiative
 paradigm: 'modular monolith with an operations layer'
-scope: 'The gameble MVP as a whole: one Rails application, its four domains, its web layer, the Steam import and the deployment.'
+scope: 'gameble as a whole: one Rails application, its four domains, its web layer, the Steam import, the deployment, and the market release.'
 status: final
 created: '2026-10-02'
-updated: '2026-11-01'
-binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25, CAP-27, CAP-28]
+updated: '2026-11-09'
+binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25, CAP-27, CAP-28, CAP-29, CAP-30, CAP-31, CAP-32, CAP-33, CAP-34, CAP-35, CAP-36, CAP-37]
 sources:
   - ../spec-gameble/spec-gameble.md
+  - ../spec-gameble/market-economy.md
   - ../spec-gameble/catalog-and-rarity.md
   - ../spec-gameble/later-roadmap.md
   - ../spec-gameble/brotherhood-tone.md
@@ -33,7 +34,7 @@ A **modular monolith with an operations layer**: one Rails application, four dom
 | `Catalog` | `app/domains/catalog` | Cards, card texts per locale, the theme list, seasons, a card's rarity and number for a season, sets and their tiers, the share preview images, the roadmap's milestones and their stories |
 | `Steam` | `app/domains/steam` | Steam API client, import jobs, raw Steam data, import runs, sign-in verification |
 | `Accounts` | `app/domains/accounts` | Players, staff roles, last seen, profile visibility, preferences, bans, reports, data controls |
-| `Game` | `app/domains/game` | Pack bank, owned cards, trades, invitations, friendships, set tiers reached, custom sets and the Steam library set, active goals, card backs, profile titles, menu themes, weekly goal, daily bonus, achievements, feed, presence activity, events and their handlers |
+| `Game` | `app/domains/game` | Pack bank, owned cards, trades, invitations, friendships, set tiers reached, custom sets and the Steam library set, active goals, card backs, profile titles, menu themes, weekly goal, daily bonus, achievements, feed, presence activity, the market and its PiCoins (`Game::Market`), events and their handlers |
 | Web layer | `app/` | Controllers, policies, view components, Stimulus controllers and the screen modules behind them, jobs that chain several domains (`app/jobs`), back-office, legal page |
 | Image filter | `app/frontend/lib/card_art` | The card-art worker and renderer, on the `pixelcrush` npm package |
 
@@ -99,7 +100,7 @@ graph TD
 
 ### AD-6 — Owned cards are counted, not listed `[ADOPTED]`
 
-- **Binds:** CAP-4, CAP-6, CAP-8, CAP-11
+- **Binds:** CAP-4, CAP-6, CAP-8, CAP-11, CAP-29, CAP-30
 - **Prevents:** a table growing by billions of rows; two models of ownership.
 - **Rule:** A player's cards are one row per player and card-season, with a `quantity` and a `reserved` count. There is no row per copy. Database check constraints keep `quantity >= reserved >= 0`. An operation that touches several of these rows locks them in ascending order of player then card-season.
 
@@ -143,16 +144,16 @@ graph TD
 
 ### AD-10 — Events are the only bridge to derived data `[ADOPTED]`
 
-- **Binds:** CAP-6, CAP-12, CAP-13, CAP-14, CAP-17, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23
+- **Binds:** CAP-6, CAP-12, CAP-13, CAP-14, CAP-17, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-31, CAP-32
 - **Prevents:** a feed, gauge, unlock or achievement computed three different ways; personal data frozen in a log; a race or a duplicate aborting an opening.
 - **Rule:**
   - An operation that changes state publishes one primary Rails Event Store event inside its transaction; an operation that changes nothing publishes nothing, and housekeeping writes (last seen, the NOUVEAU watermark) publish none. Events are never modified.
   - An operation that raises a player's quantities then inserts a set-tier row (unique per player, set and tier) with `ON CONFLICT DO NOTHING` for each tier of a published-season set whose required count the player now holds, counting any edition of each member (AD-5); it finds those sets through each credited card's card-season in the published season, so an earlier edition received by trade crosses current tiers. Each new row records once how it was reached (a pack, a trade or the allocation): the opening's response and its replay read the rows of that pack, the allocation screen reads the allocation's rows, the season recap reads the rows reached in play. Each new row publishes exactly one event: `complete` publishes `Game::SetCompleted`, any other tier `Game::SetTierReached`. Every set has a `complete` row, at 100 % of its cards, after its other tiers. A tier once reached stays reached when cards leave. `game_set_tiers` replaces `game_set_completions`, with no backfill. A tier row's season is its set's season: that is the tier's mark. Sets of earlier seasons earn no new tier. Achievements that count sets (first complete set, three complete sets) count distinct set kind and key; those that count cards count games (AD-5).
   - `Game::ReceiveSeasonAllocation` runs once per player and published season. It inserts the tier rows the player already meets in the published season's sets, records the received season even when nothing is carried, and publishes one `Game::SeasonAllocationReceived` carrying the inserted rows; the carried rows publish no `Game::SetTierReached` or `Game::SetCompleted`. The card back and achievement handlers answer it; the feed handler does not. A player with no holding from an earlier season receives nothing.
-  - Every operation that raises a player's quantities (`Game::OpenPack`, and `Game::AcceptTrade` for both players) reads the published season once, right after its bank locks, and passes it to the receipt, the draw (`Game::DrawPool` for that season), the tier pass and its response. It then receives each player's pending allocation as a step of its own transaction, before any credit, so it celebrates only the tiers it crosses itself; the allocation's event precedes the caller's. The received season is checked under the bank lock, so concurrent operations receive once.
+  - Every operation that raises a player's quantities (`Game::OpenPack`, `Game::AcceptTrade` for both players, and a market settlement for the winner, AD-45) reads the published season once, right after its bank locks, and passes it to the receipt, the draw (`Game::DrawPool` for that season), the tier pass and its response. It then receives each player's pending allocation as a step of its own transaction, before any credit, so it celebrates only the tiers it crosses itself; the allocation's event precedes the caller's. The received season is checked under the bank lock, so concurrent operations receive once.
   - The allocation is received and seen apart. While the player's last seen season is below the published one and they hold a card-season of an earlier season, the hub and the booster page redirect to the allocation screen (a GET that writes nothing, AD-11, reading this check from the primary); the screen's POST receives the allocation if still pending and marks it seen, a housekeeping write that publishes nothing.
   - A handler runs in that transaction, never publishes an event, and writes only rows of that player or new rows: a feed entry, a weekly contribution, an achievement, a card back unlock, the player's latest activity. Unique rows are inserted with `ON CONFLICT DO NOTHING`; a duplicate never fails the operation.
-  - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then trade rows in ascending id, then holdings in ascending player then card-season, then the players' `game_player_states` rows, then the player's custom sets and their games.
+  - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then trade rows in ascending id, then market listings in ascending id, then holdings in ascending player then card-season, then the players' `game_player_states` rows, then the player's custom sets and their games, then the edition price row, then market wallets in ascending player id. Holdings and player states are both taken under the bank lock, so either may come first; `Game::Market::Ledger.post` runs once per transaction, last.
   - Totals across players (the gauge) are summed by one periodic job.
   - State tables are the truth; events are not replayed to rebuild them.
   - Events carry identifiers only. Deleting an account anonymises the player record.
@@ -160,7 +161,7 @@ graph TD
 
 ### AD-11 — A separate read path `[ADOPTED]`
 
-- **Binds:** CAP-6, CAP-7, CAP-8, CAP-13, CAP-18, CAP-21, CAP-23
+- **Binds:** CAP-6, CAP-7, CAP-8, CAP-13, CAP-18, CAP-21, CAP-23, CAP-33, CAP-34
 - **Prevents:** a rewrite when a read replica is added.
 - **Rule:** Requests that only read and tolerate a second of delay run under the database `reading` role, declared from the start and pointing to the primary. A GET never writes the primary: it runs with writes prevented, and a write a page needs after rendering (the NOUVEAU watermark) is a separate POST to an operation. Enqueuing a job is not a write to the primary.
 
@@ -172,13 +173,13 @@ graph TD
 
 ### AD-13 — Broadcasts are batched and leave after commit `[ADOPTED]`
 
-- **Binds:** CAP-8, CAP-10, CAP-11, CAP-12, CAP-13, CAP-20
+- **Binds:** CAP-8, CAP-10, CAP-11, CAP-12, CAP-13, CAP-20, CAP-31, CAP-33
 - **Prevents:** broadcasts of uncommitted state; one message per event at high load; a per-friend fan-out; a hidden player shown.
 - **Rule:**
   - Jobs are enqueued only after their transaction commits (`enqueue_after_transaction_commit`). Broadcasts are sent by a job, never inside a transaction. The gauge is broadcast about every ten seconds; feed entries leave in small batches. Feed and gauge streams are public. The choice of what enters the feed lives in one handler. A set feed entry names the player, the set (season, kind, key) and the tier, with no pack or card.
-  - Each player has one private Turbo Stream, named by an opaque random key held in `Accounts` and rotated on ban and deletion. It carries only what calls for an answer: trade proposals and their state changes, friend invitations, and achievements and card backs unlocked outside an opening. The cable connection identifies the player from the session and refuses a banned one.
+  - Each player has one private Turbo Stream, named by an opaque random key held in `Accounts` and rotated on ban and deletion. It carries only what calls for an answer: trade proposals and their state changes, friend invitations, outbid notices (AD-44), and achievements and card backs unlocked outside an opening. The cable connection identifies the player from the session and refuses a banned one.
   - The feed's Friends tab and friends' presence are read when the page renders; nothing is broadcast to every friend.
-  - Every surface that names a player beside their cards asks one question, `Game::Visibility.visible?(viewer, owner)`, at render or at broadcast; nothing is stored on the entry. Public surfaces show an entry only if every player it names is public and not banned or deleted; the Friends tab also shows friends-only friends.
+  - Every surface that names a player beside their cards asks one question, `Game::Visibility.visible?(viewer, owner)`, at render or at broadcast; nothing is stored on the entry. Public surfaces show an entry only if every player it names is public and not banned or deleted, name-only surfaces excepted (AD-49); the Friends tab also shows friends-only friends.
   - A second question, `Game::Visibility.open_to_friends?(player)`, is false for a private player (and a banned or deleted one). Trades (AD-8), presence (AD-24) and the trade actions on the friend row and friend profile ask it; nothing else needs it, since `visible?` already hides a private player from friends.
 
 ### AD-14 — Identity and access `[ADOPTED]`
@@ -188,14 +189,14 @@ graph TD
 - **Rule:**
   - Sign-in is Steam only, through OmniAuth and `omniauth-openid`; the Steam-specific verification lives in `Steam` and hands a Steam id to `Accounts`. The only link to it is Valve's official sign-in image. Signing in and out are full page loads.
   - The session is an encrypted cookie holding only the player id. Each request reloads the player and checks the ban.
-  - Every controller action has a Pundit policy; a signed-out player is refused with `sign_in_required`. Every `Game` operation acts for one player given as input; work over many players is a job running that operation once per player, or a `Game::SystemOperation` that writes only rows belonging to no player.
+  - Every controller action has a Pundit policy; a signed-out player is refused with `sign_in_required`. Every `Game` operation acts for one player given as input; work over many players is a job running that operation once per player, or an `ApplicationOperation` that writes only rows belonging to no player.
   - Roles: signed-out visitor, player, moderator, administrator.
   - Profile visibility is public, friends only or private, stored in `Accounts`. The profile policy and AD-13's visibility questions combine it with `Game`'s friendship query. Setting it to private publishes `Accounts::VisibilityChanged`; `Game` handles it by cancelling the player's open trades and releasing their reservations under AD-10's lock order (bank locks of both players in ascending id, taken before any trade row), and `PlayerStream` tells the partners, as it does for a deletion.
-  - Deleting an account publishes `Accounts::PlayerDeleted`; `Game` handles it by cancelling open trades, releasing reservations and dropping friendships, invitations, set tiers, card back unlocks, custom sets with their games (the Steam library list included), active goals and its private key. First discoveries keep their player, so the card's first discoverer reads as anonymous. A ban hides the player everywhere through AD-13. The data export is assembled in the web layer from `Accounts` and `Game` queries, custom sets, the Steam library list and active goals included.
+  - Deleting an account publishes `Accounts::PlayerDeleted`; `Game` handles it by cancelling open trades, releasing reservations and dropping friendships, invitations, set tiers, card back unlocks, custom sets with their games (the Steam library list included), active goals and its private key. First discoveries keep their player, so the card's first discoverer reads as anonymous (AD-49). AD-46 takes the player out of the market. A ban hides the player everywhere through AD-13. The data export is assembled in the web layer from `Accounts` and `Game` queries, custom sets, the Steam library list and active goals included.
 
 ### AD-15 — No internal id in a URL `[ADOPTED]`
 
-- **Binds:** CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-27
+- **Binds:** CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-27, CAP-33
 - **Amended 2026-10-30:** the preview carries a generated image (AD-39); custom sets have tokens.
 - **Prevents:** counting or enumerating players; a share link exposing its sharer.
 - **Rule:** Players are addressed by a random token, cards by a slug, packs, invitations, custom sets and share images by a token, game sets by season number, kind and key. Database ids never appear in URLs, HTML, JSON, DOM ids or stream names. The share link addresses a card-season and never a player; its page and its preview image show the card only, and its preview carries the title, the rarity and, once rendered, the image of AD-39.
@@ -476,6 +477,165 @@ graph TD
   - The image is served at `/share-images/<token>.png`, outside the locale scope, signed out, without a session cookie, `noindex`, with a year-long immutable cache behind Cloudflare. Active Storage's own routes are not drawn.
   - The image stays under 300 KB, checked by a test on its byte size; a larger render is saved with a palette.
 
+### AD-40 — The market lives in `Game` `[ADOPTED]`
+
+- **Binds:** CAP-29, CAP-30, CAP-31, CAP-32, CAP-33, CAP-34, CAP-35, CAP-36, CAP-37
+- **Prevents:** two domains locking the same rows in different orders; a fifth domain reaching into `Game`'s holdings, tiers and allocation.
+- **Rule:**
+  - Market models, operations, queries and jobs live in `Game` under `Game::Market`, in tables prefixed `game_market_`. Back-office pages stay in the web layer and call `Game::Market` operations. The 100-6-Tron is `Game::Market::Mint`; `bank` keeps meaning the capsule reserve.
+  - Every player-acting operation is a `Game::Operation` taking `player:`. An operation with no acting player inherits `ApplicationOperation`, as `Game::SumWeeklyGoal` does.
+  - `Failure(:market_busy)` answers `ActiveRecord::Deadlocked` in every market operation; the player can retry. Listing, bidding and entrusting are rate limited per player with explicit limits.
+  - A card-season with no rarity can be neither entrusted nor listed.
+  - Player-facing words are locale keys (AD-18), and every amount goes through one `picoins` helper giving the compact form, never a euro sign.
+
+### AD-41 — PiCoins are a wallet and a permanent record `[ADOPTED]`
+
+- **Binds:** CAP-29, CAP-30, CAP-31, CAP-32, CAP-36
+- **Prevents:** a balance that changes with no trace; PiCoins created outside entrustment; a settlement paid twice; two ways of moving money; a surplus left committed.
+- **Rule:**
+  - `game_market_wallets` holds one row per player with `available` and `committed`, both `bigint`, each checked `>= 0`. A player with no row has zero.
+  - `game_market_ledger_entries` is insert-only and holds the player, `kind`, `available_delta`, `committed_delta`, the listing when there is one, and the time. Each kind moves exactly this:
+
+    | Kind | Player | `available_delta` | `committed_delta` |
+    | --- | --- | --- | --- |
+    | `mint` | entruster | `+value` | 0 |
+    | `stamp` | seller | `-stamp` | 0 |
+    | `hold` | bidder | `-amount` | `+amount` |
+    | `release` | bidder | `+amount` | `-amount` |
+    | `purchase` | winner | 0 | `-final price` |
+    | `sale` | seller | `+final price` | 0 |
+    | `commission` | seller | `-commission` | 0 |
+    | `forfeit` | deleted account | `-remaining available` | 0 |
+
+  - `Game::Market::Ledger.post(entries)` is the only writer of both tables, and a test refuses any other reference to their write methods. One transaction makes one call, after every other lock: it upserts missing wallets and locks them in ascending player id, nets the deltas per wallet, applies them, then inserts every entry. The model raises on update and destroy; `db/schema.rb` cannot carry a trigger.
+  - Player rows are anonymised, never deleted (AD-14), so entries keep their player id and account deletion never touches them.
+  - A partial unique index on listing, player and kind, its predicate written as `kind = 'stamp' OR kind = 'purchase' OR kind = 'sale' OR kind = 'commission'`, makes the database refuse a second settlement.
+  - Only `Game::Market::Mint.credit` posts `mint`, and only `EntrustCards` calls it. Across all entries, the sum of the deltas equals minted minus stamps, commissions and forfeits.
+  - `AuctionMath.commission(price, percent)` is the integer floor of `price * percent / 100`. `sale` is always the full final price.
+  - A nightly job checks, in one `REPEATABLE READ` read, each wallet against its entries and the global sum, and reports any difference to the error tracker and the indicators (AD-48).
+
+### AD-42 — Economy settings are versioned `[ADOPTED]`
+
+- **Binds:** CAP-13, CAP-29, CAP-30, CAP-31, CAP-32, CAP-34, CAP-35
+- **Prevents:** a live auction changing rules midway; two app instances reading different values; a change with no author; two changes overwriting each other.
+- **Rule:**
+  - `game_market_settings` is insert-only, one row per version, holding every value of `market-economy.md` and whether the market is open. Each row names the version it replaces, unique, so of two concurrent changes the second refuses with `Failure(:settings_changed)`. The highest id is current, read from the database by each operation, never cached in process.
+  - `Game::Market::ChangeSettings`, taking the administrator as `player:`, validates the whole candidate row, the no-loss floor included. The double-or-halve bound of `market-economy.md` covers amounts, minimums and the cap; commission, percents and durations have ranges of their own.
+  - The form carries the Brotherhood's announcement, typed by staff in both languages. The same transaction publishes it through `Accounts::CreateAnnouncement`, which replaces the announcement currently shown.
+  - A listing stores its version at creation, and that auction's durations, increment, soft close and commission read it. Entrustment values, the cap, the stamp and minimum at listing, the feed threshold, the average-price window and the unusual-maximum confirmation threshold read the current version. A form drawing settings-derived amounts submits the version it drew; entrusting and listing refuse a stale version with `Failure(:amounts_changed)`, charging and paying nothing.
+
+### AD-43 — Entrusting and the Archives `[ADOPTED]`
+
+- **Binds:** CAP-29
+- **Prevents:** a popular card's row locked by every player; a batch half applied; holdings that lower by a path other than trades.
+- **Rule:**
+  - `Game::Market::EntrustCards` takes one player and an ordered list of card-seasons and quantities, under the player's bank lock, then their holdings (AD-10). Only `quantity - reserved` can be entrusted.
+  - The daily cap is read from the player's `mint` entries of the current UTC day. The batch applies in the given order, whole cards only; a card that does not fit is skipped and later cheaper ones may fit. It returns what was entrusted and what stayed, posts one `mint` entry, and publishes one `Game::Market::CardsEntrusted` listing the cards.
+  - Lowering a holding uses the same step as a trade, shared by both, and removes unheld showcase entries.
+  - `game_market_archive_deposits` holds one row per player and card-season with a quantity. Deposits survive account deletion. `game_market_archive_stocks`, one row per card-season, is summed by a periodic job. Nothing writes a stock row per entrustment (AD-9).
+
+### AD-44 — Listings and bids `[ADOPTED]`
+
+- **Binds:** CAP-30, CAP-31, CAP-33
+- **Prevents:** a copy sold and traded at once; a price computed in two places; a maximum leaking; deadlock between a bid and a settlement.
+- **Rule:**
+  - A listing is one copy of one card-season: `game_market_listings`, reached by token, with status `open`, `sold`, `unsold`, `cancelled` or `withdrawn`, and `sold_at` and `final_price` once sold. An open listing carries `reserved + 1` on the seller's holding (AD-6), so trades and entrustment see it as taken. Going private does not touch listings.
+  - `Game::Market::ListCard` runs under the seller's bank lock, then the holding, then the ledger (`stamp`). `CancelListing` requires `leader_id` to be null.
+  - A listing holds its `current_price`, `leader_id`, `leader_maximum` and `ends_at`. At most one maximum is held per listing: the leader's. The top two maximums are always that one and the new bid.
+  - `Game::Market::AuctionMath` is the only computation, pure and with no loop. `increment(x)` is the version's percent of `x`, rounded up to the hundred. The displayed price is `min(highest maximum, second-highest maximum + increment(second-highest maximum))`, or the starting price with one bidder; on equal maximums the earlier one leads. The minimum bid is `min(buy_now, current_price + increment(current_price))`, or the starting price with no leader.
+  - `Game::Market::PlaceBid` takes the bidder's bank lock, and the seller's too when the maximum reaches the immutable buy-now price, in ascending order (AD-10). It locks the listing, reads `now`, and checks status, end, bidder and seller; a removed seller refuses. A removed leader counts as no leader and is released in the same post. Then one branch applies:
+
+    | Branch | Funds needed from `available` | Entries | Listing |
+    | --- | --- | --- | --- |
+    | Buy-now (maximum `>=` buy-now) | buy-now, less the bidder's own held maximum | `hold` of that amount, AD-45's settlement at buy-now, `release` of any other leader | settled |
+    | New leader (no leader, or maximum above the leader's) | the maximum | `hold` of it, `release` of the previous leader's | leader, maximum, price |
+    | Beaten at once (maximum at or below the leader's) | the maximum | none | price |
+    | Leader's raise (above their own maximum) | the difference | `hold` of the difference | maximum only |
+
+  - `game_market_bids` gets one row per validated bid, with the player, `maximum`, the price after, the outcome and `extended_until`. A raise is private to its owner. A bid changing the price or leader within the soft-close window moves `ends_at` and fills `extended_until`, which adds the history's extension line.
+  - `PlaceBid` publishes one event: `Game::Market::BidPlaced`, or `AuctionSold` on the buy-now branch; each carries the player outbid.
+  - Only queries for their owner and for the back-office read `leader_maximum`, `game_market_bids.maximum`, ledger entries of kind `hold` and `release`, and alt signals. The public history selects player, price after the bid, outcome, `extended_until` and time.
+  - An outbid notice is a `game_market_notices` row owned by the player, written by a handler, shown by the bell and sent on the player's private stream (AD-13). Later notices use the same table and channel. The listing's public stream is named by its token and only asks each viewer to refetch, sent by a batched job after commit.
+
+### AD-45 — An auction closes once `[ADOPTED]`
+
+- **Binds:** CAP-13, CAP-28, CAP-32, CAP-34
+- **Prevents:** a double settlement; a bid landing during a close; a bought card skipping allocation, tiers or showcase rules; a market sale feeding the weekly goal.
+- **Rule:**
+  - `Game::Market::CloseDueAuctionsJob` calls `CloseAuction(player: seller, listing_id:)` once per due listing, one per transaction, with `require_account` as `Game::ExpireTrade` does, reporting an error and moving on. A bid at or past `ends_at` is refused.
+  - `CloseAuction` reads seller and leader without a lock, takes their bank locks, locks the listing, reads `now` and rechecks that it is open, due and has that leader; otherwise it does nothing and the next run retries. Removal is read after the bank locks, for both `banned_at` and `deleted_at`.
+  - With no leader, the listing becomes `unsold` and the reservation is released. A removed seller makes it `withdrawn`, releasing the leader's maximum. A removed leader's maximum is released and the listing becomes `unsold`.
+  - The settlement step reads the published season, receives the winner's allocation, moves one copy with its `reserved`, records set tiers with `reached_by: "trade"`, removes unheld showcase entries and refreshes the edition price (AD-47). It returns entries rather than posting them: `purchase`, `release` of the maximum less the price when there is a surplus, `sale` and `commission`. The caller makes the single `Ledger.post` and publishes one `Game::Market::AuctionSold`.
+  - A relist is a new listing with a new stamp.
+  - Event consumers:
+
+    | Event | Heard by | Never heard by |
+    | --- | --- | --- |
+    | `BidPlaced` | outbid notices | feed |
+    | `AuctionSold` | outbid notices when someone was outbid, the sale's feed entry, `GoalsReached`, `Achievements` | `WeeklyContribution` |
+    | `CardsEntrusted` | nobody at launch | feed |
+
+- **Costs:** `AcceptTrade#move` is extracted for trades, entrustment and settlement; the `game_feed_entries` kind check gains `sale`, expand then validate; `FeedEntries.visible`, `NewFeedEntries` and `VisibleFeedEntry` let this kind through (AD-49); `BankLock`'s comment follows AD-10.
+
+### AD-46 — Removed players leave the market `[ADOPTED]`
+
+- **Binds:** CAP-14, CAP-15, CAP-30, CAP-31, CAP-32
+- **Prevents:** a card or a held maximum stuck on a removed account; a handler writing another player's wallet; PiCoins refunded with no entrustment.
+- **Rule:**
+  - `Game::Market::DropPresenceJob` finds banned or deleted players with an open listing, a leading bid or, once deleted, a wallet holding PiCoins, and runs one operation per listing, one per transaction, as `CloseAuction` does.
+  - As seller: the listing becomes `withdrawn`, the leader's maximum is released and the stamp is kept. `Game::ReleasePlayer` has already deleted a deleted player's holdings synchronously, so releasing a reservation is a no-op on a missing row.
+  - As leader: the maximum is released, a `voided` line joins the history, and the auction resumes at its starting price with no leader, its end unchanged. Releasing a leader never depends on the seller.
+  - A final `ForfeitBalance` posts `forfeit` for a deleted player with no open listing or lead left, the retention job's deletions included. A banned player's wallet stays.
+  - `ReleasePlayer` also deletes the player's market notices and, as for every feed entry, their sale entries.
+  - The data export (AD-14) adds the wallet, entries, listings and bids with the player's own maximums. The privacy and retention pages name them.
+
+### AD-47 — The average price is stored per edition `[ADOPTED]`
+
+- **Binds:** CAP-34
+- **Prevents:** a collection sort computing averages per row; two formulas; a stale average after concurrent sales.
+- **Rule:** `game_market_edition_prices` holds one row per card-season, with the average and the number of sales used. `Game::Market::EditionPrice` is the only formula, reading `sold_at` and `final_price`: no sale is dropped under 3 sales, and the result is floored to an integer. A settlement upserts and locks the card-season's row, before the ledger post (AD-10), then reads the sales. A nightly job refreshes the rows whose window moved. The collection joins this table to filter and sort.
+
+### AD-48 — Indicators and signals are computed by jobs `[ADOPTED]`
+
+- **Binds:** CAP-35, CAP-36, CAP-37
+- **Prevents:** a back-office GET writing or scanning the whole ledger; an alert changing a setting by itself; a figure computed two ways.
+- **Rule:**
+  - `Game::Market::WriteDailySnapshot`, an `ApplicationOperation`, writes one `game_market_daily_snapshots` row per UTC day after the reconciliation: PiCoins created, destroyed and forfeited, PiCoins per player active over 90 days, the median daily earnings of players active that day, each rarity's average price, the top 1% share and the reconciliation result.
+  - An active player opened a pack in the period, read from `game_packs.opened_at`. Earnings are `mint` plus `sale` less `commission`. Prices in days of income are computed from these.
+  - An alert is derived from a snapshot and the current thresholds, and proposes a prefilled `ChangeSettings` form. Nothing applies without an administrator's validation. Explanations are locale keys (AD-18).
+  - `Game::Market::RefreshAltSignals`, an `ApplicationOperation`, replaces `game_market_alt_signals` daily, one row per account and signal with the facts behind it. These rows are staff data, read only in the back-office. Thresholds are constants of `Game::Market::AltSignals`. A signal changes nothing on the account.
+
+### AD-49 — One component names a player `[ADOPTED]`
+
+- **Binds:** CAP-8, CAP-13, CAP-33
+- **Prevents:** a surface linking a profile the viewer may not see; a banned or deleted name shown; each screen deciding differently.
+- **Rule:**
+  - The bid history, the pioneer row and a market sale's feed entry render a player through one component given the player and the viewer. It prints the persona name, with a link to the profile only when `Game::Visibility.visible?(viewer, owner)` is true. A banned or deleted player prints the anonymous locale key, with no link.
+  - A sale's feed entry has kind `sale`, names the buyer as `player_id`, and is unique per listing. It shows whatever the buyer's visibility, unless banned or deleted, and is deleted with the account. A feed broadcast renders with no viewer, so with no link; the page render links.
+  - These name-only surfaces are the exception to AD-13's rule that a public surface hides an entry naming a non-public player.
+
+### AD-50 — Opening and running the market `[ADOPTED]`
+
+- **Binds:** CAP-32, CAP-33, CAP-35, CAP-36
+- **Prevents:** a market opened before its legal conditions; no way to stop it; a stuck close going unnoticed; two recurring schedules chosen ad hoc.
+- **Rule:**
+  - Every deploy creates, idempotently, a first closed settings version with the starting values (as AD-29 does for milestones). Until a first opening is recorded, the market address shows the teaser; after it, a closed version shows the suspended banner above readable listings. In both cases entrusting, listing and bidding refuse with `Failure(:market_closed)`; cancelling a listing stays allowed.
+  - `Game::Market::OpenMarket`, for administrators, opens it, and refuses unless the administrator confirms that the terms forbid real-money trading and that the draw odds are published; the confirmation is recorded on the version. `ChangeSettings` copies `open` from version to version and can close the market; closing and removal jobs keep running.
+  - Rollout: expand migrations and the feed check first, deploy closed, exercise on staging, then open.
+  - Recurring entries, in both the `development` and `production` blocks of `config/recurring.yml`, on queue `default`:
+
+    | Job | Schedule |
+    | --- | --- |
+    | `CloseDueAuctionsJob` | every 10 seconds |
+    | `DropPresenceJob` | every minute |
+    | `ArchiveStocksJob` | every hour |
+    | `ReconcileWalletsJob`, then `WriteDailySnapshot` | every day at 00:10 UTC |
+    | `RefreshEditionPricesJob` | every day at 00:30 UTC |
+    | `RefreshAltSignalsJob` | every day at 00:40 UTC |
+    | `CheckMarketHealthJob` | every 5 minutes |
+
+  - `CheckMarketHealthJob` reports to the error tracker when the oldest due open listing is over 5 minutes old, and the back-office shows that age.
+
 ## Consistency Conventions
 
 | Concern | Convention |
@@ -643,7 +803,7 @@ gameble/
 | CAP-10 Friends and invitations | `Game` | AD-3, AD-8, AD-13, AD-15 |
 | CAP-11 Trades and suggestions | `Game`, trade board screen | AD-6, AD-8, AD-13, AD-16, AD-30, AD-31, AD-38 |
 | CAP-12 Weekly goal | `Game` | AD-7, AD-9, AD-10, AD-13 |
-| CAP-13 Feed and Friends tab | `Game` | AD-10, AD-11, AD-13, AD-14 |
+| CAP-13 Feed and Friends tab | `Game` | AD-10, AD-11, AD-13, AD-14, AD-42, AD-45, AD-49 |
 | CAP-14 Data controls | `Accounts`, `Game` (by event), web layer (export) | AD-10, AD-13, AD-14 |
 | CAP-15 Reports and moderation | `Accounts`, back-office | AD-14 |
 | CAP-16 Daily bonus | `Game` | AD-7, AD-9 |
@@ -657,6 +817,15 @@ gameble/
 | CAP-25 Roadmap | `Catalog`, back-office | AD-3, AD-18, AD-29 |
 | CAP-27 Custom sets and the Steam library set | `Game`, `Steam` (library read), `app/jobs` (sync) | AD-4, AD-5, AD-14, AD-15, AD-35, AD-36 |
 | CAP-28 Active goals | `Game`, web layer (collection, card detail, profile) | AD-11, AD-13, AD-35 |
+| CAP-29 Entrusting and the Archives | `Game::Market` | AD-6, AD-40, AD-41, AD-42, AD-43 |
+| CAP-30 Listing | `Game::Market` | AD-6, AD-40, AD-41, AD-42, AD-44, AD-46 |
+| CAP-31 Bidding | `Game::Market` | AD-10, AD-13, AD-40, AD-41, AD-42, AD-44, AD-46 |
+| CAP-32 Auction close | `Game::Market`, recurring job | AD-10, AD-40, AD-41, AD-42, AD-45, AD-46, AD-50 |
+| CAP-33 Market and bid history | web layer, `Game::Market` | AD-11, AD-13, AD-15, AD-40, AD-44, AD-46, AD-49, AD-50 |
+| CAP-34 Average price | `Game::Market`, collection | AD-11, AD-40, AD-42, AD-45, AD-47 |
+| CAP-35 Economy settings | back-office, `Game::Market`, `Accounts` (announcement) | AD-40, AD-42, AD-48, AD-50 |
+| CAP-36 Indicators and alerts | back-office, `Game::Market` | AD-18, AD-40, AD-41, AD-42, AD-48, AD-50 |
+| CAP-37 Alt-account signals | back-office, `Game::Market` | AD-40, AD-48 |
 | Legal page | web layer | AD-18 |
 
 ## Deferred
@@ -668,7 +837,7 @@ gameble/
 - **Steam library daily budget:** the share of the key's daily quota left to AD-36's sync is a configuration value set once the import's own daily use is measured.
 - **Set numbers on real data:** the theme list, the franchise and studio minimum, the hall of fame thresholds and the tier table by set size are set by the spike that opens epic-recognizable-sets; AD-5 fixes only where they live.
 - **Theme list as back-office data:** when Season preparation moves it out of code, theme names become catalog data, an AD-18 exception like card text; designed in an update run before that story.
-- **Feed selection thresholds and ticker events:** tuned with real activity; the rule lives in one handler (AD-13).
+- **Feed selection thresholds and ticker events:** tuned with real activity; the rule lives in one handler (AD-13). The sale threshold is a setting (AD-42).
 - **Presence windows:** the "online" window and the activity's display time are tuned in play; AD-24 fixes only where they are read from.
 - **Reference low-end Android and the performance spike:** the device is chosen before the booster story, which starts with a spike on the opening, the Légendaire sequence and an idle hub (AD-27's budget).
 - **Fractional device-pixel ratios:** whether art canvases snap to whole device pixels is settled by a measurement on a 125 % Windows laptop.
@@ -682,5 +851,8 @@ gameble/
 - **K3s:** only if Kamal on several servers stops being enough.
 - **Publishing the image filter:** an npm package, then a Rails gem wrapper; a side quest outside the MVP. AD-17 keeps it extractable.
 - **Admin interface gem and the back-office design:** the back-office stays plain Rails pages plus Mission Control Jobs, outside the redesign.
-- **Market and native apps:** later versions. Seasons after the first are carried by AD-5's holding rule and CAP-23's allocation.
-- **Pioneer (`later-roadmap.md`):** `game_first_discoveries` already keeps the discovering player per card-season through a deletion (AD-14), so the feature needs no migration; the web layer composes the card detail with that player's name from `Accounts`, shown when the viewer may see that player's profile (`Game::Visibility`, AD-13) and as anonymous (a locale key) otherwise, a deleted player included.
+- **Archive resale:** designed when it is built; AD-43's deposits and stocks are its starting point.
+- **Market browsing filters, the typical price per rarity (optional in `market-economy.md`) and which notices follow the outbid one:** set by the UX; `Game::Market` queries own the filters and AD-44 fixes the notices' table and channel.
+- **Ledger partitioning:** decide when the entries table passes 50 million rows.
+- **Native apps:** a later version. Seasons after the first are carried by AD-5's holding rule and CAP-23's allocation.
+- **Pioneer (`later-roadmap.md`):** `game_first_discoveries` already keeps the discovering player per card-season through a deletion (AD-14), so the feature needs no migration; the web layer composes the card detail with that player's name through AD-49's component.

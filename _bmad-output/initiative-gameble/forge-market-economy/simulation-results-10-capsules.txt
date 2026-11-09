@@ -1,0 +1,72 @@
+
+=== H30 base
+d 30 players=   460 money/active=       19 median income/day=    0.5 newcomer=   1.0 burn/faucet=0.34 inactive=0.17 top1%=0.99
+     price [    2.5     5.     23.7   144.7 19776. ]  days-of-income [    7.3    10.6    51.    334.9 41620.9]  newcomer-days [    4.1     4.7    27.1   133.1 17398.1]
+d 90 players=   896 money/active=       81 median income/day=    2.9 newcomer=   1.0 burn/faucet=0.66 inactive=0.23 top1%=0.93
+     price [    2.5     5.6    25.5   305.8 18915.7]  days-of-income [   1.     1.9    9.6  115.1 5501.4]  newcomer-days [    2.5     5.6    29.7   315.6 16835. ]
+d180 players=  1398 money/active=      207 median income/day=    6.9 newcomer=   0.9 burn/faucet=0.73 inactive=0.23 top1%=0.85
+     price [   2.6    5.1   40.3  396.1 1928.3]  days-of-income [  0.4   0.9   4.7  45.  244.6]  newcomer-days [   3.     7.6   47.9  381.9 1939.1]
+d365 players=  2009 money/active=      448 median income/day=   14.3 newcomer=   1.0 burn/faucet=0.82 inactive=0.32 top1%=0.78
+     price [   4.4    6.6   27.3  273.1 2506.6]  days-of-income [  0.3   0.5   1.7  19.  174.7]  newcomer-days [   4.1    6.3   30.3  355.5 3296.5]
+
+=== H30 destroy cap 30
+d 30 players=   460 money/active=        6 median income/day=    0.3 newcomer=   0.7 burn/faucet=0.65 inactive=0.31 top1%=0.99
+     price [    2.5     5.3    23.    152.9 19776. ]  days-of-income [    7.2    14.4    65.1   426.1 53406.9]  newcomer-days [    3.9     7.5    35.5   185.5 27482.1]
+d 90 players=   896 money/active=       33 median income/day=    3.1 newcomer=   1.0 burn/faucet=0.75 inactive=0.30 top1%=0.85
+     price [    2.5     4.9    25.1   115.2 72844.3]  days-of-income [    0.9     2.      8.6    39.9 23322. ]  newcomer-days [    2.8     5.3    26.3   113.8 78014.9]
+d180 players=  1398 money/active=       48 median income/day=    7.8 newcomer=   1.0 burn/faucet=0.84 inactive=0.38 top1%=0.66
+     price [  2.5   5.5  34.9 162.9 622.9]  days-of-income [ 0.3  0.7  4.9 23.5 79.8]  newcomer-days [  2.4   5.5  44.  174.8 899.1]
+d365 players=  2009 money/active=       70 median income/day=   14.7 newcomer=   0.9 burn/faucet=0.90 inactive=0.51 top1%=0.46
+     price [  3.1   5.1  25.2 137.2 606.5]  days-of-income [ 0.2  0.4  1.7  9.6 42.8]  newcomer-days [  3.6   5.6  32.5 146.  704.1]
+
+=== H30 destroy cap 60
+d 30 players=   460 money/active=       19 median income/day=    0.5 newcomer=   1.0 burn/faucet=0.33 inactive=0.17 top1%=0.99
+     price [    2.5     5.2    23.5   145.9 19776. ]  days-of-income [    7.4    11.9    50.9   321.1 39566.5]  newcomer-days [    4.2     6.8    26.9   131.9 17500.9]
+d 90 players=   896 money/active=       26 median income/day=    2.5 newcomer=   0.8 burn/faucet=0.82 inactive=0.38 top1%=0.89
+     price [    2.8     5.3    27.9   141.3 36270.4]  days-of-income [    1.3     2.3    11.6    58.1 12054.8]  newcomer-days [    3.7     7.3    32.4   182.2 44315.8]
+d180 players=  1398 money/active=       86 median income/day=    7.5 newcomer=   0.9 burn/faucet=0.82 inactive=0.31 top1%=0.76
+     price [  3.4   4.8  30.4 213.9 797.5]  days-of-income [  0.5   0.7   3.8  28.4 104.9]  newcomer-days [   3.8    5.3   35.9  232.7 1136.5]
+d365 players=  2009 money/active=      120 median income/day=   16.2 newcomer=   1.0 burn/faucet=0.89 inactive=0.45 top1%=0.53
+     price [  4.6   5.5  23.  163.9 555.5]  days-of-income [ 0.3  0.3  1.4  9.6 29.2]  newcomer-days [  5.1   5.   26.1 176.1 515.4]
+
+=== H30 flat destroy 1/2/5/15/100
+d 30 players=   460 money/active=        6 median income/day=    0.3 newcomer=   0.6 burn/faucet=0.63 inactive=0.26 top1%=0.99
+     price [   2.6    4.3   13.2   88.2 4265.4]  days-of-income [    9.     13.4    36.4   270.  13469.2]  newcomer-days [   5.2    6.8   20.   138.2 6438.7]
+d 90 players=   896 money/active=       51 median income/day=    2.2 newcomer=   0.7 burn/faucet=0.70 inactive=0.23 top1%=0.93
+     price [     2.5      5.1     12.1    230.5 330826.5]  days-of-income [     1.2      2.       5.3     83.5 124323.4]  newcomer-days [     4.       6.5     15.1    275.1 366228.8]
+d180 players=  1398 money/active=      136 median income/day=    7.0 newcomer=   0.9 burn/faucet=0.79 inactive=0.25 top1%=0.86
+     price [     2.3      4.7     10.     259.8 325959.4]  days-of-income [    0.3     0.6     1.4    36.1 46364.8]  newcomer-days [     2.8      4.7     11.3    326.8 362880.9]
+d365 players=  2009 money/active=      179 median income/day=   12.1 newcomer=   0.9 burn/faucet=0.88 inactive=0.43 top1%=0.71
+     price [  2.3   4.    8.7 165.9 890.3]  days-of-income [ 0.2  0.4  0.8 14.  68.3]  newcomer-days [   2.7    5.2   11.6  185.5 1197.1]
+
+=== H30 alts, no regulator
+d 30 players=   441 money/active=      287 median income/day=    1.5 newcomer=   3.3 burn/faucet=0.13 inactive=0.15 top1%=1.00
+     price [    4.1     7.1   179.3  2358.3 19776. ]  days-of-income [    2.6     4.7   101.   1569.7 12262.1]  newcomer-days [   1.3    2.7   53.1  682.7 5970.8]
+d 90 players=   906 money/active=      792 median income/day=    6.4 newcomer=   2.6 burn/faucet=0.17 inactive=0.14 top1%=0.98
+     price [     6.8      7.1     42.5   3287.8 899218.5]  days-of-income [     1.2      0.9      6.2    444.  136745.4]  newcomer-days [     3.       2.4     15.3   1291.7 347327.9]
+d180 players=  1438 money/active=     1200 median income/day=   14.2 newcomer=   2.0 burn/faucet=0.22 inactive=0.11 top1%=0.91
+     price [    3.5     5.7    24.3  2168.3 57837.8]  days-of-income [   0.3    0.5    2.1  168.1 3611.8]  newcomer-days [    2.4     3.3    16.4  1207.  25768.3]
+d365 players=  2039 money/active=     1776 median income/day=   18.9 newcomer=   1.4 burn/faucet=0.25 inactive=0.10 top1%=0.83
+     price [    2.8     7.5    30.3   669.3 17579.2]  days-of-income [  0.1   0.5   1.6  35.6 877.5]  newcomer-days [    1.7     6.1    22.6   386.  10187.1]
+     rare-or-better bought: alt-running main 42 vs honest hardcore 82
+
+=== H30 alts, regulator
+d 30 players=   441 money/active=      287 median income/day=    1.5 newcomer=   3.3 burn/faucet=0.13 inactive=0.15 top1%=1.00
+     price [    4.1     7.1   179.3  2358.3 19776. ]  days-of-income [    2.6     4.7   101.   1569.7 12262.1]  newcomer-days [   1.3    2.7   53.1  682.7 5970.8]
+d 90 players=   906 money/active=      699 median income/day=    6.2 newcomer=   2.2 burn/faucet=0.19 inactive=0.14 top1%=0.97
+     price [     2.9      6.      38.6   3052.2 897296.4]  days-of-income [     0.8      1.5      6.     440.6 144257.5]  newcomer-days [     2.2      4.1     17.1   1207.8 381767.9]
+d180 players=  1438 money/active=      454 median income/day=    8.7 newcomer=   1.1 burn/faucet=0.31 inactive=0.12 top1%=0.92
+     price [    4.1     6.1    25.3   835.9 59275.6]  days-of-income [   0.4    0.7    2.9  100.1 7502.2]  newcomer-days [    3.1     5.3    26.2   834.5 71836. ]
+d365 players=  2039 money/active=      128 median income/day=   15.8 newcomer=   1.0 burn/faucet=0.37 inactive=0.09 top1%=0.78
+     price [   3.4    5.5   24.5  248.1 1039.5]  days-of-income [ 0.2  0.4  1.5 14.2 67.6]  newcomer-days [  3.    5.4  22.2 240.7 963.2]
+     rare-or-better bought: alt-running main 41 vs honest hardcore 70
+
+=== H30 no alts, regulator
+d 30 players=   460 money/active=       19 median income/day=    0.5 newcomer=   1.0 burn/faucet=0.34 inactive=0.17 top1%=0.99
+     price [    2.5     5.     23.7   144.7 19776. ]  days-of-income [    7.3    10.6    51.    334.9 41620.9]  newcomer-days [    4.1     4.7    27.1   133.1 17398.1]
+d 90 players=   896 money/active=       98 median income/day=    3.4 newcomer=   1.3 burn/faucet=0.58 inactive=0.17 top1%=0.93
+     price [   2.9    5.7   24.4  332.5 6441. ]  days-of-income [   0.9    1.7    9.2  118.5 2280. ]  newcomer-days [   2.7    5.1   22.1  281.  6925.1]
+d180 players=  1398 money/active=      141 median income/day=    7.6 newcomer=   0.8 burn/faucet=0.78 inactive=0.28 top1%=0.85
+     price [   2.9    8.    27.2  404.9 1340.9]  days-of-income [  0.4   1.1   3.6  61.5 146.7]  newcomer-days [   3.6   10.2   27.2  468.9 1552.3]
+d365 players=  2009 money/active=      268 median income/day=   11.4 newcomer=   0.7 burn/faucet=0.87 inactive=0.42 top1%=0.76
+     price [   2.9   12.3   20.7  199.5 2249.4]  days-of-income [  0.3   0.9   1.9  15.8 160.7]  newcomer-days [   4.4   16.4   31.3  296.6 2845.1]

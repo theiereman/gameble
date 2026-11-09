@@ -1,0 +1,40 @@
+
+=== FLOOR 12000, flippers 30%
+d 30 players=   455 money/active=      265 median income/day=   14.7 newcomer=  24.9 burn/faucet=0.38 inactive=0.46 top1%=0.99 archive-burn=0.00 legendary sold/30d=0 listed=39
+     price [   3.2    4.7    9.7  369.6 2063.9]  days-of-income [  0.2   0.3   0.7  24.5 147. ]  newcomer-days [ 0.2  0.2  0.4 14.1 69.3]
+d 90 players=   895 money/active=     1433 median income/day=   58.0 newcomer=  51.4 burn/faucet=0.40 inactive=0.32 top1%=0.86 archive-burn=0.00 legendary sold/30d=0 listed=1
+     price [  1.7   5.3  11.7 149.8 101.2]  days-of-income [0.1 0.1 0.3 3.1 2.3]  newcomer-days [0.1 0.1 0.4 3.5 3.5]
+d180 players=  1428 money/active=     3328 median income/day=  110.2 newcomer=  40.5 burn/faucet=0.47 inactive=0.31 top1%=0.71 archive-burn=0.00 legendary sold/30d=29 listed=669
+     price [   2.     3.5    9.2   57.1 6926.1]  days-of-income [ 0.   0.   0.1  0.6 82.2]  newcomer-days [  0.    0.1   0.3   1.4 159.5]
+d365 players=  1998 money/active=     5201 median income/day=   98.2 newcomer=  31.6 burn/faucet=0.57 inactive=0.48 top1%=0.48 archive-burn=0.00 legendary sold/30d=199 listed=2271
+     price [    1.9     4.2    42.6    90.7 11981.2]  days-of-income [  0.    0.1   0.2   0.9 122.2]  newcomer-days [  0.1   0.2   0.7   2.  379.5]
+
+=== FLOOR 12000, flippers 60%
+d 30 players=   455 money/active=      286 median income/day=   15.5 newcomer=  33.8 burn/faucet=0.37 inactive=0.46 top1%=0.99 archive-burn=0.00 legendary sold/30d=0 listed=72
+     price [   2.9    4.5    9.6  498.8 1519.8]  days-of-income [ 0.2  0.3  0.6 24.  89.2]  newcomer-days [ 0.1  0.1  0.4 13.1 47.9]
+d 90 players=   895 money/active=     1853 median income/day=   68.3 newcomer=  74.8 burn/faucet=0.34 inactive=0.30 top1%=0.85 archive-burn=0.00 legendary sold/30d=0 listed=1
+     price [  1.3   4.4   9.3 173.7  82.8]  days-of-income [0.  0.1 0.3 2.9 1.4]  newcomer-days [0.  0.1 0.2 3.4 1.5]
+d180 players=  1428 money/active=     3056 median income/day=   67.4 newcomer=  36.2 burn/faucet=0.46 inactive=0.34 top1%=0.71 archive-burn=0.00 legendary sold/30d=38 listed=1242
+     price [   2.6    3.6   28.6   31.6 9104. ]  days-of-income [  0.    0.1   0.4   0.5 124.7]  newcomer-days [  0.1   0.2   1.4   1.  202.9]
+d365 players=  1998 money/active=     5837 median income/day=  166.6 newcomer=  42.7 burn/faucet=0.55 inactive=0.45 top1%=0.47 archive-burn=0.00 legendary sold/30d=224 listed=4199
+     price [   13.9     4.1     8.8   177.  11941.3]  days-of-income [ 0.1  0.   0.1  0.9 69.6]  newcomer-days [  0.4   0.1   0.3   2.  280.7]
+
+=== FINAL cap 1200, floor 7000, flippers 30%
+d 30 players=   455 money/active=      261 median income/day=   14.7 newcomer=  24.9 burn/faucet=0.38 inactive=0.46 top1%=0.99 archive-burn=0.00 legendary sold/30d=0 listed=39
+     price [   3.2    4.7    9.7  370.4 1204. ]  days-of-income [ 0.2  0.3  0.7 24.5 85.8]  newcomer-days [ 0.2  0.2  0.4 14.1 40.4]
+d 90 players=   895 money/active=     1370 median income/day=   42.8 newcomer=  36.0 burn/faucet=0.39 inactive=0.34 top1%=0.85 archive-burn=0.00 legendary sold/30d=6 listed=84
+     price [   1.9    4.3   13.2  164.7 2614.6]  days-of-income [ 0.1  0.1  0.3  2.8 49.5]  newcomer-days [ 0.1  0.1  0.4  3.3 63.6]
+d180 players=  1428 money/active=     2523 median income/day=   92.5 newcomer=  47.6 burn/faucet=0.51 inactive=0.35 top1%=0.67 archive-burn=0.00 legendary sold/30d=74 listed=751
+     price [   1.5    3.9    9.5   57.1 6662.5]  days-of-income [ 0.   0.1  0.2  0.6 73.9]  newcomer-days [  0.1   0.1   0.3   1.2 139.7]
+d365 players=  1998 money/active=     5088 median income/day=  186.4 newcomer=  62.1 burn/faucet=0.60 inactive=0.46 top1%=0.44 archive-burn=0.00 legendary sold/30d=608 listed=1823
+     price [   1.3    4.7    9.4   52.  7000. ]  days-of-income [ 0.   0.   0.1  0.4 37.6]  newcomer-days [  0.    0.2   0.2   1.1 112.8]
+
+=== FINAL cap 1200, floor 12000, flippers 30%
+d 30 players=   455 money/active=      261 median income/day=   14.7 newcomer=  24.9 burn/faucet=0.38 inactive=0.46 top1%=0.99 archive-burn=0.00 legendary sold/30d=0 listed=39
+     price [   3.2    4.7    9.7  370.4 2063.9]  days-of-income [  0.2   0.3   0.7  24.5 147.1]  newcomer-days [ 0.2  0.2  0.4 14.1 69.3]
+d 90 players=   895 money/active=     1410 median income/day=   42.4 newcomer=  33.8 burn/faucet=0.38 inactive=0.33 top1%=0.86 archive-burn=0.00 legendary sold/30d=0 listed=1
+     price [  1.7   3.8  12.9 171.6 101.2]  days-of-income [0.1 0.1 0.3 2.9 2.4]  newcomer-days [0.1 0.1 0.5 3.7 3.3]
+d180 players=  1428 money/active=     2927 median income/day=   73.1 newcomer=  28.5 burn/faucet=0.46 inactive=0.32 top1%=0.71 archive-burn=0.00 legendary sold/30d=22 listed=666
+     price [   5.8    6.7   22.5   49.6 9968.2]  days-of-income [  0.1   0.1   0.3   0.6 142.9]  newcomer-days [  0.2   0.3   1.    1.1 368.4]
+d365 players=  1998 money/active=     4738 median income/day=  194.2 newcomer=  45.6 burn/faucet=0.62 inactive=0.46 top1%=0.48 archive-burn=0.00 legendary sold/30d=78 listed=2034
+     price [   1.3    4.4   69.1  146.8 9149.3]  days-of-income [ 0.   0.   0.4  0.6 39.9]  newcomer-days [  0.    0.1   1.5   2.9 165.5]
