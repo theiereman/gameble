@@ -1,8 +1,0 @@
-<li class="hub-menu__entry">
-  <%= link_to fortune_register_path, class: "menu-item", aria: { keyshortcuts: "6" },
-        data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>
-    <span class="menu-item__number" aria-hidden="true">06</span>
-    <span class="menu-item__label"><%= t("pages.home.menu.register") %></span>
-    <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
-  <% end %>
-</li>

@@ -2213,7 +2213,6 @@ en:
           other: "%{number} invitations waiting for your answer"
         label: Bridge menu
         market: Market
-        register: The Flukeometer
         open_booster: Open a capsule
         reserve:
           one: "%{number} capsule in reserve"
@@ -3058,7 +3057,7 @@ en:
       pending:
         one: "%{number} thing waiting for you"
         other: "%{number} things waiting for you"
-      profile: Me
+      profile: My profile
       settings: Settings
       sign_out: Sign out
       support: Support

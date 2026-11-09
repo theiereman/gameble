@@ -93,7 +93,7 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     assert_select ".phone-menu", 0
     links = css_select("nav#player-menu.shell-popover[popover] a.player-menu__item")
     assert_equal [ "/fr/me", "/fr/friends", "/fr/settings", "https://buymeacoffee.com/theiereman" ], links.pluck("href")
-    assert_equal "Moi", links.first.text.squish
+    assert_equal "Mon profil", links.first.text.squish
     assert_equal "Amis 0 en ligne", links[1].text.squish
     assert_equal "Soutenir (nouvel onglet)", links.last.text.squish
     assert_select "#player-menu li:last-child form button.player-menu__item", "Se déconnecter"

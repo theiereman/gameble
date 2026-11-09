@@ -181,7 +181,7 @@ fr:
         zero: "%{number} élément en attente de vous"
         one: "%{number} élément en attente de vous"
         other: "%{number} éléments en attente de vous"
-      profile: "Moi"
+      profile: "Mon profil"
       friends: "Amis"
       settings: "Paramètres"
       support: "Soutenir"
@@ -268,7 +268,6 @@ fr:
         community: "Discord"
         how_it_works: "Comment ça marche"
         support: "Soutenir"
-        register: "Le Chattomètre"
         source_code: "GitHub"
       showcase:
         kicker: "Dernière obtention"
