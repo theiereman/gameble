@@ -273,6 +273,7 @@
   --button-inset-pressed: inset 0 4px 0 0 rgba(0, 0, 0, 0.35);
   --menu-item-active-bar: 6px;
   --modal-scrim: rgba(4, 7, 10, 0.72);
+  --release-note-scanline: rgba(102, 192, 244, 0.035);
   --modal-width: 520px;
   --modal-width-wide: 760px;
   --lamp-found-opacity: 0.42;

@@ -31,7 +31,7 @@ en:
         history and the log of game actions. This cannot be undone.'
       label: Type %{word} to confirm
       note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), the phones your notifications go to, your name, your profile and its link,
-        the time of your last visit, your last data export, the announcements you closed and your latest activity,
+        the time of your last visit, your last data export, the announcements you closed, the release notes you saw and your latest activity,
         your collection, your showcase, your set tiers, your custom sets, your goals, your achievements, your
         card back unlocks and your active card back, your capsules, opened or not, your daily bonuses and your weekly mission rewards,
         your friends, your invitations, your friend code, when you last opened each of your trades, your reactions to feed entries and your activity feed
@@ -145,6 +145,57 @@ en:
     forbidden: Your account has no access to this page.
     sign_in_required: Sign in to do that.
   back_office:
+    release_notes:
+      create:
+        created: "The note is created, prefilled with %{features} new features and %{fixes} fixes from the commits between %{since} and %{head}. Rewrite them for players."
+        created_blank: "The note is created. GitHub did not give the release's commits: write it from scratch."
+        skipped: "%{version} needs no note: the reminder is gone."
+      edit:
+        body: Text
+        format_hint: "A line starting with ## opens a section, a line starting with a dash is one of its items, any other line is a paragraph. %{length} characters at most; nothing else is read as formatting."
+        heading: "The note of %{version}"
+        intro:
+          draft: "A draft: players see nothing. Mark it ready once it is written in both languages."
+          ready: "Ready: players see it once, on the hub, as soon as production runs this release or a later one without its own note. Never on a release candidate."
+          skipped: "This release needs no note: players see nothing for it."
+        locales:
+          en: English
+          fr: Français
+        preview_heading: "Preview"
+        preview_language: "Language of the preview"
+        ready_hint: "Production shows the newest ready note whose version it runs or follows; a rollback takes it away by itself."
+        save: "Save the note"
+        state_heading: "Its state"
+        title: Title
+        to_draft: "Back to draft"
+        to_ready: "Mark ready"
+        to_skipped: "No note for this release"
+      index:
+        create: "Write the note"
+        edit: Edit
+        empty: "No note yet."
+        heading: "The release notes"
+        intro: "A note per production release, shown once to every player on the hub, in their language, once production runs it. Production runs %{running}."
+        list_heading: "Every note, newest release first"
+        new_heading: "A new note"
+        no_release: "no release"
+        prefill_hint: "The note starts from the release's commits on GitHub: its new features and fixes, to rewrite for players."
+        reads:
+          one: "seen by %{count} player"
+          other: "seen by %{count} players"
+        states:
+          draft: Draft
+          live: "Shown now"
+          ready: "Ready"
+          skipped: "No note"
+        untitled: "Untitled"
+        version: Version
+      save:
+        saved: "The note is saved."
+      states_changed:
+        draft: "The note of %{version} is back to draft."
+        ready: "The note of %{version} is ready."
+        skipped: "%{version} needs no note."
     announcements:
       create:
         created: "The announcement is saved."
@@ -224,6 +275,7 @@ en:
           xl: size XL
     dashboard:
       show:
+        release_notes: "The release notes"
         announcements: "The announcements"
         bans: The banned players
         cards: The card press
@@ -992,6 +1044,12 @@ en:
     - December
   errors:
     accounts:
+      incomplete_release_note: "A ready note needs its title and its text in both languages."
+      invalid_release_note: "A title holds 80 characters at most, a text 1500."
+      invalid_release_note_state: "That state does not exist."
+      invalid_release_version: "Write the version as vMAJOR.MINOR.PATCH, like v1.3.0."
+      release_note_not_found: "That note could not be found."
+      release_version_taken: "That release already has a note."
       announcement_not_found: "That announcement could not be found."
       announcement_not_shown: "That announcement is no longer on the banner."
       invalid_announcement: "Write the announcement in both languages, 280 characters at most each."
@@ -2123,7 +2181,7 @@ en:
           drafts and the interface''s state, on your device only. No advertising or
           audience measurement trackers.'
         deletion: When you delete your account, your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address, which is deleted there too), your profile name,
-          the time of your last visit, your last data export, the announcements you closed, your latest activity,
+          the time of your last visit, your last data export, the announcements you closed, the release notes you saw, your latest activity,
           your collection, your showcase, your set tiers, your custom sets, your Steam library list, your goals, your achievements, your
           card back unlocks and your choice of active card back, your capsules, your daily bonuses, your weekly mission rewards, your friendships,
           your invitations, your friend code, when you last opened each trade, your activity feed entries and your reactions are erased,
@@ -2694,7 +2752,20 @@ en:
       line: Choose how you want to come aboard.
       separator: or
       title: Sign in
+  release_notes:
+    close: "Close the release notes"
+    done: "Got it"
+    kicker: "Update installed"
+    prompt: "> logbook"
+    sections:
+      features: "New"
+      fixes: "Fixes"
   shell:
+    release_reminder:
+      label: "Release notes reminder"
+      message: "Production runs %{version} and players have no note for it."
+      skip: "No note needed"
+      write: "Write the note"
     announcement:
       close: "Close the announcement"
       label: "Announcement"

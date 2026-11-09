@@ -1,0 +1,11 @@
+<% if (version = release_note_missing) %>
+  <aside class="release-reminder" aria-label="<%= t("shell.release_reminder.label") %>" data-release-reminder="<%= version %>">
+    <div class="release-reminder__inner">
+      <p class="release-reminder__message"><%= t("shell.release_reminder.message", version:) %></p>
+      <%= button_to t("shell.release_reminder.write"), back_office_release_notes_path, params: { version: }, class: "button button--small",
+            form_class: "button-form" %>
+      <%= button_to t("shell.release_reminder.skip"), back_office_release_notes_path, params: { version:, state: "skipped" },
+            class: "button button--small button--secondary", form_class: "button-form" %>
+    </div>
+  </aside>
+<% end %>

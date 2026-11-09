@@ -9,6 +9,7 @@
   </header>
 
   <%= render "pages/welcome" if @welcome %>
+  <%= render "pages/release_note", note: @release_note if @release_note %>
 
   <%= render "pages/menu", bank: @bank, collection: @collection, friends_online: @friends_online, achievements: @achievements %>
 

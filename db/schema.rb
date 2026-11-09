@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -107,6 +107,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_130000) do
     t.index ["token"], name: "index_accounts_push_devices_on_token", unique: true
     t.check_constraint "char_length(token::text) <= 4096", name: "accounts_push_devices_token_length_check"
     t.check_constraint "platform::text ~ '^(apple|google)$'::text", name: "accounts_push_devices_platform_check"
+  end
+
+  create_table "accounts_release_note_reads", force: :cascade do |t|
+    t.bigint "release_note_id", null: false
+    t.bigint "player_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["player_id"], name: "index_accounts_release_note_reads_on_player_id"
+    t.index ["release_note_id", "player_id"], name: "index_accounts_release_note_reads_uniqueness", unique: true
+  end
+
+  create_table "accounts_release_notes", force: :cascade do |t|
+    t.string "token", null: false
+    t.string "version", null: false
+    t.string "state", default: "draft", null: false
+    t.string "title_fr", default: "", null: false
+    t.string "title_en", default: "", null: false
+    t.text "body_fr", default: "", null: false
+    t.text "body_en", default: "", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_accounts_release_notes_on_token", unique: true
+    t.index ["version"], name: "index_accounts_release_notes_on_version", unique: true
+    t.check_constraint "char_length(title_fr::text) <= 80 AND char_length(title_en::text) <= 80 AND char_length(body_fr) <= 1500 AND char_length(body_en) <= 1500", name: "accounts_release_notes_length_check"
+    t.check_constraint "state::text = ANY (ARRAY['draft'::character varying, 'ready'::character varying, 'skipped'::character varying]::text[])", name: "accounts_release_notes_state_check"
+    t.check_constraint "version::text ~ '^v[0-9]+\\.[0-9]+\\.[0-9]+$'::text", name: "accounts_release_notes_version_check"
   end
 
   create_table "accounts_reports", force: :cascade do |t|
@@ -750,6 +775,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_130000) do
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "player_id"
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "staff_id"
   add_foreign_key "accounts_push_devices", "accounts_players", column: "player_id"
+  add_foreign_key "accounts_release_note_reads", "accounts_players", column: "player_id"
+  add_foreign_key "accounts_release_note_reads", "accounts_release_notes", column: "release_note_id", on_delete: :cascade
   add_foreign_key "accounts_reports", "accounts_players", column: "reported_id"
   add_foreign_key "accounts_reports", "accounts_players", column: "reporter_id"
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

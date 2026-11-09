@@ -79,6 +79,7 @@ Walk through staging at https://test.gameble.net, on a phone and on a desktop, i
 - [ ] the settings change visibility and language;
 - [ ] staff: the back-office opens, and the report queue and a player search work;
 - [ ] what this release changed, read from the release notes, works as its tickets say;
+- [ ] the players' note of this release is written in the **production** back-office (**Release notes → Write the note**, drafted from its commits) and marked ready, or marked as needing none: it shows on the hub once production runs the release, never on a candidate, and until then administrators see a reminder;
 - [ ] for a release that adds achievements: `bin/kamal app logs -d staging -g game:backfill_achievements` shows `game:backfill_achievements: done`, a player whose history meets a new one holds it with no toast, a second boot (`bin/kamal app boot -d staging`) grants nothing more, and the time the boot took before `/up` answered is noted;
 - [ ] Sentry shows no new `staging` issue for this candidate;
 - [ ] the browser console shows no CSP violation.

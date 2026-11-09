@@ -55,6 +55,12 @@
     </p>
   <% end %>
 
+  <% if policy([ :back_office, :release_notes ]).index? %>
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: back_office_release_notes_path) do %><%= t(".release_notes") %><% end %>
+    </p>
+  <% end %>
+
   <% if policy([ :back_office, :themes ]).index? %>
     <p>
       <%= render ButtonComponent.new(variant: :secondary, href: back_office_themes_path) do %><%= t(".themes") %><% end %>

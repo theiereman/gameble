@@ -1,0 +1,47 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro", running: running_release || t(".no_release")) %>
+  <% end %>
+
+  <section class="stack" aria-labelledby="release-note-new-heading">
+    <h2 id="release-note-new-heading"><%= t(".new_heading") %></h2>
+    <%= form_with url: back_office_release_notes_path, method: :post, class: "announcement-editor release-note-new" do %>
+      <p class="announcement-editor__field">
+        <label for="release-note-new-version"><%= t(".version") %></label>
+        <%= text_field_tag :version, @suggested_version, id: "release-note-new-version", class: "ban-form__field", required: true,
+              placeholder: "v1.3.0", pattern: 'v\d+\.\d+\.\d+', autocomplete: "off" %>
+      </p>
+      <p class="ban-form__hint"><%= t(".prefill_hint") %></p>
+      <p class="announcement-editor__actions">
+        <%= render ButtonComponent.new(type: :submit) do %><%= t(".create") %><% end %>
+      </p>
+    <% end %>
+  </section>
+
+  <section class="stack" aria-labelledby="release-note-list-heading">
+    <h2 id="release-note-list-heading"><%= t(".list_heading") %></h2>
+
+    <% if @release_notes.empty? %>
+      <%= render PanelComponent.new(tag: :p) do %>
+        <%= t(".empty") %>
+      <% end %>
+    <% else %>
+      <ol class="release-note-list">
+        <% @release_notes.each do |note| %>
+          <% state = note == @live ? "live" : note.state %>
+          <li class="release-note-row" data-release-note-version="<%= note.version %>" data-release-note-state="<%= state %>">
+            <span class="release-note-row__version"><%= note.version %></span>
+            <span class="release-note-row__title"><%= note.title.presence || t(".untitled") %></span>
+            <span class="release-note-row__state release-note-row__state--<%= state %>"><%= t(".states.#{state}") %></span>
+            <span class="release-note-row__reads"><%= t(".reads", count: @read_counts.fetch(note.id, 0)) %></span>
+            <%= render ButtonComponent.new(variant: :secondary, size: :small, href: edit_back_office_release_note_path(token: note.token)) do %><%= t(".edit") %><% end %>
+          </li>
+        <% end %>
+      </ol>
+    <% end %>
+  </section>
+</div>

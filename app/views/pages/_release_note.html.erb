@@ -1,0 +1,24 @@
+<%# locals: (note:) %>
+<% if hotwire_native_app? %>
+  <span hidden data-controller="release-note-sheet" data-release-note-sheet-url-value="<%= release_note_sheet_path %>"></span>
+<% else %>
+  <dialog id="release-note-dialog" class="modal release-note-dialog" aria-labelledby="release-note-title" data-turbo-permanent
+          data-controller="welcome" data-welcome-heading-value="hub-title"
+          data-action="click->welcome#closeOnScrim close->welcome#closed">
+    <%= render PanelComponent.new(brackets: true, class: "modal__panel release-note-dialog__panel") do %>
+      <span class="modal__handle" aria-hidden="true"></span>
+      <div class="modal__head release-note-dialog__head">
+        <%= render "release_notes/kicker", note: %>
+        <button type="button" class="modal__close" aria-label="<%= t("release_notes.close") %>" data-action="welcome#close">
+          <%= pixel_icon("close", class: "modal__close-icon") %>
+        </button>
+      </div>
+      <div class="release-note-dialog__screen">
+        <%= render ReleaseNoteComponent.of(note, title_id: "release-note-title") %>
+      </div>
+      <p class="release-note-dialog__foot">
+        <button type="button" class="button button--primary" autofocus data-action="welcome#close"><%= t("release_notes.done") %></button>
+      </p>
+    <% end %>
+  </dialog>
+<% end %>
