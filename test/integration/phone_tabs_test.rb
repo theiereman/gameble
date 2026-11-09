@@ -83,7 +83,7 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     assert_select "main a.me-achievements__all[href='/en/achievements']"
   end
 
-  test "the header menu opens the profile, how it works, the settings, then support and GitHub in a new tab" do
+  test "the header menu opens the profile, the achievements, how it works, the settings, then support and GitHub in a new tab" do
     get home_path(locale: :fr)
 
     assert_select ".top-bar .phone-menu button.phone-menu__button[popovertarget=phone-menu-panel]" do
@@ -91,9 +91,9 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
       assert_select ".visually-hidden", "Menu"
     end
     links = css_select("nav#phone-menu-panel.shell-popover[popover][aria-label=Menu] a.player-menu__item")
-    assert_equal [ "/fr/me", "/fr/how-it-works", "/fr/settings", "https://buymeacoffee.com/theiereman", "https://github.com/theiereman/gameble" ],
+    assert_equal [ "/fr/me", "/fr/achievements", "/fr/how-it-works", "/fr/settings", "https://buymeacoffee.com/theiereman", "https://github.com/theiereman/gameble" ],
       links.pluck("href")
-    assert_equal [ "Mon profil", "Comment ça marche", "Paramètres", "Soutenir (nouvel onglet)", "GitHub (nouvel onglet)" ], links.map { it.text.squish }
+    assert_equal [ "Mon profil", "Succès", "Comment ça marche", "Paramètres", "Soutenir (nouvel onglet)", "GitHub (nouvel onglet)" ], links.map { it.text.squish }
     links.to_a.last(2).each do |link|
       assert_equal "_blank", link["target"]
       assert link.at_css("svg.menu-item__external")

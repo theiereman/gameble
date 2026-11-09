@@ -5,4 +5,5 @@
 <%= turbo_stream.update "menu-achievements-badge", partial: "pages/menu_achievements_badge", locals: { unclaimed: @unclaimed } %>
 <%= turbo_stream.update "plus-achievements-badge", partial: "pages/menu_achievements_badge", locals: { unclaimed: @unclaimed } %>
 <%= turbo_stream.update "phone-menu-badge", partial: "shell/phone_menu_badge", locals: { unclaimed: @unclaimed } %>
+<%= turbo_stream.update "phone-menu-achievements-badge", partial: "pages/menu_achievements_badge", locals: { unclaimed: @unclaimed } %>
 <%= turbo_stream.append "toasts" do %><%= render ToastComponent.new(message: @message, tone: @tone) %><% end %>

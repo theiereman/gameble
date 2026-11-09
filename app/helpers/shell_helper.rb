@@ -101,7 +101,7 @@ module ShellHelper
   end
 
   def app_bridge_components
-    request.user_agent.to_s[/bridge-components: \[([^\]]*)\]/, 1].to_s.split
+    app_user_agent[/bridge-components: \[([^\]]*)\]/, 1].to_s.split
   end
 
   def native_top_bar_data

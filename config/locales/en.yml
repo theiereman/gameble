@@ -2743,6 +2743,7 @@ en:
         other: special
       special_none: No special capsule
     phone_menu:
+      achievements: Achievements
       how_it_works: How it works
       label: Menu
       source_code: GitHub

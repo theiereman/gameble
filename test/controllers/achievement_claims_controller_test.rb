@@ -63,6 +63,7 @@ class AchievementClaimsControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-stream[action=update][target=menu-achievements-badge] .menu-item__badge", "1"
     assert_select "turbo-stream[action=update][target=plus-achievements-badge] .menu-item__badge", "1"
     assert_select "turbo-stream[action=update][target=phone-menu-badge] .phone-menu__badge", "1"
+    assert_select "turbo-stream[action=update][target=phone-menu-achievements-badge] .menu-item__badge", "1"
     assert_select "turbo-stream[action=append][target=toasts]", text: /Reward claimed/
   end
 

@@ -84,6 +84,28 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller~='bridge--top-bar']", 0
   end
 
+  test "a request from the app's service worker, which lacks the app's user agent, is still served as the app's" do
+    get booster_path(locale: :en), headers: { "User-Agent" => APP_WITH_BAR }
+    get booster_path(locale: :en), headers: { "User-Agent" => "Mozilla/5.0 (Linux; Android 15; wv) AppleWebKit/537.36 Chrome/131.0 Mobile Safari/537.36" }
+
+    assert_select "html[data-native-app][data-native-bar]"
+    assert_select "nav.tab-bar", 0
+
+    get booster_path(locale: :en), headers: { "User-Agent" => "Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 Chrome/131.0 Mobile Safari/537.36" }
+    assert_select "html[data-native-app]", 0
+  end
+
+  test "the menu the native bar's avatar opens leads to the rewards its badge counts" do
+    Game::AchievementUnlock.record(accounts_players(:player).id, "boosters_100", Time.current, claimed: false)
+
+    get me_path(locale: :en), headers: { "User-Agent" => APP_WITH_BAR }
+
+    assert_select "#phone-menu-badge .phone-menu__badge", "1"
+    assert_select "#phone-menu-panel a.player-menu__item[href='/en/achievements']", text: /Achievements/ do
+      assert_select "#phone-menu-achievements-badge .menu-item__badge", "1"
+    end
+  end
+
   test "a browser keeps its page bar" do
     get library_path(locale: :en)
 

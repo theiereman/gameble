@@ -110,7 +110,7 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     assert_equal [ "Première acquisition approuvée", "Période d'essai validée" ], toasts.map { it.at_css(".toast__message").text }
     assert toasts.all? { it.at_css(".toast[data-toast-after-reveal]") }, "an achievement waits for the opening's reveal"
     assert_empty streams(french, "gameble-event")
-    assert_equal [ "menu-achievements-badge", "phone-menu-badge", "plus-achievements-badge" ], streams(french, "update").map { it["target"] }.sort
+    assert_equal [ "menu-achievements-badge", "phone-menu-achievements-badge", "phone-menu-badge", "plus-achievements-badge" ], streams(french, "update").map { it["target"] }.sort
     english = template(streams(received(@hugo, :en), "append", "toasts").first)
     assert_equal [ "Achievement unlocked", "Your First Authorized Acquisition" ], [ english.at_css(".toast__title").text, english.at_css(".toast__message").text ]
     assert_no_broadcasts PlayerStream.name(@lea, :fr)

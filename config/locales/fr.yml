@@ -159,6 +159,7 @@ fr:
         other: "%{number} en réserve"
     phone_menu:
       label: "Menu"
+      achievements: "Succès"
       how_it_works: "Comment ça marche"
       support: "Soutenir"
       source_code: "GitHub"
