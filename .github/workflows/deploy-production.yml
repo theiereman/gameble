@@ -6,8 +6,9 @@ name: Deploy to production
 # ran on staging and main fast-forwards to it, runs the browser tests, copies
 # the image staging ran to the release package, then waits for the author's approval in the environment `production` before
 # deploying that image to https://gameble.net. Only once the deploy succeeded
-# does it fast-forward main to the candidate and publish the release vX.Y.Z on
-# it: a failed or rejected run leaves main and the releases as they were.
+# does it fast-forward main to the candidate, publish the release vX.Y.Z on
+# it and start the mobile release build of the apps: a failed or rejected run
+# leaves main, the releases and the apps as they were.
 # Nothing is built here; before the first deploy, the database accessory is
 # booted by hand (RELEASING.md, Setup).
 #
@@ -247,6 +248,20 @@ jobs:
           set -- release create "$RELEASE" --target "$SHA" --title "$RELEASE" --latest --generate-notes
           if [ -n "$PREVIOUS" ]; then set -- "$@" --notes-start-tag "$PREVIOUS"; fi
           gh "$@"
+
+  # Its own job, so a failed start is re-run alone. A release published with
+  # GITHUB_TOKEN starts no workflow; a dispatch is the exception.
+  mobile-apps:
+    needs: [ release-check, publish ]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Start the mobile release build of the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE: ${{ needs.release-check.outputs.release }}
+        run: gh workflow run mobile-release.yml --repo "$GITHUB_REPOSITORY" --ref "$RELEASE"
 
   rollback-target:
     if: inputs.rollback_to != ''
