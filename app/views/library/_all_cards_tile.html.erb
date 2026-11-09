@@ -1,0 +1,23 @@
+<%# locals: (url:, unique:, total:, cards:) %>
+<% bar_max = [ total, 1 ].max %>
+<%= link_to url, class: "all-cards-tile" do %>
+  <span class="all-cards-tile__summary">
+    <span class="all-cards-tile__title"><%= pixel_icon("tab-collection", class: "all-cards-tile__icon") %><%= t("library.entry.all_cards_tile.title") %></span>
+    <span class="all-cards-tile__figures" aria-hidden="true">
+      <span class="all-cards-tile__count"><%= number_with_delimiter(unique) %><span class="all-cards-tile__total">/<%= number_with_delimiter(total) %></span></span>
+      <span class="all-cards-tile__unit"><%= t("library.entry.all_cards_tile.unique") %></span>
+    </span>
+    <span class="visually-hidden"><%= t("library.status.progress", count: unique, owned: number_with_delimiter(unique), total: number_with_delimiter(total)) %></span>
+    <progress class="set-row__bar all-cards-tile__bar" value="<%= [ unique, bar_max ].min %>" max="<%= bar_max %>" aria-hidden="true"></progress>
+  </span>
+  <span class="all-cards-tile__side" aria-hidden="true">
+    <% if cards.any? %>
+      <span class="all-cards-tile__fan">
+        <% cards.each do |card| %>
+          <span class="all-cards-tile__card"><%= render CardComponent.new(card:, size: :s) %></span>
+        <% end %>
+      </span>
+    <% end %>
+    <span class="button button--primary all-cards-tile__open"><%= t("library.entry.all_cards_tile.open") %><%= pixel_icon("arrow-small-right") %></span>
+  </span>
+<% end %>

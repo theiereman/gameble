@@ -9,6 +9,7 @@ class LibraryController < ApplicationController
   helper_method :goal_marks
 
   MORE_RESULTS_FRAME = "set-more-results-"
+  ALL_CARDS_FAN = 3
 
   def show
     authorize :page, :play?
@@ -23,6 +24,7 @@ class LibraryController < ApplicationController
     @steam_library_tile = library_tiles.first
     load_goals
     load_unique_cards
+    load_latest_cards
   end
 
   def in_progress
@@ -73,5 +75,10 @@ class LibraryController < ApplicationController
     def load_unique_cards
       @unique = Game::HeldGames.count(current_player)
       @season_cards = Catalog::CardCount.call(@season)
+    end
+
+    def load_latest_cards
+      ids = Game::LatestGains.call(current_player, season: @season, limit: ALL_CARDS_FAN)
+      @latest_cards = Catalog::CardViews.call(ids, locale: I18n.locale).values_at(*ids).compact
     end
 end

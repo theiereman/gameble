@@ -1636,7 +1636,10 @@ en:
     collection:
       title: Collection
     entry:
-      all_cards: All cards
+      all_cards_tile:
+        open: Open
+        title: All my cards
+        unique: unique cards
       completed: Completed
       custom_sets:
         count: Visible to you only · %{sets} / %{max}

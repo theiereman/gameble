@@ -102,11 +102,6 @@
   gap: var(--space-3) var(--space-4);
 }
 
-.set-search__row > .button {
-  flex: none;
-  margin: 0;
-}
-
 .set-search__form {
   display: flex;
   flex: 1;
@@ -225,4 +220,144 @@
 
 .goal-row[aria-current] .goal-row__album {
   color: var(--color-accent);
+}
+
+/* The way to every card of the season: a tile, so it never reads as the search's button. */
+.all-cards-tile {
+  --all-cards-scale: 0.42;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4) var(--space-6);
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-panel);
+  box-shadow: inset 0 0 0 2px var(--color-line);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  .all-cards-tile:hover {
+    box-shadow: inset 0 0 0 2px var(--color-accent);
+  }
+}
+
+.all-cards-tile__summary {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.all-cards-tile__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.all-cards-tile__icon {
+  width: 16px;
+  height: 16px;
+}
+
+.all-cards-tile__figures {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
+}
+
+.all-cards-tile__count {
+  color: var(--color-text-max);
+  font: var(--font-count-large);
+  letter-spacing: var(--tracking-count-large);
+  font-variant-numeric: tabular-nums;
+}
+
+.all-cards-tile__total {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.all-cards-tile__unit {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.all-cards-tile__bar {
+  max-width: 420px;
+}
+
+.all-cards-tile__side {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.all-cards-tile__fan {
+  display: flex;
+  padding-inline: var(--space-3);
+}
+
+.all-cards-tile__card {
+  flex: none;
+  width: calc(var(--card-s-width) * var(--all-cards-scale));
+  height: calc(var(--card-s-height) * var(--all-cards-scale));
+  rotate: -8deg;
+}
+
+.all-cards-tile__card + .all-cards-tile__card {
+  margin-left: calc(var(--card-s-width) * var(--all-cards-scale) * -0.45);
+  rotate: 0deg;
+}
+
+.all-cards-tile__card:nth-child(3) {
+  rotate: 8deg;
+}
+
+html .all-cards-tile__card > .card.card--s {
+  transform: scale(var(--all-cards-scale));
+  transform-origin: top left;
+}
+
+.all-cards-tile__open {
+  margin: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 719px) {
+  .all-cards-tile {
+    --all-cards-scale: 0.34;
+
+    padding: var(--space-5);
+  }
+
+  .all-cards-tile__count {
+    font: var(--font-count-large-phone);
+    letter-spacing: var(--tracking-count-large-phone);
+  }
+
+  .all-cards-tile__figures {
+    flex-direction: column;
+  }
+
+  .all-cards-tile__side {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-4);
+  }
+
+  .all-cards-tile__open {
+    min-height: 40px;
+  }
 }
