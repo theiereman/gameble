@@ -68,8 +68,10 @@
   letter-spacing: var(--tracking-body);
 }
 
-.landing-live__open {
-  align-self: flex-start;
+.landing-live__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
   margin: 0;
 }
 
@@ -377,8 +379,10 @@
   }
 }
 
-.landing-roadmap__all {
-  align-self: flex-start;
+.landing-roadmap__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
   margin: 0;
 }
 

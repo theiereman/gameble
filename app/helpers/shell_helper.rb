@@ -53,6 +53,7 @@ module ShellHelper
     "settings" => :profile,
     "sign_ins" => :sign_in,
     "feeds" => :feed,
+    "markets" => :market,
     "achievements" => :achievements,
     "pages#legal" => :legal,
     "pages#how_it_works" => :how_it_works,

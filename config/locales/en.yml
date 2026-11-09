@@ -1672,6 +1672,7 @@ en:
         feed: Activity feed
         label: 04 · Live
         open_feed: Open the activity feed
+        open_register: See The Flukeometer
         season: Current season
         season_name: Season %{number} · Grand catalogue
         subtitle: The latest entries of the activity feed, and the current season.
@@ -1701,6 +1702,7 @@ en:
         title: Open source and built with AI
       roadmap:
         all: See the whole roadmap
+        market: Visit the market's building site
         label: 06 · Roadmap
         line_label: Roadmap milestones, from the oldest to the most distant
         statuses:
@@ -1961,6 +1963,25 @@ en:
       progress:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
+  markets:
+    show:
+      closing: No date is being communicated at this stage. Management thanks you for your patience, which remains free of charge to this day.
+      heading: The Brotherhood is building the market
+      intro: Management is pleased to inform you that work has begun. This project is being carried out solely in your interest.
+      kicker: Building site
+      plans:
+        auction:
+          text: Members will put their cards up for auction. The finest will at last change hands at their fair price, which is to say the highest.
+          title: An auction house
+        currency:
+          text: It is earned only by handing cards over to the Brotherhood, which destroys them with great feeling. It cannot be bought or withdrawn.
+          title: A single currency
+        fees:
+          text: Every fee will be announced in advance and justified by Management. Transparency is one of our costs.
+          title: Fees, announced
+        open:
+          text: No seniority required. The Brotherhood draws no distinction between its members, provided they bid.
+          title: Open to every member
   number:
     format:
       delimiter: ","
@@ -2918,6 +2939,7 @@ en:
       feed: Feed
       friends: Friends
       how_it_works: How it works
+      market: Market
       legal: Legal notice
       me: Me
       profile: Profile

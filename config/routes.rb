@@ -31,6 +31,7 @@ Rails.application.routes.draw do
     post "settings/steam" => "steam_links#create", as: :settings_steam
     # The public roadmap, every milestone and story staff chose to show.
     get "roadmap" => "roadmaps#show", as: :roadmap
+    get "market" => "markets#show", as: :market
     # The visitor's motion switch, written into the motion cookie.
     post "motion" => "motions#create", as: :motion
 

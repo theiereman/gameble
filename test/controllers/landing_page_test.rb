@@ -205,8 +205,8 @@ class LandingPageTest < ActionDispatch::IntegrationTest
 
     assert_select "main a[href='#landing-open-source']", "Participer à l'écriture"
     assert_select "h2#landing-open-source[tabindex='-1']"
-    assert_select "main a.landing-live__open[href='/fr/feed']", "Ouvrir le fil d'activité"
-    assert_select "main button.landing-live__open", false
+    assert_select "main .landing-live__links a.button--link[href='/fr/feed']", "Ouvrir le fil d'activité"
+    assert_select "main .landing-live__links button", false
   end
 
   test "the footer follows the main landmark with how it works, the legal page, the donation page and the code" do

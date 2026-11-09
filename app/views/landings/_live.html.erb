@@ -17,7 +17,10 @@
         <% end %>
       </ul>
       <p class="landing-live__empty"><%= t("landings.show.live.empty") %></p>
-      <%= link_to t("landings.show.live.open_feed"), feed_path, class: "button button--link landing-live__open" %>
+      <p class="landing-live__links">
+        <%= render ButtonComponent.new(variant: :link, href: feed_path) do %><%= t("landings.show.live.open_feed") %><% end %>
+        <%= render ButtonComponent.new(variant: :link, href: fortune_register_path) do %><%= t("landings.show.live.open_register") %><% end %>
+      </p>
       <template data-live-feed-preview-target="source"><%= turbo_stream_from(*LiveStream.feed_streamables) %></template>
     <% end %>
     <%= render PanelComponent.new(brackets: true, class: "landing-season") do %>

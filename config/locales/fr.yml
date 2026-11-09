@@ -123,6 +123,7 @@ fr:
       booster: "Capsule"
       trades: "Échanges"
       friends: "Amis"
+      market: "Marché"
       profile: "Profil"
       feed: "Fil"
       achievements: "Succès"
@@ -1657,6 +1658,25 @@ fr:
         zero: "Aucune nouvelle entrée dans le fil."
         one: "1 nouvelle entrée dans le fil."
         other: "%{count} nouvelles entrées dans le fil."
+  markets:
+    show:
+      kicker: "Chantier"
+      heading: "La Confrérie construit le marché"
+      intro: "La Direction a le plaisir de vous informer que les travaux ont commencé. Ce chantier est conduit dans votre seul intérêt."
+      plans:
+        auction:
+          title: "Un hôtel des ventes"
+          text: "Les membres y proposeront leurs cartes aux enchères. Les plus belles changeront enfin de mains à leur juste prix, c'est-à-dire au plus élevé."
+        currency:
+          title: "Une seule monnaie"
+          text: "Elle se gagne uniquement en remettant des cartes à la Confrérie, qui les détruit avec émotion. Elle ne s'achète pas et ne se retire pas."
+        fees:
+          title: "Des frais annoncés"
+          text: "Chaque frais sera annoncé à l'avance et justifié par la Direction. La transparence fait partie de nos coûts."
+        open:
+          title: "Ouvert à tous les membres"
+          text: "Aucune ancienneté requise. La Confrérie ne fait aucune différence entre ses membres, pourvu qu'ils enchérissent."
+      closing: "Aucune date n'est communiquée à ce stade. La Direction vous remercie de votre patience, qui reste à ce jour gratuite."
   fortune_panels:
     frame:
       title: "Le Chattomètre"
@@ -2484,6 +2504,7 @@ fr:
         feed: "Fil d'activité"
         empty: "Aucune activité pour l'instant."
         open_feed: "Ouvrir le fil d'activité"
+        open_register: "Voir Le Chattomètre"
         season: "Saison en cours"
         season_name: "Saison %{number} · Grand catalogue"
         facts:
@@ -2538,6 +2559,7 @@ fr:
           in_progress: "En cours"
           to_come: "À venir"
         all: "Voir toute la feuille de route"
+        market: "Visiter le chantier du marché"
       open_source:
         label: "07 · Open source et contributions"
         title: "Open source et développé avec l'IA"
