@@ -1,14 +1,10 @@
-<% segments = GoalHelper::SEGMENTS %>
-<% lit = goal_lit_segments(goal) %>
 <% figures = { total: number_with_delimiter(goal[:total]), target: number_with_delimiter(goal[:target]) } %>
 <div id="community-goal-progress" class="hub-goal__progress<%= " hub-goal__progress--reached" if goal[:reached] %>">
   <h2 id="community-goal-title" class="hub-goal__title"><%= t("pages.home.goal.title") %></h2>
   <p class="hub-goal__figures" aria-hidden="true"><%= figures[:total] %> / <%= figures[:target] %></p>
   <span class="visually-hidden"><%= t("pages.home.goal.progress", **figures) %></span>
   <p class="hub-goal__line"><%= t("pages.home.goal.line", target: figures[:target]) %></p>
-  <div class="hub-goal__gauge" aria-hidden="true">
-    <% segments.times do |index| %><span class="hub-goal__segment<%= " hub-goal__segment--lit" if index < lit %>"></span><% end %>
-  </div>
+  <%= render GaugeComponent.new(lit: goal_lit_segments(goal), class: "hub-goal__gauge") %>
   <% if goal[:reached] %>
     <p class="hub-goal__reward"><span class="hub-goal__status"><%= t("pages.home.goal.reached") %></span> · <%= t("pages.home.goal.reward_text") %></p>
   <% else %>

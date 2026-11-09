@@ -1,3 +1,4 @@
+import { dispatchGameble } from "./events"
 import { motionReduced } from "./motion"
 
 export type Tilt = { rx: number; ry: number }
@@ -80,6 +81,7 @@ export function attachTilt(
   element: HTMLElement,
   { max, onTilt }: { max: number; onTilt?: (dx: number, dy: number) => void },
 ): () => void {
+  const view = element.ownerDocument?.defaultView
   let current = REST
   let target = REST
   let frame: number | null = null
@@ -141,9 +143,15 @@ export function attachTilt(
   const drive = (id: number, touch: boolean) => {
     driver = { id, touch }
     element.dataset.tilting = ""
+    if (touch && view) dispatchGameble("gameble:touch-held", { held: true }, view)
+  }
+
+  const letGoOfTouch = () => {
+    if (driver?.touch && view) dispatchGameble("gameble:touch-held", { held: false }, view)
   }
 
   const release = () => {
+    letGoOfTouch()
     driver = null
     box = null
     delete element.dataset.tilting
@@ -215,7 +223,6 @@ export function attachTilt(
     box = null
   }
 
-  const view = element.ownerDocument?.defaultView
   view?.addEventListener("scroll", onScroll, { capture: true, passive: true })
   element.addEventListener("pointerdown", onPointerDown)
   element.addEventListener("pointermove", onPointerMove)
@@ -239,6 +246,7 @@ export function attachTilt(
     cancelHold()
     if (frame !== null) cancelAnimationFrame(frame)
     frame = null
+    letGoOfTouch()
     driver = null
     box = null
     current = target = REST

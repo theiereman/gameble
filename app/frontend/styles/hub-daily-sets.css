@@ -38,7 +38,7 @@
   color: var(--color-muted);
 }
 
-/* Collected: "Prochain dans", the clock and a thin bar
+/* Collected: "Prochain dans", the clock and the segmented gauge
    filling toward 00:00 UTC (the countdown controller). */
 .daily-booster__next {
   display: grid;
@@ -60,31 +60,6 @@
   font: var(--font-clock);
   letter-spacing: var(--tracking-clock);
   font-variant-numeric: tabular-nums;
-}
-
-.daily-booster__bar {
-  display: block;
-  width: 100%;
-  height: 6px;
-  border: 0;
-  background: var(--color-panel-raised);
-  box-shadow: inset 0 0 0 1px var(--color-line-deep);
-  color: var(--color-accent);
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.daily-booster__bar::-webkit-progress-bar {
-  background: var(--color-panel-raised);
-  box-shadow: inset 0 0 0 1px var(--color-line-deep);
-}
-
-.daily-booster__bar::-webkit-progress-value {
-  background: var(--color-accent);
-}
-
-.daily-booster__bar::-moz-progress-bar {
-  background: var(--color-accent);
 }
 
 /* The canister flying to the packs chip (bonus_arc_controller.ts): moved by

@@ -10,9 +10,6 @@
         aria: { labelledby: "set-search-title" }, data: { set_search_target: "field" } %>
       <noscript><%= submit_tag t("library.entry.search_button"), name: nil, class: "button button--secondary button--small set-search__submit" %></noscript>
     <% end %>
-    <% if all_cards_url %>
-      <%= render ButtonComponent.new(variant: :primary, href: all_cards_url) do %><%= t("library.entry.all_cards") %><%= pixel_icon("arrow-small-right") %><% end %>
-    <% end %>
   </div>
   <p class="set-search__status" role="status" data-set-search-target="status"><%= status %></p>
 </section>

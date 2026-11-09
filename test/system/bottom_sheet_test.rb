@@ -154,7 +154,7 @@ class BottomSheetTest < ApplicationSystemTestCase
     visit_cards
     find(".tab-bar a.tab-bar__tab", text: /SETS/i).click
     assert_current_path library_path(locale: :en)
-    click_on "All cards"
+    click_on "All my cards"
     assert_current_path library_cards_path(locale: :en)
 
     find(OPENER).click

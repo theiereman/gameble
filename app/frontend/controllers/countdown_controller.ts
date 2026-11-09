@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import "../lib/turbo"
 import { formatClock, formatDailyClock } from "../lib/booster_clock"
 import { atZero, fetchChip } from "../lib/countdown"
+import { litSegments } from "../lib/gauge"
 
 const RETRY_MS = 5000
 const BUSY_RETRY_MS = 250
@@ -14,7 +15,7 @@ export default class extends Controller<HTMLElement> {
     hours: Boolean,
     total: Number,
   }
-  static targets = ["clock", "bar"]
+  static targets = ["clock", "segment"]
 
   declare readonly secondsValue: number
   declare readonly refreshValue: boolean
@@ -22,8 +23,7 @@ export default class extends Controller<HTMLElement> {
   declare readonly hoursValue: boolean
   declare readonly totalValue: number
   declare readonly clockTarget: HTMLElement
-  declare readonly hasBarTarget: boolean
-  declare readonly barTarget: HTMLProgressElement
+  declare readonly segmentTargets: HTMLElement[]
 
   private deadline?: number
   private seconds?: number
@@ -109,7 +109,8 @@ export default class extends Controller<HTMLElement> {
 
   private show(seconds: number): void {
     this.clockTarget.textContent = this.hoursValue ? formatDailyClock(seconds) : formatClock(seconds)
-    if (this.hasBarTarget && this.totalValue > 0) this.barTarget.value = Math.max(0, this.totalValue - seconds)
+    const lit = litSegments(this.totalValue - seconds, this.totalValue, this.segmentTargets.length)
+    this.segmentTargets.forEach((segment, index) => segment.classList.toggle("gauge__segment--lit", index < lit))
   }
 
   private schedule(wait: number): void {

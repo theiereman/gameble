@@ -20,7 +20,7 @@ class LiveGoalJobTest < ActiveSupport::TestCase
     english = panel(:en)
     assert_equal "1,250 / 5,000", english.at_css("#community-goal-progress .hub-goal__figures").text
     assert_empty received(:en).css("turbo-stream[target=community-goal]")
-    assert_equal 6, english.css(".hub-goal__segment--lit").size
+    assert_equal 6, english.css(".gauge__segment--lit").size
     assert_empty english.css("[style]")
     assert_match(/\A1[\s  ]250 \/ 5[\s  ]000\z/, panel(:fr).at_css(".hub-goal__figures").text)
     assert_equal "Mission hebdo", panel(:fr).at_css(".hub-goal__title").text

@@ -984,7 +984,10 @@ fr:
       no_progress: "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
       no_other_progress: "Aucun autre set en cours. Cherchez-en un ci-dessus."
       search: "Chercher un set"
-      all_cards: "Toutes les cartes"
+      all_cards_tile:
+        title: "Toutes mes cartes"
+        unique: "cartes uniques"
+        open: "Ouvrir"
       results: "Résultats"
       search_button: "Chercher"
       loading: "Chargement des sets en cours…"

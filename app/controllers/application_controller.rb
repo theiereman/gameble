@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Pundit::Authorization
+  include AppUserAgent
 
   allow_browser versions: :modern, unless: :public_read?, block: :refuse_unsupported_browser
 

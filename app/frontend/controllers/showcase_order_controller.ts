@@ -109,6 +109,7 @@ export default class extends Controller<HTMLElement> {
     gesture.grabY = gesture.startY - (box.top + box.height / 2)
     gesture.slot.dataset.dragging = ""
     this.listTarget.dataset.sorting = ""
+    if (gesture.touch) dispatchGameble("gameble:touch-held", { held: true })
   }
 
   private carry(x: number, y: number): void {
@@ -192,6 +193,7 @@ export default class extends Controller<HTMLElement> {
     if (gesture.slot.getAttribute("style") === "") gesture.slot.removeAttribute("style")
     delete gesture.slot.dataset.dragging
     delete this.listTarget.dataset.sorting
+    if (gesture.dragging && gesture.touch) dispatchGameble("gameble:touch-held", { held: false })
     this.gesture = undefined
   }
 

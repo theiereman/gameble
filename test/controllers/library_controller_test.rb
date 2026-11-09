@@ -1030,10 +1030,16 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__title", "Collection"
     assert_select ".top-bar__end .collection-status .collection-status__value", "74 / 300"
     assert_equal [ "Goals", "Find a set", "My sets" ], css_select(".set-entry h2").map(&:text)
-    assert_select ".set-search .set-search__row a.button--primary[href='/en/library/cards']", "All cards" do
-      assert_select "svg.pixel-icon[aria-hidden=true]"
+    assert_select ".set-search a", false
+    assert_select "a.all-cards-tile[href='/en/library/cards']" do
+      assert_select ".all-cards-tile__title", "All my cards"
+      assert_select ".all-cards-tile__figures[aria-hidden=true] .all-cards-tile__count", "74/300"
+      assert_select ".visually-hidden", "74 unique cards out of 300"
+      assert_select "progress.all-cards-tile__bar[value='74'][max='300']"
+      assert_select ".all-cards-tile__side[aria-hidden=true] .all-cards-tile__fan > .all-cards-tile__card > .card.card--s", 3
+      assert_select ".all-cards-tile__open", "Open"
     end
-    assert_select ".set-entry > section#goals:first-child + .set-search + turbo-frame#set-search-results + section.custom-sets + " \
+    assert_select ".set-entry > section#goals:first-child + a.all-cards-tile + .set-search + turbo-frame#set-search-results + section.custom-sets + " \
       "turbo-frame#set-entry-in-progress.set-entry__in-progress[src='/en/library/in-progress'][loading=lazy][target=_top]" do
       assert_select "p.set-entry__loading", "Loading the sets in progress…"
     end
@@ -1395,16 +1401,32 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     forty = count_queries { get library_path(locale: :en, q: "theme") }
     assert_equal three, forty
     # Player lookup, season, unique cards and the season's count, the
-    # rarity legend; the search's sets, the standings, the figures of those
+    # latest cards gained and their faces, the rarity legend; the search's sets, the standings, the figures of those
     # not started and the faces of those shown; the tab bar's trades and
     # invitations waiting and the player's avatar; the themes' names; the player's own sets, read once
     # with their Steam library set, and goals; with no goal, the sets
     # suggested, their standings those of the search.
-    assert_equal 20, forty
+    assert_equal 22, forty
     assert_equal 9, count_queries { get library_path(locale: :en, q: "theme", offset: 6), headers: { "Turbo-Frame" => "set-more-results-6" } }
     # No search: neither the search's sets nor its figures and faces; the
     # standings and the themes' names for the sets suggested.
-    assert_equal 16, count_queries { get library_path(locale: :en) }
+    assert_equal 18, count_queries { get library_path(locale: :en) }
+  end
+
+  test "the way to all the cards fans the three cards gained last, the latest on top" do
+    entry_season(10)
+    player = accounts_players(:player)
+    first, second, third, fourth = @cards.first(4)
+    hold(player, first, gained_at: 4.days.ago)
+    hold(player, second, gained_at: 1.day.ago)
+    hold(player, third, gained_at: 3.days.ago)
+    hold(player, fourth, gained_at: 2.days.ago)
+    sign_in(player)
+
+    get library_path(locale: :en)
+
+    assert_equal [ second, fourth, third ].map { title(it) }, css_select(".all-cards-tile__card .card__title").map { it.text.strip }
+    assert_select ".all-cards-tile__count", "4/10"
   end
 
   test "a player who holds no card sees the search, the way to all the cards and a line pointing to the search; a visitor is sent to the landing" do
@@ -1415,8 +1437,13 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :fr)
 
     assert_equal [ "Objectifs", "Chercher un set", "Mes sets" ], css_select(".set-entry h2").map(&:text)
-    assert_select ".set-search a.button--primary[href='/fr/library/cards']", "Toutes les cartes"
-    assert_select "section#goals + .set-search + turbo-frame#set-search-results + section.custom-sets + turbo-frame#set-entry-in-progress[src='/fr/library/in-progress']"
+    assert_select "a.all-cards-tile[href='/fr/library/cards']" do
+      assert_select ".all-cards-tile__title", "Toutes mes cartes"
+      assert_select ".all-cards-tile__count", "0/300"
+      assert_select ".all-cards-tile__fan", false
+      assert_select ".all-cards-tile__open", "Ouvrir"
+    end
+    assert_select "section#goals + a.all-cards-tile + .set-search + turbo-frame#set-search-results + section.custom-sets + turbo-frame#set-entry-in-progress[src='/fr/library/in-progress']"
     assert_select "#goals p.goals__empty", "Aucun objectif. Ouvrez l'album d'un set et marquez-le comme objectif."
     assert_select "#goals .goal-suggestions, #goals .goals__list", false
 
@@ -1515,7 +1542,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       assert_select ".set-search__row ~ p.set-search__status[role=status]", "1 set trouvé"
     end
     assert_equal [ "Objectifs", "Chercher un set", "Résultats", "Mes sets" ], css_select(".set-entry h2").map(&:text)
-    assert_select ".set-entry > section#goals + .set-search + turbo-frame#set-search-results + section.custom-sets + turbo-frame#set-entry-in-progress"
+    assert_select ".set-entry > section#goals + a.all-cards-tile + .set-search + turbo-frame#set-search-results + section.custom-sets + turbo-frame#set-entry-in-progress"
     assert_select "#set-search-title", "Chercher un set"
     assert_select "turbo-frame#set-search-results[target=_top]" do
       assert_select "[data-set-search-summary][hidden]", "1 set trouvé"
