@@ -1256,7 +1256,7 @@ en:
     frame:
       no_standing:
         all_time: No capsule opened yet.
-        week: No capsule opened this week. The instrument has nothing on you yet.
+        week: No capsule opened this week.
       see_all: See the full leaderboard
       tabs:
         all_time: Total

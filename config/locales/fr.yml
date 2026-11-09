@@ -1688,7 +1688,7 @@ fr:
         week: "Semaine"
         all_time: "Total"
       no_standing:
-        week: "Aucune capsule ouverte cette semaine. L'instrument n'a encore rien contre vous."
+        week: "Aucune capsule ouverte cette semaine."
         all_time: "Aucune capsule ouverte pour l'instant."
       see_all: "Voir tout le classement"
   fortune_registers:
