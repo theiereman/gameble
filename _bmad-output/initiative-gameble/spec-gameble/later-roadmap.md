@@ -4,7 +4,7 @@ Context for MVP design decisions that must not block these. Nothing here is buil
 
 ## V2 — Auction house
 
-- **Currency:** a single in-game currency, earned only by destroying cards to the system for a tiny fixed amount per rarity. It is spent bidding on rarer cards at auction.
+- **Currency:** a single in-game currency, earned only by entrusting cards to the Brotherhood, which keeps them safe in its common reserve (author, 2026-11-09: the cards are a precious good, never destroyed; they leave the player's collection), for a tiny fixed amount per rarity. It is spent bidding on rarer cards at auction.
 - **Sinks:** both are destroyed and shown before listing. They are the only currency sinks.
   - Listing fee: *Timbre Fiscal du Gamebler* / Gamebler's Tax Stamp.
   - ~10% sale commission: *Effort de la Confrérie* / Brotherhood Effort.
