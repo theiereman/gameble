@@ -130,7 +130,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_120000) do
     t.index ["token"], name: "index_accounts_release_notes_on_token", unique: true
     t.index ["version"], name: "index_accounts_release_notes_on_version", unique: true
     t.check_constraint "char_length(title_fr::text) <= 80 AND char_length(title_en::text) <= 80 AND char_length(body_fr) <= 1500 AND char_length(body_en) <= 1500", name: "accounts_release_notes_length_check"
-    t.check_constraint "state::text = ANY (ARRAY['draft'::character varying, 'ready'::character varying, 'skipped'::character varying]::text[])", name: "accounts_release_notes_state_check"
+    t.check_constraint "state::text = 'draft'::text OR state::text = 'ready'::text OR state::text = 'skipped'::text", name: "accounts_release_notes_state_check"
     t.check_constraint "version::text ~ '^v[0-9]+\\.[0-9]+\\.[0-9]+$'::text", name: "accounts_release_notes_version_check"
   end
 

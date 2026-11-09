@@ -12,7 +12,7 @@ class CreateAccountsReleaseNotes < ActiveRecord::Migration[8.1]
       t.timestamps
 
       t.check_constraint "version ~ '^v[0-9]+\\.[0-9]+\\.[0-9]+$'", name: "accounts_release_notes_version_check"
-      t.check_constraint "state IN ('draft', 'ready', 'skipped')", name: "accounts_release_notes_state_check"
+      t.check_constraint "state = 'draft' OR state = 'ready' OR state = 'skipped'", name: "accounts_release_notes_state_check"
       t.check_constraint "char_length(title_fr) <= 80 AND char_length(title_en) <= 80 AND char_length(body_fr) <= 1500 AND char_length(body_en) <= 1500",
         name: "accounts_release_notes_length_check"
     end
