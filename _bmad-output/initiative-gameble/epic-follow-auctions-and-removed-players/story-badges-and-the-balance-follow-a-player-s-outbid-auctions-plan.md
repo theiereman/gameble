@@ -3,7 +3,7 @@ title: 'Badges and the balance follow a player''s outbid auctions'
 type: 'feature'
 ticket: '40.5'
 created: '2026-11-10'
-status: 'in-progress'
+status: 'in-review'
 baseline_revision: '231c45ca83e64d28ad829604df9e8773aa3139f9'
 route: 'full'
 route_source: 'auto'
@@ -77,6 +77,8 @@ context:
 - Given player A is outbid while on the hub, then the MARCHÉ badge reads 1 and the balance shows the released amount as available, and when A raises on the Annonce the badge disappears.
 
 ## Implementation Notes
+
+Built as planned; nothing was run, only static checks. `MarketNotices.outbid` reads the outbid lines of given listings for the status post; `Annonce`'s `offer` gained an optional interval so the 30 s per-listing throttle reuses it. The existing `market` notice test now expects the three badge updates, and the bid stream tests expect the bidder's own `market` notice. The balance figures were not touched: the existing balance notice already carries the released amount.
 
 ## Plan Change Log
 
