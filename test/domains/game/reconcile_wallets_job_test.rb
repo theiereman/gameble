@@ -1,7 +1,9 @@
 require "test_helper"
 require_relative "../../support/market"
+require_relative "../../support/market_sales"
 
 class Game::ReconcileWalletsJobTest < ActiveSupport::TestCase
+  include MarketSales
   include MarketSettings
 
   self.use_transactional_tests = false
@@ -62,5 +64,19 @@ class Game::ReconcileWalletsJobTest < ActiveSupport::TestCase
 
     assert_instance_of Game::Market::Reconciliation, result
     assert result.balanced?
+  end
+
+  test "the edition prices are refreshed after the reconciliation, even when it reports a difference" do
+    card = catalog_card_seasons(:common_card_one)
+    listing = sold!(card, 10_000, sold_at: 1.day.ago)
+    Game::Market::EditionPrice.create!(card_season_id: card.id, average: 99, sales_used: 1)
+    Game::Market::Ledger.post([ Game::Market::Ledger::Entry.new(player_id: @alice.id, kind: :purchase, available_delta: 25, settings_id: @settings.id) ])
+
+    assert_error_reported(Game::Market::Reconciliation::CirculationMismatch) { Game::ReconcileWalletsJob.perform_now }
+
+    assert_equal 10_000, Game::Market::EditionPrice.find_by!(card_season_id: card.id).average
+  ensure
+    listing&.destroy!
+    Game::Market::EditionPrice.where(card_season_id: card.id).delete_all
   end
 end

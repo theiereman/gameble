@@ -2,14 +2,19 @@ module Game
   class ReconcileWalletsJob < ActiveJob::Base
     queue_as :default
 
-    def perform
-      Market::ReconcileWallets.call.tap do |reconciliation|
-        reconciliation.wallet_differences.each { report_wallet(it) }
-        report_circulation(reconciliation) unless reconciliation.circulation_difference.zero?
-      end
+    def perform(now: Time.current)
+      reconciliation = Market::ReconcileWallets.call
+      report(reconciliation)
+      Market::RefreshEditionPrices.new.call(now:).value!
+      reconciliation
     end
 
     private
+
+    def report(reconciliation)
+      reconciliation.wallet_differences.each { report_wallet(it) }
+      report_circulation(reconciliation) unless reconciliation.circulation_difference.zero?
+    end
 
     def report_wallet(difference)
       Rails.error.report(Market::Reconciliation::WalletMismatch.new("wallet #{difference.player_id} differs from its ledger entries"),
