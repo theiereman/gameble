@@ -1,4 +1,8 @@
+require_relative "market_sales"
+
 module AltSignalSeeds
+  include MarketSales
+
   def open_capsules!(player, count, on:)
     opened_at = on.in_time_zone("UTC") + 9.hours
     rows = Array.new(count) do
@@ -20,8 +24,7 @@ module AltSignalSeeds
   def one_way_trade!(giver, receiver, closed_at: 1.day.ago) = trade!(giver, receiver, offered: 4, requested: 1, closed_at:)
 
   def sale!(seller, buyer, card_season, price, sold_at: 1.day.ago, average_after_sale: nil, settings: Game::Market::CurrentSettings.call)
-    Game::Market::Listing.create!(seller:, leader: buyer, leader_maximum: price, card_season_id: card_season.id, settings_id: settings.id, starting_price: 1_300,
-      current_price: price, duration_hours: 24, ends_at: sold_at, status: "sold", sold_at:, final_price: price, average_after_sale:)
+    sold!(card_season, price, sold_at:, seller:, buyer:, average_after_sale:, settings:)
   end
 
   def priced_history!(card_season, average:, sales: Game::Market::EditionPrice::MINIMUM_SALES)

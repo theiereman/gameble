@@ -3,8 +3,6 @@ require_relative "../support/library_requests"
 require_relative "../support/market"
 require_relative "../support/steam_sign_in"
 
-# Toutes les cartes sorted and filtered by average price: the order, the range, the price under each card only
-# while sorted or filtered by it, the PRIX group, and nothing before the market's first opening.
 class LibraryPricesTest < ActionDispatch::IntegrationTest
   include LibraryRequests
   include MarketSettings

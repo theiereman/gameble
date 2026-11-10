@@ -4,7 +4,6 @@ require_relative "../support/market_listings"
 require_relative "../support/market_snapshots"
 require_relative "../support/steam_sign_in"
 
-# Staff read the economy's health from the nightly snapshots: each indicator in plain words, the last reconciliation and the oldest listing due.
 class BackOfficeMarketHealthTest < ApplicationSystemTestCase
   include MarketListings
   include MarketSettings

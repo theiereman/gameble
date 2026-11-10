@@ -4,8 +4,6 @@ require_relative "../support/market"
 require_relative "../support/second_season"
 require_relative "../support/steam_sign_in"
 
-# The card detail's "Prix moyen" row: the edition's average with its sale count, for a visitor and a player,
-# in each state, and nothing before the market's first opening.
 class CardsAveragePriceTest < ActionDispatch::IntegrationTest
   include Holdings
   include MarketSettings

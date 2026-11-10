@@ -2,7 +2,6 @@ require "application_system_test_case"
 require_relative "../support/market"
 require_relative "../support/steam_sign_in"
 
-# Toutes les cartes sorted and filtered by average price from the filter row's PRIX sheet.
 class LibraryPricesSystemTest < ApplicationSystemTestCase
   include MarketSettings
   include SteamSignIn
