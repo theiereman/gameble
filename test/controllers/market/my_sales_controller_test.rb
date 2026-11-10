@@ -141,7 +141,6 @@ class Market::MySalesControllerTest < ActionDispatch::IntegrationTest
     hold(@seller, @rare.id, 1)
     open_listing = listing!(seller: @seller, card_season: @common)
     listing!(seller: @seller, card_season: @rare, status: "unsold", ends_at: 1.day.ago)
-    Game::Market::Settings.delete_all
     close_market!(first_opened_at: 1.day.ago)
     sign_in(@seller)
 

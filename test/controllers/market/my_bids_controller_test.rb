@@ -143,7 +143,6 @@ class Market::MyBidsControllerTest < ActionDispatch::IntegrationTest
     outbid = listing!(seller: @seller, card_season: @rare, starting_price: 20_000)
     assert bid(@rival, 90_000, outbid).success?
     assert bid(@bidder, 40_000, outbid).success?
-    Game::Market::Settings.delete_all
     close_market!(first_opened_at: 1.day.ago)
     sign_in(@bidder)
 

@@ -342,10 +342,7 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-focus]", false
   end
 
-  def close_after_opening
-    Game::Market::Settings.delete_all
-    close_market!(first_opened_at: 1.day.ago)
-  end
+  def close_after_opening = close_market!(first_opened_at: 1.day.ago)
 
   test "a suspended Annonce draws the banner in its slot and a disabled form for a bidder, with no script" do
     close_after_opening
