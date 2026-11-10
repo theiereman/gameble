@@ -5,11 +5,13 @@
   padding: var(--space-5);
 }
 
-@media (min-width: 720px) {
-  .entrust-recap {
-    position: sticky;
-    top: var(--space-5);
-  }
+[data-layout="wide"] .entrust-recap {
+  position: sticky;
+  top: var(--space-5);
+}
+
+[data-layout="wide"] .entrust-recap__stepper {
+  display: none;
 }
 
 .entrust-recap__heading {
@@ -37,15 +39,6 @@
 .entrust-recap__rare[hidden],
 .entrust-recap__stays[hidden] {
   display: none;
-}
-
-.entrust-recap__refusal {
-  margin: 0;
-  padding: var(--space-3);
-  border-left: 4px solid var(--color-alert);
-  background: var(--color-panel-sunken);
-  color: var(--color-text-bright);
-  font: var(--font-body-small);
 }
 
 .entrust-recap__lines {

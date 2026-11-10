@@ -1,0 +1,97 @@
+[data-layout="phone"] .market-entrust__slot {
+  display: none;
+}
+
+[data-layout="phone"] .entrust-grid__list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+[data-layout="phone"] .entrust-grid__hint,
+[data-layout="phone"] .entrust-cell__free,
+[data-layout="phone"] .entrust-cell__stepper {
+  display: none;
+}
+
+[data-layout="phone"] .entrust-cell {
+  gap: var(--space-1);
+  padding: var(--space-2);
+  min-width: 0;
+}
+
+[data-layout="phone"] .entrust-cell__name {
+  overflow-wrap: anywhere;
+  font: var(--font-body-small);
+  font-weight: 700;
+}
+
+[data-layout="phone"] .entrust-cell__edition {
+  font: var(--font-label);
+}
+
+.entrust-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-top: 2px solid var(--color-lime);
+  background: var(--color-panel);
+  color: var(--color-text-bright);
+  font: var(--font-body-small);
+}
+
+.entrust-bar__count {
+  font-weight: 700;
+}
+
+.entrust-bar .picoin-amount {
+  color: var(--color-gold);
+}
+
+.entrust-bar__open {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-touch-min);
+  margin-left: auto;
+  padding: 0 var(--space-3);
+  color: var(--color-lime);
+  font: var(--font-button);
+  text-decoration: none;
+}
+
+@media (min-height: 560px) {
+  [data-layout="phone"] .entrust-bar {
+    position: sticky;
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+[data-layout="phone"] .entrust-sheet .entrust-recap {
+  padding: var(--space-3) 0;
+  box-shadow: none;
+}
+
+[data-layout="phone"] .entrust-recap__line {
+  align-items: center;
+}
+
+[data-layout="phone"] .entrust-recap__stepper {
+  display: flex;
+  align-items: center;
+}
+
+[data-layout="phone"] .entrust-recap__stepper .stepper {
+  height: var(--space-touch-min);
+}
+
+[data-layout="phone"] .entrust-recap__stepper .stepper__button {
+  width: var(--space-touch-min);
+  height: var(--space-touch-min);
+}
+
+[data-layout="phone"] .entrust-recap__submit {
+  position: sticky;
+  bottom: calc(-1 * var(--space-2));
+  padding: var(--space-3) 0;
+  background: var(--color-panel);
+}

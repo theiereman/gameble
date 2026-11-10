@@ -1,10 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
 import { writeText } from "../lib/dom_writes"
+import type { Layout } from "../lib/entrust"
 import { drawAmount, type AmountForms, type LineView, type RecapView } from "../lib/entrust_view"
 import { litSegments } from "../lib/gauge"
+import { keepStepperFocus, quantityFromButton, quantityFromKey, reflectStepper, STEPPER } from "../lib/stepper"
 import { cloneFirstElement } from "../lib/templates"
 
 export const STATUS_DELAY = 500
+
+const LINE = ".entrust-recap__line"
+const STEPPER_SLOT = ".entrust-recap__stepper"
 
 export default class EntrustRecapController extends Controller<HTMLElement> {
   static targets = [
@@ -21,6 +26,13 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     "sentence",
     "submitSlot",
     "status",
+    "barStatus",
+    "aside",
+    "slot",
+    "sheetBody",
+    "barCount",
+    "barTotal",
+    "stepperTemplate",
   ]
   static values = { locale: String, accessible: String }
 
@@ -37,9 +49,17 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
   declare readonly sentenceTarget: HTMLElement
   declare readonly submitSlotTarget: HTMLElement
   declare readonly statusTarget: HTMLElement
+  declare readonly barStatusTarget: HTMLElement
+  declare readonly asideTarget: HTMLElement
+  declare readonly slotTarget: HTMLElement
+  declare readonly sheetBodyTarget: HTMLElement
+  declare readonly barCountTarget: HTMLElement
+  declare readonly barTotalTarget: HTMLElement
+  declare readonly stepperTemplateTarget: HTMLTemplateElement
   declare readonly localeValue: string
   declare readonly accessibleValue: string
 
+  private layout: Layout = "wide"
   private posted?: string
   private waiting?: string
   private timer?: ReturnType<typeof setTimeout>
@@ -48,11 +68,44 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     clearTimeout(this.timer)
   }
 
+  place(layout: Layout): void {
+    this.layout = layout
+    ;(layout === "phone" ? this.sheetBodyTarget : this.slotTarget).append(this.asideTarget)
+  }
+
+  placedIn(): "sheet" | "slot" {
+    return this.asideTarget.parentElement === this.sheetBodyTarget ? "sheet" : "slot"
+  }
+
+  sheetIsOpen(): boolean {
+    return this.sheetBodyTarget.closest("dialog")?.open === true
+  }
+
+  // The status follows the sheet: a dialog that opens or closes announces the current text at once.
+  refreshStatus(): void {
+    if (this.posted === undefined) return
+    this.writeStatus(this.posted)
+  }
+
+  step(event: Event): void {
+    this.report(event, quantityFromButton(event))
+  }
+
+  stepperKey(event: KeyboardEvent): void {
+    this.report(event, quantityFromKey(event))
+  }
+
+  keepFocus(event: Event): void {
+    keepStepperFocus(event)
+  }
+
   render(view: RecapView): void {
     this.promptTarget.hidden = !view.prompt
     this.linesTarget.hidden = view.prompt
-    this.linesTarget.replaceChildren(...view.lines.map((line) => this.lineFrom(line)))
+    this.reconcile(view.lines)
     drawAmount(this.totalTarget, view.received, this.forms())
+    drawAmount(this.barTotalTarget, view.bar.amount, this.forms())
+    writeText(this.barCountTarget, view.bar.count)
     const lit = litSegments(view.capUsed, view.capTotal, this.segmentTargets.length)
     this.segmentTargets.forEach((segment, index) => segment.classList.toggle("gauge__segment--lit", index < lit))
     writeText(this.capTextTarget, view.capText)
@@ -81,24 +134,79 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     button.setAttribute("aria-describedby", described.map((note) => note.id).join(" "))
   }
 
-  private lineFrom(line: LineView): HTMLElement {
-    const item = cloneFirstElement<HTMLElement>(this.lineTemplateTarget)!
-    item.dataset.ref = line.ref
-    item.dataset.state = line.state
-    writeText(item.querySelector(".entrust-recap__name"), line.label)
-    writeText(item.querySelector(".entrust-recap__count"), line.count)
-    const slot = item.querySelector<HTMLElement>(".entrust-recap__amount")
-    const amount = line.amount === null ? null : cloneFirstElement<HTMLElement>(this.amountTemplateTarget)
-    if (slot && amount && line.amount !== null) {
-      drawAmount(amount, line.amount, this.forms())
-      slot.append(amount)
-    } else slot?.remove()
-    const stays = item.querySelector<HTMLElement>(".entrust-recap__stays")
-    if (stays) {
-      stays.hidden = line.stays === null
-      if (line.stays !== null) writeText(stays, line.stays)
+  // Lines are matched by ref and never rebuilt, so a pressed stepper keeps its node and its focus.
+  private reconcile(views: readonly LineView[]): void {
+    const list = this.linesTarget
+    const wanted = new Set(views.map((view) => view.ref))
+    const byRef = new Map<string, HTMLElement>()
+    for (const line of Array.from(list.querySelectorAll<HTMLElement>(`:scope > ${LINE}`))) {
+      if (wanted.has(line.dataset.ref ?? "")) byRef.set(line.dataset.ref ?? "", line)
+      else line.remove()
     }
-    return item
+    let expected = list.firstElementChild
+    for (const view of views) {
+      const line = byRef.get(view.ref) ?? cloneFirstElement<HTMLElement>(this.lineTemplateTarget)!
+      if (line === expected) expected = expected.nextElementSibling
+      else list.insertBefore(line, expected)
+      this.reflectLine(line, view)
+    }
+  }
+
+  private reflectLine(line: HTMLElement, view: LineView): void {
+    line.dataset.ref = view.ref
+    line.dataset.state = view.state
+    writeText(line.querySelector(".entrust-recap__name"), view.label)
+    writeText(line.querySelector(".entrust-recap__count"), view.count)
+    this.reflectAmount(line.querySelector<HTMLElement>(".entrust-recap__amount"), view.amount)
+    const stays = line.querySelector<HTMLElement>(".entrust-recap__stays")
+    if (stays) {
+      stays.hidden = view.stays === null
+      if (view.stays !== null) writeText(stays, view.stays)
+    }
+    this.reflectLineStepper(line, view)
+  }
+
+  private reflectAmount(slot: HTMLElement | null, amount: number | null): void {
+    if (!slot) return
+    if (amount === null) {
+      if (slot.firstElementChild) slot.replaceChildren()
+      return
+    }
+    const drawn = slot.firstElementChild ?? cloneFirstElement<HTMLElement>(this.amountTemplateTarget)
+    if (!drawn) return
+    drawAmount(drawn, amount, this.forms())
+    if (!drawn.parentElement) slot.append(drawn)
+  }
+
+  private reflectLineStepper(line: HTMLElement, { stepper }: LineView): void {
+    let holder = line.querySelector<HTMLElement>(STEPPER_SLOT)
+    if (stepper === null) {
+      holder?.remove()
+      return
+    }
+    if (!holder) {
+      holder = cloneFirstElement<HTMLElement>(this.stepperTemplateTarget)
+      if (!holder) return
+      const stays = line.querySelector(".entrust-recap__stays")
+      if (stays) stays.before(holder)
+      else line.append(holder)
+    }
+    const spinner = holder.querySelector<HTMLElement>(STEPPER)
+    if (spinner) reflectStepper(spinner, stepper)
+  }
+
+  private report(event: Event, copies: number | null): void {
+    const ref = (event.currentTarget as Element).closest<HTMLElement>(LINE)?.dataset.ref
+    if (ref && copies !== null) this.dispatch("copies", { detail: { ref, copies } })
+  }
+
+  private writeStatus(text: string): void {
+    const phoneBar = this.layout === "phone" && !this.sheetIsOpen()
+    const [active, other] = phoneBar
+      ? [this.barStatusTarget, this.statusTarget]
+      : [this.statusTarget, this.barStatusTarget]
+    writeText(active, text)
+    writeText(other, "")
   }
 
   // One short status after the selection rests, never the same text twice, never a move of focus.
@@ -114,7 +222,7 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     this.timer = setTimeout(() => {
       if (this.waiting === this.posted) return
       this.posted = this.waiting
-      writeText(this.statusTarget, this.waiting ?? "")
+      this.writeStatus(this.waiting ?? "")
     }, STATUS_DELAY)
   }
 }

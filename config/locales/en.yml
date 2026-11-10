@@ -2210,6 +2210,8 @@ en:
             other: "%{title}, season %{season}: %{count} copies stay in your collection (%{amount} each)"
         throttled: Slow down, the Archives are counting. Try again in a minute.
       new:
+        bar_action: "Entrust ▸"
+        bar_label: Your entrusting selection
         cap_full: Your daily cap is reached. It renews at 00:00 UTC.
         cap_label: Daily cap
         clear_filters: Clear filters
@@ -2236,10 +2238,15 @@ en:
         search_label: Search your editions
         search_placeholder: Search a game
         season: "Season %{number}"
+        sheet_title: Entrust
         sign_in: Sign in to entrust cards to the Brotherhood.
         sign_in_action: Sign in
       strings:
         amount: "%{amount} PiCoins"
+        bar_count:
+          one: "%{count} copy"
+          other: "%{count} copies"
+          zero: 0 copies
         cap_text: "%{used} of %{left} left today"
         count: "×%{count}"
         line: "%{title}, season %{season}"
