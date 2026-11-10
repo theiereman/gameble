@@ -4,8 +4,8 @@
  * bottom sheet of type filters; then one row per entry across the shell's content width,
  * at least 68px tall: the sentence and its time on top, the tags and the
  * reactions at the bottom, a first discovery behind its gold badge. On a
- * phone's width the sentence wraps across the row's whole width, its time
- * beneath it. Hard edges, no animation, no opacity to dim a filler.
+ * phone's width each entry becomes a post (feed-post.css). Hard edges, no
+ * animation, no opacity to dim a filler.
  */
 
 .feed {
@@ -277,19 +277,21 @@
   background: currentcolor;
 }
 
-/* card-s halved by transform: the link keeps the halved box. */
+/* card-s scaled down by transform: the link keeps the scaled box. */
 .feed__thumb {
+  --feed-thumb-scale: 0.5;
+
   display: block;
   flex: none;
   align-self: center;
-  width: calc(var(--card-s-width) / 2);
-  height: calc(var(--card-s-height) / 2);
+  width: calc(var(--card-s-width) * var(--feed-thumb-scale));
+  height: calc(var(--card-s-height) * var(--feed-thumb-scale));
   text-decoration: none;
 }
 
 html .feed__thumb > .card.card--s,
 html .feed__thumb > .card.card--s[data-tilt] {
-  transform: scale(0.5);
+  transform: scale(var(--feed-thumb-scale));
   transform-origin: top left;
 }
 
@@ -441,26 +443,6 @@ html .feed__thumb > .card.card--s[data-tilt] {
 
 .feed__no-friends-text {
   margin: 0;
-}
-
-@container feed (max-width: 559px) {
-  .feed__entry {
-    align-items: flex-start;
-  }
-
-  .feed__head {
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .feed__sentence {
-    max-width: 100%;
-    overflow-wrap: anywhere;
-  }
-
-  .feed__time {
-    margin-left: 0;
-  }
 }
 
 @media (max-width: 719px) {

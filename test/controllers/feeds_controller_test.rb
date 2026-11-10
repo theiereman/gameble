@@ -56,6 +56,33 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__tag--epic", /Epic/
   end
 
+  test "each entry also carries the post a phone shows: the player's avatar and name, then what happened as a headline" do
+    open_epic
+
+    get feed_path(locale: :fr)
+
+    assert_select ".feed__entry:not(.feed__entry--set)" do |entries|
+      entries.each do |entry|
+        assert_select entry, ".feed__byline .feed__avatar"
+        assert_select entry, ".feed__byline .feed__name", "Hugo"
+        assert_select entry, ".feed__headline .feed__headline-kicker", /\A(A tiré|Première découverte)\z/
+        assert_select entry, ".feed__headline .feed__headline-title a.feed__game"
+      end
+    end
+    assert_select ".feed__entry--epic", 5
+  end
+
+  test "a trade's headline names the partner and both games" do
+    open_epic
+    trade_with(accounts_players(:moderator).tap { it.update!(persona_name: "Sam") })
+
+    get feed_path(locale: :en, filter: "trades")
+
+    assert_select ".feed__headline-kicker", "Trade with Sam"
+    assert_select ".feed__headline-title", "Portal for Blue Depths"
+    assert_select ".feed__entry[class*=feed__entry--epic]", 0
+  end
+
   test "an empty feed says so" do
     get feed_path(locale: :en)
 

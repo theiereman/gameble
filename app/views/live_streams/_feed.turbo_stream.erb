@@ -1,7 +1,8 @@
 <% if items.any? %>
   <%= turbo_stream.prepend "feed-entries" do %>
+    <% preload_avatars(items.map { it.first.player }) %>
     <% items.each do |item, card, partner_card, set| %>
-      <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions:, lazy: true %>
+      <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions:, lazy: true, post: true %>
     <% end %>
   <% end %>
 <% end %>

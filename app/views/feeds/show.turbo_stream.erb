@@ -1,14 +1,15 @@
+<% preload_avatars(@items.map { it.first.player }) %>
 <% if @before %>
   <%= turbo_stream.prepend "feed-entries" do %>
     <% @items.each do |item, card, partner_card, set| %>
-      <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions: @reactions %>
+      <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions: @reactions, post: true %>
     <% end %>
   <% end %>
   <%= turbo_stream.replace "feed-newer", partial: "feeds/newer", locals: { newer_cursor: @newer_cursor, filter: @filter, tab: @tab } %>
 <% else %>
   <%= turbo_stream.append "feed-entries" do %>
     <% @items.each do |item, card, partner_card, set| %>
-      <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions: @reactions %>
+      <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions: @reactions, post: true %>
     <% end %>
   <% end %>
   <%= turbo_stream.replace "feed-pages", partial: "feeds/pages", locals: { next_cursor: @next_cursor, filter: @filter, tab: @tab } %>

@@ -1355,6 +1355,27 @@ en:
       filters_label: Filter by type
       filters_opener: 'Type: %{type}'
       first_discovery: First discovery
+      headline:
+        pulled: Pulled
+        reposted: Reposted
+        set_reached:
+          adept: Reaches the Adept tier
+          apprentice: Reaches the Apprentice tier
+          bronze: Reaches bronze
+          complete: Completes the set
+          expert: Reaches the Expert tier
+          gold: Reaches gold
+          master: Reaches the Master tier
+          novice: Reaches the Novice tier
+          silver: Reaches silver
+        sets_reached:
+          one: Reaches %{count} tier
+          other: Reaches %{count} tiers
+          zero: Reaches %{count} tiers
+        trade_html: "%{card} for %{partner_card}"
+        traded_html: Trade with %{partner}
+        verdict: The Flukeometer's verdict
+        verdict_title: Last week's luckiest member
       nameless: Nameless player
       no_friends: Add friends to follow their pulls.
       pages:

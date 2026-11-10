@@ -1,0 +1,219 @@
+/*
+ * A feed entry on a phone reads as a post: the player's avatar, name and
+ * worn title with the time on top; then the card beside what happened to
+ * it, the game's name as the headline; the reactions at the bottom. A glow
+ * in the card's rarity colour spreads from the card over the whole post.
+ * Elsewhere the byline and headline stay hidden and the sentence tells it all.
+ */
+
+.feed__byline,
+.feed__headline {
+  display: none;
+}
+
+.feed__tags {
+  display: contents;
+}
+
+.feed__entry--common {
+  --feed-tint: var(--color-rarity-commune);
+}
+
+.feed__entry--uncommon {
+  --feed-tint: var(--color-rarity-peu-commune);
+}
+
+.feed__entry--rare {
+  --feed-tint: var(--color-rarity-rare);
+}
+
+.feed__entry--epic {
+  --feed-tint: var(--color-rarity-epique);
+}
+
+.feed__entry--legendary {
+  --feed-tint: var(--color-rarity-legendaire);
+}
+
+@container feed (max-width: 559px) {
+  .feed__entry {
+    --feed-avatar-size: 32px;
+    --feed-surface: var(--color-panel);
+
+    display: grid;
+    grid-template:
+      "byline byline time" auto
+      "thumb . ." 1fr
+      "thumb headline headline" auto
+      "thumb tags tags" auto
+      "thumb . ." 1fr
+      "reactions reactions reactions" auto
+      / auto minmax(0, 1fr) auto;
+    column-gap: var(--space-4);
+    padding: var(--space-4);
+    background:
+      radial-gradient(
+        ellipse 75% 60% at 18% 55%,
+        color-mix(in srgb, var(--feed-tint, var(--color-accent)) 26%, transparent),
+        transparent
+      ),
+      var(--feed-surface);
+  }
+
+  .feed__entry--filler {
+    --feed-surface: var(--color-panel-sunken);
+  }
+
+  .feed__entry--set {
+    grid-template:
+      "byline time" auto
+      "headline headline" auto
+      "tags tags" auto
+      "reactions reactions" auto
+      / minmax(0, 1fr) auto;
+  }
+
+  :is(.feed__body, .feed__head, .feed__meta) {
+    display: contents;
+  }
+
+  .feed__sentence {
+    display: none;
+  }
+
+  .feed__byline {
+    display: flex;
+    grid-area: byline;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  .feed__avatar {
+    flex: none;
+    width: var(--feed-avatar-size);
+    height: var(--feed-avatar-size);
+    background: var(--color-panel-sunken);
+  }
+
+  .feed__who {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .feed__who .feed__rank {
+    max-width: 100%;
+    margin-left: 0;
+  }
+
+  .feed__time {
+    grid-area: time;
+    align-self: center;
+    margin-left: 0;
+  }
+
+  .feed__entry > :is(.feed__thumb, .feed__thumbs) {
+    grid-area: thumb;
+    align-self: center;
+    margin-block: var(--space-4) var(--space-2);
+  }
+
+  .feed__thumb {
+    --feed-thumb-scale: 0.8;
+  }
+
+  .feed__thumbs .feed__thumb {
+    --feed-thumb-scale: 0.5;
+  }
+
+  .feed__headline {
+    display: flex;
+    grid-area: headline;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+    margin: 0;
+  }
+
+  .feed__entry--set .feed__headline {
+    margin-top: var(--space-5);
+  }
+
+  .feed__headline-kicker {
+    color: var(--color-muted);
+    font: var(--font-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .feed__headline--discovery .feed__headline-kicker {
+    color: var(--color-gold);
+  }
+
+  .feed__headline-title {
+    color: var(--color-text-max);
+    font: var(--font-weight-bold) 1.25rem / 1.5rem var(--font-family-jetbrains-mono);
+    overflow-wrap: anywhere;
+  }
+
+  .feed__headline-title .feed__game {
+    color: inherit;
+  }
+
+  .feed__tags {
+    display: flex;
+    grid-area: tags;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+  }
+
+  .feed__tags > :is(.feed__chip, .feed__tag--repost, .feed__tag--trade) {
+    display: none;
+  }
+
+  .feed__tags:not(:has(> :not(.feed__chip, .feed__tag--repost, .feed__tag--trade))) {
+    display: none;
+  }
+
+  .feed__entry .feed__reactions {
+    grid-area: reactions;
+    justify-content: flex-start;
+    margin: var(--space-3) 0 calc(-1 * var(--space-2));
+  }
+
+  .feed__entry .feed__reaction-add {
+    margin-left: auto;
+  }
+}
+
+/* Too narrow for the time beside the name: it goes under the worn title. */
+@container feed (max-width: 339px) {
+  .feed__entry {
+    grid-template:
+      "byline byline" auto
+      "time time" auto
+      "thumb ." 1fr
+      "thumb headline" auto
+      "thumb tags" auto
+      "thumb ." 1fr
+      "reactions reactions" auto
+      / auto minmax(0, 1fr);
+  }
+
+  .feed__entry--set {
+    grid-template:
+      "byline" auto
+      "time" auto
+      "headline" auto
+      "tags" auto
+      "reactions" auto
+      / minmax(0, 1fr);
+  }
+
+  .feed__time {
+    margin-left: calc(var(--feed-avatar-size) + var(--space-3));
+  }
+}

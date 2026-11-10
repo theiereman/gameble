@@ -14,6 +14,17 @@ module FeedHelper
     end
   end
 
+  def feed_byline(item)
+    feed_name(item.player, item.player_title, links: true, titles: true)
+  end
+
+  def feed_headline(item, card, partner_card, set)
+    kicker, title = feed_headline_parts(item, card, partner_card, set)
+    tag.p(class: [ "feed__headline", ("feed__headline--discovery" if item.entry.kind == "discovery") ]) do
+      tag.span(kicker, class: "feed__headline-kicker") + tag.span(title, class: "feed__headline-title")
+    end
+  end
+
   def feed_types_sheet_id = "feed-types"
 
   def feed_chip_link(label, path, current:, classes:)
@@ -41,6 +52,29 @@ module FeedHelper
 
   private
 
+  def feed_headline_parts(item, card, partner_card, set)
+    case item.entry.kind
+    when "set" then [ feed_set_kicker(item.entry), SetLabel.for(set) ]
+    when "verdict" then [ t("feeds.show.headline.verdict"), feed_register_link(t("feeds.show.headline.verdict_title")) ]
+    when "trade"
+      partner = feed_name(item.partner, nil, links: true, titles: false)
+      [ t("feeds.show.headline.traded_html", partner:), t("feeds.show.headline.trade_html", card: feed_game(card, links: true), partner_card: feed_game(partner_card, links: true)) ]
+    when "discovery" then [ t("feeds.show.first_discovery"), feed_game(card, links: true) ]
+    when "repost" then [ t("feeds.show.headline.reposted"), feed_game(card, links: true) ]
+    else [ t("feeds.show.headline.pulled"), feed_game(card, links: true) ]
+    end
+  end
+
+  def feed_set_kicker(entry)
+    return t("feeds.show.headline.sets_reached", count: entry.set_count) if entry.set_count > 1
+
+    t("feeds.show.headline.set_reached.#{entry.tier}")
+  end
+
+  def feed_register_link(label)
+    link_to(label, fortune_register_path(period: "last_week"), class: "feed__game", data: { turbo_prefetch: false })
+  end
+
   def feed_set_sentence(item, set, links:, titles:)
     words = { name: feed_name(item.player, item.player_title, links:, titles:), set: tag.strong(SetLabel.for(set)) }
     tier = item.entry.tier
@@ -53,7 +87,7 @@ module FeedHelper
 
   def feed_verdict_sentence(item, links:, titles:)
     label = t("feeds.show.verdict_register")
-    register = links ? link_to(label, fortune_register_path(period: "last_week"), class: "feed__game", data: { turbo_prefetch: false }) : tag.strong(label)
+    register = links ? feed_register_link(label) : tag.strong(label)
     t("feeds.show.verdict_html", name: feed_name(item.player, item.player_title, links:, titles:), register:)
   end
 
