@@ -8,7 +8,7 @@ module Game
     UpdateLine = Data.define(:token, :player, :outcome, :closed_at)
     ReactionLine = Data.define(:token, :name, :others, :count, :noticed_at, :kinds, :subject)
     ReactionSubject = Data.define(:card, :partner_card, :set)
-    Result = Data.define(:trades, :updates, :invitations, :reactions, :daily, :goal)
+    Result = Data.define(:trades, :updates, :invitations, :reactions, :market, :daily, :goal)
 
     def self.call(player, now: Time.current, locale: I18n.locale)
       trades = trades_waiting(player, now).to_a
@@ -21,6 +21,7 @@ module Game
         updates: updates.map { UpdateLine.new(token: it.token, player: senders[it.recipient_id], outcome: it.status, closed_at: it.closed_at) },
         invitations: invitations.map { InvitationLine.new(token: it.token, player: senders[it.sender_id]) },
         reactions: reaction_lines(ReactionUpdates.call(player, now:), locale),
+        market: Market::MarketNotices.call(player:, locale:),
         daily: daily(player, now),
         goal: goal(player, now)
       )

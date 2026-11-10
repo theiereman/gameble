@@ -65,9 +65,9 @@ module PlayerStream
       when Game::Market::CardListed
         [ balance_notice(data[:seller_id]) ]
       when Game::Market::AuctionSold
-        balance_notices(data.values_at(:seller_id, :winner_id, :outbid_player_id))
+        balance_notices(data.values_at(:seller_id, :winner_id, :outbid_player_id)) + market_notices([ data[:outbid_player_id] ])
       when Game::Market::BidPlaced
-        balance_notices(data.values_at(:bidder_id, :outbid_player_id))
+        balance_notices(data.values_at(:bidder_id, :outbid_player_id)) + market_notices([ data[:outbid_player_id] ])
       when Game::Market::AuctionUnsold
         balance_notices([ data[:seller_id] ])
       when Game::Market::ListingWithdrawn
@@ -90,6 +90,8 @@ module PlayerStream
     def balance_notice(player_id) = { player_id:, balance: true }
 
     def balance_notices(player_ids) = player_ids.compact.uniq.map { balance_notice(it) }
+
+    def market_notices(player_ids) = player_ids.compact.uniq.map { { player_id: it, topic: "market" } }
 
     def friends_notice(player_id) = { player_id:, topic: "friends" }
 

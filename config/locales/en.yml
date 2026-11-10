@@ -2374,6 +2374,11 @@ en:
         confirm_html: "CONFIRM %{amount}"
         title: UNUSUAL AMOUNT
     listings:
+      events:
+        outbid:
+          action: SEE THE LISTING
+          body_html: "%{name} moved ahead on %{card}. Your %{amount} are available again. The Brotherhood never bids for you."
+          title: YOU WERE OUTBID
       history:
         created_html: "Listed by %{name}"
         extension_html: "Auction extended until %{time}"
@@ -3654,6 +3659,8 @@ en:
         zero: What is new, all seen
         one: What is new, %{count} unseen
         other: What is new, %{count} unseen
+      market:
+        outbid_html: "%{name} went past your maximum on %{card}."
       mission: "This week's mission: open %{target} capsules together."
       mission_reached: "This week's mission is accomplished: %{target} capsules opened together."
       mission_reward: 'The weekly mission is accomplished: a rare capsule awaits you.'

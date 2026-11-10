@@ -14,6 +14,13 @@ class PlayerNameComponentTest < ViewComponent::TestCase
     assert_selector "a.player-name.player-name--linked[href=?]", "/en/brothers/#{@owner.token}", text: "Alice"
   end
 
+  test "a visible player is a bare name when the caller asks for no link" do
+    render_inline(PlayerNameComponent.new(player: @owner, viewer: @viewer, linked: false))
+
+    assert_selector "span.player-name", text: "Alice"
+    assert_no_selector "a"
+  end
+
   test "a private player shows as a bare name with no link" do
     @owner.update_columns(visibility: Accounts::Player.visibilities.fetch("private"))
     name_for(@owner)

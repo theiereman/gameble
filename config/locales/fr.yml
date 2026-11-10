@@ -118,6 +118,8 @@ fr:
         zero: "%{count} joueur a réagi à votre publication."
         one: "%{count} joueur a réagi à votre publication."
         other: "%{count} joueurs ont réagi à votre publication."
+      market:
+        outbid_html: "%{name} a dépassé votre maximum sur %{card}."
       daily: "Votre capsule du jour est prête."
       mission: "Mission de la semaine : ouvrir %{target} capsules ensemble."
       mission_reached: "La mission de la semaine est accomplie : %{target} capsules ouvertes ensemble."
@@ -2062,6 +2064,11 @@ fr:
         confirm_html: "CONFIRMER %{amount}"
         title: "MONTANT INHABITUEL"
     listings:
+      events:
+        outbid:
+          action: "VOIR L'ANNONCE"
+          body_html: "%{name} est passé devant sur %{card}. Vos %{amount} sont de nouveau disponibles. La Confrérie n'enchérit jamais à votre place."
+          title: "VOUS AVEZ ÉTÉ DÉPASSÉ"
       history:
         created_html: "Mise en vente par %{name}"
         extension_html: "Enchère prolongée jusqu'à %{time}"

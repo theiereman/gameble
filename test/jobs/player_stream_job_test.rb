@@ -102,6 +102,15 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     assert_empty streams(english, "append")
   end
 
+  test "a market notice sends the market signal once and nothing else" do
+    PlayerStreamJob.perform_now([ { player_id: @hugo.id, topic: "market" }, { player_id: @hugo.id, topic: "market" } ])
+
+    english = received(@hugo, :en)
+    assert_equal [ "market-updated" ], streams(english, "gameble-event").map { it["event"] }
+    assert_empty streams(english, "update")
+    assert_empty streams(english, "append")
+  end
+
   test "an accepted invitation sends the sender the NOUVEL AMI toast and the friends signal" do
     PlayerStreamJob.perform_now([ { player_id: @hugo.id, topic: "friends", friend_id: @lea.id }, { player_id: @lea.id, topic: "friends" } ])
 

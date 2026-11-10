@@ -19,6 +19,7 @@ search:
 # Accounts::SignIn.failure_key, Game::Operation), which the static search cannot see.
 ignore_unused:
   - "errors.*"
+  - "shell.bell.market.*"
   - "back_office.markets.settings.groups.*"
   - "back_office.markets.settings.labels.*"
   - "back_office.markets.settings.moments.*"

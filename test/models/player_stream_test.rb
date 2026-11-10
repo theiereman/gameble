@@ -319,10 +319,17 @@ class PlayerStreamTest < ActiveSupport::TestCase
   test "a sale tells the seller, the winner and the outbid player, once each" do
     data = { listing_id: 1, seller_id: @alice.id, winner_id: @bob.id, card_season_id: @one, final_price: 10, surplus: 0, outbid_player_id: @alice.id, outbid_released: 5 }
 
-    notices = PlayerStream.notices(Game::Market::AuctionSold.new(data:))
+    notices = PlayerStream.notices(Game::Market::AuctionSold.new(data:)).select { it[:balance] }
 
     assert_equal [ @alice.id, @bob.id ], notices.map { it[:player_id] }
-    assert(notices.all? { it[:balance] })
+  end
+
+  test "a sale over a lead also tells the outbid player's bell, once" do
+    data = { listing_id: 1, seller_id: @alice.id, winner_id: @bob.id, card_season_id: @one, final_price: 10, surplus: 0, outbid_player_id: @alice.id, outbid_released: 5 }
+
+    notices = PlayerStream.notices(Game::Market::AuctionSold.new(data:))
+
+    assert_equal [ { player_id: @alice.id, topic: "market" } ], notices.select { it[:topic] }
   end
 
   test "a bid tells the bidder and the outbid player, once each" do
@@ -330,8 +337,8 @@ class PlayerStreamTest < ActiveSupport::TestCase
 
     notices = PlayerStream.notices(Game::Market::BidPlaced.new(data:))
 
-    assert_equal [ @bob.id, @alice.id ], notices.map { it[:player_id] }
-    assert(notices.all? { it[:balance] })
+    assert_equal [ @bob.id, @alice.id ], notices.select { it[:balance] }.map { it[:player_id] }
+    assert_equal [ { player_id: @alice.id, topic: "market" } ], notices.select { it[:topic] }
   end
 
   test "a bid that outbids nobody tells the bidder alone" do
@@ -343,7 +350,7 @@ class PlayerStreamTest < ActiveSupport::TestCase
   test "a bid that outbids the bidder's own earlier lead does not duplicate the notice" do
     data = { listing_id: 1, bidder_id: @bob.id, branch: "new_leader", outbid_player_id: @bob.id, outbid_released: 5 }
 
-    assert_equal [ { player_id: @bob.id, balance: true } ], PlayerStream.notices(Game::Market::BidPlaced.new(data:))
+    assert_equal [ { player_id: @bob.id, balance: true } ], PlayerStream.notices(Game::Market::BidPlaced.new(data:)).select { it[:balance] }
   end
 
   test "an unsold auction tells its seller" do

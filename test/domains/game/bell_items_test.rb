@@ -144,6 +144,16 @@ class Game::BellItemsTest < ActiveSupport::TestCase
 
   def reactions(player = @hugo) = Game::BellItems.call(player).reactions
 
+  test "the market lines are the player's own notices, never another's" do
+    listing = Game::Market::Listing.create!(seller: @max, card_season_id: catalog_card_seasons(:common_card_one).id,
+      settings_id: Game::Market::Settings.create!(Game::Market::StartingSettings::ATTRIBUTES.merge(open: true)).id, starting_price: 1_300,
+      current_price: 1_300, duration_hours: 24, ends_at: 1.day.from_now)
+    Game::Market::Notice.record(player_id: @hugo.id, listing_id: listing.id, kind: "outbid", other_player_id: @eve.id, amount: 2_000, at: NOW)
+
+    assert_equal [ listing.token ], items.market.map(&:token)
+    assert_empty items(@eve).market
+  end
+
   def noticed_at(entry) = Game::ReactionNotice.where(feed_entry_id: entry.id).maximum(:created_at)
 
   def notice_age(entry, reactor, age)
