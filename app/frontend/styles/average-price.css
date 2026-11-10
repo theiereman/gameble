@@ -33,3 +33,14 @@
   flex-direction: column;
   align-items: flex-end;
 }
+
+.collection-slot__price {
+  display: block;
+  margin-top: var(--space-1);
+  text-align: center;
+  font: var(--font-label);
+}
+
+.price-group {
+  display: contents;
+}

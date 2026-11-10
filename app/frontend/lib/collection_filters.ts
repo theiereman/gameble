@@ -1,5 +1,8 @@
 export const SET_OPTIONS_FRAME = "collection-set-options"
 export const SET_KIND_FIELD = "set_kind"
+export const SORT_FIELD = "sort"
+export const PRICE_GROUP = "price"
+export const DEFAULT_SORT = ""
 export const RESULTS_FRAME = "collection-results"
 export const RESULTS_STATUS = "collection-results-status"
 
@@ -22,6 +25,11 @@ export function countsByGroup(groups: readonly ChipGroup[]): GroupCounts {
   return counts
 }
 
+export function priceGroup(sort: string, minimum: string, maximum: string): ChipGroup {
+  const bounds = [minimum, maximum].filter((value) => value.trim() !== "")
+  return { name: PRICE_GROUP, checked: sort === DEFAULT_SORT ? bounds : [sort, ...bounds] }
+}
+
 export function countOf(counts: GroupCounts, names: readonly string[]): number {
   return names.reduce((sum, name) => sum + (counts.get(name) ?? 0), 0)
 }
@@ -39,6 +47,8 @@ export type Reload = "grid" | "sets" | "none"
 export function reloadOnChange(field: { type: string; name: string }): Reload {
   if (field.type === "checkbox") return "grid"
   if (field.type === "radio" && field.name === SET_KIND_FIELD) return "sets"
+  if (field.type === "radio" && field.name === SORT_FIELD) return "grid"
+  if (field.type === "number") return "grid"
   return "none"
 }
 

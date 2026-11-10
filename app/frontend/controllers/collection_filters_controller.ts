@@ -4,6 +4,8 @@ import {
   countOf,
   countsByGroup,
   groupNames,
+  priceGroup,
+  PRICE_GROUP,
   reloadOnChange,
   reloadsSets,
   RESULTS_FRAME,
@@ -130,10 +132,17 @@ export default class extends Controller<HTMLFormElement> {
 
   private chipGroup(group: HTMLElement): ChipGroup {
     const name = group.dataset.group ?? ""
+    if (name === PRICE_GROUP) return this.priceChips(group)
     const checked = this.boxes(group)
       .filter((b) => b.checked)
       .map((b) => b.value)
     return name === "state" ? { name, checked, fallback: group.dataset.default ?? ALL_STATE } : { name, checked }
+  }
+
+  private priceChips(group: HTMLElement): ChipGroup {
+    const sort = group.querySelector<HTMLInputElement>('input[name="sort"]:checked')?.value ?? ""
+    const bound = (name: string) => group.querySelector<HTMLInputElement>(`input[name="${name}"]`)?.value ?? ""
+    return priceGroup(sort, bound("min_price"), bound("max_price"))
   }
 
   private refresh(): void {

@@ -4,6 +4,7 @@ import {
   countOf,
   countsByGroup,
   groupNames,
+  priceGroup,
   reloadOnChange,
   reloadsSets,
   SET_OPTIONS_FRAME,
@@ -28,6 +29,8 @@ describe("reloadOnChange", () => {
     expect(reloadOnChange({ type: "checkbox", name: "rarity[]" })).toBe("grid")
     expect(reloadOnChange({ type: "checkbox", name: "sets[]" })).toBe("grid")
     expect(reloadOnChange({ type: "radio", name: "set_kind" })).toBe("sets")
+    expect(reloadOnChange({ type: "radio", name: "sort" })).toBe("grid")
+    expect(reloadOnChange({ type: "number", name: "min_price" })).toBe("grid")
     expect(reloadOnChange({ type: "radio", name: "other" })).toBe("none")
     expect(reloadOnChange({ type: "search", name: "set_q" })).toBe("none")
     expect(reloadOnChange({ type: "search", name: "q" })).toBe("none")
@@ -115,5 +118,25 @@ describe("groupNames", () => {
     expect(groupNames("rarity")).toEqual(["rarity"])
     expect(groupNames("")).toEqual([])
     expect(groupNames(undefined)).toEqual([])
+  })
+})
+
+describe("priceGroup", () => {
+  it("counts a chosen order and each filled bound, none when nothing is chosen", () => {
+    expect(chipsOn(priceGroup("", "", ""))).toBe(0)
+    expect(chipsOn(priceGroup("price_desc", "", ""))).toBe(1)
+    expect(chipsOn(priceGroup("", "100", ""))).toBe(1)
+    expect(chipsOn(priceGroup("price_asc", "100", "5000"))).toBe(3)
+  })
+
+  it("ignores a blank bound", () => {
+    expect(chipsOn(priceGroup("", "  ", "5000"))).toBe(1)
+  })
+
+  it("adds to the total with the other groups", () => {
+    const counts = countsByGroup([{ name: "rarity", checked: ["rare"] }, priceGroup("price_asc", "", "900")])
+
+    expect(totalOf(counts)).toBe(3)
+    expect(countOf(counts, ["price"])).toBe(2)
   })
 })
