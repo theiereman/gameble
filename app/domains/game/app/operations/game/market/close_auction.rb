@@ -3,6 +3,7 @@ module Game
     # Ends a due auction exactly once: sold to its leader, left unsold, or withdrawn when its seller is gone. The job calls it in the seller's name.
     class CloseAuction < Operation
       include AuctionSettlement
+      include ListingReservation
 
       CLOSED_MEANWHILE = Dry::Monads::Failure(:listing_not_closable)
 
@@ -57,11 +58,6 @@ module Game
         Ledger.post(release_entries(listing, leader_id, released))
         event = status == "withdrawn" ? ListingWithdrawn.new(data: { listing_id: listing.id, seller_id: listing.seller_id, leader_id:, released: }) : AuctionUnsold.new(data: { listing_id: listing.id, seller_id: listing.seller_id })
         publish_to_seller(listing, event)
-      end
-
-      def release_reservation(listing, now)
-        holding = TradeLocks.holdings(listing.seller_id, [ listing.card_season_id ]).fetch(listing.card_season_id)
-        Holding.where(id: holding.id).update_all([ "reserved = reserved - 1, updated_at = ?", now ])
       end
 
       def release_entries(listing, leader_id, released)
