@@ -3,7 +3,7 @@ title: "CONFIER on a card's detail opens Confier on that card's editions"
 type: 'feature'
 ticket: '38.7'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: '7575ad08a540ba6ca7576e0127e0c41785d126a7'
 route: 'full'
 route_source: 'auto'
@@ -90,6 +90,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- Review: checked the diff against the plan and spec (GET writes nothing, slug token not id, Pundit on the shared action, en/fr keys with zero forms, packwerk boundary via Catalog::CardSlugKnown, tests per acceptance criterion). Only fix: fr.yml keys in `market.entrustments.new` put in alphabetical order. Rubocop and packwerk could not run here (bundle lacks gems); ruby syntax and the planning-id and file-size scripts were not blocking.
 
 ## Review Triage Log
 

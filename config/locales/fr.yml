@@ -1942,10 +1942,10 @@ fr:
             other: "%{title}, saison %{season} : %{count} exemplaires restent dans votre collection (%{amount} chacun)"
         throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
       new:
+        all_cards: "Toutes les cartes"
         bar_action: "Confier ▸"
         bar_label: "Votre sélection à confier"
         card_only: "Seulement %{title}."
-        all_cards: "Toutes les cartes"
         cap_full: "Votre plafond du jour est atteint. Il se renouvelle à 00:00 UTC."
         cap_label: "Plafond du jour"
         clear_filters: "Effacer les filtres"
