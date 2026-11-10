@@ -3,7 +3,7 @@ title: 'On the phone, Confier ticks in three columns and sets copies in the reca
 type: 'feature'
 ticket: '38.6'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: '975d0cc8dc1aa561a6ac04a9802ed9b7e7bf6642'
 route: 'full'
 route_source: 'auto'
@@ -125,6 +125,8 @@ context:
 Built without running any test or rubocop (bundler could not resolve gems in the worktree). The `bar` target was not added to the recap controller: the bar has no behaviour of its own beyond its count and total targets. `ENTRUST_CHILDREN` was dropped, the three outlets come from `ENTRUST_ACTIONS`.
 
 ## Plan Change Log
+
+- Review: checked the diff against the plan, spec and AGENTS.md (no new write path, GET or id exposure, locale keys in en and fr with French zero form, markup free of style attributes, size and planning-id checks clean, prettier clean). No defect found; rubocop could not run in the worktree (bundler cannot resolve gems).
 
 ## Review Triage Log
 
