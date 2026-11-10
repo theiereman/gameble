@@ -97,6 +97,8 @@ class Game::Market::ListCardTest < ActiveSupport::TestCase
     refused :invalid_price, starting_price: 0
     refused :invalid_price, starting_price: "abc"
     refused :invalid_price, starting_price: "12.5"
+    refused :invalid_price, starting_price: "0x40"
+    refused :invalid_price, starting_price: "1_000"
     refused :invalid_price, starting_price: @minimum, buy_now_price: -4
   end
 

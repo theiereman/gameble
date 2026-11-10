@@ -3,7 +3,7 @@ title: 'A listed copy shows on the market and its Annonce'
 type: 'feature'
 ticket: '39.1'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: '5d682a406943ae1e57fc601b31d6b9082883e929'
 route: 'full'
 route_source: 'auto'
@@ -137,6 +137,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10 review: amounts and durations are read as plain decimal digits only (no octal "010", hex "0x40" or "1_000" via Integer()); test lines added. Ledger order, locks, schema, locales, tokens, policy and GET behaviour checked without finding other defects; bundle-based checks could not run in the worktree (gems missing).
 
 ## Review Triage Log
 

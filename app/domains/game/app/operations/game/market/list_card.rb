@@ -31,8 +31,13 @@ module Game
       private
 
       def amount(value)
-        number = Integer(value.to_s.strip, exception: false)
+        number = whole_number(value)
         number&.between?(1, MAX_AMOUNT) ? Success(number) : Failure(:invalid_price)
+      end
+
+      def whole_number(value)
+        text = value.to_s.strip
+        Integer(text, 10) if text.match?(/\A\d+\z/)
       end
 
       def optional_amount(value) = value.nil? || value.to_s.strip.empty? ? Success(nil) : amount(value)
@@ -64,7 +69,7 @@ module Game
 
       def duration_rule(settings, duration_hours)
         allowed = [ settings.duration_short_hours, settings.duration_medium_hours, settings.duration_long_hours ]
-        allowed.include?(Integer(duration_hours.to_s, exception: false)) ? Success() : Failure(:invalid_duration)
+        allowed.include?(whole_number(duration_hours)) ? Success() : Failure(:invalid_duration)
       end
 
       def stamp_covered(settings, rarity, player)
@@ -72,7 +77,7 @@ module Game
       end
 
       def create_listing(player, card_season_id, settings, starting_price, buy_now_price, duration_hours)
-        hours = Integer(duration_hours.to_s)
+        hours = whole_number(duration_hours)
         Listing.create!(seller: player, card_season_id:, settings_id: settings.id, starting_price:, buy_now_price:, duration_hours: hours,
           ends_at: hours.hours.from_now, current_price: starting_price)
       end
