@@ -1,0 +1,266 @@
+[
+  {
+    "price": "0",
+    "basisPoints": 0,
+    "commission": "0",
+    "received": "0"
+  },
+  {
+    "price": "0",
+    "basisPoints": 250,
+    "commission": "0",
+    "received": "0"
+  },
+  {
+    "price": "0",
+    "basisPoints": 1000,
+    "commission": "0",
+    "received": "0"
+  },
+  {
+    "price": "0",
+    "basisPoints": 2500,
+    "commission": "0",
+    "received": "0"
+  },
+  {
+    "price": "1",
+    "basisPoints": 0,
+    "commission": "0",
+    "received": "1"
+  },
+  {
+    "price": "1",
+    "basisPoints": 250,
+    "commission": "0",
+    "received": "1"
+  },
+  {
+    "price": "1",
+    "basisPoints": 1000,
+    "commission": "0",
+    "received": "1"
+  },
+  {
+    "price": "1",
+    "basisPoints": 2500,
+    "commission": "0",
+    "received": "1"
+  },
+  {
+    "price": "3",
+    "basisPoints": 0,
+    "commission": "0",
+    "received": "3"
+  },
+  {
+    "price": "3",
+    "basisPoints": 250,
+    "commission": "0",
+    "received": "3"
+  },
+  {
+    "price": "3",
+    "basisPoints": 1000,
+    "commission": "0",
+    "received": "3"
+  },
+  {
+    "price": "3",
+    "basisPoints": 2500,
+    "commission": "0",
+    "received": "3"
+  },
+  {
+    "price": "99",
+    "basisPoints": 0,
+    "commission": "0",
+    "received": "99"
+  },
+  {
+    "price": "99",
+    "basisPoints": 250,
+    "commission": "2",
+    "received": "97"
+  },
+  {
+    "price": "99",
+    "basisPoints": 1000,
+    "commission": "9",
+    "received": "90"
+  },
+  {
+    "price": "99",
+    "basisPoints": 2500,
+    "commission": "24",
+    "received": "75"
+  },
+  {
+    "price": "1299",
+    "basisPoints": 0,
+    "commission": "0",
+    "received": "1299"
+  },
+  {
+    "price": "1299",
+    "basisPoints": 250,
+    "commission": "32",
+    "received": "1267"
+  },
+  {
+    "price": "1299",
+    "basisPoints": 1000,
+    "commission": "129",
+    "received": "1170"
+  },
+  {
+    "price": "1299",
+    "basisPoints": 2500,
+    "commission": "324",
+    "received": "975"
+  },
+  {
+    "price": "1300",
+    "basisPoints": 0,
+    "commission": "0",
+    "received": "1300"
+  },
+  {
+    "price": "1300",
+    "basisPoints": 250,
+    "commission": "32",
+    "received": "1268"
+  },
+  {
+    "price": "1300",
+    "basisPoints": 1000,
+    "commission": "130",
+    "received": "1170"
+  },
+  {
+    "price": "1300",
+    "basisPoints": 2500,
+    "commission": "325",
+    "received": "975"
+  },
+  {
+    "price": "1234567",
+    "basisPoints": 0,
+    "commission": "0",
+    "received": "1234567"
+  },
+  {
+    "price": "1234567",
+    "basisPoints": 250,
+    "commission": "30864",
+    "received": "1203703"
+  },
+  {
+    "price": "1234567",
+    "basisPoints": 1000,
+    "commission": "123456",
+    "received": "1111111"
+  },
+  {
+    "price": "1234567",
+    "basisPoints": 2500,
+    "commission": "308641",
+    "received": "925926"
+  },
+  {
+    "price": "7000000",
+    "basisPoints": 0,
+    "commission": "0",
+    "received": "7000000"
+  },
+  {
+    "price": "7000000",
+    "basisPoints": 250,
+    "commission": "175000",
+    "received": "6825000"
+  },
+  {
+    "price": "7000000",
+    "basisPoints": 1000,
+    "commission": "700000",
+    "received": "6300000"
+  },
+  {
+    "price": "7000000",
+    "basisPoints": 2500,
+    "commission": "1750000",
+    "received": "5250000"
+  },
+  {
+    "price": "9007199254740991",
+    "basisPoints": 0,
+    "commission": "0",
+    "received": "9007199254740991"
+  },
+  {
+    "price": "9007199254740991",
+    "basisPoints": 250,
+    "commission": "225179981368524",
+    "received": "8782019273372467"
+  },
+  {
+    "price": "9007199254740991",
+    "basisPoints": 1000,
+    "commission": "900719925474099",
+    "received": "8106479329266892"
+  },
+  {
+    "price": "9007199254740991",
+    "basisPoints": 2500,
+    "commission": "2251799813685247",
+    "received": "6755399441055744"
+  },
+  {
+    "price": "9007199254740993",
+    "basisPoints": 0,
+    "commission": "0",
+    "received": "9007199254740993"
+  },
+  {
+    "price": "9007199254740993",
+    "basisPoints": 250,
+    "commission": "225179981368524",
+    "received": "8782019273372469"
+  },
+  {
+    "price": "9007199254740993",
+    "basisPoints": 1000,
+    "commission": "900719925474099",
+    "received": "8106479329266894"
+  },
+  {
+    "price": "9007199254740993",
+    "basisPoints": 2500,
+    "commission": "2251799813685248",
+    "received": "6755399441055745"
+  },
+  {
+    "price": "9223372036854775807",
+    "basisPoints": 0,
+    "commission": "0",
+    "received": "9223372036854775807"
+  },
+  {
+    "price": "9223372036854775807",
+    "basisPoints": 250,
+    "commission": "230584300921369395",
+    "received": "8992787735933406412"
+  },
+  {
+    "price": "9223372036854775807",
+    "basisPoints": 1000,
+    "commission": "922337203685477580",
+    "received": "8301034833169298227"
+  },
+  {
+    "price": "9223372036854775807",
+    "basisPoints": 2500,
+    "commission": "2305843009213693951",
+    "received": "6917529027641081856"
+  }
+]

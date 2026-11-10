@@ -15,4 +15,13 @@ class Game::Market::AuctionMathTest < ActiveSupport::TestCase
       assert_equal price * 10 / 100, Game::Market::AuctionMath.commission(price, 1_000)
     end
   end
+
+  test "every row of the shared fixture gives the same commission and amount received as on the client" do
+    JSON.parse(file_fixture("listing_amounts.json").read).each do |row|
+      commission = Game::Market::AuctionMath.commission(row["price"].to_i, row["basisPoints"])
+
+      assert_equal row["commission"].to_i, commission, row.inspect
+      assert_equal row["received"].to_i, row["price"].to_i - commission, row.inspect
+    end
+  end
 end
