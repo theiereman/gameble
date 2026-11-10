@@ -4,7 +4,8 @@ module Game
     class EntrustCards < Operation
       include MoveHoldings
 
-      Entrusted = Data.define(:minted, :copies)
+      Stayed = Data.define(:card_season_id, :copies, :value)
+      Entrusted = Data.define(:minted, :copies, :stayed, :cap_left)
 
       # lines: card-season id => copies; settings_token: the version the form drew its amounts from.
       def call(player:, lines:, settings_token:)
@@ -16,12 +17,16 @@ module Game
           settings = step current_settings(settings_token)
           holdings = TradeLocks.holdings(player.id, lines.keys)
           step enough_copies(lines, holdings)
-          minted = step minted_for(lines, settings)
-          deposit(player, lines, holdings)
+          values = step values_of(lines, settings)
+          cap_left = [ settings.daily_cap - MintedToday.call(player.id), 0 ].max
+          entrusted, stayed = split_by_cap(lines, values, cap_left)
+          step(Failure(:nothing_fits)) if entrusted.empty?
+          minted = entrusted.sum { |card_season_id, copies| values.fetch(card_season_id) * copies }
+          deposit(player, entrusted, holdings)
           Mint.credit(player_id: player.id, amount: minted, settings_id: settings.id)
-          step publish(CardsEntrusted.new(data: { player_id: player.id, cards: lines.map { |card_season_id, copies| { card_season_id:, copies: } } }),
+          step publish(CardsEntrusted.new(data: { player_id: player.id, cards: entrusted.map { |card_season_id, copies| { card_season_id:, copies: } } }),
             stream_name: stream_name(player.id))
-          Entrusted.new(minted:, copies: lines.values.sum)
+          Entrusted.new(minted:, copies: entrusted.values.sum, stayed: stayed_list(stayed, values), cap_left:)
         end
       rescue ActiveRecord::Deadlocked
         step Failure(:market_busy)
@@ -36,7 +41,7 @@ module Game
           copies = Integer(copies, exception: false)
           counts[card_season_id] += copies if card_season_id&.positive? && copies&.positive?
         end
-        counts.empty? ? Failure(:empty_batch) : Success(counts.sort.to_h)
+        counts.empty? ? Failure(:empty_batch) : Success(counts)
       end
 
       def current_settings(settings_token)
@@ -52,11 +57,28 @@ module Game
         free ? Success() : Failure(:not_enough_copies)
       end
 
-      def minted_for(lines, settings)
+      def values_of(lines, settings)
         rarities = Catalog::CardSeason.where(id: lines.keys).pluck(:id, :rarity).to_h
         return Failure(:no_rarity) if lines.keys.any? { rarities[it].nil? }
 
-        Success(lines.sum { |card_season_id, copies| settings.entrustment(rarities.fetch(card_season_id)) * copies })
+        Success(lines.keys.to_h { |card_season_id| [ card_season_id, settings.entrustment(rarities.fetch(card_season_id)) ] })
+      end
+
+      # Whole copies in the order received: a line that does not fit stays and a cheaper one after it may still pass.
+      def split_by_cap(lines, values, cap_left)
+        entrusted = {}
+        stayed = {}
+        lines.each do |card_season_id, copies|
+          fits = [ copies, cap_left / values.fetch(card_season_id) ].min
+          cap_left -= fits * values.fetch(card_season_id)
+          entrusted[card_season_id] = fits if fits.positive?
+          stayed[card_season_id] = copies - fits if fits < copies
+        end
+        [ entrusted, stayed ]
+      end
+
+      def stayed_list(stayed, values)
+        stayed.map { |card_season_id, copies| Stayed.new(card_season_id:, copies:, value: values.fetch(card_season_id)) }
       end
 
       def deposit(player, lines, holdings)

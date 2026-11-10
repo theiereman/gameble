@@ -12,7 +12,13 @@ class Game::Market::EntrustCardsTest < ActiveSupport::TestCase
     @player = accounts_players(:player)
     @common = catalog_card_seasons(:common_card_one)
     @rare = catalog_card_seasons(:rare_card_one)
+    @uncommon = catalog_card_seasons(:uncommon_card_one)
+    @legendary = catalog_card_seasons(:legendary_card_one)
     @settings = open_market!
+  end
+
+  def minted_before(player, amount)
+    Game::Market::Mint.credit(player_id: player.id, amount:, settings_id: @settings.id)
   end
 
   def entrust(lines, token: @settings.token, player: @player)
@@ -38,6 +44,7 @@ class Game::Market::EntrustCardsTest < ActiveSupport::TestCase
 
     assert_equal 7_000, result.value!.minted
     assert_equal 3, result.value!.copies
+    assert_equal [ [], 1_200_000 ], [ result.value!.stayed, result.value!.cap_left ]
     assert_equal [ 0, 0 ], [ quantity(@common), quantity(@rare) ]
     assert_equal [ 7_000, 0 ], wallet.values_at(:available, :committed)
     mint = Game::Market::LedgerEntry.find_by!(player_id: @player.id)
@@ -140,5 +147,109 @@ class Game::Market::EntrustCardsTest < ActiveSupport::TestCase
     @player.update_columns(deleted_at: Time.current, steam_id: nil)
 
     nothing_moves { assert_equal :player_required, entrust({ @common.id => 1 }).failure }
+  end
+
+  test "a legendary over the cap stays while cheaper copies pass, and the cap left is the figure before the batch" do
+    hold(@player, @legendary.id, 1)
+    hold(@player, @uncommon.id, 2)
+    hold(@player, @common.id, 1)
+    minted_before(@player, 1_150_000)
+
+    value = entrust({ @legendary.id => 1, @uncommon.id => 2, @common.id => 1 }).value!
+
+    assert_equal [ 5_000, 3, 50_000 ], [ value.minted, value.copies, value.cap_left ]
+    assert_equal [ Game::Market::EntrustCards::Stayed.new(card_season_id: @legendary.id, copies: 1, value: 100_000) ], value.stayed
+    assert_equal [ 1, 0, 0 ], [ quantity(@legendary), quantity(@uncommon), quantity(@common) ]
+    assert_nil Game::Market::ArchiveDeposit.find_by(player_id: @player.id, card_season_id: @legendary.id)
+    assert_equal 1_155_000, wallet.available
+  end
+
+  test "a copy that does not fit is skipped and a cheaper one after it still passes" do
+    hold(@player, @rare.id, 1)
+    hold(@player, @uncommon.id, 1)
+    minted_before(@player, 1_197_000)
+
+    value = entrust({ @rare.id => 1, @uncommon.id => 1 }).value!
+
+    assert_equal 2_000, value.minted
+    assert_equal [ @rare.id ], value.stayed.map(&:card_season_id)
+    assert_equal 1, quantity(@rare)
+  end
+
+  test "a line is split by copies" do
+    hold(@player, @common.id, 3)
+    minted_before(@player, 1_197_500)
+
+    value = entrust({ @common.id => 3 }).value!
+
+    assert_equal [ 2, 1, 2_000 ], [ value.copies, value.stayed.sole.copies, value.minted ]
+    assert_equal 1, quantity(@common)
+  end
+
+  test "the lines are applied in the order received" do
+    hold(@player, @rare.id, 1)
+    hold(@player, @uncommon.id, 1)
+    minted_before(@player, 1_195_000)
+
+    value = entrust({ @uncommon.id => 1, @rare.id => 1 }).value!
+
+    assert_equal 7_000, value.minted
+  end
+
+  test "a batch where nothing fits moves nothing" do
+    hold(@player, @common.id, 1)
+    minted_before(@player, 1_199_500)
+
+    assert_no_difference -> { Rails.configuration.event_store.read.of_type([ Game::Market::CardsEntrusted ]).count } do
+      nothing_moves { assert_equal :nothing_fits, entrust({ @common.id => 1 }).failure }
+    end
+    assert_equal 1, quantity(@common)
+  end
+
+  test "a cap fully minted today refuses the batch" do
+    hold(@player, @common.id, 1)
+    minted_before(@player, 1_200_000)
+
+    nothing_moves { assert_equal :nothing_fits, entrust({ @common.id => 1 }).failure }
+  end
+
+  test "the cap renews at 00:00 UTC" do
+    hold(@player, @common.id, 1)
+    travel_to Time.utc(2026, 11, 10, 23, 59) do
+      minted_before(@player, 1_200_000)
+      nothing_moves { assert_equal :nothing_fits, entrust({ @common.id => 1 }).failure }
+    end
+
+    travel_to Time.utc(2026, 11, 11, 0, 1) do
+      assert_equal 1_200_000, entrust({ @common.id => 1 }).value!.cap_left
+    end
+  end
+
+  test "only mint entries of this player count" do
+    hold(@player, @common.id, 1)
+    other = accounts_players(:moderator)
+    minted_before(other, 1_200_000)
+    Game::Market::Ledger.post([ Game::Market::Ledger::Entry.new(player_id: @player.id, kind: :sale, available_delta: 1_200_000, settings_id: @settings.id) ])
+
+    assert_equal 1_200_000, entrust({ @common.id => 1 }).value!.cap_left
+  end
+
+  test "a cap lowered under what was minted today leaves nothing and never goes negative" do
+    hold(@player, @common.id, 1)
+    minted_before(@player, 1_000_000)
+    lowered = open_market!(daily_cap: 500_000)
+
+    nothing_moves { assert_equal :nothing_fits, entrust({ @common.id => 1 }, token: lowered.token).failure }
+  end
+
+  test "the event lists only the entrusted copies" do
+    hold(@player, @legendary.id, 1)
+    hold(@player, @common.id, 1)
+    minted_before(@player, 1_150_000)
+
+    entrust({ @legendary.id => 1, @common.id => 1 }).value!
+
+    event = Rails.configuration.event_store.read.of_type([ Game::Market::CardsEntrusted ]).last
+    assert_equal [ { card_season_id: @common.id, copies: 1 } ], event.data[:cards].map(&:symbolize_keys)
   end
 end
