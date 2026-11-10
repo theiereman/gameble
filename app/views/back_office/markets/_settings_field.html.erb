@@ -1,0 +1,15 @@
+<%# locals: (form:, field:, disabled:, labelled_by: nil) %>
+<% id = "market-settings-#{field.to_s.dasherize}" %>
+<% error = form.violation_message(field) %>
+<div class="market-settings__field">
+  <% unless labelled_by %>
+    <label for="<%= id %>"><%= t("back_office.markets.settings.labels.#{field}") %></label>
+  <% end %>
+  <%= text_field_tag "market_settings[#{field}]", form.value_for(field), id:, class: "ban-form__field", autocomplete: "off", disabled:,
+        inputmode: (form.percent?(field) || form.days?(field) ? "decimal" : "numeric"),
+        aria: { labelledby: labelled_by, describedby: [ "#{id}-hint", ("#{id}-error" if error) ].compact.join(" "), invalid: (true if error) } %>
+  <p class="ban-form__hint" id="<%= id %>-hint"><%= form.hint(field) %></p>
+  <% if error %>
+    <p class="market-settings__error" id="<%= id %>-error" role="alert" data-market-settings-error="<%= field %>"><%= error %></p>
+  <% end %>
+</div>

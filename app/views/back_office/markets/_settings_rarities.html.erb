@@ -1,0 +1,26 @@
+<%# locals: (form:, disabled:) %>
+<div class="market-settings__table-scroll">
+  <table class="market-settings__table">
+    <thead>
+      <tr>
+        <td></td>
+        <% Game::Market::SettingsRules::RARITIES.each do |rarity| %>
+          <th scope="col" id="market-settings-col-<%= rarity %>"><%= t("catalog.rarity.#{rarity}") %></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% %i[entrustment stamp minimum_price income_days_target].each do |row| %>
+        <tr>
+          <th scope="row" id="market-settings-row-<%= row.to_s.dasherize %>"><%= t("back_office.markets.settings.rows.#{row}") %></th>
+          <% Game::Market::SettingsRules::RARITIES.each do |rarity| %>
+            <td>
+              <%= render "back_office/markets/settings_field", form:, field: :"#{row}_#{rarity}", disabled:,
+                    labelled_by: "market-settings-row-#{row.to_s.dasherize} market-settings-col-#{rarity}" %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -697,6 +697,11 @@ fr:
     market_openings:
       create:
         opened: "Le marché est ouvert et l'annonce est sur le bandeau."
+    market_settings:
+      announcement_refused: "Chaque annonce demande un texte dans les deux langues, 280 caractères au plus. Les réglages n'ont pas été modifiés."
+      invalid: "Certains réglages ont été refusés. Vérifiez les champs signalés."
+      saved: "Les réglages sont enregistrés et l'annonce est sur le bandeau."
+      stale: "Un autre administrateur vient de modifier les réglages."
     markets:
       announcement:
         hint: "Affichée sur le bandeau rouge à la place de l'annonce actuelle, dans la langue de chaque joueur, %{length} caractères au plus."
@@ -710,6 +715,57 @@ fr:
         reopen: "Rouvrir le marché"
         reopen_heading: "Rouvrir le marché"
         terms: "Les conditions du marché sont en vigueur et les joueurs peuvent les lire."
+      settings:
+        administrators_only: "Seul un administrateur peut changer les réglages de l'économie. Les modérateurs les voient en lecture seule."
+        announcement_legend: "Annonce de ce changement"
+        groups:
+          alerts: "Alertes"
+          auctions: "Enchères"
+          averages: "Moyennes et fil d'actualité"
+          cap: "Plafond quotidien"
+          commission: "Commission"
+          rarities: "Par rareté"
+        heading: "Réglages de l'économie"
+        hints:
+          bounds: "De %{min} à %{max}."
+          currently: "Actuellement %{value}."
+          optional: "Facultatif : laisser vide le désactive."
+        labels:
+          alert_destroyed_share_basis_points: "Alerte : part de PiCoins détruits (%)"
+          alert_picoins_per_player: "Alerte : PiCoins par joueur"
+          alert_top_share_basis_points: "Alerte : part du joueur le plus riche (%)"
+          average_sale_count: "Ventes dans le prix moyen (nombre)"
+          average_window_days: "Fenêtre du prix moyen (jours)"
+          commission_basis_points: "Commission sur une vente (%)"
+          daily_cap: "Plafond quotidien (PiCoins par joueur)"
+          duration_long_hours: "Enchère longue (heures)"
+          duration_medium_hours: "Enchère moyenne (heures)"
+          duration_short_hours: "Enchère courte (heures)"
+          feed_threshold_multiple: "Seuil du fil (multiple de la moyenne)"
+          increment_basis_points: "Surenchère minimale (%)"
+          preselected_duration_hours: "Durée d'enchère présélectionnée (heures)"
+          soft_close_seconds: "Prolongation de fin (secondes)"
+          unusual_maximum_multiple: "Maximum inhabituel (multiple de la moyenne)"
+        moments:
+          auction_creation: "S'applique dès la prochaine enchère créée."
+          close: "S'applique aux ventes qui se concluent à partir de maintenant."
+          listing: "S'applique dès la prochaine mise en vente."
+          now: "S'applique immédiatement."
+        not_yet_open: "Les réglages de l'économie deviennent modifiables une fois le marché ouvert pour la première fois."
+        rows:
+          entrustment: "Gain de la confiance"
+          income_days_target: "Jours de revenu visés"
+          minimum_price: "Prix minimum"
+          stamp: "Timbre"
+        save: "Enregistrer les réglages"
+        violations:
+          below_floor: "Sous le plancher sans perte : au moins %{floor}."
+          durations_not_ascending: "Les durées courte, moyenne et longue doivent croître dans cet ordre."
+          less_than_half: "Au moins la moitié de la valeur actuelle : %{limit}."
+          more_than_double: "Au plus le double de la valeur actuelle : %{limit}."
+          not_a_number: "Saisissez un nombre."
+          out_of_range: "Saisissez une valeur de %{min} à %{max}."
+          preselected_not_a_duration: "La durée présélectionnée doit être l'une des trois durées."
       show:
         heading: "Le marché"
         intro: "Ouvrir le marché aux joueurs, ou le rouvrir après une suspension. Le teaser reste à l'adresse du marché jusqu'à ce que le marché le remplace."
@@ -3334,6 +3390,7 @@ fr:
       administrator_required: "Seul un administrateur peut faire cela."
       market_already_open: "Le marché est déjà ouvert."
       invalid_announcement: "Chaque annonce demande un texte dans les deux langues, 280 caractères au plus. Le marché n'a pas été ouvert."
+      invalid_settings: "Certains réglages ont été refusés. Rien n'a été modifié."
       odds_not_confirmed: "Confirmez que les probabilités sont publiées et exactes avant d'ouvrir le marché."
       settings_changed: "Les réglages du marché ont changé pendant que vous étiez sur cette page. Rechargez-la et vérifiez-les."
       terms_not_confirmed: "Confirmez que les conditions du marché sont en vigueur avant d'ouvrir le marché."

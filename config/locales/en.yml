@@ -311,6 +311,11 @@ en:
     market_openings:
       create:
         opened: "The market is open and the announcement is on the banner."
+    market_settings:
+      announcement_refused: "Each announcement needs text in both languages, at most 280 characters. The settings were not changed."
+      invalid: "Some settings were refused. Check the marked fields."
+      saved: "The settings are saved and the announcement is on the banner."
+      stale: "Another administrator has just changed the settings."
     markets:
       announcement:
         hint: "Shown on the red banner in place of the current announcement, in each player's language, %{length} characters at most."
@@ -324,6 +329,57 @@ en:
         reopen: "Reopen the market"
         reopen_heading: "Reopen the market"
         terms: "The terms of the market are in force and players can read them."
+      settings:
+        administrators_only: "Only an administrator can change the economy settings. Moderators see them read-only."
+        announcement_legend: "Announcement of this change"
+        groups:
+          alerts: "Alerts"
+          auctions: "Auctions"
+          averages: "Averages and the feed"
+          cap: "Daily cap"
+          commission: "Commission"
+          rarities: "By rarity"
+        heading: "Economy settings"
+        hints:
+          bounds: "From %{min} to %{max}."
+          currently: "Currently %{value}."
+          optional: "Optional: leave it blank to switch it off."
+        labels:
+          alert_destroyed_share_basis_points: "Alert: share of PiCoins destroyed (%)"
+          alert_picoins_per_player: "Alert: PiCoins per player"
+          alert_top_share_basis_points: "Alert: share held by the richest player (%)"
+          average_sale_count: "Sales in the average price (count)"
+          average_window_days: "Window of the average price (days)"
+          commission_basis_points: "Commission on a sale (%)"
+          daily_cap: "Daily cap (PiCoins per player)"
+          duration_long_hours: "Long auction (hours)"
+          duration_medium_hours: "Medium auction (hours)"
+          duration_short_hours: "Short auction (hours)"
+          feed_threshold_multiple: "Feed threshold (multiple of the average)"
+          increment_basis_points: "Minimum raise of a bid (%)"
+          preselected_duration_hours: "Preselected auction duration (hours)"
+          soft_close_seconds: "Soft close (seconds)"
+          unusual_maximum_multiple: "Unusual maximum (multiple of the average)"
+        moments:
+          auction_creation: "Applies from the next auction created."
+          close: "Applies to the sales that close from now on."
+          listing: "Applies from the next listing."
+          now: "Applies at once."
+        not_yet_open: "The economy settings become editable once the market has been opened for the first time."
+        rows:
+          entrustment: "Entrustment pays"
+          income_days_target: "Target days of income"
+          minimum_price: "Minimum price"
+          stamp: "Stamp"
+        save: "Save the settings"
+        violations:
+          below_floor: "Below the no-loss floor: at least %{floor}."
+          durations_not_ascending: "The short, medium and long durations must grow in that order."
+          less_than_half: "At least half the current value: %{limit}."
+          more_than_double: "At most twice the current value: %{limit}."
+          not_a_number: "Enter a number."
+          out_of_range: "Enter a value from %{min} to %{max}."
+          preselected_not_a_duration: "The preselected duration must be one of the three durations."
       show:
         heading: "The market"
         intro: "Open the market to the players, or reopen it after a suspension. The teaser stays at the market's address until the market itself replaces it."
@@ -1351,6 +1407,7 @@ en:
       administrator_required: Only an administrator can do that.
       market_already_open: The market is already open.
       invalid_announcement: Each announcement needs text in both languages, at most 280 characters. The market was not opened.
+      invalid_settings: Some settings were refused. Nothing was changed.
       odds_not_confirmed: Confirm that the odds are published and truthful before opening the market.
       settings_changed: The market settings changed while you were on this page. Reload it and check them.
       terms_not_confirmed: Confirm that the market terms are in force before opening the market.
