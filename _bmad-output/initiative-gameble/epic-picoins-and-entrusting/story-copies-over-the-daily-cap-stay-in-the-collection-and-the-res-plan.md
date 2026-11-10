@@ -3,7 +3,7 @@ title: 'Copies over the daily cap stay in the collection and the result names th
 type: 'feature'
 ticket: '38.3'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: 'a159c212dc2bd7ff6358b8173105d7665bb8a19c'
 route: 'full'
 route_source: 'auto'
@@ -116,5 +116,7 @@ Decisions settled in planning (no human checkpoint in this run):
 - No cap-aware UI before validation: the grid, gauge and recap are stories 5 and 6; this story only changes the server result page.
 
 ## Plan Change Log
+
+- 2026-11-10 review: checked the diff against the plan, ledger and lock order (bank lock, holdings by ascending card id, one mint entry, one event), the controller ordering fallback, both locales (zero plural forms, errors.game.nothing_fits) and the static scripts; no defect found, no code change. rubocop and packwerk could not run (bundle gems missing in this worktree), to run at the end.
 
 ## Review Triage Log
