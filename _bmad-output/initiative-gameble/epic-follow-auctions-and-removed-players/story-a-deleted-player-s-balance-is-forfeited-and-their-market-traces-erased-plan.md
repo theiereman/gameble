@@ -3,7 +3,7 @@ title: 'A deleted player''s balance is forfeited and their market traces erased'
 type: 'feature'
 ticket: '40.10'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: '7e2188be18f2ebdd2b1b019873346127609b6b3a'
 route: 'full'
 route_source: 'auto'
@@ -82,7 +82,13 @@ context:
 
 ## Plan Change Log
 
+- 2026-11-10 approver: no change to the frozen block. Body only: `ForfeitBalance` locks the wallet row first and reads both `available` and `committed` under that lock (a missing wallet answers `Failure(:nothing_to_forfeit)`), so the `committed` refusal and the amount come from the same snapshot; the open-listing and lead check stays a plain read since a removed player cannot take a new hold. `BalanceForfeited` needs no `PlayerStream` branch (the player is gone). Approved after checking that `forfeit` is already a ledger kind counted as destroyed by the reconciliation, that `Ledger.post` is the only writer, and that `ReleasePlayer` keeps the wallet and ledger so the forfeit stays possible after the erasure. Known and accepted: an `outbid` notice written by a concurrent `PlaceBid` for a deleted displaced leader (whose bank that operation does not lock) can survive the erasure; it holds a card and an amount only.
+
 ## Review Triage Log
+
+## Design Notes
+
+The wallet read in `ForfeitBalance` is `Wallet.lock.find_by(player_id:)`, taken after `TradeLocks.players` and before `Ledger.post`.
 
 ## Verification
 

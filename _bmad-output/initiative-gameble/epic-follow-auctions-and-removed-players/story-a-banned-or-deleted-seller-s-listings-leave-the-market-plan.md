@@ -3,7 +3,7 @@ title: 'A banned or deleted seller''s listings leave the market'
 type: 'feature'
 ticket: '40.9'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: '7e2188be18f2ebdd2b1b019873346127609b6b3a'
 route: 'full'
 route_source: 'auto'
@@ -83,6 +83,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10 approver: no change to the frozen block. Body only: `ListingEnding` must be self-contained (it includes `ListingReservation` and publishes through `publish(event, stream_name: stream_name(listing.seller_id))` itself rather than relying on `AuctionSettlement#publish_to_seller`, which `WithdrawListing` does not include); `ListingCancelled` gets an explicit `when` branch in `PlayerStream.notices` placed before the generic `when *BALANCE_EVENTS` branch and is not added to `BALANCE_EVENTS`; the withdrawn-notice amount is the event's `released`. Approved after checking that the order bank locks, listing, holdings, wallets is the one `CancelListing`, `PlaceBid` and `CloseAuction` use, that the leader recheck prevents releasing a leader whose bank was not locked, and that the tolerant release also removes the `KeyError` `CloseAuction` raises today for a deleted seller.
 
 ## Review Triage Log
 

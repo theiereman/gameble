@@ -3,7 +3,7 @@ title: 'A banned or deleted leader''s bid is voided and the auction resumes'
 type: 'feature'
 ticket: '40.8'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: '7e2188be18f2ebdd2b1b019873346127609b6b3a'
 route: 'full'
 route_source: 'auto'
@@ -87,9 +87,13 @@ context:
 
 ## Plan Change Log
 
+- 2026-11-10 approver: no change to the frozen block. Body only: `LeadVoided` gets its own `when` branches in `PlayerStream.notices`, placed before the generic `when *BALANCE_EVENTS` branch and not added to `BALANCE_EVENTS` (its data has no `player_id`, so that branch would emit a notice for a nil player). Approved after checking lock order (banks ascending, then the listing, then wallets, as `PlaceBid`, `CloseAuction` and `CancelListing`), ledger balance (one `release` of `leader_maximum`, which equals what the leader's holds committed), the listing checks (`leader_id` and `leader_maximum` null together, `current_price >= starting_price`) and the existing `voided` outcome and `lead_voided` kind checks.
+
 ## Review Triage Log
 
 ## Design Notes
+
+The job's per-step finder runs when its step starts, not once at the top of `perform`, so a step sees what the previous step changed.
 
 `RemovedPresence.leaders(now:)` returns `Listing.open_now.where(ends_at: now..).where.not(leader_id: nil).joins(:leader).merge(Accounts::Player.removed).pluck(:id, :seller_id)`; the job fetches the sellers by id as `CloseDueAuctionsJob` does and calls `VoidLead.new.call(player: seller, listing_id:)`.
 
