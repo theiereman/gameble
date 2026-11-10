@@ -3,7 +3,7 @@ module PicoinsHelper
   COMPACT_UNITS = [ [ 1_000_000, "M" ], [ 1_000, "k" ] ].freeze
 
   def picoins(amount, compact: false)
-    amount = Integer(amount)
+    amount = whole_picoins(amount)
     return number_with_delimiter(amount) unless compact && amount >= 1_000
 
     divisor, suffix = COMPACT_UNITS.find { |threshold, _| amount >= threshold }
@@ -12,4 +12,12 @@ module PicoinsHelper
     number = tenth.zero? ? number_with_delimiter(whole) : "#{number_with_delimiter(whole)}#{t("number.format.separator")}#{tenth}"
     "#{number}#{suffix}"
   end
+
+  private
+    def whole_picoins(amount)
+      amount = Integer(amount) if amount.is_a?(String) && amount.match?(/\A\d+\z/)
+      raise ArgumentError, "a PiCoin amount is a non-negative integer" unless amount.is_a?(Integer) && amount >= 0
+
+      amount
+    end
 end

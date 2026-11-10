@@ -1,0 +1,19 @@
+.picoin-amount {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.picoin-amount .pixel-icon {
+  vertical-align: middle;
+}
+
+.picoin-amount__figure {
+  font-family: var(--font-family-jetbrains-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.picoin-amount--large .picoin-amount__figure {
+  font-size: 1.25em;
+}
