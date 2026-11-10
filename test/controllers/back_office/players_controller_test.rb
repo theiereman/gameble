@@ -58,6 +58,31 @@ module BackOffice
       end
     end
 
+    test "the list opens on the count of every player, the new and the recently seen ones, then each row's dates and sign-ins" do
+      Accounts::Player.update_all(created_at: 30.days.ago, last_seen_at: nil)
+      @target.update!(created_at: 2.days.ago, last_seen_at: 1.hour.ago)
+      Accounts::Identity.create!(player: @target, provider: "discord", uid: "discord-gabe")
+      sign_in(@moderator)
+
+      get back_office_players_path(locale: :fr)
+
+      total = Accounts::Player.where(deleted_at: nil).count
+      assert_select "dl[data-player-census] dd[data-player-census-total]", total.to_s
+      assert_select "dl[data-player-census] dd[data-player-census-joined]", "1"
+      assert_select "dl[data-player-census] dd[data-player-census-active]", Accounts::Player.where(last_seen_at: 7.days.ago..).count.to_s
+      assert_select "dl[data-player-census] dd[data-player-census-matching]", false
+      assert_select "#{row(@target)} td[data-player-joined-at] time[datetime=?]", @target.created_at.utc.iso8601
+      assert_select "#{row(@target)} td[data-player-last-seen-at] time[datetime=?]", @target.last_seen_at.utc.iso8601
+      assert_select "#{row(@banned)} td[data-player-last-seen-at]", "Jamais"
+      assert_select "#{row(@target)} td[data-player-sign-ins]", /Discord/
+
+      get back_office_players_path(locale: :fr, q: "rude")
+
+      assert_select "dl[data-player-census] dd[data-player-census-total]", total.to_s
+      assert_select "dl[data-player-census] dt", /rude/
+      assert_select "dl[data-player-census] dd[data-player-census-matching]", "1"
+    end
+
     test "a moderator sees the refusal on another moderator's row; an administrator sees BANNIR there" do
       other_moderator = Accounts::Player.create!(steam_id: "76561197960380001", role: :moderator, persona_name: "Deputy")
       sign_in(@moderator)

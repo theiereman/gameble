@@ -10,6 +10,7 @@ module BackOffice
     def index
       authorize [ :back_office, :players ], :index?
       @query = Accounts::PlayerSearch.normalize(params[:q])
+      @census = Accounts::PlayerCensus.call(now: Time.current)
       @pagy, @players = pagy(:offset, Accounts::PlayerSearch.call(@query), limit: PAGE_SIZE, page: params[:page].to_s.to_i.clamp(1, MAX_PAGE))
     end
 

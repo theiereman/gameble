@@ -469,6 +469,11 @@ en:
       index:
         action: Ban or lift the ban
         caption: Players, the newest account first
+        census:
+          active_recently: Seen in the last 7 days
+          joined_recently: Joined in the last 7 days
+          matching: Matching “%{query}”
+          total: Players
         empty: No player has an account yet.
         heading: The players
         history: The history
@@ -479,6 +484,9 @@ en:
           id. BAN suspends them without waiting for a report; LIFT THE BAN gives them
           back their sign-in and their profile. An administrator can ERASE the account
           of a banned player, which frees their Steam id, so they could register again without the ban. An officer acts only on a lower rank than their own.
+        joined_at: Joined
+        last_seen_at: Last seen
+        never_seen: Never
         no_match: No player matches “%{query}”.
         player: Player
         reports: The reports
@@ -490,6 +498,7 @@ en:
         search_label: Search for a player
         search_placeholder: Name or Steam id
         search_submit: Search
+        sign_ins: Sign-in
         state: Standing
         states:
           banned: Banned

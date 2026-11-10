@@ -3,7 +3,7 @@ module Accounts
     MAX_QUERY = PersonaName::LENGTH
 
     def self.call(query = nil)
-      players = Player.where(deleted_at: nil).order(created_at: :desc, id: :desc)
+      players = Player.where(deleted_at: nil).preload(:identities).order(created_at: :desc, id: :desc)
       text = normalize(query)
       return players if text.empty?
 

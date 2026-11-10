@@ -7,6 +7,19 @@
     <%= t(".intro") %>
   <% end %>
 
+  <dl class="ledger-entry" data-player-census>
+    <dt><%= t(".census.total") %></dt>
+    <dd data-player-census-total><%= number_with_delimiter(@census.total) %></dd>
+    <dt><%= t(".census.joined_recently") %></dt>
+    <dd data-player-census-joined><%= number_with_delimiter(@census.joined_recently) %></dd>
+    <dt><%= t(".census.active_recently") %></dt>
+    <dd data-player-census-active><%= number_with_delimiter(@census.active_recently) %></dd>
+    <% if @query.present? %>
+      <dt><%= t(".census.matching", query: @query) %></dt>
+      <dd data-player-census-matching><%= number_with_delimiter(@pagy.count) %></dd>
+    <% end %>
+  </dl>
+
   <%= form_with url: back_office_players_path, method: :get, class: "ledger-search", html: { role: "search" } do %>
     <label class="visually-hidden" for="player-search"><%= t(".search_label") %></label>
     <%= search_field_tag "q", @query, id: "player-search", class: "ledger-search__field", autocomplete: "off",
@@ -19,41 +32,51 @@
       <%= @query.present? ? t(".no_match", query: @query) : t(".empty") %>
     <% end %>
   <% else %>
-    <table class="ledger">
-      <caption class="visually-hidden"><%= t(".caption") %></caption>
-      <thead>
-        <tr>
-          <th scope="col"><%= t(".player") %></th>
-          <th scope="col"><%= t(".role") %></th>
-          <th scope="col"><%= t(".visibility") %></th>
-          <th scope="col"><%= t(".state") %></th>
-          <th scope="col"><span class="visually-hidden"><%= t(".action") %></span></th>
-          <th scope="col"><span class="visually-hidden"><%= t(".history_column") %></span></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% back = { return_to: "players", q: @query.presence, page: (@pagy.page if @pagy.page > 1) }.compact %>
-        <% @players.each do |player| %>
-          <% name = public_profile_title(player) %>
-          <tr data-player-token="<%= player.token %>">
-            <td><%= link_to name, brother_path(token: player.token) %></td>
-            <td data-player-role="<%= player.role %>"><%= t(".roles.#{player.role}") %></td>
-            <td data-player-visibility="<%= player.visibility %>"><%= t("settings.show.visibility.#{player.visibility}") %></td>
-            <% if player.banned? %>
-              <td data-player-state="banned"><%= t(".states.banned") %></td>
-              <td>
-                <%= render("back_office/bans/unban_action", player:, name:, back:) %>
-                <%= render("back_office/players/erase_action", player:, name:, back:) %>
-              </td>
-            <% else %>
-              <td data-player-state="good_standing"><%= t(".states.good_standing") %></td>
-              <td><%= render "back_office/bans/ban_action", player:, name:, back: %></td>
-            <% end %>
-            <td data-player-history><%= link_to t(".history_link"), back_office_history_path(player: player.token) %></td>
+    <div class="ledger-scroll">
+      <table class="ledger">
+        <caption class="visually-hidden"><%= t(".caption") %></caption>
+        <thead>
+          <tr>
+            <th scope="col"><%= t(".player") %></th>
+            <th scope="col"><%= t(".joined_at") %></th>
+            <th scope="col"><%= t(".last_seen_at") %></th>
+            <th scope="col"><%= t(".sign_ins") %></th>
+            <th scope="col"><%= t(".role") %></th>
+            <th scope="col"><%= t(".visibility") %></th>
+            <th scope="col"><%= t(".state") %></th>
+            <th scope="col"><span class="visually-hidden"><%= t(".action") %></span></th>
+            <th scope="col"><span class="visually-hidden"><%= t(".history_column") %></span></th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% back = { return_to: "players", q: @query.presence, page: (@pagy.page if @pagy.page > 1) }.compact %>
+          <% @players.each do |player| %>
+            <% name = public_profile_title(player) %>
+            <tr data-player-token="<%= player.token %>">
+              <td><%= link_to name, brother_path(token: player.token) %></td>
+              <td data-player-joined-at><%= local_time_tag(player.created_at, :date_time_year) %></td>
+              <td data-player-last-seen-at>
+                <%= player.last_seen_at ? local_time_tag(player.last_seen_at, :date_time_year) : t(".never_seen") %>
+              </td>
+              <td data-player-sign-ins><%= sign_in_providers(player) %></td>
+              <td data-player-role="<%= player.role %>"><%= t(".roles.#{player.role}") %></td>
+              <td data-player-visibility="<%= player.visibility %>"><%= t("settings.show.visibility.#{player.visibility}") %></td>
+              <% if player.banned? %>
+                <td data-player-state="banned"><%= t(".states.banned") %></td>
+                <td>
+                  <%= render("back_office/bans/unban_action", player:, name:, back:) %>
+                  <%= render("back_office/players/erase_action", player:, name:, back:) %>
+                </td>
+              <% else %>
+                <td data-player-state="good_standing"><%= t(".states.good_standing") %></td>
+                <td><%= render "back_office/bans/ban_action", player:, name:, back: %></td>
+              <% end %>
+              <td data-player-history><%= link_to t(".history_link"), back_office_history_path(player: player.token) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
 
     <% if @pagy.last > 1 %>
       <%= @pagy.series_nav.html_safe %>

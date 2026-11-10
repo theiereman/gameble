@@ -122,11 +122,22 @@
   color: var(--color-muted);
 }
 
+/* A wide ledger scrolls sideways inside the page on a phone. */
+.ledger-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.ledger time {
+  white-space: nowrap;
+}
+
 .ledger-entry {
   display: grid;
   grid-template-columns: max-content 1fr;
   gap: var(--space-3) var(--space-5);
-  margin: 0;
+  margin-inline: 0;
+  margin-bottom: 0;
   padding: var(--space-panel-padding);
   background: var(--color-panel);
   box-shadow: var(--panel-border);
