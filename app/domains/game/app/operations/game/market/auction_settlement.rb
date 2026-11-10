@@ -18,7 +18,16 @@ module Game
         reached = season ? SetTier.record(player_id: winner_id, card_season_ids: [ card ], season_id: season.id, reached_by: "trade", pack_id: nil, now:) : {}
         step publish_tiers(winner_id, reached)
         listing.update!(status: "sold", sold_at: now, final_price:)
+        refresh_edition_price(listing, now)
         sale_entries(listing, winner_id, held, final_price)
+      end
+
+      def refresh_edition_price(listing, now)
+        row = EditionPrice.lock_row(listing.card_season_id)
+        prices = EditionPrice.sales_in_window(listing.card_season_id, settings: CurrentSettings.call, now:)
+        average = EditionPrice.average_of(prices)
+        row.update!(average:, sales_used: prices.size, refreshed_at: now)
+        listing.update!(average_after_sale: average)
       end
 
       def sold_event(listing:, winner_id:, final_price:, surplus:, outbid_player_id: nil, outbid_released: 0)

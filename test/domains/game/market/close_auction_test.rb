@@ -52,6 +52,7 @@ class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
     assert Game::Market::ReconcileWallets.call.balanced?
     assert_equal %w[sold], [ @listing.reload.status ]
     assert_equal 31_500, @listing.final_price
+    assert_equal 31_500, @listing.average_after_sale
     assert_equal [ @winner.id, 40_000 ], [ @listing.leader_id, @listing.leader_maximum ]
   end
 

@@ -12,6 +12,7 @@ module Game
       belongs_to :leader, class_name: "Accounts::Player", optional: true
 
       scope :open_now, -> { where(status: "open") }
+      scope :sold, -> { where(status: "sold") }
       scope :due, ->(now) { open_now.where(ends_at: ..now) }
     end
   end
