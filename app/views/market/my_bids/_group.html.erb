@@ -1,4 +1,4 @@
-<%# locals: (group:, heading:, empty:, rows:) %>
+<%# locals: (group:, heading:, empty:, rows:, suspended:) %>
 <section class="market-rows" aria-labelledby="my-bids-<%= group %>-heading">
   <%= tag.h2 heading, id: "my-bids-#{group}-heading", class: "market-rows__heading", tabindex: -1 %>
   <% if rows.empty? %>
@@ -11,7 +11,8 @@
           <% if row.can_raise %>
             <% component.with_action do %>
               <%= render ButtonComponent.new(variant: row.status == :outbid ? :primary : :secondary, size: :small,
-                    href: market_listing_path(token: row.token, focus: "maximum"), aria_label: t("market.rows.relever_name", card: row.card.title)) { t("market.rows.relever") } %>
+                    href: market_listing_path(token: row.token, focus: "maximum"), disabled: suspended,
+                    describedby: ("market-suspended-banner" if suspended), aria_label: t("market.rows.relever_name", card: row.card.title)) { t("market.rows.relever") } %>
             <% end %>
           <% end %>
         <% end %>

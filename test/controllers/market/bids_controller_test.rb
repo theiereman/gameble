@@ -280,4 +280,37 @@ class Market::BidsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#annonce-bid .market-bid__note", "Your amount was not recorded."
   end
+
+  test "a bid sent as the market is suspended places nothing and answers with the banner and the disabled form" do
+    sign_in(@second)
+    close_market!(first_opened_at: 1.day.ago)
+
+    nothing_changes { post_bid("30000") }
+
+    assert_response :unprocessable_content
+    assert_select "turbo-stream[action=update][target=annonce-suspension] #market-suspended-banner", 1
+    assert_select "turbo-stream[action=replace][target=annonce-bid]", 1
+    assert_select "#annonce-bid[data-focus=refusal]"
+    assert_select "#annonce-bid input#annonce-maximum[disabled]"
+    assert_select "#annonce-bid input#annonce-maximum[value]", false
+    assert_select "#annonce-bid p#annonce-error[role=alert][tabindex='-1'][data-focus-name=refusal]", "The market is closed for now."
+    assert_select "#annonce-bid dialog", false
+  end
+
+  test "the suspended refusal reads in French" do
+    sign_in(@second)
+    close_market!(first_opened_at: 1.day.ago)
+
+    post_bid("30000", locale: :fr)
+
+    assert_equal "Le marché est suspendu pour le moment.", refusal
+  end
+
+  test "a successful bid clears the suspension slot" do
+    sign_in(@second)
+    post_bid("30000")
+
+    assert_response :success
+    assert_select "turbo-stream[action=update][target=annonce-suspension] #market-suspended-banner", false
+  end
 end

@@ -138,4 +138,20 @@ class Market::MyBidsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/(?:id|listing)[-_=:"]#{listing.id}\b/, response.body)
     assert_no_match(/77,777|77777/, response.body)
   end
+
+  test "a suspended market draws the banner and disables RELEVER on every row" do
+    outbid = listing!(seller: @seller, card_season: @rare, starting_price: 20_000)
+    assert bid(@rival, 90_000, outbid).success?
+    assert bid(@bidder, 40_000, outbid).success?
+    Game::Market::Settings.delete_all
+    close_market!(first_opened_at: 1.day.ago)
+    sign_in(@bidder)
+
+    bids
+
+    assert_select "#market-suspended-banner", 1
+    assert_select "button[disabled][aria-describedby=market-suspended-banner][aria-label=?]", "Raise, Blue Depths", "RAISE"
+    assert_select "a.button[aria-label=?]", "Raise, Blue Depths", false
+    assert_select ".market-row__title[data-row-token=?]", outbid.token
+  end
 end

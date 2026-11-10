@@ -19,3 +19,11 @@
   color: var(--color-text);
   font: var(--font-body);
 }
+
+.market-listing__suspension:empty {
+  display: none;
+}
+
+.market-suspended .button {
+  min-height: var(--space-touch-min);
+}

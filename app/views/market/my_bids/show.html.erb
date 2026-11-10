@@ -7,6 +7,8 @@
     <%= render "shell/balance_chip", placement: :header %>
   </header>
 
+  <% if @suspended %><%= render "market/suspended_banner" %><% end %>
+
   <%= render "markets/chips", current: :bids %>
 
   <% if empty %>
@@ -16,8 +18,8 @@
     </div>
   <% else %>
     <%= render "market/my_bids/group", group: "in-progress", heading: t("market.my_bids.groups.in_progress.heading"),
-          empty: t("market.my_bids.groups.in_progress.empty"), rows: @groups.in_progress %>
+          empty: t("market.my_bids.groups.in_progress.empty"), rows: @groups.in_progress, suspended: @suspended %>
     <%= render "market/my_bids/group", group: "recent", heading: t("market.my_bids.groups.recent.heading"),
-          empty: t("market.my_bids.groups.recent.empty"), rows: @groups.recent %>
+          empty: t("market.my_bids.groups.recent.empty"), rows: @groups.recent, suspended: @suspended %>
   <% end %>
 </section>

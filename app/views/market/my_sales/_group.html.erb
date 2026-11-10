@@ -1,4 +1,4 @@
-<%# locals: (group:, heading:, empty:, rows:, focus_heading:) %>
+<%# locals: (group:, heading:, empty:, rows:, focus_heading:, suspended:) %>
 <section class="market-rows" aria-labelledby="my-sales-<%= group %>-heading">
   <%= tag.h2 heading, id: "my-sales-#{group}-heading", class: "market-rows__heading", tabindex: -1,
         data: { row_focus_target: ("heading" if focus_heading) }.compact %>
@@ -23,7 +23,7 @@
           <% elsif row.relist %>
             <% component.with_action do %>
               <%= render ButtonComponent.new(variant: :primary, size: :small, href: relist_sale_path(row.relist),
-                    aria_label: t("market.my_sales.relist_name", card: row.card.title)) { t("market.my_sales.relist") } %>
+                    disabled: suspended, describedby: ("market-suspended-banner" if suspended), aria_label: t("market.my_sales.relist_name", card: row.card.title)) { t("market.my_sales.relist") } %>
             <% end %>
           <% end %>
         <% end %>

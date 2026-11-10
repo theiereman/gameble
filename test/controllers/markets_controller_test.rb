@@ -168,4 +168,46 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".landing-roadmap__links a.button--link[href=?]", roadmap_path(locale: :fr)
     assert_select ".landing-roadmap__links a.button--link[href=?]", market_path(locale: :fr), "Visiter le chantier du marché"
   end
+
+  test "a suspended market draws the banner above the chips and disables both actions with the banner as their reason" do
+    Game::Market::Settings.delete_all
+    close_market!(first_opened_at: 2.days.ago)
+    listing = listing!(seller: accounts_players(:player), card_season: catalog_card_seasons(:common_card_one))
+    sign_in(accounts_players(:player))
+
+    get market_path(locale: :en)
+
+    assert_select "#market-suspended-banner[role=status]", 1
+    assert_select ".market-screen__header ~ #market-suspended-banner ~ .market-screen__chips"
+    assert_select ".market-screen__actions button[disabled][aria-describedby=market-suspended-banner]", 2
+    assert_select ".market-screen__actions a.button", false
+    assert_select ".listing-tile a[href=?]", market_listing_path(locale: :en, token: listing.token)
+    assert_select "a.market-screen__chip[href=?]", market_my_sales_path(locale: :en)
+    assert_select "a.market-screen__chip[href=?]", market_my_bids_path(locale: :en)
+  end
+
+  test "a suspended market reads the same for a visitor, with the chips greyed" do
+    Game::Market::Settings.delete_all
+    close_market!(first_opened_at: 2.days.ago)
+
+    get market_path(locale: :en)
+
+    assert_select "#market-suspended-banner", 1
+    assert_select ".market-screen__actions button[disabled][aria-describedby=market-suspended-banner]", 2
+    assert_select ".market-screen__chip--disabled[aria-disabled=true]", 2
+  end
+
+  test "an open market and a never opened one draw no banner" do
+    Game::Market::Settings.delete_all
+    open_for_good
+    get market_path(locale: :en)
+    assert_select "#market-suspended-banner", false
+    assert_select ".market-screen__actions [aria-describedby]", false
+
+    Game::Market::Settings.delete_all
+    close_market!
+    get market_path(locale: :en)
+    assert_select ".market-teaser"
+    assert_select "#market-suspended-banner", false
+  end
 end

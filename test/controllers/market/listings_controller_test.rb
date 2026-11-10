@@ -341,4 +341,64 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     get market_listing_path(locale: :en, token: @listing.token, focus: "maximum")
     assert_select "[data-focus]", false
   end
+
+  def close_after_opening
+    Game::Market::Settings.delete_all
+    close_market!(first_opened_at: 1.day.ago)
+  end
+
+  test "a suspended Annonce draws the banner in its slot and a disabled form for a bidder, with no script" do
+    close_after_opening
+    sign_in(accounts_players(:administrator))
+    annonce
+
+    assert_select "#annonce-suspension #market-suspended-banner", 1
+    assert_select "#annonce-bid input#annonce-maximum[disabled][aria-describedby~=market-suspended-banner]"
+    assert_select "#annonce-bid button[disabled][aria-describedby=market-suspended-banner]", text: "BID"
+    assert_select "#annonce-bid button[disabled][aria-describedby=market-suspended-banner]", text: "BUY NOW"
+    assert_select "#annonce-bid dialog", false
+    assert_select "#annonce-bid [data-controller~=annonce-field]", false
+    assert_select "#annonce-bid [data-controller~=annonce-foot]", false
+    assert_select ".market-listing__price .picoin-amount__figure", "7,800"
+    assert_select ".market-listing__time"
+    assert_select ".market-history"
+  end
+
+  test "a suspended Annonce shows the leader's raise disabled and their own maximum" do
+    bidder = accounts_players(:moderator)
+    @listing.update_columns(leader_id: bidder.id, leader_maximum: 12_345, current_price: 8_000)
+    close_after_opening
+    sign_in(bidder)
+    annonce
+
+    assert_select "#annonce-bid button[disabled]", text: "RAISE"
+    assert_select "#annonce-minimum", /12,345/
+  end
+
+  test "a suspended Annonce keeps the seller's ANNULER, the visitor's sign-in line and an ended listing's outcome" do
+    close_after_opening
+    sign_in(@seller)
+    annonce
+    assert_select "#market-suspended-banner", 1
+    assert_select "#annonce-bid button[aria-label=?]:not([disabled])", "Cancel the sale, Blue Depths"
+    assert_select "#annonce-bid form#annonce-form", false
+
+    reset!
+    annonce
+    assert_select "#market-suspended-banner", 1
+    assert_select ".market-bid__sign-in a"
+
+    @listing.update_columns(status: "unsold")
+    annonce
+    assert_select "#annonce-bid .market-outcome"
+  end
+
+  test "an open market draws an empty slot and the live form" do
+    sign_in(accounts_players(:administrator))
+    annonce
+
+    assert_select "#annonce-suspension"
+    assert_select "#market-suspended-banner", false
+    assert_select "#annonce-bid input#annonce-maximum:not([disabled])"
+  end
 end

@@ -15,7 +15,7 @@ module Market
 
       def with_refusal(fresh, code)
         text = helpers.bid_refusal_text(code, sheet: fresh[:sheet], drawn_minimum: params[:drawn_minimum].to_s)
-        fresh.merge(refusal: text, focus: "field")
+        fresh.merge(refusal: text, focus: fresh[:suspended] ? "refusal" : "field")
       end
 
       def answer_with(region, status:)
@@ -30,7 +30,7 @@ module Market
         detail = Game::Market::ListingByToken.call(token, locale: I18n.locale) || raise(ActiveRecord::RecordNotFound)
         { listing: detail, sheet: Game::Market::BidSheet.call(token:, player: current_player), viewer: current_player,
           outcome: Game::Market::ListingOutcome.call(token:, viewer: current_player, locale: I18n.locale),
-          answer:, focus:, refusal: nil, not_recorded: false, posted: answer ? "" : params[:maximum].to_s,
+          suspended: Game::Market::MarketState.call.suspended?, answer:, focus:, refusal: nil, not_recorded: false, posted: answer ? "" : params[:maximum].to_s,
           posted_amount: Integer(params[:maximum].to_s.strip, 10, exception: false) }
       end
   end

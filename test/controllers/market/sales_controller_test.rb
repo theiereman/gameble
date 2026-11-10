@@ -399,4 +399,21 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to new_market_sale_path(locale: :en)
   end
+
+  test "the card-scoped address and a prefilled relist draw the banner with its link back while suspended" do
+    close_market!(first_opened_at: 2.days.ago)
+    hold(@player, @common.id, 1)
+    sign_in(@player)
+
+    get new_market_card_sale_path(locale: :en, slug: @common.card.slug)
+    assert_response :success
+    assert_select "#market-suspended-banner a[href=?]", market_path(locale: :en)
+    assert_select "button[type=submit][disabled]"
+
+    get new_market_sale_path(locale: :en, ref: ref(@common), start: "2000", buy_now: "9000", relisting: 1)
+    assert_response :success
+    assert_select "#market-suspended-banner a[href=?]", market_path(locale: :en)
+    assert_select "button[type=submit][disabled]"
+    assert_select ".market-sale__relisting"
+  end
 end

@@ -36,6 +36,13 @@
   box-shadow: var(--focus-ring-gap), var(--control-border);
 }
 
+.market-bid__field input[type="text"]:disabled {
+  background: var(--color-disabled-bg);
+  box-shadow: var(--pixel-outline-3);
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
 .market-bid__field input[aria-invalid="true"] {
   box-shadow: 0 0 0 2px var(--color-alert);
 }
@@ -52,6 +59,11 @@
   margin: 0;
   color: var(--color-alert);
   font: var(--font-body-small);
+}
+
+.market-bid__error:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .market-bid__error[hidden] {

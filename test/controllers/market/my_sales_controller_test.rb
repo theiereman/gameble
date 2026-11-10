@@ -136,4 +136,29 @@ class Market::MySalesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/(?:id|listing)[-_=:"]#{listing.id}\b/, response.body)
     assert_includes response.body, listing.token
   end
+
+  test "a suspended market draws the banner, keeps ANNULER and disables REMETTRE EN VENTE" do
+    hold(@seller, @rare.id, 1)
+    open_listing = listing!(seller: @seller, card_season: @common)
+    listing!(seller: @seller, card_season: @rare, status: "unsold", ends_at: 1.day.ago)
+    Game::Market::Settings.delete_all
+    close_market!(first_opened_at: 1.day.ago)
+    sign_in(@seller)
+
+    sales
+
+    assert_select "#market-suspended-banner", 1
+    assert_select "button[disabled][aria-describedby=market-suspended-banner][aria-label=?]", "Put up for sale again, Blue Depths"
+    assert_select "a.button[href*=?]", "/market/sell", false
+    assert_select "button[aria-label=?]:not([disabled])", "Cancel the sale, Tin Soldier"
+    assert_select "dialog#cancel-#{open_listing.token}"
+  end
+
+  test "an open market draws no banner" do
+    sign_in(@seller)
+
+    sales
+
+    assert_select "#market-suspended-banner", false
+  end
 end

@@ -1,0 +1,23 @@
+<%# locals: (sheet:, refusal: nil) %>
+<% described = [ "annonce-minimum", ("annonce-error" if refusal), "market-suspended-banner" ].compact.join(" ") %>
+<form class="market-bid market-bid--suspended">
+  <div class="market-bid__field">
+    <label for="annonce-maximum" class="market-bid__label"><%= t("market.bids.form.label") %></label>
+    <%= text_field_tag :maximum, "", id: "annonce-maximum", inputmode: "numeric", autocomplete: "off", disabled: true,
+          aria: { invalid: (refusal ? "true" : nil), describedby: described } %>
+    <p id="annonce-minimum" class="market-bid__minimum"><%= bid_minimum_text(sheet) %></p>
+    <% if refusal %>
+      <p id="annonce-error" class="market-bid__error" role="alert" tabindex="-1" data-focus-name="refusal"><%= refusal %></p>
+    <% end %>
+  </div>
+  <div class="market-bid__foot">
+    <div class="market-bid__submit">
+      <%= render ButtonComponent.new(type: :submit, disabled: true, describedby: "market-suspended-banner") { sheet.leading ? t("market.rows.relever") : t("market.bids.strings.button_idle") } %>
+    </div>
+    <% if sheet.buy_now_price %>
+      <div class="market-bid__buy-now">
+        <%= render ButtonComponent.new(variant: :secondary, type: :submit, disabled: true, describedby: "market-suspended-banner") { t("market.bids.buy_now.button") } %>
+      </div>
+    <% end %>
+  </div>
+</form>

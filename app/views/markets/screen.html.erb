@@ -6,23 +6,26 @@
     <%= render "shell/balance_chip", placement: :header %>
   </header>
 
+  <% if @suspended %><%= render "market/suspended_banner" %><% end %>
+
   <%= render "markets/chips", current: :listings %>
 
   <div class="market-screen__actions">
+    <% reason = ("market-suspended-banner" if @suspended) %>
     <% entrust_label = t(".entrust") %>
     <% sell_label = t(".sell") %>
     <% if current_player %>
-      <%= render ButtonComponent.new(variant: :secondary, size: :small, href: new_market_entrustment_path, aria_label: entrust_label) do %>
+      <%= render ButtonComponent.new(variant: :secondary, size: :small, href: new_market_entrustment_path, disabled: @suspended, describedby: reason, aria_label: entrust_label) do %>
         <span class="market-screen__long"><%= entrust_label %></span><span class="market-screen__short" aria-hidden="true"><%= t(".entrust_short") %></span>
       <% end %>
-      <%= render ButtonComponent.new(variant: :primary, size: :small, href: new_market_sale_path, disabled: @suspended, aria_label: sell_label) do %>
+      <%= render ButtonComponent.new(variant: :primary, size: :small, href: new_market_sale_path, disabled: @suspended, describedby: reason, aria_label: sell_label) do %>
         <span class="market-screen__long"><%= sell_label %></span><span class="market-screen__short" aria-hidden="true"><%= t(".sell_short") %></span>
       <% end %>
     <% else %>
-      <%= render ButtonComponent.new(variant: :secondary, size: :small, disabled: true, aria_label: entrust_label) do %>
+      <%= render ButtonComponent.new(variant: :secondary, size: :small, disabled: true, describedby: reason, aria_label: entrust_label) do %>
         <span class="market-screen__long"><%= entrust_label %></span><span class="market-screen__short" aria-hidden="true"><%= t(".entrust_short") %></span>
       <% end %>
-      <%= render ButtonComponent.new(variant: :primary, size: :small, disabled: true, aria_label: sell_label) do %>
+      <%= render ButtonComponent.new(variant: :primary, size: :small, disabled: true, describedby: reason, aria_label: sell_label) do %>
         <span class="market-screen__long"><%= sell_label %></span><span class="market-screen__short" aria-hidden="true"><%= t(".sell_short") %></span>
       <% end %>
     <% end %>

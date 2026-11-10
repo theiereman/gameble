@@ -10,6 +10,8 @@
     <%= render "shell/balance_chip", placement: :header %>
   </header>
 
+  <div id="annonce-suspension" class="market-listing__suspension"><%= render "market/suspended_banner" if @suspended %></div>
+
   <div class="market-listing__layout">
     <div class="market-listing__card">
       <%= render CardComponent.new(card: @listing.card, size: :l) %>
@@ -42,7 +44,7 @@
       <% end %>
     </div>
 
-    <%= render "market/bids/region", listing: @listing, sheet: @sheet, outcome: @outcome, viewer: current_player, focus: @focus %>
+    <%= render "market/bids/region", listing: @listing, sheet: @sheet, outcome: @outcome, viewer: current_player, focus: @focus, suspended: @suspended %>
 
     <%= render "market/listings/history", lines: @history, viewer: current_player %>
   </div>
