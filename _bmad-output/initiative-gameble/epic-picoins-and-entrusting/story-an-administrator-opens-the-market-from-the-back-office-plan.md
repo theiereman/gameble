@@ -3,7 +3,7 @@ title: 'An administrator opens the market from the back-office'
 type: 'feature'
 ticket: '2'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: '5ef2bb5aeadbcc785f3862f3f39493d3becb3773'
 route: 'full'
 route_source: 'auto'
@@ -102,6 +102,8 @@ context:
 Built as planned. Locale keys sit under `back_office.markets.*` and `back_office.market_openings.*` to match the controllers' lazy lookups. Static checks only (rubocop, prettier, planning and size checks); packwerk and the tests were not run because bundler gems are absent in the worktree.
 
 ## Plan Change Log
+
+- 2026-11-10 review: no defect found against the plan, spec and AGENTS.md (administrator gate before any write, confirmations terms-first, one transaction holding the version insert, the announcement and the event, lost race by the unique `replaces_id`, locale keys in both files, policies on both routes, no ids or style attributes in the views). Bundler gems were absent so rubocop and packwerk could not run; planning-reference and file-size checks pass.
 
 ## Review Triage Log
 
