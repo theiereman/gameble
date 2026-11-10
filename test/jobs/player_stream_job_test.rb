@@ -46,6 +46,53 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     assert_nil template(streams(lea, "update", "tab-trades-badge").sole).at_css(".tab-bar__badge"), "hidden at zero"
   end
 
+  def figures(player, locale)
+    template(streams(received(player, locale), "update_all", ".balance-chip").sole)
+  end
+
+  def post_wallet(player, available:, committed:)
+    settings = Game::Market::Settings.create!(Game::Market::StartingSettings::ATTRIBUTES.merge(open: true))
+    Game::Market::Ledger.post([ Game::Market::Ledger::Entry.new(player_id: player.id, kind: :mint, available_delta: available + committed,
+      committed_delta: 0, settings_id: settings.id) ])
+    Game::Market::Ledger.post([ Game::Market::Ledger::Entry.new(player_id: player.id, kind: :hold, available_delta: -committed,
+      committed_delta: committed, settings_id: settings.id) ])
+  end
+
+  test "a balance notice redraws every balance chip with the compact amounts and the exact twins, in each locale" do
+    post_wallet(@hugo, available: 31_599, committed: 12_000)
+
+    PlayerStreamJob.perform_now([ { player_id: @hugo.id, balance: true } ])
+
+    english = figures(@hugo, :en)
+    assert_equal "31.5k", english.at_css(".balance-chip__available .picoin-amount__figure").text
+    assert_equal "31,599 PiCoins", english.at_css(".balance-chip__available")["aria-label"]
+    assert english.at_css(".balance-chip__divider[aria-hidden=true]")
+    assert_equal "12k committed", english.at_css(".balance-chip__committed [aria-hidden=true]").text.strip
+    assert_equal "12,000 committed", english.at_css(".balance-chip__committed .visually-hidden").text.strip
+    assert_equal "12k engagés", figures(@hugo, :fr).at_css(".balance-chip__committed [aria-hidden=true]").text.strip
+  end
+
+  test "the French committed text is singular at zero and one" do
+    PlayerStreamJob.perform_now([ { player_id: @hugo.id, balance: true } ])
+    assert_equal "0 engagé", figures(@hugo, :fr).at_css(".balance-chip__committed [aria-hidden=true]").text.strip
+  end
+
+  test "the French committed text is singular at one and plural at two" do
+    post_wallet(@hugo, available: 10, committed: 1)
+    PlayerStreamJob.perform_now([ { player_id: @hugo.id, balance: true } ])
+    assert_equal "1 engagé", figures(@hugo, :fr).at_css(".balance-chip__committed [aria-hidden=true]").text.strip
+
+    post_wallet(@lea, available: 10, committed: 2)
+    PlayerStreamJob.perform_now([ { player_id: @lea.id, balance: true } ])
+    assert_equal "2 engagés", figures(@lea, :fr).at_css(".balance-chip__committed [aria-hidden=true]").text.strip
+  end
+
+  test "no balance stream is sent without a balance notice" do
+    PlayerStreamJob.perform_now([ { player_id: @hugo.id, topic: "trades" } ])
+
+    assert_empty streams(received(@hugo, :en), "update_all")
+  end
+
   test "a reactions notice, twice in one batch, sends the reactions signal once and nothing else" do
     PlayerStreamJob.perform_now([ { player_id: @hugo.id, topic: "reactions" }, { player_id: @hugo.id, topic: "reactions" } ])
 

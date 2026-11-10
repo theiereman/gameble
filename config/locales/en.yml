@@ -3309,6 +3309,11 @@ en:
     announcement:
       close: "Close the announcement"
       label: "Announcement"
+    balance_chip:
+      committed:
+        one: "%{amount} committed"
+        other: "%{amount} committed"
+      label: Balance
     bank:
       label: Capsule reserve
       next_in: Next capsule in

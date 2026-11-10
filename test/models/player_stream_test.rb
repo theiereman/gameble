@@ -1,10 +1,12 @@
 require "test_helper"
 require_relative "../support/feed_reactions"
+require_relative "../support/market"
 
 class PlayerStreamTest < ActiveSupport::TestCase
   include ActionCable::TestHelper
   include ActiveJob::TestHelper
   include FeedReactions
+  include MarketSettings
 
   setup do
     @alice = accounts_players(:player)
@@ -13,6 +15,7 @@ class PlayerStreamTest < ActiveSupport::TestCase
     @three = catalog_card_seasons(:rare_card_one).id
     low, high = [ @alice.id, @bob.id ].minmax
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
+    Game::Market::Settings.delete_all
     Game::Holding.create!(player_id: @alice.id, card_season_id: @one, quantity: 3, reserved: 0)
     Game::Holding.create!(player_id: @bob.id, card_season_id: @three, quantity: 2, reserved: 0)
   end
@@ -110,6 +113,27 @@ class PlayerStreamTest < ActiveSupport::TestCase
     assert_no_enqueued_jobs(only: PlayerStreamJob) do
       Game::UnlockCardBack.new.call(player: @alice, back: "aurore")
       Game::UnlockCardBack.new.call(player: @alice, back: "centurion", retroactive: true).value!
+    end
+  end
+
+  test "an entrustment enqueues one balance job after its commit, and a refused one none" do
+    settings = open_market!
+    assert_includes PlayerStream::EVENTS, Game::Market::CardsEntrusted
+    assert_equal [ { player_id: @alice.id, balance: true } ],
+      PlayerStream.notices(Game::Market::CardsEntrusted.new(data: { player_id: @alice.id }))
+
+    assert_enqueued_with(job: PlayerStreamJob, args: [ [ { player_id: @alice.id, balance: true } ] ]) do
+      assert Game::Market::EntrustCards.new.call(player: @alice, lines: { @one => 1 }, settings_token: settings.token).success?
+    end
+    assert_equal 1, stream_jobs.size
+    assert_empty batches
+  end
+
+  test "a refused entrustment enqueues nothing" do
+    settings = close_market!
+
+    assert_no_enqueued_jobs(only: PlayerStreamJob) do
+      Game::Market::EntrustCards.new.call(player: @alice, lines: { @one => 1 }, settings_token: settings.token)
     end
   end
 
