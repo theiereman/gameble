@@ -67,17 +67,17 @@ module PlayerStream
         [ balance_notice(data[:seller_id]) ]
       when Game::Market::AuctionSold
         balance_notices(data.values_at(:seller_id, :winner_id, :outbid_player_id)) +
-          market_notices(data.values_at(:outbid_player_id, :winner_id, :seller_id) + Game::Market::ListingBidders.call(data[:listing_id]))
+          market_notices(data.values_at(:outbid_player_id, :winner_id, :seller_id) + bidders_of(data))
       when Game::Market::BidPlaced
         balance_notices(data.values_at(:bidder_id, :outbid_player_id)) + bid_market_notices(data)
       when Game::Market::AuctionUnsold
-        balance_notices([ data[:seller_id] ]) + market_notices([ data[:seller_id] ] + Game::Market::ListingBidders.call(data[:listing_id]))
+        balance_notices([ data[:seller_id] ]) + market_notices([ data[:seller_id] ] + bidders_of(data))
       when Game::Market::ListingWithdrawn
-        balance_notices(data.values_at(:seller_id, :leader_id)) + market_notices(Game::Market::ListingBidders.call(data[:listing_id]))
+        balance_notices(data.values_at(:seller_id, :leader_id)) + market_notices(bidders_of(data))
       when Game::Market::LeadVoided
         balance_notices([ data[:leader_id] ]) + market_notices([ data[:seller_id] ])
       when Game::Market::ListingCancelled
-        market_notices(Game::Market::ListingBidders.call(data[:listing_id]))
+        market_notices(bidders_of(data))
       when *BALANCE_EVENTS
         [ balance_notice(data[:player_id]) ]
       when *CUT_OFF_EVENTS
@@ -96,6 +96,8 @@ module PlayerStream
     def balance_notice(player_id) = { player_id:, balance: true }
 
     def balance_notices(player_ids) = player_ids.compact.uniq.map { balance_notice(it) }
+
+    def bidders_of(data) = Game::Market::ListingBidders.call(data[:listing_id])
 
     def market_notices(player_ids) = player_ids.compact.uniq.map { { player_id: it, topic: "market" } }
 
