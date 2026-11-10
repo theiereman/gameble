@@ -62,4 +62,49 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
     assert_no_selector "[data-health-indicator]"
     assert_text "PAGE NOT FOUND"
   end
+
+  def alerting_snapshot(destroyed: 3_400) = snapshot!(@yesterday, created: 10_000, destroyed:)
+
+  test "an administrator prepares the change, finds it prefilled with focus on the first field, and leaves without saving" do
+    alerting_snapshot
+    version = Game::Market::CurrentSettings.call
+    visit_health_as(accounts_players(:administrator))
+
+    within("[data-health-alert=destroyed_share]") do
+      assert_text "raise the Rare stamp from 2,000 to 3,000"
+      click_on "Prepare this change"
+    end
+
+    assert_selector "[data-market-settings-prepared]"
+    assert_field "market_settings[stamp_rare]", with: "3000", focused: true
+    assert_field "market_settings[minimum_price_rare]", with: "8900"
+    visit back_office_market_health_path(locale: :en)
+
+    assert_selector "[data-health-alert=destroyed_share]"
+    assert_equal version, Game::Market::CurrentSettings.call
+  end
+
+  test "ignoring an alert hides it until the indicator's value changes" do
+    alerting_snapshot
+    visit_health_as(accounts_players(:administrator))
+
+    within("[data-health-alert=destroyed_share]") { click_on "Ignore" }
+
+    assert_no_selector "[data-health-alert=destroyed_share]", visible: :visible
+    visit back_office_market_health_path(locale: :en)
+    assert_no_selector "[data-health-alert=destroyed_share]", visible: :visible
+
+    Game::Market::DailySnapshot.connection.execute("UPDATE game_market_daily_snapshots SET destroyed = 3500")
+    visit back_office_market_health_path(locale: :en)
+    assert_selector "[data-health-alert=destroyed_share]"
+  end
+
+  test "a moderator sees the alert without its actions" do
+    alerting_snapshot
+    visit_health_as(accounts_players(:moderator))
+
+    assert_selector "[data-health-alert=destroyed_share]"
+    assert_no_link "Prepare this change"
+    assert_no_button "Ignore"
+  end
 end

@@ -10,6 +10,10 @@
       <p class="ban-form__hint" id="market-settings-reason" data-market-settings-reason><%= t("back_office.markets.settings.administrators_only") %></p>
     <% end %>
 
+    <% if form.prepared? %>
+      <p class="market-settings__prepared-note" role="status" data-market-settings-prepared><%= t("back_office.markets.settings.prepared.note") %></p>
+    <% end %>
+
     <%= form_with url: back_office_market_settings_path, method: :post, class: "stack market-settings__form" do %>
       <% if form.refusal %>
         <ul class="ledger-errors" role="alert">

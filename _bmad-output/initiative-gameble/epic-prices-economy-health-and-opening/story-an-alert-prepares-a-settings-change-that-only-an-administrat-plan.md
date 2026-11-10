@@ -3,7 +3,7 @@ title: 'An alert prepares a settings change that only an administrator applies'
 type: 'feature'
 ticket: '41.6'
 created: '2026-11-10'
-status: 'draft'
+status: 'in-review'
 baseline_revision: '24beb5709830e77166d8cc9167727d33f5bacbd5'
 route: 'full'
 route_source: 'auto'
@@ -80,6 +80,8 @@ context:
 - Given a destroyed share under its threshold, when an administrator presses "Préparer ce changement", then the raised stamp and minimum are prefilled with focus on the first, and leaving without saving keeps the settings version; "Ignorer" hides the alert until the value changes.
 
 ## Implementation Notes
+
+Built as planned; nothing was run except one Vitest file by mistake (6 passing). `EconomyAlerts` returns `Alert`s carrying the current and the proposed values of the stamp and minimum; `named` finds one by its indicator's name from `?prepare=`. `MarketsController` builds the prepared form only for an administrator through `MarketSettingsForm#prepare`, which marks the changed fields (`data-prepared`) and puts `autofocus` on the first. The health tile's alert is the `alert` partial, which the `alert-ignore` controller hides and unframes; moderators get the proposal without any button. `config/i18n-tasks.yml` was not touched again: the alert and prepared keys are static.
 
 ## Plan Change Log
 

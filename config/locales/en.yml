@@ -326,6 +326,14 @@ en:
       announcement_refused: "Each announcement needs text in both languages, at most 280 characters. The market was not closed."
       stale: "Another administrator has just changed the market. The page was redrawn; check it and close again if needed."
     market_health:
+      alert:
+        administrators_only: "Only an administrator can prepare this change."
+        ignore: "Ignore"
+        no_proposal: "No change within the bounds answers this alert. Adjust the settings by hand."
+        prepare: "Prepare this change"
+        proposal_minimum: "Its minimum price rises to %{minimum} so that a seller never loses."
+        proposal_stamp: "Proposal: raise the %{rarity} stamp from %{from} to %{to}."
+        title: "Alert"
       days: "%{value} d"
       income:
         price: "Price"
@@ -451,6 +459,9 @@ en:
           listing: "Applies from the next listing."
           now: "Applies at once."
         not_yet_open: "The economy settings become editable once the market has been opened for the first time."
+        prepared:
+          field: "Prepared change, it was %{value}."
+          note: "A change is prepared from an alert. Nothing is saved until you save it with the Brotherhood's announcement."
         rows:
           entrustment: "Entrustment pays"
           income_days_target: "Target days of income"

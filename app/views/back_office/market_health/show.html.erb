@@ -14,7 +14,7 @@
     <h2 id="health-indicators-heading"><%= t(".indicators_heading") %></h2>
     <ul class="market-health__indicators">
       <% { destroyed_share: @series.destroyed_share, picoins_per_player: @series.picoins_per_player, top_share: @series.top_share }.each do |key, indicator| %>
-        <li><%= render "back_office/market_health/indicator", key:, indicator: %></li>
+        <li><%= render "back_office/market_health/indicator", key:, indicator:, alert: @alerts[key], can_prepare: @can_prepare %></li>
       <% end %>
       <li><%= render "back_office/market_health/income", days_of_income: @series.days_of_income %></li>
     </ul>

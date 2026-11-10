@@ -1,14 +1,19 @@
 <%# locals: (form:, field:, disabled:, labelled_by: nil) %>
 <% id = "market-settings-#{field.to_s.dasherize}" %>
 <% error = form.violation_message(field) %>
-<div class="market-settings__field">
+<% prepared = form.prepared_field?(field) %>
+<div class="<%= class_names("market-settings__field", "market-settings__field--prepared": prepared) %>">
   <% unless labelled_by %>
     <label for="<%= id %>"><%= t("back_office.markets.settings.labels.#{field}") %></label>
   <% end %>
   <%= text_field_tag "market_settings[#{field}]", form.value_for(field), id:, class: "ban-form__field", autocomplete: "off", disabled:,
+        autofocus: (true if field == form.first_prepared_field), data: { prepared: (true if prepared) },
         inputmode: (form.percent?(field) || form.days?(field) ? "decimal" : "numeric"),
         aria: { labelledby: labelled_by, describedby: [ "#{id}-hint", ("#{id}-error" if error) ].compact.join(" "), invalid: (true if error) } %>
   <p class="ban-form__hint" id="<%= id %>-hint"><%= form.hint(field) %></p>
+  <% if prepared %>
+    <p class="market-settings__prepared" data-market-settings-prepared-field="<%= field %>"><%= t("back_office.markets.settings.prepared.field", value: form.previous_value(field)) %></p>
+  <% end %>
   <% if error %>
     <p class="market-settings__error" id="<%= id %>-error" role="alert" data-market-settings-error="<%= field %>"><%= error %></p>
   <% end %>

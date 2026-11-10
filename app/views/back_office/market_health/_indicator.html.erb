@@ -1,7 +1,9 @@
-<%# locals: (key:, indicator:) %>
+<%# locals: (key:, indicator:, alert: nil, can_prepare: false) %>
 <% value = indicator.last %>
-<article class="market-health__tile" aria-labelledby="health-<%= key.to_s.dasherize %>-title" data-health-indicator="<%= key %>"
-         data-health-state="<%= value.nil? ? "no-data" : "read" %>">
+<%= tag.article class: class_names("market-health__tile", "market-health__tile--alert": alert), aria: { labelledby: "health-#{key.to_s.dasherize}-title" },
+      data: { health_indicator: key, health_state: (value.nil? ? "no-data" : "read"), controller: ("alert-ignore" if alert),
+              alert_ignore_key_value: (key if alert), alert_ignore_value_value: (alert.value if alert),
+              alert_ignore_alerting_class: ("market-health__tile--alert" if alert) } do %>
   <h3 class="market-health__title" id="health-<%= key.to_s.dasherize %>-title"><%= t("back_office.market_health.indicators.#{key}.title") %></h3>
 
   <% if value.nil? %>
@@ -15,6 +17,9 @@
         <%= t("back_office.market_health.indicators.#{key}.threshold", value: health_value(key, indicator.last_threshold)) %>
       <% end %>
     </p>
+    <% if alert %>
+      <%= render "back_office/market_health/alert", key:, alert:, can_prepare: %>
+    <% end %>
     <%= render "back_office/market_health/lines", key: %>
   <% end %>
-</article>
+<% end %>

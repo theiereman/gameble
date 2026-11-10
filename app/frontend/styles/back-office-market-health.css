@@ -103,3 +103,38 @@
 .market-health__difference {
   color: var(--color-alert);
 }
+
+.market-health__tile--alert {
+  border-color: var(--color-alert);
+}
+
+.market-health__alert {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-panel-sunken);
+  border-inline-start: var(--space-2) solid var(--color-alert);
+}
+
+.market-health__alert[hidden] {
+  display: none;
+}
+
+.market-health__alert-title {
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.market-health__proposal,
+.market-health__alert-note {
+  margin: 0;
+}
+
+.market-health__alert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+}

@@ -38,7 +38,23 @@ module BackOffice
       @message_fr = message_fr
       @message_en = message_en
       @checked = false
+      @prepared = []
     end
+
+    # The form as an alert proposes it: every value of the version in force, the proposed changes in place of theirs, each marked.
+    def prepare(changes)
+      @prepared = Rules::EDITABLE.select { changes.key?(it) }
+      @raw = Rules::EDITABLE.index_with { |field| display_value(field, changes.fetch(field) { settings.public_send(field) }) }
+      self
+    end
+
+    def prepared? = @prepared.any?
+
+    def prepared_field?(field) = @prepared.include?(field)
+
+    def first_prepared_field = @prepared.first
+
+    def previous_value(field) = shown(field, settings.public_send(field))
 
     # Shows the refusals beside the fields, for a save the rules turned down.
     def check

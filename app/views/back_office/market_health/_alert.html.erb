@@ -1,0 +1,27 @@
+<%# locals: (key:, alert:, can_prepare:) %>
+<% rarity = health_rarity_name(alert.rarity) %>
+<div class="market-health__alert" role="group" aria-labelledby="health-<%= key.to_s.dasherize %>-alert" data-alert-ignore-target="alert" data-health-alert="<%= key %>">
+  <p class="market-health__alert-title" id="health-<%= key.to_s.dasherize %>-alert"><%= t("back_office.market_health.alert.title") %></p>
+
+  <% if alert.actionable? %>
+    <p class="market-health__proposal">
+      <%= t("back_office.market_health.alert.proposal_stamp", rarity:, from: picoins(alert.current.fetch(alert.stamp_field)), to: picoins(alert.changes.fetch(alert.stamp_field))) %>
+      <% if alert.changes.key?(alert.minimum_field) %>
+        <%= t("back_office.market_health.alert.proposal_minimum", rarity:, minimum: picoins(alert.changes.fetch(alert.minimum_field))) %>
+      <% end %>
+    </p>
+  <% else %>
+    <p class="market-health__proposal"><%= t("back_office.market_health.alert.no_proposal") %></p>
+  <% end %>
+
+  <% if can_prepare %>
+    <p class="market-health__alert-actions">
+      <% if alert.actionable? %>
+        <%= render ButtonComponent.new(href: back_office_market_path(prepare: alert.indicator, anchor: "market-settings")) do %><%= t("back_office.market_health.alert.prepare") %><% end %>
+      <% end %>
+      <button type="button" class="button button--secondary" data-action="alert-ignore#ignore"><%= t("back_office.market_health.alert.ignore") %></button>
+    </p>
+  <% else %>
+    <p class="market-health__alert-note"><%= t("back_office.market_health.alert.administrators_only") %></p>
+  <% end %>
+</div>

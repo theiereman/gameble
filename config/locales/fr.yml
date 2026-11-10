@@ -718,6 +718,14 @@ fr:
       announcement_refused: "Chaque annonce demande un texte dans les deux langues, 280 caractères au plus. Le marché n'a pas été fermé."
       stale: "Un autre administrateur vient de modifier le marché. La page a été redessinée ; vérifiez-la et fermez à nouveau si besoin."
     market_health:
+      alert:
+        administrators_only: "Seul un administrateur peut préparer ce changement."
+        ignore: "Ignorer"
+        no_proposal: "Aucun changement dans les bornes ne répond à cette alerte. Ajustez les réglages à la main."
+        prepare: "Préparer ce changement"
+        proposal_minimum: "Son prix minimum monte à %{minimum} pour qu'un vendeur ne perde jamais."
+        proposal_stamp: "Proposition : relever le timbre %{rarity} de %{from} à %{to}."
+        title: "Alerte"
       days: "%{value} j"
       income:
         price: "Prix"
@@ -843,6 +851,9 @@ fr:
           listing: "S'applique dès la prochaine mise en vente."
           now: "S'applique immédiatement."
         not_yet_open: "Les réglages de l'économie deviennent modifiables une fois le marché ouvert pour la première fois."
+        prepared:
+          field: "Changement préparé, il était de %{value}."
+          note: "Un changement est préparé depuis une alerte. Rien n'est enregistré avant que vous l'enregistriez avec l'annonce de la Confrérie."
         rows:
           entrustment: "Gain de la confiance"
           income_days_target: "Jours de revenu visés"

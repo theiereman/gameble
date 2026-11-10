@@ -103,5 +103,44 @@ module BackOffice
       get back_office_market_health_path(locale: :en)
       assert_unknown_address
     end
+
+    def alerting_snapshot = snapshot!(@yesterday, created: 10_000, destroyed: 3_400, picoins_per_active_player: 1)
+
+    test "an indicator past its threshold is framed and states the proposal, with both actions for an administrator" do
+      alerting_snapshot
+      sign_in(accounts_players(:administrator))
+
+      get back_office_market_health_path(locale: :en)
+
+      assert_select "[data-health-indicator=destroyed_share].market-health__tile--alert[data-controller=alert-ignore]" \
+        "[data-alert-ignore-key-value=destroyed_share][data-alert-ignore-value-value='3400']" do
+        assert_select "[data-health-alert=destroyed_share] .market-health__proposal", /raise the Rare stamp from 2,000 to 3,000.*minimum price rises to 8,900/
+        assert_select "a[href='/en/back-office/market?prepare=destroyed_share#market-settings']", "Prepare this change"
+        assert_select "button[data-action='alert-ignore#ignore']", "Ignore"
+      end
+      assert_select "[data-health-indicator=top_share].market-health__tile--alert", false
+    end
+
+    test "a moderator sees the alert and its proposal without the actions" do
+      alerting_snapshot
+      sign_in(accounts_players(:moderator))
+
+      get back_office_market_health_path(locale: :fr)
+
+      assert_select "[data-health-alert=destroyed_share] .market-health__proposal", /relever le timbre Rare/
+      assert_select "[data-health-alert=destroyed_share] a", false
+      assert_select "[data-health-alert=destroyed_share] button", false
+      assert_select "[data-health-alert=destroyed_share]", /Seul un administrateur/
+    end
+
+    test "no alert on a tile whose last point is null" do
+      snapshot!(@yesterday, created: 0, destroyed: 0)
+      sign_in(accounts_players(:administrator))
+
+      get back_office_market_health_path(locale: :en)
+
+      assert_select "[data-health-alert]", false
+      assert_select ".market-health__tile--alert", false
+    end
   end
 end

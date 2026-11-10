@@ -1,12 +1,14 @@
 require "test_helper"
 require_relative "../../support/hidden_back_office"
 require_relative "../../support/market"
+require_relative "../../support/market_snapshots"
 require_relative "../../support/steam_sign_in"
 
 module BackOffice
   class MarketsControllerTest < ActionDispatch::IntegrationTest
     include HiddenBackOffice
     include MarketSettings
+    include MarketSnapshots
     include SteamSignIn
 
     setup do
@@ -122,6 +124,68 @@ module BackOffice
 
       assert_response :success
       assert_select "h1", "Market"
+    end
+
+    def alerting_market!
+      open_market!(first_opened_at: 10.days.ago, alert_destroyed_share_basis_points: 4_000)
+      snapshot!(Time.current.utc.to_date - 1, created: 10_000, destroyed: 3_400)
+    end
+
+    test "an administrator preparing an alert gets the form prefilled, the changed fields marked and the first one focused, and nothing is written" do
+      alerting_market!
+      sign_in(accounts_players(:administrator))
+
+      assert_no_difference -> { Game::Market::Settings.count } do
+        get back_office_market_path(locale: :en, prepare: "destroyed_share")
+      end
+
+      assert_response :success
+      assert_select "[data-market-settings-prepared]", /Nothing is saved until you save/
+      assert_select "input[name='market_settings[stamp_rare]'][value='3000'][data-prepared][autofocus]"
+      assert_select "input[name='market_settings[minimum_price_rare]'][value='8900'][data-prepared]:not([autofocus])"
+      assert_select "[data-market-settings-prepared-field=stamp_rare]", /it was 2,000/
+      assert_select "input[data-prepared]", 2
+      assert_select "input[autofocus]", 1
+      assert_select "input[name='market_settings[stamp_epic]'][value='5000']:not([data-prepared])"
+      assert_select "input[name='market_settings[token]'][value=?]", Game::Market::CurrentSettings.call.token
+    end
+
+    test "the prefilled values save through the form with the announcement, and only then the version changes" do
+      alerting_market!
+      sign_in(accounts_players(:administrator))
+      before = Game::Market::CurrentSettings.call
+      form = BackOffice::MarketSettingsForm.from_settings(before).prepare(stamp_rare: 3_000, minimum_price_rare: 8_900)
+      fields = Game::Market::SettingsRules::EDITABLE.index_with { form.value_for(it) }
+
+      post back_office_market_settings_path(locale: :en), params: { market_settings: fields.merge(token: before.token,
+        message_fr: "Le timbre Rare monte.", message_en: "The Rare stamp rises.") }
+
+      assert_response :see_other
+      current = Game::Market::CurrentSettings.call
+      assert_equal [ 3_000, 8_900, before.id ], [ current.stamp_rare, current.minimum_price_rare, current.replaces_id ]
+      assert_equal before.stamp_epic, current.stamp_epic
+    end
+
+    test "a moderator preparing an alert gets the plain form" do
+      alerting_market!
+      sign_in(accounts_players(:moderator))
+
+      get back_office_market_path(locale: :en, prepare: "destroyed_share")
+
+      assert_select "[data-market-settings-prepared]", false
+      assert_select "input[data-prepared]", false
+    end
+
+    test "an alert that is quiet, unknown or not a name gets the plain form" do
+      alerting_market!
+      sign_in(accounts_players(:administrator))
+
+      [ "top_share", "nothing", { stamp_rare: "9" } ].each do |prepare|
+        get back_office_market_path(locale: :en, prepare:)
+
+        assert_response :success
+        assert_select "input[data-prepared]", false
+      end
     end
   end
 end
