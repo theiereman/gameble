@@ -69,8 +69,6 @@ module Game
 
         [ Ledger::Entry.new(player_id: leader_id, kind: :release, available_delta: released, committed_delta: -released, listing_id: listing.id, settings_id: listing.settings_id) ]
       end
-
-      def publish_to_seller(listing, event) = publish(event, stream_name: stream_name(listing.seller_id))
     end
   end
 end

@@ -1424,6 +1424,11 @@ en:
       terms_not_confirmed: Confirm that the market terms are in force before opening the market.
       listing_not_found: This listing does not exist.
       listing_not_closable: This auction cannot be closed.
+      auction_ended: This auction has ended.
+      below_minimum: "At least %{amount} is needed."
+      listing_withdrawn: This listing was withdrawn.
+      more_than_available: "You can commit at most %{amount}."
+      own_listing: You cannot bid on your own listing.
       market_busy: The Archives are busy right now. Try again in a moment.
       market_closed: The market is closed for now.
       buy_now_below_minimum: "At least %{amount} for a %{rarity}."

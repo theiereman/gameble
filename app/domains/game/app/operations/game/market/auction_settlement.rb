@@ -18,6 +18,7 @@ module Game
         reached = season ? SetTier.record(player_id: winner_id, card_season_ids: [ card ], season_id: season.id, reached_by: "trade", pack_id: nil, now:) : {}
         step publish_tiers(winner_id, reached)
         listing.update!(status: "sold", sold_at: now, final_price:)
+        Bid.close_out(listing_id: listing.id, winner_id:)
         refresh_edition_price(listing, now)
         sale_entries(listing, winner_id, held, final_price)
       end
@@ -34,6 +35,8 @@ module Game
         AuctionSold.new(data: { listing_id: listing.id, seller_id: listing.seller_id, winner_id:, card_season_id: listing.card_season_id, final_price:,
           surplus:, outbid_player_id:, outbid_released: })
       end
+
+      def publish_to_seller(listing, event) = publish(event, stream_name: stream_name(listing.seller_id))
 
       def lock_sale_holdings(seller_id, winner_id, card)
         [ seller_id, winner_id ].sort.to_h { |player_id| [ player_id, TradeLocks.holdings(player_id, [ card ]) ] }
