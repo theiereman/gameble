@@ -1,0 +1,45 @@
+.balance-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--space-chip-height);
+  padding: var(--space-1) var(--space-4);
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  white-space: nowrap;
+}
+
+.balance-chip__available {
+  color: var(--color-text-max);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-chip__divider {
+  align-self: stretch;
+  width: calc(var(--space-unit) * 2);
+  background: var(--color-line);
+}
+
+.balance-chip__committed {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-number);
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-chip--header {
+  display: none;
+}
+
+@media (max-width: 719px) {
+  .balance-chip--bar {
+    display: none;
+  }
+
+  .balance-chip--header {
+    display: inline-flex;
+    align-self: flex-end;
+  }
+}

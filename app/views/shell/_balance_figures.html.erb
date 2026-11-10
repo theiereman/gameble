@@ -1,0 +1,6 @@
+<%= render PicoinAmountComponent.new(amount: balance.available, compact: true, class: "balance-chip__available") %>
+<span class="balance-chip__divider" aria-hidden="true"></span>
+<span class="balance-chip__committed">
+  <span aria-hidden="true"><%= t("shell.balance_chip.committed", count: balance.committed, amount: picoins(balance.committed, compact: true)) %></span>
+  <span class="visually-hidden"><%= t("shell.balance_chip.committed", count: balance.committed, amount: picoins(balance.committed)) %></span>
+</span>

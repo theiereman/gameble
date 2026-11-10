@@ -72,6 +72,7 @@
             <%= render "shell/packs_chip", bank: shell_bank %>
           <% end %>
         <% end %>
+        <%= render "shell/balance_chip", placement: :bar unless back_office_page? || native_top_bar? %>
         <%= render "shell/bell" unless back_office_page? %>
         <%= render "shell/player_chip", player: current_player %>
         <%= render "shell/native_tab_badges" if native_top_bar? %>

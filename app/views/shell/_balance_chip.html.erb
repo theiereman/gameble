@@ -1,0 +1,5 @@
+<% if shell_balance %>
+  <div class="balance-chip balance-chip--<%= placement %>" role="group" aria-label="<%= t("shell.balance_chip.label") %>">
+    <%= render "shell/balance_figures", balance: shell_balance %>
+  </div>
+<% end %>

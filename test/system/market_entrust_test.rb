@@ -328,4 +328,28 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_selector ".entrust-cell--picked", count: 1
     assert_unchecked_field "Doubles"
   end
+
+  test "the balance chip follows an entrustment and is absent before the opening and for a visitor" do
+    open_market!(first_opened_at: Time.current)
+    hold(@player, @rare.id, 1)
+    sign_in_through_the_site
+
+    assert_selector ".balance-chip--bar .balance-chip__available[aria-label='0 PiCoins']"
+    visit new_market_entrustment_path(locale: :en)
+    tick(@rare)
+    click_on "Entrust 1 copy"
+
+    assert_selector ".balance-chip--bar .balance-chip__available[aria-label='5,000 PiCoins']"
+    assert_selector ".balance-chip--bar .balance-chip__committed .visually-hidden", text: "0 committed", visible: :all
+
+    Game::Market::Settings.delete_all
+    open_market!
+    visit home_path(locale: :en)
+    assert_no_selector ".balance-chip"
+
+    Capybara.reset_sessions!
+    open_market!(first_opened_at: Time.current)
+    visit home_path(locale: :en)
+    assert_no_selector ".balance-chip"
+  end
 end
