@@ -40,7 +40,7 @@ context:
 **Decisions (settled by Claude, no approval round in this batch; the author may revisit):**
 - The Annonce's price is read for the listing's edition at page load; the live refresh already morphs the page, so a sale elsewhere shows on the next refetch.
 - `ListingByToken` gains the card-season id for the controller's lookup, which never reaches the HTML.
-- A new `Catalog::EditionIds` query maps a card's editions to their card-season ids by season number, so the controller reads ids with one query rather than one per edition.
+- `Catalog::PublishedCardSeasonIds` maps the owned editions to their card-season ids by season number, so the controller reads ids with one query rather than one per edition.
 - The Mettre en vente sale page resolves the cells' ids through `EntrustableCopies.resolve`, which already maps a cell's `ref` to its card-season id in one query.
 
 ## I/O & Edge-Case Matrix
@@ -59,7 +59,7 @@ context:
 ## Code Map
 
 - `app/controllers/cards_controller.rb`, `app/views/cards/_detail.html.erb`, `app/helpers/card_details_helper.rb` -- ÉDITIONS lines.
-- `app/domains/catalog/app/queries/` -- the new editions-to-ids query.
+- `app/domains/catalog/app/queries/catalog/published_card_season_ids.rb` -- the editions-to-ids query already built.
 - `app/controllers/market/listings_controller.rb`, `app/views/market/listings/show.html.erb`, `app/domains/game/app/queries/game/market/listing_by_token.rb` -- the Annonce's facts.
 - `app/controllers/market/sales_controller.rb`, `app/views/market/sales/_cell.html.erb`, `_fields.html.erb`, `app/helpers/market_sales_helper.rb` -- cells and form.
 - `app/frontend/controllers/listing_fields_controller.ts`, `app/frontend/lib/listing_form_view.ts` -- the chosen edition reaching the slot.
@@ -68,7 +68,7 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] Editions-to-ids query, ÉDITIONS lines with prices
+- [ ] ÉDITIONS lines with prices
 - [ ] Annonce fact row
 - [ ] Mettre en vente cells, templates, slot and the fields controller
 - [ ] Copy in both locales
