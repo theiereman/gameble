@@ -1,0 +1,19 @@
+<% copies = @ticked[copy.ref].to_i %>
+<%= tag.li class: class_names("entrust-cell", "entrust-cell--#{copy.rarity}", "entrust-cell--picked": copies.positive?),
+      data: { entrust_target: "cell", entrust_grid_target: "cell", ref: copy.ref, title: copy.title, rarity: copy.rarity,
+              season: copy.season_number, free: copy.free, owned: copy.owned, value: copy.value, ticked: copies } do %>
+  <span class="entrust-cell__check" aria-hidden="true" <%= "hidden" unless copies.positive? %>>✓</span>
+  <span class="entrust-cell__name"><%= copy.title %></span>
+  <span class="entrust-cell__edition"><%= t("catalog.rarity.#{copy.rarity}") %> · <%= t("market.entrustments.new.season", number: copy.season_number) %></span>
+  <span class="entrust-cell__value"><%= render PicoinAmountComponent.new(amount: copy.value) %></span>
+  <span class="entrust-cell__free"><%= t("market.entrustments.new.free", count: copy.free) %></span>
+  <%= hidden_field_tag "copies[#{copy.ref}]", copies.positive? ? copies : 1, id: nil, disabled: copies.zero? %>
+  <%= tag.button type: "button", class: "entrust-cell__toggle", tabindex: (cell_counter.zero? ? 0 : -1),
+        aria: { pressed: copies.positive?.to_s, label: entrust_cell_label(copy) },
+        data: { action: "entrust-grid#toggle" } %>
+  <% if copy.free > 1 %>
+    <div class="entrust-cell__stepper">
+      <%= render "trades/stepper", controller: "entrust-grid", stepper: entrust_cell_stepper(copy, copies.positive? ? copies : 1) %>
+    </div>
+  <% end %>
+<% end %>
