@@ -13,10 +13,10 @@ module Game
       Row = Data.define(:token, :card, :current_price, :buy_now_price, :ends_at, :offers)
       Page = Data.define(:rows, :more)
 
-      def self.call(sort:, page:, locale:)
+      def self.call(sort:, page:, locale:, filters: ListingFilters.none)
         sort = DEFAULT_SORT unless ORDERS.key?(sort)
         page = [ page.to_i, 1 ].max
-        found = Listing.open_now.order(ORDERS.fetch(sort)).offset((page - 1) * PER_PAGE).limit(PER_PAGE + 1)
+        found = filters.apply(Listing.open_now, locale:).order(ORDERS.fetch(sort)).offset((page - 1) * PER_PAGE).limit(PER_PAGE + 1)
           .pluck(:id, :token, :card_season_id, :current_price, :buy_now_price, :ends_at)
         more = found.size > PER_PAGE
         found = found.first(PER_PAGE)
