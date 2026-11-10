@@ -315,4 +315,26 @@ class PlayerStreamTest < ActiveSupport::TestCase
 
     assert_equal 1, stream_jobs.size
   end
+
+  test "a sale tells the seller, the winner and the outbid player, once each" do
+    data = { listing_id: 1, seller_id: @alice.id, winner_id: @bob.id, card_season_id: @one, final_price: 10, surplus: 0, outbid_player_id: @alice.id, outbid_released: 5 }
+
+    notices = PlayerStream.notices(Game::Market::AuctionSold.new(data:))
+
+    assert_equal [ @alice.id, @bob.id ], notices.map { it[:player_id] }
+    assert(notices.all? { it[:balance] })
+  end
+
+  test "an unsold auction tells its seller" do
+    notices = PlayerStream.notices(Game::Market::AuctionUnsold.new(data: { listing_id: 1, seller_id: @alice.id }))
+
+    assert_equal [ { player_id: @alice.id, balance: true } ], notices
+  end
+
+  test "a withdrawn listing tells its seller and its leader when present" do
+    withdrawn = ->(leader_id) { Game::Market::ListingWithdrawn.new(data: { listing_id: 1, seller_id: @alice.id, leader_id:, released: 0 }) }
+
+    assert_equal [ @alice.id, @bob.id ], PlayerStream.notices(withdrawn.(@bob.id)).map { it[:player_id] }
+    assert_equal [ @alice.id ], PlayerStream.notices(withdrawn.(nil)).map { it[:player_id] }
+  end
 end
