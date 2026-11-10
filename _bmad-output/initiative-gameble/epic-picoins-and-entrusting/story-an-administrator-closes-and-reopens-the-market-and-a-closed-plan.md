@@ -3,7 +3,7 @@ title: 'An administrator closes and reopens the market, and a closed market refu
 type: 'feature'
 ticket: '38.10'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: '059e0eb1f3747ac554983bff74235ec8933650e8'
 route: 'full'
 route_source: 'auto'
