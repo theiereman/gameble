@@ -3,7 +3,7 @@ title: 'The terms, the privacy page and Comment ça marche cover the market'
 type: 'feature'
 ticket: '9'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: 'a159c212dc2bd7ff6358b8173105d7665bb8a19c'
 route: 'full'
 route_source: 'auto'
@@ -103,6 +103,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- Review: checked the diff against the plan, spec and AGENTS.md (GET writes nothing, no ids, no style attributes, fr/en key parity with zero plural forms, no planning ids, file sizes); no defect found, no code change. bundler is unusable in this worktree (missing gems), so rubocop, packwerk and i18n-tasks were not run.
 
 ## Review Triage Log
 
