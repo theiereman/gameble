@@ -1,7 +1,5 @@
 module Game
   module Market
-    # What a player asked of the market list: a search by game, groups of choices (OR within a group, AND across groups) and a price range.
-    # Anything that is not one of the offered choices is dropped.
     class ListingFilters
       MAX_QUERY = 100
       MAX_CHOICES = 50
@@ -27,7 +25,7 @@ module Game
 
       def self.none = new(query: "", rarities: [], sets: [], genres: [], seasons: [], min_price: nil, max_price: nil)
 
-      def self.text(value) = value.is_a?(String) ? value.strip : ""
+      def self.text(value) = value.is_a?(String) ? value.delete("\0").strip : ""
 
       def self.strings(value) = Array(value).grep(String).map(&:strip).uniq.first(MAX_CHOICES)
 
