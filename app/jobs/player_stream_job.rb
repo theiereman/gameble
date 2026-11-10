@@ -14,6 +14,7 @@ class PlayerStreamJob < ApplicationJob
         invitations: (Game::InvitationsWaiting.call(player) if invitations_changed),
         friends: announceable_friends(own.filter_map { it[:friend_id] }),
         unclaimed: (Game::UnclaimedAchievements.count(player) if rewards_changed),
+        balance: (Game::Market::Balance.call(player) if own.any? { it[:balance] }),
         pending: (pending_for(player) if invitations_changed || rewards_changed),
         achievements: own.filter_map { it[:achievement] }.uniq,
         card_backs: own.filter_map { it[:card_back] }.uniq,

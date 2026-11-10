@@ -13,6 +13,9 @@
 <% unless pending.nil? %>
   <%= turbo_stream.update "player-menu-badge", partial: "shell/player_menu_badge", locals: { pending: } %>
 <% end %>
+<% unless balance.nil? %>
+  <%= turbo_stream.update_all ".balance-chip", partial: "shell/balance_figures", locals: { balance: } %>
+<% end %>
 <% friends.each do |friend| %>
   <%= turbo_stream.append "toasts", ToastComponent.new(title: t("invitations.new_friend.title"),
         message: t("invitations.new_friend.text", name: friend_name(friend))) %>

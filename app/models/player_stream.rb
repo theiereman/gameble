@@ -6,8 +6,9 @@ module PlayerStream
   INVITATION_EVENTS = [ Game::InvitationSent, Game::InvitationAccepted, Game::InvitationCancelled, Game::InvitationIgnored ].freeze
   FRIENDSHIP_EVENTS = [ Game::FriendRemoved ].freeze
   SEEN_EVENTS = [ Game::TradeSeen ].freeze
+  BALANCE_EVENTS = [ Game::Market::CardsEntrusted ].freeze
   EVENTS = (TRADE_EVENTS + SEEN_EVENTS + INVITATION_EVENTS + FRIENDSHIP_EVENTS +
-    [ Game::AchievementUnlocked, Game::AchievementClaimed, Game::CardBackUnlocked, Game::DailyBonusCollected ]).freeze
+    [ Game::AchievementUnlocked, Game::AchievementClaimed, Game::CardBackUnlocked, Game::DailyBonusCollected ] + BALANCE_EVENTS).freeze
   CUT_OFF_EVENTS = [ Accounts::PlayerDeleted, Accounts::PlayerBanned ].freeze
   PRIVACY_EVENTS = [ Accounts::VisibilityChanged ].freeze
 
@@ -58,6 +59,8 @@ module PlayerStream
         data[:retroactive] ? [] : [ { player_id: data[:player_id], card_back: data[:back] } ]
       when Game::DailyBonusCollected
         [ { player_id: data[:player_id], topic: "bank" } ]
+      when *BALANCE_EVENTS
+        [ balance_notice(data[:player_id]) ]
       when *CUT_OFF_EVENTS
         counterparts_notices(data[:player_id])
       when Accounts::VisibilityChanged
@@ -70,6 +73,8 @@ module PlayerStream
     private
 
     def trades_notice(player_id) = { player_id:, topic: "trades" }
+
+    def balance_notice(player_id) = { player_id:, balance: true }
 
     def friends_notice(player_id) = { player_id:, topic: "friends" }
 
