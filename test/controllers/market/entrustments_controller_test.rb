@@ -289,4 +289,91 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "form#entrust[data-entrust-cap-left-value=?]", "50000"
   end
+
+  def second_edition_of(card_season)
+    season = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
+    Catalog::CardSeason.create!(card_id: card_season.card_id, season_id: season.id, prestige_score: 0.5, rating: 50, rarity: card_season.rarity, number: 1)
+  end
+
+  test "the filtered page lists only that card's editions with doubles off and nothing ticked when there are two" do
+    open_market!
+    second = second_edition_of(@rare)
+    hold(@player, @rare.id, 2)
+    hold(@player, second.id, 1)
+    hold(@player, @common.id, 3)
+    sign_in(@player)
+
+    assert_no_difference [ -> { Game::Holding.sum(:quantity) }, -> { Game::Market::LedgerEntry.count } ] do
+      get new_market_card_entrustment_path(locale: :en, slug: @rare.card.slug)
+    end
+
+    assert_response :success
+    assert_select ".entrust-cell", 2
+    assert_select ".entrust-cell[data-ref=?]", ref(@common), false
+    assert_select ".entrust-cell[data-ticked='0']", 2
+    assert_select "form#entrust[data-entrust-doubles-value=false]"
+    assert_select "input[name=card][value=?]", @rare.card.slug
+    assert_select "input[data-entrust-filters-target=doubles][checked]", false
+    assert_select ".market-entrust__card-only a[href=?]", new_market_entrustment_path(locale: :en)
+  end
+
+  test "a lone free edition opens ticked at one copy" do
+    open_market!
+    hold(@player, @rare.id, 2)
+    sign_in(@player)
+
+    get new_market_card_entrustment_path(locale: :en, slug: @rare.card.slug)
+
+    assert_select ".entrust-cell[data-ref=?][data-ticked=1]", ref(@rare)
+  end
+
+  test "the unfiltered page keeps doubles on and carries no card" do
+    open_market!
+    hold(@player, @rare.id, 2)
+    sign_in(@player)
+
+    get new_market_entrustment_path(locale: :en)
+
+    assert_select "form#entrust[data-entrust-doubles-value=true]"
+    assert_select "input[name=card]", false
+    assert_select "input[data-entrust-filters-target=doubles][checked]"
+    assert_select ".entrust-cell[data-ticked='0']", 1
+  end
+
+  test "an unknown card token is not found" do
+    open_market!
+    sign_in(@player)
+
+    get new_market_card_entrustment_path(locale: :en, slug: "nope")
+
+    assert_response :not_found
+  end
+
+  test "a closed market still opens the filtered page with its notice" do
+    close_market!
+    hold(@player, @rare.id, 2)
+    sign_in(@player)
+
+    get new_market_card_entrustment_path(locale: :en, slug: @rare.card.slug)
+
+    assert_response :success
+    assert_select ".market-entrust__notice[role=status]"
+  end
+
+  test "a refused post from the filtered page redraws it filtered with the ticks kept" do
+    drawn = open_market!
+    open_market!
+    second = second_edition_of(@rare)
+    hold(@player, @rare.id, 2)
+    hold(@player, second.id, 2)
+    sign_in(@player)
+
+    post market_entrustments_path(locale: :en), params: { settings: drawn.token, card: @rare.card.slug, copies: { ref(@rare) => "2" } }
+
+    assert_response :unprocessable_content
+    assert_select "input[name=card][value=?]", @rare.card.slug
+    assert_select "form#entrust[data-entrust-doubles-value=false]"
+    assert_select ".entrust-cell", 2
+    assert_select ".entrust-cell[data-ref=?][data-ticked=2]", ref(@rare)
+  end
 end

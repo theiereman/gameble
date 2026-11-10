@@ -6,7 +6,7 @@ module Market
 
     def new
       authorize %i[market entrustment], :new?
-      load_page
+      load_page(card_slug: asked_card_slug(params[:slug]))
     end
 
     def create
@@ -19,18 +19,29 @@ module Market
         @stayed_names = Game::Market::CardNames.call(@entrusted.stayed.map(&:card_season_id))
       else
         @refusal = Game::Market::EntrustCards.failure_message(result.failure)
-        load_page
+        load_page(card_slug: asked_card_slug(params[:card]))
         render :new, status: :unprocessable_content
       end
     end
 
     private
-      def load_page
+      def load_page(card_slug: nil)
         @settings = Game::Market::CurrentSettings.call
         @open = @settings&.open.present?
-        @copies = current_player && @settings ? Game::Market::EntrustableCopies.call(current_player, settings: @settings) : []
+        @card_slug = card_slug
+        @doubles = card_slug.nil?
+        @copies = current_player && @settings ? Game::Market::EntrustableCopies.call(current_player, settings: @settings, card_slug:) : []
         @cap_left = current_player && @settings ? Game::Market::CapLeft.call(current_player.id, settings: @settings) : 0
         @ticked = ticked_on(@copies)
+        @ticked = { @copies.first.ref => 1 } if card_slug && @ticked.empty? && ticked.empty? && @copies.one?
+      end
+
+      def asked_card_slug(slug)
+        return if slug.nil?
+
+        raise ActiveRecord::RecordNotFound unless Catalog::CardSlugKnown.call(slug)
+
+        slug
       end
 
       # What was posted, kept to the copies still free on the redrawn list.

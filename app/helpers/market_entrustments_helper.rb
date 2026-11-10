@@ -6,9 +6,9 @@ module MarketEntrustmentsHelper
   }.freeze
   ENTRUST_WINDOW_ACTIONS = "gameble:sheet-shown@window->entrust#sheetShown".freeze
 
-  def entrust_root_data(open:, cap_left:)
+  def entrust_root_data(open:, cap_left:, doubles: true)
     { controller: "entrust", action: "#{screen_actions("entrust", ENTRUST_ACTIONS)} #{ENTRUST_WINDOW_ACTIONS}",
-      entrust_locale_value: I18n.locale, entrust_cap_left_value: cap_left, entrust_open_value: open,
+      entrust_locale_value: I18n.locale, entrust_cap_left_value: cap_left, entrust_open_value: open, entrust_doubles_value: doubles,
       entrust_strings_value: screen_strings("market.entrustments.strings") }
       .merge(screen_outlets("entrust", ENTRUST_ACTIONS.keys))
   end
