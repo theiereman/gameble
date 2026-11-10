@@ -1425,6 +1425,7 @@ en:
       listing_not_found: This listing does not exist.
       listing_not_closable: This auction cannot be closed.
       auction_ended: This auction has ended.
+      bid_standing: A bid just arrived. The sale can no longer be cancelled.
       below_minimum: "At least %{amount} is needed."
       listing_withdrawn: This listing was withdrawn.
       more_than_available: "You can commit at most %{amount}."
@@ -2419,6 +2420,47 @@ en:
       back: Back to the market
       body: The Brotherhood is auditing its procedures. Auctions in progress end normally. Nothing can be entrusted, sold or bid on for now.
       title: THE MARKET IS SUSPENDED
+    cancellations:
+      create:
+        cancelled: Sale cancelled.
+        throttled: Slow down, the Archives are counting. Try again in a minute.
+      dialog:
+        close: Close
+        confirm: CANCEL THE SALE
+        keep: KEEP THE SALE
+        text: "%{card} comes back to you. The stamp is not refunded."
+        title: CANCEL THIS SALE?
+    chips:
+      sales: MY SALES
+    my_sales:
+      cancel: CANCEL
+      cancel_name: "Cancel the sale, %{card}"
+      groups:
+        ended:
+          empty: No finished sale.
+          heading: FINISHED
+        in_progress:
+          empty: No sale in progress.
+          heading: IN PROGRESS
+      no_bid_note: No bid, the card is returned. The stamp is not refunded.
+      received_html: "Received %{amount}, after the Brotherhood's Effort"
+      relist: PUT UP FOR SALE AGAIN
+      relist_name: "Put up for sale again, %{card}"
+      show:
+        empty: You have not put any card up for sale.
+        empty_action: PUT UP FOR SALE
+        heading: My sales
+    rows:
+      closing: "Closing…"
+      labels:
+        end: End
+        price: Price
+      status:
+        cancelled: CANCELLED
+        in_progress: IN PROGRESS
+        no_bid: NO BID
+        sold: SOLD
+        withdrawn: WITHDRAWN
     entrustments:
       create:
         again: Entrust more cards

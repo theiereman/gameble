@@ -1,0 +1,24 @@
+<% content_for :title, t(".heading") %>
+<% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
+<% empty = @groups.in_progress.empty? && @groups.ended.empty? %>
+<%= tag.section class: "market-screen", aria: { labelledby: "market-screen-heading" },
+      data: { controller: "row-focus", row_focus_landing_value: @landing } do %>
+  <header class="market-screen__header">
+    <h1 id="market-screen-heading" class="market-screen__title"><%= t(".heading") %></h1>
+    <%= render "shell/balance_chip", placement: :header %>
+  </header>
+
+  <%= render "markets/chips", current: :sales %>
+
+  <% if empty %>
+    <div class="market-screen__empty-state">
+      <p class="market-screen__empty"><%= t(".empty") %></p>
+      <%= render ButtonComponent.new(variant: :link, href: new_market_sale_path) { t(".empty_action") } %>
+    </div>
+  <% else %>
+    <%= render "market/my_sales/group", group: "in-progress", heading: t("market.my_sales.groups.in_progress.heading"),
+          empty: t("market.my_sales.groups.in_progress.empty"), rows: @groups.in_progress, focus_heading: true %>
+    <%= render "market/my_sales/group", group: "ended", heading: t("market.my_sales.groups.ended.heading"),
+          empty: t("market.my_sales.groups.ended.empty"), rows: @groups.ended, focus_heading: false %>
+  <% end %>
+<% end %>

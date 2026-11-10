@@ -230,14 +230,15 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
 
     sign_in(@seller)
     annonce
-    assert_select "dialog", false
+    assert_select "dialog#annonce-buy-now", false
+    assert_select "dialog#annonce-unusual", false
   end
 
   test "the seller reads no form" do
     sign_in(@seller)
     annonce
 
-    assert_select "#annonce-bid form", false
+    assert_select "#annonce-bid form#annonce-form", false
     assert_select "#annonce-bid a", false
   end
 
@@ -278,5 +279,44 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
     assert_no_match(/(?:id|listing)[-_=:"]#{@listing.id}\b/, response.body)
     assert_equal "/en/market/listings/#{@listing.token}", market_listing_path(locale: :en, token: @listing.token)
+  end
+
+  def cancel_dialog = css_select("#annonce-bid dialog#cancel-#{@listing.token}")
+
+  test "the seller of an open listing without a leader reads ANNULER and its dialog back to the Annonce" do
+    sign_in(@seller)
+    annonce
+
+    assert_select "#annonce-bid button[aria-label=?]", "Cancel the sale, Blue Depths", "CANCEL"
+    assert_equal 1, cancel_dialog.size
+    assert_select "dialog#cancel-#{@listing.token} input[name=return_to][value=annonce]"
+    assert_select "dialog#cancel-#{@listing.token} form[action=?]", market_listing_cancellation_path(locale: :en, token: @listing.token)
+  end
+
+  test "no ANNULER with a leader, once ended or due, for another player or for a visitor" do
+    sign_in(@seller)
+    @listing.update_columns(leader_id: accounts_players(:moderator).id, leader_maximum: 9_000)
+    annonce
+    assert_empty cancel_dialog
+
+    @listing.update_columns(leader_id: nil, leader_maximum: nil, ends_at: 1.minute.ago)
+    annonce
+    assert_empty cancel_dialog
+
+    @listing.update_columns(ends_at: 1.hour.from_now, status: "unsold")
+    annonce
+    assert_empty cancel_dialog
+
+    @listing.update_columns(status: "open")
+    sign_in(accounts_players(:administrator))
+    annonce
+    assert_empty cancel_dialog
+  end
+
+  test "a visitor reads no ANNULER" do
+    annonce
+
+    assert_empty cancel_dialog
+    assert_select "button", text: "CANCEL", count: 0
   end
 end

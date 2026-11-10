@@ -1,0 +1,20 @@
+<li class="market-row">
+  <img class="market-row__thumb" src="<%= card.image_url %>" alt="" width="40" height="40" loading="lazy" decoding="async">
+  <div class="market-row__main">
+    <p class="market-row__heading">
+      <a class="market-row__title" href="<%= href %>" data-row-token="<%= token %>"><%= card.title %></a>
+      <span class="market-row__rarity market-row__rarity--<%= card.rarity %>"><%= rarity_name %></span>
+    </p>
+    <span class="market-row__chip market-row__chip--<%= tone %>"><%= status %></span>
+    <dl class="market-row__facts">
+      <% facts.each do |label, value| %>
+        <div class="market-row__fact">
+          <dt><%= label %></dt>
+          <dd><%= value %></dd>
+        </div>
+      <% end %>
+    </dl>
+    <% if note? %><p class="market-row__note"><%= note %></p><% end %>
+  </div>
+  <% if action? %><div class="market-row__action"><%= action %></div><% end %>
+</li>

@@ -51,6 +51,26 @@
   box-shadow: inset 0 calc(var(--space-unit) * -1) 0 var(--color-accent);
 }
 
+a.market-screen__chip {
+  text-decoration: none;
+}
+
+a.market-screen__chip:hover {
+  color: var(--color-text-max);
+}
+
+.market-screen__chip--disabled {
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
+.market-screen__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
 .market-screen__sort {
   display: inline-flex;
   align-items: center;

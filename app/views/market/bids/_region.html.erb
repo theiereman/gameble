@@ -5,6 +5,11 @@
     <% if not_recorded %><p class="market-bid__note"><%= t("market.bids.not_recorded") %></p><% end %>
   <% elsif sheet %>
     <%= render "market/bids/form", listing:, sheet:, answer:, refusal:, posted:, posted_amount: %>
+  <% elsif annonce_cancellable?(listing, viewer) %>
+    <div class="market-bid__cancel">
+      <%= render ButtonComponent.new(variant: :secondary, opens: cancel_dialog_id(listing.token), aria_label: t("market.my_sales.cancel_name", card: listing.card.title)) { t("market.my_sales.cancel") } %>
+      <%= render "market/cancellations/dialog", token: listing.token, card: listing.card, return_to: "annonce" %>
+    </div>
   <% elsif refusal %>
     <p class="market-bid__refusal" role="alert"><%= refusal %></p>
   <% elsif viewer.nil? %>

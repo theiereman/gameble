@@ -1,0 +1,33 @@
+<%# locals: (group:, heading:, empty:, rows:, focus_heading:) %>
+<section class="market-rows" aria-labelledby="my-sales-<%= group %>-heading">
+  <%= tag.h2 heading, id: "my-sales-#{group}-heading", class: "market-rows__heading", tabindex: -1,
+        data: { row_focus_target: ("heading" if focus_heading) }.compact %>
+  <% if rows.empty? %>
+    <p class="market-rows__empty"><%= empty %></p>
+  <% else %>
+    <ul class="market-rows__list">
+      <% rows.each_with_index do |row, index| %>
+        <%= render MarketRowComponent.new(card: row.card, href: market_listing_path(token: row.token), token: row.token,
+              status: sale_status_label(row.status), tone: sale_status_tone(row.status), facts: sale_row_facts(row)) do |component| %>
+          <% if row.status == "sold" %>
+            <% component.with_note { sale_received_line(row) } %>
+          <% elsif row.status == "unsold" %>
+            <% component.with_note { t("market.my_sales.no_bid_note") } %>
+          <% end %>
+          <% if row.can_cancel %>
+            <% component.with_action do %>
+              <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: cancel_dialog_id(row.token),
+                    aria_label: t("market.my_sales.cancel_name", card: row.card.title)) { t("market.my_sales.cancel") } %>
+              <%= render "market/cancellations/dialog", token: row.token, card: row.card, return_to: "sales", landing: rows[index + 1]&.token.to_s %>
+            <% end %>
+          <% elsif row.relist %>
+            <% component.with_action do %>
+              <%= render ButtonComponent.new(variant: :primary, size: :small, href: relist_sale_path(row.relist),
+                    aria_label: t("market.my_sales.relist_name", card: row.card.title)) { t("market.my_sales.relist") } %>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </ul>
+  <% end %>
+</section>

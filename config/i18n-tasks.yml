@@ -62,6 +62,7 @@ ignore_unused:
   - "goal_rewards.create.throttled"
   - "invitations.throttled"
   - "market.entrustments.create.throttled"
+  - "market.cancellations.create.throttled"
   - "reports.create.throttled"
   - "season_allocations.create.throttled"
   - "trades.throttled"

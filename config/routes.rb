@@ -42,6 +42,9 @@ Rails.application.routes.draw do
     # One listing, read by its token.
     get "market/listings/:token" => "market/listings#show", as: :market_listing
     post "market/listings/:token/bids" => "market/bids#create", as: :market_listing_bids
+    post "market/listings/:token/cancellation" => "market/cancellations#create", as: :market_listing_cancellation
+    # A seller's own listings.
+    get "market/my-sales" => "market/my_sales#show", as: :market_my_sales
     # The visitor's motion switch, written into the motion cookie.
     post "motion" => "motions#create", as: :motion
 

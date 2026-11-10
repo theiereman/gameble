@@ -6,9 +6,7 @@
     <%= render "shell/balance_chip", placement: :header %>
   </header>
 
-  <nav class="market-screen__chips" aria-label="<%= t(".chips_label") %>">
-    <span class="market-screen__chip market-screen__chip--current" aria-current="page"><%= t(".listings") %></span>
-  </nav>
+  <%= render "markets/chips", current: :listings %>
 
   <div class="market-screen__actions">
     <% entrust_label = t(".entrust") %>

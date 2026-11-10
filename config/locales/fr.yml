@@ -2108,6 +2108,47 @@ fr:
       back: "Retour au marché"
       body: "La Confrérie procède à un audit de ses procédures. Les enchères en cours se terminent normalement. Il n'est plus possible de confier, de vendre ou d'enchérir pour le moment."
       title: "LE MARCHÉ EST SUSPENDU"
+    cancellations:
+      create:
+        cancelled: "Vente annulée."
+        throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
+      dialog:
+        close: "Fermer"
+        confirm: "ANNULER LA VENTE"
+        keep: "GARDER LA VENTE"
+        text: "%{card} vous revient. Le timbre n'est pas remboursé."
+        title: "ANNULER CETTE VENTE ?"
+    chips:
+      sales: "MES VENTES"
+    my_sales:
+      cancel: "ANNULER"
+      cancel_name: "Annuler la vente, %{card}"
+      groups:
+        ended:
+          empty: "Aucune vente terminée."
+          heading: "TERMINÉES"
+        in_progress:
+          empty: "Aucune vente en cours."
+          heading: "EN COURS"
+      no_bid_note: "Aucune offre, carte rendue. Le timbre n'est pas remboursé."
+      received_html: "Reçu %{amount}, après l'Effort de la Confrérie"
+      relist: "REMETTRE EN VENTE"
+      relist_name: "Remettre en vente, %{card}"
+      show:
+        empty: "Vous n'avez mis aucune carte en vente."
+        empty_action: "METTRE EN VENTE"
+        heading: "Mes ventes"
+    rows:
+      closing: "Clôture en cours…"
+      labels:
+        end: "Fin"
+        price: "Prix"
+      status:
+        cancelled: "ANNULÉE"
+        in_progress: "EN COURS"
+        no_bid: "SANS OFFRE"
+        sold: "VENDUE"
+        withdrawn: "RETIRÉE"
     entrustments:
       create:
         again: "Confier d'autres cartes"
@@ -3590,6 +3631,7 @@ fr:
       listing_not_found: "Cette annonce n'existe pas."
       listing_not_closable: "Cette enchère ne peut pas être clôturée."
       auction_ended: "Cette enchère est terminée."
+      bid_standing: "Une offre vient d'arriver. La vente ne peut plus être annulée."
       below_minimum: "Il faut au moins %{amount}."
       listing_withdrawn: "Cette annonce a été retirée."
       more_than_available: "Vous pouvez engager au plus %{amount}."

@@ -1,0 +1,23 @@
+<%# locals: (token:, card:, return_to:, landing: "") %>
+<% dialog_id = cancel_dialog_id(token) %>
+<dialog id="<%= dialog_id %>" class="modal" aria-labelledby="<%= dialog_id %>-title" aria-describedby="<%= dialog_id %>-text"
+        data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <h2 id="<%= dialog_id %>-title" class="modal__title" tabindex="-1" autofocus><%= t("market.cancellations.dialog.title") %></h2>
+      <button type="button" class="modal__close" aria-label="<%= t("market.cancellations.dialog.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= form_with url: market_listing_cancellation_path(token:), class: "market-dialog__form", data: { turbo: false } do %>
+      <%= hidden_field_tag :return_to, return_to, id: nil %>
+      <%= hidden_field_tag :landing, landing, id: nil %>
+      <p id="<%= dialog_id %>-text" class="market-dialog__text"><%= t("market.cancellations.dialog.text", card: card.title) %></p>
+      <div class="market-dialog__actions">
+        <%= tag.button t("market.cancellations.dialog.keep"), type: :button, class: "button button--secondary", data: { action: "dialog#close" } %>
+        <%= tag.button t("market.cancellations.dialog.confirm"), type: :submit, class: "button button--primary" %>
+      </div>
+    <% end %>
+  <% end %>
+</dialog>
