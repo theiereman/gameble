@@ -33,10 +33,10 @@ class Game::Market::EconomySeriesTest < ActiveSupport::TestCase
   end
 
   test "destroyed against created is the ratio of the sums over 30 days, in basis points" do
-    snapshot!(@last_day - 40, created: 100_000, destroyed: 0)
-    snapshot!(@last_day - 2, created: 1_000, destroyed: 100)
-    snapshot!(@last_day - 1, created: 3_000, destroyed: 1_700)
-    snapshot!(@last_day, created: 6_000, destroyed: 2_200)
+    snapshot!(@last_day - 40, created: 100_000, destroyed_total: 0)
+    snapshot!(@last_day - 2, created: 1_000, destroyed_total: 100)
+    snapshot!(@last_day - 1, created: 3_000, destroyed_total: 1_700)
+    snapshot!(@last_day, created: 6_000, destroyed_total: 2_200)
 
     values = series.destroyed_share.values
 
@@ -47,13 +47,13 @@ class Game::Market::EconomySeriesTest < ActiveSupport::TestCase
   end
 
   test "nothing created in the window leaves the ratio null" do
-    snapshot!(@last_day, created: 0, destroyed: 0)
+    snapshot!(@last_day, created: 0, destroyed_total: 0)
 
     assert_nil series.destroyed_share.last
   end
 
   test "a day with no snapshot is null for the ratio even when its window has some" do
-    snapshot!(@last_day - 1, created: 1_000, destroyed: 400)
+    snapshot!(@last_day - 1, created: 1_000, destroyed_total: 400)
 
     values = series.destroyed_share.values
 
@@ -95,7 +95,7 @@ class Game::Market::EconomySeriesTest < ActiveSupport::TestCase
   end
 
   test "a changed threshold does not redraw history" do
-    snapshot!(@last_day - 1, created: 1_000, destroyed: 300)
+    snapshot!(@last_day - 1, created: 1_000, destroyed_total: 300)
     first = series(open_market!(alert_destroyed_share_basis_points: 4_000))
     second = series(open_market!(alert_destroyed_share_basis_points: 2_000))
 

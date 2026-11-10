@@ -18,7 +18,7 @@ class Game::Market::EconomyAlertsTest < ActiveSupport::TestCase
 
   test "a destroyed share under its threshold proposes the Rare stamp raised by half, with the minimum up to the floor" do
     settings = open_market!(alert_destroyed_share_basis_points: 4_000)
-    snapshot!(@last_day, created: 10_000, destroyed: 3_400)
+    snapshot!(@last_day, created: 10_000, destroyed_total: 3_400)
 
     found = alert(:destroyed_share, settings)
 
@@ -30,7 +30,7 @@ class Game::Market::EconomyAlertsTest < ActiveSupport::TestCase
 
   test "a share at its threshold, or over it, raises no alert" do
     settings = open_market!(alert_destroyed_share_basis_points: 4_000)
-    snapshot!(@last_day, created: 10_000, destroyed: 4_000)
+    snapshot!(@last_day, created: 10_000, destroyed_total: 4_000)
 
     assert_empty alerts(settings)
   end
@@ -51,14 +51,14 @@ class Game::Market::EconomyAlertsTest < ActiveSupport::TestCase
 
   test "a null point raises no alert" do
     settings = open_market!(alert_destroyed_share_basis_points: 4_000, alert_picoins_per_player: 1, alert_top_share_basis_points: 1)
-    snapshot!(@last_day, created: 0, destroyed: 0)
+    snapshot!(@last_day, created: 0, destroyed_total: 0)
 
     assert_empty alerts(settings)
   end
 
   test "a blank threshold raises no alert" do
     settings = open_market!(alert_destroyed_share_basis_points: nil, alert_picoins_per_player: nil, alert_top_share_basis_points: nil)
-    snapshot!(@last_day, created: 10_000, destroyed: 0, picoins_per_active_player: 9_999_999, top_share_basis_points: 9_999)
+    snapshot!(@last_day, created: 10_000, destroyed_total: 0, picoins_per_active_player: 9_999_999, top_share_basis_points: 9_999)
 
     assert_empty alerts(settings)
   end
@@ -76,14 +76,14 @@ class Game::Market::EconomyAlertsTest < ActiveSupport::TestCase
 
   test "a proposed stamp never passes double the current one" do
     settings = open_market!(alert_destroyed_share_basis_points: 4_000, stamp_rare: 100, minimum_price_rare: 7_800, entrustment_rare: 2_500)
-    snapshot!(@last_day, created: 10_000, destroyed: 100)
+    snapshot!(@last_day, created: 10_000, destroyed_total: 100)
 
     assert_equal 200, alert(:destroyed_share, settings).changes.fetch(:stamp_rare)
   end
 
   test "every proposal passes the settings rules" do
     settings = open_market!(alert_destroyed_share_basis_points: 4_000, alert_picoins_per_player: 1, alert_top_share_basis_points: 1)
-    snapshot!(@last_day, created: 10_000, destroyed: 100, picoins_per_active_player: 5, top_share_basis_points: 9_000)
+    snapshot!(@last_day, created: 10_000, destroyed_total: 100, picoins_per_active_player: 5, top_share_basis_points: 9_000)
     rules = Game::Market::SettingsRules.new(settings)
 
     alerts(settings).each do |found|
@@ -95,7 +95,7 @@ class Game::Market::EconomyAlertsTest < ActiveSupport::TestCase
   test "a proposal the bounds refuse leaves the alert without an action" do
     settings = open_market!(alert_destroyed_share_basis_points: 4_000, stamp_rare: 2_000, minimum_price_rare: 5_000, entrustment_rare: 5_000,
       commission_basis_points: 2_500)
-    snapshot!(@last_day, created: 10_000, destroyed: 100)
+    snapshot!(@last_day, created: 10_000, destroyed_total: 100)
 
     found = alert(:destroyed_share, settings)
 
@@ -105,7 +105,7 @@ class Game::Market::EconomyAlertsTest < ActiveSupport::TestCase
 
   test "named finds an alert by its indicator's name and nothing else" do
     settings = open_market!(alert_destroyed_share_basis_points: 4_000)
-    snapshot!(@last_day, created: 10_000, destroyed: 100)
+    snapshot!(@last_day, created: 10_000, destroyed_total: 100)
     series = Game::Market::EconomySeries.call(now: @now, settings:)
 
     assert_equal :destroyed_share, Game::Market::EconomyAlerts.named("destroyed_share", series, settings).indicator

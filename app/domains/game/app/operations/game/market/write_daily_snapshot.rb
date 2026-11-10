@@ -28,7 +28,7 @@ module Game
         !first_opened_at.nil? && day >= first_opened_at.utc.to_date
       end
 
-      def flows(figures) = figures.to_h.slice(:created, :destroyed, :forfeited)
+      def flows(figures) = { created: figures.created, destroyed_total: figures.destroyed, forfeited: figures.forfeited }
 
       def prices = Catalog::Rarity::TIERS.values.to_h { [ :"average_price_#{it}", EditionPrice.rarity_average(it) ] }
 

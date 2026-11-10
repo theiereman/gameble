@@ -128,7 +128,7 @@ module BackOffice
 
     def alerting_market!
       open_market!(first_opened_at: 10.days.ago, alert_destroyed_share_basis_points: 4_000)
-      snapshot!(Time.current.utc.to_date - 1, created: 10_000, destroyed: 3_400)
+      snapshot!(Time.current.utc.to_date - 1, created: 10_000, destroyed_total: 3_400)
     end
 
     test "an administrator preparing an alert gets the form prefilled, the changed fields marked and the first one focused, and nothing is written" do

@@ -45,7 +45,7 @@ class Game::Market::WriteDailySnapshotTest < ActiveSupport::TestCase
 
     snapshot = write(@first)
 
-    assert_equal [ 16_000, 2_000, 400 ], snapshot.values_at(:created, :destroyed, :forfeited)
+    assert_equal [ 16_000, 2_000, 400 ], snapshot.values_at(:created, :destroyed_total, :forfeited)
     assert_equal 23_500, snapshot.circulation
     assert_equal 2, Game::Market::DailyFigures.active_players(@first.in_time_zone("UTC") + 1.day, 90.days)
     assert_equal 11_750, snapshot.picoins_per_active_player
@@ -85,7 +85,7 @@ class Game::Market::WriteDailySnapshotTest < ActiveSupport::TestCase
 
     days = (@first..(@first + 3)).map { write(it) }
 
-    days.each_cons(2) { |before, after| assert_equal before.circulation + after.created - after.destroyed, after.circulation }
+    days.each_cons(2) { |before, after| assert_equal before.circulation + after.created - after.destroyed_total, after.circulation }
     assert_equal [ 9_000, 12_500, 12_100, 12_100 ], days.map(&:circulation)
     assert_equal 12_100, circulation_before(@first + 4)
   end
@@ -141,7 +141,7 @@ class Game::Market::WriteDailySnapshotTest < ActiveSupport::TestCase
   test "nothing minted and nobody active leaves the optional figures null" do
     snapshot = write(@first)
 
-    assert_equal [ 0, 0, 0, 0 ], snapshot.values_at(:created, :destroyed, :forfeited, :circulation)
+    assert_equal [ 0, 0, 0, 0 ], snapshot.values_at(:created, :destroyed_total, :forfeited, :circulation)
     assert_nil snapshot.picoins_per_active_player
     assert_nil snapshot.median_daily_earnings
     assert_nil snapshot.top_share_basis_points

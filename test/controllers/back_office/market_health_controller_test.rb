@@ -22,7 +22,7 @@ module BackOffice
 
     def week_of_snapshots
       7.times do |ago|
-        snapshot!(@yesterday - ago, created: 10_000, destroyed: 5_600, forfeited: 200, circulation: 400_000, picoins_per_active_player: 12_300,
+        snapshot!(@yesterday - ago, created: 10_000, destroyed_total: 5_600, forfeited: 200, circulation: 400_000, picoins_per_active_player: 12_300,
           median_daily_earnings: 8_000, average_price_epic: 12_000, top_share_basis_points: 2_500)
       end
     end
@@ -104,7 +104,7 @@ module BackOffice
       assert_unknown_address
     end
 
-    def alerting_snapshot = snapshot!(@yesterday, created: 10_000, destroyed: 3_400, picoins_per_active_player: 1)
+    def alerting_snapshot = snapshot!(@yesterday, created: 10_000, destroyed_total: 3_400, picoins_per_active_player: 1)
 
     test "an indicator past its threshold is framed and states the proposal, with both actions for an administrator" do
       alerting_snapshot
@@ -134,7 +134,7 @@ module BackOffice
     end
 
     test "no alert on a tile whose last point is null" do
-      snapshot!(@yesterday, created: 0, destroyed: 0)
+      snapshot!(@yesterday, created: 0, destroyed_total: 0)
       sign_in(accounts_players(:administrator))
 
       get back_office_market_health_path(locale: :en)

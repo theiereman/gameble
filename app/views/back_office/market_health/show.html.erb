@@ -41,7 +41,7 @@
       <dl class="market-health__facts">
         <% {
           created: picoins(latest.created),
-          destroyed: t(".snapshot.destroyed_value", destroyed: picoins(latest.destroyed), forfeited: picoins(latest.forfeited)),
+          destroyed: t(".snapshot.destroyed_value", destroyed: picoins(latest.destroyed_total), forfeited: picoins(latest.forfeited)),
           circulation: picoins(latest.circulation),
           picoins_per_player: (picoins(latest.picoins_per_active_player) unless latest.picoins_per_active_player.nil?),
           median_earnings: (picoins(latest.median_daily_earnings) unless latest.median_daily_earnings.nil?),

@@ -30,7 +30,7 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
 
   test "with a week of snapshots staff read the four indicators with their three lines and the day's figures" do
     7.times do |ago|
-      snapshot!(@yesterday - ago, created: 10_000, destroyed: 5_600, circulation: 400_000, picoins_per_active_player: 12_300,
+      snapshot!(@yesterday - ago, created: 10_000, destroyed_total: 5_600, circulation: 400_000, picoins_per_active_player: 12_300,
         median_daily_earnings: 8_000, average_price_epic: 12_000, top_share_basis_points: 2_500)
     end
     listing!(seller: accounts_players(:player), card_season: catalog_card_seasons(:common_card_one), ends_at: 15.minutes.ago)
@@ -63,7 +63,7 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
     assert_text "PAGE NOT FOUND"
   end
 
-  def alerting_snapshot(destroyed: 3_400) = snapshot!(@yesterday, created: 10_000, destroyed:)
+  def alerting_snapshot(destroyed: 3_400) = snapshot!(@yesterday, created: 10_000, destroyed_total: destroyed)
 
   test "an administrator prepares the change, finds it prefilled with focus on the first field, and leaves without saving" do
     alerting_snapshot
@@ -94,7 +94,7 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
     visit back_office_market_health_path(locale: :en)
     assert_no_selector "[data-health-alert=destroyed_share]", visible: :visible
 
-    Game::Market::DailySnapshot.connection.execute("UPDATE game_market_daily_snapshots SET destroyed = 3500")
+    Game::Market::DailySnapshot.connection.execute("UPDATE game_market_daily_snapshots SET destroyed_total = 3500")
     visit back_office_market_health_path(locale: :en)
     assert_selector "[data-health-alert=destroyed_share]"
   end

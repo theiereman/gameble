@@ -99,7 +99,7 @@ class Game::ReconcileWalletsJobTest < ActiveSupport::TestCase
 
     snapshot = snapshots.sole
     assert_equal Date.new(2026, 11, 9), snapshot.day
-    assert_equal [ 800, 100, 700 ], snapshot.values_at(:created, :destroyed, :circulation)
+    assert_equal [ 800, 100, 700 ], snapshot.values_at(:created, :destroyed_total, :circulation)
     assert snapshot.reconciliation_balanced
   end
 

@@ -43,7 +43,7 @@ module Game
 
         window = snapshots.values_at(*((day - (RATIO_DAYS - 1))..day)).compact
         created = window.sum(&:created)
-        (window.sum(&:destroyed) * 10_000).div(created) if created.positive?
+        (window.sum(&:destroyed_total) * 10_000).div(created) if created.positive?
       end
       private_class_method :destroyed_share
 
