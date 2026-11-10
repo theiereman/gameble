@@ -1,6 +1,5 @@
 module Game
   module Market
-    # Frees the copy a listing reserved, for the operations that end a listing without moving it.
     module ListingReservation
       private
 

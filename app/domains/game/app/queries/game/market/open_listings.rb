@@ -1,6 +1,5 @@
 module Game
   module Market
-    # The market screen's one reader: open listings in one of four orders, a page at a time.
     module OpenListings
       PER_PAGE = 24
       DEFAULT_SORT = "ending".freeze

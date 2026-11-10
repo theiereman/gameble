@@ -1,6 +1,5 @@
 module Game
   module Market
-    # A player offers one free copy at auction, paying the rarity's stamp, at the values of the settings version the form drew.
     class ListCard < Operation
       include PriceAmount
 

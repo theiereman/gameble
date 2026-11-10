@@ -1,6 +1,5 @@
 module Game
   module Market
-    # The average price of one card-season's recent sales. The formula lives here and nowhere else; only the settlement writes the row.
     class EditionPrice < ApplicationRecord
       self.table_name = "game_market_edition_prices"
 

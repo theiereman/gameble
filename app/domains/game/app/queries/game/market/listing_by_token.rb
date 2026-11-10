@@ -1,6 +1,5 @@
 module Game
   module Market
-    # The Annonce's one reader: a listing's public facts by its token, never the leader's maximum.
     module ListingByToken
       Detail = Data.define(:token, :status, :card, :seller, :leader, :current_price, :starting_price, :buy_now_price, :ends_at, :created_at)
 

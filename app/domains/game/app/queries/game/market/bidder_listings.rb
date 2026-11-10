@@ -1,6 +1,5 @@
 module Game
   module Market
-    # A bidder's own auctions for MES ENCHÈRES, in two groups. The only maximum it reads is the viewer's own, never the leader's.
     module BidderListings
       Row = Data.define(:token, :card, :status, :price, :maximum, :ends_at, :ended_at, :can_raise)
       Groups = Data.define(:in_progress, :recent)

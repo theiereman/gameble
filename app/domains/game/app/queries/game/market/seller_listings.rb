@@ -1,6 +1,5 @@
 module Game
   module Market
-    # A seller's own listings for MES VENTES, in two groups. The only reader of what a seller received per sale and of the copies that can be relisted.
     module SellerListings
       Relist = Data.define(:ref, :start, :buy_now)
       Row = Data.define(:token, :card, :status, :current_price, :ends_at, :ended_at, :received, :can_cancel, :relist)

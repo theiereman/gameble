@@ -1,6 +1,5 @@
 module Game
   module Market
-    # One copy offered at auction. Only ListCard and the later market operations write it.
     class Listing < ApplicationRecord
       self.table_name = "game_market_listings"
 

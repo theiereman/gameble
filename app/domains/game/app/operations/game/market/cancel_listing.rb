@@ -1,6 +1,5 @@
 module Game
   module Market
-    # A seller takes back an open listing while no bid stands, also while the market is closed. The stamp is not refunded: nothing is held.
     class CancelListing < Operation
       include ListingReservation
 

@@ -1,6 +1,5 @@
 module Game
   module Market
-    # One validated bid. Only PlaceBid and the settlement write it.
     class Bid < ApplicationRecord
       self.table_name = "game_market_bids"
 

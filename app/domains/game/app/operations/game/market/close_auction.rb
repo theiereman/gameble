@@ -1,6 +1,5 @@
 module Game
   module Market
-    # Ends a due auction exactly once: sold to its leader, left unsold, or withdrawn when its seller is gone. The job calls it in the seller's name.
     class CloseAuction < Operation
       include AuctionSettlement
       include ListingReservation

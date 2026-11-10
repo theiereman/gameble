@@ -1,6 +1,5 @@
 module Game
   module Market
-    # The Annonce's history, newest first: the public bids, the viewer's own raises and the listing's creation. It never reads a maximum.
     module BidHistory
       Line = Data.define(:kind, :player, :price, :at, :until, :leading)
 

@@ -1,6 +1,5 @@
 module Game
   module Market
-    # What one bid meets on a locked listing: the typed maximum, the leader it faces and the amounts that follow.
     class BidTerms < Data.define(:listing, :player, :maximum, :settings, :now, :leader, :displaced)
       Lead = Data.define(:player_id, :maximum)
 

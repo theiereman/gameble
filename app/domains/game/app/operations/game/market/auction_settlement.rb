@@ -1,12 +1,10 @@
 module Game
   module Market
-    # Sells a listed copy at a price: moves the copy, records the tiers, and returns the ledger entries for the caller's single post.
     module AuctionSettlement
       include MoveHoldings
 
       private
 
-      # held: what the winner has committed to this listing; the part above final_price goes back to available.
       def settle_sale(listing:, winner_id:, held:, final_price:, now:)
         season = Catalog::PublishedSeason.call
         card = listing.card_season_id

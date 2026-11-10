@@ -1,6 +1,5 @@
 module Game
   module Market
-    # What a player's bidding form is drawn from: the minimum, the lead and the available figure. Only the leader's own maximum is read, for the leader.
     module BidSheet
       Sheet = Data.define(:minimum, :leading, :own_maximum, :available, :current_price, :buy_now_price, :soft_close_minutes,
         :unusual_multiple, :buy_now_hold, :can_buy_now)

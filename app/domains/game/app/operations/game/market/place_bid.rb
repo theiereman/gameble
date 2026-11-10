@@ -1,6 +1,5 @@
 module Game
   module Market
-    # A player bids a maximum on an open listing: the price follows the second-highest maximum, and a maximum at the buy-now price buys at once.
     class PlaceBid < Operation
       include AuctionSettlement
       include PriceAmount

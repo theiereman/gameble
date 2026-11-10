@@ -1,5 +1,4 @@
 module Market
-  # The answers of the bids endpoint: one Turbo Stream replacing the form region, drawn from the same readers as the Annonce.
   module BidRefusals
     extend ActiveSupport::Concern
 

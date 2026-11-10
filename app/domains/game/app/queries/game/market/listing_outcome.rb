@@ -1,6 +1,5 @@
 module Game
   module Market
-    # What a closed auction means for one viewer. The only reader of a leader's maximum and of a seller's ledger rows, each for its owner alone.
     module ListingOutcome
       Closing = Data.define
       Outcome = Data.define(:kind, :card, :winner, :price, :surplus, :received, :buy_now)
