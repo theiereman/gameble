@@ -2009,6 +2009,43 @@ fr:
         one: "1 nouvelle entrée dans le fil."
         other: "%{count} nouvelles entrées dans le fil."
   market:
+    bids:
+      answers:
+        beaten:
+          body_html: "Votre offre de %{offer} est battue d'emblée, et vos PiCoins vous sont rendus. Nouveau prix : %{price}. Pour passer devant, offrez au moins %{minimum}."
+          title: "UN AUTRE JOUEUR AVAIT UN MAXIMUM PLUS HAUT"
+        equal:
+          body_html: "Votre offre de %{offer} est battue d'emblée, et vos PiCoins vous sont rendus. Nouveau prix : %{price}. Pour passer devant, offrez au moins %{minimum}."
+          title: "UN AUTRE JOUEUR AVAIT DÉJÀ PROPOSÉ CE MAXIMUM"
+        leading:
+          action: "RELEVER MON MAXIMUM"
+          body_html: "Prix actuel %{price}. Votre maximum : %{maximum}."
+          title: "VOUS ÊTES EN TÊTE"
+        raised:
+          body_html: "Votre maximum : %{maximum}. Le prix ne change pas."
+          title: "MAXIMUM RELEVÉ"
+      form:
+        available_html: "Disponible : %{amount}."
+        fixed: "C'est le plus que vous acceptez de payer. Si vous gagnez, vous paierez le moins possible."
+        final: "Une offre ne peut pas être annulée."
+        label: "MON MAXIMUM"
+        minimum_html: "Au moins %{amount}"
+        minimum_raise_html: "Plus que votre maximum actuel, %{amount}"
+        sign_in: "Connectez-vous pour enchérir"
+        soft_close: "Une offre dans les %{minutes} dernières minutes reporte la fin à %{minutes} minutes après cette offre."
+      not_recorded: "Votre montant n'a pas été enregistré."
+      refusals:
+        price_moved: "Le prix vient de changer. Il faut maintenant au moins %{amount}."
+        throttled: "Trop d'offres d'un coup. Patientez un instant."
+      strings:
+        button_bid: "ENCHÉRIR · %{amount}"
+        button_buy: "ACHETER · %{amount}"
+        button_idle: "ENCHÉRIR"
+        button_name: "Enchérir, maximum %{amount} PiCoins"
+        button_raise: "RELEVER · %{amount}"
+        live_buy_now: "Ce montant atteint l'achat immédiat : vous achetez la carte tout de suite pour %{amount}."
+        live_hold: "%{amount} PiCoins seront bloqués, puis rendus si un autre joueur fait mieux."
+        live_raise: "%{amount} PiCoins de plus seront bloqués. Le prix ne change pas."
     listings:
       history:
         created_html: "Mise en vente par %{name}"

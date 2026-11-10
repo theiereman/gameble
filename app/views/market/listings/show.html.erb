@@ -3,7 +3,8 @@
 <% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
 <% content_for :title, @listing.card.title %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
-<section class="market-listing" aria-labelledby="market-listing-heading">
+<%= tag.section id: "annonce", class: "market-listing", aria: { labelledby: "market-listing-heading" }, data: annonce_root_data do %>
+  <p class="visually-hidden" role="status" aria-live="polite" data-controller="annonce-status"></p>
   <header class="market-listing__header">
     <h1 id="market-listing-heading" class="market-listing__title" tabindex="-1" autofocus><%= @listing.card.title %></h1>
     <%= render "shell/balance_chip", placement: :header %>
@@ -41,10 +42,8 @@
       <% end %>
     </div>
 
-    <div id="annonce-bid" class="market-listing__bid">
-      <%= render "market/listings/outcome", outcome: @outcome, viewer: current_player %>
-    </div>
+    <%= render "market/bids/region", listing: @listing, sheet: @sheet, outcome: @outcome, viewer: current_player %>
 
     <%= render "market/listings/history", lines: @history, viewer: current_player %>
   </div>
-</section>
+<% end %>

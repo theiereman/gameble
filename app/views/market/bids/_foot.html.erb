@@ -1,0 +1,15 @@
+<%# locals: (sheet:, answer:, posted_amount:) %>
+<div class="market-bid__foot" data-controller="annonce-foot">
+  <% if answer %>
+    <%= render "market/bids/answer", answer:, posted_amount: %>
+  <% end %>
+  <%= tag.div class: "market-bid__sentences", hidden: !answer.nil?, data: { annonce_foot_target: "sentences" } do %>
+    <p class="market-bid__fixed"><%= t("market.bids.form.fixed") %></p>
+    <p class="market-bid__live" data-annonce-foot-target="live"></p>
+    <div class="market-bid__submit">
+      <button type="submit" class="button button--primary" data-annonce-foot-target="button"><%= t("market.bids.strings.button_idle") %></button>
+      <p class="market-bid__small"><%= t("market.bids.form.final") %></p>
+    </div>
+    <p class="market-bid__small"><%= t("market.bids.form.available_html", amount: bid_amount(sheet.available)) %> <%= t("market.bids.form.soft_close", minutes: sheet.soft_close_minutes) %></p>
+  <% end %>
+</div>

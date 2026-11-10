@@ -161,6 +161,62 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#annonce-bid .market-outcome__body", "Aucune offre."
   end
 
+  test "a visitor reads the sign-in line and no form" do
+    annonce
+
+    assert_select "#annonce-bid form", false
+    assert_select "#annonce-bid a[href*='/sign-in']", "Sign in to bid"
+    assert_select "section#annonce[data-controller=annonce]"
+    assert_select "p[role=status][aria-live=polite][data-controller=annonce-status]", 1
+  end
+
+  test "a signed-in non-seller reads the form with its minimum, its sentences and no maximum typed" do
+    sign_in(accounts_players(:administrator))
+    annonce
+
+    assert_select "#annonce-bid form#annonce-form[action=?]", market_listing_bids_path(locale: :en, token: @listing.token)
+    assert_select "label[for=annonce-maximum]", "MY MAXIMUM"
+    assert_select "input#annonce-maximum[type=text][inputmode=numeric][autocomplete=off][value='']"
+    assert_select "#annonce-minimum", /At least\s*7,800/
+    assert_select "input[name=drawn_minimum][value='7800']"
+    assert_select ".market-bid__fixed", /the most you accept to pay/
+    assert_select ".market-bid__small", /A bid cannot be cancelled/
+    assert_select "[data-annonce-field-minimum-value='7800'][data-annonce-field-own-maximum-value='0'][data-annonce-field-buy-now-value='30000']"
+    assert_select "[style]", false
+  end
+
+  test "the seller reads no form" do
+    sign_in(@seller)
+    annonce
+
+    assert_select "#annonce-bid form", false
+    assert_select "#annonce-bid a", false
+  end
+
+  test "a leader reads the raising form built from their own maximum, and nobody else does" do
+    bidder = accounts_players(:moderator)
+    @listing.update_columns(leader_id: bidder.id, leader_maximum: 12_345, current_price: 8_000)
+    sign_in(bidder)
+    annonce
+
+    assert_select "#annonce-minimum", /More than your current maximum,\s*12,345/
+    assert_select "[data-annonce-field-minimum-value='12346'][data-annonce-field-own-maximum-value='12345']"
+
+    sign_in(accounts_players(:administrator))
+    annonce
+    assert_no_match(/12,345|12345|12346/, response.body)
+    assert_select "#annonce-minimum", /At least\s*8,400/
+  end
+
+  test "a closed listing draws no form" do
+    sign_in(accounts_players(:administrator))
+    @listing.update_columns(status: "unsold")
+    annonce
+
+    assert_select "#annonce-bid form", false
+    assert_select "#annonce-bid .market-outcome"
+  end
+
   test "an unknown token is a 404" do
     get market_listing_path(locale: :en, token: "A" * 24)
 

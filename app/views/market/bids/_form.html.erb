@@ -1,0 +1,15 @@
+<%# locals: (listing:, sheet:, answer:, refusal:, posted:, posted_amount:) %>
+<% described = [ "annonce-minimum", (refusal ? "annonce-error" : nil), ("annonce-answer" if answer&.branch == :beaten) ].compact.join(" ") %>
+<%= form_with url: market_listing_bids_path(token: listing.token), id: "annonce-form", class: "market-bid",
+      data: { action: "submit->annonce#submit turbo:submit-end->annonce#submitted" } do %>
+  <%= hidden_field_tag :drawn_minimum, sheet.minimum, id: nil %>
+  <%= tag.div class: "market-bid__field", data: bid_field_data(sheet, answered: !answer.nil?) do %>
+    <label for="annonce-maximum" class="market-bid__label"><%= t("market.bids.form.label") %></label>
+    <%= text_field_tag :maximum, posted, id: "annonce-maximum", inputmode: "numeric", autocomplete: "off",
+          aria: { invalid: (refusal ? "true" : nil), describedby: described },
+          data: { annonce_field_target: "input", focus_name: "field", action: "input->annonce-field#type keydown->annonce-field#keydown" } %>
+    <p id="annonce-minimum" class="market-bid__minimum"><%= bid_minimum_text(sheet) %></p>
+    <p id="annonce-error" class="market-bid__error" role="alert" data-annonce-field-target="error" <%= "hidden" unless refusal %>><%= refusal %></p>
+  <% end %>
+  <%= render "market/bids/foot", sheet:, answer:, posted_amount: %>
+<% end %>

@@ -1,0 +1,9 @@
+<%# locals: (answer:, posted_amount:) %>
+<% kind = bid_answer_kind(answer) %>
+<%= tag.div id: "annonce-answer", class: "market-answer market-answer--#{kind}", data: { annonce_foot_target: "panel" } do %>
+  <h2 id="annonce-answer-heading" class="market-answer__title" tabindex="-1" data-focus-name="heading"><%= bid_answer_title(kind) %></h2>
+  <p class="market-answer__body"><%= bid_answer_body(kind, answer, posted_amount) %></p>
+  <% if kind == :leading %>
+    <button type="button" class="button button--secondary" data-action="annonce-foot#raise"><%= t("market.bids.answers.leading.action") %></button>
+  <% end %>
+<% end %>

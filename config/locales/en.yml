@@ -2320,6 +2320,43 @@ en:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
   market:
+    bids:
+      answers:
+        beaten:
+          body_html: "Your offer of %{offer} is beaten at once, and your PiCoins are returned. New price: %{price}. To get ahead, offer at least %{minimum}."
+          title: ANOTHER PLAYER HAD A HIGHER MAXIMUM
+        equal:
+          body_html: "Your offer of %{offer} is beaten at once, and your PiCoins are returned. New price: %{price}. To get ahead, offer at least %{minimum}."
+          title: ANOTHER PLAYER HAD ALREADY OFFERED THIS MAXIMUM
+        leading:
+          action: RAISE MY MAXIMUM
+          body_html: "Current price %{price}. Your maximum: %{maximum}."
+          title: YOU ARE LEADING
+        raised:
+          body_html: "Your maximum: %{maximum}. The price does not change."
+          title: MAXIMUM RAISED
+      form:
+        available_html: "Available: %{amount}."
+        fixed: It is the most you accept to pay. If you win, you will pay as little as possible.
+        final: A bid cannot be cancelled.
+        label: MY MAXIMUM
+        minimum_html: "At least %{amount}"
+        minimum_raise_html: "More than your current maximum, %{amount}"
+        sign_in: Sign in to bid
+        soft_close: A bid in the last %{minutes} minutes moves the end to %{minutes} minutes after that bid.
+      not_recorded: Your amount was not recorded.
+      refusals:
+        price_moved: "The price just changed. At least %{amount} is needed now."
+        throttled: Too many bids at once. Wait a moment.
+      strings:
+        button_bid: "BID · %{amount}"
+        button_buy: "BUY · %{amount}"
+        button_idle: BID
+        button_name: "Bid, maximum %{amount} PiCoins"
+        button_raise: "RAISE · %{amount}"
+        live_buy_now: "This amount reaches the buy-now price: you buy the card at once for %{amount}."
+        live_hold: "%{amount} PiCoins will be held, then returned if another player does better."
+        live_raise: "%{amount} more PiCoins will be held. The price does not change."
     listings:
       history:
         created_html: "Listed by %{name}"

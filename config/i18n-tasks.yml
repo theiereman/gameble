@@ -41,6 +41,8 @@ ignore_unused:
   - "trade_board.strings.*"
   # The Confier screen's run-time templates, passed whole to its root controller (MarketEntrustmentsHelper#entrust_root_data).
   - "market.entrustments.strings.*"
+  # The bidding form's run-time templates, passed whole to its root controller (MarketBidsHelper#annonce_root_data).
+  - "market.bids.strings.*"
   # Achievement names, looked up by the key an unlock carries (the player stream's toast).
   - "achievements.names.*"
   # The back-office home's groups, tiles and statuses, looked up by key (BackOfficeDashboardHelper).
