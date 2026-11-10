@@ -1312,6 +1312,12 @@ en:
       unknown_reaction: That reaction does not exist.
       unknown_season: You did not earn this card back in that season.
       unknown_player: This invitation link is not valid.
+      amounts_changed: The amounts changed while you were choosing. They are drawn again below; check them and validate once more.
+      empty_batch: Choose at least one copy to entrust.
+      market_busy: The Archives are busy right now. Try again in a moment.
+      market_closed: The market is closed for now. Nothing was entrusted.
+      no_rarity: One of these cards has no rarity yet, so the Brotherhood cannot value it.
+      not_enough_copies: You do not have that many free copies of one of these cards.
     steam:
       already_published: The cards of that run are already published in a season,
         officer. Start a new import to fill the next draft.
@@ -2149,6 +2155,33 @@ en:
       progress:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
+  market:
+    entrustments:
+      create:
+        again: Entrust more cards
+        copies:
+          one: "%{count} copy entrusted"
+          other: "%{count} copies entrusted"
+        heading: The Archives thank you
+        kicker: Entrusted
+        minted: "%{amount} PiCoins minted for you"
+        throttled: Slow down, the Archives are counting. Try again in a minute.
+      new:
+        closed: The market is closed for now. Nothing can be entrusted until it reopens.
+        closed_action: Back to the market
+        empty: No card to entrust.
+        empty_action: Open capsules
+        free:
+          one: "%{count} free copy"
+          other: "%{count} free copies"
+        heading: Entrust to the Brotherhood
+        intro: Give your spare copies to the Archives. The 100-6-Tron mints their value in PiCoins and credits it at once.
+        kicker: The Archives
+        season: "Season %{number}"
+        sign_in: Sign in to entrust cards to the Brotherhood.
+        sign_in_action: Sign in
+        submit: Entrust
+        value: "%{amount} PiCoins"
   markets:
     show:
       closing: No date is being communicated at this stage. Management thanks you for your patience, which remains free of charge to this day.

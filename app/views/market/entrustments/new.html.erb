@@ -1,0 +1,47 @@
+<% content_for :title, t(".heading") %>
+<% content_for :public_page, true unless current_player %>
+<section class="market-entrust" aria-labelledby="market-entrust-heading">
+  <header class="market-entrust__header">
+    <p class="market-entrust__kicker"><%= t(".kicker") %></p>
+    <h1 id="market-entrust-heading" class="market-entrust__title"><%= t(".heading") %></h1>
+    <p class="market-entrust__intro"><%= t(".intro") %></p>
+  </header>
+
+  <% if current_player.nil? %>
+    <%= render PanelComponent.new(class: "market-entrust__notice") do %>
+      <p><%= t(".sign_in") %></p>
+      <%= render ButtonComponent.new(variant: :link, href: sign_in_path) { t(".sign_in_action") } %>
+    <% end %>
+  <% else %>
+    <% unless @open %>
+      <%= render PanelComponent.new(class: "market-entrust__notice", role: "status") do %>
+        <p><%= t(".closed") %></p>
+        <%= render ButtonComponent.new(variant: :link, href: market_path) { t(".closed_action") } %>
+      <% end %>
+    <% end %>
+
+    <% if @copies.empty? %>
+      <%= render PanelComponent.new(class: "market-entrust__notice") do %>
+        <p><%= t(".empty") %></p>
+        <%= render ButtonComponent.new(variant: :link, href: booster_path) { t(".empty_action") } %>
+      <% end %>
+    <% else %>
+      <%= form_with url: market_entrustments_path, class: "market-entrust__form", data: { turbo: false } do |form| %>
+        <%= hidden_field_tag :settings, @settings.token, id: nil %>
+        <ul class="market-entrust__grid">
+          <% @copies.each do |copy| %>
+            <li class="market-entrust__cell market-entrust__cell--<%= copy.rarity %>">
+              <label for="copies-<%= copy.ref.parameterize %>" class="market-entrust__name"><%= copy.title %></label>
+              <span class="market-entrust__edition"><%= t("catalog.rarity.#{copy.rarity}") %> · <%= t(".season", number: copy.season_number) %></span>
+              <span class="market-entrust__value"><%= t(".value", amount: picoins(copy.value)) %></span>
+              <span class="market-entrust__free"><%= t(".free", count: copy.free) %></span>
+              <%= number_field_tag "copies[#{copy.ref}]", @ticked[copy.ref].presence || 0, min: 0, max: copy.free, step: 1,
+                    id: "copies-#{copy.ref.parameterize}", class: "market-entrust__copies", disabled: !@open %>
+            </li>
+          <% end %>
+        </ul>
+        <%= render ButtonComponent.new(type: :submit, disabled: !@open) { t(".submit") } %>
+      <% end %>
+    <% end %>
+  <% end %>
+</section>

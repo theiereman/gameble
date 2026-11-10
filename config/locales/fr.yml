@@ -1852,6 +1852,35 @@ fr:
         zero: "Aucune nouvelle entrée dans le fil."
         one: "1 nouvelle entrée dans le fil."
         other: "%{count} nouvelles entrées dans le fil."
+  market:
+    entrustments:
+      create:
+        again: "Confier d'autres cartes"
+        copies:
+          zero: "Aucun exemplaire confié"
+          one: "%{count} exemplaire confié"
+          other: "%{count} exemplaires confiés"
+        heading: "Les Archives vous remercient"
+        kicker: "Confié"
+        minted: "%{amount} PiCoins frappés pour vous"
+        throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
+      new:
+        closed: "Le marché est fermé pour le moment. Rien ne peut être confié avant sa réouverture."
+        closed_action: "Retour au marché"
+        empty: "Aucune carte à confier."
+        empty_action: "Ouvrir des capsules"
+        free:
+          zero: "Aucun exemplaire libre"
+          one: "%{count} exemplaire libre"
+          other: "%{count} exemplaires libres"
+        heading: "Confier à la Confrérie"
+        intro: "Confiez vos exemplaires en trop aux Archives. Le 100-6-Tron en frappe la valeur en PiCoins et la crédite aussitôt."
+        kicker: "Les Archives"
+        season: "Saison %{number}"
+        sign_in: "Connectez-vous pour confier des cartes à la Confrérie."
+        sign_in_action: "Se connecter"
+        submit: "Confier"
+        value: "%{amount} PiCoins"
   markets:
     show:
       kicker: "Chantier"
@@ -3124,6 +3153,12 @@ fr:
       showcase_edge: "Cette carte ne peut pas aller plus loin."
       unknown_direction: "Direction inconnue."
       position_out_of_range: "La vitrine n'a pas cette place."
+      amounts_changed: "Les montants ont changé pendant votre choix. Ils sont redessinés ci-dessous : vérifiez-les puis validez à nouveau."
+      empty_batch: "Choisissez au moins un exemplaire à confier."
+      market_busy: "Les Archives sont occupées pour le moment. Réessayez dans un instant."
+      market_closed: "Le marché est fermé pour le moment. Rien n'a été confié."
+      no_rarity: "Une de ces cartes n'a pas encore de rareté : la Confrérie ne peut pas l'estimer."
+      not_enough_copies: "Vous n'avez pas autant d'exemplaires libres d'une de ces cartes."
     steam:
       invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
       sign_in_failed: "La connexion n'a pas abouti. Réessayez."
