@@ -324,12 +324,13 @@ class PlayerStreamTest < ActiveSupport::TestCase
     assert_equal [ @alice.id, @bob.id ], notices.map { it[:player_id] }
   end
 
-  test "a sale over a lead also tells the outbid player's bell, once" do
-    data = { listing_id: 1, seller_id: @alice.id, winner_id: @bob.id, card_season_id: @one, final_price: 10, surplus: 0, outbid_player_id: @alice.id, outbid_released: 5 }
+  test "a sale tells the bell of the seller, the winner and the bidder it displaced, once each" do
+    carol = accounts_players(:administrator)
+    data = { listing_id: 1, seller_id: @alice.id, winner_id: @bob.id, card_season_id: @one, final_price: 10, surplus: 0, outbid_player_id: carol.id, outbid_released: 5 }
 
     notices = PlayerStream.notices(Game::Market::AuctionSold.new(data:))
 
-    assert_equal [ { player_id: @alice.id, topic: "market" } ], notices.select { it[:topic] }
+    assert_equal [ carol.id, @bob.id, @alice.id ], notices.select { it[:topic] }.map { it[:player_id] }
   end
 
   test "a bid tells the bidder and the outbid player, once each" do
@@ -356,7 +357,7 @@ class PlayerStreamTest < ActiveSupport::TestCase
   test "an unsold auction tells its seller" do
     notices = PlayerStream.notices(Game::Market::AuctionUnsold.new(data: { listing_id: 1, seller_id: @alice.id }))
 
-    assert_equal [ { player_id: @alice.id, balance: true } ], notices
+    assert_equal [ { player_id: @alice.id, balance: true }, { player_id: @alice.id, topic: "market" } ], notices
   end
 
   test "a withdrawn listing tells its seller and its leader when present" do

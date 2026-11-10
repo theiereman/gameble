@@ -50,7 +50,7 @@ class Game::Market::CloseAuctionEventsTest < ActiveSupport::TestCase
   test "balance notices are enqueued after the commit" do
     assert_enqueued_with(job: PlayerStreamJob) { close }
 
-    notices = enqueued_jobs.select { it[:job] == PlayerStreamJob }.flat_map { it[:args].first }
+    notices = enqueued_jobs.select { it[:job] == PlayerStreamJob }.flat_map { it[:args].first }.select { it["balance"] }
     assert_equal [ @seller.id, @winner.id ].sort, notices.map { it["player_id"] }.sort
   end
 

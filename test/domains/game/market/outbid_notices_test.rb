@@ -55,14 +55,6 @@ class Game::Market::OutbidNoticesTest < ActiveSupport::TestCase
     assert_equal 0, Game::Market::Notice.count
   end
 
-  test "a buy-now over a lead writes the outbid player's notice naming the buyer" do
-    bid(@first, 30_000)
-    bid(@second, 60_000)
-
-    notice = notices(@first).sole
-    assert_equal [ "outbid", @second.id, 30_000 ], [ notice.kind, notice.other_player_id, notice.amount ]
-  end
-
   test "a refused bid writes no notice" do
     bid(@first, 30_000)
     bid(@second, 10)

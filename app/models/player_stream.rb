@@ -65,11 +65,11 @@ module PlayerStream
       when Game::Market::CardListed
         [ balance_notice(data[:seller_id]) ]
       when Game::Market::AuctionSold
-        balance_notices(data.values_at(:seller_id, :winner_id, :outbid_player_id)) + market_notices([ data[:outbid_player_id] ])
+        balance_notices(data.values_at(:seller_id, :winner_id, :outbid_player_id)) + market_notices(data.values_at(:outbid_player_id, :winner_id, :seller_id))
       when Game::Market::BidPlaced
         balance_notices(data.values_at(:bidder_id, :outbid_player_id)) + market_notices([ data[:outbid_player_id] ])
       when Game::Market::AuctionUnsold
-        balance_notices([ data[:seller_id] ])
+        balance_notices([ data[:seller_id] ]) + market_notices([ data[:seller_id] ])
       when Game::Market::ListingWithdrawn
         balance_notices(data.values_at(:seller_id, :leader_id))
       when *BALANCE_EVENTS
