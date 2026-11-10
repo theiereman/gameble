@@ -323,6 +323,10 @@ html .feed__thumb > .card.card--s[data-tilt] {
   color: var(--color-gold);
 }
 
+.feed__tag--sale {
+  color: var(--color-accent);
+}
+
 .feed__tag--trade {
   color: var(--color-accent);
 }

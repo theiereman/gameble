@@ -1,5 +1,5 @@
 class FeedsController < ApplicationController
-  FILTERS = { "pulls" => "pull", "discoveries" => "discovery", "trades" => "trade", "reposts" => "repost" }.freeze
+  FILTERS = { "pulls" => "pull", "discoveries" => "discovery", "trades" => "trade", "reposts" => "repost", "sales" => "sale" }.freeze
 
   TABS = %w[friends].freeze
 

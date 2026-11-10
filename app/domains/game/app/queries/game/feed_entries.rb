@@ -1,7 +1,7 @@
 module Game
   module FeedEntries
-    Entry = Data.define(:entry, :player, :partner, :filler, :player_title, :partner_title) do
-      def initialize(entry:, player:, filler:, partner: nil, player_title: nil, partner_title: nil) = super
+    Entry = Data.define(:entry, :player, :partner, :filler, :player_title, :partner_title, :price) do
+      def initialize(entry:, player:, filler:, partner: nil, player_title: nil, partner_title: nil, price: nil) = super
     end
 
     LIMIT = 30
@@ -65,9 +65,17 @@ module Game
 
     private_class_method :listed
 
+    def self.priced(items)
+      listing_ids = items.filter_map { it.entry.listing_id }
+      return items if listing_ids.empty?
+
+      prices = Market::Listing.where(id: listing_ids).pluck(:id, :final_price).to_h
+      items.map { it.entry.listing_id ? it.with(price: prices[it.entry.listing_id]) : it }
+    end
+
     def self.titled(items)
       titles = ActiveProfileTitle.for_players(items.flat_map { [ it.player, it.partner ] }.compact.uniq)
-      items.map { it.with(player_title: titles[it.player.id], partner_title: (titles[it.partner.id] if it.partner)) }
+      priced(items).map { it.with(player_title: titles[it.player.id], partner_title: (titles[it.partner.id] if it.partner)) }
     end
     private_class_method :titled
 

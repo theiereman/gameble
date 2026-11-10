@@ -1,9 +1,10 @@
 module FeedHelper
   TIER_NOTCHES = { "bronze" => 1, "silver" => 2, "gold" => 3 }.freeze
 
-  def feed_sentence(item, card, partner_card = nil, set = nil, links: true, titles: false)
+  def feed_sentence(item, card, partner_card = nil, set = nil, links: true, titles: false, viewer: nil)
     return feed_set_sentence(item, set, links:, titles:) if item.entry.kind == "set"
     return feed_verdict_sentence(item, links:, titles:) if item.entry.kind == "verdict"
+    return feed_sale_sentence(item, card, links:, titles:, viewer:) if item.entry.kind == "sale"
 
     words = { name: feed_name(item.player, item.player_title, links:, titles:), card: feed_game(card, links:) }
     case item.entry.kind
@@ -83,6 +84,12 @@ module FeedHelper
     else
       t("feeds.show.set_reached.#{tier}_html", **words)
     end
+  end
+
+  def feed_sale_sentence(item, card, links:, titles:, viewer:)
+    buyer = render(PlayerNameComponent.new(player: item.player, viewer:, linked: links))
+    name = titles ? safe_join([ buyer, feed_rank(item.player_title) ].compact, " ") : buyer
+    t("feeds.show.sale_html", name:, card: feed_game(card, links:), amount: render(PicoinAmountComponent.new(amount: item.price)))
   end
 
   def feed_verdict_sentence(item, links:, titles:)

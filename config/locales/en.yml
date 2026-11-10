@@ -1481,6 +1481,7 @@ en:
         discoveries: Discoveries
         pulls: Pulls
         reposts: Reposts
+        sales: Sales
         trades: Trades
       filters_label: Filter by type
       filters_opener: 'Type: %{type}'
@@ -1516,6 +1517,8 @@ en:
       pulled_html: "%{name} pulled %{card}"
       repost_tag: Repost
       reposted_html: "%{name} reposted %{card}."
+      sale_html: "%{name} bought %{card} for %{amount}."
+      sale_tag: Sale
       screen_title: Activity feed
       set_reached:
         adept_html: "%{name} reaches the Adept tier in the %{set} set."

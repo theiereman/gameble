@@ -1,5 +1,5 @@
 module LiveStream
-  EVENTS = [ Game::PackOpened, Game::CardReposted, Game::TradeAccepted, Game::SetTierReached, Game::SetCompleted ].freeze
+  EVENTS = [ Game::PackOpened, Game::CardReposted, Game::TradeAccepted, Game::SetTierReached, Game::SetCompleted, Game::Market::AuctionSold ].freeze
 
   TICKER_KINDS = %w[pull discovery trade set].freeze
   TICKER_SIZE = 12
@@ -33,6 +33,8 @@ module LiveStream
         [ { player_id: data[:player_id], set_id: data[:set_id], tier: data[:tier] } ]
       when Game::SetCompleted
         [ { player_id: data[:player_id], set_id: data[:set_id], tier: "complete" } ]
+      when Game::Market::AuctionSold
+        [ { listing_id: data[:listing_id] } ]
       else
         []
       end

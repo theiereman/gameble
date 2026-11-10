@@ -4,6 +4,7 @@ module FeedItems
     sets = Catalog::SetsById.call(entries.filter_map { it.entry.set_id })
     entries.filter_map do |item|
       next [ item, nil, nil, nil ] if item.entry.kind == "verdict"
+      next if item.entry.kind == "sale" && item.price.nil?
 
       if item.entry.set_id
         set = sets[item.entry.set_id]

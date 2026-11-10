@@ -2,6 +2,8 @@
 <% trade = item.entry.kind == "trade" %>
 <% set_entry = item.entry.kind == "set" %>
 <% verdict = item.entry.kind == "verdict" %>
+<% sale = item.entry.kind == "sale" %>
+<% viewer = local_assigns.key?(:viewer) ? local_assigns[:viewer] : current_player %>
 <% target = local_assigns[:target]&.id == item.entry.id %>
 <% post = local_assigns.fetch(:post, false) %>
 <% tint = card.rarity if card && !trade %>
@@ -31,7 +33,7 @@
   <div class="feed__body">
     <% if post %><%= feed_headline(item, card, partner_card, set) %><% end %>
     <div class="feed__head">
-      <p class="feed__sentence"><%= feed_sentence(item, card, partner_card, set, titles: true) %></p>
+      <p class="feed__sentence"><%= feed_sentence(item, card, partner_card, set, titles: true, viewer:) %></p>
       <%= local_time_tag(item.entry.occurred_at, class: "feed__time") %>
     </div>
     <div class="feed__meta">
@@ -47,6 +49,8 @@
           </span>
         <% elsif repost %>
           <span class="feed__tag feed__tag--repost"><%= t("feeds.show.repost_tag") %></span>
+        <% elsif sale %>
+          <span class="feed__tag feed__tag--sale"><%= t("feeds.show.sale_tag") %></span>
         <% else %>
           <span class="feed__tag feed__tag--<%= card.rarity %>">
             <%= pixel_icon("rarity-#{Catalog::Rarity::TIERS.key(card.rarity.to_sym)}", class: "feed__tag-icon") %>

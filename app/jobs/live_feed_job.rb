@@ -4,7 +4,7 @@ class LiveFeedJob < ApplicationJob
   def perform(notices)
     entries = Game::NewFeedEntries.call(pack_ids: notices.filter_map { it[:pack_id] },
       reposts: notices.select { it.key?(:card_season_id) }, trade_ids: notices.filter_map { it[:trade_id] },
-      sets: notices.select { it.key?(:set_id) })
+      sets: notices.select { it.key?(:set_id) }, listing_ids: notices.filter_map { it[:listing_id] })
     return if entries.empty?
 
     strip = Game::FeedEntries.call(nil).first(LiveStream::STRIP_SIZE)

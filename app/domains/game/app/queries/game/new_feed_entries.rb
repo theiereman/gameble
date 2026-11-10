@@ -15,7 +15,10 @@ module Game
       scopes << FeedEntry.where(kind: "sale", listing_id: listing_ids) if listing_ids.any?
       return [] if scopes.empty?
 
-      entries = scopes.reduce(:or).where(notable: true).newest_first.to_a
+      FeedEntries.priced(visible_items(scopes.reduce(:or).where(notable: true).newest_first.to_a))
+    end
+
+    def self.visible_items(entries)
       players = Accounts::Player.where(id: entries.flat_map { [ it.player_id, it.partner_id ] }.compact.uniq).index_by(&:id)
       entries.filter_map do |entry|
         player = players[entry.player_id]
@@ -26,5 +29,6 @@ module Game
         FeedEntries::Entry.new(entry:, player:, partner:, filler: false)
       end
     end
+    private_class_method :visible_items
   end
 end

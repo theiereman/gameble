@@ -8,6 +8,8 @@
             <span class="feed__tag feed__tag--verdict"><%= t("feeds.show.verdict_tag") %></span>
           <% elsif item.entry.kind == "set" %>
             <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") %>
+          <% elsif item.entry.kind == "sale" %>
+            <span class="feed__tag feed__tag--sale"><%= t("feeds.show.sale_tag") %></span>
           <% elsif item.entry.kind == "repost" %>
             <span class="feed__tag feed__tag--repost"><%= t("feeds.show.repost_tag") %></span>
           <% elsif item.entry.kind == "trade" %>
