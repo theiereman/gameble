@@ -2,7 +2,6 @@ require "application_system_test_case"
 require_relative "../support/alt_signal_seeds"
 require_relative "../support/steam_sign_in"
 
-# Staff read the accounts that open or trade like an alt account, once the nightly job has run, and reach each account from its row.
 class BackOfficeMarketSignalsTest < ApplicationSystemTestCase
   include AltSignalSeeds
   include SteamSignIn

@@ -85,7 +85,7 @@ class Game::Market::AltSignalsMarketTest < ActiveSupport::TestCase
     earlier = open_market!(minimum_price_common: 1_400)
     3.times { |ago| sale!(@alice, @bob, @card, 1_400, sold_at: (ago + 1).days.ago, settings: earlier) }
     open_market!(minimum_price_common: 1_500)
-    2.times { |ago| sale!(@carol, @bob, catalog_card_seasons(:uncommon_card_one), 1_400, sold_at: (ago + 1).days.ago, settings: earlier) }
+    3.times { |ago| sale!(@carol, @bob, catalog_card_seasons(:uncommon_card_one), 1_400, sold_at: (ago + 1).days.ago, settings: earlier) }
 
     assert_equal [ @alice.id ], detected("minimum_price_sales").map(&:account_id)
   end
@@ -125,6 +125,13 @@ class Game::Market::AltSignalsMarketTest < ActiveSupport::TestCase
     bid!(@bob, listing!(seller: @alice, card_season: @card), created_at: 31.days.ago)
 
     assert_empty detected("bids_on_tied_seller")
+  end
+
+  test "an account that deleted itself is never a signal, as account or as the other account" do
+    tie_through_minimum_price_sales!
+    @bob.update_columns(deleted_at: Time.current)
+
+    assert_empty Game::Market::AltSignals.call(now: @now)
   end
 
   test "a one-way trade pair ties its accounts too" do

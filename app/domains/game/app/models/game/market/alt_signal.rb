@@ -1,6 +1,5 @@
 module Game
   module Market
-    # What staff are told about an account that opens or trades like an alt account; replaced every night, never shown to a player.
     class AltSignal < ApplicationRecord
       self.table_name = "game_market_alt_signals"
 

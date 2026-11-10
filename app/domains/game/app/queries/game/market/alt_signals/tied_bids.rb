@@ -1,7 +1,6 @@
 module Game
   module Market
     module AltSignals
-      # Bids on a seller's listings from an account tied to that seller, tied meaning flagged as a pair by another signal of the same run.
       module TiedBids
         def self.call(now:, ties:)
           return [] if ties.empty?

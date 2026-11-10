@@ -1,7 +1,5 @@
 module Game
   module Market
-    # The accounts that open or trade like an alt account, read from the opened packs, the accepted trades, the sales and the bids.
-    # Nothing here writes or sanctions: a signal is a hint for staff, with the facts behind it.
     module AltSignals
       SIGNALS = %w[near_maximum_opening one_way_trades sales_outside_price minimum_price_sales bids_on_tied_seller].freeze
 
@@ -23,11 +21,18 @@ module Game
         def pair = [ account_id, other_account_id ].minmax
       end
 
-      # A pair signal tells that two accounts act together; an account bidding on a listing of an account it is tied to is the third signal.
       def self.call(now: Time.current)
         pairs = OneWayTrades.call(now:) + SalesOutsidePrice.call(now:) + MinimumPriceSales.call(now:)
-        CapsuleOpening.call(now:) + pairs + TiedBids.call(now:, ties: pairs.to_set(&:pair))
+        without_deleted_accounts(CapsuleOpening.call(now:) + pairs + TiedBids.call(now:, ties: pairs.to_set(&:pair)))
       end
+
+      def self.without_deleted_accounts(detected)
+        ids = detected.flat_map { [ it.account_id, it.other_account_id ] }.compact.uniq
+        deleted = Accounts::Player.where(id: ids).where.not(deleted_at: nil).pluck(:id).to_set
+        detected.reject { deleted.include?(it.account_id) || deleted.include?(it.other_account_id) }
+      end
+
+      private_class_method :without_deleted_accounts
     end
   end
 end

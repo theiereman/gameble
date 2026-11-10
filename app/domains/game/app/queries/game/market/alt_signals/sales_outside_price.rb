@@ -1,7 +1,6 @@
 module Game
   module Market
     module AltSignals
-      # A sale far from the edition's average at the time: the average the previous sale of the edition left, once the edition has enough sales.
       module SalesOutsidePrice
         OUTSIDE = <<~SQL.squish.freeze
           SELECT seller_id, leader_id, CASE WHEN final_price < reference THEN 1 ELSE 0 END

@@ -1,7 +1,6 @@
 module Game
   module Market
     module AltSignals
-      # An accepted trade never has an empty side, so a trade is one-way when one side gives many times what it gets.
       module OneWayTrades
         OFFERED = "COALESCE(SUM(game_trade_items.quantity) FILTER (WHERE game_trade_items.side = 'offer'), 0)".freeze
         REQUESTED = "COALESCE(SUM(game_trade_items.quantity) FILTER (WHERE game_trade_items.side = 'request'), 0)".freeze

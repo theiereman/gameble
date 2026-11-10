@@ -1,7 +1,6 @@
 module Game
   module Market
     module AltSignals
-      # Opening capsules near the most a player can open in a day, on several of the last complete UTC days.
       module CapsuleOpening
         def self.call(now:)
           last_midnight = now.utc.beginning_of_day

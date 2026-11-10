@@ -1,6 +1,5 @@
 module Game
   module Market
-    # Replaces every alt-account signal with what AltSignals detects now, in one transaction and with no event: it writes no account, trade or holding.
     class RefreshAltSignals < ApplicationOperation
       def call(now: Time.current)
         detected = AltSignals.call(now:)

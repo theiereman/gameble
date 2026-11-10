@@ -1,6 +1,5 @@
 module Game
   module Market
-    # The signals staff read, each with the accounts it names, in the order of the signals and then of the account's persona name.
     module AltSignalRows
       Row = Data.define(:signal, :account, :other_account, :facts)
 

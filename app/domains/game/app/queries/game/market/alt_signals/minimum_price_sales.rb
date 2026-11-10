@@ -1,7 +1,6 @@
 module Game
   module Market
     module AltSignals
-      # A sale at the minimum price of its rarity, in the settings the listing was created under, repeated between the same two accounts.
       module MinimumPriceSales
         MINIMUM = "CASE catalog_card_seasons.rarity #{Catalog::Rarity::TIERS.map { |tier, name| "WHEN #{tier} THEN game_market_settings.minimum_price_#{name}" }.join(" ")} END".freeze
 
