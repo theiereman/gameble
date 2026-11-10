@@ -45,7 +45,8 @@ export default class AnnonceController extends Controller<HTMLElement> {
 
   annonceFieldOutletConnected(field: AnnonceFieldController): void {
     clearTimeout(this.timer)
-    this.state = start(field.terms(), field.answered)
+    const fresh = start(field.terms(), field.answered)
+    this.state = field.text ? edit(fresh, field.text) : fresh
     this.render()
   }
 
