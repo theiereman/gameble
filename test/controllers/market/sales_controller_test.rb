@@ -416,4 +416,79 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[type=submit][disabled]"
     assert_select ".market-sale__relisting"
   end
+
+  def after_the_first_opening
+    Game::Market::Settings.delete_all
+    @settings = open_market!(first_opened_at: 1.day.ago)
+    fund(500)
+  end
+
+  test "after the first opening each cell carries its edition's price and its words, and a template per edition feeds the form" do
+    after_the_first_opening
+    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 15_000, sales_used: 5)
+    Game::Market::EditionPrice.create!(card_season_id: @common.id, average: 800, sales_used: 2)
+    hold(@player, @rare.id, 1)
+    hold(@player, @common.id, 1)
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en)
+
+    assert_select "[role=option][data-ref=?] .sale-cell__price .picoin-amount[aria-label='15,000 PiCoins']", ref(@rare)
+    assert_select "[role=option][data-ref=?] .sale-cell__price .average-price__few", ref(@common), "few sales"
+    assert_select "[role=option][data-ref=?][aria-label$=?]", ref(@rare), "average price 15,000 PiCoins"
+    assert_select "template[data-listing-fields-target=priceTemplate]", 2
+    assert_select "template[data-ref=?]", ref(@rare)
+    assert_select ".sale-price[data-listing-fields-target=priceSlot][data-ref='']"
+    assert_select ".sale-price .average-price", false
+  end
+
+  test "an edition without any sale says so, in the cell and the form" do
+    after_the_first_opening
+    hold(@player, @common.id, 1)
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en)
+
+    assert_select "[role=option] .sale-cell__price .average-price--none", "No sale"
+    assert_select ".sale-price[data-ref=?] .average-price--none", ref(@common)
+    assert_select ".sale-price .sale-field__label", "Average price"
+  end
+
+  test "a single free edition opens chosen with its price already in the form, with its sale count" do
+    after_the_first_opening
+    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 15_000, sales_used: 5)
+    hold(@player, @rare.id, 1)
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en)
+
+    assert_select ".sale-price[data-ref=?] .picoin-amount[aria-label='15,000 PiCoins']", ref(@rare)
+    assert_select ".sale-price .average-price__basis", "Based on 5 sales"
+  end
+
+  test "a refused post keeps the chosen edition's price in the form" do
+    after_the_first_opening
+    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 15_000, sales_used: 5)
+    hold(@player, @rare.id, 1)
+    hold(@player, @common.id, 1)
+    sign_in(@player)
+
+    post_sale(@rare, starting_price: "10")
+
+    assert_response :unprocessable_content
+    assert_select ".sale-price[data-ref=?] .picoin-amount[aria-label='15,000 PiCoins']", ref(@rare)
+  end
+
+  test "no price, slot or template shows before the market's first opening" do
+    Game::Market::EditionPrice.create!(card_season_id: @rare.id, average: 15_000, sales_used: 5)
+    hold(@player, @rare.id, 1)
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en)
+
+    assert_select ".sale-cell__price", false
+    assert_select ".sale-price", false
+    assert_select "template[data-listing-fields-target=priceTemplate]", false
+    assert_select "[role=option][aria-label*=average]", false
+  end
 end

@@ -2310,6 +2310,7 @@ fr:
         throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
       new:
         all_cards: "Toutes les cartes"
+        average_price: "Prix moyen"
         back: "◀ Retour aux cartes"
         buy_now_label: "ACHAT IMMÉDIAT"
         card_only: "Seulement %{title}."

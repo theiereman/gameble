@@ -2611,6 +2611,7 @@ en:
         throttled: Slow down, the Archives are counting. Try again in a minute.
       new:
         all_cards: All cards
+        average_price: Average price
         back: "◀ Back to the cards"
         buy_now_label: BUY NOW PRICE
         card_only: "Only %{title}."

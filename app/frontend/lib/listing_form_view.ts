@@ -21,6 +21,7 @@ export type GridView = { cells: readonly CellView[]; chosen: string }
 export type FieldView = { error: string | null }
 
 export type FieldsView = {
+  chosen: string
   hint: string
   start: FieldView
   buyNow: FieldView
@@ -66,6 +67,7 @@ function fieldView(field: Field, state: ListingState, forms: Forms): FieldView {
 export function fieldsViewOf(state: ListingState, forms: Forms): FieldsView {
   const edition = chosenEdition(state)
   return {
+    chosen: edition?.ref ?? "",
     hint: edition
       ? t(forms.strings.minimumHint, {
           amount: picoins(edition.minimum, { locale: forms.locale }),

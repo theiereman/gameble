@@ -29,7 +29,17 @@ module Market
         @card_slug = card_slug
         @copies = current_player && @settings ? Game::Market::SellableCopies.call(current_player, card_slug:) : []
         @chosen_ref = @copies.first.ref if @copies.one?
+        @prices = sale_prices
         @values = { start: "", buy_now: "", duration: @settings&.preselected_duration_hours.to_s }
+      end
+
+      def sale_prices
+        market = Game::Market::MarketState.call(@settings)
+        return {} unless market.first_opened? && @copies.any?
+
+        ids = Game::Market::EntrustableCopies.resolve(@copies.map(&:ref))
+        prices = Game::Market::EditionPrices.call(ids.values, state: market)
+        ids.transform_values { prices[it] }
       end
 
       def asked_card_slug(slug)

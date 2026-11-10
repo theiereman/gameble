@@ -27,10 +27,10 @@ module MarketSalesHelper
       .merge(screen_outlets("listing-form", SALE_ACTIONS.keys))
   end
 
-  def sale_cell_label(copy, settings)
+  def sale_cell_label(copy, settings, price = nil)
     minimum = t("picoin_amount.accessible", amount: picoins(settings.minimum_price(copy.card.rarity.to_sym)))
     [ copy.card.title, t("catalog.rarity.#{copy.card.rarity}"), t("market.sales.new.season", number: copy.card.season_number),
-      t("market.sales.new.free", count: copy.free), t("market.sales.new.cell_minimum", amount: minimum) ].join(", ")
+      t("market.sales.new.free", count: copy.free), t("market.sales.new.cell_minimum", amount: minimum), average_price_words(price) ].compact.join(", ")
   end
 
   def sale_durations(settings, checked:)

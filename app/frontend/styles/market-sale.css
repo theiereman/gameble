@@ -340,3 +340,13 @@
   color: var(--color-muted);
   font: var(--font-body-small);
 }
+
+.sale-cell__price {
+  font: var(--font-body-small);
+}
+
+.sale-price__value {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}

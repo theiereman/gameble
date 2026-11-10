@@ -1,0 +1,8 @@
+<%# locals: (price:) %>
+<span class="sale-field__label"><%= t("market.sales.new.average_price") %></span>
+<span class="sale-price__value">
+  <%= render AveragePriceComponent.new(price:) %>
+  <% if (basis = average_price_basis(price)) %>
+    <span class="average-price__basis"><%= basis %></span>
+  <% end %>
+</span>

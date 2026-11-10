@@ -6,6 +6,15 @@
 <%= tag.div class: "sale-fields", data: { controller: "listing-fields" }, inert: (true unless chosen) do %>
   <button type="button" class="sale-fields__back" data-action="listing-fields#back"><%= t("market.sales.new.back") %></button>
 
+  <% if @prices.any? %>
+    <div class="sale-field sale-price" data-listing-fields-target="priceSlot" data-ref="<%= chosen&.ref %>">
+      <% if chosen && @prices[chosen.ref] %><%= render "market/sales/price", price: @prices[chosen.ref] %><% end %>
+    </div>
+    <% @prices.each do |ref, price| %>
+      <template data-listing-fields-target="priceTemplate" data-ref="<%= ref %>"><%= render "market/sales/price", price: %></template>
+    <% end %>
+  <% end %>
+
   <div class="sale-field">
     <label for="sale-start" class="sale-field__label"><%= t("market.sales.new.start_label") %></label>
     <%= text_field_tag :starting_price, @values[:start], id: "sale-start", inputmode: "numeric", autocomplete: "off",

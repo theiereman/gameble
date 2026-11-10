@@ -6,7 +6,17 @@ import type { FieldsView, FieldView } from "../lib/listing_form_view"
 const START_HINT = "sale-start-hint"
 
 export default class ListingFieldsController extends Controller<HTMLElement> {
-  static targets = ["start", "buyNow", "duration", "hint", "startError", "buyNowError", "durationError"]
+  static targets = [
+    "start",
+    "buyNow",
+    "duration",
+    "hint",
+    "startError",
+    "buyNowError",
+    "durationError",
+    "priceSlot",
+    "priceTemplate",
+  ]
 
   declare readonly startTarget: HTMLInputElement
   declare readonly buyNowTarget: HTMLInputElement
@@ -15,11 +25,15 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
   declare readonly startErrorTarget: HTMLElement
   declare readonly buyNowErrorTarget: HTMLElement
   declare readonly durationErrorTarget: HTMLElement
+  declare readonly hasPriceSlotTarget: boolean
+  declare readonly priceSlotTarget: HTMLElement
+  declare readonly priceTemplateTargets: HTMLTemplateElement[]
 
   private pristine = true
 
-  render({ hint, start, buyNow, duration, locked }: FieldsView): void {
+  render({ chosen, hint, start, buyNow, duration, locked }: FieldsView): void {
     writeText(this.hintTarget, hint)
+    this.showPrice(chosen)
     this.reflectField(this.startTarget, this.startErrorTarget, start, START_HINT)
     this.reflectField(this.buyNowTarget, this.buyNowErrorTarget, buyNow)
     this.reflectDuration(duration)
@@ -60,6 +74,13 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
 
   back(): void {
     this.dispatch("back")
+  }
+
+  private showPrice(ref: string): void {
+    if (!this.hasPriceSlotTarget || this.priceSlotTarget.dataset.ref === ref) return
+    const template = this.priceTemplateTargets.find((each) => each.dataset.ref === ref)
+    this.priceSlotTarget.dataset.ref = ref
+    this.priceSlotTarget.replaceChildren(...(template ? [template.content.cloneNode(true)] : []))
   }
 
   private reflectField(input: HTMLInputElement, error: HTMLElement, { error: text }: FieldView, hintId?: string): void {

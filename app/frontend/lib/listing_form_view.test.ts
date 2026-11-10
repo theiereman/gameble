@@ -63,11 +63,12 @@ describe("grid view", () => {
 
 describe("fields view", () => {
   it("locks the fields and writes no hint before an edition is chosen", () => {
-    expect(fieldsViewOf(stateWith({}, null), forms)).toMatchObject({ hint: "", locked: true })
+    expect(fieldsViewOf(stateWith({}, null), forms)).toMatchObject({ chosen: "", hint: "", locked: true })
   })
 
   it("writes the minimum of the chosen edition", () => {
     expect(fieldsViewOf(stateWith({}), forms)).toMatchObject({
+      chosen: "alpha:1",
       hint: "At least 1,000 for a rare",
       locked: false,
       duration: "24",
