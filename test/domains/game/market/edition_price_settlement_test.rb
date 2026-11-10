@@ -21,7 +21,8 @@ class Game::Market::EditionPriceSettlementTest < ActiveSupport::TestCase
   end
 
   def due_listing(card = @card, price: 20_000)
-    hold(@seller, card.id, 1, reserved: 1)
+    held = Game::Holding.find_by(player_id: @seller.id, card_season_id: card.id)
+    held ? held.update!(quantity: held.quantity + 1, reserved: held.reserved + 1) : hold(@seller, card.id, 1, reserved: 1)
     listing = listing!(seller: @seller, card_season: card, starting_price: price, ends_at: 1.minute.ago)
     lead!(listing, @winner, price, price:)
     listing
@@ -86,7 +87,7 @@ class Game::Market::EditionPriceSettlementTest < ActiveSupport::TestCase
     hold(@seller, @card.id, 1, reserved: 1)
     listing = listing!(seller: @seller, card_season: @card, ends_at: 1.minute.ago)
     lead!(listing, @winner, 20_000, price: 1_300)
-    @seller.update!(deleted_at: Time.current)
+    @seller.update_columns(deleted_at: Time.current)
 
     assert_no_difference -> { Game::Market::EditionPrice.count } do
       assert close(listing).success?

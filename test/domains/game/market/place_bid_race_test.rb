@@ -39,6 +39,7 @@ class Game::Market::PlaceBidRaceTest < ActiveSupport::TestCase
     Game::Market::Listing.where(id: @listing.id).delete_all
     Game::Market::EditionPrice.where(card_season_id: @card.id).delete_all
     purge_player_rows(players)
+    purge_events(players)
     Game::Market::Settings.where(id: @settings.id).delete_all
     Accounts::Player.where(id: players).delete_all
   end
@@ -54,6 +55,14 @@ class Game::Market::PlaceBidRaceTest < ActiveSupport::TestCase
         false
       end
     end
+  end
+
+  def purge_events(players)
+    connection = ActiveRecord::Base.connection
+    streams = players.flat_map { [ Game::Operation.stream_name(it), "Accounts::Player$#{it}" ] }
+    event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
+    connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
+    connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events WHERE event_id IN (?)", event_ids ])) if event_ids.any?
   end
 
   def place = -> { bid(Accounts::Player.find(@bidder.id), 40_000) }

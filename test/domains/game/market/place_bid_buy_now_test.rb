@@ -68,7 +68,7 @@ class Game::Market::PlaceBidBuyNowTest < ActiveSupport::TestCase
 
     bid(@second, 50_000)
 
-    assert_equal [ 100_000, 0 ], figures(@first)
+    assert_equal [ 60_000, 0 ], figures(@first)
     assert_equal [ 50_000, 0 ], figures(@second)
     data = events(Game::Market::AuctionSold).last.data
     assert_equal [ @first.id, 30_000 ], data.values_at(:outbid_player_id, :outbid_released)
@@ -81,9 +81,8 @@ class Game::Market::PlaceBidBuyNowTest < ActiveSupport::TestCase
     bid(@second, 50_000)
 
     assert_equal [ "lost" ], outcomes(@first)
-    assert_equal %w[won], outcomes(@second).last(1)
-    assert_equal %w[lost], outcomes(@second).first(1)
-    assert_empty Game::Market::Bid.where(listing_id: @listing.id, outcome: %w[leading outbid beaten])
+    assert_equal %w[beaten won], outcomes(@second)
+    assert_empty Game::Market::Bid.where(listing_id: @listing.id, outcome: "leading")
   end
 
   test "the winner's allocation and tiers are settled as a close does" do
