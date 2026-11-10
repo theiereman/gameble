@@ -2375,6 +2375,9 @@ en:
         title: UNUSUAL AMOUNT
     listings:
       events:
+        extended:
+          body_html: "A bid just arrived in the last %{minutes} minutes. The end moved to %{time}."
+          title: AUCTION EXTENDED
         outbid:
           action: SEE THE LISTING
           body_html: "%{name} moved ahead on %{card}. Your %{amount} are available again. The Brotherhood never bids for you."

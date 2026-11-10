@@ -411,12 +411,26 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#annonce-outbid", false
   end
 
+  test "an extended auction shows the extended panel to a visitor, and the page subscribes to the listing's stream and refreshes on it" do
+    ends_at = 2.minutes.from_now.change(usec: 0)
+    @listing.update_columns(ends_at:)
+    Game::Market::Bid.create!(listing: @listing, player: accounts_players(:moderator), maximum: 9_000, price_after: 7_800, outcome: "leading", extended_until: ends_at)
+    annonce
+
+    assert_select "#annonce-bid #annonce-extended.market-event--extended h2", "AUCTION EXTENDED"
+    assert_select "#annonce-extended time[datetime]"
+    assert_select "#annonce-extended", /last 3 minutes/
+    assert_select "#annonce[data-controller~=live-refresh][data-live-refresh-signal-value=listing-updated]"
+    assert_select "turbo-cable-stream-source[channel='Turbo::StreamsChannel']", minimum: 1
+    assert_no_match(/market-listing:/, response.body)
+  end
+
   test "an open market draws an empty slot and the live form" do
     sign_in(accounts_players(:administrator))
     annonce
 
     assert_select "#annonce-suspension"
     assert_select "#market-suspended-banner", false
-    assert_select "#annonce-bid input#annonce-maximum:not([disabled])"
+    assert_select "#annonce-bid input#annonce-maximum[data-turbo-permanent]:not([disabled])"
   end
 end

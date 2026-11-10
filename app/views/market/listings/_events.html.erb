@@ -7,3 +7,9 @@
     <%= render ButtonComponent.new(variant: :link, href: market_listing_path(token: listing.token, focus: "maximum")) { t("market.listings.events.outbid.action") } %>
   </div>
 <% end %>
+<% if events&.extended %>
+  <div id="annonce-extended" class="market-event market-event--extended">
+    <h2 class="market-event__title"><%= t("market.listings.events.extended.title") %></h2>
+    <p class="market-event__body"><%= t("market.listings.events.extended.body_html", minutes: events.extended.minutes, time: local_time_tag(events.extended.until)) %></p>
+  </div>
+<% end %>

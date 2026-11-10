@@ -2065,6 +2065,9 @@ fr:
         title: "MONTANT INHABITUEL"
     listings:
       events:
+        extended:
+          body_html: "Une offre vient d'arriver dans les %{minutes} dernières minutes. Fin déplacée à %{time}."
+          title: "ENCHÈRE PROLONGÉE"
         outbid:
           action: "VOIR L'ANNONCE"
           body_html: "%{name} est passé devant sur %{card}. Vos %{amount} sont de nouveau disponibles. La Confrérie n'enchérit jamais à votre place."
