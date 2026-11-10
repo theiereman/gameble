@@ -1,0 +1,11 @@
+[
+  { "maximum": 30000, "own_maximum": null, "buy_now": null, "needed": 30000 },
+  { "maximum": 30000, "own_maximum": null, "buy_now": 60000, "needed": 30000 },
+  { "maximum": 35000, "own_maximum": 30000, "buy_now": null, "needed": 5000 },
+  { "maximum": 35000, "own_maximum": 30000, "buy_now": 60000, "needed": 5000 },
+  { "maximum": 60000, "own_maximum": null, "buy_now": 60000, "needed": 60000 },
+  { "maximum": 90000, "own_maximum": null, "buy_now": 60000, "needed": 60000 },
+  { "maximum": 60000, "own_maximum": 30000, "buy_now": 60000, "needed": 30000 },
+  { "maximum": 75000, "own_maximum": 30000, "buy_now": 60000, "needed": 30000 },
+  { "maximum": 30001, "own_maximum": 30000, "buy_now": null, "needed": 1 }
+]
