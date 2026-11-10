@@ -3,7 +3,7 @@ title: 'The Confier screen previews the batch as the player ticks'
 type: 'feature'
 ticket: '38.5'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: '10d2b80544811ede551472acf4fbf6427f618f2d'
 route: 'full'
 route_source: 'auto'
@@ -114,6 +114,8 @@ Decisions settled in planning (no human checkpoint in this run):
 - The state module's cap rule mirrors `split_by_cap`; the shared fixture, read by vitest and a Ruby test running the operation, keeps them from drifting.
 
 ## Plan Change Log
+
+- 2026-11-10 review: checked the diff against the plan, spec and AGENTS.md (read-only GET, tokens in markup, Pundit unchanged, en/fr parity with zero forms, no style attributes, file sizes, preview rule against the operation). No defect found; no code change. Ruby static checks (rubocop, packwerk) could not run in the worktree (gems missing); `ruby -c` is clean.
 
 ## Review Triage Log
 
