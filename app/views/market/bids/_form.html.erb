@@ -7,7 +7,7 @@
     <label for="annonce-maximum" class="market-bid__label"><%= t("market.bids.form.label") %></label>
     <%= text_field_tag :maximum, posted, id: "annonce-maximum", inputmode: "numeric", autocomplete: "off",
           aria: { invalid: (refusal ? "true" : nil), describedby: described },
-          data: { annonce_field_target: "input", focus_name: "field", action: "input->annonce-field#type keydown->annonce-field#keydown" } %>
+          data: { turbo_permanent: true, annonce_field_target: "input", focus_name: "field", action: "input->annonce-field#type keydown->annonce-field#keydown" } %>
     <p id="annonce-minimum" class="market-bid__minimum"><%= bid_minimum_text(sheet) %></p>
     <p id="annonce-error" class="market-bid__error" role="alert" data-annonce-field-target="error" <%= "hidden" unless refusal %>><%= refusal %></p>
   <% end %>

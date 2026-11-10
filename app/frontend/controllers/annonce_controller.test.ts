@@ -23,7 +23,7 @@ const attr = (value: unknown): string => JSON.stringify(value).replace(/"/g, "&q
 
 const markup = (answered: boolean): string => `
   <section id="annonce" data-controller="annonce"
-    data-action="annonce-field:typed->annonce#typed annonce-field:entered->annonce#entered annonce-foot:raise->annonce#raise annonce-dialog:confirmed->annonce#confirmed"
+    data-action="annonce-field:typed->annonce#typed annonce-field:entered->annonce#entered annonce-field:retermed->annonce#retermed annonce-foot:raise->annonce#raise annonce-dialog:confirmed->annonce#confirmed"
     data-annonce-locale-value="en" data-annonce-strings-value="${attr(STRINGS)}"
     data-annonce-annonce-field-outlet="#annonce [data-controller~='annonce-field']"
     data-annonce-annonce-foot-outlet="#annonce [data-controller~='annonce-foot']"
@@ -104,6 +104,33 @@ function recordRequests(): ReturnType<typeof vi.fn> {
 afterEach(() => {
   vi.useRealTimers()
   application.stop()
+})
+
+describe("a refreshed page", () => {
+  it("prices the typed amount against the terms the page redrew", async () => {
+    await mount()
+    type("30000")
+    expect(el("live").textContent).toBe("30,000 held.")
+
+    const field = document.querySelector("[data-controller~='annonce-field']") as HTMLElement
+    field.setAttribute("data-annonce-field-own-maximum-value", "20000")
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(el("go").textContent).toBe("RAISE · 30,000")
+    expect(el("live").textContent).toBe("10,000 more held.")
+  })
+
+  it("shows the form again when the redrawn page no longer carries the answer", async () => {
+    await mount(true)
+    expect(el("sentences").hidden).toBe(true)
+
+    const field = document.querySelector("[data-controller~='annonce-field']") as HTMLElement
+    field.setAttribute("data-annonce-field-answered-value", "false")
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(el("sentences").hidden).toBe(false)
+    expect(el("panel").hidden).toBe(true)
+  })
 })
 
 describe("typing", () => {

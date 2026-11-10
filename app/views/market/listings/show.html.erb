@@ -3,6 +3,7 @@
 <% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
 <% content_for :title, @listing.card.title %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
+<%= turbo_stream_from(*ListingStream.streamables(@listing.token)) %>
 <%= tag.section id: "annonce", class: "market-listing", aria: { labelledby: "market-listing-heading" }, data: annonce_root_data do %>
   <p class="visually-hidden" role="status" aria-live="polite" data-controller="annonce-status"></p>
   <header class="market-listing__header">

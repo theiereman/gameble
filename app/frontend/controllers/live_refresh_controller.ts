@@ -91,7 +91,7 @@ export default class extends Controller<HTMLElement> {
 
   private unsentText(): boolean {
     const fields = this.element.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
-      "input:not([type=hidden]):not([readonly]), textarea:not([readonly])",
+      "input:not([type=hidden]):not([readonly]):not([data-turbo-permanent]), textarea:not([readonly]):not([data-turbo-permanent])",
     )
     return Array.from(fields).some((field) => field.value !== field.defaultValue)
   }

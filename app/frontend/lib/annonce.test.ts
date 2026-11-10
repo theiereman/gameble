@@ -7,6 +7,7 @@ import {
   parse,
   posted,
   reachesBuyNow,
+  retermed,
   start,
   submit,
   submitted,
@@ -98,5 +99,22 @@ describe("the live sentence", () => {
     const state = posted(start(terms()), "one")
     expect(state.posted).toBe("one")
     expect(posted(state, "one")).toBe(state)
+  })
+})
+
+describe("retermed", () => {
+  it("takes the terms the page redrew and keeps the typed text", () => {
+    const typed = edit(start(terms()), "30000")
+    const next = retermed(typed, terms({ minimum: 31_500, price: 30_000 }), false)
+
+    expect(next.text).toBe("30000")
+    expect(next.terms.minimum).toBe(31_500)
+    expect(next.terms.price).toBe(30_000)
+  })
+
+  it("takes the answered flag from the page, so a redrawn foot without its panel is never left hidden", () => {
+    const answered = start(terms(), true)
+
+    expect(retermed(answered, terms(), false).answered).toBe(false)
   })
 })

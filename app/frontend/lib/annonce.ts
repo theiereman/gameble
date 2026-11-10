@@ -56,6 +56,10 @@ export function buttonKind(state: AnnonceState): ButtonKind {
   return state.terms.ownMaximum === null ? "bid" : "raise"
 }
 
+export function retermed(state: AnnonceState, terms: Terms, answered: boolean): AnnonceState {
+  return { ...state, terms, answered }
+}
+
 export function edit(state: AnnonceState, text: string): AnnonceState {
   return state.text === text && !state.answered
     ? state

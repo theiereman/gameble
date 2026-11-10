@@ -3,6 +3,15 @@ import { writeText } from "../lib/dom_writes"
 import type { Terms } from "../lib/annonce"
 
 const MINIMUM_ID = "annonce-minimum"
+const TERMS_ATTRIBUTES = [
+  "minimum",
+  "available",
+  "buy-now",
+  "own-maximum",
+  "price",
+  "unusual-multiple",
+  "answered",
+].map((name) => `data-annonce-field-${name}-value`)
 
 export default class AnnonceFieldController extends Controller<HTMLElement> {
   static targets = ["input", "error"]
@@ -26,6 +35,18 @@ export default class AnnonceFieldController extends Controller<HTMLElement> {
   declare readonly priceValue: number
   declare readonly unusualMultipleValue: number
   declare readonly answeredValue: boolean
+
+  private watcher?: MutationObserver
+
+  connect(): void {
+    this.watcher = new MutationObserver(() => this.dispatch("retermed"))
+    this.watcher.observe(this.element, { attributes: true, attributeFilter: TERMS_ATTRIBUTES })
+  }
+
+  disconnect(): void {
+    this.watcher?.disconnect()
+    this.watcher = undefined
+  }
 
   terms(): Terms {
     return {

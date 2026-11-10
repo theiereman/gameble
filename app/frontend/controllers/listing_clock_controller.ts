@@ -14,13 +14,20 @@ export default class extends Controller<HTMLElement> {
 
   private deadline = 0
   private timer?: number
+  private connected = false
 
   connect(): void {
+    this.connected = true
+    this.secondsValueChanged()
+  }
+
+  secondsValueChanged(): void {
     this.deadline = performance.now() + this.secondsValue * 1000
-    this.render()
+    if (this.connected) this.render()
   }
 
   disconnect(): void {
+    this.connected = false
     this.clear()
   }
 

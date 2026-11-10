@@ -1,6 +1,6 @@
 module MarketBidsHelper
   ANNONCE_ACTIONS = {
-    "annonce-field" => { typed: :typed, entered: :entered },
+    "annonce-field" => { typed: :typed, entered: :entered, retermed: :retermed },
     "annonce-foot" => { raise: :raise },
     "annonce-dialog" => { confirmed: :confirmed },
     "annonce-status" => {}
@@ -8,7 +8,8 @@ module MarketBidsHelper
   ANSWER_KINDS = { new_leader: :leading, raise: :raised }.freeze
 
   def annonce_root_data
-    { controller: "annonce", action: screen_actions("annonce", ANNONCE_ACTIONS), annonce_locale_value: I18n.locale,
+    { controller: "annonce live-refresh", live_refresh_signal_value: "listing-updated", action: screen_actions("annonce", ANNONCE_ACTIONS),
+      annonce_locale_value: I18n.locale,
       annonce_strings_value: screen_strings("market.bids.strings") }.merge(screen_outlets("annonce", ANNONCE_ACTIONS.keys))
   end
 

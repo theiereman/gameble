@@ -4,6 +4,7 @@ import {
   edit,
   parse,
   posted,
+  retermed,
   start,
   submit,
   submitted,
@@ -62,6 +63,13 @@ export default class AnnonceController extends Controller<HTMLElement> {
   regionTargetConnected(region: HTMLElement): void {
     const name = region.dataset.focus
     if (name) region.querySelector<HTMLElement>(`[data-focus-name='${name}']`)?.focus()
+  }
+
+  retermed(): void {
+    if (!this.state || !this.hasAnnonceFieldOutlet) return
+    const field = this.annonceFieldOutlet
+    this.state = retermed(this.state, field.terms(), field.answered)
+    this.render()
   }
 
   typed({ detail: { text } }: Intent<{ text: string }>): void {
