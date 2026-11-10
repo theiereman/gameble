@@ -2,7 +2,7 @@ module Game
   module TradeSuggestions
     module Spares
       Spare = Data.define(:card_id, :edition, :goal_positions, :copies) do
-        def rank = [ copies > 1 ? 0 : 1, goal_positions.min, -edition.rarity, edition.slug ]
+        def rank = [ goal_positions.min, -edition.rarity, edition.slug ]
       end
 
       def self.from_friends(player, friend_ids, wanted, declined, now)
@@ -26,6 +26,8 @@ module Game
         return {} if gaps.empty?
 
         spared = FreeEditions.call([ player.id ], nil).filter_map do |(_, card_id), editions|
+          next unless FreeEditions.copies(editions) >= TradeSuggestions::DUPLICATE_COPIES
+
           (edition = FreeEditions.placed(editions)) && [ card_id, edition, FreeEditions.copies(editions) ]
         end
         return {} if spared.empty?

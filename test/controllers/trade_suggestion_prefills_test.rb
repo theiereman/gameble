@@ -124,7 +124,7 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
     assert_equal taken(@depths), board_lines
   end
 
-  test "the player's give cards no longer spared for the friend are dropped" do
+  test "the player's give cards held once or no longer spared for the friend are dropped" do
     suggest_from_lea
     hold(@alice, @portal, 3)
     hold(@alice, @crown, 3)
@@ -133,6 +133,6 @@ class TradeSuggestionPrefillsTest < ActionDispatch::IntegrationTest
 
     get new_trade_path(locale: :fr, friend: @bob.token, take: %w[green-hills--s1], give: [ key_of(@soldier), key_of(@portal), key_of(@crown) ])
 
-    assert_equal taken(@hills) + [ [ "own", key_of(@soldier), 1 ], [ "own", key_of(@crown), 1 ] ], board_lines
+    assert_equal taken(@hills) + [ [ "own", key_of(@crown), 1 ] ], board_lines
   end
 end

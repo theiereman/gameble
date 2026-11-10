@@ -314,6 +314,17 @@ class Game::TradeSuggestionsTest < ActiveSupport::TestCase
     assert_empty suggestion.own_lines
   end
 
+  test "a game the player holds a single free copy of is never given, whether the only one or the one left by a reservation" do
+    befriend(@lea)
+    goal(@portal.id, @depths.id, @hills.id)
+    spare(@lea, @portal.id)
+    hold(@player, @soldier.id)
+    hold(@player, @crown.id, 2, reserved: 1)
+    game_set_goal(@lea, @soldier.id, @crown.id, *unheld_cards(1))
+
+    assert_not_predicate suggestions.sole, :mutual?
+  end
+
   test "a game the friend already holds is not given" do
     befriend(@lea)
     goal(@portal.id, @depths.id, @hills.id)
