@@ -1,9 +1,12 @@
 /*
- * A feed entry on a phone reads as a post: the player's avatar, name and
- * worn title with the time on top; then the card beside what happened to
- * it, the game's name as the headline; the reactions at the bottom. A glow
- * in the card's rarity colour spreads from the card over the whole post.
- * Elsewhere the byline and headline stay hidden and the sentence tells it all.
+ * Each entry of the feed reads as a post: the player's avatar, name and
+ * worn title with the time; the card beside what happened to it, the
+ * game's name as the headline; the reactions. A glow in the card's rarity
+ * colour spreads from the card over the whole post. On a wide feed the post
+ * is one row, the card on the left and the reactions bottom right; on a
+ * phone the player tops the post and the reactions close it. Outside the
+ * feed (the landing page's strip) the byline and headline stay hidden and
+ * the sentence tells it all.
  */
 
 .feed__byline,
@@ -35,25 +38,15 @@
   --feed-tint: var(--color-rarity-legendaire);
 }
 
-@container feed (max-width: 559px) {
+@container feed (min-width: 0) {
   .feed__entry {
     --feed-avatar-size: 32px;
     --feed-surface: var(--color-panel);
 
     display: grid;
-    grid-template:
-      "byline byline time" auto
-      "thumb . ." 1fr
-      "thumb headline headline" auto
-      "thumb tags tags" auto
-      "thumb . ." 1fr
-      "reactions reactions reactions" auto
-      / auto minmax(0, 1fr) auto;
-    column-gap: var(--space-4);
-    padding: var(--space-4);
     background:
       radial-gradient(
-        ellipse 75% 60% at 18% 55%,
+        var(--feed-glow),
         color-mix(in srgb, var(--feed-tint, var(--color-accent)) 26%, transparent),
         transparent
       ),
@@ -62,15 +55,6 @@
 
   .feed__entry--filler {
     --feed-surface: var(--color-panel-sunken);
-  }
-
-  .feed__entry--set {
-    grid-template:
-      "byline time" auto
-      "headline headline" auto
-      "tags tags" auto
-      "reactions reactions" auto
-      / minmax(0, 1fr) auto;
   }
 
   :is(.feed__body, .feed__head, .feed__meta) {
@@ -111,21 +95,13 @@
   .feed__time {
     grid-area: time;
     align-self: center;
+    justify-self: end;
     margin-left: 0;
   }
 
   .feed__entry > :is(.feed__thumb, .feed__thumbs) {
     grid-area: thumb;
     align-self: center;
-    margin-block: var(--space-4) var(--space-2);
-  }
-
-  .feed__thumb {
-    --feed-thumb-scale: 0.8;
-  }
-
-  .feed__thumbs .feed__thumb {
-    --feed-thumb-scale: 0.5;
   }
 
   .feed__headline {
@@ -135,10 +111,6 @@
     gap: var(--space-1);
     min-width: 0;
     margin: 0;
-  }
-
-  .feed__entry--set .feed__headline {
-    margin-top: var(--space-5);
   }
 
   .feed__headline-kicker {
@@ -180,6 +152,97 @@
 
   .feed__entry .feed__reactions {
     grid-area: reactions;
+  }
+}
+
+@container feed (min-width: 720px) {
+  .feed__entry {
+    --feed-glow: ellipse 45% 90% at 6% 50%;
+
+    grid-template:
+      "thumb byline time" auto
+      "thumb . ." 1fr
+      "thumb headline reactions" auto
+      "thumb tags reactions" auto
+      "thumb . ." 1fr
+      / auto minmax(0, 1fr) auto;
+    column-gap: var(--space-6);
+    padding: var(--space-5) var(--space-6);
+  }
+
+  .feed__entry--set {
+    grid-template:
+      "byline time" auto
+      "headline reactions" auto
+      "tags reactions" auto
+      / minmax(0, 1fr) auto;
+  }
+
+  .feed__thumb {
+    --feed-thumb-scale: 0.9;
+  }
+
+  .feed__thumbs .feed__thumb {
+    --feed-thumb-scale: 0.6;
+  }
+
+  .feed__headline {
+    margin-top: var(--space-4);
+  }
+
+  .feed__headline-title {
+    font-size: 1.5rem;
+    line-height: 1.875rem;
+  }
+
+  .feed__entry .feed__reactions {
+    align-self: end;
+    margin: 0;
+  }
+}
+
+@container feed (max-width: 719px) {
+  .feed__entry {
+    --feed-glow: ellipse 75% 60% at 18% 55%;
+
+    grid-template:
+      "byline byline time" auto
+      "thumb . ." 1fr
+      "thumb headline headline" auto
+      "thumb tags tags" auto
+      "thumb . ." 1fr
+      "reactions reactions reactions" auto
+      / auto minmax(0, 1fr) auto;
+    column-gap: var(--space-4);
+    padding: var(--space-4);
+  }
+
+  .feed__entry--set {
+    grid-template:
+      "byline time" auto
+      "headline headline" auto
+      "tags tags" auto
+      "reactions reactions" auto
+      / minmax(0, 1fr) auto;
+  }
+
+  .feed__entry > :is(.feed__thumb, .feed__thumbs) {
+    margin-block: var(--space-4) var(--space-2);
+  }
+
+  .feed__thumb {
+    --feed-thumb-scale: 0.8;
+  }
+
+  .feed__thumbs .feed__thumb {
+    --feed-thumb-scale: 0.5;
+  }
+
+  .feed__entry--set .feed__headline {
+    margin-top: var(--space-5);
+  }
+
+  .feed__entry .feed__reactions {
     justify-content: flex-start;
     margin: var(--space-3) 0 calc(-1 * var(--space-2));
   }
@@ -214,6 +277,7 @@
   }
 
   .feed__time {
+    justify-self: start;
     margin-left: calc(var(--feed-avatar-size) + var(--space-3));
   }
 }

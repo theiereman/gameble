@@ -194,7 +194,8 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     assert not_reloaded?
     using_session("feed") do
       assert_selector "#feed-entries > li.feed__entry", count: 6
-      assert_selector "#feed-entries > li:first-child .feed__sentence", text: "Hugo completes the Valve set."
+      assert_selector "#feed-entries > li:first-child .feed__headline-kicker", text: /completes the set/i
+      assert_selector "#feed-entries > li:first-child .feed__headline-title", text: "Valve"
       assert_no_selector ".feed__empty"
       assert not_reloaded?
     end

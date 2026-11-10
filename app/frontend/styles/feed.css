@@ -1,11 +1,11 @@
 /*
  * The activity feed: the All and Friends tabs, then the type filters inline
  * where they fit, else one chip naming the type in force, which opens the
- * bottom sheet of type filters; then one row per entry across the shell's content width,
- * at least 68px tall: the sentence and its time on top, the tags and the
- * reactions at the bottom, a first discovery behind its gold badge. On a
- * phone's width each entry becomes a post (feed-post.css). Hard edges, no
- * animation, no opacity to dim a filler.
+ * bottom sheet of type filters; then one post per entry (feed-post.css).
+ * Outside the feed, as on the landing page's strip, an entry is a row at
+ * least 68px tall: the sentence and its time on top, the tags at the bottom,
+ * a first discovery behind its gold badge. Hard edges, no animation, no
+ * opacity to dim a filler.
  */
 
 .feed {
