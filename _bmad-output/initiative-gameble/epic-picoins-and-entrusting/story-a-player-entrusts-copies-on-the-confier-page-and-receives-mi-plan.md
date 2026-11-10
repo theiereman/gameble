@@ -3,7 +3,7 @@ title: 'A player entrusts copies on the Confier page and receives minted PiCoins
 type: 'feature'
 ticket: '1'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: '3d87c613a2f1e13d1dce6ce886a32334fc54c394'
 route: 'full'
 route_source: 'auto'
@@ -96,3 +96,7 @@ context:
 - `bin/rails test test/domains/game test/controllers/market test/helpers` -- pass
 - `bin/rails test test/system/market_entrust_test.rb` -- pass
 - `bundle exec packwerk check`, `bin/rails zeitwerk:check`, `script/check_file_sizes`, `script/check_planning_references` -- clean
+
+## Change Log
+
+- 2026-11-10 review: read the diff against the plan, spec and AGENTS.md (ledger single writer and ascending lock order, lock order bank then holdings then wallets, GET without writes, tokens and slugs instead of ids, policy on both actions, en/fr keys with French zero forms, packwerk, file sizes, planning ids). No defect found, no code change. Rubocop and packwerk could not run in the worktree (gems missing); ruby -c and prettier pass.
