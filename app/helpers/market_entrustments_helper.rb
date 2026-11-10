@@ -15,7 +15,7 @@ module MarketEntrustmentsHelper
 
   def entrust_cell_label(copy)
     [ copy.title, t("catalog.rarity.#{copy.rarity}"), t("market.entrustments.new.season", number: copy.season_number),
-      t("picoin_amount.accessible", amount: picoins(copy.value)), t("market.entrustments.new.free", count: copy.free) ].join(", ")
+      picoins_label(copy.value), t("market.entrustments.new.free", count: copy.free) ].join(", ")
   end
 
   def entrust_line_stepper

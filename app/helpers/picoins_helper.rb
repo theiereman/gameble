@@ -13,6 +13,10 @@ module PicoinsHelper
     "#{number}#{suffix}"
   end
 
+  def picoins_label(amount)
+    t("picoin_amount.accessible", amount: picoins(amount))
+  end
+
   private
     def whole_picoins(amount)
       amount = Integer(amount) if amount.is_a?(String) && amount.match?(/\A\d+\z/)

@@ -7,7 +7,7 @@ module AveragePriceHelper
     return if price.nil?
     return t("average_price.words.no_sale") if price.no_sale?
 
-    amount = t("picoin_amount.accessible", amount: picoins(price.average))
+    amount = picoins_label(price.average)
     return t("average_price.words.few_sales", amount:) if price.few_sales?
 
     t("average_price.words.priced", amount:)

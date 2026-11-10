@@ -17,7 +17,7 @@ class PicoinAmountComponent < ViewComponent::Base
     end
 
     def accessible_name
-      t("picoin_amount.accessible", amount: helpers.picoins(@amount))
+      helpers.picoins_label(@amount)
     end
 
     def figure

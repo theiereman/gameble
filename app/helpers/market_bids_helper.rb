@@ -20,7 +20,7 @@ module MarketBidsHelper
   end
 
   def annonce_status_text(listing, viewer)
-    figures = { amount: t("picoin_amount.accessible", amount: picoins(listing.current_price)), time: local_time_text(listing.ends_at, :time) }
+    figures = { amount: picoins_label(listing.current_price), time: local_time_text(listing.ends_at, :time) }
     return t("market.listings.status.no_leader", **figures) unless listing.leader
     return t("market.listings.status.leading_you", **figures) if viewer && listing.leader.id == viewer.id
 
