@@ -51,11 +51,18 @@ sync_steam_libraries: &sync_steam_libraries
   queue: default
   schedule: every day at 5am
 
+# Every wallet is checked against its ledger entries, and the circulation against what was minted less destroyed.
+reconcile_wallets: &reconcile_wallets
+  class: Game::ReconcileWalletsJob
+  queue: default
+  schedule: every day at 12:10am
+
 development:
   recover_stalled_imports: *recover_stalled_imports
   sum_weekly_goal: *sum_weekly_goal
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
+  reconcile_wallets: *reconcile_wallets
   publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
@@ -65,6 +72,7 @@ production:
   sum_weekly_goal: *sum_weekly_goal
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
+  reconcile_wallets: *reconcile_wallets
   publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
