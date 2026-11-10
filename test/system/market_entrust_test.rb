@@ -215,7 +215,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     open_market!(entrustment_common: 1_500)
     click_on "Entrust 1 copy"
 
-    assert_selector ".entrust-recap__refusal", text: /amounts changed/i
+    assert_selector ".market-entrust__refusal", text: /amounts changed/i
     assert_selector ".entrust-cell__value .picoin-amount[aria-label='1,500 PiCoins']"
     assert_selector ".entrust-cell--picked", count: 1
     assert_total "1,500"
@@ -243,5 +243,54 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
     assert_selector ".market-entrust__notice", text: "closed"
     assert_button "Entrust 1 copy", disabled: true
+  end
+
+  test "on a phone Confier ticks in three columns, sets copies in the sheet and validates from it" do
+    open_market!
+    hold(@player, @common.id, 2)
+    hold(@player, @rare.id, 1)
+    sign_in_through_the_site
+    resize_to 390, 844
+
+    visit new_market_entrustment_path(locale: :en)
+    assert_selector "form#entrust[data-layout=phone]"
+    assert_no_selector ".entrust-cell .stepper", visible: :visible
+    assert_equal 3, find(".entrust-grid__list").style("grid-template-columns")["grid-template-columns"].split.size
+    show_single_copies
+    tick(@common)
+    tick(@rare)
+    assert_selector ".entrust-bar .entrust-bar__count", text: "2 copies"
+    assert_selector ".entrust-bar .picoin-amount__figure", text: "6,000"
+
+    click_on "Entrust ▸"
+    assert_selector "dialog#entrust-recap-sheet[open] .entrust-recap__line", count: 2
+    stepper = find("dialog[open] .entrust-recap__line .stepper__button--more")
+    assert_operator stepper.native.size.width, :>=, 44
+    stepper.click
+    assert_selector "dialog[open] .entrust-recap__total .picoin-amount__figure", text: "7,000"
+    assert_selector ".entrust-bar .picoin-amount__figure", text: "7,000", visible: :all
+
+    within("dialog[open]") { click_on "Entrust 3 copies" }
+
+    assert_selector ".market-entrust__total .picoin-amount__figure", text: "7,000"
+    assert_equal 0, Game::Holding.where(player_id: @player.id).sum(:quantity)
+  end
+
+  test "on a phone a refusal shows above the grid with the sheet closed" do
+    open_market!
+    hold(@player, @common.id, 2)
+    sign_in_through_the_site
+    resize_to 390, 844
+
+    visit new_market_entrustment_path(locale: :en)
+    tick(@common)
+    open_market!(entrustment_common: 1_500)
+    click_on "Entrust ▸"
+    within("dialog[open]") { click_on "Entrust 1 copy" }
+
+    assert_no_selector "dialog[open]"
+    assert_selector "form#entrust > .market-entrust__refusal[role=alert]", text: /amounts changed/i
+    assert_no_selector "dialog .market-entrust__refusal", visible: :all
+    assert_selector ".entrust-cell--picked", count: 1
   end
 end

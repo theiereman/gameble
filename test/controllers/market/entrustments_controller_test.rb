@@ -42,6 +42,29 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[name=?]", "copies[#{@rare.id}]", false
   end
 
+  test "the page carries the wide layout, the bar, the sheet, one recap, one submit and two status lines" do
+    open_market!
+    hold(@player, @rare.id, 2)
+    sign_in(@player)
+
+    get new_market_entrustment_path(locale: :en)
+
+    assert_select "form#entrust[data-layout=wide]"
+    assert_select "form#entrust .market-entrust__layout[data-controller=entrust-recap]"
+    assert_select ".entrust-bar[role=group] a[data-bottom-sheet-opens=entrust-recap-sheet]", "Entrust ▸"
+    assert_select ".entrust-bar [data-entrust-recap-target=barTotal] .picoin-amount__figure", "0"
+    assert_select "dialog#entrust-recap-sheet .modal__title", "Entrust"
+    assert_select "dialog#entrust-recap-sheet [data-entrust-recap-target=sheetBody]"
+    assert_select "form#entrust .market-entrust__slot > aside.entrust-recap", 1
+    assert_select "button[type=submit]", 1
+    assert_select "aside [data-entrust-recap-target=status][aria-live=polite]", 1
+    assert_select "dialog [data-entrust-recap-target=barStatus]", false
+    assert_select ".market-entrust__layout > [data-entrust-recap-target=barStatus][aria-live=polite]", 1
+    assert_select "template[data-entrust-recap-target=stepperTemplate] .entrust-recap__stepper .stepper"
+    assert_select "[data-action*='mousedown->entrust-recap#keepFocus']"
+    assert_select "[style]", false
+  end
+
   test "a cell with several free copies carries a stepper and an only copy does not" do
     open_market!
     hold(@player, @rare.id, 3)
@@ -123,7 +146,9 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_content
-    assert_select ".entrust-recap__refusal[role=alert]", /Le marché est fermé/
+    assert_select ".market-entrust__refusal[role=alert]", /Le marché est fermé/
+    assert_select "form#entrust > .market-entrust__refusal[role=alert][tabindex='-1']"
+    assert_select "aside .market-entrust__refusal, dialog .market-entrust__refusal", false
     assert_nil flash[:alert]
     assert_select ".entrust-cell[data-ref=?][data-ticked=1]", ref(@common)
     assert_equal 2, Game::Holding.find_by(player_id: @player.id, card_season_id: @common.id).quantity
@@ -140,7 +165,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert_select "input[name=settings][value=?]", current.token
     assert_select "input[name=?][value=2]:not([disabled])", "copies[#{ref(@common)}]"
-    assert_select ".entrust-recap__refusal", /amounts changed/
+    assert_select ".market-entrust__refusal", /amounts changed/
     assert_select ".entrust-cell__value .picoin-amount[aria-label=?]", "1,500 PiCoins"
     assert_equal 0, Game::Market::LedgerEntry.count
   end
@@ -198,7 +223,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_content
-    assert_select ".entrust-recap__refusal", /free copies/
+    assert_select ".market-entrust__refusal", /free copies/
     assert_select ".entrust-cell[data-ref=?][data-ticked=1]", ref(@common)
     assert_select ".entrust-cell[data-ticked=1]", 1
   end
@@ -234,7 +259,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_content
-    assert_select ".entrust-recap__refusal", /00:00 UTC/
+    assert_select ".market-entrust__refusal", /00:00 UTC/
     assert_select "input[name=?][value=1]:not([disabled])", "copies[#{ref(@common)}]"
     assert_select "[data-entrust-cap-left-value=0]"
     assert_select "[style]", false
