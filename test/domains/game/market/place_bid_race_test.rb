@@ -44,27 +44,6 @@ class Game::Market::PlaceBidRaceTest < ActiveSupport::TestCase
     Accounts::Player.where(id: players).delete_all
   end
 
-  def purge_player_rows(players)
-    connection = ActiveRecord::Base.connection
-    tables = connection.tables.select { connection.column_exists?(it, :player_id) && it != "accounts_identities" }
-    3.times do
-      tables = tables.reject do |table|
-        connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM #{connection.quote_table_name(table)} WHERE player_id IN (?)", players ]))
-        true
-      rescue ActiveRecord::InvalidForeignKey
-        false
-      end
-    end
-  end
-
-  def purge_events(players)
-    connection = ActiveRecord::Base.connection
-    streams = players.flat_map { [ Game::Operation.stream_name(it), "Accounts::Player$#{it}" ] }
-    event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
-    connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
-    connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events WHERE event_id IN (?)", event_ids ])) if event_ids.any?
-  end
-
   def place = -> { bid(Accounts::Player.find(@bidder.id), 40_000) }
 
   def close = -> { Game::Market::CloseAuction.new.call(player: Accounts::Player.find(@seller.id), listing_id: @listing.id) }

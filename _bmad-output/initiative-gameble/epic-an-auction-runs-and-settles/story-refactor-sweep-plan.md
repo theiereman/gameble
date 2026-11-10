@@ -3,7 +3,7 @@ title: 'Refactor sweep'
 type: 'refactor'
 ticket: '39.12'
 created: '2026-11-10'
-status: 'draft'
+status: 'in-review'
 baseline_revision: '07c9c06f8445455860aeb11f0c41fb7e8166c0a8'
 route: ''
 route_source: ''
@@ -50,15 +50,17 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `price_amount.rb` -- add the shared parser and constant; ListCard and PlaceBid include it
-- [ ] epic 39 market classes -- drop explanatory doc comments
-- [ ] `lock_races.rb` and the two race tests -- one copy of the purge helpers
+- [x] `price_amount.rb` -- add the shared parser and constant; ListCard and PlaceBid include it
+- [x] epic 39 market classes -- drop explanatory doc comments
+- [x] `lock_races.rb` and the two race tests -- one copy of the purge helpers
 
 **Acceptance Criteria:**
 - Given any amount ListCard or PlaceBid accepted or refused before, when parsed now, then the result is the same.
 - Given the race tests, when read, then each holds only its own setup and assertions.
 
 ## Implementation Notes
+
+No market file is near the size limit, so none was split. Doc comments were dropped from the epic's operations, models, queries and the bid refusals concern; the epic's other classes were left as built.
 
 ## Plan Change Log
 
