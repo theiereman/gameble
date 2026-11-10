@@ -69,8 +69,9 @@ class Game::Market::SaleFeedTest < ActiveSupport::TestCase
     now = Time.current
     row = { player_id: @buyer.id, card_season_id: @common.id, rarity: 1, notable: true, occurred_at: now, created_at: now, updated_at: now }
 
-    assert_raises(ActiveRecord::StatementInvalid) { Game::FeedEntry.insert_all!([ row.merge(kind: "sale") ]) }
-    assert_raises(ActiveRecord::StatementInvalid) { Game::FeedEntry.insert_all!([ row.merge(kind: "auction", listing_id: 1) ]) }
+    [ row.merge(kind: "sale"), row.merge(kind: "auction", listing_id: 1) ].each do |refused|
+      assert_raises(ActiveRecord::StatementInvalid) { Game::FeedEntry.transaction(requires_new: true) { Game::FeedEntry.insert_all!([ refused ]) } }
+    end
   end
 
   test "the sale of a listing settled by a buy-now writes its entry in the sale's transaction" do

@@ -82,7 +82,7 @@ module Game
     def self.visible(scope, viewer, limit, filler:, bound: nil)
       found = []
       players = {}
-      shown = Hash.new { |seen, (id, sale)| seen[[ id, sale ]] = sale || Visibility.visible?(viewer, players[id], staff_sees_all: false) }
+      shown = Hash.new { |seen, (id, sale)| seen[[ id, sale ]] = sale ? Visibility.sale_listed?(players[id]) : Visibility.visible?(viewer, players[id], staff_sees_all: false) }
       cursor = bound
       PASSES.times do
         page = bound&.newer? ? scope.order(occurred_at: :asc, id: :asc) : scope.newest_first
