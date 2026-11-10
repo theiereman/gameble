@@ -3,7 +3,7 @@ title: 'The balance shows available and committed'
 type: 'feature'
 ticket: '38.8'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: 'd6e400a8f01160a3801895026c1408242f9ffe2b'
 route: 'full'
 route_source: 'auto'
@@ -94,6 +94,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10 review: no defect found against the plan, AGENTS.md rules (read-only query, no GET write, no ids, no style attributes, en/fr keys with French zero form, no new job). Rubocop could not run (bundle gems missing in the worktree); planning-reference and file-size checks clean.
 
 ## Review Triage Log
 
