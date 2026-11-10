@@ -2459,6 +2459,51 @@ en:
           together.
       intro: The rules of the game, as it applies them.
       local_time: ", local time"
+      market:
+        auction: An auction lasts %{short}, %{medium} or %{long}, as the seller chooses,
+          with an optional buy-now price. Each bid must beat the current price by
+          at least %{increment} of that price, rounded up to the next hundred.
+        close: At close, the winner pays the final price and recovers the rest of
+          their maximum; the seller receives the price less the Brotherhood Effort
+          (%{commission}). With no bid at all, the card goes back to its seller and
+          the stamp is not refunded.
+        days:
+          one: "%{count} day"
+          other: "%{count} days"
+        entrust: Entrusting a card to the Brotherhood's Archives takes it out of your
+          collection and earns you PiCoins according to its rarity, up to %{cap} PiCoins
+          entrusted a day.
+        fees: 'Listing a card costs a Gamebler''s Tax Stamp, set by its rarity and
+          destroyed for good. When it sells, the Brotherhood takes its Brotherhood
+          Effort: %{commission} of the final price, paid by the seller and destroyed
+          as well. The Brotherhood went to great lengths and wants it known.'
+        hours:
+          one: "%{count} hour"
+          other: "%{count} hours"
+        maximum:
+          buy_now: a maximum that reaches the buy-now price buys at once, at that
+            price, stated before you confirm;
+          held: the whole maximum is held from your balance, then released as soon
+            as someone outbids you;
+          intro: 'To bid, you set My maximum, the ceiling you accept to pay:'
+          price: the displayed price is the second-highest maximum plus one increment,
+            never above the highest maximum;
+          raise: raising your own maximum while you lead holds more PiCoins, but moves
+            neither the price nor the end.
+          soft_close: a bid placed in the last %{minutes} that changes the price or
+            the leader moves the end to %{minutes} after it;
+          tie: when maximums are equal, the earlier one leads;
+          unusual: a maximum that reaches %{multiple} times the current price asks
+            for a confirmation;
+        picoins: PiCoins are the game's currency. The 100-6-Tron creates them only
+          when a card is entrusted to the Brotherhood; they are never bought, never
+          withdrawn and worth nothing outside Gameble.
+        table:
+          caption: Amounts in PiCoins
+          entrustment: Entrusting pays
+          minimum_price: Minimum price
+          stamp: Stamp
+        title: The market
       minutes:
         one: "%{count} minute"
         other: "%{count} minutes"
@@ -2593,16 +2638,26 @@ en:
           contributions to the weekly mission, reports, moderation history, the log
           of game actions) is kept without your Steam id or your name, for the periods
           given above.
+        market_deletion: 'On the market, deleting your account deletes your market
+          notices and the feed entries announcing your sales, erases your name from
+          the bid histories, withdraws your open listings and releases your maximums.
+          Your PiCoin balance is destroyed without refund, once your listings and
+          leading bids are resolved. The PiCoin record is kept without identity, for
+          the period stated above.'
+        market_visibility: 'On the market, your profile name appears on your listings,
+          in the bid histories where you bid and in the feed entries announcing your
+          sales, visible to everyone, signed-out visitors included, whatever your
+          profile setting. Your maximums, though, are never shown to other players.'
         nothing_else: No analytics, no ads, no real money. Your data is neither sold
           nor handed over.
         purposes:
           game: 'running your account and the game (collection, capsules, trades,
-            friends, profile, activity feed): performance of the terms of use you
-            accept by signing in (GDPR Article 6(1)(b));'
+            market, friends, profile, activity feed): performance of the terms of
+            use you accept by signing in (GDPR Article 6(1)(b));'
           intro: 'Why, and on what basis:'
-          moderation: 'moderating the community (reports, bans, moderation history):
-            the publisher''s legitimate interest in enforcing the rules and protecting
-            players (Article 6(1)(f));'
+          moderation: 'moderating the community (reports, bans, moderation history,
+            alt-account signals): the publisher''s legitimate interest in enforcing
+            the rules and protecting players (Article 6(1)(f));'
           no_automation: No decision about you is made by automated means.
           requests: 'answering your messages and your requests about your data: legal
             obligation (Article 6(1)(c)).'
@@ -2629,6 +2684,12 @@ en:
             weekly mission, the log of game actions): as long as the game exists,
             without a Steam id or a name.'
           logs: 'the server''s logs: 30 days;'
+          market: 'your wallet, your PiCoin entries, your listings, your bids and
+            your market notices: as long as the account exists; when the account is
+            deleted, the market notices and the feed entries announcing your sales
+            are deleted, your name is erased from the bid histories and the balance
+            is destroyed, but the PiCoin record stays, without identity, as long as
+            the game exists;'
           moderation: 'the moderation history, reasons included: a ban as long as
             it lasts, then one year after it is lifted; a dismissal of reports, one
             year; the history of a deleted account, until one year after the deletion;
@@ -2639,13 +2700,16 @@ en:
             is public, your name among the latest who reacted;'
           reports: 'a report: until a moderator handles it, then one year; if it targets
             an account deleted before it was handled, one year after the deletion;'
+          signals: 'alt-account signals: replaced every day, they keep only the facts
+            of the latest calculation;'
           steam_library: 'the list of your Steam library''s games: as long as the account
             exists and the sync is on; it is erased at once when you turn "Sync my Steam
             games" off in the settings or delete your account;'
         rights:
           access: 'access: from the settings, with "Export" under "My data", which
             downloads a copy of your data in a reusable file, your sign-in methods
-            and your Steam library list included;'
+            and your Steam library list, and your market data: your wallet, your PiCoin
+            entries, your listings and your bids with your own maximums, included;'
           authority: CNIL
           banned_html: 'suspended account: it can no longer sign in; the reason for
             the suspension is shown when you try to sign in; write to %{contact} to
@@ -2703,10 +2767,16 @@ en:
           last_seen: the date your account was created, the time of your last visit,
             and your last data export (its file and its time), kept until the next
             one;
+          market: 'your market activity: your PiCoin wallet (available and committed
+            balance), every PiCoin entry, your listings, your bids with the maximums
+            you set, and your market notices;'
           moderation: the reports you make, those aimed at your profile (their author
             is not disclosed to you) and the moderation decisions that concern you,
             with their reason;
           settings: your settings (profile visibility, reduced motion, Steam games sync);
+          signals: alt-account signals, worked out each day from your capsule, trade,
+            sale and bid activity, which only the moderation staff read and from which
+            no decision is taken automatically;
           steam: your Steam id and your Steam profile name;
           steam_library: 'if you sign in with Steam and leave "Sync my Steam games" on
             in the settings: the list of the catalog games your Steam library holds,
@@ -2756,16 +2826,23 @@ en:
         no_guarantee: The service is free and provided as is. It may be interrupted
           for maintenance or changed. Should it close for good, the closure would
           be announced on the site at least 30 days in advance.
-        no_money: 'No real money flows through it: nothing is bought, nothing is sold.'
+        no_money: 'No real money flows through it: nothing is bought with money, and
+          cards are sold for PiCoins, the game''s currency, never for money.'
         no_property: 'Cards, capsules and card backs are parts of the game: they are
-          not your property and have no value, neither in money nor outside Gameble.
-          No card may be sold or exchanged for money, in Gameble or outside it.'
+          not your property and have no value in money, in Gameble or outside it.
+          Their price in PiCoins is only a rule of the game.'
         notice_html: 'Even without a Gameble account, you can report illegal content
           or ask for the removal of a game whose rights you hold: write to %{contact}
           with the page''s address and the reason for your request.'
+        picoins: 'PiCoins are the game''s currency: they are earned only by entrusting
+          cards to the Brotherhood or by selling at auction, and they are never bought
+          and never withdrawn.'
+        real_money: 'Trading cards or PiCoins for real money is forbidden, in Gameble
+          or outside it: no sale, no purchase, no transfer, no go-between. An account
+          that does so may be suspended.'
         title: Terms of use
       title: Legal notice and privacy
-      updated: 'Last updated: 1 November 2026'
+      updated: 'Last updated: 10 November 2026'
   own_profiles:
     avatar_sheet:
       heading: Avatar

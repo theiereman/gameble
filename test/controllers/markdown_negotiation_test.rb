@@ -1,10 +1,12 @@
 require "test_helper"
+require_relative "../support/market"
 require_relative "../support/roadmap_seeds"
 require_relative "../support/steam_sign_in"
 
 # A client that asks for text/markdown reads the public pages as markdown;
 # every other request keeps HTML, and nothing player-specific turns markdown.
 class MarkdownNegotiationTest < ActionDispatch::IntegrationTest
+  include MarketSettings
   include RoadmapSeeds
   include SteamSignIn
 
@@ -73,6 +75,21 @@ class MarkdownNegotiationTest < ActionDispatch::IntegrationTest
     assert_markdown
     assert_match(/^\| .+ \|$/, response.body)
     assert_match(/^\| --- \| --- \|$/, response.body)
+  end
+
+  test "the how-it-works page in markdown carries the market section only after the first opening" do
+    Game::Market::Settings.delete_all
+    open_market!(open: false, first_opened_at: nil)
+
+    get how_it_works_path(locale: :en), headers: MARKDOWN
+
+    assert_no_match(/The market/, response.body)
+
+    open_market!(first_opened_at: Time.current)
+    get how_it_works_path(locale: :en), headers: MARKDOWN
+
+    assert_markdown
+    assert_match(/^#+ The market$/, response.body)
   end
 
   test "no database id appears in the markdown" do

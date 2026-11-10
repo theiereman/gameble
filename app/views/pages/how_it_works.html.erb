@@ -91,4 +91,6 @@
     <p><%= t(".completion.rule") %></p>
     <p><%= t(".completion.once") %></p>
   <% end %>
+
+  <%= render "pages/market_rules", rules: @market_rules if @market_rules %>
 </article>

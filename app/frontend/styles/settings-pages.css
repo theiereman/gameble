@@ -221,6 +221,22 @@
   white-space: nowrap;
 }
 
+.how-it-works__odds--market {
+  max-width: none;
+}
+
+.how-it-works__odds--market .how-it-works__rarity {
+  gap: var(--space-2);
+}
+
+@media (max-width: 719px) {
+  .how-it-works__odds--market thead th,
+  .how-it-works__odds--market tbody th,
+  .how-it-works__odds--market tbody td {
+    padding-inline: var(--space-2);
+  }
+}
+
 .how-it-works__shares {
   display: flex;
   flex-direction: column;

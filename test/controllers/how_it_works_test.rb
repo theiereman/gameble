@@ -1,4 +1,5 @@
 require "test_helper"
+require_relative "../support/market"
 require_relative "../support/steam_sign_in"
 
 # The how-it-works screen: the rules of the game for a visitor and a player,
@@ -6,16 +7,23 @@ require_relative "../support/steam_sign_in"
 # rather than through the screen's helper.
 class HowItWorksTest < ActionDispatch::IntegrationTest
   include SteamSignIn
+  include MarketSettings
+
+  setup { Game::Market::Settings.delete_all }
 
   FRENCH_HEADINGS = [
     "Quels jeux deviennent des cartes", "La rareté", "Capsules et probabilités", "Le rythme des capsules",
     "La capsule quotidienne", "La mission hebdo", "Les saisons", "Les sets", "Compléter un set"
   ].freeze
 
+  FRENCH_MARKET_HEADING = "Le marché".freeze
+
   ENGLISH_HEADINGS = [
     "Which games become cards", "Rarity", "Capsules and odds", "The pace of capsules",
     "The daily capsule", "The weekly mission", "Seasons", "Sets", "Completing a set"
   ].freeze
+
+  ENGLISH_MARKET_HEADING = "The market".freeze
 
   # `parts` out of `whole` as a percent with at most two decimals, written
   # the way the locale writes it.
@@ -195,5 +203,102 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal published, css_select("main").sole.to_html
+  end
+
+  def headings
+    css_select("main section.how-it-works__section > h2").map { it.text.strip }
+  end
+
+  def exact(amount, locale)
+    ActiveSupport::NumberHelper.number_to_delimited(amount, locale:)
+  end
+
+  def percent_of(basis_points, locale)
+    expected_percent(basis_points, 10_000, locale)
+  end
+
+  def assert_market_numbers(settings, locale)
+    rows = css_select("[data-market=rarities] tbody tr").map { |row| [ row.at_css(".how-it-works__name").text.strip ] + row.css("td").map { it.text.strip } }
+    expected = Catalog::Rarity::TIERS.sort.map do |_, key|
+      [ rarity_name(Catalog::Rarity::TIERS.key(key), locale), exact(settings.public_send(:"entrustment_#{key}"), locale),
+        exact(settings.public_send(:"stamp_#{key}"), locale), exact(settings.public_send(:"minimum_price_#{key}"), locale) ]
+    end
+
+    assert_equal expected, rows
+    assert_select "[data-market=rarities] tbody svg.pixel-icon", 5
+    assert_select ".how-it-works__fees", /#{Regexp.escape(percent_of(settings.commission_basis_points, locale))}/
+    assert_select ".how-it-works__auction", /#{Regexp.escape(percent_of(settings.increment_basis_points, locale))}/
+    assert_select ".how-it-works__entrust", /#{Regexp.escape(exact(settings.daily_cap, locale))}/
+    assert_select ".how-it-works__maximum li", /#{Regexp.escape(I18n.t("pages.how_it_works.minutes", count: settings.soft_close_seconds / 60, locale:))}/
+    assert_select ".how-it-works__maximum li", /\b#{settings.unusual_maximum_multiple}\b/
+    assert_select "[style]", false
+    assert_no_match(/[€$]/, css_select(".how-it-works__section:last-of-type").text)
+  end
+
+  test "before the first opening neither language shows a market section" do
+    open_market!(open: false, first_opened_at: nil)
+
+    get how_it_works_path(locale: :fr)
+
+    assert_equal FRENCH_HEADINGS, headings
+    assert_select "[data-market]", false
+
+    sign_in(accounts_players(:player))
+    get how_it_works_path(locale: :en)
+
+    assert_equal ENGLISH_HEADINGS, headings
+    assert_select "[data-market]", false
+  end
+
+  test "with no settings version the page is the nine sections" do
+    get how_it_works_path(locale: :en)
+
+    assert_equal ENGLISH_HEADINGS, headings
+  end
+
+  test "after the first opening a visitor reads the market section in French with the numbers of the version in force" do
+    settings = open_market!(first_opened_at: Time.current)
+
+    get how_it_works_path(locale: :fr)
+
+    assert_response :success
+    assert_equal FRENCH_HEADINGS + [ FRENCH_MARKET_HEADING ], headings
+    assert_market_numbers(settings, :fr)
+    assert_select ".how-it-works__maximum li", 7
+    assert_select ".how-it-works__fees", /Timbre Fiscal du Gamebler.*Effort de la Confrérie/m
+  end
+
+  test "after the first opening a player reads the market section in English" do
+    settings = open_market!(first_opened_at: Time.current)
+    sign_in(accounts_players(:player))
+
+    get how_it_works_path(locale: :en)
+
+    assert_equal ENGLISH_HEADINGS + [ ENGLISH_MARKET_HEADING ], headings
+    assert_market_numbers(settings, :en)
+    assert_select ".how-it-works__fees", /Gamebler's Tax Stamp.*Brotherhood Effort/m
+    assert_select ".how-it-works__maximum", /My maximum/
+  end
+
+  test "a newer settings version changes the numbers shown" do
+    open_market!(first_opened_at: Time.current)
+    settings = open_market!(first_opened_at: Time.current, commission_basis_points: 750, increment_basis_points: 300,
+                            duration_long_hours: 96, entrustment_rare: 6_000)
+
+    get how_it_works_path(locale: :en)
+
+    assert_market_numbers(settings, :en)
+    assert_select ".how-it-works__fees", /7\.5%/
+    assert_select ".how-it-works__auction", /4 days/
+  end
+
+  test "a market closed again after its first opening still shows the section" do
+    settings = open_market!(first_opened_at: 1.day.ago)
+    close_market!(first_opened_at: 1.day.ago)
+
+    get how_it_works_path(locale: :en)
+
+    assert_equal ENGLISH_HEADINGS + [ ENGLISH_MARKET_HEADING ], headings
+    assert_market_numbers(settings, :en)
   end
 end

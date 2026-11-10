@@ -1,0 +1,45 @@
+<% durations = rules.durations.map { market_duration(it) } %>
+<%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-market" }) do %>
+  <h2 id="how-it-works-market" class="how-it-works__heading"><%= t("pages.how_it_works.market.title") %></h2>
+  <p class="how-it-works__picoins"><%= t("pages.how_it_works.market.picoins") %></p>
+  <p class="how-it-works__entrust"><%= t("pages.how_it_works.market.entrust", cap: picoins(rules.daily_cap)) %></p>
+  <table class="how-it-works__odds how-it-works__odds--market" data-market="rarities">
+    <caption class="how-it-works__caption"><%= t("pages.how_it_works.market.table.caption") %></caption>
+    <thead>
+      <tr>
+        <th scope="col"><%= t("pages.how_it_works.packs.rarity") %></th>
+        <th scope="col" class="how-it-works__chance"><%= t("pages.how_it_works.market.table.entrustment") %></th>
+        <th scope="col" class="how-it-works__chance"><%= t("pages.how_it_works.market.table.stamp") %></th>
+        <th scope="col" class="how-it-works__chance"><%= t("pages.how_it_works.market.table.minimum_price") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% market_rarity_rows(rules).each do |row| %>
+        <tr class="how-it-works__tier how-it-works__tier--<%= row.tier %>" data-tier="<%= row.key %>">
+          <th scope="row">
+            <span class="how-it-works__rarity">
+              <%= pixel_icon("rarity-#{row.tier}", class: "how-it-works__icon") %>
+              <span class="how-it-works__name"><%= t("catalog.rarity.#{row.key}") %></span>
+            </span>
+          </th>
+          <td class="how-it-works__chance how-it-works__entrustment"><%= row.entrustment %></td>
+          <td class="how-it-works__chance how-it-works__stamp"><%= row.stamp %></td>
+          <td class="how-it-works__chance how-it-works__minimum"><%= row.minimum_price %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p class="how-it-works__fees"><%= t("pages.how_it_works.market.fees", commission: basis_points_percent(rules.commission_basis_points)) %></p>
+  <p class="how-it-works__auction"><%= t("pages.how_it_works.market.auction", short: durations.first, medium: durations.second, long: durations.third, increment: basis_points_percent(rules.increment_basis_points)) %></p>
+  <p><%= t("pages.how_it_works.market.maximum.intro") %></p>
+  <ul class="how-it-works__list how-it-works__maximum">
+    <li><%= t("pages.how_it_works.market.maximum.held") %></li>
+    <li><%= t("pages.how_it_works.market.maximum.price") %></li>
+    <li><%= t("pages.how_it_works.market.maximum.tie") %></li>
+    <li><%= t("pages.how_it_works.market.maximum.unusual", multiple: rules.unusual_maximum_multiple) %></li>
+    <li><%= t("pages.how_it_works.market.maximum.buy_now") %></li>
+    <li><%= t("pages.how_it_works.market.maximum.soft_close", minutes: soft_close_minutes(rules)) %></li>
+    <li><%= t("pages.how_it_works.market.maximum.raise") %></li>
+  </ul>
+  <p class="how-it-works__close"><%= t("pages.how_it_works.market.close", commission: basis_points_percent(rules.commission_basis_points)) %></p>
+<% end %>

@@ -35,6 +35,7 @@ class PagesController < ApplicationController
 
   def how_it_works
     authorize :page, :show?
+    @market_rules = Game::Market::PublishedRules.call
     render_markdown if markdown_requested?
   end
 

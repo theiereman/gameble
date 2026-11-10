@@ -42,6 +42,8 @@
       <li><%= t(".terms.free") %></li>
       <li><%= t(".terms.no_money") %></li>
       <li><%= t(".terms.no_property") %></li>
+      <li class="legal__real-money"><%= t(".terms.real_money") %></li>
+      <li class="legal__picoins"><%= t(".terms.picoins") %></li>
       <li><%= t(".terms.fair_play") %></li>
       <li class="legal__moderation"><%= t(".terms.moderation_html", contact:) %></li>
       <li class="legal__notice"><%= t(".terms.notice_html", contact:) %></li>
@@ -60,6 +62,8 @@
       <li class="legal__stored-steam-library"><%= t(".privacy.stored.steam_library") %></li>
       <li><%= t(".privacy.stored.identities") %></li>
       <li class="legal__stored-activity"><%= t(".privacy.stored.activity") %></li>
+      <li class="legal__stored-market"><%= t(".privacy.stored.market") %></li>
+      <li class="legal__stored-signals"><%= t(".privacy.stored.signals") %></li>
       <li><%= t(".privacy.stored.moderation") %></li>
       <li><%= t(".privacy.stored.settings") %></li>
       <li><%= t(".privacy.stored.last_seen") %></li>
@@ -74,6 +78,7 @@
     </ul>
     <p><%= t(".privacy.purposes.no_automation") %></p>
     <p class="legal__visibility"><%= t(".privacy.visibility") %></p>
+    <p class="legal__market-visibility"><%= t(".privacy.market_visibility") %></p>
     <p><%= t(".privacy.cookies") %></p>
     <p><%= t(".privacy.nothing_else") %></p>
     <p><%= t(".privacy.services.intro") %></p>
@@ -89,11 +94,13 @@
     <p><%= t(".privacy.retention.intro") %></p>
     <ul class="legal__list legal__retention">
       <li><%= t(".privacy.retention.account") %></li>
+      <li class="legal__retention-market"><%= t(".privacy.retention.market") %></li>
       <li class="legal__retention-reactions"><%= t(".privacy.retention.reactions") %></li>
       <li class="legal__retention-steam-library"><%= t(".privacy.retention.steam_library") %></li>
       <li><%= t(".privacy.retention.clerk") %></li>
       <li><%= t(".privacy.retention.reports") %></li>
       <li><%= t(".privacy.retention.moderation") %></li>
+      <li class="legal__retention-signals"><%= t(".privacy.retention.signals") %></li>
       <li><%= t(".privacy.retention.banned_steam_id") %></li>
       <li><%= t(".privacy.retention.logs") %></li>
       <li><%= t(".privacy.retention.errors") %></li>
@@ -101,6 +108,7 @@
       <li><%= t(".privacy.retention.leftovers") %></li>
     </ul>
     <p><%= t(".privacy.deletion") %></p>
+    <p class="legal__market-deletion"><%= t(".privacy.market_deletion") %></p>
     <p><%= t(".privacy.rights.intro") %></p>
     <ul class="legal__list">
       <li class="legal__access"><%= t(".privacy.rights.access") %></li>
