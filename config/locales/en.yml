@@ -2442,6 +2442,7 @@ en:
           see_card: SEE THE CARD
           title: "YOU WON %{card}"
       show:
+        average_price: Average price
         back: Market
         buy_now: BUY NOW PRICE
         leader: "Leading:"

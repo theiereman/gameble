@@ -460,4 +460,37 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#market-suspended-banner", false
     assert_select "#annonce-bid input#annonce-maximum[data-turbo-permanent]:not([disabled])"
   end
+
+  test "the Annonce shows the edition's average price with its sale count, before the seller" do
+    Game::Market::EditionPrice.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, average: 15_000, sales_used: 5)
+
+    annonce
+
+    assert_select ".market-listing__fact--price dt", "Average price"
+    assert_select ".market-listing__fact--price .picoin-amount[aria-label='15,000 PiCoins']"
+    assert_select ".market-listing__fact--price .average-price__basis", "Based on 5 sales"
+    assert_select ".market-listing__facts > .market-listing__fact:first-child.market-listing__fact--price"
+  end
+
+  test "an edition with few sales says so, one with none says No sale in French" do
+    Game::Market::EditionPrice.create!(card_season_id: catalog_card_seasons(:rare_card_one).id, average: 9_000, sales_used: 2)
+
+    annonce
+    assert_select ".market-listing__fact--price .average-price__few", "few sales"
+    assert_select ".market-listing__fact--price .average-price__basis", "Based on 2 sales"
+
+    Game::Market::EditionPrice.delete_all
+    annonce(locale: :fr)
+    assert_select ".market-listing__fact--price dt", "Prix moyen"
+    assert_select ".market-listing__fact--price .average-price--none", "Sans vente"
+    assert_select ".market-listing__fact--price .average-price__basis", false
+  end
+
+  test "no average price shows before the market's first opening" do
+    Game::Market::Settings.update_all(first_opened_at: nil)
+
+    annonce
+
+    assert_select ".market-listing__fact--price", false
+  end
 end

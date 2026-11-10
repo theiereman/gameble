@@ -2136,6 +2136,7 @@ fr:
           see_card: "VOIR LA CARTE"
           title: "VOUS AVEZ REMPORTÉ %{card}"
       show:
+        average_price: "Prix moyen"
         back: "Marché"
         buy_now: "PRIX D'ACHAT IMMÉDIAT"
         leader: "En tête :"

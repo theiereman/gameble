@@ -19,6 +19,17 @@
     <div class="market-listing__card">
       <%= render CardComponent.new(card: @listing.card, size: :l) %>
       <dl class="market-listing__facts">
+        <% if @price %>
+          <div class="market-listing__fact market-listing__fact--price">
+            <dt><%= t(".average_price") %></dt>
+            <dd>
+              <%= render AveragePriceComponent.new(price: @price) %>
+              <% if (basis = average_price_basis(@price)) %>
+                <span class="average-price__basis"><%= basis %></span>
+              <% end %>
+            </dd>
+          </div>
+        <% end %>
         <div class="market-listing__fact">
           <dt><%= t(".seller") %></dt>
           <dd><%= render PlayerNameComponent.new(player: @listing.seller, viewer: current_player) %></dd>
