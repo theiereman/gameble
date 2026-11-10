@@ -325,6 +325,27 @@ class PlayerStreamTest < ActiveSupport::TestCase
     assert(notices.all? { it[:balance] })
   end
 
+  test "a bid tells the bidder and the outbid player, once each" do
+    data = { listing_id: 1, bidder_id: @bob.id, branch: "new_leader", outbid_player_id: @alice.id, outbid_released: 5 }
+
+    notices = PlayerStream.notices(Game::Market::BidPlaced.new(data:))
+
+    assert_equal [ @bob.id, @alice.id ], notices.map { it[:player_id] }
+    assert(notices.all? { it[:balance] })
+  end
+
+  test "a bid that outbids nobody tells the bidder alone" do
+    data = { listing_id: 1, bidder_id: @bob.id, branch: "raise", outbid_player_id: nil, outbid_released: 0 }
+
+    assert_equal [ { player_id: @bob.id, balance: true } ], PlayerStream.notices(Game::Market::BidPlaced.new(data:))
+  end
+
+  test "a bid that outbids the bidder's own earlier lead does not duplicate the notice" do
+    data = { listing_id: 1, bidder_id: @bob.id, branch: "new_leader", outbid_player_id: @bob.id, outbid_released: 5 }
+
+    assert_equal [ { player_id: @bob.id, balance: true } ], PlayerStream.notices(Game::Market::BidPlaced.new(data:))
+  end
+
   test "an unsold auction tells its seller" do
     notices = PlayerStream.notices(Game::Market::AuctionUnsold.new(data: { listing_id: 1, seller_id: @alice.id }))
 

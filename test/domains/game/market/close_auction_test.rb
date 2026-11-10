@@ -56,6 +56,21 @@ class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
     assert_equal [ @winner.id, 40_000 ], [ @listing.leader_id, @listing.leader_maximum ]
   end
 
+  test "a listing settled after bids placed through the operation has no leading bid" do
+    @listing.update!(ends_at: 1.day.from_now)
+    other = accounts_players(:administrator)
+    fund!(other, 50_000)
+    Game::Market::PlaceBid.new.call(player: other, listing_id: @listing.id, maximum: 25_000)
+    Game::Market::PlaceBid.new.call(player: @winner, listing_id: @listing.id, maximum: 40_000)
+    @listing.update_columns(ends_at: 1.minute.ago)
+
+    assert close.success?
+
+    assert_empty Game::Market::Bid.where(listing_id: @listing.id, outcome: "leading")
+    assert_equal [ "won" ], Game::Market::Bid.where(listing_id: @listing.id, player_id: @winner.id).pluck(:outcome)
+    assert_equal [ "lost" ], Game::Market::Bid.where(listing_id: @listing.id, player_id: other.id).pluck(:outcome)
+  end
+
   test "the copy moves with its reservation and the winner receives it" do
     lead
 
