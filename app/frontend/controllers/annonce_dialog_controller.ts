@@ -12,6 +12,10 @@ export default class AnnonceDialogController extends Controller<HTMLDialogElemen
   declare readonly multipleTargets: HTMLElement[]
   declare readonly kindValue: string
 
+  get isOpen(): boolean {
+    return this.element.open
+  }
+
   get kind(): string {
     return this.kindValue
   }

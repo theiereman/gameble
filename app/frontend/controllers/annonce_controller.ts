@@ -12,6 +12,8 @@ import {
   type Submitter,
 } from "../lib/annonce"
 import { ask, consented, gate, grant, multipleOf } from "../lib/annonce_confirm"
+import { readLine, readOutcome } from "../lib/annonce_status"
+import { dispatchGameble } from "../lib/events"
 import { picoins } from "../lib/picoins"
 import { footViewOf, type AnnonceStrings, type Forms } from "../lib/annonce_view"
 import type { Intent } from "../lib/screen"
@@ -20,11 +22,16 @@ import type AnnonceFieldController from "./annonce_field_controller"
 import type AnnonceFootController from "./annonce_foot_controller"
 import type AnnonceStatusController from "./annonce_status_controller"
 
+const END_REFRESH_DELAY = 500
+
 export default class AnnonceController extends Controller<HTMLElement> {
-  static targets = ["region"]
+  static targets = ["region", "notRecorded"]
   static values = { locale: String, strings: Object }
   static outlets = ["annonce-field", "annonce-foot", "annonce-status", "annonce-dialog"]
 
+  declare readonly regionTarget: HTMLElement
+  declare readonly hasNotRecordedTarget: boolean
+  declare readonly notRecordedTarget: HTMLTemplateElement
   declare readonly localeValue: string
   declare readonly stringsValue: AnnonceStrings
   declare readonly hasAnnonceFieldOutlet: boolean
@@ -38,6 +45,7 @@ export default class AnnonceController extends Controller<HTMLElement> {
   private state?: AnnonceState
   private timer?: ReturnType<typeof setTimeout>
   private asked?: HTMLElement | null
+  private interrupted: { notRecorded: boolean } | null = null
 
   disconnect(): void {
     clearTimeout(this.timer)
@@ -58,6 +66,35 @@ export default class AnnonceController extends Controller<HTMLElement> {
 
   annonceFootOutletConnected(): void {
     this.render()
+  }
+
+  annonceStatusOutletConnected(status: AnnonceStatusController): void {
+    status.observe(readLine(this.element), null)
+  }
+
+  morphed(): void {
+    if (this.hasAnnonceStatusOutlet) this.annonceStatusOutlet.observe(readLine(this.element), readOutcome(this.element))
+    const heading = this.element.querySelector<HTMLElement>("#listing-outcome-heading")
+    if (!this.interrupted || !heading) return
+    heading.focus()
+    if (
+      this.interrupted.notRecorded &&
+      this.hasNotRecordedTarget &&
+      !this.regionTarget.querySelector(".market-bid__note")
+    ) {
+      this.regionTarget.append(this.notRecordedTarget.content.cloneNode(true))
+    }
+    this.interrupted = null
+  }
+
+  ended(): void {
+    const field = this.hasAnnonceFieldOutlet ? this.annonceFieldOutlet : null
+    const open = this.annonceDialogOutlets.some((dialog) => dialog.isOpen)
+    const typed = field !== null && field.text.trim() !== ""
+    if (typed || open || field?.focused) this.interrupted = { notRecorded: typed || open }
+    for (const dialog of this.annonceDialogOutlets) dialog.close()
+    field?.release()
+    setTimeout(() => dispatchGameble("gameble:listing-updated", {}), END_REFRESH_DELAY)
   }
 
   regionTargetConnected(region: HTMLElement): void {
@@ -115,6 +152,7 @@ export default class AnnonceController extends Controller<HTMLElement> {
   }
 
   submitted(): void {
+    if (this.hasAnnonceStatusOutlet) this.annonceStatusOutlet.own()
     if (this.state) this.state = submitted(this.state)
   }
 

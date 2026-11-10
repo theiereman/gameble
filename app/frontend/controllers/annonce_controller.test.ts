@@ -23,13 +23,15 @@ const attr = (value: unknown): string => JSON.stringify(value).replace(/"/g, "&q
 
 const markup = (answered: boolean): string => `
   <section id="annonce" data-controller="annonce"
-    data-action="annonce-field:typed->annonce#typed annonce-field:entered->annonce#entered annonce-field:retermed->annonce#retermed annonce-foot:raise->annonce#raise annonce-dialog:confirmed->annonce#confirmed"
+    data-action="annonce-field:typed->annonce#typed annonce-field:entered->annonce#entered annonce-field:retermed->annonce#retermed listing-clock:ended->annonce#ended turbo:morph@document->annonce#morphed annonce-foot:raise->annonce#raise annonce-dialog:confirmed->annonce#confirmed"
     data-annonce-locale-value="en" data-annonce-strings-value="${attr(STRINGS)}"
     data-annonce-annonce-field-outlet="#annonce [data-controller~='annonce-field']"
     data-annonce-annonce-foot-outlet="#annonce [data-controller~='annonce-foot']"
     data-annonce-annonce-status-outlet="#annonce [data-controller~='annonce-status']"
     data-annonce-annonce-dialog-outlet="#annonce [data-controller~='annonce-dialog']">
     <p id="status" data-controller="annonce-status"></p>
+    <template data-annonce-target="notRecorded"><p id="not-recorded" class="market-bid__note">Not recorded.</p></template>
+    <div id="clock"></div>
     <div id="annonce-bid" data-annonce-target="region">
       <form id="form" data-action="submit->annonce#submit turbo:submit-end->annonce#submitted">
         <div data-controller="annonce-field" data-annonce-field-minimum-value="20000" data-annonce-field-available-value="100000"
@@ -130,6 +132,71 @@ describe("a refreshed page", () => {
 
     expect(el("sentences").hidden).toBe(false)
     expect(el("panel").hidden).toBe(true)
+  })
+})
+
+function endAuction(): void {
+  el("clock").dispatchEvent(new CustomEvent("listing-clock:ended", { bubbles: true }))
+}
+
+function settle(): void {
+  el("annonce-bid").innerHTML =
+    `<h2 id="listing-outcome-heading" tabindex="-1" data-focus-name="heading">AUCTION ENDED</h2>`
+  document.dispatchEvent(new CustomEvent("turbo:morph"))
+}
+
+describe("an auction that ends under the reader", () => {
+  it("closes an open dialog, clears the amount and asks the page to refresh", async () => {
+    await mount()
+    vi.useFakeTimers()
+    const refreshed = vi.fn()
+    window.addEventListener("gameble:listing-updated", refreshed)
+    type("79999")
+    submit()
+    expect(el<HTMLDialogElement>("unusual").open).toBe(true)
+
+    endAuction()
+
+    expect(el<HTMLDialogElement>("unusual").open).toBe(false)
+    expect(el<HTMLInputElement>("maximum").value).toBe("")
+    expect(refreshed).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(500)
+    expect(refreshed).toHaveBeenCalledTimes(1)
+    window.removeEventListener("gameble:listing-updated", refreshed)
+  })
+
+  it("gives the outcome's heading focus, says the auction ended and appends the not-recorded sentence", async () => {
+    await mount()
+    type("30000")
+    endAuction()
+
+    settle()
+
+    expect(document.activeElement).toBe(el("listing-outcome-heading"))
+    expect(el("status").textContent).toBe("AUCTION ENDED")
+    expect(el("annonce-bid").querySelector("#not-recorded")?.textContent).toBe("Not recorded.")
+  })
+
+  it("moves no focus and appends nothing for a reader who was not interacting, but still says it ended", async () => {
+    await mount()
+    endAuction()
+
+    settle()
+
+    expect(document.activeElement).not.toBe(el("listing-outcome-heading"))
+    expect(document.getElementById("not-recorded")).toBeNull()
+    expect(el("status").textContent).toBe("AUCTION ENDED")
+  })
+
+  it("moves focus without the sentence when the field only had focus", async () => {
+    await mount()
+    el("maximum").focus()
+    endAuction()
+
+    settle()
+
+    expect(document.activeElement).toBe(el("listing-outcome-heading"))
+    expect(document.getElementById("not-recorded")).toBeNull()
   })
 })
 

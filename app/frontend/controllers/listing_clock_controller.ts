@@ -15,6 +15,7 @@ export default class extends Controller<HTMLElement> {
   private deadline = 0
   private timer?: number
   private connected = false
+  private endTimer?: number
 
   connect(): void {
     this.connected = true
@@ -23,11 +24,14 @@ export default class extends Controller<HTMLElement> {
 
   secondsValueChanged(): void {
     this.deadline = performance.now() + this.secondsValue * 1000
+    window.clearTimeout(this.endTimer)
+    if (this.secondsValue > 0) this.endTimer = window.setTimeout(() => this.dispatch("ended"), this.secondsValue * 1000)
     if (this.connected) this.render()
   }
 
   disconnect(): void {
     this.connected = false
+    window.clearTimeout(this.endTimer)
     this.clear()
   }
 

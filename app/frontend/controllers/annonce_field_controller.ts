@@ -71,6 +71,15 @@ export default class AnnonceFieldController extends Controller<HTMLElement> {
     return this.inputTarget.value
   }
 
+  get focused(): boolean {
+    return document.activeElement === this.inputTarget
+  }
+
+  release(): void {
+    this.inputTarget.removeAttribute("data-turbo-permanent")
+    this.inputTarget.value = ""
+  }
+
   focus(): void {
     this.inputTarget.focus()
   }
