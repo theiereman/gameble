@@ -3667,7 +3667,11 @@ en:
         one: What is new, %{count} unseen
         other: What is new, %{count} unseen
       market:
+        bought_over_html: "%{name} bought %{card} outright. Your %{amount} are available again."
         outbid_html: "%{name} went past your maximum on %{card}."
+        sold_html: "%{card} sold. You receive %{amount}."
+        unsold_html: "%{card} received no offers. The card is returned to you."
+        won_html: "You won %{card} for %{amount}."
       mission: "This week's mission: open %{target} capsules together."
       mission_reached: "This week's mission is accomplished: %{target} capsules opened together."
       mission_reward: 'The weekly mission is accomplished: a rare capsule awaits you.'

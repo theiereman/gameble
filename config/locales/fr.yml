@@ -120,6 +120,10 @@ fr:
         other: "%{count} joueurs ont réagi à votre publication."
       market:
         outbid_html: "%{name} a dépassé votre maximum sur %{card}."
+        won_html: "Vous avez remporté %{card} pour %{amount}."
+        bought_over_html: "%{name} a acheté %{card} immédiatement. Vos %{amount} sont de nouveau disponibles."
+        sold_html: "%{card} s'est vendue. Vous recevez %{amount}."
+        unsold_html: "%{card} n'a reçu aucune offre. La carte vous est rendue."
       daily: "Votre capsule du jour est prête."
       mission: "Mission de la semaine : ouvrir %{target} capsules ensemble."
       mission_reached: "La mission de la semaine est accomplie : %{target} capsules ouvertes ensemble."

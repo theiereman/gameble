@@ -1,5 +1,5 @@
 module BellHelper
-  MARKET_TARGETS = { outbid: :annonce }.freeze
+  MARKET_TARGETS = { outbid: :annonce, won: :annonce, bought_over: :annonce, sold: :sales, unsold: :sales }.freeze
 
   BellLine = Data.define(:key, :path, :href, :sentence, :action, :lasting, :dom_id, :reactions, :subject) do
     def initialize(lasting: false, dom_id: nil, reactions: {}, subject: nil, **line) = super(lasting:, dom_id:, reactions:, subject:, **line)

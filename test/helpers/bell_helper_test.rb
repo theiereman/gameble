@@ -40,6 +40,32 @@ class BellHelperTest < ActionView::TestCase
     I18n.with_locale(:fr) { assert_includes bell_market_line(market_notice).sentence, "a dépassé votre maximum sur Portal." }
   end
 
+  test "the outcome lines lead to the Annonce for a win or a bought-over bid and to MES VENTES for a sale or no offer, in both languages" do
+    accounts_players(:administrator).update_columns(persona_name: "Max")
+    won = bell_market_line(market_notice(kind: :won, other: nil, amount: 26_300))
+    bought = bell_market_line(market_notice(kind: :bought_over))
+    sold = bell_market_line(market_notice(kind: :sold, other: nil, amount: 23_670))
+    unsold = bell_market_line(market_notice(kind: :unsold, other: nil, amount: nil))
+
+    assert_equal [ market_listing_path(token: "tok"), market_listing_path(token: "tok"), market_my_sales_path, market_my_sales_path ],
+      [ won, bought, sold, unsold ].map(&:path)
+    assert_includes won.sentence, "You won Portal for"
+    assert_includes won.sentence, "26,300"
+    assert_includes bought.sentence, "Max bought Portal outright. Your"
+    assert_includes sold.sentence, "Portal sold. You receive"
+    assert_includes unsold.sentence, "Portal received no offers. The card is returned to you."
+    I18n.with_locale(:fr) do
+      assert_includes bell_market_line(market_notice(kind: :won, other: nil)).sentence, "Vous avez remporté Portal pour"
+      assert_includes bell_market_line(market_notice(kind: :bought_over)).sentence, "Max a acheté Portal immédiatement."
+      assert_includes bell_market_line(market_notice(kind: :sold, other: nil)).sentence, "Portal s'est vendue. Vous recevez"
+      assert_includes bell_market_line(market_notice(kind: :unsold, other: nil)).sentence, "Portal n'a reçu aucune offre. La carte vous est rendue."
+    end
+  end
+
+  test "a kind with no line yet is left out" do
+    assert_nil bell_market_line(market_notice(kind: :withdrawn))
+  end
+
   test "a removed player is named anonymously" do
     removed = accounts_players(:administrator)
     removed.update_columns(deleted_at: Time.current)

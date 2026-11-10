@@ -57,4 +57,32 @@ class MarketOutbidSystemTest < ApplicationSystemTestCase
     assert_field "annonce-maximum", with: ""
     assert_no_selector "#annonce-bid #annonce-outbid:focus"
   end
+
+  test "a closed auction shows the winner's line leading to the Annonce and the seller's leading to MES VENTES" do
+    bid(@rival, 40_000)
+    @listing.update_columns(ends_at: 1.minute.ago)
+    Game::Market::CloseAuction.new.call(player: @seller, listing_id: @listing.id)
+    perform_enqueued_jobs(only: PlayerStreamJob)
+
+    using_session(:winner) do
+      sign_in_through_the_site(@rival)
+      page.execute_script("window.localStorage.clear()")
+      visit home_path(locale: :en)
+      find(".bell__button").click
+      within("#bell-panel") do
+        assert_selector ".bell__line", text: /You won Tin Soldier for/
+        assert_link href: market_listing_path(locale: :en, token: @listing.token)
+      end
+    end
+    using_session(:seller) do
+      sign_in_through_the_site(@seller)
+      page.execute_script("window.localStorage.clear()")
+      visit home_path(locale: :en)
+      find(".bell__button").click
+      within("#bell-panel") do
+        assert_selector ".bell__line", text: /Tin Soldier sold\. You receive/
+        assert_link href: market_my_sales_path(locale: :en)
+      end
+    end
+  end
 end
