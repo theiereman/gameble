@@ -95,4 +95,19 @@ class Game::Market::OpenMarketTest < ActiveSupport::TestCase
       nothing_is_written { assert_equal :market_busy, open_market.failure }
     end
   end
+
+  test "reopening after a closing keeps the first opening time and records both confirmations again" do
+    Game::Market::Settings.delete_all
+    first = open_market.value!
+    closed = Game::Market::ChangeSettings.new.call(player: @administrator, settings_token: first.token, close: true,
+      message_fr: "Fermé", message_en: "Closed").value!
+
+    reopened = travel(1.day) { open_market.value! }
+
+    assert reopened.open
+    assert_equal closed.id, reopened.replaces_id
+    assert_equal first.first_opened_at, reopened.first_opened_at
+    assert_operator reopened.terms_confirmed_at, :>, first.terms_confirmed_at
+    assert_operator reopened.odds_confirmed_at, :>, first.odds_confirmed_at
+  end
 end

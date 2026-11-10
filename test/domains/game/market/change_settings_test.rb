@@ -133,4 +133,90 @@ class Game::Market::ChangeSettingsTest < ActiveSupport::TestCase
       nothing_is_written { assert_equal :market_busy, change.failure }
     end
   end
+
+  def close(player: @administrator, token: @current.token, fr: "Le marché ferme", en: "The market closes")
+    Game::Market::ChangeSettings.new.call(player:, settings_token: token, message_fr: fr, message_en: en, close: true)
+  end
+
+  test "closing inserts a closed version carrying every value, both confirmation times and the first opening" do
+    settings = close.value!
+
+    assert_not settings.open
+    assert_equal settings, Game::Market::CurrentSettings.call
+    assert_equal @current.id, settings.replaces_id
+    assert_equal @administrator.id, settings.author_id
+    assert_equal @current.first_opened_at, settings.first_opened_at
+    assert_equal @current.terms_confirmed_at, settings.terms_confirmed_at
+    assert_equal @current.odds_confirmed_at, settings.odds_confirmed_at
+    assert_equal @current.daily_cap, settings.daily_cap
+  end
+
+  test "closing shows its announcement in place of the previous one" do
+    previous = Accounts::CreateAnnouncement.new.call(staff: @administrator, message_fr: "Avant", message_en: "Before", shown: true).value!
+
+    close
+
+    assert_equal [ "The market closes" ], Accounts::Announcement.where(shown: true).pluck(:message_en)
+    assert_not previous.reload.shown
+  end
+
+  test "closing publishes one SettingsChanged event" do
+    settings = close.value!
+
+    events = Rails.configuration.event_store.read.stream("Game::Market$settings").of_type(Game::Market::SettingsChanged).to_a
+    assert_equal 1, events.count { it.data[:settings_id] == settings.id }
+  end
+
+  test "closing a closed market fails market_already_closed" do
+    @current = close_market!(first_opened_at: 3.days.ago)
+
+    nothing_is_written { assert_equal :market_already_closed, close.failure }
+  end
+
+  test "closing without any version fails settings_changed" do
+    Game::Market::Settings.delete_all
+
+    nothing_is_written { assert_equal :settings_changed, close(token: "anything").failure }
+  end
+
+  test "closing with a stale or blank token fails settings_changed" do
+    stale = @current
+    change(daily_cap: 1_300_000)
+
+    nothing_is_written do
+      assert_equal :settings_changed, close(token: stale.token).failure
+      assert_equal :settings_changed, close(token: "").failure
+      assert_equal :settings_changed, close(token: nil).failure
+    end
+  end
+
+  test "closing with an empty or too long announcement rolls the version back" do
+    nothing_is_written do
+      assert_equal :invalid_announcement, close(fr: " ").failure
+      assert_equal :invalid_announcement, close(en: "x" * (Accounts::Announcement::MESSAGE_LENGTH + 1)).failure
+    end
+    assert Game::Market::CurrentSettings.call.open
+  end
+
+  test "only an administrator closes the market" do
+    nothing_is_written do
+      [ accounts_players(:moderator), accounts_players(:player), accounts_players(:banned), nil ].each do |player|
+        assert_equal :administrator_required, close(player:).failure
+      end
+    end
+  end
+
+  test "a lost insert race on closing is settings_changed" do
+    stale = @current
+    stub_singleton(Game::Market::CurrentSettings, :call, -> { Game::Market::Settings.find(stale.id) }) do
+      stale.successor(author: @administrator).save!
+      nothing_is_written { assert_equal :settings_changed, close.failure }
+    end
+  end
+
+  test "a deadlock while closing rolls back as market_busy" do
+    stub_singleton(Game::Market::CurrentSettings, :call, -> { raise ActiveRecord::Deadlocked }) do
+      nothing_is_written { assert_equal :market_busy, close.failure }
+    end
+  end
 end
