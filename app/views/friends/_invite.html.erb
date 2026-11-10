@@ -1,0 +1,48 @@
+<%# locals: (friend_code:, invite_url:) %>
+<%= render PanelComponent.new(brackets: true, class: "friends__panel invite-panel", id: "friends-invite") do %>
+  <h2 class="friends__heading"><%= t(".title") %></h2>
+
+  <section class="invite-panel__own" aria-labelledby="friend-code-label" data-controller="share"
+    data-share-url-value="<%= invite_url %>" data-share-text-value="<%= t(".share_text") %>"
+    data-share-copied-value="<%= t(".copied") %>" data-share-manual-value="<%= t(".manual", url: invite_url) %>">
+    <p class="friends__label" id="friend-code-label"><%= t(".code_label") %></p>
+    <div class="invite-panel__own-row">
+      <% if friend_code %>
+        <p class="invite-panel__code"><%= friend_code %></p>
+      <% end %>
+      <button type="button" class="button button--primary button--small invite-panel__send-native" hidden data-action="bridge--share#share"
+        <%= tag.attributes(data: { controller: "bridge--share", bridge__share_url_value: invite_url, bridge__share_text_value: t(".share_text") }) %>><%= t(".send_link") %></button>
+      <button type="button" class="button button--primary button--small invite-panel__send" data-action="share#send"><%= t(".send_link") %></button>
+    </div>
+    <p class="invite-panel__hint"><%= t(".hint") %></p>
+    <p class="invite-panel__status" role="status" data-share-target="status"></p>
+  </section>
+
+  <section class="invite-panel__add" aria-labelledby="friend-add-label">
+    <p class="friends__label" id="friend-add-label"><%= t(".add_label") %></p>
+    <div data-controller="friend-search" data-friend-search-frame-value="friend-search-results"
+      data-action="turbo:frame-load@document->friend-search#loaded">
+      <%= form_with url: friend_search_path, method: :get, class: "invite-panel__form", html: { role: "search" }, data: {
+        friend_search_target: "form", turbo_frame: "friend-search-results",
+        action: "input->friend-search#typed compositionend->friend-search#typed keydown->friend-search#escape submit->friend-search#submitted"
+      } do %>
+        <%= label_tag "friend-search-field", t(".search_label"), class: "visually-hidden" %>
+        <%= search_field_tag "q", "", id: "friend-search-field", class: "friends__input invite-panel__search", autocomplete: "off", spellcheck: false,
+              maxlength: Accounts::PersonaName::LENGTH, placeholder: t(".search_placeholder"), data: { friend_search_target: "field" } %>
+        <noscript><%= submit_tag t(".search_submit"), name: nil, class: "button button--secondary button--small" %></noscript>
+      <% end %>
+      <p class="visually-hidden" role="status" data-friend-search-target="status"></p>
+      <%= turbo_frame_tag "friend-search-results", target: "_top", class: "invite-panel__results" %>
+    </div>
+
+    <p class="invite-panel__or"><span><%= t(".or_code") %></span></p>
+    <%= form_with url: invitations_path, class: "invite-panel__form", data: { turbo: false } do |form| %>
+      <%= form.label :code, t(".code_field"), class: "visually-hidden" %>
+      <%= form.text_field :code, class: "friends__input invite-panel__code-field", maxlength: 9, autocomplete: "off", autocapitalize: "characters",
+            spellcheck: false, placeholder: "ABCD-1234", aria: { describedby: "invite-message" },
+            data: { controller: "friend-code-field", action: "input->friend-code-field#format" } %>
+      <%= form.button t(".add"), type: :submit, class: "button button--primary button--small" %>
+    <% end %>
+    <p id="invite-message" role="status" class="<%= class_names("friends__message invite-panel__message", "friends__message--error": flash[:invite_error], "friends__message--sent": flash[:invite_done]) %>"><%= flash[:invite_error] || flash[:invite_done] %></p>
+  </section>
+<% end %>

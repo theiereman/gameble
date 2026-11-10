@@ -6,7 +6,7 @@ class InvitationsController < ApplicationController
   def create
     authorize :invitation, :create?
 
-    result = Game::SendInvitation.new.call(player: current_player, code: params[:code].to_s)
+    result = Game::SendInvitation.new.call(player: current_player, **recipient)
     report_sent(result)
   end
 
@@ -41,4 +41,9 @@ class InvitationsController < ApplicationController
     end
     redirect_to friends_path, status: :see_other
   end
+
+  private
+    def recipient
+      params[:player].present? ? { recipient_token: params[:player].to_s } : { code: params[:code].to_s }
+    end
 end

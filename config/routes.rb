@@ -146,6 +146,7 @@ Rails.application.routes.draw do
     resource :account, only: :destroy
     resource :data_export, only: %i[show create], path: "settings/export", as: :settings_export
     resource :friends, only: :show
+    get "friends/search" => "friend_searches#show", as: :friend_search
     resource :achievements, only: :show
     post "achievements/:achievement/claim" => "achievement_claims#create", as: :claim_achievement,
       constraints: { achievement: /[a-z0-9_]+/ }

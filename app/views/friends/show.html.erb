@@ -7,32 +7,7 @@
   <h1 id="friends-heading" class="visually-hidden"><%= t(".title") %></h1>
   <div class="friends__layout">
     <div class="friends__side">
-      <%= render PanelComponent.new(brackets: true, class: "friends__panel", id: "friends-invite") do %>
-        <h2 class="friends__heading"><%= t(".invite") %></h2>
-        <div class="friends__field" data-controller="share" data-share-copied-value="<%= t(".copied") %>" data-share-manual-value="<%= t(".manual") %>">
-          <label class="friends__label" for="invite-link"><%= t(".by_link") %></label>
-          <div class="friends__row-field">
-            <input type="text" id="invite-link" class="friends__input" value="<%= invite_url %>" readonly data-share-target="url">
-            <button type="button" class="button button--secondary button--small" data-action="share#copy"><%= t(".copy") %></button>
-            <button type="button" class="button button--secondary button--small" hidden data-action="bridge--share#share"
-              <%= tag.attributes(data: { controller: "bridge--share", bridge__share_url_value: invite_url, bridge__share_text_value: t(".share_text") }) %>><%= t(".share") %></button>
-          </div>
-          <p class="friends__status" role="status" data-share-target="status"></p>
-        </div>
-        <% if @friend_code %>
-          <p class="friends__label" id="friend-code-label"><%= t(".code_label") %></p>
-          <p class="friends__code" aria-labelledby="friend-code-label"><%= @friend_code %></p>
-        <% end %>
-        <%= form_with url: invitations_path, class: "friends__field", data: { turbo: false } do |form| %>
-          <%= form.label :code, t(".add_by_code"), class: "friends__label" %>
-          <div class="friends__row-field">
-            <%= form.text_field :code, class: "friends__input", maxlength: 9, autocomplete: "off", autocapitalize: "characters",
-                  spellcheck: false, placeholder: "ABCD-1234", "aria-describedby": "invite-message" %>
-            <%= form.button t(".add"), type: :submit, class: "button button--primary button--small" %>
-          </div>
-        <% end %>
-        <p id="invite-message" role="status" class="<%= class_names("friends__message", "friends__message--error": flash[:invite_error], "friends__message--sent": flash[:invite_done]) %>"><%= flash[:invite_error] || flash[:invite_done] %></p>
-      <% end %>
+      <%= render "friends/invite", friend_code: @friend_code, invite_url: %>
 
       <h2 class="friends__heading"><%= t(".invitations") %></h2>
       <% if @invitations.received.empty? && @invitations.sent.empty? %>

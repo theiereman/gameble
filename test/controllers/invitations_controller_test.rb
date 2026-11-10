@@ -18,9 +18,10 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
 
     get friends_path(locale: :fr)
 
-    assert_select "input#invite-link" do |input|
-      assert input.first["value"].end_with?("/fr/invite/#{@alice.token}")
+    assert_select "[data-controller=share]" do |share|
+      assert share.first["data-share-url-value"].end_with?("/fr/invite/#{@alice.token}")
     end
+    assert_select "button[data-action='share#send']", "Envoyer mon lien"
     assert_select "form[action=?] input[name=code]", invitations_path(locale: :fr)
     assert_select ".friends__empty", /Aucune invitation en cours/
   end
@@ -30,7 +31,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     post invitations_path(locale: :fr), params: { code: "8f2d-k9xm" }
     assert_redirected_to friends_path(locale: :fr)
     follow_redirect!
-    assert_select ".friends__message--sent", "Invitation envoyée à Sam."
+    assert_select ".toast", /Invitation envoyée à Sam\./
     assert_select ".friends__invitation", /Envoyée à Sam/
     assert_select ".friends__chip", "En attente"
 
@@ -171,7 +172,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
 
     post link
     follow_redirect!
-    assert_select ".friends__message--sent", "Invitation envoyée à Sam."
+    assert_select ".toast", /Invitation envoyée à Sam\./
     assert_select ".friends__invitation", /Envoyée à Sam/
   end
 
@@ -251,7 +252,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     post invitations_path(locale: :fr), params: { code: "8F2D-K9XM" }
     follow_redirect!
 
-    assert_select ".friends__message--sent", "Invitation envoyée à 8F2D-K9XM."
+    assert_select ".toast", /Invitation envoyée à 8F2D-K9XM\./
     assert_select ".friends__invitation", /Envoyée à 8F2D-K9XM/
   end
 
@@ -261,7 +262,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     post invite_link_path(token: @bob.token, locale: :fr)
     follow_redirect!
 
-    assert_select ".friends__message--sent", "Invitation envoyée à 8F2D-K9XM."
+    assert_select ".toast", /Invitation envoyée à 8F2D-K9XM\./
     assert_select ".friends__invitation", /Envoyée à 8F2D-K9XM/
   end
 
@@ -279,6 +280,21 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
     get invite_link_path(token: accounts_players(:banned).token, locale: :fr)
     assert_response :not_found
+  end
+
+  test "a search result invites the player, or accepts their pending invitation" do
+    sign_in @alice
+    post invitations_path(locale: :fr), params: { player: @bob.token }
+    follow_redirect!
+    assert_select ".toast", /Invitation envoyée à Sam\./
+    assert_select ".friends__invitation", /Envoyée à Sam/
+
+    delete session_path
+    sign_in @bob
+    post invitations_path(locale: :fr), params: { player: @alice.token }
+    follow_redirect!
+    assert_select ".toast", /Nouvel ami/i
+    assert_select ".friends__row .friends__name", "Lea"
   end
 
   test "mutations are limited to 20 a minute" do

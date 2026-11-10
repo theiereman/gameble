@@ -1,0 +1,18 @@
+<% content_for :back_button, true %>
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t(".title") %>
+<%= turbo_frame_tag "friend-search-results", target: "_top" do %>
+  <% if @query.length >= Game::InviteCandidates::MIN_QUERY %>
+    <span hidden data-friend-search-summary><%= t(".found", count: @candidates.size) %></span>
+    <% if @candidates.empty? %>
+      <p class="friend-search__none"><%= t(".none", query: @query) %></p>
+    <% else %>
+      <% preload_avatars(@candidates.map(&:player)) %>
+      <ul class="friends__list friend-search__results">
+        <% @candidates.each do |candidate| %>
+          <%= render "friend_searches/candidate", candidate: %>
+        <% end %>
+      </ul>
+    <% end %>
+  <% end %>
+<% end %>

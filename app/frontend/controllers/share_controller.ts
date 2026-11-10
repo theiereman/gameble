@@ -2,12 +2,14 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller<HTMLElement> {
   static targets = ["url", "status"]
-  static values = { copied: String, manual: String }
+  static values = { copied: String, manual: String, url: String, text: String }
 
   declare readonly urlTarget: HTMLInputElement
   declare readonly statusTarget: HTMLElement
   declare readonly copiedValue: string
   declare readonly manualValue: string
+  declare readonly urlValue: string
+  declare readonly textValue: string
 
   connect(): void {
     this.statusTarget.textContent = ""
@@ -23,6 +25,25 @@ export default class extends Controller<HTMLElement> {
       )
     } else {
       this.copyBySelection()
+    }
+  }
+
+  async send(): Promise<void> {
+    this.statusTarget.textContent = ""
+    const url = this.urlValue
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: this.textValue, url })
+        return
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      this.say(this.copiedValue)
+    } catch {
+      this.say(this.manualValue)
     }
   }
 

@@ -1572,6 +1572,20 @@ en:
       trade: Trade
     unavailable:
       body: This profile is not available.
+  friend_searches:
+    candidate:
+      accept_from: Accept %{name}'s invitation
+      friend: Friend
+      invite_named: Invite %{name}
+      invited: Invited
+      invites_you: Invites you
+    show:
+      found:
+        one: "%{count} player found"
+        other: "%{count} players found"
+        zero: No player found
+      none: No player named “%{query}”.
+      title: Search for a player
   friends:
     collection_link:
       label: See the collection
@@ -1582,6 +1596,21 @@ en:
       see_profile_of: See the profile of %{name}
       trade: Trade
       trade_with: Trade with %{name}
+    invite:
+      add: Add
+      add_label: Add a friend
+      code_field: Friend code
+      code_label: Your friend code
+      copied: Link copied ✓ Paste it in a message.
+      hint: "Give your code or send your link: one click and they add you."
+      manual: "Could not copy: your link is %{url}"
+      or_code: or with their friend code
+      search_label: Search for a player by name
+      search_placeholder: Search a name
+      search_submit: Search
+      send_link: Send my link
+      share_text: Join me on Gameble, the trading card game where every card is a Steam game.
+      title: Invite a friend
     more_actions:
       menu: More actions for %{name}
       remove: Remove
@@ -1611,25 +1640,15 @@ en:
       text: "%{name} is no longer one of your friends."
       title: Friend removed
     show:
-      share: Share
-      share_text: Join me on Gameble, the trading card game where every card is a Steam game.
       accept: Accept
-      add: Add
-      add_by_code: Add with a code
-      by_link: By link
       cancel: Cancel
       cancel_invitation_to: Cancel the invitation to %{name}
-      code_label: Your friend code
-      copied: Copied ✓
-      copy: Copy
       empty: No friends yet.
       empty_invite: Invite one with your link or your code.
       friends: Friends
       ignore: Ignore
       invitations: Invitations
-      invite: Invite a friend
       invites_you: "%{name} invites you"
-      manual: Copy the link by hand.
       nameless: Nameless player
       no_invitations: No invitation pending.
       pending: Pending
@@ -1681,6 +1700,7 @@ en:
       text: "%{name} is now one of your friends."
       title: New friend
     sent: Invitation sent to %{to}.
+    sent_title: Invitation sent
     throttled: Too many attempts in a minute. Try again in a moment.
   invite_links:
     show:

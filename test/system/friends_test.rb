@@ -25,6 +25,27 @@ class FriendsTest < ApplicationSystemTestCase
     visit friends_path(locale: :en)
   end
 
+  test "a player finds another by name and invites them with one click" do
+    stranger = accounts_players(:administrator)
+    stranger.update_columns(persona_name: "Samwise")
+    sign_in
+
+    fill_in "Search for a player by name", with: "samw"
+    find("#friend-search-results button.friend-search__pick", text: "Samwise").click
+
+    assert_selector ".toast", text: "Invitation sent to Samwise."
+    assert_selector ".friends__invitation", text: "Sent to Samwise"
+    assert_equal 1, Game::Invitation.where(sender_id: @player.id, recipient_id: stranger.id).count
+  end
+
+  test "the friend code field uppercases and places the dash as the code is typed" do
+    sign_in
+
+    find_field("Friend code").send_keys("8f2dk9")
+
+    assert_field "Friend code", with: "8F2D-K9"
+  end
+
   test "a player opens a friend's profile, sees no showcase and reports it from its more-actions menu" do
     sign_in
 

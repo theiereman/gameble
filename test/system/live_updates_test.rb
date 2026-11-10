@@ -121,15 +121,15 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     visit friends_path(locale: :en)
     listening
     page.execute_script("addEventListener('gameble:friends-updated', () => { document.body.dataset.signal = 'seen' })")
-    fill_in "Add with a code", with: "8F2D"
+    fill_in "Friend code", with: "8F2D"
 
     Game::SendInvitation.new.call(player: @max, code: "7K2Q-F3NX").value!
     deliver
     assert_selector "body[data-signal=seen]"
     assert_no_selector ".friends__invitation", text: "Max invites you"
-    assert_field "Add with a code", with: "8F2D"
+    assert_field "Friend code", with: "8F2D-"
 
-    fill_in "Add with a code", with: ""
+    fill_in "Friend code", with: ""
     assert_selector ".friends__invitation", text: "Max invites you"
   end
 

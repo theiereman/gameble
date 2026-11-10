@@ -1,0 +1,186 @@
+.invite-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.invite-panel .friends__label {
+  margin: 0;
+}
+
+.invite-panel__own,
+.invite-panel__add {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.invite-panel__add {
+  padding-top: var(--space-5);
+  border-top: 2px dashed var(--color-line-soft);
+}
+
+.invite-panel__own-row {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--color-line);
+  background: var(--color-panel-sunken);
+}
+
+.invite-panel__code {
+  margin: 0;
+  color: var(--color-text-bright);
+  font-family: var(--font-family-vt323);
+  font-size: 2.5rem;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-align: center;
+  user-select: all;
+}
+
+.invite-panel__send-native[hidden],
+.invite-panel__send-native:not([hidden]) + .invite-panel__send {
+  display: none;
+}
+
+.invite-panel__hint,
+.invite-panel__status {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.invite-panel__status {
+  color: var(--color-lime);
+}
+
+.invite-panel__message:empty,
+.invite-panel__status:empty {
+  display: none;
+}
+
+.invite-panel__form {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.invite-panel__code-field {
+  font-family: var(--font-family-vt323);
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.invite-panel__code-field::placeholder {
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+}
+
+.invite-panel__or {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-2) 0 0;
+  color: var(--color-dim);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.invite-panel__or::before,
+.invite-panel__or::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--color-line-soft);
+}
+
+.invite-panel__results:empty {
+  display: none;
+}
+
+.friend-search__results {
+  gap: 0;
+  border: 2px solid var(--color-line);
+  background: var(--color-panel-sunken);
+}
+
+.friend-search__result + .friend-search__result {
+  border-top: 1px solid var(--color-line-soft);
+}
+
+.friend-search__form {
+  margin: 0;
+}
+
+.friend-search__pick {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 52px;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+button.friend-search__pick {
+  cursor: pointer;
+}
+
+button.friend-search__pick:hover {
+  background: var(--color-panel-raised);
+  color: var(--color-text-bright);
+}
+
+button.friend-search__pick:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+.friend-search__pick--settled {
+  color: var(--color-muted);
+}
+
+.friend-search__tag {
+  flex: none;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.friend-search__tag--waiting {
+  color: var(--color-lime);
+}
+
+.friend-search__plus {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--color-lime);
+}
+
+.friend-search__avatar {
+  flex: none;
+  width: 32px;
+  height: 32px;
+}
+
+.friend-search__name {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.friend-search__none {
+  margin: 0;
+  padding: var(--space-3);
+  border: 2px dashed var(--color-line-soft);
+  color: var(--color-muted);
+}

@@ -2028,7 +2028,36 @@ fr:
       saint_of_commons:
         title: "Saint des Communes"
         text: "Votre malchance équilibre les comptes de toute la Confrérie. Merci pour votre service."
+  friend_searches:
+    show:
+      title: "Rechercher un joueur"
+      found:
+        zero: "Aucun joueur trouvé"
+        one: "%{count} joueur trouvé"
+        other: "%{count} joueurs trouvés"
+      none: "Aucun joueur nommé « %{query} »."
+    candidate:
+      friend: "Ami"
+      invited: "Invité"
+      invites_you: "Vous invite"
+      invite_named: "Inviter %{name}"
+      accept_from: "Accepter l'invitation de %{name}"
   friends:
+    invite:
+      title: "Inviter un ami"
+      code_label: "Votre code ami"
+      send_link: "Envoyer mon lien"
+      share_text: "Rejoins-moi sur Gameble, le jeu de cartes à échanger où chaque carte est un jeu Steam."
+      hint: "Donnez votre code, ou envoyez votre lien : un clic suffit pour vous ajouter."
+      copied: "Lien copié ✓ Collez-le dans un message."
+      manual: "Copie impossible : votre lien est %{url}"
+      add_label: "Ajouter un ami"
+      search_label: "Rechercher un joueur par pseudo"
+      search_placeholder: "Rechercher un pseudo"
+      search_submit: "Rechercher"
+      or_code: "ou avec son code ami"
+      code_field: "Code ami"
+      add: "Ajouter"
     public_profile:
       label: "Voir le profil"
       named: "Voir le profil de %{name}"
@@ -2036,20 +2065,10 @@ fr:
       label: "Voir la collection"
       named: "Voir la collection de %{name}"
     show:
-      share: "Partager"
-      share_text: "Rejoins-moi sur Gameble, le jeu de cartes à échanger où chaque carte est un jeu Steam."
       title: "Amis"
-      code_label: "Votre code ami"
       empty: "Aucun ami pour l'instant."
       empty_invite: "Invitez-en un avec votre lien ou votre code."
       nameless: "Joueur sans nom"
-      invite: "Inviter un ami"
-      by_link: "Par lien"
-      copy: "Copier"
-      copied: "Copié ✓"
-      manual: "Copiez le lien manuellement."
-      add_by_code: "Ajouter avec un code"
-      add: "Ajouter"
       invitations: "Invitations"
       friends: "Amis"
       no_invitations: "Aucune invitation en cours."
@@ -2118,6 +2137,7 @@ fr:
       body: "Ce profil n'est pas disponible."
   invitations:
     sent: "Invitation envoyée à %{to}."
+    sent_title: "Invitation envoyée"
     cancelled: "Invitation annulée."
     throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
     new_friend:

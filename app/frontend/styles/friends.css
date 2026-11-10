@@ -52,14 +52,6 @@
   text-transform: uppercase;
 }
 
-.friends__code {
-  margin: 0;
-  font-family: var(--font-family-vt323);
-  font-size: 2.5rem;
-  letter-spacing: 0.1em;
-  user-select: all;
-}
-
 .friends__list {
   display: flex;
   flex-direction: column;
@@ -75,18 +67,6 @@
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-}
-
-.friends__field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin-block: var(--space-4);
-}
-
-.friends__row-field {
-  display: flex;
-  gap: var(--space-3);
 }
 
 .friends__input {
@@ -106,7 +86,6 @@
   outline-offset: 2px;
 }
 
-.friends__status,
 .friends__message {
   min-height: 1.5em;
   margin: 0;

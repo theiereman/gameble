@@ -1,0 +1,22 @@
+<% player = candidate.player %>
+<% name = friend_name(player) %>
+<li class="friend-search__result">
+  <% if candidate.relation.in?(%i[none invited_by]) %>
+    <%= button_to invitations_path, params: { player: player.token }, class: "friend-search__pick",
+          form_class: "friend-search__form", aria: { label: candidate.relation == :none ? t(".invite_named", name:) : t(".accept_from", name:) } do %>
+      <%= player_avatar(player, class_name: "friend-search__avatar") %>
+      <span class="friend-search__name"><%= name %></span>
+      <% if candidate.relation == :invited_by %>
+        <span class="friend-search__tag friend-search__tag--waiting"><%= t(".invites_you") %></span>
+      <% else %>
+        <%= pixel_icon("plus", class: "friend-search__plus") %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <div class="friend-search__pick friend-search__pick--settled">
+      <%= player_avatar(player, class_name: "friend-search__avatar") %>
+      <span class="friend-search__name"><%= name %></span>
+      <span class="friend-search__tag"><%= candidate.relation == :friend ? t(".friend") : t(".invited") %></span>
+    </div>
+  <% end %>
+</li>
