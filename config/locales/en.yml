@@ -308,6 +308,30 @@ en:
           m: size M
           s: size S
           xl: size XL
+    market_openings:
+      create:
+        opened: "The market is open and the announcement is on the banner."
+    markets:
+      announcement:
+        hint: "Shown on the red banner in place of the current announcement, in each player's language, %{length} characters at most."
+        legend: "The announcement"
+      opening:
+        administrators_only: "Only an administrator can open the market. Moderators see this page read-only."
+        confirmations: "Confirmations"
+        heading: "Open the market"
+        odds: "The odds of every draw are published and truthful."
+        open: "Open the market"
+        reopen: "Reopen the market"
+        reopen_heading: "Reopen the market"
+        terms: "The terms of the market are in force and players can read them."
+      show:
+        heading: "The market"
+        intro: "Open the market to the players, or reopen it after a suspension. The teaser stays at the market's address until the market itself replaces it."
+        state:
+          never_opened: "The market has never been opened."
+          open: "The market is open. First opened:"
+          suspended: "The market is suspended. Nothing can be entrusted until it reopens."
+        state_heading: "State"
     dashboard:
       show:
         heading: The Brotherhood's back-office
@@ -315,6 +339,7 @@ en:
           moderation: Moderation
           catalog: Catalog
           communication: Communication
+          market: Market
           technical: Technical
         tiles:
           reports:
@@ -350,6 +375,9 @@ en:
           roadmap:
             title: The roadmap
             text: The landing's milestones and stories.
+          market:
+            title: The market
+            text: Open the market and announce it.
           jobs:
             title: The job queue
             text: The queued, running and failed jobs.
@@ -1314,6 +1342,12 @@ en:
       unknown_player: This invitation link is not valid.
       amounts_changed: The amounts changed while you were choosing. They are drawn again below; check them and validate once more.
       empty_batch: Choose at least one copy to entrust.
+      administrator_required: Only an administrator can do that.
+      market_already_open: The market is already open.
+      invalid_announcement: Each announcement needs text in both languages, at most 280 characters. The market was not opened.
+      odds_not_confirmed: Confirm that the odds are published and truthful before opening the market.
+      settings_changed: The market settings changed while you were on this page. Reload it and check them.
+      terms_not_confirmed: Confirm that the market terms are in force before opening the market.
       market_busy: The Archives are busy right now. Try again in a moment.
       market_closed: The market is closed for now. Nothing was entrusted.
       no_rarity: One of these cards has no rarity yet, so the Brotherhood cannot value it.

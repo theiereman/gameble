@@ -1,0 +1,29 @@
+/* ---- Back-office market: the state line and the opening form ---- */
+
+.market-state {
+  margin: 0;
+  font: var(--font-body);
+}
+
+.market-opening__form {
+  max-width: var(--space-content-max);
+}
+
+.market-opening__confirmations,
+.market-announcement {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.market-opening__confirmation {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+}
+
+.market-opening__actions {
+  margin: 0;
+}

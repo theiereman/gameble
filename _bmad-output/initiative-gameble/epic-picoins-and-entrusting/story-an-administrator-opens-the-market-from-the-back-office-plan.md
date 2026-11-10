@@ -3,7 +3,7 @@ title: 'An administrator opens the market from the back-office'
 type: 'feature'
 ticket: '2'
 created: '2026-11-10'
-status: 'ready-for-dev'
+status: 'in-review'
 baseline_revision: '5ef2bb5aeadbcc785f3862f3f39493d3becb3773'
 route: 'full'
 route_source: 'auto'
@@ -98,6 +98,8 @@ context:
 - Given an open market, when the market address is visited, then the teaser still answers.
 
 ## Implementation Notes
+
+Built as planned. Locale keys sit under `back_office.markets.*` and `back_office.market_openings.*` to match the controllers' lazy lookups. Static checks only (rubocop, prettier, planning and size checks); packwerk and the tests were not run because bundler gems are absent in the worktree.
 
 ## Plan Change Log
 

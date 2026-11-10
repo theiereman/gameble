@@ -21,6 +21,9 @@ module BackOfficeDashboardHelper
         back_office_tile(:announcements, back_office_announcements_path, status: announcement_status),
         back_office_tile(:roadmap, back_office_roadmap_path, action: :show?)
       ],
+      market: [
+        back_office_tile(:market, back_office_market_path, action: :show?)
+      ],
       technical: [
         back_office_tile(:jobs, mission_control_jobs.root_path(locale: nil), action: :show?, turbo: false)
       ]

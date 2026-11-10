@@ -1,0 +1,42 @@
+<%# locals: (state:, opening:) %>
+<% allowed = policy([ :back_office, :market_opening ]).create? %>
+<section class="stack market-opening" aria-labelledby="market-opening-heading">
+  <h2 id="market-opening-heading"><%= state.first_opened? ? t("back_office.markets.opening.reopen_heading") : t("back_office.markets.opening.heading") %></h2>
+
+  <% unless allowed %>
+    <p class="ban-form__hint" id="market-opening-reason" data-market-opening-reason><%= t("back_office.markets.opening.administrators_only") %></p>
+  <% end %>
+
+  <%= form_with url: back_office_market_opening_path, method: :post, class: "stack market-opening__form" do %>
+    <% if opening.refusal %>
+      <ul class="ledger-errors" role="alert">
+        <li data-market-opening-refusal><%= opening.refusal %></li>
+      </ul>
+    <% end %>
+
+    <fieldset class="market-opening__confirmations" <%= tag.attributes(disabled: !allowed, aria: { describedby: ("market-opening-reason" unless allowed) }) %>>
+      <legend><%= t("back_office.markets.opening.confirmations") %></legend>
+      <p class="market-opening__confirmation">
+        <%= hidden_field_tag :terms_confirmed, "0", id: nil %>
+        <%= check_box_tag :terms_confirmed, "1", opening.terms_confirmed, id: "market-terms-confirmed", disabled: !allowed %>
+        <label for="market-terms-confirmed"><%= t("back_office.markets.opening.terms") %></label>
+      </p>
+      <p class="market-opening__confirmation">
+        <%= hidden_field_tag :odds_confirmed, "0", id: nil %>
+        <%= check_box_tag :odds_confirmed, "1", opening.odds_confirmed, id: "market-odds-confirmed", disabled: !allowed %>
+        <label for="market-odds-confirmed"><%= t("back_office.markets.opening.odds") %></label>
+      </p>
+    </fieldset>
+
+    <%= render "back_office/markets/announcement", opening:, disabled: !allowed %>
+
+    <p class="market-opening__actions">
+      <% label = state.first_opened? ? t("back_office.markets.opening.reopen") : t("back_office.markets.opening.open") %>
+      <% if allowed %>
+        <%= render ButtonComponent.new(type: :submit) do %><%= label %><% end %>
+      <% else %>
+        <%= render ButtonComponent.new(disabled: true) do %><%= label %><% end %>
+      <% end %>
+    </p>
+  <% end %>
+</section>

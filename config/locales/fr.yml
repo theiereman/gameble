@@ -651,6 +651,30 @@ fr:
         updated: "L'annonce est modifiée."
       withdraw:
         withdrawn: "L'annonce a quitté le bandeau."
+    market_openings:
+      create:
+        opened: "Le marché est ouvert et l'annonce est sur le bandeau."
+    markets:
+      announcement:
+        hint: "Affichée sur le bandeau rouge à la place de l'annonce actuelle, dans la langue de chaque joueur, %{length} caractères au plus."
+        legend: "L'annonce"
+      opening:
+        administrators_only: "Seul un administrateur peut ouvrir le marché. Les modérateurs voient cette page en lecture seule."
+        confirmations: "Confirmations"
+        heading: "Ouvrir le marché"
+        odds: "Les probabilités de chaque tirage sont publiées et exactes."
+        open: "Ouvrir le marché"
+        reopen: "Rouvrir le marché"
+        reopen_heading: "Rouvrir le marché"
+        terms: "Les conditions du marché sont en vigueur et les joueurs peuvent les lire."
+      show:
+        heading: "Le marché"
+        intro: "Ouvrir le marché aux joueurs, ou le rouvrir après une suspension. Le teaser reste à l'adresse du marché jusqu'à ce que le marché le remplace."
+        state:
+          never_opened: "Le marché n'a jamais été ouvert."
+          open: "Le marché est ouvert. Première ouverture :"
+          suspended: "Le marché est suspendu. Rien ne peut être confié avant sa réouverture."
+        state_heading: "État"
     dashboard:
       show:
         heading: "Le back-office de la Confrérie"
@@ -658,6 +682,7 @@ fr:
           moderation: "Modération"
           catalog: "Catalogue"
           communication: "Communication"
+          market: "Marché"
           technical: "Technique"
         tiles:
           reports:
@@ -693,6 +718,9 @@ fr:
           roadmap:
             title: "La feuille de route"
             text: "Les jalons et les histoires de la page d'accueil."
+          market:
+            title: "Le marché"
+            text: "Ouvrir le marché et l'annoncer."
           jobs:
             title: "La file des tâches"
             text: "Les tâches en file, en cours et en échec."
@@ -3155,6 +3183,12 @@ fr:
       position_out_of_range: "La vitrine n'a pas cette place."
       amounts_changed: "Les montants ont changé pendant votre choix. Ils sont redessinés ci-dessous : vérifiez-les puis validez à nouveau."
       empty_batch: "Choisissez au moins un exemplaire à confier."
+      administrator_required: "Seul un administrateur peut faire cela."
+      market_already_open: "Le marché est déjà ouvert."
+      invalid_announcement: "Chaque annonce demande un texte dans les deux langues, 280 caractères au plus. Le marché n'a pas été ouvert."
+      odds_not_confirmed: "Confirmez que les probabilités sont publiées et exactes avant d'ouvrir le marché."
+      settings_changed: "Les réglages du marché ont changé pendant que vous étiez sur cette page. Rechargez-la et vérifiez-les."
+      terms_not_confirmed: "Confirmez que les conditions du marché sont en vigueur avant d'ouvrir le marché."
       market_busy: "Les Archives sont occupées pour le moment. Réessayez dans un instant."
       market_closed: "Le marché est fermé pour le moment. Rien n'a été confié."
       no_rarity: "Une de ces cartes n'a pas encore de rareté : la Confrérie ne peut pas l'estimer."

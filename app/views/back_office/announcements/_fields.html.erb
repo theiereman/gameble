@@ -1,11 +1,11 @@
-<%# locals: (dom:, message_fr: nil, message_en: nil) %>
+<%# locals: (dom:, message_fr: nil, message_en: nil, disabled: false) %>
 <p class="announcement-editor__field">
   <label for="<%= dom %>-fr"><%= t("back_office.announcements.fields.message_fr") %></label>
   <%= text_area_tag :message_fr, message_fr, id: "#{dom}-fr", class: "ban-form__field announcement-editor__message", lang: "fr", rows: 3,
-        required: true, maxlength: Accounts::Announcement::MESSAGE_LENGTH %>
+        required: true, disabled:, maxlength: Accounts::Announcement::MESSAGE_LENGTH %>
 </p>
 <p class="announcement-editor__field">
   <label for="<%= dom %>-en"><%= t("back_office.announcements.fields.message_en") %></label>
   <%= text_area_tag :message_en, message_en, id: "#{dom}-en", class: "ban-form__field announcement-editor__message", lang: "en", rows: 3,
-        required: true, maxlength: Accounts::Announcement::MESSAGE_LENGTH %>
+        required: true, disabled:, maxlength: Accounts::Announcement::MESSAGE_LENGTH %>
 </p>
