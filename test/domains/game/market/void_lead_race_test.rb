@@ -32,15 +32,7 @@ class Game::Market::VoidLeadRaceTest < ActiveSupport::TestCase
 
   teardown do
     players = [ @seller, @leader, @bidder ].map(&:id)
-    Game::Market::Bid.where(listing_id: @listing.id).delete_all
-    Game::Market::LedgerEntry.where(player_id: players).delete_all
-    Game::Market::Wallet.where(player_id: players).delete_all
-    Game::Market::Notice.where(listing_id: @listing.id).delete_all
-    Game::Market::Listing.where(id: @listing.id).delete_all
-    purge_player_rows(players)
-    purge_events(players)
-    Game::Market::Settings.where(id: @settings.id).delete_all
-    Accounts::Player.where(id: players).delete_all
+    purge_market_race(players, listing: @listing, settings: @settings)
   end
 
   test "a bid and a void at once release the removed leader once and leave the money balanced" do

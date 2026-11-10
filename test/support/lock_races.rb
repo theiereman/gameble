@@ -48,6 +48,20 @@ module LockRaces
     end
   end
 
+  # Removes a committed market race's listing, its settings and every row of its players.
+  def purge_market_race(players, listing:, settings:, card: nil)
+    Game::Market::Bid.where(listing_id: listing.id).delete_all
+    Game::Market::LedgerEntry.where(player_id: players).delete_all
+    Game::Market::Wallet.where(player_id: players).delete_all
+    Game::Market::Notice.where(listing_id: listing.id).delete_all
+    Game::Market::Listing.where(id: listing.id).delete_all
+    Game::Market::EditionPrice.where(card_season_id: card.id).delete_all if card
+    purge_player_rows(players)
+    purge_events(players)
+    Game::Market::Settings.where(id: settings.id).delete_all
+    Accounts::Player.where(id: players).delete_all
+  end
+
   def purge_events(players)
     connection = ActiveRecord::Base.connection
     streams = players.flat_map { [ Game::Operation.stream_name(it), "Accounts::Player$#{it}" ] }
