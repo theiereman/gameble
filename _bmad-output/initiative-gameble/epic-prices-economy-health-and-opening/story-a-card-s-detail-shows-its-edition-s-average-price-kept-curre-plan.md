@@ -3,7 +3,7 @@ title: 'A card''s detail shows its edition''s average price, kept current every 
 type: 'feature'
 ticket: '41.1'
 created: '2026-11-10'
-status: 'in-progress'
+status: 'in-review'
 baseline_revision: '231c45ca83e64d28ad829604df9e8773aa3139f9'
 route: 'full'
 route_source: 'auto'
@@ -78,6 +78,8 @@ context:
 - Given the market has first opened, when a visitor opens the card detail of an edition with five sales, two sales and none, then it shows the amount, the amount with "peu de ventes", and "Sans vente", with "Fondé sur <n> ventes" under the first two, and nothing before the opening.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. The refresh runs after the reconciliation's reports inside `ReconcileWalletsJob`, which still returns the reconciliation. `CardsController` reads the market state once and hands it to both the entrustment and the price queries, so a player's request costs no extra query and a visitor's one. The price row is `card-detail__fact--price` on the detail and `public-card__price` on the public card page. Updated the visitor's query count of the card detail test.
 
 ## Plan Change Log
 
