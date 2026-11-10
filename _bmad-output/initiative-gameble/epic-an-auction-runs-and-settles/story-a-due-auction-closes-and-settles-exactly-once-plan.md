@@ -3,7 +3,7 @@ title: 'A due auction closes and settles exactly once'
 type: 'feature'
 ticket: '39.2'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: '690c31e8394f5bbc1b94ffe3852097583d1fb622'
 route: 'full'
 route_source: 'auto'
@@ -123,6 +123,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10 review: code matched the plan (lock order, single Ledger.post, one event, locale keys, handlers, recurring jobs); no code defect found. Added the missing test that the winner's allocation is received. Static checks ran: ruby -c, planning-id and file-size scripts pass; rubocop and packwerk could not run in the worktree (bundle gems missing).
 
 ## Review Triage Log
 

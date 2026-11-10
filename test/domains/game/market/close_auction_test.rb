@@ -64,6 +64,17 @@ class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
     assert_equal [ 1, 0 ], copies(@winner)
   end
 
+  test "the winner's pending allocation is received once the sale settles" do
+    lead
+    received = []
+    receiver = Object.new
+    receiver.define_singleton_method(:call) { |player:, season:| received << player.id and Dry::Monads::Success([]) }
+
+    Game::ReceiveSeasonAllocation.stub(:new, receiver) { close }
+
+    assert_equal [ @winner.id ], received
+  end
+
   test "entries are written per wallet and zero amounts are skipped" do
     lead(maximum: 31_500)
     close
