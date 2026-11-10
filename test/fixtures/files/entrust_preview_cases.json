@@ -1,0 +1,83 @@
+[
+  {
+    "name": "under the cap everything is entrusted",
+    "values": { "common": 1000, "uncommon": 2000, "rare": 5000, "epic": 15000, "legendary": 100000 },
+    "cap_left": 1200000,
+    "lines": [ { "rarity": "rare", "copies": 1 }, { "rarity": "common", "copies": 2 } ],
+    "entrusted": { "rare": 1, "common": 2 },
+    "stayed": {},
+    "received": 7000
+  },
+  {
+    "name": "a legendary over the cap stays and the cheaper copies pass",
+    "values": { "common": 1000, "uncommon": 2000, "rare": 5000, "epic": 15000, "legendary": 100000 },
+    "cap_left": 50000,
+    "lines": [ { "rarity": "legendary", "copies": 1 }, { "rarity": "uncommon", "copies": 2 }, { "rarity": "common", "copies": 1 } ],
+    "entrusted": { "uncommon": 2, "common": 1 },
+    "stayed": { "legendary": 1 },
+    "received": 5000
+  },
+  {
+    "name": "a copy that does not fit is skipped and a cheaper one fits",
+    "values": { "common": 1000, "uncommon": 2000, "rare": 5000, "epic": 15000, "legendary": 100000 },
+    "cap_left": 5000,
+    "lines": [ { "rarity": "legendary", "copies": 1 }, { "rarity": "uncommon", "copies": 1 } ],
+    "entrusted": { "uncommon": 1 },
+    "stayed": { "legendary": 1 },
+    "received": 2000
+  },
+  {
+    "name": "a line of several copies is entrusted in part",
+    "values": { "common": 1000, "uncommon": 2000, "rare": 5000, "epic": 15000, "legendary": 100000 },
+    "cap_left": 2500,
+    "lines": [ { "rarity": "common", "copies": 3 } ],
+    "entrusted": { "common": 2 },
+    "stayed": { "common": 1 },
+    "received": 2000
+  },
+  {
+    "name": "nothing fits under what is left of the cap",
+    "values": { "common": 1000, "uncommon": 2000, "rare": 5000, "epic": 15000, "legendary": 100000 },
+    "cap_left": 500,
+    "lines": [ { "rarity": "uncommon", "copies": 1 }, { "rarity": "common", "copies": 1 } ],
+    "entrusted": {},
+    "stayed": { "uncommon": 1, "common": 1 },
+    "received": 0
+  },
+  {
+    "name": "a cap of zero left entrusts nothing",
+    "values": { "common": 1000, "uncommon": 2000, "rare": 5000, "epic": 15000, "legendary": 100000 },
+    "cap_left": 0,
+    "lines": [ { "rarity": "rare", "copies": 2 } ],
+    "entrusted": {},
+    "stayed": { "rare": 2 },
+    "received": 0
+  },
+  {
+    "name": "an exact fit entrusts every copy",
+    "values": { "common": 1000, "uncommon": 2000, "rare": 5000, "epic": 15000, "legendary": 100000 },
+    "cap_left": 6000,
+    "lines": [ { "rarity": "rare", "copies": 1 }, { "rarity": "common", "copies": 1 } ],
+    "entrusted": { "rare": 1, "common": 1 },
+    "stayed": {},
+    "received": 6000
+  },
+  {
+    "name": "a cheaper copy after a skipped one still passes",
+    "values": { "common": 1000, "uncommon": 2000, "rare": 5000, "epic": 15000, "legendary": 100000 },
+    "cap_left": 16000,
+    "lines": [ { "rarity": "legendary", "copies": 1 }, { "rarity": "epic", "copies": 1 }, { "rarity": "common", "copies": 1 } ],
+    "entrusted": { "epic": 1, "common": 1 },
+    "stayed": { "legendary": 1 },
+    "received": 16000
+  },
+  {
+    "name": "settings values other than the starting ones are the ones applied",
+    "values": { "common": 1500, "uncommon": 2000, "rare": 6000, "epic": 15000, "legendary": 100000 },
+    "cap_left": 7000,
+    "lines": [ { "rarity": "rare", "copies": 1 }, { "rarity": "common", "copies": 2 } ],
+    "entrusted": { "rare": 1 },
+    "stayed": { "common": 2 },
+    "received": 6000
+  }
+]
