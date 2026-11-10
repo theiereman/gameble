@@ -42,6 +42,7 @@ Rails.configuration.to_prepare do
   event_store.subscribe(->(event) { PlayerStream.reacted(Game::Handlers::ReactionNotices.call(event)) }, to: [ Game::FeedEntryReacted ])
 
   event_store.subscribe(PlayerStream, to: PlayerStream::EVENTS)
+  event_store.subscribe(ListingStream, to: ListingStream::EVENTS)
   event_store.subscribe(PushNotices, to: PushNotices::EVENTS)
   # A player whose standard reserve has filled up again hears of it once, on their phone.
   event_store.subscribe(ReserveFullNotice, to: ReserveFullNotice::EVENTS)
