@@ -1,0 +1,18 @@
+.player-name {
+  color: var(--color-text-max);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.player-name--linked {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+@media (max-width: 719px) {
+  .player-name--linked {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--space-touch-min);
+  }
+}
