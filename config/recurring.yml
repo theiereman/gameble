@@ -80,6 +80,12 @@ sum_archive_stocks: &sum_archive_stocks
   queue: default
   schedule: every hour
 
+# Staff's alt-account signals are replaced every night, after the reconciliation.
+refresh_alt_signals: &refresh_alt_signals
+  class: Game::RefreshAltSignalsJob
+  queue: default
+  schedule: every day at 12:40am
+
 development:
   recover_stalled_imports: *recover_stalled_imports
   sum_weekly_goal: *sum_weekly_goal
@@ -89,6 +95,7 @@ development:
   drop_presence: *drop_presence
   check_market_health: *check_market_health
   reconcile_wallets: *reconcile_wallets
+  refresh_alt_signals: *refresh_alt_signals
   sum_archive_stocks: *sum_archive_stocks
   publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
@@ -103,6 +110,7 @@ production:
   drop_presence: *drop_presence
   check_market_health: *check_market_health
   reconcile_wallets: *reconcile_wallets
+  refresh_alt_signals: *refresh_alt_signals
   sum_archive_stocks: *sum_archive_stocks
   publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention

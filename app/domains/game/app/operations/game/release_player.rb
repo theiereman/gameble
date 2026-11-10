@@ -7,6 +7,7 @@ module Game
         step DropFriendsAndTrades.new.call(player:)
         BankLock.acquire(player.id)
         Market::Notice.where(player_id: player.id).delete_all
+        Market::AltSignal.where(account_id: player.id).or(Market::AltSignal.where(other_account_id: player.id)).delete_all
         FeedReaction.where(player_id: player.id).delete_all
         ReactionNotice.where(reactor_id: player.id).delete_all
         TradeView.where(player_id: player.id).delete_all
