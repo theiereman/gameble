@@ -16,7 +16,8 @@ jobs:
 
       - name: Serve the stand-in site
         run: |
-          nohup python3 mobile/ios/ui-test-server/server.py public/configurations/ios_v1.json > server.log 2>&1 &
+          mkdir -p "$RUNNER_TEMP/site" && tar xzf mobile/ios/ui-test-server/site.tar.gz -C "$RUNNER_TEMP/site"
+          nohup python3 mobile/ios/ui-test-server/server.py public/configurations/ios_v1.json "$RUNNER_TEMP/site" > server.log 2>&1 &
           sleep 2
           curl -fsS http://127.0.0.1:3000/en | head -c 200
 

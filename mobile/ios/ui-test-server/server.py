@@ -3,10 +3,10 @@ import http.server
 import pathlib
 import sys
 import urllib.parse
-import urllib.request
+import mimetypes
 
 CONFIGURATION = pathlib.Path(sys.argv[1]).read_bytes()
-SITE = "https://gameble.net"
+SNAPSHOT = pathlib.Path(sys.argv[2]) if len(sys.argv) > 2 else pathlib.Path("site")
 ROWS = "".join(f'<div class="row">Row {n}</div>' for n in range(1, 41))
 PAGE = f"""<!doctype html>
 <html data-native-app>
@@ -41,17 +41,19 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self.answer(200, CONFIGURATION, "application/json")
         loads[self.path] += 1
         if mode["page"] == "site":
-            return self.relay()
+            return self.snapshot()
         self.answer(200, PAGE, "text/html")
 
-    def relay(self):
-        headers = {k: v for k, v in self.headers.items() if k.lower() in ("user-agent", "accept", "accept-language", "cookie")}
-        try:
-            with urllib.request.urlopen(urllib.request.Request(SITE + self.path, headers=headers), timeout=20) as reply:
-                body = reply.read().replace(SITE.encode(), b"http://localhost:3000")
-                self.answer(reply.status, body, reply.headers.get("Content-Type", "text/html"))
-        except urllib.error.HTTPError as error:
-            self.answer(error.code, error.read(), error.headers.get("Content-Type", "text/html"))
+    def snapshot(self):
+        path = self.path.split("?", 1)[0]
+        page = SNAPSHOT / "pages" / (path.strip("/").replace("/", "_") + ".html")
+        file = SNAPSHOT / path.lstrip("/")
+        if path.startswith("/vite-dev/") and file.is_file():
+            kind = mimetypes.guess_type(file.name)[0] or "application/octet-stream"
+            return self.answer(200, file.read_bytes(), kind)
+        if page.is_file():
+            return self.answer(200, page.read_bytes(), "text/html; charset=utf-8")
+        self.answer(404, b"", "text/html")
 
     def answer(self, status, body, kind):
         self.send_response(status)
@@ -64,7 +66,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             pass
 
     def log_message(self, format, *args):
-        if self.path.startswith(("/__log", "/vite/")):
+        if self.path.startswith(("/__log", "/vite-dev/")):
             return
         print(f"{mode['page']} GET {self.path} {args[1] if len(args) > 1 else ''} ({self.headers.get('User-Agent', '')[:40]})", flush=True)
 

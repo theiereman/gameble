@@ -13,6 +13,13 @@ final class PullDiagnostics: NSObject {
         guard enabled else { return }
         send("activated pulls=\(pullsToRefresh) url=\(webView.url?.path ?? "-")")
         webView.scrollView.panGestureRecognizer.addTarget(self, action: #selector(panned(_:)))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 15) { [weak self, weak webView] in
+            guard let self, let webView, webView.window != nil else { return }
+            let scroll = webView.scrollView
+            self.send("settled url=\(webView.url?.path ?? "-") offset=\(scroll.contentOffset.y) size=\(scroll.contentSize) bounds=\(scroll.bounds.size) pan=\(scroll.panGestureRecognizer.isEnabled) gestures=\(webView.gestureRecognizers?.count ?? 0)/\(scroll.gestureRecognizers?.count ?? 0)")
+            self.probe(webView, at: CGPoint(x: webView.bounds.midX, y: webView.bounds.height * 0.3))
+            self.probe(webView, at: CGPoint(x: webView.bounds.width * 0.06, y: webView.bounds.height * 0.3))
+        }
     }
 
     func moved(_ scrollView: UIScrollView) {
