@@ -3,7 +3,7 @@ title: 'A notable sale is recorded as a feed entry'
 type: 'feature'
 ticket: '40.6'
 created: '2026-11-10'
-status: 'draft'
+status: 'in-review'
 baseline_revision: 'ee385caffd1868936402b29b20042aabb8201400'
 route: 'full'
 route_source: 'auto'
@@ -75,6 +75,8 @@ context:
 - Given a sale at the threshold settles, then the feed holds one sale entry naming the buyer, visible to every viewer unless the buyer is banned or deleted.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. The sale rule sits in `FeedEntry.record_sale`; `Visibility.sale_listed?` is the one test of a sale buyer's account, used by the three readers. Migrations `20261110160000` to `20261110160002`; `db/schema.rb` is left to be regenerated.
 
 ## Plan Change Log
 
