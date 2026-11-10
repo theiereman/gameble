@@ -89,11 +89,7 @@
               <div class="card-detail__fact">
                 <dt><%= t("card_details.facts.pioneer") %></dt>
                 <dd class="card-detail__pioneer">
-                  <% if pioneer.token %>
-                    <%= link_to pioneer.name, brother_path(token: pioneer.token) %>
-                  <% else %>
-                    <span class="card-detail__pioneer-anon"><%= t("card_details.pioneer.anonymous") %></span>
-                  <% end %>
+                  <%= render PlayerNameComponent.new(player: pioneer.player, viewer: current_player) %>
                   <span class="card-detail__pioneer-date"><%= card_detail_pioneer_date(pioneer.discovered_on) %></span>
                 </dd>
               </div>

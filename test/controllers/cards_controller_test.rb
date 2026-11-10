@@ -966,33 +966,36 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[Season Pioneer], facts.map(&:first).each_cons(2).find { |a, b| b == "Pioneer" }
   end
 
-  test "a deleted pioneer, or a private profile, reads as an anonymous player" do
+  test "a private pioneer reads as a bare name, a deleted one as an anonymous player" do
     pioneer = accounts_players(:moderator)
+    pioneer.update!(persona_name: "Léa")
     pioneered_by(pioneer)
     pioneer.update!(visibility: :private)
     sign_in(accounts_players(:player))
 
     get card_path(locale: :en, slug: "portal")
 
-    assert_select ".card-detail__pioneer-anon", "An anonymous player"
+    assert_select ".card-detail__pioneer span.player-name", "Léa"
     assert_select ".card-detail__pioneer a", false
     pioneer.update_columns(deleted_at: Time.current, steam_id: nil, visibility: Accounts::Player.visibilities.fetch(:public))
     get card_path(locale: :en, slug: "portal")
-    assert_select ".card-detail__pioneer-anon", "An anonymous player"
+    assert_select ".card-detail__pioneer .player-name--anonymous", "An anonymous player"
+    assert_select ".card-detail__pioneer", text: /Léa/, count: 0
   end
 
-  test "a visitor browsing a context reads the name of a public profile, and a friends-only profile as anonymous" do
+  test "a visitor browsing a context reads the name of a public profile linked, and a friends-only profile as a bare name" do
     pioneer = accounts_players(:moderator)
     pioneer.update!(persona_name: "Léa")
     pioneered_by(pioneer)
     owner = accounts_players(:player)
 
     get card_season_path(locale: :en, slug: "portal", number: 1, brother: owner.token)
-    assert_select ".card-detail__pioneer a", "Léa"
+    assert_select ".card-detail__pioneer a.player-name--linked", "Léa"
 
     pioneer.update!(visibility: :friends_only)
     get card_season_path(locale: :en, slug: "portal", number: 1, brother: owner.token)
-    assert_select ".card-detail__pioneer-anon"
+    assert_select ".card-detail__pioneer span.player-name", "Léa"
+    assert_select ".card-detail__pioneer a", false
   end
 
   test "each edition of a card names its own pioneer, whichever season is published" do

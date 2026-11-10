@@ -27,11 +27,7 @@
       <% if pioneer %>
         <p class="public-card__pioneer">
           <span class="public-card__pioneer-label"><%= t("card_details.facts.pioneer") %></span>
-          <% if pioneer.token %>
-            <%= link_to pioneer.name, brother_path(token: pioneer.token) %>
-          <% else %>
-            <span><%= t("card_details.pioneer.anonymous") %></span>
-          <% end %>
+          <%= render PlayerNameComponent.new(player: pioneer.player, viewer: current_player) %>
           <span class="public-card__pioneer-date"><%= card_detail_pioneer_date(pioneer.discovered_on) %></span>
         </p>
       <% end %>

@@ -6,7 +6,7 @@ class CardsController < ApplicationController
 
   Browse = Data.define(:position, :total, :previous, :next, :back)
   Back = Data.define(:label, :path)
-  PioneerLine = Data.define(:discovered_on, :token, :name)
+  PioneerLine = Data.define(:discovered_on, :player)
   Showcase = Data.define(:action, :season_number, :another_edition)
 
   def show
@@ -38,12 +38,7 @@ class CardsController < ApplicationController
       pioneer = Game::PioneerOf.call(@detail.card_season_id)
       return if pioneer.nil?
 
-      day = pioneer.discovered_at.in_time_zone.to_date
-      player = pioneer.player
-      return PioneerLine.new(discovered_on: day, token: nil, name: nil) unless Game::Visibility.visible?(current_player, player, staff_sees_all: false)
-
-      name = Accounts::PersonaName.clean(player.persona_name) || t("shell.player.fallback_name")
-      PioneerLine.new(discovered_on: day, token: player.token, name:)
+      PioneerLine.new(discovered_on: pioneer.discovered_at.in_time_zone.to_date, player: pioneer.player)
     end
 
     def share_url
