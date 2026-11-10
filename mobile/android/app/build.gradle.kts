@@ -73,6 +73,7 @@ dependencies {
     implementation("dev.hotwire:core:1.3.2")
     implementation("dev.hotwire:navigation-fragments:1.3.2")
     implementation("androidx.browser:browser:1.8.0")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("com.google.android.material:material:1.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))

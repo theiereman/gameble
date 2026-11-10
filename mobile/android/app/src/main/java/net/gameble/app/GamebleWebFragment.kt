@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.navigation.NavOptions
 import androidx.navigation.navOptions
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.appbar.AppBarLayout
 import dev.hotwire.core.turbo.errors.VisitError
 import dev.hotwire.core.turbo.visit.VisitAction
@@ -14,6 +15,7 @@ import dev.hotwire.core.turbo.webview.HotwireWebView
 import dev.hotwire.navigation.destinations.HotwireDestination
 import dev.hotwire.navigation.destinations.HotwireDestinationDeepLink
 import dev.hotwire.navigation.fragments.HotwireWebFragment
+import dev.hotwire.navigation.R as HotwireR
 import dev.hotwire.navigation.routing.Router
 
 @HotwireDestinationDeepLink(uri = "hotwire://fragment/web")
@@ -35,6 +37,13 @@ class GamebleWebFragment : HotwireWebFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         hideAppBar()
+        dropRefreshSpinnerBelowTopBar(view)
+    }
+
+    private fun dropRefreshSpinnerBelowTopBar(view: View) {
+        val refresh = view.findViewById<SwipeRefreshLayout>(HotwireR.id.hotwire_webView_container) ?: return
+        val topBar = resources.getDimensionPixelSize(R.dimen.top_bar_height)
+        refresh.setProgressViewOffset(false, refresh.progressViewStartOffset + topBar, refresh.progressViewEndOffset + topBar)
     }
 
     override fun onStart() {

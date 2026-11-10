@@ -56,7 +56,7 @@ final class GamebleWebViewController: HotwireWebViewController {
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.scrollView.alwaysBounceVertical = visitableView.allowsPullToRefresh
         visitableView.refreshControl.tintColor = Palette.muted
-        placeRefreshControlBelowTopBar()
+        handRefreshControlToScrollView()
         scrollObservation = webView.scrollView.observe(\.contentOffset) { [weak self] scrollView, _ in
             self?.scrolled(scrollView)
         }
@@ -84,21 +84,23 @@ final class GamebleWebViewController: HotwireWebViewController {
         guard pullToRefreshBeforeHold == nil, !visitableView.isRefreshing else { return }
         pullToRefreshBeforeHold = visitableView.allowsPullToRefresh
         visitableView.allowsPullToRefresh = false
+        visitableView.webView?.scrollView.refreshControl = nil
     }
 
     func releasePullToRefresh() {
         guard let allowed = pullToRefreshBeforeHold else { return }
         pullToRefreshBeforeHold = nil
         visitableView.allowsPullToRefresh = allowed
-        placeRefreshControlBelowTopBar()
+        handRefreshControlToScrollView()
     }
 
-    // Hotwire pins the spinner to the web view's top edge, which the app's top bar covers.
-    private func placeRefreshControlBelowTopBar() {
+    // Hotwire pins the spinner with constraints that fight UIKit, which places it only as the scroll view's refreshControl.
+    private func handRefreshControlToScrollView() {
+        guard visitableView.allowsPullToRefresh, let scrollView = visitableView.webView?.scrollView else { return }
         let spinner = visitableView.refreshControl
-        for constraint in visitableView.constraints where constraint.firstItem === spinner && constraint.firstAttribute == .top {
-            constraint.constant = isSheet ? 0 : TopBarView.height
-        }
+        NSLayoutConstraint.deactivate(visitableView.constraints.filter { $0.firstItem === spinner } + spinner.constraints)
+        spinner.translatesAutoresizingMaskIntoConstraints = true
+        scrollView.refreshControl = spinner
     }
 
     func dialogChanged(open: Bool) {
