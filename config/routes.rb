@@ -36,6 +36,9 @@ Rails.application.routes.draw do
     get "market/entrust" => "market/entrustments#new", as: :new_market_entrustment
     get "market/entrust/cards/:slug" => "market/entrustments#new", as: :new_market_card_entrustment
     post "market/entrust" => "market/entrustments#create", as: :market_entrustments
+    get "market/sell" => "market/sales#new", as: :new_market_sale
+    get "market/sell/cards/:slug" => "market/sales#new", as: :new_market_card_sale
+    post "market/sell" => "market/sales#create", as: :market_sales
     # One listing, read by its token.
     get "market/listings/:token" => "market/listings#show", as: :market_listing
     # The visitor's motion switch, written into the motion cookie.

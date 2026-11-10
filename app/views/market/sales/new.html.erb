@@ -1,0 +1,60 @@
+<% content_for :title, t(".heading") %>
+<% content_for :public_page, true unless current_player %>
+<% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
+<% signed_out = current_player.nil? || @signed_out %>
+<section class="market-sale" aria-labelledby="market-sale-heading">
+  <header class="market-sale__header">
+    <p class="market-sale__kicker"><%= t(".kicker") %></p>
+    <h1 id="market-sale-heading" class="market-sale__title"><%= t(".heading") %></h1>
+    <p class="market-sale__intro"><%= t(".intro") %></p>
+    <%= render "shell/balance_chip", placement: :header %>
+  </header>
+
+  <% if signed_out %>
+    <%= render PanelComponent.new(class: "market-sale__notice") do %>
+      <p><%= t(".sign_in") %></p>
+      <%= render ButtonComponent.new(variant: :link, href: sign_in_path) { t(".sign_in_action") } %>
+    <% end %>
+  <% else %>
+    <% if @suspended %>
+      <%= render "market/suspended_banner" %>
+    <% elsif !@open %>
+      <%= render PanelComponent.new(class: "market-sale__notice", role: "status") do %>
+        <p><%= t(".closed") %></p>
+        <%= render ButtonComponent.new(variant: :link, href: market_path) { t(".closed_action") } %>
+      <% end %>
+    <% end %>
+
+    <% if @copies.empty? %>
+      <%= render "market/sales/refusal", slots: %i[grid form] %>
+      <%= render PanelComponent.new(class: "market-sale__notice") do %>
+        <p><%= t(".empty") %></p>
+        <%= render ButtonComponent.new(variant: :link, href: booster_path) { t(".empty_action") } %>
+      <% end %>
+    <% else %>
+      <%= form_with url: market_sales_path, id: "listing-form", class: "market-sale__form",
+            data: { turbo: false, layout: "wide", chosen: @chosen_ref.present?.to_s, step: (@chosen_ref ? "2" : "1"),
+                    **sale_root_data(open: @open, basis_points: @settings.commission_basis_points) } do %>
+        <%= hidden_field_tag :settings, @settings.token, id: nil %>
+        <%= hidden_field_tag :card, @card_slug, id: nil if @card_slug %>
+        <p class="market-sale__step" data-listing-form-target="step"><%= t(".step", step: @chosen_ref ? 2 : 1) %></p>
+        <% if @card_slug %>
+          <p class="market-sale__card-only">
+            <%= t(".card_only", title: @copies.first.card.title) %>
+            <%= render ButtonComponent.new(variant: :link, href: new_market_sale_path) { t(".all_cards") } %>
+          </p>
+        <% end %>
+        <% if @relisting && @chosen_ref %>
+          <p class="market-sale__relisting"><%= t(".relisting") %></p>
+        <% end %>
+        <div class="market-sale__layout">
+          <%= render "market/sales/grid" %>
+          <div class="sale-form">
+            <%= render "market/sales/fields" %>
+            <%= render "market/sales/summary" %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+</section>

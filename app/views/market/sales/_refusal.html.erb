@@ -1,0 +1,4 @@
+<%# locals: (slots:) %>
+<% if @refusal && slots.include?(@refusal_slot) && @refusal_slot != :closed %>
+  <p class="market-sale__refusal" role="alert" tabindex="-1"><%= @refusal %></p>
+<% end %>

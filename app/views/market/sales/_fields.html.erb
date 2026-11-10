@@ -1,0 +1,40 @@
+<% chosen = @copies.find { it.ref == @chosen_ref } %>
+<% hint = chosen ? t("market.sales.strings.minimum_hint", amount: picoins(@settings.minimum_price(chosen.card.rarity.to_sym)), rarity: sale_rarity_name(chosen.card.rarity)) : "" %>
+<% start_refused = @refusal_slot == :starting_price %>
+<% buy_now_refused = @refusal_slot == :buy_now_price %>
+<% duration_refused = @refusal_slot == :duration %>
+<%= tag.div class: "sale-fields", data: { controller: "listing-fields" }, inert: (true unless chosen) do %>
+  <button type="button" class="sale-fields__back" data-action="listing-fields#back"><%= t("market.sales.new.back") %></button>
+
+  <div class="sale-field">
+    <label for="sale-start" class="sale-field__label"><%= t("market.sales.new.start_label") %></label>
+    <%= text_field_tag :starting_price, @values[:start], id: "sale-start", inputmode: "numeric", autocomplete: "off",
+          aria: { invalid: (start_refused ? "true" : nil), describedby: (start_refused ? "sale-start-hint sale-start-error" : "sale-start-hint") },
+          data: { listing_fields_target: "start", listing_form_target: "start", action: "input->listing-fields#type keydown->listing-fields#keydown" } %>
+    <p id="sale-start-hint" class="sale-field__hint" data-listing-fields-target="hint"><%= hint %></p>
+    <p id="sale-start-error" class="sale-field__error" data-listing-fields-target="startError" <%= "hidden" unless start_refused %>><%= @refusal if start_refused %></p>
+  </div>
+
+  <div class="sale-field">
+    <label for="sale-buy-now" class="sale-field__label">
+      <%= t("market.sales.new.buy_now_label") %> <span class="sale-field__optional"><%= t("market.sales.new.optional") %></span>
+    </label>
+    <%= text_field_tag :buy_now_price, @values[:buy_now], id: "sale-buy-now", inputmode: "numeric", autocomplete: "off",
+          aria: { invalid: (buy_now_refused ? "true" : nil), describedby: (buy_now_refused ? "sale-buy-now-error" : nil) },
+          data: { listing_fields_target: "buyNow", listing_form_target: "buyNow", action: "input->listing-fields#type keydown->listing-fields#keydown" } %>
+    <p id="sale-buy-now-error" class="sale-field__error" data-listing-fields-target="buyNowError" <%= "hidden" unless buy_now_refused %>><%= @refusal if buy_now_refused %></p>
+  </div>
+
+  <fieldset class="sale-field sale-durations" role="radiogroup" aria-describedby="sale-duration-error"
+    <%= tag.attributes(aria: { invalid: ("true" if duration_refused) }) %>>
+    <legend class="sale-field__label"><%= t("market.sales.new.duration_label") %></legend>
+    <% sale_durations(@settings, checked: @values[:duration]).each do |duration| %>
+      <label class="sale-durations__choice">
+        <%= radio_button_tag :duration_hours, duration[:hours], duration[:checked], id: nil,
+              data: { listing_fields_target: "duration", listing_form_target: "duration", action: "change->listing-fields#pick keydown->listing-fields#keydown" } %>
+        <span><%= duration[:label] %></span>
+      </label>
+    <% end %>
+    <p id="sale-duration-error" class="sale-field__error" data-listing-fields-target="durationError" <%= "hidden" unless duration_refused %>><%= @refusal if duration_refused %></p>
+  </fieldset>
+<% end %>

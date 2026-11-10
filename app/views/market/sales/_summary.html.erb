@@ -1,0 +1,36 @@
+<% chosen = @copies.find { it.ref == @chosen_ref } %>
+<% stamp = chosen ? @settings.stamp(chosen.card.rarity.to_sym) : 0 %>
+<div class="sale-summary" data-controller="listing-summary" data-listing-summary-accessible-value="<%= t("market.sales.strings.amount") %>"
+  data-listing-summary-locale-value="<%= I18n.locale %>">
+  <ul class="sale-lines">
+    <li class="sale-line">
+      <span class="sale-line__name"><em><%= t("market.sales.new.stamp_name") %></em> <%= t("market.sales.new.stamp_text") %></span>
+      <%= render PicoinAmountComponent.new(amount: stamp, data: { listing_summary_target: "stamp" }) %>
+    </li>
+    <li class="sale-line">
+      <span class="sale-line__name"><em><%= t("market.sales.new.commission_name") %></em> <%= t("market.sales.new.commission_text", percent: basis_points_percent(@settings.commission_basis_points)) %></span>
+      <%= render PicoinAmountComponent.new(amount: 0, data: { listing_summary_target: "commission" }, hidden: true) %>
+    </li>
+    <li class="sale-line sale-line--received">
+      <span class="sale-line__name"><%= t("market.sales.new.received") %></span>
+      <%= render PicoinAmountComponent.new(amount: 0, data: { listing_summary_target: "received" }, hidden: true) %>
+    </li>
+  </ul>
+
+  <% if @refusal_slot == :stamp %>
+    <p class="market-sale__refusal" role="alert" tabindex="-1">
+      <%= @refusal %>
+      <%= render ButtonComponent.new(variant: :link, href: new_market_entrustment_path) { t("market.sales.new.entrust_action") } %>
+    </p>
+  <% else %>
+    <%= render "market/sales/refusal", slots: %i[form] %>
+  <% end %>
+
+  <p id="sale-rules" class="sale-summary__rules"><%= t("market.sales.new.rules") %></p>
+  <div class="sale-summary__submit">
+    <%= render ButtonComponent.new(type: :submit, disabled: !@open, describedby: "sale-rules") do %>
+      <%= t("market.sales.new.submit") %> · <%= render PicoinAmountComponent.new(amount: stamp, data: { listing_summary_target: "submitStamp" }) %>
+    <% end %>
+  </div>
+  <p class="visually-hidden" role="status" aria-live="polite" data-listing-summary-target="status"></p>
+</div>

@@ -1046,6 +1046,8 @@ en:
         one: "%{count} reserved copy"
         other: "%{count} reserved copies"
         zero: No reserved copies
+    list:
+      button: Put up for sale
     facts:
       copies: Copies
       editions: Editions
@@ -1424,13 +1426,13 @@ en:
       listing_not_closable: This auction cannot be closed.
       market_busy: The Archives are busy right now. Try again in a moment.
       market_closed: The market is closed for now.
-      buy_now_below_minimum: The buy-now price is below the minimum for this rarity.
+      buy_now_below_minimum: "At least %{amount} for a %{rarity}."
       buy_now_not_above_start: The buy-now price must be above the starting price.
-      copy_not_free: "This copy is not free: it is already listed, offered in a trade or entrusted."
+      copy_not_free: This card is no longer available.
       invalid_duration: Choose one of the listed durations.
       invalid_price: Enter a whole number of PiCoins, above zero.
       stamp_not_covered: "You are short of %{amount} PiCoins for the stamp."
-      start_below_minimum: The starting price is below the minimum for this rarity.
+      start_below_minimum: "At least %{amount} for a %{rarity}."
       no_rarity: One of these cards has no rarity yet, so the Brotherhood cannot value it.
       not_enough_copies: You do not have that many free copies of one of these cards.
       nothing_fits: No card fits within your cap for today. It renews at 00:00 UTC.
@@ -2410,16 +2412,68 @@ en:
           other: Entrust %{count} copies
           zero: Entrust
         value_text: "%{count} of %{max}"
+    sales:
+      create:
+        throttled: Slow down, the Archives are counting. Try again in a minute.
+      new:
+        all_cards: All cards
+        back: "◀ Back to the cards"
+        buy_now_label: BUY NOW PRICE
+        card_only: "Only %{title}."
+        cell_minimum: "minimum %{amount}"
+        choose: Choose the card to sell.
+        closed: The market is closed for now. Nothing can be sold until it reopens.
+        closed_action: Back to the market
+        commission_name: Brotherhood Effort
+        commission_text: "%{percent} of the final price, at the sale"
+        duration_days:
+          one: "%{count} DAY"
+          other: "%{count} DAYS"
+        duration_hours: "%{count} H"
+        duration_label: DURATION
+        empty: No card available to sell.
+        empty_action: Open a capsule
+        entrust_action: ENTRUST CARDS
+        free:
+          one: "%{count} available"
+          other: "%{count} available"
+        heading: Put a card up for sale
+        intro: Choose a card, set its price and let the members bid.
+        keys_hint: Arrow keys move between cards, Space or Enter chooses.
+        kicker: The Archives
+        optional: optional
+        received: Sold at the starting price, you receive
+        relisting: These amounts are those of your previous sale.
+        rules: The card is reserved during the sale. You can cancel as long as no offer is leading.
+        season: "Season %{number}"
+        sign_in: Sign in to put a card up for sale.
+        sign_in_action: Sign in
+        stamp_name: Gamebler Fiscal Stamp
+        stamp_text: paid now, never refunded
+        start_label: STARTING PRICE
+        step: "Step %{step} of 2"
+        submit: PUT UP FOR SALE
+      strings:
+        amount: "%{amount} PiCoins"
+        invalid_price: Enter a whole number of PiCoins, above zero.
+        minimum_hint: "At least %{amount} for a %{rarity}"
+        minimum_refusal: "At least %{amount} for a %{rarity}."
+        not_above_start: The buy-now price must be above the starting price.
+        status: You receive %{amount} PiCoins
+        step: "Step %{step} of 2"
   markets:
     screen:
       chips_label: Market sections
       empty: No listings for now.
       entrust: ENTRUST CARDS
+      entrust_short: ENTRUST
       heading: Market
       list_label: Listings
       listings: LISTINGS
       more: Load more
       pages_label: More listings
+      sell: PUT UP FOR SALE
+      sell_short: SELL
       sorts_label: Sort the listings
     show:
       closing: No date is being communicated at this stage. Management thanks you for your patience, which remains free of charge to this day.
