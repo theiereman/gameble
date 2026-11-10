@@ -4,6 +4,7 @@ module MarketHistoryHelper
     when :bid then render(PlayerNameComponent.new(player: line.player, viewer:))
     when :extension then t("market.listings.history.extension_html", time: local_time_tag(line.until))
     when :raise then t("market.listings.history.raise_html", name: render(PlayerNameComponent.new(player: line.player, viewer:)))
+    when :voided then t("market.listings.history.voided")
     when :created then t("market.listings.history.created_html", name: render(PlayerNameComponent.new(player: line.player, viewer:)))
     end
   end

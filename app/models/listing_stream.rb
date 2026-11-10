@@ -1,6 +1,7 @@
 module ListingStream
   EVENTS = [
-    Game::Market::BidPlaced, Game::Market::AuctionSold, Game::Market::AuctionUnsold, Game::Market::ListingCancelled, Game::Market::ListingWithdrawn
+    Game::Market::BidPlaced, Game::Market::AuctionSold, Game::Market::AuctionUnsold, Game::Market::ListingCancelled, Game::Market::ListingWithdrawn,
+    Game::Market::LeadVoided
   ].freeze
 
   BATCHES = :listing_stream_batches

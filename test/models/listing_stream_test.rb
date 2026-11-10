@@ -35,7 +35,7 @@ class ListingStreamTest < ActiveSupport::TestCase
   end
 
   test "every event of a listing is heard" do
-    expected = %w[BidPlaced AuctionSold AuctionUnsold ListingCancelled ListingWithdrawn].map { "Game::Market::#{it}" }
+    expected = %w[BidPlaced AuctionSold AuctionUnsold ListingCancelled ListingWithdrawn LeadVoided].map { "Game::Market::#{it}" }
 
     assert_equal expected, ListingStream::EVENTS.map(&:name)
   end

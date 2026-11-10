@@ -16,12 +16,13 @@ module Game
       end
 
       def self.visible_rows(token, viewer)
-        visible = Bid.public_outcomes
+        visible = Bid.history_visible
         visible = visible.or(Bid.where(outcome: "raise", player_id: viewer.id)) if viewer
         visible.joins(:listing).where(game_market_listings: { token: token.to_s }).select(*COLUMNS).order(id: :desc).to_a
       end
 
       def self.lines_of(row, player, listing)
+        return [ Line.new(kind: :voided, player: nil, price: nil, at: row.created_at, until: nil, leading: false) ] if row.outcome == "voided"
         return [ Line.new(kind: :raise, player:, price: nil, at: row.created_at, until: nil, leading: false) ] if row.outcome == "raise"
 
         leading = listing.status == "open" && row.outcome == "leading" && row.player_id == listing.leader_id

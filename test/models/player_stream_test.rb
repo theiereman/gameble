@@ -383,6 +383,13 @@ class PlayerStreamTest < ActiveSupport::TestCase
     assert_equal [ { player_id: @alice.id, balance: true }, { player_id: @alice.id, topic: "market" } ], notices
   end
 
+  test "a voided lead refreshes the removed leader's balance and the seller's market topic" do
+    voided = Game::Market::LeadVoided.new(data: { listing_id: 1, seller_id: @alice.id, leader_id: @bob.id, released: 30_000 })
+
+    assert_includes PlayerStream::EVENTS, Game::Market::LeadVoided
+    assert_equal [ { player_id: @bob.id, balance: true }, { player_id: @alice.id, topic: "market" } ], PlayerStream.notices(voided)
+  end
+
   test "a withdrawn listing tells its seller and its leader when present" do
     withdrawn = ->(leader_id) { Game::Market::ListingWithdrawn.new(data: { listing_id: 1, seller_id: @alice.id, leader_id:, released: 0 }) }
 

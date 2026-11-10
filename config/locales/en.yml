@@ -2418,6 +2418,7 @@ en:
         heading: HISTORY
         leading: Leading
         raise_html: "%{name} raised their maximum"
+        voided: "Bid voided: player removed"
       outcome:
         bought:
           body_html: "You pay %{price}. The card joins your collection."
@@ -3713,6 +3714,7 @@ en:
         other: What is new, %{count} unseen
       market:
         bought_over_html: "%{name} bought %{card} outright. Your %{amount} are available again."
+        lead_voided_html: "The leading player on %{card} was removed. The auction restarts from its starting price."
         outbid_html: "%{name} went past your maximum on %{card}."
         sold_html: "%{card} sold. You receive %{amount}."
         unsold_html: "%{card} received no offers. The card is returned to you."

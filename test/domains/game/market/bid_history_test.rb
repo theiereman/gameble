@@ -84,6 +84,17 @@ class Game::Market::BidHistoryTest < ActiveSupport::TestCase
     assert history.find { it.kind == :bid }.player.removed?
   end
 
+  test "a voided line is visible to every viewer and carries no player" do
+    bid(@first, 30_000)
+    Game::Market::Bid.create!(listing: @listing, player: @first, maximum: 30_000, price_after: 20_000, outcome: "voided")
+
+    [ nil, @second, @first ].each do |viewer|
+      lines = history(viewer)
+      assert_equal %i[voided bid created], lines.map(&:kind)
+      assert_nil lines.first.player
+    end
+  end
+
   test "no statement selects a maximum from the bids" do
     worked_example
     statements = []

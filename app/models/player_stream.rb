@@ -10,8 +10,9 @@ module PlayerStream
     Game::Market::CardsEntrusted, Game::Market::CardListed, Game::Market::AuctionSold, Game::Market::AuctionUnsold, Game::Market::ListingWithdrawn,
     Game::Market::BidPlaced
   ].freeze
+  REMOVAL_EVENTS = [ Game::Market::LeadVoided ].freeze
   EVENTS = (TRADE_EVENTS + SEEN_EVENTS + INVITATION_EVENTS + FRIENDSHIP_EVENTS +
-    [ Game::AchievementUnlocked, Game::AchievementClaimed, Game::CardBackUnlocked, Game::DailyBonusCollected ] + BALANCE_EVENTS).freeze
+    [ Game::AchievementUnlocked, Game::AchievementClaimed, Game::CardBackUnlocked, Game::DailyBonusCollected ] + BALANCE_EVENTS + REMOVAL_EVENTS).freeze
   CUT_OFF_EVENTS = [ Accounts::PlayerDeleted, Accounts::PlayerBanned ].freeze
   PRIVACY_EVENTS = [ Accounts::VisibilityChanged ].freeze
 
@@ -73,6 +74,8 @@ module PlayerStream
         balance_notices([ data[:seller_id] ]) + market_notices([ data[:seller_id] ] + Game::Market::ListingBidders.call(data[:listing_id]))
       when Game::Market::ListingWithdrawn
         balance_notices(data.values_at(:seller_id, :leader_id)) + market_notices(Game::Market::ListingBidders.call(data[:listing_id]))
+      when Game::Market::LeadVoided
+        balance_notices([ data[:leader_id] ]) + market_notices([ data[:seller_id] ])
       when *BALANCE_EVENTS
         [ balance_notice(data[:player_id]) ]
       when *CUT_OFF_EVENTS

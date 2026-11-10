@@ -62,6 +62,16 @@ class BellHelperTest < ActionView::TestCase
     end
   end
 
+  test "a voided lead leads the seller to MES VENTES in both languages" do
+    line = bell_market_line(market_notice(kind: :lead_voided, other: nil, amount: nil))
+
+    assert_equal market_my_sales_path, line.path
+    assert_includes line.sentence, "The leading player on Portal was removed. The auction restarts from its starting price."
+    I18n.with_locale(:fr) do
+      assert_includes bell_market_line(market_notice(kind: :lead_voided, other: nil, amount: nil)).sentence, "Le joueur en tête sur Portal a été retiré."
+    end
+  end
+
   test "a kind with no line yet is left out" do
     assert_nil bell_market_line(market_notice(kind: :withdrawn))
   end

@@ -122,6 +122,7 @@ fr:
         outbid_html: "%{name} a dépassé votre maximum sur %{card}."
         won_html: "Vous avez remporté %{card} pour %{amount}."
         bought_over_html: "%{name} a acheté %{card} immédiatement. Vos %{amount} sont de nouveau disponibles."
+        lead_voided_html: "Le joueur en tête sur %{card} a été retiré. L'enchère repart de son prix de départ."
         sold_html: "%{card} s'est vendue. Vous recevez %{amount}."
         unsold_html: "%{card} n'a reçu aucune offre. La carte vous est rendue."
       daily: "Votre capsule du jour est prête."
@@ -2112,6 +2113,7 @@ fr:
         heading: "HISTORIQUE"
         leading: "En tête"
         raise_html: "%{name} a relevé son maximum"
+        voided: "Offre annulée : joueur retiré"
       outcome:
         bought:
           body_html: "Vous payez %{price}. La carte rejoint votre collection."
