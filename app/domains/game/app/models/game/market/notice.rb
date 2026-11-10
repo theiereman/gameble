@@ -10,6 +10,8 @@ module Game
       belongs_to :other_player, class_name: "Accounts::Player", optional: true
 
       def self.record(player_id:, listing_id:, kind:, other_player_id: nil, amount: nil, at: Time.current)
+        return if Accounts::Player.removed.exists?(id: player_id)
+
         upsert({ player_id:, listing_id:, kind:, other_player_id:, amount:, noticed_at: at }, unique_by: %i[player_id listing_id])
       end
     end

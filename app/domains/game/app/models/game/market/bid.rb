@@ -8,6 +8,7 @@ module Game
       belongs_to :listing
       belongs_to :player, class_name: "Accounts::Player"
 
+      scope :history_visible, -> { where.not(outcome: "raise") }
       scope :public_outcomes, -> { where.not(outcome: %w[raise voided]) }
 
       def self.displace(listing_id:, player_id:)

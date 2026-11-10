@@ -39,6 +39,12 @@ close_due_auctions: &close_due_auctions
   queue: default
   schedule: every 10 seconds
 
+# A banned or deleted player's market presence is dropped within a minute.
+drop_presence: &drop_presence
+  class: Game::Market::DropPresenceJob
+  queue: default
+  schedule: every minute
+
 check_market_health: &check_market_health
   class: Game::CheckMarketHealthJob
   queue: default
@@ -80,6 +86,7 @@ development:
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
   close_due_auctions: *close_due_auctions
+  drop_presence: *drop_presence
   check_market_health: *check_market_health
   reconcile_wallets: *reconcile_wallets
   sum_archive_stocks: *sum_archive_stocks
@@ -93,6 +100,7 @@ production:
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
   close_due_auctions: *close_due_auctions
+  drop_presence: *drop_presence
   check_market_health: *check_market_health
   reconcile_wallets: *reconcile_wallets
   sum_archive_stocks: *sum_archive_stocks
