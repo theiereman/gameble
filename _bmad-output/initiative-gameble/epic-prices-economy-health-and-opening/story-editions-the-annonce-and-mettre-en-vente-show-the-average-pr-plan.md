@@ -3,7 +3,7 @@ title: 'ÉDITIONS, the Annonce and Mettre en vente show the average price'
 type: 'feature'
 ticket: '41.3'
 created: '2026-11-10'
-status: 'in-progress'
+status: 'in-review'
 baseline_revision: '3391a5dfad379884a7060791b614ced305b93eba'
 route: 'full'
 route_source: 'auto'
@@ -78,6 +78,8 @@ context:
 - Given the first opening and a player with two editions of a card, when they open the card detail, the Annonce of a listing and Mettre en vente, then ÉDITIONS shows both prices, the Annonce shows the price with its sale count, and choosing the other edition changes the price in the form.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. ÉDITIONS keeps its grouped rarity lines before the first opening and lists one line per owned edition after it, with its own fold label. The Annonce's price is the first fact, before the seller. In Mettre en vente the slot and one template per priced edition sit at the top of the fields; `FieldsView` gained `chosen` so the fields controller clones the matching template when the chosen edition changes. The price styles live in `average-price.css`, since `card-detail.css` is at its size limit.
 
 ## Plan Change Log
 
