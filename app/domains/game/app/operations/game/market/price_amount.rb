@@ -6,9 +6,13 @@ module Game
       private
 
       def amount(value)
-        text = value.to_s.strip
-        number = Integer(text, 10) if text.match?(/\A\d+\z/)
+        number = whole_number(value)
         number&.between?(1, MAX_AMOUNT) ? Success(number) : Failure(:invalid_price)
+      end
+
+      def whole_number(value)
+        text = value.to_s.strip
+        Integer(text, 10) if text.match?(/\A\d+\z/)
       end
     end
   end
