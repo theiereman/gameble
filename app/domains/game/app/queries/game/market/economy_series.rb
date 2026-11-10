@@ -1,7 +1,5 @@
 module Game
   module Market
-    # The only reader of the daily snapshots: the four indicators over the 90 days ending on the last complete UTC day.
-    # A day with no snapshot is nil for every indicator, never 0; a threshold or target is the settings version in force, flat over the window.
     module EconomySeries
       DAYS = 90
       RATIO_DAYS = 30

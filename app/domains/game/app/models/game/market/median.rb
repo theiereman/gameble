@@ -1,6 +1,5 @@
 module Game
   module Market
-    # The middle of a list of integers, the mean of the two middle ones rounded down for an even count, nil for none.
     module Median
       def self.of(values)
         return if values.empty?

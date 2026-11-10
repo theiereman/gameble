@@ -1,17 +1,14 @@
 module Game
   module Market
-    # The indicators whose last point crossed their threshold, each with the settings change that would answer it.
-    # Nothing here writes: the change is only proposed, and an administrator applies it through ChangeSettings.
     module EconomyAlerts
       Alert = Data.define(:indicator, :value, :threshold, :rarity, :current, :changes) do
         def actionable? = !changes.empty?
 
-        def stamp_field = :"stamp_#{rarity}"
+        def stamp_field = EconomyAlerts.stamp_field(rarity)
 
-        def minimum_field = :"minimum_price_#{rarity}"
+        def minimum_field = EconomyAlerts.minimum_field(rarity)
       end
 
-      # The side of the threshold that is the alert, and the rarity whose stamp is raised to answer it.
       RULES = {
         destroyed_share: { side: :below, rarity: :rare },
         picoins_per_player: { side: :above, rarity: :rare },
@@ -29,6 +26,10 @@ module Game
         end
       end
 
+      def self.stamp_field(rarity) = :"stamp_#{rarity}"
+
+      def self.minimum_field(rarity) = :"minimum_price_#{rarity}"
+
       def self.named(name, series, settings) = call(series, settings).find { it.indicator.to_s == name.to_s }
 
       def self.alert(indicator, value, threshold, rule, settings)
@@ -40,16 +41,15 @@ module Game
       private_class_method :alert
 
       def self.current(settings, rarity)
-        [ :"stamp_#{rarity}", :"minimum_price_#{rarity}" ].index_with { settings.public_send(it) }
+        [ stamp_field(rarity), minimum_field(rarity) ].index_with { settings.public_send(it) }
       end
       private_class_method :current
 
       def self.proposal(settings, rarity)
         rules = SettingsRules.new(settings)
-        stamp_field = :"stamp_#{rarity}"
-        stamp = [ (settings.stamp(rarity) * STAMP_RAISE).ceil.ceildiv(100) * 100, rules.amount_limits(stamp_field).last ].min
+        stamp = [ (settings.stamp(rarity) * STAMP_RAISE).ceil.ceildiv(100) * 100, rules.amount_limits(stamp_field(rarity)).last ].min
         floor = SettingsRules.floor(settings.entrustment(rarity), stamp, settings.commission_basis_points)
-        changes = { stamp_field => stamp, :"minimum_price_#{rarity}" => [ settings.minimum_price(rarity), floor ].max }
+        changes = { stamp_field(rarity) => stamp, minimum_field(rarity) => [ settings.minimum_price(rarity), floor ].max }
         changes.reject! { |field, value| settings.public_send(field) == value }
         allowed?(rules, settings, changes) ? changes : {}
       end

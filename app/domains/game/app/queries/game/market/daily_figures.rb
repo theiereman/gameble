@@ -1,6 +1,5 @@
 module Game
   module Market
-    # What one UTC day of the economy comes to, read from the ledger, the opened packs and the wallets.
     module DailyFigures
       ACTIVE_DAYS = 90
       DESTROYING_KINDS = %w[stamp commission forfeit].freeze
@@ -30,7 +29,6 @@ module Game
         Median.of(earnings.select(&:positive?))
       end
 
-      # The richest hundredth of the wallets holding PiCoins, as a share of all of them, read as the wallets stand now.
       def self.top_share_basis_points
         holding = Wallet.where("available + committed > 0")
         count, total = holding.pick(Arel.sql("COUNT(*)"), Arel.sql("SUM(available + committed)"))

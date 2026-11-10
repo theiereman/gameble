@@ -1,7 +1,5 @@
 module Game
   module Market
-    # Records the economy of one UTC day, once: a second run for the day, and a day before the market first opened, write nothing.
-    # The closing circulation and the reconciliation's result come from the caller, so the operation never reads the clock.
     class WriteDailySnapshot < ApplicationOperation
       def call(day:, circulation:, balanced: true, wallet_differences: 0, circulation_difference: 0)
         return unless opened_by?(day)

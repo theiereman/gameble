@@ -41,7 +41,6 @@ module BackOffice
       @prepared = []
     end
 
-    # The form as an alert proposes it: every value of the version in force, the proposed changes in place of theirs, each marked.
     def prepare(changes)
       @prepared = Rules::EDITABLE.select { changes.key?(it) }
       @raw = Rules::EDITABLE.index_with { |field| display_value(field, changes.fetch(field) { settings.public_send(field) }) }

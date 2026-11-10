@@ -19,7 +19,6 @@ module BackOffice
     end
 
     private
-      # The form an alert prepares, for an administrator only: the change is recomputed from the alert's name and written by nothing.
       def prepared_settings_form
         settings = Game::Market::CurrentSettings.call
         return unless settings && params[:prepare].present? && policy([ :back_office, :market_setting ]).create?
