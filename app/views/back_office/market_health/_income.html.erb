@@ -1,0 +1,30 @@
+<%# locals: (days_of_income:) %>
+<% read = days_of_income.values.any? { !it.last.nil? } %>
+<article class="market-health__tile" aria-labelledby="health-days-of-income-title" data-health-indicator="days_of_income"
+         data-health-state="<%= read ? "read" : "no-data" %>">
+  <h3 class="market-health__title" id="health-days-of-income-title"><%= t("back_office.market_health.indicators.days_of_income.title") %></h3>
+
+  <% if read %>
+    <table class="market-health__income">
+      <thead>
+        <tr>
+          <th scope="col"><%= t("back_office.market_health.income.rarity") %></th>
+          <th scope="col"><%= t("back_office.market_health.income.price") %></th>
+          <th scope="col"><%= t("back_office.market_health.income.target") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% days_of_income.each do |rarity, indicator| %>
+          <tr data-health-rarity="<%= rarity %>">
+            <th scope="row"><%= health_rarity_name(rarity) %></th>
+            <td><%= health_value(:days_of_income, indicator.last) %></td>
+            <td><%= indicator.last_threshold.nil? ? t("back_office.market_health.no_value") : health_value(:days_of_income, indicator.last_threshold) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <%= render "back_office/market_health/lines", key: :days_of_income %>
+  <% else %>
+    <p class="market-health__no-data"><%= t("back_office.market_health.not_enough_data") %></p>
+  <% end %>
+</article>

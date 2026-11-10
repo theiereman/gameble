@@ -1,0 +1,63 @@
+<% content_for :back_button, true %>
+<% latest = @series.latest %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render "back_office/markets/navigation", current: :health %>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <section class="stack" aria-labelledby="health-indicators-heading">
+    <h2 id="health-indicators-heading"><%= t(".indicators_heading") %></h2>
+    <ul class="market-health__indicators">
+      <% { destroyed_share: @series.destroyed_share, picoins_per_player: @series.picoins_per_player, top_share: @series.top_share }.each do |key, indicator| %>
+        <li><%= render "back_office/market_health/indicator", key:, indicator: %></li>
+      <% end %>
+      <li><%= render "back_office/market_health/income", days_of_income: @series.days_of_income %></li>
+    </ul>
+  </section>
+
+  <section class="stack" aria-labelledby="health-reconciliation-heading" data-health-reconciliation>
+    <h2 id="health-reconciliation-heading"><%= t(".reconciliation.heading") %></h2>
+    <% if latest.nil? %>
+      <p><%= t("back_office.market_health.not_enough_data") %></p>
+    <% elsif latest.reconciliation_balanced %>
+      <p><%= t(".reconciliation.balanced", day: health_day(latest.day)) %></p>
+    <% else %>
+      <p class="market-health__difference"><%= t(".reconciliation.difference", day: health_day(latest.day), wallets: latest.wallet_differences,
+            circulation: number_with_delimiter(latest.circulation_difference)) %></p>
+    <% end %>
+  </section>
+
+  <section class="stack" aria-labelledby="health-snapshot-heading" data-health-snapshot>
+    <h2 id="health-snapshot-heading"><%= t(".snapshot.heading") %></h2>
+    <% if latest.nil? %>
+      <p><%= t("back_office.market_health.not_enough_data") %></p>
+    <% else %>
+      <p><%= t(".snapshot.day", day: health_day(latest.day)) %></p>
+      <dl class="market-health__facts">
+        <% {
+          created: picoins(latest.created),
+          destroyed: t(".snapshot.destroyed_value", destroyed: picoins(latest.destroyed), forfeited: picoins(latest.forfeited)),
+          circulation: picoins(latest.circulation),
+          picoins_per_player: (picoins(latest.picoins_per_active_player) unless latest.picoins_per_active_player.nil?),
+          median_earnings: (picoins(latest.median_daily_earnings) unless latest.median_daily_earnings.nil?),
+          top_share: (health_share(latest.top_share_basis_points) unless latest.top_share_basis_points.nil?)
+        }.each do |fact, value| %>
+          <div class="market-health__fact">
+            <dt><%= t(".snapshot.facts.#{fact}") %></dt>
+            <dd><%= value || t("back_office.market_health.no_value") %></dd>
+          </div>
+        <% end %>
+      </dl>
+    <% end %>
+  </section>
+
+  <section class="stack" aria-labelledby="health-oldest-due-heading" data-health-oldest-due>
+    <h2 id="health-oldest-due-heading"><%= t(".oldest_due.heading") %></h2>
+    <p><%= @oldest_due_seconds.nil? ? t(".oldest_due.none") : t(".oldest_due.age", age: health_age(@oldest_due_seconds)) %></p>
+  </section>
+</div>

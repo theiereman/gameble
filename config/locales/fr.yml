@@ -717,6 +717,66 @@ fr:
         closed: "Le marché est fermé et l'annonce est sur le bandeau."
       announcement_refused: "Chaque annonce demande un texte dans les deux langues, 280 caractères au plus. Le marché n'a pas été fermé."
       stale: "Un autre administrateur vient de modifier le marché. La page a été redessinée ; vérifiez-la et fermez à nouveau si besoin."
+    market_health:
+      days: "%{value} j"
+      income:
+        price: "Prix"
+        rarity: "Rareté"
+        target: "Cible"
+      indicators:
+        days_of_income:
+          title: "Prix en jours de revenu"
+          todo: "Un prix très au-dessus de sa cible appelle des minimums ou des timbres plus bas, très en dessous l'inverse. Rien ici ne change tout seul."
+          what: "Le prix typique d'une rareté divisé par le revenu quotidien d'un joueur standard : combien de jours de capsules coûte une carte."
+          why: "Il dit si les cibles tiennent : une Légendaire doit coûter des semaines, une Commune des minutes."
+        destroyed_share:
+          threshold: "Alerte sous %{value}."
+          title: "PiCoins détruits contre créés, 30 jours"
+          todo: "Si la part reste sous son seuil, relevez un timbre pour que chaque vente détruise davantage."
+          what: "Sur les 30 derniers jours, les timbres, les commissions et les soldes confisqués ont détruit cette part des PiCoins que la confiance de cartes a créés."
+          why: "Quand on détruit moins qu'on ne crée, l'argent s'accumule dans les portefeuilles et les prix montent pour tous."
+        picoins_per_player:
+          threshold: "Alerte au-dessus de %{value}."
+          title: "PiCoins par joueur actif, 90 jours"
+          todo: "S'il continue de monter au-delà de son seuil, relevez les timbres pour détruire davantage de PiCoins."
+          what: "Les PiCoins en circulation divisés par les joueurs qui ont ouvert une capsule ces 90 derniers jours."
+          why: "Plus chaque joueur en détient, plus les prix montent pour tous, nouveaux venus compris."
+        top_share:
+          threshold: "Alerte au-dessus de %{value}."
+          title: "Part détenue par le top 1 %"
+          todo: "Si elle dépasse son seuil, relevez le timbre de la rareté que les plus riches échangent le plus."
+          what: "La part de tous les PiCoins détenue par le centième le plus riche des joueurs qui en ont."
+          why: "Une part élevée veut dire que quelques joueurs font les prix et que les autres ne peuvent plus suivre."
+      lines:
+        todo: "Que faire"
+        what: "Ce qui se passe"
+        why: "Pourquoi c'est important"
+      no_threshold: "Aucun seuil d'alerte n'est réglé."
+      no_value: "—"
+      not_enough_data: "Pas encore assez de données"
+      show:
+        heading: "La santé de l'économie"
+        indicators_heading: "Les quatre indicateurs"
+        intro: "Chaque indicateur est calculé depuis les instantanés de la nuit et s'explique lui-même. Rien sur cette page ne modifie le marché."
+        oldest_due:
+          age: "L'annonce la plus ancienne à clore a %{age} de retard."
+          heading: "L'annonce la plus ancienne à clore"
+          none: "Aucune annonce n'est à clore."
+        reconciliation:
+          balanced: "Le rapprochement de la nuit du %{day} a trouvé chaque portefeuille et la circulation à l'équilibre."
+          difference: "Le rapprochement de la nuit du %{day} a trouvé %{wallets} portefeuilles en écart et %{circulation} PiCoins d'écart de circulation."
+          heading: "Le dernier rapprochement"
+        snapshot:
+          day: "Instantané du %{day}."
+          destroyed_value: "%{destroyed} (dont %{forfeited} confisqués)"
+          facts:
+            circulation: "En circulation"
+            created: "Créés"
+            destroyed: "Détruits"
+            median_earnings: "Gains quotidiens médians"
+            picoins_per_player: "PiCoins par joueur actif"
+            top_share: "Part du top 1 %"
+          heading: "L'instantané du jour"
     market_openings:
       create:
         opened: "Le marché est ouvert et l'annonce est sur le bandeau."
@@ -733,6 +793,10 @@ fr:
         administrators_only: "Seul un administrateur peut fermer le marché. Les modérateurs voient cette page en lecture seule."
         close: "Fermer le marché"
         heading: "Fermer le marché"
+      navigation:
+        health: "Santé de l'économie"
+        label: "Pages du marché"
+        settings: "Marché et réglages"
       opening:
         administrators_only: "Seul un administrateur peut ouvrir le marché. Les modérateurs voient cette page en lecture seule."
         confirmations: "Confirmations"

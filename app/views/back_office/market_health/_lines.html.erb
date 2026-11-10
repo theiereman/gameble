@@ -1,0 +1,9 @@
+<%# locals: (key:) %>
+<dl class="market-health__lines">
+  <% %i[what why todo].each do |line| %>
+    <div class="market-health__line">
+      <dt><%= t("back_office.market_health.lines.#{line}") %></dt>
+      <dd><%= t("back_office.market_health.indicators.#{key}.#{line}") %></dd>
+    </div>
+  <% end %>
+</dl>

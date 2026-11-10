@@ -325,6 +325,66 @@ en:
         closed: "The market is closed and the announcement is on the banner."
       announcement_refused: "Each announcement needs text in both languages, at most 280 characters. The market was not closed."
       stale: "Another administrator has just changed the market. The page was redrawn; check it and close again if needed."
+    market_health:
+      days: "%{value} d"
+      income:
+        price: "Price"
+        rarity: "Rarity"
+        target: "Target"
+      indicators:
+        days_of_income:
+          title: "Prices in days of income"
+          todo: "A price far above its target calls for lower minimums or stamps, far below for the opposite. Nothing here changes by itself."
+          what: "A rarity's typical price divided by the daily income of a standard player: how many days of capsules a card costs."
+          why: "It shows whether the targets hold: a Legendary should take weeks, a Common minutes."
+        destroyed_share:
+          threshold: "Alert below %{value}."
+          title: "PiCoins destroyed against created, 30 days"
+          todo: "If the share stays under its threshold, raise a stamp so that every sale burns more."
+          what: "Over the last 30 days, stamps, commissions and forfeited balances destroyed this share of the PiCoins that entrusting created."
+          why: "When less is destroyed than created, money piles up in the wallets and prices rise for everyone."
+        picoins_per_player:
+          threshold: "Alert above %{value}."
+          title: "PiCoins per active player, 90 days"
+          todo: "If it keeps climbing past its threshold, raise the stamps so that more PiCoins are burned."
+          what: "The PiCoins in circulation divided by the players who opened a capsule in the last 90 days."
+          why: "The more each player holds, the higher prices go for everyone, newcomers included."
+        top_share:
+          threshold: "Alert above %{value}."
+          title: "Share held by the top 1%"
+          todo: "If it rises past its threshold, raise the stamp of the rarity the richest trade most."
+          what: "The share of all PiCoins held by the richest hundredth of the players who hold any."
+          why: "A high share means a few players set the prices and the others cannot follow."
+      lines:
+        todo: "What to do"
+        what: "What is happening"
+        why: "Why it matters"
+      no_threshold: "No alert threshold is set."
+      no_value: "—"
+      not_enough_data: "Not enough data yet"
+      show:
+        heading: "The economy's health"
+        indicators_heading: "The four indicators"
+        intro: "Each indicator is computed from the nightly snapshots and explains itself. Nothing on this page changes the market."
+        oldest_due:
+          age: "The oldest listing due to close is %{age} overdue."
+          heading: "The oldest listing due to close"
+          none: "No listing is due."
+        reconciliation:
+          balanced: "The night's reconciliation of %{day} found every wallet and the circulation balanced."
+          difference: "The night's reconciliation of %{day} found %{wallets} wallets off and a circulation difference of %{circulation} PiCoins."
+          heading: "The last reconciliation"
+        snapshot:
+          day: "Snapshot of %{day}."
+          destroyed_value: "%{destroyed} (%{forfeited} of them forfeited)"
+          facts:
+            circulation: "In circulation"
+            created: "Created"
+            destroyed: "Destroyed"
+            median_earnings: "Median daily earnings"
+            picoins_per_player: "PiCoins per active player"
+            top_share: "Top 1% share"
+          heading: "The day's snapshot"
     market_openings:
       create:
         opened: "The market is open and the announcement is on the banner."
@@ -341,6 +401,10 @@ en:
         administrators_only: "Only an administrator can close the market. Moderators see this page read-only."
         close: "Close the market"
         heading: "Close the market"
+      navigation:
+        health: "Economy health"
+        label: "Market pages"
+        settings: "Market and settings"
       opening:
         administrators_only: "Only an administrator can open the market. Moderators see this page read-only."
         confirmations: "Confirmations"

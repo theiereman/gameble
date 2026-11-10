@@ -1,0 +1,20 @@
+<%# locals: (key:, indicator:) %>
+<% value = indicator.last %>
+<article class="market-health__tile" aria-labelledby="health-<%= key.to_s.dasherize %>-title" data-health-indicator="<%= key %>"
+         data-health-state="<%= value.nil? ? "no-data" : "read" %>">
+  <h3 class="market-health__title" id="health-<%= key.to_s.dasherize %>-title"><%= t("back_office.market_health.indicators.#{key}.title") %></h3>
+
+  <% if value.nil? %>
+    <p class="market-health__no-data"><%= t("back_office.market_health.not_enough_data") %></p>
+  <% else %>
+    <p class="market-health__value"><%= health_value(key, value) %></p>
+    <p class="market-health__threshold">
+      <% if indicator.last_threshold.nil? %>
+        <%= t("back_office.market_health.no_threshold") %>
+      <% else %>
+        <%= t("back_office.market_health.indicators.#{key}.threshold", value: health_value(key, indicator.last_threshold)) %>
+      <% end %>
+    </p>
+    <%= render "back_office/market_health/lines", key: %>
+  <% end %>
+</article>

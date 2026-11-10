@@ -25,6 +25,10 @@ ignore_unused:
   - "back_office.markets.settings.moments.*"
   - "back_office.markets.settings.rows.*"
   - "back_office.markets.settings.violations.*"
+  - "back_office.markets.navigation.*"
+  - "back_office.market_health.indicators.*"
+  - "back_office.market_health.lines.*"
+  - "back_office.market_health.show.snapshot.facts.*"
   # Model validation messages, looked up by Active Record from errors.add symbols.
   - "activerecord.errors.messages.*"
   # Number formats, read by the number helpers (number_with_delimiter, …).

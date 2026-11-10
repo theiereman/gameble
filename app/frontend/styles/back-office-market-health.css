@@ -1,0 +1,105 @@
+/* ---- Back-office market: the economy's health, its navigation and its tiles ---- */
+
+.market-navigation__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.market-navigation__link {
+  display: inline-block;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--space-unit) solid transparent;
+}
+
+.market-navigation__link[aria-current="page"] {
+  border-bottom-color: var(--color-accent);
+  color: var(--color-text-bright);
+}
+
+.market-health__indicators {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.market-health__tile {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  border: var(--space-unit) solid var(--color-line-soft);
+  background: var(--color-panel);
+}
+
+.market-health__title {
+  margin: 0;
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.market-health__value {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-number);
+}
+
+.market-health__no-data,
+.market-health__threshold {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.market-health__lines {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.market-health__line dt {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.market-health__line dd {
+  margin: 0;
+}
+
+.market-health__income {
+  border-collapse: collapse;
+}
+
+.market-health__income th,
+.market-health__income td {
+  padding: var(--space-1) var(--space-3) var(--space-1) 0;
+  text-align: start;
+}
+
+.market-health__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.market-health__fact dt {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.market-health__fact dd {
+  margin: 0;
+}
+
+.market-health__difference {
+  color: var(--color-alert);
+}

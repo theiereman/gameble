@@ -3,7 +3,7 @@ title: 'The back-office health page explains the economy in plain words'
 type: 'feature'
 ticket: '41.5'
 created: '2026-11-10'
-status: 'draft'
+status: 'in-review'
 baseline_revision: '24beb5709830e77166d8cc9167727d33f5bacbd5'
 route: 'full'
 route_source: 'auto'
@@ -75,6 +75,8 @@ context:
 - Given a week of snapshots, when staff open the health page, then they read the four indicators with their three lines, the last reconciliation, the snapshot's figures and the oldest due listing's age; with no snapshot each indicator says "Pas encore assez de données"; a player gets the back-office refusal.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. `EconomySeries` returns `Series` (days, the three single indicators, the five days-of-income indicators by rarity, the latest snapshot), each `Indicator` carrying its values and its flat threshold. The page is `BackOffice::MarketHealthController` at `back-office/market/health`; the indicator and income tiles share a `lines` partial for the three plain-word lines, which story 6 extends with the alert. The navigation partial is rendered on both market pages. The new keys are dynamic, so `config/i18n-tasks.yml` ignores them as unused.
 
 ## Plan Change Log
 
