@@ -3,7 +3,7 @@ title: "An administrator changes the economy settings with the Brotherhood's ann
 type: 'feature'
 ticket: '9'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: 'fba34210796de7c1e7100c0e01d9f1ae5f13a63c'
 route: 'full'
 route_source: 'auto'
@@ -133,6 +133,8 @@ context:
 Built as planned. Nothing was run (tests run once at the end). The rules keep one violation per field, in the order not a number, range or ratio, then floor. The durations-not-ascending violation is drawn on the medium duration. Alerts and income targets are labelled "applies at once". Added a MarketPage controller concern so the opening controller's refused re-render also draws the settings form.
 
 ## Plan Change Log
+
+- Review: read the diff against the plan, the spec and AGENTS.md (operation shape and rescues, parsing contract, floor and ratio rules, 422 re-renders, policy, tokens only, locale parity, packwerk and size checks). No defect found; no code changed. Tests were not run (run once at the end).
 
 ## Review Triage Log
 
