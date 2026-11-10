@@ -166,7 +166,6 @@ internal fun HotwireDestination.hideAppBar() {
     (toolbar.parent as? AppBarLayout ?: toolbar).visibility = View.GONE
 }
 
-private const val PULL_DISTANCE_DP = 80f
 private const val REFRESH_TIMEOUT_MS = 12_000L
 private const val REFRESH_IN_PLACE_SCRIPT =
     "window.Turbo ? (Turbo.visit(location.href, { action: 'replace' }), true) : false"

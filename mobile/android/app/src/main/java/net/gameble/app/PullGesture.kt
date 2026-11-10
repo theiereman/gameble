@@ -1,5 +1,7 @@
 package net.gameble.app
 
+const val PULL_DISTANCE_DP = 80
+
 class PullGesture(private val distance: Float) {
     sealed interface Change {
         data class Pulled(val progress: Float, val reachedFull: Boolean) : Change

@@ -46,6 +46,12 @@
                 android:layout_height="match_parent" />
         </FrameLayout>
 
+        <net.gameble.app.PullConsoleView
+            android:id="@+id/pull_console"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal" />
+
         <net.gameble.app.TopBarView
             android:id="@+id/top_bar"
             android:layout_width="match_parent"

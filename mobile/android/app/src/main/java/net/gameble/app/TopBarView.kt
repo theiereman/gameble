@@ -43,7 +43,6 @@ class TopBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     private val capsules: View
     private val bell: View
     private val menu: View
-    private val pullConsole: PullConsoleView
 
     init {
         inflate(context, R.layout.view_top_bar, this)
@@ -62,7 +61,6 @@ class TopBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         capsules = findViewById(R.id.top_bar_capsules)
         bell = findViewById(R.id.top_bar_bell)
         menu = findViewById(R.id.top_bar_menu)
-        pullConsole = findViewById(R.id.top_bar_pull_console)
         back.setOnClickListener { onBack() }
         capsules.setOnClickListener { onCapsules() }
         bell.setOnClickListener { onBell() }
@@ -70,10 +68,6 @@ class TopBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     fun applyStatusInset(top: Int) = updatePadding(top = top)
-
-    fun showPull(progress: Float) = pullConsole.showProgress(progress)
-
-    fun showRefreshing(refreshing: Boolean) = if (refreshing) pullConsole.startSweep() else pullConsole.hide()
 
     fun show(left: Left) {
         home.isVisible = left is Left.Home

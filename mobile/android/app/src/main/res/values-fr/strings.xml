@@ -20,4 +20,11 @@
     <string name="top_bar_bell_unread">Nouveautés, non lues : %1$s</string>
     <string name="top_bar_menu">Menu</string>
     <string name="top_bar_menu_rewards">Menu, récompenses en attente : %1$s</string>
+    <string name="pull_console_title">▸ SYNCHRO</string>
+    <string name="pull_console_pull">TIRER POUR SYNCHRONISER</string>
+    <string name="pull_console_release">RELÂCHER ▸ SYNCHRONISER</string>
+    <string name="pull_console_packet">SYNC · PAQUET %1$d/%2$d</string>
+    <string name="pull_console_network">▒ réseau</string>
+    <string name="pull_console_done">OK · ÉCRAN À JOUR</string>
+    <string name="pull_console_threshold">seuil %1$ddp</string>
 </resources>
