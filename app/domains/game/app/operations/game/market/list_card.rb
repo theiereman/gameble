@@ -2,9 +2,8 @@ module Game
   module Market
     # A player offers one free copy at auction, paying the rarity's stamp, at the values of the settings version the form drew.
     class ListCard < Operation
-      MAX_AMOUNT = 9_223_372_036_854_775_807
+      include PriceAmount
 
-      # settings_token: the version the form drew its amounts from; buy_now_price may be empty.
       def call(player:, card_season_id:, starting_price:, buy_now_price:, duration_hours:, settings_token:)
         player = step require_player(player)
         starting_price = step amount(starting_price)
@@ -29,16 +28,6 @@ module Game
       end
 
       private
-
-      def amount(value)
-        number = whole_number(value)
-        number&.between?(1, MAX_AMOUNT) ? Success(number) : Failure(:invalid_price)
-      end
-
-      def whole_number(value)
-        text = value.to_s.strip
-        Integer(text, 10) if text.match?(/\A\d+\z/)
-      end
 
       def optional_amount(value) = value.nil? || value.to_s.strip.empty? ? Success(nil) : amount(value)
 

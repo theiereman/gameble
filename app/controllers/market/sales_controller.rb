@@ -88,7 +88,7 @@ module Market
       end
 
       def invalid_price_field
-        plain = ->(value) { PLAIN_AMOUNT.match?(value.to_s) && value.to_i.between?(1, Game::Market::ListCard::MAX_AMOUNT) }
+        plain = ->(value) { PLAIN_AMOUNT.match?(value.to_s) && value.to_i.between?(1, Game::Market::PriceAmount::MAX_AMOUNT) }
         return :starting_price unless plain.call(params[:starting_price])
 
         :buy_now_price unless params[:buy_now_price].to_s.strip.empty? || plain.call(params[:buy_now_price])

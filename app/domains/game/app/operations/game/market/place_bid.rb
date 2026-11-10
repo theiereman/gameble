@@ -3,8 +3,7 @@ module Game
     # A player bids a maximum on an open listing: the price follows the second-highest maximum, and a maximum at the buy-now price buys at once.
     class PlaceBid < Operation
       include AuctionSettlement
-
-      MAX_AMOUNT = 9_223_372_036_854_775_807
+      include PriceAmount
 
       def call(player:, listing_id:, maximum:)
         player = step require_player(player)
@@ -26,12 +25,6 @@ module Game
       end
 
       private
-
-      def amount(value)
-        text = value.to_s.strip
-        number = Integer(text, 10) if text.match?(/\A\d+\z/)
-        number&.between?(1, MAX_AMOUNT) ? Success(number) : Failure(:invalid_price)
-      end
 
       def find_listing(listing_id)
         listing = Listing.find_by(id: listing_id)

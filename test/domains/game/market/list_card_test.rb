@@ -108,7 +108,7 @@ class Game::Market::ListCardTest < ActiveSupport::TestCase
   end
 
   test "the bigint maximum passes the normalisation and meets the other rules" do
-    maximum = Game::Market::ListCard::MAX_AMOUNT
+    maximum = Game::Market::PriceAmount::MAX_AMOUNT
     refused :buy_now_not_above_start, starting_price: maximum, buy_now_price: maximum
     Game::Market::Wallet.where(player_id: @player.id).update_all(available: 0)
     refused :stamp_not_covered, starting_price: maximum
