@@ -1,0 +1,12 @@
+<% content_for :title, t(".heading") %>
+<section class="market-entrust" aria-labelledby="market-entrust-result-heading">
+  <header class="market-entrust__header">
+    <p class="market-entrust__kicker"><%= t(".kicker") %></p>
+    <h1 id="market-entrust-result-heading" class="market-entrust__title"><%= t(".heading") %></h1>
+  </header>
+  <%= render PanelComponent.new(brackets: true, class: "market-entrust__result") do %>
+    <p class="market-entrust__total"><%= t(".minted", amount: picoins(@entrusted.minted)) %></p>
+    <p class="market-entrust__count"><%= t(".copies", count: @entrusted.copies) %></p>
+  <% end %>
+  <%= render ButtonComponent.new(variant: :link, href: new_market_entrustment_path) { t(".again") } %>
+</section>

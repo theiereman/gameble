@@ -32,6 +32,9 @@ Rails.application.routes.draw do
     # The public roadmap, every milestone and story staff chose to show.
     get "roadmap" => "roadmaps#show", as: :roadmap
     get "market" => "markets#show", as: :market
+    # Where a player gives spare copies to the Brotherhood for PiCoins.
+    get "market/entrust" => "market/entrustments#new", as: :new_market_entrustment
+    post "market/entrust" => "market/entrustments#create", as: :market_entrustments
     # The visitor's motion switch, written into the motion cookie.
     post "motion" => "motions#create", as: :motion
 
