@@ -1127,7 +1127,7 @@ const ICONS = {
       "cc.cc.cc.cc",
       "cc.cc.cc.cc",
       "cc.cc.cc.cc",
-      "ccccccccccc",
+      "...........",
     ],
   },
   "tab-friends": {
@@ -1746,7 +1746,7 @@ const DESCRIPTIONS = {
   "tab-capsule.svg": "Phone tab bar icon: CAPSULE, a vertical pill (text colour)",
   "tab-sets.svg": "Phone tab bar icon: SETS, four tiles (text colour)",
   "tab-trades.svg": "Phone tab bar icon: ÉCHANGES, two opposed arrows (text colour)",
-  "tab-market.svg": "Phone tab bar icon: MARCHÉ, a bar chart rising and falling (text colour)",
+  "tab-market.svg": "Phone tab bar icon: MARCHÉ, four bars rising and falling (text colour)",
   "tab-friends.svg": "Phone tab bar icon: AMIS, two heads and shoulders (text colour)",
   "tab-me.svg": "Phone tab bar icon: ME, one head and shoulders (text colour)",
   "bell.svg": "The header's bell, what is new for the player, 7 × 8",
