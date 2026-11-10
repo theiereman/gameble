@@ -143,6 +143,7 @@ class CardsAveragePriceTest < ActionDispatch::IntegrationTest
   end
 
   test "the card's neighbours follow the grid sorted by price" do
+    open_market!(first_opened_at: 1.day.ago)
     sign_in(accounts_players(:moderator))
 
     get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { sort: "price_desc" })

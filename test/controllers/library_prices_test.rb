@@ -116,13 +116,15 @@ class LibraryPricesTest < ActionDispatch::IntegrationTest
     Game::Market::Settings.delete_all
     open_market!
     sign_in(accounts_players(:moderator))
+    get library_cards_path(locale: :en)
+    usual = titles
 
     get library_cards_path(locale: :en, sort: "price_desc", min_price: "100")
 
     assert_select ".price-group", false
     assert_select "input[name=min_price]", false
     assert_select ".collection-slot__price", false
-    assert_not_equal "Portal", titles.first
+    assert_equal usual, titles
   end
 
   test "a GET writes nothing" do
