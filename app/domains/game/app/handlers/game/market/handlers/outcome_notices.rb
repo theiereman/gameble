@@ -3,20 +3,19 @@ module Game
     module Handlers
       module OutcomeNotices
         def self.call(event)
-          at = event.metadata[:timestamp] || Time.current
           case event
-          when AuctionSold then sold(event.data, at)
-          when AuctionUnsold then Notice.record(player_id: event.data[:seller_id], listing_id: event.data[:listing_id], kind: "unsold", at:)
+          when AuctionSold then sold(event, event.data)
+          when AuctionUnsold then Notice.record_for(event, player_id: event.data[:seller_id], listing_id: event.data[:listing_id], kind: "unsold")
           end
         end
 
-        def self.sold(data, at)
+        def self.sold(event, data)
           listing_id, seller_id, winner_id, price = data.values_at(:listing_id, :seller_id, :winner_id, :final_price)
           if data[:outbid_player_id]
-            Notice.record(player_id: data[:outbid_player_id], listing_id:, kind: "bought_over", other_player_id: winner_id, amount: data[:outbid_released], at:)
+            Notice.record_for(event, player_id: data[:outbid_player_id], listing_id:, kind: "bought_over", other_player_id: winner_id, amount: data[:outbid_released])
           end
-          Notice.record(player_id: winner_id, listing_id:, kind: "won", amount: price, at:)
-          Notice.record(player_id: seller_id, listing_id:, kind: "sold", amount: received(listing_id, seller_id), at:)
+          Notice.record_for(event, player_id: winner_id, listing_id:, kind: "won", amount: price)
+          Notice.record_for(event, player_id: seller_id, listing_id:, kind: "sold", amount: received(listing_id, seller_id))
         end
 
         def self.received(listing_id, seller_id)

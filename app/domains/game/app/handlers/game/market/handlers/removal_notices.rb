@@ -4,17 +4,16 @@ module Game
       module RemovalNotices
         def self.call(event)
           data = event.data
-          at = event.metadata[:timestamp] || Time.current
           case event
-          when ListingWithdrawn then withdrawn(data, at)
-          when LeadVoided then Notice.record(player_id: data[:seller_id], listing_id: data[:listing_id], kind: "lead_voided", at:)
+          when ListingWithdrawn then withdrawn(event, data)
+          when LeadVoided then Notice.record_for(event, player_id: data[:seller_id], listing_id: data[:listing_id], kind: "lead_voided")
           end
         end
 
-        def self.withdrawn(data, at)
+        def self.withdrawn(event, data)
           return unless data[:leader_id]
 
-          Notice.record(player_id: data[:leader_id], listing_id: data[:listing_id], kind: "withdrawn", amount: data[:released], at:)
+          Notice.record_for(event, player_id: data[:leader_id], listing_id: data[:listing_id], kind: "withdrawn", amount: data[:released])
         end
 
         private_class_method :withdrawn
