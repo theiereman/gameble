@@ -87,7 +87,6 @@ module Market
         [ @settings.duration_short_hours, @settings.duration_medium_hours, @settings.duration_long_hours ].map(&:to_s)
       end
 
-      # The field whose amount is not plain digits above zero, the start first.
       def invalid_price_field
         plain = ->(value) { PLAIN_AMOUNT.match?(value.to_s) && value.to_i.between?(1, Game::Market::ListCard::MAX_AMOUNT) }
         return :starting_price unless plain.call(params[:starting_price])
@@ -95,7 +94,6 @@ module Market
         :buy_now_price unless params[:buy_now_price].to_s.strip.empty? || plain.call(params[:buy_now_price])
       end
 
-      # The figures a refusal's message interpolates, read from the settings and the balance of this same redraw.
       def refusal_values(code)
         rarity = @copies.find { it.ref == @chosen_ref }&.card&.rarity&.to_sym
         return {} unless @settings && rarity

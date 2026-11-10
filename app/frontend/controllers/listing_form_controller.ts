@@ -107,7 +107,6 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
     if (this.state) this.apply(setDuration(this.state, hours))
   }
 
-  // Enter moves to the next field and never submits.
   entered({ detail: { field } }: Intent<{ field: Field | "duration" }>): void {
     if (field === "start") this.fields()?.focusBuyNow()
     else if (field === "buyNow") this.fields()?.focusDuration()

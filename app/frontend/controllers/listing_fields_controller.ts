@@ -16,7 +16,6 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
   declare readonly buyNowErrorTarget: HTMLElement
   declare readonly durationErrorTarget: HTMLElement
 
-  // A refusal drawn by the server stays until the player edits something.
   private pristine = true
 
   render({ hint, start, buyNow, duration, locked }: FieldsView): void {

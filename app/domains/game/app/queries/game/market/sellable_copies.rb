@@ -1,6 +1,5 @@
 module Game
   module Market
-    # What a player can put up for sale: one row per edition holding a free copy and a rarity, with the card to draw.
     module SellableCopies
       Copy = Data.define(:ref, :card, :free, :reserved)
 

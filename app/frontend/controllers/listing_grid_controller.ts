@@ -27,7 +27,6 @@ export default class ListingGridController extends Controller<HTMLElement> {
     this.pick(event.currentTarget instanceof HTMLElement ? event.currentTarget : null)
   }
 
-  // Arrow keys only move focus; Space or Enter chooses.
   keydown(event: KeyboardEvent): void {
     const cell = event.target instanceof Element ? event.target.closest<HTMLElement>(CELL) : null
     if (!cell) return

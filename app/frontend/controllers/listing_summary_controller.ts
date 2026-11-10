@@ -43,7 +43,6 @@ export default class ListingSummaryController extends Controller<HTMLElement> {
     if (amount !== null) drawAmount(node, amount, { locale: this.localeValue, accessible: this.accessibleValue })
   }
 
-  // One short status after the amounts rest, never the same text twice, never a move of focus.
   private postStatus(text: string): void {
     if (this.posted === undefined) {
       this.posted = text

@@ -107,7 +107,6 @@ function positive(price: bigint | null): price is bigint {
   return price !== null && price > 0n
 }
 
-// The same rules the server applies, in the same order, so a refusal here is the refusal the post would get.
 export function refusal(state: ListingState): Refusal | null {
   const edition = chosenEdition(state)
   if (!edition) return null
@@ -123,7 +122,6 @@ export function refusal(state: ListingState): Refusal | null {
   return null
 }
 
-// The refusals appear when the player validates, and clear on the next edit.
 export function validate(state: ListingState): ListingState {
   return { ...state, shown: refusal(state) }
 }
