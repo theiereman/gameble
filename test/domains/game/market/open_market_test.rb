@@ -38,7 +38,7 @@ class Game::Market::OpenMarketTest < ActiveSupport::TestCase
   test "it publishes one SettingsChanged event" do
     settings = open_market.value!
 
-    events = Rails.configuration.event_store.read.stream("Game::Market$settings").of_type(Game::Market::SettingsChanged).to_a
+    events = Rails.configuration.event_store.read.stream(Game::Market::SettingsChanged::STREAM).of_type(Game::Market::SettingsChanged).to_a
     assert_includes events.map { it.data[:settings_id] }, settings.id
   end
 

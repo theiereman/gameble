@@ -3,6 +3,7 @@ module Game
     # An administrator opens the market, or reopens it, recording both legal confirmations and announcing it to the players.
     class OpenMarket < Operation
       include AnnouncesChange
+      include RequiresAdministrator
 
       def call(player:, terms_confirmed:, odds_confirmed:, message_fr:, message_en:)
         step require_administrator(player)
@@ -15,7 +16,7 @@ module Game
           settings = opened_version(current, player)
           settings.save!
           announce(player, message_fr, message_en)
-          step publish(SettingsChanged.new(data: { settings_id: settings.id }), stream_name: "Game::Market$settings")
+          step publish(SettingsChanged.about(settings), stream_name: SettingsChanged::STREAM)
           settings
         end
       rescue ActiveRecord::RecordNotUnique
@@ -25,10 +26,6 @@ module Game
       end
 
       private
-
-      def require_administrator(player)
-        Accounts::Player.acting_staff?(player) && player.administrator? ? Success(player) : Failure(:administrator_required)
-      end
 
       def confirmed(value, code) = value == true ? Success() : Failure(code)
 
