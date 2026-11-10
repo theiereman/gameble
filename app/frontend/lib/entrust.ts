@@ -21,12 +21,17 @@ export type EntrustFilter = {
 export const DEFAULT_FILTER: EntrustFilter = { query: "", rarities: [], doubles: true }
 export const CLEARED_FILTER: EntrustFilter = { query: "", rarities: [], doubles: false }
 
+export type Layout = "wide" | "phone"
+
 export type EntrustState = {
   copies: readonly Copy[]
   capLeft: number
   ticked: Readonly<Record<string, number>>
   filter: EntrustFilter
   active: string | null
+  layout: Layout
+  pendingLayout: Layout | null
+  sheetOpen: boolean
 }
 
 export type PreviewLine = {
@@ -67,7 +72,16 @@ export function start(
     const max = free.get(ref)
     if (max !== undefined && max >= 1 && count >= 1) kept[ref] = clampValue(count, max)
   }
-  return withActive({ copies, capLeft, ticked: kept, filter: DEFAULT_FILTER, active: null })
+  return withActive({
+    copies,
+    capLeft,
+    ticked: kept,
+    filter: DEFAULT_FILTER,
+    active: null,
+    layout: "wide",
+    pendingLayout: null,
+    sheetOpen: false,
+  })
 }
 
 function matches(copy: Copy, { query, rarities, doubles }: EntrustFilter): boolean {
