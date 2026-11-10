@@ -14,6 +14,16 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
+  test "the teaser answers while the market is closed after an opening" do
+    Game::Market::Settings.delete_all
+    Game::Market::Settings.create!(Game::Market::StartingSettings::ATTRIBUTES.merge(open: false, first_opened_at: Time.current))
+
+    get market_path(locale: :en)
+
+    assert_response :success
+    assert_select "h1", "The Brotherhood is building the market"
+  end
+
   test "a player reads it in English, inside the shell" do
     sign_in(accounts_players(:player))
 

@@ -177,6 +177,21 @@ describe("the submit button", () => {
     expect(document.getElementById("rare-note")!.hidden).toBe(true)
   })
 
+  it("keeps the reason id after the notes while the reason is on the page", () => {
+    document.body.insertAdjacentHTML("beforeend", '<div id="reason"></div>')
+    document.getElementById("wrapper")!.dataset.entrustRecapReasonIdValue = "reason"
+    recap.render(view())
+    expect(described()).toBe("not-returned reason")
+    recap.render(view({ rare: "Note: 1 copy of Rare or better, Rare game." }))
+    expect(described()).toBe("not-returned rare-note reason")
+  })
+
+  it("leaves out a reason id that is not on the page", () => {
+    document.getElementById("wrapper")!.dataset.entrustRecapReasonIdValue = "missing"
+    recap.render(view())
+    expect(described()).toBe("not-returned")
+  })
+
   it("carries the label and the disabled state", () => {
     recap.render(view({ disabled: true, label: "Entrust" }))
     const button = document.querySelector("button")!

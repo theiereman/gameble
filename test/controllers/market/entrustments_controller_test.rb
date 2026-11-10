@@ -121,6 +121,50 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[disabled]"
   end
 
+  test "a market closed after an opening shows the suspended banner with its link, and validation described by it" do
+    close_market!(first_opened_at: 2.days.ago)
+    hold(@player, @common.id, 1)
+    sign_in(@player)
+
+    get new_market_entrustment_path(locale: :en)
+
+    assert_response :success
+    assert_select "#market-suspended-banner[role=status]" do
+      assert_select "h2", "THE MARKET IS SUSPENDED"
+      assert_select "a[href=?]", market_path(locale: :en), "Back to the market"
+    end
+    assert_select ".market-entrust__notice", text: /closed for now/, count: 0
+    assert_select "button[type=submit][disabled][aria-describedby='market-suspended-banner entrust-not-returned']"
+    assert_select "[data-entrust-recap-reason-id-value=market-suspended-banner]"
+  end
+
+  test "a market never opened keeps the plain closed notice and no banner" do
+    close_market!
+    hold(@player, @common.id, 1)
+    sign_in(@player)
+
+    get new_market_entrustment_path(locale: :en)
+
+    assert_select ".market-entrust__notice", /closed for now/
+    assert_select "#market-suspended-banner", false
+    assert_select "button[type=submit][disabled][aria-describedby=entrust-not-returned]"
+  end
+
+  test "a post while the market is suspended mints nothing and answers market_closed with the banner" do
+    close_market!(first_opened_at: 2.days.ago)
+    hold(@player, @common.id, 2)
+    sign_in(@player)
+
+    assert_no_difference -> { Game::Market::LedgerEntry.count } do
+      post market_entrustments_path(locale: :en), params: { settings: "any", copies: { ref(@common) => "1" } }
+    end
+
+    assert_response :unprocessable_content
+    assert_select ".market-entrust__refusal[role=alert]", "The market is closed for now. Nothing was entrusted."
+    assert_select "#market-suspended-banner"
+    assert_select ".entrust-cell[data-ref=?][data-ticked=1]", ref(@common)
+  end
+
   test "validating entrusts the batch and shows the total minted and the count" do
     settings = open_market!
     hold(@player, @common.id, 2)

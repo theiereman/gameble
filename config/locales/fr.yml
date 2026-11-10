@@ -694,6 +694,11 @@ fr:
         updated: "L'annonce est modifiée."
       withdraw:
         withdrawn: "L'annonce a quitté le bandeau."
+    market_closings:
+      create:
+        closed: "Le marché est fermé et l'annonce est sur le bandeau."
+      announcement_refused: "Chaque annonce demande un texte dans les deux langues, 280 caractères au plus. Le marché n'a pas été fermé."
+      stale: "Un autre administrateur vient de modifier le marché. La page a été redessinée ; vérifiez-la et fermez à nouveau si besoin."
     market_openings:
       create:
         opened: "Le marché est ouvert et l'annonce est sur le bandeau."
@@ -706,6 +711,10 @@ fr:
       announcement:
         hint: "Affichée sur le bandeau rouge à la place de l'annonce actuelle, dans la langue de chaque joueur, %{length} caractères au plus."
         legend: "L'annonce"
+      closing:
+        administrators_only: "Seul un administrateur peut fermer le marché. Les modérateurs voient cette page en lecture seule."
+        close: "Fermer le marché"
+        heading: "Fermer le marché"
       opening:
         administrators_only: "Seul un administrateur peut ouvrir le marché. Les modérateurs voient cette page en lecture seule."
         confirmations: "Confirmations"
@@ -1998,6 +2007,10 @@ fr:
         one: "1 nouvelle entrée dans le fil."
         other: "%{count} nouvelles entrées dans le fil."
   market:
+    suspended_banner:
+      back: "Retour au marché"
+      body: "La Confrérie procède à un audit de ses procédures. Les enchères en cours se terminent normalement. Il n'est plus possible de confier, de vendre ou d'enchérir pour le moment."
+      title: "LE MARCHÉ EST SUSPENDU"
     entrustments:
       create:
         again: "Confier d'autres cartes"
@@ -3388,6 +3401,7 @@ fr:
       amounts_changed: "Les montants ont changé pendant votre choix. Ils sont redessinés ci-dessous : vérifiez-les puis validez à nouveau."
       empty_batch: "Choisissez au moins un exemplaire à confier."
       administrator_required: "Seul un administrateur peut faire cela."
+      market_already_closed: "Le marché est déjà fermé."
       market_already_open: "Le marché est déjà ouvert."
       invalid_announcement: "Chaque annonce demande un texte dans les deux langues, 280 caractères au plus. Le marché n'a pas été ouvert."
       invalid_settings: "Certains réglages ont été refusés. Rien n'a été modifié."
