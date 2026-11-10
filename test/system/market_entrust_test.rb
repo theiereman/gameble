@@ -33,7 +33,8 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     fill_in "copies[#{@rare.card.slug}:#{@rare.season.number}]", with: "1"
     click_on "Entrust"
 
-    assert_selector ".market-entrust__total", text: "7,000 PiCoins"
+    assert_selector ".market-entrust__total .picoin-amount[aria-label='7,000 PiCoins']"
+    assert_selector ".market-entrust__total .picoin-amount__figure", text: "7,000"
     assert_selector ".market-entrust__count", text: "3 copies entrusted"
     assert_equal 0, Game::Holding.where(player_id: @player.id).sum(:quantity)
   end
@@ -54,8 +55,10 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     end
     click_on "Entrust"
 
-    assert_selector ".market-entrust__total", text: "5,000 PiCoins"
-    assert_selector "[role=status] .market-entrust__stayed-line", text: "100,000 PiCoins"
+    assert_selector ".market-entrust__total .picoin-amount[aria-label='5,000 PiCoins']"
+    assert_selector ".market-entrust__total .picoin-amount__figure", text: "5,000"
+    assert_selector "[role=status] .market-entrust__stayed-line .picoin-amount[aria-label='100,000 PiCoins']"
+    assert_selector "[role=status] .market-entrust__stayed-line .picoin-amount__figure", text: "100,000"
     assert_selector ".market-entrust__stayed-cap", text: "50,000"
     assert_equal 1, Game::Holding.find_by(player_id: @player.id, card_season_id: legendary.id).quantity
   end
