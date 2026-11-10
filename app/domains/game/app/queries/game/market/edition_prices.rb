@@ -1,6 +1,5 @@
 module Game
   module Market
-    # The price state of each asked card-season, for display. Nothing at all before the market's first opening.
     module EditionPrices
       Price = Data.define(:average, :sales_used) do
         def priced? = !average.nil? && sales_used >= EditionPrice::MINIMUM_SALES

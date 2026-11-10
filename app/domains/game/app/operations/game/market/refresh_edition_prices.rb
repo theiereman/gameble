@@ -1,6 +1,5 @@
 module Game
   module Market
-    # Brings every price row with sales up to the current window and sale count, one row per transaction under its lock; no event is published.
     class RefreshEditionPrices < ApplicationOperation
       def call(now: Time.current)
         settings = CurrentSettings.call

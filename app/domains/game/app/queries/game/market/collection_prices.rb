@@ -1,7 +1,5 @@
 module Game
   module Market
-    # The average price of each card of a collection grid: the owner's most valuable copy, else the edition the grid shows.
-    # Sorts and filters the grid's relation by it, and prices the page's cards; nothing before the market's first opening.
     module CollectionPrices
       SORTS = { "price_asc" => "ASC", "price_desc" => "DESC" }.freeze
       AMOUNT_FORMAT = /\A\d{1,13}\z/
