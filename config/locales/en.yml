@@ -308,6 +308,11 @@ en:
           m: size M
           s: size S
           xl: size XL
+    market_closings:
+      create:
+        closed: "The market is closed and the announcement is on the banner."
+      announcement_refused: "Each announcement needs text in both languages, at most 280 characters. The market was not closed."
+      stale: "Another administrator has just changed the market. The page was redrawn; check it and close again if needed."
     market_openings:
       create:
         opened: "The market is open and the announcement is on the banner."
@@ -320,6 +325,10 @@ en:
       announcement:
         hint: "Shown on the red banner in place of the current announcement, in each player's language, %{length} characters at most."
         legend: "The announcement"
+      closing:
+        administrators_only: "Only an administrator can close the market. Moderators see this page read-only."
+        close: "Close the market"
+        heading: "Close the market"
       opening:
         administrators_only: "Only an administrator can open the market. Moderators see this page read-only."
         confirmations: "Confirmations"
@@ -1405,6 +1414,7 @@ en:
       amounts_changed: The amounts changed while you were choosing. They are drawn again below; check them and validate once more.
       empty_batch: Choose at least one copy to entrust.
       administrator_required: Only an administrator can do that.
+      market_already_closed: The market is already closed.
       market_already_open: The market is already open.
       invalid_announcement: Each announcement needs text in both languages, at most 280 characters. The market was not opened.
       invalid_settings: Some settings were refused. Nothing was changed.
@@ -2254,6 +2264,10 @@ en:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
   market:
+    suspended_banner:
+      back: Back to the market
+      body: The Brotherhood is auditing its procedures. Auctions in progress end normally. Nothing can be entrusted, sold or bid on for now.
+      title: THE MARKET IS SUSPENDED
     entrustments:
       create:
         again: Entrust more cards

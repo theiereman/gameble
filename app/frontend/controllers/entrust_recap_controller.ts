@@ -34,7 +34,7 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     "barTotal",
     "stepperTemplate",
   ]
-  static values = { locale: String, accessible: String }
+  static values = { locale: String, accessible: String, reasonId: String }
 
   declare readonly promptTarget: HTMLElement
   declare readonly linesTarget: HTMLElement
@@ -58,6 +58,7 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
   declare readonly stepperTemplateTarget: HTMLTemplateElement
   declare readonly localeValue: string
   declare readonly accessibleValue: string
+  declare readonly reasonIdValue: string
 
   private layout: Layout = "wide"
   private posted?: string
@@ -130,8 +131,9 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     if (!button) return
     writeText(button, label)
     button.disabled = disabled
-    const described = [this.sentenceTarget, ...(this.rareTarget.hidden ? [] : [this.rareTarget])]
-    button.setAttribute("aria-describedby", described.map((note) => note.id).join(" "))
+    const described = [this.sentenceTarget, ...(this.rareTarget.hidden ? [] : [this.rareTarget])].map((note) => note.id)
+    if (this.reasonIdValue && document.getElementById(this.reasonIdValue)) described.push(this.reasonIdValue)
+    button.setAttribute("aria-describedby", described.join(" "))
   }
 
   // Lines are matched by ref and never rebuilt, so a pressed stepper keeps its node and its focus.

@@ -14,7 +14,9 @@
       <%= render ButtonComponent.new(variant: :link, href: sign_in_path) { t(".sign_in_action") } %>
     <% end %>
   <% else %>
-    <% unless @open %>
+    <% if @suspended %>
+      <%= render "market/suspended_banner" %>
+    <% elsif !@open %>
       <%= render PanelComponent.new(class: "market-entrust__notice", role: "status") do %>
         <p><%= t(".closed") %></p>
         <%= render ButtonComponent.new(variant: :link, href: market_path) { t(".closed_action") } %>
@@ -43,7 +45,8 @@
         <%= render "market/entrustments/filters" %>
         <%= tag.div class: "market-entrust__layout",
               data: { controller: "entrust-recap", entrust_recap_locale_value: I18n.locale,
-                      entrust_recap_accessible_value: t("market.entrustments.strings.amount") } do %>
+                      entrust_recap_accessible_value: t("market.entrustments.strings.amount"),
+                      entrust_recap_reason_id_value: ("market-suspended-banner" if @suspended) } do %>
           <%= render "market/entrustments/grid" %>
           <div class="market-entrust__slot" data-entrust-recap-target="slot">
             <%= render "market/entrustments/recap" %>

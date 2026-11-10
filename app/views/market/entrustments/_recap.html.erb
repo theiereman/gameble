@@ -17,7 +17,7 @@
   <p id="entrust-rare-note" class="entrust-recap__rare" data-entrust-recap-target="rare" hidden></p>
   <p id="entrust-not-returned" class="entrust-recap__sentence" data-entrust-recap-target="sentence"><%= t("market.entrustments.new.not_returned") %></p>
   <div class="entrust-recap__submit" data-entrust-recap-target="submitSlot">
-    <%= render ButtonComponent.new(type: :submit, disabled: !@open, describedby: "entrust-not-returned") { t("market.entrustments.strings.submit", count: 0) } %>
+    <%= render ButtonComponent.new(type: :submit, disabled: !@open, describedby: ("market-suspended-banner entrust-not-returned" if @suspended) || "entrust-not-returned") { t("market.entrustments.strings.submit", count: 0) } %>
   </div>
   <p class="visually-hidden" role="status" aria-live="polite" data-entrust-recap-target="status"></p>
   <template data-entrust-recap-target="lineTemplate">
