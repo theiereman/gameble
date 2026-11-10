@@ -3,7 +3,7 @@ title: 'A player entrusts copies on the Confier page and receives minted PiCoins
 type: 'feature'
 ticket: '1'
 created: '2026-11-10'
-status: 'ready-for-dev'
+status: 'in-review'
 baseline_revision: '3d87c613a2f1e13d1dce6ce886a32334fc54c394'
 route: 'full'
 route_source: 'auto'
