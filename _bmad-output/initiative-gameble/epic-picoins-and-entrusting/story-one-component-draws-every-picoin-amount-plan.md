@@ -3,7 +3,7 @@ title: 'One component draws every PiCoin amount'
 type: 'feature'
 ticket: '38.4'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: '967d939c53af6f8f3095d9e0f4e45a154cd3cdbe'
 route: 'full'
 route_source: 'auto'
@@ -92,6 +92,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10 review: checked the diff against the plan, spec and AGENTS.md (fixture parity, nbsp delimiter, guards, locale keys with French zero form, no style attribute, pixel export check passes, size and reference checks clean); no defects found, no code changes. bundle exec rubocop and packwerk could not load in this worktree (missing gems), so they were not run.
 
 ## Review Triage Log
 
