@@ -1960,6 +1960,8 @@ fr:
       new:
         bar_action: "Confier ▸"
         bar_label: "Votre sélection à confier"
+        card_only: "Seulement %{title}."
+        all_cards: "Toutes les cartes"
         cap_full: "Votre plafond du jour est atteint. Il se renouvelle à 00:00 UTC."
         cap_label: "Plafond du jour"
         clear_filters: "Effacer les filtres"
@@ -3022,6 +3024,12 @@ fr:
       zero: "%{count} autre rareté"
       one: "%{count} autre rareté"
       other: "%{count} autres raretés"
+    entrust:
+      button: "Confier"
+      reserved:
+        zero: "Aucun exemplaire réservé"
+        one: "%{count} exemplaire réservé"
+        other: "%{count} exemplaires réservés"
     steam_reviews:
       zero: "%{percent} positifs · %{reviews} avis"
       one: "%{percent} positifs · %{reviews} avis"

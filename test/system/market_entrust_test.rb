@@ -293,4 +293,39 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_no_selector "dialog .market-entrust__refusal", visible: :all
     assert_selector ".entrust-cell--picked", count: 1
   end
+
+  def second_edition_of(card_season)
+    season = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
+    Catalog::CardSeason.create!(card_id: card_season.card_id, season_id: season.id, prestige_score: 0.5, rating: 50, rarity: card_season.rarity, number: 1)
+  end
+
+  test "from a card detail with two free editions the player reaches Confier on that card with doubles off and nothing ticked" do
+    open_market!
+    second = second_edition_of(@rare)
+    hold(@player, @rare.id, 1)
+    hold(@player, second.id, 1)
+    hold(@player, @common.id, 3)
+    sign_in_through_the_site
+
+    visit card_path(locale: :en, slug: @rare.card.slug)
+    click_on "Entrust"
+
+    assert_selector ".entrust-cell", count: 2
+    assert_no_selector ".entrust-cell--picked"
+    assert_unchecked_field "Doubles"
+    assert_selector ".market-entrust__card-only"
+  end
+
+  test "from a card detail with one free edition Confier opens with it ticked" do
+    open_market!
+    hold(@player, @rare.id, 2)
+    sign_in_through_the_site
+
+    visit card_path(locale: :en, slug: @rare.card.slug)
+    click_on "Entrust"
+
+    assert_selector ".entrust-cell", count: 1
+    assert_selector ".entrust-cell--picked", count: 1
+    assert_unchecked_field "Doubles"
+  end
 end
