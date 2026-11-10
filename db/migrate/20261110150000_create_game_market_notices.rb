@@ -1,4 +1,3 @@
-# One line a player is told about a listing: the latest thing that happened to them on it. Written only by the market handlers.
 class CreateGameMarketNotices < ActiveRecord::Migration[8.1]
   KINDS = %w[outbid won sold unsold bought_over lead_voided withdrawn].freeze
 

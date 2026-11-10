@@ -24,7 +24,7 @@ module MarketBidsHelper
     return t("market.listings.status.no_leader", **figures) unless listing.leader
     return t("market.listings.status.leading_you", **figures) if viewer && listing.leader.id == viewer.id
 
-    t("market.listings.status.leading", **figures, name: strip_tags(render(PlayerNameComponent.new(player: listing.leader, viewer: nil, linked: false))))
+    t("market.listings.status.leading", **figures, name: CGI.unescapeHTML(strip_tags(render(PlayerNameComponent.new(player: listing.leader, viewer: nil, linked: false)))))
   end
 
   def bid_field_data(sheet, answered:)

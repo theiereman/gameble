@@ -1,4 +1,3 @@
-# The listings an open Annonce refreshes on, one public stream per listing named by its token: it carries a signal and nothing else.
 module ListingStream
   EVENTS = [
     Game::Market::BidPlaced, Game::Market::AuctionSold, Game::Market::AuctionUnsold, Game::Market::ListingCancelled, Game::Market::ListingWithdrawn

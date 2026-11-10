@@ -90,14 +90,14 @@ class MarketLiveAnnonceSystemTest < ApplicationSystemTestCase
   end
 
   test "an auction that ends while the reader has typed gives the outcome's heading focus, with nothing submitted" do
-    @listing.update_columns(ends_at: 4.seconds.from_now)
     sign_in_through_the_site(@reader)
+    @listing.update_columns(ends_at: 7.seconds.from_now)
     open_annonce
     find_field("annonce-maximum").click
     fill_in "annonce-maximum", with: "26000"
     bids = Game::Market::Bid.count
 
-    sleep 4.5
+    sleep 7.5
     Game::Market::CloseAuction.new.call(player: @seller, listing_id: @listing.id)
     perform_enqueued_jobs(only: ListingStreamJob)
 

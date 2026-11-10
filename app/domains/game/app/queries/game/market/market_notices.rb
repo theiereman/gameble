@@ -1,6 +1,5 @@
 module Game
   module Market
-    # A player's market lines for the bell, newest first: the card and the other player named, the amount stated.
     module MarketNotices
       LIMIT = 5
 

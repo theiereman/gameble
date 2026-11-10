@@ -1,6 +1,5 @@
 module Game
   module Market
-    # What happened on a listing that its Annonce shows apart from the history, for one viewer.
     module AnnonceEvents
       Outbid = Data.define(:other, :amount)
       Extended = Data.define(:until, :minutes)
