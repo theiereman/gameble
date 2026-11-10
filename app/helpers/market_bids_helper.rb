@@ -3,14 +3,28 @@ module MarketBidsHelper
     "annonce-field" => { typed: :typed, entered: :entered, retermed: :retermed },
     "annonce-foot" => { raise: :raise },
     "annonce-dialog" => { confirmed: :confirmed },
-    "annonce-status" => {}
+    "annonce-status" => {},
+    "listing-clock" => { ended: :ended }
   }.freeze
+  ANNONCE_DOCUMENT_ACTIONS = "turbo:morph@document->annonce#morphed".freeze
   ANSWER_KINDS = { new_leader: :leading, raise: :raised }.freeze
 
   def annonce_root_data
-    { controller: "annonce live-refresh", live_refresh_signal_value: "listing-updated", action: screen_actions("annonce", ANNONCE_ACTIONS),
-      annonce_locale_value: I18n.locale,
-      annonce_strings_value: screen_strings("market.bids.strings") }.merge(screen_outlets("annonce", ANNONCE_ACTIONS.keys))
+    actions = "#{screen_actions("annonce", ANNONCE_ACTIONS)} #{ANNONCE_DOCUMENT_ACTIONS}"
+    { controller: "annonce live-refresh", live_refresh_signal_value: "listing-updated", action: actions, annonce_locale_value: I18n.locale,
+      annonce_strings_value: screen_strings("market.bids.strings") }.merge(screen_outlets("annonce", ANNONCE_ACTIONS.keys - %w[listing-clock]))
+  end
+
+  def annonce_status_data(listing, viewer, events)
+    { status_text: annonce_status_text(listing, viewer), status_ends_at: listing.ends_at.utc.iso8601, status_bidder: events.bidder }
+  end
+
+  def annonce_status_text(listing, viewer)
+    figures = { amount: t("picoin_amount.accessible", amount: picoins(listing.current_price)), time: local_time_text(listing.ends_at, :time) }
+    return t("market.listings.status.no_leader", **figures) unless listing.leader
+    return t("market.listings.status.leading_you", **figures) if viewer && listing.leader.id == viewer.id
+
+    t("market.listings.status.leading", **figures, name: strip_tags(render(PlayerNameComponent.new(player: listing.leader, viewer: nil, linked: false))))
   end
 
   def bid_field_data(sheet, answered:)

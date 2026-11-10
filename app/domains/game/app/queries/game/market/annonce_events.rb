@@ -4,9 +4,9 @@ module Game
     module AnnonceEvents
       Outbid = Data.define(:other, :amount)
       Extended = Data.define(:until, :minutes)
-      Events = Data.define(:outbid, :extended)
+      Events = Data.define(:outbid, :extended, :bidder)
 
-      NONE = Events.new(outbid: nil, extended: nil)
+      NONE = Events.new(outbid: nil, extended: nil, bidder: false)
 
       SECONDS_PER_MINUTE = 60
 
@@ -14,7 +14,7 @@ module Game
         listing = Listing.where(token: token.to_s, status: "open").select(:id, :leader_id, :ends_at, :settings_id).first
         return NONE unless listing
 
-        Events.new(outbid: outbid(listing, viewer), extended: extended(listing))
+        Events.new(outbid: outbid(listing, viewer), extended: extended(listing), bidder: bidder?(listing, viewer))
       end
 
       def self.outbid(listing, viewer)
@@ -24,6 +24,8 @@ module Game
         Outbid.new(other: notice.other_player, amount: notice.amount) if notice&.other_player
       end
 
+      def self.bidder?(listing, viewer) = !viewer.nil? && Bid.where(listing_id: listing.id, player_id: viewer.id).exists?
+
       def self.extended(listing)
         latest = Bid.where(listing_id: listing.id).where.not(extended_until: nil).order(id: :desc).pick(:extended_until)
         return unless latest == listing.ends_at
@@ -31,7 +33,7 @@ module Game
         Extended.new(until: latest, minutes: Settings.find(listing.settings_id).soft_close_seconds / SECONDS_PER_MINUTE)
       end
 
-      private_class_method :outbid, :extended
+      private_class_method :outbid, :extended, :bidder?
     end
   end
 end

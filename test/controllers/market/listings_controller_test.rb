@@ -425,6 +425,33 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/market-listing:/, response.body)
   end
 
+  test "the page carries the status line for the polite region, in each language, and the not-recorded sentence as a template" do
+    @listing.update_columns(leader_id: accounts_players(:moderator).id, leader_maximum: 9_000, current_price: 8_000)
+    accounts_players(:moderator).update_columns(persona_name: "Bob")
+    annonce
+
+    assert_select "#annonce [data-status-text^='Price 8,000 PiCoins, leading Bob. Ends at ']"
+    assert_select "#annonce [data-status-ends-at=?]", @listing.reload.ends_at.utc.iso8601
+    assert_select "#annonce [data-status-bidder=false]"
+    assert_select "#annonce template[data-annonce-target=notRecorded] .market-bid__note", "Your amount was not recorded."
+    assert_select "#annonce[data-action*='listing-clock:ended->annonce#ended'][data-action*='turbo:morph@document->annonce#morphed']"
+
+    annonce(locale: :fr)
+    assert_select "#annonce [data-status-text^='Prix '][data-status-text*=', en tête Bob. Fin à ']"
+  end
+
+  test "the status line says you are leading to the leader and has none once an outcome shows" do
+    leader = accounts_players(:moderator)
+    @listing.update_columns(leader_id: leader.id, leader_maximum: 9_000, current_price: 8_000)
+    sign_in(leader)
+    annonce
+    assert_select "#annonce [data-status-text*='you are leading']"
+
+    @listing.update_columns(status: "unsold", leader_id: nil, leader_maximum: nil)
+    annonce
+    assert_select "#annonce [data-status-text]", false
+  end
+
   test "an open market draws an empty slot and the live form" do
     sign_in(accounts_players(:administrator))
     annonce

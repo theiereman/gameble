@@ -2114,6 +2114,10 @@ fr:
         price: "PRIX ACTUEL"
         seller: "Vendeur"
         time: "FIN DANS"
+      status:
+        leading: "Prix %{amount}, en tête %{name}. Fin à %{time}."
+        leading_you: "Prix %{amount}, vous êtes en tête. Fin à %{time}."
+        no_leader: "Prix %{amount}, aucune offre. Fin à %{time}."
     suspended_banner:
       back: "Retour au marché"
       body: "La Confrérie procède à un audit de ses procédures. Les enchères en cours se terminent normalement. Il n'est plus possible de confier, de vendre ou d'enchérir pour le moment."

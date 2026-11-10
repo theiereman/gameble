@@ -62,6 +62,14 @@ class Game::Market::AnnonceEventsTest < ActiveSupport::TestCase
     assert_nil events(nil).extended
   end
 
+  test "a viewer who has bid on the listing is a bidder, a visitor and a reader who never bid are not" do
+    Game::Market::Bid.create!(listing: @listing, player: @rival, maximum: 40_000, price_after: 31_500, outcome: "leading")
+
+    assert events(@rival).bidder
+    assert_not events(@reader).bidder
+    assert_not events(nil).bidder
+  end
+
   test "a listing that is no longer open gets none" do
     @listing.update_columns(status: "sold")
 

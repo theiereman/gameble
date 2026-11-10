@@ -2424,6 +2424,10 @@ en:
         price: CURRENT PRICE
         seller: Seller
         time: ENDS IN
+      status:
+        leading: "Price %{amount}, leading %{name}. Ends at %{time}."
+        leading_you: "Price %{amount}, you are leading. Ends at %{time}."
+        no_leader: "Price %{amount}, no bids. Ends at %{time}."
     suspended_banner:
       back: Back to the market
       body: The Brotherhood is auditing its procedures. Auctions in progress end normally. Nothing can be entrusted, sold or bid on for now.

@@ -88,4 +88,24 @@ class MarketLiveAnnonceSystemTest < ApplicationSystemTestCase
     assert_selector "#annonce-extended h2", text: "AUCTION EXTENDED"
     assert_selector "#annonce-extended time[datetime]"
   end
+
+  test "an auction that ends while the reader has typed gives the outcome's heading focus, with nothing submitted" do
+    @listing.update_columns(ends_at: 4.seconds.from_now)
+    sign_in_through_the_site(@reader)
+    open_annonce
+    find_field("annonce-maximum").click
+    fill_in "annonce-maximum", with: "26000"
+    bids = Game::Market::Bid.count
+
+    sleep 4.5
+    Game::Market::CloseAuction.new.call(player: @seller, listing_id: @listing.id)
+    perform_enqueued_jobs(only: ListingStreamJob)
+
+    assert_selector "#listing-outcome-heading", text: "AUCTION ENDED"
+    assert_equal "listing-outcome-heading", page.evaluate_script("document.activeElement.id")
+    assert_selector "#annonce-bid .market-bid__note", text: "Your amount was not recorded."
+    assert_no_field "annonce-maximum"
+    assert_equal bids, Game::Market::Bid.count
+    assert_selector "[role=status]", text: "AUCTION ENDED", visible: :all
+  end
 end
