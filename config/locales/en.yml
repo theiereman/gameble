@@ -404,21 +404,27 @@ en:
     market_signals:
       banned: "banned"
       sentences:
+        bids_on_tied_seller: "Bids on the other account's listings, which another signal ties to it, in the last 30 days. Listings: %{listings}, bids: %{bids}."
+        minimum_price_sales: "Sold to the other account at the minimum price in the last 30 days: %{sales}."
         near_maximum_opening: "Opened %{per_day} capsules or more a day on %{days} of the last 7 days, up to %{peak} in one day."
         one_way_trades: "Trades in the last 7 days where it gave far more than it got: %{trades}. Copies given: %{given}, received: %{received}."
+        sales_outside_price: "Sold to the other account in the last 30 days at under half or over twice the edition's average price: %{sales} (%{below} below, %{above} above)."
       show:
         account: "Account"
         caption: "Accounts matching an alt-account signal"
         empty: "No account matches a signal."
         facts: "Facts"
         heading: "Alt-account signals"
-        intro: "Accounts that open capsules or trade the way an alt account feeding another would. A signal is a hint, not proof: it changes nothing on the account, and any action goes through the ban on the players page. The signals are replaced every night and no player sees them."
+        intro: "Accounts that open capsules, trade, sell or bid the way an alt account feeding another would. A signal is a hint, not proof: it changes nothing on the account, and any action goes through the ban on the players page. The signals are replaced every night and no player sees them."
         other_account: "Other account"
         refreshed_at: "Refreshed"
         signal: "Signal"
       signals:
+        bids_on_tied_seller: "Bids on the listing of a tied account"
+        minimum_price_sales: "Repeated minimum-price sales"
         near_maximum_opening: "Near-maximum capsule opening"
         one_way_trades: "Repeated one-way trades"
+        sales_outside_price: "Sales outside the market price"
     markets:
       announcement:
         hint: "Shown on the red banner in place of the current announcement, in each player's language, %{length} characters at most."

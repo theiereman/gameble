@@ -1,7 +1,9 @@
-# Opened capsules and accepted trades straight into the tables, for the tests that read the alt-account signals.
+# Opened capsules, accepted trades, sales and bids straight into the tables, for the tests that read the alt-account signals.
 #
 #   open_capsules!(player, 130, on: Date.new(2026, 11, 3))
 #   one_way_trade!(giver, receiver, closed_at: 2.days.ago)
+#   sale!(seller, buyer, card_season, 4_000, sold_at: 2.days.ago, average_after_sale: 10_000)
+#   bid!(bidder, listing)
 module AltSignalSeeds
   def open_capsules!(player, count, on:)
     opened_at = on.in_time_zone("UTC") + 9.hours
@@ -22,4 +24,18 @@ module AltSignalSeeds
   end
 
   def one_way_trade!(giver, receiver, closed_at: 1.day.ago) = trade!(giver, receiver, offered: 4, requested: 1, closed_at:)
+
+  def sale!(seller, buyer, card_season, price, sold_at: 1.day.ago, average_after_sale: nil, settings: Game::Market::CurrentSettings.call)
+    Game::Market::Listing.create!(seller:, leader: buyer, leader_maximum: price, card_season_id: card_season.id, settings_id: settings.id, starting_price: 1_300,
+      current_price: price, duration_hours: 24, ends_at: sold_at, status: "sold", sold_at:, final_price: price, average_after_sale:)
+  end
+
+  # Earlier sales of an edition that left the given average, far enough back to stay out of every signal's window.
+  def priced_history!(card_season, average:, sales: Game::Market::EditionPrice::MINIMUM_SALES)
+    sales.times { |ago| sale!(accounts_players(:administrator), accounts_players(:banned), card_season, average, sold_at: (60 + ago).days.ago, average_after_sale: average) }
+  end
+
+  def bid!(bidder, listing, outcome: "leading", created_at: 1.day.ago)
+    Game::Market::Bid.create!(listing:, player: bidder, maximum: listing.current_price + 100, price_after: listing.current_price, outcome:, created_at:)
+  end
 end
