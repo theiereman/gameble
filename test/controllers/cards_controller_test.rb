@@ -5,6 +5,8 @@ require_relative "../support/library_requests"
 require_relative "../support/game_packs"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
+require_relative "../support/holdings"
+require_relative "../support/market"
 
 # A card's detail page ("FICHE DE LA CARTE"): every fact in the viewer's
 # language, the viewer's copies, the sets leading to their grids, the Steam
@@ -23,6 +25,8 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
   include GameSets
   include SteamSignIn
+  include Holdings
+  include MarketSettings
 
   setup do
     # A PUBLIC_URL exported in the shell would replace the request's base.
@@ -1236,5 +1240,68 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     owner.update!(visibility: :private)
     get card_season_path(locale: :en, slug: "portal", number: 1, brother: owner.token)
     assert_select ".public-card"
+  end
+
+  test "CONFIER is absent before the market first opened, while it is closed and for a visitor" do
+    Game::Market::Settings.delete_all
+    hold(accounts_players(:player), catalog_card_seasons(:portal_one).id, 2)
+    sign_in(accounts_players(:player))
+
+    get card_path(locale: :en, slug: "portal")
+    assert_select ".card-detail__market", false
+
+    close_market!
+    get card_path(locale: :en, slug: "portal")
+    assert_select ".card-detail__market", false
+
+    open_market!
+    close_market!
+    get card_path(locale: :en, slug: "portal")
+    assert_select ".card-detail__market", false
+  end
+
+  test "CONFIER is absent for a visitor" do
+    open_market!
+
+    get card_path(locale: :en, slug: "portal")
+
+    assert_select ".card-detail__market", false
+  end
+
+  test "CONFIER links to the filtered Confier when the player holds a free copy" do
+    Game::Market::Settings.delete_all
+    open_market!
+    hold(accounts_players(:player), catalog_card_seasons(:portal_one).id, 2, reserved: 1)
+    sign_in(accounts_players(:player))
+
+    get card_path(locale: :en, slug: "portal")
+
+    assert_select ".card-detail__actions > .card-detail__market a.button--secondary[href=?]", new_market_card_entrustment_path(locale: :en, slug: "portal"), text: "Entrust"
+    assert_select ".card-detail__market-note", false
+    assert_select ".card-detail__market .picoin-amount", false
+  end
+
+  test "CONFIER is greyed with the reserved count when every copy is reserved" do
+    Game::Market::Settings.delete_all
+    open_market!
+    hold(accounts_players(:player), catalog_card_seasons(:portal_one).id, 2, reserved: 2)
+    sign_in(accounts_players(:player))
+
+    get card_path(locale: :en, slug: "portal")
+
+    assert_select ".card-detail__market a", false
+    assert_select ".card-detail__market button[disabled]", text: "Entrust"
+    assert_select ".card-detail__market-note", "2 reserved copies"
+  end
+
+  test "CONFIER is absent for a card the player does not hold" do
+    Game::Market::Settings.delete_all
+    open_market!
+    hold(accounts_players(:player), catalog_card_seasons(:common_card_one).id, 2)
+    sign_in(accounts_players(:player))
+
+    get card_path(locale: :en, slug: "portal")
+
+    assert_select ".card-detail__market", false
   end
 end

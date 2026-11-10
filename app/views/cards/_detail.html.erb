@@ -6,6 +6,7 @@
 <% showcase = local_assigns.fetch(:showcase, nil) %>
 <% pioneer = local_assigns.fetch(:pioneer, nil) %>
 <% goals = local_assigns.fetch(:goals, []) %>
+<% entrustment = local_assigns.fetch(:entrustment, nil) %>
 <% trade_holders = local_assigns.fetch(:trade_holders, nil) || [] %>
 <% goal_numbers = goals.map(&:position) %>
 <% repostable = share_url && editions.any? { |_, season_number, _| season_number == detail.view.season_number } %>
@@ -191,6 +192,16 @@
               <%= link_to t("showcases.open"), me_path(card: view.id, edition: view.season_number, anchor: "showcase"), class: "card-detail__showcase-open", data: { turbo_prefetch: false } %>
             </p>
           <% end %>
+        <% end %>
+      </div>
+    <% end %>
+    <% if entrustment %>
+      <div class="card-detail__market">
+        <% if entrustment.free.zero? %>
+          <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("card_details.entrust.button") %><% end %>
+          <p class="card-detail__market-note"><%= t("card_details.entrust.reserved", count: entrustment.reserved) %></p>
+        <% else %>
+          <%= render ButtonComponent.new(variant: :secondary, href: new_market_card_entrustment_path(slug: view.id)) do %><%= t("card_details.entrust.button") %><% end %>
         <% end %>
       </div>
     <% end %>

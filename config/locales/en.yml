@@ -975,6 +975,12 @@ en:
     editions_more:
       one: "%{count} more rarity"
       other: "%{count} more rarities"
+    entrust:
+      button: Entrust
+      reserved:
+        one: "%{count} reserved copy"
+        other: "%{count} reserved copies"
+        zero: No reserved copies
     facts:
       copies: Copies
       editions: Editions
@@ -2210,8 +2216,10 @@ en:
             other: "%{title}, season %{season}: %{count} copies stay in your collection (%{amount} each)"
         throttled: Slow down, the Archives are counting. Try again in a minute.
       new:
+        all_cards: All cards
         bar_action: "Entrust ▸"
         bar_label: Your entrusting selection
+        card_only: "Only %{title}."
         cap_full: Your daily cap is reached. It renews at 00:00 UTC.
         cap_label: Daily cap
         clear_filters: Clear filters

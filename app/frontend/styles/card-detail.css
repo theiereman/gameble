@@ -433,6 +433,20 @@
   margin: 0;
 }
 
+.card-detail__market {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.card-detail__market-note {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
 .card-detail__showcase {
   display: flex;
 }
