@@ -3,7 +3,7 @@ title: 'Refactor sweep'
 type: 'refactor'
 ticket: '38.13'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: '79ae74e130da086af8cfc20079eaf4fae2f36186'
 route: 'full'
 route_source: 'auto'
@@ -71,6 +71,8 @@ context: []
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10 review: no defect found; extractions preserve behaviour, no stray stream spelling or duplicate method remains, moderator refusals are already pinned by tests. Static checks passed (ruby -c, planning references, file sizes); rubocop could not run in the worktree (missing gems).
 
 ## Review Triage Log
 
