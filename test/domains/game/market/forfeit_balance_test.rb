@@ -18,7 +18,7 @@ class Game::Market::ForfeitBalanceTest < ActiveSupport::TestCase
     fund!(@player, 5_000)
   end
 
-  def delete(player = @player) = player.update_columns(deleted_at: Time.current)
+  def delete(player = @player) = player.update_columns(deleted_at: Time.current, steam_id: nil)
 
   def forfeit(player = @player) = Game::Market::ForfeitBalance.new.call(player:)
 

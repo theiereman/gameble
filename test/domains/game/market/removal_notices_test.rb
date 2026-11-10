@@ -34,7 +34,7 @@ class Game::Market::RemovalNoticesTest < ActiveSupport::TestCase
 
   test "a withdrawal with no leader, or a removed leader, writes nothing" do
     Game::Market::Handlers::RemovalNotices.call(Game::Market::ListingWithdrawn.new(data: { listing_id: @listing.id, seller_id: @seller.id, leader_id: nil, released: 0 }))
-    @leader.update_columns(deleted_at: Time.current)
+    @leader.update_columns(deleted_at: Time.current, steam_id: nil)
     Game::Market::Handlers::RemovalNotices.call(Game::Market::ListingWithdrawn.new(data: { listing_id: @listing.id, seller_id: @seller.id, leader_id: @leader.id, released: 5 }))
 
     assert_equal 0, Game::Market::Notice.count
@@ -42,7 +42,7 @@ class Game::Market::RemovalNoticesTest < ActiveSupport::TestCase
 
   test "a notice for a banned or deleted player is never written" do
     %i[banned_at deleted_at].each do |column|
-      @seller.update_columns(banned_at: nil, deleted_at: nil, column => Time.current)
+      @seller.update_columns(banned_at: nil, deleted_at: nil, steam_id: nil, column => Time.current)
 
       Game::Market::Handlers::RemovalNotices.call(voided)
     end

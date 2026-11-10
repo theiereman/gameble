@@ -26,7 +26,7 @@ class Game::Market::ForfeitBalanceRaceTest < ActiveSupport::TestCase
     @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, ends_at: 1.day.from_now)
     fund!(@leader, 100_000)
     bid(@leader, 30_000)
-    @leader.update_columns(deleted_at: Time.current)
+    @leader.update_columns(deleted_at: Time.current, steam_id: nil)
   end
 
   teardown do

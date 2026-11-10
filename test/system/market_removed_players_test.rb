@@ -72,7 +72,7 @@ class MarketRemovedPlayersSystemTest < ApplicationSystemTestCase
     click_on "Delete my account"
     assert_selector "#delete-dialog-market", text: /Your balance of .* PiCoins is destroyed without refund/
 
-    @leader.update_columns(deleted_at: Time.current)
+    @leader.update_columns(deleted_at: Time.current, steam_id: nil)
     Game::Market::DropPresenceJob.perform_now
 
     assert_equal [ 0, 0 ], figures(@leader)

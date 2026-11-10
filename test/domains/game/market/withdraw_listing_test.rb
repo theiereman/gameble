@@ -25,7 +25,7 @@ class Game::Market::WithdrawListingTest < ActiveSupport::TestCase
   def ban(player = @seller) = player.update_columns(banned_at: Time.current)
 
   def delete(player = @seller)
-    player.update_columns(deleted_at: Time.current)
+    player.update_columns(deleted_at: Time.current, steam_id: nil)
     Game::Holding.where(player_id: player.id).delete_all
   end
 

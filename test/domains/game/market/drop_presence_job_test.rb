@@ -76,7 +76,7 @@ class Game::Market::DropPresenceJobTest < ActiveSupport::TestCase
 
   test "a deleted player's balance is forfeited after the listings are withdrawn and the leads voided, in the same pass" do
     listing = led(@card)
-    @leader.update_columns(deleted_at: Time.current)
+    @leader.update_columns(deleted_at: Time.current, steam_id: nil)
 
     Game::Market::DropPresenceJob.perform_now
 
@@ -103,8 +103,8 @@ class Game::Market::DropPresenceJobTest < ActiveSupport::TestCase
   end
 
   test "a wallet that raises is reported with the player and the others go on" do
-    @leader.update_columns(deleted_at: Time.current)
-    other = accounts_players(:administrator).tap { it.update_columns(deleted_at: Time.current) }
+    @leader.update_columns(deleted_at: Time.current, steam_id: nil)
+    other = accounts_players(:administrator).tap { it.update_columns(deleted_at: Time.current, steam_id: nil) }
     fund!(other, 700)
     original = Game::Market::ForfeitBalance.instance_method(:call)
     failing = ->(**arguments) { arguments[:player] == @leader ? raise("boom") : original.bind(Game::Market::ForfeitBalance.new).call(**arguments) }

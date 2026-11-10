@@ -86,7 +86,7 @@ class BellHelperTest < ActionView::TestCase
 
   test "a removed player is named anonymously" do
     removed = accounts_players(:administrator)
-    removed.update_columns(deleted_at: Time.current)
+    removed.update_columns(deleted_at: Time.current, steam_id: nil)
 
     assert_includes bell_market_line(market_notice(other: removed)).sentence, I18n.t("player_name.anonymous")
   end

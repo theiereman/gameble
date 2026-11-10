@@ -26,7 +26,7 @@ class Game::Market::VoidLeadTest < ActiveSupport::TestCase
 
   def ban(player = @leader) = player.update_columns(banned_at: Time.current)
 
-  def delete(player = @leader) = player.update_columns(deleted_at: Time.current)
+  def delete(player = @leader) = player.update_columns(deleted_at: Time.current, steam_id: nil)
 
   def void(listing = @listing) = Game::Market::VoidLead.new.call(player: @seller, listing_id: listing.id)
 
