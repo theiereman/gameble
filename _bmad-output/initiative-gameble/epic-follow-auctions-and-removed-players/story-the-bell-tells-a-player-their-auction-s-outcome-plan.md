@@ -3,8 +3,8 @@ title: 'The bell tells a player their auction''s outcome'
 type: 'feature'
 ticket: '40.4'
 created: '2026-11-10'
-status: 'draft'
-baseline_revision: ''
+status: 'in-review'
+baseline_revision: 'beb2dc7ad2776ec1418d585483a850bd471a923c'
 route: 'full'
 route_source: 'auto'
 review: ''
@@ -68,6 +68,8 @@ context:
 - Given an auction closes with a winner, then the winner's and the seller's bells each show their line, leading to the Annonce and to MES VENTES.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. A buy-now by the player already leading writes no bought-over line since nobody is displaced; the buyer's own earlier outbid line is replaced by the won line. The listing-close balance test and the unsold stream test now expect the market topic beside the balance one.
 
 ## Plan Change Log
 
