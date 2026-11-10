@@ -315,4 +315,4 @@ release = "1.3.x"
 slug = "epic-economy-charts"
 title = "Economy charts"
 covers = ["CAP-34", "CAP-36", "CAP-38"]
-after = [{ epic = 38, needs = "the first opening, the back-office market page and the picoins helper" }, { epic = 39, needs = "the market screen's chip row and sold listings" }, { epic = 41, needs = "the daily snapshot, EconomySeries' indicators, average_after_sale, the card detail's average price and the health page" }]
+after = [{ epic = 38, needs = "OpenMarket and MarketState, the back-office market page and the picoins helper" }, { epic = 39, needs = "the market screen's chip row, sold listings and average_after_sale" }, { epic = 41, needs = "the first opening, the daily snapshot, EconomySeries' indicators with days of income, the card detail's average price with its sale count and the health page" }]

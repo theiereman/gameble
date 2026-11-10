@@ -1,0 +1,157 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "A player entrusts copies on the Confier page and receives minted PiCoins"
+description = "Tracer through every layer. Market code lives under Game::Market inside the game package (models, operations, queries, events), with bundle exec packwerk check passing. One migration set creates game_market_settings with every column of the epic's settings requirement (per rarity entrustment value, stamp and minimum price; commission; daily cap; the three durations and the preselected one; increment; soft close; averaged sale count and average-price window; feed threshold; unusual-maximum threshold; the indicators' alert thresholds and the day-of-income targets, nullable where market-economy.md has none; open; the opening confirmations and first opening time; the author; replaces_id unique), game_market_wallets, game_market_ledger_entries (its kind check holding from the start all eight kinds of AD-41: mint, stamp, hold, release, purchase, sale, commission, forfeit, so no later epic replaces it; listing_id a plain nullable bigint, with no foreign key or partial unique index, which epic 39's story 1 adds with its listings table) and game_market_archive_deposits, with their checks. Game::Market::StartingSettings holds the starting values; Game::Market::CreateFirstSettings, an ApplicationOperation, inserts a first closed version when none exists and runs on every deploy from bin/docker-entrypoint and from db/seeds. Game::Market::CurrentSettings reads the highest id from the database. Game::Market::Ledger.post is the only writer of wallets and entries (upsert, lock in ascending player id, net, apply, insert), the entry model raises on update and destroy, and a test refuses any other reference to their write methods; Game::Market::Mint.credit posts mint. The holding move is extracted from AcceptTrade#move into a step shared by AcceptTrade and entrustment that also removes unheld showcase entries; AcceptTrade's tests still pass. Game::Market::EntrustCards takes player:, an ordered list of card-seasons and quantities and the settings version drawn: under the bank lock then the holdings it refuses market_closed, amounts_changed for a stale version, a card-season with no rarity or more than quantity - reserved, answers market_busy on deadlock, entrusts the whole batch in the given order (story 3 adds the cap), upserts deposits, makes one Ledger.post with one mint entry and publishes one Game::Market::CardsEntrusted, heard by nobody. The Confier page is a GET and a POST under the market, both with a policy for signed-in players and the POST rate limited per player: a server-rendered grid of the player's free copies, one cell per card-season with rarity, season, value and a copies field, the version drawn in a hidden field, and a result with the total minted and the count. Amounts print through the server picoins helper (exact and compact forms) that story 4 wraps in the amount component. Copy and every errors.game code in en.yml and fr.yml. Tests open the market by inserting an open version through a test helper; story 2 opens it for real."
+verify = "One system test: with an open version, a player enters copies of two editions on the Confier page and validates, then the result shows the total minted and the count and the collection holds fewer copies. Operation, model and query tests cover Ledger.post's netting and lock order, the write guard test, the entry model refusing update and destroy, EntrustCards' refusals (closed, stale version, no rarity, reserved copies, deadlock as market_busy) and its single mint entry, deposits and event, CreateFirstSettings run twice creating one version, the shared move under AcceptTrade, and the picoins helper's truncation."
+covers = ["R1", "R2", "R3", "R12", "R13", "R15", "R16", "R17", "R22", "R23"]
+after = ["36.2"]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 2
+type = "story"
+title = "An administrator opens the market from the back-office"
+description = "Game::Market::OpenMarket, for administrators (player:), inserts a new open version copying every value of the current one, refuses with a code unless both confirmations are given (the terms forbid trading cards or PiCoins for real money; the capsule odds are published), records them and, the first time, the first opening on the version, and refuses an already open market; like every new version it publishes Game::Market::SettingsChanged, heard by nobody at launch. This story owns the announcement step that every later settings change reuses: the Brotherhood's announcement typed in French and English, validated, published through Accounts::CreateAnnouncement with shown true in the same transaction, which replaces the announcement shown. Game::Market::MarketState answers open and first opened for later stories and for epic 39, which switches the market address on first opened. The back-office gets its Marché page under the staff gate: an opening section with the two confirmations, the two announcement fields and Ouvrir le marché, administrators only, moderators seeing it disabled with the reason. The development seed opens the market through OpenMarket for the development administrator. The teaser stays at the market's address."
+verify = "One system test: an administrator ticks both confirmations, types both announcements and opens the market, then a player sees the announcement and can entrust on the Confier page; without a confirmation nothing opens. Operation and policy tests cover the confirmations recorded, the first opening recorded once, the refusal of an open market and of a moderator, the announcement replacing the shown one, and the teaser still answering at the market's address."
+covers = ["R19", "R21"]
+after = [1]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Copies over the daily cap stay in the collection and the result names them"
+description = "EntrustCards reads the cap from the current version and the player's mint entries of the current UTC day, applies the batch most valuable first whole cards only, skips a copy that does not fit so a cheaper one may still pass, returns what was entrusted and what stayed, and fails with nothing_fits (its locale line naming the 00:00 UTC renewal) when no copy fits. The Confier page sends its cards in that order. The result names each skipped card with its value, says it stays in the collection and gives the cap that was left, with the copy of Copy deck, Confier."
+verify = "One system test of Flow 8: near the cap, a batch with a Légendaire and three cheaper copies entrusts the three, the result names the Légendaire as staying and the collection still holds it. Operation tests cover the cap read from the day's mint entries only, the skip-then-fit order, the nothing-fits refusal and the cap renewing at the UTC day."
+covers = ["R4", "R8"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "One component draws every PiCoin amount"
+description = "This story owns the amount contract epics 39 to 41 reuse. The PiCoin mark joins the pixel art sources at both sizes and is exported by node script/pixel_art/export.mjs, never hand-edited. PicoinAmountComponent draws an amount in its compact form (from 1,000 up, truncated, never rounded up) or its exact form, with the mark hidden from assistive technology and the exact amount and PiCoins as accessible text, in the page's language with U+00A0 as separator. A client picoins helper in app/frontend/lib gives the same forms as the server helper, both tested against one shared fixture; nothing formats an amount with a raw Intl call. The Confier page and its result draw their amounts through the component."
+verify = "Component and helper tests read the shared fixture on both sides (truncation at each threshold, both locales, the separator, zero), the component's accessible text says the exact amount and PiCoins, node script/pixel_art/export.mjs --check passes, and the Confier system tests still pass."
+covers = ["R10"]
+after = [3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "The Confier screen previews the batch as the player ticks"
+description = "Confier becomes a rich screen with one root entrust controller holding its state module app/frontend/lib/entrust.ts and child controllers per region, cloning server-rendered templates. The grid of free copies, one cell per card and edition with rarity, season and value, gets search by game, the filters and the DOUBLONS chip, on by default; a press ticks a cell with the card picker's frame and check; a desktop stepper in the cell sets the copies when more than one is free, reaching every free copy, an only copy included. Arrow keys move between cells, Space or Enter ticks, + and − change a ticked cell's copies, with a visible hint. The recap beside the grid lists the copies most valuable first, VOUS RECEVEZ the amount really received under the cap, the cap gauge previewing the selection, the copies that will stay named, the Rare-or-better note and Les cartes confiées ne vous sont pas rendues describing the button CONFIER n EXEMPLAIRES; a full cap disables validation with its line. The preview applies story 3's rule (most valuable first, a copy that does not fit skipped) to the values and the cap left the server draws, tested against the operation on shared cases. Refusals show inline and keep the ticks: busy, nothing fits, and amounts changed, which redraws the new values from the answer. Ticked cards are a pending edit, so Esc only closes the topmost overlay. Empty, Aucune carte à confier. with OUVRIR UNE CAPSULE."
+verify = "One system test on desktop: the player filters, ticks two cells, raises one stepper, sees the recap and VOUS RECEVEZ change and the copy over the cap named, validates and gets the result; a second test changes the settings while the form is open and gets the refusal with the new amounts and the ticks kept. Vitest covers the state module's ticks, steppers, keys, ordering and cap preview against the shared cases."
+covers = ["R5", "R6", "R16"]
+after = [4]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "On the phone, Confier ticks in three columns and sets copies in the recap sheet"
+description = "Under the phone breakpoint the same tree draws the grid in three columns with ticks only; a bar over the content with its lime rule holds the count, the total and CONFIER ▸, which opens the recap in the bottom sheet, its lines holding 44px steppers, before validating. The root writes data-layout from the breakpoints and changes it only when the state module says the screen is idle."
+verify = "One system test at phone width: the player ticks two cells, opens the recap sheet, raises a copy with its stepper and validates. Vitest covers the layout switch held while the sheet is open."
+covers = ["R7"]
+after = [5]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "CONFIER on a card's detail opens Confier on that card's editions"
+description = "Every card detail of a card the player owns shows CONFIER as a secondary button, with no amount, once the market has first opened and while it is open (story 2's MarketState); greyed with <n> exemplaires réservés when every copy is reserved; absent before the first opening, while suspended and for a visitor. It opens Confier at its own address with the card's public token, filtered on that card, one cell per owned edition, DOUBLONS off, and a single free edition already ticked. The route helper of Confier's address is the target epic 39's CONFIER DES CARTES links to."
+verify = "One system test: from a card detail with two free editions the player reaches Confier filtered on that card with DOUBLONS off, and from a card with one free edition it opens ticked. View tests cover the button absent before the first opening, while closed and for a visitor, greyed for a fully reserved card, and an unknown token answering not found."
+covers = ["R9"]
+after = [6]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 8
+type = "story"
+title = "The balance shows available and committed"
+description = "A Game::Market query reads a player's wallet on the reading role, zero with no row. The Balance chip, drawn with story 4's component in compact form, shows available, a divider and <amount> engagés, before the bell on every signed-in desktop page and, on the phone, in the header of Confier; epic 39 adds it to its market screens' headers through the same partial. A visitor has none, and nobody sees it before the market's first opening. It updates in the Confier answer after entrusting, and on the player's private stream through the existing PlayerStream mechanism (AfterCommitBatch then PlayerStreamJob): this story adds a balance notice to PlayerStream, rendered by PlayerStreamJob after commit, and wires CardsEntrusted to it; epics 39 and 40 add their own wallet-changing events to the same notice, never a new job."
+verify = "One system test: after the first opening a signed-in player sees the chip on a desktop page, entrusts, and the chip shows the new available amount; before the opening and for a visitor there is no chip. Component and PlayerStream tests cover the compact amounts, engagé at 0 or 1, the accessible text, and the balance notice enqueued only after commit."
+covers = ["R11"]
+after = [7]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 9
+type = "story"
+title = "An administrator changes the economy settings with the Brotherhood's announcement"
+description = "Game::Market::ChangeSettings, for administrators (player:), takes the version the form drew and a whole candidate row, validates it (double or halve for amounts, minimums and the cap; commission 0% to 25%; the ranges of percents, durations and thresholds; each minimum at or above the no-loss floor rounded up to the next hundred), inserts the new version naming the one it replaces, with its author, copying open, fails with settings_changed when another version landed first, publishes Game::Market::SettingsChanged (heard by nobody at launch) and the announcement through story 2's step. The back-office Marché page gets the settings form: every value, per rarity where it applies, each with its bound and when it applies, fields named by their row and column headers, an out-of-bounds value refused beside its field naming the no-loss floor, both announcement fields required, the concurrent save refused with Un autre administrateur vient de modifier les réglages.; moderators see it read-only. Epic 41's alerts prefill this form."
+verify = "One system test: an administrator raises the Rare stamp and the minimum with both announcements, a player sees the announcement, and a Confier form drawn before the save is refused with the new amounts. Operation tests cover each bound at its edges, the no-loss floor, the concurrent save, open copied across versions and a moderator refused."
+covers = ["R15", "R18", "R19", "R20"]
+after = [8]
+hitl = false
+risk = "high"
+unknown = "market-economy.md bounds only amounts, minimums, the cap and commission; the ranges of durations, increment, soft close, window, counts and thresholds, and the numeric day-of-income targets, are proposed by the builder and approved by the author before the build."
+plan_checkpoint = true
+
+[[entry]]
+id = 10
+type = "story"
+title = "An administrator closes and reopens the market, and a closed market refuses entrusting"
+description = "The back-office opening section shows Fermer le marché while open, a ChangeSettings with open false and its announcement, and Rouvrir le marché after, story 2's OpenMarket with its two confirmations again and its announcement. This story owns the suspended banner partial (LE MARCHÉ EST SUSPENDU) and its locale line, built on errors.game.market_closed from story 1, which epic 39's story 11 reuses on the market screen and the Annonce. After the first opening, a closed market shows the banner on Confier, its validation disabled with the banner as reason and a way back to the market; card details already hide CONFIER through story 7's state check; the teaser stays at the market's address."
+verify = "One system test: an administrator closes the market, the player's Confier shows the banner with validation disabled and the card detail has no CONFIER, then the administrator reopens it and the player entrusts; a POST sent while closed is refused with market_closed. Operation tests cover closing through ChangeSettings and reopening keeping the first opening time."
+covers = ["R21", "R22"]
+after = [9]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 11
+type = "story"
+title = "Every night the ledger is reconciled against every wallet"
+description = "ReconcileWalletsJob runs every day at 00:10 UTC, in the development and production blocks of config/recurring.yml on queue default, and calls Game::Market::ReconcileWallets, which reads in one REPEATABLE READ transaction each wallet against the sum of its entries and the sum of all deltas against minted less stamps, commissions and forfeits, and returns the result. A difference is reported to the error tracker with the players concerned and no balance is touched. The job runs the reconciliation only: epic 41 adds the edition price refresh then WriteDailySnapshot, in that order, in the same job, reading the result and the same snapshot."
+verify = "Job and query tests: matching wallets report nothing; a wallet changed outside Ledger.post and an entry inserted without its wallet are each reported to the error tracker; the read runs at REPEATABLE READ; config/recurring.yml carries the job at 00:10 UTC in both blocks."
+covers = ["R14"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 12
+type = "story"
+title = "The Archives' stocks are summed every hour"
+description = "A migration creates game_market_archive_stocks, one row per card-season with a quantity. Game::Market::SumArchiveStocks, an ApplicationOperation writing rows that belong to no player, replaces the stocks from the deposits' sums; ArchiveStocksJob runs it every hour in both blocks of config/recurring.yml on queue default. Deposits survive account deletion: a deleted player's rows are anonymised, never removed (AD-14, AD-41), so no handler changes; a test proves the stocks keep counting them."
+verify = "Operation and job tests: two players' deposits of one card-season sum into one stock row, a second run changes nothing, a deleted player's deposits still count, and config/recurring.yml carries the job every hour in both blocks."
+covers = ["R3"]
+after = [11]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 13
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup across the epic, its scope set when it starts from the build records and the review findings deferred during the epic. Cleanup only; scope pushed out of another story is a new story."
+verify = "bin/ci, npm run test:js, bin/rails zeitwerk:check, bundle exec packwerk check and the market's system tests pass."
+covers = []
+after = [10, 12]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 14
+type = "story"
+title = "The author exercises entrusting on staging and ships it closed"
+description = "HITL: on staging the author opens the market, entrusts a batch from a card's detail and from Confier with a copy over the cap, reads the balance, changes a setting with both announcements and checks a form drawn before it is refused, closes the market and checks entrusting is refused and the teaser stays, makes a deliberate wallet mismatch and sees the nightly reconciliation report it, then closes the market again; the release ships to production with the market closed and its first closed version created at deploy."
+verify = "The author confirms each Done when item on staging, and production's back-office shows one closed settings version with no first opening."
+covers = ["R4", "R9", "R11", "R14", "R16", "R17", "R21", "R22"]
+after = [13]
+hitl = true
+risk = "medium"

@@ -1,0 +1,135 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "A listed copy shows on the market and its Annonce"
+description = "Tracer through every layer. game_market_listings (expand migrations, its concurrent indexes on their own) holds one copy of one card-season per listing: a unique token, the seller, the settings version, the starting price, an optional buy-now, the duration, ends_at, current_price, leader_id, leader_maximum, sold_at and final_price, and a status checked among open, sold, unsold, cancelled and withdrawn. The same story finishes epic 38's ledger: the foreign key from game_market_ledger_entries.listing_id to the listings, added not valid then validated in a second migration, and AD-41's partial unique index on (listing, player, kind) where kind is stamp, purchase, sale or commission, created concurrently in its own migration, so the database refuses a second settlement. Game::Market::ListCard runs under the seller's bank lock, then the holding, then one Ledger.post of the stamp (epic 38): it refuses a closed market (market_closed), a stale settings version (amounts_changed), a card-season with no rarity, a copy that is not free (quantity - reserved), a start or buy-now under the rarity's minimum, a buy-now not above the start, a duration outside the version's three, a stamp above available, and answers a deadlock with market_busy; it raises reserved by one and publishes Game::Market::CardListed (listing, seller, card-season), which joins epic 38's PlayerStream balance notice so the seller's Balance chip refreshes after commit. This story creates Game::Market::AuctionMath with commission (the integer floor of price * percent / 100), which story 5's fixture and story 2's settlement use and story 4 extends. It owns the shared web pieces later stories extend: the PlayerName component of AD-49 (name linked only when Game::Visibility.visible?, the anonymous key for a banned or deleted player, 44px on the phone); the listing tile partial (the whole tile one link named by its accessible text, the time left in the alert colour under an hour, the Achat immédiat tag when a buy-now is set); the Annonce page and its regions. Once epic 38's Game::Market::MarketState reports a first opening, MarketsController#show renders the market screen instead of the teaser (the teaser stays before it): the chip row with ANNONCES and the CONFIER DES CARTES action linking to epic 38's Confier route helper (greyed for a visitor), the open listings as tiles ending soonest first, the four sorts of the Copy deck, Charger plus as the grids do, and the empty line. The Annonce is a GET by token, open to visitors: the card, the seller through PlayerName, PRIX ACTUEL, FIN DANS counting down per minute from the server's end time with the end time beside it, the buy-now price, its h1 focused on arrival and ◀ MARCHÉ as its way back; on the phone the market screen and the Annonce carry epic 38's Balance chip in their header. Pundit policies: MarketPolicy#show and the Annonce's policy allow visitors. A development seed lists a few copies through ListCard. Copy and every errors.game code of ListCard in en.yml and fr.yml."
+verify = "One system test (test/system/market_test.rb): before the first opening the market address shows the teaser; after it, a visitor sees a listing created through ListCard as a tile, sorts by price, opens its Annonce and reads its price, end time and seller. Operation tests cover every ListCard refusal, the stamp entry, reserved raised by one, the balance notice enqueued after commit, and a trade or entrustment then refusing the reserved copy; a model test inserts a second sale entry for the same listing and player and the database refuses it; component tests cover PlayerName's three cases and the tile's accessible text."
+covers = ["R1", "R2", "R4", "R13", "R14", "R15", "R17", "R22"]
+after = ["epic-picoins-and-entrusting"]
+hitl = false
+risk = "high"
+unknown = "Whether the existing countdown controller can count per minute down to the last-minute wording, or the Annonce needs its own."
+
+[[entry]]
+id = 2
+type = "story"
+title = "A due auction closes and settles exactly once"
+description = "Game::Market::CloseAuction(player: seller, listing_id:) reads seller and leader without a lock, takes their bank locks in ascending id, locks the listing, reads now and rechecks that it is open, due and has that leader, otherwise doing nothing; removal is read after the bank locks for banned_at and deleted_at. With no leader the listing becomes unsold and the reservation is released (AuctionUnsold: listing, seller); a removed seller makes it withdrawn and releases the leader's maximum (ListingWithdrawn: listing, seller, leader, amount released); a removed leader's maximum is released and the listing becomes unsold. This story owns the settlement step that story 4's buy-now branch reuses: it reads the published season, receives the winner's allocation, moves one copy with its reserved through epic 38's AcceptTrade#move, records set tiers with reached_by trade, removes unheld showcase entries, sets sold, sold_at and final_price, and returns the purchase, surplus release, sale and commission (story 1's AuctionMath.commission) entries for the caller's single Ledger.post; story 3 adds the edition price refresh inside it. CloseAuction publishes one Game::Market::AuctionSold with identifiers only (listing, seller, winner, card-season, final price, surplus released to the winner, the player outbid and their released amount when there is one), heard by GoalsReached and Achievements for the winner and never by WeeklyContribution. AuctionSold, AuctionUnsold and ListingWithdrawn join epic 38's PlayerStream balance notice for every player whose wallet moved. Game::Market::CloseDueAuctionsJob runs CloseAuction once per due listing, one per transaction, with require_account, reporting an error and moving on. Game::Market::OldestDueListing gives the age of the oldest due open listing, and CheckMarketHealthJob reports it to the error tracker over 5 minutes. Both jobs join the development and production blocks of config/recurring.yml on queue default, every 10 seconds and every 5 minutes."
+verify = "Operation tests: the worked example of market-economy.md settles at 31,500 with 8,500 returned and 28,350 to the seller; the no-leader, removed-seller and removed-leader cases; a second run and a second job run change nothing; the winner's allocation, tiers and showcase cleanup; the ledger reconciles through epic 38's reconciliation; the balance notices are enqueued after commit; GoalsReached and Achievements hear AuctionSold and the weekly contribution does not move. Job tests cover one failing listing not stopping the others and the health report over 5 minutes."
+covers = ["R4", "R8", "R9", "R11", "R12"]
+after = [1]
+hitl = false
+risk = "high"
+unknown = "Leader state comes from test setup (a hold posted through Ledger.post) until story 4's PlaceBid exists."
+
+[[entry]]
+id = 3
+type = "story"
+title = "A sale refreshes its edition's average price"
+description = "game_market_edition_prices holds one row per card-season with the average and the number of sales used, and game_market_listings gains average_after_sale (expand migrations). Game::Market::EditionPrice is the only formula: the last sales of the current version's average-price window up to its sale count, highest and lowest dropped, none dropped under 3, floored to an integer, read from sold_at and final_price. Story 2's settlement step upserts and locks the card-season's row after the holdings and player states and before the ledger post (AD-10), recomputes it, and stores the new average on the sold listing as average_after_sale. Epic 41 reads the table for display, the nightly refresh and rarity_average."
+verify = "Query and operation tests: the formula with 1, 2, 3, 5 and 6 sales and a sale outside the window; a settlement writes the row and average_after_sale; two settlements of the same edition in turn leave the row matching the formula; the lock order puts the row before the wallets."
+covers = ["R10"]
+after = [2]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Bids follow the auction rules"
+description = "game_market_bids (expand migrations) holds one row per validated bid: the listing, the player, the maximum, the price after, the outcome (checked among leading, outbid, beaten, raise, won, lost and voided, voided included from the start for epic 40's story 8) and extended_until. AuctionMath gains the increment, the displayed price and the minimum bid of market-economy.md, pure with no loop, reading the listing's settings version. Game::Market::PlaceBid takes the bidder's bank lock, and the seller's too when the maximum reaches the buy-now, in ascending id, locks the listing, reads now and checks status, end, bidder and seller: it refuses a closed market, a bid at or past ends_at, the seller's own listing, a removed seller, a maximum under the minimum (with the new minimum when the price moved), more than available, and a deadlock as market_busy; a removed leader counts as no leader and is released in the same post. Then one branch of AD-44's table applies: buy-now (hold of the buy-now less the bidder's own held maximum, story 2's settlement step at the buy-now price, release of any other leader, AuctionSold), new leader (hold of the maximum, release of the previous leader), beaten at once (no entry, price moved), leader's raise (hold of the difference, maximum only, no extension); equal maximums keep the earlier leader at that maximum. A bid in the version's soft-close window that changes the price or the leader moves ends_at to that window after the bid and fills extended_until. PlaceBid publishes Game::Market::BidPlaced (listing, bidder, branch, the player outbid and their released amount), or AuctionSold on buy-now, and returns the branch and the amounts story 7's answers name; BidPlaced joins epic 38's PlayerStream balance notice for the bidder and the outbid player. Every new errors.game code is added by hand in en.yml and fr.yml."
+verify = "Operation tests: the worked example bid by bid (20,000, then 26,300 with no ledger entry for the beaten maximum, then 31,500 with the first leader released), equal maximums, a raise holding the difference without moving price or end, the soft-close extension and its absence for a raise, buy-now from no leader and from a leader raising into it, every refusal, a removed leader released; a concurrency test runs PlaceBid and CloseAuction on one due listing and finds one settlement and a reconciled ledger."
+covers = ["R4", "R5", "R6", "R7", "R9"]
+after = [3]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 5
+type = "story"
+title = "A seller lists a card from Mettre en vente"
+description = "Mettre en vente, reached by METTRE EN VENTE on the market screen (primary, VENDRE on the phone, greyed for a visitor) and by a secondary METTRE EN VENTE in the card detail's action rows opening it on that card's editions, shown by epic 38's MarketState rules: absent before the first opening, while suspended and for a visitor, greyed with <n> exemplaires réservés for a fully reserved card: a single-choice grid of the seller's unreserved copies, one cell per edition, arrow keys moving focus and Space or Enter choosing, then the form with the facts (epic 41 inserts the average price row), PRIX DE DÉPART with its minimum for the rarity, the optional buy-now, DURÉE with the version's three durations and 24 H preselected, the stamp, the commission and what the seller receives at the starting price, each line updating as amounts change, computed in the browser for display only from the version's values in the markup (app/frontend/lib/listing_form.ts), AuctionMath staying authoritative, tested against it through a shared fixture. Enter moves to the next field and never submits; inline refusals use the Copy deck's words (minimum, buy-now not above start, stamp short with CONFIER DES CARTES, card no longer free); the form submits the version it drew, and amounts_changed redraws the amounts and keeps what was typed. Side by side on desktop, two steps on the phone, the second alone for a single free edition; the Balance chip in the phone header. It has its own controller and ListingPolicy, apart from the Annonce's. The POST goes through ListCard with a per-player rate limit, every errors.game code it shows in en.yml and fr.yml, and lands on the new Annonce with its h1 focused. Empty: the Copy deck line with its way on. This story owns the form's prefill parameters that story 9's REMETTRE EN VENTE fills."
+verify = "One system test (test/system/market_listing_test.rb): a player lists a copy from the card detail at 24 H with a buy-now, lands on the Annonce and finds the tile on the market; a start under the minimum is refused inline keeping the amount. Vitest covers the live lines against the shared fixture; controller tests cover the stale version, a visitor refused with sign_in_required and the rate limit."
+covers = ["R2", "R20", "R22"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "The Annonce shows its history and its outcome"
+description = "The Annonce's history (HISTORIQUE, 330px column on desktop, last on the phone) has one line per validated bid from story 4's bids, newest first: the name through story 1's PlayerName, the price after that bid and the time, the current leader's latest line marked En tête in gold, an extension line (Enchère prolongée jusqu'à <time>), a raise line for its owner only, and the listing's creation line last; the public read selects no maximum. The price block shows En tête : <name> through PlayerName. The card detail's pioneer row moves to story 1's PlayerName. Tiles gain n offres, counting public validated bids (a raise does not count). Between ends_at and the settlement the Annonce reads Clôture en cours… where story 7's form will sit; once closed the Annonce shows story 2's outcome for that viewer from the Copy deck (won with the surplus, lost, viewer, seller, sold at buy-now, no bid, cancelled, withdrawn), the history staying. Read on arrival; the live refresh is epic 40's."
+verify = "One system test (test/system/market_annonce_test.rb): after three bids and a close, the winner, the loser, the seller and a visitor each read their outcome, and the history lists the bids newest first with the extension line and no raise line for the visitor. Query tests cover the public history selecting no maximum and the offer count ignoring raises."
+covers = ["R14", "R15", "R16", "R17"]
+after = [4]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "A player bids with My maximum"
+description = "The Annonce's My maximum form: one type=text inputmode=numeric autocomplete=off field labelled MON MAXIMUM, empty on arrival, its minimum beside it, the fixed sentence and the live one under it (only the live part posted to the polite status region after 500ms), the fixed sentence on finality, the button ENCHÉRIR · <amount> once valid; Enter moves focus to the button, a double activation submits once; the leader's field raises their own maximum with its own minimum, sentences and RELEVER · <amount>. The POST goes through story 4's PlaceBid with BidPolicy and a per-player rate limit, each refusal's errors.game key in en.yml and fr.yml; its answer replaces the form's foot with the Copy deck's panel (leading with RELEVER MON MAXIMUM, beaten at once keeping the field cleared and focused, equal maximum, raise accepted), and a refusal shows under the field with aria-invalid and aria-describedby, keeping the amount, cleared on the next edit; focus follows Focus after each step; the Balance chip refreshes. The seller sees no form; a visitor sees Connectez-vous pour enchérir with the sign-in link in its place. The page holds one polite status region carrying the Market accessible text status line; epic 40's story 3 extends this region (throttle, bypasses, last-hour and last-minutes posts) and never creates another."
+verify = "One system test (test/system/market_bidding_test.rb): Flow 7's first three steps with three players, the second player's beaten maximum answered with the new minimum and the field focused, then the first player's raise. Controller tests cover a visitor refused with sign_in_required, the seller refused, the rate limit and each refusal's text; Vitest covers Enter, the single submission and the live sentence."
+covers = ["R13", "R18", "R22"]
+after = [6]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Unusual maximums and buy-now are confirmed first"
+description = "On story 7's form, ENCHÉRIR places the bid in one gesture unless the maximum reaches the current version's unusual-maximum multiple of the current price and stays below any buy-now: then the MONTANT INHABITUEL dialog repeats the amount and the truncated multiple, ANNULER, ✕ or Esc return to the field unchanged and focused. ACHETER MAINTENANT and a maximum reaching the buy-now open the ACHAT IMMÉDIAT dialog, which takes precedence, names the card and the amount held (buy-now less the player's own held maximum) and returns to its opener on cancel; ACHETER MAINTENANT is disabled with the available amount beside it when the player cannot pay. Both dialogs take focus on their title; on confirmation the bought-at-once answer shows with VOIR LA CARTE."
+verify = "One system test (test/system/market_bidding_test.rb, its own test): a maximum at three times the price asks confirmation and Esc returns to the field; a buyer buys at once through ACHETER MAINTENANT and holds the card. Vitest covers the multiple's threshold against its own shared fixture, the precedence of buy-now and the disabled state."
+covers = ["R7", "R19"]
+after = [7]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 9
+type = "story"
+title = "A seller follows MES VENTES, cancels and relists"
+description = "Game::Market::CancelListing takes the seller's bank lock, then the listing, then the holding, answers a deadlock with market_busy, requires an open listing with no leader, also while the market is closed, releases the reservation and publishes ListingCancelled (listing, seller); every errors.game code it returns is in en.yml and fr.yml; a bid arriving first refuses with the Copy deck's line. The MES VENTES chip joins the market screen's chip row (greyed for a visitor): compact rows EN COURS, VENDUE with Reçu <amount>, après l'Effort de la Confrérie, SANS OFFRE, ANNULÉE and RETIRÉE, each row's title a link stretched over it and its action a sibling. ANNULER shows only while no bid stands, on the row and on the seller's own Annonce, and confirms in the ANNULER CETTE VENTE ? dialog naming the stamp that is not refunded; focus then goes to the next row's title or the group's heading. REMETTRE EN VENTE, after an auction with no bid, opens story 5's Mettre en vente on its second step with the start and buy-now prefilled and says so; the relist is a new listing with a new stamp. Pundit: MES VENTES and the CancelListing POST are for the signed-in seller only. Empty: the Copy deck line."
+verify = "One system test (test/system/market_sales_test.rb): a seller cancels a listing from MES VENTES and gets the card back, then relists an unsold copy in one action with its amounts prefilled. Operation tests cover the cancel refused once a bid leads, the cancel allowed while closed and the reservation released."
+covers = ["R3", "R21"]
+after = [5, 8]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 10
+type = "story"
+title = "A bidder follows MES ENCHÈRES"
+description = "The MES ENCHÈRES chip joins the chip row after MES VENTES (greyed for a visitor): compact rows in EN COURS and TERMINÉES RÉCEMMENT (ended in the last 7 days) with a 40px thumbnail, title, rarity, status chip in words (EN TÊTE, DÉPASSÉ, REMPORTÉE, PERDUE), price, my maximum read only for its owner, time left and RELEVER, primary and filled only when outbid, opening the Annonce on story 7's field. On the phone each row wraps, its action on its own line. Pundit: MES ENCHÈRES is for signed-in players only. Empty: the Copy deck line. The outbid count badge is epic 40's."
+verify = "One system test (test/system/market_bids_test.rb): an outbid player sees DÉPASSÉ with RELEVER, follows it to the Annonce with the field focused, and after the close finds the auction under TERMINÉES RÉCEMMENT as PERDUE. A query test covers the 7-day window and that no other player's maximum is read."
+covers = ["R21"]
+after = [9]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 11
+type = "story"
+title = "A suspended market stays readable"
+description = "After a first opening, a closed settings version shows epic 38's suspended banner partial (story 10, on errors.game.market_closed) with its Brotherhood line above the market screen and the Annonce; listings and auctions stay readable and end normally; CONFIER, METTRE EN VENTE, ENCHÉRIR, RELEVER, REMETTRE EN VENTE and ACHETER show disabled with the banner as their reason; ANNULER stays; Mettre en vente leads back to the market; a form submitted as the market closes shows Le marché est suspendu pour le moment. Before a first opening nothing of this shows: the teaser stays."
+verify = "One system test (test/system/market_test.rb, its own test): an administrator closes the market, a player reads the banner and a listing's Annonce with its actions disabled, cancels their own listing, and a due auction still settles. A request test covers Mettre en vente leading back to the market while closed."
+covers = ["R13"]
+after = [10]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 12
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup across the epic, its scope set when it starts from the build records and the review findings deferred during the epic. Cleanup only; scope pushed out of another story is a new story."
+verify = "bin/ci, npm run test:js, bin/rails zeitwerk:check, bundle exec packwerk check and the market's system tests pass."
+covers = []
+after = [11]
+hitl = false
+risk = "low"

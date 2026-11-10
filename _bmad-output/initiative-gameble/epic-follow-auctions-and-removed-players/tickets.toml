@@ -1,0 +1,144 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "An outbid player sees a bell line and the notice on the Annonce"
+description = "Tracer through every layer. A migration creates game_market_notices (the owning player, the listing, a kind checked from the start among all seven kinds of the Copy deck (outbid, won, sold, unsold, bought_over, lead_voided, withdrawn), the other player named when there is one, the amount released, the time), one row per player and listing, unique, with its indexes in their own concurrent migration. Game::Market::Handlers::OutbidNotices, subscribed to BidPlaced and to AuctionSold, writes an outbid notice for the player each event carries as outbid, with ON CONFLICT on (player, listing) replacing the kind, the other player, the amount and the time, so a listing keeps one line whatever happens next. This story owns the notice table with its full kind check and the Game::Market::MarketNotices query (a player's notices, newest first, at most five, with card, other player and amount); stories 4, 8 and 9 add only their handlers and lines, never a migration. Game::BellItems gains market lines placed where the Bell row orders them, rendering \"<name> a dépassé votre maximum sur <card>.\" with \"Voir\" to the Annonce, the name through epic 39's names component; the line clears like the bell's other per-browser lines. PlayerStream subscribes to BidPlaced and AuctionSold and sends a market topic to the outbid player, so the bell reloads live. The Annonce, for a signed-in viewer holding an outbid notice on that listing who is not leading, renders the outbid panel above the form (Copy deck, Market events: title, sentence, VOIR L'ANNONCE) in the alert colour, never moving focus. Copy in en.yml and fr.yml."
+verify = "One system test: player A bids, player B outbids A from another session, and A's bell shows the line live without a reload; opening it leads to the Annonce with the outbid panel above an empty field. Handler, query and policy tests cover one row per listing on repeated outbids, no notice when nobody was outbid, a buy-now over A's lead writing A's notice, and the notice never visible to another player."
+covers = ["R1", "R2", "R3"]
+after = ["epic-an-auction-runs-and-settles"]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 2
+type = "story"
+title = "The Annonce refreshes live while it is open"
+description = "This story owns the listing stream: ListingStream, an AfterCommitBatch like LiveStream, hears BidPlaced, AuctionSold and epic 39's AuctionUnsold, ListingCancelled and ListingWithdrawn and enqueues ListingStreamJob after commit, which broadcasts one refresh per touched listing on a public stream named by the listing's token and nothing else; story 8 adds LeadVoided to its list. The Annonce subscribes to that stream and refetches itself by morphing, reusing the live_refresh controller's holds so an open dialog, the focused element and the typed amount stay as they are; the price, leader, history, end time and the viewer's own panels update. Epic 39's FIN DANS countdown is kept live by the refresh. The extended panel (\"ENCHÈRE PROLONGÉE\", \"Fin déplacée à <time>\") shows above the form to every viewer while the latest bid's extension is the current end. Story 1's outbid panel arrives this way on an open Annonce. The stream name never holds a database id."
+verify = "One system test with two sessions on one Annonce: B's bid updates A's price, leader and history without a reload while A keeps typing in the field with focus, and an open unusual-maximum dialog stays open; a bid in the last 3 minutes shows the extended panel and the new end. Job and model tests cover one broadcast per listing per batch, nothing enqueued inside the transaction, and the stream named by the token."
+covers = ["R2", "R5"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "The Annonce says when the auction ends and posts its state politely"
+description = "On top of story 2's refresh: between the end and the settlement the form gives way to \"Clôture en cours…\", then to the viewer's outcome from epic 39's outcome panels; when that happens while a dialog is open or an amount is typed, the dialog closes, the outcome's heading takes focus, the typed amount is not submitted and \"Votre montant n'a pas été enregistré.\" is appended. Epic 39's polite status region on the Annonce (its story 7) is extended, never duplicated: it posts the latest Market accessible text status line at most every 10 s without dropping the last update; an extension and the end bypass the 10 s; ANIMATIONS RÉDUITES stops the posts about other players' bids but never the end; a bidder's status line posts once at the last hour and once at 3 minutes left. The region's throttle is a pure module in app/frontend/lib tested by Vitest."
+verify = "One system test: an auction ends while the viewer has typed an amount, and the outcome's heading takes focus with the not-recorded sentence and nothing submitted. Vitest covers the 10 s throttle keeping the last update, the bypass for an extension and the end, and the silence under reduced motion."
+covers = ["R6", "R7"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "The bell tells a player their auction's outcome"
+description = "Story 1's notice kinds and MarketNotices gain won, sold, unsold and bought-over-a-bid, written by handlers of AuctionSold and of epic 39's AuctionUnsold, as rows of story 1's table and kinds: \"Vous avez remporté <card> pour <amount>.\" and the outbid player's \"<name> a acheté <card> immédiatement. Vos <amount> sont de nouveau disponibles.\" lead to the Annonce; \"<card> s'est vendue. Vous recevez <amount>.\" and \"<card> n'a reçu aucune offre. La carte vous est rendue.\" lead to MES VENTES. One line per listing, through story 1's replacing upsert. Each reloads the bell live through story 1's market topic. Copy in en.yml and fr.yml."
+verify = "One system test: an auction closes with a winner and the winner's and seller's bells each show their line, leading to the Annonce and to MES VENTES. Handler tests cover the no-bid line, the buy-now line replacing an outbid line on the same listing, and no line for a player not involved."
+covers = ["R1", "R3"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Badges and the balance follow a player's outbid auctions"
+description = "Game::Market::OutbidCount counts the open listings where the player holds a public bid and is not the leader. An orange count badge shows it on menu 04, the MARCHÉ tab and the MES ENCHÈRES chip, hidden or greyed at zero as the Count badge row says, its number in the item's accessible name (\"Marché, <n> enchères dépassées\", \"Mes enchères, <n> dépassées\"). PlayerStreamJob's market topic, from stories 1 and 4, refreshes the badge, and epic 38's PlayerStream balance notice (its story 8, wired by epic 39 for its events) is extended to render beside it, never recreated, so the count falls when the player raises or the auction ends and the released amount shows as available. An outbid also posts its bell line once to a polite status region present on every signed-in page, at most once per listing per 30 s, through story 3's throttle module in app/frontend/lib. Copy in en.yml and fr.yml."
+verify = "One system test: player A is outbid while on the hub and the MARCHÉ badge reads 1 and the balance shows the released amount as available, then A raises on the Annonce and the badge disappears. Query and job tests cover the count with ended, cancelled and own listings, and the status post sent once per listing within 30 s."
+covers = ["R3", "R4"]
+after = [3, 4, 7]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "A notable sale is recorded as a feed entry"
+description = "Expand migrations: game_feed_entries gains a nullable listing_id, a unique index on it for kind sale in its own concurrent migration, and the kind check replaced by one including sale added not valid, then validated in a second migration; the per-kind checks require listing_id exactly for sale. Game::FeedEntry.record_sale inserts, ON CONFLICT DO NOTHING, an entry naming the buyer as player_id with the card-season and rarity, for every Épique or Légendaire sale and any sale at the current version's feed threshold times its rarity's minimum or more. A Game handler on AuctionSold calls it; it is the one place that chooses what enters the feed. FeedEntries.visible, NewFeedEntries (by listing ids) and VisibleFeedEntry show a sale entry whatever the buyer's visibility, unless banned or deleted. Story 13 renders it."
+verify = "Model, query and migration tests: the threshold at, below and above, one entry per listing, a banned or deleted buyer hidden, a private buyer's entry still visible, and the kind check refusing an unknown kind."
+covers = ["R8", "R10"]
+after = [1]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 13
+type = "story"
+title = "A notable sale appears in the activity feed"
+description = "Story 6's sale entries read in the feed. LiveStream hears AuctionSold and broadcasts the entry with no viewer, so no link. FeedItems renders \"<name> a acheté <card> pour <amount>.\" with the tag VENTE, the name through epic 39's names component, the amount through epic 38's PiCoin amount. The feed gains the VENTES filter and its sheet entry; AMIS keeps a friend's purchase; LiveStream's ticker kinds exclude sale, so no ticker or landing ticker shows it. Copy in en.yml and fr.yml."
+verify = "One system test: an Épique sale shows in the feed under TOUT and VENTES with a linked name for a viewer allowed to see the buyer's profile, and a private buyer's name shows without a link, while the hub ticker never shows it. A component test covers the friends tab keeping a friend's purchase."
+covers = ["R8", "R9"]
+after = [6]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Players search and filter the market"
+description = "Epic 39's listing query on the reading role takes a search by game title, the Filter zone's rarity, set and genre groups, season and a price range on the current price, OR within a group and AND across groups, combined with epic 39's four sorts, which it keeps as they are, all as URL parameters with no database id. The market screen shows \"Rechercher un jeu\", the folded FILTRES panel with its active count, and the PRIX group as two labelled fields \"Prix minimum\" and \"Prix maximum\"; epic 39's sort chooser carries the filters; \"Charger plus\" keeps the filters; a filtered list with no match says \"Aucune annonce ne correspond à ces filtres.\" This story builds the PRIX group so epic 41's story 4 reuses it unchanged for the collection. Any index the filters need is a concurrent index in its own migration, after story 13's in the schema order. Copy in en.yml and fr.yml."
+verify = "One system test: a visitor searches a game, keeps only Rare listings of one season under a maximum price, sorts by price ascending, and reads the empty line after a filter with no match. Query tests cover each filter, their combination with each sort and an invalid parameter ignored."
+covers = ["R11"]
+after = [13]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 8
+type = "story"
+title = "A banned or deleted leader's bid is voided and the auction resumes"
+description = "This story owns Game::Market::DropPresenceJob, added every minute to both blocks of config/recurring.yml on queue default: it finds banned or deleted players leading an open listing and runs one operation per listing, one per transaction, with require_account as CloseAuction does, reporting an error and moving on; stories 9 and 10 extend it with sellers and wallets. Game::Market::VoidLead, for the seller, takes the bank locks in AD-10's order, locks the listing, rechecks the leader is removed, releases the leader's maximum through one Ledger.post, records a bid row with epic 39's voided outcome (in its check from the start) in game_market_bids, and resets the listing to its starting price with no leader and its end unchanged, publishing Game::Market::LeadVoided. The history renders the voided line \"Offre annulée : joueur retiré\". A notice of kind lead_voided tells the seller (\"Le joueur en tête sur <card> a été retiré. L'enchère repart de son prix de départ.\", to MES VENTES), story 2's ListingStream hears LeadVoided, LeadVoided joins epic 38's PlayerStream balance notice for the released leader, and PlayerStream reloads the seller's bell live. Releasing never depends on the seller's state. Copy in en.yml and fr.yml."
+verify = "One system test: the leader of a listing is banned, the job runs, and the Annonce shows the voided line, the starting price and no leader with the same end, and the seller's bell shows the line. Operation and job tests cover the release in the ledger, a deleted leader, a removed seller and leader together, a second run doing nothing, and the next bid starting from the starting price."
+covers = ["R3", "R12", "R14"]
+after = [2, 4]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 9
+type = "story"
+title = "A banned or deleted seller's listings leave the market"
+description = "Story 8's DropPresenceJob also finds banned or deleted sellers with an open listing. Game::Market::WithdrawListing, for the seller, under the same locks and recheck, makes the listing withdrawn, releases any leader's maximum through one Ledger.post, keeps the stamp, and releases the seller's reservation, a no-op when ReleasePlayer has already deleted a deleted seller's holding; it publishes epic 39's Game::Market::ListingWithdrawn (listing, seller, leader, amount released), already heard by story 2's ListingStream and by epic 39's balance notice wiring; PlayerStream reloads the leader's bell live. A handler of ListingWithdrawn, covering both this withdrawal and the one CloseAuction makes at close, writes a notice of kind withdrawn telling the leader (\"<card> a été retirée du marché. Vos <amount> sont de nouveau disponibles.\", to the Annonce). MES VENTES shows RETIRÉE and the Annonce epic 39's withdrawn outcome. Copy in en.yml and fr.yml."
+verify = "One system test: a seller with a bid on their listing is banned, the job runs, and the leader's bell shows the withdrawn line and their balance has the maximum available again, while the Annonce shows ANNONCE RETIRÉE. Operation tests cover a listing with no bid, a deleted seller with no holding left, the stamp never refunded, and a second run doing nothing."
+covers = ["R3", "R12", "R13"]
+after = [8]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 10
+type = "story"
+title = "A deleted player's balance is forfeited and their market traces erased"
+description = "Story 8's DropPresenceJob also finds deleted players with no open listing or lead left whose wallet holds PiCoins, and runs Game::Market::ForfeitBalance, an ApplicationOperation, which posts one forfeit entry of the remaining available through Ledger.post and publishes Game::Market::BalanceForfeited; accounts deleted by the retention job are found the same way; a banned player's wallet is never touched. Game::ReleasePlayer also deletes the player's game_market_notices rows; the sale entries naming the buyer go with the feed entries it already deletes. The delete dialog's note in en.yml and fr.yml adds the PiCoin balance, the purchases among the feed entries, and that running listings are withdrawn and bids released."
+verify = "One system test: a player with a balance and a running listing deletes their account from the settings, the job runs, and their listing is withdrawn and their wallet is at zero while the delete dialog had named the balance. Operation and job tests cover the order (one job pass withdraws listings and voids leads first, then forfeits the wallets left with no listing or lead), a banned wallet kept, a retention deletion forfeited, the reconciliation balancing after a forfeit, and ReleasePlayer removing notices and sale entries."
+covers = ["R12", "R15", "R16", "R18"]
+after = [9, 6]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 11
+type = "story"
+title = "The data export includes the player's market data"
+description = "Game::ExportOf gains the player's wallet (available and committed), their ledger entries (kind, deltas, the listing's token, time), their listings (token, card, status, prices, duration, times) and their bids (listing token, maximum, price after, outcome, time), their own maximums included and no other player's maximum. PlayerExport adds them as wallet, picoinEntries, listings and bids, with cards as the export already writes them, never a database id."
+verify = "Query and model tests: an export lists a seller's listing, a bidder's bids with their own maximums and the matching ledger entries, holds no other player's maximum, and an account with no market activity exports empty lists and a zero wallet."
+covers = ["R17"]
+after = ["epic-an-auction-runs-and-settles"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 12
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup across the epic, its scope set when it starts from the build records and the review findings deferred during the epic. Cleanup only; scope pushed out of another story is a new story."
+verify = "bin/ci, npm run test:js, bin/rails zeitwerk:check and the market's system tests pass."
+covers = []
+after = [5, 10, 11]
+hitl = false
+risk = "low"

@@ -1,0 +1,126 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "A card's detail shows its edition's average price, kept current every night"
+description = "Tracer through every layer. Game::Market::RefreshEditionPrices, a housekeeping ApplicationOperation with no event, recomputes through EditionPrice every game_market_edition_prices row with sales used, one row per transaction under that row's lock as the settlement takes it, so a sale leaving the window or a changed window setting moves the average and the sales used; ReconcileWalletsJob (built by the PiCoins epic) runs it right after the reconciliation. Game::Market::EditionPrices, a query on the reading role, answers for a list of card-seasons each edition's price state: priced (average and sales used), few sales (under EditionPrice's minimum sale count, 3) or no sale (no row or no sale used), and nothing at all before the market's first opening. This story owns AveragePriceComponent, which draws one state with the PiCoin amount component and the PiCoin mark: the amount, \"peu de ventes\" in the alert colour, or \"Sans vente\" in muted; stories 3 and 4 reuse it unchanged. The card detail's facts gain the \"Prix moyen S<n>\" row for the published season's edition, with its sale count (\"Fondé sur <n> ventes\") under it, for players and visitors, never on the card face; epic 37's edition chart sits under this row and relies on the count when the chart is not published. Copy in en.yml and fr.yml."
+verify = "One system test: after the market's first opening, a visitor's card detail shows Prix moyen with the amount for an edition with five sales, peu de ventes for one with two, Sans vente for one with none, with the sale count under each, and no row before the first opening. Operation, query and component tests cover a sale leaving the window changing the average when the job runs, the refresh leaving untouched rows alone, the three states, and the job's order (reconciliation, then the refresh)."
+covers = ["R1", "R2", "R5", "R6", "R8"]
+after = ["epic-picoins-and-entrusting", "epic-an-auction-runs-and-settles"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Each night writes the economy's daily snapshot"
+description = "A migration creates game_market_daily_snapshots, one row per UTC day, unique on the day: created, destroyed, forfeited (also inside destroyed), circulation, PiCoins per player active over 90 days, median daily earnings, one average price column per rarity, the top 1% share, the reconciliation result. EditionPrice.rarity_average gives the median of a rarity's edition averages with at least the minimum sale count, null when none. Game::Market::WriteDailySnapshot, an ApplicationOperation, takes the day and the reconciliation's circulation and result, computes the rest (created from mint; destroyed from stamp, commission and forfeit; active players from game_packs.opened_at; earnings as mint plus sale less commission, median over that day's active players with positive earnings; the top 1% share of all wallets holding PiCoins), writes the row and publishes Game::Market::DailySnapshotWritten; a second run for the same day changes nothing, and a day before the market's first opening, read from the first opening time on the settings version, writes nothing. ReconcileWalletsJob computes the previous UTC day's end-of-day circulation (every entry's deltas before midnight) inside its REPEATABLE READ read, writes the snapshot after story 1's refresh, and still writes it when the reconciliation finds a difference. Epic 37's development seed calls the operation per day, so it takes the day and the circulation as arguments rather than reading the clock; that seed must backdate the first opening and post backdated ledger entries, or the guard writes nothing."
+verify = "Operation and job tests: over a sequence of days with mints, stamps, sales, commissions and a forfeit, each snapshot's circulation equals the previous day's plus created less destroyed and equals the reconciliation's sum; the median ignores inactive players and zero earnings and is null with none; rarity_average skips editions under the minimum; a rerun for the same day and a day before the first opening write nothing; the event is published once."
+covers = ["R7", "R8", "R9", "R10", "R11"]
+after = [1, "epic-follow-auctions-and-removed-players"]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 3
+type = "story"
+title = "ÉDITIONS, the Annonce and Mettre en vente show the average price"
+description = "Fills the average price facts the auction epic laid out, with story 1's EditionPrices and AveragePriceComponent and no change to either: the card detail's ÉDITIONS gives each owned edition's price in its state; the Annonce shows the listed edition's price with \"Fondé sur <n> ventes\"; in Mettre en vente each edition cell carries its price and the form shows the chosen edition's, changing only when a cell is chosen, as the form's minimum does. Nothing shows before the market's first opening. Copy in en.yml and fr.yml."
+verify = "One system test: after the first opening, a player with two editions of a card sees both prices in ÉDITIONS, the Annonce shows the price with its sale count, and choosing the other edition in Mettre en vente changes the price shown. Component and controller tests cover each state and the absence before the first opening."
+covers = ["R2", "R3", "R5"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "The collection sorts and filters by average price"
+description = "Toutes les cartes and a player's collection gain a sort by \"prix moyen\", ascending or descending, and the PRIX group of the Filter zone that the follow-auctions epic's story 7 builds (Prix minimum, Prix maximum), reused unchanged, read through a new Game::Market query joining game_market_edition_prices on the reading role; Catalog::CollectionGrid stays free of Game. The price compared is the published season's edition's, or in a player's collection their most valuable copy's; cards with no sale come last in both directions. Only while sorted or filtered by price, each card shows that price under it with story 1's AveragePriceComponent and its state ends the card's accessible name. Before the market's first opening the sort, the group and the prices are absent and price parameters are ignored. The filter state goes through collection_filters.ts like the other groups. Copy in en.yml and fr.yml."
+verify = "One system test: after the first opening, sorting Toutes les cartes by price descending puts the dearest edition first and the no-sale cards last, a price range keeps only the cards inside it with their prices under them, and the cards show no price without the sort or filter. Query tests cover both directions, the most valuable copy in a collection, the range bounds and the absence before the first opening; Vitest covers the PRIX fields in the filter state."
+covers = ["R4", "R5"]
+after = [1, "40.7"]
+hitl = false
+risk = "medium"
+unknown = "How the price order enters Catalog::CollectionGrid, which orders by number today, without Catalog depending on Game."
+
+[[entry]]
+id = 5
+type = "story"
+title = "The back-office health page explains the economy in plain words"
+description = "Game::Market::EconomySeries, a query on the reading role and the only reader of game_market_daily_snapshots, returns the four indicators over 90 days ending on the last complete UTC day (destroyed against created over 30 rolling days, PiCoins per active player, prices in days of income per rarity as price.fdiv(median), the top 1% share), each with the current settings version's threshold or target as a flat threshold series and nulls kept as nulls, its lengths as constants; it is the contract epic 37 extends with the Reactor and the rarity prices and draws for its 90-day charts. The health page is a back-office GET for staff with its policy, linked from the back-office market navigation (this story owns this epic's entries there): each indicator as a tile with its last value and, from locale keys, what is happening, why it matters and what to do, or \"Pas encore assez de données\" when its last point is null or there is no snapshot; the last reconciliation and the day's snapshot read from the latest snapshot; the age of the oldest listing due to close, read from the auction epic's query behind CheckMarketHealthJob. Copy in en.yml and fr.yml."
+verify = "One system test: with a week of snapshots, staff read the four indicators with their three lines, the last reconciliation, the snapshot's figures and the oldest due listing's age; with no snapshot each indicator says Pas encore assez de données; a player gets the back-office refusal. Query tests cover the 30-day ratio, days of income with a null median, the threshold series from the current version and a changed threshold not redrawing history."
+covers = ["R12", "R13", "R14"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "An alert prepares a settings change that only an administrator applies"
+description = "An alert is derived from EconomySeries' last point of an indicator and the current version's thresholds, never on a null point. A tile in alert is framed in the alert colour and states the proposal; for an administrator, \"Préparer ce changement\" opens the PiCoins epic's settings form through a GET with every value the change requires prefilled (a raised stamp brings its minimum up to the no-loss floor), the changed fields marked, and focus on the first of them; nothing is written until the administrator saves with the Brotherhood's announcement through ChangeSettings. \"Ignorer\" hides that alert in the administrator's browser until the indicator's value changes. Moderators see the alert without the action. The proposed change is the one recorded in the epic's Notes."
+verify = "One system test: with a destroyed-against-created ratio under its threshold, an administrator presses Préparer ce changement, finds the raised stamp and minimum prefilled with focus on the first, leaves without saving and the settings version is unchanged; Ignorer hides the alert and it returns once the value changes. Unit tests cover the proposal within the setting bounds and the no-loss floor, no alert on a null point, and Vitest the ignore key."
+covers = ["R15"]
+after = [5]
+hitl = false
+risk = "medium"
+unknown = "The change the destroyed-against-created alert proposes (Open question in the epic's Notes)."
+
+[[entry]]
+id = 7
+type = "story"
+title = "Staff see accounts that open or trade like an alt account"
+description = "A migration creates game_market_alt_signals: account, signal, the other account when the signal names a pair, the facts as structured values, the refresh time. Game::Market::AltSignals holds the thresholds as constants and the detection; Game::Market::RefreshAltSignals, a housekeeping ApplicationOperation with no event, as RefreshEditionPrices, replaces every row in one transaction. This story builds the account and trade signals: near-maximum capsule opening (from game_packs.opened_at) and repeated one-way trades (accepted trades where one side receives nothing). RefreshAltSignalsJob runs it every day at 00:40 UTC, in the development and production blocks of config/recurring.yml. The signals page is a back-office GET for staff with its policy, linked from the market navigation story 5 built: one row per account and signal with the linked account, the signal and its facts as a sentence from locale keys, and a link to the account's back-office player row by the player's token, never a database id, where the existing ban applies; it changes nothing on the account. Copy in en.yml and fr.yml."
+verify = "One system test: after the job runs on players seeded with 130 capsules a day and with one-way trades, staff see both rows with their facts and reach the account from the link; a player gets the back-office refusal. Operation tests cover each threshold's edge, the replacement dropping yesterday's rows, and that no account, trade or holding changes."
+covers = ["R16", "R17"]
+after = [5]
+hitl = false
+risk = "medium"
+unknown = "The thresholds (Open question in the epic's Notes)."
+
+[[entry]]
+id = 8
+type = "story"
+title = "The alt signals cover sales and bids between tied accounts"
+description = "AltSignals gains the three market signals on story 7's table, operation and page: sales outside market price between the same accounts (a final price far from the edition's average at sale), repeated minimum-price sales between the same two accounts, and bids on a listing from an account tied to its seller, tied meaning a pair already flagged by another pair signal in the same run. Each row names the other account and gives its facts as a sentence from locale keys. Copy in en.yml and fr.yml."
+verify = "Operation tests: seeded sales and bids raise each signal at its threshold and not below it, and a tie comes only from another pair signal; a component test renders each new signal's sentence on the signals page."
+covers = ["R16", "R17"]
+after = [7]
+hitl = false
+risk = "medium"
+unknown = "The thresholds and the meaning of tied (Open question in the epic's Notes)."
+
+[[entry]]
+id = 9
+type = "story"
+title = "The terms, the privacy page and Comment ça marche cover the market"
+description = "The legal page's terms gain a clause forbidding trading cards or PiCoins for real money, inside or outside gameble, and saying PiCoins are never bought or withdrawn; the clauses that say nothing is sold and that cards have no value are reworded so they stay true once cards sell at auction for PiCoins. The privacy section names the market's data (the wallet, the PiCoin entries, listings, bids with the player's own maximums, market notices, alt-account signals read only by staff) and its purposes; the retention section says deletion forfeits the balance and erases the name from bid histories while the PiCoin record stays without identity, and that signals are replaced every day. The updated date changes. Comment ça marche gains its market section, shown once the market has first opened: PiCoins and entrusting, the stamp and the commission, how an auction and My maximum work. Copy in en.yml and fr.yml, French first."
+verify = "View tests in both locales: the legal page carries the real-money clause, the market's data in the privacy section and its retention lines; Comment ça marche shows the market section after the first opening and not before; the existing page tests still pass."
+covers = ["R18", "R19"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup across the epic, its scope set when it starts from the build records and the review findings deferred during the epic. Cleanup only; scope pushed out of another story is a new story."
+verify = "bin/ci, npm run test:js, bin/rails zeitwerk:check, bundle exec packwerk check and the system tests of stories 1 to 7 pass."
+covers = []
+after = [3, 4, 6, 8, 9]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 11
+type = "story"
+title = "The market opens in production"
+description = "HITL. With the market release deployed closed, the author exercises it on staging after opening it there, covering the Done when of the auction and follow-auctions epics: entrusts, lists, bids, is outbid with the bell line and the live Annonce, wins, sells with a notable sale in the feed, buys at once, relists an unsold copy, bans a test leader and a test seller and deletes a test account with a balance, then checks the night's reconciliation; reads the prices on a card detail and in the collection; checks after a night that the snapshot is written and the health page and signals read; then closes it again. The author checks that the published capsule odds (pages/_odds_table.html.erb in Comment ça marche) match Game::DrawOdds and that the terms carry story 9's clause in both languages. Then, in the production back-office, the author opens the market through OpenMarket with both confirmations and its announcement, and checks that the market address shows the market screen and that the next morning's snapshot exists."
+verify = "In production the market address shows the market screen, the settings version records the opening with both confirmations, and the first daily snapshot is written the next night."
+covers = ["R20"]
+after = [10]
+hitl = true
+risk = "high"
