@@ -276,3 +276,11 @@ slug = "epic-instant-capsule-opening"
 title = "Instant capsule opening"
 covers = []
 after = []
+
+[[epic]]
+id = 37
+release = "1.3.x"
+slug = "epic-economy-charts"
+title = "Economy charts"
+covers = ["CAP-34", "CAP-36", "CAP-38"]
+after = []

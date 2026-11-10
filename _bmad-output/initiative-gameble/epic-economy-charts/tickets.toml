@@ -1,0 +1,89 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Staff see the Reactor on the economy page"
+description = "Tracer through every layer. chart.js 4.6.1 joins package.json and package-lock.json. app/frontend/lib/charts/ gets the registration module, registering every Chart.js part this epic uses (bar, line and scatter controllers, their elements, category and linear scales, tooltip), never chart.js/auto, so later stories add configuration modules without touching it, and a pure configuration module for the reactor kind. The chart Stimulus controller imports the registration on connect, resolves series keys to --color-chart-minted, --color-chart-destroyed and the text tokens, waits for document.fonts.ready and uses the font tokens, draws without animation under reduced motion, redraws when its series value changes and destroys the chart on disconnect. This story owns the shared pieces later stories reuse: the client picoins compact form tested against the server's through a shared fixture, a helper giving spoken forms of compact figures, durations and the missing-value dash, and the dl of headline figures. ChartComponent renders the figure, its figcaption, the canvas role=img described by a server summary sentence, the series JSON, the word templates under charts.reactor and a details table of every value drawn, newest first, with a Solde column. Game::Market::EconomySeries (created by the market release for the indicators) gains the Reactor over the last 30 full UTC days with its summaries (last circulation, 30-day sums, destroyed-to-created ratio, each day's balance). The economy page is a GET under the market, its policy open to everyone, answering not found for anyone but staff until story 2 replaces that gate with ChartPublications.visible_kinds: an h1, the Reactor panel as an h2 with the Brotherhood's line, the four headline figures (EN CIRCULATION, FRAPPÉS · 30 J, DÉTRUITS · 30 J, DÉTRUITS / FRAPPÉS), the bars as an h3 chart and PiCoins in circulation as a second h3 chart on the same time axis. A development seed writes 90 days of snapshots through the market's WriteDailySnapshot so the page draws locally and on staging. Copy in en.yml and fr.yml."
+verify = "One system test: signed in as staff, the economy page shows the four headline figures, the Reactor's two charts and, once opened, a table of 30 rows matching the seeded snapshots; a visitor and a player get not found; a page without a chart never requests the Chart.js chunk. Query, component and Vitest tests cover EconomySeries' Reactor with nulls, the JSON keys (no colour, id or token), the picoins fixture and the reactor configuration (destroyed below the axis, one y-axis, no animation when reduced)."
+covers = ["R1", "R2", "R3"]
+after = []
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 2
+type = "story"
+title = "An administrator publishes each public chart"
+description = "game_market_chart_publications holds one row per public kind (reactor, rarity_prices, edition_sales), unique, with published_at, unpublished_at and the administrator. Game::Market::PublishChart and UnpublishChart, for administrators, write it and publish ChartPublished or ChartUnpublished; publishing a published chart or unpublishing an unpublished one changes nothing and publishes nothing. Game::Market::ChartPublications.visible_kinds(viewer) answers what a viewer sees: published kinds for everyone, every kind for staff. It replaces story 1's staff-only gate: the economy page answers not found unless reactor or rarity_prices is visible to the viewer, and never before the market's first opening; a suspended market keeps it. Its link sits at the right of the market screen's chip row under the same condition. An unpublished chart is not rendered for players and visitors, and is flagged VISIBLE PAR LE STAFF inside its figcaption for staff. The back-office market page gets GRAPHES PUBLICS: one Publication switch per kind (button role=switch, aria-checked, its state text as description, accent when on), publishing behind a confirmation dialog, unpublishing at once, focus back on the switch, the change announced once; moderators see the switches disabled with the reason."
+verify = "One system test: an administrator publishes the Reactor through the switch and its confirmation, a visitor then reaches the economy page from the market screen's link, and after unpublishing the visitor gets not found. Operation, policy and controller tests cover the events and no-op cases, edition_sales alone keeping the page hidden, the page before the first opening and while suspended, the staff flag, and the moderator's disabled switches."
+covers = ["R5"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Published charts are served as cached fragments"
+description = "A published chart is served by its own GET at /<locale>/charts/<kind>/<version>, rendering the ChartComponent alone, signed out, without a session cookie, with Cache-Control public, max-age one year, immutable, and kept in Rails.cache under the same key. The route owns a contract other stories plug into: one resolver per kind turning the current data into its version and back, answering not found for an unpublished kind or a version that is not the current one. This story implements the resolver for the snapshot-dated kinds (reactor, rarity_prices: the last snapshot's date); story 5 adds the edition_sales resolver. The economy page embeds each published chart as a lazy turbo-frame whose src it computes from one read (last snapshot date, publications); staff viewing an unpublished chart get it rendered inline, private and uncached; the chart keeps its height while the frame loads. HITL: the author adds a Cloudflare Cache Rule making /*/charts/* eligible for cache and respecting the origin's headers, on the staging and production zones, records it in docs/operations.md, then checks on staging that a second request for a published fragment answers cf-cache-status HIT."
+verify = "Request tests: the fragment sets no cookie and carries the public immutable cache header; with a real cache store the second render comes from Rails.cache; a stale date and an unpublished kind answer not found; the page's frame src changes after a new snapshot; staff's unpublished view is inline with a private header."
+covers = ["R9"]
+after = [2]
+hitl = true
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "The Bourse shows what each rarity costs"
+description = "EconomySeries gains the rarity prices over 90 days: per day and rarity the price, days of income as price.fdiv(median) (null when either is null) and an index at 100 on the rarity's first snapshot with a price, plus each rarity's 90-day change. This story owns the rarity shapes as a TypeScript constant, the resolution of rarity tokens in the chart controller, and the HTML legend with each rarity's shape, name and last value. The Bourse's second panel, CE QUE COÛTE UNE CARTE (an h2), shows one tile per rarity in a list (price in days of capsules with story 1's spoken forms, a note line with the 90-day change, an aria-hidden sparkline ChartComponent of kind sparkline over the same 90 days, omitted under two points) and the base-100 index chart: rarity colours and shapes, a marker every 15 days and on the last point, end labels, the legend; its table one row per day and one column per rarity, base 100 in the caption. Published as rarity_prices through story 3's fragment route."
+verify = "One system test: with rarity_prices published, a visitor sees five tiles and the index chart, and its table has 90 rows and a column per rarity. Query and Vitest tests cover days of income, the index base and the 90-day change with nulls, and the shapes per rarity with markers every 15 days on one y-axis."
+covers = ["R1", "R4"]
+after = [3]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "A card's detail shows its edition's sales"
+description = "Game::Market::EditionSales returns a card-season's settled sales within the current average-price window (sold_at, final_price, and average_after_sale stored by the market's settlement), their count, and the rarity's current minimum price as a flat floor series; no average series under the minimum sale count. This story owns the dashed flat series (configuration and the chart.floor and chart.threshold tokens) that story 6 reuses for thresholds. It adds story 3's edition_sales resolver: the edition's public identifier and a fingerprint of its price row (sale count and last sale time), not found for an unknown edition. The card detail screen, wherever it opens (not the public card page, the Annonce or Mettre en vente), visitors included, shows the edition chart under Prix moyen once edition_sales is published and the edition's price row has sales used: sales as points in the rarity's colour and story 4's shape, the stepped average, the dashed floor, a table of every sale, the summary sentence, in a lazy cached frame. States: not published, price and count only; few sales, points without the average and peu de ventes; no sale, no chart; staff while unpublished, the chart flagged. The development seed gains sales so the chart draws locally."
+verify = "One system test of the four states on a card detail, including that a new sale changes the fragment's URL. Query, request and Vitest tests cover the window, count, floor, the missing average under the minimum, the unknown edition answering not found, and the scatter's linear axis in epoch milliseconds with the stepped average."
+covers = ["R1", "R6"]
+after = [4]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "The back-office shows the indicators as series"
+description = "The back-office health page draws the four indicators that the market release's EconomySeries already returns (destroyed against created over 30 rolling days, PiCoins per active player, prices in days of income per rarity, the top 1% share) over 90 days, with the current settings version's threshold or target as story 5's dashed flat series and its label, no line where an indicator has none. Small multiples, two per row; prices in days of income show one rarity at a time, chosen by rarity chips, Épique first, with that rarity's target. Staff only, rendered inline, no publication switch, not cached."
+verify = "One system test: staff see the four charts with their thresholds and switch the days-of-income chart between rarities; a player gets the back-office refusal. A query test confirms a changed threshold does not redraw history."
+covers = ["R7"]
+after = [5]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Charts read well without sight or colour"
+description = "Across every chart kind, on top of story 1's spoken forms and story 4's legend: each VOIR LE TABLEAU names its chart through a hidden suffix and becomes MASQUER LE TABLEAU once open, 44px high on the phone; under 720 CSS px the end labels give way to the HTML legend and each table sits in a named, focusable scroll region; tooltips close with Esc or a tap outside and a tap picks the nearest point; under forced colours the controller redraws in system colours with series told apart by dash and shape; if a chart cannot draw, the title, summary and table stay, the table open."
+verify = "One system test at 320 CSS px: the index shows its HTML legend instead of end labels and the Reactor's table scrolls in its region without the page scrolling sideways. Vitest covers the forced-colours configuration and the nearest-point tooltip; a component test covers the named disclosures."
+covers = ["R8"]
+after = [6]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup across the epic, its scope set when it starts from the build records and the review findings deferred during the epic. Cleanup only; scope pushed out of another story is a new story."
+verify = "bin/ci, npm run test:js, bin/rails zeitwerk:check and the charts' system tests pass."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7]
+hitl = false
+risk = "low"
