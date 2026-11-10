@@ -1,0 +1,23 @@
+module Game
+  module Market
+    # One validated bid. Only PlaceBid and the settlement write it.
+    class Bid < ApplicationRecord
+      self.table_name = "game_market_bids"
+
+      OUTCOMES = %w[leading outbid beaten raise won lost voided].freeze
+
+      belongs_to :listing
+      belongs_to :player, class_name: "Accounts::Player"
+
+      def self.displace(listing_id:, player_id:)
+        where(listing_id:, player_id:, outcome: "leading").update_all(outcome: "outbid")
+      end
+
+      def self.close_out(listing_id:, winner_id:)
+        own = where(listing_id:)
+        own.where(player_id: winner_id, outcome: "leading").update_all(outcome: "won")
+        own.where.not(player_id: winner_id).where(outcome: %w[leading outbid beaten]).update_all(outcome: "lost")
+      end
+    end
+  end
+end
