@@ -268,6 +268,11 @@ Rails.application.routes.draw do
         post :condense, on: :member
       end
 
+      # The market, staff only: its state and, for administrators, the opening
+      # form with both legal confirmations and the announcement that follows.
+      resource :market, only: :show
+      resource :market_opening, path: "market/opening", only: :create
+
       # The card preview, both renderers side by side, administrators only.
       resources :cards, only: :index
 

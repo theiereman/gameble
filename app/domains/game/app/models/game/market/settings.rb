@@ -8,6 +8,13 @@ module Game
 
       def readonly? = persisted?
 
+      NOT_CARRIED = %w[id token author_id replaces_id created_at].freeze
+
+      # The unsaved next version: every value of this one, the given changes, and this one named as the version it replaces.
+      def successor(author:, **changes)
+        self.class.new(attributes.except(*NOT_CARRIED).merge(changes.stringify_keys).merge("author_id" => author.id, "replaces_id" => id))
+      end
+
       def entrustment(rarity) = public_send(:"entrustment_#{rarity}")
 
       def stamp(rarity) = public_send(:"stamp_#{rarity}")

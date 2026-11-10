@@ -1,0 +1,6 @@
+<%# locals: (opening:, disabled: false) %>
+<fieldset class="stack market-announcement" <%= tag.attributes(disabled:, aria: { describedby: ("market-opening-reason" if disabled) }) %>>
+  <legend><%= t("back_office.markets.announcement.legend") %></legend>
+  <p class="ban-form__hint"><%= t("back_office.markets.announcement.hint", length: Accounts::Announcement::MESSAGE_LENGTH) %></p>
+  <%= render "back_office/announcements/fields", dom: "market-announcement", message_fr: opening.message_fr, message_en: opening.message_en, disabled: %>
+</fieldset>

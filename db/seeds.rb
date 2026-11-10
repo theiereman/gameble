@@ -88,6 +88,19 @@ if Rails.env.development? && Catalog::PublishedSeason.call
   puts "Seeded #{players.size} fake players who opened #{opened} packs."
 end
 
+# Development only: Dev Player, the first fake player, is the administrator, and opens the market with its announcement; once the
+# market has been opened this leaves it alone.
+if Rails.env.development? && Catalog::PublishedSeason.call
+  dev_player = Accounts::SignIn.new.call(steam_id: DevSignInsController.steam_id(0), persona_name: DevSignInsController.persona_name(0)).value!
+  administrator = Accounts::SetRole.new.call(steam_id: dev_player.steam_id, role: "administrator").value!
+  unless Game::Market::MarketState.call.first_opened?
+    Game::Market::OpenMarket.new.call(player: administrator, terms_confirmed: true, odds_confirmed: true,
+      message_fr: "Le marché est ouvert : confiez vos exemplaires à la Confrérie.",
+      message_en: "The market is open: entrust your spare copies to the Brotherhood.").value!
+    puts "Opened the market."
+  end
+end
+
 # Development only: a few generic roadmap milestones with stories, all three
 # statuses, shown and hidden, so the landing's roadmap module and the roadmap
 # page have something to show. A roadmap staff already started is left alone.

@@ -161,6 +161,22 @@ export const BACK_OFFICE_ICONS = {
       ".ccc.......",
     ],
   },
+  market: {
+    look: "a stall with an awning over a coin",
+    grid: [
+      "ccccccccccc",
+      "c.c.c.c.c.c",
+      "ccccccccccc",
+      "c.........c",
+      "c...ccc...c",
+      "c..c...c..c",
+      "c..c.c.c..c",
+      "c..c...c..c",
+      "c...ccc...c",
+      "c.........c",
+      "ccccccccccc",
+    ],
+  },
   roadmap: {
     look: "a winding path to a flag",
     grid: [
