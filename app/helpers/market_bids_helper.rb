@@ -15,7 +15,7 @@ module MarketBidsHelper
   def bid_field_data(sheet, answered:)
     { controller: "annonce-field", annonce_field_minimum_value: sheet.minimum, annonce_field_available_value: sheet.available,
       annonce_field_buy_now_value: sheet.buy_now_price.to_i, annonce_field_own_maximum_value: sheet.own_maximum.to_i,
-      annonce_field_answered_value: answered }
+      annonce_field_price_value: sheet.current_price, annonce_field_unusual_multiple_value: sheet.unusual_multiple, annonce_field_answered_value: answered }
   end
 
   def bid_minimum_text(sheet)
