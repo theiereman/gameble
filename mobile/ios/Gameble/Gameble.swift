@@ -39,6 +39,7 @@ enum Palette {
     static let sunken = UIColor(hex: 0x0E141B)
     static let lime = UIColor(hex: 0xA4D007)
     static let limeGlow = UIColor(hex: 0xEAFF9A)
+    static let limeTrack = UIColor(hex: 0x22300D)
     static let gold = UIColor(hex: 0xF4C542)
     static let outline = UIColor(hex: 0x06090D)
     static let controlBorder = UIColor(hex: 0x2A6F9A)

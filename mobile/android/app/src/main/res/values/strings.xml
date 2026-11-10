@@ -21,11 +21,4 @@
     <string name="top_bar_bell_unread">What\'s new, unread: %1$s</string>
     <string name="top_bar_menu">Menu</string>
     <string name="top_bar_menu_rewards">Menu, rewards waiting: %1$s</string>
-    <string name="pull_console_title">▸ SYNC</string>
-    <string name="pull_console_pull">PULL TO SYNC</string>
-    <string name="pull_console_release">RELEASE ▸ SYNC</string>
-    <string name="pull_console_packet">SYNC · PACKET %1$d/%2$d</string>
-    <string name="pull_console_network">▒ network</string>
-    <string name="pull_console_done">OK · SCREEN UP TO DATE</string>
-    <string name="pull_console_threshold">threshold %1$ddp</string>
 </resources>

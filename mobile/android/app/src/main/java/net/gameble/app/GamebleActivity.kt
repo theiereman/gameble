@@ -21,7 +21,7 @@ abstract class GamebleActivity : HotwireActivity() {
     private var pendingGrant: ((String?) -> Unit)? = null
     private lateinit var screenTransition: ScreenTransition
     private var topBar: TopBarView? = null
-    private var pullConsole: PullConsoleView? = null
+    private var pullBeam: PullBeamView? = null
     private val topBarScroll = TopBarScroll()
     private var playerTouchedScreen = false
     private val renderTopBar: (TopBarReport) -> Unit = { topBar?.render(it) }
@@ -48,7 +48,7 @@ abstract class GamebleActivity : HotwireActivity() {
             onBell = { togglePanel("bell") }
             onMenu = { togglePanel("menu") }
         }
-        pullConsole = findViewById(R.id.pull_console)
+        pullBeam = findViewById(R.id.pull_beam)
         fitScreensBetweenStatusBarAndTabs()
         screenTransition = ScreenTransition(findViewById(R.id.screens))
         onBackPressedDispatcher.addCallback(this, backWithTransition)
@@ -106,13 +106,13 @@ abstract class GamebleActivity : HotwireActivity() {
     fun screenPulled(navigator: Navigator, progress: Float) {
         if (navigator !== delegate.currentNavigator) return
         if (progress > 0f) setTopBarShown(true)
-        pullConsole?.showPull(progress)
+        pullBeam?.showPull(progress)
     }
 
     fun screenRefreshing(navigator: Navigator, refreshing: Boolean) {
         if (navigator !== delegate.currentNavigator && refreshing) return
         if (refreshing) setTopBarShown(true)
-        pullConsole?.showRefreshing(refreshing)
+        pullBeam?.showRefreshing(refreshing)
     }
 
     fun screenScrolled(navigator: Navigator, scrollY: Int) {
@@ -208,8 +208,8 @@ abstract class GamebleActivity : HotwireActivity() {
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
             view.setPadding(bars.left, bars.top, bars.right, if (tabsShown) 0 else bars.bottom)
             topBar?.applyStatusInset(bars.top)
-            pullConsole?.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = bars.top + resources.getDimensionPixelSize(R.dimen.top_bar_height) + resources.getDimensionPixelSize(R.dimen.pull_console_gap)
+            pullBeam?.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = bars.top + resources.getDimensionPixelSize(R.dimen.top_bar_height)
             }
             findViewById<View>(R.id.status_backdrop).updateLayoutParams { height = bars.top }
             WindowInsetsCompat.Builder(insets)

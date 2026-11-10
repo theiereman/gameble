@@ -3,6 +3,6 @@
     <dimen name="loading_thickness">3dp</dimen>
     <dimen name="top_bar_height">56dp</dimen>
     <dimen name="top_bar_rule">2dp</dimen>
-    <dimen name="pull_console_gap">6dp</dimen>
+    <dimen name="pull_beam_height">4dp</dimen>
     <dimen name="top_bar_touch">44dp</dimen>
 </resources>

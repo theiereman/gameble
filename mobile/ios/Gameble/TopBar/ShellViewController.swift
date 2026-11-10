@@ -7,18 +7,11 @@ final class ShellViewController: UIViewController {
 
     private let topBar = TopBarView()
     private let statusBackdrop = UIView()
-    private let pullConsole = PullConsoleView()
-    private lazy var pullConsoleTop = pullConsole.topAnchor.constraint(equalTo: topBar.bottomAnchor, constant: Self.consoleTucked)
-    private var refreshStart: CFTimeInterval?
-    private var consoleHides = 0
+    private let pullBeam = PullBeamView()
     private var barShown = true
 
     private static let slideDuration: TimeInterval = 0.2
     private static let layerDuration: TimeInterval = 0.26
-    private static let consoleTucked = -PullConsoleView.size.height
-    private static let consoleRevealed: CGFloat = 6
-    private static let consoleDoneHold: TimeInterval = 0.45
-    private static let consoleTuckDuration: TimeInterval = 0.22
 
     init(tabs: HotwireTabBarController) {
         self.tabs = tabs
@@ -40,12 +33,14 @@ final class ShellViewController: UIViewController {
 
         statusBackdrop.translatesAutoresizingMaskIntoConstraints = false
         statusBackdrop.backgroundColor = Palette.steamBar
-        view.addSubview(pullConsole)
+        view.addSubview(pullBeam)
         view.addSubview(topBar)
         view.addSubview(statusBackdrop)
         NSLayoutConstraint.activate([
-            pullConsole.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            pullConsoleTop,
+            pullBeam.topAnchor.constraint(equalTo: topBar.bottomAnchor),
+            pullBeam.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            pullBeam.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            pullBeam.heightAnchor.constraint(equalToConstant: PullBeamView.height),
             statusBackdrop.topAnchor.constraint(equalTo: view.topAnchor),
             statusBackdrop.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             statusBackdrop.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -93,43 +88,17 @@ final class ShellViewController: UIViewController {
     }
 
     func showPull(progress: CGFloat) {
-        consoleHides += 1
         if progress > 0 { setBarShown(true) }
-        pullConsole.show(.pulling(progress))
-        if progress > 0 { revealConsole(progress) } else { tuckConsole() }
+        pullBeam.show(.pulling(progress))
     }
 
     func showRefreshing(_ refreshing: Bool) {
-        consoleHides += 1
         if refreshing {
             setBarShown(true)
-            refreshStart = CACurrentMediaTime()
-            pullConsole.show(.refreshing(since: refreshStart ?? 0))
-            revealConsole(1)
-        } else if let start = refreshStart {
-            refreshStart = nil
-            pullConsole.show(.done(took: CACurrentMediaTime() - start))
-            let hide = consoleHides
-            DispatchQueue.main.asyncAfter(deadline: .now() + Self.consoleDoneHold) { [weak self] in
-                guard let self, self.consoleHides == hide else { return }
-                self.tuckConsole()
-            }
+            pullBeam.show(.refreshing)
+        } else {
+            pullBeam.fadeOut()
         }
-    }
-
-    private func revealConsole(_ progress: CGFloat) {
-        let reach = min(1, progress)
-        pullConsoleTop.constant = Self.consoleTucked + reach * (Self.consoleRevealed - Self.consoleTucked)
-        pullConsole.alpha = min(1, reach * 1.6)
-    }
-
-    private func tuckConsole() {
-        pullConsoleTop.constant = Self.consoleTucked
-        let tuck = { [view, pullConsole] in
-            pullConsole.alpha = 0
-            view?.layoutIfNeeded()
-        }
-        UIAccessibility.isReduceMotionEnabled ? tuck() : UIView.animate(withDuration: Self.consoleTuckDuration, delay: 0, options: [.curveEaseIn, .beginFromCurrentState], animations: tuck)
     }
 
     func setBarDimmed(_ dimmed: Bool) {
@@ -139,7 +108,7 @@ final class ShellViewController: UIViewController {
 
     func showLayer(_ layer: UIViewController) {
         addChild(layer)
-        view.insertSubview(layer.view, belowSubview: pullConsole)
+        view.insertSubview(layer.view, belowSubview: pullBeam)
         pinToEdges(layer.view)
         view.layoutIfNeeded()
         layer.view.transform = CGAffineTransform(translationX: 0, y: view.bounds.height)
