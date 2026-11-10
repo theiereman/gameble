@@ -126,6 +126,14 @@ class ButtonComponentTest < ViewComponent::TestCase
     assert_no_selector "a"
   end
 
+  test "a button can name the elements that describe it" do
+    render_inline(ButtonComponent.new(type: :submit, describedby: "note other")) { "Entrust" }
+    assert_selector "button[type=submit][aria-describedby='note other']"
+
+    render_inline(ButtonComponent.new(disabled: true, describedby: "note")) { "Entrust" }
+    assert_selector "button[disabled][aria-describedby=note]"
+  end
+
   test "an aria label names every kind of button" do
     render_inline(ButtonComponent.new(href: "/en/trades/new", aria_label: "Propose a trade to Sam")) { "Propose a trade" }
     assert_selector "a[aria-label='Propose a trade to Sam']", text: "Propose a trade"
