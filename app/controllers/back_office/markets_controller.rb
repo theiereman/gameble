@@ -7,6 +7,11 @@ module BackOffice
       @settings_form = settings_form_for_page
       @state = Game::Market::MarketState.call
       @opening = Opening.new
+      @closing = Closing.new
+    end
+
+    Closing = Data.define(:message_fr, :message_en, :refusal) do
+      def initialize(message_fr: nil, message_en: nil, refusal: nil) = super
     end
 
     Opening = Data.define(:terms_confirmed, :odds_confirmed, :message_fr, :message_en, :refusal) do

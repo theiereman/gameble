@@ -1,0 +1,30 @@
+<%# locals: (closing:, token:) %>
+<% allowed = policy([ :back_office, :market_closing ]).create? %>
+<section id="market-closing" class="stack market-opening" aria-labelledby="market-closing-heading">
+  <h2 id="market-closing-heading"><%= t("back_office.markets.closing.heading") %></h2>
+
+  <% unless allowed %>
+    <p class="ban-form__hint" id="market-closing-reason" data-market-closing-reason><%= t("back_office.markets.closing.administrators_only") %></p>
+  <% end %>
+
+  <%= form_with url: back_office_market_closing_path, method: :post, class: "stack market-opening__form" do %>
+    <% if closing.refusal %>
+      <ul class="ledger-errors" role="alert">
+        <li data-market-closing-refusal><%= closing.refusal %></li>
+      </ul>
+    <% end %>
+    <%= hidden_field_tag "market_closing[token]", token, id: nil %>
+
+    <%= render "back_office/markets/announcement", opening: closing, disabled: !allowed, dom: "market-closing-announcement", scope: "market_closing",
+          reason_id: "market-closing-reason" %>
+
+    <p class="market-opening__actions">
+      <% label = t("back_office.markets.closing.close") %>
+      <% if allowed %>
+        <%= render ButtonComponent.new(type: :submit) do %><%= label %><% end %>
+      <% else %>
+        <%= render ButtonComponent.new(disabled: true) do %><%= label %><% end %>
+      <% end %>
+    </p>
+  <% end %>
+</section>

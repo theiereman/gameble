@@ -42,7 +42,7 @@ module BackOffice
       assert_select "button", "Rouvrir le marché"
     end
 
-    test "an open market shows its state and no form" do
+    test "an open market shows its state and the closing form, not the opening form" do
       open_market!(first_opened_at: Time.current)
       sign_in(accounts_players(:administrator))
 
@@ -50,6 +50,32 @@ module BackOffice
 
       assert_select "[data-market-state=open]"
       assert_select "form[action='/en/back-office/market/opening']", false
+      assert_select "#market-closing form[action='/en/back-office/market/closing'][method=post]" do
+        assert_select "input[type=hidden][name='market_closing[token]'][value=?]", Game::Market::CurrentSettings.call.token
+        assert_select "textarea[name='market_closing[message_fr]']:not([disabled])"
+        assert_select "button", "Close the market"
+      end
+    end
+
+    test "a closed market shows the opening form and no closing section" do
+      sign_in(accounts_players(:administrator))
+
+      get back_office_market_path(locale: :en)
+
+      assert_select "#market-opening"
+      assert_select "#market-closing", false
+    end
+
+    test "a moderator reads the closing section of an open market disabled, with the reason" do
+      open_market!(first_opened_at: Time.current)
+      sign_in(accounts_players(:moderator))
+
+      get back_office_market_path(locale: :en)
+
+      assert_select "[data-market-closing-reason]", /administrator/
+      assert_select "#market-closing fieldset[disabled][aria-describedby=market-closing-reason]"
+      assert_select "#market-closing button[disabled]", "Close the market"
+      assert_select "#market-closing button[type=submit]", false
     end
 
     test "a moderator reads the page with every control disabled and the reason shown" do
@@ -77,6 +103,16 @@ module BackOffice
       get back_office_path(locale: :en)
 
       assert_select "a[href='/en/back-office/market'] .office-tile__title", "The market"
+    end
+
+    test "the teaser answers at the market's address once the market is closed after an opening" do
+      close_market!(first_opened_at: Time.current)
+
+      get market_path(locale: :en)
+
+      assert_response :success
+      assert_select "h1", "The Brotherhood is building the market"
+      assert_select "#market-suspended-banner", false
     end
 
     test "the teaser still answers at the market's address once the market is open" do

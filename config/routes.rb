@@ -270,10 +270,11 @@ Rails.application.routes.draw do
       end
 
       # The market, staff only: its state and, for administrators, the opening
-      # form with both legal confirmations and the announcement that follows, and
-      # the economy settings form.
+      # form with both legal confirmations and the announcement that follows, the
+      # closing form with its announcement, and the economy settings form.
       resource :market, only: :show
       resource :market_opening, path: "market/opening", only: :create
+      resource :market_closing, path: "market/closing", only: :create
       resource :market_settings, path: "market/settings", only: :create
 
       # The card preview, both renderers side by side, administrators only.

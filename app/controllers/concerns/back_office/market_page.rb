@@ -10,6 +10,7 @@ module BackOffice
       def render_market_page(status: :ok)
         @state = Game::Market::MarketState.call
         @opening ||= MarketsController::Opening.new
+        @closing ||= MarketsController::Closing.new
         render "back_office/markets/show", status:
       end
   end
