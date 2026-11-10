@@ -3,7 +3,7 @@ title: 'Players search and filter the market'
 type: 'feature'
 ticket: '40.7'
 created: '2026-11-10'
-status: 'draft'
+status: 'in-review'
 baseline_revision: 'ee385caffd1868936402b29b20042aabb8201400'
 route: 'full'
 route_source: 'auto'
@@ -78,6 +78,8 @@ context:
 - Given a visitor, when they search a game, keep Rare listings of one season under a maximum price and sort by price ascending, then the list matches and, after a filter with no match, shows the no-match line.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. Text fields (search, prices) submit on Enter or the apply button, never on blur, so tabbing between the two price fields keeps focus; checkboxes submit at once. A set choice absent from the published season is dropped. The PRIX group is `app/views/filters/_price.html.erb` with the `filters.price` copy, ready for the collection. The price index is migration `20261110160003`; `db/schema.rb` is left to be regenerated.
 
 ## Plan Change Log
 
