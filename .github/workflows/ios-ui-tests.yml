@@ -29,11 +29,12 @@ jobs:
       - name: Run the UI tests on an iPhone simulator
         working-directory: mobile/ios
         run: |
-          DEVICE="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(x["udid"] for r in sorted(d, reverse=True) if "iOS" in r for x in d[r] if x["name"].startswith("iPhone")))')"
+          xcrun simctl list runtimes
+          DEVICE="$(xcrun simctl list devices available -j | python3 -c 'import json,re,sys; d=json.load(sys.stdin)["devices"]; v=lambda r: [int(n) for n in re.findall(r"\d+", r.split("iOS")[-1])]; print(next(x["udid"] for r in sorted((r for r in d if "iOS" in r), key=v, reverse=True) for x in d[r] if x["name"].startswith("iPhone")))')"
           echo "simulator $DEVICE"
           xcodebuild test -project Gameble.xcodeproj -scheme Gameble -configuration Debug \
             -destination "id=$DEVICE" -resultBundlePath "$RUNNER_TEMP/ui-tests.xcresult" CODE_SIGNING_ALLOWED=NO 2>&1 \
-            | grep -E "Test Case|error|failed|passed|pull console|XCTAssert" || true
+            | grep -E "Test Case|error|failed|passed|pull result|XCTAssert" || true
           test "${PIPESTATUS[0]}" -eq 0
 
       - name: What the stand-in site served
