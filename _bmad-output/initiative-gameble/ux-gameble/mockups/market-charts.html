@@ -1,0 +1,199 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Marché, les graphes</title>
+<style>/* Working mock for the economy charts. Illustrates options, not decisions; the spines win. Data is invented. */
+@font-face{font-family:VT323;src:url(../../../../app/frontend/fonts/vt323-latin-400-normal.woff2)}
+@font-face{font-family:JB;src:url(../../../../app/frontend/fonts/jetbrains-mono-latin-400-normal.woff2)}
+@font-face{font-family:JB;font-weight:700;src:url(../../../../app/frontend/fonts/jetbrains-mono-latin-700-normal.woff2)}
+*{box-sizing:border-box}
+:root{--bg:#05070a;--gr:#0b0f15;--bar:#171a21;--pn:#121a24;--pn2:#0e141b;--pn3:#1b2838;--li:#2a475e;--li2:#1f3346;--ac:#66c0f4;--t:#c7d5e0;--tb:#e6eef5;--w:#fff;--m:#8f98a0;--lime:#a4d007;--ol:#0f1a03;--go:#f4c542;--al:#e8833a;
+--r1:#8f98a0;--r2:#3fcf8e;--r3:#66c0f4;--r4:#b47cff;--r5:#f4c542}
+html,body{margin:0;background:var(--bg);color:var(--t);font:13px/19px JB,monospace}
+h1,h2,h3,p,ul,dl,dd,figure{margin:0;padding:0;font-weight:400}ul{list-style:none}
+.sheet{padding:28px 24px 80px;max-width:1320px;margin:auto}
+.sheet>h1{font:400 42px/44px VT323,monospace;color:var(--w)}
+.intro{max-width:880px;margin-top:8px;font-size:14px;line-height:22px}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.jump a{padding:6px 12px;background:var(--pn3);color:var(--ac);text-decoration:none;font-weight:700;font-size:12px}
+.dec{margin-top:52px;padding-top:24px;border-top:4px solid var(--li)}
+.dec-t{font:400 38px/40px VT323,monospace;color:var(--go)}.dec-t span{display:inline-block;margin-right:14px;padding:0 10px;background:var(--go);color:#120d05;font:700 14px/28px JB,monospace;vertical-align:6px}
+.q{margin-top:8px;max-width:900px;font-size:15px;line-height:23px;color:var(--tb)}
+.why{margin:6px 0 14px;max-width:900px;color:var(--m);font-size:13px;line-height:20px}
+.pn{position:relative;padding:16px;background:var(--pn);box-shadow:inset 0 0 0 2px var(--li);margin-top:18px}
+.hd{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font:700 11px/16px JB,monospace;letter-spacing:1.5px;color:var(--ac)}.hd small{color:var(--m);letter-spacing:0;font-weight:400}
+.say{margin-top:6px;color:var(--tb);font-size:13px;line-height:20px;max-width:760px}.say i{color:var(--m)}
+.hero{display:flex;flex-wrap:wrap;gap:28px;margin-top:12px}.hero div{display:flex;flex-direction:column}.hero small{font-size:11px;color:var(--m);letter-spacing:1px}.hero b{font:400 34px/36px VT323,monospace;color:var(--w)}.hero em{font-size:11px;color:var(--lime)}
+.cv{position:relative;height:200px;margin-top:10px}.cv.s{height:120px}.cv.t{height:250px}
+.leg{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;font-size:11px;color:var(--t)}.leg i{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:12px}
+.tile{min-width:0;padding:10px;background:var(--pn2);box-shadow:inset 3px 0 0 var(--c)}.tile small{display:block;font-size:11px;color:var(--m)}.tile b{display:block;margin-top:2px;font:400 28px/30px VT323,monospace;color:var(--w)}.tile .cv{height:36px;margin-top:4px}
+.tile .d{font-size:11px;color:var(--m)}
+details{margin-top:10px;font-size:12px}summary{cursor:pointer;color:var(--ac);font-weight:700;font-size:11px;letter-spacing:1px}
+table{margin-top:8px;border-collapse:collapse;font-size:12px}td,th{padding:4px 12px 4px 0;text-align:right;border-bottom:2px solid var(--li2)}th{color:var(--m);font-weight:400}td:first-child,th:first-child{text-align:left}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}.grid4{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card-pg{display:grid;grid-template-columns:204px 1fr;gap:22px;align-items:start}
+.cardf{width:204px;height:290px;padding:8px;background:var(--r4);box-shadow:0 0 0 4px #06090d}.cardf div{height:100%;background:linear-gradient(160deg,#3a2a5c,#120d1f);display:flex;align-items:flex-end;padding:8px;color:#fff;font-weight:700;font-size:12px;text-transform:uppercase}
+.price{display:flex;gap:24px;align-items:baseline;margin-top:6px}.price b{font:400 34px/36px VT323,monospace;color:var(--w)}.price small{color:var(--m);font-size:11px}
+.state{margin-top:10px;padding:10px;background:var(--pn2);color:var(--m);font-size:12px}
+.flag{display:inline-block;padding:1px 8px;background:var(--al);color:#1d0f03;font-size:10px;font-weight:700;letter-spacing:1px}
+.sw{display:grid;grid-template-columns:1fr auto auto;gap:8px 18px;align-items:center;margin-top:12px;font-size:12px}.sw b{color:var(--w)}.sw small{color:var(--m)}
+.tg{width:44px;height:24px;background:var(--li2);box-shadow:inset 0 0 0 2px var(--li);position:relative}.tg::after{content:"";position:absolute;top:4px;left:4px;width:16px;height:16px;background:var(--m)}.tg.on{background:var(--lime)}.tg.on::after{left:24px;background:var(--ol)}
+.later li{padding:8px 0;border-top:2px solid var(--li2);font-size:13px}.later b{color:var(--w)}
+.note{margin-top:56px;padding:18px;background:var(--pn3);box-shadow:inset 0 0 0 2px var(--go);font-size:14px;line-height:22px;color:var(--tb)}.note b{color:var(--go)}
+.phone{width:390px;padding:12px;background:var(--gr);box-shadow:0 0 0 2px #2a2f36,0 0 0 10px #0d0f12;margin:18px 10px}
+.phone .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:820px){.two,.grid4,.card-pg{grid-template-columns:1fr}.tiles{grid-template-columns:1fr 1fr}.phone{width:auto}}
+</style></head><body><div class="sheet">
+<h1>Marché, les graphes</h1>
+<p class="intro">Les graphes de l'économie : la Bourse de la Confrérie (publique), l'historique des ventes sur la fiche d'une édition et les indicateurs du back-office. Tout est dessiné par Chart.js sur un canvas. Les chiffres sont inventés, à l'échelle de <code>market-economy.md</code>. Chaque graphe a son tableau, et un interrupteur de staff le rend public quand il y a assez de transactions.</p>
+<nav class="jump"><a href="#bourse">A · Bourse de la Confrérie</a><a href="#fiche">B · Fiche d'une édition</a><a href="#bo">C · Back-office</a><a href="#later">D · Plus tard</a></nav>
+
+<section class="dec" id="bourse"><h2 class="dec-t"><span>A</span>La Bourse de la Confrérie</h2>
+<p class="q">Une page publique sous le Marché. On lit en deux graphes si la monnaie s'accumule, puis ce que coûte chaque rareté en jours de capsules.</p>
+<p class="why">Pas de double axe : les PiCoins du jour et la masse totale ne sont pas à la même échelle, donc ils sont sur deux graphes empilés, avec le même axe du temps. Frappés en or (la couleur du PiCoin) vers le haut, détruits en bleu vers le bas : la position porte le sens, la couleur le confirme.</p>
+
+<div class="pn"><p class="hd">LE RÉACTEUR DES BRIÉTÉS <small>30 derniers jours</small></p>
+<p class="say">« Le 100-6-Tron frappe chaque PiCoin qu'il vous remet et réduit en cendres chaque timbre et chaque effort. Voici sa comptabilité, sans fard. »</p>
+<div class="hero"><div><small>EN CIRCULATION</small><b>412,6 M</b></div><div><small>FRAPPÉS · 30 J</small><b>96,3 M</b></div><div><small>DÉTRUITS · 30 J</small><b>54,1 M</b></div><div><small>DÉTRUITS / FRAPPÉS</small><b>56 %</b></div></div>
+<div class="cv"><canvas id="mint"></canvas></div>
+<div class="leg"><span><i style="background:var(--go)"></i>Frappés (cartes confiées)</span><span><i style="background:var(--ac)"></i>Détruits (timbres et efforts)</span></div>
+<div class="cv s"><canvas id="supply"></canvas></div>
+<details><summary>VOIR LE TABLEAU</summary><table id="t-mint"></table></details>
+</div>
+
+<div class="pn"><p class="hd">CE QUE COÛTE UNE CARTE <small>prix moyen, en jours de capsules d'un joueur régulier</small></p>
+<p class="say">Une carte se compte en jours de capsules, et cette mesure reste juste quand les PiCoins se multiplient. <i>Joueur régulier : 40 à 50 capsules par jour, revenu médian des joueurs actifs.</i></p>
+<div class="tiles" id="tiles"></div>
+<p class="hd" style="margin-top:22px">INDICE DES PRIX <small>base 100 au premier jour de prix</small></p>
+<div class="cv t"><canvas id="index"></canvas></div>
+<details><summary>VOIR LE TABLEAU</summary><table id="t-index"></table></details>
+</div>
+
+<div class="phone"><p class="hd">LE RÉACTEUR <small>30 j</small></p>
+<div class="hero"><div><small>EN CIRCULATION</small><b>412,6 M</b></div><div><small>DÉTRUITS / FRAPPÉS</small><b>56 %</b></div></div>
+<div class="cv"><canvas id="mint-p"></canvas></div>
+<p class="hd" style="margin-top:14px">EN JOURS DE CAPSULES</p><div class="tiles" id="tiles-p"></div></div>
+</section>
+
+<section class="dec" id="fiche"><h2 class="dec-t"><span>B</span>La fiche d'une édition</h2>
+<p class="q">Sous le prix moyen, chaque vente de cette édition sur 90 jours est un point. La ligne montre le prix moyen tel qu'il était calculé au moment de chaque vente.</p>
+<p class="why">Un nuage plutôt qu'une courbe : avec peu de ventes, une courbe lisse invente une tendance. Le plancher de la rareté est en pointillé. Quand le graphe n'est pas encore public, la fiche montre seulement le prix et le nombre de ventes, comme aujourd'hui.</p>
+<div class="two">
+<div class="pn"><div class="card-pg"><div class="cardf"><div>Hollow Depths · S1</div></div><div>
+<p class="hd">PRIX MOYEN · S1 · #0412 <small>Épique</small></p>
+<div class="price"><b>31 400</b><small>5 dernières ventes, sans les extrêmes</small></div>
+<div class="cv"><canvas id="scatter"></canvas></div>
+<div class="leg"><span><i style="background:var(--r4)"></i>Une vente</span><span><i style="background:var(--tb);height:2px;vertical-align:3px"></i>Prix moyen</span><span><i style="border-top:2px dashed var(--m);background:none;height:0;vertical-align:3px"></i>Plancher Épique · 22 300</span></div>
+<details><summary>VOIR LE TABLEAU</summary><table id="t-scatter"></table></details>
+</div></div></div>
+<div class="pn"><p class="hd">ÉTATS</p>
+<div class="state"><b style="color:var(--tb)">Graphe pas encore public</b><br>31 400 PiCoins · 7 ventes en 90 jours. Pas de graphe, pas de mention.</div>
+<div class="state"><b style="color:var(--tb)">Public, peu de ventes</b><br>Deux points, pas de ligne de moyenne, et la mention « peu de ventes ».</div>
+<div class="state"><b style="color:var(--tb)">Public, sans vente en 90 jours</b><br>« Sans vente ». Le graphe n'est pas affiché ; un graphe vide n'apprend rien.</div>
+<div class="state"><b style="color:var(--tb)">Staff, interrupteur coupé</b><br>Le graphe s'affiche avec <span class="flag">VISIBLE PAR LE STAFF</span> pour vérifier les données avant de l'ouvrir.</div>
+</div></div>
+</section>
+
+<section class="dec" id="bo"><h2 class="dec-t"><span>C</span>Le back-office</h2>
+<p class="q">Les quatre indicateurs de <code>market-economy.md</code> en séries de 90 jours, chacun avec son seuil d'alerte quand il en a un. Ce sont des pages Rails simples, hors refonte.</p>
+<p class="why">Petits multiples : quatre graphes, quatre échelles, aucun double axe. L'interrupteur de publication de chaque graphe public est sur le même écran.</p>
+<div class="pn"><div class="grid4">
+<div><p class="hd">DÉTRUITS / FRAPPÉS · 30 J GLISSANTS <small>alerte sous 40 %</small></p><div class="cv"><canvas id="bo1"></canvas></div></div>
+<div><p class="hd">PICOINS PAR JOUEUR ACTIF · 90 J <small>pas d'alerte</small></p><div class="cv"><canvas id="bo2"></canvas></div></div>
+<div><p class="hd">ÉPIQUE EN JOURS DE REVENU <small>cible 1 à 2 jours</small></p><div class="cv"><canvas id="bo3"></canvas></div></div>
+<div><p class="hd">PART DU TOP 1 % <small>pas d'alerte</small></p><div class="cv"><canvas id="bo4"></canvas></div></div>
+</div></div>
+<div class="pn"><p class="hd">GRAPHES PUBLICS <small>un interrupteur par graphe, rien ne s'ouvre seul</small></p>
+<div class="sw">
+<span><b>Le Réacteur</b> <small>· 42 jours de snapshots · 18 400 ventes</small></span><small>public depuis le 3 déc.</small><span class="tg on"></span>
+<span><b>Prix en jours de capsules et indice</b> <small>· Légendaire : 9 ventes</small></span><small>staff seulement</small><span class="tg"></span>
+<span><b>Ventes d'une édition</b> <small>· 212 éditions ont 5 ventes ou plus</small></span><small>staff seulement</small><span class="tg"></span>
+</div></div>
+</section>
+
+<section class="dec" id="later"><h2 class="dec-t"><span>D</span>Plus tard</h2>
+<p class="q">Pas dans le premier lot, mais les snapshots journaliers les rendent possibles sans rien recalculer.</p>
+<ul class="later">
+<li><b>Comparer les éditions</b> d'un même jeu sur sa fiche (S1 contre S2).</li>
+<li><b>Volume du marché</b> : ventes et enchères actives par jour.</li>
+<li><b>Les plus fortes hausses et baisses</b> sur 7 jours, avec des sparklines, pour le hub ou le fil.</li>
+<li><b>Valeur de ma collection</b> dans le temps ; il faut décider comment compter les cartes sans vente.</li>
+<li><b>Mes flux</b> : confié, vendu, acheté, frais payés.</li>
+<li><b>Courbe de Lorenz</b> de la richesse au back-office, en plus de la part du top 1 %.</li>
+</ul>
+</section>
+
+<p class="note"><b>À valider :</b> le découpage en trois écrans, l'or et le bleu du Réacteur, les jours de capsules comme mesure principale, le nuage de points sur la fiche, et ce qu'on montre avant l'ouverture d'un graphe. Ensuite j'écris les décisions dans la spine d'architecture.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<script>
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C={go:css('--go'),ac:css('--ac'),t:css('--t'),tb:css('--tb'),m:css('--m'),li2:css('--li2'),pn:css('--pn'),al:css('--al'),lime:css('--lime')};
+const R=[1,2,3,4,5].map(i=>css('--r'+i));
+const RN=['Commune','Peu commune','Rare','Épique','Légendaire'];
+const RS=['circle','circle','rectRot','triangle','star'];
+Chart.defaults.font.family='JB, monospace';Chart.defaults.font.size=11;Chart.defaults.color=C.m;Chart.defaults.animation=false;
+Chart.defaults.plugins.legend.display=false;
+Object.assign(Chart.defaults.plugins.tooltip,{backgroundColor:'#1b2838',borderColor:'#2a475e',borderWidth:2,cornerRadius:0,titleColor:C.tb,bodyColor:C.t,padding:8,boxPadding:4});
+const fr=new Intl.NumberFormat('fr-FR'),cpt=new Intl.NumberFormat('fr-FR',{notation:'compact',maximumFractionDigits:1});
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const days=n=>Array.from({length:n},(_,i)=>{const d=new Date(Date.UTC(2026,11,1));d.setUTCDate(d.getUTCDate()-(n-1-i));return d});
+const dlab=d=>d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',timeZone:'UTC'});
+const grid={color:C.li2,lineWidth:1},noGrid={display:false};
+const axX={grid:noGrid,ticks:{maxTicksLimit:6,autoSkip:true},border:{color:C.li2}};
+const table=(id,head,rows)=>{document.getElementById(id).innerHTML='<tr>'+head.map(h=>'<th>'+h+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')};
+
+// A · Réacteur
+const D30=days(30),L30=D30.map(dlab);
+const minted=D30.map((_,i)=>Math.round(2.6e6+i*25e3+rnd()*1.1e6));
+const burned=minted.map(v=>Math.round(v*(0.45+rnd()*0.22)));
+let s=360e6;const supply=minted.map((v,i)=>(s+=v-burned[i]));
+const mintCfg=()=>({type:'bar',data:{labels:L30,datasets:[
+ {label:'Frappés',data:minted,backgroundColor:C.go,borderRadius:{topLeft:4,topRight:4},borderSkipped:false,barPercentage:.8,categoryPercentage:.9},
+ {label:'Détruits',data:burned.map(v=>-v),backgroundColor:C.ac,borderRadius:{bottomLeft:4,bottomRight:4},borderSkipped:false,barPercentage:.8,categoryPercentage:.9}]},
+ options:{maintainAspectRatio:false,interaction:{mode:'index',intersect:false},scales:{x:{...axX,stacked:true},y:{stacked:true,grid,border:{display:false},ticks:{callback:v=>cpt.format(Math.abs(v))}}},
+ plugins:{tooltip:{callbacks:{label:c=>' '+c.dataset.label+' : '+fr.format(Math.abs(c.raw)),footer:it=>'Solde du jour : +'+fr.format(it[0].raw+it[1].raw)}}}}});
+new Chart(mint,mintCfg());new Chart(document.getElementById('mint-p'),mintCfg());
+new Chart(document.getElementById('supply'),{type:'line',data:{labels:L30,datasets:[{label:'En circulation',data:supply,borderColor:C.tb,borderWidth:2,pointRadius:0,pointHoverRadius:5,fill:false,tension:0}]},
+ options:{maintainAspectRatio:false,interaction:{mode:'index',intersect:false},scales:{x:axX,y:{grid,border:{display:false},ticks:{maxTicksLimit:4,callback:v=>cpt.format(v)}}},
+ plugins:{title:{display:true,text:'EN CIRCULATION',align:'start',color:C.m,font:{size:10,weight:'bold'}},tooltip:{callbacks:{label:c=>' En circulation : '+fr.format(c.raw)}}}}});
+table('t-mint',['Jour','Frappés','Détruits','En circulation'],D30.slice(-7).map((d,j)=>{const i=23+j;return[dlab(d),fr.format(minted[i]),fr.format(burned[i]),fr.format(supply[i])]}));
+
+// A · jours de capsules + indice
+const D90=days(90),L90=D90.map(dlab);
+const drift=[1.18,1.15,1.22,1.31,1.12];
+const idx=drift.map(f=>{let v=100;return D90.map((_,i)=>i===0?100:(v=v*(1+(f-1)/90+(rnd()-.5)*.03)))});
+const dayVal=[['4 min','≈ 0,003 j'],['9 min','≈ 0,006 j'],['3 h 10','≈ 0,13 j'],['1,6 j','cible 1 à 2 j'],['41 j','cible ≈ 40 j']];
+const trend=[[.0028,.003],[.0058,.0062],[.12,.13],[1.4,1.6],[38,41]];
+const tiles=id=>{const el=document.getElementById(id);RN.forEach((n,r)=>{el.insertAdjacentHTML('beforeend',`<div class="tile" style="--c:${R[r]}"><small>${n}</small><b>${dayVal[r][0]}</b><span class="d">${dayVal[r][1]}</span><div class="cv"><canvas></canvas></div></div>`);
+ const v0=trend[r][0],v1=trend[r][1];new Chart(el.lastElementChild.querySelector('canvas'),{type:'line',data:{labels:L30,datasets:[{data:L30.map((_,i)=>v0+(v1-v0)*i/29*(1+(rnd()-.5)*.15)),borderColor:R[r],borderWidth:2,pointRadius:0,tension:.3}]},options:{maintainAspectRatio:false,events:[],scales:{x:{display:false},y:{display:false}}}})})};
+tiles('tiles');tiles('tiles-p');
+const endLabels={id:'endLabels',afterDatasetsDraw(ch){const{ctx}=ch;ctx.save();ctx.font='bold 11px JB, monospace';ctx.textBaseline='middle';
+ const ls=ch.data.datasets.map((ds,i)=>({t:ds.label+' '+Math.round(ds.data.at(-1)),x:ch.getDatasetMeta(i).data.at(-1).x,y:ch.getDatasetMeta(i).data.at(-1).y})).sort((a,b)=>a.y-b.y);
+ ls.forEach((l,i)=>{if(i&&l.y<ls[i-1].y+14)l.y=ls[i-1].y+14});ctx.fillStyle=C.tb;ls.forEach(l=>ctx.fillText(l.t,l.x+12,l.y));ctx.restore()}};
+new Chart(document.getElementById('index'),{type:'line',plugins:[endLabels],data:{labels:L90,datasets:RN.map((n,r)=>({label:n,data:idx[r],borderColor:R[r],backgroundColor:r===1?'transparent':R[r],borderWidth:2,tension:0,
+ pointStyle:RS[r],pointRadius:D90.map((_,i)=>i===89?5:0),pointHoverRadius:6,pointBorderWidth:2}))},
+ options:{maintainAspectRatio:false,layout:{padding:{right:130}},interaction:{mode:'index',intersect:false},scales:{x:axX,y:{grid,border:{display:false},ticks:{maxTicksLimit:5}}},
+ plugins:{tooltip:{usePointStyle:true,itemSort:(a,b)=>b.raw-a.raw,callbacks:{label:c=>' '+c.dataset.label+' : '+Math.round(c.raw)}}}}});
+table('t-index',['Rareté','Ouverture','Il y a 30 j','Aujourd\'hui'],RN.map((n,r)=>[n,100,Math.round(idx[r][59]),Math.round(idx[r][89])]));
+
+// B · nuage de ventes
+const sales=[];[2,5,9,14,20,27,33,41,48,55,61,68,74,80,86].forEach(d=>sales.push({x:d,y:Math.round(24000+d*90+rnd()*14000)}));
+const avg=sales.map((p,i)=>{const w=sales.slice(Math.max(0,i-4),i+1).map(q=>q.y).sort((a,b)=>a-b);const t=w.length>=3?w.slice(1,-1):w;return{x:p.x,y:Math.floor(t.reduce((a,b)=>a+b,0)/t.length)}});
+const dayLab=n=>dlab(D90[n]);
+new Chart(scatter,{type:'scatter',data:{datasets:[
+ {label:'Vente',data:sales,backgroundColor:R[3],borderColor:C.pn,borderWidth:2,pointRadius:5,pointHoverRadius:7,pointStyle:'triangle'},
+ {label:'Prix moyen',type:'line',data:avg,borderColor:C.tb,borderWidth:2,pointRadius:0,stepped:'before'},
+ {label:'Plancher',type:'line',data:[{x:0,y:22300},{x:89,y:22300}],borderColor:C.m,borderWidth:1,borderDash:[4,4],pointRadius:0}]},
+ options:{maintainAspectRatio:false,scales:{x:{type:'linear',min:0,max:89,grid:noGrid,border:{color:C.li2},ticks:{stepSize:30,callback:v=>dayLab(v)}},y:{min:15000,grid,border:{display:false},ticks:{maxTicksLimit:5,callback:v=>cpt.format(v)}}},
+ plugins:{tooltip:{filter:i=>i.datasetIndex<2,callbacks:{title:it=>dayLab(it[0].raw.x),label:c=>' '+c.dataset.label+' : '+fr.format(c.raw.y)}}}}});
+table('t-scatter',['Jour','Prix de vente','Prix moyen'],sales.slice(-5).map((p,i)=>[dayLab(p.x),fr.format(p.y),fr.format(avg[sales.length-5+i].y)]));
+
+// C · back-office
+const thr={id:'thr',afterDatasetsDraw(ch,_,o){if(o.y==null)return;const{ctx,chartArea:a,scales:{y}}=ch;const py=y.getPixelForValue(o.y);ctx.save();ctx.strokeStyle=C.al;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(a.left,py);ctx.lineTo(a.right,py);ctx.stroke();
+ if(o.y2!=null){const p2=y.getPixelForValue(o.y2);ctx.beginPath();ctx.moveTo(a.left,p2);ctx.lineTo(a.right,p2);ctx.stroke()}ctx.setLineDash([]);ctx.fillStyle=C.al;ctx.font='bold 10px JB, monospace';ctx.fillText(o.text,a.left+4,py-6);ctx.restore()}};
+const bo=(id,data,fmt,opt={})=>new Chart(document.getElementById(id),{type:'line',plugins:[thr],data:{labels:L90,datasets:[{data,borderColor:C.tb,borderWidth:2,pointRadius:0,pointHoverRadius:5,tension:0}]},
+ options:{maintainAspectRatio:false,interaction:{mode:'index',intersect:false},scales:{x:axX,y:{grid,border:{display:false},suggestedMin:opt.min,suggestedMax:opt.max,ticks:{maxTicksLimit:5,callback:fmt}}},plugins:{thr:opt.thr||{},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}}}});
+bo('bo1',D90.map((_,i)=>48+i*.09+(rnd()-.5)*6),v=>Math.round(v)+' %',{min:30,max:70,thr:{y:40,text:'ALERTE 40 %'}});
+bo('bo2',D90.map((_,i)=>210e3+i*2600+rnd()*9e3),v=>cpt.format(v));
+bo('bo3',D90.map((_,i)=>1.25+i*.004+(rnd()-.5)*.15),v=>v.toFixed(1)+' j',{min:.5,max:2.5,thr:{y:1,y2:2,text:'CIBLE 1 À 2 J'}});
+bo('bo4',D90.map((_,i)=>11+i*.03+(rnd()-.5)*.8),v=>v.toFixed(1)+' %',{min:0,max:20});
+</script></body></html>

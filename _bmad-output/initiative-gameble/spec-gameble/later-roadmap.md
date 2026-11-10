@@ -4,13 +4,16 @@ Context for MVP design decisions that must not block these. Nothing here is buil
 
 ## After the market
 
-The market and its economy are now CAP-29 to CAP-37 of the spec, with their rules in `market-economy.md`.
+The market and its economy are now CAP-29 to CAP-38 of the spec, with their rules in `market-economy.md`.
 
 - **Archive resale (author, 2026-11-09: built later, important):** the Brotherhood resells entrusted cards at a high price, enabled per rarity from the back-office. It creates neither PiCoins nor cards and destroys what buyers pay. The Archives stock is counted from the market's first day so it can open later. Simulated at 5 times the entrustment value on Commons and Uncommons, assuming half of buyers seek a card absent from the market, it supplies about a third of the PiCoins destroyed. The price is still open.
 
 - **Quick sorting from the opening:** while a pack is opened, the player marks cards in place into a "to process" zone: drag on desktop, swipe or buttons on phone (buttons always available). One validation then entrusts or sells everything in it. Marking is reversible until validation; cards in the zone no longer count in the collection; only copies carry no extra confirmation, and the recap flags them from Rare upward without blocking (author, 2026-11-09). The "to process" screen must be easy to scan so reviewing stays quick.
   - **Rejected:** an immediate swipe that sells or discards (too dangerous), and default automatic sorting of duplicate commons (some are kept for a set or a loved game).
   - **To check before building it:** a per-copy "to process" state must fit the copy model without a heavy migration.
+
+- **More economy charts (author, 2026-11-10: later):** the first build ships the public Reactor, the rarity prices in days of capsules with their index, the edition's sales on its card, and the back-office indicators (mockup `ux-gameble/.working/market-charts.html`). Later: an edition compared with the game's other editions on its card, the rarity floor line on more screens, market volume per day, the week's largest rises and falls with sparklines for the hub or the feed, a player's collection value over time, a player's own flows (entrusted, sold, bought, fees paid), and a Lorenz curve of wealth in the back-office.
+  - **To decide before building them:** how a collection's value counts cards with no sale, and where per-player daily figures are stored.
 
 ## V3 — Seasons and community content
 

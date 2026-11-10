@@ -3,7 +3,7 @@ name: gameble
 description: Pixel-art trading card game of Steam games, presented as an elegant space terminal in Steam's colors. Real Steam covers under a fine pixel filter, sober panels, small effects that tick in steps.
 status: final
 created: 2026-10-01
-updated: '2026-11-09'
+updated: '2026-11-10'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/market-economy.md
@@ -55,6 +55,8 @@ colors:
   danger-text: '#ffb39a'
   disabled-bg: '#18212a'
   disabled-text: '#56636f'
+  chart-minted: '#f4c542'
+  chart-destroyed: '#66c0f4'
   star: '#c7d5e0'
   plate-legendaire: '#17140a'
   rarity-commune: '#8f98a0'
@@ -516,6 +518,23 @@ components:
     button: 24px x 26px
     button-phone: 44px x 36px
     hit-area-phone: '{spacing.touch-min}'
+  chart:
+    height: 200px
+    height-short: 120px
+    height-index: 250px
+    line: 2px
+    grid: '1px {colors.line-soft}'
+    axis-text: '{colors.muted}'
+    series-single: '{colors.text-max}'
+    bar-end-radius: 4px
+    point: 10px
+    threshold: '2px dashed {colors.alert}'
+    floor: '2px dashed {colors.muted}'
+    tooltip-background: '{colors.panel-raised}'
+    tooltip-border: '2px {colors.line}'
+  sparkline:
+    height: 36px
+    line: 2px
   quantity-badge:
     background: '{colors.gold}'
     text: '{colors.on-gold}'
@@ -615,6 +634,10 @@ Five tiers, each with a color, a pixel shape and a name. Color never stands alon
 | 5 | Légendaire | `{colors.rarity-legendaire}` | Star |
 
 Each tier has a `-hi` and `-lo` shade for the lit and shaded edges of its icon. The five silhouettes must stay distinct at 7 × 7 art pixels and in grayscale (Commune and Épique have almost the same luminance, as do Peu commune and Rare, so shape alone must separate them); every icon set is checked as a grayscale render before it ships. Peu commune is a darker, bluer jade (hue about 153°) so it never reads as the lime action; it is never used on a button. On `{colors.panel-raised}`, every rarity color reads at 5:1 or more.
+
+### Chart colours
+
+`{colors.chart-minted}` and `{colors.chart-destroyed}` are chart roles only: they share the hex of `{colors.gold}` and `{colors.accent}` (9.9:1 and 8.9:1 on `{colors.panel}`) but never stand for a reward, a link or the Rare. A later chart adds no third meaning to either.
 
 ### Goal colours
 
@@ -1238,6 +1261,13 @@ Mocks: [mockups/market-options.html](mockups/market-options.html), [mockups/mark
 - **Status chip (market):** `{typography.label}` in a 2px frame of its colour: EN TÊTE lime, DÉPASSÉ orange, REMPORTÉE and VENDUE gold, EN COURS accent, PERDUE, SANS OFFRE, ANNULÉE and RETIRÉE muted. Every market line at 12px or below uses `{typography.label}` or `{typography.body-small}`.
 - **MES ENCHÈRES row:** on `{colors.panel}`, a 40px thumbnail, title, rarity in its colour, the chip, price, my maximum and time left in labelled columns, the action at the right; "RELEVER" primary only when outbid. **MES VENTES row:** the same, its amount received in `{colors.gold}`.
 - **Average price:** in the card detail, a fact row with the PiCoin mark; "peu de ventes" in `{colors.alert}`, "Sans vente" in `{colors.muted}`. Under a card when sorted or filtered by price, `{typography.label}`, compact. "CONFIER" and "METTRE EN VENTE" are secondary buttons in the card detail's action rows, pinned on the phone like the others.
+- **Charts (author, 2026-11-10):** mock [mockups/market-charts.html](mockups/market-charts.html): A the Bourse, B the edition chart and its states, C the back-office, D later charts only; the spines win, and its inline styles, VT323 figures, CDN script and titles drawn inside the canvas are not to be copied. Charts are the one exception to square corners: bar ends round at 4px and point markers are smooth vector shapes, since they draw data, not interface. One y-axis per chart: two measures of different scale are two charts sharing one time axis, never a second scale. Lines `{components.chart.line}`, the grid `{components.chart.grid}` and horizontal only, axis text in `{typography.label}` colour `{components.chart.axis-text}`, figures in JetBrains Mono, no VT323 inside a chart. A single series is `{colors.text-max}` and needs no legend; two or more have a legend of square swatches, and rarity lines also carry their name and last value at the line's end. Rarity series use the rarity colour and the rarity shape as point marker (disc, double circle, diamond, triangle, star), drawn every 15 days and on the last point. Tooltips on `{components.chart.tooltip-background}` with a `{components.chart.tooltip-border}` frame, square corners.
+  - **Reactor:** a panel. The Brotherhood's line at 13px in `{colors.text-bright}`, then four headline figures (EN CIRCULATION, FRAPPÉS · 30 J, DÉTRUITS · 30 J, DÉTRUITS / FRAPPÉS), labels in `{typography.label}` `{colors.muted}`, figures in `{typography.count-large}` `{colors.text-max}`, two per row on the phone. Bars per day: minted `{colors.chart-minted}` above the zero line with the 4px rounded end on top, destroyed `{colors.chart-destroyed}` below with the rounded end at the bottom. Under it, the circulation line at `{components.chart.height-short}`, its title in `{typography.label}`.
+  - **Rarity price tiles:** five tiles in a row on desktop, two per row on the phone, on `{colors.panel-sunken}` with a 3px left edge in the rarity colour: the rarity name 11px `{colors.muted}`, the price in days of capsules at 28px in `{colors.text-max}`, a note line 11px `{colors.muted}`, then a `{components.sparkline.height}` sparkline in the rarity colour, no axis. Under them the base-100 price index at `{components.chart.height-index}`.
+  - **Edition chart:** in the card detail under the average price: each sale a point in the rarity's colour and shape at `{components.chart.point}` with a 2px `{colors.panel}` ring, the average a stepped `{colors.text-max}` line, the rarity's minimum price `{components.chart.floor}`.
+  - **Back-office indicators:** small multiples, two per row, each `{components.chart.height}`, its threshold `{components.chart.threshold}` with its label in `{colors.alert}` bold 10px.
+  - **Staff-only flag:** "VISIBLE PAR LE STAFF" in `{typography.label}` on `{colors.alert}`, text `{colors.on-alert}`. **Publication switch:** a 44px x 24px track with a 16px square knob; off, `{colors.line-soft}` with a 2px `{colors.line-deep}` edge and a `{colors.muted}` knob on the left; on, `{colors.accent}` with a `{colors.on-accent}` knob on the right (never lime, kept for the primary action); disabled, `{colors.disabled-bg}`. Its state text beside it in `{typography.label}`.
+  - **Table view:** "VOIR LE TABLEAU" in `{typography.label}` `{colors.accent}`; the table 12px, numbers right-aligned, rows ruled by 2px `{colors.line-soft}`, headers `{colors.muted}`.
 - **Suspended banner:** a 2px `{colors.alert}` frame on a tenth of its colour, title in `{colors.alert}`. Disabled actions use `{colors.disabled-bg}` and `{colors.disabled-text}`, their reason written next to them or in the banner.
 
 ## Do's and Don'ts
@@ -1268,4 +1298,5 @@ Mocks: [mockups/market-options.html](mockups/market-options.html), [mockups/mark
 | Stay in the space-terminal direction | Bring back parchment, leather, brass, wax seals, dust or any medieval decor (the Contrat card back's wax seal is one back's motif, not interface decor; author, 2026-10-31) |
 | Tell a goal by its number and its set's name; let its colour only help | Tell a goal by colour alone, fill a button with a goal colour, or use one for a rarity, tier, alert or decoration |
 | Hang a goal's bookmark from the top-left corner of the card's image, at full colour on every card size | Put it on the card's frame, grey it on a card not owned, or show goals on the bridge |
+| Give a chart one y-axis, and carry rarity by colour, shape and name together | Put two scales on one chart, or tell a series by colour alone |
 | Leave out what is not in the spec's scope | Show decks, combat or recycling from the generated canvas |

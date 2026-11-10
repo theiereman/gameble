@@ -279,6 +279,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - Each card shows its average sale price, computed per exact edition as `market-economy.md` says, including the "few sales" and "no sale" cases.
     - The collection can be filtered and sorted by that price.
     - The seller sees the average price when listing.
+    - Once its chart is published (CAP-38), a card's detail shows its edition's sales over the average-price window, the average after each sale and the rarity's minimum price; under the minimum sale count, the sales without the average.
 - **CAP-35**
   - **intent:** An administrator tunes the economy from the back-office, with no deployment.
   - **success:**
@@ -290,11 +291,19 @@ gameble is an open-source passion project, and the game its author wants to play
     - The back-office computes the indicators of `market-economy.md` automatically.
     - Each one says in plain language what is happening, why it matters and what to do.
     - An alert proposes an action, and nothing changes until an administrator validates it. There is no automatic regulation at launch.
+    - Each indicator shows as a 90-day series with its threshold.
 - **CAP-37**
   - **intent:** Staff spot accounts used to funnel cards or PiCoins to a main account.
   - **success:**
     - The back-office lists accounts matching the signals of `market-economy.md`, with the facts behind each.
     - Detection places no limit on trades and no seniority gate. Staff decide, through the existing ban (CAP-15).
+- **CAP-38**
+  - **intent:** A player or visitor sees whether PiCoins pile up and what each rarity costs in days of play.
+  - **success:**
+    - A public page under the market shows the Brotherhood's reactor: PiCoins minted and destroyed per day over 30 days, PiCoins in circulation, the 30-day sums and the destroyed-to-created ratio.
+    - It shows each rarity's price in days of a standard player's capsules, with a price index at 100 on the rarity's first day with a price, over 90 days.
+    - Each public chart, this one and the edition chart of CAP-34, appears only once an administrator publishes it from the back-office; there is no automatic threshold. Staff see it before, marked as such. With nothing published, the page does not exist for players.
+    - Every chart has a readable table of what it draws, and its figures follow the chart rules of `market-economy.md`.
 
 ## Constraints
 
@@ -304,7 +313,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **Money integrity:** entrustment is the only way PiCoins are created; only the stamp, the commission and a deleted account's balance destroy them. Every PiCoin movement is kept in a permanent record that balances can be rebuilt from. PiCoin amounts are integers. The 100-6-Tron is the Mint in code, since "bank" means the capsule reserve.
 - **Market and personal data:** the export (CAP-14) includes a player's PiCoin history, listings and bids. Deleting the account erases the name from the bid history and destroys its balance, and the money record stays without identity.
 - **French and English UI**, both complete at launch. Card text is available in every UI language. The English copy is translated by AI from the French. All repo text (code, comments, docs) is in English.
-- **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability up to CAP-26 is live at launch. CAP-23 is live before the second season is published in production. Release 1.1.0 ships CAP-27, CAP-28 and the 2026-10-30 changes to CAP-6, CAP-9, CAP-17 and CAP-20; the trade suggestions of CAP-11 may follow in a later release. CAP-29 to CAP-37 are the market release, built after that (V2).
+- **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability up to CAP-26 is live at launch. CAP-23 is live before the second season is published in production. Release 1.1.0 ships CAP-27, CAP-28 and the 2026-10-30 changes to CAP-6, CAP-9, CAP-17 and CAP-20; the trade suggestions of CAP-11 may follow in a later release. CAP-29 to CAP-38 are the market release, built after that (V2).
 - **Landing ship conditions:** CAP-24 and CAP-25 go live only once the lore text exists in French and English (`lore.md`), the pioneer (CAP-13) is built, the repository is public with a license file, the roadmap's milestones are created from the initiative's epics and curated by staff in the back-office, and the app uses JetBrains Mono.
 - **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports, and, for a player with a Steam identity, the catalog games of their library (CAP-27), covered by export and by account deletion.
 - **Player-facing words:** the interface says "capsule" for pack (French and English), "réserve" for bank and "mission hebdo" / "weekly mission" for the weekly goal, so "objectif" / "goal" names only a player's goals (CAP-28) (author, 2026-10-30), and keeps "carte" / "card" (in the lore, an archive card: `lore.md`). The spec, the code, the database, stored events and URLs keep pack, bank and weekly goal. The market's words are in `market-economy.md`; a player "confie" / "entrusts" a card (author, 2026-11-09).
@@ -340,7 +349,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - Reactions or comments on feed events (later).
 - Sign-in methods other than Steam.
 - Catalogs other than Steam.
-- Back-office features beyond moderation and the market economy (CAP-35 to CAP-37); set creation is V3.
+- Back-office features beyond moderation and the market economy (CAP-35 to CAP-38); set creation is V3.
 - Guilds.
 - Numbered or otherwise unique individual copies of a card.
 - Destroying cards: an entrusted card stays in the Archives.

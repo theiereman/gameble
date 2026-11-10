@@ -1,6 +1,6 @@
 # Market and economy
 
-Numbers and rules for CAP-29 to CAP-37. Every value is a starting setting editable from the back-office (CAP-35). Simulated evidence and the full reasoning are in `../forge-market-economy/`.
+Numbers and rules for CAP-29 to CAP-38. Every value is a starting setting editable from the back-office (CAP-35). Simulated evidence and the full reasoning are in `../forge-market-economy/`.
 
 ## Words
 
@@ -65,6 +65,20 @@ Per exact edition (game + season). Take the last 5 sales of the last 90 days, dr
 | PiCoins per active player, 90 days | Whether prices will rise for everyone | None at launch |
 | Prices in days of a standard player's income | Whether the targets above hold | None at launch |
 | Share of PiCoins held by the top 1% | Whether wealth concentrates | None at launch |
+
+## Charts
+
+| Figure | Rule |
+|---|---|
+| Destroyed | Stamps, commissions and a deleted account's balance |
+| A standard player's daily income | Median earnings (entrusting plus sales, less commissions) of the players who opened a capsule that day and earned something |
+| Price in days of capsules | A rarity's typical price divided by that day's income |
+| Rarity price | Median of the rarity's edition averages with enough sales |
+| Price index | 100 on the rarity's first day with a price |
+| Missing figure | Shown as a gap and a dash in the table, never 0 |
+| Window | Reactor 30 days; rarity prices and indicators 90 days; edition chart the average-price window. Series end on the last full UTC day. |
+
+A public chart shows once an administrator publishes it; there is no automatic threshold.
 
 ## Setting bounds
 

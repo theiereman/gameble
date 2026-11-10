@@ -7,8 +7,8 @@ paradigm: 'modular monolith with an operations layer'
 scope: 'gameble as a whole: one Rails application, its four domains, its web layer, the Steam import, the deployment, and the market release.'
 status: final
 created: '2026-10-02'
-updated: '2026-11-09'
-binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25, CAP-27, CAP-28, CAP-29, CAP-30, CAP-31, CAP-32, CAP-33, CAP-34, CAP-35, CAP-36, CAP-37]
+updated: '2026-11-10'
+binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25, CAP-27, CAP-28, CAP-29, CAP-30, CAP-31, CAP-32, CAP-33, CAP-34, CAP-35, CAP-36, CAP-37, CAP-38]
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/market-economy.md
@@ -206,7 +206,7 @@ graph TD
 - **Binds:** CAP-4, CAP-5, CAP-11, CAP-20, and every screen
 - **Prevents:** a second view layer in the browser; a card face drawn two ways; markup built by script; game state held only in the browser; a screen reaching into the page chrome.
 - **Rule:**
-  - Pages are rendered by Rails with ViewComponent and Hotwire, with no client-side view library. The server renders all markup. Markup that appears later arrives by Turbo Frame, by Turbo Stream, by a server-rendered `<template>` cloned by a controller, or as server-rendered HTML inside a JSON answer. Only the opening exchange (AD-23) and the trade faces batch carry HTML in JSON, and one shared helper in `app/frontend/lib` places it unchanged as a `<template>`'s content, cloned like any other. Script builds no other markup, except decorative `aria-hidden` nodes (glitter, effect layers) and canvases.
+  - Pages are rendered by Rails with ViewComponent and Hotwire, with no client-side view library. The server renders all markup. Markup that appears later arrives by Turbo Frame, by Turbo Stream, by a server-rendered `<template>` cloned by a controller, or as server-rendered HTML inside a JSON answer. Only the opening exchange (AD-23) and the trade faces batch carry HTML in JSON, and one shared helper in `app/frontend/lib` places it unchanged as a `<template>`'s content, cloned like any other. Script builds no other markup, except decorative `aria-hidden` nodes (glitter, effect layers) and canvases. Chart.js is the one chart library and draws only inside a canvas (AD-51).
   - A card face has one renderer: the card ViewComponent. The booster receives faces as server-rendered HTML and draws only the back, the flip and its choreography. Server HTML carries no `style` attribute; dynamic values are set as custom properties by a controller.
   - What the game must remember changes only through a server endpoint that runs an operation. Only the state of an interaction in progress (an opening charging, a card turning, a banner showing, a zoom, a navigation lock) lives in the browser, in a TypeScript module in `app/frontend/lib` that touches no DOM and is tested by Vitest; browser storage (the trade draft) is read and written only by such a module.
   - Behaviour lives in named Stimulus controllers written in TypeScript (`card-art`, `tilt`, `starfield`, `countdown`, `ticker`, `dialog`, `toast`, …). A controller is thin: it turns a DOM event into a transition of its module and reflects the result in the DOM; CSS and the Web Animations API draw. A rich screen is built as AD-30 says.
@@ -593,16 +593,21 @@ graph TD
 
 - **Binds:** CAP-34
 - **Prevents:** a collection sort computing averages per row; two formulas; a stale average after concurrent sales.
-- **Rule:** `game_market_edition_prices` holds one row per card-season, with the average and the number of sales used. `Game::Market::EditionPrice` is the only formula, reading `sold_at` and `final_price`: no sale is dropped under 3 sales, and the result is floored to an integer. A settlement upserts and locks the card-season's row, before the ledger post (AD-10), then reads the sales. A nightly job refreshes the rows whose window moved. The collection joins this table to filter and sort.
+- **Rule:**
+  - `game_market_edition_prices` holds one row per card-season, with the average and the number of sales used. `Game::Market::EditionPrice` is the only formula, reading `sold_at` and `final_price`: no sale is dropped under 3 sales, and the result is floored to an integer. A settlement upserts and locks the card-season's row, before the ledger post (AD-10), then reads the sales. A nightly job refreshes the rows whose window moved. The collection joins this table to filter and sort.
+  - The settlement also stores the row's new average on the sold listing (`average_after_sale`), so a sale keeps the average it produced.
+  - A rarity's average price is the median of the averages of that rarity's edition rows with at least the minimum sale count, null when there is none, computed only by `Game::Market::EditionPrice.rarity_average`.
 
 ### AD-48 — Indicators and signals are computed by jobs `[ADOPTED]`
 
 - **Binds:** CAP-35, CAP-36, CAP-37
 - **Prevents:** a back-office GET writing or scanning the whole ledger; an alert changing a setting by itself; a figure computed two ways.
 - **Rule:**
-  - `Game::Market::WriteDailySnapshot`, an `ApplicationOperation`, writes one `game_market_daily_snapshots` row per UTC day after the reconciliation: PiCoins created, destroyed and forfeited, PiCoins per player active over 90 days, the median daily earnings of players active that day, each rarity's average price, the top 1% share and the reconciliation result.
-  - An active player opened a pack in the period, read from `game_packs.opened_at`. Earnings are `mint` plus `sale` less `commission`. Prices in days of income are computed from these.
-  - An alert is derived from a snapshot and the current thresholds, and proposes a prefilled `ChangeSettings` form. Nothing applies without an administrator's validation. Explanations are locale keys (AD-18).
+  - `Game::Market::WriteDailySnapshot`, an `ApplicationOperation`, writes one `game_market_daily_snapshots` row per UTC day after the reconciliation and the edition price refresh: PiCoins created (`mint`), destroyed (stamps, commissions and forfeits, with forfeits also stored apart), PiCoins in circulation at the end of the day, PiCoins per player active over 90 days, the median daily earnings, each rarity's average price (`EditionPrice.rarity_average`), the top 1% share and the reconciliation result. It publishes `Game::Market::DailySnapshotWritten`; a second run for the same day changes nothing. Days before the market's first opening have no row.
+  - Circulation at the end of a day is the sum of every entry's deltas before the next UTC midnight, read in the reconciliation's `REPEATABLE READ` snapshot and handed to the snapshot operation. A test checks that each day's circulation equals the previous day's plus created less destroyed.
+  - An active player opened a pack in the period, read from `game_packs.opened_at`. Earnings are `mint` plus `sale` less `commission`. The day's median daily earnings is the median over the players active that day whose earnings are positive, null when there is none. A price in days of income is `price.fdiv(median)`, null when either is null, computed only by `Game::Market::EconomySeries` (AD-51).
+  - The back-office indicators are the four of `market-economy.md`: destroyed against created over 30 days, PiCoins per active player over 90 days, prices in days of income, and the top 1% share. Their alert thresholds and day-of-income targets are settings (AD-42).
+  - An alert is derived from `EconomySeries`' last point of an indicator and the current thresholds, and proposes a prefilled `ChangeSettings` form. Nothing applies without an administrator's validation. Explanations are locale keys (AD-18).
   - `Game::Market::RefreshAltSignals`, an `ApplicationOperation`, replaces `game_market_alt_signals` daily, one row per account and signal with the facts behind it. These rows are staff data, read only in the back-office. Thresholds are constants of `Game::Market::AltSignals`. A signal changes nothing on the account.
 
 ### AD-49 — One component names a player `[ADOPTED]`
@@ -629,12 +634,28 @@ graph TD
     | `CloseDueAuctionsJob` | every 10 seconds |
     | `DropPresenceJob` | every minute |
     | `ArchiveStocksJob` | every hour |
-    | `ReconcileWalletsJob`, then `WriteDailySnapshot` | every day at 00:10 UTC |
-    | `RefreshEditionPricesJob` | every day at 00:30 UTC |
+    | `ReconcileWalletsJob`: reconciliation, edition price refresh, then `WriteDailySnapshot`, in that order in one job | every day at 00:10 UTC |
     | `RefreshAltSignalsJob` | every day at 00:40 UTC |
     | `CheckMarketHealthJob` | every 5 minutes |
 
   - `CheckMarketHealthJob` reports to the error tracker when the oldest due open listing is over 5 minutes old, and the back-office shows that age.
+
+### AD-51 — Economy charts are drawn from stored figures `[ADOPTED]`
+
+- **Binds:** CAP-34, CAP-36, CAP-38
+- **Prevents:** a figure computed in the browser and again on the server; a chart recomputed on every page view; two chart renderers; a chart without a readable equivalent; series colors or words drifting from the tokens and locales; an unpublished chart leaking to players; a chart made public by data volume alone.
+- **Rule:**
+  - Every number a viewer reads comes from the server: points, totals, differences and ratios, the day's balance included. The pure configuration module may only transform for display (draw destroyed below the axis, choose axis ticks). The browser formats numbers with AD-18's client helper and a client `picoins` compact form, tested against the server's through a shared fixture, never with a raw `Intl` call. A missing figure is `null` in the JSON, a gap in the chart and the locale's no-value mark in the table, never 0.
+  - `Game::Market::EconomySeries`, a query on the reading role, is the only reader of `game_market_daily_snapshots`, for charts, summary figures and alerts alike. It returns, ending on the last complete UTC day, the Reactor over 30 days (per day: `minted`, `destroyed`, `balance`, `circulation`; summaries: last circulation, 30-day sums and the destroyed-to-created ratio), the rarity prices over 90 days (per day and rarity: average price, days of income, and an index equal to 100 on the rarity's first snapshot with a price; summary: each rarity's 90-day change) and the four back-office indicators over 90 days. A threshold or target is the current version's value as a flat `threshold` series; a changed threshold does not redraw history. Lengths are constants of `EconomySeries`.
+  - `Game::Market::EditionSales`, a query on the reading role, returns a card-season's settled sales within the current average-price window (`sold_at`, `final_price`, `average_after_sale` from AD-47), their count, and the rarity's current minimum price as a flat `floor` series. Under the minimum sale count it returns no `average` series. The card's chart shows only when its edition price row has sales used.
+  - One `ChartComponent` renders every chart: a `<figure>` with its title, a `<canvas role="img">` named by that title and described (`aria-describedby`) by a summary sentence the server composes from the figures, the series as JSON in one Stimulus value, the chart's words (series names, units, threshold label, tooltip lines) as templates under `charts.<kind>` in a second value composed by `t()`, and a `<details>` table of every value it draws. The series value is the one exception to AD-30's string-templates-only rule. The JSON holds the kind, one server-rendered label per point and series keyed by meaning (`minted`, `destroyed`, `balance`, `circulation`, a rarity code name, `sale`, `average`, `floor`, `threshold`, an indicator name), never a color, an id or a token. A sparkline is a `ChartComponent` of kind `sparkline`: `aria-hidden`, with no title or table, beside a server-rendered figure carrying its value. Swatches and accents use classes, never `style`.
+  - One `chart` Stimulus controller imports, on connect, one registration module in `app/frontend/lib/charts/` that registers only the Chart.js parts used, never `chart.js/auto`; nothing else imports Chart.js at run time, so a page without a chart does not load it. It builds the configuration through a pure module per kind in the same folder (tested by Vitest), resolves each key to a `--color-chart-*` or rarity token and each rarity to its shape from a TypeScript constant, uses the font tokens after `document.fonts.ready`, draws with animation off unless the shared motion switch allows it, redraws when its series value changes or forced colours turn on or off (then in system colours, series told apart by dash and shape), and destroys the chart on disconnect. Daily series use a category axis of server labels and the scatter a linear axis in epoch milliseconds; there is no date adapter. A chart has one y-axis: two measures of different scale are two charts on a shared time axis.
+  - `game_market_chart_publications` holds one row per public chart kind (`reactor`, `rarity_prices`, `edition_sales`), unique, with `published_at` and `unpublished_at` and the administrator who last changed it. `Game::Market::PublishChart` and `Game::Market::UnpublishChart`, for administrators, write it, publishing `Game::Market::ChartPublished` or `ChartUnpublished`, heard by nobody at launch; publishing a published chart or unpublishing an unpublished one changes nothing and publishes nothing. Moderators see the switches read-only. Back-office charts have no switch.
+  - For a player or a visitor, an unpublished chart is not rendered at all: no figure, no JSON, no table. Staff (`Accounts::Player#staff?`) always see it, marked as visible to staff only.
+  - The economy page (« Bourse de la Confrérie » in the locale files) is a GET under the market, open to visitors like the market itself, whatever the market's open state. Its policy allows everyone; the controller answers not found when neither `reactor` nor `rarity_prices` is in `Game::Market::ChartPublications.visible_kinds(viewer)`, and its link shows only when one is. Every surface showing a card's detail renders the edition chart under the same conditions.
+  - Caching (author, 2026-11-10: charts cached as much as possible). A published chart is served as its own fragment (the `ChartComponent` with its JSON and table) at `/<locale>/charts/<kind>/<version>`, where the version is the last snapshot's date for `reactor` and `rarity_prices` and, for `edition_sales`, the edition's public identifier (AD-15) and a fingerprint of its price row (sale count and last sale time). The fragment answers signed out, without a session cookie, with `Cache-Control: public, max-age=31536000, immutable`, so Cloudflare keeps it: a new snapshot or sale makes a new URL. It answers not found for an unpublished kind or a version that is not the current one. The page embeds it as a lazy `<turbo-frame>` whose `src` it computes from one cheap read (last snapshot date, publications, the edition's row). The server also keeps each rendered fragment in `Rails.cache` under the same key. Staff viewing an unpublished chart get it rendered inline, private and uncached. An unpublished chart's URLs already cached stay reachable until evicted; they hold only figures that were public.
+  - Tests: the configuration modules in Vitest (happy-dom has no canvas), the queries and the snapshot operation in Ruby, the economy page's policy for a visitor, a player and staff, and one system test of the publication switch.
+- **Costs:** `game_market_listings` gains `average_after_sale`; the settings gain the day-of-income targets if `market-economy.md`'s targets are not yet stored values; the `--color-chart-minted` and `--color-chart-destroyed` tokens join `DESIGN.md`.
 
 ## Consistency Conventions
 
@@ -710,6 +731,7 @@ Verified against the RubyGems and npm registries on 2026-10-02, and against the 
 | sentry-rails | 7.1.0 |
 | rack-attack | 6.8.0 |
 | ruby-vips (libvips in the image; share preview rendering) | 2.3.0 |
+| chart.js (economy charts, AD-51; ESM with types, no date adapter on purpose; verified on npm 2026-11-10) | 4.6.1 |
 
 ## Structural Seed
 
@@ -822,10 +844,11 @@ gameble/
 | CAP-31 Bidding | `Game::Market` | AD-10, AD-13, AD-40, AD-41, AD-42, AD-44, AD-46 |
 | CAP-32 Auction close | `Game::Market`, recurring job | AD-10, AD-40, AD-41, AD-42, AD-45, AD-46, AD-50 |
 | CAP-33 Market and bid history | web layer, `Game::Market` | AD-11, AD-13, AD-15, AD-40, AD-44, AD-46, AD-49, AD-50 |
-| CAP-34 Average price | `Game::Market`, collection | AD-11, AD-40, AD-42, AD-45, AD-47 |
+| CAP-34 Average price | `Game::Market`, collection | AD-11, AD-40, AD-42, AD-45, AD-47, AD-51 |
 | CAP-35 Economy settings | back-office, `Game::Market`, `Accounts` (announcement) | AD-40, AD-42, AD-48, AD-50 |
-| CAP-36 Indicators and alerts | back-office, `Game::Market` | AD-18, AD-40, AD-41, AD-42, AD-48, AD-50 |
+| CAP-36 Indicators and alerts | back-office, `Game::Market` | AD-18, AD-40, AD-41, AD-42, AD-48, AD-50, AD-51 |
 | CAP-37 Alt-account signals | back-office, `Game::Market` | AD-40, AD-48 |
+| CAP-38 Economy page | web layer, back-office, `Game::Market` | AD-11, AD-14, AD-16, AD-18, AD-40, AD-47, AD-48, AD-51 |
 | Legal page | web layer | AD-18 |
 
 ## Deferred
@@ -854,5 +877,6 @@ gameble/
 - **Archive resale:** designed when it is built; AD-43's deposits and stocks are its starting point.
 - **Market browsing filters, the typical price per rarity (optional in `market-economy.md`) and which notices follow the outbid one:** set by the UX; `Game::Market` queries own the filters and AD-44 fixes the notices' table and channel.
 - **Ledger partitioning:** decide when the entries table passes 50 million rows.
+- **Later economy charts:** an edition compared with the game's other editions, market volume, the week's largest rises and falls with sparklines, a player's collection value over time and their own PiCoin flows, and a Lorenz curve in the back-office. Market-wide ones extend `EconomySeries` and the snapshot. Per-player ones need per-player daily rows, and a rule for cards with no sale, designed in an update run before they are built.
 - **Native apps:** a later version. Seasons after the first are carried by AD-5's holding rule and CAP-23's allocation.
 - **Pioneer (`later-roadmap.md`):** `game_first_discoveries` already keeps the discovering player per card-season through a deletion (AD-14), so the feature needs no migration; the web layer composes the card detail with that player's name through AD-49's component.
