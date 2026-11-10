@@ -16,8 +16,7 @@ module Market
       def maximum_to_place
         return params[:maximum].to_s unless params[:buy_now] == "1"
 
-        sheet = Game::Market::BidSheet.call(token:, player: current_player)
-        sheet ? sheet.buy_now_price.to_s : params[:maximum].to_s
+        Game::Market::ListingByToken.call(token, locale: I18n.locale)&.buy_now_price.to_s
       end
 
       def answer_success(answer)
