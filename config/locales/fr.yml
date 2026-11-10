@@ -1447,6 +1447,12 @@ fr:
         rarity: "Rareté"
         sets: "Set"
         genre: "Genre"
+        price: "Prix"
+      price:
+        order: "Trier par prix moyen"
+        order_ascending: "Prix moyen croissant"
+        order_default: "Ordre habituel"
+        order_descending: "Prix moyen décroissant"
       states:
         owned: "Possédées"
         all: "Tout"

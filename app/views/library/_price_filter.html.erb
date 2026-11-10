@@ -1,0 +1,15 @@
+<%# locals: (price:) %>
+<% orders = [ [ "", t("library.filters.price.order_default") ], [ "price_asc", t("library.filters.price.order_ascending") ],
+  [ "price_desc", t("library.filters.price.order_descending") ] ] %>
+<div class="price-group" data-collection-filters-target="group" data-group="price">
+  <fieldset class="filters__group">
+    <legend class="filters__legend"><%= t("library.filters.price.order") %></legend>
+    <% orders.each do |value, label| %>
+      <label class="filter-chip">
+        <%= radio_button_tag "sort", value, (price.sort || "") == value, id: nil, class: "filter-chip__box" %>
+        <span class="filter-chip__text"><%= label %></span>
+      </label>
+    <% end %>
+  </fieldset>
+  <%= render "filters/price", minimum: price.minimum, maximum: price.maximum %>
+</div>

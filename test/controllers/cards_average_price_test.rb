@@ -141,4 +141,14 @@ class CardsAveragePriceTest < ActionDispatch::IntegrationTest
     assert_equal [ "Epic: S1" ], edition_lines
     assert_select ".card-detail__editions .picoin-amount", false
   end
+
+  test "the card's neighbours follow the grid sorted by price" do
+    sign_in(accounts_players(:moderator))
+
+    get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { sort: "price_desc" })
+
+    assert_select ".card-detail__position", /2 \/ 5/
+    assert_select ".card-detail__nav[href*='portal']"
+    assert_select ".card-detail__nav[href*='grid%5Bsort%5D=price_desc']", 2
+  end
 end

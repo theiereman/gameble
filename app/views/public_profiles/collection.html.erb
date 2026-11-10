@@ -13,6 +13,6 @@
   <%= render "library/collection", heading: t("public_profiles.collection.heading", name:), grid: @grid, slots: @slots, pagy: @grid_pagy, context: @grid_context, set_apart: true,
     unique: @unique, games_by_rarity: @games_by_rarity, tier_counts: @tier_counts, seen_up_to: nil, states: @states, states_asked: @states_asked, query: @query,
     clear_path: brother_collection_path(@owner.token),
-    with_new: false,
+    with_new: false, price: (@grid_price if @price_offered),
     set_filter: { kinds: @set_kinds, kind: @set_kind, query: @set_query, options: @set_options, found: @set_found } %>
 <% end %>

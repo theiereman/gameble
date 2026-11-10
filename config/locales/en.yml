@@ -2201,9 +2201,15 @@ en:
       groups:
         genre: Genre
         goals: Goals
+        price: Price
         rarity: Rarity
         sets: Set
         state: State
+      price:
+        order: Order by average price
+        order_ascending: Average price, lowest first
+        order_default: Usual order
+        order_descending: Average price, highest first
       search:
         label: Search by title or publisher
         placeholder: Search a title or a publisher

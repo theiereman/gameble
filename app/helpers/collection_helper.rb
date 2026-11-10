@@ -1,5 +1,5 @@
 module CollectionHelper
-  FILTER_ROW = { goals: %i[goals], rarity: %i[rarity], state: %i[state], more: %i[sets genre] }.freeze
+  FILTER_ROW = { goals: %i[goals], rarity: %i[rarity], state: %i[state], price: %i[price], more: %i[sets genre] }.freeze
 
   SetFilterChip = Data.define(:value, :label, :chosen)
 
@@ -21,8 +21,9 @@ module CollectionHelper
     browser.goals.any? ? groups.merge(goals: []) : groups
   end
 
-  def collection_filter_counts(filters:, states:, states_asked:, goals: [])
+  def collection_filter_counts(filters:, states:, states_asked:, goals: [], price: nil)
     {
+      price: price&.count.to_i,
       state: states_asked && states != [ Game::CollectionStates::DEFAULT ] ? states.size : 0,
       goals: goals.size,
       rarity: filters.chosen_rarities.size,
@@ -31,8 +32,8 @@ module CollectionHelper
     }
   end
 
-  def filter_row_pastilles(goals:, state_choices:, sets_offered:, genres:)
-    offered = { goals: goals.any?, rarity: true, state: state_choices.any?, more: sets_offered || genres.any? }
+  def filter_row_pastilles(goals:, state_choices:, sets_offered:, genres:, price_offered: false)
+    offered = { goals: goals.any?, rarity: true, state: state_choices.any?, price: price_offered, more: sets_offered || genres.any? }
     FILTER_ROW.keys.select { offered.fetch(it) }
   end
 

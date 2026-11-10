@@ -1,4 +1,4 @@
-<% pastilles = filter_row_pastilles(goals:, state_choices:, sets_offered:, genres: filters.genres) %>
+<% pastilles = filter_row_pastilles(goals:, state_choices:, sets_offered:, genres: filters.genres, price_offered: price.present?) %>
 <ul class="filter-row" aria-label="<%= t("library.filters.title") %>">
   <% pastilles.each do |pastille| %>
     <% count = filter_row_count(counts, pastille) %>
@@ -22,6 +22,8 @@
         <%= render "library/rarity_filter", chosen: filters.chosen_rarities, titled: true %>
       <% when :state %>
         <%= render "library/state_filter", state_choices:, states:, titled: true %>
+      <% when :price %>
+        <%= render "library/price_filter", price: %>
       <% when :more %>
         <% if sets_offered %>
           <%= render "library/set_filter", **set_filter, chosen: filters.chosen_sets %>

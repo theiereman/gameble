@@ -380,8 +380,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     player.update_columns(banned_at: Time.current)
 
     assert_no_queries_match(/game_holdings|game_player_states/) do
-      # The visitor's eight (seven and the themes' names), after the lookup that finds the ban.
-      assert_request_queries(1 + 9) { get library_cards_path(locale: :en) }
+      # The visitor's nine (seven, the themes' names and the market's state), after the lookup that finds the ban.
+      assert_request_queries(1 + 10) { get library_cards_path(locale: :en) }
     end
 
     assert_response :success
@@ -745,8 +745,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     delete session_path(locale: :en)
     # The same without the lookup, the player's editions, the figures, the
     # rarity legend and the trades and invitations waiting; the grid's count is the whole
-    # season's.
-    assert_request_queries(9) { get library_cards_path(locale: :en) }
+    # season's, and the market's state.
+    assert_request_queries(10) { get library_cards_path(locale: :en) }
   end
 
   test "the collection opens on every slot, the owned cards first, newest gained first, the filter row with no count" do

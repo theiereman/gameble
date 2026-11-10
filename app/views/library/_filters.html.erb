@@ -1,8 +1,9 @@
 <% set_filter = local_assigns[:set_filter] %>
 <% goals = local_assigns.fetch(:goals, GoalMarks::NONE) %>
 <% goals_chosen = local_assigns.fetch(:goals_chosen, []) %>
+<% price = local_assigns[:price] %>
 <% sets_offered = set_filter.present? && set_filter[:kinds].any? %>
-<% counts = collection_filter_counts(filters:, states:, states_asked:, goals: goals_chosen) %>
+<% counts = collection_filter_counts(filters:, states:, states_asked:, goals: goals_chosen, price:) %>
 <% count = counts.values.sum %>
 <%= form_with url: request.path, method: :get, class: "filters", html: { role: "search" }, data: {
   controller: "collection-filters", turbo_frame: "collection-results",
@@ -15,7 +16,7 @@
       placeholder: local_assigns.fetch(:search_placeholder) { t("library.filters.search.placeholder") }, data: { collection_filters_target: "search" } %>
   </div>
   <% if local_assigns.fetch(:filter_row, false) %>
-    <%= render "library/filter_row", filters:, state_choices:, states:, goals:, goals_chosen:, set_filter:, sets_offered:, counts:, results_count: %>
+    <%= render "library/filter_row", filters:, state_choices:, states:, goals:, goals_chosen:, set_filter:, sets_offered:, counts:, results_count:, price: %>
   <% else %>
     <details class="filters__zone" <%= "open" if count.positive? %>>
       <summary class="filters__summary">
@@ -36,6 +37,9 @@
         <% end %>
         <% if filters.genres.any? %>
           <%= render "library/genre_filter", genres: filters.genres, chosen: filters.chosen_genres %>
+        <% end %>
+        <% if price %>
+          <%= render "library/price_filter", price: %>
         <% end %>
       </div>
     </details>
