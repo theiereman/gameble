@@ -3,7 +3,7 @@ title: 'Refactor sweep'
 type: 'refactor'
 ticket: '40.12'
 created: '2026-11-10'
-status: 'in-progress'
+status: 'in-review'
 baseline_revision: '201fbbafebe814eb2aa42a3512f776857d1ed132'
 route: ''
 route_source: ''
@@ -54,17 +54,19 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] price classes -- drop explanatory comments
-- [ ] `picoins_helper.rb` and its callers -- one accessible label
-- [ ] `lock_races.rb` and the four race tests -- one purge helper
-- [ ] `notice.rb` and the handlers -- one event time reading
-- [ ] `player_stream.rb` -- name the bidders lookup once
+- [x] price classes -- drop explanatory comments
+- [x] `picoins_helper.rb` and its callers -- one accessible label
+- [x] `lock_races.rb` and the four race tests -- one purge helper
+- [x] `notice.rb` and the handlers -- one event time reading
+- [x] `player_stream.rb` -- name the bidders lookup once
 
 **Acceptance Criteria:**
 - Given any page, notice or stream notice rendered before, when rendered now, then the result is the same.
 - Given the race tests, when read, then each holds only its own setup and assertions.
 
 ## Implementation Notes
+
+No epic 40 file is near the size limit, so none was split. The notice, handler, stream, `VoidLead`, `WithdrawListing`, `ForfeitBalance` and `ListingEnding` classes already had no comments. `purge_market_race` also clears notices and the card's edition prices for every race test; the rows are absent in the tests that never create them. Nothing was run beyond static checks.
 
 ## Plan Change Log
 
