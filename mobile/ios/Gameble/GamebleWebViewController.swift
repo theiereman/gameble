@@ -60,6 +60,7 @@ final class GamebleWebViewController: HotwireWebViewController {
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         takeOverPullToRefresh()
         webView.scrollView.alwaysBounceVertical = pullsToRefresh
+        PullDiagnostics.shared.watch(webView, pullsToRefresh: pullsToRefresh)
         scrollObservation = webView.scrollView.observe(\.contentOffset) { [weak self] scrollView, _ in
             self?.scrolled(scrollView)
         }
@@ -100,6 +101,8 @@ final class GamebleWebViewController: HotwireWebViewController {
     }
 
     private func followPull(_ scrollView: UIScrollView) {
+        PullDiagnostics.shared.state = "pulls=\(pullsToRefresh) held=\(pullHeld) refreshing=\(refreshing)"
+        PullDiagnostics.shared.moved(scrollView)
         guard pullsToRefresh, !pullHeld, !refreshing else { return }
         if let change = pullGesture.moved(to: scrollView.contentOffset.y, tracking: scrollView.isTracking) { show(change) }
     }

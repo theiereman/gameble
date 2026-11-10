@@ -2,6 +2,7 @@ import collections
 import http.server
 import pathlib
 import sys
+import urllib.parse
 import urllib.request
 
 CONFIGURATION = pathlib.Path(sys.argv[1]).read_bytes()
@@ -30,6 +31,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if self.path.startswith("/__mode/"):
             mode["page"] = self.path.removeprefix("/__mode/")
             loads.clear()
+            return self.answer(200, b"ok", "text/plain")
+        if self.path.startswith("/__log"):
+            print("APP " + urllib.parse.unquote_plus(self.path.split("line=", 1)[-1]), flush=True)
             return self.answer(200, b"ok", "text/plain")
         if self.path.startswith("/__loads"):
             return self.answer(200, str(loads["/en"]).encode(), "text/plain")
@@ -60,6 +64,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             pass
 
     def log_message(self, format, *args):
+        if self.path.startswith(("/__log", "/vite/")):
+            return
         print(f"{mode['page']} GET {self.path} {args[1] if len(args) > 1 else ''} ({self.headers.get('User-Agent', '')[:40]})", flush=True)
 
 

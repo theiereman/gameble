@@ -7,13 +7,17 @@ final class PullToRefreshTests: XCTestCase {
         continueAfterFailure = true
     }
 
+    func testAPlainPageRefreshesOnALongPull() {
+        check(serving: "plain")
+    }
+
     func testTheSiteRefreshesOnALongPull() {
         check(serving: "site")
     }
 
     private func check(serving page: String) {
         _ = server("__mode/\(page)")
-        app.launchArguments += ["-signed_in", "YES", "-AppleLanguages", "(en)"]
+        app.launchArguments += ["-signed_in", "YES", "-AppleLanguages", "(en)", "-pull_diagnostics"]
         app.launch()
         let view = app.windows.firstMatch
         sleep(20)
@@ -24,6 +28,8 @@ final class PullToRefreshTests: XCTestCase {
         sleep(3)
         let afterShort = server("__loads")
         pull(view, from: 0.3, to: 0.85)
+        sleep(3)
+        pull(view, from: 0.3, to: 0.85, x: 0.06)
         keep("\(page) released")
         sleep(5)
         let afterLong = server("__loads")
@@ -44,9 +50,9 @@ final class PullToRefreshTests: XCTestCase {
         return Int(answer) ?? -1
     }
 
-    private func pull(_ view: XCUIElement, from start: CGFloat, to end: CGFloat) {
-        let from = view.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: start))
-        let to = view.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: end))
+    private func pull(_ view: XCUIElement, from start: CGFloat, to end: CGFloat, x: CGFloat = 0.5) {
+        let from = view.coordinate(withNormalizedOffset: CGVector(dx: x, dy: start))
+        let to = view.coordinate(withNormalizedOffset: CGVector(dx: x, dy: end))
         from.press(forDuration: 0.05, thenDragTo: to, withVelocity: .slow, thenHoldForDuration: 0.4)
     }
 
