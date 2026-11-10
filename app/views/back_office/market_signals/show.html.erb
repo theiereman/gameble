@@ -1,0 +1,46 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render "back_office/markets/navigation", current: :signals %>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <% if @rows.empty? %>
+    <%= render PanelComponent.new(tag: :p, data: { signals_empty: true }) do %>
+      <%= t(".empty") %>
+    <% end %>
+  <% else %>
+    <p data-signals-refreshed-at><%= t(".refreshed_at") %> <%= local_time_tag(@refreshed_at, :date_time_year) %></p>
+    <div class="ledger-scroll">
+      <table class="ledger">
+        <caption class="visually-hidden"><%= t(".caption") %></caption>
+        <thead>
+          <tr>
+            <th scope="col"><%= t(".account") %></th>
+            <th scope="col"><%= t(".signal") %></th>
+            <th scope="col"><%= t(".facts") %></th>
+            <th scope="col"><%= t(".other_account") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @rows.each do |row| %>
+            <tr data-signal="<%= row.signal %>" data-account-token="<%= row.account.token %>">
+              <td><%= render "back_office/market_signals/account", player: row.account %></td>
+              <td><%= t("back_office.market_signals.signals.#{row.signal}") %></td>
+              <td><%= render AltSignalSentenceComponent.new(signal: row.signal, facts: row.facts) %></td>
+              <td>
+                <% if row.other_account %>
+                  <%= render "back_office/market_signals/account", player: row.other_account %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

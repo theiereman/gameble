@@ -1,7 +1,7 @@
 <%# locals: (current:) %>
 <nav class="market-navigation" aria-label="<%= t("back_office.markets.navigation.label") %>">
   <ul class="market-navigation__list">
-    <% { settings: back_office_market_path, health: back_office_market_health_path }.each do |page, path| %>
+    <% { settings: back_office_market_path, health: back_office_market_health_path, signals: back_office_market_signals_path }.each do |page, path| %>
       <li>
         <%= link_to t("back_office.markets.navigation.#{page}"), path, class: "market-navigation__link", aria: { current: ("page" if page == current) } %>
       </li>

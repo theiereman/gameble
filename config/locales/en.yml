@@ -401,6 +401,24 @@ en:
       invalid: "Some settings were refused. Check the marked fields."
       saved: "The settings are saved and the announcement is on the banner."
       stale: "Another administrator has just changed the settings."
+    market_signals:
+      banned: "banned"
+      sentences:
+        near_maximum_opening: "Opened %{per_day} capsules or more a day on %{days} of the last 7 days, up to %{peak} in one day."
+        one_way_trades: "Trades in the last 7 days where it gave far more than it got: %{trades}. Copies given: %{given}, received: %{received}."
+      show:
+        account: "Account"
+        caption: "Accounts matching an alt-account signal"
+        empty: "No account matches a signal."
+        facts: "Facts"
+        heading: "Alt-account signals"
+        intro: "Accounts that open capsules or trade the way an alt account feeding another would. A signal is a hint, not proof: it changes nothing on the account, and any action goes through the ban on the players page. The signals are replaced every night and no player sees them."
+        other_account: "Other account"
+        refreshed_at: "Refreshed"
+        signal: "Signal"
+      signals:
+        near_maximum_opening: "Near-maximum capsule opening"
+        one_way_trades: "Repeated one-way trades"
     markets:
       announcement:
         hint: "Shown on the red banner in place of the current announcement, in each player's language, %{length} characters at most."
@@ -413,6 +431,7 @@ en:
         health: "Economy health"
         label: "Market pages"
         settings: "Market and settings"
+        signals: "Alt-account signals"
       opening:
         administrators_only: "Only an administrator can open the market. Moderators see this page read-only."
         confirmations: "Confirmations"
@@ -700,6 +719,7 @@ en:
         last_seen_at: Last seen
         never_seen: Never
         no_match: No player matches “%{query}”.
+        only_one: Showing one player.
         player: Player
         reports: The reports
         role: Role
@@ -710,6 +730,7 @@ en:
         search_label: Search for a player
         search_placeholder: Name or Steam id
         search_submit: Search
+        show_all: Show every player
         sign_ins: Sign-in
         state: Standing
         states:

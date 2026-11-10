@@ -793,6 +793,24 @@ fr:
       invalid: "Certains réglages ont été refusés. Vérifiez les champs signalés."
       saved: "Les réglages sont enregistrés et l'annonce est sur le bandeau."
       stale: "Un autre administrateur vient de modifier les réglages."
+    market_signals:
+      banned: "banni"
+      sentences:
+        near_maximum_opening: "A ouvert %{per_day} capsules ou plus par jour sur %{days} des 7 derniers jours, jusqu'à %{peak} en un jour."
+        one_way_trades: "Échanges des 7 derniers jours où il a donné bien plus qu'il n'a reçu : %{trades}. Exemplaires donnés : %{given}, reçus : %{received}."
+      show:
+        account: "Compte"
+        caption: "Comptes correspondant à un signal de compte alternatif"
+        empty: "Aucun compte ne correspond à un signal."
+        facts: "Faits"
+        heading: "Signaux de comptes alternatifs"
+        intro: "Des comptes qui ouvrent des capsules ou échangent comme le ferait un compte alternatif qui alimente un autre. Un signal est un indice, pas une preuve : il ne change rien au compte, et toute action passe par le bannissement de la page des joueurs. Les signaux sont remplacés chaque nuit et aucun joueur ne les voit."
+        other_account: "Autre compte"
+        refreshed_at: "Actualisé"
+        signal: "Signal"
+      signals:
+        near_maximum_opening: "Ouverture de capsules proche du maximum"
+        one_way_trades: "Échanges à sens unique répétés"
     markets:
       announcement:
         hint: "Affichée sur le bandeau rouge à la place de l'annonce actuelle, dans la langue de chaque joueur, %{length} caractères au plus."
@@ -805,6 +823,7 @@ fr:
         health: "Santé de l'économie"
         label: "Pages du marché"
         settings: "Marché et réglages"
+        signals: "Signaux de comptes alternatifs"
       opening:
         administrators_only: "Seul un administrateur peut ouvrir le marché. Les modérateurs voient cette page en lecture seule."
         confirmations: "Confirmations"
@@ -989,6 +1008,8 @@ fr:
         search_label: "Chercher un joueur"
         search_placeholder: "Nom ou identifiant Steam"
         search_submit: "Chercher"
+        only_one: "Un seul joueur est affiché."
+        show_all: "Afficher tous les joueurs"
         empty: "Aucun joueur n'a encore de compte."
         no_match: "Aucun joueur ne correspond à « %{query} »."
         caption: "Joueurs, le compte le plus récent en premier"

@@ -1,0 +1,5 @@
+<%# locals: (player:) %>
+<%= link_to public_profile_title(player), back_office_players_path(player: player.token) %>
+<% if player.banned? %>
+  (<%= t("back_office.market_signals.banned") %>)
+<% end %>

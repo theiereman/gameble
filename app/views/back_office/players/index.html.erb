@@ -27,6 +27,10 @@
     <%= render ButtonComponent.new(variant: :secondary, type: :submit) do %><%= t(".search_submit") %><% end %>
   <% end %>
 
+  <% if @only_token %>
+    <p data-player-only><%= t(".only_one") %> <%= link_to t(".show_all"), back_office_players_path %></p>
+  <% end %>
+
   <% if @players.empty? %>
     <%= render PanelComponent.new(tag: :p, data: { player_search_empty: true }) do %>
       <%= @query.present? ? t(".no_match", query: @query) : t(".empty") %>
