@@ -3,7 +3,7 @@ title: 'A notable sale appears in the activity feed'
 type: 'feature'
 ticket: '40.13'
 created: '2026-11-10'
-status: 'draft'
+status: 'in-review'
 baseline_revision: 'ee385caffd1868936402b29b20042aabb8201400'
 route: 'full'
 route_source: 'auto'
@@ -75,6 +75,8 @@ context:
 - Given an Épique sale, then it shows under TOUT and VENTES with a linked name for an allowed viewer, a private buyer's name without a link, and the hub ticker never shows it.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. `FeedEntries::Entry` gained `price`, filled by `FeedEntries.priced` from the listing's final price for the page readers and `NewFeedEntries`. A sale with no readable price is skipped by `FeedItems`. The feed entry partial takes an optional `viewer` local, the signed-in player by default and none for the broadcast and the landing's cached fragment.
 
 ## Plan Change Log
 
