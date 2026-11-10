@@ -18,23 +18,30 @@ function said(text: string, now: number): Step {
   return { throttle: { lastSaidAt: now, lastText: text, waiting: null }, say: text, wait: null }
 }
 
-function ready(throttle: Throttle, now: number): boolean {
-  return throttle.lastSaidAt === null || now - throttle.lastSaidAt >= STATUS_INTERVAL_MS
+function ready(throttle: Throttle, now: number, interval: number): boolean {
+  return throttle.lastSaidAt === null || now - throttle.lastSaidAt >= interval
 }
 
-function held(throttle: Throttle, text: string, now: number): Step {
+function held(throttle: Throttle, text: string, now: number, interval: number): Step {
   const first = throttle.waiting === null
-  const wait = first && throttle.lastSaidAt !== null ? STATUS_INTERVAL_MS - (now - throttle.lastSaidAt) : null
+  const wait = first && throttle.lastSaidAt !== null ? interval - (now - throttle.lastSaidAt) : null
   return { throttle: { ...throttle, waiting: text }, say: null, wait }
 }
 
-export function offer(throttle: Throttle, text: string, kind: StatusKind, now: number, reduced: boolean): Step {
+export function offer(
+  throttle: Throttle,
+  text: string,
+  kind: StatusKind,
+  now: number,
+  reduced: boolean,
+  interval: number = STATUS_INTERVAL_MS,
+): Step {
   if (text === "") return { throttle, say: null, wait: null }
   if (kind === "end" || kind === "extension") return said(text, now)
   if (kind === "update" && reduced) return { throttle, say: null, wait: null }
   if (kind === "update" && text === throttle.lastText)
     return { throttle: { ...throttle, waiting: null }, say: null, wait: null }
-  return ready(throttle, now) ? said(text, now) : held(throttle, text, now)
+  return ready(throttle, now, interval) ? said(text, now) : held(throttle, text, now, interval)
 }
 
 export function flush(throttle: Throttle, now: number): Step {
