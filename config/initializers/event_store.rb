@@ -42,6 +42,8 @@ Rails.configuration.to_prepare do
 
   event_store.subscribe(PlayerStream, to: PlayerStream::EVENTS)
   event_store.subscribe(PushNotices, to: PushNotices::EVENTS)
+  # A player whose standard reserve has filled up again hears of it once, on their phone.
+  event_store.subscribe(ReserveFullNotice, to: ReserveFullNotice::EVENTS)
 
   Rails.configuration.event_store = event_store
 end

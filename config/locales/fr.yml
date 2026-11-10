@@ -10,6 +10,9 @@ fr:
     invitation_sent:
       body: "%{name} veut devenir votre ami."
       title: "Demande d'ami"
+    reserve_full:
+      body: "Vos %{number} capsules vous attendent. Ouvrez-en une pour que les suivantes continuent d'arriver."
+      title: "Réserve pleine"
     trade_accepted:
       body: "%{name} a accepté votre échange."
       title: "Échange accepté"

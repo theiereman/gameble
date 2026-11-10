@@ -9,6 +9,9 @@ en:
     invitation_sent:
       body: "%{name} wants to be your friend."
       title: Friend request
+    reserve_full:
+      body: "Your %{number} capsules are waiting. Open one so the next ones keep coming."
+      title: Reserve full
     trade_accepted:
       body: "%{name} accepted your trade."
       title: Trade accepted

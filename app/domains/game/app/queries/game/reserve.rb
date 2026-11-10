@@ -30,5 +30,14 @@ module Game
     def self.full?(count)
       count >= FULL
     end
+
+    def self.full_at(player_id)
+      count, last = Pack.bank(player_id).pick(Arel.sql("COUNT(*)"), Arel.sql("MAX(available_at)"))
+      last if full?(count)
+    end
+
+    def self.refilled_by?(pack_id)
+      Pack.where(id: pack_id, kind: KINDS.fetch("standard")).exists?
+    end
   end
 end
