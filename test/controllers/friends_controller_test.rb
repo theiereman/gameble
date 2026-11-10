@@ -81,7 +81,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__friend a[href=?]", new_trade_path(locale: :en, friend: lea.token), 0
   end
 
-  test "each friend shows their presence, and the player menu counts those online" do
+  test "each friend shows their presence, most recently seen first, and the player menu counts those online" do
     now = Time.utc(2026, 10, 7, 15, 0)
     friends = { moderator: "Ada", administrator: "Bob" }.map do |key, name|
       friend = accounts_players(key)
@@ -111,8 +111,9 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
       travel 6.minutes
       bob.update_columns(last_seen_at: Time.current)
       get friends_path(locale: :en)
-      assert_select ".friends__friend:nth-child(1) .friends__presence--offline", "6 min ago"
-      assert_select ".friends__friend:nth-child(2) .friends__presence--online", "Online"
+      assert_select ".friends__friend:nth-child(1) .friends__name", "Bob"
+      assert_select ".friends__friend:nth-child(1) .friends__presence--online", "Online"
+      assert_select ".friends__friend:nth-child(2) .friends__presence--offline", "6 min ago"
       get home_path(locale: :en)
       assert_select "#player-menu a[href='/en/friends'] .player-menu__meta", "1 online"
     end

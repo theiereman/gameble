@@ -72,6 +72,17 @@ class Game::FriendsPresenceTest < ActiveSupport::TestCase
     assert_online(0)
   end
 
+  test "friends come most recently seen first, then the never seen and private ones by name" do
+    zoe = befriend(Accounts::Player.create!(steam_id: "76561197960390301"), "Zoe")
+    bob = befriend(Accounts::Player.create!(steam_id: "76561197960390302"), "Bob")
+    @ada.update_columns(last_seen_at: @now - 2.days)
+    zoe.update_columns(last_seen_at: @now - 3.hours)
+    acted(@sam, "trading", @now - 1.minute)
+    bob.update_columns(last_seen_at: @now, visibility: "private")
+
+    assert_equal %w[Sam Zoe Ada Bob], Game::FriendsPresence.call(@player, now: @now).map { it.player.persona_name }
+  end
+
   test "one friend's presence reads as their row does" do
     acted(@sam, "trading", @now - 1.minute)
     @ada.update_columns(last_seen_at: @now - 3.hours)

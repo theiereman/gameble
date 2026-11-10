@@ -13,7 +13,7 @@ module Game
 
       activities = PlayerState.where(player_id: friends.map(&:id))
         .pluck(:player_id, :last_activity, :last_activity_at).to_h { |id, *activity| [ id, activity ] }
-      friends.map { |friend| row(friend, *activities[friend.id], now:) }
+      most_recently_seen_first(friends.map { |friend| row(friend, *activities[friend.id], now:) })
     end
 
     def self.of(friend, now: Time.current)
@@ -44,5 +44,10 @@ module Game
       end
     end
     private_class_method :row
+
+    def self.most_recently_seen_first(rows)
+      rows.sort_by.with_index { |row, position| [ row.seen_at ? -row.seen_at.to_f : Float::INFINITY, position ] }
+    end
+    private_class_method :most_recently_seen_first
   end
 end
