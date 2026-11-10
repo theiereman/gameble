@@ -3,7 +3,7 @@ title: 'On the phone, Confier ticks in three columns and sets copies in the reca
 type: 'feature'
 ticket: '38.6'
 created: '2026-11-10'
-status: 'ready-for-dev'
+status: 'in-review'
 baseline_revision: '975d0cc8dc1aa561a6ac04a9802ed9b7e7bf6642'
 route: 'full'
 route_source: 'auto'
@@ -121,6 +121,8 @@ context:
 - Given a viewport wider than 719px, then story 38.5's screen is unchanged.
 
 ## Implementation Notes
+
+Built without running any test or rubocop (bundler could not resolve gems in the worktree). The `bar` target was not added to the recap controller: the bar has no behaviour of its own beyond its count and total targets. `ENTRUST_CHILDREN` was dropped, the three outlets come from `ENTRUST_ACTIONS`.
 
 ## Plan Change Log
 
