@@ -1,0 +1,5 @@
+<div class="entrust-bar" role="group" aria-label="<%= t("market.entrustments.new.bar_label") %>">
+  <span class="entrust-bar__count" data-entrust-recap-target="barCount"><%= t("market.entrustments.strings.bar_count", count: 0) %></span>
+  <%= render PicoinAmountComponent.new(amount: 0, data: { entrust_recap_target: "barTotal" }) %>
+  <%= tag.a t("market.entrustments.new.bar_action"), class: "entrust-bar__open", **bottom_sheet_opener("entrust-recap-sheet") %>
+</div>

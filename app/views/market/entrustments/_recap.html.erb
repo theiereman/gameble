@@ -1,9 +1,6 @@
 <%= render PanelComponent.new(tag: :aside, brackets: true, class: "entrust-recap", aria: { labelledby: "entrust-recap-heading" },
-      data: { controller: "entrust-recap", entrust_recap_locale_value: I18n.locale, entrust_recap_accessible_value: t("market.entrustments.strings.amount") }) do %>
+      data: { entrust_recap_target: "aside" }) do %>
   <h2 id="entrust-recap-heading" class="entrust-recap__heading"><%= t("market.entrustments.new.recap") %></h2>
-  <% if @refusal %>
-    <p class="entrust-recap__refusal" role="alert"><%= @refusal %></p>
-  <% end %>
   <p class="entrust-recap__prompt" data-entrust-recap-target="prompt"><%= t("market.entrustments.new.prompt") %></p>
   <ul class="entrust-recap__lines" data-entrust-recap-target="lines" hidden></ul>
   <p class="entrust-recap__over" data-entrust-recap-target="over" hidden></p>
@@ -25,6 +22,9 @@
   <p class="visually-hidden" role="status" aria-live="polite" data-entrust-recap-target="status"></p>
   <template data-entrust-recap-target="lineTemplate">
     <li class="entrust-recap__line"><span class="entrust-recap__name"></span><span class="entrust-recap__count"></span><span class="entrust-recap__amount"></span><span class="entrust-recap__stays" hidden></span></li>
+  </template>
+  <template data-entrust-recap-target="stepperTemplate">
+    <div class="entrust-recap__stepper"><%= render "trades/stepper", controller: "entrust-recap", stepper: entrust_line_stepper %></div>
   </template>
   <template data-entrust-recap-target="amountTemplate"><%= render PicoinAmountComponent.new(amount: 0) %></template>
 <% end %>

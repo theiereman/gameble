@@ -1958,6 +1958,8 @@ fr:
             other: "%{title}, saison %{season} : %{count} exemplaires restent dans votre collection (%{amount} chacun)"
         throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
       new:
+        bar_action: "Confier ▸"
+        bar_label: "Votre sélection à confier"
         cap_full: "Votre plafond du jour est atteint. Il se renouvelle à 00:00 UTC."
         cap_label: "Plafond du jour"
         clear_filters: "Effacer les filtres"
@@ -1985,10 +1987,15 @@ fr:
         search_label: "Chercher dans vos éditions"
         search_placeholder: "Chercher un jeu"
         season: "Saison %{number}"
+        sheet_title: "Confier"
         sign_in: "Connectez-vous pour confier des cartes à la Confrérie."
         sign_in_action: "Se connecter"
       strings:
         amount: "%{amount} PiCoins"
+        bar_count:
+          zero: "0 exemplaire"
+          one: "%{count} exemplaire"
+          other: "%{count} exemplaires"
         cap_text: "%{used} sur %{left} restants aujourd'hui"
         count: "×%{count}"
         line: "%{title}, saison %{season}"

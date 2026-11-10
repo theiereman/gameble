@@ -11,7 +11,9 @@ import {
   type Copy,
   type EntrustFilter,
   type EntrustState,
+  type Layout,
 } from "../lib/entrust"
+import { PHONE_QUERY, layoutAsked, layoutFor, sheetShown } from "../lib/entrust_layout"
 import { filtersViewOf, gridViewOf, recapViewOf, type EntrustStrings } from "../lib/entrust_view"
 import type { Intent } from "../lib/screen"
 import type EntrustFiltersController from "./entrust_filters_controller"
@@ -50,6 +52,9 @@ export default class EntrustController extends Controller<HTMLElement> {
   declare readonly entrustRecapOutlet: EntrustRecapController
 
   private state?: EntrustState
+  private media?: MediaQueryList
+  private placed: Layout = "wide"
+  private placedKnown = false
 
   // Esc here closes an overlay and nothing else: it never clears the ticks nor leaves the screen.
   private readonly guardEscape = (event: KeyboardEvent): void => {
@@ -62,11 +67,15 @@ export default class EntrustController extends Controller<HTMLElement> {
   connect(): void {
     this.state = this.startFromMarkup()
     document.addEventListener("keydown", this.guardEscape, true)
+    this.watchLayout()
     this.render()
   }
 
   disconnect(): void {
     document.removeEventListener("keydown", this.guardEscape, true)
+    this.media?.removeEventListener("change", this.layoutChanged)
+    this.media = undefined
+    this.placedKnown = false
     this.state = undefined
   }
 
@@ -80,6 +89,13 @@ export default class EntrustController extends Controller<HTMLElement> {
 
   entrustRecapOutletConnected(): void {
     this.render()
+  }
+
+  sheetShown(): void {
+    const recap = this.recap()
+    if (!this.state || !recap) return
+    this.apply(sheetShown(this.state, recap.sheetIsOpen()))
+    recap.refreshStatus()
   }
 
   filter({ detail }: Intent<EntrustFilter>): void {
@@ -117,6 +133,30 @@ export default class EntrustController extends Controller<HTMLElement> {
     then?.()
   }
 
+  private readonly layoutChanged = (): void => {
+    if (this.state && this.media) this.apply(layoutAsked(this.state, layoutFor(this.media.matches)))
+  }
+
+  private watchLayout(): void {
+    if (typeof window.matchMedia !== "function" || !this.state) return
+    this.media = window.matchMedia(PHONE_QUERY)
+    this.media.addEventListener("change", this.layoutChanged)
+    this.state = layoutAsked(this.state, layoutFor(this.media.matches))
+  }
+
+  // The recap moves only when the applied layout changes; a first look at the real DOM covers a restored page.
+  private placeRecap(layout: Layout): void {
+    const recap = this.recap()
+    if (!recap) return
+    if (!this.placedKnown) {
+      this.placed = recap.placedIn() === "sheet" ? "phone" : "wide"
+      this.placedKnown = true
+    }
+    if (layout === this.placed) return
+    recap.place(layout)
+    this.placed = layout
+  }
+
   private startFromMarkup(): EntrustState {
     const copies = this.cellTargets.map(copyFrom)
     const ticked = Object.fromEntries(
@@ -130,6 +170,8 @@ export default class EntrustController extends Controller<HTMLElement> {
     if (!state) return
     const strings = this.stringsValue
     this.element.toggleAttribute("data-pending-edit", Object.keys(state.ticked).length > 0)
+    this.element.dataset.layout = state.layout
+    this.placeRecap(state.layout)
     this.filters()?.render(filtersViewOf(state))
     this.grid()?.render(gridViewOf(state, strings))
     this.recap()?.render(

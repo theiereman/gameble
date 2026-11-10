@@ -57,12 +57,27 @@
   gap: var(--space-5);
 }
 
-@media (min-width: 720px) {
-  .market-entrust__layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
-    align-items: start;
-  }
+.market-entrust__refusal {
+  margin: 0;
+  padding: var(--space-3);
+  border-left: 4px solid var(--color-alert);
+  background: var(--color-panel-sunken);
+  color: var(--color-text-bright);
+  font: var(--font-body-small);
+}
+
+[data-layout="wide"] .market-entrust__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  align-items: start;
+}
+
+[data-layout="wide"] .market-entrust__slot {
+  align-self: stretch;
+}
+
+[data-layout="wide"] .entrust-bar {
+  display: none;
 }
 
 .entrust-filters {

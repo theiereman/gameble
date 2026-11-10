@@ -27,13 +27,23 @@
       <% end %>
     <% else %>
       <%= form_with url: market_entrustments_path, id: "entrust", class: "market-entrust__form",
-            data: { turbo: false, **entrust_root_data(open: @open, cap_left: @cap_left) } do %>
+            data: { turbo: false, layout: "wide", **entrust_root_data(open: @open, cap_left: @cap_left) } do %>
         <%= hidden_field_tag :settings, @settings.token, id: nil %>
+        <% if @refusal %>
+          <p class="market-entrust__refusal" role="alert" tabindex="-1"><%= @refusal %></p>
+        <% end %>
         <%= render "market/entrustments/filters" %>
-        <div class="market-entrust__layout">
+        <%= tag.div class: "market-entrust__layout",
+              data: { controller: "entrust-recap", entrust_recap_locale_value: I18n.locale,
+                      entrust_recap_accessible_value: t("market.entrustments.strings.amount") } do %>
           <%= render "market/entrustments/grid" %>
-          <%= render "market/entrustments/recap" %>
-        </div>
+          <div class="market-entrust__slot" data-entrust-recap-target="slot">
+            <%= render "market/entrustments/recap" %>
+          </div>
+          <%= render "market/entrustments/bar" %>
+          <%= render "market/entrustments/sheet" %>
+          <p class="visually-hidden" role="status" aria-live="polite" data-entrust-recap-target="barStatus"></p>
+        <% end %>
       <% end %>
     <% end %>
   <% end %>
