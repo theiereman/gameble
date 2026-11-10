@@ -5,7 +5,7 @@ module Game
     NOTABLE_TIER = 4
     DISCOVERY_TIER = 3
 
-    KINDS = %w[pull discovery trade repost set verdict].freeze
+    KINDS = %w[pull discovery trade repost set verdict sale].freeze
 
     RECORD_SETS_SQL = <<~SQL.squish.freeze
       WITH reached AS (
@@ -86,6 +86,20 @@ module Game
       row = { kind: "verdict", player_id:, notable: true, occurred_at: week_start.to_time(:utc), created_at: now, updated_at: now }
       insert_all([ row ], unique_by: :index_game_feed_entries_one_verdict_per_week, record_timestamps: false)
     end
+
+    def self.record_sale(listing_id:, buyer_id:, card_season_id:, price:, settings:, at:)
+      rarity = Catalog::Rarity::TIERS.key(Catalog::CardSeason.where(id: card_season_id).pick(:rarity)&.to_sym)
+      return unless rarity && notable_sale?(rarity, price, settings)
+
+      row = { kind: "sale", player_id: buyer_id, listing_id:, card_season_id:, rarity:, notable: true, occurred_at: at, created_at: at, updated_at: at }
+      insert_all([ row ], unique_by: :index_game_feed_entries_one_sale_per_listing, record_timestamps: false)
+    end
+
+    def self.notable_sale?(rarity, price, settings)
+      rarity >= NOTABLE_TIER ||
+        price >= settings.feed_threshold_multiple * settings.minimum_price(Catalog::Rarity::TIERS.fetch(rarity))
+    end
+    private_class_method :notable_sale?
 
     def self.best_card(card_season_ids, rarities)
       card_season_ids.select { rarities[it] }.min_by { |id| [ -rarities[id], id ] }

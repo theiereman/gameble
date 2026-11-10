@@ -11,6 +11,8 @@ module Game
       friends ? friends.include?(owner.id) : FriendshipBetween.call(viewer, owner)
     end
 
+    def self.sale_listed?(buyer) = buyer.present? && !buyer.removed?
+
     def self.open_to_friends?(player)
       player.present? && !player.removed? && !player.visibility_private?
     end

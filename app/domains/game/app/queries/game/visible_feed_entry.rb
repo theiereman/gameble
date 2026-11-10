@@ -9,7 +9,12 @@ module Game
 
       owner_ids = [ entry.player_id, entry.partner_id ].compact
       owners = Accounts::Player.where(id: owner_ids).index_by(&:id)
-      entry if owner_ids.all? { Visibility.visible?(viewer, owners[it], staff_sees_all: false) }
+      listed = if entry.kind == "sale"
+        Visibility.sale_listed?(owners[entry.player_id])
+      else
+        owner_ids.all? { Visibility.visible?(viewer, owners[it], staff_sees_all: false) }
+      end
+      entry if listed
     end
   end
 end

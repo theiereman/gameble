@@ -34,6 +34,7 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Handlers::SetTierFeed, to: Game::Handlers::SetTierFeed::EVENTS)
   event_store.subscribe(Game::Handlers::Achievements, to: Game::Handlers::Achievements::EVENTS.keys)
   event_store.subscribe(Game::Handlers::CardBacks, to: Game::Handlers::CardBacks::EVENTS.keys)
+  event_store.subscribe(Game::Handlers::SaleFeed, to: [ Game::Market::AuctionSold ])
   event_store.subscribe(Game::Market::Handlers::OutbidNotices, to: [ Game::Market::BidPlaced ])
   event_store.subscribe(Game::Market::Handlers::OutcomeNotices, to: [ Game::Market::AuctionSold, Game::Market::AuctionUnsold ])
   event_store.subscribe(LiveStream, to: LiveStream::EVENTS)
