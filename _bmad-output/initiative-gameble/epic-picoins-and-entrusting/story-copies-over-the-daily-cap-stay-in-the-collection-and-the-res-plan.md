@@ -3,7 +3,7 @@ title: 'Copies over the daily cap stay in the collection and the result names th
 type: 'feature'
 ticket: '38.3'
 created: '2026-11-10'
-status: 'ready-for-dev'
+status: 'in-review'
 baseline_revision: 'a159c212dc2bd7ff6358b8173105d7665bb8a19c'
 route: 'full'
 route_source: 'auto'
