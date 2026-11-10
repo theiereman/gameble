@@ -43,6 +43,13 @@ namespace :game do
     puts "game:backfill_achievements: done; any failure went to the error tracker, and a rerun grants only what is missing"
   end
 
+  desc "Creates the first, closed market settings version if there is none; idempotent"
+  task create_first_market_settings: :environment do
+    Game::Market::CreateFirstSettings.new.call.value!
+
+    puts "game:create_first_market_settings: the market has its settings"
+  end
+
   desc "Runs Game::BackfillCardBacksJob now: the back of every set whose back tier a player in good standing already reached is unlocked, without a toast; idempotent"
   task backfill_card_backs: :environment do
     Game::BackfillCardBacksJob.perform_now

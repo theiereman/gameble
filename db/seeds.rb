@@ -15,6 +15,9 @@ if Catalog::Theme.none?
   end)
 end
 
+# The market's first settings version, closed, with the starting values; once any version exists this leaves it alone.
+Game::Market::CreateFirstSettings.new.call.value!
+
 # Development only: a small published season of generic cards, so packs can
 # be opened without running a Steam import. Only while no season is
 # published; a run that stopped midway is resumed: the identity upserts and

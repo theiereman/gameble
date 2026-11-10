@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
-# If running the rails server then create or migrate existing database, then grant the achievements a release adds from history
+# If running the rails server then create or migrate existing database, grant the achievements a release adds from history, then give the market its first settings
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  ./bin/rails db:prepare game:backfill_achievements
+  ./bin/rails db:prepare game:backfill_achievements game:create_first_market_settings
 fi
 
 exec "${@}"
