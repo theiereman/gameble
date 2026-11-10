@@ -28,6 +28,8 @@ class Game::ExportOfTest < ActiveSupport::TestCase
     assert_equal 0, export.friend_count
     assert_equal [ 0, 0 ], [ export.invitations.received, export.invitations.sent ]
     assert_empty export.card_season_ids
+    assert_equal [ 0, 0 ], [ export.market.wallet.available, export.market.wallet.committed ]
+    %i[entries listings bids].each { assert_empty export.market.public_send(it), it }
   end
 
   test "opened packs give their cards, card back and the collection; a pack not opened yet hides its cards and back" do

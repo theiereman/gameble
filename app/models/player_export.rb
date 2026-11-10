@@ -44,6 +44,10 @@ class PlayerExport
       goals: game.goals.map do
         { position: it.position, setKind: it.set_kind, setKey: it.set_key, customSet: it.custom_set_token, createdAt: time(it.created_at) }.compact
       end,
+      wallet: { available: game.market.wallet.available, committed: game.market.wallet.committed },
+      picoinEntries: game.market.entries.map { picoin_entry(it) },
+      listings: game.market.listings.map { listing(it) },
+      bids: game.market.bids.map { bid(it) },
       reportsFiled: accounts.reports_filed.map { { reason: it.reason, createdAt: time(it.created_at) } },
       reportsReceived: accounts.reports_received.map do
         { reason: it.reason, createdAt: time(it.created_at), handledAt: time(it.handled_at) }
@@ -131,6 +135,20 @@ class PlayerExport
         faced = Catalog::CardViews.call(faces.values, locale: @locale)
         faces.transform_values { |card_season_id| faced[card_season_id] }.compact.transform_values { { slug: it.id, title: it.title } }
       end
+    end
+
+    def picoin_entry(entry)
+      { kind: entry.kind, availableDelta: entry.available_delta, committedDelta: entry.committed_delta, listing: entry.listing_token, at: time(entry.created_at) }
+    end
+
+    def listing(listing)
+      { token: listing.token, card: card(listing.card_season_id), status: listing.status, startingPrice: listing.starting_price,
+        buyNowPrice: listing.buy_now_price, currentPrice: listing.current_price, finalPrice: listing.final_price, durationHours: listing.duration_hours,
+        listedAt: time(listing.created_at), endsAt: time(listing.ends_at), soldAt: time(listing.sold_at) }
+    end
+
+    def bid(bid)
+      { listing: bid.listing_token, maximum: bid.maximum, priceAfter: bid.price_after, outcome: bid.outcome, placedAt: time(bid.created_at) }
     end
 
     def feed_entry(entry)
