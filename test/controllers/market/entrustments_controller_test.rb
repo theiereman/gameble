@@ -32,7 +32,8 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "input[name=settings][value=?]", settings.token
     assert_select ".market-entrust__cell", 2
-    assert_select ".market-entrust__cell:first-child .market-entrust__value", "5,000 PiCoins"
+    assert_select ".market-entrust__cell:first-child .market-entrust__value .picoin-amount[aria-label=?]", "5,000 PiCoins"
+    assert_select ".market-entrust__cell:first-child .market-entrust__value .picoin-amount__figure", "5,000"
     assert_select "input[name=?][max=2]", "copies[#{ref(@rare)}]"
     assert_select "[style]", false
     assert_select "[name=?]", "copies[#{@rare.id}]", false
@@ -63,7 +64,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     post market_entrustments_path(locale: :en), params: { settings: settings.token, copies: { ref(@common) => "2", ref(@rare) => "1", "unknown:9" => "4" } }
 
     assert_response :success
-    assert_select ".market-entrust__total", /7,000 PiCoins/
+    assert_select ".market-entrust__total .picoin-amount[aria-label=?]", "7,000 PiCoins"
     assert_select ".market-entrust__count", "3 copies entrusted"
     assert_equal 0, Game::Holding.find_by(player_id: @player.id, card_season_id: @common.id).quantity
     assert_equal 7_000, Game::Market::Wallet.find_by!(player_id: @player.id).available
@@ -94,7 +95,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert_select "input[name=settings][value=?]", current.token
     assert_select "input[name=?][value=2]", "copies[#{ref(@common)}]"
-    assert_select ".market-entrust__value", "1,500 PiCoins"
+    assert_select ".market-entrust__value .picoin-amount[aria-label=?]", "1,500 PiCoins"
     assert_equal 0, Game::Market::LedgerEntry.count
   end
 
@@ -136,7 +137,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     post market_entrustments_path(locale: :en), params: { settings: settings.token, copies: { ref(@common) => "1", ref(@rare) => "1" } }
 
     assert_response :success
-    assert_select ".market-entrust__total", /5,000 PiCoins/
+    assert_select ".market-entrust__total .picoin-amount[aria-label=?]", "5,000 PiCoins"
     assert_equal 1, Game::Holding.find_by(player_id: @player.id, card_season_id: @common.id).quantity
     assert_equal 0, Game::Holding.find_by(player_id: @player.id, card_season_id: @rare.id).quantity
   end
@@ -165,9 +166,10 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     post market_entrustments_path(locale: :en), params: { settings: settings.token, copies: { ref(legendary) => "1", ref(@common) => "1" } }
 
     assert_response :success
-    assert_select ".market-entrust__total", /1,000 PiCoins/
+    assert_select ".market-entrust__total .picoin-amount[aria-label=?]", "1,000 PiCoins"
     assert_select "[role=status] .market-entrust__stayed-heading", "1 card was not entrusted"
-    assert_select ".market-entrust__stayed-line", /1 copy stays in your collection \(100,000 PiCoins\)/
+    assert_select ".market-entrust__stayed-line", /1 copy stays in your collection/
+    assert_select ".market-entrust__stayed-line .picoin-amount[aria-label=?]", "100,000 PiCoins"
     assert_select ".market-entrust__stayed-cap", /50,000/
     assert_select "[style]", false
     assert_equal 1, Game::Holding.find_by(player_id: @player.id, card_season_id: legendary.id).quantity
