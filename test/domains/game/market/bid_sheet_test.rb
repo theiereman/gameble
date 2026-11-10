@@ -81,4 +81,35 @@ class Game::Market::BidSheetTest < ActiveSupport::TestCase
 
     assert_equal 5, sheet(@other).soft_close_minutes
   end
+
+  test "the unusual multiple is the current version's value" do
+    assert_equal 3, sheet(@other).unusual_multiple
+
+    open_market!(unusual_maximum_multiple: 5)
+
+    assert_equal 5, sheet(@other).unusual_multiple
+  end
+
+  test "the buy-now hold is the buy-now price, less the leader's own held maximum" do
+    assert_equal [ 60_000, true ], sheet(@other).then { [ it.buy_now_hold, it.can_buy_now ] }
+
+    bid(@leader, 30_000)
+
+    assert_equal 30_000, sheet(@leader).buy_now_hold
+    assert_equal 60_000, sheet(@other).buy_now_hold
+  end
+
+  test "buying now needs the hold to be available" do
+    @listing.update_columns(buy_now_price: 100_000)
+    assert sheet(@other).can_buy_now
+
+    @listing.update_columns(buy_now_price: 100_001)
+    assert_not sheet(@other).can_buy_now
+  end
+
+  test "a listing without a buy-now has no hold and cannot be bought now" do
+    @listing.update_columns(buy_now_price: nil)
+
+    assert_equal [ nil, false ], sheet(@other).then { [ it.buy_now_hold, it.can_buy_now ] }
+  end
 end

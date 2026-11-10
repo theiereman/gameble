@@ -2,7 +2,8 @@ module Game
   module Market
     # What a player's bidding form is drawn from: the minimum, the lead and the available figure. Only the leader's own maximum is read, for the leader.
     module BidSheet
-      Sheet = Data.define(:minimum, :leading, :own_maximum, :available, :current_price, :buy_now_price, :soft_close_minutes)
+      Sheet = Data.define(:minimum, :leading, :own_maximum, :available, :current_price, :buy_now_price, :soft_close_minutes,
+        :unusual_multiple, :buy_now_hold, :can_buy_now)
 
       SECONDS_PER_MINUTE = 60
 
@@ -16,9 +17,11 @@ module Game
         settings = Settings.find(listing.settings_id)
         leader = present_leader(listing)
         own_maximum = Listing.where(id: listing.id).pick(:leader_maximum) if leader == player.id
-        Sheet.new(minimum: minimum(listing, settings, leader, own_maximum), leading: !own_maximum.nil?, own_maximum:,
-          available: Balance.call(player).available, current_price: listing.current_price, buy_now_price: listing.buy_now_price,
-          soft_close_minutes: settings.soft_close_seconds / SECONDS_PER_MINUTE)
+        available = Balance.call(player).available
+        hold = listing.buy_now_price && listing.buy_now_price - own_maximum.to_i
+        Sheet.new(minimum: minimum(listing, settings, leader, own_maximum), leading: !own_maximum.nil?, own_maximum:, available:,
+          current_price: listing.current_price, buy_now_price: listing.buy_now_price, soft_close_minutes: settings.soft_close_seconds / SECONDS_PER_MINUTE,
+          unusual_multiple: (CurrentSettings.call || settings).unusual_maximum_multiple, buy_now_hold: hold, can_buy_now: !hold.nil? && available >= hold)
       end
 
       def self.present_leader(listing)

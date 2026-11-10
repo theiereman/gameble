@@ -8,11 +8,18 @@ module Market
     def create
       authorize %i[market bid], :create?
       listing_id = Game::Market::ListingIdByToken.call(token) || raise(ActiveRecord::RecordNotFound)
-      result = Game::Market::PlaceBid.new.call(player: current_player, listing_id:, maximum: params[:maximum].to_s)
+      result = Game::Market::PlaceBid.new.call(player: current_player, listing_id:, maximum: maximum_to_place)
       result.success? ? answer_success(result.value!) : answer_failure(result.failure)
     end
 
     private
+      def maximum_to_place
+        return params[:maximum].to_s unless params[:buy_now] == "1"
+
+        sheet = Game::Market::BidSheet.call(token:, player: current_player)
+        sheet ? sheet.buy_now_price.to_s : params[:maximum].to_s
+      end
+
       def answer_success(answer)
         answer_with(region(answer:, focus: answer.branch == :beaten ? "field" : "heading"), status: :ok)
       end
