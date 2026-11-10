@@ -1,0 +1,21 @@
+.average-price {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+}
+
+.average-price--none {
+  color: var(--color-muted);
+}
+
+.average-price__few {
+  color: var(--color-alert);
+}
+
+.average-price__basis {
+  display: block;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+}

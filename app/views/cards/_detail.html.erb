@@ -7,6 +7,7 @@
 <% pioneer = local_assigns.fetch(:pioneer, nil) %>
 <% goals = local_assigns.fetch(:goals, []) %>
 <% entrustment = local_assigns.fetch(:entrustment, nil) %>
+<% price = local_assigns.fetch(:price, nil) %>
 <% trade_holders = local_assigns.fetch(:trade_holders, nil) || [] %>
 <% goal_numbers = goals.map(&:position) %>
 <% repostable = share_url && editions.any? { |_, season_number, _| season_number == detail.view.season_number } %>
@@ -85,6 +86,17 @@
               <dt><%= t("card_details.facts.season") %></dt>
               <dd><%= t("card_details.season_number", number: view.season_number) %></dd>
             </div>
+            <% if price %>
+              <div class="card-detail__fact card-detail__fact--price">
+                <dt><%= t("card_details.facts.average_price", number: view.season_number) %></dt>
+                <dd>
+                  <%= render AveragePriceComponent.new(price:) %>
+                  <% if (basis = average_price_basis(price)) %>
+                    <span class="average-price__basis"><%= basis %></span>
+                  <% end %>
+                </dd>
+              </div>
+            <% end %>
             <% if pioneer %>
               <div class="card-detail__fact">
                 <dt><%= t("card_details.facts.pioneer") %></dt>

@@ -147,6 +147,17 @@ en:
   authorization:
     forbidden: Your account has no access to this page.
     sign_in_required: Sign in to do that.
+  average_price:
+    basis:
+      one: Based on %{count} sale
+      other: Based on %{count} sales
+      zero: Based on %{count} sales
+    few_sales: few sales
+    no_sale: No sale
+    words:
+      few_sales: average price %{amount}, few sales
+      no_sale: no sale
+      priced: average price %{amount}
   back_office:
     release_notes:
       assistant:
@@ -1049,6 +1060,7 @@ en:
     list:
       button: Put up for sale
     facts:
+      average_price: Average price S%{number}
       copies: Copies
       editions: Editions
       genre: Genre

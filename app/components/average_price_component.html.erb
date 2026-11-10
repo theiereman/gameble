@@ -1,0 +1,10 @@
+<%= tag.span class: classes, **@html_options.except(:class) do %>
+  <% if @price.no_sale? %>
+    <%= t("average_price.no_sale") %>
+  <% else %>
+    <%= render PicoinAmountComponent.new(amount: @price.average, compact: @compact) %>
+    <% if @price.few_sales? %>
+      <span class="average-price__few"><%= t("average_price.few_sales") %></span>
+    <% end %>
+  <% end %>
+<% end %>

@@ -1592,6 +1592,17 @@ fr:
       card_list: "Voir la liste des cartes"
       all_achievements: "Tout voir"
       change_avatar: "Changer d'avatar"
+  average_price:
+    basis:
+      zero: "Fondé sur %{count} vente"
+      one: "Fondé sur %{count} vente"
+      other: "Fondé sur %{count} ventes"
+    few_sales: "peu de ventes"
+    no_sale: "Sans vente"
+    words:
+      priced: "prix moyen %{amount}"
+      few_sales: "prix moyen %{amount}, peu de ventes"
+      no_sale: "sans vente"
   picoin_amount:
     accessible: "%{amount} PiCoins"
   player_name:
@@ -3374,6 +3385,7 @@ fr:
       goals: "Objectifs"
       copies: "Exemplaires"
       editions: "Éditions"
+      average_price: "Prix moyen S%{number}"
       steam_reviews: "Avis Steam"
     season_number: "Saison %{number}"
     pioneer:

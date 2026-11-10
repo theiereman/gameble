@@ -914,8 +914,8 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     delete session_path(locale: :en)
     # The public card page: the card detail and its sets; no neighbours; the
-    # share image, the LIVE strip's entries, notable then fillers (none here), the pioneer.
-    assert_request_queries(7) { get card_path(locale: :en, slug: "portal") }
+    # share image, the LIVE strip's entries, notable then fillers (none here), the pioneer, the market's state.
+    assert_request_queries(8) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
     assert_select ".public-card"
   end

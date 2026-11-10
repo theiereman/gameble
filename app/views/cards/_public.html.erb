@@ -31,6 +31,15 @@
           <span class="public-card__pioneer-date"><%= card_detail_pioneer_date(pioneer.discovered_on) %></span>
         </p>
       <% end %>
+      <% if price %>
+        <p class="public-card__price">
+          <span class="public-card__price-label"><%= t("card_details.facts.average_price", number: view.season_number) %></span>
+          <%= render AveragePriceComponent.new(price:) %>
+          <% if (basis = average_price_basis(price)) %>
+            <span class="average-price__basis"><%= basis %></span>
+          <% end %>
+        </p>
+      <% end %>
       <% if detail.short_description %>
         <p class="public-card__description"><%= detail.short_description %></p>
       <% end %>
