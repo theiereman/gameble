@@ -15,21 +15,11 @@
       </ul>
     <% end %>
 
+    <%= render "assistant", release_note: @release_note %>
+
     <div class="release-note-editor__texts">
       <% %w[fr en].each do |locale| %>
-        <fieldset class="release-note-editor__language" lang="<%= locale %>">
-          <legend><%= t(".locales.#{locale}") %></legend>
-          <p class="announcement-editor__field">
-            <label for="release-note-title-<%= locale %>"><%= t(".title") %></label>
-            <%= text_field_tag :"title_#{locale}", @texts[:"title_#{locale}"], id: "release-note-title-#{locale}", class: "ban-form__field",
-                  maxlength: Accounts::ReleaseNote::TITLE_LENGTH %>
-          </p>
-          <p class="announcement-editor__field">
-            <label for="release-note-body-<%= locale %>"><%= t(".body") %></label>
-            <%= text_area_tag :"body_#{locale}", @texts[:"body_#{locale}"], id: "release-note-body-#{locale}",
-                  class: "ban-form__field release-note-editor__body", rows: 14, maxlength: Accounts::ReleaseNote::BODY_LENGTH %>
-          </p>
-        </fieldset>
+        <%= render "language", locale:, texts: @texts %>
       <% end %>
     </div>
     <p class="ban-form__hint"><%= t(".format_hint", length: Accounts::ReleaseNote::BODY_LENGTH) %></p>

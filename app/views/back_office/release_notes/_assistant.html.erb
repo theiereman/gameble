@@ -1,0 +1,18 @@
+<section class="stack release-note-assistant" aria-labelledby="release-note-assistant-heading">
+  <h2 id="release-note-assistant-heading"><%= t("back_office.release_notes.assistant.heading") %></h2>
+  <% if claude_writer_available? %>
+    <p class="announcement-editor__actions">
+      <button type="submit" class="button button--secondary button--small" formnovalidate
+        formaction="<%= condense_back_office_release_note_path(token: release_note.token) %>"
+        data-turbo-submits-with="<%= t("back_office.release_notes.assistant.condensing") %>"><%= t("back_office.release_notes.assistant.condense") %></button>
+      <button type="submit" class="button button--secondary button--small" formnovalidate
+        formaction="<%= translate_back_office_release_notes_path %>"
+        data-turbo-submits-with="<%= t("back_office.release_notes.assistant.translating") %>"><%= t("back_office.release_notes.assistant.translate") %></button>
+    </p>
+    <p class="ban-form__hint"><%= t("back_office.release_notes.assistant.hint") %></p>
+  <% else %>
+    <p class="ban-form__hint" data-claude-writer-missing><%= t("back_office.release_notes.assistant.no_key") %></p>
+  <% end %>
+  <p id="<%= BackOffice::ReleaseNotesController::ASSISTANT_STATUS_ID %>" class="claude-writer-status" role="status"></p>
+  <div id="<%= BackOffice::ReleaseNotesController::REVIEW_ID %>"></div>
+</section>

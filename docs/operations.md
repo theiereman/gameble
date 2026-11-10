@@ -242,6 +242,10 @@ To rotate the key: create the new secret key in the dashboard (API keys), replac
 
 Locally: `npx clerk@latest env pull --file .env.local` writes the development publishable key for the Vite side, and the development secret key goes in the ignored `config/clerk_secret.key` (or `CLERK_SECRET_KEY`). Without the file, sign-in cannot verify a session and fails as unavailable.
 
+### Claude API
+
+The back office asks Claude to condense a version's commits into a French release note, to translate a release note from French into English, and to fill the English of the roadmap lines that have none (`Accounts::ClaudeWriter`, model `claude-opus-5-5`, server-side refusal fallbacks on). The key is the repository secret `ANTHROPIC_API_KEY`, shared by staging and production: each deploy workflow writes it to `config/anthropic_api.key`, `.kamal/secrets.<destination>` reads it and the containers get `ANTHROPIC_API_KEY` (`env.secret` in `config/deploy.yml`). Locally the key goes in the ignored `config/anthropic_api.key` (or `ANTHROPIC_API_KEY`). Without a key the editor shows that the help is off and everything else works. A call can take up to 80 seconds, so kamal-proxy's `response_timeout` is 90 on both destinations. To rotate the key: create the new one in the Claude Console, replace the secret, deploy, then revoke the old one.
+
 ### Steam import
 
 Administrators start and watch import runs at `/<locale>/back-office/import-runs`. The `import` and `steam_library` queues have their own process, one thread (`bin/jobs -c config/queue_import.yml --skip-recurring`, the `import` role of `config/deploy.yml`); the key comes from `config/steam_api.key` through `.kamal/secrets`. A run that fails after its retries can be resumed from its cursor on its page, or, while it is the latest run that was not abandoned, abandoned ("Abandon this run", `Steam::AbandonImport`): an abandoned run is finished for good, blocks no new run, discards its staged rows, and is skipped when deciding whether a season can be published (the latest run that was not abandoned decides, and a failed one can be abandoned in turn). A failed run keeps its staged rows so a resume continues.

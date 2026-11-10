@@ -1,0 +1,14 @@
+<fieldset class="release-note-editor__language" lang="<%= locale %>" id="release-note-language-<%= locale %>">
+  <legend><%= t("back_office.release_notes.edit.locales.#{locale}") %></legend>
+  <p class="announcement-editor__field">
+    <label for="release-note-title-<%= locale %>"><%= t("back_office.release_notes.edit.title") %></label>
+    <%= text_field_tag :"title_#{locale}", texts[:"title_#{locale}"], id: "release-note-title-#{locale}", class: "ban-form__field",
+          maxlength: Accounts::ReleaseNote::TITLE_LENGTH, data: ({ release_note_editor_target: "titleFr" } if locale == "fr") %>
+  </p>
+  <p class="announcement-editor__field">
+    <label for="release-note-body-<%= locale %>"><%= t("back_office.release_notes.edit.body") %></label>
+    <%= text_area_tag :"body_#{locale}", texts[:"body_#{locale}"], id: "release-note-body-#{locale}",
+          class: "ban-form__field release-note-editor__body", rows: 14, maxlength: Accounts::ReleaseNote::BODY_LENGTH,
+          data: ({ release_note_editor_target: "bodyFr" } if locale == "fr") %>
+  </p>
+</fieldset>

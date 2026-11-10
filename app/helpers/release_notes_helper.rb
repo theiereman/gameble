@@ -5,4 +5,8 @@ module ReleaseNotesHelper
 
     @release_note_missing = (Accounts::ReleaseNotes.missing(running: running_release) if current_player&.administrator? && !hotwire_native_app?)
   end
+
+  def claude_writer_available?
+    Accounts::ClaudeWriter.available?
+  end
 end

@@ -10,8 +10,7 @@
   </p>
   <p class="roadmap-row__field">
     <label for="<%= dom %>-wording-en"><%= t("back_office.roadmaps.fields.wording_en") %></label>
-    <%= text_field_tag "#{name}[wording_en]", entry.wording_en, id: "#{dom}-wording-en", class: "ban-form__field", lang: "en",
-          maxlength: Catalog::RoadmapWording::LENGTH, autocomplete: "off", aria: { invalid: (failure ? "true" : nil) } %>
+    <%= render "back_office/roadmaps/english_wording", name:, dom:, value: entry.wording_en, failure: %>
   </p>
   <p class="roadmap-row__field roadmap-row__field--status">
     <label for="<%= dom %>-status"><%= t("back_office.roadmaps.fields.status") %></label>

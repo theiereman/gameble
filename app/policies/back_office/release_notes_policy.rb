@@ -6,5 +6,7 @@ module BackOffice
     def save? = administrator?
     def preview? = administrator?
     def state? = administrator?
+    def translate? = administrator?
+    def condense? = administrator?
   end
 end

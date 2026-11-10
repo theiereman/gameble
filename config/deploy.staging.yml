@@ -27,6 +27,7 @@ proxy:
   ssl: false                       # Cloudflare holds the certificate
   host: test.gameble.net
   forward_headers: true            # keep Cloudflare's X-Forwarded-For and X-Forwarded-Proto
+  response_timeout: 90             # Claude's help in the back office answers in up to 80 seconds
 
 env:
   clear:

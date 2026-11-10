@@ -35,6 +35,16 @@
 
     <section class="stack" aria-labelledby="roadmap-milestones-heading">
       <h2 id="roadmap-milestones-heading"><%= t(".milestones_heading") %></h2>
+      <% if claude_writer_available? %>
+        <p class="announcement-editor__actions">
+          <button type="submit" class="button button--secondary button--small" formnovalidate formaction="<%= translate_back_office_roadmap_path %>"
+            data-turbo-submits-with="<%= t(".translating") %>"><%= t(".translate") %></button>
+        </p>
+        <p class="ban-form__hint"><%= t(".translate_hint") %></p>
+      <% else %>
+        <p class="ban-form__hint" data-claude-writer-missing><%= t("back_office.release_notes.assistant.no_key") %></p>
+      <% end %>
+      <p id="<%= BackOffice::RoadmapsController::TRANSLATION_STATUS_ID %>" class="claude-writer-status" role="status"></p>
       <ol class="roadmap-editor__list" data-roadmap-editor-target="milestones" data-roadmap-list="milestone">
         <% @draft.milestones.each do |entry| %>
           <%= render "back_office/roadmaps/milestone", entry:, failures: @row_failures || {} %>

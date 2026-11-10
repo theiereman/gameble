@@ -227,9 +227,11 @@ Rails.application.routes.draw do
       end
 
       # The landing's roadmap, administrators only: every milestone and its
-      # stories in one form, saved at once, with a live preview of the landing.
+      # stories in one form, saved at once, with a live preview of the landing;
+      # Claude fills the English lines left empty.
       resource :roadmap, only: :show do
         post :preview
+        post :translate
       end
       post "roadmap" => "roadmaps#update", as: :save_roadmap
 
@@ -251,13 +253,15 @@ Rails.application.routes.draw do
       end
 
       # The notes of each production release, administrators only: written in
-      # both languages from the release's commits, shown once to every player
-      # when production runs that release.
+      # both languages from the release's commits, which Claude can condense and
+      # translate, shown once to every player when production runs that release.
       resources :release_notes, path: "release-notes", param: :token, only: %i[index create edit],
         constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
         post :preview, on: :collection
+        post :translate, on: :collection
         post :save, on: :member
         post :state, on: :member
+        post :condense, on: :member
       end
 
       # The card preview, both renderers side by side, administrators only.

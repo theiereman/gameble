@@ -322,3 +322,92 @@ html[data-motion="reduced"] .release-note__prompt::after {
   color: var(--color-accent-hi);
   text-decoration: underline;
 }
+
+.claude-writer-status:empty {
+  display: none;
+}
+
+.claude-writer-status {
+  margin: 0;
+  color: var(--color-gold);
+}
+
+.release-note-review {
+  padding: var(--space-panel-padding);
+  background: var(--color-panel-sunken);
+  box-shadow: var(--panel-border);
+}
+
+.release-note-review h3,
+.release-note-review h4 {
+  margin: 0;
+}
+
+.release-note-review__columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: var(--space-6);
+}
+
+.release-note-review__title {
+  margin: 0;
+  color: var(--color-text-max);
+  font: 400 1.6rem / 1.6rem var(--font-family-vt323);
+}
+
+.release-note-review__lines,
+.release-note-review__sources {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.release-note-review__line,
+.release-note-review__source {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: var(--space-3);
+  padding-left: var(--space-3);
+  box-shadow: inset 3px 0 0 var(--color-line);
+  color: var(--color-text-bright);
+}
+
+.release-note-review__line--features {
+  box-shadow: inset 3px 0 0 var(--color-lime);
+}
+
+.release-note-review__line--fixes {
+  box-shadow: inset 3px 0 0 var(--color-gold);
+}
+
+.release-note-review__number,
+.release-note-review__id {
+  color: var(--color-dim);
+  font: var(--font-label);
+}
+
+.release-note-review__meta {
+  display: block;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.release-note-review__source--kept {
+  box-shadow: inset 3px 0 0 var(--color-lime);
+}
+
+.release-note-review__source--dropped {
+  box-shadow: inset 3px 0 0 var(--color-line);
+  color: var(--color-muted);
+}
+
+.release-note-review__source--forgotten {
+  box-shadow: inset 3px 0 0 var(--color-danger-text);
+}
+
+.release-note-review__source--forgotten .release-note-review__meta,
+.release-note-review__warning {
+  color: var(--color-danger-text);
+}

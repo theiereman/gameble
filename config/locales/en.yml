@@ -149,6 +149,38 @@ en:
     sign_in_required: Sign in to do that.
   back_office:
     release_notes:
+      assistant:
+        heading: "Claude's help"
+        condense: "Condense with Claude"
+        condensing: "Claude is reading the commits…"
+        translate: "Translate into English"
+        translating: "Claude is translating…"
+        hint: "CONDENSE reads the version's commits and suggests a shorter note, to check commit by commit before you use it. TRANSLATE fills the English from the French. Nothing is saved until you save."
+        no_key: "Claude's help is off: the Claude API key (ANTHROPIC_API_KEY) is not set."
+        translated: "The English is filled from the French. Read it over, then save."
+        condensed:
+          one: "Claude read %{count} commit. Check its suggestion below."
+          other: "Claude read %{count} commits. Check its suggestion below."
+        failures:
+          nothing_to_translate: "Write the French title or text first."
+          no_changes: "GitHub gave no new features or fixes for this version."
+          unavailable: "Claude could not answer. Try again in a moment; the fields have not changed."
+      review:
+        heading: "Claude's suggestion"
+        summary:
+          one: "%{count} commit: %{kept} kept, %{dropped} dropped, %{forgotten} forgotten."
+          other: "%{count} commits: %{kept} kept, %{dropped} dropped, %{forgotten} forgotten."
+        proposal: "Suggested note"
+        sources: "The version's commits"
+        apply: "Use this suggestion"
+        apply_hint: "Replaces the French title and text. Then translate into English and save."
+        too_long: "The suggestion is over %{length} characters: shorten it once you use it."
+        statuses:
+          kept:
+            one: "Kept in line %{lines}"
+            other: "Kept in lines %{lines}"
+          dropped: "Dropped: %{reason}"
+          forgotten: "Forgotten by Claude: check it"
       create:
         created: "The note is created, prefilled with %{features} new features and %{fixes} fixes from the commits between %{since} and %{head}. Rewrite them for players."
         created_blank: "The note is created. GitHub did not give the release's commits: write it from scratch."
@@ -526,6 +558,12 @@ en:
         player: Player
         total: Total
     roadmaps:
+      translate:
+        nothing: "Every line already has its English: nothing to translate."
+        unavailable: "Claude could not answer. Try again in a moment; the fields have not changed."
+        translated:
+          one: "Claude translated %{count} line. Read it over, then save."
+          other: "Claude translated %{count} lines. Read them over, then save."
       fields:
         shown: Shown on the landing
         status: Status
@@ -540,6 +578,9 @@ en:
           when you save.
         up: Move the milestone up
       show:
+        translate: "Translate the empty lines into English"
+        translating: "Claude is translating…"
+        translate_hint: "Claude fills the English of every line without one, from the French. Read them over, then save."
         add_milestone: Add a milestone
         heading: The roadmap
         intro: Every milestone of the landing's roadmap and the stories under it, in

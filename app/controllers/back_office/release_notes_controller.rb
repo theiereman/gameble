@@ -1,9 +1,12 @@
 module BackOffice
   class ReleaseNotesController < BaseController
     PREVIEW_ID = "release-note-preview".freeze
+    ASSISTANT_STATUS_ID = "release-note-assistant-status".freeze
+    REVIEW_ID = "release-note-review".freeze
 
     rate_limit to: 30, within: 1.minute, only: %i[create save state], name: "save"
     rate_limit to: 240, within: 1.minute, only: :preview, name: "preview"
+    rate_limit to: 10, within: 1.minute, only: %i[translate condense], name: "claude"
 
     def index
       authorize [ :back_office, :release_notes ], :index?
@@ -58,6 +61,36 @@ module BackOffice
       change_state(release_note, params[:state])
     end
 
+    def translate
+      authorize [ :back_office, :release_notes ], :translate?
+      @texts = Accounts::ReleaseNote.clean(sent_texts)
+      return assistant_failure(:nothing_to_translate) if @texts[:title_fr].blank? && @texts[:body_fr].blank?
+
+      translation = Accounts::ClaudeWriter.translate(title: @texts[:title_fr], body: @texts[:body_fr])
+      return assistant_failure(:unavailable) unless translation
+
+      @texts = @texts.merge(title_en: translation[:title], body_en: translation[:body])
+      render turbo_stream: [
+        turbo_stream.replace("release-note-language-en", partial: "language", locals: { locale: "en", texts: @texts }),
+        turbo_stream.update(PREVIEW_ID, ReleaseNoteComponent.new(title: @texts[:"title_#{preview_locale}"], body: @texts[:"body_#{preview_locale}"], locale: preview_locale)),
+        assistant_status(t("back_office.release_notes.assistant.translated"))
+      ]
+    end
+
+    def condense
+      authorize [ :back_office, :release_notes ], :condense?
+      changes = release_note.release_version&.then { Accounts::GithubReleaseChanges.for(it) }
+      return assistant_failure(:no_changes) if changes.nil? || changes.empty?
+
+      condensed = Accounts::ClaudeWriter.condense(changes)
+      return assistant_failure(:unavailable) unless condensed
+
+      render turbo_stream: [
+        turbo_stream.update(REVIEW_ID, partial: "review", locals: { condensed: }),
+        assistant_status(t("back_office.release_notes.assistant.condensed", count: condensed.sources.size))
+      ]
+    end
+
     private
       def release_note
         Accounts::ReleaseNotes.by_token(params[:token]) or raise ActiveRecord::RecordNotFound
@@ -106,6 +139,14 @@ module BackOffice
         else
           redirect_refused operation, result, back_office_release_notes_path
         end
+      end
+
+      def assistant_status(message)
+        turbo_stream.update(ASSISTANT_STATUS_ID, message)
+      end
+
+      def assistant_failure(code)
+        render turbo_stream: assistant_status(t("back_office.release_notes.assistant.failures.#{code}")), status: :unprocessable_content
       end
 
       def sent_texts

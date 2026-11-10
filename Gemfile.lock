@@ -86,6 +86,11 @@ GEM
       public_suffix (>= 2.0.2, < 8.0)
     aggregate_root (3.2.0)
       ruby_event_store (= 3.2.0)
+    anthropic (1.82.0)
+      base64 (~> 0.1)
+      connection_pool (>= 2, < 4)
+      opentelemetry-api (>= 1.2.4, < 2)
+      standardwebhooks (~> 1.0)
     arkency-command_bus (0.4.1)
       concurrent-ruby
     ast (2.4.3)
@@ -303,6 +308,8 @@ GEM
     omniauth-rails_csrf_protection (2.0.1)
       actionpack (>= 4.2)
       omniauth (~> 2.0)
+    opentelemetry-api (1.11.1)
+      logger
     os (1.1.4)
     ostruct (0.6.3)
     packs-rails (0.1.1)
@@ -511,6 +518,7 @@ GEM
       net-sftp (>= 2.1.2)
       net-ssh (>= 2.8.0)
       ostruct
+    standardwebhooks (1.1.0)
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
     strong_migrations (2.8.0)
@@ -574,6 +582,7 @@ PLATFORMS
 
 DEPENDENCIES
   action_push_native (~> 0.3.1)
+  anthropic (~> 1.82.0)
   bootsnap
   brakeman
   bundler-audit
@@ -638,6 +647,7 @@ CHECKSUMS
   activesupport (8.1.4.1) sha256=16ac4f341ca65c85a1fcdb8ac73f68891aae9e3c4a6f9c3a27daed8b00017ed7
   addressable (2.9.2) sha256=9117c7e7d6ee07230e75ce41fb9401ae55354dc654fcd0e862ba41d539e9a610
   aggregate_root (3.2.0) sha256=7914349185c96fb5e8aa1c90627945e640ffc5e75649ff08f4b2c3dc6c9b1604
+  anthropic (1.82.0) sha256=4226ee819e35373e18eeffd49d65fbd3cd5f1daceef0e8670254627ca3146fb0
   arkency-command_bus (0.4.1) sha256=8acac50774080ecf6828ba2f953f1ae293e80878efd555267dbd61b2ee764bde
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
@@ -729,6 +739,7 @@ CHECKSUMS
   omniauth (2.3.1) sha256=bb47bfcd5614b00cd89de4b45b0687123d09143dfeb5dbaf1bb57ff190bc2d2e
   omniauth-openid (2.0.2) sha256=dabfe9f319ec2b23044d7aac4a7d9e55b6b82201dbd015a8bc83657db316dec1
   omniauth-rails_csrf_protection (2.0.1) sha256=c6e3204d7e3925bb537cb52d50fdfc9f05293f1a9d87c5d4ab4ca3a39ba8c32d
+  opentelemetry-api (1.11.1) sha256=d07f9987ea6240b3fd5ed5dd7450f93c58e403e0553e804069c23ae18ba61ff7
   os (1.1.4) sha256=57816d6a334e7bd6aed048f4b0308226c5fb027433b67d90a9ab435f35108d3f
   ostruct (0.6.3) sha256=95a2ed4a4bd1d190784e666b47b2d3f078e4a9efda2fccf18f84ddc6538ed912
   packs-rails (0.1.1) sha256=eac5642c81b326988d4d6d18c627a59b9749ba8ece2c48b0f4217365feff94b6
@@ -796,6 +807,7 @@ CHECKSUMS
   solid_queue (1.7.0) sha256=6566b70b801d1c317c81bba7bcdd5677c019afac584a30374b4164002ca356d3
   sorbet-runtime (0.6.13602) sha256=a6738fe7b6f22253a32a65ccdcafc2ff0d48dcfcc8df3b1f19c11471bacdd4ac
   sshkit (1.25.1) sha256=be3f10b9d6eb0b44d5eaba3f7cbe41bc6bb894bce4339688ac20124391455b78
+  standardwebhooks (1.1.0) sha256=356ba711c14def4fb27310e4163b26bd5cccf325212c3440cabadd825e4be11f
   stimulus-rails (1.3.4) sha256=765676ffa1f33af64ce026d26b48e8ffb2e0b94e0f50e9119e11d6107d67cb06
   strong_migrations (2.8.0) sha256=cb9c0f8160e60f3e9c0e76098d57a6f61825b9618e8eb41cebbd1c1079874439
   terminal-table (4.0.0) sha256=f504793203f8251b2ea7c7068333053f0beeea26093ec9962e62ea79f94301d2

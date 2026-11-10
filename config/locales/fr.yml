@@ -535,6 +535,41 @@ fr:
         once: "Une complétion n'est enregistrée qu'une fois : une carte échangée puis récupérée ne complète rien de nouveau. Votre profil compte les sets que vous possédez complets en ce moment."
   back_office:
     release_notes:
+      assistant:
+        heading: "Aide de Claude"
+        condense: "Condenser avec Claude"
+        condensing: "Claude relit les commits…"
+        translate: "Traduire en anglais"
+        translating: "Claude traduit…"
+        hint: "CONDENSER relit les commits de la version et propose une note plus courte, à vérifier commit par commit avant de l'utiliser. TRADUIRE remplit l'anglais depuis le français. Rien n'est enregistré tant que vous n'enregistrez pas."
+        no_key: "L'aide de Claude est désactivée : la clé de l'API Claude (ANTHROPIC_API_KEY) n'est pas configurée."
+        translated: "L'anglais est rempli depuis le français. Relisez-le, puis enregistrez."
+        condensed:
+          zero: "Claude n'a reçu aucun commit."
+          one: "Claude a relu %{count} commit. Vérifiez sa proposition ci-dessous."
+          other: "Claude a relu %{count} commits. Vérifiez sa proposition ci-dessous."
+        failures:
+          nothing_to_translate: "Écrivez d'abord le titre ou le texte en français."
+          no_changes: "GitHub n'a donné aucune nouveauté ni correction pour cette version."
+          unavailable: "Claude n'a pas pu répondre. Réessayez dans un instant, les champs n'ont pas changé."
+      review:
+        heading: "Proposition de Claude"
+        summary:
+          zero: "Aucun commit à relire."
+          one: "%{count} commit : repris %{kept}, écartés %{dropped}, oubliés %{forgotten}."
+          other: "%{count} commits : repris %{kept}, écartés %{dropped}, oubliés %{forgotten}."
+        proposal: "Note proposée"
+        sources: "Commits de la version"
+        apply: "Utiliser cette proposition"
+        apply_hint: "Remplace le titre et le texte français. Traduisez ensuite en anglais, puis enregistrez."
+        too_long: "La proposition dépasse %{length} caractères : raccourcissez-la après l'avoir utilisée."
+        statuses:
+          kept:
+            zero: "Repris"
+            one: "Repris ligne %{lines}"
+            other: "Repris lignes %{lines}"
+          dropped: "Écarté : %{reason}"
+          forgotten: "Oublié par Claude : à vérifier"
       create:
         created: "La note est créée, préremplie avec %{features} nouveautés et %{fixes} corrections tirées des commits entre %{since} et %{head}. Réécrivez-les pour les joueurs."
         created_blank: "La note est créée. GitHub n'a pas donné les commits de la version : écrivez-la de zéro."
@@ -951,7 +986,17 @@ fr:
         import_active: "Un import Steam n'est pas fini, officier. Laisse-le finir ou reprends-le, ou abandonne-le s'il s'est interrompu, avant de publier la saison."
         import_awaiting_promotion: "Un import Steam terminé t'attend, officier. Ouvre-le et promeus ses cartes dans le brouillon, ou jette-les, avant de publier la saison."
     roadmaps:
+      translate:
+        nothing: "Chaque ligne a déjà son anglais : rien à traduire."
+        unavailable: "Claude n'a pas pu répondre. Réessayez dans un instant, les champs n'ont pas changé."
+        translated:
+          zero: "Claude n'a traduit aucune ligne."
+          one: "Claude a traduit %{count} ligne. Relisez-la, puis enregistrez."
+          other: "Claude a traduit %{count} lignes. Relisez-les, puis enregistrez."
       show:
+        translate: "Traduire en anglais les lignes vides"
+        translating: "Claude traduit…"
+        translate_hint: "Claude remplit l'anglais de chaque ligne qui n'en a pas, depuis le français. Relisez, puis enregistrez."
         heading: "La feuille de route"
         intro: "Chaque étape de la feuille de route de l'accueil et les histoires dessous, dans un seul formulaire. Modifie, ajoute, déplace et retire des lignes, puis enregistre le tout d'un coup ; rien ne change sur le site avant. L'ordre des lignes est l'ordre sur l'accueil et sur la page de la feuille de route."
         preview_heading: "Sur la page d'accueil"

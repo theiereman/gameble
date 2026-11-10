@@ -1,0 +1,56 @@
+<section class="stack release-note-review" aria-labelledby="release-note-review-heading">
+  <h3 id="release-note-review-heading"><%= t("back_office.release_notes.review.heading") %></h3>
+  <p data-release-note-review-summary>
+    <%= t("back_office.release_notes.review.summary", count: condensed.sources.size, kept: condensed.reviews.count(&:kept?),
+          dropped: condensed.reviews.count(&:dropped?), forgotten: condensed.forgotten.size) %>
+  </p>
+
+  <div class="release-note-review__columns">
+    <div class="stack">
+      <h4><%= t("back_office.release_notes.review.proposal") %></h4>
+      <p class="release-note-review__title"><%= condensed.title %></p>
+      <% if condensed.intro.present? %><p><%= condensed.intro %></p><% end %>
+      <ol class="release-note-review__lines">
+        <% condensed.lines.each do |line| %>
+          <li class="release-note-review__line release-note-review__line--<%= line.section %>" data-release-note-line="<%= line.number %>">
+            <span class="release-note-review__number"><%= line.number %></span>
+            <span><%= line.text %>
+              <span class="release-note-review__meta"><%= t("release_notes.sections.#{line.section}") %> · <%= line.sources.map(&:id).join(", ") %><% if line.credits.any? %> · <%= line.credits.map { "@#{it}" }.join(", ") %><% end %></span>
+            </span>
+          </li>
+        <% end %>
+      </ol>
+      <% unless condensed.fitting? %>
+        <p class="release-note-review__warning" role="alert"><%= t("back_office.release_notes.review.too_long", length: Accounts::ReleaseNote::BODY_LENGTH) %></p>
+      <% end %>
+      <p>
+        <button type="button" class="button button--primary button--small" data-action="release-note-editor#apply"
+          data-release-note-editor-title-param="<%= condensed.title %>" data-release-note-editor-body-param="<%= condensed.body %>"><%= t("back_office.release_notes.review.apply") %></button>
+      </p>
+      <p class="ban-form__hint"><%= t("back_office.release_notes.review.apply_hint") %></p>
+    </div>
+
+    <div class="stack">
+      <h4><%= t("back_office.release_notes.review.sources") %></h4>
+      <ul class="release-note-review__sources">
+        <% condensed.reviews.each do |review| %>
+          <% status = review.kept? ? :kept : (review.dropped? ? :dropped : :forgotten) %>
+          <li class="release-note-review__source release-note-review__source--<%= status %>" data-release-note-source="<%= status %>">
+            <span class="release-note-review__id"><%= review.source.id %></span>
+            <span><%= review.source.change.subject %>
+              <span class="release-note-review__meta">
+                <% if review.kept? %>
+                  <%= t("back_office.release_notes.review.statuses.kept", count: review.lines.size, lines: review.lines.join(", ")) %>
+                <% elsif review.dropped? %>
+                  <%= t("back_office.release_notes.review.statuses.dropped", reason: review.reason) %>
+                <% else %>
+                  <%= t("back_office.release_notes.review.statuses.forgotten") %>
+                <% end %>
+              </span>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</section>

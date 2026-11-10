@@ -179,6 +179,7 @@ Before the first production deploy:
      | `SENTRY_DSN` | the same as staging's |
      | `STEAM_API_KEY` | the same as staging's |
      | `CLERK_SECRET_KEY` | the secret key of the Clerk **production** instance (Clerk dashboard → API keys); never the development one |
+     | `ANTHROPIC_API_KEY` | a repository secret shared with staging: the Claude API key of the release-note and roadmap editors (docs/operations.md, Claude API); optional |
      | `DISCORD_WEBHOOK_PRODUCTION` | the webhook of the production announcement channel |
 
    `CLERK_SECRET_KEY` is the production instance's, unlike staging's, which is the development instance's (docs/operations.md, Clerk); the production publishable key is in `config/deploy.production.yml`, and the Clerk dashboard's allowed URLs for https://gameble.net must be checked once.

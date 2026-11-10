@@ -1,0 +1,3 @@
+<%# locals: (name:, dom:, value:, failure:) %>
+<%= text_field_tag "#{name}[wording_en]", value, id: "#{dom}-wording-en", class: "ban-form__field", lang: "en",
+      maxlength: Catalog::RoadmapWording::LENGTH, autocomplete: "off", aria: { invalid: (failure ? "true" : nil) } %>
