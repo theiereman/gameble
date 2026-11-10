@@ -3,7 +3,7 @@ title: 'A bidder follows MES ENCHÈRES'
 type: 'feature'
 ticket: '39.10'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: 'c38e74f58ede0041b64a02d0b1d838c2bbd16332'
 route: ''
 route_source: ''
@@ -106,6 +106,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10, approver (one round): status set to `ready-for-dev`, no change needed. Checked: the reader selects only the viewer's own `MAX(maximum)` and `leader_id` for the status, never `leader_maximum`; the focus parameter reuses the region's existing `data-focus-name="field"` and writes nothing.
 
 ## Review Triage Log
 

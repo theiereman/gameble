@@ -3,7 +3,7 @@ title: 'A seller follows MES VENTES, cancels and relists'
 type: 'feature'
 ticket: '39.9'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: 'c38e74f58ede0041b64a02d0b1d838c2bbd16332'
 route: ''
 route_source: ''
@@ -97,7 +97,7 @@ context:
 - [ ] `app/domains/game/app/operations/game/market/close_auction.rb` -- include the module, delete its private copy -- no duplicate
 - [ ] `app/domains/game/app/events/game/market/listing_cancelled.rb` -- the event class, empty like its siblings
 - [ ] `app/domains/game/app/operations/game/market/cancel_listing.rb` -- the operation as stated, with the Success value the listing -- the write
-- [ ] `app/domains/game/app/queries/game/market/seller_listings.rb` -- rows and groups as stated, one query per fact (listings, cards, received, free copies, latest-per-edition), no N+1 -- the screen's only reader
+- [ ] `app/domains/game/app/queries/game/market/seller_listings.rb` -- rows and groups as stated, one query per fact (listings, cards, received, free copies, latest-per-edition), no N+1; the end of a cancelled or withdrawn row, for its window, order and `Fin`, is its `updated_at` (its `ends_at` may still lie ahead and nothing writes it afterwards), with no upper bound on the window; a listing whose card view cannot be built is left out -- the screen's only reader
 - [ ] `config/routes.rb` -- `get "market/my-sales"` and `post "market/listings/:token/cancellation"` beside the market routes -- addresses
 - [ ] `app/policies/market/my_sale_policy.rb`, `app/policies/market/cancellation_policy.rb` -- `show?` is `player?`; `create?` is `player? && record.seller.id == player.id` -- Pundit for both actions
 - [ ] `app/controllers/market/my_sales_controller.rb` -- `show` reads `SellerListings`, passes `params[:landing]` through as a plain string -- the screen
@@ -114,8 +114,9 @@ context:
 - [ ] `config/locales/en.yml`, `fr.yml` -- `market.chips.sales`, `market.my_sales.*` (heading, groups, labels, empty lines, received, no-bid note), `market.rows.status.*`, `market.cancellations.*` (dialog texts, buttons, notice, throttle), `errors.game.bid_standing`, with the Copy deck's French and an English equivalent -- the text
 - [ ] `test/domains/game/market/cancel_listing_test.rb` -- cancel releases `reserved`, writes no ledger entry and publishes the event; cancel while closed; refused with a leader (also a removed one), after the end, when not open, for another seller and unknown id; a bid placed first refuses (`PlaceBid` then `CancelListing`); a race of `PlaceBid` and `CancelListing` ends with either a leader and an open listing or a cancelled listing and no hold, ledger reconciled; the stamp is not refunded -- the operation
 - [ ] `test/domains/game/market/close_auction_test.rb` -- the existing unsold and withdrawn cases still release `reserved` once -- the extraction
-- [ ] `test/domains/game/market/seller_listings_test.rb` -- groups and order, the 30-day and 100-row bounds, `received` equal to the seller's ledger rows and none for others, `can_cancel` rules, the relist offer (latest of the edition only, free copy needed, prefill values), no other player's data -- the reader
+- [ ] `test/domains/game/market/seller_listings_test.rb` -- groups and order, the 30-day and 100-row bounds (a listing cancelled with its `ends_at` still ahead is in `ended`, dated by its cancel), `received` equal to the seller's ledger rows and none for others, `can_cancel` rules, the relist offer (latest of the edition only, free copy needed, prefill values), no other player's data -- the reader
 - [ ] `test/controllers/market/cancellations_controller_test.rb` -- visitor `sign_in_required`, other player forbidden, unknown token 404, success redirect and notice for both origins, refusal alert texts in English and French, the throttle, allow-listed `return_to`, no database id in the redirect -- controller rules
+- [ ] `test/controllers/market/listings_controller_test.rb` -- the Annonce draws ANNULER and its dialog (`return_to` annonce) only for the seller of an open, leaderless, not-due listing; not with a leader, not once ended or due, not for another player or a visitor -- the Annonce's own ANNULER
 - [ ] `test/controllers/market/my_sales_controller_test.rb` -- visitor refused, rows and chips, ANNULER only on cancellable rows with its dialog, REMETTRE link parameters, empty state, `landing` written as a value, chips on the market screen (links for a player, greyed for a visitor) -- the screen
 - [ ] `test/policies/market/my_sale_policy_test.rb`, `cancellation_policy_test.rb` -- visitor, other player, seller
 - [ ] `test/components/market_row_component_test.rb` -- chip words and tones, title link before the action, accessible names, no `style` attribute
@@ -131,6 +132,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10, approver (one round): status set to `ready-for-dev`. Body only, except one reading of the frozen block that would otherwise draw wrong code: "the end of an ended listing (`sold_at`, else `ends_at`)" and the 30-day window read `updated_at` for a cancelled or withdrawn row, because a listing cancelled before its end keeps a future `ends_at` and would show a future `Fin` and sort first. Also added the Annonce ANNULER controller tests the acceptance criteria rely on. Lock order (bank, listing, holding), refusals and tokens checked against `PlaceBid`, `CloseAuction` and `ListCard`: no cycle.
 
 ## Review Triage Log
 

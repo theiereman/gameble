@@ -3,7 +3,7 @@ title: 'A suspended market stays readable'
 type: 'feature'
 ticket: '39.11'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: 'c38e74f58ede0041b64a02d0b1d838c2bbd16332'
 route: ''
 route_source: ''
@@ -93,6 +93,7 @@ context:
 - [ ] `app/views/market/bids/_region.html.erb` -- `suspended:` local; for a viewer with a sheet and a suspended market render `_suspended_form` instead of the live form and dialogs; seller, visitor and outcome branches unchanged -- the Annonce's state
 - [ ] `app/views/market/bids/_suspended_form.html.erb` -- disabled field, minimum line, disabled `ENCHÉRIR`/`RELEVER`, disabled `ACHETER MAINTENANT` when a buy-now exists, all described by the banner, the refusal line when given -- the disabled form
 - [ ] `app/views/market/bids/create.turbo_stream.erb` -- also `turbo_stream.update "annonce-suspension"` with the banner when suspended, empty otherwise -- the closing-under-the-form case
+- [ ] `app/controllers/market/my_sales_controller.rb`, `my_bids_controller.rb` -- set `@suspended` from `MarketState#suspended?` for the banner and the disabled actions -- the state the two lists read
 - [ ] `app/views/market/my_sales/_group.html.erb`, `app/views/market/my_bids/_group.html.erb`, their `show.html.erb`, `app/helpers/market_rows_helper.rb` -- banner when suspended; REMETTRE EN VENTE and RELEVER disabled and described, ANNULER untouched -- the two lists
 - [ ] `app/frontend/styles/market-suspended.css`, `market-bid.css`, `market-rows.css` -- disabled field and button tokens, the banner's spacing above each screen -- the look
 - [ ] `config/locales/en.yml`, `fr.yml` -- only if a disabled control needs a new line; the banner and `errors.game.market_closed` exist -- text
@@ -116,6 +117,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10, approver (one round): status set to `ready-for-dev`, frozen block untouched. Body only: the two list controllers now carry the suspended state in the task list (the Code Map named them, the tasks did not). The stream answer keeps `PlaceBid`'s `market_closed` refusal as the only rule; `BidSheet` does not read the open flag, so the disabled form is drawn for the same viewers as the live one.
 
 ## Review Triage Log
 
