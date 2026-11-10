@@ -3,6 +3,7 @@
   <header class="market-entrust__header">
     <p class="market-entrust__kicker"><%= t(".kicker") %></p>
     <h1 id="market-entrust-result-heading" class="market-entrust__title"><%= t(".heading") %></h1>
+    <%= render "shell/balance_chip", placement: :header %>
   </header>
   <%= render PanelComponent.new(brackets: true, class: "market-entrust__result") do %>
     <p class="market-entrust__total"><%= t(".minted_html", amount: render(PicoinAmountComponent.new(amount: @entrusted.minted, size: :large))) %></p>

@@ -5,6 +5,7 @@
     <p class="market-entrust__kicker"><%= t(".kicker") %></p>
     <h1 id="market-entrust-heading" class="market-entrust__title"><%= t(".heading") %></h1>
     <p class="market-entrust__intro"><%= t(".intro") %></p>
+    <%= render "shell/balance_chip", placement: :header %>
   </header>
 
   <% if current_player.nil? %>
