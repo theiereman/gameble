@@ -20,20 +20,11 @@ class CardBacksHelperTest < ActionView::TestCase
     I18n.with_locale(:en) { assert_equal [ "Given to every player", "when you signed up" ], strip(row("standard")) }
   end
 
-  test "an event back says who it was given to and when, and a past one that it is over" do
-    unlocked_at = Time.zone.local(2026, 10, 1, 12)
-
+  test "a base back in another colour is given to every player as well" do
     I18n.with_locale(:fr) do
-      assert_equal [ "Offert aux joueurs de la saison 1", "le 1er octobre 2026" ], strip(row("saison-1", unlocked_at:))
-      assert_equal "Offert aux participants des Soldes d'hiver", card_back_sentence(row("soldes-hiver", unlocked_at:))
-      assert_equal "Offert aux participants du Millésime 2017", card_back_sentence(row("millesime-2017", unlocked_at:))
-      assert_equal [ "Événement terminé", nil ], strip(row("millesime-2017", state: :locked))
-      assert_equal "Millésime 2017, verrouillé. Événement terminé.", card_back_label(row("millesime-2017", state: :locked))
+      assert_equal "Améthyste, débloqué. Offert à tous les joueurs, à l'inscription. Équiper.", card_back_label(row("amethyste"))
     end
-    I18n.with_locale(:en) do
-      assert_equal [ "Given to the players of season 1", "on October 1, 2026" ], strip(row("saison-1", unlocked_at:))
-      assert_equal "Event over", card_back_sentence(row("soldes-hiver", state: :locked))
-    end
+    I18n.with_locale(:en) { assert_equal "Given to every player", card_back_sentence(row("argent")) }
   end
 
   test "an achievement back names the achievement and its condition, earned or to earn" do

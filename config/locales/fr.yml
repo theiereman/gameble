@@ -1343,18 +1343,18 @@ fr:
     conditions:
       achievement: "Débloquez le succès correspondant."
       always: "Tous les joueurs l'ont."
-      event: "Offert à celles et ceux qui ont participé à l'événement."
       set_tier: "Réunissez la moitié du set %{set}."
     names:
+      amethyste: "Améthyste"
+      argent: "Argent"
       assidu: "Assidu"
       aurore: "Aurore"
       centurion: "Centurion"
       contrat: "Contrat"
+      emeraude: "Émeraude"
       etoile-dor: "Étoile d'or"
-      millesime-2017: "Millésime 2017"
-      saison-1: "Saison 1"
+      rubis: "Rubis"
       siege-social: "Siège social"
-      soldes-hiver: "Soldes d'hiver"
       standard: "Standard"
       trefle-fane: "Trèfle fané"
     unlocked:
@@ -1370,7 +1370,7 @@ fr:
           other: "débloqués"
         marks: "Marque de saison"
         groups:
-          base: "De base et événements"
+          base: "De base"
           achievement: "Succès"
           theme: "Sets · Thèmes"
           hall_of_fame: "Sets · Palmarès"
@@ -1387,10 +1387,6 @@ fr:
         label_to_equip: "%{label} Équiper."
         earned:
           always: "Offert à tous les joueurs"
-          events:
-            saison-1: "Offert aux joueurs de la saison 1"
-            millesime-2017: "Offert aux participants du Millésime 2017"
-            soldes-hiver: "Offert aux participants des Soldes d'hiver"
           achievement: "Gagné avec le succès %{name} · %{condition}"
           set: "Gagné au palier %{tier} du set %{set} · %{seasons}"
           set_any: "Gagné avec le set %{set}"
@@ -1398,7 +1394,6 @@ fr:
           achievement: "Débloquez le succès %{name} · %{condition}"
           set: "Atteignez la moitié du set %{set}"
           set_absent: "Set absent de la saison en cours"
-          event: "Événement terminé"
         seasons:
           zero: "aucune saison"
           one: "saison %{list}"

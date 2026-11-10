@@ -31,6 +31,7 @@ import { fileURLToPath } from "node:url"
 import { deflateSync, inflateSync } from "node:zlib"
 import { SET_BACK_DESIGNS, drawSetBack, setBackName } from "./set_backs.mjs"
 import { NAMED_BACK_DESIGNS } from "./named_backs.mjs"
+import { baseBackDesigns } from "./base_backs.mjs"
 import { EMBLEM_SIZE, ORIGIN_LOOKS, drawEmblem, originBodyFile } from "./origin_canisters.mjs"
 import { NEBULA_HEIGHT, NEBULA_WIDTH, drawNebula } from "./nebula.mjs"
 import { BACK_OFFICE_ICONS } from "./back_office_icons.mjs"
@@ -1366,9 +1367,9 @@ function faviconPng() {
   return g
 }
 
-// The standard back, the one every player starts with; the set backs'
-// anatomy is drawn after it.
-function standardBack(w, h) {
+// A base back, the standard back's drawing in one set of tones
+// (base_backs.mjs); the set backs' anatomy is drawn after it.
+function baseBack(w, h, tones) {
   const g = canvas(w, h)
   const P = (x, y, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), 1, 1) }
   const F = (x, y, ww, hh, col) => { g.fillStyle = col; g.fillRect(x, y, ww, hh) }
@@ -1380,33 +1381,33 @@ function standardBack(w, h) {
       for (let i = 0; i < L; i++) { P(x + i * sx, y, col); P(x, y + i * sy, col) }
     }
   }
-  F(0, 0, w, h, "#2a475e"); F(0, 0, w, 1, "#3d6c8c"); F(0, 0, 1, h, "#3d6c8c"); F(0, h - 1, w, 1, "#142636"); F(w - 1, 0, 1, h, "#142636")
+  F(0, 0, w, h, tones.frame); F(0, 0, w, 1, tones.light); F(0, 0, 1, h, tones.light); F(0, h - 1, w, 1, tones.shadow); F(w - 1, 0, 1, h, tones.shadow)
   F(1, 1, w - 2, h - 2, "#1b2838"); F(2, 2, w - 4, h - 4, "#0e141b")
   for (let y = 3; y < h - 3; y++) {
     for (let x = 3; x < w - 3; x++) {
-      const t = y / h, base = mixc("#152131", "#0d141d", t), alt = mixc("#1a2738", "#111a25", t)
+      const t = y / h, base = mixc(...tones.weave, t), alt = mixc(...tones.weaveAlt, t)
       P(x, y, ((x + y) >> 1) % 3 === 0 ? alt : base)
     }
   }
-  inner("#1f3346"); brackets("#66c0f4")
+  inner(tones.inner); brackets(tones.accent)
   const sy = cy - h * 0.04, Rr = w * 0.3
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const d = Math.hypot(x - cx, y - sy)
-      if (d < Rr - 1.2) P(x, y, mixc("#183048", "#0b1119", d / Rr))
-      else if (Math.abs(d - Rr) < 0.62) P(x, y, "#66c0f4")
-      else if (Math.abs(d - (Rr + 5)) < 0.5 && ((x + y) & 1)) P(x, y, "#2a475e")
+      if (d < Rr - 1.2) P(x, y, mixc(tones.disc, "#0b1119", d / Rr))
+      else if (Math.abs(d - Rr) < 0.62) P(x, y, tones.accent)
+      else if (Math.abs(d - (Rr + 5)) < 0.5 && ((x + y) & 1)) P(x, y, tones.frame)
     }
   }
   for (let i = 0; i < 32; i++) {
     const a = i / 32 * Math.PI * 2, bg = i % 8 === 0, r0 = Rr + 2, r1 = Rr + (bg ? 4.2 : 3)
-    for (let r = r0; r <= r1; r += 0.5) P(cx + Math.cos(a) * r, sy + Math.sin(a) * r, bg ? "#f4c542" : "#3d6c8c")
+    for (let r = r0; r <= r1; r += 0.5) P(cx + Math.cos(a) * r, sy + Math.sin(a) * r, bg ? "#f4c542" : tones.light)
   }
   const k = Math.max(1, Math.round(Rr / 11.5))
   drawMonogram(g, Math.round(cx - (MONOGRAM_WIDTH * k - 1) / 2), Math.round(sy - (MONOGRAM_HEIGHT * k - 1) / 2), k)
   const ty = h - b - 12
-  if (w >= 50) { const tx = Math.round((w - ptw("GAMEBLE")) / 2); ptext(g, "GAMEBLE", tx, ty + 1, "#06090d"); ptext(g, "GAMEBLE", tx, ty, "#3d6c8c") }
-  for (let x = b + 4; x < w - b - 4; x += 3) P(x, ty - 4, "#1f3346")
+  if (w >= 50) { const tx = Math.round((w - ptw("GAMEBLE")) / 2); ptext(g, "GAMEBLE", tx, ty + 1, "#06090d"); ptext(g, "GAMEBLE", tx, ty, tones.light) }
+  for (let x = b + 4; x < w - b - 4; x += 3) P(x, ty - 4, tones.inner)
   return g
 }
 
@@ -1564,10 +1565,10 @@ function avatarCanvas(k) {
   return g
 }
 
-// The standard back, drawn for each card size: half of each DESIGN card
+// The base backs, drawn for each card size: half of each DESIGN card
 // size, since one art pixel is 2 CSS px. The drawing depends on the size, so
 // each size is its own file. The named and set backs share these sizes.
-const STANDARD_BACK = { name: "standard", title: "Standard", look: "slate frame, diagonal weave, blue ring with gold ticks, the gold G monogram, GAMEBLE" }
+const BASE_BACK_DESIGNS = baseBackDesigns(mixc)
 const CARD_SIZES = { xs: [100, 150], s: [112, 168], m: [160, 240], l: [208, 312], xl: [240, 360] }
 const AVATARS = { hugo: "blue", lea: "pink", max: "gold", ines: "jade", tom: "orange", sam: "lavender", x1: "grey", x2: "violet" }
 
@@ -1659,7 +1660,9 @@ for (const [name, icon] of Object.entries(BACK_OFFICE_ICONS)) files.set(`office-
 files.set("wordmark-sweep.svg", wordmarkSweepSvg())
 files.set("starfield.svg", starfieldSvg())
 files.set("nebula.png", drawNebula())
-for (const [size, [w, h]] of Object.entries(CARD_SIZES)) files.set(`back-${STANDARD_BACK.name}-${size}.png`, standardBack(w / 2 | 0, h / 2 | 0))
+for (const { name, tones } of BASE_BACK_DESIGNS) {
+  for (const [size, [w, h]] of Object.entries(CARD_SIZES)) files.set(`back-${name}-${size}.png`, baseBack(w / 2 | 0, h / 2 | 0, tones))
+}
 for (const design of NAMED_BACK_DESIGNS) {
   for (const [size, [w, h]] of Object.entries(CARD_SIZES)) {
     const g = canvas(w / 2 | 0, h / 2 | 0)
@@ -1754,7 +1757,7 @@ const DESCRIPTIONS = {
   "menu.svg": "The phone header's menu: profile, settings and the extras (text colour)",
   "starfield.svg": "Star field tile, 480 × 480 CSS px, repeated under the content",
   "nebula.png": `Nebula tile behind the star field: faint blue and violet clouds and a pale band of the galaxy, ${NEBULA_WIDTH} × ${NEBULA_HEIGHT}, drawn at 4 CSS px per pixel`,
-  ...Object.fromEntries([STANDARD_BACK, ...NAMED_BACK_DESIGNS].flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
+  ...Object.fromEntries([...BASE_BACK_DESIGNS, ...NAMED_BACK_DESIGNS].flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${name}-${size}.png`, `${title} back for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
   ...Object.fromEntries(SET_BACK_DESIGNS.flatMap((design) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${setBackName(design)}-${size}.png`, `${design.word} back of the ${design.key} ${design.kind.replace(/_/g, " ")} set for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
@@ -1843,7 +1846,7 @@ function sheetHtml() {
   const item = (file) => `<figure><div class="art">${image(file)}</div><figcaption><code>${escape(file)}</code><span>${escape(DESCRIPTIONS[file])}</span></figcaption></figure>`
   const svgs = [...files.keys()].filter((file) => file.endsWith(".svg"))
   const sizes = Object.keys(CARD_SIZES)
-  const backRows = [STANDARD_BACK, ...NAMED_BACK_DESIGNS].map(({ name, title, look }) =>
+  const backRows = [...BASE_BACK_DESIGNS, ...NAMED_BACK_DESIGNS].map(({ name, title, look }) =>
     `<tr><th scope="row"><b>${escape(title)}</b><span>${escape(look)}</span></th>${sizes.map((size) => `<td>${item(`back-${name}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")
   const setBackRows = SET_BACK_DESIGNS.map((design) =>
     `<tr><th scope="row"><b>${escape(design.word)}</b><span>${escape(`${design.key}, ${design.kind.replace(/_/g, " ")} set`)}</span></th>${sizes.map((size) => `<td>${item(`back-${setBackName(design)}-${size}.png`)}</td>`).join("")}</tr>`).join("\n")

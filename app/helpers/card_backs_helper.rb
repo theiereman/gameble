@@ -73,7 +73,6 @@ module CardBacksHelper
     def card_back_earned(row)
       case row.unlock.kind
       when :always then t("personalizations.show.card_back.earned.always")
-      when :event then t("personalizations.show.card_back.earned.events.#{row.key}")
       when :achievement then t("personalizations.show.card_back.earned.achievement", **achievement_parts(row))
       when :set_tier then earned_by_set(row)
       end
@@ -84,7 +83,6 @@ module CardBacksHelper
       when :achievement then t("personalizations.show.card_back.to_earn.achievement", **achievement_parts(row))
       when :set_tier
         row.progress ? t("personalizations.show.card_back.to_earn.set", set: set_label(row.back)) : t("personalizations.show.card_back.to_earn.set_absent")
-      else t("personalizations.show.card_back.to_earn.event")
       end
     end
 

@@ -30,14 +30,14 @@ module Game
 
     def self.state(back, active:, unlocked:)
       if back.key == active then :active
-      elsif back.key == CardBacks::STANDARD || unlocked.key?(back.key) then :unlocked
+      elsif CardBacks.held_by_everyone?(back) || unlocked.key?(back.key) then :unlocked
       else :locked
       end
     end
 
     def self.group(back)
       case back.unlock.kind
-      when :always, :event then :base
+      when :always then :base
       when :set_tier then back.unlock.target.first.to_sym
       else back.unlock.kind
       end

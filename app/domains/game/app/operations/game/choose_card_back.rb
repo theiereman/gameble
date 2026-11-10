@@ -22,7 +22,7 @@ module Game
     end
 
     def unlocked(player, back)
-      return Success() if back.key == CardBacks::STANDARD
+      return Success() if CardBacks.held_by_everyone?(back)
 
       CardBackUnlock.exists?(player_id: player.id, back: back.key) ? Success() : Failure(:back_locked)
     end

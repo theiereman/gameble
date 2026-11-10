@@ -1,6 +1,7 @@
 module Game
   module CardBacks
     STANDARD = "standard".freeze
+    BASE_KEYS = [ STANDARD, "emeraude", "amethyste", "rubis", "argent" ].freeze
 
     def self.set_key(kind, key) = "set-#{kind}-#{key}"
 
@@ -32,27 +33,27 @@ module Game
       "market_concentration" => "siege-social",
       "a_strictly_professional_relationship" => "contrat"
     }.freeze
-    EVENT_BACK_KEYS = %w[saison-1 millesime-2017 soldes-hiver].freeze
 
     MILESTONE_BACKS = ACHIEVEMENT_BACKS.map do |achievement, key|
       Back.new(key:, asset: "back-#{key}", unlock: Unlock.new(kind: :achievement, target: achievement))
     end.freeze
 
-    EVENT_BACKS = EVENT_BACK_KEYS.map { Back.new(key: it, asset: "back-#{it}", unlock: Unlock.new(kind: :event, target: nil)) }.freeze
+    BASE_BACKS = BASE_KEYS.map { Back.new(key: it, asset: "back-#{it}", unlock: Unlock.new(kind: :always, target: nil)) }.freeze
 
     CATALOGUE = [
-      Back.new(key: STANDARD, asset: "back-#{STANDARD}", unlock: Unlock.new(kind: :always, target: nil)),
+      *BASE_BACKS,
       *SET_BACKS,
-      *MILESTONE_BACKS,
-      *EVENT_BACKS
+      *MILESTONE_BACKS
     ].freeze
 
     BY_KEY = CATALOGUE.index_by(&:key).freeze
     KEYS = BY_KEY.keys.freeze
 
-    ACTIVE_UNLOCKED_SQL = <<~SQL.squish.freeze
-      JOIN game_card_back_unlocks AS unlocks
-        ON unlocks.player_id = game_player_states.player_id AND unlocks.back = game_player_states.active_card_back
+    ACTIVE_HELD_SQL = <<~SQL.squish.freeze
+      game_player_states.active_card_back IN (:base) OR EXISTS (
+        SELECT 1 FROM game_card_back_unlocks AS unlocks
+        WHERE unlocks.player_id = game_player_states.player_id AND unlocks.back = game_player_states.active_card_back
+      )
     SQL
 
     def self.find(key)
@@ -63,8 +64,8 @@ module Game
       find(ACHIEVEMENT_BACKS[achievement.to_s])
     end
 
-    def self.event?(key)
-      find(key)&.unlock&.kind == :event
+    def self.held_by_everyone?(back)
+      back.unlock.kind == :always
     end
 
     def self.active_key(player)
@@ -72,7 +73,7 @@ module Game
     end
 
     def self.active_with_season(player)
-      PlayerState.where(player_id: player.id, active_card_back: KEYS).joins(ACTIVE_UNLOCKED_SQL).pick(:active_card_back, :active_card_back_season) || [ STANDARD, nil ]
+      PlayerState.where(player_id: player.id, active_card_back: KEYS).where(ACTIVE_HELD_SQL, base: BASE_KEYS).pick(:active_card_back, :active_card_back_season) || [ STANDARD, nil ]
     end
   end
 end

@@ -1,35 +1,12 @@
-// The named backs: the ones an event, the weekly goal or an achievement
-// unlocks. Each is drawn on the set backs' anatomy (set_backs.mjs) with the
-// prestige frame, so every back but the standard one shares one look. A design
+// The named backs: the ones an achievement unlocks. Each is drawn on the set
+// backs' anatomy (set_backs.mjs) with the prestige frame, so every back but
+// the base ones shares one look. A design
 // follows the set designs' format (see set_back_designs.mjs) and adds the file
 // name and the title the review sheet shows. Its lettering is the GAMEBLE of
 // the standard back, not a word of its own.
 const LETTERING = "GAMEBLE"
 
 export const NAMED_BACK_DESIGNS = [
-  {
-    kind: "named", name: "saison-1", title: "Saison 1", primary: "#4a7fd6", secondary: "#f4c542",
-    look: "an engraved 1",
-    motif: [
-      ".................",
-      ".................",
-      ".......lhx.......",
-      "......lhxd.......",
-      ".....lxlxd.......",
-      "....lxxlxd.......",
-      ".......lxd.......",
-      ".......lxd.......",
-      ".......lxd.......",
-      ".......lxd.......",
-      ".......lxd.......",
-      ".......lxd.......",
-      ".......lxd.......",
-      ".......lxd.......",
-      ".....lllllll.....",
-      ".....ddddddd.....",
-      ".................",
-    ],
-  },
   {
     kind: "named", name: "etoile-dor", title: "Étoile d'or", primary: "#f4c542", secondary: "#fff3c4",
     look: "a five-point star with a bright heart",
@@ -77,29 +54,6 @@ export const NAMED_BACK_DESIGNS = [
     ],
   },
   {
-    kind: "named", name: "millesime-2017", title: "Millésime 2017", primary: "#c4945e", secondary: "#f4c542",
-    look: "a laurel wreath of leaf pairs round 17 over a blue ribbon",
-    motif: [
-      ".......m.m.......",
-      "....m..M.M..m....",
-      ".....M.....M.....",
-      "..m...........m..",
-      "...M..b..bbb.M...",
-      ".mM..bb....b..Mm.",
-      "......b....b.....",
-      "......b...b......",
-      ".mM...b...b...Mm.",
-      "......b..b.......",
-      ".mM..bbb.b....Mm.",
-      "...M.........M...",
-      "..m...........m..",
-      "....hhhhhhhhh....",
-      "...UuuuuuuuuuU...",
-      "...U...m.m...U...",
-      ".................",
-    ],
-  },
-  {
     kind: "named", name: "centurion", title: "Centurion", primary: "#e06a3a", secondary: "#ffd2a0",
     look: "a plumed legionary helmet",
     motif: [
@@ -119,29 +73,6 @@ export const NAMED_BACK_DESIGNS = [
       "...ggg..g..ggG...",
       "...wgg.....gGG...",
       "....gG.....GG....",
-      ".................",
-    ],
-  },
-  {
-    kind: "named", name: "soldes-hiver", title: "Soldes d'hiver", primary: "#8fcff5", secondary: "#e6eef5",
-    look: "a six-branch snowflake",
-    motif: [
-      ".................",
-      "........w........",
-      "......u.w.u......",
-      "...w...uwu...w...",
-      "....w...w...w....",
-      ".....h..w..w.....",
-      "..u...w.w.w...u..",
-      "...u...hhh...u...",
-      ".wwwwwwhuhwwwwww.",
-      "...u...hhh...u...",
-      "..u...w.w.w...u..",
-      ".....w..w..h.....",
-      "....w...w...w....",
-      "...w...uwu...w...",
-      "......u.w.u......",
-      "........w........",
       ".................",
     ],
   },

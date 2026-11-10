@@ -68,4 +68,3 @@ ignore_unused:
   - "landings.show.unlock.tiles.*"
   # The back picker's group headings and event sentences, named after a back's group or key.
   - "personalizations.show.card_back.groups.*"
-  - "personalizations.show.card_back.earned.events.*"

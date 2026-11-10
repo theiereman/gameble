@@ -32,6 +32,11 @@ class Game::ChooseCardBackTest < ActiveSupport::TestCase
     assert_equal 2, events.size
   end
 
+  test "every base back needs no unlock" do
+    assert choose("emeraude").success?
+    assert_equal "emeraude", Game::CardBacks.active_key(@player)
+  end
+
   test "a back in the catalogue that is not unlocked is refused and writes nothing" do
     assert_no_difference -> { Rails.configuration.event_store.read.count } do
       assert_equal :back_locked, choose("set-theme-horror").failure

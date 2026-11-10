@@ -12,9 +12,9 @@ class Game::CardBacksTest < ActiveSupport::TestCase
   def choose(key, player: @player) = Game::PlayerState.where(player_id: player.id).update_all(active_card_back: key)
   def unlock(key, player: @player) = Game::CardBackUnlock.record(player.id, key, Time.current)
 
-  test "the catalogue holds Standard, which needs no unlock row" do
-    assert_equal "standard", Game::CardBacks::KEYS.first
-    assert_equal :always, Game::CardBacks.find("standard").unlock.kind
+  test "the catalogue opens with the five base backs, Standard first, which need no unlock row" do
+    assert_equal %w[standard emeraude amethyste rubis argent], Game::CardBacks::KEYS.first(5)
+    assert_equal [ :always ], Game::CardBacks::BASE_KEYS.map { Game::CardBacks.find(it).unlock.kind }.uniq
     assert_nil Game::CardBacks.find("unknown")
   end
 
@@ -29,7 +29,7 @@ class Game::CardBacksTest < ActiveSupport::TestCase
     assert_equal "back-hall_of_fame-mal-aimes", back.asset
     assert_equal :set_tier, back.unlock.kind
     assert_equal [ "hall_of_fame", "mal-aimes" ], back.unlock.target
-    assert_equal 1 + 43 + 4 + 7 + 3, Game::CardBacks::KEYS.size
+    assert_equal 5 + 43 + 4 + 7, Game::CardBacks::KEYS.size
   end
 
   test "every back has its image in the five card sizes" do
@@ -57,6 +57,12 @@ class Game::CardBacksTest < ActiveSupport::TestCase
     assert_equal "aurore", key
   end
 
+  test "a chosen base back is the active one without an unlock row" do
+    choose("rubis")
+
+    assert_equal "rubis", Game::CardBacks.active_key(@player)
+  end
+
   test "a chosen back that is not unlocked falls back to Standard" do
     choose("aurore")
 
@@ -64,8 +70,8 @@ class Game::CardBacksTest < ActiveSupport::TestCase
   end
 
   test "a chosen back since retired from the catalogue falls back to Standard, its unlock kept" do
-    unlock("retired")
-    choose("retired")
+    unlock("saison-1")
+    choose("saison-1")
 
     assert_equal "standard", Game::CardBacks.active_key(@player)
     assert_equal :active, Game::CardBackShelf.call(@player).find { it.key == "standard" }.state

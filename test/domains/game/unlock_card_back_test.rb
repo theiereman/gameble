@@ -49,8 +49,9 @@ class Game::UnlockCardBackTest < ActiveSupport::TestCase
     assert_equal [ true ], game_events(@player, Game::CardBackUnlocked).map { it.data[:retroactive] }
   end
 
-  test "Standard needs no row and an unknown back is refused" do
+  test "a base back needs no row and an unknown back is refused" do
     assert_equal :already_unlocked, unlock("standard").failure
+    assert_equal :already_unlocked, unlock("rubis").failure
     assert_equal :unknown_back, unlock("nowhere").failure
     assert_empty unlocked
     assert_empty game_events(@player, Game::CardBackUnlocked)

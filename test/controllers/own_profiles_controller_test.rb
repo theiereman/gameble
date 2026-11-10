@@ -116,7 +116,7 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get me_path(locale: :en)
 
-    assert_equal %w[set-theme-rpg standard], css_select("template[data-me-target=back]").map { it["data-key"] }.sort
+    assert_equal %w[amethyste argent emeraude rubis set-theme-rpg standard], css_select("template[data-me-target=back]").map { it["data-key"] }.sort
     rpg = css_select("template[data-me-target=back][data-key='set-theme-rpg']").sole
     assert_equal "RPG", rpg.at_css(".me-opener__value").text
   end

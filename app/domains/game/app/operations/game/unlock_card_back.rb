@@ -17,7 +17,7 @@ module Game
       back = CardBacks.find(key)
       return Failure(:unknown_back) unless back
 
-      back.key == CardBacks::STANDARD ? Failure(:already_unlocked) : Success(back)
+      CardBacks.held_by_everyone?(back) ? Failure(:already_unlocked) : Success(back)
     end
 
     def unlock(player, back)
