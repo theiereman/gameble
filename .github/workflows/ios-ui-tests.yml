@@ -1,0 +1,50 @@
+name: iOS UI tests
+
+# Drives the app in a simulator against a local page that stands in for the site, to check native gestures.
+on:
+  push:
+    paths: [ "mobile/ios/**", ".github/workflows/ios-ui-tests.yml" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ui-tests:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Serve the stand-in site
+        run: |
+          nohup python3 mobile/ios/ui-test-server/server.py public/configurations/ios_v1.json > server.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:3000/en | head -c 200
+
+      - name: Generate the Xcode project
+        working-directory: mobile/ios
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Run the UI tests on an iPhone simulator
+        working-directory: mobile/ios
+        run: |
+          DEVICE="$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(x["udid"] for r in sorted(d, reverse=True) if "iOS" in r for x in d[r] if x["name"].startswith("iPhone")))')"
+          echo "simulator $DEVICE"
+          xcodebuild test -project Gameble.xcodeproj -scheme Gameble -configuration Debug \
+            -destination "id=$DEVICE" -resultBundlePath "$RUNNER_TEMP/ui-tests.xcresult" CODE_SIGNING_ALLOWED=NO 2>&1 \
+            | grep -E "Test Case|error|failed|passed|pull console|XCTAssert" || true
+          test "${PIPESTATUS[0]}" -eq 0
+
+      - name: What the stand-in site served
+        if: always()
+        run: cat server.log
+
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ui-tests
+          path: ${{ runner.temp }}/ui-tests.xcresult
