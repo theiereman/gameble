@@ -3,7 +3,7 @@ title: "The Archives' stocks are summed every hour"
 type: 'feature'
 ticket: '12'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: 'f7f4f3d2183e8f913b76e70bed07fa8b99192a20'
 route: 'full'
 route_source: 'auto'
@@ -78,6 +78,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10 review: no defect found against the plan, spec and AGENTS.md; no code change. Bundler could not load in the worktree, so rubocop and packwerk were not run; ruby -c, check_planning_references and check_file_sizes are clean.
 
 ## Review Triage Log
 
