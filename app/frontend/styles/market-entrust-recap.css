@@ -1,0 +1,137 @@
+.entrust-recap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+@media (min-width: 720px) {
+  .entrust-recap {
+    position: sticky;
+    top: var(--space-5);
+  }
+}
+
+.entrust-recap__heading {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.entrust-recap__prompt,
+.entrust-recap__over,
+.entrust-recap__full,
+.entrust-recap__sentence,
+.entrust-recap__cap-text {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body-small);
+}
+
+.entrust-recap__prompt[hidden],
+.entrust-recap__lines[hidden],
+.entrust-recap__over[hidden],
+.entrust-recap__full[hidden],
+.entrust-recap__rare[hidden],
+.entrust-recap__stays[hidden] {
+  display: none;
+}
+
+.entrust-recap__refusal {
+  margin: 0;
+  padding: var(--space-3);
+  border-left: 4px solid var(--color-alert);
+  background: var(--color-panel-sunken);
+  color: var(--color-text-bright);
+  font: var(--font-body-small);
+}
+
+.entrust-recap__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entrust-recap__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  padding-left: var(--space-3);
+  border-left: 4px solid transparent;
+  color: var(--color-text);
+  font: var(--font-body-small);
+}
+
+.entrust-recap__line[data-state="stays"],
+.entrust-recap__line[data-state="partial"] {
+  border-left-color: var(--color-alert);
+}
+
+.entrust-recap__name {
+  color: var(--color-text-bright);
+  font-weight: 700;
+}
+
+.entrust-recap__count {
+  color: var(--color-muted);
+}
+
+.entrust-recap__amount {
+  margin-left: auto;
+  color: var(--color-gold);
+}
+
+.entrust-recap__stays {
+  flex-basis: 100%;
+  color: var(--color-alert);
+}
+
+.entrust-recap__over {
+  color: var(--color-alert);
+}
+
+.entrust-recap__total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--color-gold);
+}
+
+.entrust-recap__total-label,
+.entrust-recap__cap-label {
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.entrust-recap__cap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.entrust-recap__full {
+  color: var(--color-alert);
+  font-weight: 700;
+}
+
+.entrust-recap__rare {
+  margin: 0;
+  padding: var(--space-3);
+  background: var(--color-panel-sunken);
+  color: var(--color-text-bright);
+  font: var(--font-body-small);
+}
+
+.entrust-recap__submit .button {
+  width: 100%;
+}

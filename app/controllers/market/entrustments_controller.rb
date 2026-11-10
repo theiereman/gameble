@@ -18,7 +18,7 @@ module Market
         @entrusted = result.value!
         @stayed_names = Game::Market::CardNames.call(@entrusted.stayed.map(&:card_season_id))
       else
-        flash.now[:alert] = Game::Market::EntrustCards.failure_message(result.failure)
+        @refusal = Game::Market::EntrustCards.failure_message(result.failure)
         load_page
         render :new, status: :unprocessable_content
       end
@@ -29,7 +29,17 @@ module Market
         @settings = Game::Market::CurrentSettings.call
         @open = @settings&.open.present?
         @copies = current_player && @settings ? Game::Market::EntrustableCopies.call(current_player, settings: @settings) : []
-        @ticked = ticked
+        @cap_left = current_player && @settings ? Game::Market::CapLeft.call(current_player.id, settings: @settings) : 0
+        @ticked = ticked_on(@copies)
+      end
+
+      # What was posted, kept to the copies still free on the redrawn list.
+      def ticked_on(copies)
+        posted = ticked
+        copies.filter_map do |copy|
+          count = [ Integer(posted[copy.ref], exception: false).to_i, copy.free ].min
+          [ copy.ref, count ] if count.positive?
+        end.to_h
       end
 
       # The order of the page's copies; a ticked ref that is no longer a free copy goes last, for the operation to refuse.

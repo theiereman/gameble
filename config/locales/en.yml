@@ -2210,20 +2210,63 @@ en:
             other: "%{title}, season %{season}: %{count} copies stay in your collection (%{amount} each)"
         throttled: Slow down, the Archives are counting. Try again in a minute.
       new:
+        cap_full: Your daily cap is reached. It renews at 00:00 UTC.
+        cap_label: Daily cap
+        clear_filters: Clear filters
         closed: The market is closed for now. Nothing can be entrusted until it reopens.
         closed_action: Back to the market
+        doubles: Doubles
         empty: No card to entrust.
         empty_action: Open capsules
+        filters_active: Active filters
+        filters_legend: Filter by rarity or by doubles
         free:
           one: "%{count} free copy"
           other: "%{count} free copies"
+        grid_label: Your editions to entrust
         heading: Entrust to the Brotherhood
-        intro: Give your spare copies to the Archives. The 100-6-Tron mints their value in PiCoins and credits it at once.
+        intro: Choose the cards to entrust to the Brotherhood. Each copy earns you PiCoins.
+        keys_hint: "Arrow keys move between cards, Space or Enter ticks, + and - change the copies."
         kicker: The Archives
+        no_match: No edition matches these filters.
+        not_returned: Entrusted cards are not given back.
+        prompt: Tick the cards to entrust.
+        receive: You receive
+        recap: Summary
+        search_label: Search your editions
+        search_placeholder: Search a game
         season: "Season %{number}"
         sign_in: Sign in to entrust cards to the Brotherhood.
         sign_in_action: Sign in
-        submit: Entrust
+      strings:
+        amount: "%{amount} PiCoins"
+        cap_text: "%{used} of %{left} left today"
+        count: "×%{count}"
+        line: "%{title}, season %{season}"
+        max: of %{max}
+        max_phone: "/%{max}"
+        over_cap:
+          one: "%{count} copy will exceed your daily cap and stay in your collection: %{cards}."
+          other: "%{count} copies will exceed your daily cap and stay in your collection: %{cards}."
+          zero: Nothing exceeds your daily cap.
+        quantity_label: Copies of %{title} to entrust
+        rare_note:
+          one: "Note: %{count} copy of Rare or better, %{cards}."
+          other: "Note: %{count} copies of Rare or better, %{cards}."
+          zero: No copy of Rare or better.
+        stays:
+          one: "%{count} stays"
+          other: "%{count} stay"
+          zero: None stays
+        status:
+          one: "%{count} copy, %{amount}"
+          other: "%{count} copies, %{amount}"
+          zero: "No copy, %{amount}"
+        submit:
+          one: Entrust 1 copy
+          other: Entrust %{count} copies
+          zero: Entrust
+        value_text: "%{count} of %{max}"
   markets:
     show:
       closing: No date is being communicated at this stage. Management thanks you for your patience, which remains free of charge to this day.
