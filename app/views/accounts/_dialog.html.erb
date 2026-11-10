@@ -1,3 +1,4 @@
+<%# locals: (deletion_note:) %>
 <% word = t("accounts.dialog.word") %>
 <dialog id="delete-dialog" class="modal delete-dialog" aria-labelledby="delete-dialog-title" data-controller="dialog" data-action="click->dialog#closeOnScrim">
   <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
@@ -11,11 +12,14 @@
     <%= form_with url: account_path, method: :delete, class: "delete-dialog__form",
           data: { turbo: false, controller: "confirm-word", confirm_word_word_value: word } do %>
       <p id="delete-dialog-note" class="delete-dialog__note"><%= t("accounts.dialog.note") %></p>
+      <% if deletion_note %>
+        <p id="delete-dialog-market" class="delete-dialog__note"><%= t("accounts.dialog.market_html", balance: render(PicoinAmountComponent.new(amount: deletion_note.balance))) %></p>
+      <% end %>
       <p id="delete-dialog-kept" class="delete-dialog__note"><%= t("accounts.dialog.kept") %></p>
       <label for="delete-confirmation" class="delete-dialog__label"><%= t("accounts.dialog.label", word:) %></label>
       <%= text_field_tag "confirmation", nil, id: "delete-confirmation", class: "delete-dialog__input", required: true,
             autocomplete: "off", autocapitalize: "characters", spellcheck: false, autofocus: true,
-            aria: { describedby: "delete-dialog-note delete-dialog-kept" },
+            aria: { describedby: ["delete-dialog-note", ("delete-dialog-market" if deletion_note), "delete-dialog-kept"].compact.join(" ") },
             data: { confirm_word_target: "field", action: "input->confirm-word#check" } %>
       <div class="delete-dialog__actions">
         <%= tag.button t("accounts.dialog.submit"), type: :submit, class: "button button--danger",

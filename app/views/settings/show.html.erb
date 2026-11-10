@@ -184,7 +184,7 @@
     </div>
   </div>
 </section>
-<%= render "accounts/dialog" %>
+<%= render "accounts/dialog", deletion_note: @deletion_note %>
 <% if @visibility != "private" && @open_trades.positive? %>
   <%= render "settings/private_dialog", open_trades: @open_trades, shown: @asks_to_go_private %>
 <% end %>

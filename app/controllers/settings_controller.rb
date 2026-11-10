@@ -12,6 +12,7 @@ class SettingsController < ApplicationController
     @next_export_at = current_player.next_export_at
     @open_trades = Game::OpenTradeCount.call(current_player)
     @asks_to_go_private = flash[:confirm_private].present?
+    @deletion_note = Game::Market::DeletionNote.call(player: current_player)
     @card_count = Game::CollectionSummary.call(current_player).distinct_cards
     @active_title = Game::ActiveProfileTitle.call(current_player)
     @identities = Accounts::IdentitiesOf.call(current_player)

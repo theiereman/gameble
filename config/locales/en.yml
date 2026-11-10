@@ -33,12 +33,13 @@ en:
         discoveries, your contributions to the weekly mission, reports, the moderation
         history and the log of game actions. This cannot be undone.'
       label: Type %{word} to confirm
+      market_html: "Your balance of %{balance} PiCoins is destroyed without refund once your running listings are withdrawn and your bids released."
       note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), the phones your notifications go to, your name, your profile and its link,
         the time of your last visit, your last data export, the announcements you closed, the release notes you saw and your latest activity,
         your collection, your showcase, your set tiers, your custom sets, your goals, your achievements, your
         card back unlocks and your active card back, your capsules, opened or not, your luck scores, your daily bonuses and your weekly mission rewards,
         your friends, your invitations, your friend code, when you last opened each of your trades, your reactions to feed entries and your activity feed
-        entries: pulls, discoveries, reposts and every trade that names you. Your
+        entries: pulls, discoveries, reposts, purchases announced in the feed and every trade that names you. Your
         open trades will be cancelled.'
       submit: Delete for good
       title: Delete my account
