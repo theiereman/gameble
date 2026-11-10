@@ -18,10 +18,11 @@ module Game
           LEFT JOIN catalog_card_texts fallback ON fallback.card_id = catalog_cards.id AND fallback.locale = 'en'
          WHERE game_holdings.player_id = :player_id AND game_holdings.quantity > game_holdings.reserved
            AND catalog_card_seasons.rarity IS NOT NULL
+           AND (CAST(:card_slug AS text) IS NULL OR catalog_cards.slug = :card_slug)
       SQL
 
-      def self.call(player, settings:, locale: I18n.locale)
-        sql = Holding.sanitize_sql_array([ SQL, { player_id: player.id, locale: locale.to_s } ])
+      def self.call(player, settings:, locale: I18n.locale, card_slug: nil)
+        sql = Holding.sanitize_sql_array([ SQL, { player_id: player.id, locale: locale.to_s, card_slug: } ])
         copies = Holding.connection.select_rows(sql, "Game::Market::EntrustableCopies").map do |slug, season_number, rarity, free, owned, title|
           rarity = Catalog::Rarity::TIERS.fetch(rarity.to_i)
           Copy.new(ref: ref(slug, season_number), title:, rarity:, season_number: season_number.to_i, free: free.to_i, owned: owned.to_i, value: settings.entrustment(rarity))

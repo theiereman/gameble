@@ -27,6 +27,16 @@ class Game::Market::EntrustableCopiesTest < ActiveSupport::TestCase
     assert_equal [ "#{@rare.card.slug}:#{@rare.season.number}", "#{@common.card.slug}:#{@common.season.number}" ], copies.map(&:ref)
   end
 
+  test "a card slug keeps only that card's editions" do
+    hold(@player, @common.id, 3)
+    hold(@player, @rare.id, 2)
+
+    copies = Game::Market::EntrustableCopies.call(@player, settings: @settings, locale: :en, card_slug: @rare.card.slug)
+
+    assert_equal [ "#{@rare.card.slug}:#{@rare.season.number}" ], copies.map(&:ref)
+    assert_equal 2, Game::Market::EntrustableCopies.call(@player, settings: @settings, locale: :en, card_slug: nil).size
+  end
+
   test "refs resolve to card-season ids, and an unknown ref is left out" do
     refs = [ "#{@rare.card.slug}:#{@rare.season.number}", "nothing:1", "malformed" ]
 
