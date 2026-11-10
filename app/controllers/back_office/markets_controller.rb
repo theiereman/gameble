@@ -1,7 +1,10 @@
 module BackOffice
   class MarketsController < BaseController
+    include MarketPage
+
     def show
       authorize [ :back_office, :market ], :show?
+      @settings_form = settings_form_for_page
       @state = Game::Market::MarketState.call
       @opening = Opening.new
     end

@@ -19,6 +19,11 @@ search:
 # Accounts::SignIn.failure_key, Game::Operation), which the static search cannot see.
 ignore_unused:
   - "errors.*"
+  - "back_office.markets.settings.groups.*"
+  - "back_office.markets.settings.labels.*"
+  - "back_office.markets.settings.moments.*"
+  - "back_office.markets.settings.rows.*"
+  - "back_office.markets.settings.violations.*"
   # Model validation messages, looked up by Active Record from errors.add symbols.
   - "activerecord.errors.messages.*"
   # Number formats, read by the number helpers (number_with_delimiter, …).

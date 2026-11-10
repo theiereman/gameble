@@ -1,6 +1,6 @@
 <%# locals: (state:, opening:) %>
 <% allowed = policy([ :back_office, :market_opening ]).create? %>
-<section class="stack market-opening" aria-labelledby="market-opening-heading">
+<section id="market-opening" class="stack market-opening" aria-labelledby="market-opening-heading">
   <h2 id="market-opening-heading"><%= state.first_opened? ? t("back_office.markets.opening.reopen_heading") : t("back_office.markets.opening.heading") %></h2>
 
   <% unless allowed %>

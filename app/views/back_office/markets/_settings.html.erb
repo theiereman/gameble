@@ -1,0 +1,49 @@
+<%# locals: (form:) %>
+<% allowed = policy([ :back_office, :market_setting ]).create? %>
+<section id="market-settings" class="stack market-settings" aria-labelledby="market-settings-heading">
+  <h2 id="market-settings-heading"><%= t("back_office.markets.settings.heading") %></h2>
+
+  <% if form.nil? %>
+    <p class="ban-form__hint" data-market-settings-not-yet-open><%= t("back_office.markets.settings.not_yet_open") %></p>
+  <% else %>
+    <% unless allowed %>
+      <p class="ban-form__hint" id="market-settings-reason" data-market-settings-reason><%= t("back_office.markets.settings.administrators_only") %></p>
+    <% end %>
+
+    <%= form_with url: back_office_market_settings_path, method: :post, class: "stack market-settings__form" do %>
+      <% if form.refusal %>
+        <ul class="ledger-errors" role="alert">
+          <li data-market-settings-refusal><%= form.refusal %></li>
+        </ul>
+      <% end %>
+      <%= hidden_field_tag "market_settings[token]", form.token, id: nil %>
+
+      <fieldset class="stack market-settings__group">
+        <legend><%= t("back_office.markets.settings.groups.rarities") %></legend>
+        <%= render "back_office/markets/settings_rarities", form:, disabled: !allowed %>
+      </fieldset>
+
+      <% BackOffice::MarketSettingsForm::SINGLE_GROUPS.each do |group, fields| %>
+        <fieldset class="market-settings__group">
+          <legend><%= t("back_office.markets.settings.groups.#{group}") %></legend>
+          <div class="market-settings__fields">
+            <% fields.each do |field| %>
+              <%= render "back_office/markets/settings_field", form:, field:, disabled: !allowed %>
+            <% end %>
+          </div>
+        </fieldset>
+      <% end %>
+
+      <%= render "back_office/markets/announcement", opening: form, disabled: !allowed, dom: "market-settings-announcement", scope: "market_settings",
+            legend: t("back_office.markets.settings.announcement_legend"), reason_id: "market-settings-reason" %>
+
+      <p class="market-opening__actions">
+        <% if allowed %>
+          <%= render ButtonComponent.new(type: :submit) do %><%= t("back_office.markets.settings.save") %><% end %>
+        <% else %>
+          <%= render ButtonComponent.new(disabled: true) do %><%= t("back_office.markets.settings.save") %><% end %>
+        <% end %>
+      </p>
+    <% end %>
+  <% end %>
+</section>

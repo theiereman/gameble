@@ -1,0 +1,62 @@
+/* ---- Back-office market: the economy settings form ---- */
+
+.market-settings__form {
+  max-width: var(--space-content-max);
+}
+
+.market-settings__group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.market-settings__group > legend {
+  padding: 0;
+  margin-bottom: var(--space-3);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.market-settings__fields {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.market-settings__field {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.market-settings__error {
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.market-settings__field input[aria-invalid="true"] {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-alert);
+}
+
+/* A wide table scrolls inside its own box on a narrow screen, never the page. */
+.market-settings__table-scroll {
+  overflow-x: auto;
+}
+
+.market-settings__table {
+  border-collapse: separate;
+  border-spacing: var(--space-3);
+}
+
+.market-settings__table th {
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-align: start;
+}
+
+.market-settings__table td {
+  min-width: 14ch;
+  vertical-align: top;
+}
