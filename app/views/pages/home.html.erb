@@ -22,7 +22,7 @@
     <%= render "fortune_panels/panel", panel: @fortune_panel %>
     <div class="hub__phone-feed">
       <%= render "shell/live_strip", items: @live_strip, title: t(".live.title"), id: "hub-live", stacked: true, subscribe: false,
-            open_label: t(".live.open") %>
+            open_label: t(".live.open"), title_class: "hub-section-title" %>
     </div>
   </div>
 

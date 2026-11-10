@@ -15,14 +15,6 @@
   align-self: stretch;
 }
 
-.daily-booster__title {
-  margin: 0;
-  color: var(--color-text-bright);
-  font: var(--font-menu);
-  letter-spacing: var(--tracking-menu);
-  text-transform: uppercase;
-}
-
 .daily-booster__state {
   margin: 0;
   font: var(--font-label);
@@ -107,14 +99,6 @@
   flex-direction: column;
   gap: var(--space-3);
   min-width: 0;
-}
-
-.hub-goals__title {
-  margin: 0;
-  color: var(--color-accent);
-  font: var(--font-kicker);
-  letter-spacing: var(--tracking-kicker);
-  text-transform: uppercase;
 }
 
 .hub-goals .goal-row {

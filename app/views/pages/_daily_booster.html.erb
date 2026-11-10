@@ -5,7 +5,7 @@
       aria: { labelledby: "daily-booster-title" },
       data: ({ bonus_arc_collected: "", bonus_arc_bank: bank_changed_json(bank) } if arc) || {}) do %>
   <div class="daily-booster__head">
-    <h2 id="daily-booster-title" class="daily-booster__title"><%= t("pages.home.daily.title") %></h2>
+    <h2 id="daily-booster-title" class="hub-section-title"><%= t("pages.home.daily.title") %></h2>
     <p class="daily-booster__state daily-booster__state--<%= state %>"><%= t("pages.home.daily.#{state}") %></p>
   </div>
   <% case state %>

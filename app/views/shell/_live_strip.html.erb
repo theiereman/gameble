@@ -1,6 +1,6 @@
-<%# locals: (items:, title:, id:, stacked: false, subscribe: true, open_label: nil) %>
+<%# locals: (items:, title:, id:, stacked: false, subscribe: true, open_label: nil, title_class: nil) %>
 <section class="<%= class_names("live-strip", "live-strip--stacked": stacked) %>" aria-labelledby="<%= id %>">
-  <h2 id="<%= id %>" class="live-strip__title">
+  <h2 id="<%= id %>" class="<%= class_names("live-strip__title", title_class) %>">
     <%= render "shell/live_marker" %>
     <span aria-hidden="true">·</span>
     <%= title %>

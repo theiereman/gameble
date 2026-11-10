@@ -69,7 +69,8 @@
 
 /* ---- Kicker: an accent title with letter spacing and a subtitle below ---- */
 
-.hub__title {
+.hub__title,
+.hub .hub-section-title {
   margin: 0;
   color: var(--color-accent);
   font: var(--font-kicker);

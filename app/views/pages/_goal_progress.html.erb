@@ -1,6 +1,6 @@
 <% figures = { total: number_with_delimiter(goal[:total]), target: number_with_delimiter(goal[:target]) } %>
 <div id="community-goal-progress" class="hub-goal__progress<%= " hub-goal__progress--reached" if goal[:reached] %>">
-  <h2 id="community-goal-title" class="hub-goal__title"><%= t("pages.home.goal.title") %></h2>
+  <h2 id="community-goal-title" class="hub-section-title hub-goal__title"><%= t("pages.home.goal.title") %></h2>
   <p class="hub-goal__figures" aria-hidden="true"><%= figures[:total] %> / <%= figures[:target] %></p>
   <span class="visually-hidden"><%= t("pages.home.goal.progress", **figures) %></span>
   <p class="hub-goal__line"><%= t("pages.home.goal.line", target: figures[:target]) %></p>
