@@ -175,6 +175,7 @@
   --all-cards-scale: 0.42;
 
   display: flex;
+  overflow: clip;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4) var(--space-6);
