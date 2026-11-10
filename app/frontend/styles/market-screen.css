@@ -22,11 +22,16 @@
 }
 
 .market-screen__chips,
+.market-screen__actions,
 .market-screen__sorts {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
+}
+
+.market-screen__short {
+  display: none;
 }
 
 .market-screen__chip {
@@ -79,6 +84,16 @@
 .market-screen__pages {
   display: flex;
   justify-content: center;
+}
+
+@media (max-width: 719px) {
+  .market-screen__long {
+    display: none;
+  }
+
+  .market-screen__short {
+    display: inline;
+  }
 }
 
 @media (min-width: 720px) {

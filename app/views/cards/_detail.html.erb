@@ -195,9 +195,11 @@
       <div class="card-detail__market">
         <% if entrustment.free.zero? %>
           <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("card_details.entrust.button") %><% end %>
+          <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("card_details.list.button") %><% end %>
           <p class="card-detail__market-note"><%= t("card_details.entrust.reserved", count: entrustment.reserved) %></p>
         <% else %>
           <%= render ButtonComponent.new(variant: :secondary, href: new_market_card_entrustment_path(slug: view.id)) do %><%= t("card_details.entrust.button") %><% end %>
+          <%= render ButtonComponent.new(variant: :secondary, href: new_market_card_sale_path(slug: view.id)) do %><%= t("card_details.list.button") %><% end %>
         <% end %>
       </div>
     <% end %>

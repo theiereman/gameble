@@ -1,0 +1,48 @@
+[data-layout="phone"] .market-sale__step {
+  display: block;
+}
+
+[data-layout="phone"][data-step="1"] .sale-form,
+[data-layout="phone"][data-step="2"] .sale-grid {
+  display: none;
+}
+
+[data-layout="phone"] .sale-fields__back {
+  display: inline-flex;
+  align-items: center;
+}
+
+[data-layout="phone"] .sale-grid__list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+[data-layout="phone"] .sale-grid__hint,
+[data-layout="phone"] .sale-cell__free {
+  display: none;
+}
+
+[data-layout="phone"] .sale-cell {
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-2);
+}
+
+[data-layout="phone"] .sale-cell__name {
+  overflow-wrap: anywhere;
+  font: var(--font-body-small);
+  font-weight: 700;
+}
+
+[data-layout="phone"] .sale-cell__edition {
+  font: var(--font-label);
+}
+
+@media (min-height: 560px) {
+  [data-layout="phone"] .sale-summary__submit {
+    position: sticky;
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+    padding: var(--space-3) 0;
+    background: var(--color-panel);
+  }
+}

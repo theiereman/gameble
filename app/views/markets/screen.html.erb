@@ -8,12 +8,27 @@
 
   <nav class="market-screen__chips" aria-label="<%= t(".chips_label") %>">
     <span class="market-screen__chip market-screen__chip--current" aria-current="page"><%= t(".listings") %></span>
-    <% if current_player %>
-      <%= render ButtonComponent.new(variant: :secondary, size: :small, href: new_market_entrustment_path) { t(".entrust") } %>
-    <% else %>
-      <%= render ButtonComponent.new(variant: :secondary, size: :small, disabled: true) { t(".entrust") } %>
-    <% end %>
   </nav>
+
+  <div class="market-screen__actions">
+    <% entrust_label = t(".entrust") %>
+    <% sell_label = t(".sell") %>
+    <% if current_player %>
+      <%= render ButtonComponent.new(variant: :secondary, size: :small, href: new_market_entrustment_path, aria_label: entrust_label) do %>
+        <span class="market-screen__long"><%= entrust_label %></span><span class="market-screen__short" aria-hidden="true"><%= t(".entrust_short") %></span>
+      <% end %>
+      <%= render ButtonComponent.new(variant: :primary, size: :small, href: new_market_sale_path, disabled: @suspended, aria_label: sell_label) do %>
+        <span class="market-screen__long"><%= sell_label %></span><span class="market-screen__short" aria-hidden="true"><%= t(".sell_short") %></span>
+      <% end %>
+    <% else %>
+      <%= render ButtonComponent.new(variant: :secondary, size: :small, disabled: true, aria_label: entrust_label) do %>
+        <span class="market-screen__long"><%= entrust_label %></span><span class="market-screen__short" aria-hidden="true"><%= t(".entrust_short") %></span>
+      <% end %>
+      <%= render ButtonComponent.new(variant: :primary, size: :small, disabled: true, aria_label: sell_label) do %>
+        <span class="market-screen__long"><%= sell_label %></span><span class="market-screen__short" aria-hidden="true"><%= t(".sell_short") %></span>
+      <% end %>
+    <% end %>
+  </div>
 
   <%= render "markets/sorts", sort: @sort %>
 

@@ -5,7 +5,10 @@ class MarketsController < ApplicationController
 
   def show
     authorize :market, :show?
-    return unless Game::Market::MarketState.call.first_opened?
+    state = Game::Market::MarketState.call
+    return unless state.first_opened?
+
+    @suspended = !state.open?
 
     @sort = params[:sort].presence_in(helpers.sort_options) || Game::Market::OpenListings::DEFAULT_SORT
     @page = params[:page].to_s.to_i.clamp(1, MAX_PAGE)
