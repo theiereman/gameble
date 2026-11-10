@@ -390,6 +390,27 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#annonce-bid .market-outcome"
   end
 
+  test "an outbid player reads the outbid panel above the field, and no one else does" do
+    rival = accounts_players(:moderator)
+    rival.update_columns(persona_name: "Bob")
+    reader = accounts_players(:administrator)
+    @listing.update_columns(leader_id: rival.id, leader_maximum: 9_000, current_price: 8_000)
+    Game::Market::Notice.record(player_id: reader.id, listing_id: @listing.id, kind: "outbid", other_player_id: rival.id, amount: 7_800)
+    sign_in(reader)
+    annonce
+
+    assert_select "#annonce-bid #annonce-outbid.market-event--outbid h2", "YOU WERE OUTBID"
+    assert_select "#annonce-outbid .market-event__body", /Bob moved ahead on Blue Depths\. Your 7,800 are available again\./
+    assert_select "#annonce-outbid a.button--link[href=?]", market_listing_path(locale: :en, token: @listing.token, focus: "maximum")
+    assert_select "#annonce-outbid ~ form#annonce-form"
+    assert_select "#annonce-outbid [autofocus], #annonce-outbid [data-focus-name]", false
+
+    reset!
+    sign_in(rival)
+    annonce
+    assert_select "#annonce-outbid", false
+  end
+
   test "an open market draws an empty slot and the live form" do
     sign_in(accounts_players(:administrator))
     annonce

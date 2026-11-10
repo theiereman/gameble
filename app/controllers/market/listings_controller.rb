@@ -9,6 +9,7 @@ module Market
       @sheet = Game::Market::BidSheet.call(token: @listing.token, player: current_player)
       @suspended = Game::Market::MarketState.call.suspended?
       @focus = "field" if @sheet && params[:focus] == "maximum"
+      @events = Game::Market::AnnonceEvents.call(token: @listing.token, viewer: current_player)
       @outcome = Game::Market::ListingOutcome.call(token: @listing.token, viewer: current_player, locale: I18n.locale)
     end
   end

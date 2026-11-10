@@ -44,7 +44,7 @@
       <% end %>
     </div>
 
-    <%= render "market/bids/region", listing: @listing, sheet: @sheet, outcome: @outcome, viewer: current_player, focus: @focus, suspended: @suspended %>
+    <%= render "market/bids/region", listing: @listing, sheet: @sheet, outcome: @outcome, viewer: current_player, focus: @focus, suspended: @suspended, events: @events %>
 
     <%= render "market/listings/history", lines: @history, viewer: current_player %>
   </div>

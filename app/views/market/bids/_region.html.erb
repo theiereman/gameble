@@ -1,4 +1,4 @@
-<%# locals: (listing:, sheet:, outcome:, viewer:, answer: nil, focus: nil, refusal: nil, not_recorded: false, posted: "", posted_amount: nil, suspended: false) %>
+<%# locals: (listing:, sheet:, outcome:, viewer:, answer: nil, focus: nil, refusal: nil, not_recorded: false, posted: "", posted_amount: nil, suspended: false, events: nil) %>
 <%= tag.div id: "annonce-bid", class: "market-listing__bid", data: { annonce_target: "region", focus: focus } do %>
   <% if outcome %>
     <%= render "market/listings/outcome", outcome:, viewer: %>
@@ -6,6 +6,7 @@
   <% elsif sheet && suspended %>
     <%= render "market/bids/suspended_form", sheet:, refusal: %>
   <% elsif sheet %>
+    <%= render "market/listings/events", events:, listing:, viewer: %>
     <%= render "market/bids/form", listing:, sheet:, answer:, refusal:, posted:, posted_amount: %>
   <% elsif annonce_cancellable?(listing, viewer) %>
     <div class="market-bid__cancel">

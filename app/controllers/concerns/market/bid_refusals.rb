@@ -29,6 +29,7 @@ module Market
         detail = Game::Market::ListingByToken.call(token, locale: I18n.locale) || raise(ActiveRecord::RecordNotFound)
         { listing: detail, sheet: Game::Market::BidSheet.call(token:, player: current_player), viewer: current_player,
           outcome: Game::Market::ListingOutcome.call(token:, viewer: current_player, locale: I18n.locale),
+          events: Game::Market::AnnonceEvents.call(token:, viewer: current_player),
           suspended: Game::Market::MarketState.call.suspended?, answer:, focus:, refusal: nil, not_recorded: false, posted: answer ? "" : params[:maximum].to_s,
           posted_amount: Integer(params[:maximum].to_s.strip, 10, exception: false) }
       end

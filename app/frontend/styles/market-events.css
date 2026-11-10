@@ -1,0 +1,36 @@
+.market-event {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-panel);
+  border-left: 3px solid var(--color-alert);
+  box-shadow: var(--control-border);
+}
+
+.market-event--extended {
+  border-left-color: var(--color-accent);
+}
+
+.market-event__title {
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-kicker);
+}
+
+.market-event--extended .market-event__title {
+  color: var(--color-accent);
+}
+
+.market-event__body {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.market-event .button {
+  min-height: var(--space-touch-min);
+}
