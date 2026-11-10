@@ -3,8 +3,8 @@ title: 'The Annonce says when the auction ends and posts its state politely'
 type: 'feature'
 ticket: '40.3'
 created: '2026-11-10'
-status: 'draft'
-baseline_revision: ''
+status: 'in-review'
+baseline_revision: 'ff100c98f69b131d4a5e003edd4b4e4255117d1f'
 route: 'full'
 route_source: 'auto'
 review: ''
@@ -79,6 +79,8 @@ context:
 - Given the throttle, then the last update is kept, an extension and the end bypass, and reduced motion stays silent about other players.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. Details the plan left open: a post inside five seconds of the viewer's own bid is recorded as said and not repeated, so the answer to their own bid is never announced twice; the status line is not drawn when an outcome or the closing line shows, which is how the page tells the controller the auction ended; the end is posted once; the countdown raises its `ended` event only when it started above zero, so a page opened in the closing state does not refresh in a loop.
 
 ## Plan Change Log
 
