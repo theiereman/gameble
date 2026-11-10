@@ -1,6 +1,7 @@
 module Game
   class AcceptTrade < Operation
     include TradeSteps
+    include MoveHoldings
 
     def call(player:, trade_id:, revision:)
       player = step require_player(player)
@@ -59,22 +60,6 @@ module Game
       gained = { trade.proposer_id => request.keys, trade.recipient_id => offer.keys }
       [ trade.low_player_id, trade.high_player_id ].to_h do |player_id|
         [ player_id, SetTier.record(player_id:, card_season_ids: gained.fetch(player_id), season_id: season.id, reached_by: "trade", pack_id: nil, now:) ]
-      end
-    end
-
-    def move(player_id, holdings, given:, gained:, released:, now:)
-      (given.keys | gained.keys).sort.each do |card_season_id|
-        net = gained.fetch(card_season_id, 0) - given.fetch(card_season_id, 0)
-        unreserve = released.fetch(card_season_id, 0)
-        holding = holdings[card_season_id]
-        if holding.nil?
-          Holding.insert_all!([ { player_id:, card_season_id:, quantity: net, reserved: 0, last_gained_at: now, created_at: now, updated_at: now } ],
-            record_timestamps: false)
-        elsif net.positive?
-          Holding.where(id: holding.id).update_all([ "quantity = quantity + ?, reserved = reserved - ?, last_gained_at = ?, updated_at = ?", net, unreserve, now, now ])
-        else
-          Holding.where(id: holding.id).update_all([ "quantity = quantity + ?, reserved = reserved - ?, updated_at = ?", net, unreserve, now ])
-        end
       end
     end
   end
