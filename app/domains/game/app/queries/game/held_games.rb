@@ -58,27 +58,6 @@ module Game
       counts
     end
 
-    BY_RARITY_AMONG = <<~SQL.squish.freeze
-      SELECT held.player_id, held.rarity, COUNT(*) FROM (
-        SELECT game_holdings.player_id, catalog_card_seasons.card_id, MAX(catalog_card_seasons.rarity) AS rarity
-          FROM game_holdings
-          JOIN catalog_card_seasons ON catalog_card_seasons.id = game_holdings.card_season_id
-         WHERE game_holdings.player_id IN (:player_ids) AND game_holdings.quantity > 0
-         GROUP BY game_holdings.player_id, catalog_card_seasons.card_id
-      ) AS held WHERE held.rarity IS NOT NULL GROUP BY held.player_id, held.rarity
-    SQL
-
-    def self.by_rarity_among(player_ids)
-      counts = player_ids.index_with { Catalog::Rarity::TIERS.keys.index_with(0) }
-      return counts if player_ids.empty?
-
-      sql = Holding.sanitize_sql_array([ BY_RARITY_AMONG, { player_ids: } ])
-      Holding.connection.select_rows(sql, "Game::HeldGames.by_rarity_among").each do |player_id, tier, games|
-        counts[player_id.to_i][tier.to_i] = games.to_i
-      end
-      counts
-    end
-
     EDITIONS = <<~SQL.squish.freeze
       SELECT DISTINCT ON (catalog_card_seasons.card_id) catalog_card_seasons.card_id, game_holdings.card_season_id,
              SUM(game_holdings.quantity) OVER games AS copies,

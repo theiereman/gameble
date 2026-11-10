@@ -16,7 +16,7 @@ module Game
       fortunes = FortuneBoard.ranked(period, now:).limit(TOP).to_a
       return [] if fortunes.empty?
 
-      FortuneBoard.rows(fortunes, ranked_count:, viewer:, now:, with_rarities: false)
+      FortuneBoard.rows(fortunes, ranked_count:, viewer:, now:)
     end
 
     private_class_method :top

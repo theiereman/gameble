@@ -23,17 +23,16 @@ module Game
       sort == :capsules ? board.order(Arel.sql("#{PACKS} DESC"), :luck_rank) : board.order(:luck_rank)
     end
 
-    def self.rows(fortunes, ranked_count:, viewer: nil, now: Time.current, with_rarities: true)
+    def self.rows(fortunes, ranked_count:, viewer: nil, now: Time.current)
       ids = fortunes.map(&:player_id)
       players = Accounts::Player.where(id: ids).index_by(&:id)
       privileged = Privileged.ids(now:)
-      rarities = with_rarities ? HeldGames.by_rarity_among(ids) : {}
       friends = viewer ? Friendship.other_ids(viewer.id).to_set : Set.new
       fortunes.map do |fortune|
         player = players.fetch(fortune.player_id)
         Row.new(rank: fortune.luck_rank, ranked_count:, player:, shown: Visibility.visible?(viewer, player, friends:), index: FortuneIndex.of(fortune.z_score),
           privileged: privileged.include?(fortune.player_id), packs_opened: fortune.packs_by_kind.values.sum,
-          rarities: rarities[fortune.player_id])
+          rarities: fortune.cards_by_tier)
       end
     end
 

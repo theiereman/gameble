@@ -59,8 +59,9 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
       assert_select ".player-row__capsules dd", "2"
       assert_select ".player-row__rarity svg.player-row__icon", 5
       assert_select ".player-row__figure:first-child.player-row__rarity--5"
-      assert_select ".player-row__rarity--1 dd", "1"
-      assert_select ".player-row__rarity--5 dd", "1"
+      assert_select ".player-row__rarity--1 dd", "5"
+      assert_select ".player-row__rarity--3 dd", "0"
+      assert_select ".player-row__rarity--5 dd", "5"
       assert_select ".player-row__rarity--5 dt .visually-hidden", "Legendary"
       assert_select ":last-child.player-row__luck .player-row__index.fortune-index--up", "+500"
       assert_select ".player-row__luck .player-row__share-word", "Top"

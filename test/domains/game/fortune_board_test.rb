@@ -45,15 +45,14 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     assert_equal [ [ busy, 2, 9 ], [ steady, 1, 1 ] ], board(sort: :capsules).map { [ it.player, it.rank, it.packs_opened ] }
   end
 
-  test "each row carries the player's collection by rarity, one count per game" do
-    collector = player(1)
-    luck(collector, 1.0)
-    ids = %i[common_card_one rare_card_one portal_one legendary_card_one].map { catalog_card_seasons(it).id }
-    ids.each { Game::Holding.create!(player_id: collector.id, card_season_id: it, quantity: 2, last_gained_at: NOW) }
+  test "each row counts the cards pulled per rarity in the board's period, duplicates included" do
+    puller = player(1)
+    luck(puller, 1.0)
+    Game::Fortune.where(player_id: puller.id, week_start: Game::WeeklyGoal.week_start(NOW)).update_all(common_cards: 7, rare_cards: 2)
+    Game::Fortune.where(player_id: puller.id, week_start: nil).update_all(common_cards: 30, rare_cards: 5, legendary_cards: 1)
 
-    row = board.sole
-
-    assert_equal({ 1 => 1, 2 => 0, 3 => 1, 4 => 1, 5 => 1 }, row.rarities)
+    assert_equal({ 1 => 7, 2 => 0, 3 => 2, 4 => 0, 5 => 0 }, board.sole.rarities)
+    assert_equal({ 1 => 30, 2 => 0, 3 => 5, 4 => 0, 5 => 1 }, board(:all_time).sole.rarities)
   end
 
   test "the Privileged are the top tenth of this week's active players, rounded up, and change as the week's ranking does" do
