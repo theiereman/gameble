@@ -14,8 +14,6 @@ targets:
     sources: [Gameble]
     dependencies:
       - package: HotwireNative
-    scheme:
-      testTargets: [GamebleUITests]
     entitlements:
       path: Gameble/Gameble.entitlements
       properties:
@@ -55,14 +53,3 @@ targets:
         Release:
           GAMEBLE_ROOT_URL: https://gameble.net
           APS_ENVIRONMENT: production
-  GamebleUITests:
-    type: bundle.ui-testing
-    platform: iOS
-    sources: [GamebleUITests]
-    dependencies:
-      - target: Gameble
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: net.gameble.app.uitests
-        GENERATE_INFOPLIST_FILE: YES
-        TEST_TARGET_NAME: Gameble

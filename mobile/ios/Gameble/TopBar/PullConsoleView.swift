@@ -17,8 +17,6 @@ final class PullConsoleView: UIView {
         layer.borderColor = Palette.line.cgColor
         layer.borderWidth = 2
         alpha = 0
-        isAccessibilityElement = true
-        accessibilityIdentifier = "pull-console"
 
         let row = UIStackView(arrangedSubviews: cells + [label])
         row.translatesAutoresizingMaskIntoConstraints = false
@@ -100,6 +98,5 @@ final class PullConsoleView: UIView {
     private func write(_ text: String, in color: UIColor) {
         label.text = text
         label.textColor = color
-        accessibilityValue = text
     }
 }
