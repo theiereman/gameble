@@ -21,6 +21,8 @@ const terms = (overrides: Partial<Terms> = {}): Terms => ({
   available: 100_000,
   buyNow: null,
   ownMaximum: null,
+  price: 20_000,
+  unusualMultiple: 3,
   ...overrides,
 })
 

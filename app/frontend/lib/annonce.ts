@@ -3,7 +3,14 @@ export type Terms = {
   available: number
   buyNow: number | null
   ownMaximum: number | null
+  price: number
+  unusualMultiple: number
 }
+
+export type Gate = "none" | "unusual" | "buy_now"
+export type Submitter = "bid" | "buy_now"
+export type Pending = { gate: Exclude<Gate, "none">; submitter: Submitter }
+export type Consent = { submitter: Submitter; text: string }
 
 export type AnnonceState = {
   terms: Terms
@@ -11,6 +18,8 @@ export type AnnonceState = {
   submitting: boolean
   posted: string
   answered: boolean
+  pending: Pending | null
+  consent: Consent | null
 }
 
 export type ButtonKind = "idle" | "bid" | "raise" | "buy"
@@ -21,7 +30,7 @@ const SPACES = /[\s  ]/g
 const PLAIN_AMOUNT = /^\d+$/
 
 export function start(terms: Terms, answered = false): AnnonceState {
-  return { terms, text: "", submitting: false, posted: "", answered }
+  return { terms, text: "", submitting: false, posted: "", answered, pending: null, consent: null }
 }
 
 export function parse(text: string): number | null {
@@ -48,11 +57,13 @@ export function buttonKind(state: AnnonceState): ButtonKind {
 }
 
 export function edit(state: AnnonceState, text: string): AnnonceState {
-  return state.text === text && !state.answered ? state : { ...state, text, answered: false }
+  return state.text === text && !state.answered
+    ? state
+    : { ...state, text, answered: false, pending: null, consent: null }
 }
 
 export function submit(state: AnnonceState): AnnonceState | null {
-  return state.submitting ? null : { ...state, submitting: true }
+  return state.submitting ? null : { ...state, submitting: true, pending: null, consent: null }
 }
 
 export function submitted(state: AnnonceState): AnnonceState {

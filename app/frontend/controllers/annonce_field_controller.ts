@@ -6,7 +6,15 @@ const MINIMUM_ID = "annonce-minimum"
 
 export default class AnnonceFieldController extends Controller<HTMLElement> {
   static targets = ["input", "error"]
-  static values = { minimum: Number, available: Number, buyNow: Number, ownMaximum: Number, answered: Boolean }
+  static values = {
+    minimum: Number,
+    available: Number,
+    buyNow: Number,
+    ownMaximum: Number,
+    price: Number,
+    unusualMultiple: Number,
+    answered: Boolean,
+  }
 
   declare readonly inputTarget: HTMLInputElement
   declare readonly hasErrorTarget: boolean
@@ -15,6 +23,8 @@ export default class AnnonceFieldController extends Controller<HTMLElement> {
   declare readonly availableValue: number
   declare readonly buyNowValue: number
   declare readonly ownMaximumValue: number
+  declare readonly priceValue: number
+  declare readonly unusualMultipleValue: number
   declare readonly answeredValue: boolean
 
   terms(): Terms {
@@ -23,11 +33,17 @@ export default class AnnonceFieldController extends Controller<HTMLElement> {
       available: this.availableValue,
       buyNow: this.buyNowValue > 0 ? this.buyNowValue : null,
       ownMaximum: this.ownMaximumValue > 0 ? this.ownMaximumValue : null,
+      price: this.priceValue,
+      unusualMultiple: this.unusualMultipleValue,
     }
   }
 
   get answered(): boolean {
     return this.answeredValue
+  }
+
+  get input(): HTMLInputElement {
+    return this.inputTarget
   }
 
   get text(): string {

@@ -1,0 +1,14 @@
+[
+  { "price": 20000, "maximum": 59999, "multiple": 3, "buy_now": null, "gate": "none" },
+  { "price": 20000, "maximum": 60000, "multiple": 3, "buy_now": null, "gate": "unusual" },
+  { "price": 20000, "maximum": 90000, "multiple": 3, "buy_now": null, "gate": "unusual" },
+  { "price": 20000, "maximum": 79999, "multiple": 3, "buy_now": null, "gate": "unusual" },
+  { "price": 20000, "maximum": 60000, "multiple": 3, "buy_now": 100000, "gate": "unusual" },
+  { "price": 20000, "maximum": 99999, "multiple": 3, "buy_now": 100000, "gate": "unusual" },
+  { "price": 20000, "maximum": 100000, "multiple": 3, "buy_now": 100000, "gate": "buy_now" },
+  { "price": 20000, "maximum": 150000, "multiple": 3, "buy_now": 100000, "gate": "buy_now" },
+  { "price": 20000, "maximum": 30000, "multiple": 3, "buy_now": 25000, "gate": "buy_now" },
+  { "price": 20000, "maximum": 40000, "multiple": 2, "buy_now": null, "gate": "unusual" },
+  { "price": 9007199254740991, "maximum": 9007199254740991, "multiple": 3, "buy_now": null, "gate": "none" },
+  { "price": 3002399751580331, "maximum": 9007199254740991, "multiple": 3, "buy_now": null, "gate": "none" }
+]
