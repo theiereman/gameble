@@ -2,8 +2,6 @@ name: iOS UI tests
 
 # Drives the app in a simulator against a local page that stands in for the site, to check native gestures.
 on:
-  push:
-    paths: [ "mobile/ios/**", ".github/workflows/ios-ui-tests.yml" ]
   workflow_dispatch:
 
 permissions:
