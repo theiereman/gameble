@@ -3,7 +3,7 @@ title: "An administrator changes the economy settings with the Brotherhood's ann
 type: 'feature'
 ticket: '9'
 created: '2026-11-10'
-status: 'ready-for-dev'
+status: 'in-review'
 baseline_revision: 'fba34210796de7c1e7100c0e01d9f1ae5f13a63c'
 route: 'full'
 route_source: 'auto'
@@ -129,6 +129,8 @@ context:
 - Given the page, when read with a screen reader, then each table input is named by its row and column headers and its refusal is announced.
 
 ## Implementation Notes
+
+Built as planned. Nothing was run (tests run once at the end). The rules keep one violation per field, in the order not a number, range or ratio, then floor. The durations-not-ascending violation is drawn on the medium duration. Alerts and income targets are labelled "applies at once". Added a MarketPage controller concern so the opening controller's refused re-render also draws the settings form.
 
 ## Plan Change Log
 
