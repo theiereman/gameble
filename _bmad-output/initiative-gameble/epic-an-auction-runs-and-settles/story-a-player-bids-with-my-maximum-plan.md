@@ -3,7 +3,7 @@ title: 'A player bids with My maximum'
 type: 'feature'
 ticket: '39.7'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: 'f5b7d792e87f7e996e8cc0c7f5abc2ce04e4c007'
 route: 'full'
 route_source: 'auto'
@@ -107,13 +107,13 @@ context:
 - [ ] `app/domains/game/app/queries/game/market/bid_sheet.rb` -- `BidSheet.call(token:, player:)` returns nil unless the listing is open, not due and the player is neither its seller nor removed; else `Data` with `minimum`, `leading`, `own_maximum` (leader only), `available`, `current_price`, `buy_now_price`, `soft_close_minutes`; removed leader counts as none -- one reader for form, refusals and redraws
 - [ ] `config/routes.rb` -- `post "market/listings/:token/bids" => "market/bids#create", as: :market_listing_bids` -- the write endpoint
 - [ ] `app/policies/market/bid_policy.rb` -- `create?` is `player?` -- Pundit for the action
-- [ ] `app/controllers/market/bids_controller.rb` -- `create` as stated, `rate_limit` with the stream refusal, refusal mapping per failure code, success answer by branch, concerns kept small (move the refusal text building to `app/controllers/concerns/market/bid_refusals.rb` if the file nears 150 lines) -- the endpoint
-- [ ] `app/views/market/bids/_region.html.erb` -- the region's three states (outcome/closing, seller nothing, visitor line, form) -- one place that decides what sits in `#annonce-bid`
+- [ ] `app/controllers/market/bids_controller.rb` -- `create` as stated (a refusal answers 422, the rate limit 429, both as the same stream; a non-Turbo POST redirects 303), `rate_limit` with the stream refusal, refusal mapping per failure code, success answer by branch, concerns kept small (move the refusal text building to `app/controllers/concerns/market/bid_refusals.rb` if the file nears 150 lines) -- the endpoint
+- [ ] `app/views/market/bids/_region.html.erb` -- the region's states (outcome/closing, seller nothing, visitor line, form), taking locals `listing:` (the `ListingByToken` detail, which carries the card), `sheet:`, `outcome:` (`ListingOutcome`, viewer-aware), `refusal:` and `focus:`; the Annonce's show renders it in place of the listing story's direct `_outcome` render, and the controller builds the same locals from the same three queries for every answer -- one place that decides what sits in `#annonce-bid`; when `sheet` is nil and the failure is neither `auction_ended` nor `listing_withdrawn` (the seller's forged POST), the region holds only the refusal in a `role="alert"` paragraph; the server writes the focus target (`heading`, `field` or none) as a Stimulus value on the region so the root focuses it when the replaced region connects, instead of guessing the stream's render timing
 - [ ] `app/views/market/bids/_form.html.erb` and `_foot.html.erb` -- field, minimum, sentences, button, error slot, answer panel (hidden by default), status hooks, hidden `drawn_minimum` -- the form
 - [ ] `app/views/market/bids/_answer.html.erb` -- panel by branch with its heading, body and action -- the answer
 - [ ] `app/views/market/bids/create.turbo_stream.erb` -- `turbo_stream.replace "annonce-bid"` of the region -- the one response
 - [ ] `app/views/market/listings/show.html.erb` -- add `data-controller="annonce"` and its `data-action` mappings on the section, the status region child, render the region -- wires the screen
-- [ ] `app/helpers/market_bids_helper.rb` -- `bid_refusal_text(code, sheet, posted)`, `bid_answer_text` and the button/name templates for `stringsValue` -- keeps views thin
+- [ ] `app/helpers/market_bids_helper.rb` -- `bid_refusal_text(code, sheet, posted)`, `bid_answer_text` and the button/name templates for `stringsValue`; keys are written statically (a `case` on the branch), never interpolated, so `i18n-tasks unused` stays green -- keeps views thin
 - [ ] `app/frontend/lib/annonce.ts` -- state and pure transitions: `start`, `type`, `parse`, `commitment`, `reachesBuyNow`, `buttonKind`, `submit`, `submitted`, `posted` -- the screen's module
 - [ ] `app/frontend/lib/annonce_view.ts` -- `footViewOf(state, forms)`: button label, accessible name, live sentence, panel visibility -- view builders using `picoins` and `t`
 - [ ] `app/frontend/controllers/annonce_controller.ts` -- root: applies transitions, owns the 500ms timer, the single-submit guard, focus moves, outlets to the three children -- thin controller
@@ -126,7 +126,7 @@ context:
 - [ ] `test/domains/game/market/bid_sheet_test.rb` and `listing_id_by_token_test.rb` -- minimum with and without leader, a removed leader, the leader's own maximum only for the leader, nil for seller, ended and due listings, soft-close minutes from the listing's version -- the readers
 - [ ] `test/domains/game/market/bid_commitment_fixture_test.rb` -- each fixture row against `BidTerms#needed` -- display equals authority
 - [ ] `test/policies/market/bid_policy_test.rb` -- visitor refused, player allowed
-- [ ] `test/controllers/market/bids_controller_test.rb` -- a visitor refused with `sign_in_required`, the seller refused inline, banned bidder forbidden, the rate limit (21st request answers 429 with the amount kept), each refusal's text in English and French including the drawn-minimum comparison, `auction_ended` replacing the region with the outcome and the not-recorded line, success per branch (panel text, fresh minimum, status; the buy-now branch answering with the buyer's outcome), the stream targeting `annonce-bid`, no database id in any response, unknown token 404 -- controller rules
+- [ ] `test/controllers/market/bids_controller_test.rb` -- a visitor refused with `sign_in_required`, the seller refused inline, banned bidder forbidden, the rate limit (21st request answers 429 with the amount kept, inside `with_counting_rate_limit(Market::BidsController)` from `test/support/counting_rate_limit.rb`, as the sales test does), each refusal's text in English and French including the drawn-minimum comparison, `auction_ended` replacing the region with the outcome and the not-recorded line, success per branch (panel text, fresh minimum, status; the buy-now branch answering with the buyer's outcome), the stream targeting `annonce-bid`, no database id in any response, unknown token 404 -- controller rules
 - [ ] `app/frontend/lib/annonce.test.ts` and `annonce_view.test.ts` -- parse rules, button kinds, live sentences, commitment rows from the shared fixture, double submit, unchanged live text not reposted -- the module
 - [ ] `app/frontend/controllers/annonce_controller.test.ts` -- Enter moves focus to the button without submitting, a double activation submits once, the live sentence posts once after the debounce, the first keystroke after an answer shows the foot again -- the controller
 - [ ] `test/system/market_bidding_test.rb` -- the second bidder of Flow 7: the first bidder leads at 20,000 with 30,000 (arranged through `PlaceBid`); the browser player types 25,000, reads the beaten panel with price 26,300 and minimum 27,700, the field focused and empty; types 40,000 and leads at 31,500; raises to 45,000 and reads `MAXIMUM RELEVÉ` with the price unchanged; the Balance chip shows the committed amount -- the ticket's system test
@@ -143,6 +143,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10, approver (one round): body only, frozen block untouched. The region takes `listing:`/`sheet:`/`outcome:` locals (the listing story's `_outcome` takes locals, not ivars) so Turbo Stream answers can render it and the next story's dialogs can name the card; a nil sheet (seller) still shows a forged POST's refusal; focus after a replace is a server-written value, not render-timing luck; i18n keys static; the rate-limit test uses the existing counting helper.
 
 ## Review Triage Log
 

@@ -3,7 +3,7 @@ title: 'The Annonce shows its history and its outcome'
 type: 'feature'
 ticket: '39.6'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: 'f5b7d792e87f7e996e8cc0c7f5abc2ce04e4c007'
 route: 'full'
 route_source: 'auto'
@@ -96,11 +96,11 @@ context:
 - [ ] `app/domains/game/app/models/game/market/bid.rb` -- add `scope :public_outcomes, -> { where.not(outcome: %w[raise voided]) }` -- one definition of a public validated bid
 - [ ] `app/domains/game/app/queries/game/market/offer_counts.rb` -- `Bid.public_outcomes.where(listing_id: ids).group(:listing_id).count` into a `Hash.new(0)` -- tiles read real counts
 - [ ] `app/domains/game/app/queries/game/market/bid_history.rb` -- `BidHistory.call(token:, viewer:)`: join listing by token, select the explicit columns, the viewer's raise rows plus `public_outcomes`, newest first by `id`; build `Line` objects (bid, extension above its bid, raise for the viewer, creation last), load players in one query, mark the leader's `leading` row only while the listing is open -- the public read never selects a maximum
-- [ ] `app/domains/game/app/queries/game/market/listing_outcome.rb` -- `ListingOutcome.call(token:, viewer:, locale:)` returning nil, `Closing` or `Outcome` as decided; reads `leader_maximum` only when the viewer is the sold listing's leader, the seller's `sale`/`commission` entries only for the seller, the viewer's `lost` rows only for the viewer -- owner-only reads in one place
+- [ ] `app/domains/game/app/queries/game/market/listing_outcome.rb` -- `ListingOutcome.call(token:, viewer:, locale:)` returning nil, `Closing` or `Outcome` as decided; reads `leader_maximum` only when the viewer is the sold listing's leader, the seller's `sale`/`commission` entries only for the seller (`received` is the sum of their `available_delta` for that listing and the seller, the `commission` row being absent when the commission is zero, never `sale` alone), the viewer's `lost` rows only for the viewer -- owner-only reads in one place
 - [ ] `app/controllers/market/listings_controller.rb` -- load `@history` and `@outcome` after `@listing` -- the page reads them on arrival
 - [ ] `app/views/market/listings/show.html.erb` -- remove the leader fact row, add `En tête : <name>` under the price, render `_history` and `_outcome`; keep the file short -- price block and regions
 - [ ] `app/views/market/listings/_history.html.erb` -- `HISTORIQUE` heading, `ol` of lines newest first, `En tête` word mark, extension, raise, creation lines -- the history column
-- [ ] `app/views/market/listings/_outcome.html.erb` -- `Clôture en cours…` or the outcome panel (heading `h2` with `tabindex="-1"`, body, `VOIR LA CARTE` as a `ButtonComponent` link to the card) by kind -- the closed Annonce
+- [ ] `app/views/market/listings/_outcome.html.erb` -- rendered inside an element `id="annonce-bid"` on the Annonce and taking `outcome:` and `viewer:` as locals (never instance variables, so the bidding story can render it from a Turbo Stream); `Clôture en cours…` or the outcome panel (heading `h2` with `tabindex="-1"`, body, `VOIR LA CARTE` as a `ButtonComponent` link to the card) by kind -- the closed Annonce
 - [ ] `app/helpers/market_helper.rb` (or a new `app/helpers/market_history_helper.rb` if the file nears 400 lines) -- `history_line_text(line)`, `outcome_body(outcome)` assembling `t()` keys; no copy in Ruby literals -- keeps views thin
 - [ ] `app/frontend/styles/market-history.css` and `application.css` import -- 330px column on desktop, last on the phone, gold `En tête` mark, outcome panel colours by kind class, no inline style -- the layout
 - [ ] `config/locales/en.yml` and `fr.yml` -- under `market.listings`: `show.leader` ("Leading:" / "En tête :"), `history.heading` (HISTORY / HISTORIQUE), `history.leading` (Leading / En tête), `history.bid` (`%{name}`, price and time are separate elements), `history.extension` ("Auction extended until %{time}" / "Enchère prolongée jusqu'à %{time}"), `history.raise` ("%{name} raised their maximum" / "%{name} a relevé son maximum"), `history.created` ("Listed by %{name}" / "Mise en vente par %{name}"), `outcome.closing` ("Closing…" / "Clôture en cours…"), `outcome.won.title|body|body_surplus|see_card`, `outcome.bought.title|body`, `outcome.lost.title|body`, `outcome.viewer.title|body`, `outcome.seller.title|body`, `outcome.buy_now_suffix`, `outcome.no_bid.title|body`, `outcome.cancelled.title|body`, `outcome.withdrawn.title|body`, each with the Copy deck's French and an English equivalent -- every new string in both languages
@@ -123,6 +123,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10, approver (one round): body only, frozen block untouched. `_outcome` takes locals and sits in `#annonce-bid` so the bidding story reuses it in a Turbo Stream; `received` is the sum of the seller's `sale` and `commission` rows (the commission row is not written when zero).
 
 ## Review Triage Log
 

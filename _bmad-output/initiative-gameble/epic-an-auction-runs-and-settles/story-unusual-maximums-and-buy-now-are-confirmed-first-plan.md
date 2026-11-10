@@ -3,7 +3,7 @@ title: 'Unusual maximums and buy-now are confirmed first'
 type: 'feature'
 ticket: '39.8'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: 'f5b7d792e87f7e996e8cc0c7f5abc2ce04e4c007'
 route: 'full'
 route_source: 'auto'
@@ -90,13 +90,14 @@ context:
 
 **Execution:**
 - [ ] `app/domains/game/app/queries/game/market/bid_sheet.rb` -- add `unusual_multiple`, `buy_now_hold`, `can_buy_now` -- the numbers the dialogs and the button read
-- [ ] `app/controllers/market/bids_controller.rb` -- when `params[:buy_now] == "1"`, take the maximum from the sheet's buy-now price, else `Failure(:invalid_price)` inline; no other change -- the button's server path
+- [ ] `app/components/button_component.rb`, its template and `test/components/button_component_test.rb` -- the component has no `name`/`value` today: add optional `name:` and `value:` rendered on the plain and submit `<button>` only (not on a `method`/`href` form button, not with `opens:`) -- `ACHETER MAINTENANT` needs them
+- [ ] `app/controllers/market/bids_controller.rb` -- when `params[:buy_now] == "1"` and the sheet exists, take the maximum from the sheet's buy-now price, or answer `Failure(:invalid_price)` inline when the listing has none; when the sheet is nil (closed, due, seller, withdrawn) post the typed maximum unchanged so `PlaceBid` gives the real refusal; no other change -- the button's server path
 - [ ] `app/views/market/bids/_buy_now.html.erb` -- `ACHETER MAINTENANT` (`ButtonComponent`, secondary, `name="buy_now" value="1"`, `disabled` when `can_buy_now` is false) and the `Disponible : <amount> PiCoins` text beside it -- the entry point
-- [ ] `app/views/market/bids/_unusual_dialog.html.erb` and `_buy_now_dialog.html.erb` -- the two `<dialog>`s with title (`autofocus`, `tabindex="-1"`), text targets for amount and multiple, `ANNULER`, `✕`, confirm button, the card's title and rarity, the held amount line -- the dialogs
+- [ ] `app/views/market/bids/_unusual_dialog.html.erb` and `_buy_now_dialog.html.erb` -- the two `<dialog>`s (the card's title and rarity come from the region's `listing:` local) with title (`autofocus`, `tabindex="-1"`), text targets for amount and multiple, `ANNULER`, `✕`, confirm button, the card's title and rarity, the held amount line -- the dialogs
 - [ ] `app/views/market/bids/_form.html.erb` and `_region.html.erb` -- render the button row and both dialogs when the sheet allows; add the sheet's `unusual_multiple`, `buy_now` and `buy_now_hold` as scalar values on the field markup -- the gate's inputs
 - [ ] `app/frontend/lib/annonce_confirm.ts` -- `gate`, `ask`, `grant`, `revoke`, `multipleOf`, pure -- the decision
 - [ ] `app/frontend/lib/annonce.ts` and `annonce_view.ts` -- carry `unusualMultiple`, `buyNow`, `buyNowHold`, `price`, the pending gate, its submitter and consent in the state; view fields for the dialogs' texts -- state for the gate
-- [ ] `app/frontend/controllers/annonce_controller.ts` -- `submit` consults the gate: for `none` it continues as before; otherwise it prevents default, remembers the submitter, writes the dialog's text and opens it through the outlet with the right opener (field for unusual, the pressed control for buy-now); `confirmed` closes, consents and `requestSubmit(submitter)`; a keystroke or redraw revokes -- the flow
+- [ ] `app/frontend/controllers/annonce_controller.ts` -- `submit` consults the gate before the single-submit guard marks the form submitting (a gated submit must not leave it stuck): for `none` it continues as before; otherwise it prevents default, remembers the submitter, writes the dialog's text and opens it through the outlet with the right opener (field for unusual, the pressed control for buy-now); `confirmed` closes, consents and `requestSubmit(submitter)`; a keystroke or redraw revokes -- the flow
 - [ ] `app/frontend/controllers/annonce_dialog_controller.ts` -- text targets, `open(opener, texts)`, `confirm` and `cancel` intents, one per dialog -- dialog child
 - [ ] `app/frontend/styles/market-bid.css` -- buy-now row, dialog layout on desktop and phone, no inline style -- look
 - [ ] `config/locales/en.yml` and `fr.yml` -- under `market.bids`: `unusual.title|body|cancel|close|confirm`, `buy_now.title|body|held_extra|cancel|confirm|button|available`, with the Copy deck's French and an English equivalent -- the text
@@ -118,6 +119,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10, approver (one round): body only, frozen block untouched. `ButtonComponent` cannot carry `name`/`value`, so the task adds them; the buy-now dialog's card comes from the region's `listing:` local; `buy_now=1` with no sheet falls through to `PlaceBid`'s own refusal rather than a misleading `invalid_price`; the gate runs before the submit guard.
 
 ## Review Triage Log
 
