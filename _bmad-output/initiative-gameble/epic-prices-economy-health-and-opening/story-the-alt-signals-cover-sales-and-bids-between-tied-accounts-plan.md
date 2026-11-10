@@ -3,7 +3,7 @@ title: 'The alt signals cover sales and bids between tied accounts'
 type: 'feature'
 ticket: '41.8'
 created: '2026-11-10'
-status: 'draft'
+status: 'in-review'
 baseline_revision: '265e0e12dbfb5ca554ea98ff0231161bb96e563d'
 route: 'full'
 route_source: 'auto'
@@ -72,6 +72,8 @@ context:
 - Given seeded sales and bids, when the refresh runs, then each signal appears at its threshold and not below it, a tie comes only from another pair signal, and the page shows each new signal's sentence.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. `SalesOutsidePrice` reads each sold listing with the previous sale's `average_after_sale` through window functions in one SQL query; `MinimumPriceSales` compares the final price with the minimum of the listing's rarity in its own settings version; `TiedBids` takes the pairs of the three pair signals as ties, so a bid never makes one. `AltSignals.call` runs the pair detectors first and hands their pairs to `TiedBids`. Row direction: the seller for the two sale signals, the bidder for the bid signal, each naming the other account. No migration, operation or page changed beyond the sentences.
 
 ## Plan Change Log
 

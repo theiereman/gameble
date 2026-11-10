@@ -3,7 +3,7 @@ title: 'Staff see accounts that open or trade like an alt account'
 type: 'feature'
 ticket: '41.7'
 created: '2026-11-10'
-status: 'in-progress'
+status: 'in-review'
 baseline_revision: '265e0e12dbfb5ca554ea98ff0231161bb96e563d'
 route: 'full'
 route_source: 'auto'
@@ -77,6 +77,8 @@ context:
 - Given players seeded with 130 capsules a day and with one-way trades, when the job has run, then staff see both rows with their facts and reach the account from the link; a player gets the back-office refusal.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. `AltSignals` holds the thresholds and a `Detected` value, with `CapsuleOpening` and `OneWayTrades` as nested queries; `RefreshAltSignals` replaces the table in one transaction and `RefreshAltSignalsJob` runs at 00:40 UTC. The page is `BackOffice::MarketSignalsController` at `back-office/market/signals`, one table row per account and signal, each sentence rendered by `AltSignalSentenceComponent`. The players page accepts `?player=<token>` to show one row, which is where each account link leads. `ReleasePlayer` drops the rows naming a deleted account. The sentences and signal names are dynamic keys, ignored as unused by `config/i18n-tasks.yml`. The migration is `20261110200000`; `db/schema.rb` is regenerated at the end.
 
 ## Plan Change Log
 
