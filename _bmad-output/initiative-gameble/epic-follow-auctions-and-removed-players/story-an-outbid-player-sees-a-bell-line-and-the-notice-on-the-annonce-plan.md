@@ -3,8 +3,8 @@ title: 'An outbid player sees a bell line and the notice on the Annonce'
 type: 'feature'
 ticket: '40.1'
 created: '2026-11-10'
-status: 'draft'
-baseline_revision: '90da13585fcf75a4f5e5491a805e00992dd0933e'
+status: 'in-review'
+baseline_revision: '5918140903aab7936f12e3e3bbc99c8e91f6342e'
 route: 'full'
 route_source: 'auto'
 review: ''
@@ -87,6 +87,8 @@ context:
 - Given a notice of A, when any other player reads, then it is never visible.
 
 ## Implementation Notes
+
+Built as planned; no test or CI was run in this batch. The existing player stream tests that listed every notice of a bid or a sale now select the balance notices, since the same events also carry the market topic. The new copy keys sit under `market.listings.events` and `shell.bell.market`, the latter ignored by the unused-key check because the line's key is built from the notice kind.
 
 ## Plan Change Log
 
