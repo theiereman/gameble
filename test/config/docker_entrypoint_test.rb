@@ -24,18 +24,18 @@ class DockerEntrypointTest < ActiveSupport::TestCase
     end
   end
 
-  test "the web server boot prepares the database, then grants achievements from history, before the server starts" do
+  test "the web server boot prepares the database, then grants achievements from history and gives the market its first settings, before the server starts" do
     status, steps = boot(web_command)
 
     assert status.success?
-    assert_equal [ "rails db:prepare game:backfill_achievements", "thrust #{web_command.drop(1).join(" ")}" ], steps
+    assert_equal [ "rails db:prepare game:backfill_achievements game:create_first_market_settings", "thrust #{web_command.drop(1).join(" ")}" ], steps
   end
 
-  test "a failed database preparation or backfill keeps the server from starting" do
+  test "a failed database preparation, backfill or first settings keeps the server from starting" do
     status, steps = boot(web_command, rails_exit: 1)
 
     assert_not status.success?
-    assert_equal [ "rails db:prepare game:backfill_achievements" ], steps
+    assert_equal [ "rails db:prepare game:backfill_achievements game:create_first_market_settings" ], steps
   end
 
   test "the import worker starts without preparing the database or granting achievements" do
