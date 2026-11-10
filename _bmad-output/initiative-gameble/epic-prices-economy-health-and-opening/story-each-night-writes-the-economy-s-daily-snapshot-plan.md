@@ -3,7 +3,7 @@ title: 'Each night writes the economy''s daily snapshot'
 type: 'feature'
 ticket: '41.2'
 created: '2026-11-10'
-status: 'draft'
+status: 'in-review'
 baseline_revision: '24beb5709830e77166d8cc9167727d33f5bacbd5'
 route: 'full'
 route_source: 'auto'
@@ -78,6 +78,8 @@ context:
 - Given the market opened and a series of days with mints, stamps, sales, commissions and a forfeit, when the snapshots are written day by day, then each circulation equals the previous plus created less destroyed and equals the reconciliation's sum.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. `Median` is shared by the rarity average and the earnings median. `ReconcileWallets.call(cutoff:)` reads the closing circulation in its own snapshot and `Reconciliation` carries it as `circulation_before_cutoff`, nil without a cutoff. `DailyFigures` holds the ledger, pack and wallet reads; the operation only guards, assembles and publishes. The snapshot table's rows are read-only once persisted.
 
 ## Plan Change Log
 

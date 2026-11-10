@@ -3,13 +3,22 @@ module Game
     queue_as :default
 
     def perform(now: Time.current)
-      reconciliation = Market::ReconcileWallets.call
+      midnight = now.utc.beginning_of_day
+      reconciliation = Market::ReconcileWallets.call(cutoff: midnight)
       report(reconciliation)
       Market::RefreshEditionPrices.new.call(now:).value!
+      write_snapshot(reconciliation, midnight.to_date - 1)
       reconciliation
     end
 
     private
+
+    def write_snapshot(reconciliation, day)
+      Market::WriteDailySnapshot.new.call(
+        day:, circulation: reconciliation.circulation_before_cutoff, balanced: reconciliation.balanced?,
+        wallet_differences: reconciliation.wallet_differences.size, circulation_difference: reconciliation.circulation_difference
+      ).value!
+    end
 
     def report(reconciliation)
       reconciliation.wallet_differences.each { report_wallet(it) }

@@ -19,6 +19,7 @@ class Game::ReconcileWalletsJobTest < ActiveSupport::TestCase
 
   def clear
     Game::Market::LedgerEntry.connection.execute("DELETE FROM game_market_ledger_entries")
+    Game::Market::DailySnapshot.connection.execute("DELETE FROM game_market_daily_snapshots")
     Game::Market::Wallet.delete_all
     Game::Market::Settings.connection.execute("DELETE FROM game_market_settings")
   end
@@ -78,5 +79,53 @@ class Game::ReconcileWalletsJobTest < ActiveSupport::TestCase
   ensure
     listing&.destroy!
     Game::Market::EditionPrice.where(card_season_id: card.id).delete_all
+  end
+
+  def snapshots = Game::Market::DailySnapshot.order(:day)
+
+  def backdate_opening!(day) = Game::Market::Settings.connection.execute("DELETE FROM game_market_settings") && open_market!(first_opened_at: day.in_time_zone("UTC"))
+
+  test "the snapshot of the previous UTC day is written with its closing circulation, after the refresh" do
+    now = Time.utc(2026, 11, 10, 0, 10)
+    settings = backdate_opening!(Date.new(2026, 11, 1))
+    Game::Market::LedgerEntry.insert_all!([
+      { player_id: @alice.id, kind: "mint", available_delta: 800, committed_delta: 0, settings_id: settings.id, created_at: Time.utc(2026, 11, 9, 15) },
+      { player_id: @alice.id, kind: "stamp", available_delta: -100, committed_delta: 0, settings_id: settings.id, created_at: Time.utc(2026, 11, 9, 16) },
+      { player_id: @alice.id, kind: "mint", available_delta: 500, committed_delta: 0, settings_id: settings.id, created_at: Time.utc(2026, 11, 10, 0, 5) }
+    ])
+    Game::Market::Wallet.create!(player_id: @alice.id, available: 1_200)
+
+    Game::ReconcileWalletsJob.perform_now(now:)
+
+    snapshot = snapshots.sole
+    assert_equal Date.new(2026, 11, 9), snapshot.day
+    assert_equal [ 800, 100, 700 ], snapshot.values_at(:created, :destroyed, :circulation)
+    assert snapshot.reconciliation_balanced
+  end
+
+  test "the snapshot is still written when the reconciliation finds a difference, and says so" do
+    now = Time.utc(2026, 11, 10, 0, 10)
+    settings = backdate_opening!(Date.new(2026, 11, 1))
+    Game::Market::LedgerEntry.insert_all!([ { player_id: @alice.id, kind: "purchase", available_delta: 25, committed_delta: 0, settings_id: settings.id, created_at: Time.utc(2026, 11, 9, 15) } ])
+    Game::Market::Wallet.create!(player_id: @alice.id, available: 25)
+
+    assert_error_reported(Game::Market::Reconciliation::CirculationMismatch) { Game::ReconcileWalletsJob.perform_now(now:) }
+
+    snapshot = snapshots.sole
+    assert_not snapshot.reconciliation_balanced
+    assert_equal [ 0, 25, 25 ], snapshot.values_at(:wallet_differences, :circulation_difference, :circulation)
+  end
+
+  test "a second run the same day writes no second snapshot, and no snapshot is written before the opening" do
+    now = Time.utc(2026, 11, 10, 0, 10)
+    backdate_opening!(Date.new(2026, 11, 1))
+
+    2.times { Game::ReconcileWalletsJob.perform_now(now:) }
+    assert_equal 1, snapshots.count
+
+    backdate_opening!(Date.new(2026, 11, 10))
+    Game::Market::DailySnapshot.connection.execute("DELETE FROM game_market_daily_snapshots")
+    Game::ReconcileWalletsJob.perform_now(now:)
+    assert_equal 0, snapshots.count
   end
 end

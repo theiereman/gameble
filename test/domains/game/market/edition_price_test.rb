@@ -102,4 +102,22 @@ class Game::Market::EditionPriceTest < ActiveSupport::TestCase
 
     assert_raises(ActiveRecord::StatementInvalid) { row.update_columns(average: 5) }
   end
+
+  test "a rarity's average is the median of its editions with enough sales" do
+    other = catalog_card_seasons(:uncommon_card_one)
+    other.update_columns(rarity: 1)
+    Game::Market::EditionPrice.create!(card_season_id: @card.id, average: 1_000, sales_used: 3)
+    Game::Market::EditionPrice.create!(card_season_id: other.id, average: 4_001, sales_used: 4)
+    Game::Market::EditionPrice.create!(card_season_id: @other.id, average: 9_000, sales_used: 3)
+
+    assert_equal 2_500, Game::Market::EditionPrice.rarity_average(:common)
+    assert_equal 9_000, Game::Market::EditionPrice.rarity_average(:rare)
+  end
+
+  test "a rarity's average skips editions under the minimum and is null with none left" do
+    Game::Market::EditionPrice.create!(card_season_id: @card.id, average: 1_000, sales_used: 2)
+
+    assert_nil Game::Market::EditionPrice.rarity_average(:common)
+    assert_nil Game::Market::EditionPrice.rarity_average(:legendary)
+  end
 end

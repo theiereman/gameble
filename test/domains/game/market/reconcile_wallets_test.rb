@@ -123,4 +123,16 @@ class Game::Market::ReconcileWalletsTest < ActiveSupport::TestCase
   ensure
     ActiveSupport::Notifications.unsubscribe(subscriber)
   end
+
+  test "without a cutoff no circulation is read, with one it counts the entries before it" do
+    midnight = Time.utc(2026, 11, 5)
+    Game::Market::LedgerEntry.insert_all!([
+      { player_id: @alice.id, kind: "mint", available_delta: 900, committed_delta: 0, settings_id: @settings.id, created_at: midnight - 1.second },
+      { player_id: @alice.id, kind: "hold", available_delta: -200, committed_delta: 200, settings_id: @settings.id, created_at: midnight - 1.hour },
+      { player_id: @alice.id, kind: "mint", available_delta: 50, committed_delta: 0, settings_id: @settings.id, created_at: midnight }
+    ])
+
+    assert_nil reconcile.circulation_before_cutoff
+    assert_equal 900, Game::Market::ReconcileWallets.call(cutoff: midnight).circulation_before_cutoff
+  end
 end

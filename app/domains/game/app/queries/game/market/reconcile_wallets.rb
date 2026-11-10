@@ -26,7 +26,11 @@ module Game
         FROM game_market_ledger_entries
       SQL
 
-      def self.call
+      CIRCULATION_BEFORE = <<~SQL.squish.freeze
+        SELECT COALESCE(SUM(available_delta + committed_delta), 0) FROM game_market_ledger_entries WHERE created_at < :cutoff
+      SQL
+
+      def self.call(cutoff: nil)
         ActiveRecord::Base.transaction(isolation: :repeatable_read, joinable: false) do
           connection = ActiveRecord::Base.connection
           rows = connection.select_all(WALLET_DIFFERENCES).to_a
@@ -34,10 +38,15 @@ module Game
           Reconciliation.new(
             wallet_differences: rows.map { |row| Reconciliation::WalletDifference.new(**row.symbolize_keys.transform_values(&:to_i)) },
             minted: totals.fetch("minted").to_i, destroyed: totals.fetch("destroyed").to_i, circulation: totals.fetch("circulation").to_i,
-            read_at: Time.current
+            read_at: Time.current, circulation_before_cutoff: (circulation_before(cutoff) if cutoff)
           )
         end
       end
+
+      def self.circulation_before(cutoff)
+        ActiveRecord::Base.connection.select_value(LedgerEntry.sanitize_sql([ CIRCULATION_BEFORE, { cutoff: } ])).to_i
+      end
+      private_class_method :circulation_before
     end
   end
 end
