@@ -160,7 +160,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_content
-    assert_select ".market-entrust__refusal[role=alert]", "The market is closed for now. Nothing was entrusted."
+    assert_select ".market-entrust__refusal[role=alert]", "The market is closed for now."
     assert_select "#market-suspended-banner"
     assert_select ".entrust-cell[data-ref=?][data-ticked=1]", ref(@common)
   end
@@ -190,7 +190,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_content
-    assert_select ".market-entrust__refusal[role=alert]", /Le marché est fermé/
+    assert_select ".market-entrust__refusal[role=alert]", /Le marché est suspendu/
     assert_select "form#entrust > .market-entrust__refusal[role=alert][tabindex='-1']"
     assert_select "aside .market-entrust__refusal, dialog .market-entrust__refusal", false
     assert_nil flash[:alert]

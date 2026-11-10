@@ -1,0 +1,28 @@
+<% content_for :public_page, true unless current_player %>
+<% content_for :title, t(".heading") %>
+<section class="market-screen" aria-labelledby="market-screen-heading" data-controller="next-page" data-action="focusout->next-page#focusLeft">
+  <header class="market-screen__header">
+    <h1 id="market-screen-heading" class="market-screen__title"><%= t(".heading") %></h1>
+    <%= render "shell/balance_chip", placement: :header %>
+  </header>
+
+  <nav class="market-screen__chips" aria-label="<%= t(".chips_label") %>">
+    <span class="market-screen__chip market-screen__chip--current" aria-current="page"><%= t(".listings") %></span>
+    <% if current_player %>
+      <%= render ButtonComponent.new(variant: :secondary, size: :small, href: new_market_entrustment_path) { t(".entrust") } %>
+    <% else %>
+      <%= render ButtonComponent.new(variant: :secondary, size: :small, disabled: true) { t(".entrust") } %>
+    <% end %>
+  </nav>
+
+  <%= render "markets/sorts", sort: @sort %>
+
+  <% if @listings.rows.empty? %>
+    <p class="market-screen__empty"><%= t(".empty") %></p>
+  <% else %>
+    <ul id="market-tiles" class="market-screen__tiles" aria-label="<%= t(".list_label") %>">
+      <%= render "markets/tiles", rows: @listings.rows %>
+    </ul>
+  <% end %>
+  <%= render "markets/pages", listings: @listings, sort: @sort, page: @page %>
+</section>

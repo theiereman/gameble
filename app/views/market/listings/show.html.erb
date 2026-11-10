@@ -1,0 +1,49 @@
+<% seconds = listing_seconds_left(@listing.ends_at) %>
+<% content_for :public_page, true unless current_player %>
+<% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
+<% content_for :title, @listing.card.title %>
+<% content_for :head do %><meta name="robots" content="noindex"><% end %>
+<section class="market-listing" aria-labelledby="market-listing-heading">
+  <header class="market-listing__header">
+    <h1 id="market-listing-heading" class="market-listing__title" tabindex="-1" autofocus><%= @listing.card.title %></h1>
+    <%= render "shell/balance_chip", placement: :header %>
+  </header>
+
+  <div class="market-listing__layout">
+    <div class="market-listing__card">
+      <%= render CardComponent.new(card: @listing.card, size: :l) %>
+      <dl class="market-listing__facts">
+        <div class="market-listing__fact">
+          <dt><%= t(".seller") %></dt>
+          <dd><%= render PlayerNameComponent.new(player: @listing.seller, viewer: current_player) %></dd>
+        </div>
+        <% if @listing.leader %>
+          <div class="market-listing__fact">
+            <dt><%= t(".leader") %></dt>
+            <dd><%= render PlayerNameComponent.new(player: @listing.leader, viewer: current_player) %></dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+
+    <div class="market-listing__figures">
+      <div class="market-listing__figure">
+        <p class="market-listing__label"><%= t(".price") %></p>
+        <%= render PicoinAmountComponent.new(amount: @listing.current_price, size: :large, class: "market-listing__price") %>
+      </div>
+      <%= tag.div class: "market-listing__figure", data: clock_data(seconds) do %>
+        <p class="market-listing__label"><%= t(".time") %></p>
+        <p class="market-listing__time<%= " market-listing__time--soon" if time_left_soon?(seconds) %>" data-listing-clock-target="label"><%= listing_time_left(seconds) %></p>
+        <p class="market-listing__ends"><%= local_time_tag(@listing.ends_at) %></p>
+      <% end %>
+      <% if @listing.buy_now_price %>
+        <div class="market-listing__figure market-listing__figure--buy-now">
+          <p class="market-listing__label"><%= t(".buy_now") %></p>
+          <%= render PicoinAmountComponent.new(amount: @listing.buy_now_price, class: "market-listing__buy-now") %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="market-listing__history" aria-hidden="true"></div>
+  </div>
+</section>

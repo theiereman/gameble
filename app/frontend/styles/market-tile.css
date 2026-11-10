@@ -1,0 +1,49 @@
+.listing-tile {
+  min-width: 0;
+}
+
+.listing-tile__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  height: 100%;
+  padding: var(--space-4) var(--space-3);
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.listing-tile__link:hover {
+  background: var(--color-panel-raised);
+}
+
+.listing-tile__facts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--font-body);
+  text-align: center;
+}
+
+.listing-tile__price {
+  color: var(--color-text-max);
+  font: var(--font-number);
+  font-size: 17px;
+}
+
+.listing-tile__offers {
+  color: var(--color-muted);
+}
+
+.listing-tile__time--soon {
+  color: var(--color-alert);
+}
+
+.listing-tile__buy-now {
+  color: var(--color-accent);
+  font: var(--font-label);
+  text-transform: uppercase;
+}

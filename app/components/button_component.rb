@@ -3,7 +3,7 @@ class ButtonComponent < ViewComponent::Base
   SIZES = %i[default small].freeze
 
   def initialize(variant: :primary, href: nil, type: :button, method: nil, params: {}, turbo: true, confirm: nil,
-    size: :default, icon: nil, disabled: false, opens: nil, aria_label: nil, describedby: nil)
+    size: :default, icon: nil, disabled: false, opens: nil, aria_label: nil, describedby: nil, rel: nil)
     raise ArgumentError, "unknown button variant: #{variant.inspect}" unless VARIANTS.include?(variant)
     raise ArgumentError, "unknown button size: #{size.inspect}" unless SIZES.include?(size)
     raise ArgumentError, "a form button needs an href" if method && href.nil?
@@ -23,6 +23,7 @@ class ButtonComponent < ViewComponent::Base
     @opens = opens
     @aria_label = aria_label
     @describedby = describedby
+    @rel = rel
   end
 
   private

@@ -105,23 +105,23 @@ module BackOffice
       assert_select "a[href='/en/back-office/market'] .office-tile__title", "The market"
     end
 
-    test "the teaser answers at the market's address once the market is closed after an opening" do
+    test "the market screen answers at the market's address once the market is closed after an opening" do
       close_market!(first_opened_at: Time.current)
 
       get market_path(locale: :en)
 
       assert_response :success
-      assert_select "h1", "The Brotherhood is building the market"
+      assert_select "h1", "Market"
       assert_select "#market-suspended-banner", false
     end
 
-    test "the teaser still answers at the market's address once the market is open" do
+    test "the market screen answers at the market's address once the market is open" do
       open_market!(first_opened_at: Time.current)
 
       get market_path(locale: :en)
 
       assert_response :success
-      assert_select "h1", "The Brotherhood is building the market"
+      assert_select "h1", "Market"
     end
   end
 end
