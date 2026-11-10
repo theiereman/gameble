@@ -13,3 +13,5 @@
   <% end %>
   <%= render "market/bids/foot", sheet:, answer:, posted_amount: %>
 <% end %>
+<%= render "market/bids/unusual_dialog" %>
+<% if sheet.buy_now_price %><%= render "market/bids/buy_now_dialog", listing:, sheet: %><% end %>

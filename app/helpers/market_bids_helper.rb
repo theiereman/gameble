@@ -2,6 +2,7 @@ module MarketBidsHelper
   ANNONCE_ACTIONS = {
     "annonce-field" => { typed: :typed, entered: :entered },
     "annonce-foot" => { raise: :raise },
+    "annonce-dialog" => { confirmed: :confirmed },
     "annonce-status" => {}
   }.freeze
   ANSWER_KINDS = { new_leader: :leading, raise: :raised }.freeze
@@ -60,6 +61,12 @@ module MarketBidsHelper
     when :beaten then t("market.bids.answers.beaten.body_html", **figures)
     end
   end
+
+  def bid_dialog_amount = tag.span(data: { annonce_dialog_target: "amount" })
+
+  def bid_dialog_multiple = tag.span(data: { annonce_dialog_target: "multiple" })
+
+  def bid_card_name(card) = "#{card.title}, #{CardStrings.new.rarity_name(card.rarity).downcase}"
 
   def bid_amount(amount) = amount && render(PicoinAmountComponent.new(amount:))
 

@@ -2335,6 +2335,15 @@ en:
         raised:
           body_html: "Your maximum: %{maximum}. The price does not change."
           title: MAXIMUM RAISED
+      buy_now:
+        available_html: "Available: %{amount}."
+        body_html: "You buy %{card} for %{price}. The card joins your collection. This purchase cannot be cancelled."
+        button: BUY NOW
+        cancel: CANCEL
+        close: Close
+        confirm: "BUY · %{amount}"
+        held_extra_html: "You already hold %{own} on this auction: %{held} more will be held."
+        title: BUY NOW
       form:
         available_html: "Available: %{amount}."
         fixed: It is the most you accept to pay. If you win, you will pay as little as possible.
@@ -2357,6 +2366,12 @@ en:
         live_buy_now: "This amount reaches the buy-now price: you buy the card at once for %{amount}."
         live_hold: "%{amount} PiCoins will be held, then returned if another player does better."
         live_raise: "%{amount} more PiCoins will be held. The price does not change."
+      unusual:
+        body_html: "%{amount} PiCoins is %{multiple} times the current price. This amount will be held on your balance and a bid cannot be cancelled."
+        cancel: CANCEL
+        close: Close
+        confirm_html: "CONFIRM %{amount}"
+        title: UNUSUAL AMOUNT
     listings:
       history:
         created_html: "Listed by %{name}"

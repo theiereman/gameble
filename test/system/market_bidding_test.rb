@@ -97,4 +97,51 @@ class MarketBiddingSystemTest < ApplicationSystemTestCase
     assert_no_selector "#annonce-error", visible: :visible
     assert_no_selector "#annonce-maximum[aria-invalid]"
   end
+
+  test "an unusual maximum asks confirmation, Escape returns to the field with the amount kept, then confirming places it" do
+    sign_in_through_the_site(@bidder)
+    visit market_listing_path(locale: :en, token: @listing.token)
+
+    fill_in "annonce-maximum", with: "60000"
+    submit_button.click
+
+    assert_selector "#annonce-unusual[open] h2:focus", text: "UNUSUAL AMOUNT"
+    assert_selector "#annonce-unusual [data-annonce-dialog-target=amount]", text: "60,000", count: 2
+    assert_selector "#annonce-unusual [data-annonce-dialog-target=multiple]", text: "3"
+
+    page.send_keys(:escape)
+
+    assert_no_selector "#annonce-unusual[open]"
+    assert_selector "#annonce-maximum:focus"
+    assert_field "annonce-maximum", with: "60000"
+    assert_equal 1, Game::Market::Bid.count
+
+    submit_button.click
+    within("#annonce-unusual") { click_on "CONFIRM 60,000" }
+
+    assert_selector "#annonce-answer-heading", text: "YOU ARE LEADING"
+    assert_equal 2, Game::Market::Bid.count
+  end
+
+  test "a buyer cancels the buy-now confirmation back to its button, then confirms and reads the purchase" do
+    @listing.update_columns(buy_now_price: 80_000)
+    sign_in_through_the_site(@bidder)
+    visit market_listing_path(locale: :en, token: @listing.token)
+
+    find("button[name=buy_now]").click
+    assert_selector "#annonce-buy-now[open] h2:focus", text: "BUY NOW"
+    assert_selector "#annonce-buy-now", text: "Tin Soldier, common"
+    within("#annonce-buy-now") { click_on "CANCEL" }
+
+    assert_no_selector "#annonce-buy-now[open]"
+    assert_selector "button[name=buy_now]:focus"
+    assert_equal 1, Game::Market::Bid.count
+
+    find("button[name=buy_now]").click
+    within("#annonce-buy-now") { click_on "BUY · 80,000" }
+
+    assert_selector "#listing-outcome-heading", text: "YOU BOUGHT TIN SOLDIER"
+    assert_link "SEE THE CARD"
+    assert_equal 1, Game::Holding.where(player_id: @bidder.id, card_season_id: @card.id).sum(:quantity)
+  end
 end

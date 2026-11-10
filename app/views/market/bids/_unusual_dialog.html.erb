@@ -1,0 +1,17 @@
+<dialog id="annonce-unusual" class="modal" aria-labelledby="annonce-unusual-title" aria-describedby="annonce-unusual-text"
+        data-controller="dialog annonce-dialog" data-annonce-dialog-kind-value="unusual" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <h2 id="annonce-unusual-title" class="modal__title" tabindex="-1" autofocus><%= t("market.bids.unusual.title") %></h2>
+      <button type="button" class="modal__close" aria-label="<%= t("market.bids.unusual.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <p id="annonce-unusual-text" class="market-dialog__text"><%= t("market.bids.unusual.body_html", amount: bid_dialog_amount, multiple: bid_dialog_multiple) %></p>
+    <div class="market-dialog__actions">
+      <button type="button" class="button button--primary" data-action="annonce-dialog#confirm"><%= t("market.bids.unusual.confirm_html", amount: bid_dialog_amount) %></button>
+      <button type="button" class="button button--secondary" data-action="dialog#close"><%= t("market.bids.unusual.cancel") %></button>
+    </div>
+  <% end %>
+</dialog>

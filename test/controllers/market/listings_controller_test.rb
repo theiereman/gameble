@@ -185,6 +185,54 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
+  test "the form carries the price and the unusual multiple of the current settings, and the dialogs and buy-now button" do
+    Game::Market::Mint.credit(player_id: accounts_players(:administrator).id, amount: 50_000, settings_id: Game::Market::CurrentSettings.call.id)
+    sign_in(accounts_players(:administrator))
+    annonce
+
+    multiple = Game::Market::CurrentSettings.call.unusual_maximum_multiple
+    assert_select "[data-annonce-field-price-value='7800'][data-annonce-field-unusual-multiple-value='#{multiple}']"
+    assert_select "dialog#annonce-unusual[data-controller~=annonce-dialog][data-annonce-dialog-kind-value=unusual] h2[tabindex='-1'][autofocus]", "UNUSUAL AMOUNT"
+    assert_select "dialog#annonce-buy-now[data-annonce-dialog-kind-value=buy_now] h2[autofocus]", "BUY NOW"
+    assert_select "dialog#annonce-buy-now #annonce-buy-now-text", /Blue Depths, rare/
+    assert_select "dialog#annonce-buy-now button", /BUY · 30,000/
+    assert_select "button[type=submit][name=buy_now][value='1']:not([disabled])", "BUY NOW"
+  end
+
+  test "the unusual multiple of the shared fixture is the settings value" do
+    rows = JSON.parse(Rails.root.join("test/fixtures/files/unusual_maximums.json").read)
+
+    assert_includes rows.map { it["multiple"] }, Game::Market::StartingSettings::ATTRIBUTES.fetch(:unusual_maximum_multiple)
+  end
+
+  test "the buy-now button is disabled with the available amount beside it when the hold is not covered" do
+    sign_in(accounts_players(:administrator))
+    annonce
+
+    assert_select ".market-bid__buy-now button[disabled]", "BUY NOW"
+    assert_select ".market-bid__buy-now .market-bid__small", /Available:/
+  end
+
+  test "a listing without a buy-now has no buy-now button and no buy-now dialog" do
+    @listing.update_columns(buy_now_price: nil)
+    sign_in(accounts_players(:administrator))
+    annonce
+
+    assert_select ".market-bid__buy-now", false
+    assert_select "dialog#annonce-buy-now", false
+    assert_select "dialog#annonce-unusual"
+  end
+
+  test "the seller and a visitor read neither button nor dialog" do
+    annonce
+    assert_select "dialog", false
+    assert_select ".market-bid__buy-now", false
+
+    sign_in(@seller)
+    annonce
+    assert_select "dialog", false
+  end
+
   test "the seller reads no form" do
     sign_in(@seller)
     annonce

@@ -2024,6 +2024,15 @@ fr:
         raised:
           body_html: "Votre maximum : %{maximum}. Le prix ne change pas."
           title: "MAXIMUM RELEVÉ"
+      buy_now:
+        available_html: "Disponible : %{amount}."
+        body_html: "Vous achetez %{card} pour %{price}. La carte rejoint votre collection. Cet achat ne peut pas être annulé."
+        button: "ACHETER MAINTENANT"
+        cancel: "ANNULER"
+        close: "Fermer"
+        confirm: "ACHETER · %{amount}"
+        held_extra_html: "Vous avez déjà %{own} bloqués sur cette annonce : %{held} de plus seront bloqués."
+        title: "ACHAT IMMÉDIAT"
       form:
         available_html: "Disponible : %{amount}."
         fixed: "C'est le plus que vous acceptez de payer. Si vous gagnez, vous paierez le moins possible."
@@ -2046,6 +2055,12 @@ fr:
         live_buy_now: "Ce montant atteint l'achat immédiat : vous achetez la carte tout de suite pour %{amount}."
         live_hold: "%{amount} PiCoins seront bloqués, puis rendus si un autre joueur fait mieux."
         live_raise: "%{amount} PiCoins de plus seront bloqués. Le prix ne change pas."
+      unusual:
+        body_html: "%{amount} PiCoins, c'est %{multiple} fois le prix actuel. Ce montant sera bloqué sur votre solde et l'offre ne peut pas être annulée."
+        cancel: "ANNULER"
+        close: "Fermer"
+        confirm_html: "CONFIRMER %{amount}"
+        title: "MONTANT INHABITUEL"
     listings:
       history:
         created_html: "Mise en vente par %{name}"
