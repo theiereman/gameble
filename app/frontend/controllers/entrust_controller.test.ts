@@ -125,6 +125,32 @@ describe("the layout at connect", () => {
   })
 })
 
+describe("the doubles value", () => {
+  const doubles = (): boolean => {
+    const controller = application.getControllerForElementAndIdentifier(form(), "entrust") as EntrustController
+    return controller.doublesValue
+  }
+
+  it("is on when the markup says nothing", async () => {
+    await mount({ phone: false })
+    expect(doubles()).toBe(true)
+  })
+
+  it("is read from the markup", async () => {
+    stubMedia(false)
+    document.body.innerHTML = markup(false).replace(
+      'data-controller="entrust"',
+      'data-controller="entrust" data-entrust-doubles-value="false"',
+    )
+    application = new Application()
+    application.register("entrust", EntrustController)
+    application.register("entrust-recap", EntrustRecapController)
+    application.start()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(doubles()).toBe(false)
+  })
+})
+
 describe("a phone connect", () => {
   beforeEach(() => mount({ phone: true }))
 

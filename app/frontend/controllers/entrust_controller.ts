@@ -36,13 +36,20 @@ function copyFrom(cell: HTMLElement): Copy {
 
 export default class EntrustController extends Controller<HTMLElement> {
   static targets = ["cell"]
-  static values = { locale: String, capLeft: Number, open: Boolean, strings: Object }
+  static values = {
+    locale: String,
+    capLeft: Number,
+    open: Boolean,
+    doubles: { type: Boolean, default: true },
+    strings: Object,
+  }
   static outlets = ["entrust-filters", "entrust-grid", "entrust-recap"]
 
   declare readonly cellTargets: HTMLElement[]
   declare readonly localeValue: string
   declare readonly capLeftValue: number
   declare readonly openValue: boolean
+  declare readonly doublesValue: boolean
   declare readonly stringsValue: EntrustStrings
   declare readonly hasEntrustFiltersOutlet: boolean
   declare readonly entrustFiltersOutlet: EntrustFiltersController
@@ -162,7 +169,7 @@ export default class EntrustController extends Controller<HTMLElement> {
     const ticked = Object.fromEntries(
       this.cellTargets.map((cell) => [cell.dataset.ref ?? "", Number(cell.dataset.ticked ?? 0)]),
     )
-    return start(copies, this.capLeftValue, ticked)
+    return start(copies, this.capLeftValue, ticked, this.doublesValue)
   }
 
   private render(): void {

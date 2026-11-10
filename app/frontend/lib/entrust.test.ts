@@ -61,6 +61,18 @@ describe("the shared preview cases, which the operation also runs", () => {
   })
 })
 
+describe("the starting filter", () => {
+  it("starts with doubles on by default, so single-copy cells are hidden", () => {
+    expect(visible(start(LIST, CAP, {})).map((copy) => copy.rarity)).toEqual(["legendary", "rare"])
+  })
+
+  it("starts with doubles off when the markup says so, showing single-copy cells", () => {
+    const state = start(LIST, CAP, {}, false)
+    expect(state.filter.doubles).toBe(false)
+    expect(visible(state).map((copy) => copy.rarity)).toEqual(["legendary", "rare", "common"])
+  })
+})
+
 describe("ticking", () => {
   it("ticks a cell at one copy and unticks it", () => {
     const ticked = toggle(start(LIST, CAP, {}), "rare:1")
