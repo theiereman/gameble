@@ -3,7 +3,7 @@ title: "An administrator changes the economy settings with the Brotherhood's ann
 type: 'feature'
 ticket: '9'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: 'fba34210796de7c1e7100c0e01d9f1ae5f13a63c'
 route: 'full'
 route_source: 'auto'
