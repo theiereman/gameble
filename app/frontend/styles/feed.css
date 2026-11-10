@@ -4,9 +4,8 @@
  * bottom sheet of type filters; then one row per entry across the shell's content width,
  * at least 68px tall: the sentence and its time on top, the tags and the
  * reactions at the bottom, a first discovery behind its gold badge. On a
- * phone's width the sentence takes the row's whole width, its time beneath
- * it, and stops after three lines. Hard edges, no animation, no opacity to
- * dim a filler.
+ * phone's width the sentence wraps across the row's whole width, its time
+ * beneath it. Hard edges, no animation, no opacity to dim a filler.
  */
 
 .feed {
@@ -455,13 +454,8 @@ html .feed__thumb > .card.card--s[data-tilt] {
   }
 
   .feed__sentence {
-    display: -webkit-box;
     max-width: 100%;
-    overflow: hidden;
     overflow-wrap: anywhere;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
   }
 
   .feed__time {
