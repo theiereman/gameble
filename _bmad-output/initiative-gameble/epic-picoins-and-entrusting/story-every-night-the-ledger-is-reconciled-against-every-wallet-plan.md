@@ -3,7 +3,7 @@ title: 'Every night the ledger is reconciled against every wallet'
 type: 'feature'
 ticket: '11'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: '5ef2bb5aeadbcc785f3862f3f39493d3becb3773'
 route: 'full'
 route_source: 'auto'
@@ -76,6 +76,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- Review: the balanced-series test posted entries that did not net to minted less destroyed (circulation would be 12250, not 14350); rewrote the sale/purchase postings so the series is coherent. No other issue found; tests not run.
 
 ## Review Triage Log
 

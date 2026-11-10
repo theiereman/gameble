@@ -42,8 +42,8 @@ class Game::Market::ReconcileWalletsTest < ActiveSupport::TestCase
     Game::Market::Mint.credit(player_id: @bob.id, amount: 5_000, settings_id: @settings.id)
     post(entry(@alice, :stamp, available: -500))
     post(entry(@alice, :hold, available: -2_000, committed: 2_000))
-    post(entry(@alice, :sale, committed: -2_000), entry(@alice, :commission, available: -100), entry(@bob, :purchase, available: -2_000))
-    post(entry(@carol, :sale, available: 1_900), entry(@bob, :forfeit, available: -50))
+    post(entry(@alice, :purchase, committed: -2_000), entry(@bob, :sale, available: 2_000), entry(@bob, :commission, available: -100))
+    post(entry(@bob, :forfeit, available: -50))
 
     result = reconcile
 
