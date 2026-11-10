@@ -3,8 +3,8 @@ title: 'The Annonce refreshes live while it is open'
 type: 'feature'
 ticket: '40.2'
 created: '2026-11-10'
-status: 'draft'
-baseline_revision: ''
+status: 'in-review'
+baseline_revision: '544f7ce3806038a94b90c4f46772480605d1510b'
 route: 'full'
 route_source: 'auto'
 review: ''
@@ -79,6 +79,8 @@ context:
 - Given a bid in the last 3 minutes, then every viewer sees the extended panel and the new end.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. Two additions the plan did not spell out: the countdown controller re-arms when its seconds value changes (a refresh redraws it), and the field controller watches its own terms attributes and raises `retermed`, so a refresh that leaves the permanent field untouched still updates the bid state and shows the form again when the redrawn page carries no answer panel. The events panels now render for any viewer unless an outcome shows, so a visitor sees the extended panel. The listing events panel is part of the bid region.
 
 ## Plan Change Log
 
