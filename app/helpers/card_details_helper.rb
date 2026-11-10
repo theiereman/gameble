@@ -1,6 +1,8 @@
 module CardDetailsHelper
   TRADE_HOLDERS_SHOWN = 3
 
+  EditionLine = Data.define(:text, :price)
+
   def card_preview_title(view)
     t("card_details.preview.title", title: view.title, rarity: CardStrings.new.rarity_name(view.rarity))
   end
@@ -42,6 +44,15 @@ module CardDetailsHelper
     editions.group_by(&:first).map do |rarity, held|
       seasons = held.map { |_, season_number, _| t("card_details.season_short", number: season_number) }
       t("card_details.editions_line", rarity: strings.rarity_name(rarity), seasons: seasons.join(", "))
+    end
+  end
+
+  def card_detail_edition_entries(editions, strings, prices)
+    return card_detail_edition_lines(editions, strings).map { EditionLine.new(text: it, price: nil) } if prices.blank?
+
+    editions.map do |rarity, season_number, _|
+      text = t("card_details.edition_line", rarity: strings.rarity_name(rarity), season: t("card_details.season_short", number: season_number))
+      EditionLine.new(text:, price: prices[season_number])
     end
   end
 

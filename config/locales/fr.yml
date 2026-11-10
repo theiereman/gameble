@@ -3391,7 +3391,12 @@ fr:
     pioneer:
       dated: "le %{date}"
     season_short: "S%{number}"
+    edition_line: "%{rarity} · %{season}"
     editions_line: "%{rarity} : %{seasons}"
+    more_editions:
+      zero: "%{count} autre édition"
+      one: "%{count} autre édition"
+      other: "%{count} autres éditions"
     editions_more:
       zero: "%{count} autre rareté"
       one: "%{count} autre rareté"

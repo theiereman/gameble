@@ -1047,6 +1047,7 @@ en:
     copies:
       one: "%{count} copy"
       other: "%{count} copies"
+    edition_line: "%{rarity} · %{season}"
     editions_line: "%{rarity}: %{seasons}"
     editions_more:
       one: "%{count} more rarity"
@@ -1073,6 +1074,9 @@ en:
       steam_reviews: Steam reviews
       year: Year
     kicker: Card file
+    more_editions:
+      one: "%{count} more edition"
+      other: "%{count} more editions"
     next: Next card
     no_copies: None
     no_editions: None

@@ -293,6 +293,20 @@
   list-style: none;
 }
 
+.card-detail__editions li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0 var(--space-3);
+}
+
+.card-detail__fact--price dd {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
 .card-detail__editions-fold > .card-detail__editions {
   margin-top: var(--space-1);
 }

@@ -1,11 +1,15 @@
 require "test_helper"
+require_relative "../support/holdings"
 require_relative "../support/market"
+require_relative "../support/second_season"
 require_relative "../support/steam_sign_in"
 
 # The card detail's "Prix moyen" row: the edition's average with its sale count, for a visitor and a player,
 # in each state, and nothing before the market's first opening.
 class CardsAveragePriceTest < ActionDispatch::IntegrationTest
+  include Holdings
   include MarketSettings
+  include SecondSeason
   include SteamSignIn
 
   setup do
@@ -94,5 +98,47 @@ class CardsAveragePriceTest < ActionDispatch::IntegrationTest
     get card_path(locale: :en, slug: "portal")
 
     assert_select ".card-detail__card .picoin-amount", false
+  end
+
+  def edition_lines = css_select(".card-detail__editions li").map { it.text.squish }
+
+  test "each owned edition is a line of EDITIONS with its own price" do
+    open_market!(first_opened_at: 1.day.ago)
+    player = accounts_players(:moderator)
+    season, = publish_second_season(player, held: [])
+    second = Catalog::CardSeason.find_by!(card_id: @priced.card_id, season_id: season.id)
+    Game::Market::EditionPrice.create!(card_season_id: second.id, average: 40_000, sales_used: 3)
+    hold(player, @priced.id, 1)
+    hold(player, second.id, 1)
+    sign_in(player)
+
+    get card_season_path(locale: :en, slug: "portal", number: 2)
+
+    assert_equal [ "Epic · S2 40k", "Epic · S1 15k" ].sort, edition_lines.sort
+    assert_select ".card-detail__editions .picoin-amount[aria-label='40,000 PiCoins']"
+    assert_select ".card-detail__editions .picoin-amount[aria-label='15,000 PiCoins']"
+  end
+
+  test "an owned edition with no sale says so in EDITIONS" do
+    open_market!(first_opened_at: 1.day.ago)
+    player = accounts_players(:moderator)
+    hold(player, catalog_card_seasons(:common_card_one).id, 1)
+    sign_in(player)
+
+    get card_path(locale: :en, slug: "tin-soldier")
+
+    assert_select ".card-detail__editions li .average-price--none", "No sale"
+  end
+
+  test "EDITIONS keeps its grouped lines before the first opening" do
+    open_market!
+    player = accounts_players(:moderator)
+    hold(player, @priced.id, 1)
+    sign_in(player)
+
+    get card_path(locale: :en, slug: "portal")
+
+    assert_equal [ "Epic: S1" ], edition_lines
+    assert_select ".card-detail__editions .picoin-amount", false
   end
 end

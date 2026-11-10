@@ -27,11 +27,18 @@ class CardsController < ApplicationController
     @entrustment = Game::Market::CardEntrustment.call(current_player, card_id: @detail.card_id, state: market) unless @public
     @trade_holders = trade_holders unless @public || @copies
     @pioneer = pioneer_line
-    @price = Game::Market::EditionPrices.call([ @detail.card_season_id ], state: market)[@detail.card_season_id]
+    load_prices(market)
     @set_url = set_url
   end
 
   private
+    def load_prices(market)
+      ids = market.first_opened? ? Catalog::PublishedCardSeasonIds.call(@editions.map { [ @detail.view.id, it.second ] }) : {}
+      prices = Game::Market::EditionPrices.call([ @detail.card_season_id, *ids.values ], state: market)
+      @price = prices[@detail.card_season_id]
+      @edition_prices = ids.to_h { |(_slug, season_number), id| [ season_number, prices[id] ] }
+    end
+
     def trade_holders
       Game::FriendsHolding.call(current_player, card_id: @detail.card_id, card_season_id: @detail.card_season_id)
     end
