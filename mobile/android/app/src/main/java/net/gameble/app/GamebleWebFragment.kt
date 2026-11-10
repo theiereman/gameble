@@ -36,6 +36,7 @@ class GamebleWebFragment : HotwireWebFragment() {
 
     private val pullGesture by lazy { PullGesture(PULL_DISTANCE_DP * resources.displayMetrics.density) }
     private var refreshing = false
+    private var attachedWebView: HotwireWebView? = null
 
     private val host: GamebleActivity?
         get() = activity as? GamebleActivity
@@ -60,6 +61,7 @@ class GamebleWebFragment : HotwireWebFragment() {
     // A WebView rasters only what is on screen; a tab sliding in would otherwise paint itself as it arrives.
     override fun onWebViewAttached(webView: HotwireWebView) {
         super.onWebViewAttached(webView)
+        attachedWebView = webView
         webView.settings.offscreenPreRaster = true
         webView.setOnScrollChangeListener { _, _, scrollY, _, _ -> host?.screenScrolled(navigator, scrollY) }
         webView.setOnTouchListener { _, event ->
@@ -98,8 +100,16 @@ class GamebleWebFragment : HotwireWebFragment() {
     private fun startRefresh() {
         refreshing = true
         host?.screenRefreshing(navigator, true)
-        refresh(displayProgress = false)
+        refreshInPlace()
         view?.postDelayed(::finishRefresh, REFRESH_TIMEOUT_MS)
+    }
+
+    // Hotwire's refresh cold-boots the page behind its progress view; a Turbo visit keeps the screen until the new one renders.
+    private fun refreshInPlace() {
+        val webView = attachedWebView ?: return refresh(displayProgress = false)
+        webView.evaluateJavascript(REFRESH_IN_PLACE_SCRIPT) { refreshed ->
+            if (refreshed != "true" && refreshing) refresh(displayProgress = false)
+        }
     }
 
     private fun finishRefresh() {
@@ -109,6 +119,7 @@ class GamebleWebFragment : HotwireWebFragment() {
     }
 
     override fun onWebViewDetached(webView: HotwireWebView) {
+        attachedWebView = null
         webView.setOnScrollChangeListener(null)
         webView.setOnTouchListener(null)
         super.onWebViewDetached(webView)
@@ -157,3 +168,5 @@ internal fun HotwireDestination.hideAppBar() {
 
 private const val PULL_DISTANCE_DP = 80f
 private const val REFRESH_TIMEOUT_MS = 12_000L
+private const val REFRESH_IN_PLACE_SCRIPT =
+    "window.Turbo ? (Turbo.visit(location.href, { action: 'replace' }), true) : false"

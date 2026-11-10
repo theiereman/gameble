@@ -120,9 +120,37 @@ final class GamebleWebViewController: HotwireWebViewController {
     private func startRefresh() {
         refreshing = true
         TopBarNavigation.shared.shell?.showRefreshing(true)
-        reloadVisitable()
+        refreshInPlace()
         DispatchQueue.main.asyncAfter(deadline: .now() + Self.refreshTimeout) { [weak self] in self?.finishRefresh() }
     }
+
+    // Hotwire's reload cold-boots the page behind a spinner; a Turbo visit keeps the screen until the new one renders.
+    private func refreshInPlace() {
+        guard let webView = visitableView.webView else { return reloadVisitable() }
+        webView.callAsyncJavaScript(Self.refreshInPlaceScript, arguments: [:], in: nil, in: .page) { [weak self] result in
+            guard let self, self.refreshing else { return }
+            if case .success(let refreshed) = result, refreshed as? Bool == true {
+                self.finishRefresh()
+            } else {
+                self.reloadVisitable()
+            }
+        }
+    }
+
+    private static let refreshInPlaceScript = """
+        if (!window.Turbo) return false
+        await new Promise((resolve) => {
+          const settle = () => {
+            document.removeEventListener("turbo:load", settle)
+            document.removeEventListener("turbo:fetch-request-error", settle)
+            resolve()
+          }
+          document.addEventListener("turbo:load", settle)
+          document.addEventListener("turbo:fetch-request-error", settle)
+          Turbo.visit(location.href, { action: "replace" })
+        })
+        return true
+        """
 
     private func finishRefresh() {
         guard refreshing else { return }
