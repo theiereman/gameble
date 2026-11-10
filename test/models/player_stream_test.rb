@@ -129,6 +129,12 @@ class PlayerStreamTest < ActiveSupport::TestCase
     assert_empty batches
   end
 
+  test "a listing yields the seller's balance notice" do
+    assert_includes PlayerStream::EVENTS, Game::Market::CardListed
+    assert_equal [ { player_id: @alice.id, balance: true } ],
+      PlayerStream.notices(Game::Market::CardListed.new(data: { listing_id: 1, seller_id: @alice.id, card_season_id: @one }))
+  end
+
   test "a refused entrustment enqueues nothing" do
     settings = close_market!
 
