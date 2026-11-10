@@ -3,7 +3,7 @@ title: 'A card''s detail shows its edition''s average price, kept current every 
 type: 'feature'
 ticket: '41.1'
 created: '2026-11-10'
-status: 'draft'
+status: 'in-progress'
 baseline_revision: '231c45ca83e64d28ad829604df9e8773aa3139f9'
 route: 'full'
 route_source: 'auto'
