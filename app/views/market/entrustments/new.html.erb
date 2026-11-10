@@ -27,8 +27,15 @@
       <% end %>
     <% else %>
       <%= form_with url: market_entrustments_path, id: "entrust", class: "market-entrust__form",
-            data: { turbo: false, layout: "wide", **entrust_root_data(open: @open, cap_left: @cap_left) } do %>
+            data: { turbo: false, layout: "wide", **entrust_root_data(open: @open, cap_left: @cap_left, doubles: @doubles) } do %>
         <%= hidden_field_tag :settings, @settings.token, id: nil %>
+        <%= hidden_field_tag :card, @card_slug, id: nil if @card_slug %>
+        <% if @card_slug %>
+          <p class="market-entrust__card-only">
+            <%= t(".card_only", title: @copies.first.title) %>
+            <%= render ButtonComponent.new(variant: :link, href: new_market_entrustment_path) { t(".all_cards") } %>
+          </p>
+        <% end %>
         <% if @refusal %>
           <p class="market-entrust__refusal" role="alert" tabindex="-1"><%= @refusal %></p>
         <% end %>
