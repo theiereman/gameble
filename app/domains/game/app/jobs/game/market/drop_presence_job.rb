@@ -4,6 +4,7 @@ module Game
       queue_as :default
 
       def perform
+        drop(RemovedPresence.sellers, WithdrawListing, WithdrawListing::NOT_WITHDRAWABLE)
         drop(RemovedPresence.leaders(now: Time.current), VoidLead, VoidLead::LEAD_NOT_VOIDABLE)
       end
 

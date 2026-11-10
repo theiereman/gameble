@@ -61,6 +61,19 @@ class Game::Market::DropPresenceJobTest < ActiveSupport::TestCase
     assert_equal [ @leader.id, nil ], [ first, second ].map { it.reload.leader_id }
   end
 
+  test "a listing of a removed seller led by a removed player is withdrawn first, so no lead is voided" do
+    listing = led(@card)
+    @seller.update_columns(banned_at: Time.current)
+    @leader.update_columns(banned_at: Time.current)
+
+    Game::Market::DropPresenceJob.perform_now
+
+    assert_equal "withdrawn", listing.reload.status
+    assert_equal 0, Game::Market::Bid.where(listing_id: listing.id, outcome: "voided").count
+    assert_equal 1, Game::Market::LedgerEntry.where(listing_id: listing.id, kind: "release").count
+    assert_equal [ 100_000, 0 ], Game::Market::Wallet.find_by!(player_id: @leader.id).attributes.values_at("available", "committed")
+  end
+
   test "a second run changes nothing" do
     led(@card)
     @leader.update_columns(banned_at: Time.current)

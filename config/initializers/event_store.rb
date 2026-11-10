@@ -37,7 +37,7 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Handlers::SaleFeed, to: [ Game::Market::AuctionSold ])
   event_store.subscribe(Game::Market::Handlers::OutbidNotices, to: [ Game::Market::BidPlaced ])
   event_store.subscribe(Game::Market::Handlers::OutcomeNotices, to: [ Game::Market::AuctionSold, Game::Market::AuctionUnsold ])
-  event_store.subscribe(Game::Market::Handlers::RemovalNotices, to: [ Game::Market::LeadVoided ])
+  event_store.subscribe(Game::Market::Handlers::RemovalNotices, to: [ Game::Market::LeadVoided, Game::Market::ListingWithdrawn ])
   event_store.subscribe(LiveStream, to: LiveStream::EVENTS)
   event_store.subscribe(ReactionStream, to: ReactionStream::EVENTS)
   event_store.subscribe(Game::Handlers::PlayerActivity, to: Game::Handlers::PlayerActivity::EVENTS.keys)

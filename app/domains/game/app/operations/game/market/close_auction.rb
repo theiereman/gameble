@@ -2,7 +2,7 @@ module Game
   module Market
     class CloseAuction < Operation
       include AuctionSettlement
-      include ListingReservation
+      include ListingEnding
 
       CLOSED_MEANWHILE = Dry::Monads::Failure(:listing_not_closable)
 
@@ -47,22 +47,6 @@ module Game
         entries = settle_sale(listing:, winner_id:, held: listing.leader_maximum, final_price: price, now:)
         Ledger.post(entries)
         publish_to_seller(listing, sold_event(listing:, winner_id:, final_price: price, surplus: listing.leader_maximum - price))
-      end
-
-      def end_without_sale(listing, status, now)
-        leader_id = listing.leader_id
-        released = listing.leader_maximum.to_i
-        release_reservation(listing, now)
-        listing.update!(status:, leader_id: nil, leader_maximum: nil)
-        Ledger.post(release_entries(listing, leader_id, released))
-        event = status == "withdrawn" ? ListingWithdrawn.new(data: { listing_id: listing.id, seller_id: listing.seller_id, leader_id:, released: }) : AuctionUnsold.new(data: { listing_id: listing.id, seller_id: listing.seller_id })
-        publish_to_seller(listing, event)
-      end
-
-      def release_entries(listing, leader_id, released)
-        return [] unless leader_id && released.positive?
-
-        [ Ledger::Entry.new(player_id: leader_id, kind: :release, available_delta: released, committed_delta: -released, listing_id: listing.id, settings_id: listing.settings_id) ]
       end
     end
   end
