@@ -3,7 +3,7 @@ title: "The Archives' stocks are summed every hour"
 type: 'feature'
 ticket: '12'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: 'f7f4f3d2183e8f913b76e70bed07fa8b99192a20'
 route: 'full'
 route_source: 'auto'
