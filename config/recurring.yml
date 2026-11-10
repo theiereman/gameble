@@ -57,12 +57,19 @@ reconcile_wallets: &reconcile_wallets
   queue: default
   schedule: every day at 12:10am
 
+# The Archives' stock of each edition is summed from the players' deposits.
+sum_archive_stocks: &sum_archive_stocks
+  class: Game::ArchiveStocksJob
+  queue: default
+  schedule: every hour
+
 development:
   recover_stalled_imports: *recover_stalled_imports
   sum_weekly_goal: *sum_weekly_goal
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
   reconcile_wallets: *reconcile_wallets
+  sum_archive_stocks: *sum_archive_stocks
   publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
@@ -73,6 +80,7 @@ production:
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
   reconcile_wallets: *reconcile_wallets
+  sum_archive_stocks: *sum_archive_stocks
   publish_weekly_verdict: *publish_weekly_verdict
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
