@@ -1420,6 +1420,8 @@ en:
       odds_not_confirmed: Confirm that the odds are published and truthful before opening the market.
       settings_changed: The market settings changed while you were on this page. Reload it and check them.
       terms_not_confirmed: Confirm that the market terms are in force before opening the market.
+      listing_not_found: This listing does not exist.
+      listing_not_closable: This auction cannot be closed.
       market_busy: The Archives are busy right now. Try again in a moment.
       market_closed: The market is closed for now.
       buy_now_below_minimum: The buy-now price is below the minimum for this rarity.
