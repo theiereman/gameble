@@ -55,6 +55,8 @@ final class GamebleWebViewController: HotwireWebViewController {
         super.visitableDidActivateWebView(webView)
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.scrollView.alwaysBounceVertical = visitableView.allowsPullToRefresh
+        visitableView.refreshControl.tintColor = Palette.muted
+        placeRefreshControlBelowTopBar()
         scrollObservation = webView.scrollView.observe(\.contentOffset) { [weak self] scrollView, _ in
             self?.scrolled(scrollView)
         }
@@ -88,6 +90,15 @@ final class GamebleWebViewController: HotwireWebViewController {
         guard let allowed = pullToRefreshBeforeHold else { return }
         pullToRefreshBeforeHold = nil
         visitableView.allowsPullToRefresh = allowed
+        placeRefreshControlBelowTopBar()
+    }
+
+    // Hotwire pins the spinner to the web view's top edge, which the app's top bar covers.
+    private func placeRefreshControlBelowTopBar() {
+        let spinner = visitableView.refreshControl
+        for constraint in visitableView.constraints where constraint.firstItem === spinner && constraint.firstAttribute == .top {
+            constraint.constant = isSheet ? 0 : TopBarView.height
+        }
     }
 
     func dialogChanged(open: Bool) {
