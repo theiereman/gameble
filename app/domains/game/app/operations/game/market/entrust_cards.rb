@@ -18,7 +18,7 @@ module Game
           holdings = TradeLocks.holdings(player.id, lines.keys)
           step enough_copies(lines, holdings)
           values = step values_of(lines, settings)
-          cap_left = [ settings.daily_cap - MintedToday.call(player.id), 0 ].max
+          cap_left = CapLeft.call(player.id, settings:)
           entrusted, stayed = split_by_cap(lines, values, cap_left)
           step(Failure(:nothing_fits)) if entrusted.empty?
           minted = entrusted.sum { |card_season_id, copies| values.fetch(card_season_id) * copies }
