@@ -8,5 +8,19 @@
     <p class="market-entrust__total"><%= t(".minted", amount: picoins(@entrusted.minted)) %></p>
     <p class="market-entrust__count"><%= t(".copies", count: @entrusted.copies) %></p>
   <% end %>
+  <% if @entrusted.stayed.any? %>
+    <%= render PanelComponent.new(class: "market-entrust__stayed") do %>
+      <div role="status">
+        <h2 class="market-entrust__stayed-heading"><%= t(".stayed.heading", count: @entrusted.stayed.size) %></h2>
+        <ul class="market-entrust__stayed-list">
+          <% @entrusted.stayed.each do |stayed| %>
+            <% name = @stayed_names.fetch(stayed.card_season_id) %>
+            <li class="market-entrust__stayed-line"><%= t(".stayed.line", title: name.title, season: name.season_number, count: stayed.copies, amount: picoins(stayed.value)) %></li>
+          <% end %>
+        </ul>
+        <p class="market-entrust__stayed-cap"><%= t(".stayed.cap_left", amount: picoins(@entrusted.cap_left)) %></p>
+      </div>
+    <% end %>
+  <% end %>
   <%= render ButtonComponent.new(variant: :link, href: new_market_entrustment_path) { t(".again") } %>
 </section>

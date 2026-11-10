@@ -125,4 +125,66 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to new_market_entrustment_path(locale: :en)
   end
+
+  test "the lines are applied most valuable first whatever the form order" do
+    settings = open_market!
+    hold(@player, @common.id, 1)
+    hold(@player, @rare.id, 1)
+    Game::Market::Mint.credit(player_id: @player.id, amount: 1_195_000, settings_id: settings.id)
+    sign_in(@player)
+
+    post market_entrustments_path(locale: :en), params: { settings: settings.token, copies: { ref(@common) => "1", ref(@rare) => "1" } }
+
+    assert_response :success
+    assert_select ".market-entrust__total", /5,000 PiCoins/
+    assert_equal 1, Game::Holding.find_by(player_id: @player.id, card_season_id: @common.id).quantity
+    assert_equal 0, Game::Holding.find_by(player_id: @player.id, card_season_id: @rare.id).quantity
+  end
+
+  test "a ticked ref that is no longer a free copy goes last and the batch is refused" do
+    settings = open_market!
+    hold(@player, @common.id, 1)
+    sign_in(@player)
+
+    assert_no_difference -> { Game::Market::LedgerEntry.count } do
+      post market_entrustments_path(locale: :en), params: { settings: settings.token, copies: { ref(@rare) => "1", ref(@common) => "1" } }
+    end
+
+    assert_response :unprocessable_content
+    assert_match "free copies", flash[:alert]
+  end
+
+  test "the result names a copy that stayed with its value and the cap left before the batch" do
+    settings = open_market!
+    legendary = catalog_card_seasons(:legendary_card_one)
+    hold(@player, legendary.id, 1)
+    hold(@player, @common.id, 1)
+    Game::Market::Mint.credit(player_id: @player.id, amount: 1_150_000, settings_id: settings.id)
+    sign_in(@player)
+
+    post market_entrustments_path(locale: :en), params: { settings: settings.token, copies: { ref(legendary) => "1", ref(@common) => "1" } }
+
+    assert_response :success
+    assert_select ".market-entrust__total", /1,000 PiCoins/
+    assert_select "[role=status] .market-entrust__stayed-heading", "1 card was not entrusted"
+    assert_select ".market-entrust__stayed-line", /1 copy stays in your collection \(100,000 PiCoins\)/
+    assert_select ".market-entrust__stayed-cap", /50,000/
+    assert_select "[style]", false
+    assert_equal 1, Game::Holding.find_by(player_id: @player.id, card_season_id: legendary.id).quantity
+  end
+
+  test "when nothing fits the page answers 422 with the renewal line and keeps the ticks" do
+    settings = open_market!
+    hold(@player, @common.id, 1)
+    Game::Market::Mint.credit(player_id: @player.id, amount: 1_200_000, settings_id: settings.id)
+    sign_in(@player)
+
+    assert_no_difference -> { Game::Market::LedgerEntry.count } do
+      post market_entrustments_path(locale: :fr), params: { settings: settings.token, copies: { ref(@common) => "1" } }
+    end
+
+    assert_response :unprocessable_content
+    assert_match "00:00 UTC", flash[:alert]
+    assert_select "input[name=?][value=1]", "copies[#{ref(@common)}]"
+  end
 end

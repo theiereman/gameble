@@ -1352,6 +1352,7 @@ en:
       market_closed: The market is closed for now. Nothing was entrusted.
       no_rarity: One of these cards has no rarity yet, so the Brotherhood cannot value it.
       not_enough_copies: You do not have that many free copies of one of these cards.
+      nothing_fits: No card fits within your cap for today. It renews at 00:00 UTC.
     steam:
       already_published: The cards of that run are already published in a season,
         officer. Start a new import to fill the next draft.
@@ -2199,6 +2200,14 @@ en:
         heading: The Archives thank you
         kicker: Entrusted
         minted: "%{amount} PiCoins minted for you"
+        stayed:
+          cap_left: "You had %{amount} of cap left today. It renews at 00:00 UTC."
+          heading:
+            one: "%{count} card was not entrusted"
+            other: "%{count} cards were not entrusted"
+          line:
+            one: "%{title}, season %{season}: %{count} copy stays in your collection (%{amount} PiCoins)"
+            other: "%{title}, season %{season}: %{count} copies stay in your collection (%{amount} PiCoins each)"
         throttled: Slow down, the Archives are counting. Try again in a minute.
       new:
         closed: The market is closed for now. Nothing can be entrusted until it reopens.

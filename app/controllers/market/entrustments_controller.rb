@@ -12,10 +12,11 @@ module Market
     def create
       authorize %i[market entrustment], :create?
       ids = Game::Market::EntrustableCopies.resolve(ticked.keys)
-      lines = ticked.filter_map { |ref, copies| [ ids[ref], copies ] if ids.key?(ref) }
+      lines = most_valuable_first(ticked.filter_map { |ref, copies| [ ref, ids[ref], copies ] if ids.key?(ref) })
       result = Game::Market::EntrustCards.new.call(player: current_player, lines:, settings_token: params[:settings].to_s)
       if result.success?
         @entrusted = result.value!
+        @stayed_names = Game::Market::CardNames.call(@entrusted.stayed.map(&:card_season_id))
       else
         flash.now[:alert] = Game::Market::EntrustCards.failure_message(result.failure)
         load_page
@@ -29,6 +30,16 @@ module Market
         @open = @settings&.open.present?
         @copies = current_player && @settings ? Game::Market::EntrustableCopies.call(current_player, settings: @settings) : []
         @ticked = ticked
+      end
+
+      # The order of the page's copies; a ticked ref that is no longer a free copy goes last, for the operation to refuse.
+      def most_valuable_first(resolved)
+        settings = Game::Market::CurrentSettings.call
+        copies = settings ? Game::Market::EntrustableCopies.call(current_player, settings:) : []
+        position = copies.each_with_index.to_h { |copy, index| [ copy.ref, index ] }
+        resolved.each_with_index
+          .sort_by { |(ref, _, _), posted| [ position.fetch(ref, position.size), posted ] }
+          .map { |(_, card_season_id, copies_count), _| [ card_season_id, copies_count ] }
       end
 
       def ticked
