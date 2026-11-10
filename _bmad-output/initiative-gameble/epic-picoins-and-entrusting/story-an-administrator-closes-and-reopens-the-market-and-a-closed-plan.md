@@ -3,7 +3,7 @@ title: 'An administrator closes and reopens the market, and a closed market refu
 type: 'feature'
 ticket: '38.10'
 created: '2026-11-10'
-status: 'in-review'
+status: 'built'
 baseline_revision: '059e0eb1f3747ac554983bff74235ec8933650e8'
 route: 'full'
 route_source: 'auto'
@@ -113,6 +113,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10 review: adversarial pass over the diff (closing path, controller, policy, views, locales, banner, recap controller, tests) found no defect to fix; tests not run yet, to run once at the end of the market build.
 
 ## Review Triage Log
 
