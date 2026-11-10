@@ -1307,4 +1307,44 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".card-detail__market", false
   end
+
+  test "METTRE EN VENTE links to the filtered Mettre en vente beside CONFIER when the player holds a free copy" do
+    Game::Market::Settings.delete_all
+    open_market!
+    hold(accounts_players(:player), catalog_card_seasons(:portal_one).id, 2, reserved: 1)
+    sign_in(accounts_players(:player))
+
+    get card_path(locale: :en, slug: "portal")
+
+    assert_select ".card-detail__market a.button--secondary[href=?]", new_market_card_sale_path(locale: :en, slug: "portal"), text: "Put up for sale"
+    assert_select ".card-detail__market a.button--secondary", 2
+    assert_select ".card-detail__market-note", false
+  end
+
+  test "METTRE EN VENTE is greyed with the reserved count shown once when every copy is reserved" do
+    Game::Market::Settings.delete_all
+    open_market!
+    hold(accounts_players(:player), catalog_card_seasons(:portal_one).id, 2, reserved: 2)
+    sign_in(accounts_players(:player))
+
+    get card_path(locale: :en, slug: "portal")
+
+    assert_select ".card-detail__market button[disabled]", text: "Put up for sale"
+    assert_select ".card-detail__market a", false
+    assert_select ".card-detail__market-note", count: 1, text: "2 reserved copies"
+  end
+
+  test "METTRE EN VENTE is absent while the market is suspended and for a visitor" do
+    Game::Market::Settings.delete_all
+    open_market!(first_opened_at: 2.days.ago)
+    hold(accounts_players(:player), catalog_card_seasons(:portal_one).id, 2)
+
+    get card_path(locale: :en, slug: "portal")
+    assert_select "a[href=?]", new_market_card_sale_path(locale: :en, slug: "portal"), false
+
+    sign_in(accounts_players(:player))
+    close_market!(first_opened_at: 2.days.ago)
+    get card_path(locale: :en, slug: "portal")
+    assert_select ".card-detail__market", false
+  end
 end

@@ -96,16 +96,36 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/rel="next"/, response.body)
   end
 
-  test "a visitor reads the screen with CONFIER greyed and no balance chip, a player gets the link and the chip" do
+  test "a visitor reads the screen with both actions greyed and no balance chip, a player gets the links and the chip" do
     open_for_good
     get market_path(locale: :en)
-    assert_select ".market-screen__chips button[disabled]", "ENTRUST CARDS"
+    assert_select ".market-screen__actions button[disabled]", 2
+    assert_select ".market-screen__actions button[disabled][aria-label=?]", "ENTRUST CARDS"
+    assert_select ".market-screen__actions button[disabled][aria-label=?]", "PUT UP FOR SALE"
     assert_select ".balance-chip", false
 
     sign_in(accounts_players(:player))
     get market_path(locale: :en)
-    assert_select ".market-screen__chips a.button--secondary[href=?]", new_market_entrustment_path(locale: :en), "ENTRUST CARDS"
+    assert_select ".market-screen__actions a.button--secondary[href=?][aria-label=?]", new_market_entrustment_path(locale: :en), "ENTRUST CARDS" do
+      assert_select ".market-screen__long", "ENTRUST CARDS"
+      assert_select ".market-screen__short", "ENTRUST"
+    end
+    assert_select ".market-screen__actions a.button--primary[href=?][aria-label=?]", new_market_sale_path(locale: :en), "PUT UP FOR SALE" do
+      assert_select ".market-screen__long", "PUT UP FOR SALE"
+      assert_select ".market-screen__short", "SELL"
+    end
     assert_select ".balance-chip"
+  end
+
+  test "while the market is suspended the sale action is disabled for a player" do
+    Game::Market::Settings.delete_all
+    close_market!(first_opened_at: 2.days.ago)
+    sign_in(accounts_players(:player))
+
+    get market_path(locale: :en)
+
+    assert_select ".market-screen__actions button[disabled][aria-label=?]", "PUT UP FOR SALE"
+    assert_select ".market-screen__actions a[href=?]", new_market_sale_path(locale: :en), false
   end
 
   test "the screen reads in French" do
