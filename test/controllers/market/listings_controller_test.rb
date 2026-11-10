@@ -62,7 +62,8 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     annonce
 
     assert_select ".market-listing__buy-now", false
-    assert_select ".market-listing__fact dt", text: "Leading"
+    assert_select ".market-listing__leader", /Leading:/
+    assert_select ".market-listing__fact dt", text: "Leading", count: 0
     assert_select ".market-listing__price[aria-label='8,000 PiCoins']"
     assert_no_match(/8,500|8500/, response.body)
   end
@@ -92,6 +93,72 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", "Blue Depths"
+  end
+
+  test "the history of a listing with no bid is its creation line" do
+    annonce
+
+    assert_select ".market-history__heading", "HISTORY"
+    assert_select ".market-history__line", count: 1
+    assert_select ".market-history__line--created", /Listed by Alice/
+    assert_select "#annonce-bid .market-outcome", false
+  end
+
+  test "a visitor reads the bids newest first, the leader's mark and no raise line, and no maximum" do
+    bidder = accounts_players(:moderator)
+    bidder.update_columns(persona_name: "Bob")
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 98_765, price_after: 7_800, outcome: "leading")
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 87_654, price_after: 7_800, outcome: "raise")
+    @listing.update_columns(leader_id: bidder.id, leader_maximum: 87_654)
+    annonce
+
+    assert_select ".market-history__line", count: 2
+    assert_select ".market-history__line--bid .market-history__leading", "Leading"
+    assert_select ".market-history__line--raise", false
+    assert_no_match(/98,765|98765|87,654|87654/, response.body)
+    assert_select ".market-listing__leader", /Leading:\s*Bob/
+  end
+
+  test "the leader reads their raise line and still no amount of any maximum" do
+    bidder = accounts_players(:moderator)
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 98_765, price_after: 7_800, outcome: "leading")
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 87_654, price_after: 7_800, outcome: "raise")
+    @listing.update_columns(leader_id: bidder.id, leader_maximum: 87_654)
+    sign_in(bidder)
+    annonce
+
+    assert_select ".market-history__line--raise", /raised their maximum/
+    assert_no_match(/98,765|98765|87,654|87654/, response.body)
+  end
+
+  test "an open listing past its end reads closing where the form will sit" do
+    @listing.update_columns(ends_at: 1.minute.ago)
+    annonce
+
+    assert_select "#annonce-bid .market-outcome--closing", "Closing…"
+  end
+
+  test "a sold listing reads the outcome for a visitor and keeps the history" do
+    bidder = accounts_players(:moderator)
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 9_000, price_after: 7_800, outcome: "won")
+    @listing.update_columns(status: "sold", sold_at: Time.current, final_price: 7_800, leader_id: bidder.id, leader_maximum: 9_000)
+    annonce
+
+    assert_select "#annonce-bid h2#listing-outcome-heading[tabindex='-1']", "AUCTION ENDED"
+    assert_select "#annonce-bid .market-outcome__body", /wins Blue Depths for/
+    assert_select "#annonce-bid .market-outcome__body .picoin-amount__figure", "7,800"
+    assert_select ".market-history__line--bid", count: 1
+    assert_no_match(/9,000|9000/, response.body)
+  end
+
+  test "the Annonce reads its history and outcome in French" do
+    @listing.update_columns(status: "unsold")
+    annonce(locale: :fr)
+
+    assert_select ".market-history__heading", "HISTORIQUE"
+    assert_select ".market-history__line--created", /Mise en vente par Alice/
+    assert_select "#annonce-bid .market-outcome__title", "ENCHÈRE TERMINÉE"
+    assert_select "#annonce-bid .market-outcome__body", "Aucune offre."
   end
 
   test "an unknown token is a 404" do

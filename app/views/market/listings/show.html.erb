@@ -17,12 +17,6 @@
           <dt><%= t(".seller") %></dt>
           <dd><%= render PlayerNameComponent.new(player: @listing.seller, viewer: current_player) %></dd>
         </div>
-        <% if @listing.leader %>
-          <div class="market-listing__fact">
-            <dt><%= t(".leader") %></dt>
-            <dd><%= render PlayerNameComponent.new(player: @listing.leader, viewer: current_player) %></dd>
-          </div>
-        <% end %>
       </dl>
     </div>
 
@@ -30,6 +24,9 @@
       <div class="market-listing__figure">
         <p class="market-listing__label"><%= t(".price") %></p>
         <%= render PicoinAmountComponent.new(amount: @listing.current_price, size: :large, class: "market-listing__price") %>
+        <% if @listing.leader %>
+          <p class="market-listing__leader"><%= t(".leader") %> <%= render PlayerNameComponent.new(player: @listing.leader, viewer: current_player) %></p>
+        <% end %>
       </div>
       <%= tag.div class: "market-listing__figure", data: clock_data(seconds) do %>
         <p class="market-listing__label"><%= t(".time") %></p>
@@ -44,6 +41,10 @@
       <% end %>
     </div>
 
-    <div class="market-listing__history" aria-hidden="true"></div>
+    <div id="annonce-bid" class="market-listing__bid">
+      <%= render "market/listings/outcome", outcome: @outcome, viewer: current_player %>
+    </div>
+
+    <%= render "market/listings/history", lines: @history, viewer: current_player %>
   </div>
 </section>

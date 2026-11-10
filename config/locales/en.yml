@@ -2321,10 +2321,45 @@ en:
         other: "%{owned} unique cards out of %{total}"
   market:
     listings:
+      history:
+        created_html: "Listed by %{name}"
+        extension_html: "Auction extended until %{time}"
+        heading: HISTORY
+        leading: Leading
+        raise_html: "%{name} raised their maximum"
+      outcome:
+        bought:
+          body_html: "You pay %{price}. The card joins your collection."
+          title: "YOU BOUGHT %{card}"
+        buy_now_suffix: " at the buy-now price"
+        cancelled:
+          body: The seller cancelled this sale.
+          title: SALE CANCELLED
+        closing: "Closing…"
+        lost:
+          body_html: "%{name} wins %{card} for %{price}%{suffix}. Your PiCoins were returned."
+          title: AUCTION ENDED
+        no_bid:
+          body: No bids.
+          title: AUCTION ENDED
+        seller:
+          body_html: "%{name} buys %{card} for %{price}%{suffix}. You receive %{received}."
+          title: SOLD
+        viewer:
+          body_html: "%{name} wins %{card} for %{price}%{suffix}."
+          title: AUCTION ENDED
+        withdrawn:
+          body: This listing was withdrawn from the market.
+          title: LISTING WITHDRAWN
+        won:
+          body_html: "You pay %{price}. The card joins your collection."
+          body_surplus_html: "You pay %{price}. The remaining %{surplus} is returned to you. The card joins your collection."
+          see_card: SEE THE CARD
+          title: "YOU WON %{card}"
       show:
         back: Market
         buy_now: BUY NOW PRICE
-        leader: Leading
+        leader: "Leading:"
         price: CURRENT PRICE
         seller: Seller
         time: ENDS IN

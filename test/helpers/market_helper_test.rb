@@ -58,4 +58,11 @@ class MarketHelperTest < ActionView::TestCase
     assert_match(/\ABlue Depths, Rare, season 1, 9,000 PiCoins, 1 offer, ends at .+\z/, label)
     assert_no_match(/buy now/, label)
   end
+
+  test "the tile label reads the number of public offers" do
+    card = Catalog::CardViews.call([ catalog_card_seasons(:rare_card_one).id ], locale: :en).values.first
+    row = Game::Market::OpenListings::Row.new(token: "t", card:, current_price: 9_000, buy_now_price: nil, ends_at: Time.utc(2026, 11, 10, 22, 14), offers: 3)
+
+    assert_match(/9,000 PiCoins, 3 offers, ends at/, I18n.with_locale(:en) { listing_tile_label(row) })
+  end
 end

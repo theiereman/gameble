@@ -1,0 +1,19 @@
+<%# locals: (lines:, viewer:) %>
+<section class="market-history" aria-labelledby="market-history-heading">
+  <h2 id="market-history-heading" class="market-history__heading"><%= t("market.listings.history.heading") %></h2>
+  <ol class="market-history__lines">
+    <% lines.each do |line| %>
+      <li class="market-history__line market-history__line--<%= line.kind %>">
+        <% if line.kind == :bid %>
+          <span class="market-history__who"><%= history_line_text(line, viewer) %></span>
+          <%= render PicoinAmountComponent.new(amount: line.price, class: "market-history__price") %>
+          <% if line.leading %><span class="market-history__leading"><%= t("market.listings.history.leading") %></span><% end %>
+          <span class="market-history__time"><%= local_time_tag(line.at) %></span>
+        <% else %>
+          <span class="market-history__text"><%= history_line_text(line, viewer) %></span>
+          <% unless line.kind == :extension %><span class="market-history__time"><%= local_time_tag(line.at) %></span><% end %>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+</section>

@@ -2010,10 +2010,45 @@ fr:
         other: "%{count} nouvelles entrées dans le fil."
   market:
     listings:
+      history:
+        created_html: "Mise en vente par %{name}"
+        extension_html: "Enchère prolongée jusqu'à %{time}"
+        heading: "HISTORIQUE"
+        leading: "En tête"
+        raise_html: "%{name} a relevé son maximum"
+      outcome:
+        bought:
+          body_html: "Vous payez %{price}. La carte rejoint votre collection."
+          title: "VOUS AVEZ ACHETÉ %{card}"
+        buy_now_suffix: " en achat immédiat"
+        cancelled:
+          body: "Le vendeur a annulé cette vente."
+          title: "VENTE ANNULÉE"
+        closing: "Clôture en cours…"
+        lost:
+          body_html: "%{name} remporte %{card} pour %{price}%{suffix}. Vos PiCoins vous ont été rendus."
+          title: "ENCHÈRE TERMINÉE"
+        no_bid:
+          body: "Aucune offre."
+          title: "ENCHÈRE TERMINÉE"
+        seller:
+          body_html: "%{name} achète %{card} pour %{price}%{suffix}. Vous recevez %{received}."
+          title: "VENDUE"
+        viewer:
+          body_html: "%{name} remporte %{card} pour %{price}%{suffix}."
+          title: "ENCHÈRE TERMINÉE"
+        withdrawn:
+          body: "Cette annonce a été retirée du marché."
+          title: "ANNONCE RETIRÉE"
+        won:
+          body_html: "Vous payez %{price}. La carte rejoint votre collection."
+          body_surplus_html: "Vous payez %{price}. Les %{surplus} restants vous sont rendus. La carte rejoint votre collection."
+          see_card: "VOIR LA CARTE"
+          title: "VOUS AVEZ REMPORTÉ %{card}"
       show:
         back: "Marché"
         buy_now: "PRIX D'ACHAT IMMÉDIAT"
-        leader: "En tête"
+        leader: "En tête :"
         price: "PRIX ACTUEL"
         seller: "Vendeur"
         time: "FIN DANS"

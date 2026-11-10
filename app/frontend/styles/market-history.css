@@ -1,0 +1,123 @@
+.market-listing__leader {
+  margin: 0;
+  color: var(--color-gold);
+  font: var(--font-body);
+}
+
+.market-listing__bid:empty {
+  display: none;
+}
+
+.market-history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.market-history__heading {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-kicker);
+}
+
+.market-history__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.market-history__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-panel);
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.market-history__line--extension,
+.market-history__line--raise,
+.market-history__line--created {
+  background: none;
+  color: var(--color-muted);
+}
+
+.market-history__price {
+  color: var(--color-text-max);
+}
+
+.market-history__leading {
+  color: var(--color-gold);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-kicker);
+}
+
+.market-history__time {
+  margin-left: auto;
+  color: var(--color-muted);
+}
+
+.market-outcome {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.market-outcome__title,
+.market-outcome__body {
+  margin: 0;
+}
+
+.market-outcome__title {
+  color: var(--color-text-max);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-kicker);
+}
+
+.market-outcome--success .market-outcome__title {
+  color: var(--color-lime);
+}
+
+.market-outcome--alert .market-outcome__title {
+  color: var(--color-alert);
+}
+
+@media (min-width: 720px) {
+  .market-listing__layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 330px;
+    grid-template-areas:
+      "card figures history"
+      "card bid history";
+    align-items: start;
+  }
+
+  .market-listing__card {
+    grid-area: card;
+  }
+
+  .market-listing__figures {
+    grid-area: figures;
+  }
+
+  .market-listing__bid {
+    grid-area: bid;
+  }
+
+  .market-history {
+    grid-area: history;
+  }
+}

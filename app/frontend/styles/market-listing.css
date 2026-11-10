@@ -110,10 +110,6 @@
     padding: var(--space-8) var(--space-gutter-desktop);
   }
 
-  .market-listing__layout {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
-  }
-
   .market-listing__figures {
     flex-direction: column;
   }
