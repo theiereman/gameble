@@ -7,6 +7,8 @@ module Game
       def open? = open
 
       def first_opened? = !first_opened_at.nil?
+
+      def suspended? = first_opened? && !open?
     end
   end
 end

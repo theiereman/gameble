@@ -28,7 +28,7 @@ module Market
       def load_page(card_slug: nil)
         @settings = Game::Market::CurrentSettings.call
         @open = @settings&.open.present?
-        @suspended = Game::Market::MarketState.call(@settings).then { |state| state.first_opened? && !state.open? }
+        @suspended = Game::Market::MarketState.call(@settings).suspended?
         @card_slug = card_slug
         @doubles = card_slug.nil?
         @copies = current_player && @settings ? Game::Market::EntrustableCopies.call(current_player, settings: @settings, card_slug:) : []

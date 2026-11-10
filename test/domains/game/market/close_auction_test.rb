@@ -240,4 +240,14 @@ class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
     end
     assert_equal "open", @listing.reload.status
   end
+
+  test "a due auction settles while the market is closed" do
+    lead
+    close_market!(first_opened_at: 1.day.ago)
+
+    assert close.success?
+
+    assert_equal "sold", @listing.reload.status
+    assert Game::Market::ReconcileWallets.call.balanced?
+  end
 end

@@ -47,4 +47,17 @@ class Game::Market::MarketStateTest < ActiveSupport::TestCase
 
     assert Game::Market::MarketState.call(settings).open?
   end
+
+  test "suspended is a closed market after a first opening, and nothing else" do
+    assert_not Game::Market::MarketState.call.suspended?
+
+    open_market!(open: false)
+    assert_not Game::Market::MarketState.call.suspended?
+
+    open_market!(first_opened_at: 1.day.ago)
+    assert_not Game::Market::MarketState.call.suspended?
+
+    close_market!(first_opened_at: 1.day.ago)
+    assert Game::Market::MarketState.call.suspended?
+  end
 end

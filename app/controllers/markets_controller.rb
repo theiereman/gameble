@@ -8,7 +8,7 @@ class MarketsController < ApplicationController
     state = Game::Market::MarketState.call
     return unless state.first_opened?
 
-    @suspended = !state.open?
+    @suspended = state.suspended?
 
     @sort = params[:sort].presence_in(helpers.sort_options) || Game::Market::OpenListings::DEFAULT_SORT
     @page = params[:page].to_s.to_i.clamp(1, MAX_PAGE)
