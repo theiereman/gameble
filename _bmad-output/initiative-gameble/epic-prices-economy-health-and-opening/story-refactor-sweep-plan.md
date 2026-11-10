@@ -3,7 +3,7 @@ title: 'Refactor sweep'
 type: 'refactor'
 ticket: '41.10'
 created: '2026-11-10'
-status: 'in-progress'
+status: 'in-review'
 baseline_revision: '9e6f1f46334907c3764cde22988aff6f8b24c15a'
 route: ''
 route_source: ''
@@ -53,16 +53,18 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] epic 41 classes -- drop explanatory comments
-- [ ] `economy_alerts.rb` -- one place for a rarity's stamp and minimum fields
-- [ ] test support -- one sold listing helper; drop header comments
-- [ ] price tests -- drop header comments
+- [x] epic 41 classes -- drop explanatory comments
+- [x] `economy_alerts.rb` -- one place for a rarity's stamp and minimum fields
+- [x] test support -- one sold listing helper; drop header comments
+- [x] price tests -- drop header comments
 
 **Acceptance Criteria:**
 - Given any page, proposal or snapshot produced before, when produced now, then the result is the same.
 - Given the tests, when read, then each holds only its own setup and assertions.
 
 ## Implementation Notes
+
+No epic 41 file is near the size limit, so none was split. The alt signal detectors, the price classes, the back-office views and the collection filters already carried no comments. `AltSignalSeeds` and `MarketFeed` include `MarketSales`, whose `sold!` now takes `buyer:` and `average_after_sale:`. Nothing was run beyond static checks.
 
 ## Plan Change Log
 
