@@ -23,7 +23,7 @@ class CardsController < ApplicationController
     @browse = named || profile || set_browse(@detail.sets.first) unless @public
     @goals = goal_marks.goals_for(@detail.card_id) unless @public
     @showcase = showcase_state
-    market = Game::Market::MarketState.call
+    market = market_state
     @entrustment = Game::Market::CardEntrustment.call(current_player, card_id: @detail.card_id, state: market) unless @public
     @trade_holders = trade_holders unless @public || @copies
     @pioneer = pioneer_line
@@ -120,7 +120,7 @@ class CardsController < ApplicationController
 
       grid = collection_grid(Catalog::PublishedSeason.call, source)
       seen = grid_seen(source) unless grid_another?
-      ids = grid_cards(grid, grid_states_asked(source), seen_up_to: seen).pluck(:id)
+      ids = grid_cards(grid, grid_states_asked(source), seen_up_to: seen, price: grid_price(source)).pluck(:id)
       index = ids.index(@detail.card_season_id)
       return if index.nil?
 
