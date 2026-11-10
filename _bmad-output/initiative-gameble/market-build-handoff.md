@@ -45,3 +45,29 @@ Ticket text: `uv run _bmad/method/scripts/tickets.py --project-root . find <epic
 - Do not touch `db/schema.rb`; it is regenerated from the migrations at the end. A new migration must sort after every migration on the branch.
 - Do not edit ticket files; do not run `tickets.py pull` or `mark`.
 - Follow `AGENTS.md`.
+
+## Status after the unattended run
+
+Built and reviewed (plans `built`): 39.3 to 39.12, 40.1 to 40.13, 41.1 to 41.8 and 41.10. Every batch A to N is done; none is left. Not built: 38.14 (staging) and 41.11 (production opening), which stay the author's.
+
+Nothing was executed: no test, no vitest (one vitest run slipped into batch L, 6 passing), no `bin/ci`, no rubocop, packwerk, zeitwerk, i18n-tasks or tsc on the full tree, and ERB was only read by eye. Before release, the author must:
+
+- regenerate `db/schema.rb` from the migrations (new ones: 20261110130000-130002, 140000-140002, 150000-150001, 160000-160003, 190000, 200000);
+- run the Ruby suite, the system tests of the market screens, `npm run test:js`, `bundle exec packwerk check`, `bin/rails zeitwerk:check`, `bundle exec i18n-tasks health`, rubocop and `npm run lint:css`;
+- check first the assumptions reviewers could not verify: Turbo morph with `data-turbo-permanent` on the Annonce amount field, happy-dom `SubmitEvent` in the confirm dialogs, the window-function SQL in the alt-signal detector, `insert_all!` with jsonb, the `clear_messages` helper in the stream job tests, the query-count assertions changed in batch K, and the stub pattern in the removed-players job tests.
+
+Reviewers found and fixed real defects in every batch (for example a deleted `whole_number` helper in 39.12, an unset unusual-amount threshold in 39.8, a snapshot column named `destroyed`, banned buyers shown in the feed); the remaining open points are listed in each plan's change log.
+
+### Decisions taken in place of the author
+
+Each is recorded in the frozen block of its plan; the main ones:
+
+- Bids: failures stay bare codes; a leader's raise only has to exceed their own maximum; a removed leader is released in the same ledger post.
+- 39.7/39.8: the bid form is a POST answered by one Turbo Stream, rate limited to 20 per minute; the buy-now button submits `buy_now=1` and the server takes the amount from the listing.
+- 39.9/39.10: MES VENTES keeps ended rows for 30 days (capped at 100), MES ENCHERES for 7; the chips read ANNONCES, MES ENCHERES, MES VENTES.
+- 40.6: a sale is notable when Epic or Legendary, or at or above the settings threshold times the rarity minimum; a private buyer's name shows unlinked in the feed.
+- 40.8 to 40.10: one `DropPresenceJob` withdraws a removed seller's listings, voids a removed leader's bid, then forfeits a deleted player's available balance, in that order; Game reacts to Accounts only through that job.
+- 41.2: PiCoins per active player divides by players active over 90 days; the median of an even count is the mean of the two middle values, rounded down.
+- 41.6: an alert proposes raising the Rare or Legendary stamp by half, rounded up to the next hundred, capped at double; only administrators get the prefilled form.
+- 41.7/41.8: alt-signal thresholds (120 or more capsules a day on 3 of 7 days; 10 or more one-way trades in 7 days; sales under half or over twice the previous average, 2 or more in 30 days; 3 or more minimum-price sales in 30 days). No IP or fingerprint is stored; signals reach staff only and never sanction.
+- English wording not in the Copy deck was written by the agents and is marked in the plans for the author's approval.
