@@ -3,7 +3,7 @@ title: 'The collection sorts and filters by average price'
 type: 'feature'
 ticket: '41.4'
 created: '2026-11-10'
-status: 'in-progress'
+status: 'in-review'
 baseline_revision: '89b6413ac8057b366ce0ff9ca6ad83e3e30db687'
 route: 'full'
 route_source: 'auto'
@@ -85,6 +85,8 @@ context:
 - Given the first opening, when a player sorts Toutes les cartes by price descending and then keeps a price range, then the dearest edition comes first with no-sale cards last, the range keeps only the cards inside with their prices under them, and no price shows without the sort or filter.
 
 ## Implementation Notes
+
+Built as planned; nothing was run. `Game::Market::CollectionPrices` holds the lateral join that picks, per card, the owner's most valuable held edition (else the grid's edition), applies the range and the order (no-sale last in both directions) and prices the page's cards. `CollectionGridLoading` reads the choice once per request (`market_state` is memoized and shared with the card detail) and puts it in the grid context so paging and the card's neighbours keep it. The PRIX group is `library/_price_filter` (order radios plus the market's `filters/_price` partial, untouched) wrapped in a `data-group=price` target; `collection_filters.ts` counts a chosen order and each filled bound and reloads the grid on an order or number change. Visitors' collection requests cost one more query (the market state); a signed-in player's cost none, the shell already reads it. Not covered by a test: another player's collection with the same sort (the code path is the same `load_grid`).
 
 ## Plan Change Log
 
