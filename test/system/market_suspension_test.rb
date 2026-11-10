@@ -48,7 +48,7 @@ class MarketSuspensionTest < ApplicationSystemTestCase
       assert_selector "#market-suspended-banner", text: "THE MARKET IS SUSPENDED"
       assert_button "Entrust", disabled: true
       find("#market-suspended-banner a", text: "Back to the market").click
-      assert_selector "h1", text: "The Brotherhood is building the market"
+      assert_selector "h1", text: "Market"
     end
 
     within("#market-opening") do

@@ -1,0 +1,120 @@
+.market-listing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: var(--space-content-max);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-gutter-phone);
+}
+
+.market-listing__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.market-listing__title {
+  margin: 0;
+  color: var(--color-gold);
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
+}
+
+.market-listing__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-7);
+}
+
+.market-listing__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-5);
+}
+
+.market-listing__facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  font: var(--font-body);
+}
+
+.market-listing__fact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.market-listing__fact dt {
+  color: var(--color-muted);
+}
+
+.market-listing__fact dd {
+  margin: 0;
+}
+
+.market-listing__figures {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.market-listing__figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.market-listing__label {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-kicker);
+}
+
+.market-listing__price,
+.market-listing__time {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-number);
+  font-size: 30px;
+}
+
+.market-listing__time--soon {
+  color: var(--color-alert);
+}
+
+.market-listing__ends {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body);
+}
+
+.market-listing__buy-now {
+  color: var(--color-accent);
+}
+
+@media (min-width: 400px) {
+  .market-listing__figures {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-7);
+  }
+}
+
+@media (min-width: 720px) {
+  .market-listing {
+    padding: var(--space-8) var(--space-gutter-desktop);
+  }
+
+  .market-listing__layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .market-listing__figures {
+    flex-direction: column;
+  }
+}

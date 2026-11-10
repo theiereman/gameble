@@ -1,0 +1,7 @@
+<% if listings.more %>
+  <nav id="market-pages" class="market-screen__pages" aria-label="<%= t("markets.screen.pages_label") %>" data-next-page-target="pages">
+    <%= render ButtonComponent.new(variant: :link, href: market_path(sort:, page: page + 1), rel: :next) { t("markets.screen.more") } %>
+  </nav>
+<% else %>
+  <nav id="market-pages" class="market-screen__pages" hidden></nav>
+<% end %>

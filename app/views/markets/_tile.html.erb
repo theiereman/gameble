@@ -1,0 +1,14 @@
+<% seconds = listing_seconds_left(row.ends_at) %>
+<li class="listing-tile">
+  <%= link_to market_listing_path(token: row.token), class: "listing-tile__link", aria: { label: listing_tile_label(row) } do %>
+    <span class="listing-tile__card" aria-hidden="true"><%= render CardComponent.new(card: row.card, size: :m) %></span>
+    <span class="listing-tile__facts" aria-hidden="true">
+      <%= render PicoinAmountComponent.new(amount: row.current_price, compact: true, class: "listing-tile__price") %>
+      <span class="listing-tile__offers"><%= t("markets.tile.offers", count: row.offers) %></span>
+      <span class="listing-tile__time<%= " listing-tile__time--soon" if time_left_soon?(seconds) %>"><%= listing_time_left(seconds) %></span>
+      <% if row.buy_now_price %>
+        <span class="listing-tile__buy-now"><%= t("markets.tile.buy_now") %></span>
+      <% end %>
+    </span>
+  <% end %>
+</li>

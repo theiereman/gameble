@@ -55,6 +55,7 @@ module ShellHelper
     "sign_ins" => :sign_in,
     "feeds" => :feed,
     "markets" => :market,
+    "market/listings" => :market,
     "achievements" => :achievements,
     "pages#legal" => :legal,
     "pages#how_it_works" => :how_it_works,

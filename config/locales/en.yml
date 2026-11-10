@@ -1065,7 +1065,6 @@ en:
     open: "%{title}, %{year}, %{rarity}, season %{season}"
     open_not_owned: "%{title}, %{year}, %{rarity}, season %{season}, not owned"
     pioneer:
-      anonymous: An anonymous player
       dated: on %{date}
     position: "%{position} / %{total}"
     preview:
@@ -1422,7 +1421,14 @@ en:
       settings_changed: The market settings changed while you were on this page. Reload it and check them.
       terms_not_confirmed: Confirm that the market terms are in force before opening the market.
       market_busy: The Archives are busy right now. Try again in a moment.
-      market_closed: The market is closed for now. Nothing was entrusted.
+      market_closed: The market is closed for now.
+      buy_now_below_minimum: The buy-now price is below the minimum for this rarity.
+      buy_now_not_above_start: The buy-now price must be above the starting price.
+      copy_not_free: "This copy is not free: it is already listed, offered in a trade or entrusted."
+      invalid_duration: Choose one of the listed durations.
+      invalid_price: Enter a whole number of PiCoins, above zero.
+      stamp_not_covered: "You are short of %{amount} PiCoins for the stamp."
+      start_below_minimum: The starting price is below the minimum for this rarity.
       no_rarity: One of these cards has no rarity yet, so the Brotherhood cannot value it.
       not_enough_copies: You do not have that many free copies of one of these cards.
       nothing_fits: No card fits within your cap for today. It renews at 00:00 UTC.
@@ -2264,6 +2270,14 @@ en:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
   market:
+    listings:
+      show:
+        back: Market
+        buy_now: BUY NOW PRICE
+        leader: Leading
+        price: CURRENT PRICE
+        seller: Seller
+        time: ENDS IN
     suspended_banner:
       back: Back to the market
       body: The Brotherhood is auditing its procedures. Auctions in progress end normally. Nothing can be entrusted, sold or bid on for now.
@@ -2354,6 +2368,16 @@ en:
           zero: Entrust
         value_text: "%{count} of %{max}"
   markets:
+    screen:
+      chips_label: Market sections
+      empty: No listings for now.
+      entrust: ENTRUST CARDS
+      heading: Market
+      list_label: Listings
+      listings: LISTINGS
+      more: Load more
+      pages_label: More listings
+      sorts_label: Sort the listings
     show:
       closing: No date is being communicated at this stage. Management thanks you for your patience, which remains free of charge to this day.
       heading: The Brotherhood is building the market
@@ -2372,6 +2396,23 @@ en:
         open:
           text: No seniority required. The Brotherhood draws no distinction between its members, provided they bid.
           title: Open to every member
+    sorts:
+      ending: Ending soon
+      newest: Newest
+      price_asc: Price, low to high
+      price_desc: Price, high to low
+    tile:
+      buy_now: Buy now
+      label: "%{card}, %{rarity}, season %{season}, %{price}, %{offers}, ends at %{time}"
+      label_buy_now: "buy now %{price}"
+      offers:
+        one: "%{count} offer"
+        other: "%{count} offers"
+        zero: "%{count} offers"
+    time_left:
+      hours: "%{hours} h %{minutes}"
+      minutes: "%{minutes} min"
+      under: under a minute
   number:
     format:
       delimiter: ","
@@ -3015,6 +3056,8 @@ en:
         empty: Your best card will show here once you choose it from a card's page.
   picoin_amount:
     accessible: "%{amount} PiCoins"
+  player_name:
+    anonymous: An anonymous player
   profile_avatars:
     chosen:
       text: "%{name} is now your portrait."

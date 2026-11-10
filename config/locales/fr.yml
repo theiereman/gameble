@@ -1583,6 +1583,8 @@ fr:
       change_avatar: "Changer d'avatar"
   picoin_amount:
     accessible: "%{amount} PiCoins"
+  player_name:
+    anonymous: "Un joueur anonyme"
   profile_avatars:
     chosen:
       text: "%{name} est maintenant votre portrait."
@@ -1991,6 +1993,14 @@ fr:
         one: "1 nouvelle entrée dans le fil."
         other: "%{count} nouvelles entrées dans le fil."
   market:
+    listings:
+      show:
+        back: "Marché"
+        buy_now: "PRIX D'ACHAT IMMÉDIAT"
+        leader: "En tête"
+        price: "PRIX ACTUEL"
+        seller: "Vendeur"
+        time: "FIN DANS"
     suspended_banner:
       back: "Retour au marché"
       body: "La Confrérie procède à un audit de ses procédures. Les enchères en cours se terminent normalement. Il n'est plus possible de confier, de vendre ou d'enchérir pour le moment."
@@ -2085,6 +2095,16 @@ fr:
           other: "Confier %{count} exemplaires"
         value_text: "%{count} sur %{max}"
   markets:
+    screen:
+      heading: "Marché"
+      chips_label: "Sections du marché"
+      listings: "ANNONCES"
+      entrust: "CONFIER DES CARTES"
+      list_label: "Annonces"
+      empty: "Aucune annonce pour le moment."
+      more: "Charger plus"
+      pages_label: "Autres annonces"
+      sorts_label: "Trier les annonces"
     show:
       kicker: "Chantier"
       heading: "La Confrérie construit le marché"
@@ -2103,6 +2123,23 @@ fr:
           title: "Ouvert à tous les membres"
           text: "Aucune ancienneté requise. La Confrérie ne fait aucune différence entre ses membres, pourvu qu'ils enchérissent."
       closing: "Aucune date n'est communiquée à ce stade. La Direction vous remercie de votre patience, qui reste à ce jour gratuite."
+    sorts:
+      ending: "Se termine bientôt"
+      price_asc: "Prix croissant"
+      price_desc: "Prix décroissant"
+      newest: "Plus récentes"
+    tile:
+      buy_now: "Achat immédiat"
+      label: "%{card}, %{rarity}, saison %{season}, %{price}, %{offers}, se termine à %{time}"
+      label_buy_now: "achat immédiat %{price}"
+      offers:
+        zero: "%{count} offre"
+        one: "%{count} offre"
+        other: "%{count} offres"
+    time_left:
+      hours: "%{hours} h %{minutes}"
+      minutes: "%{minutes} min"
+      under: "moins d'une minute"
   fortune_panels:
     frame:
       title: "Le Chattomètre"
@@ -3055,7 +3092,6 @@ fr:
       steam_reviews: "Avis Steam"
     season_number: "Saison %{number}"
     pioneer:
-      anonymous: "Un joueur anonyme"
       dated: "le %{date}"
     season_short: "S%{number}"
     editions_line: "%{rarity} : %{seasons}"
@@ -3373,7 +3409,14 @@ fr:
       settings_changed: "Les réglages du marché ont changé pendant que vous étiez sur cette page. Rechargez-la et vérifiez-les."
       terms_not_confirmed: "Confirmez que les conditions du marché sont en vigueur avant d'ouvrir le marché."
       market_busy: "Les Archives sont occupées pour le moment. Réessayez dans un instant."
-      market_closed: "Le marché est fermé pour le moment. Rien n'a été confié."
+      market_closed: "Le marché est suspendu pour le moment."
+      buy_now_below_minimum: "Le prix d'achat immédiat est inférieur au minimum de cette rareté."
+      buy_now_not_above_start: "Le prix d'achat immédiat doit dépasser le prix de départ."
+      copy_not_free: "Cet exemplaire n'est pas libre : il est déjà en vente, proposé dans un échange ou confié."
+      invalid_duration: "Choisissez l'une des durées proposées."
+      invalid_price: "Saisissez un nombre entier de PiCoins, supérieur à zéro."
+      stamp_not_covered: "Il vous manque %{amount} PiCoins pour le timbre."
+      start_below_minimum: "Le prix de départ est inférieur au minimum de cette rareté."
       no_rarity: "Une de ces cartes n'a pas encore de rareté : la Confrérie ne peut pas l'estimer."
       not_enough_copies: "Vous n'avez pas autant d'exemplaires libres d'une de ces cartes."
       nothing_fits: "Aucune carte ne tient dans votre plafond du jour. Il se renouvelle à 00:00 UTC."
