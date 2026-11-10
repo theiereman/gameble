@@ -3,7 +3,7 @@ title: 'A sale refreshes its edition''s average price'
 type: 'feature'
 ticket: '39.3'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: '579532637b130be63c1c49b044afb9ff5190069e'
 route: 'full'
 route_source: 'auto'
@@ -111,6 +111,8 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10, approver: reviewed against the lock order, the migrations (all sort after `20261110120005`, the newest on the branch, and no other pending plan adds one) and the ticket; no change needed. Build note: the window start is exclusive (`sold_at > now - average_window_days days`), and the "sale just outside the window" test pins it.
 
 ## Review Triage Log
 

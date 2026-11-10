@@ -3,7 +3,7 @@ title: 'Bids follow the auction rules'
 type: 'feature'
 ticket: '39.4'
 created: '2026-11-10'
-status: 'draft'
+status: 'ready-for-dev'
 baseline_revision: '579532637b130be63c1c49b044afb9ff5190069e'
 route: 'full'
 route_source: 'auto'
@@ -122,7 +122,7 @@ context:
 - [ ] `app/models/player_stream.rb` -- add `Game::Market::BidPlaced` to `BALANCE_EVENTS` and a `notices` branch giving a balance notice to the bidder and the outbid player (`balance_notices(data.values_at(:bidder_id, :outbid_player_id))`) -- the Balance chip follows an escrow
 - [ ] `config/locales/en.yml` and `config/locales/fr.yml` -- by hand beside `market_busy`, under `errors.game`: `auction_ended` ("This auction has ended." / "Cette enchère est terminée."), `below_minimum` ("At least %{amount} is needed." / "Il faut au moins %{amount}."), `listing_withdrawn` ("This listing was withdrawn." / "Cette annonce a été retirée."), `more_than_available` ("You can commit at most %{amount}." / "Vous pouvez engager au plus %{amount}."), `own_listing` ("You cannot bid on your own listing." / "Vous ne pouvez pas enchérir sur votre propre annonce.") -- every new Failure code in both languages
 - [ ] `test/domains/game/market/auction_math_test.rb` -- extend: `increment` at 20,000 (1,000), 25,000 (1,300), 26,300 (1,400), 30,000 (1,500) and 1 (100); `displayed_price` with one bidder, two, equal maximums and the cap at the highest; `minimum_bid` with no leader, a leader, a buy-now below the next step; `raise_minimum`; the worked example's three prices
-- [ ] `test/domains/game/market/place_bid_test.rb` -- operation tests of the matrix: the worked example bid by bid (20,000, then 26,300 with no ledger entry for the beaten maximum, then 31,500 with the first leader released), equal maximums, a raise holding only the difference without moving price or end, the soft-close extension and its absence for a raise, outside the window and at exactly the window, the bid rows (outcome, price after, `extended_until`, `outbid` flip), the event data and the balance notices after commit, every refusal changing no row, no entry and no event, a removed leader released in the same post and bid rows untouched, a double-spend by two bids of one player not exceeding `available` (the check constraint never fires)
+- [ ] `test/domains/game/market/place_bid_test.rb` -- operation tests of the matrix: the worked example bid by bid (20,000, then 26,300 with no ledger entry for the beaten maximum, then 31,500 with the first leader released), equal maximums, a raise holding only the difference without moving price or end, the soft-close extension and its absence for a raise, outside the window and at exactly the window, the bid rows (outcome, price after, `extended_until`, `outbid` flip), the event data and the balance notices after commit, every refusal changing no row, no entry and no event, a removed leader released in the same post, their `leading` rows turned `outbid` like any displaced leader's and none voided, a double-spend by two bids of one player not exceeding `available` (the check constraint never fires)
 - [ ] `test/domains/game/market/place_bid_buy_now_test.rb` -- buy-now from no leader, from a leader raising into it (holds the difference), over another leader (released in the same post, `AuctionSold` names them), `average_after_sale` and the edition row written, the winner's allocation and tiers as a close does, rows `won` and `lost`, the ledger reconciling through `ReconcileWallets`, a buy-now refused for the seller and for a short balance
 - [ ] `test/domains/game/market/place_bid_race_test.rb` -- non-transactional test with `LockRaces`: `PlaceBid` and `CloseAuction` on one due listing at once and in the held-lock order; one settlement or one refusal, one copy moved, `ReconcileWallets` balanced
 - [ ] `test/domains/game/market/close_auction_test.rb` -- keep green; one assertion that a settled listing has no `leading` bid row after a close with bids placed through `PlaceBid` -- the settlement finishes the rows
@@ -140,6 +140,10 @@ context:
 ## Implementation Notes
 
 ## Plan Change Log
+
+- 2026-11-10, approver: the removed-leader test line contradicted `Bid.displace` (it said rows untouched while a new leader turns the displaced leader's `leading` rows to `outbid`); the task now says the removed leader's rows become `outbid` and none is voided.
+- 2026-11-10, approver, clarification of the frozen "re-checks the bidder is not removed": after the bank lock read both `banned_at` and `deleted_at` fresh; the shared `lock_bank` helper only reads `deleted_at`, so `PlaceBid` must check `removed?` itself on the locked bidder (`Failure(:player_required)`), and a test covers a bidder banned while waiting on the lock.
+- 2026-11-10, approver: `below_minimum` and `more_than_available` carry `%{amount}` but their Failures carry none; no code may translate those two keys without an `amount`, and the bidding screen story passes it. Until then no consumer reads them.
 
 ## Review Triage Log
 
