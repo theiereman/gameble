@@ -33,6 +33,17 @@ expire_trades: &expire_trades
   queue: default
   schedule: every minute
 
+# A due auction closes within seconds of its end; a close stuck for minutes is reported.
+close_due_auctions: &close_due_auctions
+  class: Game::CloseDueAuctionsJob
+  queue: default
+  schedule: every 10 seconds
+
+check_market_health: &check_market_health
+  class: Game::CheckMarketHealthJob
+  queue: default
+  schedule: every 5 minutes
+
 # The week's Flukeometer verdict goes to the feed once the week has closed.
 publish_weekly_verdict: &publish_weekly_verdict
   class: Game::PublishWeeklyVerdictJob
@@ -68,6 +79,8 @@ development:
   sum_weekly_goal: *sum_weekly_goal
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
+  close_due_auctions: *close_due_auctions
+  check_market_health: *check_market_health
   reconcile_wallets: *reconcile_wallets
   sum_archive_stocks: *sum_archive_stocks
   publish_weekly_verdict: *publish_weekly_verdict
@@ -79,6 +92,8 @@ production:
   sum_weekly_goal: *sum_weekly_goal
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
+  close_due_auctions: *close_due_auctions
+  check_market_health: *check_market_health
   reconcile_wallets: *reconcile_wallets
   sum_archive_stocks: *sum_archive_stocks
   publish_weekly_verdict: *publish_weekly_verdict
