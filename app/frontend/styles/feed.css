@@ -165,8 +165,15 @@
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
+  max-width: 100%;
   white-space: nowrap;
   vertical-align: 1px;
+}
+
+.feed__rank-set {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .feed__rank-name {
@@ -449,6 +456,7 @@ html .feed__thumb > .card.card--s[data-tilt] {
 
   .feed__sentence {
     display: -webkit-box;
+    max-width: 100%;
     overflow: hidden;
     overflow-wrap: anywhere;
     -webkit-box-orient: vertical;
