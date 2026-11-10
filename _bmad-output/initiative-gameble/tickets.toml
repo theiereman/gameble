@@ -278,9 +278,41 @@ covers = []
 after = []
 
 [[epic]]
+id = 38
+release = "1.3.0"
+slug = "epic-picoins-and-entrusting"
+title = "PiCoins and entrusting"
+covers = ["CAP-29", "CAP-35"]
+after = [{ epic = 36, needs = "the opening, allocation and tier path settled" }]
+
+[[epic]]
+id = 39
+release = "1.3.0"
+slug = "epic-an-auction-runs-and-settles"
+title = "An auction runs and settles"
+covers = ["CAP-30", "CAP-31", "CAP-32", "CAP-33"]
+after = [{ epic = 38, needs = "wallets, the ledger, versioned settings, the first opening, the card move and the PiCoin amount component" }]
+
+[[epic]]
+id = 40
+release = "1.3.0"
+slug = "epic-follow-auctions-and-removed-players"
+title = "Following one's auctions, and removed players"
+covers = ["CAP-31", "CAP-33"]
+after = [{ epic = 39, needs = "listings, bids, their events, the Annonce and the market screen" }]
+
+[[epic]]
+id = 41
+release = "1.3.0"
+slug = "epic-prices-economy-health-and-opening"
+title = "Prices, economy health and opening"
+covers = ["CAP-34", "CAP-36", "CAP-37"]
+after = [{ epic = 38, needs = "settings with thresholds and targets, ChangeSettings and the nightly reconciliation job" }, { epic = 39, needs = "settled listings, the edition price table and EditionPrice, the price facts' places and the oldest due listing" }, { epic = 40, needs = "forfeited balances counted as destroyed" }]
+
+[[epic]]
 id = 37
 release = "1.3.x"
 slug = "epic-economy-charts"
 title = "Economy charts"
 covers = ["CAP-34", "CAP-36", "CAP-38"]
-after = []
+after = [{ epic = 38, needs = "the first opening, the back-office market page and the picoins helper" }, { epic = 39, needs = "the market screen's chip row and sold listings" }, { epic = 41, needs = "the daily snapshot, EconomySeries' indicators, average_after_sale, the card detail's average price and the health page" }]

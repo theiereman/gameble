@@ -58,7 +58,7 @@ Prerequisites from the market release, built by its epics as the architecture st
 
 ## Notes
 
-- Decision (2026-11-10, author): built after the market release (CAP-29 to CAP-37), whose epics are not yet in the breakdown; this epic needs its wallets, ledger, settled listings, edition prices, daily snapshot and back-office health page. Its `after` names those epics once they exist.
+- Decision (2026-11-10, author): built after the market release (CAP-29 to CAP-37), epics 38 to 41; its `after` in the initiative's breakdown names what it needs from each.
 - Decision (2026-11-10, author): charts are published by hand, one switch per public chart, no numeric threshold.
 - Decision (2026-11-10, author): charts are cached as much as possible, by Cloudflare or the server.
 - Decision (2026-11-10, author): the market's epics own the snapshot, `average_after_sale`, the nightly job, `EconomySeries`' indicator series and the day-of-income settings, since AD-47, AD-48 and AD-50 already state them; this epic only extends `EconomySeries` with the Reactor and the rarity prices and draws the charts.
