@@ -65,4 +65,18 @@ class MarketRemovedPlayersSystemTest < ApplicationSystemTestCase
     assert_text "LISTING WITHDRAWN"
     assert_equal [ 100_000, 0 ], figures(@leader)
   end
+
+  test "a player leading an auction sees the delete dialog name the balance, and once deleted the job voids the lead and forfeits it" do
+    sign_in_through_the_site(@leader)
+    visit settings_path(locale: :en)
+    click_on "Delete my account"
+    assert_selector "#delete-dialog-market", text: /Your balance of .* PiCoins is destroyed without refund/
+
+    @leader.update_columns(deleted_at: Time.current)
+    Game::Market::DropPresenceJob.perform_now
+
+    assert_equal [ 0, 0 ], figures(@leader)
+    assert_nil @listing.reload.leader_id
+    assert_equal 1, Game::Market::LedgerEntry.where(player_id: @leader.id, kind: "forfeit").count
+  end
 end

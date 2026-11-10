@@ -74,6 +74,49 @@ class Game::Market::DropPresenceJobTest < ActiveSupport::TestCase
     assert_equal [ 100_000, 0 ], Game::Market::Wallet.find_by!(player_id: @leader.id).attributes.values_at("available", "committed")
   end
 
+  test "a deleted player's balance is forfeited after the listings are withdrawn and the leads voided, in the same pass" do
+    listing = led(@card)
+    @leader.update_columns(deleted_at: Time.current)
+
+    Game::Market::DropPresenceJob.perform_now
+
+    assert_equal [ nil, 0, 0 ], [ listing.reload.leader_id, *Game::Market::Wallet.find_by!(player_id: @leader.id).attributes.values_at("available", "committed") ]
+    assert_equal 100_000, Game::Market::LedgerEntry.where(player_id: @leader.id, kind: "forfeit").sole.available_delta.abs
+    assert Game::Market::ReconcileWallets.call.balanced?
+  end
+
+  test "a banned player's wallet is never forfeited" do
+    @leader.update_columns(banned_at: Time.current)
+
+    Game::Market::DropPresenceJob.perform_now
+
+    assert_equal [ 100_000, 0 ], Game::Market::Wallet.find_by!(player_id: @leader.id).attributes.values_at("available", "committed")
+    assert_equal 0, Game::Market::LedgerEntry.where(kind: "forfeit").count
+  end
+
+  test "a retention-deleted player's balance is forfeited like any other" do
+    @leader.update_columns(deleted_at: Time.current, steam_id: nil)
+
+    Game::Market::DropPresenceJob.perform_now
+
+    assert_equal 0, Game::Market::Wallet.find_by!(player_id: @leader.id).available
+  end
+
+  test "a wallet that raises is reported with the player and the others go on" do
+    @leader.update_columns(deleted_at: Time.current)
+    other = accounts_players(:administrator).tap { it.update_columns(deleted_at: Time.current) }
+    fund!(other, 700)
+    original = Game::Market::ForfeitBalance.instance_method(:call)
+    failing = ->(**arguments) { arguments[:player] == @leader ? raise("boom") : original.bind(Game::Market::ForfeitBalance.new).call(**arguments) }
+
+    report = assert_error_reported(RuntimeError) do
+      Game::Market::ForfeitBalance.stub(:new, -> { Struct.new(:call).new(failing) }) { Game::Market::DropPresenceJob.perform_now }
+    end
+
+    assert_equal @leader.id, report.context[:player_id]
+    assert_equal 0, Game::Market::Wallet.find_by!(player_id: other.id).available
+  end
+
   test "a second run changes nothing" do
     led(@card)
     @leader.update_columns(banned_at: Time.current)
