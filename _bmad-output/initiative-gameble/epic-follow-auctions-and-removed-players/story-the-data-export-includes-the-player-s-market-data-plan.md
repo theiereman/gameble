@@ -3,7 +3,7 @@ title: 'The data export includes the player''s market data'
 type: 'feature'
 ticket: '40.11'
 created: '2026-11-10'
-status: 'in-progress'
+status: 'in-review'
 baseline_revision: 'c4dbc97c3e5ca787f2315208bf4da69909f67919'
 route: 'full'
 route_source: 'auto'
@@ -69,6 +69,8 @@ context:
 - Given a seller and a bidder with ledger entries, when each exports, then each file lists their own rows and no other player's maximum.
 
 ## Implementation Notes
+
+Built as planned; nothing was run, only static checks. No migration: the ledger, bid and listing tables are already indexed by player. The player export's test keeps its rule that an integer is only allowed under a counting key, so the amounts joined that list.
 
 ## Plan Change Log
 
