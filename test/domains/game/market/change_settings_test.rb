@@ -53,7 +53,7 @@ class Game::Market::ChangeSettingsTest < ActiveSupport::TestCase
   test "it publishes one SettingsChanged event" do
     settings = change(daily_cap: 1_300_000).value!
 
-    events = Rails.configuration.event_store.read.stream("Game::Market$settings").of_type(Game::Market::SettingsChanged).to_a
+    events = Rails.configuration.event_store.read.stream(Game::Market::SettingsChanged::STREAM).of_type(Game::Market::SettingsChanged).to_a
     assert_equal 1, events.count { it.data[:settings_id] == settings.id }
   end
 
@@ -163,7 +163,7 @@ class Game::Market::ChangeSettingsTest < ActiveSupport::TestCase
   test "closing publishes one SettingsChanged event" do
     settings = close.value!
 
-    events = Rails.configuration.event_store.read.stream("Game::Market$settings").of_type(Game::Market::SettingsChanged).to_a
+    events = Rails.configuration.event_store.read.stream(Game::Market::SettingsChanged::STREAM).of_type(Game::Market::SettingsChanged).to_a
     assert_equal 1, events.count { it.data[:settings_id] == settings.id }
   end
 

@@ -14,6 +14,13 @@ class Game::Market::CreateFirstSettingsTest < ActiveSupport::TestCase
     assert settings.token.present?
   end
 
+  test "it publishes one SettingsChanged event carrying the settings id" do
+    settings = Game::Market::CreateFirstSettings.new.call.value!
+
+    events = Rails.configuration.event_store.read.stream(Game::Market::SettingsChanged::STREAM).of_type(Game::Market::SettingsChanged).to_a
+    assert_equal [ settings.id ], events.map { it.data[:settings_id] }
+  end
+
   test "running it twice leaves one version" do
     Game::Market::CreateFirstSettings.new.call.value!
 

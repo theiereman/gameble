@@ -3,6 +3,7 @@ module Game
     # An administrator changes the economy values, or closes the market: a whole candidate row, checked against the version the form drew, becomes the next version.
     class ChangeSettings < Operation
       include AnnouncesChange
+      include RequiresAdministrator
 
       def call(player:, settings_token:, candidate: {}, message_fr:, message_en:, close: false)
         step require_administrator(player)
@@ -13,7 +14,7 @@ module Game
           settings = step successor(current, player, changes, close)
           settings.save!
           announce(player, message_fr, message_en)
-          step publish(SettingsChanged.new(data: { settings_id: settings.id }), stream_name: "Game::Market$settings")
+          step publish(SettingsChanged.about(settings), stream_name: SettingsChanged::STREAM)
           settings
         end
       rescue ActiveRecord::RecordNotUnique
@@ -23,10 +24,6 @@ module Game
       end
 
       private
-
-      def require_administrator(player)
-        Accounts::Player.acting_staff?(player) && player.administrator? ? Success(player) : Failure(:administrator_required)
-      end
 
       def current_version(settings_token)
         current = CurrentSettings.call

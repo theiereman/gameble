@@ -11,7 +11,7 @@ module Game
           next existing if existing
 
           settings = Settings.create!(StartingSettings::ATTRIBUTES)
-          step publish(SettingsChanged.new(data: { settings_id: settings.id }), stream_name: "Game::Market$settings")
+          step publish(SettingsChanged.about(settings), stream_name: SettingsChanged::STREAM)
           settings
         end
       end
