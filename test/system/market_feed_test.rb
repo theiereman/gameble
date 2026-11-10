@@ -3,7 +3,6 @@ require_relative "../support/steam_sign_in"
 require_relative "../support/market"
 require_relative "../support/market_feed"
 
-# A notable sale shows in the activity feed under TOUT and VENTES, with its buyer's name linked only when the viewer may open the profile, and never in the hub ticker.
 class MarketFeedSystemTest < ApplicationSystemTestCase
   include MarketFeed
   include MarketSettings

@@ -2,7 +2,6 @@ require "test_helper"
 require_relative "../support/market"
 require_relative "../support/market_feed"
 
-# A notable sale reaches the live feed: one notice per sale after commit, one prepend per locale with no link on a private buyer, no ticker.
 class LiveFeedSaleTest < ActiveSupport::TestCase
   include ActionCable::TestHelper
   include MarketFeed

@@ -2,7 +2,6 @@ require "test_helper"
 require_relative "../support/market"
 require_relative "../support/market_listings"
 
-# The market screen's search, its FILTRES panel and its price group, carried through the sorts and "Charger plus".
 class MarketFiltersTest < ActionDispatch::IntegrationTest
   include MarketListings
   include MarketSettings

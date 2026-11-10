@@ -3,7 +3,6 @@ require_relative "../support/market"
 require_relative "../support/market_feed"
 require_relative "../support/steam_sign_in"
 
-# A notable sale in the activity feed: its sentence, its tag, the VENTES filter and the friends tab.
 class FeedSalesTest < ActionDispatch::IntegrationTest
   include MarketFeed
   include MarketSettings

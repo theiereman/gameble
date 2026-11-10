@@ -1,6 +1,3 @@
-# A sold listing and its feed entry straight into the tables: the arrangement of the tests that read sales in the feed.
-#
-#   sale_entry!(buyer, card_season, 20_000)   # the feed entry of a listing sold to buyer
 module MarketFeed
   def sale_entry!(buyer, card_season, price, sold_at: Time.current)
     listing = Game::Market::Listing.create!(seller: accounts_players(:player), card_season_id: card_season.id, settings_id: Game::Market::CurrentSettings.call.id,

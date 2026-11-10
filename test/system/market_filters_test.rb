@@ -2,7 +2,6 @@ require "application_system_test_case"
 require_relative "../support/market"
 require_relative "../support/market_listings"
 
-# A visitor searches a game, keeps only Rare listings of one season under a maximum price, sorts by price and reads the line of an empty result.
 class MarketFiltersSystemTest < ApplicationSystemTestCase
   include MarketListings
   include MarketSettings

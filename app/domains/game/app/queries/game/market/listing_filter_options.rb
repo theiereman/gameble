@@ -1,6 +1,5 @@
 module Game
   module Market
-    # The seasons and genres the market's filters offer: those of the published seasons.
     module ListingFilterOptions
       Options = Data.define(:genres, :seasons)
 
