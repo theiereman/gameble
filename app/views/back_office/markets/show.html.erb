@@ -23,7 +23,9 @@
 
   <%= render "back_office/markets/settings", form: @settings_form %>
 
-  <% unless @state.open? %>
+  <% if @state.open? %>
+    <%= render "back_office/markets/closing", closing: @closing, token: @settings_form.token %>
+  <% else %>
     <%= render "back_office/markets/opening", state: @state, opening: @opening %>
   <% end %>
 </div>
