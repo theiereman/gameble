@@ -2,12 +2,14 @@ package net.gameble.app
 
 import android.net.Uri
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import androidx.navigation.NavOptions
 import androidx.navigation.navOptions
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.appbar.AppBarLayout
+import dev.hotwire.core.turbo.config.pullToRefreshEnabled
 import dev.hotwire.core.turbo.errors.VisitError
 import dev.hotwire.core.turbo.visit.VisitAction
 import dev.hotwire.core.turbo.visit.VisitProposal
@@ -26,6 +28,15 @@ class GamebleWebFragment : HotwireWebFragment() {
     var dialogOpen = false
         private set
 
+    var pullHeld = false
+        set(held) {
+            field = held
+            if (held) pullGesture.cancel()?.let(::showPull)
+        }
+
+    private val pullGesture by lazy { PullGesture(PULL_DISTANCE_DP * resources.displayMetrics.density) }
+    private var refreshing = false
+
     private val host: GamebleActivity?
         get() = activity as? GamebleActivity
 
@@ -37,13 +48,8 @@ class GamebleWebFragment : HotwireWebFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         hideAppBar()
-        dropRefreshSpinnerBelowTopBar(view)
-    }
-
-    private fun dropRefreshSpinnerBelowTopBar(view: View) {
-        val refresh = view.findViewById<SwipeRefreshLayout>(HotwireR.id.hotwire_webView_container) ?: return
-        val topBar = resources.getDimensionPixelSize(R.dimen.top_bar_height)
-        refresh.setProgressViewOffset(false, refresh.progressViewStartOffset + topBar, refresh.progressViewEndOffset + topBar)
+        view.findViewById<SwipeRefreshLayout>(HotwireR.id.hotwire_webView_container)
+            ?.setOnChildScrollUpCallback { _, _ -> true }
     }
 
     override fun onStart() {
@@ -58,8 +64,48 @@ class GamebleWebFragment : HotwireWebFragment() {
         webView.setOnScrollChangeListener { _, _, scrollY, _, _ -> host?.screenScrolled(navigator, scrollY) }
         webView.setOnTouchListener { _, event ->
             if (event.actionMasked == MotionEvent.ACTION_DOWN) host?.screenTouched(navigator)
+            followPull(webView, event)
             false
         }
+    }
+
+    private fun followPull(webView: HotwireWebView, event: MotionEvent) {
+        if (!pathProperties.pullToRefreshEnabled || refreshing) return
+        val atTop = webView.scrollY == 0
+        val change = when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                pullGesture.down(event.y, atTop)
+                null
+            }
+            MotionEvent.ACTION_MOVE -> pullGesture.move(event.y, atTop, pullHeld || webView.elementTouchPreventsPullsToRefresh)
+            MotionEvent.ACTION_UP -> pullGesture.up()
+            MotionEvent.ACTION_CANCEL -> pullGesture.cancel()
+            else -> null
+        }
+        change?.let(::showPull)
+    }
+
+    private fun showPull(change: PullGesture.Change) {
+        when (change) {
+            is PullGesture.Change.Pulled -> {
+                if (change.reachedFull) view?.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                host?.screenPulled(navigator, change.progress)
+            }
+            is PullGesture.Change.LetGo -> if (change.refresh) startRefresh() else host?.screenPulled(navigator, 0f)
+        }
+    }
+
+    private fun startRefresh() {
+        refreshing = true
+        host?.screenRefreshing(navigator, true)
+        refresh(displayProgress = false)
+        view?.postDelayed(::finishRefresh, REFRESH_TIMEOUT_MS)
+    }
+
+    private fun finishRefresh() {
+        if (!refreshing) return
+        refreshing = false
+        host?.screenRefreshing(navigator, false)
     }
 
     override fun onWebViewDetached(webView: HotwireWebView) {
@@ -71,11 +117,13 @@ class GamebleWebFragment : HotwireWebFragment() {
     override fun onVisitRendered(location: String) {
         super.onVisitRendered(location)
         pageReady = true
+        finishRefresh()
         host?.screenArrived(requireView())
     }
 
     override fun onVisitErrorReceived(location: String, error: VisitError) {
         super.onVisitErrorReceived(location, error)
+        finishRefresh()
         host?.screenArrived(requireView())
     }
 
@@ -106,3 +154,6 @@ internal fun HotwireDestination.hideAppBar() {
     val toolbar = toolbarForNavigation() ?: return
     (toolbar.parent as? AppBarLayout ?: toolbar).visibility = View.GONE
 }
+
+private const val PULL_DISTANCE_DP = 80f
+private const val REFRESH_TIMEOUT_MS = 12_000L

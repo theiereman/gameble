@@ -8,7 +8,10 @@ final class GamebleWebViewController: HotwireWebViewController {
     private var reloadingBlankPage = false
 
     private var tabsShown = true
-    private var pullToRefreshBeforeHold: Bool?
+    private var pullsToRefresh = false
+    private var pullHeld = false
+    private var refreshing = false
+    private var pullGesture = PullGesture()
     private var dialogOpen = false
     private var topBarScroll = TopBarScroll()
     private var scrollObservation: NSKeyValueObservation?
@@ -49,14 +52,14 @@ final class GamebleWebViewController: HotwireWebViewController {
         super.visitableDidRender()
         pageIsReady = true
         reloadingBlankPage = false
+        finishRefresh()
     }
 
     override func visitableDidActivateWebView(_ webView: WKWebView) {
         super.visitableDidActivateWebView(webView)
         webView.scrollView.contentInsetAdjustmentBehavior = .never
-        webView.scrollView.alwaysBounceVertical = visitableView.allowsPullToRefresh
-        visitableView.refreshControl.tintColor = Palette.muted
-        handRefreshControlToScrollView()
+        takeOverPullToRefresh()
+        webView.scrollView.alwaysBounceVertical = pullsToRefresh
         scrollObservation = webView.scrollView.observe(\.contentOffset) { [weak self] scrollView, _ in
             self?.scrolled(scrollView)
         }
@@ -65,6 +68,7 @@ final class GamebleWebViewController: HotwireWebViewController {
 
     override func visitableDidDeactivateWebView() {
         scrollObservation = nil
+        finishRefresh()
         super.visitableDidDeactivateWebView()
     }
 
@@ -81,27 +85,52 @@ final class GamebleWebViewController: HotwireWebViewController {
     }
 
     func holdPullToRefresh() {
-        guard pullToRefreshBeforeHold == nil, !visitableView.isRefreshing else { return }
-        pullToRefreshBeforeHold = visitableView.allowsPullToRefresh
-        visitableView.allowsPullToRefresh = false
-        visitableView.webView?.scrollView.refreshControl = nil
+        pullHeld = true
+        if let change = pullGesture.cancel() { show(change) }
     }
 
     func releasePullToRefresh() {
-        guard let allowed = pullToRefreshBeforeHold else { return }
-        pullToRefreshBeforeHold = nil
-        visitableView.allowsPullToRefresh = allowed
-        handRefreshControlToScrollView()
+        pullHeld = false
     }
 
-    // Hotwire pins the spinner with constraints that fight UIKit, which places it only as the scroll view's refreshControl.
-    private func handRefreshControlToScrollView() {
-        guard visitableView.allowsPullToRefresh, let scrollView = visitableView.webView?.scrollView else { return }
-        let spinner = visitableView.refreshControl
-        NSLayoutConstraint.deactivate(visitableView.constraints.filter { $0.firstItem === spinner } + spinner.constraints)
-        spinner.translatesAutoresizingMaskIntoConstraints = true
-        scrollView.refreshControl = spinner
+    private func takeOverPullToRefresh() {
+        guard visitableView.allowsPullToRefresh else { return }
+        pullsToRefresh = true
+        visitableView.allowsPullToRefresh = false
     }
+
+    private func followPull(_ scrollView: UIScrollView) {
+        guard pullsToRefresh, !pullHeld, !refreshing else { return }
+        if let change = pullGesture.moved(to: scrollView.contentOffset.y, tracking: scrollView.isTracking) { show(change) }
+    }
+
+    private func show(_ change: PullGesture.Change) {
+        let shell = TopBarNavigation.shared.shell
+        switch change {
+        case .pulled(let progress, let reachedFull):
+            if reachedFull { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+            shell?.showPull(progress: progress)
+        case .letGo(refresh: true):
+            startRefresh()
+        case .letGo(refresh: false):
+            shell?.showPull(progress: 0)
+        }
+    }
+
+    private func startRefresh() {
+        refreshing = true
+        TopBarNavigation.shared.shell?.showRefreshing(true)
+        reloadVisitable()
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.refreshTimeout) { [weak self] in self?.finishRefresh() }
+    }
+
+    private func finishRefresh() {
+        guard refreshing else { return }
+        refreshing = false
+        TopBarNavigation.shared.shell?.showRefreshing(false)
+    }
+
+    private static let refreshTimeout: TimeInterval = 12
 
     func dialogChanged(open: Bool) {
         dialogOpen = open
@@ -118,6 +147,7 @@ final class GamebleWebViewController: HotwireWebViewController {
 
     private func scrolled(_ scrollView: UIScrollView) {
         guard !isSheet, TopBarNavigation.shared.isOnView(self) else { return }
+        followPull(scrollView)
         let position = scrollView.contentOffset.y
         guard scrollView.isTracking || scrollView.isDragging || scrollView.isDecelerating else {
             topBarScroll.reset(at: position)

@@ -7,6 +7,7 @@ final class ShellViewController: UIViewController {
 
     private let topBar = TopBarView()
     private let statusBackdrop = UIView()
+    private let pullConsole = PullConsoleView()
     private var barShown = true
 
     private static let slideDuration: TimeInterval = 0.2
@@ -34,7 +35,10 @@ final class ShellViewController: UIViewController {
         statusBackdrop.backgroundColor = Palette.steamBar
         view.addSubview(topBar)
         view.addSubview(statusBackdrop)
+        view.addSubview(pullConsole)
         NSLayoutConstraint.activate([
+            pullConsole.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            pullConsole.centerYAnchor.constraint(equalTo: topBar.centerYAnchor, constant: -1),
             statusBackdrop.topAnchor.constraint(equalTo: view.topAnchor),
             statusBackdrop.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             statusBackdrop.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -78,6 +82,20 @@ final class ShellViewController: UIViewController {
             move()
         } else {
             UIView.animate(withDuration: Self.slideDuration, delay: 0, options: [.curveEaseOut, .beginFromCurrentState], animations: move)
+        }
+    }
+
+    func showPull(progress: CGFloat) {
+        if progress > 0 { setBarShown(true) }
+        pullConsole.show(progress: progress)
+    }
+
+    func showRefreshing(_ refreshing: Bool) {
+        if refreshing {
+            setBarShown(true)
+            pullConsole.startSweep()
+        } else {
+            pullConsole.hide()
         }
     }
 

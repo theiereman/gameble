@@ -100,6 +100,18 @@ abstract class GamebleActivity : HotwireActivity() {
         topBar?.show(backLabel?.let { TopBarView.Left.Back(it) } ?: TopBarView.Left.Home)
     }
 
+    fun screenPulled(navigator: Navigator, progress: Float) {
+        if (navigator !== delegate.currentNavigator) return
+        if (progress > 0f) setTopBarShown(true)
+        topBar?.showPull(progress)
+    }
+
+    fun screenRefreshing(navigator: Navigator, refreshing: Boolean) {
+        if (navigator !== delegate.currentNavigator && refreshing) return
+        if (refreshing) setTopBarShown(true)
+        topBar?.showRefreshing(refreshing)
+    }
+
     fun screenScrolled(navigator: Navigator, scrollY: Int) {
         if (navigator !== delegate.currentNavigator || !playerTouchedScreen) return
         topBarScroll.barShownAfterMovingTo(scrollY / resources.displayMetrics.density)?.let(::setTopBarShown)

@@ -163,4 +163,16 @@
         android:layout_height="@dimen/top_bar_rule"
         android:layout_gravity="bottom"
         android:background="@color/line" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_bar_height"
+        android:paddingBottom="@dimen/top_bar_rule">
+
+        <net.gameble.app.PullConsoleView
+            android:id="@+id/top_bar_pull_console"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </FrameLayout>
 </merge>
