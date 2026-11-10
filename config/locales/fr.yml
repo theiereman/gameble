@@ -1907,6 +1907,16 @@ fr:
         heading: "Les Archives vous remercient"
         kicker: "Confié"
         minted: "%{amount} PiCoins frappés pour vous"
+        stayed:
+          cap_left: "Il vous restait %{amount} de plafond aujourd'hui. Il se renouvelle à 00:00 UTC."
+          heading:
+            zero: "Aucune carte non confiée"
+            one: "%{count} carte n'a pas été confiée"
+            other: "%{count} cartes n'ont pas été confiées"
+          line:
+            zero: "%{title}, saison %{season} : aucun exemplaire ne reste dans votre collection"
+            one: "%{title}, saison %{season} : %{count} exemplaire reste dans votre collection (%{amount} PiCoins)"
+            other: "%{title}, saison %{season} : %{count} exemplaires restent dans votre collection (%{amount} PiCoins chacun)"
         throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
       new:
         closed: "Le marché est fermé pour le moment. Rien ne peut être confié avant sa réouverture."
@@ -3229,6 +3239,7 @@ fr:
       market_closed: "Le marché est fermé pour le moment. Rien n'a été confié."
       no_rarity: "Une de ces cartes n'a pas encore de rareté : la Confrérie ne peut pas l'estimer."
       not_enough_copies: "Vous n'avez pas autant d'exemplaires libres d'une de ces cartes."
+      nothing_fits: "Aucune carte ne tient dans votre plafond du jour. Il se renouvelle à 00:00 UTC."
     steam:
       invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
       sign_in_failed: "La connexion n'a pas abouti. Réessayez."
