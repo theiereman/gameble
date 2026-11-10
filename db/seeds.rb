@@ -101,6 +101,36 @@ if Rails.env.development? && Catalog::PublishedSeason.call
   end
 end
 
+# Development only: a few fake players list a copy each, so the market screen has tiles. A seller with too few PiCoins first entrusts a
+# spare copy; one who still cannot pay the stamp, or has no spare copy, is skipped, and a card already listed is never listed twice.
+if Rails.env.development? && Game::Market::MarketState.call.open?
+  settings = Game::Market::CurrentSettings.call
+  durations = [ settings.duration_short_hours, settings.duration_medium_hours, settings.duration_long_hours ]
+  copy_of = Data.define(:card_season_id, :rarity, :free)
+
+  listed = DevSignInsController::FAKE_PLAYER_COUNT.times.to_a.drop(1).first(6).each_with_index.count do |number, index|
+    player = Accounts::SignIn.new.call(steam_id: DevSignInsController.steam_id(number), persona_name: DevSignInsController.persona_name(number)).value!
+    held = Game::Holding.where(player_id: player.id).where("quantity > reserved").pluck(:card_season_id, Arel.sql("quantity - reserved"))
+    rarities = Catalog::CardSeason.where(id: held.map(&:first)).where.not(rarity: nil).pluck(:id, :rarity).to_h
+    copies = held.filter_map { |id, free| copy_of.new(id, rarities[id].to_sym, free) if rarities[id] }
+    already = Game::Market::Listing.open_now.where(seller_id: player.id).pluck(:card_season_id)
+    offered = copies.find { !already.include?(it.card_season_id) }
+    spare = copies.find { |copy| copy.free >= (copy == offered ? 2 : 1) }
+    next false unless offered && spare
+
+    stamp = settings.stamp(offered.rarity)
+    if Game::Market::Balance.call(player).available < stamp
+      Game::Market::EntrustCards.new.call(player:, lines: { spare.card_season_id => 1 }, settings_token: settings.token)
+    end
+    next false if Game::Market::Balance.call(player).available < stamp
+
+    minimum = settings.minimum_price(offered.rarity)
+    Game::Market::ListCard.new.call(player:, card_season_id: offered.card_season_id, starting_price: minimum,
+      buy_now_price: index.even? ? minimum * 3 : nil, duration_hours: durations[index % durations.size], settings_token: settings.token).success?
+  end
+  puts "Listed #{listed} copies on the market."
+end
+
 # Development only: a few generic roadmap milestones with stories, all three
 # statuses, shown and hidden, so the landing's roadmap module and the roadmap
 # page have something to show. A roadmap staff already started is left alone.
