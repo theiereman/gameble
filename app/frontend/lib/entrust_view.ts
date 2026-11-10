@@ -18,6 +18,7 @@ export type EntrustStrings = {
   rareNote: Template
   capText: string
   status: Template
+  barCount: Template
 }
 
 export type CellView = {
@@ -46,6 +47,7 @@ export type LineView = {
   count: string
   amount: number | null
   stays: string | null
+  stepper: StepperView | null
   state: "fits" | "partial" | "stays"
 }
 
@@ -62,6 +64,7 @@ export type RecapView = {
   label: string
   disabled: boolean
   status: string
+  bar: { count: string; amount: number }
 }
 
 export type AmountForms = { locale: string; accessible: string }
@@ -131,6 +134,7 @@ export function recapViewOf(
       count: t(strings.count, { count: copies }),
       amount: entrusted > 0 ? entrusted * copy.value : null,
       stays: stayed > 0 ? t(strings.stays, { count: stayed }) : null,
+      stepper: copy.free > 1 ? stepperOf(strings, copy.title, copies, copy.free) : null,
       state: stayed === 0 ? "fits" : entrusted === 0 ? "stays" : "partial",
     })),
     received: result.received,
@@ -150,5 +154,6 @@ export function recapViewOf(
     label: t(strings.submit, { count: result.count }),
     disabled: !open || !result.canValidate,
     status,
+    bar: { count: t(strings.barCount, { count: result.count }), amount: result.received },
   }
 }
