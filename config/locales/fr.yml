@@ -1505,6 +1505,8 @@ fr:
       card_list: "Voir la liste des cartes"
       all_achievements: "Tout voir"
       change_avatar: "Changer d'avatar"
+  picoin_amount:
+    accessible: "%{amount} PiCoins"
   profile_avatars:
     chosen:
       text: "%{name} est maintenant votre portrait."
@@ -1943,17 +1945,17 @@ fr:
           other: "%{count} exemplaires confiés"
         heading: "Les Archives vous remercient"
         kicker: "Confié"
-        minted: "%{amount} PiCoins frappés pour vous"
+        minted_html: "%{amount} frappés pour vous"
         stayed:
-          cap_left: "Il vous restait %{amount} de plafond aujourd'hui. Il se renouvelle à 00:00 UTC."
+          cap_left_html: "Il vous restait %{amount} de plafond aujourd'hui. Il se renouvelle à 00:00 UTC."
           heading:
             zero: "Aucune carte non confiée"
             one: "%{count} carte n'a pas été confiée"
             other: "%{count} cartes n'ont pas été confiées"
-          line:
+          line_html:
             zero: "%{title}, saison %{season} : aucun exemplaire ne reste dans votre collection"
-            one: "%{title}, saison %{season} : %{count} exemplaire reste dans votre collection (%{amount} PiCoins)"
-            other: "%{title}, saison %{season} : %{count} exemplaires restent dans votre collection (%{amount} PiCoins chacun)"
+            one: "%{title}, saison %{season} : %{count} exemplaire reste dans votre collection (%{amount})"
+            other: "%{title}, saison %{season} : %{count} exemplaires restent dans votre collection (%{amount} chacun)"
         throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
       new:
         closed: "Le marché est fermé pour le moment. Rien ne peut être confié avant sa réouverture."
@@ -1971,7 +1973,6 @@ fr:
         sign_in: "Connectez-vous pour confier des cartes à la Confrérie."
         sign_in_action: "Se connecter"
         submit: "Confier"
-        value: "%{amount} PiCoins"
   markets:
     show:
       kicker: "Chantier"

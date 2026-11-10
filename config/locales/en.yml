@@ -2240,15 +2240,15 @@ en:
           other: "%{count} copies entrusted"
         heading: The Archives thank you
         kicker: Entrusted
-        minted: "%{amount} PiCoins minted for you"
+        minted_html: "%{amount} minted for you"
         stayed:
-          cap_left: "You had %{amount} of cap left today. It renews at 00:00 UTC."
+          cap_left_html: "You had %{amount} of cap left today. It renews at 00:00 UTC."
           heading:
             one: "%{count} card was not entrusted"
             other: "%{count} cards were not entrusted"
-          line:
-            one: "%{title}, season %{season}: %{count} copy stays in your collection (%{amount} PiCoins)"
-            other: "%{title}, season %{season}: %{count} copies stay in your collection (%{amount} PiCoins each)"
+          line_html:
+            one: "%{title}, season %{season}: %{count} copy stays in your collection (%{amount})"
+            other: "%{title}, season %{season}: %{count} copies stay in your collection (%{amount} each)"
         throttled: Slow down, the Archives are counting. Try again in a minute.
       new:
         closed: The market is closed for now. Nothing can be entrusted until it reopens.
@@ -2265,7 +2265,6 @@ en:
         sign_in: Sign in to entrust cards to the Brotherhood.
         sign_in_action: Sign in
         submit: Entrust
-        value: "%{amount} PiCoins"
   markets:
     show:
       closing: No date is being communicated at this stage. Management thanks you for your patience, which remains free of charge to this day.
@@ -2921,6 +2920,8 @@ en:
         none: No title
       showcase:
         empty: Your best card will show here once you choose it from a card's page.
+  picoin_amount:
+    accessible: "%{amount} PiCoins"
   profile_avatars:
     chosen:
       text: "%{name} is now your portrait."
