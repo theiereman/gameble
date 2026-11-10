@@ -1,6 +1,5 @@
 module Game
   module Market
-    # A player's own market rows for the data export: never a leader, a buyer or another player's maximum.
     module ExportOf
       EntryRow = Data.define(:kind, :available_delta, :committed_delta, :listing_token, :created_at)
       ListingRow = Data.define(:token, :card_season_id, :status, :starting_price, :buy_now_price, :current_price, :final_price, :duration_hours, :created_at,

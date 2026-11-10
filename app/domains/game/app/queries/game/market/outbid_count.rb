@@ -1,6 +1,5 @@
 module Game
   module Market
-    # The running auctions where the player holds a public bid and does not lead.
     module OutbidCount
       def self.call(player)
         Listing.open_now.where(id: Bid.public_outcomes.where(player_id: player.id).select(:listing_id))

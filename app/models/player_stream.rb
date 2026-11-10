@@ -70,7 +70,7 @@ module PlayerStream
       when Game::Market::BidPlaced
         balance_notices(data.values_at(:bidder_id, :outbid_player_id)) + bid_market_notices(data)
       when Game::Market::AuctionUnsold
-        balance_notices([ data[:seller_id] ]) + market_notices([ data[:seller_id] ])
+        balance_notices([ data[:seller_id] ]) + market_notices([ data[:seller_id] ] + Game::Market::ListingBidders.call(data[:listing_id]))
       when Game::Market::ListingWithdrawn
         balance_notices(data.values_at(:seller_id, :leader_id)) + market_notices(Game::Market::ListingBidders.call(data[:listing_id]))
       when *BALANCE_EVENTS

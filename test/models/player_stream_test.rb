@@ -362,7 +362,7 @@ class PlayerStreamTest < ActiveSupport::TestCase
     assert_equal [ { player_id: @bob.id, balance: true } ], PlayerStream.notices(Game::Market::BidPlaced.new(data:)).select { it[:balance] }
   end
 
-  test "a sale or a withdrawal tells the market topic to every bidder of the listing" do
+  test "a sale, a withdrawal or an unsold end tells the market topic to every bidder of the listing" do
     carol = accounts_players(:administrator)
     open_market!
     listing = listing!(seller: @alice, card_season: catalog_card_seasons(:portal_one))
@@ -371,7 +371,10 @@ class PlayerStreamTest < ActiveSupport::TestCase
     withdrawn = Game::Market::ListingWithdrawn.new(data: { listing_id: listing.id, seller_id: @alice.id, leader_id: nil, released: 0 })
 
     assert_includes PlayerStream.notices(sold).select { it[:topic] }.map { it[:player_id] }, carol.id
+    unsold = Game::Market::AuctionUnsold.new(data: { listing_id: listing.id, seller_id: @alice.id })
+
     assert_equal [ @bob.id, carol.id ].sort, PlayerStream.notices(withdrawn).select { it[:topic] }.map { it[:player_id] }.sort
+    assert_equal [ @alice.id, @bob.id, carol.id ].sort, PlayerStream.notices(unsold).select { it[:topic] }.map { it[:player_id] }.sort
   end
 
   test "an unsold auction tells its seller" do
