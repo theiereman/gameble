@@ -1,0 +1,135 @@
+.market-bid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.market-bid__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.market-bid__label {
+  color: var(--color-text);
+  font: var(--font-label);
+  text-transform: uppercase;
+}
+
+.market-bid__field input[type="text"] {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--space-touch-min);
+  padding: var(--space-1) var(--space-4);
+  background: var(--color-panel-sunken);
+  border: 0;
+  box-shadow: var(--control-border);
+  color: var(--color-text-max);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.market-bid__field input[type="text"]:focus-visible {
+  outline: 0;
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.market-bid__field input[aria-invalid="true"] {
+  box-shadow: 0 0 0 2px var(--color-alert);
+}
+
+.market-bid__minimum,
+.market-bid__small {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.market-bid__error,
+.market-bid__refusal {
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-body-small);
+}
+
+.market-bid__error[hidden] {
+  display: none;
+}
+
+.market-bid__foot,
+.market-bid__sentences {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.market-bid__sentences[hidden] {
+  display: none;
+}
+
+.market-bid__fixed,
+.market-bid__live,
+.market-bid__note,
+.market-answer__body {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.market-bid__live:empty {
+  display: none;
+}
+
+.market-bid__submit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.market-bid__submit .button,
+.market-answer .button,
+.market-bid__sign-in .button {
+  min-height: var(--space-touch-min);
+}
+
+.market-bid__sign-in {
+  margin: 0;
+}
+
+.market-bid__note {
+  margin-top: var(--space-3);
+}
+
+.market-answer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+}
+
+.market-answer[hidden] {
+  display: none;
+}
+
+.market-answer__title {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-kicker);
+}
+
+.market-answer--leading .market-answer__title,
+.market-answer--raised .market-answer__title {
+  color: var(--color-lime);
+}
+
+.market-answer--beaten .market-answer__title,
+.market-answer--equal .market-answer__title {
+  color: var(--color-alert);
+}
