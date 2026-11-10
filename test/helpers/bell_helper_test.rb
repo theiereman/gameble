@@ -72,8 +72,16 @@ class BellHelperTest < ActionView::TestCase
     end
   end
 
-  test "a kind with no line yet is left out" do
-    assert_nil bell_market_line(market_notice(kind: :withdrawn))
+  test "a withdrawn listing tells its leader the amount is available again and leads to the Annonce" do
+    line = bell_market_line(market_notice(kind: :withdrawn, other: nil))
+
+    assert_equal market_listing_path(token: "tok"), line.path
+    assert_includes line.sentence, "Portal was withdrawn from the market. Your"
+    I18n.with_locale(:fr) { assert_includes bell_market_line(market_notice(kind: :withdrawn, other: nil)).sentence, "Portal a été retirée du marché. Vos" }
+  end
+
+  test "a kind the bell does not know is left out" do
+    assert_nil bell_market_line(market_notice(kind: :unknown))
   end
 
   test "a removed player is named anonymously" do

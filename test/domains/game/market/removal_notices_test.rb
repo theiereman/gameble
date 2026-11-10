@@ -23,6 +23,23 @@ class Game::Market::RemovalNoticesTest < ActiveSupport::TestCase
     assert_equal [ @seller.id, "lead_voided", nil, nil ], notice.attributes.values_at("player_id", "kind", "amount", "other_player_id")
   end
 
+  test "a withdrawal tells its leader the amount released and no other player" do
+    withdrawn = Game::Market::ListingWithdrawn.new(data: { listing_id: @listing.id, seller_id: @seller.id, leader_id: @leader.id, released: 30_000 })
+
+    Game::Market::Handlers::RemovalNotices.call(withdrawn)
+
+    notice = Game::Market::Notice.sole
+    assert_equal [ @leader.id, "withdrawn", 30_000, nil ], notice.attributes.values_at("player_id", "kind", "amount", "other_player_id")
+  end
+
+  test "a withdrawal with no leader, or a removed leader, writes nothing" do
+    Game::Market::Handlers::RemovalNotices.call(Game::Market::ListingWithdrawn.new(data: { listing_id: @listing.id, seller_id: @seller.id, leader_id: nil, released: 0 }))
+    @leader.update_columns(deleted_at: Time.current)
+    Game::Market::Handlers::RemovalNotices.call(Game::Market::ListingWithdrawn.new(data: { listing_id: @listing.id, seller_id: @seller.id, leader_id: @leader.id, released: 5 }))
+
+    assert_equal 0, Game::Market::Notice.count
+  end
+
   test "a notice for a banned or deleted player is never written" do
     %i[banned_at deleted_at].each do |column|
       @seller.update_columns(banned_at: nil, deleted_at: nil, column => Time.current)

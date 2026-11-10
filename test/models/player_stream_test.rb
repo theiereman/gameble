@@ -390,6 +390,18 @@ class PlayerStreamTest < ActiveSupport::TestCase
     assert_equal [ { player_id: @bob.id, balance: true }, { player_id: @alice.id, topic: "market" } ], PlayerStream.notices(voided)
   end
 
+  test "a cancelled listing tells the market topic to every bidder of the listing" do
+    carol = accounts_players(:administrator)
+    open_market!
+    listing = listing!(seller: @alice, card_season: catalog_card_seasons(:portal_one))
+    [ @bob, carol ].each { Game::Market::Bid.create!(listing:, player: it, maximum: 30_000, price_after: 20_000, outcome: "outbid") }
+    cancelled = Game::Market::ListingCancelled.new(data: { listing_id: listing.id, seller_id: @alice.id })
+
+    assert_includes PlayerStream::EVENTS, Game::Market::ListingCancelled
+    assert_equal [ @bob.id, carol.id ].sort, PlayerStream.notices(cancelled).map { it[:player_id] }.sort
+    assert_equal [ "market" ], PlayerStream.notices(cancelled).map { it[:topic] }.uniq
+  end
+
   test "a withdrawn listing tells its seller and its leader when present" do
     withdrawn = ->(leader_id) { Game::Market::ListingWithdrawn.new(data: { listing_id: 1, seller_id: @alice.id, leader_id:, released: 0 }) }
 

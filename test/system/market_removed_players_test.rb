@@ -50,4 +50,19 @@ class MarketRemovedPlayersSystemTest < ApplicationSystemTestCase
     end
     assert_current_path market_my_sales_path(locale: :en)
   end
+
+  test "a banned seller's listing is withdrawn: the leader's bell shows the line and the Annonce says it was withdrawn" do
+    @seller.update_columns(banned_at: Time.current)
+    Game::Market::DropPresenceJob.perform_now
+    sign_in_through_the_site(@leader)
+
+    find(".bell__button").click
+    within("#bell-panel") do
+      assert_selector ".bell__line", text: /Tin Soldier was withdrawn from the market\./
+      click_link href: market_listing_path(locale: :en, token: @listing.token)
+    end
+
+    assert_text "LISTING WITHDRAWN"
+    assert_equal [ 100_000, 0 ], figures(@leader)
+  end
 end

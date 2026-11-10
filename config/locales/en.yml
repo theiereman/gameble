@@ -3718,6 +3718,7 @@ en:
         outbid_html: "%{name} went past your maximum on %{card}."
         sold_html: "%{card} sold. You receive %{amount}."
         unsold_html: "%{card} received no offers. The card is returned to you."
+        withdrawn_html: "%{card} was withdrawn from the market. Your %{amount} are available again."
         won_html: "You won %{card} for %{amount}."
       mission: "This week's mission: open %{target} capsules together."
       mission_reached: "This week's mission is accomplished: %{target} capsules opened together."
