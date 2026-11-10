@@ -1554,6 +1554,11 @@ en:
       verdict_html: "The Flukeometer has ruled: %{name} is last week's luckiest member. %{register}"
       verdict_register: See the leaderboard
       verdict_tag: Verdict
+  filters:
+    price:
+      maximum: Maximum price
+      minimum: Minimum price
+      title: Price
   fortune_panels:
     frame:
       no_standing:
@@ -2631,6 +2636,13 @@ en:
         status: You receive %{amount} PiCoins
         step: "Step %{step} of 2"
   markets:
+    filters:
+      groups:
+        season: Season
+      no_match: No listings match these filters.
+      search_label: Search a game
+      search_placeholder: Search a game
+      season_chip: "Season %{number}"
     screen:
       chips_label: Market sections
       empty: No listings for now.

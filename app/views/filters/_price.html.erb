@@ -1,0 +1,14 @@
+<%# locals: (minimum:, maximum:) %>
+<fieldset class="filters__group price-filter" data-group="price">
+  <legend class="filters__legend"><%= t("filters.price.title") %></legend>
+  <div class="price-filter__fields">
+    <label class="price-filter__field">
+      <span class="price-filter__label"><%= t("filters.price.minimum") %></span>
+      <%= number_field_tag "min_price", minimum, min: 0, step: 1, inputmode: "numeric", class: "filters__search-field price-filter__input" %>
+    </label>
+    <label class="price-filter__field">
+      <span class="price-filter__label"><%= t("filters.price.maximum") %></span>
+      <%= number_field_tag "max_price", maximum, min: 0, step: 1, inputmode: "numeric", class: "filters__search-field price-filter__input" %>
+    </label>
+  </div>
+</fieldset>

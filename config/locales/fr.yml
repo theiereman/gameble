@@ -2331,6 +2331,13 @@ fr:
         status: "Vous recevez %{amount} PiCoins"
         step: "Étape %{step} sur 2"
   markets:
+    filters:
+      search_label: "Rechercher un jeu"
+      search_placeholder: "Rechercher un jeu"
+      groups:
+        season: "Saison"
+      season_chip: "Saison %{number}"
+      no_match: "Aucune annonce ne correspond à ces filtres."
     screen:
       heading: "Marché"
       chips_label: "Sections du marché"
@@ -2379,6 +2386,11 @@ fr:
       hours: "%{hours} h %{minutes}"
       minutes: "%{minutes} min"
       under: "moins d'une minute"
+  filters:
+    price:
+      title: "Prix"
+      minimum: "Prix minimum"
+      maximum: "Prix maximum"
   fortune_panels:
     frame:
       title: "Le Chattomètre"

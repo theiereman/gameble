@@ -27,6 +27,8 @@ module MarketHelper
 
   def sort_options = Game::Market::OpenListings::ORDERS.keys
 
+  def market_filtered_path(filters, **extra) = market_path(**filters.to_params, **extra.compact)
+
   def clock_data(seconds)
     { controller: "listing-clock", listing_clock_seconds_value: seconds,
       listing_clock_hours_template_value: t("markets.time_left.hours", hours: "%{hours}", minutes: "%{minutes}"),

@@ -31,14 +31,16 @@
     <% end %>
   </div>
 
-  <%= render "markets/sorts", sort: @sort %>
+  <%= render "markets/filters", filters: @filters, options: @options, sort: @sort %>
+
+  <%= render "markets/sorts", sort: @sort, filters: @filters %>
 
   <% if @listings.rows.empty? %>
-    <p class="market-screen__empty"><%= t(".empty") %></p>
+    <p class="market-screen__empty"><%= @filters.any? ? t("markets.filters.no_match") : t(".empty") %></p>
   <% else %>
     <ul id="market-tiles" class="market-screen__tiles" aria-label="<%= t(".list_label") %>">
       <%= render "markets/tiles", rows: @listings.rows %>
     </ul>
   <% end %>
-  <%= render "markets/pages", listings: @listings, sort: @sort, page: @page %>
+  <%= render "markets/pages", listings: @listings, sort: @sort, page: @page, filters: @filters %>
 </section>

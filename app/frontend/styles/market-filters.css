@@ -1,0 +1,34 @@
+.market-filters {
+  margin-bottom: var(--space-4);
+}
+
+.market-filters__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.price-filter__fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.price-filter__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.price-filter__label {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.price-filter__input {
+  width: 10rem;
+  max-width: 100%;
+}

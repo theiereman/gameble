@@ -1,6 +1,7 @@
+<%# locals: (sort:, filters:) %>
 <nav class="market-screen__sorts" aria-label="<%= t("markets.screen.sorts_label") %>">
   <% sort_options.each do |option| %>
-    <%= link_to t("markets.sorts.#{option}"), market_path(sort: option), class: "market-screen__sort",
+    <%= link_to t("markets.sorts.#{option}"), market_filtered_path(filters, sort: option), class: "market-screen__sort",
       aria: { current: (option == sort ? "true" : nil) }, data: { turbo_action: "replace" } %>
   <% end %>
 </nav>

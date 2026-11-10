@@ -1,0 +1,45 @@
+<%# locals: (filters:, options:, sort:) %>
+<%= form_with url: market_path, method: :get, class: "filters market-filters", html: { role: "search" }, data: {
+  controller: "market-filters",
+  action: "change->market-filters#changed input->market-filters#typed turbo:frame-load->market-filters#setsLoaded"
+} do %>
+  <%= hidden_field_tag :sort, sort, id: nil %>
+  <div class="filters__search">
+    <label class="visually-hidden" for="market-search"><%= t("markets.filters.search_label") %></label>
+    <%= search_field_tag "q", filters.query, id: "market-search", class: "filters__search-field", autocomplete: "off",
+      maxlength: Game::Market::ListingFilters::MAX_QUERY, placeholder: t("markets.filters.search_placeholder") %>
+  </div>
+  <details class="filters__zone" <%= "open" if filters.count.positive? %>>
+    <summary class="filters__summary">
+      <%= pixel_icon("arrow-small-right", class: "filters__chevron") %>
+      <span class="filters__title"><%= t("library.filters.title") %></span>
+      <span class="filters__count" <%= "hidden" if filters.count.zero? %>><span class="visually-hidden"><%= t("library.filters.active") %></span> <%= filters.count %></span>
+    </summary>
+    <div class="filters__groups">
+      <%= render "library/rarity_filter", chosen: filters.rarities %>
+      <% if @set_kinds.any? %>
+        <%= render "markets/set_filter", chosen: filters.sets.map(&:to_param), kinds: @set_kinds, kind: @set_kind, query: @set_query,
+          options: @set_options, found: @set_found %>
+      <% end %>
+      <% if options.genres.any? %>
+        <%= render "library/genre_filter", genres: options.genres, chosen: filters.genres %>
+      <% end %>
+      <% if options.seasons.any? %>
+        <fieldset class="filters__group" data-group="season">
+          <legend class="filters__legend"><%= t("markets.filters.groups.season") %></legend>
+          <% options.seasons.each do |number| %>
+            <label class="filter-chip">
+              <%= check_box_tag "season[]", number, filters.seasons.include?(number), id: nil, class: "filter-chip__box" %>
+              <span class="filter-chip__text"><%= t("markets.filters.season_chip", number:) %></span>
+            </label>
+          <% end %>
+        </fieldset>
+      <% end %>
+      <%= render "filters/price", minimum: filters.min_price, maximum: filters.max_price %>
+    </div>
+  </details>
+  <div class="market-filters__actions">
+    <%= render ButtonComponent.new(variant: :secondary, size: :small, type: :submit) { t("library.filters.apply") } %>
+    <%= link_to t("library.filters.clear"), market_path(sort:), class: "filters__clear", hidden: !filters.any? %>
+  </div>
+<% end %>
