@@ -7,7 +7,7 @@ module BackOffice
     def create
       authorize [ :back_office, :market_setting ], :create?
 
-      submitted = submitted_settings
+      submitted = submitted_params(:market_settings, *Game::Market::SettingsRules::EDITABLE, :token, :message_fr, :message_en)
       form = MarketSettingsForm.from_params(submitted, settings: Game::Market::CurrentSettings.call)
       result = Game::Market::ChangeSettings.new.call(player: current_player, settings_token: submitted[:token], candidate: form.candidate,
         message_fr: form.message_fr, message_en: form.message_en)
@@ -19,13 +19,6 @@ module BackOffice
     end
 
     private
-      def submitted_settings
-        submitted = params[:market_settings]
-        return {} unless submitted.is_a?(ActionController::Parameters)
-
-        submitted.permit(*Game::Market::SettingsRules::EDITABLE, :token, :message_fr, :message_en).to_h.symbolize_keys
-      end
-
       def render_refused(code, submitted)
         @settings_form = refused_form(code, submitted)
         @settings_form&.refusal = refusal_line(code)
