@@ -1,0 +1,5 @@
+<%# locals: (outbid:) %>
+<% if outbid.positive? %>
+  <span class="menu-item__badge menu-item__badge--alert" aria-hidden="true"><%= number_with_delimiter(outbid) %></span>
+  <span class="visually-hidden"><%= t("pages.home.menu.market_outbid", count: outbid, number: number_with_delimiter(outbid)) %></span>
+<% end %>

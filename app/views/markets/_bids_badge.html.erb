@@ -1,0 +1,5 @@
+<%# locals: (outbid:) %>
+<% if outbid.positive? %>
+  <span class="market-screen__badge" aria-hidden="true"><%= number_with_delimiter(outbid) %></span>
+  <span class="visually-hidden"><%= t("market.chips.bids_outbid", count: outbid, number: number_with_delimiter(outbid)) %></span>
+<% end %>

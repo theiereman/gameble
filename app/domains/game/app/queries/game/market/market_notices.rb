@@ -6,7 +6,14 @@ module Game
       Line = Data.define(:kind, :token, :card, :other, :amount, :noticed_at)
 
       def self.call(player:, locale: I18n.locale)
-        notices = Notice.where(player_id: player.id).order(noticed_at: :desc, id: :desc).limit(LIMIT).to_a
+        lines(Notice.where(player_id: player.id).order(noticed_at: :desc, id: :desc).limit(LIMIT).to_a, locale)
+      end
+
+      def self.outbid(player:, listing_ids:, locale: I18n.locale)
+        lines(Notice.where(player_id: player.id, listing_id: listing_ids, kind: "outbid").order(:id).to_a, locale)
+      end
+
+      def self.lines(notices, locale)
         return [] if notices.empty?
 
         listings = Listing.where(id: notices.map(&:listing_id)).pluck(:id, :token, :card_season_id).to_h { |id, token, card| [ id, [ token, card ] ] }
@@ -18,6 +25,8 @@ module Game
             noticed_at: notice.noticed_at)
         end
       end
+
+      private_class_method :lines
     end
   end
 end

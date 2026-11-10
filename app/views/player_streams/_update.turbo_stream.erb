@@ -16,6 +16,14 @@
 <% unless balance.nil? %>
   <%= turbo_stream.update_all ".balance-chip", partial: "shell/balance_figures", locals: { balance: } %>
 <% end %>
+<% unless outbid.nil? %>
+  <%= turbo_stream.update "menu-market-badge", partial: "pages/menu_market_badge", locals: { outbid: } %>
+  <%= turbo_stream.update "tab-market-badge", partial: "shell/tab_market_badge", locals: { outbid: } %>
+  <%= turbo_stream.update "market-bids-badge", partial: "markets/bids_badge", locals: { outbid: } %>
+<% end %>
+<% outbid_lines.each do |line| %>
+  <%= turbo_stream.append "market-status-lines", partial: "shell/market_status_line", locals: { line: } %>
+<% end %>
 <% friends.each do |friend| %>
   <%= turbo_stream.append "toasts", ToastComponent.new(title: t("invitations.new_friend.title"),
         message: t("invitations.new_friend.text", name: friend_name(friend))) %>

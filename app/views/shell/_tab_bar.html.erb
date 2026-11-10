@@ -1,5 +1,6 @@
 <% waiting = shell_trades_waiting %>
 <% tabs = shell_tabs %>
+<% outbid = shell_outbid_count %>
 <nav class="tab-bar" aria-label="<%= t("shell.tabs.label") %>" data-controller="navigation-lock">
   <%= tag.ul class: [ "tab-bar__list", ("tab-bar__list--visitor" unless current_player) ] do %>
     <% tabs.each do |key, icon, path, current| %>
@@ -9,6 +10,8 @@
           <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
           <% if key == :trades %>
             <span id="tab-trades-badge" class="stream-slot"><%= render("shell/tab_trades_badge", waiting:) %></span>
+          <% elsif key == :market %>
+            <span id="tab-market-badge" class="stream-slot"><%= render("shell/tab_market_badge", outbid:) %></span>
           <% end %>
         <% end %>
       </li>

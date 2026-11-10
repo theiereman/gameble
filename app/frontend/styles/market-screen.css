@@ -37,6 +37,7 @@
 .market-screen__chip {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-2);
   min-height: var(--space-chip-height);
   padding: var(--space-1) var(--space-4);
   background: var(--color-panel-sunken);
@@ -44,6 +45,17 @@
   color: var(--color-muted);
   font: var(--font-label);
   text-transform: uppercase;
+}
+
+.market-screen__badge {
+  min-width: 18px;
+  padding: 0 var(--space-1);
+  background: var(--color-alert);
+  color: var(--color-on-alert);
+  font: var(--font-button-sm);
+  letter-spacing: 0;
+  line-height: 18px;
+  text-align: center;
 }
 
 .market-screen__chip--current {

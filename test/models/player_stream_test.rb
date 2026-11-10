@@ -1,11 +1,13 @@
 require "test_helper"
 require_relative "../support/feed_reactions"
 require_relative "../support/market"
+require_relative "../support/market_listings"
 
 class PlayerStreamTest < ActiveSupport::TestCase
   include ActionCable::TestHelper
   include ActiveJob::TestHelper
   include FeedReactions
+  include MarketListings
   include MarketSettings
 
   setup do
@@ -339,19 +341,37 @@ class PlayerStreamTest < ActiveSupport::TestCase
     notices = PlayerStream.notices(Game::Market::BidPlaced.new(data:))
 
     assert_equal [ @bob.id, @alice.id ], notices.select { it[:balance] }.map { it[:player_id] }
-    assert_equal [ { player_id: @alice.id, topic: "market" } ], notices.select { it[:topic] }
+    assert_equal [ { player_id: @alice.id, topic: "market", outbid_listing_id: 1 }, { player_id: @bob.id, topic: "market" } ], notices.select { it[:topic] }
   end
 
   test "a bid that outbids nobody tells the bidder alone" do
     data = { listing_id: 1, bidder_id: @bob.id, branch: "raise", outbid_player_id: nil, outbid_released: 0 }
 
-    assert_equal [ { player_id: @bob.id, balance: true } ], PlayerStream.notices(Game::Market::BidPlaced.new(data:))
+    assert_equal [ { player_id: @bob.id, balance: true }, { player_id: @bob.id, topic: "market" } ], PlayerStream.notices(Game::Market::BidPlaced.new(data:))
+  end
+
+  test "a bid over the bidder's own lead names no outbid listing" do
+    data = { listing_id: 1, bidder_id: @bob.id, branch: "new_leader", outbid_player_id: @bob.id, outbid_released: 5 }
+
+    assert_equal [ { player_id: @bob.id, topic: "market" } ], PlayerStream.notices(Game::Market::BidPlaced.new(data:)).select { it[:topic] }
   end
 
   test "a bid that outbids the bidder's own earlier lead does not duplicate the notice" do
     data = { listing_id: 1, bidder_id: @bob.id, branch: "new_leader", outbid_player_id: @bob.id, outbid_released: 5 }
 
     assert_equal [ { player_id: @bob.id, balance: true } ], PlayerStream.notices(Game::Market::BidPlaced.new(data:)).select { it[:balance] }
+  end
+
+  test "a sale or a withdrawal tells the market topic to every bidder of the listing" do
+    carol = accounts_players(:administrator)
+    open_market!
+    listing = listing!(seller: @alice, card_season: catalog_card_seasons(:portal_one))
+    [ @bob, carol ].each { Game::Market::Bid.create!(listing:, player: it, maximum: 30_000, price_after: 20_000, outcome: "beaten") }
+    sold = Game::Market::AuctionSold.new(data: { listing_id: listing.id, seller_id: @alice.id, winner_id: @bob.id, card_season_id: @one, final_price: 10, surplus: 0, outbid_player_id: nil, outbid_released: 0 })
+    withdrawn = Game::Market::ListingWithdrawn.new(data: { listing_id: listing.id, seller_id: @alice.id, leader_id: nil, released: 0 })
+
+    assert_includes PlayerStream.notices(sold).select { it[:topic] }.map { it[:player_id] }, carol.id
+    assert_equal [ @bob.id, carol.id ].sort, PlayerStream.notices(withdrawn).select { it[:topic] }.map { it[:player_id] }.sort
   end
 
   test "an unsold auction tells its seller" do

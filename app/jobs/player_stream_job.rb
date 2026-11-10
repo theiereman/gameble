@@ -15,12 +15,14 @@ class PlayerStreamJob < ApplicationJob
         friends: announceable_friends(own.filter_map { it[:friend_id] }),
         unclaimed: (Game::UnclaimedAchievements.count(player) if rewards_changed),
         balance: (Game::Market::Balance.call(player) if own.any? { it[:balance] }),
+        outbid: (Game::Market::OutbidCount.call(player) if topics.include?("market")),
         pending: (pending_for(player) if invitations_changed || rewards_changed),
         achievements: own.filter_map { it[:achievement] }.uniq,
         card_backs: own.filter_map { it[:card_back] }.uniq,
         signals: topics.map { "#{it}-updated" }
       }
-      I18n.available_locales.each { broadcast(player, it, locals) }
+      outbid_listings = own.filter_map { it[:outbid_listing_id] }.uniq
+      I18n.available_locales.each { broadcast(player, it, locals.merge(outbid_lines: outbid_lines(player, it, outbid_listings))) }
     end
   end
 
@@ -28,6 +30,12 @@ class PlayerStreamJob < ApplicationJob
 
   def pending_for(player)
     Game::InvitationsWaiting.call(player) + Game::UnclaimedAchievements.count(player)
+  end
+
+  def outbid_lines(player, locale, listing_ids)
+    return [] if listing_ids.empty?
+
+    Game::Market::MarketNotices.outbid(player:, listing_ids:, locale:)
   end
 
   def reachable?(player)

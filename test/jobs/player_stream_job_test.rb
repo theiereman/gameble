@@ -107,8 +107,53 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
 
     english = received(@hugo, :en)
     assert_equal [ "market-updated" ], streams(english, "gameble-event").map { it["event"] }
-    assert_empty streams(english, "update")
+    assert_equal %w[menu-market-badge tab-market-badge market-bids-badge], streams(english, "update").map { it["target"] }
     assert_empty streams(english, "append")
+  end
+
+  def market_listing(seller)
+    Game::Market::Settings.delete_all
+    Game::Market::Settings.create!(Game::Market::StartingSettings::ATTRIBUTES.merge(open: true))
+    Game::Market::Listing.create!(seller:, card_season_id: catalog_card_seasons(:portal_one).id, settings_id: Game::Market::CurrentSettings.call.id,
+      starting_price: 20_000, current_price: 20_000, duration_hours: 24, ends_at: 1.day.from_now)
+  end
+
+  test "a market notice shows no badge at zero and the count of outbid auctions, with its accessible name, in each locale" do
+    PlayerStreamJob.perform_now([ { player_id: @hugo.id, topic: "market" } ])
+    assert_empty template(streams(received(@hugo, :en), "update", "menu-market-badge").sole).css(".menu-item__badge")
+
+    listing = market_listing(accounts_players(:administrator))
+    Game::Market::Bid.create!(listing:, player: @hugo, maximum: 30_000, price_after: 20_000, outcome: "beaten")
+    clear_messages(PlayerStream.name(@hugo, :en))
+    clear_messages(PlayerStream.name(@hugo, :fr))
+    PlayerStreamJob.perform_now([ { player_id: @hugo.id, topic: "market" } ])
+
+    english = received(@hugo, :en)
+    menu = template(streams(english, "update", "menu-market-badge").sole)
+    assert_equal "1", menu.at_css(".menu-item__badge--alert").text
+    assert_equal "1 auction outbid", menu.at_css(".visually-hidden").text
+    assert_equal "1", template(streams(english, "update", "tab-market-badge").sole).at_css(".tab-bar__badge--alert").text
+    chip = template(streams(english, "update", "market-bids-badge").sole)
+    assert_equal [ "1", "1 outbid" ], [ chip.at_css(".market-screen__badge").text, chip.at_css(".visually-hidden").text ]
+    assert_equal "1 enchère dépassée", template(streams(received(@hugo, :fr), "update", "menu-market-badge").sole).at_css(".visually-hidden").text
+  end
+
+  test "a notice without the market topic sends no market badge" do
+    PlayerStreamJob.perform_now([ { player_id: @hugo.id, balance: true } ])
+
+    assert_empty streams(received(@hugo, :en), "update", "menu-market-badge")
+  end
+
+  test "an outbid notice appends the line once, in the viewer's language, by listing token" do
+    listing = market_listing(accounts_players(:administrator))
+    Game::Market::Notice.record(player_id: @hugo.id, listing_id: listing.id, kind: "outbid", other_player_id: @lea.id, amount: 5_000)
+    notice = { player_id: @hugo.id, topic: "market", outbid_listing_id: listing.id }
+
+    PlayerStreamJob.perform_now([ notice, notice ])
+
+    line = template(streams(received(@hugo, :en), "append", "market-status-lines").sole).at_css("[data-market-status-key]")
+    assert_equal [ listing.token, "Léa went past your maximum on Portal." ], [ line["data-market-status-key"], line.text ]
+    assert_equal "Léa a dépassé votre maximum sur Portal.", template(streams(received(@hugo, :fr), "append", "market-status-lines").sole).at_css("[data-market-status-key]").text
   end
 
   test "an accepted invitation sends the sender the NOUVEL AMI toast and the friends signal" do

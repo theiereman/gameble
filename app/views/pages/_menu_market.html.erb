@@ -3,6 +3,7 @@
         data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>
     <span class="menu-item__number" aria-hidden="true">04</span>
     <span class="menu-item__label"><%= t("pages.home.menu.market") %></span>
+    <span id="menu-market-badge" class="stream-slot"><%= render "pages/menu_market_badge", outbid: shell_outbid_count %></span>
     <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
   <% end %>
 </li>

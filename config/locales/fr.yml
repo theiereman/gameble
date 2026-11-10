@@ -133,6 +133,8 @@ fr:
       collect: "Récupérer"
     live:
       marker: "Live"
+    market_status:
+      outbid: "%{name} a dépassé votre maximum sur %{card}."
     ticker:
       open: "Ouvrir le fil d'activité"
     top_bar:
@@ -209,6 +211,10 @@ fr:
       sets: "Sets"
       trades: "Échanges"
       market: "Marché"
+      market_outbid:
+        zero: "%{number} enchère dépassée"
+        one: "%{number} enchère dépassée"
+        other: "%{number} enchères dépassées"
       me: "Moi"
       landing: "Accueil"
       all_cards: "Toutes les cartes"
@@ -254,6 +260,10 @@ fr:
           other: "%{owned} cartes uniques sur %{total}"
         trades: "Échanges"
         market: "Marché"
+        market_outbid:
+          zero: "%{number} enchère dépassée"
+          one: "%{number} enchère dépassée"
+          other: "%{number} enchères dépassées"
         feed: "Fil d'activité"
         trades_waiting:
           zero: "%{number} échange en attente de vous"
@@ -2141,6 +2151,10 @@ fr:
         title: "ANNULER CETTE VENTE ?"
     chips:
       bids: "MES ENCHÈRES"
+      bids_outbid:
+        zero: "%{number} dépassée"
+        one: "%{number} dépassée"
+        other: "%{number} dépassées"
       sales: "MES VENTES"
     my_bids:
       groups:

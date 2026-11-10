@@ -43,6 +43,20 @@ class Game::Market::MarketNoticesTest < ActiveSupport::TestCase
     assert_empty Game::Market::MarketNotices.call(player: @other, locale: :en)
   end
 
+  test "the outbid lines of the given listings leave out other kinds, other listings and other players" do
+    outbid = listing
+    won = listing
+    elsewhere = listing
+    notice(@reader, outbid, at: 2.hours.ago)
+    notice(@reader, won, at: 1.hour.ago, kind: "won")
+    notice(@reader, elsewhere, at: 1.hour.ago)
+    notice(@other, outbid, at: 1.hour.ago)
+
+    lines = Game::Market::MarketNotices.outbid(player: @reader, listing_ids: [ outbid.id, won.id ], locale: :en)
+
+    assert_equal [ outbid.token ], lines.map(&:token)
+  end
+
   test "at most five come back, the newest" do
     listings = Array.new(6) { listing }
     listings.each_with_index { |listing, index| notice(@reader, listing, at: index.hours.ago) }

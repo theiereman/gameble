@@ -2452,6 +2452,9 @@ en:
         title: CANCEL THIS SALE?
     chips:
       bids: MY BIDS
+      bids_outbid:
+        one: "%{number} outbid"
+        other: "%{number} outbid"
       sales: MY SALES
     my_bids:
       groups:
@@ -2795,6 +2798,9 @@ en:
           other: "%{number} invitations waiting for your answer"
         label: Bridge menu
         market: Market
+        market_outbid:
+          one: "%{number} auction outbid"
+          other: "%{number} auctions outbid"
         open_booster: Open a capsule
         reserve:
           one: "%{number} capsule in reserve"
@@ -3706,6 +3712,8 @@ en:
       trade_declined: "%{name} declined your trade."
     live:
       marker: Live
+    market_status:
+      outbid: "%{name} went past your maximum on %{card}."
     packs:
       full: Reserve full
       in_reserve:
@@ -3773,6 +3781,9 @@ en:
       label: Main navigation
       landing: Home
       market: Market
+      market_outbid:
+        one: "%{number} auction outbid"
+        other: "%{number} auctions outbid"
       me: Me
       sets: Sets
       trades: Trades

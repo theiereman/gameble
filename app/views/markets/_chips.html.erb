@@ -1,10 +1,12 @@
 <%# locals: (current:) %>
 <nav class="market-screen__chips" aria-label="<%= t("markets.screen.chips_label") %>">
   <% [ [ :listings, market_path, t("markets.screen.listings") ], [ :bids, market_my_bids_path, t("market.chips.bids") ], [ :sales, market_my_sales_path, t("market.chips.sales") ] ].each do |chip, path, label| %>
+    <% badge = tag.span(render("markets/bids_badge", outbid: shell_outbid_count), id: "market-bids-badge", class: "stream-slot") if chip == :bids && current_player %>
+    <% content = safe_join([ label, badge ].compact) %>
     <% if chip == current %>
-      <span class="market-screen__chip market-screen__chip--current" aria-current="page"><%= label %></span>
+      <span class="market-screen__chip market-screen__chip--current" aria-current="page"><%= content %></span>
     <% elsif current_player || chip == :listings %>
-      <%= link_to label, path, class: "market-screen__chip" %>
+      <%= link_to content, path, class: "market-screen__chip" %>
     <% else %>
       <span class="market-screen__chip market-screen__chip--disabled" aria-disabled="true"><%= label %></span>
     <% end %>
