@@ -6,7 +6,9 @@ module PlayerStream
   INVITATION_EVENTS = [ Game::InvitationSent, Game::InvitationAccepted, Game::InvitationCancelled, Game::InvitationIgnored ].freeze
   FRIENDSHIP_EVENTS = [ Game::FriendRemoved ].freeze
   SEEN_EVENTS = [ Game::TradeSeen ].freeze
-  BALANCE_EVENTS = [ Game::Market::CardsEntrusted, Game::Market::CardListed ].freeze
+  BALANCE_EVENTS = [
+    Game::Market::CardsEntrusted, Game::Market::CardListed, Game::Market::AuctionSold, Game::Market::AuctionUnsold, Game::Market::ListingWithdrawn
+  ].freeze
   EVENTS = (TRADE_EVENTS + SEEN_EVENTS + INVITATION_EVENTS + FRIENDSHIP_EVENTS +
     [ Game::AchievementUnlocked, Game::AchievementClaimed, Game::CardBackUnlocked, Game::DailyBonusCollected ] + BALANCE_EVENTS).freeze
   CUT_OFF_EVENTS = [ Accounts::PlayerDeleted, Accounts::PlayerBanned ].freeze
@@ -61,6 +63,12 @@ module PlayerStream
         [ { player_id: data[:player_id], topic: "bank" } ]
       when Game::Market::CardListed
         [ balance_notice(data[:seller_id]) ]
+      when Game::Market::AuctionSold
+        balance_notices(data.values_at(:seller_id, :winner_id, :outbid_player_id))
+      when Game::Market::AuctionUnsold
+        balance_notices([ data[:seller_id] ])
+      when Game::Market::ListingWithdrawn
+        balance_notices(data.values_at(:seller_id, :leader_id))
       when *BALANCE_EVENTS
         [ balance_notice(data[:player_id]) ]
       when *CUT_OFF_EVENTS
@@ -77,6 +85,8 @@ module PlayerStream
     def trades_notice(player_id) = { player_id:, topic: "trades" }
 
     def balance_notice(player_id) = { player_id:, balance: true }
+
+    def balance_notices(player_ids) = player_ids.compact.uniq.map { balance_notice(it) }
 
     def friends_notice(player_id) = { player_id:, topic: "friends" }
 

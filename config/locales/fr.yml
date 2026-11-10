@@ -3444,6 +3444,8 @@ fr:
       odds_not_confirmed: "Confirmez que les probabilités sont publiées et exactes avant d'ouvrir le marché."
       settings_changed: "Les réglages du marché ont changé pendant que vous étiez sur cette page. Rechargez-la et vérifiez-les."
       terms_not_confirmed: "Confirmez que les conditions du marché sont en vigueur avant d'ouvrir le marché."
+      listing_not_found: "Cette annonce n'existe pas."
+      listing_not_closable: "Cette enchère ne peut pas être clôturée."
       market_busy: "Les Archives sont occupées pour le moment. Réessayez dans un instant."
       market_closed: "Le marché est suspendu pour le moment."
       buy_now_below_minimum: "Le prix d'achat immédiat est inférieur au minimum de cette rareté."

@@ -1,11 +1,16 @@
 module Game
   module Handlers
     module GoalsReached
-      EVENTS = [ Game::PackOpened, Game::TradeAccepted, Game::CustomSetEdited ].freeze
+      PLAYERS = {
+        Game::PackOpened => [ :player_id ],
+        Game::TradeAccepted => [ :proposer_id, :recipient_id ],
+        Game::CustomSetEdited => [ :player_id ],
+        Game::Market::AuctionSold => [ :winner_id ]
+      }.freeze
+      EVENTS = PLAYERS.keys.freeze
 
       def self.call(event)
-        data = event.data
-        Goal.drop_reached(event.is_a?(Game::TradeAccepted) ? data.values_at(:proposer_id, :recipient_id) : [ data.fetch(:player_id) ])
+        Goal.drop_reached(PLAYERS.fetch(event.class).map { event.data.fetch(it) })
       end
     end
   end
