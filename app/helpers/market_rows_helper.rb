@@ -1,6 +1,8 @@
 module MarketRowsHelper
   SALE_TONES = { "open" => :accent, "sold" => :gold, "unsold" => :muted, "cancelled" => :muted, "withdrawn" => :muted }.freeze
 
+  BID_TONES = { leading: :lime, outbid: :orange, won: :gold, lost: :muted, withdrawn: :muted }.freeze
+
   def sale_status_label(status)
     case status
     when "open" then t("market.rows.status.in_progress")
@@ -15,6 +17,24 @@ module MarketRowsHelper
 
   def sale_row_facts(row)
     [ [ t("market.rows.labels.price"), row_amount(row.current_price) ], [ t("market.rows.labels.end"), row_end(row.ends_at, row.ended_at) ] ]
+  end
+
+  def bid_status_label(status)
+    case status
+    when :leading then t("market.rows.status.leading")
+    when :outbid then t("market.rows.status.outbid")
+    when :won then t("market.rows.status.won")
+    when :lost then t("market.rows.status.lost")
+    when :withdrawn then t("market.rows.status.withdrawn")
+    end
+  end
+
+  def bid_status_tone(status) = BID_TONES.fetch(status)
+
+  def bid_row_facts(row)
+    [ [ t("market.rows.labels.price"), row_amount(row.price) ],
+      [ t("market.rows.labels.maximum"), render(PicoinAmountComponent.new(amount: row.maximum)) ],
+      [ t("market.rows.labels.end"), row_end(row.ends_at, row.ended_at) ] ]
   end
 
   def row_amount(amount) = render(PicoinAmountComponent.new(amount:, compact: true))

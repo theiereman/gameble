@@ -2431,7 +2431,20 @@ en:
         text: "%{card} comes back to you. The stamp is not refunded."
         title: CANCEL THIS SALE?
     chips:
+      bids: MY BIDS
       sales: MY SALES
+    my_bids:
+      groups:
+        in_progress:
+          empty: No bid in progress.
+          heading: IN PROGRESS
+        recent:
+          empty: No bid finished recently.
+          heading: FINISHED RECENTLY
+      show:
+        empty: You have not bid on any card.
+        empty_action: SEE THE LISTINGS
+        heading: My bids
     my_sales:
       cancel: CANCEL
       cancel_name: "Cancel the sale, %{card}"
@@ -2454,13 +2467,20 @@ en:
       closing: "Closing…"
       labels:
         end: End
+        maximum: My maximum
         price: Price
+      relever: RAISE
+      relever_name: "Raise, %{card}"
       status:
         cancelled: CANCELLED
         in_progress: IN PROGRESS
+        leading: LEADING
+        lost: LOST
         no_bid: NO BID
+        outbid: OUTBID
         sold: SOLD
         withdrawn: WITHDRAWN
+        won: WON
     entrustments:
       create:
         again: Entrust more cards

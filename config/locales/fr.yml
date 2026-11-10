@@ -2119,7 +2119,20 @@ fr:
         text: "%{card} vous revient. Le timbre n'est pas remboursé."
         title: "ANNULER CETTE VENTE ?"
     chips:
+      bids: "MES ENCHÈRES"
       sales: "MES VENTES"
+    my_bids:
+      groups:
+        in_progress:
+          empty: "Aucune enchère en cours."
+          heading: "EN COURS"
+        recent:
+          empty: "Aucune enchère terminée récemment."
+          heading: "TERMINÉES RÉCEMMENT"
+      show:
+        empty: "Vous n'avez enchéri sur aucune carte."
+        empty_action: "VOIR LES ANNONCES"
+        heading: "Mes enchères"
     my_sales:
       cancel: "ANNULER"
       cancel_name: "Annuler la vente, %{card}"
@@ -2142,13 +2155,20 @@ fr:
       closing: "Clôture en cours…"
       labels:
         end: "Fin"
+        maximum: "Mon maximum"
         price: "Prix"
+      relever: "RELEVER"
+      relever_name: "Relever, %{card}"
       status:
         cancelled: "ANNULÉE"
         in_progress: "EN COURS"
+        leading: "EN TÊTE"
+        lost: "PERDUE"
         no_bid: "SANS OFFRE"
+        outbid: "DÉPASSÉ"
         sold: "VENDUE"
         withdrawn: "RETIRÉE"
+        won: "REMPORTÉE"
     entrustments:
       create:
         again: "Confier d'autres cartes"

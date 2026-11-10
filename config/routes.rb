@@ -45,6 +45,8 @@ Rails.application.routes.draw do
     post "market/listings/:token/cancellation" => "market/cancellations#create", as: :market_listing_cancellation
     # A seller's own listings.
     get "market/my-sales" => "market/my_sales#show", as: :market_my_sales
+    # The auctions a player bid on.
+    get "market/my-bids" => "market/my_bids#show", as: :market_my_bids
     # The visitor's motion switch, written into the motion cookie.
     post "motion" => "motions#create", as: :motion
 

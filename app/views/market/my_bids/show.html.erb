@@ -1,0 +1,23 @@
+<% content_for :title, t(".heading") %>
+<% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
+<% empty = @groups.in_progress.empty? && @groups.recent.empty? %>
+<section class="market-screen" aria-labelledby="market-screen-heading">
+  <header class="market-screen__header">
+    <h1 id="market-screen-heading" class="market-screen__title"><%= t(".heading") %></h1>
+    <%= render "shell/balance_chip", placement: :header %>
+  </header>
+
+  <%= render "markets/chips", current: :bids %>
+
+  <% if empty %>
+    <div class="market-screen__empty-state">
+      <p class="market-screen__empty"><%= t(".empty") %></p>
+      <%= render ButtonComponent.new(variant: :link, href: market_path) { t(".empty_action") } %>
+    </div>
+  <% else %>
+    <%= render "market/my_bids/group", group: "in-progress", heading: t("market.my_bids.groups.in_progress.heading"),
+          empty: t("market.my_bids.groups.in_progress.empty"), rows: @groups.in_progress %>
+    <%= render "market/my_bids/group", group: "recent", heading: t("market.my_bids.groups.recent.heading"),
+          empty: t("market.my_bids.groups.recent.empty"), rows: @groups.recent %>
+  <% end %>
+</section>

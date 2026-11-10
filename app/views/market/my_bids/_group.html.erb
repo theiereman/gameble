@@ -1,0 +1,21 @@
+<%# locals: (group:, heading:, empty:, rows:) %>
+<section class="market-rows" aria-labelledby="my-bids-<%= group %>-heading">
+  <%= tag.h2 heading, id: "my-bids-#{group}-heading", class: "market-rows__heading", tabindex: -1 %>
+  <% if rows.empty? %>
+    <p class="market-rows__empty"><%= empty %></p>
+  <% else %>
+    <ul class="market-rows__list">
+      <% rows.each do |row| %>
+        <%= render MarketRowComponent.new(card: row.card, href: market_listing_path(token: row.token), token: row.token,
+              status: bid_status_label(row.status), tone: bid_status_tone(row.status), facts: bid_row_facts(row)) do |component| %>
+          <% if row.can_raise %>
+            <% component.with_action do %>
+              <%= render ButtonComponent.new(variant: row.status == :outbid ? :primary : :secondary, size: :small,
+                    href: market_listing_path(token: row.token, focus: "maximum"), aria_label: t("market.rows.relever_name", card: row.card.title)) { t("market.rows.relever") } %>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </ul>
+  <% end %>
+</section>

@@ -319,4 +319,26 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_empty cancel_dialog
     assert_select "button", text: "CANCEL", count: 0
   end
+
+  test "focus=maximum writes the field focus target for a bidder, and nothing for any other viewer or value" do
+    sign_in(accounts_players(:administrator))
+    get market_listing_path(locale: :en, token: @listing.token, focus: "maximum")
+    assert_select "#annonce-bid[data-focus=field]"
+    assert_select "#annonce-bid [data-focus-name=field]"
+
+    get market_listing_path(locale: :en, token: @listing.token, focus: "heading")
+    assert_select "#annonce-bid[data-focus]", false
+
+    get market_listing_path(locale: :en, token: @listing.token)
+    assert_select "#annonce-bid[data-focus]", false
+  end
+
+  test "focus=maximum changes nothing for the seller or a visitor" do
+    get market_listing_path(locale: :en, token: @listing.token, focus: "maximum")
+    assert_select "[data-focus]", false
+
+    sign_in(@seller)
+    get market_listing_path(locale: :en, token: @listing.token, focus: "maximum")
+    assert_select "[data-focus]", false
+  end
 end

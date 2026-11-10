@@ -1,6 +1,6 @@
 <%# locals: (current:) %>
 <nav class="market-screen__chips" aria-label="<%= t("markets.screen.chips_label") %>">
-  <% [ [ :listings, market_path, t("markets.screen.listings") ], [ :sales, market_my_sales_path, t("market.chips.sales") ] ].each do |chip, path, label| %>
+  <% [ [ :listings, market_path, t("markets.screen.listings") ], [ :bids, market_my_bids_path, t("market.chips.bids") ], [ :sales, market_my_sales_path, t("market.chips.sales") ] ].each do |chip, path, label| %>
     <% if chip == current %>
       <span class="market-screen__chip market-screen__chip--current" aria-current="page"><%= label %></span>
     <% elsif current_player || chip == :listings %>
