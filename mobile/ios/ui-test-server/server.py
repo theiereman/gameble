@@ -54,7 +54,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-Type", kind)
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.wfile.write(body)
+        except BrokenPipeError:
+            pass
 
     def log_message(self, format, *args):
         print(f"{mode['page']} GET {self.path} {args[1] if len(args) > 1 else ''} ({self.headers.get('User-Agent', '')[:40]})", flush=True)

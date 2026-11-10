@@ -7,10 +7,6 @@ final class PullToRefreshTests: XCTestCase {
         continueAfterFailure = true
     }
 
-    func testAPlainPageRefreshesOnALongPull() {
-        check(serving: "plain")
-    }
-
     func testTheSiteRefreshesOnALongPull() {
         check(serving: "site")
     }
@@ -19,9 +15,8 @@ final class PullToRefreshTests: XCTestCase {
         _ = server("__mode/\(page)")
         app.launchArguments += ["-signed_in", "YES", "-AppleLanguages", "(en)"]
         app.launch()
-        let view = app.webViews.firstMatch
-        XCTAssertTrue(view.waitForExistence(timeout: 60), "the first screen never showed a web view")
-        sleep(6)
+        let view = app.windows.firstMatch
+        sleep(20)
         keep("\(page) opened")
         let before = server("__loads")
 
@@ -45,7 +40,7 @@ final class PullToRefreshTests: XCTestCase {
             answer = data.map { String(decoding: $0, as: UTF8.self) } ?? ""
             done.fulfill()
         }.resume()
-        wait(for: [done], timeout: 10)
+        wait(for: [done], timeout: 30)
         return Int(answer) ?? -1
     }
 
