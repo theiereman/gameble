@@ -43,7 +43,7 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
 
     visit market_my_sales_path(locale: :en)
     assert_selector ".market-row", count: 2
-    click_button "Cancel the sale, Tin Soldier"
+    find("button[aria-label='Cancel the sale, Tin Soldier']").click
     assert_selector "dialog#cancel-#{first.token}[open] h2:focus", text: "CANCEL THIS SALE?"
     within("dialog#cancel-#{first.token}") { click_button "CANCEL THE SALE" }
 
@@ -61,7 +61,7 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
     sign_in_through_the_site(@seller)
 
     visit market_my_sales_path(locale: :en)
-    click_link "Put up for sale again, Blue Depths"
+    find("a[aria-label='Put up for sale again, Blue Depths']").click
 
     assert_selector ".market-sale__relisting", text: "These amounts are those of your previous sale."
     assert_field "starting_price", with: "9000"
@@ -79,7 +79,7 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
     sign_in_through_the_site(@seller)
 
     visit market_my_sales_path(locale: :en)
-    click_button "Cancel the sale, Tin Soldier"
+    find("button[aria-label='Cancel the sale, Tin Soldier']").click
     assert bid(@bidder, 30_000, listing).success?
     within("dialog#cancel-#{listing.token}") { click_button "CANCEL THE SALE" }
 

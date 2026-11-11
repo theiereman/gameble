@@ -29,14 +29,17 @@ class BackOfficeMarketTest < ApplicationSystemTestCase
       fill_in "Message in French", with: "Le marché est ouvert"
       fill_in "Message in English", with: "The market is open"
       check "The terms of the market are in force and players can read them."
+      check "The odds of every draw are published and truthful."
       click_on "Open the market"
     end
 
     assert_text "The market is open and the announcement is on the banner."
     assert_selector "[data-market-state=open]"
-    assert_selector "#announcement-banner", text: "The market is open"
     assert_no_selector "#market-opening"
     assert Game::Market::MarketState.call.open?
+
+    visit home_path(locale: :en)
+    assert_selector "#announcement-banner", text: "The market is open"
   end
 
   test "a missing confirmation opens nothing and names itself" do

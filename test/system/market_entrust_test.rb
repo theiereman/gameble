@@ -187,14 +187,14 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
     visit new_market_entrustment_path(locale: :en)
     assert_selector "#entrust-not-returned", text: "Entrusted cards are not given back."
-    assert_equal "", find("[role=status][aria-live=polite]", visible: :all).text(:all)
+    assert_equal "", find("aside [data-entrust-recap-target=status][role=status][aria-live=polite]", visible: :all).text(:all)
 
     tick(@common)
     assert_selector "button[type=submit][aria-describedby='entrust-not-returned']"
     tick(@rare)
     assert_selector "button[type=submit][aria-describedby='entrust-not-returned entrust-rare-note']"
     assert_selector "#entrust-rare-note", text: /Rare or better/
-    assert_selector "[role=status][aria-live=polite]", text: "2 copies, 6,000 PiCoins", visible: :all
+    assert_selector "aside [data-entrust-recap-target=status][role=status][aria-live=polite]", text: "2 copies, 6,000 PiCoins", visible: :all
 
     fill_in "entrust-search", with: "blue"
     find("#entrust-search").send_keys(:escape)
@@ -296,11 +296,12 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
   def second_edition_of(card_season)
     season = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
-    Catalog::CardSeason.create!(card_id: card_season.card_id, season_id: season.id, prestige_score: 0.5, rating: 50, rarity: card_season.rarity, number: 1)
+    rows = [ { card_id: card_season.card_id, season_id: season.id, prestige_score: 0.5, rating: 50, rarity: card_season.rarity, number: 1 } ]
+    Catalog::CardSeason.find(Catalog::CardSeason.insert_all!(rows, returning: :id).rows.flatten.sole)
   end
 
   test "from a card detail with two free editions the player reaches Confier on that card with doubles off and nothing ticked" do
-    open_market!
+    open_market!(first_opened_at: 1.day.ago)
     second = second_edition_of(@rare)
     hold(@player, @rare.id, 1)
     hold(@player, second.id, 1)
@@ -312,12 +313,12 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
     assert_selector ".entrust-cell", count: 2
     assert_no_selector ".entrust-cell--picked"
-    assert_unchecked_field "Doubles"
+    assert_unchecked_field "Doubles", visible: :all
     assert_selector ".market-entrust__card-only"
   end
 
   test "from a card detail with one free edition Confier opens with it ticked" do
-    open_market!
+    open_market!(first_opened_at: 1.day.ago)
     hold(@player, @rare.id, 2)
     sign_in_through_the_site
 
@@ -326,12 +327,12 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
     assert_selector ".entrust-cell", count: 1
     assert_selector ".entrust-cell--picked", count: 1
-    assert_unchecked_field "Doubles"
+    assert_unchecked_field "Doubles", visible: :all
   end
 
   test "the balance chip follows an entrustment and is absent before the opening and for a visitor" do
     open_market!(first_opened_at: Time.current)
-    hold(@player, @rare.id, 1)
+    hold(@player, @rare.id, 2)
     sign_in_through_the_site
 
     assert_selector ".balance-chip--bar .balance-chip__available[aria-label='0 PiCoins']"
@@ -342,7 +343,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_selector ".balance-chip--bar .balance-chip__available[aria-label='5,000 PiCoins']"
     assert_selector ".balance-chip--bar .balance-chip__committed .visually-hidden", text: "0 committed", visible: :all
 
-    Game::Market::Settings.delete_all
+    forget_market!
     open_market!
     visit home_path(locale: :en)
     assert_no_selector ".balance-chip"

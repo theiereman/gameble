@@ -14,7 +14,7 @@ class MarketSuspensionTest < ApplicationSystemTestCase
     @first_opened_at = 2.days.ago.change(usec: 0)
     open_market!(first_opened_at: @first_opened_at, terms_confirmed_at: @first_opened_at, odds_confirmed_at: @first_opened_at)
     @card = catalog_card_seasons(:common_card_one)
-    hold(accounts_players(:player), @card.id, 1)
+    hold(accounts_players(:player), @card.id, 2)
   end
 
   def sign_in_through_the_site(player)
@@ -38,16 +38,16 @@ class MarketSuspensionTest < ApplicationSystemTestCase
     sign_in_through_the_site(accounts_players(:administrator))
     close_from_the_back_office
 
-    assert_selector "#announcement-banner", text: "The market is suspended"
     assert_no_selector "#market-closing"
     assert_selector "#market-opening", text: "Reopen the market"
 
     using_session(:player) do
       sign_in_through_the_site(accounts_players(:player))
+      assert_selector "#announcement-banner", text: "The market is suspended"
       visit new_market_entrustment_path(locale: :en)
       assert_selector "#market-suspended-banner", text: "THE MARKET IS SUSPENDED"
       assert_button "Entrust", disabled: true
-      find("#market-suspended-banner a", text: "Back to the market").click
+      find("#market-suspended-banner a", text: /back to the market/i).click
       assert_selector "h1", text: "Market"
     end
 

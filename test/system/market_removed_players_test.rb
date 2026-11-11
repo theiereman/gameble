@@ -70,7 +70,7 @@ class MarketRemovedPlayersSystemTest < ApplicationSystemTestCase
     sign_in_through_the_site(@leader)
     visit settings_path(locale: :en)
     click_on "Delete my account"
-    assert_selector "#delete-dialog-market", text: /Your balance of .* PiCoins is destroyed without refund/
+    assert_selector "#delete-dialog-market", text: /Your balance of\s+100,000\s+PiCoins is destroyed without refund/
 
     @leader.update_columns(deleted_at: Time.current, steam_id: nil)
     Game::Market::DropPresenceJob.perform_now

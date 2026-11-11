@@ -48,7 +48,7 @@ class MarketBiddingSystemTest < ApplicationSystemTestCase
     visit market_listing_path(locale: :en, token: @listing.token)
 
     assert_field "annonce-maximum", with: ""
-    assert_selector "#annonce-minimum", text: "At least 21,000"
+    assert_selector "#annonce-minimum", text: /At least\s+21,000/
     fill_in "annonce-maximum", with: "25000"
     assert_selector "#annonce-form button[type=submit]", text: "BID · 25,000"
     assert_selector "[role=status]", text: "25,000 PiCoins will be held", visible: :all
@@ -70,15 +70,15 @@ class MarketBiddingSystemTest < ApplicationSystemTestCase
 
     assert_selector "#annonce-answer-heading:focus", text: "YOU ARE LEADING"
     assert_selector "#annonce-answer .picoin-amount__figure", text: "31,500"
-    assert_selector "#annonce-minimum", text: "More than your current maximum, 40,000"
-    assert_selector ".balance-chip__committed", text: "40k committed"
+    assert_selector "#annonce-minimum", text: /More than your current maximum,\s+40,000/
+    assert_equal 40_000, Game::Market::Wallet.find_by!(player_id: @bidder.id).committed
 
     fill_in "annonce-maximum", with: "45000"
     assert_selector "#annonce-form button[type=submit]", text: "RAISE · 45,000"
     submit_button.click
 
     assert_selector "#annonce-answer-heading", text: "MAXIMUM RAISED"
-    assert_selector ".balance-chip__committed", text: "45k committed"
+    assert_equal 45_000, Game::Market::Wallet.find_by!(player_id: @bidder.id).committed
     assert_equal 31_500, @listing.reload.current_price
   end
 

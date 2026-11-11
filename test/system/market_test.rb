@@ -87,7 +87,7 @@ class MarketTest < ApplicationSystemTestCase
 
       visit market_my_sales_path(locale: :en)
       assert_selector "#market-suspended-banner"
-      click_button "Cancel the sale, Tin Soldier"
+      find("button[aria-label='Cancel the sale, Tin Soldier']").click
       within("dialog#cancel-#{cancellable.token}") { click_button "CANCEL THE SALE" }
       assert_text "Sale cancelled."
       assert_equal "cancelled", cancellable.reload.status

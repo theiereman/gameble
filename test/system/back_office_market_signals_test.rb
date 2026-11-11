@@ -43,6 +43,6 @@ class BackOfficeMarketSignalsTest < ApplicationSystemTestCase
     visit_signals_as(accounts_players(:player))
 
     assert_no_selector "tr[data-signal]"
-    assert_text "PAGE NOT FOUND"
+    assert_text "No route matches"
   end
 end

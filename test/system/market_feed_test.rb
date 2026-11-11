@@ -17,17 +17,17 @@ class MarketFeedSystemTest < ApplicationSystemTestCase
 
   test "a sale shows under everything and under sales with a linked name, and a private buyer's name has no link" do
     visit feed_path(locale: :en)
-    assert_selector ".feed__entry .feed__sentence", text: /Sam bought Golden Crown for/
-    assert_selector ".feed__sentence a.player-name--linked", text: "Sam"
+    assert_selector ".feed__entry .feed__headline", text: /Bought\s*Golden Crown/i
+    assert_selector ".feed__who a.player-name--linked", text: "Sam"
 
     click_on "Sales"
-    assert_selector ".feed__filter[aria-current=true]", text: "Sales"
-    assert_selector ".feed__tag--sale", text: "Sale"
+    assert_selector ".feed__filter[aria-current=true]", text: /sales/i
+    assert_selector ".feed__tag--sale", text: /\Asale\z/i
 
     @buyer.update!(visibility: "private")
     visit feed_path(locale: :en, filter: "sales")
-    assert_selector ".feed__sentence .player-name", text: "Sam"
-    assert_no_selector ".feed__sentence a.player-name--linked"
+    assert_selector ".feed__who .player-name", text: "Sam"
+    assert_no_selector ".feed__who a.player-name--linked"
   end
 
   test "the hub ticker never shows the sale" do

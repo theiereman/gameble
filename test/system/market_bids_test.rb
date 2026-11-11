@@ -45,7 +45,7 @@ class MarketBidsSystemTest < ApplicationSystemTestCase
     assert_selector ".market-row__chip", text: "OUTBID"
     assert_selector ".market-row__fact dd", text: "30,000"
 
-    click_link "Raise, Tin Soldier"
+    find("a[aria-label='Raise, Tin Soldier']").click
     assert_selector "h1#market-listing-heading", text: "Tin Soldier"
     assert_selector "#annonce-maximum:focus"
 

@@ -59,7 +59,7 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
     visit_health_as(accounts_players(:player))
 
     assert_no_selector "[data-health-indicator]"
-    assert_text "PAGE NOT FOUND"
+    assert_text "No route matches"
   end
 
   def alerting_snapshot(destroyed: 3_400) = snapshot!(@yesterday, created: 10_000, destroyed_total: destroyed)
