@@ -716,7 +716,7 @@ fr:
       create:
         closed: "Le marché est fermé et l'annonce est sur le bandeau."
       announcement_refused: "Chaque annonce demande un texte dans les deux langues, 280 caractères au plus. Le marché n'a pas été fermé."
-      stale: "Un autre administrateur vient de modifier le marché. La page a été redessinée ; vérifiez-la et fermez à nouveau si besoin."
+      stale: "Un autre administrateur vient de modifier le marché. La page a été redessinée ; vérifiez-la et fermez à nouveau si besoin."
     market_health:
       alert:
         administrators_only: "Seul un administrateur peut préparer ce changement."
@@ -724,7 +724,7 @@ fr:
         no_proposal: "Aucun changement dans les bornes ne répond à cette alerte. Ajustez les réglages à la main."
         prepare: "Préparer ce changement"
         proposal_minimum: "Son prix minimum monte à %{minimum} pour qu'un vendeur ne perde jamais."
-        proposal_stamp: "Proposition : relever le timbre %{rarity} de %{from} à %{to}."
+        proposal_stamp: "Proposition : relever le timbre %{rarity} de %{from} à %{to}."
         title: "Alerte"
       days: "%{value} j"
       income:
@@ -735,8 +735,8 @@ fr:
         days_of_income:
           title: "Prix en jours de revenu"
           todo: "Un prix très au-dessus de sa cible appelle des minimums ou des timbres plus bas, très en dessous l'inverse. Rien ici ne change tout seul."
-          what: "Le prix typique d'une rareté divisé par le revenu quotidien d'un joueur standard : combien de jours de capsules coûte une carte."
-          why: "Il dit si les cibles tiennent : une Légendaire doit coûter des semaines, une Commune des minutes."
+          what: "Le prix typique d'une rareté divisé par le revenu quotidien d'un joueur standard : combien de jours de capsules coûte une carte."
+          why: "Il dit si les cibles tiennent : une Légendaire doit coûter des semaines, une Commune des minutes."
         destroyed_share:
           threshold: "Alerte sous %{value}."
           title: "PiCoins détruits contre créés, 30 jours"
@@ -796,18 +796,18 @@ fr:
     market_signals:
       banned: "banni"
       sentences:
-        bids_on_tied_seller: "Enchères sur les annonces de l'autre compte, qu'un autre signal lui lie, ces 30 derniers jours. Annonces : %{listings}, enchères : %{bids}."
-        minimum_price_sales: "Vendu à l'autre compte au prix minimum ces 30 derniers jours : %{sales}."
+        bids_on_tied_seller: "Enchères sur les annonces de l'autre compte, qu'un autre signal lui lie, ces 30 derniers jours. Annonces : %{listings}, enchères : %{bids}."
+        minimum_price_sales: "Vendu à l'autre compte au prix minimum ces 30 derniers jours : %{sales}."
         near_maximum_opening: "A ouvert %{per_day} capsules ou plus par jour sur %{days} des 7 derniers jours, jusqu'à %{peak} en un jour."
-        one_way_trades: "Échanges des 7 derniers jours où il a donné bien plus qu'il n'a reçu : %{trades}. Exemplaires donnés : %{given}, reçus : %{received}."
-        sales_outside_price: "Vendu à l'autre compte ces 30 derniers jours à moins de la moitié ou à plus du double du prix moyen de l'édition : %{sales} (%{below} en dessous, %{above} au-dessus)."
+        one_way_trades: "Échanges des 7 derniers jours où il a donné bien plus qu'il n'a reçu : %{trades}. Exemplaires donnés : %{given}, reçus : %{received}."
+        sales_outside_price: "Vendu à l'autre compte ces 30 derniers jours à moins de la moitié ou à plus du double du prix moyen de l'édition : %{sales} (%{below} en dessous, %{above} au-dessus)."
       show:
         account: "Compte"
         caption: "Comptes correspondant à un signal de compte alternatif"
         empty: "Aucun compte ne correspond à un signal."
         facts: "Faits"
         heading: "Signaux de comptes alternatifs"
-        intro: "Des comptes qui ouvrent des capsules, échangent, vendent ou enchérissent comme le ferait un compte alternatif qui alimente un autre. Un signal est un indice, pas une preuve : il ne change rien au compte, et toute action passe par le bannissement de la page des joueurs. Les signaux sont remplacés chaque nuit et aucun joueur ne les voit."
+        intro: "Des comptes qui ouvrent des capsules, échangent, vendent ou enchérissent comme le ferait un compte alternatif qui alimente un autre. Un signal est un indice, pas une preuve : il ne change rien au compte, et toute action passe par le bannissement de la page des joueurs. Les signaux sont remplacés chaque nuit et aucun joueur ne les voit."
         other_account: "Autre compte"
         refreshed_at: "Actualisé"
         signal: "Signal"
@@ -853,11 +853,11 @@ fr:
         hints:
           bounds: "De %{min} à %{max}."
           currently: "Actuellement %{value}."
-          optional: "Facultatif : laisser vide le désactive."
+          optional: "Facultatif : laisser vide le désactive."
         labels:
-          alert_destroyed_share_basis_points: "Alerte : part de PiCoins détruits (%)"
-          alert_picoins_per_player: "Alerte : PiCoins par joueur"
-          alert_top_share_basis_points: "Alerte : part du joueur le plus riche (%)"
+          alert_destroyed_share_basis_points: "Alerte : part de PiCoins détruits (%)"
+          alert_picoins_per_player: "Alerte : PiCoins par joueur"
+          alert_top_share_basis_points: "Alerte : part du joueur le plus riche (%)"
           average_sale_count: "Ventes dans le prix moyen (nombre)"
           average_window_days: "Fenêtre du prix moyen (jours)"
           commission_basis_points: "Commission sur une vente (%)"
@@ -886,10 +886,10 @@ fr:
           stamp: "Timbre"
         save: "Enregistrer les réglages"
         violations:
-          below_floor: "Sous le plancher sans perte : au moins %{floor}."
+          below_floor: "Sous le plancher sans perte : au moins %{floor}."
           durations_not_ascending: "Les durées courte, moyenne et longue doivent croître dans cet ordre."
-          less_than_half: "Au moins la moitié de la valeur actuelle : %{limit}."
-          more_than_double: "Au plus le double de la valeur actuelle : %{limit}."
+          less_than_half: "Au moins la moitié de la valeur actuelle : %{limit}."
+          more_than_double: "Au plus le double de la valeur actuelle : %{limit}."
           not_a_number: "Saisissez un nombre."
           out_of_range: "Saisissez une valeur de %{min} à %{max}."
           preselected_not_a_duration: "La durée présélectionnée doit être l'une des trois durées."
@@ -898,7 +898,7 @@ fr:
         intro: "Ouvrir le marché aux joueurs, ou le rouvrir après une suspension. Le teaser reste à l'adresse du marché jusqu'à ce que le marché le remplace."
         state:
           never_opened: "Le marché n'a jamais été ouvert."
-          open: "Le marché est ouvert. Première ouverture :"
+          open: "Le marché est ouvert. Première ouverture :"
           suspended: "Le marché est suspendu. Rien ne peut être confié avant sa réouverture."
         state_heading: "État"
     dashboard:
@@ -2152,29 +2152,29 @@ fr:
     bids:
       answers:
         beaten:
-          body_html: "Votre offre de %{offer} est battue d'emblée, et vos PiCoins vous sont rendus. Nouveau prix : %{price}. Pour passer devant, offrez au moins %{minimum}."
+          body_html: "Votre offre de %{offer} est battue d'emblée, et vos PiCoins vous sont rendus. Nouveau prix : %{price}. Pour passer devant, offrez au moins %{minimum}."
           title: "UN AUTRE JOUEUR AVAIT UN MAXIMUM PLUS HAUT"
         equal:
-          body_html: "Votre offre de %{offer} est battue d'emblée, et vos PiCoins vous sont rendus. Nouveau prix : %{price}. Pour passer devant, offrez au moins %{minimum}."
+          body_html: "Votre offre de %{offer} est battue d'emblée, et vos PiCoins vous sont rendus. Nouveau prix : %{price}. Pour passer devant, offrez au moins %{minimum}."
           title: "UN AUTRE JOUEUR AVAIT DÉJÀ PROPOSÉ CE MAXIMUM"
         leading:
           action: "RELEVER MON MAXIMUM"
-          body_html: "Prix actuel %{price}. Votre maximum : %{maximum}."
+          body_html: "Prix actuel %{price}. Votre maximum : %{maximum}."
           title: "VOUS ÊTES EN TÊTE"
         raised:
-          body_html: "Votre maximum : %{maximum}. Le prix ne change pas."
+          body_html: "Votre maximum : %{maximum}. Le prix ne change pas."
           title: "MAXIMUM RELEVÉ"
       buy_now:
-        available_html: "Disponible : %{amount}."
+        available_html: "Disponible : %{amount}."
         body_html: "Vous achetez %{card} pour %{price}. La carte rejoint votre collection. Cet achat ne peut pas être annulé."
         button: "ACHETER MAINTENANT"
         cancel: "ANNULER"
         close: "Fermer"
         confirm: "ACHETER · %{amount}"
-        held_extra_html: "Vous avez déjà %{own} bloqués sur cette annonce : %{held} de plus seront bloqués."
+        held_extra_html: "Vous avez déjà %{own} bloqués sur cette annonce : %{held} de plus seront bloqués."
         title: "ACHAT IMMÉDIAT"
       form:
-        available_html: "Disponible : %{amount}."
+        available_html: "Disponible : %{amount}."
         fixed: "C'est le plus que vous acceptez de payer. Si vous gagnez, vous paierez le moins possible."
         final: "Une offre ne peut pas être annulée."
         label: "MON MAXIMUM"
@@ -2192,7 +2192,7 @@ fr:
         button_idle: "ENCHÉRIR"
         button_name: "Enchérir, maximum %{amount} PiCoins"
         button_raise: "RELEVER · %{amount}"
-        live_buy_now: "Ce montant atteint l'achat immédiat : vous achetez la carte tout de suite pour %{amount}."
+        live_buy_now: "Ce montant atteint l'achat immédiat : vous achetez la carte tout de suite pour %{amount}."
         live_hold: "%{amount} PiCoins seront bloqués, puis rendus si un autre joueur fait mieux."
         live_raise: "%{amount} PiCoins de plus seront bloqués. Le prix ne change pas."
       unusual:
@@ -2216,7 +2216,7 @@ fr:
         heading: "HISTORIQUE"
         leading: "En tête"
         raise_html: "%{name} a relevé son maximum"
-        voided: "Offre annulée : joueur retiré"
+        voided: "Offre annulée : joueur retiré"
       outcome:
         bought:
           body_html: "Vous payez %{price}. La carte rejoint votre collection."
@@ -2250,7 +2250,7 @@ fr:
         average_price: "Prix moyen"
         back: "Marché"
         buy_now: "PRIX D'ACHAT IMMÉDIAT"
-        leader: "En tête :"
+        leader: "En tête :"
         price: "PRIX ACTUEL"
         seller: "Vendeur"
         time: "FIN DANS"
@@ -2271,7 +2271,7 @@ fr:
         confirm: "ANNULER LA VENTE"
         keep: "GARDER LA VENTE"
         text: "%{card} vous revient. Le timbre n'est pas remboursé."
-        title: "ANNULER CETTE VENTE ?"
+        title: "ANNULER CETTE VENTE ?"
     chips:
       bids: "MES ENCHÈRES"
       bids_outbid:
@@ -2344,9 +2344,9 @@ fr:
             one: "%{count} carte n'a pas été confiée"
             other: "%{count} cartes n'ont pas été confiées"
           line_html:
-            zero: "%{title}, saison %{season} : aucun exemplaire ne reste dans votre collection"
-            one: "%{title}, saison %{season} : %{count} exemplaire reste dans votre collection (%{amount})"
-            other: "%{title}, saison %{season} : %{count} exemplaires restent dans votre collection (%{amount} chacun)"
+            zero: "%{title}, saison %{season} : aucun exemplaire ne reste dans votre collection"
+            one: "%{title}, saison %{season} : %{count} exemplaire reste dans votre collection (%{amount})"
+            other: "%{title}, saison %{season} : %{count} exemplaires restent dans votre collection (%{amount} chacun)"
         throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
       new:
         all_cards: "Toutes les cartes"
@@ -2396,13 +2396,13 @@ fr:
         max_phone: "/%{max}"
         over_cap:
           zero: "Rien ne dépasse votre plafond du jour."
-          one: "%{count} exemplaire dépassera votre plafond du jour et restera dans votre collection : %{cards}."
-          other: "%{count} exemplaires dépasseront votre plafond du jour et resteront dans votre collection : %{cards}."
+          one: "%{count} exemplaire dépassera votre plafond du jour et restera dans votre collection : %{cards}."
+          other: "%{count} exemplaires dépasseront votre plafond du jour et resteront dans votre collection : %{cards}."
         quantity_label: "Exemplaires de %{title} à confier"
         rare_note:
           zero: "Aucun exemplaire Rare ou mieux."
-          one: "À noter : %{count} exemplaire Rare ou mieux, %{cards}."
-          other: "À noter : %{count} exemplaires Rare ou mieux, %{cards}."
+          one: "À noter : %{count} exemplaire Rare ou mieux, %{cards}."
+          other: "À noter : %{count} exemplaires Rare ou mieux, %{cards}."
         stays:
           zero: "Aucun ne reste"
           one: "%{count} reste"
@@ -3816,7 +3816,7 @@ fr:
       showcase_edge: "Cette carte ne peut pas aller plus loin."
       unknown_direction: "Direction inconnue."
       position_out_of_range: "La vitrine n'a pas cette place."
-      amounts_changed: "Les montants ont changé pendant votre choix. Ils sont redessinés ci-dessous : vérifiez-les puis validez à nouveau."
+      amounts_changed: "Les montants ont changé pendant votre choix. Ils sont redessinés ci-dessous : vérifiez-les puis validez à nouveau."
       empty_batch: "Choisissez au moins un exemplaire à confier."
       administrator_required: "Seul un administrateur peut faire cela."
       market_already_closed: "Le marché est déjà fermé."
@@ -3843,7 +3843,7 @@ fr:
       invalid_price: "Entrez un nombre entier de PiCoins, au-dessus de zéro."
       stamp_not_covered: "Il vous manque %{amount} PiCoins pour le timbre."
       start_below_minimum: "Au moins %{amount} pour une %{rarity}."
-      no_rarity: "Une de ces cartes n'a pas encore de rareté : la Confrérie ne peut pas l'estimer."
+      no_rarity: "Une de ces cartes n'a pas encore de rareté : la Confrérie ne peut pas l'estimer."
       not_enough_copies: "Vous n'avez pas autant d'exemplaires libres d'une de ces cartes."
       nothing_fits: "Aucune carte ne tient dans votre plafond du jour. Il se renouvelle à 00:00 UTC."
     steam:

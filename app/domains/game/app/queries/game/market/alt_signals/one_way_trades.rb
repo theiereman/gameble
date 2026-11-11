@@ -14,7 +14,7 @@ module Game
 
         def self.giving(proposer_id, recipient_id, offered, requested)
           return [ [ proposer_id, recipient_id ], offered, requested ] if offered.positive? && offered >= requested * ONE_WAY_COPIES_RATIO
-          return [ [ recipient_id, proposer_id ], requested, offered ] if requested.positive? && requested >= offered * ONE_WAY_COPIES_RATIO
+          [ [ recipient_id, proposer_id ], requested, offered ] if requested.positive? && requested >= offered * ONE_WAY_COPIES_RATIO
         end
 
         def self.detected(pair, one_way)

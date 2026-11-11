@@ -18,6 +18,7 @@ module BackOffice
       entrustment: :now, stamp: :listing, minimum_price: :listing, income_days_target: :now
     }.freeze
     BLANKS = /[[:space:]]/
+    RARITY_SUFFIX = Regexp.union(Rules::RARITIES.map { |rarity| /_#{rarity}\z/ })
     WHOLE = /\A-?\d+\z/
     DECIMAL = /\A-?\d+([.,]\d+)?\z/
 
@@ -92,7 +93,7 @@ module BackOffice
     end
 
     def moment(field)
-      row = field.to_s.sub(/_(#{Rules::RARITIES.join("|")})\z/, "").to_sym
+      row = field.to_s.sub(RARITY_SUFFIX, "").to_sym
       MOMENTS[row] || MOMENTS.find { |group, _| SINGLE_GROUPS[group]&.include?(field) }.last
     end
 

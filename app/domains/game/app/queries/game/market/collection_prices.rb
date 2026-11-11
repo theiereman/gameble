@@ -62,7 +62,7 @@ module Game
         return {} if tiles.empty?
 
         sql = Holding.sanitize_sql_array([ "SELECT catalog_card_seasons.card_id, card_price.average, card_price.sales_used " \
-          "FROM catalog_card_seasons #{PRICE} WHERE catalog_card_seasons.id IN (:ids)", { owner_id: owner&.id, ids: tiles.map(&:first) }])
+          "FROM catalog_card_seasons #{PRICE} WHERE catalog_card_seasons.id IN (:ids)", { owner_id: owner&.id, ids: tiles.map(&:first) } ])
         Holding.connection.select_rows(sql, "Game::Market::CollectionPrices").to_h do |card_id, average, sales_used|
           [ card_id.to_i, EditionPrices::Price.new(average: average&.to_i, sales_used: sales_used.to_i) ]
         end
