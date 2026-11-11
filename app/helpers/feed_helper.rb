@@ -15,7 +15,9 @@ module FeedHelper
     end
   end
 
-  def feed_byline(item)
+  def feed_byline(item, viewer: nil)
+    return feed_sale_buyer(item, links: true, titles: true, viewer:) if item.entry.kind == "sale"
+
     feed_name(item.player, item.player_title, links: true, titles: true)
   end
 
@@ -62,6 +64,7 @@ module FeedHelper
       [ t("feeds.show.headline.traded_html", partner:), t("feeds.show.headline.trade_html", card: feed_game(card, links: true), partner_card: feed_game(partner_card, links: true)) ]
     when "discovery" then [ t("feeds.show.first_discovery"), feed_game(card, links: true) ]
     when "repost" then [ t("feeds.show.headline.reposted"), feed_game(card, links: true) ]
+    when "sale" then [ t("feeds.show.headline.bought"), feed_game(card, links: true) ]
     else [ t("feeds.show.headline.pulled"), feed_game(card, links: true) ]
     end
   end
@@ -87,9 +90,13 @@ module FeedHelper
   end
 
   def feed_sale_sentence(item, card, links:, titles:, viewer:)
-    buyer = render(PlayerNameComponent.new(player: item.player, viewer:, linked: links))
-    name = titles ? safe_join([ buyer, feed_rank(item.player_title) ].compact, " ") : buyer
+    name = feed_sale_buyer(item, links:, titles:, viewer:)
     t("feeds.show.sale_html", name:, card: feed_game(card, links:), amount: render(PicoinAmountComponent.new(amount: item.price)))
+  end
+
+  def feed_sale_buyer(item, links:, titles:, viewer:)
+    buyer = render(PlayerNameComponent.new(player: item.player, viewer:, linked: links))
+    titles ? safe_join([ buyer, feed_rank(item.player_title) ].compact, " ") : buyer
   end
 
   def feed_verdict_sentence(item, links:, titles:)
