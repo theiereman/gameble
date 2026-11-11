@@ -5,6 +5,7 @@ class MarketSalesHelperTest < ActionView::TestCase
   include MarketSettings
   include ScreenWiringHelper
   include PicoinsHelper
+  include AveragePriceHelper
 
   setup do
     Game::Market::Settings.delete_all

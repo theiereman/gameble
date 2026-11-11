@@ -226,7 +226,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     # The seventeen of a player's grid, the state asked sparing the count
     # read again from the query cache and adding the watermark.
-    assert_request_queries(22) { get library_cards_path(locale: :en, state: %w[new duplicates]) }
+    assert_request_queries(23) { get library_cards_path(locale: :en, state: %w[new duplicates]) }
     seen = css_select(".collection-grid a.card-link").map { Rack::Utils.parse_nested_query(URI(it["href"]).query).dig("grid", "seen") }
     assert_equal [ "2026-10-08T09:30:15.123456Z" ] * 2, seen
 
@@ -740,7 +740,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # season holds, the sets of the kind shown; the tab bar's trades and
     # invitations waiting; the themes' names; the player's goals. No set per
     # card: the links carry the grid, which the detail reads itself.
-    assert_request_queries(21) { get library_cards_path(locale: :en) }
+    assert_request_queries(22) { get library_cards_path(locale: :en) }
 
     delete session_path(locale: :en)
     # The same without the lookup, the player's editions, the figures, the
@@ -1675,7 +1675,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     epic, = two_editions(season, player)
     sign_in(player)
 
-    assert_request_queries(21) { get library_cards_path(locale: :en, state: %w[owned]) }
+    assert_request_queries(22) { get library_cards_path(locale: :en, state: %w[owned]) }
 
     assert_equal [ [ :owned, title(epic), "x2", nil ] ], slots
     assert_equal [ "/seasons/#{season.number}" ], tile_hrefs

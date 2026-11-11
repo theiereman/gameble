@@ -10,13 +10,13 @@
     <%= render "market/bids/suspended_form", sheet:, refusal: %>
   <% elsif sheet %>
     <%= render "market/bids/form", listing:, sheet:, answer:, refusal:, posted:, posted_amount: %>
+  <% elsif refusal %>
+    <p class="market-bid__refusal" role="alert"><%= refusal %></p>
   <% elsif annonce_cancellable?(listing, viewer) %>
     <div class="market-bid__cancel">
       <%= render ButtonComponent.new(variant: :secondary, opens: cancel_dialog_id(listing.token), aria_label: t("market.my_sales.cancel_name", card: listing.card.title)) do %><%= t("market.my_sales.cancel") %><% end %>
       <%= render "market/cancellations/dialog", token: listing.token, card: listing.card, return_to: "annonce" %>
     </div>
-  <% elsif refusal %>
-    <p class="market-bid__refusal" role="alert"><%= refusal %></p>
   <% elsif viewer.nil? %>
     <p class="market-bid__sign-in"><%= sign_in_button t("market.bids.form.sign_in"), origin: market_listing_path(token: listing.token), class: "button button--primary" %></p>
   <% end %>

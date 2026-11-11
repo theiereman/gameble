@@ -67,7 +67,9 @@ module BackOffice
     end
 
     def violations
-      @violations ||= @checked && settings ? Rules.new(settings).violations(candidate) : {}
+      return {} unless @checked && settings
+
+      @violations ||= Rules.new(settings).violations(candidate)
     end
 
     def violation(field) = violations[field]
@@ -81,7 +83,7 @@ module BackOffice
     def value_for(field)
       return raw[field].to_s if raw.key?(field)
 
-      display_value(field, settings&.public_send(field))
+      display_value(field, settings&.public_send(field)).to_s
     end
 
     def hint(field)

@@ -37,15 +37,15 @@ class Market::BidsControllerTest < ActionDispatch::IntegrationTest
 
   def refusal = css_select("p#annonce-error, p.market-bid__refusal").first&.text
 
-  test "a visitor is refused and nothing is placed" do
+  test "a visitor is sent home and nothing is placed" do
     assert_no_difference -> { Game::Market::Bid.count } do
       post_bid("30000")
     end
 
-    assert_response :unauthorized
+    assert_redirected_to home_path(locale: :en)
   end
 
-  test "a banned bidder is refused" do
+  test "a banned bidder is sent home" do
     sign_in(@second)
     @second.update_columns(banned_at: Time.current)
 
@@ -53,7 +53,7 @@ class Market::BidsControllerTest < ActionDispatch::IntegrationTest
       post_bid("30000")
     end
 
-    assert_response :unauthorized
+    assert_redirected_to home_path(locale: :en)
   end
 
   test "the seller's forged post is refused inline, with no form" do
@@ -149,6 +149,7 @@ class Market::BidsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "more than available names the fresh figure and keeps the text" do
+    @listing.update_columns(buy_now_price: nil)
     sign_in(@second)
     post_bid("100001")
 
@@ -265,12 +266,12 @@ class Market::BidsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "You can commit at most 100,000.", refusal
   end
 
-  test "buy now by a visitor is refused" do
+  test "buy now by a visitor is sent home" do
     assert_no_difference -> { Game::Market::Bid.count } do
       post_bid("", buy_now: "1")
     end
 
-    assert_response :unauthorized
+    assert_redirected_to home_path(locale: :en)
   end
 
   test "buy now on an ended listing gets the operation's own refusal" do

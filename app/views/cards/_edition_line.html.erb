@@ -1,5 +1,2 @@
 <%# locals: (line:) %>
-<span class="card-detail__edition-name"><%= line.text %></span>
-<% if line.price %>
-  <span class="card-detail__edition-price"><%= render AveragePriceComponent.new(price: line.price, compact: true) %></span>
-<% end %>
+<span class="card-detail__edition-name"><%= line.text %></span><% if line.price %><span class="card-detail__edition-price"><%= render AveragePriceComponent.new(price: line.price, compact: true) %></span><% end -%>

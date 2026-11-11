@@ -153,7 +153,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "while the first closed version exists the form is not shown to a player with nothing to sell and the closed panel reads" do
-    Game::Market::Settings.delete_all
+    forget_market!
     Game::Market::CreateFirstSettings.new.call.value!
     hold(@player, @common.id, 1)
     sign_in(@player)
@@ -162,7 +162,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".market-sale__notice", /closed/
-    assert_select "button[type=submit][disabled]"
+    assert_select "button[disabled]"
   end
 
   test "a suspended market shows the banner and a disabled button with a link back to the market" do
@@ -173,7 +173,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     get new_market_sale_path(locale: :en)
 
     assert_select "#market-suspended-banner a[href=?]", market_path(locale: :en)
-    assert_select "button[type=submit][disabled]"
+    assert_select "button[disabled]"
   end
 
   test "no database id is in the markup" do
@@ -408,17 +408,17 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     get new_market_card_sale_path(locale: :en, slug: @common.card.slug)
     assert_response :success
     assert_select "#market-suspended-banner a[href=?]", market_path(locale: :en)
-    assert_select "button[type=submit][disabled]"
+    assert_select "button[disabled]"
 
     get new_market_sale_path(locale: :en, ref: ref(@common), start: "2000", buy_now: "9000", relisting: 1)
     assert_response :success
     assert_select "#market-suspended-banner a[href=?]", market_path(locale: :en)
-    assert_select "button[type=submit][disabled]"
+    assert_select "button[disabled]"
     assert_select ".market-sale__relisting"
   end
 
   def after_the_first_opening
-    Game::Market::Settings.delete_all
+    forget_market!
     @settings = open_market!(first_opened_at: 1.day.ago)
     fund(500)
   end

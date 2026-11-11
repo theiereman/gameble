@@ -90,7 +90,7 @@ module BackOffice
       assert_select "fieldset[disabled][aria-describedby=market-opening-reason]", 2
       assert_select "textarea:not([disabled])", false
       assert_select "button[disabled]", "Open the market"
-      assert_select "button[type=submit]", false
+      assert_select "main button[type=submit]", false
     end
 
     test "a player and a visitor see an unknown address" do
@@ -114,7 +114,7 @@ module BackOffice
 
       assert_response :success
       assert_select "h1", "Market"
-      assert_select "#market-suspended-banner", false
+      assert_select "#market-suspended-banner", 1
     end
 
     test "the market screen answers at the market's address once the market is open" do

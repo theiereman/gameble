@@ -1,5 +1,6 @@
 <% content_for :title, t(".heading") %>
 <% content_for :public_page, true unless current_player %>
+<% content_for :back_button, true %>
 <% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
 <% signed_out = current_player.nil? || @signed_out %>
 <section class="market-sale" aria-labelledby="market-sale-heading">

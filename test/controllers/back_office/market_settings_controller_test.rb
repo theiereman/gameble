@@ -65,7 +65,7 @@ module BackOffice
       assert_response :unprocessable_content
       assert_equal [ "Some settings were refused. Check the marked fields." ], refusal_lines
       assert_select "#market-settings-minimum-price-rare[aria-invalid=true][value='7700']"
-      assert_select "#market-settings-minimum-price-rare-error[role=alert]", /7,800/
+      assert_select "#market-settings-minimum-price-rare-error[role=alert]", /8,000/
       assert_select "input[name='market_settings[commission_basis_points]'][value='12,5']"
       assert_select "#market-settings-soft-close-seconds-error[role=alert]", /Enter a number/
       assert_select "input[name='market_settings[soft_close_seconds]'][value=abc]"

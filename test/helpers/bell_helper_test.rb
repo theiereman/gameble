@@ -1,6 +1,10 @@
 require "test_helper"
 
 class BellHelperTest < ActionView::TestCase
+  setup { controller.request.path_parameters[:locale] = "en" }
+
+  def text_of(sentence) = Nokogiri::HTML.fragment(sentence).text
+
   def subject_of(card: nil, partner_card: nil, set: nil)
     bell_reaction_subject(Game::BellItems::ReactionSubject.new(card:, partner_card:, set:))
   end
@@ -51,12 +55,12 @@ class BellHelperTest < ActionView::TestCase
       [ won, bought, sold, unsold ].map(&:path)
     assert_includes won.sentence, "You won Portal for"
     assert_includes won.sentence, "26,300"
-    assert_includes bought.sentence, "Max bought Portal outright. Your"
+    assert_includes text_of(bought.sentence), "Max bought Portal outright. Your"
     assert_includes sold.sentence, "Portal sold. You receive"
     assert_includes unsold.sentence, "Portal received no offers. The card is returned to you."
     I18n.with_locale(:fr) do
       assert_includes bell_market_line(market_notice(kind: :won, other: nil)).sentence, "Vous avez remporté Portal pour"
-      assert_includes bell_market_line(market_notice(kind: :bought_over)).sentence, "Max a acheté Portal immédiatement."
+      assert_includes text_of(bell_market_line(market_notice(kind: :bought_over)).sentence), "Max a acheté Portal immédiatement."
       assert_includes bell_market_line(market_notice(kind: :sold, other: nil)).sentence, "Portal s'est vendue. Vous recevez"
       assert_includes bell_market_line(market_notice(kind: :unsold, other: nil)).sentence, "Portal n'a reçu aucune offre. La carte vous est rendue."
     end

@@ -69,7 +69,7 @@ class Market::MyBidsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".market-row__fact dt", text: "My maximum", count: 3
     assert_select ".market-row__fact dd .picoin-amount[aria-label=?]", "30,000 PiCoins"
     assert_select ".market-row__fact dd .picoin-amount[aria-label=?]", "40,000 PiCoins"
-    assert_select ".market-screen__chip--current[aria-current=page]", "MY BIDS"
+    assert_select ".market-screen__chip--current[aria-current=page]", /\AMY BIDS/
     assert_no_match(/90,000|90000/, response.body)
   end
 

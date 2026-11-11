@@ -905,11 +905,11 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, card detail, sets, neighbours, quantities, the
     # holder's showcase, the pioneer, the friends owning it, the share image, the player's goals, and the top bar's four
     # (reserve count, next pack, copies per tier, rarity legend), and the tab bar's trades and invitations waiting.
-    assert_request_queries(19) { get card_path(locale: :en, slug: "portal") }
+    assert_request_queries(20) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
     assert_equal [ "Copies", "2 copies" ], facts.to_h.assoc("Copies")
     assert_select "#share-sheet"
-    assert_request_queries(9) { get card_path(locale: :en, slug: "portal"), headers: { "Turbo-Frame" => "card-detail" } }
+    assert_request_queries(10) { get card_path(locale: :en, slug: "portal"), headers: { "Turbo-Frame" => "card-detail" } }
     assert_select "turbo-frame#card-detail .card-detail h1", "Portal"
 
     delete session_path(locale: :en)
@@ -927,15 +927,15 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     # The twelve and the friends of a missing card, the set's neighbours replaced by the pack and its two
     # neighbours' cards.
-    assert_request_queries(20) { get pack_detail("blue-depths", pack, slot: 3) }
+    assert_request_queries(21) { get pack_detail("blue-depths", pack, slot: 3) }
     assert_equal "S1 · #3 · 3 / 5 · swipe to browse", position
 
     # The set's neighbours replaced by the published season, the grid's
     # genres, the grid's cards in order and its two neighbours' cards,
     # whether a state is asked or not.
-    assert_request_queries(22) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "" }) }
+    assert_request_queries(23) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "" }) }
     assert_select ".card-detail__nav", 2
-    assert_request_queries(22) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "", state: %w[all] }) }
+    assert_request_queries(23) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "", state: %w[all] }) }
   end
 
   # The row of a card whose fixture pioneer is the banned player.
@@ -1034,7 +1034,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_not_nil facts.assoc("Pioneer")
   end
 
-  test "the public card page shows the pioneer between the rarity line and the description, named or anonymous, with no id" do
+  test "the public card page shows the pioneer between the rarity line and the description, linked or a bare name, with no id" do
     pioneer = accounts_players(:moderator)
     pioneer.update!(persona_name: "Léa")
     pioneered_by(pioneer)
@@ -1049,7 +1049,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     pioneer.update!(visibility: :private)
     get card_path(locale: :en, slug: "portal")
     assert_select ".public-card__pioneer a", false
-    assert_match(/An anonymous player/, css_select(".public-card__pioneer").text)
+    assert_select ".public-card__pioneer span.player-name", "Léa"
 
     Game::FirstDiscovery.delete_all
     get card_path(locale: :en, slug: "portal")
@@ -1257,14 +1257,14 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :en, slug: "portal")
     assert_select ".card-detail__market", false
 
-    open_market!
+    open_market!(first_opened_at: 1.day.ago)
     close_market!
     get card_path(locale: :en, slug: "portal")
     assert_select ".card-detail__market", false
   end
 
   test "CONFIER is absent for a visitor" do
-    open_market!
+    open_market!(first_opened_at: 1.day.ago)
 
     get card_path(locale: :en, slug: "portal")
 
@@ -1273,7 +1273,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "CONFIER links to the filtered Confier when the player holds a free copy" do
     Game::Market::Settings.delete_all
-    open_market!
+    open_market!(first_opened_at: 1.day.ago)
     hold(accounts_players(:player), catalog_card_seasons(:portal_one).id, 2, reserved: 1)
     sign_in(accounts_players(:player))
 
@@ -1286,7 +1286,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "CONFIER is greyed with the reserved count when every copy is reserved" do
     Game::Market::Settings.delete_all
-    open_market!
+    open_market!(first_opened_at: 1.day.ago)
     hold(accounts_players(:player), catalog_card_seasons(:portal_one).id, 2, reserved: 2)
     sign_in(accounts_players(:player))
 
@@ -1299,7 +1299,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "CONFIER is absent for a card the player does not hold" do
     Game::Market::Settings.delete_all
-    open_market!
+    open_market!(first_opened_at: 1.day.ago)
     hold(accounts_players(:player), catalog_card_seasons(:common_card_one).id, 2)
     sign_in(accounts_players(:player))
 
@@ -1310,7 +1310,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "METTRE EN VENTE links to the filtered Mettre en vente beside CONFIER when the player holds a free copy" do
     Game::Market::Settings.delete_all
-    open_market!
+    open_market!(first_opened_at: 1.day.ago)
     hold(accounts_players(:player), catalog_card_seasons(:portal_one).id, 2, reserved: 1)
     sign_in(accounts_players(:player))
 
@@ -1323,7 +1323,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "METTRE EN VENTE is greyed with the reserved count shown once when every copy is reserved" do
     Game::Market::Settings.delete_all
-    open_market!
+    open_market!(first_opened_at: 1.day.ago)
     hold(accounts_players(:player), catalog_card_seasons(:portal_one).id, 2, reserved: 2)
     sign_in(accounts_players(:player))
 

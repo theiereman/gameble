@@ -56,7 +56,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "dialog#entrust-recap-sheet .modal__title", "Entrust"
     assert_select "dialog#entrust-recap-sheet [data-entrust-recap-target=sheetBody]"
     assert_select "form#entrust .market-entrust__slot > aside.entrust-recap", 1
-    assert_select "button[type=submit]", 1
+    assert_select "form#entrust button[type=submit]", 1
     assert_select "aside [data-entrust-recap-target=status][aria-live=polite]", 1
     assert_select "dialog [data-entrust-recap-target=barStatus]", false
     assert_select ".market-entrust__layout > [data-entrust-recap-target=barStatus][aria-live=polite]", 1
@@ -134,7 +134,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
       assert_select "a[href=?]", market_path(locale: :en), "Back to the market"
     end
     assert_select ".market-entrust__notice", text: /closed for now/, count: 0
-    assert_select "button[type=submit][disabled][aria-describedby='market-suspended-banner entrust-not-returned']"
+    assert_select "button[disabled][aria-describedby='market-suspended-banner entrust-not-returned']"
     assert_select "[data-entrust-recap-reason-id-value=market-suspended-banner]"
   end
 
@@ -147,7 +147,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".market-entrust__notice", /closed for now/
     assert_select "#market-suspended-banner", false
-    assert_select "button[type=submit][disabled][aria-describedby=entrust-not-returned]"
+    assert_select "button[disabled][aria-describedby=entrust-not-returned]"
   end
 
   test "a post while the market is suspended mints nothing and answers market_closed with the banner" do

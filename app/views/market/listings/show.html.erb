@@ -1,5 +1,6 @@
 <% seconds = listing_seconds_left(@listing.ends_at) %>
 <% content_for :public_page, true unless current_player %>
+<% content_for :back_button, true %>
 <% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
 <% content_for :title, @listing.card.title %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>

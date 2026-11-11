@@ -3,7 +3,7 @@
 <form class="market-bid market-bid--suspended">
   <div class="market-bid__field">
     <label for="annonce-maximum" class="market-bid__label"><%= t("market.bids.form.label") %></label>
-    <%= text_field_tag :maximum, "", id: "annonce-maximum", inputmode: "numeric", autocomplete: "off", disabled: true,
+    <%= text_field_tag :maximum, nil, id: "annonce-maximum", inputmode: "numeric", autocomplete: "off", disabled: true,
           aria: { invalid: (refusal ? "true" : nil), describedby: described } %>
     <p id="annonce-minimum" class="market-bid__minimum"><%= bid_minimum_text(sheet) %></p>
     <% if refusal %>

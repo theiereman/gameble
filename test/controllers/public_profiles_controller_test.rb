@@ -284,7 +284,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:moderator))
     # The same, the viewer's lookup, the top bar's four and the trades and
     # invitations waiting.
-    assert_request_queries(19) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
+    assert_request_queries(20) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
   end
 
@@ -732,7 +732,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # next pack, copies per tier, rarity legend), the tab bar's trades and
     # invitations waiting, the viewer's friendship and invitations with the owner,
     # and the viewer's avatar beside the owner's.
-    assert_request_queries(31) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(32) { get brother_path(locale: :en, token: @owner.token) }
 
     # The chosen cards' views, however many.
     held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)

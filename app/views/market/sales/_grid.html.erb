@@ -2,7 +2,7 @@
   <h2 id="sale-grid-heading" class="sale-grid__heading"><%= t("market.sales.new.choose") %></h2>
   <p class="sale-grid__hint"><%= t("market.sales.new.keys_hint") %></p>
   <%= render "market/sales/refusal", slots: %i[grid] %>
-  <%= hidden_field_tag :ref, @chosen_ref, id: nil, data: { listing_grid_target: "ref" } %>
+  <%= hidden_field_tag :ref, @chosen_ref.to_s, id: nil, data: { listing_grid_target: "ref" } %>
   <ul class="sale-grid__list" role="listbox" aria-labelledby="sale-grid-heading" data-action="keydown->listing-grid#keydown">
     <%= render partial: "market/sales/cell", collection: @copies, as: :copy %>
   </ul>

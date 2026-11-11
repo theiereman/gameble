@@ -1,4 +1,5 @@
 <% content_for :title, t(".heading") %>
+<% content_for :back_button, true %>
 <% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
 <% empty = @groups.in_progress.empty? && @groups.ended.empty? %>
 <%= tag.section class: "market-screen", aria: { labelledby: "market-screen-heading" },

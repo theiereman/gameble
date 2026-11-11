@@ -44,8 +44,8 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "game_friendships" => { fr: [ "vos amis" ], en: [ "your friends" ] },
     "game_invitations" => { fr: [ "vos invitations" ], en: [ "your invitations" ] },
     "game_friend_codes" => { fr: [ "votre code ami" ], en: [ "your friend code" ] },
-    "game_feed_entries" => { fr: [ "vos entrées du fil d'activité\u202F: tirages, découvertes, reposts et tous les échanges qui vous nomment" ],
-                             en: [ "your activity feed entries: pulls, discoveries, reposts and every trade that names you" ] },
+    "game_feed_entries" => { fr: [ "vos entrées du fil d'activité\u202F: tirages, découvertes, reposts, achats annoncés dans le fil et tous les échanges qui vous nomment" ],
+                             en: [ "your activity feed entries: pulls, discoveries, reposts, purchases announced in the feed and every trade that names you" ] },
     "game_feed_reactions" => { fr: [ "vos réactions aux entrées du fil" ], en: [ "your reactions to feed entries" ] },
     "game_reaction_notices" => { fr: [ "vos réactions aux entrées du fil" ], en: [ "your reactions to feed entries" ] },
     "game_trade_views" => { fr: [ "la dernière ouverture de chacun de vos échanges" ], en: [ "when you last opened each of your trades" ] },
@@ -58,7 +58,21 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "game_weekly_contributions" => { fr: [ "vos contributions à la mission hebdo" ], en: [ "your contributions to the weekly mission" ] },
     "accounts_reports" => { fr: [ "les signalements" ], en: [ "reports" ] },
     "accounts_moderation_actions" => { fr: [ "l'historique de modération" ], en: [ "the moderation history" ] },
-    "event_store_events" => { fr: [ "le journal des actions du jeu" ], en: [ "the log of game actions" ] }
+    "event_store_events" => { fr: [ "le journal des actions du jeu" ], en: [ "the log of game actions" ] },
+    "game_market_listings" => { fr: [ "votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé)" ],
+      en: [ "your market history (listings, bids, entrusted cards, notices and PiCoin movements, your wallet emptied)" ] },
+    "game_market_bids" => { fr: [ "votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé)" ],
+      en: [ "your market history (listings, bids, entrusted cards, notices and PiCoin movements, your wallet emptied)" ] },
+    "game_market_archive_deposits" => { fr: [ "votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé)" ],
+      en: [ "your market history (listings, bids, entrusted cards, notices and PiCoin movements, your wallet emptied)" ] },
+    "game_market_notices" => { fr: [ "votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé)" ],
+      en: [ "your market history (listings, bids, entrusted cards, notices and PiCoin movements, your wallet emptied)" ] },
+    "game_market_ledger_entries" => { fr: [ "votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé)" ],
+      en: [ "your market history (listings, bids, entrusted cards, notices and PiCoin movements, your wallet emptied)" ] },
+    "game_market_wallets" => { fr: [ "votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé)" ],
+      en: [ "your market history (listings, bids, entrusted cards, notices and PiCoin movements, your wallet emptied)" ] },
+    "game_market_alt_signals" => { fr: [ "les signaux de comptes alternatifs" ], en: [ "the market's alt-account signals" ] },
+    "game_market_settings" => { fr: [ "les versions des réglages du marché" ], en: [ "settings versions" ] }
   }.freeze
 
   def tables_naming_a_player

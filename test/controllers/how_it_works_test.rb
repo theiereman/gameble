@@ -277,7 +277,8 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_equal ENGLISH_HEADINGS + [ ENGLISH_MARKET_HEADING ], headings
     assert_market_numbers(settings, :en)
     assert_select ".how-it-works__fees", /Gamebler's Tax Stamp.*Brotherhood Effort/m
-    assert_select ".how-it-works__maximum", /My maximum/
+    assert_select "p + .how-it-works__maximum"
+    assert_select "p", /To bid, you set My maximum/
   end
 
   test "a newer settings version changes the numbers shown" do

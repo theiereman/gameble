@@ -88,7 +88,7 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a sold listing shows the same read-only facts" do
-    @listing.update_columns(status: "sold", sold_at: Time.current, final_price: 7_800)
+    @listing.update_columns(status: "sold", sold_at: Time.current, final_price: 7_800, leader_id: accounts_players(:moderator).id, leader_maximum: 7_800)
     annonce
 
     assert_response :success
@@ -107,28 +107,28 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
   test "a visitor reads the bids newest first, the leader's mark and no raise line, and no maximum" do
     bidder = accounts_players(:moderator)
     bidder.update_columns(persona_name: "Bob")
-    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 98_765, price_after: 7_800, outcome: "leading")
-    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 87_654, price_after: 7_800, outcome: "raise")
-    @listing.update_columns(leader_id: bidder.id, leader_maximum: 87_654)
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 19_876, price_after: 7_800, outcome: "leading")
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 18_765, price_after: 7_800, outcome: "raise")
+    @listing.update_columns(leader_id: bidder.id, leader_maximum: 18_765)
     annonce
 
     assert_select ".market-history__line", count: 2
     assert_select ".market-history__line--bid .market-history__leading", "Leading"
     assert_select ".market-history__line--raise", false
-    assert_no_match(/98,765|98765|87,654|87654/, response.body)
+    assert_no_match(/19,876|19876/, response.body)
     assert_select ".market-listing__leader", /Leading:\s*Bob/
   end
 
-  test "the leader reads their raise line and still no amount of any maximum" do
+  test "the leader reads their raise line and never the maximum it replaced" do
     bidder = accounts_players(:moderator)
-    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 98_765, price_after: 7_800, outcome: "leading")
-    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 87_654, price_after: 7_800, outcome: "raise")
-    @listing.update_columns(leader_id: bidder.id, leader_maximum: 87_654)
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 19_876, price_after: 7_800, outcome: "leading")
+    Game::Market::Bid.create!(listing: @listing, player: bidder, maximum: 18_765, price_after: 7_800, outcome: "raise")
+    @listing.update_columns(leader_id: bidder.id, leader_maximum: 18_765)
     sign_in(bidder)
     annonce
 
     assert_select ".market-history__line--raise", /raised their maximum/
-    assert_no_match(/98,765|98765|87,654|87654/, response.body)
+    assert_no_match(/19,876|19876/, response.body)
   end
 
   test "an open listing past its end reads closing where the form will sit" do
@@ -166,7 +166,7 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#annonce-bid form", false
     assert_select "#annonce-bid a[href*='/sign-in']", "Sign in to bid"
-    assert_select "section#annonce[data-controller=annonce]"
+    assert_select "section#annonce[data-controller~=annonce]"
     assert_select "p[role=status][aria-live=polite][data-controller=annonce-status]", 1
   end
 

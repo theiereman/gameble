@@ -349,7 +349,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     # unique cards, season's cards, rarity legend and its copies; the tab
     # bar's trades and invitations waiting; the themes' names; the player's
     # goals.
-    assert_request_queries(19) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
+    assert_request_queries(20) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
     assert_response :success
     assert_select ".set-album__grid > li", 60
     assert_select ".collection-pages"

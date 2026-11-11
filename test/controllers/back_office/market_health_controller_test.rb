@@ -115,7 +115,7 @@ module BackOffice
       assert_select "[data-health-indicator=destroyed_share].market-health__tile--alert[data-controller=alert-ignore]" \
         "[data-alert-ignore-key-value=destroyed_share][data-alert-ignore-value-value='3400']" do
         assert_select "[data-health-alert=destroyed_share] .market-health__proposal", /raise the Rare stamp from 2,000 to 3,000.*minimum price rises to 8,900/
-        assert_select "a[href='/en/back-office/market?prepare=destroyed_share#market-settings']", "Prepare this change"
+        assert_select "a[href=?]", "/en/back-office/market?prepare=destroyed_share#market-settings", text: "Prepare this change"
         assert_select "button[data-action='alert-ignore#ignore']", "Ignore"
       end
       assert_select "[data-health-indicator=top_share].market-health__tile--alert", false

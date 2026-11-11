@@ -72,7 +72,7 @@ class Game::Market::ListCardTest < ActiveSupport::TestCase
   test "a closed or never opened market refuses" do
     close_market!
     refused :market_closed
-    [ Game::Market::LedgerEntry, Game::Market::Wallet, Game::Market::Settings ].each(&:delete_all)
+    forget_market!
     refused :market_closed
   end
 

@@ -47,7 +47,7 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
   end
 
   def figures(player, locale)
-    template(streams(received(player, locale), "update_all", ".balance-chip").sole)
+    template(received(player, locale).css("turbo-stream[action='update'][targets='.balance-chip']").sole)
   end
 
   def post_wallet(player, available:, committed:)

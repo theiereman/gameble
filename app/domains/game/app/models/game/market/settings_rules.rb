@@ -98,10 +98,14 @@ module Game
       def check_floor(field, value, candidate)
         rarity = field.to_s.delete_prefix("minimum_price_")
         entrustment, stamp, commission = candidate.values_at(:"entrustment_#{rarity}", :"stamp_#{rarity}", :commission_basis_points)
-        return unless [ entrustment, stamp, commission ].all?(Integer) && (0...10_000).cover?(commission)
+        return unless [ entrustment, stamp, commission ].all?(Integer)
 
-        floor = floor(entrustment, stamp, commission)
+        floor = floor(entrustment, stamp, commission_in_range(commission))
         Violation.new(code: :below_floor, values: { floor: }) if value < floor
+      end
+
+      def commission_in_range(commission)
+        RANGES.fetch(:commission_basis_points).cover?(commission) ? commission : @current.commission_basis_points
       end
 
       def check_ascending(field, candidate)
