@@ -23,5 +23,5 @@
       </div>
     <% end %>
   <% end %>
-  <%= render ButtonComponent.new(variant: :link, href: new_market_entrustment_path) { t(".again") } %>
+  <%= render ButtonComponent.new(variant: :link, href: new_market_entrustment_path) do %><%= t(".again") %><% end %>
 </section>

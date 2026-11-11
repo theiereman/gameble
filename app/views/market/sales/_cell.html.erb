@@ -1,6 +1,6 @@
 <% chosen = copy.ref == @chosen_ref %>
 <% rarity = copy.card.rarity.to_sym %>
-<% tabbable = @chosen_ref ? chosen : cell_counter.zero? %>
+<% tabbable = @chosen_ref ? chosen : copy_counter.zero? %>
 <%= tag.li class: class_names("sale-cell", "sale-cell--#{rarity}", "sale-cell--chosen": chosen), role: "option",
       tabindex: (tabbable ? 0 : -1), aria: { selected: chosen.to_s, label: sale_cell_label(copy, @settings, @prices[copy.ref]) },
       data: { listing_form_target: "cell", listing_grid_target: "cell", action: "click->listing-grid#choose",

@@ -39,7 +39,7 @@
     </div>
   </details>
   <div class="market-filters__actions">
-    <%= render ButtonComponent.new(variant: :secondary, size: :small, type: :submit) { t("library.filters.apply") } %>
+    <%= render ButtonComponent.new(variant: :secondary, size: :small, type: :submit) do %><%= t("library.filters.apply") %><% end %>
     <%= link_to t("library.filters.clear"), market_path(sort:), class: "filters__clear", hidden: !filters.any? %>
   </div>
 <% end %>

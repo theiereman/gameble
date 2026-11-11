@@ -2,5 +2,5 @@
 <section id="market-suspended-banner" class="market-suspended" role="status">
   <%= content_tag "h#{heading_level}", t("market.suspended_banner.title"), class: "market-suspended__title" %>
   <p class="market-suspended__body"><%= t("market.suspended_banner.body") %></p>
-  <%= render ButtonComponent.new(variant: :link, href: market_path) { t("market.suspended_banner.back") } %>
+  <%= render ButtonComponent.new(variant: :link, href: market_path) do %><%= t("market.suspended_banner.back") %><% end %>
 </section>

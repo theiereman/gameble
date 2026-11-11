@@ -1,6 +1,6 @@
 <%# locals: (sheet:) %>
 <div class="market-bid__buy-now">
-  <%= render ButtonComponent.new(variant: :secondary, type: :submit, name: "buy_now", value: "1", disabled: !sheet.can_buy_now) { t("market.bids.buy_now.button") } %>
+  <%= render ButtonComponent.new(variant: :secondary, type: :submit, name: "buy_now", value: "1", disabled: !sheet.can_buy_now) do %><%= t("market.bids.buy_now.button") %><% end %>
   <% unless sheet.can_buy_now %>
     <p class="market-bid__small"><%= t("market.bids.buy_now.available_html", amount: bid_amount(sheet.available)) %></p>
   <% end %>

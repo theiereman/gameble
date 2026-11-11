@@ -13,7 +13,7 @@
   <% if signed_out %>
     <%= render PanelComponent.new(class: "market-sale__notice") do %>
       <p><%= t(".sign_in") %></p>
-      <%= render ButtonComponent.new(variant: :link, href: sign_in_path) { t(".sign_in_action") } %>
+      <%= render ButtonComponent.new(variant: :link, href: sign_in_path) do %><%= t(".sign_in_action") %><% end %>
     <% end %>
   <% else %>
     <% if @suspended %>
@@ -21,7 +21,7 @@
     <% elsif !@open %>
       <%= render PanelComponent.new(class: "market-sale__notice", role: "status") do %>
         <p><%= t(".closed") %></p>
-        <%= render ButtonComponent.new(variant: :link, href: market_path) { t(".closed_action") } %>
+        <%= render ButtonComponent.new(variant: :link, href: market_path) do %><%= t(".closed_action") %><% end %>
       <% end %>
     <% end %>
 
@@ -29,7 +29,7 @@
       <%= render "market/sales/refusal", slots: %i[grid form] %>
       <%= render PanelComponent.new(class: "market-sale__notice") do %>
         <p><%= t(".empty") %></p>
-        <%= render ButtonComponent.new(variant: :link, href: booster_path) { t(".empty_action") } %>
+        <%= render ButtonComponent.new(variant: :link, href: booster_path) do %><%= t(".empty_action") %><% end %>
       <% end %>
     <% else %>
       <%= form_with url: market_sales_path, id: "listing-form", class: "market-sale__form",
@@ -41,7 +41,7 @@
         <% if @card_slug %>
           <p class="market-sale__card-only">
             <%= t(".card_only", title: @copies.first.card.title) %>
-            <%= render ButtonComponent.new(variant: :link, href: new_market_sale_path) { t(".all_cards") } %>
+            <%= render ButtonComponent.new(variant: :link, href: new_market_sale_path) do %><%= t(".all_cards") %><% end %>
           </p>
         <% end %>
         <% if @relisting && @chosen_ref %>

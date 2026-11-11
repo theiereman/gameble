@@ -14,7 +14,7 @@
   <% if empty %>
     <div class="market-screen__empty-state">
       <p class="market-screen__empty"><%= t(".empty") %></p>
-      <%= render ButtonComponent.new(variant: :link, href: market_path) { t(".empty_action") } %>
+      <%= render ButtonComponent.new(variant: :link, href: market_path) do %><%= t(".empty_action") %><% end %>
     </div>
   <% else %>
     <%= render "market/my_bids/group", group: "in-progress", heading: t("market.my_bids.groups.in_progress.heading"),

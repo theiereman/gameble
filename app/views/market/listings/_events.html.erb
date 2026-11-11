@@ -4,7 +4,7 @@
     <h2 class="market-event__title"><%= t("market.listings.events.outbid.title") %></h2>
     <p class="market-event__body"><%= t("market.listings.events.outbid.body_html", name: render(PlayerNameComponent.new(player: events.outbid.other, viewer:)),
           card: listing.card.title, amount: bid_amount(events.outbid.amount)) %></p>
-    <%= render ButtonComponent.new(variant: :link, href: market_listing_path(token: listing.token, focus: "maximum")) { t("market.listings.events.outbid.action") } %>
+    <%= render ButtonComponent.new(variant: :link, href: market_listing_path(token: listing.token, focus: "maximum")) do %><%= t("market.listings.events.outbid.action") %><% end %>
   </div>
 <% end %>
 <% if events&.extended %>

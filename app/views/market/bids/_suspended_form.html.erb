@@ -12,11 +12,11 @@
   </div>
   <div class="market-bid__foot">
     <div class="market-bid__submit">
-      <%= render ButtonComponent.new(type: :submit, disabled: true, describedby: "market-suspended-banner") { sheet.leading ? t("market.rows.relever") : t("market.bids.strings.button_idle") } %>
+      <%= render ButtonComponent.new(type: :submit, disabled: true, describedby: "market-suspended-banner") do %><%= sheet.leading ? t("market.rows.relever") : t("market.bids.strings.button_idle") %><% end %>
     </div>
     <% if sheet.buy_now_price %>
       <div class="market-bid__buy-now">
-        <%= render ButtonComponent.new(variant: :secondary, type: :submit, disabled: true, describedby: "market-suspended-banner") { t("market.bids.buy_now.button") } %>
+        <%= render ButtonComponent.new(variant: :secondary, type: :submit, disabled: true, describedby: "market-suspended-banner") do %><%= t("market.bids.buy_now.button") %><% end %>
       </div>
     <% end %>
   </div>

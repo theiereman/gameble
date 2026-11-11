@@ -8,7 +8,7 @@
   <span class="entrust-cell__value"><%= render PicoinAmountComponent.new(amount: copy.value) %></span>
   <span class="entrust-cell__free"><%= t("market.entrustments.new.free", count: copy.free) %></span>
   <%= hidden_field_tag "copies[#{copy.ref}]", copies.positive? ? copies : 1, id: nil, disabled: copies.zero? %>
-  <%= tag.button type: "button", class: "entrust-cell__toggle", tabindex: (cell_counter.zero? ? 0 : -1),
+  <%= tag.button type: "button", class: "entrust-cell__toggle", tabindex: (copy_counter.zero? ? 0 : -1),
         aria: { pressed: copies.positive?.to_s, label: entrust_cell_label(copy) },
         data: { action: "entrust-grid#toggle" } %>
   <% if copy.free > 1 %>

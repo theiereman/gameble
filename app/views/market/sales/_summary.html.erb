@@ -20,7 +20,7 @@
   <% if @refusal_slot == :stamp %>
     <p class="market-sale__refusal" role="alert" tabindex="-1">
       <%= @refusal %>
-      <%= render ButtonComponent.new(variant: :link, href: new_market_entrustment_path) { t("market.sales.new.entrust_action") } %>
+      <%= render ButtonComponent.new(variant: :link, href: new_market_entrustment_path) do %><%= t("market.sales.new.entrust_action") %><% end %>
     </p>
   <% else %>
     <%= render "market/sales/refusal", slots: %i[form] %>

@@ -18,7 +18,7 @@ module Market
       result = card_season_id && list(card_season_id)
       return redirect_to market_listing_path(token: result.value!.token), status: :see_other if result&.success?
 
-      refuse(result ? result.failure : :copy_not_free)
+      refuse_sale(result ? result.failure : :copy_not_free)
     end
 
     private
@@ -69,7 +69,7 @@ module Market
           buy_now_price: params[:buy_now_price], duration_hours: params[:duration_hours], settings_token: params[:settings].to_s)
       end
 
-      def refuse(code)
+      def refuse_sale(code)
         load_page(card_slug: asked_card_slug(params[:card].presence))
         @refusal_code = code
         keep_posted_values

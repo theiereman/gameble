@@ -11,7 +11,7 @@
   <% if current_player.nil? %>
     <%= render PanelComponent.new(class: "market-entrust__notice") do %>
       <p><%= t(".sign_in") %></p>
-      <%= render ButtonComponent.new(variant: :link, href: sign_in_path) { t(".sign_in_action") } %>
+      <%= render ButtonComponent.new(variant: :link, href: sign_in_path) do %><%= t(".sign_in_action") %><% end %>
     <% end %>
   <% else %>
     <% if @suspended %>
@@ -19,14 +19,14 @@
     <% elsif !@open %>
       <%= render PanelComponent.new(class: "market-entrust__notice", role: "status") do %>
         <p><%= t(".closed") %></p>
-        <%= render ButtonComponent.new(variant: :link, href: market_path) { t(".closed_action") } %>
+        <%= render ButtonComponent.new(variant: :link, href: market_path) do %><%= t(".closed_action") %><% end %>
       <% end %>
     <% end %>
 
     <% if @copies.empty? %>
       <%= render PanelComponent.new(class: "market-entrust__notice") do %>
         <p><%= t(".empty") %></p>
-        <%= render ButtonComponent.new(variant: :link, href: booster_path) { t(".empty_action") } %>
+        <%= render ButtonComponent.new(variant: :link, href: booster_path) do %><%= t(".empty_action") %><% end %>
       <% end %>
     <% else %>
       <%= form_with url: market_entrustments_path, id: "entrust", class: "market-entrust__form",
@@ -36,7 +36,7 @@
         <% if @card_slug %>
           <p class="market-entrust__card-only">
             <%= t(".card_only", title: @copies.first.title) %>
-            <%= render ButtonComponent.new(variant: :link, href: new_market_entrustment_path) { t(".all_cards") } %>
+            <%= render ButtonComponent.new(variant: :link, href: new_market_entrustment_path) do %><%= t(".all_cards") %><% end %>
           </p>
         <% end %>
         <% if @refusal %>

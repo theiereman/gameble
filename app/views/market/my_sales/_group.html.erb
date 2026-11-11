@@ -17,13 +17,13 @@
           <% if row.can_cancel %>
             <% component.with_action do %>
               <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: cancel_dialog_id(row.token),
-                    aria_label: t("market.my_sales.cancel_name", card: row.card.title)) { t("market.my_sales.cancel") } %>
+                    aria_label: t("market.my_sales.cancel_name", card: row.card.title)) do %><%= t("market.my_sales.cancel") %><% end %>
               <%= render "market/cancellations/dialog", token: row.token, card: row.card, return_to: "sales", landing: rows[index + 1]&.token.to_s %>
             <% end %>
           <% elsif row.relist %>
             <% component.with_action do %>
               <%= render ButtonComponent.new(variant: :primary, size: :small, href: relist_sale_path(row.relist),
-                    disabled: suspended, describedby: ("market-suspended-banner" if suspended), aria_label: t("market.my_sales.relist_name", card: row.card.title)) { t("market.my_sales.relist") } %>
+                    disabled: suspended, describedby: ("market-suspended-banner" if suspended), aria_label: t("market.my_sales.relist_name", card: row.card.title)) do %><%= t("market.my_sales.relist") %><% end %>
             <% end %>
           <% end %>
         <% end %>

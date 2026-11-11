@@ -12,7 +12,7 @@
     <%= render "market/bids/form", listing:, sheet:, answer:, refusal:, posted:, posted_amount: %>
   <% elsif annonce_cancellable?(listing, viewer) %>
     <div class="market-bid__cancel">
-      <%= render ButtonComponent.new(variant: :secondary, opens: cancel_dialog_id(listing.token), aria_label: t("market.my_sales.cancel_name", card: listing.card.title)) { t("market.my_sales.cancel") } %>
+      <%= render ButtonComponent.new(variant: :secondary, opens: cancel_dialog_id(listing.token), aria_label: t("market.my_sales.cancel_name", card: listing.card.title)) do %><%= t("market.my_sales.cancel") %><% end %>
       <%= render "market/cancellations/dialog", token: listing.token, card: listing.card, return_to: "annonce" %>
     </div>
   <% elsif refusal %>

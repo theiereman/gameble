@@ -6,7 +6,7 @@
     <h2 id="listing-outcome-heading" class="market-outcome__title" tabindex="-1" data-focus-name="heading"><%= outcome_title(outcome) %></h2>
     <p class="market-outcome__body"><%= outcome_body(outcome, viewer) %></p>
     <% if %i[won bought].include?(outcome.kind) %>
-      <%= render ButtonComponent.new(href: card_path(slug: outcome.card.id)) { t("market.listings.outcome.won.see_card") } %>
+      <%= render ButtonComponent.new(href: card_path(slug: outcome.card.id)) do %><%= t("market.listings.outcome.won.see_card") %><% end %>
     <% end %>
   </div>
 <% end %>
