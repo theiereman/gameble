@@ -737,13 +737,13 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # The chosen cards' views, however many.
     held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)
     held.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
-    assert_request_queries(32) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(33) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase .card", held.size
     assert_response :success
 
     # The owner's remove crosses cost nothing more.
     sign_in(@owner)
-    assert_request_queries(29) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(30) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase__remove", held.size
   end
 

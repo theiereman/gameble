@@ -1303,8 +1303,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # total; the tab bar's trades and invitations waiting and the player's
     # avatar; the player's own sets, read once with their Steam library set,
     # and goals; with no goal, the sets suggested, their standings and the
-    # themes' names.
-    assert_equal 20, forty
+    # themes' names; and the market settings in force.
+    assert_equal 21, forty
   end
 
   test "the way to all the cards fans the three cards gained last, the latest on top" do
