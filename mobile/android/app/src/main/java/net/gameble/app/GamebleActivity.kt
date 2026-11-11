@@ -2,7 +2,9 @@ package net.gameble.app
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
+import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
@@ -32,6 +34,17 @@ abstract class GamebleActivity : HotwireActivity() {
     }
 
     protected open val rootBackLabel: String? get() = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        drawBehindDarkSystemBars()
+        keepPortraitOnPhones()
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        keepPortraitOnPhones()
+    }
 
     abstract fun openDestination(path: String)
 

@@ -11,7 +11,6 @@
     <style name="ThemeOverlay.Gameble.Sheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="android:colorBackground">@color/panel</item>
         <item name="colorSurface">@color/panel</item>
-        <item name="android:navigationBarColor">@color/panel</item>
         <item name="bottomSheetStyle">@style/Widget.Gameble.Sheet</item>
     </style>
 

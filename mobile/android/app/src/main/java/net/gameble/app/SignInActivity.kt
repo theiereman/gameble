@@ -1,23 +1,31 @@
 package net.gameble.app
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.View
 import android.widget.TextView
+import androidx.activity.ComponentActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
-class SignInActivity : Activity() {
+class SignInActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        drawBehindDarkSystemBars()
+        keepPortraitOnPhones()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
         keepClearOfSystemBars(findViewById(R.id.sign_in))
         findViewById<View>(R.id.sign_in_button).setOnClickListener { SignIn.start(this) }
         showAcceptance(findViewById(R.id.sign_in_acceptance))
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        keepPortraitOnPhones()
     }
 
     private fun showAcceptance(view: TextView) {
