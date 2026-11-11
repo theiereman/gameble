@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -446,7 +446,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_120000) do
     t.string "tier"
     t.integer "set_count"
     t.uuid "token", default: -> { "gen_random_uuid()" }, null: false
+    t.bigint "listing_id"
     t.index ["kind", "notable", "occurred_at"], name: "index_game_feed_entries_on_kind_and_notable_and_occurred_at"
+    t.index ["listing_id"], name: "index_game_feed_entries_one_sale_per_listing", unique: true, where: "((kind)::text = 'sale'::text)"
     t.index ["notable", "occurred_at", "id"], name: "index_game_feed_entries_on_notable_and_occurred_at_and_id"
     t.index ["occurred_at"], name: "index_game_feed_entries_one_verdict_per_week", unique: true, where: "((kind)::text = 'verdict'::text)"
     t.index ["pack_id", "position"], name: "index_game_feed_entries_on_pack_id_and_position", unique: true
@@ -456,10 +458,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_120000) do
     t.index ["token"], name: "index_game_feed_entries_on_token", unique: true
     t.index ["trade_id"], name: "index_game_feed_entries_on_trade_id", unique: true, where: "(trade_id IS NOT NULL)"
     t.check_constraint "(kind::text = 'pull'::text OR kind::text = 'discovery'::text) = (pack_id IS NOT NULL AND \"position\" IS NOT NULL)", name: "game_feed_entries_pack_check"
+    t.check_constraint "(kind::text = 'sale'::text) = (listing_id IS NOT NULL)", name: "game_feed_entries_sale_check"
     t.check_constraint "(kind::text = 'set'::text) = (set_id IS NOT NULL AND tier IS NOT NULL AND set_count IS NOT NULL) AND (kind::text = 'set'::text OR kind::text = 'verdict'::text) = (card_season_id IS NULL) AND (kind::text = 'set'::text OR kind::text = 'verdict'::text) = (rarity IS NULL)", name: "game_feed_entries_set_check"
     t.check_constraint "(kind::text = 'trade'::text) = (trade_id IS NOT NULL AND partner_id IS NOT NULL AND partner_card_season_id IS NOT NULL)", name: "game_feed_entries_trade_check"
     t.check_constraint "(tier IS NULL OR tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text) AND (set_count IS NULL OR set_count > 0)", name: "game_feed_entries_tier_check"
-    t.check_constraint "kind::text = 'pull'::text OR kind::text = 'discovery'::text OR kind::text = 'trade'::text OR kind::text = 'repost'::text OR kind::text = 'set'::text OR kind::text = 'verdict'::text", name: "game_feed_entries_kind_check"
+    t.check_constraint "kind::text = 'pull'::text OR kind::text = 'discovery'::text OR kind::text = 'trade'::text OR kind::text = 'repost'::text OR kind::text = 'set'::text OR kind::text = 'verdict'::text OR kind::text = 'sale'::text", name: "game_feed_entries_kind_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
   end
 
@@ -583,6 +586,207 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_120000) do
     t.index ["token"], name: "index_game_invitations_on_token", unique: true
     t.check_constraint "sender_id <> recipient_id", name: "game_invitations_distinct_check"
     t.check_constraint "status::text = 'pending'::text OR status::text = 'accepted'::text OR status::text = 'ignored'::text", name: "game_invitations_status_check"
+  end
+
+  create_table "game_market_alt_signals", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "signal", null: false
+    t.bigint "other_account_id"
+    t.jsonb "facts", default: {}, null: false
+    t.datetime "refreshed_at", null: false
+    t.index ["account_id"], name: "index_game_market_alt_signals_on_account_id"
+    t.index ["other_account_id"], name: "index_game_market_alt_signals_on_other_account_id"
+  end
+
+  create_table "game_market_archive_deposits", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "card_season_id", null: false
+    t.integer "quantity", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_season_id"], name: "index_game_market_archive_deposits_on_card_season_id"
+    t.index ["player_id", "card_season_id"], name: "index_game_market_archive_deposits_uniqueness", unique: true
+    t.check_constraint "quantity > 0", name: "game_market_archive_deposits_quantity_check"
+  end
+
+  create_table "game_market_archive_stocks", force: :cascade do |t|
+    t.bigint "card_season_id", null: false
+    t.integer "quantity", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_season_id"], name: "index_game_market_archive_stocks_uniqueness", unique: true
+    t.check_constraint "quantity > 0", name: "game_market_archive_stocks_quantity_check"
+  end
+
+  create_table "game_market_bids", force: :cascade do |t|
+    t.bigint "listing_id", null: false
+    t.bigint "player_id", null: false
+    t.bigint "maximum", null: false
+    t.bigint "price_after", null: false
+    t.string "outcome", null: false
+    t.datetime "extended_until"
+    t.datetime "created_at", null: false
+    t.index ["listing_id", "id"], name: "index_game_market_bids_on_listing_and_id"
+    t.index ["player_id", "listing_id"], name: "index_game_market_bids_on_player_and_listing"
+    t.check_constraint "maximum > 0", name: "game_market_bids_maximum_check"
+    t.check_constraint "outcome::text = ANY (ARRAY['leading'::character varying::text, 'outbid'::character varying::text, 'beaten'::character varying::text, 'raise'::character varying::text, 'won'::character varying::text, 'lost'::character varying::text, 'voided'::character varying::text])", name: "game_market_bids_outcome_check"
+    t.check_constraint "price_after > 0", name: "game_market_bids_price_after_check"
+  end
+
+  create_table "game_market_daily_snapshots", force: :cascade do |t|
+    t.date "day", null: false
+    t.bigint "created", null: false
+    t.bigint "destroyed_total", null: false
+    t.bigint "forfeited", null: false
+    t.bigint "circulation", null: false
+    t.bigint "picoins_per_active_player"
+    t.bigint "median_daily_earnings"
+    t.bigint "average_price_common"
+    t.bigint "average_price_uncommon"
+    t.bigint "average_price_rare"
+    t.bigint "average_price_epic"
+    t.bigint "average_price_legendary"
+    t.integer "top_share_basis_points"
+    t.boolean "reconciliation_balanced", null: false
+    t.integer "wallet_differences", default: 0, null: false
+    t.bigint "circulation_difference", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.index ["day"], name: "index_game_market_daily_snapshots_on_day", unique: true
+    t.check_constraint "created >= 0 AND destroyed_total >= 0 AND forfeited >= 0 AND forfeited <= destroyed_total", name: "game_market_daily_snapshots_flows_check"
+    t.check_constraint "top_share_basis_points IS NULL OR top_share_basis_points >= 0 AND top_share_basis_points <= 10000", name: "game_market_daily_snapshots_top_share_check"
+  end
+
+  create_table "game_market_edition_prices", force: :cascade do |t|
+    t.bigint "card_season_id", null: false
+    t.bigint "average"
+    t.integer "sales_used", default: 0, null: false
+    t.datetime "refreshed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_season_id"], name: "index_game_market_edition_prices_on_card_season_id", unique: true
+    t.check_constraint "(average IS NULL) = (sales_used = 0)", name: "game_market_edition_prices_average_sales_check"
+    t.check_constraint "average IS NULL OR average >= 0", name: "game_market_edition_prices_average_check"
+    t.check_constraint "sales_used >= 0", name: "game_market_edition_prices_sales_used_check"
+  end
+
+  create_table "game_market_ledger_entries", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.string "kind", null: false
+    t.bigint "available_delta", default: 0, null: false
+    t.bigint "committed_delta", default: 0, null: false
+    t.bigint "listing_id"
+    t.bigint "settings_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["listing_id", "player_id", "kind"], name: "index_game_market_ledger_entries_one_settlement", unique: true, where: "(((kind)::text = 'stamp'::text) OR ((kind)::text = 'purchase'::text) OR ((kind)::text = 'sale'::text) OR ((kind)::text = 'commission'::text))"
+    t.index ["player_id"], name: "index_game_market_ledger_entries_on_player_id"
+    t.index ["settings_id"], name: "index_game_market_ledger_entries_on_settings_id"
+    t.check_constraint "kind::text = ANY (ARRAY['mint'::character varying::text, 'stamp'::character varying::text, 'hold'::character varying::text, 'release'::character varying::text, 'purchase'::character varying::text, 'sale'::character varying::text, 'commission'::character varying::text, 'forfeit'::character varying::text])", name: "game_market_ledger_entries_kind_check"
+  end
+
+  create_table "game_market_listings", force: :cascade do |t|
+    t.string "token", null: false
+    t.bigint "seller_id", null: false
+    t.bigint "card_season_id", null: false
+    t.bigint "settings_id", null: false
+    t.bigint "starting_price", null: false
+    t.bigint "buy_now_price"
+    t.integer "duration_hours", null: false
+    t.datetime "ends_at", null: false
+    t.bigint "current_price", null: false
+    t.bigint "leader_id"
+    t.bigint "leader_maximum"
+    t.datetime "sold_at"
+    t.bigint "final_price"
+    t.string "status", default: "open", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "average_after_sale"
+    t.index ["card_season_id", "sold_at"], name: "index_game_market_listings_sold_card_season", where: "((status)::text = 'sold'::text)"
+    t.index ["current_price", "id"], name: "index_game_market_listings_open_current_price", where: "((status)::text = 'open'::text)"
+    t.index ["ends_at"], name: "index_game_market_listings_open_ends_at", where: "((status)::text = 'open'::text)"
+    t.index ["seller_id", "status"], name: "index_game_market_listings_on_seller_id_and_status"
+    t.index ["token"], name: "index_game_market_listings_on_token", unique: true
+    t.check_constraint "(leader_id IS NULL) = (leader_maximum IS NULL)", name: "game_market_listings_leader_check"
+    t.check_constraint "(sold_at IS NULL) = (final_price IS NULL)", name: "game_market_listings_sold_check"
+    t.check_constraint "buy_now_price IS NULL OR buy_now_price > starting_price", name: "game_market_listings_buy_now_check"
+    t.check_constraint "current_price >= starting_price", name: "game_market_listings_current_price_check"
+    t.check_constraint "duration_hours > 0", name: "game_market_listings_duration_check"
+    t.check_constraint "starting_price > 0", name: "game_market_listings_starting_price_check"
+    t.check_constraint "status::text = ANY (ARRAY['open'::character varying::text, 'sold'::character varying::text, 'unsold'::character varying::text, 'cancelled'::character varying::text, 'withdrawn'::character varying::text])", name: "game_market_listings_status_check"
+  end
+
+  create_table "game_market_notices", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "listing_id", null: false
+    t.string "kind", null: false
+    t.bigint "other_player_id"
+    t.bigint "amount"
+    t.datetime "noticed_at", null: false
+    t.index ["player_id", "listing_id"], name: "index_game_market_notices_on_player_and_listing", unique: true
+    t.check_constraint "amount IS NULL OR amount >= 0", name: "game_market_notices_amount_check"
+    t.check_constraint "kind::text = ANY (ARRAY['outbid'::character varying::text, 'won'::character varying::text, 'sold'::character varying::text, 'unsold'::character varying::text, 'bought_over'::character varying::text, 'lead_voided'::character varying::text, 'withdrawn'::character varying::text])", name: "game_market_notices_kind_check"
+  end
+
+  create_table "game_market_settings", force: :cascade do |t|
+    t.string "token", null: false
+    t.bigint "entrustment_common", null: false
+    t.bigint "entrustment_uncommon", null: false
+    t.bigint "entrustment_rare", null: false
+    t.bigint "entrustment_epic", null: false
+    t.bigint "entrustment_legendary", null: false
+    t.bigint "stamp_common", null: false
+    t.bigint "stamp_uncommon", null: false
+    t.bigint "stamp_rare", null: false
+    t.bigint "stamp_epic", null: false
+    t.bigint "stamp_legendary", null: false
+    t.bigint "minimum_price_common", null: false
+    t.bigint "minimum_price_uncommon", null: false
+    t.bigint "minimum_price_rare", null: false
+    t.bigint "minimum_price_epic", null: false
+    t.bigint "minimum_price_legendary", null: false
+    t.integer "commission_basis_points", null: false
+    t.bigint "daily_cap", null: false
+    t.integer "duration_short_hours", null: false
+    t.integer "duration_medium_hours", null: false
+    t.integer "duration_long_hours", null: false
+    t.integer "preselected_duration_hours", null: false
+    t.integer "increment_basis_points", null: false
+    t.integer "soft_close_seconds", null: false
+    t.integer "average_sale_count", null: false
+    t.integer "average_window_days", null: false
+    t.integer "feed_threshold_multiple", null: false
+    t.integer "unusual_maximum_multiple", null: false
+    t.integer "alert_destroyed_share_basis_points"
+    t.bigint "alert_picoins_per_player"
+    t.integer "alert_top_share_basis_points"
+    t.decimal "income_days_target_common", precision: 10, scale: 3
+    t.decimal "income_days_target_uncommon", precision: 10, scale: 3
+    t.decimal "income_days_target_rare", precision: 10, scale: 3
+    t.decimal "income_days_target_epic", precision: 10, scale: 3
+    t.decimal "income_days_target_legendary", precision: 10, scale: 3
+    t.boolean "open", default: false, null: false
+    t.datetime "terms_confirmed_at"
+    t.datetime "odds_confirmed_at"
+    t.datetime "first_opened_at"
+    t.bigint "author_id"
+    t.bigint "replaces_id"
+    t.datetime "created_at", null: false
+    t.index ["author_id"], name: "index_game_market_settings_on_author_id"
+    t.index ["replaces_id"], name: "index_game_market_settings_on_replaces_id", unique: true
+    t.index ["token"], name: "index_game_market_settings_on_token", unique: true
+    t.check_constraint "commission_basis_points >= 0 AND commission_basis_points <= 2500", name: "game_market_settings_commission_check"
+    t.check_constraint "daily_cap > 0 AND increment_basis_points > 0 AND soft_close_seconds > 0", name: "game_market_settings_positive_check"
+    t.check_constraint "preselected_duration_hours = duration_short_hours OR preselected_duration_hours = duration_medium_hours OR preselected_duration_hours = duration_long_hours", name: "game_market_settings_preselected_check"
+  end
+
+  create_table "game_market_wallets", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "available", default: 0, null: false
+    t.bigint "committed", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id"], name: "index_game_market_wallets_on_player_id", unique: true
+    t.check_constraint "available >= 0 AND committed >= 0", name: "game_market_wallets_balance_check"
   end
 
   create_table "game_packs", force: :cascade do |t|
@@ -845,6 +1049,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_120000) do
   add_foreign_key "game_holdings", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_invitations", "accounts_players", column: "recipient_id"
   add_foreign_key "game_invitations", "accounts_players", column: "sender_id"
+  add_foreign_key "game_market_alt_signals", "accounts_players", column: "account_id"
+  add_foreign_key "game_market_alt_signals", "accounts_players", column: "other_account_id"
+  add_foreign_key "game_market_archive_deposits", "accounts_players", column: "player_id"
+  add_foreign_key "game_market_archive_deposits", "catalog_card_seasons", column: "card_season_id"
+  add_foreign_key "game_market_archive_stocks", "catalog_card_seasons", column: "card_season_id"
+  add_foreign_key "game_market_bids", "accounts_players", column: "player_id"
+  add_foreign_key "game_market_bids", "game_market_listings", column: "listing_id"
+  add_foreign_key "game_market_edition_prices", "catalog_card_seasons", column: "card_season_id"
+  add_foreign_key "game_market_ledger_entries", "accounts_players", column: "player_id"
+  add_foreign_key "game_market_ledger_entries", "game_market_listings", column: "listing_id"
+  add_foreign_key "game_market_ledger_entries", "game_market_settings", column: "settings_id"
+  add_foreign_key "game_market_listings", "accounts_players", column: "leader_id"
+  add_foreign_key "game_market_listings", "accounts_players", column: "seller_id"
+  add_foreign_key "game_market_listings", "catalog_card_seasons", column: "card_season_id"
+  add_foreign_key "game_market_listings", "game_market_settings", column: "settings_id"
+  add_foreign_key "game_market_notices", "accounts_players", column: "other_player_id"
+  add_foreign_key "game_market_notices", "accounts_players", column: "player_id"
+  add_foreign_key "game_market_notices", "game_market_listings", column: "listing_id"
+  add_foreign_key "game_market_settings", "accounts_players", column: "author_id"
+  add_foreign_key "game_market_settings", "game_market_settings", column: "replaces_id"
+  add_foreign_key "game_market_wallets", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
   add_foreign_key "game_player_states", "accounts_players", column: "player_id"
