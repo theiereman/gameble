@@ -1,10 +1,13 @@
 require "test_helper"
+require_relative "../../support/singleton_stub"
 require_relative "../../support/holdings"
 require_relative "../../support/market"
 require_relative "../../support/market_listings"
 require_relative "../../support/market_auctions"
 
 class Game::CloseDueAuctionsJobTest < ActiveSupport::TestCase
+  include SingletonStub
+
   include Holdings
   include MarketAuctions
   include MarketListings
@@ -21,11 +24,11 @@ class Game::CloseDueAuctionsJobTest < ActiveSupport::TestCase
 
   test "a listing that raises does not stop the others and is reported with its id" do
     first, second, third = @cards.map { due!(it) }
-    original = Game::Market::CloseAuction.instance_method(:call)
-    failing = ->(**arguments) { arguments[:listing_id] == second.id ? raise("boom") : original.bind(Game::Market::CloseAuction.new).call(**arguments) }
+    real = Game::Market::CloseAuction.new
+    failing = ->(**arguments) { arguments[:listing_id] == second.id ? raise("boom") : real.call(**arguments) }
 
     report = assert_error_reported(RuntimeError) do
-      Game::Market::CloseAuction.stub(:new, -> { Struct.new(:call).new(failing) }) { Game::CloseDueAuctionsJob.perform_now }
+      stub_singleton(Game::Market::CloseAuction, :new, -> { failing }) { Game::CloseDueAuctionsJob.perform_now }
     end
 
     assert_equal second.id, report.context[:listing_id]

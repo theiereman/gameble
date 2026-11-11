@@ -1,4 +1,5 @@
 require "test_helper"
+require_relative "../../../support/singleton_stub"
 require_relative "../../../support/holdings"
 require_relative "../../../support/market"
 require_relative "../../../support/market_listings"
@@ -6,6 +7,8 @@ require_relative "../../../support/market_auctions"
 require_relative "../../../support/market_sales"
 
 class Game::Market::EditionPriceSettlementTest < ActiveSupport::TestCase
+  include SingletonStub
+
   include Holdings
   include MarketAuctions
   include MarketListings
@@ -87,7 +90,7 @@ class Game::Market::EditionPriceSettlementTest < ActiveSupport::TestCase
     hold(@seller, @card.id, 1, reserved: 1)
     listing = listing!(seller: @seller, card_season: @card, ends_at: 1.minute.ago)
     lead!(listing, @winner, 20_000, price: 1_300)
-    @seller.update_columns(deleted_at: Time.current)
+    @seller.update_columns(deleted_at: Time.current, steam_id: nil)
 
     assert_no_difference -> { Game::Market::EditionPrice.count } do
       assert close(listing).success?
@@ -107,7 +110,7 @@ class Game::Market::EditionPriceSettlementTest < ActiveSupport::TestCase
   test "a deadlock stores nothing" do
     listing = due_listing(price: 10_000)
 
-    Game::Market::EditionPrice.stub(:lock_row, ->(*) { raise ActiveRecord::Deadlocked }) do
+    stub_singleton(Game::Market::EditionPrice, :lock_row, ->(*) { raise ActiveRecord::Deadlocked }) do
       assert_equal :market_busy, close(listing).failure
     end
 

@@ -336,7 +336,8 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
 
   def second_edition_of(card_season)
     season = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
-    Catalog::CardSeason.create!(card_id: card_season.card_id, season_id: season.id, prestige_score: 0.5, rating: 50, rarity: card_season.rarity, number: 1)
+    rows = [ { card_id: card_season.card_id, season_id: season.id, prestige_score: 0.5, rating: 50, rarity: card_season.rarity, number: 1 } ]
+    Catalog::CardSeason.find(Catalog::CardSeason.insert_all!(rows, returning: :id).rows.flatten.sole)
   end
 
   test "the filtered page lists only that card's editions with doubles off and nothing ticked when there are two" do

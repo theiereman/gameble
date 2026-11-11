@@ -1,10 +1,13 @@
 require "test_helper"
+require_relative "../../../support/singleton_stub"
 require_relative "../../../support/holdings"
 require_relative "../../../support/market"
 require_relative "../../../support/market_listings"
 require_relative "../../../support/market_auctions"
 
 class Game::Market::CloseAuctionEventsTest < ActiveSupport::TestCase
+  include SingletonStub
+
   include ActiveJob::TestHelper
   include Holdings
   include MarketAuctions
@@ -30,8 +33,8 @@ class Game::Market::CloseAuctionEventsTest < ActiveSupport::TestCase
   test "goals and achievements hear the sale for the winner only" do
     dropped = []
     achieved = []
-    Game::Goal.stub(:drop_reached, ->(ids) { dropped << ids }) do
-      Game::GrantAchievementsJob.stub(:perform_later, ->(id) { achieved << id }) do
+    stub_singleton(Game::Goal, :drop_reached, ->(ids) { dropped << ids }) do
+      stub_singleton(Game::GrantAchievementsJob, :perform_later, ->(id) { achieved << id }) do
         Game::Handlers::GoalsReached.call(sold_event)
         Game::Handlers::Achievements.call(sold_event)
       end

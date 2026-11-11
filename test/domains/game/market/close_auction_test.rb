@@ -1,10 +1,13 @@
 require "test_helper"
+require_relative "../../../support/singleton_stub"
 require_relative "../../../support/holdings"
 require_relative "../../../support/market"
 require_relative "../../../support/market_listings"
 require_relative "../../../support/market_auctions"
 
 class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
+  include SingletonStub
+
   include Holdings
   include MarketAuctions
   include MarketListings
@@ -86,7 +89,7 @@ class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
     receiver = Object.new
     receiver.define_singleton_method(:call) { |player:, season:| received << player.id and Dry::Monads::Success([]) }
 
-    Game::ReceiveSeasonAllocation.stub(:new, receiver) { close }
+    stub_singleton(Game::ReceiveSeasonAllocation, :new, ->(*) { receiver }) { close }
 
     assert_equal [ @winner.id ], received
   end
@@ -119,7 +122,7 @@ class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
 
   test "a set tier reached by the copy is recorded as a trade" do
     lead
-    Game::SetTier.stub(:record, ->(**arguments) { Thread.current[:tier_args] = arguments; {} }) { close }
+    stub_singleton(Game::SetTier, :record, ->(**arguments) { Thread.current[:tier_args] = arguments; {} }) { close }
 
     assert_equal "trade", Thread.current[:tier_args][:reached_by]
     assert_equal [ @card.id ], Thread.current[:tier_args][:card_season_ids]
@@ -170,7 +173,7 @@ class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
 
   test "a deleted seller withdraws the listing" do
     lead
-    @seller.update_columns(deleted_at: Time.current)
+    @seller.update_columns(deleted_at: Time.current, steam_id: nil)
 
     close
 
@@ -180,7 +183,7 @@ class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
   %i[banned_at deleted_at].each do |column|
     test "a leader removed by #{column} leaves the listing unsold and releases the maximum" do
       lead
-      @winner.update_columns(column => Time.current)
+      @winner.update_columns(column => Time.current, **(column == :deleted_at ? { steam_id: nil } : {}))
 
       assert close.success?
 
@@ -194,7 +197,7 @@ class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
   test "both removed: the seller's withdrawal wins" do
     lead
     @seller.update_columns(banned_at: Time.current)
-    @winner.update_columns(deleted_at: Time.current)
+    @winner.update_columns(deleted_at: Time.current, steam_id: nil)
 
     close
 
@@ -222,7 +225,7 @@ class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
   test "a leader changed since the unlocked read leaves everything as it was" do
     lead
     seen = Game::Market::Listing.find(@listing.id)
-    Game::Market::Listing.stub(:find_by, seen) do
+    stub_singleton(Game::Market::Listing, :find_by, ->(*, **) { seen }) do
       @listing.update!(leader_id: @seller.id)
       nothing_moves { assert_equal :listing_not_closable, close.failure }
     end
@@ -235,7 +238,7 @@ class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
 
   test "a deadlock answers market busy" do
     lead
-    Game::TradeLocks.stub(:players, ->(*) { raise ActiveRecord::Deadlocked }) do
+    stub_singleton(Game::TradeLocks, :players, ->(*) { raise ActiveRecord::Deadlocked }) do
       assert_equal :market_busy, close.failure
     end
     assert_equal "open", @listing.reload.status

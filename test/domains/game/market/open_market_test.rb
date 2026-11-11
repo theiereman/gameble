@@ -85,7 +85,7 @@ class Game::Market::OpenMarketTest < ActiveSupport::TestCase
 
   test "a version inserted first is a lost race" do
     stub_singleton(Game::Market::CurrentSettings, :call, -> { Game::Market::Settings.find(@closed.id) }) do
-      close_market!
+      close_market!(replaces_id: @closed.id)
       nothing_is_written { assert_equal :settings_changed, open_market.failure }
     end
   end

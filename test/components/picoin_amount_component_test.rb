@@ -1,7 +1,7 @@
 require "test_helper"
 
 class PicoinAmountComponentTest < ViewComponent::TestCase
-  FORMS = JSON.parse(file_fixture("picoin_forms.json").read)
+  FORMS = JSON.parse(Rails.root.join("test/fixtures/files/picoin_forms.json").read)
 
   test "the visible figure of every fixture row reads as the fixture says" do
     FORMS.each do |row|

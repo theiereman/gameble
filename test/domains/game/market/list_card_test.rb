@@ -7,6 +7,7 @@ class Game::Market::ListCardTest < ActiveSupport::TestCase
   include Holdings
   include MarketSettings
   include SingletonStub
+  include ActiveJob::TestHelper
 
   setup do
     @player = accounts_players(:player)
@@ -71,7 +72,7 @@ class Game::Market::ListCardTest < ActiveSupport::TestCase
   test "a closed or never opened market refuses" do
     close_market!
     refused :market_closed
-    Game::Market::Settings.delete_all
+    [ Game::Market::LedgerEntry, Game::Market::Wallet, Game::Market::Settings ].each(&:delete_all)
     refused :market_closed
   end
 

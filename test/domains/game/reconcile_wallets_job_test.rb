@@ -20,8 +20,16 @@ class Game::ReconcileWalletsJobTest < ActiveSupport::TestCase
   def clear
     Game::Market::LedgerEntry.connection.execute("DELETE FROM game_market_ledger_entries")
     Game::Market::DailySnapshot.connection.execute("DELETE FROM game_market_daily_snapshots")
+    clear_snapshot_events
     Game::Market::Wallet.delete_all
     Game::Market::Settings.connection.execute("DELETE FROM game_market_settings")
+  end
+
+  def clear_snapshot_events
+    connection = ActiveRecord::Base.connection
+    written = "SELECT event_id FROM event_store_events WHERE event_type = 'Game::Market::DailySnapshotWritten'"
+    connection.execute("DELETE FROM event_store_events_in_streams WHERE event_id IN (#{written})")
+    connection.execute("DELETE FROM event_store_events WHERE event_id IN (#{written})")
   end
 
   def wallet(player) = Game::Market::Wallet.find_by(player_id: player.id)

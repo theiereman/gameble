@@ -1,10 +1,13 @@
 require "test_helper"
+require_relative "../../../support/singleton_stub"
 require_relative "../../../support/holdings"
 require_relative "../../../support/market"
 require_relative "../../../support/market_listings"
 require_relative "../../../support/market_auctions"
 
 class Game::Market::DropPresenceJobTest < ActiveSupport::TestCase
+  include SingletonStub
+
   include Holdings
   include MarketAuctions
   include MarketListings
@@ -50,11 +53,11 @@ class Game::Market::DropPresenceJobTest < ActiveSupport::TestCase
     first = led(@card)
     second = led(@other_card)
     @leader.update_columns(banned_at: Time.current)
-    original = Game::Market::VoidLead.instance_method(:call)
-    failing = ->(**arguments) { arguments[:listing_id] == first.id ? raise("boom") : original.bind(Game::Market::VoidLead.new).call(**arguments) }
+    real = Game::Market::VoidLead.new
+    failing = ->(**arguments) { arguments[:listing_id] == first.id ? raise("boom") : real.call(**arguments) }
 
     report = assert_error_reported(RuntimeError) do
-      Game::Market::VoidLead.stub(:new, -> { Struct.new(:call).new(failing) }) { Game::Market::DropPresenceJob.perform_now }
+      stub_singleton(Game::Market::VoidLead, :new, -> { failing }) { Game::Market::DropPresenceJob.perform_now }
     end
 
     assert_equal first.id, report.context[:listing_id]
@@ -106,11 +109,11 @@ class Game::Market::DropPresenceJobTest < ActiveSupport::TestCase
     @leader.update_columns(deleted_at: Time.current, steam_id: nil)
     other = accounts_players(:administrator).tap { it.update_columns(deleted_at: Time.current, steam_id: nil) }
     fund!(other, 700)
-    original = Game::Market::ForfeitBalance.instance_method(:call)
-    failing = ->(**arguments) { arguments[:player] == @leader ? raise("boom") : original.bind(Game::Market::ForfeitBalance.new).call(**arguments) }
+    real = Game::Market::ForfeitBalance.new
+    failing = ->(**arguments) { arguments[:player] == @leader ? raise("boom") : real.call(**arguments) }
 
     report = assert_error_reported(RuntimeError) do
-      Game::Market::ForfeitBalance.stub(:new, -> { Struct.new(:call).new(failing) }) { Game::Market::DropPresenceJob.perform_now }
+      stub_singleton(Game::Market::ForfeitBalance, :new, -> { failing }) { Game::Market::DropPresenceJob.perform_now }
     end
 
     assert_equal @leader.id, report.context[:player_id]

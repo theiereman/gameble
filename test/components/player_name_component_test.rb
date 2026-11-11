@@ -10,8 +10,7 @@ class PlayerNameComponentTest < ViewComponent::TestCase
 
   test "a visible player is a name linked to the profile by token" do
     name_for(@owner)
-
-    assert_selector "a.player-name.player-name--linked[href=?]", "/en/brothers/#{@owner.token}", text: "Alice"
+    assert_selector "a.player-name.player-name--linked[href=\"/en/brothers/#{@owner.token}\"]", text: "Alice"
   end
 
   test "a visible player is a bare name when the caller asks for no link" do
@@ -44,7 +43,7 @@ class PlayerNameComponentTest < ViewComponent::TestCase
     assert_selector "span.player-name.player-name--anonymous", text: "An anonymous player"
     assert_no_text "Alice"
 
-    @owner.update_columns(banned_at: nil, deleted_at: Time.current)
+    @owner.update_columns(banned_at: nil, deleted_at: Time.current, steam_id: nil)
     name_for(@owner)
     assert_selector "span.player-name--anonymous"
     assert_no_selector "a"

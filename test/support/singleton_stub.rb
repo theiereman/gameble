@@ -4,7 +4,7 @@
 module SingletonStub
   def stub_singleton(object, name, replacement)
     original = object.method(name)
-    object.define_singleton_method(name, &replacement)
+    object.define_singleton_method(name) { |*arguments, **options, &block| replacement.call(*arguments, **options, &block) }
     yield
   ensure
     object.define_singleton_method(name, original)

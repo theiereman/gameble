@@ -97,7 +97,7 @@ class Game::Market::SaleFeedTest < ActiveSupport::TestCase
 
     @buyer.update_columns(banned_at: Time.current)
     assert_empty Game::FeedEntries.call(viewer)
-    @buyer.update_columns(banned_at: nil, deleted_at: Time.current)
+    @buyer.update_columns(banned_at: nil, deleted_at: Time.current, steam_id: nil)
     assert_empty Game::FeedEntries.call(viewer)
   end
 

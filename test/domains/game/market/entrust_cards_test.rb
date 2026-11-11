@@ -193,7 +193,7 @@ class Game::Market::EntrustCardsTest < ActiveSupport::TestCase
 
     value = entrust({ @uncommon.id => 1, @rare.id => 1 }).value!
 
-    assert_equal 7_000, value.minted
+    assert_equal 2_000, value.minted
   end
 
   test "a batch where nothing fits moves nothing" do

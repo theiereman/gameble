@@ -64,11 +64,11 @@ class Game::Market::OutbidNoticesTest < ActiveSupport::TestCase
 
   test "the table refuses an unknown kind and a second row for one player and listing" do
     assert_raises(ActiveRecord::StatementInvalid) do
-      Game::Market::Notice.record(player_id: @first.id, listing_id: @listing.id, kind: "mystery")
+      ActiveRecord::Base.transaction(requires_new: true) { Game::Market::Notice.record(player_id: @first.id, listing_id: @listing.id, kind: "mystery") }
     end
     Game::Market::Notice.record(player_id: @first.id, listing_id: @listing.id, kind: "outbid", amount: 1)
     assert_raises(ActiveRecord::RecordNotUnique) do
-      Game::Market::Notice.insert!({ player_id: @first.id, listing_id: @listing.id, kind: "won", noticed_at: Time.current })
+      ActiveRecord::Base.transaction(requires_new: true) { Game::Market::Notice.insert!({ player_id: @first.id, listing_id: @listing.id, kind: "won", noticed_at: Time.current }) }
     end
   end
 end

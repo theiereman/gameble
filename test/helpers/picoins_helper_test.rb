@@ -1,7 +1,7 @@
 require "test_helper"
 
 class PicoinsHelperTest < ActionView::TestCase
-  FORMS = JSON.parse(file_fixture("picoin_forms.json").read)
+  FORMS = JSON.parse(Rails.root.join("test/fixtures/files/picoin_forms.json").read)
 
   test "every form of the shared fixture reads the same as on the client" do
     FORMS.each do |row|

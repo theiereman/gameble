@@ -1,4 +1,5 @@
 require "test_helper"
+require_relative "../../../support/singleton_stub"
 require_relative "../../../support/holdings"
 require_relative "../../../support/market"
 require_relative "../../../support/market_listings"
@@ -6,6 +7,8 @@ require_relative "../../../support/market_auctions"
 require_relative "../../../support/market_bidding"
 
 class Game::Market::PlaceBidBuyNowTest < ActiveSupport::TestCase
+  include SingletonStub
+
   include Holdings
   include MarketAuctions
   include MarketBidding
@@ -90,7 +93,7 @@ class Game::Market::PlaceBidBuyNowTest < ActiveSupport::TestCase
     receiver = Object.new
     receiver.define_singleton_method(:call) { |player:, season:| received << player.id and Dry::Monads::Success([]) }
 
-    Game::ReceiveSeasonAllocation.stub(:new, receiver) { bid(@first, 50_000) }
+    stub_singleton(Game::ReceiveSeasonAllocation, :new, ->(*) { receiver }) { bid(@first, 50_000) }
 
     assert_equal [ @first.id ], received
   end

@@ -1,4 +1,5 @@
 require "test_helper"
+require_relative "../../../support/singleton_stub"
 require_relative "../../../support/holdings"
 require_relative "../../../support/market"
 require_relative "../../../support/market_listings"
@@ -6,6 +7,8 @@ require_relative "../../../support/market_auctions"
 require_relative "../../../support/market_bidding"
 
 class Game::Market::PlaceBidTest < ActiveSupport::TestCase
+  include SingletonStub
+
   include Holdings
   include MarketAuctions
   include MarketBidding
@@ -261,7 +264,7 @@ class Game::Market::PlaceBidTest < ActiveSupport::TestCase
   end
 
   test "a removed seller refuses a bid" do
-    @seller.update_columns(deleted_at: Time.current)
+    @seller.update_columns(deleted_at: Time.current, steam_id: nil)
 
     nothing_changes { assert_equal :listing_withdrawn, bid(@first, 30_000).failure }
   end
@@ -294,13 +297,13 @@ class Game::Market::PlaceBidTest < ActiveSupport::TestCase
 
   test "a bidder removed while waiting on the bank lock is refused" do
     stale = Accounts::Player.find(@first.id)
-    Game::TradeLocks.stub(:players, ->(*) { Accounts::Player.where(id: @first.id).update_all(banned_at: Time.current) }) do
+    stub_singleton(Game::TradeLocks, :players, ->(*) { Accounts::Player.where(id: @first.id).update_all(banned_at: Time.current) }) do
       nothing_changes { assert_equal :player_required, bid(stale, 30_000).failure }
     end
   end
 
   test "a deadlock answers market busy" do
-    Game::TradeLocks.stub(:players, ->(*) { raise ActiveRecord::Deadlocked }) do
+    stub_singleton(Game::TradeLocks, :players, ->(*) { raise ActiveRecord::Deadlocked }) do
       nothing_changes { assert_equal :market_busy, bid(@first, 30_000).failure }
     end
   end

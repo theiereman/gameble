@@ -18,13 +18,13 @@ class Game::Market::ListingTest < ActiveSupport::TestCase
 
   test "a second sale of one listing for one player is refused by the database" do
     entry("sale")
-    assert_raises(ActiveRecord::RecordNotUnique) { entry("sale") }
+    assert_raises(ActiveRecord::RecordNotUnique) { ActiveRecord::Base.transaction(requires_new: true) { entry("sale") } }
   end
 
   test "a second stamp, purchase or commission of one listing for one player is refused too" do
     %w[stamp purchase commission].each do |kind|
       entry(kind)
-      assert_raises(ActiveRecord::RecordNotUnique) { entry(kind) }
+      assert_raises(ActiveRecord::RecordNotUnique) { ActiveRecord::Base.transaction(requires_new: true) { entry(kind) } }
     end
   end
 
@@ -40,12 +40,12 @@ class Game::Market::ListingTest < ActiveSupport::TestCase
   end
 
   test "the table refuses a buy-now not above the start and an unknown status" do
-    assert_raises(ActiveRecord::StatementInvalid) { @listing.update_columns(buy_now_price: @listing.starting_price) }
-    assert_raises(ActiveRecord::StatementInvalid) { @listing.update_columns(status: "lost") }
-    assert_raises(ActiveRecord::StatementInvalid) { @listing.update_columns(leader_id: @player.id) }
+    assert_raises(ActiveRecord::StatementInvalid) { ActiveRecord::Base.transaction(requires_new: true) { @listing.update_columns(buy_now_price: @listing.starting_price) } }
+    assert_raises(ActiveRecord::StatementInvalid) { ActiveRecord::Base.transaction(requires_new: true) { @listing.update_columns(status: "lost") } }
+    assert_raises(ActiveRecord::StatementInvalid) { ActiveRecord::Base.transaction(requires_new: true) { @listing.update_columns(leader_id: @player.id) } }
   end
 
   test "a ledger entry can only point at an existing listing" do
-    assert_raises(ActiveRecord::InvalidForeignKey) { Game::Market::LedgerEntry.insert_all!([ { player_id: @player.id, kind: "stamp", listing_id: 0, settings_id: @settings.id, created_at: Time.current } ]) }
+    assert_raises(ActiveRecord::InvalidForeignKey) { ActiveRecord::Base.transaction(requires_new: true) { Game::Market::LedgerEntry.insert_all!([ { player_id: @player.id, kind: "stamp", listing_id: 0, settings_id: @settings.id, created_at: Time.current } ]) } }
   end
 end

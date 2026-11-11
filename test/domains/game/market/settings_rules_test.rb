@@ -82,7 +82,7 @@ class Game::Market::SettingsRulesTest < ActiveSupport::TestCase
   end
 
   {
-    increment_basis_points: [ 100, 2_000 ], duration_short_hours: [ 1, 720 ], duration_medium_hours: [ 1, 720 ], duration_long_hours: [ 1, 720 ], soft_close_seconds: [ 30, 900 ],
+    increment_basis_points: [ 100, 2_000 ], duration_short_hours: [ 1, 720 ], duration_long_hours: [ 1, 720 ], soft_close_seconds: [ 30, 900 ],
     average_sale_count: [ 3, 20 ], average_window_days: [ 7, 365 ], feed_threshold_multiple: [ 2, 100 ], unusual_maximum_multiple: [ 2, 20 ],
     alert_destroyed_share_basis_points: [ 0, 10_000 ], alert_picoins_per_player: [ 1, 1_000_000_000_000 ], alert_top_share_basis_points: [ 1, 10_000 ]
   }.each do |field, (low, high)|
@@ -92,6 +92,13 @@ class Game::Market::SettingsRulesTest < ActiveSupport::TestCase
       assert_equal :out_of_range, code_of(field, field => low - 1)
       assert_equal :out_of_range, code_of(field, field => high + 1)
     end
+  end
+
+  test "duration_medium_hours is accepted between its neighbours at the bounds and refused beyond them" do
+    assert_nil code_of(:duration_medium_hours, duration_short_hours: 1, duration_medium_hours: 2)
+    assert_nil code_of(:duration_medium_hours, duration_medium_hours: 719, duration_long_hours: 720)
+    assert_equal :out_of_range, code_of(:duration_medium_hours, duration_medium_hours: 0)
+    assert_equal :out_of_range, code_of(:duration_medium_hours, duration_medium_hours: 721)
   end
 
   test "the three durations grow strictly and the preselected one is among them" do

@@ -29,7 +29,7 @@ class Game::Market::EntrustPreviewCasesTest < ActiveSupport::TestCase
         entrusted = Game::Market::ArchiveDeposit.where(player_id: player.id).pluck(:card_season_id, :quantity).to_h.transform_keys { rarity_of.fetch(it) }
         stayed = result.value!.stayed.to_h { [ rarity_of.fetch(it.card_season_id), it.copies ] }
         received = result.value!.minted
-        assert_equal example.fetch("received"), Game::Market::Wallet.find_by!(player_id: player.id).available
+        assert_equal example.fetch("received"), Game::Market::Wallet.find_by!(player_id: player.id).available - minted_before
       else
         assert_equal :nothing_fits, result.failure
         entrusted = {}

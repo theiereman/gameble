@@ -32,6 +32,6 @@ class Game::Market::BalanceTest < ActiveSupport::TestCase
   test "another player's wallet is not read" do
     post_entry(@bob, :mint, available: 5_000)
 
-    assert_equal [ 0, 0 ], Game::Market::Balance.call(@alice).to_a
+    assert_equal [ 0, 0 ], Game::Market::Balance.call(@alice).to_h.values
   end
 end

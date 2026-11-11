@@ -129,7 +129,7 @@ class Game::Market::AltSignalsMarketTest < ActiveSupport::TestCase
 
   test "an account that deleted itself is never a signal, as account or as the other account" do
     tie_through_minimum_price_sales!
-    @bob.update_columns(deleted_at: Time.current)
+    @bob.update_columns(deleted_at: Time.current, steam_id: nil)
 
     assert_empty Game::Market::AltSignals.call(now: @now)
   end

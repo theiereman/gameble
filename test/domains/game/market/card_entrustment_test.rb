@@ -21,7 +21,7 @@ class Game::Market::CardEntrustmentTest < ActiveSupport::TestCase
   end
 
   test "a market closed after its opening gives nothing" do
-    open_market!
+    open_market!(first_opened_at: Time.current)
     close_market!
     hold(@player, @rare.id, 2)
 
@@ -29,13 +29,13 @@ class Game::Market::CardEntrustmentTest < ActiveSupport::TestCase
   end
 
   test "a visitor gets nothing" do
-    open_market!
+    open_market!(first_opened_at: Time.current)
 
     assert_nil call(nil)
   end
 
   test "a card the player does not hold gives nothing" do
-    open_market!
+    open_market!(first_opened_at: Time.current)
     hold(@player, catalog_card_seasons(:common_card_one).id, 2)
     hold(@player, @rare.id, 0)
 
@@ -43,7 +43,7 @@ class Game::Market::CardEntrustmentTest < ActiveSupport::TestCase
   end
 
   test "an edition without a rarity is not counted" do
-    open_market!
+    open_market!(first_opened_at: Time.current)
     hold(@player, @rare.id, 2)
     @rare.update_columns(rarity: nil)
 
@@ -51,23 +51,23 @@ class Game::Market::CardEntrustmentTest < ActiveSupport::TestCase
   end
 
   test "free copies are counted with the reserved ones" do
-    open_market!
+    open_market!(first_opened_at: Time.current)
     hold(@player, @rare.id, 3, reserved: 1)
 
     assert_equal Game::Market::CardEntrustment::State.new(free: 2, reserved: 1), call
   end
 
   test "every copy reserved leaves none free" do
-    open_market!
+    open_market!(first_opened_at: Time.current)
     hold(@player, @rare.id, 2, reserved: 2)
 
     assert_equal Game::Market::CardEntrustment::State.new(free: 0, reserved: 2), call
   end
 
   test "the sums run over the editions of the card" do
-    open_market!
+    open_market!(first_opened_at: Time.current)
     other = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
-    second = Catalog::CardSeason.create!(card_id: @rare.card_id, season_id: other.id, prestige_score: 0.5, rating: 50, rarity: @rare.rarity, number: 1)
+    second = Catalog::CardSeason.find(Catalog::CardSeason.insert_all!([ { card_id: @rare.card_id, season_id: other.id, prestige_score: 0.5, rating: 50, rarity: @rare.rarity, number: 1 } ], returning: :id).rows.flatten.sole)
     hold(@player, @rare.id, 2, reserved: 2)
     hold(@player, second.id, 3, reserved: 1)
 
