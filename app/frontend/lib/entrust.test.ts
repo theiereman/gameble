@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import entrustPreviewCasesJson from "../../../test/fixtures/files/entrust_preview_cases.json?raw"
 import { describe, expect, it } from "vitest"
 import type { Rarity } from "./card_types"
 import {
@@ -43,7 +43,7 @@ type Case = {
   received: number
 }
 
-const cases: Case[] = JSON.parse(readFileSync("test/fixtures/files/entrust_preview_cases.json", "utf8"))
+const cases: Case[] = JSON.parse(entrustPreviewCasesJson)
 
 describe("the shared preview cases, which the operation also runs", () => {
   it.each(cases)("$name", (example) => {

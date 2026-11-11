@@ -2,6 +2,7 @@
 import { Application } from "@hotwired/stimulus"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { dispatchGameble } from "../lib/events"
+import { serverTemplate } from "../lib/server_html"
 import EntrustController from "./entrust_controller"
 import EntrustRecapController from "./entrust_recap_controller"
 
@@ -42,8 +43,9 @@ const aside = `
     <p id="panel-status" data-entrust-recap-target="status"></p>
   </aside>`
 
+// happy-dom reconnects a controller on a <form> whose attributes change, so the root here is a div.
 const markup = (inSheet: boolean): string => `
-  <form id="entrust" data-layout="wide" data-controller="entrust"
+  <div id="entrust" data-layout="wide" data-controller="entrust"
         data-action="entrust-recap:copies->entrust#copies gameble:sheet-shown@window->entrust#sheetShown"
         data-entrust-locale-value="en" data-entrust-cap-left-value="1000000" data-entrust-open-value="true"
         data-entrust-strings-value="${attr(STRINGS)}"
@@ -59,7 +61,7 @@ const markup = (inSheet: boolean): string => `
       <dialog id="sheet"><div id="sheet-body" data-entrust-recap-target="sheetBody">${inSheet ? aside : ""}</div></dialog>
       <p id="bar-status" data-entrust-recap-target="barStatus"></p>
     </div>
-  </form>`
+  </div>`
 
 type Listener = () => void
 let phone: boolean
@@ -85,7 +87,7 @@ function stubMedia(matches: boolean): void {
 
 async function mount(options: { phone: boolean; inSheet?: boolean }): Promise<void> {
   stubMedia(options.phone)
-  document.body.innerHTML = markup(options.inSheet ?? false)
+  document.body.replaceChildren(serverTemplate(markup(options.inSheet ?? false)).content)
   application = new Application()
   application.register("entrust", EntrustController)
   application.register("entrust-recap", EntrustRecapController)
@@ -138,9 +140,13 @@ describe("the doubles value", () => {
 
   it("is read from the markup", async () => {
     stubMedia(false)
-    document.body.innerHTML = markup(false).replace(
-      'data-controller="entrust"',
-      'data-controller="entrust" data-entrust-doubles-value="false"',
+    document.body.replaceChildren(
+      serverTemplate(
+        markup(false).replace(
+          'data-controller="entrust"',
+          'data-controller="entrust" data-entrust-doubles-value="false"',
+        ),
+      ).content,
     )
     application = new Application()
     application.register("entrust", EntrustController)

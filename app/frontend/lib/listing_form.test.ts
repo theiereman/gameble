@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import listingAmountsJson from "../../../test/fixtures/files/listing_amounts.json?raw"
 import { describe, expect, it } from "vitest"
 import {
   back,
@@ -19,7 +19,7 @@ import {
 
 type Row = { price: string; basisPoints: number; commission: string; received: string }
 
-const rows: Row[] = JSON.parse(readFileSync("test/fixtures/files/listing_amounts.json", "utf8"))
+const rows: Row[] = JSON.parse(listingAmountsJson)
 
 const rare: Edition = {
   ref: "alpha:1",

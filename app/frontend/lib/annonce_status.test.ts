@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from "vitest"
+import { serverTemplate } from "./server_html"
 import {
   STATUS_INTERVAL_MS,
   flush,
@@ -124,8 +125,11 @@ describe("milestones", () => {
 
 describe("reading the page", () => {
   it("reads the status line the server drew", () => {
-    document.body.innerHTML = `<div hidden data-status-text="Price 1. Ends at 12:00." data-status-ends-at="2026-11-10T12:00:00Z" data-status-bidder="true"></div>`
-
+    document.body.replaceChildren(
+      serverTemplate(
+        `<div hidden data-status-text="Price 1. Ends at 12:00." data-status-ends-at="2026-11-10T12:00:00Z" data-status-bidder="true"></div>`,
+      ).content,
+    )
     expect(readLine(document.body)).toEqual({
       text: "Price 1. Ends at 12:00.",
       endsAt: "2026-11-10T12:00:00Z",
@@ -134,8 +138,7 @@ describe("reading the page", () => {
   })
 
   it("reads no line once the page shows an outcome, and the outcome's heading", () => {
-    document.body.innerHTML = `<h2 id="listing-outcome-heading"> AUCTION ENDED </h2>`
-
+    document.body.replaceChildren(serverTemplate(`<h2 id="listing-outcome-heading"> AUCTION ENDED </h2>`).content)
     expect(readLine(document.body)).toBeNull()
     expect(readOutcome(document.body)).toBe("AUCTION ENDED")
   })

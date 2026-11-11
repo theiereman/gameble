@@ -1,11 +1,11 @@
-import { readFileSync } from "node:fs"
+import unusualMaximumsJson from "../../../test/fixtures/files/unusual_maximums.json?raw"
 import { describe, expect, it } from "vitest"
 import { edit, start, submit, type Gate, type Terms } from "./annonce"
 import { ask, consented, gate, grant, multipleOf, revoke } from "./annonce_confirm"
 
 type Row = { price: number; maximum: number; multiple: number; buy_now: number | null; gate: Gate }
 
-const rows: Row[] = JSON.parse(readFileSync("test/fixtures/files/unusual_maximums.json", "utf8"))
+const rows: Row[] = JSON.parse(unusualMaximumsJson)
 
 const terms = (overrides: Partial<Terms> = {}): Terms => ({
   minimum: 20_000,

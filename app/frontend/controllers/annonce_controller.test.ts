@@ -7,6 +7,7 @@ import DialogController from "./dialog_controller"
 import AnnonceFieldController from "./annonce_field_controller"
 import AnnonceFootController from "./annonce_foot_controller"
 import AnnonceStatusController from "./annonce_status_controller"
+import { serverTemplate } from "../lib/server_html"
 
 const STRINGS = {
   buttonBid: "BID · %{amount}",
@@ -33,7 +34,7 @@ const markup = (answered: boolean): string => `
     <template data-annonce-target="notRecorded"><p id="not-recorded" class="market-bid__note">Not recorded.</p></template>
     <div id="clock"></div>
     <div id="annonce-bid" data-annonce-target="region">
-      <form id="form" data-action="submit->annonce#submit turbo:submit-end->annonce#submitted">
+      <form id="annonce-form" data-action="submit->annonce#submit turbo:submit-end->annonce#submitted">
         <div data-controller="annonce-field" data-annonce-field-minimum-value="20000" data-annonce-field-available-value="100000"
           data-annonce-field-buy-now-value="0" data-annonce-field-own-maximum-value="0" data-annonce-field-price-value="20000"
           data-annonce-field-unusual-multiple-value="3" data-annonce-field-answered-value="${answered}">
@@ -70,7 +71,7 @@ const markup = (answered: boolean): string => `
 let application: Application
 
 async function mount(answered = false): Promise<void> {
-  document.body.innerHTML = markup(answered)
+  document.body.replaceChildren(serverTemplate(markup(answered)).content)
   application = new Application()
   application.register("annonce", AnnonceController)
   application.register("annonce-field", AnnonceFieldController)
@@ -93,13 +94,13 @@ function type(text: string): void {
 
 function submit(submitter: string = "go"): boolean {
   const event = new SubmitEvent("submit", { bubbles: true, cancelable: true, submitter: el(submitter) })
-  el("form").dispatchEvent(event)
+  el("annonce-form").dispatchEvent(event)
   return !event.defaultPrevented
 }
 
 function recordRequests(): ReturnType<typeof vi.fn> {
   const requested = vi.fn((submitter?: HTMLElement) => submit(submitter?.id))
-  el<HTMLFormElement>("form").requestSubmit = requested as unknown as HTMLFormElement["requestSubmit"]
+  el<HTMLFormElement>("annonce-form").requestSubmit = requested as unknown as HTMLFormElement["requestSubmit"]
   return requested
 }
 
@@ -140,8 +141,10 @@ function endAuction(): void {
 }
 
 function settle(): void {
-  el("annonce-bid").innerHTML =
-    `<h2 id="listing-outcome-heading" tabindex="-1" data-focus-name="heading">AUCTION ENDED</h2>`
+  el("annonce-bid").replaceChildren(
+    serverTemplate(`<h2 id="listing-outcome-heading" tabindex="-1" data-focus-name="heading">AUCTION ENDED</h2>`)
+      .content,
+  )
   document.dispatchEvent(new CustomEvent("turbo:morph"))
 }
 
@@ -261,7 +264,7 @@ describe("Enter and the single submission", () => {
   it("moves focus to the button on Enter and submits nothing", async () => {
     await mount()
     const submitted = vi.fn()
-    el("form").addEventListener("submit", submitted)
+    el("annonce-form").addEventListener("submit", submitted)
     type("30000")
 
     const enter = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true })
@@ -278,7 +281,7 @@ describe("Enter and the single submission", () => {
     expect(submit()).toBe(true)
     expect(submit()).toBe(false)
 
-    el("form").dispatchEvent(new Event("turbo:submit-end", { bubbles: true }))
+    el("annonce-form").dispatchEvent(new Event("turbo:submit-end", { bubbles: true }))
     expect(submit()).toBe(true)
   })
 })
@@ -351,7 +354,7 @@ describe("the confirmations", () => {
     expect(requested.mock.calls[0][0]).toBe(el("go"))
     expect(el<HTMLDialogElement>("unusual").open).toBe(false)
 
-    el("form").dispatchEvent(new Event("turbo:submit-end", { bubbles: true }))
+    el("annonce-form").dispatchEvent(new Event("turbo:submit-end", { bubbles: true }))
     type("60001")
     expect(submit()).toBe(false)
   })

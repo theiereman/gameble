@@ -1,11 +1,10 @@
-import { readdirSync, readFileSync, statSync } from "node:fs"
-import { join } from "node:path"
+import picoinFormsJson from "../../../test/fixtures/files/picoin_forms.json?raw"
 import { describe, expect, it } from "vitest"
 import { picoins } from "./picoins"
 
 type Row = { amount: number; locale: string; compact: boolean; text: string }
 
-const rows: Row[] = JSON.parse(readFileSync("test/fixtures/files/picoin_forms.json", "utf8"))
+const rows: Row[] = JSON.parse(picoinFormsJson)
 
 describe("picoins", () => {
   it.each(rows)("draws $amount ($locale, compact $compact) as $text", ({ amount, locale, compact, text }) => {
@@ -32,19 +31,18 @@ describe("picoins", () => {
   })
 })
 
-function sources(dir: string): string[] {
-  return readdirSync(dir).flatMap((name) => {
-    const path = join(dir, name)
-    if (statSync(path).isDirectory()) return name === "images" ? [] : sources(path)
-    return /\.ts$/.test(name) && !/\.test\.ts$/.test(name) ? [path] : []
-  })
-}
+const sources: Record<string, string> = import.meta.glob(["../**/*.ts", "!../**/*.test.ts", "!../images/**"], {
+  query: "?raw",
+  import: "default",
+  eager: true,
+})
 
 describe("number formatting", () => {
   it("never goes through Intl.NumberFormat or toLocaleString", () => {
-    const offenders = sources("app/frontend").filter((path) =>
-      /Intl\.NumberFormat|toLocaleString\(/.test(readFileSync(path, "utf8")),
-    )
+    const offenders = Object.entries(sources)
+      .filter(([, source]) => /Intl\.NumberFormat|toLocaleString\(/.test(source))
+      .map(([path]) => path)
+    expect(Object.keys(sources).length).toBeGreaterThan(50)
     expect(offenders).toEqual([])
   })
 })

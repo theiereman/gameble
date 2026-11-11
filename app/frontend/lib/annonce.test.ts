@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs"
+import bidCommitmentsJson from "../../../test/fixtures/files/bid_commitments.json?raw"
 import { describe, expect, it } from "vitest"
 import {
   buttonKind,
@@ -16,7 +16,7 @@ import {
 
 type Row = { maximum: number; own_maximum: number | null; buy_now: number | null; needed: number }
 
-const rows: Row[] = JSON.parse(readFileSync("test/fixtures/files/bid_commitments.json", "utf8"))
+const rows: Row[] = JSON.parse(bidCommitmentsJson)
 
 const terms = (overrides: Partial<Terms> = {}): Terms => ({
   minimum: 20_000,

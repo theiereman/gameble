@@ -2,6 +2,7 @@
 import { Application } from "@hotwired/stimulus"
 import { afterEach, describe, expect, it } from "vitest"
 import RowFocusController from "./row_focus_controller"
+import { serverTemplate } from "../lib/server_html"
 
 const markup = (landing: string | null): string => `
   <main data-controller="row-focus"${landing === null ? "" : ` data-row-focus-landing-value="${landing}"`}>
@@ -15,7 +16,7 @@ const markup = (landing: string | null): string => `
 let application: Application
 
 async function connect(landing: string | null): Promise<void> {
-  document.body.innerHTML = markup(landing)
+  document.body.replaceChildren(serverTemplate(markup(landing)).content)
   application = new Application()
   application.register("row-focus", RowFocusController)
   application.start()
@@ -24,7 +25,7 @@ async function connect(landing: string | null): Promise<void> {
 
 afterEach(() => {
   application.stop()
-  document.body.innerHTML = ""
+  document.body.replaceChildren()
 })
 
 describe("RowFocusController", () => {

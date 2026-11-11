@@ -3,6 +3,7 @@ import { Application } from "@hotwired/stimulus"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { LineView, RecapView } from "../lib/entrust_view"
 import EntrustRecapController, { STATUS_DELAY } from "./entrust_recap_controller"
+import { serverTemplate } from "../lib/server_html"
 
 const MARKUP = `
   <form id="entrust">
@@ -75,7 +76,7 @@ let application: Application
 let recap: EntrustRecapController
 
 beforeEach(async () => {
-  document.body.innerHTML = MARKUP
+  document.body.replaceChildren(serverTemplate(MARKUP).content)
   application = new Application()
   await application.start()
   application.register("entrust-recap", EntrustRecapController)
@@ -178,7 +179,7 @@ describe("the submit button", () => {
   })
 
   it("keeps the reason id after the notes while the reason is on the page", () => {
-    document.body.insertAdjacentHTML("beforeend", '<div id="reason"></div>')
+    document.body.append(serverTemplate('<div id="reason"></div>').content)
     document.getElementById("wrapper")!.dataset.entrustRecapReasonIdValue = "reason"
     recap.render(view())
     expect(described()).toBe("not-returned reason")
@@ -243,19 +244,26 @@ const line = (ref: string, over: Partial<LineView> = {}): LineView => ({
 const refs = (): (string | undefined)[] =>
   Array.from(document.querySelectorAll<HTMLElement>(".entrust-recap__line")).map((item) => item.dataset.ref)
 
+const actionsBound = async (): Promise<void> => {
+  await Promise.resolve()
+  await Promise.resolve()
+}
+
 const dialog = (): HTMLDialogElement => document.querySelector("dialog")!
 
 describe("the line steppers", () => {
-  it("sends the copies of the line whose plus is pressed", () => {
+  it("sends the copies of the line whose plus is pressed", async () => {
     const seen: unknown[] = []
     document.addEventListener("entrust-recap:copies", (event) => seen.push((event as CustomEvent).detail))
     recap.render(view({ lines: [line("a:1"), line("b:1")] }))
+    await actionsBound()
     document.querySelectorAll<HTMLElement>(".stepper__button--more")[1]!.click()
     expect(seen).toEqual([{ ref: "b:1", copies: 2 }])
   })
 
-  it("prevents the default of a mousedown on a button so the stepper keeps its focus", () => {
+  it("prevents the default of a mousedown on a button so the stepper keeps its focus", async () => {
     recap.render(view({ lines: [line("a:1")] }))
+    await actionsBound()
     const event = new MouseEvent("mousedown", { bubbles: true, cancelable: true })
     document.querySelector(".stepper__button--more")!.dispatchEvent(event)
     expect(event.defaultPrevented).toBe(true)

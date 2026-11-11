@@ -134,7 +134,7 @@ describe("summary view", () => {
   })
 
   it("writes the status in the player's locale", () => {
-    expect(statusOf(1_170, { locale: "fr", strings })).toBe("You receive 1 170 PiCoins")
+    expect(statusOf(1_170, { locale: "fr", strings })).toBe("You receive 1\u00A0170 PiCoins")
     expect(statusOf(null, forms)).toBe("")
   })
 })
