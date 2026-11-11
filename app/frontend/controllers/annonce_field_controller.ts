@@ -76,8 +76,13 @@ export default class AnnonceFieldController extends Controller<HTMLElement> {
   }
 
   release(): void {
-    this.inputTarget.removeAttribute("data-turbo-permanent")
+    this.unpin()
     this.inputTarget.value = ""
+  }
+
+  // A permanent input would survive the answer's stream and keep the stale text and error state.
+  unpin(): void {
+    this.inputTarget.removeAttribute("data-turbo-permanent")
   }
 
   focus(): void {

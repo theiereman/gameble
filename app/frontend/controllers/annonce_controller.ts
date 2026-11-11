@@ -137,8 +137,12 @@ export default class AnnonceController extends Controller<HTMLElement> {
       return
     }
     const next = submit(state)
-    if (!next) event.preventDefault()
-    else this.state = next
+    if (!next) {
+      event.preventDefault()
+      return
+    }
+    this.state = next
+    if (this.hasAnnonceFieldOutlet) this.annonceFieldOutlet.unpin()
   }
 
   confirmed(): void {

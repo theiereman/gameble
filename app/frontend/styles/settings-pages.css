@@ -235,6 +235,11 @@
   .how-it-works__odds--market tbody td {
     padding-inline: var(--space-2);
   }
+
+  .how-it-works__odds--market thead .how-it-works__chance {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
 }
 
 .how-it-works__shares {
@@ -331,5 +336,5 @@
   padding: var(--space-3) var(--space-4);
   background: var(--color-panel-sunken);
   color: var(--color-text-bright);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }

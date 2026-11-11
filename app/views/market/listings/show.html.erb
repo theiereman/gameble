@@ -10,7 +10,7 @@
   <% unless @outcome %><%= tag.div hidden: true, data: annonce_status_data(@listing, current_player, @events) %><% end %>
   <template data-annonce-target="notRecorded"><p class="market-bid__note"><%= t("market.bids.not_recorded") %></p></template>
   <header class="market-listing__header">
-    <h1 id="market-listing-heading" class="market-listing__title" tabindex="-1" autofocus><%= @listing.card.title %></h1>
+    <%= tag.h1 @listing.card.title, id: "market-listing-heading", class: "market-listing__title", tabindex: -1, autofocus: @focus.nil? %>
     <%= render "shell/balance_chip", placement: :header %>
   </header>
 
