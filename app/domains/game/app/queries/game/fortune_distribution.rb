@@ -20,9 +20,9 @@ module Game
       def columns = counts.map { |count| FortuneDistribution.column(count, peak) }
     end
 
-    def self.call(period, now: Time.current)
-      key = [ "game/fortune_distribution", period, WeeklyGoal.week_start(now).iso8601 ]
-      Result.new(counts: Rails.cache.fetch(key, expires_in: CACHE_LIFETIME) { read(period, now) })
+    def self.call(now: Time.current)
+      key = [ "game/fortune_distribution", WeeklyGoal.week_start(now).iso8601 ]
+      Result.new(counts: Rails.cache.fetch(key, expires_in: CACHE_LIFETIME) { read(now) })
     end
 
     def self.band_of(index) = ((index + FortuneIndex::LIMIT) * (BANDS - 1) / (2.0 * FortuneIndex::LIMIT)).round
@@ -36,8 +36,8 @@ module Game
 
     def self.heat(share) = HEAT_CEILINGS.find { |_, ceiling| share < ceiling }&.first || :hot
 
-    def self.read(period, now)
-      by_band = Fortune.of_period(period, now).listed.group(Arel.sql(BAND_SQL)).count
+    def self.read(now)
+      by_band = Fortune.week_of(now).listed.group(Arel.sql(BAND_SQL)).count
       Array.new(BANDS) { |band| by_band.fetch(band, 0) }
     end
 

@@ -8,15 +8,13 @@
     <% end %>
   <% end %>
 <% end %>
-<% period_param = fortune_period_param(@period) %>
-<% sort_param = ("capsules" if @sort == :capsules) %>
 <section class="register" aria-labelledby="register-heading">
   <h1 id="register-heading" class="register__title"><%= t(".title") %></h1>
   <p class="register__intro"><%= t(".intro") %></p>
   <%= render PanelComponent.new(brackets: true, class: "register__overview") do %>
     <% if @mine&.opened? && @mine.rank %>
       <div class="register__mine">
-        <p class="register__mine-label"><%= t(".mine.label", period: t("fortunes.periods.#{@period}")) %></p>
+        <p class="register__mine-label"><%= t(".mine.label", period: t("fortunes.periods.week")) %></p>
         <p class="<%= class_names("register__mine-index", "fortune-index", fortune_index_tone(@mine.index)) %>"><%= fortune_index_text(@mine.index) %></p>
         <p class="register__mine-rank">
           <% if @mine.privileged %><span class="fortune__privileged"><%= t("fortunes.privileged") %></span><% end %>
@@ -29,24 +27,16 @@
       <%= render "fortunes/gauge", distribution: @distribution, standing: @mine, privileged_floor: @privileged_floor %>
     </div>
     <dl class="register__summary">
-      <%= render "fortune_registers/figure", label: t(".summary.members.#{@period}"), value: number_with_delimiter(@summary.ranked_count) %>
-      <%= render "fortune_registers/figure", label: t(".summary.capsules.#{@period}"), value: number_with_delimiter(@summary.packs_opened) %>
-      <%= render "fortune_registers/figure", label: t(".summary.privileged", total: number_with_delimiter(@summary.active_count)),
+      <%= render "fortune_registers/figure", label: t(".summary.members"), value: number_with_delimiter(@summary.ranked_count) %>
+      <%= render "fortune_registers/figure", label: t(".summary.capsules"), value: number_with_delimiter(@summary.packs_opened) %>
+      <%= render "fortune_registers/figure", label: t(".summary.privileged", total: number_with_delimiter(@summary.ranked_count)),
             value: number_with_delimiter(@summary.privileged_count) %>
     </dl>
   <% end %>
   <div class="register__controls">
-    <nav class="segmented register__tabs" aria-label="<%= t("fortunes.periods_label") %>">
-      <% Game::FortuneStanding::PERIODS.each do |period| %>
-        <%= link_to fortune_register_path(period: fortune_period_param(period), sort: sort_param), class: "segmented__option",
-              aria: { current: ("true" if period == @period) } do %>
-          <%= t("fortunes.periods.#{period}") %>
-        <% end %>
-      <% end %>
-    </nav>
-    <nav class="segmented register__tabs register__sorts" aria-label="<%= t(".sorts_label") %>">
+    <nav class="segmented register__sorts" aria-label="<%= t(".sorts_label") %>">
       <% Game::FortuneBoard::SORTS.each do |sort| %>
-        <%= link_to fortune_register_path(period: period_param, sort: ("capsules" if sort == :capsules)), class: "segmented__option",
+        <%= link_to fortune_register_path(sort: ("capsules" if sort == :capsules)), class: "segmented__option",
               aria: { current: ("true" if sort == @sort) } do %>
           <%= t(".sorts.#{sort}") %>
         <% end %>
@@ -54,7 +44,7 @@
     </nav>
   </div>
   <% if @rows.empty? %>
-    <%= render PanelComponent.new(tag: :p, class: "register__empty") do %><%= t(".empty.#{@period}") %><% end %>
+    <%= render PanelComponent.new(tag: :p, class: "register__empty") do %><%= t(".empty") %><% end %>
   <% else %>
     <%= render PanelComponent.new(class: "register__board") do %>
       <p class="register__head" aria-hidden="true">

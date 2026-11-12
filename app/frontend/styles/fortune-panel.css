@@ -9,23 +9,6 @@
   gap: var(--space-4);
 }
 
-.fortune-panel__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.fortune-panel__tabs {
-  margin: 0;
-}
-
-.fortune-panel__tabs .segmented__option {
-  min-height: calc(var(--space-2) * 7);
-  padding: 0 var(--space-3);
-}
-
 .fortune-panel__verdict {
   display: flex;
   flex-direction: column;
@@ -145,14 +128,10 @@
 }
 
 @media (max-width: 719px) {
-  .fortune-panel .segmented__option,
-  .fortune-panel__more .button {
-    min-height: calc(var(--space-2) * 11);
-  }
-
   .fortune-panel__more .button {
     display: inline-flex;
     align-items: center;
+    min-height: calc(var(--space-2) * 11);
   }
 }
 

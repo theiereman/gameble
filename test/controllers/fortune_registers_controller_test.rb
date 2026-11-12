@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# The Flukeometer, a dashboard of every ranked player, and
+# The Flukeometer, a dashboard of this week's ranked players, and
 # the Fortune section of a profile, both readable without an account.
 class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
@@ -84,11 +84,6 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     get fortune_register_path(locale: :en, sort: "capsules")
 
     assert_select ".register__cut", false
-
-    get fortune_register_path(locale: :en, period: "all_time")
-
-    assert_select ".register__cut", false
-    assert_select ".fortune-gauge__column--privileged", false
   end
 
   test "a private player has no row and counts nowhere, and sees their own index without a rank" do
@@ -150,22 +145,33 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", false
   end
 
-  test "the order by capsules, the all-time tab in French, and an empty week" do
-    travel_to(2.weeks.ago) { open_cards(@player, 3) }
+  test "the order by capsules in French, with no period to pick" do
+    open_cards(@player, 3)
     sign_in(@player)
 
-    get fortune_register_path(locale: :fr, period: "all_time", sort: "capsules")
+    get fortune_register_path(locale: :fr, sort: "capsules")
 
     assert_select "h1", "Le Chattomètre"
-    assert_select ".register__tabs a[aria-current=true]", "Depuis toujours"
+    assert_select ".register__controls nav", 1
     assert_select ".register__sorts a[aria-current=true]", "Le plus de capsules"
+    assert_select ".register__sorts a[href=?]", fortune_register_path(locale: :fr), "Les plus chanceux"
     assert_select ".player-row.player-row--own", 1
-    assert_select ".register__mine", /Votre chance/
+    assert_select ".register__mine-label", "Votre chance · Cette semaine"
+    assert_select ".register__summary .register__figure", text: /Actifs cette semaine\s*1/
+  end
 
-    get fortune_register_path(locale: :en)
+  test "a week without any capsule is empty, whatever an old link asks for" do
+    travel_to(2.weeks.ago) { open_cards(@player, 3) }
+    travel_to(1.week.ago) { open_cards(@player, 3) }
+    sign_in(@player)
 
-    assert_select ".register__empty", "No member has opened a capsule this week yet."
-    assert_select ".register__mine", false
+    %w[last_week all_time].each do |period|
+      get fortune_register_path(locale: :en, period:)
+
+      assert_response :success
+      assert_select ".register__empty", "No member has opened a capsule this week yet."
+      assert_select ".register__mine", false
+    end
   end
 
   test "a profile's Fortune section: the week's index, label, rank, Privileged mark and the figures behind it" do
@@ -216,13 +222,8 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "the register has a last-week tab, reading the week before, and a profile does not" do
+  test "a profile has no last-week tab" do
     travel_to(1.week.ago) { open_cards(@player, 3) }
-
-    get fortune_register_path(locale: :en, period: "last_week")
-
-    assert_select ".register__tabs a[aria-current=true]", "Last week"
-    assert_select ".player-row", 1
 
     get brother_path(locale: :en, token: @player.token, fortune: "last_week")
 
@@ -252,6 +253,8 @@ class FortuneRegistersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".fortune__tabs a[aria-current=true]", "All time"
     assert_select ".fortune-index__value", /\A-\d+\z/
     assert_select ".fortune__privileged", false
+    assert_select ".fortune__rank", "Rank 1 of 1"
+    assert_select ".fortune__rank a", false
 
     get brother_path(locale: :en, token: @player.token)
     assert_select ".fortune__empty", "No capsule opened this week yet."

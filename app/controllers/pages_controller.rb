@@ -24,7 +24,7 @@ class PagesController < ApplicationController
     @collection = collection if @season
     @goals = Game::GoalNeeds.call(current_player)
     @live_strip = LiveStream.strip_items
-    @fortune_panel = Game::FortunePanel.call(current_player, tab: :week)
+    @fortune_panel = Game::FortunePanel.call(current_player)
   end
 
   def legal

@@ -72,7 +72,7 @@ module FeedHelper
   end
 
   def feed_register_link(label)
-    link_to(label, fortune_register_path(period: "last_week"), class: "feed__game", data: { turbo_prefetch: false })
+    link_to(label, fortune_register_path, class: "feed__game", data: { turbo_prefetch: false })
   end
 
   def feed_set_sentence(item, set, links:, titles:)
