@@ -5,7 +5,13 @@
   <%= hidden_field_tag :drawn_minimum, sheet.minimum, id: nil %>
   <% if sheet.buy_now_price %><%= render "market/bids/buy_now", sheet: %><% end %>
   <%= tag.div class: "market-bid__field", data: bid_field_data(sheet, answered: !answer.nil?) do %>
-    <label for="annonce-maximum" class="market-bid__label"><%= t("market.bids.form.label") %></label>
+    <div class="market-bid__field-head">
+      <label for="annonce-maximum" class="market-bid__label"><%= t("market.bids.form.label") %></label>
+      <p class="<%= class_names("market-bid__available", "market-bid__available--short": sheet.available < sheet.minimum) %>">
+        <span class="market-bid__available-label"><%= t("market.bids.form.available") %></span>
+        <%= render PicoinAmountComponent.new(amount: sheet.available, class: "market-bid__available-amount") %>
+      </p>
+    </div>
     <%= text_field_tag :maximum, posted, id: "annonce-maximum", inputmode: "numeric", autocomplete: "off",
           aria: { invalid: (refusal ? "true" : nil), describedby: described },
           data: { turbo_permanent: true, annonce_field_target: "input", focus_name: "field", action: "input->annonce-field#type keydown->annonce-field#keydown" } %>

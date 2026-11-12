@@ -90,34 +90,33 @@
   font: var(--font-body);
 }
 
-.market-bid__available {
+.market-bid__field-head {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: var(--space-2) var(--space-4);
+  gap: var(--space-1) var(--space-4);
+}
+
+.market-bid__available {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   margin: 0;
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-panel-sunken);
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
 }
 
 .market-bid__available-label {
   color: var(--color-muted);
   font: var(--font-label);
-  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
 }
 
 .market-bid__available-amount {
   color: var(--color-gold);
   font: var(--font-number);
-  font-size: 20px;
 }
 
-.market-bid__available--short {
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-alert);
-}
-
+.market-bid__available--short .market-bid__available-label,
 .market-bid__available--short .market-bid__available-amount {
   color: var(--color-alert);
 }
@@ -190,7 +189,7 @@
 .market-bid__buy-now-price {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   gap: var(--space-1) var(--space-3);
   margin: 0 auto 0 0;
 }
