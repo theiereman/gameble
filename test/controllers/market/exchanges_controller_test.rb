@@ -89,17 +89,18 @@ class Market::ExchangesControllerTest < ActionDispatch::IntegrationTest
     assert_select "figure#reactor-circulation figcaption .chart__staff-flag", "VISIBLE TO STAFF"
   end
 
-  test "once the Reactor is published a visitor reads it, unflagged, and staff see it unflagged too" do
+  test "once the Reactor is published a visitor and staff get it unflagged" do
     month_of_snapshots
     publish("reactor")
 
     get market_exchange_path(locale: :en)
     assert_response :success
-    assert_select "figure#reactor-flows"
+    assert_select "[data-exchange-panel=reactor] turbo-frame#exchange-chart-reactor"
     assert_select ".chart__staff-flag", false
 
     sign_in(accounts_players(:moderator))
     get market_exchange_path(locale: :en)
+    assert_select "turbo-frame#exchange-chart-reactor"
     assert_select ".chart__staff-flag", false
   end
 
@@ -140,7 +141,7 @@ class Market::ExchangesControllerTest < ActionDispatch::IntegrationTest
     get market_exchange_path(locale: :en)
 
     assert_response :success
-    assert_select "figure#reactor-flows"
+    assert_select "turbo-frame#exchange-chart-reactor"
   end
 
   test "the market screen links to the exchange only while one of its charts is visible" do

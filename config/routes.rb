@@ -49,6 +49,8 @@ Rails.application.routes.draw do
     get "market/my-bids" => "market/my_bids#show", as: :market_my_bids
     # The Brotherhood's Exchange: the economy's public charts.
     get "market/exchange" => "market/exchanges#show", as: :market_exchange
+    # One published chart, cached by version, embedded by the exchange page.
+    get "charts/:kind/:version" => "chart_fragments#show", as: :chart_fragment, constraints: { kind: /reactor/, version: /[\w-]+/ }
     # The visitor's motion switch, written into the motion cookie.
     post "motion" => "motions#create", as: :motion
 

@@ -60,6 +60,14 @@
   gap: var(--space-6);
 }
 
+.chart-frame {
+  display: block;
+}
+
+.chart-frame--reactor:not([complete]) {
+  min-height: calc(var(--chart-height) + var(--chart-height-short));
+}
+
 @media (min-width: 720px) {
   .exchange {
     padding: var(--space-8) var(--space-gutter-desktop);

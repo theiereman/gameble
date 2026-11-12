@@ -19,16 +19,18 @@ module Game
         build(days, snapshots, settings)
       end
 
-      def self.reactor(now: Time.current)
-        days = window(now, REACTOR_DAYS)
+      def self.reactor(now: Time.current, through: now.utc.to_date - 1)
+        days = days_through(through, REACTOR_DAYS)
         Reactor.of(days, DailySnapshot.where(day: days.first..days.last).index_by(&:day))
       end
 
-      def self.window(now, length)
-        last_day = now.utc.to_date - 1
-        ((last_day - (length - 1))..last_day).to_a
-      end
+      def self.last_day = DailySnapshot.maximum(:day)
+
+      def self.window(now, length) = days_through(now.utc.to_date - 1, length)
       private_class_method :window
+
+      def self.days_through(last_day, length) = ((last_day - (length - 1))..last_day).to_a
+      private_class_method :days_through
 
       def self.build(days, snapshots, settings)
         Series.new(
