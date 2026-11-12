@@ -2228,6 +2228,7 @@ fr:
           body_html: "%{name} est passé devant sur %{card}. Vos %{amount} sont de nouveau disponibles. La Confrérie n'enchérit jamais à votre place."
           title: "VOUS AVEZ ÉTÉ DÉPASSÉ"
       history:
+        beaten: "Aussitôt dépassée"
         created_html: "Mise en vente par %{name}"
         extension_html: "Enchère prolongée jusqu'à %{time}"
         heading: "HISTORIQUE"

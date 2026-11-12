@@ -1,7 +1,9 @@
 module Game
   module Market
     module BidHistory
-      Line = Data.define(:kind, :player, :price, :at, :until, :leading)
+      Line = Data.define(:kind, :player, :price, :at, :until, :leading, :beaten) do
+        def initialize(beaten: false, **) = super
+      end
 
       COLUMNS = %i[id player_id price_after outcome extended_until created_at].freeze
 
@@ -26,7 +28,7 @@ module Game
         return [ Line.new(kind: :raise, player:, price: nil, at: row.created_at, until: nil, leading: false) ] if row.outcome == "raise"
 
         leading = listing.status == "open" && row.outcome == "leading" && row.player_id == listing.leader_id
-        lines = [ Line.new(kind: :bid, player:, price: row.price_after, at: row.created_at, until: nil, leading:) ]
+        lines = [ Line.new(kind: :bid, player:, price: row.price_after, at: row.created_at, until: nil, leading:, beaten: row.outcome == "beaten") ]
         lines.unshift(Line.new(kind: :extension, player: nil, price: nil, at: row.created_at, until: row.extended_until, leading: false)) if row.extended_until
         lines
       end

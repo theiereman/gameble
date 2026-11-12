@@ -87,6 +87,13 @@
   font-weight: 700;
 }
 
+.market-history__beaten {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
 .market-history__leading {
   color: var(--color-gold);
   font: var(--font-label);

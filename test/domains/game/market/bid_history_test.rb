@@ -106,4 +106,14 @@ class Game::Market::BidHistoryTest < ActiveSupport::TestCase
     assert_not_empty bids
     assert bids.none? { it.include?("maximum") }
   end
+
+  test "a bid beaten at once by the leader's maximum is marked as such, the leader keeping the lead" do
+    bid(@first, 30_000)
+    bid(@second, 30_000)
+
+    bids = history.select { it.kind == :bid }
+    assert_equal [ @second, @first ], bids.map(&:player)
+    assert_equal [ true, false ], bids.map(&:beaten)
+    assert_equal [ false, true ], bids.map(&:leading)
+  end
 end
