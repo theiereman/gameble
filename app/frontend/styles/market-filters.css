@@ -1,6 +1,6 @@
 .market-filters {
   flex-flow: row wrap;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
 }
 
@@ -51,4 +51,8 @@
 .price-filter__input {
   width: 10rem;
   max-width: 100%;
+}
+
+.market-filters__actions .filters__clear {
+  align-self: center;
 }
