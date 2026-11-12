@@ -60,6 +60,64 @@
   gap: var(--space-6);
 }
 
+.exchange__subtitle,
+.exchange__note {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+}
+
+.exchange__rarity-prices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.rarity-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rarity-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-panel-raised);
+  box-shadow: var(--panel-border);
+}
+
+.rarity-tile p {
+  margin: 0;
+}
+
+.rarity-tile__name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.rarity-tile__icon {
+  flex: none;
+}
+
+.rarity-tile__price {
+  color: var(--color-text-max);
+  font: var(--font-number);
+}
+
+.rarity-tile__change {
+  color: var(--color-muted);
+  font: var(--font-label);
+}
+
 .chart-frame {
   display: block;
 }
@@ -68,8 +126,16 @@
   min-height: calc(var(--chart-height) + var(--chart-height-short));
 }
 
+.chart-frame--rarity-prices:not([complete]) {
+  min-height: var(--chart-height-index);
+}
+
 @media (min-width: 720px) {
   .exchange {
     padding: var(--space-8) var(--space-gutter-desktop);
+  }
+
+  .rarity-tiles {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }

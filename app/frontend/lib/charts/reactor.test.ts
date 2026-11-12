@@ -17,6 +17,7 @@ const options = (overrides: Partial<DrawOptions> = {}): DrawOptions => ({
     grid: "#1f3346",
     tooltipBackground: "#1b2838",
     tooltipBorder: "#2a475e",
+    panel: "#16202d",
     fontFamily: "JetBrains Mono",
   },
   words: {

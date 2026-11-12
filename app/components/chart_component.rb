@@ -1,5 +1,5 @@
 class ChartComponent < ViewComponent::Base
-  SIZES = %i[regular short index].freeze
+  SIZES = %i[regular short index spark].freeze
 
   def initialize(drawing:, id:, size: :regular, heading: :h3, staff_only: false)
     raise ArgumentError, "unknown chart size: #{size.inspect}" unless SIZES.include?(size)
@@ -13,6 +13,8 @@ class ChartComponent < ViewComponent::Base
 
   private
     attr_reader :drawing, :id, :heading, :staff_only
+
+    def sparkline? = drawing.kind == "sparkline"
 
     def title_id = "#{id}-title"
 

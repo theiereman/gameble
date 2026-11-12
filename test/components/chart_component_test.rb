@@ -50,6 +50,23 @@ class ChartComponentTest < ViewComponent::TestCase
     assert_equal "2026-11-08", rows.last.find("th[scope=row] time", visible: :all)["datetime"]
   end
 
+  test "a sparkline is a canvas hidden from assistive technology, without title, summary or table" do
+    sparkline = Charts::Drawing.new(kind: "sparkline", labels: [ "Nov 8", "Nov 9" ], series: { epic: [ 1.2, 1.6 ] })
+
+    render_inline ChartComponent.new(drawing: sparkline, id: "rarity-sparkline-epic", size: :spark)
+
+    assert_selector "div.chart.chart--spark[aria-hidden=true][data-controller=chart] canvas"
+    assert_no_selector "figure, figcaption, details, [role=img]"
+  end
+
+  test "a rarity legend item shows the rarity's shape instead of a swatch" do
+    render_inline ChartComponent.new(drawing: drawing.with(legend: [ [ :epic, "Epic · 143", 4 ] ]), id: "rarity-index", size: :index)
+
+    assert_selector ".chart__legend-item svg.chart__shape[aria-hidden=true]"
+    assert_selector ".chart__legend-item", text: "Epic · 143"
+    assert_no_selector ".chart__swatch"
+  end
+
   test "a chart shown to staff while unpublished is flagged inside its title, and only then" do
     render_inline ChartComponent.new(drawing: drawing, id: "reactor-flows", staff_only: true)
 

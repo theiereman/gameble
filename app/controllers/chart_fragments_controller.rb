@@ -2,7 +2,7 @@ class ChartFragmentsController < ApplicationController
   include PublicRead
 
   CACHE_LIFETIME = 365.days
-  KINDS = %w[reactor].freeze
+  KINDS = %w[reactor rarity_prices].freeze
 
   skip_before_action :set_sentry_user, :note_presence
   # A shared cache refuses to store a response that sets a cookie.

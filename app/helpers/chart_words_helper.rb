@@ -24,14 +24,18 @@ module ChartWordsHelper
     number_to_percentage(basis_points / 100.0, precision: 1, strip_insignificant_zeros: true)
   end
 
-  def chart_duration(days)
-    return chart_missing if days.nil?
+  def chart_duration(days) = days.nil? ? chart_missing : spoken_as(*duration_forms(days))
 
-    minutes = (days * MINUTES_PER_DAY).round
-    if minutes < MINUTES_PER_HOUR then minutes_forms(minutes)
-    elsif minutes < MINUTES_PER_DAY then hours_forms(*minutes.divmod(MINUTES_PER_HOUR))
-    else days_forms(days)
-    end
+  def chart_duration_words(days) = days.nil? ? t("charts.missing_spoken") : duration_forms(days).last
+
+  def chart_signed_share(basis_points)
+    return chart_missing if basis_points.nil?
+
+    share = chart_share_words(basis_points.abs)
+    return share if basis_points.zero?
+
+    sign, word = basis_points.positive? ? [ "+", "plus" ] : [ "−", "minus" ]
+    spoken_as("#{sign}#{share}", t("charts.spoken.#{word}", amount: share))
   end
 
   def spoken_picoins(amount)
@@ -44,18 +48,26 @@ module ChartWordsHelper
   private
     def spoken_as(shown, spoken) = safe_join([ tag.span(shown, aria: { hidden: true }), tag.span(spoken, class: "visually-hidden") ])
 
+    def duration_forms(days)
+      minutes = (days * MINUTES_PER_DAY).round
+      if minutes < MINUTES_PER_HOUR then minutes_forms(minutes)
+      elsif minutes < MINUTES_PER_DAY then hours_forms(*minutes.divmod(MINUTES_PER_HOUR))
+      else days_forms(days)
+      end
+    end
+
     def minutes_forms(minutes)
-      spoken_as(t("charts.duration.minutes", count: minutes), t("charts.duration.minutes_spoken", count: minutes))
+      [ t("charts.duration.minutes", count: minutes), t("charts.duration.minutes_spoken", count: minutes) ]
     end
 
     def hours_forms(hours, minutes)
       minutes = format("%02d", minutes)
-      spoken_as(t("charts.duration.hours", hours:, minutes:), t("charts.duration.hours_spoken", count: hours, minutes:))
+      [ t("charts.duration.hours", hours:, minutes:), t("charts.duration.hours_spoken", count: hours, minutes:) ]
     end
 
     def days_forms(days)
       value = number_with_precision(days, precision: 1, strip_insignificant_zeros: true)
-      spoken_as(t("charts.duration.days", value:), t("charts.duration.days_spoken", count: plural_count(days), value:))
+      [ t("charts.duration.days", value:), t("charts.duration.days_spoken", count: plural_count(days), value:) ]
     end
 
     def plural_count(value) = value >= 1 && value < t("charts.one_below") ? 1 : value

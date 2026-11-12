@@ -291,6 +291,7 @@
   --chart-height: 200px;
   --chart-height-short: 120px;
   --chart-height-index: 250px;
+  --chart-height-spark: 32px;
   --chart-swatch: 10px;
 
   /* The one soft drop shadow of dialogs and toasts. */

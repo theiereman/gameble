@@ -3234,6 +3234,23 @@ fr:
     missing: "—"
     missing_spoken: "aucune valeur"
     one_below: 2
+    rarity_prices:
+      change_html: "%{change} en 90 j"
+      columns:
+        day: "Jour"
+      empty: "Aucun prix pour l'instant."
+      heading: "CE QUE COÛTE UNE CARTE"
+      index:
+        caption: "Indice des prix par rareté, base 100 au premier jour de prix"
+        legend: "%{rarity} · %{index}"
+        summary: "Une carte %{rarity} coûte %{days} de capsules ; son indice est à %{index}, le plus haut des cinq."
+        title: "INDICE DES PRIX"
+      line: "Une carte se compte en jours de capsules, et cette mesure reste juste quand les PiCoins se multiplient."
+      regular: "Joueur régulier : 40 à 50 capsules par jour, revenu médian des joueurs actifs."
+      subtitle: "prix moyen, en jours de capsules d'un joueur régulier"
+      tiles: "Prix de chaque rareté"
+      tooltip: "%{series} : %{value}"
+      window: "90 derniers jours"
     reactor:
       circulation:
         caption: "PiCoins en circulation à la fin de chaque jour"

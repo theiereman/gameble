@@ -22,6 +22,7 @@ export type ChartTheme = {
   grid: string
   tooltipBackground: string
   tooltipBorder: string
+  panel: string
   fontFamily: string
 }
 

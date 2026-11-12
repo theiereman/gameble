@@ -1296,6 +1296,23 @@ en:
     missing: "—"
     missing_spoken: no value
     one_below: 1
+    rarity_prices:
+      change_html: "%{change} in 90 d"
+      columns:
+        day: Day
+      empty: No price yet.
+      heading: WHAT A CARD COSTS
+      index:
+        caption: Price index per rarity, base 100 on the first day with a price
+        legend: "%{rarity} · %{index}"
+        summary: "%{rarity} cards cost %{days} of capsules; their index is at %{index}, the highest of the five."
+        title: PRICE INDEX
+      line: A card is counted in days of capsules, and that measure stays fair when PiCoins multiply.
+      regular: "Regular player: 40 to 50 capsules a day, the median income of active players."
+      subtitle: average price, in days of a regular player's capsules
+      tiles: Price of each rarity
+      tooltip: "%{series}: %{value}"
+      window: Last 90 days
     reactor:
       circulation:
         caption: PiCoins in circulation at the end of each day

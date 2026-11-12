@@ -4,6 +4,11 @@ export const SERIES_TOKENS: Readonly<Record<string, string>> = {
   minted: "--color-chart-minted",
   destroyed: "--color-chart-destroyed",
   circulation: "--color-text-max",
+  common: "--color-rarity-commune",
+  uncommon: "--color-rarity-peu-commune",
+  rare: "--color-rarity-rare",
+  epic: "--color-rarity-epique",
+  legendary: "--color-rarity-legendaire",
 }
 
 const CHROME_TOKENS = {
@@ -12,6 +17,7 @@ const CHROME_TOKENS = {
   grid: "--color-line-soft",
   tooltipBackground: "--color-panel-raised",
   tooltipBorder: "--color-line",
+  panel: "--color-panel",
   fontFamily: "--font-family-jetbrains-mono",
 } as const
 

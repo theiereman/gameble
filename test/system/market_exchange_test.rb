@@ -12,6 +12,7 @@ class MarketExchangeTest < ApplicationSystemTestCase
 
   setup do
     clear_snapshots
+    Game::Market::ChartPublication.delete_all
     open_market!(first_opened_at: 40.days.ago)
     @yesterday = Time.current.utc.to_date - 1
     30.times do |ago|
@@ -56,6 +57,35 @@ class MarketExchangeTest < ApplicationSystemTestCase
       end
     end
     assert_match CHART_CHUNK, loaded_scripts.join(" ")
+  end
+
+  test "with the rarity prices published a visitor reads five tiles and the index, its table a row per day and a column per rarity" do
+    clear_snapshots
+    90.times do |ago|
+      snapshot!(@yesterday - ago, average_price_epic: 16_000 - (ago * 50), average_price_common: 2_500, median_daily_earnings: 10_000)
+    end
+    Game::Market::PublishChart.new.call(player: accounts_players(:administrator), kind: "rarity_prices").value!
+
+    visit market_exchange_path(locale: :en)
+
+    assert_no_selector "[data-exchange-panel=reactor]"
+    within("[data-exchange-panel=rarity_prices]") do
+      assert_selector "h2", text: "WHAT A CARD COSTS"
+      assert_selector ".rarity-tiles > li", count: 5
+      assert_selector ".rarity-tile--epic", text: /\AEpic\s+1\.6 d\s+1\.6 days\s+\+38\.5%\s+plus 38\.5%\s+in 90 d\z/
+      assert_selector ".rarity-tile--epic .chart--spark canvas[style*=height]"
+      assert_no_selector ".rarity-tile--rare .chart--spark"
+      assert_selector "#rarity-index canvas[style*=height]"
+      assert_selector "#rarity-index .chart__legend-item", text: "Epic · 138.5"
+      assert_no_text "VISIBLE TO STAFF"
+
+      within("#rarity-index") { find("summary", text: "SHOW THE TABLE").click }
+      within("#rarity-index table") do
+        assert_selector "caption", text: /base 100/
+        assert_selector "thead th", count: 6
+        assert_selector "tbody tr", count: 90
+      end
+    end
   end
 
   test "a visitor and a player find no exchange" do

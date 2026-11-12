@@ -1,0 +1,3 @@
+<%= turbo_frame_tag "exchange-chart-rarity-prices" do %>
+  <%= render "market/exchanges/rarity_prices", prices: Game::Market::EconomySeries.rarity_prices(through:) %>
+<% end %>

@@ -45,6 +45,11 @@
   height: var(--chart-height-index);
 }
 
+.chart--spark {
+  position: relative;
+  height: var(--chart-height-spark);
+}
+
 .chart__canvas {
   display: block;
 }
@@ -72,6 +77,12 @@
   width: var(--chart-swatch);
   height: var(--chart-swatch);
   background: var(--color-text-max);
+}
+
+.chart__shape {
+  flex: none;
+  width: var(--chart-swatch);
+  height: var(--chart-swatch);
 }
 
 .chart__swatch--minted {

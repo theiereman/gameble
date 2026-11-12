@@ -24,6 +24,12 @@ module Game
         Reactor.of(days, DailySnapshot.where(day: days.first..days.last).index_by(&:day))
       end
 
+      def self.rarity_prices(now: Time.current, through: now.utc.to_date - 1)
+        days = days_through(through, DAYS)
+        snapshots = DailySnapshot.where(day: days.first..days.last).index_by(&:day)
+        RarityPrices.of(days, Catalog::Rarity::TIERS.values.index_with { days_of_income(it, days, snapshots, nil).values })
+      end
+
       def self.last_day = DailySnapshot.maximum(:day)
 
       def self.window(now, length) = days_through(now.utc.to_date - 1, length)

@@ -36,7 +36,7 @@ class Market::ExchangesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".chart-figures__value", text: /412.6M/
     assert_select ".chart-figures__value", text: /300k/
     assert_select ".chart-figures__value", text: /56%/
-    assert_select "figure.chart h3", 2
+    assert_select "[data-exchange-panel=reactor] figure.chart h3", 2
     assert_select "figure#reactor-flows tbody tr", 30
     assert_select "figure#reactor-flows tbody tr:first-child th time[datetime=?]", @yesterday.iso8601
     assert_select "figure#reactor-flows tbody tr:first-child td", text: /4,400/
@@ -101,7 +101,7 @@ class Market::ExchangesControllerTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:moderator))
     get market_exchange_path(locale: :en)
     assert_select "turbo-frame#exchange-chart-reactor"
-    assert_select ".chart__staff-flag", false
+    assert_select "[data-exchange-panel=reactor] .chart__staff-flag", false
   end
 
   test "the edition chart alone published keeps the exchange hidden" do
@@ -119,6 +119,19 @@ class Market::ExchangesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "[data-exchange-panel=reactor]", false
+    assert_select "[data-exchange-panel=rarity_prices] h2", "WHAT A CARD COSTS"
+    assert_select "[data-exchange-panel=rarity_prices] turbo-frame#exchange-chart-rarity-prices[loading=lazy]"
+  end
+
+  test "staff read the unpublished rarity prices inline, flagged" do
+    month_of_snapshots
+    sign_in(accounts_players(:administrator))
+
+    get market_exchange_path(locale: :fr)
+
+    assert_select "[data-exchange-panel=rarity_prices] h2", "CE QUE COÛTE UNE CARTE"
+    assert_select ".rarity-tiles > li", 5
+    assert_select "figure#rarity-index figcaption .chart__staff-flag", "VISIBLE PAR LE STAFF"
   end
 
   test "before the market's first opening nobody, staff included, finds the exchange" do

@@ -25,6 +25,12 @@ class ChartFragmentsControllerTest < ActionDispatch::IntegrationTest
 
   def reactor_path(version = @yesterday.iso8601, locale: :en) = chart_fragment_path(locale:, kind: "reactor", version:)
 
+  def snapshot_prices!
+    clear_snapshots
+    snapshot!(@yesterday - 1, average_price_epic: 15_000, median_daily_earnings: 10_000)
+    snapshot!(@yesterday, average_price_epic: 16_000, median_daily_earnings: 10_000)
+  end
+
   def with_memory_cache
     cache_was = Rails.cache
     Rails.cache = ActiveSupport::Cache::MemoryStore.new
@@ -75,6 +81,19 @@ class ChartFragmentsControllerTest < ActionDispatch::IntegrationTest
 
       assert_equal "<turbo-frame id=\"exchange-chart-reactor\">from the cache</turbo-frame>", response.body
     end
+  end
+
+  test "the published rarity prices fragment holds the five tiles and the index chart" do
+    publish("rarity_prices")
+    snapshot_prices!
+
+    get chart_fragment_path(locale: :en, kind: "rarity_prices", version: @yesterday.iso8601)
+
+    assert_response :success
+    assert_equal "max-age=31536000, public, immutable", response.headers["Cache-Control"]
+    assert_select "turbo-frame#exchange-chart-rarity-prices .rarity-tiles > li", 5
+    assert_select "turbo-frame#exchange-chart-rarity-prices figure#rarity-index"
+    assert_select "#rarity-index-table tbody tr", 90
   end
 
   test "a version that is not the current one is not found" do
