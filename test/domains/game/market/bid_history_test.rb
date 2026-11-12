@@ -48,16 +48,16 @@ class Game::Market::BidHistoryTest < ActiveSupport::TestCase
 
     lines = history
 
-    assert_equal %i[extension bid bid bid created], lines.map(&:kind)
-    assert_equal [ 31_500, 26_300, 20_000 ], lines.select { it.kind == :bid }.map(&:price)
-    assert_equal [ @second, @second, @first ], lines.select { it.kind == :bid }.map(&:player)
+    assert_equal %i[extension bid covered bid created], lines.map(&:kind)
+    assert_equal [ 31_500, 26_300, 20_000 ], lines.select { it.price }.map(&:price)
+    assert_equal [ @second, @second, @first ], lines.select { it.price }.map(&:player)
     assert_not_nil lines.first.until
   end
 
   test "the open listing's leader is marked on the leading line only" do
     worked_example
 
-    assert_equal [ true, false, false ], history.select { it.kind == :bid }.map(&:leading)
+    assert_equal [ true, false ], history.select { it.kind == :bid }.map(&:leading)
   end
 
   test "no line is marked once the listing is closed" do
@@ -107,13 +107,24 @@ class Game::Market::BidHistoryTest < ActiveSupport::TestCase
     assert bids.none? { it.include?("maximum") }
   end
 
-  test "a bid beaten at once by the leader's maximum is marked as such, the leader keeping the lead" do
+  test "a bid the leader's maximum already covered reads as the leader keeping the lead" do
     bid(@first, 30_000)
     bid(@second, 30_000)
 
-    bids = history.select { it.kind == :bid }
-    assert_equal [ @second, @first ], bids.map(&:player)
-    assert_equal [ true, false ], bids.map(&:beaten)
-    assert_equal [ false, true ], bids.map(&:leading)
+    lines = history
+    assert_equal %i[covered bid created], lines.map(&:kind)
+    assert_equal [ @second, @first, 30_000 ], [ lines.first.player, lines.first.leader, lines.first.price ]
+    assert lines[1].leading
+  end
+
+  test "the leader named on a covered bid is the one leading when it came, not today's" do
+    third = Accounts::Player.create!(steam_id: "76561197960287999")
+    fund!(third, 100_000)
+    bid(@first, 30_000)
+    bid(@second, 25_000)
+    bid(third, 40_000)
+
+    covered = history.find { it.kind == :covered }
+    assert_equal [ @second, @first ], [ covered.player, covered.leader ]
   end
 end

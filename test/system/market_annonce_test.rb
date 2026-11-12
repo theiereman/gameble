@@ -48,7 +48,8 @@ class MarketAnnonceSystemTest < ApplicationSystemTestCase
   test "a visitor reads the history newest first with the extension line and no raise line" do
     annonce
 
-    assert_selector ".market-history__line--bid", count: 3
+    assert_selector ".market-history__line--bid", count: 2
+    assert_selector ".market-history__line--covered", count: 1, text: "keeps the lead over"
     assert_selector ".market-history__line--extension", text: "Auction extended until"
     assert_selector ".market-history__line--raise", count: 0
     assert_selector ".market-history__leading", count: 1, text: "LEADING"

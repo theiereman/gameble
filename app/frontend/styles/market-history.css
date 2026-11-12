@@ -64,6 +64,7 @@
 }
 
 .market-history__line--extension,
+.market-history__line--covered,
 .market-history__line--raise,
 .market-history__line--created {
   color: var(--color-muted);
@@ -85,13 +86,6 @@
   justify-self: end;
   color: var(--color-text-max);
   font-weight: 700;
-}
-
-.market-history__beaten {
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-kicker);
-  text-transform: uppercase;
 }
 
 .market-history__leading {
@@ -164,4 +158,9 @@
   .market-history {
     grid-area: history;
   }
+}
+
+.market-history__text .picoin-amount {
+  color: var(--color-text-max);
+  font-weight: 700;
 }

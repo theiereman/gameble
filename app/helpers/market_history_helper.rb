@@ -2,6 +2,8 @@ module MarketHistoryHelper
   def history_line_text(line, viewer)
     case line.kind
     when :bid then render(PlayerNameComponent.new(player: line.player, viewer:))
+    when :covered then t("market.listings.history.covered_html", leader: render(PlayerNameComponent.new(player: line.leader, viewer:)),
+      name: render(PlayerNameComponent.new(player: line.player, viewer:)), amount: outcome_amount(line.price))
     when :extension then t("market.listings.history.extension_html", time: local_time_tag(line.until))
     when :raise then t("market.listings.history.raise_html", name: render(PlayerNameComponent.new(player: line.player, viewer:)))
     when :voided then t("market.listings.history.voided")

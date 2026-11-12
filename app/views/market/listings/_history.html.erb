@@ -8,7 +8,6 @@
           <span class="market-history__head">
             <span class="market-history__who"><%= history_line_text(line, viewer) %></span>
             <% if line.leading %><span class="market-history__leading"><%= t("market.listings.history.leading") %></span><% end %>
-            <% if line.beaten %><span class="market-history__beaten"><%= t("market.listings.history.beaten") %></span><% end %>
           </span>
           <%= render PicoinAmountComponent.new(amount: line.price, class: "market-history__price") %>
           <span class="market-history__time"><%= local_time_tag(line.at) %></span>
