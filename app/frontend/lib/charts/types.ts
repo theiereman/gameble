@@ -14,6 +14,8 @@ export type ChartWords = {
   series?: Record<string, string>
   tooltip?: Template
   balance?: Template
+  tick?: Template
+  threshold?: string
 }
 
 export type ChartTheme = {

@@ -10,6 +10,7 @@ export const SERIES_TOKENS: Readonly<Record<string, string>> = {
   epic: "--color-rarity-epique",
   legendary: "--color-rarity-legendaire",
   average: "--color-text-max",
+  value: "--color-text-max",
   floor: "--color-chart-floor",
   threshold: "--color-chart-threshold",
 }

@@ -388,6 +388,9 @@ en:
       no_value: "—"
       not_enough_data: "Not enough data yet"
       show:
+        series:
+          heading: SERIES · 90 DAYS
+          rarities: Rarity shown
         heading: "The economy's health"
         indicators_heading: "The four indicators"
         intro: "Each indicator is computed from the nightly snapshots and explains itself. Nothing on this page changes the market."
@@ -1314,6 +1317,31 @@ en:
         zero: "No sale in %{window} days."
       title: SALES OF THIS EDITION
       tooltip: "%{series}: %{value}"
+    indicators:
+      alert: "ALERT %{value}"
+      alert_name: Alert threshold
+      alert_phrase: "alert at %{value}"
+      columns:
+        day: Day
+      days_of_income:
+        title: "PRICE IN DAYS OF INCOME · %{rarity}"
+      destroyed_share:
+        title: DESTROYED / MINTED · ROLLING 30 D
+      no_threshold: no threshold
+      no_value: "%{indicator}: no value yet."
+      picoins_per_player:
+        title: PICOINS PER ACTIVE PLAYER · 90 D
+      summary: "%{indicator}: %{value}, %{threshold}."
+      target: "TARGET %{value}"
+      target_name: Target
+      target_phrase: "target %{value}"
+      ticks:
+        days: "%{value} d"
+        picoins: "%{value}"
+        share: "%{value}%"
+      tooltip: "%{series}: %{value}"
+      top_share:
+        title: TOP 1% SHARE
     missing: "—"
     missing_spoken: no value
     one_below: 1

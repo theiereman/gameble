@@ -1,4 +1,5 @@
 import { editionConfiguration } from "./edition"
+import { daysIndicatorConfiguration, picoinsIndicatorConfiguration, shareIndicatorConfiguration } from "./indicator"
 import { rarityIndexConfiguration, sparklineConfiguration } from "./rarity"
 import { circulationConfiguration, reactorConfiguration } from "./reactor"
 import type { ChartData, DrawnConfiguration, DrawOptions } from "./types"
@@ -11,6 +12,9 @@ const BUILDERS: Readonly<Record<string, Build>> = {
   rarity_index: rarityIndexConfiguration,
   sparkline: sparklineConfiguration,
   edition_sales: editionConfiguration,
+  indicator_share: shareIndicatorConfiguration,
+  indicator_days: daysIndicatorConfiguration,
+  indicator_picoins: picoinsIndicatorConfiguration,
 }
 
 export function configurationFor(data: ChartData, options: DrawOptions): DrawnConfiguration | null {

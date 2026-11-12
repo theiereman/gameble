@@ -781,6 +781,9 @@ fr:
       no_value: "—"
       not_enough_data: "Pas encore assez de données"
       show:
+        series:
+          heading: "SÉRIES · 90 JOURS"
+          rarities: "Rareté affichée"
         heading: "La santé de l'économie"
         indicators_heading: "Les quatre indicateurs"
         intro: "Chaque indicateur est calculé depuis les instantanés de la nuit et s'explique lui-même. Rien sur cette page ne modifie le marché."
@@ -3252,6 +3255,31 @@ fr:
         zero: "Aucune vente en %{window} jours."
       title: "VENTES DE CETTE ÉDITION"
       tooltip: "%{series} : %{value}"
+    indicators:
+      alert: "ALERTE %{value}"
+      alert_name: "Seuil d'alerte"
+      alert_phrase: "alerte à %{value}"
+      columns:
+        day: "Jour"
+      days_of_income:
+        title: "PRIX EN JOURS DE REVENU · %{rarity}"
+      destroyed_share:
+        title: "DÉTRUITS / FRAPPÉS · 30 J GLISSANTS"
+      no_threshold: "sans seuil"
+      no_value: "%{indicator} : aucune valeur pour l'instant."
+      picoins_per_player:
+        title: "PICOINS PAR JOUEUR ACTIF · 90 J"
+      summary: "%{indicator} : %{value}, %{threshold}."
+      target: "CIBLE %{value}"
+      target_name: "Cible"
+      target_phrase: "cible %{value}"
+      ticks:
+        days: "%{value} j"
+        picoins: "%{value}"
+        share: "%{value} %"
+      tooltip: "%{series} : %{value}"
+      top_share:
+        title: "PART DU TOP 1 %"
     missing: "—"
     missing_spoken: "aucune valeur"
     one_below: 2
