@@ -17,7 +17,6 @@
   gap: var(--space-3);
 }
 
-[data-layout="phone"] .sale-grid__hint,
 [data-layout="phone"] .sale-cell__free {
   display: none;
 }

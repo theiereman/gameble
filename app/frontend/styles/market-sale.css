@@ -86,19 +86,6 @@
   gap: var(--space-4);
 }
 
-.sale-grid__heading {
-  margin: 0;
-  color: var(--color-text-bright);
-  font: var(--font-body);
-  font-weight: 700;
-}
-
-.sale-grid__hint {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-body-small);
-}
-
 .sale-grid__list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));

@@ -42,12 +42,14 @@
         <% if @refusal %>
           <p class="market-entrust__refusal" role="alert" tabindex="-1"><%= @refusal %></p>
         <% end %>
-        <%= render "market/entrustments/filters" %>
         <%= tag.div class: "market-entrust__layout",
               data: { controller: "entrust-recap", entrust_recap_locale_value: I18n.locale,
                       entrust_recap_accessible_value: t("market.entrustments.strings.amount"),
                       entrust_recap_reason_id_value: ("market-suspended-banner" if @suspended) } do %>
-          <%= render "market/entrustments/grid" %>
+          <div class="market-entrust__main">
+            <%= render "market/entrustments/filters" %>
+            <%= render "market/entrustments/grid" %>
+          </div>
           <div class="market-entrust__slot" data-entrust-recap-target="slot">
             <%= render "market/entrustments/recap" %>
           </div>

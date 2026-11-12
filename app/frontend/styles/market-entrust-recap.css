@@ -3,6 +3,9 @@
   flex-direction: column;
   gap: var(--space-4);
   padding: var(--space-5);
+  box-shadow:
+    inset 0 2px 0 var(--color-lime),
+    var(--control-border);
 }
 
 [data-layout="wide"] .entrust-recap {
@@ -22,7 +25,12 @@
   text-transform: uppercase;
 }
 
-.entrust-recap__prompt,
+.entrust-recap__prompt {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
 .entrust-recap__over,
 .entrust-recap__full,
 .entrust-recap__sentence,
@@ -91,11 +99,16 @@
 
 .entrust-recap__total {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-line-soft);
   color: var(--color-gold);
+}
+
+.entrust-recap__total .picoin-amount {
+  font: var(--font-number);
+  font-size: 26px;
 }
 
 .entrust-recap__total-label,
@@ -110,11 +123,17 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-panel-sunken);
 }
 
 .entrust-recap__full {
   color: var(--color-alert);
   font-weight: 700;
+}
+
+.entrust-recap__sentence {
+  color: var(--color-muted);
 }
 
 .entrust-recap__rare {

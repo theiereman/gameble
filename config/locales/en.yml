@@ -2754,7 +2754,6 @@ en:
           other: "%{count} available"
         heading: Put a card up for sale
         intro: Choose a card, set its price and let the members bid.
-        keys_hint: Arrow keys move between cards, Space or Enter chooses.
         kicker: The Archives
         received: Sold at the starting price, you receive
         relisting: These amounts are those of your previous sale.

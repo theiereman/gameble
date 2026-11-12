@@ -2466,7 +2466,6 @@ fr:
           other: "%{count} disponibles"
         heading: "Mettre en vente"
         intro: "Choisissez une carte, fixez son prix et laissez les membres enchérir."
-        keys_hint: "Les flèches changent de carte, Espace ou Entrée choisit."
         kicker: "Les Archives"
         received: "Vendue au prix de départ, vous recevez"
         relisting: "Ces montants sont ceux de votre vente précédente."

@@ -72,6 +72,17 @@
   align-items: start;
 }
 
+.market-entrust__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.entrust-filters .filters__search-field {
+  max-width: 28rem;
+}
+
 [data-layout="wide"] .market-entrust__slot {
   align-self: stretch;
 }

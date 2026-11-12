@@ -1,13 +1,13 @@
-<%= render PanelComponent.new(tag: :aside, brackets: true, class: "entrust-recap", aria: { labelledby: "entrust-recap-heading" },
+<%= render PanelComponent.new(tag: :aside, class: "entrust-recap", aria: { labelledby: "entrust-recap-heading" },
       data: { entrust_recap_target: "aside" }) do %>
   <h2 id="entrust-recap-heading" class="entrust-recap__heading"><%= t("market.entrustments.new.recap") %></h2>
-  <p class="entrust-recap__prompt" data-entrust-recap-target="prompt"><%= t("market.entrustments.new.prompt") %></p>
-  <ul class="entrust-recap__lines" data-entrust-recap-target="lines" hidden></ul>
-  <p class="entrust-recap__over" data-entrust-recap-target="over" hidden></p>
   <div class="entrust-recap__total">
     <span class="entrust-recap__total-label"><%= t("market.entrustments.new.receive") %></span>
     <%= render PicoinAmountComponent.new(amount: 0, size: :large, data: { entrust_recap_target: "total" }) %>
   </div>
+  <p class="entrust-recap__prompt" data-entrust-recap-target="prompt"><%= t("market.entrustments.new.prompt") %></p>
+  <ul class="entrust-recap__lines" data-entrust-recap-target="lines" hidden></ul>
+  <p class="entrust-recap__over" data-entrust-recap-target="over" hidden></p>
   <div class="entrust-recap__cap">
     <span class="entrust-recap__cap-label"><%= t("market.entrustments.new.cap_label") %></span>
     <%= render GaugeComponent.new(lit: 0, segment_data: { entrust_recap_target: "segment" }) %>
