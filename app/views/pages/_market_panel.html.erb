@@ -1,7 +1,9 @@
 <%# locals: (pulse:, outbid:) %>
 <section class="hub-market" aria-labelledby="hub-market-title">
-  <%= render PanelComponent.new(class: "hub-market__frame") do %>
-    <h2 id="hub-market-title" class="hub-section-title"><%= t("pages.home.market.title") %></h2>
+  <%= render PanelComponent.new(class: "hub-market__frame hub-linked") do %>
+    <h2 id="hub-market-title" class="hub-section-title">
+      <%= link_to market_path, class: "hub-linked__link" do %><%= t("pages.home.market.title") %><%= pixel_icon("arrow-small-right", class: "hub-linked__arrow") %><% end %>
+    </h2>
     <% if outbid.positive? %>
       <%= link_to market_my_bids_path, class: "hub-market__alert" do %>
         <span><%= t("pages.home.market.outbid", count: outbid, number: number_with_delimiter(outbid)) %></span>
@@ -28,7 +30,4 @@
     <% end %>
     <p class="hub-market__count"><%= t("markets.screen.desk.listings", count: pulse.open, number: number_with_delimiter(pulse.open)) %></p>
   <% end %>
-  <p class="hub-market__more">
-    <%= render ButtonComponent.new(variant: :link, href: market_path) do %><%= t("pages.home.market.open") %><% end %>
-  </p>
 </section>

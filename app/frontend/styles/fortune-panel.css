@@ -76,20 +76,6 @@
   font-size: 0.8125rem;
 }
 
-.fortune-panel__more {
-  display: flex;
-  justify-content: flex-end;
-  margin: var(--space-2) 0 0;
-}
-
-@media (max-width: 719px) {
-  .fortune-panel__more .button {
-    display: inline-flex;
-    align-items: center;
-    min-height: calc(var(--space-2) * 11);
-  }
-}
-
 .fortune-gauge {
   display: flex;
   flex-direction: column;

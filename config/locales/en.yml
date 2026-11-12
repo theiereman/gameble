@@ -1835,7 +1835,6 @@ en:
   fortune_panels:
     panel:
       no_standing: No capsule opened this week.
-      see_all: See the full leaderboard
       title: The Flukeometer
   fortune_registers:
     show:
@@ -3103,7 +3102,6 @@ en:
         open: Open the feed
         title: Activity feed
       market:
-        open: See the market
         outbid:
           one: "%{number} offer outbid"
           other: "%{number} offers outbid"

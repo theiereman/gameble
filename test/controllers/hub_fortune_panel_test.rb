@@ -28,7 +28,8 @@ class HubFortunePanelTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".hub__aside section.fortune-panel" do
-      assert_select "h2", "Le Chattomètre"
+      assert_select ".panel.hub-linked h2 a.hub-linked__link[href=?]", fortune_register_path(locale: :fr), "Le Chattomètre"
+      assert_select "a", 1
       assert_select "button, [role=group], turbo-frame", false
       assert_select ".fortune-panel__headline .fortune-index__value", /\A-\d+\z/
       assert_select ".fortune-gauge__column", 49
@@ -38,8 +39,6 @@ class HubFortunePanelTest < ActionDispatch::IntegrationTest
       assert_select ".fortune-panel__row .fortune-panel__privileged", 1
       assert_select ".fortune-gauge__zone-label", "PRIVILÉGIÉS"
       assert_select ".fortune-gauge .visually-hidden", /5 joueurs classés.*Vous êtes à -\d+, rang 5 sur 5\./
-      assert_select ".panel .fortune-panel__more", false
-      assert_select ".fortune-panel__more a.button--link[href=?]", fortune_register_path(locale: :fr), "Voir tout le classement"
     end
     assert_select ".hub__aside .hub__phone-feed .live-strip"
   end
@@ -58,7 +57,7 @@ class HubFortunePanelTest < ActionDispatch::IntegrationTest
       assert_no_match(/Player1|Semaine passée/, css_select(".fortune-panel").text)
       assert_select ".fortune-panel__row", 1
       assert_select ".fortune-panel__name", "Membre discret"
-      assert_select ".fortune-panel__more a[href=?]", fortune_register_path(locale: :fr)
+      assert_select "a.hub-linked__link[href=?]", fortune_register_path(locale: :fr)
     end
   end
 

@@ -966,8 +966,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-market__alert", false
     assert_select ".hub-market__row[href=?]", market_listing_path(locale: :en, token: soon.token), 1
     assert_select ".hub-market__count", "2 listings open."
-    assert_select ".hub-market .hub-market__frame a.button--link", false
-    assert_select ".hub-market > .hub-market__more a.button--link[href=?]", market_path(locale: :en)
+    assert_select ".hub-market .panel.hub-linked h2 a.hub-linked__link[href=?]", market_path(locale: :en), "Market"
+    assert_select ".hub-market .button--link", false
     assert_select ".hub-volume", false
   end
 

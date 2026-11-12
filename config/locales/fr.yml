@@ -246,7 +246,6 @@ fr:
       kicker:
         title: "Pont de commandement"
       market:
-        open: "Voir le marché"
         outbid:
           one: "%{number} offre dépassée"
           other: "%{number} offres dépassées"
@@ -2632,7 +2631,6 @@ fr:
     panel:
       title: "Le Chattomètre"
       no_standing: "Aucune capsule ouverte cette semaine."
-      see_all: "Voir tout le classement"
   fortune_registers:
     show:
       title: "Le Chattomètre"
