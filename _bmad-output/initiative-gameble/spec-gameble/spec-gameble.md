@@ -244,10 +244,10 @@ gameble is an open-source passion project, and the game its author wants to play
     - A batch beyond the daily cap entrusts what fits; the rest stays in the collection and the screen says so.
     - PiCoin amounts appear compact, with the balance split into available and committed.
 - **CAP-30**
-  - **intent:** A player puts a copy of any edition on sale at auction, with an optional buy-now price.
+  - **intent:** A player puts a copy of any edition on sale at auction.
   - **success:**
     - Any unreserved copy can be listed, an only copy included. The stamp is shown before listing, charged at listing and never refunded.
-    - The starting price and any buy-now price are refused below the rarity's minimum. A setting change applies to new listings only.
+    - A starting price below the rarity's minimum is refused. A setting change applies to new listings only.
     - The seller picks one of three durations.
     - A listed copy is reserved: it cannot be traded or entrusted while the listing runs.
     - The seller can cancel only while no bid stands, and gets the copy back.
@@ -258,7 +258,6 @@ gameble is an open-source passion project, and the game its author wants to play
     - A bid needing more than the player can commit is refused: the whole maximum for a new bid, the difference for a raise. A bid is firm and can only be raised. A seller cannot bid on their own listing.
     - The screen tells "current price" and "My maximum" apart at a glance. A bid beaten at once says that another player had set a higher maximum and gives the next minimum bid.
     - An outbid player is notified and can raise their maximum by hand. Nothing bids for them afterwards.
-    - A maximum reaching the buy-now price buys at once at that price, stated before validation.
 - **CAP-32**
   - **intent:** An auction ends by itself and settles exactly once, with nobody having to come back.
   - **success:**
@@ -270,7 +269,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** A player finds cards for sale and follows each auction.
   - **success:**
     - The market replaces the teaser at the teaser's address, open to every player with no seniority gate. A visitor reads it; listing, bidding and buying need an account, whatever the client does.
-    - A listing shows the current price, the leader, the time left, the buy-now price and the bid history.
+    - A listing shows the current price, the leader, the time left and the bid history.
     - The bid history has one line per validated bid, newest first, with the player's name and the price after that bid, live and after close; extensions add a line, and a leader raising their own maximum adds none for other viewers. The leader's maximum is never shown, except to its owner and in the back-office.
     - The name links to the player's profile only for a viewer allowed to see it (CAP-8). A banned or deleted account shows « anonyme », as for the pioneer (CAP-13).
 - **CAP-34**

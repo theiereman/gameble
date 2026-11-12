@@ -542,18 +542,17 @@ graph TD
   - A listing is one copy of one card-season: `game_market_listings`, reached by token, with status `open`, `sold`, `unsold`, `cancelled` or `withdrawn`, and `sold_at` and `final_price` once sold. An open listing carries `reserved + 1` on the seller's holding (AD-6), so trades and entrustment see it as taken. Going private does not touch listings.
   - `Game::Market::ListCard` runs under the seller's bank lock, then the holding, then the ledger (`stamp`). `CancelListing` requires `leader_id` to be null.
   - A listing holds its `current_price`, `leader_id`, `leader_maximum` and `ends_at`. At most one maximum is held per listing: the leader's. The top two maximums are always that one and the new bid.
-  - `Game::Market::AuctionMath` is the only computation, pure and with no loop. `increment(x)` is the version's percent of `x`, rounded up to the hundred. The displayed price is `min(highest maximum, second-highest maximum + increment(second-highest maximum))`, or the starting price with one bidder; on equal maximums the earlier one leads. The minimum bid is `min(buy_now, current_price + increment(current_price))`, or the starting price with no leader.
-  - `Game::Market::PlaceBid` takes the bidder's bank lock, and the seller's too when the maximum reaches the immutable buy-now price, in ascending order (AD-10). It locks the listing, reads `now`, and checks status, end, bidder and seller; a removed seller refuses. A removed leader counts as no leader and is released in the same post. Then one branch applies:
+  - `Game::Market::AuctionMath` is the only computation, pure and with no loop. `increment(x)` is the version's percent of `x`, rounded up to the hundred. The displayed price is `min(highest maximum, second-highest maximum + increment(second-highest maximum))`, or the starting price with one bidder; on equal maximums the earlier one leads. The minimum bid is `current_price + increment(current_price)`, or the starting price with no leader.
+  - `Game::Market::PlaceBid` takes the bidder's bank lock (AD-10). It locks the listing, reads `now`, and checks status, end, bidder and seller; a removed seller refuses. A removed leader counts as no leader and is released in the same post. Then one branch applies:
 
     | Branch | Funds needed from `available` | Entries | Listing |
     | --- | --- | --- | --- |
-    | Buy-now (maximum `>=` buy-now) | buy-now, less the bidder's own held maximum | `hold` of that amount, AD-45's settlement at buy-now, `release` of any other leader | settled |
     | New leader (no leader, or maximum above the leader's) | the maximum | `hold` of it, `release` of the previous leader's | leader, maximum, price |
     | Beaten at once (maximum at or below the leader's) | the maximum | none | price |
     | Leader's raise (above their own maximum) | the difference | `hold` of the difference | maximum only |
 
   - `game_market_bids` gets one row per validated bid, with the player, `maximum`, the price after, the outcome and `extended_until`. A raise is private to its owner. A bid changing the price or leader within the soft-close window moves `ends_at` and fills `extended_until`, which adds the history's extension line.
-  - `PlaceBid` publishes one event: `Game::Market::BidPlaced`, or `AuctionSold` on the buy-now branch; each carries the player outbid.
+  - `PlaceBid` publishes one event, `Game::Market::BidPlaced`, carrying the player outbid.
   - Only queries for their owner and for the back-office read `leader_maximum`, `game_market_bids.maximum`, ledger entries of kind `hold` and `release`, and alt signals. The public history selects player, price after the bid, outcome, `extended_until` and time.
   - An outbid notice is a `game_market_notices` row owned by the player, written by a handler, shown by the bell and sent on the player's private stream (AD-13). Later notices use the same table and channel. The listing's public stream is named by its token and only asks each viewer to refetch, sent by a batched job after commit.
 

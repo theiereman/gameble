@@ -43,12 +43,11 @@ PiCoins are minted only when a card is entrusted. Stamps and commissions are des
 | Increment of an amount | 5% of that amount, rounded up to the next hundred |
 | Displayed price | Second-highest maximum + its increment, capped at the highest maximum; the starting price with one bidder |
 | Computation | Once per validated bid, never in a loop |
-| Minimum bid | Current price + its increment, never above the buy-now price; the first bid only reaches the starting price |
+| Minimum bid | Current price + its increment; the first bid only reaches the starting price |
 | Equal maximums | The earlier one leads, at that maximum |
 | Raising one's own maximum while leading | Holds more PiCoins, does not move the price, does not extend the auction |
 | Confirmation of an unusual maximum | Asked when a maximum reaches 3 times the current price |
 | Soft close | A bid in the last 3 minutes that changes the price or the leader moves the end to 3 minutes from that bid |
-| Buy-now | Above the starting price, at or above the rarity minimum. A maximum reaching it buys at once at that price, stated before validation, so no held maximum ever reaches it |
 | Escrow | The whole maximum is held from the balance, released when outbid; the winner's surplus returns at close |
 
 Worked example, starting at 20,000: a maximum of 30,000 leads at 20,000. A maximum of 25,000 moves the price to 26,300 and is released at once. A maximum of 40,000 takes the lead at 31,500. At close the winner pays 31,500 and recovers 8,500; the seller receives 28,350.
