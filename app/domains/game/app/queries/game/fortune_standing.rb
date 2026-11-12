@@ -1,8 +1,6 @@
 module Game
   module FortuneStanding
-    PERIODS = %i[week last_week all_time].freeze
-
-    PROFILE_PERIODS = %i[week all_time].freeze
+    PERIODS = %i[week all_time].freeze
 
     Standing = Data.define(:period, :index, :z_score, :rank, :ranked_count, :privileged, :packs, :cards, :actual_points, :expected_points,
       :variance) do

@@ -29,8 +29,6 @@ module FortunesHelper
     "#{crowd} #{t("fortunes.gauge.marked", index: fortune_index_text(standing.index), rank: standing.rank, total: standing.ranked_count)}"
   end
 
-  def fortune_period_param(period) = (period.to_s unless period == :week)
-
   def player_card_dialog_id(token) = "player-card-#{token}"
 
   def player_card_frame_id(token) = "player-card-frame-#{token}"

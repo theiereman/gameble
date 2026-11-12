@@ -4,7 +4,7 @@
     <header class="fortune__head">
       <h2 id="fortune-heading" class="fortune__kicker"><%= t("fortunes.profile.title") %></h2>
       <nav class="fortune__tabs" aria-label="<%= t("fortunes.periods_label") %>">
-        <% Game::FortuneStanding::PROFILE_PERIODS.each do |period| %>
+        <% Game::FortuneStanding::PERIODS.each do |period| %>
           <%= link_to brother_path(token: owner.token, fortune: (FortunePeriod::ALL_TIME if period == :all_time)),
                 class: "filter-chip", aria: { current: ("true" if period == fortune.period) }, data: { turbo_frame: "profile-fortune" } do %>
             <span class="filter-chip__text"><%= t("fortunes.periods.#{period}") %></span>
@@ -29,8 +29,8 @@
           <p class="fortune__text"><%= fortune_label_text(fortune.index) %></p>
           <% if fortune.rank %>
             <p class="fortune__rank">
-              <%= link_to t("fortunes.profile.rank", rank: number_with_delimiter(fortune.rank), count: number_with_delimiter(fortune.ranked_count)),
-                    fortune_register_path(period: (FortunePeriod::ALL_TIME if fortune.period == :all_time)), data: { turbo_frame: "_top" } %>
+              <%= link_to_if fortune.period == :week, t("fortunes.profile.rank", rank: number_with_delimiter(fortune.rank), count: number_with_delimiter(fortune.ranked_count)),
+                    fortune_register_path, data: { turbo_frame: "_top" } %>
             </p>
           <% end %>
         </div>

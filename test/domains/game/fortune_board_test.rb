@@ -13,8 +13,8 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     end)
   end
 
-  def board(period = :week, sort: :luck)
-    fortunes = Game::FortuneBoard.ranked(period, now: NOW, sort:).to_a
+  def board(sort: :luck)
+    fortunes = Game::FortuneBoard.ranked(now: NOW, sort:).to_a
     Game::FortuneBoard.rows(fortunes, ranked_count: fortunes.size, now: NOW)
   end
 
@@ -26,13 +26,13 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     luck(last, -2.0)
 
     rows = board
-    summary = Game::FortuneBoard.summary(:week, now: NOW)
+    summary = Game::FortuneBoard.summary(now: NOW)
 
     assert_equal [ closer, close, tied, last ], rows.map(&:player)
     assert_equal [ 1, 2, 3, 4 ], rows.map(&:rank)
     assert_equal [ [ true, 25 ], [ true, 50 ], [ false, 50 ], [ false, 25 ] ], rows.map { [ it.top_half?, it.share_of_half ] }
     assert_equal [ 457, 453, 453, -381 ], rows.map(&:index)
-    assert_equal [ 4, 4, 1, 4 ], [ summary.ranked_count, summary.active_count, summary.privileged_count, summary.packs_opened ]
+    assert_equal [ 4, 1, 4 ], [ summary.ranked_count, summary.privileged_count, summary.packs_opened ]
     assert_equal [ true, false, false, false ], rows.map(&:privileged)
   end
 
@@ -45,14 +45,13 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     assert_equal [ [ busy, 2, 9 ], [ steady, 1, 1 ] ], board(sort: :capsules).map { [ it.player, it.rank, it.packs_opened ] }
   end
 
-  test "each row counts the cards pulled per rarity in the board's period, duplicates included" do
+  test "each row counts the cards pulled per rarity this week, duplicates included" do
     puller = player(1)
     luck(puller, 1.0)
     Game::Fortune.where(player_id: puller.id, week_start: Game::WeeklyGoal.week_start(NOW)).update_all(common_cards: 7, rare_cards: 2)
     Game::Fortune.where(player_id: puller.id, week_start: nil).update_all(common_cards: 30, rare_cards: 5, legendary_cards: 1)
 
     assert_equal({ 1 => 7, 2 => 0, 3 => 2, 4 => 0, 5 => 0 }, board.sole.rarities)
-    assert_equal({ 1 => 30, 2 => 0, 3 => 5, 4 => 0, 5 => 1 }, board(:all_time).sole.rarities)
   end
 
   test "the Privileged are the top tenth of this week's active players, rounded up, and change as the week's ranking does" do
@@ -68,14 +67,13 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     assert_not Game::Privileged.call(players[-2], now: NOW)
   end
 
-  test "the all-time board ranks everyone who ever opened a pack, and marks only this week's Privileged" do
+  test "the board ranks only the players who opened a pack this week" do
     veteran, newcomer = player(1), player(2)
     luck(veteran, 4.0, week: false)
     luck(newcomer, 1.0)
 
-    assert_equal [ veteran, newcomer ], board(:all_time).map(&:player)
-    assert_equal [ false, true ], board(:all_time).map(&:privileged)
     assert_equal [ newcomer ], board.map(&:player)
+    assert_equal 1, Game::FortuneBoard.summary(now: NOW).ranked_count
   end
 
   test "banned and deleted players leave the ranking and the count of active players" do
@@ -85,7 +83,7 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     deleted.update!(deleted_at: NOW, steam_id: nil)
 
     assert_equal [ kept ], board.map(&:player)
-    assert_equal 1, Game::FortuneBoard.summary(:week, now: NOW).active_count
+    assert_equal 1, Game::FortuneBoard.summary(now: NOW).ranked_count
   end
 
   test "a private player leaves the board, the counts and the Privileged, and keeps an index without a rank" do
@@ -94,11 +92,11 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     luck(hidden, 3.0)
     hidden.update!(visibility: :private)
 
-    summary = Game::FortuneBoard.summary(:week, now: NOW)
+    summary = Game::FortuneBoard.summary(now: NOW)
     standing = Game::FortuneStanding.call(hidden, period: :week, now: NOW)
 
     assert_equal [ kept ], board.map(&:player)
-    assert_equal [ 1, 1, 1 ], [ summary.ranked_count, summary.active_count, summary.packs_opened ]
+    assert_equal [ 1, 1 ], [ summary.ranked_count, summary.packs_opened ]
     assert_equal Set[kept.id], Game::Privileged.ids(now: NOW)
     assert_equal [ nil, 0, false ], [ standing.rank, standing.ranked_count, standing.privileged ]
     assert_operator standing.index, :>, 0

@@ -10,14 +10,12 @@ module Game
       def label = FortuneIndex.label(index)
     end
 
-    Summary = Data.define(:period, :ranked_count, :active_count, :privileged_count, :packs_opened)
+    Summary = Data.define(:ranked_count, :privileged_count, :packs_opened)
 
     PACKS = "game_fortunes.regular_packs + game_fortunes.bonus_packs + game_fortunes.reward_packs".freeze
 
-    def self.ranked(period, now: Time.current, sort: :luck)
-      raise ArgumentError, "unknown period #{period.inspect}" unless FortuneStanding::PERIODS.include?(period)
-
-      numbered = Fortune.of_period(period, now).ranked
+    def self.ranked(now: Time.current, sort: :luck)
+      numbered = Fortune.week_of(now).ranked
         .select("game_fortunes.*", Arel.sql("ROW_NUMBER() OVER (ORDER BY z_score DESC, player_id ASC) AS luck_rank"))
       board = Fortune.from(numbered, :game_fortunes)
       sort == :capsules ? board.order(Arel.sql("#{PACKS} DESC"), :luck_rank) : board.order(:luck_rank)
@@ -36,11 +34,10 @@ module Game
       end
     end
 
-    def self.summary(period, now: Time.current)
-      ranked = Fortune.of_period(period, now).ranked
-      active = Fortune.week_of(now).ranked.count
-      Summary.new(period:, ranked_count: ranked.count, active_count: active,
-        privileged_count: FortuneIndex.privileged_count(active), packs_opened: ranked.sum(Arel.sql(PACKS)))
+    def self.summary(now: Time.current)
+      ranked = Fortune.week_of(now).ranked
+      count = ranked.count
+      Summary.new(ranked_count: count, privileged_count: FortuneIndex.privileged_count(count), packs_opened: ranked.sum(Arel.sql(PACKS)))
     end
   end
 end

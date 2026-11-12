@@ -15,7 +15,7 @@ class Game::FortuneDistributionTest < ActiveSupport::TestCase
     luck(player(2), 40.0)
     luck(player(3, visibility: :private), -40.0)
 
-    result = Game::FortuneDistribution.call(:week, now: NOW)
+    result = Game::FortuneDistribution.call(now: NOW)
 
     assert_equal 49, result.counts.size
     assert_equal 3, result.total
@@ -26,11 +26,14 @@ class Game::FortuneDistributionTest < ActiveSupport::TestCase
     assert_equal [ 0, :cold ], result.columns[0].deconstruct
   end
 
-  test "last week is read from the week before, and an empty period has no heat" do
+  test "only this week counts, and an empty week has no heat" do
     luck(player(1), 0.0, week_start: Game::WeeklyGoal.week_start(NOW) - 7)
+    luck(player(2), 0.0, week_start: nil)
 
-    assert_equal 1, Game::FortuneDistribution.call(:last_week, now: NOW).total
-    assert_equal [ 0, :cold ], Game::FortuneDistribution.call(:week, now: NOW).columns.first.deconstruct
+    result = Game::FortuneDistribution.call(now: NOW)
+
+    assert_equal 0, result.total
+    assert_equal [ 0, :cold ], result.columns.first.deconstruct
   end
 
   test "an index and its band convert both ways" do
