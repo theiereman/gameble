@@ -50,6 +50,8 @@
   --color-alert: #e8833a;
   --color-chart-minted: #f4c542;
   --color-chart-destroyed: #66c0f4;
+  --color-chart-floor: var(--color-muted);
+  --color-chart-threshold: var(--color-alert);
   --color-on-alert: #1d0f03;
   --color-danger-bg: #3a1a12;
   --color-danger-text: #ffb39a;

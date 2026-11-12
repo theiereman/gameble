@@ -7,6 +7,7 @@ export type ChartData = {
   kind: string
   labels: string[]
   series: Record<string, Point[]>
+  x?: number[]
 }
 
 export type ChartWords = {

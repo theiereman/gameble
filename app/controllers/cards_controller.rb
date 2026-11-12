@@ -28,10 +28,23 @@ class CardsController < ApplicationController
     @trade_holders = trade_holders unless @public || @copies
     @pioneer = pioneer_line
     load_prices(market)
+    load_edition_sales unless @public
     @set_url = set_url
   end
 
   private
+    def load_edition_sales
+      return if @price.nil? || @price.no_sale?
+
+      charts = Game::Market::ChartPublications.for(current_player)
+      if charts.staff_only?(:edition_sales)
+        @edition_sales = Game::Market::EditionSales.call(@detail.card_season_id)
+      elsif charts.visible?(:edition_sales)
+        resolver = ChartVersions::EditionSales.of(slug: @detail.view.id, season_number: @detail.view.season_number)
+        @edition_sales_src = chart_fragment_path(kind: "edition_sales", version: resolver.version) if resolver
+      end
+    end
+
     def load_prices(market)
       ids = market.first_opened? ? Catalog::PublishedCardSeasonIds.call(@editions.map { [ @detail.view.id, it.second ] }) : {}
       prices = Game::Market::EditionPrices.call([ @detail.card_season_id, *ids.values ], state: market)

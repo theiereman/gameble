@@ -9,6 +9,9 @@ export const SERIES_TOKENS: Readonly<Record<string, string>> = {
   rare: "--color-rarity-rare",
   epic: "--color-rarity-epique",
   legendary: "--color-rarity-legendaire",
+  average: "--color-text-max",
+  floor: "--color-chart-floor",
+  threshold: "--color-chart-threshold",
 }
 
 const CHROME_TOKENS = {

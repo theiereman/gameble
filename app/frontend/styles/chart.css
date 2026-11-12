@@ -93,6 +93,16 @@
   background: var(--color-chart-destroyed);
 }
 
+.chart__swatch--average {
+  height: var(--space-unit);
+}
+
+.chart__swatch--floor {
+  height: 0;
+  border-top: var(--space-unit) dashed var(--color-chart-floor);
+  background: none;
+}
+
 .chart__summary {
   margin: 0;
   color: var(--color-text-bright);

@@ -139,6 +139,12 @@ if Rails.env.development? && Game::Market::MarketState.call.first_opened?
   load Rails.root.join("db/seeds/economy_history.rb")
 end
 
+# Development only: one edition changes hands five times through buy-now sales over the last five days, each buyer selling it on, so
+# the edition chart draws. Once the fake players have sold five copies this leaves the market alone.
+if Rails.env.development? && Game::Market::MarketState.call.open?
+  load Rails.root.join("db/seeds/edition_sales.rb")
+end
+
 # Development only: a few generic roadmap milestones with stories, all three
 # statuses, shown and hidden, so the landing's roadmap module and the roadmap
 # page have something to show. A roadmap staff already started is left alone.

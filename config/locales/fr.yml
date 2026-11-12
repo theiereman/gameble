@@ -3231,6 +3231,27 @@ fr:
         one: "%{count} minute"
         other: "%{count} minutes"
         zero: "%{count} minute"
+    edition_sales:
+      caption: "Chaque vente de cette édition dans la fenêtre du prix moyen, en PiCoins"
+      columns:
+        average: "Prix moyen (PiCoins)"
+        day: "Jour"
+        sale: "Prix de vente (PiCoins)"
+      empty: "Aucune vente ces %{window} derniers jours."
+      few_sales:
+        one: "%{count} vente en %{window} jours, peu de ventes pour un prix moyen ; dernière vente à %{last}."
+        other: "%{count} ventes en %{window} jours, peu de ventes pour un prix moyen ; dernière vente à %{last}."
+        zero: "Aucune vente en %{window} jours."
+      legend:
+        average: "Prix moyen"
+        floor: "Plancher %{rarity} · %{amount}"
+        sale: "Une vente"
+      summary:
+        one: "%{count} vente en %{window} jours ; dernière vente à %{last}, prix moyen %{average}."
+        other: "%{count} ventes en %{window} jours ; dernière vente à %{last}, prix moyen %{average}."
+        zero: "Aucune vente en %{window} jours."
+      title: "VENTES DE CETTE ÉDITION"
+      tooltip: "%{series} : %{value}"
     missing: "—"
     missing_spoken: "aucune valeur"
     one_below: 2

@@ -1,3 +1,4 @@
+import { editionConfiguration } from "./edition"
 import { rarityIndexConfiguration, sparklineConfiguration } from "./rarity"
 import { circulationConfiguration, reactorConfiguration } from "./reactor"
 import type { ChartData, DrawnConfiguration, DrawOptions } from "./types"
@@ -9,6 +10,7 @@ const BUILDERS: Readonly<Record<string, Build>> = {
   circulation: circulationConfiguration,
   rarity_index: rarityIndexConfiguration,
   sparkline: sparklineConfiguration,
+  edition_sales: editionConfiguration,
 }
 
 export function configurationFor(data: ChartData, options: DrawOptions): DrawnConfiguration | null {

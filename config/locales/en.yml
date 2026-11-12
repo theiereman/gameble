@@ -1293,6 +1293,27 @@ en:
         one: "%{count} minute"
         other: "%{count} minutes"
         zero: "%{count} minutes"
+    edition_sales:
+      caption: Each sale of this edition within the average price window, in PiCoins
+      columns:
+        average: Average price (PiCoins)
+        day: Day
+        sale: Sale price (PiCoins)
+      empty: "No sale in the last %{window} days."
+      few_sales:
+        one: "%{count} sale in %{window} days, too few sales for an average price; last sale at %{last}."
+        other: "%{count} sales in %{window} days, too few sales for an average price; last sale at %{last}."
+        zero: "No sale in %{window} days."
+      legend:
+        average: Average price
+        floor: "%{rarity} floor · %{amount}"
+        sale: A sale
+      summary:
+        one: "%{count} sale in %{window} days; last sale at %{last}, average price %{average}."
+        other: "%{count} sales in %{window} days; last sale at %{last}, average price %{average}."
+        zero: "No sale in %{window} days."
+      title: SALES OF THIS EDITION
+      tooltip: "%{series}: %{value}"
     missing: "—"
     missing_spoken: no value
     one_below: 1
