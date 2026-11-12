@@ -20,7 +20,8 @@ export const RARITY_SHAPES: Readonly<Record<RarityKey, RarityShape>> = {
 
 export const MARKER_EVERY = 15
 export const MARKER_RADIUS = 4
-export const END_LABEL_SPACE = 88
+export const END_LABEL_SPACE = 128
+export const END_LABEL_GAP = 13
 
 export function markerRadii(values: readonly Point[]): number[] {
   let last = -1
@@ -44,22 +45,43 @@ function lastPoint(values: readonly Point[]): { index: number; value: number } |
   return null
 }
 
+export type EndLabel = { text: string; color: string; x: number; y: number }
+
+export function spreadLabels(labels: readonly EndLabel[], gap: number = END_LABEL_GAP): EndLabel[] {
+  const sorted = [...labels].sort((first, second) => first.y - second.y)
+  let floor = -Infinity
+  return sorted.map((label) => {
+    const y = Math.max(label.y, floor + gap)
+    floor = y
+    return { ...label, y }
+  })
+}
+
 export function endLabels(data: ChartData, options: DrawOptions): Plugin<"line"> {
   return {
     id: "rarityEndLabels",
     afterDatasetsDraw(chart) {
-      const { ctx } = chart
-      ctx.save()
-      ctx.font = `bold ${labelFont(options).size}px ${options.theme.fontFamily}`
-      ctx.textBaseline = "middle"
+      const labels: EndLabel[] = []
       chart.data.datasets.forEach((dataset, datasetIndex) => {
         const key = rarityKeys(data)[datasetIndex]
         const point = key ? lastPoint(data.series[key] ?? []) : null
         const element = point ? chart.getDatasetMeta(datasetIndex).data[point.index] : undefined
         if (!key || !point || !element) return
-        ctx.fillStyle = options.theme.series[key] ?? options.theme.text
-        ctx.fillText(`${dataset.label ?? key} ${indexValue(point.value, options.locale)}`, element.x + 8, element.y)
+        labels.push({
+          text: `${dataset.label ?? key} ${indexValue(point.value, options.locale)}`,
+          color: options.theme.series[key] ?? options.theme.text,
+          x: element.x + 8,
+          y: element.y,
+        })
       })
+      const { ctx } = chart
+      ctx.save()
+      ctx.font = `bold ${labelFont(options).size}px ${options.theme.fontFamily}`
+      ctx.textBaseline = "middle"
+      for (const label of spreadLabels(labels)) {
+        ctx.fillStyle = label.color
+        ctx.fillText(label.text, label.x, label.y)
+      }
       ctx.restore()
     },
   }

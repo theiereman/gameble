@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { configurationFor } from "./configurations"
 import { indexValue } from "./format"
-import { markerRadii, MARKER_RADIUS, RARITY_KEYS, RARITY_SHAPES, rarityIndexConfiguration } from "./rarity"
+import {
+  spreadLabels,
+  markerRadii,
+  MARKER_RADIUS,
+  RARITY_KEYS,
+  RARITY_SHAPES,
+  rarityIndexConfiguration,
+} from "./rarity"
 import { resolveTheme } from "./theme"
 import type { ChartData, DrawOptions } from "./types"
 
@@ -80,6 +87,17 @@ describe("rarity index configuration", () => {
     expect(label({ datasetIndex: 3, dataIndex: 89 })).toBe("Epic: 143")
     expect(label({ datasetIndex: 1, dataIndex: 89 })).toBe("")
     expect(configuration.options?.animation).toBe(false)
+  })
+
+  it("spreads end labels that would overlap, keeping their order from top to bottom", () => {
+    const at = (text: string, y: number) => ({ text, color: "#fff", x: 300, y })
+    const spread = spreadLabels([at("Uncommon 112", 101), at("Rare 138", 20), at("Legendary 113", 100)], 13)
+
+    expect(spread.map((label) => [label.text, label.y])).toEqual([
+      ["Rare 138", 20],
+      ["Legendary 113", 100],
+      ["Uncommon 112", 113],
+    ])
   })
 
   it("prints index values with at most one decimal in the reader's locale", () => {
