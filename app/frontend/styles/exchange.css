@@ -118,22 +118,6 @@
   font: var(--font-label);
 }
 
-.chart-frame {
-  display: block;
-}
-
-.chart-frame--reactor:not([complete]) {
-  min-height: calc(var(--chart-height) + var(--chart-height-short));
-}
-
-.chart-frame--edition:not([complete]) {
-  min-height: var(--chart-height-short);
-}
-
-.chart-frame--rarity-prices:not([complete]) {
-  min-height: var(--chart-height-index);
-}
-
 @media (min-width: 720px) {
   .exchange {
     padding: var(--space-8) var(--space-gutter-desktop);

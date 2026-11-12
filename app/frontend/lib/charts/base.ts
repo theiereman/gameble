@@ -1,5 +1,5 @@
 import { compactTick } from "./format"
-import type { DrawOptions } from "./types"
+import type { DrawOptions, Point } from "./types"
 
 export const LABEL_FONT_SIZE = 11
 export const LINE_WIDTH = 2
@@ -64,4 +64,12 @@ export function dayTitle(labels: readonly string[]) {
     const index = items[0]?.dataIndex
     return index === undefined ? "" : (labels[index] ?? "")
   }
+}
+
+export function lastPoint(values: readonly Point[]): { index: number; value: number } | null {
+  for (let index = values.length - 1; index >= 0; index -= 1) {
+    const value = values[index]
+    if (value !== null && value !== undefined) return { index, value }
+  }
+  return null
 }

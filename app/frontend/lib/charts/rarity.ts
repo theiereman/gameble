@@ -1,6 +1,6 @@
 import type { ChartConfiguration, Plugin, PointStyle, TooltipItem } from "chart.js"
 import { t } from "../i18n"
-import { animation, categoryAxis, dayTitle, labelFont, LINE_WIDTH, tooltipFrame } from "./base"
+import { animation, categoryAxis, dayTitle, labelFont, lastPoint, LINE_WIDTH, tooltipFrame } from "./base"
 import { indexValue } from "./format"
 import type { ChartData, DrawOptions, Point } from "./types"
 
@@ -35,14 +35,6 @@ export function markerRadii(values: readonly Point[]): number[] {
 
 function rarityKeys(data: ChartData): RarityKey[] {
   return RARITY_KEYS.filter((key) => key in data.series)
-}
-
-function lastPoint(values: readonly Point[]): { index: number; value: number } | null {
-  for (let index = values.length - 1; index >= 0; index -= 1) {
-    const value = values[index]
-    if (value !== null && value !== undefined) return { index, value }
-  }
-  return null
 }
 
 export type EndLabel = { text: string; color: string; x: number; y: number }

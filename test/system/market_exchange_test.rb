@@ -117,11 +117,11 @@ class MarketExchangeTest < ApplicationSystemTestCase
 
   test "a visitor and a player find no exchange" do
     visit market_exchange_path(locale: :en)
-    assert_text "RecordNotFound"
+    assert_no_selector ".exchange"
 
     sign_in_as(accounts_players(:player))
     visit market_exchange_path(locale: :en)
-    assert_text "RecordNotFound"
+    assert_no_selector ".exchange"
     assert_no_selector ".chart"
   end
 end

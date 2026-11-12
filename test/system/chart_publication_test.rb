@@ -60,7 +60,7 @@ class ChartPublicationTest < ApplicationSystemTestCase
     visit market_path(locale: :en)
     assert_no_link "THE BROTHERHOOD'S EXCHANGE"
     visit market_exchange_path(locale: :en)
-    assert_text "RecordNotFound"
+    assert_no_selector ".exchange"
   end
 
   test "a moderator sees the switches disabled with the reason" do

@@ -50,6 +50,22 @@
   height: var(--chart-height-spark);
 }
 
+.chart-frame {
+  display: block;
+}
+
+.chart-frame--reactor:not([complete]) {
+  min-height: calc(var(--chart-height) + var(--chart-height-short));
+}
+
+.chart-frame--edition:not([complete]) {
+  min-height: var(--chart-height-short);
+}
+
+.chart-frame--rarity-prices:not([complete]) {
+  min-height: var(--chart-height-index);
+}
+
 .chart__canvas {
   display: block;
 }

@@ -1,6 +1,6 @@
 import type { ChartConfiguration, Plugin, TooltipItem } from "chart.js"
 import { t } from "../i18n"
-import { animation, categoryAxis, dayTitle, labelFont, LINE_WIDTH, picoinAxis, tooltipFrame } from "./base"
+import { animation, categoryAxis, dayTitle, labelFont, lastPoint, LINE_WIDTH, picoinAxis, tooltipFrame } from "./base"
 import { compactTick, indexValue } from "./format"
 import type { ChartData, DrawOptions, Point } from "./types"
 
@@ -20,14 +20,6 @@ const FORMATS: Readonly<Record<Unit, Format>> = {
 
 function unitValue(value: string, options: DrawOptions): string {
   return options.words.tick ? t(options.words.tick, { value }) : value
-}
-
-function lastPoint(values: readonly Point[]): { index: number; value: number } | null {
-  for (let index = values.length - 1; index >= 0; index -= 1) {
-    const value = values[index]
-    if (value !== null && value !== undefined) return { index, value }
-  }
-  return null
 }
 
 export function thresholdLabel(data: ChartData, options: DrawOptions): Plugin<"line"> {

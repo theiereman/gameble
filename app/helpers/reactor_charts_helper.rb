@@ -36,8 +36,6 @@ module ReactorChartsHelper
     )
   end
 
-  def chart_labels(days) = days.map { chart_day(it) }
-
   private
     def reactor_flows_summary(reactor)
       return t("charts.reactor.empty") if reactor.empty?

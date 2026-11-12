@@ -45,6 +45,8 @@ module ChartWordsHelper
 
   def chart_day(day) = l(day, format: :chart_day)
 
+  def chart_labels(days) = days.map { chart_day(it) }
+
   private
     def spoken_as(shown, spoken) = safe_join([ tag.span(shown, aria: { hidden: true }), tag.span(spoken, class: "visually-hidden") ])
 
