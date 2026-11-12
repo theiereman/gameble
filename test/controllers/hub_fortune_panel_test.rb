@@ -44,11 +44,9 @@ class HubFortunePanelTest < ActionDispatch::IntegrationTest
     assert_select ".hub__aside .hub__phone-feed .live-strip"
   end
 
-  test "from Monday to Wednesday the panel names last week's first public player above this week's board" do
-    winner = other(1)
+  test "on Monday the panel shows only this week's board, never last week's winner" do
     last_week = this_week(MONDAY) - 7
-    luck(other(2, persona_name: "Hidden", visibility: :friends_only), 5.0, week_start: last_week)
-    luck(winner, 2.0, week_start: last_week)
+    luck(other(1), 2.0, week_start: last_week)
     luck(@player, -1.0, week_start: last_week)
     luck(other(3, persona_name: "Hidden", visibility: :friends_only), 1.0, week_start: this_week(MONDAY))
     sign_in(@player)
@@ -56,11 +54,8 @@ class HubFortunePanelTest < ActionDispatch::IntegrationTest
     travel_to(MONDAY) { get home_path(locale: :fr) }
 
     assert_select ".fortune-panel" do
-      assert_select ".fortune-panel__period", "Semaine passée"
-      assert_select ".fortune-panel__winner", "Player1"
-      assert_select ".fortune-panel__verdict svg.fortune-panel__avatar"
-      assert_select ".fortune-gauge__column--privileged", minimum: 1
-      assert_select ".fortune-gauge__marker", false
+      assert_select ".fortune-panel__headline", /Aucune capsule ouverte cette semaine/
+      assert_no_match(/Player1|Semaine passée/, css_select(".fortune-panel").text)
       assert_select ".fortune-panel__row", 1
       assert_select ".fortune-panel__name", "Membre discret"
       assert_select ".fortune-panel__more a[href=?]", fortune_register_path(locale: :fr)

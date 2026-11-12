@@ -2,11 +2,11 @@ module Game
   module FortunePanel
     TOP = 3
 
-    Panel = Data.define(:verdict, :standing, :distribution, :privileged_floor, :top)
+    Panel = Data.define(:standing, :distribution, :privileged_floor, :top)
 
     def self.call(viewer, now: Time.current)
       distribution = FortuneDistribution.call(now:)
-      Panel.new(verdict: FortuneVerdict.call(now:), standing: FortuneStanding.call(viewer, period: :week, now:), distribution:,
+      Panel.new(standing: FortuneStanding.call(viewer, period: :week, now:), distribution:,
         privileged_floor: Privileged.floor_index(now:), top: top(viewer, now, distribution.total))
     end
 
