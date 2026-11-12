@@ -13,6 +13,7 @@ export const SERIES_TOKENS: Readonly<Record<string, string>> = {
   value: "--color-text-max",
   floor: "--color-chart-floor",
   threshold: "--color-chart-threshold",
+  volume: "--color-gold",
 }
 
 const CHROME_TOKENS = {

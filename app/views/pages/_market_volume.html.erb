@@ -1,0 +1,11 @@
+<%# locals: (volume:) %>
+<div class="hub-volume">
+  <p class="hub-market__subtitle"><%= t("pages.home.market.volume.title") %></p>
+  <p class="hub-volume__headline">
+    <%= render PicoinAmountComponent.new(amount: volume.week, compact: true, class: "hub-volume__amount") %>
+    <span class="hub-volume__period"><%= t("pages.home.market.volume.period") %></span>
+    <%= hub_volume_change(volume) %>
+  </p>
+  <%= render ChartComponent.new(drawing: hub_volume_drawing(volume), id: "hub-volume-chart", size: :spark) %>
+  <p class="hub-volume__axis" aria-hidden="true"><span><%= t("pages.home.market.volume.from") %></span><span><%= t("pages.home.market.volume.to") %></span></p>
+</div>

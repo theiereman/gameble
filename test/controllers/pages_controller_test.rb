@@ -952,7 +952,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__ownership"
   end
 
-  test "once the market has opened, the hub shows the purse, the outbid offers and the listings ending soon" do
+  test "once the market has opened, the hub shows the outbid offers and the listings ending soon, not the purse" do
     open_market!(first_opened_at: 1.day.ago)
     seller = accounts_players(:moderator)
     soon = listing!(seller:, card_season: catalog_card_seasons(:common_card_one), ends_at: 15.minutes.from_now)
@@ -962,11 +962,35 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select ".hub-market .hub-market__available .picoin-amount__figure", "4,000"
+    assert_select ".hub-market .picoin-amount__figure", { text: "4,000", count: 0 }
     assert_select ".hub-market__alert", false
     assert_select ".hub-market__row[href=?]", market_listing_path(locale: :en, token: soon.token), 1
     assert_select ".hub-market__count", "2 listings open."
-    assert_select ".hub-market a.button--link[href=?]", market_path(locale: :en)
+    assert_select ".hub-market .hub-market__frame a.button--link", false
+    assert_select ".hub-market > .hub-market__more a.button--link[href=?]", market_path(locale: :en)
+    assert_select ".hub-volume", false
+  end
+
+  test "the hub market panel draws the PiCoins traded over the last two weeks" do
+    open_market!(first_opened_at: 20.days.ago)
+    seller = accounts_players(:moderator)
+    sold = ->(price, at) { listing!(seller:, card_season: catalog_card_seasons(:common_card_one), status: "sold").update_columns(sold_at: at, final_price: price) }
+    sold.call(3_000, 10.days.ago)
+    sold.call(4_500, 1.hour.ago)
+    sign_in(@player)
+
+    get home_path(locale: :fr)
+
+    assert_select ".hub-volume" do
+      assert_select ".hub-volume__amount .picoin-amount__figure", "4,5k"
+      assert_select ".hub-volume__change--up .visually-hidden", "En hausse de 50 % par rapport aux 7 jours d'avant."
+      assert_select ".chart.chart--spark[aria-hidden=true] canvas"
+    end
+    series = JSON.parse(css_select(".hub-volume [data-chart-series-value]").first["data-chart-series-value"])
+    assert_equal "volume", series["kind"]
+    assert_equal 14, series["series"]["volume"].size
+    assert_equal [ 3_000, 4_500 ], series["series"]["volume"].select(&:positive?)
+    assert_select "[style]", false
   end
 
   test "before the market opens the hub has no market panel" do

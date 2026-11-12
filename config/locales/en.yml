@@ -3103,7 +3103,6 @@ en:
         open: Open the feed
         title: Activity feed
       market:
-        available: AVAILABLE
         open: See the market
         outbid:
           one: "%{number} offer outbid"
@@ -3111,6 +3110,17 @@ en:
           zero: No offer outbid
         soon: Ending soon
         title: Market
+        volume:
+          down: "▼ %{percent}%"
+          flat: "= 0%"
+          from: 14 days ago
+          period: over 7 days
+          spoken_down: Down %{percent}% on the 7 days before.
+          spoken_flat: Level with the 7 days before.
+          spoken_up: Up %{percent}% on the 7 days before.
+          title: PiCoins traded
+          to: today
+          up: "▲ %{percent}%"
       menu:
         achievements: Achievements
         achievements_meta:

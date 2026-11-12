@@ -1,37 +1,34 @@
-<%# locals: (pulse:, balance:, outbid:) %>
-<%= render PanelComponent.new(tag: :section, class: "hub-market", aria: { labelledby: "hub-market-title" }) do %>
-  <div class="hub-market__head">
+<%# locals: (pulse:, outbid:) %>
+<section class="hub-market" aria-labelledby="hub-market-title">
+  <%= render PanelComponent.new(class: "hub-market__frame") do %>
     <h2 id="hub-market-title" class="hub-section-title"><%= t("pages.home.market.title") %></h2>
-    <p class="hub-market__purse">
-      <span class="hub-market__label"><%= t("pages.home.market.available") %></span>
-      <%= render PicoinAmountComponent.new(amount: balance.available, class: "hub-market__available") %>
-    </p>
-  </div>
-  <% if outbid.positive? %>
-    <%= link_to market_my_bids_path, class: "hub-market__alert" do %>
-      <span><%= t("pages.home.market.outbid", count: outbid, number: number_with_delimiter(outbid)) %></span>
-      <span class="hub-market__alert-action"><%= t("markets.screen.mine.raise") %><%= pixel_icon("arrow-small-right", class: "hub-market__arrow") %></span>
-    <% end %>
-  <% end %>
-  <% if pulse.soonest.any? %>
-    <p class="hub-market__subtitle"><%= t("pages.home.market.soon") %></p>
-    <ul class="hub-market__list">
-      <% pulse.soonest.each do |row| %>
-        <li>
-          <%= link_to market_listing_path(token: row.token), class: "hub-market__row", aria: { label: listing_tile_label(row) } do %>
-            <img class="hub-market__thumb" src="<%= row.card.image_url %>" alt="" width="32" height="32" loading="lazy" decoding="async">
-            <span class="hub-market__name" aria-hidden="true"><%= row.card.title %></span>
-            <span class="hub-market__figures" aria-hidden="true">
-              <%= render PicoinAmountComponent.new(amount: row.current_price, compact: true, class: "hub-market__price") %>
-              <span class="hub-market__time"><%= listing_time_left(listing_seconds_left(row.ends_at)) %></span>
-            </span>
-          <% end %>
-        </li>
+    <% if outbid.positive? %>
+      <%= link_to market_my_bids_path, class: "hub-market__alert" do %>
+        <span><%= t("pages.home.market.outbid", count: outbid, number: number_with_delimiter(outbid)) %></span>
+        <span class="hub-market__alert-action"><%= t("markets.screen.mine.raise") %><%= pixel_icon("arrow-small-right", class: "hub-market__arrow") %></span>
       <% end %>
-    </ul>
-  <% end %>
-  <div class="hub-market__foot">
+    <% end %>
+    <% if pulse.volume.traded? %><%= render "pages/market_volume", volume: pulse.volume %><% end %>
+    <% if pulse.soonest.any? %>
+      <p class="hub-market__subtitle"><%= t("pages.home.market.soon") %></p>
+      <ul class="hub-market__list">
+        <% pulse.soonest.each do |row| %>
+          <li>
+            <%= link_to market_listing_path(token: row.token), class: "hub-market__row", aria: { label: listing_tile_label(row) } do %>
+              <img class="hub-market__thumb" src="<%= row.card.image_url %>" alt="" width="32" height="32" loading="lazy" decoding="async">
+              <span class="hub-market__name" aria-hidden="true"><%= row.card.title %></span>
+              <span class="hub-market__figures" aria-hidden="true">
+                <%= render PicoinAmountComponent.new(amount: row.current_price, compact: true, class: "hub-market__price") %>
+                <span class="hub-market__time"><%= listing_time_left(listing_seconds_left(row.ends_at)) %></span>
+              </span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
     <p class="hub-market__count"><%= t("markets.screen.desk.listings", count: pulse.open, number: number_with_delimiter(pulse.open)) %></p>
+  <% end %>
+  <p class="hub-market__more">
     <%= render ButtonComponent.new(variant: :link, href: market_path) do %><%= t("pages.home.market.open") %><% end %>
-  </div>
-<% end %>
+  </p>
+</section>

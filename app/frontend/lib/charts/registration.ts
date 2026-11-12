@@ -3,6 +3,7 @@ import {
   BarElement,
   CategoryScale,
   Chart,
+  Filler,
   LinearScale,
   LineController,
   LineElement,
@@ -20,6 +21,7 @@ Chart.register(
   ScatterController,
   CategoryScale,
   LinearScale,
+  Filler,
   Tooltip,
 )
 

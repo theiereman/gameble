@@ -14,7 +14,7 @@ class ChartComponent < ViewComponent::Base
   private
     attr_reader :drawing, :id, :heading, :staff_only
 
-    def sparkline? = drawing.kind == "sparkline"
+    def sparkline? = @size == :spark
 
     def title_id = "#{id}-title"
 

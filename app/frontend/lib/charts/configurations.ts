@@ -4,6 +4,7 @@ import { daysIndicatorConfiguration, picoinsIndicatorConfiguration, shareIndicat
 import { rarityIndexConfiguration, sparklineConfiguration } from "./rarity"
 import { circulationConfiguration, reactorConfiguration } from "./reactor"
 import type { ChartData, DrawnConfiguration, DrawOptions } from "./types"
+import { volumeConfiguration } from "./volume"
 
 type Build = (data: ChartData, options: DrawOptions) => unknown
 
@@ -16,6 +17,7 @@ const BUILDERS: Readonly<Record<string, Build>> = {
   indicator_share: shareIndicatorConfiguration,
   indicator_days: daysIndicatorConfiguration,
   indicator_picoins: picoinsIndicatorConfiguration,
+  volume: volumeConfiguration,
 }
 
 export function configurationFor(data: ChartData, options: DrawOptions): DrawnConfiguration | null {

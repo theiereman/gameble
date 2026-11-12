@@ -1,26 +1,10 @@
 .hub-market {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
 }
 
-.hub-market__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
 
-.hub-market__purse {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--space-1);
-  margin: 0;
-}
 
-.hub-market__label,
 .hub-market__subtitle {
   margin: 0;
   color: var(--color-muted);
@@ -29,10 +13,6 @@
   text-transform: uppercase;
 }
 
-.hub-market__available {
-  color: var(--color-gold);
-  font: var(--font-number);
-}
 
 .hub-market__alert,
 .hub-market__row {
@@ -122,17 +102,91 @@
   color: var(--color-alert);
 }
 
-.hub-market__foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
 .hub-market__count {
   margin: 0;
   color: var(--color-muted);
   font: var(--font-body-small);
   font-weight: 400;
+}
+
+.hub-market__frame {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.hub-market__more {
+  display: flex;
+  justify-content: flex-end;
+  margin: var(--space-2) 0 0;
+}
+
+.hub-volume {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.hub-volume__headline {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.hub-volume__amount {
+  flex: none;
+  color: var(--color-text-max);
+  font: var(--font-number);
+  font-size: 1.25rem;
+}
+
+.hub-volume__period {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  text-overflow: ellipsis;
+}
+
+.hub-volume__change {
+  flex: none;
+  margin-left: auto;
+  font: var(--font-body-small);
+  font-weight: 700;
+}
+
+.hub-volume__change--up {
+  color: var(--color-lime);
+}
+
+.hub-volume__change--down {
+  color: var(--color-alert);
+}
+
+.hub-volume__change--flat {
+  color: var(--color-muted);
+}
+
+.hub-volume .chart--spark {
+  height: calc(var(--chart-height-spark) * 2);
+}
+
+.hub-volume__axis {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+@media (max-width: 719px) {
+  .hub-market__more .button {
+    display: inline-flex;
+    align-items: center;
+    min-height: calc(var(--space-2) * 11);
+  }
 }

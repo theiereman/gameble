@@ -246,7 +246,6 @@ fr:
       kicker:
         title: "Pont de commandement"
       market:
-        available: "DISPONIBLE"
         open: "Voir le marché"
         outbid:
           one: "%{number} offre dépassée"
@@ -254,6 +253,17 @@ fr:
           zero: "Aucune offre dépassée"
         soon: "Se termine bientôt"
         title: "Marché"
+        volume:
+          down: "▼ %{percent} %"
+          flat: "= 0 %"
+          from: "il y a 14 j"
+          period: "sur 7 jours"
+          spoken_down: "En baisse de %{percent} % par rapport aux 7 jours d'avant."
+          spoken_flat: "Stable par rapport aux 7 jours d'avant."
+          spoken_up: "En hausse de %{percent} % par rapport aux 7 jours d'avant."
+          title: "PiCoins échangés"
+          to: "aujourd'hui"
+          up: "▲ %{percent} %"
       menu:
         label: "Menu du pont"
         open_booster: "Ouvrir une capsule"
