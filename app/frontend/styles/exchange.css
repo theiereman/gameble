@@ -1,0 +1,67 @@
+/* ---- The Brotherhood's Exchange: the economy's public charts under the market ---- */
+
+.exchange {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: var(--space-content-max);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-gutter-phone);
+}
+
+.exchange__title {
+  margin: 0;
+  color: var(--color-gold);
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
+}
+
+.exchange__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+}
+
+.exchange__panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.exchange__panel-title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+}
+
+.exchange__window {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+}
+
+.exchange__line {
+  max-width: 760px;
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-body);
+}
+
+.exchange__reactor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+@media (min-width: 720px) {
+  .exchange {
+    padding: var(--space-8) var(--space-gutter-desktop);
+  }
+}

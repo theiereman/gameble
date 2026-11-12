@@ -72,6 +72,8 @@
 @import "../styles/market-sale-phone.css";
 @import "../styles/market-suspended.css";
 @import "../styles/market-screen.css";
+@import "../styles/chart.css";
+@import "../styles/exchange.css";
 @import "../styles/market-filters.css";
 @import "../styles/market-tile.css";
 @import "../styles/market-listing.css";

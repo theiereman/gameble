@@ -1255,6 +1255,73 @@ en:
       uncommon: Uncommon
     sets:
       ufos: The UFOs
+  charts:
+    circulation:
+      words:
+        series:
+          circulation: In circulation
+        tooltip: "%{series}: %{value}"
+    duration:
+      days: "%{value} d"
+      days_spoken:
+        one: "%{value} day"
+        other: "%{value} days"
+        zero: "%{value} days"
+      hours: "%{hours} h %{minutes}"
+      hours_spoken:
+        one: "%{count} hour %{minutes}"
+        other: "%{count} hours %{minutes}"
+        zero: "%{count} hours %{minutes}"
+      minutes: "%{count} min"
+      minutes_spoken:
+        one: "%{count} minute"
+        other: "%{count} minutes"
+        zero: "%{count} minutes"
+    missing: "—"
+    missing_spoken: no value
+    one_below: 1
+    reactor:
+      circulation:
+        caption: PiCoins in circulation at the end of each day
+        summary: "%{last} PiCoins in circulation on %{last_day}, against %{first} on %{first_day}."
+        title: PICOINS IN CIRCULATION
+      columns:
+        balance: Balance (PiCoins)
+        circulation: In circulation (PiCoins)
+        day: Day
+        destroyed: Destroyed (PiCoins)
+        minted: Minted (PiCoins)
+      empty: No figure over these 30 days yet.
+      figures:
+        circulation: IN CIRCULATION
+        destroyed: DESTROYED · 30 D
+        minted: MINTED · 30 D
+        ratio: DESTROYED / MINTED
+      flows:
+        caption: PiCoins minted and destroyed per day
+        summary: "Over 30 days, %{minted} PiCoins minted and %{destroyed} destroyed (%{ratio}). %{circulation} in circulation."
+        title: MINTED AND DESTROYED PER DAY
+      heading: THE BROTHERHOOD'S REACTOR
+      line: "« The 100-6-Tron mints every PiCoin it hands you and burns every stamp and every effort to ash. Here are its books, unvarnished. »"
+      window: Last 30 days
+      words:
+        balance: "Day's balance: %{amount}"
+        series:
+          destroyed: Destroyed (stamps and efforts)
+          minted: Minted (cards entrusted)
+        tooltip: "%{series}: %{value}"
+    show_table: SHOW THE TABLE
+    spoken:
+      millions:
+        one: "%{number} million PiCoins"
+        other: "%{number} million PiCoins"
+        zero: "%{number} million PiCoins"
+      minus: "minus %{amount}"
+      plus: "plus %{amount}"
+      thousands:
+        one: "%{number} thousand PiCoins"
+        other: "%{number} thousand PiCoins"
+        zero: "%{number} thousand PiCoins"
   custom_sets:
     album:
       delete: Delete
@@ -1334,6 +1401,7 @@ en:
     - Friday
     - Saturday
     formats:
+      chart_day: "%b %-d"
       day_month: "%B %-d"
       day_month_first: "%B %-d"
       long_day: "%B %-d, %Y"
@@ -2457,6 +2525,9 @@ en:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
   market:
+    exchanges:
+      show:
+        heading: The Brotherhood's Exchange
     bids:
       answers:
         beaten:

@@ -2153,6 +2153,9 @@ fr:
         one: "1 nouvelle entrée dans le fil."
         other: "%{count} nouvelles entrées dans le fil."
   market:
+    exchanges:
+      show:
+        heading: "La Bourse de la Confrérie"
     bids:
       answers:
         beaten:
@@ -3189,6 +3192,73 @@ fr:
       reposted: "Carte repostée dans le fil."
       not_found: "Cette carte n'existe pas."
       throttled: "Trop de reposts en une minute. Réessayez dans un instant."
+  charts:
+    circulation:
+      words:
+        series:
+          circulation: "En circulation"
+        tooltip: "%{series} : %{value}"
+    duration:
+      days: "%{value} j"
+      days_spoken:
+        one: "%{value} jour"
+        other: "%{value} jours"
+        zero: "%{value} jour"
+      hours: "%{hours} h %{minutes}"
+      hours_spoken:
+        one: "%{count} heure %{minutes}"
+        other: "%{count} heures %{minutes}"
+        zero: "%{count} heure %{minutes}"
+      minutes: "%{count} min"
+      minutes_spoken:
+        one: "%{count} minute"
+        other: "%{count} minutes"
+        zero: "%{count} minute"
+    missing: "—"
+    missing_spoken: "aucune valeur"
+    one_below: 2
+    reactor:
+      circulation:
+        caption: "PiCoins en circulation à la fin de chaque jour"
+        summary: "%{last} PiCoins en circulation le %{last_day}, contre %{first} le %{first_day}."
+        title: "PICOINS EN CIRCULATION"
+      columns:
+        balance: "Solde (PiCoins)"
+        circulation: "En circulation (PiCoins)"
+        day: "Jour"
+        destroyed: "Détruits (PiCoins)"
+        minted: "Frappés (PiCoins)"
+      empty: "Aucun chiffre sur ces 30 jours pour l'instant."
+      figures:
+        circulation: "EN CIRCULATION"
+        destroyed: "DÉTRUITS · 30 J"
+        minted: "FRAPPÉS · 30 J"
+        ratio: "DÉTRUITS / FRAPPÉS"
+      flows:
+        caption: "PiCoins frappés et détruits par jour"
+        summary: "Sur 30 jours, %{minted} PiCoins frappés et %{destroyed} détruits (%{ratio}). %{circulation} en circulation."
+        title: "FRAPPÉS ET DÉTRUITS PAR JOUR"
+      heading: "LE RÉACTEUR DES BRIÉTÉS"
+      line: "« Le 100-6-Tron frappe chaque PiCoin qu'il vous remet et réduit en cendres chaque timbre et chaque effort. Voici sa comptabilité, sans fard. »"
+      window: "30 derniers jours"
+      words:
+        balance: "Solde du jour : %{amount}"
+        series:
+          destroyed: "Détruits (timbres et efforts)"
+          minted: "Frappés (cartes confiées)"
+        tooltip: "%{series} : %{value}"
+    show_table: "VOIR LE TABLEAU"
+    spoken:
+      millions:
+        one: "%{number} million de PiCoins"
+        other: "%{number} millions de PiCoins"
+        zero: "%{number} million de PiCoins"
+      minus: "moins %{amount}"
+      plus: "plus %{amount}"
+      thousands:
+        one: "%{number} mille PiCoins"
+        other: "%{number} mille PiCoins"
+        zero: "%{number} mille PiCoins"
   custom_sets:
     album:
       delete: "Supprimer"
@@ -3653,6 +3723,7 @@ fr:
         format: "%n\u00A0%"
   date:
     formats:
+      chart_day: "%-d %b"
       month_year: "%B %Y"
       long_day: "%-d %B %Y"
       long_day_first: "1er %B %Y"

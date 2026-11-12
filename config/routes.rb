@@ -47,6 +47,8 @@ Rails.application.routes.draw do
     get "market/my-sales" => "market/my_sales#show", as: :market_my_sales
     # The auctions a player bid on.
     get "market/my-bids" => "market/my_bids#show", as: :market_my_bids
+    # The Brotherhood's Exchange: the economy's public charts.
+    get "market/exchange" => "market/exchanges#show", as: :market_exchange
     # The visitor's motion switch, written into the motion cookie.
     post "motion" => "motions#create", as: :motion
 

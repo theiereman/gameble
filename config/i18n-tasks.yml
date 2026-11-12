@@ -18,6 +18,7 @@ search:
 # Failure keys are built from failure codes at runtime (Steam::SignInIdentity.failure_key,
 # Accounts::SignIn.failure_key, Game::Operation), which the static search cannot see.
 ignore_unused:
+  - "charts.*.words.*"
   - "errors.*"
   - "shell.bell.market.*"
   - "back_office.markets.settings.groups.*"

@@ -1,0 +1,6 @@
+<%# locals: (reactor:) %>
+<div class="exchange__reactor">
+  <%= render ChartFiguresComponent.new(figures: reactor_figures(reactor)) %>
+  <%= render ChartComponent.new(drawing: reactor_flows_drawing(reactor), id: "reactor-flows") %>
+  <%= render ChartComponent.new(drawing: reactor_circulation_drawing(reactor), id: "reactor-circulation", size: :short) %>
+</div>

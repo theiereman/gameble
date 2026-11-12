@@ -3,6 +3,7 @@ module Game
     module EconomySeries
       DAYS = 90
       RATIO_DAYS = 30
+      REACTOR_DAYS = 30
 
       Indicator = Data.define(:values, :threshold) do
         def last = values.last
@@ -13,11 +14,21 @@ module Game
       Series = Data.define(:days, :destroyed_share, :picoins_per_player, :top_share, :days_of_income, :latest)
 
       def self.call(now: Time.current, settings: CurrentSettings.call)
-        last_day = now.utc.to_date - 1
-        days = (last_day - (DAYS - 1))..last_day
-        snapshots = DailySnapshot.where(day: (days.first - (RATIO_DAYS - 1))..last_day).index_by(&:day)
-        build(days.to_a, snapshots, settings)
+        days = window(now, DAYS)
+        snapshots = DailySnapshot.where(day: (days.first - (RATIO_DAYS - 1))..days.last).index_by(&:day)
+        build(days, snapshots, settings)
       end
+
+      def self.reactor(now: Time.current)
+        days = window(now, REACTOR_DAYS)
+        Reactor.of(days, DailySnapshot.where(day: days.first..days.last).index_by(&:day))
+      end
+
+      def self.window(now, length)
+        last_day = now.utc.to_date - 1
+        ((last_day - (length - 1))..last_day).to_a
+      end
+      private_class_method :window
 
       def self.build(days, snapshots, settings)
         Series.new(
