@@ -2482,7 +2482,7 @@ en:
         held_extra_html: "You already hold %{own} on this auction: %{held} more will be held."
         title: BUY NOW
       form:
-        available_html: "Available: %{amount}."
+        available: AVAILABLE
         fixed: It is the most you accept to pay. If you win, you will pay as little as possible.
         final: A bid cannot be cancelled.
         label: MY MAXIMUM

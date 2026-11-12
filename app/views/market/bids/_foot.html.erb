@@ -11,6 +11,10 @@
       <p class="market-bid__small"><%= t("market.bids.form.final") %></p>
     </div>
     <% if sheet.buy_now_price %><%= render "market/bids/buy_now", sheet: %><% end %>
-    <p class="market-bid__small"><%= t("market.bids.form.available_html", amount: bid_amount(sheet.available)) %> <%= t("market.bids.form.soft_close", minutes: sheet.soft_close_minutes) %></p>
+    <p class="<%= class_names("market-bid__available", "market-bid__available--short": sheet.available < sheet.minimum) %>">
+      <span class="market-bid__available-label"><%= t("market.bids.form.available") %></span>
+      <%= render PicoinAmountComponent.new(amount: sheet.available, class: "market-bid__available-amount") %>
+    </p>
+    <p class="market-bid__small"><%= t("market.bids.form.soft_close", minutes: sheet.soft_close_minutes) %></p>
   <% end %>
 </div>

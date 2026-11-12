@@ -2178,7 +2178,7 @@ fr:
         held_extra_html: "Vous avez déjà %{own} bloqués sur cette annonce : %{held} de plus seront bloqués."
         title: "ACHAT IMMÉDIAT"
       form:
-        available_html: "Disponible : %{amount}."
+        available: "DISPONIBLE"
         fixed: "C'est le plus que vous acceptez de payer. Si vous gagnez, vous paierez le moins possible."
         final: "Une offre ne peut pas être annulée."
         label: "MON MAXIMUM"
