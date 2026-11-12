@@ -605,6 +605,21 @@ fr:
           one: "%{count} jour"
           other: "%{count} jours"
   back_office:
+    chart_switches:
+      cancel: "ANNULER"
+      confirm: "Publier %{chart} pour tous les joueurs ?"
+      heading: "GRAPHES PUBLICS"
+      intro: "Un interrupteur par graphe, rien ne s'ouvre seul."
+      names:
+        edition_sales: "Ventes d'une édition"
+        rarity_prices: "Prix en jours de capsules et indice"
+        reactor: "Le Réacteur"
+      public_since: "public depuis le %{date}"
+      publish: "PUBLIER"
+      published: "%{chart} est public."
+      read_only: "Seul un administrateur publie ou retire un graphe."
+      staff_only: "staff seulement"
+      unpublished: "%{chart} n'est plus visible que par le staff."
     release_notes:
       assistant:
         heading: "Aide de Claude"
@@ -773,6 +788,9 @@ fr:
       no_value: "—"
       not_enough_data: "Pas encore assez de données"
       show:
+        series:
+          heading: "SÉRIES · 90 JOURS"
+          rarities: "Rareté affichée"
         heading: "La santé de l'économie"
         indicators_heading: "Les quatre indicateurs"
         intro: "Chaque indicateur est calculé depuis les instantanés de la nuit et s'explique lui-même. Rien sur cette page ne modifie le marché."
@@ -2160,6 +2178,10 @@ fr:
         one: "1 nouvelle entrée dans le fil."
         other: "%{count} nouvelles entrées dans le fil."
   market:
+    exchanges:
+      link: "LA BOURSE DE LA CONFRÉRIE"
+      show:
+        heading: "La Bourse de la Confrérie"
     bids:
       answers:
         beaten:
@@ -3186,7 +3208,7 @@ fr:
       close: "Fermer"
       market_html: "Votre solde de %{balance} PiCoins est détruit sans remboursement une fois vos annonces en cours retirées et vos offres libérées."
       note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), les téléphones où vont vos notifications, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, les notes de version que vous avez vues et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos scores de chance, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos réactions aux entrées du fil et vos entrées du fil d'activité : tirages, découvertes, reposts, achats annoncés dans le fil et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
-      kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à la mission hebdo, votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé), les signalements, l'historique de modération, les signaux de comptes alternatifs et les versions des réglages du marché, et le journal des actions du jeu. Cette action est irréversible."
+      kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à la mission hebdo, votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé), les signalements, l'historique de modération, les signaux de comptes alternatifs, les versions des réglages du marché et les publications des graphes, et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
       submit: "Supprimer définitivement"
@@ -3252,6 +3274,139 @@ fr:
       reposted: "Carte repostée dans le fil."
       not_found: "Cette carte n'existe pas."
       throttled: "Trop de reposts en une minute. Réessayez dans un instant."
+  charts:
+    staff_only: "VISIBLE PAR LE STAFF"
+    circulation:
+      words:
+        series:
+          circulation: "En circulation"
+        tooltip: "%{series} : %{value}"
+    duration:
+      days: "%{value} j"
+      days_spoken:
+        one: "%{value} jour"
+        other: "%{value} jours"
+        zero: "%{value} jour"
+      hours: "%{hours} h %{minutes}"
+      hours_spoken:
+        one: "%{count} heure %{minutes}"
+        other: "%{count} heures %{minutes}"
+        zero: "%{count} heure %{minutes}"
+      minutes: "%{count} min"
+      minutes_spoken:
+        one: "%{count} minute"
+        other: "%{count} minutes"
+        zero: "%{count} minute"
+    edition_sales:
+      caption: "Chaque vente de cette édition dans la fenêtre du prix moyen, en PiCoins"
+      columns:
+        average: "Prix moyen (PiCoins)"
+        day: "Jour"
+        sale: "Prix de vente (PiCoins)"
+      empty: "Aucune vente ces %{window} derniers jours."
+      few_sales:
+        one: "%{count} vente en %{window} jours, peu de ventes pour un prix moyen ; dernière vente à %{last}."
+        other: "%{count} ventes en %{window} jours, peu de ventes pour un prix moyen ; dernière vente à %{last}."
+        zero: "Aucune vente en %{window} jours."
+      legend:
+        average: "Prix moyen"
+        floor: "Plancher %{rarity} · %{amount}"
+        sale: "Une vente"
+      summary:
+        one: "%{count} vente en %{window} jours ; dernière vente à %{last}, prix moyen %{average}."
+        other: "%{count} ventes en %{window} jours ; dernière vente à %{last}, prix moyen %{average}."
+        zero: "Aucune vente en %{window} jours."
+      title: "VENTES DE CETTE ÉDITION"
+      tooltip: "%{series} : %{value}"
+    indicators:
+      alert: "ALERTE %{value}"
+      alert_name: "Seuil d'alerte"
+      alert_phrase: "alerte à %{value}"
+      columns:
+        day: "Jour"
+      days_of_income:
+        title: "PRIX EN JOURS DE REVENU · %{rarity}"
+      destroyed_share:
+        title: "DÉTRUITS / FRAPPÉS · 30 J GLISSANTS"
+      no_threshold: "sans seuil"
+      no_value: "%{indicator} : aucune valeur pour l'instant."
+      picoins_per_player:
+        title: "PICOINS PAR JOUEUR ACTIF · 90 J"
+      summary: "%{indicator} : %{value}, %{threshold}."
+      target: "CIBLE %{value}"
+      target_name: "Cible"
+      target_phrase: "cible %{value}"
+      ticks:
+        days: "%{value} j"
+        picoins: "%{value}"
+        share: "%{value} %"
+      tooltip: "%{series} : %{value}"
+      top_share:
+        title: "PART DU TOP 1 %"
+    hide_table: "MASQUER LE TABLEAU"
+    missing: "—"
+    missing_spoken: "aucune valeur"
+    one_below: 2
+    rarity_prices:
+      change_html: "%{change} en 90 j"
+      columns:
+        day: "Jour"
+      empty: "Aucun prix pour l'instant."
+      heading: "CE QUE COÛTE UNE CARTE"
+      index:
+        caption: "Indice des prix par rareté, base 100 au premier jour de prix"
+        legend: "%{rarity} · %{index}"
+        summary: "Une carte %{rarity} coûte %{days} de capsules ; son indice est à %{index}, le plus haut des cinq."
+        title: "INDICE DES PRIX"
+      line: "Une carte se compte en jours de capsules, et cette mesure reste juste quand les PiCoins se multiplient."
+      regular: "Joueur régulier : 40 à 50 capsules par jour, revenu médian des joueurs actifs."
+      subtitle: "prix moyen, en jours de capsules d'un joueur régulier"
+      tiles: "Prix de chaque rareté"
+      tooltip: "%{series} : %{value}"
+      window: "90 derniers jours"
+    reactor:
+      circulation:
+        caption: "PiCoins en circulation à la fin de chaque jour"
+        summary: "%{last} PiCoins en circulation le %{last_day}, contre %{first} le %{first_day}."
+        title: "PICOINS EN CIRCULATION"
+      columns:
+        balance: "Solde (PiCoins)"
+        circulation: "En circulation (PiCoins)"
+        day: "Jour"
+        destroyed: "Détruits (PiCoins)"
+        minted: "Frappés (PiCoins)"
+      empty: "Aucun chiffre sur ces 30 jours pour l'instant."
+      figures:
+        circulation: "EN CIRCULATION"
+        destroyed: "DÉTRUITS · 30 J"
+        minted: "FRAPPÉS · 30 J"
+        ratio: "DÉTRUITS / FRAPPÉS"
+      flows:
+        caption: "PiCoins frappés et détruits par jour"
+        summary: "Sur 30 jours, %{minted} PiCoins frappés et %{destroyed} détruits (%{ratio}). %{circulation} en circulation."
+        title: "FRAPPÉS ET DÉTRUITS PAR JOUR"
+      heading: "LE RÉACTEUR DES BRIÉTÉS"
+      line: "« Le 100-6-Tron frappe chaque PiCoin qu'il vous remet et réduit en cendres chaque timbre et chaque effort. Voici sa comptabilité, sans fard. »"
+      window: "30 derniers jours"
+      words:
+        balance: "Solde du jour : %{amount}"
+        series:
+          destroyed: "Détruits (timbres et efforts)"
+          minted: "Frappés (cartes confiées)"
+        tooltip: "%{series} : %{value}"
+    show_table: "VOIR LE TABLEAU"
+    table_suffix: " : %{title}"
+    spoken:
+      millions:
+        one: "%{number} million de PiCoins"
+        other: "%{number} millions de PiCoins"
+        zero: "%{number} million de PiCoins"
+      minus: "moins %{amount}"
+      plus: "plus %{amount}"
+      thousands:
+        one: "%{number} mille PiCoins"
+        other: "%{number} mille PiCoins"
+        zero: "%{number} mille PiCoins"
   custom_sets:
     album:
       delete: "Supprimer"
@@ -3716,6 +3871,7 @@ fr:
         format: "%n\u00A0%"
   date:
     formats:
+      chart_day: "%-d %b"
       month_year: "%B %Y"
       long_day: "%-d %B %Y"
       long_day_first: "1er %B %Y"
@@ -3809,6 +3965,7 @@ fr:
       invalid_share_image: "L'image d'aperçu de cette carte n'est pas un PNG de carte, dans une des langues de la Confrérie."
       stale_render: "Cette carte a changé pendant que son image d'aperçu était dessinée : cette image n'a pas été gardée."
     game:
+      unknown_chart: "Ce graphe n'existe pas."
       achievement_already_claimed: "Vous avez déjà récupéré cette récompense."
       achievement_not_earned: "Vous n'avez pas obtenu ce succès."
       unknown_achievement: "Ce succès n'existe pas."

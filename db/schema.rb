@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_12_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -633,6 +633,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
     t.check_constraint "price_after > 0", name: "game_market_bids_price_after_check"
   end
 
+  create_table "game_market_chart_publications", force: :cascade do |t|
+    t.string "kind", null: false
+    t.datetime "published_at"
+    t.datetime "unpublished_at"
+    t.bigint "changed_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["changed_by_id"], name: "index_game_market_chart_publications_on_changed_by_id"
+    t.index ["kind"], name: "index_game_market_chart_publications_on_kind", unique: true
+    t.check_constraint "kind::text ~ '^(reactor|rarity_prices|edition_sales)$'::text", name: "game_market_chart_publications_kind_check"
+  end
+
   create_table "game_market_daily_snapshots", force: :cascade do |t|
     t.date "day", null: false
     t.bigint "created", null: false
@@ -1054,6 +1066,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
   add_foreign_key "game_market_archive_stocks", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_market_bids", "accounts_players", column: "player_id"
   add_foreign_key "game_market_bids", "game_market_listings", column: "listing_id"
+  add_foreign_key "game_market_chart_publications", "accounts_players", column: "changed_by_id"
   add_foreign_key "game_market_edition_prices", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_market_ledger_entries", "accounts_players", column: "player_id"
   add_foreign_key "game_market_ledger_entries", "game_market_listings", column: "listing_id"

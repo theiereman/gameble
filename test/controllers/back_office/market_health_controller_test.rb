@@ -27,6 +27,36 @@ module BackOffice
       end
     end
 
+    test "staff read the four indicators as 90-day series with their thresholds, prices in days of income one rarity at a time" do
+      week_of_snapshots
+      sign_in(accounts_players(:moderator))
+
+      get back_office_market_health_path(locale: :fr)
+
+      assert_select "#health-series h2", "SÉRIES · 90 JOURS"
+      assert_select "#health-series figure.chart", 4
+      assert_select "#health-chart-destroyed-share h3", "DÉTRUITS / FRAPPÉS · 30 J GLISSANTS"
+      assert_select "#health-chart-destroyed-share .chart__legend-item", text: /ALERTE 40/
+      assert_select "#health-chart-destroyed-share tbody tr", 90
+      assert_select "#health-chart-picoins-per-player .chart__legend", false
+      assert_select "#health-chart-days-of-income h3", "PRIX EN JOURS DE REVENU · Épique"
+      assert_select "#health-chart-days-of-income .chart__legend-item", text: /CIBLE 1,5/
+      assert_select ".market-health__rarity-chips [aria-current]", "Épique"
+      assert_select ".market-health__rarity-chips a", 4
+      assert_select ".chart__staff-flag", false
+
+      series = JSON.parse(css_select("#health-chart-destroyed-share").first["data-chart-series-value"])
+      assert_equal "indicator_share", series["kind"]
+      assert_equal [ 40.0 ], series["series"]["threshold"].uniq
+
+      get back_office_market_health_path(locale: :en, rarity: "legendary")
+      assert_select ".market-health__rarity-chips [aria-current]", "Legendary"
+      assert_select "#health-chart-days-of-income .chart__legend", false
+
+      get back_office_market_health_path(locale: :en, rarity: "unknown")
+      assert_select ".market-health__rarity-chips [aria-current]", "Epic"
+    end
+
     test "staff read each indicator with its three lines, the reconciliation, the snapshot and the oldest due listing" do
       week_of_snapshots
       listing!(seller: accounts_players(:player), card_season: catalog_card_seasons(:common_card_one), ends_at: 15.minutes.ago)

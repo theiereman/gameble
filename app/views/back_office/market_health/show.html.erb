@@ -20,6 +20,8 @@
     </ul>
   </section>
 
+  <%= render "back_office/market_health/series", series: @series, income_rarity: @income_rarity %>
+
   <section class="stack" aria-labelledby="health-reconciliation-heading" data-health-reconciliation>
     <h2 id="health-reconciliation-heading"><%= t(".reconciliation.heading") %></h2>
     <% if latest.nil? %>

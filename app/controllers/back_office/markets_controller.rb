@@ -8,6 +8,7 @@ module BackOffice
       @state = Game::Market::MarketState.call
       @opening = Opening.new
       @closing = Closing.new
+      load_chart_switches
     end
 
     Closing = Data.define(:message_fr, :message_en, :refusal) do

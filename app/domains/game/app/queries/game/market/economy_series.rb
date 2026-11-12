@@ -3,6 +3,7 @@ module Game
     module EconomySeries
       DAYS = 90
       RATIO_DAYS = 30
+      REACTOR_DAYS = 30
 
       Indicator = Data.define(:values, :threshold) do
         def last = values.last
@@ -13,11 +14,29 @@ module Game
       Series = Data.define(:days, :destroyed_share, :picoins_per_player, :top_share, :days_of_income, :latest)
 
       def self.call(now: Time.current, settings: CurrentSettings.call)
-        last_day = now.utc.to_date - 1
-        days = (last_day - (DAYS - 1))..last_day
-        snapshots = DailySnapshot.where(day: (days.first - (RATIO_DAYS - 1))..last_day).index_by(&:day)
-        build(days.to_a, snapshots, settings)
+        days = window(now, DAYS)
+        snapshots = DailySnapshot.where(day: (days.first - (RATIO_DAYS - 1))..days.last).index_by(&:day)
+        build(days, snapshots, settings)
       end
+
+      def self.reactor(now: Time.current, through: now.utc.to_date - 1)
+        days = days_through(through, REACTOR_DAYS)
+        Reactor.of(days, DailySnapshot.where(day: days.first..days.last).index_by(&:day))
+      end
+
+      def self.rarity_prices(now: Time.current, through: now.utc.to_date - 1)
+        days = days_through(through, DAYS)
+        snapshots = DailySnapshot.where(day: days.first..days.last).index_by(&:day)
+        RarityPrices.of(days, Catalog::Rarity::TIERS.values.index_with { days_of_income(it, days, snapshots, nil).values })
+      end
+
+      def self.last_day = DailySnapshot.maximum(:day)
+
+      def self.window(now, length) = days_through(now.utc.to_date - 1, length)
+      private_class_method :window
+
+      def self.days_through(last_day, length) = ((last_day - (length - 1))..last_day).to_a
+      private_class_method :days_through
 
       def self.build(days, snapshots, settings)
         Series.new(

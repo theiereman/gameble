@@ -32,8 +32,8 @@ en:
       kept: 'Kept, without your Steam id or your name: your past trades, your first
         discoveries, your contributions to the weekly mission, your market history (listings,
         bids, entrusted cards, notices and PiCoin movements, your wallet emptied), reports,
-        the moderation history, the market''s alt-account signals and settings versions
-        and the log of game actions. This cannot be undone.'
+        the moderation history, the market''s alt-account signals, settings versions and
+        chart publications and the log of game actions. This cannot be undone.'
       label: Type %{word} to confirm
       market_html: "Your balance of %{balance} PiCoins is destroyed without refund once your running listings are withdrawn and your bids released."
       note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), the phones your notifications go to, your name, your profile and its link,
@@ -162,6 +162,21 @@ en:
       no_sale: no sale
       priced: average price %{amount}
   back_office:
+    chart_switches:
+      cancel: CANCEL
+      confirm: "Publish %{chart} for every player?"
+      heading: PUBLIC CHARTS
+      intro: One switch per chart; nothing opens by itself.
+      names:
+        edition_sales: An edition's sales
+        rarity_prices: Prices in days of capsules and index
+        reactor: The Reactor
+      public_since: "public since %{date}"
+      publish: PUBLISH
+      published: "%{chart} is public."
+      read_only: Only an administrator can publish or unpublish a chart.
+      staff_only: staff only
+      unpublished: "%{chart} is visible to staff only."
     release_notes:
       assistant:
         heading: "Claude's help"
@@ -373,6 +388,9 @@ en:
       no_value: "—"
       not_enough_data: "Not enough data yet"
       show:
+        series:
+          heading: SERIES · 90 DAYS
+          rarities: Rarity shown
         heading: "The economy's health"
         indicators_heading: "The four indicators"
         intro: "Each indicator is computed from the nightly snapshots and explains itself. Nothing on this page changes the market."
@@ -1255,6 +1273,139 @@ en:
       uncommon: Uncommon
     sets:
       ufos: The UFOs
+  charts:
+    staff_only: VISIBLE TO STAFF
+    circulation:
+      words:
+        series:
+          circulation: In circulation
+        tooltip: "%{series}: %{value}"
+    duration:
+      days: "%{value} d"
+      days_spoken:
+        one: "%{value} day"
+        other: "%{value} days"
+        zero: "%{value} days"
+      hours: "%{hours} h %{minutes}"
+      hours_spoken:
+        one: "%{count} hour %{minutes}"
+        other: "%{count} hours %{minutes}"
+        zero: "%{count} hours %{minutes}"
+      minutes: "%{count} min"
+      minutes_spoken:
+        one: "%{count} minute"
+        other: "%{count} minutes"
+        zero: "%{count} minutes"
+    edition_sales:
+      caption: Each sale of this edition within the average price window, in PiCoins
+      columns:
+        average: Average price (PiCoins)
+        day: Day
+        sale: Sale price (PiCoins)
+      empty: "No sale in the last %{window} days."
+      few_sales:
+        one: "%{count} sale in %{window} days, too few sales for an average price; last sale at %{last}."
+        other: "%{count} sales in %{window} days, too few sales for an average price; last sale at %{last}."
+        zero: "No sale in %{window} days."
+      legend:
+        average: Average price
+        floor: "%{rarity} floor · %{amount}"
+        sale: A sale
+      summary:
+        one: "%{count} sale in %{window} days; last sale at %{last}, average price %{average}."
+        other: "%{count} sales in %{window} days; last sale at %{last}, average price %{average}."
+        zero: "No sale in %{window} days."
+      title: SALES OF THIS EDITION
+      tooltip: "%{series}: %{value}"
+    indicators:
+      alert: "ALERT %{value}"
+      alert_name: Alert threshold
+      alert_phrase: "alert at %{value}"
+      columns:
+        day: Day
+      days_of_income:
+        title: "PRICE IN DAYS OF INCOME · %{rarity}"
+      destroyed_share:
+        title: DESTROYED / MINTED · ROLLING 30 D
+      no_threshold: no threshold
+      no_value: "%{indicator}: no value yet."
+      picoins_per_player:
+        title: PICOINS PER ACTIVE PLAYER · 90 D
+      summary: "%{indicator}: %{value}, %{threshold}."
+      target: "TARGET %{value}"
+      target_name: Target
+      target_phrase: "target %{value}"
+      ticks:
+        days: "%{value} d"
+        picoins: "%{value}"
+        share: "%{value}%"
+      tooltip: "%{series}: %{value}"
+      top_share:
+        title: TOP 1% SHARE
+    hide_table: HIDE THE TABLE
+    missing: "—"
+    missing_spoken: no value
+    one_below: 1
+    rarity_prices:
+      change_html: "%{change} in 90 d"
+      columns:
+        day: Day
+      empty: No price yet.
+      heading: WHAT A CARD COSTS
+      index:
+        caption: Price index per rarity, base 100 on the first day with a price
+        legend: "%{rarity} · %{index}"
+        summary: "%{rarity} cards cost %{days} of capsules; their index is at %{index}, the highest of the five."
+        title: PRICE INDEX
+      line: A card is counted in days of capsules, and that measure stays fair when PiCoins multiply.
+      regular: "Regular player: 40 to 50 capsules a day, the median income of active players."
+      subtitle: average price, in days of a regular player's capsules
+      tiles: Price of each rarity
+      tooltip: "%{series}: %{value}"
+      window: Last 90 days
+    reactor:
+      circulation:
+        caption: PiCoins in circulation at the end of each day
+        summary: "%{last} PiCoins in circulation on %{last_day}, against %{first} on %{first_day}."
+        title: PICOINS IN CIRCULATION
+      columns:
+        balance: Balance (PiCoins)
+        circulation: In circulation (PiCoins)
+        day: Day
+        destroyed: Destroyed (PiCoins)
+        minted: Minted (PiCoins)
+      empty: No figure over these 30 days yet.
+      figures:
+        circulation: IN CIRCULATION
+        destroyed: DESTROYED · 30 D
+        minted: MINTED · 30 D
+        ratio: DESTROYED / MINTED
+      flows:
+        caption: PiCoins minted and destroyed per day
+        summary: "Over 30 days, %{minted} PiCoins minted and %{destroyed} destroyed (%{ratio}). %{circulation} in circulation."
+        title: MINTED AND DESTROYED PER DAY
+      heading: THE BROTHERHOOD'S REACTOR
+      line: "« The 100-6-Tron mints every PiCoin it hands you and burns every stamp and every effort to ash. Here are its books, unvarnished. »"
+      window: Last 30 days
+      words:
+        balance: "Day's balance: %{amount}"
+        series:
+          destroyed: Destroyed (stamps and efforts)
+          minted: Minted (cards entrusted)
+        tooltip: "%{series}: %{value}"
+    show_table: SHOW THE TABLE
+    table_suffix: ": %{title}"
+    spoken:
+      millions:
+        one: "%{number} million PiCoins"
+        other: "%{number} million PiCoins"
+        zero: "%{number} million PiCoins"
+      minus: "minus %{amount}"
+      plus: "plus %{amount}"
+      thousands:
+        one: "%{number} thousand PiCoins"
+        other: "%{number} thousand PiCoins"
+        zero: "%{number} thousand PiCoins"
   custom_sets:
     album:
       delete: Delete
@@ -1334,6 +1485,7 @@ en:
     - Friday
     - Saturday
     formats:
+      chart_day: "%b %-d"
       day_month: "%B %-d"
       day_month_first: "%B %-d"
       long_day: "%B %-d, %Y"
@@ -1449,6 +1601,7 @@ en:
         Published, they would land in the UFOs and leave the franchise, studio and
         hall of fame sets short, unseen. Run steam:fill_card_sources, then publish.'
     game:
+      unknown_chart: This chart does not exist.
       achievement_already_claimed: You have already claimed this reward.
       achievement_not_earned: You have not earned this achievement.
       already_collected: You have already collected today's capsule. The next one
@@ -2455,6 +2608,10 @@ en:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
   market:
+    exchanges:
+      link: THE BROTHERHOOD'S EXCHANGE
+      show:
+        heading: The Brotherhood's Exchange
     bids:
       answers:
         beaten:

@@ -131,6 +131,20 @@ if Rails.env.development? && Game::Market::MarketState.call.open?
   puts "Listed #{listed} copies on the market."
 end
 
+# Development only: ninety days of market history, so the economy's charts draw. The market's first opening moves back to the
+# first of those days; each day without a snapshot gets backdated mints, stamps and sales of a dozen fake players, posted through
+# the ledger, then its snapshot written by WriteDailySnapshot. A day that already has a snapshot is left alone, and a day that
+# already has ledger entries gets its snapshot without new entries, so a rerun adds nothing twice.
+if Rails.env.development? && Game::Market::MarketState.call.first_opened?
+  load Rails.root.join("db/seeds/economy_history.rb")
+end
+
+# Development only: one edition changes hands five times through buy-now sales over the last five days, each buyer selling it on, so
+# the edition chart draws. Once the fake players have sold five copies this leaves the market alone.
+if Rails.env.development? && Game::Market::MarketState.call.open?
+  load Rails.root.join("db/seeds/edition_sales.rb")
+end
+
 # Development only: a few generic roadmap milestones with stories, all three
 # statuses, shown and hidden, so the landing's roadmap module and the roadmap
 # page have something to show. A roadmap staff already started is left alone.

@@ -26,6 +26,12 @@ module MarketHelper
       time: local_time_text(row.ends_at, :time))
   end
 
+  def market_exchange_shown?
+    return @market_exchange_shown if defined?(@market_exchange_shown)
+
+    @market_exchange_shown = Game::Market::MarketState.call.first_opened? && Game::Market::ChartPublications.for(current_player).exchange?
+  end
+
   def sort_options = Game::Market::OpenListings::ORDERS.keys
 
   def market_filtered_path(filters, **extra) = market_path(**filters.to_params, **extra.compact)

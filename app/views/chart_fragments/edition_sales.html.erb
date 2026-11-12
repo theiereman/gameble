@@ -1,0 +1,3 @@
+<%= turbo_frame_tag "card-edition-sales" do %>
+  <%= render "cards/edition_sales_chart", chart: Game::Market::EditionSales.call(resolver.card_season_id, now: resolver.drawn_at) %>
+<% end %>

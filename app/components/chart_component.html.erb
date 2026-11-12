@@ -1,0 +1,49 @@
+<% if sparkline? %>
+<%= tag.div class: classes, aria: { hidden: true }, data: controller_data do %><canvas class="chart__canvas" data-chart-target="canvas"></canvas><% end %>
+<% else %>
+<%= tag.figure id:, class: classes, aria: { labelledby: title_id }, data: controller_data do %>
+  <figcaption class="chart__caption">
+    <%= content_tag heading, id: title_id, class: "chart__title" do %>
+      <%= drawing.title %><% if staff_only %> <span class="chart__staff-flag"><%= t("charts.staff_only") %></span><% end %>
+    <% end %>
+  </figcaption>
+  <div class="chart__plot">
+    <canvas class="chart__canvas" role="img" aria-labelledby="<%= title_id %>" aria-describedby="<%= summary_id %>" data-chart-target="canvas"></canvas>
+  </div>
+  <% if drawing.legend.any? %>
+    <ul class="chart__legend">
+      <% drawing.legend.each do |key, label, tier| %>
+        <li class="chart__legend-item"><% if tier %><%= helpers.pixel_icon("rarity-#{tier}", class: "chart__shape") %><% else %><span class="chart__swatch chart__swatch--<%= key %>" aria-hidden="true"></span><% end %><%= label %></li>
+      <% end %>
+    </ul>
+  <% end %>
+  <p class="chart__summary" id="<%= summary_id %>"><%= drawing.summary %></p>
+  <details class="chart__table" id="<%= table_id %>">
+    <summary class="chart__table-toggle">
+      <span class="chart__table-show"><%= t("charts.show_table") %></span><span class="chart__table-hide"><%= t("charts.hide_table") %></span><span class="visually-hidden"><%= t("charts.table_suffix", title: drawing.title) %></span>
+    </summary>
+    <div class="chart__scroll" role="region" tabindex="0" aria-labelledby="<%= caption_id %>">
+    <table class="chart__data">
+      <caption class="chart__data-caption" id="<%= caption_id %>"><%= drawing.table.caption %></caption>
+      <thead>
+        <tr>
+          <% drawing.table.columns.each do |column| %>
+            <th scope="col"><%= column %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows_newest_first.each do |row| %>
+          <tr>
+            <th scope="row"><time datetime="<%= row.day.iso8601 %>"><%= helpers.chart_day(row.day) %></time></th>
+            <% row.cells.each do |cell| %>
+              <td><%= cell %></td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    </div>
+  </details>
+<% end %>
+<% end %>

@@ -1,0 +1,16 @@
+<%# locals: (kind:) %>
+<% id = "chart-publish-#{kind.dasherize}" %>
+<%= tag.dialog id:, class: "modal", aria: { labelledby: "#{id}-title" }, data: { controller: "dialog", action: "click->dialog#closeOnScrim" } do %>
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="<%= id %>-title" class="modal__title"><%= t("back_office.chart_switches.confirm", chart: t("back_office.chart_switches.names.#{kind}")) %></p>
+    </div>
+    <%= form_with url: back_office_publish_chart_path(kind:), method: :post, class: "chart-switches__dialog-form" do %>
+      <div class="chart-switches__actions">
+        <%= tag.button t("back_office.chart_switches.publish"), type: :submit, class: "button button--primary" %>
+        <%= tag.button t("back_office.chart_switches.cancel"), type: :submit, formmethod: :dialog, class: "button button--secondary", data: { action: "dialog#close" } %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

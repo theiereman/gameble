@@ -67,6 +67,8 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
   - Only an accepted or declined proposal counts as an update, for 7 days at most, at most five lines, never for a friend who is banned or gone. A counter-offer stays a waiting line; a cancelled or expired trade is not an answer.
   - Deleting an account deletes its markers; the deletion dialog and the privacy page now name them.
 
+- Cloudflare Cache Rule for the published chart fragments (epic economy charts, entry 3, built 2026-11-12 on `feature/economy-charts`, not pushed): the code serves each published chart at `/<locale>/charts/<kind>/<version>` with `Cache-Control: max-age=31536000, public, immutable` and no cookie. The author's step, not done by the build: add a Cloudflare Cache Rule making `/*/charts/*` eligible for cache and respecting the origin's headers, on the staging and production zones; record it in `docs/operations.md`; then check on staging that a second request for a published fragment answers `cf-cache-status: HIT`. Until then the fragments are cached by browsers and by `Rails.cache` only.
+
 ## Settled on 2026-11-02
 
 Settled by the author in conversation on 2026-11-02.

@@ -55,10 +55,38 @@ class BackOfficeMarketHealthTest < ApplicationSystemTestCase
     assert_text "Not enough data yet", minimum: 4
   end
 
+  test "staff read the four indicators drawn over 90 days with their thresholds, and switch the days of income between rarities" do
+    7.times do |ago|
+      snapshot!(@yesterday - ago, created: 10_000, destroyed_total: 5_600, circulation: 400_000, picoins_per_active_player: 12_300,
+        median_daily_earnings: 8_000, average_price_epic: 12_000, average_price_rare: 6_000, top_share_basis_points: 2_500)
+    end
+    visit_health_as(accounts_players(:moderator))
+
+    within("#health-series") do
+      assert_selector "figure.chart canvas[style*=height]", count: 4
+      within("#health-chart-destroyed-share") { assert_selector ".chart__legend-item", text: "ALERT 40%" }
+      within("#health-chart-days-of-income") do
+        assert_selector "h3", text: "PRICE IN DAYS OF INCOME · EPIC"
+        assert_selector ".chart__summary", text: /1\.5 d/
+      end
+      click_on "Rare"
+    end
+
+    within("#health-series") do
+      assert_selector ".market-health__rarity-chips [aria-current]", text: "RARE"
+      within("#health-chart-days-of-income") do
+        assert_selector "h3", text: "PRICE IN DAYS OF INCOME · RARE"
+        assert_selector "canvas[style*=height]"
+        assert_selector ".chart__summary", text: /0\.8 d/
+      end
+    end
+  end
+
   test "a player gets the back-office refusal" do
     visit_health_as(accounts_players(:player))
 
     assert_no_selector "[data-health-indicator]"
+    assert_no_selector "#health-series"
     assert_text "No route matches"
   end
 

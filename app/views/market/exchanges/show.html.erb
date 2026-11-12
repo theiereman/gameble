@@ -1,0 +1,37 @@
+<% content_for :public_page, true unless current_player %>
+<% content_for :title, t(".heading") %>
+<div class="exchange">
+  <h1 class="exchange__title"><%= t(".heading") %></h1>
+
+  <% if @charts.visible?(:reactor) %>
+    <section class="exchange__panel" aria-labelledby="exchange-reactor-heading" data-exchange-panel="reactor">
+      <header class="exchange__panel-header">
+        <h2 class="exchange__panel-title" id="exchange-reactor-heading"><%= t("charts.reactor.heading") %></h2>
+        <p class="exchange__window"><%= t("charts.reactor.window") %></p>
+      </header>
+      <p class="exchange__line"><%= t("charts.reactor.line") %></p>
+      <% if @reactor %>
+        <%= render "market/exchanges/reactor", reactor: @reactor, staff_only: true %>
+      <% else %>
+        <%= turbo_frame_tag "exchange-chart-reactor", src: chart_fragment_path(kind: "reactor", version: @snapshot_dated.version), loading: :lazy, class: "chart-frame chart-frame--reactor" %>
+      <% end %>
+    </section>
+  <% end %>
+
+  <% if @charts.visible?(:rarity_prices) %>
+    <section class="exchange__panel" aria-labelledby="exchange-rarity-prices-heading" data-exchange-panel="rarity_prices">
+      <header class="exchange__panel-header">
+        <h2 class="exchange__panel-title" id="exchange-rarity-prices-heading"><%= t("charts.rarity_prices.heading") %></h2>
+        <p class="exchange__window"><%= t("charts.rarity_prices.window") %></p>
+      </header>
+      <p class="exchange__subtitle"><%= t("charts.rarity_prices.subtitle") %></p>
+      <p class="exchange__line"><%= t("charts.rarity_prices.line") %></p>
+      <p class="exchange__note"><%= t("charts.rarity_prices.regular") %></p>
+      <% if @rarity_prices %>
+        <%= render "market/exchanges/rarity_prices", prices: @rarity_prices, staff_only: true %>
+      <% else %>
+        <%= turbo_frame_tag "exchange-chart-rarity-prices", src: chart_fragment_path(kind: "rarity_prices", version: @snapshot_dated.version), loading: :lazy, class: "chart-frame chart-frame--rarity-prices" %>
+      <% end %>
+    </section>
+  <% end %>
+</div>

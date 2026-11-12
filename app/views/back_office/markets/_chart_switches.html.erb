@@ -1,0 +1,38 @@
+<%# locals: (switches:, can_switch:, switched: nil) %>
+<section class="stack chart-switches" id="chart-switches" aria-labelledby="chart-switches-heading">
+  <div>
+    <h2 id="chart-switches-heading"><%= t("back_office.chart_switches.heading") %></h2>
+    <p class="chart-switches__intro"><%= t("back_office.chart_switches.intro") %></p>
+  </div>
+  <% unless can_switch %>
+    <p class="chart-switches__reason" id="chart-switches-reason"><%= t("back_office.chart_switches.read_only") %></p>
+  <% end %>
+  <ul class="chart-switches__list">
+    <% switches.each do |switch| %>
+      <% name = t("back_office.chart_switches.names.#{switch.kind}") %>
+      <% state_id = "chart-switch-#{switch.kind.dasherize}-state" %>
+      <% state = switch.published ? t("back_office.chart_switches.public_since", date: l(switch.published_at.to_date, format: :long_day)) : t("back_office.chart_switches.staff_only") %>
+      <% options = { role: "switch", class: "chart-switch", id: "chart-switch-#{switch.kind.dasherize}", autofocus: switch.kind == switched,
+                     aria: { checked: switch.published.to_s, describedby: [ state_id, ("chart-switches-reason" unless can_switch) ].compact.join(" ") },
+                     data: { chart_switch: switch.kind } } %>
+      <li class="chart-switches__item">
+        <% if !can_switch %>
+          <%= tag.button name, type: :button, **options.deep_merge(aria: { disabled: "true" }) %>
+        <% elsif switch.published %>
+          <%= form_with url: back_office_unpublish_chart_path(kind: switch.kind), method: :post, class: "chart-switches__form" do %>
+            <%= tag.button name, type: :submit, **options %>
+          <% end %>
+        <% else %>
+          <%= tag.button name, type: :button, **options.deep_merge(aria: { haspopup: "dialog" },
+                data: { controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "chart-publish-#{switch.kind.dasherize}" }) %>
+        <% end %>
+        <span class="chart-switches__state" id="<%= state_id %>"><%= state %></span>
+      </li>
+    <% end %>
+  </ul>
+  <% if can_switch %>
+    <% switches.reject(&:published).each do |switch| %>
+      <%= render "back_office/markets/chart_publish_dialog", kind: switch.kind %>
+    <% end %>
+  <% end %>
+</section>

@@ -1,0 +1,6 @@
+<%# locals: (chart: nil, src: nil) %>
+<% if chart %>
+  <div class="card-detail__edition-sales"><%= render "cards/edition_sales_chart", chart:, staff_only: true %></div>
+<% elsif src %>
+  <%= turbo_frame_tag "card-edition-sales", src:, loading: :lazy, class: "card-detail__edition-sales chart-frame chart-frame--edition" %>
+<% end %>

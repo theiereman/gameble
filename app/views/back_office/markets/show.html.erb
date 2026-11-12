@@ -23,6 +23,8 @@
     </p>
   </section>
 
+  <%= render "back_office/markets/chart_switches", switches: @chart_switches, can_switch: @can_switch_charts, switched: @switched_chart %>
+
   <%= render "back_office/markets/settings", form: @settings_form %>
 
   <% if @state.open? %>

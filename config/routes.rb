@@ -47,6 +47,10 @@ Rails.application.routes.draw do
     get "market/my-sales" => "market/my_sales#show", as: :market_my_sales
     # The auctions a player bid on.
     get "market/my-bids" => "market/my_bids#show", as: :market_my_bids
+    # The Brotherhood's Exchange: the economy's public charts.
+    get "market/exchange" => "market/exchanges#show", as: :market_exchange
+    # One published chart, cached by version, embedded by the exchange page.
+    get "charts/:kind/:version" => "chart_fragments#show", as: :chart_fragment, constraints: { kind: /reactor|rarity_prices|edition_sales/, version: /[\w-]+/ }
     # The visitor's motion switch, written into the motion cookie.
     post "motion" => "motions#create", as: :motion
 
@@ -291,6 +295,11 @@ Rails.application.routes.draw do
       resource :market_opening, path: "market/opening", only: :create
       resource :market_closing, path: "market/closing", only: :create
       resource :market_settings, path: "market/settings", only: :create
+      # The public charts' publication switches, administrators only.
+      post "market/charts/:kind/publish" => "chart_publications#publish", as: :publish_chart,
+        constraints: { kind: /reactor|rarity_prices|edition_sales/ }
+      post "market/charts/:kind/unpublish" => "chart_publications#unpublish", as: :unpublish_chart,
+        constraints: { kind: /reactor|rarity_prices|edition_sales/ }
 
       # The card preview, both renderers side by side, administrators only.
       resources :cards, only: :index

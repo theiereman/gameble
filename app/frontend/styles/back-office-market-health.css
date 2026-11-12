@@ -20,6 +20,30 @@
   color: var(--color-text-bright);
 }
 
+.market-health__charts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+.market-health__income-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.market-health__rarity-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+@media (min-width: 720px) {
+  .market-health__charts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .market-health__indicators {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
