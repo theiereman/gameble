@@ -1342,6 +1342,7 @@ en:
       tooltip: "%{series}: %{value}"
       top_share:
         title: TOP 1% SHARE
+    hide_table: HIDE THE TABLE
     missing: "—"
     missing_spoken: no value
     one_below: 1
@@ -1393,6 +1394,7 @@ en:
           minted: Minted (cards entrusted)
         tooltip: "%{series}: %{value}"
     show_table: SHOW THE TABLE
+    table_suffix: ": %{title}"
     spoken:
       millions:
         one: "%{number} million PiCoins"

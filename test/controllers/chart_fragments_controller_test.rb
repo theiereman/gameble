@@ -65,7 +65,7 @@ class ChartFragmentsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#reactor-flows-table tbody tr", 30
     assert_select "#reactor-flows-table tbody tr:first-child time[datetime=?]", @yesterday.iso8601
-    assert_select "#reactor-flows summary", "VOIR LE TABLEAU"
+    assert_select "#reactor-flows summary .chart__table-show", "VOIR LE TABLEAU"
   end
 
   test "the second request is answered from the cache under the same key" do

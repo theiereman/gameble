@@ -61,6 +61,7 @@ export function endLabels(data: ChartData, options: DrawOptions): Plugin<"line">
   return {
     id: "rarityEndLabels",
     afterDatasetsDraw(chart) {
+      if (options.narrow) return
       const labels: EndLabel[] = []
       chart.data.datasets.forEach((dataset, datasetIndex) => {
         const key = rarityKeys(data)[datasetIndex]
@@ -121,7 +122,7 @@ export function rarityIndexConfiguration(
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
-      layout: { padding: { right: END_LABEL_SPACE } },
+      layout: { padding: { right: options.narrow ? 0 : END_LABEL_SPACE } },
       scales: {
         x: categoryAxis(options),
         y: {

@@ -50,6 +50,23 @@ class ChartComponentTest < ViewComponent::TestCase
     assert_equal "2026-11-08", rows.last.find("th[scope=row] time", visible: :all)["datetime"]
   end
 
+  test "each table's disclosure names its chart through a hidden suffix, and reads hide once open" do
+    render_inline ChartComponent.new(drawing: drawing, id: "reactor-flows")
+
+    toggle = page.find("details#reactor-flows-table > summary", visible: :all)
+    assert_equal "SHOW THE TABLEHIDE THE TABLE: MINTED AND DESTROYED PER DAY", toggle.text(:all).squish
+    assert_selector "summary .chart__table-show", text: "SHOW THE TABLE"
+    assert_selector "summary .chart__table-hide", text: "HIDE THE TABLE", visible: :all
+    assert_selector "summary .visually-hidden", text: ": MINTED AND DESTROYED PER DAY", visible: :all
+  end
+
+  test "each table sits in a focusable scroll region named by its caption" do
+    render_inline ChartComponent.new(drawing: drawing, id: "reactor-flows")
+
+    assert_selector "details .chart__scroll[role=region][tabindex='0'][aria-labelledby=reactor-flows-caption] > table", visible: :all
+    assert_selector "caption#reactor-flows-caption", text: "Per day", visible: :all
+  end
+
   test "a sparkline is a canvas hidden from assistive technology, without title, summary or table" do
     sparkline = Charts::Drawing.new(kind: "sparkline", labels: [ "Nov 8", "Nov 9" ], series: { epic: [ 1.2, 1.6 ] })
 

@@ -22,6 +22,8 @@ class ChartComponent < ViewComponent::Base
 
     def table_id = "#{id}-table"
 
+    def caption_id = "#{id}-caption"
+
     def classes = [ "chart", "chart--#{@size}" ].join(" ")
 
     def controller_data

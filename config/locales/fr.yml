@@ -3280,6 +3280,7 @@ fr:
       tooltip: "%{series} : %{value}"
       top_share:
         title: "PART DU TOP 1 %"
+    hide_table: "MASQUER LE TABLEAU"
     missing: "—"
     missing_spoken: "aucune valeur"
     one_below: 2
@@ -3331,6 +3332,7 @@ fr:
           minted: "Frappés (cartes confiées)"
         tooltip: "%{series} : %{value}"
     show_table: "VOIR LE TABLEAU"
+    table_suffix: " : %{title}"
     spoken:
       millions:
         one: "%{number} million de PiCoins"

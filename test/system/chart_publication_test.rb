@@ -9,6 +9,7 @@ class ChartPublicationTest < ApplicationSystemTestCase
   include SteamSignIn
 
   setup do
+    page.driver.browser.execute_cdp("Network.clearBrowserCache")
     clear_snapshots
     Game::Market::ChartPublication.delete_all
     open_market!(first_opened_at: 40.days.ago)

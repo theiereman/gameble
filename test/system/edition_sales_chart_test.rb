@@ -9,6 +9,7 @@ class EditionSalesChartTest < ApplicationSystemTestCase
   include SteamSignIn
 
   setup do
+    page.driver.browser.execute_cdp("Network.clearBrowserCache")
     Game::Market::ChartPublication.delete_all
     open_market!(first_opened_at: 60.days.ago)
     @edition = catalog_card_seasons(:rare_card_one)

@@ -11,6 +11,7 @@ class MarketExchangeTest < ApplicationSystemTestCase
   CHART_CHUNK = /registration-[^\/]*\.js/
 
   setup do
+    page.driver.browser.execute_cdp("Network.clearBrowserCache")
     clear_snapshots
     Game::Market::ChartPublication.delete_all
     open_market!(first_opened_at: 40.days.ago)
@@ -86,6 +87,32 @@ class MarketExchangeTest < ApplicationSystemTestCase
         assert_selector "tbody tr", count: 90
       end
     end
+  end
+
+  test "at 320 CSS px the index keeps its HTML legend without end labels, and the Reactor's table scrolls in its region alone" do
+    90.times do |ago|
+      snapshot!(@yesterday - 30 - ago, average_price_epic: 16_000, median_daily_earnings: 10_000)
+    end
+    %w[reactor rarity_prices].each { Game::Market::PublishChart.new.call(player: accounts_players(:administrator), kind: it).value! }
+    resize_to(320, 800)
+
+    visit market_exchange_path(locale: :en)
+    assert_selector "#reactor-circulation[data-chart-layout=narrow]"
+    figures = "[...document.querySelectorAll('.chart-figures__value')].every((figure) => figure.scrollWidth <= figure.clientWidth)"
+    assert evaluate_script(figures), "each headline figure fits its cell"
+    page.execute_script("document.getElementById('exchange-chart-rarity-prices').scrollIntoView({ block: 'center' })")
+
+    assert_selector "#rarity-index[data-chart-layout=narrow] canvas[style*=height]"
+    assert_selector "#rarity-index .chart__legend-item", count: 5
+    assert_selector "#reactor-flows[data-chart-layout=narrow]"
+    within("#reactor-flows") do
+      find("summary", text: "SHOW THE TABLE").click
+      assert_selector "summary", text: "HIDE THE TABLE"
+      assert_selector ".chart__scroll[role=region][tabindex='0']"
+    end
+    region_scrolls = "(() => { const region = document.querySelector('#reactor-flows .chart__scroll'); return region.scrollWidth > region.clientWidth })()"
+    eventually("the Reactor's table scrolls inside its region") { evaluate_script(region_scrolls) }
+    assert_equal false, evaluate_script("document.documentElement.scrollWidth > window.innerWidth")
   end
 
   test "a visitor and a player find no exchange" do

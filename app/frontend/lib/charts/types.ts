@@ -34,6 +34,8 @@ export type DrawOptions = {
   words: ChartWords
   locale: string
   reducedMotion: boolean
+  narrow?: boolean
+  forcedColors?: boolean
 }
 
 export type DrawnConfiguration = ChartConfiguration

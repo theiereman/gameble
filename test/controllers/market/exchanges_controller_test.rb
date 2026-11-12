@@ -53,7 +53,7 @@ class Market::ExchangesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "h1", "La Bourse de la Confrérie"
     assert_select ".chart-figures__label", "DÉTRUITS / FRAPPÉS"
-    assert_select "details summary", "VOIR LE TABLEAU"
+    assert_select "details summary .chart__table-show", "VOIR LE TABLEAU"
   end
 
   test "with no snapshot staff read dashes and a sentence saying so" do

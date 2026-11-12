@@ -111,6 +111,11 @@
 
 .chart__table {
   max-width: 100%;
+}
+
+.chart__scroll {
+  position: relative;
+  max-width: 100%;
   overflow-x: auto;
 }
 
@@ -119,6 +124,22 @@
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   cursor: pointer;
+}
+
+.chart__table[open] .chart__table-show,
+.chart__table:not([open]) .chart__table-hide {
+  display: none;
+}
+
+.chart--failed .chart__plot {
+  display: none;
+}
+
+@media (max-width: 719px) {
+  .chart__table-toggle {
+    min-height: var(--space-touch-min);
+    line-height: var(--space-touch-min);
+  }
 }
 
 .chart__data {
@@ -177,7 +198,14 @@
 .chart-figures__value {
   margin: 0;
   color: var(--color-text-max);
-  font: var(--font-count-large-phone);
+  font: var(--font-clock);
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 400px) {
+  .chart-figures__value {
+    font: var(--font-count-large-phone);
+  }
 }
 
 @media (min-width: 720px) {

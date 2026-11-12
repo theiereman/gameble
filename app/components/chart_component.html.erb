@@ -19,9 +19,12 @@
   <% end %>
   <p class="chart__summary" id="<%= summary_id %>"><%= drawing.summary %></p>
   <details class="chart__table" id="<%= table_id %>">
-    <summary class="chart__table-toggle"><%= t("charts.show_table") %></summary>
+    <summary class="chart__table-toggle">
+      <span class="chart__table-show"><%= t("charts.show_table") %></span><span class="chart__table-hide"><%= t("charts.hide_table") %></span><span class="visually-hidden"><%= t("charts.table_suffix", title: drawing.title) %></span>
+    </summary>
+    <div class="chart__scroll" role="region" tabindex="0" aria-labelledby="<%= caption_id %>">
     <table class="chart__data">
-      <caption class="chart__data-caption"><%= drawing.table.caption %></caption>
+      <caption class="chart__data-caption" id="<%= caption_id %>"><%= drawing.table.caption %></caption>
       <thead>
         <tr>
           <% drawing.table.columns.each do |column| %>
@@ -40,6 +43,7 @@
         <% end %>
       </tbody>
     </table>
+    </div>
   </details>
 <% end %>
 <% end %>
