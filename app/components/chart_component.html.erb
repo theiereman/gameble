@@ -1,6 +1,8 @@
 <%= tag.figure id:, class: classes, aria: { labelledby: title_id }, data: controller_data do %>
   <figcaption class="chart__caption">
-    <%= content_tag heading, drawing.title, id: title_id, class: "chart__title" %>
+    <%= content_tag heading, id: title_id, class: "chart__title" do %>
+      <%= drawing.title %><% if staff_only %> <span class="chart__staff-flag"><%= t("charts.staff_only") %></span><% end %>
+    <% end %>
   </figcaption>
   <div class="chart__plot">
     <canvas class="chart__canvas" role="img" aria-labelledby="<%= title_id %>" aria-describedby="<%= summary_id %>" data-chart-target="canvas"></canvas>

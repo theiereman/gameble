@@ -11,4 +11,9 @@
       <span class="market-screen__chip market-screen__chip--disabled" aria-disabled="true"><%= label %></span>
     <% end %>
   <% end %>
+  <% if market_exchange_shown? %>
+    <span class="market-screen__exchange">
+      <%= render ButtonComponent.new(variant: :link, size: :small, href: market_exchange_path) do %><%= t("market.exchanges.link") %><% end %>
+    </span>
+  <% end %>
 </nav>

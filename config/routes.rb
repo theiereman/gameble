@@ -293,6 +293,11 @@ Rails.application.routes.draw do
       resource :market_opening, path: "market/opening", only: :create
       resource :market_closing, path: "market/closing", only: :create
       resource :market_settings, path: "market/settings", only: :create
+      # The public charts' publication switches, administrators only.
+      post "market/charts/:kind/publish" => "chart_publications#publish", as: :publish_chart,
+        constraints: { kind: /reactor|rarity_prices|edition_sales/ }
+      post "market/charts/:kind/unpublish" => "chart_publications#unpublish", as: :unpublish_chart,
+        constraints: { kind: /reactor|rarity_prices|edition_sales/ }
 
       # The card preview, both renderers side by side, administrators only.
       resources :cards, only: :index

@@ -598,6 +598,21 @@ fr:
           one: "%{count} jour"
           other: "%{count} jours"
   back_office:
+    chart_switches:
+      cancel: "ANNULER"
+      confirm: "Publier %{chart} pour tous les joueurs ?"
+      heading: "GRAPHES PUBLICS"
+      intro: "Un interrupteur par graphe, rien ne s'ouvre seul."
+      names:
+        edition_sales: "Ventes d'une édition"
+        rarity_prices: "Prix en jours de capsules et indice"
+        reactor: "Le Réacteur"
+      public_since: "public depuis le %{date}"
+      publish: "PUBLIER"
+      published: "%{chart} est public."
+      read_only: "Seul un administrateur publie ou retire un graphe."
+      staff_only: "staff seulement"
+      unpublished: "%{chart} n'est plus visible que par le staff."
     release_notes:
       assistant:
         heading: "Aide de Claude"
@@ -2154,6 +2169,7 @@ fr:
         other: "%{count} nouvelles entrées dans le fil."
   market:
     exchanges:
+      link: "LA BOURSE DE LA CONFRÉRIE"
       show:
         heading: "La Bourse de la Confrérie"
     bids:
@@ -3126,7 +3142,7 @@ fr:
       close: "Fermer"
       market_html: "Votre solde de %{balance} PiCoins est détruit sans remboursement une fois vos annonces en cours retirées et vos offres libérées."
       note: "Seront effacés définitivement : votre identifiant Steam, vos modes de connexion (et, chez Clerk, l'utilisateur qui détient votre adresse e-mail), les téléphones où vont vos notifications, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données, les annonces que vous avez fermées, les notes de version que vous avez vues et votre dernière activité, votre collection, votre vitrine, vos paliers de sets, vos sets perso, vos objectifs, vos succès, vos dos de carte débloqués et votre dos de carte actif, vos capsules, ouvertes ou non, vos scores de chance, vos bonus du jour et vos récompenses de la mission hebdo, vos amis, vos invitations, votre code ami, la dernière ouverture de chacun de vos échanges, vos réactions aux entrées du fil et vos entrées du fil d'activité : tirages, découvertes, reposts, achats annoncés dans le fil et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
-      kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à la mission hebdo, votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé), les signalements, l'historique de modération, les signaux de comptes alternatifs et les versions des réglages du marché, et le journal des actions du jeu. Cette action est irréversible."
+      kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à la mission hebdo, votre historique du marché (annonces, enchères, cartes confiées, avis et mouvements de PiCoins, votre portefeuille vidé), les signalements, l'historique de modération, les signaux de comptes alternatifs, les versions des réglages du marché et les publications des graphes, et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
       submit: "Supprimer définitivement"
@@ -3193,6 +3209,7 @@ fr:
       not_found: "Cette carte n'existe pas."
       throttled: "Trop de reposts en une minute. Réessayez dans un instant."
   charts:
+    staff_only: "VISIBLE PAR LE STAFF"
     circulation:
       words:
         series:
@@ -3817,6 +3834,7 @@ fr:
       invalid_share_image: "L'image d'aperçu de cette carte n'est pas un PNG de carte, dans une des langues de la Confrérie."
       stale_render: "Cette carte a changé pendant que son image d'aperçu était dessinée : cette image n'a pas été gardée."
     game:
+      unknown_chart: "Ce graphe n'existe pas."
       achievement_already_claimed: "Vous avez déjà récupéré cette récompense."
       achievement_not_earned: "Vous n'avez pas obtenu ce succès."
       unknown_achievement: "Ce succès n'existe pas."

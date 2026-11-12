@@ -32,8 +32,8 @@ en:
       kept: 'Kept, without your Steam id or your name: your past trades, your first
         discoveries, your contributions to the weekly mission, your market history (listings,
         bids, entrusted cards, notices and PiCoin movements, your wallet emptied), reports,
-        the moderation history, the market''s alt-account signals and settings versions
-        and the log of game actions. This cannot be undone.'
+        the moderation history, the market''s alt-account signals, settings versions and
+        chart publications and the log of game actions. This cannot be undone.'
       label: Type %{word} to confirm
       market_html: "Your balance of %{balance} PiCoins is destroyed without refund once your running listings are withdrawn and your bids released."
       note: 'Erased for good: your Steam id, your sign-in methods (and, at Clerk, the user that holds your email address), the phones your notifications go to, your name, your profile and its link,
@@ -162,6 +162,21 @@ en:
       no_sale: no sale
       priced: average price %{amount}
   back_office:
+    chart_switches:
+      cancel: CANCEL
+      confirm: "Publish %{chart} for every player?"
+      heading: PUBLIC CHARTS
+      intro: One switch per chart; nothing opens by itself.
+      names:
+        edition_sales: An edition's sales
+        rarity_prices: Prices in days of capsules and index
+        reactor: The Reactor
+      public_since: "public since %{date}"
+      publish: PUBLISH
+      published: "%{chart} is public."
+      read_only: Only an administrator can publish or unpublish a chart.
+      staff_only: staff only
+      unpublished: "%{chart} is visible to staff only."
     release_notes:
       assistant:
         heading: "Claude's help"
@@ -1256,6 +1271,7 @@ en:
     sets:
       ufos: The UFOs
   charts:
+    staff_only: VISIBLE TO STAFF
     circulation:
       words:
         series:
@@ -1517,6 +1533,7 @@ en:
         Published, they would land in the UFOs and leave the franchise, studio and
         hall of fame sets short, unseen. Run steam:fill_card_sources, then publish.'
     game:
+      unknown_chart: This chart does not exist.
       achievement_already_claimed: You have already claimed this reward.
       achievement_not_earned: You have not earned this achievement.
       already_collected: You have already collected today's capsule. The next one
@@ -2526,6 +2543,7 @@ en:
         other: "%{owned} unique cards out of %{total}"
   market:
     exchanges:
+      link: THE BROTHERHOOD'S EXCHANGE
       show:
         heading: The Brotherhood's Exchange
     bids:

@@ -50,6 +50,16 @@ class ChartComponentTest < ViewComponent::TestCase
     assert_equal "2026-11-08", rows.last.find("th[scope=row] time", visible: :all)["datetime"]
   end
 
+  test "a chart shown to staff while unpublished is flagged inside its title, and only then" do
+    render_inline ChartComponent.new(drawing: drawing, id: "reactor-flows", staff_only: true)
+
+    assert_selector "figcaption h3#reactor-flows-title .chart__staff-flag", text: "VISIBLE TO STAFF"
+
+    render_inline ChartComponent.new(drawing: drawing, id: "reactor-flows")
+
+    assert_no_selector ".chart__staff-flag"
+  end
+
   test "a short chart draws at the short height and refuses an unknown size" do
     render_inline ChartComponent.new(drawing: drawing(legend: []), id: "reactor-circulation", size: :short)
 

@@ -1,17 +1,18 @@
 class ChartComponent < ViewComponent::Base
   SIZES = %i[regular short index].freeze
 
-  def initialize(drawing:, id:, size: :regular, heading: :h3)
+  def initialize(drawing:, id:, size: :regular, heading: :h3, staff_only: false)
     raise ArgumentError, "unknown chart size: #{size.inspect}" unless SIZES.include?(size)
 
     @drawing = drawing
     @id = id
     @size = size
     @heading = heading
+    @staff_only = staff_only
   end
 
   private
-    attr_reader :drawing, :id, :heading
+    attr_reader :drawing, :id, :heading, :staff_only
 
     def title_id = "#{id}-title"
 

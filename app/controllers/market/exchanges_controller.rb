@@ -4,9 +4,10 @@ module Market
 
     def show
       authorize %i[market exchange], :show?
-      raise ActiveRecord::RecordNotFound unless current_player&.staff?
+      @charts = Game::Market::ChartPublications.for(current_player)
+      raise ActiveRecord::RecordNotFound unless Game::Market::MarketState.call.first_opened? && @charts.exchange?
 
-      @reactor = Game::Market::EconomySeries.reactor
+      @reactor = Game::Market::EconomySeries.reactor if @charts.visible?(:reactor)
     end
   end
 end

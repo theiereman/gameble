@@ -10,6 +10,7 @@ class Market::ExchangesControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     clear_snapshots
+    Game::Market::ChartPublication.delete_all
     open_market!(first_opened_at: 40.days.ago)
     @yesterday = Time.current.utc.to_date - 1
   end
@@ -65,7 +66,9 @@ class Market::ExchangesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#reactor-flows-summary", "No figure over these 30 days yet."
   end
 
-  test "a visitor and a player get not found" do
+  def publish(kind) = Game::Market::PublishChart.new.call(player: accounts_players(:administrator), kind:).value!
+
+  test "while nothing is published a visitor and a player get not found" do
     month_of_snapshots
 
     get market_exchange_path(locale: :en)
@@ -74,5 +77,90 @@ class Market::ExchangesControllerTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:player))
     get market_exchange_path(locale: :en)
     assert_response :not_found
+  end
+
+  test "an unpublished Reactor is flagged for staff inside its title" do
+    month_of_snapshots
+    sign_in(accounts_players(:moderator))
+
+    get market_exchange_path(locale: :en)
+
+    assert_select "figure#reactor-flows figcaption h3 .chart__staff-flag", "VISIBLE TO STAFF"
+    assert_select "figure#reactor-circulation figcaption .chart__staff-flag", "VISIBLE TO STAFF"
+  end
+
+  test "once the Reactor is published a visitor reads it, unflagged, and staff see it unflagged too" do
+    month_of_snapshots
+    publish("reactor")
+
+    get market_exchange_path(locale: :en)
+    assert_response :success
+    assert_select "figure#reactor-flows"
+    assert_select ".chart__staff-flag", false
+
+    sign_in(accounts_players(:moderator))
+    get market_exchange_path(locale: :en)
+    assert_select ".chart__staff-flag", false
+  end
+
+  test "the edition chart alone published keeps the exchange hidden" do
+    publish("edition_sales")
+
+    get market_exchange_path(locale: :en)
+
+    assert_response :not_found
+  end
+
+  test "the rarity prices alone published open the exchange without the Reactor" do
+    publish("rarity_prices")
+
+    get market_exchange_path(locale: :en)
+
+    assert_response :success
+    assert_select "[data-exchange-panel=reactor]", false
+  end
+
+  test "before the market's first opening nobody, staff included, finds the exchange" do
+    Game::Market::Settings.delete_all
+    close_market!
+    publish("reactor")
+
+    get market_exchange_path(locale: :en)
+    assert_response :not_found
+
+    sign_in(accounts_players(:administrator))
+    get market_exchange_path(locale: :en)
+    assert_response :not_found
+  end
+
+  test "a suspended market keeps the exchange" do
+    close_market!(first_opened_at: 40.days.ago)
+    publish("reactor")
+
+    get market_exchange_path(locale: :en)
+
+    assert_response :success
+    assert_select "figure#reactor-flows"
+  end
+
+  test "the market screen links to the exchange only while one of its charts is visible" do
+    get market_path(locale: :en)
+    assert_select "a[href=?]", market_exchange_path(locale: :en), false
+
+    publish("edition_sales")
+    get market_path(locale: :en)
+    assert_select "a[href=?]", market_exchange_path(locale: :en), false
+
+    publish("reactor")
+    get market_path(locale: :en)
+    assert_select ".market-screen__chips a[href=?]", market_exchange_path(locale: :en), "THE BROTHERHOOD'S EXCHANGE"
+  end
+
+  test "staff see the link before anything is published" do
+    sign_in(accounts_players(:moderator))
+
+    get market_path(locale: :fr)
+
+    assert_select ".market-screen__chips a[href=?]", market_exchange_path(locale: :fr), "LA BOURSE DE LA CONFRÉRIE"
   end
 end

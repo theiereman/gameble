@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_12_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -629,8 +629,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
     t.index ["listing_id", "id"], name: "index_game_market_bids_on_listing_and_id"
     t.index ["player_id", "listing_id"], name: "index_game_market_bids_on_player_and_listing"
     t.check_constraint "maximum > 0", name: "game_market_bids_maximum_check"
-    t.check_constraint "outcome::text = ANY (ARRAY['leading'::character varying::text, 'outbid'::character varying::text, 'beaten'::character varying::text, 'raise'::character varying::text, 'won'::character varying::text, 'lost'::character varying::text, 'voided'::character varying::text])", name: "game_market_bids_outcome_check"
+    t.check_constraint "outcome::text = ANY (ARRAY['leading'::character varying, 'outbid'::character varying, 'beaten'::character varying, 'raise'::character varying, 'won'::character varying, 'lost'::character varying, 'voided'::character varying]::text[])", name: "game_market_bids_outcome_check"
     t.check_constraint "price_after > 0", name: "game_market_bids_price_after_check"
+  end
+
+  create_table "game_market_chart_publications", force: :cascade do |t|
+    t.string "kind", null: false
+    t.datetime "published_at"
+    t.datetime "unpublished_at"
+    t.bigint "changed_by_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["changed_by_id"], name: "index_game_market_chart_publications_on_changed_by_id"
+    t.index ["kind"], name: "index_game_market_chart_publications_on_kind", unique: true
+    t.check_constraint "kind::text = ANY (ARRAY['reactor'::character varying, 'rarity_prices'::character varying, 'edition_sales'::character varying]::text[])", name: "game_market_chart_publications_kind_check"
   end
 
   create_table "game_market_daily_snapshots", force: :cascade do |t|
@@ -680,7 +692,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
     t.index ["listing_id", "player_id", "kind"], name: "index_game_market_ledger_entries_one_settlement", unique: true, where: "(((kind)::text = 'stamp'::text) OR ((kind)::text = 'purchase'::text) OR ((kind)::text = 'sale'::text) OR ((kind)::text = 'commission'::text))"
     t.index ["player_id"], name: "index_game_market_ledger_entries_on_player_id"
     t.index ["settings_id"], name: "index_game_market_ledger_entries_on_settings_id"
-    t.check_constraint "kind::text = ANY (ARRAY['mint'::character varying::text, 'stamp'::character varying::text, 'hold'::character varying::text, 'release'::character varying::text, 'purchase'::character varying::text, 'sale'::character varying::text, 'commission'::character varying::text, 'forfeit'::character varying::text])", name: "game_market_ledger_entries_kind_check"
+    t.check_constraint "kind::text = ANY (ARRAY['mint'::character varying, 'stamp'::character varying, 'hold'::character varying, 'release'::character varying, 'purchase'::character varying, 'sale'::character varying, 'commission'::character varying, 'forfeit'::character varying]::text[])", name: "game_market_ledger_entries_kind_check"
   end
 
   create_table "game_market_listings", force: :cascade do |t|
@@ -712,7 +724,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
     t.check_constraint "current_price >= starting_price", name: "game_market_listings_current_price_check"
     t.check_constraint "duration_hours > 0", name: "game_market_listings_duration_check"
     t.check_constraint "starting_price > 0", name: "game_market_listings_starting_price_check"
-    t.check_constraint "status::text = ANY (ARRAY['open'::character varying::text, 'sold'::character varying::text, 'unsold'::character varying::text, 'cancelled'::character varying::text, 'withdrawn'::character varying::text])", name: "game_market_listings_status_check"
+    t.check_constraint "status::text = ANY (ARRAY['open'::character varying, 'sold'::character varying, 'unsold'::character varying, 'cancelled'::character varying, 'withdrawn'::character varying]::text[])", name: "game_market_listings_status_check"
   end
 
   create_table "game_market_notices", force: :cascade do |t|
@@ -724,7 +736,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
     t.datetime "noticed_at", null: false
     t.index ["player_id", "listing_id"], name: "index_game_market_notices_on_player_and_listing", unique: true
     t.check_constraint "amount IS NULL OR amount >= 0", name: "game_market_notices_amount_check"
-    t.check_constraint "kind::text = ANY (ARRAY['outbid'::character varying::text, 'won'::character varying::text, 'sold'::character varying::text, 'unsold'::character varying::text, 'bought_over'::character varying::text, 'lead_voided'::character varying::text, 'withdrawn'::character varying::text])", name: "game_market_notices_kind_check"
+    t.check_constraint "kind::text = ANY (ARRAY['outbid'::character varying, 'won'::character varying, 'sold'::character varying, 'unsold'::character varying, 'bought_over'::character varying, 'lead_voided'::character varying, 'withdrawn'::character varying]::text[])", name: "game_market_notices_kind_check"
   end
 
   create_table "game_market_settings", force: :cascade do |t|
@@ -1056,6 +1068,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
   add_foreign_key "game_market_archive_stocks", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_market_bids", "accounts_players", column: "player_id"
   add_foreign_key "game_market_bids", "game_market_listings", column: "listing_id"
+  add_foreign_key "game_market_chart_publications", "accounts_players", column: "changed_by_id"
   add_foreign_key "game_market_edition_prices", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_market_ledger_entries", "accounts_players", column: "player_id"
   add_foreign_key "game_market_ledger_entries", "game_market_listings", column: "listing_id"

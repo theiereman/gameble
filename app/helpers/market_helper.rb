@@ -25,6 +25,12 @@ module MarketHelper
     "#{label}, #{t("markets.tile.label_buy_now", price: picoins_label(row.buy_now_price))}"
   end
 
+  def market_exchange_shown?
+    return @market_exchange_shown if defined?(@market_exchange_shown)
+
+    @market_exchange_shown = Game::Market::MarketState.call.first_opened? && Game::Market::ChartPublications.for(current_player).exchange?
+  end
+
   def sort_options = Game::Market::OpenListings::ORDERS.keys
 
   def market_filtered_path(filters, **extra) = market_path(**filters.to_params, **extra.compact)

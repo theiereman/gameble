@@ -18,7 +18,14 @@ module BackOffice
         @state = Game::Market::MarketState.call
         @opening ||= MarketsController::Opening.new
         @closing ||= MarketsController::Closing.new
+        load_chart_switches
         render "back_office/markets/show", status:
+      end
+
+      def load_chart_switches
+        @chart_switches = Game::Market::ChartPublications.switches
+        @can_switch_charts = policy([ :back_office, :chart_publication ]).publish?
+        @switched_chart = flash[:switched_chart]
       end
   end
 end
