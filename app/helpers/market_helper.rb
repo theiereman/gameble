@@ -21,12 +21,9 @@ module MarketHelper
 
   def listing_tile_label(row)
     card = row.card
-    label = t("markets.tile.label", card: card.title, rarity: CardStrings.new.rarity_name(card.rarity), season: card.season_number,
+    t("markets.tile.label", card: card.title, rarity: CardStrings.new.rarity_name(card.rarity), season: card.season_number,
       price: picoins_label(row.current_price), offers: t("markets.tile.offers", count: row.offers),
       time: local_time_text(row.ends_at, :time))
-    return label unless row.buy_now_price
-
-    "#{label}, #{t("markets.tile.label_buy_now", price: picoins_label(row.buy_now_price))}"
   end
 
   def sort_options = Game::Market::OpenListings::ORDERS.keys

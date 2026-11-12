@@ -318,21 +318,20 @@ class PlayerStreamTest < ActiveSupport::TestCase
     assert_equal 1, stream_jobs.size
   end
 
-  test "a sale tells the seller, the winner and the outbid player, once each" do
-    data = { listing_id: 1, seller_id: @alice.id, winner_id: @bob.id, card_season_id: @one, final_price: 10, surplus: 0, outbid_player_id: @alice.id, outbid_released: 5 }
+  test "a sale tells the balance of the seller and the winner, once each" do
+    data = { listing_id: 1, seller_id: @alice.id, winner_id: @bob.id, card_season_id: @one, final_price: 10, surplus: 0 }
 
     notices = PlayerStream.notices(Game::Market::AuctionSold.new(data:)).select { it[:balance] }
 
     assert_equal [ @alice.id, @bob.id ], notices.map { it[:player_id] }
   end
 
-  test "a sale tells the bell of the seller, the winner and the bidder it displaced, once each" do
-    carol = accounts_players(:administrator)
-    data = { listing_id: 1, seller_id: @alice.id, winner_id: @bob.id, card_season_id: @one, final_price: 10, surplus: 0, outbid_player_id: carol.id, outbid_released: 5 }
+  test "a sale tells the bell of the winner and the seller, once each" do
+    data = { listing_id: 1, seller_id: @alice.id, winner_id: @bob.id, card_season_id: @one, final_price: 10, surplus: 0 }
 
     notices = PlayerStream.notices(Game::Market::AuctionSold.new(data:))
 
-    assert_equal [ carol.id, @bob.id, @alice.id ], notices.select { it[:topic] }.map { it[:player_id] }
+    assert_equal [ @bob.id, @alice.id ], notices.select { it[:topic] }.map { it[:player_id] }
   end
 
   test "a bid tells the bidder and the outbid player, once each" do
@@ -367,7 +366,7 @@ class PlayerStreamTest < ActiveSupport::TestCase
     open_market!
     listing = listing!(seller: @alice, card_season: catalog_card_seasons(:portal_one))
     [ @bob, carol ].each { Game::Market::Bid.create!(listing:, player: it, maximum: 30_000, price_after: 20_000, outcome: "beaten") }
-    sold = Game::Market::AuctionSold.new(data: { listing_id: listing.id, seller_id: @alice.id, winner_id: @bob.id, card_season_id: @one, final_price: 10, surplus: 0, outbid_player_id: nil, outbid_released: 0 })
+    sold = Game::Market::AuctionSold.new(data: { listing_id: listing.id, seller_id: @alice.id, winner_id: @bob.id, card_season_id: @one, final_price: 10, surplus: 0 })
     withdrawn = Game::Market::ListingWithdrawn.new(data: { listing_id: listing.id, seller_id: @alice.id, leader_id: nil, released: 0 })
 
     assert_includes PlayerStream.notices(sold).select { it[:topic] }.map { it[:player_id] }, carol.id

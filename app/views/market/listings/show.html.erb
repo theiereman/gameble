@@ -58,12 +58,6 @@
         <%= tag.progress class: class_names("market-listing__progress", "market-listing__progress--soon": time_left_soon?(seconds)),
               max: listing_duration_seconds(@listing), value: listing_elapsed_seconds(@listing), aria: { hidden: true } %>
       <% end %>
-      <% if @listing.buy_now_price && (@sheet.nil? || @suspended) %>
-        <div class="market-listing__figure market-listing__figure--buy-now">
-          <p class="market-listing__label"><%= t(".buy_now") %></p>
-          <%= render PicoinAmountComponent.new(amount: @listing.buy_now_price, class: "market-listing__buy-now") %>
-        </div>
-      <% end %>
     </div>
 
     <%= render "market/bids/region", listing: @listing, sheet: @sheet, outcome: @outcome, viewer: current_player, focus: @focus, suspended: @suspended, events: @events %>

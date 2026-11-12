@@ -19,7 +19,7 @@ class Game::Market::OutbidNoticesTest < ActiveSupport::TestCase
     @card = catalog_card_seasons(:common_card_one)
     open_market!(increment_basis_points: 500, soft_close_seconds: 180)
     hold(@seller, @card.id, 1, reserved: 1)
-    @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, buy_now_price: 60_000, ends_at: 1.day.from_now)
+    @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, ends_at: 1.day.from_now)
     [ @first, @second ].each { fund!(it, 100_000) }
   end
 

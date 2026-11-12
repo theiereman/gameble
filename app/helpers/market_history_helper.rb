@@ -14,10 +14,9 @@ module MarketHistoryHelper
   def outcome_body(outcome, viewer)
     name = render(PlayerNameComponent.new(player: outcome.winner, viewer:)) if outcome.winner
     amounts = { name:, card: outcome.card.title, price: outcome_amount(outcome.price), received: outcome_amount(outcome.received),
-      surplus: outcome_amount(outcome.surplus), suffix: (t("market.listings.outcome.buy_now_suffix") if outcome.buy_now) }
+      surplus: outcome_amount(outcome.surplus) }
     case outcome.kind
     when :won then t(outcome.surplus.positive? ? "market.listings.outcome.won.body_surplus_html" : "market.listings.outcome.won.body_html", **amounts)
-    when :bought then t("market.listings.outcome.bought.body_html", **amounts)
     when :lost then t("market.listings.outcome.lost.body_html", **amounts)
     when :viewer_sold then t("market.listings.outcome.viewer.body_html", **amounts)
     when :seller_sold then t("market.listings.outcome.seller.body_html", **amounts)
@@ -30,7 +29,6 @@ module MarketHistoryHelper
   def outcome_title(outcome)
     case outcome.kind
     when :won then t("market.listings.outcome.won.title", card: outcome.card.title.upcase)
-    when :bought then t("market.listings.outcome.bought.title", card: outcome.card.title.upcase)
     when :lost then t("market.listings.outcome.lost.title")
     when :viewer_sold then t("market.listings.outcome.viewer.title")
     when :seller_sold then t("market.listings.outcome.seller.title")
@@ -42,7 +40,7 @@ module MarketHistoryHelper
 
   def outcome_tone(outcome)
     case outcome.kind
-    when :won, :bought, :seller_sold then "success"
+    when :won, :seller_sold then "success"
     when :cancelled, :withdrawn then "alert"
     else "neutral"
     end

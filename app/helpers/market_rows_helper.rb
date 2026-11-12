@@ -48,7 +48,7 @@ module MarketRowsHelper
 
   def sale_received_line(row) = tag.span(t("market.my_sales.received_html", amount: row_amount(row.received)), class: "market-row__received")
 
-  def relist_sale_path(relist) = new_market_sale_path(ref: relist.ref, start: relist.start, buy_now: relist.buy_now, relisting: 1)
+  def relist_sale_path(relist) = new_market_sale_path(ref: relist.ref, start: relist.start, relisting: 1)
 
   def cancel_dialog_id(token) = "cancel-#{token}"
 

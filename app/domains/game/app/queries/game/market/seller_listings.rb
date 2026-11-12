@@ -1,14 +1,14 @@
 module Game
   module Market
     module SellerListings
-      Relist = Data.define(:ref, :start, :buy_now)
+      Relist = Data.define(:ref, :start)
       Row = Data.define(:token, :card, :status, :current_price, :ends_at, :ended_at, :received, :can_cancel, :relist)
       Groups = Data.define(:in_progress, :ended)
 
       WINDOW = 30.days
       LIMIT = 100
       ENDED_AT = "(CASE status WHEN 'sold' THEN sold_at WHEN 'unsold' THEN ends_at ELSE updated_at END)".freeze
-      COLUMNS = %i[id token status card_season_id current_price final_price starting_price buy_now_price ends_at sold_at updated_at leader_id].freeze
+      COLUMNS = %i[id token status card_season_id current_price final_price starting_price ends_at sold_at updated_at leader_id].freeze
 
       def self.call(player:, locale:)
         now = Time.current
@@ -43,7 +43,7 @@ module Game
       end
 
       def self.relist(listing, card)
-        Relist.new(ref: EntrustableCopies.ref(card.id, card.season_number), start: listing.starting_price, buy_now: listing.buy_now_price)
+        Relist.new(ref: EntrustableCopies.ref(card.id, card.season_number), start: listing.starting_price)
       end
 
       def self.received_by(player, sold)

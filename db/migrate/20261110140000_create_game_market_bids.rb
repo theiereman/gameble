@@ -12,7 +12,7 @@ class CreateGameMarketBids < ActiveRecord::Migration[8.1]
       t.datetime :extended_until
       t.datetime :created_at, null: false
 
-      t.check_constraint "outcome IN (#{OUTCOMES.map { |outcome| "'#{outcome}'" }.join(", ")})", name: "game_market_bids_outcome_check"
+      t.check_constraint "outcome ~ '^(#{OUTCOMES.join("|")})$'", name: "game_market_bids_outcome_check"
       t.check_constraint "maximum > 0", name: "game_market_bids_maximum_check"
       t.check_constraint "price_after > 0", name: "game_market_bids_price_after_check"
     end

@@ -3,22 +3,15 @@ import { writeText } from "../lib/dom_writes"
 import type { Terms } from "../lib/annonce"
 
 const MINIMUM_ID = "annonce-minimum"
-const TERMS_ATTRIBUTES = [
-  "minimum",
-  "available",
-  "buy-now",
-  "own-maximum",
-  "price",
-  "unusual-multiple",
-  "answered",
-].map((name) => `data-annonce-field-${name}-value`)
+const TERMS_ATTRIBUTES = ["minimum", "available", "own-maximum", "price", "unusual-multiple", "answered"].map(
+  (name) => `data-annonce-field-${name}-value`,
+)
 
 export default class AnnonceFieldController extends Controller<HTMLElement> {
   static targets = ["input", "error"]
   static values = {
     minimum: Number,
     available: Number,
-    buyNow: Number,
     ownMaximum: Number,
     price: Number,
     unusualMultiple: Number,
@@ -30,7 +23,6 @@ export default class AnnonceFieldController extends Controller<HTMLElement> {
   declare readonly errorTarget: HTMLElement
   declare readonly minimumValue: number
   declare readonly availableValue: number
-  declare readonly buyNowValue: number
   declare readonly ownMaximumValue: number
   declare readonly priceValue: number
   declare readonly unusualMultipleValue: number
@@ -52,7 +44,6 @@ export default class AnnonceFieldController extends Controller<HTMLElement> {
     return {
       minimum: this.minimumValue,
       available: this.availableValue,
-      buyNow: this.buyNowValue > 0 ? this.buyNowValue : null,
       ownMaximum: this.ownMaximumValue > 0 ? this.ownMaximumValue : null,
       price: this.priceValue,
       unusualMultiple: this.unusualMultipleValue,

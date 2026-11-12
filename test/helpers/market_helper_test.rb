@@ -49,9 +49,9 @@ class MarketHelperTest < ActionView::TestCase
     assert_equal "moins d'une minute", data[:listing_clock_under_template_value]
   end
 
-  test "the tile label names card, rarity, season, price, offers, end and buy-now" do
+  test "the tile label names card, rarity, season, price, offers and end" do
     card = Catalog::CardViews.call([ catalog_card_seasons(:rare_card_one).id ], locale: :en).values.first
-    row = Game::Market::OpenListings::Row.new(token: "t", card:, current_price: 9_000, buy_now_price: nil, ends_at: Time.utc(2026, 11, 10, 22, 14), offers: 1)
+    row = Game::Market::OpenListings::Row.new(token: "t", card:, current_price: 9_000, ends_at: Time.utc(2026, 11, 10, 22, 14), offers: 1)
 
     label = I18n.with_locale(:en) { listing_tile_label(row) }
 
@@ -61,7 +61,7 @@ class MarketHelperTest < ActionView::TestCase
 
   test "the tile label reads the number of public offers" do
     card = Catalog::CardViews.call([ catalog_card_seasons(:rare_card_one).id ], locale: :en).values.first
-    row = Game::Market::OpenListings::Row.new(token: "t", card:, current_price: 9_000, buy_now_price: nil, ends_at: Time.utc(2026, 11, 10, 22, 14), offers: 3)
+    row = Game::Market::OpenListings::Row.new(token: "t", card:, current_price: 9_000, ends_at: Time.utc(2026, 11, 10, 22, 14), offers: 3)
 
     assert_match(/9,000 PiCoins, 3 offers, ends at/, I18n.with_locale(:en) { listing_tile_label(row) })
   end

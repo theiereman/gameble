@@ -143,7 +143,7 @@ class PlayerExport
 
     def listing(listing)
       { token: listing.token, card: card(listing.card_season_id), status: listing.status, startingPrice: listing.starting_price,
-        buyNowPrice: listing.buy_now_price, currentPrice: listing.current_price, finalPrice: listing.final_price, durationHours: listing.duration_hours,
+        currentPrice: listing.current_price, finalPrice: listing.final_price, durationHours: listing.duration_hours,
         listedAt: time(listing.created_at), endsAt: time(listing.ends_at), soldAt: time(listing.sold_at) }
     end
 

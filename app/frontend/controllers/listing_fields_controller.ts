@@ -6,24 +6,12 @@ import type { FieldsView, FieldView } from "../lib/listing_form_view"
 const START_HINT = "sale-start-hint"
 
 export default class ListingFieldsController extends Controller<HTMLElement> {
-  static targets = [
-    "start",
-    "buyNow",
-    "duration",
-    "hint",
-    "startError",
-    "buyNowError",
-    "durationError",
-    "priceSlot",
-    "priceTemplate",
-  ]
+  static targets = ["start", "duration", "hint", "startError", "durationError", "priceSlot", "priceTemplate"]
 
   declare readonly startTarget: HTMLInputElement
-  declare readonly buyNowTarget: HTMLInputElement
   declare readonly durationTargets: HTMLInputElement[]
   declare readonly hintTarget: HTMLElement
   declare readonly startErrorTarget: HTMLElement
-  declare readonly buyNowErrorTarget: HTMLElement
   declare readonly durationErrorTarget: HTMLElement
   declare readonly hasPriceSlotTarget: boolean
   declare readonly priceSlotTarget: HTMLElement
@@ -31,21 +19,16 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
 
   private pristine = true
 
-  render({ chosen, hint, start, buyNow, duration, locked }: FieldsView): void {
+  render({ chosen, hint, start, duration, locked }: FieldsView): void {
     writeText(this.hintTarget, hint)
     this.showPrice(chosen)
     this.reflectField(this.startTarget, this.startErrorTarget, start, START_HINT)
-    this.reflectField(this.buyNowTarget, this.buyNowErrorTarget, buyNow)
     this.reflectDuration(duration)
     this.element.toggleAttribute("inert", locked)
   }
 
   focusField(field: Field): void {
-    ;(field === "start" ? this.startTarget : this.buyNowTarget).focus()
-  }
-
-  focusBuyNow(): void {
-    this.buyNowTarget.focus()
+    if (field === "start") this.startTarget.focus()
   }
 
   focusDuration(): void {
@@ -56,7 +39,7 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
   type(event: Event): void {
     this.pristine = false
     const input = event.currentTarget as HTMLInputElement
-    this.dispatch("typed", { detail: { field: input === this.startTarget ? "start" : "buyNow", value: input.value } })
+    this.dispatch("typed", { detail: { field: "start", value: input.value } })
   }
 
   pick(event: Event): void {
@@ -67,8 +50,7 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
   keydown(event: KeyboardEvent): void {
     if (event.key !== "Enter") return
     event.preventDefault()
-    const target = event.currentTarget
-    const field = target === this.startTarget ? "start" : target === this.buyNowTarget ? "buyNow" : "duration"
+    const field = event.currentTarget === this.startTarget ? "start" : "duration"
     this.dispatch("entered", { detail: { field } })
   }
 

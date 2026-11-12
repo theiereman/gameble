@@ -1,27 +1,14 @@
 import bidCommitmentsJson from "../../../test/fixtures/files/bid_commitments.json?raw"
 import { describe, expect, it } from "vitest"
-import {
-  buttonKind,
-  commitment,
-  edit,
-  parse,
-  posted,
-  reachesBuyNow,
-  retermed,
-  start,
-  submit,
-  submitted,
-  type Terms,
-} from "./annonce"
+import { buttonKind, commitment, edit, parse, posted, retermed, start, submit, submitted, type Terms } from "./annonce"
 
-type Row = { maximum: number; own_maximum: number | null; buy_now: number | null; needed: number }
+type Row = { maximum: number; own_maximum: number | null; needed: number }
 
 const rows: Row[] = JSON.parse(bidCommitmentsJson)
 
 const terms = (overrides: Partial<Terms> = {}): Terms => ({
   minimum: 20_000,
   available: 100_000,
-  buyNow: null,
   ownMaximum: null,
   price: 20_000,
   unusualMultiple: 3,
@@ -47,8 +34,8 @@ describe("parse", () => {
 })
 
 describe("commitment", () => {
-  it.each(rows)("matches the server's needed amount for $maximum", ({ maximum, own_maximum, buy_now, needed }) => {
-    const state = start(terms({ ownMaximum: own_maximum, buyNow: buy_now }))
+  it.each(rows)("matches the server's needed amount for $maximum", ({ maximum, own_maximum, needed }) => {
+    const state = start(terms({ ownMaximum: own_maximum }))
     expect(commitment(state, maximum)).toBe(needed)
   })
 })
@@ -59,17 +46,9 @@ describe("the button kind", () => {
     expect(buttonKind(edit(start(terms()), "3x0"))).toBe("idle")
   })
 
-  it("bids for a valid amount, raises for a leader, buys at the buy-now", () => {
+  it("bids for a valid amount and raises for a leader", () => {
     expect(buttonKind(edit(start(terms()), "30000"))).toBe("bid")
     expect(buttonKind(edit(start(terms({ ownMaximum: 30_000 })), "35000"))).toBe("raise")
-    expect(buttonKind(edit(start(terms({ buyNow: 60_000 })), "60000"))).toBe("buy")
-    expect(buttonKind(edit(start(terms({ buyNow: 60_000, ownMaximum: 30_000 })), "70000"))).toBe("buy")
-    expect(buttonKind(edit(start(terms({ buyNow: 60_000 })), "59999"))).toBe("bid")
-  })
-
-  it("knows when an amount reaches the buy-now", () => {
-    expect(reachesBuyNow(terms(), 1_000_000)).toBe(false)
-    expect(reachesBuyNow(terms({ buyNow: 60_000 }), 60_000)).toBe(true)
   })
 })
 

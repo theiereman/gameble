@@ -16,7 +16,6 @@ const strings: ListingStrings = {
   invalidPrice: "Enter a whole number of PiCoins, above zero.",
   minimumHint: "At least %{amount} for a %{rarity}",
   minimumRefusal: "At least %{amount} for a %{rarity}.",
-  notAboveStart: "The buy-now price must be above the starting price.",
   status: "You receive %{amount} PiCoins",
   step: "Step %{step} of 2",
 }
@@ -34,8 +33,8 @@ const rare: Edition = {
 }
 const common: Edition = { ...rare, ref: "beta:1", rarity: "common", rarityName: "common", minimum: 100, stamp: 50 }
 
-function stateWith(values: { start?: string; buyNow?: string }, chosen: string | null = "alpha:1"): ListingState {
-  return start([rare, common], 1_000, { start: "", buyNow: "", duration: "24", ...values }, chosen, "wide")
+function stateWith(values: { start?: string }, chosen: string | null = "alpha:1"): ListingState {
+  return start([rare, common], 1_000, { start: "", duration: "24", ...values }, chosen, "wide")
 }
 
 describe("grid view", () => {
@@ -76,12 +75,10 @@ describe("fields view", () => {
   })
 
   it("shows a refusal under its field once validated, and none before", () => {
-    const state = stateWith({ start: "1000", buyNow: "1000" })
+    const state = stateWith({ start: "abc" })
 
-    expect(fieldsViewOf(state, forms).buyNow.error).toBeNull()
-    const view = fieldsViewOf(validate(state), forms)
-    expect(view.buyNow.error).toBe(strings.notAboveStart)
-    expect(view.start.error).toBeNull()
+    expect(fieldsViewOf(state, forms).start.error).toBeNull()
+    expect(fieldsViewOf(validate(state), forms).start.error).toBe(strings.invalidPrice)
   })
 
   it("names the minimum and the rarity in the refusal of a low start", () => {

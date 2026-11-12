@@ -1,16 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import {
-  LIVE_DELAY,
-  edit,
-  parse,
-  posted,
-  retermed,
-  start,
-  submit,
-  submitted,
-  type AnnonceState,
-  type Submitter,
-} from "../lib/annonce"
+import { LIVE_DELAY, edit, parse, posted, retermed, start, submit, submitted, type AnnonceState } from "../lib/annonce"
 import { ask, consented, gate, grant, multipleOf } from "../lib/annonce_confirm"
 import { readLine, readOutcome } from "../lib/annonce_status"
 import { dispatchGameble } from "../lib/events"
@@ -129,11 +118,9 @@ export default class AnnonceController extends Controller<HTMLElement> {
     const state = this.state
     if (!state) return
     const submitter = event.submitter instanceof HTMLElement ? event.submitter : null
-    const kind: Submitter = submitter?.getAttribute("name") === "buy_now" ? "buy_now" : "bid"
-    const needed = consented(state, kind) ? "none" : gate(state, kind === "buy_now")
-    if (needed !== "none") {
+    if (!consented(state) && gate(state) === "unusual") {
       event.preventDefault()
-      this.confirmFirst(ask(state, needed, kind), needed, submitter)
+      this.confirmFirst(ask(state), submitter)
       return
     }
     const next = submit(state)
@@ -148,7 +135,7 @@ export default class AnnonceController extends Controller<HTMLElement> {
   confirmed(): void {
     const state = this.state
     if (!state?.pending) return
-    this.dialogFor(state.pending.gate)?.close()
+    this.unusualDialog()?.close()
     this.state = grant(state)
     const form = this.element.querySelector<HTMLFormElement>("form#annonce-form")
     if (this.asked?.isConnected) form?.requestSubmit(this.asked)
@@ -160,26 +147,21 @@ export default class AnnonceController extends Controller<HTMLElement> {
     if (this.state) this.state = submitted(this.state)
   }
 
-  private confirmFirst(state: AnnonceState, needed: "unusual" | "buy_now", submitter: HTMLElement | null): void {
+  private confirmFirst(state: AnnonceState, submitter: HTMLElement | null): void {
     this.state = state
     this.asked = submitter
-    const dialog = this.dialogFor(needed)
-    if (!dialog) return
-    if (needed === "buy_now") {
-      const opener = submitter ?? (this.hasAnnonceFootOutlet ? this.annonceFootOutlet.button : null)
-      if (opener) dialog.open(opener)
-    } else if (this.hasAnnonceFieldOutlet) {
-      const amount = parse(state.text) ?? 0
-      const texts = {
-        amount: picoins(amount, { locale: this.localeValue }),
-        multiple: String(multipleOf(amount, state.terms.price)),
-      }
-      dialog.open(this.annonceFieldOutlet.input, texts)
+    const dialog = this.unusualDialog()
+    if (!dialog || !this.hasAnnonceFieldOutlet) return
+    const amount = parse(state.text) ?? 0
+    const texts = {
+      amount: picoins(amount, { locale: this.localeValue }),
+      multiple: String(multipleOf(amount, state.terms.price)),
     }
+    dialog.open(this.annonceFieldOutlet.input, texts)
   }
 
-  private dialogFor(kind: "unusual" | "buy_now"): AnnonceDialogController | undefined {
-    return this.annonceDialogOutlets.find((dialog) => dialog.kind === kind)
+  private unusualDialog(): AnnonceDialogController | undefined {
+    return this.annonceDialogOutlets.find((dialog) => dialog.kind === "unusual")
   }
 
   private forms(): Forms {

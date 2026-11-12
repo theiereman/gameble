@@ -60,9 +60,3 @@
 .listing-tile__time--soon {
   color: var(--color-alert);
 }
-
-.listing-tile__buy-now {
-  color: var(--color-accent);
-  font: var(--font-label);
-  text-transform: uppercase;
-}

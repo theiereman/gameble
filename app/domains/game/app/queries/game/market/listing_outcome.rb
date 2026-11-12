@@ -2,12 +2,12 @@ module Game
   module Market
     module ListingOutcome
       Closing = Data.define
-      Outcome = Data.define(:kind, :card, :winner, :price, :surplus, :received, :buy_now)
+      Outcome = Data.define(:kind, :card, :winner, :price, :surplus, :received)
 
       WITHOUT_SALE = { "unsold" => :no_bid, "cancelled" => :cancelled, "withdrawn" => :withdrawn }.freeze
 
       def self.call(token:, viewer:, locale:)
-        listing = Listing.where(token: token.to_s).select(:id, :status, :ends_at, :card_season_id, :seller_id, :leader_id, :final_price, :buy_now_price).first
+        listing = Listing.where(token: token.to_s).select(:id, :status, :ends_at, :card_season_id, :seller_id, :leader_id, :final_price).first
         return unless listing
         return (Closing.new if listing.ends_at <= Time.current) if listing.status == "open"
 
@@ -18,17 +18,16 @@ module Game
         sold(listing, viewer, card)
       end
 
-      def self.outcome(kind, card, winner: nil, price: nil, surplus: 0, received: 0, buy_now: false)
-        Outcome.new(kind:, card:, winner:, price:, surplus:, received:, buy_now:)
+      def self.outcome(kind, card, winner: nil, price: nil, surplus: 0, received: 0)
+        Outcome.new(kind:, card:, winner:, price:, surplus:, received:)
       end
 
       def self.sold(listing, viewer, card)
         winner = Accounts::Player.find(listing.leader_id)
         price = listing.final_price
-        buy_now = listing.buy_now_price == price
-        shared = { winner:, price:, buy_now: }
+        shared = { winner:, price: }
         if viewer&.id == winner.id
-          outcome(buy_now ? :bought : :won, card, **shared, surplus: [ surplus_of(listing, price), 0 ].max)
+          outcome(:won, card, **shared, surplus: [ surplus_of(listing, price), 0 ].max)
         elsif viewer&.id == listing.seller_id
           outcome(:seller_sold, card, **shared, received: received_by(listing, viewer))
         else

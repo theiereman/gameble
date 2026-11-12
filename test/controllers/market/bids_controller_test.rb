@@ -23,7 +23,7 @@ class Market::BidsControllerTest < ActionDispatch::IntegrationTest
     @card = catalog_card_seasons(:common_card_one)
     open_market!(first_opened_at: 1.day.ago, increment_basis_points: 500, soft_close_seconds: 180)
     hold(@seller, @card.id, 1, reserved: 1)
-    @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, buy_now_price: 60_000, ends_at: 1.day.from_now)
+    @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, ends_at: 1.day.from_now)
     [ @first, @second ].each { fund!(it, 100_000) }
   end
 
@@ -120,18 +120,6 @@ class Market::BidsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ 65_000, 35_000 ], figures(@first)
   end
 
-  test "a maximum at the buy-now price buys and answers the buyer's outcome" do
-    sign_in(@second)
-    post_bid("60000")
-
-    assert_response :success
-    assert_select "#annonce-bid[data-focus=heading]"
-    assert_select "#annonce-bid h2#listing-outcome-heading", "YOU BOUGHT TIN SOLDIER"
-    assert_select "#annonce-bid a", "SEE THE CARD"
-    assert_select "#annonce-bid form", false
-    assert_equal "sold", @listing.reload.status
-  end
-
   test "below the minimum names it, and says the price changed when the drawn minimum differs" do
     bid(@first, 30_000)
     sign_in(@second)
@@ -149,7 +137,6 @@ class Market::BidsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "more than available names the fresh figure and keeps the text" do
-    @listing.update_columns(buy_now_price: nil)
     sign_in(@second)
     post_bid("100001")
 
@@ -212,74 +199,6 @@ class Market::BidsControllerTest < ActionDispatch::IntegrationTest
 
     assert_no_match(/(?:id|listing|bid)[-_=:"]#{@listing.id}\b/, response.body)
     assert_select "[style]", false
-  end
-
-  test "buy now buys at the buy-now price and answers the buyer's outcome" do
-    sign_in(@second)
-    post_bid("", buy_now: "1")
-
-    assert_response :success
-    assert_select "#annonce-bid h2#listing-outcome-heading", "YOU BOUGHT TIN SOLDIER"
-    assert_select "#annonce-bid a", "SEE THE CARD"
-    assert_equal [ @second.id, 60_000 ], @listing.reload.attributes.values_at("leader_id", "final_price")
-    assert_equal [ 40_000, 0 ], figures(@second)
-    assert_equal 1, Game::Holding.where(player_id: @second.id, card_season_id: @card.id).sum(:quantity)
-  end
-
-  test "the typed text is ignored when the buy-now button is pressed" do
-    sign_in(@second)
-    post_bid("25000", buy_now: "1")
-
-    assert_equal 60_000, @listing.reload.final_price
-  end
-
-  test "a leader buying now holds only the difference" do
-    bid(@first, 30_000)
-    sign_in(@first)
-    post_bid("", buy_now: "1")
-
-    assert_response :success
-    assert_equal [ 40_000, 0 ], figures(@first)
-    assert_equal "sold", @listing.reload.status
-  end
-
-  test "buy now on a listing without a buy-now is refused and nothing changes" do
-    @listing.update_columns(buy_now_price: nil)
-    sign_in(@second)
-
-    nothing_changes do
-      post_bid("30000", buy_now: "1")
-    end
-
-    assert_response :unprocessable_content
-    assert_equal "Enter a whole number of PiCoins, above zero.", refusal
-  end
-
-  test "an unaffordable buy-now is refused as more than available" do
-    @listing.update_columns(buy_now_price: 100_001)
-    sign_in(@second)
-
-    nothing_changes do
-      post_bid("", buy_now: "1")
-    end
-
-    assert_equal "You can commit at most 100,000.", refusal
-  end
-
-  test "buy now by a visitor is sent home" do
-    assert_no_difference -> { Game::Market::Bid.count } do
-      post_bid("", buy_now: "1")
-    end
-
-    assert_redirected_to home_path(locale: :en)
-  end
-
-  test "buy now on an ended listing gets the operation's own refusal" do
-    sign_in(@second)
-    @listing.update_columns(ends_at: 1.minute.ago)
-    post_bid("", buy_now: "1")
-
-    assert_select "#annonce-bid .market-bid__note", "Your amount was not recorded."
   end
 
   test "a bid sent as the market is suspended places nothing and answers with the banner and the disabled form" do

@@ -52,7 +52,7 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
     open_for_good
     seller = accounts_players(:player)
     late = listing!(seller:, card_season: catalog_card_seasons(:common_card_one), hours: 72)
-    soon = listing!(seller:, card_season: catalog_card_seasons(:rare_card_one), starting_price: 9_000, buy_now_price: 20_000, hours: 12,
+    soon = listing!(seller:, card_season: catalog_card_seasons(:rare_card_one), starting_price: 9_000, hours: 12,
       ends_at: 40.minutes.from_now)
     listing!(seller:, card_season: catalog_card_seasons(:uncommon_card_one), status: "sold")
 
@@ -60,11 +60,9 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal [ soon, late ].map { market_listing_path(locale: :en, token: it.token) }, tiles.map { it.at_css("a")["href"] }
     label = tiles.first.at_css("a")["aria-label"]
-    assert_match(/\ABlue Depths, Rare, season 1, 9,000 PiCoins, 0 offers, ends at .+, buy now 20,000 PiCoins\z/, label)
+    assert_match(/\ABlue Depths, Rare, season 1, 9,000 PiCoins, 0 offers, ends at .+\z/, label)
     assert_select ".listing-tile:first-child .listing-tile__time.listing-tile__time--soon"
     assert_select ".listing-tile:last-child .listing-tile__time--soon", false
-    assert_select ".listing-tile:first-child .listing-tile__buy-now", "Buy now"
-    assert_select ".listing-tile:last-child .listing-tile__buy-now", false
     assert_select ".market-screen__empty", false
   end
 

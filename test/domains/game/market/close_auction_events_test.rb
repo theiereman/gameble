@@ -28,7 +28,7 @@ class Game::Market::CloseAuctionEventsTest < ActiveSupport::TestCase
   def close = Game::Market::CloseAuction.new.call(player: @seller, listing_id: @listing.id)
 
   def sold_event = Game::Market::AuctionSold.new(data: { listing_id: @listing.id, seller_id: @seller.id, winner_id: @winner.id, card_season_id: @card.id,
-    final_price: 31_500, surplus: 8_500, outbid_player_id: nil, outbid_released: 0 })
+    final_price: 31_500, surplus: 8_500 })
 
   test "goals and achievements hear the sale for the winner only" do
     dropped = []

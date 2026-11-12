@@ -28,14 +28,14 @@ class ButtonComponentTest < ViewComponent::TestCase
   end
 
   test "a submit button carries a name and a value" do
-    render_inline(ButtonComponent.new(variant: :secondary, type: :submit, name: "buy_now", value: "1")) { "Buy now" }
+    render_inline(ButtonComponent.new(variant: :secondary, type: :submit, name: "choice", value: "1")) { "Choose" }
 
-    assert_selector "button.button--secondary[type=submit][name=buy_now][value='1']", text: "Buy now"
+    assert_selector "button.button--secondary[type=submit][name=choice][value='1']", text: "Choose"
   end
 
   test "a name and a value are refused on a link, a form button and a dialog opener" do
     [ { href: "/en" }, { href: "/en", method: :post }, { opens: "dialog" } ].each do |options|
-      assert_raises(ArgumentError) { ButtonComponent.new(name: "buy_now", value: "1", **options) }
+      assert_raises(ArgumentError) { ButtonComponent.new(name: "choice", value: "1", **options) }
     end
   end
 

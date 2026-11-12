@@ -19,7 +19,7 @@ class Game::Market::ListingOutcomeTest < ActiveSupport::TestCase
     @card = catalog_card_seasons(:common_card_one)
     open_market!(increment_basis_points: 500, soft_close_seconds: 180)
     hold(@seller, @card.id, 1, reserved: 1)
-    @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, buy_now_price: 60_000, ends_at: 1.day.from_now)
+    @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, ends_at: 1.day.from_now)
     [ @winner, @loser ].each { fund!(it, 100_000) }
   end
 
@@ -48,7 +48,7 @@ class Game::Market::ListingOutcomeTest < ActiveSupport::TestCase
     sell_to_winner
     result = outcome(@winner)
 
-    assert_equal [ :won, 31_500, 8_500, false ], [ result.kind, result.price, result.surplus, result.buy_now ]
+    assert_equal [ :won, 31_500, 8_500 ], [ result.kind, result.price, result.surplus ]
     assert_equal @winner, result.winner
     assert_equal @card.card.slug, result.card.id
   end
@@ -90,16 +90,6 @@ class Game::Market::ListingOutcomeTest < ActiveSupport::TestCase
     Game::Market::CloseAuction.new.call(player: @seller, listing_id: @listing.id)
 
     assert_equal :won, outcome(@winner).kind
-  end
-
-  test "a purchase at the buy-now price is bought for the winner and marked for the others" do
-    bid(@loser, 30_000)
-    bid(@winner, 60_000)
-
-    assert_equal [ :bought, 60_000, true ], outcome(@winner).then { [ it.kind, it.price, it.buy_now ] }
-    assert_equal [ :seller_sold, true ], outcome(@seller).then { [ it.kind, it.buy_now ] }
-    assert_equal [ :lost, true ], outcome(@loser).then { [ it.kind, it.buy_now ] }
-    assert_equal [ :viewer_sold, true ], outcome(nil).then { [ it.kind, it.buy_now ] }
   end
 
   test "an auction without a bid, a cancelled one and a withdrawn one read their own outcome" do

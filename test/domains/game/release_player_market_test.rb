@@ -15,7 +15,7 @@ class Game::ReleasePlayerMarketTest < ActiveSupport::TestCase
 
   test "the deletion erases the player's market notices and keeps the notices of others that name them" do
     Game::Market::Notice.record(player_id: @player.id, listing_id: @listing.id, kind: "outbid", other_player_id: @other.id, amount: 5)
-    Game::Market::Notice.record(player_id: @other.id, listing_id: @listing.id, kind: "bought_over", other_player_id: @player.id, amount: 5)
+    Game::Market::Notice.record(player_id: @other.id, listing_id: @listing.id, kind: "outbid", other_player_id: @player.id, amount: 5)
 
     assert Game::ReleasePlayer.new.call(player: @player).success?
 

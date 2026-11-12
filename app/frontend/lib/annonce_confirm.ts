@@ -1,4 +1,4 @@
-import { parse, reachesBuyNow, type AnnonceState, type Gate, type Submitter } from "./annonce"
+import { parse, type AnnonceState, type Gate } from "./annonce"
 
 export function multipleOf(amount: number, price: number): number {
   return Math.floor(amount / price)
@@ -9,25 +9,24 @@ function unusual({ terms }: AnnonceState, amount: number): boolean {
   return Number.isSafeInteger(threshold) && amount >= threshold
 }
 
-export function gate(state: AnnonceState, buyNowButton: boolean): Gate {
+export function gate(state: AnnonceState): Gate {
   const amount = parse(state.text)
-  if (buyNowButton || (amount !== null && reachesBuyNow(state.terms, amount))) return "buy_now"
   return amount !== null && unusual(state, amount) ? "unusual" : "none"
 }
 
-export function ask(state: AnnonceState, asked: Exclude<Gate, "none">, submitter: Submitter): AnnonceState {
-  return { ...state, pending: { gate: asked, submitter } }
+export function ask(state: AnnonceState): AnnonceState {
+  return { ...state, pending: true }
 }
 
 export function grant(state: AnnonceState): AnnonceState {
   if (!state.pending) return state
-  return { ...state, pending: null, consent: { submitter: state.pending.submitter, text: state.text } }
+  return { ...state, pending: false, consent: state.text }
 }
 
 export function revoke(state: AnnonceState): AnnonceState {
-  return state.pending === null && state.consent === null ? state : { ...state, pending: null, consent: null }
+  return !state.pending && state.consent === null ? state : { ...state, pending: false, consent: null }
 }
 
-export function consented(state: AnnonceState, submitter: Submitter): boolean {
-  return state.consent !== null && state.consent.submitter === submitter && state.consent.text === state.text
+export function consented(state: AnnonceState): boolean {
+  return state.consent !== null && state.consent === state.text
 }

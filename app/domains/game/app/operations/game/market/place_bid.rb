@@ -1,7 +1,6 @@
 module Game
   module Market
     class PlaceBid < Operation
-      include AuctionSettlement
       include PriceAmount
 
       def call(player:, listing_id:, maximum:)
@@ -10,7 +9,7 @@ module Game
         seen = step find_listing(listing_id)
 
         transaction do
-          TradeLocks.players(*[ player.id, (seen.seller_id if seen.buy_now_price && maximum >= seen.buy_now_price) ].compact)
+          TradeLocks.players(player.id)
           step still_present(player)
           listing = Listing.lock.find(seen.id)
           now = Time.current
@@ -59,17 +58,8 @@ module Game
       def place(terms)
         branch = terms.branch
         Ledger.post(send(:"on_#{branch}", terms))
-        branch == :buy_now ? publish_sale(terms) : publish_bid(terms, branch)
+        publish_bid(terms, branch)
         answer(terms, branch)
-      end
-
-      def on_buy_now(terms)
-        listing = terms.listing
-        price = listing.buy_now_price
-        record(terms, outcome: "leading", maximum: price, price_after: price)
-        listing.update!(leader_id: terms.player.id, leader_maximum: price, current_price: price)
-        sale = settle_sale(listing:, winner_id: terms.player.id, held: price, final_price: price, now: terms.now)
-        [ *hold(terms, terms.needed), *sale, *release(terms, terms.displaced) ]
       end
 
       def on_new_leader(terms)
@@ -98,8 +88,8 @@ module Game
         hold(terms, terms.needed)
       end
 
-      def record(terms, outcome:, price_after:, maximum: terms.maximum, extended_until: nil)
-        Bid.create!(listing: terms.listing, player: terms.player, maximum:, price_after:, outcome:, extended_until:)
+      def record(terms, outcome:, price_after:, extended_until: nil)
+        Bid.create!(listing: terms.listing, player: terms.player, maximum: terms.maximum, price_after:, outcome:, extended_until:)
       end
 
       def hold(terms, amount)
@@ -114,13 +104,6 @@ module Game
         Ledger::Entry.new(player_id:, kind:, available_delta: available, committed_delta: committed, listing_id: terms.listing.id, settings_id: terms.listing.settings_id)
       end
 
-      def publish_sale(terms)
-        listing = terms.listing
-        other = terms.displaced
-        publish_to_seller(listing, sold_event(listing:, winner_id: terms.player.id, final_price: listing.buy_now_price, surplus: 0,
-          outbid_player_id: other&.player_id, outbid_released: other ? other.maximum : 0))
-      end
-
       def publish_bid(terms, branch)
         outbid = branch == :new_leader ? terms.displaced : nil
         event = BidPlaced.new(data: { listing_id: terms.listing.id, bidder_id: terms.player.id, branch: branch.to_s,
@@ -130,8 +113,7 @@ module Game
 
       def answer(terms, branch)
         listing = terms.listing.reload
-        sold = branch == :buy_now
-        minimum = sold ? nil : AuctionMath.minimum_bid(price: listing.current_price, starting_price: listing.starting_price, buy_now_price: listing.buy_now_price, basis_points: terms.basis_points)
+        minimum = AuctionMath.minimum_bid(price: listing.current_price, starting_price: listing.starting_price, basis_points: terms.basis_points)
         BidAnswer.new(branch:, equal_maximum: branch == :beaten && terms.maximum == terms.leader.maximum, price: listing.current_price,
           maximum: branch == :beaten ? nil : listing.leader_maximum, minimum:, listing:)
       end

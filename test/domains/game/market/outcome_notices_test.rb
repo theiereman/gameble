@@ -19,7 +19,7 @@ class Game::Market::OutcomeNoticesTest < ActiveSupport::TestCase
     @card = catalog_card_seasons(:common_card_one)
     open_market!(increment_basis_points: 500, soft_close_seconds: 180)
     hold(@seller, @card.id, 1, reserved: 1)
-    @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, buy_now_price: 60_000, ends_at: 1.day.from_now)
+    @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, ends_at: 1.day.from_now)
     [ @first, @second ].each { fund!(it, 100_000) }
   end
 
@@ -46,27 +46,6 @@ class Game::Market::OutcomeNoticesTest < ActiveSupport::TestCase
 
     assert_equal [ "unsold", nil ], notice(@seller).attributes.values_at("kind", "amount")
     assert_equal 1, Game::Market::Notice.count
-  end
-
-  test "a buy-now over a lead replaces the outbid line with a bought-over line naming the buyer, and tells the buyer and the seller" do
-    bid(@first, 30_000)
-    bid(@second, 40_000)
-    bid(@first, 50_000)
-    assert_equal "outbid", notice(@first).kind
-    assert_equal "outbid", notice(@second).kind
-
-    assert bid(@second, 60_000).success?
-
-    assert_equal [ "bought_over", @second.id, 50_000 ], notice(@first).attributes.values_at("kind", "other_player_id", "amount")
-    assert_equal [ "won", 60_000 ], notice(@second).attributes.values_at("kind", "amount")
-    assert_equal [ "sold", 54_000 ], notice(@seller).attributes.values_at("kind", "amount")
-    assert_equal 3, Game::Market::Notice.count
-  end
-
-  test "a buy-now over no leader writes the winner's and the seller's lines only" do
-    assert bid(@second, 60_000).success?
-
-    assert_equal %w[sold won], Game::Market::Notice.order(:kind).pluck(:kind)
   end
 
   test "a bidder who lost at the close keeps the line they had and gets no outcome line" do

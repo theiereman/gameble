@@ -122,26 +122,4 @@ class MarketBiddingSystemTest < ApplicationSystemTestCase
     assert_selector "#annonce-answer-heading", text: "YOU ARE LEADING"
     assert_equal 2, Game::Market::Bid.count
   end
-
-  test "a buyer cancels the buy-now confirmation back to its button, then confirms and reads the purchase" do
-    @listing.update_columns(buy_now_price: 80_000)
-    sign_in_through_the_site(@bidder)
-    visit market_listing_path(locale: :en, token: @listing.token)
-
-    find("button[name=buy_now]").click
-    assert_selector "#annonce-buy-now[open] h2:focus", text: "BUY NOW"
-    assert_selector "#annonce-buy-now", text: "Tin Soldier, common"
-    within("#annonce-buy-now") { click_on "CANCEL" }
-
-    assert_no_selector "#annonce-buy-now[open]"
-    assert_selector "button[name=buy_now]:focus"
-    assert_equal 1, Game::Market::Bid.count
-
-    find("button[name=buy_now]").click
-    within("#annonce-buy-now") { click_on "BUY · 80,000" }
-
-    assert_selector "#listing-outcome-heading", text: "YOU BOUGHT TIN SOLDIER"
-    assert_link "SEE THE CARD"
-    assert_equal 1, Game::Holding.where(player_id: @bidder.id, card_season_id: @card.id).sum(:quantity)
-  end
 end

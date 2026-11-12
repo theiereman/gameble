@@ -121,7 +121,6 @@ fr:
       market:
         outbid_html: "%{name} a dépassé votre maximum sur %{card}."
         won_html: "Vous avez remporté %{card} pour %{amount}."
-        bought_over_html: "%{name} a acheté %{card} immédiatement. Vos %{amount} sont de nouveau disponibles."
         lead_voided_html: "Le joueur en tête sur %{card} a été retiré. L'enchère repart de son prix de départ."
         withdrawn_html: "%{card} a été retirée du marché. Vos %{amount} sont de nouveau disponibles."
         sold_html: "%{card} s'est vendue. Vous recevez %{amount}."
@@ -587,14 +586,13 @@ fr:
           stamp: "Timbre"
           minimum_price: "Prix minimum"
         fees: "Mettre une carte en vente coûte un Timbre Fiscal du Gamebler, selon sa rareté, détruit pour de bon. À la vente, la Confrérie prélève son Effort de la Confrérie : %{commission} du prix final, payé par le vendeur et détruit lui aussi. La Confrérie s'est donné beaucoup de mal et tient à ce que cela se sache."
-        auction: "Une enchère dure %{short}, %{medium} ou %{long}, au choix du vendeur, avec un prix d'achat immédiat facultatif. Chaque enchère doit dépasser le prix actuel d'au moins %{increment} de ce prix, arrondis à la centaine supérieure."
+        auction: "Une enchère dure %{short}, %{medium} ou %{long}, au choix du vendeur. Chaque enchère doit dépasser le prix actuel d'au moins %{increment} de ce prix, arrondis à la centaine supérieure."
         maximum:
           intro: "Pour enchérir, vous fixez Mon maximum, le plafond que vous acceptez de payer :"
           held: "le maximum entier est mis de côté sur votre solde, puis libéré dès que quelqu'un vous dépasse ;"
           price: "le prix affiché est le deuxième plus haut maximum plus un incrément, sans jamais dépasser le plus haut maximum ;"
           tie: "à maximums égaux, c'est le plus ancien qui mène ;"
           unusual: "un maximum qui atteint %{multiple} fois le prix actuel demande une confirmation ;"
-          buy_now: "un maximum qui atteint le prix d'achat immédiat achète aussitôt, à ce prix, annoncé avant que vous validiez ;"
           soft_close: "une enchère placée dans les %{minutes} avant la fin, qui change le prix ou le meneur, repousse la fin à %{minutes} après elle ;"
           raise: "relever votre propre maximum tant que vous menez met plus de PiCoins de côté, mais ne change ni le prix ni la fin."
         close: "À la clôture, le gagnant paie le prix final et récupère le reste de son maximum ; le vendeur reçoit le prix moins l'Effort de la Confrérie (%{commission}). Sans aucune enchère, la carte revient à son vendeur et le Timbre n'est pas remboursé."
@@ -2177,15 +2175,6 @@ fr:
         raised:
           body_html: "Votre maximum : %{maximum}. Le prix ne change pas."
           title: "MAXIMUM RELEVÉ"
-      buy_now:
-        available_html: "Disponible : %{amount}."
-        body_html: "Vous achetez %{card} pour %{price}. La carte rejoint votre collection. Cet achat ne peut pas être annulé."
-        button: "ACHETER MAINTENANT"
-        cancel: "ANNULER"
-        close: "Fermer"
-        confirm: "ACHETER · %{amount}"
-        held_extra_html: "Vous avez déjà %{own} bloqués sur cette annonce : %{held} de plus seront bloqués."
-        title: "ACHAT IMMÉDIAT"
       form:
         available: "DISPONIBLE"
         fixed: "C'est le plus que vous acceptez de payer. Si vous gagnez, vous paierez le moins possible."
@@ -2205,11 +2194,9 @@ fr:
         throttled: "Trop d'offres d'un coup. Patientez un instant."
       strings:
         button_bid: "ENCHÉRIR · %{amount}"
-        button_buy: "ACHETER · %{amount}"
         button_idle: "ENCHÉRIR"
         button_name: "Enchérir, maximum %{amount} PiCoins"
         button_raise: "RELEVER · %{amount}"
-        live_buy_now: "Ce montant atteint l'achat immédiat : vous achetez la carte tout de suite pour %{amount}."
         live_hold: "%{amount} PiCoins seront bloqués, puis rendus si un autre joueur fait mieux."
         live_raise: "%{amount} PiCoins de plus seront bloqués. Le prix ne change pas."
       unusual:
@@ -2236,25 +2223,21 @@ fr:
         raise_html: "%{name} a relevé son maximum"
         voided: "Offre annulée : joueur retiré"
       outcome:
-        bought:
-          body_html: "Vous payez %{price}. La carte rejoint votre collection."
-          title: "VOUS AVEZ ACHETÉ %{card}"
-        buy_now_suffix: " en achat immédiat"
         cancelled:
           body: "Le vendeur a annulé cette vente."
           title: "VENTE ANNULÉE"
         closing: "Clôture en cours…"
         lost:
-          body_html: "%{name} remporte %{card} pour %{price}%{suffix}. Vos PiCoins vous ont été rendus."
+          body_html: "%{name} remporte %{card} pour %{price}. Vos PiCoins vous ont été rendus."
           title: "ENCHÈRE TERMINÉE"
         no_bid:
           body: "Aucune offre."
           title: "ENCHÈRE TERMINÉE"
         seller:
-          body_html: "%{name} achète %{card} pour %{price}%{suffix}. Vous recevez %{received}."
+          body_html: "%{name} achète %{card} pour %{price}. Vous recevez %{received}."
           title: "VENDUE"
         viewer:
-          body_html: "%{name} remporte %{card} pour %{price}%{suffix}."
+          body_html: "%{name} remporte %{card} pour %{price}."
           title: "ENCHÈRE TERMINÉE"
         withdrawn:
           body: "Cette annonce a été retirée du marché."
@@ -2267,7 +2250,6 @@ fr:
       show:
         average_price: "Prix moyen"
         back: "Marché"
-        buy_now: "PRIX D'ACHAT IMMÉDIAT"
         leader: "En tête :"
         price: "PRIX ACTUEL"
         seller: "Vendeur"
@@ -2462,7 +2444,6 @@ fr:
         all_cards: "Toutes les cartes"
         average_price: "Prix moyen"
         back: "◀ Retour aux cartes"
-        buy_now_label: "ACHAT IMMÉDIAT"
         card_only: "Seulement %{title}."
         cell_minimum: "minimum %{amount}"
         choose: "Choisissez la carte à vendre."
@@ -2487,7 +2468,6 @@ fr:
         intro: "Choisissez une carte, fixez son prix et laissez les membres enchérir."
         keys_hint: "Les flèches changent de carte, Espace ou Entrée choisit."
         kicker: "Les Archives"
-        optional: "facultatif"
         received: "Vendue au prix de départ, vous recevez"
         relisting: "Ces montants sont ceux de votre vente précédente."
         rules: "La carte est réservée pendant la vente. Vous pouvez annuler tant qu'aucune offre n'est en tête."
@@ -2504,7 +2484,6 @@ fr:
         invalid_price: "Entrez un nombre entier de PiCoins, au-dessus de zéro."
         minimum_hint: "Au moins %{amount} pour une %{rarity}"
         minimum_refusal: "Au moins %{amount} pour une %{rarity}."
-        not_above_start: "L'achat immédiat doit dépasser le prix de départ."
         status: "Vous recevez %{amount} PiCoins"
         step: "Étape %{step} sur 2"
   markets:
@@ -2604,9 +2583,7 @@ fr:
       price_desc: "Prix décroissant"
       newest: "Plus récentes"
     tile:
-      buy_now: "Achat immédiat"
       label: "%{card}, %{rarity}, saison %{season}, %{price}, %{offers}, se termine à %{time}"
-      label_buy_now: "achat immédiat %{price}"
       offers:
         zero: "%{count} offre"
         one: "%{count} offre"
@@ -3927,8 +3904,6 @@ fr:
       own_listing: "Vous ne pouvez pas enchérir sur votre propre annonce."
       market_busy: "Les Archives sont occupées pour le moment. Réessayez dans un instant."
       market_closed: "Le marché est suspendu pour le moment."
-      buy_now_below_minimum: "Au moins %{amount} pour une %{rarity}."
-      buy_now_not_above_start: "Le prix d'achat immédiat doit dépasser le prix de départ."
       copy_not_free: "Cette carte n'est plus disponible."
       invalid_duration: "Choisissez l'une des durées proposées."
       invalid_price: "Entrez un nombre entier de PiCoins, au-dessus de zéro."

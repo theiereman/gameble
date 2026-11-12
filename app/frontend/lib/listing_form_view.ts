@@ -7,7 +7,6 @@ export type ListingStrings = {
   invalidPrice: string
   minimumHint: string
   minimumRefusal: string
-  notAboveStart: string
   status: string
   step: string
 }
@@ -24,7 +23,6 @@ export type FieldsView = {
   chosen: string
   hint: string
   start: FieldView
-  buyNow: FieldView
   duration: string
   locked: boolean
 }
@@ -52,7 +50,6 @@ export function gridViewOf(state: ListingState): GridView {
 export function refusalText(refusal: Refusal, state: ListingState, { locale, strings }: Forms): string {
   const edition = chosenEdition(state)
   if (refusal.code === "invalidPrice") return strings.invalidPrice
-  if (refusal.code === "notAboveStart") return strings.notAboveStart
   return t(strings.minimumRefusal, {
     amount: picoins(edition?.minimum ?? 0, { locale }),
     rarity: edition?.rarityName ?? "",
@@ -75,7 +72,6 @@ export function fieldsViewOf(state: ListingState, forms: Forms): FieldsView {
         })
       : "",
     start: fieldView("start", state, forms),
-    buyNow: fieldView("buyNow", state, forms),
     duration: state.duration,
     locked: edition === null,
   }

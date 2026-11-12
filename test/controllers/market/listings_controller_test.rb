@@ -12,13 +12,13 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     open_market!(first_opened_at: 1.day.ago)
     @seller = accounts_players(:player)
     @seller.update_columns(persona_name: "Alice")
-    @listing = listing!(seller: @seller, card_season: catalog_card_seasons(:rare_card_one), starting_price: 7_800, buy_now_price: 30_000,
+    @listing = listing!(seller: @seller, card_season: catalog_card_seasons(:rare_card_one), starting_price: 7_800,
       ends_at: (2.hours + 14.minutes + 30.seconds).from_now)
   end
 
   def annonce(locale: :en) = get(market_listing_path(locale:, token: @listing.token))
 
-  test "a visitor reads the Annonce: card, seller, price, time left with the end time and the buy-now" do
+  test "a visitor reads the Annonce: card, seller, price and time left with the end time" do
     annonce
 
     assert_response :success
@@ -28,7 +28,6 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".market-listing__time", "2 h 14"
     assert_select ".market-listing__time--soon", false
     assert_select ".market-listing__ends time[datetime]"
-    assert_select ".market-listing__buy-now[aria-label='30,000 PiCoins']"
     assert_select ".market-listing__fact a.player-name--linked[href=?]", brother_path(locale: :en, token: @seller.token), "Alice"
     assert_select "[data-controller~=listing-clock][data-listing-clock-seconds-value]"
     assert_select "[data-listing-clock-minutes-template-value='%{minutes} min']"
@@ -57,11 +56,10 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__phone-back", /Marché/
   end
 
-  test "no buy-now means no buy-now figure, and a leader is shown" do
-    @listing.update_columns(buy_now_price: nil, leader_id: accounts_players(:moderator).id, leader_maximum: 8_500, current_price: 8_000)
+  test "a leader is shown without their maximum" do
+    @listing.update_columns(leader_id: accounts_players(:moderator).id, leader_maximum: 8_500, current_price: 8_000)
     annonce
 
-    assert_select ".market-listing__buy-now", false
     assert_select ".market-listing__leader", /Leading:/
     assert_select ".market-listing__fact dt", text: "Leading", count: 0
     assert_select ".market-listing__price[aria-label='8,000 PiCoins']"
@@ -181,11 +179,11 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name=drawn_minimum][value='7800']"
     assert_select ".market-bid__fixed", /the most you accept to pay/
     assert_select ".market-bid__small", /A bid cannot be cancelled/
-    assert_select "[data-annonce-field-minimum-value='7800'][data-annonce-field-own-maximum-value='0'][data-annonce-field-buy-now-value='30000']"
+    assert_select "[data-annonce-field-minimum-value='7800'][data-annonce-field-own-maximum-value='0']"
     assert_select "[style]", false
   end
 
-  test "the form carries the price and the unusual multiple of the current settings, and the dialogs and buy-now button" do
+  test "the form carries the price and the unusual multiple of the current settings, and the unusual dialog only" do
     Game::Market::Mint.credit(player_id: accounts_players(:administrator).id, amount: 50_000, settings_id: Game::Market::CurrentSettings.call.id)
     sign_in(accounts_players(:administrator))
     annonce
@@ -193,13 +191,11 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     multiple = Game::Market::CurrentSettings.call.unusual_maximum_multiple
     assert_select "[data-annonce-field-price-value='7800'][data-annonce-field-unusual-multiple-value='#{multiple}']"
     assert_select "dialog#annonce-unusual[data-controller~=annonce-dialog][data-annonce-dialog-kind-value=unusual] h2[tabindex='-1'][autofocus]", "UNUSUAL AMOUNT"
-    assert_select "dialog#annonce-buy-now[data-annonce-dialog-kind-value=buy_now] h2[autofocus]", "BUY NOW"
-    assert_select "dialog#annonce-buy-now #annonce-buy-now-text", /Blue Depths, rare/
-    assert_select "dialog#annonce-buy-now button", /BUY · 30,000/
-    assert_select "button[type=submit][name=buy_now][value='1']:not([disabled])", "BUY NOW"
+    assert_select "dialog[data-annonce-dialog-kind-value]", 1
+    assert_select "button[name=buy_now]", false
   end
 
-  test "quick amounts fill the minimum or a raise above it, never reaching the buy-now price" do
+  test "quick amounts fill the minimum or a raise above it" do
     Game::Market::Mint.credit(player_id: accounts_players(:administrator).id, amount: 50_000, settings_id: Game::Market::CurrentSettings.call.id)
     sign_in(accounts_players(:administrator))
     annonce
@@ -208,11 +204,6 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".market-bid__shortcut[data-annonce-field-amount-param='7800']", "MINIMUM · 7,800"
     assert_select ".market-bid__shortcut[data-annonce-field-amount-param='8600']", "+10% · 8,600"
     assert_select ".market-bid__shortcut[data-annonce-field-amount-param='9800']", "+25% · 9,800"
-    assert_select "#annonce-form > .market-bid__buy-now:first-of-type .market-bid__buy-now-amount .picoin-amount__figure", "30,000"
-
-    @listing.update_columns(buy_now_price: 8_000)
-    annonce
-    assert_select ".market-bid__shortcut", 1
   end
 
   test "the Annonce carries its rarity and season above the title and a gauge of the time gone" do
@@ -229,32 +220,12 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_includes rows.map { it["multiple"] }, Game::Market::StartingSettings::ATTRIBUTES.fetch(:unusual_maximum_multiple)
   end
 
-  test "the buy-now button is disabled with the available amount beside it when the hold is not covered" do
-    sign_in(accounts_players(:administrator))
-    annonce
-
-    assert_select ".market-bid__buy-now button[disabled]", "BUY NOW"
-    assert_select ".market-bid__buy-now .market-bid__small", /Available:/
-  end
-
-  test "a listing without a buy-now has no buy-now button and no buy-now dialog" do
-    @listing.update_columns(buy_now_price: nil)
-    sign_in(accounts_players(:administrator))
-    annonce
-
-    assert_select ".market-bid__buy-now", false
-    assert_select "dialog#annonce-buy-now", false
-    assert_select "dialog#annonce-unusual"
-  end
-
-  test "the seller and a visitor read neither button nor dialog" do
+  test "the seller and a visitor read no bid dialog" do
     annonce
     assert_select "dialog", false
-    assert_select ".market-bid__buy-now", false
 
     sign_in(@seller)
     annonce
-    assert_select "dialog#annonce-buy-now", false
     assert_select "dialog#annonce-unusual", false
   end
 
@@ -376,7 +347,6 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#annonce-suspension #market-suspended-banner", 1
     assert_select "#annonce-bid input#annonce-maximum[disabled][aria-describedby~=market-suspended-banner]"
     assert_select "#annonce-bid button[disabled][aria-describedby=market-suspended-banner]", text: "BID"
-    assert_select "#annonce-bid button[disabled][aria-describedby=market-suspended-banner]", text: "BUY NOW"
     assert_select "#annonce-bid dialog", false
     assert_select "#annonce-bid [data-controller~=annonce-field]", false
     assert_select "#annonce-bid [data-controller~=annonce-foot]", false

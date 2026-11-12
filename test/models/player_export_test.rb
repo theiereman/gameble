@@ -14,7 +14,7 @@ class PlayerExportTest < ActiveSupport::TestCase
     firstDiscoveries feedEntries feedReactions achievements cardBacks friends pendingInvitations trades customSets steamLibrary goals wallet picoinEntries listings bids reportsFiled reportsReceived
     moderationDecisions].freeze
   COUNTING_KEYS = %i[season quantity position openings count received sent available committed availableDelta committedDelta startingPrice
-    buyNowPrice currentPrice finalPrice durationHours maximum priceAfter].freeze
+    currentPrice finalPrice durationHours maximum priceAfter].freeze
 
   setup do
     @player = accounts_players(:player)

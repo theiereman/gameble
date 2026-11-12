@@ -24,7 +24,7 @@ class MarketListingSystemTest < ApplicationSystemTestCase
     assert_signed_in
   end
 
-  test "a player lists a copy from the card detail at 24 H with a buy-now, lands on the Annonce and finds it on the market" do
+  test "a player lists a copy from the card detail at 24 H, lands on the Annonce and finds it on the market" do
     sign_in_through_the_site
 
     visit card_path(locale: :en, slug: @common.card.slug)
@@ -33,10 +33,9 @@ class MarketListingSystemTest < ApplicationSystemTestCase
     assert_selector ".sale-cell[aria-selected=true]"
     assert_selector "input[name=duration_hours][value='24']:checked"
     fill_in "sale-start", with: "1500"
-    fill_in "sale-buy-now", with: "3000"
     assert_selector ".sale-line--received .picoin-amount__figure", text: "1,350"
     assert_selector ".sale-line:nth-child(2) .picoin-amount__figure", text: "150"
-    find("#sale-buy-now").send_keys(:enter)
+    find("#sale-start").send_keys(:enter)
     assert_selector "input[name=duration_hours][value='24']:focus"
     assert_equal 0, Game::Market::Listing.count
 

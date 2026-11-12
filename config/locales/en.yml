@@ -1553,8 +1553,6 @@ en:
       own_listing: You cannot bid on your own listing.
       market_busy: The Archives are busy right now. Try again in a moment.
       market_closed: The market is closed for now.
-      buy_now_below_minimum: "At least %{amount} for a %{rarity}."
-      buy_now_not_above_start: The buy-now price must be above the starting price.
       copy_not_free: This card is no longer available.
       invalid_duration: Choose one of the listed durations.
       invalid_price: Enter a whole number of PiCoins, above zero.
@@ -2472,15 +2470,6 @@ en:
         raised:
           body_html: "Your maximum: %{maximum}. The price does not change."
           title: MAXIMUM RAISED
-      buy_now:
-        available_html: "Available: %{amount}."
-        body_html: "You buy %{card} for %{price}. The card joins your collection. This purchase cannot be cancelled."
-        button: BUY NOW
-        cancel: CANCEL
-        close: Close
-        confirm: "BUY · %{amount}"
-        held_extra_html: "You already hold %{own} on this auction: %{held} more will be held."
-        title: BUY NOW
       form:
         available: AVAILABLE
         fixed: It is the most you accept to pay. If you win, you will pay as little as possible.
@@ -2500,11 +2489,9 @@ en:
         throttled: Too many bids at once. Wait a moment.
       strings:
         button_bid: "BID · %{amount}"
-        button_buy: "BUY · %{amount}"
         button_idle: BID
         button_name: "Bid, maximum %{amount} PiCoins"
         button_raise: "RAISE · %{amount}"
-        live_buy_now: "This amount reaches the buy-now price: you buy the card at once for %{amount}."
         live_hold: "%{amount} PiCoins will be held, then returned if another player does better."
         live_raise: "%{amount} more PiCoins will be held. The price does not change."
       unusual:
@@ -2531,25 +2518,21 @@ en:
         raise_html: "%{name} raised their maximum"
         voided: "Bid voided: player removed"
       outcome:
-        bought:
-          body_html: "You pay %{price}. The card joins your collection."
-          title: "YOU BOUGHT %{card}"
-        buy_now_suffix: " at the buy-now price"
         cancelled:
           body: The seller cancelled this sale.
           title: SALE CANCELLED
         closing: "Closing…"
         lost:
-          body_html: "%{name} wins %{card} for %{price}%{suffix}. Your PiCoins were returned."
+          body_html: "%{name} wins %{card} for %{price}. Your PiCoins were returned."
           title: AUCTION ENDED
         no_bid:
           body: No bids.
           title: AUCTION ENDED
         seller:
-          body_html: "%{name} buys %{card} for %{price}%{suffix}. You receive %{received}."
+          body_html: "%{name} buys %{card} for %{price}. You receive %{received}."
           title: SOLD
         viewer:
-          body_html: "%{name} wins %{card} for %{price}%{suffix}."
+          body_html: "%{name} wins %{card} for %{price}."
           title: AUCTION ENDED
         withdrawn:
           body: This listing was withdrawn from the market.
@@ -2562,7 +2545,6 @@ en:
       show:
         average_price: Average price
         back: Market
-        buy_now: BUY NOW PRICE
         leader: "Leading:"
         price: CURRENT PRICE
         seller: Seller
@@ -2752,7 +2734,6 @@ en:
         all_cards: All cards
         average_price: Average price
         back: "◀ Back to the cards"
-        buy_now_label: BUY NOW PRICE
         card_only: "Only %{title}."
         cell_minimum: "minimum %{amount}"
         choose: Choose the card to sell.
@@ -2775,7 +2756,6 @@ en:
         intro: Choose a card, set its price and let the members bid.
         keys_hint: Arrow keys move between cards, Space or Enter chooses.
         kicker: The Archives
-        optional: optional
         received: Sold at the starting price, you receive
         relisting: These amounts are those of your previous sale.
         rules: The card is reserved during the sale. You can cancel as long as no offer is leading.
@@ -2792,7 +2772,6 @@ en:
         invalid_price: Enter a whole number of PiCoins, above zero.
         minimum_hint: "At least %{amount} for a %{rarity}"
         minimum_refusal: "At least %{amount} for a %{rarity}."
-        not_above_start: The buy-now price must be above the starting price.
         status: You receive %{amount} PiCoins
         step: "Step %{step} of 2"
   markets:
@@ -2892,9 +2871,7 @@ en:
       price_asc: Price, low to high
       price_desc: Price, high to low
     tile:
-      buy_now: Buy now
       label: "%{card}, %{rarity}, season %{season}, %{price}, %{offers}, ends at %{time}"
-      label_buy_now: "buy now %{price}"
       offers:
         one: "%{count} offer"
         other: "%{count} offers"
@@ -3090,9 +3067,9 @@ en:
       intro: The rules of the game, as it applies them.
       local_time: ", local time"
       market:
-        auction: An auction lasts %{short}, %{medium} or %{long}, as the seller chooses,
-          with an optional buy-now price. Each bid must beat the current price by
-          at least %{increment} of that price, rounded up to the next hundred.
+        auction: An auction lasts %{short}, %{medium} or %{long}, as the seller chooses.
+          Each bid must beat the current price by at least %{increment} of that price,
+          rounded up to the next hundred.
         close: At close, the winner pays the final price and recovers the rest of
           their maximum; the seller receives the price less the Brotherhood Effort
           (%{commission}). With no bid at all, the card goes back to its seller and
@@ -3111,8 +3088,6 @@ en:
           one: "%{count} hour"
           other: "%{count} hours"
         maximum:
-          buy_now: a maximum that reaches the buy-now price buys at once, at that
-            price, stated before you confirm;
           held: the whole maximum is held from your balance, then released as soon
             as someone outbids you;
           intro: 'To bid, you set My maximum, the ceiling you accept to pay:'
@@ -3906,7 +3881,6 @@ en:
         one: What is new, %{count} unseen
         other: What is new, %{count} unseen
       market:
-        bought_over_html: "%{name} bought %{card} outright. Your %{amount} are available again."
         lead_voided_html: "The leading player on %{card} was removed. The auction restarts from its starting price."
         outbid_html: "%{name} went past your maximum on %{card}."
         sold_html: "%{card} sold. You receive %{amount}."

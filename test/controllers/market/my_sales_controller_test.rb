@@ -89,13 +89,13 @@ class Market::MySalesControllerTest < ActionDispatch::IntegrationTest
 
   test "an unsold row with a free copy offers REMETTRE EN VENTE with the amounts prefilled" do
     hold(@seller, @rare.id, 1)
-    listing!(seller: @seller, card_season: @rare, status: "unsold", ends_at: 1.day.ago, starting_price: 9_000, buy_now_price: 20_000)
+    listing!(seller: @seller, card_season: @rare, status: "unsold", ends_at: 1.day.ago, starting_price: 9_000)
     sign_in(@seller)
 
     sales
 
     ref = "#{@rare.card.slug}:#{@rare.season.number}"
-    assert_select "a.button[href=?]", new_market_sale_path(locale: :en, ref:, start: 9_000, buy_now: 20_000, relisting: 1), "PUT UP FOR SALE AGAIN"
+    assert_select "a.button[href=?]", new_market_sale_path(locale: :en, ref:, start: 9_000, relisting: 1), "PUT UP FOR SALE AGAIN"
     assert_select "a.button[aria-label=?]", "Put up for sale again, Blue Depths"
   end
 

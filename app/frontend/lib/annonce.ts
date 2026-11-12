@@ -1,16 +1,12 @@
 export type Terms = {
   minimum: number
   available: number
-  buyNow: number | null
   ownMaximum: number | null
   price: number
   unusualMultiple: number
 }
 
-export type Gate = "none" | "unusual" | "buy_now"
-export type Submitter = "bid" | "buy_now"
-export type Pending = { gate: Exclude<Gate, "none">; submitter: Submitter }
-export type Consent = { submitter: Submitter; text: string }
+export type Gate = "none" | "unusual"
 
 export type AnnonceState = {
   terms: Terms
@@ -18,11 +14,11 @@ export type AnnonceState = {
   submitting: boolean
   posted: string
   answered: boolean
-  pending: Pending | null
-  consent: Consent | null
+  pending: boolean
+  consent: string | null
 }
 
-export type ButtonKind = "idle" | "bid" | "raise" | "buy"
+export type ButtonKind = "idle" | "bid" | "raise"
 
 export const LIVE_DELAY = 500
 
@@ -30,7 +26,7 @@ const SPACES = /[\s  ]/g
 const PLAIN_AMOUNT = /^\d+$/
 
 export function start(terms: Terms, answered = false): AnnonceState {
-  return { terms, text: "", submitting: false, posted: "", answered, pending: null, consent: null }
+  return { terms, text: "", submitting: false, posted: "", answered, pending: false, consent: null }
 }
 
 export function parse(text: string): number | null {
@@ -40,19 +36,13 @@ export function parse(text: string): number | null {
   return Number.isSafeInteger(amount) && amount > 0 ? amount : null
 }
 
-export function reachesBuyNow(terms: Terms, amount: number): boolean {
-  return terms.buyNow !== null && amount >= terms.buyNow
-}
-
 export function commitment(state: AnnonceState, amount: number): number {
-  const { terms } = state
-  return (reachesBuyNow(terms, amount) ? (terms.buyNow ?? amount) : amount) - (terms.ownMaximum ?? 0)
+  return amount - (state.terms.ownMaximum ?? 0)
 }
 
 export function buttonKind(state: AnnonceState): ButtonKind {
   const amount = parse(state.text)
   if (amount === null) return "idle"
-  if (reachesBuyNow(state.terms, amount)) return "buy"
   return state.terms.ownMaximum === null ? "bid" : "raise"
 }
 
@@ -63,11 +53,11 @@ export function retermed(state: AnnonceState, terms: Terms, answered: boolean): 
 export function edit(state: AnnonceState, text: string): AnnonceState {
   return state.text === text && !state.answered
     ? state
-    : { ...state, text, answered: false, pending: null, consent: null }
+    : { ...state, text, answered: false, pending: false, consent: null }
 }
 
 export function submit(state: AnnonceState): AnnonceState | null {
-  return state.submitting ? null : { ...state, submitting: true, pending: null, consent: null }
+  return state.submitting ? null : { ...state, submitting: true, pending: false, consent: null }
 }
 
 export function submitted(state: AnnonceState): AnnonceState {

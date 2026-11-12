@@ -10,10 +10,10 @@ module Game
         "newest" => { id: :desc }
       }.freeze
 
-      Row = Data.define(:token, :card, :current_price, :buy_now_price, :ends_at, :offers)
+      Row = Data.define(:token, :card, :current_price, :ends_at, :offers)
       Page = Data.define(:rows, :more)
 
-      COLUMNS = %i[id token card_season_id current_price buy_now_price ends_at].freeze
+      COLUMNS = %i[id token card_season_id current_price ends_at].freeze
 
       def self.call(sort:, page:, locale:, filters: ListingFilters.none)
         sort = DEFAULT_SORT unless ORDERS.key?(sort)
@@ -29,9 +29,9 @@ module Game
       def self.build(found, locale:)
         cards = Catalog::CardViews.call(found.map { it[2] }, locale:)
         offers = OfferCounts.call(found.map(&:first))
-        found.filter_map do |id, token, card_season_id, current_price, buy_now_price, ends_at|
+        found.filter_map do |id, token, card_season_id, current_price, ends_at|
           card = cards[card_season_id]
-          Row.new(token:, card:, current_price:, buy_now_price:, ends_at:, offers: offers[id]) if card
+          Row.new(token:, card:, current_price:, ends_at:, offers: offers[id]) if card
         end
       end
 

@@ -59,7 +59,7 @@ class CreateGameMarketTables < ActiveRecord::Migration[8.1]
       t.references :settings, null: false, foreign_key: { to_table: :game_market_settings }
       t.datetime :created_at, null: false
 
-      t.check_constraint "kind IN (#{LEDGER_KINDS.map { |kind| "'#{kind}'" }.join(", ")})", name: "game_market_ledger_entries_kind_check"
+      t.check_constraint "kind ~ '^(#{LEDGER_KINDS.join("|")})$'", name: "game_market_ledger_entries_kind_check"
     end
 
     create_table :game_market_archive_deposits do |t|

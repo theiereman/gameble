@@ -264,7 +264,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal FRENCH_HEADINGS + [ FRENCH_MARKET_HEADING ], headings
     assert_market_numbers(settings, :fr)
-    assert_select ".how-it-works__maximum li", 7
+    assert_select ".how-it-works__maximum li", 6
     assert_select ".how-it-works__fees", /Timbre Fiscal du Gamebler.*Effort de la Confrérie/m
   end
 

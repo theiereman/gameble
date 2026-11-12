@@ -12,11 +12,7 @@ module Game
         second ? [ highest, second + increment(second, basis_points) ].min : starting_price
       end
 
-      def self.minimum_bid(price:, starting_price:, buy_now_price:, basis_points:)
-        return starting_price unless price
-
-        [ buy_now_price, price + increment(price, basis_points) ].compact.min
-      end
+      def self.minimum_bid(price:, starting_price:, basis_points:) = price ? price + increment(price, basis_points) : starting_price
 
       def self.raise_minimum(maximum) = maximum + 1
     end

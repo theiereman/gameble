@@ -2,14 +2,14 @@ module Game
   module Market
     module ExportOf
       EntryRow = Data.define(:kind, :available_delta, :committed_delta, :listing_token, :created_at)
-      ListingRow = Data.define(:token, :card_season_id, :status, :starting_price, :buy_now_price, :current_price, :final_price, :duration_hours, :created_at,
+      ListingRow = Data.define(:token, :card_season_id, :status, :starting_price, :current_price, :final_price, :duration_hours, :created_at,
         :ends_at, :sold_at)
       BidRow = Data.define(:listing_token, :maximum, :price_after, :outcome, :created_at)
       Result = Data.define(:wallet, :entries, :listings, :bids) do
         def card_season_ids = listings.map(&:card_season_id).uniq
       end
 
-      LISTING_COLUMNS = %i[token card_season_id status starting_price buy_now_price current_price final_price duration_hours created_at ends_at sold_at].freeze
+      LISTING_COLUMNS = %i[token card_season_id status starting_price current_price final_price duration_hours created_at ends_at sold_at].freeze
 
       def self.call(player)
         entries = LedgerEntry.where(player_id: player.id).order(:created_at, :id).pluck(:kind, :available_delta, :committed_delta, :listing_id, :created_at)

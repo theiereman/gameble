@@ -8,7 +8,6 @@ import {
   lines,
   received,
   refusal,
-  setBuyNow,
   setDuration,
   setStart,
   start,
@@ -33,7 +32,7 @@ const rare: Edition = {
 }
 const common: Edition = { ...rare, ref: "beta:1", title: "Beta", rarity: "common", minimum: 100, stamp: 50 }
 
-const typed = { start: "", buyNow: "", duration: "24" }
+const typed = { start: "", duration: "24" }
 
 function chosenState(values: Partial<typeof typed> = {}): ListingState {
   return start([rare, common], 1_000, { ...typed, ...values }, "alpha:1", "wide")
@@ -85,7 +84,6 @@ describe("transitions", () => {
     expect(shown.shown).not.toBeNull()
 
     expect(setStart(shown, "1000").shown).toBeNull()
-    expect(setBuyNow(shown, "2000").shown).toBeNull()
   })
 
   it("keeps the same state for a duration that does not change", () => {
@@ -115,25 +113,6 @@ describe("refusal", () => {
   it("refuses a start under the minimum, and accepts the minimum itself", () => {
     expect(refusal(chosenState({ start: "999" }))).toEqual({ field: "start", code: "belowMinimum" })
     expect(refusal(chosenState({ start: "1000" }))).toBeNull()
-  })
-
-  it("refuses a buy-now that is not a price", () => {
-    expect(refusal(chosenState({ start: "1000", buyNow: "0" }))).toEqual({ field: "buyNow", code: "invalidPrice" })
-    expect(refusal(chosenState({ start: "1000", buyNow: "abc" }))).toEqual({ field: "buyNow", code: "invalidPrice" })
-  })
-
-  it("refuses a buy-now under the minimum or not above the start", () => {
-    expect(refusal(chosenState({ start: "1000", buyNow: "999" }))).toEqual({ field: "buyNow", code: "belowMinimum" })
-    expect(refusal(chosenState({ start: "2000", buyNow: "2000" }))).toEqual({ field: "buyNow", code: "notAboveStart" })
-    expect(refusal(chosenState({ start: "2000", buyNow: "2001" }))).toBeNull()
-  })
-
-  it("accepts an empty buy-now", () => {
-    expect(refusal(chosenState({ start: "1500", buyNow: "  " }))).toBeNull()
-  })
-
-  it("answers the start first when both amounts are wrong", () => {
-    expect(refusal(chosenState({ start: "5", buyNow: "1" }))).toEqual({ field: "start", code: "belowMinimum" })
   })
 
   it("shows the refusal only once validated", () => {

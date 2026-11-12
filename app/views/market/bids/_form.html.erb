@@ -3,7 +3,6 @@
 <%= form_with url: market_listing_bids_path(token: listing.token), id: "annonce-form", class: "market-bid",
       data: { action: "submit->annonce#submit turbo:submit-end->annonce#submitted" } do %>
   <%= hidden_field_tag :drawn_minimum, sheet.minimum, id: nil %>
-  <% if sheet.buy_now_price %><%= render "market/bids/buy_now", sheet: %><% end %>
   <%= tag.div class: "market-bid__field", data: bid_field_data(sheet, answered: !answer.nil?) do %>
     <div class="market-bid__field-head">
       <label for="annonce-maximum" class="market-bid__label"><%= t("market.bids.form.label") %></label>
@@ -28,4 +27,3 @@
   <%= render "market/bids/foot", sheet:, answer:, posted_amount: %>
 <% end %>
 <%= render "market/bids/unusual_dialog" %>
-<% if sheet.buy_now_price %><%= render "market/bids/buy_now_dialog", listing:, sheet: %><% end %>

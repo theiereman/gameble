@@ -629,7 +629,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
     t.index ["listing_id", "id"], name: "index_game_market_bids_on_listing_and_id"
     t.index ["player_id", "listing_id"], name: "index_game_market_bids_on_player_and_listing"
     t.check_constraint "maximum > 0", name: "game_market_bids_maximum_check"
-    t.check_constraint "outcome::text = ANY (ARRAY['leading'::character varying::text, 'outbid'::character varying::text, 'beaten'::character varying::text, 'raise'::character varying::text, 'won'::character varying::text, 'lost'::character varying::text, 'voided'::character varying::text])", name: "game_market_bids_outcome_check"
+    t.check_constraint "outcome::text ~ '^(leading|outbid|beaten|raise|won|lost|voided)$'::text", name: "game_market_bids_outcome_check"
     t.check_constraint "price_after > 0", name: "game_market_bids_price_after_check"
   end
 
@@ -680,7 +680,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
     t.index ["listing_id", "player_id", "kind"], name: "index_game_market_ledger_entries_one_settlement", unique: true, where: "(((kind)::text = 'stamp'::text) OR ((kind)::text = 'purchase'::text) OR ((kind)::text = 'sale'::text) OR ((kind)::text = 'commission'::text))"
     t.index ["player_id"], name: "index_game_market_ledger_entries_on_player_id"
     t.index ["settings_id"], name: "index_game_market_ledger_entries_on_settings_id"
-    t.check_constraint "kind::text = ANY (ARRAY['mint'::character varying::text, 'stamp'::character varying::text, 'hold'::character varying::text, 'release'::character varying::text, 'purchase'::character varying::text, 'sale'::character varying::text, 'commission'::character varying::text, 'forfeit'::character varying::text])", name: "game_market_ledger_entries_kind_check"
+    t.check_constraint "kind::text ~ '^(mint|stamp|hold|release|purchase|sale|commission|forfeit)$'::text", name: "game_market_ledger_entries_kind_check"
   end
 
   create_table "game_market_listings", force: :cascade do |t|
@@ -689,7 +689,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
     t.bigint "card_season_id", null: false
     t.bigint "settings_id", null: false
     t.bigint "starting_price", null: false
-    t.bigint "buy_now_price"
     t.integer "duration_hours", null: false
     t.datetime "ends_at", null: false
     t.bigint "current_price", null: false
@@ -708,11 +707,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
     t.index ["token"], name: "index_game_market_listings_on_token", unique: true
     t.check_constraint "(leader_id IS NULL) = (leader_maximum IS NULL)", name: "game_market_listings_leader_check"
     t.check_constraint "(sold_at IS NULL) = (final_price IS NULL)", name: "game_market_listings_sold_check"
-    t.check_constraint "buy_now_price IS NULL OR buy_now_price > starting_price", name: "game_market_listings_buy_now_check"
     t.check_constraint "current_price >= starting_price", name: "game_market_listings_current_price_check"
     t.check_constraint "duration_hours > 0", name: "game_market_listings_duration_check"
     t.check_constraint "starting_price > 0", name: "game_market_listings_starting_price_check"
-    t.check_constraint "status::text = ANY (ARRAY['open'::character varying::text, 'sold'::character varying::text, 'unsold'::character varying::text, 'cancelled'::character varying::text, 'withdrawn'::character varying::text])", name: "game_market_listings_status_check"
+    t.check_constraint "status::text ~ '^(open|sold|unsold|cancelled|withdrawn)$'::text", name: "game_market_listings_status_check"
   end
 
   create_table "game_market_notices", force: :cascade do |t|
@@ -724,7 +722,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_10_200000) do
     t.datetime "noticed_at", null: false
     t.index ["player_id", "listing_id"], name: "index_game_market_notices_on_player_and_listing", unique: true
     t.check_constraint "amount IS NULL OR amount >= 0", name: "game_market_notices_amount_check"
-    t.check_constraint "kind::text = ANY (ARRAY['outbid'::character varying::text, 'won'::character varying::text, 'sold'::character varying::text, 'unsold'::character varying::text, 'bought_over'::character varying::text, 'lead_voided'::character varying::text, 'withdrawn'::character varying::text])", name: "game_market_notices_kind_check"
+    t.check_constraint "kind::text ~ '^(outbid|won|sold|unsold|lead_voided|withdrawn)$'::text", name: "game_market_notices_kind_check"
   end
 
   create_table "game_market_settings", force: :cascade do |t|

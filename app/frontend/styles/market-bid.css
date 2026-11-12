@@ -177,42 +177,6 @@
   color: var(--color-alert);
 }
 
-.market-bid__buy-now {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3) var(--space-4);
-  padding-bottom: var(--space-4);
-  box-shadow: inset 0 calc(-1 * var(--space-unit)) 0 var(--color-line-soft);
-}
-
-.market-bid__buy-now-price {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1) var(--space-3);
-  margin: 0 auto 0 0;
-}
-
-.market-bid__buy-now-label {
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-kicker);
-}
-
-.market-bid__buy-now-amount {
-  color: var(--color-accent);
-  font: var(--font-number);
-}
-
-.market-bid__buy-now .button {
-  min-height: var(--space-touch-min);
-}
-
-.market-bid__buy-now .market-bid__small {
-  flex-basis: 100%;
-}
-
 .market-bid__shortcuts {
   display: flex;
   flex-wrap: wrap;

@@ -11,11 +11,9 @@ import { serverTemplate } from "../lib/server_html"
 
 const STRINGS = {
   buttonBid: "BID · %{amount}",
-  buttonBuy: "BUY · %{amount}",
   buttonIdle: "BID",
   buttonName: "Bid, maximum %{amount} PiCoins",
   buttonRaise: "RAISE · %{amount}",
-  liveBuyNow: "Buys at once for %{amount}.",
   liveHold: "%{amount} held.",
   liveRaise: "%{amount} more held.",
 }
@@ -36,7 +34,7 @@ const markup = (answered: boolean): string => `
     <div id="annonce-bid" data-annonce-target="region">
       <form id="annonce-form" data-action="submit->annonce#submit turbo:submit-end->annonce#submitted">
         <div data-controller="annonce-field" data-annonce-field-minimum-value="20000" data-annonce-field-available-value="100000"
-          data-annonce-field-buy-now-value="0" data-annonce-field-own-maximum-value="0" data-annonce-field-price-value="20000"
+          data-annonce-field-own-maximum-value="0" data-annonce-field-price-value="20000"
           data-annonce-field-unusual-multiple-value="3" data-annonce-field-answered-value="${answered}">
           <input id="maximum" type="text" data-annonce-field-target="input" data-focus-name="field"
             data-action="input->annonce-field#type keydown->annonce-field#keydown">
@@ -51,7 +49,6 @@ const markup = (answered: boolean): string => `
           <div id="sentences" data-annonce-foot-target="sentences" ${answered ? "hidden" : ""}>
             <p id="live" data-annonce-foot-target="live"></p>
             <button id="go" type="submit" data-annonce-foot-target="button">BID</button>
-            <button id="buy" type="submit" name="buy_now" value="1">BUY NOW</button>
           </div>
         </div>
       </form>
@@ -60,11 +57,6 @@ const markup = (answered: boolean): string => `
         <p><span id="unusual-amount" data-annonce-dialog-target="amount"></span> is <span id="unusual-multiple" data-annonce-dialog-target="multiple"></span> times</p>
         <button id="unusual-confirm" type="button" data-action="annonce-dialog#confirm">CONFIRM</button>
         <button id="unusual-cancel" type="button" data-action="dialog#close">CANCEL</button>
-      </dialog>
-      <dialog id="buy-now" data-controller="dialog annonce-dialog" data-annonce-dialog-kind-value="buy_now">
-        <h2 tabindex="-1">BUY NOW</h2>
-        <button id="buy-confirm" type="button" data-action="annonce-dialog#confirm">BUY</button>
-        <button id="buy-cancel" type="button" data-action="dialog#close">CANCEL</button>
       </dialog>
     </div>
   </section>`
@@ -324,7 +316,6 @@ describe("the confirmations", () => {
 
     expect(submit()).toBe(true)
     expect(el<HTMLDialogElement>("unusual").open).toBe(false)
-    expect(el<HTMLDialogElement>("buy-now").open).toBe(false)
   })
 
   it("asks first for an unusual maximum, writing its amount and truncated multiple", async () => {
@@ -367,30 +358,5 @@ describe("the confirmations", () => {
     el("annonce-form").dispatchEvent(new Event("turbo:submit-end", { bubbles: true }))
     type("60001")
     expect(submit()).toBe(false)
-  })
-
-  it("opens the buy-now confirmation from its button and returns focus to it when cancelled", async () => {
-    await mount()
-    const requested = recordRequests()
-
-    expect(submit("buy")).toBe(false)
-    expect(el<HTMLDialogElement>("buy-now").open).toBe(true)
-    expect(el<HTMLDialogElement>("unusual").open).toBe(false)
-
-    el("buy-cancel").click()
-
-    expect(document.activeElement).toBe(el("buy"))
-    expect(requested).not.toHaveBeenCalled()
-  })
-
-  it("confirms a buy-now through the button that asked, once", async () => {
-    await mount()
-    const requested = recordRequests()
-    submit("buy")
-
-    el("buy-confirm").click()
-
-    expect(requested).toHaveBeenCalledTimes(1)
-    expect(requested.mock.calls[0][0]).toBe(el("buy"))
   })
 })

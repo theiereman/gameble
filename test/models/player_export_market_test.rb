@@ -47,7 +47,7 @@ class PlayerExportMarketTest < ActiveSupport::TestCase
 
     listing = hash[:listings].sole
     assert_equal [ @listing.token, { slug: "tin-soldier", season: 1 }, "open", 20_000 ], listing.values_at(:token, :card, :status, :startingPrice)
-    assert_equal %i[token card status startingPrice buyNowPrice currentPrice finalPrice durationHours listedAt endsAt soldAt], listing.keys
+    assert_equal %i[token card status startingPrice currentPrice finalPrice durationHours listedAt endsAt soldAt], listing.keys
     assert_empty hash[:bids]
     assert_not_includes hash.to_json, "77777"
     assert_not_includes hash.to_json, @rival.token

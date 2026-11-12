@@ -8,8 +8,6 @@ module MarketSalesHelper
 
   SALE_REFUSAL_SLOTS = {
     start_below_minimum: :starting_price,
-    buy_now_below_minimum: :buy_now_price,
-    buy_now_not_above_start: :buy_now_price,
     stamp_not_covered: :stamp,
     invalid_duration: :duration,
     copy_not_free: :grid,

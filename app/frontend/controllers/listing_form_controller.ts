@@ -5,7 +5,6 @@ import {
   choose,
   layoutAsked,
   refusal,
-  setBuyNow,
   setDuration,
   setStart,
   start,
@@ -44,13 +43,12 @@ function editionFrom(cell: HTMLElement): Edition {
 }
 
 export default class ListingFormController extends Controller<HTMLFormElement> {
-  static targets = ["cell", "start", "buyNow", "duration", "step"]
+  static targets = ["cell", "start", "duration", "step"]
   static values = { locale: String, basisPoints: Number, open: Boolean, strings: Object }
   static outlets = ["listing-grid", "listing-fields", "listing-summary"]
 
   declare readonly cellTargets: HTMLElement[]
   declare readonly startTarget: HTMLInputElement
-  declare readonly buyNowTarget: HTMLInputElement
   declare readonly durationTargets: HTMLInputElement[]
   declare readonly hasStepTarget: boolean
   declare readonly stepTarget: HTMLElement
@@ -98,9 +96,8 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
     this.apply(choose(this.state, ref), () => (phone ? this.fields()?.focusField("start") : undefined))
   }
 
-  typed({ detail: { field, value } }: Intent<{ field: Field; value: string }>): void {
-    if (!this.state) return
-    this.apply(field === "start" ? setStart(this.state, value) : setBuyNow(this.state, value))
+  typed({ detail: { value } }: Intent<{ field: Field; value: string }>): void {
+    if (this.state) this.apply(setStart(this.state, value))
   }
 
   duration({ detail: { hours } }: Intent<{ hours: string }>): void {
@@ -108,8 +105,7 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
   }
 
   entered({ detail: { field } }: Intent<{ field: Field | "duration" }>): void {
-    if (field === "start") this.fields()?.focusBuyNow()
-    else if (field === "buyNow") this.fields()?.focusDuration()
+    if (field === "start") this.fields()?.focusDuration()
     else this.summary()?.focusSubmit()
   }
 
@@ -148,7 +144,7 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
     const editions = this.cellTargets.map(editionFrom)
     const chosen = this.cellTargets.find((cell) => cell.getAttribute("aria-selected") === "true")?.dataset.ref ?? null
     const duration = this.durationTargets.find((radio) => radio.checked)?.value ?? ""
-    const typed = { start: this.startTarget.value, buyNow: this.buyNowTarget.value, duration }
+    const typed = { start: this.startTarget.value, duration }
     return start(editions, this.basisPointsValue, typed, chosen, "wide")
   }
 

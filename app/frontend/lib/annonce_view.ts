@@ -4,11 +4,9 @@ import { picoins } from "./picoins"
 
 export type AnnonceStrings = {
   buttonBid: string
-  buttonBuy: string
   buttonIdle: string
   buttonName: string
   buttonRaise: string
-  liveBuyNow: string
   liveHold: string
   liveRaise: string
 }
@@ -30,15 +28,6 @@ export function footViewOf(state: AnnonceState, { locale, strings }: Forms): Foo
   const base = { sentencesHidden: state.answered, panelHidden: !state.answered }
   if (kind === "idle" || amount === null) return { ...base, button: strings.buttonIdle, name: null, live: "" }
   const name = t(strings.buttonName, { amount: shown(amount) })
-  if (kind === "buy") {
-    const price = shown(state.terms.buyNow ?? amount)
-    return {
-      ...base,
-      button: t(strings.buttonBuy, { amount: price }),
-      name,
-      live: t(strings.liveBuyNow, { amount: price }),
-    }
-  }
   const held = shown(Math.max(commitment(state, amount), 0))
   if (kind === "raise")
     return {

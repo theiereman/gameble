@@ -145,8 +145,8 @@ class Game::Market::CloseAuctionTest < ActiveSupport::TestCase
     end
 
     data = events(Game::Market::AuctionSold).last.data
-    assert_equal({ listing_id: @listing.id, seller_id: @seller.id, winner_id: @winner.id, card_season_id: @card.id, final_price: 31_500, surplus: 8_500,
-      outbid_player_id: nil, outbid_released: 0 }, data)
+    assert_equal({ listing_id: @listing.id, seller_id: @seller.id, winner_id: @winner.id, card_season_id: @card.id, final_price: 31_500, surplus: 8_500 },
+      data)
   end
 
   test "no leader leaves the listing unsold and releases the reservation" do

@@ -32,7 +32,7 @@ class MarketSalesHelperTest < ActionView::TestCase
 
   test "each refusal of the operation lands in its slot" do
     {
-      start_below_minimum: :starting_price, buy_now_below_minimum: :buy_now_price, buy_now_not_above_start: :buy_now_price,
+      start_below_minimum: :starting_price,
       stamp_not_covered: :stamp, invalid_duration: :duration, copy_not_free: :grid, no_rarity: :grid,
       market_closed: :closed, player_required: :signed_out, amounts_changed: :form, market_busy: :form
     }.each do |code, slot|
@@ -43,7 +43,6 @@ class MarketSalesHelperTest < ActionView::TestCase
   test "an invalid price lands at the field that failed, the start by default" do
     assert_equal :starting_price, sale_refusal_slot(:invalid_price)
     assert_equal :starting_price, sale_refusal_slot(:invalid_price, invalid_price_at: :starting_price)
-    assert_equal :buy_now_price, sale_refusal_slot(:invalid_price, invalid_price_at: :buy_now_price)
   end
 
   test "a code with no dedicated place falls back to the form" do
@@ -51,7 +50,7 @@ class MarketSalesHelperTest < ActionView::TestCase
   end
 
   test "every failure code of the operation has a message in both languages" do
-    codes = %i[amounts_changed buy_now_below_minimum buy_now_not_above_start copy_not_free invalid_duration invalid_price market_busy
+    codes = %i[amounts_changed copy_not_free invalid_duration invalid_price market_busy
                market_closed no_rarity player_required stamp_not_covered start_below_minimum]
     %i[en fr].each do |locale|
       I18n.with_locale(locale) do

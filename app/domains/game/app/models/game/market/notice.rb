@@ -3,7 +3,7 @@ module Game
     class Notice < ApplicationRecord
       self.table_name = "game_market_notices"
 
-      KINDS = %w[outbid won sold unsold bought_over lead_voided withdrawn].freeze
+      KINDS = %w[outbid won sold unsold lead_voided withdrawn].freeze
 
       belongs_to :player, class_name: "Accounts::Player"
       belongs_to :listing

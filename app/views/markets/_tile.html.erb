@@ -10,9 +10,6 @@
       </span>
       <span class="listing-tile__line">
         <span class="listing-tile__time<%= " listing-tile__time--soon" if soon %>"><%= listing_time_left(seconds) %></span>
-        <% if row.buy_now_price %>
-          <span class="listing-tile__buy-now"><%= t("markets.tile.buy_now") %></span>
-        <% end %>
       </span>
     </span>
   <% end %>

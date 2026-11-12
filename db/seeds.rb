@@ -126,7 +126,7 @@ if Rails.env.development? && Game::Market::MarketState.call.open?
 
     minimum = settings.minimum_price(offered.rarity)
     Game::Market::ListCard.new.call(player:, card_season_id: offered.card_season_id, starting_price: minimum,
-      buy_now_price: index.even? ? minimum * 3 : nil, duration_hours: durations[index % durations.size], settings_token: settings.token).success?
+      duration_hours: durations[index % durations.size], settings_token: settings.token).success?
   end
   puts "Listed #{listed} copies on the market."
 end

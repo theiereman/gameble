@@ -1,5 +1,5 @@
 class CreateGameMarketNotices < ActiveRecord::Migration[8.1]
-  KINDS = %w[outbid won sold unsold bought_over lead_voided withdrawn].freeze
+  KINDS = %w[outbid won sold unsold lead_voided withdrawn].freeze
 
   def change
     create_table :game_market_notices do |t|
@@ -10,7 +10,7 @@ class CreateGameMarketNotices < ActiveRecord::Migration[8.1]
       t.bigint :amount
       t.datetime :noticed_at, null: false
 
-      t.check_constraint "kind IN (#{KINDS.map { |kind| "'#{kind}'" }.join(", ")})", name: "game_market_notices_kind_check"
+      t.check_constraint "kind ~ '^(#{KINDS.join("|")})$'", name: "game_market_notices_kind_check"
       t.check_constraint "amount IS NULL OR amount >= 0", name: "game_market_notices_amount_check"
     end
   end

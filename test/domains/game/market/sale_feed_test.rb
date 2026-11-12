@@ -27,9 +27,11 @@ class Game::Market::SaleFeedTest < ActiveSupport::TestCase
 
   def sell!(card, price)
     hold(@seller, card.id, 1, reserved: 1)
-    @listing = listing!(seller: @seller, card_season: card, starting_price: 1_300, buy_now_price: price, ends_at: 1.day.from_now)
+    @listing = listing!(seller: @seller, card_season: card, starting_price: price, ends_at: 1.day.from_now)
     fund!(@buyer, price)
     assert bid(@buyer, price).success?
+    @listing.update_columns(ends_at: 1.minute.ago)
+    assert Game::Market::CloseAuction.new.call(player: @seller, listing_id: @listing.id).success?
   end
 
   test "a sale of a common at the threshold times its minimum is an entry naming the buyer, the card and the rarity" do
@@ -74,14 +76,14 @@ class Game::Market::SaleFeedTest < ActiveSupport::TestCase
     end
   end
 
-  test "the sale of a listing settled by a buy-now writes its entry in the sale's transaction" do
+  test "the sale of a closed auction writes its entry in the sale's transaction" do
     sell!(@common, 30_000)
 
     entry = sales.sole
     assert_equal [ @listing.id, @buyer.id ], [ entry.listing_id, entry.player_id ]
   end
 
-  test "a cheap sale settled by a buy-now writes no entry" do
+  test "a cheap sale at the close writes no entry" do
     sell!(@common, 3_000)
 
     assert_empty sales

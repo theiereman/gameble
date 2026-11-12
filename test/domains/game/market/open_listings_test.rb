@@ -53,8 +53,8 @@ class Game::Market::OpenListingsTest < ActiveSupport::TestCase
   test "a row carries the card, the amounts, the end and the offers, and no database id nor maximum" do
     row = Game::Market::OpenListings.call(sort: "price_asc", page: 1, locale: :en).rows.first
 
-    assert_equal [ @middle.token, "tin-soldier", 1_300, nil, 0 ], [ row.token, row.card.id, row.current_price, row.buy_now_price, row.offers ]
-    assert_equal %i[token card current_price buy_now_price ends_at offers], row.to_h.keys
+    assert_equal [ @middle.token, "tin-soldier", 1_300, 0 ], [ row.token, row.card.id, row.current_price, row.offers ]
+    assert_equal %i[token card current_price ends_at offers], row.to_h.keys
   end
 
   test "a listing whose card-season has no view is left out" do

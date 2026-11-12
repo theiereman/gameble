@@ -23,8 +23,8 @@ class Game::Market::ListCardTest < ActiveSupport::TestCase
     Game::Market::Mint.credit(player_id: player.id, amount:, settings_id: @settings.id)
   end
 
-  def list(card_season_id: @common.id, starting_price: @minimum, buy_now_price: nil, duration_hours: 24, token: @settings.token, player: @player)
-    Game::Market::ListCard.new.call(player:, card_season_id:, starting_price:, buy_now_price:, duration_hours:, settings_token: token)
+  def list(card_season_id: @common.id, starting_price: @minimum, duration_hours: 24, token: @settings.token, player: @player)
+    Game::Market::ListCard.new.call(player:, card_season_id:, starting_price:, duration_hours:, settings_token: token)
   end
 
   def holding = Game::Holding.find_by!(player_id: @player.id, card_season_id: @common.id)
@@ -42,12 +42,12 @@ class Game::Market::ListCardTest < ActiveSupport::TestCase
   test "a free copy becomes one open listing, reserved, stamped, with one event" do
     result = nil
     assert_difference [ -> { Game::Market::Listing.count }, -> { Game::Market::LedgerEntry.count } ], 1 do
-      travel_to(Time.utc(2026, 11, 10, 12)) { result = list(starting_price: @minimum, buy_now_price: @minimum * 2, duration_hours: 12) }
+      travel_to(Time.utc(2026, 11, 10, 12)) { result = list(starting_price: @minimum, duration_hours: 12) }
     end
 
     listing = result.value!
-    assert_equal [ @player.id, @common.id, @settings.id, @minimum, @minimum * 2, 12, @minimum, nil, "open" ],
-      listing.values_at(:seller_id, :card_season_id, :settings_id, :starting_price, :buy_now_price, :duration_hours, :current_price, :leader_id, :status)
+    assert_equal [ @player.id, @common.id, @settings.id, @minimum, 12, @minimum, nil, "open" ],
+      listing.values_at(:seller_id, :card_season_id, :settings_id, :starting_price, :duration_hours, :current_price, :leader_id, :status)
     assert_equal Time.utc(2026, 11, 11, 0), listing.ends_at
     assert_equal 24, listing.token.size
     assert_equal 1, holding.reserved
@@ -93,24 +93,20 @@ class Game::Market::ListCardTest < ActiveSupport::TestCase
 
   test "every price rule refuses" do
     refused :start_below_minimum, starting_price: @minimum - 1
-    refused :buy_now_below_minimum, starting_price: @minimum, buy_now_price: @minimum - 1
-    refused :buy_now_not_above_start, starting_price: @minimum, buy_now_price: @minimum
     refused :invalid_price, starting_price: 0
     refused :invalid_price, starting_price: "abc"
     refused :invalid_price, starting_price: "12.5"
     refused :invalid_price, starting_price: "0x40"
     refused :invalid_price, starting_price: "1_000"
-    refused :invalid_price, starting_price: @minimum, buy_now_price: -4
+    refused :invalid_price, starting_price: -4
   end
 
   test "an amount above the bigint maximum is a refusal, never a range error" do
     refused :invalid_price, starting_price: 99_999_999_999_999_999_999
-    refused :invalid_price, starting_price: @minimum, buy_now_price: 99_999_999_999_999_999_999
   end
 
   test "the bigint maximum passes the normalisation and meets the other rules" do
     maximum = Game::Market::PriceAmount::MAX_AMOUNT
-    refused :buy_now_not_above_start, starting_price: maximum, buy_now_price: maximum
     Game::Market::Wallet.where(player_id: @player.id).update_all(available: 0)
     refused :stamp_not_covered, starting_price: maximum
   end

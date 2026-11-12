@@ -2,8 +2,8 @@ import type { Rarity } from "./card_types"
 
 export type Layout = "wide" | "phone"
 export type Step = 1 | 2
-export type Field = "start" | "buyNow"
-export type RefusalCode = "invalidPrice" | "belowMinimum" | "notAboveStart"
+export type Field = "start"
+export type RefusalCode = "invalidPrice" | "belowMinimum"
 
 export type Edition = {
   ref: string
@@ -23,7 +23,6 @@ export type ListingState = {
   basisPoints: number
   chosen: string | null
   start: string
-  buyNow: string
   duration: string
   layout: Layout
   step: Step
@@ -36,7 +35,7 @@ export type Lines = {
   received: number | null
 }
 
-export type Typed = Readonly<{ start: string; buyNow: string; duration: string }>
+export type Typed = Readonly<{ start: string; duration: string }>
 
 const BASIS_POINTS = 10_000n
 const MAX_SAFE = BigInt(Number.MAX_SAFE_INTEGER)
@@ -91,10 +90,6 @@ export function setStart(state: ListingState, start: string): ListingState {
   return { ...state, start, shown: null }
 }
 
-export function setBuyNow(state: ListingState, buyNow: string): ListingState {
-  return { ...state, buyNow, shown: null }
-}
-
 export function setDuration(state: ListingState, duration: string): ListingState {
   return state.duration === duration ? state : { ...state, duration }
 }
@@ -112,13 +107,7 @@ export function refusal(state: ListingState): Refusal | null {
   if (!edition) return null
   const price = amountOf(state.start)
   if (!positive(price)) return { field: "start", code: "invalidPrice" }
-  const buyNow = state.buyNow.trim() === "" ? null : amountOf(state.buyNow)
-  if (state.buyNow.trim() !== "" && !positive(buyNow)) return { field: "buyNow", code: "invalidPrice" }
-  const minimum = BigInt(edition.minimum)
-  if (price < minimum) return { field: "start", code: "belowMinimum" }
-  if (buyNow === null) return null
-  if (buyNow < minimum) return { field: "buyNow", code: "belowMinimum" }
-  if (buyNow <= price) return { field: "buyNow", code: "notAboveStart" }
+  if (price < BigInt(edition.minimum)) return { field: "start", code: "belowMinimum" }
   return null
 }
 

@@ -19,7 +19,7 @@ class Game::Market::BidSheetTest < ActiveSupport::TestCase
     @card = catalog_card_seasons(:common_card_one)
     open_market!(increment_basis_points: 500, soft_close_seconds: 300)
     hold(@seller, @card.id, 1, reserved: 1)
-    @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, buy_now_price: 60_000, ends_at: 1.day.from_now)
+    @listing = listing!(seller: @seller, card_season: @card, starting_price: 20_000, ends_at: 1.day.from_now)
     [ @leader, @other ].each { fund!(it, 100_000) }
   end
 
@@ -28,8 +28,8 @@ class Game::Market::BidSheetTest < ActiveSupport::TestCase
   test "without a leader the minimum is the starting price and the figures are the bidder's" do
     result = sheet(@other)
 
-    assert_equal [ 20_000, false, nil, 100_000, 20_000, 60_000, 5 ],
-      [ result.minimum, result.leading, result.own_maximum, result.available, result.current_price, result.buy_now_price, result.soft_close_minutes ]
+    assert_equal [ 20_000, false, nil, 100_000, 20_000, 5 ],
+      [ result.minimum, result.leading, result.own_maximum, result.available, result.current_price, result.soft_close_minutes ]
   end
 
   test "with a leader the minimum is one increment above the price" do
@@ -58,12 +58,6 @@ class Game::Market::BidSheetTest < ActiveSupport::TestCase
     assert_equal [ 20_000, false ], sheet(@other).then { [ it.minimum, it.leading ] }
   end
 
-  test "the minimum never passes the buy-now price" do
-    @listing.update_columns(current_price: 59_500, leader_id: @leader.id, leader_maximum: 59_900)
-
-    assert_equal 60_000, sheet(@other).minimum
-  end
-
   test "there is no sheet for the seller, a visitor, a removed player, an ended or a due listing" do
     assert_nil sheet(@seller)
     assert_nil sheet(nil)
@@ -88,28 +82,5 @@ class Game::Market::BidSheetTest < ActiveSupport::TestCase
     open_market!(unusual_maximum_multiple: 5)
 
     assert_equal 5, sheet(@other).unusual_multiple
-  end
-
-  test "the buy-now hold is the buy-now price, less the leader's own held maximum" do
-    assert_equal [ 60_000, true ], sheet(@other).then { [ it.buy_now_hold, it.can_buy_now ] }
-
-    bid(@leader, 30_000)
-
-    assert_equal 30_000, sheet(@leader).buy_now_hold
-    assert_equal 60_000, sheet(@other).buy_now_hold
-  end
-
-  test "buying now needs the hold to be available" do
-    @listing.update_columns(buy_now_price: 100_000)
-    assert sheet(@other).can_buy_now
-
-    @listing.update_columns(buy_now_price: 100_001)
-    assert_not sheet(@other).can_buy_now
-  end
-
-  test "a listing without a buy-now has no hold and cannot be bought now" do
-    @listing.update_columns(buy_now_price: nil)
-
-    assert_equal [ nil, false ], sheet(@other).then { [ it.buy_now_hold, it.can_buy_now ] }
   end
 end

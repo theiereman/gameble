@@ -29,9 +29,8 @@ module Game
         listing.update!(average_after_sale: average)
       end
 
-      def sold_event(listing:, winner_id:, final_price:, surplus:, outbid_player_id: nil, outbid_released: 0)
-        AuctionSold.new(data: { listing_id: listing.id, seller_id: listing.seller_id, winner_id:, card_season_id: listing.card_season_id, final_price:,
-          surplus:, outbid_player_id:, outbid_released: })
+      def sold_event(listing:, winner_id:, final_price:, surplus:)
+        AuctionSold.new(data: { listing_id: listing.id, seller_id: listing.seller_id, winner_id:, card_season_id: listing.card_season_id, final_price:, surplus: })
       end
 
       def publish_to_seller(listing, event) = publish(event, stream_name: stream_name(listing.seller_id))

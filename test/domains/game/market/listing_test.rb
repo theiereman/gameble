@@ -39,8 +39,7 @@ class Game::Market::ListingTest < ActiveSupport::TestCase
     end
   end
 
-  test "the table refuses a buy-now not above the start and an unknown status" do
-    assert_raises(ActiveRecord::StatementInvalid) { ActiveRecord::Base.transaction(requires_new: true) { @listing.update_columns(buy_now_price: @listing.starting_price) } }
+  test "the table refuses an unknown status and a leader without a maximum" do
     assert_raises(ActiveRecord::StatementInvalid) { ActiveRecord::Base.transaction(requires_new: true) { @listing.update_columns(status: "lost") } }
     assert_raises(ActiveRecord::StatementInvalid) { ActiveRecord::Base.transaction(requires_new: true) { @listing.update_columns(leader_id: @player.id) } }
   end

@@ -57,7 +57,7 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
 
   test "a seller relists an unsold copy with the amounts prefilled and lands on the new Annonce" do
     hold(@seller, @rare.id, 1)
-    listing!(seller: @seller, card_season: @rare, status: "unsold", ends_at: 1.day.ago, starting_price: 9_000, buy_now_price: 20_000)
+    listing!(seller: @seller, card_season: @rare, status: "unsold", ends_at: 1.day.ago, starting_price: 9_000)
     sign_in_through_the_site(@seller)
 
     visit market_my_sales_path(locale: :en)
@@ -65,7 +65,6 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
 
     assert_selector ".market-sale__relisting", text: "These amounts are those of your previous sale."
     assert_field "starting_price", with: "9000"
-    assert_field "buy_now_price", with: "20000"
     click_button "PUT UP FOR SALE"
 
     assert_selector "h1#market-listing-heading", text: "Blue Depths"

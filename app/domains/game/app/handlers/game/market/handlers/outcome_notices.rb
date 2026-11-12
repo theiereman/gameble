@@ -11,9 +11,6 @@ module Game
 
         def self.sold(event, data)
           listing_id, seller_id, winner_id, price = data.values_at(:listing_id, :seller_id, :winner_id, :final_price)
-          if data[:outbid_player_id]
-            Notice.record_for(event, player_id: data[:outbid_player_id], listing_id:, kind: "bought_over", other_player_id: winner_id, amount: data[:outbid_released])
-          end
           Notice.record_for(event, player_id: winner_id, listing_id:, kind: "won", amount: price)
           Notice.record_for(event, player_id: seller_id, listing_id:, kind: "sold", amount: received(listing_id, seller_id))
         end

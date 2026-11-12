@@ -104,10 +104,10 @@ class Game::Market::SellerListingsTest < ActiveSupport::TestCase
 
   test "an unsold row offers a relist while it is the latest of its edition and a free copy exists" do
     hold(@seller, @common.id, 1)
-    unsold = listing!(seller: @seller, card_season: @common, status: "unsold", ends_at: 1.day.ago, starting_price: 2_000, buy_now_price: 9_000)
+    unsold = listing!(seller: @seller, card_season: @common, status: "unsold", ends_at: 1.day.ago, starting_price: 2_000)
 
     offer = rows.ended.sole.relist
-    assert_equal [ "#{@common.card.slug}:#{@common.season.number}", 2_000, 9_000 ], [ offer.ref, offer.start, offer.buy_now ]
+    assert_equal [ "#{@common.card.slug}:#{@common.season.number}", 2_000 ], [ offer.ref, offer.start ]
     assert_equal unsold.token, rows.ended.sole.token
   end
 

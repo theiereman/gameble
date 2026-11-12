@@ -6,11 +6,9 @@ const forms: Forms = {
   locale: "en",
   strings: {
     buttonBid: "BID · %{amount}",
-    buttonBuy: "BUY · %{amount}",
     buttonIdle: "BID",
     buttonName: "Bid, maximum %{amount} PiCoins",
     buttonRaise: "RAISE · %{amount}",
-    liveBuyNow: "Buys at once for %{amount}.",
     liveHold: "%{amount} held.",
     liveRaise: "%{amount} more held.",
   },
@@ -19,7 +17,6 @@ const forms: Forms = {
 const terms = (overrides: Partial<Terms> = {}): Terms => ({
   minimum: 20_000,
   available: 100_000,
-  buyNow: null,
   ownMaximum: null,
   price: 20_000,
   unusualMultiple: 3,
@@ -44,13 +41,6 @@ describe("the foot", () => {
 
   it("raises for a leader and holds only the difference", () => {
     expect(typed("35000", { ownMaximum: 30_000 })).toMatchObject({ button: "RAISE · 35,000", live: "5,000 more held." })
-  })
-
-  it("buys at the buy-now price when the maximum reaches it", () => {
-    expect(typed("90000", { buyNow: 60_000 })).toMatchObject({
-      button: "BUY · 60,000",
-      live: "Buys at once for 60,000.",
-    })
   })
 
   it("never shows a negative figure for a raise under the current maximum", () => {

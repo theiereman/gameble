@@ -9,7 +9,7 @@ class Game::Market::ListingByTokenTest < ActiveSupport::TestCase
   setup do
     @player = accounts_players(:player)
     open_market!
-    @listing = listing!(seller: @player, card_season: catalog_card_seasons(:common_card_one), buy_now_price: 4_000)
+    @listing = listing!(seller: @player, card_season: catalog_card_seasons(:common_card_one))
   end
 
   test "an unknown token reads nothing" do
@@ -20,8 +20,8 @@ class Game::Market::ListingByTokenTest < ActiveSupport::TestCase
     @listing.update_columns(status: "sold")
     detail = Game::Market::ListingByToken.call(@listing.token, locale: :en)
 
-    assert_equal [ "sold", @player, nil, 1_300, 1_300, 4_000 ],
-      [ detail.status, detail.seller, detail.leader, detail.current_price, detail.starting_price, detail.buy_now_price ]
+    assert_equal [ "sold", @player, nil, 1_300, 1_300 ],
+      [ detail.status, detail.seller, detail.leader, detail.current_price, detail.starting_price ]
     assert_equal @listing.ends_at.to_i, detail.ends_at.to_i
     assert_equal catalog_card_seasons(:common_card_one).card.slug, detail.card.id
   end

@@ -46,18 +46,16 @@ class Game::Market::AuctionMathTest < ActiveSupport::TestCase
     assert_equal 30_000, displayed(highest: 30_000, second: 29_500)
   end
 
-  def minimum(price:, buy_now_price: nil) = Game::Market::AuctionMath.minimum_bid(price:, starting_price: 20_000, buy_now_price:, basis_points: 500)
+  def minimum(price:) = Game::Market::AuctionMath.minimum_bid(price:, starting_price: 20_000, basis_points: 500)
 
   test "the minimum bid is the starting price without a leader" do
     assert_equal 20_000, minimum(price: nil)
-    assert_equal 20_000, minimum(price: nil, buy_now_price: 50_000)
   end
 
-  test "the minimum bid is the price plus an increment, capped at the buy-now price" do
+  test "the minimum bid is the price plus an increment" do
     assert_equal 21_000, minimum(price: 20_000)
     assert_equal 27_700, minimum(price: 26_300)
-    assert_equal 50_000, minimum(price: 49_500, buy_now_price: 50_000)
-    assert_equal 21_000, minimum(price: 20_000, buy_now_price: 50_000)
+    assert_equal 52_000, minimum(price: 49_500)
   end
 
   test "a leader's raise only has to be above their own maximum" do

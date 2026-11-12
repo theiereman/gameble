@@ -30,7 +30,7 @@ module Market
         @copies = current_player && @settings ? Game::Market::SellableCopies.call(current_player, card_slug:) : []
         @chosen_ref = @copies.first.ref if @copies.one?
         @prices = sale_prices
-        @values = { start: "", buy_now: "", duration: @settings&.preselected_duration_hours.to_s }
+        @values = { start: "", duration: @settings&.preselected_duration_hours.to_s }
       end
 
       def sale_prices
@@ -56,7 +56,6 @@ module Market
 
         @chosen_ref = ref
         @values[:start] = plain_digits(params[:start])
-        @values[:buy_now] = plain_digits(params[:buy_now])
         @relisting = params[:relisting].to_s == "1"
       end
 
@@ -66,7 +65,7 @@ module Market
 
       def list(card_season_id)
         Game::Market::ListCard.new.call(player: current_player, card_season_id:, starting_price: params[:starting_price],
-          buy_now_price: params[:buy_now_price], duration_hours: params[:duration_hours], settings_token: params[:settings].to_s)
+          duration_hours: params[:duration_hours], settings_token: params[:settings].to_s)
       end
 
       def refuse_sale(code)
@@ -82,7 +81,6 @@ module Market
       def keep_posted_values
         @chosen_ref = posted_ref if @copies.any? { it.ref == posted_ref }
         @values[:start] = params[:starting_price].to_s
-        @values[:buy_now] = params[:buy_now_price].to_s
         duration = params[:duration_hours].to_s
         if allowed_durations.include?(duration)
           @values[:duration] = duration
@@ -99,9 +97,7 @@ module Market
 
       def invalid_price_field
         plain = ->(value) { PLAIN_AMOUNT.match?(value.to_s) && value.to_i.between?(1, Game::Market::PriceAmount::MAX_AMOUNT) }
-        return :starting_price unless plain.call(params[:starting_price])
-
-        :buy_now_price unless params[:buy_now_price].to_s.strip.empty? || plain.call(params[:buy_now_price])
+        :starting_price unless plain.call(params[:starting_price])
       end
 
       def refusal_values(code)
@@ -109,7 +105,7 @@ module Market
         return {} unless @settings && rarity
 
         case code
-        when :start_below_minimum, :buy_now_below_minimum
+        when :start_below_minimum
           { amount: helpers.picoins(@settings.minimum_price(rarity)), rarity: helpers.sale_rarity_name(rarity) }
         when :stamp_not_covered
           shortfall = @settings.stamp(rarity) - Game::Market::Balance.call(current_player).available
