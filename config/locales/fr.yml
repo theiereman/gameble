@@ -246,6 +246,15 @@ fr:
         title: "Fil d'activité"
       kicker:
         title: "Pont de commandement"
+      market:
+        available: "DISPONIBLE"
+        open: "Voir le marché"
+        outbid:
+          one: "%{number} offre dépassée"
+          other: "%{number} offres dépassées"
+          zero: "Aucune offre dépassée"
+        soon: "Se termine bientôt"
+        title: "Marché"
       menu:
         label: "Menu du pont"
         open_booster: "Ouvrir une capsule"
@@ -2184,6 +2193,10 @@ fr:
         label: "MON MAXIMUM"
         minimum_html: "Au moins %{amount}"
         minimum_raise_html: "Plus que votre maximum actuel, %{amount}"
+        shortcuts:
+          label: "Montants rapides"
+          minimum: "MINIMUM · %{amount}"
+          raise: "+%{percent} % · %{amount}"
         sign_in: "Connectez-vous pour enchérir"
         soft_close: "Une offre dans les %{minutes} dernières minutes reporte la fin à %{minutes} minutes après cette offre."
       not_recorded: "Votre montant n'a pas été enregistré."
@@ -2292,8 +2305,19 @@ fr:
           empty: "Aucune enchère terminée récemment."
           heading: "TERMINÉES RÉCEMMENT"
       show:
-        empty: "Vous n'avez enchéri sur aucune carte."
         empty_action: "VOIR LES ANNONCES"
+        empty_title: "Aucune enchère en cours"
+        empty_soon:
+          zero: "Une offre ne vous engage que si vous gagnez."
+          one: "Une annonce se termine dans l'heure. Une offre ne vous engage que si vous gagnez."
+          other: "%{number} annonces se terminent dans l'heure. Une offre ne vous engage que si vous gagnez."
+        summary:
+          outbid:
+            zero: "Vous êtes en tête de toutes vos enchères en cours."
+            one: "%{number} offre dépassée."
+            other: "%{number} offres dépassées."
+          soonest: "La plus pressée se termine dans %{time}."
+          balance: "%{committed} engagés · %{available} disponibles"
         heading: "Mes enchères"
     my_sales:
       cancel: "ANNULER"
@@ -2310,8 +2334,18 @@ fr:
       relist: "REMETTRE EN VENTE"
       relist_name: "Remettre en vente, %{card}"
       show:
-        empty: "Vous n'avez mis aucune carte en vente."
         empty_action: "METTRE EN VENTE"
+        empty_title: "Rien en vente pour l'instant"
+        empty_body: "Choisissez une carte en double, fixez un prix de départ et une durée. La carte reste à vous tant qu'elle n'est pas vendue."
+        summary:
+          selling:
+            zero: "Aucune vente en cours."
+            one: "%{number} vente en cours"
+            other: "%{number} ventes en cours"
+          with_offers:
+            zero: ", aucune offre pour l'instant."
+            one: ", dont %{number} avec une offre."
+            other: ", dont %{number} avec une offre."
         heading: "Mes ventes"
     rows:
       closing: "Clôture en cours…"
@@ -2480,6 +2514,9 @@ fr:
         season: "Saison"
       season_chip: "Saison %{number}"
       no_match: "Aucune annonce ne correspond à ces filtres."
+      nobody: "Personne ne vend « %{query} »"
+      nobody_body: "Aucune annonce ne correspond pour l'instant. Les annonces arrivent toute la journée."
+      clear_search: "EFFACER LA RECHERCHE"
     screen:
       heading: "Marché"
       chips_label: "Sections du marché"
@@ -2493,6 +2530,55 @@ fr:
       more: "Charger plus"
       pages_label: "Autres annonces"
       sorts_label: "Trier les annonces"
+      all_heading: "TOUTES LES ANNONCES"
+      found_heading: "ANNONCES TROUVÉES"
+      soon_heading: "SE TERMINE BIENTÔT"
+      soon_note: "dans l'heure"
+      soon_label: "Annonces qui se terminent dans l'heure"
+      desk:
+        kicker: "COMPTOIR DE LA CONFRÉRIE"
+        listings:
+          zero: "Aucune annonce en cours."
+          one: "%{number} annonce en cours."
+          other: "%{number} annonces en cours."
+        soon:
+          zero: "Aucune ne se termine dans l'heure."
+          one: "Une se termine dans l'heure."
+          other: "%{number} se terminent dans l'heure."
+        commission: "La Confrérie retient %{rate} sur chaque vente, conformément à la procédure."
+        available: "DISPONIBLE"
+        committed:
+          zero: "Aucun PiCoin engagé dans vos offres"
+          one: "%{amount} engagé dans vos offres"
+          other: "%{amount} engagés dans vos offres"
+        purse_label: "Vos PiCoins"
+      mine:
+        label: "Votre activité sur le marché"
+        outbid:
+          zero: "offre dépassée"
+          one: "offre dépassée"
+          other: "offres dépassées"
+        leading:
+          zero: "enchère en tête"
+          one: "enchère en tête"
+          other: "enchères en tête"
+        selling:
+          zero: "vente en cours"
+          one: "vente en cours"
+          other: "ventes en cours"
+        with_offers:
+          zero: "aucune offre pour l'instant"
+          one: "dont %{number} avec une offre"
+          other: "dont %{number} avec une offre"
+        raise: "RELEVER"
+        see: "VOIR"
+      newcomer:
+        title: "Bienvenue au comptoir"
+        body: "Ici tout se paie en PiCoins. Confiez vos exemplaires en double aux Archives : la Confrérie vous les crédite sur-le-champ."
+        spare:
+          zero: "Vous n'avez aucun exemplaire en double pour l'instant."
+          one: "Vous avez %{number} exemplaire en double."
+          other: "Vous avez %{number} exemplaires en double."
     show:
       kicker: "Chantier"
       heading: "La Confrérie construit le marché"

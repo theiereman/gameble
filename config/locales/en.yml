@@ -2488,6 +2488,10 @@ en:
         label: MY MAXIMUM
         minimum_html: "At least %{amount}"
         minimum_raise_html: "More than your current maximum, %{amount}"
+        shortcuts:
+          label: Quick amounts
+          minimum: "MINIMUM · %{amount}"
+          raise: "+%{percent}% · %{amount}"
         sign_in: Sign in to bid
         soft_close: A bid in the last %{minutes} minutes moves the end to %{minutes} minutes after that bid.
       not_recorded: Your amount was not recorded.
@@ -2595,9 +2599,20 @@ en:
           empty: No bid finished recently.
           heading: FINISHED RECENTLY
       show:
-        empty: You have not bid on any card.
         empty_action: SEE THE LISTINGS
+        empty_soon:
+          one: One listing ends within the hour. A bid only binds you if you win.
+          other: "%{number} listings end within the hour. A bid only binds you if you win."
+          zero: A bid only binds you if you win.
+        empty_title: No bid in progress
         heading: My bids
+        summary:
+          balance: "%{committed} committed · %{available} available"
+          outbid:
+            one: "%{number} outbid offer."
+            other: "%{number} outbid offers."
+            zero: You lead all your bids in progress.
+          soonest: "The most pressing one ends in %{time}."
     my_sales:
       cancel: CANCEL
       cancel_name: "Cancel the sale, %{card}"
@@ -2613,9 +2628,19 @@ en:
       relist: PUT UP FOR SALE AGAIN
       relist_name: "Put up for sale again, %{card}"
       show:
-        empty: You have not put any card up for sale.
         empty_action: PUT UP FOR SALE
+        empty_body: Choose a spare card, set a starting price and a duration. The card stays yours until it sells.
+        empty_title: Nothing for sale yet
         heading: My sales
+        summary:
+          selling:
+            one: "%{number} sale in progress"
+            other: "%{number} sales in progress"
+            zero: No sale in progress.
+          with_offers:
+            one: ", %{number} with a bid."
+            other: ", %{number} with a bid."
+            zero: ", no bid yet."
     rows:
       closing: "Closing…"
       labels:
@@ -2771,24 +2796,76 @@ en:
         step: "Step %{step} of 2"
   markets:
     filters:
+      clear_search: CLEAR THE SEARCH
       groups:
         season: Season
       no_match: No listings match these filters.
+      nobody: "Nobody is selling “%{query}”"
+      nobody_body: No listing matches for now. Listings arrive all day long.
       search_label: Search a game
       search_placeholder: Search a game
       season_chip: "Season %{number}"
     screen:
+      all_heading: ALL LISTINGS
       chips_label: Market sections
+      desk:
+        available: AVAILABLE
+        commission: "The Brotherhood keeps %{rate} of every sale, as the procedure requires."
+        committed:
+          one: "%{amount} committed to your bids"
+          other: "%{amount} committed to your bids"
+          zero: No PiCoins committed to your bids
+        kicker: THE BROTHERHOOD'S COUNTER
+        listings:
+          one: "%{number} listing open."
+          other: "%{number} listings open."
+          zero: No listing open.
+        purse_label: Your PiCoins
+        soon:
+          one: One ends within the hour.
+          other: "%{number} end within the hour."
+          zero: None ends within the hour.
       empty: No listings for now.
       entrust: ENTRUST CARDS
       entrust_short: ENTRUST
+      found_heading: LISTINGS FOUND
       heading: Market
       list_label: Listings
       listings: LISTINGS
+      mine:
+        label: Your market activity
+        leading:
+          one: leading bid
+          other: leading bids
+          zero: leading bids
+        outbid:
+          one: outbid offer
+          other: outbid offers
+          zero: outbid offers
+        raise: RAISE
+        see: SEE
+        selling:
+          one: sale in progress
+          other: sales in progress
+          zero: sales in progress
+        with_offers:
+          one: "%{number} with a bid"
+          other: "%{number} with a bid"
+          zero: no bid yet
       more: Load more
+      newcomer:
+        body: "Everything here is paid in PiCoins. Entrust your spare copies to the Archives: the Brotherhood credits you on the spot."
+        spare:
+          one: "You have %{number} spare copy."
+          other: "You have %{number} spare copies."
+          zero: You have no spare copy yet.
+        title: Welcome to the counter
       pages_label: More listings
       sell: PUT UP FOR SALE
       sell_short: SELL
+      soon_heading: ENDING SOON
+      soon_label: Listings ending within the hour
+      soon_note: within the hour
       sorts_label: Sort the listings
     show:
       closing: No date is being communicated at this stage. Management thanks you for your patience, which remains free of charge to this day.
@@ -2906,6 +2983,15 @@ en:
       live:
         open: Open the feed
         title: Activity feed
+      market:
+        available: AVAILABLE
+        open: See the market
+        outbid:
+          one: "%{number} offer outbid"
+          other: "%{number} offers outbid"
+          zero: No offer outbid
+        soon: Ending soon
+        title: Market
       menu:
         achievements: Achievements
         achievements_meta:

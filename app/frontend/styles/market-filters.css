@@ -1,5 +1,25 @@
 .market-filters {
-  margin-bottom: var(--space-4);
+  flex-flow: row wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.market-filters .filters__search {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.market-filters .filters__zone {
+  flex: 0 1 auto;
+}
+
+.market-filters .filters__zone[open] {
+  flex-basis: 100%;
+  order: 3;
+}
+
+.market-filters .filters__summary {
+  white-space: nowrap;
 }
 
 .market-filters__actions {

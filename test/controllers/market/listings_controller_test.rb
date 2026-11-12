@@ -199,6 +199,30 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[type=submit][name=buy_now][value='1']:not([disabled])", "BUY NOW"
   end
 
+  test "quick amounts fill the minimum or a raise above it, never reaching the buy-now price" do
+    Game::Market::Mint.credit(player_id: accounts_players(:administrator).id, amount: 50_000, settings_id: Game::Market::CurrentSettings.call.id)
+    sign_in(accounts_players(:administrator))
+    annonce
+
+    assert_select ".market-bid__shortcut[data-action='annonce-field#fill']", 3
+    assert_select ".market-bid__shortcut[data-annonce-field-amount-param='7800']", "MINIMUM · 7,800"
+    assert_select ".market-bid__shortcut[data-annonce-field-amount-param='8600']", "+10% · 8,600"
+    assert_select ".market-bid__shortcut[data-annonce-field-amount-param='9800']", "+25% · 9,800"
+    assert_select "#annonce-form > .market-bid__buy-now:first-of-type .market-bid__buy-now-amount .picoin-amount__figure", "30,000"
+
+    @listing.update_columns(buy_now_price: 8_000)
+    annonce
+    assert_select ".market-bid__shortcut", 1
+  end
+
+  test "the Annonce carries its rarity and season above the title and a gauge of the time gone" do
+    annonce
+
+    assert_select ".market-listing__kicker--rare", /RARE · SEASON/i
+    assert_select "progress.market-listing__progress[max][value]"
+    assert_select ".market-listing__progress--soon", false
+  end
+
   test "the unusual multiple of the shared fixture is the settings value" do
     rows = JSON.parse(Rails.root.join("test/fixtures/files/unusual_maximums.json").read)
 

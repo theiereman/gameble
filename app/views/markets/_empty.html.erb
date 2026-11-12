@@ -1,0 +1,13 @@
+<%# locals: (filters:, sort:) %>
+<div class="market-empty">
+  <% if filters.query.present? %>
+    <h2 class="market-empty__title"><%= t("markets.filters.nobody", query: filters.query) %></h2>
+    <p class="market-empty__body market-screen__empty"><%= t("markets.filters.nobody_body") %></p>
+    <%= render ButtonComponent.new(variant: :secondary, size: :small, href: market_filtered_path(filters.without_query, sort:)) do %><%= t("markets.filters.clear_search") %><% end %>
+  <% elsif filters.any? %>
+    <p class="market-empty__body market-screen__empty"><%= t("markets.filters.no_match") %></p>
+    <%= render ButtonComponent.new(variant: :secondary, size: :small, href: market_path(sort:)) do %><%= t("library.filters.clear") %><% end %>
+  <% else %>
+    <p class="market-empty__body market-screen__empty"><%= t("markets.screen.empty") %></p>
+  <% end %>
+</div>

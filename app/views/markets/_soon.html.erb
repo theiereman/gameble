@@ -1,0 +1,13 @@
+<%# locals: (row:) %>
+<% seconds = listing_seconds_left(row.ends_at) %>
+<li class="market-soon__item">
+  <%= link_to market_listing_path(token: row.token), class: "market-soon__link market-soon__link--#{row.card.rarity}", aria: { label: listing_tile_label(row) } do %>
+    <span class="market-soon__card" aria-hidden="true"><%= render CardComponent.new(card: row.card, size: :s) %></span>
+    <span class="market-soon__facts" aria-hidden="true">
+      <span class="market-soon__name"><%= row.card.title %></span>
+      <span class="market-soon__rarity"><%= CardStrings.new.rarity_name(row.card.rarity) %></span>
+      <%= render PicoinAmountComponent.new(amount: row.current_price, compact: true, class: "market-soon__price") %>
+      <span class="market-soon__time"><%= listing_time_left(seconds) %> · <%= t("markets.tile.offers", count: row.offers) %></span>
+    </span>
+  <% end %>
+</li>

@@ -1,43 +1,41 @@
 <% content_for :public_page, true unless current_player %>
 <% content_for :title, t(".heading") %>
 <section class="market-screen" aria-labelledby="market-screen-heading" data-controller="next-page" data-action="focusout->next-page#focusLeft">
-  <header class="market-screen__header">
-    <h1 id="market-screen-heading" class="market-screen__title"><%= t(".heading") %></h1>
-    <%= render "shell/balance_chip", placement: :header %>
-  </header>
+  <%= render "markets/desk", pulse: @pulse, desk: @desk, suspended: @suspended, commission_rate: @commission_rate %>
 
   <% if @suspended %><%= render "market/suspended_banner" %><% end %>
 
-  <%= render "markets/chips", current: :listings %>
+  <% if @desk&.newcomer? && !@suspended %>
+    <%= render "markets/newcomer", desk: @desk %>
+  <% elsif @desk %>
+    <%= render "markets/mine", desk: @desk %>
+  <% end %>
 
-  <div class="market-screen__actions">
-    <% reason = ("market-suspended-banner" if @suspended) %>
-    <% entrust_label = t(".entrust") %>
-    <% sell_label = t(".sell") %>
-    <% if current_player %>
-      <%= render ButtonComponent.new(variant: :secondary, size: :small, href: new_market_entrustment_path, disabled: @suspended, describedby: reason, aria_label: entrust_label) do %>
-        <span class="market-screen__long"><%= entrust_label %></span><span class="market-screen__short" aria-hidden="true"><%= t(".entrust_short") %></span>
-      <% end %>
-      <%= render ButtonComponent.new(variant: :primary, size: :small, href: new_market_sale_path, disabled: @suspended, describedby: reason, aria_label: sell_label) do %>
-        <span class="market-screen__long"><%= sell_label %></span><span class="market-screen__short" aria-hidden="true"><%= t(".sell_short") %></span>
-      <% end %>
-    <% else %>
-      <%= render ButtonComponent.new(variant: :secondary, size: :small, disabled: true, describedby: reason, aria_label: entrust_label) do %>
-        <span class="market-screen__long"><%= entrust_label %></span><span class="market-screen__short" aria-hidden="true"><%= t(".entrust_short") %></span>
-      <% end %>
-      <%= render ButtonComponent.new(variant: :primary, size: :small, disabled: true, describedby: reason, aria_label: sell_label) do %>
-        <span class="market-screen__long"><%= sell_label %></span><span class="market-screen__short" aria-hidden="true"><%= t(".sell_short") %></span>
-      <% end %>
-    <% end %>
+  <div class="market-screen__bar">
+    <%= render "markets/chips", current: :listings %>
+    <%= render "markets/sorts", sort: @sort, filters: @filters %>
   </div>
 
   <%= render "markets/filters", filters: @filters, options: @options, sort: @sort %>
 
-  <%= render "markets/sorts", sort: @sort, filters: @filters %>
+  <% if @pulse.soonest.any? && !@filters.any? %>
+    <section class="market-soon" aria-labelledby="market-soon-heading">
+      <h2 id="market-soon-heading" class="market-screen__section">
+        <%= t(".soon_heading") %> <span class="market-screen__section-note"><%= t(".soon_note") %></span>
+      </h2>
+      <ul class="market-soon__list" aria-label="<%= t(".soon_label") %>">
+        <% @pulse.soonest.each do |row| %><%= render "markets/soon", row: %><% end %>
+      </ul>
+    </section>
+  <% end %>
 
   <% if @listings.rows.empty? %>
-    <p class="market-screen__empty"><%= @filters.any? ? t("markets.filters.no_match") : t(".empty") %></p>
+    <%= render "markets/empty", filters: @filters, sort: @sort %>
   <% else %>
+    <h2 class="market-screen__section">
+      <%= @filters.any? ? t(".found_heading") : t(".all_heading") %>
+      <span class="market-screen__section-note"><%= number_with_delimiter(@filters.any? ? @found : @pulse.open) %></span>
+    </h2>
     <ul id="market-tiles" class="market-screen__tiles" aria-label="<%= t(".list_label") %>">
       <%= render "markets/tiles", rows: @listings.rows %>
     </ul>

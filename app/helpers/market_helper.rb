@@ -15,6 +15,10 @@ module MarketHelper
 
   def time_left_soon?(seconds) = seconds < SOON_SECONDS
 
+  def listing_duration_seconds(listing) = [ (listing.ends_at - listing.created_at).floor, 1 ].max
+
+  def listing_elapsed_seconds(listing) = (Time.current - listing.created_at).floor.clamp(0, listing_duration_seconds(listing))
+
   def listing_tile_label(row)
     card = row.card
     label = t("markets.tile.label", card: card.title, rarity: CardStrings.new.rarity_name(card.rarity), season: card.season_number,

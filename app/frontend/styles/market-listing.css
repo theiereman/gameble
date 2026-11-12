@@ -14,6 +14,63 @@
   gap: var(--space-3);
 }
 
+.market-listing__kicker {
+  margin: 0;
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.market-listing__kicker--common {
+  color: var(--color-rarity-commune);
+}
+
+.market-listing__kicker--uncommon {
+  color: var(--color-rarity-peu-commune);
+}
+
+.market-listing__kicker--rare {
+  color: var(--color-rarity-rare);
+}
+
+.market-listing__kicker--epic {
+  color: var(--color-rarity-epique);
+}
+
+.market-listing__kicker--legendary {
+  color: var(--color-rarity-legendaire);
+}
+
+.market-listing__progress {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 8px;
+  border: 0;
+  appearance: none;
+  background: var(--color-backdrop);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
+}
+
+.market-listing__progress::-webkit-progress-bar {
+  background: var(--color-backdrop);
+}
+
+.market-listing__progress::-webkit-progress-value {
+  background: var(--color-accent);
+}
+
+.market-listing__progress::-moz-progress-bar {
+  background: var(--color-accent);
+}
+
+.market-listing__progress--soon::-webkit-progress-value {
+  background: var(--color-alert);
+}
+
+.market-listing__progress--soon::-moz-progress-bar {
+  background: var(--color-alert);
+}
+
 .market-listing__title {
   margin: 0;
   color: var(--color-gold);

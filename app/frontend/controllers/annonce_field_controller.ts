@@ -94,6 +94,13 @@ export default class AnnonceFieldController extends Controller<HTMLElement> {
     this.dispatch("typed", { detail: { text: this.inputTarget.value } })
   }
 
+  fill({ params }: { params: { amount?: number } }): void {
+    if (params.amount === undefined) return
+    this.inputTarget.value = String(params.amount)
+    this.type()
+    this.inputTarget.focus()
+  }
+
   keydown(event: KeyboardEvent): void {
     if (event.key !== "Enter") return
     event.preventDefault()

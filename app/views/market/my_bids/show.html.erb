@@ -1,6 +1,6 @@
 <% content_for :title, t(".heading") %>
 <% content_for :back_button, true %>
-<% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
+<% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path, every_width: true %><% end %>
 <% empty = @groups.in_progress.empty? && @groups.recent.empty? %>
 <section class="market-screen" aria-labelledby="market-screen-heading">
   <header class="market-screen__header">
@@ -13,11 +13,24 @@
   <%= render "markets/chips", current: :bids %>
 
   <% if empty %>
-    <div class="market-screen__empty-state">
-      <p class="market-screen__empty"><%= t(".empty") %></p>
+    <div class="market-empty market-screen__empty-state">
+      <h2 class="market-empty__title"><%= t(".empty_title") %></h2>
+      <p class="market-empty__body market-screen__empty"><%= t(".empty_soon", count: @ending_soon, number: number_with_delimiter(@ending_soon)) %></p>
       <%= render ButtonComponent.new(variant: :link, href: market_path) do %><%= t(".empty_action") %><% end %>
     </div>
   <% else %>
+    <% if @groups.in_progress.any? %>
+      <% outbid = @groups.in_progress.select { it.status == :outbid } %>
+      <p class="<%= class_names("market-summary", "market-summary--alert": outbid.any?) %>">
+        <span class="market-summary__lead"><%= t(".summary.outbid", count: outbid.size, number: number_with_delimiter(outbid.size)) %></span>
+        <% if outbid.any? %>
+          <span><%= t(".summary.soonest", time: listing_time_left(listing_seconds_left(outbid.min_by(&:ends_at).ends_at))) %></span>
+        <% end %>
+        <% if shell_balance %>
+          <span class="market-summary__balance"><%= t(".summary.balance", committed: picoins(shell_balance.committed), available: picoins(shell_balance.available)) %></span>
+        <% end %>
+      </p>
+    <% end %>
     <%= render "market/my_bids/group", group: "in-progress", heading: t("market.my_bids.groups.in_progress.heading"),
           empty: t("market.my_bids.groups.in_progress.empty"), rows: @groups.in_progress, suspended: @suspended %>
     <%= render "market/my_bids/group", group: "recent", heading: t("market.my_bids.groups.recent.heading"),

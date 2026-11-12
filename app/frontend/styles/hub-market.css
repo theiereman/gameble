@@ -1,0 +1,138 @@
+.hub-market {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.hub-market__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.hub-market__purse {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.hub-market__label,
+.hub-market__subtitle {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.hub-market__available {
+  color: var(--color-gold);
+  font: var(--font-number);
+}
+
+.hub-market__alert,
+.hub-market__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--space-touch-min);
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text);
+  font: var(--font-body-small);
+  text-decoration: none;
+}
+
+.hub-market__alert {
+  justify-content: space-between;
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-alert);
+  color: var(--color-alert);
+  font-weight: 700;
+}
+
+.hub-market__alert-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-kicker);
+}
+
+.hub-market__arrow {
+  width: 6px;
+  height: auto;
+}
+
+.hub-market__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hub-market__row {
+  background: var(--color-panel-sunken);
+}
+
+.hub-market__alert:hover,
+.hub-market__row:hover {
+  background: var(--color-panel-raised);
+}
+
+.hub-market__alert:focus-visible,
+.hub-market__row:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.hub-market__thumb {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.hub-market__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-max);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hub-market__figures {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.hub-market__price {
+  color: var(--color-text-max);
+}
+
+.hub-market__time {
+  color: var(--color-alert);
+}
+
+.hub-market__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.hub-market__count {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  font-weight: 400;
+}

@@ -204,3 +204,38 @@
     grid-column: auto;
   }
 }
+
+.market-row:has(.market-row__chip--orange) {
+  box-shadow:
+    inset 4px 0 0 var(--color-alert),
+    var(--control-border);
+}
+
+@media (min-width: 1000px) {
+  .market-row {
+    grid-template-columns: 40px minmax(0, 1fr) 10rem;
+  }
+
+  .market-row__action {
+    justify-self: end;
+  }
+
+  .market-row__main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 7.5rem minmax(0, 26rem);
+    align-items: center;
+  }
+
+  .market-row__chip {
+    justify-self: start;
+  }
+
+  .market-row__facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .market-row__note {
+    grid-column: 1 / -1;
+  }
+}

@@ -17,12 +17,22 @@ class MarketsController < ApplicationController
     load_set_choices
     @listings = Game::Market::OpenListings.call(sort: @sort, page: @page, locale: I18n.locale, filters: @filters)
     respond_to do |format|
-      format.html { render :screen }
+      format.html do
+        load_desk
+        render :screen
+      end
       format.turbo_stream { render :screen }
     end
   end
 
   private
+    def load_desk
+      @pulse = Game::Market::MarketPulse.call(locale: I18n.locale)
+      @desk = Game::Market::PlayerDesk.call(current_player) if current_player
+      @commission_rate = Game::Market::CurrentSettings.call.commission_basis_points
+      @found = Game::Market::OpenListings.count(locale: I18n.locale, filters: @filters) if @filters.any?
+    end
+
     def load_set_choices
       season = Catalog::PublishedSeason.call
       @set_kinds = Catalog::SetKind::ALL & Catalog::SeasonSets.kinds(season:)

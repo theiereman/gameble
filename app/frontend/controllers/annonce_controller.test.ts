@@ -40,6 +40,7 @@ const markup = (answered: boolean): string => `
           data-annonce-field-unusual-multiple-value="3" data-annonce-field-answered-value="${answered}">
           <input id="maximum" type="text" data-annonce-field-target="input" data-focus-name="field"
             data-action="input->annonce-field#type keydown->annonce-field#keydown">
+          <button id="quick" type="button" data-action="annonce-field#fill" data-annonce-field-amount-param="22000">+10%</button>
           <p id="error" data-annonce-field-target="error" hidden>refused</p>
         </div>
         <div data-controller="annonce-foot">
@@ -246,6 +247,15 @@ describe("typing", () => {
 
     expect(el("error").hidden).toBe(true)
     expect(el("maximum").hasAttribute("aria-invalid")).toBe(false)
+  })
+
+  it("fills the field from a quick amount, names it on the button and focuses the field", async () => {
+    await mount()
+    el("quick").click()
+
+    expect((el("maximum") as HTMLInputElement).value).toBe("22000")
+    expect(el("go").textContent).toBe("BID · 22,000")
+    expect(document.activeElement).toBe(el("maximum"))
   })
 
   it("shows the foot again on the first keystroke after an answer", async () => {

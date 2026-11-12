@@ -33,6 +33,17 @@ module MarketBidsHelper
       annonce_field_price_value: sheet.current_price, annonce_field_unusual_multiple_value: sheet.unusual_multiple, annonce_field_answered_value: answered }
   end
 
+  SHORTCUT_RAISES = [ 10, 25 ].freeze
+
+  def bid_shortcuts(sheet)
+    return [] if sheet.leading
+
+    raises = SHORTCUT_RAISES.map { |percent| [ percent, (sheet.minimum * (100 + percent)).ceildiv(100 * 100) * 100 ] }
+    raises = raises.select { |_, amount| sheet.buy_now_price.nil? || amount < sheet.buy_now_price }
+    [ [ t("market.bids.form.shortcuts.minimum", amount: picoins(sheet.minimum)), sheet.minimum ],
+      *raises.map { |percent, amount| [ t("market.bids.form.shortcuts.raise", percent:, amount: picoins(amount)), amount ] } ]
+  end
+
   def bid_minimum_text(sheet)
     if sheet.leading
       t("market.bids.form.minimum_raise_html", amount: bid_amount(sheet.own_maximum))

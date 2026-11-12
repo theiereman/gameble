@@ -5,11 +5,15 @@ require_relative "../support/game_sets"
 require_relative "../support/game_trades"
 require_relative "../support/steam_sign_in"
 require_relative "../support/holdings"
+require_relative "../support/market"
+require_relative "../support/market_listings"
 
 # The hub, "Pont de commandement", a player's page, as the server renders
 # it; a visitor is sent to the landing.
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include Holdings
+  include MarketListings
+  include MarketSettings
   include CatalogSeeds
   include GamePacks
   include GameSets
@@ -946,5 +950,29 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".legal__ownership"
+  end
+
+  test "once the market has opened, the hub shows the purse, the outbid offers and the listings ending soon" do
+    open_market!(first_opened_at: 1.day.ago)
+    seller = accounts_players(:moderator)
+    soon = listing!(seller:, card_season: catalog_card_seasons(:common_card_one), ends_at: 15.minutes.from_now)
+    listing!(seller:, card_season: catalog_card_seasons(:rare_card_one), hours: 24)
+    Game::Market::Mint.credit(player_id: @player.id, amount: 4_000, settings_id: Game::Market::CurrentSettings.call.id)
+    sign_in(@player)
+
+    get home_path(locale: :en)
+
+    assert_select ".hub-market .hub-market__available .picoin-amount__figure", "4,000"
+    assert_select ".hub-market__alert", false
+    assert_select ".hub-market__row[href=?]", market_listing_path(locale: :en, token: soon.token), 1
+    assert_select ".hub-market__count", "2 listings open."
+    assert_select ".hub-market a.button--link[href=?]", market_path(locale: :en)
+  end
+
+  test "before the market opens the hub has no market panel" do
+    sign_in(@player)
+    get home_path(locale: :en)
+
+    assert_select ".hub-market", false
   end
 end

@@ -1,0 +1,14 @@
+<%# locals: (suspended:) %>
+<div class="market-screen__actions">
+  <% reason = ("market-suspended-banner" if suspended) %>
+  <% entrust_label = t("markets.screen.entrust") %>
+  <% sell_label = t("markets.screen.sell") %>
+  <%= render ButtonComponent.new(variant: :secondary, size: :small, href: (new_market_entrustment_path if current_player), disabled: suspended || current_player.nil?,
+        describedby: reason, aria_label: entrust_label) do %>
+    <span class="market-screen__long"><%= entrust_label %></span><span class="market-screen__short" aria-hidden="true"><%= t("markets.screen.entrust_short") %></span>
+  <% end %>
+  <%= render ButtonComponent.new(variant: :primary, size: :small, href: (new_market_sale_path if current_player), disabled: suspended || current_player.nil?,
+        describedby: reason, aria_label: sell_label) do %>
+    <span class="market-screen__long"><%= sell_label %></span><span class="market-screen__short" aria-hidden="true"><%= t("markets.screen.sell_short") %></span>
+  <% end %>
+</div>

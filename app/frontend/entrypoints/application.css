@@ -63,6 +63,7 @@
 @import "../styles/fortune.css";
 @import "../styles/fortune-profile.css";
 @import "../styles/fortune-panel.css";
+@import "../styles/hub-market.css";
 @import "../styles/fortune-register.css";
 @import "../styles/market-teaser.css";
 @import "../styles/market-entrust.css";
@@ -72,6 +73,7 @@
 @import "../styles/market-sale-phone.css";
 @import "../styles/market-suspended.css";
 @import "../styles/market-screen.css";
+@import "../styles/market-desk.css";
 @import "../styles/market-filters.css";
 @import "../styles/market-tile.css";
 @import "../styles/market-listing.css";

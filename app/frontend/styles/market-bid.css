@@ -183,10 +183,63 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3) var(--space-4);
+  padding-bottom: var(--space-4);
+  box-shadow: inset 0 calc(-1 * var(--space-unit)) 0 var(--color-line-soft);
+}
+
+.market-bid__buy-now-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  margin: 0 auto 0 0;
+}
+
+.market-bid__buy-now-label {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-kicker);
+}
+
+.market-bid__buy-now-amount {
+  color: var(--color-accent);
+  font: var(--font-number);
 }
 
 .market-bid__buy-now .button {
   min-height: var(--space-touch-min);
+}
+
+.market-bid__buy-now .market-bid__small {
+  flex-basis: 100%;
+}
+
+.market-bid__shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.market-bid__shortcut {
+  min-height: var(--space-chip-height);
+  padding: 0 var(--space-4);
+  border: 0;
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line);
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  cursor: pointer;
+}
+
+.market-bid__shortcut:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.market-bid__shortcut:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .market-dialog__text {

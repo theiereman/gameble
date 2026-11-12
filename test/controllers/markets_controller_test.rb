@@ -1,9 +1,13 @@
 require "test_helper"
+require_relative "../support/holdings"
 require_relative "../support/market"
+require_relative "../support/market_auctions"
 require_relative "../support/market_listings"
 require_relative "../support/steam_sign_in"
 
 class MarketsControllerTest < ActionDispatch::IntegrationTest
+  include Holdings
+  include MarketAuctions
   include MarketListings
   include MarketSettings
   include SteamSignIn
@@ -178,7 +182,7 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
     get market_path(locale: :en)
 
     assert_select "#market-suspended-banner[role=status]", 1
-    assert_select ".market-screen__header ~ #market-suspended-banner ~ .market-screen__chips"
+    assert_select ".market-desk ~ #market-suspended-banner ~ .market-screen__bar .market-screen__chips"
     assert_select ".market-screen__actions button[disabled][aria-describedby=market-suspended-banner]", 2
     assert_select ".market-screen__actions a.button", false
     assert_select ".listing-tile a[href=?]", market_listing_path(locale: :en, token: listing.token)
@@ -209,5 +213,58 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
     get market_path(locale: :en)
     assert_select ".market-teaser"
     assert_select "#market-suspended-banner", false
+  end
+
+  test "a player's counter holds the purse and the way to their bids and sales, with the outbid count first" do
+    open_for_good
+    player = accounts_players(:player)
+    fund!(player, 12_000)
+    listing!(seller: player, card_season: catalog_card_seasons(:common_card_one))
+    sign_in(player)
+
+    get market_path(locale: :en)
+
+    assert_select ".market-desk h1#market-screen-heading", "Market"
+    assert_select ".market-desk__available .picoin-amount__figure", "12,000"
+    assert_select ".market-mine a.market-mine__item[href=?]", market_my_bids_path(locale: :en), 2
+    assert_select ".market-mine a.market-mine__item[href=?]", market_my_sales_path(locale: :en), /1\s+sale in progress/
+    assert_select ".market-mine__item--alert", false
+    assert_select ".market-welcome", false
+  end
+
+  test "a player with nothing on the market yet is welcomed with the count of their spare copies" do
+    open_for_good
+    player = accounts_players(:player)
+    hold(player, catalog_card_seasons(:common_card_one).id, 3)
+    sign_in(player)
+
+    get market_path(locale: :en)
+
+    assert_select ".market-welcome a.button[href=?]", new_market_entrustment_path(locale: :en)
+    assert_select ".market-welcome__note", "You have 2 spare copies."
+    assert_select ".market-mine", false
+  end
+
+  test "the listings ending within the hour get a row of their own above the rest" do
+    open_for_good
+    soon = listing!(seller: accounts_players(:player), card_season: catalog_card_seasons(:common_card_one), ends_at: 20.minutes.from_now)
+    listing!(seller: accounts_players(:player), card_season: catalog_card_seasons(:rare_card_one), hours: 24)
+
+    get market_path(locale: :en)
+
+    assert_select ".market-soon__link[href=?]", market_listing_path(locale: :en, token: soon.token), 1
+    assert_select ".market-soon ~ .market-screen__section", /2/
+    assert_select ".listing-tile__link--soon", 1
+  end
+
+  test "a search that finds nobody names the game and offers to clear the search, keeping the sort" do
+    open_for_good
+    listing!(seller: accounts_players(:player), card_season: catalog_card_seasons(:common_card_one))
+
+    get market_path(locale: :en, q: "Zork", sort: "newest")
+
+    assert_select ".market-empty__title", "Nobody is selling “Zork”"
+    assert_select ".market-empty a.button[href=?]", market_path(locale: :en, sort: "newest")
+    assert_select ".market-soon", false
   end
 end

@@ -1,0 +1,8 @@
+<%# locals: (desk:) %>
+<section class="market-welcome" aria-labelledby="market-welcome-heading">
+  <span class="market-welcome__stamp" aria-hidden="true"><%= pixel_icon("picoin-mark-large", class: "market-welcome__coin") %></span>
+  <h2 id="market-welcome-heading" class="market-welcome__title"><%= t("markets.screen.newcomer.title") %></h2>
+  <p class="market-welcome__body"><%= t("markets.screen.newcomer.body") %></p>
+  <%= render ButtonComponent.new(href: new_market_entrustment_path) do %><%= t("markets.screen.entrust") %><% end %>
+  <p class="market-welcome__note"><%= t("markets.screen.newcomer.spare", count: desk.spare_copies, number: number_with_delimiter(desk.spare_copies)) %></p>
+</section>

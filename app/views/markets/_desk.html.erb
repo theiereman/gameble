@@ -1,0 +1,24 @@
+<%# locals: (pulse:, desk:, suspended:, commission_rate:) %>
+<header class="market-desk">
+  <div class="market-desk__intro">
+    <p class="market-desk__kicker"><%= t("markets.screen.desk.kicker") %></p>
+    <h1 id="market-screen-heading" class="market-desk__title"><%= t("markets.screen.heading") %></h1>
+    <% unless suspended %>
+      <p class="market-desk__status">
+        <%= t("markets.screen.desk.listings", count: pulse.open, number: number_with_delimiter(pulse.open)) %>
+        <% if pulse.open.positive? %><%= t("markets.screen.desk.soon", count: pulse.ending_soon, number: number_with_delimiter(pulse.ending_soon)) %><% end %>
+        <%= t("markets.screen.desk.commission", rate: number_to_percentage(commission_rate / 100.0, precision: 0)) %>
+      </p>
+    <% end %>
+  </div>
+  <div class="market-desk__side">
+    <% if desk %>
+      <div class="market-desk__purse" role="group" aria-label="<%= t("markets.screen.desk.purse_label") %>">
+        <p class="market-desk__label"><%= t("markets.screen.desk.available") %></p>
+        <%= render PicoinAmountComponent.new(amount: desk.balance.available, size: :large, class: "market-desk__available") %>
+        <p class="market-desk__committed"><%= t("markets.screen.desk.committed", count: desk.balance.committed, amount: picoins(desk.balance.committed)) %></p>
+      </div>
+    <% end %>
+    <%= render "markets/actions", suspended: %>
+  </div>
+</header>

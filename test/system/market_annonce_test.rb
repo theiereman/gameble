@@ -51,7 +51,7 @@ class MarketAnnonceSystemTest < ApplicationSystemTestCase
     assert_selector ".market-history__line--bid", count: 3
     assert_selector ".market-history__line--extension", text: "Auction extended until"
     assert_selector ".market-history__line--raise", count: 0
-    assert_selector ".market-history__leading", count: 1, text: "Leading"
+    assert_selector ".market-history__leading", count: 1, text: "LEADING"
     assert_selector ".market-history__line--created", text: "Listed by"
     assert_selector ".market-listing__leader", text: "Leading:"
   end

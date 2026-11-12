@@ -56,6 +56,8 @@ module Game
 
       def any? = count.positive? || query.present?
 
+      def without_query = with(query: "")
+
       def to_params
         { q: query, rarity: rarities, sets: sets.map(&:to_param), genre: genres, season: seasons, min_price:, max_price: }.compact_blank
       end

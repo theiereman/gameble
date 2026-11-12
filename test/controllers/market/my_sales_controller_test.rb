@@ -33,8 +33,8 @@ class Market::MySalesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", "My sales"
-    assert_select ".market-screen__empty", "You have not put any card up for sale."
-    assert_select ".market-screen__empty-state a.button--link[href=?]", new_market_sale_path(locale: :en), "PUT UP FOR SALE"
+    assert_select ".market-empty__title", "Nothing for sale yet"
+    assert_select ".market-screen__empty-state a.button--primary[href=?]", new_market_sale_path(locale: :en), "PUT UP FOR SALE"
     assert_select ".market-row", false
   end
 
@@ -43,7 +43,7 @@ class Market::MySalesControllerTest < ActionDispatch::IntegrationTest
 
     sales(locale: :fr)
 
-    assert_select ".market-screen__empty", "Vous n'avez mis aucune carte en vente."
+    assert_select ".market-empty__title", "Rien en vente pour l'instant"
   end
 
   test "rows come in two groups with status words, and the chips mark MES VENTES as current" do
