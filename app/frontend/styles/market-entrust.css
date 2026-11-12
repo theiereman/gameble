@@ -66,12 +66,6 @@
   font: var(--font-body-small);
 }
 
-[data-layout="wide"] .market-entrust__layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
-  align-items: start;
-}
-
 .market-entrust__main {
   display: flex;
   flex-direction: column;
@@ -84,7 +78,9 @@
 }
 
 [data-layout="wide"] .market-entrust__slot {
-  align-self: stretch;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
 }
 
 [data-layout="wide"] .entrust-bar {

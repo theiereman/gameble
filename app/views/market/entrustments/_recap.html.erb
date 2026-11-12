@@ -5,17 +5,21 @@
     <span class="entrust-recap__total-label"><%= t("market.entrustments.new.receive") %></span>
     <%= render PicoinAmountComponent.new(amount: 0, size: :large, data: { entrust_recap_target: "total" }) %>
   </div>
-  <p class="entrust-recap__prompt" data-entrust-recap-target="prompt"><%= t("market.entrustments.new.prompt") %></p>
-  <ul class="entrust-recap__lines" data-entrust-recap-target="lines" hidden></ul>
-  <p class="entrust-recap__over" data-entrust-recap-target="over" hidden></p>
-  <div class="entrust-recap__cap">
-    <span class="entrust-recap__cap-label"><%= t("market.entrustments.new.cap_label") %></span>
-    <%= render GaugeComponent.new(lit: 0, segment_data: { entrust_recap_target: "segment" }) %>
-    <span class="entrust-recap__cap-text" data-entrust-recap-target="capText"></span>
+  <div class="entrust-recap__detail">
+    <p class="entrust-recap__prompt" data-entrust-recap-target="prompt"><%= t("market.entrustments.new.prompt") %></p>
+    <ul class="entrust-recap__lines" data-entrust-recap-target="lines" hidden></ul>
+    <p class="entrust-recap__over" data-entrust-recap-target="over" hidden></p>
+    <p class="entrust-recap__full" data-entrust-recap-target="full" hidden><%= t("market.entrustments.new.cap_full") %></p>
+    <p id="entrust-rare-note" class="entrust-recap__rare" data-entrust-recap-target="rare" hidden></p>
   </div>
-  <p class="entrust-recap__full" data-entrust-recap-target="full" hidden><%= t("market.entrustments.new.cap_full") %></p>
-  <p id="entrust-rare-note" class="entrust-recap__rare" data-entrust-recap-target="rare" hidden></p>
-  <p id="entrust-not-returned" class="entrust-recap__sentence" data-entrust-recap-target="sentence"><%= t("market.entrustments.new.not_returned") %></p>
+  <div class="entrust-recap__side">
+    <div class="entrust-recap__cap">
+      <span class="entrust-recap__cap-label"><%= t("market.entrustments.new.cap_label") %></span>
+      <%= render GaugeComponent.new(lit: 0, segment_data: { entrust_recap_target: "segment" }) %>
+      <span class="entrust-recap__cap-text" data-entrust-recap-target="capText"></span>
+    </div>
+    <p id="entrust-not-returned" class="entrust-recap__sentence" data-entrust-recap-target="sentence"><%= t("market.entrustments.new.not_returned") %></p>
+  </div>
   <div class="entrust-recap__submit" data-entrust-recap-target="submitSlot">
     <%= render ButtonComponent.new(type: :submit, disabled: !@open, describedby: ("market-suspended-banner entrust-not-returned" if @suspended) || "entrust-not-returned") do %><%= t("market.entrustments.strings.submit", count: 0) %><% end %>
   </div>
