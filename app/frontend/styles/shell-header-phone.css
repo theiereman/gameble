@@ -138,6 +138,10 @@
     top: calc(max(var(--space-3), env(safe-area-inset-top, 0px)) + var(--topbar-height));
   }
 
+  .top-bar--top-level .packs-chips {
+    display: contents;
+  }
+
   .top-bar--top-level .packs-chips > .packs-chip,
   .top-bar--top-level .rarity-counter {
     display: none;

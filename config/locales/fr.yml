@@ -166,6 +166,9 @@ fr:
       me: "Moi"
       how_it_works: "Comment ça marche"
       back_office: "Back-office"
+      listing: "Annonce"
+      my_bids: "Mes enchères"
+      my_sales: "Mes ventes"
     rarity:
       label: "Raretés"
       legend: "Raretés"

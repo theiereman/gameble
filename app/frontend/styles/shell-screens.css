@@ -72,6 +72,18 @@ html[data-sub-view-step] .main {
 
 /* ---- Widths and breakpoints ---- */
 
+@media (max-width: 1439px) {
+  /* The capsule label gives way first: its count keeps the name in its link. */
+  .packs-chip__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
 @media (max-width: 1179px) {
   .main {
     padding: var(--space-page-padding-medium);
@@ -98,7 +110,6 @@ html[data-sub-view-step] .main {
 
 @media (max-width: 899px) {
   /* Labels give way to their values, which keep them in their names. */
-  .packs-chip__label,
   .player-chip__name {
     position: absolute;
     width: 1px;

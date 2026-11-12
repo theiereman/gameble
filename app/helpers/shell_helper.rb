@@ -55,7 +55,9 @@ module ShellHelper
     "sign_ins" => :sign_in,
     "feeds" => :feed,
     "markets" => :market,
-    "market/listings" => :market,
+    "market/listings" => :listing,
+    "market/my_bids" => :my_bids,
+    "market/my_sales" => :my_sales,
     "market/sales" => :market,
     "achievements" => :achievements,
     "pages#legal" => :legal,
@@ -112,8 +114,8 @@ module ShellHelper
     { controller: "bridge--top-bar", action: "click->bridge--top-bar#navigate", "bridge--top-bar-url-value": top_bar_path }
   end
 
-  def phone_back_link(label, path, **options)
-    link_to path, class: "button button--secondary button--small top-bar__phone-back", **options do
+  def phone_back_link(label, path, every_width: false, **options)
+    link_to path, class: class_names("button button--secondary button--small top-bar__phone-back", "top-bar__phone-back--every-width": every_width), **options do
       safe_join([ pixel_icon("arrow-left", class: "button__icon"), tag.span(label, class: "button__label") ])
     end
   end

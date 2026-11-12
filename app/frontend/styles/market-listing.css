@@ -30,14 +30,15 @@
 .market-listing__card {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-5);
+  align-items: center;
+  gap: var(--space-4);
 }
 
 .market-listing__facts {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  align-self: stretch;
+  gap: var(--space-1);
   margin: 0;
   font: var(--font-body);
 }
@@ -45,7 +46,11 @@
 .market-listing__fact {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel);
 }
 
 .market-listing__fact dt {
@@ -53,13 +58,17 @@
 }
 
 .market-listing__fact dd {
-  margin: 0;
+  margin: 0 0 0 auto;
+  text-align: right;
 }
 
 .market-listing__figures {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
+  padding: var(--space-5);
+  background: var(--color-panel);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line);
 }
 
 .market-listing__figure {
@@ -83,6 +92,15 @@
   font-size: 30px;
 }
 
+.market-listing__price {
+  color: var(--color-gold);
+}
+
+.market-listing__figure--buy-now {
+  padding-top: var(--space-4);
+  box-shadow: inset 0 var(--space-unit) 0 var(--color-line-soft);
+}
+
 .market-listing__time--soon {
   color: var(--color-alert);
 }
@@ -99,9 +117,19 @@
 
 @media (min-width: 400px) {
   .market-listing__figures {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .market-listing__figure--time {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .market-listing__figure--buy-now {
+    grid-column: 1 / -1;
     flex-direction: row;
-    flex-wrap: wrap;
-    gap: var(--space-7);
+    align-items: baseline;
+    justify-content: space-between;
   }
 }
 
@@ -110,7 +138,7 @@
     padding: var(--space-8) var(--space-gutter-desktop);
   }
 
-  .market-listing__figures {
-    flex-direction: column;
+  .market-listing__card {
+    width: min-content;
   }
 }

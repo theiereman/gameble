@@ -1,7 +1,7 @@
 <% seconds = listing_seconds_left(@listing.ends_at) %>
 <% content_for :public_page, true unless current_player %>
 <% content_for :back_button, true %>
-<% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path %><% end %>
+<% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path, every_width: true %><% end %>
 <% content_for :title, @listing.card.title %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
 <%= turbo_stream_from(*ListingStream.streamables(@listing.token)) %>
@@ -46,7 +46,7 @@
           <p class="market-listing__leader"><%= t(".leader") %> <%= render PlayerNameComponent.new(player: @listing.leader, viewer: current_player) %></p>
         <% end %>
       </div>
-      <%= tag.div class: "market-listing__figure", data: clock_data(seconds) do %>
+      <%= tag.div class: "market-listing__figure market-listing__figure--time", data: clock_data(seconds) do %>
         <p class="market-listing__label"><%= t(".time") %></p>
         <p class="market-listing__time<%= " market-listing__time--soon" if time_left_soon?(seconds) %>" data-listing-clock-target="label"><%= listing_time_left(seconds) %></p>
         <p class="market-listing__ends"><%= local_time_tag(@listing.ends_at) %></p>
