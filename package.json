@@ -22,7 +22,7 @@
     "happy-dom": "21.0.4",
     "prettier": "3.9.10",
     "stylelint": "17.16.0",
-    "stylelint-config-standard": "40.0.0",
+    "stylelint-config-standard": "41.0.0",
     "typescript": "7.0.2",
     "vite": "^8.3.5",
     "vite-plugin-ruby": "^5.2.6",
