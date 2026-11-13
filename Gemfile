@@ -90,7 +90,7 @@ gem "faraday", "~> 2.15.1"
 gem "faraday-retry", "~> 2.4.0"
 
 # Translate and condense release notes in the back office [https://github.com/anthropics/anthropic-sdk-ruby]
-gem "anthropic", "~> 1.82.0"
+gem "anthropic", "~> 2.7.0"
 
 # Read the initiative's epics from its TOML ticket file to create the roadmap milestones [https://github.com/fbernier/tomlrb]
 gem "tomlrb", "~> 3.0.0"
