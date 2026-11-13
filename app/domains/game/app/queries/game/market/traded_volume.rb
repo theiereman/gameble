@@ -1,6 +1,6 @@
 module Game
   module Market
-    # The PiCoins paid for sold auctions on each of the last two weeks' days, today included.
+    # The PiCoins paid for sold auctions on each of the last fourteen complete days: today, still under way, would always read as a dip.
     module TradedVolume
       DAYS = 14
       WEEK = 7
@@ -18,17 +18,19 @@ module Game
 
       def self.call(now: Time.current)
         today = now.utc.to_date
-        days = ((today - (DAYS - 1))..today).to_a
-        sums = Rails.cache.fetch([ "game/market/traded_volume", today.iso8601 ], expires_in: CACHE_LIFETIME) { read(days.first) }
+        days = ((today - DAYS)...today).to_a
+        sums = Rails.cache.fetch([ "game/market/traded_volume", today.iso8601 ], expires_in: CACHE_LIFETIME) { read(days.first, today) }
         Volume.new(days:, amounts: days.map { sums.fetch(it, 0) })
       end
 
-      def self.read(first_day)
-        Listing.sold.where(sold_at: Time.utc(first_day.year, first_day.month, first_day.day)..)
+      def self.read(first_day, today)
+        Listing.sold.where(sold_at: start_of(first_day)...start_of(today))
           .group(Arel.sql("date(sold_at)")).sum(:final_price).transform_values(&:to_i)
       end
 
-      private_class_method :read
+      def self.start_of(day) = Time.utc(day.year, day.month, day.day)
+
+      private_class_method :read, :start_of
     end
   end
 end

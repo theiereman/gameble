@@ -976,7 +976,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     seller = accounts_players(:moderator)
     sold = ->(price, at) { listing!(seller:, card_season: catalog_card_seasons(:common_card_one), status: "sold").update_columns(sold_at: at, final_price: price) }
     sold.call(3_000, 10.days.ago)
-    sold.call(4_500, 1.hour.ago)
+    sold.call(4_500, 1.day.ago)
     sign_in(@player)
 
     get home_path(locale: :fr)

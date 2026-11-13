@@ -17,9 +17,9 @@ class Game::Market::TradedVolumeTest < ActiveSupport::TestCase
     listing!(seller: @seller, card_season: catalog_card_seasons(:common_card_one), status: "sold").update_columns(sold_at: at, final_price: price)
   end
 
-  test "it sums the sold auctions of each UTC day, today included, over fourteen days" do
-    sold!(1_000, NOW - 14.days)
-    sold!(2_000, NOW - 13.days)
+  test "it sums the sold auctions of each UTC day over the fourteen complete days before today" do
+    sold!(1_000, NOW - 15.days)
+    sold!(2_000, NOW - 14.days)
     sold!(500, NOW - 1.day)
     sold!(700, NOW - 1.day)
     sold!(300, NOW - 1.hour)
@@ -28,11 +28,11 @@ class Game::Market::TradedVolumeTest < ActiveSupport::TestCase
     volume = Game::Market::TradedVolume.call(now: NOW)
 
     assert_equal 14, volume.days.size
-    assert_equal [ Date.new(2026, 10, 30), Date.new(2026, 11, 12) ], [ volume.days.first, volume.days.last ]
-    assert_equal [ 2_000, *[ 0 ] * 11, 1_200, 300 ], volume.amounts
-    assert_equal 1_500, volume.week
+    assert_equal [ Date.new(2026, 10, 29), Date.new(2026, 11, 11) ], [ volume.days.first, volume.days.last ]
+    assert_equal [ 2_000, *[ 0 ] * 12, 1_200 ], volume.amounts
+    assert_equal 1_200, volume.week
     assert_equal 2_000, volume.week_before
-    assert_equal(-25, volume.change_percent)
+    assert_equal(-40, volume.change_percent)
     assert volume.traded?
   end
 

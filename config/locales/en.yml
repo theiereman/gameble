@@ -3134,7 +3134,7 @@ en:
           spoken_flat: Level with the 7 days before.
           spoken_up: Up %{percent}% on the 7 days before.
           title: PiCoins traded
-          to: today
+          to: yesterday
           up: "▲ %{percent}%"
       menu:
         achievements: Achievements

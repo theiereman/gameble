@@ -261,7 +261,7 @@ fr:
           spoken_flat: "Stable par rapport aux 7 jours d'avant."
           spoken_up: "En hausse de %{percent} % par rapport aux 7 jours d'avant."
           title: "PiCoins échangés"
-          to: "aujourd'hui"
+          to: "hier"
           up: "▲ %{percent} %"
       menu:
         label: "Menu du pont"
