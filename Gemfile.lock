@@ -86,7 +86,7 @@ GEM
       public_suffix (>= 2.0.2, < 8.0)
     aggregate_root (3.2.0)
       ruby_event_store (= 3.2.0)
-    anthropic (1.82.0)
+    anthropic (2.7.0)
       base64 (~> 0.1)
       connection_pool (>= 2, < 4)
       opentelemetry-api (>= 1.2.4, < 2)
@@ -582,7 +582,7 @@ PLATFORMS
 
 DEPENDENCIES
   action_push_native (~> 0.3.1)
-  anthropic (~> 1.82.0)
+  anthropic (~> 2.7.0)
   bootsnap
   brakeman
   bundler-audit
@@ -647,7 +647,7 @@ CHECKSUMS
   activesupport (8.1.4.1) sha256=16ac4f341ca65c85a1fcdb8ac73f68891aae9e3c4a6f9c3a27daed8b00017ed7
   addressable (2.9.2) sha256=9117c7e7d6ee07230e75ce41fb9401ae55354dc654fcd0e862ba41d539e9a610
   aggregate_root (3.2.0) sha256=7914349185c96fb5e8aa1c90627945e640ffc5e75649ff08f4b2c3dc6c9b1604
-  anthropic (1.82.0) sha256=4226ee819e35373e18eeffd49d65fbd3cd5f1daceef0e8670254627ca3146fb0
+  anthropic (2.7.0) sha256=7124e79a441b0cebf2338e6b0ab137d2fc9a83c1833d047015ae4b231a52528f
   arkency-command_bus (0.4.1) sha256=8acac50774080ecf6828ba2f953f1ae293e80878efd555267dbd61b2ee764bde
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
