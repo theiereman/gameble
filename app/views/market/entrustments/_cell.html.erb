@@ -3,6 +3,9 @@
       data: { entrust_target: "cell", entrust_grid_target: "cell", ref: copy.ref, title: copy.title, rarity: copy.rarity,
               season: copy.season_number, free: copy.free, owned: copy.owned, value: copy.value, ticked: copies } do %>
   <span class="entrust-cell__check" aria-hidden="true" <%= "hidden" unless copies.positive? %>>✓</span>
+  <% if copy.card %>
+    <span class="entrust-cell__art" aria-hidden="true"><%= render CardComponent.new(card: copy.card, size: :s) %></span>
+  <% end %>
   <span class="entrust-cell__name"><%= copy.title %></span>
   <span class="entrust-cell__edition"><%= t("catalog.rarity.#{copy.rarity}") %> · <%= t("market.entrustments.new.season", number: copy.season_number) %></span>
   <span class="entrust-cell__value"><%= render PicoinAmountComponent.new(amount: copy.value) %></span>

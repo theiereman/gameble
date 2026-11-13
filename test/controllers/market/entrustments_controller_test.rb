@@ -65,6 +65,16 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
+  test "each cell shows its card's face, hidden from screen readers since its title is named beside it" do
+    open_market!
+    hold(@player, @rare.id, 1)
+    sign_in(@player)
+
+    get new_market_entrustment_path(locale: :en)
+
+    assert_select ".entrust-cell .entrust-cell__art[aria-hidden=true] .card", 1
+  end
+
   test "a cell with several free copies carries a stepper and an only copy does not" do
     open_market!
     hold(@player, @rare.id, 3)

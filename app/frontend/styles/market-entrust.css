@@ -186,6 +186,11 @@
   display: none;
 }
 
+.entrust-cell__art {
+  display: flex;
+  justify-content: center;
+}
+
 .entrust-cell__name {
   color: var(--color-text-bright);
   font-weight: 700;
@@ -213,6 +218,12 @@
   color: var(--color-gold);
 }
 
+/* The free count, or the stepper in its place, sits at the cell's foot, level across a row. */
+.entrust-cell__free,
+.entrust-cell__stepper {
+  margin-top: auto;
+}
+
 .entrust-cell__stepper {
   position: relative;
   z-index: 5;
@@ -230,43 +241,36 @@
   display: none;
 }
 
-.market-entrust__result {
+/* The stepper spans the cell: − on the left, + on the right, "×2 of 3" between. */
+.entrust-cell .stepper {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-5);
+  width: 100%;
+  height: var(--space-button-height-sm);
 }
 
-.market-entrust__total {
-  margin: 0;
-  color: var(--color-gold);
-  font: var(--font-screen-title);
+.entrust-cell .stepper__button {
+  flex: none;
+  width: var(--space-button-height-sm);
+  height: 100%;
 }
 
-.market-entrust__stayed {
-  padding: var(--space-5);
+.entrust-cell .stepper__button--more {
+  order: 3;
 }
 
-.market-entrust__stayed-heading {
-  margin: 0 0 var(--space-3);
-  color: var(--color-text-bright);
-  font: var(--font-body);
-  font-weight: 700;
+.entrust-cell .stepper__value {
+  min-width: 0;
+  order: 1;
+  margin-left: auto;
+  padding-right: var(--space-2);
 }
 
-.market-entrust__stayed-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin: 0 0 var(--space-3);
+.entrust-cell .stepper__max {
+  order: 2;
+  margin-right: auto;
   padding: 0;
-  list-style: none;
-  color: var(--color-text);
-  font: var(--font-body);
 }
 
-.market-entrust__stayed-cap {
-  margin: 0;
-  color: var(--color-gold);
-  font: var(--font-body);
+.entrust-cell--picked:has(.entrust-cell__stepper) .entrust-cell__free {
+  display: none;
 }
