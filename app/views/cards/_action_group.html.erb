@@ -1,0 +1,5 @@
+<%# locals: (key:) %>
+<%= render PanelComponent.new(tag: :section, class: "card-detail__action-group", aria: { labelledby: "card-actions-#{key}" }) do %>
+  <h2 id="card-actions-<%= key %>" class="card-detail__action-title"><%= t("card_details.actions.#{key}") %></h2>
+  <%= yield %>
+<% end %>

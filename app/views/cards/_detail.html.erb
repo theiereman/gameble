@@ -180,6 +180,7 @@
   <% end %>
   <div class="card-detail__actions">
     <% if repostable || showcase %>
+      <%= render "cards/action_group", key: :collection do %>
       <div class="card-detail__holder-actions">
         <% if repostable %>
           <%= render ButtonComponent.new(href: card_repost_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("reposts.button") %><% end %>
@@ -204,8 +205,10 @@
           <% end %>
         <% end %>
       </div>
+      <% end %>
     <% end %>
     <% if entrustment %>
+      <%= render "cards/action_group", key: :market do %>
       <div class="card-detail__market">
         <% if entrustment.free.zero? %>
           <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("card_details.entrust.button") %><% end %>
@@ -216,7 +219,9 @@
           <%= render ButtonComponent.new(variant: :secondary, href: new_market_card_sale_path(slug: view.id)) do %><%= t("card_details.list.button") %><% end %>
         <% end %>
       </div>
+      <% end %>
     <% end %>
+    <%= render "cards/action_group", key: :links do %>
     <div class="card-detail__card-links">
       <% if share_url %>
         <button type="button" class="button button--secondary card-detail__share-button" aria-haspopup="dialog"
@@ -226,6 +231,7 @@
       <%= external_link_to t("card_details.store"), card_detail_store_url(detail.store_url), button: true,
         class: "button button--secondary card-detail__store" %>
     </div>
+    <% end %>
   </div>
   <% if share_url %>
     <%= render "cards/share_sheet", view:, share_url:, strings: %>

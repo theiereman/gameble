@@ -1178,6 +1178,10 @@ en:
     unlocked:
       title: Card back unlocked
   card_details:
+    actions:
+      collection: Collection
+      links: Links
+      market: Market
     copies:
       one: "%{count} copy"
       other: "%{count} copies"

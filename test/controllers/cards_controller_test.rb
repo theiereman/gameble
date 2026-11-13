@@ -118,7 +118,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
       store_link.then { [ it.text.squish, it["href"], it["rel"], it["target"] ] }
     assert_includes store_link["class"], "button--secondary"
     assert_select ".card-detail .button--primary", 0
-    assert_select ".card-detail__actions > .card-detail__card-links:only-child"
+    assert_select ".card-detail__actions > .card-detail__action-group:only-child > .card-detail__card-links"
     # The description is never on the face.
     assert_no_match(/portals/, css_select(".card-detail__card").sole.text)
     assert_no_match(/collection of/i, response.body)
@@ -554,7 +554,8 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Link copied", "Press Ctrl+C to copy" ], [ detail["data-share-copied-value"], detail["data-share-manual-value"] ]
     assert_equal [ [ "card-detail__holder-actions", [ "button-form", "card-detail__showcase" ] ],
       [ "card-detail__card-links", [ "card-detail__share-button", "card-detail__store" ] ] ],
-      css_select(".card-detail__actions > *").map { |group| [ group["class"], group.element_children.map { (it["class"].split & %w[button-form card-detail__showcase card-detail__share-button card-detail__store]).sole } ] }
+      css_select(".card-detail__actions > .card-detail__action-group > div").map { |group| [ group["class"], group.element_children.map { (it["class"].split & %w[button-form card-detail__showcase card-detail__share-button card-detail__store]).sole } ] }
+    assert_equal [ "Collection", "Links" ], css_select(".card-detail__action-group > h2.card-detail__action-title").map(&:text)
     # "Repost" posts to this card-season's repost, in Turbo Stream, and stays.
     assert_select ".card-detail__holder-actions > form.button-form:first-child[method=post][action='/en/cards/portal/seasons/1/repost'] button.button--primary", "Repost"
     assert_select ".card-detail .button--primary", 1
@@ -1279,7 +1280,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     get card_path(locale: :en, slug: "portal")
 
-    assert_select ".card-detail__actions > .card-detail__market a.button--secondary[href=?]", new_market_card_entrustment_path(locale: :en, slug: "portal"), text: "Entrust"
+    assert_select ".card-detail__actions > .card-detail__action-group > .card-detail__market a.button--secondary[href=?]", new_market_card_entrustment_path(locale: :en, slug: "portal"), text: "Entrust"
     assert_select ".card-detail__market-note", false
     assert_select ".card-detail__market .picoin-amount", false
   end

@@ -1,0 +1,79 @@
+/* The card's actions, sorted into titled groups under the panel. */
+
+/* On the page's ground, not the panel's. */
+.card-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--space-4);
+}
+
+.card-detail__action-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.card-detail__action-title {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.card-detail__holder-actions,
+.card-detail__card-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.card-detail__actions .button,
+.card-detail__actions .button-form {
+  margin: 0;
+}
+
+.card-detail__market {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.card-detail__market-note {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.card-detail__showcase {
+  display: flex;
+}
+
+.card-detail__showcase-full {
+  flex: 1 0 100%;
+  contain: inline-size;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.card-detail__showcase-open {
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+.card-detail__showcase-open:hover {
+  color: var(--color-text-max);
+}
+
+.card-detail__store .button__icon {
+  width: 14px;
+  height: 14px;
+}

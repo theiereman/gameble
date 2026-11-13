@@ -3711,6 +3711,10 @@ fr:
   external_links:
     new_tab: "(nouvel onglet)"
   card_details:
+    actions:
+      collection: "Collection"
+      links: "Liens"
+      market: "Marché"
     open: "%{title}, %{year}, %{rarity}, saison %{season}"
     open_not_owned: "%{title}, %{year}, %{rarity}, saison %{season}, non possédée"
     kicker: "Fiche de la carte"

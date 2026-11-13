@@ -50,8 +50,24 @@
     box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line);
   }
 
-  .card-detail__holder-actions + .card-detail__card-links {
-    margin-left: 0;
+  .card-detail__actions {
+    gap: var(--space-4);
+  }
+
+  .card-detail__action-group {
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  /* The pinned bar keeps its height: the group titles stay for screen readers only. */
+  .card-detail__action-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .card-detail__holder-actions {
