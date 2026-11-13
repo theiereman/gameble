@@ -1,4 +1,6 @@
-<% if shell_balance %>
+<% if shell_balance && placement == :bar %>
+  <%= link_to market_path, class: "balance-link" do %><span class="visually-hidden"><%= t("shell.balance_chip.link") %></span><span class="balance-chip balance-chip--bar"><%= render "shell/balance_figures", balance: shell_balance %></span><% end %>
+<% elsif shell_balance %>
   <div class="balance-chip balance-chip--<%= placement %>" role="group" aria-label="<%= t("shell.balance_chip.label") %>">
     <%= render "shell/balance_figures", balance: shell_balance %>
   </div>

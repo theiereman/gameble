@@ -91,6 +91,7 @@ fr:
         one: "%{amount} engagé"
         other: "%{amount} engagés"
       label: Solde
+      link: "Votre solde, vers le marché :"
     bank:
       label: "Réserve de capsules"
       next_in: "Prochaine capsule dans"

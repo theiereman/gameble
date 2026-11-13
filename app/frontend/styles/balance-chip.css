@@ -33,8 +33,32 @@
   display: none;
 }
 
+/* The bar's chip is the way to the market and shows only what the player can spend; the market screens' header shows what is committed. */
+.balance-link {
+  display: inline-flex;
+  color: inherit;
+  text-decoration: none;
+}
+
+.balance-link:hover .balance-chip {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.balance-link:focus-visible {
+  outline: none;
+}
+
+.balance-link:focus-visible .balance-chip {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.balance-chip--bar .balance-chip__divider,
+.balance-chip--bar .balance-chip__committed {
+  display: none;
+}
+
 @media (max-width: 719px) {
-  .balance-chip--bar {
+  .balance-link {
     display: none;
   }
 

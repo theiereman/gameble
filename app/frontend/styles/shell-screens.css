@@ -78,23 +78,6 @@ html[data-sub-view-step] .main {
   display: none;
 }
 
-@media (max-width: 1439px) {
-  /* The committed PiCoins leave the bar first, still read by screen readers;
-     the market screens show what is committed. */
-  .balance-chip--bar .balance-chip__committed {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
-  .balance-chip--bar .balance-chip__divider {
-    display: none;
-  }
-}
-
 @media (max-width: 1179px) {
   .main {
     padding: var(--space-page-padding-medium);

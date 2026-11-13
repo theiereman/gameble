@@ -4031,6 +4031,7 @@ en:
         one: "%{amount} committed"
         other: "%{amount} committed"
       label: Balance
+      link: "Your balance, to the market:"
     bank:
       label: Capsule reserve
       next_in: Next capsule in

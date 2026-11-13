@@ -32,12 +32,15 @@ class Market::BalanceChipTest < ActionDispatch::IntegrationTest
 
     get new_market_entrustment_path(locale: :en)
 
-    assert_select ".top-bar__end .balance-chip--bar[role=group][aria-label=Balance]", 1
-    assert_select ".market-entrust__header .balance-chip--header", 1
-    assert_select ".balance-chip--bar .balance-chip__available .picoin-amount__figure", "31.5k"
-    assert_select ".balance-chip--bar .balance-chip__available[aria-label=?]", "31,599 PiCoins"
-    assert_select ".balance-chip--bar .balance-chip__committed [aria-hidden=true]", /12k committed/
-    assert_select ".balance-chip--bar .balance-chip__committed .visually-hidden", /12,000 committed/
+    assert_select ".top-bar__end a.balance-link[href=?]", market_path(locale: :en), 1 do
+      assert_select ".visually-hidden", "Your balance, to the market:"
+      assert_select ".balance-chip--bar .balance-chip__available .picoin-amount__figure", "31.5k"
+      assert_select ".balance-chip--bar .balance-chip__available[aria-label=?]", "31,599 PiCoins"
+    end
+    assert_select ".market-entrust__header .balance-chip--header[role=group][aria-label=Balance]", 1 do
+      assert_select ".balance-chip__committed [aria-hidden=true]", /12k committed/
+      assert_select ".balance-chip__committed .visually-hidden", /12,000 committed/
+    end
     assert_select ".balance-chip [style]", false
   end
 
