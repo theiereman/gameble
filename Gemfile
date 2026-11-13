@@ -62,7 +62,7 @@ gem "view_component", "~> 4.21.0"
 gem "http_accept_language", "~> 2.1.1"
 
 # Page long lists, such as the library's shelves (Consistency Conventions: Pagination) [https://github.com/ddnexus/pagy]
-gem "pagy", "~> 43.8.1"
+gem "pagy", "~> 43.8.2"
 
 # Sign in with Steam over OpenID 2.0, POST-only and CSRF-protected (AD-14) [https://github.com/omniauth/omniauth]
 gem "omniauth", "~> 2.3.1"
