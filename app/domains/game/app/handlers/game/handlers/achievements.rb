@@ -10,7 +10,7 @@ module Game
         Game::DailyBonusCollected => [ :player_id ],
         Game::PackRevealed => [ :player_id ],
         Game::TradeAccepted => [ :proposer_id, :recipient_id ],
-        Game::Market::AuctionSold => [ :winner_id ]
+        Game::Market::AuctionSold => [ :seller_id, :winner_id ]
       }.freeze
 
       def self.call(event)

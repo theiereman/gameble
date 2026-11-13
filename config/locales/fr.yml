@@ -2878,6 +2878,7 @@ fr:
       chef: "Cheffe"
       default: "Classique"
       elder: "Doyenne"
+      executive: "Cadre dirigeant"
       grand_master: "Grand Maître"
       guardian: "Gardien"
       mechanic: "Mécanicienne"
@@ -2927,6 +2928,11 @@ fr:
       a_strictly_professional_relationship: "Une relation strictement professionnelle"
       no_time_to_waste: "Pas de temps à perdre"
       night_owl: "Oiseau de nuit"
+      hostile_takeover: "OPA hostile"
+      competitive_tender: "Appel d'offres concurrentiel"
+      capital_gain: "Plus-value réalisée"
+      quarterly_targets_met: "Objectifs trimestriels atteints"
+      insider_trading: "Délit d'initié"
     show:
       title: "Succès"
       summary:
@@ -2964,6 +2970,11 @@ fr:
       a_strictly_professional_relationship: "Conclure trois échanges avec le même joueur"
       no_time_to_waste: "Ouvrir 10 capsules en moins de 30 secondes"
       night_owl: "Ouvrir une capsule entre 1 h et 4 h du matin, heure locale"
+      hostile_takeover: "Remporter une enchère après y avoir été dépassé deux fois"
+      competitive_tender: "Vendre une carte qui a reçu des enchères de 3 joueurs différents"
+      capital_gain: "Revendre une édition pour au moins le double du prix payé aux enchères"
+      quarterly_targets_met: "Vendre 25 cartes aux enchères"
+      insider_trading: "Revendre 5 éditions différentes pour au moins le double du prix payé aux enchères"
   invite_links:
     show:
       title: "%{name} vous invite"

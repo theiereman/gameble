@@ -131,6 +131,42 @@ module Game
       SELECT COUNT(*) FROM game_packs WHERE #{OPENED_PACKS} AND game_packs.opened_local_hour >= %d AND game_packs.opened_local_hour < %d
     SQL
 
+    OWN_SALES = "sale.seller_id = :player_id AND sale.status = 'sold'".freeze
+
+    CARDS_SOLD_SQL = "SELECT COUNT(*) FROM game_market_listings AS sale WHERE #{OWN_SALES}".freeze
+
+    MOST_BIDDERS_ON_A_SALE_SQL = <<~SQL.squish.freeze
+      SELECT COALESCE(MAX(bidders), 0) FROM (
+        SELECT (SELECT COUNT(DISTINCT bid.player_id) FROM game_market_bids AS bid
+                 WHERE bid.listing_id = sale.id AND bid.outcome <> 'raise'
+                   AND NOT EXISTS (SELECT 1 FROM game_market_bids AS voided
+                                    WHERE voided.listing_id = sale.id AND voided.player_id = bid.player_id AND voided.outcome = 'voided')) AS bidders
+          FROM game_market_listings AS sale WHERE #{OWN_SALES}
+      ) AS sales
+    SQL
+
+    COMEBACKS_BEFORE_WIN = 2
+    COMEBACK_WINS_SQL = format(<<~SQL.squish, COMEBACKS_BEFORE_WIN).freeze
+      SELECT COUNT(*) FROM (
+        SELECT bid.listing_id FROM game_market_bids AS bid
+          JOIN game_market_listings AS won ON won.id = bid.listing_id
+         WHERE bid.player_id = :player_id AND bid.outcome = 'outbid' AND won.status = 'sold' AND won.leader_id = :player_id
+           AND NOT EXISTS (SELECT 1 FROM game_market_bids AS voided
+                            WHERE voided.listing_id = bid.listing_id AND voided.player_id = :player_id AND voided.outcome = 'voided')
+         GROUP BY bid.listing_id HAVING COUNT(*) >= %d
+      ) AS comebacks
+    SQL
+
+    RESALE_MULTIPLE = 2
+    DOUBLED_RESALES_SQL = format(<<~SQL.squish, RESALE_MULTIPLE).freeze
+      SELECT COUNT(DISTINCT sale.card_season_id) FROM game_market_listings AS sale
+       WHERE #{OWN_SALES}
+         AND EXISTS (SELECT 1 FROM game_market_listings AS bought
+                      WHERE bought.card_season_id = sale.card_season_id AND bought.status = 'sold'
+                        AND bought.leader_id = :player_id AND bought.sold_at <= sale.created_at
+                        AND bought.final_price * %d <= sale.final_price)
+    SQL
+
     METRIC_SQL = {
       packs_opened: PACKS_OPENED_SQL,
       epics_obtained: format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:epic)),
@@ -151,7 +187,11 @@ module Game
       pioneered_reposts: PIONEERED_REPOSTS_SQL,
       most_trades_with_a_partner: MOST_TRADES_WITH_A_PARTNER_SQL,
       quick_capsule_bursts: QUICK_BURST_SQL,
-      night_capsules: NIGHT_CAPSULES_SQL
+      night_capsules: NIGHT_CAPSULES_SQL,
+      cards_sold: CARDS_SOLD_SQL,
+      most_bidders_on_a_sale: MOST_BIDDERS_ON_A_SALE_SQL,
+      comeback_wins: COMEBACK_WINS_SQL,
+      doubled_resales: DOUBLED_RESALES_SQL
     }.freeze
 
     STUDIO_METRIC = :most_games_of_a_studio

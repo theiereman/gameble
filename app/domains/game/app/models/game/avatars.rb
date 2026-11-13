@@ -27,7 +27,8 @@ module Game
       "novice" => "first_booster",
       "archivist" => "first_complete_set",
       "guardian" => "night_owl",
-      "oracle" => "first_epic"
+      "oracle" => "first_epic",
+      "executive" => "insider_trading"
     }.freeze
 
     ADMINISTRATOR_ONLY = %w[grand_master].freeze

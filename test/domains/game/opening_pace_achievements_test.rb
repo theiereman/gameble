@@ -24,11 +24,11 @@ class Game::OpeningPaceAchievementsTest < ActiveSupport::TestCase
 
   def seconds_apart(count, gap, from: Time.utc(2026, 1, 1)) = Array.new(count) { from + (it * gap).seconds }
 
-  test "the catalogue ends with the two opening pace achievements, each earned once" do
+  test "the two opening pace achievements follow each other in the catalogue, each earned once" do
     expected = [ [ :no_time_to_waste, :quick_capsule_bursts, 1 ], [ :night_owl, :night_capsules, 1 ] ]
+    first = Game::Achievements::CATALOGUE.index { it.key == :no_time_to_waste }
 
-    assert_equal expected, Game::Achievements::CATALOGUE.last(2).map { [ it.key, it.metric, it.threshold ] }
-    assert_equal 25, Game::Achievements::CATALOGUE.size
+    assert_equal expected, Game::Achievements::CATALOGUE[first, 2].map { [ it.key, it.metric, it.threshold ] }
   end
 
   test "ten capsules opened within 29 seconds grant No Time to Waste" do

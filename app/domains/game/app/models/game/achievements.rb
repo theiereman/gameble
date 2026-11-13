@@ -31,7 +31,12 @@ module Game
       Achievement.new(:a_discovery_of_ours, :pioneered_reposts, 1),
       Achievement.new(:a_strictly_professional_relationship, :most_trades_with_a_partner, 3),
       Achievement.new(:no_time_to_waste, :quick_capsule_bursts, 1),
-      Achievement.new(:night_owl, :night_capsules, 1)
+      Achievement.new(:night_owl, :night_capsules, 1),
+      Achievement.new(:hostile_takeover, :comeback_wins, 1),
+      Achievement.new(:competitive_tender, :most_bidders_on_a_sale, 3),
+      Achievement.new(:capital_gain, :doubled_resales, 1),
+      Achievement.new(:quarterly_targets_met, :cards_sold, 25),
+      Achievement.new(:insider_trading, :doubled_resales, 5)
     ].freeze
 
     BY_KEY = CATALOGUE.index_by { it.key.to_s }.freeze

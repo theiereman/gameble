@@ -312,6 +312,11 @@ const ACHIEVEMENT_GLYPHS = {
   clasp: ["...#...", "..###..", "...#...", "..###..", ".#####.", "#######", ".#.#.#."],
   stopwatch: ["..###..", "...#..#", ".#####.", "##.#.##", "#..#..#", "##...##", ".#####."],
   moon: ["..####.", ".###...", "###...#", "###....", "###.#..", ".###...", "..####."],
+  takeover: ["....#..", "...###.", "..#####", ".#..#..", "###.#..", ".#..#..", ".#..#.."],
+  gavel: [".#####.", ".#####.", "...#...", "...#...", "...#...", ".......", "#######"],
+  growth: ["#..####", "#....##", "#...#.#", "#..#...", "#.#....", "##.....", "#######"],
+  ledger: ["#######", "##....#", "##.##.#", "##....#", "##.##.#", "##....#", "#######"],
+  briefcase: ["..###..", "..#.#..", "#######", "#######", "###.###", "#######", "#######"],
 }
 const ACHIEVEMENT_EARNED = { h: "#d2efff", b: "#66c0f4", s: "#2a6f9a" }
 const ACHIEVEMENT_LOCKED = { h: "#8f98a0", b: "#5d6b78", s: "#3d4a57" }
@@ -1028,6 +1033,28 @@ const ICONS = {
       "kkdbbybyybybbdkk",
     ],
   },
+  // Executive: slicked dark hair with a side part, a navy suit, a white shirt, a red tie (16 × 16).
+  "avatar-executive": {
+    legend: { k: "#1b2838", h: "#3a2a20", l: "#6b5040", f: "#f2c9a0", n: "#c08a62", e: "#0b1520", m: "#b06a50", u: "#3b5b8f", v: "#22365a", w: "#f4f1e8", r: "#e05a4f", q: "#8a2a24" },
+    grid: [
+      "kkkkkkkkkkkkkkkk",
+      "kkkkhhhhhhhhkkkk",
+      "kkkhhllllhhhhkkk",
+      "kkkhlhhhhhhhhkkk",
+      "kkkhffhhhhhhhkkk",
+      "kkkhffffffffhkkk",
+      "kkknfeffffefnkkk",
+      "kkknffffffffnkkk",
+      "kkkkffffnfffkkkk",
+      "kkkkfffmmfffkkkk",
+      "kkkkknffffnkkkkk",
+      "kkkuuwwffwwuukkk",
+      "kuuuuvwrrwvuuuuk",
+      "uuuuuvwrrwvuuuuu",
+      "uuuuuuvrrvuuuuuu",
+      "uuuuuuuqquuuuuuu",
+    ],
+  },
   // The pencil on the player's own portrait, which opens the avatar choice (8 × 8, text colour).
   pencil: {
     grid: [
@@ -1728,6 +1755,7 @@ const DESCRIPTIONS = {
   "avatar-archivist.svg": "Avatar: the archivist, a green hood, brass spectacles, 16 × 16",
   "avatar-guardian.svg": "Avatar: the guardian, a steel helm with a red crest, a gold emblem, 16 × 16",
   "avatar-oracle.svg": "Avatar: the oracle, a violet hood with a green gem, the face in shadow, 16 × 16",
+  "avatar-executive.svg": "Avatar: the executive, slicked dark hair, a navy suit, a white shirt, a red tie, 16 × 16",
   "avatar-grand-master.svg": "Avatar: the grand master, a red hood, a gold crown, a white beard, 16 × 16",
   "avatar-mechanic.svg": "Avatar: the mechanic, a round afro, gold earrings, orange overalls, 16 × 16",
   "avatar-pilot.svg": "Avatar: the pilot, red hair, freckles, flight goggles, a leather jacket, 16 × 16",

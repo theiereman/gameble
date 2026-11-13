@@ -1,10 +1,14 @@
 require "test_helper"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
+require_relative "../support/market"
+require_relative "../support/market_sales"
 
 class AchievementsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
   include SteamSignIn
+  include MarketSales
+  include MarketSettings
 
   setup do
     @player = accounts_players(:player)
@@ -52,7 +56,8 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
       "Irrégularité de conditionnement", "L'excellence dans la médiocrité", "Gestion du patrimoine historique",
       "La chance est un concept marketing", "Demande de congé refusée", "Procédure d'ouverture simplifiée",
       "Zèle au-delà des obligations", "Portefeuille diversifié", "Concentration du marché", "Premier arrivé, premier servi",
-      "Une découverte qui nous appartient", "Une relation strictement professionnelle", "Pas de temps à perdre", "Oiseau de nuit" ],
+      "Une découverte qui nous appartient", "Une relation strictement professionnelle", "Pas de temps à perdre", "Oiseau de nuit",
+      "OPA hostile", "Appel d'offres concurrentiel", "Plus-value réalisée", "Objectifs trimestriels atteints", "Délit d'initié" ],
       group_names(:to_earn)
 
     hundred = tile(:to_earn, "Historique de consommation exemplaire")
@@ -82,9 +87,11 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".achievements__segment--lit", 0
     assert_select "#achievements-earned", false
     assert_select "h2#achievements-to_earn", "To earn · #{total_achievements}"
-    assert_equal [ [ "0", "10" ], [ "0", "100" ], [ "0", "500" ], [ "0", "3" ], [ "0", "10" ], [ "0", "7" ], [ "0", "10" ], [ "0", "10" ], [ "0", "5" ], [ "0", "10" ], [ "0", "3" ] ],
+    assert_equal [ [ "0", "10" ], [ "0", "100" ], [ "0", "500" ], [ "0", "3" ], [ "0", "10" ], [ "0", "7" ], [ "0", "10" ], [ "0", "10" ], [ "0", "5" ], [ "0", "10" ], [ "0", "3" ],
+      [ "0", "3" ], [ "0", "25" ], [ "0", "5" ] ],
       css_select("progress.achievement__bar").map { [ it["value"], it["max"] ] }
-    assert_equal [ "0 / 10", "0 / 100", "0 / 500", "0 / 3", "0 / 10", "0 / 7", "0 / 10", "0 / 10", "0 / 5", "0 / 10", "0 / 3" ], css_select(".achievement__progress").map(&:text)
+    assert_equal [ "0 / 10", "0 / 100", "0 / 500", "0 / 3", "0 / 10", "0 / 7", "0 / 10", "0 / 10", "0 / 5", "0 / 10", "0 / 3",
+      "0 / 3", "0 / 25", "0 / 5" ], css_select(".achievement__progress").map(&:text)
     assert_equal "0 of 10", tile(:to_earn, "Probation Period Completed").at_css(".visually-hidden").text
     assert_equal "Open a capsule", tile(:to_earn, "Your First Authorized Acquisition").at_css(".achievement__condition").text
   end
@@ -211,6 +218,23 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of #{total_achievements}"
     get me_path(locale: :fr)
     assert_select "a.me-achievements__all[href='/fr/achievements']", /Tout voir/
+  end
+
+  test "three editions resold at double their price show Insider Trading at 3 / 5, its avatar named" do
+    open_market!
+    buyer = accounts_players(:moderator)
+    %i[portal_one uncommon_card_one rare_card_one].each do |fixture|
+      card = catalog_card_seasons(fixture)
+      sold!(card, 5_000, seller: buyer, buyer: @player, sold_at: 2.days.ago)
+      sold!(card, 10_000, seller: @player, buyer:)
+    end
+    sign_in(@player)
+
+    get achievements_path(locale: :en)
+
+    insider = tile(:to_earn, "Insider Trading")
+    assert_equal "3 / 5", insider.at_css(".achievement__progress").text
+    assert_match "Executive", insider.at_css(".achievement__avatar").text
   end
 
   def total_achievements = Game::Achievements::CATALOGUE.size

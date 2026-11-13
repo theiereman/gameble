@@ -30,7 +30,7 @@ class Game::Market::CloseAuctionEventsTest < ActiveSupport::TestCase
   def sold_event = Game::Market::AuctionSold.new(data: { listing_id: @listing.id, seller_id: @seller.id, winner_id: @winner.id, card_season_id: @card.id,
     final_price: 31_500, surplus: 8_500 })
 
-  test "goals and achievements hear the sale for the winner only" do
+  test "goals hear the sale for the winner only, achievements for the seller and the winner" do
     dropped = []
     achieved = []
     stub_singleton(Game::Goal, :drop_reached, ->(ids) { dropped << ids }) do
@@ -41,7 +41,7 @@ class Game::Market::CloseAuctionEventsTest < ActiveSupport::TestCase
     end
 
     assert_equal [ [ @winner.id ] ], dropped
-    assert_equal [ @winner.id ], achieved
+    assert_equal [ @seller.id, @winner.id ], achieved
   end
 
   test "the weekly contribution is not fed by a sale" do

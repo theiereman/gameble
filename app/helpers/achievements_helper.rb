@@ -11,7 +11,9 @@ module AchievementsHelper
     streamlined_opening_procedure: "skip", diligence_beyond_the_call_of_duty: "revealed",
     diversified_portfolio: "fan", market_concentration: "tower",
     first_claim_all_rights_reserved: "flag", a_discovery_of_ours: "lens", a_strictly_professional_relationship: "clasp",
-    no_time_to_waste: "stopwatch", night_owl: "moon"
+    no_time_to_waste: "stopwatch", night_owl: "moon",
+    hostile_takeover: "takeover", competitive_tender: "gavel", capital_gain: "growth", quarterly_targets_met: "ledger",
+    insider_trading: "briefcase"
   }.freeze
 
   def achievement_icon(tile)

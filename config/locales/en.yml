@@ -57,6 +57,7 @@ en:
       chef: Chef
       default: Classic
       elder: Elder
+      executive: Executive
       grand_master: Grand Master
       guardian: Guardian
       mechanic: Mechanic
@@ -83,6 +84,8 @@ en:
       boosters_100: Open 100 capsules
       boosters_500: Open 500 capsules
       a_discovery_of_ours: Repost a card you pioneered
+      capital_gain: Resell an edition for at least twice what you paid for it at auction
+      competitive_tender: Sell a card that drew bids from 3 different players
       a_strictly_professional_relationship: Complete three trades with the same player
       diligence_beyond_the_call_of_duty: 10 capsules in a row with every card revealed one by one
       diversified_portfolio: Hold five copies of the same game at once
@@ -95,12 +98,15 @@ en:
       first_repost: Repost a card
       first_trade: Complete a trade
       historical_asset_management: A game released before 2000 and one released in 2025 or later in one capsule
+      hostile_takeover: Win an auction after being outbid on it twice
+      insider_trading: Resell 5 different editions for at least twice what you paid for them at auction
       leave_request_denied: Collect the daily bonus 7 days in a row (UTC days)
       luck_is_a_marketing_concept: 10 standard capsules in a row with no Rare or better card
       market_concentration: Hold 10 different games of the same studio at once
       night_owl: Open a capsule between 1 and 4 AM, your local time
       no_time_to_waste: Open 10 capsules in under 30 seconds
       packaging_irregularity: Two copies of the same game in one capsule
+      quarterly_targets_met: Sell 25 cards at auction
       statistical_non_compliance: Two Rare or better cards in one standard capsule
       streamlined_opening_procedure: 10 capsules in a row opened with "Reveal all"
       three_complete_sets: Complete 3 sets
@@ -110,6 +116,8 @@ en:
       boosters_500: Loyalty Beyond Reasonable Limits
       a_discovery_of_ours: A Discovery of Ours
       a_strictly_professional_relationship: A Strictly Professional Relationship
+      capital_gain: Capital Gain
+      competitive_tender: Competitive Tender
       diligence_beyond_the_call_of_duty: Diligence Beyond the Call of Duty
       diversified_portfolio: Diversified Portfolio
       excellence_in_mediocrity: Excellence in Mediocrity
@@ -121,12 +129,15 @@ en:
       first_repost: Unpaid Promotion
       first_trade: Approved Mutual Assistance
       historical_asset_management: Historical Asset Management
+      hostile_takeover: Hostile Takeover
+      insider_trading: Insider Trading
       leave_request_denied: Leave Request Denied
       luck_is_a_marketing_concept: Luck Is a Marketing Concept
       market_concentration: Market Concentration
       night_owl: Night Owl
       no_time_to_waste: No Time to Waste
       packaging_irregularity: Packaging Irregularity
+      quarterly_targets_met: Quarterly Targets Met
       statistical_non_compliance: Statistical Non-Compliance
       streamlined_opening_procedure: Streamlined Opening Procedure
       three_complete_sets: Archival Excellence
