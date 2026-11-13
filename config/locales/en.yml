@@ -201,9 +201,11 @@ en:
         condensed:
           one: "Claude read %{count} commit. Check its suggestion below."
           other: "Claude read %{count} commits. Check its suggestion below."
+        waiting: "The answer shows here within a minute; you can keep writing meanwhile."
         failures:
           nothing_to_translate: "Write the French title or text first."
           no_changes: "GitHub gave no new features or fixes for this version."
+          stale_page: "This page is out of date. Reload it, then ask Claude again."
           unavailable: "Claude could not answer. Try again in a moment; the fields have not changed."
       review:
         heading: "Claude's suggestion"

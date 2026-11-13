@@ -332,6 +332,26 @@ html[data-motion="reduced"] .release-note__prompt::after {
   color: var(--color-gold);
 }
 
+.claude-writer-status__waiting {
+  animation: claude-writer-waiting 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes claude-writer-waiting {
+  to {
+    opacity: 0.45;
+  }
+}
+
+html[data-motion="reduced"] .claude-writer-status__waiting {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .claude-writer-status__waiting {
+    animation: none;
+  }
+}
+
 .release-note-review {
   padding: var(--space-panel-padding);
   background: var(--color-panel-sunken);

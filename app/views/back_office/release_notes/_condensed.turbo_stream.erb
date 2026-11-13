@@ -1,0 +1,2 @@
+<%= turbo_stream.update BackOffice::ReleaseNotesController::REVIEW_ID, partial: "back_office/release_notes/review", locals: { condensed: } %>
+<%= turbo_stream.update BackOffice::ReleaseNotesController::ASSISTANT_STATUS_ID, t("back_office.release_notes.assistant.condensed", count: condensed.sources.size) %>

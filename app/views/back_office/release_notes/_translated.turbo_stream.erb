@@ -1,0 +1,4 @@
+<%= turbo_stream.replace "release-note-language-en", partial: "back_office/release_notes/language", locals: { locale: "en", texts: } %>
+<%= turbo_stream.update BackOffice::ReleaseNotesController::PREVIEW_ID,
+      ReleaseNoteComponent.new(title: texts[:"title_#{preview_locale}"], body: texts[:"body_#{preview_locale}"], locale: preview_locale) %>
+<%= turbo_stream.update BackOffice::ReleaseNotesController::ASSISTANT_STATUS_ID, t("back_office.release_notes.assistant.translated") %>

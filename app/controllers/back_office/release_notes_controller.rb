@@ -63,32 +63,18 @@ module BackOffice
 
     def translate
       authorize [ :back_office, :release_notes ], :translate?
-      @texts = Accounts::ReleaseNote.clean(sent_texts)
-      return assistant_failure(:nothing_to_translate) if @texts[:title_fr].blank? && @texts[:body_fr].blank?
+      texts = Accounts::ReleaseNote.clean(sent_texts)
+      return assistant_failure(:nothing_to_translate) if texts[:title_fr].blank? && texts[:body_fr].blank?
 
-      translation = Accounts::ClaudeWriter.translate(title: @texts[:title_fr], body: @texts[:body_fr])
-      return assistant_failure(:unavailable) unless translation
-
-      @texts = @texts.merge(title_en: translation[:title], body_en: translation[:body])
-      render turbo_stream: [
-        turbo_stream.replace("release-note-language-en", partial: "language", locals: { locale: "en", texts: @texts }),
-        turbo_stream.update(PREVIEW_ID, ReleaseNoteComponent.new(title: @texts[:"title_#{preview_locale}"], body: @texts[:"body_#{preview_locale}"], locale: preview_locale)),
-        assistant_status(t("back_office.release_notes.assistant.translated"))
-      ]
+      ask_claude(TranslateReleaseNoteJob, texts, preview_locale, working: t("back_office.release_notes.assistant.translating"))
     end
 
     def condense
       authorize [ :back_office, :release_notes ], :condense?
-      changes = release_note.release_version&.then { Accounts::GithubReleaseChanges.for(it) }
-      return assistant_failure(:no_changes) if changes.nil? || changes.empty?
+      note = release_note
+      return assistant_failure(:no_changes) unless note.release_version
 
-      condensed = Accounts::ClaudeWriter.condense(changes)
-      return assistant_failure(:unavailable) unless condensed
-
-      render turbo_stream: [
-        turbo_stream.update(REVIEW_ID, partial: "review", locals: { condensed: }),
-        assistant_status(t("back_office.release_notes.assistant.condensed", count: condensed.sources.size))
-      ]
+      ask_claude(CondenseReleaseNoteJob, note.token, working: t("back_office.release_notes.assistant.condensing"))
     end
 
     private
@@ -143,6 +129,14 @@ module BackOffice
 
       def assistant_status(message)
         turbo_stream.update(ASSISTANT_STATUS_ID, message)
+      end
+
+      def ask_claude(job, *request, working:)
+        page = params[:assistant_page]
+        return assistant_failure(:stale_page) unless ReleaseNoteAssistantStream.page?(page)
+
+        job.perform_later(ReleaseNoteAssistantStream.streamables(current_player, page), *request)
+        render turbo_stream: turbo_stream.update(ASSISTANT_STATUS_ID, partial: "assistant_waiting", locals: { working: })
       end
 
       def assistant_failure(code)

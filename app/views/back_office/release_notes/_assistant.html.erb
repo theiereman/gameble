@@ -1,6 +1,9 @@
 <section class="stack release-note-assistant" aria-labelledby="release-note-assistant-heading">
   <h2 id="release-note-assistant-heading"><%= t("back_office.release_notes.assistant.heading") %></h2>
   <% if claude_writer_available? %>
+    <% assistant_page = ReleaseNoteAssistantStream.new_page %>
+    <%= turbo_stream_from(*ReleaseNoteAssistantStream.streamables(current_player, assistant_page)) %>
+    <%= hidden_field_tag :assistant_page, assistant_page, id: nil %>
     <p class="announcement-editor__actions">
       <button type="submit" class="button button--secondary button--small" formnovalidate
         formaction="<%= condense_back_office_release_note_path(token: release_note.token) %>"

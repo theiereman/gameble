@@ -644,9 +644,11 @@ fr:
           zero: "Claude n'a reçu aucun commit."
           one: "Claude a relu %{count} commit. Vérifiez sa proposition ci-dessous."
           other: "Claude a relu %{count} commits. Vérifiez sa proposition ci-dessous."
+        waiting: "La réponse s'affiche ici dans la minute, vous pouvez continuer d'écrire en attendant."
         failures:
           nothing_to_translate: "Écrivez d'abord le titre ou le texte en français."
           no_changes: "GitHub n'a donné aucune nouveauté ni correction pour cette version."
+          stale_page: "Cette page n'est plus à jour. Rechargez-la, puis redemandez à Claude."
           unavailable: "Claude n'a pas pu répondre. Réessayez dans un instant, les champs n'ont pas changé."
       review:
         heading: "Proposition de Claude"
