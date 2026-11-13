@@ -2,11 +2,16 @@ import { Controller } from "@hotwired/stimulus"
 import { writeText } from "../lib/dom_writes"
 import type { Layout } from "../lib/entrust"
 import { drawAmount, type AmountForms, type LineView, type RecapView } from "../lib/entrust_view"
-import { litSegments } from "../lib/gauge"
+import { litSegments, segmentSteps } from "../lib/gauge"
+import { motionReduced } from "../lib/motion"
 import { keepStepperFocus, quantityFromButton, quantityFromKey, reflectStepper, STEPPER } from "../lib/stepper"
 import { cloneFirstElement } from "../lib/templates"
 
 export const STATUS_DELAY = 500
+export const GROW_HOLD = 300
+export const GROW_STEP = 45
+
+type Reading = { used: number; all: number }
 
 const LINE = ".entrust-recap__line"
 const STEPPER_SLOT = ".entrust-recap__stepper"
@@ -64,9 +69,33 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
   private posted?: string
   private waiting?: string
   private timer?: ReturnType<typeof setTimeout>
+  private reading: Reading = { used: 0, all: 0 }
+  private capTotal = 0
+  private growTimer?: ReturnType<typeof setTimeout>
+  private growing = false
 
   disconnect(): void {
     clearTimeout(this.timer)
+    this.stopGrowth()
+  }
+
+  growFrom(mintedBefore: number): void {
+    if (motionReduced()) return
+    const from = litSegments(mintedBefore, this.capTotal, this.segmentTargets.length)
+    const steps = segmentSteps(from, this.reading.used)
+    if (steps.length < 2) return
+    this.stopGrowth()
+    this.growing = true
+    this.gauge()?.setAttribute("data-growing", "")
+    const selection = this.reading.all - this.reading.used
+    const show = (index: number): void => {
+      const used = steps[index] ?? from
+      this.lightSegments({ used, all: used + selection }, from)
+      if (index < steps.length - 1)
+        this.growTimer = setTimeout(() => show(index + 1), index === 0 ? GROW_HOLD : GROW_STEP)
+      else this.stopGrowth()
+    }
+    show(0)
   }
 
   place(layout: Layout): void {
@@ -107,14 +136,43 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     drawAmount(this.totalTarget, view.received, this.forms())
     drawAmount(this.barTotalTarget, view.bar.amount, this.forms())
     writeText(this.barCountTarget, view.bar.count)
-    const lit = litSegments(view.capUsed, view.capTotal, this.segmentTargets.length)
-    this.segmentTargets.forEach((segment, index) => segment.classList.toggle("gauge__segment--lit", index < lit))
+    this.reflectGauge(view)
     writeText(this.capTextTarget, view.capText)
     this.reflectNote(this.overTarget, view.over)
     this.reflectNote(this.rareTarget, view.rare)
     this.fullTarget.hidden = !view.full
     this.reflectSubmit(view)
     this.postStatus(view.status)
+  }
+
+  private reflectGauge({ capBefore, capUsed, capTotal }: RecapView): void {
+    const segments = this.segmentTargets.length
+    const reading = { used: litSegments(capBefore, capTotal, segments), all: litSegments(capUsed, capTotal, segments) }
+    const unchanged = reading.used === this.reading.used && reading.all === this.reading.all
+    this.reading = reading
+    this.capTotal = capTotal
+    if (this.growing && unchanged) return
+    this.stopGrowth()
+  }
+
+  private lightSegments({ used, all }: Reading, fresh = used): void {
+    this.segmentTargets.forEach((segment, index) => {
+      segment.classList.toggle("gauge__segment--lit", index < all)
+      segment.classList.toggle("gauge__segment--selected", index >= used && index < all)
+      segment.classList.toggle("gauge__segment--fresh", index >= fresh && index < used)
+    })
+  }
+
+  private gauge(): HTMLElement | null {
+    return this.segmentTargets[0]?.parentElement ?? null
+  }
+
+  private stopGrowth(): void {
+    clearTimeout(this.growTimer)
+    this.growTimer = undefined
+    this.growing = false
+    this.gauge()?.removeAttribute("data-growing")
+    this.lightSegments(this.reading)
   }
 
   private forms(): AmountForms {

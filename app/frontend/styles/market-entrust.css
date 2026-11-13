@@ -30,8 +30,7 @@
 }
 
 .market-entrust__intro,
-.market-entrust__notice p,
-.market-entrust__count {
+.market-entrust__notice p {
   margin: 0;
   color: var(--color-text);
   font: var(--font-body);
@@ -75,12 +74,6 @@
 
 .entrust-filters .filters__search-field {
   max-width: 28rem;
-}
-
-[data-layout="wide"] .market-entrust__slot {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
 }
 
 [data-layout="wide"] .entrust-bar {

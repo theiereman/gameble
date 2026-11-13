@@ -10,6 +10,8 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
   include MarketSettings
   include CountingRateLimit
 
+  STREAM = { "Accept" => "text/vnd.turbo-stream.html, text/html, application/xhtml+xml" }.freeze
+
   setup do
     @player = accounts_players(:player)
     @common = catalog_card_seasons(:common_card_one)
@@ -184,8 +186,8 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     post market_entrustments_path(locale: :en), params: { settings: settings.token, copies: { ref(@common) => "2", ref(@rare) => "1", "unknown:9" => "4" } }
 
     assert_response :success
-    assert_select ".market-entrust__total .picoin-amount[aria-label=?]", "7,000 PiCoins"
-    assert_select ".market-entrust__count", "3 copies entrusted"
+    assert_select ".entrust-result[role=status] .entrust-result__minted .picoin-amount[aria-label=?]", "7,000 PiCoins"
+    assert_select ".entrust-result__copies", "3 copies entrusted"
     assert_equal 0, Game::Holding.find_by(player_id: @player.id, card_season_id: @common.id).quantity
     assert_equal 7_000, Game::Market::Wallet.find_by!(player_id: @player.id).available
   end
@@ -262,7 +264,7 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     post market_entrustments_path(locale: :en), params: { settings: settings.token, copies: { ref(@common) => "1", ref(@rare) => "1" } }
 
     assert_response :success
-    assert_select ".market-entrust__total .picoin-amount[aria-label=?]", "5,000 PiCoins"
+    assert_select ".entrust-result__minted .picoin-amount[aria-label=?]", "5,000 PiCoins"
     assert_equal 1, Game::Holding.find_by(player_id: @player.id, card_season_id: @common.id).quantity
     assert_equal 0, Game::Holding.find_by(player_id: @player.id, card_season_id: @rare.id).quantity
   end
@@ -293,11 +295,11 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     post market_entrustments_path(locale: :en), params: { settings: settings.token, copies: { ref(legendary) => "1", ref(@common) => "1" } }
 
     assert_response :success
-    assert_select ".market-entrust__total .picoin-amount[aria-label=?]", "1,000 PiCoins"
-    assert_select "[role=status] .market-entrust__stayed-heading", "1 card was not entrusted"
-    assert_select ".market-entrust__stayed-line", /1 copy stays in your collection/
-    assert_select ".market-entrust__stayed-line .picoin-amount[aria-label=?]", "100,000 PiCoins"
-    assert_select ".market-entrust__stayed-cap", /50,000/
+    assert_select ".entrust-result__minted .picoin-amount[aria-label=?]", "1,000 PiCoins"
+    assert_select "[role=status] .entrust-result__stayed-heading", "1 card was not entrusted"
+    assert_select ".entrust-result__stayed-line", /1 copy stays in your collection/
+    assert_select ".entrust-result__stayed-line .picoin-amount[aria-label=?]", "100,000 PiCoins"
+    assert_select ".entrust-result__stayed-cap", /50,000/
     assert_select "[style]", false
     assert_equal 1, Game::Holding.find_by(player_id: @player.id, card_season_id: legendary.id).quantity
   end
@@ -341,7 +343,8 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
 
     get new_market_entrustment_path(locale: :en)
 
-    assert_select "form#entrust[data-entrust-cap-left-value=?]", "50000"
+    assert_select "form#entrust[data-entrust-cap-left-value=?][data-entrust-daily-cap-value=1200000]", "50000"
+    assert_select ".entrust-recap__cap .gauge__segment--lit", 23
   end
 
   def second_edition_of(card_season)
@@ -430,5 +433,88 @@ class Market::EntrustmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "form#entrust[data-entrust-doubles-value=false]"
     assert_select ".entrust-cell", 2
     assert_select ".entrust-cell[data-ref=?][data-ticked=2]", ref(@rare)
+  end
+
+  test "a validation from the screen redraws it in place: the grid, a cleared selection, the cap left and the result" do
+    settings = open_market!(first_opened_at: 1.day.ago)
+    hold(@player, @common.id, 3)
+    hold(@player, @rare.id, 1)
+    sign_in(@player)
+
+    post market_entrustments_path(locale: :en), headers: STREAM,
+      params: { settings: settings.token, copies: { ref(@common) => "1", ref(@rare) => "1" }, filter: { query: "", doubles: "1" } }
+
+    assert_response :success
+    assert_equal "text/vnd.turbo-stream.html", response.media_type
+    assert_select "turbo-stream[action=replace][target=market-entrust-region] template" do
+      assert_select "form#entrust[data-entrust-cap-left-value=?][data-entrust-daily-cap-value=1200000][data-entrust-cap-before-value=1200000]", "1194000"
+      assert_select "form#entrust:not([data-turbo])"
+      assert_select ".entrust-cell", 1
+      assert_select ".entrust-cell[data-ref=?][data-free=2][data-ticked='0']", ref(@common)
+      assert_select "input[name^=copies]:not([disabled])", false
+      assert_select ".market-entrust__dock > .entrust-result[role=status]" do
+        assert_select "#entrust-result-heading[tabindex='-1'] .picoin-amount[aria-label=?]", "6,000 PiCoins"
+        assert_select ".entrust-result__copies", "2 copies entrusted"
+        assert_select ".entrust-result__coin", 6
+      end
+      assert_select ".market-entrust__dock > .market-entrust__slot > aside.entrust-recap"
+      assert_select ".market-entrust__dock > .entrust-bar"
+      assert_select "[style]", false
+    end
+    assert_select "turbo-stream[action=update][targets='.balance-chip'] template .balance-chip__available[aria-label=?]", "6,000 PiCoins"
+    assert_select "turbo-stream[action=gameble-focus][target=entrust-result-heading]"
+  end
+
+  test "the redrawn screen keeps the filters the player had set" do
+    settings = open_market!
+    hold(@player, @common.id, 3)
+    hold(@player, @rare.id, 2)
+    sign_in(@player)
+
+    post market_entrustments_path(locale: :en), headers: STREAM,
+      params: { settings: settings.token, copies: { ref(@common) => "1" }, filter: { query: "tin", rarities: [ "common", "mythic" ] } }
+
+    assert_select "turbo-stream template" do
+      assert_select "form#entrust[data-entrust-doubles-value=false][data-entrust-query-value=tin]"
+      assert_select "form#entrust[data-entrust-rarities-value=?]", '["common"]'
+      assert_select "input#entrust-search[name='filter[query]'][value=tin]"
+      assert_select "input[name='filter[rarities][]'][value=common][checked]"
+      assert_select "input[name='filter[rarities][]'][checked]", 1
+      assert_select "input[name='filter[doubles]']:not([checked])"
+    end
+  end
+
+  test "entrusting the last free copy leaves the result above the empty notice" do
+    settings = open_market!
+    hold(@player, @common.id, 1)
+    sign_in(@player)
+
+    post market_entrustments_path(locale: :en), headers: STREAM, params: { settings: settings.token, copies: { ref(@common) => "1" } }
+
+    assert_select "turbo-stream template" do
+      assert_select "form#entrust", false
+      assert_select ".entrust-result + .market-entrust__notice", /No card to entrust/
+    end
+  end
+
+  test "a refused validation from the screen redraws it in place with the refusal, the ticks kept, and answers 422" do
+    drawn = open_market!
+    open_market!(entrustment_common: 1_500)
+    hold(@player, @common.id, 2)
+    sign_in(@player)
+
+    assert_no_difference -> { Game::Market::LedgerEntry.count } do
+      post market_entrustments_path(locale: :en), headers: STREAM, params: { settings: drawn.token, copies: { ref(@common) => "2" } }
+    end
+
+    assert_response :unprocessable_content
+    assert_equal "text/vnd.turbo-stream.html", response.media_type
+    assert_select "turbo-stream[action=replace][target=market-entrust-region] template" do
+      assert_select "form#entrust > #market-entrust-refusal.market-entrust__refusal[role=alert]", /amounts changed/
+      assert_select ".entrust-cell[data-ref=?][data-ticked=2]", ref(@common)
+      assert_select ".entrust-result", false
+      assert_select "form#entrust[data-entrust-cap-before-value]", false
+    end
+    assert_select "turbo-stream[action=gameble-focus][target=market-entrust-refusal]"
   end
 end

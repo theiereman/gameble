@@ -1,0 +1,29 @@
+<%# locals: (entrusted:) %>
+<%= render PanelComponent.new(brackets: true, class: "entrust-result", role: "status",
+      data: { controller: "entrust-result", entrust_result_amount_value: entrusted.minted, entrust_result_locale_value: I18n.locale }) do %>
+  <span class="entrust-result__coins" aria-hidden="true">
+    <% 6.times do %><span class="entrust-result__coin"><%= pixel_icon("picoin-mark-large") %></span><% end %>
+  </span>
+  <div class="entrust-result__head">
+    <p class="entrust-result__kicker"><%= t("market.entrustments.result.kicker") %></p>
+    <h2 id="entrust-result-heading" class="entrust-result__minted" tabindex="-1">
+      <%= t("market.entrustments.result.minted_html", amount: render(PicoinAmountComponent.new(amount: entrusted.minted, size: :large, data: { entrust_result_target: "amount" }))) %>
+    </h2>
+    <p class="entrust-result__copies"><%= t("market.entrustments.result.copies", count: entrusted.copies) %></p>
+  </div>
+  <button type="button" class="modal__close entrust-result__close" aria-label="<%= t("market.entrustments.result.close") %>" data-action="entrust-result#close">
+    <%= pixel_icon("close", class: "modal__close-icon") %>
+  </button>
+  <% if entrusted.stayed.any? %>
+    <div class="entrust-result__stayed">
+      <h3 class="entrust-result__stayed-heading"><%= t("market.entrustments.result.stayed.heading", count: entrusted.stayed.size) %></h3>
+      <ul class="entrust-result__stayed-list">
+        <% entrusted.stayed.each do |stayed| %>
+          <% name = @stayed_names.fetch(stayed.card_season_id) %>
+          <li class="entrust-result__stayed-line"><%= t("market.entrustments.result.stayed.line_html", title: name.title, season: name.season_number, count: stayed.copies, amount: render(PicoinAmountComponent.new(amount: stayed.value))) %></li>
+        <% end %>
+      </ul>
+      <p class="entrust-result__stayed-cap"><%= t("market.entrustments.result.stayed.cap_left_html", amount: render(PicoinAmountComponent.new(amount: entrusted.cap_left))) %></p>
+    </div>
+  <% end %>
+<% end %>

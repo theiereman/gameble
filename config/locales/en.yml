@@ -2796,21 +2796,6 @@ en:
         won: WON
     entrustments:
       create:
-        again: Entrust more cards
-        copies:
-          one: "%{count} copy entrusted"
-          other: "%{count} copies entrusted"
-        heading: The Archives thank you
-        kicker: Entrusted
-        minted_html: "%{amount} minted for you"
-        stayed:
-          cap_left_html: "You had %{amount} of cap left today. It renews at 00:00 UTC."
-          heading:
-            one: "%{count} card was not entrusted"
-            other: "%{count} cards were not entrusted"
-          line_html:
-            one: "%{title}, season %{season}: %{count} copy stays in your collection (%{amount})"
-            other: "%{title}, season %{season}: %{count} copies stay in your collection (%{amount} each)"
         throttled: Slow down, the Archives are counting. Try again in a minute.
       new:
         all_cards: All cards
@@ -2846,13 +2831,28 @@ en:
         sheet_title: Entrust
         sign_in: Sign in to entrust cards to the Brotherhood.
         sign_in_action: Sign in
+      result:
+        close: Dismiss
+        copies:
+          one: "%{count} copy entrusted"
+          other: "%{count} copies entrusted"
+        kicker: The Archives thank you
+        minted_html: "+%{amount} minted for you"
+        stayed:
+          cap_left_html: "You had %{amount} of cap left today. It renews at 00:00 UTC."
+          heading:
+            one: "%{count} card was not entrusted"
+            other: "%{count} cards were not entrusted"
+          line_html:
+            one: "%{title}, season %{season}: %{count} copy stays in your collection (%{amount})"
+            other: "%{title}, season %{season}: %{count} copies stay in your collection (%{amount} each)"
       strings:
         amount: "%{amount} PiCoins"
         bar_count:
           one: "%{count} copy"
           other: "%{count} copies"
           zero: 0 copies
-        cap_text: "%{used} of %{left} left today"
+        cap_text: "%{used} of %{cap} today"
         count: "×%{count}"
         line: "%{title}, season %{season}"
         max: of %{max}

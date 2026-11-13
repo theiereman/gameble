@@ -2,7 +2,7 @@
 import { Application } from "@hotwired/stimulus"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { LineView, RecapView } from "../lib/entrust_view"
-import EntrustRecapController, { STATUS_DELAY } from "./entrust_recap_controller"
+import EntrustRecapController, { GROW_HOLD, GROW_STEP, STATUS_DELAY } from "./entrust_recap_controller"
 import { serverTemplate } from "../lib/server_html"
 
 const MARKUP = `
@@ -57,9 +57,10 @@ const view = (over: Partial<RecapView> = {}): RecapView => ({
     },
   ],
   received: 5000,
+  capBefore: 0,
   capUsed: 5000,
   capTotal: 50000,
-  capText: "5,000 of 50,000 left",
+  capText: "5,000 of 50,000 today",
   full: false,
   over: null,
   rare: null,
@@ -427,5 +428,68 @@ describe("the two status lines", () => {
     recap.render(view())
     vi.advanceTimersByTime(STATUS_DELAY * 2)
     expect(barStatus()).toBe("2 copies, 5,000 PiCoins")
+  })
+})
+
+describe("the daily cap gauge", () => {
+  const lit = (): number => document.querySelectorAll(".gauge__segment--lit").length
+  const selected = (): number => document.querySelectorAll(".gauge__segment--selected").length
+  const fresh = (): number => document.querySelectorAll(".gauge__segment--fresh").length
+  const gauge = (): HTMLElement => document.querySelector<HTMLElement>(".gauge__segment")!.parentElement!
+
+  afterEach(() => {
+    delete document.documentElement.dataset.motion
+  })
+
+  it("lights what was minted earlier today in one shade and the selection in another", () => {
+    recap.render(view({ capBefore: 25000, capUsed: 50000 }))
+    expect(lit()).toBe(2)
+    expect(selected()).toBe(1)
+    recap.render(view({ capBefore: 25000, capUsed: 25000 }))
+    expect(lit()).toBe(1)
+    expect(selected()).toBe(0)
+  })
+
+  describe("after a batch", () => {
+    beforeEach(() => {
+      document.documentElement.dataset.motion = "full"
+      recap.render(view({ capBefore: 50000, capUsed: 50000 }))
+    })
+
+    it("holds the earlier reading, then grows the used part one segment at a time in a fresh shade", () => {
+      recap.growFrom(0)
+      expect(lit()).toBe(0)
+      expect(gauge().hasAttribute("data-growing")).toBe(true)
+
+      vi.advanceTimersByTime(GROW_HOLD)
+      expect(lit()).toBe(1)
+      expect(fresh()).toBe(1)
+      vi.advanceTimersByTime(GROW_STEP)
+      expect(lit()).toBe(2)
+      expect(fresh()).toBe(0)
+      expect(selected()).toBe(0)
+      expect(gauge().hasAttribute("data-growing")).toBe(false)
+    })
+
+    it("keeps growing through a render that lands on the same reading", () => {
+      recap.growFrom(0)
+      recap.render(view({ capBefore: 50000, capUsed: 50000 }))
+      expect(lit()).toBe(0)
+    })
+
+    it("jumps to a new reading when the player ticks mid-growth", () => {
+      recap.growFrom(0)
+      recap.render(view({ capBefore: 25000, capUsed: 50000 }))
+      expect(lit()).toBe(2)
+      expect(selected()).toBe(1)
+      expect(gauge().hasAttribute("data-growing")).toBe(false)
+    })
+
+    it("shows the new reading at once when motion is reduced", () => {
+      document.documentElement.dataset.motion = "reduced"
+      recap.growFrom(0)
+      expect(lit()).toBe(2)
+      expect(gauge().hasAttribute("data-growing")).toBe(false)
+    })
   })
 })

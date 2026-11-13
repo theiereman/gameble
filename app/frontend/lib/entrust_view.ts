@@ -55,6 +55,7 @@ export type RecapView = {
   prompt: boolean
   lines: readonly LineView[]
   received: number
+  capBefore: number
   capUsed: number
   capTotal: number
   capText: string
@@ -118,9 +119,10 @@ const names = (titles: readonly string[]): string => titles.join(", ")
 export function recapViewOf(
   state: EntrustState,
   strings: EntrustStrings,
-  { open, locale, accessible }: { open: boolean } & AmountForms,
+  { open, locale, accessible, dailyCap }: { open: boolean; dailyCap: number } & AmountForms,
 ): RecapView {
   const result = preview(state)
+  const mintedToday = Math.max(dailyCap - state.capLeft, 0)
   const staying = result.lines.filter((line) => line.stayed > 0)
   const status = t(strings.status, {
     count: result.count,
@@ -138,11 +140,12 @@ export function recapViewOf(
       state: stayed === 0 ? "fits" : entrusted === 0 ? "stays" : "partial",
     })),
     received: result.received,
-    capUsed: result.capUsed,
-    capTotal: state.capLeft,
+    capBefore: mintedToday,
+    capUsed: mintedToday + result.capUsed,
+    capTotal: dailyCap,
     capText: t(strings.capText, {
-      used: picoins(result.capUsed, { locale }),
-      left: picoins(state.capLeft, { locale }),
+      used: picoins(mintedToday + result.capUsed, { locale }),
+      cap: picoins(dailyCap, { locale }),
     }),
     full: result.full,
     over:

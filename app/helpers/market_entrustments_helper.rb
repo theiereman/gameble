@@ -2,15 +2,18 @@ module MarketEntrustmentsHelper
   ENTRUST_ACTIONS = {
     "entrust-filters" => { change: :filter, clear: :clear },
     "entrust-grid" => { toggle: :toggle, copies: :copies, bump: :bump, move: :move, clear: :clear },
-    "entrust-recap" => { copies: :copies }
+    "entrust-recap" => { copies: :copies },
+    "entrust-result" => { close: :resultClosed }
   }.freeze
   ENTRUST_WINDOW_ACTIONS = "gameble:sheet-shown@window->entrust#sheetShown".freeze
 
-  def entrust_root_data(open:, cap_left:, doubles: true)
+  def entrust_root_data(open:, cap_left:, daily_cap:, filter:, entrusted: nil)
     { controller: "entrust", action: "#{screen_actions("entrust", ENTRUST_ACTIONS)} #{ENTRUST_WINDOW_ACTIONS}",
-      entrust_locale_value: I18n.locale, entrust_cap_left_value: cap_left, entrust_open_value: open, entrust_doubles_value: doubles,
+      entrust_locale_value: I18n.locale, entrust_cap_left_value: cap_left, entrust_open_value: open,
+      entrust_doubles_value: filter[:doubles], entrust_query_value: filter[:query], entrust_rarities_value: filter[:rarities],
+      entrust_daily_cap_value: daily_cap, entrust_cap_before_value: entrusted&.cap_left,
       entrust_strings_value: screen_strings("market.entrustments.strings") }
-      .merge(screen_outlets("entrust", ENTRUST_ACTIONS.keys))
+      .compact.merge(screen_outlets("entrust", ENTRUST_ACTIONS.keys))
   end
 
   def entrust_cell_label(copy)

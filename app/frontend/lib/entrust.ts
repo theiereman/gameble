@@ -65,7 +65,7 @@ export function start(
   copies: readonly Copy[],
   capLeft: number,
   ticked: Readonly<Record<string, number>>,
-  doubles = true,
+  filter: EntrustFilter = DEFAULT_FILTER,
 ): EntrustState {
   const free = new Map(copies.map((copy) => [copy.ref, copy.free]))
   const kept: Record<string, number> = {}
@@ -77,7 +77,7 @@ export function start(
     copies,
     capLeft,
     ticked: kept,
-    filter: { ...DEFAULT_FILTER, doubles },
+    filter,
     active: null,
     layout: "wide",
     pendingLayout: null,

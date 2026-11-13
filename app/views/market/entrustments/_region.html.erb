@@ -1,0 +1,58 @@
+<div id="market-entrust-region" class="market-entrust__region">
+  <% if current_player.nil? %>
+    <%= render PanelComponent.new(class: "market-entrust__notice") do %>
+      <p><%= t("market.entrustments.new.sign_in") %></p>
+      <%= render ButtonComponent.new(variant: :link, href: sign_in_path) do %><%= t("market.entrustments.new.sign_in_action") %><% end %>
+    <% end %>
+  <% else %>
+    <% if @suspended %>
+      <%= render "market/suspended_banner" %>
+    <% elsif !@open %>
+      <%= render PanelComponent.new(class: "market-entrust__notice", role: "status") do %>
+        <p><%= t("market.entrustments.new.closed") %></p>
+        <%= render ButtonComponent.new(variant: :link, href: market_path) do %><%= t("market.entrustments.new.closed_action") %><% end %>
+      <% end %>
+    <% end %>
+
+    <% if @copies.empty? %>
+      <%= render "market/entrustments/result", entrusted: @entrusted if @entrusted %>
+      <%= render PanelComponent.new(class: "market-entrust__notice") do %>
+        <p><%= t("market.entrustments.new.empty") %></p>
+        <%= render ButtonComponent.new(variant: :link, href: booster_path) do %><%= t("market.entrustments.new.empty_action") %><% end %>
+      <% end %>
+    <% else %>
+      <%= form_with url: market_entrustments_path, id: "entrust", class: "market-entrust__form",
+            data: { layout: "wide", **entrust_root_data(open: @open, cap_left: @cap_left, daily_cap: @settings.daily_cap, filter: @filter, entrusted: @entrusted) } do %>
+        <%= hidden_field_tag :settings, @settings.token, id: nil %>
+        <%= hidden_field_tag :card, @card_slug, id: nil if @card_slug %>
+        <% if @card_slug %>
+          <p class="market-entrust__card-only">
+            <%= t("market.entrustments.new.card_only", title: @copies.first.title) %>
+            <%= render ButtonComponent.new(variant: :link, href: new_market_entrustment_path) do %><%= t("market.entrustments.new.all_cards") %><% end %>
+          </p>
+        <% end %>
+        <% if @refusal %>
+          <p id="market-entrust-refusal" class="market-entrust__refusal" role="alert" tabindex="-1"><%= @refusal %></p>
+        <% end %>
+        <%= tag.div class: "market-entrust__layout",
+              data: { controller: "entrust-recap", entrust_recap_locale_value: I18n.locale,
+                      entrust_recap_accessible_value: t("market.entrustments.strings.amount"),
+                      entrust_recap_reason_id_value: ("market-suspended-banner" if @suspended) } do %>
+          <div class="market-entrust__main">
+            <%= render "market/entrustments/filters" %>
+            <%= render "market/entrustments/grid" %>
+          </div>
+          <div class="market-entrust__dock">
+            <%= render "market/entrustments/result", entrusted: @entrusted if @entrusted %>
+            <div class="market-entrust__slot" data-entrust-recap-target="slot">
+              <%= render "market/entrustments/recap" %>
+            </div>
+            <%= render "market/entrustments/bar" %>
+          </div>
+          <%= render "market/entrustments/sheet" %>
+          <p class="visually-hidden" role="status" aria-live="polite" data-entrust-recap-target="barStatus"></p>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

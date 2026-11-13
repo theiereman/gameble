@@ -2381,24 +2381,6 @@ fr:
         won: "REMPORTÉE"
     entrustments:
       create:
-        again: "Confier d'autres cartes"
-        copies:
-          zero: "Aucun exemplaire confié"
-          one: "%{count} exemplaire confié"
-          other: "%{count} exemplaires confiés"
-        heading: "Les Archives vous remercient"
-        kicker: "Confié"
-        minted_html: "%{amount} frappés pour vous"
-        stayed:
-          cap_left_html: "Il vous restait %{amount} de plafond aujourd'hui. Il se renouvelle à 00:00 UTC."
-          heading:
-            zero: "Aucune carte non confiée"
-            one: "%{count} carte n'a pas été confiée"
-            other: "%{count} cartes n'ont pas été confiées"
-          line_html:
-            zero: "%{title}, saison %{season} : aucun exemplaire ne reste dans votre collection"
-            one: "%{title}, saison %{season} : %{count} exemplaire reste dans votre collection (%{amount})"
-            other: "%{title}, saison %{season} : %{count} exemplaires restent dans votre collection (%{amount} chacun)"
         throttled: "Doucement, les Archives comptent. Réessayez dans une minute."
       new:
         all_cards: "Toutes les cartes"
@@ -2435,13 +2417,31 @@ fr:
         sheet_title: "Confier"
         sign_in: "Connectez-vous pour confier des cartes à la Confrérie."
         sign_in_action: "Se connecter"
+      result:
+        close: "Fermer"
+        copies:
+          zero: "Aucun exemplaire confié"
+          one: "%{count} exemplaire confié"
+          other: "%{count} exemplaires confiés"
+        kicker: "Les Archives vous remercient"
+        minted_html: "+%{amount} frappés pour vous"
+        stayed:
+          cap_left_html: "Il vous restait %{amount} de plafond aujourd'hui. Il se renouvelle à 00:00 UTC."
+          heading:
+            zero: "Aucune carte non confiée"
+            one: "%{count} carte n'a pas été confiée"
+            other: "%{count} cartes n'ont pas été confiées"
+          line_html:
+            zero: "%{title}, saison %{season} : aucun exemplaire ne reste dans votre collection"
+            one: "%{title}, saison %{season} : %{count} exemplaire reste dans votre collection (%{amount})"
+            other: "%{title}, saison %{season} : %{count} exemplaires restent dans votre collection (%{amount} chacun)"
       strings:
         amount: "%{amount} PiCoins"
         bar_count:
           zero: "0 exemplaire"
           one: "%{count} exemplaire"
           other: "%{count} exemplaires"
-        cap_text: "%{used} sur %{left} restants aujourd'hui"
+        cap_text: "%{used} sur %{cap} aujourd'hui"
         count: "×%{count}"
         line: "%{title}, saison %{season}"
         max: "sur %{max}"

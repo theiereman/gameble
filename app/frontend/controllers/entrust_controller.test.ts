@@ -5,6 +5,7 @@ import { dispatchGameble } from "../lib/events"
 import { serverTemplate } from "../lib/server_html"
 import EntrustController from "./entrust_controller"
 import EntrustRecapController from "./entrust_recap_controller"
+import EntrustResultController from "./entrust_result_controller"
 
 const STRINGS = {
   amount: "%{amount} PiCoins",
@@ -18,7 +19,7 @@ const STRINGS = {
   stays: "%{count} stays",
   overCap: "over",
   rareNote: "rare",
-  capText: "%{used} of %{left}",
+  capText: "%{used} of %{cap}",
   status: { one: "%{count} copy, %{amount}", other: "%{count} copies, %{amount}", zero: "0 copies, %{amount}" },
   barCount: { one: "%{count} copy", other: "%{count} copies", zero: "0 copies" },
 }
@@ -223,5 +224,52 @@ describe("the status follows the sheet", () => {
     setSheet(true)
     setSheet(false)
     expect(refresh).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe("the arrival after a batch", () => {
+  const arrival = (): string =>
+    markup(false)
+      .replace('data-ticked="1"', 'data-ticked="0"')
+      .replace(
+        'data-controller="entrust"',
+        `data-controller="entrust" data-entrust-daily-cap-value="1200000" data-entrust-cap-before-value="1100000"
+         data-entrust-query-value="b" data-entrust-rarities-value="${attr(["rare"])}" data-entrust-doubles-value="false"
+         data-entrust-entrust-result-outlet="#entrust [data-controller~='entrust-result']"`,
+      )
+      .replace(
+        "<ul>",
+        '<section id="result" data-controller="entrust-result" data-entrust-result-amount-value="1000000" data-entrust-result-locale-value="en"></section><ul>',
+      )
+
+  const root = (): EntrustController =>
+    application.getControllerForElementAndIdentifier(form(), "entrust") as EntrustController
+
+  beforeEach(async () => {
+    stubMedia(false)
+    vi.spyOn(EntrustRecapController.prototype, "growFrom")
+    document.body.replaceChildren(serverTemplate(arrival()).content)
+    application = new Application()
+    application.register("entrust", EntrustController)
+    application.register("entrust-recap", EntrustRecapController)
+    application.register("entrust-result", EntrustResultController)
+    application.start()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it("grows the used part of the cap from what was minted before the batch, once", () => {
+    expect(EntrustRecapController.prototype.growFrom).toHaveBeenCalledTimes(1)
+    expect(EntrustRecapController.prototype.growFrom).toHaveBeenCalledWith(100000)
+  })
+
+  it("puts the result away once a new card is ticked", () => {
+    const result = document.getElementById("result")!
+    expect(result.hidden).toBe(false)
+    root().toggle(new CustomEvent("toggle", { detail: { ref: "a:1" } }))
+    expect(result.hidden).toBe(true)
   })
 })

@@ -1,0 +1,5 @@
+<%= turbo_stream.replace "market-entrust-region" do %><%= render "market/entrustments/region" %><% end %>
+<% if shell_balance %>
+  <%= turbo_stream.update_all ".balance-chip", partial: "shell/balance_figures", locals: { balance: shell_balance } %>
+<% end %>
+<%= turbo_stream_action_tag "gameble-focus", target: @entrusted ? "entrust-result-heading" : "market-entrust-refusal" %>

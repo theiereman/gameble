@@ -1,6 +1,7 @@
+<% active = @filter[:rarities].size + (@filter[:doubles] ? 1 : 0) %>
 <div class="entrust-filters" role="search" data-controller="entrust-filters">
   <label class="visually-hidden" for="entrust-search"><%= t("market.entrustments.new.search_label") %></label>
-  <input id="entrust-search" type="search" class="filters__search-field" autocomplete="off"
+  <input id="entrust-search" type="search" name="filter[query]" value="<%= @filter[:query] %>" class="filters__search-field" autocomplete="off"
          placeholder="<%= t("market.entrustments.new.search_placeholder") %>"
          data-entrust-filters-target="search"
          data-action="input->entrust-filters#filter keydown.enter->entrust-filters#hold">
@@ -8,19 +9,19 @@
     <legend class="visually-hidden"><%= t("market.entrustments.new.filters_legend") %></legend>
     <% Catalog::Rarity::TIERS.each_value do |rarity| %>
       <label class="filter-chip">
-        <input type="checkbox" class="filter-chip__box" value="<%= rarity %>"
+        <input type="checkbox" name="filter[rarities][]" class="filter-chip__box" value="<%= rarity %>" <%= "checked" if @filter[:rarities].include?(rarity.to_s) %>
                data-entrust-filters-target="rarity" data-action="change->entrust-filters#filter">
         <span class="filter-chip__text"><%= t("catalog.rarity.#{rarity}") %></span>
       </label>
     <% end %>
     <label class="filter-chip">
-      <input type="checkbox" class="filter-chip__box" <%= "checked" if @doubles %>
+      <input type="checkbox" name="filter[doubles]" value="1" class="filter-chip__box" <%= "checked" if @filter[:doubles] %>
              data-entrust-filters-target="doubles" data-action="change->entrust-filters#filter">
       <span class="filter-chip__text"><%= t("market.entrustments.new.doubles") %></span>
     </label>
   </fieldset>
   <div class="entrust-filters__foot">
-    <span class="filters__count" data-entrust-filters-target="count" <%= "hidden" unless @doubles %>><span class="visually-hidden"><%= t("market.entrustments.new.filters_active") %></span> <span data-entrust-filters-target="number"><%= @doubles ? 1 : 0 %></span></span>
-    <button type="button" class="filters__clear" data-entrust-filters-target="clear" data-action="entrust-filters#clear" hidden><%= t("market.entrustments.new.clear_filters") %></button>
+    <span class="filters__count" data-entrust-filters-target="count" <%= "hidden" if active.zero? %>><span class="visually-hidden"><%= t("market.entrustments.new.filters_active") %></span> <span data-entrust-filters-target="number"><%= active %></span></span>
+    <button type="button" class="filters__clear" data-entrust-filters-target="clear" data-action="entrust-filters#clear" <%= "hidden" if active.zero? && @filter[:query].strip.empty? %>><%= t("market.entrustments.new.clear_filters") %></button>
   </div>
 </div>

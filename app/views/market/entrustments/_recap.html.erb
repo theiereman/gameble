@@ -15,7 +15,7 @@
   <div class="entrust-recap__side">
     <div class="entrust-recap__cap">
       <span class="entrust-recap__cap-label"><%= t("market.entrustments.new.cap_label") %></span>
-      <%= render GaugeComponent.new(lit: 0, segment_data: { entrust_recap_target: "segment" }) %>
+      <%= render GaugeComponent.new(lit: GaugeComponent.lit(@settings.daily_cap - @cap_left, @settings.daily_cap), segment_data: { entrust_recap_target: "segment" }) %>
       <span class="entrust-recap__cap-text" data-entrust-recap-target="capText"></span>
     </div>
     <p id="entrust-not-returned" class="entrust-recap__sentence" data-entrust-recap-target="sentence"><%= t("market.entrustments.new.not_returned") %></p>

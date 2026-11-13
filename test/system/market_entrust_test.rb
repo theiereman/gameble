@@ -47,10 +47,38 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_total "7,000"
     click_on "Entrust 3 copies"
 
-    assert_selector ".market-entrust__total .picoin-amount[aria-label='7,000 PiCoins']"
-    assert_selector ".market-entrust__total .picoin-amount__figure", text: "7,000"
-    assert_selector ".market-entrust__count", text: "3 copies entrusted"
+    assert_selector ".entrust-result__minted .picoin-amount[aria-label='7,000 PiCoins']"
+    assert_selector ".entrust-result__minted .picoin-amount__figure", text: "7,000"
+    assert_selector ".entrust-result__copies", text: "3 copies entrusted"
     assert_equal 1, Game::Holding.where(player_id: @player.id).sum(:quantity)
+  end
+
+  test "validating stays on the screen: the result shows the minted amount, the grid and gauge follow, and the player entrusts again" do
+    open_market!
+    hold(@player, @common.id, 3)
+    hold(@player, @rare.id, 3)
+    sign_in_through_the_site
+
+    visit new_market_entrustment_path(locale: :en)
+    tick(@common)
+    click_on "Entrust 1 copy"
+
+    assert_selector ".entrust-result__minted .picoin-amount__figure", text: "1,000"
+    assert_selector "#entrust-result-heading:focus"
+    assert_selector ".entrust-cell[data-ref*='#{@common.card.slug}'] .entrust-cell__free", text: "2 free copies"
+    assert_no_selector ".entrust-cell--picked"
+    assert_selector ".entrust-recap__cap-text", text: "1,000 of 1,200,000 today"
+    assert_selector ".entrust-recap__cap .gauge:not([data-growing])"
+    assert_current_path new_market_entrustment_path(locale: :en)
+
+    tick(@rare)
+    assert_no_selector ".entrust-result"
+    click_on "Entrust 1 copy"
+
+    assert_selector ".entrust-result__minted .picoin-amount__figure", text: "5,000"
+    assert_selector ".entrust-recap__cap-text", text: "6,000 of 1,200,000 today"
+    assert_equal 2, Game::Holding.find_by(player_id: @player.id, card_season_id: @common.id).quantity
+    assert_equal 2, Game::Holding.find_by(player_id: @player.id, card_season_id: @rare.id).quantity
   end
 
   test "the desktop flow previews the batch as the player filters and ticks, names the copy over the cap and validates" do
@@ -81,9 +109,10 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_selector "button[type=submit]", text: /entrust 3 copies/i
     click_on "Entrust 3 copies"
 
-    assert_selector ".market-entrust__total .picoin-amount__figure", text: "5,000"
-    assert_selector "[role=status] .market-entrust__stayed-line .picoin-amount[aria-label='100,000 PiCoins']"
-    assert_selector ".market-entrust__stayed-cap", text: "50,000"
+    assert_selector ".entrust-result__minted .picoin-amount__figure", text: "5,000"
+    assert_selector "[role=status] .entrust-result__stayed-line .picoin-amount[aria-label='100,000 PiCoins']"
+    assert_selector ".entrust-result__stayed-cap", text: "50,000"
+    assert_selector ".entrust-cell[data-ref*='#{@legendary.card.slug}']:not(.entrust-cell--picked)"
     assert_equal 1, Game::Holding.find_by(player_id: @player.id, card_season_id: @legendary.id).quantity
   end
 
@@ -117,7 +146,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_selector ".entrust-cell--picked", count: 1
     cell(@rare).find(".entrust-cell__toggle").send_keys("+", "+")
     assert_selector ".entrust-cell[data-ref*='#{@rare.card.slug}'] .stepper__value", text: "×3"
-    cell(@rare).find(".entrust-cell__toggle").send_keys("-")
+    cell(@rare).find(".entrust-cell__toggle").send_keys(:subtract)
     assert_selector ".entrust-cell[data-ref*='#{@rare.card.slug}'] .stepper__value", text: "×2"
     cell(@rare).find(".entrust-cell__toggle").send_keys(:arrow_right)
     assert_selector ".entrust-cell[data-ref*='#{@common.card.slug}'] .entrust-cell__toggle[tabindex='0']"
@@ -264,6 +293,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
     click_on "Entrust ▸"
     assert_selector "dialog#entrust-recap-sheet[open] .entrust-recap__line", count: 2
+    eventually("the sheet should be done rising") { evaluate_script("document.querySelector('#entrust-recap-sheet').getAnimations({ subtree: true }).length === 0") }
     stepper = find("dialog[open] .entrust-recap__line .stepper__button--more")
     assert_operator stepper.native.size.width, :>=, 44
     stepper.click
@@ -272,7 +302,9 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
     within("dialog[open]") { click_on "Entrust 3 copies" }
 
-    assert_selector ".market-entrust__total .picoin-amount__figure", text: "7,000"
+    assert_no_selector "dialog[open]"
+    assert_selector ".entrust-result__minted .picoin-amount__figure", text: "7,000"
+    assert_selector ".market-entrust__notice", text: "No card to entrust."
     assert_equal 0, Game::Holding.where(player_id: @player.id).sum(:quantity)
   end
 

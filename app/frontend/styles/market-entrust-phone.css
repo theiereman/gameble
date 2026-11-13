@@ -59,13 +59,6 @@
   text-decoration: none;
 }
 
-@media (min-height: 560px) {
-  [data-layout="phone"] .entrust-bar {
-    position: sticky;
-    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
-  }
-}
-
 [data-layout="phone"] .entrust-sheet .entrust-recap {
   padding: var(--space-3) 0;
   box-shadow: none;

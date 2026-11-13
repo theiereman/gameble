@@ -66,7 +66,7 @@ class MarketSuspensionTest < ApplicationSystemTestCase
       assert_no_selector "#market-suspended-banner"
       find(".entrust-cell[data-ref='#{@card.card.slug}:#{@card.season.number}'] .entrust-cell__toggle").click
       click_on "Entrust 1 copy"
-      assert_selector ".market-entrust__count", text: "1 copy entrusted"
+      assert_selector ".entrust-result__copies", text: "1 copy entrusted"
     end
   end
 

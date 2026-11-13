@@ -20,6 +20,7 @@ import type EntrustFiltersController from "./entrust_filters_controller"
 import type EntrustGridController from "./entrust_grid_controller"
 import type { MoveIntent } from "./entrust_grid_controller"
 import type EntrustRecapController from "./entrust_recap_controller"
+import type EntrustResultController from "./entrust_result_controller"
 
 function copyFrom(cell: HTMLElement): Copy {
   const data = cell.dataset
@@ -41,15 +42,24 @@ export default class EntrustController extends Controller<HTMLElement> {
     capLeft: Number,
     open: Boolean,
     doubles: { type: Boolean, default: true },
+    query: String,
+    rarities: Array,
+    dailyCap: Number,
+    capBefore: Number,
     strings: Object,
   }
-  static outlets = ["entrust-filters", "entrust-grid", "entrust-recap"]
+  static outlets = ["entrust-filters", "entrust-grid", "entrust-recap", "entrust-result"]
 
   declare readonly cellTargets: HTMLElement[]
   declare readonly localeValue: string
   declare readonly capLeftValue: number
   declare readonly openValue: boolean
   declare readonly doublesValue: boolean
+  declare readonly queryValue: string
+  declare readonly raritiesValue: Rarity[]
+  declare readonly dailyCapValue: number
+  declare readonly capBeforeValue: number
+  declare readonly hasCapBeforeValue: boolean
   declare readonly stringsValue: EntrustStrings
   declare readonly hasEntrustFiltersOutlet: boolean
   declare readonly entrustFiltersOutlet: EntrustFiltersController
@@ -57,11 +67,14 @@ export default class EntrustController extends Controller<HTMLElement> {
   declare readonly entrustGridOutlet: EntrustGridController
   declare readonly hasEntrustRecapOutlet: boolean
   declare readonly entrustRecapOutlet: EntrustRecapController
+  declare readonly hasEntrustResultOutlet: boolean
+  declare readonly entrustResultOutlet: EntrustResultController
 
   private state?: EntrustState
   private media?: MediaQueryList
   private placed: Layout = "wide"
   private placedKnown = false
+  private arrival?: number
 
   // Esc here closes an overlay and nothing else: it never clears the ticks nor leaves the screen.
   private readonly guardEscape = (event: KeyboardEvent): void => {
@@ -73,6 +86,7 @@ export default class EntrustController extends Controller<HTMLElement> {
 
   connect(): void {
     this.state = this.startFromMarkup()
+    this.arrival = this.hasCapBeforeValue ? Math.max(this.dailyCapValue - this.capBeforeValue, 0) : undefined
     document.addEventListener("keydown", this.guardEscape, true)
     this.watchLayout()
     this.render()
@@ -83,6 +97,7 @@ export default class EntrustController extends Controller<HTMLElement> {
     this.media?.removeEventListener("change", this.layoutChanged)
     this.media = undefined
     this.placedKnown = false
+    this.arrival = undefined
     this.state = undefined
   }
 
@@ -96,6 +111,14 @@ export default class EntrustController extends Controller<HTMLElement> {
 
   entrustRecapOutletConnected(): void {
     this.render()
+  }
+
+  entrustResultOutletConnected(): void {
+    this.render()
+  }
+
+  resultClosed(): void {
+    this.grid()?.focusActive()
   }
 
   sheetShown(): void {
@@ -169,14 +192,17 @@ export default class EntrustController extends Controller<HTMLElement> {
     const ticked = Object.fromEntries(
       this.cellTargets.map((cell) => [cell.dataset.ref ?? "", Number(cell.dataset.ticked ?? 0)]),
     )
-    return start(copies, this.capLeftValue, ticked, this.doublesValue)
+    const filter = { query: this.queryValue, rarities: this.raritiesValue, doubles: this.doublesValue }
+    return start(copies, this.capLeftValue, ticked, filter)
   }
 
   private render(): void {
     const state = this.state
     if (!state) return
     const strings = this.stringsValue
-    this.element.toggleAttribute("data-pending-edit", Object.keys(state.ticked).length > 0)
+    const picking = Object.keys(state.ticked).length > 0
+    this.element.toggleAttribute("data-pending-edit", picking)
+    if (picking) this.result()?.dismiss()
     this.element.dataset.layout = state.layout
     this.placeRecap(state.layout)
     this.filters()?.render(filtersViewOf(state))
@@ -184,10 +210,19 @@ export default class EntrustController extends Controller<HTMLElement> {
     this.recap()?.render(
       recapViewOf(state, strings, {
         open: this.openValue,
+        dailyCap: this.dailyCapValue,
         locale: this.localeValue,
         accessible: strings.amount,
       }),
     )
+    this.playArrival()
+  }
+
+  private playArrival(): void {
+    const recap = this.recap()
+    if (this.arrival === undefined || !recap) return
+    recap.growFrom(this.arrival)
+    this.arrival = undefined
   }
 
   private filters(): EntrustFiltersController | null {
@@ -200,5 +235,9 @@ export default class EntrustController extends Controller<HTMLElement> {
 
   private recap(): EntrustRecapController | null {
     return this.hasEntrustRecapOutlet ? this.entrustRecapOutlet : null
+  }
+
+  private result(): EntrustResultController | null {
+    return this.hasEntrustResultOutlet ? this.entrustResultOutlet : null
   }
 }

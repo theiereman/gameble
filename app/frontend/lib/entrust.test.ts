@@ -67,9 +67,15 @@ describe("the starting filter", () => {
   })
 
   it("starts with doubles off when the markup says so, showing single-copy cells", () => {
-    const state = start(LIST, CAP, {}, false)
+    const state = start(LIST, CAP, {}, { ...DEFAULT_FILTER, doubles: false })
     expect(state.filter.doubles).toBe(false)
     expect(visible(state).map((copy) => copy.rarity)).toEqual(["legendary", "rare", "common"])
+  })
+
+  it("starts from the filter a redrawn page carries", () => {
+    const state = start(LIST, CAP, {}, { query: "", rarities: ["rare"], doubles: false })
+    expect(visible(state).map((copy) => copy.rarity)).toEqual(["rare"])
+    expect(state.active).toBe("rare:1")
   })
 })
 
