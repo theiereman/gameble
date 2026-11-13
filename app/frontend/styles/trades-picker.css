@@ -54,18 +54,6 @@
   font: var(--font-body-small);
 }
 
-.trade-picker__clear {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.trade-picker__clear:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
-
 .trade-picker__body {
   flex: 1;
   min-height: 0;

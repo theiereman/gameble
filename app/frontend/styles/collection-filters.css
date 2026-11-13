@@ -225,10 +225,23 @@ button.filter-chip {
 
 .filters__clear {
   align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--color-accent);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
+  cursor: pointer;
+}
+
+.filters__clear:hover {
+  color: var(--color-text-max);
+}
+
+.filters__clear:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 /* The grid's page links: small panel plates, the current one in accent. */

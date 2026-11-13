@@ -29,6 +29,11 @@
   gap: var(--space-3);
 }
 
+.market-filters__actions .button {
+  min-height: var(--space-chip-height);
+  margin: 0;
+}
+
 .price-filter__fields {
   display: flex;
   flex-wrap: wrap;
