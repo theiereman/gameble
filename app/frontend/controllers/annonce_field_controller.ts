@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { groupDigits } from "../lib/amount"
 import { writeText } from "../lib/dom_writes"
 import type { Terms } from "../lib/annonce"
 
@@ -87,7 +88,7 @@ export default class AnnonceFieldController extends Controller<HTMLElement> {
 
   fill({ params }: { params: { amount?: number } }): void {
     if (params.amount === undefined) return
-    this.inputTarget.value = String(params.amount)
+    this.inputTarget.value = groupDigits(String(params.amount), document.documentElement.lang)
     this.type()
     this.inputTarget.focus()
   }

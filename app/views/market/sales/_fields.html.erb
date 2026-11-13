@@ -16,9 +16,10 @@
 
   <div class="sale-field">
     <label for="sale-start" class="sale-field__label"><%= t("market.sales.new.start_label") %></label>
-    <%= text_field_tag :starting_price, @values[:start], id: "sale-start", inputmode: "numeric", autocomplete: "off",
+    <%= text_field_tag :starting_price, typed_picoins(@values[:start]), id: "sale-start", inputmode: "numeric", autocomplete: "off",
           aria: { invalid: (start_refused ? "true" : nil), describedby: (start_refused ? "sale-start-hint sale-start-error" : "sale-start-hint") },
-          data: { listing_fields_target: "start", listing_form_target: "start", action: "input->listing-fields#type keydown->listing-fields#keydown" } %>
+          data: { controller: "amount-field", listing_fields_target: "start", listing_form_target: "start",
+                  action: "beforeinput->amount-field#remember input->amount-field#group input->listing-fields#type keydown->listing-fields#keydown" } %>
     <p id="sale-start-hint" class="sale-field__hint" data-listing-fields-target="hint"><%= hint %></p>
     <p id="sale-start-error" class="sale-field__error" data-listing-fields-target="startError" <%= "hidden" unless start_refused %>><%= @refusal if start_refused %></p>
   </div>

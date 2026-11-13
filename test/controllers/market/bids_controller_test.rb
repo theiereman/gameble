@@ -127,7 +127,7 @@ class Market::BidsControllerTest < ActionDispatch::IntegrationTest
     post_bid("15000", drawn_minimum: "21000")
     assert_response :unprocessable_content
     assert_equal "At least 21,000 is needed.", refusal
-    assert_select "input#annonce-maximum[value='15000'][aria-invalid=true][aria-describedby~=annonce-error]"
+    assert_select "input#annonce-maximum[value='15,000'][aria-invalid=true][aria-describedby~=annonce-error]"
 
     post_bid("15000", drawn_minimum: "20000")
     assert_equal "The price just changed. At least 21,000 is needed now.", refusal
@@ -141,7 +141,7 @@ class Market::BidsControllerTest < ActionDispatch::IntegrationTest
     post_bid("100001")
 
     assert_equal "You can commit at most 100,000.", refusal
-    assert_select "input#annonce-maximum[value='100001']"
+    assert_select "input#annonce-maximum[value='100,001']"
   end
 
   test "an invalid amount is refused with the text kept" do
@@ -150,6 +150,35 @@ class Market::BidsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "Enter a whole number of PiCoins, above zero.", refusal
     assert_select "input#annonce-maximum[value='3x0']"
+  end
+
+  test "a maximum grouped by thousands is placed at that amount" do
+    sign_in(@second)
+    post_bid("30,000")
+    assert_equal "YOU ARE LEADING", answer_title
+
+    post_bid("35 000", drawn_minimum: "30001")
+    assert_equal "MAXIMUM RAISED", answer_title
+    assert_equal [ 65_000, 35_000 ], figures(@second)
+  end
+
+  test "a maximum grouped wrongly is refused with the text kept" do
+    sign_in(@second)
+
+    [ "12,5", "30,0000" ].each do |maximum|
+      assert_no_difference -> { Game::Market::Bid.count } do
+        post_bid(maximum)
+      end
+      assert_equal "Enter a whole number of PiCoins, above zero.", refusal
+      assert_select "input#annonce-maximum[value=?]", maximum
+    end
+  end
+
+  test "a refused maximum comes back grouped in the page's locale" do
+    sign_in(@second)
+    post_bid("100001", locale: :fr)
+
+    assert_select "input#annonce-maximum[value=?]", "100\u00A0001"
   end
 
   test "a closed market reads its text" do

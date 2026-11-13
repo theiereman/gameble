@@ -32,7 +32,7 @@ module Market
           outcome: Game::Market::ListingOutcome.call(token:, viewer: current_player, locale: I18n.locale),
           events: Game::Market::AnnonceEvents.call(token:, viewer: current_player),
           suspended: Game::Market::MarketState.call.suspended?, answer:, focus:, refusal: nil, not_recorded: false, posted: answer ? "" : params[:maximum].to_s,
-          posted_amount: Integer(params[:maximum].to_s.strip, 10, exception: false) }
+          posted_amount: Game::Market::TypedAmount.whole_number(params[:maximum]) }
       end
   end
 end

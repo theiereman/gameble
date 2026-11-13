@@ -57,7 +57,7 @@ class MarketLiveAnnonceSystemTest < ApplicationSystemTestCase
 
     assert_selector ".market-listing__leader", text: "Rival"
     assert_selector ".market-history__line--bid", count: 1
-    assert_field "annonce-maximum", with: "26000"
+    assert_field "annonce-maximum", with: "26,000"
     assert_equal "annonce-maximum", page.evaluate_script("document.activeElement.id")
     assert_selector "#annonce-bid button[type=submit]", text: /BID · 26,000/
   end

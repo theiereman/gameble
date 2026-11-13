@@ -2,6 +2,7 @@ export const SET_OPTIONS_FRAME = "collection-set-options"
 export const SET_KIND_FIELD = "set_kind"
 export const SORT_FIELD = "sort"
 export const PRICE_GROUP = "price"
+export const PRICE_BOUNDS: readonly string[] = ["min_price", "max_price"]
 export const DEFAULT_SORT = ""
 export const RESULTS_FRAME = "collection-results"
 export const RESULTS_STATUS = "collection-results-status"
@@ -48,7 +49,7 @@ export function reloadOnChange(field: { type: string; name: string }): Reload {
   if (field.type === "checkbox") return "grid"
   if (field.type === "radio" && field.name === SET_KIND_FIELD) return "sets"
   if (field.type === "radio" && field.name === SORT_FIELD) return "grid"
-  if (field.type === "number") return "grid"
+  if (PRICE_BOUNDS.includes(field.name)) return "grid"
   return "none"
 }
 

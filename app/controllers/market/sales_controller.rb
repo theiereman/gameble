@@ -2,8 +2,6 @@ module Market
   class SalesController < ApplicationController
     include PublicRead
 
-    PLAIN_AMOUNT = /\A\d{1,19}\z/
-
     throttle_player to: 10, only: :create, path: -> { new_market_sale_path }, alert: "market.sales.create.throttled"
 
     def new
@@ -56,11 +54,9 @@ module Market
         return unless @copies.any? { it.ref == ref }
 
         @chosen_ref = ref
-        @values[:start] = plain_digits(params[:start])
+        @values[:start] = Game::Market::TypedAmount.price(params[:start]).to_s
         @relisting = params[:relisting].to_s == "1"
       end
-
-      def plain_digits(value) = PLAIN_AMOUNT.match?(value.to_s) ? value.to_s : ""
 
       def posted_ref = params[:ref].to_s
 
@@ -97,8 +93,7 @@ module Market
       end
 
       def invalid_price_field
-        plain = ->(value) { PLAIN_AMOUNT.match?(value.to_s) && value.to_i.between?(1, Game::Market::PriceAmount::MAX_AMOUNT) }
-        :starting_price unless plain.call(params[:starting_price])
+        :starting_price unless Game::Market::TypedAmount.price(params[:starting_price])
       end
 
       def refusal_values(code)

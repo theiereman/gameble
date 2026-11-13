@@ -16,15 +16,17 @@ const terms = (overrides: Partial<Terms> = {}): Terms => ({
 })
 
 describe("parse", () => {
-  it("reads digits only, spaces removed", () => {
+  it("reads plain digits or digits grouped by threes", () => {
     expect(parse("30000")).toBe(30_000)
     expect(parse(" 30 000 ")).toBe(30_000)
-    expect(parse("30 000")).toBe(30_000)
-    expect(parse("30 000")).toBe(30_000)
+    expect(parse("30\u00A0000")).toBe(30_000)
+    expect(parse("30\u202F000")).toBe(30_000)
+    expect(parse("8,000,000")).toBe(8_000_000)
   })
 
   it("refuses anything else", () => {
-    for (const text of ["", " ", "3x0", "3,000", "3.5", "-30", "0", "00", "1e3"]) expect(parse(text)).toBeNull()
+    for (const text of ["", " ", "3x0", "3,00", "12,5", "3.5", "3 0", "1,000 000", "-30", "0", "00", "1e3"])
+      expect(parse(text)).toBeNull()
   })
 
   it("refuses an amount that is not a safe integer", () => {

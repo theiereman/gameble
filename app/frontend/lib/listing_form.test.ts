@@ -106,13 +106,17 @@ describe("refusal", () => {
     expect(refusal(start([rare], 1_000, typed, null, "wide"))).toBeNull()
   })
 
-  it.each(["", "0", "12x", "1.5", "-4"])("refuses the start %j as not a price", (value) => {
+  it.each(["", "0", "12x", "1.5", "12,5", "1,00", "-4"])("refuses the start %j as not a price", (value) => {
     expect(refusal(chosenState({ start: value }))).toEqual({ field: "start", code: "invalidPrice" })
   })
 
   it("refuses a start under the minimum, and accepts the minimum itself", () => {
     expect(refusal(chosenState({ start: "999" }))).toEqual({ field: "start", code: "belowMinimum" })
     expect(refusal(chosenState({ start: "1000" }))).toBeNull()
+  })
+
+  it.each(["1,000", "1 000", "1\u00A0000", "1\u202F000"])("reads the grouped start %j as a price", (value) => {
+    expect(refusal(chosenState({ start: value }))).toBeNull()
   })
 
   it("shows the refusal only once validated", () => {
@@ -130,6 +134,7 @@ describe("lines", () => {
 
   it("gives the stamp, the commission and the amount received at the start", () => {
     expect(lines(chosenState({ start: "1300" }))).toEqual({ stamp: 500, commission: 130, received: 1_170 })
+    expect(lines(chosenState({ start: "1,300" }))).toEqual({ stamp: 500, commission: 130, received: 1_170 })
   })
 
   it("gives the stamp alone while the start is empty or not digits", () => {

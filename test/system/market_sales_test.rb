@@ -64,12 +64,29 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
     find("a[aria-label='Put up for sale again, Blue Depths']").click
 
     assert_selector ".market-sale__relisting", text: "These amounts are those of your previous sale."
-    assert_field "starting_price", with: "9000"
+    assert_field "starting_price", with: "9,000"
     click_button "PUT UP FOR SALE"
 
     assert_selector "h1#market-listing-heading", text: "Blue Depths"
     assert_equal 2, Game::Market::Listing.where(seller_id: @seller.id, card_season_id: @rare.id).count
     assert_equal 1, reserved(@rare)
+  end
+
+  test "the starting price groups its thousands as it is typed, the caret staying where the player edits" do
+    hold(@seller, @rare.id, 1)
+    sign_in_through_the_site(@seller)
+
+    visit new_market_card_sale_path(locale: :en, slug: @rare.card.slug)
+    field = find_field("starting_price")
+    field.send_keys("12345678")
+    assert_field "starting_price", with: "12,345,678"
+
+    field.send_keys(:home, :right, :right, :right, :backspace, "9")
+    assert_field "starting_price", with: "19,345,678"
+
+    click_button "PUT UP FOR SALE"
+    assert_selector "h1#market-listing-heading", text: "Blue Depths"
+    assert_equal 19_345_678, Game::Market::Listing.where(seller_id: @seller.id).last.starting_price
   end
 
   test "a late bid makes the cancel refuse with the Copy deck line" do

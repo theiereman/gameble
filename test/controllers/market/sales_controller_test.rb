@@ -108,7 +108,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     get new_market_sale_path(locale: :en, ref: ref(@common), start: "1500", relisting: "1")
 
     assert_select "[role=option][aria-selected=true][data-ref=?]", ref(@common)
-    assert_select "input[name=starting_price][value=1500]"
+    assert_select "input[name=starting_price][value='1,500']"
     assert_select ".market-sale__relisting", "These amounts are those of your previous sale."
   end
 
@@ -223,7 +223,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_content
     assert_select "#sale-start-error", "At least 1,300 for a common."
-    assert_select "input[name=starting_price][value=1000][aria-invalid=true]"
+    assert_select "input[name=starting_price][value='1,000'][aria-invalid=true]"
     assert_select "input[name=starting_price][aria-describedby=?]", "sale-start-hint sale-start-error"
     assert_select "input[name=duration_hours][value=72][checked]"
     assert_select "[role=option][aria-selected=true][data-ref=?]", ref(@common)
@@ -240,7 +240,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_content
     assert_select ".sale-summary .sale-summary__short[role=alert]:not([hidden])", text: /You are short of 1,880 PiCoins for the stamp\./
     assert_select ".sale-summary .sale-summary__short a[href=?]", new_market_entrustment_path(locale: :en), "ENTRUST CARDS"
-    assert_select "input[name=starting_price][value=7800]"
+    assert_select "input[name=starting_price][value='7,800']"
   end
 
   test "a stamp the balance cannot pay shows in red with its shortfall before any post, the button described by it" do
@@ -270,6 +270,28 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a start grouped by thousands lists the card at that amount" do
+    hold(@player, @common.id, 3)
+    sign_in(@player)
+
+    [ "8,000", "8 000", "8\u00A0000" ].each { post_sale(starting_price: it, duration_hours: "72") }
+
+    assert_equal [ 8_000 ] * 3, Game::Market::Listing.order(:id).last(3).map(&:starting_price)
+  end
+
+  test "a start grouped wrongly is refused like any other non-price, and comes back as typed" do
+    hold(@player, @common.id, 1)
+    sign_in(@player)
+
+    [ "12,5", "1,0000", "1,000 000" ].each do |start|
+      nothing_moves { post_sale(starting_price: start, duration_hours: "72") }
+
+      assert_response :unprocessable_content
+      assert_select "#sale-start-error", "Enter a whole number of PiCoins, above zero."
+      assert_select "input[name=starting_price][value=?]", start
+    end
+  end
+
   test "a duration outside the three is refused under the duration group with no duration checked" do
     hold(@player, @common.id, 1)
     sign_in(@player)
@@ -280,7 +302,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select "fieldset[aria-describedby=sale-duration-error][aria-invalid=true]"
     assert_select "#sale-duration-error", "Choose one of the listed durations."
     assert_select "input[name=duration_hours][checked]", false
-    assert_select "input[name=starting_price][value=1500]"
+    assert_select "input[name=starting_price][value='1,500']"
   end
 
   test "a copy that is gone is refused above the grid and drops out of it" do
@@ -331,7 +353,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".sale-summary .market-sale__refusal", text: /amounts changed/
     assert_select "input[name=settings][value=?]", @settings.token
     assert_select "[role=option][data-minimum=1500]"
-    assert_select "input[name=starting_price][value=1400]"
+    assert_select "input[name=starting_price][value='1,400']"
     assert_select "input[name=duration_hours][value=72][checked]"
     assert_equal 500, Game::Market::Balance.call(@player).available
   end
@@ -346,7 +368,7 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_content
     assert_select ".sale-summary .market-sale__refusal", text: /The Archives are busy/
-    assert_select "input[name=starting_price][value=1700]"
+    assert_select "input[name=starting_price][value='1,700']"
   end
 
   test "a closed market refuses the post and draws the closed panel" do

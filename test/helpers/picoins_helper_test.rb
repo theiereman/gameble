@@ -20,4 +20,13 @@ class PicoinsHelperTest < ActionView::TestCase
   test "a string of digits is read as that amount" do
     assert_equal "12", picoins("12")
   end
+
+  test "typed text that reads as an amount comes back grouped in the locale, anything else as it was" do
+    assert_equal "8,000,000", typed_picoins("8000000")
+    assert_equal "8,000,000", typed_picoins("8 000 000")
+    I18n.with_locale(:fr) { assert_equal "8\u00A0000", typed_picoins("8,000") }
+    assert_equal "12,5", typed_picoins("12,5")
+    assert_equal "", typed_picoins(nil)
+    assert_equal "5,000", typed_picoins(5_000)
+  end
 end

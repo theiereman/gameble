@@ -1,3 +1,5 @@
+import { amountDigits } from "./amount"
+
 export type Terms = {
   minimum: number
   available: number
@@ -22,16 +24,13 @@ export type ButtonKind = "idle" | "bid" | "raise"
 
 export const LIVE_DELAY = 500
 
-const SPACES = /[\s  ]/g
-const PLAIN_AMOUNT = /^\d+$/
-
 export function start(terms: Terms, answered = false): AnnonceState {
   return { terms, text: "", submitting: false, posted: "", answered, pending: false, consent: null }
 }
 
 export function parse(text: string): number | null {
-  const digits = text.replace(SPACES, "")
-  if (!PLAIN_AMOUNT.test(digits)) return null
+  const digits = amountDigits(text)
+  if (digits === null) return null
   const amount = Number(digits)
   return Number.isSafeInteger(amount) && amount > 0 ? amount : null
 }

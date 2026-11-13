@@ -1,3 +1,4 @@
+import { amountDigits } from "./amount"
 import type { Rarity } from "./card_types"
 
 export type Layout = "wide" | "phone"
@@ -39,7 +40,6 @@ export type Typed = Readonly<{ start: string; duration: string }>
 
 const BASIS_POINTS = 10_000n
 const MAX_SAFE = BigInt(Number.MAX_SAFE_INTEGER)
-const PLAIN_AMOUNT = /^\d+$/
 
 export function start(
   editions: readonly Edition[],
@@ -69,8 +69,8 @@ export function received(price: bigint, basisPoints: number): bigint {
 }
 
 export function amountOf(text: string): bigint | null {
-  const typed = text.trim()
-  return PLAIN_AMOUNT.test(typed) ? BigInt(typed) : null
+  const digits = amountDigits(text)
+  return digits === null ? null : BigInt(digits)
 }
 
 export function chosenEdition(state: ListingState): Edition | null {

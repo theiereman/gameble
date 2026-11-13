@@ -2,7 +2,6 @@ module Game
   module Market
     module CollectionPrices
       SORTS = { "price_asc" => "ASC", "price_desc" => "DESC" }.freeze
-      AMOUNT_FORMAT = /\A\d{1,13}\z/
 
       Choice = Data.define(:sort, :minimum, :maximum) do
         def sorted? = !sort.nil?
@@ -68,7 +67,7 @@ module Game
         end
       end
 
-      def self.amount(value) = (Integer(value, 10) if value.is_a?(String) && value.strip.match?(AMOUNT_FORMAT))
+      def self.amount(value) = TypedAmount.filter_bound(value)
       private_class_method :amount
     end
   end

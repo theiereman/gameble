@@ -33,12 +33,12 @@ class MarketFiltersSystemTest < ApplicationSystemTestCase
     fill_in "max_price", with: "10000"
     find("button", text: /apply/i).click
     assert_selector ".listing-tile", count: 1
-    assert_field "max_price", with: "10000"
+    assert_field "max_price", with: "10,000"
 
     click_on "Price, low to high"
     assert_selector ".market-screen__sort[aria-current=true]", text: "Price, low to high"
     assert_selector ".listing-tile", count: 1
-    assert_field "max_price", with: "10000"
+    assert_field "max_price", with: "10,000"
 
     fill_in "max_price", with: "100"
     find("button", text: /apply/i).click

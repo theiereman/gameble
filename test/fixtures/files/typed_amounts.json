@@ -1,0 +1,86 @@
+[
+  {
+    "text": "8000000",
+    "digits": "8000000"
+  },
+  {
+    "text": " 8000000 ",
+    "digits": "8000000"
+  },
+  {
+    "text": "8,000,000",
+    "digits": "8000000"
+  },
+  {
+    "text": "8 000 000",
+    "digits": "8000000"
+  },
+  {
+    "text": "8\u00a0000\u00a0000",
+    "digits": "8000000"
+  },
+  {
+    "text": "8\u202f000\u202f000",
+    "digits": "8000000"
+  },
+  {
+    "text": "800,000",
+    "digits": "800000"
+  },
+  {
+    "text": "0",
+    "digits": "0"
+  },
+  {
+    "text": "",
+    "digits": null
+  },
+  {
+    "text": " ",
+    "digits": null
+  },
+  {
+    "text": "12,5",
+    "digits": null
+  },
+  {
+    "text": "1.5",
+    "digits": null
+  },
+  {
+    "text": "12x",
+    "digits": null
+  },
+  {
+    "text": "1,0000",
+    "digits": null
+  },
+  {
+    "text": "1,000 000",
+    "digits": null
+  },
+  {
+    "text": ",000",
+    "digits": null
+  },
+  {
+    "text": "1000,000",
+    "digits": null
+  },
+  {
+    "text": "1 , 000",
+    "digits": null
+  },
+  {
+    "text": "-4",
+    "digits": null
+  },
+  {
+    "text": "1e3",
+    "digits": null
+  },
+  {
+    "text": "1_000",
+    "digits": null
+  }
+]

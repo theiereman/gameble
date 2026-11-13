@@ -49,8 +49,8 @@ class LibraryPricesTest < ActionDispatch::IntegrationTest
     assert_equal [ "Green Hills", "Blue Depths" ].sort, titles.sort
     assert_equal 2, prices.size
     assert_select "[data-collection-filters-target=pastilleCount][data-groups=price] [data-pastille-number]", "2"
-    assert_select "input[name=min_price][value='4000']"
-    assert_select "input[name=max_price][value='9000']"
+    assert_select "input[name=min_price][value='4,000']"
+    assert_select "input[name=max_price][value='9,000']"
   end
 
   test "a card's accessible name ends with the price state" do

@@ -4,11 +4,13 @@
   <div class="price-filter__fields">
     <label class="price-filter__field">
       <span class="price-filter__label"><%= t("filters.price.minimum") %></span>
-      <%= number_field_tag "min_price", minimum, min: 0, step: 1, inputmode: "numeric", class: "filters__search-field price-filter__input" %>
+      <%= text_field_tag "min_price", typed_picoins(minimum), inputmode: "numeric", autocomplete: "off", class: "filters__search-field price-filter__input",
+            data: { controller: "amount-field", action: "beforeinput->amount-field#remember input->amount-field#group" } %>
     </label>
     <label class="price-filter__field">
       <span class="price-filter__label"><%= t("filters.price.maximum") %></span>
-      <%= number_field_tag "max_price", maximum, min: 0, step: 1, inputmode: "numeric", class: "filters__search-field price-filter__input" %>
+      <%= text_field_tag "max_price", typed_picoins(maximum), inputmode: "numeric", autocomplete: "off", class: "filters__search-field price-filter__input",
+            data: { controller: "amount-field", action: "beforeinput->amount-field#remember input->amount-field#group" } %>
     </label>
   </div>
 </fieldset>

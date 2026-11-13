@@ -20,6 +20,11 @@ module PicoinsHelper
     [ number, suffix, name, whole + (tenth / 10.0) ]
   end
 
+  def typed_picoins(text)
+    number = Game::Market::TypedAmount.whole_number(text)
+    number ? number_with_delimiter(number) : text.to_s
+  end
+
   def picoins_label(amount)
     t("picoin_amount.accessible", amount: picoins(amount))
   end

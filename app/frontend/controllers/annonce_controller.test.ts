@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { Application } from "@hotwired/stimulus"
 import { afterEach, describe, expect, it, vi } from "vitest"
+import AmountFieldController from "./amount_field_controller"
 import AnnonceController from "./annonce_controller"
 import AnnonceDialogController from "./annonce_dialog_controller"
 import DialogController from "./dialog_controller"
@@ -36,8 +37,8 @@ const markup = (answered: boolean): string => `
         <div data-controller="annonce-field" data-annonce-field-minimum-value="20000" data-annonce-field-available-value="100000"
           data-annonce-field-own-maximum-value="0" data-annonce-field-price-value="20000"
           data-annonce-field-unusual-multiple-value="3" data-annonce-field-answered-value="${answered}">
-          <input id="maximum" type="text" data-annonce-field-target="input" data-focus-name="field"
-            data-action="input->annonce-field#type keydown->annonce-field#keydown">
+          <input id="maximum" type="text" data-controller="amount-field" data-annonce-field-target="input" data-focus-name="field"
+            data-action="beforeinput->amount-field#remember input->amount-field#group input->annonce-field#type keydown->annonce-field#keydown">
           <button id="quick" type="button" data-action="annonce-field#fill" data-annonce-field-amount-param="22000">+10%</button>
           <p id="error" data-annonce-field-target="error" hidden>refused</p>
         </div>
@@ -66,6 +67,7 @@ let application: Application
 async function mount(answered = false): Promise<void> {
   document.body.replaceChildren(serverTemplate(markup(answered)).content)
   application = new Application()
+  application.register("amount-field", AmountFieldController)
   application.register("annonce", AnnonceController)
   application.register("annonce-field", AnnonceFieldController)
   application.register("annonce-foot", AnnonceFootController)
@@ -245,7 +247,7 @@ describe("typing", () => {
     await mount()
     el("quick").click()
 
-    expect((el("maximum") as HTMLInputElement).value).toBe("22000")
+    expect((el("maximum") as HTMLInputElement).value).toBe("22,000")
     expect(el("go").textContent).toBe("BID · 22,000")
     expect(document.activeElement).toBe(el("maximum"))
   })
@@ -318,6 +320,14 @@ describe("the confirmations", () => {
     expect(el<HTMLDialogElement>("unusual").open).toBe(false)
   })
 
+  it("groups the typed amount by thousands and still prices it", async () => {
+    await mount()
+    type("8000000")
+
+    expect(el<HTMLInputElement>("maximum").value).toBe("8,000,000")
+    expect(el("go").textContent).toBe("BID · 8,000,000")
+  })
+
   it("asks first for an unusual maximum, writing its amount and truncated multiple", async () => {
     await mount()
     type("79999")
@@ -338,7 +348,7 @@ describe("the confirmations", () => {
 
     expect(el<HTMLDialogElement>("unusual").open).toBe(false)
     expect(document.activeElement).toBe(el("maximum"))
-    expect(el<HTMLInputElement>("maximum").value).toBe("60000")
+    expect(el<HTMLInputElement>("maximum").value).toBe("60,000")
     expect(requested).not.toHaveBeenCalled()
   })
 

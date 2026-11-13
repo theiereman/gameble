@@ -11,9 +11,10 @@
         <%= render PicoinAmountComponent.new(amount: sheet.available, class: "market-bid__available-amount") %>
       </p>
     </div>
-    <%= text_field_tag :maximum, posted, id: "annonce-maximum", inputmode: "numeric", autocomplete: "off",
+    <%= text_field_tag :maximum, typed_picoins(posted), id: "annonce-maximum", inputmode: "numeric", autocomplete: "off",
           aria: { invalid: (refusal ? "true" : nil), describedby: described },
-          data: { turbo_permanent: true, annonce_field_target: "input", focus_name: "field", action: "input->annonce-field#type keydown->annonce-field#keydown" } %>
+          data: { turbo_permanent: true, controller: "amount-field", annonce_field_target: "input", focus_name: "field",
+                  action: "beforeinput->amount-field#remember input->amount-field#group input->annonce-field#type keydown->annonce-field#keydown" } %>
     <p id="annonce-minimum" class="market-bid__minimum"><%= bid_minimum_text(sheet) %></p>
     <% if (shortcuts = bid_shortcuts(sheet)).any? %>
       <div class="market-bid__shortcuts" role="group" aria-label="<%= t("market.bids.form.shortcuts.label") %>">

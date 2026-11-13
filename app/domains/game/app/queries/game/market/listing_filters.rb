@@ -3,7 +3,6 @@ module Game
     class ListingFilters
       MAX_QUERY = 100
       MAX_CHOICES = 50
-      PRICE_FORMAT = /\A\d{1,13}\z/
 
       SetChoice = Data.define(:kind, :key) do
         def to_param = "#{kind}:#{key}"
@@ -36,7 +35,7 @@ module Game
         end
       end
 
-      def self.price(value) = (Integer(value, 10) if value.is_a?(String) && value.strip.match?(PRICE_FORMAT))
+      def self.price(value) = TypedAmount.filter_bound(value)
 
       private_class_method :text, :strings, :set_choices, :price
 

@@ -28,7 +28,7 @@ class MarketFiltersTest < ActionDispatch::IntegrationTest
       assert_select "fieldset[data-group=season] input[name='season[]'][value='1']"
       assert_select "fieldset[data-group=price] label", text: /Minimum price/
       assert_select "fieldset[data-group=price] label", text: /Maximum price/
-      assert_select "fieldset[data-group=price] input[type=number]", 2
+      assert_select "fieldset[data-group=price] input[type=text][inputmode=numeric][data-controller=amount-field]", 2
     end
     assert_select ".filters__count:not([hidden])", 0
   end
@@ -41,8 +41,17 @@ class MarketFiltersTest < ActionDispatch::IntegrationTest
     assert_select ".filters__count", text: /3/
     assert_select "input[name=q][value=blue]"
     assert_select "input[name='rarity[]'][value=rare][checked]"
-    assert_select "input[name=min_price][value='5000']"
-    assert_select "input[name=max_price][value='20000']"
+    assert_select "input[name=min_price][value='5,000']"
+    assert_select "input[name=max_price][value='20,000']"
+  end
+
+  test "price bounds grouped by thousands filter like plain ones, and a wrong grouping is no bound" do
+    get market_path(locale: :en, rarity: [ "rare" ], min_price: "5,000", max_price: "20 000", q: "blue")
+    assert_equal [ @blue.token ], tokens
+    assert_select ".filters__count", text: /3/
+
+    get market_path(locale: :en, min_price: "12,5")
+    assert_select "input[name=min_price][value='']"
   end
 
   test "the sorts and Charger plus carry the filters" do
