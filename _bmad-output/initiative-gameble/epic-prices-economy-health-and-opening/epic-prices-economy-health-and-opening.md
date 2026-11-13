@@ -44,10 +44,11 @@ For the players: the market opens, and every card has a price to compare. For th
 - R18 — The terms of use forbid trading cards and PiCoins for real money, and say PiCoins are never bought or withdrawn. (spec, Constraints, No real money, Before the market opens)
 - R19 — The privacy and retention pages name the market's data: the wallet, the PiCoin entries, listings and bids with the player's own maximums, and what deletion keeps without identity. (spec, Constraints, Market and personal data; AD-46)
 - R20 — The market opens in production only after it is exercised closed on staging, through `Game::Market::OpenMarket`, which records the confirmation that the terms forbid real-money trading and that the draw odds are published. (AD-50; spec, Constraints, Before the market opens)
+- R21 — Each card of a trade, on the trade board in every state and in its card picker, shows its edition's average price centred under it, or "Sans vente", and nothing more: no few-sales mention, no total per side, one copy's price for a stack; the price ends the card's accessible name. (CAP-34; EXPERIENCE.md, Échanges, Trade board and Card picker; mockups/trade-average-price.html)
 
 ## Done when
 
-1. Each card's detail shows its edition's average price, with the few-sales and no-sale cases; the collection sorts and filters by price; Mettre en vente and the Annonce show it.
+1. Each card's detail shows its edition's average price, with the few-sales and no-sale cases; the collection sorts and filters by price; Mettre en vente, the Annonce and the trade board show it.
 2. The health page shows each indicator with what is happening, why it matters and what to do, the last reconciliation, the day's snapshot and the oldest due listing; an alert prefills a settings change that applies only once saved.
 3. The back-office lists accounts matching the alt-account signals with their facts, and changes nothing on them.
 4. The terms forbid trading cards or PiCoins for real money, and the privacy and retention pages name the market's data.
@@ -65,7 +66,7 @@ Not the indicator charts, the Reactor, the rarity-price series or any chart: epi
 - architecture — _bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md, AD-47 (nightly refresh, rarity_average), AD-48, AD-50 (the full 00:10 job, rollout and opening)
 - experience — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Marché, Average price, Sort and filter by price, Card detail and the market, Back-office; State Patterns, Market not yet open; Flow 9
 - design — _bmad-output/initiative-gameble/ux-gameble/DESIGN.md, Marché
-- mockups — _bmad-output/initiative-gameble/ux-gameble/mockups/market-options.html, _bmad-output/initiative-gameble/ux-gameble/mockups/market-screens.html
+- mockups — _bmad-output/initiative-gameble/ux-gameble/mockups/market-options.html, _bmad-output/initiative-gameble/ux-gameble/mockups/market-screens.html, _bmad-output/initiative-gameble/ux-gameble/mockups/trade-average-price.html
 
 ## Notes
 
@@ -83,6 +84,7 @@ Not the indicator charts, the Reactor, the rarity-price series or any chart: epi
 - Decision (2026-11-10): high-risk checks outside the stories' own tests: for 2, the author confirms on staging that the first snapshots' circulation chains and matches the reconciliation's global sum; for 11, the author's staging exercise is the check.
 - Decision (2026-11-10): the "minimum sale count" of AD-47 and AD-51 is the few-sales threshold, 3, a constant of `EditionPrice`, not a setting (epic 38 has no such column); an edition under it shows "peu de ventes", stays out of `rarity_average` and draws no average in epic 37's edition chart.
 - Decision (2026-11-10): the edition price refresh and `RefreshAltSignals` are housekeeping `ApplicationOperation`s with no event, as `Game::SumWeeklyGoal` is; it recomputes every row with sales used, one row per transaction under the row's lock, which covers a moved window and a changed window setting.
+- Decision (2026-11-13, author): trades and the market stay side by side; trades stay card for card, with no PiCoins and no fee. To let friends judge a trade, each card of a trade shows its edition's average price (story 12, R21): the bare price or "Sans vente", no total, no few-sales mention, on concluded trades too, at today's price.
 - Assumption: the snapshot is written even when the reconciliation finds a difference, carrying that result; the health page's last reconciliation reads the latest snapshot.
 - Assumption: the top 1% share is the share of all PiCoins (available plus committed) held by the richest 1% of wallets holding any, rounded up to at least one wallet.
 - Assumption: an indicator shows "Pas encore assez de données" when its last point is null or no snapshot exists yet; such an indicator raises no alert.

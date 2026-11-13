@@ -278,6 +278,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - Each card shows its average sale price, computed per exact edition as `market-economy.md` says, including the "few sales" and "no sale" cases.
     - The collection can be filtered and sorted by that price.
     - The seller sees the average price when listing.
+    - Each card of a trade, on the trade board in every state and in its card picker, shows its edition's average price, or "no sale"; nothing more: no few-sales mention, no total per side (author, 2026-11-13).
     - Once its chart is published (CAP-38), a card's detail shows its edition's sales over the average-price window, the average after each sale and the rarity's minimum price; under the minimum sale count, the sales without the average.
 - **CAP-35**
   - **intent:** An administrator tunes the economy from the back-office, with no deployment.

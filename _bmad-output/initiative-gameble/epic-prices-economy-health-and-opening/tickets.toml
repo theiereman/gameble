@@ -34,6 +34,17 @@ hitl = false
 risk = "low"
 
 [[entry]]
+id = 12
+type = "story"
+title = "Each card of a trade shows its edition's average price"
+description = "Once the market has first opened, every card of a trade shows, centred under it, its exact edition's average price as a bare PiCoin amount, or \"Sans vente\"; nothing else: no \"peu de ventes\", no total per side, and a stack shows one copy's price, unmarked, its ×n unchanged. This holds on the trade board in every state (received, sent, concluded, declined, cancelled, expired, at today's price), while a proposal or counter-proposal is edited (a card placed from the picker arrives with its price, the price sits under the stepper and does not move with the quantity), and in each cell of the card picker, both sides, under the card and above the copies available, greyed with an unavailable cell. Prices come from story 1's Game::Market::EditionPrices in one read per render on the reading role; AveragePriceComponent gains a way to drop the few-sales mention rather than a second component. The price ends each card's accessible name (\", prix moyen 46 200 PiCoins\" or \", sans vente\"). Before the first opening nothing changes on the board or the picker; a suspended market keeps showing prices. Trades themselves are untouched: no PiCoins, no fee, no new rule. Copy in en.yml and fr.yml."
+verify = "One system test: after the first opening, a player opens a received trade with a priced card, a few-sales card shown as its bare amount, a no-sale card and a stack of two, sees each price under its card and Sans vente, no total; counters, places a card from the picker whose cells carry prices, and sees it on the board with its price; a concluded trade shows the same prices. Component and controller tests cover the few-sales mention dropped, the accessible names, and no price anywhere on the board or picker before the first opening."
+covers = ["R21", "R5"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 4
 type = "story"
 title = "The collection sorts and filters by average price"
@@ -110,7 +121,7 @@ title = "Refactor sweep"
 description = "Cleanup across the epic, its scope set when it starts from the build records and the review findings deferred during the epic. Cleanup only; scope pushed out of another story is a new story."
 verify = "bin/ci, npm run test:js, bin/rails zeitwerk:check, bundle exec packwerk check and the system tests of stories 1 to 7 pass."
 covers = []
-after = [3, 4, 6, 8, 9]
+after = [3, 12, 4, 6, 8, 9]
 hitl = false
 risk = "low"
 
