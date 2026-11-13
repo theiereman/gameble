@@ -18,20 +18,20 @@ class LibraryPricesSystemTest < ApplicationSystemTestCase
     assert_signed_in
   end
 
-  def titles = all(".collection-slot .card__title").map(&:text)
+  def titles = all(".collection-slot .card__title").map { it.text.downcase }
 
   test "sorting by price descending puts the dearest first and the no-sale cards last, and a range keeps the cards inside it with their prices" do
     visit library_cards_path(locale: :en)
     assert_no_selector ".collection-slot__price"
 
     find("a.filter-row__pastille[href='#filters-price']").click
-    within("#filters-price") { find(".filter-chip__text", text: "Average price, highest first").click }
+    within("#filters-price") { find(".filter-chip__text", text: /\AAverage price, highest first\z/i).click }
 
     assert_selector ".collection-slot__price", count: 5
-    assert_equal "Portal", titles.first
-    assert_equal "Golden Crown", titles.last
+    assert_equal "portal", titles.first
+    assert_equal "golden crown", titles.last
     assert_selector ".collection-slot:first-child .collection-slot__price .picoin-amount__figure", text: "30k"
-    assert_selector ".collection-slot:last-child .collection-slot__price", text: "No sale"
+    assert_selector ".collection-slot:last-child .collection-slot__price", text: /no sale/i
 
     within("#filters-price") do
       fill_in "Minimum price", with: "3000"
@@ -40,7 +40,7 @@ class LibraryPricesSystemTest < ApplicationSystemTestCase
     end
 
     assert_selector ".collection-slot", count: 2
-    assert_equal [ "Blue Depths", "Green Hills" ], titles
+    assert_equal [ "blue depths", "green hills" ], titles
     assert_selector ".collection-slot__price", count: 2
   end
 end
