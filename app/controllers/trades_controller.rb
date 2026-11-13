@@ -37,6 +37,7 @@ class TradesController < ApplicationController
     load_list
     @cards = card_views(nil)
     load_holdings(@friend)
+    load_prices
     @prefill = board_prefill(@friend)
   end
 
@@ -79,6 +80,7 @@ class TradesController < ApplicationController
     load_list
     @cards = card_views(@trade)
     load_holdings(@trade.friend)
+    load_prices
   end
 
   def counter
@@ -195,12 +197,17 @@ class TradesController < ApplicationController
           @trade_again = @trades_closed.nil?
         end
       end
+      load_prices
     end
 
     def load_holdings(friend)
       @own_cards = Game::HeldCopies.call(current_player)
       @friend_cards = Game::HeldCopies.call(friend)
       @picks = Catalog::CardViews.call(@own_cards.keys + @friend_cards.keys, locale: I18n.locale)
+    end
+
+    def load_prices
+      @prices = Game::Market::EditionPrices.call(@cards.keys | (@picks&.keys || []))
     end
 
     def counter_refused_path(trade, code)

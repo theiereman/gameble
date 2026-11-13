@@ -315,6 +315,15 @@
   transform: translateX(-50%);
 }
 
+.trade-card--editing:has(> .trade-card__price:not([hidden])) .stepper {
+  top: calc(var(--card-height, var(--card-s-height)) - var(--space-1));
+  bottom: auto;
+}
+
+.trade-card--editing > .trade-card__price {
+  margin-top: var(--space-6);
+}
+
 .trade-card__remove {
   position: absolute;
   top: -8px;

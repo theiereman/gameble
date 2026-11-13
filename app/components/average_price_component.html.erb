@@ -3,7 +3,7 @@
     <%= t("average_price.no_sale") %>
   <% else %>
     <%= render PicoinAmountComponent.new(amount: @price.average, compact: @compact) %>
-    <% if @price.few_sales? %>
+    <% if few_sales_flagged? %>
       <span class="average-price__few"><%= t("average_price.few_sales") %></span>
     <% end %>
   <% end %>

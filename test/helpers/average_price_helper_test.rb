@@ -19,6 +19,12 @@ class AveragePriceHelperTest < ActionView::TestCase
     assert_nil average_price_words(nil)
   end
 
+  test "the words can leave out few sales, voicing the amount as a priced one" do
+    assert_equal "average price 8,000 PiCoins", average_price_words(price(8_000, 2), flag_few_sales: false)
+    assert_equal "average price 15,000 PiCoins", average_price_words(price(15_000, 5), flag_few_sales: false)
+    assert_equal "no sale", average_price_words(price(nil, 0), flag_few_sales: false)
+  end
+
   test "in French" do
     I18n.with_locale(:fr) do
       assert_equal "Fondé sur 5 ventes", average_price_basis(price(15_000, 5))

@@ -102,6 +102,12 @@ export class TradeBoardController extends Controller<HTMLElement> {
     return template ? cloneContent(template) : null
   }
 
+  private readonly priceFor = (key: string): Node | null =>
+    this.cardTargets
+      .find((card) => card.dataset.key === key)
+      ?.querySelector(".average-price")
+      ?.cloneNode(true) ?? null
+
   private readonly beforeCache = (): void => {
     if (this.state) this.apply(closePicker(this.state))
   }
@@ -334,7 +340,7 @@ export class TradeBoardController extends Controller<HTMLElement> {
   }
 
   private renderSide(state: BoardState, outlet: TradeBoardSideController): void {
-    outlet.render(sideViewOf(state, outlet.side, this.stringsValue), this.faceFor)
+    outlet.render(sideViewOf(state, outlet.side, this.stringsValue), this.faceFor, this.priceFor)
     this.requestFaces(state.lines[outlet.side].map((line) => line.key))
   }
 

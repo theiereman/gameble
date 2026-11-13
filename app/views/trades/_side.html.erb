@@ -1,6 +1,7 @@
 <% size = lines.size == 1 ? :m : :s %>
 <% fresh = local_assigns[:fresh] || [] %>
 <% held = local_assigns[:held] %>
+<% prices = local_assigns[:prices] || {} %>
 <% possessed = local_assigns[:possessed] %>
 <% linked = local_assigns[:trade_token].present? %>
 <% strings = CardStrings.new %>
@@ -17,12 +18,16 @@
     <ul class="trade-side__cards">
       <% lines.each do |line| %>
         <% view = cards[line.card_season_id] or next %>
+        <% price = prices[line.card_season_id] %>
         <%= tag.li class: class_names("trade-card", "trade-card--stack": line.quantity > 1),
               data: ({ trade_board_target: "line", side:, key: trade_card_key(view), quantity: line.quantity } if local_assigns[:received]) do %>
           <% if linked %>
-            <%= link_to_card_detail(view, strings:, context: { trade: trade_token }) do %><%= trade_card_face(view, size:) %><% end %>
+            <%= link_to_card_detail(view, strings:, context: { trade: trade_token }, price:, flag_few_sales: false) do %><%= trade_card_face(view, size:) %><% end %>
           <% else %>
             <%= trade_card_face(view, size:) %>
+          <% end %>
+          <% if price %>
+            <%= tag.span trade_card_price(price), class: "trade-card__price", aria: { hidden: (true if linked) } %>
           <% end %>
           <% owned = held && held[line.card_season_id]&.quantity %>
           <% if line.quantity > 1 || owned %>

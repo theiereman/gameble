@@ -61,15 +61,16 @@ module CardDetailsHelper
     t("card_details.editions_line", rarity:, seasons: t("card_details.season_short", number: edition.season_number))
   end
 
-  def card_detail_open_label(view, strings, owned: true, goals: [], price: nil)
+  def card_detail_open_label(view, strings, owned: true, goals: [], price: nil, flag_few_sales: true)
     label = t(owned ? "card_details.open" : "card_details.open_not_owned",
       title: view.title, year: view.year, rarity: strings.rarity_name(view.rarity), season: view.season_number)
     label = [ label, goal_card_words(goals) ].join(", ") if goals.any?
-    price ? [ label, average_price_words(price) ].join(", ") : label
+    price ? [ label, average_price_words(price, flag_few_sales:) ].join(", ") : label
   end
 
-  def link_to_card_detail(view, strings:, context: {}, number: view.season_number, owned: true, goals: [], price: nil, &)
-    link_to(card_detail_path(view.id, number, context), class: "card-link", aria: { label: card_detail_open_label(view, strings, owned:, goals:, price:) },
+  def link_to_card_detail(view, strings:, context: {}, number: view.season_number, owned: true, goals: [], price: nil, flag_few_sales: true, &)
+    label = card_detail_open_label(view, strings, owned:, goals:, price:, flag_few_sales:)
+    link_to(card_detail_path(view.id, number, context), class: "card-link", aria: { label: },
       data: { turbo_prefetch: false }, &)
   end
 

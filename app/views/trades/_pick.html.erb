@@ -14,6 +14,9 @@
           data: { action: "trade-board-picker#toggle" } %>
   <% end %>
   <div class="trade-pick__foot">
+    <% if pick.price %>
+      <span class="trade-pick__price" aria-hidden="true"><%= trade_card_price(pick.price) %></span>
+    <% end %>
     <span class="trade-pick__available"><%= t("trade_board.available", count: [ pick.max, 0 ].max) %></span>
   </div>
 <% end %>

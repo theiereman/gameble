@@ -1,8 +1,10 @@
 require "application_system_test_case"
+require_relative "../support/market"
 require_relative "../support/steam_sign_in"
 
 class TradeBoardTest < ApplicationSystemTestCase
   include ActiveJob::TestHelper
+  include MarketSettings
   include SteamSignIn
 
   setup do
@@ -40,6 +42,33 @@ class TradeBoardTest < ApplicationSystemTestCase
       assert_selector ".trade-card .card", text: /Blue Depths/i
       assert_no_selector ".trade-card__face--pending"
     end
+  end
+
+  test "a card placed from the picker arrives with its cell's average price, under its stepper" do
+    open_market!(first_opened_at: 1.day.ago)
+    Game::Market::EditionPrice.create!(card_season_id: @depths, average: 46_200, sales_used: 5)
+    Game::Holding.where(player_id: @lea.id, card_season_id: @depths).update_all(quantity: 2)
+    sign_in_hugo
+    visit new_trade_path(locale: :en, friend: @lea.token)
+
+    find(".trade-side--friend .trade-add").click
+    within(".trade-picker") do
+      assert_selector ".trade-pick:has(.trade-pick__toggle[aria-label$=', average price 46,200 PiCoins']) .trade-pick__price", text: "46,200"
+      find(".trade-pick__toggle[aria-label^='Blue Depths,']").click
+      click_on "Place", exact: true
+    end
+
+    within(".trade-side--friend.trade-side--editing") do
+      assert_selector ".trade-card .card", text: /Blue Depths/i
+      assert_selector ".trade-card .stepper + .trade-card__price", text: "46,200"
+    end
+    gap = evaluate_script(<<~JS)
+      (() => {
+        const card = document.querySelector(".trade-side--friend.trade-side--editing .trade-card[data-key]")
+        return card.querySelector(".trade-card__price").getBoundingClientRect().top - card.querySelector(".stepper").getBoundingClientRect().bottom
+      })()
+    JS
+    assert_operator gap, :>=, 0, "the price sits under the stepper"
   end
 
   test "the picker's filter sheet narrows the friend's cards to a genre or to a goal, its pastille counting them" do

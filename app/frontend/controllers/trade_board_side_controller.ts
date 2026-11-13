@@ -17,9 +17,12 @@ export type SideView = { lines: readonly LineView[]; count: string; canAdd: bool
 
 export type FaceFor = (key: string) => DocumentFragment | null
 
+export type PriceFor = (key: string) => Node | null
+
 export type SideIntent = { side: Side; key: string }
 
 const PENDING_FACE = "trade-card__face--pending"
+const PENDING_PRICE = ".trade-card__price[hidden]"
 
 export default class TradeBoardSideController extends Controller<HTMLElement> {
   static targets = ["list", "addSlot", "add", "count", "help", "lineTemplate"]
@@ -36,7 +39,7 @@ export default class TradeBoardSideController extends Controller<HTMLElement> {
     return this.element.dataset.side === "own" ? "own" : "friend"
   }
 
-  render({ lines, count, canAdd, help }: SideView, faceFor: FaceFor): void {
+  render({ lines, count, canAdd, help }: SideView, faceFor: FaceFor, priceFor: PriceFor): void {
     const wanted = new Set(lines.map((line) => line.key))
     for (const item of this.items()) if (!wanted.has(item.dataset.key ?? "")) item.remove()
 
@@ -48,7 +51,7 @@ export default class TradeBoardSideController extends Controller<HTMLElement> {
         item = undefined
       }
       item ??= this.newLine(line.stepper !== null)
-      this.fill(item, line, faceFor)
+      this.fill(item, line, faceFor, priceFor)
       const current = this.listTarget.children[at]
       if (current !== item) this.listTarget.insertBefore(item, current ?? this.addSlotTarget)
     })
@@ -108,7 +111,12 @@ export default class TradeBoardSideController extends Controller<HTMLElement> {
     return item
   }
 
-  private fill(item: HTMLLIElement, { key, quantity, removeLabel, stepper }: LineView, faceFor: FaceFor): void {
+  private fill(
+    item: HTMLLIElement,
+    { key, quantity, removeLabel, stepper }: LineView,
+    faceFor: FaceFor,
+    priceFor: PriceFor,
+  ): void {
     item.dataset.key = key
     item.classList.toggle("trade-card--stack", quantity > 1)
 
@@ -117,6 +125,13 @@ export default class TradeBoardSideController extends Controller<HTMLElement> {
     if (face && content) {
       face.replaceChildren(content)
       face.classList.remove(PENDING_FACE)
+    }
+
+    const price = item.querySelector<HTMLElement>(PENDING_PRICE)
+    const amount = price && priceFor(key)
+    if (price && amount) {
+      price.replaceChildren(amount)
+      price.hidden = false
     }
 
     const spinner = item.querySelector<HTMLElement>(STEPPER)

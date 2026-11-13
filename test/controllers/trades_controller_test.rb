@@ -3,6 +3,7 @@ require_relative "../support/counting_rate_limit"
 require_relative "../support/steam_sign_in"
 require_relative "../support/holdings"
 require_relative "../support/custom_sets"
+require_relative "../support/game_sets"
 
 class TradesControllerTest < ActionDispatch::IntegrationTest
   include Holdings

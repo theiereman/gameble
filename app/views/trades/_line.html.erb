@@ -8,6 +8,11 @@
     <%= render "trades/stepper", controller: "trade-board-side",
           stepper: (trade_board_stepper(title: line.view.title, value: line.quantity, max: line.max) if line) %>
   <% end %>
+  <% if line&.price %>
+    <span class="trade-card__price"><%= trade_card_price(line.price) %></span>
+  <% elsif line.nil? && priced %>
+    <span class="trade-card__price" hidden></span>
+  <% end %>
   <%= tag.button pixel_icon("close", class: "trade-board__close-icon"), type: "button", class: "trade-card__remove",
         aria: { label: (t("trade_board.strings.remove", title: line.view.title) if line) },
         data: { remove: line&.key, action: "trade-board-side#remove" } %>

@@ -18,6 +18,13 @@ class AveragePriceComponentTest < ViewComponent::TestCase
     assert_selector ".average-price__few", text: "few sales"
   end
 
+  test "the few sales mention can be left out, the amount drawn as a priced one" do
+    render_inline AveragePriceComponent.new(price: price(9_400, 2), flag_few_sales: false)
+
+    assert_selector ".average-price .picoin-amount[aria-label='9,400 PiCoins']"
+    assert_no_selector ".average-price__few"
+  end
+
   test "an edition with no sale says so and draws no amount" do
     render_inline AveragePriceComponent.new(price: price(nil, 0))
 

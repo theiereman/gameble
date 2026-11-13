@@ -73,6 +73,17 @@
     padding-bottom: var(--space-6);
   }
 
+  .trade-card--editing:has(> .trade-card__price:not([hidden])) .stepper {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+  }
+
+  .trade-card--editing > .trade-card__price {
+    margin-top: var(--space-4);
+  }
+
   .stepper {
     position: relative;
     height: 36px;

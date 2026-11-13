@@ -41,6 +41,20 @@
   font: var(--font-label);
 }
 
+.trade-card__price,
+.trade-pick__price {
+  display: flex;
+  align-self: stretch;
+  justify-content: center;
+  color: var(--color-text);
+  font: var(--font-body-small);
+  text-align: center;
+}
+
+.trade-card__price[hidden] {
+  display: none;
+}
+
 .price-group {
   display: contents;
 }

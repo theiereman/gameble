@@ -11,9 +11,10 @@
       <span class="trade-chip trade-chip--accent"><%= t("trades.chip.draft") %></span>
       <p class="trade-board__expiry"><%= t("trades.board.valid") %></p>
     </header>
-    <%= render "trades/edit_side", side: :friend, label: t("trades.side.friend_gives", name:), lines: editor[:friend][:lines], form: TradesHelper::DRAFT_FORM_ID %>
+    <%= render "trades/edit_side", side: :friend, label: t("trades.side.friend_gives", name:), lines: editor[:friend][:lines], form: TradesHelper::DRAFT_FORM_ID,
+          priced: editor[:priced] %>
     <%= render "trades/board_middle", message: t("trades.board.choose") %>
-    <%= render "trades/edit_side", side: :own, label: t("trades.side.you_give"), lines: editor[:own][:lines], form: TradesHelper::DRAFT_FORM_ID,
+    <%= render "trades/edit_side", side: :own, label: t("trades.side.you_give"), lines: editor[:own][:lines], form: TradesHelper::DRAFT_FORM_ID, priced: editor[:priced],
           help: trade_open_help(friend) %>
     <div class="trade-board__actions">
       <%= form_with url: trades_path, method: :post, id: TradesHelper::DRAFT_FORM_ID, class: "trade-board__action-set",
