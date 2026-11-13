@@ -2,6 +2,8 @@ module Game
   class WeeklyContribution < ApplicationRecord
     self.table_name = "game_weekly_contributions"
 
+    def self.total_for(week_start) = where(week_start:).sum(Arel.sql("openings + trades"))
+
     def self.record_opening(player_id, now)
       stamp = now.utc
       upsert({ player_id:, week_start: WeeklyGoal.week_start(stamp), openings: 1, created_at: stamp, updated_at: stamp },

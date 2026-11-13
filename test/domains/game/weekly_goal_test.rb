@@ -60,18 +60,48 @@ class Game::WeeklyGoalTest < ActiveSupport::TestCase
     assert_equal 4, goal(MONDAY.to_date).total
   end
 
-  test "the target is the previous week's active players times 125, never under 500" do
-    next_week = MONDAY.to_date + 7
-    assert_equal 500, Game::WeeklyGoal.target_for(next_week)
+  def previous_week(target:, done:)
+    Game::WeeklyGoal.create!(week_start: MONDAY.to_date, target:, total: 0)
+    Game::WeeklyContribution.create!(player_id: @player.id, week_start: MONDAY.to_date, openings: done - 1, trades: 0)
+    Game::WeeklyContribution.create!(player_id: @other.id, week_start: MONDAY.to_date, openings: 0, trades: 1)
+    Game::WeeklyGoal.target_for(MONDAY.to_date + 7)
+  end
 
-    Game::WeeklyContribution.create!(player_id: @player.id, week_start: MONDAY.to_date, openings: 1)
-    assert_equal 500, Game::WeeklyGoal.target_for(next_week)
+  test "without a previous week the target is the floor" do
+    Game::WeeklyContribution.create!(player_id: @player.id, week_start: MONDAY.to_date, openings: 900)
 
-    players = Array.new(9) { |index| Accounts::Player.create!(steam_id: "7656119800000010#{index}") }
-    players.each { |player| Game::WeeklyContribution.create!(player_id: player.id, week_start: MONDAY.to_date, openings: 3) }
-    # Ten active players, plus a player of another week who does not count.
-    Game::WeeklyContribution.create!(player_id: @other.id, week_start: MONDAY.to_date - 7, openings: 5)
-    assert_equal 1250, Game::WeeklyGoal.target_for(next_week)
+    assert_equal 500, Game::WeeklyGoal.target_for(MONDAY.to_date + 7)
+  end
+
+  test "a reached week sets the next target five percent above what was done, rounded up to ten" do
+    assert_equal 1370, previous_week(target: 1000, done: 1300)
+  end
+
+  test "a week reached exactly raises the target by five percent" do
+    assert_equal 1050, previous_week(target: 1000, done: 1000)
+  end
+
+  test "a missed week lowers the target halfway toward what was done" do
+    assert_equal 800, previous_week(target: 1000, done: 600)
+  end
+
+  test "a missed week never lowers the target under the floor" do
+    assert_equal 500, previous_week(target: 600, done: 100)
+  end
+
+  test "the target reads only the previous week, never an older one" do
+    Game::WeeklyContribution.create!(player_id: @other.id, week_start: MONDAY.to_date - 7, openings: 5_000)
+
+    assert_equal 600, previous_week(target: 1000, done: 200)
+  end
+
+  test "the job fixes the new week's target from the week before, and the page reads the same figure before it runs" do
+    Game::WeeklyGoal.create!(week_start: MONDAY.to_date, target: 1000, total: 0)
+    Game::WeeklyContribution.create!(player_id: @player.id, week_start: MONDAY.to_date, openings: 1299, trades: 1)
+
+    assert_equal 1370, Game::CurrentGoal.call(now: MONDAY + 7.days)[:target]
+    Game::SumWeeklyGoalJob.new.perform(now: MONDAY + 7.days)
+    assert_equal [ 0, 1370 ], [ goal(MONDAY.to_date + 7).total, goal(MONDAY.to_date + 7).target ]
   end
 
   test "the sum is idempotent and a week ending is summed one last time" do
@@ -122,14 +152,11 @@ class Game::WeeklyGoalTest < ActiveSupport::TestCase
     assert_equal({ @player.id => [ 2, 0 ], @other.id => [ 2, 1 ] }, rows.pluck(:player_id, :openings, :trades).to_h { |id, *counts| [ id, counts ] })
   end
 
-  test "a player who only traded has a row, but is not active for the next week's target" do
+  test "a player who only traded has a row" do
     trade_at(MONDAY + 1.hour)
-    active = Array.new(4) { |index| Accounts::Player.create!(steam_id: "7656119800000020#{index}") }
-    active.each { |player| Game::WeeklyContribution.create!(player_id: player.id, week_start: MONDAY.to_date, openings: 1) }
 
     assert_equal [ [ 0, 0 ], [ 0, 1 ] ], [ @player, @other ].map { |player|
       Game::WeeklyContribution.find_by!(player_id: player.id, week_start: MONDAY.to_date).values_at(:openings, :trades)
     }
-    assert_equal 500, Game::WeeklyGoal.target_for(MONDAY.to_date + 7)
   end
 end
