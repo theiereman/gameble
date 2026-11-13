@@ -93,16 +93,6 @@ html[data-sub-view-step] .main {
   .balance-chip--bar .balance-chip__divider {
     display: none;
   }
-
-  /* The capsule label gives way too: its count keeps the name in its link. */
-  .packs-chip__label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
 }
 
 @media (max-width: 1179px) {

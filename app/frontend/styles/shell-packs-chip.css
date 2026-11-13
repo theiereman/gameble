@@ -17,13 +17,16 @@ a.packs-chip:focus-visible {
   margin: 0;
 }
 
-.packs-chip__label,
 .packs-chip__next {
   color: var(--color-muted);
 }
 
+/* Both reserves read as a bare figure of one size; their names stay for screen readers. */
 .packs-chip__special-count {
   color: var(--color-lime);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+  font-variant-numeric: tabular-nums;
 }
 
 /* The standard and special reserves share one box: two links, a line between them. */
@@ -53,7 +56,7 @@ a.packs-chip:focus-visible {
   box-shadow: var(--focus-ring-gap), var(--control-border);
 }
 
-.packs-chip__special-label {
+.packs-chip__label {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -89,7 +92,7 @@ a.packs-chip:focus-visible {
   z-index: -1;
 }
 
-.packs-chip__next > [aria-hidden="true"],
+.packs-chip__wait,
 .packs-chip__next--full {
   position: absolute;
   width: 1px;
@@ -99,7 +102,7 @@ a.packs-chip:focus-visible {
   white-space: nowrap;
 }
 
-.packs-chip__fill {
+.packs-chip .packs-chip__fill {
   height: 100%;
   gap: 0;
 }
@@ -110,11 +113,11 @@ a.packs-chip:focus-visible {
 }
 
 .packs-chip__fill .gauge__segment--lit {
-  background: color-mix(in srgb, var(--color-accent) 16%, transparent);
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
 }
 
-.packs-chip:has(.packs-chip__next--full) {
-  background: color-mix(in srgb, var(--color-danger-text) 10%, transparent);
+.packs-chips > .packs-chip:has(.packs-chip__next--full) {
+  background: color-mix(in srgb, var(--color-danger-text) 24%, transparent);
 }
 
 .packs-chip:has(.packs-chip__next--full) .packs-chip__count {
