@@ -2516,6 +2516,7 @@ fr:
         invalid_price: "Entrez un nombre entier de PiCoins, au-dessus de zéro."
         minimum_hint: "Au moins %{amount} pour une %{rarity}"
         minimum_refusal: "Au moins %{amount} pour une %{rarity}."
+        stamp_short: "Il vous manque %{amount} PiCoins pour le timbre."
         status: "Vous recevez %{amount} PiCoins"
         step: "Étape %{step} sur 2"
   markets:

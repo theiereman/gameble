@@ -5,10 +5,13 @@ import { drawAmount } from "../lib/entrust_view"
 import { STATUS_DELAY } from "./entrust_recap_controller"
 
 export default class ListingSummaryController extends Controller<HTMLElement> {
-  static targets = ["stamp", "commission", "received", "submitStamp", "status"]
+  static targets = ["stamp", "stampLine", "short", "shortText", "commission", "received", "submitStamp", "status"]
   static values = { locale: String, accessible: String }
 
   declare readonly stampTarget: HTMLElement
+  declare readonly stampLineTarget: HTMLElement
+  declare readonly shortTarget: HTMLElement
+  declare readonly shortTextTarget: HTMLElement
   declare readonly commissionTarget: HTMLElement
   declare readonly receivedTarget: HTMLElement
   declare readonly submitStampTarget: HTMLElement
@@ -24,8 +27,11 @@ export default class ListingSummaryController extends Controller<HTMLElement> {
     clearTimeout(this.timer)
   }
 
-  render({ stamp, commission, received, disabled, status }: SummaryView): void {
+  render({ stamp, commission, received, disabled, shortfall, status }: SummaryView): void {
     this.reflectAmount(this.stampTarget, stamp)
+    this.stampLineTarget.classList.toggle("sale-line--short", shortfall !== null)
+    this.shortTarget.hidden = shortfall === null
+    if (shortfall !== null) writeText(this.shortTextTarget, shortfall)
     this.reflectAmount(this.submitStampTarget, stamp)
     this.reflectAmount(this.commissionTarget, commission)
     this.reflectAmount(this.receivedTarget, received)

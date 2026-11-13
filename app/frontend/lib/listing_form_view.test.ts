@@ -16,9 +16,11 @@ const strings: ListingStrings = {
   invalidPrice: "Enter a whole number of PiCoins, above zero.",
   minimumHint: "At least %{amount} for a %{rarity}",
   minimumRefusal: "At least %{amount} for a %{rarity}.",
+  stampShort: "You are short of %{amount} PiCoins for the stamp.",
   status: "You receive %{amount} PiCoins",
   step: "Step %{step} of 2",
 }
+const wallet = { open: true, available: 10_000 }
 const forms: Forms = { locale: "en", strings }
 
 const rare: Edition = {
@@ -100,34 +102,47 @@ describe("fields view", () => {
 
 describe("summary view", () => {
   it("shows the stamp and no other figure while the start is empty", () => {
-    expect(summaryViewOf(stateWith({}), forms, true)).toEqual({
+    expect(summaryViewOf(stateWith({}), forms, wallet)).toEqual({
       stamp: 500,
       commission: null,
       received: null,
       disabled: false,
+      shortfall: null,
       status: "",
     })
   })
 
   it("shows the lines and the status sentence for a start", () => {
-    expect(summaryViewOf(stateWith({ start: "1300" }), forms, true)).toEqual({
+    expect(summaryViewOf(stateWith({ start: "1300" }), forms, wallet)).toEqual({
       stamp: 500,
       commission: 130,
       received: 1_170,
       disabled: false,
+      shortfall: null,
       status: "You receive 1,170 PiCoins",
     })
   })
 
   it("shows no figure and no status for an amount beyond the safe integers", () => {
-    const view = summaryViewOf(stateWith({ start: "9007199254740993" }), forms, true)
+    const view = summaryViewOf(stateWith({ start: "9007199254740993" }), forms, wallet)
 
     expect(view).toMatchObject({ stamp: 500, commission: null, received: null, status: "" })
   })
 
+  it("says how much the stamp is short of and disables the button when the balance cannot pay it", () => {
+    expect(summaryViewOf(stateWith({ start: "1300" }), forms, { open: true, available: 120 })).toMatchObject({
+      disabled: true,
+      shortfall: "You are short of 380 PiCoins for the stamp.",
+    })
+    expect(summaryViewOf(stateWith({}), forms, { open: true, available: 500 })).toMatchObject({
+      disabled: false,
+      shortfall: null,
+    })
+  })
+
   it("disables the button before an edition is chosen and while the market is closed", () => {
-    expect(summaryViewOf(stateWith({}, null), forms, true)).toMatchObject({ stamp: null, disabled: true })
-    expect(summaryViewOf(stateWith({}), forms, false).disabled).toBe(true)
+    expect(summaryViewOf(stateWith({}, null), forms, wallet)).toMatchObject({ stamp: null, disabled: true })
+    expect(summaryViewOf(stateWith({}), forms, { ...wallet, open: false }).disabled).toBe(true)
   })
 
   it("writes the status in the player's locale", () => {

@@ -238,9 +238,22 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     nothing_moves { post_sale(@rare, starting_price: "7800") }
 
     assert_response :unprocessable_content
-    assert_select ".sale-summary .market-sale__refusal", text: /You are short of 1,880 PiCoins for the stamp\./
-    assert_select ".sale-summary .market-sale__refusal a[href=?]", new_market_entrustment_path(locale: :en), "ENTRUST CARDS"
+    assert_select ".sale-summary .sale-summary__short[role=alert]:not([hidden])", text: /You are short of 1,880 PiCoins for the stamp\./
+    assert_select ".sale-summary .sale-summary__short a[href=?]", new_market_entrustment_path(locale: :en), "ENTRUST CARDS"
     assert_select "input[name=starting_price][value=7800]"
+  end
+
+  test "a stamp the balance cannot pay shows in red with its shortfall before any post, the button described by it" do
+    Game::Market::Wallet.where(player_id: @player.id).update_all(available: 120)
+    hold(@player, @rare.id, 1)
+    sign_in(@player)
+
+    get new_market_card_sale_path(locale: :en, slug: @rare.card.slug)
+
+    assert_select ".sale-line--short[data-listing-summary-target=stampLine]"
+    assert_select ".sale-summary__short:not([role]):not([hidden]) [data-listing-summary-target=shortText]", "You are short of 1,880 PiCoins for the stamp."
+    assert_select ".sale-summary__submit button[type=submit][aria-describedby=?]", "sale-short sale-rules"
+    assert_select "form[data-listing-form-available-value='120']"
   end
 
   test "an amount that is not a price is refused 422 under its field, with the values kept" do

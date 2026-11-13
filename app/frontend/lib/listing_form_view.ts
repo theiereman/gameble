@@ -7,6 +7,7 @@ export type ListingStrings = {
   invalidPrice: string
   minimumHint: string
   minimumRefusal: string
+  stampShort: string
   status: string
   step: string
 }
@@ -32,6 +33,7 @@ export type SummaryView = {
   commission: number | null
   received: number | null
   disabled: boolean
+  shortfall: string | null
   status: string
 }
 
@@ -81,13 +83,18 @@ export function statusOf(figure: number | null, { locale, strings }: Forms): str
   return figure === null ? "" : t(strings.status, { amount: picoins(figure, { locale }) })
 }
 
-export function summaryViewOf(state: ListingState, forms: Forms, open: boolean): SummaryView {
+export type Wallet = { open: boolean; available: number }
+
+export function summaryViewOf(state: ListingState, forms: Forms, { open, available }: Wallet): SummaryView {
   const shown = lines(state)
+  const missing = shown && shown.stamp > available ? shown.stamp - available : null
   return {
     stamp: shown?.stamp ?? null,
     commission: shown?.commission ?? null,
     received: shown?.received ?? null,
-    disabled: !open || shown === null,
+    disabled: !open || shown === null || missing !== null,
+    shortfall:
+      missing === null ? null : t(forms.strings.stampShort, { amount: picoins(missing, { locale: forms.locale }) }),
     status: statusOf(shown?.received ?? null, forms),
   }
 }

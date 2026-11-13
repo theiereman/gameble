@@ -35,7 +35,7 @@
     <% else %>
       <%= form_with url: market_sales_path, id: "listing-form", class: "market-sale__form",
             data: { turbo: false, layout: "wide", chosen: @chosen_ref.present?.to_s, step: (@chosen_ref ? "2" : "1"),
-                    **sale_root_data(open: @open, basis_points: @settings.commission_basis_points) } do %>
+                    **sale_root_data(open: @open, basis_points: @settings.commission_basis_points, available: @available) } do %>
         <%= hidden_field_tag :settings, @settings.token, id: nil %>
         <%= hidden_field_tag :card, @card_slug, id: nil if @card_slug %>
         <p class="market-sale__step" data-listing-form-target="step"><%= t(".step", step: @chosen_ref ? 2 : 1) %></p>

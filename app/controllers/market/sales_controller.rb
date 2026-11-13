@@ -30,6 +30,7 @@ module Market
         @copies = current_player && @settings ? Game::Market::SellableCopies.call(current_player, card_slug:) : []
         @chosen_ref = @copies.first.ref if @copies.one?
         @prices = sale_prices
+        @available = current_player && @settings ? Game::Market::Balance.call(current_player).available : 0
         @values = { start: "", duration: @settings&.preselected_duration_hours.to_s }
       end
 

@@ -44,7 +44,7 @@ function editionFrom(cell: HTMLElement): Edition {
 
 export default class ListingFormController extends Controller<HTMLFormElement> {
   static targets = ["cell", "start", "duration", "step"]
-  static values = { locale: String, basisPoints: Number, open: Boolean, strings: Object }
+  static values = { locale: String, basisPoints: Number, open: Boolean, available: Number, strings: Object }
   static outlets = ["listing-grid", "listing-fields", "listing-summary"]
 
   declare readonly cellTargets: HTMLElement[]
@@ -55,6 +55,7 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
   declare readonly localeValue: string
   declare readonly basisPointsValue: number
   declare readonly openValue: boolean
+  declare readonly availableValue: number
   declare readonly stringsValue: ListingStrings
   declare readonly hasListingGridOutlet: boolean
   declare readonly listingGridOutlet: ListingGridController
@@ -162,7 +163,7 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
     if (this.hasStepTarget) writeText(this.stepTarget, stepText(state, forms))
     this.grid()?.render(gridViewOf(state))
     this.fields()?.render(fieldsViewOf(state, forms))
-    this.summary()?.render(summaryViewOf(state, forms, this.openValue))
+    this.summary()?.render(summaryViewOf(state, forms, { open: this.openValue, available: this.availableValue }))
   }
 
   private grid(): ListingGridController | null {

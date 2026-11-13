@@ -82,14 +82,16 @@ class MarketSalesHelperTest < ActionView::TestCase
     assert_equal "Portal, Rare, Season 1, 2 available, minimum 7,800 PiCoins, average price 15,000 PiCoins", sale_cell_label(copy, @settings, price)
   end
 
-  test "the root data wires the screen's controllers and its settings" do
-    data = sale_root_data(open: true, basis_points: 1_000)
+  test "the root data wires the screen's controllers, its settings and the balance the stamp draws on" do
+    data = sale_root_data(open: true, basis_points: 1_000, available: 4_200)
 
     assert_equal "listing-form", data[:controller]
     assert_equal 1_000, data[:listing_form_basis_points_value]
+    assert_equal 4_200, data[:listing_form_available_value]
     assert_equal "#listing-form [data-controller~='listing-grid']", data[:listing_form_listing_grid_outlet]
     assert_includes data[:action], "listing-grid:chosen->listing-form#chosen"
     assert_includes data[:action], "submit->listing-form#submit"
     assert_equal "At least %{amount} for a %{rarity}", data[:listing_form_strings_value]["minimumHint"]
+    assert_equal "You are short of %{amount} PiCoins for the stamp.", data[:listing_form_strings_value]["stampShort"]
   end
 end

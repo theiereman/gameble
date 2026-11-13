@@ -18,11 +18,16 @@ module MarketSalesHelper
 
   WHOLE_DAYS_FROM_HOURS = 48
 
-  def sale_root_data(open:, basis_points:)
+  def sale_root_data(open:, basis_points:, available:)
     { controller: "listing-form", action: "#{screen_actions("listing-form", SALE_ACTIONS)} #{SALE_SUBMIT_ACTION}",
       listing_form_locale_value: I18n.locale, listing_form_basis_points_value: basis_points, listing_form_open_value: open,
+      listing_form_available_value: available,
       listing_form_strings_value: screen_strings("market.sales.strings") }
       .merge(screen_outlets("listing-form", SALE_ACTIONS.keys))
+  end
+
+  def sale_stamp_short_text(missing)
+    t("market.sales.strings.stamp_short", amount: picoins([ missing, 1 ].max))
   end
 
   def sale_cell_label(copy, settings, price = nil)

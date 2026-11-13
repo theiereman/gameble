@@ -59,7 +59,8 @@
   color: var(--color-gold);
 }
 
-.market-sale__refusal {
+.market-sale__refusal,
+.sale-summary__short {
   margin: 0;
   padding: var(--space-3);
   border-left: 4px solid var(--color-alert);
@@ -307,6 +308,14 @@
 .sale-line em {
   color: var(--color-text-bright);
   font-style: italic;
+}
+
+.sale-summary__short[hidden] {
+  display: none;
+}
+
+.sale-line--short .picoin-amount {
+  color: var(--color-danger-text);
 }
 
 .sale-line--received {
