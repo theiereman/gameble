@@ -7,6 +7,7 @@ import { registerControllers } from "stimulus-vite-helpers"
 import { keepLocaleOnReturn } from "../lib/locale_return"
 import { keepBoosterOfflineForPlayer } from "../lib/offline_booster"
 import { registerStreamActions } from "../lib/stream_actions"
+import { connectControllersInLinearTime } from "../lib/stimulus_outlets"
 import { rememberTimeZone } from "../lib/time_zone_cookie"
 
 registerStreamActions(window.Turbo)
@@ -14,5 +15,6 @@ rememberTimeZone()
 keepLocaleOnReturn()
 keepBoosterOfflineForPlayer()
 
+connectControllersInLinearTime()
 const application = Application.start()
 registerControllers(application, import.meta.glob("../controllers/**/*_controller.ts", { eager: true }))

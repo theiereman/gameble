@@ -56,6 +56,26 @@ class Game::Market::SellableCopiesTest < ActiveSupport::TestCase
     assert_empty Game::Market::SellableCopies.call(@player, locale: :en)
   end
 
+  test "the filter and the page are read in the database, with the count of what the filter keeps" do
+    hold(@player, @common.id, 3)
+    hold(@player, @rare.id, 1)
+    hold(@player, catalog_card_seasons(:legendary_card_one).id, 2)
+    rarities = ->(**options) { Game::Market::SellableCopies.call(@player, locale: :en, **options).map { it.card.rarity.to_s } }
+
+    assert_equal [ "rare" ], rarities.(offset: 1, limit: 1)
+    assert_equal [ "legendary", "common" ], rarities.(filter: Game::Market::CopyFilter.new(doubles: true))
+    assert_equal [ "common" ], rarities.(filter: Game::Market::CopyFilter.new(query: "soldier", rarities: %w[common]))
+    assert_equal [ "rare" ], rarities.(refs: [ "#{@rare.card.slug}:#{@rare.season.number}" ])
+    assert_equal 2, Game::Market::SellableCopies.count(@player, locale: :en, filter: Game::Market::CopyFilter.new(doubles: true))
+  end
+
+  test "the search ignores accents" do
+    hold(@player, @common.id, 1)
+    Catalog::CardText.where(card_id: @common.card_id).update_all(title: "Éclair")
+
+    assert_equal 1, Game::Market::SellableCopies.call(@player, locale: :en, filter: Game::Market::CopyFilter.new(query: "eclair")).size
+  end
+
   test "a row carries no database id" do
     hold(@player, @rare.id, 1)
 

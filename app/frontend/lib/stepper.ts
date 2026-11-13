@@ -1,4 +1,4 @@
-import { writeText } from "./dom_writes"
+import { writeAttribute, writeDisabled, writeText } from "./dom_writes"
 
 export type StepperView = {
   value: number
@@ -15,17 +15,17 @@ export function reflectStepper(
   stepper: HTMLElement,
   { value, max, label, valueText, maxText, maxPhoneText }: StepperView,
 ): void {
-  stepper.setAttribute("aria-label", label)
-  stepper.setAttribute("aria-valuenow", String(value))
-  stepper.setAttribute("aria-valuemax", String(max))
-  stepper.setAttribute("aria-valuetext", valueText)
+  writeAttribute(stepper, "aria-label", label)
+  writeAttribute(stepper, "aria-valuenow", String(value))
+  writeAttribute(stepper, "aria-valuemax", String(max))
+  writeAttribute(stepper, "aria-valuetext", valueText)
   writeText(stepper.querySelector(".stepper__value"), `×${value}`)
   writeText(stepper.querySelector(".stepper__max"), maxText)
   writeText(stepper.querySelector(".stepper__max-phone"), maxPhoneText)
   const fewer = stepper.querySelector<HTMLButtonElement>(".stepper__button--fewer")
   const more = stepper.querySelector<HTMLButtonElement>(".stepper__button--more")
-  if (fewer) fewer.disabled = value <= 1
-  if (more) more.disabled = value >= max
+  writeDisabled(fewer, value <= 1)
+  writeDisabled(more, value >= max)
 }
 
 export function stepperKey(key: string): 1 | -1 | "min" | "max" | null {

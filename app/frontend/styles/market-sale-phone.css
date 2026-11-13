@@ -3,7 +3,7 @@
 }
 
 [data-layout="phone"][data-step="1"] .sale-form,
-[data-layout="phone"][data-step="2"] .sale-grid {
+[data-layout="phone"][data-step="2"] .market-sale__main {
   display: none;
 }
 

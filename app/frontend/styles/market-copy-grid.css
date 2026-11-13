@@ -1,0 +1,40 @@
+/* The filters, the match count and the page sentinel shared by the entrust and sale grids. */
+.copy-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.copy-filters .filters__search-field {
+  max-width: 28rem;
+}
+
+.copy-filters__chips {
+  align-items: center;
+}
+
+.copy-filters__foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.copy-grid__count {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body-small);
+}
+
+/* The infinite scroll watches this sentinel under the last cell; the next page's link inside it stays hidden. */
+.copy-pages {
+  min-height: 1px;
+}
+
+/* A card off screen is not laid out nor painted; the padding keeps its pixel outline inside the paint clip. */
+.entrust-cell__art,
+.sale-cell__art {
+  margin: -4px;
+  padding: 4px;
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--card-s-width) auto var(--card-s-height);
+}

@@ -1,29 +1,32 @@
 import { Controller } from "@hotwired/stimulus"
 import type { Rarity } from "../lib/card_types"
+import { writeData, writeValue } from "../lib/dom_writes"
 import {
   bump,
-  clearFilters,
+  know,
   moveActive,
+  selectAll,
+  selecting,
   setCopies,
-  setFilter,
   start,
   toggle,
   type Copy,
-  type EntrustFilter,
   type EntrustState,
   type Layout,
 } from "../lib/entrust"
 import { PHONE_QUERY, layoutAsked, layoutFor, sheetShown } from "../lib/entrust_layout"
-import { filtersViewOf, gridViewOf, recapViewOf, type EntrustStrings } from "../lib/entrust_view"
+import { fetchMatches } from "../lib/entrust_matches"
+import { gridViewOf, recapViewOf, selectionOf, ticksOf, type EntrustStrings, type TickView } from "../lib/entrust_view"
 import type { Intent } from "../lib/screen"
-import type EntrustFiltersController from "./entrust_filters_controller"
+import { cloneFirstElement } from "../lib/templates"
+import type CopyFiltersController from "./copy_filters_controller"
 import type EntrustGridController from "./entrust_grid_controller"
 import type { MoveIntent } from "./entrust_grid_controller"
 import type EntrustRecapController from "./entrust_recap_controller"
 import type EntrustResultController from "./entrust_result_controller"
 
-function copyFrom(cell: HTMLElement): Copy {
-  const data = cell.dataset
+function copyFrom(element: HTMLElement): Copy {
+  const data = element.dataset
   return {
     ref: data.ref ?? "",
     title: data.title ?? "",
@@ -35,34 +38,45 @@ function copyFrom(cell: HTMLElement): Copy {
   }
 }
 
+function describe(tick: HTMLElement, { copy, copies }: TickView): void {
+  writeData(tick, "ref", copy.ref)
+  writeData(tick, "title", copy.title)
+  writeData(tick, "rarity", copy.rarity)
+  writeData(tick, "season", String(copy.season))
+  writeData(tick, "free", String(copy.free))
+  writeData(tick, "owned", String(copy.owned))
+  writeData(tick, "value", String(copy.value))
+  writeData(tick, "copies", String(copies))
+}
+
 export default class EntrustController extends Controller<HTMLElement> {
-  static targets = ["cell"]
+  static targets = ["cell", "selection", "ticks", "tickTemplate"]
   static values = {
     locale: String,
     capLeft: Number,
     open: Boolean,
-    doubles: { type: Boolean, default: true },
-    query: String,
-    rarities: Array,
     dailyCap: Number,
     capBefore: Number,
     strings: Object,
   }
-  static outlets = ["entrust-filters", "entrust-grid", "entrust-recap", "entrust-result"]
+  static outlets = ["copy-filters", "entrust-grid", "entrust-recap", "entrust-result"]
 
   declare readonly cellTargets: HTMLElement[]
+  declare readonly hasSelectionTarget: boolean
+  declare readonly selectionTarget: HTMLInputElement
+  declare readonly hasTicksTarget: boolean
+  declare readonly ticksTarget: HTMLElement
+  declare readonly hasTickTemplateTarget: boolean
+  declare readonly tickTemplateTarget: HTMLTemplateElement
   declare readonly localeValue: string
   declare readonly capLeftValue: number
   declare readonly openValue: boolean
-  declare readonly doublesValue: boolean
-  declare readonly queryValue: string
-  declare readonly raritiesValue: Rarity[]
   declare readonly dailyCapValue: number
   declare readonly capBeforeValue: number
   declare readonly hasCapBeforeValue: boolean
   declare readonly stringsValue: EntrustStrings
-  declare readonly hasEntrustFiltersOutlet: boolean
-  declare readonly entrustFiltersOutlet: EntrustFiltersController
+  declare readonly hasCopyFiltersOutlet: boolean
+  declare readonly copyFiltersOutlet: CopyFiltersController
   declare readonly hasEntrustGridOutlet: boolean
   declare readonly entrustGridOutlet: EntrustGridController
   declare readonly hasEntrustRecapOutlet: boolean
@@ -75,6 +89,8 @@ export default class EntrustController extends Controller<HTMLElement> {
   private placed: Layout = "wide"
   private placedKnown = false
   private arrival?: number
+  private arrived: HTMLElement[] = []
+  private cellsChanged = false
 
   // Esc here closes an overlay and nothing else: it never clears the ticks nor leaves the screen.
   private readonly guardEscape = (event: KeyboardEvent): void => {
@@ -85,6 +101,7 @@ export default class EntrustController extends Controller<HTMLElement> {
   }
 
   connect(): void {
+    this.arrived = []
     this.state = this.startFromMarkup()
     this.arrival = this.hasCapBeforeValue ? Math.max(this.dailyCapValue - this.capBeforeValue, 0) : undefined
     document.addEventListener("keydown", this.guardEscape, true)
@@ -101,8 +118,14 @@ export default class EntrustController extends Controller<HTMLElement> {
     this.state = undefined
   }
 
-  entrustFiltersOutletConnected(): void {
-    this.render()
+  // A page appended by the infinite scroll or a grid reloaded by the filters: the cells are read once they all landed.
+  cellTargetConnected(cell: HTMLElement): void {
+    this.arrived.push(cell)
+    this.noteCells()
+  }
+
+  cellTargetDisconnected(): void {
+    this.noteCells()
   }
 
   entrustGridOutletConnected(): void {
@@ -128,12 +151,16 @@ export default class EntrustController extends Controller<HTMLElement> {
     recap.refreshStatus()
   }
 
-  filter({ detail }: Intent<EntrustFilter>): void {
-    if (this.state) this.apply(setFilter(this.state, detail))
+  clear(): void {
+    this.filters()?.clear()
   }
 
-  clear(): void {
-    if (this.state) this.apply(clearFilters(this.state), () => this.filters()?.focusSearch())
+  async selectAll({ detail: { url } }: Intent<{ url: string }>): Promise<void> {
+    if (!this.state || this.state.selecting === "loading") return
+    this.apply(selecting(this.state, "loading"))
+    const copies = await fetchMatches(url)
+    if (!this.state) return
+    this.apply(copies ? selectAll(this.state, copies) : selecting(this.state, "failed"))
   }
 
   toggle({ detail: { ref } }: Intent<{ ref: string }>): void {
@@ -187,13 +214,62 @@ export default class EntrustController extends Controller<HTMLElement> {
     this.placed = layout
   }
 
+  private noteCells(): void {
+    if (this.cellsChanged) return
+    this.cellsChanged = true
+    queueMicrotask(() => {
+      this.cellsChanged = false
+      const arrived = this.arrived.filter((cell) => cell.isConnected).map(copyFrom)
+      this.arrived = []
+      if (this.state)
+        this.apply(
+          know(
+            this.state,
+            arrived,
+            this.cellTargets.map((cell) => cell.dataset.ref ?? ""),
+          ),
+        )
+    })
+  }
+
+  private tickNodes(): HTMLElement[] {
+    return this.hasTicksTarget ? Array.from(this.ticksTarget.querySelectorAll<HTMLElement>("[data-ref]")) : []
+  }
+
   private startFromMarkup(): EntrustState {
-    const copies = this.cellTargets.map(copyFrom)
-    const ticked = Object.fromEntries(
-      this.cellTargets.map((cell) => [cell.dataset.ref ?? "", Number(cell.dataset.ticked ?? 0)]),
+    const cells = this.cellTargets
+    const ticks = this.tickNodes()
+    const ticked = Object.fromEntries(ticks.map((tick) => [tick.dataset.ref ?? "", Number(tick.dataset.copies)]))
+    const copies = [...ticks, ...cells].map(copyFrom)
+    return start(
+      copies,
+      this.capLeftValue,
+      ticked,
+      cells.map((cell) => cell.dataset.ref ?? ""),
     )
-    const filter = { query: this.queryValue, rarities: this.raritiesValue, doubles: this.doublesValue }
-    return start(copies, this.capLeftValue, ticked, filter)
+  }
+
+  // Every tick, wherever its cell is (on a page not loaded or hidden by a filter): posted in one field,
+  // and kept beside it with what the recap needs, for a page restored from the cache.
+  private renderTicks(ticks: readonly TickView[]): void {
+    if (this.hasSelectionTarget) writeValue(this.selectionTarget, selectionOf(ticks))
+    if (!this.hasTicksTarget || !this.hasTickTemplateTarget) return
+    const wanted = new Map(ticks.map((tick) => [tick.copy.ref, tick]))
+    const present = new Map<string, HTMLElement>()
+    for (const node of this.tickNodes()) {
+      const ref = node.dataset.ref ?? ""
+      if (wanted.has(ref) && !present.has(ref)) present.set(ref, node)
+      else node.remove()
+    }
+    for (const tick of ticks) {
+      let node = present.get(tick.copy.ref)
+      if (!node) {
+        node = cloneFirstElement<HTMLElement>(this.tickTemplateTarget) ?? undefined
+        if (!node) continue
+        this.ticksTarget.append(node)
+      }
+      describe(node, tick)
+    }
   }
 
   private render(): void {
@@ -205,7 +281,7 @@ export default class EntrustController extends Controller<HTMLElement> {
     if (picking) this.result()?.dismiss()
     this.element.dataset.layout = state.layout
     this.placeRecap(state.layout)
-    this.filters()?.render(filtersViewOf(state))
+    this.renderTicks(ticksOf(state))
     this.grid()?.render(gridViewOf(state, strings))
     this.recap()?.render(
       recapViewOf(state, strings, {
@@ -225,8 +301,8 @@ export default class EntrustController extends Controller<HTMLElement> {
     this.arrival = undefined
   }
 
-  private filters(): EntrustFiltersController | null {
-    return this.hasEntrustFiltersOutlet ? this.entrustFiltersOutlet : null
+  private filters(): CopyFiltersController | null {
+    return this.hasCopyFiltersOutlet ? this.copyFiltersOutlet : null
   }
 
   private grid(): EntrustGridController | null {

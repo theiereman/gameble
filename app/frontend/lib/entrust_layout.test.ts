@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { setFilter, start, toggle, type Copy } from "./entrust"
+import { start, toggle, type Copy } from "./entrust"
 import { idle, layoutAsked, layoutFor, sheetShown } from "./entrust_layout"
 
 const copy = (ref: string): Copy => ({
@@ -61,9 +61,9 @@ describe("the sheet", () => {
 })
 
 describe("a switch", () => {
-  it("leaves the ticks, the filters and the active cell untouched", () => {
-    const before = setFilter(begin(), { query: "game", rarities: ["rare"], doubles: false })
+  it("leaves the ticks and the active cell untouched", () => {
+    const before = begin()
     const after = sheetShown(layoutAsked(sheetShown(before, true), "phone"), false)
-    expect([after.ticked, after.filter, after.active]).toEqual([before.ticked, before.filter, before.active])
+    expect([after.ticked, after.active]).toEqual([before.ticked, before.active])
   })
 })

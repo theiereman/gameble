@@ -38,6 +38,7 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     "barCount",
     "barTotal",
     "stepperTemplate",
+    "more",
   ]
   static values = { locale: String, accessible: String, reasonId: String }
 
@@ -61,6 +62,8 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
   declare readonly barCountTarget: HTMLElement
   declare readonly barTotalTarget: HTMLElement
   declare readonly stepperTemplateTarget: HTMLTemplateElement
+  declare readonly hasMoreTarget: boolean
+  declare readonly moreTarget: HTMLElement
   declare readonly localeValue: string
   declare readonly accessibleValue: string
   declare readonly reasonIdValue: string
@@ -133,6 +136,7 @@ export default class EntrustRecapController extends Controller<HTMLElement> {
     this.promptTarget.hidden = !view.prompt
     this.linesTarget.hidden = view.prompt
     this.reconcile(view.lines)
+    if (this.hasMoreTarget) this.reflectNote(this.moreTarget, view.more)
     drawAmount(this.totalTarget, view.received, this.forms())
     drawAmount(this.barTotalTarget, view.bar.amount, this.forms())
     writeText(this.barCountTarget, view.bar.count)

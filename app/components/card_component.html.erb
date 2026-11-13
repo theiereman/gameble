@@ -1,4 +1,4 @@
-<span class="<%= classes %>"<% if owned %> data-controller="tilt" data-tilt-max-value="<%= tilt_max %>"<% end %>>
+<span class="<%= classes %>"<% if tilted? %> data-controller="tilt" data-tilt-max-value="<%= tilt_max %>"<% end %>>
   <span class="card__body">
     <span class="card__band">
       <span class="card__title"><%= card.title %></span>
@@ -32,7 +32,7 @@
         <span class="card__reflection card__reflection--iridescence"></span>
       <% end %>
       <span class="card__reflection card__reflection--strips"></span>
-      <% if iridescent? %>
+      <% if iridescent? && tilted? %>
         <span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="<%= glitter_seed %>"></span>
       <% end %>
     </span>

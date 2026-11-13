@@ -1,6 +1,7 @@
 module MarketSalesHelper
   SALE_ACTIONS = {
-    "listing-grid" => { chosen: :chosen },
+    "copy-filters" => {},
+    "listing-grid" => { chosen: :chosen, clear: :clear },
     "listing-fields" => { typed: :typed, entered: :entered, duration: :duration, back: :back },
     "listing-summary" => {}
   }.freeze
@@ -24,6 +25,12 @@ module MarketSalesHelper
       listing_form_available_value: available,
       listing_form_strings_value: screen_strings("market.sales.strings") }
       .merge(screen_outlets("listing-form", SALE_ACTIONS.keys))
+  end
+
+  def sale_edition_data(copy, settings)
+    rarity = copy.card.rarity.to_sym
+    { ref: copy.ref, title: copy.card.title, rarity:, rarity_name: sale_rarity_name(rarity), season: copy.card.season_number,
+      free: copy.free, minimum: settings.minimum_price(rarity), stamp: settings.stamp(rarity) }
   end
 
   def sale_stamp_short_text(missing)

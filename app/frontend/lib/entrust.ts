@@ -18,17 +18,17 @@ export type EntrustFilter = {
   doubles: boolean
 }
 
-export const DEFAULT_FILTER: EntrustFilter = { query: "", rarities: [], doubles: true }
-export const CLEARED_FILTER: EntrustFilter = { query: "", rarities: [], doubles: false }
-
 export type Layout = "wide" | "phone"
 
+export type Selecting = "idle" | "loading" | "failed"
+
 export type EntrustState = {
-  copies: readonly Copy[]
+  copies: Readonly<Record<string, Copy>>
+  loaded: readonly string[]
   capLeft: number
   ticked: Readonly<Record<string, number>>
-  filter: EntrustFilter
   active: string | null
+  selecting: Selecting
   layout: Layout
   pendingLayout: Layout | null
   sheetOpen: boolean
@@ -57,58 +57,62 @@ export type Preview = {
 
 const RARE_OR_BETTER: readonly Rarity[] = ["rare", "epic", "legendary"]
 
-function fold(text: string): string {
-  return text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim()
+function byRef(copies: readonly Copy[]): Record<string, Copy> {
+  return Object.fromEntries(copies.map((copy) => [copy.ref, copy]))
 }
 
+// The cells loaded in the grid are `loaded`; `copies` also keeps every copy ticked off the loaded pages.
 export function start(
   copies: readonly Copy[],
   capLeft: number,
   ticked: Readonly<Record<string, number>>,
-  filter: EntrustFilter = DEFAULT_FILTER,
+  loaded: readonly string[] = copies.map((copy) => copy.ref),
 ): EntrustState {
-  const free = new Map(copies.map((copy) => [copy.ref, copy.free]))
+  const known = byRef(copies)
   const kept: Record<string, number> = {}
   for (const [ref, count] of Object.entries(ticked)) {
-    const max = free.get(ref)
+    const max = known[ref]?.free
     if (max !== undefined && max >= 1 && count >= 1) kept[ref] = clampValue(count, max)
   }
   return withActive({
-    copies,
+    copies: known,
+    loaded,
     capLeft,
     ticked: kept,
-    filter,
     active: null,
+    selecting: "idle",
     layout: "wide",
     pendingLayout: null,
     sheetOpen: false,
   })
 }
 
-function matches(copy: Copy, { query, rarities, doubles }: EntrustFilter): boolean {
-  return (
-    (rarities.length === 0 || rarities.includes(copy.rarity)) &&
-    (!doubles || copy.owned >= 2) &&
-    fold(copy.title).includes(fold(query))
-  )
-}
-
-export function visible(state: EntrustState): Copy[] {
-  return state.copies.filter((copy) => matches(copy, state.filter))
-}
-
 function withActive(state: EntrustState): EntrustState {
-  const shown = visible(state)
-  if (state.active !== null && shown.some((copy) => copy.ref === state.active)) return state
-  return { ...state, active: shown[0]?.ref ?? null }
+  if (state.active !== null && state.loaded.includes(state.active)) return state
+  const active = state.loaded[0] ?? null
+  return active === state.active ? state : { ...state, active }
 }
 
-function find(state: EntrustState, ref: string): Copy | undefined {
-  return state.copies.find((copy) => copy.ref === ref)
+// The grid's cells as they stand after a page loaded or the filters reloaded it; what they say of a copy is the latest.
+export function know(state: EntrustState, copies: readonly Copy[], loaded: readonly string[]): EntrustState {
+  const same = loaded.length === state.loaded.length && loaded.every((ref, index) => state.loaded[index] === ref)
+  if (copies.length === 0 && same) return state
+  return withActive({ ...state, copies: { ...state.copies, ...byRef(copies) }, loaded: same ? state.loaded : loaded })
+}
+
+// Ticks every copy given at one copy each; a tick already set keeps its count.
+export function selectAll(state: EntrustState, copies: readonly Copy[]): EntrustState {
+  const ticked: Record<string, number> = { ...state.ticked }
+  for (const copy of copies) if (copy.free >= 1 && !(copy.ref in ticked)) ticked[copy.ref] = 1
+  return { ...state, copies: { ...state.copies, ...byRef(copies) }, ticked, selecting: "idle" }
+}
+
+export function selecting(state: EntrustState, phase: Selecting): EntrustState {
+  return state.selecting === phase ? state : { ...state, selecting: phase }
 }
 
 export function toggle(state: EntrustState, ref: string): EntrustState {
-  const copy = find(state, ref)
+  const copy = state.copies[ref]
   if (!copy) return state
   if (ref in state.ticked) {
     const { [ref]: _dropped, ...rest } = state.ticked
@@ -119,7 +123,7 @@ export function toggle(state: EntrustState, ref: string): EntrustState {
 }
 
 export function setCopies(state: EntrustState, ref: string, copies: number): EntrustState {
-  const copy = find(state, ref)
+  const copy = state.copies[ref]
   if (!copy || !(ref in state.ticked)) return state
   const next = clampValue(copies, copy.free)
   return next === state.ticked[ref] ? state : { ...state, ticked: { ...state.ticked, [ref]: next } }
@@ -130,15 +134,7 @@ export function bump(state: EntrustState, ref: string, step: number): EntrustSta
   return current === undefined ? state : setCopies(state, ref, current + step)
 }
 
-export function setFilter(state: EntrustState, filter: EntrustFilter): EntrustState {
-  return withActive({ ...state, filter })
-}
-
-export function clearFilters(state: EntrustState): EntrustState {
-  return setFilter(state, CLEARED_FILTER)
-}
-
-export function filterCount({ rarities, doubles }: EntrustFilter): number {
+export function filterCount({ rarities, doubles }: Pick<EntrustFilter, "rarities" | "doubles">): number {
   return rarities.length + (doubles ? 1 : 0)
 }
 
@@ -147,25 +143,36 @@ export function filtering(filter: EntrustFilter): boolean {
 }
 
 export function moveActive(state: EntrustState, key: string, columns: number): EntrustState {
-  const shown = visible(state)
-  const index = shown.findIndex((copy) => copy.ref === state.active)
+  const index = state.active === null ? -1 : state.loaded.indexOf(state.active)
   if (index === -1) return state
-  const next = nextIndex(key, index, shown.length, columns)
-  const ref = next === null ? undefined : shown[next]?.ref
+  const next = nextIndex(key, index, state.loaded.length, columns)
+  const ref = next === null ? undefined : state.loaded[next]
   return ref === undefined || ref === state.active ? state : { ...state, active: ref }
 }
 
 export function setActive(state: EntrustState, ref: string): EntrustState {
-  return state.active === ref || !find(state, ref) ? state : { ...state, active: ref }
+  return state.active === ref || !state.copies[ref] ? state : { ...state, active: ref }
+}
+
+const compareText = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)
+
+// The list's order: most valuable first, then by season, title and ref.
+export function listOrder(a: Copy, b: Copy): number {
+  return b.value - a.value || a.season - b.season || compareText(a.title, b.title) || compareText(a.ref, b.ref)
+}
+
+export function tickedCopies(state: EntrustState): Copy[] {
+  return Object.keys(state.ticked)
+    .flatMap((ref) => state.copies[ref] ?? [])
+    .sort(listOrder)
 }
 
 // The operation's rule: copies counted in list order, a line that does not fit stays and a cheaper one after it may pass.
 export function preview(state: EntrustState): Preview {
   let left = state.capLeft
   const lines: PreviewLine[] = []
-  for (const copy of state.copies) {
-    const copies = state.ticked[copy.ref]
-    if (copies === undefined) continue
+  for (const copy of tickedCopies(state)) {
+    const copies = state.ticked[copy.ref] ?? 0
     const entrusted = Math.min(copies, Math.floor(left / copy.value))
     left -= entrusted * copy.value
     lines.push({ copy, copies, entrusted, stayed: copies - entrusted })

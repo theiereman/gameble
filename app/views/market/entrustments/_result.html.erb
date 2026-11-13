@@ -18,9 +18,12 @@
     <div class="entrust-result__stayed">
       <h3 class="entrust-result__stayed-heading"><%= t("market.entrustments.result.stayed.heading", count: entrusted.stayed.size) %></h3>
       <ul class="entrust-result__stayed-list">
-        <% entrusted.stayed.each do |stayed| %>
+        <% entrusted.stayed.first(MarketEntrustmentsHelper::RESULT_LINES).each do |stayed| %>
           <% name = @stayed_names.fetch(stayed.card_season_id) %>
           <li class="entrust-result__stayed-line"><%= t("market.entrustments.result.stayed.line_html", title: name.title, season: name.season_number, count: stayed.copies, amount: render(PicoinAmountComponent.new(amount: stayed.value))) %></li>
+        <% end %>
+        <% if (more = entrusted.stayed.size - MarketEntrustmentsHelper::RESULT_LINES).positive? %>
+          <li class="entrust-result__stayed-more"><%= t("market.entrustments.result.stayed.more", count: more, number: number_with_delimiter(more)) %></li>
         <% end %>
       </ul>
       <p class="entrust-result__stayed-cap"><%= t("market.entrustments.result.stayed.cap_left_html", amount: render(PicoinAmountComponent.new(amount: entrusted.cap_left))) %></p>

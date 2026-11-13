@@ -4,6 +4,7 @@ import {
   back,
   choose,
   commission,
+  know,
   layoutAsked,
   lines,
   received,
@@ -151,5 +152,20 @@ describe("lines", () => {
       commission: null,
       received: null,
     })
+  })
+})
+
+describe("the loaded cells", () => {
+  it("keeps the chosen edition and its amounts when a filter reload takes its cell away", () => {
+    const reloaded = know(chosenState({ start: "1500" }), [], ["beta:1"])
+    expect(reloaded).toMatchObject({ chosen: "alpha:1", step: 2, loaded: ["beta:1"] })
+    expect(lines(reloaded)?.stamp).toBe(500)
+  })
+
+  it("lets a cell of a page appended later be chosen", () => {
+    const later: Edition = { ...common, ref: "gamma:1" }
+    const state = start([rare], 1_000, typed, null, "wide")
+    expect(choose(state, "gamma:1")).toBe(state)
+    expect(choose(know(state, [later], ["alpha:1", "gamma:1"]), "gamma:1").chosen).toBe("gamma:1")
   })
 })

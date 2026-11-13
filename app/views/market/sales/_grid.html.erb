@@ -1,7 +1,18 @@
-<section class="sale-grid" aria-label="<%= t("market.sales.new.choose") %>" data-controller="listing-grid">
-  <%= render "market/sales/refusal", slots: %i[grid] %>
-  <%= hidden_field_tag :ref, @chosen_ref.to_s, id: nil, data: { listing_grid_target: "ref" } %>
-  <ul class="sale-grid__list" role="listbox" aria-label="<%= t("market.sales.new.choose") %>" data-action="keydown->listing-grid#keydown">
-    <%= render partial: "market/sales/cell", collection: @copies, as: :copy %>
-  </ul>
-</section>
+<%= turbo_frame_tag "sale-results", class: "sale-results" do %>
+  <%= render "market/copy_filter_fields", filter: @filter %>
+  <%= tag.section class: "sale-grid", aria: { label: t("market.sales.new.choose") },
+        data: { controller: "listing-grid next-page", action: "focusout->next-page#focusLeft" } do %>
+    <%= render "market/sales/refusal", slots: %i[grid] %>
+    <p id="sale-results-status" class="copy-grid__count" role="status"><%= copy_matches(@pagy.count) %></p>
+    <% if @copies.empty? %>
+      <p class="sale-grid__empty">
+        <%= t("market.copy_filters.no_match") %>
+        <button type="button" class="filters__clear" data-action="listing-grid#clear"><%= t("market.copy_filters.clear_filters") %></button>
+      </p>
+    <% end %>
+    <ul id="sale-cells" class="sale-grid__list" role="listbox" aria-label="<%= t("market.sales.new.choose") %>" data-action="keydown->listing-grid#keydown">
+      <%= render partial: "market/sales/cell", collection: @copies, as: :copy %>
+    </ul>
+    <%= render "market/copy_pages", pagy: @pagy, id: "sale-pages" %>
+  <% end %>
+<% end %>

@@ -72,34 +72,22 @@
   min-width: 0;
 }
 
-.entrust-filters .filters__search-field {
-  max-width: 28rem;
-}
-
 [data-layout="wide"] .entrust-bar {
   display: none;
-}
-
-.entrust-filters {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.entrust-filters__chips {
-  align-items: center;
-}
-
-.entrust-filters__foot {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
 }
 
 .entrust-grid {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+}
+
+.entrust-grid__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
 .entrust-grid__hint,
@@ -109,9 +97,16 @@
   font: var(--font-body-small);
 }
 
-.entrust-grid__empty[hidden],
-.entrust-grid__list[hidden],
-.entrust-cell[hidden] {
+.entrust-grid__failed {
+  margin: 0;
+  padding: var(--space-3);
+  border-left: 4px solid var(--color-alert);
+  background: var(--color-panel-sunken);
+  color: var(--color-text-bright);
+  font: var(--font-body-small);
+}
+
+.entrust-grid__failed[hidden] {
   display: none;
 }
 
@@ -124,8 +119,10 @@
   list-style: none;
 }
 
+/* Each cell stacks its own layers, so its stepper never draws over the recap bar. */
 .entrust-cell {
   position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);

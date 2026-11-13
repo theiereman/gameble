@@ -1,7 +1,8 @@
 import { Controller } from "@hotwired/stimulus"
 import { keepStepperFocus, quantityFromButton, quantityFromKey, reflectStepper, STEPPER } from "../lib/stepper"
 import { columnsOf } from "../lib/grid_keys"
-import type { CellView, GridView } from "../lib/entrust_view"
+import { writeAttribute, writeDisabled, writeFlag, writeHidden } from "../lib/dom_writes"
+import { sameCell, type CellView, type GridView } from "../lib/entrust_view"
 
 export type MoveIntent = { key: string; columns: number }
 
@@ -9,20 +10,30 @@ const TOGGLE = ".entrust-cell__toggle"
 const BUMP_STEP: Record<string, number> = { "+": 1, "=": 1, "-": -1, _: -1 }
 
 export default class EntrustGridController extends Controller<HTMLElement> {
-  static targets = ["list", "cell", "empty"]
+  static targets = ["list", "cell", "selectAll", "failed"]
 
   declare readonly listTarget: HTMLUListElement
   declare readonly cellTargets: HTMLElement[]
-  declare readonly emptyTarget: HTMLElement
+  declare readonly hasSelectAllTarget: boolean
+  declare readonly selectAllTarget: HTMLButtonElement
+  declare readonly hasFailedTarget: boolean
+  declare readonly failedTarget: HTMLElement
 
-  render({ cells, matchless }: GridView): void {
-    const byRef = new Map(this.cellTargets.map((cell) => [cell.dataset.ref ?? "", cell]))
-    for (const view of cells) {
-      const cell = byRef.get(view.ref)
-      if (cell) this.reflectCell(cell, view)
+  private drawn = new WeakMap<Element, CellView>()
+
+  // Only a cell that just connected or whose view changed is touched: a grid of loaded pages holds thousands.
+  render({ cells, selecting }: GridView): void {
+    for (const cell of this.cellTargets) {
+      const view = cells.get(cell.dataset.ref ?? "")
+      if (!view || sameCell(this.drawn.get(cell), view)) continue
+      this.reflectCell(cell, view)
+      this.drawn.set(cell, view)
     }
-    this.emptyTarget.hidden = !matchless
-    this.listTarget.hidden = matchless
+    if (this.hasSelectAllTarget) {
+      writeDisabled(this.selectAllTarget, selecting === "loading")
+      writeFlag(this.selectAllTarget, "aria-busy", selecting === "loading")
+    }
+    if (this.hasFailedTarget) writeHidden(this.failedTarget, selecting !== "failed")
   }
 
   focusActive(): void {
@@ -32,6 +43,11 @@ export default class EntrustGridController extends Controller<HTMLElement> {
   toggle(event: Event): void {
     const ref = this.refOf(event)
     if (ref) this.dispatch("toggle", { detail: { ref } })
+  }
+
+  selectAll(): void {
+    const url = this.hasSelectAllTarget ? this.selectAllTarget.dataset.url : undefined
+    if (url) this.dispatch("select", { detail: { url } })
   }
 
   stepperKey(event: KeyboardEvent): void {
@@ -54,8 +70,7 @@ export default class EntrustGridController extends Controller<HTMLElement> {
       if (ref) this.dispatch("bump", { detail: { ref, step } })
       return
     }
-    const tops = this.cellTargets.filter((cell) => !cell.hidden).map((cell) => cell.offsetTop)
-    const detail: MoveIntent = { key: event.key, columns: columnsOf(tops) }
+    const detail: MoveIntent = { key: event.key, columns: columnsOf(this.firstRowTops()) }
     const sent = this.dispatch("move", { detail })
     if (sent.defaultPrevented) event.preventDefault()
   }
@@ -64,24 +79,27 @@ export default class EntrustGridController extends Controller<HTMLElement> {
     this.dispatch("clear")
   }
 
-  private reflectCell(cell: HTMLElement, { shown, ticked, tabbable, copies, stepper }: CellView): void {
-    cell.hidden = !shown
+  // The tops up to the first cell of the second row, enough to count the columns.
+  private firstRowTops(): number[] {
+    const tops: number[] = []
+    for (const cell of this.cellTargets) {
+      tops.push(cell.offsetTop)
+      if (cell.offsetTop !== tops[0]) break
+    }
+    return tops
+  }
+
+  private reflectCell(cell: HTMLElement, { ticked, tabbable, stepper }: CellView): void {
     cell.classList.toggle("entrust-cell--picked", ticked)
-    const check = cell.querySelector<HTMLElement>(".entrust-cell__check")
-    if (check) check.hidden = !ticked
+    writeHidden(cell.querySelector<HTMLElement>(".entrust-cell__check"), !ticked)
     const toggle = cell.querySelector<HTMLElement>(TOGGLE)
     if (toggle) {
-      toggle.tabIndex = tabbable ? 0 : -1
-      toggle.setAttribute("aria-pressed", String(ticked))
-    }
-    const input = cell.querySelector<HTMLInputElement>("input[name]")
-    if (input) {
-      input.disabled = !ticked
-      input.value = String(copies)
+      writeAttribute(toggle, "tabindex", tabbable ? "0" : "-1")
+      writeAttribute(toggle, "aria-pressed", String(ticked))
     }
     const spinner = cell.querySelector<HTMLElement>(STEPPER)
     if (spinner) {
-      spinner.hidden = stepper === null
+      writeHidden(spinner, stepper === null)
       if (stepper) reflectStepper(spinner, stepper)
     }
   }

@@ -22,6 +22,7 @@ const STRINGS = {
   capText: "%{used} of %{cap}",
   status: { one: "%{count} copy, %{amount}", other: "%{count} copies, %{amount}", zero: "0 copies, %{amount}" },
   barCount: { one: "%{count} copy", other: "%{count} copies", zero: "0 copies" },
+  more: { one: "and %{count} more", other: "and %{count} more", zero: "" },
 }
 
 const attr = (value: unknown): string => JSON.stringify(value).replace(/"/g, "&quot;")
@@ -55,6 +56,12 @@ const markup = (inSheet: boolean): string => `
       <li data-entrust-target="cell" data-ref="a:1" data-title="A" data-rarity="rare" data-season="1" data-free="2" data-owned="2" data-value="5000" data-ticked="1"></li>
       <li data-entrust-target="cell" data-ref="b:1" data-title="B" data-rarity="rare" data-season="1" data-free="1" data-owned="1" data-value="5000" data-ticked="0"></li>
     </ul>
+    <input id="selection" type="hidden" name="selection" value="a:1=1,off:1=2" data-entrust-target="selection">
+    <div id="ticks" data-entrust-target="ticks" hidden>
+      <span data-ref="a:1" data-title="A" data-rarity="rare" data-season="1" data-free="2" data-owned="2" data-value="5000" data-copies="1"></span>
+      <span data-ref="off:1" data-title="Off" data-rarity="common" data-season="1" data-free="3" data-owned="3" data-value="1000" data-copies="2"></span>
+    </div>
+    <template data-entrust-target="tickTemplate"><span></span></template>
     <div data-controller="entrust-recap" data-entrust-recap-locale-value="en" data-entrust-recap-accessible-value="%{amount} PiCoins">
       <div id="slot" data-entrust-recap-target="slot">${inSheet ? "" : aside}</div>
       <span id="bar-count" data-entrust-recap-target="barCount"></span>
@@ -123,38 +130,8 @@ describe("the layout at connect", () => {
     expect(parentOfAside()).toBe("slot")
   })
 
-  it("draws the bar from the ticks", () => {
-    expect(ticked()).toBe("1 copy")
-  })
-})
-
-describe("the doubles value", () => {
-  const doubles = (): boolean => {
-    const controller = application.getControllerForElementAndIdentifier(form(), "entrust") as EntrustController
-    return controller.doublesValue
-  }
-
-  it("is on when the markup says nothing", async () => {
-    await mount({ phone: false })
-    expect(doubles()).toBe(true)
-  })
-
-  it("is read from the markup", async () => {
-    stubMedia(false)
-    document.body.replaceChildren(
-      serverTemplate(
-        markup(false).replace(
-          'data-controller="entrust"',
-          'data-controller="entrust" data-entrust-doubles-value="false"',
-        ),
-      ).content,
-    )
-    application = new Application()
-    application.register("entrust", EntrustController)
-    application.register("entrust-recap", EntrustRecapController)
-    application.start()
-    await new Promise((resolve) => setTimeout(resolve, 0))
-    expect(doubles()).toBe(false)
+  it("draws the bar from the posted ticks, a copy off the loaded pages included", () => {
+    expect(ticked()).toBe("3 copies")
   })
 })
 
@@ -182,11 +159,11 @@ describe("a change while idle", () => {
     resize(true)
     expect(form().dataset.layout).toBe("phone")
     expect(parentOfAside()).toBe("sheet-body")
-    expect(ticked()).toBe("1 copy")
+    expect(ticked()).toBe("3 copies")
     resize(false)
     expect(form().dataset.layout).toBe("wide")
     expect(parentOfAside()).toBe("slot")
-    expect(ticked()).toBe("1 copy")
+    expect(ticked()).toBe("3 copies")
   })
 })
 
@@ -203,7 +180,7 @@ describe("a change while the sheet is open", () => {
     setSheet(false)
     expect(form().dataset.layout).toBe("wide")
     expect(parentOfAside()).toBe("slot")
-    expect(ticked()).toBe("1 copy")
+    expect(ticked()).toBe("3 copies")
   })
 
   it("lets Esc through to the open dialog", () => {
@@ -230,11 +207,10 @@ describe("the status follows the sheet", () => {
 describe("the arrival after a batch", () => {
   const arrival = (): string =>
     markup(false)
-      .replace('data-ticked="1"', 'data-ticked="0"')
+      .replace(/<span data-ref[^>]*><\/span>/g, "")
       .replace(
         'data-controller="entrust"',
         `data-controller="entrust" data-entrust-daily-cap-value="1200000" data-entrust-cap-before-value="1100000"
-         data-entrust-query-value="b" data-entrust-rarities-value="${attr(["rare"])}" data-entrust-doubles-value="false"
          data-entrust-entrust-result-outlet="#entrust [data-controller~='entrust-result']"`,
       )
       .replace(
@@ -271,5 +247,61 @@ describe("the arrival after a batch", () => {
     expect(result.hidden).toBe(false)
     root().toggle(new CustomEvent("toggle", { detail: { ref: "a:1" } }))
     expect(result.hidden).toBe(true)
+  })
+})
+
+describe("the cells and the posted fields", () => {
+  const root = (): EntrustController =>
+    application.getControllerForElementAndIdentifier(form(), "entrust") as EntrustController
+  const posted = (): string => document.querySelector<HTMLInputElement>("#selection")!.value
+  const kept = (): string[] =>
+    Array.from(document.querySelectorAll<HTMLElement>("#ticks [data-ref]")).map(
+      (tick) => `${tick.dataset.ref}=${tick.dataset.copies}`,
+    )
+  const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
+
+  beforeEach(() => mount({ phone: false }))
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it("posts every tick in one field, in the list's order, and keeps what the recap needs beside it", () => {
+    expect(posted()).toBe("a:1=1,off:1=2")
+    root().toggle(new CustomEvent("toggle", { detail: { ref: "b:1" } }))
+    root().toggle(new CustomEvent("toggle", { detail: { ref: "a:1" } }))
+    expect(posted()).toBe("b:1=1,off:1=2")
+    expect(kept()).toEqual(["off:1=2", "b:1=1"])
+    expect(document.querySelector<HTMLElement>("#ticks [data-ref='b:1']")?.dataset.title).toBe("B")
+  })
+
+  it("knows the copies of a page appended later and ticks them", async () => {
+    document
+      .querySelector("ul")!
+      .append(
+        serverTemplate(
+          '<li data-entrust-target="cell" data-ref="c:1" data-title="C" data-rarity="epic" data-season="1" data-free="1" data-owned="1" data-value="15000" data-ticked="0"></li>',
+        ).content,
+      )
+    await flush()
+    root().toggle(new CustomEvent("toggle", { detail: { ref: "c:1" } }))
+    expect(posted()).toContain("c:1=1")
+  })
+
+  it("ticks every match the server answers, and says so when it cannot answer", async () => {
+    const rows = [{ ref: "far:1", title: "Far", rarity: "common", season: 1, free: 1, owned: 1, value: 1000 }]
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify(rows), { status: 200 })),
+    )
+    await root().selectAll(new CustomEvent("select", { detail: { url: "/matching" } }))
+    expect(posted()).toBe("a:1=1,far:1=1,off:1=2")
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("", { status: 500 })),
+    )
+    await root().selectAll(new CustomEvent("select", { detail: { url: "/matching" } }))
+    expect(posted()).toBe("a:1=1,far:1=1,off:1=2")
   })
 })

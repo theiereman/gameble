@@ -16,7 +16,7 @@ export type Forms = { locale: string; strings: ListingStrings }
 
 export type CellView = { ref: string; chosen: boolean; tabbable: boolean }
 
-export type GridView = { cells: readonly CellView[]; chosen: string }
+export type GridView = { cells: readonly CellView[] }
 
 export type FieldView = { error: string | null }
 
@@ -38,14 +38,9 @@ export type SummaryView = {
 }
 
 export function gridViewOf(state: ListingState): GridView {
-  const tabbable = state.chosen ?? state.editions[0]?.ref
+  const tabbable = state.chosen !== null && state.loaded.includes(state.chosen) ? state.chosen : state.loaded[0]
   return {
-    cells: state.editions.map((edition) => ({
-      ref: edition.ref,
-      chosen: edition.ref === state.chosen,
-      tabbable: edition.ref === tabbable,
-    })),
-    chosen: state.chosen ?? "",
+    cells: state.loaded.map((ref) => ({ ref, chosen: ref === state.chosen, tabbable: ref === tabbable })),
   }
 }
 

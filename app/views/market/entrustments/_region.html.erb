@@ -14,7 +14,7 @@
       <% end %>
     <% end %>
 
-    <% if @copies.empty? %>
+    <% if !@holds_copies %>
       <%= render "market/entrustments/result", entrusted: @entrusted if @entrusted %>
       <%= render PanelComponent.new(class: "market-entrust__notice") do %>
         <p><%= t("market.entrustments.new.empty") %></p>
@@ -22,12 +22,12 @@
       <% end %>
     <% else %>
       <%= form_with url: market_entrustments_path, id: "entrust", class: "market-entrust__form",
-            data: { layout: "wide", **entrust_root_data(open: @open, cap_left: @cap_left, daily_cap: @settings.daily_cap, filter: @filter, entrusted: @entrusted) } do %>
+            data: { layout: "wide", **entrust_root_data(open: @open, cap_left: @cap_left, daily_cap: @settings.daily_cap, entrusted: @entrusted) } do %>
         <%= hidden_field_tag :settings, @settings.token, id: nil %>
         <%= hidden_field_tag :card, @card_slug, id: nil if @card_slug %>
         <% if @card_slug %>
           <p class="market-entrust__card-only">
-            <%= t("market.entrustments.new.card_only", title: @copies.first.title) %>
+            <%= t("market.entrustments.new.card_only", title: @card_title) %>
             <%= render ButtonComponent.new(variant: :link, href: new_market_entrustment_path) do %><%= t("market.entrustments.new.all_cards") %><% end %>
           </p>
         <% end %>
@@ -39,7 +39,7 @@
                       entrust_recap_accessible_value: t("market.entrustments.strings.amount"),
                       entrust_recap_reason_id_value: ("market-suspended-banner" if @suspended) } do %>
           <div class="market-entrust__main">
-            <%= render "market/entrustments/filters" %>
+            <%= render "market/copy_filters", filter: @filter, form: "entrust-filter", search_id: "entrust-search" %>
             <%= render "market/entrustments/grid" %>
           </div>
           <div class="market-entrust__dock">
@@ -52,7 +52,9 @@
           <%= render "market/entrustments/sheet" %>
           <p class="visually-hidden" role="status" aria-live="polite" data-entrust-recap-target="barStatus"></p>
         <% end %>
+        <%= render "market/entrustments/ticks" %>
       <% end %>
+      <%= tag.form id: "entrust-filter", action: @grid_path, method: :get, hidden: true, data: { turbo_frame: "entrust-results" } %>
     <% end %>
   <% end %>
 </div>

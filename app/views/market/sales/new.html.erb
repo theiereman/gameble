@@ -26,7 +26,7 @@
       <% end %>
     <% end %>
 
-    <% if @copies.empty? %>
+    <% if !@holds_copies %>
       <%= render "market/sales/refusal", slots: %i[grid form] %>
       <%= render PanelComponent.new(class: "market-sale__notice") do %>
         <p><%= t(".empty") %></p>
@@ -38,10 +38,14 @@
                     **sale_root_data(open: @open, basis_points: @settings.commission_basis_points, available: @available) } do %>
         <%= hidden_field_tag :settings, @settings.token, id: nil %>
         <%= hidden_field_tag :card, @card_slug, id: nil if @card_slug %>
+        <%= hidden_field_tag :ref, @chosen_ref.to_s, id: nil, data: { listing_form_target: "ref" } %>
+        <% if @chosen_copy %>
+          <%= tag.span hidden: true, data: { listing_form_target: "edition", **sale_edition_data(@chosen_copy, @settings) } %>
+        <% end %>
         <p class="market-sale__step" data-listing-form-target="step"><%= t(".step", step: @chosen_ref ? 2 : 1) %></p>
         <% if @card_slug %>
           <p class="market-sale__card-only">
-            <%= t(".card_only", title: @copies.first.card.title) %>
+            <%= t(".card_only", title: @card_title) %>
             <%= render ButtonComponent.new(variant: :link, href: new_market_sale_path) do %><%= t(".all_cards") %><% end %>
           </p>
         <% end %>
@@ -49,13 +53,17 @@
           <p class="market-sale__relisting"><%= t(".relisting") %></p>
         <% end %>
         <div class="market-sale__layout">
-          <%= render "market/sales/grid" %>
+          <div class="market-sale__main">
+            <%= render "market/copy_filters", filter: @filter, form: "sale-filter", search_id: "sale-search" %>
+            <%= render "market/sales/grid" %>
+          </div>
           <div class="sale-form">
             <%= render "market/sales/fields" %>
             <%= render "market/sales/summary" %>
           </div>
         </div>
       <% end %>
+      <%= tag.form id: "sale-filter", action: @grid_path, method: :get, hidden: true, data: { turbo_frame: "sale-results" } %>
     <% end %>
   <% end %>
 </section>

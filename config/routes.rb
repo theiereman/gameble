@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     # Where a player gives spare copies to the Brotherhood for PiCoins.
     get "market/entrust" => "market/entrustments#new", as: :new_market_entrustment
     get "market/entrust/cards/:slug" => "market/entrustments#new", as: :new_market_card_entrustment
+    get "market/entrust/matching" => "market/entrustments#matching", as: :market_entrustment_matches
     post "market/entrust" => "market/entrustments#create", as: :market_entrustments
     get "market/sell" => "market/sales#new", as: :new_market_sale
     get "market/sell/cards/:slug" => "market/sales#new", as: :new_market_card_sale

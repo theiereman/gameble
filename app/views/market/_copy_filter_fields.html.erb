@@ -1,0 +1,6 @@
+<%# locals: (filter:) %>
+<%= hidden_field_tag "filter[query]", filter.query, id: nil %>
+<% filter.rarities.each do |rarity| %>
+  <%= hidden_field_tag "filter[rarities][]", rarity, id: nil %>
+<% end %>
+<%= hidden_field_tag "filter[doubles]", "1", id: nil if filter.doubles %>

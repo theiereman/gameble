@@ -37,6 +37,7 @@
 
 .entrust-recap__prompt[hidden],
 .entrust-recap__lines[hidden],
+.entrust-recap__more[hidden],
 .entrust-recap__over[hidden],
 .entrust-recap__full[hidden],
 .entrust-recap__rare[hidden],
@@ -51,6 +52,12 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.entrust-recap__more {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
 }
 
 .entrust-recap__line {

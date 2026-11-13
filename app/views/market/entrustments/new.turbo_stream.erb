@@ -1,0 +1,2 @@
+<%= turbo_stream.append "entrust-cells", partial: "market/entrustments/cell", collection: @copies, as: :copy %>
+<%= turbo_stream.replace "entrust-pages", partial: "market/copy_pages", locals: { pagy: @pagy, id: "entrust-pages" } %>

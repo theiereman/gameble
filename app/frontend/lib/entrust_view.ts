@@ -1,4 +1,4 @@
-import { preview, visible, type EntrustFilter, type EntrustState } from "./entrust"
+import { preview, tickedCopies, type Copy, type EntrustState, type Selecting } from "./entrust"
 import { writeText } from "./dom_writes"
 import { t, type Template } from "./i18n"
 import { picoins } from "./picoins"
@@ -19,11 +19,11 @@ export type EntrustStrings = {
   capText: string
   status: Template
   barCount: Template
+  more: Template
 }
 
 export type CellView = {
   ref: string
-  shown: boolean
   ticked: boolean
   tabbable: boolean
   copies: number
@@ -31,15 +31,11 @@ export type CellView = {
 }
 
 export type GridView = {
-  cells: readonly CellView[]
-  matchless: boolean
+  cells: ReadonlyMap<string, CellView>
+  selecting: Selecting
 }
 
-export type FiltersView = {
-  filter: EntrustFilter
-  count: number
-  filtering: boolean
-}
+export type TickView = { copy: Copy; copies: number }
 
 export type LineView = {
   ref: string
@@ -62,6 +58,7 @@ export type RecapView = {
   full: boolean
   over: string | null
   rare: string | null
+  more: string | null
   label: string
   disabled: boolean
   status: string
@@ -88,33 +85,50 @@ function stepperOf(strings: EntrustStrings, title: string, value: number, max: n
 }
 
 export function gridViewOf(state: EntrustState, strings: EntrustStrings): GridView {
-  const shown = new Set(visible(state).map((copy) => copy.ref))
-  return {
-    cells: state.copies.map((copy) => {
-      const copies = state.ticked[copy.ref] ?? 0
-      return {
-        ref: copy.ref,
-        shown: shown.has(copy.ref),
-        ticked: copies > 0,
-        tabbable: copy.ref === state.active,
-        copies,
-        stepper: copies > 0 && copy.free > 1 ? stepperOf(strings, copy.title, copies, copy.free) : null,
-      }
-    }),
-    matchless: shown.size === 0 && state.copies.length > 0,
+  const cells = new Map<string, CellView>()
+  for (const ref of state.loaded) {
+    const copy = state.copies[ref]
+    if (!copy) continue
+    const copies = state.ticked[ref] ?? 0
+    cells.set(ref, {
+      ref,
+      ticked: copies > 0,
+      tabbable: ref === state.active,
+      copies,
+      stepper: copies > 0 && copy.free > 1 ? stepperOf(strings, copy.title, copies, copy.free) : null,
+    })
   }
+  return { cells, selecting: state.selecting }
 }
 
-export function filtersViewOf(state: EntrustState): FiltersView {
-  const { filter } = state
-  return {
-    filter,
-    count: filter.rarities.length + (filter.doubles ? 1 : 0),
-    filtering: filter.query.trim() !== "" || filter.rarities.length > 0 || filter.doubles,
-  }
+// What the form posts: every ticked edition, in the list's order.
+export function ticksOf(state: EntrustState): TickView[] {
+  return tickedCopies(state).map((copy) => ({ copy, copies: state.ticked[copy.ref] ?? 0 }))
 }
 
-const names = (titles: readonly string[]): string => titles.join(", ")
+// The one posted field: "ref=copies" pairs joined by commas, which no ref holds.
+export function selectionOf(ticks: readonly TickView[]): string {
+  return ticks.map(({ copy, copies }) => `${copy.ref}=${copies}`).join(",")
+}
+
+export function sameCell(a: CellView | undefined, b: CellView): boolean {
+  if (!a) return false
+  const steppers =
+    a.stepper === b.stepper ||
+    (a.stepper !== null &&
+      b.stepper !== null &&
+      a.stepper.value === b.stepper.value &&
+      a.stepper.max === b.stepper.max &&
+      a.stepper.label === b.stepper.label)
+  return a.ticked === b.ticked && a.tabbable === b.tabbable && a.copies === b.copies && steppers
+}
+
+// The recap draws the first lines only: a selection of every edition would otherwise build thousands of rows.
+export const RECAP_LINES = 30
+const NAMED = 10
+
+const names = (titles: readonly string[]): string =>
+  titles.length > NAMED ? `${titles.slice(0, NAMED).join(", ")}, …` : titles.join(", ")
 
 export function recapViewOf(
   state: EntrustState,
@@ -130,7 +144,7 @@ export function recapViewOf(
   })
   return {
     prompt: result.lines.length === 0,
-    lines: result.lines.map(({ copy, copies, entrusted, stayed }) => ({
+    lines: result.lines.slice(0, RECAP_LINES).map(({ copy, copies, entrusted, stayed }) => ({
       ref: copy.ref,
       label: t(strings.line, { title: copy.title, season: copy.season }),
       count: t(strings.count, { count: copies }),
@@ -154,6 +168,7 @@ export function recapViewOf(
         : null,
     rare:
       result.rareCount > 0 ? t(strings.rareNote, { count: result.rareCount, cards: names(result.rareNames) }) : null,
+    more: result.lines.length > RECAP_LINES ? t(strings.more, { count: result.lines.length - RECAP_LINES }) : null,
     label: t(strings.submit, { count: result.count }),
     disabled: !open || !result.canValidate,
     status,

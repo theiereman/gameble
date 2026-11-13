@@ -1,18 +1,19 @@
 <% chosen = copy.ref == @chosen_ref %>
 <% rarity = copy.card.rarity.to_sym %>
-<% tabbable = @chosen_ref ? chosen : copy_counter.zero? %>
+<% tabbable = @chosen_ref ? chosen : (@pagy.offset + copy_counter).zero? %>
 <%= tag.li class: class_names("sale-cell", "sale-cell--#{rarity}", "sale-cell--chosen": chosen), role: "option",
       tabindex: (tabbable ? 0 : -1), aria: { selected: chosen.to_s, label: sale_cell_label(copy, @settings, @prices[copy.ref]) },
-      data: { listing_form_target: "cell", listing_grid_target: "cell", action: "click->listing-grid#choose",
-              ref: copy.ref, title: copy.card.title, rarity:, rarity_name: sale_rarity_name(rarity), season: copy.card.season_number,
-              free: copy.free, minimum: @settings.minimum_price(rarity), stamp: @settings.stamp(rarity) } do %>
+      data: { listing_form_target: "cell", listing_grid_target: "cell", action: "click->listing-grid#choose", **sale_edition_data(copy, @settings) } do %>
   <span class="sale-cell__check" aria-hidden="true" <%= "hidden" unless chosen %>>✓</span>
-  <span class="sale-cell__art" aria-hidden="true"><%= render CardComponent.new(card: copy.card, size: :s) %></span>
+  <span class="sale-cell__art" aria-hidden="true"><%= render CardComponent.new(card: copy.card, size: :s, tilt: false) %></span>
   <span class="sale-cell__name" aria-hidden="true"><%= copy.card.title %></span>
   <span class="sale-cell__edition" aria-hidden="true"><%= t("catalog.rarity.#{rarity}") %> · <%= t("market.sales.new.season", number: copy.card.season_number) %></span>
   <span class="sale-cell__free" aria-hidden="true"><%= t("market.sales.new.free", count: copy.free) %></span>
   <span class="sale-cell__minimum" aria-hidden="true"><%= render PicoinAmountComponent.new(amount: @settings.minimum_price(rarity)) %></span>
   <% if @prices[copy.ref] %>
     <span class="sale-cell__price" aria-hidden="true"><%= render AveragePriceComponent.new(price: @prices[copy.ref], compact: true) %></span>
+  <% end %>
+  <% if @price_offered && @prices.key?(copy.ref) %>
+    <template data-listing-form-target="priceTemplate" data-ref="<%= copy.ref %>"><%= render "market/sales/price", price: @prices[copy.ref] %></template>
   <% end %>
 <% end %>

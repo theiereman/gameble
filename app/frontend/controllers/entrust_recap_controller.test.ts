@@ -64,6 +64,7 @@ const view = (over: Partial<RecapView> = {}): RecapView => ({
   full: false,
   over: null,
   rare: null,
+  more: null,
   label: "Entrust 2 copies",
   disabled: false,
   status: "2 copies, 5,000 PiCoins",

@@ -1,0 +1,6 @@
+<%# locals: (pagy:, id:) %>
+<%= tag.div id:, class: "copy-pages", data: { next_page_target: "pages" } do %>
+  <% if pagy.next %>
+    <%= tag.a rel: "next", href: pagy.page_url(:next), hidden: true, tabindex: -1, data: { turbo_prefetch: false } %>
+  <% end %>
+<% end %>

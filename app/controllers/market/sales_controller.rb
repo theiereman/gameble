@@ -1,6 +1,7 @@
 module Market
   class SalesController < ApplicationController
     include PublicRead
+    include CopyGrid
 
     throttle_player to: 10, only: :create, path: -> { new_market_sale_path }, alert: "market.sales.create.throttled"
 
@@ -8,6 +9,10 @@ module Market
       authorize %i[market sale], :new?
       load_page(card_slug: asked_card_slug(params[:slug]))
       prefill
+      respond_to do |format|
+        format.html
+        format.turbo_stream
+      end
     end
 
     def create
@@ -25,19 +30,49 @@ module Market
         @open = @settings&.open.present?
         @suspended = Game::Market::MarketState.call(@settings).suspended?
         @card_slug = card_slug
-        @copies = current_player && @settings ? Game::Market::SellableCopies.call(current_player, card_slug:) : []
-        @chosen_ref = @copies.first.ref if @copies.one?
-        @prices = sale_prices
-        @available = current_player && @settings ? Game::Market::Balance.call(current_player).available : 0
+        @filter = copy_filter(doubles_by_default: false)
+        load_grid
+        choose(@copies.first.ref) if @pagy.count == 1 && !@filter.narrowing?
+        @available = listed? ? Game::Market::Balance.call(current_player).available : 0
         @values = { start: "", duration: @settings&.preselected_duration_hours.to_s }
       end
 
-      def sale_prices
-        market = Game::Market::MarketState.call(@settings)
-        return {} unless market.first_opened? && @copies.any?
+      def load_grid
+        count = listed? ? Game::Market::SellableCopies.count(current_player, card_slug: @card_slug, filter: @filter) : 0
+        @grid_path = @card_slug ? new_market_card_sale_path(slug: @card_slug) : new_market_sale_path
+        @pagy = copy_pages(count, path: @grid_path, filter: @filter)
+        @copies = count.positive? ? Game::Market::SellableCopies.call(current_player, card_slug: @card_slug, filter: @filter, offset: @pagy.offset, limit: @pagy.limit) : []
+        @holds_copies = count.positive? || (listed? && @filter.narrowing? && Game::Market::SellableCopies.count(current_player, card_slug: @card_slug).positive?)
+        @card_title = card_title if @card_slug
+        @price_offered = Game::Market::MarketState.call(@settings).first_opened?
+        @prices = sale_prices(@copies.map(&:ref))
+      end
 
-        ids = Game::Market::EntrustableCopies.resolve(@copies.map(&:ref))
-        prices = Game::Market::EditionPrices.call(ids.values, state: market)
+      def listed? = current_player.present? && @settings.present?
+
+      def card_title
+        any = @copies.first || Game::Market::SellableCopies.call(current_player, card_slug: @card_slug, limit: 1).first
+        any&.card&.title
+      end
+
+      # The chosen edition stays chosen when its cell is on no loaded page: the fields and the summary still draw it.
+      def choose(ref)
+        return false if ref.blank?
+
+        copy = @copies.find { it.ref == ref } || (Game::Market::SellableCopies.call(current_player, card_slug: @card_slug, refs: [ ref ]).first if listed?)
+        return false unless copy
+
+        @chosen_ref = ref
+        @chosen_copy = copy
+        @prices = @prices.merge(sale_prices([ ref ])) unless @prices.key?(ref)
+        true
+      end
+
+      def sale_prices(refs)
+        return {} unless @price_offered && refs.any?
+
+        ids = Game::Market::EntrustableCopies.resolve(refs)
+        prices = Game::Market::EditionPrices.call(ids.values, state: Game::Market::MarketState.call(@settings))
         ids.transform_values { prices[it] }
       end
 
@@ -50,10 +85,8 @@ module Market
       end
 
       def prefill
-        ref = params[:ref].to_s
-        return unless @copies.any? { it.ref == ref }
+        return unless choose(params[:ref].to_s)
 
-        @chosen_ref = ref
         @values[:start] = Game::Market::TypedAmount.price(params[:start]).to_s
         @relisting = params[:relisting].to_s == "1"
       end
@@ -76,7 +109,7 @@ module Market
       end
 
       def keep_posted_values
-        @chosen_ref = posted_ref if @copies.any? { it.ref == posted_ref }
+        choose(posted_ref)
         @values[:start] = params[:starting_price].to_s
         duration = params[:duration_hours].to_s
         if allowed_durations.include?(duration)
@@ -97,7 +130,7 @@ module Market
       end
 
       def refusal_values(code)
-        rarity = @copies.find { it.ref == @chosen_ref }&.card&.rarity&.to_sym
+        rarity = @chosen_copy&.card&.rarity&.to_sym
         return {} unless @settings && rarity
 
         case code

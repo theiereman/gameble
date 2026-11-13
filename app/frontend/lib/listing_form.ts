@@ -20,7 +20,8 @@ export type Edition = {
 export type Refusal = { field: Field; code: RefusalCode }
 
 export type ListingState = {
-  editions: readonly Edition[]
+  editions: Readonly<Record<string, Edition>>
+  loaded: readonly string[]
   basisPoints: number
   chosen: string | null
   start: string
@@ -41,16 +42,24 @@ export type Typed = Readonly<{ start: string; duration: string }>
 const BASIS_POINTS = 10_000n
 const MAX_SAFE = BigInt(Number.MAX_SAFE_INTEGER)
 
+function byRef(editions: readonly Edition[]): Record<string, Edition> {
+  return Object.fromEntries(editions.map((edition) => [edition.ref, edition]))
+}
+
+// The cells loaded in the grid are `loaded`; `editions` also keeps the chosen one when no loaded page holds its cell.
 export function start(
   editions: readonly Edition[],
   basisPoints: number,
   typed: Typed,
   chosen: string | null,
   layout: Layout,
+  loaded: readonly string[] = editions.map((edition) => edition.ref),
 ): ListingState {
-  const known = chosen !== null && editions.some((edition) => edition.ref === chosen) ? chosen : null
+  const byRefs = byRef(editions)
+  const known = chosen !== null && chosen in byRefs ? chosen : null
   return {
-    editions,
+    editions: byRefs,
+    loaded,
     basisPoints,
     chosen: known,
     ...typed,
@@ -74,11 +83,16 @@ export function amountOf(text: string): bigint | null {
 }
 
 export function chosenEdition(state: ListingState): Edition | null {
-  return state.editions.find((edition) => edition.ref === state.chosen) ?? null
+  return state.chosen === null ? null : (state.editions[state.chosen] ?? null)
+}
+
+// The grid's cells as they stand after a page loaded or the filters reloaded it; the chosen edition stays chosen.
+export function know(state: ListingState, editions: readonly Edition[], loaded: readonly string[]): ListingState {
+  return { ...state, editions: { ...state.editions, ...byRef(editions) }, loaded }
 }
 
 export function choose(state: ListingState, ref: string): ListingState {
-  if (!state.editions.some((edition) => edition.ref === ref)) return state
+  if (!(ref in state.editions)) return state
   return { ...state, chosen: ref, step: 2, shown: null }
 }
 

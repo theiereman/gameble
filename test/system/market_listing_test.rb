@@ -59,4 +59,23 @@ class MarketListingSystemTest < ApplicationSystemTestCase
     assert_field "sale-start", with: "1,000"
     assert_equal 0, Game::Market::Listing.count
   end
+
+  test "the grid filters on the server and the chosen edition stays chosen once a filter hides it" do
+    hold(@player, catalog_card_seasons(:rare_card_one).id, 1)
+    sign_in_through_the_site
+
+    visit new_market_sale_path(locale: :en)
+    find(".sale-cell[data-ref='#{@common.card.slug}:#{@common.season.number}']").click
+    fill_in "sale-start", with: "1500"
+    fill_in "sale-search", with: "blue"
+
+    assert_selector ".sale-cell", count: 1
+    assert_selector "#sale-results-status", text: "1 edition"
+    assert_no_selector ".sale-cell[aria-selected=true]"
+    assert_selector ".sale-line--received .picoin-amount__figure", text: "1,350"
+    click_on "PUT UP FOR SALE"
+
+    assert_selector "#market-listing-heading:focus"
+    assert_equal @common.id, Game::Market::Listing.sole.card_season_id
+  end
 end

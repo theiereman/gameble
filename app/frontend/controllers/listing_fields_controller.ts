@@ -6,7 +6,7 @@ import type { FieldsView, FieldView } from "../lib/listing_form_view"
 const START_HINT = "sale-start-hint"
 
 export default class ListingFieldsController extends Controller<HTMLElement> {
-  static targets = ["start", "duration", "hint", "startError", "durationError", "priceSlot", "priceTemplate"]
+  static targets = ["start", "duration", "hint", "startError", "durationError", "priceSlot"]
 
   declare readonly startTarget: HTMLInputElement
   declare readonly durationTargets: HTMLInputElement[]
@@ -15,13 +15,11 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
   declare readonly durationErrorTarget: HTMLElement
   declare readonly hasPriceSlotTarget: boolean
   declare readonly priceSlotTarget: HTMLElement
-  declare readonly priceTemplateTargets: HTMLTemplateElement[]
 
   private pristine = true
 
-  render({ chosen, hint, start, duration, locked }: FieldsView): void {
+  render({ hint, start, duration, locked }: FieldsView): void {
     writeText(this.hintTarget, hint)
-    this.showPrice(chosen)
     this.reflectField(this.startTarget, this.startErrorTarget, start, START_HINT)
     this.reflectDuration(duration)
     this.element.toggleAttribute("inert", locked)
@@ -58,9 +56,9 @@ export default class ListingFieldsController extends Controller<HTMLElement> {
     this.dispatch("back")
   }
 
-  private showPrice(ref: string): void {
+  // The chosen edition's price, drawn from its cell's template; one already drawn stays when its cell is gone.
+  showPrice(ref: string, template: HTMLTemplateElement | null): void {
     if (!this.hasPriceSlotTarget || this.priceSlotTarget.dataset.ref === ref) return
-    const template = this.priceTemplateTargets.find((each) => each.dataset.ref === ref)
     this.priceSlotTarget.dataset.ref = ref
     this.priceSlotTarget.replaceChildren(...(template ? [template.content.cloneNode(true)] : []))
   }

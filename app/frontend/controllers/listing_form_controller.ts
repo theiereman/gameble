@@ -3,6 +3,7 @@ import type { Rarity } from "../lib/card_types"
 import {
   back,
   choose,
+  know,
   layoutAsked,
   refusal,
   setDuration,
@@ -24,12 +25,13 @@ import {
 } from "../lib/listing_form_view"
 import { writeText } from "../lib/dom_writes"
 import type { Intent } from "../lib/screen"
+import type CopyFiltersController from "./copy_filters_controller"
 import type ListingFieldsController from "./listing_fields_controller"
 import type ListingGridController from "./listing_grid_controller"
 import type ListingSummaryController from "./listing_summary_controller"
 
-function editionFrom(cell: HTMLElement): Edition {
-  const data = cell.dataset
+function editionFrom(element: HTMLElement): Edition {
+  const data = element.dataset
   return {
     ref: data.ref ?? "",
     title: data.title ?? "",
@@ -43,11 +45,15 @@ function editionFrom(cell: HTMLElement): Edition {
 }
 
 export default class ListingFormController extends Controller<HTMLFormElement> {
-  static targets = ["cell", "start", "duration", "step"]
+  static targets = ["cell", "edition", "ref", "priceTemplate", "start", "duration", "step"]
   static values = { locale: String, basisPoints: Number, open: Boolean, available: Number, strings: Object }
-  static outlets = ["listing-grid", "listing-fields", "listing-summary"]
+  static outlets = ["copy-filters", "listing-grid", "listing-fields", "listing-summary"]
 
   declare readonly cellTargets: HTMLElement[]
+  declare readonly editionTargets: HTMLElement[]
+  declare readonly hasRefTarget: boolean
+  declare readonly refTarget: HTMLInputElement
+  declare readonly priceTemplateTargets: HTMLTemplateElement[]
   declare readonly startTarget: HTMLInputElement
   declare readonly durationTargets: HTMLInputElement[]
   declare readonly hasStepTarget: boolean
@@ -57,6 +63,8 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
   declare readonly openValue: boolean
   declare readonly availableValue: number
   declare readonly stringsValue: ListingStrings
+  declare readonly hasCopyFiltersOutlet: boolean
+  declare readonly copyFiltersOutlet: CopyFiltersController
   declare readonly hasListingGridOutlet: boolean
   declare readonly listingGridOutlet: ListingGridController
   declare readonly hasListingFieldsOutlet: boolean
@@ -66,8 +74,11 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
 
   private state?: ListingState
   private media?: MediaQueryList
+  private arrived: HTMLElement[] = []
+  private cellsChanged = false
 
   connect(): void {
+    this.arrived = []
     this.state = this.startFromMarkup()
     this.watchLayout()
     this.render()
@@ -77,6 +88,20 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
     this.media?.removeEventListener("change", this.layoutChanged)
     this.media = undefined
     this.state = undefined
+  }
+
+  // A page appended by the infinite scroll or a grid reloaded by the filters: the cells are read once they all landed.
+  cellTargetConnected(cell: HTMLElement): void {
+    this.arrived.push(cell)
+    this.noteCells()
+  }
+
+  cellTargetDisconnected(): void {
+    this.noteCells()
+  }
+
+  clear(): void {
+    if (this.hasCopyFiltersOutlet) this.copyFiltersOutlet.clear()
   }
 
   listingGridOutletConnected(): void {
@@ -141,12 +166,32 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
     this.state = layoutAsked(this.state, layoutFor(this.media.matches))
   }
 
+  private noteCells(): void {
+    if (this.cellsChanged) return
+    this.cellsChanged = true
+    queueMicrotask(() => {
+      this.cellsChanged = false
+      const arrived = this.arrived.filter((cell) => cell.isConnected).map(editionFrom)
+      this.arrived = []
+      if (this.state)
+        this.apply(
+          know(
+            this.state,
+            arrived,
+            this.cellTargets.map((cell) => cell.dataset.ref ?? ""),
+          ),
+        )
+    })
+  }
+
   private startFromMarkup(): ListingState {
-    const editions = this.cellTargets.map(editionFrom)
-    const chosen = this.cellTargets.find((cell) => cell.getAttribute("aria-selected") === "true")?.dataset.ref ?? null
+    const cells = this.cellTargets
+    const editions = [...this.editionTargets, ...cells].map(editionFrom)
+    const chosen = this.hasRefTarget && this.refTarget.value !== "" ? this.refTarget.value : null
     const duration = this.durationTargets.find((radio) => radio.checked)?.value ?? ""
     const typed = { start: this.startTarget.value, duration }
-    return start(editions, this.basisPointsValue, typed, chosen, "wide")
+    const loaded = cells.map((cell) => cell.dataset.ref ?? "")
+    return start(editions, this.basisPointsValue, typed, chosen, "wide", loaded)
   }
 
   private forms(): Forms {
@@ -161,9 +206,15 @@ export default class ListingFormController extends Controller<HTMLFormElement> {
     this.element.dataset.step = String(state.step)
     this.element.dataset.chosen = String(state.chosen !== null)
     if (this.hasStepTarget) writeText(this.stepTarget, stepText(state, forms))
+    if (this.hasRefTarget && this.refTarget.value !== (state.chosen ?? "")) this.refTarget.value = state.chosen ?? ""
     this.grid()?.render(gridViewOf(state))
     this.fields()?.render(fieldsViewOf(state, forms))
+    this.fields()?.showPrice(state.chosen ?? "", this.priceTemplateFor(state.chosen))
     this.summary()?.render(summaryViewOf(state, forms, { open: this.openValue, available: this.availableValue }))
+  }
+
+  private priceTemplateFor(ref: string | null): HTMLTemplateElement | null {
+    return ref === null ? null : (this.priceTemplateTargets.find((template) => template.dataset.ref === ref) ?? null)
   }
 
   private grid(): ListingGridController | null {

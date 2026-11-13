@@ -32,7 +32,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
   def assert_total(text) = assert_selector(".entrust-recap__total .picoin-amount__figure", text:)
 
-  def show_single_copies = find(".entrust-filters .filter-chip__text", text: /doubles/i).click
+  def show_single_copies = find(".copy-filters .filter-chip__text", text: /doubles/i).click
 
   test "a player ticks two editions, raises one and sees the total minted, and the collection holds fewer copies" do
     open_market!
@@ -205,7 +205,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
 
     assert_selector ".entrust-cell:not([hidden])", count: 1
     assert_selector ".entrust-recap__line", text: "Tin Soldier"
-    assert_selector "input[name='copies[#{@common.card.slug}:#{@common.season.number}]']:not([disabled])", visible: :all
+    assert_selector "input[name=selection][value='#{@common.card.slug}:#{@common.season.number}=1']", visible: :all
   end
 
   test "the sentence and the note describe the button, the status speaks after the selection rests, and Esc changes nothing" do
@@ -228,10 +228,11 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     fill_in "entrust-search", with: "blue"
     find("#entrust-search").send_keys(:escape)
 
-    assert_selector ".entrust-cell:not([hidden])", count: 1
+    assert_selector ".entrust-cell", count: 1
     assert_equal "blue", find("#entrust-search").value
-    assert_selector ".entrust-cell--picked", count: 2, visible: :all
-    assert_current_path new_market_entrustment_path(locale: :en)
+    assert_selector ".entrust-cell--picked", count: 1
+    assert_selector ".entrust-recap__line", count: 2
+    assert_current_path new_market_entrustment_path(locale: :en), ignore_query: true
   end
 
   test "settings changed behind the open form are refused inline, the new amounts are drawn and the ticks are kept" do
@@ -384,5 +385,66 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     open_market!(first_opened_at: Time.current)
     visit home_path(locale: :en)
     assert_no_selector ".balance-chip"
+  end
+
+  def editions_of(card_season, count)
+    seasons = Catalog::Season.insert_all!((2..count + 1).map { { status: :published, number: it, published_at: Time.current } }, returning: :id).rows.flatten
+    rows = seasons.each_with_index.map { |season_id, index| { card_id: card_season.card_id, season_id:, prestige_score: 0.5, rating: 50, rarity: card_season.rarity, number: index + 1 } }
+    Catalog::CardSeason.insert_all!(rows, returning: :id).rows.flatten.each { hold(@player, it, 2) }
+  end
+
+  test "the grid loads sixty cards, appends the next page near its end, and a ticked card keeps its tick across pages" do
+    open_market!
+    hold(@player, @rare.id, 2)
+    editions_of(@common, 60)
+    sign_in_through_the_site
+
+    visit new_market_entrustment_path(locale: :en)
+    assert_selector ".entrust-cell", count: 60
+    tick(@rare)
+    assert_no_selector ".entrust-cell .card[data-controller~=tilt]"
+    execute_script("document.querySelector('#entrust-pages').scrollIntoView()")
+
+    assert_selector ".entrust-cell", count: 61
+    assert_selector ".entrust-cell--picked", count: 1
+    assert_total "5,000"
+  end
+
+  test "select all ticks every edition the filters keep, loaded or not, and the recap names the first ones" do
+    open_market!
+    hold(@player, @rare.id, 2)
+    editions_of(@common, 60)
+    sign_in_through_the_site
+
+    visit new_market_entrustment_path(locale: :en)
+    tick(@rare)
+    raise_copies(@rare)
+    click_on "Select all (61)"
+
+    assert_selector ".entrust-recap__more", text: "and 31 more"
+    assert_selector ".entrust-recap__line", count: 30
+    assert_selector "input[name=selection][value^='#{@rare.card.slug}:#{@rare.season.number}=2,']", visible: :all
+    assert_equal 61, find("input[name=selection]", visible: :all).value.split(",").size
+    assert_total "70,000"
+  end
+
+  test "the recap dock draws over the stepper of a ticked card scrolled under it" do
+    open_market!
+    editions_of(@common, 30)
+    sign_in_through_the_site
+
+    visit new_market_entrustment_path(locale: :en)
+    find_all(".entrust-cell__toggle").last.click
+    assert_selector ".entrust-cell--picked .stepper", visible: :visible
+    under_the_dock = evaluate_script(<<~JS)
+      (() => {
+        const stepper = document.querySelector(".entrust-cell--picked .stepper")
+        const dock = document.querySelector(".market-entrust__dock")
+        window.scrollBy(0, stepper.getBoundingClientRect().top - dock.getBoundingClientRect().top - 4)
+        const box = stepper.getBoundingClientRect()
+        return document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)?.closest(".market-entrust__dock") !== null
+      })()
+    JS
+    assert under_the_dock
   end
 end

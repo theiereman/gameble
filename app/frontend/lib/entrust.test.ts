@@ -2,18 +2,18 @@ import entrustPreviewCasesJson from "../../../test/fixtures/files/entrust_previe
 import { describe, expect, it } from "vitest"
 import type { Rarity } from "./card_types"
 import {
-  CLEARED_FILTER,
-  DEFAULT_FILTER,
   bump,
-  clearFilters,
   filterCount,
+  filtering,
+  know,
+  listOrder,
   moveActive,
   preview,
+  selectAll,
+  selecting,
   setCopies,
-  setFilter,
   start,
   toggle,
-  visible,
   type Copy,
 } from "./entrust"
 
@@ -61,21 +61,55 @@ describe("the shared preview cases, which the operation also runs", () => {
   })
 })
 
-describe("the starting filter", () => {
-  it("starts with doubles on by default, so single-copy cells are hidden", () => {
-    expect(visible(start(LIST, CAP, {})).map((copy) => copy.rarity)).toEqual(["legendary", "rare"])
-  })
-
-  it("starts with doubles off when the markup says so, showing single-copy cells", () => {
-    const state = start(LIST, CAP, {}, { ...DEFAULT_FILTER, doubles: false })
-    expect(state.filter.doubles).toBe(false)
-    expect(visible(state).map((copy) => copy.rarity)).toEqual(["legendary", "rare", "common"])
-  })
-
-  it("starts from the filter a redrawn page carries", () => {
-    const state = start(LIST, CAP, {}, { query: "", rarities: ["rare"], doubles: false })
-    expect(visible(state).map((copy) => copy.rarity)).toEqual(["rare"])
+describe("the loaded cells", () => {
+  it("starts on the first loaded cell, the copies ticked off the loaded pages known as well", () => {
+    const state = start(LIST, CAP, { "common:1": 1 }, ["rare:1", "legendary:1"])
     expect(state.active).toBe("rare:1")
+    expect(state.ticked).toEqual({ "common:1": 1 })
+    expect(preview(state).lines.map((line) => line.copy.ref)).toEqual(["common:1"])
+  })
+
+  it("merges the copies of a page that loaded and follows the grid's order", () => {
+    const state = start(LIST.slice(0, 1), CAP, {})
+    const next = know(state, LIST.slice(1), ["legendary:1", "rare:1", "common:1"])
+    expect(Object.keys(next.copies)).toEqual(["legendary:1", "rare:1", "common:1"])
+    expect(next.loaded).toEqual(["legendary:1", "rare:1", "common:1"])
+    expect(know(next, [], ["legendary:1", "rare:1", "common:1"])).toBe(next)
+  })
+
+  it("keeps a ticked copy whose cell a filter reload took away, and moves the active cell to a loaded one", () => {
+    const ticked = toggle(start(LIST, CAP, {}), "legendary:1")
+    const reloaded = know(ticked, [], ["rare:1"])
+    expect(reloaded.ticked).toEqual({ "legendary:1": 1 })
+    expect(reloaded.active).toBe("rare:1")
+    expect(preview(reloaded).lines).toHaveLength(1)
+  })
+})
+
+describe("selecting every edition the filters keep", () => {
+  it("ticks each at one copy, keeps the counts already set and skips what has no free copy", () => {
+    const state = setCopies(toggle(start(LIST, CAP, {}), "rare:1"), "rare:1", 3)
+    const gone = copy("epic", { free: 0 })
+    const all = selectAll(selecting(state, "loading"), [...LIST, gone, copy("uncommon")])
+    expect(all.ticked).toEqual({ "rare:1": 3, "legendary:1": 1, "common:1": 1, "uncommon:1": 1 })
+    expect(all.copies["uncommon:1"]?.title).toBe("The uncommon game")
+    expect(all.selecting).toBe("idle")
+  })
+
+  it("says when the editions could not be loaded and leaves the ticks", () => {
+    const state = toggle(start(LIST, CAP, {}), "rare:1")
+    const failed = selecting(state, "failed")
+    expect(failed.selecting).toBe("failed")
+    expect(failed.ticked).toBe(state.ticked)
+    expect(selecting(failed, "failed")).toBe(failed)
+  })
+})
+
+describe("the filters' count", () => {
+  it("counts the rarities and doubles, and a search alone still filters", () => {
+    expect(filterCount({ rarities: ["rare", "epic"], doubles: true })).toBe(3)
+    expect(filtering({ query: " x ", rarities: [], doubles: false })).toBe(true)
+    expect(filtering({ query: "  ", rarities: [], doubles: false })).toBe(false)
   })
 })
 
@@ -116,46 +150,9 @@ describe("copies", () => {
   })
 })
 
-describe("filters", () => {
-  it("shows the editions of two or more copies by default", () => {
-    expect(visible(start(LIST, CAP, {})).map((entry) => entry.ref)).toEqual(["legendary:1", "rare:1"])
-    const all = setFilter(start(LIST, CAP, {}), { ...DEFAULT_FILTER, doubles: false })
-    expect(visible(all)).toHaveLength(3)
-  })
-
-  it("folds accents and case in the search and keeps the list order", () => {
-    const all = setFilter(start(LIST, CAP, {}), { query: "ECLAIR", rarities: [], doubles: false })
-    expect(visible(all).map((entry) => entry.ref)).toEqual(["common:1"])
-  })
-
-  it("filters by rarity", () => {
-    const state = setFilter(start(LIST, CAP, {}), { query: "", rarities: ["rare"], doubles: false })
-    expect(visible(state).map((entry) => entry.ref)).toEqual(["rare:1"])
-  })
-
-  it("keeps a ticked cell that a filter hides", () => {
-    const ticked = toggle(start(LIST, CAP, {}), "rare:1")
-    const hidden = setFilter(ticked, { query: "legend", rarities: [], doubles: true })
-    expect(visible(hidden).map((entry) => entry.ref)).toEqual(["legendary:1"])
-    expect(hidden.ticked).toEqual({ "rare:1": 1 })
-    expect(preview(hidden).lines).toHaveLength(1)
-  })
-
-  it("counts the active filters and clears them all", () => {
-    const state = setFilter(start(LIST, CAP, {}), { query: "x", rarities: ["rare", "epic"], doubles: true })
-    expect(filterCount(state.filter)).toBe(3)
-    expect(clearFilters(state).filter).toEqual(CLEARED_FILTER)
-  })
-
-  it("moves the active cell to a visible one when a filter hides it", () => {
-    const state = setFilter(start(LIST, CAP, {}), { query: "", rarities: ["rare"], doubles: true })
-    expect(state.active).toBe("rare:1")
-  })
-})
-
 describe("moving between cells", () => {
-  it("moves with the arrows, Home and End over the visible cells only", () => {
-    const state = start(LIST, CAP, {})
+  it("moves with the arrows, Home and End over the loaded cells only", () => {
+    const state = start(LIST, CAP, {}, ["legendary:1", "rare:1"])
     expect(state.active).toBe("legendary:1")
     const right = moveActive(state, "ArrowRight", 2)
     expect(right.active).toBe("rare:1")
@@ -167,9 +164,19 @@ describe("moving between cells", () => {
 })
 
 describe("preview", () => {
-  it("lists the lines most valuable first, as the list stands, whatever the tick order", () => {
-    const state = toggle(toggle(start(LIST, CAP, {}), "rare:1"), "legendary:1")
+  it("lists the lines most valuable first, whatever the tick order and the grid's order", () => {
+    const state = toggle(toggle(start([...LIST].reverse(), CAP, {}), "rare:1"), "legendary:1")
     expect(preview(state).lines.map((line) => line.copy.ref)).toEqual(["legendary:1", "rare:1"])
+  })
+
+  it("orders by value, then season, title and ref", () => {
+    const sorted = [
+      copy("common", { ref: "b:2", season: 2, title: "A" }),
+      copy("common", { ref: "b:1", title: "B" }),
+      copy("common", { ref: "a:1", title: "B" }),
+      copy("rare", { ref: "z:9", season: 9 }),
+    ].sort(listOrder)
+    expect(sorted.map((entry) => entry.ref)).toEqual(["z:9", "a:1", "b:1", "b:2"])
   })
 
   it("names the entrusted Rare or better", () => {

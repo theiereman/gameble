@@ -438,8 +438,8 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[role=option][data-ref=?] .sale-cell__price .picoin-amount[aria-label='15,000 PiCoins']", ref(@rare)
     assert_select "[role=option][data-ref=?] .sale-cell__price .average-price__few", ref(@common), "few sales"
     assert_select "[role=option][data-ref=?][aria-label$=?]", ref(@rare), "average price 15,000 PiCoins"
-    assert_select "template[data-listing-fields-target=priceTemplate]", 2
-    assert_select "template[data-ref=?]", ref(@rare)
+    assert_select "[role=option] template[data-listing-form-target=priceTemplate]", 2
+    assert_select "[role=option][data-ref=?] template[data-ref=?]", ref(@rare), ref(@rare)
     assert_select ".sale-price[data-listing-fields-target=priceSlot][data-ref='']"
     assert_select ".sale-price .average-price", false
   end
@@ -490,7 +490,60 @@ class Market::SalesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".sale-cell__price", false
     assert_select ".sale-price", false
-    assert_select "template[data-listing-fields-target=priceTemplate]", false
+    assert_select "template[data-listing-form-target=priceTemplate]", false
     assert_select "[role=option][aria-label*=average]", false
+  end
+
+  def editions_of(card_season, count)
+    numbers = (2..count + 1).to_a
+    seasons = Catalog::Season.insert_all!(numbers.map { { status: :published, number: it, published_at: Time.current } }, returning: :id).rows.flatten
+    rows = seasons.each_with_index.map { |season_id, index| { card_id: card_season.card_id, season_id:, prestige_score: 0.5, rating: 50, rarity: card_season.rarity, number: index + 1 } }
+    Catalog::CardSeason.insert_all!(rows, returning: :id).rows.flatten.each { hold(@player, it, 1) }
+  end
+
+  test "the page draws sixty cells and links the next page, which answers a stream that appends its cells" do
+    hold(@player, @rare.id, 1)
+    editions_of(@common, 60)
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en)
+
+    assert_select "#sale-cells > .sale-cell", 60
+    assert_select "#sale-results-status", "61 editions"
+    assert_select "#sale-pages[data-next-page-target=pages] a[rel=next][hidden][href*='page=2']"
+    assert_select ".sale-cell .card[data-controller~=tilt]", false
+
+    get new_market_sale_path(locale: :en, page: 2), headers: { "Accept" => "text/vnd.turbo-stream.html" }
+
+    assert_equal "text/vnd.turbo-stream.html", response.media_type
+    assert_select "turbo-stream[action=append][target=sale-cells] template .sale-cell", 1
+    assert_select "turbo-stream[action=replace][target=sale-pages] template #sale-pages a[rel=next]", false
+  end
+
+  test "the filters in the query narrow the grid, and a chosen edition the filter hides stays chosen in the form" do
+    hold(@player, @rare.id, 1)
+    hold(@player, @common.id, 2)
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en, ref: ref(@rare), filter: { query: "", doubles: "1" })
+
+    assert_select "[role=option]", 1
+    assert_select "[role=option][data-ref=?]", ref(@common)
+    assert_select "#sale-search[form=sale-filter][value='']"
+    assert_select "input[form=sale-filter][name='filter[doubles]'][checked]"
+    assert_select "form#sale-filter[method=get][data-turbo-frame=sale-results]"
+    assert_select "input[name=ref][data-listing-form-target=ref][value=?]", ref(@rare)
+    assert_select "[data-listing-form-target=edition][hidden][data-ref=?][data-minimum=7800]", ref(@rare)
+    assert_select "#sale-start-hint", /7,800/
+  end
+
+  test "a filter that keeps nothing says so and offers to clear it" do
+    hold(@player, @rare.id, 1)
+    sign_in(@player)
+
+    get new_market_sale_path(locale: :en, filter: { query: "zzzz" })
+
+    assert_select ".sale-grid__empty", /No edition matches these filters/
+    assert_select ".market-sale__notice", false
   end
 end

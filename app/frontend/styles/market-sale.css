@@ -81,10 +81,18 @@
   align-items: start;
 }
 
+.market-sale__main,
 .sale-grid {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  min-width: 0;
+}
+
+.sale-grid__empty {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
 }
 
 .sale-grid__list {

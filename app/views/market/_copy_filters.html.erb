@@ -1,0 +1,26 @@
+<%# locals: (filter:, form:, search_id:) %>
+<%= tag.div class: "copy-filters", role: "search", data: { controller: "copy-filters", copy_filters_form_value: form, action: "turbo:frame-load@document->copy-filters#reloaded" } do %>
+  <label class="visually-hidden" for="<%= search_id %>"><%= t("market.copy_filters.search_label") %></label>
+  <%= search_field_tag "filter[query]", filter.query, id: search_id, form:, class: "filters__search-field", autocomplete: "off",
+        maxlength: Game::Market::CopyFilter::MAX_QUERY, placeholder: t("market.copy_filters.search_placeholder"),
+        data: { copy_filters_target: "search", action: "input->copy-filters#typed compositionend->copy-filters#typed keydown.enter->copy-filters#submitNow" } %>
+  <fieldset class="filters__group copy-filters__chips">
+    <legend class="visually-hidden"><%= t("market.copy_filters.filters_legend") %></legend>
+    <% Catalog::Rarity::TIERS.each_value do |rarity| %>
+      <label class="filter-chip">
+        <%= check_box_tag "filter[rarities][]", rarity, filter.rarities.include?(rarity.to_s), id: nil, form:, class: "filter-chip__box",
+              data: { copy_filters_target: "rarity", action: "change->copy-filters#changed" } %>
+        <span class="filter-chip__text"><%= t("catalog.rarity.#{rarity}") %></span>
+      </label>
+    <% end %>
+    <label class="filter-chip">
+      <%= check_box_tag "filter[doubles]", "1", filter.doubles, id: nil, form:, class: "filter-chip__box",
+            data: { copy_filters_target: "doubles", action: "change->copy-filters#changed" } %>
+      <span class="filter-chip__text"><%= t("market.copy_filters.doubles") %></span>
+    </label>
+  </fieldset>
+  <div class="copy-filters__foot">
+    <span class="filters__count" data-copy-filters-target="count" <%= "hidden" if filter.count.zero? %>><span class="visually-hidden"><%= t("market.copy_filters.filters_active") %></span> <span data-copy-filters-target="number"><%= filter.count %></span></span>
+    <button type="button" class="filters__clear" data-copy-filters-target="clear" data-action="copy-filters#clear" <%= "hidden" unless filter.narrowing? %>><%= t("market.copy_filters.clear_filters") %></button>
+  </div>
+<% end %>

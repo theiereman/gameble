@@ -1,4 +1,4 @@
-<% chosen = @copies.find { it.ref == @chosen_ref } %>
+<% chosen = @chosen_copy %>
 <% stamp = chosen ? @settings.stamp(chosen.card.rarity.to_sym) : 0 %>
 <% short = chosen && stamp > @available %>
 <div class="sale-summary" data-controller="listing-summary" data-listing-summary-accessible-value="<%= t("market.sales.strings.amount") %>"

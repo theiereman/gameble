@@ -2607,6 +2607,18 @@ en:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
   market:
+    copy_filters:
+      clear_filters: Clear filters
+      doubles: Doubles
+      filters_active: Active filters
+      filters_legend: Filter by rarity or by doubles
+      no_match: No edition matches these filters.
+      search_label: Search your editions
+      search_placeholder: Search a game
+      matches:
+        zero: No edition
+        one: "%{number} edition"
+        other: "%{number} editions"
     exchanges:
       link: THE BROTHERHOOD'S EXCHANGE
       show:
@@ -2810,14 +2822,10 @@ en:
         card_only: "Only %{title}."
         cap_full: Your daily cap is reached. It renews at 00:00 UTC.
         cap_label: Daily cap
-        clear_filters: Clear filters
         closed: The market is closed for now. Nothing can be entrusted until it reopens.
         closed_action: Back to the market
-        doubles: Doubles
         empty: No card to entrust.
         empty_action: Open capsules
-        filters_active: Active filters
-        filters_legend: Filter by rarity or by doubles
         free:
           one: "%{count} free copy"
           other: "%{count} free copies"
@@ -2826,17 +2834,16 @@ en:
         intro: Choose the cards to entrust to the Brotherhood. Each copy earns you PiCoins.
         keys_hint: "Arrow keys move between cards, Space or Enter ticks, + and - change the copies."
         kicker: The Archives
-        no_match: No edition matches these filters.
         not_returned: Entrusted cards are not given back.
         prompt: Tick the cards to entrust.
         receive: You receive
         recap: Summary
-        search_label: Search your editions
-        search_placeholder: Search a game
         season: "Season %{number}"
         sheet_title: Entrust
         sign_in: Sign in to entrust cards to the Brotherhood.
         sign_in_action: Sign in
+        select_all: "Select all (%{number})"
+        select_failed: The editions could not be loaded. Nothing was ticked, try again.
       result:
         close: Dismiss
         copies:
@@ -2852,7 +2859,14 @@ en:
           line_html:
             one: "%{title}, season %{season}: %{count} copy stays in your collection (%{amount})"
             other: "%{title}, season %{season}: %{count} copies stay in your collection (%{amount} each)"
+          more:
+            one: "and %{number} more card"
+            other: "and %{number} more cards"
       strings:
+        more:
+          zero: ""
+          one: "and %{count} more"
+          other: "and %{count} more"
         amount: "%{amount} PiCoins"
         bar_count:
           one: "%{count} copy"

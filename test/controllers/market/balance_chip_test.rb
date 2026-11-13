@@ -96,7 +96,7 @@ class Market::BalanceChipTest < ActionDispatch::IntegrationTest
     hold(@player, @rare.id, 1)
     sign_in(@player)
 
-    post market_entrustments_path(locale: :en), params: { settings: settings.token, copies: { "#{@rare.card.slug}:#{@rare.season.number}" => "1" } }
+    post market_entrustments_path(locale: :en), params: { settings: settings.token, selection: "#{@rare.card.slug}:#{@rare.season.number}=1" }
 
     assert_response :success
     assert_select ".market-entrust__header .balance-chip--header .balance-chip__available[aria-label=?]", "5,000 PiCoins"

@@ -1,10 +1,26 @@
-<section class="entrust-grid" aria-label="<%= t("market.entrustments.new.grid_label") %>" data-controller="entrust-grid">
-  <p class="entrust-grid__hint"><%= t("market.entrustments.new.keys_hint") %></p>
-  <p class="entrust-grid__empty" data-entrust-grid-target="empty" hidden>
-    <%= t("market.entrustments.new.no_match") %>
-    <button type="button" class="filters__clear" data-action="entrust-grid#clear"><%= t("market.entrustments.new.clear_filters") %></button>
-  </p>
-  <ul class="entrust-grid__list" data-entrust-grid-target="list" data-action="keydown->entrust-grid#keydown">
-    <%= render partial: "market/entrustments/cell", collection: @copies, as: :copy %>
-  </ul>
-</section>
+<%= turbo_frame_tag "entrust-results", class: "entrust-results" do %>
+  <%= render "market/copy_filter_fields", filter: @filter %>
+  <%= tag.section class: "entrust-grid", aria: { label: t("market.entrustments.new.grid_label") },
+        data: { controller: "entrust-grid next-page", action: "focusout->next-page#focusLeft" } do %>
+    <div class="entrust-grid__head">
+      <p id="entrust-results-status" class="copy-grid__count" role="status"><%= copy_matches(@pagy.count) %></p>
+      <% if @card_slug.nil? && @pagy.count.positive? %>
+        <%= tag.button t("market.entrustments.new.select_all", number: number_with_delimiter(@pagy.count)), type: "button",
+              class: "button button--secondary button--small entrust-grid__select-all",
+              data: { entrust_grid_target: "selectAll", action: "entrust-grid#selectAll", url: market_entrustment_matches_path(filter: @filter.to_params) } %>
+      <% end %>
+    </div>
+    <p class="entrust-grid__hint"><%= t("market.entrustments.new.keys_hint") %></p>
+    <p class="entrust-grid__failed" role="alert" data-entrust-grid-target="failed" hidden><%= t("market.entrustments.new.select_failed") %></p>
+    <% if @copies.empty? %>
+      <p class="entrust-grid__empty">
+        <%= t("market.copy_filters.no_match") %>
+        <button type="button" class="filters__clear" data-action="entrust-grid#clear"><%= t("market.copy_filters.clear_filters") %></button>
+      </p>
+    <% end %>
+    <ul id="entrust-cells" class="entrust-grid__list" data-entrust-grid-target="list" data-action="keydown->entrust-grid#keydown">
+      <%= render partial: "market/entrustments/cell", collection: @copies, as: :copy %>
+    </ul>
+    <%= render "market/copy_pages", pagy: @pagy, id: "entrust-pages" %>
+  <% end %>
+<% end %>

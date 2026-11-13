@@ -129,6 +129,13 @@ class CardComponentTest < ViewComponent::TestCase
     assert_selector ".card.card--grid[data-controller=tilt] > .card__effects"
   end
 
+  test "a card drawn without tilt keeps its reflections but carries no tilt controller and no glitter" do
+    render_card(card(rarity: "legendary"), size: :s, tilt: false)
+
+    assert_no_selector ".card[data-controller], .card[data-tilt-max-value], .card__glitter, [data-tilt-target]", visible: :all
+    assert_selector ".card > .card__effects .card__reflection--iridescence", visible: :all
+  end
+
   test "a card in goals carries their numbered bookmarks beside its body, in number order, aria-hidden" do
     render_card(size: :grid, goals: [ 2, 4 ])
 

@@ -47,18 +47,18 @@ describe("grid view", () => {
       { ref: "alpha:1", chosen: false, tabbable: false },
       { ref: "beta:1", chosen: true, tabbable: true },
     ])
-    expect(view.chosen).toBe("beta:1")
   })
 
   it("makes the first edition the tab stop while none is chosen", () => {
     const view = gridViewOf(stateWith({}, null))
 
     expect(view.cells.map((cell) => cell.tabbable)).toEqual([true, false])
-    expect(view.chosen).toBe("")
   })
 
-  it("changes the chosen edition only when one is chosen", () => {
-    expect(gridViewOf(choose(stateWith({}, null), "alpha:1")).chosen).toBe("alpha:1")
+  it("draws the loaded cells only, and the first one is the tab stop while the chosen one is not loaded", () => {
+    const state = start([rare, common], 1_000, { start: "", duration: "24" }, "alpha:1", "wide", ["beta:1"])
+
+    expect(gridViewOf(state).cells).toEqual([{ ref: "beta:1", chosen: false, tabbable: true }])
   })
 })
 

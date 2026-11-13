@@ -1,0 +1,7 @@
+<%= hidden_field_tag :selection, entrust_selection(@ticked), id: nil, data: { entrust_target: "selection" } %>
+<div class="entrust-ticks" hidden data-entrust-target="ticks">
+  <% @ticked_copies.each do |copy, count| %>
+    <%= tag.span data: { **entrust_copy_data(copy), copies: count } %>
+  <% end %>
+</div>
+<template data-entrust-target="tickTemplate"><span></span></template>
