@@ -56,7 +56,7 @@ class MarketListingSystemTest < ApplicationSystemTestCase
 
     assert_selector "#sale-start-error", text: "At least 1,300 for a common."
     assert_selector "#sale-start[aria-invalid=true]"
-    assert_field "sale-start", with: "1000"
+    assert_field "sale-start", with: "1,000"
     assert_equal 0, Game::Market::Listing.count
   end
 end
