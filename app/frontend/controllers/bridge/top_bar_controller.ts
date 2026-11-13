@@ -7,6 +7,7 @@ import {
   oncePerTask,
   readAvatar,
   readCounts,
+  renderStreamsFully,
   sameState,
   togglePanel,
   type TopBarState,
@@ -91,10 +92,14 @@ export default class extends BridgeComponent {
   private async refresh(): Promise<void> {
     dispatchGameble("gameble:bank-updated", {})
     const refresh = await fetchChip(this.urlValue)
+    if (refresh.kind !== "render") {
+      this.awaitingFreshValues = false
+      return
+    }
+    await renderStreamsFully(() => window.Turbo.renderStreamMessage(refresh.html))
     this.awaitingFreshValues = false
-    if (refresh.kind !== "render") return
     this.reportNextEvenIfUnchangedHere()
-    window.Turbo.renderStreamMessage(refresh.html)
+    this.reportSoon()
   }
 
   private replaceCachedValues(): void {

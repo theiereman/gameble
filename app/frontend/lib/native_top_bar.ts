@@ -75,6 +75,26 @@ export function oncePerTask(run: () => void, defer: (task: () => void) => void =
   }
 }
 
+type RenderingStream = EventTarget & { render(): Promise<void> }
+
+// A Turbo stream applies its action a repaint after it lands in the page, so the page shows the old values until then.
+export async function renderStreamsFully(
+  render: () => void,
+  events: Pick<EventTarget, "addEventListener" | "removeEventListener"> = document,
+): Promise<void> {
+  const streams: RenderingStream[] = []
+  const collect = (event: Event): void => {
+    streams.push(event.target as RenderingStream)
+  }
+  events.addEventListener("turbo:before-stream-render", collect)
+  try {
+    render()
+  } finally {
+    events.removeEventListener("turbo:before-stream-render", collect)
+  }
+  await Promise.allSettled(streams.map((stream) => stream.render()))
+}
+
 export function cachedBySource(rasterize: (source: string) => Promise<string>) {
   const rendered = new Map<string, string>()
   return async (source: string): Promise<string> => {

@@ -5,6 +5,7 @@ import {
   closePanels,
   oncePerTask,
   readCounts,
+  renderStreamsFully,
   sameState,
   togglePanel,
   type TopBarState,
@@ -182,5 +183,40 @@ describe("cachedBySource", () => {
     expect(await avatar("a")).toBe("")
     expect(await avatar("a")).toBe("")
     expect(rasterize).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe("renderStreamsFully", () => {
+  function landingStream(events: EventTarget) {
+    let finish = (): void => {}
+    const rendered = new Promise<void>((resolve) => (finish = resolve))
+    const stream = Object.assign(new EventTarget(), { render: () => rendered })
+    const land = (): void => {
+      const event = new Event("turbo:before-stream-render")
+      Object.defineProperty(event, "target", { value: stream })
+      events.dispatchEvent(event)
+    }
+    return { land, finish }
+  }
+
+  it("settles only once every stream the message landed has applied its action", async () => {
+    const events = new EventTarget()
+    const first = landingStream(events)
+    const second = landingStream(events)
+    let settled = false
+
+    const rendering = renderStreamsFully(() => {
+      first.land()
+      second.land()
+    }, events).then(() => (settled = true))
+
+    first.finish()
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(settled).toBe(false)
+
+    second.finish()
+    await rendering
+    expect(settled).toBe(true)
   })
 })
