@@ -1,0 +1,127 @@
+/* The packs chip: canister, reserve, divider, countdown; a link to the
+   booster screen. The booster screen's static chip (--static) is no link. */
+a.packs-chip {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.packs-chip:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+a.packs-chip:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.packs-chip--static {
+  margin: 0;
+}
+
+.packs-chip__label,
+.packs-chip__next {
+  color: var(--color-muted);
+}
+
+.packs-chip__special-count {
+  color: var(--color-lime);
+}
+
+/* The standard and special reserves share one box: two links, a line between them. */
+.packs-chips {
+  display: inline-flex;
+  align-items: stretch;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+}
+
+.packs-chips > .packs-chip {
+  background: none;
+  box-shadow: none;
+}
+
+.packs-chips > .packs-chip--special {
+  gap: var(--space-2);
+  padding-inline: var(--space-3) var(--space-4);
+  box-shadow: inset var(--space-unit) 0 0 var(--color-line);
+}
+
+.packs-chips > a.packs-chip:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.packs-chips > a.packs-chip:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.packs-chip__special-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.packs-chip--special[data-empty] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.packs-chip--special[data-empty] .packs-chip__special-count {
+  color: var(--color-muted);
+}
+
+/* The time to the next capsule fills the chip's ground from the left; its
+   words stay for screen readers. A full reserve, which refills no more,
+   tints the chip red. */
+.packs-chip {
+  position: relative;
+  isolation: isolate;
+}
+
+.packs-chip__divider {
+  display: none;
+}
+
+.packs-chip__next {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.packs-chip__next > [aria-hidden="true"],
+.packs-chip__next--full {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.packs-chip__fill {
+  height: 100%;
+  gap: 0;
+}
+
+.packs-chip__fill .gauge__segment {
+  height: 100%;
+  background: none;
+}
+
+.packs-chip__fill .gauge__segment--lit {
+  background: color-mix(in srgb, var(--color-accent) 16%, transparent);
+}
+
+.packs-chip:has(.packs-chip__next--full) {
+  background: color-mix(in srgb, var(--color-danger-text) 10%, transparent);
+}
+
+.packs-chip:has(.packs-chip__next--full) .packs-chip__count {
+  color: var(--color-danger-text);
+}
+
+.packs-chip__clock {
+  color: var(--color-text-bright);
+  font-variant-numeric: tabular-nums;
+}

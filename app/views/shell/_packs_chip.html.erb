@@ -11,7 +11,10 @@
     <% elsif seconds %>
       <span class="packs-chip__divider" aria-hidden="true"></span>
       <span class="packs-chip__next" data-controller="countdown" data-countdown-seconds-value="<%= seconds %>"
-            data-countdown-refresh-value="<%= refresh %>" data-countdown-refresh-url-value="<%= packs_chip_path %>">
+            data-countdown-refresh-value="<%= refresh %>" data-countdown-refresh-url-value="<%= packs_chip_path %>"
+            data-countdown-total-value="<%= Game::Pack::INTERVAL.to_i %>">
+        <%= render GaugeComponent.new(lit: GaugeComponent.lit(Game::Pack::INTERVAL.to_i - seconds, Game::Pack::INTERVAL.to_i),
+              class: "packs-chip__fill", segment_data: { countdown_target: "segment" }) %>
         <span aria-hidden="true"><%= t("shell.packs.next_in") %>
           <span class="packs-chip__clock" data-countdown-target="clock"><%= format_remaining(seconds) %></span></span>
         <span class="visually-hidden"><%= local_time_sentence(bank[:next_available_at]) { t("shell.packs.next_at", time: it) } %></span>

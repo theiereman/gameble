@@ -34,6 +34,8 @@ class PacksChipsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#{CHIP} div#packs-chip .packs-chip__count", "1"
     assert_select "#{CHIP} .packs-chip__next [data-countdown-target=clock]", "10:00"
+    assert_select "#{CHIP} .packs-chip__next[data-countdown-total-value='600'] .packs-chip__fill [data-countdown-target=segment]"
+    assert_select "#{CHIP} .packs-chip__fill .gauge__segment--lit", false
     assert_select "#{CHIP} .packs-chip__next .visually-hidden", "Next capsule: 2026-10-02 14:32 UTC"
 
     refresh = css_select("#{CHIP} .packs-chip__next[data-controller=countdown]").sole

@@ -72,8 +72,29 @@ html[data-sub-view-step] .main {
 
 /* ---- Widths and breakpoints ---- */
 
+/* A screen with a back button keeps the bar for finding the way back;
+   the booster, whose counts climb as capsules open, keeps them. */
+.top-bar:has(.top-bar__bridge):not(:has(.packs-chip--static)) .rarity-counter {
+  display: none;
+}
+
 @media (max-width: 1439px) {
-  /* The capsule label gives way first: its count keeps the name in its link. */
+  /* The committed PiCoins leave the bar first, still read by screen readers;
+     the market screens show what is committed. */
+  .balance-chip--bar .balance-chip__committed {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .balance-chip--bar .balance-chip__divider {
+    display: none;
+  }
+
+  /* The capsule label gives way too: its count keeps the name in its link. */
   .packs-chip__label {
     position: absolute;
     width: 1px;
@@ -91,20 +112,6 @@ html[data-sub-view-step] .main {
 
   .top-bar__inner {
     padding-inline: var(--space-gutter-medium);
-  }
-
-  /* The packs chip drops its divider and countdown (still in its text). */
-  .packs-chip__divider {
-    display: none;
-  }
-
-  .packs-chip__next {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
   }
 }
 
