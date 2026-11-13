@@ -62,6 +62,17 @@ class MarketLiveAnnonceSystemTest < ApplicationSystemTestCase
     assert_selector "#annonce-bid button[type=submit]", text: /BID · 26,000/
   end
 
+  test "the reader's own bid updates the price panel, the leader and the history in its answer" do
+    sign_in_through_the_site(@reader)
+    open_annonce
+    fill_in "annonce-maximum", with: "26000"
+    find("#annonce-form button[type=submit]", match: :first).click
+    assert_selector "#annonce-bid", text: /leading/i
+
+    assert_selector ".market-listing__leader", text: @reader.persona_name
+    assert_selector ".market-history__line--bid", count: 1
+  end
+
   test "an open unusual-maximum dialog stays open through a refresh" do
     sign_in_through_the_site(@reader)
     open_annonce

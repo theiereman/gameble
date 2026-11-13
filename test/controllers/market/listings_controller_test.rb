@@ -206,11 +206,16 @@ class Market::ListingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".market-bid__shortcut[data-annonce-field-amount-param='9800']", "+25% · 9,800"
   end
 
-  test "the Annonce carries its rarity and season above the title and a gauge of the time gone" do
+  test "the Annonce carries its rarity and season above the title and a gauge of the time gone, from its listing to its end" do
     annonce
 
     assert_select ".market-listing__kicker--rare", /RARE · SEASON/i
-    assert_select "progress.market-listing__progress[max][value]"
+    assert_select ".market-listing__timeline" do
+      assert_select "progress.market-listing__progress[max][value] + .market-listing__start", /Listed/ do
+        assert_select "time[datetime]"
+      end
+      assert_select ".market-listing__start + .market-listing__ends", /Ends/
+    end
     assert_select ".market-listing__progress--soon", false
   end
 

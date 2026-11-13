@@ -19,6 +19,7 @@ module Market
 
       def answer_with(region, status:)
         @region = region
+        @history = Game::Market::BidHistory.call(token:, viewer: current_player)
         respond_to do |format|
           format.turbo_stream { render :create, status: }
           format.html { redirect_to market_listing_path(token:), status: :see_other }

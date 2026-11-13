@@ -1,4 +1,3 @@
-<% seconds = listing_seconds_left(@listing.ends_at) %>
 <% content_for :public_page, true unless current_player %>
 <% content_for :back_button, true %>
 <% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path, every_width: true %><% end %>
@@ -41,24 +40,7 @@
       </dl>
     </div>
 
-    <div class="market-listing__figures">
-      <div class="market-listing__figure">
-        <p class="market-listing__label"><%= t(".price") %></p>
-        <%= render PicoinAmountComponent.new(amount: @listing.current_price, size: :large, class: "market-listing__price") %>
-        <% if @listing.leader %>
-          <p class="market-listing__leader"><%= t(".leader") %> <%= render PlayerNameComponent.new(player: @listing.leader, viewer: current_player) %></p>
-        <% end %>
-      </div>
-      <%= tag.div class: "market-listing__figure market-listing__figure--time", data: clock_data(seconds) do %>
-        <p class="market-listing__label"><%= t(".time") %></p>
-        <p class="market-listing__time<%= " market-listing__time--soon" if time_left_soon?(seconds) %>" data-listing-clock-target="label"><%= listing_time_left(seconds) %></p>
-        <p class="market-listing__ends"><%= local_time_tag(@listing.ends_at) %></p>
-      <% end %>
-      <% if @listing.status == "open" %>
-        <%= tag.progress class: class_names("market-listing__progress", "market-listing__progress--soon": time_left_soon?(seconds)),
-              max: listing_duration_seconds(@listing), value: listing_elapsed_seconds(@listing), aria: { hidden: true } %>
-      <% end %>
-    </div>
+    <%= render "market/listings/figures", listing: @listing, viewer: current_player %>
 
     <%= render "market/bids/region", listing: @listing, sheet: @sheet, outcome: @outcome, viewer: current_player, focus: @focus, suspended: @suspended, events: @events %>
 

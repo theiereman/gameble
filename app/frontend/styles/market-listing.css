@@ -41,6 +41,15 @@
   color: var(--color-rarity-legendaire);
 }
 
+/* The bar fills from the listing on the left to the end on the right, each end named under it. */
+.market-listing__timeline {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: auto auto;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
 .market-listing__progress {
   grid-column: 1 / -1;
   width: 100%;
@@ -157,10 +166,16 @@
   color: var(--color-alert);
 }
 
+.market-listing__start,
 .market-listing__ends {
   margin: 0;
   color: var(--color-muted);
-  font: var(--font-body);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.market-listing__ends {
+  text-align: right;
 }
 
 @media (min-width: 400px) {

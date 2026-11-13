@@ -2279,6 +2279,8 @@ fr:
           see_card: "VOIR LA CARTE"
           title: "VOUS AVEZ REMPORTÉ %{card}"
       show:
+        listed: "Mise en vente"
+        ends: "Fin"
         average_price: "Prix moyen"
         back: "Marché"
         leader: "En tête :"
