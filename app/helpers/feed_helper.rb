@@ -72,7 +72,10 @@ module FeedHelper
   def feed_set_kicker(entry)
     return t("feeds.show.headline.sets_reached", count: entry.set_count) if entry.set_count > 1
 
-    t("feeds.show.headline.set_reached.#{entry.tier}")
+    return t("feeds.show.headline.set_reached.complete") if entry.tier == Catalog::SetTier::COMPLETE
+
+    tier = feed_tier_tag(entry.tier, surface_class: "feed__tag")
+    rank_tier?(entry.tier) ? t("feeds.show.headline.set_reached.rank_html", tier:) : t("feeds.show.headline.set_reached.metal_html", tier:)
   end
 
   def feed_register_link(label)

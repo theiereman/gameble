@@ -113,8 +113,9 @@ class LiveFeedJobTest < ActiveSupport::TestCase
     feed = template(english, "prepend", "feed-entries")
     entry = feed.css("li.feed__entry").sole
     assert_equal "Hugo reaches silver in the Roguelike set.", entry.at_css(".feed__sentence").text
-    assert_equal "Reaches silver", entry.at_css(".feed__headline-kicker").text
-    assert_empty entry.css(".feed__tier")
+    assert_equal "Silver", entry.at_css(".feed__headline-kicker .feed__tag.feed__tier--silver").text
+    assert_equal 2, entry.css(".feed__tier-notches i").size
+    assert_equal 1, entry.css(".feed__tier").size
     assert_empty entry.css(".feed__thumb, .feed__chip")
     assert entry.matches?(".feed__entry--set")
     item = template(english, "prepend", "live-ticker-queue").css("li.ticker__item").sole
@@ -127,7 +128,7 @@ class LiveFeedJobTest < ActiveSupport::TestCase
     assert_equal "Argent", template(french, "prepend", "live-ticker-queue").at_css(".ticker__tier").text
   end
 
-  test "a rank reached is named once in the feed and carries its rank's mark in the ticker" do
+  test "a rank reached carries its rank's mark before its name in the feed headline and the ticker" do
     common, uncommon, rare, = fixture_tier_ids
     insert_set([ common, uncommon, rare, *unheld_cards(2) ], { expert: 2, complete: 5 })
     Game::Holding.create!(player_id: @hugo.id, card_season_id: uncommon, quantity: 1)
@@ -136,9 +137,9 @@ class LiveFeedJobTest < ActiveSupport::TestCase
     LiveFeedJob.perform_now(notices)
 
     english = received(:en)
-    entry = template(english, "prepend", "feed-entries").css("li.feed__entry").sole
-    assert_equal "Reaches the Expert tier", entry.at_css(".feed__headline-kicker").text
-    assert_empty entry.css(".feed__tier")
+    tag = template(english, "prepend", "feed-entries").css("li.feed__entry").sole.at_css(".feed__headline-kicker .feed__tag.feed__tier--expert")
+    assert_equal "Expert", tag.text
+    assert_equal 1, tag.css(".feed__tier-mark > svg.rank-mark.rank-mark--expert.rank-mark--fine[aria-hidden=true]").size
     ticker = template(english, "prepend", "live-ticker-queue").at_css(".ticker__tier.feed__tier--expert")
     assert_equal "Expert", ticker.text
     assert ticker.at_css(".feed__tier-mark > svg.rank-mark--expert")

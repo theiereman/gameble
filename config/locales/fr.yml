@@ -2147,14 +2147,8 @@ fr:
         verdict: "Verdict du Chattomètre"
         verdict_title: "Le plus chanceux de la semaine passée"
         set_reached:
-          bronze: "Atteint le bronze"
-          silver: "Atteint l'argent"
-          gold: "Atteint l'or"
-          novice: "Atteint le palier Novice"
-          apprentice: "Atteint le palier Apprenti"
-          adept: "Atteint le palier Adepte"
-          expert: "Atteint le palier Expert"
-          master: "Atteint le palier Maître"
+          metal_html: "Atteint %{tier}"
+          rank_html: "Atteint le palier %{tier}"
           complete: "Complète le set"
         sets_reached:
           zero: "Atteint %{count} palier"

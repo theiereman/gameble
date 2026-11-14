@@ -1789,15 +1789,9 @@ en:
         reposted: Reposted
         bought_html: Bought for %{amount}
         set_reached:
-          adept: Reaches the Adept tier
-          apprentice: Reaches the Apprentice tier
-          bronze: Reaches bronze
           complete: Completes the set
-          expert: Reaches the Expert tier
-          gold: Reaches gold
-          master: Reaches the Master tier
-          novice: Reaches the Novice tier
-          silver: Reaches silver
+          metal_html: Reaches %{tier}
+          rank_html: Reaches the %{tier} tier
         sets_reached:
           one: Reaches %{count} tier
           other: Reaches %{count} tiers

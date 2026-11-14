@@ -564,25 +564,27 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     Game::OpenPack.new.call(player:).value!
   end
 
-  test "a stranger reads a set reached naming the player, the set and the tier once, with no thumbnail" do
+  test "a stranger reads a set reached naming the player, the set and the tier's badge in the headline, with no thumbnail" do
     reach_roguelike_silver
 
     get feed_path(locale: :en)
 
     assert_select ".feed__entry.feed__entry--set", 1 do
       assert_select ".feed__sentence", "Hugo reaches silver in the Roguelike set."
-      assert_select ".feed__headline-kicker", "Reaches silver"
-      assert_select ".feed__tier", 0
+      assert_select ".feed__headline-kicker", /\AReaches\s*Silver\z/
+      assert_select ".feed__headline-kicker .feed__tag.feed__tier--silver", "Silver"
+      assert_select ".feed__tier-notches i", 2
+      assert_select ".feed__tier", 1
       assert_select ".feed__thumb, .card", 0
     end
     assert_select "[style]", 0
 
     get feed_path(locale: :fr)
     assert_select ".feed__entry--set .feed__sentence", "Hugo atteint l'argent du set Roguelike."
-    assert_select ".feed__entry--set .feed__headline-kicker", "Atteint l'argent"
+    assert_select ".feed__entry--set .feed__headline-kicker", /\AAtteint\s*Argent\z/
   end
 
-  test "a rank reached names its rank in the headline only, with no tier tag" do
+  test "a rank reached shows its rank's badge in the headline only, behind its rank's mark" do
     common, uncommon, rare, legendary = fixture_tier_ids.values_at(0, 1, 2, 4)
     insert_set([ common, uncommon, rare, legendary, fixture_tier_ids[3] ], Catalog::TierTable.tiers(5))
     [ uncommon, rare ].each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
@@ -593,13 +595,16 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".feed__entry.feed__entry--set", 1 do
       assert_select ".feed__sentence", "Hugo reaches the Master tier in the Roguelike set."
-      assert_select ".feed__headline-kicker", "Reaches the Master tier"
-      assert_select ".feed__tier", 0
+      assert_select ".feed__headline-kicker", /\AReaches the\s*Master\s*tier\z/
+      assert_select ".feed__headline-kicker .feed__tag.feed__tier--master", "Master"
+      assert_select ".feed__tier-mark > svg.pixel-icon.rank-mark.rank-mark--master.rank-mark--fine[aria-hidden=true]", 1
+      assert_select ".feed__tier-notches", 0
+      assert_select ".feed__tier", 1
     end
 
     get feed_path(locale: :fr)
     assert_select ".feed__entry--set .feed__sentence", "Hugo atteint le palier Maître du set Roguelike."
-    assert_select ".feed__entry--set .feed__headline-kicker", "Atteint le palier Maître"
+    assert_select ".feed__entry--set .feed__headline-kicker", /\AAtteint le palier\s*Maître\z/
   end
 
   test "a private player's set line is not shown, and no filter is for sets" do
