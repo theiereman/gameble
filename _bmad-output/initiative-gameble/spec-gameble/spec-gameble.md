@@ -311,36 +311,36 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** A player sees what makes each card strong in a duel, and how that moves with what the Brotherhood does.
   - **success:**
     - Every card has five stats, each a percentile: popularity, rating, release, discovery and circulation, as defined in `duel-rules.md`. Rarity is not one.
-    - The stats are recomputed every Monday at 00:00 UTC and hold for the week.
+    - The stats are computed when release 1.4 is deployed, then every Monday at 00:00 UTC, and hold for the week.
     - A card's trump is its most extreme stat, in either direction.
     - The detail view shows the five stats and the trump; the card face is unchanged.
     - Each Monday a feed entry tells the cards whose stats moved most.
 - **CAP-40**
   - **intent:** A player builds decks from their collection to duel with.
   - **success:**
-    - A player has up to 5 named decks of exactly 12 distinct cards they own, with no rarity or theme constraint; a shorter deck is a draft and cannot duel.
-    - A card in one or more decks blocks one copy, which cannot be traded, listed or entrusted until the card leaves every deck; those screens name the decks.
+    - A player has up to 5 named decks of exactly 12 cards they own, a game at most once whatever its edition, with no rarity or theme constraint; a shorter deck is a draft and cannot duel.
+    - A card in one or more decks blocks one copy of its edition, which cannot be traded, listed or entrusted until the card leaves every deck; those screens name the decks.
     - The editor sorts and filters the collection by stat and trump, and shows each deck card's change since the previous week.
-    - A player may name one complete deck their defence deck, which opens them to open challenges.
 - **CAP-41**
-  - **intent:** Two players duel with their decks, Top Trump style, each when it suits them.
+  - **intent:** Two friends duel live with their decks, Top Trump style, and each round is a real read of the other.
   - **success:**
-    - A duel is two halves of 5 calls, each played in one sitting: the caller plays a card from a hand of 3, names a stat and a direction, against the top card of the opponent's shuffled deck.
+    - A player challenges an online friend with a complete deck; the friend has 60 seconds to accept with a complete deck of theirs, or refuses. One duel in progress per player; a private player cannot duel (CAP-8).
+    - Both decks are visible to both players for the whole duel, played cards struck out; hands of 3 stay hidden.
+    - Ten rounds, calls alternating from a random first caller: the caller locks a card and a stat with its direction, the card turns face up, the answerer picks a card without knowing the call, then all is revealed.
     - A round won scores one point; nothing is captured and no deck changes. Ties follow `duel-rules.md`.
     - Decks and stat values are frozen at the duel's start.
-    - A player challenges a friend, or takes an open challenge against a random player with a defence deck, and plays their half at once. The opponent has 48 hours; then their half is played automatically. No duel is won by forfeit.
-    - A player has at most 10 duels in progress, and one at a time with the same player. Private, banned and deleted players follow `duel-rules.md`.
+    - 30 seconds to call and 20 to answer, 60 to reconnect; past them the game plays the move. No duel is won by forfeit.
 - **CAP-42**
   - **intent:** Winning a duel gives a reason to come back without turning duels into a capsule farm.
   - **success:**
-    - The first win of the UTC day gives a duel capsule of 3 cards at the daily bonus odds (CAP-16), in the special reserve; a second the same day is refused, whatever the client does.
+    - The first win of the UTC day gives a duel capsule of 3 cards at the daily bonus odds (CAP-16), in the special reserve, only if the game played none of the winner's moves; a second the same day is refused, whatever the client does.
     - Other wins, losses and draws give nothing material.
     - The profile shows the player's wins, losses and draws.
 - **CAP-43**
-  - **intent:** Players compare their skill at duels.
+  - **intent:** Players compare their skill at duels against players who are not their friends (after release 1.4).
   - **success:**
-    - An Elo-style rating starting at 1,000 moves only with open challenges; friend duels never move it.
-    - A player appears in the ranking after 5 ranked duels.
+    - A ranked queue matches players who are not friends; a duel against a friend, or a third meeting with the same opponent within 7 days, is unrated.
+    - An Elo-style rating starting at 1,000; a player appears in the ranking after 10 ranked duels, with one in the last 14 days.
     - The rating resets at each new catalog season; the profile keeps each season's final rank.
     - The ranking follows the Flukeometer's visibility rules and layout, on its own screen.
 
@@ -351,9 +351,9 @@ gameble is an open-source passion project, and the game its author wants to play
 - **Duels move nothing between players:** no card or PiCoin changes hands in a duel and duels never mint PiCoins; the duel capsule (CAP-42) is their only material reward.
 - **Friend trades stay free:** no stamp, commission, floor or levy, ever.
 - **Money integrity:** entrustment is the only way PiCoins are created; only the stamp, the commission and a deleted account's balance destroy them. Every PiCoin movement is kept in a permanent record that balances can be rebuilt from. PiCoin amounts are integers. The 100-6-Tron is the Mint in code, since "bank" means the capsule reserve.
-- **Market and personal data:** the export (CAP-14) includes a player's PiCoin history, listings and bids. Deleting the account erases the name from the bid history and destroys its balance, and the money record stays without identity.
+- **Market and personal data:** the export (CAP-14) includes a player's PiCoin history, listings and bids, and their decks and duel history. Deleting the account erases the name from the bid history and destroys its balance, and the money record stays without identity.
 - **French and English UI**, both complete at launch. Card text is available in every UI language. The English copy is translated by AI from the French. All repo text (code, comments, docs) is in English.
-- **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability up to CAP-26 is live at launch. CAP-23 is live before the second season is published in production. Release 1.1.0 ships CAP-27, CAP-28 and the 2026-10-30 changes to CAP-6, CAP-9, CAP-17 and CAP-20; the trade suggestions of CAP-11 may follow in a later release. CAP-29 to CAP-38 are the market release, built after that (V2). Release 1.4 ships CAP-39 to CAP-43; decks open with the release and duels on the first Monday after it.
+- **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability up to CAP-26 is live at launch. CAP-23 is live before the second season is published in production. Release 1.1.0 ships CAP-27, CAP-28 and the 2026-10-30 changes to CAP-6, CAP-9, CAP-17 and CAP-20; the trade suggestions of CAP-11 may follow in a later release. CAP-29 to CAP-38 are the market release, built after that (V2). Release 1.4 ships CAP-39 to CAP-42, with live duels between friends only; CAP-43 and deferred duels follow in a later release.
 - **Landing ship conditions:** CAP-24 and CAP-25 go live only once the lore text exists in French and English (`lore.md`), the pioneer (CAP-13) is built, the repository is public with a license file, the roadmap's milestones are created from the initiative's epics and curated by staff in the back-office, and the app uses JetBrains Mono.
 - **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports, and, for a player with a Steam identity, the catalog games of their library (CAP-27), covered by export and by account deletion.
 - **Player-facing words:** the interface says "capsule" for pack (French and English), "réserve" for bank and "mission hebdo" / "weekly mission" for the weekly goal, so "objectif" / "goal" names only a player's goals (CAP-28) (author, 2026-10-30), and keeps "carte" / "card" (in the lore, an archive card: `lore.md`). The spec, the code, the database, stored events and URLs keep pack, bank and weekly goal. The market's words are in `market-economy.md`; a player "confie" / "entrusts" a card (author, 2026-11-09).
@@ -378,7 +378,7 @@ gameble is an open-source passion project, and the game its author wants to play
 
 ## Non-goals
 
-- Battle modes other than the asynchronous Top Trump duel (CAP-41): live duels, card or PiCoin stakes, captured cards. Knowledge questions and Daily Pixel are later (`later-roadmap.md`).
+- Battle modes other than the Top Trump duel (CAP-41): card or PiCoin stakes, captured cards, more than two players. Release 1.4 has no ranked or deferred duel. Knowledge questions and Daily Pixel are later (`later-roadmap.md`).
 - A guide or tutorial.
 - Bulk pack opening.
 - Any input at opening that improves the odds (later).
@@ -429,9 +429,9 @@ For the market: 30 days after it opens, cards sell between players at every rari
 
 ## Open Questions
 
-- **Duel rating (CAP-43):** the Elo factor and any rating floor are not set.
+- **Duel rating (CAP-43):** the Elo factor and any rating floor are not set; the ranked queue's matching window at today's player count is untested.
+- **Live duel load (CAP-41):** how often two friends are online at once, and how a newcomer's thin collection fares, are what release 1.4 tests.
 - **Duel achievements (CAP-17, CAP-41):** which ones, and which give a card back; `achievements.md` lists none yet.
-- **Duel UX (CAP-39 to CAP-43):** where duels live in navigation (the phone's five tabs are full), the duel capsule's name and colour, and every duel string.
 - **Card backs (CAP-20):** beyond one back per theme or hall of fame set at its back tier and the achievement backs of `achievements.md`, which goal and event backs ship, and does every successful weekly goal grant one?
 - **Preview image (CAP-9):** do Steam's terms allow its store art in a derived, stored image? The author checks before it ships.
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.

@@ -90,7 +90,7 @@ gameble is a passion project. Success doesn't depend on scale.
 ### Out
 
 - **Library as collection:** owning a game on Steam never gives its card.
-- **Combat:** trivia-style fights are hollow. A friend's "knowledge battles" idea is parked in the addendum. (2026-11-14: release 1.4 adds an asynchronous Top Trump duel built on Steam and Brotherhood data, not trivia; see `forge-decks-and-matches` and spec CAP-39 to CAP-43.)
+- **Combat:** trivia-style fights are hollow. A friend's "knowledge battles" idea is parked in the addendum. (2026-11-14: release 1.4 adds a live Top Trump duel between friends built on Steam and Brotherhood data, not trivia; see `forge-decks-and-matches` and spec CAP-39 to CAP-43.)
 - **Real money** in any form.
 - **Guilds.**
 - **A guide, opening every pack at once, numbered copies of a card.**

@@ -34,9 +34,10 @@ The market and its economy are now CAP-29 to CAP-38 of the spec, with their rule
 - **Secret achievements (#66):** achievements whose title and condition stay hidden until earned, some opening hidden branches, explored once active goals (CAP-28) ship; sensitive ones private by default.
 - **Targeted capsules (#64):** capsules aimed at a goal, to explore in their own issue.
 - **Feed reactions:** reacting to or commenting on a friend's pull or repost.
-- **Knowledge battles** (parked idea, unscheduled; detail in the brief addendum): three-round matches on themes drawn from Steam data, played with cards picked from a random hand. Release 1.4's Top Trump duel (CAP-41) already plays on Steam data with decks; a themed round could become a duel variant. Live play and card stakes stay out (spec non-goals).
+- **Knowledge battles** (parked idea, unscheduled; detail in the brief addendum): three-round matches on themes drawn from Steam data, played with cards picked from a random hand. Release 1.4's Top Trump duel (CAP-41) already plays on Steam data with decks; a themed round could become a duel variant. Card stakes stay out (spec non-goals).
 - **Daily Pixel (#62):** a daily solo puzzle, guessing a game from a pixelated cover that sharpens with each wrong answer, rewarded with a themed capsule. It needs no deck; planned after release 1.4.
 - **Living duel stats:** stats drawn from the Brotherhood's activity (entrusted copies, reactions and reposts, custom-set picks, trades, a card's duel win rate) were too sparse on 2026-11-14 (36 players). Remeasure at each new catalog season; a dense enough one may replace a Steam stat (`duel-rules.md`).
+- **Ranked and deferred duels (CAP-43, `duel-rules.md`):** after release 1.4's live friend duels are tested: a ranked queue among non-friends with an Elo rating, then deferred duels with a deadline per move.
 - **Duel extras:** decks shown on the profile, a solo practice duel, more than two players at once (#352).
 - **Delisted games:** manual curation, since the store API returns little for them.
 - **Native apps:** App Store and Play Store. Store review may object to third-party art and random rewards, and iOS sign-in rules may apply. Reassess then.
