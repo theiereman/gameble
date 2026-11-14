@@ -9,6 +9,12 @@
     <%= search_field_tag "q", filters.query, id: "market-search", class: "filters__search-field", autocomplete: "off",
       maxlength: Game::Market::ListingFilters::MAX_QUERY, placeholder: t("markets.filters.search_placeholder") %>
   </div>
+  <% if current_player %>
+    <label class="filter-chip market-filters__mine">
+      <%= check_box_tag "hide_mine", "1", filters.hides_mine?, id: nil, class: "filter-chip__box" %>
+      <span class="filter-chip__text"><%= t("markets.filters.hide_mine") %></span>
+    </label>
+  <% end %>
   <details class="filters__zone" <%= "open" if filters.count.positive? %>>
     <summary class="filters__summary">
       <%= pixel_icon("arrow-small-right", class: "filters__chevron") %>

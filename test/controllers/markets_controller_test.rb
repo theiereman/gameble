@@ -265,4 +265,34 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".market-empty a.button[href=?]", market_path(locale: :en, sort: "newest")
     assert_select ".market-soon", false
   end
+
+  test "a player can hide their own sales, the choice kept by the sorts" do
+    open_for_good
+    player = accounts_players(:player)
+    mine = listing!(seller: player, card_season: catalog_card_seasons(:common_card_one), hours: 12)
+    theirs = listing!(seller: accounts_players(:moderator), card_season: catalog_card_seasons(:rare_card_one), hours: 24)
+    sign_in(player)
+
+    get market_path(locale: :en)
+
+    assert_select ".market-filters__mine input[name=hide_mine][value='1']:not([checked])"
+    assert_equal [ mine, theirs ].map { market_listing_path(locale: :en, token: it.token) }, tiles.map { it.at_css("a")["href"] }
+
+    get market_path(locale: :en, hide_mine: "1")
+
+    assert_select ".market-filters__mine input[name=hide_mine][checked]"
+    assert_equal [ market_listing_path(locale: :en, token: theirs.token) ], tiles.map { it.at_css("a")["href"] }
+    assert_select ".market-screen__section-note", "1"
+    assert_select "a[href=?]", market_path(locale: :en, hide_mine: "1", sort: "newest")
+  end
+
+  test "a visitor has no sales to hide" do
+    open_for_good
+    listing!(seller: accounts_players(:player), card_season: catalog_card_seasons(:common_card_one))
+
+    get market_path(locale: :en, hide_mine: "1")
+
+    assert_select ".market-filters__mine", false
+    assert_equal 1, tiles.size
+  end
 end

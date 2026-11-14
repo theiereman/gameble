@@ -2978,6 +2978,7 @@ en:
       clear_search: CLEAR THE SEARCH
       groups:
         season: Season
+      hide_mine: Hide my sales
       no_match: No listings match these filters.
       nobody: "Nobody is selling “%{query}”"
       nobody_body: No listing matches for now. Listings arrive all day long.

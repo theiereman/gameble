@@ -2548,6 +2548,7 @@ fr:
         step: "Étape %{step} sur 2"
   markets:
     filters:
+      hide_mine: "Masquer mes ventes"
       search_label: "Rechercher un jeu"
       search_placeholder: "Rechercher un jeu"
       groups:
