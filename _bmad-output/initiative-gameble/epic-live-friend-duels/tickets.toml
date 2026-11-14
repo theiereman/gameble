@@ -1,0 +1,111 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The duel's rules and what each seat may see, as pure objects over the duel tables"
+description = "Contract slice. One migration set creates game_duels, game_duel_seats and game_duel_rounds with every column of AD-54 and AD-55 (the seat's stream key, present_until and status included, move_deadline_at on the duel), their state, status, stat and direction checks, and the partial unique indexes giving a player at most one seated and one invited seat; no later story migrates them. The deck snapshot is fixed here: per seat the 12 cards in the fixed order (season, then card number), each with its card-season, card, number, rarity and, per stat, the exact value, the percentile and the median distance read through entry 42.1's query. Game::DuelRules, a pure object, gives the caller of each round from the first caller (A B A B A B A B B A), the stats each player has left, the hand of 3 from the draw order and the played cards, a round's outcome in the called direction (better percentile, then exact value, then nothing scored), scores, margins over the rounds won and the duel's result, and the automatic move of a caller and of an answerer with its tie-break (larger median distance, then the stat order of duel-rules.md, then the lower card number). Game::DuelView.for(duel, seat) gives what one seat may see: its hand and locked call, the other's card once called, played cards, scores, margins, the calls each player has left counted from revealed rounds only, both decks in their fixed order, and move_number; never the other seat's hand, an unrevealed call or a draw order, and in state challenged nothing of the challenger's deck. No operation, screen or stream yet."
+verify = "Unit tests, exhaustive over DuelRules and DuelView: the call order over ten rounds for either first caller, each stat called once per player, hands drawn from the draw orders with round 10 played with open hands, every outcome and tie (equal percentile decided on the exact value, then no point), the margin deciding equal scores and the draw, the automatic call and answer with each tie-break step, and for every state and either seat a view holding nothing of the other hand, an unrevealed call or a draw order, calls left counted from revealed rounds only, and nothing of the challenger's deck while challenged; model tests cover the checks and the one seated and one invited seat per player."
+covers = ["R3", "R6", "R7"]
+after = ["42.1"]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Two friends play a whole duel to its result on a plain duel screen"
+description = "Tracer through every layer, with no timer yet. Game operations taking player: (ChallengeFriend, AcceptChallenge, CallRound, AnswerRound) lock as AD-10 says (both seated players' bank locks, then the duel row, then its seats), check the state, move_number and whose move it is, refuse with their codes (friend_busy, deck_not_ready, not_your_move, stat_already_called, card_not_in_hand), raise move_number and publish one event each, their POSTs rate limited per player; ChallengeFriend checks friendship, open_to_friends? and a complete owned deck (entry 42.3's decks), seats the challenger and invites the friend; AcceptChallenge re-checks both decks, copies the snapshot of entry 1, draws both draw orders and the first caller with SecureRandom and seats the friend; the answer of round 10 records the result, sets both seats left and publishes Game::DuelFinished in place of its round event. The challenge and its acceptance reach both players on their private streams (PlayerStream). Each seat subscribes to its own stream, named by its opaque key and the locale, through a channel that accepts only that seat's player; after commit a job on a new duels queue (its own worker in config/queue.yml) renders DuelView.for(duel, seat) for each seat and pushes it to that seat's stream only, and the screen drops a view older than its move_number. The Duels screen (entry 42.2) gets a plain challenge form (a complete deck and a friend) and, for the friend, the challenge received with a deck choice and ACCEPTER. The duel screen, at its address by the duel's token with a policy refusing anyone who holds no seat, is a rich screen with one root controller holding its state module in app/frontend/lib/duel.ts, rendered from DuelView on page load and on each push: the score, the round, both decks with played cards, the hand, a plain call (card, stat, direction) and answer, each reveal, and the result with the score and the ten rounds. Copy and every errors.game code in en.yml and fr.yml."
+verify = "One system test with two sessions: Léa challenges Hugo, Hugo accepts, both play the ten rounds in turn and both see the same result and score, and neither page ever contains the other's hand. Operation, channel and policy tests cover each refusal code, a move out of turn or with a stale move_number, the snapshot frozen against a later deck edit, DuelFinished published once in place of round 10's event, each seat's job pushing only that seat's view, the channel refusing another player, and the duel page refusing a viewer with no seat."
+covers = ["R1", "R4", "R5", "R7", "R8", "R19"]
+after = [1, "42.2", "42.3"]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Only a reachable friend can be challenged, from Duels or the friend's row and profile"
+description = "A migration adds reachable_until to the Accounts player row. PlayerStreamChannel, subscribed on every page, calls Accounts::NoteReachable on subscribe and every 30 s while subscribed (periodically), a housekeeping write with no event setting it 45 s ahead; unsubscribing clears nothing. Game::ReachableFriends gives a player's friends whose reachable_until has not passed, neither profile private, each with whether they are seated or invited elsewhere; ChallengeFriend refuses a friend it does not give (friend_unavailable). The Duels screen gains EN LIGNE · <n>, one row per reachable friend with DÉFIER (named Défier <name>), a friend in a duel showing Duel en cours, Aucun ami en ligne pour l'instant. when none, and Ajoutez des amis pour les défier. with AJOUTER DES AMIS to Amis when the player has no friend. DÉFIER EN DUEL (named Défier <name> en duel) follows ÉCHANGE on a reachable friend's row (app/views/friends/_friend_row.html.erb), friend profile and public profile while neither profile is private, a friend in a duel showing Duel en cours. Each DÉFIER opens entry 2's challenge form on that friend. With the player's own profile private, Duels shows Vos duels sont fermés tant que votre profil est privé. in place of the friends and no DÉFIER; a private friend reads Duels fermés tant que ce profil est privé.. Presence words and the friends page's online count keep reading last_seen_at. Copy in en.yml and fr.yml."
+verify = "One system test with two sessions: Hugo shows under EN LIGNE on Léa's Duels screen and on her friends page with DÉFIER EN DUEL while his page is open, and leaves both once his reachability has lapsed. Operation, channel and query tests cover the 45 s lease set on subscribe and renewed every 30 s, no write on unsubscribe, ReachableFriends leaving out a private or lapsed friend and marking one in a duel, and ChallengeFriend refusing an unreachable friend."
+covers = ["R1", "R2", "R12"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "The server keeps the clock and plays a move whose time is up"
+description = "Every operation that hands a move over sets move_deadline_at on the duel (60 s to accept, 60 s to call, 45 s to answer) and enqueues after commit Game::DuelDeadlineJob on the duels queue for the deadline plus 2 s with the duel token and the move_number. Game::SweepDuelDeadlinesJob runs every 10 s in the development and production blocks of config/recurring.yml. Only these two jobs run Game::LapseChallenge and Game::PlayAutomaticMove, operations that act only when, under the duel lock, the move_number still matches and the effective deadline has passed (the earlier of move_deadline_at and, for the seat that must act, present_until plus 60 s, a seat with no lease yet counting as present); the automatic move is DuelRules' and is marked on its round, and the automatic answer of round 10 finishes the duel as AnswerRound does. LapseChallenge ends a challenge not accepted in time, sets both seats left and tells both private streams. The view carries the deadline and the server time, and entry 2's challenge form and duel screen show the countdown of whoever must act as <s> s by their name, in the alert colour from 10 s, with a polite status line saying 10 secondes once per move; a move the game played shows Coup joué automatiquement."
+verify = "One system test with two sessions: Léa lets her call's 60 s run out and both see the round played with Coup joué automatiquement; a challenge left unanswered lapses for both. Job and operation tests, with time travel: a job for an old move_number does nothing, a real move just before the deadline wins over the job, the sweep catches a lost job, the reconnection deadline shortens the effective one, round 10 played automatically finishes the duel, and config/recurring.yml carries the sweep every 10 s in both blocks."
+covers = ["R5", "R9"]
+after = [3]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 4
+type = "story"
+title = "A challenge is sent from the Défier un ami sheet and answered from a dialog"
+description = "Défier un ami replaces entry 2's plain form, as board 2 draws it, a phone sheet (the BottomSheetComponent): the deck as a radio list (the last used, read from the player's latest seat, preselected; a draft listed with <n> / 12 and Un brouillon ne peut pas jouer : il lui faut 12 cartes.) and the friend as a radio list (reachable friends with avatar and presence; one in a duel with Duel en cours), then DÉFIER; then En attente de la réponse de <name>… <s> s counting down from the stored deadline and ANNULER, which runs Game::CancelChallenge. An answer opens the duel for both, or the sheet shows <name> a décliné. or <name> n'a pas répondu.; a friend gone offline or into another duel before DÉFIER is refused inline with <name> n'est plus disponible. and greyed; a friend with no complete deck is named with <name> n'a pas de deck complet.. With no complete deck (Il vous faut un deck complet de 12 cartes pour défier.) or a duel already in progress (Vous avez déjà un duel en cours.) DÉFIER is disabled, focusable through aria-disabled, its reason under it; an unavailable draft or friend is a radio with aria-disabled, its reason in its name, only its thumbnail or avatar dimmed. DÉFIER UN AMI becomes the Duels screen's one primary button and every DÉFIER and DÉFIER EN DUEL opens the sheet on that friend. The challenge received is a dialog (board 3) over whatever signed-in screen the friend is on, delivered on their private stream and never as a bell line, waiting while a capsule opening runs: <name> vous défie en duel., Votre deck (their last used complete deck preselected), ACCEPTER, REFUSER (Game::RefuseChallenge) and the seconds left, in the alert colour from 10 s; without a complete deck only REFUSER, with the draft reason. Cancellation, refusal, lapse and acceptance reach both private streams; once the dialog closes a polite status line says how (Le défi de <name> a expiré., Défi refusé., <name> a annulé son défi.) and the focus returns where it was; focus otherwise follows Focus after each step. Copy in en.yml and fr.yml."
+verify = "One system test with two sessions: Léa challenges Hugo from the sheet and cancels; challenges again and Hugo refuses from the dialog; challenges again and Hugo accepts, and both land on the duel; a player with only a draft deck sees DÉFIER disabled with its reason. Operation, component and policy tests cover CancelChallenge and RefuseChallenge by the wrong player or after acceptance, both streams told of each end, the last used deck preselected, the dialog held back during an opening, and the disabled states' accessible names."
+covers = ["R1", "R12", "R13", "R14"]
+after = [6]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "The phone duel screen calls, answers and reveals each round as designed"
+description = "The duel screen of entry 2 becomes boards 4 to 7 and DESIGN.md's Duel, Duel header, Duel reveal and Duel result, at phone width, with no tab bar and no back, keeping entry 6's timer by the name of whoever must act. Header: the friend's name, MANCHE <n> / 10, the score and écart <±n> signed from the player's side; Annonces restantes : <stats> under SON DECK; both decks as rows of 12 small thumbnails, a played card at 35% with Joué; the table; VOTRE DECK; the hand of three at the foot. Calling (À vous d'annoncer): the hand, the five stats of the chosen card (a stat already called stays, aria-disabled, Déjà annoncée) and the two directions in words, each a radio group (Votre main, Caractéristique, Sens), then ANNONCER, every choice changeable until then. Answering (À vous de répondre): the friend's card face up with its five values and Annonce cachée on a capsule-duel outline, then RÉPONDRE AVEC CETTE CARTE. ANNONCER and RÉPONDRE AVEC CETTE CARTE ignore activation for 400 ms after they become active and fire on release, never on press. Reveal: both cards side by side with the stat, its direction, both values in words and raw and the outcome word (Gagnée, Perdue, Nulle, départagée à la valeur exacte), focus on the outcome heading holding the whole round; the next round after 3 s or at once on SUIVANTE. The friend's move lands as a polite status line in words. Esc clears the latest choice (direction, then stat, then card) and never leaves the duel. A face-up card is a 200 ms flip, a plain swap with reduced motion; a drawn card slides in. The result: the score, Départagé à l'écart : <n> points de centile when the margin decided, the ten rounds as an ordered list each one sentence, the summary read first, and REJOUER (Rejouer contre <name>), which challenges the same friend through the sheet of entry 4 while they are reachable, else aria-disabled with <name> n'est plus en ligne. or Duel en cours. Slashes, dashes and units read as words. Copy of Copy deck, Duel and Duel result and record in en.yml and fr.yml."
+verify = "One system test at phone width with two sessions: Léa calls Quake on La plus ancienne, Hugo answers, both read the reveal and its outcome heading, a called stat shows Déjà annoncée in the next call, and at the result REJOUER opens the waiting sheet on Hugo. Vitest covers the state module's choice changes and Esc order, the 400 ms guard firing on release only, dropping an older view and the reveal's 3 s advance; component tests cover the radio groups' names and the result's spoken summary."
+covers = ["R15", "R16"]
+after = [4]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 7
+type = "story"
+title = "A dropped connection or a reload never breaks a duel"
+description = "The seat stream's channel sets present_until 20 s ahead on subscribe and every 10 s while subscribed (periodically), a housekeeping write with no event; unsubscribing changes nothing; a seat whose lease has lapsed is absent, and the clock of entry 6 then reads its reconnection deadline. The view tells each seat whether the other is absent: Connexion de <name> perdue… <s> s counting down the 60 s, after which their moves play automatically; the player's own lost cable shows Connexion perdue… <s> s and, on return, the duel where it stands or its result, since every page load and every reconnection renders the current view. A move sent while the connection is down shows ENVOI… on its button and is retried while its timer runs, the move_number making a repeat harmless; while the other acts the round heading says so (Hugo répond…), with no spinner. A duel in progress the player has left shows on Duels as one row with REPRENDRE (Reprendre le duel contre <name>), as the bell line Votre duel contre <name> attend votre retour. with Reprendre (Game::BellItems), and as a badge of 1 on the DUELS tab and menu 04 named Duels, 1 duel en cours; a duel finished in the last 7 days is the bell line Duel contre <name> terminé : <victoire|défaite|égalité>, <a> à <b>. with Voir. In the native apps a tab or top-bar destination leaves the duel and counts as a disconnection, and the DUELS tab's badge leads back. Copy in en.yml and fr.yml, French plurals with their zero form."
+verify = "One system test with two sessions: Hugo's page goes offline in round 3, Léa sees Connexion de Hugo perdue… with its countdown, Hugo returns within 60 s and both resume at round 3; Hugo leaves for the hub, sees the DUELS badge and the bell's Reprendre, and REPRENDRE brings him back. Channel, job and query tests cover the lease set and renewed, a lapsed lease shortening the deadline, an absent player's remaining moves played automatically, a repeated move refused by its move_number, and the bell lines and badge counts."
+covers = ["R8", "R10", "R17"]
+after = [5]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 8
+type = "story"
+title = "A banned, deleted or newly private player's duel finishes, and their name leaves its history"
+description = "Banning, deleting and going private write no duel row: the removed player's leases lapse and their duel finishes by automatic play through entry 6's jobs; their open challenge lapses, since AcceptChallenge asks open_to_friends?. The finishing move nulls the player of a deleted seat; Game::ReleasePlayer nulls the player on the seats of the deleted player's finished duels and drops their invited seats' challenges as lapsed; the duel screen, the result, the bell lines and the opponent's history read anonyme for a banned or deleted opponent, through the one component that names a player. The export (Game::ExportOf, PlayerExport) lists the player's duels with their date, score, result and rounds, the opponent unnamed."
+verify = "One system test with two sessions: an administrator bans Hugo during round 4, Léa's duel goes on with Hugo's moves played automatically to its result, which reads anonyme. Operation, handler and query tests cover deletion mid-duel nulling the seat at the finishing move, deletion after a duel nulling the finished seats, going private mid-duel letting the duel finish, a pending challenge to a removed player lapsing, and the export's duels with no opponent name."
+covers = ["R11"]
+after = [7]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 9
+type = "story"
+title = "Duels and the duel screen on desktop"
+description = "At desktop width, as boards 11 and 12 and DESIGN.md's Duels, Desktop draw them: the Duels screen keeps entry 42.2's 1120px column and puts DÉFIER UN AMI and EN LIGNE in a 400px left column beside the decks; Défier un ami opens as a centred dialog (the Modal pattern) instead of the phone sheet; the challenge received stays the Modal; a duel fills the window without the hub menu, the opponent's deck on the left and the player's on the right, each a 3 × 4 grid at 74px tall with names, the choices in the centre (stats and directions side by side, then ANNONCER), the hand of three at the foot, the chosen card raised 12px; the reveal and the result keep their phone order. No behaviour changes."
+verify = "One system test at desktop width with two sessions: Léa challenges Hugo from the dialog and plays a round in the desktop layout, and the window size is restored after the test. Stylelint and format checks pass on the touched CSS, and entries 4, 5 and 7's phone system tests still pass."
+covers = ["R18"]
+after = [7]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup across the epic, its scope set when it starts from the build records and the review findings deferred during the epic. Cleanup only; scope pushed out of another story is a new story."
+verify = "bin/ci, npm run test:js, bin/rails zeitwerk:check, bundle exec packwerk check and the system tests of entries 2 to 9 pass."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+hitl = false
+risk = "low"

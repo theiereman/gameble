@@ -1,0 +1,56 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The first real win of the day gives a duel capsule"
+description = "Expand/contract migrations on game_packs: the kind and size checks gain duel (each new check added not valid, then validated in its own migration, the old one dropped); a duel_day date column set only on duel packs, with a unique index on player and duel_day added concurrently in its own migration; game_fortunes gains duel_packs. Game::Pack's kind enum gains duel with 3 cards at the daily bonus odds (Game::DrawOdds); Game::Reserve::KINDS puts duel in the special reserve; Game::Fortune::PACK_COLUMNS gains duel_packs and Game::LuckOdds the duel kind, so the Flukeometer counts duel capsules, and its rebuild counts them too. The finishing move of a duel (AnswerRound or PlayAutomaticMove at round 10) draws one duel pack for the winner in its transaction, under the winner's bank lock, when none of the winner's moves in this duel is automatic and the winner has no duel pack for the UTC day the duel ends, inserting with the unique index as the final guard, so a second grant is impossible whatever the client does; a loss, a draw or another win draws nothing. The duel's result records which of the three cases applied, and the result screen shows CAPSULE DE DUEL GAGNÉE in a panel with the duel capsule's small canister and a capsule-duel edge, linked to the capsule screen, or Pas de capsule : un de vos coups a été joué automatiquement., or Capsule de duel déjà gagnée aujourd'hui.. The crossed-blades emblem joins script/pixel_art/origin_canisters.mjs and script/pixel_art/export.mjs from DESIGN.md's grid and is exported, never hand-edited; the canister takes the capsule-duel label band and LEDs with CAPSULE DE DUEL; the capsule screen reads EN OUVERTURE · CAPSULE DE DUEL. Copy of Copy deck, Special capsules and Duel result and record in en.yml and fr.yml."
+verify = "One system test with two sessions: Léa wins her first duel of the day, sees CAPSULE DE DUEL GAGNÉE, follows it and opens a 3-card capsule in the duel canister from the special reserve; she wins again and reads Capsule de duel déjà gagnée aujourd'hui.. Operation and model tests cover no capsule after an automatic move of the winner, for a loser or a draw, the UTC day being the day the duel ends, the unique index refusing a second duel pack the same day, the reserve counting it as special, the Fortune columns and LuckOdds for the duel kind, and the checks refusing an unknown kind; node script/pixel_art/export.mjs --check passes."
+covers = ["R1", "R2", "R3"]
+after = ["43.5", "43.6", "43.8"]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 2
+type = "story"
+title = "The profile and the Duels screen show the player's record and last duels"
+description = "One query reads a player's wins, losses and draws from their finished duels and seats, and their last ten results with the opponent, the score and the result, a removed opponent reading anonyme through the one component that names a player. A profile's ACTIVITÉ stats (Game::ProfileActivity and the public profile) gain the Duels figure group, wins, losses and draws, under the profile's visibility rules. The Duels screen gains, under MES DECKS, the record (Duels : <w> victoires, <l> défaites, <d> égalités) with the link Règles du duel, a link-variant ButtonComponent, to Comment ça marche's duels section, and DERNIERS DUELS, up to ten rows each named Victoire contre <name>, 6 à 4 (likewise for a loss or a draw) and opening that duel's result, which its policy shows to its two seats only; on desktop DERNIERS DUELS sits in the 400px left column under EN LIGNE. Comment ça marche (app/views/pages/how_it_works.html.erb) gains a duels section with its anchor: decks of 12 and the copy they block, the five stats and the trump, a round, ties and the margin, the timers and automatic moves, and the duel capsule with its odds read from Game::DrawOdds, every number read from what the game applies. Copy in en.yml and fr.yml, French plurals with their zero form."
+verify = "One system test: after Léa wins and loses a duel against Hugo, her profile's ACTIVITÉ shows 1 win and 1 loss, her Duels screen shows the record and two DERNIERS DUELS rows, a row opens its result, and Règles du duel opens the duels section of Comment ça marche. Query and policy tests cover the counts with a draw, the ten-row limit and order, an anonyme opponent, a private profile's record hidden as its other stats are, and a third player refused a duel's result."
+covers = ["R4", "R5"]
+after = [1, "43.9"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Ten duel achievements and the Duelliste card back"
+description = "Game::Achievements gains the ten duel achievements of achievements.md under keys that never change, with the titles, conditions and flavours of EXPERIENCE.md's rows 24 to 33 as locale keys in both languages. Game::AchievementProgress reads their metrics from finished duels, their seats and rounds: duels finished; duels won (1, 10, 50, 100); a round won with a Commune card against a Légendaire card, read from the snapshot's rarities; a duel won 10 to 0; a duel won on the margin after a tied score; distinct opponents; and the distinct stats of the rounds won; a round won by the player's automatic move does not count for Valuation Error or Certified Versatility, while a duel counts once it ends, automatic moves included. GrantAchievementsJob also follows Game::DuelFinished, for both seats. The Duelliste back, a blue-steel frame on a dark field with the crossed blades over two cards facing each other and DUEL, as board 10 draws it, joins script/pixel_art/named_backs.mjs and is exported by script/pixel_art/export.mjs, never hand-edited; Game::CardBacks gains it, unlocked by Abuse of Dominant Position, with its condition in the back picker. The achievement toast and the Succès screen show them as they show the others."
+verify = "One system test: a player whose duel ends with their first win sees the toasts for First Dispute Settled Amicably and Competitive Advantage Observed, and both tiles show earned on Succès. Query and job tests cover each metric's threshold, an automatic winning round excluded from Valuation Error and Certified Versatility only, a 10 – 0 win, a margin win, five distinct friends, the job following DuelFinished for both seats, and the Duelliste back unlocking at 50 wins; node script/pixel_art/export.mjs --check passes."
+covers = ["R6", "R7"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup across the epic, its scope set when it starts from the build records and the review findings deferred during the epic. Cleanup only; scope pushed out of another story is a new story."
+verify = "bin/ci, npm run test:js, bin/rails zeitwerk:check, bundle exec packwerk check and the system tests of entries 1 to 3 pass."
+covers = []
+after = [1, 2, 3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "The author ships release 1.4.0 to production"
+description = "HITL. The author cuts a candidate of 1.4.0 per RELEASING.md and, on staging with two accounts on a phone and a desktop, walks the Done when of epics 42 to 44: a card's DUEL block as a visitor and a player; a deck built, sorted and filled, a sixth deck and a second edition refused; a deck card named and freed on the trade board, Confier and Mettre en vente; ÉCHANGES with its sub-tabs; a challenge cancelled, refused, lapsed and accepted; a whole duel with a timer run out, a reload and a dropped connection; a banned test opponent's duel finishing anonyme; the duel capsule on the first win of the day and none on the second; the record, DERNIERS DUELS and the first duel achievements; the Monday feed entry once a Monday has passed. Then the author promotes the candidate, checks that production computed the duel stats at deploy and that a card's detail shows them, plays one duel between two accounts there, writes the release notes and lets the release v1.4.0 be published. Submitting the native apps with their DUELS tab to the stores is the author's choice of timing."
+verify = "The author confirms each Done when item of epics 42 to 44 on staging, and in production a card's detail shows its duel profile, a duel between two accounts reaches its result, and the release v1.4.0 is published."
+covers = ["R8"]
+after = [4]
+hitl = true
+risk = "high"

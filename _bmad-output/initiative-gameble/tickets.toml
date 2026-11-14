@@ -316,3 +316,27 @@ slug = "epic-economy-charts"
 title = "Economy charts"
 covers = ["CAP-34", "CAP-36", "CAP-38"]
 after = [{ epic = 38, needs = "OpenMarket and MarketState, the back-office market page and the picoins helper" }, { epic = 39, needs = "the market screen's chip row, sold listings and average_after_sale" }, { epic = 41, needs = "the first opening, the daily snapshot, EconomySeries' indicators with days of income, the card detail's average price with its sale count and the health page" }]
+
+[[epic]]
+id = 42
+release = "1.4.0"
+slug = "epic-duel-stats-and-decks"
+title = "Duel stats and decks"
+covers = ["CAP-39", "CAP-40"]
+after = []
+
+[[epic]]
+id = 43
+release = "1.4.0"
+slug = "epic-live-friend-duels"
+title = "Live duels between friends"
+covers = ["CAP-41"]
+after = [{ epic = 42, needs = "complete decks and their operations, the duel stats query, the Duels screen" }]
+
+[[epic]]
+id = 44
+release = "1.4.0"
+slug = "epic-duel-capsule-record-and-achievements"
+title = "Duel capsule, record and achievements"
+covers = ["CAP-42", "CAP-17", "CAP-20"]
+after = [{ epic = 43, needs = "a finished duel with DuelFinished, automatic moves marked on rounds, the finishing move with removed players settled, the duel result screen, the desktop Duels screen" }]
