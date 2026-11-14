@@ -326,7 +326,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:**
     - A player challenges an online friend with a complete deck; the friend has 60 seconds to accept with a complete deck of theirs, or refuses. One duel in progress per player; a private player cannot duel (CAP-8).
     - Both decks are visible to both players for the whole duel, played cards struck out; hands of 3 stay hidden.
-    - Ten rounds, calls alternating from a random first caller: the caller locks a card and a stat with its direction, the card turns face up, the answerer picks a card without knowing the call, then all is revealed.
+    - Ten rounds, calls alternating from a random first caller, who also calls the last round; each player calls each of the five stats once: the caller locks a card and a stat with its direction, the card turns face up, the answerer picks a card without knowing the call, then all is revealed.
     - A round won scores one point; nothing is captured and no deck changes. Ties follow `duel-rules.md`.
     - Decks and stat values are frozen at the duel's start.
     - 60 seconds to call and 45 to answer, 60 to reconnect; past them the game plays the move. No duel is won by forfeit.
