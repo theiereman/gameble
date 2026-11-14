@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Exports the interface's pixel art (Rarity, Typography's glyphs,
-// Chrome, Card backs, Booster canister, Showcase, Avatars) as static
+// Chrome, Feed decors, Card backs, Booster canister, Showcase, Avatars) as static
 // files in app/frontend/images/pixel/.
 //
 // The icons are SVG. Each is a character grid, one character per
@@ -36,6 +36,7 @@ import { EMBLEM_SIZE, ORIGIN_LOOKS, drawEmblem, originBodyFile } from "./origin_
 import { NEBULA_HEIGHT, NEBULA_WIDTH, drawNebula } from "./nebula.mjs"
 import { BACK_OFFICE_ICONS } from "./back_office_icons.mjs"
 import { PICOIN_MARKS } from "./picoin_mark.mjs"
+import { feedDecors } from "./feed_decors.mjs"
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..")
 const ART_PIXEL = 2
@@ -1688,6 +1689,8 @@ for (const [name, icon] of Object.entries(BACK_OFFICE_ICONS)) files.set(`office-
 for (const [name, icon] of Object.entries(PICOIN_MARKS)) files.set(`${name}.svg`, iconSvg(name, icon))
 files.set("wordmark-sweep.svg", wordmarkSweepSvg())
 files.set("starfield.svg", starfieldSvg())
+const FEED_DECORS = feedDecors(random)
+for (const [file, svg] of FEED_DECORS.files) files.set(file, svg)
 files.set("nebula.png", drawNebula())
 for (const { name, tones } of BASE_BACK_DESIGNS) {
   for (const [size, [w, h]] of Object.entries(CARD_SIZES)) files.set(`back-${name}-${size}.png`, baseBack(w / 2 | 0, h / 2 | 0, tones))
@@ -1799,6 +1802,7 @@ const DESCRIPTIONS = {
     `${look.title} canister body: the label band and the window's ${look.emblemName} emblem in the origin's colour, 100 × 110`])),
   "planet.png": "Ringed planet under the hub showcase: slate and blue bands, a lit ring, 200 × 200",
   "favicon.png": "Home-screen icon: the wordmark's gold G, 20 screen pixels per glyph pixel, 180 × 180",
+  ...FEED_DECORS.descriptions,
   ...Object.fromEntries(Object.entries(AVATARS).map(([key, colour]) => [`avatar-${colour}.png`, `Avatar, ${colour} palette (“${key}” in the prototype), 16 × 16`])),
 }
 for (const file of files.keys()) if (!DESCRIPTIONS[file]) throw new Error(`${file}: no description in DESCRIPTIONS`)

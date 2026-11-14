@@ -1,0 +1,64 @@
+/*
+ * Behind each post of the feed, a faint pixel scene tells at a glance what
+ * happened: a shining card for a pull, a flag on a hill for a discovery, two
+ * cards and their arrows for a trade, a tower for a repost, terraces for a
+ * set tier, a wall of tiles for a completed set, a pile of PiCoins for a sale,
+ * the crowned histogram for the weekly verdict. Both the phone post and
+ * the wide row anchor their scene to the bottom right corner. The files come
+ * from script/pixel_art/export.mjs; outside the feed (the landing page's
+ * strip) no decor is drawn.
+ */
+
+@container feed (min-width: 0) {
+  .feed__entry {
+    --feed-decor-post: none;
+    --feed-decor-row: none;
+    --feed-decor: var(--feed-decor-post) right bottom / auto no-repeat;
+  }
+
+  .feed__entry--decor-pull {
+    --feed-decor-post: url("../images/pixel/feed-decor-pull-post.svg");
+    --feed-decor-row: url("../images/pixel/feed-decor-pull-row.svg");
+  }
+
+  .feed__entry--decor-discovery {
+    --feed-decor-post: url("../images/pixel/feed-decor-discovery-post.svg");
+    --feed-decor-row: url("../images/pixel/feed-decor-discovery-row.svg");
+  }
+
+  .feed__entry--decor-trade {
+    --feed-decor-post: url("../images/pixel/feed-decor-trade-post.svg");
+    --feed-decor-row: url("../images/pixel/feed-decor-trade-row.svg");
+  }
+
+  .feed__entry--decor-repost {
+    --feed-decor-post: url("../images/pixel/feed-decor-repost-post.svg");
+    --feed-decor-row: url("../images/pixel/feed-decor-repost-row.svg");
+  }
+
+  .feed__entry--decor-set {
+    --feed-decor-post: url("../images/pixel/feed-decor-set-post.svg");
+    --feed-decor-row: url("../images/pixel/feed-decor-set-row.svg");
+  }
+
+  .feed__entry--decor-set-complete {
+    --feed-decor-post: url("../images/pixel/feed-decor-set-complete-post.svg");
+    --feed-decor-row: url("../images/pixel/feed-decor-set-complete-row.svg");
+  }
+
+  .feed__entry--decor-sale {
+    --feed-decor-post: url("../images/pixel/feed-decor-sale-post.svg");
+    --feed-decor-row: url("../images/pixel/feed-decor-sale-row.svg");
+  }
+
+  .feed__entry--decor-verdict {
+    --feed-decor-post: url("../images/pixel/feed-decor-verdict-post.svg");
+    --feed-decor-row: url("../images/pixel/feed-decor-verdict-row.svg");
+  }
+}
+
+@container feed (min-width: 720px) {
+  .feed__entry {
+    --feed-decor: var(--feed-decor-row) right bottom / auto no-repeat;
+  }
+}

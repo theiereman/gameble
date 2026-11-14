@@ -70,6 +70,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
       end
     end
     assert_select ".feed__entry--epic", 5
+    assert_select ".feed__entry--decor-pull, .feed__entry--decor-discovery", 5
   end
 
   test "a trade's headline names the partner and both games" do
@@ -81,6 +82,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__headline-kicker", "Trade with Sam"
     assert_select ".feed__headline-title", "Portal for Blue Depths"
     assert_select ".feed__entry[class*=feed__entry--epic]", 0
+    assert_select ".feed__entry--decor-trade", 1
   end
 
   test "an empty feed says so" do

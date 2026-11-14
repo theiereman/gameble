@@ -45,6 +45,7 @@
 
     display: grid;
     background:
+      var(--feed-decor),
       radial-gradient(
         var(--feed-glow),
         color-mix(in srgb, var(--feed-tint, var(--color-accent)) 26%, transparent),
