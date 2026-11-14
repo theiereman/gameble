@@ -137,6 +137,7 @@
 @media (min-width: 720px) {
   .market-listing__layout {
     grid-template-columns: auto minmax(0, 1fr) 330px;
+    grid-template-rows: auto 1fr;
     grid-template-areas:
       "card figures history"
       "card bid history";

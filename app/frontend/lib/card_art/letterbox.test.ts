@@ -58,6 +58,13 @@ describe("findSharpBand", () => {
     expect(findSharpBand(letterboxed(8, 136))).toBeNull()
   })
 
+  it("leaves a logo band on a plain cover alone, as it is too thin for a banner", () => {
+    const logo = (x: number, y: number): Rgba =>
+      y >= 30 && y < 62 && x % 32 < 24 ? [250, 250, 250, 255] : [10, 14, 30, 255]
+    expect(findSharpBand(image(WIDTH, HEIGHT, logo))).toBeNull()
+    expect(findSharpBand(letterboxed(40, 72))).toBeNull()
+  })
+
   it("leaves a band with little padding alone", () => {
     expect(findSharpBand(letterboxed(10, 120))).toBeNull()
   })
