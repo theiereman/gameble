@@ -5,7 +5,7 @@
 <% turbo_exempts_page_from_cache %>
 <h1 class="visually-hidden"><%= t(".title") %></h1>
 <%= render "boosters/booster", bank: @bank, season: @season, next_pack_sizes: @next_pack_sizes, opened_pack: @opened_pack, opened_cards: @opened_cards, reserve: @reserve, held: @held, opened_first_copies: @opened_first_copies,
-  opened_goals: @opened_goals, next_steps: @next_steps %>
+  opened_goals: @opened_goals %>
 <div class="booster__fallback">
   <% if @bank[:openable].positive? %>
     <%= render ButtonComponent.new(href: (@reserve == "special" ? packs_path(reserve: "special") : packs_path), method: :post) do %><%= t("booster.open") %><% end %>

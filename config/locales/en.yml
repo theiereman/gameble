@@ -1018,17 +1018,6 @@ en:
     kicker_plain: Capsule
     legendary_banner: "%{rarity}!"
     next_in: "+1 in"
-    next_steps:
-      daily: 'Next daily capsule: %{time}'
-      me: Your profile
-      me_hook:
-        one: "%{number} reward to claim"
-        other: "%{number} rewards to claim"
-      set_hook: "%{set} · %{next}"
-      sets: Your sets
-      social: Your friends
-      social_hook: "%{name} has a card one of your goals needs"
-      title: What next?
     open: Open the capsule
     open_next: Open the next one
     origin:

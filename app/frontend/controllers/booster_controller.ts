@@ -43,7 +43,6 @@ import type BoosterActionsController from "./booster_actions_controller"
 import type BoosterCanisterController from "./booster_canister_controller"
 import type BoosterCelebrationController from "./booster_celebration_controller"
 import type BoosterInfoController from "./booster_info_controller"
-import type BoosterNextStepsController from "./booster_next_steps_controller"
 import type BoosterReservesController from "./booster_reserves_controller"
 import type BoosterPlateController from "./booster_plate_controller"
 import type BoosterStageController from "./booster_stage_controller"
@@ -87,7 +86,6 @@ export class BoosterController extends Controller<HTMLElement> {
     "booster-tray",
     "booster-zoom",
     "booster-celebration",
-    "booster-next-steps",
   ]
 
   declare readonly panelActionsTarget: HTMLElement
@@ -127,8 +125,6 @@ export class BoosterController extends Controller<HTMLElement> {
   declare readonly hasBoosterZoomOutlet: boolean
   declare readonly boosterZoomOutlet: BoosterZoomController
   declare readonly boosterCelebrationOutlets: BoosterCelebrationController[]
-  declare readonly hasBoosterNextStepsOutlet: boolean
-  declare readonly boosterNextStepsOutlet: BoosterNextStepsController
 
   private state?: BoosterState
   private timers: ScreenTimers = screenTimers()
@@ -201,7 +197,6 @@ export class BoosterController extends Controller<HTMLElement> {
   boosterTrayOutletConnected = (): void => this.render()
   boosterZoomOutletConnected = (): void => this.render()
   boosterCelebrationOutletConnected = (): void => this.render()
-  boosterNextStepsOutletConnected = (): void => this.render()
   dailyCollectedTargetConnected = (): void => void this.openings?.bankRefresh.dailyCollected()
   bankUpdated = (): void => this.openings?.bankRefresh.changedElsewhere()
   selectReserve = ({ detail: { reserve } }: Intent<{ reserve: Reserve }>): void =>

@@ -19,17 +19,12 @@ class BoostersController < ApplicationController
         @opened_cards = @opened_pack && cards_of(@opened_pack)
         @opened_first_copies = @opened_pack ? Game::FirstCopies.call(current_player, @opened_pack) : []
         @opened_goals = @opened_pack ? goal_marks : GoalMarks::NONE
-        @next_steps = Game::NextSteps.call(current_player, season: @season) if reserve_run_out?
       end
       format.json { render json: { bank: helpers.booster_bank(bank: @bank, next_pack_sizes: @next_pack_sizes), held: @held } }
     end
   end
 
   private
-
-  def reserve_run_out?
-    @bank[:available].zero? && @bank[:special].zero? && @opened_pack.nil?
-  end
 
   def initial_reserve
     return "special" if @bank[:available].zero? && @bank[:special].positive?

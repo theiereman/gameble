@@ -2,7 +2,6 @@ import type BoosterActionsController from "../controllers/booster_actions_contro
 import type BoosterCanisterController from "../controllers/booster_canister_controller"
 import type BoosterCelebrationController from "../controllers/booster_celebration_controller"
 import type BoosterInfoController from "../controllers/booster_info_controller"
-import type BoosterNextStepsController from "../controllers/booster_next_steps_controller"
 import type BoosterReservesController from "../controllers/booster_reserves_controller"
 import type BoosterPlateController from "../controllers/booster_plate_controller"
 import type BoosterStageController from "../controllers/booster_stage_controller"
@@ -63,7 +62,6 @@ export type BoosterOutlets = Readonly<{
   tray: BoosterTrayController | null
   zoom: BoosterZoomController | null
   celebrations: BoosterCelebrationController[]
-  nextSteps: BoosterNextStepsController | null
 }>
 
 export type BoosterRenderHost = Readonly<{

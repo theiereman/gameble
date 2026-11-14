@@ -5,7 +5,6 @@ import {
   controls,
   nextCapsuleSize,
   nextCapsuleWaiting,
-  nextStepsShown,
   onTable,
   originKind,
   shownCelebration,
@@ -58,7 +57,6 @@ export class BoosterRenderer {
     this.renderTray(state, view)
     this.renderZoom(state, view)
     renderCelebrations(this.host, state, view)
-    this.host.outlets().nextSteps?.render({ shown: nextStepsShown(state) })
   }
 
   private get strings() {

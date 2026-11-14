@@ -63,7 +63,6 @@ Rails.application.routes.draw do
     # opening exchange to packs#create.
     resource :booster, only: :show
     # What an empty reserve proposes, loaded in a frame once the reserve runs out.
-    get "booster/next-steps" => "booster_next_steps#show", as: :booster_next_steps
     resource :packs_chip, path: "packs-chip", only: :show
     # The top bar's values, read again by the app when a screen comes back into view.
     resource :top_bar, path: "top-bar", only: :show

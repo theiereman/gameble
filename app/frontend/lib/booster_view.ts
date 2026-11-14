@@ -35,10 +35,6 @@ export const nextCapsuleWaiting = (state: BoosterState): boolean =>
 
 export const canisterDocks = (state: BoosterState): number => state.docks + (nextCapsuleWaiting(state) ? 1 : 0)
 
-export const nextStepsShown = (state: BoosterState): boolean =>
-  state.bank.available + state.bank.special === 0 &&
-  (state.phase === "empty" || (state.phase === "dealt" && handDone(state)))
-
 export function layoutAsked(state: BoosterState, layout: Layout): BoosterState {
   return state.pendingLayout === layout ? state : { ...state, pendingLayout: layout }
 }

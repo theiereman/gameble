@@ -2,7 +2,7 @@ module BoostersHelper
   RESERVE_PIPS = 10
   STATUSES = { sealed: "sealed", arming: "arming", ejecting: "ejecting", inventory: "inventory",
                legendarySignal: "legendary_signal", complete: "complete", waiting: "waiting" }.freeze
-  BOOSTER_CHILDREN = %w[booster-info booster-next-steps].freeze
+  BOOSTER_CHILDREN = %w[booster-info].freeze
   BOOSTER_ACTIONS = {
     "booster-actions" => { open: :open, skip: :skip, reveal: :revealAll, back: :guardBack },
     "booster-reserves" => { select: :selectReserve },
