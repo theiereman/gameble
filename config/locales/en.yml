@@ -1855,7 +1855,9 @@ en:
       title: The Flukeometer
   fortune_registers:
     show:
-      empty: No member has opened a capsule this week yet.
+      empty:
+        all_time: No member has opened a capsule yet.
+        week: No member has opened a capsule this week yet.
       hidden_player: Private member
       intro: 'The Brotherhood ranks its members by the luck of their capsules: what
         their cards scored against what the capsules promise. Each week, the luckiest
@@ -1867,6 +1869,9 @@ en:
         label: "Your luck · %{period}"
         rank: "#%{rank} of %{total}"
       pages_label: Pages
+      periods:
+        all_time: Total
+        week: This week
       privileged_cut: "Privileged threshold · the luckiest 10%"
       row:
         capsules: Capsules
@@ -1878,8 +1883,12 @@ en:
         luck: Luckiest
       sorts_label: Order
       summary:
-        capsules: Capsules this week
-        members: Active this week
+        capsules:
+          all_time: Capsules opened
+          week: Capsules this week
+        members:
+          all_time: Members ranked
+          week: Active this week
         privileged: Privileged of %{total}
       title: The Flukeometer
   fortunes:

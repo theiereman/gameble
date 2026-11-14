@@ -34,6 +34,7 @@ class Game::FortuneDistributionTest < ActiveSupport::TestCase
 
     assert_equal 0, result.total
     assert_equal [ 0, :cold ], result.columns.first.deconstruct
+    assert_equal 1, Game::FortuneDistribution.call(:all_time, now: NOW).total
   end
 
   test "an index and its band convert both ways" do

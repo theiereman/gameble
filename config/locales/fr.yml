@@ -2656,16 +2656,25 @@ fr:
     show:
       title: "Le Chattomètre"
       intro: "La Confrérie classe ses membres selon la chance de leurs capsules : ce que leurs cartes ont rapporté face à ce que les capsules promettent. Chaque semaine, les 10 % les plus chanceux sont Privilégiés."
-      empty: "Aucun membre n'a encore ouvert de capsule cette semaine."
+      empty:
+        week: "Aucun membre n'a encore ouvert de capsule cette semaine."
+        all_time: "Aucun membre n'a encore ouvert de capsule."
       hidden_player: "Membre discret"
       pages_label: "Pages"
+      periods:
+        week: "Cette semaine"
+        all_time: "Total"
       sorts_label: "Ordre"
       sorts:
         luck: "Les plus chanceux"
         capsules: "Le plus de capsules"
       summary:
-        members: "Actifs cette semaine"
-        capsules: "Capsules cette semaine"
+        members:
+          week: "Actifs cette semaine"
+          all_time: "Membres classés"
+        capsules:
+          week: "Capsules cette semaine"
+          all_time: "Capsules ouvertes"
         privileged: "Privilégiés sur %{total}"
       mine:
         label: "Votre chance · %{period}"

@@ -13,8 +13,8 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     end)
   end
 
-  def board(sort: :luck)
-    fortunes = Game::FortuneBoard.ranked(now: NOW, sort:).to_a
+  def board(period = :week, sort: :luck)
+    fortunes = Game::FortuneBoard.ranked(period, now: NOW, sort:).to_a
     Game::FortuneBoard.rows(fortunes, ranked_count: fortunes.size, now: NOW)
   end
 
@@ -32,7 +32,7 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     assert_equal [ 1, 2, 3, 4 ], rows.map(&:rank)
     assert_equal [ [ true, 25 ], [ true, 50 ], [ false, 50 ], [ false, 25 ] ], rows.map { [ it.top_half?, it.share_of_half ] }
     assert_equal [ 457, 453, 453, -381 ], rows.map(&:index)
-    assert_equal [ 4, 1, 4 ], [ summary.ranked_count, summary.privileged_count, summary.packs_opened ]
+    assert_equal [ 4, 4, 1, 4 ], [ summary.ranked_count, summary.active_count, summary.privileged_count, summary.packs_opened ]
     assert_equal [ true, false, false, false ], rows.map(&:privileged)
   end
 
@@ -45,13 +45,14 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     assert_equal [ [ busy, 2, 9 ], [ steady, 1, 1 ] ], board(sort: :capsules).map { [ it.player, it.rank, it.packs_opened ] }
   end
 
-  test "each row counts the cards pulled per rarity this week, duplicates included" do
+  test "each row counts the cards pulled per rarity in the board's period, duplicates included" do
     puller = player(1)
     luck(puller, 1.0)
     Game::Fortune.where(player_id: puller.id, week_start: Game::WeeklyGoal.week_start(NOW)).update_all(common_cards: 7, rare_cards: 2)
     Game::Fortune.where(player_id: puller.id, week_start: nil).update_all(common_cards: 30, rare_cards: 5, legendary_cards: 1)
 
     assert_equal({ 1 => 7, 2 => 0, 3 => 2, 4 => 0, 5 => 0 }, board.sole.rarities)
+    assert_equal({ 1 => 30, 2 => 0, 3 => 5, 4 => 0, 5 => 1 }, board(:all_time).sole.rarities)
   end
 
   test "the Privileged are the top tenth of this week's active players, rounded up, and change as the week's ranking does" do
@@ -67,13 +68,20 @@ class Game::FortuneBoardTest < ActiveSupport::TestCase
     assert_not Game::Privileged.call(players[-2], now: NOW)
   end
 
-  test "the board ranks only the players who opened a pack this week" do
+  test "the week's board ranks only this week's players; the total board ranks everyone, marking only this week's Privileged" do
     veteran, newcomer = player(1), player(2)
     luck(veteran, 4.0, week: false)
     luck(newcomer, 1.0)
 
     assert_equal [ newcomer ], board.map(&:player)
     assert_equal 1, Game::FortuneBoard.summary(now: NOW).ranked_count
+    assert_equal [ veteran, newcomer ], board(:all_time).map(&:player)
+    assert_equal [ false, true ], board(:all_time).map(&:privileged)
+    assert_equal [ 2, 1, 1 ], Game::FortuneBoard.summary(:all_time, now: NOW).deconstruct.first(3)
+  end
+
+  test "the board knows no last week" do
+    assert_raises(ArgumentError) { Game::FortuneBoard.ranked(:last_week, now: NOW) }
   end
 
   test "banned and deleted players leave the ranking and the count of active players" do
