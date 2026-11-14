@@ -2630,7 +2630,6 @@ en:
         one: "%{number} edition"
         other: "%{number} editions"
     exchanges:
-      link: THE BROTHERHOOD'S EXCHANGE
       show:
         heading: The Brotherhood's Exchange
     bids:
@@ -2991,6 +2990,11 @@ en:
       empty: No listings for now.
       entrust: ENTRUST CARDS
       entrust_short: ENTRUST
+      exchange:
+        empty: The first prices show the day after the first sales.
+        open: SEE THE EXCHANGE
+        title: THE BROTHERHOOD'S EXCHANGE
+        window: what a card costs, in days of capsules · 90 d
       found_heading: LISTINGS FOUND
       heading: Market
       list_label: Listings

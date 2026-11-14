@@ -167,7 +167,7 @@ class Market::ExchangesControllerTest < ActionDispatch::IntegrationTest
 
     publish("reactor")
     get market_path(locale: :en)
-    assert_select ".market-screen__chips a[href=?]", market_exchange_path(locale: :en), "THE BROTHERHOOD'S EXCHANGE"
+    assert_select "a.exchange-preview[href=?] .exchange-preview__title", market_exchange_path(locale: :en), "THE BROTHERHOOD'S EXCHANGE"
   end
 
   test "staff see the link before anything is published" do
@@ -175,6 +175,6 @@ class Market::ExchangesControllerTest < ActionDispatch::IntegrationTest
 
     get market_path(locale: :fr)
 
-    assert_select ".market-screen__chips a[href=?]", market_exchange_path(locale: :fr), "LA BOURSE DE LA CONFRÉRIE"
+    assert_select "a.exchange-preview[href=?] .exchange-preview__title", market_exchange_path(locale: :fr), "LA BOURSE DE LA CONFRÉRIE"
   end
 end

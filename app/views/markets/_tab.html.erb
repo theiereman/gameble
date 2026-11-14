@@ -8,6 +8,7 @@
     <% elsif desk %>
       <%= render "markets/mine", desk: %>
     <% end %>
+    <% if market_exchange_shown? %><%= render "markets/exchange_preview" %><% end %>
     <%= content %>
   <% end %>
 <% end %>

@@ -1,0 +1,38 @@
+<% cache exchange_preview_cache_key do %>
+  <% preview = exchange_preview %>
+  <%= link_to market_exchange_path, class: "exchange-preview" do %>
+    <span class="exchange-preview__title"><%= t("markets.screen.exchange.title") %></span>
+    <% if preview.prices? %><span class="exchange-preview__window"><%= t("markets.screen.exchange.window") %></span><% end %>
+    <span class="exchange-preview__open"><%= t("markets.screen.exchange.open") %><%= pixel_icon("arrow-small-right", class: "exchange-preview__arrow") %></span>
+    <span class="exchange-preview__body">
+      <% if preview.priced? %>
+        <span class="exchange-preview__rarities">
+          <% rarity_price_tiles(preview.prices).each do |tile| %>
+            <span class="exchange-preview__rarity exchange-preview__rarity--<%= tile.rarity %>">
+              <span class="exchange-preview__name"><%= pixel_icon("rarity-#{tile.tier}", class: "exchange-preview__icon") %><%= tile.name %></span>
+              <span class="exchange-preview__price"><%= tile.price %></span>
+              <%= exchange_preview_change(preview.prices, tile.rarity) %>
+              <% if tile.sparkline %>
+                <%= render ChartComponent.new(drawing: tile.sparkline, id: "exchange-preview-sparkline-#{tile.rarity}", size: :spark) %>
+              <% end %>
+            </span>
+          <% end %>
+        </span>
+      <% elsif preview.prices? %>
+        <span class="exchange-preview__empty"><%= t("markets.screen.exchange.empty") %></span>
+      <% end %>
+      <% if preview.reactor? %>
+        <span class="exchange-preview__reactor">
+          <span class="exchange-preview__figure">
+            <span class="exchange-preview__label"><%= t("charts.reactor.figures.circulation") %></span>
+            <%= render PicoinAmountComponent.new(amount: preview.reactor.last_circulation, compact: true, class: "exchange-preview__value") %>
+          </span>
+          <span class="exchange-preview__figure">
+            <span class="exchange-preview__label"><%= t("charts.reactor.figures.ratio") %></span>
+            <span class="exchange-preview__value"><%= chart_share(preview.reactor.destroyed_share_basis_points) %></span>
+          </span>
+        </span>
+      <% end %>
+    </span>
+  <% end %>
+<% end %>

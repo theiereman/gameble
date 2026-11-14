@@ -34,10 +34,6 @@
   text-transform: uppercase;
 }
 
-.market-screen__exchange {
-  margin-left: auto;
-}
-
 .market-screen__badge {
   min-width: 18px;
   padding: 0 var(--space-1);

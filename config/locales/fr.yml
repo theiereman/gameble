@@ -2194,7 +2194,6 @@ fr:
         one: "%{number} édition"
         other: "%{number} éditions"
     exchanges:
-      link: "LA BOURSE DE LA CONFRÉRIE"
       show:
         heading: "La Bourse de la Confrérie"
     bids:
@@ -2575,6 +2574,11 @@ fr:
           one: "%{amount} engagé dans vos offres"
           other: "%{amount} engagés dans vos offres"
         purse_label: "Vos PiCoins"
+      exchange:
+        title: "LA BOURSE DE LA CONFRÉRIE"
+        window: "ce que coûte une carte, en jours de capsules · 90 j"
+        open: "VOIR LA BOURSE"
+        empty: "Les premiers cours paraissent au lendemain des premières ventes."
       mine:
         label: "Votre activité sur le marché"
         outbid:
