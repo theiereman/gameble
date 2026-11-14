@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { drawCardArt } from "../lib/card_art"
 import { type Approach, drawSettled, nearNow, sighted } from "../lib/card_art/approach"
 import { type ArtSize, artPixels, sameArtSize, type Settle, settle } from "../lib/card_art/fluid_size"
+import { keepsArtThroughMorph } from "../lib/card_art/morph"
 
 const NEAR_VIEWPORT = "300px"
 
@@ -34,6 +35,31 @@ export default class extends Controller<HTMLElement> {
   private approach: Approach = "far"
 
   connect(): void {
+    // A morph refresh rewrites the canvas and the art's attributes without reconnecting the controller.
+    this.element.addEventListener("turbo:before-morph-element", this.keepDrawnArt)
+    this.element.addEventListener("turbo:morph-element", this.redrawMorphedArt)
+    this.start()
+  }
+
+  disconnect(): void {
+    this.element.removeEventListener("turbo:before-morph-element", this.keepDrawnArt)
+    this.element.removeEventListener("turbo:morph-element", this.redrawMorphedArt)
+    this.stop()
+  }
+
+  private readonly keepDrawnArt = (event: Event): void => {
+    if (event.target !== this.element) return
+    const { newElement } = (event as CustomEvent<{ newElement: unknown }>).detail
+    if (newElement instanceof Element && keepsArtThroughMorph(this.element, newElement)) event.preventDefault()
+  }
+
+  private readonly redrawMorphedArt = (event: Event): void => {
+    if (event.target !== this.element) return
+    this.stop()
+    this.start()
+  }
+
+  private start(): void {
     this.abort = new AbortController()
     this.drawn = undefined
     this.approach = "far"
@@ -52,7 +78,7 @@ export default class extends Controller<HTMLElement> {
     this.observer.observe(this.element)
   }
 
-  disconnect(): void {
+  private stop(): void {
     this.stopWatching()
     this.stopWatchingResizes()
     this.abort?.abort()
