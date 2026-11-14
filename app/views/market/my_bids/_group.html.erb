@@ -6,16 +6,8 @@
   <% else %>
     <ul class="market-rows__list">
       <% rows.each do |row| %>
-        <%= render MarketRowComponent.new(card: row.card, href: market_listing_path(token: row.token), token: row.token,
-              status: bid_status_label(row.status), tone: bid_status_tone(row.status), facts: bid_row_facts(row)) do |component| %>
-          <% if row.can_raise %>
-            <% component.with_action do %>
-              <%= render ButtonComponent.new(variant: row.status == :outbid ? :primary : :secondary, size: :small,
-                    href: market_listing_path(token: row.token, focus: "maximum"), disabled: suspended,
-                    describedby: ("market-suspended-banner" if suspended), aria_label: t("market.rows.relever_name", card: row.card.title)) do %><%= t("market.rows.relever") %><% end %>
-            <% end %>
-          <% end %>
-        <% end %>
+        <%= render MarketRowComponent.new(card: row.card, href: bid_row_href(row, suspended:), token: row.token,
+              status: bid_status_label(row.status), tone: bid_status_tone(row.status), facts: bid_row_facts(row)) %>
       <% end %>
     </ul>
   <% end %>

@@ -60,6 +60,30 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
     assert_equal 0, page.evaluate_script("window.marketVisits")
   end
 
+  test "a counter line opens its tab and brings it into view, even when that tab is already open" do
+    listing!(seller: @seller, card_season: @common, hours: 5)
+    sign_in_through_the_site(@seller)
+    resize_to(390, 844)
+    visit market_path(locale: :en)
+    assert_selector ".listing-tile", count: 1
+
+    find(".market-mine__item", text: "sale in progress").click
+    assert_selector ".market-screen__chip--current", text: "MY SALES"
+    assert_current_path market_my_sales_path(locale: :en)
+    assert_chips_in_view
+
+    page.execute_script("scrollTo(0, 0)")
+    find(".market-mine__item", text: "sale in progress").click
+    assert_chips_in_view
+  end
+
+  def assert_chips_in_view
+    page.document.synchronize do
+      top, height = page.evaluate_script("[document.querySelector('.market-screen__chips').getBoundingClientRect().top, innerHeight]")
+      raise Capybara::ExpectationNotMet, "chips at #{top} of #{height}" unless top.between?(0, height / 2)
+    end
+  end
+
   test "a seller cancels from MES VENTES, gets the card back and focus lands on the next row" do
     hold(@seller, @common.id, 1, reserved: 1)
     hold(@seller, @rare.id, 1, reserved: 1)

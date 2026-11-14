@@ -33,7 +33,7 @@ class MarketBidsSystemTest < ApplicationSystemTestCase
     assert_signed_in
   end
 
-  test "a player is outbid, raises from the field RELEVER focuses, then finds the lost auction under TERMINÉES RÉCEMMENT" do
+  test "a player is outbid, raises from the field the row focuses, then finds the lost auction under TERMINÉES RÉCEMMENT" do
     assert bid(@bidder, 30_000).success?
     sign_in_through_the_site(@bidder)
 
@@ -45,7 +45,7 @@ class MarketBidsSystemTest < ApplicationSystemTestCase
     assert_selector ".market-row__chip", text: "OUTBID"
     assert_selector ".market-row__fact dd", text: "30,000"
 
-    find("a[aria-label='Raise, Tin Soldier']").click
+    find(".market-row", text: "Tin Soldier").click
     assert_selector "h1#market-listing-heading", text: "Tin Soldier"
     assert_selector "#annonce-maximum:focus"
 

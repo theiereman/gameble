@@ -2813,7 +2813,6 @@ en:
         maximum: My maximum
         price: Price
       relever: RAISE
-      relever_name: "Raise, %{card}"
       status:
         cancelled: CANCELLED
         in_progress: IN PROGRESS

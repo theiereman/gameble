@@ -31,6 +31,11 @@ module MarketRowsHelper
 
   def bid_status_tone(status) = BID_TONES.fetch(status)
 
+  def bid_row_href(row, suspended:)
+    raisable = row.can_raise && row.status == :outbid && !suspended
+    market_listing_path(token: row.token, focus: ("maximum" if raisable))
+  end
+
   def bid_row_facts(row)
     [ [ t("market.rows.labels.price"), row_amount(row.price) ],
       [ t("market.rows.labels.maximum"), render(PicoinAmountComponent.new(amount: row.maximum)) ],

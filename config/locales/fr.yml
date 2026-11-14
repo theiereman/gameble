@@ -2379,7 +2379,6 @@ fr:
         maximum: "Mon maximum"
         price: "Prix"
       relever: "RELEVER"
-      relever_name: "Relever, %{card}"
       status:
         cancelled: "ANNULÉE"
         in_progress: "EN COURS"

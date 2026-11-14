@@ -125,3 +125,7 @@ a.market-screen__chip:hover {
     gap: 20px;
   }
 }
+
+.market-screen__chips {
+  scroll-margin-top: var(--space-4);
+}

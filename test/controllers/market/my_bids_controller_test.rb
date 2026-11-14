@@ -76,7 +76,7 @@ class Market::MyBidsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/90,000|90000/, response.body)
   end
 
-  test "RELEVER is filled only when outbid, named with the card and links with the focus parameter, and ended rows have none" do
+  test "a row is one link to its auction, an outbid one opening on the maximum field, and no row carries a RELEVER button" do
     leading = listing!(seller: @seller, card_season: @common, starting_price: 20_000)
     outbid = listing!(seller: @seller, card_season: @rare, starting_price: 20_000, hours: 30)
     ended = listing!(seller: @seller, card_season: @uncommon, status: "unsold", ends_at: 1.day.ago)
@@ -88,12 +88,13 @@ class Market::MyBidsControllerTest < ActionDispatch::IntegrationTest
 
     bids
 
-    assert_select "a.button--primary[href=?][aria-label=?]", market_listing_path(locale: :en, token: outbid.token, focus: "maximum"), "Raise, Blue Depths", "RAISE"
-    assert_select "a.button--secondary[href=?][aria-label=?]", market_listing_path(locale: :en, token: leading.token, focus: "maximum"), "Raise, Tin Soldier"
-    assert_select "section[aria-labelledby=my-bids-recent-heading] .market-row__action", false
+    assert_select "a.market-row__title[href=?]", market_listing_path(locale: :en, token: outbid.token, focus: "maximum"), "Blue Depths"
+    assert_select "a.market-row__title[href=?]", market_listing_path(locale: :en, token: leading.token), "Tin Soldier"
+    assert_select "a.market-row__title[href=?]", market_listing_path(locale: :en, token: ended.token)
+    assert_select ".market-row__action", false
   end
 
-  test "RELEVER reads in French" do
+  test "a row reads in French" do
     outbid = listing!(seller: @seller, card_season: @rare, starting_price: 20_000)
     assert bid(@rival, 90_000, outbid).success?
     assert bid(@bidder, 40_000, outbid).success?
@@ -102,7 +103,6 @@ class Market::MyBidsControllerTest < ActionDispatch::IntegrationTest
     bids(locale: :fr)
 
     assert_select ".market-row__chip", text: "DÉPASSÉ"
-    assert_select "a.button--primary[aria-label=?]", "Relever, Profondeurs bleues", "RELEVER"
     assert_select ".market-row__fact dt", text: "Mon maximum"
   end
 
@@ -142,7 +142,7 @@ class Market::MyBidsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/77,777|77777/, response.body)
   end
 
-  test "a suspended market draws the banner and disables RELEVER on every row" do
+  test "a suspended market draws the banner and an outbid row opens its auction without the maximum field" do
     outbid = listing!(seller: @seller, card_season: @rare, starting_price: 20_000)
     assert bid(@rival, 90_000, outbid).success?
     assert bid(@bidder, 40_000, outbid).success?
@@ -152,8 +152,6 @@ class Market::MyBidsControllerTest < ActionDispatch::IntegrationTest
     bids
 
     assert_select "#market-suspended-banner", 1
-    assert_select "button[disabled][aria-describedby=market-suspended-banner][aria-label=?]", "Raise, Blue Depths", "RAISE"
-    assert_select "a.button[aria-label=?]", "Raise, Blue Depths", false
-    assert_select ".market-row__title[data-row-token=?]", outbid.token
+    assert_select ".market-row__title[data-row-token=?][href=?]", outbid.token, market_listing_path(locale: :en, token: outbid.token)
   end
 end
