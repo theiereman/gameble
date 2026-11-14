@@ -13,7 +13,7 @@ class MarketsController < ApplicationController
     @sort = params[:sort].presence_in(helpers.sort_options) || Game::Market::OpenListings::DEFAULT_SORT
     @page = params[:page].to_s.to_i.clamp(1, MAX_PAGE)
     @options = Game::Market::ListingFilterOptions.call
-    @filters = Game::Market::ListingFilters.from(params, genres: @options.genres, seasons: @options.seasons)
+    @filters = Game::Market::ListingFilters.from(params, genres: @options.genres, seasons: @options.seasons, viewer: current_player)
     load_set_choices
     @listings = Game::Market::OpenListings.call(sort: @sort, page: @page, locale: I18n.locale, filters: @filters)
     respond_to do |format|

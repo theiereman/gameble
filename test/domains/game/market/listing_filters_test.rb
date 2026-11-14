@@ -18,10 +18,10 @@ class Game::Market::ListingFiltersTest < ActiveSupport::TestCase
     catalog_card_seasons(:uncommon_card_one).update_columns(main_theme: "puzzle")
   end
 
-  def filters(**params) = Game::Market::ListingFilters.from(params, genres: %w[roguelike puzzle], seasons: [ 1, 2 ])
+  def filters(viewer: nil, **params) = Game::Market::ListingFilters.from(params, genres: %w[roguelike puzzle], seasons: [ 1, 2 ], viewer:)
 
-  def tokens(sort: "ending", locale: :en, **params)
-    Game::Market::OpenListings.call(sort:, page: 1, locale:, filters: filters(**params)).rows.map(&:token)
+  def tokens(sort: "ending", locale: :en, viewer: nil, **params)
+    Game::Market::OpenListings.call(sort:, page: 1, locale:, filters: filters(viewer:, **params)).rows.map(&:token)
   end
 
   test "with no filter every open listing is listed" do
@@ -96,5 +96,26 @@ class Game::Market::ListingFiltersTest < ActiveSupport::TestCase
     assert_equal 7, chosen.count
     assert_equal({ q: "tin", rarity: %w[common rare], sets: [ "studio:valve" ], genre: [ "puzzle" ], season: [ 1 ], min_price: 10, max_price: 20 }, chosen.to_params)
     assert_not filters.any?
+  end
+
+  test "hiding my sales leaves out the viewer's listings and keeps everyone else's" do
+    other = listing!(seller: accounts_players(:moderator), card_season: catalog_card_seasons(:common_card_one), starting_price: 2_000, hours: 6)
+
+    assert_equal [ other.token ], tokens(viewer: @seller, hide_mine: "1")
+    assert_equal [ other.token ], tokens(viewer: @seller, hide_mine: "1", rarity: [ "common" ])
+    assert_equal 1, Game::Market::OpenListings.count(locale: :en, filters: filters(viewer: @seller, hide_mine: "1"))
+  end
+
+  test "hiding my sales needs a viewer and the parameter, and stays out of the filter count" do
+    assert_not filters(hide_mine: "1").hides_mine?
+    assert_not filters(viewer: @seller).hides_mine?
+    assert_not filters(viewer: @seller, hide_mine: "yes").hides_mine?
+
+    hidden = filters(viewer: @seller, hide_mine: "1")
+    assert hidden.any?
+    assert_equal 0, hidden.count
+    assert_equal({ hide_mine: "1" }, hidden.to_params)
+    assert_equal({ q: "tin", hide_mine: "1" }, filters(viewer: @seller, hide_mine: "1", q: "tin").to_params)
+    assert_equal({ hide_mine: "1" }, filters(viewer: @seller, hide_mine: "1", q: "tin").without_query.to_params)
   end
 end
