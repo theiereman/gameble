@@ -120,6 +120,11 @@
     text-transform: uppercase;
   }
 
+  .feed__headline-kicker .feed__price {
+    color: var(--color-text-max);
+    letter-spacing: normal;
+  }
+
   .feed__headline--discovery .feed__headline-kicker {
     color: var(--color-gold);
   }

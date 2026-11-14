@@ -17,7 +17,7 @@ class MarketFeedSystemTest < ApplicationSystemTestCase
 
   test "a sale shows under everything and under sales with a linked name, and a private buyer's name has no link" do
     visit feed_path(locale: :en)
-    assert_selector ".feed__entry .feed__headline", text: /Bought\s*Golden Crown/i
+    assert_selector ".feed__entry .feed__headline", text: /Bought for\s*40,000\s*Golden Crown/i
     assert_selector ".feed__who a.player-name--linked", text: "Sam"
 
     click_on "Sales"

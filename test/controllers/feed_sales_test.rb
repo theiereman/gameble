@@ -24,7 +24,9 @@ class FeedSalesTest < ActionDispatch::IntegrationTest
 
       assert_response :success
       assert_match(/\ASam bought Golden Crown for .*40,000/, sentence)
-      assert_select ".feed__entry .picoin-amount", 1
+      assert_select ".feed__entry .picoin-amount", 2
+      assert_select ".feed__headline-kicker", /\ABought for\s*40,000\z/
+      assert_select ".feed__headline-kicker .picoin-amount .pixel-icon", 1
       assert_select ".feed__tag--sale", "Sale"
     end
     assert_select ".feed__filter[aria-current]", "Sales"
@@ -36,6 +38,7 @@ class FeedSalesTest < ActionDispatch::IntegrationTest
     assert_select ".feed__filter[aria-current]", "Ventes"
     assert_select ".feed__tag--sale", "Vente"
     assert_match(/\ASam a acheté Couronne d'or pour /, sentence)
+    assert_select ".feed__headline-kicker", /\AA acheté pour\s*40.000\z/
   end
 
   test "the buyer's name links for a viewer allowed on the profile and not for a private buyer" do

@@ -41,7 +41,7 @@
         <% if verdict %>
           <span class="feed__tag feed__tag--verdict"><%= t("feeds.show.verdict_tag") %></span>
         <% elsif set_entry %>
-          <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") %>
+          <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") unless post && item.entry.set_count == 1 %>
         <% elsif trade %>
           <span class="feed__tag feed__tag--trade">
             <%= pixel_icon("swap", class: "feed__tag-icon") %>

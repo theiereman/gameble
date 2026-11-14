@@ -64,7 +64,7 @@ module FeedHelper
       [ t("feeds.show.headline.traded_html", partner:), t("feeds.show.headline.trade_html", card: feed_game(card, links: true), partner_card: feed_game(partner_card, links: true)) ]
     when "discovery" then [ t("feeds.show.first_discovery"), feed_game(card, links: true) ]
     when "repost" then [ t("feeds.show.headline.reposted"), feed_game(card, links: true) ]
-    when "sale" then [ t("feeds.show.headline.bought"), feed_game(card, links: true) ]
+    when "sale" then [ t("feeds.show.headline.bought_html", amount: feed_price(item.price)), feed_game(card, links: true) ]
     else [ t("feeds.show.headline.pulled"), feed_game(card, links: true) ]
     end
   end
@@ -91,7 +91,11 @@ module FeedHelper
 
   def feed_sale_sentence(item, card, links:, titles:, viewer:)
     name = feed_sale_buyer(item, links:, titles:, viewer:)
-    t("feeds.show.sale_html", name:, card: feed_game(card, links:), amount: render(PicoinAmountComponent.new(amount: item.price)))
+    t("feeds.show.sale_html", name:, card: feed_game(card, links:), amount: feed_price(item.price))
+  end
+
+  def feed_price(amount)
+    render(PicoinAmountComponent.new(amount:, class: "feed__price"))
   end
 
   def feed_sale_buyer(item, links:, titles:, viewer:)

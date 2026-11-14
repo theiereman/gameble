@@ -1787,7 +1787,7 @@ en:
       headline:
         pulled: Pulled
         reposted: Reposted
-        bought: "Bought"
+        bought_html: Bought for %{amount}
         set_reached:
           adept: Reaches the Adept tier
           apprentice: Reaches the Apprentice tier

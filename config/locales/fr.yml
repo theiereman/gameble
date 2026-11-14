@@ -2141,7 +2141,7 @@ fr:
       headline:
         pulled: "A tiré"
         reposted: "A reposté"
-        bought: "A acheté"
+        bought_html: "A acheté pour %{amount}"
         traded_html: "Échange avec %{partner}"
         trade_html: "%{card} contre %{partner_card}"
         verdict: "Verdict du Chattomètre"
