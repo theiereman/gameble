@@ -3,7 +3,7 @@ name: gameble
 description: Pixel-art trading card game of Steam games, presented as an elegant space terminal in Steam's colors. Real Steam covers under a fine pixel filter, sober panels, small effects that tick in steps.
 status: final
 created: 2026-10-01
-updated: '2026-11-10'
+updated: '2026-11-14'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/market-economy.md
@@ -28,6 +28,7 @@ colors:
   live-red: '#b3001b'
   capsule-daily: '#f4c542'
   capsule-goal: '#d6403a'
+  capsule-duel: '#d8e3ec'
   goal-1: '#29e3e3'
   goal-2: '#ff5ce6'
   goal-3: '#8aa0ff'
@@ -618,7 +619,7 @@ Dark only. Text reaches a contrast ratio of at least 4.5:1, and interface bounda
 - **Orange (`{colors.alert}`)** is for alerts only: a trade waiting for the player (badge text `{colors.on-alert}`), the armed canister, expiry, "RÉSERVE PLEINE", report and delete, inline errors.
 - **Danger:** `{colors.danger-bg}` with `{colors.danger-text}`, turning orange on hover; only for deleting the account.
 - **Goal colours (`{colors.goal-1}` to `{colors.goal-5}`)** belong to the player's current goals alone, one per goal number (see Goal colours below). Their number is `{colors.on-goal}`.
-- **Capsule origins (`{colors.capsule-daily}`, `{colors.capsule-goal}`)** colour a special capsule by where it came from: the daily capsule yellow, the weekly mission reward red (author, 2026-10-28; the weekly goal became the weekly mission, author, 2026-10-30; the token keeps its code name). `{colors.capsule-daily}` has the hex of `{colors.gold}` but is a separate role: gold stays the Légendaire tier's. `{colors.capsule-goal}` is not `{colors.live-red}`, which belongs to the LIVE marker alone, nor `{colors.alert}`, which belongs to alerts. A later origin adds its own token. Text on either fill is `{colors.outline}`.
+- **Capsule origins (`{colors.capsule-daily}`, `{colors.capsule-goal}`)** colour a special capsule by where it came from: the daily capsule yellow, the weekly mission reward red (author, 2026-10-28; the weekly goal became the weekly mission, author, 2026-10-30; the token keeps its code name). `{colors.capsule-daily}` has the hex of `{colors.gold}` but is a separate role: gold stays the Légendaire tier's. `{colors.capsule-goal}` is not `{colors.live-red}`, which belongs to the LIVE marker alone, nor `{colors.alert}`, which belongs to alerts. The duel capsule is steel, `{colors.capsule-duel}` (author, 2026-11-14), a light bluish white: the same family as `{colors.tier-silver}` but a separate role, never used for a set tier, and it also marks the defence deck. A later origin adds its own token. Text on any of these fills is `{colors.outline}`.
 - **Live red (`{colors.live-red}`)** is only the blinking square of the LIVE ticker's marker, on the accent fill (3.5:1) (author, 2026-10-12).
 
 ### Rarity
@@ -949,7 +950,7 @@ The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}
 
 #### Tab bar (phone)
 
-`{components.tab-bar.height}` plus the safe area, on `{colors.steam-bar}` with a 2px line on top: five tabs (PONT, CAPSULE, SETS, ÉCHANGES, MARCHÉ; author, 2026-11-09), each a pixel icon (MARCHÉ's is new, drawn through `script/pixel_art/export.mjs`) over a `{typography.label}` label in `{colors.muted}`; the current tab turns accent on `{colors.panel-raised}` with a 3px accent bar on top. Count badges at the icon's top-right (lime for capsules, orange for a trade waiting, hidden at zero). Disabled (40% opacity) during an opening. A visitor's bar holds two tabs, each half the width (author, 2026-10-20): ACCUEIL (the PONT icon, to the landing) and TOUTES LES CARTES (the COLLECTION icon, current on the grid and on a card's detail), both links, never greyed; no badge. Reference: [mockups/mobile.html](mockups/mobile.html).
+`{components.tab-bar.height}` plus the safe area, on `{colors.steam-bar}` with a 2px line on top: five tabs (PONT, CAPSULE, SETS, ÉCHANGES, DUELS; author, 2026-11-14, MARCHÉ having become a sub-tab of ÉCHANGES), each a pixel icon (DUELS's is new, drawn through `script/pixel_art/export.mjs`; MARCHÉ's moves to its sub-tab) over a `{typography.label}` label in `{colors.muted}`; the current tab turns accent on `{colors.panel-raised}` with a 3px accent bar on top. Count badges at the icon's top-right (lime for capsules, orange for a trade or auction needing the player on ÉCHANGES and for a duel waiting on DUELS, hidden at zero). Disabled (40% opacity) during an opening. A visitor's bar holds two tabs, each half the width (author, 2026-10-20): ACCUEIL (the PONT icon, to the landing) and TOUTES LES CARTES (the COLLECTION icon, current on the grid and on a card's detail), both links, never greyed; no badge. Reference: [mockups/mobile.html](mockups/mobile.html).
 
 ### Native apps' top bar
 
@@ -989,9 +990,9 @@ The capsule is a machine-like metal canister, not a paper wrapper. Reference: [m
 
 #### Special capsules
 
-Every capsule that is not a standard capsule (today the daily capsule and the weekly mission reward) waits in the special reserve and is drawn in the colour of its origin (author, 2026-10-28). Mockups: [mockups/special-capsules/index.html](mockups/special-capsules/index.html) (hub counts, chips, capsule screen tabs, live unlock) and [mockups/special-capsules/emblems.html](mockups/special-capsules/emblems.html) (the emblems at three levels of detail); where they differ from the rules, the rules apply.
+Every capsule that is not a standard capsule (today the daily capsule, the weekly mission reward and the duel capsule) waits in the special reserve and is drawn in the colour of its origin (author, 2026-10-28). Mockups: [mockups/special-capsules/index.html](mockups/special-capsules/index.html) (hub counts, chips, capsule screen tabs, live unlock) and [mockups/special-capsules/emblems.html](mockups/special-capsules/emblems.html) (the emblems at three levels of detail); where they differ from the rules, the rules apply.
 
-- **Origins:** daily, `{colors.capsule-daily}` with the sun; weekly mission reward, `{colors.capsule-goal}` with the cup. The standard capsule keeps its blue label and the gold "G" monogram.
+- **Origins:** daily, `{colors.capsule-daily}` with the sun; weekly mission reward, `{colors.capsule-goal}` with the cup; duel, `{colors.capsule-duel}` with two crossed blades, label "CAPSULE DE DUEL" (author, 2026-11-14; the emblem is drawn through `script/pixel_art/export.mjs`). The standard capsule keeps its blue label and the gold "G" monogram.
 - **The canister** is the real canister art (see Capsule canister): only the label band, the LEDs and the emblem in the window take the origin's colour. The origin's name is printed on the label band ("CAPSULE QUOTIDIENNE", "RÉCOMPENSE DE MISSION"), so the player knows what they open; no intro plays.
 - **Emblems:** pixel-art icons in the project's icon format (character grid, one art pixel per cell), drawn in `script/pixel_art/export.mjs` and exported to `app/frontend/images/pixel/`, never hand-edited. Both are the medium level: 17 × 17 cells, drawn at 1 art pixel per cell like the G monogram, with the `{colors.outline}` outline and three tones (outline, body, shade). The sun (S1-L2, a disc with short rays): body `{colors.capsule-daily}`, shade `#8f5e0a`. The cup (C1-L2, two handles, a stem and a foot): body `{colors.capsule-goal}`, shade `#7a1c1f`. The cup has no 11-cell version: red on the window reaches only 4.2:1.
 - **Count badges:** on the menu entry "OUVRIR UNE CAPSULE", two pill badges in `{typography.label}`: standard in `{colors.accent}` (text `{colors.on-accent}`), special in `{colors.lime}` (text `{colors.on-lime}`). A count of zero shows no badge at all, so with both at zero the entry is bare.
@@ -1243,6 +1244,17 @@ Mock: [mockups/hub-leaderboard-panel.html](mockups/hub-leaderboard-panel.html) (
 ### Player menu
 
 The Player chip's popover at every width (author, 2026-11-09): `{colors.panel}` with `{components.control-border.css}`, rows of at least 44px on the phone: Moi, Amis (its "n en ligne" meta in `{colors.muted}` and its waiting invitations in a violet count badge), Paramètres, Soutenir (with the pixel external icon), then for staff Back-office, and at the foot Se déconnecter.
+
+### Duels
+
+Reference: [Navigation des Duels](https://claude.ai/artifact/T5BjWxscW1nfquxgzyhg2W), board A1 (author, 2026-11-14) for the Duels screen and A2 for the merged ÉCHANGES tab; the duel, deck editor and result screens are not mocked yet. Where the mock differs from these rules, the rules apply.
+
+- **Échanges sub-tabs:** "AMIS" and "MARCHÉ" as a two-part segmented control at the top of the screen, over the Tabs and filters rules, each with its own orange count badge; the active part on `{colors.panel-raised}` with an accent underline.
+- **Duels screen:** the Panels rules; "LANCER UN DUEL" is the screen's one `{colors.lime}` primary button; each group a panel with a `{typography.label}` muted kicker and 44px rows; "JOUER" a secondary button. The rating in VT323 at 34px in `{colors.text-max}`, its rank beside it in `{colors.muted}`.
+- **Defence deck:** a `{typography.label}` "DÉFENSE" tag outlined in `{colors.capsule-duel}`, text in the same colour; the only steel mark outside the capsule. A draft's "<n> / 12" is outlined `{colors.dim}` in `{colors.muted}`.
+- **Deck grid:** 12 slots in a 3 × 4 grid at the smallest card size; an empty slot is a dashed `{colors.line-soft}` frame on `{colors.panel-sunken}`.
+- **Duel profile:** five rows, each the stat name in `{colors.muted}`, an 8px bar on a `{colors.panel-sunken}` track filled in `{colors.accent}` to the percentile, and the percentile in words; the trump row's bar in `{colors.text-max}` with an "ATOUT" tag. Week-to-week arrows in the deck editor are text arrows in `{colors.text}`, never coloured green or red.
+- **Round outcome:** the two cards side by side with their values under them in `{colors.text-max}`; the outcome word in `{colors.lime}` for a win, `{colors.muted}` for a loss or a draw, never colour alone.
 
 ### Marché
 
