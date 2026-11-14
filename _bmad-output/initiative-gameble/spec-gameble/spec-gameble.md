@@ -7,6 +7,7 @@ companions:
   - later-roadmap.md
   - lore.md
   - market-economy.md
+  - duel-rules.md
   - ../ux-gameble/DESIGN.md
   - ../ux-gameble/EXPERIENCE.md
   - ../ux-gameble/ux-gameble.md
@@ -15,6 +16,7 @@ sources:
   - ../brief-gameble/brief-gameble.md
   - ../brief-gameble/addendum.md
   - ../forge-market-economy/forge-market-economy.md
+  - ../forge-decks-and-matches/forge-decks-and-matches.md
 ---
 
 > **Canonical contract.** This SPEC and the files in `companions:` are the complete, preservation-validated contract for what to build, test, and validate. Source documents listed in frontmatter are for traceability — consult them only if you need narrative rationale or prose color this contract intentionally omits.
@@ -52,7 +54,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - No pack promises a rarity. The only guarantee: a new player gets a Rare or better by their 10th pack, with no visible sign.
     - Pack credit is computed server-side. Opening without a banked pack is refused, whatever the client does.
     - Packs accrue while the player is away, up to a cap of 10 standard packs.
-    - Every pack that is not a standard pack (today the daily bonus and the weekly goal reward) waits in a special reserve with no cap, counted as one total apart from the standard reserve; the hub shows both counts, and the pack screen switches between the two reserves. A special pack shows its origin, by name and colour, wherever it is opened; within a reserve the oldest pack opens first, whatever its origin (author, 2026-10-28).
+    - Every pack that is not a standard pack (today the daily bonus, the weekly goal reward and the duel capsule of CAP-42) waits in a special reserve with no cap, counted as one total apart from the standard reserve; the hub shows both counts, and the pack screen switches between the two reserves. A special pack shows its origin, by name and colour, wherever it is opened; within a reserve the oldest pack opens first, whatever its origin (author, 2026-10-28).
     - Draws pick a rarity tier first, then a card within it.
     - Opened cards are added to the player's collection, each copy carrying its minted rarity and season.
 - **CAP-5**
@@ -78,6 +80,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** A player sees a card's face at a glance and can open its detail view to see the game and its credits.
   - **success:**
     - The card face shows the title, publisher, cover, genre (its main theme), release year, rarity (shape and name) and card number, and no stats.
+    - The detail view also shows the card's duel profile and trump (CAP-39).
     - The card number is the card's number within its season, without a total ("S1 · #4 215").
     - The detail view shows the title, publisher, rarity, genre, release year, short description, minted season, sets, card number, copies owned, the editions owned grouped by rarity (folded beyond a few lines), and a link to the game's Steam store page.
     - Card text appears in the player's UI language. The description appears only in the detail view, not on the card.
@@ -157,7 +160,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** A player earns achievements that mark their progress and their memorable moments, in the Brotherhood's voice.
   - **success:**
     - An achievement is granted once, when its condition is met, and shows as earned on the achievements screen.
-    - Conditions read cumulative progress, one capsule's contents, streaks of openings or days, the collection with the games' metadata (studio, release year), and community actions (discoveries, reposts, repeated trades with one player). The catalog is in `achievements.md`.
+    - Conditions read cumulative progress, one capsule's contents, streaks of openings or days, the collection with the games' metadata (studio, release year), and community actions (discoveries, reposts, repeated trades with one player) and duels (CAP-41). The catalog is in `achievements.md`.
     - Every achievement shows a title in the Brotherhood's tone and a short condition, in French and English (`brotherhood-tone.md`); no flavor text (author, 2026-10-31).
     - The ten launch achievements (first pack, first Épique, first Légendaire, first complete set, first trade, 10, 100 and 500 packs opened, three complete sets, first repost) are renamed in that tone; their conditions are unchanged and no player loses one they earned (author, 2026-10-30).
     - A new achievement is granted at its release to every player whose recorded history already meets it; one with no recorded history counts from its release.
@@ -304,16 +307,53 @@ gameble is an open-source passion project, and the game its author wants to play
     - It shows each rarity's price in days of a standard player's capsules, with a price index at 100 on the rarity's first day with a price, over 90 days.
     - Each public chart, this one and the edition chart of CAP-34, appears only once an administrator publishes it from the back-office; there is no automatic threshold. Staff see it before, marked as such. With nothing published, the page does not exist for players.
     - Every chart has a readable table of what it draws, and its figures follow the chart rules of `market-economy.md`.
+- **CAP-39**
+  - **intent:** A player sees what makes each card strong in a duel, and how that moves with what the Brotherhood does.
+  - **success:**
+    - Every card has five stats, each a percentile: popularity, rating, release, discovery and circulation, as defined in `duel-rules.md`. Rarity is not one.
+    - The stats are recomputed every Monday at 00:00 UTC and hold for the week.
+    - A card's trump is its most extreme stat, in either direction.
+    - The detail view shows the five stats and the trump; the card face is unchanged.
+    - Each Monday a feed entry tells the cards whose stats moved most.
+- **CAP-40**
+  - **intent:** A player builds decks from their collection to duel with.
+  - **success:**
+    - A player has up to 5 named decks of exactly 12 distinct cards they own, with no rarity or theme constraint; a shorter deck is a draft and cannot duel.
+    - A card in one or more decks blocks one copy, which cannot be traded, listed or entrusted until the card leaves every deck; those screens name the decks.
+    - The editor sorts and filters the collection by stat and trump, and shows each deck card's change since the previous week.
+    - A player may name one complete deck their defence deck, which opens them to open challenges.
+- **CAP-41**
+  - **intent:** Two players duel with their decks, Top Trump style, each when it suits them.
+  - **success:**
+    - A duel is two halves of 5 calls, each played in one sitting: the caller plays a card from a hand of 3, names a stat and a direction, against the top card of the opponent's shuffled deck.
+    - A round won scores one point; nothing is captured and no deck changes. Ties follow `duel-rules.md`.
+    - Decks and stat values are frozen at the duel's start.
+    - A player challenges a friend, or takes an open challenge against a random player with a defence deck, and plays their half at once. The opponent has 48 hours; then their half is played automatically. No duel is won by forfeit.
+    - A player has at most 10 duels in progress, and one at a time with the same player. Private, banned and deleted players follow `duel-rules.md`.
+- **CAP-42**
+  - **intent:** Winning a duel gives a reason to come back without turning duels into a capsule farm.
+  - **success:**
+    - The first win of the UTC day gives a duel capsule of 3 cards at the daily bonus odds (CAP-16), in the special reserve; a second the same day is refused, whatever the client does.
+    - Other wins, losses and draws give nothing material.
+    - The profile shows the player's wins, losses and draws.
+- **CAP-43**
+  - **intent:** Players compare their skill at duels.
+  - **success:**
+    - An Elo-style rating starting at 1,000 moves only with open challenges; friend duels never move it.
+    - A player appears in the ranking after 5 ranked duels.
+    - The rating resets at each new catalog season; the profile keeps each season's final rank.
+    - The ranking follows the Flukeometer's visibility rules and layout, on its own screen.
 
 ## Constraints
 
 - **No real money**, anywhere: no purchases, no ads, no cash-out. PiCoins are never purchasable or withdrawable, and nothing touching capsules, PiCoins or auctions is ever sold.
 - **Before the market opens (legal):** the terms of use forbid real-money trading of cards and PiCoins, and the draw odds are published.
+- **Duels move nothing between players:** no card or PiCoin changes hands in a duel and duels never mint PiCoins; the duel capsule (CAP-42) is their only material reward.
 - **Friend trades stay free:** no stamp, commission, floor or levy, ever.
 - **Money integrity:** entrustment is the only way PiCoins are created; only the stamp, the commission and a deleted account's balance destroy them. Every PiCoin movement is kept in a permanent record that balances can be rebuilt from. PiCoin amounts are integers. The 100-6-Tron is the Mint in code, since "bank" means the capsule reserve.
 - **Market and personal data:** the export (CAP-14) includes a player's PiCoin history, listings and bids. Deleting the account erases the name from the bid history and destroys its balance, and the money record stays without identity.
 - **French and English UI**, both complete at launch. Card text is available in every UI language. The English copy is translated by AI from the French. All repo text (code, comments, docs) is in English.
-- **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability up to CAP-26 is live at launch. CAP-23 is live before the second season is published in production. Release 1.1.0 ships CAP-27, CAP-28 and the 2026-10-30 changes to CAP-6, CAP-9, CAP-17 and CAP-20; the trade suggestions of CAP-11 may follow in a later release. CAP-29 to CAP-38 are the market release, built after that (V2).
+- **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability up to CAP-26 is live at launch. CAP-23 is live before the second season is published in production. Release 1.1.0 ships CAP-27, CAP-28 and the 2026-10-30 changes to CAP-6, CAP-9, CAP-17 and CAP-20; the trade suggestions of CAP-11 may follow in a later release. CAP-29 to CAP-38 are the market release, built after that (V2). Release 1.4 ships CAP-39 to CAP-43; decks open with the release and duels on the first Monday after it.
 - **Landing ship conditions:** CAP-24 and CAP-25 go live only once the lore text exists in French and English (`lore.md`), the pioneer (CAP-13) is built, the repository is public with a license file, the roadmap's milestones are created from the initiative's epics and curated by staff in the back-office, and the app uses JetBrains Mono.
 - **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports, and, for a player with a Steam identity, the catalog games of their library (CAP-27), covered by export and by account deletion.
 - **Player-facing words:** the interface says "capsule" for pack (French and English), "réserve" for bank and "mission hebdo" / "weekly mission" for the weekly goal, so "objectif" / "goal" names only a player's goals (CAP-28) (author, 2026-10-30), and keeps "carte" / "card" (in the lore, an archive card: `lore.md`). The spec, the code, the database, stored events and URLs keep pack, bank and weekly goal. The market's words are in `market-economy.md`; a player "confie" / "entrusts" a card (author, 2026-11-09).
@@ -338,7 +378,7 @@ gameble is an open-source passion project, and the game its author wants to play
 
 ## Non-goals
 
-- Combat or any card battle mechanic (a "knowledge battles" idea is parked in `later-roadmap.md`).
+- Battle modes other than the asynchronous Top Trump duel (CAP-41): live duels, card or PiCoin stakes, captured cards. Knowledge questions and Daily Pixel are later (`later-roadmap.md`).
 - A guide or tutorial.
 - Bulk pack opening.
 - Any input at opening that improves the odds (later).
@@ -385,9 +425,13 @@ For the market: 30 days after it opens, cards sell between players at every rari
 - A market sale does not count for the weekly goal (CAP-12).
 - An oversized entrustment batch entrusts the most valuable copies first, skipping a copy that does not fit so a cheaper one can (CAP-29).
 - Rarity minimums below Légendaire start at the no-loss floor (`market-economy.md`).
+- The day of the first-win duel capsule is the UTC day, as for the daily bonus (CAP-42, CAP-16).
 
 ## Open Questions
 
+- **Duel rating (CAP-43):** the Elo factor and any rating floor are not set.
+- **Duel achievements (CAP-17, CAP-41):** which ones, and which give a card back; `achievements.md` lists none yet.
+- **Duel UX (CAP-39 to CAP-43):** where duels live in navigation (the phone's five tabs are full), the duel capsule's name and colour, and every duel string.
 - **Card backs (CAP-20):** beyond one back per theme or hall of fame set at its back tier and the achievement backs of `achievements.md`, which goal and event backs ship, and does every successful weekly goal grant one?
 - **Preview image (CAP-9):** do Steam's terms allow its store art in a derived, stored image? The author checks before it ships.
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.

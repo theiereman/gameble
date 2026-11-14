@@ -89,7 +89,7 @@ The UX work of 2026-10-02 replaced the intent first noted here. The binding docu
 
 ## Parked idea: knowledge battles (future version)
 
-Proposed by a friend of the author on 2026-10-02, to make the game more interactive. Not in the MVP, and not scheduled. It reopens "Combat", which the brief lists as out.
+Proposed by a friend of the author on 2026-10-02, to make the game more interactive. Not in the MVP, and not scheduled. It reopens "Combat", which the brief lists as out. (2026-11-14: the Top Trump duel of release 1.4 took the place of a first battle mode; this idea stays parked, see `later-roadmap.md`.)
 
 - **Match:** three rounds, each with a theme drawn from Steam data. Examples: the game released closest to 2014, a game in the RPG category, the game with the best Steam rating.
 - **Hand:** 20 cards are drawn at random from the player's collection. The player picks 3 of them within one minute.
