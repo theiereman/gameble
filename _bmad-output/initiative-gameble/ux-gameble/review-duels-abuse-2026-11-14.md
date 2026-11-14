@@ -1,0 +1,100 @@
+# Abuse and edge-case review — gameble 1.4 duels
+
+Reviewed 2026-11-14 against `spec-gameble/duel-rules.md`, CAP-39 to CAP-43, `forge-decks-and-matches/forge-decks-and-matches.md`, EXPERIENCE.md (Duels, duel State Patterns rows), `market-economy.md` and `catalog-and-rarity.md`.
+
+Method: rule reading plus a Monte Carlo model of the duel (12,434-card catalog, popularity tiers cut at 60/85/95/99 %, rating as an integer % with 80 distinct values, circulation as a Poisson count per tier with 13 distinct Common values, collections drawn at the drop odds; 400 to 2,000 duels per line). The model is crude, so it gives orders of magnitude, but the main result follows from the rules alone and the model only puts numbers on it.
+
+## Verdict
+
+The safety rules hold. Nothing moves between players, every value is frozen, no duel is won by forfeit, a capsule comes only from the first win of the day, and friend duels are unranked. Those rules close the classic exploits (stakes, stalling, win trading for currency).
+
+Two parts do not hold as written:
+
+1. **The duel has no real decision, so the ranking does not measure skill.** Against a deck the caller does not know, "call the most extreme stat in its extreme direction" is the optimal play, and it is exactly the automatic play. With five stats, two directions and a hand of three, every established deck holds only cards at the 99.9th percentile or beyond, so a caller wins about 95 % of rounds. Half of the duels between established players end 5–5, and the percentile margin settles them. That margin depends on which card the defender happened to draw. CAP-43's intent, "players compare their skill", cannot be met; the rating ranks collection size and luck.
+2. **The automatic half pays the daily capsule.** An account with a defence deck that never logs in gets a capsule almost every day, and the special reserve has no cap. This makes alt accounts free to run.
+
+The rest are fixable gaps: ties, circulation, the 10-duel cap with incoming challenges, a ranking that freezes when its owner stops playing, a tiny matching pool, and season edges. All of them should be settled before the build.
+
+## Findings
+
+### Critical
+
+- **[critical] The call is solved: automatic play is optimal play, and established duels are coin flips.** A call's chance of winning against an unknown card equals the card's extremeness in that stat (a 99.5 call beats a random card 99.5 % of the time). So the best call is always the hand's most extreme stat in its extreme direction, which is the automatic play. Playing the best card of the hand each time is also optimal: across the 7 cards a half sees, the two weakest are never played. A 2,000-card collection has 12 cards at 99.9–100 with no effort, because the editor sorts by trump. Simulated results:
+  - two established decks, both played automatically: 52/48; 48 % of duels end 5–5 and 56 % go to the margin tie-break;
+  - a 150-card newcomer against an established deck: 33/67;
+  - a best deck against a random deck: 77/23;
+  - a player who knows exactly which cards remain in the defender's deck, against automatic play: 62/38. This is the whole skill ceiling, and it comes from scouting, not from decisions in the duel.
+
+  Impact now: every duel; the ranking is noise among the dozen players with full decks. At scale: the same, plus ratings drift on autopilot (see the medium finding on away players). *Fix:* the smallest rule that creates decisions is "the defender answers automatically from a hand of 3, with the weakest card that wins the call, else its weakest card". With that rule, deck coverage across the 10 stat-directions and knowledge of the opponent's deck matter: in simulation a scouting caller beats automatic play 45/12, with 42 % equal scores. It widens the newcomer gap, though: a 150-card collection wins 1/81. Prototype it before the build. If the author keeps the current rule, rewrite CAP-43's intent as a prestige ladder ("who duels well and often"), not skill, and accept that it measures luck and collection. Two things do not help, both simulated: "each stat once per half" (half scores stay at 4.3/5, and planning gains nothing over greedy) and letting the defender's trump set the stat (scores collapse to 0.7/5 and newcomers win 1 %).
+
+- **[critical] Idle alt accounts farm duel capsules without logging in.** An automatically played half that wins is still "the first win of the UTC day", and the spec does not exclude it. An alt builds 12 cards (three capsules), names a defence deck and never returns. With about 90 open challenges a day spread over about 20 defence decks today, it receives 4 or 5 challenges a day and wins at least one 95 % of the time. Its capsules pile up in the special reserve, which has no cap, and the owner opens about 30 a month in one visit: 90 cards at bonus odds, about 0.9 Legendary (7M minimum on the market), sent to the main account through free friend trades. The daily bonus needs a daily click; this needs nothing, and none of the alt signals in `market-economy.md` (opening rate, one-way trades, odd sales) sees it until the transfer. Impact now: one player with three alts gets about 3 Legendaries a month for free. At 1,000 players it is a scriptable faucet. *Fix:* "The duel capsule is given only for a win in a duel whose half the winner played themselves." Optionally also "and only if the player opened a capsule that UTC day".
+
+### High
+
+- **[high] Two colluders can force an open-challenge meeting in a small pool.** "One duel at a time between the same two players" makes the matcher skip opponents the challenger is already dueling. A challenger with 10 slots fills them with friend duels and open challenges against everyone except the partner. When 10 or fewer other players have a defence deck, the next open challenge must land on the partner. The partner then throws (finding below), so rating moves on demand. Impact now: feasible as long as the pool stays at about 15 defence decks or fewer. At scale: infeasible, but random repeat meetings remain. *Fix:* "An open challenge between two friends, or between two players who already met in an open challenge in the last 7 days, does not move the rating." Alts are almost always friends, because they must be friends to trade.
+
+- **[high] Throwing is free and invisible; friend-duel rings double each alt's capsules.** A player can lose on purpose by calling the wrong direction with any card (a 99.9 popular card on "most obscure"). Three alts who are friends duel in a ring and throw in turn, so each takes a daily win and a capsule in two minutes. That doubles the daily-bonus yield per alt, and no current signal catches it. Impact now: low (no alts known). At scale: the same yield per alt as the daily bonus. *Fix:* add to the alt signals (CAP-37) "a half that scores far below its automatic play" and "friend duels repeated between the same pair". The rule on the critical finding above already blocks idle alts; one keystroke per day can't be blocked by rule, only seen.
+
+- **[high] Ratings can be frozen at the top.** The rating has no decay and no activity requirement, a player shows after 5 ranked duels, and duels are coin flips. A player who starts 5-0 removes their defence deck, stops challenging, and keeps first place until the season reset. The season's final rank, kept on the profile forever, rewards whoever stopped at the right moment. Impact now: very likely among 36 players. At scale: the same at the top of the board. *Fix:* "A player appears in the ranking after 20 ranked duels, and only while they have played a ranked duel in the last 14 days; the season's final rank needs the same." Also cut the Elo factor as games accumulate (still unset in Open Questions).
+
+- **[high] The 10-duel cap and incoming challenges are undefined.** If a received open challenge counts toward the defender's 10: at 1,000 players with about 300 defence decks and 3 challenges a day per active player, a defender receives about 10 a day for 48 h each and can never start a duel. If it does not count, the matcher has no bound on a defender. And if full defenders are skipped, a few players at their cap can drain a small pool. Separately, the "DÉFI OUVERT" state where every defence-deck holder is already dueling the player is missing (EXPERIENCE only covers "no other player has a defence deck"). Impact now: low. At scale: high, felt by every engaged player. *Fix:* "The 10 counts duels the player started; a player has at most 10 received open challenges waiting for their half and is skipped by the matcher beyond that; with no eligible opponent, DÉFI OUVERT is disabled with its reason."
+
+- **[high] A ban does not undo what the banned account fed.** A banned player's duels finish by automatic play and their past results stand. Rating gifted by a banned alt stays with the main account, and capsules won against it stay too. Impact now: small. At scale: a ban stops nothing that has already been gained. *Fix:* "On a ban, the season's ranked duels against the banned player stop counting and the ratings they moved are replayed without them." Capsules already given are kept, as with every reward.
+
+### Medium
+
+- **[medium] Ties are mostly undefined and very frequent on two stats.** Rating is Steam's whole-number percent (about 80 values over 12,434 cards, blocks of 150 or more at 90–98 %). Two cards at 97 % share both the percentile and the exact value, so the round scores nothing. Circulation has 13 to 18 values per tier, which gives the same nulls. The spec also never says how to rank ties (midrank, below, at or below), whether the stored percentile is whole or decimal (a whole one makes 0 and 100 common, coarsens the margin tie-break and brings real draws back), or which card and stat automatic play takes when two are equally extreme. Impact: many null rounds on those two stats, and automatic play that is not reproducible in tests. *Fix:* "A percentile is the midrank, to one decimal. Rating's exact value is positive reviews over total reviews when stored. Automatic play breaks equal extremeness by the exact value's distance from the median, then by the stat order of the table, then by card number."
+
+- **[medium] Circulation counts copies, so hoarding buys a trump.** One player who keeps every duplicate of a Common they pull (or buys them at 1,300) pushes its circulation to the top of the Common tier and gets a "most widespread" trump. The forge rejected player-specific stats because "they reward hoarding", and circulation does the same thing. Entrusting the other way pays PiCoins, so it is profit, not a cost. Also, because the ranking is "within its tier" over the whole catalog, owned cards (circulation of at least 1) can never reach "hardest to find" if unowned cards count at 0. Impact now: one player alone sets a Common's value. At scale: weaker, because more players hold each card. *Fix:* "Circulation is the number of players holding at least one copy, Archives excluded, ranked within the tier over the cards held by at least one player." That also stops one entruster from moving it on their own, though more ties follow (one decimal midrank as above).
+
+- **[medium] Discovery has no value for undiscovered or newly discovered cards.** "Ranked over the season's catalog" includes cards nobody has pulled, which have no first-pull date. A card discovered after Monday 00:00 has no value until the next Monday, but it can be added to a deck at once. Two weeks into a new season, discovery is ranked over a few hundred cards, so its percentiles swing wildly. *Fix:* "Discovery is ranked over the season's discovered cards at computation. A card with no stat value yet cannot be added to a deck until the Monday that computes it; the editor says 'Stats lundi'."
+
+- **[medium] The cross-season rules are unstated.** "Each card-season at most once" lets a deck hold the same game twice, in two editions. That is fine but should be said. Several things are not stated:
+  - which catalog an older edition is ranked in (its own season's, presumably);
+  - whether old seasons' living stats (discovery, circulation) are still recomputed every Monday;
+  - that an old edition's circulation can only fall once its season is no longer pulled, which drifts it toward "hardest to find".
+
+  *Fix:* "Each stat ranks a card among its own season's cards; living stats of every season are recomputed each Monday." Add one line accepting the drift.
+
+- **[medium] It is undefined which rating a duel moves when the season changes mid-duel.** A duel started in season N finishes up to 48 h later, in N+1. *Fix:* "A duel moves the rating of the season it started in; that season's final ranks are written once its last duel has finished."
+
+- **[medium] Decks meet reserved copies.** Three cases:
+  - Can a card whose free copies are all on sale or in a trade enter a deck? If it can, the sale leaves the deck holding a card the player no longer owns.
+  - "RETIRER DES DECKS" from a trade or sale screen can silently turn the defence deck into a draft, so the player stops receiving open challenges without noticing.
+  - A copy blocked by a deck must not count as the spare copy of the friends' suggestions (CAP-11), in the same way as the reserved copies just shipped.
+
+  *Fix:* "A deck takes a free copy; a card with none is shown reserved in the editor. Removing a card from the defence deck warns that the deck becomes a draft and stops open challenges. A deck-blocked copy is reserved for every duplicate count."
+
+- **[medium] Away players are rated on autopilot at no cost.** Automatic play equals the best uninformed play (critical finding), so being away costs nothing, and at scale most defence halves will be played automatically. The ranking becomes a contest between decks running on their own. *Fix:* folded into the activity rule of the frozen-ratings finding. Optionally, "an automatically played half moves the absent player's rating by half", to keep the ladder about presence.
+
+- **[medium] The daily duel capsule adds about 21 % to Legendary supply.** Any player with a defence deck nearly always wins a duel a day. A standard day (45 capsules of 5 cards) yields about 0.11 Legendary, the daily bonus 0.03, and the duel capsule another 0.03. That adds about 21 % more Legendaries per active player and about 10 % more Epics. The market already notes about 1,800 Legendaries waiting at the 7M minimum. *Fix:* add the duel capsule to the Legendary supply model of `market-economy.md` before release. If it worsens the clog, give it the standard odds of 3 cards.
+
+- **[medium] Newcomers are fed to established decks.** Matching ignores rating, and a 150-card collection wins about 33 % against an established deck (much less with 30 cards). A new player's first open challenges are mostly losses with no capsule, at the moment retention is decided. *Fix:* "The matcher draws among defence decks within 200 rating points when at least 5 qualify, else from all." At 36 players this does nothing, so the hub could also suggest friend duels first.
+
+### Low
+
+- **[low] Defence decks are public after about two duels.** The result lists all ten rounds with both cards, and the defence deck never changes, so one duel reveals up to 10 of its 12 cards. The challenger picks their deck before the opponent is named, so counter-decks only work in friend duels. Knowing the deck is the only skill the current rules have (62/38). *Fix:* none. Keep the round list; it is what gives the duel its only depth.
+
+- **[low] What the second half sees, and which shuffle it uses, is ambiguous.** The spec does not say whether the waiting player sees the challenger's half score before playing (EXPERIENCE implies not). It also does not say whether a player's defending cards in one half and calling hand in the other come from one shuffled deck (5 defend + 7 drawn = 12, which suggests it) or from two independent shuffles. With one shuffle, the first half reveals the second player's hand. *Fix:* "Each half shuffles both decks anew; the second player sees nothing of the first half until their own half ends."
+
+- **[low] It is unclear when the 48 hours start and what happens to an unfinished challenger half.** A challenger can leave mid-half (EXPERIENCE: "leaving keeps the half"). This holds a slot and the pair's one-duel lock forever, unless their half also plays automatically. *Fix:* "The opponent's 48 h start when the challenger's half is complete; a challenger's unfinished half plays automatically after 48 h."
+
+- **[low] Deletion, privacy and friendship changes mid-duel need a snapshot.** A deleted player's holdings vanish, so automatic play must read a snapshot of the deck and stat values taken at the start (the freeze implies one, but say so). An ended friendship should leave a friend duel running to its end. *Fix:* "A duel keeps its own copy of both decks and their values; a friendship or privacy change does not affect a duel in progress."
+
+- **[low] The deck editor has no stats at release.** Decks open with the release, but the first computation runs on the following Monday, so the editor's stat sort and filter are empty until then. *Fix:* "Run the first stat computation at release; duels open the following Monday."
+
+- **[low] Weak "piñata" defence decks and strong decks that never play gain nothing.** A deliberately weak defence deck loses to everyone (98 % in simulation), so random matching spreads its wins over every challenger. A strong deck that is never played performs as well as a human would. Neither is an exploit once the rules above apply. *Fix:* none.
+
+- **[low] Draws will almost never happen.** With decimal percentiles, simulation found no draws in 4,000 duels. The "draws" count on the profile will read 0 for nearly everyone. *Fix:* none; keep the column for consistency.
+
+- **[low] Stat timing gives no edge.** Values freeze at the duel's start and are read from the start week, so starting duels just before the Monday recompute gains nothing. Entrusting to lower circulation is already accepted and, with the holder-count fix, needs several players. *Fix:* none.
+
+## Is the duel solved?
+
+Yes, inside the duel, under the current rules. Call a stat at value *a* in the high direction against a card you cannot see: if values are uniform, you win with probability *a*/100, and the low direction is symmetric. So the best call is always the hand's most extreme stat in its extreme direction, which is what the automatic half does. Hand management is also trivial: playing the hand's best card each time is optimal, because the two weakest of the seven cards a half sees are then never played.
+
+The only decision that matters is deck building, and it is one sort: take the 12 cards with the most extreme trump, which the editor already offers. A collection of a few hundred cards gives twelve cards at 99 % or more; a veteran collection gives twelve at 99.9–100. With five stats, two directions and a hand of three, a caller wins about 95 % of rounds. About half of duels between established decks end 5–5 and are settled by a percentile margin that depends on the defender's random draw.
+
+What remains is information. A defence deck is visible in the round list after about two duels, and knowing exactly which cards remain moves an even match to 62/38. That is real but thin, and it favours whoever duels the same opponents most.
+
+So the duel works as a daily ritual and a card showcase, but a rating built on it ranks collection size, activity and luck, not skill. Adding information to the rules does not change this. Real decisions need the defender to answer the call instead of drawing at random. The smallest version, "the defender's automatic hand of 3 answers with the weakest card that wins", makes coverage across the ten stat-directions and scouting decisive (45/12 for an informed caller against automatic play). It costs newcomers even more, though, so it needs a prototype before the build. The other choice is to keep the current rule and present the ranking as a prestige ladder rather than a skill ladder.
