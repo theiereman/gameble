@@ -2,49 +2,51 @@
 <style>body{font:16px/1.5 system-ui,sans-serif;max-width:760px;margin:2rem auto;padding:0 1rem;background:#14161c;color:#e8e6df}h1{margin-bottom:.2rem}h2{margin-top:2rem;border-bottom:1px solid #444;padding-bottom:.2rem}.seal{float:right;margin:0 0 1rem 1rem}li{margin:.3rem 0}.who{color:#b9b4a4}.cast li{list-style:none;margin-left:-1.2rem}.cast b{color:#f3dfa2}</style></head><body>
 <svg class="seal" width="140" height="140" viewBox="0 0 140 140" role="img" aria-label="HARDENED"><path d="M70 6c9 0 12 7 20 9s15-3 21 4 1 14 5 21 12 9 12 18-8 12-10 20 4 15-3 21-14 1-21 5-9 12-18 12-12-8-20-10-15 4-21-3-1-14-5-21S6 79 6 70s8-12 10-20-4-15 3-21 14-1 21-5S61 6 70 6z" fill="#8c1d2b" stroke="#d4a94a" stroke-width="4"/><circle cx="70" cy="70" r="44" fill="none" stroke="#d4a94a" stroke-width="2" stroke-dasharray="4 3"/><text x="70" y="66" text-anchor="middle" font-family="serif" font-weight="bold" font-size="17" fill="#f3dfa2">HARDENED</text><text x="70" y="86" text-anchor="middle" font-family="serif" font-size="11" fill="#f3dfa2">1.4 · 2026-11-14</text></svg>
 <h1>Decks and the Top Trump duel</h1>
-<p class="who">Outcome: hardened. Release 1.4 ships decks, weekly card stats, the asynchronous Top Trump duel and its ranking. Daily Pixel and knowledge questions come later. Forged idea: <code>forge-decks-and-matches.md</code>.</p>
+<p class="who">Outcome: hardened, then reworked on 2026-11-14 after a four-lens review found the first duel solved. Release 1.4 ships decks, weekly card stats and live duels between friends; ranked and deferred duels follow. Forged idea: <code>forge-decks-and-matches.md</code>.</p>
 
 <h2>Locked decisions</h2><ul>
-<li>The deck serves the Top Trump duel of #352; 1.4 ships the duel itself, not only decks.</li>
-<li>Asynchronous only: two halves of 5 calls each, played in one sitting against the opponent's deck; a call is a card from a hand of 3, a stat and a direction.</li>
-<li>Players alternate calls and the caller picks the direction, so a deck stacked on one stat wins only its own calls.</li>
-<li>Points, no capture; every stat frozen at the duel's start, so dragging out a losing duel gains nothing.</li>
-<li>Five stats played both ways: popularity, rating, release date, discovery, circulation. Rarity is out: it is the review count twice.</li>
-<li>Only living stats were the author's wish; production data (36 players, 12,434 cards) showed them too sparse. Discovery and circulation stay; living-stat density is remeasured each season to bring more in.</li>
-<li>Stats recomputed every Monday; decks evolve with what the Brotherhood does.</li>
-<li>Decks of exactly 12 distinct cards, up to 5 decks; a card in any deck blocks one copy.</li>
-<li>Friend duels and open challenges among players with a defence deck; 48 h, then the missing half plays itself; no win by forfeit.</li>
-<li>First win of the day gives a duel capsule; nothing beyond it; no stakes.</li>
-<li>Elo-style ranking on open challenges only, shown after 5 duels, reset each season, laid out like the Flukeometer.</li>
+<li>Live duels between two online friends first, to test the game; ranked duels and deferred duels come later with the same rounds.</li>
+<li>A round: the caller locks a card and a stat with its direction; the card turns face up; the answerer, not knowing the call, picks a card from their hand; then all is revealed. Both sides read the other, so no move is always best.</li>
+<li>Ten rounds, calls alternating from a random first caller; one hand of 3 serves both to call and to answer.</li>
+<li>Both 12-card decks visible during the duel, played cards struck out; hands hidden; decks revealed only once both are locked. The last round is played with open hands.</li>
+<li>Points, no capture; every stat frozen at the duel's start.</li>
+<li>Timers of 30 s to call and 20 s to answer; the game plays on timeout; 60 s to reconnect; no win by forfeit.</li>
+<li>Five stats played both ways: popularity, rating, release date, discovery, circulation (distinct holders, within its rarity). Rarity is out: it is the review count twice.</li>
+<li>Stats computed at the deploy, then every Monday; decks evolve with what the Brotherhood does.</li>
+<li>Decks of exactly 12 cards, a game at most once, up to 5 decks; a deck slot is an edition and blocks one copy.</li>
+<li>First win of the UTC day gives a duel capsule, only if the game played none of the winner's moves; no stakes.</li>
+<li>A private player cannot duel, as they cannot trade.</li>
 </ul>
 
 <h2>Rejected, and why</h2><ul>
-<li><b>Capture until a deck is empty:</b> with alternating calls duels never end, worst of all asynchronously.</li>
-<li><b>Deck cards only referenced, with a warning:</b> the author wants them blocked.</li>
-<li><b>30-card decks:</b> only 7 cards show per duel, so composition hardly matters.</li>
-<li><b>Rarity budgets or quotas:</b> unnecessary once the direction is the caller's choice.</li>
-<li><b>Copies owned as a stat, win-count ranking, stakes:</b> each rewards hoarding, volume or collusion.</li>
-<li><b>Continuous stat updates, live play, win by forfeit.</b></li>
-<li><b>Market price as a stat:</b> tied to rarity, and within a tier prices sit at the floor or have no sale.</li>
-<li><b>Only living stats, for now:</b> 36 players cannot tell 12,434 cards apart; most rounds would tie.</li>
+<li><b>Asynchronous halves against an automatic defence:</b> the best call was always the hand's most extreme stat, which the automatic play also made; an answerer in person had nothing to decide.</li>
+<li><b>The call shown, the card hidden:</b> the answer reduces to "my best on that stat or my worst".</li>
+<li><b>Both hands visible:</b> the caller finds a call nothing beats. <b>Nothing visible:</b> no reading, a flat endgame.</li>
+<li><b>Automatic play that starts a half:</b> rewards absent players and idle alts.</li>
+<li><b>Capture until a deck is empty; 30-card decks; rarity quotas; copies owned or market price as a stat; circulation by copies; stakes; forfeit wins.</b></li>
+<li><b>Only living stats, for now:</b> 36 players cannot tell 12,434 cards apart.</li>
 </ul>
 
 <h2>Weak points that survived</h2><ul>
-<li>A carefully built deck can weaken with no action from its owner; the weekly change arrows must make that legible, not felt as theft.</li>
-<li>Entrusting duplicates to make a card harder to find is accepted as strategy; watch whether it distorts the market.</li>
-<li>Automatic halves count in the ranking: a player with a defence deck who stops playing will drift down.</li>
-<li>The phone's tab bar is full; the duel's place in navigation is open for the UX.</li>
-<li>The spec's Combat non-goal and the "no stats on the card face" rule must be rewritten.</li>
+<li>Live play needs two friends online at once; with 29 weekly players, how often that happens is what 1.4 tests.</li>
+<li>A newcomer's thin collection may lose most duels; to watch once real games exist.</li>
+<li>A player can duel their own alt in two tabs for a daily capsule; accepted as no worse than the alt opening its own capsules.</li>
+<li>A deck can weaken with no action from its owner; the weekly change arrows must make that legible.</li>
+<li>The ranked queue will be thin at today's player count; its rules (unrated between friends, two meetings a week) are sketched, not tested.</li>
 </ul>
 
 <h2>Who pressed on it</h2><ul class="cast">
 <li>📋 <b>John</b>, product manager: "What does a deck do on its own?" — which pulled the duel into 1.4.</li>
-<li>📊 <b>Mary</b>, analyst: the arithmetic of single-stat decks, deck size and collusion.</li>
+<li>📊 <b>Mary</b>, analyst: the arithmetic of single-stat decks, the empty live queue, alt economics.</li>
 <li>🎨 <b>Sally</b>, UX designer: a 3×4 deck grid, last-copy visibility, reusing the Flukeometer's layout.</li>
-<li>🏗️ <b>Winston</b>, architect: one-sided rounds make asynchronous duels possible; reserved copies; weekly freezing.</li>
+<li>🏗️ <b>Winston</b>, architect: frozen values, reserved copies, the cost of a server-side clock.</li>
 <li>💻 <b>Amelia</b>, developer: the cost of a solo practice mode.</li>
-<li>🃏 <b>Inès</b>, card game designer (guest): "without match rules a deck is a playlist"; percentiles and trumps.</li>
-<li>🎮 <b>Lucas</b>, seasoned online card player (guest): opt-in defence, no hoarding stats, a record worth playing for.</li>
+<li>🃏 <b>Inès</b>, card game designer (guest): "the tension is: does he have better than me there?"</li>
+<li>🎮 <b>Lucas</b>, seasoned online card player (guest): opt-in defence, no hoarding stats.</li>
 <li>🎭 <b>Gaspard</b>, Brotherhood tone writer (guest): stats from the game's own life, the Monday market story.</li>
+<li>🛡️ <b>Bastien</b>, online card game moderator (guest): the alt already exists; only effortless gain is new.</li>
+<li>🎲 <b>Léon</b>, tabletop card player (guest): a defender who is there should choose.</li>
+<li>🕵️ <b>Camille</b>, former ranked-game moderator (guest): in a tiny queue, rules on pairs, not on the draw.</li>
+<li>🔎 <b>Four reviewers</b> (rubric, accessibility, coherence, abuse): the simulation that showed the first duel solved.</li>
 </ul>
 </body></html>
