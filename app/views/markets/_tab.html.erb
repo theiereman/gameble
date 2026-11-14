@@ -1,7 +1,7 @@
-<%# locals: (title:, pulse:, desk:, suspended:, commission_rate:, content:, data: {}) %>
+<%# locals: (title:, pulse:, desk:, suspended:, content:, data: {}) %>
 <%= turbo_frame_tag "market-tab", target: "_top", data: { controller: "market-tab", action: "turbo:frame-load->market-tab#arrive" } do %>
   <%= tag.section class: "market-screen", aria: { labelledby: "market-screen-heading" }, data: { market_tab_target: "screen", title: }.merge(data) do %>
-    <%= render "markets/desk", pulse:, desk:, suspended:, commission_rate: %>
+    <%= render "markets/desk", pulse:, desk:, suspended: %>
     <% if suspended %><%= render "market/suspended_banner" %><% end %>
     <% if desk&.newcomer? && !suspended %>
       <%= render "markets/newcomer", desk: %>

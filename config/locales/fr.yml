@@ -2563,11 +2563,6 @@ fr:
           zero: "Aucune annonce en cours."
           one: "%{number} annonce en cours."
           other: "%{number} annonces en cours."
-        soon:
-          zero: "Aucune ne se termine dans l'heure."
-          one: "Une se termine dans l'heure."
-          other: "%{number} se terminent dans l'heure."
-        commission: "La Confrérie retient %{rate} sur chaque vente, conformément à la procédure."
         available: "DISPONIBLE"
         committed:
           zero: "Aucun PiCoin engagé dans vos offres"

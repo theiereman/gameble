@@ -21,5 +21,5 @@
         empty: t("market.my_sales.groups.ended.empty"), rows: @groups.ended, focus_heading: false, suspended: @suspended %>
 <% end %>
 <% end %>
-<%= render "markets/tab", title: content_for(:title), pulse: @pulse, desk: @desk, suspended: @suspended, commission_rate: @commission_rate,
+<%= render "markets/tab", title: content_for(:title), pulse: @pulse, desk: @desk, suspended: @suspended,
       data: { controller: "row-focus", row_focus_landing_value: @landing }, content: tab %>

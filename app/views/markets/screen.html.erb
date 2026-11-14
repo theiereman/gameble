@@ -32,5 +32,5 @@
 <% end %>
 <%= render "markets/pages", listings: @listings, sort: @sort, page: @page, filters: @filters %>
 <% end %>
-<%= render "markets/tab", title: content_for(:title), pulse: @pulse, desk: @desk, suspended: @suspended, commission_rate: @commission_rate,
+<%= render "markets/tab", title: content_for(:title), pulse: @pulse, desk: @desk, suspended: @suspended,
       data: { controller: "next-page", action: "focusout->next-page#focusLeft" }, content: tab %>

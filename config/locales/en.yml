@@ -2972,7 +2972,6 @@ en:
       chips_label: Market sections
       desk:
         available: AVAILABLE
-        commission: "The Brotherhood keeps %{rate} of every sale, as the procedure requires."
         committed:
           one: "%{amount} committed to your bids"
           other: "%{amount} committed to your bids"
@@ -2983,10 +2982,6 @@ en:
           other: "%{number} listings open."
           zero: No listing open.
         purse_label: Your PiCoins
-        soon:
-          one: One ends within the hour.
-          other: "%{number} end within the hour."
-          zero: None ends within the hour.
       empty: No listings for now.
       entrust: ENTRUST CARDS
       entrust_short: ENTRUST
