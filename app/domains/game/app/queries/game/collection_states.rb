@@ -7,12 +7,12 @@ module Game
       "owned" => "held_games.card_id IS NOT NULL",
       "missing" => "held_games.card_id IS NULL",
       "new" => "held_games.fresh",
-      "duplicates" => "held_games.copies >= 2"
+      "duplicates" => "held_games.free_copies >= 2"
     }.freeze
 
     HELD_GAMES = <<~SQL.squish.freeze
       LEFT JOIN (
-        SELECT catalog_card_seasons.card_id, SUM(game_holdings.quantity) AS copies,
+        SELECT catalog_card_seasons.card_id, SUM(game_holdings.quantity - game_holdings.reserved) AS free_copies,
                MAX(game_holdings.last_gained_at) AS gained_at, BOOL_OR(#{CollectionSlots::NEW}) AS fresh
           FROM game_holdings
           JOIN catalog_card_seasons ON catalog_card_seasons.id = game_holdings.card_season_id

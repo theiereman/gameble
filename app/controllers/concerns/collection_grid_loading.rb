@@ -100,8 +100,13 @@ module CollectionGridLoading
       views = Catalog::CardViews.call(tiles.map(&:first), locale: I18n.locale)
       held = Game::HeldGames.editions(grid_owner, card_ids: tiles.map(&:last), season: @season)
       prices = @grid_price.active? ? Game::Market::CollectionPrices.for_cards(tiles, owner: grid_owner) : {}
-      @slots = tiles.filter_map { |id, card_id| [ views[id], held[card_id], prices[card_id] ] if views.key?(id) }
+      reserved = grid_reserved(tiles.map(&:last))
+      @slots = tiles.filter_map { |id, card_id| [ views[id], held[card_id], prices[card_id], reserved[card_id] ] if views.key?(id) }
       @seen_up_to = held.values.select(&:new).map(&:gained_at).max unless grid_another?
+    end
+
+    def grid_reserved(card_ids)
+      grid_another? ? {} : Game::ReservedCopies.call(grid_owner, card_ids:)
     end
 
     def pages_query
@@ -129,6 +134,7 @@ module CollectionGridLoading
       @unique = @games_by_rarity.values.sum
       @season_cards = Catalog::CardCount.call(@season)
       @tier_counts = Game::TierCounts.call(grid_owner)
+      @duplicates = Game::ReservedCopies.duplicates(grid_owner)
     end
 
     def page_param

@@ -1615,6 +1615,15 @@ fr:
         other: "%{count} cartes affichées."
       past_the_end: "Plus aucune carte ici : la grille s'arrête sur une page précédente. Revenez à la dernière page."
       new: "Nouveau"
+      reserved:
+        on_sale:
+          zero: "%{count} en vente"
+          one: "%{count} en vente"
+          other: "%{count} en vente"
+        in_trade:
+          zero: "%{count} en échange"
+          one: "%{count} en échange"
+          other: "%{count} en échange"
       copies:
         zero: "%{number} exemplaire"
         one: "%{number} exemplaire"
@@ -3791,6 +3800,17 @@ fr:
       zero: "%{count} exemplaire"
       one: "%{count} exemplaire"
       other: "%{count} exemplaires"
+    copies_reserved: "%{copies}, dont %{reserved}"
+    reserved:
+      and: " et "
+      on_sale:
+        zero: "%{count} en vente"
+        one: "%{count} en vente"
+        other: "%{count} en vente"
+      in_trade:
+        zero: "%{count} en échange"
+        one: "%{count} en échange"
+        other: "%{count} en échange"
     no_copies: "Aucun"
     no_editions: "Aucune"
     position: "%{position} / %{total}"

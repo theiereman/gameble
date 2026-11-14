@@ -26,7 +26,7 @@ class PublicProfilesController < ApplicationController
   end
 
   def set
-    load_set_album(Catalog::PublishedSeason.call, owner: @owner, with_new: false)
+    load_set_album(Catalog::PublishedSeason.call, owner: @owner, own: false)
   end
 
   def collection

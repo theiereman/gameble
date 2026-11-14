@@ -1187,6 +1187,15 @@ en:
     copies:
       one: "%{count} copy"
       other: "%{count} copies"
+    copies_reserved: "%{copies}, including %{reserved}"
+    reserved:
+      and: " and "
+      in_trade:
+        one: "%{count} in a trade"
+        other: "%{count} in trade"
+      on_sale:
+        one: "%{count} on sale"
+        other: "%{count} on sale"
     edition_line: "%{rarity} · %{season}"
     editions_line: "%{rarity}: %{seasons}"
     editions_more:
@@ -2518,6 +2527,13 @@ en:
           zero: No more cards shown.
       past_the_end: 'No more cards here: the grid ends on an earlier page. Go back
         to the last page.'
+      reserved:
+        in_trade:
+          one: "%{count} in a trade"
+          other: "%{count} in trade"
+        on_sale:
+          one: "%{count} on sale"
+          other: "%{count} on sale"
       result:
         one: 1 card shown.
         other: "%{count} cards shown."

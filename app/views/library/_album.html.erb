@@ -39,6 +39,9 @@
               <% if slot.new %>
                 <span class="collection-slot__new"><%= t("library.grid.new") %></span>
               <% end %>
+              <% if slot.reserved %>
+                <%= render "library/reserved", reserved: slot.reserved %>
+              <% end %>
             <% else %>
               <%= link_to_card_detail(slot.card, strings:, context:, number: slot.number, owned: false, goals: marks) do %><%= render CardComponent.new(card: slot.card, size: :grid, owned: false, goals: marks.map(&:position)) %><% end %>
             <% end %>

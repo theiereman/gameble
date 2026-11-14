@@ -134,7 +134,7 @@
             <% if signed_in %>
               <div class="card-detail__fact">
                 <dt><%= t("card_details.facts.copies") %></dt>
-                <dd class="card-detail__copies"><%= copies ? t("card_details.copies", count: copies) : t("card_details.no_copies") %></dd>
+                <dd class="card-detail__copies"><%= copies ? card_detail_copies(copies, local_assigns[:reserved]) : t("card_details.no_copies") %></dd>
               </div>
               <div class="card-detail__fact">
                 <dt><%= t("card_details.facts.editions") %></dt>

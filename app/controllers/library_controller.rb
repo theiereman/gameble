@@ -63,7 +63,7 @@ class LibraryController < ApplicationController
   def set
     authorize :page, :play?
     @season = Catalog::PublishedSeason.call
-    load_set_album(@season, owner: current_player, with_new: true)
+    load_set_album(@season, owner: current_player, own: true)
     load_goal_control({ kind: @set.kind, key: @set.key }, targets: goal_marks.targets)
     load_unique_cards
   end

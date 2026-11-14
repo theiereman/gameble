@@ -4,7 +4,7 @@
   <h1 class="visually-hidden"><%= heading %></h1>
   <% if set_apart %>
     <aside class="collection__aside" aria-labelledby="collection-report-title">
-      <%= render "library/report", counts: tier_counts, games: games_by_rarity, unique: unique %>
+      <%= render "library/report", counts: tier_counts, games: games_by_rarity, unique:, duplicates: %>
     </aside>
   <% end %>
   <section class="collection__main" aria-label="<%= heading %>">

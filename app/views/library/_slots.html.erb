@@ -1,6 +1,6 @@
 <% strings = CardStrings.new %>
 <% goals = local_assigns.fetch(:goals, GoalMarks::NONE) %>
-<% slots.each do |card, held, price| %>
+<% slots.each do |card, held, price, reserved| %>
   <% marks = goals.goals_for(card.card_id) %>
   <li class="collection-slot">
     <% if held %>
@@ -15,6 +15,9 @@
       </span>
       <% if held.new && new_badge %>
         <span class="collection-slot__new"><%= t("library.grid.new") %></span>
+      <% end %>
+      <% if reserved %>
+        <%= render "library/reserved", reserved: %>
       <% end %>
     <% else %>
       <%= link_to_card_detail(card, strings:, context: { grid: context }, owned: !set_apart, goals: marks, price:) do %><%= render CardComponent.new(card:, size: :grid, owned: !set_apart, goals: marks.map(&:position)) %><% end %>

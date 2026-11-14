@@ -101,7 +101,7 @@ class LibraryFilterRowTest < ActionDispatch::IntegrationTest
     add_goal(kind: "theme", key: "horror")
     sign_in(@player)
 
-    assert_request_queries(26) { get cards_path }
+    assert_request_queries(28) { get cards_path }
     assert_select "#{sheet(:goals)} .filter-chip--goal", 1
 
     delete session_path(locale: :en)

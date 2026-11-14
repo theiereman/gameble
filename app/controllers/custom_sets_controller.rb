@@ -20,7 +20,7 @@ class CustomSetsController < ApplicationController
     @standing = @custom_set.to_set_standing
     @picks = editor_picks(@custom_set.card_ids) if @custom_set.custom?
     editions = Game::HeldGames.editions(current_player, card_ids: @custom_set.card_ids, season: @season)
-    load_album_slots(custom_set_members(@custom_set.card_ids, editions), editions, with_new: true)
+    load_album_slots(custom_set_members(@custom_set.card_ids, editions), editions, viewing_owner: current_player)
     load_goal_control({ custom_set: @custom_set.token }, targets: goal_marks.targets)
     @unique = Game::HeldGames.count(current_player)
     @season_cards = Catalog::CardCount.call(@season)

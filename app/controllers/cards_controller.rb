@@ -14,6 +14,7 @@ class CardsController < ApplicationController
     load_card_detail
     @editions = Game::HeldEditions.call(current_player, card_id: @detail.card_id)
     @copies = @editions.sum(&:last).nonzero?
+    @reserved = Game::ReservedCopies.call(current_player, card_ids: [ @detail.card_id ])[@detail.card_id] if @copies
     @share_url = share_url
     @share_image_token = CardShareImage.current_token(card_season_id: @detail.card_season_id, view: @detail.view, locale: I18n.locale)
     named = pack_browse || grid_browse || trade_browse || custom_set_browse || named_set_browse

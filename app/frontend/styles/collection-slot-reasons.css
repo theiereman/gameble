@@ -1,0 +1,26 @@
+/* A copy on sale or in a trade: still owned, but set apart. Its reasons lie
+   over the foot of the card art, above its year and rarity, small sunken tags like a trade's reserved
+   copy, so the slot keeps its card's shape and the price line stays free. */
+.collection-slot__reserved {
+  position: absolute;
+  right: var(--slot-bleed);
+  bottom: calc(var(--slot-bleed) + 22 * var(--space-1));
+  left: var(--slot-bleed);
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.collection-slot__reason {
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 2px var(--color-line-deep);
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}

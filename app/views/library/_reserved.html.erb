@@ -1,0 +1,8 @@
+<span class="collection-slot__reserved">
+  <% if reserved.on_sale.positive? %>
+    <span class="collection-slot__reason"><%= t("library.grid.reserved.on_sale", count: reserved.on_sale) %></span>
+  <% end %>
+  <% if reserved.in_trade.positive? %>
+    <span class="collection-slot__reason"><%= t("library.grid.reserved.in_trade", count: reserved.in_trade) %></span>
+  <% end %>
+</span>

@@ -903,14 +903,14 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     hold(player, catalog_card_seasons(:portal_one).id, 2)
     sign_in(player)
 
-    # Player lookup, card detail, sets, neighbours, quantities, the
-    # holder's showcase, the pioneer, the friends owning it, the share image, the player's goals, and the top bar's four
+    # Player lookup, card detail, sets, neighbours, quantities, the copies
+    # set apart, the holder's showcase, the pioneer, the friends owning it, the share image, the player's goals, and the top bar's four
     # (reserve count, next pack, copies per tier, rarity legend), and the tab bar's trades and invitations waiting.
-    assert_request_queries(20) { get card_path(locale: :en, slug: "portal") }
+    assert_request_queries(21) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
     assert_equal [ "Copies", "2 copies" ], facts.to_h.assoc("Copies")
     assert_select "#share-sheet"
-    assert_request_queries(10) { get card_path(locale: :en, slug: "portal"), headers: { "Turbo-Frame" => "card-detail" } }
+    assert_request_queries(11) { get card_path(locale: :en, slug: "portal"), headers: { "Turbo-Frame" => "card-detail" } }
     assert_select "turbo-frame#card-detail .card-detail h1", "Portal"
 
     delete session_path(locale: :en)

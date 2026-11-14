@@ -1,5 +1,4 @@
 <% copies = counts.values.sum %>
-<% duplicates = [ copies - unique, 0 ].max %>
 <% tiers = capture do %>
   <% Catalog::Rarity::TIERS.each do |tier, code| %>
     <div class="report__row report__row--tier report__row--tier-<%= tier %>">
