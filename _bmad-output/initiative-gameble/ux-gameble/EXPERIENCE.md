@@ -375,7 +375,7 @@ The address of the teaser becomes the market once an administrator opens it (spe
 
 ### Duels
 
-The DUELS tab and desktop menu 04 (author, 2026-11-14, mockup A: [Navigation des Duels](https://claude.ai/artifact/T5BjWxscW1nfquxgzyhg2W), board A1, drawn before the live rework). Screens: [Écrans des Duels](https://claude.ai/artifact/UgaV5njDmpmnuDcWAV4tuh), boards 1 to 9, accepted by the author on 2026-11-14 as the build's reference; the spines win on conflict. Release 1.4 ships live duels between friends only; ranked and deferred duels come later. Rules and values: spec CAP-39 to CAP-42 and `../spec-gameble/duel-rules.md`. 
+The DUELS tab and desktop menu 04 (author, 2026-11-14, mockup A: [Navigation des Duels](https://claude.ai/artifact/T5BjWxscW1nfquxgzyhg2W), board A1, drawn before the live rework). Screens: [Écrans des Duels](https://claude.ai/artifact/UgaV5njDmpmnuDcWAV4tuh), boards 1 to 12 (phone, pixel art and the Duelliste back, desktop), accepted by the author on 2026-11-14 as the build's reference; the spines win on conflict. Release 1.4 ships live duels between friends only; ranked and deferred duels come later. Rules and values: spec CAP-39 to CAP-42 and `../spec-gameble/duel-rules.md`. 
 
 | Component | Behavioral rules |
 |---|---|
@@ -1028,7 +1028,7 @@ Build rules found while prototyping and reviewing; they bind the build. Architec
 
 Non-blockers, left open.
 
-- **Duels:** the DUELS tab's icon and the duel capsule's emblem are crossed blades (author, 2026-11-14), still to draw in a more finished pixel art through `script/pixel_art/export.mjs`; the desktop layout of the Duels screen and of a duel; the ÉCHANGES sub-tabs' addresses and a visitor's way to the market.
+- **Duels:** the DUELS tab's icon and the duel capsule's emblem are drawn ([Écrans des Duels](https://claude.ai/artifact/UgaV5njDmpmnuDcWAV4tuh), board 10) and go into `script/pixel_art/export.mjs` at the build; the ÉCHANGES sub-tabs' addresses and a visitor's way to the market.
 - **Le Chattomètre:** below how many ranked players the curve is too thin to show; the layout of the full screen under the gauge (mock it before the build).
 - **English of the market lines:** written at the build beside the French, reviewed with its pull request.
 - **Typical price per rarity:** not at launch.
