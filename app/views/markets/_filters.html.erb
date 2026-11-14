@@ -1,4 +1,4 @@
-<%# locals: (filters:, options:, sort:) %>
+<%# locals: (filters:, options:, sort:, wanted_count: nil) %>
 <%= form_with url: market_path, method: :get, class: "filters market-filters", html: { role: "search" }, data: {
   controller: "market-filters",
   action: "change->market-filters#changed input->market-filters#typed turbo:frame-load->market-filters#setsLoaded"
@@ -9,6 +9,15 @@
     <%= search_field_tag "q", filters.query, id: "market-search", class: "filters__search-field", autocomplete: "off",
       maxlength: Game::Market::ListingFilters::MAX_QUERY, placeholder: t("markets.filters.search_placeholder") %>
   </div>
+  <% if current_player && wanted_count %>
+    <label class="filter-chip market-filters__wanted">
+      <%= check_box_tag "wanted", "1", filters.wanted_only?, id: nil, class: "filter-chip__box" %>
+      <span class="filter-chip__text">
+        <%= pixel_icon("eye", class: "market-filters__wanted-icon") %>
+        <span><%= t("markets.filters.wanted") %> <span class="market-filters__wanted-count"><%= number_with_delimiter(wanted_count) %></span></span>
+      </span>
+    </label>
+  <% end %>
   <% if current_player %>
     <label class="filter-chip market-filters__mine">
       <%= check_box_tag "hide_mine", "1", filters.hides_mine?, id: nil, class: "filter-chip__box" %>

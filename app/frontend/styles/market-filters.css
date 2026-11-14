@@ -61,3 +61,19 @@
 .market-filters__actions .filters__clear {
   align-self: center;
 }
+
+.market-filters__wanted .filter-chip__text {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.market-filters__wanted-icon {
+  flex: none;
+  width: auto;
+  height: 9px;
+}
+
+.market-filters__wanted-count {
+  opacity: 0.8;
+}

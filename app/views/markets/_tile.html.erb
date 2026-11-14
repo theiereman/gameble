@@ -1,8 +1,11 @@
+<%# locals: (row:, marks: ListingMarks::NONE) %>
 <% seconds = listing_seconds_left(row.ends_at) %>
 <% soon = time_left_soon?(seconds) %>
+<% mark = marks.for(row.card) %>
 <li class="listing-tile">
-  <%= link_to market_listing_path(token: row.token), class: class_names("listing-tile__link", "listing-tile__link--soon": soon), aria: { label: listing_tile_label(row) } do %>
-    <span class="listing-tile__card" aria-hidden="true"><%= render CardComponent.new(card: row.card, size: :m) %></span>
+  <%= link_to market_listing_path(token: row.token), class: class_names("listing-tile__link", "listing-tile__link--soon": soon, "listing-tile__link--wanted": mark.wanted?),
+        aria: { label: listing_tile_label(row, (mark if marks.any?)) } do %>
+    <span class="listing-tile__card" aria-hidden="true"><%= render CardComponent.new(card: row.card, size: :m, goals: mark.goal_numbers) %></span>
     <span class="listing-tile__facts" aria-hidden="true">
       <span class="listing-tile__line">
         <%= render PicoinAmountComponent.new(amount: row.current_price, compact: true, class: "listing-tile__price") %>
@@ -11,6 +14,9 @@
       <span class="listing-tile__line">
         <span class="listing-tile__time<%= " listing-tile__time--soon" if soon %>"><%= listing_time_left(seconds) %></span>
       </span>
+      <% if marks.any? %>
+        <span class="listing-tile__line"><%= listing_tile_ownership(mark) %></span>
+      <% end %>
     </span>
   <% end %>
 </li>

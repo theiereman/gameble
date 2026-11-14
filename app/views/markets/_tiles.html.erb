@@ -1,3 +1,4 @@
+<%# locals: (rows:, marks: ListingMarks::NONE) %>
 <% rows.each do |row| %>
-  <%= render "markets/tile", row: %>
+  <%= render "markets/tile", row:, marks: %>
 <% end %>

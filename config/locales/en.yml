@@ -6,6 +6,9 @@ en:
       line: You are signed in as %{name}. Go back to the Gameble app to keep playing there.
       title: Sign in to the app
   push_notices:
+    card_wanted:
+      body: "%{card}, missing from your goals, is on the market."
+      title: A card you want is on sale
     invitation_sent:
       body: "%{name} wants to be your friend."
       title: Friend request
@@ -2961,6 +2964,7 @@ en:
       groups:
         season: Season
       hide_mine: Hide my sales
+      wanted: Wanted cards
       no_match: No listings match these filters.
       nobody: "Nobody is selling “%{query}”"
       nobody_body: No listing matches for now. Listings arrive all day long.
@@ -3058,6 +3062,18 @@ en:
         one: "%{count} offer"
         other: "%{count} offers"
         zero: "%{count} offers"
+      ownership:
+        missing: Not owned
+        owned:
+          one: "Owned ×%{count}"
+          other: "Owned ×%{count}"
+          zero: "Owned ×%{count}"
+        owned_spoken:
+          one: "%{count} copy in your collection"
+          other: "%{count} copies in your collection"
+          zero: no copy in your collection
+        wanted: Wanted
+        wanted_spoken: missing from your goals
     time_left:
       hours: "%{hours} h %{minutes}"
       minutes: "%{minutes} min"
@@ -4077,6 +4093,7 @@ en:
         outbid_html: "%{name} went past your maximum on %{card}."
         sold_html: "%{card} sold. You receive %{amount}."
         unsold_html: "%{card} received no offers. The card is returned to you."
+        wanted_html: "%{card}, missing from your goals, is on sale from %{amount}."
         withdrawn_html: "%{card} was withdrawn from the market. Your %{amount} are available again."
         won_html: "You won %{card} for %{amount}."
       mission: "This week's mission: open %{target} capsules together."

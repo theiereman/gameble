@@ -72,6 +72,14 @@ class BellHelperTest < ActionView::TestCase
     end
   end
 
+  test "a wanted card on sale names the card and its starting price, and leads to the Annonce" do
+    line = bell_market_line(market_notice(kind: :wanted, other: nil, amount: 1_300))
+
+    assert_equal market_listing_path(token: "tok"), line.path
+    assert_includes line.sentence, "Portal, missing from your goals, is on sale from"
+    I18n.with_locale(:fr) { assert_includes bell_market_line(market_notice(kind: :wanted, other: nil)).sentence, "Portal, qui manque à vos objectifs, est en vente" }
+  end
+
   test "a withdrawn listing tells its leader the amount is available again and leads to the Annonce" do
     line = bell_market_line(market_notice(kind: :withdrawn, other: nil))
 

@@ -118,4 +118,18 @@ class Game::Market::ListingFiltersTest < ActiveSupport::TestCase
     assert_equal({ q: "tin", hide_mine: "1" }, filters(viewer: @seller, hide_mine: "1", q: "tin").to_params)
     assert_equal({ hide_mine: "1" }, filters(viewer: @seller, hide_mine: "1", q: "tin").without_query.to_params)
   end
+
+  test "the wanted cards keep the listings of those cards, only with the parameter, and stay out of the filter count" do
+    wanted = [ catalog_card_seasons(:common_card_one).card_id, catalog_card_seasons(:rare_card_one).card_id ]
+    only = Game::Market::ListingFilters.from({ wanted: "1" }, wanted_card_ids: wanted)
+
+    assert_equal [ @tin, @blue ].map(&:token), Game::Market::OpenListings.call(sort: "ending", page: 1, locale: :en, filters: only).rows.map(&:token)
+    assert_equal 2, Game::Market::OpenListings.count(locale: :en, filters: Game::Market::ListingFilters.wanted(wanted))
+    assert only.any?
+    assert_equal 0, only.count
+    assert_equal({ wanted: "1" }, only.to_params)
+    assert_not Game::Market::ListingFilters.from({}, wanted_card_ids: wanted).wanted_only?
+    assert_empty Game::Market::OpenListings.call(sort: "ending", page: 1, locale: :en,
+      filters: Game::Market::ListingFilters.from({ wanted: "1" })).rows
+  end
 end

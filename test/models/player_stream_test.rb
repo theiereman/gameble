@@ -137,6 +137,14 @@ class PlayerStreamTest < ActiveSupport::TestCase
       PlayerStream.notices(Game::Market::CardListed.new(data: { listing_id: 1, seller_id: @alice.id, card_season_id: @one }))
   end
 
+  test "a listing refreshes the market of the players it noticed as wanted" do
+    listing = listing!(seller: @alice, card_season: catalog_card_seasons(:portal_one), settings: open_market!)
+    Game::Market::Notice.record(player_id: @bob.id, listing_id: listing.id, kind: "wanted", amount: 1_300)
+
+    assert_equal [ { player_id: @alice.id, balance: true }, { player_id: @bob.id, topic: "market" } ],
+      PlayerStream.notices(Game::Market::CardListed.new(data: { listing_id: listing.id, seller_id: @alice.id, card_season_id: @one }))
+  end
+
   test "a refused entrustment enqueues nothing" do
     settings = close_market!
 

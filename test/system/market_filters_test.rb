@@ -74,4 +74,27 @@ class MarketFiltersSystemTest < ApplicationSystemTestCase
     find(".market-filters__mine", text: /hide my sales/i).click
     assert_selector ".listing-tile", count: 4
   end
+
+  test "a player keeps the cards their goals miss, sees which they own, and shows every listing again" do
+    buyer = accounts_players(:moderator)
+    set_id = Catalog::Set.insert_all!([ { season_id: catalog_seasons(:one).id, kind: "theme", key: "roguelike", params: { "theme" => "roguelike" } } ],
+      returning: :id).rows.flatten.sole
+    members = %i[common_card_one rare_card_one].map { catalog_card_seasons(it).id }
+    Catalog::SetMembership.insert_all!(members.each_with_index.map { |id, index| { set_id:, card_season_id: id, position: index + 1 } })
+    Game::Holding.create!(player_id: buyer.id, card_season_id: members.last, quantity: 1)
+    Game::AddGoal.new.call(player: buyer, kind: "theme", key: "roguelike").value!
+    sign_in_through_the_site(buyer)
+
+    visit market_path(locale: :en)
+    assert_selector ".listing-tile__mark--owned", text: /owned ×1/i
+    assert_selector ".listing-tile__mark--wanted", count: 1
+
+    find(".market-filters__wanted", text: /wanted cards 1/i).click
+    assert_selector ".listing-tile", count: 1
+    assert_selector ".listing-tile a[aria-label$='missing from your goals']"
+    assert_checked_field "wanted", visible: :all
+
+    find(".market-filters__wanted", text: /wanted cards/i).click
+    assert_selector ".listing-tile", count: 3
+  end
 end

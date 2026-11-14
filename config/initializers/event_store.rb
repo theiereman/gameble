@@ -38,6 +38,8 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Market::Handlers::OutbidNotices, to: [ Game::Market::BidPlaced ])
   event_store.subscribe(Game::Market::Handlers::OutcomeNotices, to: [ Game::Market::AuctionSold, Game::Market::AuctionUnsold ])
   event_store.subscribe(Game::Market::Handlers::RemovalNotices, to: [ Game::Market::LeadVoided, Game::Market::ListingWithdrawn ])
+  # A card listed on the market is noticed by the players whose goals miss it, before PlayerStream refreshes their bell.
+  event_store.subscribe(Game::Market::Handlers::WantedNotices, to: [ Game::Market::CardListed ])
   event_store.subscribe(LiveStream, to: LiveStream::EVENTS)
   event_store.subscribe(ReactionStream, to: ReactionStream::EVENTS)
   event_store.subscribe(Game::Handlers::PlayerActivity, to: Game::Handlers::PlayerActivity::EVENTS.keys)
@@ -49,6 +51,8 @@ Rails.configuration.to_prepare do
   event_store.subscribe(PushNotices, to: PushNotices::EVENTS)
   # A player whose standard reserve has filled up again hears of it once, on their phone.
   event_store.subscribe(ReserveFullNotice, to: ReserveFullNotice::EVENTS)
+  # A player hears on their phone of a card their goals miss going on sale, at most once an hour.
+  event_store.subscribe(WantedCardNotice, to: WantedCardNotice::EVENTS)
 
   Rails.configuration.event_store = event_store
 end

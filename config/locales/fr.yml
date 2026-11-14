@@ -7,6 +7,9 @@ fr:
       line: "Vous êtes connecté en tant que %{name}. Revenez dans l'appli Gameble pour continuer à jouer."
       title: "Connexion à l'appli"
   push_notices:
+    card_wanted:
+      body: "%{card}, qui manque à vos objectifs, est au marché."
+      title: "Une carte voulue est en vente"
     invitation_sent:
       body: "%{name} veut devenir votre ami."
       title: "Demande d'ami"
@@ -126,6 +129,7 @@ fr:
         withdrawn_html: "%{card} a été retirée du marché. Vos %{amount} sont de nouveau disponibles."
         sold_html: "%{card} s'est vendue. Vous recevez %{amount}."
         unsold_html: "%{card} n'a reçu aucune offre. La carte vous est rendue."
+        wanted_html: "%{card}, qui manque à vos objectifs, est en vente à partir de %{amount}."
       daily: "Votre capsule du jour est prête."
       mission: "Mission de la semaine : ouvrir %{target} capsules ensemble."
       mission_reached: "La mission de la semaine est accomplie : %{target} capsules ouvertes ensemble."
@@ -2530,6 +2534,7 @@ fr:
   markets:
     filters:
       hide_mine: "Masquer mes ventes"
+      wanted: "Cartes voulues"
       search_label: "Rechercher un jeu"
       search_placeholder: "Rechercher un jeu"
       groups:
@@ -2630,6 +2635,18 @@ fr:
         zero: "%{count} offre"
         one: "%{count} offre"
         other: "%{count} offres"
+      ownership:
+        missing: "Non possédée"
+        owned:
+          zero: "Possédée ×%{count}"
+          one: "Possédée ×%{count}"
+          other: "Possédée ×%{count}"
+        owned_spoken:
+          zero: "aucun exemplaire dans votre collection"
+          one: "%{count} exemplaire dans votre collection"
+          other: "%{count} exemplaires dans votre collection"
+        wanted: "Voulue"
+        wanted_spoken: "manque à vos objectifs"
     time_left:
       hours: "%{hours} h %{minutes}"
       minutes: "%{minutes} min"

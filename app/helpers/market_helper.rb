@@ -19,11 +19,30 @@ module MarketHelper
 
   def listing_elapsed_seconds(listing) = (Time.current - listing.created_at).floor.clamp(0, listing_duration_seconds(listing))
 
-  def listing_tile_label(row)
+  def listing_tile_label(row, mark = nil)
     card = row.card
-    t("markets.tile.label", card: card.title, rarity: CardStrings.new.rarity_name(card.rarity), season: card.season_number,
+    label = t("markets.tile.label", card: card.title, rarity: CardStrings.new.rarity_name(card.rarity), season: card.season_number,
       price: picoins_label(row.current_price), offers: t("markets.tile.offers", count: row.offers),
       time: local_time_text(row.ends_at, :time))
+    mark ? "#{label}, #{listing_ownership_text(mark, spoken: true)}" : label
+  end
+
+  def listing_tile_ownership(mark)
+    state = listing_ownership_state(mark)
+    icon = { owned: pixel_icon("check", class: "listing-tile__mark-icon"), wanted: pixel_icon("eye", class: "listing-tile__mark-icon") }[state]
+    tag.span(safe_join([ icon, listing_ownership_text(mark) ].compact), class: "listing-tile__mark listing-tile__mark--#{state}")
+  end
+
+  def listing_ownership_text(mark, spoken: false)
+    state = listing_ownership_state(mark)
+    t("markets.tile.ownership.#{state}#{"_spoken" if spoken && state != :missing}", count: mark.copies)
+  end
+
+  def listing_ownership_state(mark)
+    if mark.owned? then :owned
+    elsif mark.wanted? then :wanted
+    else :missing
+    end
   end
 
   def market_exchange_shown?

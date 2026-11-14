@@ -8,9 +8,11 @@ module Game
         def to_param = "#{kind}:#{key}"
       end
 
-      attr_reader :query, :rarities, :sets, :genres, :seasons, :min_price, :max_price, :hidden_seller
+      attr_reader :query, :rarities, :sets, :genres, :seasons, :min_price, :max_price, :hidden_seller, :wanted_card_ids
 
-      def self.from(params, genres: [], seasons: [], viewer: nil)
+      def self.wanted(card_ids) = none.with(wanted_card_ids: card_ids)
+
+      def self.from(params, genres: [], seasons: [], viewer: nil, wanted_card_ids: [])
         new(
           query: text(params[:q]).first(MAX_QUERY),
           rarities: Catalog::Rarity::TIERS.values.map(&:to_s) & strings(params[:rarity]),
@@ -19,7 +21,8 @@ module Game
           seasons: seasons & strings(params[:season]).filter_map { Integer(it, 10, exception: false) },
           min_price: price(params[:min_price]),
           max_price: price(params[:max_price]),
-          hidden_seller: (viewer if params[:hide_mine] == "1")
+          hidden_seller: (viewer if params[:hide_mine] == "1"),
+          wanted_card_ids: (wanted_card_ids if params[:wanted] == "1")
         )
       end
 
@@ -40,7 +43,7 @@ module Game
 
       private_class_method :text, :strings, :set_choices, :price
 
-      def initialize(query:, rarities:, sets:, genres:, seasons:, min_price:, max_price:, hidden_seller: nil)
+      def initialize(query:, rarities:, sets:, genres:, seasons:, min_price:, max_price:, hidden_seller: nil, wanted_card_ids: nil)
         @query = query
         @rarities = rarities
         @sets = sets
@@ -49,6 +52,7 @@ module Game
         @min_price = min_price
         @max_price = max_price
         @hidden_seller = hidden_seller
+        @wanted_card_ids = wanted_card_ids
       end
 
       def only_sets(known) = with(sets: sets.select { known.include?([ it.kind, it.key ]) })
@@ -57,27 +61,30 @@ module Game
 
       def hides_mine? = hidden_seller.present?
 
-      def any? = count.positive? || query.present? || hides_mine?
+      def wanted_only? = !wanted_card_ids.nil?
+
+      def any? = count.positive? || query.present? || hides_mine? || wanted_only?
 
       def without_query = with(query: "")
 
       def to_params
         { q: query, rarity: rarities, sets: sets.map(&:to_param), genre: genres, season: seasons, min_price:, max_price:,
-          hide_mine: ("1" if hides_mine?) }.compact_blank
+          hide_mine: ("1" if hides_mine?), wanted: ("1" if wanted_only?) }.compact_blank
       end
 
       def apply(listings, locale:)
         listings = listings.where(current_price: min_price..) if min_price
         listings = listings.where(current_price: ..max_price) if max_price
         listings = listings.where.not(seller: hidden_seller) if hides_mine?
+        listings = listings.where(card_season_id: Catalog::CardSeason.where(card_id: wanted_card_ids).select(:id)) if wanted_only?
         about_cards? ? listings.where(card_season_id: card_seasons(locale).select(:id)) : listings
       end
 
-      private
-
       def with(**changes)
-        self.class.new(**{ query:, rarities:, sets:, genres:, seasons:, min_price:, max_price:, hidden_seller: }.merge(changes))
+        self.class.new(**{ query:, rarities:, sets:, genres:, seasons:, min_price:, max_price:, hidden_seller:, wanted_card_ids: }.merge(changes))
       end
+
+      private
 
       def about_cards? = [ rarities, genres, seasons, sets ].any?(&:any?) || query.present?
 

@@ -64,7 +64,7 @@ module PlayerStream
       when Game::DailyBonusCollected
         [ { player_id: data[:player_id], topic: "bank" } ]
       when Game::Market::CardListed
-        [ balance_notice(data[:seller_id]) ]
+        [ balance_notice(data[:seller_id]) ] + market_notices(Game::Market::WantedNoticePlayers.call(data[:listing_id]))
       when Game::Market::AuctionSold
         balance_notices(data.values_at(:seller_id, :winner_id)) + market_notices(data.values_at(:winner_id, :seller_id) + bidders_of(data))
       when Game::Market::BidPlaced

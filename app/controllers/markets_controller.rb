@@ -1,6 +1,7 @@
 class MarketsController < ApplicationController
   include PublicRead
   include Market::DeskLoading
+  include GoalMarksLoading
 
   MAX_PAGE = 100_000
 
@@ -14,13 +15,16 @@ class MarketsController < ApplicationController
     @sort = params[:sort].presence_in(helpers.sort_options) || Game::Market::OpenListings::DEFAULT_SORT
     @page = params[:page].to_s.to_i.clamp(1, MAX_PAGE)
     @options = Game::Market::ListingFilterOptions.call
-    @filters = Game::Market::ListingFilters.from(params, genres: @options.genres, seasons: @options.seasons, viewer: current_player)
+    @filters = Game::Market::ListingFilters.from(params, genres: @options.genres, seasons: @options.seasons, viewer: current_player,
+      wanted_card_ids: wanted_card_ids)
     load_set_choices
     @listings = Game::Market::OpenListings.call(sort: @sort, page: @page, locale: I18n.locale, filters: @filters)
+    @marks = ListingMarks.for(current_player, @listings.rows, goal_marks)
     respond_to do |format|
       format.html do
         load_desk
         load_found
+        load_wanted_count
         render :screen
       end
       format.turbo_stream { render :screen }
@@ -30,6 +34,16 @@ class MarketsController < ApplicationController
   private
     def load_found
       @found = Game::Market::OpenListings.count(locale: I18n.locale, filters: @filters) if @filters.any?
+    end
+
+    def wanted_card_ids
+      @wanted_card_ids ||= goal_marks.needs.flat_map(&:missing_card_ids).uniq.sort
+    end
+
+    def load_wanted_count
+      return unless goal_marks.any?
+
+      @wanted_count = Game::Market::OpenListings.count(locale: I18n.locale, filters: Game::Market::ListingFilters.wanted(wanted_card_ids))
     end
 
     def load_set_choices

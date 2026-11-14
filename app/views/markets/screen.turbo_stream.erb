@@ -1,4 +1,4 @@
 <%= turbo_stream.append "market-tiles" do %>
-  <%= render "markets/tiles", rows: @listings.rows %>
+  <%= render "markets/tiles", rows: @listings.rows, marks: @marks %>
 <% end %>
 <%= turbo_stream.replace "market-pages", partial: "markets/pages", locals: { listings: @listings, sort: @sort, page: @page, filters: @filters } %>

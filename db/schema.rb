@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_12_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_14_170001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -734,7 +734,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_12_100000) do
     t.datetime "noticed_at", null: false
     t.index ["player_id", "listing_id"], name: "index_game_market_notices_on_player_and_listing", unique: true
     t.check_constraint "amount IS NULL OR amount >= 0", name: "game_market_notices_amount_check"
-    t.check_constraint "kind::text ~ '^(outbid|won|sold|unsold|lead_voided|withdrawn)$'::text", name: "game_market_notices_kind_check"
+    t.check_constraint "kind::text ~ '^(outbid|won|sold|unsold|lead_voided|withdrawn|wanted)$'::text", name: "game_market_notices_kind_check"
   end
 
   create_table "game_market_settings", force: :cascade do |t|
