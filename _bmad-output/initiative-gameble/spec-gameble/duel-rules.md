@@ -7,13 +7,14 @@ Rules of the Top Trump duel (CAP-39 to CAP-43). Source: `../forge-decks-and-matc
 | Stat | Measure | Ranked over | Directions |
 |---|---|---|---|
 | Popularity | Steam review count of the edition's season | the edition's season catalog | most popular / most obscure |
-| Rating | Steam positive reviews over total reviews, unrounded | the edition's season catalog | best rated / worst rated |
+| Rating | Steam % positive (whole number), then the review count | the edition's season catalog | best rated / worst rated |
 | Release | release date | the edition's season catalog | most recent / oldest |
-| Discovery | first pull in gameble (`first discoveries`), to the second | the season's editions someone has pulled | discovered first / discovered last |
+| Discovery | first pull in gameble (`first discoveries`), at the stored time | the season's editions someone has pulled | discovered first / discovered last |
 | Circulation | distinct players holding the edition, Archives excluded | the editions of its rarity tier and season that at least one player holds | most widespread / hardest to find |
 
 - A stat's value is a percentile, computed when release 1.4 is deployed and when a season is published, then every Monday 00:00 UTC. A card's trump is its most extreme stat, in either direction.
-- An edition nobody has pulled has no discovery or circulation value; it cannot be in a deck anyway. Ranking rating on the unrounded share and circulation among held editions only keeps exact ties rare (author, 2026-11-14, from the simulation).
+- An edition nobody has pulled has no discovery or circulation value; it cannot be in a deck anyway. Breaking an equal rating on the review count and ranking circulation among held editions only keeps exact ties rare (author, 2026-11-14, from the simulation; Steam gives the rating as a whole percent).
+- An edition pulled for the first time after the last computation has no stats until the next one and cannot enter a deck until then (author, 2026-11-14).
 - A percentile is the share of the ranked cards a card beats, equal values counting half (midrank), stored to one decimal.
 - Rarity is not a stat: it is the review count cut by percentile (`catalog-and-rarity.md`), so it would duplicate popularity. Circulation is ranked within its tier because raw circulation follows the drop odds, hence rarity.
 - Circulation counts holders, not copies, so hoarding duplicates cannot buy a trump. Entrusting copies can lower it from the next Monday on; that is accepted.

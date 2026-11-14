@@ -4,11 +4,11 @@ type: architecture-spine
 purpose: build-substrate
 altitude: initiative
 paradigm: 'modular monolith with an operations layer'
-scope: 'gameble as a whole: one Rails application, its four domains, its web layer, the Steam import, the deployment, and the market release.'
+scope: 'gameble as a whole: one Rails application, its four domains, its web layer, the Steam import, the deployment, the market release and the duels release.'
 status: final
 created: '2026-10-02'
-updated: '2026-11-10'
-binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25, CAP-27, CAP-28, CAP-29, CAP-30, CAP-31, CAP-32, CAP-33, CAP-34, CAP-35, CAP-36, CAP-37, CAP-38]
+updated: '2026-11-14'
+binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25, CAP-27, CAP-28, CAP-29, CAP-30, CAP-31, CAP-32, CAP-33, CAP-34, CAP-35, CAP-36, CAP-37, CAP-38, CAP-39, CAP-40, CAP-41, CAP-42]
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/market-economy.md
@@ -33,8 +33,8 @@ A **modular monolith with an operations layer**: one Rails application, four dom
 | --- | --- | --- |
 | `Catalog` | `app/domains/catalog` | Cards, card texts per locale, the theme list, seasons, a card's rarity and number for a season, sets and their tiers, the share preview images, the roadmap's milestones and their stories |
 | `Steam` | `app/domains/steam` | Steam API client, import jobs, raw Steam data, import runs, sign-in verification |
-| `Accounts` | `app/domains/accounts` | Players, staff roles, last seen, profile visibility, preferences, bans, reports, data controls |
-| `Game` | `app/domains/game` | Pack bank, owned cards, trades, invitations, friendships, set tiers reached, custom sets and the Steam library set, active goals, card backs, profile titles, menu themes, weekly goal, daily bonus, achievements, feed, presence activity, the market and its PiCoins (`Game::Market`), events and their handlers |
+| `Accounts` | `app/domains/accounts` | Players, staff roles, last seen, reachability, profile visibility, preferences, bans, reports, data controls |
+| `Game` | `app/domains/game` | Pack bank, owned cards, trades, invitations, friendships, set tiers reached, custom sets and the Steam library set, active goals, card backs, profile titles, menu themes, weekly goal, daily bonus, achievements, feed, presence activity, the market and its PiCoins (`Game::Market`), decks, duel stats, duels and their records, events and their handlers |
 | Web layer | `app/` | Controllers, policies, view components, Stimulus controllers and the screen modules behind them, jobs that chain several domains (`app/jobs`), back-office, legal page |
 | Image filter | `app/frontend/lib/card_art` | The card-art worker and renderer, on the `pixelcrush` npm package |
 
@@ -110,7 +110,7 @@ graph TD
 - **Prevents:** draws at click time, per-player scheduled tasks, several ways of granting a pack, and an earlier edition drawn after a publication.
 - **Rule:**
   - A player's bank holds ten pre-drawn regular packs, each with its cards and an availability time. Pack credit is read from those times; no task runs per player. A new player's ten packs are all available at once.
-  - Each pack kind (regular, daily bonus, weekly reward) fixes its card count and its odds table: 5 cards at the published odds for a regular pack, 3 at the bonus odds for the daily bonus.
+  - Each pack kind (regular, daily bonus, weekly reward, duel) fixes its card count and its odds table: 5 cards at the published odds for a regular pack, 3 at the bonus odds for the daily bonus and the duel capsule (AD-57).
   - A new player's bank is filled by a `Game` handler reacting to `Accounts::PlayerRegistered`, with the first-session guarantee of the spec.
   - A replacement pack becomes available ten minutes after the latest availability time in the bank, or ten minutes after the opening when the bank was full.
   - `Game::OpenPack` takes the player's bank lock, consumes the oldest available pack of the requested reserve, credits its cards, publishes its event, and, for a regular pack, draws its one replacement in the same transaction (`Game::TopUpBank`) at once from the in-memory pool. A bank already short of ten, left so by openings while no season was published, stays short: an opening never fills it. The only other drawer is `Game::HealBanksJob`, which, when a season is published, gives every short bank all its missing packs at once, available at once, and redraws every unopened pack of an earlier season in the published one, with the same kind, odds, guarantees and availability time, one player per transaction under the bank lock.
@@ -153,7 +153,7 @@ graph TD
   - Every operation that raises a player's quantities (`Game::OpenPack`, `Game::AcceptTrade` for both players, and a market settlement for the winner, AD-45) reads the published season once, right after its bank locks, and passes it to the receipt, the draw (`Game::DrawPool` for that season), the tier pass and its response. It then receives each player's pending allocation as a step of its own transaction, before any credit, so it celebrates only the tiers it crosses itself; the allocation's event precedes the caller's. The received season is checked under the bank lock, so concurrent operations receive once.
   - The allocation is received and seen apart. While the player's last seen season is below the published one and they hold a card-season of an earlier season, the hub and the booster page redirect to the allocation screen (a GET that writes nothing, AD-11, reading this check from the primary); the screen's POST receives the allocation if still pending and marks it seen, a housekeeping write that publishes nothing.
   - A handler runs in that transaction, never publishes an event, and writes only rows of that player or new rows: a feed entry, a weekly contribution, an achievement, a card back unlock, the player's latest activity. Unique rows are inserted with `ON CONFLICT DO NOTHING`; a duplicate never fails the operation.
-  - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then trade rows in ascending id, then market listings in ascending id, then holdings in ascending player then card-season, then the players' `game_player_states` rows, then the player's custom sets and their games, then the edition price row, then market wallets in ascending player id. Holdings and player states are both taken under the bank lock, so either may come first; `Game::Market::Ledger.post` runs once per transaction, last.
+  - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then trade rows in ascending id, then market listings in ascending id, then a duel row, then its seats, then decks and their cards, then holdings in ascending player then card-season, then the players' `game_player_states` rows, then the player's custom sets and their games, then the edition price row, then market wallets in ascending player id. Holdings and player states are both taken under the bank lock, so either may come first. A duel operation takes the bank locks of both seated players first, a removed player's skipped; `Game::Market::Ledger.post` runs once per transaction, last.
   - Totals across players (the gauge) are summed by one periodic job.
   - State tables are the truth; events are not replayed to rebuild them.
   - Events carry identifiers only. Deleting an account anonymises the player record.
@@ -177,10 +177,10 @@ graph TD
 - **Prevents:** broadcasts of uncommitted state; one message per event at high load; a per-friend fan-out; a hidden player shown.
 - **Rule:**
   - Jobs are enqueued only after their transaction commits (`enqueue_after_transaction_commit`). Broadcasts are sent by a job, never inside a transaction. The gauge is broadcast about every ten seconds; feed entries leave in small batches. Feed and gauge streams are public. The choice of what enters the feed lives in one handler. A set feed entry names the player, the set (season, kind, key) and the tier, with no pack or card.
-  - Each player has one private Turbo Stream, named by an opaque random key held in `Accounts` and rotated on ban and deletion. It carries only what calls for an answer: trade proposals and their state changes, friend invitations, outbid notices (AD-44), and achievements and card backs unlocked outside an opening. The cable connection identifies the player from the session and refuses a banned one.
+  - Each player has one private Turbo Stream, named by an opaque random key held in `Accounts` and rotated on ban and deletion. It carries only what calls for an answer: trade proposals and their state changes, friend invitations, duel challenges and their outcomes (AD-55), outbid notices (AD-44), and achievements and card backs unlocked outside an opening. The cable connection identifies the player from the session and refuses a banned one.
   - The feed's Friends tab and friends' presence are read when the page renders; nothing is broadcast to every friend.
   - Every surface that names a player beside their cards asks one question, `Game::Visibility.visible?(viewer, owner)`, at render or at broadcast; nothing is stored on the entry. Public surfaces show an entry only if every player it names is public and not banned or deleted, name-only surfaces excepted (AD-49); the Friends tab also shows friends-only friends.
-  - A second question, `Game::Visibility.open_to_friends?(player)`, is false for a private player (and a banned or deleted one). Trades (AD-8), presence (AD-24) and the trade actions on the friend row and friend profile ask it; nothing else needs it, since `visible?` already hides a private player from friends.
+  - A second question, `Game::Visibility.open_to_friends?(player)`, is false for a private player (and a banned or deleted one). Trades (AD-8), presence (AD-24), duels (AD-54) and the trade and duel actions on the friend row and friend profile ask it; nothing else needs it, since `visible?` already hides a private player from friends.
 
 ### AD-14 — Identity and access `[ADOPTED]`
 
@@ -191,8 +191,8 @@ graph TD
   - The session is an encrypted cookie holding only the player id. Each request reloads the player and checks the ban.
   - Every controller action has a Pundit policy; a signed-out player is refused with `sign_in_required`. Every `Game` operation acts for one player given as input; work over many players is a job running that operation once per player, or an `ApplicationOperation` that writes only rows belonging to no player.
   - Roles: signed-out visitor, player, moderator, administrator.
-  - Profile visibility is public, friends only or private, stored in `Accounts`. The profile policy and AD-13's visibility questions combine it with `Game`'s friendship query. Setting it to private publishes `Accounts::VisibilityChanged`; `Game` handles it by cancelling the player's open trades and releasing their reservations under AD-10's lock order (bank locks of both players in ascending id, taken before any trade row), and `PlayerStream` tells the partners, as it does for a deletion.
-  - Deleting an account publishes `Accounts::PlayerDeleted`; `Game` handles it by cancelling open trades, releasing reservations and dropping friendships, invitations, set tiers, card back unlocks, custom sets with their games (the Steam library list included), active goals and its private key. First discoveries keep their player, so the card's first discoverer reads as anonymous (AD-49). AD-46 takes the player out of the market. A ban hides the player everywhere through AD-13. The data export is assembled in the web layer from `Accounts` and `Game` queries, custom sets, the Steam library list and active goals included.
+  - Profile visibility is public, friends only or private, stored in `Accounts`. The profile policy and AD-13's visibility questions combine it with `Game`'s friendship query. Setting it to private publishes `Accounts::VisibilityChanged`; `Game` handles it by cancelling the player's open trades and releasing their reservations under AD-10's lock order (bank locks of both players in ascending id, taken before any trade row), (it writes no duel row: an open challenge to or from them lapses, since `AcceptChallenge` asks `open_to_friends?`, and a duel already started finishes), and `PlayerStream` tells the partners, as it does for a deletion.
+  - Deleting an account publishes `Accounts::PlayerDeleted`; `Game` handles it by cancelling open trades, releasing reservations and dropping friendships, invitations, set tiers, card back unlocks, custom sets with their games (the Steam library list included), active goals, decks and its private key; it writes no duel row: a duel in progress finishes by automatic play (AD-56), the finishing move nulls a deleted seat's player, and the handler nulls the player on seats of duels already finished, so the opponent's history reads "anonyme". First discoveries keep their player, so the card's first discoverer reads as anonymous (AD-49). AD-46 takes the player out of the market. A ban hides the player everywhere through AD-13. The data export is assembled in the web layer from `Accounts` and `Game` queries, custom sets, the Steam library list, active goals, decks and duel history included.
 
 ### AD-15 — No internal id in a URL `[ADOPTED]`
 
@@ -294,7 +294,7 @@ graph TD
 - **Rule:**
   - "Last seen" is `last_seen_at` on the player's row in `Accounts`. A request enqueues a job that updates it, at most about once a minute per player. "Online" means seen within a short window.
   - The activity shown ("Ouvre un booster") is the player's latest game action and its time, written by a `Game` handler on the player's `game_player_states` row from the events of AD-10, and shown while recent.
-  - Presence is not built on Action Cable connections. It is read when the friends page or menu renders (AD-13). A private friend's presence is never read: the row says "profil privé" and the online count skips them.
+  - Presence is not built on Action Cable connections. It is read when the friends page or menu renders (AD-13). Whether a friend can receive a duel challenge is a separate, stricter question (AD-55). A private friend's presence is never read: the row says "profil privé" and the online count skips them.
 
 ### AD-25 — Card backs live in code `[ADOPTED]`
 
@@ -451,7 +451,7 @@ graph TD
   - The catalogue stays one constant, `Game::Achievements`: a key, a metric and a threshold. Every metric is read from state tables by `Game::AchievementProgress`, the one query both the live grant (`GrantAchievementsJob`, after the events of AD-10) and the release backfill (`BackfillAchievementsJob`) use; no condition reads events or a stored counter. The query computes only the metrics of achievements the player has not unlocked.
   - A metric is the best the tables can show: one-capsule metrics count opened packs whose `card_season_ids` match (a standard capsule is a pack of kind `regular`); streak metrics are the longest run over opened `regular` packs in `opened_at` order, or over consecutive days of `game_daily_bonus_claims`; holding metrics are the current maximum over `game_holdings` (held at once; copies of a game summed across its editions); community metrics count `game_first_discoveries`, repost feed entries of a card-season the player first discovered, and accepted trades per partner. A game is a card (AD-5); a studio is the card's first developer normalised by the `Catalog` function studio sets use, read through `Catalog`. The achievement backs already in AD-25's constant stay.
   - The reveal mode is stored on the opened pack: `game_packs.reveal_mode`, null, `all` or `one_by_one`, set once by `Game::RecordReveal` from the POST of AD-23, accepted only for the player's latest opened pack while its mode is null; it is trusted from the client since it moves no card, and publishes `Game::PackRevealed`. The reveal streaks run over every opened pack, any kind, in `opened_at` order; a pack without a mode breaks both, so packs opened before the column grant nothing.
-  - `GrantAchievementsJob` also follows `Game::DailyBonusCollected`, `Game::CardDiscovered` and `Game::PackRevealed`.
+  - `GrantAchievementsJob` also follows `Game::DailyBonusCollected`, `Game::CardDiscovered`, `Game::PackRevealed` and `Game::DuelFinished`.
   - A release that adds achievements runs the backfill as a data step of its deploy, before the new code takes traffic, so no live grant announces history as new; its grants are retroactive (no toast; AD-25's back handler honours the flag). Under the bank lock, `GrantAchievement` re-reads only the metric of the achievement it grants.
   - Keys never change. An achievement's title, condition and flavor text are the locale keys `achievements.names`, `achievements.conditions` and `achievements.flavors` under its key; renaming one is a locale change. Achievement backs are entries of AD-25's constant.
 
@@ -656,6 +656,73 @@ graph TD
   - Tests: the configuration modules in Vitest (happy-dom has no canvas), the queries and the snapshot operation in Ruby, the economy page's policy for a visitor, a player and staff, and one system test of the publication switch.
 - **Costs:** `game_market_listings` gains `average_after_sale`; the settings gain the day-of-income targets if `market-economy.md`'s targets are not yet stored values; the `--color-chart-minted` and `--color-chart-destroyed` tokens join `DESIGN.md`.
 
+### AD-52 — A deck blocks one copy through `reserved`
+
+- **Binds:** CAP-40
+- **Prevents:** a deck card traded, listed or entrusted; a second formula for free copies; a trade or market release freeing a deck block; a copy refused for a second deck.
+- **Rule:**
+  - Decks live in `Game`: `game_decks` (token, player, name of 1 to 24 characters; at most 5 per player) and `game_deck_cards` (deck, card-season, the card-season's card, slot from 1 to 12), unique on deck and slot and on deck and card, so a game appears once whatever its edition. Database checks hold these limits. A deck and its contents are seen only by its owner.
+  - An edition in at least one of the player's decks holds exactly 1 of that holding's `reserved` (AD-6), whatever the number of decks. The deck operations, under the player's bank lock, raise it when the edition enters the player's first deck and lower it when it leaves the last. An edition already in another deck needs no free copy; any other needs one (`Failure(:no_free_copy)`). An edition with no row in `game_duel_stats` cannot enter a deck (`Failure(:not_yet_ranked)`, AD-53).
+  - `Game::ReservedCopies` splits `reserved` into in a deck (1 when the edition is in a deck), on sale and in trade, as it derives "En vente" from listings. Trade and market releases subtract only what they reserved, so they never free a deck block; going private leaves decks untouched. A friend's trade picker never offers a deck-blocked copy. Spare copies (free copies beyond one per game) come from one function, used by trade suggestions and the market desk alike.
+  - `Game::DecksHolding` names the player's decks that hold an edition, for the trade, sale and entrust screens; `Game::RemoveFromDecks` takes an edition out of all of them. One object, `Game::DeckCoverage`, gives the coverage strip and "COMPLÉTER LES MANQUES".
+  - Each editor change is one operation; a deck edit never changes a challenge or duel already under way (AD-54).
+- **Costs:** `Game::ReservedCopies` gains the in-deck share; the spare counts of the market desk and of suggestions move to one function.
+
+### AD-53 — Duel stats are one stored table
+
+- **Binds:** CAP-39, CAP-40, CAP-41
+- **Prevents:** a stat computed one way on the card and another in a duel; percentiles computed per request; a duel reading values that moved; two computations at once; arrows and the feed comparing with different weeks.
+- **Rule:**
+  - `game_duel_stats` holds one row per card-season with a rarity of every published regular season: for each of the five stats of `duel-rules.md` its exact value, its percentile (midrank, one decimal) and its distance from the median, the trump, the percentiles of the last weekly run, and `computed_at`. Tribute and unrated card-seasons have no row.
+  - `Game::ComputeDuelStats`, an `ApplicationOperation` run by `Game::ComputeDuelStatsJob` one at a time, replaces every row in one transaction and publishes `Game::DuelStatsComputed` with its reason (first, season, weekly). It runs as a data step of the 1.4 deploy when the table is empty, from the `Catalog::SeasonPublished` handler (which enqueues the job after commit), and every Monday 00:00 UTC from `config/recurring.yml`. Only the first and the weekly runs rotate the last weekly percentiles.
+  - Popularity and release read `Catalog`; rating reads `Catalog`'s whole percent, the review count breaking an equal percent (author, 2026-11-14); discovery ranks the season's editions in `game_first_discoveries` by their stored time; circulation counts distinct holders with a positive quantity, the Archives excluded, ranked among the held editions of its tier and season.
+  - An edition pulled for the first time after the last run has no row until the next one, so it cannot enter a deck (author, 2026-11-14); the editor shows it with "Stats lundi".
+  - The card detail, the deck editor, the duel snapshot and the automatic moves read this table through one query; nothing else computes a percentile. The editor's arrows compare with the last weekly percentiles. The feed handler (AD-13) makes the Monday entry from a weekly `DuelStatsComputed`.
+- **Costs:** the feed entry gets a kind `duel_stats` with no player (`player_id` made nullable for that kind, expand/contract), the moved cards stored on the entry, one entry per week by unique index, and the feed queries taught the kind.
+
+### AD-54 — A duel is a frozen state the server holds
+
+- **Binds:** CAP-41, CAP-42
+- **Prevents:** a duel changed by a trade, a deck edit or a recomputation; a move played twice, late or out of turn; rules computed in two places; the other player's hand, call or draw order reaching a client; two duels at once; a friend kept busy by challenges; a duel left unfinished by a removed player.
+- **Rule:**
+  - `game_duels` holds the token, the state (`challenged`, `cancelled`, `refused`, `lapsed`, `active`, `finished`), both decks' snapshot, both draw orders, the first caller, `move_number`, `move_deadline_at`, the scores, the margins, the result and the times. `game_duel_seats` holds one row per seat: the duel, challenger or opponent, the player id (nulled once a deleted player's duel has finished), the deck token, the seat's stream key (AD-55), `present_until`, and a status (`invited`, `seated`, `left`). `game_duel_rounds` holds one row per played round: caller, both card-seasons, stat, direction, both values, outcome, and which moves were automatic.
+  - A player has at most one `seated` seat and at most one `invited` seat, each held by a partial unique index. `ChallengeFriend` seats the challenger and invites the friend, refusing a friend already seated or invited (`Failure(:friend_busy)`) and a draft deck (`:deck_not_ready`); `AcceptChallenge` seats the friend; every end of a challenge or duel sets the seats `left`. The last used deck is read from the player's latest seat.
+  - `AcceptChallenge` re-checks that both decks are complete and owned (else the challenge lapses, `:deck_not_ready`), copies both 12-card decks with every value, percentile and median distance of AD-53 into the duel in a fixed order (season, then card number), and draws a draw order per deck and the first caller with `SecureRandom`, in one transaction. After that a duel reads nothing from decks, holdings or `game_duel_stats`.
+  - Every move is an operation: `ChallengeFriend`, `CancelChallenge`, `AcceptChallenge`, `RefuseChallenge`, `LapseChallenge`, `CallRound`, `AnswerRound`, `PlayAutomaticMove`. Each locks as AD-10 says, checks the state, `move_number` and whose move it is, refuses anything else (`Failure(:not_your_move)`, `:stat_already_called`, `:card_not_in_hand`), raises `move_number`, and publishes one event; the answer of round 10 finishes the duel and publishes `Game::DuelFinished` in place of its round event. Only `ChallengeFriend` and `AcceptChallenge` check friendship and `open_to_friends?` (AD-13); later moves act for a seat, whose player may since have been unfriended, made private, banned or deleted.
+  - One pure object, `Game::DuelRules`, holds the rules: the call order A B A B A B A B B A, each stat once per player, the hand from the draw order and the played cards, the round outcome, ties, the margin and the automatic move. Operations and tests use it; the client computes nothing.
+  - `Game::DuelView.for(duel, seat)` is the only way a duel becomes what a player sees: the seat's hand and locked call, the other's card once called, played cards, scores, margins, and calls left counted from revealed rounds only; the decks in their fixed order. It never holds the other seat's hand, an unrevealed call or a draw order, and in state `challenged` nothing of the challenger's deck. Pages and broadcasts render from it alone, read the primary, and a policy refuses a viewer who holds no seat. Duels and results are seen only by their two players; opponent names go through AD-49's component.
+- **Costs:** `Game::Fortune` gains a `duel_packs` column and `LuckOdds` the duel kind (the Flukeometer counts duel capsules, author, 2026-11-14); `Game::Reserve::KINDS` and the kind and size checks on `game_packs` gain `duel`.
+
+### AD-55 — Reachable friends and one stream per seat
+
+- **Binds:** CAP-21, CAP-41
+- **Prevents:** a challenge sent to a friend with no page open; a secret pushed to the wrong player; a present player marked absent by a late unsubscribe; two answers to "can I challenge this friend".
+- **Rule:**
+  - Whether a player can receive a challenge is `reachable_until` on their `Accounts` row: `PlayerStreamChannel`, subscribed on every page (AD-13), sets it 45 s ahead on subscribe and every 30 s while subscribed (`periodically`), through `Accounts::NoteReachable`, a housekeeping write with no event. Unsubscribing clears nothing; reachability lapses. One query, `Game::ReachableFriends`, feeds every "DÉFIER" and `ChallengeFriend`. "Online" elsewhere still reads `last_seen_at` (AD-24).
+  - A challenge, its cancellation, refusal, lapse and acceptance reach both players on their private streams (AD-13).
+  - Each seat has its own Turbo Stream, named by the seat's opaque random key and the locale, subscribed only by that seat's player. After commit, a job on the `duels` queue renders `DuelView.for(duel, seat)` for each seat and pushes it to that seat's stream only; no stream is shared by the two players. Each view carries `move_number` and the screen drops an older one. Every page load renders the same view, so a reload or reconnection shows the current state.
+  - Presence on the duel screen is a lease: the seat stream's channel sets `present_until` 20 s ahead on subscribe and every 10 s while subscribed, a housekeeping write with no event; unsubscribing changes nothing. A seat is absent once its lease has lapsed.
+
+### AD-56 — The server keeps the clock
+
+- **Binds:** CAP-41, CAP-42
+- **Prevents:** a move waiting forever; a time trusted from the client; an automatic move played over a real one or after the player came back; one deadline column for two seats.
+- **Rule:**
+  - The duel row stores `move_deadline_at` for the move awaited: 60 s to accept, 60 s to call, 45 s to answer. A seat's reconnection deadline is its `present_until` plus 60 s. The move's effective deadline is the earlier of the two for the seat that must act. The countdown on screen reads the stored times.
+  - An operation that sets a deadline enqueues after commit `Game::DuelDeadlineJob`, on the `duels` queue, for the deadline plus 2 s, with the duel token and the `move_number`. Only this job and `Game::SweepDuelDeadlinesJob` (every 10 s, in both blocks of `config/recurring.yml`) run `PlayAutomaticMove` or `LapseChallenge`, which act only when, under the duel lock, the `move_number` still matches and the effective deadline has passed.
+  - A move handed to a seat already past its reconnection deadline gets a deadline of now. Bans, deletions and going private write no duel row: a removed player's lease simply lapses.
+  - An automatic move is marked on its round.
+- **Costs:** a `duels` queue with its own worker in `config/queue.yml`.
+
+### AD-57 — Duel rewards and records read the duel tables
+
+- **Binds:** CAP-17, CAP-20, CAP-42
+- **Prevents:** a second duel capsule the same day; a capsule paid for an automatic move; a record counted two ways.
+- **Rule:**
+  - The duel capsule is a pack of kind `duel` (AD-7), in the special reserve, its origin name and colour a locale key and a DESIGN token. The finishing move draws it for the winner in its transaction when none of the winner's moves is automatic and they have no duel pack for the UTC day the duel ends; a unique index on player and `duel_day`, set only on duel packs, makes a second grant impossible.
+  - Wins, losses, draws, the history and the duel achievements (AD-37 metrics) read finished duels, their seats and rounds; a round with the player's automatic move does not count for Valuation Error or Certified Versatility. `GrantAchievementsJob` also follows `Game::DuelFinished`. No backfill runs: no duel predates 1.4.
+  - The export lists the player's decks and duels with scores and rounds, the opponent unnamed.
+
 ## Consistency Conventions
 
 | Concern | Convention |
@@ -848,6 +915,10 @@ gameble/
 | CAP-36 Indicators and alerts | back-office, `Game::Market` | AD-18, AD-40, AD-41, AD-42, AD-48, AD-50, AD-51 |
 | CAP-37 Alt-account signals | back-office, `Game::Market` | AD-40, AD-48 |
 | CAP-38 Economy page | web layer, back-office, `Game::Market` | AD-11, AD-14, AD-16, AD-18, AD-40, AD-47, AD-48, AD-51 |
+| CAP-39 Duel stats | `Game` (duel stats), card detail, feed | AD-5, AD-10, AD-13, AD-53 |
+| CAP-40 Decks | `Game` (decks, holdings), deck editor | AD-6, AD-10, AD-15, AD-52, AD-53 |
+| CAP-41 Live duels | `Game` (duels), `Accounts` (reachability), duel screens | AD-10, AD-13, AD-14, AD-15, AD-30, AD-49, AD-54, AD-55, AD-56 |
+| CAP-42 Duel capsule and record | `Game` (packs, duels, achievements) | AD-7, AD-37, AD-54, AD-57 |
 | Legal page | web layer | AD-18 |
 
 ## Deferred
@@ -878,4 +949,6 @@ gameble/
 - **Ledger partitioning:** decide when the entries table passes 50 million rows.
 - **Later economy charts:** an edition compared with the game's other editions, market volume, the week's largest rises and falls with sparklines, a player's collection value over time and their own PiCoin flows, and a Lorenz curve in the back-office. Market-wide ones extend `EconomySeries` and the snapshot. Per-player ones need per-player daily rows, and a rule for cards with no sale, designed in an update run before they are built.
 - **Native apps:** a later version. Seasons after the first are carried by AD-5's holding rule and CAP-23's allocation.
+- **Ranked and deferred duels (CAP-43, `duel-rules.md` › Later):** designed in an update run after 1.4 is tested; AD-54's operations and AD-56's deadlines are their starting point.
+- **Live duel load:** Solid Cable and one scheduled job per deadline until measured otherwise; AD-12 makes a dedicated backend a configuration change.
 - **Pioneer (`later-roadmap.md`):** `game_first_discoveries` already keeps the discovering player per card-season through a deletion (AD-14), so the feature needs no migration; the web layer composes the card detail with that player's name through AD-49's component.
