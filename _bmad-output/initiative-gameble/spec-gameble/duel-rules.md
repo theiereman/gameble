@@ -12,8 +12,9 @@ Rules of the Top Trump duel (CAP-39 to CAP-43). Source: `../forge-decks-and-matc
 | Discovery | first pull in gameble (`first discoveries`), to the second | the edition's season catalog | discovered first / discovered last |
 | Circulation | distinct players holding the edition, Archives excluded | the edition's rarity tier in its season | most widespread / hardest to find |
 
-- A stat's value is a percentile, computed when release 1.4 is deployed, then every Monday 00:00 UTC. A card's trump is its most extreme stat, in either direction.
+- A stat's value is a percentile, computed when release 1.4 is deployed and when a season is published, then every Monday 00:00 UTC. A card's trump is its most extreme stat, in either direction.
 - A card nobody has pulled ranks last on discovery.
+- A percentile is the share of the ranked cards a card beats, equal values counting half (midrank), stored to one decimal.
 - Rarity is not a stat: it is the review count cut by percentile (`catalog-and-rarity.md`), so it would duplicate popularity. Circulation is ranked within its tier because raw circulation follows the drop odds, hence rarity.
 - Circulation counts holders, not copies, so hoarding duplicates cannot buy a trump. Entrusting copies can lower it from the next Monday on; that is accepted.
 - Market price is not a stat: it follows rarity, and within a tier it sits at the no-loss floor or has no sale.
@@ -22,7 +23,9 @@ Rules of the Top Trump duel (CAP-39 to CAP-43). Source: `../forge-decks-and-matc
 ## Decks
 
 - Exactly 12 cards the player owns. A deck slot is an edition (game and season); a game appears at most once in a deck, whatever its edition. No rarity or theme constraint. Up to 5 decks per player, each named. A deck with fewer than 12 cards is a draft and cannot duel.
-- A card in one or more decks blocks one copy of its edition; the player's other copies stay free. The card is freed by taking it out of every deck that holds it. The trade, sale and entrust screens name those decks.
+- A card in one or more decks blocks one copy of its edition; the player's other copies stay free. The card is freed by taking it out of every deck that holds it. The owner's trade, sale and entrust screens name those decks; nobody else sees them.
+- A deck takes a free copy: a card whose copies of that edition are all reserved (a trade, a listing) cannot enter a deck, and the editor shows it with the Reserved tag. A deck-blocked copy counts as reserved wherever free copies are counted: trades, listings, entrusting and the spares of trade suggestions. Going private releases trade reservations only, never deck blocks.
+- The deck editor lists one entry per edition the player owns, its season shown beside its trump. A card's detail shows the duel profile of the edition its "Prix moyen" reads.
 
 ## Starting a duel
 
@@ -45,13 +48,14 @@ Rules of the Top Trump duel (CAP-39 to CAP-43). Source: `../forge-decks-and-matc
 
 ## Time and absence
 
-- 30 seconds to call, 20 seconds to answer. On timeout the game plays the move: a caller's strongest card and its most extreme call; an answerer's hand card strongest on the shown card's most extreme stat.
+- 60 seconds to call, 45 seconds to answer, long enough to look over the opponent's deck on a phone (author, 2026-11-14; first 30 and 20). On timeout the game plays the move: a caller's strongest card and its most extreme call; an answerer's hand card strongest on the shown card's most extreme stat.
 - A disconnected player has 60 seconds to return; then the game plays each of their remaining moves as on timeout. No duel is won by forfeit.
 - A banned or deleted player's duel in progress finishes by automatic play.
+- An automatic move between equal choices takes the larger distance of the exact value from the median, then the stat order of the Stats table, then the lower card number.
 
 ## Reward and record
 
-- The first win of the UTC day gives one duel capsule: 3 cards at the daily bonus odds (CAP-16), in the special reserve (CAP-4), with its own origin name and colour, only if the game played none of the winner's moves. Further wins, losses and draws give nothing material. There is no stake in PiCoins or cards.
+- The first win of the UTC day (the day the duel ends) gives one duel capsule: 3 cards at the daily bonus odds (CAP-16), in the special reserve (CAP-4), with its own origin name and colour, only if the game played none of the winner's moves. Further wins, losses and draws give nothing material. There is no stake in PiCoins or cards.
 - Duelling one's own second account is accepted: it takes ten real rounds a day for 3 cards, no more than that account opening its own capsules.
 - The profile shows wins, losses and draws. Duel achievements follow CAP-17: recognition or a card back, never a capsule.
 - Decks and duel history are in the player's export (CAP-14) and deleted with the account; an opponent's history then reads "anonyme".

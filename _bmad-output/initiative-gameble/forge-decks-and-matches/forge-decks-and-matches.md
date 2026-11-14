@@ -14,7 +14,7 @@ Decks, the weekly card stats they are built on, and live duels between friends, 
 - A round: the caller picks a card and a stat with its direction (higher or lower wins) and locks both; the card turns face up with its five values; the answerer, not knowing the call, picks a card from their hand; then all is revealed. Why: the answerer reads the caller's intent and the caller reads the answerer's likely hand, so no move is always best; a card strong on two or three stats is worth more than a one-stat extreme, so deck building is more than one sort.
 - One point per round; nothing is captured; decks are untouched by a duel. A tied round compares the exact value, then scores nothing. A tied duel goes to the larger total percentile margin, then is a draw.
 - Every stat value is frozen at the duel's start.
-- Timers: 30 s to call, 20 s to answer. On timeout the game plays: the caller's strongest card and call; the answerer's hand card strongest on the shown card's best stat. A disconnected player has 60 s to return, then the game plays each of their remaining moves. No win by forfeit.
+- Timers: 60 s to call, 45 s to answer (author, 2026-11-14; 30 s and 20 s were too short to look over the opponent's deck on a phone). On timeout the game plays: the caller's strongest card and call; the answerer's hand card strongest on the shown card's best stat. A disconnected player has 60 s to return, then the game plays each of their remaining moves. No win by forfeit.
 - A private player cannot duel, as they cannot trade (CAP-8); their friends see duels closed while the profile is private.
 
 ## Stats

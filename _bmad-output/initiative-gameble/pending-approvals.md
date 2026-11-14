@@ -4,6 +4,7 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
 
 ## Open
 
+- Release 1.4 UX values set without the author (2026-11-14), tagged `[ASSUMPTION]` in `ux-gameble/EXPERIENCE.md`: the deck editor's change arrows from 5 points, a deck name of 1 to 24 characters, the last used deck preselected in Défier un ami and in Challenge received; and the duel copy lines added by the duel review.
 - Release 1.1.0, to resume in a new session (2026-10-31):
   - The UX of trade suggestions (epic 29), of the Personalization page and of the four new achievement backs (epic 30) is designed in `ux-gameble/` (spines updated 2026-10-31; mocks `mockups/trade-suggestions.html`, `mockups/personalization.html`, `mockups/achievement-backs.html`; reviews `review-accessibility-2026-10-31.md` and `review-structure-prose-2026-10-31.md` applied). Waiting for the author:
     - The copy tagged `[ASSUMPTION]` in `EXPERIENCE.md` (Copy deck rows Trade suggestions and Personnalisation page, the Back picker strip sentences, the accessible names of a suggestion row), and what happens after ENVOYER on a suggestion (drawn: the suggestion leaves, the trade joins EN ATTENTE DE LEUR RÉPONSE, the toast shows, focus moves on).

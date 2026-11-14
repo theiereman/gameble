@@ -102,7 +102,7 @@ Proposed by a friend of the author on 2026-10-02, to make the game more interact
 
 Points to settle before this is planned:
 
-- The forge session rejected a battle mode, and the brief rejects trivia-style combat whose answers can be looked up online.
+- The forge session rejected a battle mode (2026-11-14: release 1.4's Top Trump duel is now the battle mode; see above), and the brief rejects trivia-style combat whose answers can be looked up online.
 - Battle credits would be a second source of currency. The V2 economy earns currency only by destroying cards.
 - Live matches need both players connected at once; the MVP has no live play.
 

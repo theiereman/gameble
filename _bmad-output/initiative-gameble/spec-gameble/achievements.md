@@ -50,19 +50,19 @@ The four marked in Back are the hardest to obtain and unlock a card back each (a
 
 ## Duel achievements (release 1.4)
 
-Chosen by the author on 2026-11-14 from a proposed list; titles are working English titles, the final French and English titles follow `brotherhood-tone.md`. They read finished duels (CAP-41); a duel counts once it ends, automatic moves included, except where the condition says otherwise.
+Chosen by the author on 2026-11-14 from a proposed list; their French and English titles were approved by the author on 2026-11-14 (French in `EXPERIENCE.md`, Achievement titles and conditions, 24 to 33). They read finished duels (CAP-41); a duel counts once it ends, automatic moves included, except where the condition says otherwise.
 
 | Title | Type | Condition | Back |
 |---|---|---|---|
-| Hearing Convened | duel | Finish a first duel | |
-| Ruling in Your Favour | duel | Win a first duel | |
-| Established Case Law | duel | Win 10 duels | |
-| Litigation Department | duel | Win 50 duels | yes |
-| Senior Magistrate | duel | Win 100 duels | |
-| Procedural Upset | duel | Win a round with a Commune card against a Légendaire card | |
-| Unanimous Verdict | duel | Win a duel 10 – 0 | |
-| Decided on Points | duel | Win a duel whose tied score went to the margin | |
-| Wide Jurisdiction | duel | Duel 5 different friends | |
-| Full Code | duel | Win at least one round with each of the five stats, over any number of duels | |
+| First Dispute Settled Amicably | duel | Finish a first duel | |
+| Competitive Advantage Observed | duel | Win a first duel | |
+| Dominant Position | duel | Win 10 duels | |
+| Abuse of Dominant Position | duel | Win 50 duels | yes |
+| De Facto Monopoly | duel | Win 100 duels | |
+| Valuation Error | duel | Win a round with a Commune card against a Légendaire card | |
+| Merger by Absorption | duel | Win a duel 10 – 0 | |
+| Settled at the Margin | duel | Win a duel whose tied score went to the margin | |
+| Client Base Diversification | duel | Duel 5 different friends | |
+| Certified Versatility | duel | Win at least one round with each of the five stats, over any number of duels | |
 
-The 50-win achievement unlocks the "Duelliste" card back, designed in `DESIGN.md`. A round won by an automatic move does not count for Procedural Upset or Full Code.
+The 50-win achievement, Abuse of Dominant Position, unlocks the "Duelliste" card back, designed in `DESIGN.md`. A round won by an automatic move does not count for Valuation Error or Certified Versatility.

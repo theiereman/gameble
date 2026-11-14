@@ -93,6 +93,7 @@ Near-maximum capsule opening (about 144 a day is possible, a standard player ope
 
 ## Known limits
 
+- The duel capsule (CAP-42) adds at most one capsule a day per player, 3 cards at the daily bonus odds (about 0.03 Légendaire), as much again as the daily bonus for a player who wins a real duel each day; it was not simulated, and the Légendaire backlog indicator watches it.
 - About 1,800 Legendaries may wait for a buyer at a 7M minimum with 30% resellers (3 months of sales). Raising the minimum clogs the market further.
 - The Legendary price depends on resale: 25 days of income with no minimum and 30% resellers, about 4 days at 60%.
 - Epic resellers were not simulated, and the simulation does not test the sale format. It rests on assumed behaviour: prices are orders of magnitude.
