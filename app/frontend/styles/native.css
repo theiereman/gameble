@@ -14,7 +14,12 @@
   user-select: text;
 }
 
-:root[data-native-app] :is(a, button, summary, label, [role="button"]):active {
+/* A filter makes the pressed link the containing block of its ::after, shrinking a stretched link mid-tap. */
+:root[data-native-app]
+  :is(a, button, summary, label, [role="button"]):not(.hub-linked__link, .player-row__name, .market-row__title):active,
+:root[data-native-app] .hub-linked:has(.hub-linked__link:active),
+:root[data-native-app] .player-row:has(.player-row__name:active),
+:root[data-native-app] .market-row:has(.market-row__title:active) {
   filter: brightness(0.82);
 }
 
