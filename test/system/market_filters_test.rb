@@ -41,6 +41,7 @@ class MarketFiltersSystemTest < ApplicationSystemTestCase
     assert_selector ".listing-tile", count: 1
     fill_in "max_price", with: "10000"
     find("button", text: /apply/i).click
+    assert_current_path(/max_price=10%2C000/)
     assert_selector ".listing-tile", count: 1
     assert_field "max_price", with: "10,000"
 
