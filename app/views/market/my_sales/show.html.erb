@@ -1,33 +1,25 @@
 <% content_for :title, t(".heading") %>
-<% content_for :back_button, true %>
-<% content_for :phone_back do %><%= phone_back_link t("market.listings.show.back"), market_path, every_width: true %><% end %>
 <% empty = @groups.in_progress.empty? && @groups.ended.empty? %>
-<%= tag.section class: "market-screen", aria: { labelledby: "market-screen-heading" },
-      data: { controller: "row-focus", row_focus_landing_value: @landing } do %>
-  <header class="market-screen__header">
-    <h1 id="market-screen-heading" class="market-screen__title"><%= t(".heading") %></h1>
-    <%= render "shell/balance_chip", placement: :header %>
-  </header>
+<% tab = capture do %>
+<%= render "markets/chips", current: :sales %>
 
-  <% if @suspended %><%= render "market/suspended_banner" %><% end %>
-
-  <%= render "markets/chips", current: :sales %>
-
-  <% if empty %>
-    <div class="market-empty market-screen__empty-state">
-      <h2 class="market-empty__title"><%= t(".empty_title") %></h2>
-      <p class="market-empty__body market-screen__empty"><%= t(".empty_body") %></p>
-      <%= render ButtonComponent.new(href: new_market_sale_path, disabled: @suspended) do %><%= t(".empty_action") %><% end %>
-    </div>
-  <% else %>
-    <% selling = @groups.in_progress.size %>
-    <% with_offers = @groups.in_progress.count { !it.can_cancel && it.ends_at > Time.current } %>
-    <p class="market-summary">
-      <span class="market-summary__lead"><%= t(".summary.selling", count: selling, number: number_with_delimiter(selling)) %><% if selling.positive? %><%= t(".summary.with_offers", count: with_offers, number: number_with_delimiter(with_offers)) %><% end %></span>
-    </p>
-    <%= render "market/my_sales/group", group: "in-progress", heading: t("market.my_sales.groups.in_progress.heading"),
-          empty: t("market.my_sales.groups.in_progress.empty"), rows: @groups.in_progress, focus_heading: true, suspended: @suspended %>
-    <%= render "market/my_sales/group", group: "ended", heading: t("market.my_sales.groups.ended.heading"),
-          empty: t("market.my_sales.groups.ended.empty"), rows: @groups.ended, focus_heading: false, suspended: @suspended %>
-  <% end %>
+<% if empty %>
+  <div class="market-empty market-screen__empty-state">
+    <h2 class="market-empty__title"><%= t(".empty_title") %></h2>
+    <p class="market-empty__body market-screen__empty"><%= t(".empty_body") %></p>
+    <%= render ButtonComponent.new(href: new_market_sale_path, disabled: @suspended) do %><%= t(".empty_action") %><% end %>
+  </div>
+<% else %>
+  <% selling = @groups.in_progress.size %>
+  <% with_offers = @groups.in_progress.count { !it.can_cancel && it.ends_at > Time.current } %>
+  <p class="market-summary">
+    <span class="market-summary__lead"><%= t(".summary.selling", count: selling, number: number_with_delimiter(selling)) %><% if selling.positive? %><%= t(".summary.with_offers", count: with_offers, number: number_with_delimiter(with_offers)) %><% end %></span>
+  </p>
+  <%= render "market/my_sales/group", group: "in-progress", heading: t("market.my_sales.groups.in_progress.heading"),
+        empty: t("market.my_sales.groups.in_progress.empty"), rows: @groups.in_progress, focus_heading: true, suspended: @suspended %>
+  <%= render "market/my_sales/group", group: "ended", heading: t("market.my_sales.groups.ended.heading"),
+        empty: t("market.my_sales.groups.ended.empty"), rows: @groups.ended, focus_heading: false, suspended: @suspended %>
 <% end %>
+<% end %>
+<%= render "markets/tab", title: content_for(:title), pulse: @pulse, desk: @desk, suspended: @suspended, commission_rate: @commission_rate,
+      data: { controller: "row-focus", row_focus_landing_value: @landing }, content: tab %>

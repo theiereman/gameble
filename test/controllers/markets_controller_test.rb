@@ -224,7 +224,7 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".market-desk h1#market-screen-heading", "Market"
     assert_select ".market-desk__available .picoin-amount__figure", "12,000"
-    assert_select ".market-mine a.market-mine__item[href=?]", market_my_bids_path(locale: :en), 2
+    assert_select ".market-mine a.market-mine__item[data-turbo-frame=market-tab][href=?]", market_my_bids_path(locale: :en), 2
     assert_select ".market-mine a.market-mine__item[href=?]", market_my_sales_path(locale: :en), /1\s+sale in progress/
     assert_select ".market-mine__item--alert", false
     assert_select ".market-welcome", false

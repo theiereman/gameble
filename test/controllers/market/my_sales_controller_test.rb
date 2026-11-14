@@ -32,7 +32,9 @@ class Market::MySalesControllerTest < ActionDispatch::IntegrationTest
     sales
 
     assert_response :success
-    assert_select "h1", "My sales"
+    assert_select "title", "My sales"
+    assert_select "turbo-frame#market-tab[target=_top] section.market-screen[data-title=?]", "My sales"
+    assert_select "h1", "Market"
     assert_select ".market-empty__title", "Nothing for sale yet"
     assert_select ".market-screen__empty-state a.button--primary[href=?]", new_market_sale_path(locale: :en), "PUT UP FOR SALE"
     assert_select ".market-row", false
@@ -122,6 +124,19 @@ class Market::MySalesControllerTest < ActionDispatch::IntegrationTest
     get market_path(locale: :en)
     assert_select "a.market-screen__chip[href=?]", market_my_sales_path(locale: :en), "MY SALES"
     assert_select ".market-screen__chip--current[aria-current=page]", "LISTINGS"
+  end
+
+  test "the tabs swap in place inside the market frame, under the same desk and with the market tab lit" do
+    sign_in(@seller)
+
+    get market_path(locale: :en)
+    assert_select "turbo-frame#market-tab a.market-screen__chip[data-turbo-frame=market-tab][href=?]", market_my_sales_path(locale: :en)
+
+    sales
+    assert_select "turbo-frame#market-tab a.market-screen__chip[data-turbo-frame=market-tab][href=?]", market_path(locale: :en), "LISTINGS"
+    assert_select "turbo-frame#market-tab .market-desk"
+    assert_select ".tab-bar__tab[aria-current=page][href=?]", market_path(locale: :en)
+    assert_select ".top-bar__phone-back", false
   end
 
   test "a GET writes nothing, and no database id or style attribute is in the page" do

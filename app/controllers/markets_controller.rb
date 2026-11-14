@@ -1,5 +1,6 @@
 class MarketsController < ApplicationController
   include PublicRead
+  include Market::DeskLoading
 
   MAX_PAGE = 100_000
 
@@ -19,6 +20,7 @@ class MarketsController < ApplicationController
     respond_to do |format|
       format.html do
         load_desk
+        load_found
         render :screen
       end
       format.turbo_stream { render :screen }
@@ -26,10 +28,7 @@ class MarketsController < ApplicationController
   end
 
   private
-    def load_desk
-      @pulse = Game::Market::MarketPulse.call(locale: I18n.locale)
-      @desk = Game::Market::PlayerDesk.call(current_player) if current_player
-      @commission_rate = Game::Market::CurrentSettings.call.commission_basis_points
+    def load_found
       @found = Game::Market::OpenListings.count(locale: I18n.locale, filters: @filters) if @filters.any?
     end
 

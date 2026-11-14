@@ -80,7 +80,7 @@ module ShellHelper
       [ :booster, "tab-capsule", booster_path, %w[boosters packs].include?(controller_path) ],
       [ :sets, "tab-sets", library_path, %w[library cards custom_sets].include?(controller_path) ],
       [ :trades, "tab-trades", trades_path, controller_path == "trades" ],
-      [ :market, "tab-market", market_path, controller_path == "markets" ]
+      [ :market, "tab-market", market_path, %w[markets market/my_sales market/my_bids].include?(controller_path) ]
     ]
   end
 

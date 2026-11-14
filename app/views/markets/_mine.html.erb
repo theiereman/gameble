@@ -1,16 +1,16 @@
 <%# locals: (desk:) %>
 <nav class="market-mine" aria-label="<%= t("markets.screen.mine.label") %>">
-  <%= link_to market_my_bids_path, class: class_names("market-mine__item", "market-mine__item--alert": desk.outbid.positive?) do %>
+  <%= link_to market_my_bids_path, class: class_names("market-mine__item", "market-mine__item--alert": desk.outbid.positive?), data: { turbo_frame: "market-tab" } do %>
     <span class="market-mine__count"><%= number_with_delimiter(desk.outbid) %></span>
     <span class="market-mine__text"><%= t("markets.screen.mine.outbid", count: desk.outbid) %></span>
     <span class="market-mine__action"><%= desk.outbid.positive? ? t("markets.screen.mine.raise") : t("markets.screen.mine.see") %><%= pixel_icon("arrow-small-right", class: "market-mine__arrow") %></span>
   <% end %>
-  <%= link_to market_my_bids_path, class: "market-mine__item" do %>
+  <%= link_to market_my_bids_path, class: "market-mine__item", data: { turbo_frame: "market-tab" } do %>
     <span class="market-mine__count"><%= number_with_delimiter(desk.leading) %></span>
     <span class="market-mine__text"><%= t("markets.screen.mine.leading", count: desk.leading) %></span>
     <span class="market-mine__action"><%= t("markets.screen.mine.see") %><%= pixel_icon("arrow-small-right", class: "market-mine__arrow") %></span>
   <% end %>
-  <%= link_to market_my_sales_path, class: "market-mine__item" do %>
+  <%= link_to market_my_sales_path, class: "market-mine__item", data: { turbo_frame: "market-tab" } do %>
     <span class="market-mine__count"><%= number_with_delimiter(desk.selling) %></span>
     <span class="market-mine__text">
       <%= t("markets.screen.mine.selling", count: desk.selling) %>

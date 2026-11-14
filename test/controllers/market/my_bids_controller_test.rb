@@ -39,7 +39,9 @@ class Market::MyBidsControllerTest < ActionDispatch::IntegrationTest
 
     bids
     assert_response :success
-    assert_select "h1", "My bids"
+    assert_select "title", "My bids"
+    assert_select "turbo-frame#market-tab[target=_top] section.market-screen[data-title=?]", "My bids"
+    assert_select "h1", "Market"
     assert_select ".market-empty__title", "No bid in progress"
     assert_select ".market-screen__empty", "A bid only binds you if you win."
     assert_select ".market-screen__empty-state a.button--link[href=?]", market_path(locale: :en)

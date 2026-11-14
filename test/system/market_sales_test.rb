@@ -34,6 +34,32 @@ class MarketSalesSystemTest < ApplicationSystemTestCase
 
   def reserved(card) = Game::Holding.find_by!(player_id: @seller.id, card_season_id: card.id).reserved
 
+  test "the market tabs swap in place: no visit, the desk stays, the address and title follow" do
+    listing!(seller: @seller, card_season: @common, hours: 5)
+    sign_in_through_the_site(@seller)
+    visit market_path(locale: :en)
+    assert_selector ".listing-tile", count: 1
+    page.execute_script("window.marketVisits = 0; addEventListener('turbo:visit', () => window.marketVisits++)")
+
+    within(".market-screen__chips") { click_on "MY SALES" }
+    assert_selector ".market-screen__chip--current", text: "MY SALES"
+    assert_selector ".market-row", count: 1
+    assert_current_path market_my_sales_path(locale: :en)
+    assert_title "My sales"
+    assert_selector ".market-desk h1", text: "Market"
+    assert_no_selector ".top-bar__phone-back"
+
+    within(".market-screen__chips") { click_on "MY BIDS" }
+    assert_selector ".market-screen__chip--current", text: "MY BIDS"
+    assert_current_path market_my_bids_path(locale: :en)
+
+    within(".market-screen__chips") { click_on "LISTINGS" }
+    assert_selector ".listing-tile", count: 1
+    assert_current_path market_path(locale: :en)
+    assert_title "Market"
+    assert_equal 0, page.evaluate_script("window.marketVisits")
+  end
+
   test "a seller cancels from MES VENTES, gets the card back and focus lands on the next row" do
     hold(@seller, @common.id, 1, reserved: 1)
     hold(@seller, @rare.id, 1, reserved: 1)

@@ -6,7 +6,7 @@
     <% if chip == current %>
       <span class="market-screen__chip market-screen__chip--current" aria-current="page"><%= content %></span>
     <% elsif current_player || chip == :listings %>
-      <%= link_to content, path, class: "market-screen__chip" %>
+      <%= link_to content, path, class: "market-screen__chip", data: { turbo_frame: "market-tab" } %>
     <% else %>
       <span class="market-screen__chip market-screen__chip--disabled" aria-disabled="true"><%= label %></span>
     <% end %>

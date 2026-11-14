@@ -7,6 +7,8 @@ export interface TurboGlobal {
   renderStreamMessage(message: string): void
   session: {
     refresh(url: string, options?: { method?: "morph" | "replace"; scroll?: "preserve" | "reset" }): void
+    history: { restorationIdentifier: string; replace(location: URL, restorationIdentifier: string): void }
+    view: { lastRenderedLocation: URL }
   }
   navigator: { currentVisit?: unknown }
   cache: { clear(): void }
