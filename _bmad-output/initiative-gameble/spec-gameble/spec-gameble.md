@@ -431,7 +431,6 @@ For the market: 30 days after it opens, cards sell between players at every rari
 
 - **Duel rating (CAP-43):** the Elo factor and any rating floor are not set; the ranked queue's matching window at today's player count is untested.
 - **Live duel load (CAP-41):** how often two friends are online at once, and how a newcomer's thin collection fares, are what release 1.4 tests.
-- **Duel achievements (CAP-17, CAP-41):** which ones, and which give a card back; `achievements.md` lists none yet.
 - **Card backs (CAP-20):** beyond one back per theme or hall of fame set at its back tier and the achievement backs of `achievements.md`, which goal and event backs ship, and does every successful weekly goal grant one?
 - **Preview image (CAP-9):** do Steam's terms allow its store art in a derived, stored image? The author checks before it ships.
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.
