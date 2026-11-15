@@ -70,7 +70,7 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".card-detail__position", text: "· 4 / 16 · SWIPE TO BROWSE"
     assert_no_selector ".card-detail__number"
     assert_selector ".top-bar__phone-back", text: "GRID"
-    assert_no_selector ".top-bar__start > a.button[href='/en']"
+    assert_selector ".top-bar__start > a.top-bar__bridge[href='/en'] .top-bar__back-g"
     assert_equal [ [ "Repost", true ], [ "Add to showcase", false ], [ "Share", false ], [ "See on Steam (new tab)", false ] ], action_buttons
 
     find(".card-detail__nav--next").click

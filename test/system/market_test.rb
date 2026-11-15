@@ -37,7 +37,7 @@ class MarketTest < ApplicationSystemTestCase
 
     find(".sort summary").click
     click_on "Price, high to low"
-    assert_selector ".sort__current", text: "Price, high to low"
+    assert_selector ".sort__current", text: /\APrice, high to low\z/i
     assert_equal "Blue Depths", first(".listing-tile a")["aria-label"].split(",").first
 
     find(".listing-tile a[href$='#{cheap.token}']").click

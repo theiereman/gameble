@@ -450,8 +450,8 @@ class BoosterTest < ApplicationSystemTestCase
     within(".booster-strip") do
       assert_selector "h2#booster-title", text: "SEASON 1 · GRAND CATALOGUE"
       assert_selector ".booster__pip[data-lit]", count: 2
-      assert_selector "#booster[data-status=sealed]"
     end
+    assert_selector "#booster[data-status=sealed]"
     assert_selector ".booster__canister-hint", text: "TAP TO OPEN"
     assert_selector ".booster__canister-facts", text: "5 cards"
     assert_no_selector ".booster__info"
