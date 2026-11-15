@@ -171,7 +171,7 @@ module TradesHelper
   end
 
   def trade_card_price(price)
-    render AveragePriceComponent.new(price:, flag_few_sales: false)
+    (@trade_card_prices ||= {})[price] ||= render(AveragePriceComponent.new(price:, flag_few_sales: false))
   end
 
   def trade_board_root_data(focus:, editing:, editor: nil, draft_key: nil, counter_url: nil, board_url: nil, forget: nil, swap: false,
@@ -196,15 +196,26 @@ module TradesHelper
 
   def trade_pick_label(pick)
     goals = goal_marks.goals_for(pick.view.card_id)
-    [ t("trade_board.card_label", title: pick.view.title, owned: t("trade_board.owned", count: pick.owned)),
-      (t("trade_board.reserved_elsewhere", count: pick.reserved) if pick.reserved.positive?),
+    [ t("trade_board.card_label", title: pick.view.title, owned: trade_pick_text(:owned, pick.owned) { t("trade_board.owned", count: pick.owned) }),
+      (trade_pick_text(:reserved_elsewhere, pick.reserved) { t("trade_board.reserved_elsewhere", count: pick.reserved) } if pick.reserved.positive?),
       (t("trade_board.unavailable") if pick.unavailable?),
-      (goal_card_words(goals) if goals.any?),
-      (average_price_words(pick.price, flag_few_sales: false) if pick.price) ].compact.join(", ")
+      (trade_pick_text(:goals, goals.map(&:goal_id)) { goal_card_words(goals) } if goals.any?),
+      (trade_pick_text(:price, pick.price) { average_price_words(pick.price, flag_few_sales: false) } if pick.price) ].compact.join(", ")
   end
 
   def trade_pick_goals(pick)
-    goal_marks.goals_for(pick.view.card_id).map { GoalMarks.filter_value(it) }.join(" ")
+    goals = goal_marks.goals_for(pick.view.card_id)
+    trade_pick_text(:goal_filters, goals.map(&:goal_id)) { goals.map { GoalMarks.filter_value(it) }.join(" ") }
+  end
+
+  def trade_pick_reserved(pick)
+    count = pick.unavailable? ? 1 : pick.reserved
+    trade_pick_text(:reserved, count) { t("trades.side.reserved", count:) }
+  end
+
+  def trade_pick_available(pick)
+    count = [ pick.max, 0 ].max
+    trade_pick_text(:available, count) { t("trade_board.available", count:) }
   end
 
   def trade_picker_extra_offers(editor)
@@ -221,6 +232,10 @@ module TradesHelper
   end
 
   private
+    def trade_pick_text(kind, value)
+      (@trade_pick_texts ||= {})[[ kind, value ]] ||= yield
+    end
+
     def trade_board_side(side, held:, other_held:, picks:, prices:, received:)
       copies = trade_game_copies(held, picks, count: side == :own ? :free : :quantity)
       other_copies = trade_game_copies(other_held, picks, count: :quantity)

@@ -1,22 +1,16 @@
-<%= tag.li class: "trade-pick",
-      data: { trade_board_target: "card", trade_board_picker_target: "pick", side:, key: pick.key, title: pick.view.title,
-              rarity: pick.view.rarity, genre: pick.view.genre, goals: trade_pick_goals(pick), owned: pick.owned, reserved: pick.reserved, max: pick.max, copies: pick.copies,
-              other_copies: pick.other_copies } do %>
-  <%= tag.div class: class_names("trade-pick__card", "trade-pick__card--unavailable": pick.unavailable?) do %>
+<li class="trade-pick" data-trade-board-target="card" data-trade-board-picker-target="pick" data-side="<%= side %>" data-key="<%= pick.key %>" data-title="<%= pick.view.title %>" data-rarity="<%= pick.view.rarity %>"<% unless pick.view.genre.nil? %> data-genre="<%= pick.view.genre %>"<% end %> data-goals="<%= trade_pick_goals(pick) %>" data-owned="<%= pick.owned %>" data-reserved="<%= pick.reserved %>" data-max="<%= pick.max %>" data-copies="<%= pick.copies %>" data-other-copies="<%= pick.other_copies %>">
+  <div class="<%= pick.unavailable? ? "trade-pick__card trade-pick__card--unavailable" : "trade-pick__card" %>">
     <div class="trade-pick__face trade-pick__face--pending" aria-hidden="true"></div>
     <span class="trade-pick__owned" aria-hidden="true">×<%= pick.owned %></span>
     <% if pick.reserved.positive? %>
-      <span class="trade-card__reserved trade-pick__reserved" aria-hidden="true"><%= t("trades.side.reserved", count: pick.unavailable? ? 1 : pick.reserved) %></span>
+      <span class="trade-card__reserved trade-pick__reserved" aria-hidden="true"><%= trade_pick_reserved(pick) %></span>
     <% end %>
     <span class="trade-pick__check" aria-hidden="true" hidden>✓</span>
-    <%= tag.button type: "button", class: "trade-pick__toggle", tabindex: -1,
-          aria: { pressed: "false", disabled: ("true" if pick.unavailable?), label: trade_pick_label(pick) },
-          data: { action: "trade-board-picker#toggle" } %>
-  <% end %>
-  <div class="trade-pick__foot">
-    <% if pick.price %>
+    <button type="button" class="trade-pick__toggle" tabindex="-1" aria-pressed="false"<% if pick.unavailable? %> aria-disabled="true"<% end %> aria-label="<%= trade_pick_label(pick) %>" data-action="trade-board-picker#toggle"></button>
+</div>  <div class="trade-pick__foot">
+<% if pick.price %>
       <span class="trade-pick__price" aria-hidden="true"><%= trade_card_price(pick.price) %></span>
-    <% end %>
-    <span class="trade-pick__available"><%= t("trade_board.available", count: [ pick.max, 0 ].max) %></span>
-  </div>
 <% end %>
+    <span class="trade-pick__available"><%= trade_pick_available(pick) %></span>
+  </div>
+</li>

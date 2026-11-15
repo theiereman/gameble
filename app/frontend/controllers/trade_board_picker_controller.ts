@@ -91,7 +91,18 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
   private observer?: IntersectionObserver
   private observedShown = 0
 
+  // Idiomorph matches siblings in quadratic time: thousands of held cards are swapped, not morphed.
+  private readonly replaceStash = (event: Event): void => {
+    const stash = event.target
+    const incoming = (event as CustomEvent<{ newElement?: Node }>).detail?.newElement
+    if (!(stash instanceof HTMLElement) || stash.dataset.tradeBoardPickerTarget !== "stash") return
+    if (!(incoming instanceof HTMLElement)) return
+    event.preventDefault()
+    stash.replaceChildren(...Array.from(document.importNode(incoming, true).childNodes))
+  }
+
   connect(): void {
+    this.element.addEventListener("turbo:before-morph-element", this.replaceStash)
     this.observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) this.dispatch("more")
@@ -101,6 +112,7 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
   }
 
   disconnect(): void {
+    this.element.removeEventListener("turbo:before-morph-element", this.replaceStash)
     this.observer?.disconnect()
     this.observer = undefined
     if (this.element.open) this.element.close()
@@ -224,6 +236,7 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
   }
 
   private reflectPicks({ side, picks }: PickerScreen, faceFor: FaceFor): void {
+    const grid = this.gridTarget
     const items = new Map(
       this.pickTargets.filter((item) => item.dataset.side === side).map((item) => [item.dataset.key ?? "", item]),
     )
@@ -232,12 +245,13 @@ export default class TradeBoardPickerController extends Controller<HTMLDialogEle
       const item = items.get(pick.key)
       if (!item) continue
       this.reflectPick(item, pick, faceFor)
-      const current = this.gridTarget.children[shown.size]
-      if (current !== item) this.gridTarget.insertBefore(item, current ?? null)
+      const current = grid.children[shown.size]
+      if (current !== item) grid.insertBefore(item, current ?? null)
       shown.add(item)
     }
-    for (const item of Array.from(this.gridTarget.children)) if (!shown.has(item)) this.stashTarget.append(item)
-    this.gridTarget.hidden = shown.size === 0
+    const left = Array.from(grid.children).filter((item) => !shown.has(item))
+    if (left.length > 0) this.stashTarget.append(...left)
+    grid.hidden = shown.size === 0
   }
 
   private reflectPick(
