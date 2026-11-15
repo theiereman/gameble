@@ -116,8 +116,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       assert_select "progress.collection-status__bar[value='3'][max='150'][aria-hidden=true]"
     end
     assert_select ".top-bar__end > .collection-status + #rarity-legend[popover]"
-    assert_equal [ "3 / 150", "3 / 155" ], css_select("#rarity-legend tfoot td > [aria-hidden=true]").map { it.text.squish }
-    assert_equal [ "Rarity", "This season", "All seasons", "Copies" ], css_select("#rarity-legend thead th").map { it.text.strip }
+    assert_equal [ "3 / 150" ], css_select("#rarity-legend tfoot td > [aria-hidden=true]").map { it.text.squish }
+    assert_equal [ "Rarity", "This season", "Copies" ], css_select("#rarity-legend thead th").map { it.text.strip }
     assert_select "#rarity-legend tfoot td.rarity-legend__copies", "5"
     assert_equal "/en/library/cards?rarity%5B%5D=epic", css_select("#rarity-legend a.rarity-legend__link")[3]["href"]
     assert_select ".top-bar .rarity-counter, .top-bar .packs-chip", false
