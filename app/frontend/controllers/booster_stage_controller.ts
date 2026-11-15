@@ -230,6 +230,7 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     const rays = slot.querySelector(".booster-card__rays")
     if (BANNER_TIERS.includes(card.tier)) rays?.classList.add(`card-rays--${card.tier}`)
     else rays?.remove()
+    if (rays && !hand.phone) slot.querySelector(".booster-card__frame")?.prepend(rays)
     const back = slot.querySelector<HTMLElement>(".booster-card__back")
     back?.classList.add(cardBackClass(hand.cardBack))
     for (const [name, value] of cardBackProperties(hand.cardBack)) back?.style.setProperty(name, value)

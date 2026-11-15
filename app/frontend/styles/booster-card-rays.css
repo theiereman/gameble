@@ -1,0 +1,35 @@
+/* In the rows, every card's rays sit on one layer under every card: an
+   Épique's or a Légendaire's rays never cross a neighbour, whatever its
+   tier. The stage controller moves the rays out of the card's 3D stack
+   into its frame, and the cards stop being layers of their own, so the
+   rays and the cards share the stage's stacking context. A card playing
+   its Légendaire sequence stays one layer, above the stage's dim. */
+
+.booster:not([data-layout="phone"]) .booster-card:not([data-legendary]) {
+  z-index: auto;
+}
+
+.booster:not([data-layout="phone"]) .booster-card__rays {
+  z-index: 0;
+}
+
+.booster:not([data-layout="phone"]) :is(.booster-card__travel, .booster-card__label, .booster-card__repost) {
+  position: relative;
+  z-index: 1;
+}
+
+.booster:not([data-layout="phone"]) .booster-card__travel {
+  position: absolute;
+}
+
+.booster:not([data-layout="phone"]) :is(.booster-card__hit, .booster-card__fx) {
+  z-index: 2;
+}
+
+/* Over the rays and the aura, the face's pixel outline would show its open
+   corners as bright notches: on the stage it gets its corners. */
+.booster-card__front .card {
+  box-shadow:
+    0 0 0 4px var(--color-outline),
+    var(--card-face-bevel);
+}
