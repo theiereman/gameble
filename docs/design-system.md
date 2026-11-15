@@ -30,7 +30,7 @@ The rules sit above the visual identity (console frame, pixel art, VT323 and Jet
 - A screen shows no title at the top of its content. Its name is in the top bar, on every screen, on a phone too. Set `content_for :screen_title` on every screen. Keep a visually hidden `h1` for screen readers.
 - The top bar shows the same elements on every screen:
   - desktop: rarity counter, capsule counter, PiCoin balance, bell, profile;
-  - phone: back button (or the G), screen name, bell, profile. The capsule count moves to a badge on the Capsule tab.
+  - phone, one system on every screen: a back button when the screen has a parent, then the G, then the screen name, then bell and profile. The back button is an arrow, never the G. The capsule count moves to a badge on the Capsule tab.
 - No screen hides, adds or replaces a counter. The Collection does not swap the counters for a unique-cards meter, and a sub-screen does not drop the rarity counter.
 
 ## Headings
@@ -56,7 +56,7 @@ The components marked *to build* do not exist yet. Build them before you restyle
 | `FigureComponent` | to build | A number with its unit and label (`10 /60 unique cards`, Me stats, exchange figures). |
 | `SegmentedComponent` | to build | Two or three exclusive choices side by side (All / Friends, Français / English, This week / All time). |
 | `EmptyStateComponent` | to build | One quiet line, and an action when there is one, in place of a list that is empty. |
-| `DockComponent` | to build | In a pick-then-confirm flow (entrust, sale), the summary and the confirm button float at the bottom of the screen over the grid, above the tab bar on a phone. The grid takes the full width. It is never a side column stuck to the top. |
+| `DockComponent` | to build | In a pick-then-confirm flow (entrust, sale), the summary and the confirm button float at the bottom of the screen over the grid, above the tab bar on a phone. The grid takes the full width. It is never a side column stuck to the top. The dock is wider than the content column (24px past each side, 8px on a phone) and casts a drop shadow, so it reads as floating over the content. Entrust and sale use the same dock. |
 
 ## Hotwire Native
 
