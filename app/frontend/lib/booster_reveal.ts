@@ -162,7 +162,6 @@ export class RevealSequence {
         )
       }
     }
-    if (level === 3) this.showBanner(tier, false, null)
     settle(lift)
     animate(lift, settleKeyframes(height, swell), {
       duration: SETTLE_MS[level],
