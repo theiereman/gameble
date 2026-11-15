@@ -275,7 +275,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     assert_button "Entrust 1 copy", disabled: true
   end
 
-  test "on a phone Confier ticks in three columns, sets copies in the sheet and validates from it" do
+  test "on a phone Confier ticks in two columns, sets copies in the sheet and validates from it" do
     open_market!
     hold(@player, @common.id, 2)
     hold(@player, @rare.id, 1)
@@ -285,7 +285,7 @@ class MarketEntrustSystemTest < ApplicationSystemTestCase
     visit new_market_entrustment_path(locale: :en)
     assert_selector "form#entrust[data-layout=phone]"
     assert_no_selector ".entrust-cell .stepper", visible: :visible
-    assert_equal 3, find(".entrust-grid__list").style("grid-template-columns")["grid-template-columns"].split.size
+    assert_equal 2, find(".entrust-grid__list").style("grid-template-columns")["grid-template-columns"].split.size
     show_single_copies
     tick(@common)
     tick(@rare)
