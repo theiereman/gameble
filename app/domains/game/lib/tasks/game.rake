@@ -43,6 +43,16 @@ namespace :game do
     puts "game:backfill_achievements: done; any failure went to the error tracker, and a rerun grants only what is missing"
   end
 
+  desc "Runs Game::ComputeDuelStatsJob now when no card has a duel profile yet; idempotent"
+  task compute_first_duel_stats: :environment do
+    if Game::DuelStat.none?
+      Game::ComputeDuelStatsJob.perform_now("first")
+      puts "game:compute_first_duel_stats: #{Game::DuelStat.count} duel profile(s) computed"
+    else
+      puts "game:compute_first_duel_stats: the duel profiles already exist; the weekly run keeps them current"
+    end
+  end
+
   desc "Creates the first, closed market settings version if there is none; idempotent"
   task create_first_market_settings: :environment do
     Game::Market::CreateFirstSettings.new.call.value!

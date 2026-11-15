@@ -91,6 +91,12 @@ check_discord_memberships: &check_discord_memberships
   class: Game::CheckDiscordMembershipsJob
   queue: default
   schedule: every hour
+# Every card's duel profile is recomputed as the week starts.
+compute_duel_stats: &compute_duel_stats
+  class: Game::ComputeDuelStatsJob
+  queue: default
+  args: [ "weekly" ]
+  schedule: every monday at midnight UTC
 
 development:
   recover_stalled_imports: *recover_stalled_imports
@@ -107,6 +113,7 @@ development:
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
   check_discord_memberships: *check_discord_memberships
+  compute_duel_stats: *compute_duel_stats
 
 production:
   recover_stalled_imports: *recover_stalled_imports
@@ -123,6 +130,7 @@ production:
   apply_retention: *apply_retention
   sync_steam_libraries: *sync_steam_libraries
   check_discord_memberships: *check_discord_memberships
+  compute_duel_stats: *compute_duel_stats
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

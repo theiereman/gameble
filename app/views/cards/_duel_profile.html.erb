@@ -1,0 +1,24 @@
+<section class="duel-profile" aria-labelledby="duel-profile-heading">
+  <h2 id="duel-profile-heading" class="duel-profile__heading"><%= t("duel_stats.heading") %></h2>
+  <ul class="duel-profile__stats">
+    <% profile.stats.each do |stat| %>
+      <% trump = stat.name == profile.trump_stat %>
+      <li class="<%= class_names("duel-profile__stat", "duel-profile__stat--trump": trump) %>">
+        <p class="duel-profile__line">
+          <span class="duel-profile__name">
+            <%= t("duel_stats.names.#{stat.name}") %>
+            <% if trump %>
+              <span class="duel-profile__trump"><%= t("duel_stats.trump") %></span>
+            <% end %>
+          </span>
+          <span class="duel-profile__value"><%= stat.value? ? duel_stat_value(stat) : t("duel_stats.no_value") %></span>
+        </p>
+        <% if stat.value? %>
+          <progress class="duel-profile__bar" max="100" value="<%= duel_stat_bar_value(stat) %>" aria-hidden="true"></progress>
+          <p class="duel-profile__words"><%= duel_stat_words(stat, rarity:) %></p>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+  <p class="duel-profile__dated"><%= duel_profile_dated(profile) %></p>
+</section>

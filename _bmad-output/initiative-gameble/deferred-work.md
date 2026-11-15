@@ -655,3 +655,9 @@
 - source_plan: `_bmad-output/initiative-gameble/plan-repost-set-tiers.md`
   summary: FeedsControllerTest "the counters of a page are read in one query whatever the number of entries" fails when run alone or with few files (2 reaction queries instead of 1).
   evidence: fails on baseline e34e9da0 with `bin/rails test test/controllers/feeds_controller_test.rb:777`; passes in the full run, so it is order-dependent.
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-every-card-s-detail-shows-its-duel-profile-recomputed-each-m-plan.md`
+  summary: `Game::DuelMeasures` treats every published season as regular; when the tribute season of exotic cards lands, its card-seasons must get no duel stats row.
+  evidence: no season kind or tribute season exists yet (exotic cards parked); the measures filter only `status = 'published'` and `rarity IS NOT NULL` (`app/domains/game/app/queries/game/duel_measures.rb`).
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-every-card-s-detail-shows-its-duel-profile-recomputed-each-m-plan.md`
+  summary: `LibraryControllerTest` "a player sees their unique cards…" fails on develop: it still expects the all-seasons rarity legend figure ("3 / 155") that the shell commit dropping the all-seasons column removed.
+  evidence: `test/controllers/library_controller_test.rb:119`, Expected ["3 / 150", "3 / 155"], Actual ["3 / 150"]; the commit `f22bf3b7` changed the legend and its shell and booster tests but not this one; unrelated to the duel stats.

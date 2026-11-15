@@ -171,6 +171,9 @@
                 </div>
               <% end %>
             </dl>
+            <% if (duel_profile = local_assigns[:duel_profile]) %>
+              <%= render "cards/duel_profile", profile: duel_profile, rarity: view.rarity %>
+            <% end %>
             <%= render "cards/edition_sales", chart: local_assigns[:edition_sales], src: local_assigns[:edition_sales_src] %>
           <% end %>
         </div>

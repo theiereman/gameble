@@ -1,0 +1,122 @@
+/* ---- The card detail's DUEL block: one more group of fact rows after the
+   facts, each stat its name, raw value, a 0–100 bar toward its first
+   direction and its words; the trump marked and brightest. ---- */
+
+.duel-profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.duel-profile__heading {
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-panel-sunken);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.duel-profile__stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.duel-profile__stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-panel-sunken);
+}
+
+.duel-profile__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+}
+
+.duel-profile__name {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.duel-profile__trump {
+  padding: 0 var(--space-1);
+  box-shadow: inset 0 0 0 1px var(--color-capsule-duel);
+  color: var(--color-capsule-duel);
+}
+
+.duel-profile__value {
+  min-width: 0;
+  color: var(--color-text);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* The bar: an accent fill on a raised track edged in line-deep. */
+.duel-profile__bar {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border: 0;
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 1px var(--color-line-deep);
+  color: var(--color-accent);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.duel-profile__bar::-webkit-progress-bar {
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 1px var(--color-line-deep);
+}
+
+.duel-profile__bar::-webkit-progress-value {
+  background: var(--color-accent);
+}
+
+.duel-profile__bar::-moz-progress-bar {
+  background: var(--color-accent);
+}
+
+.duel-profile__stat--trump .duel-profile__bar {
+  color: var(--color-text-max);
+}
+
+.duel-profile__stat--trump .duel-profile__bar::-webkit-progress-value {
+  background: var(--color-text-max);
+}
+
+.duel-profile__stat--trump .duel-profile__bar::-moz-progress-bar {
+  background: var(--color-text-max);
+}
+
+.duel-profile__words {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body-small);
+}
+
+.duel-profile__stat--trump .duel-profile__words {
+  color: var(--color-text-max);
+}
+
+.duel-profile__dated {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}

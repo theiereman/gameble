@@ -88,6 +88,12 @@ if Rails.env.development? && Catalog::PublishedSeason.call
   puts "Seeded #{players.size} fake players who opened #{opened} packs."
 end
 
+# Development only: every card's duel profile, computed once from the fake players' pulls; the Monday run keeps it current.
+if Rails.env.development? && Catalog::PublishedSeason.call && Game::DuelStat.none?
+  Game::ComputeDuelStatsJob.perform_now("first")
+  puts "Computed #{Game::DuelStat.count} duel profiles."
+end
+
 # Development only: Dev Player, the first fake player, is the administrator, and opens the market with its announcement; once the
 # market has been opened this leaves it alone.
 if Rails.env.development? && Catalog::PublishedSeason.call

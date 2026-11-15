@@ -1647,6 +1647,47 @@ en:
     - October
     - November
     - December
+  duel_stats:
+    dated: Values of %{date}
+    heading: Duel
+    names:
+      circulation: Circulation
+      discovery: Discovery
+      popularity: Popularity
+      rating: Rating
+      release: Release
+    no_value: No value
+    rarities:
+      common: Common
+      epic: Epic
+      legendary: Legendary
+      rare: Rare
+      uncommon: Uncommon
+    trump: Trump
+    values:
+      circulation:
+        one: "%{number} player"
+        other: "%{number} players"
+      popularity:
+        one: "%{number} review"
+        other: "%{number} reviews"
+      rating: "%{percent} positive"
+    words:
+      circulation:
+        high: More widespread than %{percent} of %{rarity} cards
+        low: Harder to find than %{percent} of %{rarity} cards
+      discovery:
+        high: Discovered before %{percent} of cards
+        low: Discovered after %{percent} of cards
+      popularity:
+        high: More popular than %{percent} of cards
+        low: More obscure than %{percent} of cards
+      rating:
+        high: Better rated than %{percent} of cards
+        low: Worse rated than %{percent} of cards
+      release:
+        high: Newer than %{percent} of cards
+        low: Older than %{percent} of cards
   errors:
     accounts:
       incomplete_release_note: "A ready note needs its title and its text in both languages."
@@ -1833,6 +1874,7 @@ en:
       unknown_code: No player has that code.
       unknown_direction: Unknown direction.
       unknown_reaction: That reaction does not exist.
+      unknown_reason: The duel stats know no such reason to be computed.
       unknown_season: You did not earn this card back in that season.
       unknown_player: This invitation link is not valid.
       amounts_changed: The amounts changed while you were choosing. They are drawn again below; check them and validate once more.

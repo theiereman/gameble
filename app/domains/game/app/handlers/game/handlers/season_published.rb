@@ -4,6 +4,7 @@ module Game
       def self.call(event)
         Goal.drop_unpublished(event.data.fetch(:season_id))
         HealBanksJob.perform_later
+        ComputeDuelStatsJob.perform_later("season")
       end
     end
   end

@@ -440,6 +440,51 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.index ["player_id", "day"], name: "index_game_daily_bonus_claims_on_player_id_and_day", unique: true
   end
 
+  create_table "game_duel_stats", force: :cascade do |t|
+    t.bigint "card_season_id", null: false
+    t.integer "popularity_value"
+    t.integer "rating_value", limit: 2
+    t.date "release_value"
+    t.datetime "discovery_value"
+    t.integer "circulation_value"
+    t.decimal "popularity_percentile", precision: 4, scale: 1
+    t.float "popularity_median_distance"
+    t.decimal "popularity_weekly_percentile", precision: 4, scale: 1
+    t.decimal "rating_percentile", precision: 4, scale: 1
+    t.float "rating_median_distance"
+    t.decimal "rating_weekly_percentile", precision: 4, scale: 1
+    t.decimal "release_percentile", precision: 4, scale: 1
+    t.float "release_median_distance"
+    t.decimal "release_weekly_percentile", precision: 4, scale: 1
+    t.decimal "discovery_percentile", precision: 4, scale: 1
+    t.float "discovery_median_distance"
+    t.decimal "discovery_weekly_percentile", precision: 4, scale: 1
+    t.decimal "circulation_percentile", precision: 4, scale: 1
+    t.float "circulation_median_distance"
+    t.decimal "circulation_weekly_percentile", precision: 4, scale: 1
+    t.string "trump_stat", null: false
+    t.string "trump_direction", null: false
+    t.datetime "computed_at", null: false
+    t.index ["card_season_id"], name: "index_game_duel_stats_on_card_season_id", unique: true
+    t.check_constraint "(circulation_value IS NULL) = (circulation_percentile IS NULL) AND (circulation_value IS NULL) = (circulation_median_distance IS NULL)", name: "game_duel_stats_circulation_together_check"
+    t.check_constraint "(discovery_value IS NULL) = (discovery_percentile IS NULL) AND (discovery_value IS NULL) = (discovery_median_distance IS NULL)", name: "game_duel_stats_discovery_together_check"
+    t.check_constraint "(popularity_value IS NULL) = (popularity_percentile IS NULL) AND (popularity_value IS NULL) = (popularity_median_distance IS NULL)", name: "game_duel_stats_popularity_together_check"
+    t.check_constraint "(rating_value IS NULL) = (rating_percentile IS NULL) AND (rating_value IS NULL) = (rating_median_distance IS NULL)", name: "game_duel_stats_rating_together_check"
+    t.check_constraint "(release_value IS NULL) = (release_percentile IS NULL) AND (release_value IS NULL) = (release_median_distance IS NULL)", name: "game_duel_stats_release_together_check"
+    t.check_constraint "circulation_percentile >= 0::numeric AND circulation_percentile <= 100::numeric", name: "game_duel_stats_circulation_percentile_check"
+    t.check_constraint "circulation_weekly_percentile >= 0::numeric AND circulation_weekly_percentile <= 100::numeric", name: "game_duel_stats_circulation_weekly_percentile_check"
+    t.check_constraint "discovery_percentile >= 0::numeric AND discovery_percentile <= 100::numeric", name: "game_duel_stats_discovery_percentile_check"
+    t.check_constraint "discovery_weekly_percentile >= 0::numeric AND discovery_weekly_percentile <= 100::numeric", name: "game_duel_stats_discovery_weekly_percentile_check"
+    t.check_constraint "popularity_percentile >= 0::numeric AND popularity_percentile <= 100::numeric", name: "game_duel_stats_popularity_percentile_check"
+    t.check_constraint "popularity_weekly_percentile >= 0::numeric AND popularity_weekly_percentile <= 100::numeric", name: "game_duel_stats_popularity_weekly_percentile_check"
+    t.check_constraint "rating_percentile >= 0::numeric AND rating_percentile <= 100::numeric", name: "game_duel_stats_rating_percentile_check"
+    t.check_constraint "rating_weekly_percentile >= 0::numeric AND rating_weekly_percentile <= 100::numeric", name: "game_duel_stats_rating_weekly_percentile_check"
+    t.check_constraint "release_percentile >= 0::numeric AND release_percentile <= 100::numeric", name: "game_duel_stats_release_percentile_check"
+    t.check_constraint "release_weekly_percentile >= 0::numeric AND release_weekly_percentile <= 100::numeric", name: "game_duel_stats_release_weekly_percentile_check"
+    t.check_constraint "trump_direction::text = 'high'::text OR trump_direction::text = 'low'::text", name: "game_duel_stats_trump_direction_check"
+    t.check_constraint "trump_stat::text = 'popularity'::text OR trump_stat::text = 'rating'::text OR trump_stat::text = 'release'::text OR trump_stat::text = 'discovery'::text OR trump_stat::text = 'circulation'::text", name: "game_duel_stats_trump_stat_check"
+  end
+
   create_table "game_feed_entries", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.bigint "pack_id"
@@ -1065,6 +1110,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
   add_foreign_key "game_custom_sets", "accounts_players", column: "player_id"
   add_foreign_key "game_daily_bonus_claims", "accounts_players", column: "player_id"
   add_foreign_key "game_daily_bonus_claims", "game_packs", column: "pack_id"
+  add_foreign_key "game_duel_stats", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_feed_entries", "accounts_players", column: "partner_id"
   add_foreign_key "game_feed_entries", "accounts_players", column: "player_id"
   add_foreign_key "game_feed_entries", "catalog_card_seasons", column: "partner_card_season_id"

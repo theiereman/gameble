@@ -3871,6 +3871,49 @@ fr:
         notice: "Gameble n'est affilié ni à Steam ni à Valve. Les illustrations appartiennent aux éditeurs des jeux et à leurs artistes."
   external_links:
     new_tab: "(nouvel onglet)"
+  duel_stats:
+    heading: "Duel"
+    trump: "Atout"
+    dated: "Valeurs du %{date}"
+    no_value: "Aucune valeur"
+    names:
+      popularity: "Popularité"
+      rating: "Note"
+      release: "Sortie"
+      discovery: "Découverte"
+      circulation: "Circulation"
+    words:
+      popularity:
+        high: "Plus populaire que %{percent} des cartes"
+        low: "Plus confidentielle que %{percent} des cartes"
+      rating:
+        high: "Mieux notée que %{percent} des cartes"
+        low: "Moins bien notée que %{percent} des cartes"
+      release:
+        high: "Plus récente que %{percent} des cartes"
+        low: "Plus ancienne que %{percent} des cartes"
+      discovery:
+        high: "Découverte avant %{percent} des cartes"
+        low: "Découverte après %{percent} des cartes"
+      circulation:
+        high: "Plus répandue que %{percent} des cartes %{rarity}"
+        low: "Plus introuvable que %{percent} des cartes %{rarity}"
+    rarities:
+      common: "communes"
+      uncommon: "peu communes"
+      rare: "rares"
+      epic: "épiques"
+      legendary: "légendaires"
+    values:
+      popularity:
+        zero: "%{number} avis"
+        one: "%{number} avis"
+        other: "%{number} avis"
+      rating: "%{percent} positives"
+      circulation:
+        zero: "%{number} joueur"
+        one: "%{number} joueur"
+        other: "%{number} joueurs"
   card_details:
     actions:
       collection: "Collection"
@@ -4152,6 +4195,7 @@ fr:
       achievement_not_earned: "Vous n'avez pas obtenu ce succès."
       unknown_achievement: "Ce succès n'existe pas."
       unknown_reaction: "Cette réaction n'existe pas."
+      unknown_reason: "Les stats de duel ne connaissent pas ce motif de calcul."
       entry_not_found: "Cette entrée du fil est introuvable."
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       invalid_time: "L'heure envoyée n'a pas pu être lue. Rechargez la page."
