@@ -1,0 +1,20 @@
+/* A Légendaire's sequence dims the whole page, not only the stage: the
+   stage's dim casts the same colour far past its box, the page clips
+   sideways at the viewport rather than at the screen while it plays, and
+   the screen rises above the top bar. */
+
+.booster__dim {
+  box-shadow: 0 0 0 100vmax color-mix(in srgb, var(--color-outline) 74%, transparent);
+}
+
+:root:has(.booster__stage[data-legendary]) {
+  overflow-x: clip;
+}
+
+.booster:has(.booster__stage[data-legendary]) {
+  overflow-x: visible;
+}
+
+.main:has(.booster__stage[data-legendary]) {
+  z-index: 3;
+}
