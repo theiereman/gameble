@@ -634,3 +634,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-instant-capsule-opening/story-a-capsule-opens-and-reveals-at-once-while-its-confirmation-g-plan.md`
   summary: The opening confirmation queue in localStorage is not tied to a player; after another account signs in on the same browser, the first player's queued token is sent, refused and dropped (nothing is lost on the server, the capsule stays unopened).
   evidence: `QUEUE_STORAGE_KEY` in `app/frontend/lib/opening_queue.ts` is a single key; clearing it on sign-out belongs with the offline-screen story's sign-out cleanup.
+
+- source_plan: `_bmad-output/initiative-gameble/plan-season-names.md`
+  summary: A timer of `annonce_controller.ts` (line 106, `postLive`) fires after its test is torn down and throws "Cannot read properties of undefined (reading 'posted')" at `lib/annonce.ts:67`, failing `npm run test:js` at random.
+  evidence: Seen in 3 of 7 full vitest runs on 2026-11-15, with all 1388 tests passing; the file alone passes, and later runs on both the baseline and the branch came out clean, so it is load- or order-dependent and predates this change.
