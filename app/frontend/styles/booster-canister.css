@@ -263,12 +263,15 @@
 }
 
 /* The rays of an Épique or Légendaire reach past its slot: those cards sit
-   one layer down, so their rays pass behind the neighbouring cards. */
+   lower, a Légendaire lowest, so their rays pass behind every neighbour. */
 .booster-card {
+  z-index: 2;
+}
+
+.booster-card[data-tier="epic"] {
   z-index: 1;
 }
 
-.booster-card[data-tier="epic"],
 .booster-card[data-tier="legendary"] {
   z-index: 0;
 }
