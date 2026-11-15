@@ -20,6 +20,7 @@ class MarketsController < ApplicationController
     load_set_choices
     @listings = Game::Market::OpenListings.call(sort: @sort, page: @page, locale: I18n.locale, filters: @filters)
     @marks = ListingMarks.for(current_player, @listings.rows, goal_marks)
+    @stands = Game::Market::BidStands.call(current_player, tokens: @listings.rows.map(&:token))
     respond_to do |format|
       format.html do
         load_desk

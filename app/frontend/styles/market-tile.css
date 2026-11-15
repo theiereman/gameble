@@ -23,12 +23,13 @@
 }
 
 .listing-tile__facts {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
   align-self: stretch;
   margin: auto calc(-1 * var(--space-3)) 0;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-4);
   background: var(--color-panel-sunken);
   box-shadow: inset 0 var(--space-unit) 0 var(--color-line-soft);
   font: var(--font-body-small);
@@ -88,5 +89,52 @@
 @media (min-width: 720px) {
   .listing-tile__link--wanted {
     box-shadow: inset 0 0 0 var(--space-unit) var(--color-gold);
+  }
+}
+
+.listing-tile__link--leading {
+  box-shadow: inset 0 0 0 2px var(--color-lime);
+}
+
+.listing-tile__link--outbid {
+  box-shadow: inset 0 0 0 2px var(--color-alert);
+}
+
+.listing-tile__stand {
+  position: absolute;
+  top: 0;
+  left: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 2px currentcolor;
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+  translate: 0 -50%;
+}
+
+.listing-tile__stand--leading {
+  color: var(--color-lime);
+}
+
+.listing-tile__stand--outbid {
+  color: var(--color-alert);
+}
+
+.listing-tile__stand-word {
+  display: none;
+}
+
+@media (min-width: 720px) {
+  .listing-tile__stand-word {
+    display: inline;
+  }
+
+  .listing-tile__stand-word::before {
+    content: "· ";
   }
 }

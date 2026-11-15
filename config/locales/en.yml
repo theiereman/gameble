@@ -3074,6 +3074,11 @@ en:
           zero: no copy in your collection
         wanted: Wanted
         wanted_spoken: missing from your goals
+      stand:
+        leading_amount: max
+        leading_spoken: "you are leading with a maximum of %{amount}"
+        outbid_amount: min
+        outbid_spoken: "your offer is outbid, minimum offer %{amount}"
     time_left:
       hours: "%{hours} h %{minutes}"
       minutes: "%{minutes} min"
