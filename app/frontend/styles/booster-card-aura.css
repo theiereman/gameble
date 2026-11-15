@@ -1,0 +1,159 @@
+/* A dealt card's rarity aura: a glow in its tier's colour around the card,
+   face down or up, that grows and quickens with the tier. It shows on the
+   card under the pointer or keyboard focus, and on the phone on the pile's
+   top card. Behind the flip, beside it rather than around it, so the turn
+   stays 3D. Imported after booster-canister.css. */
+
+.booster-card {
+  --aura-reach: 6px;
+  --aura-blur: 14px;
+  --aura-strength: 45%;
+  --aura-breath: 1.04;
+  --aura-pace: 3.2s;
+}
+
+.booster-card[data-tier="uncommon"] {
+  --aura-reach: 9px;
+  --aura-blur: 20px;
+  --aura-strength: 65%;
+  --aura-breath: 1.05;
+  --aura-pace: 2.6s;
+}
+
+.booster-card[data-tier="rare"] {
+  --aura-reach: 12px;
+  --aura-blur: 28px;
+  --aura-strength: 75%;
+  --aura-breath: 1.06;
+  --aura-pace: 2s;
+}
+
+.booster-card[data-tier="epic"] {
+  --aura-reach: 14px;
+  --aura-blur: 30px;
+  --aura-strength: 78%;
+  --aura-breath: 1.08;
+  --aura-pace: 1.5s;
+}
+
+.booster-card[data-tier="legendary"] {
+  --aura-reach: 18px;
+  --aura-blur: 38px;
+  --aura-strength: 90%;
+  --aura-breath: 1.1;
+  --aura-pace: 1.1s;
+}
+
+.booster-card__aura {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 240ms var(--ease-out);
+  pointer-events: none;
+}
+
+.booster-card__aura::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    0 0 var(--aura-blur) var(--aura-reach) color-mix(in srgb, var(--booster-tier) var(--aura-strength), transparent),
+    0 0 calc(var(--aura-blur) / 2) calc(var(--aura-reach) / 3)
+      color-mix(in srgb, var(--booster-tier-hi) var(--aura-strength), transparent);
+}
+
+/* An Épique's and a Légendaire's aura also flickers: a band around the
+   card where a wheel of flames in the tier's light colour turns in
+   pixel-sized steps. */
+.booster-card__flames {
+  display: none;
+}
+
+.booster-card[data-tier="epic"] .booster-card__flames,
+.booster-card[data-tier="legendary"] .booster-card__flames {
+  --flames-band: calc(var(--aura-reach) * 1.5);
+
+  position: absolute;
+  inset: calc(var(--flames-band) * -1);
+  display: block;
+  padding: var(--flames-band);
+  overflow: hidden;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+}
+
+.booster-card__flames::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  aspect-ratio: 1;
+  background: repeating-conic-gradient(
+    transparent 0deg,
+    color-mix(in srgb, var(--booster-tier-hi) 55%, transparent) 4deg,
+    transparent 8deg 30deg
+  );
+  filter: blur(3px);
+  translate: -50% -50%;
+}
+
+.booster-card[data-tier="legendary"] .booster-card__flames::before {
+  width: 250%;
+  background: repeating-conic-gradient(
+    transparent 0deg,
+    color-mix(in srgb, var(--booster-tier-hi) 80%, transparent) 4deg,
+    transparent 8deg 18deg
+  );
+}
+
+/* Shown, it breathes and its flames turn; hidden, its loops wait. */
+.booster[data-layout="phone"] .booster-card[data-dealt][data-top] .booster-card__aura,
+.booster-card[data-dealt]:has(.booster-card__hit:focus-visible) .booster-card__aura {
+  --aura-play: running;
+
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .booster:not([data-layout="phone"]) .booster-card[data-dealt]:has(.booster-card__frame:hover) .booster-card__aura {
+    --aura-play: running;
+
+    opacity: 1;
+  }
+}
+
+.booster-card__aura::before {
+  animation: booster-aura-breath var(--aura-pace) ease-in-out infinite;
+  animation-play-state: var(--aura-play, paused);
+}
+
+.booster-card__flames::before {
+  animation: booster-aura-turn calc(var(--aura-pace) * 6) steps(48) infinite;
+  animation-play-state: var(--aura-play, paused);
+}
+
+@keyframes booster-aura-breath {
+  50% {
+    transform: scale(var(--aura-breath));
+  }
+}
+
+@keyframes booster-aura-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+html[data-motion="reduced"] .booster-card__aura::before,
+html[data-motion="reduced"] .booster-card__flames::before {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .booster-card__aura::before,
+  html:not([data-motion="full"]) .booster-card__flames::before {
+    animation: none;
+  }
+}
