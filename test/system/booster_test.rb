@@ -154,7 +154,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector "#{card(4)} .booster-card__front .card.card--m.card--booster.card--rarity-epic"
   end
 
-  test "a revealed card opens the card zoom on the screen; it steps through the revealed cards and See the card leads to its page" do
+  test "a revealed card opens the card zoom on the screen with its facts; it steps through the revealed cards and See the card leads to its page" do
     open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one))
     open_canister
     assert_dealt(5)
@@ -167,6 +167,7 @@ class BoosterTest < ApplicationSystemTestCase
     zoom = "dialog.booster-zoom[open]"
     assert_selector "#{zoom} h2", text: "BLUE DEPTHS"
     assert_selector "#{zoom} .booster-zoom__line", text: "RARE · 2014"
+    assert_selector "#{zoom} .booster-zoom__facts .card-detail__fact dt", text: /publisher/i
     assert_selector "#{zoom} .booster-zoom__nav--previous[disabled]"
     find("#{zoom} .booster-zoom__nav--next").click
     assert_selector "#{zoom} h2", text: "PORTAL"

@@ -186,6 +186,12 @@
   text-transform: uppercase;
 }
 
+/* The booster's card zoom loads these facts on its own; on the page they
+   lay out as the column's own children. */
+.card-detail__facts-frame {
+  display: contents;
+}
+
 .card-detail__description {
   margin: 0;
 }

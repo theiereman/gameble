@@ -349,6 +349,7 @@ export class BoosterRenderer {
             title: card.title,
             line: t(this.strings.zoomLine, { rarity: this.host.rarityNames()[card.tier], year: card.year ?? "" }),
             href: cardHref(this.host.cardUrl, card.slug, answer.pack.token, zoom),
+            facts: state.layout === "phone" ? null : cardHref(this.host.cardUrl, card.slug, answer.pack.token, zoom),
             repostName: t(this.strings.repostCard, { card: card.title }),
             previous: view.zoomPrevious,
             next: view.zoomNext,

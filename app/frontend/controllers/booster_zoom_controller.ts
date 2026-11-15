@@ -9,6 +9,7 @@ export type ZoomView = Readonly<{
   title: string
   line: string
   href: string
+  facts: string | null
   repostName: string
   previous: boolean
   next: boolean
@@ -17,7 +18,7 @@ export type ZoomView = Readonly<{
 type Gesture = { id: number; x: number; y: number; tilted: boolean }
 
 export default class BoosterZoomController extends Controller<HTMLDialogElement> {
-  static targets = ["previous", "next", "rays", "face", "title", "icon", "line", "see", "repost", "status"]
+  static targets = ["previous", "next", "rays", "face", "title", "icon", "line", "facts", "see", "repost", "status"]
 
   declare readonly previousTarget: HTMLButtonElement
   declare readonly nextTarget: HTMLButtonElement
@@ -26,6 +27,8 @@ export default class BoosterZoomController extends Controller<HTMLDialogElement>
   declare readonly titleTarget: HTMLElement
   declare readonly iconTarget: HTMLElement
   declare readonly lineTarget: HTMLElement
+  declare readonly hasFactsTarget: boolean
+  declare readonly factsTarget: HTMLElement
   declare readonly seeTarget: HTMLAnchorElement
   declare readonly hasRepostTarget: boolean
   declare readonly repostTarget: HTMLButtonElement
@@ -89,6 +92,11 @@ export default class BoosterZoomController extends Controller<HTMLDialogElement>
     this.dispatch("repost")
   }
 
+  factsMissing(event: Event): void {
+    event.preventDefault()
+    this.showFacts(null)
+  }
+
   scrim(event: MouseEvent): void {
     if (event.target === this.element) this.shut()
   }
@@ -138,7 +146,7 @@ export default class BoosterZoomController extends Controller<HTMLDialogElement>
     this.element.close()
   }
 
-  private fill({ index, tier, title, line, href, repostName }: ZoomView, fragments: Fragments): void {
+  private fill({ index, tier, title, line, href, facts, repostName }: ZoomView, fragments: Fragments): void {
     this.element.dataset.tier = tier
     const rays = BANNER_TIERS.includes(tier)
     this.raysTarget.hidden = !rays
@@ -150,7 +158,19 @@ export default class BoosterZoomController extends Controller<HTMLDialogElement>
     this.iconTarget.replaceChildren(fragments.icon(tier) ?? "")
     this.lineTarget.textContent = line
     this.seeTarget.href = href
+    this.showFacts(facts)
     if (this.hasRepostTarget) this.repostTarget.setAttribute("aria-label", repostName)
+  }
+
+  private showFacts(facts: string | null): void {
+    if (!this.hasFactsTarget) return
+    this.factsTarget.hidden = facts === null
+    if (facts === null) {
+      this.factsTarget.removeAttribute("src")
+      this.factsTarget.replaceChildren()
+    } else {
+      this.factsTarget.setAttribute("src", facts)
+    }
   }
 
   private keepFocusInside(): void {
