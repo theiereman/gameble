@@ -23,12 +23,17 @@
 }
 
 .ticker {
-  position: relative;
-  z-index: 1;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
   flex: none;
   margin-top: var(--space-unit);
   background: var(--color-steam-bar);
   box-shadow: var(--ticker-rule);
+}
+
+html:has(body > .ticker) {
+  scroll-padding-bottom: var(--space-ticker-height);
 }
 
 body:has(> .ticker) .app-version {
