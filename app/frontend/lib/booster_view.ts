@@ -57,18 +57,22 @@ export function layoutApplied(state: BoosterState, focusedInside: boolean): Boos
   return state.phase === "dealt" && allRevealed(state) ? celebrate({ ...rebuilt, status: "complete" }) : rebuilt
 }
 
+const zoomable = (state: BoosterState): readonly boolean[] => (state.layout === "phone" ? state.stored : state.revealed)
+
 export function zoomOpened(state: BoosterState, index: number): BoosterState {
-  if (!idle(state) || !state.stored[index] || state.zoom === index) return state
+  if (!idle(state) || !zoomable(state)[index] || state.zoom === index) return state
   return { ...state, zoom: index }
 }
 
 export function zoomClosed(state: BoosterState): BoosterState {
-  return { ...state, zoom: null, focus: state.zoom === null ? "card" : { slot: state.zoom } }
+  const { zoom } = state
+  if (zoom === null) return { ...state, focus: "card" }
+  return { ...state, zoom: null, focus: state.layout === "phone" ? { slot: zoom } : { card: zoom } }
 }
 
 export function zoomStepped(state: BoosterState, step: -1 | 1): BoosterState {
   if (state.zoom === null) return state
-  const next = zoomNeighbour(state.stored, state.zoom, step)
+  const next = zoomNeighbour(zoomable(state), state.zoom, step)
   return next === null ? state : { ...state, zoom: next }
 }
 
@@ -78,7 +82,7 @@ export function activation(state: BoosterState, index: number, now: number, last
   if (state.layout === "phone") return now - lastDragEnd >= CLICK_AFTER_DRAG ? "store" : "none"
   if (locked(state) || state.opening || state.revealingAll || state.revealing.includes(index)) return "none"
   const at = state.revealedAt[index]
-  return at !== undefined && now - at >= REVEAL_GUARD ? "leave" : "none"
+  return at !== undefined && now - at >= REVEAL_GUARD ? "zoom" : "none"
 }
 
 function toneOf(status: BoosterStatus): StatusTone {
@@ -121,7 +125,7 @@ export function controls(state: BoosterState): Controls {
     storedCount: state.stored.filter(Boolean).length,
     top,
     plate: state.layout === "phone" && top !== null && state.revealed[top] ? top : null,
-    zoomPrevious: zoom !== null && zoomNeighbour(state.stored, zoom, -1) !== null,
-    zoomNext: zoom !== null && zoomNeighbour(state.stored, zoom, 1) !== null,
+    zoomPrevious: zoom !== null && zoomNeighbour(zoomable(state), zoom, -1) !== null,
+    zoomNext: zoom !== null && zoomNeighbour(zoomable(state), zoom, 1) !== null,
   }
 }

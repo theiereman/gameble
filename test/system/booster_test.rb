@@ -144,7 +144,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector "#{card(1)} .booster-card__label", text: "COMMON"
     assert_announced "Card 1: Tin Soldier — 2024. Common."
     assert_equal commons + 1, Integer(rarity_count("common"))
-    assert_equal "Tin Soldier — 2024, Common. See the card.", find(hit(1))["aria-label"]
+    assert_equal "Tin Soldier — 2024, Common. Enlarge.", find(hit(1))["aria-label"]
     assert_focus hit(1)
 
     find(hit(4)).click
@@ -152,6 +152,34 @@ class BoosterTest < ApplicationSystemTestCase
     assert_announced "Card 4: Portal — Valve, 2007. Epic."
     assert_equal commons + 1, Integer(rarity_count("common"))
     assert_selector "#{card(4)} .booster-card__front .card.card--m.card--booster.card--rarity-epic"
+  end
+
+  test "a revealed card opens the card zoom on the screen; it steps through the revealed cards and See the card leads to its page" do
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one))
+    open_canister
+    assert_dealt(5)
+    find(hit(3)).click
+    find(hit(4)).click
+    assert_selector "#{card(4)}[data-revealed]"
+    sleep 0.45
+
+    find(hit(3)).click
+    zoom = "dialog.booster-zoom[open]"
+    assert_selector "#{zoom} h2", text: "BLUE DEPTHS"
+    assert_selector "#{zoom} .booster-zoom__line", text: "RARE · 2014"
+    assert_selector "#{zoom} .booster-zoom__nav--previous[disabled]"
+    find("#{zoom} .booster-zoom__nav--next").click
+    assert_selector "#{zoom} h2", text: "PORTAL"
+    assert_selector "#{zoom} .booster-zoom__nav--next[disabled]"
+    assert_current_path "/en/booster"
+
+    page.send_keys(:escape)
+    assert_no_selector "dialog.booster-zoom"
+    assert_focus hit(4)
+
+    find(hit(3)).click
+    within(zoom) { click_on "See the card" }
+    assert_current_path "/en/cards/blue-depths?pack=#{opened_token}&slot=3"
   end
 
   def reposts = Game::FeedEntry.where(kind: "repost").pluck(:card_season_id)

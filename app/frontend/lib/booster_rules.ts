@@ -49,9 +49,9 @@ export function topOfPile(revealed: readonly boolean[], stored: readonly boolean
   return index === -1 ? null : index
 }
 
-export function zoomNeighbour(stored: readonly boolean[], index: number, step: -1 | 1): number | null {
-  for (let position = index + step; position >= 0 && position < stored.length; position += step) {
-    if (stored[position]) return position
+export function zoomNeighbour(filled: readonly boolean[], index: number, step: -1 | 1): number | null {
+  for (let position = index + step; position >= 0 && position < filled.length; position += step) {
+    if (filled[position]) return position
   }
   return null
 }

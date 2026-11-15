@@ -46,7 +46,7 @@ export type OpeningOutcome = { kind: "opened" } | { kind: "refused"; code: strin
 
 export type TierCounts = Record<Rarity, number>
 
-export type Focus = "open" | "home" | "card" | { slot: number }
+export type Focus = "open" | "home" | "card" | { card: number } | { slot: number }
 
 export type FocusTarget = "open" | "home" | { card: number } | { slot: number }
 
@@ -118,7 +118,7 @@ export type BoosterStart = {
 
 export type OpeningRefusal = Exclude<OpeningResult, { kind: "opened" }>
 
-export type Activation = "reveal" | "store" | "leave" | "none"
+export type Activation = "reveal" | "store" | "zoom" | "none"
 
 export type OpenVariant = "open" | "next" | "empty" | "skip"
 

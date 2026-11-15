@@ -1101,8 +1101,8 @@ en:
           silver: SILVER
       empty_next: Next capsule in %{time}
       face_down: Card %{position} of %{total}, face down. Reveal.
-      face_up: "%{card}, %{rarity}. See the card."
-      face_up_goals: "%{card}, %{rarity}, %{goals}. See the card."
+      face_up: "%{card}, %{rarity}. Enlarge."
+      face_up_goals: "%{card}, %{rarity}, %{goals}. Enlarge."
       face_up_store: "%{card}, %{rarity}. Store the card."
       face_up_store_goals: "%{card}, %{rarity}, %{goals}. Store the card."
       failed: No connection. Your capsule is safe. Try again.

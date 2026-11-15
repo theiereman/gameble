@@ -228,7 +228,7 @@ export class BoosterController extends Controller<HTMLElement> {
     )
     if (action === "reveal") void this.gameplay?.reveals.reveal(index, false)
     else if (action === "store") void this.gameplay?.cardStore.store(index, false)
-    else if (action === "leave") this.gameplay?.cardExit.leaveFor(index)
+    else if (action === "zoom") this.apply((s) => zoomOpened(s, index))
   }
 
   repostCard({ detail: { index } }: Intent<CardIntent>): void {

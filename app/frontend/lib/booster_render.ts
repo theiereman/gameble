@@ -340,7 +340,7 @@ export class BoosterRenderer {
     const zoomOutlet = this.host.outlets().zoom
     if (!zoomOutlet) return
     const { zoom, answer } = state
-    const card = zoom !== null && state.layout === "phone" ? answer?.cards[zoom] : null
+    const card = zoom !== null ? answer?.cards[zoom] : null
     zoomOutlet.render(
       card && zoom !== null && answer
         ? {
