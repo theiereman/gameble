@@ -50,3 +50,7 @@ A free web trading card game where every card is a Steam game. Rails 8 with doma
 - Never name a model in a test class body (a constant such as `TABLES = [ Game::Pack ]`): it loads `ApplicationRecord` before the parallel workers fork, a worker's GET then writes unprevented, and `ReadOnlyRequestsTest` fails only in the full parallel run. Name models inside methods.
 
 <!-- /bmad:context -->
+
+## Design system
+
+Build and restyle every screen from `docs/design-system.md`: page widths, the top bar, where headings go, and the shared components (panel, tile, tabs, sort, dock). Read it before touching a view or a stylesheet; where a screen disagrees with it, change the screen, not the rule.
