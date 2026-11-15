@@ -131,10 +131,10 @@ class LibraryTest < ApplicationSystemTestCase
     assert_selector "#{pastille(:state)} .filter-row__count", text: "1", visible: :all
 
     # Back to the owned cards, then a rarity, then a genre none of them has.
-    within(filter_sheet(:state)) do
-      find(".filter-chip__text", text: /\AOwned\z/i).click
-      find(".filter-chip__text", text: /\AMissing\z/i).click
-    end
+    within(filter_sheet(:state)) { find(".filter-chip__text", text: /\AOwned\z/i).click }
+    assert_selector ".collection-slot__copies", count: 3, visible: :all
+    assert_slots 60
+    within(filter_sheet(:state)) { find(".filter-chip__text", text: /\AMissing\z/i).click }
     assert_slots 3
     close_filter_sheet(:state)
     assert_selector "#{pastille(:state)} .filter-row__count", text: "1"
