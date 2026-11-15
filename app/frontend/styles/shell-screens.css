@@ -32,11 +32,16 @@ html[data-sub-view-step] .main {
   view-transition-name: none;
 }
 
-/* The phone tab bar and the toasts are captured apart so the sliding screen,
-   drawn above the root picture, never covers them; they do not move, and
-   their new picture replaces the old one at once. */
+/* The phone tab bar, the ticker held at the bottom and the toasts are
+   captured apart so the sliding screen, drawn above the root picture, never
+   covers them; they do not move, and their new picture replaces the old one
+   at once. */
 .tab-bar {
   view-transition-name: tab-bar;
+}
+
+.ticker {
+  view-transition-name: ticker;
 }
 
 .toasts {
@@ -44,13 +49,16 @@ html[data-sub-view-step] .main {
 }
 
 ::view-transition-group(tab-bar),
+::view-transition-group(ticker),
 ::view-transition-group(toasts),
 ::view-transition-new(tab-bar),
+::view-transition-new(ticker),
 ::view-transition-new(toasts) {
   animation: none;
 }
 
 ::view-transition-old(tab-bar),
+::view-transition-old(ticker),
 ::view-transition-old(toasts) {
   animation: none;
   opacity: 0;
@@ -122,6 +130,12 @@ html[data-sub-view-step] .main {
 
   .main:has(+ .ticker) {
     padding-bottom: var(--space-7);
+  }
+
+  html:has(body > .ticker) {
+    scroll-padding-bottom: calc(
+      var(--space-ticker-height-phone) + var(--tabbar-height) + env(safe-area-inset-bottom, 0px)
+    );
   }
 
   .ticker__inner {
