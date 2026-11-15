@@ -5,7 +5,6 @@ import cardDetail from "../styles/card-detail.css?raw"
 import cardDetailPublic from "../styles/card-detail-public.css?raw"
 import cardDetailStepping from "../styles/card-detail-stepping.css?raw"
 import cardRarityEffectsStylesheet from "../styles/card-rarity-effects.css?raw"
-import hubStylesheet from "../styles/hub.css?raw"
 
 const boosterLayoutsStylesheet = boosterLayouts + boosterLayoutsTray
 
@@ -27,7 +26,7 @@ const ruleBody = (stylesheet: string, selector: string) => {
 
 describe("the shared card rarity effects", () => {
   it("clips the rays sideways at each stage and fades them within the narrow ones", () => {
-    for (const selector of [".card-detail__stage", ".public-card__stage", ".hub-showcase__stage"]) {
+    for (const selector of [".card-detail__stage", ".public-card__stage", ".profile-stage__floor"]) {
       expect(ruleBody(cardRarityEffectsStylesheet, selector)).toContain("overflow-x: clip")
     }
     for (const selector of [".card-detail__stage", ".public-card__stage"]) {
@@ -37,7 +36,6 @@ describe("the shared card rarity effects", () => {
       "mask-image: radial-gradient(circle 170px, #000 40%, transparent 100%)",
     )
     expect(cardRarityEffectsStylesheet).toContain(".public-card__stage .card-rays")
-    expect(ruleBody(hubStylesheet, ".hub-showcase__stage")).toContain("align-self: stretch")
     expect(cardDetailStylesheet).toContain("@container (min-width: 520px)")
     expect(ruleBody(cardDetailStylesheet, ".card-detail")).toContain("max-width: var(--space-breakpoint-two-columns)")
     expect(ruleBody(cardDetailStylesheet, ".card-detail__nav")).toContain("z-index: 1")

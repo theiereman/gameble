@@ -11,7 +11,7 @@ module ProfileLoading
       @card_total = Catalog::CardCount.call(@season)
       @summary = capped_at_card_total(Game::CollectionSummary.call(owner, season: @season))
       @achievements = Game::EarnedAchievements.call(owner)
-      @showcase = chosen_cards(owner)
+      @showcase, @stage = chosen_and_stage_cards(owner)
       load_season_sections(owner) if @season
     end
 

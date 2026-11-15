@@ -3215,15 +3215,6 @@ en:
         trades_waiting:
           one: "%{number} trade waiting for you"
           other: "%{number} trades waiting for you"
-      showcase:
-        chosen_kicker: Showcase
-        empty:
-          open: Open a capsule
-          reserve_empty: Reserve empty
-          text: Your finest card will show here.
-          title: Open your first capsule
-        kicker: Latest acquisition
-        see_card: View the card
       welcome:
         close: Close
         collection: All that remains is for you to build your collection.
@@ -3726,8 +3717,6 @@ en:
         heading: Profile title
         intro: Your title shows on your profile, in the activity feed and in your trades.
         none: No title
-      showcase:
-        empty: Your best card will show here once you choose it from a card's page.
   picoin_amount:
     accessible: "%{amount} PiCoins"
   player_name:
@@ -3790,8 +3779,10 @@ en:
           other: "%{count} sets started"
         title: Sets
       showcase:
-        info: Up to five cards. Drag them to change their order, and add one from
-          its page with “%{add}”.
+        arrange: Arrange your showcase
+        no_picks: No picks yet, so your rarest cards fill your showcase. Choose one from a card’s page.
+        info: Up to five cards, shown first in your showcase. Drag them to change
+          their order, and add one from its page with “%{add}”.
         info_label: How the showcase works
         move_failed: The new order could not be saved.
         moved: "%{title} is now in place %{position} of %{count}."
@@ -3804,6 +3795,8 @@ en:
         remove: Remove %{title} from the showcase
         return: Back to the card
         title: Showcase
+      stage:
+        owner_note: Your picks first, then your rarest cards.
       stats:
         activity: Activity
         first_discoveries: First discoveries

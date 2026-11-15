@@ -5,7 +5,7 @@
 <% order = { controller: "showcase-order", showcase_order_announcement_value: t("public_profiles.show.showcase.moved"), showcase_order_failed_value: t("public_profiles.show.showcase.move_failed") } if movable %>
 <%= render PanelComponent.new(tag: :section, id: "showcase", class: "profile-showcase-panel", aria: { labelledby: "profile-showcase-heading" }, data: order) do %>
   <div class="profile-showcase__head">
-    <%= tag.h2 t("public_profiles.show.showcase.title"), id: "profile-showcase-heading", class: "profile-section__title" %>
+    <%= tag.h2 t("public_profiles.show.showcase.arrange"), id: "profile-showcase-heading", class: "profile-section__title" %>
     <% if owned %>
       <details class="profile-showcase__info">
         <summary class="profile-showcase__info-mark">
@@ -22,7 +22,7 @@
     <% end %>
   </div>
   <% if cards.empty? %>
-    <p class="profile-section__aside"><%= t("personalizations.show.showcase.empty") %></p>
+    <p class="profile-section__aside"><%= t("public_profiles.show.showcase.no_picks") %></p>
     <% if owned %>
       <%= link_to t("own_profiles.show.card_list"), library_cards_path, class: "button button--link profile-showcase__browse",
             autofocus: focus.present? %>

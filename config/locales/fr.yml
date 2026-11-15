@@ -325,15 +325,6 @@ fr:
         how_it_works: "Comment ça marche"
         support: "Soutenir"
         source_code: "GitHub"
-      showcase:
-        kicker: "Dernière obtention"
-        chosen_kicker: "Vitrine"
-        see_card: "Voir la fiche"
-        empty:
-          title: "Ouvrez votre première capsule"
-          text: "Votre plus belle carte s'affichera ici."
-          open: "Ouvrir une capsule"
-          reserve_empty: "Réserve vide"
       daily:
         title: "Capsule quotidienne"
         ready: "Prête"
@@ -1748,8 +1739,6 @@ fr:
         intro: "Votre titre s'affiche sur votre profil, dans le fil d'activité et dans vos échanges."
         none: "Aucun titre"
         empty: "Aucun titre pour l'instant. Atteignez un palier d'un set, ou complétez-le, pour en gagner un."
-      showcase:
-        empty: "Votre plus belle carte s'affichera ici, une fois choisie depuis la fiche d'une carte."
   own_profiles:
     avatar_sheet:
       heading: "Avatar"
@@ -1827,8 +1816,10 @@ fr:
         achievements: "Succès"
       showcase:
         title: "Vitrine"
+        arrange: "Composer votre vitrine"
+        no_picks: "Aucun choix pour l'instant : vos cartes les plus rares remplissent votre vitrine. Choisissez-en une depuis la fiche d'une carte."
         info_label: "Comment marche la vitrine"
-        info: "Jusqu'à cinq cartes. Faites-les glisser pour changer leur ordre, et ajoutez-en une depuis sa fiche avec « %{add} »."
+        info: "Jusqu'à cinq cartes, montrées en tête de votre vitrine. Faites-les glisser pour changer leur ordre, et ajoutez-en une depuis sa fiche avec « %{add} »."
         return: "Retour à la carte"
         removal:
           title: "Retirer de la vitrine ?"
@@ -1839,6 +1830,8 @@ fr:
         moved: "%{title} est maintenant à la place %{position} sur %{count}."
         move_failed: "Le nouvel ordre n'a pas pu être enregistré."
         remove: Retirer %{title} de la vitrine
+      stage:
+        owner_note: "Vos choix d'abord, puis vos cartes les plus rares."
       stats:
         title: "Statistiques"
         rarities: "Raretés"

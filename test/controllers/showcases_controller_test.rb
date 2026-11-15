@@ -128,19 +128,17 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
   end
 
   [ :en, :fr ].each do |locale|
-    test "a new order is read on the Me page, the public profile and the hub in #{locale}" do
+    test "a new order is read on the Me page and leads the public profile's stage in #{locale}" do
       choose(:portal_one, :common_card_one, :uncommon_card_one)
       sign_in(@player)
 
       patch showcase_path(slug: "green-hills", locale:), params: { direction: "earlier" }
       patch showcase_path(slug: "green-hills", locale:), params: { direction: "earlier" }
 
-      [ me_path(locale:), brother_path(locale:, token: @player.token) ].each do |path|
-        get path
-        assert_equal %w[green-hills portal tin-soldier], showcase_slugs, path
-      end
-      get home_path(locale:)
-      assert_select ".hub-showcase__actions a[href=?]", card_season_path(locale:, slug: "green-hills", number: 1)
+      get me_path(locale:)
+      assert_equal %w[green-hills portal tin-soldier], showcase_slugs
+      get brother_path(locale:, token: @player.token)
+      assert_equal %w[green-hills portal tin-soldier], showcase_slugs(".profile-stage__slot > a.card-link").first(3)
     end
   end
 
@@ -207,8 +205,8 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
 
     sign_in(@player)
     get brother_path(locale: :en, token: @player.token)
-    assert_select ".profile-showcase__slot > a.card-link[href*=?]", "brother=#{@player.token}"
-    assert_select ".profile-showcase__slot > a.card-link[href*=from]", false
+    assert_select ".profile-stage__slot > a.card-link[href*=?]", "brother=#{@player.token}"
+    assert_select ".profile-stage__slot > a.card-link[href*=from]", false
   end
 
   def choose(*fixtures)

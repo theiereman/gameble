@@ -1,24 +1,21 @@
 /*
- * The hub, "Pont de commandement". From 1180px three columns: kicker, menu
- * and set progress on the left (340px), the showcase in the centre, the
- * community goal and the daily booster panel on the right (340px), stacked
- * in a column of their own so neither side column waits on the other's
- * rows. From 720px two: the left column (260 to 300px) holds the kicker,
- * menu, community goal, daily booster panel and set progress; the showcase
- * stands alone in the centre. Under 720px one column, without the menu:
- * kicker, showcase (or invitation), community goal, daily booster panel,
- * set progress.
+ * The hub, "Pont de commandement". From 720px two columns: the kicker, menu
+ * and set progress on the left (340px, 260 to 300px under 1180px), the
+ * community goal, the daily booster panel and the other panels on the
+ * right, stacked in a column of their own so neither side waits on the
+ * other's rows. Under 720px one column, without the menu: kicker,
+ * community goal, daily booster panel, set progress.
  */
 
 .hub {
   display: grid;
-  grid-template-columns: 340px minmax(0, 1fr) 340px;
+  grid-template-columns: 340px minmax(0, 1fr);
   grid-template-rows: auto auto auto 1fr;
   grid-template-areas:
-    "kicker showcase aside"
-    "menu showcase aside"
-    "goals showcase aside"
-    ". showcase aside";
+    "kicker aside"
+    "menu aside"
+    "goals aside"
+    ". aside";
   gap: var(--space-6) var(--space-column-gap-wide);
   align-items: start;
 }
@@ -29,10 +26,6 @@
 
 .hub-menu {
   grid-area: menu;
-}
-
-.hub-showcase {
-  grid-area: showcase;
 }
 
 .hub-goals {
@@ -280,151 +273,4 @@ button.menu-item:focus-visible:hover {
   background: var(--color-disabled-bg);
   box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
   color: var(--color-disabled-text);
-}
-
-/* ---- Showcase, empty showcase and invitation ---- */
-
-.hub-showcase {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-  min-width: 0;
-  text-align: center;
-}
-
-.hub-showcase__kicker {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  color: var(--color-gold);
-  font: var(--font-kicker);
-  letter-spacing: var(--tracking-kicker);
-  text-transform: uppercase;
-}
-
-.hub-showcase__light {
-  width: 8px;
-  height: 8px;
-  background: var(--color-gold);
-}
-
-/* The card at card-xl (240 × 360) over a flat ground shadow. */
-.hub-showcase__stage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  align-self: stretch;
-  gap: var(--space-6);
-  padding-top: var(--space-3);
-}
-
-.hub-showcase__ground {
-  width: 200px;
-  height: 10px;
-  background: var(--color-outline);
-}
-
-.hub-showcase__name {
-  max-width: 100%;
-  margin: 0;
-  color: var(--color-text-max);
-  font: var(--font-showcase-name);
-  letter-spacing: var(--tracking-showcase-name);
-  overflow-wrap: anywhere;
-}
-
-.hub-showcase__name {
-  text-transform: uppercase;
-}
-
-.hub-showcase__rarity {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  font: var(--font-card-meta-xl);
-  letter-spacing: var(--tracking-card-meta-xl);
-  text-transform: uppercase;
-}
-
-.hub-showcase__rarity-icon {
-  width: 14px;
-  height: 14px;
-}
-
-.hub-showcase__rarity--1 {
-  color: var(--color-rarity-commune);
-}
-
-.hub-showcase__rarity--2 {
-  color: var(--color-rarity-peu-commune);
-}
-
-.hub-showcase__rarity--3 {
-  color: var(--color-rarity-rare);
-}
-
-.hub-showcase__rarity--4 {
-  color: var(--color-rarity-epique);
-}
-
-.hub-showcase__rarity--5 {
-  color: var(--color-rarity-legendaire);
-}
-
-.hub-showcase .button {
-  margin: 0;
-}
-
-/* The empty frame: hatched, a dashed card outline, the wordmark dimmed. */
-.hub-showcase__frame {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 240px;
-  height: 360px;
-  background: repeating-linear-gradient(-45deg, var(--color-panel-sunken) 0 6px, var(--color-panel) 6px 12px);
-  box-shadow: var(--panel-soft-border);
-}
-
-.hub-showcase__outline {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 196px;
-  height: 304px;
-  border: var(--space-unit) dashed var(--color-line);
-}
-
-.hub-showcase__wordmark {
-  display: block;
-  opacity: 0.35;
-}
-
-.hub-showcase__line {
-  max-width: 34ch;
-  margin: 0;
-  color: var(--color-text);
-  font: var(--font-body);
-  letter-spacing: var(--tracking-body);
-}
-
-.hub-showcase__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-4);
-  margin-top: var(--space-2);
-}
-
-/* A disabled button states its reason beside it. */
-.hub-showcase__reason {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
 }

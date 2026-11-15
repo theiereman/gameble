@@ -15,10 +15,9 @@
 
   <span hidden data-controller="bonus-arc" data-action="turbo:before-stream-render@document->bonus-arc#render"></span>
 
-  <%= render "pages/showcase", card: @showcase, chosen: @showcase_chosen, bank: @bank %>
   <div class="hub__aside">
     <%= render "pages/goal", goal: @goal, reward: @goal_reward, bank: @bank %>
-    <%= render "pages/daily_booster", bank: @bank, primary: @showcase.present? if @bank[:bonus_collectable] || @bank[:bonus_collected] %>
+    <%= render "pages/daily_booster", bank: @bank, primary: true if @bank[:bonus_collectable] || @bank[:bonus_collected] %>
     <% if @market_pulse %><%= render "pages/market_panel", pulse: @market_pulse, outbid: shell_outbid_count %><% end %>
     <%= render "fortune_panels/panel", panel: @fortune_panel %>
     <div class="hub__phone-feed">

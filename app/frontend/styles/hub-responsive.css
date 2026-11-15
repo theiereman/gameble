@@ -3,13 +3,6 @@
 @media (max-width: 1179px) {
   .hub {
     grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto 1fr;
-    grid-template-areas:
-      "kicker showcase"
-      "menu showcase"
-      "aside showcase"
-      "goals showcase"
-      ". showcase";
     column-gap: var(--space-column-gap-medium);
   }
 }
@@ -39,11 +32,6 @@
   .hub__title {
     font: var(--font-kicker-phone);
     letter-spacing: var(--tracking-kicker-phone);
-  }
-
-  .hub-showcase__name {
-    font: var(--font-showcase-name-phone);
-    letter-spacing: var(--tracking-showcase-name-phone);
   }
 
   .daily-booster .button,
