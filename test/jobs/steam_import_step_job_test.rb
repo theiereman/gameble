@@ -408,7 +408,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal [ 21, 0 ], [ run.cards_written, run.cards_refused ]
 
     draft = Catalog::DraftSeason.call
-    assert Catalog::PublishSeason.new.call(number: draft.number).success?
+    assert Catalog::PublishSeason.new.call(number: draft.number, name_en: "Spring", name_fr: "Printemps").success?
 
     main_themes = Catalog::CardSeason.where(season_id: draft.id).where.not(main_theme: nil).joins(:card)
       .pluck(:main_theme, "catalog_cards.source_key").group_by(&:first).transform_values { |pairs| pairs.map(&:last).sort }

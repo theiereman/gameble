@@ -6,6 +6,8 @@
   <p><%= link_to t(".all_seasons"), back_office_seasons_path %></p>
 
   <dl class="ledger-entry">
+    <dt><%= t(".name") %></dt>
+    <dd data-season-name><%= render "names", season: @season %></dd>
     <dt><%= t(".status") %></dt>
     <dd data-season-status="<%= @season.status %>"><%= t("back_office.seasons.statuses.#{@season.status}") %></dd>
     <dt><%= t(".published_at") %></dt>
@@ -17,6 +19,16 @@
   </dl>
 
   <% if @season.published? %>
+    <section class="stack" aria-labelledby="season-rename-heading">
+      <h2 id="season-rename-heading"><%= t(".rename_heading") %></h2>
+      <%= form_with url: back_office_season_path(@season.number), method: :patch, class: "announcement-editor" do %>
+        <%= render "name_fields", name_en: @season.name_en, name_fr: @season.name_fr %>
+        <p class="announcement-editor__actions">
+          <%= render ButtonComponent.new(variant: :secondary, type: :submit) do %><%= t(".rename") %><% end %>
+        </p>
+      <% end %>
+    </section>
+
     <%= render "preview", panel: @season.panel, heading: t(".published_heading", number: @season.number), intro: t(".published_intro") %>
   <% else %>
     <%= render "preview", panel: @season.panel, heading: t("back_office.seasons.preview.heading", number: @season.number), intro: t("back_office.seasons.preview.intro") %>

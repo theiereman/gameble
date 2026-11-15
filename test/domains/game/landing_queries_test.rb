@@ -35,7 +35,14 @@ class Game::LandingQueriesTest < ActiveSupport::TestCase
     Game::FirstDiscovery.delete_all
     facts = Game::LandingSeasonFacts.call(locale: :en, now: NOW)
 
-    assert_equal({ season_number: catalog_seasons(:one).number, players: 0, packs: 0, discoveries: 0 }, facts)
+    assert_equal({ season_number: catalog_seasons(:one).number, season_name: nil, players: 0, packs: 0, discoveries: 0 }, facts)
+  end
+
+  test "the season's name is the one of the locale" do
+    catalog_seasons(:one).update_columns(name_en: "Winter", name_fr: "Hiver")
+
+    assert_equal "Winter", Game::LandingSeasonFacts.call(locale: :en, now: NOW)[:season_name]
+    assert_equal "Hiver", Game::LandingSeasonFacts.call(locale: :fr, now: NOW)[:season_name]
   end
 
   test "players are those who opened a pack in the goal's week, packs those opened in the UTC day" do
@@ -63,7 +70,7 @@ class Game::LandingQueriesTest < ActiveSupport::TestCase
   test "no published season gives no season number" do
     Catalog::Season.update_all(status: "draft")
 
-    assert_nil Game::LandingSeasonFacts.call(locale: :en, now: NOW)[:season_number]
+    assert_equal [ nil, nil ], Game::LandingSeasonFacts.call(locale: :en, now: NOW).values_at(:season_number, :season_name)
   end
 
   test "the goal carries its total, target and the players whose contributions are above zero" do

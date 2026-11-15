@@ -184,7 +184,7 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     draft = seed_sets_draft
     expected = preview
 
-    assert Catalog::PublishSeason.new.call(number: draft.number).success?
+    assert Catalog::PublishSeason.new.call(number: draft.number, name_en: "Spring", name_fr: "Printemps").success?
 
     summary = Catalog::SeasonSummaries.call.find { |season| season.number == draft.number }
     assert_equal expected.tiers.to_h { |tier| [ tier.tier, tier.card_count ] }, summary.tier_counts

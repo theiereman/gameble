@@ -114,7 +114,13 @@
 
 .booster-canister__line--title {
   top: 47px;
+  display: -webkit-box;
+  overflow: hidden;
   font: var(--font-weight-regular) 1.625rem / 1.625rem var(--font-family-vt323);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
 }
 
 .booster-canister__hazard {

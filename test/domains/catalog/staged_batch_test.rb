@@ -113,7 +113,7 @@ class Catalog::StagedBatchTest < ActiveSupport::TestCase
 
     season = promote.value!
 
-    assert Catalog::PublishSeason.new.call(number: season.number).success?
+    assert Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").success?
   end
 
   test "promoting into no draft creates it with the number the run saw" do
@@ -181,11 +181,11 @@ class Catalog::StagedBatchTest < ActiveSupport::TestCase
     draft = seed_card_seasons(distinct_scores(21))
     stage(identity.value!)
 
-    assert_equal :staged_batch_waiting, Catalog::PublishSeason.new.call(number: draft.number).failure
+    assert_equal :staged_batch_waiting, Catalog::PublishSeason.new.call(number: draft.number, name_en: "Spring", name_fr: "Printemps").failure
     assert_predicate draft.reload, :draft?
 
     Catalog::DiscardStagedBatch.new.call(batch_token: TOKEN)
-    assert Catalog::PublishSeason.new.call(number: draft.number).success?
+    assert Catalog::PublishSeason.new.call(number: draft.number, name_en: "Spring", name_fr: "Printemps").success?
   end
 
   # StagedBatchReview

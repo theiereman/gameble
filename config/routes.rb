@@ -241,7 +241,7 @@ Rails.application.routes.draw do
         post :discard, on: :member
       end
 
-      resources :seasons, only: %i[index show], param: :number, constraints: { number: /\d+/ } do
+      resources :seasons, only: %i[index show update], param: :number, constraints: { number: /\d+/ } do
         post :publish, on: :collection
       end
 

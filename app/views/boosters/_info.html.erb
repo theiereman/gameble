@@ -3,7 +3,7 @@
   <div class="booster__hazard" aria-hidden="true"></div>
   <div class="booster__id">
     <p class="booster__kicker"><%= season ? t("booster.kicker", number: season.number) : t("booster.kicker_plain") %></p>
-    <h2 id="booster-panel-title" class="booster__title"><%= t("booster.title") %></h2>
+    <h2 id="booster-panel-title" class="booster__title"><%= season_title(season) %></h2>
   </div>
   <dl class="booster__panel panel panel--brackets">
     <div class="booster__row">

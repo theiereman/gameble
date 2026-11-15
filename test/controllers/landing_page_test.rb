@@ -291,6 +291,25 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     assert_select ".landing-goal__participants", "2 participants"
   end
 
+  test "module 04 names a named season in the reader's language, in HTML and in markdown" do
+    get home_path(locale: :en), headers: { "Accept" => "text/markdown" }
+    assert_includes response.body, "Season 1 · Grand catalogue"
+
+    catalog_seasons(:one).update_columns(name_en: "Winter", name_fr: "Hiver")
+
+    get home_path(locale: :en)
+    assert_select ".landing-season__name", "Season 1 · Winter"
+
+    get home_path(locale: :fr)
+    assert_select ".landing-season__name", "Saison 1 · Hiver"
+
+    get home_path(locale: :en), headers: { "Accept" => "text/markdown" }
+    assert_includes response.body, "Season 1 · Winter"
+
+    get home_path(locale: :fr), headers: { "Accept" => "text/markdown" }
+    assert_includes response.body, "Saison 1 · Hiver"
+  end
+
   test "an empty game shows zero figures and an empty gauge" do
     get home_path(locale: :fr)
 

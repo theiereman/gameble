@@ -1,0 +1,6 @@
+<%# locals: (season:) %>
+<% if season.name_fr || season.name_en %>
+  <span lang="fr"><%= season.name_fr %></span> · <span lang="en"><%= season.name_en %></span>
+<% else %>
+  —
+<% end %>

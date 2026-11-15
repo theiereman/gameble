@@ -1,6 +1,6 @@
 module Catalog
   module SeasonSummaries
-    Summary = Data.define(:number, :status, :published_at, :card_count, :tier_counts, :set_counts) do
+    Summary = Data.define(:number, :name_en, :name_fr, :status, :published_at, :card_count, :tier_counts, :set_counts) do
       def draft? = status == "draft"
       def published? = status == "published"
     end
@@ -13,6 +13,8 @@ module Catalog
           .transform_keys { |(_, rarity)| rarity && CardSeason.rarities.fetch(rarity) }
         Summary.new(
           number: season.number,
+          name_en: season.name_en,
+          name_fr: season.name_fr,
           status: season.status,
           published_at: season.published_at,
           card_count: by_rarity.values.sum,

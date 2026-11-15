@@ -23,7 +23,7 @@ class CatalogNumberSeasonsTaskTest < ActiveSupport::TestCase
     one = catalog_seasons(:one)
     before = numbers_of(one)
     two = seed_card_seasons(distinct_scores(21))
-    assert Catalog::PublishSeason.new.call(number: two.number).success?
+    assert Catalog::PublishSeason.new.call(number: two.number, name_en: "Spring", name_fr: "Printemps").success?
     Catalog::CardSeason.where(season_id: two.id).update_all(number: nil, rarity: nil)
     draft = seed_card_seasons(distinct_scores(3))
 

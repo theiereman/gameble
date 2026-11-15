@@ -4,8 +4,8 @@ module Catalog
       name.is_a?(String) ? name.squish : nil
     end
 
-    def self.valid?(name)
-      !name.nil? && (1..Theme::NAME_LENGTH).cover?(name.length)
+    def self.valid?(name, length: Theme::NAME_LENGTH)
+      !name.nil? && (1..length).cover?(name.length)
     end
   end
 end

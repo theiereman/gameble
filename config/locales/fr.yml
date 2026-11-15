@@ -1214,10 +1214,11 @@ fr:
         published: "Publiée"
       index:
         heading: "Les saisons du catalogue"
-        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, les numérote, les relie en thèmes, franchises, studios, panthéon et OVNI, et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
+        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, les numérote, les relie en thèmes, franchises, studios, panthéon et OVNI, et l'ouvre au tirage, d'un seul coup. Une saison publiée garde pour toujours ses cartes, ses raretés, leurs numéros et ses collections ; seul son nom peut encore changer."
         empty: "Aucune saison pour l'instant. Le premier import ouvrira le brouillon."
         caption: "Saisons du catalogue, par numéro"
         number: "Saison"
+        name: "Nom"
         status: "État"
         card_count: "Cartes"
         published_at: "Publiée"
@@ -1232,16 +1233,22 @@ fr:
           zero: "Publier la saison %{number} et sa seule carte ? La rareté et le numéro de cette carte ne changeront plus jamais."
           one: "Publier la saison %{number} et sa seule carte ? La rareté et le numéro de cette carte ne changeront plus jamais."
           other: "Publier la saison %{number} et ses %{count} cartes ? Ses raretés et leurs numéros ne changeront plus jamais."
+      name_fields:
+        name_fr: "Nom en français"
+        name_en: "Nom en anglais"
       show:
         heading: "La saison %{number}"
         all_seasons: "Toutes les saisons"
+        name: "Nom"
+        rename_heading: "Le nom de la saison"
+        rename: "Renommer la saison"
         status: "État"
         published_at: "Publiée"
         score_versions: "Versions de la formule de prestige"
         score_version: "version %{version}"
         no_score_version: "aucune notée (avant les versions)"
         published_heading: "La saison %{number}, telle que publiée"
-        published_intro: "Ce que la publication a inscrit pour cette saison, lu tel quel : les cartes et le score minimal de chaque rareté, et les collections. Rien n'est écrit ici et rien n'est retaillé. Les thèmes et les OVNI sont les collections inscrites à la publication."
+        published_intro: "Ce que la publication a inscrit pour cette saison, lu tel quel : les cartes et le score minimal de chaque rareté, et les collections. Seul le nom de la saison se change ici ; rien d'autre n'est écrit et rien n'est retaillé. Les thèmes et les OVNI sont les collections inscrites à la publication."
       preview:
         heading: "La saison %{number}, si elle était publiée maintenant"
         intro: "Ce que donnerait la publication du brouillon aujourd'hui, lu sur ses cartes telles qu'elles sont. Rien n'est écrit ici. La formule de prestige et les parts des raretés vivent dans le code ; les thèmes se gèrent sur la page des thèmes. Change l'un ou l'autre, recalcule le dernier import si la formule ou les thèmes ont changé, puis relis ceci."
@@ -1284,6 +1291,8 @@ fr:
         published: "La saison %{number} est publiée, officier. Ses cartes sont prêtes pour le tirage."
         import_active: "Un import Steam n'est pas fini, officier. Laisse-le finir ou reprends-le, ou abandonne-le s'il s'est interrompu, avant de publier la saison."
         import_awaiting_promotion: "Un import Steam terminé t'attend, officier. Ouvre-le et promeus ses cartes dans le brouillon, ou jette-les, avant de publier la saison."
+      update:
+        updated: "La saison %{number} est renommée, officier."
     roadmaps:
       translate:
         nothing: "Chaque ligne a déjà son anglais : rien à traduire."
@@ -1897,12 +1906,12 @@ fr:
       collect: "Récupérer"
     reveal_all: "Tout révéler"
     canister_hint: "Cliquez pour ouvrir"
+    canister_name_fallback: "grand catalogue"
     canister_season: "Saison %{number}"
     result: "Résultat de la capsule"
     card_label: "%{title} — %{details}"
     legendary_banner: "%{rarity} !"
-    strip_title: "Saison %{number} · Grand catalogue"
-    strip_title_plain: "Grand catalogue"
+    strip_title: "Saison %{number} · %{name}"
     canister_hint_touch: "Touchez pour ouvrir"
     hint_tap: "Touchez la carte pour la révéler"
     hint_swipe: "Glissez la carte pour la ranger · ou touchez-la"
@@ -1931,7 +1940,7 @@ fr:
         other: "%{n} capsules"
       next_at: "Prochaine capsule : %{time}"
       empty_next: "Prochaine capsule dans %{time}"
-      canister_label: "Ouvrir la capsule Saison %{season}, grand catalogue, %{count} cartes"
+      canister_label: "Ouvrir la capsule Saison %{season}, %{name}, %{count} cartes"
       canister_label_plain: "Ouvrir la capsule, grand catalogue, %{count} cartes"
       hint_remaining:
         zero: "Cliquez une carte pour la révéler · %{n} restante"
@@ -3652,7 +3661,7 @@ fr:
         open_feed: "Ouvrir le fil d'activité"
         open_register: "Voir Le Chattomètre"
         season: "Saison en cours"
-        season_name: "Saison %{number} · Grand catalogue"
+        season_name: "Saison %{number} · %{name}"
         facts:
           players: "Joueurs actifs cette semaine"
           packs: "Capsules ouvertes aujourd'hui"
@@ -4012,6 +4021,7 @@ fr:
       unfilled_sources: "Des cartes de la saison en brouillon ont été importées avant que leurs sources soient enregistrées, officier : un genre d'avant les thèmes ou aucun nombre d'avis. Publiées, elles tomberaient dans les OVNI et laisseraient les sets franchise, studio et panthéon incomplets sans qu'on le voie. Lance steam:fill_card_sources, puis publie."
       invalid_tag: "Ce n'est pas un tag Steam que les registres connaissent, officier."
       invalid_theme_name: "Un thème a besoin d'un nom en français et en anglais, de 60 caractères au plus, officier."
+      invalid_season_name: "Une saison a besoin d'un nom en français et en anglais, de 60 caractères au plus, officier."
       unclassified_tags:
         zero: "Plus aucun tag à classer, officier."
         one: "%{count} tag des cartes du brouillon n'est pas encore classé, officier. Rattache-le à un thème ou écarte-le sur la page des thèmes, puis publie."

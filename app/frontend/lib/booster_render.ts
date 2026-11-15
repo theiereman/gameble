@@ -164,7 +164,7 @@ export class BoosterRenderer {
           : null,
       label:
         season > 0
-          ? t(this.strings.canisterLabel, { season, count: nextSize })
+          ? t(this.strings.canisterLabel, { season, name: this.host.seasonName, count: nextSize })
           : t(this.strings.canisterLabelPlain, { count: nextSize }),
       busy: state.phase !== "sealed" && state.phase !== "dealt",
       armed: state.armed,

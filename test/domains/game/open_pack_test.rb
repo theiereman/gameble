@@ -122,7 +122,7 @@ class Game::OpenPackTest < ActiveSupport::TestCase
     stale = create_pack(@player, cards: fixture_tier_ids)
     stale_bonus = create_pack(@player, kind: :bonus, cards: fixture_tier_ids.last(3), available_at: 2.minutes.ago)
     season = seed_card_seasons(distinct_scores(150))
-    Catalog::PublishSeason.new.call(number: season.number).value!
+    Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").value!
 
     [ [ stale_bonus, [ 3, 4, 5 ] ], [ stale, [ 1, 2, 3, 4, 5 ] ] ].each do |pack, tiers|
       assert_equal pack, open.value!

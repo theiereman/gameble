@@ -69,7 +69,7 @@ module CatalogSeeds
   # sets are built by Catalog::PublishSeason. Returns the season.
   def publish_sets_draft
     season = seed_sets_draft
-    assert Catalog::PublishSeason.new.call(number: season.number).success?
+    assert Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").success?
     season.reload
   end
 
@@ -101,7 +101,7 @@ module CatalogSeeds
   # The franchises and studios draft, published. Returns the season.
   def publish_franchises_and_studios_draft
     season = seed_franchises_and_studios_draft
-    assert Catalog::PublishSeason.new.call(number: season.number).success?
+    assert Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").success?
     season.reload
   end
 
@@ -124,7 +124,7 @@ module CatalogSeeds
   # The hall of fame draft, published. Returns the season.
   def publish_hall_of_fame_draft
     season = seed_hall_of_fame_draft
-    assert Catalog::PublishSeason.new.call(number: season.number).success?
+    assert Catalog::PublishSeason.new.call(number: season.number, name_en: "Spring", name_fr: "Printemps").success?
     season.reload
   end
 
