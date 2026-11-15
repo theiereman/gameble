@@ -26,10 +26,19 @@
   z-index: 2;
 }
 
-/* Over the rays and the aura, the face's pixel outline would show its open
-   corners as bright notches: on the stage it gets its corners. */
+/* On the stage the face drops its dark pixel outline: over the rays and
+   the glows it read as a black box around the card. The rarity's frame
+   sits on them directly. */
 .booster-card__front .card {
-  box-shadow:
-    0 0 0 4px var(--color-outline),
-    var(--card-face-bevel);
+  box-shadow: var(--card-face-bevel);
+}
+
+.booster:not([data-layout="phone"]) .booster-card__glow {
+  z-index: 0;
+}
+
+/* Under the cards it no longer rises with a Légendaire's jump: it waits
+   for the card to land. */
+.booster-card[data-legendary] .booster-card__glow {
+  opacity: 0;
 }

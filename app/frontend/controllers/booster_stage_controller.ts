@@ -226,13 +226,12 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     if (!slot) return null
     slot.dataset.position = String(card.index + 1)
     slot.dataset.tier = card.tier
-    if (card.tier !== "legendary") slot.querySelector(".booster-card__glow")?.remove()
+    const glow = slot.querySelector(".booster-card__glow")
+    if (card.tier !== "legendary") glow?.remove()
     const rays = slot.querySelector(".booster-card__rays")
-    if (!BANNER_TIERS.includes(card.tier)) rays?.remove()
-    else if (rays) {
-      rays.classList.add(`card-rays--${card.tier}`)
-      if (!hand.phone) slot.querySelector(".booster-card__frame")?.prepend(rays)
-    }
+    if (BANNER_TIERS.includes(card.tier)) rays?.classList.add(`card-rays--${card.tier}`)
+    else rays?.remove()
+    if (!hand.phone) this.underCards(slot, [glow, rays])
     const back = slot.querySelector<HTMLElement>(".booster-card__back")
     back?.classList.add(cardBackClass(hand.cardBack))
     for (const [name, value] of cardBackProperties(hand.cardBack)) back?.style.setProperty(name, value)
@@ -247,6 +246,11 @@ export default class BoosterStageController extends Controller<HTMLElement> {
     if (hand.phone) repost?.remove()
     else repost?.setAttribute("aria-label", card.repostName)
     return slot
+  }
+
+  private underCards(slot: HTMLLIElement, parts: (Element | null)[]): void {
+    const frame = slot.querySelector(".booster-card__frame")
+    for (const part of parts.reverse()) if (part?.isConnected) frame?.prepend(part)
   }
 
   private update(hand: HandView): void {
