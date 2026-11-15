@@ -11,7 +11,7 @@ review: 'thorough'
 review_source: 'pinned'
 lenses_ran: ['blind-hunter', 'edge-case-hunter', 'verification-gap', 'intent-alignment']
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context:
   - '{project-root}/AGENTS.md'
   - '{project-root}/_bmad-output/initiative-gameble/spec-gameble/duel-rules.md'
@@ -23,6 +23,13 @@ deferred:
       The exotic-cards epic is parked; Game::DuelMeasures filters only published seasons and rated card-seasons, so the tribute season must be excluded when it is built.
     location: >-
       app/domains/game/app/queries/game/duel_measures.rb
+    severity: low
+  - summary: >-
+      After a season publication between two Mondays, the next Monday compares with the season run's percentiles instead of the previous Monday's.
+    evidence: |-
+      A first or weekly run copies the row's current percentiles into the weekly ones, and a season run has already replaced them; a row keeps one previous set. Fixing it needs a second stored set or a season run that keeps already-ranked rows, an author's choice. Logged in deferred-work.md for the Monday feed entry story.
+    location: >-
+      app/domains/game/app/models/game/duel_stat_rows.rb (weekly_percentiles)
     severity: low
 ---
 
@@ -164,6 +171,42 @@ deferred:
   - `[false]` `[reject]` (intent) Copy deck direction labels unused — they belong to the deck editor and duel stories.
   - `[low]` `[patch]` (intent) Package-lock outside intent — same root cause as the verification-gap row; reverted.
 
+### 2026-11-15 — Review pass (follow-up)
+- verdicts: 31 findings (27 from the lenses, 4 concerns the first pass left open, weighed at the orchestrator's request) — high 0, medium 3, low 20, false 8, maybe-false 0; 8 carried rows keep their verdicts
+- measured: the first computation on a test database seeded with two published seasons of 12,500 rated card-seasons, 20,000 first discoveries and 171,429 holdings took 8.5 s and about 95 MB (one season: about 4 s); a weekly run over the same data 19 s, of which 11 s is Active Record building the `insert_all` statements (the database executes each 1,000-row insert in 0.07 s).
+- findings:
+  - `[medium]` `[patch]` (verification-gap) No test renders a stat without a value, and no controller test renders the DUEL block at all, so a broken `stat.value?` guard would raise on the detail of every unpulled or reviewless edition unseen by `bin/rails test` — added a cards controller test: after a first run, a signed-in player who holds nothing opens Portal's detail; the block follows the facts with 5 rows and one Trump tag, Popularity reads "No value" with no bar or words, Rating has its hidden bar and words; in French "Atout", "Aucune valeur" and "Valeurs du".
+  - `[false]` `[reject]` (intent) carried — One at a time in the operation, not the job — the job only calls the operation, so two jobs serialise on its lock.
+  - `[low]` `[reject]` (intent) carried — After commit comes from the app-wide `enqueue_after_transaction_commit`; the test cannot tell it from in-transaction.
+  - `[low]` `[defer]` (intent) carried — No tribute exclusion or test; already deferred, not deferred again.
+  - `[low]` `[patch]` (intent) No test puts two published seasons side by side, so the per-season grouping of every stat is untested — test added: two seasons' review counts rank 25/75 each, and the same tier held in both seasons ranks each alone at 50.
+  - `[low]` `[reject]` (intent) carried — The block follows the whole facts list, not the ÉDITIONS row.
+  - `[medium]` `[patch]` (intent) A signed-in player who does not hold the card is not tested — same root cause as the verification-gap row; its new test signs in a player holding nothing.
+  - `[false]` `[reject]` (intent) carried — Release raw value as a full date vs the Copy deck's year — board 9 draws the date; "No value" stays a recorded assumption.
+  - `[false]` `[reject]` (intent) carried — Ranked population and raw Catalog SQL from Game.
+  - `[false]` `[reject]` (intent) The helper's `100 - percentile` breaks "nothing else computes a percentile" — it names the stored percentile from the card's stronger side, as the intent asks; no percentile is derived from data.
+  - `[low]` `[reject]` (edge-case) carried — Two web containers booting together both run "first" — production and staging each have one web host, and the import role runs `bin/jobs`, which skips the entrypoint's steps; the lock would serialise them anyway.
+  - `[false]` `[reject]` (edge-case) The trump raises when every percentile is nil — `catalog_card_seasons.rating` and `catalog_cards.release_date` are NOT NULL, so every row has a rating and a release percentile.
+  - `[low]` `[reject]` (edge-case) The advisory lock has no timeout — a waiting run holds a job thread only while another run lasts (seconds, a few triggers a week at most); a timeout adds a failure path for no seen harm.
+  - `[low]` `[reject]` (edge-case) A Monday run that fails on a transient error is not retried — no recurring job of the app retries; the failure lands in Solid Queue's failed jobs and Sentry, and a rerun with "weekly" recovers it.
+  - `[low]` `[reject]` (edge-case) carried — With no published season, each boot reruns a zero-row "first" run.
+  - `[low]` `[patch]` (blind-hunter) The job defaults to "weekly", so a call without a reason would rotate the weekly percentiles mid-week — the default is removed; a job without a reason raises and computes nothing (test).
+  - `[low]` `[reject]` (blind-hunter) A second weekly run in one week makes the comparison zero — only an operator's manual rerun reaches it (recurring tasks run once per slot, a failed run rolls back); guarding it needs stored rotation state.
+  - `[low]` `[reject]` (blind-hunter) A failed or slow first computation blocks the deploy — the intent puts the first run in the entrypoint beside the achievement backfill; a failure stops only the new container while the version before keeps serving, as RELEASING.md says of every boot step. The cost is now measured and documented (orchestrator row below).
+  - `[low]` `[patch]` (blind-hunter) Explanatory comments in new Ruby files go against the no-comments policy — removed from `DuelRanking`, `DuelStat`, `DuelStatRows`, `ComputeDuelStats`, `DuelMeasures`, `DuelProfiles` and `DuelProfileHelper`; `DuelRanking#percentile` renamed `midrank_percentile`. CSS section headers kept, as most stylesheets carry one.
+  - `[low]` `[patch]` (blind-hunter) `DuelStat::DIRECTIONS` is read by nothing — deleted.
+  - `[false]` `[reject]` (blind-hunter) A lone or two-card group gives misleading words and trumps — the midrank of duel-rules gives a lone entry 50 and ranks circulation among held editions of a tier; no minimum group size exists in the rules.
+  - `[medium]` `[patch]` (blind-hunter) The partial's no-value branch and French render are untested — same root cause as the verification-gap row; the new test covers both.
+  - `[low]` `[reject]` (blind-hunter) The day-format rule is copied a fifth time and the system test rebuilds it — extracting one helper touches four unrelated helpers; no user harm.
+  - `[low]` `[patch]` (blind-hunter) The rotation test sets the same row twice — the first `update_all` deleted.
+  - `[false]` `[reject]` (blind-hunter) `COUNT(DISTINCT player_id)` is roundabout and reserved copies count — the count is correct whatever the index; a player whose copies are reserved still holds them ("positive quantity").
+  - `[low]` `[reject]` (blind-hunter) "Values of %{date}" and the unknown-reason error read awkwardly — "Values of <date>" is the Copy deck's; the error is never shown to a player (the job raises).
+  - `[false]` `[reject]` (blind-hunter) The event should carry `computed_at` against a race — handlers run inside the operation's transaction, so a subscriber reads the rows that run just wrote; the event's data stays as the parallel feed story expects.
+  - `[low]` `[patch]` (orchestrator) The first deploy's computation was untimed on production-sized data — timed (see measured above): about 4 s and 50 MB per season of 12,500 cards, inside Kamal's 30-second `deploy_timeout` beside the other boot steps; RELEASING.md now lists every boot step, says the duel profiles are computed only while the table is empty and what that costs, and its acceptance list asks to note the boot time of the first release that computes them.
+  - `[low]` `[patch]` (orchestrator) Banned players' holdings count toward circulation — every other player count of the Brotherhood keeps to players in good standing (`Accounts::Player.in_good_standing`: fortunes, reactions, trades, friends); the holders subquery now does too, deleted players included (test).
+  - `[low]` `[reject]` (orchestrator) Two containers booting at once on an empty table — same claim as the carried edge-case row: one web host per environment.
+  - `[low]` `[defer]` (orchestrator) After a mid-week season run, the next Monday compares with the season run's values — real: the row keeps one previous set, and the season run has replaced it. The fix needs a second stored set of percentiles or a season run that keeps already-ranked rows, a choice the intent does not settle; deferred to `deferred-work.md` for the Monday feed entry story, which reads these percentiles first.
+
 ## Design Notes
 
 DUEL block (DESIGN.md Duels › Duel profile; mock board 9): a `<section class="duel-profile" aria-labelledby=…>` after the facts, background `--color-panel-sunken` like the fact rows; heading "Duel" in the fact label style (muted, uppercase via CSS). Five rows in STATS order, each: line 1 the stat name (muted) and, for the trump, a tag "Atout" (uppercase by CSS, 1px `--color-capsule-duel` outline, `--color-capsule-duel` text) — left; the raw value — right, in `--color-text`. Line 2: `<progress class="duel-profile__bar" max="100" value="<percentile>" aria-hidden="true">`, 8px, track `--color-panel-raised` with 1px `--color-line-deep` edge, fill `--color-accent`, the trump's fill `--color-text-max`. Line 3: the words in `--color-text` (trump row `--color-text-max`). Last line "Valeurs du <date>" muted, date of `computed_at` in words as the pioneer date (`card_details.pioneer.dated` pattern, `:long_day` / `:long_day_first`). A stat with no value: name, no bar, "Aucune valeur" / "No value" in place of words and raw value (assumption: no copy exists for it).
@@ -232,3 +275,35 @@ Rotation reading: "last weekly percentiles" are what the arrows and the Monday e
 - On the card detail, a stat with no value reads "No value" / "Aucune valeur". This copy is an assumption, not in the Copy deck.
 - Banned players' holdings count toward circulation.
 - The local development database needs `bin/rails db:migrate`, and its earlier migration error must be fixed first.
+
+### Follow-up review (2026-11-15)
+
+**Summary:** a second, thorough review of the built change. It fixed one medium problem and seven low ones, deferred one, and timed the first deploy's computation.
+
+**Files changed**
+- `app/domains/game/app/queries/game/duel_measures.rb`: circulation counts only holders in good standing.
+- `app/domains/game/app/jobs/game/compute_duel_stats_job.rb`: the reason is required.
+- `app/domains/game/app/models/game/duel_ranking.rb`, `duel_stat.rb`, `duel_stat_rows.rb`, `operations/game/compute_duel_stats.rb`, `queries/game/duel_profiles.rb`, `app/helpers/duel_profile_helper.rb`: the explanatory comments are gone, `midrank_percentile` is named, and the unused `DIRECTIONS` constant is deleted.
+- `RELEASING.md`: lists every boot step and the first duel computation's cost, and adds a staging acceptance line for it.
+- Tests: in `test/controllers/cards_controller_test.rb`, a non-holder's DUEL block, with a stat that has no value and the French copy. In `test/domains/game/compute_duel_stats_test.rb`, banned and deleted holders, and two published seasons ranked apart; a redundant line is gone. In `test/domains/game/compute_duel_stats_job_test.rb`, the job's required reason.
+
+**Review:** 31 findings: 27 from the lenses and 4 concerns left open by the first pass. 3 medium rows (one root cause), 20 low, 8 false. Eight rows are carried from the first pass.
+- Patches applied:
+  - medium 1: an untested no-value branch, French render and non-holder viewer;
+  - low 7: banned and deleted holders, the job's default reason, comments, the dead constant, the redundant test line, the two-season test, and the boot cost documentation.
+- Deferred: the comparison base of the Monday after a mid-week season run.
+- Rejected: the rest, each with its reason in the triage log.
+
+**Follow-up review recommended:** false. This was a follow-up pass and it patched no high finding; patched counts: high 0, medium 1, low 7.
+
+**Verification:**
+- `bin/rails test test/domains/game test/config test/controllers test/helpers`: 3666 runs, 1 failure. The failure is the known `library_controller_test.rb:119`, already deferred.
+- System tests `card_duel_profile`, `card_detail` and `card_average_price`: 9 runs, 0 failures.
+- `npm run test:js`: 1388 passed.
+- Rubocop, `bundle exec packwerk check`, brakeman, `bin/rails zeitwerk:check`, `i18n-tasks missing`, `script/check_planning_references` and `script/check_file_sizes`: all green.
+- The new banned-holder test fails without the measure change.
+- `bin/ci` was not run, because its setup step uses the development database.
+
+**Residual risks:**
+- The first deploy's timing was measured on a development machine, not on the production host. The staging acceptance line records the real boot time.
+- The mid-week season run comparison is deferred, as above.

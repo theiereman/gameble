@@ -661,6 +661,9 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-every-card-s-detail-shows-its-duel-profile-recomputed-each-m-plan.md`
   summary: `LibraryControllerTest` "a player sees their unique cards…" fails on develop: it still expects the all-seasons rarity legend figure ("3 / 155") that the shell commit dropping the all-seasons column removed.
   evidence: `test/controllers/library_controller_test.rb:119`, Expected ["3 / 150", "3 / 155"], Actual ["3 / 150"]; the commit `f22bf3b7` changed the legend and its shell and booster tests but not this one; unrelated to the duel stats.
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-every-card-s-detail-shows-its-duel-profile-recomputed-each-m-plan.md`
+  summary: After a season publication between two Mondays, the next Monday's last weekly percentiles are the season run's values, not the previous Monday's, so the Monday feed entry and the editor's arrows miss what moved between that Monday and the publication.
+  evidence: a `first` or `weekly` run copies the row's current percentiles into the weekly ones (`Game::DuelStatRows#weekly_percentiles`), and a `season` run has already replaced those current percentiles; the row keeps one previous set only. Two ways out, an author's choice: a second set of stored percentiles (the last weekly run's), or a season run that keeps the rows of card-seasons already ranked and ranks only the new season (groups are per season, so the old rows stay consistent). The Monday feed entry story reads these percentiles first; it bites from the first season published after the duel stats ship.
 
 ## Deferred from: build of story-a-player-builds-a-deck-of-twelve-cards-in-the-deck-editor-plan (2026-11-15)
 

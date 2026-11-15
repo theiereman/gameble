@@ -113,6 +113,32 @@ class Game::ComputeDuelStatsTest < ActiveSupport::TestCase
     assert_nil row(emptied).circulation_percentile
   end
 
+  test "a banned or deleted player holds nothing toward circulation" do
+    held, = published_card_seasons(1)
+    hold(accounts_players(:player), held)
+    hold(accounts_players(:banned), held)
+    deleted = accounts_players(:moderator)
+    hold(deleted, held)
+    deleted.update_columns(deleted_at: 1.day.ago, steam_id: nil)
+
+    compute
+
+    assert_equal 1, row(held).circulation_value
+  end
+
+  test "each season ranks its own editions, the same tier of two seasons apart" do
+    first_season = published_card_seasons(2, review_counts: [ 10, 20 ])
+    second_season = published_card_seasons(2, review_counts: [ 30, 40 ])
+    hold(accounts_players(:player), first_season.first)
+    hold(accounts_players(:player), second_season.first)
+    hold(accounts_players(:moderator), second_season.first)
+
+    compute
+
+    assert_equal [ 25.0, 75.0, 25.0, 75.0 ], column(first_season + second_season, :popularity_percentile).map(&:to_f)
+    assert_equal [ 50.0, 50.0 ], column([ first_season.first, second_season.first ], :circulation_percentile).map(&:to_f)
+  end
+
   test "an unrated card-season, a draft season's and nobody's review count give no row or no popularity" do
     rated, unrated = published_card_seasons(2, review_counts: [ 10, nil ])
     Catalog::CardSeason.where(id: unrated).update_all(rarity: nil)
@@ -162,7 +188,6 @@ class Game::ComputeDuelStatsTest < ActiveSupport::TestCase
   test "a weekly or first run keeps the previous percentiles as the last weekly ones; a season run keeps the last weekly ones" do
     ids = published_card_seasons(2, review_counts: [ 10, 40 ])
     compute
-    Game::DuelStat.where(card_season_id: ids.last).update_all(popularity_percentile: 40.0, popularity_weekly_percentile: 30.0)
 
     { "season" => 30.0, "weekly" => 40.0, "first" => 40.0 }.each do |reason, weekly|
       Game::DuelStat.where(card_season_id: ids.last).update_all(popularity_percentile: 40.0, popularity_weekly_percentile: 30.0)

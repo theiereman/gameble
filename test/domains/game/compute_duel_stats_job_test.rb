@@ -13,18 +13,20 @@ class Game::ComputeDuelStatsJobTest < ActiveSupport::TestCase
 
   def duel_events = Rails.configuration.event_store.read.stream(Game::DuelStatsComputed::STREAM).to_a
 
-  test "the job queues on default and runs a weekly computation unless told otherwise" do
+  test "the job queues on default and runs the computation for the reason it is given" do
     assert_equal "default", Game::ComputeDuelStatsJob.new.queue_name
 
-    Game::ComputeDuelStatsJob.perform_now
+    Game::ComputeDuelStatsJob.perform_now("weekly")
     Game::ComputeDuelStatsJob.perform_now("season")
 
     assert_equal 5, Game::DuelStat.count
     assert_equal [ { reason: "weekly" }, { reason: "season" } ], duel_events.map(&:data)
   end
 
-  test "an unknown reason makes the job fail" do
+  test "an unknown reason makes the job fail, and a job without a reason does not run" do
     assert_raises(Dry::Monads::UnwrapError) { Game::ComputeDuelStatsJob.perform_now("monthly") }
+    assert_raises(ArgumentError) { Game::ComputeDuelStatsJob.perform_now }
+    assert_equal 0, Game::DuelStat.count
   end
 
   test "publishing a season enqueues a season computation once the publication commits" do

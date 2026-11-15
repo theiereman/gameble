@@ -1,6 +1,4 @@
 module Game
-  # The game_duel_stats rows of one computation: each measured card-season ranked in every stat it has a value for, its trump,
-  # and its last weekly percentiles carried over from the row it held before.
   class DuelStatRows
     Stat = Data.define(:value, :group, :key, :measure)
 
@@ -17,7 +15,6 @@ module Game
         measure: ->(m) { m.holders })
     }.freeze
 
-    # `previous`: card_season_id => { percentiles: { stat => p }, weekly: { stat => p } } of the rows before this computation.
     def initialize(measures, previous:, reason:, now:)
       @measures = measures
       @previous = previous

@@ -1,6 +1,4 @@
 module DuelProfileHelper
-  # The stronger side of a stat in words: "More obscure than 88% of cards" rather than "More popular than 12%"; never "than 100%",
-  # as the card is one of the cards.
   def duel_stat_words(stat, rarity:)
     high = stat.percentile >= 50
     percent = number_to_percentage((high ? stat.percentile : 100 - stat.percentile).round.clamp(0, 99), precision: 0)

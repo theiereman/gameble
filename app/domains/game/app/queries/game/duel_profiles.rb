@@ -1,5 +1,4 @@
 module Game
-  # The duel profiles of card-seasons, stats in their fixed order: the one reader of game_duel_stats.
   module DuelProfiles
     Stat = Data.define(:name, :value, :percentile, :median_distance, :weekly_percentile) do
       def value? = !value.nil?

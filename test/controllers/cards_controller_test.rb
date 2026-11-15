@@ -1348,4 +1348,31 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :en, slug: "portal")
     assert_select ".card-detail__market", false
   end
+
+  test "a card nobody holds shows its duel profile to a player who does not hold it, a stat without a value named so with no bar or words" do
+    Game::ComputeDuelStats.new.call(reason: "first").value!
+    sign_in_viewer
+
+    get card_path(locale: :en, slug: "portal")
+
+    assert_select ".card-detail__facts + .duel-profile"
+    assert_select ".duel-profile__stat", count: 5
+    assert_select ".duel-profile__stat--trump .duel-profile__trump", text: "Trump", count: 1
+    assert_select ".duel-profile__stat:nth-child(1)" do
+      assert_select ".duel-profile__name", text: /Popularity/
+      assert_select ".duel-profile__value", text: "No value"
+      assert_select "progress, .duel-profile__words", count: 0
+    end
+    assert_select ".duel-profile__stat:nth-child(2)" do
+      assert_select "progress.duel-profile__bar[aria-hidden=true]"
+      assert_select ".duel-profile__words", text: /rated than/
+    end
+
+    get card_path(locale: :fr, slug: "portal")
+
+    assert_select ".duel-profile__heading", text: "Duel"
+    assert_select ".duel-profile__trump", text: "Atout", count: 1
+    assert_select ".duel-profile__stat:nth-child(5) .duel-profile__value", text: "Aucune valeur"
+    assert_select ".duel-profile__dated", text: /\AValeurs du /
+  end
 end

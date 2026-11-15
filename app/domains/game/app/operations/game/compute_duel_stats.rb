@@ -1,6 +1,4 @@
 module Game
-  # Replaces every duel profile at once, under a lock so two computations never overlap: on the first deploy, when a season
-  # is published and every Monday.
   class ComputeDuelStats < ApplicationOperation
     LOCK_KEY = 0x4455454C
     BATCH_SIZE = 1_000

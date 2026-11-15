@@ -1,6 +1,4 @@
 module Game
-  # What the duel stats rank, for every rated card-season of a published season: its Steam reviews and whole percent, its
-  # game's release date, its first discovery and the number of players holding it (Archives deposits are no holdings).
   module DuelMeasures
     Measure = Data.define(:card_season_id, :season_id, :rarity, :review_count, :rating, :release_date, :discovered_at, :holders)
 
@@ -15,7 +13,7 @@ module Game
         LEFT JOIN (
           SELECT card_season_id, COUNT(DISTINCT player_id) AS count
             FROM game_holdings
-           WHERE quantity > 0
+           WHERE quantity > 0 AND player_id IN (%<players_in_good_standing>s)
            GROUP BY card_season_id
         ) holders ON holders.card_season_id = catalog_card_seasons.id
        WHERE catalog_card_seasons.rarity IS NOT NULL
@@ -23,7 +21,8 @@ module Game
     SQL
 
     def self.call
-      DuelStat.connection.select_all(SQL, "Game::DuelMeasures").cast_values.map { Measure.new(*it) }
+      sql = format(SQL, players_in_good_standing: Accounts::Player.in_good_standing.select(:id).to_sql)
+      DuelStat.connection.select_all(sql, "Game::DuelMeasures").cast_values.map { Measure.new(*it) }
     end
   end
 end
