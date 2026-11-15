@@ -2645,6 +2645,11 @@ fr:
           other: "%{count} exemplaires dans votre collection"
         wanted: "Voulue"
         wanted_spoken: "manque à vos objectifs"
+      stand:
+        leading_amount: "max"
+        leading_spoken: "vous êtes en tête avec un maximum de %{amount}"
+        outbid_amount: "mini"
+        outbid_spoken: "votre offre est dépassée, offre minimale %{amount}"
     time_left:
       hours: "%{hours} h %{minutes}"
       minutes: "%{minutes} min"
