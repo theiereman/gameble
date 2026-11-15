@@ -118,7 +118,7 @@ group :development, :test do
   gem "packwerk", "~> 3.3.1", require: false
 
   # Find missing translations [https://github.com/glebm/i18n-tasks]
-  gem "i18n-tasks", "~> 1.1.2", require: false
+  gem "i18n-tasks", "~> 1.2.0", require: false
 end
 
 group :development do
