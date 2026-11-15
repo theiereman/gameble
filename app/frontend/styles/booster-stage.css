@@ -1,0 +1,284 @@
+/*
+ * The stage's floor and the opened capsule's card badges. The floor is a grid drawn on a canvas
+ * (stage-grid) that bulges softly away from a mouse; the CSS background is the same floor, flat,
+ * for the first frame. Idle, the sealed canister hums: its LEDs chase, its hazard band scrolls.
+ */
+
+.booster__stage {
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 480px;
+  background:
+    radial-gradient(
+      ellipse 55% 45% at 50% 38%,
+      color-mix(in srgb, var(--color-accent) 20%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 70% 30% at 50% 100%,
+      color-mix(in srgb, var(--color-lime) 10%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, color-mix(in srgb, var(--color-line) 55%, transparent) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(180deg, var(--color-panel-raised), var(--color-backdrop));
+  box-shadow: var(--panel-soft-border);
+}
+
+.booster__grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.booster__stage:has(.booster__grid) {
+  background: linear-gradient(180deg, var(--color-panel-raised), var(--color-backdrop));
+}
+
+.booster__stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  box-shadow: inset 0 0 80px var(--color-backdrop);
+  pointer-events: none;
+}
+
+.booster[data-layout="phone"] .booster__stage {
+  min-height: 360px;
+}
+
+/* ---- The dealt row: three cards, then two ---- */
+
+.booster__deal-area {
+  padding-top: var(--space-8);
+}
+
+.booster__deal {
+  max-width: calc(3 * var(--card-m-width) + 2 * var(--space-deal-gap-max));
+}
+
+@media (max-width: 1259px) {
+  .booster__deal {
+    max-width: calc(3 * var(--card-m-width) + 2 * var(--space-deal-gap-min));
+  }
+}
+
+.booster[data-layout="narrow"] .booster__deal {
+  max-width: calc(3 * var(--card-s-width) + 2 * var(--space-deal-gap-min));
+}
+
+/* ---- A revealed card's badges: its rarity, then repost and share ---- */
+
+.booster-card__badges {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+}
+
+.booster-card[data-revealed] .booster-card__rarity {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 20px;
+  padding: 0 calc(3 * var(--space-unit));
+  background: color-mix(in srgb, currentcolor 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentcolor 50%, transparent);
+  cursor: help;
+}
+
+.booster-card__rarity .booster-card__label-icon {
+  width: 12px;
+  height: 12px;
+  filter: none;
+}
+
+.booster-card__action {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: color-mix(in srgb, currentcolor 10%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentcolor 45%, transparent);
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.booster-card__action:hover,
+.booster-card__action:focus-visible {
+  background: color-mix(in srgb, currentcolor 22%, transparent);
+  color: var(--color-accent-hi);
+}
+
+.booster-card__action:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.booster-card__action-icon {
+  width: 10px;
+  height: auto;
+}
+
+.booster-card:not([data-revealed]) .booster-card__action {
+  visibility: hidden;
+}
+
+/* A badge's name on hover or focus: a small bubble above it, over the neighbouring cards. */
+.booster-card:has(.booster-card__badges:hover, .booster-card__action:focus-visible) {
+  z-index: 10;
+}
+
+.booster-card__rarity,
+.booster-card__action {
+  position: relative;
+}
+
+.booster-card__rarity[data-tip]::after,
+.booster-card__action[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  z-index: 5;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-panel-raised);
+  box-shadow:
+    inset 0 0 0 1px var(--color-line),
+    0 4px 0 var(--color-outline);
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: none;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity 120ms,
+    transform 120ms;
+}
+
+.booster-card[data-revealed] .booster-card__rarity:hover::after,
+.booster-card__action:is(:hover, :focus-visible)::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---- The sealed canister, idle: a chase of LEDs, a scrolling hazard band, a hum every five seconds ---- */
+
+@keyframes booster-led-chase {
+  0%,
+  45%,
+  100% {
+    opacity: 0.3;
+  }
+
+  8%,
+  28% {
+    opacity: 1;
+    box-shadow: 0 0 6px currentcolor;
+  }
+}
+
+@keyframes booster-cap-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes booster-hazard-scroll {
+  to {
+    background-position: 16.97px 0;
+  }
+}
+
+@keyframes booster-hum {
+  0%,
+  88%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  90% {
+    transform: translate(-1px, 0);
+  }
+
+  92% {
+    transform: translate(1px, -1px);
+  }
+
+  94% {
+    transform: translate(-1px, 0);
+  }
+}
+
+@keyframes booster-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+
+  50% {
+    filter: drop-shadow(0 0 14px color-mix(in srgb, var(--color-accent) 35%, transparent));
+  }
+}
+
+.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister__led {
+  color: var(--color-accent);
+  animation: booster-led-chase 1.8s steps(1) infinite;
+}
+
+.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister__led--2 {
+  animation-delay: 300ms;
+}
+
+.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister__led--3 {
+  animation-delay: 600ms;
+}
+
+.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister__led--cap {
+  animation: booster-cap-blink 1.4s infinite;
+}
+
+.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister__hazard {
+  animation: booster-hazard-scroll 1.6s steps(8) infinite;
+}
+
+.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister__move {
+  animation: booster-hum 5s steps(1) infinite;
+}
+
+.booster-canister__wrap:not([data-busy], [data-armed]) .booster-canister {
+  animation: booster-glow 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"])
+    .booster-canister__wrap
+    :is(.booster-canister, .booster-canister__move, .booster-canister__led, .booster-canister__hazard) {
+    animation: none;
+  }
+}
+
+html[data-motion="reduced"]
+  .booster-canister__wrap
+  :is(.booster-canister, .booster-canister__move, .booster-canister__led, .booster-canister__hazard) {
+  animation: none;
+}

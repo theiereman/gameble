@@ -6,12 +6,10 @@ import {
   REVEAL_GUARD,
   type Activation,
   type BoosterState,
-  type BoosterStatus,
   type Controls,
   type Hint,
   type Layout,
   type OpenVariant,
-  type StatusTone,
 } from "./booster_types"
 
 export const nextCapsuleSize = ({ bank, reserve }: BoosterState): number | null =>
@@ -81,12 +79,6 @@ export function activation(state: BoosterState, index: number, now: number, last
   return at !== undefined && now - at >= REVEAL_GUARD ? "leave" : "none"
 }
 
-function toneOf(status: BoosterStatus): StatusTone {
-  if (status === "arming" || status === "ejecting") return "alert"
-  if (status === "legendarySignal") return "gold"
-  return status === "complete" ? "done" : "rest"
-}
-
 function hintOf(state: BoosterState, total: number, revealedCount: number, top: number | null): Hint {
   if (state.layout === "phone") {
     if (top === null) return { kind: "done", count: total }
@@ -116,7 +108,6 @@ export function controls(state: BoosterState): Controls {
     openDisabled: reserveEmpty || (state.phase === "dealt" && !everyRevealed),
     busy: state.phase === "opening" || state.revealingAll || isLocked || state.storing,
     revealAllDisabled: !handOnTable || everyRevealed || state.revealingAll || state.storing || state.legendary !== null,
-    tone: toneOf(state.status),
     hint: handOnTable ? hintOf(state, total, revealedCount, top) : null,
     storedCount: state.stored.filter(Boolean).length,
     top,

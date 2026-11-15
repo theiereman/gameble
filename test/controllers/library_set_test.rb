@@ -69,7 +69,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select "p.top-bar__title", "Collection"
     assert_select "header.top-bar[data-screen-label=Set] .top-bar__start > a.top-bar__previous[data-controller=previous-screen]"
     assert_select ".top-bar__start.top-bar__start--phone-back > a.top-bar__phone-back[href='/en/library']", /Sets/
-    assert_select ".collection-status__value", "6 / 150"
+    assert_select ".top-bar .collection-status", false
     assert_select ".set-album__kind, .set-album__facts, .set-album__gauge", false
     assert_equal [ "set-album__name", "set-album__count", "set-album__actions" ], title_line
     assert_equal "6/16", count
@@ -350,16 +350,16 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     # unique cards, season's cards, rarity legend and its copies; the tab
     # bar's trades and invitations waiting; the themes' names; the player's
     # goals.
-    assert_request_queries(21) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
+    assert_request_queries(23) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
     assert_response :success
     assert_select ".set-album__grid > li", 60
     assert_select ".collection-pages"
     assert_equal "400/752", count
 
-    assert_request_queries(21) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
+    assert_request_queries(23) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
     assert_equal "1/3", count
 
-    assert_request_queries(20) { get library_set_path(locale: :en, kind: "theme", key: "roguelike", state: [ "missing" ], rarity: [ "common" ], q: "seed") }
+    assert_request_queries(22) { get library_set_path(locale: :en, kind: "theme", key: "roguelike", state: [ "missing" ], rarity: [ "common" ], q: "seed") }
     assert_response :success
     assert_select ".set-album__grid > li", 60
     assert_equal "400/752", count

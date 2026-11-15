@@ -72,7 +72,7 @@ class Market::MyBidsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".market-row__fact dt", text: "My maximum", count: 3
     assert_select ".market-row__fact dd .picoin-amount[aria-label=?]", "30,000 PiCoins"
     assert_select ".market-row__fact dd .picoin-amount[aria-label=?]", "40,000 PiCoins"
-    assert_select ".market-screen__chip--current[aria-current=page]", /\AMY BIDS/
+    assert_select ".tabs__tab--current[aria-current=page]", /\AMY BIDS/
     assert_no_match(/90,000|90000/, response.body)
   end
 
@@ -119,12 +119,12 @@ class Market::MyBidsControllerTest < ActionDispatch::IntegrationTest
 
   test "the chips on the market screen include MES ENCHÈRES, greyed for a visitor and a link for a player" do
     get market_path(locale: :en)
-    assert_select "span.market-screen__chip--disabled[aria-disabled=true]", "MY BIDS"
+    assert_select "span.tabs__tab--disabled[aria-disabled=true]", "MY BIDS"
 
     sign_in(@bidder)
     get market_path(locale: :en)
-    assert_select "a.market-screen__chip[href=?]", market_my_bids_path(locale: :en), "MY BIDS"
-    assert_equal %w[LISTINGS MY\ BIDS MY\ SALES], css_select(".market-screen__chips .market-screen__chip").map { it.text.strip }
+    assert_select "a.tabs__tab[href=?]", market_my_bids_path(locale: :en), "MY BIDS"
+    assert_equal %w[LISTINGS MY\ BIDS MY\ SALES], css_select(".market-screen__chips .tabs__tab").map { it.text.strip }
   end
 
   test "a GET writes nothing, and no database id, leader maximum or style attribute is in the page" do

@@ -7,7 +7,7 @@
   <h1 id="friends-heading" class="visually-hidden"><%= t(".title") %></h1>
   <div class="friends__layout">
     <div class="friends__side">
-      <%= render "friends/invite", friend_code: @friend_code, invite_url: %>
+      <%= render("friends/invite", friend_code: @friend_code, invite_url:) %>
 
       <%= render PanelComponent.new(tag: :section, class: "friends__invitations", aria: { labelledby: "friends-invitations-heading" }) do %>
         <h2 id="friends-invitations-heading" class="friends__heading"><%= t(".invitations") %></h2>
@@ -30,8 +30,7 @@
                 <span class="friends__who"><%= t(".sent_to", name: invited) %></span>
                 <span class="friends__actions">
                   <span class="friends__chip"><%= t(".pending") %></span>
-                  <%= render ButtonComponent.new(variant: :secondary, href: cancel_invitation_path(token: invitation.token), method: :post, size: :small,
-                        aria_label: t(".cancel_invitation_to", name: invited)) do %><%= t(".cancel") %><% end %>
+                  <%= render ButtonComponent.new(variant: :secondary, href: cancel_invitation_path(token: invitation.token), method: :post, size: :small, aria_label: t(".cancel_invitation_to", name: invited)) do %><%= t(".cancel") %><% end %>
                 </span>
               </li>
             <% end %>

@@ -61,7 +61,7 @@ class BoosterRevealModeTest < ApplicationSystemTestCase
 
   def assert_dealt(count)
     assert_selector ".booster-card[data-dealt]", count:, wait: 10
-    assert_selector ".booster__state", text: /\AINVENTORY\z/
+    assert_selector "#booster[data-status=inventory]"
   end
 
   def assert_reveal_mode(mode)

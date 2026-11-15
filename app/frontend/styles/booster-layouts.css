@@ -9,19 +9,21 @@
 /* ---- Narrower widths: the info panels above the stage, in a wrapping row ---- */
 
 @media (max-width: 1259px) {
-  .booster {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-8);
+  .booster__body {
+    grid-template: auto / minmax(0, 1fr);
+  }
+
+  .booster__body > :is(.booster__info, .booster-daily, .booster__stage) {
+    grid-area: auto;
   }
 
   .booster__info {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-start;
-    gap: var(--space-7) var(--space-8);
+    gap: var(--space-5) var(--space-8);
   }
 
-  .booster__hazard,
   .booster-celebration {
     flex: 1 1 100%;
   }
@@ -31,14 +33,8 @@
     flex: 1 1 200px;
   }
 
-  .booster__panel,
   .booster__actions {
     flex: 1 1 260px;
-  }
-
-  .booster__title {
-    font-size: 1.625rem;
-    line-height: 1.875rem;
   }
 
   .booster__deal {
@@ -77,16 +73,14 @@
     .booster__canister-facts,
     .booster__canister-hint-touch
   ),
-.booster[data-layout="phone"]
-  :is(.booster__info, .booster__result, .booster__deal-area, .booster__canister-hint-click) {
+.booster[data-layout="phone"] :is(.booster__info, .booster__deal-area, .booster__canister-hint-click) {
   display: none;
 }
 
 /* ---- The phone (under 720px): strip, pile, plate, tray, actions ---- */
 
-.booster[data-layout="phone"] {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0;
+.booster[data-layout="phone"] .booster-daily {
+  order: -1;
 }
 
 /* The information strip: 44px, the kicker, mini pips and countdown, the status chip. */
@@ -139,27 +133,10 @@
   height: 8px;
 }
 
-.booster-strip__state {
-  flex: none;
-  min-height: 32px;
-  margin: 0;
-  padding: 0 10px;
-  background: var(--color-panel-sunken);
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
-  font: var(--font-label);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
 /* The stage: the pile over the plate band and the tray; the canister
    (or the empty reserve) across the whole stage. A short screen scrolls. */
 .booster[data-layout="phone"] .booster__stage {
   min-height: 474px;
-}
-
-.booster[data-layout="phone"] .booster-reserves__tab {
-  min-height: 36px;
-  padding: 0 var(--space-4);
 }
 
 .booster[data-layout="phone"] .booster__shake {

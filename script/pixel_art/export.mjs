@@ -451,6 +451,31 @@ const ICONS = {
       "c.....c",
     ],
   },
+  // ↪ repost into the feed
+  repost: {
+    grid: [
+      ".....c..",
+      ".....cc.",
+      "..cccccc",
+      ".c...cc.",
+      "c....c..",
+      "c.......",
+      "c.......",
+    ],
+  },
+  // ⇪ share a link
+  share: {
+    grid: [
+      "...cc...",
+      "..cccc..",
+      "...cc...",
+      "...cc...",
+      "cc.cc.cc",
+      "cc....cc",
+      "cc....cc",
+      "cccccccc",
+    ],
+  },
   // ⋯ more actions
   more: {
     grid: [
@@ -1741,6 +1766,8 @@ const DESCRIPTIONS = {
   "close.svg": "✕ close and remove (text colour)",
   "check.svg": "✓ check mark (text colour)",
   "plus.svg": "+ add mark, the new set tile's, 8 × 8 (text colour)",
+  "repost.svg": "↪ repost into the feed, the opened capsule's card badge, 8 × 7 (text colour)",
+  "share.svg": "⇪ share a link, the opened capsule's card badge, 8 × 8 (text colour)",
   "more.svg": "⋯ more actions, the menu of a row's rarer actions (text colour)",
   "info.svg": "An \"i\" in a rounded frame, the info mark beside a heading, 9 × 9 (text colour)",
   "rank-novice.svg": "Novice rank mark: one chevron, 9 × 5 (text colour)",

@@ -107,7 +107,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
       %w[available reserveFull nextAvailableAt serverTime nextPackSize].map { bank_value(it) }
     BoostersHelper::BOOSTER_ACTIONS.each do |child, events|
       events.each { |event, method| assert_includes root["data-action"].split, "#{child}:#{event}->booster##{method}" }
-      assert_select "#{ROOT} [data-controller=#{child}]"
+      assert_select "#{ROOT} [data-controller~=#{child}]"
       assert_equal "#booster [data-controller~='#{child}']", root["data-booster-#{child}-outlet"]
     end
     assert_select "#{ROOT} [data-controller=booster-info]", 2
@@ -116,16 +116,16 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_select "#{ROOT} [data-controller=booster-celebration]", 2
     assert_select "#{ROOT} template[data-booster-target=pack]", 0
 
-    # The panel and the strip: the season, the title, the reserve and every state word.
+    # The panel and the strip: the season and the capsule's size, the title and the reserve.
     assert_select "#{ROOT} .booster__info" do
-      assert_select ".booster__kicker", "Capsule · Season 1"
+      assert_select ".booster__kicker", "Capsule · Season 1 · 5 cards"
+      assert_select ".booster__kicker [data-booster-info-target=size]", "5"
       assert_select "h2#booster-panel-title", "Grand catalogue"
-      assert_select ".booster__value", "5"
-      assert_select ".booster__value--reserve", "9 capsules"
+      assert_select ".booster__count", "9"
+      assert_select ".booster__unit", "capsules in reserve"
       assert_select ".booster__pip", 10
       assert_select ".booster__pip[data-lit]", 9
-      assert_select ".booster__state-word span[data-status]", 7
-      assert_select ".booster__state-word span[data-status=legendarySignal]", "Legendary signal"
+      assert_select ".booster__state-word", 0
     end
     assert_select "#{ROOT} .booster-strip h2#booster-title", "Season 1 · Grand catalogue"
     assert_select "#{ROOT} .booster__actions button.booster__open", "Open the capsuleOpen the next oneReserve emptySkip"
@@ -178,7 +178,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
 
     # The run-time templates, each a word of booster.strings.
     assert_equal "Card %{position} of %{total}, face down. Reveal.", strings["faceDown"]
-    assert_equal({ "one" => "%{n} capsule", "other" => "%{n} capsules" }, strings["reserveCount"])
+    assert_equal({ "one" => "capsule in reserve", "other" => "capsules in reserve" }, strings["reserveUnit"])
     assert_equal [ "%{tier} TIER", "SET COMPLETE", "Next result" ], strings["celebration"].values_at("tierTitle", "completeTitle", "next")
     assert_equal({ "bronze" => "BRONZE", "silver" => "SILVER", "gold" => "GOLD", "novice" => "NOVICE", "apprentice" => "APPRENTICE",
       "adept" => "ADEPT", "expert" => "EXPERT", "master" => "MASTER", "complete" => "COMPLETE" }, strings.dig("celebration", "tiers"))
@@ -262,7 +262,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal [ "0", "" ], [ value("season"), value("repost-url") ]
-    assert_select "#{ROOT} .booster__kicker", "Capsule"
+    assert_select "#{ROOT} .booster__kicker", "Capsule · 5 cards"
     assert_select "#{ROOT} .booster-strip h2#booster-title", "Grand catalogue"
     canister = Nokogiri::HTML5.fragment(css_select("#{ROOT} template[data-booster-canister-target=canister]").sole.inner_html)
     assert_equal "Open the capsule, grand catalogue, 5 cards", canister.at_css("button.booster-canister")["aria-label"]
@@ -283,7 +283,8 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "\u00A0", value("delimiter")
     assert_select "#{ROOT} .booster__empty:not([hidden]) .booster__empty-title", "Réserve vide"
     assert_select "#{ROOT} button.booster__open", /Ouvrir la capsule.*Réserve vide/
-    assert_select "#{ROOT} .booster__value--reserve", "0 capsule"
+    assert_select "#{ROOT} .booster__count", "0"
+    assert_select "#{ROOT} .booster__unit", "capsule en réserve"
     celebration = strings["celebration"]
     assert_equal [ "PALIER %{tier}", "SET COMPLET", "Résultat suivant", "\u202F; " ], celebration.values_at("tierTitle", "completeTitle", "next", "announceSeparator")
     assert_equal({ "zero" => "%{count} PALIER ATTEINT", "one" => "%{count} PALIER ATTEINT", "other" => "%{count} PALIERS ATTEINTS" }, celebration["folded"])
@@ -307,7 +308,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
 
     get booster_path(locale: :en, reserve: :special)
 
-    assert_select "#{ROOT} .booster__value", "3"
+    assert_select "#{ROOT} .booster__kicker [data-booster-info-target=size]", "3"
     assert_select "#{ROOT} .booster__canister-facts", "3 cards"
   end
 

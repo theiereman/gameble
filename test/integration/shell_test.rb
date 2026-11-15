@@ -79,7 +79,8 @@ class ShellTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:player))
     get invite
     assert_select ".top-bar__start > a.top-bar__home[href='/en'][aria-label=?]", "Gameble, command bridge"
-    assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand"
+    assert_select ".top-bar__start > a.top-bar__bridge[href='/en']"
+    assert_select ".top-bar__start .top-bar__phone-brand", false
   end
 
   test "a visitor's tab bar has two links, the landing and every card, none disabled" do
@@ -206,8 +207,8 @@ class ShellTest < ActionDispatch::IntegrationTest
 
     get library_cards_path(locale: :fr)
 
-    assert_select ".top-bar .rarity-counter", false
-    assert_select ".top-bar__end > button.collection-status[type=button][popovertarget=rarity-legend] + #rarity-legend"
+    assert_select ".top-bar .collection-status", false
+    assert_select ".top-bar__end .rarity-counter button.rarity-counter__button[popovertarget=rarity-legend] + #rarity-legend"
     assert_rarity_legend(names: [ "Commune", "Peu commune", "Rare", "Épique", "Légendaire", "Total" ], locale: :fr)
     assert_equal [ "Rareté", "Cette saison", "Exemplaires" ], css_select("#rarity-legend thead th").map { it.text.strip }
     assert_select "#rarity-legend tbody tr:first-child td .visually-hidden", "1 sur 1 possédée"

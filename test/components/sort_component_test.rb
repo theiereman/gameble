@@ -6,7 +6,7 @@ class SortComponentTest < ViewComponent::TestCase
       options: [ { label: "Ending soon", href: "/ending" }, { label: "Newest", href: "/newest", current: true } ]))
 
     assert_selector "details.sort summary.sort__button", text: "Sort: Newest"
-    assert_selector "nav.sort__menu[aria-label='Sort the listings'] a.sort__option", count: 2
+    assert_selector "nav.sort__menu[aria-label='Sort the listings'] a.sort__option", count: 2, visible: :all
     assert_selector "a.sort__option[aria-current=true][href='/newest']", text: "Newest", visible: :all
   end
 

@@ -81,11 +81,7 @@ class BoosterTest < ApplicationSystemTestCase
 
   def assert_dealt(count)
     assert_selector ".booster-card[data-dealt]", count:, wait: 10
-    assert_selector ".booster__state", text: /\AINVENTORY\z/
-  end
-
-  def state
-    find(".booster__state-word").text
+    assert_selector "#booster[data-status=inventory]"
   end
 
   def assert_announced(text, wait: Capybara.default_max_wait_time)
@@ -203,7 +199,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster-card[data-revealed]", count: 5, wait: 15
     assert_announced "4 cards revealed: Legendary × 1, Rare × 1, Uncommon × 1, Common × 1.", wait: 10
     assert_includes announcements, "Legendary signal"
-    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_selector "#booster[data-status=complete]"
     assert_selector ".booster__hint", text: "Capsule inventoried · +5 cards in the collection"
     assert_selector "#{card(2)} .booster-card__label", text: "LEGENDARY!"
     assert_focus ".booster__open"
@@ -236,7 +232,7 @@ class BoosterTest < ApplicationSystemTestCase
     click_on "Reveal all"
     assert_selector ".booster-card[data-revealed]", count: 5, wait: 10
     # The last reveal over, the button takes activation.
-    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_selector "#booster[data-status=complete]"
     assert_selector ".booster__open:not([disabled]):not([aria-disabled])"
 
     click_on "Open the next one"
@@ -261,7 +257,7 @@ class BoosterTest < ApplicationSystemTestCase
 
     assert_selector ".booster-canister", wait: 15
     assert_button "Open the capsule", disabled: false
-    assert_selector ".booster__state", text: "SEALED"
+    assert_selector "#booster[data-status=sealed]"
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
     assert_selector ".booster[data-kept]"
 
@@ -378,7 +374,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster__reason", text: message
     assert_selector ".toasts .toast--alert", text: /OPENING CANCELLED.*#{Regexp.escape(message)}/m
     assert_announced message
-    assert_selector ".booster__state", text: "WAITING"
+    assert_selector "#booster[data-status=waiting]"
     assert_selector ".booster__empty"
     assert_no_selector ".booster-card"
     assert_button "Reserve empty", disabled: true
@@ -407,7 +403,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster__reason", text: failed
     assert_selector ".toasts .toast--alert", text: failed
     assert_no_selector ".toasts .toast--alert", text: /OPENING CANCELLED/
-    assert_selector ".booster__state", text: "SEALED"
+    assert_selector "#booster[data-status=sealed]"
     assert_no_selector ".booster-card"
     assert_equal 1, opened_packs
 
@@ -440,7 +436,7 @@ class BoosterTest < ApplicationSystemTestCase
   # The phone's pile dealt: every card at card-xl, the first on top with the focus.
   def assert_pile(count)
     assert_selector ".booster[data-layout=phone] .booster__pile .booster-card[data-dealt]", count:, wait: 10
-    assert_selector ".booster__state", text: /\AINVENTORY\z/
+    assert_selector "#booster[data-status=inventory]"
   end
 
   def filled_slots
@@ -454,7 +450,7 @@ class BoosterTest < ApplicationSystemTestCase
     within(".booster-strip") do
       assert_selector "h2#booster-title", text: "SEASON 1 · GRAND CATALOGUE"
       assert_selector ".booster__pip[data-lit]", count: 2
-      assert_selector ".booster__state", text: "SEALED"
+      assert_selector "#booster[data-status=sealed]"
     end
     assert_selector ".booster__canister-hint", text: "TAP TO OPEN"
     assert_selector ".booster__canister-facts", text: "5 cards"
@@ -518,7 +514,7 @@ class BoosterTest < ApplicationSystemTestCase
 
     assert_equal 5, filled_slots
     assert_no_selector ".booster__pile .booster-card"
-    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_selector "#booster[data-status=complete]"
     assert_selector ".booster-plate-band .booster-celebration", text: /SET COMPLETE\s+VALVE/
     assert_focus ".booster__open"
     assert_button "Open the next one"
@@ -610,7 +606,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_pile(5)
     click_on "Reveal all"
     assert_selector ".booster-tray__slot--filled", count: 5, wait: 20
-    assert_selector ".booster__state", text: "INVENTORY COMPLETE", wait: 10
+    assert_selector "#booster[data-status=complete]", wait: 10
     token = opened_token
 
     all(".booster-tray__slot--filled")[2].click
@@ -646,7 +642,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster[data-layout=phone]"
     assert_selector ".booster-tray__slot--filled", count: 5
     assert_no_selector ".booster__pile .booster-card"
-    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_selector "#booster[data-status=complete]"
     all(".booster-tray__slot--filled")[4].click
     assert_selector "dialog.booster-zoom[open] h2", text: "GOLDEN CROWN"
   end
@@ -663,7 +659,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal 1, announcements.count { it.end_with?("cards revealed: Legendary × 1, Rare × 1, Uncommon × 1, Common × 2.") }
     assert_includes announcements, "Legendary signal"
     assert_no_selector ".booster__pile .booster-card"
-    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_selector "#booster[data-status=complete]"
     assert_focus ".booster__open"
 
     # The next booster: the tray clears, a canister docks and opens with a new key.
@@ -707,7 +703,7 @@ class BoosterTest < ApplicationSystemTestCase
       assert_no_selector ".booster-celebration"
     end
     find(hit(5)).click
-    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_selector "#booster[data-status=complete]"
     assert_selector ".booster__info .booster-celebration", text: /SET COMPLETE\s+VALVE/
     assert_no_selector ".booster__info .booster-celebration[data-still]"
     assert_selector ".booster [role=status] > span", text: /\ASet complete: /, count: 1, visible: :all
@@ -718,7 +714,7 @@ class BoosterTest < ApplicationSystemTestCase
     page.go_back
     assert_selector ".booster-card[data-revealed]", count: 5
     assert_selector ".booster__info .booster-celebration[data-still]", text: /SET COMPLETE\s+VALVE/
-    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_selector "#booster[data-status=complete]"
 
     click_on "Open the next one"
     assert_no_selector ".booster-celebration"

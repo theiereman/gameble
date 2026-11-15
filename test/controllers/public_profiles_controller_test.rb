@@ -219,7 +219,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
       css_select(".set-album__grid > li").map { it.at_css(".card--not-owned").present? }
     assert_select ".set-album__grid a.card-link[aria-label$=', not owned'] .card--not-owned > .card__lock", 10
     assert_select ".collection-slot__new", false
-    assert_select ".top-bar__end .collection-status, .top-bar__title", false
+    assert_select ".top-bar__end .collection-status", false
     assert_select ".profile-band, .collection-kind, .collection-sets", false
     assert_select "[style]", false
     slugs = Catalog::CardSeason.where(id: members).includes(:card).index_by(&:id).transform_values { it.card.slug }

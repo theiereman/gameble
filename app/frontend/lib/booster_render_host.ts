@@ -33,13 +33,17 @@ export type BoosterStrings = {
   legendarySignal: string
   nextAt: string
   refusedTitle: string
+  rarityTip: string
   repostCard: string
   repostFailed: string
   reposted: string
+  shareCard: string
+  shareFailed: string
+  shared: string
   originBonus: string
   originOpening: string
   originReward: string
-  reserveCount: Template
+  reserveUnit: Template
   specialArrived: string
   standardReady: string
   tabSpecial: string

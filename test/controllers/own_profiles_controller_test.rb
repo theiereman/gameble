@@ -107,7 +107,8 @@ class OwnProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.tab-bar__tab[href='/fr/me']", false
     assert_select "a.tab-bar__tab[aria-current]", false
     assert_select ".top-bar a.top-bar__phone-back", false
-    assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand"
+    assert_select ".top-bar__start > a.top-bar__bridge"
+    assert_select ".top-bar__title"
   end
 
   test "each unlocked back has a template of its look for the preview, the locked ones none" do

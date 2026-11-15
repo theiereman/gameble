@@ -74,11 +74,11 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
 
     get market_path(locale: :en, sort: "price_desc")
     assert_equal [ dear, cheap ].map(&:token), tiles.map { it.at_css("a")["href"].split("/").last }
-    assert_select ".market-screen__sort[aria-current=true]", "Price, high to low"
+    assert_select ".sort__option[aria-current=true]", "Price, high to low"
 
     get market_path(locale: :en, sort: "nonsense")
     assert_equal [ cheap, dear ].map(&:token), tiles.map { it.at_css("a")["href"].split("/").last }
-    assert_select ".market-screen__sort[aria-current=true]", "Ending soon"
+    assert_select ".sort__option[aria-current=true]", "Ending soon"
   end
 
   test "Charger plus is a link to the next page, answered as a Turbo Stream that appends the tiles" do
@@ -136,8 +136,8 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
     get market_path(locale: :fr)
 
     assert_select "h1", "Marché"
-    assert_select ".market-screen__chip", "ANNONCES"
-    assert_select ".market-screen__sort", "Se termine bientôt"
+    assert_select ".tabs__tab", "ANNONCES"
+    assert_select ".sort__option", "Se termine bientôt"
   end
 
   test "a GET writes nothing and no database id nor style attribute is in the markup" do
@@ -180,12 +180,12 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
     get market_path(locale: :en)
 
     assert_select "#market-suspended-banner[role=status]", 1
-    assert_select ".market-desk ~ #market-suspended-banner ~ .market-screen__bar .market-screen__chips"
+    assert_select ".market-desk ~ #market-suspended-banner ~ .market-screen__chips"
     assert_select ".market-screen__actions button[disabled][aria-describedby=market-suspended-banner]", 2
     assert_select ".market-screen__actions a.button", false
     assert_select ".listing-tile a[href=?]", market_listing_path(locale: :en, token: listing.token)
-    assert_select "a.market-screen__chip[href=?]", market_my_sales_path(locale: :en)
-    assert_select "a.market-screen__chip[href=?]", market_my_bids_path(locale: :en)
+    assert_select "a.tabs__tab[href=?]", market_my_sales_path(locale: :en)
+    assert_select "a.tabs__tab[href=?]", market_my_bids_path(locale: :en)
   end
 
   test "a suspended market reads the same for a visitor, with the chips greyed" do
@@ -196,7 +196,7 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#market-suspended-banner", 1
     assert_select ".market-screen__actions button[disabled][aria-describedby=market-suspended-banner]", 2
-    assert_select ".market-screen__chip--disabled[aria-disabled=true]", 2
+    assert_select ".tabs__tab--disabled[aria-disabled=true]", 2
   end
 
   test "an open market and a never opened one draw no banner" do

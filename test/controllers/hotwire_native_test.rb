@@ -79,7 +79,7 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
     assert_select "html[data-native-app]"
     assert_select "html[data-native-bar]", 0
     assert_select ".top-bar__start"
-    assert_select ".top-bar__end .collection-status"
+    assert_select ".top-bar__end .rarity-counter"
     assert_select ".native-status", 0
     assert_select "[data-controller~='bridge--top-bar']", 0
   end
@@ -111,7 +111,7 @@ class HotwireNativeTest < ActionDispatch::IntegrationTest
 
     assert_select "html[data-native-bar]", 0
     assert_select ".top-bar__start > a.top-bar__previous[data-controller=previous-screen]"
-    assert_select ".top-bar__end .collection-status"
+    assert_select ".top-bar__end .rarity-counter"
     assert_select ".native-status", 0
   end
 

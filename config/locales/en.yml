@@ -1018,7 +1018,6 @@ en:
     canister_hint_touch: Tap to open
     canister_season: Season %{number}
     card_label: "%{title} — %{details}"
-    cards_per_pack: Cards per capsule
     close: Close
     continue: Continue
     daily:
@@ -1027,8 +1026,10 @@ en:
       title: Daily capsule
     hint_swipe: Swipe the card to store it · or tap it
     hint_tap: Tap the card to reveal it
-    in_reserve: In reserve
     kicker: Capsule · Season %{number}
+    kicker_cards_html:
+      one: "%{size} card"
+      other: "%{size} cards"
     kicker_plain: Capsule
     legendary_banner: "%{rarity}!"
     next_in: "+1 in"
@@ -1043,23 +1044,15 @@ en:
       empty_standard: No standard capsule yet
       label: Capsule reserves
     repost: Repost
+    repost_tip: Repost to the feed
     first_copy: New
-    reserve: Reserve
     reserve_empty: Reserve empty
     reserve_full: Reserve full
     result: Capsule result
     reveal_all: Reveal all
     see_card: See the card
+    share_tip: Share the card
     skip: Skip
-    state: State
-    states:
-      arming: Arming
-      complete: Inventory complete
-      ejecting: Ejection
-      inventory: Inventory
-      legendary_signal: Legendary signal
-      sealed: Sealed
-      waiting: Waiting
     store: Store
     strings:
       announce_card: 'Card %{position}: %{card}. %{rarity}.'
@@ -1130,12 +1123,16 @@ en:
       repost_failed: The repost did not go through. Check your connection, then try
         again.
       reposted: Card reposted to the feed.
+      share_card: Share %{card}
+      share_failed: The link could not be copied.
+      shared: Card link copied.
       origin_bonus: DAILY CAPSULE
       origin_opening: 'OPENING · %{origin}'
       origin_reward: MISSION REWARD
-      reserve_count:
-        one: "%{n} capsule"
-        other: "%{n} capsules"
+      rarity_tip: 'Rarity: %{rarity}'
+      reserve_unit:
+        one: capsule in reserve
+        other: capsules in reserve
       summary:
         one: "%{n} card revealed: %{tiers}."
         other: "%{n} cards revealed: %{tiers}."
@@ -2401,11 +2398,9 @@ en:
       title: Collection
     entry:
       all_cards_tile:
-        open: Open
         title: All my cards
         unique: unique cards
       all_sets_tile:
-        open: Open
         title: All sets
         unit:
           one: set
@@ -2850,9 +2845,7 @@ en:
           other: "%{count} free copies"
         grid_label: Your editions to entrust
         heading: Entrust to the Brotherhood
-        intro: Choose the cards to entrust to the Brotherhood. Each copy earns you PiCoins.
         keys_hint: "Arrow keys move between cards, Space or Enter ticks, + and - change the copies."
-        kicker: The Archives
         not_returned: Entrusted cards are not given back.
         prompt: Tick the cards to entrust.
         receive: You receive
@@ -2944,8 +2937,6 @@ en:
           one: "%{count} available"
           other: "%{count} available"
         heading: Put a card up for sale
-        intro: Choose a card, set its price and let the members bid.
-        kicker: The Archives
         received: Sold at the starting price, you receive
         relisting: These amounts are those of your previous sale.
         rules: The card is reserved during the sale. You can cancel as long as no offer is leading.
@@ -2987,7 +2978,6 @@ en:
           one: "%{amount} committed to your bids"
           other: "%{amount} committed to your bids"
           zero: No PiCoins committed to your bids
-        kicker: THE BROTHERHOOD'S COUNTER
         listings:
           one: "%{number} listing open."
           other: "%{number} listings open."
@@ -3026,13 +3016,6 @@ en:
           other: "%{number} with a bid"
           zero: no bid yet
       more: Load more
-      newcomer:
-        body: "Everything here is paid in PiCoins. Entrust your spare copies to the Archives: the Brotherhood credits you on the spot."
-        spare:
-          one: "You have %{number} spare copy."
-          other: "You have %{number} spare copies."
-          zero: You have no spare copy yet.
-        title: Welcome to the counter
       pages_label: More listings
       sell: PUT UP FOR SALE
       sell_short: SELL
