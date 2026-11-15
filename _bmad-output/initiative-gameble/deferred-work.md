@@ -673,3 +673,9 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-a-player-builds-a-deck-of-twelve-cards-in-the-deck-editor-plan.md`
   summary: `npm run test:js` sometimes exits 1 on an unhandled error from `annonce_controller.test.ts` (`posted` reading `state` of a disconnected controller from a timer), while every test passes.
   evidence: reproduced on the baseline `ad7a35b8` in a clean worktree (132 files, 1388 tests passed, 1 unhandled error, exit 1); `app/frontend/controllers/annonce_controller.ts:180` `postLive` runs from a timer after disconnect; unrelated to the deck editor.
+
+## Deferred from: build of story-each-monday-the-feed-says-the-cards-standing-has-moved-plan (2026-11-15)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-each-monday-the-feed-says-the-cards-standing-has-moved-plan.md`
+  summary: After a season publication between two Mondays, the Monday feed post (and later the deck editor's arrows) compares with the season run's percentiles, not the previous Monday's, so the moves of the first part of that week are never reported.
+  evidence: `Game::DuelStatRows` rotates the last weekly percentiles on every non-season run from the previous row's percentiles, which a mid-week season run has replaced; the post reads the stored `*_weekly_percentile` (`Game::DuelProfiles.weekly_changes`). Keeping last Monday's values across a season run needs a second set of columns in `game_duel_stats`; seasons are published a few times a year.

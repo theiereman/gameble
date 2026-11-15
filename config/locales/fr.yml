@@ -2168,6 +2168,7 @@ fr:
         trade_html: "%{card} contre %{partner_card}"
         verdict: "Verdict du Chattomètre"
         verdict_title: "Le plus chanceux de la semaine passée"
+        duel_stats: "Duel"
         set_reached:
           metal_html: "Atteint %{tier}"
           rank_html: "Atteint le palier %{tier}"
@@ -2184,6 +2185,15 @@ fr:
       verdict_html: "Le Chattomètre a rendu son verdict : %{name} est le membre le plus chanceux de la semaine passée. %{register}"
       verdict_register: "Voir le classement"
       verdict_tag: "Verdict"
+      duel_stats: "Le cours des cartes a bougé."
+      duel_stats_rose_html: "%{card}, %{stat} en hausse, de %{from} à %{to}"
+      duel_stats_fell_html: "%{card}, %{stat} en baisse, de %{from} à %{to}"
+      duel_stats_stats:
+        popularity: "popularité"
+        rating: "note"
+        release: "sortie"
+        discovery: "découverte"
+        circulation: "circulation"
       traded_html: "%{name} et %{partner} ont échangé %{card} contre %{partner_card}"
       trade_tag: "Échange"
       set_reached:

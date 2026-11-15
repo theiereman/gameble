@@ -42,8 +42,8 @@
         <%= render "feeds/newer", newer_cursor: @newer_cursor, filter: @filter, tab: @tab %>
         <%= tag.ul class: "feed__list", id: "feed-entries", data: ({ feed_announcer_target: "list" } if @live) do %>
           <% preload_avatars(@items.map { it.first.player }) %>
-          <% @items.each do |item, card, partner_card, set| %>
-            <%= render "feeds/entry", item:, card:, partner_card:, set:, reactions: @reactions, target: @target, post: true %>
+          <% @items.each do |item, card, partner_card, set, moves| %>
+            <%= render "feeds/entry", item:, card:, partner_card:, set:, moves:, reactions: @reactions, target: @target, post: true %>
           <% end %>
         <% end %>
         <%= render "feeds/pages", next_cursor: @next_cursor, filter: @filter, tab: @tab %>

@@ -4,6 +4,7 @@ module FeedHelper
   def feed_sentence(item, card, partner_card = nil, set = nil, links: true, titles: false, viewer: nil)
     return feed_set_sentence(item, set, links:, titles:) if item.entry.kind == "set"
     return feed_verdict_sentence(item, links:, titles:) if item.entry.kind == "verdict"
+    return t("feeds.show.duel_stats") if item.entry.kind == "duel_stats"
     return feed_sale_sentence(item, card, links:, titles:, viewer:) if item.entry.kind == "sale"
 
     words = { name: feed_name(item.player, item.player_title, links:, titles:), card: feed_game(card, links:) }
@@ -25,6 +26,12 @@ module FeedHelper
     kicker, title = feed_headline_parts(item, card, partner_card, set)
     tag.p(class: [ "feed__headline", ("feed__headline--discovery" if item.entry.kind == "discovery") ]) do
       tag.span(kicker, class: "feed__headline-kicker") + tag.span(title, class: "feed__headline-title")
+    end
+  end
+
+  def feed_duel_moves(moves)
+    tag.ul(class: "feed__moves") do
+      safe_join(moves.map { |move| tag.li(feed_duel_move(move), class: "feed__move") })
     end
   end
 
@@ -63,6 +70,7 @@ module FeedHelper
     case item.entry.kind
     when "set" then [ feed_set_kicker(item.entry), SetLabel.for(set) ]
     when "verdict" then [ t("feeds.show.headline.verdict"), feed_register_link(t("feeds.show.headline.verdict_title")) ]
+    when "duel_stats" then [ t("feeds.show.headline.duel_stats"), t("feeds.show.duel_stats") ]
     when "trade"
       partner = feed_name(item.partner, nil, links: true, titles: false)
       [ t("feeds.show.headline.traded_html", partner:), t("feeds.show.headline.trade_html", card: feed_game(card, links: true), partner_card: feed_game(partner_card, links: true)) ]
@@ -114,6 +122,13 @@ module FeedHelper
     label = t("feeds.show.verdict_register")
     register = links ? feed_register_link(label) : tag.strong(label)
     t("feeds.show.verdict_html", name: feed_name(item.player, item.player_title, links:, titles:), register:)
+  end
+
+  def feed_duel_move(move)
+    card = link_to(move.card.title, card_season_path(slug: move.card.id, number: move.card.season_number),
+      class: "feed__game", data: { turbo_prefetch: false })
+    words = { card:, stat: t("feeds.show.duel_stats_stats.#{move.stat}"), from: move.from.round, to: move.to.round }
+    move.rose? ? t("feeds.show.duel_stats_rose_html", **words) : t("feeds.show.duel_stats_fell_html", **words)
   end
 
   def feed_tier_name(tier)

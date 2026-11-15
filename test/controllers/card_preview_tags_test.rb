@@ -92,6 +92,18 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_no_match(/collection of|No longer in/i, response.body)
   end
 
+  test "the LIVE strip shows the weekly duel stats post as its line alone, with no tag" do
+    moves = [ { "card_season_id" => catalog_card_seasons(:portal_one).id, "stat" => "rating", "from" => 40.0, "to" => 50.0 } ]
+    Game::FeedEntry.record_duel_stats(moves:, week_start: Date.current.beginning_of_week, now: Time.current)
+
+    get card_page(locale: :en)
+
+    assert_select "#live-strip .live-strip__list > li.live-strip__entry", 1 do
+      assert_select ".live-strip__sentence", "The cards' standing has moved."
+      assert_select ".feed__tag, a", false
+    end
+  end
+
   test "the LIVE strip shows the three latest public feed entries and listens to the public stream" do
     hugo = accounts_players(:moderator).tap { it.update!(persona_name: "Hugo") }
     hidden = accounts_players(:administrator).tap { it.update!(persona_name: "Hidden") }

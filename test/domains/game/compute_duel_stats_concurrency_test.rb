@@ -9,6 +9,7 @@ class Game::ComputeDuelStatsConcurrencyTest < ActiveSupport::TestCase
     @release&.push(:go)
     @threads&.each { it.join(20) }
     Game::DuelStat.delete_all
+    Game::FeedEntry.where(kind: "duel_stats").delete_all
     connection = ActiveRecord::Base.connection
     stream = Game::DuelStatsComputed::STREAM
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream = ?", stream ]))

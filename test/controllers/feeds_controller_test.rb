@@ -123,8 +123,8 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "each kind of entry but the sets and the verdict has its filter" do
-    assert_equal Game::FeedEntry::KINDS - %w[set verdict], FeedsController::FILTERS.values
+  test "each kind of entry but the sets, the verdict and the duel stats has its filter" do
+    assert_equal Game::FeedEntry::KINDS - %w[set verdict duel_stats], FeedsController::FILTERS.values
   end
 
   test "pulls shows the pulls under the chosen filter and keeps the tab" do
@@ -790,5 +790,83 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select ".feed__tag--verdict", "Verdict"
     assert_select ".feed__entry:has(.feed__tag--verdict) .feed__thumb, .feed__entry:has(.feed__tag--verdict) .reactions", false
+  end
+
+  def record_duel_stats(moves, week_start: Date.new(2026, 11, 16))
+    Game::FeedEntry.record_duel_stats(moves:, week_start:, now: week_start.to_time(:utc))
+  end
+
+  def duel_move(card_season, stat, from, to) = { "card_season_id" => card_season.id, "stat" => stat, "from" => from, "to" => to }
+
+  test "the weekly duel stats post lists each moved card linked to its edition, its stat and both percentiles, with no player, card or reactions" do
+    portal, legendary = catalog_card_seasons(:portal_one, :legendary_card_one)
+    record_duel_stats([ duel_move(portal, "popularity", 55.4, 62.0), duel_move(legendary, "rating", 70.5, 40.2) ])
+
+    get feed_path(locale: :fr)
+
+    assert_response :success
+    assert_select ".feed__entry--duel-stats" do
+      assert_select ".feed__headline-kicker", "Duel"
+      assert_select ".feed__headline-title", "Le cours des cartes a bougé."
+      assert_select ".feed__move", 2
+      assert_select ".feed__move:nth-child(1)", "Portal, popularité en hausse, de 55 à 62" do
+        assert_select "a.feed__game[href=?]", card_season_path(locale: :fr, slug: "portal", number: 1), "Portal"
+      end
+      assert_select ".feed__move:nth-child(2)", "Couronne d'or, note en baisse, de 71 à 40" do
+        assert_select "a.feed__game[href=?]", card_season_path(locale: :fr, slug: "golden-crown", number: 1)
+      end
+      assert_select ".feed__byline, .feed__thumb, .feed__tag, .reactions", false
+    end
+    assert_select ".feed__entry--duel-stats [style]", false
+  end
+
+  test "the duel stats post reads in English, and drops a moved card no longer in the catalog" do
+    portal = catalog_card_seasons(:portal_one)
+    record_duel_stats([ duel_move(portal, "circulation", 12.0, 30.0), { "card_season_id" => 0, "stat" => "release", "from" => 1.0, "to" => 2.0 } ])
+
+    get feed_path(locale: :en)
+
+    assert_select ".feed__entry--duel-stats .feed__headline-title", "The cards' standing has moved."
+    assert_select ".feed__entry--duel-stats .feed__move", 1
+    assert_select ".feed__entry--duel-stats .feed__move", "Portal, circulation up, from 12 to 30"
+  end
+
+  test "a duel stats post whose moved cards are all gone from the catalog is not drawn" do
+    record_duel_stats([ { "card_season_id" => 0, "stat" => "release", "from" => 1.0, "to" => 2.0 } ])
+
+    get feed_path(locale: :en)
+
+    assert_response :success
+    assert_select ".feed__entry--duel-stats", false
+  end
+
+  test "the older and newer pages draw a duel stats post with its rows" do
+    add_pulls(Game::FeedEntries::LIMIT + 5)
+    record_duel_stats([ duel_move(catalog_card_seasons(:portal_one), "popularity", 10.0, 20.0) ], week_start: 1.week.ago.to_date.beginning_of_week)
+    post = Game::FeedEntry.find_by!(kind: "duel_stats")
+    get feed_path(locale: :en)
+
+    get next_link["href"], headers: { "Accept" => Mime[:turbo_stream].to_s }
+
+    assert_select "turbo-stream[action=append][target=feed-entries] .feed__entry--duel-stats .feed__move", "Portal, popularity up, from 10 to 20"
+
+    get feed_path(locale: :en, newer: FeedCursor.encode([ post.occurred_at - 1.second, 0 ])), headers: { "Accept" => Mime[:turbo_stream].to_s }
+
+    assert_select "turbo-stream[action=prepend][target=feed-entries] .feed__entry--duel-stats .feed__move", "Portal, popularity up, from 10 to 20"
+  end
+
+  test "the duel stats post stays out of Friends and the type filters" do
+    record_duel_stats([ duel_move(catalog_card_seasons(:portal_one), "popularity", 10.0, 20.0) ])
+    friends_and_strangers
+
+    get feed_path(locale: :en)
+    assert_select ".feed__entry--duel-stats", 1
+
+    get feed_path(locale: :en, tab: "friends")
+    assert_select ".feed__entry"
+    assert_select ".feed__entry--duel-stats", false
+
+    get feed_path(locale: :en, filter: "pulls")
+    assert_select ".feed__entry--duel-stats", false
   end
 end

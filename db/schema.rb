@@ -510,7 +510,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
   end
 
   create_table "game_feed_entries", force: :cascade do |t|
-    t.bigint "player_id", null: false
+    t.bigint "player_id"
     t.bigint "pack_id"
     t.bigint "card_season_id"
     t.integer "position"
@@ -528,9 +528,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.integer "set_count"
     t.uuid "token", default: -> { "gen_random_uuid()" }, null: false
     t.bigint "listing_id"
+    t.jsonb "moves"
     t.index ["kind", "notable", "occurred_at"], name: "index_game_feed_entries_on_kind_and_notable_and_occurred_at"
     t.index ["listing_id"], name: "index_game_feed_entries_one_sale_per_listing", unique: true, where: "((kind)::text = 'sale'::text)"
     t.index ["notable", "occurred_at", "id"], name: "index_game_feed_entries_on_notable_and_occurred_at_and_id"
+    t.index ["occurred_at"], name: "index_game_feed_entries_one_duel_stats_per_week", unique: true, where: "((kind)::text = 'duel_stats'::text)"
     t.index ["occurred_at"], name: "index_game_feed_entries_one_verdict_per_week", unique: true, where: "((kind)::text = 'verdict'::text)"
     t.index ["pack_id", "position"], name: "index_game_feed_entries_on_pack_id_and_position", unique: true
     t.index ["partner_id"], name: "index_game_feed_entries_on_partner_id"
@@ -538,12 +540,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.index ["player_id"], name: "index_game_feed_entries_on_player_id"
     t.index ["token"], name: "index_game_feed_entries_on_token", unique: true
     t.index ["trade_id"], name: "index_game_feed_entries_on_trade_id", unique: true, where: "(trade_id IS NOT NULL)"
+    t.check_constraint "(kind::text = 'duel_stats'::text) = (player_id IS NULL) AND (kind::text = 'duel_stats'::text) = (moves IS NOT NULL)", name: "game_feed_entries_duel_stats_check"
     t.check_constraint "(kind::text = 'pull'::text OR kind::text = 'discovery'::text) = (pack_id IS NOT NULL AND \"position\" IS NOT NULL)", name: "game_feed_entries_pack_check"
     t.check_constraint "(kind::text = 'sale'::text) = (listing_id IS NOT NULL)", name: "game_feed_entries_sale_check"
-    t.check_constraint "(kind::text = 'set'::text) = (set_id IS NOT NULL AND tier IS NOT NULL AND set_count IS NOT NULL) AND (kind::text = 'set'::text OR kind::text = 'verdict'::text) = (card_season_id IS NULL) AND (kind::text = 'set'::text OR kind::text = 'verdict'::text) = (rarity IS NULL)", name: "game_feed_entries_set_check"
+    t.check_constraint "(kind::text = 'set'::text) = (set_id IS NOT NULL AND tier IS NOT NULL AND set_count IS NOT NULL) AND (kind::text = 'set'::text OR kind::text = 'verdict'::text OR kind::text = 'duel_stats'::text) = (card_season_id IS NULL) AND (kind::text = 'set'::text OR kind::text = 'verdict'::text OR kind::text = 'duel_stats'::text) = (rarity IS NULL)", name: "game_feed_entries_set_check"
     t.check_constraint "(kind::text = 'trade'::text) = (trade_id IS NOT NULL AND partner_id IS NOT NULL AND partner_card_season_id IS NOT NULL)", name: "game_feed_entries_trade_check"
     t.check_constraint "(tier IS NULL OR tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text) AND (set_count IS NULL OR set_count > 0)", name: "game_feed_entries_tier_check"
-    t.check_constraint "kind::text = 'pull'::text OR kind::text = 'discovery'::text OR kind::text = 'trade'::text OR kind::text = 'repost'::text OR kind::text = 'set'::text OR kind::text = 'verdict'::text OR kind::text = 'sale'::text", name: "game_feed_entries_kind_check"
+    t.check_constraint "kind::text = 'pull'::text OR kind::text = 'discovery'::text OR kind::text = 'trade'::text OR kind::text = 'repost'::text OR kind::text = 'set'::text OR kind::text = 'verdict'::text OR kind::text = 'sale'::text OR kind::text = 'duel_stats'::text", name: "game_feed_entries_kind_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
   end
 
@@ -555,7 +558,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_100100) do
     t.datetime "updated_at", null: false
     t.index ["feed_entry_id", "kind"], name: "index_game_feed_reactions_on_feed_entry_id_and_kind"
     t.index ["player_id", "feed_entry_id"], name: "index_game_feed_reactions_on_player_id_and_feed_entry_id", unique: true
-    t.check_constraint "kind::text = ANY (ARRAY['thumb'::character varying::text, 'heart'::character varying::text, 'gg'::character varying::text, 'wow'::character varying::text, 'middle_finger'::character varying::text, 'poop'::character varying::text, 'want'::character varying::text])", name: "game_feed_reactions_kind_check"
+    t.check_constraint "kind::text = ANY (ARRAY['thumb'::character varying, 'heart'::character varying, 'gg'::character varying, 'wow'::character varying, 'middle_finger'::character varying, 'poop'::character varying, 'want'::character varying]::text[])", name: "game_feed_reactions_kind_check"
   end
 
   create_table "game_first_discoveries", force: :cascade do |t|

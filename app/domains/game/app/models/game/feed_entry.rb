@@ -5,7 +5,7 @@ module Game
     NOTABLE_TIER = 4
     DISCOVERY_TIER = 3
 
-    KINDS = %w[pull discovery trade repost set verdict sale].freeze
+    KINDS = %w[pull discovery trade repost set verdict sale duel_stats].freeze
 
     RECORD_COMPLETION_SQL = <<~SQL.squish.freeze
       WITH reached AS (
@@ -80,6 +80,11 @@ module Game
     def self.record_verdict(player_id:, week_start:, now:)
       row = { kind: "verdict", player_id:, notable: true, occurred_at: week_start.to_time(:utc), created_at: now, updated_at: now }
       insert_all([ row ], unique_by: :index_game_feed_entries_one_verdict_per_week, record_timestamps: false)
+    end
+
+    def self.record_duel_stats(moves:, week_start:, now:)
+      row = { kind: "duel_stats", moves:, notable: true, occurred_at: week_start.to_time(:utc), created_at: now, updated_at: now }
+      insert_all([ row ], unique_by: :index_game_feed_entries_one_duel_stats_per_week, record_timestamps: false)
     end
 
     def self.record_sale(listing_id:, buyer_id:, card_season_id:, price:, settings:, at:)

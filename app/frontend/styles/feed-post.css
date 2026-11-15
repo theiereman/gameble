@@ -6,11 +6,13 @@
  * is one row, the card on the left and the reactions bottom right; on a
  * phone the player tops the post and the reactions close it. Outside the
  * feed (the landing page's strip) the byline and headline stay hidden and
- * the sentence tells it all.
+ * the sentence tells it all. The weekly duel post has no player and no card:
+ * its headline, then the cards whose standing moved most.
  */
 
 .feed__byline,
-.feed__headline {
+.feed__headline,
+.feed__moves {
   display: none;
 }
 
@@ -166,6 +168,22 @@
   .feed__entry .feed__reactions {
     grid-area: reactions;
   }
+
+  .feed__moves {
+    display: flex;
+    grid-area: moves;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    color: var(--color-text);
+    font: var(--font-body);
+    list-style: none;
+  }
+
+  .feed__entry--duel-stats .feed__headline {
+    margin-top: 0;
+  }
 }
 
 @container feed (min-width: 720px) {
@@ -188,6 +206,13 @@
       "byline time" auto
       "headline reactions" auto
       "tags reactions" auto
+      / minmax(0, 1fr) auto;
+  }
+
+  .feed__entry--duel-stats {
+    grid-template:
+      "headline time" auto
+      "moves moves" auto
       / minmax(0, 1fr) auto;
   }
 
@@ -239,6 +264,13 @@
       / minmax(0, 1fr) auto;
   }
 
+  .feed__entry--duel-stats {
+    grid-template:
+      "headline time" auto
+      "moves moves" auto
+      / minmax(0, 1fr) auto;
+  }
+
   .feed__entry > :is(.feed__thumb, .feed__thumbs) {
     margin-block: var(--space-4) var(--space-2);
   }
@@ -255,6 +287,10 @@
     margin-top: var(--space-5);
   }
 
+  .feed__entry--duel-stats .feed__headline {
+    margin-top: 0;
+  }
+
   .feed__entry .feed__reactions {
     justify-content: flex-start;
     margin: var(--space-3) 0 calc(-1 * var(--space-2));
@@ -262,6 +298,17 @@
 
   .feed__entry .feed__reaction-add {
     margin-left: auto;
+  }
+}
+
+/* Each moved card's name keeps its whole touch target without covering the next row's. */
+@media (max-width: 719px) {
+  .feed__moves {
+    gap: 0;
+  }
+
+  .feed__move {
+    padding-block: calc((var(--space-touch-min) - 1.3125rem) / 2);
   }
 }
 
@@ -289,8 +336,20 @@
       / minmax(0, 1fr);
   }
 
+  .feed__entry--duel-stats {
+    grid-template:
+      "time" auto
+      "headline" auto
+      "moves" auto
+      / minmax(0, 1fr);
+  }
+
   .feed__time {
     justify-self: start;
     margin-left: calc(var(--feed-avatar-size) + var(--space-3));
+  }
+
+  .feed__entry--duel-stats .feed__time {
+    margin-left: 0;
   }
 }

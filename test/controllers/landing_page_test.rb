@@ -334,6 +334,18 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     assert_match(/<template data-live-feed-preview-target="source"><turbo-cable-stream-source/, response.body)
   end
 
+  test "the live module shows the weekly duel stats post as its line alone" do
+    moves = [ { "card_season_id" => catalog_card_seasons(:portal_one).id, "stat" => "rating", "from" => 40.0, "to" => 50.0 } ]
+    Game::FeedEntry.record_duel_stats(moves:, week_start: Date.current.beginning_of_week, now: Time.current)
+
+    get home_path(locale: :fr)
+
+    assert_select "#feed-entries > li.feed__entry--duel-stats", 1 do
+      assert_select ".feed__sentence", "Le cours des cartes a bougé."
+      assert_select ".feed__moves, .feed__thumb, .feed__tag, .feed__byline", false
+    end
+  end
+
   test "an unreadable feed leaves the live module empty and the page renders" do
     original = LiveStream.method(:landing_items)
     LiveStream.define_singleton_method(:landing_items) { |**| raise ActiveRecord::StatementInvalid, "down" }

@@ -75,7 +75,7 @@ module Game
 
     def self.titled(items)
       titles = ActiveProfileTitle.for_players(items.flat_map { [ it.player, it.partner ] }.compact.uniq)
-      priced(items).map { it.with(player_title: titles[it.player.id], partner_title: (titles[it.partner.id] if it.partner)) }
+      priced(items).map { it.with(player_title: (titles[it.player.id] if it.player), partner_title: (titles[it.partner.id] if it.partner)) }
     end
     private_class_method :titled
 
@@ -91,7 +91,7 @@ module Game
         missing = entries.flat_map { [ it.player_id, it.partner_id ] }.compact.uniq - players.keys
         players.merge!(Accounts::Player.where(id: missing).index_by(&:id)) if missing.any?
         entries.each do |entry|
-          next unless shown[[ entry.player_id, entry.kind == "sale" ]] && (entry.partner_id.nil? || shown[[ entry.partner_id, false ]])
+          next unless owner_shown?(entry, shown) && (entry.partner_id.nil? || shown[[ entry.partner_id, false ]])
 
           found << Entry.new(entry:, player: players[entry.player_id], partner: players[entry.partner_id], filler:)
         end
@@ -102,5 +102,12 @@ module Game
       found.first(limit)
     end
     private_class_method :visible
+
+    def self.owner_shown?(entry, shown)
+      return entry.kind == "duel_stats" if entry.player_id.nil?
+
+      shown[[ entry.player_id, entry.kind == "sale" ]]
+    end
+    private_class_method :owner_shown?
   end
 end

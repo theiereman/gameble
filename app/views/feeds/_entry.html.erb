@@ -3,13 +3,14 @@
 <% set_entry = item.entry.kind == "set" %>
 <% verdict = item.entry.kind == "verdict" %>
 <% sale = item.entry.kind == "sale" %>
+<% duel = item.entry.kind == "duel_stats" %>
 <% viewer = local_assigns.key?(:viewer) ? local_assigns[:viewer] : current_player %>
 <% target = local_assigns[:target]&.id == item.entry.id %>
 <% post = local_assigns.fetch(:post, false) %>
 <% tint = card.rarity if card && !trade %>
-<%= tag.li id: "entry-#{item.entry.token}", class: class_names("feed__entry", "feed__entry--#{tint}" => tint, "feed__entry--filler": item.filler, "feed__entry--set": set_entry || verdict, "feed__entry--decor-#{feed_decor(item.entry)}": post, "feed__entry--target": target),
+<%= tag.li id: "entry-#{item.entry.token}", class: class_names("feed__entry", "feed__entry--#{tint}" => tint, "feed__entry--filler": item.filler, "feed__entry--set": set_entry || verdict || duel, "feed__entry--duel-stats": duel, "feed__entry--decor-#{feed_decor(item.entry)}": post && !duel, "feed__entry--target": target),
       aria: { current: ("true" if target) } do %>
-  <% if post %>
+  <% if post && item.player %>
     <div class="feed__byline">
       <%= player_avatar(item.player, class_name: "feed__avatar") %>
       <span class="feed__who"><%= feed_byline(item, viewer:) %></span>
@@ -24,7 +25,7 @@
         <% end %>
       <% end %>
     </span>
-  <% elsif !set_entry && !verdict %>
+  <% elsif !set_entry && !verdict && !duel %>
     <%= link_to card_path(slug: card.id), class: class_names("feed__thumb", "feed__thumb--framed feed__thumb--#{card.rarity}": repost),
           aria: { label: card.title }, data: { turbo_prefetch: false } do %>
       <%= render CardComponent.new(card:, size: :s) %>
@@ -36,10 +37,12 @@
       <p class="feed__sentence"><%= feed_sentence(item, card, partner_card, set, titles: true, viewer:) %></p>
       <%= local_time_tag(item.entry.occurred_at, class: "feed__time") %>
     </div>
+    <% if post && local_assigns[:moves] %><%= feed_duel_moves(moves) %><% end %>
     <div class="feed__meta">
       <span class="feed__tags">
         <% if verdict %>
           <span class="feed__tag feed__tag--verdict"><%= t("feeds.show.verdict_tag") %></span>
+        <% elsif duel %>
         <% elsif set_entry %>
           <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") unless post && item.entry.set_count == 1 %>
         <% elsif trade %>
@@ -59,7 +62,7 @@
         <% end %>
         <% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span><% end %>
       </span>
-      <% if local_assigns[:reactions] && !verdict %>
+      <% if local_assigns[:reactions] && !verdict && !duel %>
         <% lazy = local_assigns.fetch(:lazy, false) %>
         <%= render "reactions/bar", token: item.entry.token, summary: reactions.fetch(item.entry.id), interactive: !lazy && current_player.present?, lazy: %>
       <% end %>

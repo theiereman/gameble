@@ -1976,6 +1976,15 @@ en:
         other: "%{count} new entries in the feed."
         zero: No new entries in the feed.
       discovered_html: "%{card}, found by %{name} for the first time in the community"
+      duel_stats: The cards' standing has moved.
+      duel_stats_fell_html: "%{card}, %{stat} down, from %{from} to %{to}"
+      duel_stats_rose_html: "%{card}, %{stat} up, from %{from} to %{to}"
+      duel_stats_stats:
+        circulation: circulation
+        discovery: discovery
+        popularity: popularity
+        rating: rating
+        release: release
       empty: Nothing here yet.
       empty_filter: Nothing in this filter yet.
       filters:
@@ -1992,6 +2001,7 @@ en:
         pulled: Pulled
         reposted: Reposted
         bought_html: Bought for %{amount}
+        duel_stats: Duel
         set_reached:
           complete: Completes the set
           metal_html: Reaches %{tier}
