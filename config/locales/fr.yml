@@ -179,7 +179,6 @@ fr:
       columns:
         rarity: "Rareté"
         season: "Cette saison"
-        overall: "Toutes saisons"
         copies: "Exemplaires"
       totals: "Total"
       figure:

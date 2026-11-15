@@ -224,8 +224,8 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster-card[data-revealed]", count: 5, wait: 15
 
     assert_selector copies, text: (commons + 2).to_s, exact_text: true, visible: :all, wait: 10
-    owned = Game::RarityLegend.call(@player).rows.first.overall.owned
-    assert_selector legend_cell(1, ".rarity-legend__overall .rarity-legend__owned"), text: owned.to_s, exact_text: true, visible: :all
+    owned = Game::RarityLegend.call(@player).rows.first.season.owned
+    assert_selector legend_cell(1, ".rarity-legend__season .rarity-legend__owned"), text: owned.to_s, exact_text: true, visible: :all
     assert_equal commons + 2, Integer(rarity_count("common"))
   end
 

@@ -71,14 +71,14 @@
 
 /* ---- Layout: info column, stage ---- */
 
-/* Rays, rings and a lifted card may reach past the screen's sides: clipped
-   there, so the page never scrolls sideways (overflow-x: clip makes no
-   scroll container, and sits far above the cards' 3D stack). */
+/* Clips rays at the screen's sides; Safari lacks overflow-clip-margin, so the edge bleeds out. */
 .booster {
   display: grid;
   grid-template-columns: 300px minmax(0, 1fr);
   gap: 40px;
   align-items: start;
+  margin-inline: calc(-1 * var(--space-3));
+  padding-inline: var(--space-3);
   overflow-x: clip;
 }
 
