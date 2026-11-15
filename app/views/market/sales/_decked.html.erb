@@ -1,0 +1,4 @@
+<li class="sale-decked">
+  <span class="sale-decked__title"><%= copy.card.title %> · <%= t("card_details.season_short", number: copy.card.season_number) %></span>
+  <%= render "decks/holding", names: @decks_by_ref.fetch(copy.ref), ref: copy.ref, title: copy.card.title, class_name: "sale-decked__holding" %>
+</li>

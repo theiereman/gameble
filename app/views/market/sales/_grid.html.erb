@@ -13,6 +13,9 @@
     <ul id="sale-cells" class="sale-grid__list" role="listbox" aria-label="<%= t("market.sales.new.choose") %>" data-action="keydown->listing-grid#keydown">
       <%= render partial: "market/sales/cell", collection: @copies, as: :copy %>
     </ul>
+    <ul id="sale-decked" class="sale-grid__decked">
+      <%= render partial: "market/sales/decked", collection: @copies.select { @decks_by_ref.key?(it.ref) }, as: :copy %>
+    </ul>
     <%= render "market/copy_pages", pagy: @pagy, id: "sale-pages" %>
   <% end %>
 <% end %>

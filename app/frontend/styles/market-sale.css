@@ -360,3 +360,51 @@
   flex-direction: column;
   gap: var(--space-1);
 }
+
+.sale-cell[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+.sale-cell__reserved {
+  align-self: flex-start;
+}
+
+.sale-cell__decks {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  overflow-wrap: anywhere;
+}
+
+.sale-grid__decked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sale-grid__decked:not(:has(li)) {
+  display: none;
+}
+
+.sale-decked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+}
+
+.sale-decked__title {
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.sale-decked__holding {
+  flex-direction: row;
+  flex-wrap: wrap;
+}

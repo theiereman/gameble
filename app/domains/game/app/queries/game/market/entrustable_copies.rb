@@ -1,7 +1,7 @@
 module Game
   module Market
     # What a player can entrust: every unreserved copy of an edition that has a rarity, with what the Brotherhood pays for it,
-    # most valuable first, then by season, title and ref.
+    # most valuable first, then by season, title and ref. An edition a deck holds shows even with no free copy, to be freed there.
     module EntrustableCopies
       Copy = Data.define(:ref, :title, :rarity, :season_number, :free, :owned, :value, :card)
 
@@ -14,7 +14,8 @@ module Game
           JOIN catalog_cards ON catalog_cards.id = catalog_card_seasons.card_id
           LEFT JOIN catalog_card_texts localised ON localised.card_id = catalog_cards.id AND localised.locale = :locale
           LEFT JOIN catalog_card_texts fallback ON fallback.card_id = catalog_cards.id AND fallback.locale = 'en'
-         WHERE game_holdings.player_id = :player_id AND game_holdings.quantity > game_holdings.reserved
+         WHERE game_holdings.player_id = :player_id
+           AND (game_holdings.quantity > game_holdings.reserved OR #{HeldCopies::IN_DECK})
            AND catalog_card_seasons.rarity IS NOT NULL
            AND (CAST(:card_slug AS text) IS NULL OR catalog_cards.slug = :card_slug)
       SQL

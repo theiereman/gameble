@@ -8,10 +8,9 @@ module Game
       def self.from_friends(player, friend_ids, wanted, declined, now)
         taken = OpenTrades.requested_by(player, friend_ids, now) | declined.request
         spares = Hash.new { |hash, friend_id| hash[friend_id] = [] }
+        spare_games = SpareCopies.by_game(friend_ids, card_ids: wanted.keys)
         FreeEditions.call(friend_ids, wanted.keys).each do |(friend_id, card_id), editions|
-          next if taken.include?([ friend_id, card_id ])
-
-          next unless FreeEditions.copies(editions) >= TradeSuggestions::DUPLICATE_COPIES
+          next if taken.include?([ friend_id, card_id ]) || !spare_games.key?([ friend_id, card_id ])
 
           edition = FreeEditions.placed(editions) or next
           spares[friend_id] << Spare.new(card_id:, edition:, copies: FreeEditions.copies(editions), goal_positions: wanted.fetch(card_id).uniq.sort)
@@ -25,8 +24,9 @@ module Game
         gaps = GameSetGaps.call(friend_ids)
         return {} if gaps.empty?
 
+        spare_games = SpareCopies.by_game([ player.id ])
         spared = FreeEditions.call([ player.id ], nil).filter_map do |(_, card_id), editions|
-          next unless FreeEditions.copies(editions) >= TradeSuggestions::DUPLICATE_COPIES
+          next unless spare_games.key?([ player.id, card_id ])
 
           (edition = FreeEditions.placed(editions)) && [ card_id, edition, FreeEditions.copies(editions) ]
         end

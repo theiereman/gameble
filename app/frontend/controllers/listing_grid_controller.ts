@@ -70,6 +70,7 @@ export default class ListingGridController extends Controller<HTMLElement> {
   }
 
   private pick(cell: HTMLElement | null): void {
+    if (cell?.getAttribute("aria-disabled") === "true") return
     const ref = cell?.dataset.ref
     if (ref) this.dispatch("chosen", { detail: { ref } })
   }

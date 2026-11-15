@@ -1,6 +1,7 @@
 class DeckPolicy < ApplicationPolicy
   def new? = player?
   def create? = player?
+  def remove_card? = player?
 
   def show? = owner?
   def update? = owner?

@@ -11,8 +11,10 @@ module TradesHelper
                               clear: :clearFilters, more: :showMore, move: :moveActive, place: :place, close: :closePicker }
   }.freeze
 
-  BoardPick = Data.define(:key, :view, :owned, :reserved, :max, :copies, :other_copies, :price) do
+  BoardPick = Data.define(:key, :view, :owned, :reserved, :max, :copies, :other_copies, :price, :decks) do
     def unavailable? = max < 1
+    def decked? = decks.any?
+    def reserved_elsewhere = reserved - (decked? ? 1 : 0)
   end
   BoardLine = Data.define(:pick, :quantity) do
     def key = pick.key
@@ -118,7 +120,7 @@ module TradesHelper
   def trade_card_limit(side, held_copy)
     return 0 unless held_copy
 
-    side == :own ? held_copy.free : held_copy.quantity
+    side == :own ? held_copy.free : held_copy.offerable
   end
 
   def trade_card_key(view)
@@ -150,23 +152,26 @@ module TradesHelper
   def trade_draft_key(player, friend) = "#{player.token}:#{friend.token}"
   def trade_counter_key(player, row) = "#{player.token}:#{row.token}:#{row.expires_at.to_i}"
 
-  def trade_board_locals(trade, cards:, prices:, own_held: nil, friend_held: nil, picks: nil, editing: false, **locals)
+  def trade_board_locals(trade, cards:, prices:, own_held: nil, friend_held: nil, picks: nil, decks: {}, editing: false, **locals)
     return {} unless trade
 
-    editor = (trade_board_editor(trade.friend_side, trade.own_side, own_held:, friend_held:, picks:, prices:) if trade.state == :yours && own_held && friend_held && picks)
+    if trade.state == :yours && own_held && friend_held && picks
+      editor = trade_board_editor(trade.friend_side, trade.own_side, own_held:, friend_held:, picks:, prices:, decks:)
+    end
     locals.merge(editing:, editor:, own_held:, friend_held:, prices:)
   end
 
-  def trade_draft_editor(own_held:, friend_held:, picks:, prices:, prefill: nil)
-    trade_board_editor(prefill&.lines(:take) || [], prefill&.lines(:give) || [], own_held:, friend_held:, picks:, prices:)
+  def trade_draft_editor(own_held:, friend_held:, picks:, prices:, decks: {}, prefill: nil)
+    trade_board_editor(prefill&.lines(:take) || [], prefill&.lines(:give) || [], own_held:, friend_held:, picks:, prices:, decks:)
   end
 
-  def trade_board_editor(friend_lines, own_lines, own_held:, friend_held:, picks:, prices:)
+  def trade_board_editor(friend_lines, own_lines, own_held:, friend_held:, picks:, prices:, decks: {})
     {
       friend: trade_board_side(:friend, held: friend_held, other_held: own_held, picks:, prices:, received: friend_lines),
-      own: trade_board_side(:own, held: own_held, other_held: friend_held, picks:, prices:, received: own_lines),
+      own: trade_board_side(:own, held: own_held, other_held: friend_held, picks:, prices:, received: own_lines, decks:),
       faces: (friend_lines + own_lines).filter_map { picks[it.card_season_id] }.uniq,
-      priced: prices.any?
+      priced: prices.any?,
+      decks:, deck_views: picks.slice(*decks.keys)
     }
   end
 
@@ -197,7 +202,8 @@ module TradesHelper
   def trade_pick_label(pick)
     goals = goal_marks.goals_for(pick.view.card_id)
     [ t("trade_board.card_label", title: pick.view.title, owned: trade_pick_text(:owned, pick.owned) { t("trade_board.owned", count: pick.owned) }),
-      (trade_pick_text(:reserved_elsewhere, pick.reserved) { t("trade_board.reserved_elsewhere", count: pick.reserved) } if pick.reserved.positive?),
+      (trade_pick_text(:reserved_elsewhere, pick.reserved_elsewhere) { t("trade_board.reserved_elsewhere", count: pick.reserved_elsewhere) } if pick.reserved_elsewhere.positive?),
+      (deck_holding_words(pick.decks) if pick.decked?),
       (t("trade_board.unavailable") if pick.unavailable?),
       (trade_pick_text(:goals, goals.map(&:goal_id)) { goal_card_words(goals) } if goals.any?),
       (trade_pick_text(:price, pick.price) { average_price_words(pick.price, flag_few_sales: false) } if pick.price) ].compact.join(", ")
@@ -236,15 +242,15 @@ module TradesHelper
       (@trade_pick_texts ||= {})[[ kind, value ]] ||= yield
     end
 
-    def trade_board_side(side, held:, other_held:, picks:, prices:, received:)
-      copies = trade_game_copies(held, picks, count: side == :own ? :free : :quantity)
+    def trade_board_side(side, held:, other_held:, picks:, prices:, received:, decks: {})
+      copies = trade_game_copies(held, picks, count: side == :own ? :free : :offerable)
       other_copies = trade_game_copies(other_held, picks, count: :quantity)
       views = held.keys.filter_map { |id| picks[id] && [ id, picks[id] ] }
       views.sort_by! { |_, view| [ view.season_number, view.number ? 0 : 1, view.number.to_i, view.title ] }
       by_id = views.to_h do |id, view|
         row = held.fetch(id)
         [ id, BoardPick.new(key: trade_card_key(view), view:, owned: row.quantity, reserved: side == :own ? row.reserved : 0,
-          max: trade_card_limit(side, row), copies: copies[view.id], other_copies: other_copies[view.id], price: prices[id]) ]
+          max: trade_card_limit(side, row), copies: copies[view.id], other_copies: other_copies[view.id], price: prices[id], decks: decks.fetch(id, [])) ]
       end
       { picks: by_id.values, lines: trade_board_initial_lines(received, by_id) }
     end

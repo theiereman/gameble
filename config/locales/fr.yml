@@ -1657,6 +1657,10 @@ fr:
       past_the_end: "Plus aucune carte ici : la grille s'arrête sur une page précédente. Revenez à la dernière page."
       new: "Nouveau"
       reserved:
+        in_deck:
+          zero: "Dans un deck"
+          one: "Dans un deck"
+          other: "%{count} dans des decks"
         on_sale:
           zero: "%{count} en vente"
           one: "%{count} en vente"
@@ -3326,7 +3330,8 @@ fr:
       none:
         title: "Aucune carte disponible."
         none_owned: "Vous n'avez plus aucune de ces cartes."
-        all_reserved: "Vos exemplaires sont tous réservés dans d'autres échanges."
+        all_reserved: "Vos exemplaires sont tous réservés : dans d'autres échanges, en vente ou dans un deck."
+        friend_all_reserved: "%{name} n'a aucun exemplaire à proposer pour l'instant."
         friend_none_owned: "%{name} n'a plus aucune de ces cartes."
     actions:
       accept: "Accepter"
@@ -3908,6 +3913,23 @@ fr:
         full: "Le deck est complet."
         same_game: "Ce jeu est déjà dans le deck."
         save_failed: "Enregistrement impossible, réessayez."
+    holding:
+      tag: "Dans un deck"
+      names: "Dans : %{decks}"
+      words: "dans un deck : %{decks}"
+      remove: "Retirer des decks"
+      remove_label: "Retirer %{card} des decks"
+    removal:
+      title:
+        zero: "Retirer %{card} des decks ?"
+        one: "Retirer %{card} de %{count} deck ?"
+        other: "Retirer %{card} de %{count} decks ?"
+      text: "Un deck complet redevient un brouillon."
+      confirm: "Retirer"
+      cancel: "Annuler"
+      close: "Fermer"
+      done: "%{card} n'est plus dans aucun deck."
+      throttled: "Trop de retraits en une minute. Réessayez dans un instant."
   duel_stats:
     heading: "Duel"
     trump: "Atout"
@@ -4032,6 +4054,10 @@ fr:
     copies_reserved: "%{copies}, dont %{reserved}"
     reserved:
       and: " et "
+      in_deck:
+        zero: "%{count} dans un deck"
+        one: "%{count} dans un deck"
+        other: "%{count} dans des decks"
       on_sale:
         zero: "%{count} en vente"
         one: "%{count} en vente"

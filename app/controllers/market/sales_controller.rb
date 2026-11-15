@@ -2,6 +2,7 @@ module Market
   class SalesController < ApplicationController
     include PublicRead
     include CopyGrid
+    include DeckHoldingLoading
 
     throttle_player to: 10, only: :create, path: -> { new_market_sale_path }, alert: "market.sales.create.throttled"
 
@@ -36,6 +37,7 @@ module Market
         @card_slug = card_slug
         @filter = copy_filter(doubles_by_default: false)
         load_grid
+        load_deck_holding
         choose(@copies.first.ref) if @pagy.count == 1 && !@filter.narrowing?
         @available = listed? ? Game::Market::Balance.call(current_player).available : 0
         @values = { start: "", duration: @settings&.preselected_duration_hours.to_s }
@@ -64,7 +66,7 @@ module Market
         return false if ref.blank?
 
         copy = @copies.find { it.ref == ref } || (Game::Market::SellableCopies.call(current_player, card_slug: @card_slug, refs: [ ref ]).first if listed?)
-        return false unless copy
+        return false unless copy&.free&.positive?
 
         @chosen_ref = ref
         @chosen_copy = copy

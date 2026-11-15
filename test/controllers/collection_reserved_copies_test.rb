@@ -121,6 +121,23 @@ class CollectionReservedCopiesTest < ActionDispatch::IntegrationTest
     assert_empty reasons("Tin Soldier")
   end
 
+  test "a copy a deck blocks reads as in a deck, on the grid, the album and the detail, never as in a trade" do
+    add_puzzle_set
+    deck = Game::Deck.create!(player_id: @player.id, name: "Vieux briscards")
+    Game::DeckCard.create!(deck_id: deck.id, card_season_id: @portal.id, card_id: @portal.card_id, slot: 1)
+    Game::Holding.where(player_id: @player.id, card_season_id: @portal.id).update_all("reserved = reserved + 1")
+    sign_in(@player)
+
+    get library_cards_path(locale: :en)
+    assert_equal [ "In a deck", "1 on sale", "1 in a trade" ], reasons("Portal")
+
+    get library_set_path(locale: :fr, kind: "theme", key: "puzzle")
+    assert_equal [ "Dans un deck", "1 en vente", "1 en échange" ], reasons("Portal")
+
+    get card_season_path(locale: :en, slug: "portal", number: 1)
+    assert_select ".card-detail__copies", "3 copies, including 1 in a deck, 1 on sale, and 1 in a trade"
+  end
+
   test "an only copy on sale keeps its tile owned, with its reason" do
     blue = catalog_card_seasons(:rare_card_one)
     hold(@player, blue.id, 1, reserved: 1)

@@ -1,0 +1,6 @@
+<%# locals: (holding:, views:) %>
+<% holding.each do |card_season_id, decks| %>
+  <% if (view = views[card_season_id]) %>
+    <%= render "decks/removal_dialog", ref: deck_removal_ref(view), title: view.title, decks: %>
+  <% end %>
+<% end %>

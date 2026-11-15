@@ -1,0 +1,25 @@
+<%# locals: (ref:, title:, decks:) %>
+<% id = deck_removal_dialog_id(ref) %>
+<dialog id="<%= id %>" class="modal" aria-labelledby="<%= id %>-title" aria-describedby="<%= id %>-text"
+        data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="<%= id %>-title" class="modal__title"><%= t("decks.removal.title", card: title, count: decks.size) %></p>
+      <button type="button" class="modal__close" aria-label="<%= t("decks.removal.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= form_with url: deck_removals_path, method: :post, class: "deck-removal__form", data: { turbo: false } do %>
+      <%= hidden_field_tag :ref, ref, id: nil %>
+      <p id="<%= id %>-text" class="deck-removal__text">
+        <span class="deck-removal__decks"><%= deck_holding_names(decks) %></span>
+        <%= t("decks.removal.text") %>
+      </p>
+      <div class="deck-removal__actions">
+        <%= tag.button t("decks.removal.confirm"), type: :submit, class: "button button--primary" %>
+        <%= tag.button t("decks.removal.cancel"), type: :button, class: "button button--secondary", data: { action: "dialog#close" } %>
+      </div>
+    <% end %>
+  <% end %>
+</dialog>

@@ -2,6 +2,7 @@ module Market
   class EntrustmentsController < ApplicationController
     include PublicRead
     include CopyGrid
+    include DeckHoldingLoading
 
     SELECTION_SEPARATOR = ",".freeze
     SELECTION_PAIR = /\A(?<ref>[^:,=\s]+:\d+)=(?<copies>\d+)\z/
@@ -71,13 +72,14 @@ module Market
         @filter = asked_filter
         @cap_left = listed? ? Game::Market::CapLeft.call(current_player.id, settings: @settings) : 0
         load_grid
+        load_deck_holding
         @ticked_copies = keep_ticks ? ticked_copies : []
         @ticked_copies = [ [ @copies.first, 1 ] ] if lone_card_edition?
         @ticked = @ticked_copies.to_h { |copy, count| [ copy.ref, count ] }
       end
 
       # A card's page with a single free edition opens with it ticked.
-      def lone_card_edition? = @card_slug.present? && ticked.empty? && @copies.one?
+      def lone_card_edition? = @card_slug.present? && ticked.empty? && @copies.one? && @copies.first.free.positive?
 
       def load_grid
         count = listed? ? Game::Market::EntrustableCopies.count(current_player, card_slug: @card_slug, filter: @filter) : 0

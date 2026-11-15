@@ -238,3 +238,16 @@
 .entrust-cell--picked:has(.entrust-cell__stepper) .entrust-cell__free {
   display: none;
 }
+
+.entrust-cell__toggle[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+.entrust-cell__reserved {
+  align-self: flex-start;
+}
+
+.entrust-cell__decks {
+  position: relative;
+  z-index: 5;
+}

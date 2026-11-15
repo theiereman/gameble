@@ -1,0 +1,6 @@
+<%# locals: (names:, ref:, title:, class_name: nil) %>
+<%= tag.div class: class_names("deck-holding", class_name) do %>
+  <span class="deck-holding__names"><%= deck_holding_names(names) %></span>
+  <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: deck_removal_dialog_id(ref),
+        aria_label: t("decks.holding.remove_label", card: title)) do %><%= t("decks.holding.remove") %><% end %>
+<% end %>

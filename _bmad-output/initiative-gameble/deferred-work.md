@@ -670,6 +670,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-a-player-builds-a-deck-of-twelve-cards-in-the-deck-editor-plan.md`
   summary: Deck-blocked copies read as "in a trade" on the collection grid, the set album and the card page until `Game::ReservedCopies` gains the in-deck share.
   evidence: the deck operations raise `game_holdings.reserved` and `Game::ReservedCopies` computes `in_trade` as reserved minus listings (`app/domains/game/app/queries/game/reserved_copies.rb`); the epic gives the in-deck share to the story naming deck cards on the trade, sale and entrust screens; staging only, since release 1.4 ships the epic together.
+  resolved: `Game::ReservedCopies` returns the in-deck share, and the grid, album and card page read "Dans un deck" (story-a-deck-card-s-copy-is-named-and-freed-on-the-trade-sale-and-plan, 2026-11-15).
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-a-player-builds-a-deck-of-twelve-cards-in-the-deck-editor-plan.md`
   summary: `npm run test:js` sometimes exits 1 on an unhandled error from `annonce_controller.test.ts` (`posted` reading `state` of a disconnected controller from a timer), while every test passes.
   evidence: reproduced on the baseline `ad7a35b8` in a clean worktree (132 files, 1388 tests passed, 1 unhandled error, exit 1); `app/frontend/controllers/annonce_controller.ts:180` `postLive` runs from a timer after disconnect; unrelated to the deck editor.

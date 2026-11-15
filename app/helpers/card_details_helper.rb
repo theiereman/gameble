@@ -78,7 +78,8 @@ module CardDetailsHelper
     held = t("card_details.copies", count: copies)
     return held if reserved.nil?
 
-    reasons = [ (t("card_details.reserved.on_sale", count: reserved.on_sale) if reserved.on_sale.positive?),
+    reasons = [ (t("card_details.reserved.in_deck", count: reserved.in_deck) if reserved.in_deck.positive?),
+      (t("card_details.reserved.on_sale", count: reserved.on_sale) if reserved.on_sale.positive?),
       (t("card_details.reserved.in_trade", count: reserved.in_trade) if reserved.in_trade.positive?) ].compact
     t("card_details.copies_reserved", copies: held, reserved: reasons.to_sentence(two_words_connector: t("card_details.reserved.and")))
   end

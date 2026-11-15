@@ -1306,6 +1306,9 @@ en:
     copies_reserved: "%{copies}, including %{reserved}"
     reserved:
       and: " and "
+      in_deck:
+        one: "%{count} in a deck"
+        other: "%{count} in decks"
       in_trade:
         one: "%{count} in a trade"
         other: "%{count} in trade"
@@ -1677,6 +1680,23 @@ en:
         removed: "%{card} removed, %{count} of 12"
         same_game: This game is already in the deck.
         save_failed: Could not save, try again.
+    holding:
+      names: 'In: %{decks}'
+      remove: Remove from decks
+      remove_label: Remove %{card} from its decks
+      tag: In a deck
+      words: 'in a deck: %{decks}'
+    removal:
+      cancel: Cancel
+      close: Close
+      confirm: Remove
+      done: "%{card} is in no deck any more."
+      text: A complete deck becomes a draft again.
+      throttled: Too many removals in a minute. Try again in a moment.
+      title:
+        one: Remove %{card} from %{count} deck?
+        other: Remove %{card} from %{count} decks?
+        zero: Remove %{card} from its decks?
   duel_stats:
     dated: Values of %{date}
     heading: Duel
@@ -2756,6 +2776,9 @@ en:
       past_the_end: 'No more cards here: the grid ends on an earlier page. Go back
         to the last page.'
       reserved:
+        in_deck:
+          one: In a deck
+          other: "%{count} in decks"
         in_trade:
           one: "%{count} in a trade"
           other: "%{count} in trade"
@@ -4650,7 +4673,8 @@ en:
       friend_received: "%{name} received"
       new: New
       none:
-        all_reserved: Your copies are all reserved in other trades.
+        all_reserved: 'Your copies are all reserved: in other trades, on sale or in a deck.'
+        friend_all_reserved: "%{name} has no copy to offer for now."
         friend_none_owned: "%{name} no longer holds any of these cards."
         none_owned: You no longer hold any of these cards.
         title: No card available.

@@ -88,6 +88,8 @@ Rails.application.routes.draw do
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # The Duels screen: the player's decks.
     get "duels" => "duels#show", as: :duels
+    # Takes an edition out of every deck of the player, from the trade, sale and entrust screens.
+    post "duels/decks/removals" => "deck_removals#create", as: :deck_removals
     # A player's decks, by token: a new deck's editor writes nothing until its first change; each change saves at once.
     resources :decks, path: "duels/decks", only: %i[new create show update destroy], param: :token,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }

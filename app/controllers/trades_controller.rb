@@ -204,6 +204,7 @@ class TradesController < ApplicationController
       @own_cards = Game::HeldCopies.call(current_player)
       @friend_cards = Game::HeldCopies.call(friend)
       @picks = Catalog::CardViews.call(@own_cards.keys + @friend_cards.keys, locale: I18n.locale)
+      @deck_names = Game::DecksHolding.call(current_player)
     end
 
     def load_prices

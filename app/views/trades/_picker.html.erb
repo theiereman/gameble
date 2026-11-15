@@ -67,7 +67,8 @@
         <span data-for="friend"><%= trade_picker_none(:friend, friend) %></span><span data-for="own"><%= trade_picker_none(:own, friend) %></span>
       </p>
       <p class="trade-picker__empty" data-trade-board-picker-target="empty" data-reason="reserved" hidden>
-        <b class="trade-picker__empty-title"><%= t("trades.side.none.title") %></b> <%= t("trades.side.none.all_reserved") %>
+        <b class="trade-picker__empty-title"><%= t("trades.side.none.title") %></b>
+        <span data-for="friend"><%= t("trades.side.none.friend_all_reserved", name:) %></span><span data-for="own"><%= t("trades.side.none.all_reserved") %></span>
       </p>
       <p class="trade-picker__empty" data-trade-board-picker-target="empty" data-reason="unmatched" hidden><%= t("trade_board.no_match") %></p>
       <ul class="trade-picker__grid" aria-labelledby="trade-picker-title" data-trade-board-picker-target="grid"

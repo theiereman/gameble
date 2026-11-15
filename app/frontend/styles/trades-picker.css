@@ -240,3 +240,7 @@
     min-height: 0;
   }
 }
+
+.trade-pick__decks {
+  max-width: var(--card-s-width);
+}

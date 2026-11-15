@@ -55,6 +55,7 @@
         <%= render "market/entrustments/ticks" %>
       <% end %>
       <%= tag.form id: "entrust-filter", action: @grid_path, method: :get, hidden: true, data: { turbo_frame: "entrust-results" } %>
+      <%= render "decks/removal_dialogs", holding: @deck_names, views: @deck_views %>
     <% end %>
   <% end %>
 </div>

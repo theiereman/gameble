@@ -1,4 +1,7 @@
 <span class="collection-slot__reserved">
+  <% if reserved.in_deck.positive? %>
+    <span class="collection-slot__reason"><%= t("library.grid.reserved.in_deck", count: reserved.in_deck) %></span>
+  <% end %>
   <% if reserved.on_sale.positive? %>
     <span class="collection-slot__reason"><%= t("library.grid.reserved.on_sale", count: reserved.on_sale) %></span>
   <% end %>

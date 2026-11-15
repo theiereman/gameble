@@ -22,9 +22,9 @@ module MarketEntrustmentsHelper
     { ref: copy.ref, title: copy.title, rarity: copy.rarity, season: copy.season_number, free: copy.free, owned: copy.owned, value: copy.value }
   end
 
-  def entrust_cell_label(copy)
+  def entrust_cell_label(copy, decks = nil)
     [ copy.title, t("catalog.rarity.#{copy.rarity}"), t("market.entrustments.new.season", number: copy.season_number),
-      picoins_label(copy.value), t("market.entrustments.new.free", count: copy.free) ].join(", ")
+      picoins_label(copy.value), t("market.entrustments.new.free", count: copy.free), (deck_holding_words(decks) if decks) ].compact.join(", ")
   end
 
   def entrust_line_stepper

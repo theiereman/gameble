@@ -1,6 +1,7 @@
 module Game
   module Market
     # What a player can put up for sale: the editions with a free copy and a title in the locale, rarest first, then by season, title and ref.
+    # An edition a deck holds shows even with no free copy, to be freed there.
     module SellableCopies
       Copy = Data.define(:ref, :card, :free, :reserved)
 
@@ -11,7 +12,8 @@ module Game
           JOIN catalog_cards ON catalog_cards.id = catalog_card_seasons.card_id
           JOIN catalog_card_texts localised ON localised.card_id = catalog_cards.id AND localised.locale = :locale
           LEFT JOIN catalog_card_texts fallback ON fallback.card_id = catalog_cards.id AND fallback.locale = 'en'
-         WHERE game_holdings.player_id = :player_id AND game_holdings.quantity > game_holdings.reserved
+         WHERE game_holdings.player_id = :player_id
+           AND (game_holdings.quantity > game_holdings.reserved OR #{HeldCopies::IN_DECK})
            AND catalog_card_seasons.rarity IS NOT NULL
            AND (CAST(:card_slug AS text) IS NULL OR catalog_cards.slug = :card_slug)
       SQL

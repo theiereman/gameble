@@ -63,6 +63,7 @@
         </div>
       <% end %>
       <%= tag.form id: "sale-filter", action: @grid_path, method: :get, hidden: true, data: { turbo_frame: "sale-results" } %>
+      <%= render "decks/removal_dialogs", holding: @deck_names, views: @deck_views %>
     <% end %>
   <% end %>
 </section>

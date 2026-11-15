@@ -26,7 +26,14 @@ class Game::ReservedCopiesTest < ActiveSupport::TestCase
       rarity: one.rarity, number: one.number } ], returning: :id).rows.flatten.sole
   end
 
-  def set_apart(on_sale:, in_trade:) = Game::ReservedCopies::Reserved.new(on_sale:, in_trade:)
+  def set_apart(on_sale:, in_trade:, in_deck: 0) = Game::ReservedCopies::Reserved.new(in_deck:, on_sale:, in_trade:)
+
+  def deck!(name, *card_seasons, player: @player)
+    deck = Game::Deck.create!(player_id: player.id, name:)
+    card_seasons.each_with_index do |card_season, index|
+      Game::DeckCard.create!(deck_id: deck.id, card_season_id: card_season.id, card_id: card_season.card_id, slot: index + 1)
+    end
+  end
 
   def reserved(card_ids = [ @portal ]) = Game::ReservedCopies.call(@player, card_ids:)
 
@@ -35,7 +42,7 @@ class Game::ReservedCopiesTest < ActiveSupport::TestCase
     on_sale(@portal_one)
 
     assert_equal({ @portal => set_apart(on_sale: 1, in_trade: 0) }, reserved)
-    assert_equal 0, Game::ReservedCopies.duplicates(@player)
+    assert_equal 0, Game::SpareCopies.total(@player)
   end
 
   test "the only copy on sale is still reserved, and no duplicate" do
@@ -43,7 +50,7 @@ class Game::ReservedCopiesTest < ActiveSupport::TestCase
     on_sale(@portal_one)
 
     assert_equal({ @portal => set_apart(on_sale: 1, in_trade: 0) }, reserved)
-    assert_equal 0, Game::ReservedCopies.duplicates(@player)
+    assert_equal 0, Game::SpareCopies.total(@player)
   end
 
   test "a copy on sale and one in a trade: what no listing explains is in a trade" do
@@ -51,7 +58,7 @@ class Game::ReservedCopiesTest < ActiveSupport::TestCase
     on_sale(@portal_one)
 
     assert_equal({ @portal => set_apart(on_sale: 1, in_trade: 1) }, reserved)
-    assert_equal 0, Game::ReservedCopies.duplicates(@player)
+    assert_equal 0, Game::SpareCopies.total(@player)
   end
 
   test "copies spread over editions add up per game; the free copies make the duplicates" do
@@ -60,7 +67,7 @@ class Game::ReservedCopiesTest < ActiveSupport::TestCase
     on_sale(@portal_one)
 
     assert_equal({ @portal => set_apart(on_sale: 1, in_trade: 0) }, reserved)
-    assert_equal 1, Game::ReservedCopies.duplicates(@player)
+    assert_equal 1, Game::SpareCopies.total(@player)
   end
 
   test "a listing no longer open is no copy on sale; another player's listings never count" do
@@ -86,14 +93,45 @@ class Game::ReservedCopiesTest < ActiveSupport::TestCase
     hold(@player, catalog_card_seasons(:rare_card_one).id, 1)
     hold(@player, catalog_card_seasons(:common_card_one).id, 0)
 
-    assert_equal 3, Game::ReservedCopies.duplicates(@player)
+    assert_equal 3, Game::SpareCopies.total(@player)
+  end
+
+  test "a deck blocks one copy of its edition, the only reason when nothing else is reserved" do
+    hold(@player, @portal_one.id, 1, reserved: 1)
+    deck!("Vieux briscards", @portal_one)
+
+    assert_equal({ @portal => set_apart(in_deck: 1, on_sale: 0, in_trade: 0) }, reserved)
+  end
+
+  test "beside a deck, a listing and a trade each keep their copy" do
+    hold(@player, @portal_one.id, 4, reserved: 3)
+    deck!("Vieux briscards", @portal_one)
+    on_sale(@portal_one)
+
+    assert_equal({ @portal => set_apart(in_deck: 1, on_sale: 1, in_trade: 1) }, reserved)
+  end
+
+  test "an edition in two decks blocks one copy, and a deck-blocked copy is never read as on sale" do
+    hold(@player, @portal_one.id, 2, reserved: 2)
+    deck!("Vieux briscards", @portal_one)
+    deck!("Nouveaux venus", @portal_one)
+    on_sale(@portal_one, 2)
+
+    assert_equal({ @portal => set_apart(in_deck: 1, on_sale: 1, in_trade: 0) }, reserved)
+  end
+
+  test "another player's deck sets nothing apart" do
+    hold(@player, @portal_one.id, 2, reserved: 1)
+    deck!("Vieux briscards", @portal_one, player: accounts_players(:moderator))
+
+    assert_equal({ @portal => set_apart(in_deck: 0, on_sale: 0, in_trade: 1) }, reserved)
   end
 
   test "a visitor or no card asked costs no query" do
     assert_queries_count(0) do
       assert_equal({}, Game::ReservedCopies.call(nil, card_ids: [ @portal ]))
       assert_equal({}, Game::ReservedCopies.call(@player, card_ids: []))
-      assert_equal 0, Game::ReservedCopies.duplicates(nil)
+      assert_equal 0, Game::SpareCopies.total(nil)
     end
   end
 end

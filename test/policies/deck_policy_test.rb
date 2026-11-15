@@ -5,13 +5,13 @@ class DeckPolicyTest < ActiveSupport::TestCase
     DeckPolicy.new(role == :visitor ? nil : accounts_players(role), record)
   end
 
-  test "a visitor may not open the editor nor make a deck" do
-    %i[new? create?].each { assert_not policy_for(:visitor).public_send(it) }
+  test "a visitor may not open the editor, make a deck nor take a card out of their decks" do
+    %i[new? create? remove_card?].each { assert_not policy_for(:visitor).public_send(it) }
   end
 
   [ :player, :moderator, :administrator ].each do |role|
-    test "a #{role} may open the editor and make a deck" do
-      %i[new? create?].each { assert policy_for(role).public_send(it) }
+    test "a #{role} may open the editor, make a deck and take a card out of their decks" do
+      %i[new? create? remove_card?].each { assert policy_for(role).public_send(it) }
     end
   end
 

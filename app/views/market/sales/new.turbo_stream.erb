@@ -1,2 +1,3 @@
 <%= turbo_stream.append "sale-cells", partial: "market/sales/cell", collection: @copies, as: :copy %>
+<%= turbo_stream.append "sale-decked", partial: "market/sales/decked", collection: @copies.select { @decks_by_ref.key?(it.ref) }, as: :copy %>
 <%= turbo_stream.replace "sale-pages", partial: "market/copy_pages", locals: { pagy: @pagy, id: "sale-pages" } %>

@@ -82,6 +82,7 @@
   <% end %>
   <% if editor %>
     <%= render "trades/picker", editor:, friend: trade.friend %>
+    <%= render "decks/removal_dialogs", holding: editor[:decks], views: editor[:deck_views] %>
     <%= render "trades/faces", views: editor[:faces] %>
   <% end %>
 <% end %>

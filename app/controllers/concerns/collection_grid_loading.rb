@@ -135,7 +135,7 @@ module CollectionGridLoading
       @unique = @games_by_rarity.values.sum
       @season_cards = Catalog::CardCount.call(@season)
       @tier_counts = Game::TierCounts.call(grid_owner)
-      @duplicates = Game::ReservedCopies.duplicates(grid_owner)
+      @duplicates = Game::SpareCopies.total(grid_owner)
     end
 
     def page_param

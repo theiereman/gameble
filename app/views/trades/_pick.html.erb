@@ -2,7 +2,9 @@
   <div class="<%= pick.unavailable? ? "trade-pick__card trade-pick__card--unavailable" : "trade-pick__card" %>">
     <div class="trade-pick__face trade-pick__face--pending" aria-hidden="true"></div>
     <span class="trade-pick__owned" aria-hidden="true">×<%= pick.owned %></span>
-    <% if pick.reserved.positive? %>
+    <% if pick.decked? %>
+      <span class="trade-card__reserved trade-pick__reserved" aria-hidden="true"><%= t("decks.holding.tag") %></span>
+    <% elsif pick.reserved.positive? %>
       <span class="trade-card__reserved trade-pick__reserved" aria-hidden="true"><%= trade_pick_reserved(pick) %></span>
     <% end %>
     <span class="trade-pick__check" aria-hidden="true" hidden>✓</span>
@@ -12,5 +14,8 @@
       <span class="trade-pick__price" aria-hidden="true"><%= trade_card_price(pick.price) %></span>
 <% end %>
     <span class="trade-pick__available"><%= trade_pick_available(pick) %></span>
+    <% if pick.decked? %>
+      <%= render "decks/holding", names: pick.decks, ref: deck_removal_ref(pick.view), title: pick.view.title, class_name: "trade-pick__decks" %>
+    <% end %>
   </div>
 </li>

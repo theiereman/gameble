@@ -29,6 +29,7 @@
     </div>
   </div>
   <%= render("trades/picker", editor:, friend:) %>
+  <%= render "decks/removal_dialogs", holding: editor[:decks], views: editor[:deck_views] %>
   <%= render "trades/faces", views: editor[:faces] %>
   <% [ :friend, :own ].each do |side| %>
     <% editor[side][:lines].each do |line| %>
