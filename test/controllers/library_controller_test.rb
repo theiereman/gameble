@@ -1042,7 +1042,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       assert_select ".all-cards-tile__unit", "sets"
       assert_select ".all-cards-tile__open", "Open"
     end
-    assert_select ".set-entry > section#goals:first-child + a.all-cards-tile + a.all-cards-tile + " \
+    assert_select ".set-entry > section#goals:first-child + div.set-entry__shortcuts + " \
       "turbo-frame#set-entry-in-progress.set-entry__in-progress[src='/en/library/in-progress'][loading=lazy][target=_top] + section.custom-sets"
     assert_select "turbo-frame#set-entry-in-progress p.set-entry__loading", "Loading the sets in progress…"
     assert_select ".set-tile, .set-row, .set-entry__empty", false
@@ -1337,7 +1337,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       assert_select ".all-cards-tile__fan", false
       assert_select ".all-cards-tile__open", "Ouvrir"
     end
-    assert_select "section#goals + a.all-cards-tile + a.all-cards-tile[href='/fr/library/sets'] + turbo-frame#set-entry-in-progress[src='/fr/library/in-progress'] + section.custom-sets"
+    assert_select ".set-entry__shortcuts > a.all-cards-tile[href='/fr/library/cards'] + a.all-cards-tile[href='/fr/library/sets']:last-child"
+    assert_select "section#goals + div.set-entry__shortcuts + turbo-frame#set-entry-in-progress[src='/fr/library/in-progress'] + section.custom-sets"
     assert_select "#goals p.goals__empty", "Aucun objectif. Ouvrez l'album d'un set et marquez-le comme objectif."
     assert_select "#goals .goal-suggestions, #goals .goals__list", false
 

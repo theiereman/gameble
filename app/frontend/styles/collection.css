@@ -170,6 +170,12 @@
   color: var(--color-accent);
 }
 
+.set-entry__shortcuts {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--space-6);
+}
+
 /* The way to every card of the season: a tile, so it never reads as the search's button. */
 .all-cards-tile {
   --all-cards-scale: 0.42;
@@ -249,8 +255,9 @@
 .all-cards-tile__side {
   display: flex;
   flex: none;
-  align-items: center;
-  gap: var(--space-6);
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-4);
 }
 
 .all-cards-tile__fan {
@@ -285,10 +292,17 @@ html .all-cards-tile__card > .card.card--s {
 }
 
 @media (max-width: 719px) {
-  .all-cards-tile {
-    --all-cards-scale: 0.34;
+  .set-entry__shortcuts {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-4);
+  }
 
-    padding: var(--space-5);
+  .all-cards-tile {
+    --all-cards-scale: 0.3;
+
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-4);
   }
 
   .all-cards-tile__count {
@@ -301,12 +315,18 @@ html .all-cards-tile__card > .card.card--s {
   }
 
   .all-cards-tile__side {
-    flex-direction: column;
-    align-items: flex-end;
-    gap: var(--space-4);
+    flex: 1;
+    align-items: stretch;
+    justify-content: flex-end;
+    gap: var(--space-3);
+  }
+
+  .all-cards-tile__fan {
+    justify-content: center;
   }
 
   .all-cards-tile__open {
+    justify-content: center;
     min-height: 40px;
   }
 }
