@@ -60,6 +60,7 @@
 @import "../styles/friends.css";
 @import "../styles/friends-invite.css";
 @import "../styles/trades.css";
+@import "../styles/exchanges-tabs.css";
 @import "../styles/trades-board.css";
 @import "../styles/trades-picker.css";
 @import "../styles/trades-suggestions.css";
@@ -114,6 +115,7 @@
 @import "../styles/card-detail-public.css";
 @import "../styles/duel-profile.css";
 @import "../styles/deck-editor.css";
+@import "../styles/duels.css";
 @import "../styles/live-strip.css";
 @import "../styles/card-trade.css";
 @import "../styles/card.css";

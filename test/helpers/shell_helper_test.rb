@@ -5,6 +5,7 @@ require_relative "../support/game_packs"
 # switch, and the top bar's figures read once per request.
 class ShellHelperTest < ActionView::TestCase
   include GamePacks
+  include ExchangesHelper
 
   attr_accessor :current_player
 
@@ -62,7 +63,7 @@ class ShellHelperTest < ActionView::TestCase
       %w[packs show] => "Capsule", %w[trades show] => "Trades", %w[trades edit] => "Trades", %w[friends show] => "Friends",
       %w[friend_profiles show] => "Profile", %w[public_profiles show] => "Profile", %w[public_profiles set] => "Set",
       %w[settings show] => "Profile", %w[feeds show] => "Feed", %w[pages legal] => "Legal notice", %w[pages how_it_works] => "How it works", %w[own_profiles show] => "My profile",
-      %w[decks new] => "Deck", %w[decks show] => "Deck",
+      %w[decks new] => "Deck", %w[decks show] => "Deck", %w[duels show] => "Duels",
       %w[back_office/dashboard show] => "Back-office", %w[back_office/import_runs index] => "Back-office",
       %w[pages home] => nil, %w[invite_links show] => nil
     }
@@ -81,6 +82,76 @@ class ShellHelperTest < ActionView::TestCase
       @controller_path, @action_name = "pages", "legal"
       assert_equal "Mentions légales", shell_screen_label
     end
+  end
+
+  setup { controller.request.path_parameters[:locale] = "en" }
+
+  def tabs_on(path, action)
+    @controller_path, @action_name = path, action
+    shell_tabs.to_h { |key, _icon, _path, current| [ key, current ] }
+  end
+
+  test "a player's five tabs, the trades tab leading to the kept sub-tab and DUELS to the Duels screen" do
+    self.current_player = accounts_players(:player)
+    @controller_path, @action_name = "pages", "home"
+
+    tabs = shell_tabs
+    assert_equal %i[hub booster sets trades duels], tabs.map(&:first)
+    assert_equal %w[tab-hub tab-capsule tab-sets tab-trades tab-duels], tabs.map(&:second)
+    assert_equal %w[/en /en/booster /en/library /en/exchanges /en/duels], tabs.map(&:third)
+  end
+
+  test "the trades and duels tabs are the page on their roots and current on their drill-downs" do
+    self.current_player = accounts_players(:player)
+
+    { %w[trades index] => "page", %w[markets show] => "page", %w[market/my_bids show] => "page", %w[market/my_sales show] => "page",
+      %w[trades show] => "true", %w[trades new] => "true", %w[trades edit] => "true", %w[trades choose] => "true",
+      %w[market/listings show] => "true", %w[pages home] => nil, %w[duels show] => nil }.each do |(path, action), current|
+      assert_equal current.to_s, tabs_on(path, action)[:trades].to_s, "#{path}##{action}"
+    end
+    { %w[duels show] => "page", %w[decks new] => "true", %w[decks show] => "true", %w[trades index] => nil }.each do |(path, action), current|
+      assert_equal current.to_s, tabs_on(path, action)[:duels].to_s, "#{path}##{action}"
+    end
+    assert_equal({ hub: "page", booster: nil, sets: nil, trades: nil, duels: nil }, tabs_on("feeds", "show"))
+    assert_equal "page", tabs_on("cards", "show")[:sets]
+    assert_equal "page", tabs_on("packs", "show")[:booster]
+  end
+
+  test "a visitor keeps two tabs, the page on their own screens" do
+    tabs = shell_tabs
+    assert_equal %i[landing all_cards], tabs.map(&:first)
+
+    assert_equal({ landing: nil, all_cards: "page" }, tabs_on("cards", "show"))
+    assert_equal({ landing: "page", all_cards: nil }, tabs_on("pages", "home"))
+  end
+
+  test "the Duels screen is a top-level screen for a player" do
+    self.current_player = accounts_players(:player)
+    @controller_path, @action_name = "duels", "show"
+
+    assert_predicate self, :shell_top_level_screen?
+  end
+
+  test "the trades badge names both parts, either part alone, or nothing beyond the label" do
+    assert_equal ", 2 trades and 1 auction to see", exchanges_badge_suffix(waiting: 2, outbid: 1)
+    assert_equal ", 1 auction to see", exchanges_badge_suffix(waiting: 0, outbid: 1)
+    assert_equal ", 3 trades to see", exchanges_badge_suffix(waiting: 3, outbid: 0)
+    assert_equal "", exchanges_badge_suffix(waiting: 0, outbid: 0)
+    I18n.with_locale(:fr) do
+      assert_equal ", 2 échanges et 1 enchère à voir", exchanges_badge_suffix(waiting: 2, outbid: 1)
+      assert_equal ", 1 enchère à voir", exchanges_badge_suffix(waiting: 0, outbid: 1)
+      assert_equal ", 1 échange et 2 enchères à voir", exchanges_badge_suffix(waiting: 1, outbid: 2)
+      assert_equal "", exchanges_badge_suffix(waiting: 0, outbid: 0)
+    end
+  end
+
+  test "a count badge is its spoken words then its hidden number, nothing at zero" do
+    badge = Nokogiri::HTML5.fragment(count_badge(1_200, ", 1,200 trades waiting", class: "exchanges-tabs__badge"))
+
+    assert_equal [ "visually-hidden", "exchanges-tabs__badge" ], badge.children.map { it["class"] }
+    assert_equal [ ", 1,200 trades waiting", "1,200" ], badge.children.map(&:text)
+    assert_equal "true", badge.at_css(".exchanges-tabs__badge")["aria-hidden"]
+    assert_nil count_badge(0, "", class: "exchanges-tabs__badge")
   end
 
   test "a visitor has no bank and zero copies per tier, without a query" do

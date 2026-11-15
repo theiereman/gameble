@@ -26,4 +26,5 @@
         empty: t("market.my_bids.groups.recent.empty"), rows: @groups.recent, suspended: @suspended %>
 <% end %>
 <% end %>
+<%= render "exchanges/tabs", current: :market %>
 <%= render "markets/tab", title: content_for(:title), current: :bids, pulse: @pulse, desk: @desk, suspended: @suspended, content: tab %>

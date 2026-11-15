@@ -126,7 +126,7 @@ class Market::MySalesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".tabs__tab--current[aria-current=page]", "LISTINGS"
   end
 
-  test "the tabs swap in place inside the market frame, under the same desk and with the market tab lit" do
+  test "the tabs swap in place inside the market frame, under the same desk and with the trades tab lit" do
     sign_in(@seller)
 
     get market_path(locale: :en)
@@ -135,7 +135,7 @@ class Market::MySalesControllerTest < ActionDispatch::IntegrationTest
     sales
     assert_select "turbo-frame#market-tab a.tabs__tab[data-turbo-frame=market-tab][href=?]", market_path(locale: :en), "LISTINGS"
     assert_select "turbo-frame#market-tab .market-desk"
-    assert_select ".tab-bar__tab[aria-current=page][href=?]", market_path(locale: :en)
+    assert_select ".tab-bar__tab[aria-current=page][href=?]", exchanges_path(locale: :en)
     assert_select ".top-bar__phone-back", false
   end
 

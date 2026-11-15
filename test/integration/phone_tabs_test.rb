@@ -26,17 +26,17 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/fr/friends"
   end
 
-  test "the tabs read Bridge, Capsule, Sets, Trades and Market" do
+  test "the tabs read Bridge, Capsule, Sets, Trades and Duels" do
     get home_path(locale: :en)
 
-    assert_equal %w[/en /en/booster /en/library /en/trades /en/market], css_select(".tab-bar a.tab-bar__tab").pluck("href")
-    assert_equal %w[Bridge Capsule Sets Trades Market], css_select(".tab-bar .tab-bar__label").map(&:text)
+    assert_equal %w[/en /en/booster /en/library /en/exchanges /en/duels], css_select(".tab-bar a.tab-bar__tab").pluck("href")
+    assert_equal %w[Bridge Capsule Sets Trades Duels], css_select(".tab-bar .tab-bar__label").map(&:text)
     assert_select ".tab-bar a.tab-bar__tab[href='/en'][aria-current=page]"
   end
 
   test "every tab is current on its own screens and on their drill-downs" do
     { home_path(locale: :en) => "/en", library_path(locale: :en) => "/en/library", library_cards_path(locale: :en) => "/en/library",
-      trades_path(locale: :en) => "/en/trades", market_path(locale: :en) => "/en/market",
+      trades_path(locale: :en) => "/en/exchanges", market_path(locale: :en) => "/en/exchanges", duels_path(locale: :en) => "/en/duels",
       feed_path(locale: :en) => "/en", fortune_register_path(locale: :en) => "/en" }.each do |path, tab|
       get path
       assert_response :success
@@ -48,7 +48,7 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
   test "every former More destination is a tab, or one tap from the bridge, Friends, the Me page, the Sets switch, the player menu or the settings" do
     get home_path(locale: :en)
     reachable = css_select("#player-menu a[href], .tab-bar a[href]").pluck("href")
-    [ home_path(locale: :en), friends_path(locale: :en), me_path(locale: :en), library_path(locale: :en), settings_path(locale: :en) ].each do |path|
+    [ home_path(locale: :en), trades_path(locale: :en), friends_path(locale: :en), me_path(locale: :en), library_path(locale: :en), settings_path(locale: :en) ].each do |path|
       get path
       reachable.concat(css_select("main a[href]").pluck("href"))
     end
@@ -56,8 +56,8 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
     assert_empty FORMER_MORE_DESTINATIONS - reachable
   end
 
-  test "Trades and the market are tab roots with no back button, Friends leaves the roots, the feed goes back to the bridge on the phone" do
-    [ trades_path(locale: :en), market_path(locale: :en) ].each do |path|
+  test "Trades, the market and Duels are tab roots with no back button, Friends leaves the roots, the feed goes back to the bridge on the phone" do
+    [ trades_path(locale: :en), market_path(locale: :en), duels_path(locale: :en) ].each do |path|
       get path
       assert_select ".top-bar__phone-back", 0, path
       assert_select ".top-bar--top-level", 1, path
@@ -109,7 +109,7 @@ class PhoneTabsTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select ".tab-bar a.tab-bar__tab[href='/en/trades'] #tab-trades-badge.stream-slot", 1
+    assert_select ".tab-bar a.tab-bar__tab[href='/en/exchanges'] #tab-trades-badge.stream-slot", 1
     assert_select ".player-chip__button #player-menu-badge.stream-slot .player-chip__badge", "2"
     assert_select "#player-menu-badge .visually-hidden", "2 things waiting for you"
     assert_select "#player-menu a[href='/en/friends'] #player-menu-invitations-badge.stream-slot .menu-item__badge--friends", "1"

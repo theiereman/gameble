@@ -17,6 +17,7 @@
 
 @media (max-width: 719px) {
   .trades--list .trade-board,
+  .trades--board .exchanges-tabs,
   .trades--board .trades__list,
   .trades--board .trades__title {
     display: none;

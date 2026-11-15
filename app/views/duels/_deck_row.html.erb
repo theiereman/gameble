@@ -1,0 +1,19 @@
+<%# locals: (row:) %>
+<% slots = Game::Deck::SLOTS.size %>
+<%= link_to deck_path(token: row.token), class: "deck-row" do %>
+  <span class="deck-row__head">
+    <span class="deck-row__name"><%= row.name %></span><span class="visually-hidden"><%= row.complete? ? t("duels.decks.complete", count: slots) : t("duels.decks.draft", count: row.count, total: slots) %></span>
+    <% unless row.complete? %>
+      <span class="deck-row__count" aria-hidden="true"><%= row.count %> / <%= slots %></span>
+    <% end %>
+  </span>
+  <span class="deck-row__covers" aria-hidden="true">
+    <% row.covers.each do |cover| %>
+      <% if cover %>
+        <span class="deck-row__cover"><%= tag.img src: cover.image_url, alt: "", loading: "lazy", width: 92, height: 43, class: "deck-row__art" %></span>
+      <% else %>
+        <span class="deck-row__cover deck-row__cover--empty"></span>
+      <% end %>
+    <% end %>
+  </span>
+<% end %>

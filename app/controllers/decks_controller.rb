@@ -35,6 +35,7 @@ class DecksController < ApplicationController
     return redirect_refused(Game::DeleteDeck, result, new_deck_path) if result.failure?
 
     flash[:notice] = t("decks.deleted")
-    redirect_to new_deck_path, status: :see_other
+    flash[:deck_deleted] = true
+    redirect_to duels_path, status: :see_other
   end
 end

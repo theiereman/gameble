@@ -64,13 +64,14 @@ module ShellHelper
     "pages#how_it_works" => :how_it_works,
     "own_profiles" => :me,
     "market/exchanges" => :exchange,
-    "decks" => :decks
+    "decks" => :decks,
+    "duels" => :duels
   }.freeze
 
   def shell_top_level_screen?
     return false if current_player.nil? || back_office_page? || content_for?(:phone_back)
 
-    %w[boosters trades markets].include?(controller_path) ||
+    %w[boosters trades markets duels].include?(controller_path) ||
       %w[pages#home own_profiles#show library#show library#cards library#sets].include?("#{controller_path}##{action_name}")
   end
 
@@ -78,21 +79,40 @@ module ShellHelper
     return visitor_tabs unless current_player
 
     [
-      [ :hub, "tab-hub", home_path, (controller_path == "pages" && action_name == "home") || %w[feeds fortune_registers].include?(controller_path) ],
-      [ :booster, "tab-capsule", booster_path, %w[boosters packs].include?(controller_path) ],
-      [ :sets, "tab-sets", library_path, %w[library cards custom_sets].include?(controller_path) ],
-      [ :trades, "tab-trades", trades_path, controller_path == "trades" ],
-      [ :market, "tab-market", market_path, %w[markets market/my_sales market/my_bids].include?(controller_path) ]
+      [ :hub, "tab-hub", home_path, page_if((controller_path == "pages" && action_name == "home") || %w[feeds fortune_registers].include?(controller_path)) ],
+      [ :booster, "tab-capsule", booster_path, page_if(%w[boosters packs].include?(controller_path)) ],
+      [ :sets, "tab-sets", library_path, page_if(%w[library cards custom_sets].include?(controller_path)) ],
+      [ :trades, "tab-trades", exchanges_path, exchanges_tab_current ],
+      [ :duels, "tab-duels", duels_path, duels_tab_current ]
     ]
   end
 
   def visitor_tabs
     on_all_cards = (controller_path == "library" && action_name == "cards") || controller_path == "cards"
     [
-      [ :landing, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
-      [ :all_cards, "tab-collection", library_cards_path, on_all_cards ]
+      [ :landing, "tab-hub", home_path, page_if(controller_path == "pages" && action_name == "home") ],
+      [ :all_cards, "tab-collection", library_cards_path, page_if(on_all_cards) ]
     ]
   end
+
+  EXCHANGES_ROOTS = %w[markets market/my_bids market/my_sales].freeze
+
+  def exchanges_tab_current
+    if (controller_path == "trades" && action_name == "index") || EXCHANGES_ROOTS.include?(controller_path)
+      "page"
+    elsif %w[trades market/listings].include?(controller_path)
+      "true"
+    end
+  end
+
+  def duels_tab_current
+    case controller_path
+    when "duels" then "page"
+    when "decks" then "true"
+    end
+  end
+
+  def page_if(current) = ("page" if current)
 
   def shell_home_label
     current_player ? t("shell.top_bar.home") : t("shell.top_bar.landing")

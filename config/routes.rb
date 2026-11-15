@@ -31,6 +31,9 @@ Rails.application.routes.draw do
     post "settings/steam" => "steam_links#create", as: :settings_steam
     # The public roadmap, every milestone and story staff chose to show.
     get "roadmap" => "roadmaps#show", as: :roadmap
+    # The trades tab: the sub-tab the player last used, between friends or the market.
+    get "exchanges" => "exchanges#show", as: :exchanges
+    post "exchanges/tab" => "exchange_tabs#create", as: :exchanges_tab
     get "market" => "markets#show", as: :market
     # Where a player gives spare copies to the Brotherhood for PiCoins.
     get "market/entrust" => "market/entrustments#new", as: :new_market_entrustment
@@ -83,6 +86,8 @@ Rails.application.routes.draw do
     get "library/custom-sets/games" => "custom_sets#games", as: :custom_set_games
     resources :custom_sets, path: "library/custom-sets", only: %i[create show update destroy], param: :token,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    # The Duels screen: the player's decks.
+    get "duels" => "duels#show", as: :duels
     # A player's decks, by token: a new deck's editor writes nothing until its first change; each change saves at once.
     resources :decks, path: "duels/decks", only: %i[new create show update destroy], param: :token,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }

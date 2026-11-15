@@ -27,5 +27,6 @@
 <% end %>
 <%= render "markets/pages", listings: @listings, sort: @sort, page: @page, filters: @filters %>
 <% end %>
+<%= render "exchanges/tabs", current: :market %>
 <%= render "markets/tab", title: content_for(:title), current: :listings, pulse: @pulse, desk: @desk, suspended: @suspended,
       data: { controller: "next-page", action: "focusout->next-page#focusLeft" }, content: tab %>

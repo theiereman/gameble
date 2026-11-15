@@ -3,7 +3,7 @@ require_relative "../support/steam_sign_in"
 require_relative "../support/decks"
 
 # The deck editor: a new deck is created by its first change, every change saves at once, a second edition of a game
-# and a thirteenth card are refused, a slot's button takes its card out, and a deleted deck frees its copies.
+# and a thirteenth card are refused, a slot's button takes its card out, and a deleted deck frees its copies and lands on Duels.
 class DeckEditorTest < ApplicationSystemTestCase
   include SteamSignIn
   include Decks
@@ -69,8 +69,12 @@ class DeckEditorTest < ApplicationSystemTestCase
       click_on "Delete"
     end
 
-    assert_current_path new_deck_path(locale: :en)
+    assert_current_path duels_path(locale: :en)
     assert_text "Deck deleted."
+    assert_no_selector ".deck-row"
+    eventually("the deck list's heading should have the focus") { page.evaluate_script("document.activeElement.id") == "duel-decks-heading" }
+
+    visit new_deck_path(locale: :en)
     assert_no_selector ".deck-entry__reserved"
     assert_no_selector ".deck-entry__toggle[aria-disabled=true]"
     assert_selector ".deck-entry__toggle[aria-pressed=false]", count: 14

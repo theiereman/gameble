@@ -49,9 +49,9 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select ".hub-menu a.menu-item[href='/en/trades'] #menu-trades-badge.stream-slot", 1
+    assert_select ".hub-menu a.menu-item[href='/en/exchanges'] #menu-trades-badge.stream-slot", 1
     assert_select "#menu-trades-badge .menu-item__badge, #menu-trades-badge .visually-hidden", 0
-    assert_select ".tab-bar a.tab-bar__tab[href='/en/trades'] #tab-trades-badge.stream-slot", 1
+    assert_select ".tab-bar a.tab-bar__tab[href='/en/exchanges'] #tab-trades-badge.stream-slot", 1
     assert_select "#tab-trades-badge .tab-bar__badge", 0
   end
 

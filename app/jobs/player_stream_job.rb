@@ -1,6 +1,8 @@
 class PlayerStreamJob < ApplicationJob
   queue_as :default
 
+  EXCHANGES_TOPICS = %w[trades market].freeze
+
   def perform(notices)
     notices.group_by { it[:player_id] }.each do |player_id, own|
       player = Accounts::PlayerById.call(player_id)
@@ -9,13 +11,14 @@ class PlayerStreamJob < ApplicationJob
       topics = own.filter_map { it[:topic] }.uniq
       invitations_changed = topics.include?("friends")
       rewards_changed = own.any? { it[:achievement] || it[:claimed] }
+      exchanges_changed = topics.intersect?(EXCHANGES_TOPICS)
       locals = {
-        waiting: (Game::TradesWaiting.call(player) if topics.include?("trades")),
+        waiting: (Game::TradesWaiting.call(player) if exchanges_changed),
         invitations: (Game::InvitationsWaiting.call(player) if invitations_changed),
         friends: announceable_friends(own.filter_map { it[:friend_id] }),
         unclaimed: (Game::UnclaimedAchievements.count(player) if rewards_changed),
         balance: (Game::Market::Balance.call(player) if own.any? { it[:balance] }),
-        outbid: (Game::Market::OutbidCount.call(player) if topics.include?("market")),
+        outbid: (Game::Market::OutbidCount.call(player) if exchanges_changed),
         pending: (pending_for(player) if invitations_changed || rewards_changed),
         achievements: own.filter_map { it[:achievement] }.uniq,
         card_backs: own.filter_map { it[:card_back] }.uniq,

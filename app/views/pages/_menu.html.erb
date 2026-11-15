@@ -14,8 +14,8 @@
         <%= arrow %>
       <% end %>
     </li>
-    <%= render "pages/menu_trades", waiting: shell_trades_waiting %>
-    <%= render "pages/menu_market" %>
+    <%= render "pages/menu_trades", waiting: shell_trades_waiting, outbid: shell_outbid_count %>
+    <%= render "pages/menu_duels" %>
     <%= render "pages/menu_feed" %>
     <%= render "pages/menu_achievements", achievements: achievements %>
     <%= render "pages/menu_extras_entry" %>

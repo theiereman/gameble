@@ -1,0 +1,22 @@
+<%# locals: (decks:, landing:) %>
+<%= tag.section class: "duel-decks", aria: { labelledby: "duel-decks-heading" },
+      data: { controller: "row-focus", row_focus_landing_value: landing }.compact do %>
+  <h2 id="duel-decks-heading" class="duel-decks__heading" tabindex="-1" data-row-focus-target="heading">
+    <span aria-hidden="true"><%= t("duels.decks.heading") %> · <%= t("duels.decks.count", count: decks.count) %></span>
+    <span class="visually-hidden"><%= t("duels.decks.heading_spoken", count: decks.count) %></span>
+  </h2>
+  <% if decks.rows.any? %>
+    <ul class="duel-decks__list">
+      <% decks.rows.each do |row| %>
+        <li class="duel-decks__item"><%= render "duels/deck_row", row: %></li>
+      <% end %>
+    </ul>
+  <% end %>
+  <% if decks.room_left? %>
+    <div class="duel-decks__new">
+      <%= render ButtonComponent.new(variant: :link, href: new_deck_path) do %><%= t("duels.decks.new") %><% end %>
+    </div>
+  <% else %>
+    <p class="duel-decks__full"><%= Game::CreateDeck.failure_message(:too_many_decks) %></p>
+  <% end %>
+<% end %>

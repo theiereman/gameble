@@ -1,5 +1,2 @@
-<%# locals: (waiting:) %>
-<% if waiting.positive? %>
-  <span class="menu-item__badge menu-item__badge--alert" aria-hidden="true"><%= number_with_delimiter(waiting) %></span>
-  <span class="visually-hidden"><%= t("pages.home.menu.trades_waiting", count: waiting, number: number_with_delimiter(waiting)) %></span>
-<% end %>
+<%# locals: (waiting:, outbid:) %>
+<%= count_badge(waiting + outbid, exchanges_badge_suffix(waiting:, outbid:), class: "menu-item__badge menu-item__badge--alert") -%>

@@ -76,7 +76,7 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     deliver
 
     assert_selector ".hub-menu a.menu-item .menu-item__badge--alert", text: "1"
-    assert_selector ".hub-menu a.menu-item .visually-hidden", text: "1 trade waiting for you", visible: :all
+    assert_selector ".hub-menu a.menu-item .visually-hidden", text: ", 1 trade to see", visible: :all
     assert not_reloaded?
     using_session("lea") do
       assert_selector ".trade-row", text: /HUGO/i

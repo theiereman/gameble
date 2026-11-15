@@ -204,9 +204,9 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     trade = from_lea
     sign_in @alice
     get home_path(locale: :fr)
-    assert_select ".hub-menu a.menu-item[href='/fr/trades'] #menu-trades-badge .menu-item__badge--alert", "1"
-    assert_select ".hub-menu a.menu-item[href='/fr/trades'] #menu-trades-badge .visually-hidden", "1 échange en attente de vous"
-    assert_select ".tab-bar a.tab-bar__tab[href='/fr/trades'] .tab-bar__badge--alert", "1"
+    assert_select ".hub-menu a.menu-item[href='/fr/exchanges'] #menu-trades-badge .menu-item__badge--alert", "1"
+    assert_select ".hub-menu a.menu-item[href='/fr/exchanges'] #menu-trades-badge .visually-hidden", ", 1 échange à voir"
+    assert_select ".tab-bar a.tab-bar__tab[href='/fr/exchanges'] .tab-bar__badge--alert", "1"
 
     post accept_trade_path(token: trade.token, locale: :fr), params: revision(trade)
     assert_redirected_to trade_path(token: trade.token, locale: :fr)
@@ -232,7 +232,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-trade-board-swap-value]", 0
 
     get home_path(locale: :fr)
-    assert_select ".hub-menu a.menu-item[href='/fr/trades'] #menu-trades-badge .menu-item__badge", 0
+    assert_select ".hub-menu a.menu-item[href='/fr/exchanges'] #menu-trades-badge .menu-item__badge", 0
     assert_select ".tab-bar__badge--alert", 0
   end
 

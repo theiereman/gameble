@@ -1,6 +1,9 @@
-<% unless waiting.nil? %>
-  <%= turbo_stream.update "menu-trades-badge", partial: "pages/menu_trades_badge", locals: { waiting: } %>
-  <%= turbo_stream.update "tab-trades-badge", partial: "shell/tab_trades_badge", locals: { waiting: } %>
+<% unless waiting.nil? || outbid.nil? %>
+  <%= turbo_stream.update "menu-trades-badge", partial: "pages/menu_trades_badge", locals: { waiting:, outbid: } %>
+  <%= turbo_stream.update "tab-trades-badge", partial: "shell/tab_trades_badge", locals: { waiting:, outbid: } %>
+  <%= turbo_stream.update "subtab-friends-badge", partial: "exchanges/friends_badge", locals: { waiting: } %>
+  <%= turbo_stream.update "subtab-market-badge", partial: "exchanges/market_badge", locals: { outbid: } %>
+  <%= turbo_stream.update "market-bids-badge", partial: "markets/bids_badge", locals: { outbid: } %>
 <% end %>
 <% unless invitations.nil? %>
   <%= turbo_stream.update "player-menu-invitations-badge", partial: "pages/menu_invitations_badge", locals: { invitations: } %>
@@ -15,11 +18,6 @@
 <% end %>
 <% unless balance.nil? %>
   <%= turbo_stream.update_all ".balance-chip", partial: "shell/balance_figures", locals: { balance: } %>
-<% end %>
-<% unless outbid.nil? %>
-  <%= turbo_stream.update "menu-market-badge", partial: "pages/menu_market_badge", locals: { outbid: } %>
-  <%= turbo_stream.update "tab-market-badge", partial: "shell/tab_market_badge", locals: { outbid: } %>
-  <%= turbo_stream.update "market-bids-badge", partial: "markets/bids_badge", locals: { outbid: } %>
 <% end %>
 <% outbid_lines.each do |line| %>
   <%= turbo_stream.append "market-status-lines", partial: "shell/market_status_line", locals: { line: } %>

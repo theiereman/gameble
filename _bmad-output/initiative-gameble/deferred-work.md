@@ -679,3 +679,12 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-each-monday-the-feed-says-the-cards-standing-has-moved-plan.md`
   summary: After a season publication between two Mondays, the Monday feed post (and later the deck editor's arrows) compares with the season run's percentiles, not the previous Monday's, so the moves of the first part of that week are never reported.
   evidence: `Game::DuelStatRows` rotates the last weekly percentiles on every non-season run from the previous row's percentiles, which a mid-week season run has replaced; the post reads the stored `*_weekly_percentile` (`Game::DuelProfiles.weekly_changes`). Keeping last Monday's values across a season run needs a second set of columns in `game_duel_stats`; seasons are published a few times a year.
+
+## Deferred from: build of story-the-duels-tab-the-duels-screen-with-the-player-s-decks-and-e-plan (2026-11-15)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-the-duels-tab-the-duels-screen-with-the-player-s-decks-and-e-plan.md`
+  summary: The native apps' five tabs (DUELS in MARCHÉ's place, ÉCHANGES starting at `/exchanges`) were changed in code only and never compiled or run; a build of both apps must check the tabs, the `atRoot` rule for `/trades` and `/market`, and the new `tab-duels` icon before the apps are submitted.
+  evidence: no Swift or Kotlin toolchain on the build machine; `mobile/ios/Gameble/Tabs.swift`, `mobile/android/app/src/main/java/net/gameble/app/Tabs.kt`, `res/layout/activity_main.xml` (`duels_host`), `res/values{,-fr}/strings.xml` (`tab_duels`); submitting the apps is the author's.
+- source_plan: `_bmad-output/initiative-gameble/epic-duel-stats-and-decks/story-the-duels-tab-the-duels-screen-with-the-player-s-decks-and-e-plan.md`
+  summary: On the market screens a gap shows between the ÉCHANGES sub-tab bar and the market panel, since the market keeps its own top padding.
+  evidence: `app/views/exchanges/_tabs.html.erb` renders above the `market-tab` frame, whose `.market-screen` keeps its padding (`app/frontend/styles/exchanges-tabs.css`); cosmetic.

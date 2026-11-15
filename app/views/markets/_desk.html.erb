@@ -1,6 +1,6 @@
 <%# locals: (pulse:, desk:, suspended:) %>
 <header class="market-desk">
-  <h1 id="market-screen-heading" class="visually-hidden"><%= t("markets.screen.heading") %></h1>
+  <h1 id="market-screen-heading" class="visually-hidden" tabindex="-1"><%= t("markets.screen.heading") %></h1>
   <% if desk %>
     <div class="market-desk__purse" role="group" aria-label="<%= t("markets.screen.desk.purse_label") %>">
       <p class="market-desk__label"><%= t("markets.screen.desk.available") %></p>

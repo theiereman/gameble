@@ -28,7 +28,7 @@ class HubTest < ApplicationSystemTestCase
     find(".hub-menu .menu-item[aria-keyshortcuts='#{key}']")
   end
 
-  test "keys 3 and 4 in the menu open Trades and the Market, key 7 swaps the menu for the extras in place, Escape or the back row bringing the menu back; number keys act only inside the menu, never on a disabled item, and the item used is focused on the way back" do
+  test "keys 3 and 4 in the menu open Trades and Duels, key 7 swaps the menu for the extras in place, Escape or the back row bringing the menu back; number keys act only inside the menu, never on a disabled item, and the item used is focused on the way back" do
     sign_in
 
     item("1").send_keys("3")
@@ -36,7 +36,7 @@ class HubTest < ApplicationSystemTestCase
 
     find(".top-bar__home").click
     item("3").send_keys("4")
-    assert_current_path market_path(locale: :en)
+    assert_current_path duels_path(locale: :en)
 
     visit home_path(locale: :en)
 

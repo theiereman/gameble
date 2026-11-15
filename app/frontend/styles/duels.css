@@ -1,0 +1,152 @@
+/* ---- The Duels screen: the player's decks, each a row with its name and
+   its twelve covers in slot order. ---- */
+
+.duels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.duels__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.duel-decks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.duel-decks__heading {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.duel-decks__list {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.duel-decks__item {
+  display: flex;
+  min-width: 0;
+}
+
+.duel-decks__full {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body);
+}
+
+.deck-row {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: var(--space-touch-min);
+  padding: var(--space-4);
+  box-sizing: border-box;
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.deck-row:hover {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.deck-row:focus-visible {
+  outline: 0;
+  box-shadow:
+    var(--focus-ring-gap),
+    inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.deck-row__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--space-7);
+}
+
+.deck-row__name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deck-row__count {
+  flex: none;
+  padding: var(--space-1) var(--space-3);
+  box-shadow: inset 0 0 0 1px var(--color-dim);
+  color: var(--color-muted);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+}
+
+.deck-row__covers {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.deck-row__cover {
+  position: relative;
+  aspect-ratio: 460 / 215;
+  overflow: hidden;
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 1px var(--color-line);
+}
+
+.deck-row__cover--empty {
+  box-shadow: none;
+  outline: 1px dashed var(--color-dim);
+  outline-offset: -1px;
+}
+
+.deck-row__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (min-width: 720px) {
+  .deck-row__covers {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1180px) {
+  .duels {
+    max-width: var(--space-landing-content-max);
+  }
+
+  .duel-decks__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .deck-row__covers {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

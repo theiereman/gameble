@@ -197,6 +197,7 @@ fr:
       my_sales: "Mes ventes"
       decks: "Deck"
       exchange: "Bourse"
+      duels: "Duels"
     rarity:
       label: "Raretés"
       legend: "Raretés"
@@ -236,6 +237,17 @@ fr:
       support: "Soutenir"
       back_office: "Back-office"
       sign_out: "Se déconnecter"
+    exchanges:
+      trades:
+        zero: "%{number} échange"
+        one: "%{number} échange"
+        other: "%{number} échanges"
+      auctions:
+        zero: "%{number} enchère"
+        one: "%{number} enchère"
+        other: "%{number} enchères"
+      to_see_both: ", %{trades} et %{auctions} à voir"
+      to_see_one: ", %{part} à voir"
     tabs:
       label: "Navigation principale"
       hub: "Pont"
@@ -246,18 +258,10 @@ fr:
         other: "%{number} capsules à ouvrir"
       sets: "Sets"
       trades: "Échanges"
-      market: "Marché"
-      market_outbid:
-        zero: "%{number} enchère dépassée"
-        one: "%{number} enchère dépassée"
-        other: "%{number} enchères dépassées"
+      duels: "Duels"
       me: "Mon profil"
       landing: "Accueil"
       all_cards: "Toutes les cartes"
-      trades_waiting:
-        zero: "%{number} échange en attente de vous"
-        one: "%{number} échange en attente de vous"
-        other: "%{number} échanges en attente de vous"
     toast:
       region: "Notifications"
       close: "Fermer"
@@ -312,16 +316,8 @@ fr:
           one: "%{owned} carte unique sur %{total}"
           other: "%{owned} cartes uniques sur %{total}"
         trades: "Échanges"
-        market: "Marché"
-        market_outbid:
-          zero: "%{number} enchère dépassée"
-          one: "%{number} enchère dépassée"
-          other: "%{number} enchères dépassées"
+        duels: "Duels"
         feed: "Fil d'activité"
-        trades_waiting:
-          zero: "%{number} échange en attente de vous"
-          one: "%{number} échange en attente de vous"
-          other: "%{number} échanges en attente de vous"
         invitations_waiting:
           zero: "%{number} invitation en attente de votre réponse"
           one: "%{number} invitation en attente de votre réponse"
@@ -3955,6 +3951,33 @@ fr:
         zero: "%{number} joueur"
         one: "%{number} joueur"
         other: "%{number} joueurs"
+  duels:
+    show:
+      title: "Duels"
+    decks:
+      heading: "Mes decks"
+      count: "%{count} / 5"
+      heading_spoken: "Mes decks, %{count} sur 5"
+      new: "+ Nouveau deck"
+      complete:
+        zero: ", %{count} carte"
+        one: ", %{count} carte"
+        other: ", %{count} cartes"
+      draft: ", brouillon, %{count} sur %{total}"
+  exchanges:
+    tabs:
+      label: "Échanges"
+      friends: "Entre amis"
+      market: "Marché"
+      friends_waiting:
+        zero: ", %{number} échange en attente"
+        one: ", %{number} échange en attente"
+        other: ", %{number} échanges en attente"
+      market_outbid:
+        zero: ", %{number} enchère dépassée"
+        one: ", %{number} enchère dépassée"
+        other: ", %{number} enchères dépassées"
+      throttled: "Trop de changements en une minute. Réessayez dans un instant."
   card_details:
     actions:
       collection: "Collection"
@@ -4316,6 +4339,7 @@ fr:
       recently_visited: "Ce profil vient d'être visité."
       code_contribution_already_granted: "Ce joueur a déjà le succès de contribution au code."
       player_not_found: "Ce profil est introuvable."
+      unknown_tab: "Cet onglet n'existe pas."
       unknown_back: "Ce dos de carte n'existe pas."
       unknown_season: "Vous n'avez pas obtenu ce dos de carte pendant cette saison."
       showcase_edge: "Cette carte ne peut pas aller plus loin."

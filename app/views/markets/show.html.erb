@@ -8,10 +8,11 @@
     <%= render "landings/footer" %>
   <% end %>
 <% end %>
+<%= render "exchanges/tabs", current: :market %>
 <section class="market-teaser" aria-labelledby="market-teaser-heading">
   <header class="market-teaser__header">
     <p class="market-teaser__kicker"><%= t(".kicker") %></p>
-    <h1 id="market-teaser-heading" class="market-teaser__title"><%= t(".heading") %></h1>
+    <h1 id="market-teaser-heading" class="market-teaser__title" tabindex="-1"><%= t(".heading") %></h1>
     <p class="market-teaser__intro"><%= t(".intro") %></p>
   </header>
   <%= render PanelComponent.new(brackets: true, class: "market-teaser__panel") do %>

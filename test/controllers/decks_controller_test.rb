@@ -171,16 +171,37 @@ class DecksControllerTest < ActionDispatch::IntegrationTest
     assert Game::Deck.exists?(deck.id)
   end
 
-  test "a deletion leads back to a new deck's editor with a toast" do
+  test "a deletion lands on Duels with a toast and the focus on the deck list's heading" do
     deck = create_deck
     sign_in(@player)
 
     delete deck_path(locale: :fr, token: deck.token)
 
-    assert_redirected_to new_deck_path(locale: :fr)
+    assert_redirected_to duels_path(locale: :fr)
     assert_response :see_other
     assert_equal "Deck supprimé.", flash[:notice]
     assert_not Game::Deck.exists?(deck.id)
+
+    follow_redirect!
+    assert_select ".toast", /Deck supprimé\./
+    assert_select ".duel-decks[data-controller=row-focus][data-row-focus-landing-value='']"
+    assert_select "#duel-decks-heading[tabindex='-1'][data-row-focus-target=heading]"
+
+    get duels_path(locale: :fr)
+    assert_select ".duel-decks[data-row-focus-landing-value]", 0
+  end
+
+  test "the deck editor belongs to the DUELS tab and leads back to Duels" do
+    deck = create_deck
+    sign_in(@player)
+
+    [ new_deck_path(locale: :fr), deck_path(locale: :fr, token: deck.token) ].each do |path|
+      get path
+      assert_select ".tab-bar a.tab-bar__tab[href='/fr/duels'][aria-current=true]", 1, path
+      assert_select ".tab-bar a.tab-bar__tab[aria-current]", 1, path
+      back = css_select(".top-bar__start > a.top-bar__phone-back").sole
+      assert_equal [ "/fr/duels", "Duels" ], [ back["href"], back.at_css(".button__label").text ]
+    end
   end
 
   test "changes to a deck and to its cards share sixty a minute, the sixty-first answered 429 in JSON" do

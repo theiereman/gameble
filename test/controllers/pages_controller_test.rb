@@ -178,15 +178,17 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select ".hub-menu a.menu-item[href='/fr/library/cards']", 0
     # 03: the trades, their badge hidden when nothing waits.
-    assert_select ".hub-menu a.menu-item[href='/fr/trades'][aria-keyshortcuts='3'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+    assert_select ".hub-menu a.menu-item[href='/fr/exchanges'][aria-keyshortcuts='3'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Échanges"
       assert_select "#menu-trades-badge.stream-slot", 1
       assert_select ".menu-item__badge, .visually-hidden", 0
     end
-    # 04: the market.
-    assert_select ".hub-menu a.menu-item[href='/fr/market'][aria-keyshortcuts='4'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
-      assert_select ".menu-item__label", "Marché"
+    # 04: the duels, with no badge.
+    assert_select ".hub-menu a.menu-item[href='/fr/duels'][aria-keyshortcuts='4'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+      assert_select ".menu-item__label", "Duels"
+      assert_select ".menu-item__badge, .visually-hidden", 0
     end
+    assert_select ".hub-menu a.menu-item[href='/fr/market']", 0
     # 05: the activity feed.
     assert_select ".hub-menu a.menu-item[href='/fr/feed'][aria-keyshortcuts='5'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Fil d'activité"

@@ -175,7 +175,7 @@ function iosVectorImage(name, androidDrawable, renderingIntent) {
 const { paths } = pixelArt("back-g")
 writeFileSync(join(root, IOS_ICON), opaquePng(IOS_SIDE, iosPixels(paths)))
 writeFileSync(join(root, ANDROID_ICON), androidVector(paths))
-for (const tab of ["hub", "capsule", "sets", "friends", "trades"])
+for (const tab of ["hub", "capsule", "sets", "trades", "duels"])
   iosVectorImage(`tab-${tab}`, `ic_tab_${tab}`, "template")
 iosVectorImage("wordmark", "wordmark", "original")
 for (const [name, pixel] of Object.entries(BAR_ICONS)) {

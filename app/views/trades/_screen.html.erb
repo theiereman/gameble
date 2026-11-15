@@ -8,7 +8,8 @@
 <% end %>
 <%= tag.section class: "trades trades--#{view} page page--regular", aria: { labelledby: "trades-heading" },
       data: { controller: "live-refresh", live_refresh_signal_value: "trades-updated" } do %>
-  <h1 id="trades-heading" class="visually-hidden"><%= t("trades.title") %></h1>
+  <%= render "exchanges/tabs", current: :friends %>
+  <h1 id="trades-heading" class="visually-hidden" tabindex="-1"><%= t("trades.title") %></h1>
   <div class="trades__layout">
     <%= render "trades/list", trades:, current: (trade if view == :board), cards:, suggestions: local_assigns[:suggestions],
           prefill: local_assigns[:prefill] %>

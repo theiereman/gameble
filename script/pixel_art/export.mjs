@@ -1215,6 +1215,21 @@ const ICONS = {
       "...........",
     ],
   },
+  "tab-duels": {
+    grid: [
+      "c.........c",
+      ".c.......c.",
+      "..c.....c..",
+      "...c...c...",
+      "....c.c....",
+      ".....c.....",
+      "....c.c....",
+      ".c.c...c.c.",
+      "..c.....c..",
+      ".c.c...c.c.",
+      "c.........c",
+    ],
+  },
   "tab-friends": {
     grid: [
       "...........",
@@ -1863,6 +1878,7 @@ const DESCRIPTIONS = {
   "tab-sets.svg": "Phone tab bar icon: SETS, four tiles (text colour)",
   "tab-trades.svg": "Phone tab bar icon: ÉCHANGES, two opposed arrows (text colour)",
   "tab-market.svg": "Phone tab bar icon: MARCHÉ, four bars rising and falling (text colour)",
+  "tab-duels.svg": "Phone tab bar icon: DUELS, two crossed blades (text colour)",
   "tab-friends.svg": "Phone tab bar icon: AMIS, two heads and shoulders (text colour)",
   "tab-me.svg": "Phone tab bar icon: ME, one head and shoulders (text colour)",
   "bell.svg": "The header's bell, what is new for the player, 7 × 8",
