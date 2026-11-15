@@ -1264,6 +1264,7 @@ en:
   cards:
     face:
       image_missing: Image unavailable
+      loading: Loading
     show:
       booster: Capsule
       grid: Grid
@@ -4143,7 +4144,6 @@ en:
     rarity:
       columns:
         copies: Copies
-        overall: All seasons
         rarity: Rarity
         season: This season
       figure:

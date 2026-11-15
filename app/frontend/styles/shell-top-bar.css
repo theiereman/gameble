@@ -211,16 +211,21 @@ a.top-bar__home {
   transform: none;
 }
 
-/* The player chip: the avatar outlined, the name, a steady lime dot. */
+/* The player chip: the avatar set flush in its left cell, inside the border
+   and ruled off from the name, the name, a steady lime dot. */
 .player-chip__avatar {
-  width: 30px;
-  height: 30px;
-  box-shadow: var(--pixel-outline-3);
+  --player-chip-avatar-size: calc(var(--space-chip-height) - 2 * var(--space-unit));
+
+  flex: none;
+  width: var(--player-chip-avatar-size);
+  height: var(--player-chip-avatar-size);
+  box-shadow: var(--space-unit) 0 0 0 var(--color-line-deep);
 }
 
 .player-chip__button {
   padding-block: 0;
-  padding-left: var(--space-2);
+  padding-right: var(--space-4);
+  padding-left: var(--space-unit);
   font: var(--font-menu);
   letter-spacing: var(--tracking-menu);
   text-transform: none;

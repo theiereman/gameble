@@ -108,6 +108,7 @@
 @import "../styles/live-strip.css";
 @import "../styles/card-trade.css";
 @import "../styles/card.css";
+@import "../styles/card-loader.css";
 @import "../styles/card-tilt-effects.css";
 @import "../styles/card-rarity-effects.css";
 @import "../styles/card-goals.css";
