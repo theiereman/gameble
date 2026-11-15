@@ -4,8 +4,8 @@
 <% content_for :phone_back do %>
   <%= phone_back_link t("shell.tabs.me"), me_path %>
 <% end %>
-<section class="settings" aria-labelledby="settings-heading">
-  <h1 id="settings-heading" class="settings__title"><%= t(".title") %></h1>
+<section class="settings page page--regular" aria-labelledby="settings-heading">
+  <h1 id="settings-heading" class="visually-hidden"><%= t(".title") %></h1>
   <div class="settings__layout">
     <div class="settings__side">
       <%= render "settings/profile_summary", player: current_player, card_count: @card_count, visibility: @visibility, title: @active_title %>

@@ -1,8 +1,6 @@
 <% content_for :title, t(".heading") %>
 <% empty = @groups.in_progress.empty? && @groups.recent.empty? %>
 <% tab = capture do %>
-<%= render "markets/chips", current: :bids %>
-
 <% if empty %>
   <div class="market-empty market-screen__empty-state">
     <h2 class="market-empty__title"><%= t(".empty_title") %></h2>
@@ -28,4 +26,4 @@
         empty: t("market.my_bids.groups.recent.empty"), rows: @groups.recent, suspended: @suspended %>
 <% end %>
 <% end %>
-<%= render "markets/tab", title: content_for(:title), pulse: @pulse, desk: @desk, suspended: @suspended, content: tab %>
+<%= render "markets/tab", title: content_for(:title), current: :bids, pulse: @pulse, desk: @desk, suspended: @suspended, content: tab %>

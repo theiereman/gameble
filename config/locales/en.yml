@@ -1413,7 +1413,6 @@ en:
         summary: "Over 30 days, %{minted} PiCoins minted and %{destroyed} destroyed (%{ratio}). %{circulation} in circulation."
         title: MINTED AND DESTROYED PER DAY
       heading: THE BROTHERHOOD'S REACTOR
-      line: "« The 100-6-Tron mints every PiCoin it hands you and burns every stamp and every effort to ash. Here are its books, unvarnished. »"
       window: Last 30 days
       words:
         balance: "Day's balance: %{amount}"
@@ -1866,9 +1865,6 @@ en:
         all_time: No member has opened a capsule yet.
         week: No member has opened a capsule this week yet.
       hidden_player: Private member
-      intro: 'The Brotherhood ranks its members by the luck of their capsules: what
-        their cards scored against what the capsules promise. Each week, the luckiest
-        10% are Privileged.'
       head:
         member: Member
         rarities: Rarities pulled
@@ -3043,6 +3039,7 @@ en:
       soon_heading: ENDING SOON
       soon_label: Listings ending within the hour
       soon_note: within the hour
+      sort_prefix: "Sort:"
       sorts_label: Sort the listings
     show:
       closing: No date is being communicated at this stage. Management thanks you for your patience, which remains free of charge to this day.
@@ -4198,6 +4195,9 @@ en:
     tabs:
       all_cards: All cards
       booster: Capsule
+      capsules_ready:
+        one: "%{number} capsule ready to open"
+        other: "%{number} capsules ready to open"
       hub: Bridge
       label: Main navigation
       landing: Home

@@ -5,12 +5,6 @@
  * edges and pixel outlines on the 2px grid; no animation of its own.
  */
 
-.settings {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-7);
-}
-
 .settings__layout {
   display: grid;
   grid-template-columns: 380px minmax(0, 1fr);

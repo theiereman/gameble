@@ -1,14 +1,6 @@
 .register {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
   min-width: 0;
   container-type: inline-size;
-}
-
-.register__intro {
-  max-width: 72ch;
-  color: var(--color-muted);
 }
 
 /* ---- Overview: the viewer's luck, the gauge, the period's figures ---- */

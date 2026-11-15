@@ -1,0 +1,6 @@
+<%# locals: (bank:) %>
+<% ready = bank[:available] + bank[:special] %>
+<% if ready.positive? %>
+  <span class="tab-bar__badge tab-bar__badge--accent" aria-hidden="true"><%= number_with_delimiter(ready) %></span>
+  <span class="visually-hidden"><%= t("shell.tabs.capsules_ready", count: ready, number: number_with_delimiter(ready)) %></span>
+<% end %>

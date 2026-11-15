@@ -108,17 +108,8 @@
     transform: translateY(-100%);
   }
 
-  .top-bar--top-level .top-bar__start > :not(.top-bar__phone-home, .top-bar__title) {
+  .top-bar--top-level .top-bar__start > :not(.top-bar__phone-home, .top-bar__bridge, .top-bar__title) {
     display: none;
-  }
-
-  .top-bar--top-level .top-bar__title {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
   }
 
   .top-bar--top-level .top-bar__phone-home {
@@ -138,28 +129,9 @@
     top: calc(max(var(--space-3), env(safe-area-inset-top, 0px)) + var(--topbar-height));
   }
 
-  .top-bar--top-level .packs-chips {
-    display: contents;
-  }
-
-  .top-bar--top-level .packs-chips > .packs-chip,
-  .top-bar--top-level .rarity-counter {
+  .top-bar .packs-chips,
+  .top-bar .rarity-counter {
     display: none;
-  }
-
-  .top-bar--top-level .bank-counter {
-    display: block;
-  }
-
-  @media (max-width: 439px) {
-    .top-bar--top-level .top-bar__end {
-      gap: var(--space-2);
-    }
-
-    .top-bar--top-level .bank-counter__button {
-      gap: var(--space-3);
-      padding-inline: var(--space-3);
-    }
   }
 
   .app-version {

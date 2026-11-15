@@ -227,20 +227,15 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".market-mine a.market-mine__item[data-turbo-frame=market-tab][data-action='market-tab#reveal'][href=?]", market_my_bids_path(locale: :en), 2
     assert_select ".market-mine a.market-mine__item[href=?]", market_my_sales_path(locale: :en), /1\s+sale in progress/
     assert_select ".market-mine__item--alert", false
-    assert_select ".market-welcome", false
   end
 
-  test "a player with nothing on the market yet is welcomed with the count of their spare copies" do
+  test "a player with nothing on the market yet sees the same three counters at zero" do
     open_for_good
-    player = accounts_players(:player)
-    hold(player, catalog_card_seasons(:common_card_one).id, 3)
-    sign_in(player)
+    sign_in(accounts_players(:player))
 
     get market_path(locale: :en)
 
-    assert_select ".market-welcome a.button[href=?]", new_market_entrustment_path(locale: :en)
-    assert_select ".market-welcome__note", "You have 2 spare copies."
-    assert_select ".market-mine", false
+    assert_select ".market-mine .market-mine__count", count: 3, text: "0"
   end
 
   test "the listings ending within the hour get a row of their own above the rest" do

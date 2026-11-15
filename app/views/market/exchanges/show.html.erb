@@ -1,7 +1,7 @@
 <% content_for :public_page, true unless current_player %>
 <% content_for :title, t(".heading") %>
-<div class="exchange">
-  <h1 class="exchange__title"><%= t(".heading") %></h1>
+<div class="exchange page page--wide">
+  <h1 class="visually-hidden"><%= t(".heading") %></h1>
 
   <% if @charts.visible?(:reactor) %>
     <section class="exchange__panel" aria-labelledby="exchange-reactor-heading" data-exchange-panel="reactor">
@@ -9,7 +9,6 @@
         <h2 class="exchange__panel-title" id="exchange-reactor-heading"><%= t("charts.reactor.heading") %></h2>
         <p class="exchange__window"><%= t("charts.reactor.window") %></p>
       </header>
-      <p class="exchange__line"><%= t("charts.reactor.line") %></p>
       <% if @reactor %>
         <%= render "market/exchanges/reactor", reactor: @reactor, staff_only: true %>
       <% else %>

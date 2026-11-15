@@ -3,6 +3,10 @@
 @import "../styles/fonts.css";
 @import "../styles/shell.css";
 @import "../styles/shell-top-bar.css";
+@import "../styles/page.css";
+@import "../styles/tabs.css";
+@import "../styles/sort.css";
+@import "../styles/dock.css";
 @import "../styles/shell-packs-chip.css";
 @import "../styles/shell-rarity-legend.css";
 @import "../styles/shell-status.css";

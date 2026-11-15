@@ -212,6 +212,10 @@
   --space-touch-min: 44px;
   --space-touch-gap: 8px;
   --space-content-max: 1280px;
+  --page-width-wide: 1280px;
+  --page-width-regular: 960px;
+  --page-width-reading: 720px;
+  --space-stack-page: var(--space-7);
   --space-breakpoint-two-columns: 720px;
   --space-breakpoint-three-columns: 1180px;
   --space-breakpoint-booster-stacked: 1260px;
@@ -297,5 +301,6 @@
   --chart-swatch: 10px;
 
   /* The one soft drop shadow of dialogs and toasts. */
+  --dock-shadow: 0 -16px 40px 8px rgba(0, 0, 0, 0.75), 0 0 0 1px #06090d;
   --overlay-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
 }

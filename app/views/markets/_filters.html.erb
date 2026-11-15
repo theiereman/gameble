@@ -24,6 +24,7 @@
       <span class="filter-chip__text"><%= t("markets.filters.hide_mine") %></span>
     </label>
   <% end %>
+  <%= render "markets/sorts", sort:, filters: %>
   <details class="filters__zone" <%= "open" if filters.count.positive? %>>
     <summary class="filters__summary">
       <%= pixel_icon("arrow-small-right", class: "filters__chevron") %>
